@@ -1,32 +1,6 @@
-<?  ##############################################
-   ### SQUIZLIB ------------------------------###
-  ##- Generic Include Files -- PHP4 ----------##
- #-- Copyright Squiz.net ---------------------#
-##############################################
-## This file is subject to version 1.0 of the
-## MySource License, that is bundled with
-## this package in the file LICENSE, and is
-## available at through the world-wide-web at
-## http://mysource.squiz.net/
-## If you did not receive a copy of the MySource
-## license and are unable to obtain it through
-## the world-wide-web, please contact us at
-## mysource@squiz.net so we can mail you a copy
-## immediately.
-##
-## File: colour/colour.inc
-## Desc: Colour manipulation functions
-## $Source: /home/csmith/conversion/cvs/mysource_matrix/core/mysource_matrix/fudge/colour/colour.inc,v $
-## $Revision: 1.2 $
-## $Author: gsherwood $
-## $Date: 2003/03/24 04:23:14 $
-#######################################################################
-
-#---------------------------------------------------------------------#
-
- ###############################
-# Predefined Colours
-$GLOBALS['COLOUR_PALETTE'] = array(
+<?php
+// Predefined Colours
+$GLOBALS['COLOUR_PALETTE'] = Array(
 	'aliceblue'=>'f0f8ff',
 	'antiquewhite'=>'faebd7',
 	'aqua'=>'00ffff',
@@ -169,7 +143,18 @@ $GLOBALS['COLOUR_PALETTE'] = array(
 	'yellowgreen'=>'9acd32'
 );
 
-class Colour {
+/**
+* Colour
+*
+* Purpose
+*     Colour manipulation functions
+*
+* @author  Blair Robertson <blair@squiz.net>
+* @version $Version$ - 1.0
+* @package Squizlib::colour
+*/
+class Colour 
+{
 
 	/**
 	* Create an RGB colour - either in 0 to 1 range or in 0 to 255 range
@@ -187,16 +172,16 @@ class Colour {
 	{
 
 		if ($zero_to_one_range) {
-			return array(
-				r => (($r >= 0) ? (($r <= 255) ? (double) ( ((double)$r) / 255.0) : 1) : 0),
-				g => (($g >= 0) ? (($g <= 255) ? (double) ( ((double)$g) / 255.0) : 1) : 0),
-				b => (($b >= 0) ? (($b <= 255) ? (double) ( ((double)$b) / 255.0) : 1) : 0)
+			return Array(
+				'r' => (($r >= 0) ? (($r <= 255) ? (double) ( ((double)$r) / 255.0) : 1) : 0),
+				'g' => (($g >= 0) ? (($g <= 255) ? (double) ( ((double)$g) / 255.0) : 1) : 0),
+				'b' => (($b >= 0) ? (($b <= 255) ? (double) ( ((double)$b) / 255.0) : 1) : 0)
 			);
 		} else {
-			return array(
-				r => (($r >= 0) ? (($r <= 255) ? ((int) $r) : 255) : 0),
-				g => (($g >= 0) ? (($g <= 255) ? ((int) $g) : 255) : 0),
-				b => (($b >= 0) ? (($b <= 255) ? ((int) $b) : 255) : 0)
+			return Array(
+				'r' => (($r >= 0) ? (($r <= 255) ? ((int) $r) : 255) : 0),
+				'g' => (($g >= 0) ? (($g <= 255) ? ((int) $g) : 255) : 0),
+				'b' => (($b >= 0) ? (($b <= 255) ? ((int) $b) : 255) : 0)
 			);
 		}
 	}
@@ -215,11 +200,11 @@ class Colour {
 	*/
 	function cmyk($c, $m, $y, $k)
 	{
-		$output = array(
-			c => (($c >= 0) ? (($c <= 100) ? (double) ( ((double)$c) / 100.0) : 1) : 0),
-			m => (($g >= 0) ? (($m <= 100) ? (double) ( ((double)$m) / 100.0) : 1) : 0),
-			y => (($y >= 0) ? (($y <= 100) ? (double) ( ((double)$y) / 100.0) : 1) : 0),
-			k => (($k >= 0) ? (($k <= 100) ? (double) ( ((double)$k) / 100.0) : 1) : 0)
+		$output = Array(
+			'c' => (($c >= 0) ? (($c <= 100) ? (double) ( ((double)$c) / 100.0) : 1) : 0),
+			'm' => (($g >= 0) ? (($m <= 100) ? (double) ( ((double)$m) / 100.0) : 1) : 0),
+			'y' => (($y >= 0) ? (($y <= 100) ? (double) ( ((double)$y) / 100.0) : 1) : 0),
+			'k' => (($k >= 0) ? (($k <= 100) ? (double) ( ((double)$k) / 100.0) : 1) : 0)
 		);
 		Colour::cmyk_correct($output);
 		return $output;
@@ -238,7 +223,7 @@ class Colour {
 	*/
 	function hsv($h,$s,$v)
 	{
-		return array(h=>$h,s=>$s/100,v=>$v/100);
+		return Array('h' => $h, 's' => $s/100, 'v' => $v/100);
 	}
 
 	/**
@@ -252,26 +237,26 @@ class Colour {
 	*/
 	function cmyk_to_rgb($input)
 	{
-		$c = $input[c];
-		$m = $input[m];
-		$y = $input[y];
-		$k = $input[k];
-		$output = array(r => 0, g => 0, b => 0);
+		$c = $input['c'];
+		$m = $input['m'];
+		$y = $input['y'];
+		$k = $input['k'];
+		$output = Array('r' => 0, 'g' => 0, 'b' => 0);
 
 		if (($c + $k) < 1)
-			$output[r] = 1 - ($c + $k);
+			$output['r'] = 1 - ($c + $k);
 		else
-			$output[r] = 0;
+			$output['r'] = 0;
 
 		if (($m + $k) < 1)
-			$output[g] = 1 - ($m + $k);
+			$output['g'] = 1 - ($m + $k);
 		else
-			$output[g] = 0;
+			$output['g'] = 0;
 
 		if (($y + $k) < 1)
-			$output[b] = 1 - ($y + $k);
+			$output['b'] = 1 - ($y + $k);
 		else
-			$output[b] = 0;
+			$output['b'] = 0;
 
 		return $output;
 	}
@@ -287,9 +272,9 @@ class Colour {
 	*/
 	function rgb_to_cmyk($input)
 	{
-		$r = $input[r];
-		$g = $input[g];
-		$b = $input[b];
+		$r = $input['r'];
+		$g = $input['g'];
+		$b = $input['b'];
 
 		$c = 1 - $r;
 		$m = 1 - $g;
@@ -309,7 +294,7 @@ class Colour {
 			$y -= $k;
 		}
 
-		$output = array(c => $c, m => $m, y => $y, k => $k);
+		$output = Array('c' => $c, 'm' => $m, 'y' => $y, 'k' => $k);
 
 		Colour::cmyk_correct($output);
 
@@ -327,21 +312,21 @@ class Colour {
 	*/
 	function cmyk_correct(&$input)
 	{
-		if ($input[c] < $input[m])
-			$min = $input[c];
+		if ($input['c'] < $input['m'])
+			$min = $input['c'];
 		else
-			$min = $input[m];
+			$min = $input['m'];
 
-		if ($input[y] < $min)
-			$min = $input[y];
+		if ($input['y'] < $min)
+			$min = $input['y'];
 
-		if (($min + $input[k]) > 1)
-			$min = 1 - $input[k];
+		if (($min + $input['k']) > 1)
+			$min = 1 - $input['k'];
 
-		$input[c] -= $min;
-		$input[m] -= $min;
-		$input[y] -= $min;
-		$input[k] += $min;
+		$input['c'] -= $min;
+		$input['m'] -= $min;
+		$input['y'] -= $min;
+		$input['k'] += $min;
 	}
 
 	/**
@@ -355,7 +340,7 @@ class Colour {
 	*/
 	function rgb_invert($i)
 	{
-		return array(r => (1 - $i[r]), g => (1 - $i[g]), b => (1 - $i[b]));
+		return Array('r' => (1 - $i['r']), 'g' => (1 - $i['g']), 'b' => (1 - $i['b']));
 	}
 
 	/**
@@ -369,7 +354,7 @@ class Colour {
 	*/
 	function rgb_to_html($input)
 	{
-		return sprintf("%02x%02x%02x", $input[r] * 255, $input[g] * 255, $input[b] * 255);
+		return sprintf('%02x%02x%02x', $input['r'] * 255, $input['g'] * 255, $input['b'] * 255);
 	}
 
 	/**
@@ -383,7 +368,7 @@ class Colour {
 	*/
 	function int_to_html($input)
 	{
-		return sprintf("%06x", $input);
+		return sprintf('%06x', $input);
 	}
 
 	/**
@@ -415,8 +400,9 @@ class Colour {
 	*/
 	function html_to_hex($input)
 	{
-		$input = strtolower($input);
-		if (sprintf("%06x",hexdec($input)) != $input) {
+		// remove any hashes from the start
+		$input = preg_replace('/^#/', '', strtolower($input));
+		if (sprintf('%06x',hexdec($input)) != $input) {
 			# Must be a colour name, or a fuck-up
 			if (isset($GLOBALS['COLOUR_PALETTE'][$input])) {
 				$input = $GLOBALS['COLOUR_PALETTE'][$input];
@@ -439,9 +425,9 @@ class Colour {
 	{
 		$input = Colour::html_to_hex($input);
 		return Colour::rgb(
-			hexdec(substr($input,0,2)),
-			hexdec(substr($input,2,2)),
-			hexdec(substr($input,4,2)),
+			hexdec(substr($input, 0, 2)),
+			hexdec(substr($input, 2, 2)),
+			hexdec(substr($input, 4, 2)),
 			$zero_to_one_range
 		);
 	}
@@ -489,19 +475,19 @@ class Colour {
 	*/
 	function rgb_to_hsv($input)
 	{
-		$r = max(0,min(1,$input[r]));
-		$g = max(0,min(1,$input[g]));
-		$b = max(0,min(1,$input[b]));
+		$r = max(0,min(1,$input['r']));
+		$g = max(0,min(1,$input['g']));
+		$b = max(0,min(1,$input['b']));
 		$min = min($r,$g,$b);
 		$max = max($r,$g,$b);
 		if(!$max) { # Black
-			return array(h=>-1,s=>0,v=>0);
+			return Array('h' => -1, 's' => 0, 'v' => 0);
 		}
 		$delta = $max - $min;
 		$v = $max;
 		$s = $delta / $max;
 		if (!$s) { # Grey
-			return array(h=>-1,s=>0,v=>$v);
+			return Array('h' => -1, 's' => 0, 'v' => $v);
 		}
 		if ($r == $max) {
 			# between yellow & magenta
@@ -515,7 +501,7 @@ class Colour {
 		}
 		$h *= 60; # degrees
 		if($h < 0) $h += 360;
-		return array(h=>$h,s=>$s,v=>$v);
+		return Array('h' => $h, 's' => $s, 'v' => $v);
 	}
 
 	/**
@@ -529,11 +515,11 @@ class Colour {
 	*/
 	function hsv_to_rgb($input)
 	{
-		$h = $input[h] % 360;
-		$s = max(0,min(1,$input[s]));
-		$v = max(0,min(1,$input[v]));
+		$h = $input['h'] % 360;
+		$s = max(0,min(1,$input['s']));
+		$v = max(0,min(1,$input['v']));
 		if (!$s) { # Grey
-			return array(r=>$v,g=>$v,b=>$v);
+			return Array('r' => $v, 'g' => $v, 'b' => $v);
 		}
 		# Split into the six sections of the colour wheel
 		$h /= 60;
@@ -580,7 +566,7 @@ class Colour {
 				$b = $q;
 				break;
 		}
-		return array(r=>$r,g=>$g,b=>$b);
+		return Array('r' => $r, 'g' => $g, 'b' => $b);
 	}
 
 	/**
@@ -623,13 +609,13 @@ class Colour {
 	function contrasting_shade($input)
 	{
 		$c = Colour::html_to_rgb($input);
-		$weight_r    = $c[r] * 0.75;
-		$weight_g    = $c[g] * 1.75; # Green's bright
-		$weight_b    = $c[b] * 0.5;  # Blue's dim
+		$weight_r    = $c['r'] * 0.75;
+		$weight_g    = $c['g'] * 1.75; # Green's bright
+		$weight_b    = $c['b'] * 0.5;  # Blue's dim
 		if (($weight_r + $weight_g + $weight_b) >= 1.5) {
-			return "000000";
+			return '000000';
 		} else {
-			return "ffffff";
+			return 'ffffff';
 		}
 	}
 
@@ -645,9 +631,9 @@ class Colour {
 	function twice_as_light($input)
 	{
 		$c = Colour::html_to_rgb($input);
-		$c[r] += ((1 - $c[r]) / 2);
-		$c[g] += ((1 - $c[g]) / 2);
-		$c[b] += ((1 - $c[b]) / 2);
+		$c['r'] += ((1 - $c['r']) / 2);
+		$c['g'] += ((1 - $c['g']) / 2);
+		$c['b'] += ((1 - $c['b']) / 2);
 		return Colour::rgb_to_html($c);
 	}
 
@@ -663,9 +649,9 @@ class Colour {
 	function twice_as_dark($input)
 	{
 		$c = Colour::html_to_rgb($input);
-		$c[r] /= 2;
-		$c[g] /= 2;
-		$c[b] /= 2;
+		$c['r'] /= 2;
+		$c['g'] /= 2;
+		$c['b'] /= 2;
 		return Colour::rgb_to_html($c);
 	}
 
@@ -684,13 +670,13 @@ class Colour {
 	{
 		$c = Colour::html_to_rgb($input);
 		if ($amount > 0 && $amount <= 1) { # Going up !
-			$c[r] += ((1 - $c[r]) * $amount);
-			$c[g] += ((1 - $c[g]) * $amount);
-			$c[b] += ((1 - $c[b]) * $amount);
+			$c['r'] += ((1 - $c['r']) * $amount);
+			$c['g'] += ((1 - $c['g']) * $amount);
+			$c['b'] += ((1 - $c['b']) * $amount);
 		} elseif ($amount < 0 && $amount >= -1) {
-			$c[r] += ($c[r] * $amount);
-			$c[g] += ($c[g] * $amount);
-			$c[b] += ($c[b] * $amount);
+			$c['r'] += ($c['r'] * $amount);
+			$c['g'] += ($c['g'] * $amount);
+			$c['b'] += ($c['b'] * $amount);
 		}
 		return Colour::rgb_to_html($c);
 	}
@@ -709,17 +695,17 @@ class Colour {
 	function adjust_contrast($input, $amount)
 	{
 		$c = Colour::html_to_rgb($input);
-		$avg = ($c[r] + $c[g] + $c[b]) / 3.0;
+		$avg = ($c['r'] + $c['g'] + $c['b']) / 3.0;
 		if ($amount < 0) {
 			if ($amount < -1) $amount = -1;
-			$c[r] = ($avg * -$amount) + ($c[r] * (1 + $amount));
-			$c[g] = ($avg * -$amount) + ($c[g] * (1 + $amount));
-			$c[b] = ($avg * -$amount) + ($c[b] * (1 + $amount));
+			$c['r'] = ($avg * -$amount) + ($c['r'] * (1 + $amount));
+			$c['g'] = ($avg * -$amount) + ($c['g'] * (1 + $amount));
+			$c['b'] = ($avg * -$amount) + ($c['b'] * (1 + $amount));
 		} elseif ($amount > 0) {
 			if ($amount >  1) $amount =  1;
-			$c[r] = ( (($c[r] > $avg) ? 1 : 0) * $amount) + ($c[r] * (1 - $amount));
-			$c[g] = ( (($c[g] > $avg) ? 1 : 0) * $amount) + ($c[g] * (1 - $amount));
-			$c[b] = ( (($c[b] > $avg) ? 1 : 0) * $amount) + ($c[b] * (1 - $amount));
+			$c['r'] = ( (($c['r'] > $avg) ? 1 : 0) * $amount) + ($c['r'] * (1 - $amount));
+			$c['g'] = ( (($c['g'] > $avg) ? 1 : 0) * $amount) + ($c['g'] * (1 - $amount));
+			$c['b'] = ( (($c['b'] > $avg) ? 1 : 0) * $amount) + ($c['b'] * (1 - $amount));
 		}
 		return Colour::rgb_to_html($c);
 	}
@@ -740,10 +726,10 @@ class Colour {
 		$ratio = max(0,min(1,$ratio));
 		$a = Colour::html_to_rgb($a);
 		$b = Colour::html_to_rgb($b);
-		$c = array(
-			"r" => $a[r] * (1-$ratio)  +  $b[r] * $ratio,
-			"g" => $a[g] * (1-$ratio)  +  $b[g] * $ratio,
-			"b" => $a[b] * (1-$ratio)  +  $b[b] * $ratio,
+		$c = Array(
+			'r' => $a['r'] * (1-$ratio)  +  $b['r'] * $ratio,
+			'g' => $a['g'] * (1-$ratio)  +  $b['g'] * $ratio,
+			'b' => $a['b'] * (1-$ratio)  +  $b['b'] * $ratio,
 		);
 		return Colour::rgb_to_html($c);
 	}
@@ -760,11 +746,11 @@ class Colour {
 	*/
 	function hue_rotate($input,$degrees)
 	{
-		return Colour::hsv_adjust($input,$degrees,0,0);
+		return Colour::hsv_adjust($input, $degrees, 0, 0);
 	}
 
 	/**
-	* Adjusts the "colourfulness" or how non-grey a colour is
+	* Adjusts the 'colourfulness' or how non-grey a colour is
 	*
 	* @param string	$input			hex string or html colour name
 	* @param float	$amount			-1 to 1 (-1 = grey)
@@ -775,11 +761,11 @@ class Colour {
 	*/
 	function adjust_saturate($input,$amount)
 	{
-		return Colour::hsv_adjust($input,0,$amount,0);
+		return Colour::hsv_adjust($input, 0, $amount, 0);
 	}
 
 	/**
-	* Adjusts the "lightness" or value of a colour
+	* Adjusts the 'lightness' or value of a colour
 	*
 	* @param string	$input			hex string or html colour name
 	* @param float	$amount
@@ -790,7 +776,7 @@ class Colour {
 	*/
 	function adjust_lightness($input,$amount)
 	{
-		return Colour::hsv_adjust($input,0,0,$amount);
+		return Colour::hsv_adjust($input, 0, 0, $amount);
 	}
 
 
@@ -812,16 +798,16 @@ class Colour {
 		if($h != 0) {
 			$h = $h % 360.0;
 			if($h < 0) $h = 360.0 + $h;
-			$hsv[h] += $h;
-			while($hsv[h] > 360.0) $hsv[h] -= 360.0;
+			$hsv['h'] += $h;
+			while($hsv['h'] > 360.0) $hsv['h'] -= 360.0;
 		}
 		if ($s != 0) {
-			if ($s > 0) $hsv[s] += $s * (1 - $hsv[s]);
-			else        $hsv[s] += $s * $hsv[s];
+			if ($s > 0) $hsv['s'] += $s * (1 - $hsv['s']);
+			else        $hsv['s'] += $s * $hsv['s'];
 		}
 		if ($v != 0) {
-			if ($v > 0) $hsv[v] += $v * (1 - $hsv[v]);
-			else        $hsv[v] += $v * $hsv[v];
+			if ($v > 0) $hsv['v'] += $v * (1 - $hsv['v']);
+			else        $hsv['v'] += $v * $hsv['v'];
 		}
 		return Colour::hsv_to_html($hsv);
 	}
@@ -841,26 +827,26 @@ class Colour {
 	{
 		$a    = Colour::html_to_hsv($a);
 		$b    = Colour::html_to_hsv($b);
-		$r[h] = $b[h] - $a[h];
-		if(abs($r[h]) > 180.0) {
-			if($r[h] > 0) $r[h] -= 360.0;
-			else          $r[h] += 360.0;
+		$r['h'] = $b['h'] - $a['h'];
+		if(abs($r['h']) > 180.0) {
+			if($r['h'] > 0) $r['h'] -= 360.0;
+			else          $r['h'] += 360.0;
 		}
-		if($b[s] > $a[s]) $r[s] = $b[s] / (1 - $a[s]) - $a[s];
-		else              $r[s] = ($b[s] - $a[s]) / $a[s];
-		if($b[v] > $a[v]) $r[v] = $b[v] / (1 - $a[v]) - $a[v];
-		else              $r[v] = ($b[v] - $a[v]) / $a[v];
+		if($b['s'] > $a['s'])	$r['s'] = $b['s'] / (1 - $a['s']) - $a['s'];
+		else					$r['s'] = ($b['s'] - $a['s']) / $a['s'];
+		if($b['v'] > $a['v'])	$r['v'] = $b['v'] / (1 - $a['v']) - $a['v'];
+		else					$r['v'] = ($b['v'] - $a['v']) / $a['v'];
 		return $r;
 	}
 
 
 	/**
 	* Takes a colour and a remap array.
-	* Looks for the "key" colours and replaces them with the "value" colours
+	* Looks for the 'key' colours and replaces them with the 'value' colours
 	* Might work nicer in HSV colour space.
 	*
 	* @param string	$input_html		hex string or html colour name
-	* @param Array	$map			Array("old_colour" => "new_colour");
+	* @param Array	$map			Array('old_colour' => 'new_colour');
 	* @param float	$tolerance
 	*
 	* @return string
@@ -880,65 +866,65 @@ class Colour {
 				$from     = Colour::html_to_hsv($from);
 				$to       = Colour::html_to_hsv($to);
 				# The difference between the original colour and the new one
-				$map_diff = array("h"=>$to[h]-$from[h],"s"=>$to[s]-$from[s],"v"=>$to[v]-$from[v]);
+				$map_diff = Array('h'=>$to['h']-$from['h'],'s'=>$to['s']-$from['s'],'v'=>$to['v']-$from['v']);
 				# The differnce between the original colour and the input
-				$in_diff = array("h"=>$input_hsv[h]-$from[h],"s"=>$input_hsv[s]-$from[s],"v"=>$input_hsv[v]-$from[v]);
+				$in_diff = Array('h'=>$input_hsv['h']-$from['h'],'s'=>$input_hsv['s']-$from['s'],'v'=>$input_hsv['v']-$from['v']);
 
 				  #########################################################################
-				 # Work out how "close" the input is to the from colour, this indicates
+				 # Work out how 'close' the input is to the from colour, this indicates
 				# How much effect this particular mapping should have on it
-				$closeness[h] = pow(1 - abs($in_diff[h])/360, 16);
-				$closeness[s] = pow(1 - abs($in_diff[s]), 8);
-				$closeness[v] = pow(1 - abs($in_diff[v]), 2);
+				$closeness['h'] = pow(1 - abs($in_diff['h'])/360, 16);
+				$closeness['s'] = pow(1 - abs($in_diff['s']), 8);
+				$closeness['v'] = pow(1 - abs($in_diff['v']), 2);
 
 				$tolerance = min(max($tolerance,0),1);
 
-				$closeness[h] *= $tolerance;
-				$closeness[s] *= $tolerance;
-				$closeness[v] *= $tolerance;
+				$closeness['h'] *= $tolerance;
+				$closeness['s'] *= $tolerance;
+				$closeness['v'] *= $tolerance;
 
-				$closeness[h] = max(0,$closeness[h]);
-				$closeness[s] = max(0,$closeness[s]);
-				$closeness[v] = max(0,$closeness[v]);
+				$closeness['h'] = max(0,$closeness['h']);
+				$closeness['s'] = max(0,$closeness['s']);
+				$closeness['v'] = max(0,$closeness['v']);
 
 				 ##########################################################
 				# Another modifier ensuring that the hue MUST be close
-				$closeness[s] *= pow($closeness[h],1);
-				$closeness[v] *= pow($closeness[h],1);
+				$closeness['s'] *= pow($closeness['h'],1);
+				$closeness['v'] *= pow($closeness['h'],1);
 
 
 				 ######################
 				# Keep a total of this
-				$closeness_total[h] += $closeness[h];
-				$closeness_total[s] += $closeness[s];
-				$closeness_total[v] += $closeness[v];
+				$closeness_total['h'] += $closeness['h'];
+				$closeness_total['s'] += $closeness['s'];
+				$closeness_total['v'] += $closeness['v'];
 
 
 				 ############################################################
 				# This is how much the input will be shifted in the output
 				# To by divided by the total closeness
-				$shift[h] += $map_diff[h] * $closeness[h];
-				$shift[s] += $map_diff[s] * $closeness[s];
-				$shift[v] += $map_diff[v] * $closeness[v];
+				$shift['h'] += $map_diff['h'] * $closeness['h'];
+				$shift['s'] += $map_diff['s'] * $closeness['s'];
+				$shift['v'] += $map_diff['v'] * $closeness['v'];
 			}
 		}
 
 		 ###############################
 		# Trim this down again
-		$input_hsv[h] += $shift[h] / $closeness_total[h];
-		$input_hsv[s] += $shift[s] / $closeness_total[s];
-		$input_hsv[v] += $shift[v] / $closeness_total[v];
+		$input_hsv['h'] += $shift['h'] / $closeness_total['h'];
+		$input_hsv['s'] += $shift['s'] / $closeness_total['s'];
+		$input_hsv['v'] += $shift['v'] / $closeness_total['v'];
 
 		return Colour::hsv_to_html($input_hsv);
 	}
 
 //	/**
 //	* Takes a colour and a remap array.
-//	* Looks for the "key" colours and replaces them with the "value" colours
+//	* Looks for the 'key' colours and replaces them with the 'value' colours
 //	* Might work nicer in HSV colour space.
 //	*
 //	* @param string	$input_html		hex string or html colour name
-//	* @param Array	$map			Array("old_colour" => "new_colour");
+//	* @param Array	$map			Array('old_colour' => 'new_colour');
 //	* @param float	$tolerance
 //	*
 //	* @return string
@@ -963,7 +949,7 @@ class Colour {
 //				$in_to_diff = Colour::hsv_difference($input,$to);
 //
 //				# Distill the in_diff into a single [0,1] value
-//				$max_diff = array(
+//				$max_diff = Array(
 //					"h"=>180,
 //					"s"=>(($from[s]>0.5)?$from[s]:1-$from[s]),
 //					"v"=>(($from[v]>0.5)?$from[v]:1-$from[v])
