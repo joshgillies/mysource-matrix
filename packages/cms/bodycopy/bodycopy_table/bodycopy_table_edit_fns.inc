@@ -167,6 +167,7 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 	function paintTable(&$asset, &$o, $prefix)
 	{
 		if (!$asset->writeAccess()) {
+			bam();
 			$this->paint($asset);
 			return true;
 		}
@@ -572,6 +573,30 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 		$this->paint($asset, true);
 		$output = ob_get_contents();
 		ob_end_clean();
+		
+		$e = '/\\.\\/\\?a=([0-9]+)/';
+		$matches = Array();
+		preg_match_all($e, $output, $matches);
+		$replace_assetids = $matches[1];
+		if (!empty($replace_assetids)) {
+			foreach($replace_assetids as $assetid) {
+				$ereg_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				if ($ereg_asset->id) {
+					
+					// dont show errors here if the link already exists
+					// as we rely on the fact that this ereg)asset cant be notice linked
+					// to asset mutiple times to step redunant links from
+					// being created (eg same image on page 10 times should only
+					// produce one notice link)
+					@$asset->createLink($ereg_asset, SQ_LINK_NOTICE);
+
+					$e = "(/?\./\\?a={$assetid})([^0-9]+)";
+					$with = '<?php echo $sq_asset_url_list['.$assetid.']; ?>';
+					$output = ereg_replace($e, $with.'\\2', $output);
+				}
+			}
+		}
+
 		create_directory($asset->data_path);
 		if (string_to_file($output, $asset->data_path.'/content_file.inc')) return true;
 		return false;

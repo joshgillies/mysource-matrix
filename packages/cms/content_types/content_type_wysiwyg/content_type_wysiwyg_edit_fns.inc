@@ -45,6 +45,8 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 		//$wysiwyg->set_stylesheet('/nswrl/__data/site/design/1/images/styles.css');
 		$wysiwyg->set_width('100%');
 		$wysiwyg->add_plugin('format_text');
+		$wysiwyg->add_plugin('matrix_insert_link');
+		$wysiwyg->add_plugin('matrix_insert_image');
 		$wysiwyg->add_plugin('general');
 		$wysiwyg->add_plugin('history');
 		$wysiwyg->add_plugin('select_color');

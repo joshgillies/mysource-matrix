@@ -162,7 +162,9 @@ class Bodycopy_Table extends Asset
 	*/
 	function _getAllowedLinks()
 	{
-		return Array(SQ_LINK_EXCLUSIVE => Array('content_type' => 'M'));
+		return Array(SQ_LINK_EXCLUSIVE => Array('content_type' => 'M'),
+					 SQ_LINK_NOTICE    => Array('asset' => 'M')
+					 );
 
 	}//end _getAllowedLinks()
 
@@ -175,11 +177,23 @@ class Bodycopy_Table extends Asset
 	function printBody()
 	{
 		if (!file_exists($this->data_path.'/content_file.inc')) {
+			// generate the contents file
 			$edit = $this->getEditFns();
-			$edit->paint($this);
-			// generate the contents file for the next time
 			$edit->generateContentFile($this);
+		}
+
+		if (!file_exists($this->data_path.'/content_file.inc')) {
+			trigger_error('Contents file failed to generate for bodycopy table '.$this->name, E_USER_WARNING);
 		} else {
+			// create an array of urls that the content file is
+			// going to try and use to work out file urls, link hrefs etc
+			$sq_asset_url_list = Array();
+			
+			$notice_links = $this->getLinks(SQ_LINK_NOTICE);
+			foreach ($notice_links as $link) {
+				$sq_asset_url_list[$link['minorid']] = $GLOBALS['SQ_SYSTEM']->am->getAssetHref($link['minorid']);
+			}
+
 			include($this->data_path.'/content_file.inc');
 		}
 	}// end printBody()
