@@ -780,7 +780,7 @@ class Asset_Map
 
 		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 		$from = time() - (8 * 3600); // 8 hours ago
-		$messages = $ms->getMessages($GLOBALS['SQ_SYSTEM']->currentUserId(), Array(SQ_MSG_UNREAD, SQ_MSG_READ), $from, null, 'short_name');
+		$messages = $ms->getMessages($GLOBALS['SQ_SYSTEM']->currentUserId(), Array(SQ_MSG_UNREAD, SQ_MSG_READ), Array(), $from, null, 'short_name');
 
 #		error_log(array_contents($messages));
 

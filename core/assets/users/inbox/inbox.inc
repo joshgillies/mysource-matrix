@@ -25,6 +25,7 @@ class Inbox extends Asset
 	function Inbox($assetid=0)
 	{
 		$this->Asset($assetid);
+
 	}//end constructor
 
 
@@ -39,7 +40,8 @@ class Inbox extends Asset
 		$link = $this->getLink(SQ_LINK_TYPE_2, 'user', false, '', 'minor', '1');
 		$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['type_code']);
 		return $user;
-	}
+
+	}//end _getUser()
 
 
 	/**
@@ -51,6 +53,7 @@ class Inbox extends Asset
 	function canDelete()
 	{
 		return false;
+
 	}//end canDelete()
 
 
@@ -87,6 +90,7 @@ class Inbox extends Asset
 		}
 
 		return false;
+
 	}//end checkAccess()
 
 
@@ -98,8 +102,16 @@ class Inbox extends Asset
 	function printBody()
 	{
 		$edit = $this->getEditFns();
-		$null = '';
-		$edit->paintMail($this, $null, 'inbox');
+		
+		if (isset($_REQUEST['messageid'])) {
+			// they want to print a single message
+			$edit->paintMessage($_REQUEST['messageid']);
+		} else {
+			// they want to print all mail
+			$null = '';
+			$edit->paintMail($this, $null, 'inbox');
+		}
+
 	}// end printBody()
 
 
@@ -114,7 +126,9 @@ class Inbox extends Asset
 	function _getName($short_name=false)
 	{
 		return 'Inbox';
-	}//end _getName();
+
+	}//end _getName()
 
 }//end class
+
 ?>

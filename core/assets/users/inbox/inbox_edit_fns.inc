@@ -28,6 +28,25 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 
 
 	/**
+	* Prints the message with the passed ID
+	*
+	* @param int	$messageid	the ID of the message to print
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintMessage($messageid)
+	{
+		// get the message we are printing
+		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$message = $ms->getMessageById($messageid);
+
+		return $message->printBody();
+
+	}//end paintMessage()
+
+
+	/**
 	* Prints the inbox interface
 	*
 	* @param object File				&$asset	the file asset
@@ -42,32 +61,20 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 		$user = &$asset->_getUser();
 
 		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-		$messages = $ms->getMessages($user->id, Array(SQ_MSG_UNREAD, SQ_MSG_READ), null, null, 'name');
+		$messages = $ms->getMessages($user->id, Array(SQ_MSG_UNREAD, SQ_MSG_READ), Array(), null, null, 'name');
 
 		if (empty($messages)) {
 			echo 'You have no messages';
 		} else {
 			?>
 			<script type="text/javascript" language="Javascript">
-				function showMessageBody(body, from) {
+				function showMessageBody(messageid) {
 					var iframe = document.getElementById('sq_message_body');
 					if (iframe == null) return;
-					var doc = iframe.contentWindow.document;
-					doc.open();
-					var html = "<html>\n";
-					html += "<head>\n";
-					html += "<link rel=\"stylesheet\" href=\"<?php echo $o->filesPath('css/edit.css')?>\" type=\"text/css\">";
-					html += "</head>\n";
-					html += "<body bgcolor=#FFFFFF>\n";
-					if (from != '' || body != '') {
-						html += "<p class=\"sq-backend-message-item\"><b>From:</b> " + from + "</p><p class=\"sq-backend-message-item\">" + body + "</span>";
-					}
-					html += "</body>\n";
-					html += "</html>";
-					doc.write(html);
-					doc.close();
+					
+					var url='<?php echo $_SERVER['PHP_SELF']; ?>' + '?a=<?php echo $asset->id; ?>&messageid=' + messageid;
+					iframe.src = url;
 				}
-				setTimeout("showMessageBody('', '')", 100);
 			</script>
 
 			<table border="0" cellspacing="1" cellpadding="3" width="100%" bgcolor="#DDDDDD">
@@ -95,7 +102,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 						<?php echo $data['from_name'];?>
 					</td>
 					<td class="sq-backend-message-item">
-						<a class="sq-backend-message-item" href="#" onClick="Javascript: showMessageBody('<?php echo str_replace("'","\'",str_replace('"', '&quot;', $data['body'])) ?>', '<?php echo str_replace("'","\'",str_replace('"', '&quot;', $data['from_name'])) ?>'); return false;"><?php echo $data['subject'];?></a>
+						<a class="sq-backend-message-item" href="#" onClick="Javascript: showMessageBody('<?php echo $data['messageid'];?>'); return false;"><?php echo $data['subject'];?></a>
 					</td>
 					<td class="sq-backend-message-item" style="white-space: nowrap;">
 						<?php echo $GLOBALS['SQ_SYSTEM']->datetime($data['sent']); ?>
@@ -213,32 +220,20 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 		$user = &$asset->_getUser();
 
 		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-		$messages = $ms->getMessages($user->id, Array(SQ_MSG_DELETED), null, null, 'name');
+		$messages = $ms->getMessages($user->id, Array(SQ_MSG_DELETED), Array(), null, null, 'name');
 
 		if (empty($messages)) {
 			echo 'Your trash is empty';
 		} else {
 			?>
 			<script type="text/javascript" language="Javascript">
-				function showMessageBody(body, from) {
+				function showMessageBody(messageid) {
 					var iframe = document.getElementById('sq_message_body');
 					if (iframe == null) return;
-					var doc = iframe.contentWindow.document;
-					doc.open();
-					var html = "<html>\n";
-					html += "<head>\n";
-					html += "<link rel=\"stylesheet\" href=\"<?php echo $o->filesPath('css/edit.css')?>\" type=\"text/css\">";
-					html += "</head>\n";
-					html += "<body bgcolor=#FFFFFF>\n";
-					if (from != '' || body != '') {
-						html += "<p class=\"sq-backend-message-item\"><b>From:</b> " + from + "</p><p class=\"sq-backend-message-item\">" + body + "</span>";
-					}
-					html += "</body>\n";
-					html += "</html>";
-					doc.write(html);
-					doc.close();
+					
+					var url='<?php echo $_SERVER['PHP_SELF']; ?>' + '?a=<?php echo $asset->id; ?>&messageid=' + messageid;
+					iframe.src = url;
 				}
-				setTimeout("showMessageBody('', '')", 100);
 			</script>
 
 			<table border="0" cellspacing="1" cellpadding="3" width="100%" bgcolor="#DDDDDD">
@@ -266,7 +261,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 						<?php echo $data['from_name'];?>
 					</td>
 					<td class="sq-backend-message-item">
-						<a class="sq-backend-message-item" href="#" onClick="Javascript: showMessageBody('<?php echo str_replace("'","\'",str_replace('"', '&quot;', $data['body'])) ?>', '<?php echo str_replace("'","\'",str_replace('"', '&quot;', $data['from_name'])) ?>'); return false;"><?php echo $data['subject'];?></a>
+						<a class="sq-backend-message-item" href="#" onClick="Javascript: showMessageBody('<?php echo $data['messageid'];?>'); return false;"><?php echo $data['subject'];?></a>
 					</td>
 					<td class="sq-backend-message-item" style="white-space: nowrap;">
 						<?php echo $GLOBALS['SQ_SYSTEM']->datetime($data['sent']); ?>
@@ -299,6 +294,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 			<?php
 		}
 		return true;
+
 	}//end paintTrash()
 
 
@@ -348,4 +344,5 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 	}//end processTrash()
 
 }//end class
+
 ?>

@@ -169,20 +169,22 @@ class Messaging_Service extends Resolve_Object
 	* Gets all messages for the passed userid
 	*
 	* @param int			$userid			id of the user you are fetching messages for
-	* @param array(string)	$statii			can limit returned messages to those with a status 
+	* @param array(string)	$statii			can limit returned messages to those with a status
 	*										in this array
-	* @param int			$from			timestamp that every msg returned must be this time 
+	* @param array(int)		$messageids		can limit returned messages to those with a messageid
+	*										in this array
+	* @param int			$from			timestamp that every msg returned must be this time
 	*										or after (NULL to ignore)
-	* @param int			$to				timestamp that every msg returned must be this time 
+	* @param int			$to				timestamp that every msg returned must be this time
 	*										or before (NULL to ignore)
-	* @param string			$get_from_name	[name|short_name], used to return the name/short_name 
-	*										of the from user with the return, which will be returned 
+	* @param string			$get_from_name	[name|short_name], used to return the name/short_name
+	*										of the from user with the return, which will be returned
 	*										in the field 'from_name'. (NULL to ignore)
 	*
 	* @return array
 	* @access public
 	*/
-	function getMessages($userid, $statii=Array(), $from=null, $to=null, $get_user_name=null)
+	function getMessages($userid, $statii=Array(), $messageids=Array(), $from=null, $to=null, $get_user_name=null)
 	{
 		if (!$userid) return Array();
 
@@ -190,17 +192,17 @@ class Messaging_Service extends Resolve_Object
 
 		if (!is_null($get_user_name) && $get_user_name != 'name') $get_user_name = 'short_name';
 
-		$where = 'm.userto = '.$db->quote($userid);
-
 		$sql = 'SELECT m.messageid, m.userto, m.userfrom, m.subject, m.body, m.sent, m.priority, m.status, m.parameters';
 		if (is_string($get_user_name)) {
-			$sql .= ', 
-					CASE 
+			$sql .= ',
+					CASE
 						WHEN a.'.$get_user_name.' IS NULL AND m.userfrom = 0 THEN '.$db->quote(SQ_SYSTEM_SHORT_NAME.' System').'
 						ELSE a.'.$get_user_name.'
 					END as from_name';
 		}
-		$sql .= ' FROM '.SQ_TABLE_RUNNING_PREFIX.'internal_message m';
+		$sql  .= ' FROM '.SQ_TABLE_RUNNING_PREFIX.'internal_message m';
+		$where = 'm.userto = '.$db->quote($userid);
+
 		if (is_string($get_user_name)) {
 			$sql .= ' LEFT OUTER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset a ON m.userfrom = a.assetid';
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
@@ -210,12 +212,16 @@ class Messaging_Service extends Resolve_Object
 			for($i = 0; $i < count($statii); $i++) $statii[$i] = $db->quote($statii[$i]);
 			$where .= ' AND m.status IN ('.implode(', ', $statii).')';
 		}
+		if (!empty($messageids)) {
+			for($i = 0; $i < count($messageids); $i++) $messageids[$i] = $db->quote($messageids[$i]);
+			$where .= ' AND m.messageid IN ('.implode(', ', $messageids).')';
+		}
 		if (!is_null($from)) $where .= ' AND m.sent >= '.$db->quote(ts_iso8601($from));
 		if (!is_null($to))   $where .= ' AND m.sent <= '.$db->quote(ts_iso8601($to));
 
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'm');
 		$sql .= ' '.$where.' ORDER BY m.sent DESC';
-		
+
 		$result = $db->getAll($sql);
 		if (DB::isError($result)) {
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);

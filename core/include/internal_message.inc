@@ -188,6 +188,62 @@ class Internal_Message extends Resolve_Object
 
 
 	/**
+	* Called by the design to print the body of this message
+	*
+	* @access public
+	*/
+	function printBody()
+	{
+		require_once SQ_FUDGE_PATH.'/general/datetime.inc';
+		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$info = $ms->getMessages($this->to[0], Array(), Array($this->id), $this->from, null, 'name');
+		$info = $info[0];
+		?>
+		<html>
+			<head>
+				<style>
+					.sq-message-item {
+						color:           #000000;
+						font-family:     Verdana, Arial, Helvetica, sans-serif;
+						font-size:       10px;
+						text-decoration: none;
+					}
+				</style>
+			</head>
+			<body bgcolor="#F0F0F0">
+				<table border="0" cellspacing="1" cellpadding="2" bgcolor="#3B414F" width="100%" height="100%">
+					<tr>
+						<td bgcolor="#C7D0D9" width="100%">
+							<table border="0" width="100%">
+								<tr>
+									<td valign="top" class="sq-message-item"><b>Subject:</b></td>
+									<td valign="top" class="sq-message-item" width="100%"><b><?php echo $info['subject']; ?></b></td>
+								</tr>
+								<tr>
+									<td valign="top" class="sq-message-item"><b>From:</b></td>
+									<td valign="top" class="sq-message-item" width="100%"><?php echo $info['from_name'] ?></td>
+								</tr>
+								<tr>
+									<td valign="top" class="sq-message-item"><b>Date:</b></td>
+									<td valign="top" class="sq-message-item" width="100%"><?php echo readable_datetime($info['sent']); ?></td>
+								</tr>
+							</table>
+						</td>
+					</tr>
+					<tr height="100%">
+						<td valign="top" class="sq-message-item" bgcolor="#FFFFFF" width="100%">
+							<?php echo $info['body']; ?>
+						</td>
+					</tr>
+				</table>
+			</body>
+		</html>
+		<?php
+
+	}// end printBody()
+
+
+	/**
 	* Returns an array of users this message will be sent to
 	* That is, it expands the groups ids and returns a unique array of userids
 	*
