@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_03.php,v 1.35 2004/05/13 04:01:21 lwright Exp $
+* $Id: step_03.php,v 1.36 2004/06/02 00:27:19 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -115,7 +115,8 @@ if (file_exists($sys_asset_cfg->config_file)) {
 
 $result = $pm->installSystemAssets();
 
-if ($result != 0) {	// 0 indicates success, but no system assets were created - suppress in this case
+// 0 (zero) indicates success, but no system assets were created - suppress in this case
+if ($result != 0) {
 	pre_echo("CORE SYSTEM ASSET CREATION ".(($result == -1) ? "FAILED" : (": ".$result." NEW ASSETS CREATED")));
 }
 if ($result == -1) exit(1);

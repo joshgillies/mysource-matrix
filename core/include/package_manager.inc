@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager.inc,v 1.44 2004/05/18 16:39:28 brobertson Exp $
+* $Id: package_manager.inc,v 1.45 2004/06/02 00:27:02 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -667,14 +667,13 @@ class Package_Manager extends MySource_Object
 
 
 	/**
-	* Post install script for package; runs at end of update packages
+	* Installs System Assets for this package
 	*
 	* @return int the number of system assets created (-1 reserved for error)
 	* @access protected
 	*/
 	function installSystemAssets()
 	{
-		// turn the flippin' install flag on
 		$GLOBALS['SQ_INSTALL'] = true;
 
 		// check for any system assets that have not yet been installed and install them if required
@@ -699,7 +698,6 @@ class Package_Manager extends MySource_Object
 		// regen the system assets file if needed
 		if ($updated) $sys_asset_cfg->save(Array(), false);
 
-		// install flag goes off - finally
 		$GLOBALS['SQ_INSTALL'] = false;
 
 		return $assets_created;
