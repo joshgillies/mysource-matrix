@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.20 2004/08/23 00:55:34 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.21 2004/08/24 00:27:49 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.20 $ - 1.0
+* @version $Revision: 1.21 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -134,6 +134,103 @@ class Page_Calendar extends Page_Asset_Listing
 	}//end Page_Calendar()
 
 
+
+
+	/**
+	* Create this asset
+	*
+	* @param array()	&$link	information used to create the initial link
+	*
+	* @see Asset::create()
+	* @return mixed int or false
+	* @access public
+	*/
+	function create(&$link)
+	{
+		// note our event types and that they're all customised
+		$this->setAttrValue('types', Array('calendar_event_single'=>1, 'calendar_event_recurring'=>1));
+		$this->setAttrValue('customised', Array('calendar_event_single', 'calendar_event_recurring'));
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		$linkid = Page::create($link);
+		if (!$linkid) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$this->id = 0;
+			return false;
+		}
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('folder');
+
+		// create the page contents bodycopy and the event formats folder
+		$sub_assets= Array(
+			'type_formats'  => 'folder',
+			'page_contents' => 'bodycopy',
+		);
+		$type_formats = null;
+		foreach ($sub_assets as $name => $type) {
+			$asset = new $type();
+			$copy_link = Array('asset' => &$this, 'value' => $name ,'link_type' => SQ_LINK_TYPE_2, 'dependant' => 1, 'exclusive' => 1);
+
+			$asset->setAttrValue('name', ucwords(str_replace('_',' ', $name)));
+			if (!$asset->create($copy_link)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$this->id = 0;
+				return false;
+			}
+			if ($name == 'type_formats') {
+				$type_formats = $asset;
+			}
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+			unset($asset);
+		}
+
+		// put the default contents into the page contents bodycopy
+		$content_ids = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($this->id, 'content_type', false));
+		if (empty($content_ids)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$this->id = 0;
+			return false;
+		}
+		$content_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($content_ids[0]);
+		if (!$content_asset->id) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$this->id = 0;
+			return false;
+		}
+		if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($content_asset->id, 'attributes')) { 
+			trigger_error('Asset Builder Upgrade [to 0.4] Failed - Unable to Acquire Lock on "'.$asset->name.'" (#'.$asset->id.')', E_USER_WARNING);
+			return false;
+		}
+		$content_asset->setAttrValue('html', '<h2 style="text-align: center">%calendar_title%</h2><p style="text-align: center">%prev_link%&nbsp;&nbsp;&nbsp;&nbsp;%up_link%&nbsp;&nbsp;&nbsp;&nbsp;%next_link%</p>%calendar_contents%');
+		$content_asset->saveAttributes();
+		$content_parents = $GLOBALS['SQ_SYSTEM']->am->getParents($content_asset->id, 'bodycopy_container', false);
+		$parent_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($content_parents[0]);
+		$edit_fns = &$parent_asset->getEditFns();
+		$edit_fns->generateContentFile($parent_asset);
+		$GLOBALS['SQ_SYSTEM']->am->releaseLock($content_asset->id, 'attributes'); 
+
+		// create the event format bodycopies
+		$copy_link = Array('asset' => &$type_formats, 'value' => '' ,'link_type' => SQ_LINK_TYPE_2, 'dependant' => 1, 'exclusive' => 1);
+		$event_types = Array('single', 'recurring');
+		foreach ($event_types as $event_type) {
+			$copy_link['value'] = 'calendar_event_'.$event_type;
+			$asset = new Bodycopy();
+			$asset->setAttrValue('name', ucfirst($event_type).' Event Format');
+			if (!$asset->create($copy_link)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$this->id = 0;
+				return false;
+			}
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+			unset($asset);
+		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		return $linkid;
+
+	}//end create()
+
+
 	/**
 	* Called by the design to print the head of this asset
 	* 
@@ -220,83 +317,90 @@ class Page_Calendar extends Page_Asset_Listing
 	function getYearView($date)
 	{
 		ob_start();
-		list($year, $month, $day) = explode('-', $date);
-		$week_start_day = $this->attr('week_starts_on');
 		$enabled_views = $this->attr('enabled_views');
-		$drill_down_view = $this->attr('year_drill_down_view');
+		if (strpos('list', $enabled_views) == 0) {
+			// dummy data
+			$events = Array(48 => 'calendar_event_single', 49 => 'calendar_event_recurring');
+			$this->printAssetList($events);
+		} else {
+			list($year, $month, $day) = explode('-', $date);
+			$week_start_day = $this->attr('week_starts_on');
+			$enabled_views = $this->attr('enabled_views');
+			$drill_down_view = $this->attr('year_drill_down_view');
 
-		$this->_printClickChildScript();
-		?>
-		<table id="year" border="0" cellspacing="0" cellpadding="0" style="width: 118ex; font-size: 90%">
-			<tr>
-				<th class="dayLabel" style="width: 6ex">&nbsp;</th>
-		<?php
-		for ($i = $week_start_day; $i < $week_start_day + 36; $i++) {
+			$this->_printClickChildScript();
 			?>
-				<th class="dayLabel<?php echo (($i%7)==0 || ($i%7)==6) ? ' dayLabelWeekend' : ''; ?>" style="width: 3ex; text-align: center"><b><?php echo $this->day_names_very_short[$i % 7]; ?></b></th>
+			<table id="year" border="0" cellspacing="0" cellpadding="0" style="width: 118ex; font-size: 90%">
+				<tr>
+					<th class="dayLabel" style="width: 6ex">&nbsp;</th>
 			<?php
-		}
-		?>
-			</tr>
-		<?php
-		for ($current_month=1; $current_month<13; $current_month++) {
-		?>
-			<tr>
-				<th class="monthLabel" <?php if ($enabled_views['month']) { ?> onclick="clickChild(this);" style="cursor: pointer; cursor: hand" <?php } ?>>
-				<?php
-					// print the month name, linked to month view if it's available
-					if ($enabled_views['month']) {
-						echo '<a  href="'.$this->getHref().'?SQ_CALENDAR_VIEW=month&SQ_CALENDAR_DATE='.$year.'-'.sprintf('%02d', $current_month).'-01">';
-					}
-					echo $this->month_names_short[$current_month];
-					if ($enabled_views['month']) {
-						echo '</a>';
-					}
+			for ($i = $week_start_day; $i < $week_start_day + 36; $i++) {
 				?>
-				</th>
-
-			<?php
-			// print blank days of week before the day our month starts on
-			$i=0;
-			$blank_days = (date('w', strtotime("$year-".sprintf('%02d', $current_month).'-01')) + 7 - $week_start_day) % 7;
-			for ($i = 0; $i < $blank_days; $i++) {
+					<th class="dayLabel<?php echo (($i%7)==0 || ($i%7)==6) ? ' dayLabelWeekend' : ''; ?>" style="width: 3ex; text-align: center"><b><?php echo $this->day_names_very_short[$i % 7]; ?></b></th>
+				<?php
+			}
 			?>
-				<td class="<?php echo (((($week_start_day + $i) % 7)==0) || ((($week_start_day + $i) % 7)==6)) ? ' weekend' : ''; ?> ">&nbsp;</td>
+				</tr>
+			<?php
+			for ($current_month=1; $current_month<13; $current_month++) {
+			?>
+				<tr>
+					<th class="monthLabel" <?php if ($enabled_views['month']) { ?> onclick="clickChild(this);" style="cursor: pointer; cursor: hand" <?php } ?>>
+					<?php
+						// print the month name, linked to month view if it's available
+						if ($enabled_views['month']) {
+							echo '<a  href="'.$this->getHref().'?SQ_CALENDAR_VIEW=month&SQ_CALENDAR_DATE='.$year.'-'.sprintf('%02d', $current_month).'-01">';
+						}
+						echo $this->month_names_short[$current_month];
+						if ($enabled_views['month']) {
+							echo '</a>';
+						}
+					?>
+					</th>
+
+				<?php
+				// print blank days of week before the day our month starts on
+				$i=0;
+				$blank_days = (date('w', strtotime("$year-".sprintf('%02d', $current_month).'-01')) + 7 - $week_start_day) % 7;
+				for ($i = 0; $i < $blank_days; $i++) {
+				?>
+					<td class="<?php echo (((($week_start_day + $i) % 7)==0) || ((($week_start_day + $i) % 7)==6)) ? ' weekend' : ''; ?> ">&nbsp;</td>
+				<?php
+				}
+
+				// print the days of the month
+				for ($current_day = 1; $current_day < days_in_month($current_month, $year); $current_day++) {
+					$i++;
+					$occupied = (bool)(rand(0,100) < 5); // GET DATA FROM DB HERE
+					$class = 'date';
+					if (in_array(date('D', strtotime("$year-$current_month-$current_day")), Array('Sat', 'Sun')))  $class .= ' weekend';
+					if ($occupied) $class .= ' eventDate';
+					$onclick = ($occupied && $drill_down_view) ? 'onclick="clickChild(this)" style="cursor: pointer; cursor: hand"' : '';
+					echo '<td '.$onclick.' class="'.$class.'">';
+
+					if ($occupied && $drill_down_view) echo '<a  href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$drill_down_view."&SQ_CALENDAR_DATE=$year-".sprintf('%02d', $current_month).'-'.sprintf('%02d', $current_day).'">';
+					echo $current_day;
+					if ($occupied && $drill_down_view) echo '</a>';
+					echo '</td>';
+
+				}
+
+				// print blank days after the end of our month
+				while ($i < 36) {
+				?>
+					<td class="<?php echo (((($week_start_day + $i) % 7)==0) || ((($week_start_day + $i) % 7)==6)) ? ' weekend' : ''; ?>">&nbsp</td>
+				<?php
+					$i++;
+				}
+
+				?>
+				</tr>
 			<?php
 			}
-
-			// print the days of the month
-			for ($current_day = 1; $current_day < days_in_month($current_month, $year); $current_day++) {
-				$i++;
-				$occupied = (bool)(rand(0,100) < 5); // GET DATA FROM DB HERE
-				$class = 'date';
-				if (in_array(date('D', strtotime("$year-$current_month-$current_day")), Array('Sat', 'Sun')))  $class .= ' weekend';
-				if ($occupied) $class .= ' eventDate';
-				$onclick = ($occupied && $drill_down_view) ? 'onclick="clickChild(this)" style="cursor: pointer; cursor: hand"' : '';
-				echo '<td '.$onclick.' class="'.$class.'">';
-
-				if ($occupied && $drill_down_view) echo '<a  href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$drill_down_view."&SQ_CALENDAR_DATE=$year-".sprintf('%02d', $current_month).'-'.sprintf('%02d', $current_day).'">';
-				echo $current_day;
-				if ($occupied && $drill_down_view) echo '</a>';
-				echo '</td>';
-
-			}
-
-			// print blank days after the end of our month
-			while ($i < 36) {
 			?>
-				<td class="<?php echo (((($week_start_day + $i) % 7)==0) || ((($week_start_day + $i) % 7)==6)) ? ' weekend' : ''; ?>">&nbsp</td>
-			<?php
-				$i++;
-			}
-
-			?>
-			</tr>
-		<?php
+			</table>
+			<?
 		}
-		?>
-		</table>
-		<?
 		$res = ob_get_contents();
 		ob_end_clean();
 		return $res;
@@ -604,7 +708,7 @@ class Page_Calendar extends Page_Asset_Listing
 			<?php
 		}
 		$left_margin = $width * 0.02;
-		$width = $width * 0.94;
+		$width = $width * 0.90;
 		list($current_hour, $current_mins) = explode(':', $this->attr('day_starts_at'));
 		list($end_hour, $end_mins) = explode(':', $this->attr('day_ends_at'));
 		while (($current_hour < $end_hour) || ($current_mins < $end_mins)) {
@@ -618,17 +722,19 @@ class Page_Calendar extends Page_Asset_Listing
 				<?php
 					/* Randomised generation of events */
 					$event_start_time = rand(0, 3);
-					$event_length = rand(10, 120);
+					$event_length = rand(0, 120);
+					if ($event_length < 20) $event_length = 0;
 					$root_node_ids = array_keys($root_nodes); 
 					$event_class = $root_nodes[$root_node_ids[rand(0, count($root_nodes)-1)]]['class_name'];
+					$event_left_margin = $event_length ? $left_margin : 0;
 					$event_id = rand(1, 256);
 					if (rand(0, 100) < 15) {
 						/* End randomised generation of events */
 						$event_margin_top = ($event_start_time / 4) * $partition_height;
 						$event_height = number_format($partition_height * ($event_length / $partition_time), 2);
 						$cursor_code = $show_event_links ? 'cursor: pointer; cursor: hand; ' : '';
-						echo "<div class=\"{$event_class} event\" style=\"position: absolute; width: {$width}ex; margin-left: {$left_margin}ex; margin-top: {$event_margin_top}ex; height: {$event_height}ex; $cursor_code; \"".($show_event_links ? ' onclick="clickChild(this)"' : '').'><div class="eventText" style="position: absolute; width: '.($width*0.94).'ex; border: none;
-						background-color: transparent">';
+						$zero_length_code = $event_length ? '' : 'border-style: dashed; border-width: 2px; border-bottom: 0px; height: 0px; padding-top: 0px; background-color: transparent';
+						echo "<div class=\"{$event_class} event\" style=\"position: absolute; width: {$width}ex; margin-left: {$event_left_margin}ex; margin-top: {$event_margin_top}ex; height: {$event_height}ex; $cursor_code $zero_length_code\"".($show_event_links ? ' onclick="clickChild(this)"' : '').'><div class="eventText" style="position: absolute; width: '.($width*0.99).'ex; border: none; margin-top: '.($event_length ? '1px' : '0px').'; background-color: transparent">';
 
 						echo $show_event_links ? '<a class="event '.$event_class.'"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW=event&SQ_CALENDAR_DATE='.$date.'&SQ_CALENDAR_EVENT_ID='.$event_id.'">' : '<span class="event '.$event_class.'">';
 						
@@ -836,6 +942,53 @@ class Page_Calendar extends Page_Asset_Listing
 	}//end _buildRecurringEventQuery()
 	
 	
+
+/**
+	* Return the available keywords in the Page Contents Bodycopy for this asset
+	*
+	* The return value is in the form:
+	* <pre>
+	* Array(
+	*     'keyword' => Array (
+	*					'name'	=> '(name of the keyword)',
+	*				    'default' => '(default value)',
+	*					'type' => 'block' | 'inline'
+	*                  )
+	* )
+	* </pre>
+	*
+	* @param boolean $descriptions if TRUE descriptions will be included in the array
+	*
+	* @access public
+	* @return Array(mixed)
+	*/
+	function getContentsKeywords()
+	{
+		
+		$keywords = Array();
+		$keywords['calendar_contents'] = Array(
+										'name'=>'Calendar Contents',
+										'default'=>'The contents of the current view', 
+										'type'=>'block');
+		$keywords['calendar_title'] = Array(
+										'name'=>'Calendar Title',
+										'default'=>'The title of the current calendar view', 
+										'type'=>'inline');
+		$keywords['up_link'] = Array(
+										'name'=>'Up Link',
+										'default'=>'Link to the next-broadest view', 
+										'type'=>'inline');
+		$keywords['prev_link'] = Array(
+										'name'=>'Previous Link',
+										'default'=>'Link to the previous period', 
+										'type'=>'inline');
+		$keywords['next_link'] = Array(
+										'name'=>'Next Link',
+										'default'=>'Link to the next period', 
+										'type'=>'inline');
+		return $keywords;
+	}
+
 }//end class
 
 ?>

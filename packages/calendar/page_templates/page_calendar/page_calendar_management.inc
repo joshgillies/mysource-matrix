@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_management.inc,v 1.10 2004/08/23 00:56:54 tbarrett Exp $
+* $Id: page_calendar_management.inc,v 1.11 2004/08/24 00:27:49 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -29,7 +29,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.10 $ - 1.0
+* @version $Revision: 1.11 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -233,6 +233,36 @@ class Page_Calendar_Management extends Asset_Management
 					 );
 
 	}//end _getFileList()
+
+
+	/**
+	* Return an array with information about the events that this page is listening for
+	*
+	* @access public
+	* @return boolean
+	*/
+	function getEventList()
+	{
+		return Array(
+				Array(
+					'event_name'				 => 'requestKeywords',
+					'broadcast_type_code'		 => 'content_type_wysiwyg',
+					'broadcast_strict_type_code' => true,
+					'options'	=> Array(
+						'side_of_link'		=> 'major',
+						'indirect'			=> true,
+						'exclusive'			=> null,
+						'dependant'			=> 1,
+						'value'				=> '',
+						'link_type'			=> SQ_LINK_TYPE_2 | SQ_LINK_TYPE_1,
+					),
+				),
+		);
+
+	}//end getEventList()
+
+
+
 }//end class
 
 ?>
