@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_calendar.inc,v 1.5 2005/01/20 13:10:35 brobertson Exp $
+* $Id: js_calendar.inc,v 1.6 2005/02/11 10:25:24 gnoel Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *     An object to init and paint the JS calendar
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -124,15 +124,18 @@ class JS_Calendar
 	/**
 	* Prints the JS calendar
 	*
-	* @param string		$prefix			a prefix to identify this calendar from others on the page
-	* @param string		$container_name	the id of the container (span, div, td etc) to hold the calendar,
-	*									leave empty to use the default container
-	* @param boolean	$popup			display this calendar in a popup or not
+	* @param string		$prefix				a prefix to identify this calendar from others on the page
+	* @param string		$container_name		the id of the container (span, div, td etc) to hold the calendar,
+	*										leave empty to use the default container
+	* @param boolean	$popup				display this calendar in a popup or not
+	* @param boolean	$container_exists	if true, the container wont be created, 
+	*										it must already exist in the html
+	*										this parameter is only used if $container_name is specified
 	*
 	* @access public
 	* @return void
 	*/
-	function paint($prefix, $container_name='', $popup=false)
+	function paint($prefix, $container_name='', $popup=false, $container_exists=false)
 	{
 		$this->init();
 
@@ -147,7 +150,9 @@ class JS_Calendar
 				$container_name = $prefix.'_js_calendar_span';
 			}
 		} else {
-			?><span id="<?php echo $container_name; ?>"></span><?php
+			if (!$container_exists) {
+				?><span id="<?php echo $container_name; ?>"></span><?php
+			}
 		}
 		?>
 		<script language="Javascript" type="text/javascript">
