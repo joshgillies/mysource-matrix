@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager.inc,v 1.10 2005/04/05 00:31:04 arailean Exp $
+* $Id: trigger_manager.inc,v 1.11 2005/04/06 04:11:36 arailean Exp $
 *
 */
 
@@ -51,7 +51,7 @@ require_once 'hash.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -406,7 +406,7 @@ class Trigger_Manager extends Asset
 		$parents = $state_hash['parents'];
 		foreach ($parents as $id => $type) {
 			$parent_id_array[]   = $db->quoteSmart($id);
-			$parent_type_array[] = $db->quoteSmart($type);
+			$parent_type_array[$type] = $db->quoteSmart($type);
 		}
 
 		// parent IDs
@@ -429,7 +429,7 @@ class Trigger_Manager extends Asset
 		$children = $state_hash['children'];
 		foreach ($children as $id => $type) {
 			$child_id_array[]   = $db->quoteSmart($id);
-			$child_type_array[] = $db->quoteSmart($type);
+			$child_type_array[$type] = $db->quoteSmart($type);
 		}
 
 		// child IDs
