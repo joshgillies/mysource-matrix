@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.229 2004/08/30 04:47:02 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.230 2004/09/03 03:36:40 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -4365,13 +4365,13 @@ class Asset_Manager extends MySource_Object
 						a.type_code as '.$other_side.'_type_code, l.sort_order, l.dependant, l.exclusive';
 		$from   = 'FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link l,
 						'.SQ_TABLE_RUNNING_PREFIX.'asset a';
-		$where = 'l.'.$other_side.'id = a.assetid
-				  AND l.'.$side_of_link.'id = '.$db->quote($assetid).'
-				  AND (l.link_type & '.$db->quote($link_types).') > 0 ';
+		$where  = 'l.'.$other_side.'id = a.assetid
+				   AND l.'.$side_of_link.'id = '.$db->quote($assetid).'
+				   AND (l.link_type & '.$db->quote($link_types).') > 0 ';
 		if (!is_null($value))		$where .= ' AND l.value     = '.$db->quote($value);
 		if (!is_null($dependant))	$where .= ' AND l.dependant = '.$db->quote(($dependant) ? '1' : '0');
 		if (!is_null($exclusive))	$where .= ' AND l.exclusive = '.$db->quote(($exclusive) ? '1' : '0');
-		
+
 		$group_by = '';
 		if (!is_null($access)) {
 			$from .= ', '.SQ_TABLE_RUNNING_PREFIX.'asset_permission p';
@@ -4416,7 +4416,7 @@ class Asset_Manager extends MySource_Object
 				$where = db_extras_subquery($db, $where, $subs);
 				assert_valid_db_result($where);
 			}
-		}// end if
+		}//end if
 
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
@@ -4427,7 +4427,10 @@ class Asset_Manager extends MySource_Object
 		} else {
 			// order by a specific field in the asset table
 			$order_by = 'ORDER BY a.'.$sort_by;
-			if ($sort_by != 'type_code') $select .= ', a.'.$sort_by.' AS sort_value';
+			if ($sort_by != 'type_code') {
+				$select .= ', a.'.$sort_by.' AS sort_value';
+				$group_by .= ', a.'.$sort_by;
+			}
 		}
 
 		return Array('select'   => $select,
@@ -4476,8 +4479,8 @@ class Asset_Manager extends MySource_Object
 			$where  = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('', 'a');
 			if (!empty($where) && (!empty($type_code) || !is_null($access))) $where .= ' AND ';
 
-		// OK, normal asset, let's find a reference to them in the tree and go from there
 		} else {
+			// OK, normal asset, let's find a reference to them in the tree and go from there
 			$where = 'l.minorid = '.$db->quote($asset->id);
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
@@ -4502,8 +4505,7 @@ class Asset_Manager extends MySource_Object
 			
 			if (!empty($type_code) || !is_null($access)) $where .= ' AND ';
 
-		}// end if assetid == 1
-
+		}//end if assetid == 1
 
 		$group_by = '';
 		if (!is_null($access)) {
@@ -4524,9 +4526,6 @@ class Asset_Manager extends MySource_Object
 				$userid_cond = ' AND p.userid = 0';
 			}
 			$where .= $userid_cond.' AND p.access >= '.$db->quote($access);
-			//$group_by = 'GROUP BY l.linkid, l.'.$other_side.'id, l.value, l.link_type,
-			//			          a.type_code, l.sort_order, l.dependant, l.exclusive';
-
 			if (!empty($type_code)) $where .= ' AND ';
 		}
 
@@ -4553,7 +4552,7 @@ class Asset_Manager extends MySource_Object
 						WHERE inherited_type_code '.$type_code_cond;
 				$where = db_extras_subquery($db, $where, Array($sub));
 			}
-		}// end if
+		}//end if
 
 		// order by a field if required
 		$order_by = '';
