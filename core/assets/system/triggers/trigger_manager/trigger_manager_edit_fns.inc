@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager_edit_fns.inc,v 1.9 2005/03/01 04:15:21 arailean Exp $
+* $Id: trigger_manager_edit_fns.inc,v 1.10 2005/03/22 04:41:26 gsherwood Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard  <rhoward@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -533,28 +533,33 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 							<?php echo $type_name; ?>
 						</div>
 						<div class="sq-backend-triggers-component-controls">
-						<?php  if ($write_access) { ?>
-							<input type="checkbox" name="<?php echo $delete_prefix; ?>" >
-							Delete
+							<?php
+							if ($write_access) {
+								?>
+								<input type="checkbox" name="<?php echo $delete_prefix; ?>">Delete
 								&nbsp;&nbsp;&nbsp;&nbsp;
-							<a href="#" onclick="moveUp(this.parentNode.parentNode.parentNode); actionOrdererObject.moveUp(<?php echo $i; ?>); return false;"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/up_arrow.png' ?>", "16", "16", "Move Up");</script></a>
-							<a href="#" onclick="moveDown(this.parentNode.parentNode.parentNode); actionOrdererObject.moveDown(<?php echo $i; ?>); return false;"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/down_arrow.png' ?>", "16", "16", "Move Down");</script></a>
-						<?php  } else { echo "&nbsp;"; }?>
+								<a href="#" onclick="moveUp(this.parentNode.parentNode.parentNode); actionOrdererObject.moveUp(<?php echo $i; ?>); return false;"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/up_arrow.png' ?>", "16", "16", "Move Up");</script></a>
+								<a href="#" onclick="moveDown(this.parentNode.parentNode.parentNode); actionOrdererObject.moveDown(<?php echo $i; ?>); return false;"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/down_arrow.png' ?>", "16", "16", "Move Down");</script></a>
+								<?php
+							} else {
+								echo "&nbsp;";
+							}
+							?>
 						</div>
 					</div>
 					<div class="sq-backend-triggers-component-global-options">
 						<?php
-							if (!$write_access) {
-								$extras = 'disabled="disabled"';
-							} else {
-								$extras = '';
-							}
+						if (!$write_access) {
+							$extras = 'disabled="disabled"';
+						} else {
+							$extras = '';
+						}
 
-							check_box($ignore_permissions_prefix, 1, $ignore_permissions, null, $extras);
-							echo "Ignore Permissions";
+						check_box($ignore_permissions_prefix, 1, $ignore_permissions, null, $extras);
+						echo "Ignore Permissions";
 
-							check_box($not_required_prefix, 1, $not_required, null, $extras);
-							echo "NOT required";
+						check_box($not_required_prefix, 1, $not_required, null, $extras);
+						echo "NOT required";
 						?>
 					</div>
 					<div class="sq-backend-triggers-component-body">
