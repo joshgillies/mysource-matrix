@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.24 2004/08/11 07:18:56 tbarrett Exp $
+* $Id: page_asset_builder.inc,v 1.25 2004/08/11 23:33:51 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -676,20 +676,26 @@ class Page_Asset_Builder extends Page
 					</script>
 				<?php
 				$i = 0;
+				?>
+					<div class="sq-asset-builder-header">
+				<?php
 				foreach($create_types as $create_type) {
 					$prefix = $this->type().'_'.$this->id.'_type_'.$create_type;
 					?>
-					<div class="sq-asset-builder-tab<?php echo ($i == 0) ? '-active' : ''; ?>" id="<?php echo $prefix.'_tab'; ?>">
-						<a href="#" onclick="showAssetBuilderTab('<?php echo $create_type ?>'); return false;">
-							<?php 
-							$type_name = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($create_type, 'name');
-							echo $type_name;
-							?>
-						</a>
-					</div>
+						<div class="sq-asset-builder-tab<?php echo ($i == 0) ? '-active' : ''; ?>" id="<?php echo $prefix.'_tab'; ?>">
+							<a href="#" onclick="showAssetBuilderTab('<?php echo $create_type ?>'); return false;">
+								<?php 
+								$type_name = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($create_type, 'name');
+								echo $type_name;
+								?>
+							</a>
+						</div>
 					<?php
 					$i++;
 				}
+				?>
+					</div>
+				<?php
 				$this->_replacements['create_form'] = ob_get_contents().$this->_replacements['create_form'];
 			ob_end_clean();
 		}
