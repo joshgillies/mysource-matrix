@@ -1693,7 +1693,7 @@ class Asset extends Resolve_Object
 			foreach($url_bits as $i => $bit) {
 				$str .= $bit.'/';
 				$sql .= (($i) ? '+' : '').'
-				(CASE WHEN SUBSTRING('.$concat.' FOR '.strlen($str).') = '.$db->quote($str).' THEN 1 ELSE 0 END)';
+				(CASE WHEN SUBSTRING('.$concat.' FROM 0 FOR '.strlen($str).') = '.$db->quote($str).' THEN 1 ELSE 0 END)';
 			}
 
 			$sql .= '
