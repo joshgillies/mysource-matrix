@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: backend.inc,v 1.66 2003/10/14 06:12:09 brobertson Exp $
+* $Id: backend.inc,v 1.67 2003/10/21 23:46:26 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -371,7 +371,7 @@ class Backend extends MySource_Object
 						$options[] = Array(
 										'url'    => $this->getBackendUrl('main').'&backend_section=config',
 										'target' => 'main',
-										'title'  => 'System Config',
+										'title'  => 'System Configuration',
 										'icon'   => 'system_config.png',
 										);
 					}
