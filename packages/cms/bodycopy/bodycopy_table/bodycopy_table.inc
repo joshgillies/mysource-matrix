@@ -150,7 +150,7 @@ class Bodycopy_Table extends Asset
 	*/
 	function _getAllowedLinks()
 	{
-		return Array(SQ_LINK_UNITE => Array('content_type' => 'M'));
+		return Array(SQ_LINK_EXCLUSIVE => Array('content_type' => 'M'));
 
 	}//end _getAllowedLinks()
 
