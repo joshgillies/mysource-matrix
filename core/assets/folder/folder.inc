@@ -69,7 +69,7 @@ class Folder extends Asset
 
 		return Array(SQ_LINK_EXCLUSIVE => Array('asset' => 'M'),
 					 SQ_LINK_UNITE     => Array('asset' => 'M'),
-					 SQ_LINK_HREF      => Array('asset' => 'M')
+					 SQ_LINK_NOTICE    => Array('asset' => 'M')
 					);
 
 	}#end _getAllowedLinks()
