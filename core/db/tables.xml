@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.30 2003/12/01 05:20:15 gsherwood Exp $
+* $Id: tables.xml,v 1.31 2003/12/01 05:26:06 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -797,9 +797,7 @@
 			</column>
 			<column name="type_code" allow_null="1">
 				<type>VARCHAR(255)</type>
-				<type_variations>
-					<mysql>VARCHAR(160)</mysql>
-				</type_variations>
+				<type_variations />
 				<default />
 				<description>The type code of the asset type which we are restricting access to. Set to NULL to allow access to all asset types.</description>
 			</column>
