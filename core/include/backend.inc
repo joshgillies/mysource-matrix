@@ -182,7 +182,8 @@ class Backend extends Resolve_Object
 		<?php
 
 		// check for any new internal messages
-		$messages = $GLOBALS['SQ_SYSTEM']->ms->getMessages($GLOBALS['SQ_SYSTEM']->user->id, Array(SQ_MSG_UNREAD));
+		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$messages = $ms->getMessages($GLOBALS['SQ_SYSTEM']->user->id, Array(SQ_MSG_UNREAD));
 		if (!empty($messages)) {
 			// found unread messages
 			$html = '
@@ -194,7 +195,11 @@ class Backend extends Resolve_Object
 								<td class="sq-backend-message-header">New Messages</td>
 							</tr>
 							<tr>
-								<td class="sq-backend-message-item" nowrap><a href="#" onClick="Javascript: alert(\\\'change flash to message view\\\');">'.$GLOBALS['SQ_SYSTEM']->user->_getName(false).' has '.count($messages).' new messages</a></td>
+								<td class="sq-backend-message-item" nowrap>
+								<a href="#" onClick="Javascript: if (parent.top.sidenav.top.sidenav && parent.top.sidenav.top.sidenav.refresh_internal_messages) { parent.top.sidenav.top.sidenav.refresh_internal_messages(); };">
+									'.$GLOBALS['SQ_SYSTEM']->user->_getName(false).' has '.count($messages).' new messages
+								</a>
+								</td>
 							</tr>
 						</table>
 					</td>

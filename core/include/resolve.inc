@@ -3,7 +3,6 @@
 require_once 'DB.php';
 require_once SQ_INCLUDE_PATH.'/resolve_object.inc';
 require_once SQ_INCLUDE_PATH.'/asset_manager.inc';
-require_once SQ_INCLUDE_PATH.'/messaging_service.inc';
 
 /**
 * Resolve
@@ -84,9 +83,6 @@ class Resolve
 	{
 		// initialise the asset manager as we are going to need it pretty much everywhere
 		$this->am = new Asset_Manager();
-
-		// initialise the messaging service
-		$this->ms = new Messaging_Service();
 
 		// initiailise event listeners
 		$GLOBALS['SQ_EVENT_LISTENER_OBJECTS'] = array();
@@ -266,6 +262,23 @@ class Resolve
 			$object->$function_name($event_data);
 		}
 		return true;
+	}
+
+
+	/**
+	* Get the messaging service object so you can send/receive messages
+	* Always call this function to get the messaging service, dont use $this->ms directly
+	*
+	* @return object Messaging_Service
+	* @access public
+	*/
+	function &getMessagingService()
+	{
+		if(get_class($this->ms) != 'messaging_service') {
+			include_once SQ_INCLUDE_PATH.'/messaging_service.inc';
+			$this->ms = new Messaging_Service();
+		}
+		return $this->ms;
 	}
 
 

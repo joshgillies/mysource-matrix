@@ -39,7 +39,8 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 	{
 		$user = &$asset->_getUser();
 
-		$messages = $GLOBALS['SQ_SYSTEM']->ms->getMessages($user->id, Array(SQ_MSG_UNREAD, SQ_MSG_READ));
+		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$messages = $ms->getMessages($user->id, Array(SQ_MSG_UNREAD, SQ_MSG_READ));
 
 		if (empty($messages)) {
 			echo 'You have no messages';
@@ -57,11 +58,16 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 			</tr>
 			<?php
 			foreach ($messages as $data) {
-				// work out who the sender was
-				$from = &$GLOBALS['SQ_SYSTEM']->am->getAsset($data['userfrom']);
+				if ($data['userfrom']) {
+					// work out who the sender was
+					$from = &$GLOBALS['SQ_SYSTEM']->am->getAsset($data['userfrom']);
+					$from_name = $from->_getName(false);
+				} else {
+					$from_name = SQ_SYSTEM_SHORT_NAME.' System';
+				}
 				?>
 				<tr>
-					<td class="sq-backend-message-item" bgcolor="#FFFFFF"><?php echo $from->_getName(false)?></td>
+					<td class="sq-backend-message-item" bgcolor="#FFFFFF"><?php echo $from_name?></td>
 					<td class="sq-backend-message-item" bgcolor="#FFFFFF"><?php echo $data['subject']?></td>
 					<td class="sq-backend-message-item" bgcolor="#FFFFFF"><?php echo $data['body']?></td>
 					<td class="sq-backend-message-item" bgcolor="#FFFFFF" width="130"><?php echo $data['sent']?></td>
@@ -100,24 +106,25 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 
 		$user = &$asset->_getUser();
 
-		$messages = $GLOBALS['SQ_SYSTEM']->ms->getMessages($user->id);
+		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$messages = $ms->getMessages($user->id);
 
 		if (!empty($messages)) {
 			foreach ($messages as $data) {
 				// change message status (read/unread)
 				if (in_array($data['messageid'], $read) && $data['status'] != SQ_MSG_READ) {
-					if (!$GLOBALS['SQ_SYSTEM']->ms->updateMessageStatus($data['messageid'], SQ_MSG_READ)) {
+					if (!$ms->updateMessageStatus($data['messageid'], SQ_MSG_READ)) {
 						trigger_error('Status of message '.$data['messageid'].' was not updated', E_USER_WARNING);
 					}
 				} else if (!in_array($data['messageid'], $read) && $data['status'] == SQ_MSG_READ) {
-					if (!$GLOBALS['SQ_SYSTEM']->ms->updateMessageStatus($data['messageid'], SQ_MSG_UNREAD)) {
+					if (!$ms->updateMessageStatus($data['messageid'], SQ_MSG_UNREAD)) {
 						trigger_error('Status of message '.$data['messageid'].' was not updated', E_USER_WARNING);
 					}
 				}
 
 				// delete messages
 				if (in_array($data['messageid'], $delete) && $data['status'] != SQ_MSG_DELETED) {
-					if (!$GLOBALS['SQ_SYSTEM']->ms->updateMessageStatus($data['messageid'], SQ_MSG_DELETED)) {
+					if (!$ms->updateMessageStatus($data['messageid'], SQ_MSG_DELETED)) {
 						trigger_error('Message '.$data['messageid'].' was not deleted', E_USER_WARNING);
 					}
 				}
@@ -142,7 +149,8 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 	{
 		$user = &$asset->_getUser();
 
-		$messages = $GLOBALS['SQ_SYSTEM']->ms->getMessages($user->id, Array(SQ_MSG_DELETED));
+		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$messages = $ms->getMessages($user->id, Array(SQ_MSG_DELETED));
 
 		if (empty($messages)) {
 			echo 'Your trash is empty';
@@ -200,12 +208,13 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 
 		$user = &$asset->_getUser();
 
-		$messages = $GLOBALS['SQ_SYSTEM']->ms->getMessages($user->id);
+		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$messages = $ms->getMessages($user->id);
 
 		if (!empty($recover)) {
 			foreach ($recover as $messageid) {
 				// recover messages to inbox
-				if (!$GLOBALS['SQ_SYSTEM']->ms->updateMessageStatus($messageid, SQ_MSG_READ)) {
+				if (!$ms->updateMessageStatus($messageid, SQ_MSG_READ)) {
 					trigger_error('Message '.$messageid.' was not recovered', E_USER_WARNING);
 				}
 			}
@@ -214,7 +223,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 		if (!empty($purge)) {
 			foreach ($purge as $messageid) {
 				// delete messsage FOREVER
-				if (!$GLOBALS['SQ_SYSTEM']->ms->deleteMessage($messageid)) {
+				if (!$ms->deleteMessage($messageid)) {
 					trigger_error('Message '.$messageid.' was not deleted', E_USER_WARNING);
 				}
 			}
