@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.52.2.2 2004/10/27 06:34:28 mnyeholt Exp $
+* $Id: mysource.inc,v 1.52.2.2.2.1 2005/01/21 04:28:42 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -543,12 +543,11 @@ class MySource
 				$_SESSION['SQ_DESIGN_NAME'] = (isset($_GET['SQ_DESIGN_NAME'])) ? $_GET['SQ_DESIGN_NAME'] : '';
 				unset($_GET['SQ_DESIGN_NAME']);
 			break;
+
 			case 'clear_design_name' :
 				if (isset($_SESSION['SQ_DESIGN_NAME'])) unset($_SESSION['SQ_DESIGN_NAME']);
 			break;
-			case 'clear_design_name' :
-				if (isset($_SESSION['SQ_DESIGN_NAME'])) unset($_SESSION['SQ_DESIGN_NAME']);
-			break;
+
 			case 'asset_map_request' :
 				require_once SQ_LIB_PATH.'/asset_map/asset_map.inc';
 				$asset_map = new Asset_Map();
