@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_asset_config.inc,v 1.11 2004/07/01 14:36:50 brobertson Exp $
+* $Id: system_asset_config.inc,v 1.12 2004/08/19 05:43:27 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,10 +38,12 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 */
 class System_Asset_Config extends Config
 {
+
+	// Dummy entry for the printing of the system asset() fn
 	var $config_vars = Array(
-		// Dummy entry for the printing of the system asset() fn
 		'PRINT_SYSTEM_ASSETS' => Array('editable' => 0, 'default' => ''),
 	);
+
 
 	/**
 	* Constructor
@@ -67,7 +69,7 @@ class System_Asset_Config extends Config
 	*/
 	function save($vars, $backup_existing=false)
 	{
-		// We don't really care about any values that they have entered
+		// we don't really care about any values that they have entered
 		return parent::save(Array(), $backup_existing);
 
 	}//end save()
