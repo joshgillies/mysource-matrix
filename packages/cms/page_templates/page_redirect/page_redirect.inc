@@ -44,6 +44,22 @@ class Page_Redirect extends Page
 	}// end printFrontend()
 
 
+	/**
+	* Prints out the body of the asset
+	*
+	* This function just calls printFrotnend()
+	*
+	* @return void
+	* @access public
+	* @see printFrontend()
+	*/
+	function printBody()
+	{
+		$this->printFrontend();
+
+	}// end printBody()
+
+
 }//end class
 
 ?>
