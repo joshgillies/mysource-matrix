@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: design_edit_fns.inc,v 1.45 2003/10/13 07:27:45 brobertson Exp $
+* $Id: design_edit_fns.inc,v 1.46 2003/10/13 09:50:05 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -546,7 +546,6 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		<?php
 		$am = &$GLOBALS[\'SQ_SYSTEM\']->am;
 		$ASSET_LINEAGE = $am->getLineageFromURL(null, null, \'short_name\');
-		pre_echo($ASSET_LINEAGE);
 		?>
 		';
 
@@ -558,7 +557,6 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			$str = str_replace('?'.'><'.'?php', '', ob_get_contents());
 		}
 		ob_end_clean();
-
 		if (!$str) return false;
 		$str = $pre_str."\n".$str;
 
