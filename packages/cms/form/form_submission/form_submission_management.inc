@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_submission_management.inc,v 1.9 2004/12/06 14:41:39 brobertson Exp $
+* $Id: form_submission_management.inc,v 1.10 2005/03/31 06:51:39 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -56,6 +56,11 @@ class Form_Submission_Management extends Asset_Management
 												'type'		=> 'serialise',
 												'default'	=> Array(),
 												'update_fn' => '',
+											),
+							'complete'	=> Array(
+												'added'		=> '0.2',
+												'type'		=> 'boolean',
+												'default'	=> false,
 											),
 									);
 	}//end constructor
