@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.4 2004/05/26 06:48:01 lwright Exp $
+* $Id: search_manager.inc,v 1.5 2004/05/26 22:37:14 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.4 $ - 0.1
+* @version $Revision: 1.5 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -388,7 +388,7 @@ class Search_Manager extends Asset
 				}
 			}
 		}
-		$this->addKeyData($assetid, $mm->getMetadataKeyData($assetid, $schemaids));
+		$this->addKeyData($assetid, $this->getMetadataKeyData($assetid, $schemaids));
 
 	}//end indexMetadata()
 

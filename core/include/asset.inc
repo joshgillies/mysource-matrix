@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.295 2004/05/26 06:43:08 lwright Exp $
+* $Id: asset.inc,v 1.296 2004/05/26 22:37:13 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -3308,12 +3308,15 @@ class Asset extends MySource_Object
 	*/
 	function getKeyData()
 	{
+		$sm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
+		if (!$sm) return Array();
+
 		require_once SQ_FUDGE_PATH.'/general/text.inc';
 
 		// index metadata
 		$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
 		$schemaids = $mm->getSchemas($this->id, true);
-		$keydata   = $mm->getMetadataKeyData($this->id, $schemaids);
+		$keydata   = $sm->getMetadataKeyData($this->id, $schemaids);
 
 		// index attributes
 		$weightings = $this->getWeightings();
