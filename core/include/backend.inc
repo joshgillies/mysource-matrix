@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.111 2005/02/18 05:41:53 mmcintyre Exp $
+* $Id: backend.inc,v 1.112 2005/02/20 22:08:15 gsherwood Exp $
 *
 */
 
@@ -32,7 +32,7 @@
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.111 $
+* @version $Revision: 1.112 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -706,25 +706,25 @@ class Backend extends MySource_Object
 			}
 			
 			.sidenav-tab a, .sidenav-tab-active a {
-				font-family:			Arial;
+				font-family:		Arial;
 				font-size:			10px;
 				color:				#FFFFFF;
 				padding-left:		2px;
 				padding-right:		8px;
-				text-decoration:		none;
+				text-decoration:	none;
 			}
 			
 			#asset_map {
 				margin:				0px;
 				border:				1px solid #342939;
-				padding:				0px;
+				padding:			0px;
 				width:				100%;
 			}
 			
 			#my_space {
 				width:				100%;
 				background-color:	#FFFFFF;
-				padding:				0px;
+				padding:			0px;
 				margin:				0px;
 				border:				1px solid #FFFFFF;
 			}
@@ -735,15 +735,15 @@ class Backend extends MySource_Object
 				width:				270px;
 			}
 			.myspace-section td, .myspace-section a {
-				font-family:			Arial;
+				font-family:		Arial;
 				font-size:			9px;
 				color:				#666666;
 				text-decoration:	none;
 			}
 			.myspace-section-header, .myspace-section-header a {
 				font-size:			12px;
-				font-weight:			bold;
-				text-decoration:		none;
+				font-weight:		bold;
+				text-decoration:	none;
 			}
 		</style>
 		<script type="text/javascript">
@@ -826,7 +826,7 @@ class Backend extends MySource_Object
 			$inbox_link = $GLOBALS['SQ_SYSTEM']->am->getLink($user->id, SQ_LINK_TYPE_2, 'inbox', true, null, 'major', '1');
 
 			if (empty($inbox_link)) {
-				$inbox_url = $user->getBackendHref();
+				$inbox_url = '';
 			} else {
 				$inbox_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($inbox_link['minorid'], $inbox_link['minor_type_code']);
 				$inbox_url = $inbox_asset->getBackendHref('details');
@@ -835,22 +835,27 @@ class Backend extends MySource_Object
 			$details_url = $user->getBackendHref('details');
 
 			// get all unread messages and read messages that are less than 8 hours old
-			$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-			$from = time() - (8 * 3600); // 8 hours ago
-			$read_messages   = $ms->getMessages($GLOBALS['SQ_SYSTEM']->currentUserId(), null, Array(SQ_MSG_READ), Array(), $from, null, 'short_name');
-			$unread_messages = $ms->getMessages($GLOBALS['SQ_SYSTEM']->currentUserId(), null, Array(SQ_MSG_UNREAD), Array(), null, null, 'short_name');
-	
-			$messages = array_merge($read_messages, $unread_messages);
-			$num_messages = count($messages);
+			if (!empty($inbox_url)) {
+				$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+				$from = time() - (8 * 3600); // 8 hours ago
+				$read_messages   = $ms->getMessages($GLOBALS['SQ_SYSTEM']->currentUserId(), null, Array(SQ_MSG_READ), Array(), $from, null, 'short_name');
+				$unread_messages = $ms->getMessages($GLOBALS['SQ_SYSTEM']->currentUserId(), null, Array(SQ_MSG_UNREAD), Array(), null, null, 'short_name');
+		
+				$messages = array_merge($read_messages, $unread_messages);
+				$num_messages = count($messages);
+				?>
+				<table class="myspace-section">
+					<tr>
+						<td><a href="<?php echo $_SERVER['PHP_SELF'].$inbox_url; ?>" target="sq_main"><img src="<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/inbox_icon.png" align="left" border="0" /></a></td>
+						<td width="100%">
+							<a href="<?php echo $_SERVER['PHP_SELF'].$inbox_url; ?>" target="sq_main"><span class="myspace-section-header">Inbox</span><br />You have [<b><?php echo $num_messages; ?></b>] new message(s)</a>
+						</td>
+					</tr>
+				</table>
+				<?php
+			}//end if user has an inbox
+
 			?>
-			<table class="myspace-section">
-				<tr>
-					<td><a href="<?php echo $_SERVER['PHP_SELF'].$inbox_url; ?>" target="sq_main"><img src="<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/inbox_icon.png" align="left" border="0" /></a></td>
-					<td width="100%">
-						<a href="<?php echo $_SERVER['PHP_SELF'].$inbox_url; ?>" target="sq_main"><span class="myspace-section-header">Inbox</span><br />You have [<b><?php echo $num_messages; ?></b>] new message(s)</a>
-					</td>
-				</tr>
-			</table>
 			<table class="myspace-section">
 				<tr>
 					<td><a href="<?php echo $_SERVER['PHP_SELF'].$details_url; ?>" target="sq_main"><img src="<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/mydetails_icon.png" align="left" border="0" /></a></td>
