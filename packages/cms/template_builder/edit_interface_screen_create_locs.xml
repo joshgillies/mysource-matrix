@@ -1,0 +1,83 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Open Source Licence                                      |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: edit_interface_screen_create_locs.xml,v 1.1 2004/11/02 00:04:54 lwright Exp $
+* $Name: not supported by cvs2svn $
+*/
+-->
+
+<contents>
+	<section name="Create a New Rule">
+		<field>
+			<display_name>New Rule</display_name>
+			<note>Check this box to create a new, empty Create Location rule</note>
+			<function_call>
+				<paint_function   name="paintAddCreateLocRule"   />
+				<process_function name="processAddCreateLocRule" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Current Create Location Rules">
+		<field>
+			<display_name>Current Rules</display_name>
+			<note>Only valid rules (marked with a tick in the Valid column) can be processed. To be valid a rule must consist of at least one part, and must specify a location(s) for the completed template to be created in</note>
+			<function_call>
+				<paint_function   name="paintCurrentCreateLocs"   />
+				<process_function name="processCurrentCreateLocs" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Active Rule">
+		<field>
+			<display_name>Current Rule Parts</display_name>
+			<note>When an asset is selected as the comparison value, it will override the value entered in the text box</note>
+			<function_call>
+				<paint_function   name="paintRuleParts"   />
+				<process_function name="processRuleParts" />
+			</function_call>
+		</field>
+		<field>
+			<display_name>Create In</display_name>
+			<note></note>
+			<function_call>
+				<paint_function   name="paintActivePlace"   />
+				<process_function name="processActivePlace" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Add New Rule Part">
+		<field>
+			<display_name>Apply Rule To</display_name>
+			<note>Select the form question asset that this rule part will apply to</note>
+			<function_call>
+				<paint_function   name="paintActiveQuestion"   />
+				<process_function name="processActiveQuestion" />
+			</function_call>
+		</field>
+		<field>
+			<display_name>Add Rule Part</display_name>
+			<note></note>
+			<function_call>
+				<paint_function   name="paintAddRulePart"   />
+				<process_function name="processAddRulePart" />
+			</function_call>
+		</field>
+	</section>
+</contents>
