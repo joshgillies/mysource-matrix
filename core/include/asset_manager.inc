@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.268 2005/02/16 13:39:43 brobertson Exp $
+* $Id: asset_manager.inc,v 1.269 2005/02/17 06:06:27 rhoward Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.268 $
+* @version $Revision: 1.269 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -96,16 +96,23 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Returns the asset types and their information.
 	*
+	*
+	* @param  boolean   $instantiable
 	* @return Array(type_code => Array(info))
 	* @access public
 	*/
-	function getAssetTypes()
+	function getAssetTypes($instantiable=null)
 	{
 		$asset_types = Array();
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'SELECT type_code, version, name, instantiable, allowed_access, parent_type, dir, customisation
 				FROM '.SQ_TABLE_PREFIX.'ast_typ';
+
+		if (!is_null($instantiable)) {
+			$sql .= ' WHERE instantiable = '.$db->quote((int)$instantiable);
+		}
+
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
 
@@ -472,6 +479,8 @@ class Asset_Manager extends MySource_Object
 	*/
 	function getAssetTypeInfo($assetids, $type_code=Array(), $strict_type_code=true)
 	{
+		assert_type($assetids, 'array');
+		assert_type($type_code, 'array');
 		if (empty($assetids)) return Array();
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
@@ -526,6 +535,7 @@ class Asset_Manager extends MySource_Object
 	function includeAsset($type_code)
 	{
 		$error_msg = 'Asset "'.$type_code.'" is not installed on the system, unable to include its source file';
+
 		assert_isset_array_index($this->_asset_types, $type_code, $error_msg);
 		require_once SQ_SYSTEM_ROOT.'/'.$this->_asset_types[$type_code]['dir'].'/'.$type_code.'.inc';
 
@@ -789,6 +799,44 @@ class Asset_Manager extends MySource_Object
 
 
 	/**
+	* Returns a boolean as to whether the passed assetid refers to a valid asset in the system
+	*
+	* @param int		$assetid	A single assetid
+	*
+	* @return boolean
+	* @access public
+	*/
+	function isAsset($assetid)
+	{
+		assert_valid_assetid($assetid);
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		$sql = '
+			SELECT
+				COUNT(assetid) as assets
+			FROM
+				!ast
+			WHERE
+				assetid = ?
+		';
+
+		$data = Array(
+			SQ_TABLE_PREFIX,
+			$assetid
+		);
+
+		// query the database, expect only one row
+		$result = $db->getRow($sql, $data);
+		// check result
+		assert_valid_db_result($result);
+
+		return ($result['assets'] == "0" ? false : true);
+
+	}
+
+
+	/**
 	* Registers the passed object in the store, for others to get
 	* Used when a new record has just been "create()d"
 	*
@@ -991,8 +1039,8 @@ class Asset_Manager extends MySource_Object
 
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 		$sql = 'SELECT assetid, '.((empty($field)) ? '*' : $field) .'
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast a 
-				'.$where.' 
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast a
+				'.$where.'
 				ORDER BY a.assetid';
 
 		if (empty($field)) {
@@ -1076,8 +1124,8 @@ class Asset_Manager extends MySource_Object
 	{
 		if (empty($assetids)) return Array();
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$sql = 'SELECT v.assetid, COALESCE(v.custom_val, at.default_val) as val 
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_val v JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_attr at ON at.attrid=v.attrid 
+		$sql = 'SELECT v.assetid, COALESCE(v.custom_val, at.default_val) as val
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_val v JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_attr at ON at.attrid=v.attrid
 				WHERE ';
 
 		// if asset type is set to 'asset' then skip owning type code checks
@@ -1379,7 +1427,7 @@ class Asset_Manager extends MySource_Object
 	* @param int|NULL	$expires		when the lock expires (timestamp or NULL)
 	*									If expires is set to NULL, the lock will be acquired indefinitely (ie. it will never expire).
 	*
-	* @return int		zero on failue, non-zero on success (1 on success and all lock types reqeusted had to be acquired,
+	* @return int		zero on failure, non-zero on success (1 on success and all lock types requested had to be acquired,
 	*					2 on any lock was updated [ie at least one lock type was already held])
 	* @access public
 	*/
@@ -1797,12 +1845,16 @@ class Asset_Manager extends MySource_Object
 	*										('major' or 'minor')
 	* @param boolean	$force_array		force the results to return an array of links
 	*										even if there is only one link
+	* @param boolean	$dependant			The dependant status for all the links must be
+	*										this (if not null)
+	* @param boolean	$exclusive			The exclusive status for all the links must be
+	*										this (if not null)
 	*
 	* @return Array()	array of link info if only one link and force_array=false,
 	*                   array of arrays of link info otherwise
 	* @access public
 	*/
-	function getLinkByAsset($assetid, $other_assetid, $link_types=null, $value=null, $side_of_link='major', $force_array=false)
+	function getLinkByAsset($assetid, $other_assetid, $link_types=null, $value=null, $side_of_link='major', $force_array=false, $dependant=null, $exclusive=null)
 	{
 		assert_valid_assetid($assetid);
 		assert_valid_assetid($other_assetid);
@@ -1817,15 +1869,17 @@ class Asset_Manager extends MySource_Object
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'SELECT l.linkid, l.'.$other_side.'id, l.value, l.link_type,
-				       a.type_code as '.$other_side.'_type_code, l.sort_order, l.is_dependant, l.is_exclusive
+					   a.type_code as '.$other_side.'_type_code, l.sort_order, l.is_dependant, l.is_exclusive
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
 						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON l.'.$other_side.'id  = a.assetid
 				';
 
 		$where = 'l.'.$side_of_link.'id = '.$db->quote($assetid).'
 				  AND l.'.$other_side.'id  = '.$db->quote($other_assetid);
-		if (!is_null($link_types)) $where .= '  AND (l.link_type & '.$db->quote($link_types).') > 0 ';
-		if (!is_null($value))     $where .= '  AND l.value = '.$db->quote($value);
+		if (!is_null($link_types)) $where .= ' AND (l.link_type & '.$db->quote($link_types).') > 0 ';
+		if (!is_null($value))      $where .= ' AND l.value = '.$db->quote($value);
+		if (!is_null($dependant))  $where .= ' AND l.is_dependant = '.$db->quote(($dependant) ? '1' : '0');
+		if (!is_null($exclusive))  $where .= ' AND l.is_exclusive = '.$db->quote(($exclusive) ? '1' : '0');
 
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
@@ -1907,6 +1961,7 @@ class Asset_Manager extends MySource_Object
 
 		// we couldnt palm the request off, so we better do it ourselves
 		$query = $this->generateGetLinksQuery($assetid, $link_types, $type_code, $strict_type_code, $side_of_link, $value, $dependant, $exclusive, $sort_by, $access);
+
 		if (empty($query)) return Array();
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
@@ -2425,6 +2480,79 @@ class Asset_Manager extends MySource_Object
 
 
 	/**
+	* Returns the raw treeid of any links between the passed assetid and any of its parents
+	*
+	* @param int			$assetid		the id of the asset passed
+	* @param int|array(int)	$link_type		the type(s) of wanted links, by default 1, 2, & 3
+	* @param boolean		$force_array	always return the information in an array, as though more than one lock has been requested
+	*
+	* @access public
+	* @return string
+	*/
+	function getRawTreeIdByAsset($assetid, $force_array=false, $link_type=Array(SQ_LINK_TYPE_1, SQ_LINK_TYPE_2, SQ_LINK_TYPE_3))
+	{
+		assert_valid_assetid($assetid);
+
+		if (!is_array($link_type)) {
+			$link_type = Array($link_type);
+		}
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		$sql	 = 'SELECT treeid ';
+		$sql	.= 'FROM sq_ast_lnk l INNER JOIN sq_ast_lnk_tree t ';
+		$sql	.= 'ON l.linkid = t.linkid ';
+
+		$where	 = 'WHERE minorid = '.$assetid;
+
+		if (is_array($link_type) && !empty($link_type)) {
+			$where .= ' AND (';
+
+			$ii = 0;
+			foreach ($link_type as $type) {
+				if ($ii == 0) {
+					$ii++;
+					$where .= 'link_type = '.$type;
+				}
+				else {
+					$where	.= ' OR link_type = '.$type;
+				}
+			}
+			$where .= ')';
+		}
+
+		$result = $db->query($sql.$where);
+		assert_valid_db_result($result);
+
+		$assetids = Array();
+
+		$ii = 0;
+
+		$return = Array();
+		while (DB_OK === $result->fetchInto($row)) {
+			if ($row['treeid']) {
+				array_push($return, $row['treeid']);
+				$ii++;
+			}
+		}
+		$result->free();
+
+		// If only one result, return it as a string if $force_array isn't set
+		if (!$force_array) {
+			if ($ii == 1 && $row['treeid']) {
+				$return = $row['treeid'];
+			}
+			if (empty($return)) {
+				$return = '';
+			}
+		}
+
+		return $return;
+
+	}
+
+
+	/**
 	* Return true if the passed assetid is in the trash, false otherwise
 	*
 	* Note that if the passed assetid is the id of the trash folder, false will be returned
@@ -2455,7 +2583,7 @@ class Asset_Manager extends MySource_Object
 		$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 't');
 		$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 'l');
 		$sub_sql .= $sub_where.' LIMIT 1';
-		
+
 		$sql   = 'SELECT COUNT(*)
 				  FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l ON t.linkid = l.linkid';
 		$where = 'l.minorid = '.$db->quote($assetid).'
@@ -2630,7 +2758,7 @@ class Asset_Manager extends MySource_Object
 
 			$sql   = 'SELECT COUNT(DISTINCT ct.linkid)
 					  FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree pt,
-					    '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree ct INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk cl ON ct.linkid = cl.linkid ';
+						'.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree ct INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk cl ON ct.linkid = cl.linkid ';
 			$where = 'ct.treeid LIKE (pt.treeid || '.$db->quote('%').')
 					  AND ct.treeid >= pt.treeid
 					  AND pt.linkid IN ('.$sub_sql.')
@@ -2771,7 +2899,7 @@ class Asset_Manager extends MySource_Object
 				// as we will be inserting over the top of them
 				$sub_sql   = 'SELECT t.treeid || '.$db->quote($free_childid).'
 							  FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t
-							  	INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l ON t.linkid = l.linkid ';
+								INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l ON t.linkid = l.linkid ';
 				$sub_where = 'l.minorid = '.$db->quote($major->id);
 				$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 't');
 				$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 'l');
@@ -2801,7 +2929,7 @@ class Asset_Manager extends MySource_Object
 
 			} else {
 				// we have existing tree entries, do a insert..select to create entries for them all
-				
+
 				$where = 'l.minorid = '.$db->quote($major->id);
 				// note that we dont prep this query for rollback because its getting run
 				// by the rollback query functions already
@@ -2908,8 +3036,26 @@ class Asset_Manager extends MySource_Object
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
+		// Event Manager
 		$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
 		$em->broadcastEvent($major, 'CreateLink', Array('linkid' => $linkid));
+
+		// Trigger Manager
+		// check if the link involves the trash
+		if ($major->type() != 'trash_folder' && $minor->type() != 'trash_folder') {
+			// fire the 'Link Created' events, one for the major asset, one for the minor
+			$event_data = Array(
+				'linkid'	=> $linkid
+			);
+
+			if ($major->type() != 'root_folder') {
+				$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_link_created', &$major, $event_data);
+			}
+			$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_link_created', &$minor, $event_data);
+
+		}
+
+
 		return $linkid;
 
 	}//end createAssetLink()
@@ -2921,7 +3067,7 @@ class Asset_Manager extends MySource_Object
 	* @param object Asset	$major		the major asset in the proposed link
 	* @param object Asset	$minor		the minor asset in the proposed link
 	* @param string			$link_type	the type of link that is proposed
-	* @param int			$exclusive	(0|1) whether this will be the only significant link 
+	* @param int			$exclusive	(0|1) whether this will be the only significant link
 	*									with $minor as the minor asset
 	*
 	* @return mixed TRUE or error message string
@@ -2997,7 +3143,7 @@ class Asset_Manager extends MySource_Object
 	* @param string			$link_type		the type of the proposed link
 	* @param int			$ignore_linkid	if it gets down to the checking of the cardinality,
 	*										ignore the link represented by this link id
-	* @param int			$exclusive		(0|1) whether this will be the only significant link 
+	* @param int			$exclusive		(0|1) whether this will be the only significant link
 	*										with $minor as the minor asset
 	*
 	* @return mixed TRUE or error message string
@@ -3380,7 +3526,7 @@ class Asset_Manager extends MySource_Object
 
 	}//end updateLink()
 
-	
+
 	/**
 	* Remove a link by id
 	*
@@ -3594,11 +3740,11 @@ class Asset_Manager extends MySource_Object
 	}//end couldTrashAsset()
 
 
-	/** 
+	/**
 	* Send the specified asset directly to the trash, where possible
 	*
 	* This deletes its links to all its current parents, and creates a link for it in the trash folder
-	* 
+	*
 	* @param int	$assetid	The asset to trash
 	*
 	* @return boolean	Whether the asset was successfully trashed
@@ -4080,7 +4226,7 @@ class Asset_Manager extends MySource_Object
 		$result = $db->getAll($sql);
 		assert_valid_db_result($result);
 
-		
+
 		$url_asset = &$this->getAssetFromURL($protocol, $url);
 		$id_parts = explode(':', $url_asset->id);
 		if (isset($id_parts[1])) {
@@ -4092,7 +4238,7 @@ class Asset_Manager extends MySource_Object
 				return Array();
 			}
 			$bridge_lineage = $asset->getLineageFromURL($id_parts[1], $protocol, $url);
-			
+
 			$result = array_merge($result, $bridge_lineage);
 
 		} else if (empty($result) || $result[count($result) - 1]['url'] != $url) {
@@ -4126,7 +4272,7 @@ class Asset_Manager extends MySource_Object
 				}//end if
 			}//end if
 		}//end if
-		
+
 		return $result;
 
 	}//end getLineageFromURL()
@@ -4585,7 +4731,7 @@ class Asset_Manager extends MySource_Object
 			}
 			$where .= $userid_cond.' AND p.granted >= '.$db->quote($access);
 			$group_by = 'GROUP BY l.linkid, l.'.$other_side.'id, l.value, l.link_type,
-						          a.type_code, l.sort_order, l.is_dependant, l.is_exclusive';
+								  a.type_code, l.sort_order, l.is_dependant, l.is_exclusive';
 		}
 
 		if (!empty($type_code)) {
@@ -4687,8 +4833,8 @@ class Asset_Manager extends MySource_Object
 
 			$select = 'SELECT DISTINCT l.minorid'.(($inc_type_code) ? ', a.type_code' : '');
 			$from   = 'FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t
-					         INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l ON t.linkid = l.linkid
-					         INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON l.minorid = a.assetid
+							 INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l ON t.linkid = l.linkid
+							 INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON l.minorid = a.assetid
 					';
 			$where = 't.treeid LIKE '.$db->quote($treeid.'%').'
 					  AND t.treeid > '.$db->quote($treeid);
@@ -4761,8 +4907,8 @@ class Asset_Manager extends MySource_Object
 					);
 
 	}//end generateGetChildrenQuery()
-	
-	
+
+
 	/**
 	* Get all asset ids that are above the passed assetid in the various trees in which it exists
 	*
@@ -4787,9 +4933,9 @@ class Asset_Manager extends MySource_Object
 
 		$select = 'SELECT DISTINCT pl.minorid, a.type_code, pt.treeid';
 		$from   = 'FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk cl
-				     INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree ct ON cl.linkid = ct.linkid,
+					 INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree ct ON cl.linkid = ct.linkid,
 				  '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk pl
-				     INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree pt ON pl.linkid = pt.linkid,
+					 INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree pt ON pl.linkid = pt.linkid,
 				  '.SQ_TABLE_RUNNING_PREFIX.'ast a';
 		$where  ='cl.minorid = '.$db->quote($assetid).'
 				  AND ct.treeid LIKE pt.treeid || '.$db->quote('%').'
@@ -4801,7 +4947,7 @@ class Asset_Manager extends MySource_Object
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'pl');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'pt');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
-		
+
 		if (!empty($type_code)) {
 			$type_code_cond = '';
 			if (is_array($type_code)) {
@@ -4830,7 +4976,7 @@ class Asset_Manager extends MySource_Object
 		} else {
 			$order_by = 'ORDER BY pt.treeid';
 		}
-		
+
 		$group_by = '';
 		if (!is_null($access)) {
 			$from .= ','.SQ_TABLE_RUNNING_PREFIX.'ast_perm p';
@@ -4861,6 +5007,6 @@ class Asset_Manager extends MySource_Object
 	}//end generateGetParentsQuery()
 
 
-}//end class 
+}//end class
 
 ?>
