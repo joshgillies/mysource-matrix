@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_regexp_management.inc,v 1.5 2003/11/26 00:51:28 gsherwood Exp $
+* $Id: form_question_rule_type_regexp_management.inc,v 1.6 2003/12/16 12:13:05 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @version $Version$ - 1.0
 * @package MySource_Matrix_Packages
-* @subpackage __core__
+* @subpackage cms
 */
 class Form_Question_Rule_Type_Regexp_Management extends Asset_Management
 {

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_metadata_schemas.inc,v 1.9 2003/11/26 00:51:09 gsherwood Exp $
+* $Id: hipo_job_edit_metadata_schemas.inc,v 1.10 2003/12/16 12:13:57 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * @author  Greg Sherwood <greg@squiz.net>
 * @version $Version$ - 1.0
 * @package MySource_Matrix
-* @subpackage lib
+* @subpackage HIPO
 */
 class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 {

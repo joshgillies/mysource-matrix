@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_02.php,v 1.44 2003/11/26 00:51:16 gsherwood Exp $
+* $Id: step_02.php,v 1.45 2003/12/16 12:21:49 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,6 +30,7 @@
 * @author  Greg Sherwood <greg@squiz.net>
 * @version $Version$ - 1.0
 * @package MySource_Matrix
+* @subpackage install
 */
 ini_set('memory_limit', -1);
 error_reporting(E_ALL);

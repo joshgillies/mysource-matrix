@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy.inc,v 1.2 2003/12/12 02:17:23 gsherwood Exp $
+* $Id: bodycopy.inc,v 1.3 2003/12/16 12:16:42 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 * @author  Greg Sherwood <greg@squiz.net>
 * @version $Version$ - 1.0
 * @package MySource_Matrix_Packages
-* @subpackage cms
+* @subpackage __core__
 */
 class Bodycopy extends Asset
 {

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_asset_fns.inc,v 1.3 2003/11/26 00:50:59 gsherwood Exp $
+* $Id: system_asset_fns.inc,v 1.4 2003/12/16 12:19:31 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -29,7 +29,8 @@
 *
 * @author  Blair Robertson <blair@squiz.net>
 * @version $Version$ - 1.0
-* @package MySource_Matrix
+* @package MySource_Matrix_Packages
+* @subpackage __core__
 */
 
 

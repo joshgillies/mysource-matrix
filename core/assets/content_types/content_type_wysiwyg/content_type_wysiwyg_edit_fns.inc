@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_edit_fns.inc,v 1.3 2003/12/12 03:31:41 gsherwood Exp $
+* $Id: content_type_wysiwyg_edit_fns.inc,v 1.4 2003/12/16 12:19:31 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -35,7 +35,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 * @author  Greg Sherwood <greg@squiz.net>
 * @version $Version$ - 1.0
 * @package MySource_Matrix_Packages
-* @subpackage cms
+* @subpackage __core__
 */
 class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 {

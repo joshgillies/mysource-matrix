@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_03.php,v 1.25 2003/12/02 05:46:59 gsherwood Exp $
+* $Id: step_03.php,v 1.26 2003/12/16 12:21:49 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,6 +30,7 @@
 * @author  Blair Robertson <blair@squiz.net>
 * @version $Version$ - 1.0
 * @package MySource_Matrix
+* @subpackage install
 */
 ini_set('memory_limit', -1);
 error_reporting(E_ALL);
@@ -222,7 +223,7 @@ $d = dir(SQ_PACKAGES_PATH);
 while (false !== ($entry = $d->read())) {
 	if ($entry == '.' || $entry == '..') continue;
 	# if this is a directory, process it
-	if (is_dir(SQ_PACKAGES_PATH.'/'.$entry)) {
+	if ($entry != 'CVS' && is_dir(SQ_PACKAGES_PATH.'/'.$entry)) {
 		$pm = new Package_Manager($entry);
 		if ($pm->package) {
 			$result = $pm->updatePackageDetails();

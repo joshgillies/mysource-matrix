@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_custom_form_management.inc,v 1.6 2003/11/26 00:51:30 gsherwood Exp $
+* $Id: page_custom_form_management.inc,v 1.7 2003/12/16 12:13:05 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @version $Version$ - 1.0
 * @package MySource_Matrix_Packages
-* @subpackage __core__
+* @subpackage cms
 */
 class Page_Custom_Form_Management extends Page_Management
 {

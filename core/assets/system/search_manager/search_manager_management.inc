@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_management.inc,v 1.5 2003/11/26 00:51:02 gsherwood Exp $
+* $Id: search_manager_management.inc,v 1.6 2003/12/16 12:19:31 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,8 +32,8 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.5 $ - 0.1
-* @package Matrix_Packages
+* @version $Revision: 1.6 $ - 0.1
+* @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Search_Manager_Management extends Asset_Management

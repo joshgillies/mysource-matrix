@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_country_management.inc,v 1.4 2003/11/26 00:51:28 gsherwood Exp $
+* $Id: form_question_type_country_management.inc,v 1.5 2003/12/16 12:13:05 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question_management.in
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @version $Version$ - 1.0
 * @package MySource_Matrix_Packages
-* @subpackage __core__
+* @subpackage cms
 */
 class Form_Question_Type_Country_Management extends Form_Question_Management
 {

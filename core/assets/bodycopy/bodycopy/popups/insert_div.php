@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_div.php,v 1.2 2003/12/03 23:51:01 gsherwood Exp $
+* $Id: insert_div.php,v 1.3 2003/12/16 12:16:42 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 * @author  Greg Sherwood <greg@squiz.net>
 * @version $Version$ - 1.0
 * @package MySource_Matrix_Packages
-* @subpackage cms
+* @subpackage __core__
 */
 include(dirname(__FILE__)."/header.php");
 ?> 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_management.inc,v 1.1 2003/12/08 03:56:16 mmcintyre Exp $
+* $Id: content_type_management.inc,v 1.2 2003/12/16 12:18:05 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @author  Greg Sherwood <greg@squiz.net>
 * @version $Version$ - 1.0
 * @package MySource_Matrix_Packages
-* @subpackage cms
+* @subpackage __core__
 */
 class Content_Type_Management extends Asset_Management
 {

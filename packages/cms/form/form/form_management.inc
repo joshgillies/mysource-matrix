@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_management.inc,v 1.11 2003/11/26 00:51:26 gsherwood Exp $
+* $Id: form_management.inc,v 1.12 2003/12/16 12:13:04 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @version $Version$ - 1.0
 * @package MySource_Matrix_Packages
-* @subpackage __PACKAGES__
+* @subpackage cms
 */
 class Form_Management extends Asset_Management
 {
