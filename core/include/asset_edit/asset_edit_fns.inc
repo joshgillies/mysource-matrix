@@ -15,6 +15,22 @@ class Asset_Edit_Fns extends Resolve_Object
 {
 
 	/**
+	* An array of tab code names and their display names
+	* @var Array()
+	*/
+	var $tabs = Array(	'details'     => Array('name' => 'Details',
+											   'icon' => 'create'
+											  ),
+						'permissions' => Array('name' => 'Permissions',
+											   'icon' => 'users'
+											  ),
+						'workflow'    => Array('name' => 'Workflow',
+											   'icon' => 'web'
+											  )
+					  );
+
+
+	/**
 	* Constructor
 	*
 	*/
