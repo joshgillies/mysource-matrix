@@ -175,7 +175,7 @@ class Asset_Map
 	*/
 	function _send($output) 
 	{
-		error_log("XML OUT : \n".$output->get());
+#		error_log("XML OUT : \n".$output->get());
 		header("Content-Type: text/xml");
 		$output->dump();
 	}
