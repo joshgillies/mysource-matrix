@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: search_page.inc,v 1.7 2003/11/14 00:39:58 dwong Exp $
+* $Id: search_page.inc,v 1.8 2003/11/14 03:10:10 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -14,7 +14,7 @@
 * @see Page
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.7 $ - 1.0
+* @version $Revision: 1.8 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -220,6 +220,7 @@ class Search_Page extends Page
 
 		// print them
 		$results_html = $this->getBodycopyContents('results');
+		$this->replaceInitialKeywords($results_html);
 		$this->replaceResultsKeywords($results_html, $results);
 		echo $results_html;
 	} // end printResultsBody()
