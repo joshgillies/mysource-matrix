@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: wysiwyg.inc,v 1.24 2003/11/07 01:40:02 gsherwood Exp $
+* $Id: wysiwyg.inc,v 1.25 2003/11/11 23:35:51 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -913,6 +913,10 @@ class wysiwyg {
 	function process()
 	{
 		$html = rawurldecode((isset($_POST[$this->name])) ? $_POST[$this->name] : '');
+
+		// replace out special form tags back with real form tags
+		$html = preg_replace('|<HTMLAREA_FORM ([^>]*?)>(.*?)</HTMLAREA_FORM>|i', '<FORM \\1>\\2</FORM>', $html);
+
 		for(reset($this->_loaded_plugins); null !== ($k = key($this->_loaded_plugins)); next($this->_loaded_plugins)) {
 			$plugin =& $this->_loaded_plugins[$k];
 			$plugin->process($html);
@@ -1396,6 +1400,10 @@ class wysiwyg {
 	function set_contents($contents)
 	{
 		foreach ($this->_loaded_plugins as $name => $plugin) $plugin->set_contents($contents);
+
+		// replace form tags in the HTML with special form tags that will not cuase JS errors
+		// due to nested forms on the page
+		$contents = preg_replace('|<FORM ([^>]*?)>(.*?)</FORM>|i', '<HTMLAREA_FORM \\1>\\2</HTMLAREA_FORM>', $contents);
 		$this->contents = $contents;
 
 	}//end set_contents()
