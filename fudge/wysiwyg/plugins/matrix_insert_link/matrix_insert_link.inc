@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_insert_link.inc,v 1.22 2004/08/02 05:53:52 gsherwood Exp $
+* $Id: matrix_insert_link.inc,v 1.23 2004/08/25 01:01:51 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -227,7 +227,7 @@ class matrix_insert_link extends wysiwyg_plugin {
 				editor_<?php echo $this->wysiwyg->name?>._object = this;
 				var strPage = "<?php echo $this->get_popup_href('insert_link.php')?>?assetid=" + escape(currArgs["assetid"]) + "&url=" + escape(currArgs["url"]) + "&status_text=" + escape(currArgs["status_text"]) + "&target=" + escape(currArgs["target"]) +  "&new_window=" + escape(currArgs["new_window"]) + "&new_window_options=" + escape(var_serialise(currArgs["new_window_options"])) + "&editor_name=" + escape("<?php echo $this->wysiwyg->name; ?>") + "&in_popup=" + escape(in_popup);
 
-				this._popupDialog("matrixInsertLink", strPage, 650, 440, true, function(param) {
+				this._popupDialog("matrixInsertLink", strPage, 750, 410, true, function(param) {
 					if (param && param["url"] != "") {
 		
 						var html = '';
