@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_03.php,v 1.33 2004/03/01 18:13:00 brobertson Exp $
+* $Id: step_03.php,v 1.34 2004/03/01 18:32:21 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -157,24 +157,6 @@ if (is_null($root_folder)) {
 	$GLOBALS['SQ_SYSTEM']->am->releaseLock($designs_folder->id,		'all');
 	$GLOBALS['SQ_SYSTEM']->am->releaseLock($system_user_group->id,	'all');
 
-
-	$sql = 'SELECT MAX(assetid) FROM sq_asset';
-	$num_assets = $db->getOne($sql);
-	if (DB::isError($num_assets)) {
-		trigger_error('Could not reverve assetids for system assets, failed getting current number of assets in the system', E_USER_ERROR);
-	} else {
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		for ($i = $num_assets; $i < SQ_NUM_RESERVED_ASSETIDS; $i++) {
-			$assetid = $db->nextId('sq_sequence_asset');
-			if (DB::isError($assetid)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				trigger_error('Could not reverve assetids for system assets, failed getting id "'.$i.'" in sequence', E_USER_ERROR);
-			}
-		}
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-	}
-
-	// Re-generate the System Config to make sure that we get any new defines that may have been issued
 	require_once SQ_INCLUDE_PATH.'/system_asset_config.inc';
 	$sys_asset_cfg = new System_Asset_Config();
 	$sys_asset_cfg->save(Array(), false);
