@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_edit_interface.inc,v 1.166 2003/10/17 01:31:43 brobertson Exp $
+* $Id: asset_edit_interface.inc,v 1.167 2003/10/21 04:09:50 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -130,7 +130,8 @@ class Asset_Edit_Interface extends MySource_Object
 	function getScreens()
 	{
 		return $this->_screens;
-	}
+
+	}//end getScreens()
 
 
 	/**
@@ -324,7 +325,6 @@ class Asset_Edit_Interface extends MySource_Object
 						hidden_field('sq_lock_type', $screen_lock_type);
 
 						if (!$have_all_locks) {
-
 							if ($need_force_locks) {
 								if ($can_force_locks) {
 									echo '<p class="sq-backend-locked-by-someone-else">You can forceably acquire this lock, which will remove the lock from "'.$user->name.'" and give the lock to yourself.<br>Any changes currently being made by "'.$user->name.'" will be lost if this lock is forceably acquired.</p>';
@@ -341,9 +341,6 @@ class Asset_Edit_Interface extends MySource_Object
 								hidden_field('sq_lock_acquire_by_force', '0');
 								submit_button('sq_lock_acquire', 'Lock');
 							} // end if
-
-						} else {
-							$print_commit_button = true;
 						}
 
 						if ($have_any_locks) {
@@ -379,12 +376,13 @@ class Asset_Edit_Interface extends MySource_Object
 		// check the active screen for special system defined static screens
 		$file = null;
 		if (isset($this->_edit_fns->static_screens[$active_screen])) {
+
 			$o->setSubHeading($this->_edit_fns->static_screens[$active_screen]['name']);
 
 			// if we are not creating, paint the system defined bit of this tab
 			if (!$creating) {
 				$paint_function = 'paint'.$active_screen;
-				$print_commit_button = $this->$paint_function($owner, $o);
+				if ($this->$paint_function($owner, $o)) $print_commit_button = true;
 			}
 
 			$force_unlock_on_commit = $this->_edit_fns->static_screens[$active_screen]['force_unlock'];
@@ -825,7 +823,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 		$prefix = $owner->getPrefix();
 
-		$print_commit_button = true;
+		$print_commit_button = false;
 
 		$input = new XML_Tree($file);
 		$root  = &$input->getTreeFromFile();
@@ -862,10 +860,9 @@ class Asset_Edit_Interface extends MySource_Object
 							$running_schemas = $wfm->getSchemas($owner->id, true, true);
 							if (!empty($running_schemas)) {
 								?><i>This asset is currently in workflow. Approval or rejection of the changes must be done on the <a href="<?php echo $owner->getBackendHref('workflow'); ?>">asset workflow screen</a></i><?php
-								$print_commit_button = false;
 							} else {
-								
-								$this->_paintStatusChange($owner, $o, $prefix);
+								$available_statii = $this->_paintStatusChange($owner, $o, $prefix);
+								if (!empty($available_statii)) $print_commit_button = true;
 							}
 						$o->closeField();
 					break;
@@ -926,7 +923,6 @@ class Asset_Edit_Interface extends MySource_Object
 								The next time that it will run will be <?php echo $GLOBALS['SQ_SYSTEM']->datetime($cron_mgr->timeOfNextRun()); ?>
 							</div>
 							<?php
-						} else {
 							$print_commit_button = true;
 						}
 					break;
