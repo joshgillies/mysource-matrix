@@ -101,8 +101,10 @@ define('SQ_PERMISSION_WORKFLOW', 4); // workflow
 * STATUS TYPES - statii an asset can currently have
 */
 define('SQ_STATUS_UNDER_CONSTRUCTION', 1); // asset is under construction
-define('SQ_STATUS_PENDING_APPROVAL',   2); // asset is currently in workflow
-define('SQ_STATUS_LIVE',               3); // asset is live
+define('SQ_STATUS_EDITING',            2); // asset is currently safe editing
+define('SQ_STATUS_PENDING_APPROVAL',   3); // asset is currently in workflow
+define('SQ_STATUS_EDITING_APPROVAL',   4); // asset is currently in workflow from safe edit
+define('SQ_STATUS_LIVE',               5); // asset is live
 
 
 // Create the system object
