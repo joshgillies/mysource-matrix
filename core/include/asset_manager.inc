@@ -889,6 +889,14 @@ class Asset_Manager extends Resolve_Object
 	}//end getSystemAsset()
 
 
+	/**
+	* Determine if this asset can be purged from the trash
+	*
+	* The function stops system assets and their dependant children from being purged.
+	*
+	* @return boolean
+	* @access public
+	*/
 	function canPurgeAsset(&$asset)
 	{
 		if ($asset->id <= SQ_NUM_RESERVED_ASSETIDS) {
