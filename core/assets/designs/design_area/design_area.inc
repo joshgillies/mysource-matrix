@@ -64,6 +64,7 @@ class Design_Area extends Asset
 		return $this->attr('id_name');
 	}//end _getName();
 
+
 	/**
 	* Processes a backend submission from this asset, returns true if all OK
 	*
@@ -91,6 +92,7 @@ class Design_Area extends Asset
 		}// end if
 
 	}// end processBackend()
+
 
 	/**
 	* Returns all the designs that this design area is used in
