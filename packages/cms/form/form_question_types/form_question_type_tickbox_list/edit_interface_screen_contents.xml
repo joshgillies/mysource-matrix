@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_contents.xml,v 1.9 2004/05/17 02:25:07 lwright Exp $
+* $Id: edit_interface_screen_contents.xml,v 1.10 2004/05/19 05:55:58 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -47,8 +47,8 @@
 		</field>
 		<field attribute="options">
 			<display_name>Options</display_name>
-			<note>Enter possible options, one to a line</note>
-			<text width="40" height="10" />
+			<note>Enter possible options - to add an option, type the name of the option and click 'Add'; to delete an option, click the 'Del' link next to an option</note>
+			<option_list />
 		</field>
 		<field>
 			<display_name>Default</display_name>

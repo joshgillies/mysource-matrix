@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_list_management.inc,v 1.10 2004/04/29 05:19:45 lwright Exp $
+* $Id: form_question_type_tickbox_list_management.inc,v 1.11 2004/05/19 05:55:58 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -49,7 +49,7 @@ class Form_Question_Type_Tickbox_List_Management extends Asset_Management
 		$this->vars = Array(
 							'options' => Array(
 									'added'     => '0.0.1',
-									'type'      => 'text',  
+									'type'      => 'option_list',  
 									'default'   => '',
 									),
 							'default' => Array(

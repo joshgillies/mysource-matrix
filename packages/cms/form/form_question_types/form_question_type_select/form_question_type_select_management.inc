@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_select_management.inc,v 1.11 2004/04/29 05:19:45 lwright Exp $
+* $Id: form_question_type_select_management.inc,v 1.12 2004/05/19 05:55:58 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -71,7 +71,7 @@ class Form_Question_Type_Select_Management extends Asset_Management
 									),
 							'options' => Array(
 									'added'     => '0.0.1',
-									'type'      => 'text',  
+									'type'      => 'option_list',  
 									'default'   => '',
 							),
 								
