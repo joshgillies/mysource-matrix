@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job.inc,v 1.22 2004/12/15 05:33:29 gsherwood Exp $
+* $Id: cron_job.inc,v 1.23 2005/02/22 05:58:35 tbarrett Exp $
 *
 */
 
@@ -39,7 +39,7 @@ define('SQ_CRON_JOB_RETRY',			16);// cron job requests to be retried (only valid
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -265,6 +265,7 @@ class Cron_Job extends Asset
 	function whenTypeName($type)
 	{
 		switch ($type) {
+			case 'ET' : return 'Every Time';
 			case 'OO' : return 'One Off';
 			case 'HR' : return 'Hourly';
 			case 'DL' : return 'Daily';
@@ -340,6 +341,10 @@ class Cron_Job extends Asset
 
 			case 'HR' :
 				$ret_val .= $when_arr['minute'].' minute past the hour';
+				break;
+
+			case 'ET' :
+				$ret_val .= 'every time the cron manager runs';
 				break;
 
 		}//end switch
@@ -547,7 +552,6 @@ class Cron_Job extends Asset
 	*/
 	function _errorHandler($err_no, $err_msg, $err_file, $err_line)
 	{
-
 		$terminate = ((E_USER_ERROR | E_ERROR) & $err_no);
 
 		// if the function didn't have an '@' prepended OR if we are about to terminate
@@ -672,6 +676,11 @@ class Cron_Job extends Asset
 
 		if (is_null($start_ts)) $start_ts = time();
 		$start = getdate($start_ts);
+
+		// EveryTime is even simpler
+		if ($when['type'] == 'ET') {
+			return $start_ts + 1;
+		}
 
 		$add = Array('minutes' => 0, 'hours' => 0, 'days' => 0);
 

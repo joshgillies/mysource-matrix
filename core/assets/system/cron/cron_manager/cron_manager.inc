@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager.inc,v 1.37 2005/02/03 14:57:27 gnoel Exp $
+* $Id: cron_manager.inc,v 1.38 2005/02/22 05:58:35 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -232,7 +232,7 @@ class Cron_Manager extends Asset
 				}
 			}
 		}//end if setting refresh_time
-		
+
 		// if we are setting the last run time and the epoc has not been set yet,
 		// assume the last run was the first run and set the epoc
 		if ($name == 'last_run' && $this->attr('epoch') == 0) {
@@ -378,7 +378,6 @@ class Cron_Manager extends Asset
 	function run()
 	{
 		$start_time = time();
-
 		$old_log_errors = ini_set('log_errors', '1');
 		$old_error_log  = ini_set('error_log',  SQ_DATA_PATH.'/'.$this->error_log_path);
 		set_error_handler(Array(&$this, '_errorHandler'));
@@ -389,7 +388,7 @@ class Cron_Manager extends Asset
 		}
 
 		if ($start_time < (int) $this->attr('epoch')) {
-			trigger_error('The Cron Manager run() aborted because it\'s Epoch is still in the future', E_USER_WARNING);
+			trigger_error('The Cron Manager run() aborted because its Epoch is still in the future', E_USER_WARNING);
 			return;
 		}
 
@@ -471,7 +470,7 @@ class Cron_Manager extends Asset
 				$next_run = $this_run + $refresh_time;
 
 				$jobs = $this->getJobsToRun($last_run, $this_run);
-
+	
 				// holds the number of times that a job has failed
 				// Array([assetid] => [number of failed runs]);
 				$failed_runs = Array();
@@ -578,7 +577,7 @@ class Cron_Manager extends Asset
 						return;
 					}
 
-					// if we have gone into the next run's time then we need to do it's work as well
+					// if we have gone into the next run's time then we need to do its work as well
 					if (time() > $next_run) {
 						$this_run = $next_run;
 						$next_run += $refresh_time;
@@ -684,9 +683,9 @@ class Cron_Manager extends Asset
 		$build_up = Array();
 
 		$build_up['hour'] = Array(
-			'bridge' => 'av.custom_val BETWEEN '.$db->quote('%A%'.$start_f['minutes']).' AND '.$db->quote('%B%59').' OR
-						 av.custom_val BETWEEN '.$db->quote('%C%00').' AND '.$db->quote('%D%'.$end_f['minutes']),
-			'all'    => 'av.custom_val BETWEEN '.$db->quote('%A%'.$start_f['minutes']).' AND '.$db->quote('%B%'.$end_f['minutes']),
+			'bridge' => '(COALESCE(av.custom_val, at.default_val)) BETWEEN '.$db->quote('%A%'.$start_f['minutes']).' AND '.$db->quote('%B%59').' OR
+						 (COALESCE(av.custom_val, at.default_val)) BETWEEN '.$db->quote('%C%00').' AND '.$db->quote('%D%'.$end_f['minutes']),
+			'all'    => '(COALESCE(av.custom_val, at.default_val)) BETWEEN '.$db->quote('%A%'.$start_f['minutes']).' AND '.$db->quote('%B%'.$end_f['minutes']),
 		);
 
 
@@ -735,7 +734,7 @@ class Cron_Manager extends Asset
 		$type = 'all';
 
 		if ($over_one_hour_ago) {
-			$hourly = 'av.custom_val LIKE '.$db->quote('HR=%');
+			$hourly = '(COALESCE(av.custom_val, at.default_val)) LIKE '.$db->quote('HR=%');
 		} else {
 			// if it has ticked over the hour since the last call
 			$type = ($end['minutes'] < $start['minutes']) ? 'bridge' : 'all';
@@ -744,7 +743,7 @@ class Cron_Manager extends Asset
 
 
 		if ($over_one_day_ago) {
-			$daily = 'av.custom_val LIKE '.$db->quote('DL=%');
+			$daily = '(COALESCE(av.custom_val, at.default_val)) LIKE '.$db->quote('DL=%');
 		} else {
 			// if it has ticked over the day since the last call
 			$type = ($end['hours'] < $start['hours']) ? 'bridge' : 'all';
@@ -753,7 +752,7 @@ class Cron_Manager extends Asset
 
 
 		if ($over_one_week_ago) {
-			$weekly = 'av.custom_val LIKE '.$db->quote('WK=%');
+			$weekly = '(COALESCE(av.custom_val, at.default_val)) LIKE '.$db->quote('WK=%');
 		} else {
 			// if it has ticked over the week since the last call
 			$type = ($end['wday'] < $start['wday']) ? 'bridge' : 'all';
@@ -762,7 +761,7 @@ class Cron_Manager extends Asset
 
 
 		if ($over_one_month_ago) {
-			$monthly = 'av.custom_val LIKE '.$db->quote('MT=%');
+			$monthly = '(COALESCE(av.custom_val, at.default_val)) LIKE '.$db->quote('MT=%');
 		} else {
 			// if it has ticked over the month since the last call
 			$type = ($end['mday'] < $start['mday']) ? 'bridge' : 'all';
@@ -771,7 +770,7 @@ class Cron_Manager extends Asset
 
 
 		if ($over_one_year_ago) {
-			$yearly = 'av.custom_val LIKE '.$db->quote('YR=%');
+			$yearly = '(COALESCE(av.custom_val, at.default_val)) LIKE '.$db->quote('YR=%');
 		} else {
 			// if it has ticked over the year since the last call
 			$type = ($end['mon'] < $start['mon']) ? 'bridge' : 'all';
@@ -780,17 +779,19 @@ class Cron_Manager extends Asset
 
 		$one_off = preg_replace('/%[ABCD]%/', 'OO=', $build_up['one_off']['all']);
 
+		$every_time = '(COALESCE(av.custom_val, at.default_val)) LIKE '.$db->quote('ET=%');
+
 		$sql   = 'SELECT l.linkid, a.assetid, a.type_code
-				  FROM sq_ast_lnk l
-						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON l.minorid = a.assetid
-						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_val av ON a.assetid = av.assetid
-						INNER JOIN '.SQ_TABLE_PREFIX.'ast_attr at ON av.attrid = at.attrid ';
+				  FROM (sq_ast_lnk l
+						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON l.minorid = a.assetid)
+						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_attr at ON at.type_code = a.type_code
+						LEFT OUTER JOIN '.SQ_TABLE_PREFIX.'ast_attr_val av ON av.assetid = a.assetid ';
 		$where = 'l.majorid = '.$db->quote($this->id).'
 				  AND a.type_code IN (
 									SELECT type_code
 									FROM '.SQ_TABLE_PREFIX.'ast_typ_inhd
 									WHERE inhd_type_code = '.$db->quote('cron_job').'
-				  					)
+									)
 				  AND at.name = '.$db->quote('when').'
 				  AND ('.$hourly.'
 					OR '.$daily.'
@@ -798,6 +799,7 @@ class Cron_Manager extends Asset
 					OR '.$monthly.'
 					OR '.$yearly.'
 					OR '.$one_off.'
+					OR '.$every_time.'
 					)';
 
 		if (!empty($ignore_jobs)) {
