@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: internal_message.inc,v 1.28 2003/11/26 00:51:10 gsherwood Exp $
+* $Id: internal_message.inc,v 1.29 2004/01/15 09:29:07 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -126,7 +126,7 @@ class Internal_Message extends MySource_Object
 				    FROM '.SQ_TABLE_RUNNING_PREFIX.'internal_message ';
 		$where = 'messageid = '.$db->quote($messageid);
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
-		
+
 		$result = $db->getRow($sql.$where);
 		if (DB::isError($result)) {
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
@@ -148,7 +148,7 @@ class Internal_Message extends MySource_Object
 
 	}//end load()
 
-	
+
 	/**
 	* Sends an internal message
 	*
@@ -331,7 +331,7 @@ class Internal_Message extends MySource_Object
 			$crlf = "\n";
 			$mime = new Mail_mime($crlf);
 			$mail =& Mail::factory('mail', "-f$from_email");
-			
+
 			$hdrs = array(
 				'From'    => $from_string,
 				'Subject' => $this->subject
@@ -357,14 +357,14 @@ class Internal_Message extends MySource_Object
 					$log_body = preg_replace('|<SQ_MSG_LINK ([^>]*?)>(.*?)</SQ_MSG_LINK>|', '<a \\1>\\2</a>', $this->body);
 					$text_body = $this->formatEmail($log_body, $owner, 'text');
 					$html_body = $this->formatEmail($log_body, $owner, 'html');
-		
+
 					$mime->setTXTBody(strip_tags($text_body));
 					$mime->setHTMLBody($html_body);
-					
+
 					// get() must be called before headers()
 					$body = $mime->get();
 					$hdrs = $mime->headers($hdrs);
-					
+
 					if (!empty($to_email)) {
 						$mail->send($to_email, $hdrs, $body);
 					}
@@ -405,7 +405,7 @@ class Internal_Message extends MySource_Object
 				// now send an email as well
 				require_once SQ_FUDGE_PATH.'/general/www.inc';
 				$to_email = trim($user->attr('email'));
-				
+
 				// get the body with a header and a footer attached
 				$log_body = preg_replace('|<SQ_MSG_LINK ([^>]*?)>(.*?)</SQ_MSG_LINK>|', '<a \\1>\\2</a>', $body);
 				$text_body = $this->formatEmail($log_body, $user, 'text');
@@ -413,11 +413,11 @@ class Internal_Message extends MySource_Object
 
 				$mime->setTXTBody(strip_tags($text_body));
 				$mime->setHTMLBody($html_body);
-				
+
 				// get() must be called before headers()
 				$body = $mime->get();
 				$hdrs = $mime->headers($hdrs);
-				
+
 				if (!empty($to_email) && valid_email($to_email)) {
 					$msg = $mail->send($to_email, $hdrs, $body);
 				}
@@ -436,8 +436,8 @@ class Internal_Message extends MySource_Object
 	/**
 	* formats the body of an email with a header and a footer
 	*
-	* @param object user	$user	the user that the email is intended for 
-	* @param string			$body	the email body
+	* @param mixed	$user	either the user object or a string containing the user's name that the email is intended for
+	* @param string	$body	the email body
 	*
 	* @access public
 	* @return string the body
@@ -447,20 +447,19 @@ class Internal_Message extends MySource_Object
 		$term = ($type=='text') ? "\n" : '<br />';
 
 		$header = '';
-		if (!is_null($user)) {
+		if (!is_null($user) && is_object($user) && is_a($user, 'user')) {
 			$header = $user->name.','.$term.$term;
 		} elseif (is_string($user) && $user != '') {
 			$header = $user.','.$term.$term;
 		}
-		$line = ($type == 'text') ? str_repeat('-', 20) : '<hr />';
+		$line = ($type == 'text') ? str_repeat('-', 20).$term : '<hr />';
 
-		$footer = $term.$term.$line.'This is an automated message from '.SQ_CONF_SYSTEM_NAME.' running '.SQ_SYSTEM_LONG_NAME.$term;
-		$footer .= 'Contact '.SQ_CONF_SYSTEM_OWNER.' ('.SQ_CONF_TECH_EMAIL.') for support.';
-		
-		$body = $header.$body;
-		$body .= $footer;
-		
-		return $body;
+		$footer = $term.$term.$line
+				.'This is an automated message from '.SQ_CONF_SYSTEM_NAME.' running '.SQ_SYSTEM_LONG_NAME.$term
+				.'System Root URLs : '.$term.str_replace("\n", $term, SQ_CONF_SYSTEM_ROOT_URLS).$term
+				.$term
+				.'Contact '.SQ_CONF_SYSTEM_OWNER.' ('.SQ_CONF_TECH_EMAIL.') for support.';
+		return $header.$body.$footer;
 
 	} // end formatEmail()
 
@@ -537,7 +536,7 @@ class Internal_Message extends MySource_Object
 		$replacements['user_name'] = $user->name;
 
 		return replace_keywords($this->body, $replacements);
-		
+
 	}//end formatBody()
 
 
@@ -642,7 +641,7 @@ class Internal_Message extends MySource_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$where_cond = 'messageid='.$db->quote($this->id);
 		return $GLOBALS['SQ_SYSTEM']->rollbackDelete('internal_message', $where_cond);
-		
+
 	}//end delete()
 
 
