@@ -40,7 +40,15 @@ class Page_Redirect_Edit_Fns extends Page_Edit_Fns
 	function paintRedirectAssetid(&$asset, &$o, $prefix)
 	{
 		$redirect_asset = &$asset->getRedirectAsset();
-		asset_finder($prefix.'_redirect_assetid', (is_null($redirect_asset) ? 0 : $redirect_asset->id));
+		if ($asset->writeAccess()) {
+			asset_finder($prefix.'_redirect_assetid', (is_null($redirect_asset) ? 0 : $redirect_asset->id));
+		} else {
+			if (is_null($redirect_asset)) {
+				echo 'None Set';
+			} else {
+				echo $redirect_asset->name.' (#'.$redirect_asset->id.')';
+			}
+		}
 		return true;
 
 	}// end paintRedirectAssetid()
