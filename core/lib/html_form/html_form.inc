@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.43 2003/11/18 15:37:36 brobertson Exp $
+* $Id: html_form.inc,v 1.44 2003/11/22 00:58:04 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -222,6 +222,7 @@ function check_box($name, $value='1', $checked=false, $on_click='', $extras='')
 	if (!stristr($extras, 'class=')) $extras .= ' class="sq-form-field"';
 	echo	'<input type="checkbox" ',
 			'name="', htmlspecialchars($name), '" ',
+			'id="', htmlspecialchars($name), '" ',
 			'value="', htmlspecialchars($value), '" ',
 			(($checked) ? 'checked ' : ''),
 			$extras,
