@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_tidy.inc,v 1.14 2003/11/27 22:31:33 gsherwood Exp $
+* $Id: html_tidy.inc,v 1.15 2004/03/04 22:54:49 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -104,8 +104,8 @@ class HTML_Tidy extends Wysiwyg_Plugin {
 
 		// Remove the following unsupported character codes that do not get replaced
 		// back to their original characters through the encoding process (mostly MS Word chars)
-		$search  = Array("%u2018","%u2019","%u2013");
-		$replace = Array("'"     , "'"    ,"-"     );
+		$search  = Array("%u2018","%u2019","%u2013","%u2014","%u2026","%u201C","%u201D");
+		$replace = Array("'"     , "'"    ,"-"     ,"-",     "...",   '"',     '"'     );
 		$html = str_replace($search, $replace, $html);
 
 
@@ -143,6 +143,7 @@ class HTML_Tidy extends Wysiwyg_Plugin {
 
 
 	}//end process
+
 
 }//end class
 
