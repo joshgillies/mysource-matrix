@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: page_standard.inc,v 1.21 2003/09/26 05:26:42 brobertson Exp $
+* $Id: page_standard.inc,v 1.22 2003/10/07 07:11:36 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -173,6 +173,18 @@ class Page_Standard extends Page
 
 	}// end printBody()
 
+
+	function &getKeyData()
+	{
+		$name_attribute			=& $this->getAttribute('name');
+		$short_name_attribute	=& $this->getAttribute('short_name');
+		$out = Array();
+		$this->buildKeyData($out, $name_attribute->value, 'text', "attribute:". $name_attribute->id, 1 * $name_attribute->weighting);
+		$this->buildKeyData($out, $short_name_attribute->value, 'text', "attribute:". $short_name_attribute->id, 1 * $short_name_attribute->weighting);
+
+
+		return $out;
+	}
 
 }//end class
 ?>
