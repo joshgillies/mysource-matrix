@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.88 2004/11/23 04:18:50 gsherwood Exp $
+* $Id: backend_outputter.inc,v 1.89 2004/11/23 06:06:15 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -42,7 +42,7 @@ define('SQ_BO_MSG_ERROR',       4);
 *    there will only ever be one instance of this object
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.89 $
 * @package MySource_Matrix
 */
 class Backend_Outputter
@@ -252,7 +252,7 @@ class Backend_Outputter
 		} else {
 			$this->_action = $new_action;
 		}
-		
+
 		if ($persistant) $this->_persistant_get_vars[$name] = $value;
 
 	}//end addFormActionGetVar()
@@ -569,7 +569,7 @@ class Backend_Outputter
 		if ($this->_buffering) {
 			if (!is_null($this->_current_field)) $this->closeField();
 			if ($this->_raw_opened) $this->closeRaw();
-			
+
 			$this->_section_count++;
 			$init_arr['section_count'] = $this->_section_count;
 
@@ -586,7 +586,7 @@ class Backend_Outputter
 			}
 
 			return 'section_'.$this->_section_count;
-		
+
 		} else {
 			$this->_nbOpenSection($init_arr);
 		}
@@ -726,7 +726,7 @@ class Backend_Outputter
 			ob_start();
 
 			return 'field_'.$this->_field_count;
-	
+
 		} else {
 			// we are not buffering
 			$this->_nbOpenField($name, $format='', $note='');
@@ -823,7 +823,7 @@ class Backend_Outputter
 
 	/**
 	* Closes a field without buffering
-	* 
+	*
 	* @return boolean
 	* @access private
 	*/
@@ -834,7 +834,7 @@ class Backend_Outputter
 		// We need to end the field that we started
 		// Because they all start differently, we have to end what we started
 		switch ($this->_current_field_type) {
-			
+
 			case 'new_line' :
 					if ($this->_current_field_note) $this->note($note);
 						?>
@@ -846,7 +846,7 @@ class Backend_Outputter
 				<?php
 
 			break;
-			
+
 			case 'commit' :
 					if ($this->_current_field_note) $this->note($note);
 							?>
@@ -854,11 +854,11 @@ class Backend_Outputter
 					</tr>
 				<?php
 			break;
-			
+
 			case 'blank' :
 				// a blank field to be used just for formatting
 			break;
-			
+
 			default :
 				if ($this->_current_field_note) $this->note($note);
 					?>
@@ -1058,10 +1058,10 @@ class Backend_Outputter
 			<table width="100%" cellpadding="3" cellspacing="0" border="0">
 				<tr>
 					<?php
-					if ($this->_heading_icon) { 
+					if ($this->_heading_icon) {
 						?>
 						<td class="sq-backend-main-heading" style="vertical-align: top; white-space: nowrap;"><?php echo $this->_heading_icon; ?></td>
-						<?php 
+						<?php
 					} else {
 						?>
 						<td class="sq-backend-main-heading" style="vertical-align: top; white-space: nowrap;"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="5" height="1"/></td>
@@ -1131,7 +1131,7 @@ class Backend_Outputter
 	/**
 	* Paint the passed section onto the page
 	*
-	* @param Array()	$section	an array with some infor about the section 
+	* @param Array()	$section	an array with some infor about the section
 	* @param integer	$depth		an indicator to the depth we are currently at used for nested sections
 	*
 	* @return void
@@ -1280,7 +1280,7 @@ class Backend_Outputter
 						trigger_error('Unknown Area Type : "'.$section['areas'][$j]['area_type'].'"', E_USER_ERROR);
 
 				}// end switch area type
-				
+
 			}//end for
 
 			?>
@@ -1352,6 +1352,26 @@ class Backend_Outputter
 	function note($str)
 	{
 		echo '<div class="sq-backend-smallprint">'.$str.'</div>';
+
+	}//end note()
+
+
+	/**
+	* Outputs a section note in the proper css format
+	*
+	* @return void
+	* @access public
+	*/
+	function sectionNote($str='')
+	{
+		?>
+					<br />
+				</td>
+			</tr>
+			<tr>
+				<td colspan="3">
+					<div class="sq-backend-section-note"><strong>Section Note: </strong><?php echo $str ?></div>
+		<?php
 
 	}//end note()
 

@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.css,v 1.41 2004/11/17 12:07:25 brobertson Exp $
+* $Id: edit.css,v 1.42 2004/11/23 05:59:50 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -109,6 +109,16 @@ td.sq-backend-nav-history {
 	font-family:		Arial, Verdana, Helvetica, sans-serif;
 	font-size:		11px;
 	font-weight:		normal;
+}
+
+.sq-backend-section-note {
+	color:			#000;
+	font-family:	Arial, Verdana, Helvetica, sans-serif;
+	font-size:		11px;
+	font-weight:	normal;
+	padding:		5px;
+	background:		#E6FFCC;
+	border:         1px dotted black;
 }
 
 .sq-backend-fineprint {

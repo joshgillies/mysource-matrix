@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.227 2004/11/18 04:44:32 gsherwood Exp $
+* $Id: asset_edit_interface.inc,v 1.228 2004/11/23 06:03:59 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.227 $
+* @version $Revision: 1.228 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -727,71 +727,89 @@ class Asset_Edit_Interface extends MySource_Object
 
 				// they must just be normal fields
 				} else {
+					$section_note = null;
 
 					// Loop over the fields
 					for($j = 0; $j < $num_fields; $j++) {
 
 						$field = &$section->children[$j];
 
-						if ($field->name != 'field') {
-							trigger_error('Expected "field" tag in section, found "'.$field->name.'"', E_USER_WARNING);
-							continue;
-						}
+						switch ($field->name) {
+							case ('field'):
 
-						if ($field->children[0]->name != 'display_name') {
-							trigger_error('Display Name for "'.$field->attributes['attribute'].'" not found', E_USER_WARNING);
-							continue;
-						}
-
-						// if we are in limbo and this field is not to be printed in limbo - dont print it
-						if (SQ_IN_LIMBO && (isset($field->attributes['limbo_access']) && (int)$field->attributes['limbo_access'] == 0)) continue;
-
-						$field_access = $this->_getAccess($owner, $field, $section_access);
-						if (!($field_access & SQ_EI_READ)) continue;
-						if (!isset($field->attributes['format'])) $field->attributes['format'] = '';
-
-						if (!empty($field->attributes['attribute'])) {
-							// if this ain't a field, or if we are printing the create interface and this field is not included in that, ignore it
-							if ($field->name != 'field' || ($creating && (empty($field->attributes['attribute']) || !in_array($field->attributes['attribute'], $create_sections[$section->attributes['name']])))) continue;
-
-							$o->openField($field->children[0]->content, $field->attributes['format']);
-
-							$attr = &$owner->getAttribute($field->attributes['attribute']);
-							if (is_null($attr)) continue;
-							if (!$attr->setEditParams($field->children[2])) continue;
-							$attr->paint($prefix.'_'.$attr->id, !($field_access & SQ_EI_WRITE));
-							if ($field_access & SQ_EI_WRITE) $print_commit_button = true;
-
-							if ($field->children[1]->name == 'note' && $field->children[1]->content) {
-								$field->children[1]->content = str_replace('%description%', $attr->description, $field->children[1]->content);
-							}
-
-						} else if ($field->children[2]->name == 'function_call') {
-
-							$paint_node = &$field->children[2]->children[0];
-							// if this ain't a field, or if we are printing the create interface and this field is not included in that, ignore it
-							if ($field->name != 'field' || ($creating && !in_array($paint_node->attributes['name'], $create_sections[$section->attributes['name']]))) continue;
-
-							$o->openField($field->children[0]->content, $field->attributes['format']);
-
-							if (empty($paint_node->attributes['name']) || !method_exists($this->_edit_fns, $paint_node->attributes['name'])) {
-								echo 'Function "'.$paint_node->attributes['name'].'" not found for painting';
-							} else {
-								if ($this->_edit_fns->{$paint_node->attributes['name']}($owner, $o, $prefix)) {
-									$print_commit_button = true;
+								if ($field->children[0]->name != 'display_name') {
+									trigger_error('Display Name for "'.$field->attributes['attribute'].'" not found', E_USER_WARNING);
+									continue;
 								}
-							}
 
-						}// end if
+								// if we are in limbo and this field is not to be printed in limbo - dont print it
+								if (SQ_IN_LIMBO && (isset($field->attributes['limbo_access']) && (int)$field->attributes['limbo_access'] == 0)) continue;
 
-						if ($field->children[1]->name == 'note' && $field->children[1]->content) {
-							echo '<br/>&nbsp;';
-							$o->note($field->children[1]->content);
+								$field_access = $this->_getAccess($owner, $field, $section_access);
+								if (!($field_access & SQ_EI_READ)) continue;
+								if (!isset($field->attributes['format'])) $field->attributes['format'] = '';
+
+								if (!empty($field->attributes['attribute'])) {
+									// if this ain't a field, or if we are printing the create interface and this field is not included in that, ignore it
+									if ($field->name != 'field' || ($creating && (empty($field->attributes['attribute']) || !in_array($field->attributes['attribute'], $create_sections[$section->attributes['name']])))) continue;
+
+									$o->openField($field->children[0]->content, $field->attributes['format']);
+
+									$attr = &$owner->getAttribute($field->attributes['attribute']);
+									if (is_null($attr)) continue;
+									if (!$attr->setEditParams($field->children[2])) continue;
+									$attr->paint($prefix.'_'.$attr->id, !($field_access & SQ_EI_WRITE));
+									if ($field_access & SQ_EI_WRITE) $print_commit_button = true;
+
+									if ($field->children[1]->name == 'note' && $field->children[1]->content) {
+										$field->children[1]->content = str_replace('%description%', $attr->description, $field->children[1]->content);
+									}
+
+								} else if ($field->children[2]->name == 'function_call') {
+
+									$paint_node = &$field->children[2]->children[0];
+									// if this ain't a field, or if we are printing the create interface and this field is not included in that, ignore it
+									if ($field->name != 'field' || ($creating && !in_array($paint_node->attributes['name'], $create_sections[$section->attributes['name']]))) continue;
+
+									$o->openField($field->children[0]->content, $field->attributes['format']);
+
+									if (empty($paint_node->attributes['name']) || !method_exists($this->_edit_fns, $paint_node->attributes['name'])) {
+										echo 'Function "'.$paint_node->attributes['name'].'" not found for painting';
+									} else {
+										if ($this->_edit_fns->{$paint_node->attributes['name']}($owner, $o, $prefix)) {
+											$print_commit_button = true;
+										}
+									}
+
+								}// end if
+
+								if ($field->children[1]->name == 'note' && $field->children[1]->content) {
+									echo '<br/>&nbsp;';
+									$o->note($field->children[1]->content);
+								}
+
+							break;
+
+							case ('note'):
+								// notice that only the last "note" will be used if multiple are supplied
+								if (!empty($field->content)) {
+									$section_note = $field->content;
+								}
+							break;
+
+							default:
+								trigger_error('Expected "field" or "note" tag in section, found "'.$field->name.'"', E_USER_WARNING);
+								continue;
+
 						}
 
 					}// end for fields
 
 				}// end if section uses function call
+
+				if (!empty($section_note)) {
+					$o->sectionNote($section_note);
+				}
 
 				$o->closeSection();
 
@@ -1382,6 +1400,10 @@ class Asset_Edit_Interface extends MySource_Object
 						// Loop over the fields
 						for($j = 0; $j < $num_fields; $j++) {
 							$field = &$section->children[$j];
+
+							if ($field->name == 'note') {
+								continue;
+							}
 
 							$field_access = $this->_getAccess($owner, $field, $section_access);
 							if (!($field_access & SQ_EI_WRITE)) continue;
