@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.284 2005/03/15 00:56:50 tbarrett Exp $
+* $Id: asset_manager.inc,v 1.285 2005/03/16 05:00:07 ndvries Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.284 $
+* @version $Revision: 1.285 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -107,7 +107,7 @@ class Asset_Manager extends MySource_Object
 		$asset_types = Array();
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$sql = 'SELECT type_code, version, name, instantiable, allowed_access, parent_type, dir, customisation
+		$sql = 'SELECT type_code, version, name, instantiable, allowed_access, parent_type, dir, customisation, description
 				FROM '.SQ_TABLE_PREFIX.'ast_typ';
 
 		$where = '';
@@ -143,7 +143,7 @@ class Asset_Manager extends MySource_Object
 	function refreshAssetType($type_code)
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$sql = 'SELECT type_code, version, name, instantiable, allowed_access, parent_type, dir, customisation
+		$sql = 'SELECT type_code, version, name, instantiable, allowed_access, parent_type, dir, customisation, description
 				FROM '.SQ_TABLE_PREFIX.'ast_typ
 				WHERE type_code = '.$db->quote($type_code);
 		$result = $db->getRow($sql);
@@ -1152,6 +1152,58 @@ class Asset_Manager extends MySource_Object
 		return $result;
 
 	}//end getAttributeValuesByName()
+
+
+//--        CONTENT        --//
+
+
+	/**
+	* Get the editable content of any asset below the passed assetid
+	*
+	* @param int	$assetid	The asset we want to get the contents of
+	*
+	* @return bool|array	FALSE if assetid is invalid, Array(assetid=>content) otherwise
+	* @access public
+	*/
+	function getEditableContents($assetid)
+	{
+		if (!$assetid || !$this->assetExists($assetid)) return false;
+
+		$children = $this->getDependantChildren($assetid);
+		$contents = Array();
+
+		foreach ($children as $childid => $type_code) {
+			$child = $this->getAsset($childid);
+			$child_content = $child->getContent();
+
+			if (!empty($child_content)) {
+				$contents[$childid] = $child->getContent();
+			}
+
+			$this->forgetAsset($child);
+		}
+
+		return empty($contents) ? false : $contents;
+	}
+
+	/**
+	* Set the editable content of the specified asset
+	*
+	* @param int	$assetid	The asset we want to set the contents of
+	*
+	* @return boolean	FALSE if assetid is invalid, true if successful
+	* @access public
+	*/
+	function setEditableContents($assetid, $content)
+	{
+		$asset = $this->getAsset($assetid);
+
+		if (is_null($asset)) return false;
+
+		$asset->setContent($content);
+
+		return true;
+	}
 
 
 //--        CLONING        --//
