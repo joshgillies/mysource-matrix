@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: assertions.inc,v 1.4 2004/05/31 23:12:54 lwright Exp $
+* $Id: assertions.inc,v 1.5 2004/06/01 00:25:35 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -287,16 +287,17 @@ function assert_array_equals($test, $expected, $msg='', $silent=false, $fatal=tr
 
 
 /**
-* Assert that the values passed in are equal
+* Assert that the variable passed in is set
 *
-* If you wish to display (print_r) array contents in the case of a failed assertion, use one of the two
-* assertArray*() functions instead of this one.
+* Equivalent of assert_true(isset($test))
+* If you want to test the index of an array please use assert_isset_array_index()
 *
 * @param mixed		$test		the command normallt passed to PHP's isset fn
 * @param string		$msg		an error message to print on failure
 * @param boolean	$silent		is this exception silent (ie not shown to the user)
 * @param boolean	$fatal		is this exception fatal (ie should the script exit)
 *
+* @see assert_isset_array_index()
 * @access public
 * @return boolean
 */
@@ -310,6 +311,37 @@ function assert_isset($test, $msg='', $silent=false, $fatal=true)
 	return true;
 
 }//end assert_isset()
+
+
+/**
+* Assert that an index of an array is set
+*
+* Equivalent of assert_true(isset($test[$index]))
+* To test whether the array itself is set or other types of variables please use the
+* plain version of this function, assert_isset()
+*
+* @param mixed		$test		the array to test
+* @param mixed		$index		the index we want to make sure exists
+* @param string		$msg		an error message to print on failure
+* @param boolean	$silent		is this exception silent (ie not shown to the user)
+* @param boolean	$fatal		is this exception fatal (ie should the script exit)
+*
+* @see assert_isset()
+* @access public
+* @return boolean
+*/
+function assert_isset_array_index($test, $index, $msg, $silent=false, $fatal=true)
+{
+	assert_type($test, 'array');
+
+	if (!isset($test[$index])) {
+		if (empty($msg)) $msg = 'expected array index "'.$index.'" was NOT SET';
+		trigger_exception($msg, $silent, $fatal);
+		return false;
+	}
+	return true;
+
+}//end assert_isset_array_index()
 
 
 /**
