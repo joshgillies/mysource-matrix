@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_create.xml,v 1.1.1.1 2004/07/21 04:31:53 lwright Exp $
+* $Id: edit_interface_create.xml,v 1.2 2004/07/22 06:29:46 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -30,7 +30,7 @@
 		<field attribute="start_date">
 			<display_name>Start Date</display_name>
 			<note>The starting point for this event. Date component is mandatory, time component is optional</note>
-			<datetime min="1970-01-01 00:00:00" max="2030-12-31 23:59:59" allow_circa="0" allow_null="0">
+			<datetime min="2004-01-01 00:00:00" max="2030-12-31 23:59:59" allow_circa="0" allow_null="0">
 				<show>
 					<y style="s" allow_null="0" />
 					<m style="s" allow_null="0" />
@@ -43,7 +43,7 @@
 		<field attribute="end_date">
 			<display_name>End Date</display_name>
 			<note>The end point for this event. May be ommitted, but must provide the same information as the start date if included</note>
-			<datetime min="1970-01-01 00:00:00" max="2030-12-31 23:59:59" allow_circa="0" allow_null="1">
+			<datetime min="2004-01-01 00:00:00" max="2030-12-31 23:59:59" allow_circa="0" allow_null="1">
 				<show>
 					<y style="s" allow_null="1" />
 					<m style="s" allow_null="1" />

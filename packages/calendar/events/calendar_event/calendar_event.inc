@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.3 2004/07/22 04:32:54 lwright Exp $
+* $Id: calendar_event.inc,v 1.4 2004/07/22 06:29:46 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH . '/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.3 $ - 1.0
+* @version $Revision: 1.4 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -148,11 +148,18 @@ class Calendar_Event extends Asset
 			return false;
 		}
 
-		// cannot have Start Date having a time component and not the other, or v.v.
-		if ($start_has_time ^ $end_has_time) {
-			trigger_error('Only one of \'Start Date\' or \'End Date\' includes a time component. This is not allowed; either both start and end date must have a time or neither can', E_USER_WARNING);
+		// Cannot have an end time if you have no start time
+		if ($end_has_time && (!$start_has_time)) {
+			trigger_error('You have specified an end time but not a start time.  Please specify a start time.', E_USER_WARNING);
 			return false;
 		}
+
+		// Cannot have an end date and start time if you have no end time
+		if ($end_has_date && $start_has_time && (!$end_has_time)) {
+			trigger_error('You have specified an end date and a start time but no end time.  Please specify an end time.', E_USER_WARNING);
+			return false;
+		}
+
 
 		// If an End Date is specified (and we need date component so we can use that to check),
 		// the End Date must be no earlier than the start Date
