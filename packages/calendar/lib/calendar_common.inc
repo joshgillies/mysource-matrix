@@ -18,31 +18,25 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.4 2004/10/17 23:35:51 lwright Exp $
+* $Id: calendar_common.inc,v 1.5 2004/10/17 23:41:13 lwright Exp $
 * $Name: not supported by cvs2svn $
-* $Revision: 1.4 $
+*/
+
+/*
+* Calendar Package Library Functions
 *
 * This file contains global functions that are useful throughout the calendar module
 * (but not beyond)
+*
+* @author Tom Barrett <tbarrett@squiz.net>
+* @author Luke Wright <lwright@squiz.net>
+* @version $Revision: 1.5 $
+* @package MySource_Matrix_Packages
+* @subpackage calendar
 */
 
 require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 require_once dirname(__FILE__).'/../calendar_events/calendar_event_recurring/calendar_event_recurring.inc';
-
-/**
-* Get the events occurring in the specified time frame
-*
-* @param Array	$root_nodes		Root nodes to draw the events from
-* @param string	$start_date		First date in timeframe, in ISO8601 format
-* @param int	$window_length	Number of days ahead to look
-*
-* @return Array	(date => Array(id:index))
-*/
-function get_events_in_timeframe($root_nodes, $start_date, $window_length)
-{
-}//end get_events_in_timeframe
-
-
 
 
 /**
@@ -51,6 +45,7 @@ function get_events_in_timeframe($root_nodes, $start_date, $window_length)
 * @param array	&$trees	(int => string) an array of tree ids indexed by root node
 *
 * @return string	the common part of the SQL query
+* @access public
 */
 function build_single_event_query_base(&$trees)
 {
@@ -64,7 +59,9 @@ function build_single_event_query_base(&$trees)
 function build_join_statements()
 {
 	return '('.SQ_TABLE_RUNNING_PREFIX.'asset a join ('.SQ_TABLE_RUNNING_PREFIX.'asset_link l join '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t on l.linkid = t.linkid) on l.minorid = a.assetid) join '.SQ_TABLE_RUNNING_PREFIX.'calendar_date_value cd on a.assetid = cd.assetid';
-}
+
+}//end build_join_statements()
+
 
 /**
 * Builds the common part of the recurring events query
@@ -81,6 +78,7 @@ function build_join_statements()
 * @param int	$length	Optional: the number of days ahead from the start date to look when in period view
 *
 * @return string
+* @access public
 */
 function build_recurring_event_query_base(&$trees, $view, $iso, $length=null) 
 {
@@ -405,13 +403,7 @@ function build_recurring_event_query_base(&$trees, $view, $iso, $length=null)
 					// we have intervening months, so we want to see if the event starts or ends in one of them
 					$sql_freqs[] = '((frequency LIKE '.$db->quote('M%').') AND (((('.$last_date_components['ms'].' - start_date_ms) % period) BETWEEN 1 AND '.($last_date_components['ms'] - $now['ms'] - 1).') OR ((('.$last_date_components['ms'].' - end_date_ms) % period) BETWEEN 1 AND '.($last_date_components['ms'] - $now['ms'] - 1).')))';
 				}
-			}
-/*
-			echo '<pre>';
-			foreach ($sql_freqs as $sqlf) echo "\n===\n$sqlf ";
-			echo '</pre>';
-*/
-			
+			}		
 
 		break;
 
@@ -434,6 +426,7 @@ function build_recurring_event_query_base(&$trees, $view, $iso, $length=null)
 * @param array	&$treeids		array of treeids
 *
 * @return string	the SQL clause
+* @access public
 */
 function build_tree_clause($treeids)
 {
@@ -453,6 +446,7 @@ function build_tree_clause($treeids)
 * @param array	&$root_nodes	array of asset ids which represent root nodes
 *
 * @return array(int => string) a list of tree branch ids indexed by root assetid
+* @access public
 */
 function &get_treeids(&$root_nodes) 
 {
@@ -482,6 +476,7 @@ function &get_treeids(&$root_nodes)
 * @param array	&$trees		array of (return_values => column_values)
 *
 * @return string
+* @access public
 */
 function build_case_statement($col_name, &$trees) 
 {
@@ -510,6 +505,7 @@ function build_case_statement($col_name, &$trees)
 * @param string	$day_end_time	Latest time of day we will display (HH:mm)
 *
 * @return array
+* @access public
 */
 function &expand_event_list(&$events, $first_day, $last_day, $day_start_time='00:00', $day_end_time='23:59') 
 {
@@ -543,6 +539,7 @@ function &expand_event_list(&$events, $first_day, $last_day, $day_start_time='00
 * @param string	$day_end_time	Latest time of day we will display (HH:mm)
 *
 * @return void
+* @access public
 */
 function expand_single_event(&$result_list, &$event, $assetid, $first_day, $last_day, $day_start_time, $day_end_time) 
 {
@@ -692,8 +689,9 @@ function expand_single_event(&$result_list, &$event, $assetid, $first_day, $last
 * @param string	$last_day		The last day we want to display (YYYY-MM-DD)
 * @param string	$day_start_time	Earliest time of day we will display (HH:mm)
 * @param string	$day_end_time	Latest time of day we will display (HH:mm)
-
+*
 * @return void
+* @access public
 */
 function expand_recurring_event(&$result_list, &$event, $assetid, $first_day, $last_day, $day_start_time, $day_end_time) 
 {
@@ -892,6 +890,7 @@ function expand_recurring_event(&$result_list, &$event, $assetid, $first_day, $l
 * @param array	$res					a ($id => array(...)) array of events
 *
 * @return void
+* @access public
 */
 function process_exceptions(&$res)
 {
@@ -923,6 +922,7 @@ function process_exceptions(&$res)
 * @param string	$prefix			the prefix to add to array keys generated by this fn
 *
 * @return array					the components
+* @access public
 */
 function get_date_components($iso, $prefix='')
 {			
@@ -1027,13 +1027,3 @@ function get_date_components($iso, $prefix='')
 	return $res;	
 	
 }//end get_date_components()
-
-// testing
-/*
-$root_nodes = Array(30, 35);
-$trees = get_treeids($root_nodes);
-$sql = build_recurring_event_query_base($trees, 'period', '2004-10-20', 20);
-bam("=========");
-bam($sql);
-exit();
-*/
