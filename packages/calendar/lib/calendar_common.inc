@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.12.2.1 2004/12/10 03:55:54 tbarrett Exp $
+* $Id: calendar_common.inc,v 1.12.2.2 2004/12/10 06:43:53 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.12.2.1 $
+* @version $Revision: 1.12.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -106,7 +106,7 @@ function build_recurring_event_query_base(&$trees, $view, $iso, $length=null)
 {
 	list($year,$month,$day) = sscanf(substr($iso,0,10), '%4d-%2d-%2d');
 	if (!$month) $month = 12;
-	if (!$day) $day = days_in_month($month, $year);
+	if (!$day) $day = 1;
 
 	$now = get_date_components(sprintf('%04d-%02d-%02d', $year, $month, $day));
 	$wdom_list = weekday_dates_in_month($now['wday'], $month, $year);
