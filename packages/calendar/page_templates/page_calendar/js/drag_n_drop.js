@@ -39,8 +39,11 @@
   /* The element it was originally linked under */
   var originalParent = null;
 
+  /* Whether the event has moved since we started dragging */
+  var moved = false;
+
   
-  //document.write('<textarea id="log" rows="25"></textarea>');
+  //document.write('<textarea id="log" rows="25" cols="100"></textarea>');
   function log(msg) {
 	  //document.getElementById('log').value += msg + '\n';
   }
@@ -53,12 +56,18 @@
   */
   function startDragging(elt) 
   {
+	moved = false;
+	if (movingElt !== null) return;
+	while (elt.parentNode.tagName == 'DIV') {
+		elt = elt.parentNode;
+	}
 	log('starting to drag '+elt);
     movingElt = elt;
 	originalParent = elt.parentNode;
+	log('original parent is '+originalParent.id);
     mouseOffset = null;   
-	document.body.style.cursor='move';
 	oldCursor = elt.style.cursor;
+	document.body.style.cursor='move';
 	elt.style.cursor='move';
 	elt.parentNode.style.cursor = 'move';
 	elt.style.position = 'absolute';
@@ -77,9 +86,9 @@
   */
   function stopDragging() 
   {
-	log('stopping drag');
 	var result = '';
 	if (movingElt == null) return 'not_dragging';
+	log('stopping drag');
 	document.body.style.cursor='';
 	movingElt.style.cursor=oldCursor;
 	movingElt.parentNode.style.cursor='';
@@ -89,8 +98,12 @@
 	var oldBrother = movingElt.nextSibling;
 	if (newCell == originalParent) {
 		result = 'no_move';
+		movingElt.style.left = '';
+		movingElt.style.top = '';	
 	} else if (newCell == null) {
 		result = 'left_table';
+		movingElt.style.left = '';
+		movingElt.style.top = '';	
 	} else {
 		movingElt.style.left = '';
 		movingElt.style.top = '';	
@@ -101,6 +114,8 @@
 		if ((typeof confirmDrag != "undefined") && !confirmDrag(movingElt, newCell)) {
 			result = 'user_cancelled';
 			newCell.removeChild(movingElt);
+			log('Resetting cursor to '+oldCursor);
+			movingElt.style.cursor = oldCursor;
 			if (oldBrother != null) oldCell.insertBefore(movingElt, oldBrother);
 			else oldCell.appendChild(movingElt);
 		} else {
@@ -121,7 +136,7 @@
   */
   function moveElt(e) 
   {
-	log('moving');
+	moved = true;
     var mousePosition = getMousePosition(e);
     if (mouseOffset == null) {
         // we are just starting to drag, so figure out the offset
