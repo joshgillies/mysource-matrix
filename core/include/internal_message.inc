@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: internal_message.inc,v 1.21 2003/10/10 04:47:57 gsherwood Exp $
+* $Id: internal_message.inc,v 1.22 2003/10/17 04:56:38 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -328,6 +328,8 @@ class Internal_Message extends MySource_Object
 				$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
 				if (is_null($user)) continue;
 
+				$body = $this->formatBody($user);
+
 				// log the internal message
 				$messageid = $db->nextId('sq_sequence_internal_message');
 				if (DB::isError($messageid)) {
@@ -340,7 +342,7 @@ class Internal_Message extends MySource_Object
 								'userto'     => $userid,
 								'userfrom'   => $this->from,
 								'subject'    => $this->subject,
-								'body'       => $this->body,
+								'body'       => $body,
 								'type'       => $this->type,
 								'priority'   => $this->priority,
 								'status'     => $this->status,
@@ -356,7 +358,7 @@ class Internal_Message extends MySource_Object
 				require_once SQ_FUDGE_PATH.'/general/www.inc';
 				$to_email = trim($user->attr('email'));
 				if (!empty($to_email) && valid_email($to_email)) {
-					mail($to_email, $this->subject, $this->body, "From: ".$from_string, "-f$from_email");
+					mail($to_email, $this->subject, $body, "From: ".$from_string, "-f$from_email");
 				}
 
 			}//end foreach
@@ -423,6 +425,27 @@ class Internal_Message extends MySource_Object
 		<?php
 
 	}// end printBody()
+
+
+	/**
+	* Replaces keywords in the body of the message
+	*
+	* @param object User	&$user	the user that the message is being sent to
+	*
+	* @return boolean
+	* @access public
+	*/
+	function formatBody(&$user)
+	{
+		if (!is_a($user, 'user')) return $this->body;
+		require_once SQ_FUDGE_PATH."/general/text.inc";
+
+		$replacements = Array();
+		$replacements['user_name'] = $user->name;
+
+		return replace_keywords($this->body, $replacements);
+		
+	}//end formatBody()
 
 
 	/**

@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_status_pending_approval.inc,v 1.15 2003/10/10 06:49:25 brobertson Exp $
+* $Id: asset_status_pending_approval.inc,v 1.16 2003/10/17 04:56:38 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -159,7 +159,7 @@ class Asset_Status_Pending_Approval extends Asset_Status
 				$m_complete = $mm->requiredFieldsComplete($this->owner->id);
 
 				if ($wfm->isWorkflowComplete($this->owner->id) && $m_complete && ($new_status & SQ_SC_STATUS_ALL_APPROVED)) {
-					if (!$wfm->cancelWorkflow($this->owner->id)) {
+					if (!$wfm->completeWorkflow($this->owner->id)) {
 						trigger_error('Workflow completion failed', E_USER_WARNING);
 						return false;
 					}
@@ -173,27 +173,18 @@ class Asset_Status_Pending_Approval extends Asset_Status
 					// if the workflow process is now complete, we can go ahead and clear out the schemas
 					// as long as all our metadata is also complete
 					if ($wfm->isWorkflowComplete($this->owner->id) && $m_complete && ($new_status & SQ_SC_STATUS_ALL_APPROVED)) {
-						if (!$wfm->cancelWorkflow($this->owner->id)) {
+						if (!$wfm->completeWorkflow($this->owner->id)) {
 							trigger_error('Workflow completion failed', E_USER_WARNING);
 							return false;
 						}
 					}
 				}
 
-				// log an internal message
-				$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-				$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
-
-				$log = $ms->newMessage();
-				$log->subject = 'Asset Changes Approved';
-				$log->body    = 'User "'.$user->name.'" has approved '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name').' "'.$this->owner->name.'" to go live.';
-				$log->type    = 'asset.workflow';
-				$log->parameters['assetid'] = $this->owner->id;
-				$log->parameters['version'] = substr($this->owner->version, 0, strrpos($this->owner->version, '.'));
-				$log->send();
-
 				if ($new_status == SQ_STATUS_APPROVED) {
-					// log another internal message
+
+					$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+					$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
+
 					$log = $ms->newMessage();
 					$log->subject = 'Workflow Completed';
 					$log->body    = 'The workflow process for '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name').' "'.$this->owner->name.'" has been completed. "'.$this->owner->name.'" is now approved and can be made live by an administrator.';
@@ -201,6 +192,7 @@ class Asset_Status_Pending_Approval extends Asset_Status
 					$log->parameters['assetid'] = $this->owner->id;
 					$log->parameters['version'] = substr($this->owner->version, 0, strrpos($this->owner->version, '.'));
 					$log->send();
+
 				}
 
 			}//end if

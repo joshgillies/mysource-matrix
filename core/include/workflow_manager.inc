@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: workflow_manager.inc,v 1.36 2003/10/15 03:36:07 gsherwood Exp $
+* $Id: workflow_manager.inc,v 1.37 2003/10/17 04:56:38 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -227,11 +227,19 @@ class Workflow_Manager extends MySource_Object
 	* @return array( schemaid => workflow_array )
 	* @see Asset::useSystemVersion
 	*/
-	function getSchemaWorkflows($assetid, $schemaid=null)
+	function getSchemaWorkflows($assetid, $schemaid='all')
 	{
 		$assetid = (int) $assetid;
+
+		if ($schemaid != 'all') {
+			// we are looking for a specific schema, but we might already have
+			// the information we need in the 'all' array
+			if (isset($this->_tmp['schema_workflows'][$assetid]['all'][$schemaid])) {
+				$this->_tmp['schema_workflows'][$assetid][$schemaid] = $this->_tmp['schema_workflows'][$assetid]['all'][$schemaid];
+			}
+		}
 		
-		if (!isset($this->_tmp['schema_workflows'][$assetid][(string)$schemaid])) {
+		if (!isset($this->_tmp['schema_workflows'][$assetid][$schemaid])) {
 
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
 
@@ -239,7 +247,7 @@ class Workflow_Manager extends MySource_Object
 					  FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_workflow ';
 			$where = 'assetid = '.$db->quote($assetid).'
 						AND access = 1';
-			if (!is_null($schemaid)) $where .= ' AND schemaid = '.$db->quote($schemaid);
+			if ($schemaid != 'all') $where .= ' AND schemaid = '.$db->quote($schemaid);
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 			
 			$workflows = $db->getAssoc($sql.$where, false, Array(), DB_FETCHMODE_ASSOC);
@@ -252,14 +260,12 @@ class Workflow_Manager extends MySource_Object
 				$workflows[$k] = (is_null($workflows[$k])) ? '' : unserialize($workflows[$k]);
 			}
 
-			$this->_tmp['schema_workflows'][$assetid][(string)$schemaid] = $workflows;
+			if ($schemaid == 'all') $this->_tmp['schema_workflows'][$assetid]['all'] = $workflows;
+			else					$this->_tmp['schema_workflows'][$assetid][$schemaid] = $workflows[$schemaid];
 		}
 
-		if (!is_null($schemaid)) {
-			if (!isset($this->_tmp['schema_workflows'][$assetid][(string)$schemaid])) return Array();
-			return $this->_tmp['schema_workflows'][$assetid][(string)$schemaid];
-		}
-		return $this->_tmp['schema_workflows'][$assetid][(string)$schemaid];
+		if (!isset($this->_tmp['schema_workflows'][$assetid][$schemaid])) return Array();
+		return $this->_tmp['schema_workflows'][$assetid][$schemaid];
 
 	}//end getSchemaWorkflows()
 
@@ -332,12 +338,13 @@ class Workflow_Manager extends MySource_Object
 	* so the users returned are only users who will affect the workflow at this point.
 	*
 	* @param int		$assetid	the ID of the asset to get publishers for
+	* @param int		$schemaid	the schema to get publishers for
 	* @param boolean	$group		group the return value by workflowid
 	*
 	* @return array(int)
 	* @access public
 	*/
-	function whoCanPublish($assetid, $group=false)
+	function whoCanPublish($assetid, $schemaid=null, $group=false)
 	{
 		// if there are no current workflows running, we are not waiting for anyone
 		$running_schemas = $this->getSchemas($assetid, true, true);
@@ -347,12 +354,13 @@ class Workflow_Manager extends MySource_Object
 		// at this point in the workflow
 		$can_publish = Array();
 
-		foreach ($running_schemas as $schemaid) {
+		foreach ($running_schemas as $sid) {
+			if (!is_null($schemaid) && $sid != $schemaid) continue;
 			if ($group) {
-				$can_publish[$schemaid] = $this->_whoCanPublishWorkflow($assetid, $schemaid);
-				array_unique($can_publish[$schemaid]);
+				$can_publish[$sid] = $this->_whoCanPublishWorkflow($assetid, $sid);
+				$can_publish[$sid] = array_unique($can_publish[$sid]);
 			} else {
-				$can_publish = array_merge($can_publish, $this->_whoCanPublishWorkflow($assetid, $schemaid));
+				$can_publish = array_merge($can_publish, $this->_whoCanPublishWorkflow($assetid, $sid));
 			}
 		}
 		
@@ -379,11 +387,11 @@ class Workflow_Manager extends MySource_Object
 		// these will be the people who can approve this asset at this point in the workflow
 		$can_publish = Array();
 		$workflow = $this->getSchemaWorkflows($assetid, $schemaid);
-		if (!isset($workflow[$schemaid]['steps'])) return Array();
+		if (!isset($workflow['steps'])) return Array();
 
-		for (reset($workflow[$schemaid]['steps']); null !== ($stepid = key($workflow[$schemaid]['steps'])); next($workflow[$schemaid]['steps'])) {
-			$step_data =& $workflow[$schemaid]['steps'][$stepid];
-			if ($stepid != $workflow[$schemaid]['current_step']) continue;
+		for (reset($workflow['steps']); null !== ($stepid = key($workflow['steps'])); next($workflow['steps'])) {
+			$step_data =& $workflow['steps'][$stepid];
+			if ($stepid != $workflow['current_step']) continue;
 
 			for (reset($step_data['conditions']);
 					null !== ($pub = key($step_data['conditions'])); next($step_data['conditions'])) {
@@ -534,10 +542,23 @@ class Workflow_Manager extends MySource_Object
 	*/
 	function recordPublish($assetid, $publisher)
 	{
+		$assetid = (int) $assetid;
+		$asset   = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		if (is_null($asset)) {
+			trigger_error('Failed recording workflow publish, Asset #'.$assetid.' does not exist', E_USER_WARNING);
+			return false;
+		}
+
 		// if there are no current workflows running, how can someone publish (you do the math)?
 		$running_schemas = $this->getSchemas($assetid, true, true);
 		if (empty($running_schemas)) return false;
 		$schema_workflows = $this->getSchemaWorkflows($assetid);
+
+		// we'll need these for later to check if any workflow has changed steps
+		if (!$this->silentWorkflowParty($asset->id)) {
+			$steps_before = $this->getWorkflowCurrentSteps($asset->id);
+			$publishers_before = $this->whoCanPublish($asset->id);
+		}
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -545,7 +566,6 @@ class Workflow_Manager extends MySource_Object
 		for (reset($schema_workflows); null !== ($schemaid = key($schema_workflows)); next($schema_workflows)) {
 			if (!in_array($schemaid, $running_schemas)) continue;
 			$workflow =& $schema_workflows[$schemaid];
-			
 			if ($this->_recordPublish($workflow, $publisher)) {
 				$new_workflow = serialize($workflow);
 				$values = Array('workflow' => $db->quote($new_workflow));
@@ -556,7 +576,52 @@ class Workflow_Manager extends MySource_Object
 					return false;
 				}
 
+				// updated cached version of this workflow
 				$this->_tmp['schema_workflows'][$assetid][$schemaid] = $workflow;
+				if (isset($this->_tmp['schema_workflows'][$assetid]['all'][$schemaid])) {
+					$this->_tmp['schema_workflows'][$assetid]['all'][$schemaid] = $workflow;
+				}
+			}
+		}
+
+		// send an internal message to let people know someone has approved
+		$asset_type = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name');
+		$user       = &$GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserId());
+		$ms         = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+
+		$log = $ms->newMessage(); 
+		$log->subject = 'Asset Changes Approved';
+		$log->body    = 'User "'.$user->name.'" has approved '.$asset_type.' "'.$asset->name.'" to go live.';
+		$log->type    = 'asset.workflow';
+		$log->parameters['assetid'] = $asset->id;
+		$log->parameters['version'] = substr($asset->version, 0, strrpos($asset->version, '.'));
+		$log->send();
+
+		// send internal messages to everyone who could approve before to let them know that someone did
+		if (!$this->silentWorkflowParty($asset->id)) {
+			$msg = $ms->newMessage($publishers_before);
+			$msg->subject = $log->subject;
+			$msg->body    = "%user_name%,\n\n".$log->body;
+			$msg->type    = 'asset.workflow.announce';
+			$msg->parameters['assetid'] = $asset->id;
+			$msg->send();
+		}
+
+		// now check if any workflows have progressed to the next step
+		// and send messages to the new approvers if they have
+		if (!$this->silentWorkflowParty($asset->id)) {
+			$steps_after = $this->getWorkflowCurrentSteps($asset->id);
+			foreach ($steps_after as $schemaid => $step) {
+				if ($step > $steps_before[$schemaid]) {
+					$publishers = $this->whoCanPublish($asset->id, $schemaid);
+					// send internal messages to everyone in the next step who can now publish the asset
+					$msg = $ms->newMessage($publishers);
+					$msg->subject = 'Workflow Approval Required';
+					$msg->body    = "%user_name%,\n\n".$asset_type.' "'.$asset->name.'" is currently in workflow and has progressed from step '.(int)$steps_before[$schemaid].' to step '.(int)$step.'.'."\n".'You are now required to approve or reject the changes made to "'.$asset->name.'" so the workflow process can continue.';
+					$msg->type    = 'asset.workflow.invitation';
+					$msg->parameters['assetid'] = $asset->id;
+					$msg->send();
+				}
 			}
 		}
 
@@ -727,11 +792,19 @@ class Workflow_Manager extends MySource_Object
 	*/
 	function startWorkflow($assetid)
 	{
+		$assetid  = (int) $assetid;
+		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		if (is_null($asset)) {
+			trigger_error('Failed starting workflow, Asset #'.$assetid.' does not exist', E_USER_WARNING);
+			return false;
+		}
+
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$schemas = $this->getSchemas($assetid, true, false);
 
 		if (empty($schemas)) return false;
 
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		foreach ($schemas as $schemaid) {
 			$workflow = $this->generateWorkflowArray($assetid, $schemaid);
 			if (empty($workflow['steps'])) continue;
@@ -741,8 +814,27 @@ class Workflow_Manager extends MySource_Object
 			$where = 'assetid = '.$db->quote($assetid).'
 					    AND schemaid = '.$db->quote($schemaid);
 			if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_workflow', $values, $where)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
+		}
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
+		$this->_tmp = Array();
+
+		// send internal messages to everyone who can now publish the asset
+		$ms   = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserId());
+		$asset_type = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name');
+		$publishers = $this->whoCanPublish($asset->id);
+
+		if (!$this->silentWorkflowParty($asset->id)) {
+			$log = $ms->newMessage($publishers);
+			$log->subject = 'Workflow Approval Required';
+			$log->body    = "%user_name%,\n\n".$asset_type.' "'.$asset->name.'" is currently in workflow.'."\n".'You are now required to approve or reject the changes made to "'.$asset->name.'" so the workflow process can continue.';
+			$log->type    = 'asset.workflow.invitation';
+			$log->parameters['assetid'] = $asset->id;
+			$log->send();
 		}
 
 		return true;
@@ -776,7 +868,33 @@ class Workflow_Manager extends MySource_Object
 
 
 	/**
-	* Clears all generated workflow arrays from the workflow table for the passed assetID
+	* Starts workflow by writing out all workflow arrays to the workflow table for the passed assetID
+	*
+	* @param int	$assetid	the ID of the asset to check workflow completness for
+	*
+	* @return boolean
+	* @access public
+	*/
+	function getWorkflowCurrentSteps($assetid)
+	{
+		$running_schemas = $this->getSchemas($assetid, true, true);
+		if (empty($running_schemas)) return Array();
+		$schema_workflows = $this->getSchemaWorkflows($assetid);
+
+		$steps = Array();
+		foreach ($schema_workflows as $schemaid => $workflow) {
+			if (!in_array($schemaid, $running_schemas)) continue;
+			if (empty($workflow['steps'])) continue;
+			$steps[$schemaid] = $workflow['current_step'];
+		}
+
+		return $steps;
+
+	}//end isWorkflowComplete()
+
+
+	/**
+	* Cancel the currently running workflows for the passed asset
 	*
 	* @param int	$assetid	the ID of the asset to cancel workflow for
 	*
@@ -785,12 +903,96 @@ class Workflow_Manager extends MySource_Object
 	*/
 	function cancelWorkflow($assetid)
 	{
+		$assetid = (int) $assetid;
+		$asset   = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		if (is_null($asset)) {
+			trigger_error('Failed cancelling workflow, Asset #'.$assetid.' does not exist', E_USER_WARNING);
+			return false;
+		}
+
+		if (!$this->_clearWorkflow($assetid)) return false;
+
+		// send internal messages to everyone who could approve before to let them know that someone did
+		if (!$this->silentWorkflowParty($asset->id)) {
+			$ms         = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+			$user       = &$GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserId());
+			$asset_type = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name');
+			$publishers = $this->whoCanPublish($asset->id);
+
+			$msg = $ms->newMessage($publishers);
+			$msg->subject = 'Asset Changes Rejected';
+			$msg->body    = "%user_name%,\n\n".'User "'.$user->name.'" has rejected the changes made to '.$asset_type.' "'.$asset->name.'". The workflow process has been cancelled.';
+			$msg->type    = 'asset.workflow.announce';
+			$msg->parameters['assetid'] = $asset->id;
+			$msg->send();
+		}
+
+		return true;
+
+	}//end cancelWorkflow()
+
+
+	/**
+	* Completes the workflow by clearing out all the running workflows from the DB
+	*
+	* @param int	$assetid	the ID of the asset to complete workflow for
+	*
+	* @return boolean
+	* @access public
+	*/
+	function completeWorkflow($assetid)
+	{
+		$assetid = (int) $assetid;
+		$asset   = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		if (is_null($asset)) {
+			trigger_error('Failed completing workflow, Asset #'.$assetid.' does not exist', E_USER_WARNING);
+			return false;
+		}
+
+		return $this->_clearWorkflow($assetid);
+
+	}//end completeWorkflow()
+
+
+	/**
+	* Clears all generated workflow arrays from the workflow table for the passed assetID
+	*
+	* @param int	$assetid	the ID of the asset to clear workflow for
+	*
+	* @return boolean
+	* @access public
+	*/
+	function _clearWorkflow($assetid)
+	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$values = Array('workflow' => 'NULL');
 		$where = 'assetid = '.$db->quote($assetid);
 		return $GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_workflow', $values, $where);
 
 	}//end cancelWorkflow()
+
+
+	/**
+	* Check if the passed assetid is a silent party in the worflow process
+	*
+	* For example, when pulling a standard page through workflow, the bodycopy
+	* is a silent party because it cannot be shared and so has the same admins
+	* as the standard page. However, any tables can be shared and so they are not
+	* silent parties.
+	*
+	* @param int	$assetid	the ID of the asset to check
+	*
+	* @access public
+	* @return boolean
+	*/
+	function silentWorkflowParty($assetid)
+	{
+		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset((int) $assetid);
+		if (is_null($asset)) return true;
+		$edit_fns = $asset->getEditFns();
+		return !isset($edit_fns->static_screens['workflow']);
+
+	}//end allowsWorkflow()
 
 }//end class
 
