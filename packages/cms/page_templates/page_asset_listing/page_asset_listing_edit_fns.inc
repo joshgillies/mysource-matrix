@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing_edit_fns.inc,v 1.13 2005/01/24 21:52:54 gsherwood Exp $
+* $Id: page_asset_listing_edit_fns.inc,v 1.14 2005/01/27 05:20:21 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -651,38 +651,6 @@ class Page_Asset_Listing_Edit_Fns extends Page_Edit_Fns
 			$types[$k] = (in_array($k, $_POST[$prefix.'_inherit_types'])) ? true : false;
 		}
 		$asset->setAttrValue('types', $types);
-
-
-		$customised = array_get_index($_POST, $prefix.'_customise', Array());
-		foreach ($customised as $type) {
-			if (in_array($type, $formats)) continue;
-			if (in_array($type, $removed)) continue;
-
-			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-			$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
-
-			$copy_link = Array('asset' => &$folder, 'value' => $type, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
-
-			$bodycopy = new Bodycopy();
-			$bodycopy->setAttrValue('name', ucwords(str_replace('_',' ', $type)).' Format');
-			if (!$bodycopy->create($copy_link)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
-			}
-
-			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		}
-
-		foreach ($formats as $minorid => $value) {
-			if ($value == 'default_format') continue;
-			if (in_array($value, $customised)) continue;
-			if (in_array($value, $removed)) continue;
-
-			$link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', false, $value);
-			if (!$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($link['linkid'])) {
-				trigger_error('Failed deleting customised type format for "'.$value.'"', E_USER_WARNING);
-			}
-		}
 
 		return true;
 
