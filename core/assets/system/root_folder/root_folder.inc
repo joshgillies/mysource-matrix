@@ -159,9 +159,13 @@ class Root_Folder extends Folder
 	*/
 	function _checkPermissionAccess($perm, $assetids=Array())
 	{
-		if ($GLOBALS['SQ_SYSTEM']->userRoot()) return true;
-		if ($GLOBALS['SQ_SYSTEM']->userSystemAdmin()) return true;
-		return false;
+		if (empty($assetids)) {
+			if ($GLOBALS['SQ_SYSTEM']->userRoot()) return true;
+			if ($GLOBALS['SQ_SYSTEM']->userSystemAdmin()) return true;
+			return false;
+		} else {
+			return parent::_checkPermissionAccess($perm, $assetids);
+		}
 	}//end checkAccess()
 
 

@@ -245,25 +245,29 @@ class User extends Asset
 	*/
 	function _checkPermissionAccess($perm, $assetids=Array())
 	{
-		// root can do anything
-		if ($GLOBALS['SQ_SYSTEM']->userRoot()) return true;
+		if (empty($assetids)) {
+			// root can do anything
+			if ($GLOBALS['SQ_SYSTEM']->userRoot()) return true;
 
-		if ($GLOBALS['SQ_SYSTEM']->userRoot($this)) {
-			// we have to be root to view root's details
-			return false;
-		} else if ($GLOBALS['SQ_SYSTEM']->userSystemAdmin($this)) {
-			// this is a sysadmin so they need to
-			// be root or the sysadmin themselves
-			if (!$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) return false;
-			if ($this->id == $GLOBALS['SQ_SYSTEM']->user->id) return true;
+			if ($GLOBALS['SQ_SYSTEM']->userRoot($this)) {
+				// we have to be root to view root's details
+				return false;
+			} else if ($GLOBALS['SQ_SYSTEM']->userSystemAdmin($this)) {
+				// this is a sysadmin so they need to
+				// be root or the sysadmin themselves
+				if (!$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) return false;
+				if ($this->id == $GLOBALS['SQ_SYSTEM']->user->id) return true;
+				return false;
+			} else {
+				// any other user's details
+				if ($GLOBALS['SQ_SYSTEM']->userSystemAdmin()) return true;
+				if ($this->id == $GLOBALS['SQ_SYSTEM']->user->id) return true;
+			}
+
 			return false;
 		} else {
-			// any other user's details
-			if ($GLOBALS['SQ_SYSTEM']->userSystemAdmin()) return true;
-			if ($this->id == $GLOBALS['SQ_SYSTEM']->user->id) return true;
+			return parent::_checkPermissionAccess($perm, $assetids);
 		}
-
-		return false;
 	}//end checkAccess()
 
 
