@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_03.php,v 1.32 2004/02/10 16:39:19 brobertson Exp $
+* $Id: step_03.php,v 1.33 2004/03/01 18:13:00 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -331,9 +331,6 @@ function &create_root_folder()
 	$link = Array();
 	if (!$root_folder->create($link)) trigger_error('ROOT FOLDER NOT CREATED', E_USER_ERROR);
 	pre_echo('Root Folder Asset Id : '.$root_folder->id);
-	if ($root_folder->id != 1) {
-		trigger_error('Major Problem: The new Root Folder Asset was not given assetid #1. This needs to be fixed by You, before the installation/upgrade can be completed', E_USER_ERROR);
-	}
 	
 	$GLOBALS['SQ_SYSTEM_ASSETS']['root_folder'] = $root_folder->id;
 	return $root_folder;
