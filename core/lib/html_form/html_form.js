@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.js,v 1.27 2004/01/16 00:45:56 gsherwood Exp $
+* $Id: html_form.js,v 1.28 2004/09/14 00:24:15 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -39,7 +39,9 @@ function submit_form(f)
 	if (f.onsubmit()) {
 		f.submit();
 	}
-}// end submit_form()
+
+}//end submit_form()
+
 
 /**
 * Convenience function for setting hidden fields in the form
@@ -55,7 +57,8 @@ function set_hidden_field(name, value, f)
 	if (f.elements[name]) {
 		f.elements[name].value = value;
 	}
-}// end set_hidden_field()
+
+}//end set_hidden_field()
 
 
 /**
@@ -73,7 +76,7 @@ function set_text_field(name, value, f)
 	if (f.elements[name]) {
 		f.elements[name].value = value;
 	}
-}// end set_text_field()
+}//end set_text_field()
 
 
 /**
@@ -108,7 +111,7 @@ function get_form_element(name, f)
 
 	}// endif
 
-}// end get_form_element()
+}//end get_form_element()
 
 
 /**
@@ -123,7 +126,8 @@ function get_form_element_value(name, f)
 {
 	if (f == null) { f = document.main_form; }
 	return (f.elements[name]) ? form_element_value(f.elements[name]) : '';
-}// get_form_element_value()
+
+}//get_form_element_value()
 
 
 /**
@@ -204,7 +208,7 @@ function form_element_value(element)
 	// else something not right so return blank
 	return "";
 
-}// end form_element_value()
+}//end form_element_value()
 
 
 /**
@@ -222,7 +226,7 @@ function get_combo_text(element)
 
 	return element.options[element.selectedIndex].text;
 
-}// end get_combo_text();
+}//end get_combo_text();
 
 
 /**
@@ -245,7 +249,7 @@ function check_radio_button(element, field_val)
 
 	return;
 
-}// end check_radio_button()
+}//end check_radio_button()
 
 
 /**
@@ -269,7 +273,7 @@ function highlight_combo_value(element, field_val) {
 		}
 	}// end for
 
-}// end highlight_combo_value()
+}//end highlight_combo_value()
 
 
 /**
@@ -379,7 +383,7 @@ function move_combo_selection(element, move_up)
 
 	}// end switch
 
-}// end move_combo_selection()
+}//end move_combo_selection()
 
 
 /**
@@ -449,4 +453,37 @@ function check_date(date_name, show_time)
 
 	return 1;
 
-}// end check_date()
+}//end check_date()
+
+
+/**
+* Used by the JS Calendar
+*
+* @param int	$d		the day field of the date
+* @param int	$m		the month field of the date
+* @param int	$y		the year field of the date
+* @param string	$prefix	the prefix of the datetime field
+*
+* @access public
+* @return void
+*/
+function datetime_set_date(d, m, y, prefix)
+{
+	var units = new Array('d', 'm', 'y');
+	for (u in units) {
+		eval('var value = ' + units[u] + ';');
+		var id = prefix + 'value[' + units[u] + ']';
+		var unit = document.getElementById(id);
+
+		if (unit.type == 'text') {
+			unit.value = value;
+		} else {
+			for (var i = 0; i < unit.options.length; i++) {
+				if (value == unit.options[i].value) {
+					unit.selectedIndex = i;
+				}
+			}
+		}
+	}
+
+}//end datetime_set_date()
