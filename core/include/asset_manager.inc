@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.285 2005/03/16 05:00:07 ndvries Exp $
+* $Id: asset_manager.inc,v 1.286 2005/03/16 05:33:04 ndvries Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.285 $
+* @version $Revision: 1.286 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -1173,7 +1173,7 @@ class Asset_Manager extends MySource_Object
 		$contents = Array();
 
 		foreach ($children as $childid => $type_code) {
-			$child = $this->getAsset($childid);
+			$child = &$this->getAsset($childid);
 			$child_content = $child->getContent();
 
 			if (!empty($child_content)) {
@@ -1196,7 +1196,7 @@ class Asset_Manager extends MySource_Object
 	*/
 	function setEditableContents($assetid, $content)
 	{
-		$asset = $this->getAsset($assetid);
+		$asset = &$this->getAsset($assetid);
 
 		if (is_null($asset)) return false;
 
