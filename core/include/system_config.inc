@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.36 2004/07/08 23:38:28 gsherwood Exp $
+* $Id: system_config.inc,v 1.37 2004/07/16 13:57:14 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -229,6 +229,13 @@ class System_Config extends Config
 				}
 
 				return true;
+				break;
+
+			case 'SQ_CONF_SYSTEM_ROOT_URLS' :
+				$lines = explode("\n", $value);
+				$value = '';
+				foreach($lines as $line) if (trim($line) != '') $value .= trim($line)."\n";
+				return parent::_paintConfigVar($var_name, trim($value));
 				break;
 
 			default :
