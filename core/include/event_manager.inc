@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: event_manager.inc,v 1.3 2003/11/12 01:22:10 mmcintyre Exp $
+* $Id: event_manager.inc,v 1.4 2003/11/12 01:36:45 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -11,19 +11,20 @@
 * Event_Manager
 *
 * Purpose 
-*    handles matching an event listener with a event broadcast request.
+*    Handles matching an event listener with a event broadcast request.
 *    Two Types of events can be listening/broadcasted:
 *
-*    1) Static Events - events that are defined and registered at install time, these are assets that need to suply
-*       additional information about its relationship with the broadcaster (type_code, dependant, exclusive, link_types, 
-*       link values etc)
+*    1) Static Events - Events that are defined and registered at install time. These are assets that need to supply
+*       additional information about their relationship with the broadcaster (type_code, dependant, exclusive, link_types, 
+*       link values etc).
 *       
-*    2) Runtime Events - events that are defined and registered at runtime. These are events that are not limited to assets, 
-*       and does not require to define any information about its broadcaster. (anyone listening for this event)
-*       runtime events are polled to ensure that if a event is broadcasted before the listener has requested to listen for the
-*       event, it can be notified about it regardless. the listener can choose not to recieve a call for polled events.
+*    2) Runtime Events - Events that are defined and registered at runtime. These are events that are not limited to assets, 
+*       and do not require to define any information about their broadcaster (anyone can listen for this event).
+*       Runtime events are polled to ensure that if a event is broadcasted before the listener has registered to 
+*       listen for the event, it can be notified about it regardless. The listener can choose not to receive a call 
+*       for polled events.
 *
-* example for static events (in the management class of that asset)
+* Example for static events (in the management class of that asset):
 *
 * <PRE>
 * function getEventList()
@@ -55,19 +56,19 @@ class Event_Manager extends MySource_Object
 
 	/**
 	* @var Array(mixed)
-	* caching of event listeners
+	* Caching of event listeners
 	*/
 	var $_runtime_event_listeners = Array();
 
 	/**
 	* @var Array(&object Asset)
-	* the listener objects
+	* The listener objects
 	*/
 	var $_runtime_listener_objects = Array();
 
 	/**
 	* @var Array(mixed)
-	* events that are pending broadcast (runtime)
+	* Events that are pending broadcast (runtime)
 	*/
 	var $_polling_broadcast_events = Array();
 
@@ -84,13 +85,10 @@ class Event_Manager extends MySource_Object
 
 
 	/**
-	* Allows an object to listen to a runtime event.
+	* Allows an object to listen to a runtime event
 	*
-	* If the listener does not want to recieve broadcasts from events that are currently polling, set the 
-	* broadcast_polling_events to FALSE
-	*
-	* Internally, classes broadcast events which the objects listening get
-	* notified of
+	* If the listener does not want to receive broadcasts from events that are currently polling, set the 
+	* broadcast_polling_events to FALSE.
 	*
 	* @param object		&$object					the object that is listening (use $this for yourself)
 	* @param array		$events						an array of events that the object wants to listen to
@@ -126,13 +124,13 @@ class Event_Manager extends MySource_Object
 
 
 	/**
-	* Broadcast an event that has been polling.
+	* Broadcast an event that has been polling
 	*
 	* All broadcasts of events are polling at one stage, but this function will only get called if an event listener is added
 	* after the original broadcast of the event.
 	*
-	* @param &object mixed $listener the object listening to the event
-	* @param string $event_name the name of the event to broadcast
+	* @param &object mixed	$listener			the object listening to the event
+	* @param string			$event_name			the name of the event to broadcast
 	*
 	* @access private
 	* @return boolean
@@ -154,7 +152,7 @@ class Event_Manager extends MySource_Object
 
 
 	/**
-	* Broadcast events to the listeners that we added at runtime.
+	* Broadcast events to the listeners that we added at runtime
 	*
 	* @param &object Asset	$broadcaster	the broadcaster of this event
 	* @param string			$event_name		the event name being broadcasted
@@ -199,11 +197,11 @@ class Event_Manager extends MySource_Object
 
 		return true;
 
-	} // end _broadcastRuntimeEvents()
+	}//end _broadcastRuntimeEvents()
 
 
 	/**
-	* To call an event function on an object that that has signed up to hear a particular event.
+	* To call an event function on an object that that has signed up to hear a particular event
 	*
 	* eg.
 	* <PRE>
@@ -295,12 +293,13 @@ class Event_Manager extends MySource_Object
 		
 		return true;
 
-	}// end broadcastEvent()
+	}//end broadcastEvent()
 
 
 	/**
-	* To Traverse up or down the tree to see if the all links to a particular asset are dependent, 
-	* exclusive, etc, if so in will return the assetid.
+	* Traverse up or down the tree for asset information
+	* 
+	* Collects all assets of the wanted type_code
 	*
 	* @param integer	$assetid		the assetid of the broadcaster
 	* @param string		$type_code		the type_code of the listener
@@ -319,9 +318,9 @@ class Event_Manager extends MySource_Object
 		
 		// big f.o query
 		$subs = Array('SELECT '.$concat.' FROM '
-		.'sq_asset_link l1 INNER JOIN sq_asset_link_tree t1 ON l1.linkid = t1.linkid, '
-		.'sq_asset_link l2 INNER JOIN sq_asset_link_tree t2 ON l2.linkid = t2.linkid, '
-		.'sq_asset a '
+		.SQ_TABLE_PREFIX.'asset_link l1 INNER JOIN '.SQ_TABLE_PREFIX.'asset_link_tree t1 ON l1.linkid = t1.linkid, '
+		.SQ_TABLE_PREFIX.'asset_link l2 INNER JOIN '.SQ_TABLE_PREFIX.'asset_link_tree t2 ON l2.linkid = t2.linkid, '
+		.SQ_TABLE_PREFIX.'asset a '
 		.'WHERE l1.'.$side_of_link.'id = '.$db->quote($assetid).' '
 		.'AND SUBSTRING(t1.treeid FROM 1 FOR CHAR_LENGTH(t2.treeid)) = t2.treeid '
 		.'AND a.assetid=l2.'.$side_of_link.'id '
@@ -335,9 +334,9 @@ class Event_Manager extends MySource_Object
 
 		$sql = 'SELECT a.assetid, t2.treeid, a.type_code, l2.link_type, l2.dependant, l2.exclusive '
 			.'FROM '
-			.'sq_asset_link l1 INNER JOIN sq_asset_link_tree t1 ON l1.linkid = t1.linkid, '
-			.'sq_asset_link l2 INNER JOIN sq_asset_link_tree t2 ON l2.linkid = t2.linkid, '
-			.'sq_asset a WHERE '.$where;
+			.SQ_TABLE_PREFIX.'asset_link l1 INNER JOIN '.SQ_TABLE_PREFIX.'asset_link_tree t1 ON l1.linkid = t1.linkid, '
+			.SQ_TABLE_PREFIX.'asset_link l2 INNER JOIN '.SQ_TABLE_PREFIX.'asset_link_tree t2 ON l2.linkid = t2.linkid, '
+			.SQ_TABLE_PREFIX.'asset a WHERE '.$where;
 
 		$result = $db->getAll($sql);
 
@@ -363,9 +362,9 @@ class Event_Manager extends MySource_Object
 
 	
 	/**
-	* Writes the cache file of the current static events in the system.
+	* Write the cache file of the current static events in the system
 	*
-	* This occurs after all the packages have written their listeners to the system.
+	* This occurs after all the packages have written their listeners to the system
 	*
 	* @return boolean
 	* @access public
@@ -387,10 +386,10 @@ class Event_Manager extends MySource_Object
 
 
 	/**
-	* Add static event listeners. 
+	* Add static event listeners
 	*
 	* This function gets called from package manager of each package that has any management classes that have 
-	* events to be installed.
+	* events to be installed
 	* 
 	* @param Array		$listeners				array of listeners
 	* @param string		$listener_type_code		the type code of the listener
@@ -439,7 +438,8 @@ class Event_Manager extends MySource_Object
 		}
 		return true;
 
-	} // end installStaticEvents()
+	}//end installStaticEvents()
+
 
 }//end class
 
