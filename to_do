@@ -1,9 +1,14 @@
++########################################################################################+
+|                                     CRITICAL                                           |
++########################################################################################+
+
+  - Check the escaping of content in PEAR::XML_Tree_Node
+    - have sent a patch, now waiting for them to get back to me - BCR
+  - MOVING Items to an asset that is under themselves
+
 +----------------------------------------------------------------------------------------+
 |                                     HIGH PRIORITY                                      |
 +----------------------------------------------------------------------------------------+
-
-  CRITICAL :
-    - Check the escaping of content in PEAR::XML_Tree_Node
 
   - Flash Asset Tree
 
@@ -25,7 +30,6 @@
       (ie permissions for as many groups and individuals as you want)
     - Permissions for links  (Read/Write/Delete ?)
     - Permissions for assets (Read/Write/Delete ?)
-
 
   - HTML editing 
     - in browser 
