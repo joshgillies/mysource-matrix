@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.js,v 1.21 2004/07/23 04:29:58 gsherwood Exp $
+* $Id: edit.js,v 1.22 2004/08/19 05:26:27 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -127,3 +127,20 @@ function sq_toggle_asset_info() {
 		infoToggle.innerHTML = '[ more info ]';
 	}
 }//end sq_toggle_asset_info()
+
+
+// toggle between showing and hiding two divs
+function sq_toggle_double_div(div1ID, div2ID, textID, text1, text2) {
+	var div1 = document.getElementById(div1ID);
+	var div2 = document.getElementById(div2ID);
+	var infoToggle = document.getElementById(textID);
+	if (div1.style.display == 'none') {
+		div1.style.display = 'block';
+		div2.style.display = 'none';
+		infoToggle.innerHTML = text1;
+	} else {
+		div1.style.display = 'none';
+		div2.style.display = 'block';
+		infoToggle.innerHTML = text2;
+	}
+}//end sq_toggle_double_div()
