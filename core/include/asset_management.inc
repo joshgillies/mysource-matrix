@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_management.inc,v 1.52 2004/08/11 06:27:21 lwright Exp $
+* $Id: asset_management.inc,v 1.53 2004/09/28 23:01:17 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -130,6 +130,7 @@ class Asset_Management extends MySource_Object
 	/**
 	* Returns the asset type that this management class is working for
 	*
+	* @return string
 	* @access public
 	*/
 	function getAssetType()
@@ -148,7 +149,6 @@ class Asset_Management extends MySource_Object
 	*/
 	function update()
 	{
-
 		$type_code = $this->getAssetType();
 
 		// OK, first thing we are going to do is check that the parent type of this asset is the same between the 
@@ -832,27 +832,18 @@ class Asset_Management extends MySource_Object
 				SET '.$field.'_type_code = '.$this->_db->quote($new_type_code).',
 					'.$field.'_value     = '.$this->_db->quote($new_value).'
 				WHERE attributeid = '.$this->_db->quote($attributeid).'
-				   OR attributeid IN (~SQ0~)';
-
-		$subs = Array( 'SELECT atr.attributeid
-						FROM '.SQ_TABLE_PREFIX.'asset_type_inherited i, '.SQ_TABLE_PREFIX.'asset_attribute atr
-						WHERE i.inherited_type_code = '.$this->_db->quote($new_type_code).'
-						  AND i.type_code <> '.$this->_db->quote($new_type_code).'
-						  AND i.type_code = atr.type_code
-						  AND atr.'.$field.'_type_code = '.$this->_db->quote($old_type_code).'
-						  AND atr.name = '.$this->_db->quote($name));
-
-		$sql = db_extras_subquery($this->_db, $sql, $subs);
-		if (DB::isError($sql)) {
-			trigger_error($sql->getMessage().'<br/>'.$sql->getUserInfo(), E_USER_WARNING);
-			return false;
-		}
+				   OR attributeid IN (
+									SELECT atr.attributeid
+									FROM '.SQ_TABLE_PREFIX.'asset_type_inherited i, '.SQ_TABLE_PREFIX.'asset_attribute atr
+									WHERE i.inherited_type_code = '.$this->_db->quote($new_type_code).'
+									  AND i.type_code <> '.$this->_db->quote($new_type_code).'
+									  AND i.type_code = atr.type_code
+									  AND atr.'.$field.'_type_code = '.$this->_db->quote($old_type_code).'
+									  AND atr.name = '.$this->_db->quote($name).'
+									  )';
 
 		$result = $this->_db->query($sql);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-			return false;
-		}
+		assert_valid_db_result($result);
 
 		return true;
 
@@ -921,7 +912,7 @@ class Asset_Management extends MySource_Object
 
 		return true;
 
-	} // end _setComponentWeightings()
+	}//end _setComponentWeightings()
 
 
 	/**
@@ -943,7 +934,7 @@ class Asset_Management extends MySource_Object
 			trigger_error($components->getMessage().'<br/>'.$components->getUserInfo(), E_USER_ERROR);
 		}
 
-		foreach($this->components as $component => $data) {
+		foreach ($this->components as $component => $data) {
 			if (!isset($components[$component])) {
 				$components[$component] = Array(
 					'description'		=> isset($data['description']) ? $data['description'] : $component,
@@ -989,16 +980,16 @@ class Asset_Management extends MySource_Object
 			$xml_array->close();
 
 			$GLOBALS['SQ_ASSET_MANAGEMENT_ASSET_INFO'][$file] = Array(
-																	'type_code'       => strtolower($info['type_code']['value']),
-																	'package'         => $info['package']['value'],
-																	'name'            => $info['name']['value'],
-																	'version'         => $info['version']['value'],
-																	'description'     => $info['description']['value'],
-																	'instantiable'    => ($info['instantiable']['value'] == 'yes') ? 1 : 0,
-																	'allowed_access'  => $info['allowed_access']['value'],
-																	'parent_type'     => $info['parent_type']['value'],
-																	'flash_menu_path' => (isset($info['flash_menu_path']['value'])) ? $info['flash_menu_path']['value'] : '',
-																);
+				'type_code'       => strtolower($info['type_code']['value']),
+				'package'         => $info['package']['value'],
+				'name'            => $info['name']['value'],
+				'version'         => $info['version']['value'],
+				'description'     => $info['description']['value'],
+				'instantiable'    => ($info['instantiable']['value'] == 'yes') ? 1 : 0,
+				'allowed_access'  => $info['allowed_access']['value'],
+				'parent_type'     => $info['parent_type']['value'],
+				'flash_menu_path' => (isset($info['flash_menu_path']['value'])) ? $info['flash_menu_path']['value'] : '',
+			);
 
 		}//end if
 
