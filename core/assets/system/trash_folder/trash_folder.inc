@@ -171,7 +171,7 @@ class Trash_Folder extends Folder
 
 		// because we are only collecting assets with no EXCLUSIVE, UNITE or USES links
 		// if the requested type doesn't contain these piss off
-		if (($link_types & (SQ_LINK_SIGNIFICANT)) == 0) return Array();
+		if (($link_types & SQ_LINK_SIGNIFICANT) == 0) return Array();
 
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
