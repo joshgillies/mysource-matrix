@@ -710,6 +710,8 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 			$ei = &$asset->getEI();
 			$ei->paintLinking($asset, $o);
 
+			$o->closeSection();
+
 			$o->commitButton();
 		}
 
@@ -884,6 +886,7 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 			</tr>
 		</table>
 	<?php
+		$o->closeSection();
 
 	}// end printAssetList()
 

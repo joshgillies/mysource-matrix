@@ -442,6 +442,9 @@ var $user_ldap_details  = array('host' => '', 'password' => '', 'rootdn' => '');
 			echo nl2br(SQ_CONF_SYSTEM_ROOT_URLS);
 		}
 
+		$o->closeSection();
+
+
 
 /*
 		$o->open_field('Backend Message Box Focus');
@@ -513,6 +516,8 @@ var $user_ldap_details  = array('host' => '', 'password' => '', 'rootdn' => '');
 		} else {
 			echo SQ_CONF_MAX_IDLE_TIME;
 		}
+
+		$o->closeSection();
 
 /*
 		$o->open_field('Log Visitors','one_liner');
@@ -662,7 +667,9 @@ var $user_ldap_details  = array('host' => '', 'password' => '', 'rootdn' => '');
 			$o->openField('List', 'top');
 			//$XTRAS->paintBackend($backend);
 		}
-	
+
+		$o->closeSection();
+
 		if(true || superuser('web')) {
 			$backend->print_commit_button('Commit',"if (confirm('Commit this information to the system?')) { document.edit.action.value='Commit';document.edit.submit(); }");
 		}

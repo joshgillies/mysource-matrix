@@ -213,7 +213,10 @@ class Asset_Edit_Interface extends Resolve_Object
 			} else {
 				echo 'You do not have access to edit "'.$owner->name.'".';
 			}
-		}
+
+			$o->closeSection();
+
+		}// end if
 
 		$current_location = $o->getCurrentLocation();
 		$current_location .= (strstr($current_location, '?')) ? '&' : '?';
@@ -360,6 +363,8 @@ class Asset_Edit_Interface extends Resolve_Object
 
 				}// end if section uses function call
 
+				$o->closeSection();
+
 			}// end for
 
 		}// end if $file
@@ -371,7 +376,6 @@ class Asset_Edit_Interface extends Resolve_Object
 		// if the user has write access or has the ability
 		// to alter the status of the asset, show the commit button
 		if ($write_access || !empty($statii)) {
-			$o->openSection();
 			$o->commitButton('Commit', $force_unlock_on_commit);
 		}
 
@@ -603,9 +607,13 @@ class Asset_Edit_Interface extends Resolve_Object
 					if ($field->children[1]->name == 'note' && $field->children[1]->content) {
 						$o->note($field->children[1]->content);
 					}
-				}
-			}
-		}
+				}// end for
+
+				$o->closeSection();
+
+			}// end for
+
+		}// end if file
 
 	}//end paintDetails()
 
@@ -823,7 +831,10 @@ class Asset_Edit_Interface extends Resolve_Object
 				$o->openField('New?');
 				asset_finder($prefix.'_new_'.strtolower($title), 0, Array('user' => 'D', 'user_group' => 'D'));
 			}
-		}
+
+			$o->closeSection();
+
+		}// end for
 		
 	}//end paintPermissions()
 
@@ -927,7 +938,8 @@ class Asset_Edit_Interface extends Resolve_Object
 				echo '<li class="sq-form-field">'.$asset->name.'</li>';
 			}
 			echo '</ul>';
-		}
+			$o->closeSection();
+		}// end if
 
 		$admin_access = false;
 		if ($wfm->state == 'running') {
@@ -938,6 +950,7 @@ class Asset_Edit_Interface extends Resolve_Object
 			$o->openSection('Current Workflow Progress');
 			$o->openField('Note');
 			echo 'Workflow for this asset is currently in progress. You can not edit the workflow for this asset at this time. The currently running workflows are displayed below followed by the workflow for this asset.';
+			$o->closeSection();
 
 			foreach ($wfm->current_workflows['complete'] + $wfm->current_workflows['running'] as $workflowid => $workflow) {
 				list($assetid, $inheritid) = explode('~', $workflowid);
@@ -1037,8 +1050,12 @@ class Asset_Edit_Interface extends Resolve_Object
 						ob_end_flush();
 						?></table><?php
 					}
-				}
-			}
+				}// end foreach
+
+				$o->closeSection();
+
+			}// end foreach
+
 		} else {
 			$admin_access = $owner->adminAccess();
 		}
@@ -1143,9 +1160,11 @@ class Asset_Edit_Interface extends Resolve_Object
 			?></table><?php
 		}
 
+		$o->closeSection();
 
 		//// now print the direct workflow for this asset ////
 		$o->openSection('Workflow set for this asset');
+		$o->closeSection();
 		foreach ($wfm->steps as $stepid => $step_data) {
 			$o->openSection("Step $stepid");
 			
@@ -1246,14 +1265,18 @@ class Asset_Edit_Interface extends Resolve_Object
 				$o->openField('New Condition?');
 				asset_finder($prefix.'_steps['.$stepid.'][new_condition]', 0, Array('user' => 'D', 'user_group' => 'D'));
 			}
-		}
+
+			$o->closeSection();
+
+		}// end for
 
 		if ($admin_access) {
 			$o->openSection("Create New Step");
 			$o->openField('');
 			check_box($prefix.'_create_step');
 			echo '&nbsp; Create a new empty step?';
-		}
+			$o->closeSection();
+		}// end for
 
 	}//end paintWorkflow()
 
@@ -1408,6 +1431,8 @@ class Asset_Edit_Interface extends Resolve_Object
 			</tr>
 		</table>
 		<?php
+
+		$o->closeSection();
 		
 		return true;
 	}//end paintLocking()
@@ -1602,6 +1627,9 @@ class Asset_Edit_Interface extends Resolve_Object
 		}//end foreach link
 
 		if (!$done_something) echo 'None';
+
+		$o->closeSection();
+
 	}//end paintLinking()
 
 
