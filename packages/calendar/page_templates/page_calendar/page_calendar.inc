@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.32 2004/08/27 07:10:06 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.33 2004/08/30 01:56:34 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once  dirname(__FILE__).'/../../calendar_events/calendar_event_recurring
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.32 $ - 1.0
+* @version $Revision: 1.33 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -300,21 +300,6 @@ class Page_Calendar extends Page_Asset_Listing
 	*/
 	function printBody()
 	{
-		/*
-			$result =& $this->_multipleDaySingleQuery(array_keys($this->attr('root_nodes')), '2005-01-20', 7);
-			//$xresult =& $this->_multipleDayRecurringQuery(array_keys($this->attr('root_nodes')), '2004-08-01', 'year');
-			echo '<div style="border: 3px solid green">RESULT BEFORE MASSAGE:';
-			bam($result);
-			//bam($xresult);
-			echo '</div>';
-			//$result = $this->_massageCalendarEvents($result, $xresult);
-			echo '<div style="border: 3px solid red">RESULT AFTER MASSAGE:';
-			bam($result);
-			echo '</div>';
-			return;
-		*/
-
-
 		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'page_contents'); 
 		if (empty($bodycopy_link)) return false;
 
@@ -349,8 +334,8 @@ class Page_Calendar extends Page_Asset_Listing
 
 		$prev_date = date('Y-m-d', strtotime('-1 '.$cal_view, strtotime($cal_date)));
 		$next_date = date('Y-m-d', strtotime('+1 '.$cal_view, strtotime($cal_date)));
-		$replacements['prev_link'] = $event_id ? '' : '<a class="calendarNavLink"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$cal_view.'&SQ_CALENDAR_DATE='.$prev_date.'">'.str_replace('%v%', ucfirst($cal_view), $this->attr('prev_link_text')).'</a>';
-		$replacements['next_link'] = $event_id ? '' : '<a class="calendarNavLink"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$cal_view.'&SQ_CALENDAR_DATE='.$next_date.'">'.str_replace('%v%', ucfirst($cal_view), $this->attr('next_link_text')).'</a>';
+		$replacements['prev_link'] = $event_id ? '' : '<a class="calendarNavLink"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$cal_view.'&amp;SQ_CALENDAR_DATE='.$prev_date.'">'.htmlentities(str_replace('%v%', ucfirst($cal_view), $this->attr('prev_link_text'))).'</a>';
+		$replacements['next_link'] = $event_id ? '' : '<a class="calendarNavLink"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$cal_view.'&amp;SQ_CALENDAR_DATE='.$next_date.'">'.htmlentities(str_replace('%v%', ucfirst($cal_view), $this->attr('next_link_text'))).'</a>';
 		$enabled_views = $this->attr('enabled_views');
 
 		$up_view = '';
@@ -358,7 +343,7 @@ class Page_Calendar extends Page_Asset_Listing
 			if ($view == $cal_view) break;
 			if ($type) $up_view = $view;
 		}
-		$replacements['up_link'] = $up_view ? '<a class="calendarNavLink"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$up_view.'&SQ_CALENDAR_DATE='.$cal_date.'">'.str_replace('%v%', ucfirst($up_view), $this->attr('up_link_text')).'</a>' : '';
+		$replacements['up_link'] = $up_view ? '<a class="calendarNavLink"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$up_view.'&amp;SQ_CALENDAR_DATE='.$cal_date.'">'.str_replace('%v%', ucfirst($up_view), $this->attr('up_link_text')).'</a>' : '';
 
 		// print the contents of page - replacing the global keywords
 		$format_bodycopy->setKeywordReplacements($replacements);
@@ -415,7 +400,7 @@ class Page_Calendar extends Page_Asset_Listing
 			$events = $this->getYearEventsByMonth($year);
 			foreach ($this->month_names_full as $month_num => $month_name) {
 				echo '<h3>';
-				if ($enabled_views['month']) echo '<a href="'.$this->getHref().'?SQ_CALENDAR_VIEW=month&SQ_CALENDAR_DATE='.$year.'-'.sprintf('%02d', $month_num).'-01">';
+				if ($enabled_views['month']) echo '<a href="'.$this->getHref().'?SQ_CALENDAR_VIEW=month&amp;SQ_CALENDAR_DATE='.$year.'-'.sprintf('%02d', $month_num).'-01">';
 				echo $month_name;
 				if ($enabled_views['month']) echo '</a>';
 				echo '</h3>';
@@ -452,7 +437,7 @@ class Page_Calendar extends Page_Asset_Listing
 					<?php
 						// print the month name, linked to month view if it's available
 						if ($enabled_views['month']) {
-							echo '<a  href="'.$this->getHref().'?SQ_CALENDAR_VIEW=month&SQ_CALENDAR_DATE='.$year.'-'.sprintf('%02d', $current_month).'-01">';
+							echo '<a  href="'.$this->getHref().'?SQ_CALENDAR_VIEW=month&amp;SQ_CALENDAR_DATE='.$year.'-'.sprintf('%02d', $current_month).'-01">';
 						}
 						echo $this->month_names_short[$current_month];
 						if ($enabled_views['month']) {
@@ -482,7 +467,7 @@ class Page_Calendar extends Page_Asset_Listing
 					$onclick = ($occupied && $drill_down_view) ? 'onclick="clickChild(this)" style="cursor: pointer; cursor: hand"' : '';
 					echo '<td '.$onclick.' class="'.$class.'">';
 
-					if ($occupied && $drill_down_view) echo '<a  href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$drill_down_view."&SQ_CALENDAR_DATE=$year-".sprintf('%02d', $current_month).'-'.sprintf('%02d', $current_day).'">';
+					if ($occupied && $drill_down_view) echo '<a  href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$drill_down_view."&amp;SQ_CALENDAR_DATE=$year-".sprintf('%02d', $current_month).'-'.sprintf('%02d', $current_day).'">';
 					echo $current_day;
 					if ($occupied && $drill_down_view) echo '</a>';
 					echo '</td>';
@@ -543,7 +528,7 @@ class Page_Calendar extends Page_Asset_Listing
 			$month_length = days_in_month($month, $year);
 			for ($current_day = 1; $current_day <= $month_length; $current_day++) {
 				echo '<h3>';
-				if ($drill_down_view) echo '<a href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$drill_down_view.'&SQ_CALENDAR_DATE='.$year.'-'.$month.'-'.sprintf('%02d', $current_day).'">';
+				if ($drill_down_view) echo '<a href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$drill_down_view.'&amp;SQ_CALENDAR_DATE='.$year.'-'.$month.'-'.sprintf('%02d', $current_day).'">';
 				echo date('l jS', strtotime("$year-$month-$current_day"));
 				if ($drill_down_view) echo '</a>';
 				echo '</h3>';
@@ -597,9 +582,10 @@ class Page_Calendar extends Page_Asset_Listing
 				$contents = $this->_getMonthCellContents($events[$current_day], $show_event_links, $root_nodes);
 				$weekend_class = in_array(date('D', strtotime("$year-$month-$current_day")), Array('Sat', 'Sun')) ? 'weekend' : '';
 				$occupied_class = ($contents) ? 'eventDate' : '';
-				$onclick = $contents ? 'clickChild(this)' : '';
-				echo '<td onclick="'.$onclick.'" class="date '.$occupied_class.' '.$weekend_class.'" '.($contents ? 'style="cursor: pointer; cursor: hand" ' : '').'>';
-				if ($contents && $drill_down_view) echo '<a class="dateLink"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$drill_down_view.'&SQ_CALENDAR_DATE='.$year.'-'.$month.'-'.sprintf('%02d', $current_day).'">';
+				$onclick = ($contents && $drill_down_view) ? 'clickChild(this)' : '';
+				$style = ($contents && $drill_down_view) ? '' : '';
+				echo '<td class="date '.$occupied_class.' '.$weekend_class.'" style="'.$style.'">';
+				if ($contents && $drill_down_view) echo '<a class="dateLink"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$drill_down_view.'&amp;SQ_CALENDAR_DATE='.$year.'-'.$month.'-'.sprintf('%02d', $current_day).'">';
 				echo $current_day;
 				if ($contents && $drill_down_view) echo '</a><br />';
 				echo $contents;
@@ -618,9 +604,10 @@ class Page_Calendar extends Page_Asset_Listing
 					$contents = $this->_getMonthCellContents($events[$current_day], $show_event_links, $root_nodes);
 					$weekend_class = in_array(date('D', strtotime("$year-$month-$current_day")), Array('Sat', 'Sun')) ? 'weekend' : '';
 					$occupied_class = ($contents) ? 'eventDate' : '';
-					$onclick = $contents ? 'clickChild(this)' : '';
-					echo '<td onclick="'.$onclick.'" class="date '.$occupied_class.' '.$weekend_class.'" '.($contents ? 'style="cursor: pointer; cursor: hand" ' : '').'>';
-					if ($contents && $drill_down_view) echo '<a class="dateLink"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$drill_down_view.'&SQ_CALENDAR_DATE='.$year.'-'.$month.'-'.sprintf('%02d', $current_day).'">';
+					$onclick = ($contents && $drill_down_view) ? 'clickChild(this)' : '';
+					$style = ($contents && $drill_down_view) ? '' : '';
+					echo '<td class="date '.$occupied_class.' '.$weekend_class.'" style="'.$style.'">';
+					if ($contents && $drill_down_view) echo '<a class="dateLink"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$drill_down_view.'&amp;SQ_CALENDAR_DATE='.$year.'-'.$month.'-'.sprintf('%02d', $current_day).'">';
 					echo $current_day;
 					if ($contents && $drill_down_view) echo '</a><br />';
 					echo $contents;
@@ -638,9 +625,10 @@ class Page_Calendar extends Page_Asset_Listing
 					$contents = $this->_getMonthCellContents($events[$current_day], $show_event_links, $root_nodes);
 					$weekend_class = in_array(date('D', strtotime("$year-$month-$current_day")), Array('Sat', 'Sun')) ? 'weekend' : '';
 					$occupied_class = ($contents) ? 'eventDate' : '';
-					$onclick = $contents ? 'clickChild(this)' : '';
-					echo '<td onclick="'.$onclick.'" class="date '.$occupied_class.' '.$weekend_class.'" '.($contents ? 'style="cursor: pointer; cursor: hand" ' : '').'>';
-					if ($contents && $drill_down_view) echo '<a class="dateLink"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$drill_down_view.'&SQ_CALENDAR_DATE='.$year.'-'.$month.'-'.sprintf('%02d', $current_day).'">';
+					$onclick = ($contents && $drill_down_view) ? 'clickChild(this)' : '';
+					$style = ($contents && $drill_down_view) ? '' : '';
+					echo '<td class="date '.$occupied_class.' '.$weekend_class.'" style="'.$style.'">';
+					if ($contents && $drill_down_view) echo '<a class="dateLink"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$drill_down_view.'&amp;SQ_CALENDAR_DATE='.$year.'-'.$month.'-'.sprintf('%02d', $current_day).'">';
 					echo $current_day;
 					if ($contents && $drill_down_view) echo '</a><br />';
 					echo $contents;
@@ -696,7 +684,7 @@ class Page_Calendar extends Page_Asset_Listing
 			$list_entry_types = $this->attr('list_entry_types');
 			$events = $this->getWeekEventsByDay($date);
 			foreach ($events as $day_date => $day_events) {
-				echo '<h3>'.(($enabled_views['day']) ? '<a href="'.$this->getHref().'?SQ_CALENDAR_VIEW=day&SQ_CALENDAR_DATE='.$day_date.'"">' : '');
+				echo '<h3>'.(($enabled_views['day']) ? '<a href="'.$this->getHref().'?SQ_CALENDAR_VIEW=day&amp;SQ_CALENDAR_DATE='.$day_date.'"">' : '');
 				echo date('l jS', strtotime($day_date));
 				echo (($enabled_views['day']) ? '</a>' : '').'</h3>';
 				if ($list_entry_types['week'] == 'title') {
@@ -708,24 +696,12 @@ class Page_Calendar extends Page_Asset_Listing
 				}
 			}
 		} else {
-/*
-			$result =& $this->_multipleDaySingleQuery($root_nodes, $date, 7);
-			$xresult =& $this->_multipleDayRecurringQuery($root_nodes, $date, 'week');
-			echo '<div style="border: 3px solid green">RESULT BEFORE MASSAGE:';
-			bam($result);
-			bam($xresult);
-			echo '</div>';
-			$result = $this->_massageCalendarEvents($result, $xresult);
-			echo '<div style="border: 3px solid red">RESULT AFTER MASSAGE:';
-			bam($result);
-			echo '</div>';
-*/
 			$events = $this->getWeekEventsByDayAndTime($date);
 			$column_names = Array();
 			$column_links = Array();
 			foreach ($events as $day_date => $day_events) {
 				$column_names[$day_date] = date('l jS', strtotime($day_date));
-				if ($enabled_views['week']) $column_links[$day_date] = $this->getHref().'?SQ_CALENDAR_VIEW=day&SQ_CALENDAR_DATE='.$day_date;
+				if ($enabled_views['week']) $column_links[$day_date] = $this->getHref().'?SQ_CALENDAR_VIEW=day&amp;SQ_CALENDAR_DATE='.$day_date;
 			}
 			$this->_printTimedTable('week', $column_names, $column_links, $events, $enabled_views['event']);
 		}
@@ -843,7 +819,7 @@ class Page_Calendar extends Page_Asset_Listing
 		$res = '<ul>';
 		foreach ($details as $id => $data) {
 			$res .= '<li>';
-			if ($show_links) $res .= '<a href="'.$this->getHref().'?SQ_CALENDAR_VIEW=event&SQ_CALENDAR_EVENT_ID='.$id.'">';
+			if ($show_links) $res .= '<a href="'.$this->getHref().'?SQ_CALENDAR_VIEW=event&amp;SQ_CALENDAR_EVENT_ID='.$id.'">';
 			$res .= $data['name'];
 			if ($show_links) $res .= '</a>';
 			$res .= '</li>';
@@ -861,9 +837,9 @@ class Page_Calendar extends Page_Asset_Listing
 		$res = '';
 		foreach ($events as $assetid => $details) {
 			$event_class = (isset($root_nodes[$details['root_node']]['class_name'])) ? $root_nodes[$details['root_node']] ['class_name'] : '';
-			$onclick_code = $show_event_link ? ' onclick="alert(\'event clicked\'); clickChild(this); return false;"' : '';
-			$res .= '<div style="margin-bottom: 1px;" class="event '.$event_class.'"'.$onclick_code.'>';
-			if ($show_event_link) $res .= '<a href="'.$this->getHref().'?SQ_CALENDAR_VIEW=event&SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'].'&SQ_CALENDAR_EVENT_ID='.$assetid.'" class="event '. $event_class.'">';
+			$onclick_code = $show_event_link ? ' onclick="clickChild(this); return false;"' : '';
+			$res .= '<div style="margin-bottom: 1px; '.($show_event_link ? 'cursor: pointer; cursor: hand; style="width: 100%" ' : '').'" class="event '.$event_class.'"'.$onclick_code.'>';
+			if ($show_event_link) $res .= '<a href="'.$this->getHref().'?SQ_CALENDAR_VIEW=event&amp;SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'].'&amp;SQ_CALENDAR_EVENT_ID='.$assetid.'" class="event '. $event_class.'">';
 			$res .= $details['name'];
 			if ($show_event_link) $res .= '</a>';
 			$res .= '</div>';
@@ -904,7 +880,7 @@ class Page_Calendar extends Page_Asset_Listing
 			
 			$res .= '<div class='.$event_class.' event" style="float:left; position: absolute; width: '.$this_event_width.'ex; margin-left: '.$event_left_margin.'ex; margin-top: '.$event_top_margin.'ex; height: '.$event_height.'ex; '.$cursor_code.' '.$zero_length_code.'" '.$onclick_code.'><div class="eventText" style="position: absolute; width: '.$inner_width.'ex; border: none; margin-top: '.$inner_margin_top.'px background-color: transparent">';
 			$res . $assetid.' ';
-			$res .= $show_event_links ? '<a class="event '.$event_class.'"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW=event&SQ_CALENDAR_EVENT_ID='.$assetid.'">' : '<span class="event '.$event_class.'">';
+			$res .= $show_event_links ? '<a class="event '.$event_class.'"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW=event&amp;SQ_CALENDAR_EVENT_ID='.$assetid.'">' : '<span class="event '.$event_class.'">';
 			$res .= $details['name'];
 			$res .= $show_event_links ? '</a>' : '</span>';
 
@@ -1011,7 +987,7 @@ class Page_Calendar extends Page_Asset_Listing
 	function _printClickChildScript()
 	{
 		?>
-		<script language="JavaScript">
+		<script language="JavaScript" type="text/javascript">
 		<!--
 		  function clickChild(elt) {
 			 linkChildren = elt.getElementsByTagName("A");
@@ -1053,8 +1029,8 @@ class Page_Calendar extends Page_Asset_Listing
 		$end_ts = strtotime("$next_year-01-01 00:00:00") - 1;
 		
 		// Get our single events
-		$date_sql = '(cd.start_date_year = '.$db->quote($year).') OR (cd.end_date_year = '.$db->quote($year).') OR  ((cd.start_date_ts < '.$db->quote($start_ts).') AND (cd.end_date_ts > '.$db->quote($end_ts).'))';
-		$sql = $this->_buildSingleEventQuery($trees)."\n AND (".$date_sql.")\n AND (".implode(' OR ', $tree_clauses).')';		
+		$date_sql = '(cd.start_date_year = '.$db->quote($year).') OR (cd.end_date_year = '.$db->quote($year).') OR  ((cd.start_date_ts < '.$db->quote($start_ts).') AND (cd.end_date_ts > '.$db->quote($start_ts).'))';
+		$sql = $this->_buildSingleEventQuery($trees)."\n AND (".$date_sql.")\n AND (".implode(' OR ', $tree_clauses).')';	
 		$single_events = $db->getAssoc($sql);
 		assert_valid_db_result($single_events);
 
@@ -1062,7 +1038,6 @@ class Page_Calendar extends Page_Asset_Listing
 		// Get our recurring events
 		$date_sql = 'cd.start_date_ts < '.$db->quote($end_ts);
 		$sql = $this->_buildRecurringEventQuery(&$trees, 'year', $year)."\n AND (".$date_sql.")\n AND (".implode(' OR ', $tree_clauses).')';	
-		bam($sql);
 		$recurring_events = $db->getAssoc($sql);
 		assert_valid_db_result($recurring_events);
 
@@ -1088,7 +1063,19 @@ class Page_Calendar extends Page_Asset_Listing
 		}
 		foreach ($all_events as $id => $details) {
 			if ($details['type_code'] == 'calendar_event_single') {
-				$res[$details['start_date_mon']][$id] = $details;
+				if ($details['start_date_year'] == $year) {
+					$res[$details['start_date_mon']][$id] = $details;
+					for ($current_month = $details['start_date_mon']; ($current_month <= 12) && ($current_month <= $details['start_date_mon'] + $details['end_date_ms'] - $details['start_date_ms']); $current_month++) {
+						$res[$current_month][$id] = $details;
+					}
+				} else {
+					// must have carried over from last year
+					$current_month = 1;
+					while ($current_month <= 12 && (strtotime("$year-$current_month-01") <= $details['end_date_ts'])) {
+						$res[$current_month][$id] = $details;
+						$current_month++;
+					}
+				}
 			} else {
 				// recurring event
 				$next_occurrence_ts = Calendar_Event_Recurring::getFirstOccurrenceAfter($start_ts, $details['start_date_ts'], $details['frequency'], $details['period']);
@@ -1119,9 +1106,20 @@ class Page_Calendar extends Page_Asset_Listing
 			$start_ts = strtotime("$year-$month_num-01 00:00:00");
 			$next_year = ($month_num == 12) ? $year + 1 : $year;
 			$end_ts = strtotime($next_year.'-'.sprintf('%02d', ($month_num+1)%12).'-01 00:00:00') - 1;
+			$month_length = days_in_month($month_num, $year);
 			foreach ($month_events as $id => $details) {
 				if ($details['type_code'] == 'calendar_event_single') {
-					$res[$month_num][$details['start_date_mday']][$id] = $details;
+					if ($details['start_date_mon'] == $month_num) {
+						$res[$month_num][$details['start_date_mday']][$id] = $details;
+						for ($current_day = $details['start_date_mday']; ($current_day <= $month_length) && (strtotime("$year-$month_num-$current_day") < $details['end_date_ts']); $current_day++) {
+							$res[$month_num][$current_day][$id] = $details;
+						}
+					} else {
+						// must be a carryover
+						for ($current_day = 1; ($current_day <= $month_length) && (strtotime("$year-$month_num-$current_day") < $details['end_date_ts']); $current_day++) {
+							$res[$month_num][$current_day][$id] = $details;
+						}
+					}
 				} else {
 					// recurring event
 					$next_occurrence_ts = Calendar_Event_Recurring::getFirstOccurrenceAfter($start_ts, $details['start_date_ts'], $details['frequency'], $details['period']);
@@ -1133,7 +1131,6 @@ class Page_Calendar extends Page_Asset_Listing
 				}
 			}
 		}
-		//bam($res);
 		return $res;
 	}
 
@@ -1162,7 +1159,7 @@ class Page_Calendar extends Page_Asset_Listing
 		$end_ts = strtotime("$next_year-$next_month-01 00:00:00") - 1;
 		
 		// Get our single events
-		$date_sql = 'cd.start_date_year = '.$db->quote($year).' AND (cd.start_date_mon = '.$db->quote($month).' OR cd.end_date_mon = '.$db->quote($month).' OR (cd.start_date_ts < '.$db->quote($start_ts).' AND cd.end_date_ts > '.$db->quote($end_ts).'))';
+		$date_sql = '((cd.start_date_year = '.$db->quote($year).' AND (cd.start_date_mon = '.$db->quote($month).' OR cd.end_date_mon = '.$db->quote($month).')) OR (cd.start_date_ts < '.$db->quote($start_ts).' AND cd.end_date_ts > '.$db->quote($start_ts).'))';
 		$sql = $this->_buildSingleEventQuery($trees)."\n AND (".$date_sql.")\n AND (".implode(' OR ', $tree_clauses).')';		
 		$single_events = $db->getAssoc($sql);
 		assert_valid_db_result($single_events);
@@ -1171,7 +1168,6 @@ class Page_Calendar extends Page_Asset_Listing
 		// Get our recurring events
 		$date_sql = 'cd.start_date_ts < '.$db->quote($end_ts);
 		$sql = $this->_buildRecurringEventQuery(&$trees, 'month', "$year-$month")."\n AND (".$date_sql.")\n AND (".implode(' OR ', $tree_clauses).')';	
-		bam($sql);
 		$recurring_events = $db->getAssoc($sql);
 		assert_valid_db_result($recurring_events);
 
@@ -1201,9 +1197,18 @@ class Page_Calendar extends Page_Asset_Listing
 				if ($details['start_date_mon'] == $month) {
 					$res[$details['start_date_mday']][$id] = $details;
 					// now figure out if it goes beyond this day
+					for ($current_day = $details['start_date_mday']; $current_day <= $details['start_date_mday'] + ($details['end_date_ds'] - $details['start_date_ds']); $current_day++) {
+						if ($current_day > $month_length) break;
+						$res[$current_day][$id] = $details;
+					}
+
 				} else {
 					// must have carried on since last month
-					$current_day = 0;
+					$current_day = 1;
+					while (($current_day <= $month_length) && (strtotime("$year-$month-$current_day") <= $details['end_date_ts'])) {
+						$res[$current_day][$id] = $details;
+						$current_day++;
+					}
 				}
 			} else {
 				// recurring event
