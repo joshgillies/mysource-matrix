@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_edit_fns.inc,v 1.9 2004/07/19 01:01:34 mnyeholt Exp $
+* $Id: bodycopy_edit_fns.inc,v 1.10 2004/08/17 04:36:18 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -84,32 +84,32 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
 			$designid = $db->getOne($sql.$where);
+			assert_valid_db_result($designid);
+			
 			if ($designid) {
-				if (DB::isError($designid)) {
-					trigger_error($designid->getMessage().'<br/>'.$designid->getUserInfo(), E_USER_ERROR);
-				} else if (!SQ_IN_LIMBO) {
-					$design = &$am->getAsset($designid);
-					$stylesheets = $design->getStylesheets();
 
-					// save the ids of all the css files into a global var so the wysiwyg style
-					// drop down plugin can access this information without another querey
-					// we can also limit the stylesheets that are available to it here if we want
-					$GLOBALS['sq_bodycopy_cssids'] = array_keys($stylesheets);
+				$design = &$am->getAsset($designid);
+				$stylesheets = $design->getStylesheets();
 
-					$css_urls = $am->getAssetURL($GLOBALS['sq_bodycopy_cssids']);
-					?>
-					<style type="text/css">
-						/* import styles from the design for this asset */
-						<?php
-						foreach ($css_urls as $cssid => $css_url) {
-							?>@import url("<?php echo $css_url; ?>");<?php
-						}
-						?>
-					</style>
+				// save the ids of all the css files into a global var so the wysiwyg style
+				// drop down plugin can access this information without another querey
+				// we can also limit the stylesheets that are available to it here if we want
+				$GLOBALS['sq_bodycopy_cssids'] = array_keys($stylesheets);
+
+				$css_urls = $am->getAssetURL($GLOBALS['sq_bodycopy_cssids']);
+				?>
+				<style type="text/css">
+					/* import styles from the design for this asset */
 					<?php
-					$am->forgetAsset($design);
-					unset($design);
-				}
+					foreach ($css_urls as $cssid => $css_url) {
+						?>@import url("<?php echo $css_url; ?>");<?php
+					}
+					?>
+				</style>
+				<?php
+				$am->forgetAsset($design);
+				unset($design);
+				
 			} else {
 				?>
 				<p class="sq-backend-notice"><b>NOTE:</b> This asset does not have a design applied to it for the URL currently being edited [<b><?php echo $GLOBALS['sq_preview_url']; ?></b>]. No style information is available to use for content editing.</p>
