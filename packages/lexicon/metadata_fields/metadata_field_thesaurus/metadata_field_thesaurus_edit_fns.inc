@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_thesaurus_edit_fns.inc,v 1.1 2004/11/30 01:29:10 arailean Exp $
+* $Id: metadata_field_thesaurus_edit_fns.inc,v 1.2 2004/12/21 19:07:36 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/metadata/metadata_field/metadata_field
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Dmitry Baranovskiy <dbaranovskiy@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage lexicon
 */
@@ -43,24 +43,32 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 	*
 	* @param object Metadata_Field		&$asset			the asset whose interface we are painting
 	* @param object	Backend_Outputter	&$o				the outputter class
-	* @param array						$values			current metadata values set for this asset
+	* @param string						$value_str		the current value for this field in the asset (NOT $asset)
+	*													NULL means that there is no current value set
 	* @param boolean					$write_access	does the current user have write access to the asset
 	*													that we are setting metadata for (NOT THE SAME AS $asset)
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintInlineValueInterface(&$asset, &$o, $values, $write_access)
+	function paintInlineValueInterface(&$asset, &$o, $value_str, $write_access)
 	{
 		$prefix = $asset->getPrefix();
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
+
+		if (is_null($value_str)) {
+			$value = $asset->attr('default');
+			$value_components = $asset->attr('value_components');
+		} else {
+			$value='';
+			$value_components = $asset->attr('value_components');
+			Metadata_Field::decodeValueString($value_str, $value, $value_components);
+		}
 
 		$datapath = sq_web_path('data').'/asset_types/metadata_field_thesaurus/files';
 
 		$field_name = $asset->name;
 		if ($asset->attr('required')) $field_name .= ' <span style="color: #FF0000">*</span>';
-
-		$value = array_get_index($values, 'value');
 
 		$communicator_url = $asset->getCommunicatorUrl();
 		$o->openField($field_name);
@@ -95,17 +103,17 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 	* Process the interface for filling in metadata values
 	*
 	* @param object Metadata_Field	&$asset			the asset whose interface we are painting
-	* @param array					&$new_values	an array we can store the new values in
+	* @param string					&$new_value_str		a string by reference that we can store the new values in
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processInlineValueInterface(&$asset, &$new_values)
+	function processInlineValueInterface(&$asset, &$new_value_str)
 	{
 		$prefix = $asset->getPrefix();
 		if ($asset->attr('editable')) {
 			if (!$asset->attr('force_thesaurus')) {
-				$new_values[$asset->name]['value'] = trim($_POST[$prefix.'_value']);
+				$value = trim(array_get_index($_POST, $prefix.'_value', ''));
 			} else {
 				// thesaurus has to be active for successful operation
 				if (!$asset->isThesaurusActive()) {
@@ -113,17 +121,19 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 				}
 
 				if (isset($_POST[$prefix.'_value'])) {
-					$value = trim($_POST[$prefix.'_value']);
+					$value = trim(array_get_index($_POST, $prefix.'_value', ''));
 					$th = $asset->getThesaurusRef();
 					$term = $th->getEntityByName($value);
 					if (empty($term) && !empty($value)) {
 						$asset->_tmp['error'] = 'Term not found in thesaurus';
 						return false;
 					}
-					$new_values[$asset->name]['value'] = $term['name'];
+					$value = $term['name'];
 				}
 			}
 		}
+
+		$new_value_str = Metadata_Field::encodeValueString(trim($value), Array());
 
 		return true;
 
