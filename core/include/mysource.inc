@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: mysource.inc,v 1.8 2003/10/02 05:41:15 brobertson Exp $
+* $Id: mysource.inc,v 1.9 2003/10/07 07:03:11 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -76,6 +76,11 @@ class MySource
 	* @var object Workflow_Manager
 	*/
 	var $wm;
+
+	/**
+	* @var object Indexing_Manager
+	*/
+	var $im;
 
 	/**
 	* @var object File_Versioning
@@ -721,6 +726,22 @@ class MySource
 		return $this->wm;
 
 	}//end getWorkflowManager()
+
+	/**
+	* Get the indexing manager 
+	*
+	* @return object Indexing_Manager
+	* @access public
+	*/
+	function &getIndexingManager()
+	{
+		if(!isset($this->im) || get_class($this->im) != 'indexing_manager') {
+			require_once SQ_INCLUDE_PATH.'/indexing_manager.inc';
+			$this->im = new Indexing_Manager();
+		}
+		return $this->im;
+
+	}//end getIndexingManager()
 
 
 //--        DATABASE        --//
