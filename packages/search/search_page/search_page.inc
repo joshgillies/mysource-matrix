@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.48 2004/08/19 10:23:00 amiller Exp $
+* $Id: search_page.inc,v 1.49 2004/08/19 22:41:40 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,7 +38,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc'; // for the meda
 * @author  Dominic Wong <dwong@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.48 $ - 1.0
+* @version $Revision: 1.49 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -732,7 +732,7 @@ class Search_Page extends Page
 
 							if ($fields[$query_var]['type'] == 'metadata') {
 			
-								$assetid = $fields[$test_ind]['params']['metadata_field']['assetid'];
+								$assetid = $fields[$query_var]['params']['metadata_field']['assetid'];
 								$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 								$params = $asset->vars;
 								// metadata dropdown selection
