@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime_field.inc,v 1.17 2004/07/14 10:10:24 brobertson Exp $
+* $Id: datetime_field.inc,v 1.18 2004/07/14 10:15:17 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -538,19 +538,15 @@ class DateTime_Field {
 			if($c) $value['c'] = 1;
 		}
 		// Now we can assume we have an array of units values to verify
-		pre_echo(' value : '.$this->unitsArraytoStr($value));
-		$min = $this->strToUnitsArray($this->getParam('min'));
-		pre_echo('min : '.$this->getParam('min'));
-		$max = $this->strToUnitsArray($this->getParam('max'));
-		pre_echo('max : '.$this->getParam('max'));
-		$us = array('y','m','d','h','i','s');
-		foreach($us as $u) {
-			if($value[$u] >= 0) {
-				$value[$u] = min(max($value[$u],$min[$u]),$max[$u]);
-			}
+		$min = $this->getParam('min');
+		$max = $this->getParam('max');
+
+		$value_str = $this->unitsArraytoStr($value);
+		if (strcmp($value_str, $min) < 0) {
+			$value = $this->strToUnitsArray($min);
+		} elseif (strcmp($value_str, $max) > 0) {
+			$value = $this->strToUnitsArray($max);
 		}
-		pre_echo(' value : '.$this->unitsArraytoStr($value));
-		pre_echo('---------------------------------------------');
 		// DO CIRCA STUFF HERE ON DOWN
 		$validate_day_month = $value['y'] > 1901 && $value['y'] < 2038 && $value['m'] >= 0 && $value['d'] >= 0; // PHP limit
 		$value = $this->unitsArrayToStr($value);
