@@ -18,13 +18,15 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_tidy.inc,v 1.20 2004/09/08 08:32:09 brobertson Exp $
+* $Id: html_tidy.inc,v 1.21 2004/09/09 07:48:54 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 
 
 global $ROOT_PATH;
 include_once($ROOT_PATH.'wysiwyg_plugin.inc');
+require_once SQ_DATA_PATH.'/private/conf/tools.inc';
+
 
 /**
 * WYSIWYG Plugin - HTML Tidy
