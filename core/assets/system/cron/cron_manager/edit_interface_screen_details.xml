@@ -18,13 +18,13 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.7 2003/11/26 00:50:59 gsherwood Exp $
+* $Id: edit_interface_screen_details.xml,v 1.8 2004/05/26 23:39:43 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
 
 <contents>
-	<section name="Scheduled Jobs" read_access="write:attributes" write_access="write:links">
+	<section name="Scheduled Jobs" write_access="write:links">
 		<function_call>
 			<paint_function   name="paintJobs"   />
 			<process_function name="processJobs"   />
