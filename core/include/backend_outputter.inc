@@ -780,8 +780,8 @@ class Backend_Outputter
 		if (!in_array($event_data['assetid'], $this->_refreshing_assets)) {
 			if ($event_data['old_short_name'] != $event_data['new_short_name']) {
 				$this->addOnLoad('top.sidenav.reload_asset("'.$event_data['assetid'].'");');
+				$this->_refreshing_assets[] = $event_data['assetid'];
 			}
-			$this->_refreshing_assets[] = $event_data['assetid'];
 		}
 	}
 
