@@ -50,4 +50,5 @@ esac
 php -d output_buffering=0 "${SYSTEM_ROOT}/install/step_02.php" "${SYSTEM_ROOT}"
 
 chmod 775 cache
-find data -type d -exec chmod 775 {} \; 2> /dev/null
+find data -type d -exec chmod 2775 {} \; 2> /dev/null
+
