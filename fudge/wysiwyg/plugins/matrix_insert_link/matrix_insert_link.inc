@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_insert_link.inc,v 1.30 2004/12/10 02:34:35 dbaranovskiy Exp $
+* $Id: matrix_insert_link.inc,v 1.31 2005/01/19 16:45:42 brobertson Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 *     a link in the editable document using an asset from MySoure Matrix
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -213,11 +213,11 @@ class matrix_insert_link extends wysiwyg_plugin
                     }
 
                     // get the assetid for the link if there is one
-                    e = '(.*)(\\?a=)([0-9]+)(.*)';
+                    e = '.*\\?a=([0-9]+)((:[^$]*)\\$)?';
                     re = new RegExp(e, "gi");
                     results = re.exec(currArgs["url"]);
                     if (results != null) {
-                        currArgs["assetid"] = currArgs["url"].replace(re, "$3");
+                        currArgs["assetid"] = currArgs["url"].replace(re, "$1$3");
                     }
 
                 // else not a link so check for paragraphs
