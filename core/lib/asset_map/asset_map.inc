@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.152 2004/06/29 05:07:46 mmcintyre Exp $
+* $Id: asset_map.inc,v 1.153 2004/06/30 05:19:56 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -135,7 +135,7 @@ class Asset_Map
 		<script language="javascript" type="text/javascript" src="<?php echo sq_web_path('fudge').'/var_serialise/var_serialise.js' ?>"></script>
 		<script language="javascript" type="text/javascript" src="<?php echo sq_web_path('lib').'/asset_map/asset_map.js';?>"></script>
 
-		<applet id="sq_asset_map" width="<?php echo $width; ?>" height="<?php echo $height; ?>"  code="net/squiz/matrix/<?php echo $jarname; ?>/<?php echo $classname; ?>.class" archive="<?php echo sq_web_path('lib'); ?>/asset_map/java/<?php echo $jarname; ?>.jar?t=<?php echo time(); ?>, <?php echo sq_web_path('lib'); ?>/asset_map/java/crimson.jar" MAYSCRIPT>
+		<applet id="sq_asset_map" width="<?php echo $width; ?>" height="<?php echo $height; ?>"  code="net/squiz/matrix/<?php echo $jarname; ?>/<?php echo $classname; ?>.class" archive="<?php echo sq_web_path('lib'); ?>/asset_map/java/<?php echo $jarname; ?>.jar?t=<?php echo time(); ?>" MAYSCRIPT>
 			<param name="BASE_URL" value="<?php echo $root_url; ?>" />
 			<param name="BACKEND_SUFFIX" value="<?php echo SQ_CONF_BACKEND_SUFFIX; ?>" />
 			<?php
@@ -557,9 +557,9 @@ class Asset_Map
 				$this->_getChildAssets($child, $assetid);
 			}
 		}
-		
+
 		$this->_send($output);
-		
+
 	}//end _getAssets()
 
 
