@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit_div_props.php,v 1.10 2004/10/21 04:38:51 dbaranovskiy Exp $
+* $Id: edit_div_props.php,v 1.11 2004/11/26 04:24:44 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -29,7 +29,7 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -88,10 +88,9 @@ include(dirname(__FILE__)."/header.php");
 </script>
 
 <div class="title">
-	<table border="0" cellspacing="0" cellpadding="0">
+	<table border="0" cellspacing="0" cellpadding="0"  width="100%">
 		<tr>
-			<td id="sq_edit_div_props_delete"><a href="javascript: owner.bodycopy_delete_div(document.main_form.bodycopy_name.value, document.main_form.divid.value);" style="cursor: pointer;" ><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('data')?>/asset_types/bodycopy/images/icons/delete.png", "16", "16", "Delete this DIV");</script></a></td>
-			<td class="title" width="100%" align="right">DIV Properties</td>
+			<td class="title" align="left">DIV Properties</td>
 		</tr>
 	</table>
 </div>
@@ -159,7 +158,21 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 	</tr>
 	<tr>
 		<td>
-		<div style="text-align: right;">
+			<fieldset>
+			<legend><b>Delete This Div</b></legend>
+			<table>
+				<tr>
+					<td class="label">Click Icon to Delete:</td>
+					<td><a href="javascript: owner.bodycopy_delete_div(document.main_form.bodycopy_name.value, document.main_form.divid.value);" style="cursor: pointer;" ><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('data')?>/asset_types/bodycopy/images/icons/delete.png", "16", "16", "Delete this DIV");</script></a>
+					</td>
+				</tr>
+			</table>
+			</fieldset>
+		</td>
+	</tr>
+	<tr>
+		<td>
+		<div style="text-align: center;">
 		<button type="button" name="ok" onClick="javascript: popup_save(this.form)">OK</button>
 		&nbsp;
 		<button type="button" name="cancel" onClick="javascript: popup_close();">Cancel</button>

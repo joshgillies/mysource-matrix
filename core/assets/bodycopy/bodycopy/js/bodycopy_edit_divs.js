@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_edit_divs.js,v 1.6 2004/07/19 00:38:38 mnyeholt Exp $
+* $Id: bodycopy_edit_divs.js,v 1.7 2004/11/26 04:24:44 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -55,13 +55,13 @@ function bodycopy_edit_div_properties(bodycopy_name, divid, can_delete) {
 	if (data != null) {
 		bodycopy_current_edit["data"]["attributes"] = var_unserialise(data["attributes"]);
 	}
-	bodycopy_show_popup("edit_div_props.php", 320, 330);
+	bodycopy_show_popup("edit_div_props.php", 320, 350);
 }// end bodycopy_edit_div_properties()
 
 function bodycopy_save_div_properties(attributes) {
 	bodycopy_current_edit["data"]["attributes"] = attributes;
 	bodycopy_hide_popup();
-	var id = bodycopy_current_edit["bodycopy_name"] + '_div_' + bodycopy_current_edit["data"]["divid"]; 
+	var id = bodycopy_current_edit["bodycopy_name"] + '_div_' + bodycopy_current_edit["data"]["divid"];
 	bodycopy_chgColor(id);
 	serialise_div(bodycopy_current_edit["bodycopy_name"], bodycopy_current_edit["data"], bodycopy_current_edit["data"]["divid"]);
 }// end bodycopy_save_div_properties()

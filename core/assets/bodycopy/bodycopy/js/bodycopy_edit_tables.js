@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_edit_tables.js,v 1.7 2004/08/31 11:33:51 brobertson Exp $
+* $Id: bodycopy_edit_tables.js,v 1.8 2004/11/26 04:24:44 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -56,13 +56,13 @@ function bodycopy_edit_table_properties(bodycopy_name, tableid, can_delete) {
 	if (data != null) {
 		bodycopy_current_edit["data"]["attributes"] = var_unserialise(data["attributes"]);
 	}
-	bodycopy_show_popup("edit_table_props.php", 320, 350);
+	bodycopy_show_popup("edit_table_props.php", 320, 400);
 }// end bodycopy_edit_table_properties()
 
 function bodycopy_save_table_properties(attributes) {
 	bodycopy_current_edit["data"]["attributes"] = attributes;
 	bodycopy_hide_popup();
-	var id = bodycopy_current_edit["bodycopy_name"] + '_table_' + bodycopy_current_edit["data"]["tableid"]; 
+	var id = bodycopy_current_edit["bodycopy_name"] + '_table_' + bodycopy_current_edit["data"]["tableid"];
 	bodycopy_chgColor(id);
 	serialise_table(bodycopy_current_edit["bodycopy_name"], bodycopy_current_edit["data"], bodycopy_current_edit["data"]["tableid"],null,null);
 }// end bodycopy_edit_table_properties()
@@ -114,7 +114,7 @@ function bodycopy_edit_table_row_properties(bodycopy_name, tableid, rowid) {
 function bodycopy_save_table_row_properties(attributes) {
 	bodycopy_current_edit["data"]["attributes"] = attributes;
 	bodycopy_hide_popup();
-	var id = bodycopy_current_edit["bodycopy_name"] + '_row_' + bodycopy_current_edit["data"]["tableid"] + '_' + bodycopy_current_edit["data"]["rowid"]; 
+	var id = bodycopy_current_edit["bodycopy_name"] + '_row_' + bodycopy_current_edit["data"]["tableid"] + '_' + bodycopy_current_edit["data"]["rowid"];
 	bodycopy_chgColor(id);
 	serialise_table(bodycopy_current_edit["bodycopy_name"], bodycopy_current_edit["data"], bodycopy_current_edit["data"]["tableid"], bodycopy_current_edit["data"]["rowid"],null);
 }// end bodycopy_save_table_row_properties()
@@ -176,7 +176,7 @@ function bodycopy_save_table_cell_properties(attributes) {
 	for (var key in data) { if (typeof(data[key]) == "string") { data[key] = var_unserialise(data[key]); }}
 	data['attributes'] = attributes;
 	bodycopy_hide_popup();
-	var id = bodycopy_current_edit["bodycopy_name"] + '_cell_' + bodycopy_current_edit["data"]["tableid"] + '_' + bodycopy_current_edit["data"]["rowid"] + '_' + bodycopy_current_edit["data"]["cellid"]; 
+	var id = bodycopy_current_edit["bodycopy_name"] + '_cell_' + bodycopy_current_edit["data"]["tableid"] + '_' + bodycopy_current_edit["data"]["rowid"] + '_' + bodycopy_current_edit["data"]["cellid"];
 	bodycopy_chgColor(id);
 	serialise_table(bodycopy_current_edit["bodycopy_name"], data, bodycopy_current_edit["data"]["tableid"], bodycopy_current_edit["data"]["rowid"], bodycopy_current_edit["data"]["cellid"]);
 }// end bodycopy_save_table_cell_properties()

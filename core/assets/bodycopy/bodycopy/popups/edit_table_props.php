@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit_table_props.php,v 1.6 2004/08/31 11:33:51 brobertson Exp $
+* $Id: edit_table_props.php,v 1.7 2004/11/26 04:24:44 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -29,7 +29,7 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -83,12 +83,7 @@ include(dirname(__FILE__)."/header.php");
 </script>
 
 <div class="title">
-	<table border="0" cellspacing="0" cellpadding="0">
-		<tr>
-			<td id="sq_edit_div_props_delete"><a href="javascript: owner.bodycopy_delete_table(document.main_form.bodycopy_name.value, document.main_form.tableid.value);" style="cursor: pointer;"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('data')?>/asset_types/bodycopy/images/icons/delete.png", "16", "16", "Delete this table");</script></a></td>
-			<td class="title" width="100%" align="right">Table Properties</td>
-		</tr>
-	</table>
+	Table Properties
 </div>
 <script language="JavaScript">
 if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementById('sq_edit_div_props_delete').innerHTML = '&nbsp;'; }
@@ -242,6 +237,21 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 	</tr>
 	<tr>
 		<td>
+			<fieldset>
+			<legend><b>Delete This Table</b></legend>
+			<table>
+				<tr>
+					<td class="label">Click Icon to Delete:</td>
+					<td>
+						<a href="javascript: owner.bodycopy_delete_table(document.main_form.bodycopy_name.value, document.main_form.tableid.value);" style="cursor: pointer;"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('data')?>/asset_types/bodycopy/images/icons/delete.png", "16", "16", "Delete this table");</script></a>
+					</td>
+				</tr>
+			</table>
+			</fieldset>
+		</td>
+	</tr>
+	<tr>
+		<td>
 		<div style="text-align: right;">
 		<button type="button" name="ok" onClick="javascript: popup_save(this.form)">OK</button>
 		&nbsp;
@@ -252,4 +262,4 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 </table>
 </form>
 
-<?php include(dirname(__FILE__)."/footer.php"); ?> 
+<?php include(dirname(__FILE__)."/footer.php"); ?>

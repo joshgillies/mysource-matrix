@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: header.php,v 1.3 2004/02/18 18:19:16 brobertson Exp $
+* $Id: header.php,v 1.4 2004/11/26 04:24:44 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -63,7 +63,7 @@
 		}
 
 		/* fieldset styles */
-		fieldset { 
+		fieldset {
 			padding: 0px 10px 5px 5px;
 			border-color: #725B7D;
 		}

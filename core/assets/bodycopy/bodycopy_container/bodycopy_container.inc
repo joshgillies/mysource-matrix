@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container.inc,v 1.15 2004/11/18 05:02:28 gsherwood Exp $
+* $Id: bodycopy_container.inc,v 1.16 2004/11/26 04:24:44 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -67,8 +67,8 @@ class Bodycopy_Container extends Asset
 		return $lock_types;
 
 	}//end lockTypes()
-	
-	
+
+
 	/**
 	* Prints out the backend interface for the asset. Used for displaying
 	* the div properties screen if needed.
@@ -79,12 +79,12 @@ class Bodycopy_Container extends Asset
 	*/
 	function paintBackend(&$o)
 	{
-		
+
 		if (!isset($_REQUEST['asset_ei_screen'])) return parent::paintBackend($o);
-		
+
 		switch($_REQUEST['asset_ei_screen']) {
 			case 'show_popup' :
-				// Find out where the popups are located. (under bodycopy) 
+				// Find out where the popups are located. (under bodycopy)
 				$type_info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo('bodycopy');
 				$bodycopy_dir = SQ_SYSTEM_ROOT.'/'.$type_info['dir'];
 				require_once $bodycopy_dir.'/popups/'.trim($_REQUEST['popup_file']);
@@ -94,7 +94,7 @@ class Bodycopy_Container extends Asset
 
 		}// end switch
 
-	}//end paintBackend()	
+	}//end paintBackend()
 
 
 	/**
@@ -214,7 +214,7 @@ class Bodycopy_Container extends Asset
 	{
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid, $this->id);
 		if (!parent::deleteLink($linkid)) return false;
-			
+
 		// link has been deleted, check urls to see if this link
 		// was a HREF or SRC etc and get rid of them
 		ob_start();
@@ -278,7 +278,7 @@ class Bodycopy_Container extends Asset
 			return 'Linked inside the content as a URL, image, or embedded movie';
 		}
 		return parent::describeLink($linkid);
-		
+
 	}//end describeLink()
 
 
@@ -300,7 +300,7 @@ class Bodycopy_Container extends Asset
 		$notice_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE);
 		$get_href_ids = Array();
 		foreach ($notice_links as $link) $get_href_ids[] = $link['minorid'];
-		
+
 		$hrefs = $GLOBALS['SQ_SYSTEM']->am->getAssetHref(array_unique($get_href_ids));
 		foreach ($hrefs as $minorid => $href) {
 			if ($href == '') $href = './?a='.$minorid;
@@ -319,7 +319,7 @@ class Bodycopy_Container extends Asset
 				$e = "(/?\./\\?a=$assetid)([^0-9]+)";
 				$output = ereg_replace($e, $href.'\\2', $output);
 			}
-			
+
 			// replace keywords in the content
 			$output = replace_keywords($output, $keyword_replacements);
 

@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_management.inc,v 1.4 2004/10/25 06:49:53 lwright Exp $
+* $Id: bodycopy_management.inc,v 1.5 2004/11/26 04:24:44 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -48,7 +48,7 @@ class Bodycopy_Management extends Asset_Management
 		$this->Asset_Management($pm);
 
 		$this->vars = Array('name' => Array('added'     => '0.0.1',
-											'type'      => 'text',  
+											'type'      => 'text',
 											'default'   => 'BodyCopy',
 											'update_fn' => '',
 											'description' => 'the name of the bodycopy asset',

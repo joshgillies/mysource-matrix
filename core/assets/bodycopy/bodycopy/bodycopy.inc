@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy.inc,v 1.13 2004/11/18 05:02:27 gsherwood Exp $
+* $Id: bodycopy.inc,v 1.14 2004/11/26 04:24:44 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -138,8 +138,8 @@ class Bodycopy extends Asset
 		return parent::create($link);
 
 	}//end create()
-	
-	
+
+
 	/**
 	* Perform any additional processing required during the creation of this asset
 	*
@@ -232,8 +232,8 @@ class Bodycopy extends Asset
 		}// end switch
 
 	}//end paintBackend()
-	
-	
+
+
 	/**
 	* Prints out the Frontend for this asset
 	*
@@ -362,7 +362,7 @@ class Bodycopy extends Asset
 	/**
 	* To get the keywords that exist in the content of the bodycopy.
 	*
-	* @return Array(string) 
+	* @return Array(string)
 	* @access public
 	*/
 	function getKeywords()
@@ -370,9 +370,9 @@ class Bodycopy extends Asset
 		require_once SQ_FUDGE_PATH.'/general/text.inc';
 		$content = $this->getRawBodycopyContent();
 		$keywords = retrieve_keywords_replacements($content);
-		
+
 		return $keywords;
-	
+
 	}//end getKeywords
 
 
@@ -396,7 +396,7 @@ class Bodycopy extends Asset
 		ob_end_clean();
 
 		return $contents;
-	
+
 	}//end getRawBodycopyContent()
 
 

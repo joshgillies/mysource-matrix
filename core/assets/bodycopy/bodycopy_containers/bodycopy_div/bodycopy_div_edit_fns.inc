@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_div_edit_fns.inc,v 1.17 2004/11/18 05:02:28 gsherwood Exp $
+* $Id: bodycopy_div_edit_fns.inc,v 1.18 2004/11/26 04:24:44 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy_container/bodycopy_contain
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -71,7 +71,7 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 
 					break;
 		<?php
-	
+
 	}//end paintBackendJsData()
 
 
@@ -95,7 +95,7 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		} else {
 			$containers = $GLOBALS['SQ_SYSTEM']->am->getLinks($bodycopy->id, SQ_LINK_TYPE_2, 'bodycopy_container', false);
 		}
-		
+
 		?>
 		<script language="JavaScript" src="<?php echo sq_web_path('data').'/asset_types/bodycopy/js/bodycopy_edit_divs.js'?>"></script>
 
@@ -108,10 +108,10 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 				if (!bodycopy_saved[bodycopy_name][divid]) {
 					bodycopy_saved[bodycopy_name][divid] = new Object();
 				}
-				
+
 				bodycopy_saved[bodycopy_name][divid]['attributes'] = bodycopy_data['attributes'];
 			}// end if divid
-			
+
 			form.elements['bodycopy_saved[' + bodycopy_name + '][' + divid + ']'].value = var_serialise(bodycopy_saved[bodycopy_name][divid]);
 		}// end serialise_div()
 
@@ -124,7 +124,7 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		function get_bodycopy_<?php echo $prefix?>_current_div_data(divid) {
 
 			retVal = new Object();
-			
+
 			switch (divid) {
 		<?php
 		// if we have tables get them to print the js data they need
@@ -185,9 +185,9 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		for (reset($div_attributes); $name = key($div_attributes); next($div_attributes)) {
 			$val = $div_attributes[$name];
 			if ($val == '') continue;
-			
+
 			$skip_attribute = false;
-			switch($name) { 
+			switch($name) {
 				case 'layout_type':
 				case 'content_type':
 				case 'identifier':
@@ -198,7 +198,7 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 					$name = 'class';
 					break;
 			}
-			
+
 			if ($skip_attribute) continue;
 			$attribute_list .= ' '.$name.'="'.str_replace('"', '&quot;', $val).'"';
 		}
@@ -244,7 +244,7 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 	function paintContainer(&$asset, &$o, $prefix)
 	{
 		if (!parent::paintContainer($asset, $o, $prefix)) return false;
-		
+
 		$div_attributes = $asset->attr('attributes');
 
 		$attribute_list = '';
@@ -267,7 +267,7 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 			$content_type = null;
 			$content_prefix = '';
 		}
-		
+
 		// require library functions needed for drawing the bodycopy divs
 		$type_info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo('bodycopy');
 		require_once SQ_SYSTEM_ROOT.'/'.$type_info['dir'].'/files/bodycopy_general.inc';
@@ -278,7 +278,7 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 				<td align="left" background="" id="<?php echo $prefix.'_div_'.$asset->id;?>" width="4%" style="border: 1px dashed #C0C0C0;">
 				<?php
 				print_bodycopy_icon("Javascript: bodycopy_edit_div_properties('$prefix', $asset->id, ".(($asset->status & SQ_SC_STATUS_SAFE_EDITING) ? 'false' : 'true').");", 'Edit '.$asset->attr('name').'\'s Properties', (($popup_attribute_list) ? 'Current Properties :<br>'.$popup_attribute_list : ''), 'table_properties', '[Edit Properties]');
-				
+
 				if (!is_null($content_type)) {
 					$content_edit = &$content_type->getEditFns();
 					$content_edit->paintBackendIcons($content_type, $content_prefix);
@@ -379,7 +379,7 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		return true;
 
 	}//end _updateCellType()
-	
+
 
 }//end class
 
