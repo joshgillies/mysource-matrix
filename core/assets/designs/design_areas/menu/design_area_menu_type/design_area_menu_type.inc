@@ -526,11 +526,11 @@ class Design_Area_Menu_Type extends Design_Area
 					break;
 
 				case 'page_short_name' :
-					echo '<', '?php echo ', $this->_escapeVar($value_prefix.'$'.$this->attr('id_name').'_row[\'short_name\']'.$value_suffix, $args), '; ?', '>';
+					echo '<', '?php echo ', $this->_escapeVar($value_prefix.'((isset($'.$this->attr('id_name').'_obj)) ? $'.$this->attr('id_name').'_obj->short_name : $'.$this->attr('id_name').'_row[\'short_name\'])'.$value_suffix, $args), '; ?', '>';
 					break;
 
 				case 'page_name' :
-					echo '<', '?php echo ', $this->_escapeVar($value_prefix.'$'.$this->attr('id_name').'_row[\'name\']'.$value_suffix, $args), '; ?', '>';
+					echo '<', '?php echo ', $this->_escapeVar($value_prefix.'((isset($'.$this->attr('id_name').'_obj)) ? $'.$this->attr('id_name').'_obj->name : $'.$this->attr('id_name').'_row[\'name\'])'.$value_suffix, $args), '; ?', '>';
 					break;
 
 				default :

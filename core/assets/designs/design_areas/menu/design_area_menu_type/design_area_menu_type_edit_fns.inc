@@ -53,7 +53,7 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 		$page_index		= -1;
 		$divider_index	= -1;
 		$sub_index		= -1;
-		// see if our page element has any sub's in it 
+		// see if our page element has any sub's in it
 		foreach($contents as $index => $element) {
 			if ($element['_type'] != 'TAG') continue;
 
@@ -96,8 +96,8 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 					}// end foreach
 
 					break;
-				
-				case 'divider' : 
+
+				case 'divider' :
 					$divider_index = $index;
 					break;
 
@@ -163,7 +163,7 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 
 		}// end if
 
-		
+
 		return $asset->setAttrValue('contents', $contents);
 
 	}// end _processContents()
@@ -180,7 +180,7 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 	* @access private
 	* @see _processContents();
 	*/
-	function _getDefaultContents(&$asset, $content_type) 
+	function _getDefaultContents(&$asset, $content_type)
 	{
 		$parent_types = $asset->getTypeAncestors(false);
 		array_unshift($parent_types, $asset->type());
@@ -204,7 +204,7 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 
 
 	/**
-	* Takes the contents for the sub menu element and attempts to process it, 
+	* Takes the contents for the sub menu element and attempts to process it,
 	* is a separate fn to allow menu types that don't want to allow sub menu's to override
 	*
 	* @param object Asset	$asset			the asset to which we belong
@@ -268,7 +268,7 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 	{
 		switch($element['operation']) {
 			case 'page' :
-				echo '<', '?php 
+				echo '<', '?php
 
 				$'.$asset->attr('id_name').'_lineage_assetid = (empty($PAGE_LINEAGE[$'.$asset->attr('id_name').'_level + 1])) ? 0 : $PAGE_LINEAGE[$'.$asset->attr('id_name').'_level + 1][\'assetid\'];
 				$'.$asset->attr('id_name').'_lineage_setting = (count($PAGE_LINEAGE) - 1 == $'.$asset->attr('id_name').'_level + 1) ? \'current\' : \'hierarchy\';
@@ -298,14 +298,21 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 				echo '
 
 
-				foreach($GLOBALS[\'MENU_DATA\']['.$parent_assetid_name.'] as $'.$asset->attr('id_name').'_row) { 
+				foreach($GLOBALS[\'MENU_DATA\']['.$parent_assetid_name.'] as $'.$asset->attr('id_name').'_row) {
+					// if not live, we have to get the proper object, sorry
+					if (((int) $'.$asset->attr('id_name').'_row[\'status\'] & SQ_STATUS_LIVE) == 0) {
+						$'.$asset->attr('id_name').'_obj = &$am->getAsset($'.$asset->attr('id_name').'_row[\'assetid\'], $'.$asset->attr('id_name').'_row[\'type_code\']);
+					} else { 
+						unset($'.$asset->attr('id_name').'_obj);
+					}
+
 					$'.$asset->attr('id_name').'_current_setting = ($'.$asset->attr('id_name').'_lineage_assetid == $'.$asset->attr('id_name').'_row[\'assetid\']) ? $'.$asset->attr('id_name').'_lineage_setting : \'normal\';
 #					pre_echo("CURRENT SETTING : ".$'.$asset->attr('id_name').'_current_setting);
 				?', '>';
 				if ($page_contents = $asset->attr('page_contents')) {
 					if (!$this->_outputContents($page_contents, $asset, $design)) return false;
 				}
-				echo '<', '?php 
+				echo '<', '?php
 				}// end foreach '.$asset->attr('id_name').' data
 				?', '> ';
 

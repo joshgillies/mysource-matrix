@@ -82,6 +82,12 @@ class Design_Area_Menu_Recursive extends Design_Area_Menu_Type
 			for($i = 0, $num_kids = count($data[$parentid]); $i < $num_kids; $i++) {
 				$end = ($i == $num_kids - 1);
 				$'.$this->attr('id_name').'_row = $data[$parentid][$i];
+				// if not live, we have to get the proper object, sorry
+				if (((int) $'.$this->attr('id_name').'_row[\'status\'] & SQ_STATUS_LIVE) == 0) {
+					$'.$this->attr('id_name').'_obj = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($'.$this->attr('id_name').'_row[\'assetid\'], $'.$this->attr('id_name').'_row[\'type_code\']);
+				} else {
+					unset($'.$this->attr('id_name').'_obj);
+				}
 				$'.$this->attr('id_name').'_current_setting = ($'.$this->attr('id_name').'_lineage_assetid == $'.$this->attr('id_name').'_row[\'assetid\']) ? $'.$this->attr('id_name').'_lineage_setting : \'normal\';
 #				pre_echo("CURRENT SETTING : ".$'.$this->attr('id_name').'_current_setting);
 

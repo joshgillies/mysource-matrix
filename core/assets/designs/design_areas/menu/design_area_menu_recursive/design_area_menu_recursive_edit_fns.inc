@@ -48,24 +48,6 @@ class Design_Area_Menu_Recursive_Edit_Fns extends Design_Area_Menu_Type_Edit_Fns
 		return false;
 	}// end _processSubMenu()
 
-	/**
-	* Outputs the PHP/HTML code that will hopefully form part of the creating the design file
-	*
-	* @param Array			$contents	the parse contents to use in the output
-	* @param object Asset	$asset		the asset to which we belong
-	* @param object Design	$design		the design object that is painting us
-	*
-	* @return boolean
-	* @access private
-	*/
-	function _createDesignFileOutput($contents, &$asset, &$design)
-	{
-//		if ($asset->attr('show_stalks') && $asset->attr('indent') && $asset->attr('min_height')) {
-//			if (!$this->_createStalkImages($asset)) return false;
-//		}
-		return parent::_createDesignFileOutput($contents, $asset, $design);
-
-	}// end _createDesignFileOutput()
 
 	/**
 	* Used by _outputContents() to deal with a print tag

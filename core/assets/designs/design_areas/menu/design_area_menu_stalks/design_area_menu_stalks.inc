@@ -118,7 +118,7 @@ class Design_Area_Menu_Stalks extends Design_Area_Menu_Recursive
 			static $'.$this->attr('id_name').'_settings = '.var_export($this->_getSettingsArray(), true).';
 
 			$blank_src    = sq_web_path(\'lib\').\'/web/images/blank.gif\';
-			$stalk_prefix = sq_web_path(\'data\').\'/'.$this->type().'/'.$this->id.'/\';
+			$stalk_prefix = sq_web_path(\'data\').\'/assets/'.$this->type().'/'.$this->id.'/\';
 
 			// The indenting level, stalk on/off
 			$depth[] = true; 
@@ -132,6 +132,12 @@ class Design_Area_Menu_Stalks extends Design_Area_Menu_Recursive
 			for($i = 0, $num_kids = count($data[$parentid]); $i < $num_kids; $i++) {
 				$end = ($i == $num_kids - 1);
 				$'.$this->attr('id_name').'_row = $data[$parentid][$i];
+				// if not live, we have to get the proper object, sorry
+				if (((int) $'.$this->attr('id_name').'_row[\'status\'] & SQ_STATUS_LIVE) == 0) {
+					$'.$this->attr('id_name').'_obj = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($'.$this->attr('id_name').'_row[\'assetid\'], $'.$this->attr('id_name').'_row[\'type_code\']);
+				} else {
+					unset($'.$this->attr('id_name').'_obj);
+				}
 				$'.$this->attr('id_name').'_current_setting = ($'.$this->attr('id_name').'_lineage_assetid == $'.$this->attr('id_name').'_row[\'assetid\']) ? $'.$this->attr('id_name').'_lineage_setting : \'normal\';
 #				pre_echo("CURRENT SETTING : ".$'.$this->attr('id_name').'_current_setting);
 			?', '> 
