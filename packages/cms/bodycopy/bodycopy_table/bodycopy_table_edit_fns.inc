@@ -20,6 +20,28 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 {
 
 	/**
+	* An array of tab code names and their display names
+	* @var Array()
+	*/
+	var $static_screens = Array('details'         => Array('name' => 'Details',
+													   'force_unlock' => true
+													  ),
+								'permissions'     => Array('name' => 'Permissions',
+													   'force_unlock' => true
+													  ),
+								'workflow'        => Array('name' => 'Workflow',
+													   'force_unlock' => false
+													  ),
+								'linking'         => Array('name' => 'Linking',
+													   'force_unlock' => true
+													  ),
+								'history'         => Array('name' => 'History',
+													   'force_unlock' => true
+													  ),
+								);
+
+
+	/**
 	* Constructor
 	*
 	*/
