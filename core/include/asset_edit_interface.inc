@@ -2098,17 +2098,16 @@ class Asset_Edit_Interface extends Resolve_Object
 	/**
 	* Paints an asset dependancy tree with stalks and dependant info
 	*
-	* @param object	Asset				$owner			the asset whose interface we are painting
-	* @param object	Asset				$owner			the asset whose dependants we are painting
-	* @param object	Backend_Outputter	$o				the outputter class
-	* @param int						$levels			how many levels down are we
-	* @param int						$depth			how far deep are we in
-	* @param boolean					$last_bg		was the last entry printed an end stalk?
+	* @param object	Asset				$owner				the asset whose interface we are painting
+	* @param object	Asset				$owner				the asset whose dependants we are painting
+	* @param object	Backend_Outputter	$o					the outputter class
+	* @param int						$levels				how many levels down are we
+	* @param array(int)					$print_stalks_at	what levels to print stalks at
 	*
 	* @return void
 	* @access public
 	*/
-	function _recursePaintDependants(&$owner, &$asset, &$o, $levels=1, $depth=0, $last_bg=false)
+	function _recursePaintDependants(&$owner, &$asset, &$o, $levels=1, $print_stalks_at=Array())
 	{
 		$dependant_links = $asset->getLinks(SQ_SC_LINK_SIGNIFICANT, '', true, 'major', null, 1);
 		$num_kids = count($dependant_links);
@@ -2141,6 +2140,8 @@ class Asset_Edit_Interface extends Resolve_Object
 				$status_message = '<span style="color:red"><b>*</b></span>';
 			}
 
+			$new_print_stalks_at = Array();
+
 			?>
 			<tr>
 				<td class="sq-backend-data">
@@ -2149,7 +2150,10 @@ class Asset_Edit_Interface extends Resolve_Object
 							<?php
 							for ($x = 0; $x < $levels; $x++) {
 								$stalk_bg = '';
-								if ($depth && $x >= $depth) $stalk_bg = $stalk;
+								if (in_array($x, $print_stalks_at)) {
+									$stalk_bg = $stalk;
+									$new_print_stalks_at[] = $x;
+								}
 								?>
 								<td class="sq-backend-data" <?php echo $stalk_bg; ?>><img src="<?php echo $o->filesPath('/images/blank.gif'); ?>" width="20" height="1" alt="blank" /></td>
 								<?php
@@ -2178,17 +2182,10 @@ class Asset_Edit_Interface extends Resolve_Object
 			<?php
 			$child_deps = $dep_asset->getLinks(SQ_SC_LINK_SIGNIFICANT, '', true, 'major', null, 1);
 
-			$new_depth = $depth;
-			if (empty($bg)) {
-				$new_depth = 0;
-			} else if ($last_bg) {
-				$new_depth = $levels;
-			} else if (!$depth) {
-				$new_depth = 1;
-			}
+			if (!empty($bg)) $new_print_stalks_at[] = $levels;
 
 			if (!empty($child_deps)) {
-				$this->_recursePaintDependants($owner, $dep_asset, $o, ($levels+1), $new_depth, empty($bg));
+				$this->_recursePaintDependants($owner, $dep_asset, $o, ($levels+1), $new_print_stalks_at);
 			}
 		}
 
