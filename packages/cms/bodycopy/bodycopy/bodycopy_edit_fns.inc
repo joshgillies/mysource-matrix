@@ -3,7 +3,6 @@
 require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
 require_once SQ_FUDGE_PATH.'/general/general.inc';
-require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 
 /**
@@ -480,7 +479,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		global $_BODYCOPY;
 
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
-		$regenerate_file = false;
+		$updated = false;
 		
 		// do some thing for the first time we print a bodycopy on this page
 		if (empty($_BODYCOPY['update_initialised'])) {
@@ -510,7 +509,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		foreach ($tables as $table_data) {
 			$table = &$am->getAsset($table_data['minorid'], $table_data['type_code']);
 			$table_edit = $table->getEditFns();
-			if ($table_edit->processTable($table, $prefix)) $regenerate_file = true;
+			if ($table_edit->processTable($table, $prefix)) $updated = true;
 		}
 
 		// only update if we are the bodycopy that submitted the form
@@ -525,40 +524,17 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 																						$bodycopy_data['num_cols'], 
 																						$bodycopy_data['before'],
 																						$bodycopy_data['attributes']
-							)) $regenerate_file = true;
+							)) $updated = true;
 						break;
 
 					case 'delete_table' :
-							if ($this->deleteTable($asset, $bodycopy_data['tableid'])) $regenerate_file = true;
+							if ($this->deleteTable($asset, $bodycopy_data['tableid'])) $updated = true;
 						break;
 				}
 			}
 		}
 
-		if ($regenerate_file) {
-			$this->generateContentFile($asset);
-		}
-
 	}//end processBodycopy()
-
-
-	/**
-	* Creates a PHP file to print on the frontend instead of doing processing there
-	*
-	* @param object Bodycopy	&$asset	the bodycopy
-	*
-	* @return boolean
-	* @access public
-	*/
-	function generateContentFile(&$asset) {
-		ob_start();
-		$this->paint($asset);
-		$output = ob_get_contents();
-		ob_end_clean();
-		create_directory($asset->data_path);
-		if (string_to_file($output, $asset->data_path.'/content_file.inc')) return true;
-		return false;
-	}
 
 
 	/**

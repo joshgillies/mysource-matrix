@@ -116,13 +116,21 @@ class Bodycopy extends Asset
 
 	/**
 	* Called by the design to print the body of this asset
-	* it's up to the kids to override
 	*
 	* @access public
 	*/
 	function printBody()
 	{
-		include_once($this->data_path.'/content_file.inc');
+		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		
+		// get all the tables linked to this bodycopy
+		$tables = $this->getLinks(SQ_LINK_UNITE, 'bodycopy_table');
+		
+		// paint each table
+		foreach ($tables as $table_data) {
+			$table = &$am->getAsset($table_data['minorid'], $table_data['type_code']);
+			$table->printBody($table);
+		}
 	}// end printBody()
 
 

@@ -3,6 +3,7 @@
 require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 require_once(dirname(__FILE__).'/bodycopy_table_cell.inc');
 require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
+require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 /**
 * Bodycopy_Table_Edit_Fns
@@ -546,9 +547,30 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 			}
 		}
 
+		if ($updated) $this->generateContentFile($asset);
+	
 		return $updated;
 
 	}//end processTable()
+
+
+	/**
+	* Creates a PHP file to print on the frontend instead of doing processing there
+	*
+	* @param object Bodycopy_Table	&$asset	the table
+	*
+	* @return boolean
+	* @access public
+	*/
+	function generateContentFile(&$asset) {
+		ob_start();
+		$this->paint($asset);
+		$output = ob_get_contents();
+		ob_end_clean();
+		create_directory($asset->data_path);
+		if (string_to_file($output, $asset->data_path.'/content_file.inc')) return true;
+		return false;
+	}
 
 
 	/**

@@ -106,6 +106,24 @@ class Bodycopy_Table extends Asset
 
 
 	/**
+	* Called by the design to print the body of this asset
+	*
+	* @access public
+	*/
+	function printBody()
+	{
+		if (!file_exists($this->data_path.'/content_file.inc')) {
+			$edit = $this->getEditFns();
+			$edit->paint($this);
+			// generate the contents file for the next time
+			$edit->generateContentFile($this);
+		} else {
+			include_once($this->data_path.'/content_file.inc');
+		}
+	}// end printBody()
+
+
+	/**
 	* Returns name of the asset
 	*
 	* @param boolean	$short_name	whether or not we are after the short name or the full name
