@@ -1341,6 +1341,8 @@ class Asset extends Resolve_Object
 
 		}// end if
 
+		// before we override ourselves, do any cleaning up that we might need
+		if ($all_ok && !$this->_morphCleanup($new_type_code)) $all_ok = false;
 
 		// All is OK so override ourselves with the temporary
 		if ($all_ok) {
@@ -1355,7 +1357,7 @@ class Asset extends Resolve_Object
 
 			return true;
 
-		// bugger some thing went wrong
+		// bugger something went wrong
 		} else {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
@@ -1363,6 +1365,21 @@ class Asset extends Resolve_Object
 		}// end if
 
 	}//end morph()
+
+
+	/**
+	* Clean up any sloppy seconds that are left over before we cast this asset for good
+	*
+	* @param string	$new_type_code	the new type_code that this asset is being cast to
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _morphCleanup($new_type_code)
+	{
+		return true;
+
+	}//end _morphCleanup()
 
 
 	/**

@@ -37,6 +37,7 @@ class Site extends Folder
 	{
 		// because we never have paths, we can only return the urls
 		return Array();
+
 	}// end getWebPaths()
 
 
@@ -52,6 +53,7 @@ class Site extends Folder
 	function addWebPath($url)
 	{
 		return false;
+
 	}// end addWebPath()
 
 
@@ -67,6 +69,7 @@ class Site extends Folder
 	function deleteWebPath($url)
 	{
 		return false;
+
 	}// end deleteWebPath()
 
 
@@ -104,14 +107,13 @@ class Site extends Folder
 	/**
 	* Attempts to add a url to this site, site's don't have paths, only URLs
 	*
-	* @param Array $save_urls		an Array($urlid => Array(url => '', http => boolean, https => boolean)
+	* @param Array $save_urls	an Array($urlid => Array(url => '', http => boolean, https => boolean)
 	*
 	* @return boolean
 	* @access public
 	*/
 	function saveWebURLs($save_urls)
 	{
-
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
@@ -223,6 +225,26 @@ class Site extends Folder
 
 
 	/**
+	* Clean up any sloppy seconds that are left over before we cast this asset for good
+	* In particular, remove out URLs and update the web paths of the kiddies
+	*
+	* @param string	$new_type_code	the new type_code that this asset is being cast to
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _morphCleanup($new_type_code)
+	{
+		$current_urls = $this->getSiteURLs();
+		if (!empty($current_urls)) {
+			if (!$this->saveWebURLs(Array())) return false;
+		}
+		return true;
+
+	}//end _morphCleanup()
+
+
+	/**
 	* Fn that does the real processing of updateLookups(), separated to allow for the DB transaction stuff
 	* Will be called by parent assets recursively on their kids so not 'really' private
 	* and by the saveWebURLs() so that their transaction calls can wrap around it
@@ -297,10 +319,9 @@ class Site extends Folder
 	*/
 	function processBackend(&$o, &$link)
 	{
-		$this->_tmp['update_lookups'] = false;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		if (parent::processBackend($o, $link)) {
-			if ($this->_tmp['update_lookups']) {
+			if (isset($this->_tmp['update_lookups']) && $this->_tmp['update_lookups']) {
 				if (!$this->_updateLookups()) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return false;
@@ -336,6 +357,7 @@ class Site extends Folder
 		}
 
 		parent::printFrontend();
+
 	}//end printFrontend()
 
 

@@ -878,13 +878,15 @@ class Asset_Edit_Interface extends Resolve_Object
 
 
 		//// MORPHING ////
-		if (isset($_POST[$prefix.'_morph_new_type']) && !empty($_POST[$prefix.'_morph_new_type'])) {
-			// check that the security key was entered correctly
-			if (validate_security_key()) {
-				// errors for morphing will get reported in the morph function
-				$owner->morph($_POST[$prefix.'_morph_new_type']);
-			} else {
-				trigger_error('The security key entered was incorrect. Asset type remains unchanged.', E_USER_WARNING);
+		if ($owner->adminAccess()) {
+			if (isset($_POST[$prefix.'_morph_new_type']) && !empty($_POST[$prefix.'_morph_new_type'])) {
+				// check that the security key was entered correctly
+				if (validate_security_key()) {
+					// errors for morphing will get reported in the morph function
+					if ($owner->morph($_POST[$prefix.'_morph_new_type'])) return true;
+				} else {
+					trigger_error('The security key entered was incorrect. Asset type remains unchanged.', E_USER_WARNING);
+				}
 			}
 		}
 
