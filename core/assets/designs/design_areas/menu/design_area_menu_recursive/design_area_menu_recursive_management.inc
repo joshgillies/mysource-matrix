@@ -38,7 +38,14 @@ class Design_Area_Menu_Recursive_Management extends Asset_Management
 							'alignment' => Array(
 								'added'			=> '0.0.1',
 								'type'			=> 'text',
+								'type'			=> 'selection',
 								'default'		=> 'left',
+								'parameters'	=> Array(
+									'options' => Array(
+											'left'	=> 'Left',
+											'right'	=> 'Right',
+									),
+								),
 								'description'	=> ''
 							),
 							'ellipsis_length' => Array(
@@ -74,7 +81,7 @@ class Design_Area_Menu_Recursive_Management extends Asset_Management
 							'stalk_fg_colour' => Array(
 								'added'			=> '0.0.1',
 								'type'			=> 'colour',
-								'default'		=> '000000',
+								'default'		=> '#000000',
 								'description'	=> 'The Foreground Colour for the stalks'
 							),
 							'stalk_bg_colour' => Array(

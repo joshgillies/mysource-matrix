@@ -28,10 +28,8 @@ class Design_Area_Menu_Recursive extends Design_Area_Menu_Type
 	*/
 	function setAttrValue($name, $value, $dont_run_updated=false)
 	{
-		// make sure the aligment is either left or right
-		if ($name == 'alignment') {
-			if ($value != 'right') $value = 'left';
-		}// end if
+		// make sure the aligment is lower case 
+		if ($name == 'alignment') $value = strtolower($value);
 		return parent::setAttrValue($name, $value, $dont_run_updated);
 	}//end setAttrValue()
 

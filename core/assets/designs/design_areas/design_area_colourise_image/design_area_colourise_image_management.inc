@@ -41,13 +41,15 @@ class Design_Area_Colourise_Image_Management extends Asset_Management
 								'default'   => 0
 							),
 							'type' => Array(
-								'added'     => '0.0.1',
-								'type'      => 'text',
-								'default'   => 'greyscale',
-								'options'   => Array(
-									'greyscale' => 'Greyscale', 
-									'multiple_colours' => 'Multiple Colours'
-								)
+								'added'			=> '0.0.1',
+								'type'			=> 'selection',
+								'default'		=> 'greyscale',
+								'parameters'	=> Array(
+									'options' => Array(
+										'greyscale'			=> 'Greyscale', 
+										'multiple_colours'	=> 'Multiple Colours'
+									),
+								),
 							),
 							'tolerance' => Array(
 								'added'     => '0.0.1',
