@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.53 2004/09/20 05:08:55 lwright Exp $
+* $Id: form.inc,v 1.53.2.1 2004/10/15 00:16:32 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -629,6 +629,68 @@ class Form extends Bridge
 	}//end setFormCookie() 
 
 
+	/**
+	* Clones certain specified components of the asset
+	*
+	* @param object asset &$clone the clone asset shell
+	* @param array			$components	the wanted components to clone eg.
+	*                       Array(
+	*                           'attributes',
+	*                           'metadata_shemas',
+	*                           'metadata',
+	*                           'workflow',
+	*                           'permissions',
+	*                           'data'
+	*                       );
+	*                       or alternately
+	*                       Array('all');
+	* 
+	* @return boolean
+	* @access public
+	* @see asset::cloneComponents()
+	*/
+	function cloneComponents(&$clone, $components)
+	{
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		
+		if (!parent::cloneComponents($clone, $components)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;			
+		}
+		
+		if (in_array('attributes', $components) || in_array('all', $components)) {
+			$sort_order = $this->attr('sort_order');
+			$sort_order = str_replace($this->id.':q', $clone->id.':q', $sort_order);
+			
+			// send to a friend format
+			$recip = unserialize($this->attr('recipient_emails_format'));
+			$recip = str_replace('%response_'.$this->id.'_', '%response_'.$clone->id.'_', $recip);
+			$rec = unserialize($this->attr('receipt_emails_format'));
+			$rec = str_replace('%response_'.$this->id.'_', '%response_'.$clone->id.'_', $rec);
+			$staf = unserialize($this->attr('staf_format'));
+			$staf = str_replace('%response_'.$this->id.'_', '%response_'.$clone->id.'_', $staf);
+			$sel = $this->attr('selective_emails');
+			foreach($sel as $key => $null) {
+				$sel[$key]['address'] = str_replace('%response_'.$this->id.'_', '%response_'.$clone->id.'_', $sel[$key]['address']);
+				$sel[$key]['assetid'] = str_replace($this->id.':q', $clone->id.':q', $sel[$key]['assetid']);
+			}
+			
+			// save the information
+			$clone->setAttrValue('sort_order', $sort_order);
+			$clone->setAttrValue('recipient_emails_format', serialize($recip));
+			$clone->setAttrValue('receipt_emails_format', serialize($rec));
+			$clone->setAttrValue('staf_format', serialize($staf));
+			$clone->setAttrValue('selective_emails', $sel);
+			$clone->saveAttributes();
+			
+		}
+		
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');		
+		return true;
+	
+	}//end cloneComponents()
+	
+	
 	/**
 	* Called by the design to print the body of this asset
 	*
