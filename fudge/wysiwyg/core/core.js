@@ -112,7 +112,6 @@ HTMLArea.prototype.generate = function () {
 		editor._doc.innerHTML = editor._textArea.value;
 		editor._doc.style.width  = "100%";
 		editor._doc.style.height = "100%";
-		//if (HTMLArea.is_gecko) { editor._doc.designMode = "on"; }
 		editor._doc.innerHTML = editor._textArea.value;
 		if (HTMLArea.is_ie) { editor._doc.contentEditable = true; }
 		// intercept some events; for updating the toolbar & keyboard handlers
@@ -182,15 +181,16 @@ HTMLArea.prototype.focusEditor = function() {
  * Returns a node after which we can insert other nodes, in the current
  * selection.  The selection is removed.  It splits a text node, if needed.
  */
-HTMLArea.prototype.insertNodeAtSelection = function(toBeInserted) {
+HTMLArea.prototype.insertNodeAtSelection = function(toBeInserted, range) {
 	if (!HTMLArea.is_ie) {
 		var sel = this._getSelection();
-		var range = this._createRange(sel);
+		if (range == null) {
+			var range = this._createRange(sel);
+		}
 		// remove the current selection
 		range.deleteContents();
 		var node = range.startContainer;
 		var pos = range.startOffset;
-		//range = this._createRange();
 		switch (node.nodeType) {
 			case 3: // Node.TEXT_NODE
 				// we have to split it at the caret position.
@@ -202,16 +202,12 @@ HTMLArea.prototype.insertNodeAtSelection = function(toBeInserted) {
 				} else {
 					node = node.splitText(pos);
 					node.parentNode.insertBefore(toBeInserted, node);
-					range.setStart(node, 0);
 					range.setEnd(node, 0);
+					range.setStart(node, 0);
 				}
 			break;
 			case 1: // Node.ELEMENT_NODE
 				range.insertNode(toBeInserted);
-				//if (node.childNodes[pos]) { node = node.childNodes[pos]; }
-				//node.parentNode.insertBefore(toBeInserted, node);
-				//range.setStart(node, 0);
-				//range.setEnd(node, 0);
 			break;
 		}
 		sel.addRange(range);
@@ -242,7 +238,7 @@ HTMLArea.prototype.insertHTML = function(html, range) {
 			fragment.appendChild(div.firstChild);
 		}
 		// this also removes the selection
-		var node = this.insertNodeAtSelection(fragment);
+		var node = this.insertNodeAtSelection(fragment, range);
 	}
 };
 

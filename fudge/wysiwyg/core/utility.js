@@ -322,8 +322,8 @@ HTMLArea._colorToRgb = function(v) {
 // receives an URL to the popup dialog and a function that receives one value;
 // this function will get called after the dialog is closed, with the return
 // value of the dialog.
-HTMLArea.prototype._popupDialog = function(url, action, init) {
-	openDialog(this.pluginURL(url), 400, 400, action);
+HTMLArea.prototype._popupDialog = function(url, width, height, action) {
+	openDialog(this.pluginURL(url), width, height, action);
 };
 
 

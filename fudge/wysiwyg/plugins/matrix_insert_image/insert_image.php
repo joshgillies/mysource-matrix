@@ -5,7 +5,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 ?>
 
-<html style="width: 398; height: 218">
+<html>
 	<head>
 		<title>Insert Image</title>
 
@@ -23,7 +23,7 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 			};
 
 			function Init() {
-				__dlg_init();
+				//__dlg_init();
 				var changeButton = document.getElementById('sq_asset_finder_f_imageid_change_btn');
 				changeButton.click();
 			};
@@ -62,8 +62,8 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 
 		<style type="text/css">
 			html, body {
-				background: ButtonFace;
-				color: ButtonText;
+				background: #F0F0F0;
+				color: #000000;
 				font: 11px Tahoma,Verdana,sans-serif;
 				margin: 0px;
 				padding: 0px;
@@ -90,7 +90,7 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 		</style>
 	</head>
 
-	<body onLoad="Init(); if (opener) opener.blockEvents()" onUnload="if (opener) opener.unblockEvents(); asset_finder_onunload(); parent_object._tmp['disable_toolbar'] = false; parent_object.updateToolbar();">
+	<body onLoad="Init; if (opener) opener.blockEvents()" onUnload="if (opener) opener.unblockEvents(); asset_finder_onunload(); parent_object._tmp['disable_toolbar'] = false; parent_object.updateToolbar();">
 		<div class="title">Insert Image</div>
 		<form action="" method="get" name="main_form">
 			<table border="0" width="100%" style="padding: 0px; margin: 0px">

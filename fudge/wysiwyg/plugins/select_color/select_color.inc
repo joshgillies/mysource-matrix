@@ -40,7 +40,7 @@ class select_color extends wysiwyg_plugin {
 		?>
 		case "forecolor":
 		case "backcolor":
-			this._popupDialog("<?php echo $this->get_popup_href('select_color.html')?>", function(color) {
+			this._popupDialog("<?php echo $this->get_popup_href('select_color.html')?>", 238, 182, function(color) {
 				if (color) {
 					editor._execCommand(cmd, false, "#" + color);
 				}

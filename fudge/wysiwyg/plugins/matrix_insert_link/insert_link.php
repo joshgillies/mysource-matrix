@@ -37,7 +37,7 @@ if (!isset($_GET['new_window'])) {
 
 ?>
 
-<html style="width: 398; height: 218">
+<html>
 	<head>
 		<title>Insert Link</title>
 
@@ -132,8 +132,8 @@ if (!isset($_GET['new_window'])) {
 
 		<style type="text/css">
 			html, body {
-				background: ButtonFace;
-				color: ButtonText;
+				background: #F0F0F0;
+				color: #000000;
 				font: 11px Tahoma,Verdana,sans-serif;
 				margin: 0px;
 				padding: 0px;

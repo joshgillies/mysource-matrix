@@ -44,13 +44,6 @@ class insert_image extends wysiwyg_plugin {
 			HTMLArea.prototype._insertImage = function() {
 				var editor = this; // for nested functions
 
-				// set focus in case we havnt selected anything
-				if (HTMLArea.is_ie) {
-					this._docContent.focus();
-				} else if (HTMLArea.ie_gecko) {
-					this.focusEditor();
-				}
-
 				var sel = this._getSelection();
 				var range = this._createRange(sel);
 
@@ -91,7 +84,7 @@ class insert_image extends wysiwyg_plugin {
 
 				strPage = "<?php echo $this->get_popup_href('insert_image.php')?>?f_url=" + escape(url) + "&f_align=" + escape(align) + "&f_alt=" + escape(alt) + "&f_horiz=" + escape(hspace) + "&f_vert=" + escape(vspace) + "&f_border=" + escape(border);
 
-				this._popupDialog(strPage, function(param) {
+				this._popupDialog(strPage, 398, 218, function(param) {
 					if (!param) { 
 						// user must have pressed Cancel
 						return false;

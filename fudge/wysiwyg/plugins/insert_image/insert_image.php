@@ -9,7 +9,7 @@
 * @subpackage wysiwyg
 */
 ?>
-<html style="width: 398; height: 218">
+<html>
 	<head>
 		<title>Insert Image</title>
 
