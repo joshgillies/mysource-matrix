@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.47 2004/07/23 07:15:19 mmcintyre Exp $
+* $Id: metadata_manager.inc,v 1.48 2004/08/27 01:13:09 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -210,7 +210,7 @@ class Metadata_Manager extends MySource_Object
 		// add defaults to the indexing service
 		if ($access) {
 			$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
-			$em->broadcastEvent($this, 'IndexMetadata', Array('assetid' => $asset->id, 'schemaids' => Array($schemaid)));
+			$em->broadcastEvent($asset, 'indexMetadata', Array('assetid' => $asset->id, 'schemaids' => Array($schemaid)));
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -256,7 +256,7 @@ class Metadata_Manager extends MySource_Object
 		}
 
 		$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
-		$em->broadcastEvent($this, 'IndexMetadata', Array('assetid' => $asset->id, 'schemaids' => Array($schemaid)));
+		$em->broadcastEvent($asset, 'indexMetadata', Array('assetid' => $asset->id, 'schemaids' => Array($schemaid)));
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
@@ -484,7 +484,7 @@ class Metadata_Manager extends MySource_Object
 		}
 
 		$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
-		$em->broadcastEvent($this, 'IndexMetadata', Array('assetid' => $assetid, 'schemaids' => $schemaids));
+		$em->broadcastEvent($asset, 'indexMetadata', Array('assetid' => $assetid, 'schemaids' => $schemaids));
 
 		return true;
 
