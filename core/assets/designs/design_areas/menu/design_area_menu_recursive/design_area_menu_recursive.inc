@@ -128,7 +128,7 @@ class Design_Area_Menu_Recursive extends Design_Area_Menu_Type
 
 	/**
 	* Outputs the way for this menu type to get their information and place it in the
-	* $'.$this->attr('id_name').'_data array
+	* $GLOBALS['MENU_DATA'] array
 	*
 	* @param object Design	$design the design for which we are currently printing
 	*
@@ -166,7 +166,6 @@ class Design_Area_Menu_Recursive extends Design_Area_Menu_Type
 
 		echo '
 #pre_echo("NR:  ".$'.$this->attr('id_name').'_num_repeats);
-		$'.$this->attr('id_name').'_data = Array();
 		for($'.$this->attr('id_name').'_i = 0; $'.$this->attr('id_name').'_i < $'.$this->attr('id_name').'_num_repeats; $'.$this->attr('id_name').'_i++) {
 
 		';
@@ -184,43 +183,22 @@ class Design_Area_Menu_Recursive extends Design_Area_Menu_Type
 
 			echo '
 			if ('.$min_levels_extra_cond.' $'.$this->attr('id_name').'_i < '.((int) $this->attr('min_num_levels')).') {
-				$'.$this->attr('id_name').'_assetids_cond = \'IN (\'.implode(\',\', $'.$this->attr('id_name').'_assetids).\')\';
+				$'.$this->attr('id_name').'_assetids_cond = $'.$this->attr('id_name').'_assetids;
 			} else {
-				$'.$this->attr('id_name').'_assetids_cond = \'= \'.((int) $PAGE_LINEAGE[$'.$this->attr('id_name').'_level + $'.$this->attr('id_name').'_i][\'assetid\']);
+				$'.$this->attr('id_name').'_assetids_cond = Array((int) $PAGE_LINEAGE[$'.$this->attr('id_name').'_level + $'.$this->attr('id_name').'_i][\'assetid\']);
 			}
 			';
-			$thisids_cond = '\'.$'.$this->attr('id_name').'_assetids_cond.\'';
+			$majorids = '$'.$this->attr('id_name').'_assetids_cond';
 		} else {
-			$thisids_cond = '= \'.((int) $PAGE_LINEAGE[$'.$this->attr('id_name').'_level + $'.$this->attr('id_name').'_i][\'assetid\']).\'';
+			$majorids = 'Array((int) $PAGE_LINEAGE[$'.$this->attr('id_name').'_level + $'.$this->attr('id_name').'_i][\'assetid\'])';
 		}
 
 		echo '
-
-			$sql = \'SELECT a.assetid, l.majorid, a.type_code, a.name, a.short_name, p.path
-					FROM sq_asset a
-						INNER JOIN sq_asset_path p on a.assetid = p.assetid
-						INNER JOIN sq_asset_link l on a.assetid = l.minorid
-					WHERE p.sort_order = 0
-					  AND l.majorid '.$thisids_cond.'
-					  AND (l.link_type & \'.$db->quote(SQ_LINK_FRONTEND_NAV).\') > 0
-					ORDER BY l.majorid, l.sort_order\';
-#		pre_echo($sql);
-			$'.$this->attr('id_name').'_result = $db->query($sql);
-			if (DB::isError($'.$this->attr('id_name').'_result)) {
-				trigger_error($'.$this->attr('id_name').'_result->getMessage().\'<br/>\'.$'.$this->attr('id_name').'_result->getUserInfo(), E_USER_ERROR);
-			}
 			unset($'.$this->attr('id_name').'_assetids);
-			$'.$this->attr('id_name').'_assetids = Array();
-			while (DB_OK === $'.$this->attr('id_name').'_result->fetchInto($'.$this->attr('id_name').'_row)) {
-				$'.$this->attr('id_name').'_assetids[] = (int) $'.$this->attr('id_name').'_row[\'assetid\'];
-				if (!isset($'.$this->attr('id_name').'_data[$'.$this->attr('id_name').'_row[\'majorid\']])) $'.$this->attr('id_name').'_data[$'.$this->attr('id_name').'_row[\'majorid\']] = Array();
-				$'.$this->attr('id_name').'_data[$'.$this->attr('id_name').'_row[\'majorid\']][] = $'.$this->attr('id_name').'_row;
+			$'.$this->attr('id_name').'_assetids = menu_get_assets('.$majorids.');
 
-			}
-			$'.$this->attr('id_name').'_result->free();
-#				pre_echo($'.$this->attr('id_name').'_assetids);
+
 		}// end for '.$this->attr('id_name').'_i
-#pre_echo($'.$this->attr('id_name').'_data);
 
 		';
 

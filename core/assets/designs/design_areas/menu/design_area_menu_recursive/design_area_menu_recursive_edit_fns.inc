@@ -104,7 +104,7 @@ class Design_Area_Menu_Recursive_Edit_Fns extends Design_Area_Menu_Type_Edit_Fns
 				}// end if
 
 				echo '
-				'.$asset->attr('id_name').'_recursive_fn($'.$asset->attr('id_name').'_level, '.$parent_assetid_name.', $'.$asset->attr('id_name').'_data, $'.$asset->attr('id_name').'_base_url);
+				'.$asset->attr('id_name').'_recursive_fn($'.$asset->attr('id_name').'_level, '.$parent_assetid_name.', $GLOBALS[\'MENU_DATA\'], $'.$asset->attr('id_name').'_base_url);
 				?', '>';
 
 				return true;

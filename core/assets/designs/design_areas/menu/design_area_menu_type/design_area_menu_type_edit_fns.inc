@@ -298,7 +298,7 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 				echo '
 
 
-				foreach($'.$asset->attr('id_name').'_data['.$parent_assetid_name.'] as $'.$asset->attr('id_name').'_row) { 
+				foreach($GLOBALS[\'MENU_DATA\']['.$parent_assetid_name.'] as $'.$asset->attr('id_name').'_row) { 
 					$'.$asset->attr('id_name').'_current_setting = ($'.$asset->attr('id_name').'_lineage_assetid == $'.$asset->attr('id_name').'_row[\'assetid\']) ? $'.$asset->attr('id_name').'_lineage_setting : \'normal\';
 #					pre_echo("CURRENT SETTING : ".$'.$asset->attr('id_name').'_current_setting);
 				?', '>';

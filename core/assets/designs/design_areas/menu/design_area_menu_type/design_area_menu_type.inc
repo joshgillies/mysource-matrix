@@ -298,7 +298,7 @@ class Design_Area_Menu_Type extends Design_Area
 
 		echo '
 			$'.$this->attr('id_name').'_settings = '.var_export($this->_getSettingsArray(), true).';
-			if (!empty($'.$this->attr('id_name').'_data['.$parent_assetid_name.'])) {
+			if (!empty($GLOBALS[\'MENU_DATA\']['.$parent_assetid_name.'])) {
 		?', '>';
 		if (!parent::printArea($design)) return false;
 		echo '<', '?php
@@ -335,6 +335,90 @@ class Design_Area_Menu_Type extends Design_Area
 			echo '
 			$db = &$GLOBALS[\'SQ_SYSTEM\']->db;
 			$PAGE_LINEAGE = $am->getLineageFromURL(null, null, \'short_name\');
+
+			require_once SQ_FUDGE_PATH.\'/db_extras/db_extras.inc\';
+
+			$GLOBALS[\'MENU_DATA\'] = Array();
+			function menu_get_assets($majorids) {
+				$majorids = array_diff($majorids, array_keys($GLOBALS[\'MENU_DATA\']));
+				if (empty($majorids)) return;
+
+				static $USERIDS_COND = null;
+				static $STATUS_COND  = null;
+
+				$db = &$GLOBALS[\'SQ_SYSTEM\']->db;
+
+				if (is_null($USERIDS_COND)) {
+					// if they are logged in add their parents to the list
+					if ($GLOBALS[\'SQ_SYSTEM\']->currentUserId()) {
+						$STATUS_COND  = \'\';
+						if ($GLOBALS[\'SQ_SYSTEM\']->userRoot() || $GLOBALS[\'SQ_SYSTEM\']->userSystemAdmin()) {
+							$USERIDS_COND = \'\';
+						} else {
+							$userids = $GLOBALS[\'SQ_SYSTEM\']->user->getParents(\'user_group\', false);
+							array_push($userids, 0, (int) $GLOBALS[\'SQ_SYSTEM\']->user->id);
+							$USERIDS_COND = \'AND p1.userid  IN (\'.implode(\',\', $userids).\')\';
+						}
+					// public users
+					} else {
+						$USERIDS_COND = \'AND p1.userid = 0\';
+						$STATUS_COND  = \'AND (a.status & \'.$db->quote(SQ_STATUS_NOT_LIVE).\') = 0\';
+					}
+				}// endif
+
+				$sql = \'SELECT a.assetid, l.majorid, a.type_code, a.status, a.name, a.short_name, p.path
+						FROM sq_asset a
+							INNER JOIN sq_asset_path p on a.assetid = p.assetid
+							INNER JOIN sq_asset_link l on a.assetid = l.minorid
+						WHERE p.sort_order = 0
+						  AND l.majorid IN (\'.implode(\',\', $majorids).\')
+						  AND l.minorid IN (~SQ0~)
+						  \'.$STATUS_COND.\'
+						  AND (l.link_type & \'.$db->quote(SQ_LINK_FRONTEND_NAV).\') > 0
+						ORDER BY l.majorid, l.sort_order\';
+
+				$concat_1 = ($db->phptype == \'mysql\') ? \'CONCAT(pl1.start_treeid, \'.$db->quote(\'%\').\')\' : \'pl1.start_treeid || \'.$db->quote(\'%\');
+				$concat_2 = ($db->phptype == \'mysql\') ? \'CONCAT(t2.treeid, \'.$db->quote(\'%\').\')\'        : \'t2.treeid || \'.$db->quote(\'%\');
+				$subs = Array(\'SELECT DISTINCT l2.minorid
+								FROM sq_asset_permission_lookup pl1
+										INNER JOIN sq_asset_permission p1 ON pl1.permissionid = p1.permissionid,
+									sq_asset_link l2
+										INNER JOIN sq_asset_link_tree t2 ON l2.linkid = t2.linkid
+								WHERE l2.majorid IN (\'.implode(\',\', $majorids).\')
+								  \'.$USERIDS_COND.\'
+								  AND p1.permission >= \'.$db->quote(SQ_PERMISSION_READ).\'
+								  AND p1.access = \'.$db->quote(\'1\').\'
+								  AND t2.treeid       LIKE \'.$concat_1.\'
+								  AND pl1.stop_treeid LIKE \'.$concat_2.\'
+								  AND pl1.start_treeid <= t2.treeid
+								  AND (
+										t2.treeid < pl1.stop_treeid 
+												OR 
+										(pl1.stop_treeid = t2.treeid AND pl1.inc_stop = \'.$db->quote(\'1\').\')
+									)\'
+								);
+				$sql = db_extras_subquery($db, $sql, $subs);
+				if (DB::isError($sql)) {
+					trigger_error($sql->getMessage().\'<br/>\'.$sql->getUserInfo(), E_USER_ERROR);
+				}
+#pre_echo($sql);
+				$result = $db->query($sql);
+				if (DB::isError($result)) {
+					trigger_error($result->getMessage().\'<br/>\'.$result->getUserInfo(), E_USER_ERROR);
+				}
+				$assetids = Array();
+				while (DB_OK === $result->fetchInto($row)) {
+					$assetids[] = (int) $row[\'assetid\'];
+					if (!isset($GLOBALS[\'MENU_DATA\'][$row[\'majorid\']])) $GLOBALS[\'MENU_DATA\'][$row[\'majorid\']] = Array();
+					$GLOBALS[\'MENU_DATA\'][$row[\'majorid\']][] = $row;
+
+				}
+				$result->free();
+
+				return $assetids;
+
+			}// end menu_get_assets()
+
 			';
 			$GLOBALS['SQ_'.__CLASS__.__FUNCTION__.'_RUN_'.$design->id] = true;
 		}
@@ -344,7 +428,7 @@ class Design_Area_Menu_Type extends Design_Area
 			$sub_menu->printStaticInitOutput($design);
 		}
 
-	} // printStaticInitOutput()
+	}//end printStaticInitOutput()
 
 
 	/**
@@ -365,12 +449,12 @@ class Design_Area_Menu_Type extends Design_Area
 			$sub_menu->printInitOutput($design);
 		}
 
-	} // printInitOutput()
+	}//end printInitOutput()
 
 
 	/**
 	* Outputs the way for this menu type to get their information and place it in the
-	* $'.$this->attr('id_name').'_data array
+	* $GLOBALS['MENU_DATA'] array
 	*
 	* @param object Design	$design the design for which we are currently printing
 	*
@@ -380,17 +464,12 @@ class Design_Area_Menu_Type extends Design_Area
 	{
 		//// SHOULD BE OVERRIDDEN ////
 
-		echo '
-		$'.$this->attr('id_name').'_data = Array();
-		';
-
 		// the _assetids array holds all assetids that the sub level (if any) will printing kids of
 		// if the show_subs is only on_current the asset for the kids level in the page lineage is used
-		if ($this->attr('show_subs') == 'always') {
-			echo '
-		$'.$this->attr('id_name').'_assetids = Array();
+		echo '
+		$'.$this->attr('id_name').'_assetids = Array(); // menu_get_assets(majorids);
+
 		';
-		}// end if
 
 		$sub_menu = &$this->getSubMenu();
 		if (!is_null($sub_menu)) {
