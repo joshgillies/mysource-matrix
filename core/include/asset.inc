@@ -79,7 +79,7 @@ class Asset extends Resolve_Object
 	* @var string
 	*/
 	var $data_path_suffix = '';
-	
+
 	/**
 	* The current data path for this asset
 	* This always points to the restricted directory but may also
@@ -794,7 +794,7 @@ class Asset extends Resolve_Object
 	function load($assetid)
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		
+
 		// OK, the first thing to do is check we actually exist :)
 		$where = 'assetid = '.$db->quote($assetid);
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
@@ -878,14 +878,20 @@ class Asset extends Resolve_Object
 			// PURPOSLY DONT ADD EXTRA CLAUSES FOR ASSET_ATTRIBUTE_VALUE BECAUSE WE WONT GET
 			// DEFAULT VALUES IF WE DO
 			$sql = 'SELECT atr.name, atr.attributeid, atr.type, COALESCE(v.custom_value, atr.default_value) AS value
-					FROM ('.SQ_TABLE_RUNNING_PREFIX.'asset a INNER JOIN '.SQ_TABLE_PREFIX.'asset_attribute atr ON a.type_code = atr.type_code)
-					  LEFT OUTER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_attribute_value v ON atr.attributeid = v.attributeid AND a.assetid = v.assetid '.$where;
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset a
+							INNER JOIN '.SQ_TABLE_PREFIX.'asset_attribute atr ON a.type_code = atr.type_code
+							LEFT OUTER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_attribute_value v 
+								ON (atr.attributeid = v.attributeid AND a.assetid = v.assetid
+									'.$GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('', 'v', 'AND').')
+					'.$where;
 		// else just load all defaults
 		} else {
 			$sql = 'SELECT atr.name, atr.attributeid, atr.type, atr.default_value AS value
 					FROM '.SQ_TABLE_PREFIX.'asset_attribute atr
 					WHERE atr.type_code = '.$GLOBALS['SQ_SYSTEM']->db->quote($this->type());
 		}// end if
+
+#pre_echo($sql);
 
 		$this->vars = $GLOBALS['SQ_SYSTEM']->db->getAssoc($sql, false, Array(), DB_FETCHMODE_ASSOC); // need all this because of DB API
 		if (DB::isError($this->vars)) trigger_error($this->vars->getMessage().'<br/>'.$this->vars->getUserInfo(), E_USER_ERROR);
@@ -1132,7 +1138,7 @@ class Asset extends Resolve_Object
 				return false;
 			}
 
-			$GLOBALS['SQ_SYSTEM']->broadcastEvent('AssetStatusUpdate', 
+			$GLOBALS['SQ_SYSTEM']->broadcastEvent('AssetStatusUpdate',
 												  Array('assetid'    => $this->id,
 														'old_status' => $this->status,
 														'new_status' => $new_status,
@@ -1621,7 +1627,7 @@ class Asset extends Resolve_Object
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		
+
 		$where_cond = 'source_asset = '.$db->quote($current_lock['source_asset']);
 		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_lock', $where_cond)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -1782,13 +1788,13 @@ class Asset extends Resolve_Object
 		$other_side = ($side_of_link == 'major') ? 'minor' : 'major';
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$where = 'l.'.$side_of_link.'id = '.$db->quote($this->id).'
-				  AND l.'.$other_side.'id  = a.assetid
-				  AND l.link_type = '.$db->quote($link_type);
 		$sql = 'SELECT  l.linkid, l.'.$other_side.'id, l.value, l.link_type,
 						a.type_code, l.sort_order, l.dependant, l.exclusive
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link l, '.SQ_TABLE_RUNNING_PREFIX.'asset a ';
-
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link l 
+						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset a ON l.'.$other_side.'id  = a.assetid
+				';
+		$where = 'l.'.$side_of_link.'id = '.$db->quote($this->id).'
+				  AND l.link_type = '.$db->quote($link_type);
 		if (!is_null($exclusive)) $where .= ' AND l.exclusive = '.$db->quote(($exclusive) ? '1' : '0');
 
 		if ($type_code) {
@@ -1871,6 +1877,62 @@ class Asset extends Resolve_Object
 		return $result;
 
 	}//end getLinkById()
+
+
+	/**
+	* Returns information for a link or links that is/are between this asset and the passed
+	*
+	*
+	* @param object Asset	$asset				the asset to find a link to/from (major/minor)
+	* @param int			$link_type			integer that should be a single integer of
+	*											the SQ_LINK_* constants
+	* @param string			$value				the value that is associated with this link
+	* @param string			$side_of_link		Which side of the link this (the current) asset
+	*											is on ('major' or 'minor')
+	* @param boolean		$force_array		force the results to return and array of links
+	*											even if there is only one link
+	*
+	* @return Array()	array of link info if only one link and force_array=false,
+	*                   array of arrays of link info otherwise
+	* @access public
+	*/
+	function getLinkByAsset(&$asset, $link_type=null, $value=null, $side_of_link='major', $force_array=false)
+	{
+		if ($side_of_link != 'major' && $side_of_link != 'minor')
+			trigger_error('Unknown Side of Link "'.$side_of_link.'"', E_USER_ERROR);
+
+		if (!$this->id) return Array();
+
+		$other_side = ($side_of_link == 'major') ? 'minor' : 'major';
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$sql = 'SELECT  l.linkid, l.'.$other_side.'id, l.value, l.link_type,
+						a.type_code, l.sort_order, l.dependant, l.exclusive
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link l
+						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset a ON l.'.$other_side.'id  = a.assetid
+				';
+
+		$where = 'l.'.$side_of_link.'id = '.$db->quote($this->id).'
+				  AND l.'.$other_side.'id  = '.$db->quote($asset->id);
+		if (!is_null($link_type)) $where .= '  AND l.link_type = '.$db->quote($link_type);
+		if (!is_null($value))     $where .= '  AND l.value = '.$db->quote($value);
+
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
+
+		$sql .= $where.'
+				ORDER BY l.sort_order';
+
+		$result = $db->getAll($sql);
+		if (DB::isError($result)) {
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+			return Array();
+		}
+
+		if (!$force_array && count($result) == 1) return $result[0];
+		else return $result;
+
+	}//end getLinkByAsset()
 
 
 	/**
@@ -2041,7 +2103,7 @@ class Asset extends Resolve_Object
 			$where .= ' AND l.linkid <> '.$db->quote($ignore_linkid);
 		}
 
-		
+
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 		$sql = 'SELECT COUNT(*)
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link l'.$extra_table.' '.$where;
@@ -2127,7 +2189,7 @@ class Asset extends Resolve_Object
 					  AND ct.treeid >= pt.treeid
 					  AND pt.linkid IN (~SQ0~)
 					  AND cl.minorid = '.$db->quote($this->id);
-			
+
 			$sub_where = 'minorid = '.$db->quote($minor->id);
 			$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where);
 			$subs = Array('SELECT linkid FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link '.$sub_where);
@@ -2425,7 +2487,7 @@ class Asset extends Resolve_Object
 					$where_cond = 'treeid = '.$db->quote($free_childid);
 				} else {
 					$where_cond = 'treeid IN (~SQ0~)';
-					
+
 					$concat = ($db->phptype == 'mysql')
 								? 'CONCAT(t.treeid, '.$db->quote($free_childid).')'
 								: 't.treeid || '.$db->quote($free_childid);
@@ -2440,7 +2502,7 @@ class Asset extends Resolve_Object
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						return 0;
 					}
-					
+
 				}
 
 				if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_link_tree', $where_cond)) {
@@ -3186,7 +3248,7 @@ class Asset extends Resolve_Object
 
 			if ($count) {
 				// update existing entry
-				$where = '  assetid = '.$db->quote($this->id).' 
+				$where = '  assetid = '.$db->quote($this->id).'
 							AND attributeid = '.$db->quote($attributeid);
 				$values = Array('custom_value' => $db->quote($save_value));
 				if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_attribute_value', $values, $where)) {
@@ -3634,7 +3696,7 @@ class Asset extends Resolve_Object
 		// middle of another currently set permission
 		$concat_1 = ($db->phptype == 'mysql') ? 'CONCAT(pl.start_treeid, '.$db->quote('%').')' : 'pl.start_treeid || '.$db->quote('%');
 		$concat_2 = ($db->phptype == 'mysql') ? 'CONCAT(t.treeid, '.$db->quote('%').')'        : 't.treeid || '.$db->quote('%');
-		
+
 		$where = 'l.minorid = '.$db->quote($this->id).'
 				  AND t.treeid       LIKE '.$concat_1.'
 				  AND pl.stop_treeid LIKE '.$concat_2.'
@@ -4542,7 +4604,7 @@ class Asset extends Resolve_Object
 					for($k = 0; $k < count($paths); $k++) {
 						$new_url = $parent_urls[$j]['url'].'/'.$paths[$k];
 						if (in_array($new_url, $done_urls)) continue;
-						
+
 						$values = Array('url'        => $new_url,
 										'assetid'    => $this->id,
 										'root_urlid' => $parent_urls[$j]['root_urlid'],
