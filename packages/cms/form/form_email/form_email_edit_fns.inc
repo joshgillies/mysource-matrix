@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.46 2005/02/28 09:40:22 mkeehan Exp $
+* $Id: form_email_edit_fns.inc,v 1.47 2005/03/31 06:54:29 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.46 $
+* @version $Revision: 1.47 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -131,7 +131,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		</tr>
 		<?php
 
-		// search in the sub-logs directory for files that fit in the date range
+		// search for form submission assets below us
 		$assetids = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, 'form_submission'));
 		$assetid_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($assetids);
 
@@ -141,6 +141,10 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 				if (($assetid_info[$assetid]['created'] >= $from_value) && ($assetid_info[$assetid]['created'] <= $to_value)) {
 					// time is good, load me up
 					$sub_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+					if (!$sub_asset->attr('complete')) {
+						continue;
+					}
+
 					$sub_user = $assetid_info[$assetid]['created_userid'];
 					$sub_time = $assetid_info[$assetid]['created'];
 
@@ -158,17 +162,18 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 					<td class="sq-backend-table-cell-alt" colspan="2">
 						<?php
 						$valid_user = false;
-						if (!empty($sub_user)) {									
-							$sub_user_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($sub_user);
+						if (!empty($sub_user)) {
+							$sub_user_asset = &$GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($sub_user));
+							$sub_user_asset = reset($sub_user_asset);
 							if (!empty($sub_user_asset)) {
-								echo $sub_user_asset->name . ' (Id: #'.$sub_user.')';
+								echo $sub_user_asset['name'] . ' (Id: #'.$sub_user_asset['assetid'].')';
 								$valid_user = true;
 							}
-						} 
-						
-						if (!$valid_user) { 
+						}
+
+						if (!$valid_user || ($sub_user_asset['type_code'] == 'public_user')) {
 							?><i>No logged in user</i><?php
-						} 
+						}
 						?>
 					</td>
 					<td class="sq-backend-table-cell-alt">
@@ -186,7 +191,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 					if (!empty($elements)) {
 						foreach ($elements as $element) {
 							$i++;
-	
+
 							if ($i % 2 == 1) { ?>
 								<td class="sq-backend-table-cell">&nbsp;</td>
 							<?php }
@@ -203,7 +208,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 						<?php }
 						}	//end-if sub_expanded
 					}
-					
+
 					?></tr><?php
 	/*
 					$kids =& $root->children;
@@ -306,8 +311,8 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$to->printField();
 
 		$o->closeField();
-		
-		
+
+
 
 		$o->openField('Format');
 
@@ -315,17 +320,17 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 						 'csv' => 'Delimited List',
 						 'csv_nhr' => 'Delimited List - No Header Row',
 						 'xml' => 'XML Format');
-		
-		
-		
+
+
+
 		echo combo_box($prefix.'_export_format', $options, false, '');
 		echo hidden_field($prefix.'_export_switch', '0');
-		
+
 		$delimiter_text = ',';
 		echo ' &nbsp; Delimiter &nbsp;';
 		echo text_box($prefix.'_delimiter',$delimiter_text,1,1,true);
 		echo ' </p>';
-		
+
 		$o->closeField();
 
 		// explanation for onClick for the Download button, there is some trickery involved here >:)
@@ -484,7 +489,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 			closedir($handle);
 			}//end if handle opened
 		}//end if directory exists
-		
+
 
 		if ($header_row) {
 			$csv->setFieldHeaders($headers);
