@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.69 2004/06/18 13:56:13 brobertson Exp $
+* $Id: user.inc,v 1.70 2004/06/29 05:08:55 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -302,6 +302,45 @@ class User extends Asset
 		return true;
 
 	}//end canLogin()
+
+	
+	/**
+	* Returns the link to the workspace
+	*
+	* @return Array
+	* @access public
+	*/
+	function getWorkspaceLink()
+	{
+		return $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'workspace');
+		
+	}//end getWorkspaceLink()
+	
+	
+	/**
+	* Returns this user's Workspace
+	*
+	* @return &object Asset the user's workspace
+	* @access public
+	*/
+	function &getWorkspace()
+	{
+		$null = null;
+		$link = $this->getWorkspaceLink();
+		
+		if (empty($link)) {
+			trigger_error('User '.$this->name.' does not have a workspace', E_USER_WARNING);
+			return $null;
+		}
+		
+		$workspace = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid']);
+		if (is_null($workspace)) {
+			trigger_error('User '.$this->name.' does not have a workspace', E_USER_WARNING);
+			return $null;
+		}
+		return $workspace;
+		
+	}//end getWorkspace()
 
 
 	/**
