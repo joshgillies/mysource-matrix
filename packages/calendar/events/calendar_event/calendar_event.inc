@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.8 2004/07/22 06:47:18 lwright Exp $
+* $Id: calendar_event.inc,v 1.9 2004/07/23 07:09:45 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH . '/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.8 $ - 1.0
+* @version $Revision: 1.9 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -136,14 +136,14 @@ class Calendar_Event extends Asset
 		$end_date   = $this->attr('end_date');
 
 		// work out if we have any 'null date' or 'null time' sections
-		$start_has_time = (strpos($start_date, '--:--:--', 11) === false);
-		$end_has_time   = (strpos($end_date, '--:--:--', 11) === false);
-		$start_has_date = (strpos($start_date, '----------') === false);
-		$end_has_date   = (strpos($end_date, '----------') === false);
+		$start_has_time = $this->getStartTime();
+		$end_has_time   = $this->getEndTime();
+		$start_has_date = $this->getStartDate();
+		$end_has_date   = $this->getEndDate();
 
 		// All events must have a starting date at least!
 		if (!$start_has_date) {
-			trigger_error('Calendar events must at a minimum include the date component of a Start Date', E_USER_WARNING);
+			trigger_error('Calendar Events must at least have a start date', E_USER_WARNING);
 			return false;
 		}
 
@@ -164,7 +164,6 @@ class Calendar_Event extends Asset
 			trigger_error('You have specified an end date and a start time but no end time.  Please specify an end time.', E_USER_WARNING);
 			return false;
 		}
-
 
 		// If an End Date is specified (and we need date component so we can use that to check),
 		// the End Date must be no earlier than the start Date
@@ -209,6 +208,33 @@ class Calendar_Event extends Asset
 	}//end saveAttributes()
 	
 
+	function getStartDate() 
+	{
+		$res = substr($this->attr('start_date'), 0, 10);
+		return ($res == '----------') ? false : $res;	
+	}
+
+
+	function getEndDate() 
+	{
+		$res = substr($this->attr('end_date'), 0, 10);
+		return ($res == '----------') ? false : $res;	
+	}
+
+
+	function getStartTime() 
+	{
+		$res = substr($this->attr('start_date'), 11);
+		return ($res == '--:--:--') ? false : $res;
+	}
+
+
+	function getEndTime() 
+	{
+		$res = substr($this->attr('end_date'), 11);
+		return ($res == '--:--:--') ? false : $res;
+	}
+
 	/**
 	* Returns the duration between the start and end dates, if they are set
 	*
@@ -230,10 +256,10 @@ class Calendar_Event extends Asset
 		$end_date   = $this->attr('end_date');
 
 		// work out if we have any 'null date' or 'null time' sections
-		$start_has_time = (strpos($start_date, '--:--:--', 11) === false);
-		$end_has_time   = (strpos($end_date, '--:--:--', 11) === false);
-		$start_has_date = (strpos($start_date, '----------') === false);
-		$end_has_date   = (strpos($end_date, '----------') === false);
+		$start_has_time = $this->getStartTime();
+		$end_has_time   = $this->getEndTime();
+		$start_has_date = $this->getStartDate();
+		$end_has_date   = $this->getEndDate();
 
 		if (!$start_has_date) return null;
 
