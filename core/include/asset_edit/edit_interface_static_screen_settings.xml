@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_static_screen_settings.xml,v 1.12 2004/09/14 00:49:39 mmcintyre Exp $
+* $Id: edit_interface_static_screen_settings.xml,v 1.12.6.1 2005/01/16 22:20:41 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -60,12 +60,6 @@
 		</field>
 		<field code="intl_character_set">
 			<display_name>Character Set</display_name>
-			<note />
-		</field>
-	</section>
-	<section name="Morphing">
-		<field code="morph_new_type">
-			<display_name>New Type</display_name>
 			<note />
 		</field>
 	</section>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_static_screen_settings.xml,v 1.12.2.1 2004/12/07 05:54:08 gsherwood Exp $
+* $Id: edit_interface_static_screen_settings.xml,v 1.12.2.2 2005/01/16 22:20:40 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -52,11 +52,5 @@
 	</section>
 	<section name="Designs">
 		<field code="designs" />
-	</section>
-	<section name="Morphing">
-		<field code="morph_new_type">
-			<display_name>New Type</display_name>
-			<note />
-		</field>
 	</section>
 </contents>
