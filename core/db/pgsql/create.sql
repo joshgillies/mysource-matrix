@@ -119,6 +119,7 @@ CREATE TABLE sq_asset_lookup (
   assetid         INT NOT NULL,
   root_urlid      SMALLINT NOT NULL,
   designid        INT NOT NULL DEFAULT 0,
+  login_designid  INT NOT NULL DEFAULT 0,
   PRIMARY KEY  (url)
 );
 
