@@ -1,0 +1,187 @@
+
+  /******************************************************
+  * This script supports the dragging of elements into  *
+  * or between cells of a table.                        *
+  *                                                     *
+  * It requires one or more draggable elements,         *
+  * looking something like this:                        *
+  *     <div style="position: absolute"                 *
+  *          onmousedown="startDragging(this)"          *
+  *          onmouseup="stopDragging(this)">            *
+  * and a table to drag them into, looking something    *
+  * like this:                                          *
+  *     <table id="destinations">                       *
+  *                                                     *
+  * If you want you can define 2 optional functions     *
+  *   confirmDrag(movingElt, newCell) - returns bool	*
+  *   onDragFinish(movingElt, newCell)                  *
+  * which will be called at the appropriate times       *
+  *                                                     *
+  * The script works in IE5+ and Mozilla,               *
+  * possibly in other DOM browsers                      *
+  *                                                     *
+  * @author Tom Barrett <tbarrett@squiz.net>            *
+  ******************************************************/
+
+
+  /* The ID of the destination table */
+  var destinationTableId = 'destinations';
+
+  /* The offset of the mouse pointer from the top left of the moving elt on mouse down */
+  var mouseOffset = null;
+
+  /* The event that's moving */
+  var movingEvent = null;
+
+  /* The element it was originally linked under */
+  var originalParent = null;
+
+
+  /**
+  * Start dragging the specified element
+  *
+  * @param Object   elt   The element to drag
+  * @return void
+  */
+  function startDragging(elt) 
+  {
+    movingElt = elt;
+	originalParent = elt.parentNode;
+    mouseOffset = null;   
+	  document.body.style.cursor='move';
+    document.onmousemove = moveElt;
+	document.onmouseup = stopDragging;
+  
+  }//end startDragging()
+
+
+  /**
+  * Drop the specified element into the table cell its top left corner is in, if there is one
+  *
+  * @param  Object    elt   The element that's being dragged
+  * @return void
+  */
+  function stopDragging() 
+  {
+	if (movingElt == null) return;
+	document.body.style.cursor='';
+	document.onmousemove = null;
+	var newCell = getDestCell(movingElt);
+	if ((newCell != originalParent) && (newCell != null) && ((typeof confirmDrag == "undefined") || confirmDrag(movingElt, newCell))) {
+	   movingElt.parentNode.removeChild(movingElt);
+	   if (newCell.firstChild != null) newCell.insertBefore(movingElt, newCell.firstChild);
+	   else newCell.appendChild(movingElt);
+	   if (typeof onDragFinish != "undefined") onDragFinish(movingElt, newCell);
+	}
+	movingElt.style.left = '';
+	movingElt.style.top = '';
+	movingElt = null;
+  
+  }//end stopDragging()
+
+
+  /**
+  * Adjust the position of the current movingElt as the mouse moves 
+  * 
+  * @param Object e The mouseEvent object (gecko only)
+  * @return void
+  */
+  function moveElt(e) 
+  {
+    var mousePosition = getMousePosition(e);
+    if (mouseOffset == null) {
+        // we are just starting to drag, so figure out the offset
+        eltPos = getEltPosition(movingElt);
+        mouseOffset = {x:(mousePosition.x - eltPos.x), y:(mousePosition.y - eltPos.y)};
+    } else {
+        movingElt.style.left = (mousePosition.x - mouseOffset.x) + "px";
+        movingElt.style.top = (mousePosition.y - mouseOffset.y) + "px";
+    }
+
+  }//end moveElt()
+
+  
+  /**
+  * Get the cell of the destination table that the specified element's top left corner is in
+  *
+  * @param  Object    elt   The element being dragged
+  * @return Object    The cell its top left corner is in
+  */
+  function getDestCell(elt) 
+  {
+    var eltPos = getEltPosition(elt);
+    var destTable = document.getElementById(destinationTableId);
+	if (destTable == null) {
+		alert('Couldn\'t find destination table '+destinationTableId);
+		return null;
+	}
+    // get rid of moz's text nodes
+    while (destTable.firstChild.nodeName == '#text') destTable.removeChild(destTable.firstChild);
+    var row = destTable.firstChild.firstChild;
+    while (row != null) {
+      if (row.nodeName == 'TR') {
+        var rowPos = getEltPosition(row);
+        if ((rowPos.y <= eltPos.y) && (eltPos.y - rowPos.y < row.offsetHeight)) {
+           break;
+        }
+      }
+      row = row.nextSibling;
+    } 
+    if (row != null) {
+       var col = row.firstChild;
+       while (col != null) {
+       if (col.nodeName == 'TD') {
+            var colPos = getEltPosition(col);
+            if ((colPos.x <= eltPos.x) && (eltPos.x - colPos.x < col.offsetWidth)) {
+                break;
+            }
+         }
+         col = col.nextSibling;
+       }
+       if (col != null) {
+          return col;
+       }
+    }
+    return null;
+
+  }//end getDestCell()
+
+
+  /**
+  * Get the absolute co-ordinates of an element
+  *
+  * @param Object   elt   The element to find the position of
+  * @return Array   The co-ordinates (x=>123, y=>456)
+  */
+  function getEltPosition(elt) 
+  {
+    var posX = 0;
+    var posY = 0;
+    while (elt != null) {
+       posX += elt.offsetLeft;
+       posY += elt.offsetTop;
+       elt = elt.offsetParent;
+    }
+    return {x:posX,y:posY};
+
+  }//end getEltPosition()
+
+
+  /**
+  * Get the co-ordinates of the mouse pointer
+  *
+  * @param Object   e   The mousemove event (gecko only)
+  * @return Array   The co-ordinates (x=>123, y=>456)
+  */
+  function getMousePosition(e) 
+  {
+    if (typeof e != "undefined") {
+      // gecko
+      return {x:e.pageX, y:e.pageY};
+    } else if (typeof window.event != "undefined") {
+      // ie
+      var trueBody = (!window.opera && document.compatMode && document.compatMode!="BackCompat")? document.documentElement : document.body;
+      return {x:(trueBody.scrollLeft+window.event.clientX), y:(trueBody.scrollTop+window.event.clientY)};
+    }
+
+  }//end getMousePosition()
