@@ -263,9 +263,10 @@ class Asset_Edit_Interface extends Resolve_Object
 		}//end switch
 
 		
-		
-		$o->openSection();
-		$o->commitButton('Commit');
+		if ($owner->writeAccess()) {
+			$o->openSection();
+			$o->commitButton('Commit');
+		}
 
 	}// end paint();
 
