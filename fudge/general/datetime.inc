@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime.inc,v 1.27 2004/08/27 07:02:48 lwright Exp $
+* $Id: datetime.inc,v 1.28 2004/08/30 02:14:55 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -382,9 +382,8 @@ function increment_month(&$month, &$year, $months_to_add=1)
 */
 function increment_iso_by_days($iso, $days_to_add=1) 
 {
-	print "--".$iso."--";
-	list($year,$month,$day) = explode('-', $iso);
-	increment_date($year, $month, $day, $days_to_add);
+	list($year,$month,$day) = sscanf($iso, '%04d-%02d-%02d');
+	increment_date($day, $month, $year, $days_to_add);
 	return sprintf('%04d-%02d-%02d', $year, $month, $day);
 	
 }//end increment_iso_by_days()
@@ -461,6 +460,32 @@ function decrement_month(&$month, &$year, $months_to_sub=1)
 	}
 	
 }//end decrement_month()
+
+
+/**
+* Returns the difference between two ISO dates in whole days
+*
+* The dates passed must be of the standard ISO format (ie. YYYY-MM-DD, YYYY-MM-DD HH:MM:SS
+* etc), and only the date components (ie. YYYY-MM-DD) will be used in the calculation.
+*
+* Order of arguments is important; if $higher < $lower than the result of this function
+* will be negative. 
+*
+* @param string	$higher	the higher/later ISO date
+* @param string $lower	the lower/earlier ISO date
+*
+* @return int the number of days between the two dates
+* @access public
+*/
+function days_between_isos($higher, $lower)
+{
+	$higher_ts = iso8601_ts(substr($higher,0,10));
+	$lower_ts  = iso8601_ts(substr($lower,0,10));
+	
+	// using round() to remove any one-hour 
+	return round(($higher_ts - $lower_ts) / 86400);
+	
+}//end days_between_isos()
 
 
 /**
