@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_edit_fns.inc,v 1.15 2004/08/31 11:33:51 brobertson Exp $
+* $Id: bodycopy_container_edit_fns.inc,v 1.16 2004/09/08 11:48:17 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -621,14 +621,18 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 		<?php
 
 		return true;
-	}//end paintBodycopyDiv
+
+	}//end paintBodycopyContainer()
 	
 	
 	/**
 	* When this bodycopy_container is painted on its own without being a part
 	* of the 'contents' of a bodycopy, process it separately than normal.
 	* 
-	* @param
+	* @param object BodyCopy_Container	&$asset		the container whose interface we are painting
+	* @param object	Backend_Outputter	$o			the outputter class
+	* @param string						$prefix		prefix for the form element
+	*
 	* @return void
 	* @access public
 	*/
@@ -659,7 +663,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 		}
 		return $updated;
 		
-	}//end paintBodycopyDiv
+	}//end processBodycopyContainer
 	
 
 }//end class
