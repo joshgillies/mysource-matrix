@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit_div_props.php,v 1.8 2004/06/30 05:50:08 lwright Exp $
+* $Id: edit_div_props.php,v 1.9 2004/08/31 11:33:51 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -67,16 +67,19 @@ include(dirname(__FILE__)."/header.php");
 				i++;
 			}
 		}
+
 		owner.highlight_combo_value(f.content_type, data["content_type"]);
+		f.disable_keywords.checked = (data["disable_keywords"] == "1");
 
 	}// end popup_init()
 
 	function popup_save(f) {
 		var data = new Object();
-		data["identifier"]   = owner.form_element_value(f.identifier);
-		data["css_class"]    = owner.form_element_value(f.css_class);
-		data["layout_type"]  = owner.form_element_value(f.layout_type);
-		data["content_type"] = owner.form_element_value(f.content_type);
+		data["identifier"]       = owner.form_element_value(f.identifier);
+		data["css_class"]        = owner.form_element_value(f.css_class);
+		data["layout_type"]      = owner.form_element_value(f.layout_type);
+		data["content_type"]     = owner.form_element_value(f.content_type);
+		data["disable_keywords"] = owner.form_element_value(f.disable_keywords);
 		owner.bodycopy_save_div_properties(data);
 	}
 
@@ -143,6 +146,10 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 						<option value="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</option>
 					</select>
 					</td>
+				</tr>
+				<tr>
+					<td class="label">Disable Keywords:</td>
+					<td><input type="checkbox" name="disable_keywords" value="1"></td>
 				</tr>
 			</table>
 			</fieldset>

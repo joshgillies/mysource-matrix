@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_edit_fns.inc,v 1.14 2004/08/19 22:28:55 gsherwood Exp $
+* $Id: bodycopy_container_edit_fns.inc,v 1.15 2004/08/31 11:33:51 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -271,7 +271,8 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 
 		}
 
-		if (!empty($keywords)) {
+		$attributes = $asset->attr('attributes');
+		if (empty($attributes['disable_keywords']) && !empty($keywords)) {
 			foreach ($keywords as $keyword) {
 				$output = preg_replace('|%((<([^>]+?)>)+)?'.$keyword.'((<([^>]+?)>)+)?%|', '\\1<'.'?php echo (isset($keyword_replacements["'.$keyword.'"])) ? $keyword_replacements["'.$keyword.'"] : ""; ?'.'>\\4', $output);
 			}
@@ -653,7 +654,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 		
 		unset($containers);
 			
-		if ($this->processContainer($asset, $o, $prefix,$bc_action, $bc_name, $bc_data, $bc_saved)) {
+		if ($this->processContainer($asset, $o, $prefix, $bc_action, $bc_name, $bc_data, $bc_saved)) {
 			if ($asset->saveAttributes()) $updated = true;
 		}
 		return $updated;

@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit_table_props.php,v 1.5 2004/06/30 05:50:08 lwright Exp $
+* $Id: edit_table_props.php,v 1.6 2004/08/31 11:33:51 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -60,20 +60,23 @@ include(dirname(__FILE__)."/header.php");
 		f.tableid.value = owner.bodycopy_current_edit["data"]["tableid"];
 		f.bodycopy_name.value = owner.bodycopy_current_edit["bodycopy_name"];
 
+		f.disable_keywords.checked = (data["disable_keywords"] == "1");
+
 	}// end popup_init()
 
 	function popup_save(f) {
 		var data = new Object();
-		data["identifier"]		= owner.form_element_value(f.identifier);
-		data["width"]			= owner.form_element_value(f.width);
-		data["height"]			= owner.form_element_value(f.height);
-		data["bgcolor"]			= owner.form_element_value(f.bgcolor);
+		data["identifier"]		 = owner.form_element_value(f.identifier);
+		data["width"]			 = owner.form_element_value(f.width);
+		data["height"]			 = owner.form_element_value(f.height);
+		data["bgcolor"]			 = owner.form_element_value(f.bgcolor);
 		//data["background"]		= owner.form_element_value(f.background);
-		data["background"]		= '';
-		data["align"]			= owner.form_element_value(f.align);
-		data["border"]			= owner.form_element_value(f.border);
-		data["cellspacing"]		= owner.form_element_value(f.cellspacing);
-		data["cellpadding"]		= owner.form_element_value(f.cellpadding);
+		data["background"]		 = '';
+		data["align"]			 = owner.form_element_value(f.align);
+		data["border"]			 = owner.form_element_value(f.border);
+		data["cellspacing"]		 = owner.form_element_value(f.cellspacing);
+		data["cellpadding"]		 = owner.form_element_value(f.cellpadding);
+		data["disable_keywords"] = owner.form_element_value(f.disable_keywords);
 		owner.bodycopy_save_table_properties(data);
 	}
 
@@ -192,7 +195,7 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 		<td width="100%">
 			<fieldset>
 			<legend><b>Table Styles / Colours</b></legend>
-				<table width="100%">
+				<table>
 					<tr>
 						<td class="label">Background Colour:</td>
 						<td><?php colour_box('bgcolor', '', true, '*',true, false, false);?></td>
@@ -219,6 +222,19 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 							<option value="10">10
 						</select>
 						</td>
+					</tr>
+				</table>
+			</fieldset>
+		</td>
+	</tr>
+	<tr>
+		<td width="100%">
+			<fieldset>
+			<legend><b>Keywords</b></legend>
+				<table>
+					<tr>
+						<td class="label">Disable Keywords:</td>
+						<td><input type="checkbox" name="disable_keywords" value="1"></td>
 					</tr>
 				</table>
 			</fieldset>

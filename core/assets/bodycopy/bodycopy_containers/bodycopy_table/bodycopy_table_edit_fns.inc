@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_table_edit_fns.inc,v 1.12 2004/08/31 11:04:06 brobertson Exp $
+* $Id: bodycopy_table_edit_fns.inc,v 1.13 2004/08/31 11:33:51 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -263,6 +263,7 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		for (reset($table_attributes); $name = key($table_attributes); next($table_attributes)) {
 			$val = $table_attributes[$name];
 			if ($val == '') continue;
+			if ($name == 'disable_keywords') continue;
 			if ($name == 'background') {
 				$file = &$GLOBALS['SQ_SYSTEM']->am->getAsset($val);
 				if ($file->id) $bgimage = $file->getURL();
