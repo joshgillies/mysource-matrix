@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager_management.inc,v 1.10 2004/07/28 01:47:19 lwright Exp $
+* $Id: page_account_manager_management.inc,v 1.11 2004/07/28 01:48:06 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -157,18 +157,18 @@ class Page_Account_Manager_Management extends Asset_Management
 					return false;
 				}
 
-				$create_type = $asset->attr('create_type');
-				$create_type = Array($create_type => true);
+				$old_create_type = $asset->attr('create_type');
+				$create_type = Array($old_create_type => true);
 								
 				$asset->setAttrValue('create_type', $create_type);
 				
 				$create_locs = $asset->attr('create_location_rules');
-				$create_locs = Array($create_type => $create_locs);
+				$create_locs = Array($old_create_type => $create_locs);
 								
 				$asset->setAttrValue('create_location_rules', $create_locs);
 				
 				$required_fields = $asset->attr('required_fields');
-				$required_fields = Array($create_type => $required_fields);
+				$required_fields = Array($old_create_type => $required_fields);
 								
 				$asset->setAttrValue('required_fields', $required_fields);
 				if (!$asset->saveAttributes()) { 

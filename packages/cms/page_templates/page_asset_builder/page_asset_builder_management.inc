@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_management.inc,v 1.8 2004/07/28 01:47:19 lwright Exp $
+* $Id: page_asset_builder_management.inc,v 1.9 2004/07/28 01:48:06 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -239,12 +239,12 @@ class Page_Asset_Builder_Management extends Asset_Management
 				$asset->setAttrValue('create_type', $create_type);
 				
 				$create_locs = $asset->attr('create_location_rules');
-				$create_locs = Array($create_type => $create_locs);
+				$create_locs = Array($old_create_type => $create_locs);
 								
 				$asset->setAttrValue('create_location_rules', $create_locs);
 				
 				$required_fields = $asset->attr('required_fields');
-				$required_fields = Array($create_type => $required_fields);
+				$required_fields = Array($old_create_type => $required_fields);
 								
 				$asset->setAttrValue('required_fields', $required_fields);
 				if (!$asset->saveAttributes()) { 
