@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.4 2004/09/06 23:09:14 arailean Exp $
+* $Id: edit_interface_screen_details.xml,v 1.5 2004/10/20 07:42:24 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -46,7 +46,7 @@
 
 		<field attribute="remote_url">
 			<display_name>Remote URL</display_name>
-			<note>This is the URL to grab the contents from. This is most likely a webpage, but will work for FTP or news as well.</note>
+			<note>This is the URL to grab the contents from. This only works for a webpage. Please supply the a complete URL, together with protocol, i.e. http://www.this.com</note>
 			<text width="80" height="1" />
 		</field>
 
