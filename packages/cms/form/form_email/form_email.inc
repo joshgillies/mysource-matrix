@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email.inc,v 1.11 2004/04/23 07:28:07 lwright Exp $
+* $Id: form_email.inc,v 1.12 2004/05/05 06:55:15 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -40,6 +40,7 @@ require_once SQ_FUDGE_PATH .'/general/www.inc';
 class Form_Email extends Form
 {
 
+
 	/**
 	* Constructor
 	*
@@ -50,7 +51,7 @@ class Form_Email extends Form
 	{
 		$this->Form($assetid);
 	
-	} // end Form_Email()
+	}//end Form_Email()
 
 
 	/**
@@ -75,7 +76,7 @@ class Form_Email extends Form
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return $linkid;
 
-	} // end create()
+	}//end create()
 
 
 	/**
@@ -90,7 +91,7 @@ class Form_Email extends Form
 	{
 		return $this->attr('name');
 	
-	}// end _getName();
+	}//end _getName();
 
 
 	/**
@@ -108,7 +109,7 @@ class Form_Email extends Form
 
 		return true;
 
-	} // end finishForm()
+	}//end finishForm()
 
 
 	/**
@@ -133,7 +134,7 @@ class Form_Email extends Form
 		$information .= ($html) ? "</table>" : '';
 		return $information;
 
-	} // end getFormInfo
+	}//end getFormInfo()
 
 
 	/**
@@ -164,7 +165,7 @@ class Form_Email extends Form
 
 		return true;
 
-	} // end mailReceipt()
+	}//end mailReceipt()
 
 
 	/**
@@ -224,7 +225,7 @@ class Form_Email extends Form
 		
 		return true;
 
-	} // end mailRecipients()
+	}//end mailRecipients()
 
 
 	/**
@@ -252,7 +253,8 @@ class Form_Email extends Form
 		}
 		return false;
 	
-	} // end sendToFriends()
+	}//end sendToFriends()
+
 
 }//end class
 ?>
