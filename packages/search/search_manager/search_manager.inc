@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.42 2005/02/13 23:20:54 lwright Exp $
+* $Id: search_manager.inc,v 1.43 2005/02/14 23:38:57 lwright Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -614,15 +614,18 @@ class Search_Manager extends Asset
 		// we need the cache manager to cache the results of queries
 		$cm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 
-
+		// if searching is set by attribute then don't search in here - let
+		// other assets (ie. listing engine-derived assets) to handle it
+		if (isset($search_info['sort_by']) && $search_info['sort_by'] == '__attr__') $search_info['sort_by'] = '';
+		
 		  ///////////////////////////////////
 		 //  CONSTRUCT BASE SEARCH QUERY  //
 		///////////////////////////////////
 		$start_sql_array = $this->constructBaseSearchQuery($search_info);
 		$start_sql = implode(' ', $start_sql_array);
 		$group_by =  'GROUP BY ai.assetid';
-		if (isset($search_info['sort_by']) && $search_info['sort_by']) $group_by .= ', sort_by';
-
+		if (!empty($search_info['sort_by'])) $group_by .= ', sort_by';
+		
 
 		  ///////////////////////////////
 		 //  SEARCH ASSET ATTRIBUTES  //
@@ -645,7 +648,6 @@ class Search_Manager extends Asset
 						$where = '';
 						if ($from != '---------- --:--:--') $where .= ' AND ai.value >= '.$db->quote($from);
 						if ($to != '---------- --:--:--') $where .= ' AND ai.value <= '.$db->quote($to);
-						if (empty($where)) continue;
 						if (empty($where)) continue;
 
 						$result = $cm->loadFromCache($this, $search_cache_key.'asset_attrib'.$from.'_'.$to);
@@ -964,16 +966,33 @@ class Search_Manager extends Asset
 		}
 
 		if (!empty($search_info['search_types'])) {
+			$inherited_types = Array();
+			$normal_types = Array();
 			for (reset($search_info['search_types']); NULL !== ($i = key($search_info['search_types'])); next($search_info['search_types'])) {
-				$search_info['search_types'][$i] = $db->quote($search_info['search_types'][$i]);
+				if ($search_info['search_types'][$i]) {
+					$inherited_types[] = $db->quote($i);
+				} else {
+					$normal_types[] = $db->quote($i);
+				}
 			}
-			$type_code_cond = 'IN ('.implode(', ', $search_info['search_types']).')';
+			
+			$type_code_cond = Array();
+			
+			if (!empty($inherited_types)) {				
+				$type_code_cond[] = 'inhd_type_code IN ('.implode(', ', $inherited_types).')';
+			}
+			
+			if (!empty($normal_types)) {				
+				$type_code_cond[] = 'type_code IN ('.implode(', ', $normal_types).')';
+			}
+			
+			$type_code_cond = implode(' OR ', $type_code_cond);
 
 
 			$search_sql .= ' AND a.type_code IN (
 												SELECT type_code
 												FROM '.SQ_TABLE_PREFIX.'ast_typ_inhd
-												WHERE inhd_type_code '.$type_code_cond.'
+												WHERE '.$type_code_cond.'
 												)';
 		}
 
@@ -1181,15 +1200,32 @@ class Search_Manager extends Asset
 		}
 
 		if (!empty($search_info['search_types'])) {
+			$inherited_types = Array();
+			$normal_types = Array();
 			for (reset($search_info['search_types']); NULL !== ($i = key($search_info['search_types'])); next($search_info['search_types'])) {
-				$search_info['search_types'][$i] = $db->quote($search_info['search_types'][$i]);
+				if ($search_info['search_types'][$i]) {
+					$inherited_types[] = $db->quote($i);
+				} else {
+					$normal_types[] = $db->quote($i);
+				}
 			}
-			$type_code_cond = 'IN ('.implode(', ', $search_info['search_types']).')';
+			
+			$type_code_cond = Array();
+			
+			if (!empty($inherited_types)) {				
+				$type_code_cond[] = 'inhd_type_code IN ('.implode(', ', $inherited_types).')';
+			}
+			
+			if (!empty($normal_types)) {				
+				$type_code_cond[] = 'type_code IN ('.implode(', ', $normal_types).')';
+			}
+			
+			$type_code_cond = implode(' OR ', $type_code_cond);
 
 			$sql['where'] .= ' AND a.type_code IN (
 													SELECT type_code
 													FROM '.SQ_TABLE_PREFIX.'ast_typ_inhd
-													WHERE inhd_type_code '.$type_code_cond.'
+													WHERE '.$type_code_cond.'
 													)';
 		}
 
