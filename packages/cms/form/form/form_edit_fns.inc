@@ -55,7 +55,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 			$href = $s->getBackendHref('contents');
 			?>
 			<a href="<?php echo $href?>"><?php echo $s->_getName() ?></a><BR />
-			<?
+			<?php
 		}		
 		
 		return true;
@@ -134,14 +134,34 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 	} // end processAddSections
 
 
+	/**
+	* paint the current submissions for this form
+	*
+	* @param &object $asset the form asset
+	*
+	* @return boolean
+	* @access public
+	*/
 	function paintSubmissions(&$asset)
 	{
-		$asset->getLinks();
-	}
+		return true;
 
+	} // end paintSubmissions()
+
+
+	/**
+	* process the current submissions for this form
+	*
+	* @param &object $asset the form asset
+	*
+	* @return boolean
+	* @access public
+	*/
 	function processSubmissions(&$asset)
 	{
-	}
+		return true;
+
+	} // end processSubmissions()
 
 
 	/**
@@ -159,6 +179,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 		$bodycopy = &$am->getAsset($bodycopy_link['minorid'], $bodycopy_link['type_code']);
 
 		return ($bodycopy) ? $bodycopy : false;
+
 	} // getFormBodycopy
 
 
@@ -313,6 +334,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 			return $output;
 		} 
 		return '';
+
 	} // processSectionReplacements()
 
 	
@@ -350,6 +372,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 			return $output;
 		} // end if			
 		return '';
+
 	} // processQuestionReplacements()
 
 
@@ -379,6 +402,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 		}
 
 		return $output;
+
 	} // processButtonReplacements()
 
 } // end class
