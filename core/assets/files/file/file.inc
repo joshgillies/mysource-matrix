@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.66 2004/07/22 00:08:17 lwright Exp $
+* $Id: file.inc,v 1.67 2004/07/23 07:16:51 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -313,10 +313,10 @@ class File extends Asset
 	function _getAllowedLinks()
 	{
 		return Array(SQ_LINK_TYPE_1 => Array(),
-					 SQ_LINK_TYPE_2 => Array(),
-					 SQ_LINK_TYPE_3 => Array('thumbnail' => Array('card' => 1, 'exclusive' => false)),
-					 SQ_LINK_NOTICE => Array()
-					);
+			     SQ_LINK_TYPE_2 => Array(),
+		   	     SQ_LINK_TYPE_3 => Array(),
+			     SQ_LINK_NOTICE => Array('thumbnail' => Array('card' => 1, 'exclusive' => false))
+			);
 
 	}//end _getAllowedLinks()
 
