@@ -181,7 +181,7 @@ class Workflow_Manager extends Resolve_Object
 			return false;
 		}
 
-		if (!$asset->adminAccess()) {
+		if (!$asset->adminAccess(Array(), true, false)) {
 			trigger_error('Cannot delete workflow schema for "'.$asset->name.'", permission denied', E_USER_WARNING);
 			return false;
 		}
