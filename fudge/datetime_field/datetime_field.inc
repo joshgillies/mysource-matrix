@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime_field.inc,v 1.23 2004/10/06 02:12:46 lwright Exp $
+* $Id: datetime_field.inc,v 1.24 2004/10/12 23:05:45 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -586,9 +586,9 @@ class DateTime_Field {
 		}
 
 		// DO CIRCA STUFF HERE ON DOWN
-		$validate_day_month = $value['y'] >= 1970 && $value['y'] < 2038 && $value['m'] >= 0 && $value['d'] >= 0; // PHP limit
+		$validate_day_month = ($value['y'] >= 1970) && ($value['y'] < 2038) && ($value['m'] >= 0) && ($value['d'] >= 0); // PHP limit
 		$value = $this->unitsArrayToStr($value);
-		
+
 		// ensures valid
 		if ($validate_day_month) {
 			$timestamp = mktime(
