@@ -137,17 +137,15 @@ class Asset_Status_Live_Approval extends Asset_Status
 
 				// send an internal message
 				$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-				$ms->openQueue();
 				$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
 
-				$message = $ms->newMessage();
-				$message->subject = 'Asset Review Cancelled';
-				$message->body = 'User "'.$user->name.'" has started a safe edit of '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name').' "'.$this->owner->name.'" during a review. The review has been cancelled and the status of "'.$this->owner->name.'" is now '.get_status_description($new_status);
-				$message->to = $GLOBALS['SQ_SYSTEM']->am->getPermission($this->owner->id, SQ_PERMISSION_ADMIN, true, false);
-				$message->from = 0; // a system message
-				$ms->enqueueMessage($message);
-
-				$ms->closeQueue();
+				$log = $ms->newMessage();
+				$log->subject = 'Asset Review Cancelled';
+				$log->body    = 'User "'.$user->name.'" has started a safe edit of '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name').' "'.$this->owner->name.'" during a review. The review has been cancelled and the status of "'.$this->owner->name.'" is now '.get_status_description($new_status);
+				$log->type    = 'asset.workflow';
+				$log->parameters['assetid'] = $this->owner->id;
+				$log->parameters['version'] = substr($this->owner->version, 0, strrpos($this->owner->version, '.'));
+				$log->send();
 			}
 
 		} else {
@@ -184,29 +182,28 @@ class Asset_Status_Live_Approval extends Asset_Status
 					}
 				}
 
-				// send an internal message
+				// log an internal message
 				$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-				$ms->openQueue();
 				$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
-				
-				$message = $ms->newMessage();
-				$message->subject = 'Asset Review Approved';
-				$message->body = 'User "'.$user->name.'" has approved the review on '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name').' "'.$this->owner->name.'".';
-				$message->to   = $GLOBALS['SQ_SYSTEM']->am->getPermission($this->owner->id, SQ_PERMISSION_ADMIN, true, false);
-				$message->from = 0; // a system message
-				$ms->enqueueMessage($message);
+
+				$log = $ms->newMessage();
+				$log->subject = 'Asset Review Approved';
+				$log->body    = 'User "'.$user->name.'" has approved the review on '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name').' "'.$this->owner->name.'".';
+				$log->type    = 'asset.workflow';
+				$log->parameters['assetid'] = $this->owner->id;
+				$log->parameters['version'] = substr($this->owner->version, 0, strrpos($this->owner->version, '.'));
+				$log->send();
 
 				if ($new_status == SQ_STATUS_APPROVED) {
-					// send another internal message
-					$message = $ms->newMessage();
-					$message->subject = 'Review Completed';
-					$message->body = 'The review process for '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name').' "'.$this->owner->name.'" has been completed. "'.$this->owner->name.'" is now live.';
-					$message->to   = $GLOBALS['SQ_SYSTEM']->am->getPermission($this->owner->id, SQ_PERMISSION_ADMIN, true, false);
-					$message->from = 0; // a system message
-					$ms->enqueueMessage($message);
+					// log another internal message
+					$log = $ms->newMessage();
+					$log->subject = 'Review Completed';
+					$log->body    = 'The review process for '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name').' "'.$this->owner->name.'" has been completed. "'.$this->owner->name.'" is now live.';
+					$log->type    = 'asset.workflow';
+					$log->parameters['assetid'] = $this->owner->id;
+					$log->parameters['version'] = substr($this->owner->version, 0, strrpos($this->owner->version, '.'));
+					$log->send();
 				}
-
-				$ms->closeQueue();
 
 			}//end if
 

@@ -126,19 +126,17 @@ class Asset_Status_Pending_Approval extends Asset_Status
 			} else {
 				require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 
-				// send an internal message
+				// log an internal message
 				$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-				$ms->openQueue();
 				$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
 
-				$message = $ms->newMessage();
-				$message->subject = 'Asset Changes Rejected';
-				$message->body = 'User "'.$user->name.'" has rejected the changes made to '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name').' "'.$this->owner->name.'". The status of "'.$this->owner->name.'" has reverted to '.get_status_description($new_status);
-				$message->to = $GLOBALS['SQ_SYSTEM']->am->getPermission($this->owner->id, SQ_PERMISSION_ADMIN, true, false);
-				$message->from = 0; // a system message
-				$ms->enqueueMessage($message);
-
-				$ms->closeQueue();
+				$log = $ms->newMessage();
+				$log->subject = 'Asset Changes Rejected';
+				$log->body    = 'User "'.$user->name.'" has rejected the changes made to '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name').' "'.$this->owner->name.'". The status of "'.$this->owner->name.'" has reverted to '.get_status_description($new_status);
+				$log->type    = 'asset.workflow';
+				$log->parameters['assetid'] = $this->owner->id;
+				$log->parameters['version'] = substr($this->owner->version, 0, strrpos($this->owner->version, '.'));
+				$log->send();
 			}
 
 		} else {
@@ -175,29 +173,28 @@ class Asset_Status_Pending_Approval extends Asset_Status
 					}
 				}
 
-				// send an internal message
+				// log an internal message
 				$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-				$ms->openQueue();
 				$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
-				
-				$message = $ms->newMessage();
-				$message->subject = 'Asset Changes Approved';
-				$message->body = 'User "'.$user->name.'" has approved '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name').' "'.$this->owner->name.'" to go live.';
-				$message->to   = $GLOBALS['SQ_SYSTEM']->am->getPermission($this->owner->id, SQ_PERMISSION_ADMIN, true, false);
-				$message->from = 0; // a system message
-				$ms->enqueueMessage($message);
+
+				$log = $ms->newMessage();
+				$log->subject = 'Asset Changes Approved';
+				$log->body    = 'User "'.$user->name.'" has approved '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name').' "'.$this->owner->name.'" to go live.';
+				$log->type    = 'asset.workflow';
+				$log->parameters['assetid'] = $this->owner->id;
+				$log->parameters['version'] = substr($this->owner->version, 0, strrpos($this->owner->version, '.'));
+				$log->send();
 
 				if ($new_status == SQ_STATUS_APPROVED) {
-					// send another internal message
-					$message = $ms->newMessage();
-					$message->subject = 'Workflow Completed';
-					$message->body = 'The workflow process for '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name').' "'.$this->owner->name.'" has been completed. "'.$this->owner->name.'" is now approved and can be made live by an administrator.';
-					$message->to   = $GLOBALS['SQ_SYSTEM']->am->getPermission($this->owner->id, SQ_PERMISSION_ADMIN, true, false);
-					$message->from = 0; // a system message
-					$ms->enqueueMessage($message);
+					// log another internal message
+					$log = $ms->newMessage();
+					$log->subject = 'Workflow Completed';
+					$log->body    = 'The workflow process for '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name').' "'.$this->owner->name.'" has been completed. "'.$this->owner->name.'" is now approved and can be made live by an administrator.';
+					$log->type    = 'asset.workflow';
+					$log->parameters['assetid'] = $this->owner->id;
+					$log->parameters['version'] = substr($this->owner->version, 0, strrpos($this->owner->version, '.'));
+					$log->send();
 				}
-
-				$ms->closeQueue();
 
 			}//end if
 
