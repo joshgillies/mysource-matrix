@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_edit_fns.inc,v 1.41 2004/09/07 10:52:20 brobertson Exp $
+* $Id: design_area_edit_fns.inc,v 1.42 2004/12/01 05:40:51 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -39,7 +39,11 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 class Design_Area_Edit_Fns extends Asset_Edit_Fns
 {
 
-	var $tab_name = '';
+	/**
+	* @var string
+	* The prefix for tags in parse files
+	*/
+	var $tag_name = 'MySource';
 
 
 	/**
@@ -49,7 +53,6 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	function Design_Area_Edit_Fns()
 	{
 		$this->static_screens['details']['lock_type'] = 'parsing';
-		$this->tag_name = preg_replace('/[[:space:]]/', '', SQ_SYSTEM_SHORT_NAME);
 
 	}//end constructor
 
