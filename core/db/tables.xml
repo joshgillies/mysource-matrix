@@ -18,11 +18,13 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.34.2.2 2004/03/02 18:46:36 brobertson Exp $
+* $Id: tables.xml,v 1.34.2.3 2004/03/03 18:52:35 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
 
+<schema>
+<!-- NOTE: I have deliberately not indented the first level so that the diff's between branch and the head are minimal -->
 <tables>
 	<table name="package" require_rollback="0">
 		<columns>
@@ -1320,3 +1322,11 @@
 		</indexes>
 	</table>
 </tables>
+<sequences>
+	<sequence name="sequence_asset" />
+	<sequence name="sequence_asset_link" />
+	<sequence name="sequence_asset_attribute" />
+	<sequence name="sequence_asset_url" />
+	<sequence name="sequence_internal_message" />
+</sequences>
+</schema>
