@@ -81,6 +81,6 @@ A. There are several steps :
      installed on the server and the WYSIWYG plugin is pointing to the correct place
 
 That should be it, have fun
-Contributed by: Blair Roebrtson <brobertson@squiz.net>
+Contributed by: Blair Robertson <brobertson@squiz.net>
 
 
