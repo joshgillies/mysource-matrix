@@ -597,15 +597,49 @@ class Asset_Manager extends Resolve_Object
 	* Returns true if the passed assetid is in the trash, false otherwise
 	* Note that if the passed assetid is the id of the trash folder, false will be returned
 	*
-	* @param int	$assetid	the asset id to check the trash for
+	* @param int		$assetid		the asset id to check the trash for
+	* @param boolean	$exclusively	is the asset ONLY in the trash
+	*									(ie. does it have no other significant links
+	*									outside the trash?)
 	*
 	* @access public
 	*/
-	function assetInTrash($assetid)
+	function assetInTrash($assetid, $exclusively=false)
 	{
-		$parents = $this->getParents($assetid);
 		$trash = &$this->getSystemAsset('trash_folder');
-		return (in_array($trash->id, $parents));
+		// if we are being asked "Is the trash in the trash"
+		// lets so "Are you kidding?"
+		if ($assetid == $trash->id) return false;
+
+		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		$sql = 'SELECT COUNT(*)
+				FROM sq_asset_link_tree t INNER JOIN sq_asset_link l ON t.linkid=l.linkid
+				WHERE l.minorid = '.$db->quote($assetid).' 
+				  AND t.treeid '.(($exclusively) ? 'NOT ' : '').'LIKE (~SQ0~)';
+
+		// we need to work out the treeid of the trash
+		$concat = ($db->phptype == 'mysql') ? 'CONCAT(t.treeid, '.$db->quote('%').')' : '(t.treeid || '.$db->quote('%').')';
+		$subs = Array( 'SELECT '.$concat.'
+						FROM sq_asset_link_tree t INNER JOIN sq_asset_link l ON t.linkid = l.linkid
+						WHERE l.minorid = '.$db->quote($trash->id).'
+						LIMIT 1');
+
+		$sql = db_extras_subquery($db, $sql, $subs);
+		if (DB::isError($sql)) {
+			trigger_error($sql->getMessage().'<br/>'.$sql->getUserInfo(), E_USER_ERROR);
+			return false;
+		}
+
+		$result = $db->getOne($sql);
+		if (DB::isError($result)) {
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			return false;
+		}
+
+		if ($exclusively) return ($result == 0);
+		else return ($result > 0);
 
 	}//end assetInTrash()
 
