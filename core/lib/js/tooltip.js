@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: tooltip.js,v 1.1 2004/09/03 06:48:25 dbaranovskiy Exp $
+* $Id: tooltip.js,v 1.2 2004/09/03 07:48:41 dbaranovskiy Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -59,7 +59,8 @@ function tt_print()
 {
   if (!document.getElementById("ToolBox"))
   {
-	output = '<table cellspacing="0" cellpadding="0" border="0" id="ToolBox" style="font:' + this.normal_font +
+	output = '<iframe scrolling="no" border="0" frameborder="0" id="hider" style="position:absolute;top:-200px;left:-110px;width:10px; height:30px;" src="about:blank"></iframe>';		 
+	output += '<table cellspacing="0" cellpadding="0" border="0" id="ToolBox" style="font:' + this.normal_font +
 			 ';border:' + this.border +
 			 ';color:' + this.normal_color +
 			 ';background:' + this.normal_bg +
@@ -120,6 +121,7 @@ function tt_hide()
 
   if (tool_box.filters) tool_box.filters[0].Apply();
   tool_box.style.visibility 	= "hidden";
+  document.getElementById("hider").style.visibility = "hidden";
   if (tool_box.filters) tool_box.filters[0].Play();
 
 }//end tt_hide()
@@ -142,7 +144,7 @@ function tt_paint(top, left, text, title)
 
   if (tool_box.filters) tool_box.filters[0].Apply();
 
-  if (typeof(title) != "undefined" && title != "")
+  if ((typeof(title) != "undefined" && title != "") || (typeof(top) == "undefined"))
   {
 	document.getElementById("ToolBoxTitle").style.textAlign = this.title_align;
 	document.getElementById("ToolBoxTitle").style.font = this.title_font;
@@ -157,9 +159,9 @@ function tt_paint(top, left, text, title)
 	document.getElementById("ToolBoxTitle").style.padding = "0px";
 	document.getElementById("ToolBoxTitle").innerHTML = "";
   }
-  if (typeof(text) != "undefined" && text != "")
+  if ((typeof(text) != "undefined" && text != "") || (typeof(top) == "undefined")) 
   {
-	document.getElementById("ToolBoxContent").innerHTML = unescape(text);
+	if(typeof(text) != "undefined") document.getElementById("ToolBoxContent").innerHTML = unescape(text);
 	document.getElementById("ToolBoxContent").style.padding = "2px";
 	document.getElementById("ToolBoxContent").style.background = this.normal_bg;
   }
@@ -180,6 +182,16 @@ function tt_paint(top, left, text, title)
 
 	tool_box.style.top 		= top + "px";
 	tool_box.style.left		= left + "px";
+	
+	if (window.event)
+	{
+	  var hider = document.getElementById("hider");
+	  hider.style.top = top;
+	  hider.style.left = left;
+	  hider.style.width = tool_box.offsetWidth;
+	  hider.style.height = tool_box.offsetHeight;
+	  hider.style.visibility = "visible";
+	}
   }
   tool_box.bgColor 		= this.background;
   tool_box.style.font 		= this.normal_font;
