@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.25 2004/05/19 04:05:30 lwright Exp $
+* $Id: system_config.inc,v 1.26 2004/05/25 03:58:21 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,6 +38,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 */
 class System_Config extends Config
 {
+
 	/**
 	* Holds all the vars for this that config vars for this config
 	* In the form : Array([var name] => Array('editable' => [boolean], 'default' => [mixed scalar]))
@@ -47,8 +48,8 @@ class System_Config extends Config
 		'SQ_CONF_DB_DSN'					=> Array('editable' => 0, 'default' => ''),
 		'SQ_CONF_DB2_DSN'					=> Array('editable' => 0, 'default' => ''),
 		'SQ_CONF_PEAR_PATH'					=> Array('editable' => 0, 'default' => ''),
-		'SQ_CONF_BACKEND_SUFFIX'			=> Array('editable' => 0, 'default' => '_admin'),
-		'SQ_CONF_LIMBO_SUFFIX'				=> Array('editable' => 0, 'default' => '_edit'),
+		'SQ_CONF_BACKEND_SUFFIX'			=> Array('editable' => 1, 'default' => '_admin'),
+		'SQ_CONF_LIMBO_SUFFIX'				=> Array('editable' => 1, 'default' => '_edit'),
 
 		// Fixed Size of the number of digits that each link trees entry can be, run
 		//    pow(SQ_CONF_ASSET_TREE_BASE, SQ_CONF_ASSET_TREE_SIZE)
@@ -57,9 +58,8 @@ class System_Config extends Config
 		'SQ_CONF_ASSET_TREE_SIZE'			=> Array('editable' => 0, 'default' =>  4),
 
 		// Rollback Settings
-		'SQ_CONF_ROLLBACK_ENABLED'			=> Array('editable' => 0, 'default' => '0'),
+		'SQ_CONF_ROLLBACK_ENABLED'			=> Array('editable' => 1, 'default' => '0'),
 
-//// START EDITABLE SETTINGS ////
 		// System Settings
 		'SQ_CONF_SYSTEM_NAME'				=> Array('editable' => 1, 'default' => 'The System'),
 		'SQ_CONF_SYSTEM_OWNER'				=> Array('editable' => 1, 'default' => ''),
@@ -132,6 +132,9 @@ class System_Config extends Config
 				unset($vars['SQ_CONF_MAX_IDLE_TIME']);
 				unset($vars['SQ_CONF_LOG_ERRORS']);
 				unset($vars['SQ_CONF_ERRORS_HIDE_FRONTEND']);
+				unset($vars['SQ_CONF_BACKEND_SUFFIX']);
+				unset($vars['SQ_CONF_LIMBO_SUFFIX']);
+				unset($vars['SQ_CONF_ROLLBACK_ENABLED']);
 			}//end if 
 
 			// Now do some validation
@@ -271,6 +274,31 @@ class System_Config extends Config
 				text_area($class.'[SQ_CONF_SYSTEM_ROOT_URLS]', SQ_CONF_SYSTEM_ROOT_URLS, 40, 4);
 			} else {
 				echo nl2br(SQ_CONF_SYSTEM_ROOT_URLS);
+			}
+
+			$o->openField('System Backend Suffix');
+			if($write_access) {
+				text_box($class.'[SQ_CONF_BACKEND_SUFFIX]', SQ_CONF_BACKEND_SUFFIX, 15);
+			} else {
+				echo nl2br(SQ_CONF_BACKEND_SUFFIX);
+			}
+
+			$o->openField('System Limbo Suffix');
+			if($write_access) {
+				text_box($class.'[SQ_CONF_LIMBO_SUFFIX]', SQ_CONF_LIMBO_SUFFIX, 15);
+			} else {
+				echo nl2br(SQ_CONF_LIMBO_SUFFIX);
+			}
+
+		$o->closeSection();
+		
+		$o->openSection('Rollback Settings');
+
+			$o->openField('Enable Rollback');
+			if($write_access && $is_root) {
+				combo_box($class.'[SQ_CONF_ROLLBACK_ENABLED]', Array('1' => 'Yes', '0' => 'No'), false, SQ_CONF_ROLLBACK_ENABLED);
+			} else {
+				echo (SQ_CONF_ROLLBACK_ENABLED) ? 'Yes' : 'No';
 			}
 
 		$o->closeSection();
