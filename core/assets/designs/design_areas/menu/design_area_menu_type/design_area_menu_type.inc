@@ -343,8 +343,19 @@ class Design_Area_Menu_Type extends Design_Area
 
 			function menu_get_assets($majorids)
 			{
-				$majorids = array_diff($majorids, array_keys($GLOBALS[\'MENU_DATA\']));
-				if (empty($majorids)) return;
+				$assetids = Array();
+				$majorids_str = \'\';
+				foreach($majorids as $id) {
+					if (empty($GLOBALS[\'MENU_DATA\'][$id])) {
+						$majorids_str .= $id.\',\';
+					} else {
+						foreach($GLOBALS[\'MENU_DATA\'][$id] as $row) {
+							$assetids[] = (int) $row[\'assetid\'];
+						}
+					}
+				}
+				
+				if (empty($majorids_str)) return $assetids;
 
 				static $USERIDS_COND = null;
 
@@ -380,7 +391,7 @@ class Design_Area_Menu_Type extends Design_Area
 				$sql   .= \'
 						     INNER JOIN \'.SQ_TABLE_RUNNING_PREFIX.\'asset_permission p ON a.assetid = p.assetid \';
 				}
-				$where  = \'l.majorid IN (\'.implode(\',\', $majorids).\')
+				$where  = \'l.majorid IN (\'.substr($majorids_str, 0, -1).\')
 						     AND (l.link_type & \'.$db->quote(SQ_SC_LINK_FRONTEND_NAV).\') > 0 \';
 				$where  = $GLOBALS[\'SQ_SYSTEM\']->constructRollbackWhereClause($where, \'a\');
 				$where  = $GLOBALS[\'SQ_SYSTEM\']->constructRollbackWhereClause($where, \'l\');
@@ -388,8 +399,7 @@ class Design_Area_Menu_Type extends Design_Area
 					$where  = $GLOBALS[\'SQ_SYSTEM\']->constructRollbackWhereClause($where, \'p\');
 				}
 				$where  = $GLOBALS[\'SQ_SYSTEM\']->constructRollbackWhereClause($where, \'pt\');
-				$where .= " $USERIDS_COND ";
-				$where .= \'
+				$where .= \' \'.$USERIDS_COND .\'
 						   ORDER BY l.majorid, l.sort_order\';
 
 				$result = $db->query($sql.$where);
@@ -418,7 +428,7 @@ class Design_Area_Menu_Type extends Design_Area
 					}
 					$assetids[] = (int) $row[\'assetid\'];
 					if (!isset($GLOBALS[\'MENU_DATA\'][$row[\'majorid\']])) $GLOBALS[\'MENU_DATA\'][$row[\'majorid\']] = Array();
-					$GLOBALS[\'MENU_DATA\'][$row[\'majorid\']][] = $row;
+					$GLOBALS[\'MENU_DATA\'][$row[\'majorid\']][$row[\'assetid\']] = $row;
 
 				}
 				$result->free();
@@ -476,6 +486,7 @@ class Design_Area_Menu_Type extends Design_Area
 		// if the show_subs is only on_current the asset for the kids level in the page lineage is used
 		echo '
 		$'.$this->attr('id_name').'_assetids = Array(); // menu_get_assets(majorids);
+		$'.$this->attr('id_name').'_urls     = $am->getAssetHref($'.$this->attr('id_name').'_assetids);
 
 		';
 
@@ -530,7 +541,7 @@ class Design_Area_Menu_Type extends Design_Area
 					break;
 
 				case 'asset_link' :
-					echo '<', '?php echo $'.$this->attr('id_name').'_base_url.\'/\'.$'.$this->attr('id_name').'_row[\'path\']; ?', '>';
+					echo '<', '?php echo $'.$this->attr('id_name').'_urls[$'.$this->attr('id_name').'_row[\'assetid\']]; ?', '>';
 					break;
 
 				case 'asset_short_name' :

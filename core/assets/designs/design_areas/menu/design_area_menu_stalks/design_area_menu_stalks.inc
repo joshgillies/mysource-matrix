@@ -111,7 +111,7 @@ class Design_Area_Menu_Stalks extends Design_Area_Menu_Recursive
 		
 		echo '
 
-		function '.$this->attr('id_name').'_recursive_fn($level, $parentid, $data, $'.$this->attr('id_name').'_base_url, $depth=Array())
+		function '.$this->attr('id_name').'_recursive_fn($level, $parentid, $'.$this->attr('id_name').'_base_url, $depth=Array())
 		{
 			global $RECURSIVE_MENU_PAGE_LINEAGE;
 			static $'.$this->attr('id_name').'_settings = '.var_export($this->_getSettingsArray(), true).';
@@ -125,12 +125,15 @@ class Design_Area_Menu_Stalks extends Design_Area_Menu_Recursive
 
 			$'.$this->attr('id_name').'_lineage_assetid = (empty($RECURSIVE_MENU_PAGE_LINEAGE[$level + 1])) ? 0 : $RECURSIVE_MENU_PAGE_LINEAGE[$level + 1][\'assetid\'];
 			$'.$this->attr('id_name').'_lineage_setting = (count($RECURSIVE_MENU_PAGE_LINEAGE) - 1 == $level + 1) ? \'current\' : \'hierarchy\';
+			$'.$this->attr('id_name').'_urls = $GLOBALS[\'SQ_SYSTEM\']->am->getAssetHref(array_keys($GLOBALS[\'MENU_DATA\'][$parentid]), $'.$this->attr('id_name').'_base_url);
 
 #			pre_echo("Lineage Setting : $'.$this->attr('id_name').'_lineage_setting");
 #			pre_echo("Lineage Assetid : $'.$this->attr('id_name').'_lineage_assetid");
-			for($i = 0, $num_kids = count($data[$parentid]); $i < $num_kids; $i++) {
-				$end = ($i == $num_kids - 1);
-				$'.$this->attr('id_name').'_row = $data[$parentid][$i];
+			$num_kids = count($GLOBALS[\'MENU_DATA\'][$parentid]);
+			$i = 0;
+			foreach($GLOBALS[\'MENU_DATA\'][$parentid] as $'.$this->attr('id_name').'_row) {
+				$i++;
+				$end = ($i == $num_kids);
 				// if not live, we have to get the proper object, sorry
 				if (((int) $'.$this->attr('id_name').'_row[\'status\'] & SQ_STATUS_LIVE) == 0) {
 					$'.$this->attr('id_name').'_obj = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($'.$this->attr('id_name').'_row[\'assetid\'], $'.$this->attr('id_name').'_row[\'type_code\']);
@@ -225,9 +228,9 @@ class Design_Area_Menu_Stalks extends Design_Area_Menu_Recursive
 			$recurse_condition = '$level < '.($this->attr('max_num_levels') + $this->attr('level') - 1).' && ('.$recurse_condition.')';
 		}
 		echo '
-				if (('.$recurse_condition.') && !empty($data[$'.$this->attr('id_name').'_row[\'assetid\']])) {
+				if (('.$recurse_condition.') && !empty($GLOBALS[\'MENU_DATA\'][$'.$this->attr('id_name').'_row[\'assetid\']])) {
 					if ($end) $depth[$depth_count - 1] = false;
-					'.$this->attr('id_name').'_recursive_fn($level + 1, $'.$this->attr('id_name').'_row[\'assetid\'], $data, $'.$this->attr('id_name').'_base_url.\'/\'.$'.$this->attr('id_name').'_row[\'path\'], $depth);
+					'.$this->attr('id_name').'_recursive_fn($level + 1, $'.$this->attr('id_name').'_row[\'assetid\'], $'.$this->attr('id_name').'_urls[$'.$this->attr('id_name').'_row[\'assetid\']], $depth);
 				} // end if
 
 			}// end for

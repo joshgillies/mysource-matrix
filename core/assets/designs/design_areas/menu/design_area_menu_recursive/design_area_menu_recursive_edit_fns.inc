@@ -76,17 +76,18 @@ class Design_Area_Menu_Recursive_Edit_Fns extends Design_Area_Menu_Type_Edit_Fns
 				$'.$asset->attr('id_name').'_base_url = (empty($PAGE_LINEAGE[$'.$asset->attr('id_name').'_level])) ? \'\' : current_protocol().\'://\'.$PAGE_LINEAGE[$'.$asset->attr('id_name').'_level][\'url\'];
 					';
 
+				// else  we are a sub menu
 				} else {
 					$parent_assetid_name = '$'.$parent_menu->attr('id_name').'_row[\'assetid\']';
 
 					echo '
-				$'.$asset->attr('id_name').'_base_url = $'.$parent_menu->attr('id_name').'_base_url.\'/\'.$'.$parent_menu->attr('id_name').'_row[\'path\'];
+				$'.$asset->attr('id_name').'_base_url = $'.$parent_menu->attr('id_name').'_urls[$'.$parent_menu->attr('id_name').'_row[\'assetid\']];
 					';
 
 				}// end if
 
 				echo '
-				'.$asset->attr('id_name').'_recursive_fn($'.$asset->attr('id_name').'_level, '.$parent_assetid_name.', $GLOBALS[\'MENU_DATA\'], $'.$asset->attr('id_name').'_base_url);
+				'.$asset->attr('id_name').'_recursive_fn($'.$asset->attr('id_name').'_level, '.$parent_assetid_name.', $'.$asset->attr('id_name').'_base_url);
 				?', '>';
 
 				return true;
