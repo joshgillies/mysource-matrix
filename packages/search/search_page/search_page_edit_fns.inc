@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_edit_fns.inc,v 1.39 2005/02/14 23:58:00 lwright Exp $
+* $Id: search_page_edit_fns.inc,v 1.40 2005/02/15 00:01:06 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine_edit_fns.inc';
 *     Edit functions for search page
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1292,6 +1292,22 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 		return $options;
 		
 	}//end _getSortByOptions()
+	
+	
+	/**
+	* Return true if the thesaurus asset type is installed	
+	*
+	* @param object Asset        $asset  the asset whose interface we are painting
+	* @param string                        $prefix        the prefix for this asset
+	*
+	* @return boolean
+	* @access public
+	*/
+	function thesaurusInstalled(&$asset, $prefix)
+	{
+		return $GLOBALS['SQ_SYSTEM']->am->installed('thesaurus');
+		
+	}//end thesaurusInstalled()
 	
 	
 }//end class
