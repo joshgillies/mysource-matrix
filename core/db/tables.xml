@@ -772,18 +772,33 @@
 				<default />
 				<description />
 			</column>
-			<column name="workflow" allow_null="0">
+			<column name="schemaid" allow_null="0">
+				<type>INT</type>
+				<type_variations>
+					<mysql>INT UNSIGNED</mysql>
+				</type_variations>
+				<default>0</default>
+				<description />
+			</column>
+			<column name="workflow" allow_null="1">
 				<type>TEXT</type>
 				<type_variations>
 					<mysql>LONGTEXT</mysql>
 				</type_variations>
-				<default>''</default>
+				<default>NULL</default>
+				<description />
+			</column>
+			<column name="access" allow_null="0">
+				<type>CHAR(1)</type>
+				<type_variations />
+				<default>'0'</default>
 				<description />
 			</column>
 		</columns>
 		<keys>
 			<primary_key>
-				<column name="assetid" />
+				<column name="assetid"  />
+				<column name="schemaid" />
 			</primary_key>
 		</keys>
 		<indexes />

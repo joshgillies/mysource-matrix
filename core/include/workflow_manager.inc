@@ -14,41 +14,6 @@ class Workflow_Manager extends Resolve_Object
 {
 
 	/**
-	* The asset whose workflow we are managing
-	*
-	* @var object Asset
-	*/
-	var $_asset = null;
-
-	/**
-	* An array of steps to follow for workflow
-	*
-	* @var array
-	*/
-	var $steps = Array();
-
-	/**
-	* The current state of this workflow
-	*
-	* @var array
-	*/
-	var $state = '';
-
-	/**
-	* An array of workflow objects for all workflows we inherit
-	*
-	* @var array
-	*/
-	var $inherited_workflows = Array();
-
-	/**
-	* An array of workflows that are currently in progress
-	*
-	* @var array
-	*/
-	var $current_workflows = Array('running' => Array(), 'complete' => Array());
-
-	/**
 	* Logic strings that are valid for steps
 	*
 	* @var array
@@ -66,182 +31,409 @@ class Workflow_Manager extends Resolve_Object
 	/**
 	* Constructor
 	*
-	* @param object Asset	&$asset			the asset to manage
-	* @param boolean		$and_direct		load the direct workflow for the asset
-	* @param boolean		$and_inherited	load all inherited workflows for the asset
-	* @param boolean		$and_running	load all running workflows for the asset
 	*/
-	function Workflow_Manager(&$asset, $and_direct=true, $and_inherited=true, $and_running=true)
+	function Workflow_Manager()
 	{
 		$this->Resolve_Object();
-		$this->_asset =& $asset;
-		if ($and_direct) {
-			// we are going to load this workflows
-			// direct workflow (if it has been defined)
-			$this->load($and_inherited);
-		}
-		if ($and_running) {
-			// load the currently running workflows
-			// so we can determine publish access
-			$this->loadRunning();
-		}
 
 	}//end constructor
 
 
 	/**
-	* Loads the workflow steps for this asset into the manager
-	* Also optionally loads all inherited workflows into the manager as well
+	* Get an array of schemaIDs for all schemas applied and denied on an asset
 	*
-	* @param boolean	$and_inherited	load inherited workflow objects as well
+	* Can also optionally get running workflows only.
 	*
-	* @return boolean
+	* @param int		$assetid	the ID of the asset to get schemas for
+	* @param boolean	$access		type of access : null = all, true = applied, false = denied
+	* @param boolean	$running	only getting running workflows
+	*
 	* @access public
+	* @return array( schemaid => access[1|0] ) if $access is null OR array(schemaid) if it is set
 	*/
-	function load($and_inherited)
+	function getSchemas($assetid, $access=null, $running=false)
 	{
-		// get the direct workflow if it has been set
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$where = 'assetid = '.$db->quote($this->_asset->id);
+		$sql = '  SELECT DISTINCT schemaid, access
+				  FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_workflow ';
+		$where = 'assetid = '.$db->quote($assetid);
+		if ($running) $where .= ' AND workflow IS NOT NULL';
+		if (!is_null($access) || $running) $where .= ' AND access = '.$db->quote((($access) ? '1' : '0'));
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
-		$sql = 'SELECT workflow FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_workflow '.$where;
 
-		$direct = $db->getOne($sql);
-		if (DB::isError($direct)) {
-			trigger_error($direct->getMessage().'<br/>'.$direct->getUserInfo(), E_USER_WARNING);
+		$result = $db->getAll($sql.$where);
+		if (DB::isError($result)) {
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			return Array();
+		}
+
+		$schemas = Array();
+		foreach ($result as $data) {
+			if (is_null($access)) $schemas[$data['schemaid']] = $data['access'];
+			else $schemas[] = $data['schemaid'];
+		}
+
+		return $schemas;
+
+	}//end getSchemas()
+
+
+	/**
+	* Apply a schema to or Deny from, an asset
+	*
+	* @param int		$assetid	the ID of the asset to set the schema on
+	* @param int		$schemaid	the ID of the schema to set
+	* @param boolean	$access		is this schema applied (TRUE) or denied (FALSE)?
+	*
+	* @access public
+	* @return boolean
+	*/
+	function setSchema($assetid, $schemaid, $access)
+	{
+		$assetid  = (int)  $assetid;
+		$schemaid = (int)  $schemaid;
+		$access   = (bool) $access;
+
+		$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
+		if (is_null($schema)) {
+			trigger_error('Failed setting workflow schema, Schema Asset #'.$schemaid.' does not exist', E_USER_WARNING);
 			return false;
 		}
 
-		if (empty($direct)) {
-			$this->state = 'new';
-		} else {
-			$this->state = 'idle';
-			$this->steps = unserialize($direct);
+		if (!is_a($schema, 'workflow_schema')) {
+			trigger_error('Failed setting workflow schema, "'.$schema->name.'" (Asset #'.$schemaid.') is not a workflow schema', E_USER_WARNING);
+			return false;
 		}
 
-		if ($and_inherited) {
-			// now lets do the inherited workflows
-			require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-			
-			$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($this->_asset->id);
-			$above_me = $parents;
-			for($i = 0; $i < count($above_me); $i++) $above_me[$i] = $db->quote($above_me[$i]);
-			$in_cond = 'IN ('.implode(', ', $above_me).')';
-			
-			$sql = 'SELECT assetid FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_permission ';
-			$where = 'assetid '.$in_cond.'
-						AND access = 1
-						AND permission = '.$db->quote(SQ_PERMISSION_WORKFLOW);
-			$where .= ' AND userid NOT IN (~SQ0~)';
+		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		if (is_null($asset)) {
+			trigger_error('Failed setting workflow schema, Asset #'.$assetid.' does not exist', E_USER_WARNING);
+			return false;
+		}
 
-			$sub_where = 'assetid = '.$db->quote($this->_asset->id).'
-							AND access = 0
-							AND permission = '.$db->quote(SQ_PERMISSION_WORKFLOW);
-			$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where);
-			$subs = Array( 'SELECT userid
-							FROM '.SQ_TABLE_PREFIX.'asset_permission '.$sub_where );
+		if (!$asset->adminAccess()) {
+			trigger_error('Cannot set workflow schema for "'.$asset->name.'", permission denied', E_USER_WARNING);
+			return false;
+		}
 
-			$where = db_extras_subquery($db, $where, $subs);
-			if (DB::isError($where)) trigger_error($where->getMessage().'<br/>'.$where->getUserInfo(), E_USER_ERROR);
+		// get the current schemas that are set
+		$schemas = $this->getSchemas($assetid);
 
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
+		// check if this schema is already set
+		if (isset($schemas[$schemaid])) {
+			if ((bool)$schemas[$schemaid] == $access) {
+				// schema is set with same access level
+				return true;
+			} else {
+				// schema is set but with the opposite access level
+				$new_access     = ($access) ? 'apply'  : 'deny';
+				$current_access = ($access) ? 'denied' : 'applied';
 
-			$inherited = $db->getCol($sql.$where);
-			if (DB::isError($inherited)) {
-				trigger_error($inherited->getMessage().'<br/>'.$inherited->getUserInfo(), E_USER_WARNING);
+				trigger_error('Could not '.$new_access.' workflow schema "'.$schema->name.'" on "'.$asset->name.'" because this asset already has this schema '.$current_access, E_USER_WARNING);
+				return false;
+			}
+		}
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		// add the schema to the database
+		$values = Array('assetid'  => $asset->id,
+						'schemaid' => $schemaid,
+						'workflow' => NULL,
+						'access'   => (($access) ? '1' : '0')
+						);
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_workflow', $values)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		return true;
+
+	}//end setSchema()
+
+
+	/**
+	* Remove a set schema from an asset
+	*
+	* @param int	$assetid	the ID of the asset to delete the schema from
+	* @param int	$schemaid	the ID of the schema to delete
+	*
+	* @access public
+	* @return boolean
+	*/
+	function deleteSchema($assetid, $schemaid)
+	{
+		$assetid  = (int) $assetid;
+		$schemaid = (int) $schemaid;
+
+		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		if (is_null($asset)) {
+			trigger_error('Failed deleting workflow schema, Asset #'.$assetid.' does not exist', E_USER_WARNING);
+			return false;
+		}
+
+		if (!$asset->adminAccess()) {
+			trigger_error('Cannot delete workflow schema for "'.$asset->name.'", permission denied', E_USER_WARNING);
+			return false;
+		}
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		// delete and add rollback entries
+		$where = 'schemaid    = '.$db->quote($schemaid).'
+				  AND assetid = '.$db->quote($asset->id);
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_workflow', $where)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		return true;
+
+	}//end deleteSchema()
+
+
+	/**
+	* Get the workflow values set for an asset on a particular schema or all schemas
+	*
+	* @param int	$assetid	the ID of the asset to get workflow for
+	* @param int	$schemaid	the ID of the schema to get workflow for (NULL for all workflows)
+	*
+	* @access public
+	* @return array( schemaid => workflow_array )
+	*/
+	function getSchemaWorkflows($assetid, $schemaid=null)
+	{
+		$assetid  = (int) $assetid;
+
+		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		if (is_null($asset)) {
+			trigger_error('Failed getting workflow, Asset #'.$assetid.' does not exist', E_USER_WARNING);
+			return false;
+		}
+
+		if (!is_null($schemaid)) {
+			$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
+			if (is_null($schema)) {
+				trigger_error('Failed getting workflow, Schema #'.$schemaid.' does not exist', E_USER_WARNING);
 				return false;
 			}
 
-			foreach ($inherited as $assetid) {
-				if ($assetid == $this->_asset->id) continue;
-				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-				$this->inherited_workflows[$assetid] =& new Workflow_Manager($asset, true, false, false);
+			if (!is_a($schema, 'workflow_schema')) {
+				trigger_error('Failed getting workflow, "'.$schema->name.'" (Asset #'.$schemaid.') is not a workflow schema', E_USER_WARNING);
+				return false;
 			}
 
+			// check that the schema we are getting workflow for is actually set
+			$schemas = $this->getSchemas($assetid, true);
+			if (!in_array($schemaid, $schemas)) return Array();
 		}
 
-		return true;
-
-	}//end load()
-
-
-	/**
-	* Loads currently running workflow steps into the manager
-	*
-	* @return boolean
-	* @access public
-	*/
-	function loadRunning()
-	{
-		// lets take a look in the workflow table to see
-		// if this workflow has started and what its status is
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$where = 'workflowid LIKE '.$db->quote($this->_asset->id.'~%');
+		$sql = '  SELECT schemaid, workflow
+				  FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_workflow ';
+		$where = 'assetid = '.$db->quote($asset->id).'
+				    AND access = 1';
+		if (!is_null($schemaid)) $where .= ' AND schemaid = '.$db->quote($schemaid);
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
-		$sql = 'SELECT * FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_running_workflow '.$where;
 
-		$result = $db->getAll($sql);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-			return false;
+		$workflows = $db->getAssoc($sql.$where);
+		if (DB::isError($workflows)) {
+			trigger_error($workflows->getMessage().'<br />'.$workflows->getUserInfo(), E_USER_WARNING);
+			return Array();
 		}
 
-		if (empty($result)) {
-			return false;
+		for(reset($workflows); null !== ($k = key($workflows)); next($workflows)) {
+			$workflows[$k] = (is_null($workflows[$k])) ? '' : unserialize($workflows[$k]);
 		}
 
-		// we have a current workflow in progress
-		$this->state = 'running';
+		if (!is_null($schemaid)) return $workflows[$schemaid];
+		return $workflows;
 
-		// run through and work out what steps we are up to
-		foreach ($result as $workflow) {
-			$steps = unserialize($workflow['workflow']);
-			$storage_name = (($workflow['complete']) ? 'complete' : 'running');
-			$this->current_workflows[$storage_name][$workflow['workflowid']] = Array('steps' => $steps, 'current_step' => 0);
-
-			// if the workflow is not complete, work out what step we are up to
-			if (!$workflow['complete']) $this->_loadCurrentStep($workflow['workflowid']);
-		}
-
-		// check all our running workflows
-		$cw =& $this->current_workflows['running'];
-		for (reset($cw); null !== ($workflowid = key($cw)); next($cw)) {
-			$workflow =& $cw[$workflowid];
-			if ($workflow['current_step'] === 0) {
-				$this->current_workflows['complete'][$workflowid] = $this->current_workflows['running'][$workflowid];
-			}
-		}
-
-		foreach ($this->current_workflows['running'] as $workflowid => $data) {
-			if (isset($this->current_workflows['complete'][$workflowid])) {
-				unset($this->current_workflows['running'][$workflowid]);
-			}
-		}
-
-		if (empty($this->current_workflows['running'])) $this->state = 'complete';
-
-		return true;
-
-	}//end loadRunning()
+	}//end getSchemaWorkflows()
 
 
 	/**
-	* Goes through the passed running workflow and sets what step we are up to
+	* Set workflow values for an asset
 	*
-	* @param int	$workflowid	the workflow we are working out the current step for
+	* @param int	$assetid	the ID of the asset to set the values for
+	* @param array	$workflow	the values to set
+	*
+	* @access public
+	* @return boolean
+	*/
+	function setWorkflow($assetid, $workflow)
+	{
+		$assetid = (int) $assetid;
+
+		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		if (is_null($asset)) {
+			trigger_error('Failed setting workflow, Asset #'.$assetid.' does not exist', E_USER_WARNING);
+			return false;
+		}
+
+		if (!$asset->adminAccess()) {
+			trigger_error('Cannot set workflow for "'.$asset->name.'", permission denied', E_USER_WARNING);
+			return false;
+		}
+
+		$schemas = $this->getSchemas($asset->id, true);
+		if (empty($schemas)) return false;
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		foreach ($schemas as $schemaid) {
+			$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
+			if (is_null($schema)) {
+				trigger_error('Failed setting workflow, Schema #'.$schemaid.' does not exist', E_USER_WARNING);
+				return false;
+			}
+
+			if (!is_a($schema, 'workflow_schema')) {
+				trigger_error('Failed setting workflow, "'.$schema->name.'" (Asset #'.$schemaid.') is not a workflow schema', E_USER_WARNING);
+				return false;
+			}
+
+			if (!isset($workflow[$schema->name])) continue;
+
+			$values = Array('workflow' => $db->quote(serialize($workflow[$schema->name])));
+			$where = 'assetid = '.$db->quote($asset->id).'
+					    AND schemaid = '.$db->quote($schema->id);
+			if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_workflow', $values, $where)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return false;
+			}
+		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		return true;
+
+	}//end setWorkflow()
+
+
+	/**
+	* Returns an array of all users who can publish one of the running workflows
+	*
+	* The publishers are based on the current step in the workflow
+	* so the users returned are only users who will affect the workflow at this point.
+	*
+	* @param int		$assetid	the ID of the asset to get publishers for
+	* @param boolean	$group		group the return value by workflowid
+	*
+	* @return array(int)
+	* @access public
+	*/
+	function whoCanPublish($assetid, $group=false)
+	{
+		// if there are no current workflows running, we are not waiting for anyone
+		$running_schemas = $this->getSchemas($assetid, true, true);
+		if (empty($running_schemas)) return Array();
+
+		// these will be the people who can approve this asset
+		// at this point in the workflow
+		$can_publish = Array();
+
+		foreach ($running_schemas as $schemaid) {
+			if ($group) {
+				$can_publish[$schemaid] = $this->_whoCanPublishWorkflow($assetid, $schemaid);
+				array_unique($can_publish[$schemaid]);
+			} else {
+				$can_publish = array_merge($can_publish, $this->_whoCanPublishWorkflow($assetid, $schemaid));
+			}
+		}
+
+		if (!$group) $can_publish = array_unique($can_publish);
+		return $can_publish;
+
+	}//end whoCanPublish()
+
+
+	/**
+	* Returns an array of all users who can publish the running workflow for the passed schemaID
+	*
+	* The publishers are based on the current step in the workflow
+	* so the users returned are only users who will affect the workflow at this point
+	*
+	* @param int	$assetid	the ID of the asset to get publishers for
+	* @param int	$schemaid	the id of the schema to find publishers for
+	*
+	* @return array(int)
+	* @access private
+	*/
+	function _whoCanPublishWorkflow($assetid, $schemaid)
+	{
+		// if this workflow is not running, we are not waiting for anyone
+		$running_schemas = $this->getSchemas($assetid, true, true);
+		if (!in_array($schemaid, $running_schemas)) return Array();
+
+		// these will be the people who can approve this asset at this point in the workflow
+		$can_publish = Array();
+		$workflow = $this->getSchemaWorkflows($assetid, $schemaid);
+
+		for (reset($workflow['steps']); null !== ($stepid = key($workflow['steps'])); next($workflow['steps'])) {
+			$step_data =& $workflow['steps'][$stepid];
+			if ($stepid != $workflow['current_step']) continue;
+
+			for (reset($step_data['conditions']);
+					null !== ($pub = key($step_data['conditions'])); next($step_data['conditions'])) {
+				$cond_data =& $step_data['conditions'][$pub];
+
+				// safety code
+				if (!isset($cond_data['complete'])) $cond_data['complete'] = false;
+				if (!isset($cond_data['published_by'])) $cond_data['published_by'] = Array();
+
+				if ($cond_data['complete']) {
+					$complete = true;
+				} else {
+					$complete = false;
+					$can_publish_cond = Array();
+
+					// work out who can publish right now
+					$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($pub);
+					if ($asset->id) {
+						if (is_a($asset, 'user')) {
+							$can_publish_cond[] = $asset->id;
+						} else if (is_a($asset, 'user_group')) {
+							$can_publish_cond = $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, Array('user'), false);
+						}
+					}
+
+					if ($cond_data['logic'] == 'all') {
+						$cond_string = 'if ('.count($cond_data['published_by']).
+									   ' >= '.count($can_publish_cond).') { $complete = true; }';
+					} else {
+						$cond_string = 'if ('.count($cond_data['published_by']).
+									   ' '.$cond_data['logic'].') { $complete = true; }';
+					}
+					eval($cond_string);
+				}
+
+				if (!$complete) {
+					$can_publish = array_merge($can_publish, array_diff($can_publish_cond, $cond_data['published_by']));
+				}
+			}
+		}
+
+		return array_unique($can_publish);
+
+	}//end _whoCanPublishWorkflow()
+
+
+	/**
+	* Goes through the passed workflow array and sets what step we are up to
+	*
+	* @param array	&$workflow	the workflow we are working out the current step for
 	*
 	* @return void
 	* @access private
 	*/
-	function _loadCurrentStep($workflowid)
+	function _loadCurrentStep(&$workflow)
 	{
-		// if there are no current workflows running, how can someone publish?
-		if (!isset($this->current_workflows['running'][$workflowid])) return false;
-
 		// run through and work out what step we are up to
-		$workflow =& $this->current_workflows['running'][$workflowid];
 		$workflow['current_step'] = 0;
 		$continue = false;
 		for (reset($workflow['steps']); null !== ($stepid = key($workflow['steps'])); next($workflow['steps'])) {
@@ -251,7 +443,8 @@ class Workflow_Manager extends Resolve_Object
 			$continue = false;
 			$completed_conds = 0;
 
-			for (reset($step_data['conditions']); null !== ($pub = key($step_data['conditions'])); next($step_data['conditions'])) {
+			for (reset($step_data['conditions']); 
+					null !== ($pub = key($step_data['conditions'])); next($step_data['conditions'])) {
 				$continue = false;
 				$cond_data =& $step_data['conditions'][$pub];
 
@@ -273,7 +466,7 @@ class Workflow_Manager extends Resolve_Object
 					$complete = true;
 				} else {
 					$complete = false;
-					if ($cond_data['require'] == 'all') {
+					if ($cond_data['logic'] == 'all') {
 						// lets work out what number 'ALL' represents
 						$can_publish_cond = Array();
 						$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($pub);
@@ -281,12 +474,14 @@ class Workflow_Manager extends Resolve_Object
 							if (is_a($asset, 'user')) {
 								$can_publish_cond[] = $asset->id;
 							} else if (is_a($asset, 'user_group')) {
-								$can_publish_cond = $asset->getChildren(Array('user'), false);
+								$can_publish_cond = $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, Array('user'), false);
 							}
 						}
-						$cond_string = 'if ('.count($cond_data['published_by']).' >= '.count($can_publish_cond).') { $complete = true; }';
+						$cond_string = 'if ('.count($cond_data['published_by']).
+									   ' >= '.count($can_publish_cond).') { $complete = true; }';
 					} else {
-						$cond_string = 'if ('.count($cond_data['published_by']).' '.$cond_data['require'].') { $complete = true; }';
+						$cond_string = 'if ('.count($cond_data['published_by']).
+									   ' '.$cond_data['logic'].') { $complete = true; }';
 					}
 					eval($cond_string);
 				}
@@ -303,17 +498,16 @@ class Workflow_Manager extends Resolve_Object
 					eval($logic_string);
 
 					if ($completed) {
-						// this step is completed
-						// so move to the next one
+						// this step is completed so move to the next one
 						break;
 					} else {
-						// step is not finsihed yet so move
-						// to the next condition
+						// step is not finished yet so move to the next condition
 						$continue = false;
 						continue;
 					}
 				}
 			}
+			if ($step_data['logic'] == 'all' && $completed_conds < count($step_data['conditions'])) $continue = false;
 			if (!$continue) break;
 		}
 
@@ -323,653 +517,263 @@ class Workflow_Manager extends Resolve_Object
 
 
 	/**
-	* Returns an array of all users who can publish one of the running workflows
-	* Note that the publishers are based on the current step in the workflow
-	* so the users returned are only users who will affect the workflow at this point
+	* Changes the running workflows for an asset to indicate that a user has approved the asset
 	*
-	* @param boolean	$group	group the return value by workflowid
-	*
-	* @return array(int)
-	* @access public
-	*/
-	function whoCanPublish($group=false)
-	{
-		// if there are no current workflows running, we are not waiting for anyone
-		if (!isset($this->current_workflows['running']) || empty($this->current_workflows['running'])) return Array();
-
-		// these will be the people who can approve this asset
-		// at this point in the workflow
-		$can_publish = Array();
-
-		foreach ($this->current_workflows['running'] as $workflowid => $workflow) {
-			if ($group) {
-				$can_publish[$workflowid] = $this->_whoCanPublishWorkflow($workflowid);
-				array_unique($can_publish[$workflowid]);
-			} else {
-				$can_publish = array_merge($can_publish, $this->_whoCanPublishWorkflow($workflowid));
-			}
-		}
-
-		if (!$group) $can_publish = array_unique($can_publish);
-		return $can_publish;
-
-	}//end whoCanPublish()
-
-
-	/**
-	* Returns an array of all users who can publish the passed running workflow
-	* Note that the publishers are based on the current step in the workflow
-	* so the users returned are only users who will affect the workflow at this point
-	*
-	* @param int	$workflowid	the id of the running workflow to find publishers for
-	*
-	* @return array(int)
-	* @access private
-	*/
-	function _whoCanPublishWorkflow($workflowid)
-	{
-		// if this workflow is not running, we are not waiting for anyone
-		if (!isset($this->current_workflows['running'][$workflowid])) return Array();
-
-		// these will be the people who can approve this asset
-		// at this point in the workflow
-		$can_publish = Array();
-		$workflow =& $this->current_workflows['running'][$workflowid];
-
-		for (reset($workflow['steps']); null !== ($stepid = key($workflow['steps'])); next($workflow['steps'])) {
-			$step_data =& $workflow['steps'][$stepid];
-			if ($stepid != $workflow['current_step']) continue;
-
-			for (reset($step_data['conditions']); null !== ($pub = key($step_data['conditions'])); next($step_data['conditions'])) {
-				$cond_data =& $step_data['conditions'][$pub];
-
-				// safety code
-				if (!isset($cond_data['complete'])) $cond_data['complete'] = false;
-				if (!isset($cond_data['published_by'])) $cond_data['published_by'] = Array();
-
-				if ($cond_data['complete']) {
-					$complete = true;
-				} else {
-					$complete = false;
-					$can_publish_cond = Array();
-
-					// work out who can publish right now
-					$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($pub);
-					if ($asset->id) {
-						if (is_a($asset, 'user')) {
-							$can_publish_cond[] = $asset->id;
-						} else if (is_a($asset, 'user_group')) {
-							$can_publish_cond = $asset->getChildren(Array('user'), false);
-						}
-					}
-
-					if ($cond_data['require'] == 'all') {
-						$cond_string = 'if ('.count($cond_data['published_by']).' >= '.count($can_publish_cond).') { $complete = true; }';
-					} else {
-						$cond_string = 'if ('.count($cond_data['published_by']).' '.$cond_data['require'].') { $complete = true; }';
-					}
-					eval($cond_string);
-				}
-
-				if (!$complete) {
-					$can_publish = array_merge($can_publish, array_diff($can_publish_cond, $cond_data['published_by']));
-				}
-			}
-		}
-
-		return array_unique($can_publish);
-
-	}//end _whoCanPublishWorkflow()
-
-
-	/**
-	* Changes the workflows to indicate that a user has approved the asset
-	*
-	* @param int	$publisher	the id of the user who has approved
+	* @param int	$assetid	the ID of the asset to set the approval for
+	* @param int	$publisher	the ID of the user who has approved
 	*
 	* @return boolean
 	* @access public
 	*/
-	function recordPublish($publisher)
+	function recordPublish($assetid, $publisher)
 	{
-		// if there are no current workflows running, how can someone publish?
-		if (!isset($this->current_workflows['running']) || empty($this->current_workflows['running'])) return false;
-		$cw =& $this->current_workflows['running'];
-		$updated = false;
+		// if there are no current workflows running, how can someone publish (you do the math)?
+		$running_schemas = $this->getSchemas($assetid, true, true);
+		if (empty($running_schemas)) return false;
+		$schema_workflows = $this->getSchemaWorkflows($assetid);
 
-		for (reset($cw); null !== ($workflowid = key($cw)); next($cw)) {
-			$workflow =& $cw[$workflowid];
-			$workflow_updated = false;
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-			// safety code for blank workflows
-			if (empty($workflow['steps'])) $workflow_updated = true;
-
-			for (reset($workflow['steps']); null !== ($stepid = key($workflow['steps'])); next($workflow['steps'])) {
-				if ($stepid != $workflow['current_step']) continue;
-				$step_data =& $workflow['steps'][$stepid];
-
-				for (reset($step_data['conditions']); null !== ($pub = key($step_data['conditions'])); next($step_data['conditions'])) {
-					$cond_data =& $step_data['conditions'][$pub];
-					// work out who can publish this condition
-					$can_publish = Array();
-					$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($pub);
-					if ($asset->id) {
-						if (is_a($asset, 'user')) {
-							$can_publish[] = $asset->id;
-						} else if (is_a($asset, 'user_group')) {
-							$can_publish = $asset->getChildren(Array('user'), false);
-						}
-					}
-
-					if (in_array($publisher, $can_publish)) {
-						if (!isset($cond_data['published_by'])) $cond_data['published_by'] = Array();
-						// if the publisher has not already published
-						if (!in_array($publisher, $cond_data['published_by'])) {
-							$cond_data['published_by'][] = $publisher;
-							$workflow_updated = true;
-						}
-					}
-				}
+		for (reset($schema_workflows); null !== ($schemaid = key($schema_workflows)); next($schema_workflows)) {
+			if (!in_array($schemaid, $running_schemas)) continue;
+			$workflow =& $schema_workflows[$schemaid];
+			if (!$this->_recordPublish($workflow, $publisher)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return false;
 			}
 
-			if ($workflow_updated) {
-				$this->_loadCurrentStep($workflowid);
-				if ($workflow['current_step'] === 0) {
-					$this->current_workflows['complete'][$workflowid] = $this->current_workflows['running'][$workflowid];
-				}
-				$updated = true;
+			$new_workflow = serialize($workflow);
+			$values = Array('workflow' => $db->quote($new_workflow));
+			$where = 'assetid = '.$db->quote($assetid).'
+					    AND schemaid = '.$db->quote($schemaid);
+			if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_workflow', $values, $where)) {
+				return false;
 			}
 		}
 
-		foreach ($this->current_workflows['running'] as $workflowid => $data) {
-			if (isset($this->current_workflows['complete'][$workflowid])) {
-				unset($this->current_workflows['running'][$workflowid]);
-			}
-		}
-
-		if (empty($this->current_workflows['running'])) {
-			// we finished all our workflows.. YAY!!
-			$this->state = 'complete';
-			return true;
-		}
-
-		return $updated;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		return true;
 
 	}//end recordPublish()
 
 
 	/**
-	* Pretend this user has approved the workflow to see what the resulting state will be
-	* Use this to find out if the user is allowed to live edit
+	* Pretend this user has approved the workflow to see if the workflow process will be completed
 	*
-	* @param int	$publisher	the id of the user who we are testing approval for
+	* Use this to find out if the user is allowed to live edit.
 	*
-	* @return string
+	* @param int	$assetid	the ID of the asset to set the approval for
+	* @param int	$publisher	the ID of the user who we are testing approval for
+	*
+	* @return boolean
 	* @access public
 	*/
-	function testPublish($publisher)
+	function testPublish($assetid, $publisher)
 	{
-		// remember what the old vars were
-		$old_cw = $this->current_workflows;
-		$old_state = $this->state;
-
-		if ($this->state != 'running') {
-			// we dont actually have any running
-			// workflows, so lets pretend we do
-			$workflows_todo = Array();
-			if (!empty($this->inherited_workflows)) {
-				foreach ($this->inherited_workflows as $assetid => $workflow) {
-					if (empty($workflow->steps)) continue;
-					$workflows_todo[$assetid] = $workflow->steps;
-				}
-			}
-			$workflows_todo[$this->_asset->id] = $this->steps;
-
-			if (empty($workflows_todo)) return $this->state;
-
-			foreach ($workflows_todo as $assetid => $steps) {
-				$workflowid = "{$this->_asset->id}~{$assetid}";
-				$this->current_workflows['running'][$workflowid]['steps'] = $steps;
-				$this->current_workflows['running'][$workflowid]['current_step'] = 1;
+		$schema_workflows = $this->getSchemaWorkflows($assetid);
+		$running_schemas = $this->getSchemas($assetid, true, true);
+		if (empty($running_schemas)) {
+			// we dont actually have any running workflows, so lets pretend we do
+			$schemas = $this->getSchemas($assetid, true);
+			foreach ($schemas as $schemaid) {
+				$schema_workflows[$schemaid] = $this->generateWorkflowArray($assetid, $schemaid);
+				$running_schemas[] = $schemaid;
 			}
 		}
 
-		$this->recordPublish($publisher);
-		$new_state = $this->state;
+		for (reset($schema_workflows); null !== ($schemaid = key($schema_workflows)); next($schema_workflows)) {
+			if (!in_array($schemaid, $running_schemas)) continue;
+			$workflow =& $schema_workflows[$schemaid];
+			if (!$this->_recordPublish($workflow, $publisher)) return false;
+			if (!$workflow['complete']) return false;
+		}
 
-		// set the vars back to their original values
-		// because we dont want to change anything
-		$this->current_workflows = $old_cw;
-		$this->state = $old_state;
-
-		return $new_state;
+		return true;
 
 	}//end testPublish()
 
 
 	/**
-	* Returns an array of ids of assets that have currently running workflows based on this workflow
+	* Changes the passed workflow to indicate that a user has approved the asset
+	*
+	* Returns TRUE if the publisher was able to publish and thus that the passed workflow
+	* has actually changed - FALSE otherwise.
+	*
+	* @param array	&$workflow	the workflow add approval to
+	* @param int	$publisher	the ID of the user who has approved
 	*
 	* @return boolean
 	* @access public
 	*/
-	function getRunningInheriting()
+	function _recordPublish(&$workflow, $publisher)
 	{
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$workflow_updated = false;
 
-		$where = 'workflowid LIKE '.$db->quote('%~'.$this->_asset->id);
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
-		$sql = 'SELECT workflowid FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_running_workflow '.$where;
+		// safety code for blank workflows
+		if (empty($workflow['steps'])) $workflow_updated = true;
 
-		$result = $db->getCol($sql);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-			return Array();
+		for (reset($workflow['steps']); null !== ($stepid = key($workflow['steps'])); next($workflow['steps'])) {
+			if (!isset($workflow['current_step'])) $workflow['current_step'] = 1;
+			if ($stepid != $workflow['current_step']) continue;
+			$step_data =& $workflow['steps'][$stepid];
+
+			for (reset($step_data['conditions']);
+					null !== ($pub = key($step_data['conditions'])); next($step_data['conditions'])) {
+
+				$cond_data =& $step_data['conditions'][$pub];
+				// work out who can publish this condition
+				$can_publish = Array();
+				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($pub);
+				if ($asset->id) {
+					if (is_a($asset, 'user')) {
+						$can_publish[] = $asset->id;
+					} else if (is_a($asset, 'user_group')) {
+						$can_publish = $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, Array('user'), false);
+					}
+				}
+
+				if (in_array($publisher, $can_publish)) {
+					if (!isset($cond_data['published_by'])) $cond_data['published_by'] = Array();
+					// if the publisher has not already published
+					if (!in_array($publisher, $cond_data['published_by'])) {
+						$cond_data['published_by'][$publisher] = time();
+						$workflow_updated = true;
+					}
+				}
+			}
 		}
 
-		$return_result = Array();
-		foreach ($result as $id) {
-			list($assetid, $me) = explode('~', $id);
-			if ($assetid == $me) continue;
-			$return_result[] = $assetid;
+		if ($workflow_updated) {
+			// load the current step into the workflow
+			$this->_loadCurrentStep($workflow);
+			if ($workflow['current_step'] === 0) $workflow['complete'] = true;
+			$updated = true;
 		}
 
-		return array_unique($return_result);
+		return $workflow_updated;
 
-	}//end getRunningInheriting()
+	}//end _recordPublish()
 
 
 	/**
-	* Starts the workflow by writing out all workflows to the running table
+	* Generate an array representing the workflow structure for a schema at this point in time
+	*
+	* The generated array is a snap shot of the schema at a point in time that can get written
+	* to the database and used for publishing etc.
+	*
+	* @param int	$assetid	the ID of the asset to generate the fle for
+	*
+	* @access public
+	* @return boolean
+	*/
+	function generateWorkflowArray($assetid, $schemaid)
+	{
+		$assetid  = (int) $assetid;
+		$schemaid = (int) $schemaid;
+
+		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		if (is_null($asset)) {
+			trigger_error('Failed getting workflow, Asset #'.$assetid.' does not exist', E_USER_WARNING);
+			return false;
+		}
+
+		$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
+		if (is_null($schema)) {
+			trigger_error('Failed getting workflow, Schema #'.$schemaid.' does not exist', E_USER_WARNING);
+			return false;
+		}
+
+		if (!is_a($schema, 'workflow_schema')) {
+			trigger_error('Failed getting workflow, "'.$schema->name.'" (Asset #'.$schemaid.') is not a workflow schema', E_USER_WARNING);
+			return false;
+		}
+
+		// check that the schema we are generating an array for is actually set
+		$schemas = $this->getSchemas($assetid, true);
+		if (!in_array($schemaid, $schemas)) return Array();
+
+		$edit_fns = $schema->getEditFns();
+		return $edit_fns->generateWorkflowArray($schema);
+
+	}//end generateWorkflowArray()
+
+
+	/**
+	* Starts workflow by writing out all workflow arrays to the workflow table for the passed assetID
+	*
+	* @param int	$assetid	the ID of the asset to start workflow for
 	*
 	* @return boolean
 	* @access public
 	*/
-	function start()
+	function startWorkflow($assetid)
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$schemas = $this->getSchemas($assetid, true, false);
 
-		$workflows_todo = Array();
-		if (!empty($this->inherited_workflows)) {
-			foreach ($this->inherited_workflows as $assetid => $workflow) {
-				if (empty($workflow->steps)) continue;
-				$workflows_todo[$assetid] = $workflow->steps;
-			}
-		}
-		$workflows_todo[$this->_asset->id] = $this->steps;
+		if (empty($schemas)) return false;
 
-		if (empty($workflows_todo)) return false;
+		foreach ($schemas as $schemaid) {
+			$workflow = $this->generateWorkflowArray($assetid, $schemaid);
+			if (empty($workflow['steps'])) continue;
+			$workflow = serialize($workflow);
 
-		foreach ($workflows_todo as $assetid => $steps) {
-			if (empty($steps)) continue;
-			$workflowid = "{$this->_asset->id}~{$assetid}";
-			$workflow = serialize($steps);
-
-			$values = Array('workflowid' => $workflowid,
-							'complete'   => 0,
-							'workflow'   => $workflow);
-			if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_running_workflow', $values)) {
+			$values = Array('workflow' => $db->quote($workflow));
+			$where = 'assetid = '.$db->quote($assetid).'
+					    AND schemaid = '.$db->quote($schemaid);
+			if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_workflow', $values, $where)) {
 				return false;
 			}
 		}
 
 		return true;
 
-	}//end start()
+	}//end startWorkflow()
 
 
 	/**
-	* Writes the current state of this workflow to the database
+	* Starts workflow by writing out all workflow arrays to the workflow table for the passed assetID
+	*
+	* @param int	$assetid	the ID of the asset to check workflow completness for
 	*
 	* @return boolean
 	* @access public
 	*/
-	function save()
+	function isWorkflowComplete($assetid)
 	{
-		$steps = serialize($this->steps);
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		$running_schemas = $this->getSchemas($assetid, true, true);
+		if (empty($running_schemas)) return true;
+		$schema_workflows = $this->getSchemaWorkflows($assetid);
 
-		switch ($this->state) {
-			case 'new' :
-				if (!empty($this->steps)) {
-					// a brand new direct workflow to save
-					$values = Array('assetid'  => $this->_asset->id,
-									'workflow' => $steps
-									);
-					if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_workflow', $values)) {
-						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-						return false;
-					}
-
-					if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($this->_asset->id, $this->_asset->id, SQ_PERMISSION_WORKFLOW, '1')) {
-						trigger_error('Failed saving workflow for "'.$this->_asset->name.'", could not grant workflow permission', E_USER_WARNING);
-						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-						return false;
-					}
-				}
-			break;
-
-			case 'idle' :
-				if (empty($this->steps)) {
-					// workflow is no more
-					$where_cond = 'assetid = '.$db->quote($this->_asset->id);
-					if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_workflow', $where_cond)) {
-						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-						return false;
-					}
-
-					if (!$GLOBALS['SQ_SYSTEM']->am->deletePermission($this->_asset->id, $this->_asset->id, SQ_PERMISSION_WORKFLOW)) {
-						trigger_error('Failed saving workflow for "'.$this->_asset->name.'", could not revoke workflow permission', E_USER_WARNING);
-						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-						return false;
-					}
-				} else {
-					// updating an existing direct workflow
-					$where = 'assetid = '.$db->quote($this->_asset->id);
-					$values = Array('workflow' => $db->quote($steps));
-					if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_workflow', $values, $where)) {
-						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-						return false;
-					}
-				}
-			break;
-
-			case 'running' :
-				// updating existing running workflows
-				if (!empty($this->current_workflows['running'])) {
-					foreach ($this->current_workflows['running'] as $workflowid => $workflow) {
-						$steps = serialize($workflow['steps']);
-						
-						$where = 'workflowid = '.$db->quote($workflowid);
-						$values = Array('complete' => 0,
-										'workflow' => $db->quote($steps)
-										);
-						if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_running_workflow', $values, $where)) {
-							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-							return false;
-						}
-					}
-				}
-				if (!empty($this->current_workflows['complete'])) {
-					foreach ($this->current_workflows['complete'] as $workflowid => $workflow) {
-						$steps = serialize($workflow['steps']);
-
-						$where = 'workflowid = '.$db->quote($workflowid);
-						$values = Array('complete' => 1,
-										'workflow' => $db->quote($steps)
-										);
-						if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_running_workflow', $values, $where)) {
-							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-							return false;
-						}
-					}
-				}
-			break;
-
-			case 'complete' :
-				// all workflows are completed
-				$where_cond = 'workflowid LIKE '.$db->quote($this->_asset->id.'~%');
-				if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_running_workflow', $where_cond)) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return false;
-				}
-			break;
-
-			default :
-				return false;
-			break;
+		foreach ($schema_workflows as $schemaid => $workflow) {
+			if (!in_array($schemaid, $running_schemas)) continue;
+			if (empty($workflow['steps'])) continue;
+			if (!$workflow['complete']) return false;
 		}
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		return true;
 
-	}//end save()
+	}//end isWorkflowComplete()
 
 
 	/**
-	* Cancels all currently running workflows
+	* Clears all generated workflow arrays from the workflow table for the passed assetID
+	*
+	* @param int	$assetid	the ID of the asset to cancel workflow for
 	*
 	* @return boolean
 	* @access public
 	*/
-	function cancel()
+	function cancelWorkflow($assetid)
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$values = Array('workflow' => 'NULL');
+		$where = 'assetid = '.$db->quote($assetid);
+		return $GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_workflow', $values, $where);
 
-		$where_cond = 'workflowid LIKE '.$db->quote($this->_asset->id.'~%');
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_running_workflow', $where_cond)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
-
-		return true;
-
-	}//end cancel()
-
-
-	/**
-	* Adds a step to the direct workflow for the asset being managed
-	* Returns the new stepid
-	*
-	* @return int
-	* @access public
-	*/
-	function addStep()
-	{
-		$stepid = count($this->steps) + 1;
-
-		$this->steps[$stepid] = Array();
-		$this->steps[$stepid]['logic'] = '>= 1';
-		$this->steps[$stepid]['conditions'] = Array();
-
-		// add a default condition - that the user that set this has to approve
-		$this->addCondition($stepid, $GLOBALS['SQ_SYSTEM']->currentUserid());
-
-		return $stepid;
-
-	}//end addStep()
-
-
-	/**
-	* Deletes a step from the direct workflow for the asset being managed
-	*
-	* @param int	$stepid	the id of the step to delete
-	*
-	* @return boolean
-	* @access public
-	*/
-	function deleteStep($stepid)
-	{
-		$stepid = (int)$stepid;
-		if (!$stepid) return false;
-
-		if (!isset($this->steps[$stepid])) {
-			trigger_error("Cannot delete workflow step, step $stepid does not exist", E_USER_WARNING);
-			return false;
-		}
-
-		unset($this->steps[$stepid]);
-
-		// move all the other steps up one position
-		$new_steps = Array();
-		foreach ($this->steps as $step => $step_data) {
-			if ($step < $stepid) $new_stepid = $step;
-			else $new_stepid = $step -1;
-			$new_steps[$new_stepid] = $step_data;
-		}
-		$this->steps = $new_steps;
-
-		return true;
-
-	}//end deleteStep()
-
-
-	/**
-	* Sets how many conditions need to be completed before this step is complete
-	*
-	* @param int	$stepid		the id of the step to set the logic for
-	* @param string	$logic		the logic string (from $this->_valid_step_logic)
-	* @param int	$logic_num	how many conditions need to be approved
-	*
-	* @return boolean
-	* @access public
-	*/
-	function setStepLogic($stepid, $logic='>=', $logic_num=1)
-	{
-		$stepid = (int)$stepid;
-		if (!$stepid) return false;
-
-		if (!isset($this->steps[$stepid])) {
-			trigger_error("Cannot edit step logic, step $stepid does not exist", E_USER_WARNING);
-			return false;
-		}
-
-		$logic = trim((string)$logic);
-		if (!in_array($logic, array_keys($this->_valid_step_logic))) {
-			trigger_error("Cannot edit step logic, '$logic' is not a valid step logic", E_USER_WARNING);
-			return false;
-		}
-
-		$logic_num = (int)$logic_num;
-		if (!$logic_num && $logic != 'all') {
-			trigger_error("Cannot edit step logic, logic number cannot be zero", E_USER_WARNING);
-			return false;
-		}
-
-		// work out the logic expression
-		$logic = $logic.(($logic_num) ? " $logic_num" : '');
-		$this->steps[$stepid]['logic'] = $logic;
-
-		return true;
-	}//end setStepLogic()
-
-
-	/**
-	* Adds a condition to the passed step
-	*
-	* @param int	$stepid		the id of the step the condition is in
-	* @param int	$publisher	the id of the publisher / condition
-	* @param string	$logic		the logic string (from $this->_valid_cond_logic)
-	* @param int	$logic_num	how many users in a group need to approve
-	*
-	* @return boolean
-	* @access public
-	*/
-	function addCondition($stepid, $publisher, $logic='>=', $logic_num=1)
-	{
-		$stepid = (int)$stepid;
-		if (!$stepid) return false;
-
-		if (!isset($this->steps[$stepid])) {
-			trigger_error("Cannot add step condition, step $stepid does not exist", E_USER_WARNING);
-			return false;
-		}
-
-		$logic = trim((string)$logic);
-		if (!isset($this->_valid_cond_logic[$logic])) {
-			trigger_error("Cannot add step condition, '$logic' is not a valid condition logic", E_USER_WARNING);
-			return false;
-		}
-
-		$publisher = (int)$publisher;
-		if (isset($this->steps[$stepid]['conditions'][$publisher])) {
-			trigger_error("Cannot add step condition, publisher $publisher is already set in step $stepid", E_USER_WARNING);
-			return false;
-		}
-
-		// work out the logic expression
-		$logic_num = (int)$logic_num;
-		$require = $logic.(($logic_num) ? " $logic_num" : '');
-		$this->steps[$stepid]['conditions'][$publisher] = Array('require' => $require, 'published_by' => Array());
-
-		return true;
-	}//end addCondition()
-
-
-	/**
-	* Sets how many users need to approve before the condition is complete
-	*
-	* @param int	$stepid		the id of the step the condition is in
-	* @param int	$publisher	the id of the publisher / condition
-	* @param string	$logic		the logic string (from $this->_valid_cond_logic)
-	* @param int	$logic_num	how many users in a group need to approve
-	*
-	* @return boolean
-	* @access public
-	*/
-	function setConditionLogic($stepid, $publisher, $logic='>=', $logic_num=1)
-	{
-		$stepid = (int)$stepid;
-		if (!$stepid) return false;
-
-		if (!isset($this->steps[$stepid])) {
-			trigger_error("Cannot edit step condition logic, step $stepid does not exist", E_USER_WARNING);
-			return false;
-		}
-
-		$logic = trim((string)$logic);
-		if (!isset($this->_valid_cond_logic[$logic])) {
-			trigger_error("Cannot edit step condition logic, '$logic' is not a valid condition logic", E_USER_WARNING);
-			return false;
-		}
-
-		$publisher = (int)$publisher;
-		if (!isset($this->steps[$stepid]['conditions'][$publisher])) {
-			trigger_error("Cannot edit step condition logic, publisher $publisher is not set in step $stepid", E_USER_WARNING);
-			return false;
-		}
-
-		$logic_num = (int)$logic_num;
-		if (!$logic_num && $logic != 'all') {
-			trigger_error("Cannot edit step condition logic, logic number cannot be zero", E_USER_WARNING);
-			return false;
-		}
-
-		// work out the logic expression
-		$require = $logic.(($logic_num) ? " $logic_num" : '');
-		$this->steps[$stepid]['conditions'][$publisher]['require'] = $require;
-
-		return true;
-	}//end setConditionLogic()
-
-
-	/**
-	* Deletes a condition from the passed step
-	*
-	* @param int	$stepid		the id of the step the condition is in
-	* @param int	$publisher	the id of the publisher / condition
-	*
-	* @return boolean
-	* @access public
-	*/
-	function deleteCondition($stepid, $publisher)
-	{
-		$stepid = (int)$stepid;
-		if (!$stepid) return false;
-
-		if (!isset($this->steps[$stepid])) {
-			trigger_error("Cannot delete step condition, step $stepid does not exist", E_USER_WARNING);
-			return false;
-		}
-
-		$publisher = (int)$publisher;
-		if (!isset($this->steps[$stepid]['conditions'][$publisher])) {
-			trigger_error("Cannot delete step condition, publisher $publisher does not exist in step $stepid", E_USER_WARNING);
-			return false;
-		}
-
-		if (count($this->steps[$stepid]['conditions']) == 1) {
-			trigger_error("Cannot delete step condition, it is the last condition left in step $stepid", E_USER_WARNING);
-			return false;
-		}
-
-		unset($this->steps[$stepid]['conditions'][$publisher]);
-
-		return true;
-	}//end deleteCondition()
-
+	}//end cancelWorkflow()
 
 }//end class
+
 ?>

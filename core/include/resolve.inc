@@ -61,6 +61,11 @@ class Resolve
 	var $mm;
 
 	/**
+	* @var object Workflow_Manager
+	*/
+	var $wm;
+
+	/**
 	* @var object File_Versioning
 	*/
 	var $fv;
@@ -617,6 +622,24 @@ class Resolve
 		return $this->mm;
 
 	}//end getMetadataManager()
+
+
+	/**
+	* Get the workflow manager so you can manage workflow in the system
+	* Always call this function to get the workflow manager, dont use $this->wm directly
+	*
+	* @return object Workflow_Manager
+	* @access public
+	*/
+	function &getWorkflowManager()
+	{
+		if(!isset($this->wm) || get_class($this->mm) != 'workflow_manager') {
+			require_once SQ_INCLUDE_PATH.'/workflow_manager.inc';
+			$this->wm = new Workflow_Manager();
+		}
+		return $this->wm;
+
+	}//end getWorkflowManager()
 
 
 	/**

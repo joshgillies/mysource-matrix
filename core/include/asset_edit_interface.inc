@@ -1613,52 +1613,34 @@ class Asset_Edit_Interface extends Resolve_Object
 	*/
 	function paintWorkflow(&$owner, &$o)
 	{
-		$prefix = $owner->getPrefix().'_workflow';
+		$prefix = $owner->getPrefix();
 
-		require_once SQ_INCLUDE_PATH.'/workflow_manager.inc';
-		$wfm = new Workflow_Manager($owner, true, true, true);
+		$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+		$schemas = $wfm->getSchemas($owner->id);
+		$running_schemas = $wfm->getSchemas($owner->id, true, true);
 
-		$inheriting_workflows = array_keys($GLOBALS['SQ_SYSTEM']->am->getAssetTypeInfo($wfm->getRunningInheriting()));
-
-		if (!empty($inheriting_workflows)) {
-			$o->openSection('Running Workflows Downstream');
-			$o->openField('Note');
-			echo 'Any changes you make to the workflow will not affect the currently running workflows for the following assets:<ul>';
-			foreach ($inheriting_workflows as $assetid) {
-				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-				echo '<li class="sq-backend-data">'.$asset->name.'</li>';
-			}
-			echo '</ul>';
-			$o->closeSection();
-		}// end if
-
-		$admin_access = false;
-		if ($wfm->state == 'running') {
-			// cant edit workflow when workflow
-			// is currently running
+		// print any currently running workflows
+		if (!empty($running_schemas)) {
+			// cant edit workflow when workflow is currently running
 			$admin_access = false;
 
 			$o->openSection('Current Workflow Progress');
 			$o->openField('Note');
-			echo 'Workflow for this asset is currently in progress. You can not edit the workflow for this asset at this time. The currently running workflows are displayed below followed by the workflow for this asset.';
+			echo 'Workflow for this asset is currently in progress. You can not edit the workflow for this asset at this time. The currently running workflows are displayed below followed by the workflows set for this asset.';
 			$o->closeSection();
 
-			foreach ($wfm->current_workflows['complete'] + $wfm->current_workflows['running'] as $workflowid => $workflow) {
-				list($assetid, $inheritid) = explode('~', $workflowid);
-				$workflow_title = 'Running workflow set at ';
-				if ($assetid == $inheritid) {
-					$workflow_title .= 'this asset';
-				} else {
-					$inherit = &$GLOBALS['SQ_SYSTEM']->am->getAsset($inheritid);
-					if (!$inherit->id) $workflow_title .= "unknown asset $inheritid";
-					else $workflow_title .= $inherit->name;
-				}
-				$o->openSection($workflow_title);
+			$schema_workflows = $wfm->getSchemaWorkflows($owner->id);
+			foreach ($schema_workflows as $schemaid => $workflow) {
+				if (!in_array($schemaid, $running_schemas)) continue;
+
+				$o->openSection('Running workflow - '.$workflow['schema_name']);
 
 				foreach ($workflow['steps'] as $stepid => $step_data) {
-					$section_title = "Step $stepid";
+					$section_title = "Step $stepid - ".$step_data['step_name'];
 					if (!$workflow['current_step'] || $workflow['current_step'] > $stepid) {
-						$section_title .= ' - COMPLETED';
+						$section_title .= ' [<span style="color:#008800">Completed</span>]';
+					} else {
+						$section_title .= ' [<span style="color:#880000">Not Completed</span>]';
 					}
 
 					$o->openSection($section_title);
@@ -1695,12 +1677,12 @@ class Asset_Edit_Interface extends Resolve_Object
 							<td bgcolor="#F0F0F0" class="sq-backend-data"><?php echo '&nbsp;'.$asset->name.' ['.$asset->type()." : $pub]";?></td>
 							<td bgcolor="#F0F0F0" class="sq-backend-data">
 						<?php
-						if (isset($wfm->_valid_cond_logic[$cond_data['require']])) {
+						if (isset($wfm->_valid_cond_logic[$cond_data['logic']])) {
 							// a special type of require statement
 							$cond_logic = $cond_data['require'];
 							$cond_logic_num = '';
 						} else {
-							list($cond_logic, $cond_logic_num) = explode(' ', $cond_data['require']);
+							list($cond_logic, $cond_logic_num) = explode(' ', $cond_data['logic']);
 						}
 
 						if (is_a($asset, 'user')) {
@@ -1715,15 +1697,21 @@ class Asset_Edit_Interface extends Resolve_Object
 							<td bgcolor="#F0F0F0" align="center" class="sq-backend-data">
 							<?php
 								if (isset($cond_data['complete']) && $cond_data['complete']) {
-									echo 'Yes';
+									echo '<span style="color:#008800"><b>Yes</b></span>';
 								} else {
 									// do some extra checking
 									if (is_a($asset, 'user')) {
-										echo ((in_array($asset->id, $cond_data['published_by'])) ? 'Yes' : '&nbsp;');
+										echo ((in_array($asset->id, $cond_data['published_by'])) ? '<span style="color:#008800"><b>Yes</b></span>' : '&nbsp;');
 									} else {
 										if ($cond_logic_num) $user_count = $cond_logic_num;
 										else $user_count = count($GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, Array('user'), false));
+										
+										echo '<span style="color:#';
+										if (count($cond_data['published_by']) >= $user_count) echo '008800';
+										else echo '880000';
+										echo '"><b>';
 										echo count($cond_data['published_by']).' of '.$user_count;
+										echo '</b></span>';
 									}
 								}
 							?>
@@ -1754,212 +1742,88 @@ class Asset_Edit_Interface extends Resolve_Object
 			$admin_access = $owner->adminAccess(Array(), true, false);
 		}
 
+		$o->openSection('Workflow Schemas');
 
-		//// print the list of inherited workflows ////
+		$direct = Array();
+		foreach($schemas as $schemaid => $access) {
+			if (!isset($direct[$access])) $direct[$access] = Array();
+			$direct[$access][] = $schemaid;
+		}
+		ksort($direct);
 
-		$inherited = count($wfm->inherited_workflows);
-		$revoked   = $GLOBALS['SQ_SYSTEM']->am->getPermission($owner->id, SQ_PERMISSION_WORKFLOW, false);
-		$revokes   = count($revoked);
-
-		if ($inherited || $revokes) {
-			$o->openSection('Inherited Workflows');
-
-			if ($inherited) {
-				$o->openField('Inherited');
-				?>
-				<table border="0" cellspacing="1" cellpadding="2" bgcolor="#000000" width="100%">
-				<?php
-				if ($admin_access) {
-					?>
-					<tr>
-						<td bgcolor="#DDDDDD" class="sq-backend-data">&nbsp;</td>
-						<td bgcolor="#DDDDDD" align="center" width="100" class="sq-backend-data"><b>Revoke ?</b></td>
-					</tr>
-					<?php
-				}
-
-				foreach ($wfm->inherited_workflows as $assetid => $data) {
-					$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-					if (is_null($asset)) continue;
-					?>
-					<tr>
-						<td bgcolor="#F0F0F0" class="sq-backend-data">
-						<?php
-							echo 'Workflow inherited from '.$asset->name.' ['.$asset->type()." : $assetid]";
-						?>
-						</td>
-					<?php
-					if ($admin_access) {
-						?>
-						<td bgcolor="#F0F0F0" align="center" width="100" class="sq-backend-data">
-						<?php check_box($prefix."_revoke[$assetid]"); ?>
-						</td>
-						<?php
-					}
-					?></tr><?php
-				}
-
-				?></table><?php
-			}
-
-			if ($revokes) {
-				$o->openField('Revoked');
-				?>
+		if (!empty($direct)) {
+			$o->openField('&nbsp;');
+			foreach ($direct as $access => $schemaids) {
+			?>
 				<table border="0" cellspacing="1" cellpadding="2" bgcolor="#000000" width="100%">
 					<tr>
-						<td bgcolor="#DDDDDD" class="sq-backend-data">&nbsp;</td>
+						<td bgcolor="#DDDDDD" class="sq-backend-data">
+							<span style="font-weight: bold; color: <?php echo (($access == '0') ? 'red' : 'green'); ?>"><?php echo (($access == '0') ? 'Denied' : 'Applied') ?></span>
+						</td>
 						<?php
 						if ($admin_access) {
-							?><td bgcolor="#DDDDDD" align="center" width="100" class="sq-backend-data"><b>Reinstate ?</b></td><?php
+							?><td bgcolor="#DDDDDD" align="center" width="100" class="sq-backend-data" style="font-weight: bold;">Delete ?</td><?php
 						}
 						?>
 					</tr>
 				<?php
-
-				foreach ($revoked as $assetid) {
-					$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-					if (is_null($asset)) continue;
-					?>
+				foreach($schemaids as $schemaid) {
+					if ($schemaid) {
+						$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
+						if (!$schema->id || !is_a($schema, 'workflow_schema')) continue;
+					}
+				?>
 					<tr>
 						<td bgcolor="#F0F0F0" class="sq-backend-data">
-						<?php echo 'Workflow inherited from '.$asset->name.' ['.$asset->type().' : '.$assetid.']'; ?>
-						</td>
-					<?php
-					if ($admin_access) {
+						<?php
+						echo $schema->name.' ['.$schema->type().' : '.$schemaid.']';
 						?>
-						<td bgcolor="#F0F0F0" align="center" width="100" class="sq-backend-data">
-						<?php check_box($prefix.'_unrevoke['.$assetid.']'); ?>
 						</td>
 						<?php
-					}
-					?></tr><?php
-
-				}// end foreach
-
-				?></table><?php
-
-			}// end if revoked
-
-			$o->closeSection();
-
-		}// end if inherited section
-
-
-		//// now print the direct workflow for this asset ////
-		$o->openSection('Workflow set for this asset');
-		$o->closeSection();
-		foreach ($wfm->steps as $stepid => $step_data) {
-			$o->openSection("Step $stepid");
-
-			if ($admin_access) {
-				$o->openField('Delete?');
-				check_box($prefix.'_steps['.$stepid.'][delete]');
-				echo '&nbsp; Delete this step and all its conditions?';
-			}
-
-			$o->openField('Step Logic');
-			if (isset($wfm->_valid_cond_logic[$step_data['logic']])) {
-				// a special type of logic statement
-				$step_logic = $step_data['logic'];
-				$step_logic_num = '';
-			} else {
-				list($step_logic, $step_logic_num) = explode(' ', $step_data['logic']);
-			}
-
-			if (!$admin_access) {
-				echo '<i>'.$wfm->_valid_step_logic[$step_logic];
-				if ($step_logic_num) echo " $step_logic_num condition".(($step_logic_num > 1) ? 's' : '')." must be met</i>";
-			} else {
-				combo_box($prefix.'_steps['.$stepid.'][logic]', $wfm->_valid_step_logic, false, $step_logic);
-				echo '&nbsp;';
-				text_box($prefix.'_steps['.$stepid.'][logic_num]', $step_logic_num, 4);
-				echo ' condition(s) must be met in this step';
-			}
-
-			$o->openField('Conditions');
-
-			$has_conds = false;
-			ob_start();
-			?>
-			<table border="0" cellspacing="1" cellpadding="2" bgcolor="#000000" width="100%">
-				<tr>
-					<td bgcolor="#DDDDDD" class="sq-backend-data">&nbsp;</td>
-					<td bgcolor="#DDDDDD" class="sq-backend-data" width="270"><b>Group Logic</b></td>
-					<?php
-					if ($admin_access) {
-						?><td bgcolor="#DDDDDD" align="center" width="70" class="sq-backend-data"><b>Delete ?</b></td><?php
-					}
-					?>
-				</tr>
-			<?php
-			foreach ($step_data['conditions'] as $pub => $cond_data) {
-				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($pub);
-				if (!$asset->id) continue;
-				?>
-				<tr>
-					<td bgcolor="#F0F0F0" class="sq-backend-data"><?php echo '&nbsp;'.$asset->name.' ['.$asset->type()." : $pub]";?></td>
-					<td bgcolor="#F0F0F0" class="sq-backend-data">
+						if ($admin_access) {
+							?><td bgcolor="#F0F0F0" align="center" width="100" class="sq-backend-data"><?php
+							check_box($prefix.'_workflow[delete]['.$schemaid.']');
+							?></td><?php
+						}
+						?>
+					</tr>
 				<?php
-				if (isset($wfm->_valid_cond_logic[$cond_data['require']])) {
-					// a special type of require statement
-					$cond_logic = $cond_data['require'];
-					$cond_logic_num = '';
-				} else {
-					list($cond_logic, $cond_logic_num) = explode(' ', $cond_data['require']);
-				}
-				if (!$admin_access) {
-					if (is_a($asset, 'user')) {
-						echo '&nbsp;';
-					} else {
-						echo '<i>'.$wfm->_valid_cond_logic[$cond_logic];
-						if ($cond_logic_num) echo " $cond_logic_num group member".(($cond_logic_num > 1) ? 's' : '')." must approve</i>";
-					}
-				} else {
-					if (is_a($asset, 'user')) {
-						hidden_field($prefix.'_steps['.$stepid.'][conditions]['.$pub.'][logic]', '>=');
-						hidden_field($prefix.'_steps['.$stepid.'][conditions]['.$pub.'][logic_num]', '1');
-					} else {
-						combo_box($prefix.'_steps['.$stepid.'][conditions]['.$pub.'][logic]', $wfm->_valid_cond_logic, false, $cond_logic);
-						echo '&nbsp;';
-						text_box($prefix.'_steps['.$stepid.'][conditions]['.$pub.'][logic_num]', $cond_logic_num, 4);
-						echo ' member(s) must approve';
-					}
-				}
-				?></td><?php
+				}// end foreach data
+			?>
+				</table>
+				<br>
+			<?php
+			}//end foreach inherited
 
-				if ($admin_access) {
-					?><td bgcolor="#F0F0F0" align="center" class="sq-backend-data"><?php
-					check_box($prefix.'_steps['.$stepid.'][conditions]['.$pub.'][delete]')
-					?></td><?php
-				}
-				?></tr><?php
-				$has_conds = true;
-			}
-
-			if (!$has_conds) {
-				ob_end_clean();
-				echo 'None';
-			} else {
-				ob_end_flush();
-				?></table><?php
-			}
-
-			if ($admin_access) {
-				$o->openField('New Condition?');
-				asset_finder($prefix.'_steps['.$stepid.'][new_condition]', 0, Array('user' => 'D', 'user_group' => 'D'));
-			}
-
-			$o->closeSection();
-
-		}// end for
+		}// end if
 
 		if ($admin_access) {
-			$o->openSection("Create New Step");
-			$o->openField('');
-			check_box($prefix.'_create_step');
-			echo '&nbsp; Create a new empty step?';
-			$o->closeSection();
-		}// end for
+			$o->openField('New ?', 'new_line');
+				combo_box($prefix.'_workflow[new][access]', Array('' => '', '1' => 'Apply', '0' => 'Deny'), false, '');
+				echo ' Workflow schema ';
+				asset_finder($prefix.'_workflow[new][schemaid]', 0, Array('workflow_schema' => 'D'));
+			$o->closeField();
+		}
+
+		$o->closeSection();
+
+		if ($admin_access) {
+			$kiddies = $GLOBALS['SQ_SYSTEM']->am->getChildren($owner->id);
+			if (count($kiddies)) {
+				$o->openSection('Cascade Options');
+					$o->openField('Note');
+						echo 'These actions will affect '.count($kiddies).' other assets below "'.$owner->name.'"';
+					$o->closeField();
+					$o->openField('&nbsp;');
+						check_box($prefix.'_workflow[cascade_changes]', '1', true);
+						echo ' Cascade schema changes';
+						echo '<br/>';
+						check_box($prefix.'_workflow[manual_cascade]');
+						echo ' Manually cascade schemas';
+					$o->closeField();
+				$o->closeSection();
+			}
+		}
 
 		return $admin_access;
 
@@ -1980,70 +1844,98 @@ class Asset_Edit_Interface extends Resolve_Object
 	{
 		// if we dont have admin access, piss off
 		if ($owner->id && !$owner->adminAccess(Array(), false)) {
-			$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to edit the workflow of <i>'.$owner->name.'</i>');
+			$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to edit the workflow schemas for <i>'.$owner->name.'</i>');
 			return false;
 		}
 
 		// if we dont have admin access, dont process anything
 		if (!$owner->adminAccess(Array(), true, false)) return false;
 
-		require_once SQ_INCLUDE_PATH.'/workflow_manager.inc';
-		$wfm = new Workflow_Manager($owner);
-		if ($wfm->state == 'running') return false;
+		$prefix = $owner->getPrefix();
+		if (!isset($_POST[$prefix.'_workflow'])) return false;
 
-		$prefix = $owner->getPrefix().'_workflow';
+		$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 
-		// unrevoke inherited workflow
-		if (isset($_POST[$prefix.'_unrevoke'])) {
-			foreach ($_POST[$prefix.'_unrevoke'] as $assetid => $on) {
-				if (!$GLOBALS['SQ_SYSTEM']->am->deletePermission($owner->id, $assetid, SQ_PERMISSION_WORKFLOW)) return false;
-			}
+		// are we cascading these schema changes to our children?
+		$cascade_changes = false;
+		if (isset($_POST[$prefix.'_workflow']['cascade_changes']) && $_POST[$prefix.'_workflow']['cascade_changes']) {
+			$cascade_changes = true;
 		}
 
-		// revoke inherited workflow
-		if (isset($_POST[$prefix.'_revoke'])) {
-			foreach ($_POST[$prefix.'_revoke'] as $assetid => $on) {
-				if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($owner->id, $assetid, SQ_PERMISSION_WORKFLOW, '0')) return false;
-			}
-		}
+		$schema_vars = Array();
+		$post_data = $_POST[$prefix.'_workflow'];
 
-		// create a new step?
-		if (isset($_POST[$prefix.'_create_step'])) {
-			$new_stepid = $wfm->addStep();
-		}
-
-		if (isset($_POST[$prefix.'_steps'])) {
-			$deleted_steps = 0;
-			foreach ($_POST[$prefix.'_steps'] as $stepid => $step_data) {
-				$effective_stepid = $stepid - $deleted_steps;
-				if (isset($step_data['delete'])) {
-					$wfm->deleteStep($effective_stepid);
-					$deleted_steps++;
-					continue;
-				}
-
-				if ($step_data['new_condition'] > 0) {
-					$wfm->addCondition($effective_stepid, $step_data['new_condition']);
-				}
-
-				if ($step_data['logic'] == 'all') $step_data['logic_num'] = '0';
-				$wfm->setStepLogic($effective_stepid, $step_data['logic'], $step_data['logic_num']);
-
-				if (isset($step_data['conditions'])) {
-					foreach ($step_data['conditions'] as $pub => $cond_data) {
-						if (isset($cond_data['delete'])) {
-							$wfm->deleteCondition($effective_stepid, $pub);
-							continue;
-						}
-
-						if ($cond_data['logic'] == 'all') $cond_data['logic_num'] = '0';
-						$wfm->setConditionLogic($effective_stepid, $pub, $cond_data['logic'], $cond_data['logic_num']);
-					}
+		// apply a schema
+		if (!empty($post_data['new']['schemaid'])) {
+			if (!isset($post_data['new']['access']) || $post_data['new']['access'] == '') {
+				trigger_error('You need to select the type of access in order to apply schema #'.$post_data['new']['schemaid'], E_USER_NOTICE);
+			} else {
+				if ($cascade_changes) {
+					// cascading access of some kind, so queue it up for the HIPO
+					$schema_vars[] = Array('access'          => (int)$post_data['new']['access'],
+										   'schemaid'        => (int)$post_data['new']['schemaid'],
+										   'previous_access' => null,
+										   );
+				} else {
+					// lets do this ourselves
+					if (!$wfm->setSchema($owner->id, (int)$post_data['new']['schemaid'], (int)$post_data['new']['access'])) return false;
 				}
 			}
 		}
 
-		return $wfm->save();
+		// revoke [deny] schema (apply or deny can be revoked)
+		if (!empty($post_data['delete'])) {
+			foreach ($post_data['delete'] as $schemaid => $on) {
+				$schemaid = (int)$schemaid;
+				if ($cascade_changes) {
+					$schemas = $wfm->getSchemas($owner->id);
+					$current_access = $schemas[$schemaid];
+					$schema_vars[] = Array('access'          => -1,
+										   'schemaid'        => $schemaid,
+										   'previous_access' => $current_access,
+										   );
+				} else {
+					if (!$wfm->deleteSchema($owner->id, $schemaid)) return false;
+				}
+			}
+		}
+
+		if (isset($_POST[$prefix.'_workflow']['manual_cascade']) && $_POST[$prefix.'_workflow']['manual_cascade']) {
+			$schemas = $wfm->getSchemas($owner->id);
+			foreach ($schemas as $schemaid => $access) {
+				$schema_vars[] = Array('access'          => $access,
+									   'schemaid'        => $schemaid,
+									   'previous_access' => null,
+									   );
+			}
+		}
+
+
+		if (!empty($schema_vars)) {
+
+			//// START HIPO PROCESSING ////
+			
+			$vars = Array('assetid' => $owner->id, 'schema_changes' => $schema_vars);
+			$code_name = 'HIPO_edit_workflow_schemas';
+			$complete_url = $_SERVER['REQUEST_URI'];
+
+			require_once SQ_SYSTEM_ROOT.'/core/hipo/jobs/hipo_job_edit_workflow_schemas.inc';
+			$init_hipo = new HIPO_Job_Edit_Workflow_Schemas();
+
+			$init_hipo->setRunningVars($vars);
+			$init_hipo->setOption('on_complete_url', $complete_url);
+
+			$code_name = $init_hipo->initialise();
+			if ($code_name) {
+				$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+				if ($url = $hh->getProcessURL($code_name)) $o->setRedirect($url);
+			}
+
+			////  END HIPO PROCESSING  ////
+
+		}//end if we have schemas to set
+
+		return true;
 
 	}//end processWorkflow()
 
@@ -2188,7 +2080,7 @@ class Asset_Edit_Interface extends Resolve_Object
 		$schema_vars = Array();
 		$post_data = $_POST[$prefix.'_metadata'];
 
-		// grant access to a user
+		// apply a schema
 		if (!empty($post_data['new']['schemaid'])) {
 			if (!isset($post_data['new']['access']) || $post_data['new']['access'] == '') {
 				trigger_error('You need to select the type of access in order to apply schema #'.$post_data['new']['schemaid'], E_USER_NOTICE);
@@ -2227,9 +2119,9 @@ class Asset_Edit_Interface extends Resolve_Object
 			$schemas = $mm->getSchemas($owner->id);
 			foreach ($schemas as $schemaid => $access) {
 				$schema_vars[] = Array('access'          => $access,
-												  'schemaid'        => $schemaid,
-												  'previous_access' => null,
-												  );
+									   'schemaid'        => $schemaid,
+									   'previous_access' => null,
+									   );
 			}
 		}
 
