@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.21 2005/01/13 22:36:26 gsherwood Exp $
+* $Id: ldap_bridge.inc,v 1.22 2005/01/13 22:48:25 gsherwood Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -88,6 +88,11 @@ class LDAP_Bridge extends Bridge
 		$ldap = new Ldap();
 		if (!$ldap->connect($this->attr('host'), $this->attr('port'))) {
 			return null;
+		}
+
+		if ($this->attr('system_type') == 'openldap3') {
+			// set the protocol version for openLDAP (protocol v3)
+			ldap_set_option($ldap->ptr, LDAP_OPT_PROTOCOL_VERSION, 3);
 		}
 
 		if (!$ldap->bind($this->attr('bind_dn'), $this->attr('password'))) {
