@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.44 2004/06/24 05:25:31 lwright Exp $
+* $Id: search_page.inc,v 1.45 2004/07/15 06:16:39 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -37,7 +37,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc'; // for the meda
 * @author  Dominic Wong <dwong@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.44 $ - 1.0
+* @version $Revision: 1.45 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -590,7 +590,7 @@ class Search_Page extends Page
 		}
 
 		foreach ($queries_array as $q_name => $q_value) {
-			$queries .= '&queries%5B'.urlencode($q_name).'%5D='.urlencode($q_value);
+			$queries .= '&queries_'.urlencode($q_name).'='.urlencode($q_value);
 		}
 
 		foreach ($keywords as $keyword) {
