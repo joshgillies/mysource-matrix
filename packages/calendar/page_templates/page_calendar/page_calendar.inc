@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.65 2004/09/10 06:21:54 lwright Exp $
+* $Id: page_calendar.inc,v 1.66 2004/09/12 23:58:25 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once  dirname(__FILE__).'/../../calendar_events/calendar_event_recurring
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.65 $ - 1.0
+* @version $Revision: 1.66 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -613,6 +613,7 @@ class Page_Calendar extends Page_Asset_Listing
 			$month_length = days_in_month($month, $year);
 			$current_day = 1;
 			$this->_printClickChildScript();
+			if ($this->attr('enable_description_popups')) $this->_printPopupsScript();
 			?>
 			<table id="month" border="0" cellspacing="0" cellpadding="0" style="width: <?php echo $column_width*$week_length; ?>ex">
 				<tr>
@@ -879,7 +880,14 @@ class Page_Calendar extends Page_Asset_Listing
 			$event_class = (isset($root_nodes[$details['root_node']]['class_name'])) ? $root_nodes[$details['root_node']] ['class_name'] : '';
 			$onclick_code = $show_event_link ? ' onclick="clickChild(this); "' : '';
 			$cursor_code = $show_event_link ? 'cursor: pointer; cursor: hand;' : '';
-			$res .= '<div style="width: '.$width.'ex; '.$cursor_code.'"'.$onclick_code.'><div style="width: auto; margin-bottom: 1px;" class="event '.$event_class.'">';
+	
+			$current_mouse_over_out_code = '';
+			if (isset($details['description']) && !empty($details['description'])) {
+				$res .= '<div id="event_'.$assetid.'_description" class="popup">'.$details['description'].'</div>';
+				$current_mouse_over_out_code = 'onmouseover="startTrailingPopup(\'event_'.$assetid.'_description\')" onmouseout="stopTrailingPopup(\'event_'.$assetid.'_description\')"';
+			}
+
+			$res .= '<div style="width: '.$width.'ex; '.$cursor_code.'"'.$onclick_code.' '.$current_mouse_over_out_code.'><div style="width: auto; margin-bottom: 1px;" class="event '.$event_class.'">';
 			if ($show_event_link) $res .= '<a href="'.$this->getHref().'?SQ_CALENDAR_VIEW=event&amp;SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'].'&amp;SQ_CALENDAR_EVENT_ID='.$assetid.'" class="event '. $event_class.'">';
 			$res .= $details['name'];
 			if ($show_event_link) $res .= '</a>';
@@ -920,8 +928,14 @@ class Page_Calendar extends Page_Asset_Listing
 			$onclick_code = $show_event_links ? 'onclick="clickChild(this);"' : '';
 			$this_event_width = $event_width / $this->_maxOverlappingEvents($events, gmdate('H:i', $event_ts*60), gmdate('H:i', $end_ts*60), $partition_time);
 			$current_mousedown_code = ($details['type_code'] != 'calendar_event_recurring') ? $mousedown_code : '';
+	
+			$current_mouse_over_out_code = '';
+			if (isset($details['description']) && !empty($details['description'])) {
+				$res .= '<div id="event_'.$assetid.'_description" class="popup">'.$details['description'].'</div>';
+				$current_mouse_over_out_code = 'onmouseover="startTrailingPopup(\'event_'.$assetid.'_description\')" onmouseout="stopTrailingPopup(\'event_'.$assetid.'_description\')"';
+			}
 
-			$res .= '<div id="'.$assetid.'" '.$current_mousedown_code.' class='.$event_class.' event" style="float:left; position: absolute; width: '.$this_event_width.'ex; margin-left: '.$event_left_margin.'ex; margin-top: '.$event_top_margin.'ex; height: '.$event_height.'ex; '.$cursor_code.' '.$zero_length_code.'" '.$onclick_code.'><div class="eventText" style="position: absolute; width: '.$inner_width.'ex; border: none; margin-top: '.$inner_margin_top.'px background-color: transparent">';
+			$res .= '<div id="'.$assetid.'" '.$current_mousedown_code.' '.$current_mouse_over_out_code.' class='.$event_class.' event" style="float:left; position: absolute; width: '.$this_event_width.'ex; margin-left: '.$event_left_margin.'ex; margin-top: '.$event_top_margin.'ex; height: '.$event_height.'ex; '.$cursor_code.' '.$zero_length_code.'" '.$onclick_code.'><div class="eventText" style="position: absolute; width: '.$inner_width.'ex; border: none; margin-top: '.$inner_margin_top.'px background-color: transparent">';
 			$res .= $show_event_links ? '<a class="event '.$event_class.'"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW=event&amp;SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'].'&amp;SQ_CALENDAR_EVENT_ID='.$assetid.'">' : '<span class="event '.$event_class.'">';
 			$res .= $details['name'];
 			$res .= $show_event_links ? '</a>' : '</span>';
@@ -957,6 +971,7 @@ class Page_Calendar extends Page_Asset_Listing
 		$mouseup_code = $dragging_enabled ? 'onmouseup="endDrag(this)"' : '';
 		$mousedown_code = $dragging_enabled ? 'onmousedown="beginDrag(this)"' : '';
 		if ($dragging_enabled) $this->_printEventDraggingScript();
+		if ($this->attr('enable_description_popups')) $this->_printPopupsScript();
 		?>
 		<script type="text/javascript">
 		<!--
@@ -1150,7 +1165,75 @@ class Page_Calendar extends Page_Asset_Listing
 		  <input type="hidden" name="SQ_CALENDAR_VIEW" value="<?php echo $_REQUEST['SQ_CALENDAR_VIEW']; ?>" />
 		</form>
 	<?php
+
 	}//end _printEventDraggingScript
+
+
+	function _printPopupsScript()
+	{
+		?>
+		<script type="text/javascript">
+		// Funky-ass mouse-following popup code based on the script from http://javascriptkit.com
+
+		var offsetfrommouse=[12,4] //image x,y offsets from cursor position in pixels. Enter 0,0 for no offset
+		var popupObj = null;
+
+		function getTrailObj()
+		{
+			if (popupObj == null) return null;
+			if (document.getElementById)
+			  return document.getElementById(popupObj).style
+			else if (document.all)
+			  exec('return document.all.'+popupObj+'.style');
+		}
+
+		function stopTrailingPopup()
+		{
+			document.onmousemove=null;
+			getTrailObj().display='none';
+		}
+
+		function startTrailingPopup(name)
+		{
+			popupObj = name;
+			document.onmousemove = followMouse;
+		}
+
+		function truebody()
+		{
+			return (!window.opera && document.compatMode && document.compatMode!="BackCompat")? document.documentElement : document.body
+		}
+
+		function followMouse(e)
+		{
+			if (!(document.getElementById || document.all)) return false;    
+			var xcoord=offsetfrommouse[0];
+			var ycoord=offsetfrommouse[1];
+			if (typeof e != "undefined")
+			{
+				xcoord+=e.pageX;
+				ycoord+=e.pageY;
+			}
+			else if (typeof window.event !="undefined")
+			{
+				xcoord+=truebody().scrollLeft+event.clientX;
+				ycoord+=truebody().scrollTop+event.clientY;
+			}
+			var docwidth = document.all ? truebody().scrollLeft + truebody().clientWidth : pageXOffset + window.innerWidth-15;
+			var docheight = document.all ? Math.max(truebody().scrollHeight, truebody().clientHeight) : Math.max(document.body.offsetHeight, window.innerHeight);
+			trailObj = getTrailObj();
+			if (((trailObj.width != 0) && ((xcoord + trailObj.width + 3) > docwidth)) || ((trailObj.height != 0) && ((ycoord + trailObj.height) > docheight))) {
+				trailObj.display="none"
+			} else {
+				trailObj.display="block"
+			}
+			trailObj.left=xcoord+"px"
+			trailObj.top=ycoord+"px"
+		}
+
+		</script>
+		<?php
+	}
 
 //--         FUNCTIONS TO GET EVENTS FOR DISPLAY        --//
 
@@ -1304,7 +1387,12 @@ class Page_Calendar extends Page_Asset_Listing
 		$recur_result = $db->getAssoc($sql);
 		assert_valid_db_result($recur_result);
 
-		return ($single_result + $recur_result);
+		$res = $single_result + $recur_result;
+		if ($this->attr('enable_description_popups')) {
+			$descriptions = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('description', 'calendar_event', array_keys($res));
+			foreach ($descriptions as $assetid => $description) $res[$assetid]['description'] = $description;
+		}
+		return $res;
 
 	}//end getMonthEvents()
 
@@ -1357,7 +1445,13 @@ class Page_Calendar extends Page_Asset_Listing
 		$single_result =& $this->_multipleDaySingleQuery($root_nodes, $cal_date, 7);
 		$recur_result =& $this->_multipleDayRecurringQuery($root_nodes, $cal_date, 'week');
 
-		return ($single_result + $recur_result);
+		$res = $single_result + $recur_result;
+
+		if ($this->attr('enable_description_popups')) {
+			$descriptions = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('description', 'calendar_event', array_keys($res));
+			foreach ($descriptions as $assetid => $description) $res[$assetid]['description'] = $description;
+		}
+		return $res;
 
 	}//end getWeekEvents()
 
@@ -1441,7 +1535,7 @@ class Page_Calendar extends Page_Asset_Listing
 
 		foreach ($events as $id => $details) {
 			$event_date = sprintf('%04d-%02d-%02d', $details['start_date_year'], $details['start_date_mon'], $details['start_date_mday']);
-			
+
 			if (($event_date >= $cal_date) && ($event_date <= $last_day)) {
 				if (is_null($details['start_date_hours'])) {
 					$res[$event_date]['all_day'][$id] = $details;
@@ -1480,8 +1574,19 @@ class Page_Calendar extends Page_Asset_Listing
 
 		$single_result =& $this->_multipleDaySingleQuery($root_nodes, $date, 1);
 		$recur_result =& $this->_multipleDayRecurringQuery($root_nodes, $date, 'day');
-						
-		return ($single_result + $recur_result);
+
+		$res = $single_result + $recur_result;
+		if ($this->attr('enable_description_popups')) {
+			$descriptions = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('description', 'calendar_event', array_keys($res));
+			foreach ($descriptions as $assetid => $description) $res[$assetid]['description'] = $description;
+		}
+		$res =& $this->_expandEventList($res, $date, $date);
+
+
+		$this->_processExceptions($res);
+
+		return $res;
+
 
 	}//end getDayEvents()
 

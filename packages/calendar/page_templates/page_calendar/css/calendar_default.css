@@ -25,6 +25,21 @@ div#calendarTable table th { text-align: center; padding: 1px }
 .calendarNavLink, a.calendarNavLink:hover, a.calendarNavLink:visited { text-decoration: none; font-weight: bold; color: blue }
 div#calendarList { text-align: left; width: 80ex; margin-left: auto; margin-right: auto}
 
+
+/* popups over events */
+div.popup {
+    position:absolute; 
+    visibility:visible; 
+    left: 0px; 
+    top: 0px; 
+    display: none;
+    width: 25ex;
+    border: 1px solid black;
+    padding: 1px 3px;
+    background-color: white;
+	z-index: 100;
+}
+
 /**
  * YEAR TABLE RULES
  * Cells in this table can be header cells or data cells.
