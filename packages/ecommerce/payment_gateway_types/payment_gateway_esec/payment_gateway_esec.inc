@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: payment_gateway_esec.inc,v 1.2 2004/10/14 01:04:06 arailean Exp $
+* $Id: payment_gateway_esec.inc,v 1.3 2004/10/15 01:13:35 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -29,12 +29,12 @@ require_once dirname(__FILE__).'/esec_processor.inc';
 /**
 * Payment_Gateway_Esec
 *
-* Make interface for online credit card processing using E-sec payment gateway
+* Interface for online credit card processing using E-sec payment gateway
 *
 *
 * @author  Andrei Railean		<arailean@squiz.net>
 * @author  Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -104,10 +104,6 @@ class Payment_Gateway_Esec extends Payment_Gateway
 		$card = $prefix.'_card';
 		$form_contents = '';
 
-		if (array_get_index($this->_tmp, 'is_error', false)) {
-			$form_contents .= '<div>'.$this->_tmp['error_message'].'</div>';
-		}
-
 		// determine which card type is selected
 		$form_contents_select = '';
 		foreach ($card_types as $type) {
@@ -118,7 +114,7 @@ class Payment_Gateway_Esec extends Payment_Gateway
 		// set variables for test mode
 		if ($this->attr('test_mode')){
 
-			$form_contents .= '<h2 style="color: red">TEST MODE</h2>';
+			$form_contents .= '<h2 style="color: white; background-color: grey; padding: 5px">TEST MODE</h2>';
 
 			$test_card_numbers = $Esec->getTestCardNumbers();
 			$card_number = '<select name="'.$card.'[number]">';
@@ -128,20 +124,26 @@ class Payment_Gateway_Esec extends Payment_Gateway
 			}
 			$card_number .= '</select>';
 		} else {
-			$card_number = '<input name="'.$card.'[number]" value="'.$card_info['number'].' />';
+			$card_number = '<input name="'.$card.'[number]" value="'.$card_info['number'].'" />';
 		}
 
+		// check for errors
+		if (array_get_index($this->_tmp, 'is_error', false)) {
+			$form_contents .= '<h2 style="color: red; ">Error '.$this->_tmp['error_message'].'</h2>';
+		}
+
+		$message = $this->attr('message');
 
 		$datapath = sq_web_path('data').'/asset_types/payment_gateway_esec/files';
 
 		$form_contents .= <<<FORMBODY
 		<script src="{$datapath}/loader.js"></script>
 		<script>
-			var Loader = new Loader('{$card}','#FFFFFF','Processing...','{$datapath}/loader.gif');
+			var Loader = new Loader('{$card}','#FFFFFF','Processing Transaction...','{$datapath}/loader.gif');
 			Loader.print();
 		</script>
 		<form method="post" action="" onsubmit="Loader.show();">
-			<h3>Credit Card Details</h3>
+			<div>$message</div>
 			<div style="background-color: #CCC; padding: 5px"><strong>\$$amount</strong> Australian Dollars are about to be debited from your credit card</div>
 			<table>
 				<tr>
@@ -212,7 +214,7 @@ FORMBODY;
 
 		if (!$success) {
 			$this->_tmp['is_error']         = true;
-			$this->_tmp['error_message']    = $Esec->explainStatus();
+			$this->_tmp['error_message']    = $response['MESSAGE'];
 		} else {
 			$status = $Esec->explainStatus();
 			if ($this->attr('test_mode')){
