@@ -78,7 +78,7 @@ td.sq-backend-main-heading {
 
 
 
-/* TOPNAV STYLES */
+/* TOPNAV STYLES - also used in sidenav */
 
 .sq-backend-header-item {
 	background-color:	#342939;
@@ -86,6 +86,7 @@ td.sq-backend-main-heading {
 	font-family:		Arial, Verdana, Helvetica, sans-serif;
 	font-size:			11px;
 	text-decoration:	none;
+	padding:			3px;
 }
 
 
