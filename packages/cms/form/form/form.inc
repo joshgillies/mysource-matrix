@@ -131,6 +131,7 @@ class Form extends Asset
 	function _updated()
 	{
 		if (!parent::_updated()) return false;
+		echo 'regenerating...<BR>';
 		return $this->fileRegeneration();
 	
 	} // end _updated()
@@ -295,6 +296,7 @@ class Form extends Asset
 	*/
 	function printBody()
 	{
+		speed_check();
 		$prefix = $this->getPrefix(); 
 		$submission = '';
 
@@ -316,6 +318,7 @@ class Form extends Asset
 			$this->printStandard();
 		}
 		echo "</form>\n";
+		speed_check();
 
 	} // end printBody()
 
@@ -408,9 +411,15 @@ class Form extends Asset
 				
 				// only process the section if the validate case hasn't already done so
 				if (!$this->attr('validate')) $this->processSection($_POST['section']);
-				$this->finishForm();
-
-				return true;
+				
+				if ($this->active_submission->isError()) {
+					$this->printErrors();
+					$order = $this->getSectionCount();
+					break;
+				} else {
+					$this->finishForm();
+					return true;
+				}
 		
 			default :
 
@@ -421,7 +430,7 @@ class Form extends Asset
 					// create a cookie and set the id to the id of the submission asset
 					$this->setFormCookie($this->active_submission->id, $this->attr('cookie_time'));
 				}
-				$order = isset($_POST['section']) ? $_POST['section'] : 0;
+				$order = isset($_POST['section']) ? $_POST['section'] : 1;
 				
 				$this->processSection($order);
 				// check to see if there is any errors with the submission,
@@ -539,12 +548,16 @@ class Form extends Asset
 	*/
 	function getStage()
 	{
-
 		$section = isset($_POST['section']) ? $_POST['section'] : 0;
+		
+		// if there is an error, then we are not moving forward at all, 
+		// so take one off the section
+		if (isset($this->active_submission) && $this->active_submission->isError()) {
+			$section -= 1;
+		}
 		$count = $this->getSectionCount();
 
 		if (!$section) return 'first';
-	
 		if (($section == $count) && ($this->attr('validate'))) return 'validate';
 		
 		// if there is no validation screen and we are one screen away from the finish
@@ -572,6 +585,7 @@ class Form extends Asset
 	function getButton($type)
 	{
 		$stage = $this->getStage();
+
 		switch ($type) {
 			case 'next':
 				if ($stage == 'last' || $stage == 'validate') return '';
@@ -796,7 +810,7 @@ class Form extends Asset
 		$info['url'] = current_url(true, true);
 		return $info;
 
-	} // end  getFormInfo()
+	} // end getFormInfo()
 
 
 	/**
@@ -905,6 +919,7 @@ class Form extends Asset
 		} // end switch
 
 	} // end getSectionIndex()
+
 
 } // end class
 ?>
