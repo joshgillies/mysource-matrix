@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_broken_links_edit_fns.inc,v 1.5 2004/07/06 07:39:23 gsherwood Exp $
+* $Id: report_broken_links_edit_fns.inc,v 1.6 2004/08/12 03:53:04 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -264,6 +264,12 @@ class Report_Broken_Links_Edit_Fns extends Report_Edit_Fns
 				if (preg_match('|200 ok|i', $response)) {
 					$description = '';
 					$valid = '1';
+				} else if (preg_match('|302 found|i', $response)) {
+					$description = '';
+					$valid = '1';
+				} else if (preg_match('|304 not modified|i', $response)) {
+					$description = '';
+					$valid = '1';
 				} else if (preg_match('|404 not found|i', $response)) {
 					$description = 'The URL was not found';
 					$valid = '0';
@@ -383,10 +389,10 @@ class Report_Broken_Links_Edit_Fns extends Report_Edit_Fns
 					echo 'No internal links were found';
 				} else {
 					?>
-					<table class="sq-backend-table">
+					<table class="sq-backend-table" style="border: 1px solid #DDDDDD;" border="0">
 						<tr>
-							<td colspan="2" class="sq-backend-table-header" style="width: 266px;">Found In</td>
-							<td colspan="2" class="sq-backend-table-header" style="width: 266px;">Linking To</td>
+							<td colspan="4" class="sq-backend-table-header" style="width: 226px;">Found In</td>
+							<td colspan="4" class="sq-backend-table-header" style="width: 226px;">Linking To</td>
 							<td class="sq-backend-table-header">Comments</td>
 						</tr>
 					<?php
@@ -402,48 +408,65 @@ class Report_Broken_Links_Edit_Fns extends Report_Edit_Fns
 								$to_type = '';
 								$to_string = 'Unkown asset #'.$link['data'];
 								$to_bg = 'FFFFFF';
+								$to_status = '';
 							} else {
 								$to_type = $to->type();
-								$to_string = $to->name;
+								$to_string = '<a href="#" onclick="Javscript: return false;" target="_blank" title="'.$to->name.'">'.ellipsisize($to->name, 40).'</a>';
 								$to_bg = get_status_colour($to->status);
+								$to_status = get_status_description($to->status);
 							}
+
 							?>
 							<tr>
-								<td class="sq-backend-table-cell" style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; width: 16px; background-color: #<?php echo $from_info['bg']; ?>;">
+								<td class="sq-backend-table-cell" style="width: 10px; padding-right: 1px; text-align: right;">
+									<a href="<?php echo $from_info['backend_url']; ?>" title="Edit this asset">#<?php echo (int) $from_info['assetid']; ?></a>
+								</td>
+								<td class="sq-backend-table-cell" style="width: 10px; padding-right: 1px;">
+									<div title="<?php echo $from_info['status']; ?>" style="border: 1px solid #CCCCCC; padding: 4px; background-color: #<?php echo $from_info['bg']; ?>; width: 8px; height: 8px;">&nbsp;</div>
+								</td>
+								<td class="sq-backend-table-cell" style="width: 16px; padding-right: 0px; padding-left: 0px;">
 									<?php
 									if (!empty($from_info['type'])) {
 										?>
-										<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($from_info['type']); ?>", "16", "16", "");</script>
+										<span title="<?php echo ucwords(str_replace('_', ' ', $from_info['type'])); ?>">
+											<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($from_info['type']); ?>", "16", "16", "");</script>
+										</span>
 										<?php
 									}
 									?>
 								</td>
-								<td class="sq-backend-table-cell" style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-right: 1px solid #000000; width: 250px; background-color: #<?php echo $from_info['bg']; ?>;">
+								<td class="sq-backend-table-cell" style="width: 190px; padding-left: 0px;">
 									<?php echo $from_info['string']; ?>
 								</td>
-								<td class="sq-backend-table-cell" style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; width: 16px; background-color: #<?php echo $to_bg; ?>;">
+								<td class="sq-backend-table-cell" style="width: 10px; padding-right: 1px; text-align: right;">
+									<?php
+									if (!empty($to_type)) {
+										echo '#'.(int) $to->id;
+									}
+									?>
+								</td>
+								<td class="sq-backend-table-cell" style="width: 10px; padding-right: 1px;">
+									<div title="<?php echo $to_status; ?>" style="border: 1px solid #CCCCCC; padding: 4px; background-color: #<?php echo $to_bg; ?>; width: 8px; height: 8px;">&nbsp;</div>
+								</td>
+								<td class="sq-backend-table-cell" style="width: 16px; padding-right: 0px; padding-left: 0px;">
 									<?php
 									if (!empty($to_type)) {
 										?>
-										<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($to_type); ?>", "16", "16", "");</script>
+										<span title="<?php echo ucwords(str_replace('_', ' ', $to_type)); ?>">
+											<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($to_type); ?>", "16", "16", "");</script>
+										</span>
 										<?php
 									}
 									?>
 								</td>
-								<td class="sq-backend-table-cell" style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-right: 1px solid #000000; width: 250px; background-color: #<?php echo $to_bg; ?>;">
+								<td class="sq-backend-table-cell" style="width: 190px; padding-left: 0px;">
 									<?php
-									if (!empty($to_type)) {
-										?>
-										<acronym title="<?php echo ucwords(str_replace('_', ' ', $to_type)).' [#'.$to->id.']'; ?>"><?php echo $to_string; ?></acronym>
-										<?php
-									} else {
-										echo $to_string;
-									}
+									echo $to_string;
 									?>
 								</td>
-								<td class="sq-backend-table-cell" style="border: 1px solid black;">
+								<td class="sq-backend-table-cell">
 									<?php
-									if (!$link['valid']) echo '<span class="sq-backend-warning"><b>';
+									if (!$link['valid']) echo '<span style="color: #007EFA;"><b>';
 									echo $link['description'];
 									if (!$link['valid']) echo '</b></span>';
 									?>
@@ -468,8 +491,8 @@ class Report_Broken_Links_Edit_Fns extends Report_Edit_Fns
 					?>
 					<table class="sq-backend-table">
 						<tr>
-							<td colspan="2" class="sq-backend-table-header" style="width: 266px;">Found In</td>
-							<td class="sq-backend-table-header" style="width: 274px;">URL</td>
+							<td colspan="4" class="sq-backend-table-header" style="width: 226px;">Found In</td>
+							<td class="sq-backend-table-header" style="width: 226px;">URL</td>
 							<td class="sq-backend-table-header">Comments</td>
 						</tr>
 					<?php
@@ -480,24 +503,32 @@ class Report_Broken_Links_Edit_Fns extends Report_Edit_Fns
 							$to_string = '<a href="'.$link['data'].'" target="_blank" title="'.$link['data'].'">'.ellipsisize($link['data'], 50).'</a>';
 							?>
 							<tr>
-								<td class="sq-backend-table-cell" style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; width: 16px; background-color: #<?php echo $from_info['bg']; ?>;">
+								<td class="sq-backend-table-cell" style="width: 10px; padding-right: 1px; text-align: right;">
+									<a href="<?php echo $from_info['backend_url']; ?>" title="Edit this asset">#<?php echo (int) $from_info['assetid']; ?></a>
+								</td>
+								<td class="sq-backend-table-cell" style="width: 10px; padding-right: 1px;">
+									<div title="<?php echo $from_info['status']; ?>" style="border: 1px solid #CCCCCC; padding: 4px; background-color: #<?php echo $from_info['bg']; ?>; width: 8px; height: 8px;">&nbsp;</div>
+								</td>
+								<td class="sq-backend-table-cell" style="width: 16px; padding-right: 0px; padding-left: 0px;">
 									<?php
 									if (!empty($from_info['type'])) {
 										?>
-										<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($from_info['type']); ?>", "16", "16", "");</script>
+										<span title="<?php echo ucwords(str_replace('_', ' ', $from_info['type'])); ?>">
+											<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($from_info['type']); ?>", "16", "16", "");</script>
+										</span>
 										<?php
 									}
 									?>
 								</td>
-								<td class="sq-backend-table-cell" style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-right: 1px solid #000000; width:250px; background-color: #<?php echo $from_info['bg']; ?>;">
+								<td class="sq-backend-table-cell" style="width: 190px; padding-left: 0px;">
 									<?php echo $from_info['string']; ?>
 								</td>
-								<td class="sq-backend-table-cell" style="width: 274px; border: 1px solid #000000;">
+								<td class="sq-backend-table-cell" style="width: 226px;">
 									<?php echo $to_string; ?>
 								</td>
-								<td class="sq-backend-table-cell" style="border: 1px solid #000000;">
+								<td class="sq-backend-table-cell">
 									<?php
-									if (!$link['valid']) echo '<span class="sq-backend-warning"><b>';
+									if (!$link['valid']) echo '<span style="color: #007EFA;"><b>';
 									echo $link['description'];
 									if (!$link['valid']) echo '</b></span>';
 									?>
@@ -522,7 +553,7 @@ class Report_Broken_Links_Edit_Fns extends Report_Edit_Fns
 					?>
 					<table class="sq-backend-table">
 						<tr>
-							<td colspan="2" class="sq-backend-table-header" style="width: 266px;">Found In</td>
+							<td colspan="4" class="sq-backend-table-header" style="width: 226px;">Found In</td>
 							<td class="sq-backend-table-header" style="width: 274px;">Email</td>
 							<td class="sq-backend-table-header">Comments</td>
 						</tr>
@@ -533,24 +564,32 @@ class Report_Broken_Links_Edit_Fns extends Report_Edit_Fns
 							$to_string = $link['data'];
 							?>
 							<tr>
-								<td class="sq-backend-table-cell" style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; width: 16px; background-color: #<?php echo $from_info['bg']; ?>;">
+								<td class="sq-backend-table-cell" style="width: 10px; padding-right: 1px; text-align: right;">
+									<a href="<?php echo $from_info['backend_url']; ?>" title="Edit this asset">#<?php echo (int) $from_info['assetid']; ?></a>
+								</td>
+								<td class="sq-backend-table-cell" style="width: 10px; padding-right: 1px;">
+									<div title="<?php echo $from_info['status']; ?>" style="border: 1px solid #CCCCCC; padding: 4px; background-color: #<?php echo $from_info['bg']; ?>; width: 8px; height: 8px;">&nbsp;</div>
+								</td>
+								<td class="sq-backend-table-cell" style="width: 16px; padding-right: 0px; padding-left: 0px;">
 									<?php
 									if (!empty($from_info['type'])) {
 										?>
-										<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($from_info['type']); ?>", "16", "16", "");</script>
+										<span title="<?php echo ucwords(str_replace('_', ' ', $from_info['type'])); ?>">
+											<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($from_info['type']); ?>", "16", "16", "");</script>
+										</span>
 										<?php
 									}
 									?>
 								</td>
-								<td class="sq-backend-table-cell" style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-right: 1px solid #000000; width: 250px; background-color: #<?php echo $from_info['bg']; ?>;">
+								<td class="sq-backend-table-cell" style="width: 190px; padding-left: 0px;">
 									<?php echo $from_info['string']; ?>
 								</td>
-								<td class="sq-backend-table-cell" style="width: 274px; border: 1px solid #000000;">
+								<td class="sq-backend-table-cell" style="width: 274px;">
 									<?php echo $to_string; ?>
 								</td>
-								<td class="sq-backend-table-cell" style="border: 1px solid #000000;">
+								<td class="sq-backend-table-cell">
 									<?php
-									if (!$link['valid']) echo '<span class="sq-backend-warning"><b>';
+									if (!$link['valid']) echo '<span style="color: #007EFA;"><b>';
 									echo $link['description'];
 									if (!$link['valid']) echo '</b></span>';
 									?>
@@ -592,24 +631,35 @@ class Report_Broken_Links_Edit_Fns extends Report_Edit_Fns
 			$parent = $GLOBALS['SQ_SYSTEM']->am->getAsset(array_pop($dependants));
 			if (!is_null($parent)) {
 				$asset_type = $parent->type();
-				$asset_string = $parent->name;
+				$asset_name = $parent->name;
 				$asset_bg = get_status_colour($parent->status);
+				$asset_status = get_status_description($parent->status);
 				$assetid = $parent->id;
 				$asset_url = $parent->getBackendHref();
+				$asset_preview_url = $parent->getURL();
 			} else {
 				$asset_type = $asset->type();
-				$asset_string = $asset->name;
+				$asset_name = $asset->name;
 				$asset_bg = get_status_colour($asset->status);
+				$asset_status = get_status_description($asset->status);
 				$asset_url = $asset->getBackendHref();
+				$asset_preview_url = $asset->getURL();
 			}
 			
+			include_once SQ_FUDGE_PATH.'/general/general.inc';
+			$asset_string = ellipsisize($asset_name, 40);
+			
 			$asset_string = '
-				<a href="'.$asset_url.'" title="'.ucwords(str_replace('_', ' ', $asset_type)).' [#'.$assetid.']">
-					'.$asset_string.'
-				</a>';
+				<a href="'.$asset_preview_url.'" target="_blank" title="'.$asset_name.'">'.$asset_string.'</a>';
 		}
 
-		return Array('assetid' => $assetid, 'type' => $asset_type, 'string' => $asset_string, 'bg' => $asset_bg);
+		return Array('assetid'      => $assetid,
+					 'type'         => $asset_type,
+					 'string'       => $asset_string,
+					 'bg'           => $asset_bg,
+					 'status'       => $asset_status,
+					 'backend_url'  => $asset_url,
+					 );
 
 	}//end _getAssetReportInfo()
 
