@@ -108,7 +108,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 		if (!$asset->id) return true;
 
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-		$valid_names = makeValidWebPaths(Array($info['name']));
+		$valid_names = make_valid_web_paths(Array($info['name']));
 		$name = array_shift($valid_names);
 
 		// make sure the new web path is not already is use
@@ -117,7 +117,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 			for($i = 0; $i < count($parents); $i++) {
 				$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parents[$i]['majorid'], $parents[$i]['type_code']);
 				if (is_null($parent)) continue;
-				$bad_paths = $parent->_webPathsInUse(Array($name));
+				$bad_paths = $parent->_webPathsInUse(Array($name), $asset->id);
 				if (!empty($bad_paths)) {
 					trigger_error('Failed updating web path, file not uploaded. Path already exists?', E_USER_WARNING);
 					return false;
@@ -145,22 +145,31 @@ class File_Edit_Fns extends Asset_Edit_Fns
 		}
 
 		// delete existing uploaded file if it exists
-		if (is_file($asset->data_path.'/'.$asset->attr('name'))) {
-			if (!unlink($asset->data_path.'/'.$asset->attr('name'))) {
+		if (is_file($asset->data_path.'/'.$asset->name)) {
+			if (!unlink($asset->data_path.'/'.$asset->name)) {
 				trigger_error('Failed deleting existing file', E_USER_WARNING);
 				return false;
 			}
 		}
 
 		// copy over the new uploaded file
-		if (!move_uploaded_file($info['tmp_name'], $asset->data_path.'/'.$name)) {
-			trigger_error('Failed copying uploaded file to destination directory', E_USER_WARNING);
-			return false;
+		if (is_uploaded_file($info['tmp_name'])) {
+			// a normal uploaded file
+			if (!move_uploaded_file($info['tmp_name'], $asset->data_path.'/'.$name)) {
+				trigger_error('Failed copying uploaded file ('.$info['tmp_name'].') to destination directory ('.$asset->data_path.'/'.$name.')', E_USER_WARNING);
+				return false;
+			}
+		} else if (isset($info['non_uploaded_file']) && $info['non_uploaded_file'] === true) {
+			// we have special permission to move a non-uploaded file
+			if (!copy($info['tmp_name'], $asset->data_path.'/'.$name)) {
+				trigger_error('Failed copying non-uploaded file ('.$info['tmp_name'].') to destination directory ('.$asset->data_path.'/'.$name.')', E_USER_WARNING);
+				return false;
+			}
 		}
 
 		// if we are overwriting our current file with one that has the same name,
 		// we need to add a new version of the file to the repository
-		if ($asset->name == $name) {
+		if ($asset->name == $name && !empty($existing)) {
 			$file_status = $fv->upToDate($asset->data_path.'/'.$name);
 			if (FUDGE_FV_MODIFIED & $file_status) {
 				if (!$fv->commit($asset->data_path.'/'.$name, '', false)) {

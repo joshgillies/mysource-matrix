@@ -219,7 +219,7 @@ class File extends Asset
 	* @return mixed int or false
 	* @access public
 	*/
-	function create(&$link)
+	function create(&$link, $info=Array())
 	{
 		$name = trim($this->attr('name'));
 
@@ -229,8 +229,7 @@ class File extends Asset
 		}
 
 		// check that a file was uploaded at least and that it succeeded
-		$ei = $this->getEI();
-		$info = get_file_upload_info($ei->getPrefix($this));
+		if (empty($info)) $info = get_file_upload_info($this->getPrefix());
 		if ($info === false || empty($info)) {
 			trigger_error('File upload failed. Unable to create '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'), E_USER_WARNING);
 			return false;
@@ -238,13 +237,13 @@ class File extends Asset
 
 		// check that we are not going to have web path conflicts
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-		$valid_names = makeValidWebPaths(Array($info['name']));
+		$valid_names = make_valid_web_paths(Array($info['name']));
 		$name = array_shift($valid_names);
 
 		// make sure the new web path is not already is use
 		$bad_paths = $link['asset']->_webPathsInUse(Array($name));
 		if (!empty($bad_paths)) {
-			trigger_error('Unable to create file, web path already exists?', E_USER_WARNING);
+			trigger_error('Unable to create file with name "'.$name.'", web path already exists?', E_USER_WARNING);
 			return false;
 		}
 
@@ -421,7 +420,7 @@ class File extends Asset
 				$ei = &$this->getEI();
 				if (!$ei->process($this, $o, true)) return false;
 
-				$prefix = $this->getPrefix($this);
+				$prefix = $this->getPrefix();
 
 				$this->setAttrValue('name', 'temp');
 				$linkid = $this->create($link);
