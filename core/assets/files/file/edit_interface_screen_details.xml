@@ -1,0 +1,17 @@
+<contents>
+	<section name="Details">
+		<field attribute="name">
+			<display_name>File Name</display_name>
+			<note />
+			<text width="25" height="1" />
+		</field>
+		<field>
+			<display_name>Upload File</display_name>
+			<note />
+			<function_call>
+				<paint_function   name="paintFileUpload"   />
+				<process_function name="processFileUpload" />
+			</function_call>
+		</field>
+	</section>
+</contents>
