@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.88 2005/03/17 03:27:58 lwright Exp $
+* $Id: form.inc,v 1.89 2005/03/18 04:37:11 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.88 $
+* @version $Revision: 1.89 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -804,7 +804,7 @@ class Form extends Asset
 		}
 
 		// if the active submission does not yet exist, create it
-		if (!$this->active_submission) {
+		if (!$this->active_submission && array_get_index($_POST, $prefix.'_submit', false)) {
 			$this->active_submission = &$this->createSubmission();
 			$this->setFormCookie($this->active_submission->id, $this->attr('cookie_time'));
 		}
