@@ -18,10 +18,9 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_management.inc,v 1.1 2004/11/10 02:41:55 amiller Exp $
+* $Id: condition_management.inc,v 1.2 2004/11/26 17:55:46 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
-
 
 require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 
@@ -31,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.1 $ - 1.0
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -45,11 +44,6 @@ class Condition_Management extends Asset_Management
 	function Condition_Management(&$pm)
 	{
 		$this->Asset_Management($pm);
-
-		// only need to have the default here because the other information will be 
-		// gleaned from the 'condition' type
-		$this->vars =	Array();
-
 
 	}//end constructor
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition.inc,v 1.1 2004/11/10 02:41:55 amiller Exp $
+* $Id: condition.inc,v 1.2 2004/11/26 17:55:46 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,11 +31,10 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.1 $ - 0.1
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
-
 class Condition extends Asset
 {
 
@@ -58,11 +57,11 @@ class Condition extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function Evaluate()
+	function evaluate()
 	{
 		return false;
 
-	}//end Evaluate()	
+	}//end evaluate()	
 	
 }//end class
 
