@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: metadata_field_management.inc,v 1.4 2003/09/26 05:26:26 brobertson Exp $
+* $Id: metadata_field_management.inc,v 1.5 2003/10/07 06:49:17 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -61,6 +61,10 @@ class Metadata_Field_Management extends Asset_Management
 							'required'			=> Array(
 													'added' => '0.1',
 													'type'  => 'boolean', 'default'   => false
+													),
+							'weighting'			=> Array(
+													'added' => '0.1',
+													'type'	=> 'int', 'default' => '-1'
 													),
 							);
 	}//end constructor

@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: metadata_field_edit_fns.inc,v 1.7 2003/09/26 05:26:26 brobertson Exp $
+* $Id: metadata_field_edit_fns.inc,v 1.8 2003/10/07 06:49:17 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -341,6 +341,62 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 
 	}//end processInlineValueInterface()
 
+	/**
+	* Paint the interface for adjusting the weighting and/or including this in a search.
+	* @param object Metadata_Field		&$asset			the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o				the outputter class
+	* @param array						$values			current metadata values set for this asset
+	* @param boolean					$write_access	does the current user have write access to the asset
+	*													that we are setting metadata for (NOT THE SAME AS $asset)
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintWeighting(&$asset, &$o, $prefix)
+	{
+		$weighting = $asset->attr('weighting');
+
+		if ($asset->writeAccess()) {
+			echo combo_box('weighting_include', array(false => 'Do not include in searches', true => 'Include in searches'), false, ($weighting >= 0));
+
+			if ($weighting >=0)
+				echo text_box('weighting', $weighting, 5);
+		} else {
+			if ($weighting >=0)
+				echo ($asset->attr('weighting'));
+			else
+				echo "Not included in searching.";
+		}
+	}//end paintWeighting()
+
+	/**
+	* Paint the interface for adjusting the weighting and/or including this in a search.
+	*
+	*/
+	function processWeighting (&$asset, &$o, $write_access) 
+	{
+		if (!isset($_POST['weighting_include']))
+			return false;
+
+		$oldWeighting = $asset->attr('weighting');
+		if  ($_POST['weighting_include']) {
+			if (isset($_POST['weighting']))
+				$newWeighting = max(0, $_POST['weighting']);
+			else
+				$newWeighting = 1;
+		} else {
+			$newWeighting = -1;
+		}
+
+		$asset->setAttrValue('weighting', $newWeighting);
+
+		if ($newWeighting != $oldWeighting) {
+			$o->addMessage(SQ_BO_MSG_NOTICE, "Relevance weighting modified for metadata field ". $asset->name . " [" . $asset->id ."]");
+		}
+
+		return true;
+
+	}//end paintWeighting()
 
 	/**
 	* Check if all required fields have been completed in the values supplied
