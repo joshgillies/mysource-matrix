@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager.inc,v 1.56 2004/11/04 01:20:21 mnyeholt Exp $
+* $Id: package_manager.inc,v 1.57 2004/11/12 04:26:39 mnyeholt Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -181,9 +181,11 @@ class Package_Manager extends MySource_Object
 			$parent_type = $this->assets[$type_code]['parent_type'];
 			if ($parent_type != 'asset' && !$am->installed($parent_type) && !isset($this->assets[$parent_type])) {
 				trigger_error('Asset "'.$type_code.'" attempts to inherit from the unknown type "'.$parent_type.'"'."\n".'As specified by '.$file, E_USER_WARNING);
-				return false;
+				// It failed the requirement, so we want to let the caller know what asset 
+				// failed so that it can be revisited at a later date if needbe
+				$deferred_assets[] = $type_code;
+				continue;
 			}
-
 		}//end for
 
 		
@@ -214,7 +216,7 @@ class Package_Manager extends MySource_Object
 		// Make sure deferred is an array.
 		$deferred = is_array($deferred) ? $deferred : Array();
 		
-		$install_order = $this->_getInstallOrder();
+		$install_order = $this->_getInstallOrder($update_assets, $deferred);
 		if (!empty($install_order)) {
 
 			pre_echo('Installing '.get_class($this).':');
@@ -297,7 +299,7 @@ class Package_Manager extends MySource_Object
 		}//end if asset types to install
 
 		// create the xml summarys of screens info for the asset map
-		if (!$this->_createAssetMapScreensXML($update_assets)) {
+		if (!$this->_createAssetMapScreensXML($update_assets, $deferred)) {
 			trigger_error('Unable to create the Asset Map Screens XML', E_USER_WARNING);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
@@ -372,9 +374,11 @@ class Package_Manager extends MySource_Object
 	* the assets should be installed in order to respect the heirarchy
 	* defined in the asset.xml files
 	*
+	* @param Array $update_assets Assets that are going to be updated.
+	* @param Array $deferred Any asset types that are going to be deferred this installation pass
 	* @access private
 	*/
-	function _getInstallOrder()
+	function _getInstallOrder($update_assets=Array(), $deferred=Array())
 	{
 		$asset_types = array_keys($this->assets);
 		$install_order = Array();
@@ -384,8 +388,22 @@ class Package_Manager extends MySource_Object
 			$last_count = count($asset_types);
 
 			for($i = 0; $i < count($asset_types); $i++) {
-
+				
 				$type_code = $asset_types[$i];
+				
+				if (count($update_assets) && !in_array($type_code, $update_assets)) {
+					unset($asset_types[$i]);
+					$asset_types = array_values($asset_types);
+					$i--;
+					continue;
+				}
+				
+				if (in_array($type_code, $deferred)) {
+					unset($asset_types[$i]);
+					$asset_types = array_values($asset_types);
+					$i--;
+					continue;
+				}
 				
 				$parent    = $this->assets[$type_code]['parent_type'];
 
@@ -438,9 +456,11 @@ class Package_Manager extends MySource_Object
 	*
 	* @param Array $update_assets		An array of asset types to update 
 	*									details for. If empty, will do all assets
+	* @param Array $deferred			An array of asset types to defer this 
+	* 									install
 	* @access private
 	*/
-	function _createAssetMapScreensXML($update_assets=Array())
+	function _createAssetMapScreensXML($update_assets=Array(), $deferred=Array())
 	{
 		$output = new XML_Tree();
 		$root = &$output->addRoot('tmp', '');
@@ -453,6 +473,11 @@ class Package_Manager extends MySource_Object
 					continue;
 				}
 			}
+			
+			if (in_array($type_code, $deferred)) {
+				continue;
+			}
+			
 			$attrs = Array(	'type_code'			=> $type_code,
 							'name'				=> $this->assets[$type_code]['name'],
 							'version'			=> $this->assets[$type_code]['version'],
