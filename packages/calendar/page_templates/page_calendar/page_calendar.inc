@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.99 2004/10/13 06:20:22 lwright Exp $
+* $Id: page_calendar.inc,v 1.100 2004/10/13 23:17:11 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,7 +38,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.99 $ - 1.0
+* @version $Revision: 1.100 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -1379,6 +1379,12 @@ class Page_Calendar extends Page_Asset_Listing
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$root_nodes = $this->attr('root_nodes');
+
+		if (empty($root_nodes)) {
+			trigger_error('WARNING: No root nodes are set for this Calendar Page', E_USER_WARNING);
+			return Array();
+		}
+
 		$trees =&get_treeids($root_nodes);
 		$tree_sql = build_tree_clause($trees);
 
@@ -1484,6 +1490,12 @@ class Page_Calendar extends Page_Asset_Listing
 
 		// get the where clauses ready for tree restrictions
 		$root_nodes = $this->attr('root_nodes');
+		
+		if (empty($root_nodes)) {
+			trigger_error('WARNING: No root nodes are set for this Calendar Page', E_USER_WARNING);
+			return Array();
+		}
+		
 		$trees =& get_treeids($root_nodes);
 		$tree_sql = build_tree_clause($trees);
 
@@ -1564,6 +1576,12 @@ class Page_Calendar extends Page_Asset_Listing
 
 		// get the treeid restriction SQL
 		$root_nodes = $this->attr('root_nodes');
+		
+		if (empty($root_nodes)) {
+			trigger_error('WARNING: No root nodes are set for this Calendar Page', E_USER_WARNING);
+			return Array();
+		}
+		
 		$trees = &get_treeids($root_nodes);
 		$tree_sql = build_tree_clause($trees);
 
@@ -1724,6 +1742,12 @@ class Page_Calendar extends Page_Asset_Listing
 
 		// build treeid restriction SQL
 		$root_nodes = $this->attr('root_nodes');
+
+		if (empty($root_nodes)) {
+			trigger_error('WARNING: No root nodes are set for this Calendar Page', E_USER_WARNING);
+			return Array();
+		}
+		
 		$trees =& get_treeids($root_nodes);
 		$tree_sql = build_tree_clause($trees);
 
