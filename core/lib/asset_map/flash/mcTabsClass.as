@@ -15,6 +15,7 @@ function mcTabsClass()
 	this.current_tab = null;  // name of the contents area of the current tab
 
 	this.tab_height = null;   // set when the first tab is added
+	this.tab_spacing = 2;
 
 	this.dims = {w: 0, h: 0};
 
@@ -53,7 +54,7 @@ mcTabsClass.prototype.addTab = function(tab_type, name, label, iconID)
 	if (this.tabs.length > 0) {
 		var last_button_name = "tab_button_" + this.tabs[this.tabs.length - 1];
 		// + 1 is for black line
-		this["tab_button_" + name]._x = this[last_button_name]._x + 3 + this[last_button_name]._width;
+		this["tab_button_" + name]._x = this[last_button_name]._x + this[last_button_name]._width + this.tab_spacing;
 	} else {
 		this["tab_button_" + name]._x = 0; 
 	}
@@ -140,7 +141,7 @@ mcTabsClass.prototype.refresh = function()
 	if (this.tabs.length == 0) {
 		this._parent.header._y = 0;
 	} else {
-		this._parent.header._y = this["tab_button_" + this.tabs[0]]._height + 2;
+		this._parent.header._y = this["tab_button_" + this.tabs[0]]._height + this.tab_spacing - 1;
 	}
 
 	for (var i = 0; i < this.tabs.length; i++) {

@@ -112,6 +112,7 @@ _root.asset_manager = new AssetManager();
 
 // Attach the header
 _root.attachMovie ("mcHeaderID", "header", 1);
+Key.addListener(_root.header);
 
 // Add the progress bar
 _root.attachMovie("mcProgressBarID", "progress_bar", 20);

@@ -22,7 +22,7 @@ mcHeaderClass.prototype.refresh = function()
 {
 	this.toolbar_help._x = 0;
 //	trace (this + "mcHeaderClass::refresh()");
-	set_background_box(this, _root._width, this._height, 0x402F48, 100);
+	set_background_box(this, _root._width, this._height, 0x594165, 100);
 
 	this.toolbar_help._x = Math.max (this.spinner._x + this.spinner._width, Stage.width - this.toolbar_help._width - 5);
 	this.toolbar_help._y = this.loadingText._y;
@@ -52,13 +52,25 @@ mcHeaderClass.prototype.hide = function()
 }
 mcHeaderClass.prototype.changeToBatMobile = function ()
 {
-	return;
-	this.resolve_fx_text._x = this.mysource_matrix_text._x;
-	this.resolve_fx_text._y = this.mysource_matrix_text._y;
+	if (this.mysource_matrix_text._currentframe > 1)
+		this.mysource_matrix_text.play();
+}
 
-	this.resolve_fx_text._visible = true;
-	this.resolve_fx_text._alpha = 100;
+mcHeaderClass.prototype.onKeyUp = function() {
+	var sequence = "imsorryacmetux";
+	
+	if (_root.batsignal == undefined)
+		_root.batsignal = '';
+	var match = _root.batsignal + String.fromCharCode(Key.getAscii());
 
-	this.mysource_matrix_text._visible = false;
+	if (match == sequence) {
+		this.mysource_matrix_text.play();
+		_root.batsignal = '';
+	} else {
+		if (match == sequence.substr(0, match.length))
+			_root.batsignal = match;
+		else
+			_root.batsignal = '';
+	}
 }
 

@@ -111,7 +111,7 @@ mcTabButtonClass.prototype.select = function()
 	this.button_left.gotoAndStop('on');
 	this.button_right.gotoAndStop('on');
 	this.button_middle.gotoAndStop('on');
-	this._y += 3;
+	this._y += this._parent.tab_spacing;
 }
 
 /**
@@ -125,7 +125,7 @@ mcTabButtonClass.prototype.unselect = function()
 	this.button_left.gotoAndStop('off');
 	this.button_right.gotoAndStop('off');
 	this.button_middle.gotoAndStop('off');
-	this._y -= 3;
+	this._y -= this._parent.tab_spacing;
 }
 
 /**
