@@ -170,7 +170,7 @@ table#day { border: 1px solid #173e57; background-color: white; border-collapse:
 #calendarTable .aqua, #calendarTable .aqua:visited, #calendarTable .aqua:hover { background-color: aqua; color: black; }
 #calendarTable .black, #calendarTable .black:visited, #calendarTable .black:hover { background-color: black; color: white; }
 #calendarTable .blue, #calendarTable .blue:visited, #calendarTable .blue:hover { background-color: blue; color: white; }
-#calendarTable .fuchsia, #calendarTable .fushia:visited, #calendarTable .fushia:hover { background-color: fuchsia; color: black; }
+#calendarTable .fuchsia, #calendarTable .fuchsia:visited, #calendarTable .fuchsia:hover { background-color: fuchsia; color: black; }
 #calendarTable .gray, #calendarTable .gray:visited, #calendarTable .gray:hover { background-color: gray; color: white; }
 #calendarTable .green, #calendarTable .green:visited, #calendarTable .green:hover { background-color: green; color: white; }
 #calendarTable .lime, #calendarTable .lime:visited, #calendarTable .lime:hover { background-color: lime; color: black; }
