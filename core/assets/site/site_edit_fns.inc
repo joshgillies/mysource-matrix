@@ -201,7 +201,6 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 		//// START HIPO PROCESSING ////
 
 		$vars = Array('assetid' => $asset->id);
-		$codename = 'HIPO_update_lookups';
 		$complete_url = $_SERVER['REQUEST_URI'];
 
 		require_once SQ_SYSTEM_ROOT.'/core/hipo/jobs/hipo_job_update_lookups.inc';
@@ -216,7 +215,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 			if ($url = $hh->getProcessURL($code_name)) $o->setRedirect($url);
 		}
 
-		
+
 		////  END HIPO PROCESSING  ////
 
 		return true;
