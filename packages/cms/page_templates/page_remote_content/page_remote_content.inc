@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.6.2.1 2004/11/02 21:53:02 arailean Exp $
+* $Id: page_remote_content.inc,v 1.6.2.2 2004/11/03 05:09:17 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once 'HTTP/Client/CookieManager.php';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.6.2.1 $
+* @version $Revision: 1.6.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -131,10 +131,10 @@ class Page_Remote_Content extends Page
 
 		// parameters for HTTP_Request. See Package for description.
 		$request_parameters = Array(
-									'timeout'			=> $this->attr('timeout'),
-									'allowRedirects'	=> $this->attr('allow_redirect'),
-									'maxRedirects'		=> 10,
-									);
+			'timeout'			=> $this->attr('timeout'),
+			'allowRedirects'	=> $this->attr('allow_redirect'),
+			'maxRedirects'		=> 10,
+		);
 
 		// set HTTP authentication
 		$user = $this->attr('username');
@@ -319,7 +319,7 @@ REGEX;
 
 // forms. note this captures even those actions that are empty
 		$patterns[] = <<<REGEX
-/(<(?:(form)[^>]*action)\s*=\s*['\"]?)(?:\s)*([^'\"> ]*)(['\"\> ]?[^<]*\>)/i
+/(<(?:(form)[^>]*?action)\s*=\s*['\"]?)(?:\s)*([^'\"> ]*)(['\"\> ]?[^<]*\>)/i
 REGEX;
 
 		// this pattern is a special case. we don't generally look at JavaScript
