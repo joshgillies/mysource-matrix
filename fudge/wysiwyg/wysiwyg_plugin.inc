@@ -129,6 +129,37 @@ class wysiwyg_plugin {
 
 
 	/**
+	* Processes and returns the submitted HTML from the editor
+	* This allows plugins to modify the html as they see fit.
+	*
+	* @param string	&html	the HTML that was submitted by the editor
+	*
+	* @return string
+	* @access public
+	*/
+	function process(&$html)
+	{
+		return $html;
+
+	}//end process()
+
+
+	/**
+	* Sets the initial contents of the WYSIWYG editor
+	*
+	* @param string	&$contents	Some HTML content
+	*
+	* @return void
+	* @access public
+	*/
+	function set_contents(&$contents)
+	{
+		return $contents;
+
+	}//end set_contents()
+
+
+	/**
 	* Paints any JS generic functions needed by this plugin
 	* These functions can be used by all WYSIWYGs on the page
 	* This code is printed outside of script tags - print script tags yourself
@@ -225,6 +256,20 @@ class wysiwyg_plugin {
 		return;
 
 	}//end print_plugin_get_html()
+
+
+	/**
+	* Prints any JS the plugin wants executed before submitting the form
+	* This code is a function - do not use script tags
+	*
+	* @return void
+	* @access public
+	*/
+	function print_plugin_form_submit()
+	{
+		return;
+
+	}//end print_plugin_form_submit()
 
 
 	/**

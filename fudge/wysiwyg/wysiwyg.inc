@@ -148,6 +148,11 @@ class wysiwyg {
 				// Version 3.0 developed by Mihai Bazon for InteractiveTools.
 				//           http://students.infoiasi.ro/~mishoo
 				//
+				// Modifications for PHP Plugin Based System
+				//           developed by Greg Sherwood for Squiz.Net.
+				//           http://www.squiz.net/
+				//           greg@squiz.net
+				//
 
 				// Creates a new HTMLArea object.  Tries to replace the textarea with the given
 				// ID with it.
@@ -408,6 +413,18 @@ class wysiwyg {
 						}
 					}
 				};
+
+				// gets called before the form is submitted
+				HTMLArea.prototype._formSubmit = function() {
+					var editor = this;           // needed in nested functions
+					var html   = this.getHTML(); // HTML that will be set
+												 // can be modified by plugins
+
+<?php $this->print_plugin_form_submit()?>
+					
+					// retrieve the HTML
+					this._textArea.value = html;
+				};
 			</script>
 
 <?php $this->print_plugin_generic_functions()?>
@@ -597,6 +614,22 @@ class wysiwyg {
 		<?php
 
 	}//end paint()
+
+
+	/**
+	* Processes and returns the submitted HTML from the editor
+	* This allows plugins to modify the html as they see fit.
+	*
+	* @return string
+	* @access public
+	*/
+	function process()
+	{
+		$html = (isset($_POST[$this->name])) ? $_POST[$this->name] : '';
+		foreach ($this->plugins as $name => $plugin) $plugin->process($html);
+		return $html;
+
+	}//end process()
 
 
 	/**
@@ -837,6 +870,19 @@ class wysiwyg {
 
 
 	/**
+	* Prints any JS the plugin wants executed before submitting the form
+	*
+	* @return void
+	* @access public
+	*/
+	function print_plugin_form_submit()
+	{
+		foreach ($this->plugins as $name => $plugin) $plugin->print_plugin_form_submit();
+
+	}//end print_plugin_form_submit()
+
+
+	/**
 	* Adds a plugin to the plugins array - adding functionality
 	* This must be done BEFORE calling the paint() function
 	*
@@ -954,13 +1000,14 @@ class wysiwyg {
 	/**
 	* Sets the initial contents of the WYSIWYG editor
 	*
-	* @param string	$content	Some HTML content
+	* @param string	$contents	Some HTML content
 	*
 	* @return void
 	* @access public
 	*/
 	function set_contents($contents)
 	{
+		foreach ($this->plugins as $name => $plugin) $plugin->set_contents($contents);
 		$this->contents = $contents;
 
 	}//end set_contents()

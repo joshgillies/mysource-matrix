@@ -37,7 +37,7 @@ HTMLArea.prototype.generate = function () {
 
 	// retrieve the HTML on submit
 	eval ('var otherOnSubmit_' + this._uniqueID + '= (textarea.form.onsubmit) ? textarea.form.onsubmit :  new Function;');
-	eval ('textarea.form.onsubmit = function() { editor._textArea.value = editor.getHTML(); otherOnSubmit_' + this._uniqueID + '(); };');
+	eval ('textarea.form.onsubmit = function() { editor._formSubmit(); otherOnSubmit_' + this._uniqueID + '(); };');
 	
 	// creates & appends the toolbar
 	this._htmlArea.appendChild(this._toolbar);
@@ -290,13 +290,6 @@ HTMLArea.prototype.getSelectedHTML = function() {
 		existing = HTMLArea.getHTML(range.cloneContents(), false);
 	}
 	return existing;
-};
-
-
-// gets called before the form is submitted
-HTMLArea.prototype._formSubmit = function(ev) {
-	// retrieve the HTML
-	this._textArea.value = this.getHTML();
 };
 
 
