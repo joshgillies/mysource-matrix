@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge_edit_fns.inc,v 1.4 2004/03/19 05:09:44 gsherwood Exp $
+* $Id: ldap_bridge_edit_fns.inc,v 1.5 2004/03/19 05:34:04 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -181,7 +181,7 @@ class LDAP_Bridge_Edit_Fns extends Bridge_Edit_Fns
 				$display_name = $current['show'][$field_name];
 			} else {
 				$show = false;
-				$display_name = $current['hide'][$field_name];
+				$display_name = (isset($current['hide'][$field_name])) ? $current['hide'][$field_name] : $field_name;
 			}
 			$o->openField($field_name);
 				if ($write_access) {

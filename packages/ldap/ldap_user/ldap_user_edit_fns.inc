@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_user_edit_fns.inc,v 1.2 2004/03/19 05:09:44 gsherwood Exp $
+* $Id: ldap_user_edit_fns.inc,v 1.3 2004/03/19 05:34:04 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -83,8 +83,9 @@ class Ldap_User_Edit_Fns extends Backend_User_Edit_Fns
 		if (is_null($ldap_bridge)) return Array();
 
 		$show = $ldap_bridge->attr('user_attributes');
-		$show = $show['show'];
-
+		if (!isset($show['show'])) $show = Array();
+		else $show = $show['show'];
+		
 		for ($i = 0; $i < $info['count']; $i++) {
 			if (!isset($show[$info[$i]])) continue;
 			$field_name = $show[$info[$i]];
