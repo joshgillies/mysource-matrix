@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_tool_search_replace.inc,v 1.2 2005/03/18 05:23:04 dheppell Exp $
+* $Id: hipo_job_tool_search_replace.inc,v 1.3 2005/03/20 22:34:51 dheppell Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to perform search and replace on asset attributes and metadata
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -418,7 +418,7 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 			<p><table class="sq-backend-table">
 			<tr>
 				<th>
-					<input type="checkbox" name="<?php echo 'replace['.$assetid.']'; ?>"  /><?php echo $asset_info[$assetid]['name'].' [#'.$assetid.']    '; ?> ( <?php echo $search_count[$assetid].' matches'; ?>)
+					<input type="checkbox" name="<?php echo 'replace['.$assetid.']'; ?>"  /><?php echo $asset_info[$assetid]['name'].' [#'.$assetid.']    '; ?> ( <?php echo $search_count[$assetid]; echo ($search_count[$assetid] == 1) ? ' match': ' matches'; ?> )
 				</th>
 				<th style="text-align:right" onclick="elt = document.getElementById('<?php echo 'collapse['.$assetid; ?>]'); elt.style.display = ((elt.style.display == 'none') ? '' : 'none');"><b>+</b></th>
 			</tr>
