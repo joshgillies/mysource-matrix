@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.2 2003/12/03 04:50:49 gsherwood Exp $
+* $Id: page_account_manager.inc,v 1.3 2003/12/08 03:08:19 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -59,6 +59,24 @@ class Page_Account_Manager extends Page
 	* @var Array()
 	*/
 	var $_replacements = Array();
+
+	/**
+	* An array of keywords that this asset makes available for use along with a default replacement
+	* @var Array(keyword => Array('name' => short description, 'default' => default replacement))
+	*/
+	var $_available_keywords = Array(
+								'login_invite',
+								'login_form',
+								'login_error',
+								'create_invite',
+								'create_form',
+								'create_error',
+								'edit_details_invite',
+								'edit_details_form',
+								'edit_details_success',
+								'edit_details_lock_error',
+								'logout_form',
+								);
 
 
 	/**
@@ -395,7 +413,7 @@ class Page_Account_Manager extends Page
 					$this->_replacements['edit_details_invite'] = $this->attr('edit_details_invite');
 					$current_user->printLimbo();
 				}
-				$this->_replacements['edit_form'] = ob_get_contents();
+				$this->_replacements['edit_details_form'] = ob_get_contents();
 			ob_end_clean();
 
 
@@ -406,7 +424,7 @@ class Page_Account_Manager extends Page
 			ob_start();
 				?>
 				<form name="account_manager_logout" method="POST" action="<?php echo current_url(true, true); ?>?SQ_ACTION=logout">
-					<?php echo submit_button('ACCOUNT_MANAGER_ACTION', 'Logout'); ?></td>
+					<?php echo submit_button('ACCOUNT_MANAGER_ACTION', 'Logout'); ?>
 				</form>
 				<?php
 				$this->_replacements['logout_form'] = ob_get_contents();
@@ -528,7 +546,38 @@ class Page_Account_Manager extends Page
 
 		}// end error_reporting
 
-	}// end _errorHandler()
+	}//end _errorHandler()
+
+
+	/**
+	* Add valid keywords for this asset to an array of keywords when asked
+	*
+	* @param Array	$vars	the vars that get submitted by the broadcaster
+	*						we add keywords to the $vars['keywords'] array
+	*
+	* @return boolean
+	* @access private
+	*/
+	function onRequestKeywords($vars=Array())
+	{
+		if (!isset($vars['keywords'])) return;
+
+		$keywords = Array();
+		foreach ($this->_available_keywords as $keyword) {
+			$name = ucwords(str_replace('_', ' ', $keyword));
+			if ($keyword == 'logout_form') {
+				$default = '<input style="border: 1px solid #5A5A5A; background-color: #F4F4EB;" type="button" value="Logout">';
+				$name = 'Logout Button';
+			} else if (substr($keyword, -5) == '_form') {
+				$default = '<div style="width: 100%; height: 200px; background-color: #F4F4EB; text-align: center; border: 1px solid #5A5A5A;"><table height="200px" align="center"><tr><td align="center" valign="middle"><b>'.$name.'</b></td></tr></table></div>';
+			} else {
+				$default = '<table bgcolor="#5A5A5A" cellpadding="1" cellspacing="1"><tr><td bgcolor="#F4F4EB">'.$this->attr($keyword).'</td></tr></table>';
+			}
+			$keywords[$keyword] = Array('name' => $name, 'default' => $default);
+		}
+		$vars['keywords'] = array_merge($vars['keywords'], $keywords);
+		
+	}//end onRequestKeywords()
 
 
 }//end class
