@@ -6,6 +6,7 @@ define('SQ_CONF_DB_DSN', 'mysql://root@localhost/blair_resolve');
 define('SQ_CONF_SYSTEM_NAME', 'Blair\'s Resolve System');
 define('SQ_CONF_SYSTEM_OWNER', '');
 define('SQ_CONF_SYSTEM_ADMIN_EMAIL', 'brobertson@squiz.net');
+define('SQ_CONF_SYSTEM_ROOT_URLS', '');
 define('SQ_CONF_SUPER_USERS', 'root');
 define('SQ_CONF_WEB_MASTERS', 'root');
 define('SQ_CONF_MAX_IDLE_TIME', '6000');

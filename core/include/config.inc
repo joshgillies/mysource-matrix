@@ -19,19 +19,20 @@ class Config extends Resolve_Object
 	var $config_file;
 
 	var $config_vars = Array(
-							'SQ_CONF_DB_DSN'                     => Array('editable' => 0, 'default' => ''),
-							'SQ_CONF_PEAR_PATH'                  => Array('editable' => 0, 'default' => ''),
-							'SQ_CONF_BACKEND_SUFFIX'             => Array('editable' => 0, 'default' => '_edit'),
-							'SQ_CONF_SYSTEM_NAME'                => Array('editable' => 1, 'default' => 'Resolve System'),
-							'SQ_CONF_SYSTEM_OWNER'               => Array('editable' => 1, 'default' => ''),
-							'SQ_CONF_SYSTEM_ADMIN_EMAIL'         => Array('editable' => 1, 'default' => ''),
-							'SQ_CONF_SUPER_USERS'                => Array('editable' => 1, 'default' => ''),
-							'SQ_CONF_MAX_IDLE_TIME'              => Array('editable' => 1, 'default' => '6000'),
-							'SQ_CONF_MAX_LOGIN_ATTEMPTS'         => Array('editable' => 1, 'default' => '3'),
-							'SQ_CONF_DEFAULT_FRONTEND_LANGUAGE'  => Array('editable' => 1, 'default' => 'en'),
-							'SQ_CONF_DEFAULT_CHARACTER_SET'      => Array('editable' => 1, 'default' => 'iso-8859-1'),
-							'SQ_CONF_ERRORS_HIDE_FRONTEND'       => Array('editable' => 1, 'default' => '0'),
-							'SQ_CONF_ERRORS_LOG'                 => Array('editable' => 1, 'default' => '0')
+							'SQ_CONF_DB_DSN'					=> Array('editable' => 0, 'default' => ''),
+							'SQ_CONF_PEAR_PATH'					=> Array('editable' => 0, 'default' => ''),
+							'SQ_CONF_BACKEND_SUFFIX'			=> Array('editable' => 0, 'default' => '_edit'),
+							'SQ_CONF_SYSTEM_NAME'				=> Array('editable' => 1, 'default' => 'Resolve System'),
+							'SQ_CONF_SYSTEM_OWNER'				=> Array('editable' => 1, 'default' => ''),
+							'SQ_CONF_SYSTEM_ADMIN_EMAIL'		=> Array('editable' => 1, 'default' => ''),
+							'SQ_CONF_SYSTEM_ROOT_URLS'			=> Array('editable' => 1, 'default' => ''),
+							'SQ_CONF_SUPER_USERS'				=> Array('editable' => 1, 'default' => ''),
+							'SQ_CONF_MAX_IDLE_TIME'				=> Array('editable' => 1, 'default' => '6000'),
+							'SQ_CONF_MAX_LOGIN_ATTEMPTS'		=> Array('editable' => 1, 'default' => '3'),
+							'SQ_CONF_DEFAULT_FRONTEND_LANGUAGE'	=> Array('editable' => 1, 'default' => 'en'),
+							'SQ_CONF_DEFAULT_CHARACTER_SET'		=> Array('editable' => 1, 'default' => 'iso-8859-1'),
+							'SQ_CONF_ERRORS_HIDE_FRONTEND'		=> Array('editable' => 1, 'default' => '0'),
+							'SQ_CONF_ERRORS_LOG'				=> Array('editable' => 1, 'default' => '0')
 							);
 
 
@@ -82,23 +83,7 @@ var $user_ldap_details  = array('host' => '', 'password' => '', 'rootdn' => '');
 	{
 		$this->Resolve_Object();
 		$this->config_file = SQ_DATA_PATH.'/conf/main.inc';
-		$this->load();
 	}
-
-	/**
-	* load
-	*
-	*/
-	function load() 
-	{
-
-		
-
-
-
-
-	}
-
 
 	/**
 	* Rewrites the conf file with current variables
@@ -418,25 +403,33 @@ var $user_ldap_details  = array('host' => '', 'password' => '', 'rootdn' => '');
 
 		$o->openSection('System Settings');
 		$o->openField('System Name');
-		if(superuser()) {
+		if(true || superuser()) {
 			text_box('config[SQ_CONF_SYSTEM_NAME]', SQ_CONF_SYSTEM_NAME, 30);
 		} else {
 			echo SQ_CONF_SYSTEM_NAME;
 		}
 
 		$o->openField('System Owner');
-		if(superuser()) {
+		if(true || superuser()) {
 			text_box('config[SQ_CONF_SYSTEM_OWNER]', SQ_CONF_SYSTEM_OWNER, 30);
 		} else {
 			echo SQ_CONF_SYSTEM_OWNER;
 		}
 
 		$o->openField('Sys Admin Email');
-		if(superuser()) {
+		if(true || superuser()) {
 			text_box('config[SQ_CONF_SYSTEM_ADMIN_EMAIL]', SQ_CONF_SYSTEM_ADMIN_EMAIL, 30);
 		} else {
 			echo SQ_CONF_SYSTEM_ADMIN_EMAIL;
 		}
+
+		$o->openField('System Root URLs');
+		if(true || superuser()) {
+			text_area('config[SQ_CONF_SYSTEM_ROOT_URLS]', SQ_CONF_SYSTEM_ROOT_URLS, 40, 4);
+		} else {
+			echo nl2br(SQ_CONF_SYSTEM_ROOT_URLS);
+		}
+
 
 /*
 		$o->open_field('Backend Message Box Focus');
@@ -496,14 +489,14 @@ var $user_ldap_details  = array('host' => '', 'password' => '', 'rootdn' => '');
 		// login and session timeout configuration
 		$o->openSection('Login/Session Settings');
 		$o->openField('Max Login Attempts', '', 'Zero (0) is unlimited attempts');
-		if(superuser()) {
+		if(true || superuser()) {
 			text_box('config[SQ_CONF_MAX_LOGIN_ATTEMPTS]', SQ_CONF_MAX_LOGIN_ATTEMPTS, 5, 5);
 		} else {
 			echo SQ_CONF_MAX_LOGIN_ATTEMPTS;
 		}
 
 		$o->openField('Max Idle Time', '', 'In seconds - Min: 60 or zero (0) for unlimited idle time');
-		if(superuser()) {
+		if(true || superuser()) {
 			echo text_box('config[SQ_CONF_MAX_IDLE_TIME]', SQ_CONF_MAX_IDLE_TIME, 10, 10);
 		} else {
 			echo SQ_CONF_MAX_IDLE_TIME;
@@ -652,15 +645,15 @@ var $user_ldap_details  = array('host' => '', 'password' => '', 'rootdn' => '');
 		}#end if superuser
 */
 
-		if (superuser()) {
+		if (true || superuser()) {
 			$o->openSection('Packages');
 			$o->openField('List', 'top');
 			//$XTRAS->printBackend($backend);
 		}
 	
-//		if(superuser('web')) {
-//			$backend->print_commit_button('Commit',"if (confirm('Commit this information to the system?')) { document.edit.action.value='Commit';document.edit.submit(); }");
-//		}
+		if(true || superuser('web')) {
+			$backend->print_commit_button('Commit',"if (confirm('Commit this information to the system?')) { document.edit.action.value='Commit';document.edit.submit(); }");
+		}
 
 	}//end print_backend()
 
