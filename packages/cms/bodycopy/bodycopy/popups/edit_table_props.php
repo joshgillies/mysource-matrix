@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: edit_table_props.php,v 1.12 2003/10/22 02:19:59 gsherwood Exp $
+* $Id: edit_table_props.php,v 1.13 2003/11/03 01:22:28 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ include(dirname(__FILE__)."/header.php");
 		f.height.value		= (data['height']	  == null) ? "" : data['height'];
 		f.bgcolor.value		= (data['bgcolor']	  == null) ? "" : data['bgcolor'];
 		//f.background.value	= (data['background'] == null) ? "" : data['background'];
-		f.table_name.value	= (data['table_name'] == null) ? "" : data['table_name'];
+		f.identifier.value	= (data['identifier'] == null) ? "" : data['identifier'];
 		owner.highlight_combo_value(f.align,	   data['align']);
 		owner.highlight_combo_value(f.border,	   data['border']);
 		owner.highlight_combo_value(f.cellspacing, data['cellspacing']);
@@ -47,7 +47,7 @@ include(dirname(__FILE__)."/header.php");
 
 	function popup_save(f) {
 		var data = new Object();
-		data["table_name"]		= owner.form_element_value(f.table_name);
+		data["identifier"]		= owner.form_element_value(f.identifier);
 		data["width"]			= owner.form_element_value(f.width);
 		data["height"]			= owner.form_element_value(f.height);
 		data["bgcolor"]			= owner.form_element_value(f.bgcolor);
@@ -82,7 +82,7 @@ include(dirname(__FILE__)."/header.php");
 			<table style="width:100%">
 				<tr>
 					<td class="label">Name:</td>
-					<td><input type="text" name="table_name" value="" size="15"></td>
+					<td><input type="text" name="identifier" value="" size="15"></td>
 				</tr>
 			</table>
 		</fieldset>

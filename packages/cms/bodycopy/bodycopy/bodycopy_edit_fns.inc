@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: bodycopy_edit_fns.inc,v 1.38 2003/10/20 23:34:16 gsherwood Exp $
+* $Id: bodycopy_edit_fns.inc,v 1.39 2003/11/03 01:22:28 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -14,24 +14,25 @@ require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
 /**
 * Print a bodycopy style icon
 *
-* This is normally used to print the bodycopy icons in the 
-* for bodycopy, table, row and cell functions
+* @param string $href		The HREF that this icons points to
+* @param string $heading	The heading for the tooltip
+* @param string $desc		The main body of the tooltip
+* @param string $icon		The filename of the icon to display (must be a GIF file)
+* @param string $extra		Any extras you want to put at the end of the IMG tag
+* @param string $width		The width of the icon
+* @param string $height		The height of the icon
 *
-* @param   string $href		The HREF that this icons points to
-* @param   string $heading	The heading for the tooltip
-* @param   string $desc		The main body of the tooltip
-* @param   string $icon		The filename of the icon to display (must be a GIF file)
-* @param   string $extra	Any extras you want to put at the end of the IMG tag
-* @param   string $width	The width of the icon
-* @param   string $height	The height of the icon
 * @access  public
 * @returns void
 */
-function print_bodycopy_icon($href, $heading, $desc, $icon, $extra='', $width='16', $height='16'){
+function print_bodycopy_icon($href, $heading, $desc, $icon, $extra='', $width='16', $height='16')
+{
 	?>
 	<a href="<?php echo $href?>" onmouseover="javascript: show_tooltip(event, '<?php echo addslashes(htmlspecialchars($heading))?>', '<?php echo addslashes(htmlspecialchars($desc))?>', null, 'bodycopyToolTipDiv'); return true;" onmouseout="javascript:hide_tooltip(); return true;" >
 	<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('data')?>/asset_types/bodycopy/images/icons/<?php echo $icon?>.png", "<?php echo $width?>", "<?php echo $height?>", "");</script>
-	</a><?php
+	</a>
+	<?php
+
 }// end print_bodycopy_icon()
 
 
@@ -48,6 +49,7 @@ function print_bodycopy_icon($href, $heading, $desc, $icon, $extra='', $width='1
 */
 class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 {
+
 	/**
 	* Constructor
 	*
@@ -67,33 +69,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 
 
 	/**
-	* Paints this bodycopy as HTML
-	*
-	* @param object Bodycopy	$asset	the bodycopy
-	*
-	* @return void
-	* @access public
-	*/
-	function paint(&$asset)
-	{
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
-		
-		// get all the tables linked to this bodycopy
-		$tables = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'bodycopy_table');
-		
-		// paint each table
-		$i = 0;
-		foreach ($tables as $table_data) {
-			$table = &$am->getAsset($table_data['minorid'], $table_data['minor_type_code']);
-			$table_edit = $table->getEditFns();
-			$table_edit->paint($table);
-		}
-
-	}// end paint()
-
-
-	/**
-	* Paint the interface for creating tables in the bodycopy
+	* Paint the interface for creating containers in the bodycopy
 	*
 	* @param object Bodycopy			&$asset	the asset whose interface we are painting
 	* @param object	Backend_Outputter	&$o		the outputter class
@@ -106,17 +82,17 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 	{
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 		
-		// get all the tables linked to this bodycopy
-		$tables = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'bodycopy_table');
+		// get all the containers linked to this bodycopy
+		$containers = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'bodycopy_container', false);
 
 		if (!$asset->writeAccess('content')) {
-			foreach ($tables as $table_data) {
-				$table = &$am->getAsset($table_data['minorid'], $table_data['minor_type_code']);
-				if ($table->useSystemVersion()) {
-					$table->printBody();
+			foreach ($containers as $container_data) {
+				$container = &$am->getAsset($container_data['minorid'], $container_data['minor_type_code']);
+				if ($container->useSystemVersion()) {
+					$container->printBody();
 				} else {
-					$table_edit = $table->getEditFns();
-					$table_edit->paintTable($table, $o, $prefix);
+					$container_edit = $container->getEditFns();
+					$container_edit->paintContainer($container, $o, $prefix);
 				}
 			}
 			return true;
@@ -126,7 +102,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		$init_layer_width  = 500;
 		$init_layer_height = 500;
 
-		// all available content types for the table cells
+		// all available content types
 		$content_types = array();
 		$types = $am->getAssetTypeHierarchy('content_type');
 		foreach ($types as $type => $type_data) $content_types[$type] = array('name' => $type_data['name']);
@@ -136,7 +112,6 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		<input type="hidden" name="bodycopy_name"   value="">
 		<input type="hidden" name="bodycopy_data"   value="">
 
-		<script language="JavaScript" src="<?php echo sq_web_path('data').'/asset_types/bodycopy/js/bodycopy_edit_tables.js'?>"></script>
 		<script language="JavaScript" src="<?php echo sq_web_path('fudge').'/var_serialise/var_serialise.js'?>"	></script>
 		<script language="JavaScript" src="<?php echo sq_web_path('lib').'/js/detect.js';?>"					></script>
 		<script language="JavaScript" src="<?php echo sq_web_path('lib').'/js/layer_handler.js';?>"				></script>
@@ -146,7 +121,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		<script language="JavaScript" src="<?php echo sq_web_path('lib').'/html_form/html_form.js';?>"			></script>
 		
 		<script language="JavaScript" type="text/javascript">
-			// this is an array of data that each element (tables, rows, and cells)
+			// this is an array of data that each element (divs, tables, rows, and cells)
 			// can place data for use in editing
 			var bodycopy_current_data = new Object();
 			var bodycopy_saved        = new Object();
@@ -159,7 +134,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 			bodycopy_current_edit["bodycopy_name"] = null;
 
 			var bodycopy_initialised = false;	// true once init() has been run
-			var bodycopy_popup   = null;		// pointer to the popup Layer_Handler Object
+			var bodycopy_popup = null;			// pointer to the popup Layer_Handler Object
 			var bodycopy_popup_visible = false;	// boolean indicating whether the popup is visisble ( not access directly )
 			var bodycopy_nested_doc = null;		// pointer to the Netscape Layer or the IE Iframe
 
@@ -190,42 +165,6 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 				form.onsubmit();
 				form.submit();
 			}// end bodycopy_submit()
-
-			function serialise_table(bodycopy_name, bodycopy_data, tableid, rowid, cellid) {
-				var form = document.main_form;
-				if (!bodycopy_saved[bodycopy_name] && bodycopy_name != null) bodycopy_saved[bodycopy_name] = new Object();
-
-				if (tableid != null) {
-					if (!bodycopy_saved[bodycopy_name][tableid]) {
-						bodycopy_saved[bodycopy_name][tableid] = new Object();
-					}
-
-					if (rowid != null) {
-						if (!bodycopy_saved[bodycopy_name][tableid]['rows']) {
-							bodycopy_saved[bodycopy_name][tableid]['rows'] = new Object();
-						}
-						if (!bodycopy_saved[bodycopy_name][tableid]['rows'][rowid] && rowid != null) {
-							bodycopy_saved[bodycopy_name][tableid]['rows'][rowid] = new Object();
-						} 
-						if (cellid != null) {
-							if (!bodycopy_saved[bodycopy_name][tableid]['rows'][rowid]['cells']) { 
-								bodycopy_saved[bodycopy_name][tableid]['rows'][rowid]['cells'] = new Object();
-							}
-							bodycopy_saved[bodycopy_name][tableid]['rows'][rowid]['cells'][cellid] = bodycopy_data;
-						} else {
-							// no cellid means that we are setting row attributes
-							bodycopy_saved[bodycopy_name][tableid]['rows'][rowid]['attributes'] = bodycopy_data['attributes'];
-						}// end if cellid
-
-					} else {
-						// no rowid means that we are settign the table attributes
-						bodycopy_saved[bodycopy_name][tableid]['attributes'] = bodycopy_data['attributes'];
-					}//end if rowid
-
-				}// end if tableid
-
-				form.elements['bodycopy_saved[' + bodycopy_name + '][' + tableid + ']'].value = var_serialise(bodycopy_saved[bodycopy_name][tableid]);
-			}// end serialise_table()
 
 			function set_bodycopy_nested_doc() {
 				if (is_ie4up) {
@@ -308,14 +247,6 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 				return BODYCOPY_AVAILABLE_CONTENT_TYPES;
 			}
 
-			// general fn that the generic include fns can use to get data to use
-			function get_bodycopy_current_data(bodycopy_name, tableid, rowid, cellid) {
-				if (tableid == null) tableid = -1;
-				if (rowid   == null) rowid   = -1;
-				if (cellid  == null) cellid  = -1;
-				return bodycopy_current_data[bodycopy_name].get_data(tableid, rowid, cellid);
-			}
-
 			function bodycopy_data_exists(args) {
 				var str = 'bodycopy_saved';
 				for(var i = 0; i < args.length; i++) {
@@ -339,6 +270,12 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 					chgcell = "document.getElementById('"+ id + "').style.backgroundColor = '#"+ colour +"'";
 					eval(chgcell);
 				}
+			}
+
+			function bodycopy_insert_container(bodycopy_name, containerid, before) {
+				var form = document.main_form;
+				var container_type = form_element_value(form.<?php echo $prefix; ?>_insert_container_type);
+				eval('bodycopy_insert_' + container_type + '("' + bodycopy_name + '", ' + containerid + ', ' + before + ');');
 			}
 
 			// This function switches the view between wysiwyg and
@@ -392,7 +329,29 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 					}
 				}
 			}
+
+			bodycopy_current_data["<?php echo $prefix?>"] = new Object();
 		</script>
+
+		<?php 
+		// print JS functions for each of the container types we have installed
+		$container_types = $am->getAssetTypeHierarchy('bodycopy_container');
+		foreach ($container_types as $type => $type_data) {
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset($type);
+			$type_asset = new $type();
+			$edit_fns = $type_asset->getEditFns();
+			$edit_fns->paintGenericBackend($asset, $o, $prefix);
+		}
+
+		$container_type_options = Array();
+		$default = '';
+		foreach ($container_types as $type => $type_data) {
+			$code = strtolower(substr($type,9));
+			$container_type_options[$code] = ucfirst(substr($type,9));
+			if (empty($default)) $default = $code;
+		}
+		echo hidden_field($prefix.'_insert_container_type', $default);
+		?>
 
 		<style type="text/css">
 			#bodycopyPopupDiv {
@@ -423,94 +382,31 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		</div>
 		<!-- End Popup -->
 
-		<script language="JavaScript" type="text/javascript">
-			bodycopy_current_data["<?php echo $prefix?>"] = new Object();
-			function get_bodycopy_<?php echo $prefix?>_current_data(tableid, rowid, cellid) {
-	
-				retVal = new Object();
-
-				switch (tableid) {
-			<?php
-
-			// if we have tables get them to print the js data they need
-			if (count($tables)) {
-				$i = 0;
-				foreach ($tables as $table_data) {
-					$table = &$am->getAsset($table_data['minorid'], $table_data['minor_type_code']);
-					$table_edit = $table->getEditFns();
-					$table_edit->paintBackendJsData($table, $prefix, $i);
-				}
-			}
-			
-			?> 
-					default :
-						retVal["num_tables"] = <?php echo count($tables)?>;
-
-				}// end switch tableid
-
-
-				// check if this piece of data has been changed before
-				// if it has, return the changed version, not the original
-				if (tableid != -1) {
-					if (rowid != -1) {
-						if (cellid != -1) {
-							if (bodycopy_saved && 
-									bodycopy_saved["<?php echo $prefix?>"] && 
-									bodycopy_saved["<?php echo $prefix?>"][tableid] && 
-									bodycopy_saved["<?php echo $prefix?>"][tableid]["rows"] &&
-									bodycopy_saved["<?php echo $prefix?>"][tableid]["rows"][rowid] &&
-									bodycopy_saved["<?php echo $prefix?>"][tableid]["rows"][rowid]["cells"] &&
-									bodycopy_saved["<?php echo $prefix?>"][tableid]["rows"][rowid]["cells"][cellid]) {
-								for (var key in bodycopy_saved["<?php echo $prefix?>"][tableid]["rows"][rowid]["cells"][cellid]) {
-									retVal[key] = var_serialise(bodycopy_saved["<?php echo $prefix?>"][tableid]["rows"][rowid]["cells"][cellid][key]); 
-								}
-							}
-							return retVal;
-						} else { 
-							// editing row properties
-							if (bodycopy_data_exists(new Array('<?php echo $prefix?>', tableid, 'rows', rowid, 'attributes'))) {
-								retVal["attributes"] = var_serialise(bodycopy_saved["<?php echo $prefix?>"][tableid]["rows"][rowid]["attributes"]);
-								return retVal;
-							}
-						}
-					} else {
-						// editing table properties
-						if (bodycopy_data_exists(new Array('<?php echo $prefix?>', tableid, 'attributes'))) {
-							retVal ["attributes"] = var_serialise(bodycopy_saved["<?php echo $prefix?>"][tableid]["attributes"]);
-							return retVal;
-						}
-					}
-				}
-
-				return retVal;
-			}// end get_bodycopy_<?php echo $prefix?>_current_data()
-
-			// set reference so generic fn can be called above
-			bodycopy_current_data["<?php echo $prefix?>"].get_data    = get_bodycopy_<?php echo $prefix?>_current_data;
-		</script>
-
 		<table border="0" cellspacing="0" cellpadding="0" width="100%" class="bodytext">
 		
 		<?php
 
-		// for each table, print it's editing interface
+		// for each container, print it's editing interface
 		$i = 0;
-		foreach ($tables as $table_data) {
-			$table = &$am->getAsset($table_data['minorid'], $table_data['minor_type_code']);
-			$table_edit = $table->getEditFns();
+		foreach ($containers as $container_data) {
+			$container = &$am->getAsset($container_data['minorid'], $container_data['minor_type_code']);
+			$container_edit = $container->getEditFns();
 		?> 
 			<tr>
 				<td>
-					<input type="hidden" name="bodycopy_saved[<?php echo $prefix?>][<?php echo $table->id?>]" value="">
+					<input type="hidden" name="bodycopy_saved[<?php echo $prefix?>][<?php echo $container->id?>]" value="">
 					<table border="0" cellspacing="0" cellpadding="0">
 						<tr>
 							<td>
 							<?php
-							print_bodycopy_icon("Javascript: bodycopy_insert_table('$prefix', $i, true)", 'Insert Table', '', 'create_table');
+							print_bodycopy_icon("Javascript: document.main_form.{$prefix}_insert_container_type.value = document.main_form.{$prefix}_insert_container_type_before_{$i}.value; bodycopy_insert_container('$prefix', $i, true)", 'Insert Container', 'Select the type of container you want to create before clicking here', 'create_table');
 							?>
 							</td>
-							<td class="sq-backend-data">
-								&nbsp;&nbsp;Create New Table&nbsp;&nbsp;
+							<td class="sq-backend-data" valign="top">
+								<?php
+								echo '&nbsp;&nbsp;Create New ';
+								echo combo_box($prefix.'_insert_container_type_before_'.$i, $container_type_options, false, '');
+								?>
 							</td>
 						</tr>
 					</table>
@@ -520,14 +416,14 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 				<td>&nbsp;</td>
 			</tr>
 			<tr>
-				<td><?php $table_edit->paintTable($table, $o, $prefix); ?></td>
+				<td><?php $container_edit->paintContainer($container, $o, $prefix); ?></td>
 			</tr>
 			<tr>
 				<td>&nbsp;</td>
 			</tr>
 		<?php
 			$i++;
-		}// end foreach table
+		}// end foreach container
 		?>
 
 			<tr>
@@ -536,11 +432,14 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 						<tr>
 							<td>
 							<?php
-							print_bodycopy_icon("Javascript: bodycopy_insert_table('$prefix', $i, false)", 'Insert Table', '', 'create_table');
+							print_bodycopy_icon("Javascript: document.main_form.{$prefix}_insert_container_type.value = document.main_form.{$prefix}_insert_container_type_after_{$i}.value; bodycopy_insert_container('$prefix', $i, false)", 'Insert Container', 'Select the type of container you want to create before clicking here', 'create_table');
 							?>
 							</td>
-							<td class="sq-backend-data">
-								&nbsp;&nbsp;Create New Table&nbsp;&nbsp;
+							<td class="sq-backend-data" valign="top">
+								<?php
+								echo '&nbsp;&nbsp;Create New ';
+								echo combo_box($prefix.'_insert_container_type_after_'.$i, $container_type_options, false, '');
+								?>
 							</td>
 						</tr>
 					</table>
@@ -551,13 +450,11 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 
 		return true;
 
-	}// end paintBodycopy()
+	}//end paintBodycopy()
 
 
 	/**
-	* Processes the interface for creating tables in the bodycopy
-	* This function processes some actions (such as insert_table) but
-	* lets ndividual tables handle other actions themselves
+	* Processes the interface for creating containers in the bodycopy
 	*
 	* @param object Asset				$asset	the asset to which we belong
 	* @param object	Backend_Outputter	$o		the outputter class
@@ -585,25 +482,25 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 			if ($bc_data) $bc_data = var_unserialise($bc_data);
 
 			for (reset($bc_saved); NULL !== ($k = key($bc_saved)); next($bc_saved)) {
-				$tables = &$bc_saved[$k];
-				for (reset($tables); NULL !== ($tableid = key($tables)); next($tables)) {
-					$tables[$tableid] = var_unserialise($tables[$tableid]);
+				$containers = &$bc_saved[$k];
+				for (reset($containers); NULL !== ($containersid = key($containers)); next($containers)) {
+					$containers[$containersid] = var_unserialise($containers[$containersid]);
 				}
 			}
-			unset($tables);
+			unset($containers);
 
 			$this->_tmp['update_initialised'] = true;
 		}
 
-		// get all the tables linked to this bodycopy
-		$tables = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'bodycopy_table');
+		// get all the containers linked to this bodycopy
+		$containers = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'bodycopy_container', false);
 
-		// process each of the tables
-		foreach ($tables as $table_data) {
-			$table = &$am->getAsset($table_data['minorid'], $table_data['minor_type_code']);
-			$table_edit = $table->getEditFns();
-			if ($table_edit->processTable($table, $o, $prefix, $bc_action, $bc_name, $bc_data, $bc_saved)) {
-				if ($table->saveAttributes()) $updated = true;
+		// process each of the contianers
+		foreach ($containers as $container_data) {
+			$container = &$am->getAsset($container_data['minorid'], $container_data['minor_type_code']);
+			$container_edit = $container->getEditFns();
+			if ($container_edit->processContainer($container, $o, $prefix, $bc_action, $bc_name, $bc_data, $bc_saved)) {
+				if ($container->saveAttributes()) $updated = true;
 			}
 		}
 
@@ -612,16 +509,12 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 			// perform some bodycopy level actions
 			if ($bc_name == $prefix) {
 				switch($bc_action) {
-					case 'insert_table' :
-						if ($this->insertTable($asset, $bc_data['tableid'],	$bc_data['num_rows'],
-																			$bc_data['num_cols'],
-																			$bc_data['before'],
-																			$bc_data['attributes']
-						)) $updated = true;
+					case 'insert_container' :
+						if ($this->insertContainer($asset, $bc_data['container_type'], $bc_data['containerid'], $bc_data)) $updated = true;
 					break;
 
-					case 'delete_table' :
-						if ($this->deleteTable($asset, $bc_data['tableid'])) $updated = true;
+					case 'delete_container' :
+						if ($this->deleteContainer($asset, $bc_data['containerid'])) $updated = true;
 					break;
 				}//end switch
 			}
@@ -633,75 +526,73 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 
 
 	/**
-	* Create a new bodycopy_table asset and attach it to this bodycopy
+	* Insert a new container into this bodycopy
 	*
-	* @param object Bodycopy	&$asset		the bodycopy
-	* @param int				$tableid	insert this table before or after this tableid
-	* @param int				$num_rows	the number of rows the new table should have
-	* @param int				$num_cols	the number of cells the new table should have
-	* @param boolean			$before		insert this table before the passed tableid
-	* @param array				$attributes	an array of attributes to apply to the new table
+	* @param object Asset	&$asset			the bodycopy
+	* @param string			$type			the type of the container (table, div etc)
+	* @param int			$containerid	the ID of the container to insert before/after
+	* @param array			$bc_data		the array of bodycopy data that got posted
 	*
 	* @return boolean
 	* @access public
 	*/
-	function insertTable(&$asset, $tableid, $num_rows=1, $num_cols=1, $before=true, $attributes=Array())
+	function insertContainer(&$asset, $type, $containerid, $bc_data)
 	{
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		// get all the containers linked to this bodycopy
+		$containers = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'bodycopy_container', false);
+		$num_containers = count($containers);
 
-		// get all the tables linked to this bodycopy
-		$tables = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'bodycopy_table');
-		$num_tables = count($tables);
+		$containerid = intval($containerid);
 
-		$tableid = intval($tableid);
+		// if the containerid is greater than the number of containers we have, set it to the last one
+		if ($containerid > $num_containers - 1) $containerid = $num_containers - 1;
+		else if ($containerid < 0) $divid = 0;
 
-		// if the table is greater than the number of tables we have, set it to the last one
-		if ($tableid > $num_tables - 1) $tableid = $num_tables - 1;
-		else if ($tableid < 0) $tableid = 0;
+		// if they want to insert after the passed containerid what
+		// they really mean is to insert before the next containerid
+		if (!$bc_data['before']) $containerid++;
 
-		// if they want to insert after the passed tableid what 
-		// they really mean is to insert before the next tableid
-		if (!$before) $tableid++;
+		// now add the container
+		$copy_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_2, 'value' => '', 'sort_order' => $containerid, 'dependant' => 1);
 
-		// now add the table
-		$copy_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_2, 'value' => '', 'sort_order' => $tableid, 'dependant' => 1);
-		$am->includeAsset('bodycopy_table');
-		$new_table = new Bodycopy_Table();
-		$new_table->setAttrValue('name', 'New Table');
-		$new_table->setAttrValue('attributes', $attributes);
-		$retval = (bool) $new_table->create($copy_link, $num_rows, $num_cols);
+		$asset_type = 'bodycopy_'.$type;
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset($asset_type);
+		$new_container = new $asset_type();
+		$new_container->setAttrValue('name', 'New '.ucfirst($type));
+		$new_container->setAttrValue('attributes', $bc_data['attributes']);
+		$retval = (bool) $new_container->create($copy_link, $bc_data);
 
-		$am->forgetAsset($new_table);
+		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($new_container);
 		return $retval;
 
-	}//end insertTable()
+	}//end insertContainer()
 
 
 	/**
-	* Unlink a table from this bodycopy (effectivly deleting it from this bodycopy)
+	* Unlink a container from this bodycopy (effectivly deleting it from this bodycopy)
 	*
-	* @param object Asset	&$asset		the bodycopy
-	* @param int			$tableid	the ID of the table to delete
+	* @param object Asset	&$asset			the bodycopy
+	* @param int			$containerid	the ID of the container to delete
 	*
 	* @return boolean
 	* @access public
 	*/
-	function deleteTable(&$asset, $tableid)
+	function deleteContainer(&$asset, $containerid)
 	{
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 
-		// get all the tables linked to this bodycopy
-		$tables = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'bodycopy_table');
-		foreach ($tables as $table_data) {
-			if ($table_data['minorid'] == $tableid) {
-				// found the table to delete
-				return $asset->deleteLink($table_data['linkid']);
+		// get all the containers linked to this bodycopy
+		$containers = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'bodycopy_container', false);
+		foreach ($containers as $container_data) {
+			if ($container_data['minorid'] == $containerid) {
+				// found the container to delete
+				return $asset->deleteLink($container_data['linkid']);
 			}
 		}
 
 		return false;
 
-	}//end deleteTable()
+	}//end deleteContainer()
 
 }//end class
 

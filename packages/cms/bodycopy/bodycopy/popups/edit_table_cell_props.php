@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: edit_table_cell_props.php,v 1.9 2003/10/03 00:03:26 brobertson Exp $
+* $Id: edit_table_cell_props.php,v 1.10 2003/11/03 01:22:28 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -21,7 +21,7 @@ header("Pragma: no-cache");
 header("Expires: ". gmdate("D, d M Y H:i:s",time()-3600) . " GMT");
 
 include(dirname(__FILE__)."/header.php");
-?> 
+?>
 <script language="JavaScript" type="text/javascript">
 
 	function popup_init() {
@@ -52,7 +52,7 @@ include(dirname(__FILE__)."/header.php");
 			}
 		}
 
-		owner.highlight_combo_value(f.type, data["content_type"]);
+		owner.highlight_combo_value(f.type, "content_type_" + data["content_type"]);
 
 	}// end popup_init()
 	

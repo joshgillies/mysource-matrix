@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: bodycopy.inc,v 1.30 2003/10/21 00:25:14 gsherwood Exp $
+* $Id: bodycopy.inc,v 1.31 2003/11/03 01:22:28 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -10,12 +10,12 @@
 require_once SQ_INCLUDE_PATH.'/asset.inc';
 
 /**
-* Page
+* Bodycopy
 *
 * Purpose
 *
 *
-* @author  Blair Robertson <blair@squiz.net>
+* @author  Greg Sherwood <greg@squiz.net>
 * @version $Version$ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
@@ -52,7 +52,8 @@ class Bodycopy extends Asset
 
 
 	/**
-	* Saves a copy of this asset at this point in time
+	* Save a copy of this asset at this point in time
+	*
 	* This copy gets used when the asset is live and the user does not have write access
 	*
 	* @return boolean
@@ -124,12 +125,13 @@ class Bodycopy extends Asset
 			return false;
 		}
 
-		// create a table
-		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy_table');
-		$bodycopy_table =& new Bodycopy_Table();
+		// create a DIV
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy_div');
+		$bodycopy_div =& new Bodycopy_DIV();
 		$copy_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'value' => '', 'sort_order' => 1, 'dependant' => 1);
-		$bodycopy_table->setAttrValue('name', 'Table 1');
-		if (!$bodycopy_table->create($copy_link)) {
+		$bodycopy_div->setAttrValue('name', 'Content DIV');
+		$attributes = Array();
+		if (!$bodycopy_div->create($copy_link, $attributes)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$this->id = 0;
 			return false;
@@ -143,42 +145,41 @@ class Bodycopy extends Asset
 
 	/**
 	* Creates a link between this asset and the passed asset, of a certain type
-	* and returns the linkid of the created link
 	*
-	* @return int
+	* @return int - the linkid of the created link
 	* @access public
 	* @see Asset::creatLink();
 	*/
 	function createLink(&$minor, $link_type, $value='', $sort_order=-1, $dependant='0', $exclusive='0')
 	{
-		// if this is a bodycopy table then we need to make it a dependant link
-		if (is_a($minor, 'bodycopy_table')) {
+		// if this is a bodycopy container then we need to make it a dependant link
+		if (is_a($minor, 'bodycopy_container')) {
 			$dependant = '1';
 		}
 
 		return parent::createLink($minor, $link_type, $value, $sort_order, $dependant, $exclusive);
 
-	}// end createLink()
+	}//end createLink()
 
 
 	/**
 	* Returns an array of all the permitted links type, the type asset and the cardinality
 	*
-	* @see Asset::_getAllowLinks()
+	* @return array
 	* @access private
+	* @see Asset::_getAllowLinks()
 	*/
 	function _getAllowedLinks() {
 
-		return Array(SQ_LINK_TYPE_2 => Array('bodycopy_table' => Array('card' => 'M', 'exclusive' => false)));
+		return Array(SQ_LINK_TYPE_2 => Array('bodycopy_container' => Array('card' => 'M', 'exclusive' => false)));
 
 	}//end _getAllowedLinks()
 
 
 	/**
 	* Prints out the backend interface for the asset
-	* it's up to the kids to override
 	*
-	* @param object Backend $backend
+	* @param object Backend	$backend
 	*
 	* @access public
 	*/
@@ -194,7 +195,7 @@ class Bodycopy extends Asset
 
 		}// end switch
 
-	}// end paintBackend()
+	}//end paintBackend()
 
 
 	/**
@@ -224,19 +225,19 @@ class Bodycopy extends Asset
 		} else {
 			$am = &$GLOBALS['SQ_SYSTEM']->am;
 
-			// get all the tables linked to this bodycopy
-			$tables = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy_table');
+			// get all the containers linked to this bodycopy
+			$containers = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy_container', false);
 
-			// paint each table
-			foreach ($tables as $table_data) {
-				$table = &$am->getAsset($table_data['minorid'], $table_data['minor_type_code']);
-				$table->printBody($table);
+			// paint each container
+			foreach ($containers as $container_data) {
+				$container = &$am->getAsset($container_data['minorid'], $container_data['minor_type_code']);
+				$container->printBody($container);
 			}
 		}
 
 		return true;
 
-	}// end printBody()
+	}//end printBody()
 
 
 	/**
@@ -264,17 +265,16 @@ class Bodycopy extends Asset
 	function isEmpty()
 	{
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
-		$tables = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy_table');
-		foreach ($tables as $table_data) {
-			$table = &$am->getAsset($table_data['minorid'], $table_data['minor_type_code']);
-			if (!$table->isEmpty()) {
+		$containers = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy_container', false);
+		foreach ($containers as $container_data) {
+			$container = &$am->getAsset($container_data['minorid'], $container_data['minor_type_code']);
+			if (!$container->isEmpty()) {
 				return false;
 			}
 		}
 		return true;
 
 	}//end isEmpty()
-
 
 }//end class
 
