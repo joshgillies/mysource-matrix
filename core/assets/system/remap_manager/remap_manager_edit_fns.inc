@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager_edit_fns.inc,v 1.2 2003/12/19 05:56:49 gsherwood Exp $
+* $Id: remap_manager_edit_fns.inc,v 1.3 2004/01/08 15:52:51 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.2 $ - 1.0
+* @version $Revision: 1.3 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -104,10 +104,11 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 			</tr>
 			<?php
 				foreach ($remap_urls as $url_info) {
-					if ($url_info['expires'] == '0000-00-00 00:00:00') {
+					if (empty($url_info['expires'])) {
 						$expires = 'Never';
 					} else {
-						$expires = date('d/m/Y H:i:s', strtotime($url_info['expires']));
+					echo $url_info['expires'];
+						$expires = $GLOBALS['SQ_SYSTEM']->datetime(iso8601_ts($url_info['expires']));
 					}
 
 					// any warning text to show for this remapped URL (any possible problems)
@@ -250,9 +251,14 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 				if (empty($old_url) || empty($new_url)) return false;
 
 				$expires = trim($line_value[2]);
-				if (empty($expires)) $expires = '0000-00-00 00:00:00';
 
-				$asset->addRemapURL($old_url, $new_url, $expires);
+				if (empty($expires)) {
+					$int_expires = null;
+				} else {
+					$int_expires = iso8601_ts($expires);
+				}
+
+				$asset->addRemapURL($old_url, $new_url, $int_expires);
 			}
 		}
 
@@ -261,13 +267,13 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 		if (!isset($_POST[$prefix.'_add_remap_old_url']) || !isset($_POST[$prefix.'_add_remap_new_url'])) return false;
 		$old_url = trim($_POST[$prefix.'_add_remap_old_url']);
 		$new_url = trim($_POST[$prefix.'_add_remap_new_url']);
-		$expires = '0000-00-00 00:00:00';
+		$expires = null;
 
 		if (empty($old_url) || empty($new_url)) return false;
 
 		if (isset($_POST[$prefix.'_add_remap_expires_days'])) {
 			$expires_days = (int)$_POST[$prefix.'_add_remap_expires_days'];
-			if ($expires_days > 0) $expires = date('Y-m-d h:i:s', strtotime('+ '.$expires_days.' days'));
+			if ($expires_days > 0) $expires = strtotime('+ '.$expires_days.' days');
 		}
 
 		$asset->addRemapURL($old_url, $new_url, $expires);

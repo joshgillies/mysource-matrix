@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager.inc,v 1.1 2003/12/18 04:34:35 gsherwood Exp $
+* $Id: remap_manager.inc,v 1.2 2004/01/08 15:52:51 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.1 $ - 0.1
+* @version $Revision: 1.2 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -116,12 +116,12 @@ class Remap_Manager extends Asset
 	*
 	* @param string	$old_url	the broken URL
 	* @param string	$new_url	the URL to redirect to
-	* @param string	$expires	the date/time when the remap expires (leave blank for no expiry)
+	* @param int	$expires	timestamp for when remap expires (NULL for no expiry)
 	*
 	* @return int 0 on failed insert, 1 on success, -1 if URL already exists
 	* @access public
 	*/
-	function addRemapURL($old_url, $new_url, $expires='0000-00-00 00:00:00')
+	function addRemapURL($old_url, $new_url, $expires=null)
 	{
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
@@ -144,7 +144,7 @@ class Remap_Manager extends Asset
 
 		$values = Array('url'       => $old_url,
 						'remap_url' => $new_url,
-						'expires'   => $expires,
+						'expires'   => (is_null($expires)) ? $expires : ts_iso8601($expires),
 						);
 		return (int)$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_lookup_remap', $values);
 
@@ -156,12 +156,12 @@ class Remap_Manager extends Asset
 	*
 	* @param string	$assetid	the ID of the asset we are adding remaps for
 	* @param string	$new_url	the URL to redirect to
-	* @param string	$expires	the date/time when the remap expires (leave blank for no expiry)
+	* @param int	$expires	timestamp for when remap expires (NULL for no expiry)
 	*
 	* @return boolean
 	* @access public
 	*/
-	function remapAllURLs($assetid, $new_url, $expires='0000-00-00 00:00:00')
+	function remapAllURLs($assetid, $new_url, $expires=null)
 	{
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
@@ -197,7 +197,7 @@ class Remap_Manager extends Asset
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
 
-	}//end addRemapURL()
+	}//end remapAllURLs()
 
 
 }//end class
