@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: csv.inc,v 1.3 2004/05/17 05:21:14 lwright Exp $
+* $Id: csv.inc,v 1.3.4.1 2005/01/03 21:35:47 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -80,6 +80,13 @@ class CSV {
 	* @var Array()
 	*/
 	var $values='';
+	
+	/**
+	* Count of CSV lines 
+	*
+	* @var int
+	*/
+	var $line_count=0;
 
 
 	/**
@@ -114,7 +121,7 @@ class CSV {
 	/**
 	* Set the values for the CSV file
 	*
-	* @param array	$headers	a multi-dimensional array of line values
+	* @param array	$values	a multi-dimensional array of line values
 	*
 	* @return void
 	* @access public
@@ -262,6 +269,9 @@ class CSV {
 	{
 		// can only import from a file
 		if(!$this->filepath) return;
+		
+		// check to see if the file exsts
+		if (!is_file($this->filepath)) return;
 
 		if(!$fp = fopen($this->filepath,'r')) {
 			trigger_error('Unable to open file "'.$this->filepath.'" for reading', E_USER_WARNING);
@@ -315,6 +325,44 @@ class CSV {
 		return $line = substr($line, 0, (strlen($deliminator) * -1));
 
 	}//end formatLine()
+	
+	
+	/**
+	* Count the number of lines in the CSV file
+	*
+	* If no filepath then export to screen
+	*
+	* @param int	$start_at	the line number to start importing at
+	*
+	* @return void
+	* @access public
+	*/
+	function countLines($start_at=0)
+	{
+		// can only count from a file
+		if(!$this->filepath) return;
+		
+		// check if the file even exists
+		if (!is_file($this->filepath)) {
+			$this->lineCount = 0;
+			return;
+		}
+
+		if(!$fp = fopen($this->filepath,'r')) {
+			trigger_error('Unable to open file "'.$this->filepath.'" for counting', E_USER_WARNING);
+			return;
+		}
+
+		$line_count = 0;
+
+		while(($tmp = fgetcsv($fp, 65535, $this->deliminator)) != null) {
+			$line_count++;
+		}
+		
+		$this->line_count = $line_count - $start_at;
+
+		fclose($fp);
+	}//end count()
 
 
 }//end class
