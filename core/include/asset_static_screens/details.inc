@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: details.inc,v 1.9 2004/12/06 14:38:12 brobertson Exp $
+* $Id: details.inc,v 1.10 2004/12/15 05:37:27 gsherwood Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Details Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix
 */
 
@@ -99,6 +99,10 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=null)
 
 				case 'status_change' :
 
+					// only print this field if the status can be changed
+					$statii = $owner->getAvailableStatii();
+					if (empty($statii)) break;
+					
 					if ($field->children[0]->name != 'display_name') $display_name = 'Change ?';
 					else $display_name = $field->children[0]->content;
 					$o->openField($display_name);
@@ -130,7 +134,7 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=null)
 					$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_status');
 					$fs_jobs = &Cron_Job_Future_Status::getActiveJobs($owner);
 					if (!empty($fs_jobs)) {
-						$o->openField('Future Statuses', 'new_line');
+						$o->openField('Scheduled Future Status Changes', 'new_line');
 
 						if (!is_null($keywords) && isset($keywords['fields']['status_future_status'])) ob_start();
 						?>
@@ -140,31 +144,29 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=null)
 								<td class="sq-backend-table-header">When</td>
 								<td align="center" class="sq-backend-table-header">Delete ?</td>
 							</tr>
-						<?php
-
-						for ($i = 0; $i < count($fs_jobs); $i++) {
-						?>
-							<tr>
-								<td class="sq-backend-table-cell">
-									<?php echo $fs_jobs[$i]->statusName(); ?>
-								</td>
-								<td class="sq-backend-table-cell">
-									<?php echo $fs_jobs[$i]->readableWhen(); ?>
-								</td>
-								<td align="center" class="sq-backend-table-cell">
 							<?php
-								if ($fs_jobs[$i]->canDelete()) {
-									check_box($prefix.'_remove_fs[]', $fs_jobs[$i]->id);
-								} else {
-									echo '&nbsp;';
-								}// end if
+							for ($i = 0; $i < count($fs_jobs); $i++) {
+								?>
+								<tr>
+									<td class="sq-backend-table-cell">
+										<?php echo $fs_jobs[$i]->statusName(); ?>
+									</td>
+									<td class="sq-backend-table-cell">
+										<?php echo $fs_jobs[$i]->readableWhen(); ?>
+									</td>
+									<td align="center" class="sq-backend-table-cell">
+									<?php
+										if ($fs_jobs[$i]->canDelete()) {
+											check_box($prefix.'_remove_fs[]', $fs_jobs[$i]->id);
+										} else {
+											echo '&nbsp;';
+										}
+									?>
+									</td>
+								</tr>
+								<?php
+							}//end for
 							?>
-								</td>
-							</tr>
-						<?php
-						}// end foreach
-
-						?>
 						</table>
 						<?php
 
@@ -173,33 +175,40 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=null)
 							ob_end_flush();
 						}
 
-					}// end if
+					}//end if
 
-					if ($owner->writeAccess('')) {
-						$o->openField('New Future Statuses', 'new_line');
-						$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_status');
-						$fs = new Cron_Job_Future_Status();
-						$edit_fns = $fs->getEditFns();
+					if ($owner->writeAccess()) {
+						$o->openField('Add New Future Statuses', 'new_line');
+							$cron_epoc = (int)$cron_mgr->attr('epoch');
+							$cron_refresh = (int)$cron_mgr->attr('refresh_time');
+							if ($cron_epoc > 0 && $cron_refresh > 0) {
+								require_once SQ_FUDGE_PATH.'/general/datetime.inc';
+								$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_status');
+								$fs = new Cron_Job_Future_Status();
+								$edit_fns = $fs->getEditFns();
+		
+								if (!is_null($keywords) && isset($keywords['fields']['status_future_status'])) ob_start();
+								$edit_fns->paintInLineBackend($fs, $o, $prefix.'_new_fs');
 
-						if (!is_null($keywords) && isset($keywords['fields']['status_future_status'])) ob_start();
-						$edit_fns->paintInLineBackend($fs, $o, $prefix.'_new_fs');
-						?>
-						<div class="">
-							The Cron Manager runs every <?php echo $cron_mgr->readableRefreshTime(); ?>.<br>
-							The next time that it will run will be <?php echo $GLOBALS['SQ_SYSTEM']->datetime($cron_mgr->timeOfNextRun()); ?>
-						</div>
-						<?php
-						if (!is_null($keywords) && isset($keywords['fields']['status_future_status'])) {
-							// check to see if we added anything to the keyword replacements above
-							if (!isset($ei->_tmp['layout_keyword_replacements'][$keywords['fields']['status_future_status']])) {
-								$ei->_tmp['layout_keyword_replacements'][$keywords['fields']['status_future_status']] = '';
+								?>
+								<p>
+									The Cron Manager runs every <b><?php echo $cron_mgr->readableRefreshTime(); ?></b>. It will next run on the <b><?php echo readable_datetime($cron_mgr->timeOfNextRun()); ?></b>
+								</p>
+								<?php
+								if (!is_null($keywords) && isset($keywords['fields']['status_future_status'])) {
+									// check to see if we added anything to the keyword replacements above
+									if (!isset($ei->_tmp['layout_keyword_replacements'][$keywords['fields']['status_future_status']])) {
+										$ei->_tmp['layout_keyword_replacements'][$keywords['fields']['status_future_status']] = '';
+									}
+									// append to the end of the replacement
+									$ei->_tmp['layout_keyword_replacements'][$keywords['fields']['status_future_status']] .= ob_get_contents();
+									ob_end_flush();
+								}
+								$print_commit_button = true;
+							} else {
+								echo 'The Cron Manager has not been configured. No future statuses can be set for this asset.';
 							}
-							// append to the end of the replacement
-							$ei->_tmp['layout_keyword_replacements'][$keywords['fields']['status_future_status']] .= ob_get_contents();
-							ob_end_flush();
-						}
-						$print_commit_button = true;
-						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($cron_mgr);
+						$o->closeField();
 					}
 
 					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($cron_mgr);

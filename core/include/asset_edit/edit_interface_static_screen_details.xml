@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_static_screen_details.xml,v 1.11 2004/07/23 07:14:08 mmcintyre Exp $
+* $Id: edit_interface_static_screen_details.xml,v 1.12 2004/12/15 05:37:27 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -33,6 +33,8 @@
 			<display_name>Change ?</display_name>
 			<note />
 		</field>
+	</section>
+	<section name="Future Statuses">
 		<field code="status_future_status">
 			<display_name>Scheduled</display_name>
 			<note />
