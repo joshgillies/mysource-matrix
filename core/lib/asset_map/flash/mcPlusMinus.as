@@ -9,7 +9,7 @@ function mcPlusMinusClass()
 	this.indent    = 0;
 }
 
-// Make is inherit from MovieClip
+// Make it inherit from MovieClip
 mcPlusMinusClass.prototype = new MovieClip();
 
 mcPlusMinusClass.prototype.getState = function()

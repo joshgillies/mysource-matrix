@@ -7,7 +7,10 @@ Stage.align = "TL";
 #include "test.as"
 #include "stageResize.as"
 #include "general.as"
+#include "system.as"
 #include "serverExec.as"
+#include "assetType.as"
+#include "assetTypes.as"
 #include "asset.as"
 #include "mcMenuContainerClass.as"
 #include "mcMenuItemClass.as"
@@ -36,6 +39,9 @@ trace("Server Exec Path : " + server_exec_path);
 
 
 
+
+
+
 // Initialise any pop-ups
 _root.progress_bar._visible = false;
 _root.progress_bar.swapDepths(20);
@@ -44,26 +50,15 @@ _root.dialog_box._visible = false;
 _root.dialog_box.swapDepths(21);
 _root.dialog_box.stop();
 
-server_exec = new serverExec(server_exec_path);
+server_exec = new ServerExec(server_exec_path);
+
+asset_types = new AssetTypes();
 
 // Now attach the menu
-_root.attachMovie("mcMenuContainerID", "menu_container", 2);
-trace(_root.menu_container instanceof MovieClip);
-_root.menu_container._x = 0;
-_root.menu_container._y = 0;
-_root.menu_container.create();
-
-
-// Now we just attach the list container and get it to sort everything out
-_root.attachMovie("mcListContainerID", "list_container", 1);
-
-//Attach the container on to the "scroller"
-_root.scroller.setScrollContent(_root.list_container);
-
-_root.list_container.init();
+_root.attachMovie("mcMenuContainerID", "menu_container", 1);
+// Now the list container
+_root.attachMovie("mcListContainerID", "list_container", 2);
 
 // Call resize to setup intial sizes of things
 _root.stageResizeListener.onResize();
-
-_root.external_call.registerCmd("reload_asset", _root.list_container, 'externReloadAsset');
 

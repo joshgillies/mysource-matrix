@@ -1,7 +1,6 @@
 /**
-* This listener
-*
-*
+* This listener looks after the resizing of the objects
+* on the stage when it is resized
 */
 
 

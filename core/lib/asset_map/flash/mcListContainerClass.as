@@ -5,9 +5,6 @@
 // elements as the instance name for the new movie
 
 
-
-
-
 // Create the Class
 function mcListContainerClass()
 {
@@ -45,10 +42,30 @@ function mcListContainerClass()
 	// a temp object that can hold any run-time data
 	this.tmp = new Object();
 
+
+	// Attach the container on to the "scroller"
+	_root.scroller.setScrollContent(this);
+
+	// Set ourselves up as a listener on the asset types, so we know when they have been loaded
+	_root.asset_types.addListener(this);
+
+	// Set ourselves up as a broadcaster
+    ASBroadcaster.initialize(this);
+
 }// end constructor
 
-// Make is inherit from MovieClip
+// Make it inherit from MovieClip
 mcListContainerClass.prototype = new MovieClip();
+
+/**
+* Event fired when the Asset Types object has finished recieving all the asset types from the server
+* We can then run init()
+*/
+mcListContainerClass.prototype.onAssetTypesLoaded = function()
+{
+	trace(' -- -- -- -- Create Asset List -- -- -- -- -- ');
+//	this.init();
+}
 
 /**
 * Loads the list container, by getting the root folder and showing it's kids

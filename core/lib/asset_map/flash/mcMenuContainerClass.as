@@ -26,59 +26,87 @@ function mcMenuContainerClass()
 	this.num_items  = 0;
 
 	this.open_items = new Array();
+	this._x = 0;
+	this._y = 0;
+
+	// Set ourselves up as a listener on the asset types, so we know when they have been loaded
+	_root.asset_types.addListener(this);
+
+	// Set ourselves up as a broadcaster, so others can be notified of menu items being pressed
+    ASBroadcaster.initialize(this);
+
 
 }
 
-// Make is inherit from MovieClip
+// Make it inherit from MovieClip
 mcMenuContainerClass.prototype = new MovieClip();
 
-mcMenuContainerClass.prototype.create = function(arr)
+/**
+* Event fired when the Asset Types object has finished recieving all the asset types from the server
+* We can then run create()
+*
+*/
+mcMenuContainerClass.prototype.onAssetTypesLoaded = function()
 {
-
-	var xml = new XML();
-	var cmd_elem = xml.createElement("command");
-	cmd_elem.attributes.action = "menu items";
-	xml.appendChild(cmd_elem);
-
-	for(var i = 0; i < this.dynamic_items.length; i++) {
-		var opt = xml.createElement("item");
-		opt.attributes.name = this.dynamic_items[i].toLowerCase();
-		cmd_elem.appendChild(opt);
-	}
-
-	// start the loading process
-	var exec_identifier = _root.server_exec.init_exec(xml, this, "loadItems", "options", "Loading Menu");
-	_root.server_exec.exec(exec_identifier, "Loading Menu");
-
+	trace(' -- -- -- -- Create Menu -- -- -- -- -- ');
+	this.create();
 }
 
-mcMenuContainerClass.prototype.loadItems = function(xml, exec_identifier)
-{
 
-	var xml_tops   = this._recurseCreateFromXML(xml.firstChild.childNodes, 0);
+/**
+* Create the menu, with all it's items
+*
+*/
+mcMenuContainerClass.prototype.create = function()
+{
+	
+	this.top_level = new Array();
+
+	var add_menu  = this._createItem("Add", "", 0);
+	this[add_menu].kids = this._recurseCreateAddMenu(_root.asset_types.getTopTypes(), 1);
+	this.top_level.push(add_menu);
+
 	var fixed_tops = this._recurseCreateFromArray(this.static_items, 0);
 
-	this.top_level = xml_tops.concat(fixed_tops);
+	this.top_level = this.top_level.concat(fixed_tops);
 
 	this.show();
 
 }// loadItems();
 
-mcMenuContainerClass.prototype._recurseCreateFromXML = function(xml_nodes, depth)
+mcMenuContainerClass.prototype._recurseCreateAddMenu = function(kids, depth)
 {
 
 	var item_names = new Array();
 
-	for (var i = 0; i < xml_nodes.length; i++) {
-		// get a reference to the child node
-		var item_node = xml_nodes[i];
-		if (item_node.nodeName.toLowerCase() == "item") {
-			var item_name = this._createItem(item_node.attributes.text, item_node.attributes.value, depth);
-			if (item_node.childNodes.length) {
-				this[item_name].kids = this._recurseCreateFromXML(item_node.childNodes, depth + 1);
-			}
-			item_names.push(item_name);
-		}//end if
+	for (var i = 0; i < kids.length; i++) {
+		trace('AddMenu : ' + kids[i]);
+		var type = _root.asset_types.types[kids[i]];
+
+		// Create any kids, also a check to see if we have any valid kids
+		var item_kids = (type.sub_types.length) ? this._recurseCreateAddMenu(type.sub_types, depth + 1) : new Array();
+
+		// no point, if you can't create an instance and there are no kids
+		if (!type.createable() && !item_kids.length) continue;
+
+		// OK, what this is all about is that if there are sub types, 
+		// then we need append " Types" to the name and remove any value
+		var name  = type.name;
+		var value = "add/" + type.type_code;
+
+		var item_name = "";
+		// if we have kids and we can create an instance of ourselves, then we need to add
+		// ourselves to the top of our kids list, so that we can be selected normally
+		if (item_kids.length && type.createable()) {
+			item_name = this._createItem(name + " Types", "", depth);
+			item_kids.unshift(this._createItem(name, value, depth + 1));
+		} else {
+			item_name = this._createItem(name, value, depth);
+		}
+
+		this[item_name].kids = item_kids;
+
+		item_names.push(item_name);
 	}//end for
 
 	return item_names;
@@ -113,7 +141,6 @@ mcMenuContainerClass.prototype._createItem = function(text, value, depth)
 
 }// end _createItem()
 
-
 mcMenuContainerClass.prototype.show = function()
 {
 
@@ -136,7 +163,12 @@ mcMenuContainerClass.prototype.hide = function()
 	}// end for
 }// hide();
 
-
+mcMenuContainerClass.prototype.hideKids = function()
+{
+	if (this.open_items[0] != undefined) {
+		this[this.open_items[0]].hideKids();
+	}
+}// hide();
 
 mcMenuContainerClass.prototype.itemOpen = function(item)
 {
@@ -152,19 +184,11 @@ mcMenuContainerClass.prototype.itemOpen = function(item)
 mcMenuContainerClass.prototype.itemPress = function(item)
 {
 	// Hide the Open Menu
-	this[this.open_items[0]].hideKids();
+	this.hideKids();
 	trace('Item Press : ' + item.value);
 	var cmds = item.value.split("/", 3);
 
-	switch(cmds[0]) {
-		case "list" :
-			_root.list_container.execAction(cmds[1], cmds[2]);
-		break;
-
-		default:
-			_root.showDialog("Menu Action Error", "Unknown action destination '" + cmds[0] + "'");
-
-	}// end switch
+	this.broadcastMessage("onMenuItemPress", cmds[1], cmds[2]);
 
 }// end itemPress()
 

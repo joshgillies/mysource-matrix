@@ -3,7 +3,7 @@
 * This class adds the ability to external function calls to be made from outside the
 * Flash player (eg in JS), uses the flashExternalCall.js
 */
-function externalCall() {
+function ExternalCall() {
 
 	this.registered_cmds = {};
 	this.params    = {};
@@ -26,7 +26,7 @@ function externalCall() {
 * @param string	target_fn	the name of the fn to run when a call occurs
 *
 */
-externalCall.prototype.registerCmd = function(cmd_name, target_object, target_fn)
+ExternalCall.prototype.registerCmd = function(cmd_name, target_object, target_fn)
 {
 	this.registered_cmds[cmd_name] = {obj: target_object, fn: target_fn};
 }
@@ -70,4 +70,4 @@ function externalCallWatch(property, old_val, new_val){
 }// end externalCallWatch()
 
 // Now create the object, we do this here so the JS file knows what the thing is called
-_root.external_call = new externalCall();
+_root.external_call = new ExternalCall();

@@ -10,7 +10,7 @@ function mcMenuItemClass()
 
 }
 
-// Make is inherit from MovieClip
+// Make it inherit from MovieClip
 mcMenuItemClass.prototype = new MovieClip();
 
 mcMenuItemClass.prototype.setInfo = function(text, value, depth) 
@@ -22,6 +22,7 @@ mcMenuItemClass.prototype.setInfo = function(text, value, depth)
 
 mcMenuItemClass.prototype.show = function() 
 {
+	trace("Show " + this.text + ", Value : " + this.value);
 	if (this.kids.length) {
 		this.kids_arrow.gotoAndStop((this.depth == 0) ? "down" : "right");
 		this.kids_arrow._visible = true;
@@ -62,6 +63,9 @@ mcMenuItemClass.prototype.hideKids = function()
 
 mcMenuItemClass.prototype.onRelease = function() 
 {
+	// if there is a dialog box up do nothing
+	if (_root.pop_up) return;
+
 	if (this.kids.length) {
 		this._parent.itemOpen(this);
 		this.showKids();

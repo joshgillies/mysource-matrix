@@ -14,11 +14,10 @@ function mcListItemClass()
 	this.attachMovie("mcPlusMinusID", "kids_button", 2);
 	this.kids_button._x = 3;
 	this.kids_button._y = 3;
-	this.kids_button.onPress = new function () { trace('Kids Pressed'); }
 
 }
 
-// Make is inherit from MovieClip
+// Make it inherit from MovieClip
 mcListItemClass.prototype = new MovieClip();
 
 mcListItemClass.prototype.setInfo = function(parent_item_name, asset) 

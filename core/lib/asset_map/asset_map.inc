@@ -128,6 +128,9 @@ class Asset_Map
 			case 'menu items' :
 				$this->_getMenuItems($input);
 			break;
+			case 'get asset types' :
+				$this->_getAssetTypes($input);
+			break;
 			case 'get url' :
 				$this->_getURL($input, $backend);
 			break;
@@ -241,7 +244,7 @@ class Asset_Map
 			// if can instantiate and have kids
 			// then we need to add an entry into the kids array so it can be selected
 			if ($inst && $has_kids) {
-				$real_child   = &$child->addChild('item', '', Array('text' => $text, 'value'  => $value));
+				$real_child = &$child->addChild('item', '', Array('text' => $text, 'value'  => $value));
 			}
 
 			if ($has_kids) {
@@ -311,6 +314,38 @@ class Asset_Map
 		$this->_send($output);
 
 	}// end _getURL()
+
+	/*
+	* Processes the asset types request
+	*
+	* @param object XML_Tree $input	the request info from the Flash
+	*
+	* @access private
+	*/
+	function _getAssetTypes(&$input) {
+
+		$output = new XML_Tree();
+		$root = &$output->addRoot('asset_types', '');
+
+		$type_codes = $GLOBALS['SQ_RESOLVE']->am->getTypeList();
+
+		for($i = 0; $i < count($type_codes); $i++) {
+			$info = $GLOBALS['SQ_RESOLVE']->am->getInfo($type_codes[$i]);
+			$attrs = Array(	'type_code'		=> $type_codes[$i],
+							'name'			=> $info['name'],
+							'version'		=> $info['version'],
+							'instantiable'	=> $info['instantiable'],
+							'system_only'	=> $info['system_only'],
+							'parent_type'	=> $info['parent_type']
+						);
+					
+			$type_node = &$root->addChild('type', '', $attrs);
+
+		}// end children for
+
+		$this->_send($output);
+
+	}// end _getMenuItems()
 
 }//end class
 ?>

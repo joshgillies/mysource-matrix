@@ -3,7 +3,7 @@
 * This class controls the sending and retrieval of data from the server in XML
 *
 */
-function serverExec(exec_path, content_type)
+function ServerExec(exec_path, content_type)
 {
 	this.exec_path    = exec_path;
 	this.content_type = content_type;
@@ -25,7 +25,7 @@ function serverExec(exec_path, content_type)
 * @return int
 * @access public
 */
-serverExec.prototype.init_exec = function(xml_cmd, on_load_obj, on_load_fn, root_node)
+ServerExec.prototype.init_exec = function(xml_cmd, on_load_obj, on_load_fn, root_node)
 {
 	// bit of cleanup
 	for (var j in this.xmls) {
@@ -59,7 +59,7 @@ serverExec.prototype.init_exec = function(xml_cmd, on_load_obj, on_load_fn, root
 *
 * @access public
 */
-serverExec.prototype.exec = function(exec_identifier, desc)
+ServerExec.prototype.exec = function(exec_identifier, desc)
 {
 	_root.showProgressBar(desc);
 	this.xmls[exec_identifier].output.contentType = this.content_type;
