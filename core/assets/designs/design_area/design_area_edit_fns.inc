@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: design_area_edit_fns.inc,v 1.23 2003/09/26 05:26:24 brobertson Exp $
+* $Id: design_area_edit_fns.inc,v 1.24 2003/09/29 05:16:24 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -112,6 +112,14 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 		// replace any image roots with a print operation for the image prefix
 		$e = '/(<link[^>]*href=")files\\/([^"]*)(")/i';
 		$file_contents = preg_replace($e, '\\1<'.$this->tag_name.'_PRINT id_name=\'__global__\' var=\'file_path\' filename=\'\\2\' />\\3', $file_contents);
+
+		// replace any imported stylesheet links with a print operation for the image prefix
+		$e = '/(@import[\s]*url\()files\\/([^\)]*)(\)[^;]*;)/i';
+		$file_contents = preg_replace($e, '\\1<'.$this->tag_name.'_PRINT id_name=\'__global__\' var=\'file_path\' filename=\'\\2\' />\\3', $file_contents);
+		
+		// replace any style background urls with a print operation for the image prefix
+		$e = '/(background)(-image)?([\s]*:[\s]*url\()files\\/([^\)]*)(\)[^;]*;)/i';
+		$file_contents = preg_replace($e, '\\1\\2\\3<'.$this->tag_name.'_PRINT id_name=\'__global__\' var=\'file_path\' filename=\'\\4\' />\\5', $file_contents);
 
 
 
