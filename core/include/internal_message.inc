@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: internal_message.inc,v 1.20 2003/10/07 02:37:40 brobertson Exp $
+* $Id: internal_message.inc,v 1.21 2003/10/10 04:47:57 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -145,12 +145,12 @@ class Internal_Message extends MySource_Object
 		// ie. should it be sent to the flash, logged, mailed etc
 		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 		foreach (Array('show_in_flash', 'log_to_file', 'log_to_db', 'send_mail') as $main_type_code) {
-
 			if (!isset($ms->_tmp['message_type_logs'][$main_type_code][$this->type])) {
 				$def_name_w = 'SQ_MS_'.strtoupper($main_type_code).'_WHITE_LIST';
 				$def_name_b = 'SQ_MS_'.strtoupper($main_type_code).'_BLACK_LIST';
 				$types_w = explode("\n", constant($def_name_w));
 				$types_b = explode("\n", constant($def_name_b));
+
 				$type_code_list = explode('.', $this->type);
 
 				if (in_array($this->type, $types_w)) {
@@ -160,20 +160,26 @@ class Internal_Message extends MySource_Object
 					// this exact type is black listed
 					$allow_log = false;
 				} else {
-					$check_code = '';
 					$allow_log = false;
-					foreach ($type_code_list as $type_code) {
-						if (!empty($check_code)) {
-							$check_code .= '.'.$type_code.'*';
-							$check_code = trim($check_code, '. ');
-						} else {
-							$check_code = '*';
-						}
+					if (in_array('*', $types_w) && !in_array('*', $types_b)) {
+						// all messages of this type are white listed and not black listed
+						$allow_log = true;
+					}
 
-						if (in_array($check_code, $types_w) && !in_array($check_code, $types_b)) {
-							// this virtual type is is white listed and not black listed
-							$allow_log = true;
-							break;
+					if (!$allow_log) {
+						// keep checking the virtual types to see if we should log this
+						$check_code = '';
+						foreach ($type_code_list as $type_code) {
+							if (!empty($check_code)) {
+								$check_code = trim($check_code, '.* ');
+								$check_code .= '.';
+							}
+							$check_code .= $type_code.'.*';
+							if (in_array($check_code, $types_w) && !in_array($check_code, $types_b)) {
+								// this virtual type is white listed and not black listed
+								$allow_log = true;
+								break;
+							}
 						}
 					}
 				}
