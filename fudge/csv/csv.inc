@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: csv.inc,v 1.9 2005/01/03 23:18:27 gsherwood Exp $
+* $Id: csv.inc,v 1.10 2005/04/04 04:07:33 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *     A class used to create and parse CSV files
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package Fudge
 * @subpackage CSV
 */
@@ -81,9 +81,9 @@ class CSV
 	* @var Array()
 	*/
 	var $values='';
-	
+
 	/**
-	* Count of CSV lines 
+	* Count of CSV lines
 	*
 	* @var int
 	*/
@@ -246,7 +246,13 @@ class CSV
 		}
 
 		foreach ($this->values as $value) {
-			$line = $this->formatLine($value, $this->deliminator);
+			// if field headers are there, use the ordered version of the
+			// format line method to export
+			if (!$this->field_headers) {
+				$line = $this->formatLine($value, $this->deliminator);
+			} else {
+				$line = $this->formatOrderedLine($value, $this->deliminator);
+			}
 			if (isset($fp)) {
 				fputs($fp, $line."\n");
 			} else {
@@ -270,7 +276,7 @@ class CSV
 	{
 		// can only import from a file
 		if (!$this->filepath) return;
-		
+
 		// check to see if the file exsts
 		if (!is_file($this->filepath)) return;
 
@@ -329,6 +335,42 @@ class CSV
 
 
 	/**
+	* Format a CSV line
+	*
+	* @param array	$array			an array of data values
+	* @param string	$deliminator	the deliminator to use between data values
+	*
+	* @return void
+	* @access public
+	*/
+	function formatOrderedLine(&$array, $deliminator=',')
+	{
+		if (!$this->field_headers) return '';
+		$line_elements = Array();
+
+		foreach($this->field_headers as $key => $val) {
+			$this_val = '';
+			if (isset($array[$key])) {
+				if (is_array($array[$key])) {
+					$this_val = '"'.$this->formatLine($array[$key],$deliminator).'"';
+				} else {
+					$this_val = $array[$key];
+				}
+
+				if (ereg("[$deliminator\"\n\r]", $this_val)) {
+					$this_val = '"'.str_replace('"', '""', $this_val).'"';
+				}
+			}
+
+			$line_elements[] = $this_val;
+		}
+
+		return implode($deliminator, $line_elements);
+
+	}//end formatLine()
+
+
+	/**
 	* Count the number of lines in the CSV file
 	*
 	* If no filepath then export to screen
@@ -342,7 +384,7 @@ class CSV
 	{
 		// can only count from a file
 		if (!$this->filepath) return;
-		
+
 		// check if the file even exists
 		if (!is_file($this->filepath)) {
 			$this->line_count = 0;
@@ -359,7 +401,7 @@ class CSV
 		while (($tmp = fgetcsv($fp, 65535, $this->deliminator)) != null) {
 			$line_count++;
 		}
-		
+
 		$this->line_count = $line_count - $start_at;
 
 		fclose($fp);
@@ -377,7 +419,7 @@ class CSV
 	{
 		// can only import from a file
 		if (!$this->filepath) return true;
-		
+
 		// check if the file even exists
 		if (!is_file($this->filepath)) return true;
 
@@ -385,13 +427,13 @@ class CSV
 			trigger_error('Unable to open file "'.$this->filepath.'" for reading', E_USER_WARNING);
 			return true;
 		}
-		
+
 		while (($tmp = fgetcsv($fp, 65535, $this->deliminator)) != null) {
 			if (in_array($string, $tmp)) return false;
 		}
-		
+
 		return true;
-	
+
 	}//end isUnique()
 
 
