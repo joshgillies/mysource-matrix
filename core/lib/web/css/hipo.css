@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo.css,v 1.4 2003/11/26 00:51:14 gsherwood Exp $
+* $Id: hipo.css,v 1.5 2004/05/26 05:20:38 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -25,20 +25,20 @@
 
 .sq-hipo-header {
 	background-color:	#66516F;
-	color:				#FFFFFF;
-	font-size:			12px;
-	padding:			5px;
-	width:				100%;
+	color:			#FFFFFF;
+	font-size:		12px;
+	padding:		5px;
+	width:			100%;
 	border-collapse:	collapse;
 }
 
 .sq-hipo-main {
 	background-color:	#FFFFFF;
-	color:				#333333;
-	font-size:			12px;
-	padding:			0px;
-	width:				100%;
-	border:				1px solid #F4F4EB;
+	color:			#333333;
+	font-size:		12px;
+	padding:		0px;
+	width:			100%;
+	border:			1px solid #F4F4EB;
 }
 
 
@@ -49,7 +49,7 @@
 	border-bottom:		1px solid #330E00;
 	border-right:		1px solid #330E00;
 	border-left:		1px solid #DA7A54;
-	border-top:			1px solid #DA7A54;
+	border-top:		1px solid #DA7A54;
 }
 
 .sq-hipo-progress-bar-done {
@@ -58,15 +58,15 @@
 }
 
 .sq-hipo-progress-bar-percent {
-	text-align:			right;
-	font-size:			13px;
-	color:				#000000;
+	text-align:		right;
+	font-size:		13px;
+	color:			#000000;
 }
 
 .sq-hipo-progress-bar-label {
-	font-size:			10px;
+	font-size:		10px;
 	font-weight:		bold;
-	color:				#000000;
+	color:			#000000;
 }
 
 
@@ -77,7 +77,7 @@
 	border-bottom:		1px solid #330E00;
 	border-right:		1px solid #330E00;
 	border-left:		1px solid #A08EA7;
-	border-top:			1px solid #A08EA7;
+	border-top:		1px solid #A08EA7;
 }
 
 .sq-hipo-header-progress-bar-done {
@@ -86,13 +86,28 @@
 }
 
 .sq-hipo-header-progress-bar-percent {
-	text-align:			right;
-	font-size:			13px;
-	color:				#FFFFFF;
+	text-align:		right;
+	font-size:		13px;
+	color:			#FFFFFF;
 }
 
 .sq-hipo-header-progress-bar-label {
-	font-size:			10px;
+	font-size:		10px;
 	font-weight:		bold;
-	color:				#FFFFFF;
+	color:			#FFFFFF;
+}
+
+
+/* HIPO BUTTON STYLES */
+
+.sq-hipo-button-enabled {
+	font-size:		10px;
+	color:			#000000;
+	background-color:	#F0F0F0;
+}
+
+.sq-hipo-button-disabled {
+	font-size:		10px;
+	color:			#CCCCCC;
+	background-color:	#FFFFFF;
 }
