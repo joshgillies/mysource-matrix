@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_fns.inc,v 1.41 2005/01/26 09:30:31 brobertson Exp $
+* $Id: asset_edit_fns.inc,v 1.42 2005/02/04 04:18:52 gsherwood Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.41 $
+* @version $Revision: 1.42 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Fns extends MySource_Object
@@ -42,54 +42,59 @@ class Asset_Edit_Fns extends MySource_Object
 	* @var Array()
 	*/
 	var $static_screens = Array('details'			=> Array(
-														'name'			=> 'Details',
-														'force_unlock'	=> true,
-														'lock_type'		=> 'menu',
+														'name'         => 'Details',
+														'force_unlock' => true,
+														'lock_type'    => 'menu',
 													),
 								'permissions'		=> Array(
-														'name'			=> 'Permissions',
-														'force_unlock'	=> false,
-														'lock_type'		=> 'permissions',
+														'name'         => 'Permissions',
+														'force_unlock' => false,
+														'lock_type'    => 'permissions',
 													),
 								'workflow'			=> Array(
-														'name'			=> 'Workflow',
-														'force_unlock'	=> true,
-														'lock_type'		=> 'workflow',
+														'name'         => 'Workflow',
+														'force_unlock' => true,
+														'lock_type'    => 'workflow',
 													),
 								'metadataSchemas'	=> Array(
-														'name'			=> 'Metadata Schemas',
-														'force_unlock'	=> true,
-														'lock_type'		=> 'metadata',
+														'name'         => 'Metadata Schemas',
+														'force_unlock' => true,
+														'lock_type'    => 'metadata',
 													),
 								'metadata'			=> Array(
-														'name'			=> 'Metadata',
-														'force_unlock'	=> true,
-														'lock_type'		=> 'metadata',
+														'name'         => 'Metadata',
+														'force_unlock' => true,
+														'lock_type'    => 'metadata',
 													),
 								'dependants'		=> Array(
-														'name'			=> 'Dependants',
-														'force_unlock'	=> true,
-														'lock_type'		=> 'none',
+														'name'         => 'Dependants',
+														'force_unlock' => true,
+														'lock_type'    => 'none',
 													),
 								'linking'			=> Array(
-														'name'			=> 'Linking',
-														'force_unlock'	=> true,
-														'lock_type'		=> 'links',
+														'name'         => 'Linking',
+														'force_unlock' => true,
+														'lock_type'    => 'links',
 													),
 								'settings'			=> Array(
-														'name'			=> 'Settings',
-														'force_unlock'	=> true,
-														'lock_type'		=> 'all',
+														'name'         => 'Settings',
+														'force_unlock' => true,
+														'lock_type'    => 'all',
 													),
 								'history'			=> Array(
-														'name'			=> 'History',
-														'force_unlock'	=> true,
-														'lock_type'		=> 'none',
+														'name'         => 'History',
+														'force_unlock' => true,
+														'lock_type'    => 'none',
 													),
 								'logs'				=> Array(
-														'name'			=> 'Logs',
-														'force_unlock'	=> true,
-														'lock_type'		=> 'none',
+														'name'         => 'Logs',
+														'force_unlock' => true,
+														'lock_type'    => 'none',
+													),
+								'preview'			=> Array(
+														'name'         => 'Preview',
+														'force_unlock' => true,
+														'lock_type'    => 'none',
 													),
 								);
 
