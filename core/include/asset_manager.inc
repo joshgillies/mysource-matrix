@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.238.2.1 2004/10/06 01:07:54 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.238.2.1.2.1 2004/12/20 03:30:37 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -4539,7 +4539,9 @@ class Asset_Manager extends MySource_Object
 			$order_by = 'ORDER BY a.'.$sort_by;
 			if ($sort_by != 'type_code') {
 				$select .= ', a.'.$sort_by.' AS sort_value';
-				$group_by .= ', a.'.$sort_by;
+				if (!empty($group_by)) {
+					$group_by .= ', a.'.$sort_by;
+				}
 			}
 		}
 
