@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: log_manager.inc,v 1.4 2005/03/23 23:53:06 arailean Exp $
+* $Id: log_manager.inc,v 1.5 2005/03/24 00:27:50 arailean Exp $
 */
 
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -246,13 +246,15 @@ class Log_Manager extends Asset
 		}
 
 		// grab metadata
-		$userid = &$GLOBALS['SQ_SYSTEM']->currentUserId();
-		if (!$userid) {
-			$userid   = 0;
+		$current_user = $GLOBALS['SQ_SYSTEM']->user;
+		$userid = 0;
+		$username = '';
+
+		if (is_null($current_user)) {
 			$username = SQ_SYSTEM_SHORT_NAME.' System';
 		} else {
-			$user   = &$GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($userid), 'user', false, 'short_name');
-			$username = $user[$userid];
+			$userid   = $current_user->id;
+			$username = $current_user->name;
 		}
 
 		$log = Array(
