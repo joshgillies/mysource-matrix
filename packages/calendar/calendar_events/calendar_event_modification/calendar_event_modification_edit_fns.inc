@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_modification_edit_fns.inc,v 1.4 2004/08/04 04:22:53 tbarrett Exp $
+* $Id: calendar_event_modification_edit_fns.inc,v 1.5 2004/09/13 05:17:17 tbarrett Exp $
 * $prefix:  $
 */
 
@@ -32,7 +32,7 @@ require_once  dirname(__FILE__).'/../../calendar_event/calendar_event_edit_fns.i
 *
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.4 $ - 1.0
+* @version $Revision: 1.5 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -67,7 +67,7 @@ class Calendar_Event_Modification_Edit_Fns extends Calendar_Event_Edit_Fns
 		if ($asset->writeAccess('attributes')) {
 			$start_date_attr = $asset->getAttribute('start_date');
 			if (($ts = $start_date_attr->getTimestamp()) == -1) $ts = 0;
-			$this->printDateChooser($prefix.'_start', '', '', $ts);
+			$this->printDateChooser($prefix.'_start', $ts);
 		} else {
 			echo $asset->getFriendlyDatesAndTimes();
 		}
