@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.46 2004/09/03 05:23:54 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.47 2004/09/03 06:41:22 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once  dirname(__FILE__).'/../../calendar_events/calendar_event_recurring
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.46 $ - 1.0
+* @version $Revision: 1.47 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1433,7 +1433,22 @@ class Page_Calendar extends Page_Asset_Listing
 				//$event_last_day = min($event['stop_date'], $last_day);
 			}
 			
-			$next_occur = Calendar_Event_Recurring::getFirstOccurrenceAfter($cal_date, $event_start_date, $event['frequency'], $event['period'], $event_last_day);
+			switch($event['frequency']{0}) {
+				case 'D':
+					$first_occur = increment_iso_by_days($cal_date, -$event['period']);
+				break;
+				
+				case 'W':
+					$first_occur = increment_iso_by_days($cal_date, -$event['period']*7);
+				break;
+				
+				case 'M':
+					$first_occur = increment_iso_by_months($cal_date, -$event['period']).'-'.date('d', $first_day);
+				break;
+				
+			}
+			
+			$next_occur = Calendar_Event_Recurring::getFirstOccurrenceAfter($first_occur, $event_start_date, $event['frequency'], $event['period'], $event_last_day);
 			$i = 0;
 			
 			while (($next_occur !== false) && ($next_occur <= $last_day)) {				
@@ -1975,9 +1990,9 @@ class Page_Calendar extends Page_Asset_Listing
 					$sql_freqs[] = 'frequency = '.$db->quote('DWD');
 				}
 				  
-				$sql_freqs[] = '(frequency = '.$db->quote('DED').' AND mod('.$this->_dayDiffFragment($db->quote($iso_ds), 'start_date_ds').', period) = 0)';
+				$sql_freqs[] = '(frequency = '.$db->quote('DED').' AND mod('.$this->_dayDiffFragment($db->quote($iso_ds), 'start_date_ds').', period) BETWEEN 0 and (end_date_ds - start_date_ds))';
 				  
-				$sql_freqs[] = '(frequency = '.$db->quote('WEW').' AND mod('.$this->_dayDiffFragment($db->quote($iso_ds), 'start_date_ds').', period*7) = 0)';
+				$sql_freqs[] = '(frequency = '.$db->quote('WEW').' AND mod('.$this->_dayDiffFragment($db->quote($iso_ds), 'start_date_ds').', period*7) BETWEEN 0 and (end_date_ds - start_date_ds))';
 				  
 				$sql_freqs_m = Array();
 				  
@@ -2015,9 +2030,9 @@ class Page_Calendar extends Page_Asset_Listing
 				  
 				// note: the slightly redundant "*1.0" is so Postgres interprets it as a
 				// double instead of an int, blowing away our attempts to use floor()
-				$sql_freqs[] = '(frequency = '.$db->quote('DED').' AND (floor('.$this->_dayDiffFragment($db->quote($iso_ds-1), 'start_date_ds').'/(period*1.0)) < floor('. $this->_dayDiffFragment($db->quote($iso_ds+6), 'start_date_ds').'/(period*1.0))))';
+				$sql_freqs[] = '(frequency = '.$db->quote('DED').' AND ((floor('.$this->_dayDiffFragment($db->quote($iso_ds-1), 'start_date_ds').'/(period*1.0)) < floor('. $this->_dayDiffFragment($db->quote($iso_ds+6), 'start_date_ds').'/(period*1.0))) or mod('.$this->_dayDiffFragment($db->quote($iso_ds), 'start_date_ds').', period) BETWEEN 0 and (end_date_ds - start_date_ds)))';
 				 
-				$sql_freqs[] = '(frequency = '.$db->quote('WEW').' AND (floor('.$this->_dayDiffFragment($db->quote($iso_ds-1), 'start_date_ds').'/(period*7.0)) < floor('. $this->_dayDiffFragment($db->quote($iso_ds+6), 'start_date_ds').'/(period*7.0))))';
+				$sql_freqs[] = '(frequency = '.$db->quote('WEW').' AND ((floor('.$this->_dayDiffFragment($db->quote($iso_ds-1), 'start_date_ds').'/(period*7.0)) < floor('. $this->_dayDiffFragment($db->quote($iso_ds+6), 'start_date_ds').'/(period*7.0))) or mod('.$this->_dayDiffFragment($db->quote($iso_ds), 'start_date_ds').', period) BETWEEN 0 and (end_date_ds - start_date_ds)))';
 				  
 				$sql_freqs_m = Array();
 				  
