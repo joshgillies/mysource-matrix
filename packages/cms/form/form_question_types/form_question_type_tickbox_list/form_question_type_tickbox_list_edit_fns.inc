@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_list_edit_fns.inc,v 1.7 2004/04/29 05:19:45 lwright Exp $
+* $Id: form_question_type_tickbox_list_edit_fns.inc,v 1.8 2004/05/06 05:05:39 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -66,7 +66,7 @@ class Form_Question_Type_Tickbox_List_Edit_Fns extends Form_Question_Edit_Fns
 		if (!$asset->writeAccess('attributes')) return false;
 
 		$options = explode("\r\n", $asset->attr('options'));
-		$multiple = ($asset->attr('multiple')) ? true : false;
+		$multiple = (get_class($asset) == 'form_question_type_tickbox_list') ? true : false;
 		
 		echo "<table cellpadding=\"0\" cellspacing=\"0\">\n";
 		

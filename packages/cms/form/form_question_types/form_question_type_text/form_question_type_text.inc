@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_text.inc,v 1.17 2004/05/05 07:10:14 lwright Exp $
+* $Id: form_question_type_text.inc,v 1.18 2004/05/06 05:05:39 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -83,6 +83,7 @@ class Form_Question_Type_Text extends Form_Question
 		$max    = $this->attr('max');
 		$extras = $this->attr('extra');
 		$name   = $this->id;
+		$value  = ($value == "") ? $this->attr('default') : $value;
 	
 		ob_start();
 		if ($height == 1) {

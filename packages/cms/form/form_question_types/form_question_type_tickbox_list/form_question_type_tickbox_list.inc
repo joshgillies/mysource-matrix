@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_list.inc,v 1.13 2004/05/06 04:47:16 lwright Exp $
+* $Id: form_question_type_tickbox_list.inc,v 1.14 2004/05/06 05:05:39 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -78,7 +78,7 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 		// generate some php for the value, which can be used for both
 		// auto-answer and returning to saved forms
 		
-		$html = $this->listBox($this->getOptions(), $this->attr('multiple'), $this->attr('horizontal'), $this->attr('extra'));
+		$html = $this->listBox($this->getOptions(), true, $this->attr('horizontal'), $this->attr('extra'));
 		return $html;
 
 	}//end getAnswer()
@@ -110,6 +110,13 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 			$html .= '<input type="'.$type.'" ';
 			$html .= 'name="'.$this->id.(($multiple) ? '[]' : '').'" ';
 			$html .= 'value="'.htmlspecialchars($key).'"';
+
+			$defaults = $this->attr('default');
+
+			if (in_array($key, $defaults)) {
+				$html .= ' checked="checked"';
+			}
+			
 			$html .= $extras.' />';
 			$html .= '&nbsp;'.$value;
 			$html .= ($hor) ? "</td>\n" : "</td></tr>";
