@@ -19,16 +19,20 @@ class Asset_Edit_Fns extends Resolve_Object
 	* @var Array()
 	*/
 	var $tabs = Array(	'details'     => Array('name' => 'Details',
-											   'icon' => 'create'
+											   'icon' => 'create',
+											   'force_unlock' => true
 											  ),
 						'permissions' => Array('name' => 'Permissions',
-											   'icon' => 'users'
+											   'icon' => 'users',
+											   'force_unlock' => true
 											  ),
 						'workflow'    => Array('name' => 'Workflow',
-											   'icon' => 'web'
+											   'icon' => 'web',
+											   'force_unlock' => false
 											  ),
 						'locking'    => Array('name' => 'Locking',
-											  'icon' => 'preview'
+											  'icon' => 'preview',
+											  'force_unlock' => true
 											  )
 					  );
 

@@ -93,6 +93,11 @@ class Asset_Edit_Interface extends Resolve_Object
 												'name' => $root->children[$i]->attributes['display_name'],
 												'icon' => $root->children[$i]->attributes['icon']
 											);
+
+			$force_unlock = ((isset($root->children[$i]->attributes['force_unlock'])) ? $root->children[$i]->attributes['force_unlock'] : '1');
+			if ($force_unlock == 0) $this->_screens[$code_name]['force_unlock'] = false;
+			else $this->_screens[$code_name]['force_unlock'] = true;
+			
 			if (!empty($root->children[$i]->attributes['default'])) $this->_default_screen = $code_name;
 		}// end for
 
@@ -135,6 +140,9 @@ class Asset_Edit_Interface extends Resolve_Object
 		$write_access = $owner->writeAccess();
 		$full_write_access = $owner->writeAccess(Array(), false);
 
+		// do we unlock this asset when committing?
+		$force_unlock_on_commit = true;
+
 		if (!$creating) {
 			// lets tell the user if the asset is locked for editing
 			// or if they can lock it to edit it
@@ -149,7 +157,7 @@ class Asset_Edit_Interface extends Resolve_Object
 
 				require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 				$expires_in = easy_time_total(($lock['expires'] - time()), true);
-				if (!$expires_in) $expires = '1 second';
+				if (!$expires_in) $expires_in = '1 second';
 
 				echo '<p class="sq-form-field">"'.$owner->name.'" is currently locked for editing by user "'.$user->name.'" at "'.$editing->name.'". The lock is due to expire in '.$expires_in.'</p>';
 
@@ -218,6 +226,8 @@ class Asset_Edit_Interface extends Resolve_Object
 				$this->$paint_function($owner, $o);
 			}
 
+			$force_unlock_on_commit = $this->_edit_fns->tabs[$active_screen]['force_unlock'];
+
 			// try and find the file to print user defined section of the tab
 			$file = @$this->_findFile('tab_'.$active_screen);
 
@@ -231,6 +241,8 @@ class Asset_Edit_Interface extends Resolve_Object
 
 			// try and find the file with the screen details
 			if(!($file = $this->_findFile('screen_'.$active_screen))) return;
+
+			$force_unlock_on_commit = $this->_screens[$active_screen]['force_unlock'];
 
 			$o->setHeading($GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->_type_code, 'name').' - '.$this->_screens[$active_screen]['name'], $this->_screens[$active_screen]['icon']);
 		}// end if
@@ -329,7 +341,7 @@ class Asset_Edit_Interface extends Resolve_Object
 		// to alter the status of the asset, show the commit button
 		if ($write_access || !empty($statii)) {
 			$o->openSection();
-			$o->commitButton('Commit');
+			$o->commitButton('Commit', $force_unlock_on_commit);
 		}
 
 	}// end paint();
@@ -1248,7 +1260,7 @@ class Asset_Edit_Interface extends Resolve_Object
 
 			require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 			$expires_in = easy_time_total(($lock['expires'] - time()));
-			if (!$expires_in) $expires = '1 second';
+			if (!$expires_in) $expires_in = '1 second';
 
 			$lock_message = '<span style="color:red"><b>[LOCKED]</b></span> by "'.$user->name.'". Expires in '.$expires_in.'';
 		} else {
@@ -1304,7 +1316,7 @@ class Asset_Edit_Interface extends Resolve_Object
 
 				require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 				$expires_in = easy_time_total(($lock['expires'] - time()));
-				if (!$expires_in) $expires = '1 second';
+				if (!$expires_in) $expires_in = '1 second';
 
 				$lock_message = '<span style="color:red"><b>[LOCKED]</b></span> by "'.$user->name.'" at "'.$editing->name.'". Expires in '.$expires_in.'';
 			} else {

@@ -502,7 +502,7 @@ class Backend_Outputter
 		?>
 			<script language="Javascript" type="text/javascript">
 			<!--
-
+				function sayHi() { alert('hi'); }
 				function page_on_load() {
 
 			<?php
@@ -822,10 +822,10 @@ class Backend_Outputter
 	*
 	* @access public
 	*/
-	function commitButton($value='Commit') {
+	function commitButton($value='Commit', $release_lock=1) {
 		$this->openField('', 'commit');
 		hidden_field('sq_release_lock', 0);
-		submit_button('commit', $value, 'Javascript:this.form.sq_release_lock.value = 1');
+		submit_button('commit', $value, 'Javascript:this.form.sq_release_lock.value = '.$release_lock);
 	}
 
 
