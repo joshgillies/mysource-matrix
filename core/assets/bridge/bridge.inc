@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bridge.inc,v 1.4 2005/01/13 22:02:51 gsherwood Exp $
+* $Id: bridge.inc,v 1.5 2005/01/15 16:32:56 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -84,7 +84,7 @@ class Bridge extends Asset
 	/**
 	* Returns a reference to the asset represented by the passed assetid
 	*
-	* @param int		$assetid		the asset id to be loaded
+	* @param int		$shadowid		the shadow part asset id to be loaded (i.e part after the ':')
 	* @param string		$type_code		if this exists then this object is used to
 	*									load the asset, if not then the DB is queried
 	*									to find out the asset type
@@ -178,7 +178,7 @@ class Bridge extends Asset
 
 
 	/**
-	* Returns an array of assetid's + info in the order that they propogate out from the site url
+	* Returns an array of assetid's + info in the order that they propogate out from THIS BRIDGE'S url
 	*
 	* @param string	$assetid	the id of the last asset in the lineage
 	* @param string	$protocol	the protocol to match -> null means it is ignored
