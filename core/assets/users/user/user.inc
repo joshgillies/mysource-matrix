@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.73 2004/11/18 05:06:22 gsherwood Exp $
+* $Id: user.inc,v 1.73.2.1 2005/02/11 03:24:29 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -139,7 +139,17 @@ class User extends Asset
 				return false;
 			}
 		}
-
+		
+		// set an initial web path
+		$initial_path = strtolower($this->attr('username'));
+		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+		$valid_paths = make_valid_web_paths(Array($initial_path));
+		$good_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($user_link['asset'], $valid_paths, $this->id, true);
+		if (!$this->saveWebPaths($good_paths)) {
+			trigger_error('Could not set an initial web path for "'.$this->name.'"', E_USER_WARNING);
+			return false;
+		}
+		
 		return true;
 
 	}//end _createAdditional()
