@@ -1649,7 +1649,7 @@ class Asset_Edit_Interface extends Resolve_Object
 		}//end foreach result
 
 		if (!count($output_lineages)) {
-			echo 'No Parentage';
+			echo 'None';
 		} else {
 			?><table border="0"><?php
 			foreach ($output_lineages as $null => $lineage_data) echo $lineage_data;
