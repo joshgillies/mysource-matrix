@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.70.2.7 2005/01/20 04:05:54 lwright Exp $
+* $Id: form.inc,v 1.70.2.8 2005/02/10 04:44:13 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -35,7 +35,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.70.2.7 $
+* @version $Revision: 1.70.2.8 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -874,6 +874,7 @@ class Form extends Bridge
 		if ($this->attr('use_bodycopy_main') && $bodycopy && !$bodycopy->isEmpty()) {
 			$questions = &$this->getQuestions();
 			$sections = &$this->getSections();
+			$replacements = Array();
 
 			foreach ($questions as $q_id => $question) {
 				$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
