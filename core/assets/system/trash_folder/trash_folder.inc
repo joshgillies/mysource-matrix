@@ -138,6 +138,25 @@ class Trash_Folder extends Folder
 
 
 	/**
+	* Returns TRUE if the passed minor asset can be linked to this asset, or a string with the error msg
+	*
+	* @param object Asset	$minor		the minor asset that we are linking to
+	* @param string			$link_type	the type of link this is
+	* @param int			$exclusive	the exclusive status of the link (gets passed to canLinkToType)
+	*
+	* @return mixed TRUE or error message string
+	* @access public
+	*/
+	function canCreateLink(&$minor, $link_type, $exclusive)
+	{
+		if (!$this->id) return false;
+		if (!is_a($minor, 'Asset')) return 'Minor is not an asset';
+		return true;
+
+	}// end canCreateLink()
+
+
+	/**
 	* Prints out the backend interface for the asset
 	* it's up to the kids to override
 	*
