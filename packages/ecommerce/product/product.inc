@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: product.inc,v 1.5 2005/02/15 18:14:54 brobertson Exp $
+* $Id: product.inc,v 1.6 2005/02/19 13:43:36 brobertson Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 * product class description here
 *
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -269,16 +269,19 @@ class Product extends Page
 
 			// Adjust the quantity/commit keywords depending in whether there are
 			// items in the cart already
-			$qty = array_get_index($_SESSION['sq_cart_contents'], $this->id, Array('quantity' => 0));
-	
-			if ($qty['quantity'] != 0) {
-				$keywords['quantity_field']['value'] = '<input type="text" name="update_quantity['.$this->id.']" size="10" value="'.$qty['quantity'].'" />';
-				$keywords['commit_button']['value'] = '<input type="submit" value="Update Quantity" />';
-			} else {
-				$keywords['quantity_field']['value'] = '<input type="text" name="quantity" size="10" />';
-				$keywords['commit_button']['value'] = '<input type="submit" value="Add to Cart" />';
+			if (isset($_SESSION['sq_cart_contents'])) { 
+
+				$qty = array_get_index($_SESSION['sq_cart_contents'], $this->id, Array('quantity' => 0));
+				if ($qty['quantity'] != 0) {
+					$keywords['quantity_field']['value'] = '<input type="text" name="update_quantity['.$this->id.']" size="10" value="'.$qty['quantity'].'" />';
+					$keywords['commit_button']['value'] = '<input type="submit" value="Update Quantity" />';
+				} else {
+					$keywords['quantity_field']['value'] = '<input type="text" name="quantity" size="10" />';
+					$keywords['commit_button']['value'] = '<input type="submit" value="Add to Cart" />';
+				}
+
 			}
-			
+
 			$images = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($this->id, 'image', false));
 			foreach($images as $image_assetid) {
 				$keywords['image_'.$image_assetid]['value'] = '<img src="'.$GLOBALS['SQ_SYSTEM']->am->getAssetURL($image_assetid).'">';
