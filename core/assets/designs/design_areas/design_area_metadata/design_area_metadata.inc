@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_metadata.inc,v 1.6 2004/02/23 04:40:55 gsherwood Exp $
+* $Id: design_area_metadata.inc,v 1.7 2004/04/19 11:52:30 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -63,8 +63,8 @@ class Design_Area_Metadata extends Design_Area
 			// printing a specific field
 			echo '
 					$METADATA_MANAGER = &$GLOBALS[\'SQ_SYSTEM\']->getMetadataManager();
-					$metadata_field_value = $METADATA_MANAGER->getMetadataFieldValues($ASSET->id, Array(\''.$field_name.'\'));
-					echo $metadata_field_value[\''.$field_name.'\']
+					$metadata_field_value = $METADATA_MANAGER->getMetadataFieldValues($ASSET->id, Array('.var_export($field_name, true).'));
+					echo $metadata_field_value['.var_export($field_name, true).']
 				 ';
 		}
 		echo '?', ">\n";
