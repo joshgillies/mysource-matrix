@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.268 2003/12/29 01:04:23 gsherwood Exp $
+* $Id: asset.inc,v 1.269 2004/01/12 06:04:44 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -2428,7 +2428,7 @@ class Asset extends MySource_Object
 		// we really need to check for write access
 		if ($this->status < SQ_STATUS_LIVE ||
 			!$this->_checkPermissionAccess(SQ_PERMISSION_READ, Array('0'))) {
-			// if we are in rollback view wmode, bypass extra write access checks or we
+			// if we are in rollback view mode, bypass extra write access checks or we
 			// we always be returning false here (writeAccess returns false)
 			if (SQ_ROLLBACK_VIEW) return $this->_checkPermissionAccess(SQ_PERMISSION_WRITE, $assetids);
 			return $this->writeAccess('', $assetids);
@@ -2662,7 +2662,7 @@ class Asset extends MySource_Object
 		}
 
 		$grants  = $GLOBALS['SQ_SYSTEM']->am->getPermission($this->id, $perm, true);
-		$revokes = $GLOBALS['SQ_SYSTEM']->am->getPermission($this->id, $perm, false);
+		$revokes = $GLOBALS['SQ_SYSTEM']->am->getPermission($this->id, $perm, false, false);
 
 		// has their access been revoked at all?
 		if (!empty($revokes)) {
