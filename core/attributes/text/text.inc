@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.24 2004/06/08 02:38:26 gsherwood Exp $
+* $Id: text.inc,v 1.25 2004/08/11 01:03:27 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -71,25 +71,23 @@ class Asset_Attribute_Text extends Asset_Attribute
 	*/
 	function paintEditParams($prefix, $write_access=false)
 	{
+		echo '<b>Text Attribute " '.ucwords(str_replace('_', ' ', $this->name)).' " ('.$this->name.')</b><br />';
 		?>
 		<table class="sq-backend-table">
 			<tr>
-				<td colspan="2" class="sq-backend-table-header"><?php echo $this->name; ?></td>
-			</tr>
-			<tr>
-				<td class="sq-backend-section-heading">Width</td>
-				<td class="sq-backend-section-heading">Height</td>
-			</tr>
-			<tr>
+				<td class="sq-backend-section-heading" style="width: 100px;">Width</td>	
 				<td class="sq-backend-table-cell">
 					<?php
-					if ($write_access) text_box($prefix.'_' . $this->name . '_width', $this->_edit_params['width']);
+					if ($write_access) text_box($prefix.'_'.$this->name.'_width', $this->_edit_params['width']);
 					else echo $this->_edit_params['width'];
 					?>
 				</td>
+			</tr>
+			<tr>
+				<td class="sq-backend-section-heading" style="width: 100px;">Height</td>
 				<td class="sq-backend-table-cell">
 					<?php
-					if ($write_access) text_box($prefix.'_' . $this->name . '_height', $this->_edit_params['height']);
+					if ($write_access) text_box($prefix.'_'.$this->name.'_height', $this->_edit_params['height']);
 					else echo $this->_edit_params['height'];
 					?>
 				</td>

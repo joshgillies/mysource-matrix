@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: boolean.inc,v 1.17 2004/05/21 01:56:01 lwright Exp $
+* $Id: boolean.inc,v 1.18 2004/08/11 01:03:27 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -89,25 +89,23 @@ class Asset_Attribute_Boolean extends Asset_Attribute
 	*/
 	function paintEditParams($prefix, $write_access=false)
 	{
+		echo '<b>Boolean Attribute " '.ucwords(str_replace('_', ' ', $this->name)).' " ('.$this->name.')</b><br />';
 		?>
 		<table class="sq-backend-table">
 			<tr>
-				<td colspan="2" class="sq-backend-table-header"><?php echo $this->name; ?></td>
-			</tr>
-			<tr>
-				<td class="sq-backend-section-heading">True text</td>
-				<td class="sq-backend-section-heading">False text</td>
-			</tr>
-			<tr>
+				<td class="sq-backend-section-heading" style="width: 100px;">True Text</td>	
 				<td class="sq-backend-table-cell">
 					<?php
-					if ($write_access) text_box($prefix.'_' . $this->name . '_true', $this->_edit_params['true_text']);
+					if ($write_access) text_box($prefix.'_'.$this->name.'_true', $this->_edit_params['true_text']);
 					else echo $this->_edit_params['true_text'];
 					?>
 				</td>
+			</tr>
+			<tr>
+				<td class="sq-backend-section-heading" style="width: 100px;">False Text</td>
 				<td class="sq-backend-table-cell">
 					<?php
-					if ($write_access) text_box($prefix.'_' . $this->name . '_false', $this->_edit_params['false_text']);
+					if ($write_access) text_box($prefix.'_'.$this->name.'_false', $this->_edit_params['false_text']);
 					else echo $this->_edit_params['false_text'];
 					?>
 				</td>

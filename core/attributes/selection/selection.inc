@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: selection.inc,v 1.27 2004/07/24 15:27:47 brobertson Exp $
+* $Id: selection.inc,v 1.28 2004/08/11 01:03:27 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -102,33 +102,33 @@ class Asset_Attribute_Selection extends Asset_Attribute
 		$searchStyles = Array();
 		$searchStyles['list'] = 'List';
 		$searchStyles['checkbox'] = 'Checkbox';
-
+		
+		echo '<b>Selection Attribute " '.ucwords(str_replace('_', ' ', $this->name)).' " ('.$this->name.')</b><br />';
 		?>
 		<table class="sq-backend-table">
 			<tr>
-				<td colspan="3" class="sq-backend-table-header"><?php echo $this->name; ?></td>
-			</tr>
-			<tr>
-				<td class="sq-backend-section-heading">Style</td>
-				<td class="sq-backend-section-heading">Height</td>
-				<td class="sq-backend-section-heading">Columns</td>
-			</tr>
-			<tr>
+				<td class="sq-backend-section-heading" style="width: 100px;">Style</td>	
 				<td class="sq-backend-table-cell">
 					<?php
-					if ($write_access) combo_box($prefix.'_' . $this->name . '_style', $searchStyles, false, $this->_edit_params['style']);
+					if ($write_access) combo_box($prefix.'_'.$this->name.'_style', $searchStyles, false, $this->_edit_params['style']);
 					else echo $this->_edit_params['style'];
 					?>
 				</td>
+			</tr>
+			<tr>
+				<td class="sq-backend-section-heading" style="width: 100px;">Height</td>
 				<td class="sq-backend-table-cell">
 					<?php
-					if ($write_access) text_box($prefix.'_' . $this->name . '_height', $this->_edit_params['height']);
+					if ($write_access) text_box($prefix.'_'.$this->name.'_height', $this->_edit_params['height']);
 					else echo $this->_edit_params['height'];
 					?>
 				</td>
+			</tr>
+			<tr>
+				<td class="sq-backend-section-heading" style="width: 100px;">Columns</td>
 				<td class="sq-backend-table-cell">
 					<?php
-					if ($write_access) text_box($prefix.'_' . $this->name . '_columns', $this->_edit_params['columns']);
+					if ($write_access) text_box($prefix.'_'.$this->name.'_columns', $this->_edit_params['columns']);
 					else echo $this->_edit_params['columns'];
 					?>
 				</td>
