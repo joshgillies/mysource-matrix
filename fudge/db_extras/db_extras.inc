@@ -85,7 +85,7 @@ function db_extras_subquery(&$db, $sql, $subs, $default_value=null)
 * @param string		$insert			the insert part of the statement
 * @param string		$select			An array of the sub-queries to be performed
 *
-* @return TRUE | object DB_Error
+* @return [TRUE | object DB_Error]
 * @access public
 */
 function db_extras_insert_select(&$db, $insert, $select)
