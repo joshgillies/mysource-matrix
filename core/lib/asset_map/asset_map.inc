@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.163 2004/12/03 15:33:23 brobertson Exp $
+* $Id: asset_map.inc,v 1.163.2.1 2005/03/16 11:47:33 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.163 $
+* @version $Revision: 1.163.2.1 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -535,8 +535,8 @@ class Asset_Map
 				'linkid'        => $asset['linkid'],
 				'child_count'   => $asset['num_kids'],
 				'sort_order'    => $asset['sort_order'],
-				'url'           => $asset['url'],
-				'web_path'      => $asset['path'],
+				'url'           => urlencode($asset['url']),
+				'web_path'      => urlencode($asset['path']),
 			);
 			if (!$attrs['accessible']) $attrs['child_count'] = 0;
 
