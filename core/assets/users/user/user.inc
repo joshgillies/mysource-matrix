@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.81 2005/03/01 15:42:11 brobertson Exp $
+* $Id: user.inc,v 1.82 2005/03/02 16:35:57 gnoel Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.81 $
+* @version $Revision: 1.82 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -354,7 +354,7 @@ class User extends Asset
 	function getUserGroups()
 	{
 		$groups = Array();
-		$groupids = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'user_group', true);
+		$groupids = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'user_group', false);
 
 		foreach ($groupids as $key => $value) {
 			// if we pass the conditions, let us belong to this group
