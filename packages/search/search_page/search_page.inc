@@ -18,12 +18,13 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.47 2004/08/19 05:50:57 gsherwood Exp $
+* $Id: search_page.inc,v 1.48 2004/08/19 10:23:00 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 
 require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 require_once SQ_FUDGE_PATH.'/general/text.inc';
+require_once SQ_FUDGE_PATH.'/general/general.inc';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc'; // for the medatata date field selection
 
@@ -37,7 +38,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc'; // for the meda
 * @author  Dominic Wong <dwong@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.47 $ - 1.0
+* @version $Revision: 1.48 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
