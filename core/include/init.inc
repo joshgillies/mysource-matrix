@@ -74,6 +74,7 @@ if(version_compare(PHP_VERSION, SQ_REQUIRED_PHP_VERSION, '<')) {
 	trigger_error('<i>'.SQ_SYSTEM_LONG_NAME.'</i> requires PHP Version '.SQ_REQUIRED_PHP_VERSION.'.<br/> You may need to upgrade.<br/> Your current version is '.phpversion().'.', E_USER_ERROR);
 }
 
+
 /*
 * LINK TYPES - used with bitwise operators
 */
@@ -86,13 +87,23 @@ define('SQ_LINK_ALL',         15); // what all the main link types add up to
 define('SQ_LINK_NAV',          3); // short hand for EXCLUSIVE | UNITE
 define('SQ_LINK_SIGNIFICANT', 11); // short hand for EXCLUSIVE | UNITE | USES
 
+
 /*
-* PERMISSION TYPES
+* PERMISSION TYPES - different access levels to control access to an asset
 */
 define('SQ_PERMISSION_READ',     1); // read access
 define('SQ_PERMISSION_WRITE',    2); // write access
 define('SQ_PERMISSION_ADMIN',    3); // admin access
 define('SQ_PERMISSION_WORKFLOW', 4); // workflow
+
+
+/*
+* STATUS TYPES - statii an asset can currently have
+*/
+define('SQ_STATUS_UNDER_CONSTRUCTION', 1); // asset is under construction
+define('SQ_STATUS_PENDING_APPROVAL',   2); // asset is currently in workflow
+define('SQ_STATUS_LIVE',               3); // asset is live
+
 
 // Create the system object
 require_once SQ_INCLUDE_PATH.'/resolve.inc';
