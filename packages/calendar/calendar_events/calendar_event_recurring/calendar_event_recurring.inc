@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.23 2004/08/30 23:16:24 tbarrett Exp $
+* $Id: calendar_event_recurring.inc,v 1.24 2004/08/31 04:54:51 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.23 $ - 1.0
+* @version $Revision: 1.24 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -71,166 +71,168 @@ class Calendar_Event_Recurring extends Calendar_Event
 	/**
 	* Determines the next occurrence of an event after a certain time.
 	*
-	* This function can be called on an object (with no parameters or just the first parameter)
-	* or statically (with all the parameters)
+	* This function can be called on an object (with just the first parameter) or
+	* statically (with all the parameters). If only $after is specified the object's
+	* attributes are used.
 	*
-	* @param int	$after		the time for which we want the first occurrence after
+	* @param string	$after		the time for which we want the first occurrence after
 	*							if NULL, reverts to current server time
-	* @param int	$start_ts	The timestamp at which the event's 1st instance started 
-	*							(uses this object's if absent)
-	* @param string	$freq_type	3-letter frequency code (uses this object's if absent)
-	* @param int	$interval	The frequency interval (uses this object's if absent)
+	* @param string	$start		The timestamp at which the event's 1st instance started 
+	* @param string	$freq_type	3-letter frequency code
+	* @param int	$interval	The frequency interval
+	* @param string	$stop		The date after which recurrences should stop
 	*
+	* @static
 	* @return int	a UNIX timestamp representing the next occurrence
 	* @access public
 	*/
-	function getFirstOccurrenceAfter($after=null, $start_ts=null, $freq_type=null, $interval=null, $stop_ts=null)
+	function getFirstOccurrenceAfter($after=null, $start=null, $freq_type=null, $interval=null, $stop=null)
 	{
-		if (is_null($after)) $after = time();
-		if (is_null($start_ts)) {
+		if (is_null($after)) $after = date('Y-m-d');
+		
+		// if we are calling statically make sure that we have all our arguments
+		if (is_null($this) && (func_num_args() < 5)) {
+			trigger_error('If Calendar_Event_Recurring::getFirstOccurrenceAfter() is called statically it must be called using all 5 arguments', E_USER_ERROR);
+		}
+		
+		if (is_null($start)) {
+			// called on an object
 			$freq_type = substr($this->attr('frequency'), 0, 3);
 			$interval = substr($this->attr('frequency'), 3);
 			if (!$interval)	$interval = 1;
-			$start_ts = strtotime($this->attr('start_date').' GMT');
-			$stop_ts = iso8601_ts($this->attr('stop_date'));
+			$start = substr($this->attr('start_date'),0,10);
+			$stop = $this->attr('stop_date');
 		}
 
 		$seconds_per_day = 60 * 60 * 24;
-		if ($after < $start_ts)
-			return $start_ts;
-
+		if ($after <= $start)
+			return $start;
+		
+		list($res_year,$res_month,$res_day) = sscanf($after, '%04d-%02d-%02d');
+		list($after_year,$after_month,$after_day) = sscanf($after, '%04d-%02d-%02d');
+		list($start_year,$start_month,$start_day) = sscanf($start, '%04d-%02d-%02d');
+		$month_diff = (12 * ($after_year - $start_year)) + $after_month - $start_month;			
+		
 		switch ($freq_type) {
-			case 'DED':
-				$interval_length = $seconds_per_day * $interval;
-				$periods_so_far = (int)(($after - $start_ts) / ($interval_length));
-				$result = $start_ts + ($interval_length * ($periods_so_far + 1));
+			case 'DED':				
+				$periods_so_far = ceil(days_between_isos($after, $start) / $interval);
+				$result = increment_iso_by_days($start, $interval * $periods_so_far);
 			break;
 
-			case 'DWD':
-				$interval_length = $seconds_per_day * $interval;
-				$periods_so_far = (int)(($after - $start_ts) / ($interval_length));
-				$res = $start_ts + ($interval_length * ($periods_so_far + 1));
-				while (in_array(gmdate('D', $res), Array('Sat', 'Sun'))) {
-					$res += $seconds_per_day;
+			case 'DWD':				
+				$periods_so_far = ceil(days_between_isos($after, $start) / $interval);
+				$result = increment_iso_by_days($start, $interval * $periods_so_far);
+				while (in_array(date('D', iso8601_ts($result)), Array('Sat', 'Sun'))) {
+					$result = increment_iso_by_days($result, 1);
 				}
-				$result =  $res;
 			break;
 
 			case 'WEW':
-				$interval_length = 7 * $seconds_per_day * $interval;
-				$periods_so_far = (int)(($after - $start_ts) / ($interval_length));
-				$result =  $start_ts + ($interval_length * ($periods_so_far + 1));
+				$periods_so_far = ceil(days_between_isos($after, $start) / ($interval*7));
+				$result = increment_iso_by_days($start, $interval * 7 * $periods_so_far);
 			break;
 
-			case 'MFN':
-				$res_month = gmdate('n', $after);
-				$res_year = gmdate('Y', $after);
-				$month_diff = (12 * (gmdate('Y', $after) - gmdate('Y', $start_ts))) + $res_month - gmdate('n', $start_ts);
+			// Every 'x' months on the 'y'th day of the month
+			case 'MFN':					
 				if (($month_diff % $interval) != 0) {
 					increment_month($res_month, $res_year, ($interval - ($month_diff % $interval)));
-				} elseif (((int)gmdate('j', $after) > (int)gmdate('j', $start_ts))) {
-					increment_month($res_month, $res_year, $interval);
-				} elseif((((int)gmdate('j', $after) == (int)gmdate('j', $start_ts)) && (Calendar_Event_Recurring::_secondsToday($start_ts) < Calendar_Event_Recurring::_secondsToday($after)))) {
+				} elseif ($res_day > $start_day) {
 					increment_month($res_month, $res_year, $interval);
 				}
-				while (gmdate('j', $start_ts) > days_in_month($res_month, $res_year))
+				while ($start_day > days_in_month($res_month, $res_year))
 					increment_month($res_month, $res_year, $interval);
-				$result =  strtotime($res_year.'-'.sprintf('%02d', $res_month).gmdate('-d H:i:00', $start_ts).' GMT');
+				$result = sprintf('%04d-%02d-%02d',$res_year,$res_month,$start_day);
 			break;
 
+			// Every 'x' months on the 'y'th weekday of the month (eg. 2nd Thursday)
 			case 'MFW':
-				$res_month = gmdate('n', $after);
-				$res_year = gmdate('Y', $after);
-				$month_diff = (12 * (gmdate('Y', $after) - gmdate('Y', $start_ts))) + $res_month - gmdate('n', $start_ts);
-				$target_week_of_month = (int)((gmdate('j', $start_ts) - 1) / 7);
-				$target_day_of_week = (gmdate('w', $start_ts));
+				$target_week_of_month = (int)($start_day / 7);
+				$target_day_of_week = date('w', iso8601_ts($start));
 				$res_day = ($target_week_of_month * 7) + 1;
 
 				if (($month_diff % $interval) != 0) {
 					// go to the next valid month
 					increment_month($res_month, $res_year, $interval - ($month_diff % $interval));
-				} elseif ((int)((gmdate('j', $after) - 1) / 7) > $target_week_of_month) {
+				} elseif ((int)($after_day / 7) > $target_week_of_month) {
 					// we're in a valid month, but too late in it, so go to next valid month
 					increment_month($res_month, $res_year, $interval);
-				} elseif (((int)((gmdate('j', $after) - 1) / 7) == $target_week_of_month) && (gmdate('w', $after) == $target_day_of_week) && (Calendar_Event_Recurring::_secondsToday($after) > Calendar_Event_Recurring::_secondsToday($start_ts))) {
-					// we're on the right day of a valid month, but too late in the day, 
-					// so go to next valid month
-					increment_month($res_month, $res_year, $interval);
-				} elseif ((int)((gmdate('j', $after) - 1) / 7) == $target_week_of_month) {
-					$res_day = gmdate('d', $after);
+				} elseif ((int)($after_day / 7) == $target_week_of_month) {
+					$res_day = $after_day;
 				}
 
 				$month_length = days_in_month($res_month, $res_year);
-				while ((gmdate('w', strtotime($res_year.'-'.sprintf('%02d', $res_month).'-'.$res_day.' 12:00:00 GMT'))) != $target_day_of_week) {
-					$res_day++;
-					if (($res_day > $month_length) || ($res_day >= (($target_week_of_month+1) * 7))) {
+				
+				$result = sprintf('%04d-%02d-%02d',$res_year,$res_month,$res_day);
+				
+				while (date('w', iso8601_ts($result)) != $target_day_of_week) {				
+					$res_day += (7 + $target_day_of_week - date('w', iso8601_ts($result)))  % 7;
+					$result = sprintf('%04d-%02d-%02d',$res_year,$res_month,$res_day);
+					if (($res_day > $month_length) || ($res_day > (($target_week_of_month+1) * 7))) {
 						// run out of days, so we'll have to start again in the next valid month
 						increment_month($res_month, $res_year, $interval);
 						$month_length = days_in_month($res_month, $res_year);
 						$res_day = ($target_week_of_month * 7)+1;
 					}
+					$result = sprintf('%04d-%02d-%02d',$res_year,$res_month,$res_day);
 				}
-				$result =  strtotime($res_year.'-'.sprintf('%02d', $res_month).'-'.sprintf('%02d', $res_day).gmdate(' H:i', $start_ts).' GMT');
 			break;
 
+			// Every 'x' months on the 'y'th last day of the month
 			case 'MRN':
-				$res_month = gmdate('m', $after);
-				$res_year = gmdate('Y', $after);
-				$target_days_from_end = days_in_month(gmdate('n', $start_ts), gmdate('Y', $start_ts)) - gmdate('j', $start_ts);
+				$target_days_from_end = days_in_month($start_month, $start_year) - $start_day;
 
-				$month_diff = (12 * (gmdate('Y', $after) - gmdate('Y', $start_ts))) + $res_month - gmdate('n', $start_ts);
 				if (($month_diff % $interval) != 0) {
 					increment_month($res_month, $res_year, $interval - ($month_diff % $interval));
-				} elseif ((days_in_month($res_month, $res_year) - (int)gmdate('j', $after)) < $target_days_from_end) {
-					increment_month($res_month, $res_year, $interval);
-				} elseif (((days_in_month($res_month, $res_year) - (int)gmdate('j', $after)) == $target_days_from_end) && (Calendar_Event_Recurring::_secondsToday($after) > Calendar_Event_Recurring::_secondsToday($start_ts))) {
+				} elseif ((days_in_month($res_month, $res_year) - $after_day) < $target_days_from_end) {
 					increment_month($res_month, $res_year, $interval);
 				}
 
+				$result = sprintf('%04d-%02d-%02d',$res_year,$res_month,days_in_month($res_month, $res_year) - $target_days_from_end);
+					
 				while ((days_in_month($res_month, $res_year) - $target_days_from_end) < 0) {
 					increment_month($res_month, $res_year, $interval);
-				}
-
-				$result =  strtotime($res_year.'-'.$res_month.'-'.sprintf('%02d', days_in_month($res_month, $res_year) - $target_days_from_end).gmdate(' H:i:00', $start_ts).' GMT');
+					
+					$result = sprintf('%04d-%02d-%02d',$res_year,$res_month,days_in_month($res_month, $res_year) - $target_days_from_end);
+				}		
 			break;
 
+			// Every 'x' months on the 'y'th last weekday of the month
 			case 'MRW':
-				$res_month = gmdate('m', $after);
-				$res_year = gmdate('Y', $after);
 				$min_day = 1;
-				$target_weeks_from_end = (int)((days_in_month(gmdate('n', $start_ts), gmdate('Y', $start_ts)) - gmdate('j', $start_ts)) / 7);
-				$target_day_of_week = (gmdate('w', $start_ts));
+				$target_weeks_from_end = (int)((days_in_month($start_month, $start_year) - $start_day) / 7);
+				$target_day_of_week = (date('w', iso8601_ts($start)));
 
-				$month_diff = (12 * (gmdate('Y', $after) - gmdate('Y', $start_ts))) + $res_month - gmdate('n', $start_ts);
 				if (($month_diff % $interval) != 0) {
 					// go to the next valid month
-					$res_month = gmdate('n', $after) + $interval - ($month_diff % $interval);
-				} elseif ((int)((days_in_month(gmdate('n', $after), gmdate('Y', $after)) - gmdate('j', $after)) / 7) < $target_weeks_from_end) {
+					increment_month($res_month, $res_year, $interval - ($month_diff % $interval));
+				} elseif ((int)((days_in_month($after_month, $after_year) - $after_day) / 7) < $target_weeks_from_end) {
 					// we're too far into this month, so go to the next valid month
 					increment_month($res_month, $res_year, $interval);
-				} elseif (((int)((days_in_month(gmdate('n', $after), gmdate('Y', $after)) - gmdate('j', $after)) / 7) == $target_weeks_from_end) && (gmdate('w', $after) == $target_day_of_week) && (Calendar_Event_Recurring::_secondsToday($after) > Calendar_Event_Recurring::_secondsToday($start_ts))) {
-					// we're on the right day but too late so go to next valid month
-					increment_month($res_month, $res_year, $interval);
-				} elseif ((int)((days_in_month(gmdate('n', $after), gmdate('Y', $after)) - gmdate('j', $after)) / 7) == $target_weeks_from_end) {
+				} elseif ((int)((days_in_month($after_month, $after_year) - $after_day) / 7) == $target_weeks_from_end) {
 					// we're in the right week so start from 'now', not the begining of the week,
-					$min_day = gmdate('d', $start_ts);
+					//$min_day = $start_day;
 				}
+				$min_day = $after_day;
+					
 				$res_day = days_in_month($res_month, $res_year) - ($target_weeks_from_end * 7);
-
-				while ((gmdate('w', strtotime($res_year.'-'.$res_month.'-'.$res_day.' 12:00:00 GMT'))) != $target_day_of_week) {
-					$res_day--;
-					if ($res_day < $min_day) {
+				$result = sprintf('%04d-%02d-%02d',$res_year,$res_month,$res_day);
+				
+				while (date('w', iso8601_ts($result)) != $target_day_of_week) {					
+					//if ($res_month - $start_month > 2) die;
+					$res_day -= (7 + date('w', iso8601_ts($result)) - $target_day_of_week)  % 7;
+					if (($res_day <= $min_day) || ($result < $after)) {
 						// can't get the nth-last xday in this month, either because
 						// it's already passed or because it doesn't exist, so goto next month
 						increment_month($res_month, $res_year, $interval);
 						$res_day = days_in_month($res_month, $res_year) - ($target_weeks_from_end * 7);
 						$min_day = 1;
 					}
+					$result = sprintf('%04d-%02d-%02d',$res_year,$res_month,$res_day);
 				}
-				$result =  strtotime($res_year.'-'.sprintf('%02d', $res_month).'-'.$res_day.gmdate(' H:i:00', $start_ts).' GMT');
 			break;
 		}
-		if (($stop_ts) && ($result > $stop_ts)) {
+				
+		if (!empty($stop) && ($result > $stop)) {
 			return false;
 		} else {
 			return $result;
@@ -242,26 +244,50 @@ class Calendar_Event_Recurring extends Calendar_Event
 	/**
 	* Tells us whether this event has an occurrence on the specified date
 	*
-	* @param string	$date	the date we're interested in, in YYYY-MM-DD format - default is
-	*						today's date (time can be passed in too but it will be stripped)
+	* This function can be called on an object (with just the first parameter) or
+	* statically (with all the parameters). If only $after is specified the object's
+	* attributes are used.
 	*
+	* @param string	$date		the date we're interested in, in YYYY-MM-DD format - default
+	*							is today's date (time can be passed in too but it will be
+	*							stripped)
+	* @param string	$start		The timestamp at which the event's 1st instance started 
+	* @param string	$freq_type	3-letter frequency code
+	* @param int	$interval	The frequency interval
+	* @param string	$stop		The date after which recurrences should stop
+	*
+	* @static
 	* @return boolean	true if this event occurs on the specified date
 	* @access public
 	*/
-	function hasOccurrenceOnDate($date=null) {
+	function hasOccurrenceOnDate($date=null, $start=null, $freq_type=null, $interval=null, $stop=null)
+	{
+		// if we are calling statically make sure that we have all our arguments
+		if (is_null($this) && (func_num_args() < 5)) {
+			trigger_error('If Calendar_Event_Recurring::hasOccurrenceOnDate() is called statically it must be called using all 5 arguments', E_USER_ERROR);
+		}
+		
+		if (is_null($start)) {
+			// called on an object
+			$freq_type = substr($this->attr('frequency'), 0, 3);
+			$interval = substr($this->attr('frequency'), 3);
+			if (!$interval)	$interval = 1;
+			$start = substr($this->attr('start_date'),0,10);
+			$stop = $this->attr('stop_date');
+		}
+		
 		if (is_null($date)) $date = date('Y-m-d'); 
 		
 		$seconds_per_day = 60 * 60 * 24;
-		$start_date = $this->getStartDate();
-		$start_ts = strtotime($start_date);
+		$start_ts = iso8601_ts(iso8601_date_component($start));
 
-		$query_ts = strtotime(iso8601_date_component($date));	
-		$stop_ts = iso8601_ts($this->attr('stop_date'));
+		$query_ts = iso8601_ts(iso8601_date_component($date));	
+		$stop_ts = iso8601_ts($stop);
 		if (($stop_ts != -1) && ($query_ts > ($stop_ts + $seconds_per_day))) return false;
 		if ($query_ts < $start_ts) return false;
 		
-		$freq_type = substr($this->attr('frequency'), 0, 3);
-		if ($interval = substr($this->attr('frequency'), 3)) $freq_type .= 'x';
+		//$freq_type = substr($this->attr('frequency'), 0, 3);
+		if ($interval > 1) $freq_type .= 'x';
 
 		switch ($freq_type) {
 			case 'DED':
