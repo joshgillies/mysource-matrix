@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_edit_fns.inc,v 1.5 2004/02/17 05:02:02 gsherwood Exp $
+* $Id: page_asset_builder_edit_fns.inc,v 1.6 2004/03/17 04:08:10 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -650,7 +650,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 			$attributes[''] = '-- select attribute --';
 			$attributes = array_reverse($attributes, true);
 
-			echo '<br/><b>New required field ? </b>';
+			echo '<br/><b>New required attribute ? </b>';
 			combo_box($prefix.'_new_required', $attributes, false, '');
 		}
 
