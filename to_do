@@ -18,6 +18,10 @@
 
   - Unique Usernames (or attr values in general) across system
 
+  - Asset Links
+    - Need to check web paths when an _updateLink() occurs and you are changing the minorid
+    - Need to updateLookups() on the minor asset when an _updateLink() or a deleteLink() happens
+
   - Designs
     - Global Stylesheets / Inheriting Designs ?
     - Design Areas (or their replacement)
