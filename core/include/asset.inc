@@ -54,6 +54,18 @@ class Asset extends Resolve_Object
 	* @var string
 	*/
 	var $charset = '';
+	
+	/**
+	* Timestamp of when this asset was created
+	* @var int
+	*/
+	var $created;
+
+	/**
+	* Assetid for the user that created this asset
+	* @var int
+	*/
+	var $created_userid;
 
 	/**
 	* Timestamp of when this asset was last updated
@@ -169,27 +181,31 @@ class Asset extends Resolve_Object
 		$userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
 		$initial_version = '0.0.0';
 
-		$values = Array('assetid'      => $assetid,
-						'version'      => $initial_version,
-						'type_code'    => $this->type(),
-						'name'         => $name,
-						'short_name'   => $name,
-						'status'       => SQ_STATUS_UNDER_CONSTRUCTION,
-						'last_updated' => ts_iso8601($now),
-						'last_userid'  => $userid
+		$values = Array('assetid'        => $assetid,
+						'version'        => $initial_version,
+						'type_code'      => $this->type(),
+						'name'           => $name,
+						'short_name'     => $name,
+						'status'         => SQ_STATUS_UNDER_CONSTRUCTION,
+						'created'        => ts_iso8601($now),
+						'created_userid' => $userid,
+						'last_updated'   => ts_iso8601($now),
+						'last_userid'    => $userid
 						);
 		if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset', $values)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
 
-		$this->id           = $assetid;
-		$this->version      = $initial_version;
-		$this->name         = $name;
-		$this->short_name   = $name;
-		$this->status       = SQ_STATUS_UNDER_CONSTRUCTION;
-		$this->last_updated = $now;
-		$this->last_userid  = $userid;
+		$this->id             = $assetid;
+		$this->version        = $initial_version;
+		$this->name           = $name;
+		$this->short_name     = $name;
+		$this->status         = SQ_STATUS_UNDER_CONSTRUCTION;
+		$this->created        = $now;
+		$this->created_userid = $userid;
+		$this->last_updated   = $now;
+		$this->last_userid    = $userid;
 
 		// set the attribute values that have been stored temporarily
 		if (!$this->saveAttributes(true)) {
@@ -295,7 +311,7 @@ class Asset extends Resolve_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		// OK, the first thing to do is check we actually exist :)
-		$sql = 'SELECT assetid, version, name, short_name, status, languages, charset, type_code, last_updated, last_userid
+		$sql = 'SELECT assetid, version, name, short_name, status, languages, charset, type_code, created, created_userid, last_updated, last_userid
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset ';
 		$where = 'assetid = '.$db->quote($assetid);
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
@@ -313,6 +329,8 @@ class Asset extends Resolve_Object
 			 $this->languages,
 			 $this->charset,
 			 $type_code,
+			 $this->created,
+			 $this->created_userid,
 			 $this->last_updated,
 			 $this->last_userid) = $result;
 		$this->last_updated = iso8601_ts($this->last_updated);
@@ -322,8 +340,10 @@ class Asset extends Resolve_Object
 		if ($type_code != $this->type()) {
 			trigger_error('Asset #'.$assetid.' is not a '.$this->type(), E_USER_WARNING);
 			$this->id = null;
-			$this->last_updated = null;
-			$this->last_userid  = null;
+			$this->created        = null;
+			$this->created_userid = null;
+			$this->last_updated   = null;
+			$this->last_userid    = null;
 			return;
 		}
 
@@ -466,14 +486,16 @@ class Asset extends Resolve_Object
 		// version number starts at 0.0.0 again because the dupe is a brand new asset
 		$initial_version = '0.0.0';
 
-		$values = Array('assetid'      => $assetid,
-						'version'      => $initial_version,
-						'type_code'    => $this->type(),
-						'name'         => $this->name.' - Duplicate',
-						'short_name'   => $this->short_name.' - Duplicate',
-						'status'       => SQ_STATUS_UNDER_CONSTRUCTION,
-						'last_updated' => ts_iso8601($now),
-						'last_userid'  => $userid
+		$values = Array('assetid'        => $assetid,
+						'version'        => $initial_version,
+						'type_code'      => $this->type(),
+						'name'           => $this->name.' - Duplicate',
+						'short_name'     => $this->short_name.' - Duplicate',
+						'status'         => SQ_STATUS_UNDER_CONSTRUCTION,
+						'created'        => ts_iso8601($now),
+						'created_userid' => $userid,
+						'last_updated'   => ts_iso8601($now),
+						'last_userid'    => $userid
 						);
 		if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset', $values)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -3555,7 +3577,6 @@ class Asset extends Resolve_Object
 		if (!isset($this->_tmp['permission_cache'][$storage_name])) {
 
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
-
 
 			$sql = '  SELECT DISTINCT assetid, userid, access
 					  FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_permission ';
