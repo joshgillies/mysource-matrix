@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_step_condition_edit_fns.inc,v 1.11 2004/03/24 06:28:00 gsherwood Exp $
+* $Id: workflow_step_condition_edit_fns.inc,v 1.12 2004/07/23 00:07:50 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -132,8 +132,11 @@ class Workflow_Step_Condition_Edit_Fns extends Asset_Edit_Fns
 			$cond_logic = trim($_POST[$prefix.'_logic']);
 		}
 		if (isset($_POST[$prefix.'_logic_num']) && $cond_logic != 'all') {
-			$cond_logic_num = trim($_POST[$prefix.'_logic_num']);
+			$cond_logic_num = (!empty($_POST[$prefix.'_logic_num'])) ? (int) $_POST[$prefix.'_logic_num'] : 0;
+		} else {
+			$cond_logic_num = 0;
 		}
+
 		if (!$asset->setAttrValue('logic', $cond_logic)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
