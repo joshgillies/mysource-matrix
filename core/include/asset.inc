@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset.inc,v 1.254 2003/11/09 22:23:02 gsherwood Exp $
+* $Id: asset.inc,v 1.255 2003/11/10 02:56:52 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1071,8 +1071,9 @@ class Asset extends MySource_Object
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
-
-			$GLOBALS['SQ_SYSTEM']->broadcastEvent('AssetUpdate',
+			
+			$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
+			$em->broadcastEvent($this, 'AssetUpdate',
 												  Array( 'assetid'          => $this->id,
 														 'old_name'         => $this->name,
 														 'new_name'         => $name,
@@ -1191,8 +1192,9 @@ class Asset extends MySource_Object
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
-
-		$GLOBALS['SQ_SYSTEM']->broadcastEvent('AssetVersionUpdate',
+		
+		$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
+		$em->broadcastEvent($this, 'AssetVersionUpdate',
 											  Array( 'assetid'          => $this->id,
 													 'old_version'      => $this->version,
 													 'new_version'      => $new_version
@@ -1242,7 +1244,8 @@ class Asset extends MySource_Object
 			return false;
 		}
 
-		$GLOBALS['SQ_SYSTEM']->broadcastEvent('AssetLanguageUpdate',
+		$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
+		$em->broadcastEvent($this, 'AssetLanguageUpdate',
 											   Array( 'assetid'       => $this->id,
 													  'old_languages' => $old_languages,
 													  'new_languages' => $this->languages,
@@ -1270,7 +1273,9 @@ class Asset extends MySource_Object
 			$this->charset = $old_charset;
 			return false;
 		}
-		$GLOBALS['SQ_SYSTEM']->broadcastEvent('AssetCharsetUpdate',
+
+		$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
+		$em->broadcastEvent($this, 'AssetCharsetUpdate',
 											   Array( 'assetid'     => $this->id,
 													  'old_charset' => $old_charset,
 													  'new_charset' => $this->charset,
@@ -1304,7 +1309,9 @@ class Asset extends MySource_Object
 			$this->force_secure = $old_force_secure;
 			return false;
 		}
-		$GLOBALS['SQ_SYSTEM']->broadcastEvent('AssetForceSecureUpdate',
+
+		$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
+		$em->broadcastEvent($this, 'AssetForceSecureUpdate',
 											   Array( 'assetid'     => $this->id,
 													  'old_force_secure' => $old_force_secure,
 													  'old_force_secure' => $this->force_secure,
@@ -1493,7 +1500,9 @@ class Asset extends MySource_Object
 			$this = $tmp;
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
-			$GLOBALS['SQ_SYSTEM']->broadcastEvent('AssetTypeUpdate',
+
+			$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
+			$em->broadcastEvent($this, 'AssetTypeUpdate',
 												  Array( 'assetid'  => $this->id,
 														 'old_type' => $old_type_code,
 														 'new_type' => $new_type_code
@@ -1625,7 +1634,9 @@ class Asset extends MySource_Object
 				return false;
 			}
 
-			$GLOBALS['SQ_SYSTEM']->broadcastEvent('AssetStatusUpdate',
+			$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
+			
+			$em->broadcastEvent($this, 'AssetStatusUpdate',
 												  Array('assetid'    => $this->id,
 														'old_status' => $this->status,
 														'new_status' => $new_status,

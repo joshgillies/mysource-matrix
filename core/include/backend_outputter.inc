@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: backend_outputter.inc,v 1.65 2003/11/04 00:59:39 gsherwood Exp $
+* $Id: backend_outputter.inc,v 1.66 2003/11/10 02:56:52 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -102,8 +102,6 @@ class Backend_Outputter
 	/**
 	* Constructor
 	*
-	* @param string	$type_code
-	*
 	* @access  public
 	*/
 	function Backend_Outputter()
@@ -119,12 +117,16 @@ class Backend_Outputter
 		$this->_action = $_SERVER['PHP_SELF'];
 
 		// register that we want to listen to link update events
-		$GLOBALS['SQ_SYSTEM']->addEventListener($this, Array('CreateLink',
-															 'DeleteLink',
-															 'AssetUpdate',
-															 'AssetTypeUpdate',
-															 'BackendMessage'
-															));
+		$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
+
+		$em->addEventListener($this, Array('CreateLink',
+											 'DeleteLink',
+											 'AssetUpdate',
+											 'AssetTypeUpdate',
+											 'BackendMessage',
+											 'AssetStatusUpdate'
+											)
+								);
 	}//end constructor
 
 
@@ -504,7 +506,7 @@ class Backend_Outputter
 	* Opens a field inside a section
 	*
 	* @param string $name		label of the field
-	* @param string $format		format 'new_line' | 'commit' | ''
+	* @param string $format		format 'new_line' | 'blank' | 'commit' | ''
 	* @param string $note		a note to place with the field
 	*
 	* @access public
@@ -1122,6 +1124,27 @@ class Backend_Outputter
 		}
 
 	}//end onAssetTypeUpdate()
+
+
+
+	/**
+	* Event handler to refresh the asset map if an asset's status has changed
+	*
+	* @param Array() $event_data some information 
+	*
+	* @return void
+	* @access public
+	*/
+	function onAssetStatusUpdate($event_data=Array())
+	{
+		if (!in_array($event_data['assetid'], $this->_refreshing_assets)) {
+			if ($event_data['old_status'] != $event_data['new_status']) {
+				$this->addOnLoad('if (top.sidenav && top.sidenav.reload_asset) top.sidenav.reload_asset("'.$event_data['assetid'].'");');
+				$this->_refreshing_assets[] = $event_data['assetid'];
+			}
+		}
+	}//end onAssetStatusUpdate()
+
 
 }//end class
 

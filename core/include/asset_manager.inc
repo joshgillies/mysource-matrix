@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_manager.inc,v 1.150 2003/10/22 01:04:53 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.151 2003/11/10 02:56:52 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1353,7 +1353,6 @@ class Asset_Manager extends MySource_Object
 
 		$sql .= $where.'
 				ORDER BY l.sort_order, a.type_code';
-
 		$result = $db->getAll($sql);
 		if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 
@@ -2301,7 +2300,9 @@ class Asset_Manager extends MySource_Object
 		$message->send();
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		$GLOBALS['SQ_SYSTEM']->broadcastEvent('CreateLink', Array('assetid' => $major->id, 'linkid' => $linkid));
+
+		$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
+		$em->broadcastEvent($this, 'CreateLink', Array('assetid' => $major->id, 'linkid' => $linkid));
 		return $linkid;
 
 	}//end createAssetLink()
@@ -2641,7 +2642,9 @@ class Asset_Manager extends MySource_Object
 		$message->send();
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		$GLOBALS['SQ_SYSTEM']->broadcastEvent('DeleteLink', Array('assetid' => $major->id, 'linkid' => $linkid));
+
+		$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
+		$em->broadcastEvent($this, 'DeleteLink', Array('assetid' => $major->id, 'linkid' => $linkid));
 
 		return true;
 
