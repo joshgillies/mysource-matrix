@@ -39,7 +39,7 @@ class Form_Question_Type_Text_Management extends Form_Question_Management
 									'type'      => 'text',  
 									'default'   => '300',
 									),
-							'extra' => Array(
+							'extra'			=> Array(
 									'added'     => '0.0.1',
 									'type'      => 'text',  
 									'default'   => '',
