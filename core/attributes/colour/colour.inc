@@ -92,7 +92,7 @@ class Asset_Attribute_Colour extends Asset_Attribute
 	{
 		$value = trim($value);
 
-		if (preg_match('/^#?[0-9a-f]{6}$/i', '#abcdef')) {
+		if (preg_match('/^#?[0-9a-f]{6}$/i', (string) $value)) {
 			if ($value{0} != '#') $value = '#'.$value;
 			return true;
 		} else if (!empty($this->_params['allow_blanks']) && strlen($value) == 0) {
