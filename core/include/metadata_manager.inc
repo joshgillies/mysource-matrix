@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.44 2004/07/06 07:20:32 gsherwood Exp $
+* $Id: metadata_manager.inc,v 1.45 2004/07/22 05:57:49 mnyeholt Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -752,9 +752,9 @@ class Metadata_Manager extends MySource_Object
 					echo 'if (!isset($metadata_'.substr($keyword,6,7).'_by_user)) { 
 					$asset_info = $GLOBALS[\'SQ_SYSTEM\']->am->getAssetInfo(Array($metadata_asset->'.substr($keyword,6,7).'_userid));
 					if (!empty($asset_info)) {
-					$metadata_'.substr($keyword,6,7).'_by_user = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($metadata_asset->'.substr($keyword,6,7).'_userid);'."\n}\n}\n";
+					$metadata_'.substr($keyword,6,7).'_by_user = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($metadata_asset->'.substr($keyword,6,7).'_userid,\'\', true);'."\n}\n}\n";
 					echo 'if (!empty($metadata_'.substr($keyword,6,7).'_by_user)) { ';
-					echo '$metadata_'.substr($keyword,6,7).'_by_user = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($metadata_asset->'.substr($keyword,6,7).'_userid);'."\n";
+					echo '$metadata_replacements[\''.$keyword.'\'] = $metadata_'.substr($keyword,6,7).'_by_user->attr(\''.substr($keyword,17).'\');'."\n";
 					echo '} else {'."\n";
 					echo '$metadata_replacements[\''.$keyword.'\'] = \'\';'."\n";
 					echo '}'."\n";
