@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: main.as,v 1.43 2003/09/26 05:26:32 brobertson Exp $
+* $Id: main.as,v 1.44 2003/10/08 02:24:02 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -74,15 +74,15 @@ _root.LIST_ITEM_END_BRANCH_GAP = 5;
 // the colours for the background of a list item
 _root.LIST_ITEM_BG_COLOURS = {
 							normal:					{colour: 0xCCCCCC, alpha: 100},   // alpha = 0 -> transparent
-							live:					{colour: 0xE2FEA0, alpha: 100}, 
+							live:					{colour: 0xCCFF66, alpha: 100}, 
 							under_construction:		{colour: 0xBBDDFF, alpha: 100},
 							error:					{colour: 0xFF9999, alpha: 100},
 							selected:				{colour: 0x406080, alpha: 100}
 							};  
 // the colours for the background of a mail box message
 _root.MAIL_MSG_BG_COLOURS = {
-							normal:   {colour: 0xFFFFFF, alpha: 0},   // alpha = 0 -> transparent
-							selected: {colour: 0xc0c0c0, alpha: 100}
+							normal:   {colour: 0xFFFFFF, alpha: 100},   // alpha = 0 -> transparent
+							selected: {colour: 0x406080, alpha: 100}
 							};  
 
   ///////////////////////////////////////////////////
@@ -91,16 +91,16 @@ _root.MAIL_MSG_BG_COLOURS = {
 
 // for testing from the Flash IDE 
 if (_root.server_exec_path == undefined) {
-	_root.server_exec_path = "http://beta.squiz.net/dom_resolvefx/_edit/?SQ_BACKEND_PAGE=asset_map_request";
+	_root.server_exec_path = "http://beta.squiz.net/matrix_slq/_edit/?SQ_BACKEND_PAGE=asset_map_request";
 }
 if (_root.url_frame == undefined) {
 	_root.url_frame = "main";
 }
 if (_root.action_bar_path == undefined) {
-	_root.action_bar_path = "http://beta.squiz.net/dom_resolvefx/_edit/?SQ_BACKEND_PAGE=main&backend_section=am&am_section=edit_asset&assetid=%assetid%&asset_ei_screen=%action%";
+	_root.action_bar_path = "http://beta.squiz.net/matrix_slq/_edit/?SQ_BACKEND_PAGE=main&backend_section=am&am_section=edit_asset&assetid=%assetid%&asset_ei_screen=%action%";
 }
 if (_root.inbox_path == undefined) {
-	_root.inbox_path = "http://beta.squiz.net/dom_resolvefx/_edit/?SQ_BACKEND_PAGE=main&backend_section=am";
+	_root.inbox_path = "http://beta.squiz.net/matrix_slq/_edit/?SQ_BACKEND_PAGE=main&backend_section=am";
 }
 
 
@@ -136,3 +136,5 @@ _root.stage_resize = new StageResize();
 
 _root.asset_manager.init();
 _root.tabs.mail.msgs_container.refreshMail();
+
+_root.tabs.setSize(Stage.width, Stage.height);

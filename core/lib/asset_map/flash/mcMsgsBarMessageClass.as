@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: mcMsgsBarMessageClass.as,v 1.5 2003/09/26 05:26:32 brobertson Exp $
+* $Id: mcMsgsBarMessageClass.as,v 1.6 2003/10/08 02:24:02 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -24,7 +24,6 @@ function mcMsgsBarMessageClass()
 	this.text_field.html		= true;
 	this.text_field._visible	= true;
 //	this.text_field.embedFonts	= true;
-//	this.text_field._highquality = 2;
 
 	this.createEmptyMovieClip ('bg', -1);
 

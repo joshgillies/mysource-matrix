@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: mcListItemClass.as,v 1.24 2003/09/26 05:26:32 brobertson Exp $
+* $Id: mcListItemClass.as,v 1.25 2003/10/08 02:24:02 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -43,7 +43,6 @@ function mcListItemClass()
 	// set the text field up
 	this.text_field.text = "";
 	this.text_field.autoSize = "left";
-	this.text_field._highquality = 2;
 
 	// selected and normal text formats
 	this.normalTextFormat = new TextFormat();
@@ -89,7 +88,7 @@ mcListItemClass.prototype.setInfo = function(asset)
 	this.assetid			= asset.assetid;
 	this.type_code			= asset.type_code;
 	this._accessible		= asset.accessible;
-	this.text_field.text	= asset.name;
+	this.text_field.text	= asset.name + " [" + asset.assetid + "]";
 	this.asset_status		= asset.status;
 
 	this.move_button.setIcon("mc_asset_type_" + asset.type_code + "_icon");

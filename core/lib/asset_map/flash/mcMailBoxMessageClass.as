@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: mcMailBoxMessageClass.as,v 1.7 2003/09/26 05:26:32 brobertson Exp $
+* $Id: mcMailBoxMessageClass.as,v 1.8 2003/10/08 02:24:02 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -21,6 +21,9 @@ function mcMailBoxMessageClass()
 	this.sent		= 0;
 	this.priority	= ''; // 1-5 priority
 	this.status		= ''; // 'U' - Unread, 'R' - Read, 'D' - Deleted
+
+	// background
+	this.createEmptyMovieClip('_bg', -1);
 
 	// priority and status flags
 	this.attachMovie ('mcMailBoxMessagePriorityID', 'priority_flag', 1);
@@ -48,6 +51,8 @@ function mcMailBoxMessageClass()
 	this.text_format.color = 0x000000;
 	this.text_format.font  = "Arial";
 	this.text_format.size  = 10;
+
+	this.selected = false;
 
 }// end constructor
 
@@ -146,7 +151,22 @@ mcMailBoxMessageClass.prototype.setWidth = function(w, subject_pos, from_pos, co
 	this.time_icon._x		= Math.max(this.from_field._x + this.from_field._width, w - this.time_icon._width - 10);
 	this.time_icon._y		= (baseHeight - this.time_icon._height) / 2;
 
-	this.lineStyle(1, 0x000000);
+	var bgColour;
+	var bgAlpha;
+	
+	if (this.selected) {
+		bgColour = _root.MAIL_MSG_BG_COLOURS.selected.colour;
+		bgAlpha = _root.MAIL_MSG_BG_COLOURS.selected.alpha;
+	} else {
+		bgColour = _root.MAIL_MSG_BG_COLOURS.normal.colour;
+		bgAlpha = _root.MAIL_MSG_BG_COLOURS.normal.alpha;
+	}
+
+	this._bg.clear();
+	//set_background_box(this._bg, w, baseHeight, bgColour, bgAlpha);
+
+	this.lineStyle(1, 0x808080);
+
 	this.moveTo(0, baseHeight);
 	this.lineTo(w, baseHeight);
 
@@ -164,13 +184,37 @@ mcMailBoxMessageClass.prototype.getFromColumnWidth = function() {
 	return this.user_type_icon._width + this.subject_field._width;
 }
 
+mcMailBoxMessageClass.prototype.select = function()
+{
+//	trace(this + ":select");
+	if (this._parent.selected_msg != undefined)
+		this._parent.selected_msg.unselect();
+
+	this._bg.clear();
+//	set_background_box(this._bg, this._width, this._height, _root.MAIL_MSG_BG_COLOURS.selected.colour, _root.MAIL_MSG_BG_COLOURS.selected.alpha);
+
+	this._parent.selected_msg = this;
+	this.selected = true;
+}
+
+mcMailBoxMessageClass.prototype.unselect = function()
+{
+//	trace(this + ":unselect");
+	this._bg.clear();
+//	set_background_box(this._bg, this._width, this._height, _root.MAIL_MSG_BG_COLOURS.normal.colour, _root.MAIL_MSG_BG_COLOURS.normal.alpha);
+
+	this._parent.selected_msg = undefined;
+	this.selected = false;
+}
+
 /**
 * Called when this item has been pressed and then released
 */
 mcMailBoxMessageClass.prototype.onRelease = function()
 {
+	this.select();
 //	trace("MAIL Message Released : " + this.subject);
-
+//	set_background_box(this, this._width, this._height - 1, _root.MAIL_MSG_BG_COLOURS.selected.colour);
 	var str = "From : " + this.from + "\n"
 			+ "Date : " + this.sent + "\n\n"
 			+ this.body;

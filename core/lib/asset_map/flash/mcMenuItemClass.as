@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: mcMenuItemClass.as,v 1.14 2003/09/26 05:26:32 brobertson Exp $
+* $Id: mcMenuItemClass.as,v 1.15 2003/10/08 02:24:02 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -175,7 +175,6 @@ mcMenuItemClass.prototype._initTextField = function(label)
 	this._textBox.setNewTextFormat(this._baseTextFormat);
 	this._textBox.autoSize = 'left';
 	this._textBox.text = label;
-	this._textBox._highquality = 2;
 }
 
 mcMenuItemClass.prototype._refresh = function() 
