@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: log_iterator.inc,v 1.1 2005/03/23 03:00:54 arailean Exp $
+* $Id: log_iterator.inc,v 1.2 2005/04/01 02:09:21 arailean Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 class Log_Iterator
@@ -116,9 +116,9 @@ class Log_Iterator
 		}
 
 		$result = Array(
-						'percentage_done' => $percentage_done,
-						'complete'        => $complete,
-						);
+					'percentage_done'	=> $percentage_done,
+					'complete'			=> $complete,
+				  );
 
 		return $result;
 
