@@ -227,39 +227,45 @@ class Resolve
 		header("HTTP/1.0 403 Forbidden");
 		$GLOBALS['SQ_LOGIN_FORM'] = Array('paint' => 'login', 'heading' => $heading, 'msg' => $msg);
 
-		$current_asset = &$this->am->getAssetFromURL(null, null, true, true);
-		// if we can't find a current asset, use the root folder
-		if (is_null($current_asset)) {
-			$current_asset = &$this->am->getSystemAsset('root_folder');
+		if (empty($_GET['FORCE_BACKUP_LOGIN'])) {
+
+			$current_asset = &$this->am->getAssetFromURL(null, null, true, true);
+			// if we can't find a current asset, use the root folder
 			if (is_null($current_asset)) {
-				trigger_error('Unable to get Root Folder Asset', E_USER_ERROR);
+				$current_asset = &$this->am->getSystemAsset('root_folder');
+				if (is_null($current_asset)) {
+					trigger_error('Unable to get Root Folder Asset', E_USER_ERROR);
+				}
 			}
-		}
 
-		$sql = 'SELECT l.login_designid, a.type_code
-				FROM sq_asset_lookup l, sq_asset a
-				WHERE l.login_designid = a.assetid
-				  AND l.url = '.$db->quote(strip_url(current_url(false, true)));
-		$result = $db->getRow($sql);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
-		}
+			$sql = 'SELECT l.login_designid, a.type_code
+					FROM sq_asset_lookup l, sq_asset a
+					WHERE l.login_designid = a.assetid
+					  AND l.url = '.$db->quote(strip_url(current_url(false, true)));
+			$result = $db->getRow($sql);
+			if (DB::isError($result)) {
+				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			} else {
 
-		// we have found the design to use
-		if ($result) {
-			$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($result['login_designid'], $result['type_code']);
-			if (!is_null($design)) {
-				$design->paint($current_asset);
-				return;
-			}
-		}
+				// we have found the design to use
+				if ($result) {
+					$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($result['login_designid'], $result['type_code']);
+					if (!is_null($design)) {
+						$design->paint($current_asset);
+						return;
+					}
+				}
 
-		// OK, use the system login form
-		$design = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('login_design');
-		if (!is_null($design)) {
-			$design->paint($current_asset);
-			return;
-		}
+				// OK, use the system login form
+				$design = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('login_design');
+				if (!is_null($design)) {
+					$design->paint($current_asset);
+					return;
+				}
+
+			}// end if
+
+		}// end if
 
 		// shit we can't find a design, something has well and truly F@#ked up,
 		// resort to our backup
@@ -1038,7 +1044,6 @@ class Resolve
 
 		// construct the insert query
 		$insert_sql = 'INSERT INTO '.SQ_TABLE_PREFIX.$table_name.' ('.$col_string.') VALUES ('.$val_string.')';
-
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$result = $this->db->query($insert_sql);
