@@ -2409,7 +2409,7 @@ class Asset_Manager extends Resolve_Object
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
-		$deleted = $this->deleteLink($linkid);
+		$deleted = $old_parent->deleteLink($linkid);
 		$this->releaseLock($old_parent->id);
 		if (!$deleted) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');

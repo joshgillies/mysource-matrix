@@ -615,7 +615,7 @@ class Asset_Map
 		if ($old_parent->id == $input->root->attributes['to_parent_assetid']) {
 
 			// Let's just move the link
-			if (!$GLOBALS['SQ_SYSTEM']->moveLinkPos($link['linkid'], $input->root->attributes['to_parent_pos'])) {
+			if (!$GLOBALS['SQ_SYSTEM']->am->moveLinkPos($link['linkid'], $input->root->attributes['to_parent_pos'])) {
 				return;
 			}
 
@@ -650,7 +650,7 @@ class Asset_Map
 			}
 
 			// Now let's move the link
-			$moved = $GLOBALS['SQ_SYSTEM']->moveLink($link['linkid'], $new_parent->id, $link['link_type'], $input->root->attributes['to_parent_pos']);
+			$moved = $GLOBALS['SQ_SYSTEM']->am->moveLink($link['linkid'], $new_parent->id, $link['link_type'], $input->root->attributes['to_parent_pos']);
 			if (!$moved) return;
 
 			// if our new parent has permission set, do the popup thang to ask the user if
