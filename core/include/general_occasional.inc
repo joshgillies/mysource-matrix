@@ -94,7 +94,7 @@ function get_bit_names($prefix, $bit_value, $force_array=false)
 * @return string
 * @access public
 */
-function getStatusDescription($status)
+function get_status_description($status)
 {
 	// work out the name of our status file
 	$status_code = get_bit_names('SQ_STATUS_', $status);
@@ -104,7 +104,7 @@ function getStatusDescription($status)
 	$status_object = new $status_code($this);
 	return $status_object->getDescription();
 
-}//end getStatusDescription()
+}//end get_status_description()
 
 
 /**

@@ -133,7 +133,7 @@ class Asset_Status_Pending_Approval extends Asset_Status
 
 				$message = $ms->newMessage();
 				$message->subject = 'Asset Changes Rejected';
-				$message->body = 'User "'.$user->name.'" has rejected the changes made to '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name').' "'.$this->owner->name.'". The status of "'.$this->owner->name.'" has reverted to '.getStatusDescription($new_status);
+				$message->body = 'User "'.$user->name.'" has rejected the changes made to '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name').' "'.$this->owner->name.'". The status of "'.$this->owner->name.'" has reverted to '.get_status_description($new_status);
 				$message->to   = $GLOBALS['SQ_SYSTEM']->am->getPermission($this->owner->id, SQ_PERMISSION_ADMIN, true, false);
 				$message->from = 0; // a system message
 				$ms->enqueueMessage($message);
