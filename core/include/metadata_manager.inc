@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.46 2004/07/22 06:08:15 lwright Exp $
+* $Id: metadata_manager.inc,v 1.47 2004/07/23 07:15:19 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -713,6 +713,20 @@ class Metadata_Manager extends MySource_Object
 
 				case 'asset_href' :
 					echo '$metadata_replacements[\''.$keyword.'\'] = $metadata_asset->getHref();'."\n";
+				break;
+				
+				case 'asset_thumbnail' :
+					echo 'if ($metadata_asset->id) {';
+					echo '$link = $GLOBALS[\'SQ_SYSTEM\']->am->getLink($metadata_asset->id, SQ_LINK_NOTICE, \'thumbnail\', true, \'thumbnail\');'."\n";
+					echo 'if (!empty($link)) {'."\n";
+					echo '$thumbnail = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($link[\'minorid\']);'."\n";
+					echo '$metadata_replacements[\''.$keyword.'\'] = $thumbnail->printImageTag($metadata_asset->name, true);'."\n";
+					echo '} else {'."\n";
+					echo '$metadata_replacements[\''.$keyword.'\'] = \'\';'."\n";
+					echo '}'."\n";
+					echo '} else {'."\n";
+					echo '$metadata_replacements[\''.$keyword.'\'] = \'\';'."\n";
+					echo '}'."\n";
 				break;
 
 				case 'asset_created' :
