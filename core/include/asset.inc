@@ -1780,7 +1780,7 @@ class Asset extends Resolve_Object
 	*											if an array returns link if matches any
 	*											of the array values
 	* @param bool			$strict_type_code	whether we are finding an asset that
-	*											are just a $type_code
+	*											is just a $type_code or potentially an inherited type
 	*											or $type_code and any of it's sub-classes
 	* @param string			$value				the value that is associated with this link
 	* @param string			$side_of_link		Which side of the link this (the current) asset
