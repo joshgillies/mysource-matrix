@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime.inc,v 1.12 2004/07/19 20:29:57 brobertson Exp $
+* $Id: datetime.inc,v 1.13 2004/07/22 00:05:26 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -266,7 +266,7 @@ function is_leap_year($year=null)
 
 
 /**
-* Returns whether the passed year is a leap year or not
+* Returns the number of days in the specified month
 *
 * @param int	$month	the month to return the number of days in (NULL means current month)
 * @param int	$year	the year that the month is in (NULL means current year)
