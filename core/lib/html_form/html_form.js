@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.js,v 1.24 2004/01/05 06:07:56 gsherwood Exp $
+* $Id: html_form.js,v 1.25 2004/01/13 01:33:34 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -204,6 +204,7 @@ function form_element_value(element)
 	return "";
 
 }// end form_element_value()
+
 
 /**
 * Given a select box reference, returns the current text
@@ -449,7 +450,7 @@ function check_date(date_name, show_time)
 
 
 /**
-* Activated by the pressing of the "Change..." button to start the asset finder mode in the flash menu
+* Activated by the pressing of the "Change" button to start the asset finder mode in the flash menu
 *
 * @param string	$name			the name of the hidden field
 * @param string	$safe_name		the name prefix for all the other form elements associated with the
@@ -474,21 +475,21 @@ function asset_finder_change_btn_press(name, safe_name, type_codes_xml, top_obj,
 		return;
 	}
 
-	if (!ASSET_FINDER_TOP_OBJ.sidenav && !ASSET_FINDER_TOP_OBJ.sidenav.asset_finder_start) {
-		alert('Unable to find flash');
-	}
+//	if (!ASSET_FINDER_TOP_OBJ.sidenav && !ASSET_FINDER_TOP_OBJ.sidenav.asset_finder_start) {
+//		alert('Unable to find flash');
+//	}
 
 	// no name ? we must be starting the asset finder
 	if (ASSET_FINDER_FIELD_NAME == null) {
 		ASSET_FINDER_FIELD_NAME = name;
 		ASSET_FINDER_FIELD_SAFE_NAME = safe_name;
-		ASSET_FINDER_TOP_OBJ.sidenav.asset_finder_start(asset_finder_done, type_codes_xml);
+		asset_finder_start("asset_finder_done", type_codes_xml);
 		set_button_value(ASSET_FINDER_FIELD_SAFE_NAME + '_change_btn', 'Cancel');
 
 	// else we must be cancelling the asset finder
 	} else {
-		ASSET_FINDER_TOP_OBJ.sidenav.asset_finder_cancel();
-		set_button_value(ASSET_FINDER_FIELD_SAFE_NAME + '_change_btn', 'Change...');
+		asset_finder_cancel();
+		set_button_value(ASSET_FINDER_FIELD_SAFE_NAME + '_change_btn', 'Change');
 		ASSET_FINDER_FIELD_NAME = null;
 		ASSET_FINDER_FIELD_SAFE_NAME = null;
 	}
@@ -514,12 +515,46 @@ function asset_finder_done(assetid, label, url)
 		set_hidden_field(ASSET_FINDER_FIELD_NAME + '[url]', url);
 		set_text_field(ASSET_FINDER_FIELD_SAFE_NAME + '_label', (assetid == 0) ? '' : label + ' (Id : #' + assetid + ')');
 	}
-	set_button_value(ASSET_FINDER_FIELD_SAFE_NAME + '_change_btn', 'Change...');
+	set_button_value(ASSET_FINDER_FIELD_SAFE_NAME + '_change_btn', 'Change');
 	ASSET_FINDER_FIELD_NAME = null;
 	ASSET_FINDER_FIELD_SAFE_NAME = null;
 	if (ASSET_FINDER_DONE_FUNCTION !== null) ASSET_FINDER_DONE_FUNCTION();
 
 }// end asset_finder_done()
+
+
+/**
+* Starts the asset finder and lets the asset map know that we are now in asset finder mode
+* 
+* @param String $fn				the function to call when done
+* @param String $type_codes		the type codes to restrict the asset finder to
+*
+* @access public
+*/
+function asset_finder_start(fn, type_codes)
+{
+	var asset_mapObj = document.getElementById('sq_asset_map');
+
+	var params = new Array();
+	params["callback_fn"] = fn;
+	params["type_codes"] = type_codes;
+	
+	jsToJavaCall(asset_mapObj, 'asset_finder', 'assetFinderStarted', params);
+
+}//end asset_finder_start()
+
+
+/**
+* Alerts the asset map that asset finder mode has been canceled
+*
+* @access public
+*/
+function asset_finder_cancel() {
+	params = new Array();
+	var asset_mapObj = document.getElementById('sq_asset_map');
+	jsToJavaCall(asset_mapObj, 'asset_finder', 'assetFinderStopped', params);
+
+}//end asset_finder_cancel()
 
 
 /**
