@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.174 2004/02/06 05:54:01 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.175 2004/02/10 00:31:46 diarandine Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -466,6 +466,7 @@ class Asset_Manager extends MySource_Object
 
 	}//end getAssetTypeInfo()
 
+
 	/**
 	* Includes the class file for the passed asset
 	*
@@ -569,22 +570,32 @@ class Asset_Manager extends MySource_Object
 	* Retrieves the attributes (with null values) for the asset type
 	*
 	* @param string $type_code		the type of asset
+	* @param string $details		if the details (asset name and type) should be returned too
 	* @return array		an array of Asset_Attribute's
 	*
 	* @return array(int)
 	* @access public
 	*/
-	function getAssetTypeAttributes($type_code)
+	function getAssetTypeAttributes($type_code, $details=false)
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		require_once SQ_INCLUDE_PATH."/asset_attribute.inc";
 
-		$sql = "SELECT attributeid FROM ". SQ_TABLE_PREFIX . "asset_attribute
-				WHERE type_code = '".addslashes($type_code)."'";
+		if ($details == false) { // no details, only attribute IDs
+		
+			$sql = "SELECT attributeid FROM ". SQ_TABLE_PREFIX . "asset_attribute
+					WHERE type_code = '".addslashes($type_code)."'";
+			$attributeids = $db->getCol($sql);
+			return $attributeids;
+		
+		} else { // giving back an associative array of 'name'=>'type' value pairs
 
-		$attributeids = $db->getCol($sql);
+			$sql = "SELECT name, type FROM ". SQ_TABLE_PREFIX . "asset_attribute
+					WHERE type_code = '".addslashes($type_code)."'";
+			$attributeids = $db->getAssoc($sql);
+			return $attributeids;
 
-		return $attributeids;
+		}
 
 	}//end getAssetTypeAttributes()
 
