@@ -964,55 +964,82 @@ class Asset_Manager extends Resolve_Object
 	/**
 	* Returns the URL for an asset, closest to the $base_url
 	*
-	* @param int	$assetid	the id of the asset you want the url for
-	* @param string	$base_url	the url that we are want to match closest to
+	* @param int | array(int)	$assetids	the id of the asset you want the url for or an array
+	*										for a whole bunch of them
+	* @param string				$base_url	the url that we are want to match closest to
 	*
 	* @return string
 	* @access public
 	*/
-	function getAssetURL($assetid, $base_url=null)
+	function getAssetURL($assetids, $base_url=null)
 	{
+		$return_array = true;
+		$in_assetid = 0;
+		if (!is_array($assetids)) {
+			$in_assetid = $assetids;
+			$assetids = Array($assetids);
+			$return_array = false;
+		}
 		if (is_null($base_url)) $base_url = current_url(false);
-		if (!isset($this->_tmp['urls'][$assetid])) $this->_tmp['urls'][$assetid] = Array();
-
 		$base_url = strip_url($base_url, true);
 
-		if (!isset($this->_tmp['urls'][$assetid][$base_url])) {
-			$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$return_urls = Array();
 
-			$url_bits = explode('/', preg_replace('/\\/+$/', '', $base_url));
+		// work out if any of these are cached
+		foreach ($assetids as $assetid) {
+			if (!isset($this->_tmp['urls'][$assetid])) $this->_tmp['urls'][$assetid] = Array();
 
-			$sql = 'SELECT l.url, u.http, (';
-			$str = '';
-			// so much for SQL standards...
-			$concat = ($db->phptype == 'mysql') ? 'CONCAT(l.url, '.$db->quote('/').')' : 'l.url || '.$db->quote('/');
-			foreach($url_bits as $i => $bit) {
-				$str .= $bit.'/';
-				$sql .= (($i) ? '+' : '').'
-				(CASE WHEN SUBSTRING('.$concat.' FROM 1 FOR '.strlen($str).') = '.$db->quote($str).' THEN 1 ELSE 0 END)';
+			if (isset($this->_tmp['urls'][$assetid][$base_url])) {
+				// use the cached version
+				$return_urls[$assetid] = $this->_tmp['urls'][$assetid][$base_url];
 			}
+		}
 
-			$sql .= '
-			) as weighting
-			FROM sq_asset_lookup l INNER JOIN sq_asset_url u ON l.root_urlid = u.urlid
-			WHERE l.assetid = '.$db->quote($assetid).'
-			ORDER BY weighting DESC, l.url
-			LIMIT 1';
-			$result = $db->getRow($sql);
-			if (DB::isError($result)) {
-				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
-				return '';
-			}
+		// now hit the database for the rest of them
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		
+		$the_rest = array_diff($assetids, array_keys($return_urls));
+		$assetid_cond_array = $the_rest;
+		for($i = 0; $i < count($the_rest); $i++) $assetid_cond_array[$i] = $db->quote($assetid_cond_array[$i]);
+		$assetid_cond = 'IN ('.implode(', ', $assetid_cond_array).')';
 
-			if (empty($result)) {
+		$url_bits = explode('/', preg_replace('/\\/+$/', '', $base_url));
+
+		$sql = 'SELECT l.assetid, l.url, u.http, (';
+		$str = '';
+		// so much for SQL standards...
+		$concat = ($db->phptype == 'mysql') ? 'CONCAT(l.url, '.$db->quote('/').')' : 'l.url || '.$db->quote('/');
+		foreach($url_bits as $i => $bit) {
+			$str .= $bit.'/';
+			$sql .= (($i) ? '+' : '').'
+			(CASE WHEN SUBSTRING('.$concat.' FROM 1 FOR '.strlen($str).') = '.$db->quote($str).' THEN 1 ELSE 0 END)';
+		}
+
+		$sql .= '
+		) as weighting
+		FROM sq_asset_lookup l INNER JOIN sq_asset_url u ON l.root_urlid = u.urlid
+		WHERE l.assetid '.$assetid_cond.'
+		ORDER BY weighting DESC, l.url';
+		$result = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_DEFAULT, true);
+		if (DB::isError($result)) {
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+			return '';
+		}
+
+		foreach ($the_rest as $assetid) {
+			if (!isset($result[$assetid])) {
 				$this->_tmp['urls'][$assetid][$base_url] = '';
 			} else {
-				$this->_tmp['urls'][$assetid][$base_url] = (($result['http']) ? 'http' : 'https').'://'.$result['url'];
+				$this->_tmp['urls'][$assetid][$base_url] = (($result[$assetid][0][1]) ? 'http' : 'https').'://'.$result[$assetid][0][0];
 			}
+			$return_urls[$assetid] = $this->_tmp['urls'][$assetid][$base_url];
+		}
 
-		}// end if !isset
-
-		return $this->_tmp['urls'][$assetid][$base_url];
+		if ($return_array) {
+			return $return_urls;
+		} else {
+			return $return_urls[$in_assetid];
+		}
 
 	}//end getAssetURL()
 
@@ -1020,20 +1047,44 @@ class Asset_Manager extends Resolve_Object
 	/**
 	* Returns the href for an asset closest to the $base_url, but relative to the current url
 	*
-	* @param int	$assetid	the id of the asset you want the href for
-	* @param string	$base_url	the url that we are want to match closest to
+	* @param int | array(int)	$assetids	the id of the asset you want the href for or an array
+	*										for a whole bunch of them
+	* @param string				$base_url	the url that we are want to match closest to
 	*
 	* @return string
 	* @access public
 	*/
-	function getAssetHref($assetid, $base_url=null)
+	function getAssetHref($assetids, $base_url=null)
 	{
 		if (is_null($base_url)) $base_url = current_url(false);
-		if (!isset($this->_tmp['hrefs'][$assetid])) $this->_tmp['hrefs'][$assetid] = Array();
 
+		$return_array = true;
+		$in_assetid = 0;
+		if (!is_array($assetids)) {
+			$in_assetid = $assetids;
+			$assetids = Array($assetids);
+			$return_array = false;
+		}
+		if (is_null($base_url)) $base_url = current_url(false);
 		$base_url = strip_url($base_url, true);
-		if (!isset($this->_tmp['hrefs'][$assetid][$base_url])) {
-			if ($url = $this->getAssetURL($assetid, $base_url)) {
+
+		$return_hrefs = Array();
+
+		// work out if any of these are cached
+		foreach ($assetids as $assetid) {
+			if (!isset($this->_tmp['hrefs'][$assetid])) $this->_tmp['hrefs'][$assetid] = Array();
+
+			if (isset($this->_tmp['hrefs'][$assetid][$base_url])) {
+				// use the cached version
+				$return_hrefs[$assetid] = $this->_tmp['hrefs'][$assetid][$base_url];
+			}
+		}
+
+		$the_rest = array_diff($assetids, array_keys($return_hrefs));
+		$urls = $this->getAssetURL($the_rest, $base_url);
+
+		foreach ($urls as $assetid => $url) {
+			if ($url != '') {
 				require_once SQ_FUDGE_PATH.'/general/www.inc';
 				// deliberatley don't strip url here because if there is any trailing slashes then 
 				// relative_href will work to accomodate them
@@ -1041,8 +1092,15 @@ class Asset_Manager extends Resolve_Object
 			} else {
 				$this->_tmp['hrefs'][$assetid][$base_url] = '';
 			}
-		}// end if !isset
-		return $this->_tmp['hrefs'][$assetid][$base_url];
+			$return_hrefs[$assetid] = $this->_tmp['hrefs'][$assetid][$base_url];
+		}
+
+		if ($return_array) {
+			return $return_hrefs;
+		} else {
+			return $return_hrefs[$in_assetid];
+		}
+
 	}//end getAssetHref()
 
 }//end class
