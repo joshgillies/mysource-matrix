@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.63 2004/12/06 14:38:12 brobertson Exp $
+* $Id: general.inc,v 1.64 2005/01/17 17:44:20 brobertson Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.63 $
+* @version $Revision: 1.64 $
 * @package MySource_Matrix
 */
 
@@ -172,7 +172,7 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 				}
 
 				// Uncomment below for debugging from cmdline
-				error_log($str."\n".$bt_str."\n".str_repeat("=+", 50)."\n", 3, SQ_DATA_PATH.'/private/logs/back_traces.log');
+				#error_log($str."\n".$bt_str."\n".str_repeat("=+", 50)."\n", 3, SQ_DATA_PATH.'/private/logs/back_traces.log');
 
 				break;
 
@@ -594,5 +594,46 @@ function array_get_index($array, $index, $default=null)
 
 }//end array_get_index()
 
+
+//--        INTERFACES (IMPLENTATION) FNS        --//
+
+/**
+* Registers a class as implementing a certain interface
+* This is so that we can do things like implements_interface() below
+*
+* @param string	$class			the class name (lowercase)
+* @param mixed	$interface		the interface(s) (all lowercase) we are implementing, either a string or an array
+*
+* @return void
+* @access public
+*/
+function register_implementation($class, $interface)
+{
+	if (!isset($GLOBALS['SQ_IMPLEMENTATION'])) $GLOBALS['SQ_IMPLEMENTATION'] = Array();
+	$GLOBALS['SQ_IMPLEMENTATION'][$class] = (is_array($interface)) ? $interface : Array($interface);
+
+}//end register_implentation()
+
+
+/**
+* Returns whether the class that the passed object is an instance of implements a certain interface
+*
+* @param mixed	$class			the class name or object to check (either string or object
+* @param string	$interface		the interface that is wanted
+*
+* @return boolean
+* @access public
+*/
+function implements_interface($class, $interface)
+{
+	if (is_object($class)) $class = get_class($class);
+	elseif (!class_exists($class)) trigger_error('Unable to check if "'.$class.'" implements an interface when it hasn\'t been declared', E_USER_ERROR);
+	do {
+		if (isset($GLOBALS['SQ_IMPLEMENTATION'][$class]) && in_array($interface, $GLOBALS['SQ_IMPLEMENTATION'][$class])) return true;
+	} while ($class = get_parent_class($class));
+
+	return false;
+
+}//end implements_interface()
 
 ?>
