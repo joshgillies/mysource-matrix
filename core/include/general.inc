@@ -28,9 +28,24 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 	// if the function had '@' prepended, do nothing
 	if (!error_reporting()) return;
 
+	static $num_errors = 0;
+	$num_errors++;
+
 	// Strip out the file path begining
 	$err_file = str_replace(SQ_SYSTEM_ROOT, '[SYSTEM_ROOT]', $err_file);
 	$err_msg  = str_replace(SQ_SYSTEM_ROOT, '[SYSTEM_ROOT]', $err_msg);
+
+	// if this is a serious error, do a backtrace
+	$bt_str = '';
+	if ((E_USER_ERROR | E_ERROR) & $err_no) {
+		ob_start();
+		$bt = debug_backtrace();
+		print_r($bt);
+		$bt_str = ob_get_contents();
+		ob_end_clean();
+		unset($bt);
+		$bt_str   = str_replace(SQ_SYSTEM_ROOT, '[SYSTEM_ROOT]', $bt_str);
+	}
 
 	$err_name = '';
 	$bg_colour = '';
@@ -96,6 +111,11 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 
 	} else {
 
+		// if they haven't put tags in the err msg assume it to be plain text
+		if ($err_msg == strip_tags($err_msg)) {
+			$err_msg = nl2br(htmlspecialchars($err_msg));
+		}
+
 		// if we are in the frontend and we're not supposed to see the errors return;
 		if (!SQ_IN_BACKEND && SQ_CONF_ERRORS_HIDE_FRONTEND) {
 			return;
@@ -103,11 +123,6 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 
 		$error_title = 'background-color: '.$bg_colour.'; font-size: 14px; font-weight: bold; color: #ffffff; font-family: verdana, arial, sans-serif; vertical-align: top;';
 		$error_data  = 'background-color: '.$bg_colour.'; font-size: 12px; color: #ffffff; font-family: verdana, arial, sans-serif; vertical-align: top;';
-
-		// if they haven't put tags in the err msg assume it to be plain text
-		if ($err_msg == strip_tags($err_msg)) {
-			$err_msg = nl2br(htmlspecialchars($err_msg));
-		}
 
 		?>
 			</script></table></table></table></table><br/>
@@ -130,6 +145,33 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 								<td style="<?php echo $error_title; ?>" align="right">Message:</td>
 								<td style="<?php echo $error_data; ?>" colspan="3"><?php echo $err_msg; ?></td>
 							</tr>
+		<?php 
+		// if there is a backtrace string create a simple bit of JS to allow it to be popped up into a new window
+		if ($bt_str) { 
+		?> 
+							<tr>
+								<td style="<?php echo $error_title; ?>" align="right">Backtrace:</td>
+								<td style="<?php echo $error_data; ?>" colspan="3">
+									<script language="JavaScript" type="text/javascript">
+										<!-- 
+
+											function print_backtrace_<?php echo $num_errors; ?>() {
+												alert_win = window.open('', 'backtrace_window_<?php echo $num_errors; ?>');
+												alert_win.document.open();
+												alert_win.document.writeln("<html><body><pre>");
+												alert_win.document.writeln("<?php echo str_replace("\n", '\\n', addslashes(htmlspecialchars($bt_str))); ?>");
+												alert_win.document.writeln("</pre></body></html>");
+												alert_win.document.close();
+											}
+
+										// -->
+									</script>
+									<a href="javascript: print_backtrace_<?php echo $num_errors; ?>();" style="color: #ffffff;">Show</a>
+								</td>
+							</tr>
+		<?php 
+		} // end if 
+		?> 
 						</table>
 					</td>
 				</tr>
@@ -138,7 +180,7 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 
 	}// end if
 
-	if ($err_no == E_USER_ERROR) {
+	if ((E_USER_ERROR | E_ERROR) & $err_no) {
 		exit(1);
 	}
 
