@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.21 2004/08/27 00:41:43 tbarrett Exp $
+* $Id: calendar_event_recurring.inc,v 1.22 2004/08/27 02:57:41 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.21 $ - 1.0
+* @version $Revision: 1.22 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -67,23 +67,35 @@ class Calendar_Event_Recurring extends Calendar_Event
 		return $timestamp - strtotime(gmdate('Y-m-d 00:00:00', $timestamp).' GMT');
 	}
 
+
 	/**
-	* Determines the next occurrence of an event after a certain time
+	* Determines the next occurrence of an event after a certain time.
 	*
-	* @param int	$after	the time for which we want the first occurrence after
-	*						if NULL, reverts to current server time
+	* This function can be called on an object (with just the first parameter) or statically
+	* (with all the parameters)
+	*
+	* @param int	$after		the time for which we want the first occurrence after
+	*							if NULL, reverts to current server time
+	* @param int	$start_ts	The timestamp at which the event's 1st instance started 
+	*							(uses this object's if absent)
+	* @param string	$freq_type	3-letter frequency code (uses this object's if absent)
+	* @param int	$interval	The frequency interval (uses this object's if absent)
 	*
 	* @return int	a UNIX timestamp representing the next occurrence
 	* @access public
 	*/
-	function getFirstOccurrenceAfter($after=null)
+	function getFirstOccurrenceAfter($after=null, $start_ts=null, $freq_type=null, $interval=null, $stop_ts=null)
 	{
 		if (is_null($after)) $after = time();
-		$freq_type = substr($this->attr('frequency'), 0, 3);
-		$interval = substr($this->attr('frequency'), 3);
-		if (!$interval)	$interval = 1;
+		if (is_null($start_ts)) {
+			$freq_type = substr($this->attr('frequency'), 0, 3);
+			$interval = substr($this->attr('frequency'), 3);
+			if (!$interval)	$interval = 1;
+			$start_ts = strtotime($this->attr('start_date').' GMT');
+			$stop_ts = iso8601_ts($this->attr('stop_date'));
+		}
+
 		$seconds_per_day = 60 * 60 * 24;
-		$start_ts = strtotime($this->attr('start_date').' GMT');
 		if ($after < $start_ts)
 			return $start_ts;
 
@@ -118,7 +130,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 					increment_month($res_month, $res_year, ($interval - ($month_diff % $interval)));
 				} elseif (((int)gmdate('j', $after) > (int)gmdate('j', $start_ts))) {
 					increment_month($res_month, $res_year, $interval);
-				} elseif((((int)gmdate('j', $after) == (int)gmdate('j', $start_ts)) && ($this->_secondsToday($start_ts) < $this->_secondsToday($after)))) {
+				} elseif((((int)gmdate('j', $after) == (int)gmdate('j', $start_ts)) && (Calendar_Event_Recurring::_secondsToday($start_ts) < Calendar_Event_Recurring::_secondsToday($after)))) {
 					increment_month($res_month, $res_year, $interval);
 				}
 				while (gmdate('j', $start_ts) > days_in_month($res_month, $res_year))
@@ -140,7 +152,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 				} elseif ((int)((gmdate('j', $after) - 1) / 7) > $target_week_of_month) {
 					// we're in a valid month, but too late in it, so go to next valid month
 					increment_month($res_month, $res_year, $interval);
-				} elseif (((int)((gmdate('j', $after) - 1) / 7) == $target_week_of_month) && (gmdate('w', $after) == $target_day_of_week) && ($this->_secondsToday($after) > $this->_secondsToday($start_ts))) {
+				} elseif (((int)((gmdate('j', $after) - 1) / 7) == $target_week_of_month) && (gmdate('w', $after) == $target_day_of_week) && (Calendar_Event_Recurring::_secondsToday($after) > Calendar_Event_Recurring::_secondsToday($start_ts))) {
 					// we're on the right day of a valid month, but too late in the day, 
 					// so go to next valid month
 					increment_month($res_month, $res_year, $interval);
@@ -171,7 +183,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 					increment_month($res_month, $res_year, $interval - ($month_diff % $interval));
 				} elseif ((days_in_month($res_month, $res_year) - (int)gmdate('j', $after)) < $target_days_from_end) {
 					increment_month($res_month, $res_year, $interval);
-				} elseif (((days_in_month($res_month, $res_year) - (int)gmdate('j', $after)) == $target_days_from_end) && ($this->_secondsToday($after) > $this->_secondsToday($start_ts))) {
+				} elseif (((days_in_month($res_month, $res_year) - (int)gmdate('j', $after)) == $target_days_from_end) && (Calendar_Event_Recurring::_secondsToday($after) > Calendar_Event_Recurring::_secondsToday($start_ts))) {
 					increment_month($res_month, $res_year, $interval);
 				}
 
@@ -196,7 +208,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 				} elseif ((int)((days_in_month(gmdate('n', $after), gmdate('Y', $after)) - gmdate('j', $after)) / 7) < $target_weeks_from_end) {
 					// we're too far into this month, so go to the next valid month
 					increment_month($res_month, $res_year, $interval);
-				} elseif (((int)((days_in_month(gmdate('n', $after), gmdate('Y', $after)) - gmdate('j', $after)) / 7) == $target_weeks_from_end) && (gmdate('w', $after) == $target_day_of_week) && ($this->_secondsToday($after) > $this->_secondsToday($start_ts))) {
+				} elseif (((int)((days_in_month(gmdate('n', $after), gmdate('Y', $after)) - gmdate('j', $after)) / 7) == $target_weeks_from_end) && (gmdate('w', $after) == $target_day_of_week) && (Calendar_Event_Recurring::_secondsToday($after) > Calendar_Event_Recurring::_secondsToday($start_ts))) {
 					// we're on the right day but too late so go to next valid month
 					increment_month($res_month, $res_year, $interval);
 				} elseif ((int)((days_in_month(gmdate('n', $after), gmdate('Y', $after)) - gmdate('j', $after)) / 7) == $target_weeks_from_end) {
@@ -218,7 +230,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 				$result =  strtotime($res_year.'-'.sprintf('%02d', $res_month).'-'.$res_day.gmdate(' H:i:00', $start_ts).' GMT');
 			break;
 		}
-		if ($result > iso8601_ts($this->attr('stop_date'))) {
+		if (($stop_ts) && ($result > $stop_ts)) {
 			return false;
 		} else {
 			return $result;
