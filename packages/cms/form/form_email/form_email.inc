@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email.inc,v 1.20 2004/06/22 06:12:05 lwright Exp $
+* $Id: form_email.inc,v 1.21 2004/06/28 02:22:59 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -148,8 +148,6 @@ class Form_Email extends Form
 	*/
 	function mailReceipt()
 	{
-		$email_format = $this->attr('receipt_emails_format');
-
 		$email_field_assetid = $this->attr('receipt_field');
 
 		if (empty($email_field_assetid)) {
@@ -175,7 +173,7 @@ class Form_Email extends Form
 
 			$reps = Array('receipt_address' => $address, 'form_summary_html' => $body, 'form_summary_text' => $body_text, 'form_info_html' => $info, 'form_info_text' => $info_text);
 
-			$email_format_attr = $this->getAttribute('receipt_emails_format');
+			$email_format = $this->attr('receipt_emails_format');
 
 			// append the 'To:' address with the address from the e-mail field
 			$current_value = @unserialize($email_format_attr->value);
@@ -209,12 +207,10 @@ class Form_Email extends Form
 	{
 		$email_format = $this->attr('recipient_emails_format');
 
-		// return false if there is no-one to send to
-		if (empty($email_format['to'])) return false;
+		$current_value = @unserialize($email_format->value);
 
-		// get the form info
-		$info = $this->getFormInfo(true);
-		$info_text = $this->getFormInfo(false);
+		// return false if there is no-one to send to
+		if (empty($current_value['to'])) return false;
 
 		// get the form summary
 		ob_start();
@@ -230,10 +226,7 @@ class Form_Email extends Form
 
 		$reps = Array('form_summary_html' => $body, 'form_summary_text' => $body_text, 'form_info_html' => $info, 'form_info_text' => $info_text);
 
-		$email_format = $this->getAttribute('recipient_emails_format');
-
 		// substitute generic keywords with email format-specific keywords
-		$current_value = @unserialize($email_format->value);
 		$current_value['html_format'] = str_replace(
 			Array('%form_info%', '%form_summary%'), 
 			Array('%form_info_html%', '%form_summary_html%'), $current_value['html_format']);
@@ -258,8 +251,6 @@ class Form_Email extends Form
 	*/
 	function sendToFriends()
 	{
-		$email_format = $this->attr('staf_format');
-
 		$email_field_assetid = $this->attr('staf_field');
 
 		if (empty($email_field_assetid)) {
