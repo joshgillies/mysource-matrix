@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_general.inc,v 1.4 2004/09/03 06:56:29 arailean Exp $
+* $Id: bodycopy_general.inc,v 1.5 2004/09/03 07:40:42 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -52,13 +52,15 @@
 function print_bodycopy_icon($href, $heading, $desc, $icon, $alt='', $extra='', $width='16', $height='16')
 {
 	$path = sq_web_path('data');
-	$tag ="
-	<a href='$href'>
-	<script language='JavaScript' type='text/javascript'>
+
+	$href = str_replace('"', '\"', $href);
+
+	$tag = "
+	<a href=\"$href\">
+	<script language=\"JavaScript\" type=\"text/javascript\">
 		sq_print_icon('$path/asset_types/bodycopy/images/icons/$icon.png', '$width', '$height', '');
 	</script>
-	</a>
-	";
+	</a>";
 
 	$tag_with_tooltip = make_tooltip($tag, $desc, $heading);
 
