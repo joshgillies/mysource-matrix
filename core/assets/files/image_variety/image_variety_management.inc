@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety_management.inc,v 1.2 2005/01/17 18:01:49 brobertson Exp $
+* $Id: image_variety_management.inc,v 1.3 2005/01/19 12:40:33 brobertson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -46,10 +46,17 @@ class Image_Variety_Management extends Asset_Management
 	{
 		$this->Asset_Management($pm);
 
-		$this->vars = Array('name' => Array(
+		$this->vars = Array(
+							'name' => Array(
 								'added'     => '0.0.1',
 								'type'      => 'text',
 								'default'   => '',
+							),
+							'filename' => Array(
+								'added'       => '0.0.1',
+								'type'        => 'text',
+								'default'     => '',
+								'description' => 'Holds the current filename, because when the filename changes we need to know what the old extension was.',
 							),
 							'width' => Array(
 								'added'     => '0.0.1',

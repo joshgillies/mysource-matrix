@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_edit_fns.inc,v 1.31 2005/01/18 11:22:11 brobertson Exp $
+* $Id: image_edit_fns.inc,v 1.32 2005/01/19 12:40:33 brobertson Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -119,6 +119,8 @@ class Image_Edit_Fns extends File_Edit_Fns
 				return false;
 			}
 		}
+
+		$this->_recreateVarietyImages($asset);
 
 		return true;
 
@@ -522,6 +524,31 @@ class Image_Edit_Fns extends File_Edit_Fns
 		return true;
 
 	}//end _paintApplet()
+
+	
+	/**
+	* Regenerates the variety images after an upload or fix
+	*
+	* @param object Image				&$asset	the file asset
+	* @param object Backend_Outputter	&$o		the backend outputter
+	* @param string						$prefix	prefix for form elements
+	*
+	* @access private
+	* @return void
+	*/
+	function _recreateVarietyImages(&$asset)
+	{
+		if (!empty($varieties)) {
+			foreach($varieties['data'] as $varid => $data)  {
+				$variety = &$asset->getAsset($varid);
+				if (is_null($variety)) continue;
+				$asset->saveVariety($variety, true, false);
+			}// end foreach
+		}// end if
+
+		$asset->saveAttributes();
+
+	}//end _recreateVarietyImages()
 
 
 }//end class

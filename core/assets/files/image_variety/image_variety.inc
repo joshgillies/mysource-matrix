@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety.inc,v 1.3 2005/01/19 05:00:20 gsherwood Exp $
+* $Id: image_variety.inc,v 1.4 2005/01/19 12:40:33 brobertson Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -102,9 +102,15 @@ class Image_Variety extends Asset
 	*/
 	function setAttrValue($name, $value)
 	{
-		if ($name == 'name' && trim($this->attr('name')) != '') {
-			trigger_error('You cannot change the name of a variety', E_USER_WARNING);
-			return false;
+		if ($name == 'name') {
+			if (trim($this->attr('name')) != '') {
+				trigger_error('You cannot change the name of a variety', E_USER_WARNING);
+				return false;
+			} else { 
+				// make sure the name is valid for a web path
+				require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+				list($value) = make_valid_web_paths(Array($value));
+			}
 		}
 
 		return parent::setAttrValue($name, $value);
@@ -199,7 +205,7 @@ class Image_Variety extends Asset
 
 
 	/**
-	* Create the image file from our parents original
+	* (Re)Create the image file from our parents original
 	*
 	* @access public
 	* @return boolean
@@ -208,6 +214,7 @@ class Image_Variety extends Asset
 	{
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 		require_once SQ_FUDGE_PATH.'/image/image_manip.inc';
+		$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
 
 		if (!is_dir($this->data_path) && !create_directory($this->data_path)) return false;
 
@@ -221,10 +228,12 @@ class Image_Variety extends Asset
 
 		$s_file = $source_image_info['path'];
 
-		$d_filename = $this->name.'.'.$ext;
-		$d_file     = $this->data_path.'/'.$d_filename;
-		$d_width    = (int) $this->attr('width');
-		$d_height   = (int) $this->attr('height');
+		$d_old_filename = $this->attr('filename');
+		$d_new_filename = $this->name.'.'.$ext;
+		$d_old_file     = $this->data_path.'/'.$d_old_filename;
+		$d_new_file     = $this->data_path.'/'.$d_new_filename;
+		$d_width        = (int) $this->attr('width');
+		$d_height       = (int) $this->attr('height');
 
 		if ($d_width < 0 || $d_height < 0 || ($d_width == 0 && $d_height == 0)) {
 			trigger_error('At least one of the height or width needs to be greater than zero', E_USER_WARNING);
@@ -236,33 +245,47 @@ class Image_Variety extends Asset
 		elseif ($d_height == 0) $d_height = round((int) $source_image_info['height'] * ($d_width  / (int) $source_image_info['width']));
 
 
-		// make sure we have the latest version checked out if we are modifying the file
-		$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
-		$up_to_date = $fv->upToDate($d_file);
+		trigger_error(__FUNCTION__.'::'.__LINE__.' >>> '.$d_old_filename.' != '.$d_new_filename);
 
-		if ($up_to_date & FUDGE_FV_OLD_VERSION) {
-			if (!$fv->checkOut($this->data_path_suffix.'/'.$d_filename, $this->data_path)) {
-				trigger_error('Update failed checking-out latest version of file', E_USER_WARNING);
-				return false;
+
+		// if the filename has changed then we need to remove the old file
+		if ($d_old_filename != $d_new_filename) {
+			$this->deleteImage();
+
+		} else {
+			// make sure we have the latest version checked out if we are modifying the file
+			$up_to_date = $fv->upToDate($d_new_file);
+			if ($up_to_date & FUDGE_FV_OLD_VERSION) {
+				if (!$fv->checkOut($this->data_path_suffix.'/'.$d_new_filename, $this->data_path)) {
+					trigger_error('Update failed checking-out latest version of file', E_USER_WARNING);
+					return false;
+				}
 			}
-		}
 
-		if (!Image_Manip::resize($s_file, $d_file, $d_width, $d_height)) return false;
+		}// endif
 
-		$up_to_date = $fv->upToDate($d_file);
+		if (!Image_Manip::resize($s_file, $d_new_file, $d_width, $d_height)) return false;
+
+		$up_to_date = $fv->upToDate($d_new_file);
 
 		// file not in repository
 		if ($up_to_date & FUDGE_FV_NOT_CHECKED_OUT) {
-			if (!$fv->add($this->data_path_suffix, $d_file, '', false)) return false;
+			if (!$fv->add($this->data_path_suffix, $d_new_file, '', false)) return false;
 
-			if (!$fv->checkOut($this->data_path_suffix.'/'.$d_filename, $this->data_path)) {
+			if (!$fv->checkOut($this->data_path_suffix.'/'.$d_new_filename, $this->data_path)) {
 				trigger_error('Update failed checking-out latest version of file', E_USER_WARNING);
 				return false;
 			}
 
 		} elseif ($up_to_date & FUDGE_FV_MODIFIED) {
-			if (!$fv->commit($d_file, '', false)) return false;
+			if (!$fv->commit($d_new_file, '', false)) return false;
 
+		}
+
+		// if the filename has changed then we need to upadte the look ups
+		if ($d_old_filename != $d_new_filename) {
+			if (!$this->setAttrValue('filename', $d_new_filename)) return false;
+			if (!$this->updateLookups($image->usePublicPath())) return false;
 		}
 
 		return true;
@@ -283,22 +306,18 @@ class Image_Variety extends Asset
 
 		if (!is_dir($this->data_path)) return true;
 
-		$image = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
-		if (is_null($image)) return false;
-
-		$source_image_info = $image->getExistingFile();
-
-		$ext = get_file_type($image->name);
-		$d_filename = $this->name.'.'.$ext;
+		$d_filename = $this->attr('filename');
 		$d_file     = $this->data_path.'/'.$d_filename;
+
+		if (empty($d_filename)) return true;
+
+		if (!$this->setAttrValue('filename', '')) return false;
 
 		// make sure we have the latest version checked out if we are modifying the file
 		$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
 		$up_to_date = $fv->upToDate($d_file);
 
-		$this->_tmp['deleting_image'] = true;
-		$updated = $this->updateLookups();
-		$this->_tmp['deleting_image'] = false;
+		$updated = $this->updateLookups(false);
 		if (!$updated) return false;
 
 		// file not in repository, hmm, something must have gone wrong, let's see if there is a file there and remove it.
@@ -333,14 +352,10 @@ class Image_Variety extends Asset
 	{
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
-		$image = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
-		if (is_null($image)) return false;
-
 		$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
 
-		$ext = get_file_type($image->name);
-
-		$filename = $this->name.'.'.$ext;
+		$filename = $this->attr('filename');
+		if (!$filename) continue;
 		$unrestricted = $this->data_path_public.'/'.$filename;
 
 		// if we should be storing our file in the public
@@ -380,7 +395,7 @@ class Image_Variety extends Asset
 	* @access public
 	* @see Asset::updateLookups(), Asset::saveWebPaths()
 	*/
-	function updateLookups($public=false)
+	function updateLookups($public)
 	{
 		// if we aren't meant to be having the public paths, let our parent run as normal
 		if (!$public) {
@@ -412,18 +427,13 @@ class Image_Variety extends Asset
 			return false;
 		}
 
-		// if we are deleting the image, then there is no need to add to the urls
-		if (!empty($this->_tmp['deleting_image'])) {
+		$filename = $this->attr('filename');
+
+		// if there is no filename there is nothing more for us to do
+		if (!$filename) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			return true;
 		}
-
-
-		$image = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
-		if (is_null($image)) return false;
-
-		$ext = get_file_type($image->name);
-		$filename = $this->name.'.'.$ext;
 
 		$web_path = str_replace(sq_web_path('root_url').'/', '', $this->getWebDataPath()).'/'.$filename;
 
@@ -514,19 +524,9 @@ class Image_Variety extends Asset
 	*/
 	function getWebPaths()
 	{
-		// if we are deleting the image....don't pass the paths back because we don't have any any more
-		if (!empty($this->_tmp['deleting_image'])) return Array();
-		if (!isset($this->_tmp['paths'])) {
-
-			$image = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
-			if (is_null($image)) return false;
-
-			$ext = get_file_type($image->name);
-			$this->_tmp['paths'] = Array($this->name.'.'.$ext);
-
-		}// end if
-
-		return $this->_tmp['paths'];
+		$filename = $this->attr('filename');
+		if ($filename) return Array($filename);
+		else return Array();
 
 	}//end getWebPaths()
 
@@ -551,7 +551,7 @@ class Image_Variety extends Asset
 		// asset's getExistingFile() function
 		$this->vars['name']['value'] = $filename;
 
-		$info = image::getExistingFile();
+		$info = Image::getExistingFile();
 		if (!empty($info['path'])) {
 			$size = getimagesize($info['path']);
 			$info['width']  = $size[0];
@@ -581,13 +581,11 @@ class Image_Variety extends Asset
 				$image = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
 				if (is_null($image)) exit();
 
-				$file_info = $this->getExistingFile();
-
 				include_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
 				$ouput = Array();
-				$output['alt'] = $image->attr('alt');
-				$output['width'] = $file_info['width'];
-				$output['height'] = $file_info['height'];
+				$output['alt']    = $image->attr('alt');
+				$output['width']  = $this->attr('width');
+				$output['height'] = $this->attr('height');
 				echo var_serialise($output);
 				exit();
 			default :

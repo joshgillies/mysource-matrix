@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.23 2005/01/19 05:00:20 gsherwood Exp $
+* $Id: image.inc,v 1.24 2005/01/19 12:40:33 brobertson Exp $
 *
 */
 
@@ -263,13 +263,16 @@ class Image extends File
 	* Creates/Updates a variety for this image
 	* If the variety has an ID then it must belong to this asset in order to be saved.
 	*
-	* @param object Image_Variety	$variety		the variety to save
-	* @param boolean				$recreate_image	whether to generate the image file or not
+	* @param object Image_Variety	$variety			the variety to save
+	* @param boolean				$recreate_image		whether to generate the image file or not
+	* @param boolean				$save_attrs			whether to run saveAttributes() or not, 
+	*													usually you only would set this to false if you are running
+	*													this multiple times and only want to save once at the end
 	*
 	* @return boolean
 	* @access public
 	*/
-	function saveVariety($variety, $recreate_image=true)
+	function saveVariety($variety, $recreate_image=true, $save_attrs=true)
 	{
 		if (!$this->writeAccess('attributes')) {
 			trigger_error('Permission denied to add an Image Variety to "'.$this->name.'" (#'.$this->id.')', E_USER_WARNING);
@@ -283,8 +286,6 @@ class Image extends File
 			trigger_error('Unable to save variety. It must have a name', E_USER_WARNING);
 			return false;
 		}
-
-		$new_variety = false;
 
 		$varieties = $this->attr('varieties');
 
@@ -319,8 +320,6 @@ class Image extends File
 
 			}// endif
 
-			$new_variety = true;
-
 		}// endif
 
 		if (!isset($varieties['data'])) $varieties['data'] = Array();
@@ -337,17 +336,21 @@ class Image extends File
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// create the actual scaled image
-		if ($recreate_image && !$variety->createImage()) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
-			
-		if (!$this->saveAttributes()) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
+		if ($recreate_image) {
+			if (!$variety->createImage()) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return false;
+			}
 
-		if ($new_variety && !$this->updateLookups()) {
+			// Now get the variables again because createImage() can update stuff
+			foreach($variety->vars as $attr_name => $attr_data) {
+				$varieties['data'][$varietyid][$attr_name] = $attr_data['value'];
+			}
+			if (!$this->setAttrValue('varieties', $varieties)) return false;
+
+		}
+		
+		if ($save_attrs && !$this->saveAttributes()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
@@ -446,7 +449,7 @@ class Image extends File
 
 	}//end _checkFileState()
 
-
+	
 	/**
 	* Called to force an update of this assets lookup information
 	*
@@ -464,7 +467,7 @@ class Image extends File
 			return false;
 		}
 
-		$use_public_path = ($this->attr('allow_unrestricted') && $this->effectiveUnrestricted() && !($this->status & SQ_SC_STATUS_SAFE_EDITING));
+		$use_public_path = $this->usePublicPath();
 
 		$varieties = $this->attr('varieties');
 		if (!empty($varieties)) {
