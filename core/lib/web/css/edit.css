@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.css,v 1.30 2003/12/18 04:32:39 gsherwood Exp $
+* $Id: edit.css,v 1.31 2003/12/30 05:26:43 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -84,7 +84,6 @@ td.sq-backend-nav-history {
 /* GENERAL STYLES */
 
 .sq-backend-data, .sq-backend-data p, td.sq-backend-data, .sq-form-field {
-	background-color:	#FFFFFF;
 	color:				#000000;
 	font-family:		Arial, Verdana, Helvetica, sans-serif;
 	font-size:			10px;
