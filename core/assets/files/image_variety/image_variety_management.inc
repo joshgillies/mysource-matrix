@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety_management.inc,v 1.3 2005/01/19 12:40:33 brobertson Exp $
+* $Id: image_variety_management.inc,v 1.4 2005/02/03 18:57:17 brobertson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -48,25 +48,34 @@ class Image_Variety_Management extends Asset_Management
 
 		$this->vars = Array(
 							'name' => Array(
-								'added'     => '0.0.1',
-								'type'      => 'text',
-								'default'   => '',
+								'added'		=> '0.0.1',
+								'type'		=> 'text',
+								'default'	=> '',
 							),
 							'filename' => Array(
-								'added'       => '0.0.1',
-								'type'        => 'text',
-								'default'     => '',
-								'description' => 'Holds the current filename, because when the filename changes we need to know what the old extension was.',
+								'added'			=> '0.0.1',
+								'type'			=> 'text',
+								'default'		=> '',
+								'description'	=> 'Holds the current filename, because when the filename changes we need to know what the old extension was.',
 							),
 							'width' => Array(
-								'added'     => '0.0.1',
-								'type'      => 'int',
-								'default'   => 0,
+								'added'		=> '0.0.1',
+								'type'		=> 'int',
+								'default'	=> 0,
 							),
 							'height' => Array(
-								'added'     => '0.0.1',
-								'type'      => 'int',
-								'default'   => 0,
+								'added'		=> '0.0.1',
+								'type'		=> 'int',
+								'default'	=> 0,
+							),
+							'using_uploaded' => Array(
+								'added'			=> '0.0.1',
+								'type'			=> 'boolean',
+								'default'		=> false,
+								'parameters'    => Array(
+									'allow_empty'	=> false,
+								),
+								'description'	=> 'When True the filename attr refers to a file that has been uploaded specifically for this variety. i.e. it is NOT a scaled version of the original image',
 							),
 						);
 	}//end constructor

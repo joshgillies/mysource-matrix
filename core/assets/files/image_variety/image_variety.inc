@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety.inc,v 1.8 2005/01/20 13:03:54 brobertson Exp $
+* $Id: image_variety.inc,v 1.9 2005/02/03 18:57:17 brobertson Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -141,9 +141,11 @@ class Image_Variety extends Asset
 			return false;
 		}
 
-		if ((int) $this->attr('width') < 0 || (int) $this->attr('height') < 0 || ((int) $this->attr('width') == 0 && (int) $this->attr('height') == 0)) {
-			trigger_error('At least one of the height or width needs to be greater than zero', E_USER_WARNING);
-			return false;
+		if (!$this->attr('using_uploaded')) {
+			if ((int) $this->attr('width') < 0 || (int) $this->attr('height') < 0 || ((int) $this->attr('width') == 0 && (int) $this->attr('height') == 0)) {
+				trigger_error('At least one of the height or width needs to be greater than zero', E_USER_WARNING);
+				return false;
+			}
 		}
 
 		$image = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
@@ -212,6 +214,9 @@ class Image_Variety extends Asset
 	*/
 	function createImage()
 	{
+		// nothing to do if we are using an custom uploaded file
+		if ($this->attr('using_uploaded')) return true;
+
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 		require_once SQ_FUDGE_PATH.'/image/image_manip.inc';
 		$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
@@ -286,7 +291,6 @@ class Image_Variety extends Asset
 
 		return true;
 
-
 	}// end createImage()
 
 
@@ -351,7 +355,7 @@ class Image_Variety extends Asset
 		$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
 
 		$filename = $this->attr('filename');
-		if (!$filename) return false;
+		if (!$filename) return true;
 		$unrestricted = $this->data_path_public.'/'.$filename;
 
 		// if we should be storing our file in the public
@@ -620,8 +624,9 @@ class Image_Variety extends Asset
 	*/
 	function printImageTag($alt, $title, $return=false)
 	{
-		$filename = $this->data_path.'/'.$this->attr('filename');
-		$size = getimagesize($filename);
+		$filename = $this->attr('filename');
+		if (!$filename) return;
+		$size = getimagesize($this->data_path.'/'.$filename);
 
 		$tag = '<img src="'.$this->getURL().'" '.$size[3].' alt="'.$alt.'" title="'.$title.'" />';
 		if ($return) return $tag;
