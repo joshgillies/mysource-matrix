@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.139 2004/05/04 02:15:17 gsherwood Exp $
+* $Id: asset_map.inc,v 1.140 2004/05/07 05:53:09 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -514,9 +514,9 @@ class Asset_Map
 		$output = new XML_Tree();
 
 		if (count($input->root->children) == 1) {
-			$assetid = rawurldecode($input->root->children[0]->attributes['assetid']);
+			$assetid = $input->root->children[0]->attributes['assetid'];
 			$root = &$output->addRoot('assets', '', Array('assetid' => $assetid));
-			$this->_getChildAssets($root, $assetid);
+			$this->_getChildAssets($root, rawurldecode($assetid));
 		} else {
 			$root = &$output->addRoot('assets', '');
 			
@@ -528,7 +528,6 @@ class Asset_Map
 				$this->_getChildAssets($child, $assetid);
 			}
 		}
-		
 		$this->_send($output);
 		
 	}//end _getAssets()
