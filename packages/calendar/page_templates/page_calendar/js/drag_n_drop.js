@@ -31,11 +31,19 @@
   var mouseOffset = null;
 
   /* The event that's moving */
-  var movingEvent = null;
+  var movingElt = null;
+
+  /* The former cursor */
+  var oldCursor = '';
 
   /* The element it was originally linked under */
   var originalParent = null;
 
+  
+  //document.write('<textarea id="log" rows="25"></textarea>');
+  function log(msg) {
+	  //document.getElementById('log').value += msg + '\n';
+  }
 
   /**
   * Start dragging the specified element
@@ -45,13 +53,19 @@
   */
   function startDragging(elt) 
   {
+	log('starting to drag '+elt);
     movingElt = elt;
 	originalParent = elt.parentNode;
     mouseOffset = null;   
-	  document.body.style.cursor='move';
+	document.body.style.cursor='move';
+	oldCursor = elt.style.cursor;
+	elt.style.cursor='move';
+	elt.parentNode.style.cursor = 'move';
+	elt.style.position = 'absolute';
     document.onmousemove = moveElt;
 	document.onmouseup = stopDragging;
-  
+	log('finished starting drag');
+
   }//end startDragging()
 
 
@@ -59,15 +73,25 @@
   * Drop the specified element into the table cell its top left corner is in, if there is one
   *
   * @param  Object    elt   The element that's being dragged
-  * @return void
+  * @return string	  An error code representing what happened, or blank if the move completed OK
   */
   function stopDragging() 
   {
-	if (movingElt == null) return;
+	log('stopping drag');
+	var result = '';
+	if (movingElt == null) return 'not_dragging';
 	document.body.style.cursor='';
+	movingElt.style.cursor=oldCursor;
+	movingElt.parentNode.style.cursor='';
 	document.onmousemove = null;
 	var newCell = getDestCell(movingElt);
-	if ((newCell != originalParent) && (newCell != null) && ((typeof confirmDrag == "undefined") || confirmDrag(movingElt, newCell))) {
+	if (newCell == originalParent) {
+		result = 'no_move';
+	} else if (newCell == null) {
+		result = 'left_table';
+	} else if ((typeof confirmDrag != "undefined") && !confirmDrag(movingElt, newCell)) {
+		result = 'user_cancelled';
+    } else {
 	   movingElt.parentNode.removeChild(movingElt);
 	   if (newCell.firstChild != null) newCell.insertBefore(movingElt, newCell.firstChild);
 	   else newCell.appendChild(movingElt);
@@ -76,6 +100,7 @@
 	movingElt.style.left = '';
 	movingElt.style.top = '';
 	movingElt = null;
+	return result;
   
   }//end stopDragging()
 
@@ -88,6 +113,7 @@
   */
   function moveElt(e) 
   {
+	log('moving');
     var mousePosition = getMousePosition(e);
     if (mouseOffset == null) {
         // we are just starting to drag, so figure out the offset

@@ -16,7 +16,7 @@ function stopTrailingPopup()
 {
 	if ((typeof movingElt == 'undefined') || (movingElt == null)) {
 		document.onmousemove=null;
-		getTrailObj().display='none';
+		if ((o = getTrailObj()) != null) o.display='none';
 	}
 }
 
