@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.24 2004/06/18 04:34:08 lwright Exp $
+* $Id: page_asset_listing.inc,v 1.25 2004/06/24 07:03:19 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -621,14 +621,6 @@ class Page_Asset_Listing extends Page
 					$keywords['asset_contents']['value'] = ob_get_contents();
 				ob_end_clean();
 			}
-
-			// asset file sizes for file assets only
-			if (is_a($asset, 'file') && (preg_match('|%asset_file_size_in_bytes%|is', $contents) || preg_match('|%asset_file_size_readable%|is', $contents))) {
-				require_once SQ_FUDGE_PATH.'/general/datetime.inc';
-				$existing = $asset->_getExistingFile();
-				$keywords['asset_file_size_in_bytes']['value'] = $existing['size'];
-				$keywords['asset_file_size_readable']['value'] = easy_filesize($existing['size']);
-			}								
 
 			foreach ($keywords as $keyword => $info) {
 				$contents = preg_replace('|%((<([^>]+?)>)+)?'.$keyword.'((<([^>]+?)>)+)?%|is', '\\1%'.$keyword.'%\\4', $contents);
