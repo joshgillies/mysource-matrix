@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime.inc,v 1.31 2004/09/20 07:25:07 tbarrett Exp $
+* $Id: datetime.inc,v 1.32 2004/10/06 01:51:54 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -612,7 +612,7 @@ function iso8601_time_component($iso8601)
 */
 function is_iso8601($iso8601)
 {
-	return (boolean)preg_match("/^[0-9\-]{4}-[0-9\-]{2}-[0-9\-]{2}([ T]([0-9\-]{2}\:?){3})?$/",$iso8601);
+	return (boolean)preg_match("/^\-?[0-9\-]{4}-[0-9\-]{2}-[0-9\-]{2}([ T]([0-9\-]{2}\:?){3})?$/",$iso8601);
 	
 }//end is_iso8601()
 
