@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.325 2004/09/14 00:55:41 mmcintyre Exp $
+* $Id: asset.inc,v 1.326 2004/09/14 01:39:19 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -3450,11 +3450,21 @@ class Asset extends MySource_Object
 		// index attributes
 		$weightings = $this->getWeightings();
 		if (!isset($weightings['__name__']['weighting'])) $weightings['__name__']['weighting'] = 1;
+		if (!isset($weightings['__created__']['weighting'])) $weightings['__created__']['weighting'] = 1;
+		if (!isset($weightings['__updated__']['weighting'])) $weightings['__updated__']['weighting'] = 1;
+		if (!isset($weightings['__published__']['weighting'])) $weightings['__published__']['weighting'] = 1;
 
-		// supply name
+		// index our name
 		$value = strtolower($this->name);
 		foreach (get_word_counts($value) as $word => $count) {
-			$this->buildKeyData($keydata, $word, 'text', 'attr:'.$this->type().':__name__', $count * $weightings['__name__']['weighting']);
+			$this->buildKeyData($keydata, $word, 'text', '__name__', $count * $weightings['__name__']['weighting']);
+		}
+		
+		// index our dates
+		$this->buildKeyData($keydata, ts_iso8601($this->created), 'datetime', '__created__', $weightings['__created__']['weighting']);
+		$this->buildKeyData($keydata, ts_iso8601($this->updated), 'datetime', '__updated__', $weightings['__updated__']['weighting']);
+		if (!is_null($this->published)) {
+			$this->buildKeyData($keydata, ts_iso8601($this->published), 'datetime', '__published__', $weightings['__published__']['weighting']);
 		}
 
 		foreach ($this->vars as $var_name => $var_data) {
@@ -3479,16 +3489,19 @@ class Asset extends MySource_Object
 
 
 	/**
-	* Informs the indexing service that this asset's contents have changed, and
-	* that it should reflect this by retrieving new key data.
+	* Informs the indexing service that this asset's contents have changed
+	*
+	* @param boolean	$inform_parents	also inform all dependant parent assets that we have changed
+	*									this is used by the search manager to decide if it should reindex
+	*									this asset's dependant parents
 	*
 	* @return void
-	* @access protected
+	* @access public
 	*/
-	function informChanges()
+	function informChanges($inform_parents=true)
 	{
 		$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
-		$em->broadcastEvent($this, 'requestReindex');
+		$em->broadcastEvent($this, 'requestReindex', Array('inform_parents' => (bool)$inform_parents));
 
 	}//end informChanges()
 
