@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: upgrade_file_versioning.php,v 1.1 2004/11/16 03:45:56 lwright Exp $
+* $Id: upgrade_file_versioning.php,v 1.2 2004/11/16 03:49:57 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -53,8 +53,13 @@ if (!$root_user->comparePassword($root_password)) {
 
 $db = &$GLOBALS['SQ_SYSTEM']->db;
 
+// rename each file versioning related table
 foreach(Array('file_versioning_file', 'file_versioning_file_history', 'file_versioning_file_lock') as $table_name) {
 	printName('Rename "'.$table_name.'"');
+	
+	// find out of the table exists by trying to run a query on it and see whether it
+	// returns a 'no such table' error. This should not be too much penalty because
+	// most optimisers recognise the impossible WHERE clause and short-circuit it
 	$result = $db->query('SELECT * FROM '.SQ_TABLE_PREFIX.$table_name.' WHERE 1=0');
 	if (DB::isError($result) && ($result->getCode() == DB_ERROR_NOSUCHTABLE)) {
 		// "No Such Table" error = the renamed table doesn't exist
@@ -82,6 +87,23 @@ foreach(Array('file_versioning_file', 'file_versioning_file_history', 'file_vers
 	
 	}
 	
+}
+
+
+// "No Such Table" error = the renamed table doesn't exist
+printName('Drop repository field');
+$result = $db->query('ALTER TABLE '.SQ_TABLE_PREFIX.$table_name.' DROP COLUMN repository');
+	
+if (DB::isError($result) && ($result->getCode() == DB_ERROR_NOSUCHTABLE)) {
+	// old table does not exist!!
+	printUpdateStatus('FAIL DNE');
+} else if (DB::isError($result)) {
+	// miscellaneous error
+	printUpdateStatus('FAIL');
+	print '('.$result->getMessage().")\n";
+} else {
+	// field successfully dropped
+	printUpdateStatus('OK');
 }
 
 
