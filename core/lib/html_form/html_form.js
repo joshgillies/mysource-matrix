@@ -5,9 +5,9 @@
 *
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 * $Source: /home/csmith/conversion/cvs/mysource_matrix/core/mysource_matrix/core/lib/html_form/html_form.js,v $
-* $Revision: 1.8 $
+* $Revision: 1.9 $
 * $Author: brobertson $
-* $Date: 2003/05/30 07:00:25 $
+* $Date: 2003/06/04 04:18:30 $
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 */
 
@@ -416,7 +416,7 @@ function check_date(date_name, show_time)
 
 
 /**
-* Starts the asset finder mode in the flash menu
+* Activated by the pressing of the "Change..." button to start the asset finder mode in the flash menu
 *
 * @param string	$name			the name of the hidden field
 * @param string	$type_codes_xml	xml containing type codes that we want to find
@@ -424,23 +424,33 @@ function check_date(date_name, show_time)
 * @access public
 */
 var ASSET_FINDER_FIELD_NAME = null;
-function asset_finder_start(name, type_codes_xml) 
+function asset_finder_btn_press(btn, name, type_codes_xml) 
 {
 	var f = document.main_form;
 
-	if (ASSET_FINDER_FIELD_NAME != null) {
+	if (ASSET_FINDER_FIELD_NAME != null && ASSET_FINDER_FIELD_NAME != name) {
 		alert('The asset finder is currently in use');
 		return;
 	}
 
-	ASSET_FINDER_FIELD_NAME = name;
-	if (top.sidenav && top.sidenav.asset_finder) {
-		top.sidenav.asset_finder(asset_finder_done, type_codes_xml);
-	} else {
+	if (!top.sidenav && !top.sidenav.asset_finder_start) {
 		alert('Unable to find flash');
 	}
 
-}// end asset_finder_start()
+	// no name ? we must be starting the asset finder
+	if (ASSET_FINDER_FIELD_NAME == null) {
+		ASSET_FINDER_FIELD_NAME = name;
+		top.sidenav.asset_finder_start(asset_finder_done, type_codes_xml);
+		btn.value = 'Cancel';
+
+	// else we must be cancelling the asset finder
+	} else {
+		top.sidenav.asset_finder_cancel();
+		btn.value = 'Change...';
+
+	}
+
+}// end asset_finder_btn_press()
 
 /**
 * Call-back fns that stops the asset finder 
@@ -462,3 +472,20 @@ function asset_finder_done(assetid, label)
 
 }// end asset_finder_done()
 
+/**
+* Activated by on an unload event to cancel the asset finder if we are currently looking
+*
+* @access public
+*/
+function asset_finder_onunload() 
+{
+	// got a name ? we must be finding assets, cancel it
+	if (ASSET_FINDER_FIELD_NAME != null) {
+		if (top.sidenav && top.sidenav.asset_finder_cancel) {
+			top.sidenav.asset_finder_cancel();
+		}
+	}
+}// end asset_finder_onunload()
+
+ASSET_FINDER_OTHER_ONUNLOAD = (window.onunload) ? window.onunload : new Function;
+window.onunload = asset_finder_onunload;

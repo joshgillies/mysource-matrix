@@ -92,30 +92,40 @@ mcTabContentAreaTreeClass.prototype.onExternalCall = function(cmd, params)
 {
 	switch(cmd) {
 		case "asset_finder" :
-			if (params.type_codes_xml == null || params.type_codes_xml.length <= 0) return;
-			var xml  = new XML(params.type_codes_xml);
+			switch (params.action) {
+				case 'start' :
+					if (params.type_codes_xml == null || params.type_codes_xml.length <= 0) return;
+					var xml  = new XML(params.type_codes_xml);
 
-			// something buggered up with the connection
-			if (xml.status != 0) {
-				_root.dialog_box.show("XML Error, unable to use asset finder", "XML Status '" + xml.status + "'\nPlease Try Again");
-				return;
+					// something buggered up with the connection
+					if (xml.status != 0) {
+						_root.dialog_box.show("XML Error, unable to use asset finder", "XML Status '" + xml.status + "'\nPlease Try Again");
+						return;
 
-			// we got an unexpected root node
-			} else if (xml.firstChild.nodeName != "type_codes") {
-				_root.dialog_box.show("XML Error, unable to print messages", "Unexpected Root XML Node '" + xml.firstChild.nodeName + '"');
-				return;
-			}// end if
+					// we got an unexpected root node
+					} else if (xml.firstChild.nodeName != "type_codes") {
+						_root.dialog_box.show("XML Error, unable to print messages", "Unexpected Root XML Node '" + xml.firstChild.nodeName + '"');
+						return;
+					}// end if
 
-			// everything went well, load 'em up
-			var type_codes = new Array();
-			for (var i = 0; i < xml.firstChild.childNodes.length; i++) {
-				// get a reference to the child node
-				var node = xml.firstChild.childNodes[i];
-				if (node.nodeName.toLowerCase() == "type_code" && node.attributes.name !== undefined) {
-					type_codes.push(node.attributes.name); 
-				}//end if
-			}//end for
-			this.startAssetFinder(type_codes);
+					// everything went well, load 'em up
+					var type_codes = new Array();
+					for (var i = 0; i < xml.firstChild.childNodes.length; i++) {
+						// get a reference to the child node
+						var node = xml.firstChild.childNodes[i];
+						if (node.nodeName.toLowerCase() == "type_code" && node.attributes.name !== undefined) {
+							type_codes.push(node.attributes.name); 
+						}//end if
+					}//end for
+					this.startAssetFinder(type_codes);
+
+					break;
+				
+				case 'cancel' : 
+					if (this.finding_asset)	this.stopAssetFinder();
+					break;
+
+			}// end switch
 
 		break;
 	}// end switch

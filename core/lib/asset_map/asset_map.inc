@@ -82,26 +82,39 @@ class Asset_Map
 			}
 
 			/*
-			* Reload the passed assetid in the flash
+			* Initialises the asset finder in the flash
 			*
-			* @param string	xml	xml content holding the type codes that are allowed to selected
+			* @param Function	fn		the call-back function to with the results
+			* @param string		xml		xml content holding the type codes that are allowed to selected
 			*
 			*/
 			var ASSET_FINDER_CALL_BACK = null;
-			function asset_finder(fn, xml) 
+			function asset_finder_start(fn, xml) 
 			{
 				if (ASSET_FINDER_CALL_BACK !== null) return;
 				ASSET_FINDER_CALL_BACK = fn;
 				var asset_mapObj = document.asset_map;
 				//alert("Asset Finder : " + xml);
 				registerFlashToJsCall('asset_finder_done', asset_finder_done)
-				jsToFlashCall(asset_mapObj, 'asset_finder', {type_codes_xml: xml});
+				jsToFlashCall(asset_mapObj, 'asset_finder', {action: 'start', type_codes_xml: xml});
 			}
 
 			/*
-			* Reload the passed assetid in the flash
+			* Informs the flash that we want to cancel the asset finder
 			*
-			* @param string	xml	xml content holding the type codes that are allowed to selected
+			*/
+			function asset_finder_cancel() 
+			{
+				if (ASSET_FINDER_CALL_BACK === null) return;
+				var asset_mapObj = document.asset_map;
+				jsToFlashCall(asset_mapObj, 'asset_finder', {action: 'cancel'});
+				ASSET_FINDER_CALL_BACK = null;
+			}
+
+			/*
+			* Called by the flash with the results of the asset finder
+			*
+			* @param Array	params		array of params from the flash
 			*
 			*/
 			function asset_finder_done(params) 
