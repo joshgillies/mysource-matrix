@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general_occasional.inc,v 1.31 2004/01/15 09:30:41 brobertson Exp $
+* $Id: general_occasional.inc,v 1.32 2004/06/23 15:12:26 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -158,53 +158,6 @@ function get_status_description($status)
 	return $status_object->getDescription();
 
 }//end get_status_description()
-
-
-/**
-* Restricts or unrestricts a directory in the data path
-*
-* @param boolean	$restricted	Whether the directory is public or restricted access
-* @param string		$dir		The directory path that you want to alter the restrictions on
-*
-* @returns boolean
-* @access public
-*/
-function restrict_data_path($restricted, $dir)
-{
-	$from_dir = get_data_path(!$restricted, $dir);
-	$to_dir   = get_data_path($restricted,  $dir);
-
-	// if the from dir doesn't exist, but the to dir does, then assume that we don't need to do anything
-	if (!is_dir($from_dir) && is_dir($to_dir)) {
-		return true;
-	// if the from dir doesn't exist, leave screaming
-	} elseif (!is_dir($from_dir)) {
-		trigger_error('Unable to move "'.$from_dir.'" to "'.$to_dir.'", "'.$from_dir.'" doesn\'t exist', E_USER_WARNING);
-		return false;
-	// if there is already something called the same as the to dir, leave screaming
-	} elseif (file_exists($to_dir)) {
-		trigger_error('Unable to move "'.$from_dir.'" to "'.$to_dir.'", "'.$to_dir.'" already exists and is not a directory', E_USER_WARNING);
-		return false;
-	} else {
-		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-		// make sure that the parent of the to directory exists, other wise the rename will fail
-		// try and rename from_dir to to_dir
-		if (!create_directory(dirname($to_dir))) {
-			trigger_error('Unable to create parent directory "'.dirname($to_dir).'"', E_USER_WARNING);
-			return false;
-		}
-
-		// try and rename from_dir to to_dir
-		if (rename($from_dir, $to_dir)) {
-			return true;
-		} else {
-			trigger_error('Unable to move "'.$from_dir.'" to "'.$to_dir.'", rename failed', E_USER_WARNING);
-			return false;
-		}// end if
-
-	}// end if
-
-}//end restrict_data_path()
 
 
 /**
