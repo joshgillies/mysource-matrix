@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime.inc,v 1.26 2004/08/27 07:02:09 lwright Exp $
+* $Id: datetime.inc,v 1.27 2004/08/27 07:02:48 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -330,8 +330,8 @@ function days_in_month($month, $year)
 */
 function increment_date(&$day, &$month, &$year, $days_to_add=1) 
 {
-	if ($days_to_sub < 0) {
-		decrement_date($day, $month, $year, -$days_to_sub);
+	if ($days_to_add < 0) {
+		decrement_date($day, $month, $year, -$days_to_add);
 		return;
 	}
 	
@@ -357,8 +357,8 @@ function increment_date(&$day, &$month, &$year, $days_to_add=1)
 */
 function increment_month(&$month, &$year, $months_to_add=1) 
 {
-	if ($months_to_sub < 0) {
-		decrement_month($month, $year, -$months_to_sub);
+	if ($months_to_add < 0) {
+		decrement_month($month, $year, -$months_to_add);
 		return;
 	}
 	
