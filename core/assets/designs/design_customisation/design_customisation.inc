@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_customisation.inc,v 1.21 2003/11/18 15:37:26 brobertson Exp $
+* $Id: design_customisation.inc,v 1.22 2003/11/25 23:47:12 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -243,7 +243,7 @@ class Design_Customisation extends Design
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 
 		//// FIRST, let's set our new contents ////
-		if (!$this->setAttrValue('contents', $parent->attr('contents'))) return false;
+		if (!$this->setAttrValue('contents', $parent->attr('contents')) || !$this->saveAttributes()) return false;
 
 		//// SECOND, let's remove any design area links that we aren't going to be using any more ////
 
@@ -282,6 +282,7 @@ class Design_Customisation extends Design
 			if (is_null($parent_da)) continue;
 
 			$da->setAttrValue('contents', $parent_da->attr('contents'));
+			$da->saveAttributes();
 
 		}// end foreach
 
