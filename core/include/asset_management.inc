@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_management.inc,v 1.50 2004/08/11 06:12:56 tbarrett Exp $
+* $Id: asset_management.inc,v 1.51 2004/08/11 06:20:14 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -603,8 +603,9 @@ class Asset_Management extends MySource_Object
 		$sql = 'SELECT attributeid FROM '.SQ_TABLE_PREFIX.'asset_attribute WHERE owning_type_code = \''.$type_code.'\' AND name=\''.$name.'\'';
 		$attributeid = $this->_db->getOne($sql);
 
+		assert_valid_db_result($attributeid);
 		if (is_null($attributeid)) {
-			trigger_error("Asset type $typecode has no attribute called $name", E_USER_ERROR);
+			trigger_error("Asset type $typecode has no attribute called $name", E_USER_WARNING);
 			return false;
 		}
 
