@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.24 2004/08/25 22:53:36 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.25 2004/08/26 02:48:29 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.24 $ - 1.0
+* @version $Revision: 1.25 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -821,37 +821,41 @@ class Page_Calendar extends Page_Asset_Listing
 	*/
 	function _getTimedTableCellContents($events, $show_event_links, $root_nodes, $cell_ts, $partition_time, $partition_height, $event_width) 
 	{
-		if ($events) {
-			foreach ($events as $assetid => $details) {
-				// get top position of div
-				$event_ts = $details['start_date_minutes'] + (60 * $details['start_date_hours']);
-				$event_top_margin = (($event_ts - $cell_ts) / $partition_time) * $partition_height;
+		if (empty($events)) return '';
+		
+		$res = '';
+		foreach ($events as $assetid => $details) {
+			// get top position of div
+			$event_ts = $details['start_date_minutes'] + (60 * $details['start_date_hours']);
+			$event_top_margin = (($event_ts - $cell_ts) / $partition_time) * $partition_height;
 
-				// get height of div
-				$event_duration = is_null($details['end_date_ts']) ? 0 : ($details['end_date_ts'] - $details['start_date_ts'])/60;
-				$event_height = ($event_duration / $partition_time) * $partition_height;
+			// get height of div
+			$event_duration = is_null($details['end_date_ts']) ? 0 : ($details['end_date_ts'] - $details['start_date_ts'])/60;
+			$event_height = ($event_duration / $partition_time) * $partition_height;
 
-				// get class to use for div
-				$event_class = $root_nodes[$details['root_node']]['class_name'];
+			// get class to use for div
+			$event_class = $root_nodes[$details['root_node']]['class_name'];
 
-				// other layout things
-				$zero_length_code = $event_height ? '' : 'border-style: dashed; border-width: 2px; border-bottom: 0px; border-left: 0px; border-right: 0px; height: 0px; padding-top: 0px; background-color: transparent;';
-				$event_left_margin = $event_width * 0.02;
-				$inner_width = $event_width * 0.95;
-				$cursor_code = $show_event_links ? 'cursor: pointer; cursor: hand;' : '';
-				$inner_margin_top = $event_height ? 1 : 0;
-				$onclick_code = $show_event_links ? 'onclick="clickChild(this);"' : '';
+			// other layout things
+			$zero_length_code = $event_height ? '' : 'border-style: dashed; border-width: 2px; border-bottom: 0px; border-left: 0px; border-right: 0px; height: 0px; padding-top: 0px; background-color: transparent;';
+			$event_left_margin = $event_width * 0.02;
+			$inner_width = $event_width * 0.95;
+			$cursor_code = $show_event_links ? 'cursor: pointer; cursor: hand;' : '';
+			$inner_margin_top = $event_height ? 1 : 0;
+			$onclick_code = $show_event_links ? 'onclick="clickChild(this);"' : '';
 
-				$res = "<div class=\"{$event_class} event\" style=\"position: absolute; width: {$event_width}ex; margin-left: {$event_left_margin}ex; margin-top: {$event_top_margin}ex; height: {$event_height}ex; $cursor_code $zero_length_code\" $onclick_code><div class=\"eventText\" style=\"position: absolute; width: {$inner_width}ex; border: none; margin-top: {$inner_margin_top}px background-color: transparent\">";
+			$res .= "<div class=\"{$event_class} event\" style=\"border:3px solid green; position: absolute; width: {$event_width}ex; margin-left: {$event_left_margin}ex; margin-top: {$event_top_margin}ex; height: {$event_height}ex; $cursor_code $zero_length_code\" $onclick_code><div class=\"eventText\" style=\"position: absolute; width: {$inner_width}ex; border: none; margin-top: {$inner_margin_top}px background-color: transparent\">";
+			$res . $assetid.' ';
+			$res .= $show_event_links ? '<a class="event '.$event_class.'"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW=event&SQ_CALENDAR_EVENT_ID='.$assetid.'">' : '<span class="event '.$event_class.'">';
+			$res .= $details['name'];
+			$res .= '<br/>Event Height:'.$event_height.'ex';
+			$res .= $show_event_links ? '</a>' : '</span>';
 
-				$res .= $show_event_links ? '<a class="event '.$event_class.'"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW=event&SQ_CALENDAR_EVENT_ID='.$assetid.'">' : '<span class="event '.$event_class.'">';
-				$res .= $details['name'];
-				$res .= $show_event_links ? '</a>' : '</span>';
-
-				$res .= '</div></div>';
-				return $res;
-			}
+			$res .= '</div></div>';
 		}
+		
+		return $res;
+		
 	}//end _getTimedTableCellContents()
 
 
