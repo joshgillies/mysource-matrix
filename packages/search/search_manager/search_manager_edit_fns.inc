@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_edit_fns.inc,v 1.3 2004/05/27 01:21:57 lwright Exp $
+* $Id: search_manager_edit_fns.inc,v 1.4 2004/06/10 03:43:31 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.3 $ - 1.0
+* @version $Revision: 1.4 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -175,6 +175,11 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 	{
 		if ($asset->writeAccess('attributes')) {
 			asset_finder($prefix.'_reindexing_root_assetid', '');
+			echo '&nbsp;&nbsp;&nbsp;<b>OR</b>';
+			$o->closeField();
+			$o->openField('System Wide');
+			check_box($prefix.'_reindexing_root_folder');
+			echo 'Reindex all assets in the system';
 			return true;
 		}
 		return false;
@@ -194,13 +199,18 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function processReindexing(&$asset, &$o, $prefix)
 	{
-		if (isset($_POST[$prefix."_reindexing_root_assetid"]['assetid'])) {
-			$root_assetid = $_POST[$prefix."_reindexing_root_assetid"]['assetid'];
+		if (isset($_POST[$prefix.'_reindexing_root_assetid']['assetid'])) {
+			$root_assetid = $_POST[$prefix.'_reindexing_root_assetid']['assetid'];
 			if ($root_assetid > 0) {
 				$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 				$hh->queueHipo('hipo_job_reindex', Array('root_assetid' => $root_assetid), '', SQ_PACKAGES_PATH.'/search/hipo_jobs');
 				return true;
 			}
+		}
+		if (isset($_POST[$prefix.'_reindexing_root_folder'])) {
+			$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+			$hh->queueHipo('hipo_job_reindex', Array('root_assetid' => '1'), '', SQ_PACKAGES_PATH.'/search/hipo_jobs');
+			return true;
 		}
 		return false;
 
