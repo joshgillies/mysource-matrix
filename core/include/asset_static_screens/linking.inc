@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: linking.inc,v 1.3.2.2 2004/03/04 16:40:10 brobertson Exp $
+* $Id: linking.inc,v 1.3.2.3 2004/03/18 15:32:51 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -76,11 +76,11 @@ function paintLinking(&$owner, &$o, &$ei, $allow_edit=true)
 
 		$concat = ($db->phptype == 'mysql') ? 'CONCAT(pt.treeid, '.$db->quote('%').')' : 'pt.treeid || '.$db->quote('%');
 		$sql = 'SELECT ct.treeid as our_treeid, cl.minorid, pt.treeid as parent_treeid, a.name, a.assetid
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link cl
-						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree ct ON cl.linkid = ct.linkid,
-					 '.SQ_TABLE_RUNNING_PREFIX.'asset_link pl
-						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree pt ON pl.linkid = pt.linkid
-						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset a ON a.assetid = pl.minorid
+				FROM '.$GLOBALS['SQ_TABLE_RUNNING_PREFIX'].'asset_link cl
+						INNER JOIN '.$GLOBALS['SQ_TABLE_RUNNING_PREFIX'].'asset_link_tree ct ON cl.linkid = ct.linkid,
+					 '.$GLOBALS['SQ_TABLE_RUNNING_PREFIX'].'asset_link pl
+						INNER JOIN '.$GLOBALS['SQ_TABLE_RUNNING_PREFIX'].'asset_link_tree pt ON pl.linkid = pt.linkid
+						INNER JOIN '.$GLOBALS['SQ_TABLE_RUNNING_PREFIX'].'asset a ON a.assetid = pl.minorid
 				';
 		$where = 'cl.minorid IN ('.implode(', ', $quoted_assetids).')
 				  AND ct.treeid LIKE '.$concat.'

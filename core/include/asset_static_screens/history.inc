@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: history.inc,v 1.3 2004/01/16 11:45:56 brobertson Exp $
+* $Id: history.inc,v 1.3.2.1 2004/03/18 15:32:51 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -69,7 +69,7 @@ function paintHistory(&$owner, &$o, &$ei)
 	$o->openSection('Version History');
 	$o->openField('');
 
-	if (SQ_ROLLBACK_VIEW) {
+	if ($GLOBALS['SQ_ROLLBACK_VIEW']) {
 		?><p class="sq-backend-data"><b><i>The highlighted row in the version history is the current version of "<?php echo $owner->name; ?>" being viewed in rollback mode</i></b></p>
 		<?php
 	}
@@ -98,7 +98,7 @@ function paintHistory(&$owner, &$o, &$ei)
 
 		$class = 'sq-backend-table-cell';
 		$show_view_btn = true;
-		if (SQ_ROLLBACK_VIEW) {
+		if ($GLOBALS['SQ_ROLLBACK_VIEW']) {
 			$rollback_from = strtotime($_SESSION['sq_rollback_view']['rollback_time']);
 			if ($rollback_from >= strtotime($from) && (empty($to) || strtotime($to) > $rollback_from)) {
 				$class .= '-alt';

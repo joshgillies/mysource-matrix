@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.22.2.6 2004/03/16 16:55:34 brobertson Exp $
+* $Id: metadata_manager.inc,v 1.22.2.7 2004/03/18 15:32:51 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -114,7 +114,7 @@ class Metadata_Manager extends MySource_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = '  SELECT DISTINCT schemaid, access
-				  FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_metadata ';
+				  FROM '.$GLOBALS['SQ_TABLE_RUNNING_PREFIX'].'asset_metadata ';
 		$where = 'assetid = '.$db->quote($assetid);
 		if (!is_null($access)) $where .= ' AND access = '.$db->quote((($access) ? '1' : '0'));
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
@@ -270,7 +270,7 @@ class Metadata_Manager extends MySource_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = '  SELECT DISTINCT assetid, access
-				  FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_metadata ';
+				  FROM '.$GLOBALS['SQ_TABLE_RUNNING_PREFIX'].'asset_metadata ';
 		$where = 'schemaid = '.$db->quote($schemaid);
 		if (!is_null($access)) $where .= ' AND access = '.$db->quote((($access) ? '1' : '0'));
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
@@ -360,7 +360,7 @@ class Metadata_Manager extends MySource_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = '  SELECT metadata
-				  FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_metadata ';
+				  FROM '.$GLOBALS['SQ_TABLE_RUNNING_PREFIX'].'asset_metadata ';
 		$where = 'assetid = '.$db->quote($asset->id).'
 				    AND schemaid = '.$db->quote($schemaid).'
 				    AND access = 1';

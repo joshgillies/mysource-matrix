@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: internal_message.inc,v 1.29.2.2 2004/03/02 18:29:12 brobertson Exp $
+* $Id: internal_message.inc,v 1.29.2.3 2004/03/18 15:32:51 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -123,7 +123,7 @@ class Internal_Message extends MySource_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$sql   = 'SELECT messageid, userto, userfrom, subject, body, type, sent, priority, status, parameters
-				    FROM '.SQ_TABLE_RUNNING_PREFIX.'internal_message ';
+				    FROM '.$GLOBALS['SQ_TABLE_RUNNING_PREFIX'].'internal_message ';
 		$where = 'messageid = '.$db->quote($messageid);
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 

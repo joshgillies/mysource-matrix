@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.43.2.2 2004/03/02 18:29:12 brobertson Exp $
+* $Id: workflow_manager.inc,v 1.43.2.3 2004/03/18 15:32:51 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -81,7 +81,7 @@ class Workflow_Manager extends MySource_Object
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 			$sql = '  SELECT DISTINCT schemaid, access
-					  FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_workflow ';
+					  FROM '.$GLOBALS['SQ_TABLE_RUNNING_PREFIX'].'asset_workflow ';
 			$where = 'assetid = '.$db->quote($assetid);
 			if ($running) $where .= ' AND workflow IS NOT NULL';
 			if (!is_null($access) || $running) $where .= ' AND access = '.$db->quote((($access) ? '1' : '0'));
@@ -253,7 +253,7 @@ class Workflow_Manager extends MySource_Object
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 			$sql = 'SELECT schemaid, workflow
-					  FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_workflow ';
+					  FROM '.$GLOBALS['SQ_TABLE_RUNNING_PREFIX'].'asset_workflow ';
 			$where = 'assetid = '.$db->quote($assetid).'
 						AND access = 1';
 			if ($schemaid != 'all') $where .= ' AND schemaid = '.$db->quote($schemaid);

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.196.2.4 2004/03/16 16:55:34 brobertson Exp $
+* $Id: asset_edit_interface.inc,v 1.196.2.5 2004/03/18 15:32:51 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -357,7 +357,7 @@ class Asset_Edit_Interface extends MySource_Object
 								$user    = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
 								$editing = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['source_assetid']);
 
-								if (SQ_ROLLBACK_VIEW) $now = strtotime($_SESSION['sq_rollback_view']['rollback_time']);
+								if ($GLOBALS['SQ_ROLLBACK_VIEW']) $now = strtotime($_SESSION['sq_rollback_view']['rollback_time']);
 								else $now = time();
 
 								if (is_null($lock['expires'])) {
@@ -1506,7 +1506,7 @@ class Asset_Edit_Interface extends MySource_Object
 		for (reset($groups); NULL !== ($k = key($groups)); next($groups)) $groups[$k] = $db->quote($groups[$k]);
 
 		$sql = 'SELECT screen, section
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_editing_access ';
+				FROM '.$GLOBALS['SQ_TABLE_RUNNING_PREFIX'].'asset_editing_access ';
 		$where = 'userid IN ('.implode(',', $groups).')';
 
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';

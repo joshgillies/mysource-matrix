@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.82.2.5 2004/03/09 13:16:04 brobertson Exp $
+* $Id: backend.inc,v 1.82.2.6 2004/03/18 15:32:51 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -324,7 +324,7 @@ class Backend extends MySource_Object
 
 			$where = 'updated > '.$db->quote(ts_iso8601($_SESSION['backend_header_last_refresh']));
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
-			$sql = 'SELECT assetid FROM '.SQ_TABLE_RUNNING_PREFIX.'asset '.$where;
+			$sql = 'SELECT assetid FROM '.$GLOBALS['SQ_TABLE_RUNNING_PREFIX'].'asset '.$where;
 
 			$updated_assetids = $db->getCol($sql);
 			if (!DB::isError($updated_assetids) && !empty($updated_assetids)) {
@@ -488,7 +488,7 @@ class Backend extends MySource_Object
 			<?php
 		}// end if empty msgs
 
-		if (SQ_ROLLBACK_VIEW) $now = strtotime($_SESSION['sq_rollback_view']['rollback_time']);
+		if ($GLOBALS['SQ_ROLLBACK_VIEW']) $now = strtotime($_SESSION['sq_rollback_view']['rollback_time']);
 		else $now = time();
 
 		?>
@@ -709,7 +709,7 @@ class Backend extends MySource_Object
 		$this->out->addFormActionGetVar('backend_section', $_REQUEST['backend_section']);
 
 		// if we are in rollback view, print a warning message
-		if (SQ_ROLLBACK_VIEW) {
+		if ($GLOBALS['SQ_ROLLBACK_VIEW']) {
 			$this->out->openRaw();
 			$GLOBALS['SQ_SYSTEM']->printRollbackWarning();
 			$this->out->closeRaw();

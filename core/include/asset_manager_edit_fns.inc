@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager_edit_fns.inc,v 1.68.2.3 2004/03/16 16:55:34 brobertson Exp $
+* $Id: asset_manager_edit_fns.inc,v 1.68.2.4 2004/03/18 15:32:51 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -320,7 +320,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 					$user    = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
 					$editing = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['source_assetid']);
 
-					if (SQ_ROLLBACK_VIEW) $now = strtotime($_SESSION['sq_rollback_view']['rollback_time']);
+					if ($GLOBALS['SQ_ROLLBACK_VIEW']) $now = strtotime($_SESSION['sq_rollback_view']['rollback_time']);
 					else $now = time();
 
 					if (is_null($lock['expires'])) {

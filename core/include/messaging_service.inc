@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: messaging_service.inc,v 1.23.2.3 2004/03/16 16:55:34 brobertson Exp $
+* $Id: messaging_service.inc,v 1.23.2.4 2004/03/18 15:32:51 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -349,11 +349,11 @@ class Messaging_Service extends MySource_Object
 					' ELSE a.type_code END as type_code';
 		}
 
-		$sql  .= ' FROM '.SQ_TABLE_RUNNING_PREFIX.'internal_message m';
+		$sql  .= ' FROM '.$GLOBALS['SQ_TABLE_RUNNING_PREFIX'].'internal_message m';
 		$where = 'm.userto = '.$db->quote($userid);
 
 		if (is_string($get_user_name)) {
-			$sql .= ' LEFT OUTER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset a ON m.userfrom = a.assetid';
+			$sql .= ' LEFT OUTER JOIN '.$GLOBALS['SQ_TABLE_RUNNING_PREFIX'].'asset a ON m.userfrom = a.assetid';
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 		}
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.270.2.6 2004/03/16 16:55:34 brobertson Exp $
+* $Id: asset.inc,v 1.270.2.7 2004/03/18 15:32:51 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -443,7 +443,7 @@ class Asset extends MySource_Object
 		// OK, the first thing to do is check we actually exist :)
 		$sql = 'SELECT assetid, type_code, version, name, short_name, status, languages, charset, force_secure,
 					created, created_userid, updated, updated_userid
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset ';
+				FROM '.$GLOBALS['SQ_TABLE_RUNNING_PREFIX'].'asset ';
 		$where = 'assetid = '.$db->quote($assetid);
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 		
@@ -535,9 +535,9 @@ class Asset extends MySource_Object
 			// PURPOSLY DONT ADD EXTRA CLAUSES FOR ASSET_ATTRIBUTE_VALUE BECAUSE WE WONT GET
 			// DEFAULT VALUES IF WE DO
 			$sql = 'SELECT atr.name, atr.attributeid, atr.type, COALESCE(v.custom_value, atr.default_value) AS value
-					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset a
+					FROM '.$GLOBALS['SQ_TABLE_RUNNING_PREFIX'].'asset a
 							INNER JOIN '.SQ_TABLE_PREFIX.'asset_attribute atr ON a.type_code = atr.type_code
-							LEFT OUTER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_attribute_value v
+							LEFT OUTER JOIN '.$GLOBALS['SQ_TABLE_RUNNING_PREFIX'].'asset_attribute_value v
 								ON (atr.attributeid = v.attributeid AND a.assetid = v.assetid
 									'.$GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('', 'v', 'AND').')
 					'.$where;
@@ -2051,7 +2051,7 @@ class Asset extends MySource_Object
 
 		// find any previous entries
 		$atrr_id_cond = 'IN ('.implode(', ', $attr_ids).')';
-		$sql   = 'SELECT attributeid FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_attribute_value ';
+		$sql   = 'SELECT attributeid FROM '.$GLOBALS['SQ_TABLE_RUNNING_PREFIX'].'asset_attribute_value ';
 		$where = 'assetid = '.$db->quote($this->id).'
 					AND attributeid '.$atrr_id_cond;
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
@@ -2215,8 +2215,8 @@ class Asset extends MySource_Object
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 			$sql = 'SELECT COUNT(*)
-					  FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_attribute_unique_value uv
-						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_attribute oa ON uv.owning_attributeid = oa.attributeid
+					  FROM '.$GLOBALS['SQ_TABLE_RUNNING_PREFIX'].'asset_attribute_unique_value uv
+						INNER JOIN '.$GLOBALS['SQ_TABLE_RUNNING_PREFIX'].'asset_attribute oa ON uv.owning_attributeid = oa.attributeid
 						INNER JOIN '.SQ_TABLE_PREFIX.'asset_attribute a ON (oa.type_code = a.owning_type_code AND oa.name = a.name)
 					  ';
 			$where = ' uv.custom_value = '.$db->quote($value).'
@@ -2432,7 +2432,7 @@ class Asset extends MySource_Object
 			!$this->_checkPermissionAccess(SQ_PERMISSION_READ, Array('0'))) {
 			// if we are in rollback view mode, bypass extra write access checks or we
 			// we always be returning false here (writeAccess returns false)
-			if (SQ_ROLLBACK_VIEW) return $this->_checkPermissionAccess(SQ_PERMISSION_WRITE, $assetids);
+			if ($GLOBALS['SQ_ROLLBACK_VIEW']) return $this->_checkPermissionAccess(SQ_PERMISSION_WRITE, $assetids);
 			return $this->writeAccess('', $assetids);
 		}
 
@@ -2455,7 +2455,7 @@ class Asset extends MySource_Object
 	*/
 	function writeAccess($lock_type, $assetids=Array())
 	{
-		if (SQ_ROLLBACK_VIEW) return false;
+		if ($GLOBALS['SQ_ROLLBACK_VIEW']) return false;
 		if (!$this->id || !empty($GLOBALS['SQ_INSTALL'])) return true;
 		if ($this->status == SQ_STATUS_LIVE) return $this->liveEditAccess($lock_type);
 		return $this->checkAccess(SQ_PERMISSION_WRITE, $lock_type, $assetids);
@@ -2477,7 +2477,7 @@ class Asset extends MySource_Object
 	*/
 	function adminAccess($lock_type, $assetids=Array())
 	{
-		if (SQ_ROLLBACK_VIEW) return false;
+		if ($GLOBALS['SQ_ROLLBACK_VIEW']) return false;
 		if (!$this->id || !empty($GLOBALS['SQ_INSTALL']) || !empty($this->_tmp[__CLASS__.'_in_create_cascading'])) return true;
 		$access = $this->checkAccess(SQ_PERMISSION_ADMIN, $lock_type, $assetids);
 		if ($access && $this->status == SQ_STATUS_LIVE) return $this->liveEditAccess($lock_type);
@@ -2528,7 +2528,7 @@ class Asset extends MySource_Object
 	*/
 	function canliveEdit($lock_type)
 	{
-		if (SQ_ROLLBACK_VIEW) return false;
+		if ($GLOBALS['SQ_ROLLBACK_VIEW']) return false;
 		if (!$this->id) return true;
 		if ($this->status != SQ_STATUS_LIVE) return true;
 
@@ -2731,9 +2731,9 @@ class Asset extends MySource_Object
 		do {
 
 			$sql = 'SELECT ld.designid, a.type_code
-					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup l
-							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup_design ld ON l.url = ld.url
-							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset a ON ld.designid = a.assetid
+					FROM '.$GLOBALS['SQ_TABLE_RUNNING_PREFIX'].'asset_lookup l
+							INNER JOIN '.$GLOBALS['SQ_TABLE_RUNNING_PREFIX'].'asset_lookup_design ld ON l.url = ld.url
+							INNER JOIN '.$GLOBALS['SQ_TABLE_RUNNING_PREFIX'].'asset a ON ld.designid = a.assetid
 					';
 			$where ='l.assetid  = '.$db->quote($this->id).'
 					  AND ld.url  = '.$db->quote($url).'
@@ -2977,7 +2977,7 @@ class Asset extends MySource_Object
 			$where = 'assetid = '.$db->quote($this->id);
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 			$sql = 'SELECT path
-					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_path '.$where.'
+					FROM '.$GLOBALS['SQ_TABLE_RUNNING_PREFIX'].'asset_path '.$where.'
 					ORDER BY sort_order';
 
 			$result = $db->getCol($sql);
@@ -3094,7 +3094,7 @@ class Asset extends MySource_Object
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 			$sql = 'SELECT url, http, https, root_urlid
-					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup ';
+					FROM '.$GLOBALS['SQ_TABLE_RUNNING_PREFIX'].'asset_lookup ';
 			$where = 'assetid = '.$db->quote($this->id);
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
@@ -3133,8 +3133,8 @@ class Asset extends MySource_Object
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 			$sql = 'SELECT l.url, ld.name, ld.designid
-					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup l
-							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup_design ld ON l.url = ld.url
+					FROM '.$GLOBALS['SQ_TABLE_RUNNING_PREFIX'].'asset_lookup l
+							INNER JOIN '.$GLOBALS['SQ_TABLE_RUNNING_PREFIX'].'asset_lookup_design ld ON l.url = ld.url
 					';
 			$where = 'l.assetid = '.$db->quote($this->id);
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
@@ -3181,7 +3181,7 @@ class Asset extends MySource_Object
 
 		// Remove all the old URLs
 		$sql = 'SELECT url, http, https
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup l
+				FROM '.$GLOBALS['SQ_TABLE_RUNNING_PREFIX'].'asset_lookup l
 				'.$GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('assetid = '.$db->quote($this->id), 'l');
 
 		$old_urls = $db->getAll($sql);
