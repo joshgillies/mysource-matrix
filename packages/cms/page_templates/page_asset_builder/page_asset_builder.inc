@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.18 2004/08/02 01:11:08 gsherwood Exp $
+* $Id: page_asset_builder.inc,v 1.19 2004/08/02 06:56:45 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -270,7 +270,13 @@ class Page_Asset_Builder extends Page
 	{
 		?>
 		<script type="text/javascript" language="javascript" src="<?php echo sq_web_path('lib');?>/html_form/html_form.js"></script>
-		<?php $this->_printContents();
+		<form name="asset_builder" method="POST" action="<?php echo $_SERVER['PHP_SELF']; ?>" enctype="multipart/form-data">
+			<?php
+			echo hidden_field('ASSET_BUILDER_ACTION', $this->_default_state);
+			$this->_printContents();
+			?>
+		</form>
+		<?php
 
 	}//end _printBody()
 
@@ -616,30 +622,29 @@ class Page_Asset_Builder extends Page
 			// print the create interface for the asset
 			$create_types = $this->attr('create_type');
 			if (!is_array($create_types)) $create_types = Array($create_types);
-
+			
 			$i = 0;
 			foreach($create_types as $create_type => $value) {
 				$prefix = $this->type().'_'.$this->id.'_type_'.$create_type;
-				?><form name="asset_builder_<?php echo $create_type ?>" method="POST" action="<?php echo $_SERVER['PHP_SELF']; ?>" enctype="multipart/form-data"><div id="<?php echo $prefix ?>" style="display:<?php echo ($i==0) ? 'block' : 'none' ?>">
+				?><div id="<?php echo $prefix ?>" style="display:<?php echo ($i==0) ? 'block' : 'none' ?>">
 				<?php
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset($create_type);
 				$asset = new $create_type();
 				$asset->paintBackend($o);
-
-				// used to indicate to the edit interface that we are creating an asset
-				echo hidden_field('ASSET_BUILDER_ACTION', $this->_default_state);
-				?><input type="hidden" name="asset_action" value="create"><input type="hidden" name="ASSET_BUILDER_CREATE_TYPE" value="<?php echo $create_type ?>"><?php
+				?><?php
  
 				// paint the buffered sections, then clean it up
-				$o->paintSections();
+				$o->paintSections();				
 				$o->_contents = Array();
 
-				?></div></form><?php
+				?></div><?php
 				$i++;
 			}
 
 			// okay, open your eyes again
-			$this->_replacements['create_form'] = ob_get_contents();
+			$contents = ob_get_contents();
+			$this->_replacements['create_form'] = $contents;
+			
 		ob_end_clean();
 
 		if (count($create_types) > 1) {
@@ -654,6 +659,7 @@ class Page_Asset_Builder extends Page
 					document.getElementById(current_option).style.display = 'none';
 					current_option = '<?php echo $this->type().'_'.$this->id.'_type_' ?>' + type_code;
 					document.getElementById(current_option).style.display = 'block';
+					document.getElementById('ASSET_BUILDER_CREATE_TYPE').value = type_code;
 				}//end showAssetBuilderTab()
 				
 			// --></script>
@@ -674,6 +680,8 @@ class Page_Asset_Builder extends Page
 		}
 				
 		ob_start();
+			hidden_field('ASSET_BUILDER_CREATE_TYPE', reset($create_types));
+			?><input type="hidden" name="asset_action" value="create"><?php
 			$create_locations = $this->attr('create_location_optional');
 			if (empty($create_locations)) {
 				;//bam('EMBEDDED ASSET MAP WILL GO HERE WITH AN ASSET FINDER');

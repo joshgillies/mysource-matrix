@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_edit_fns.inc,v 1.12 2004/08/02 01:11:08 gsherwood Exp $
+* $Id: page_asset_builder_edit_fns.inc,v 1.13 2004/08/02 06:56:45 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -195,11 +195,13 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 					$options[$type_code] = $info['name'];
 				}
 			}
+			
 			asort($options);
 			$options = array_reverse($options, true);
 			$options[''] = '-- select asset type --';
 			$options = array_reverse($options, true);
 			combo_box($prefix.'_new_type', $options, false, '');
+
 		}
 
 	}//end paintAddCreateType()
