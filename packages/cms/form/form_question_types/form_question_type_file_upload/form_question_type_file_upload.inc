@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_file_upload.inc,v 1.1 2004/11/09 04:16:17 lwright Exp $
+* $Id: form_question_type_file_upload.inc,v 1.2 2004/11/09 22:20:09 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -129,22 +129,66 @@ class Form_Question_Type_File_Upload extends Form_Question
 		$create_loc_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($create_loc);
 		
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('file');
-		$file_asset = new File();
 		
-		$file_asset->_tmp['uploading_file'] = true;
-		$file_asset->setAttrValue('name', $file['name']);
-		$link = Array('asset' => &$create_loc_asset, 'link_type' => SQ_LINK_TYPE_2);
-			
-		if (!$file_asset->create($link, $file)) return false;
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$existing_file = $db->getOne('select a.assetid from sq_asset a join sq_asset_link l on a.assetid = l.minorid where l.majorid = '.$db->quoteSmart($create_loc).' and a.name = '.$db->quoteSmart($file['name']));
 
-		$lock_status = $GLOBALS['SQ_SYSTEM']->am->acquireLock($file_asset->id, 'attributes');
-		$edit_fns = $file_asset->getEditFns();
-		if (!$edit_fns->processFileUpload($file_asset, $o, $file_asset->getPrefix(), $file)) {
-			if ($lock_status === 1) $GLOBALS['SQ_SYSTEM']->am->releaseLock($file_asset->id, 'attributes');
-			$form->active_submission->setError('There was an error uploading the file for File Upload question "'.$this->attr('name').'" - file already exists in path?');
-			return false;
+		$ok = true;
+		if ($existing_file) {
+			switch($this->attr('overwrite_rule')) {
+				case 'D':
+					$form->active_submission->setError('There was an error uploading the file for File Upload question "'.$this->attr('name').'" - file already exists in path');
+					$ok = false;
+				break;
+
+				case 'O':				// overwrite - just leave as is
+				break;
+
+				case 'R':
+					include_once SQ_FUDGE_PATH.'/general/file_system.inc';
+					while($existing_file) {					
+						$file['name'] = increment_filename($file['name']);
+						$existing_file = $db->getOne('select a.assetid from sq_asset a join sq_asset_link l on a.assetid = l.minorid where l.majorid = '.$db->quoteSmart($create_loc).' and a.name = '.$db->quoteSmart($file['name']));
+					}
+				break;
+			}
 		}
-		if ($lock_status === 1) $GLOBALS['SQ_SYSTEM']->am->releaseLock($file_asset->id, 'attributes');
+			
+		if (!$ok) return false;
+		
+		if ($existing_file) {
+		
+			$file_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($existing_file);
+		
+			$lock_status = $GLOBALS['SQ_SYSTEM']->am->acquireLock($file_asset->id, 'attributes');
+			$edit_fns = $file_asset->getEditFns();
+			
+			if (!$edit_fns->processFileUpload($file_asset, $o, $file_asset->getPrefix(), $file)) {
+				if ($lock_status === 1) $GLOBALS['SQ_SYSTEM']->am->releaseLock($file_asset->id, 'attributes');
+				return false;
+			}
+			if ($lock_status === 1) $GLOBALS['SQ_SYSTEM']->am->releaseLock($file_asset->id, 'attributes');		
+		
+		} else {
+			
+			$file_asset = new File();
+			
+			$file_asset->_tmp['uploading_file'] = true;
+			$file_asset->setAttrValue('name', $file['name']);
+			$link = Array('asset' => &$create_loc_asset, 'link_type' => SQ_LINK_TYPE_2);
+				
+			if (!$file_asset->create($link, $file)) return false;
+	
+			$lock_status = $GLOBALS['SQ_SYSTEM']->am->acquireLock($file_asset->id, 'attributes');
+			$edit_fns = $file_asset->getEditFns();
+			
+			if (!$edit_fns->processFileUpload($file_asset, $o, $file_asset->getPrefix(), $file)) {
+				if ($lock_status === 1) $GLOBALS['SQ_SYSTEM']->am->releaseLock($file_asset->id, 'attributes');
+				return false;
+			}
+			if ($lock_status === 1) $GLOBALS['SQ_SYSTEM']->am->releaseLock($file_asset->id, 'attributes');
+			
+		}
 						
 		$form->active_submission->setAnswer($this->id, $file['name']);
 		$form->active_submission->setSummary($this->id,  $this->attr('name'), $summary);
