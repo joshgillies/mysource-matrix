@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_edit_fns.inc,v 1.28 2005/01/06 17:05:22 brobertson Exp $
+* $Id: image_edit_fns.inc,v 1.29 2005/01/17 17:55:13 brobertson Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -94,7 +94,7 @@ class Image_Edit_Fns extends File_Edit_Fns
 		if (!parent::processFileUpload($asset, $o, $prefix, $info)) return false;
 
 		$save_attrs = false;
-		$info = $asset->_getExistingFile();
+		$info = $asset->getExistingFile();
 		if (!empty($info)) {
 			if ((int) $info['width'] != (int) $this->attr('width')) {
 				$save_attrs = true;
@@ -213,6 +213,144 @@ class Image_Edit_Fns extends File_Edit_Fns
 	}//end processEditor()
 
 
+	/**
+	* Find out is there are any varieties
+	*
+	* @param object Image				&$asset	the file asset
+	*
+	* @access public
+	* @return boolean		true if edit interface to be printed
+	*/
+	function hasVarieties(&$asset)
+	{
+		$varieties = $asset->attr('varieties');
+		return (!empty($varieties['data']));
+
+	}//end hasVarieties()
+
+
+	/**
+	* Paint the varieties editing section
+	*
+	* @param object Image				&$asset	the file asset
+	* @param object Backend_Outputter	&$o		the backend outputter
+	* @param string						$prefix	prefix for form elements
+	*
+	* @access public
+	* @return boolean true if edit interface printed
+	*/
+	function paintCurrentVarieties(&$asset, &$o, $prefix)
+	{
+		$wa = $asset->writeAccess('attributes');
+
+		$varieties = $asset->attr('varieties');
+		if (!empty($varieties)) {
+			foreach($varieties['data'] as $varid => $data)  {
+				$variety = &$asset->getAsset($varid);
+				if (is_null($variety)) continue;
+				$edit_fns = $variety->getEditFns();
+				$edit_fns->paintInlineInterface($variety, $o, $prefix.'_'.$variety->id);
+				if ($wa) {
+					$o->openField('Delete '.$variety->name.'?');
+						check_box($prefix.'_delete[]', $variety->id);
+					$o->closeField();
+				}
+			}// end foreach
+		}// endif
+
+		return $wa;
+
+	}//end paintCurrentVarieties()
+
+
+	/**
+	* Process the varieties editing section
+	*
+	* @param object Image				&$asset	the file asset
+	* @param object Backend_Outputter	&$o		the backend outputter
+	* @param string						$prefix	prefix for form elements
+	*
+	* @access public
+	* @return boolean true if edit interface printed
+	*/
+	function processCurrentVarieties(&$asset, $o, $prefix)
+	{
+		if (!$asset->writeAccess('attributes')) return false;
+
+		$changes_made = false;
+
+		if (!empty($_POST[$prefix.'_delete']) && is_array($_POST[$prefix.'_delete'])) {
+			foreach($_POST[$prefix.'_delete'] as $assetid)  {
+				list(, $varid) = explode(':', $assetid, 2);
+				if ($asset->deleteVariety($assetid)) $changes_made = true;
+			}// end foreach
+		}// end if
+
+		$varieties = $asset->attr('varieties');
+		if (!empty($varieties)) {
+			foreach($varieties['data'] as $varid => $data)  {
+				$variety = &$asset->getAsset($varid);
+				if (is_null($variety)) continue;
+				$edit_fns = $variety->getEditFns();
+				if ($edit_fns->processInlineInterface($variety, $o, $prefix.'_'.$variety->id)) $changes_made = true;
+			}// end foreach
+		}// end if
+
+		return $changes_made;
+
+	}//end processCurrentVarieties()
+
+
+	/**
+	* Print the new variety section
+	*
+	* @param object Image				&$asset	the file asset
+	* @param object Backend_Outputter	&$o		the backend outputter
+	* @param string						$prefix	prefix for form elements
+	*
+	* @access public
+	* @return boolean true if edit interface printed
+	*/
+	function paintNewVariety(&$asset, &$o, $prefix)
+	{
+		$wa = $asset->writeAccess('attributes');
+
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('image_variety');
+		$variety = new Image_Variety();
+
+		$edit_fns = $variety->getEditFns();
+		$edit_fns->paintInlineInterface($variety, $o, $prefix.'_new');
+
+		return $wa;
+
+	}//end paintNewVarieties()
+
+
+	/**
+	* Process the "edit image" screen
+	*
+	* @param object Image				&$asset	the file asset
+	* @param object Backend_Outputter	&$o		the backend outputter
+	* @param string						$prefix	prefix for form elements
+	*
+	* @access public
+	* @return boolean true if edit interface printed
+	*/
+	function processNewVariety(&$asset, $o, $prefix)
+	{
+		if (!$asset->writeAccess('attributes')) return false;
+
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('image_variety');
+		$variety = new Image_Variety();
+
+		$edit_fns = $variety->getEditFns();
+		if (!$edit_fns->processInlineInterface($variety, $o, $prefix.'_new')) return false;
+
+		return $asset->saveVariety($variety);
+
+	}//end processNewVariety()
+
+
 //--        HELPERS        --//
 
 
@@ -227,7 +365,7 @@ class Image_Edit_Fns extends File_Edit_Fns
 	function printExistingFileInfo(&$asset)
 	{
 		parent::printExistingFileInfo($asset);
-		$existing = $asset->_getExistingFile();
+		$existing = $asset->getExistingFile();
 		if (!empty($existing)) {
 			?><b>Dimensions:</b> <?php echo $existing['width'].' x '.$existing['height']?> pixels<br/><?php
 		}

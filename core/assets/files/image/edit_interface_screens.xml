@@ -18,11 +18,12 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screens.xml,v 1.1 2004/11/10 02:15:08 tbarrett Exp $
+* $Id: edit_interface_screens.xml,v 1.2 2005/01/17 17:55:13 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
 
 <screens>
-	<screen code_name="contents" display_name="Edit Image"     icon="create" lock_type="attributes" />
+	<screen code_name="contents" display_name="Edit Image" icon="create" lock_type="attributes" />
+	<screen code_name="varieties" display_name="Varieties" icon="create" lock_type="attributes" force_unlock="0" />
 </screens>

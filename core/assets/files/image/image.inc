@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.18 2005/01/06 17:05:22 brobertson Exp $
+* $Id: image.inc,v 1.19 2005/01/17 17:55:13 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,6 +36,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file.inc';
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
+register_implementation('image', 'bridge');
 class Image extends File
 {
 
@@ -54,6 +55,7 @@ class Image extends File
 	*/
 	function Image($assetid=0)
 	{
+		$this->_ser_attrs = true;
 		$this->File($assetid);
 
 	}//end constructor
@@ -98,8 +100,18 @@ class Image extends File
 	*/
 	function setAttrValue($name, $value)
 	{
-		if ($name == 'alt' || $name == 'title') {
-			$value = htmlspecialchars($value);
+		switch($name) {
+			case 'alt'   :
+			case 'title' :
+				$value = htmlspecialchars($value);
+				break;
+
+			case 'variety_count' :
+				if ((int) $value != (int) $this->attr('variety_count') + 1) {
+					trigger_error('You can only increment the variety_count attribute', E_USER_WARNING);
+					return false;
+				}
+				break;
 		}
 
 		return parent::setAttrValue($name, $value);
@@ -138,10 +150,10 @@ class Image extends File
 	* @return array(string)
 	* @access private
 	*/
-	function _getExistingFile()
+	function getExistingFile()
 	{
 		if (!isset($this->_tmp['existing_file'])) {
-			$this->_tmp['existing_file'] = parent::_getExistingFile();
+			$this->_tmp['existing_file'] = parent::getExistingFile();
 			if (!empty($this->_tmp['existing_file']['path'])) {
 				$size = getimagesize($this->_tmp['existing_file']['path']);
 				$this->_tmp['existing_file']['width']  = $size[0];
@@ -151,7 +163,7 @@ class Image extends File
 
 		return $this->_tmp['existing_file'];
 
-	}//end _getExistingFile()
+	}//end getExistingFile()
 
 
 	/**
@@ -169,6 +181,8 @@ class Image extends File
 	*/
 	function printImageTag($alt='', $title='', $return=false)
 	{
+
+	trigger_error('check need for existingFileInfo() for rollback view');
 		if ($title == '') {
 			$title = ($alt != '') ? $alt : $this->atr('title');
 		}
@@ -203,7 +217,7 @@ class Image extends File
 	{
 		$keywords = parent::getAssetKeywords($descriptions);
 
-		$existing = $this->_getExistingFile();
+		$existing = $this->getExistingFile();
 		if (!isset($existing['height'])) $existing['height'] = '0';
 		if (!isset($existing['width'])) $existing['width'] = '0';
 		$keywords['image_width'] = Array('value' => $existing['width']);
@@ -217,6 +231,499 @@ class Image extends File
 		return $keywords;
 
 	}//end getAssetKeywords()
+
+
+//--        VARIETIES        --//
+
+
+	/**
+	* Creates/Updates a variety for this image
+	* If the variety has an ID then it must belong to this asset in order to be saved.
+	*
+	* @param object Image_Variety	$variety		the variety to save
+	* @param boolean				$recreate_image	whether to generate the image file or not
+	*
+	* @return boolean
+	* @access public
+	*/
+	function saveVariety($variety, $recreate_image=true)
+	{
+		if (!$this->writeAccess('attributes')) {
+			trigger_error('Permission denied to add an Image Variety to "'.$this->name.'" (#'.$this->id.')', E_USER_WARNING);
+			return false;
+		}
+
+		// use attr() instead of just ->name because if the variety hasn't been created yet it won't have a name
+		$name = $variety->attr('name');
+
+		if (trim($name) == '') {
+			trigger_error('Unable to save variety. It must have a name', E_USER_WARNING);
+			return false;
+		}
+
+		$new_variety = false;
+
+		$varieties = $this->attr('varieties');
+
+		// check if this is already one of our varieties
+		if ($variety->id) {
+			list($assetid, $varietyid) = explode(':', $variety->id, 2);
+			if ($assetid != $this->id) {
+				trigger_error('Unable to save variety. It belongs to another asset', E_USER_WARNING);
+				return false;
+			}
+
+			if (isset($varieties['data'][$varietyid])) {
+				if ($varieties['data'][$varietyid]['name'] != $name) {
+					trigger_error('Unable to save variety. A variety with the id "'.$varietyid.'" already exists, but it has a different name', E_USER_WARNING);
+					return false;
+				}
+			} else {
+				trigger_error('Unable to save variety. A variety with the id "'.$varietyid.'" does not exist already exist in "'.$this->name.'" #'.$this->id, E_USER_WARNING);
+				return false;
+			}
+
+		} else {
+
+			if (isset($varieties['lookups'][$name])) {
+				$varietyid = $varieties['lookups'][$name];
+			} else {
+				$varietyid = 'v'.$this->attr('variety_count');
+				if (!isset($varieties['lookups'])) $varieties['lookups'] = Array();
+				$varieties['lookups'][$name] = $varietyid;
+
+				if (!$this->setAttrValue('variety_count', $this->attr('variety_count') + 1)) return false;
+
+			}// endif
+
+			$new_variety = true;
+
+		}// endif
+
+		if (!isset($varieties['data'])) $varieties['data'] = Array();
+		$varieties['data'][$varietyid] = Array();
+		foreach($variety->vars as $attr_name => $attr_data) {
+			$varieties['data'][$varietyid][$attr_name] = $attr_data['value'];
+		}
+
+		if (!$this->setAttrValue('varieties', $varieties)) return false;
+
+		$variety = &$this->getAsset($varietyid);
+		if (is_null($variety)) return false;
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		// create the actual scaled image
+		if ($recreate_image && !$variety->createImage()) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+			
+		if (!$this->saveAttributes()) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		if ($new_variety && !$this->updateLookups()) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		return true;
+
+	}//end saveVariety()
+
+
+	/**
+	* Deletes a variety from this image
+	*
+	* @param string		$varietyid	the shadow assetid or just the shadow part of the variety to delete
+	*
+	* @return boolean
+	* @access public
+	*/
+	function deleteVariety($varietyid)
+	{
+		if (!$this->writeAccess('attributes')) {
+			trigger_error('Permission denied to delete an Image Variety to "'.$this->name.'" (#'.$this->id.')', E_USER_WARNING);
+			return false;
+		}
+
+		if (strpos($varietyid, ':') !== false) {
+			list($assetid, $varietyid) = explode(':', $varietyid, 2);
+			if ($assetid != $this->id) {
+				trigger_error('Unable to delete variety. It belongs to another asset', E_USER_WARNING);
+				return false;
+			}
+		}
+
+		$variety = &$this->getAsset($varietyid);
+		if (is_null($variety)) return false;
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		// delete the actual scaled image files
+		if (!$variety->deleteImage()) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		$varieties = $this->attr('varieties');
+
+		if (!isset($varieties['data'][$varietyid])) {
+			trigger_error('Unable to delete variety "'.$varietyid.'" it does not exist', E_USER_WARNING);
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		unset($varieties['data'][$varietyid]);
+		$lookup_name = array_search($varietyid, $varieties['lookups']);
+		if ($lookup_name !== false) unset($varieties['lookups'][$lookup_name]);
+
+		if (!$this->setAttrValue('varieties', $varieties) || !$this->saveAttributes()) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		if (!$this->updateLookups()) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		return true;
+
+	}//end deleteVariety()
+
+
+//--        VARIETY FILES        --//
+
+
+	/**
+	* Look's after the placing and removing of out files in the public directory
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _checkFileState()
+	{
+		$varieties = $this->attr('varieties');
+		if (!empty($varieties)) {
+			foreach($varieties['lookups'] as $varietyid) {
+				$variety = &$this->getAsset($varietyid);
+				if (is_null($variety)) continue;
+
+				if (!$variety->checkFileState($this->effectiveUnrestricted())) return false;
+
+			}
+		}
+
+		return parent::_checkFileState();
+
+	}//end _checkFileState()
+
+
+	/**
+	* Called to force an update of this assets lookup information
+	*
+	* @return boolean
+	* @access public
+	* @see Asset::updateLookups(), Asset::saveWebPaths()
+	*/
+	function updateLookups()
+	{
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		if (!parent::updateLookups()) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		$use_public_path = ($this->attr('allow_unrestricted') && $this->effectiveUnrestricted() && !($this->status & SQ_SC_STATUS_SAFE_EDITING));
+
+		$varieties = $this->attr('varieties');
+		if (!empty($varieties)) {
+			foreach($varieties['lookups'] as $varietyid) {
+				$variety = &$this->getAsset($varietyid);
+				if (is_null($variety)) continue;
+
+				if (!$variety->updateLookups($use_public_path))  {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return false;
+				}
+
+			}//end foreach
+		}// end if
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		return true;
+
+	}//end updateLookups()
+
+
+//--        BRIDGE INTERFACE        --//
+
+
+	/**
+	* Returns a reference to the asset represented by the passed assetid
+	*
+	* @param int		$shadowid		the shadow part asset id to be loaded (i.e part after the ':')
+	* @param string		$type_code		if this exists then this object is used to
+	*									load the asset, if not then the DB is queried
+	*									to find out the asset type
+	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed because
+	*									you can't use the '@' operator when returning by reference
+	*
+	* @return object Asset or null on error
+	* @access public
+	* @see Asset_Manager::&getAsset()
+	*/
+	function &getAsset($shadowid, $type_code='', $mute_errors=false)
+	{
+		$asset = null;
+		if (empty($shadowid)) return $asset;
+
+		// Varieties are preceded with a 'v'
+		if ($shadowid{0} == 'v') {
+
+			$varieties = $this->attr('varieties');
+
+			if (!isset($varieties['data'][$shadowid])) {
+				trigger_error('Shadow Asset #'.$this->id.':'.$shadowid.' not known', E_USER_WARNING);
+				return $asset;
+			}
+
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset('image_variety');
+			$asset = new Image_Variety($this->id.':'.$shadowid, $varieties['data'][$shadowid]);
+
+		}//end if
+
+		return $asset;
+
+	}//end getAsset()
+
+
+	/**
+	* Return all links that this asset has to other assets
+	*
+	* @param int			$assetid			the shadow part asset id to be loaded (i.e part after the ':') of the the $side_of_link asset
+	* @param int			$link_types			integer that can be the product of bitwise operations
+	*											on the SQ_LINK_* constants
+	* @param string|array	$type_code			the type of asset that is linked
+	*											(eg 'Page', 'File', etc)
+	*											if an array returns link if matches any
+	*											of the array values
+	* @param boolean		$strict_type_code	whether we are finding assets that are just a $type_code
+	*											or $type_code and any of it's sub-classes
+	* @param string			$side_of_link		Which side of the link this (the current) asset
+	*											is on ('major' or 'minor')
+	* @param string			$sort_by			a field in the asset table you would like the results
+	*											sorted by (eg. name, short_name etc)
+	*
+	* @return array
+	* @access public
+	*/
+	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=true, $side_of_link='major', $sort_by=null)
+	{
+		// only TYPE_2 links are ever returned
+		if (!($link_types & SQ_LINK_TYPE_2)) return Array();
+
+		// we can check the type codes outside the loop because they are only ever going to be a single type
+		if ($type_code) {
+			// if we are looking for children, they will be image_variety,
+			// if we are looking for parent, they will whatever this class is
+			$ret_type_code = ($side_of_link == 'major') ? 'image_variety' : $this->type();
+			if ($strict_type_code) {
+				if (is_array($type_code)) {
+					if (!in_array($ret_type_code, $type_code)) return Array();
+				} else {
+					if ($ret_type_code != $type_code) return Array();
+				}
+			} else {
+				$descendants = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($type_code, true);
+				if (!in_array($ret_type_code, $descendants)) return Array();
+			}
+
+		}//end if type_code
+
+		if (!isset($this->_tmp['getLinks'][$assetid][$side_of_link])) {
+
+			$links = Array();
+			$varieties = $this->attr('varieties');
+
+			if (!empty($varieties)) {
+
+				// if we are looking from this asset and not a shadow asset
+				if ($this->id == $assetid) {
+					if ($side_of_link == 'minor') {
+						// should never happen...but anyway
+						trigger_error('Unable to get the links from the minor side to the major side when the assetid is not a shadow assets id', E_USER_ERROR);
+
+					} else {
+						$i = 0;
+						foreach ($varieties['data'] as $varid => $data) {
+							$links[] = Array('linkid'			=> 0,
+											 'minorid'			=> $this->id.':'.$varid,
+											 'minor_type_code'	=> 'image_variety',
+											 'value'			=> '',
+											 'link_type'		=> SQ_LINK_TYPE_2,
+											 'is_dependant'		=> true,
+											 'is_exclusive'		=> true,
+											 'sort_order'		=> $i,
+											);
+							$i++;
+						}// end foreach
+
+					}// endif
+
+
+				// looking from shadow asset
+				} else {
+
+					// because the varieties are only ever going to be one level down
+					// if we are looking up the tree all we can see is this image asset
+					if ($side_of_link == 'minor') {
+						if (!isset($varieties['data'][$assetid])) {
+							trigger_error('Shadow asset #'.$assetid.' is not known to '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').' Asset #'.$this->id, E_USER_WARNING);
+							return Array();
+
+						} else {
+							$links[] = Array('linkid'			=> 0,
+											 'majorid'			=> $this->id,
+											 'major_type_code'	=> $this->type(),
+											 'value'			=> '',
+											 'link_type'		=> SQ_LINK_TYPE_2,
+											 'is_dependant'		=> true,
+											 'is_exclusive'		=> true,
+											 'sort_order'		=> array_search($assetid, array_keys($varieties['data'])),
+											);
+						}//endif
+
+					// because the varieties are only ever going to be one level down
+					// if we are looking down the tree there will be nothing
+					} else {
+						$links = Array();
+
+					}// endif
+
+				}// end if
+
+				if (!is_null($sort_by)) {
+					uasort($links, create_function('$a,$b', 'return $a["'.$sort_by.'"] < $b["'.$sort_by.'"];'));
+				}
+
+			} // end if
+
+			$this->_tmp['getLinks'][$assetid][$side_of_link] = $links;
+
+		}//end if
+
+		return $this->_tmp['getLinks'][$assetid][$side_of_link];
+
+	}//end getLinks()
+
+
+	/**
+	* Get all asset ids that are below the passed assetid in the various trees in which it exists
+	*
+	* @param int			$assetid			the id of the asset to get its children for
+	* @param string|array	$type_code			the type of asset that is linked
+	*											(eg 'Page', 'File', etc)
+	*											if an array returns link if matches any
+	*											of the array values
+	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
+	*											or $type_code and any of it's sub-classes
+	* @param string			$sort_by			a field in the asset table you would like the results
+	*											sorted by (eg. name, short_name etc)
+	*
+	* @return Array(int => string)	returns an array of assetids and their type code
+	* @access public
+	* @see Asset_Manager::getChildren()
+	*/
+	function getChildren($assetid, $type_code='', $strict_type_code=true, $sort_by=null)
+	{
+		// if this is a shadow asset, then it has no children
+		if (!is_numeric($assetid)) return Array();
+
+		// we can check the type codes outside the loop because they are only ever going to be a single type
+		if ($type_code) {
+
+			$ret_type_code = 'image_variety';
+			if ($strict_type_code) {
+				if (is_array($type_code)) {
+					if (!in_array($ret_type_code, $type_code)) return Array();
+				} else {
+					if ($ret_type_code != $type_code) return Array();
+				}
+			} else {
+				$descendants = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($type_code, true);
+				if (!in_array($ret_type_code, $descendants)) return Array();
+			}
+
+		}//end if type_code
+
+		$children = Array();
+
+		$varieties = $this->attr('varieties');
+		if (!empty($varieties)) {
+			foreach ($varieties['data'] as $varid => $data) {
+				$children[$this->id.':'.$varid] = 'image_variety';
+			}// end foreach
+		}
+
+		return $children;
+
+	}//end getChildren()
+
+
+	/**
+	* Get all asset ids that are above the passed assetid in the various trees in which it exists
+	*
+	* Can only find parents of type <i>form_section</i> or <i>form</i>
+	*
+	* @param int			$assetid			the id of the asset to get its parents for
+	* @param string|array	$type_code			the type of asset that is linked (eg 'Form_Section', 'Form_Question', etc)
+	*											if an array returns link if matches any of the array values
+	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
+	*											or $type_code and any of it's sub-classes
+	*
+	* @return Array(int)
+	* @access public
+	* @see Asset_Manager::getParents()
+	*/
+	function getParents($assetid, $type_code='', $strict_type_code=true)
+	{
+		if ($assetid == $this->id || (string) $assetid{0} != 'v') {
+			// should never happen...but anyway
+			trigger_error('Unable to get the parents when the assetid is not a shadow assets id', E_USER_ERROR);
+		}
+
+		$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, $type_code, $strict_type_code);
+
+		// Now add this class only if it is a valid type code
+		if ($type_code) {
+
+			$ret_type_code = $this->type();
+			if ($strict_type_code) {
+				if (is_array($type_code)) {
+					if (!in_array($ret_type_code, $type_code)) return $parents;
+				} else {
+					if ($ret_type_code != $type_code) return $parents;
+				}
+			} else {
+				$descendants = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($type_code, true);
+				if (!in_array($ret_type_code, $descendants)) return $parents;
+			}
+
+		}//end if type_code
+
+		$parents[] = $this->id;
+
+		return $parents;
+
+	}//end getParents()
 
 
 }//end class

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_management.inc,v 1.8 2005/01/13 23:27:46 gsherwood Exp $
+* $Id: image_management.inc,v 1.9 2005/01/17 17:55:13 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -83,6 +83,16 @@ class Image_Management extends Asset_Management
 								'default'		=> 0,
 								'description'	=> 'Size (in bytes) of the image (generated from the image file)',
 							),
+							'varieties' => Array(
+								'added'     => '0.3',
+								'type'      => 'serialise',
+								'default'   => Array(),
+							),
+							'variety_count' => Array(
+								'added'     => '0.3',
+								'type'      => 'int',
+								'default'   => 1,
+							),
 					);
 
 
@@ -118,7 +128,7 @@ class Image_Management extends Asset_Management
 					continue;
 				}
 
-				$info = $asset->_getExistingFile();
+				$info = $asset->getExistingFile();
 				if (!empty($info)) {
 					if (!$asset->setAttrValue('width',  $info['width']) || !$asset->setAttrValue('height', $info['height']) || !$asset->setAttrValue('size',   $info['size'])) {
 						echo 'Asset #', $asset->id, ' (', $asset->name,') Unable to set width, height and/or size for ', "\n";
