@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hash.inc,v 1.1 2005/02/17 06:34:47 rhoward Exp $
+* $Id: hash.inc,v 1.2 2005/02/21 21:37:26 arailean Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 class Hash
@@ -84,7 +84,7 @@ class Hash
 	* @param mixed	$value	value that the variable will be set to
 	*
 	* @access private
-	* @return
+	* @return void
 	*/
 	function _set($name, $value)
 	{
@@ -109,7 +109,7 @@ class Hash
 	* @param string	$event	the name of the event that was fired
 	*
 	* @access public
-	* @return
+	* @return void
 	*/
 	function setEvent($event)
 	{
@@ -124,7 +124,7 @@ class Hash
 	* @param string	$assetid	the id of the asset
 	*
 	* @access public
-	* @return
+	* @return void
 	*/
 	function setAssetId($assetid)
 	{
@@ -140,7 +140,7 @@ class Hash
 	* @param boolean	$descendants	whether the hash will include the type's descendants, or just the passed asset type
 	*
 	* @access public
-	* @return
+	* @return void
 	*/
 	function setAssetType($asset_type, $descendants=false)
 	{
@@ -174,7 +174,7 @@ class Hash
 	* @param string		$propagation	'01' or '00'. Determines whether the we are checking for assets underneath a tree node, or just for an individual asset
 	*
 	* @access public
-	* @return
+	* @return void
 	*/
 	function setLinkTree($tree_id, $propagation)
 	{
@@ -190,7 +190,7 @@ class Hash
 	* @param string		$trigger_id		the ID of the trigger
 	*
 	* @access public
-	* @return
+	* @return void
 	*/
 	function setTriggerId($trigger_id)
 	{
@@ -206,7 +206,7 @@ class Hash
 	* @param boolean	$is_major		whether the linked asset is a parent or a child
 	*
 	* @access public
-	* @return
+	* @return void
 	*/
 	function setLinkedId($linked_id, $is_major)
 	{
@@ -226,7 +226,7 @@ class Hash
 	* @param boolean	$is_major		whether the linked asset is a parent or a child
 	*
 	* @access public
-	* @return
+	* @return void
 	*/
 	function setLinkedType($linked_type, $is_major)
 	{
@@ -245,7 +245,7 @@ class Hash
 	* @param string		$active		'1' or '0'. Determines whether the trigger is enabled
 	*
 	* @access public
-	* @return
+	* @return void
 	*/
 	function setActive($active)
 	{
@@ -259,7 +259,7 @@ class Hash
 	* and creates all possible combinations of its elements
 	*
 	* @access public
-	* @return
+	* @return void
 	*/
 	function getHashCombinations()
 	{
