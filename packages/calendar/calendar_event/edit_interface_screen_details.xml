@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.4 2005/01/20 13:21:53 brobertson Exp $
+* $Id: edit_interface_screen_details.xml,v 1.5 2005/03/30 00:40:53 lwright Exp $
 *
 */
 -->
@@ -26,18 +26,12 @@
 <contents>
 	<section name="Details" write_access="write:attributes" limbo_access="1">
 		<field attribute="name">
-			<display_name>Name</display_name>
-			<note />
 			<text width="30" height="1" />
 		</field>
 		<field attribute="description">
-			<display_name>Description</display_name>
-			<note />
 			<wysiwyg style="div" width="100%" height="100" />
 		</field>
 		<field>
-			<display_name>Start and End</display_name>
-			<note />
 			<function_call>
 				<paint_function   name="paintSingleStartEndChooser"  />
 				<process_function name="processSingleStartEndChooser" />

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.6 2005/01/20 13:18:40 brobertson Exp $
+* $Id: edit_interface_screen_details.xml,v 1.7 2005/03/30 00:41:12 lwright Exp $
 *
 */
 -->
@@ -26,28 +26,20 @@
 <contents>
 	<section name="Details" write_access="write:attributes">
 		<field attribute="name">
-			<display_name>Page Name</display_name>
-			<note />
 			<text width="35" height="1" />
 		</field>
 		<field attribute="short_name">
-			<display_name>Page Short Name</display_name>
-			<note />
 			<text width="25" height="1" />
 		</field>
 	</section>
 	<section name="Account Manager Settings" write_access="write:attributes">
 		<field>
-			<display_name>Type of Account</display_name>
-			<note>Select what type of user account you would like to create</note>
 			<function_call>
 				<paint_function   name="paintAddCreateType"   />
 				<process_function name="processAddCreateType" />
 			</function_call>
 		</field>
 		<field>
-			<display_name>Create Status</display_name>
-			<note />
 			<function_call>
 				<paint_function   name="paintCreateStatus"   />
 				<process_function name="processCreateStatus" />
@@ -56,21 +48,9 @@
 	</section>
 	<section name="Email Validation" write_access="write:attributes">
 		<field attribute="use_email_validation">
-			<display_name>Use Email Validation</display_name>
-			<note>Should the account remain inactive until the user verifies the email address they have given?</note>
 			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="validation_email_format" show_if="usingEmailValidation">
-			<display_name>Email Format</display_name>
-			<note>Note that the validation email will always be sent to the user who has signed up for an account. You can use the 'To' address to specify additional email address that the notification should be additionally sent to. You may use the following keywords in any of the above fields:&lt;br /&gt;
-			&lt;ul&gt;
-			&lt;li&gt;%validation_url% - the URL the use must click on to validate their email address&lt;/li&gt;
-			&lt;li&gt;%first_name% - the value the new user entered as their first name&lt;/li&gt;
-			&lt;li&gt;%last_name% - the value the new user entered as their last name&lt;/li&gt;
-			&lt;li&gt;%email% - the value the new user entered as their email address&lt;/li&gt;
-			&lt;li&gt;%username% - the value the new user entered as their username&lt;/li&gt;
-			&lt;/ul&gt;
-			</note>
 			<email_format />
 		</field>
 	</section>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: inbox_edit_fns.inc,v 1.44 2005/03/21 03:21:28 dheppell Exp $
+* $Id: inbox_edit_fns.inc,v 1.45 2005/03/30 00:40:03 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dmitry Baranovskiy <dbaranovskiy@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.45 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -120,7 +120,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 			<?php
 		}
 
-		return true;
+		return $write_access;
 
 	}//end paintNewMessage()
 
@@ -424,7 +424,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 			}
 
 		$this->_processReadStatus($asset, $prefix);
-
+		
 		return $write_access;
 
 	}//end paintInbox()
@@ -673,7 +673,6 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 				}
 			}
 		}
-
 		return true;
 
 	}//end processTrash()

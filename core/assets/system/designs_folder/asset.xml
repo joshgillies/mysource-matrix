@@ -21,7 +21,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.8 2005/01/20 13:07:37 brobertson Exp $
+* $Id: asset.xml,v 1.9 2005/03/30 00:39:56 lwright Exp $
 *
 */
 -->
@@ -30,8 +30,8 @@
 	<package>__core__</package>
 	<type_code>designs_folder</type_code>
 	<version>0.1</version>
-	<name>Designs Folder</name>
-	<description>Designs Folder, system folder that holds all the default designs that are installed with your system</description>
+	<name>System Designs Folder</name>
+	<description>System Designs Folder, system folder that holds all the default designs that are installed with your system</description>
 	<instantiable>yes</instantiable>
 	<allowed_access>system</allowed_access>
 	<parent_type>folder</parent_type>

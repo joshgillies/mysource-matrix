@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_trash.xml,v 1.8 2005/01/20 13:07:39 brobertson Exp $
+* $Id: edit_interface_screen_trash.xml,v 1.9 2005/03/30 00:40:03 lwright Exp $
 *
 */
 -->
@@ -26,8 +26,6 @@
 <contents>
 	<section name="Trash" write_access="write:mail">
 		<field>
-			<display_name />
-			<note />
 			<function_call>
 				<paint_function   name="paintTrash"   />
 				<process_function name="processTrash" />

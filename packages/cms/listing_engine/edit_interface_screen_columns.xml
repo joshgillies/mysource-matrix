@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_columns.xml,v 1.1 2005/02/11 00:48:39 lwright Exp $
+* $Id: edit_interface_screen_columns.xml,v 1.2 2005/03/30 00:41:12 lwright Exp $
 *
 */
 -->
@@ -26,8 +26,6 @@
 <contents>
 	<section name="Column Settings" write_access="write:attributes">
 		<field>
-			<display_name>Current Settings</display_name>
-			<note></note>
 			<function_call>
 				<paint_function   name="paintColumnSettings"   />
 				<process_function name="processColumnSettings" />
@@ -36,8 +34,6 @@
 	</section>
 	<section name="Column Layout Preview">
 		<field>
-			<display_name />
-			<note></note>
 			<function_call>
 				<paint_function   name="paintColumnPreview"   />
 				<process_function name="processColumnPreview" />

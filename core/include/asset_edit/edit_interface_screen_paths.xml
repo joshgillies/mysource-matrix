@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_paths.xml,v 1.7 2005/01/20 13:10:34 brobertson Exp $
+* $Id: edit_interface_screen_paths.xml,v 1.8 2005/03/30 00:40:13 lwright Exp $
 *
 */
 -->
@@ -26,16 +26,12 @@
 <contents>
 	<section name="Web Paths" write_access="write:lookups">
 		<field>
-			<display_name>Paths</display_name>
-			<note />
 			<function_call>
 				<paint_function   name="paintPaths"   />
 				<process_function name="processPaths" />
 			</function_call>
 		</field>
 		<field>
-			<display_name>Current URLs</display_name>
-			<note />
 			<function_call>
 				<paint_function   name="paintURLs"   />
 			</function_call>

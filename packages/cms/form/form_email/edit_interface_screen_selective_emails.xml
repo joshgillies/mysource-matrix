@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_selective_emails.xml,v 1.6 2005/01/17 18:23:52 brobertson Exp $
+* $Id: edit_interface_screen_selective_emails.xml,v 1.7 2005/03/30 00:41:11 lwright Exp $
 *
 */
 -->
@@ -26,8 +26,6 @@
 <contents>
 	<section name="Create a New Rule">
 		<field>
-			<display_name>New Rule</display_name>
-			<note>Check this box to create a new, empty Selective Email rule</note>
 			<function_call>
 				<paint_function   name="paintAddSelectiveEmailRule"   />
 				<process_function name="processAddSelectiveEmailRule" />
@@ -36,8 +34,6 @@
 	</section>
 	<section name="Current Selective Email Rules">
 		<field>
-			<display_name>Current Rules</display_name>
-			<note>Only valid rules (marked with a tick in the Valid column) can be processed. To be valid a rule must consist of at least one part, and must specify an email address(es) to send the Selective Email to</note>
 			<function_call>
 				<paint_function   name="paintCurrentSelectiveEmails"   />
 				<process_function name="processCurrentSelectiveEmails" />
@@ -46,16 +42,12 @@
 	</section>
 	<section name="Active Rule">
 		<field>
-			<display_name>Current Rule Parts</display_name>
-			<note>When an asset is selected as the comparison value, it will override the value entered in the text box</note>
 			<function_call>
 				<paint_function   name="paintRuleParts"   />
 				<process_function name="processRuleParts" />
 			</function_call>
 		</field>
 		<field>
-			<display_name>Email Settings</display_name>
-			<note>You can send emails to more than one recipient by separating email addresses with white space, a comma or a semi-colon</note>
 			<function_call>
 				<paint_function   name="paintActiveSend"   />
 				<process_function name="processActiveSend" />
@@ -64,16 +56,12 @@
 	</section>
 	<section name="Add New Rule Part">
 		<field>
-			<display_name>Apply Rule To</display_name>
-			<note>Select the form question asset that this rule part will apply to</note>
 			<function_call>
 				<paint_function   name="paintActiveQuestion"   />
 				<process_function name="processActiveQuestion" />
 			</function_call>
 		</field>
 		<field>
-			<display_name>Add Rule Part</display_name>
-			<note></note>
 			<function_call>
 				<paint_function   name="paintAddRulePart"   />
 				<process_function name="processAddRulePart" />

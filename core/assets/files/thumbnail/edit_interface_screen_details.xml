@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.11 2005/01/20 13:07:34 brobertson Exp $
+* $Id: edit_interface_screen_details.xml,v 1.12 2005/03/30 00:39:45 lwright Exp $
 *
 */
 -->
@@ -26,36 +26,24 @@
 <contents>
 	<section name="Details" write_access="write:attributes">
 		<field attribute="name">
-			<display_name>File Name</display_name>
-			<note />
 			<text width="25" height="1" />
 		</field>
 		<field attribute="allow_unrestricted">
-			<display_name>Allow Unrestricted Access</display_name>
-			<note>Set to Yes to allow this file to be be served by the web server if it is Live and publically readable.</note>
 			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field>
-			<display_name>Upload File</display_name>
-			<note />
 			<function_call>
 				<paint_function   name="paintFileUpload"   />
 				<process_function name="processFileUpload" />
 			</function_call>
 		</field>
 		<field attribute="alt">
-			<display_name>Alt</display_name>
-			<note>%description%</note>
 			<text width="40" height="1" />
 		</field>
 		<field attribute="title">
-			<display_name>Title</display_name>
-			<note>%description%</note>
 			<text width="40" height="1" />
 		</field>
 		<field attribute="caption">
-			<display_name>Caption</display_name>
-			<note>%description%</note>
 			<text width="60" height="2" />
 		</field>
 	</section>

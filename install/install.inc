@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.inc,v 1.31 2005/03/29 06:59:59 arailean Exp $
+* $Id: install.inc,v 1.32 2005/03/30 00:40:17 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * Purpose
 * Functions used to install and upgrade the system
 *
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -154,6 +154,7 @@ function uninstall_asset_types()
 			$sql = 'DELETE FROM '.SQ_TABLE_PREFIX.'ast_typ WHERE type_code = '.$db->quote($asset_type);
 
 			$result = $db->query($sql);
+			assert_valid_db_result($result);
 			if (DB::isError($result)) {
 				trigger_error('SQL error while deleting asset type \''.$asset_type.'\': ' .$result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -611,5 +612,614 @@ function format_deferred_packages($packages)
 
 }//end format_deferred_packages()
 
+
+function find_asset_type_dirs($asset_type)
+{
+	if ($asset_type != 'asset') {
+		$asset_dir = SQ_SYSTEM_ROOT.'/'.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset_type, 'dir');
+
+		$asset_dirs = Array($asset_dir);
+		$parent_type = $asset_type;
+		while (($parent_type = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($parent_type, 'parent_type')) != 'asset') {
+			$asset_dirs[] = SQ_SYSTEM_ROOT.'/'.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($parent_type, 'dir');
+		}
+	} else {
+		$asset_dirs = Array();
+	}
+
+	return $asset_dirs;
+
+}//end find_asset_type_dirs()
+
+
+/**
+* Takes the requested filename and searches back up the directories to find the matching file
+* closest to the type of the asset that we are creating or editing
+*
+* @param string	$file_name	the file to find
+*
+* @return string
+* @access public
+*/
+function find_edit_interface_file($asset_type, $file_name)
+{
+	$file_name = 'edit_interface_'.$file_name.'.xml';
+
+	$file = '';
+	$asset_dirs =& find_asset_type_dirs($asset_type);
+	array_push($asset_dirs, SQ_INCLUDE_PATH.'/asset_edit');
+	for ($i = 0; $i < count($asset_dirs); $i++) {
+		if (file_exists($asset_dirs[$i].'/'.$file_name)) {
+			$file = $asset_dirs[$i].'/'.$file_name;
+			break;
+		}
+	}
+
+	if (!$file) {
+		trigger_error($file_name.' not found for Asset Type "'.$asset_type.'"', E_USER_WARNING);
+		return false;
+	}
+
+	return $file;
+
+}//end find_edit_interface_file()
+
+
+/**
+* Find a list of language files to extract from, searching up the
+* directories for the closest match in the current language, then running
+* through fallbacks (ie. the system's default backend locale)
+*
+* @param string	$file_name	the file to find
+*
+* @return Array	an array of file names to potentially parse, most relevant
+*				first
+* @access public
+*/
+function find_edit_interface_language_files($asset_type, $file_name, $locale)
+{
+	$file_name = 'lang_'.$file_name.'.xml';
+
+	$files = Array();
+	$asset_dirs =& find_asset_type_dirs($asset_type);
+	array_push($asset_dirs, SQ_INCLUDE_PATH.'/asset_edit');
+
+	list($lang, $country, $variant) = $GLOBALS['SQ_SYSTEM']->lm->getLocaleParts($locale);
+
+	$lang_dirs = Array(strtolower($lang));
+	if (!empty($country)) {
+		array_unshift($lang_dirs, strtolower($lang).'/'.strtoupper($country));
+
+		if (!empty($variant)) {
+			array_unshift($lang_dirs, strtolower($lang).'/'.strtoupper($country).'/'.$variant);
+		}
+	}
+
+	for($i = 0; $i < count($lang_dirs); $i++) {
+		for ($j = 0; $j < count($asset_dirs); $j++) {
+			if (file_exists($asset_dirs[$j].'/locale/'.$lang_dirs[$i].'/'.$file_name)) {
+				$files[] = $asset_dirs[$j].'/locale/'.$lang_dirs[$i].'/'.$file_name;
+			}
+		}
+	}
+
+	return $files;
+
+}//end find_edit_interface_language_files()
+
+
+/**
+* Builds an XML tree for a screen/locale combination that can be cached
+*
+* @param string	$screen	the screen being built for this asset type
+* @param string	$locale	the locale we are generating this screen for
+*
+* @return object XML_Tree_Node
+*/
+function build_localised_screen($asset_type, $screen, $locale) {
+	//print '  - Building '.$screen.'.'.$locale."\n";
+
+	$ei_file = find_edit_interface_file($asset_type, $screen);
+
+	// get the XML for the edit interface file
+	$ei_input = new XML_Tree($ei_file);
+	$to_cache  = &$ei_input->getTreeFromFile();
+	if (PEAR::isError($to_cache)) {
+		trigger_error('Unable to Read File : '.$ei_file."\n".$to_cache->getMessage()."\n".$to_cache->getUserInfo(), E_USER_WARNING);
+		return null;
+	}
+
+	if (empty($to_cache->children)) {
+		return serialize($to_cache);
+	}
+
+	$lang_files = find_edit_interface_language_files($asset_type, $screen, $locale);
+
+	foreach($lang_files as $lang_file) {
+
+		// get the XML for the edit interface file
+		$lang_input = new XML_Tree($lang_file);
+		$lang_root  = &$lang_input->getTreeFromFile();
+		if (PEAR::isError($lang_root)) {
+			trigger_error('Unable to Read File : '.$lang_file."\n".$lang_root->getMessage()."\n".$lang_root->getUserInfo(), E_USER_WARNING);
+			continue;
+		}
+
+		// work through all the sections
+		for($sec_index = 0; $sec_index < count($lang_root->children); $sec_index++) {
+			$xml_section =& $lang_root->children[$sec_index];
+
+			for($i = 0; $i < count($to_cache->children); $i++) {
+				$this_section =& $to_cache->children[$i];
+
+				if ($this_section->attributes['name'] ==
+				$xml_section->attributes['name']) {
+					break;
+				}
+			}
+
+			// not found
+			if ($i >= count($to_cache->children)) {
+				continue;
+			}
+
+			// now work through all the fields
+			for($field_index = 0; $field_index < count($xml_section->children); $field_index++) {
+				$xml_field =& $xml_section->children[$field_index];
+
+				switch ($xml_field->name) {
+					case 'display_name':
+						// is a display name already set?
+						if (!isset($this_section->attributes['display_name'])) {
+							$this_section->attributes['display_name'] = $xml_field->content;
+						}
+					break;
+
+					case 'field':
+						// as in the current painting of the interface,
+						// the existence of an attribute name means we are
+						// accessing an attribute, otherwise we are accessing
+						// a function call
+
+						if (empty($xml_field->attributes['attribute'])) {
+
+							// first, look for the function call tag in the language file
+							for($sub_index = 0; $sub_index < count($xml_field->children); $sub_index++) {
+								if ($xml_field->children[$sub_index]->name == 'function_call') {
+									$xml_paint_field =& $xml_field->children[$sub_index]->children[0];
+									break;
+								}
+							}
+
+							// now, look to see if any of the structure fields match
+							for($i = 0; $i < count($this_section->children); $i++) {
+								$this_field =& $this_section->children[$i];
+								$paint_field =& $this_field->children[0]->children[0];
+
+								if ($paint_field->attributes['name'] == $xml_paint_field->attributes['name']) {
+									break;
+								}
+							}
+
+							// not found
+							if ($i >= count($this_section->children)) {
+								continue;
+							}
+
+							// check to see whether we already have a display
+							// name or note, because we don't want to double
+							// them up
+							$has_display_name = false;
+							$has_note = false;
+
+							for($sub_field_index = 0; $sub_field_index < count($this_field->children); $sub_field_index++) {
+								$sub_name = $this_field->children[$sub_field_index]->name;
+								if ($sub_name == 'display_name') {
+									$has_display_name = true;
+								}
+
+								if ($sub_name == 'note') {
+									$has_note = true;
+								}
+							}
+
+							for($sub_index = 0; $sub_index < count($xml_field->children); $sub_index++) {
+								$xml_sub_field = $xml_field->children[$sub_index];
+								switch($xml_sub_field->name) {
+									case 'display_name':
+										$this_field->insertChild(null, 0, $xml_sub_field->name, $xml_sub_field->content);
+									break;
+
+									case 'note':
+										// want to insert this as second-to-last
+										$this_field->insertChild(null, count($this_field->children) - 1, $xml_sub_field->name, $xml_sub_field->content);
+									break;
+
+								}
+							}
+
+						} else {
+
+							$attr_name = $xml_field->attributes['attribute'];
+
+							for($i = 0; $i < count($this_section->children); $i++) {
+								$this_field =& $this_section->children[$i];
+								if (array_get_index($this_field->attributes, 'attribute', '') == $attr_name) {
+									break;
+								}
+							}
+
+							// not found
+							if ($i >= count($this_section->children)) {
+								continue;
+							}
+
+							// check to see whether we already have a display
+							// name or note, because we don't want to double
+							// them up
+							$has_display_name = false;
+							$has_note = false;
+
+							for($sub_field_index = 0; $sub_field_index < count($this_field->children); $sub_field_index++) {
+								$sub_name = $this_field->children[$sub_field_index]->name;
+								if ($sub_name == 'display_name') {
+									$has_display_name = true;
+								}
+
+								if ($sub_name == 'note') {
+									$has_note = true;
+								}
+							}
+
+							for($sub_index = 0; $sub_index < count($xml_field->children); $sub_index++) {
+								$xml_sub_field = $xml_field->children[$sub_index];
+								switch($xml_sub_field->name) {
+									case 'display_name':
+										if (!$has_display_name) {
+											$this_field->insertChild(null, 0, $xml_sub_field->name, $xml_sub_field->content);
+										}
+									break;
+
+									case 'note':
+										// want to insert this as second-to-last
+										if (!$has_note) {
+											$this_field->insertChild(null, count($this_field->children) - 1, $xml_sub_field->name, $xml_sub_field->content);
+										}
+									break;
+
+								}
+							}
+
+						}
+
+					break;
+
+				}//end switch
+
+			}
+
+		}
+
+	}
+
+	return $to_cache;
+
+}//end build_localised_screen()
+
+
+/**
+* Builds an XML tree for a screen/locale combination that can be cached
+*
+* @param string	$screen	the screen being built for this asset type
+* @param string	$locale	the locale we are generating this screen for
+*
+* @return object XML_Tree_Node
+*/
+function build_localised_static_screen($asset_type, $screen, $locale) {
+	//print '  - Building '.$screen.'.'.$locale."\n";
+
+	$ei_file = find_edit_interface_file($asset_type, $screen);
+	// get the XML for the edit interface file
+	$ei_input = new XML_Tree($ei_file);
+	$to_cache  = &$ei_input->getTreeFromFile();
+	if (PEAR::isError($to_cache)) {
+		trigger_error('Unable to Read File : '.$ei_file."\n".$to_cache->getMessage()."\n".$to_cache->getUserInfo(), E_USER_WARNING);
+		return null;
+	}
+
+	if (empty($to_cache->children)) {
+		return serialize($to_cache);
+	}
+
+	if ($asset_type == 'system_management_folder') {
+		bam($to_cache);
+	}
+
+	$lang_files = find_edit_interface_language_files($asset_type, $screen, $locale);
+
+	foreach($lang_files as $lang_file) {
+
+		// get the XML for the edit interface file
+		$lang_input = new XML_Tree($lang_file);
+		$lang_root  = &$lang_input->getTreeFromFile();
+		if (PEAR::isError($lang_root)) {
+			trigger_error('Unable to Read File : '.$lang_file."\n".$lang_root->getMessage()."\n".$lang_root->getUserInfo(), E_USER_WARNING);
+			continue;
+		}
+
+		if ($asset_type == 'system_management_folder') {
+			bam($lang_root);
+		}
+
+		// work through all the sections
+		for($sec_index = 0; $sec_index < count($lang_root->children); $sec_index++) {
+			$xml_section =& $lang_root->children[$sec_index];
+
+			for($i = 0; $i < count($to_cache->children); $i++) {
+				$this_section =& $to_cache->children[$i];
+
+				if ($this_section->attributes['name'] ==
+				$xml_section->attributes['name']) {
+					break;
+				}
+			}
+
+			// not found
+			if ($i >= count($to_cache->children)) {
+				continue;
+			}
+
+			// now work through all the fields
+			for($field_index = 0; $field_index < count($xml_section->children); $field_index++) {
+				$xml_field =& $xml_section->children[$field_index];
+
+				switch ($xml_field->name) {
+					case 'display_name':
+						// is a display name already set?
+						if (!isset($this_section->attributes['display_name'])) {
+							$this_section->attributes['display_name'] = $xml_field->content;
+						}
+					break;
+
+					case 'field':
+						// as in the current painting of the interface,
+						// the existence of an attribute name means we are
+						// accessing an attribute, otherwise we are accessing
+						// a function call
+
+						if (empty($xml_field->attributes['code'])) {
+							trigger_error('Static screen sections need a code for each field', E_USER_WARNING);
+						} else {
+
+							$code_name = $xml_field->attributes['code'];
+
+							for($i = 0; $i < count($this_section->children); $i++) {
+								$this_field =& $this_section->children[$i];
+								if (array_get_index($this_field->attributes, 'code', '') == $code_name) {
+									break;
+								}
+							}
+
+							// not found
+							if ($i >= count($this_section->children)) {
+								continue;
+							}
+
+							// check to see whether we already have a display
+							// name or note, because we don't want to double
+							// them up
+							$has_display_name = false;
+							$has_note = false;
+
+							for($sub_field_index = 0; $sub_field_index < count($this_field->children); $sub_field_index++) {
+								$sub_name = $this_field->children[$sub_field_index]->name;
+								if ($sub_name == 'display_name') {
+									$has_display_name = true;
+								}
+
+								if ($sub_name == 'note') {
+									$has_note = true;
+								}
+							}
+
+							for($sub_index = 0; $sub_index < count($xml_field->children); $sub_index++) {
+								$xml_sub_field = $xml_field->children[$sub_index];
+								switch($xml_sub_field->name) {
+									case 'display_name':
+										if (!$has_display_name) {
+											$this_field->insertChild(null, 0, $xml_sub_field->name, $xml_sub_field->content);
+										}
+									break;
+
+									case 'note':
+										// want to insert this as last
+										if (!$has_note) {
+											$this_field->insertChild(null, count($this_field->children), $xml_sub_field->name, $xml_sub_field->content);
+										}
+									break;
+
+								}
+							}
+
+						}
+
+					break;
+
+				}//end switch
+
+			}
+
+		}
+
+	}
+
+	return $to_cache;
+
+}//end build_localised_static_screen()
+
+
+function find_string_language_files($asset_dirs, $locale)
+{
+	$file_name = 'lang_strings.xml';
+
+	$files = Array();
+
+	list($lang, $country, $variant) = $GLOBALS['SQ_SYSTEM']->lm->getLocaleParts($locale);
+
+	$lang_dirs = Array(strtolower($lang));
+	if (!empty($country)) {
+		array_unshift($lang_dirs, strtolower($lang).'/'.strtoupper($country));
+
+		if (!empty($variant)) {
+			array_unshift($lang_dirs, strtolower($lang).'/'.strtoupper($country).'/'.$variant);
+		}
+	}
+
+	for($i = 0; $i < count($lang_dirs); $i++) {
+		for ($j = 0; $j < count($asset_dirs); $j++) {
+			if (file_exists($asset_dirs[$j].'/locale/'.$lang_dirs[$i].'/'.$file_name)) {
+				$files[] = $asset_dirs[$j].'/locale/'.$lang_dirs[$i].'/'.$file_name;
+			}
+		}
+	}
+
+	return $files;
+
+}//end find_string_language_files()
+
+
+function build_locale_string_file($locale)
+{
+	$asset_types = $GLOBALS['SQ_SYSTEM']->am->getAssetTypes();
+	$packages = $GLOBALS['SQ_SYSTEM']->getInstalledPackages();
+
+	$files_to_parse = Array(
+							'core'		=> Array(),
+							'packages'	=> Array(),
+							'assets'	=> Array()
+						);
+
+	$strings = Array();
+
+	// run through the core
+	$asset_dirs = Array(SQ_SYSTEM_ROOT.'/core');
+	$files_to_parse['core'] = find_string_language_files($asset_dirs, $locale);
+
+	// run through each installed package
+	foreach($packages as $package) {
+		$package_name = $package['code_name'];
+
+		if ($package_name == '__core__') {
+			$asset_dirs = Array(SQ_CORE_PACKAGE_PATH);
+		} else {
+			$asset_dirs = Array(SQ_PACKAGES_PATH.'/'.$package_name);
+		}
+
+		$files_to_parse['packages'][$package_name] = find_string_language_files($asset_dirs, $locale);
+	}
+
+	// run through each installed asset
+	foreach($asset_types as $asset_type) {
+		$type_code = $asset_type['type_code'];
+		$asset_dirs =& find_asset_type_dirs($type_code);
+
+		$files_to_parse['assets'][$type_code] = find_string_language_files($asset_dirs, $locale);
+	}
+
+	$strings = Array();
+
+	foreach($files_to_parse['core'] as $file) {
+		$strings = array_merge(array_get_index($strings, 'core', Array()), extract_strings_from_xml($file));
+
+		if (!empty($strings)) {
+			create_directory(SQ_DATA_PATH.'/private/asset_types/asset');
+			string_to_file(serialize($strings), SQ_DATA_PATH.'/private/asset_types/asset/strings.'.$locale);
+		}
+		print '.';
+	}
+
+	foreach($files_to_parse['packages'] as $package_name => $files) {
+		$strings = Array();
+		foreach($files as $file) {
+			$strings = array_merge($strings, extract_strings_from_xml($file));
+		}
+
+		if ($package_name == '__core__') {
+			$package_dir = Array(SQ_CORE_PACKAGE_PATH);
+		} else {
+			$package_dir = Array(SQ_PACKAGES_PATH.'/'.$package_name);
+		}
+		if (!empty($strings)) {
+			create_directory(SQ_DATA_PATH.'/private/packages/'.$package_name);
+			string_to_file(serialize($strings), SQ_DATA_PATH.'/private/packages/'.$package_name.'/strings.'.$locale);
+		}
+	}
+
+	foreach($files_to_parse['assets'] as $type_code => $files) {
+		$strings = Array();
+		foreach($files as $file) {
+			$strings = array_merge($strings, extract_strings_from_xml($file));
+		}
+
+		$asset_dir = $asset_types[$type_code]['dir'];
+		if (!empty($strings)) {
+			create_directory(SQ_DATA_PATH.'/private/asset_types/'.$type_code);
+			string_to_file(serialize($strings), SQ_DATA_PATH.'/private/asset_types/'.$type_code.'/strings.'.$locale);
+		}
+	}
+
+}//end build_locale_string_file()
+
+
+/**
+* Extract strings from an xml string source file
+*/
+function extract_strings_from_xml($file)
+{
+	$extracted_strings = Array();
+
+	$input = new XML_Tree($file);
+	$root  = &$input->getTreeFromFile();
+	if (PEAR::isError($root)) {
+		trigger_error('Unable to Read File : '.$file."\n".$root->getMessage()."\n".$root->getUserInfo(), E_USER_WARNING);
+		return Array();
+	}
+
+	if ($root->name != 'strings') {
+		trigger_error('XML file ".$file." does not appear to be a valid string source XML file - expecting "strings" as document element, found "'.$root->name.'"', E_USER_WARNING);
+		return Array();
+	}
+
+	foreach($root->children as $string_node) {
+		if ($string_node->name != 'string') {
+			trigger_error('XML file ".$file." does not appear to be a valid string source XML file - expecting node "string", found "'.$string_node->name.'"', E_USER_WARNING);
+			return Array();
+		}
+
+		if (!isset($string_node->attributes['source'])) {
+			trigger_error('XML file ".$file." does not appear to be a valid string source XML file - missing attribute "source" in string node', E_USER_WARNING);
+			return Array();
+		}
+
+		$source_code = $string_node->attributes['source'];
+		$translation = $string_node->content;
+		$export_to_js = array_get_index($string_node->attributes, 'export_to_js', '0');
+		$export_to_java = array_get_index($string_node->attributes, 'export_to_java', '0');
+
+		// have it already been set in this file?
+		if(isset($extracted_strings[$source_code])) {
+			trigger_error('XML file ".$file." does not appear to be a valid string source XML file - detected duplicate string source code "'.$source_code.'"', E_USER_WARNING);
+			return Array();
+		} else if (empty($translation)) {
+			trigger_error('Skipping translation for string source code "'.$source_code.'" as the translation appears to be empty', E_USER_NOTICE);
+		} else {
+			$extracted_strings[$source_code] = $translation;
+		}
+
+	}//end foreach string_node
+
+	return $extracted_strings;
+
+}//end extract_strings_from_xml()
 
 ?>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_ecommerce_rules.xml,v 1.2 2005/01/20 13:22:21 brobertson Exp $
+* $Id: edit_interface_screen_ecommerce_rules.xml,v 1.3 2005/03/30 00:41:28 lwright Exp $
 *
 */
 -->
@@ -26,8 +26,6 @@
 <contents>
 	<section name="Ecommerce Questions">
 		<field>
-			<display_name>Current Questions</display_name>
-			<note>E-commerce rule is a rule that assigns a dollar value to each question option. Left pane shows all the ELIGIBLE question types linked to this form. When you copy the question to the right pane, you are specifying that it should be included in e-commerce rule set. Question added to the set still needs some parameter to be set.  Select the question you want to edit in the right pane and hit the commit button. For a question with multiple options you will see an input box next to each option. Putting a numeric value in each of these boxes will assign dollar values to the options. If the question that you have chosen is of a numeric type, there are n o options you can set. The value submitted by the user will be used as a dollar value.</note>
 			<function_call>
 				<paint_function   name="paintEcommerceQuestionLinks"   />
 				<process_function name="processEcommerceQuestionLinks" />

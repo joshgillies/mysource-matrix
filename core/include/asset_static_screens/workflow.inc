@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow.inc,v 1.19 2005/03/28 23:11:25 gsherwood Exp $
+* $Id: workflow.inc,v 1.20 2005/03/30 00:40:14 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once DIRNAME(__FILE__).'/details.inc';
 * Workflow Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix
 */
 
@@ -66,7 +66,7 @@ function paintInlineWorkflow(&$owner, &$o, &$ei)
 		<table class="sq-backend-table">
 			<tr>
 				<td class="sq-backend-table-header">
-					Work Flow Schema
+					Workflow Schema
 				</td>
 				<td class="sq-backend-table-header" align="right">
 					Access
@@ -127,7 +127,10 @@ function paintInlineWorkflow(&$owner, &$o, &$ei)
 */
 function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 {
-	if (!($file = $ei->findFile('static_screen_workflow'))) return false;
+	$root = &$ei->findScreen('static_screen_workflow');
+	if (is_null($root)) {
+		return false;
+	}
 
 	$prefix = $owner->getPrefix();
 	$print_commit_button = false;
@@ -136,13 +139,6 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 	$schemas = $wfm->getSchemas($owner->id);
 	$running_schemas = $wfm->getSchemas($owner->id, true, true);
 	$admin_access = $owner->adminAccess('workflow');
-
-	$input = new XML_Tree($file);
-	$root  = &$input->getTreeFromFile();
-	if (PEAR::isError($root)) {
-		trigger_error('Unable to Read File : '.$file."\n".$root->getMessage()."\n".$root->getUserInfo(), E_USER_WARNING);
-		return false;
-	}
 
 	for ($i = 0; $i < count($root->children); $i++) {
 
@@ -159,7 +155,7 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 
 		if (!is_null($keywords) && isset($keywords['sections'][strtolower($section->attributes['name'])])) ob_start();
 
-		$o->openSection($section->attributes['name']);
+		$o->openSection(array_get_index($section->attributes, 'display_name', $section->attributes['name']));
 
 		if (!($num_fields = count($section->children))) continue;
 

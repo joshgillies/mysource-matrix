@@ -1,0 +1,45 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Open Source Licence                                      |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_screen_sorting.xml,v 1.1 2005/03/30 00:42:12 lwright Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="Sorting">
+		<field>
+			<display_name>Sort By</display_name>
+			<note />
+			<function_call>
+				<paint_function name="paintSortBy" />
+				<process_function name="processSortBy" />
+			</function_call>
+		</field>
+		<field attribute="reverse_sort">
+			<display_name>Reverse Sort</display_name>
+			<note />
+		</field>
+		<field attribute="num_per_page">
+			<display_name>Results Per Page</display_name>
+			<note></note>
+		</field>
+	</section>
+</contents>

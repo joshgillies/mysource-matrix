@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.93 2005/03/29 06:45:27 arailean Exp $
+* $Id: mysource.inc,v 1.94 2005/03/30 00:40:12 lwright Exp $
 *
 */
 
@@ -26,6 +26,8 @@
 require_once 'DB.php';
 require_once SQ_INCLUDE_PATH.'/mysource_object.inc';
 require_once SQ_INCLUDE_PATH.'/asset_manager.inc';
+require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
+
 
 /**
 * MySource
@@ -34,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/asset_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.93 $
+* @version $Revision: 1.94 $
 * @package MySource_Matrix
 */
 class MySource
@@ -119,6 +121,11 @@ class MySource
 	var $em;
 
 	/**
+	* @var object Locale_Manager
+	*/
+	var $lm;
+
+	/**
 	* @var object Trigger_Manager
 	*/
 	var $trigger_manager;
@@ -195,6 +202,11 @@ class MySource
 
 		// initialise the asset manager as we are going to need it pretty much everywhere
 		$this->am = new Asset_Manager();
+
+		// Same with the locale manager; translations will be all around us
+		$this->lm = new Locale_Manager();
+
+		$this->lm->setCurrentLocale(SQ_CONF_DEFAULT_BACKEND_LOCALE);
 
 		// running from the command line or installer? don't use cookies for session
 		if (!SQ_PHP_CLI && $GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS)) {

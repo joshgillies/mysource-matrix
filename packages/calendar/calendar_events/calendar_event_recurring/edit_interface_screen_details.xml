@@ -18,33 +18,25 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.5 2005/01/20 13:21:53 brobertson Exp $
+* $Id: edit_interface_screen_details.xml,v 1.6 2005/03/30 00:40:53 lwright Exp $
 *
 */
 -->
 <contents>
 	<section name="Details" write_access="write:attributes" limbo_access="1">
 		<field attribute="name">
-			<display_name>Name</display_name>
-			<note />
 			<text width="30" height="1" />
 		</field>
 		<field attribute="description">
-			<display_name>Description</display_name>
-			<note />
 			<wysiwyg style="div" width="100%" height="100" />
 		</field>
 		<field>
-			<display_name>First Instance</display_name>
-			<note />
 			<function_call>
 				<paint_function   name="paintRecurringStartEndChooser"  />
 				<process_function name="processRecurringStartEndChooser" />
 			</function_call>
 		</field>
 		<field>
-			<display_name>Recurs</display_name>
-			<note />
 			<function_call>
 				<paint_function	name="paintFrequencyField" />
 				<process_function name="processFrequencyField" />

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.4 2005/01/20 13:18:40 brobertson Exp $
+* $Id: edit_interface_screen_details.xml,v 1.5 2005/03/30 00:41:12 lwright Exp $
 *
 */
 -->
@@ -26,53 +26,35 @@
 <contents>
 	<section name="Locking / Editing">
 	    <field>
-			<display_name></display_name>
-			<note></note>
 			<function_call>
 				<paint_function   name="paintLockMessage"   />
 				<process_function name="processLockMessage" />
 			</function_call>
 		</field>
 	</section>
-	<section name="Question Options" write_access="write:attributes">
+	<section name="Question Options">
 	    <field attribute="name">
-			<display_name>Title</display_name>
-			<note></note>
 			<text width="20" height="1" />
 		</field>
 		<field attribute="note">
-			<display_name>Note</display_name>
-			<note></note>
 			<text width="40" height="2" />
 		</field>
 		<field attribute="default">
-			<display_name>Default</display_name>
-			<note></note>
 			<text width="30" height="1" />
 		</field>
 		<field attribute="width">
-			<display_name>Width</display_name>
-			<note></note>
 			<text width="5" height="1" />
 		</field>
 		<field attribute="max">
-			<display_name>Maximum Length</display_name>
-			<note></note>
 			<text width="5" height="1" />
 		</field>
 		<field attribute="min">
-			<display_name>Minimum Length</display_name>
-			<note></note>
 			<text width="5" height="1" />
 		</field>
 		<field attribute="verify">
-			<display_name>Requires Verification</display_name>
-			<note>If this is set to Yes, two fields will appear on the form, which have to be entered correctly for the form to be submitted</note>
 			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="extra">
-			<display_name>Extras</display_name>
-			<note></note>
 			<text width="20" height="1" />
 		</field>
 	</section>

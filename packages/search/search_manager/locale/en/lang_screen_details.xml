@@ -1,0 +1,64 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Open Source Licence                                      |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_screen_details.xml,v 1.1 2005/03/30 00:42:12 lwright Exp $
+*
+*/
+-->
+<contents>
+	<section name="Indexing Manager">
+		<field attribute="indexing">
+			<display_name>Indexing Status</display_name>
+			<note />
+		</field>
+	</section>
+	<section name="Re-index Assets">
+		<field>
+			<display_name>Root Node</display_name>
+			<note />
+			<function_call>
+				<paint_function		name="paintReindexing" />
+				<process_function	name="processReindexing" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Noise Words">
+		<field attribute="min_word_length">
+			<display_name>Minimum Word Length</display_name>
+			<note>Words smaller than this length will be ignored by the indexer. Zero disables this option.</note>
+		</field>
+		<field>
+			<display_name>Noise Word List</display_name>
+			<note>Words in this list will be ignored by the indexer. This does not conflict with "Minimum Word Length".</note>
+			<function_call>
+				<paint_function		name="paintNoiseWords" />
+				<process_function	name="processNoiseWords" />
+			</function_call>
+		</field>
+		<field>
+			<display_name>White Word List</display_name>
+			<note>Words in this list will not be ignored by the indexer. This overrides "Minimum Word Length" and "Noise Word List".</note>
+			<function_call>
+				<paint_function		name="paintWhiteWords" />
+				<process_function	name="processWhiteWords" />
+			</function_call>
+		</field>
+	</section>
+</contents>

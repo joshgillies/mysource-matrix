@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.4 2005/01/26 09:49:21 brobertson Exp $
+* $Id: edit_interface_screen_details.xml,v 1.5 2005/03/30 00:41:28 lwright Exp $
 *
 */
 -->
@@ -26,13 +26,9 @@
 <contents>
 	<section name="Details">
 		<field write_access="write:attributes" attribute="name">
-			<display_name>Product Name</display_name>
-			<note />
 			<text width="30" />
 		</field>
 		<field write_access="write:attributes" format="new_line">
-			<display_name>Product Price</display_name>
-			<note />
 			<function_call>
 				<paint_function   name="paintProductPrice" />
 				<process_function name="processProductPrice" />
@@ -41,18 +37,12 @@
 	</section>
 	<section name="Product Description">
 		<field write_access="write:attributes" attribute="description">
-			<display_name>Product Description</display_name>
-			<note />
 			<text width="60" height="5" />
 		</field>
 		<field write_access="write:attributes" attribute="short_description">
-			<display_name>Short Description</display_name>
-			<note />
 			<text width="60" height="4" />
 		</field>
 		<field write_access="write:attributes" attribute="details">
-			<display_name>Details/ Product Specifications</display_name>
-			<note />
 			<text width="60" height="4" />
 		</field>
 	</section>

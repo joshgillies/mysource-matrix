@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.4 2005/03/02 21:11:41 brobertson Exp $
+* $Id: edit_interface_screen_details.xml,v 1.5 2005/03/30 00:39:44 lwright Exp $
 *
 */
 -->
@@ -26,8 +26,6 @@
 <contents>
 	<section name="Details" write_access="none">
 		<field attribute="name">
-			<display_name>Name</display_name>
-			<note />
 			<text width="12" height="1" />
 		</field>
 	</section>

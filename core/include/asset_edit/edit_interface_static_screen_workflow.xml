@@ -18,52 +18,25 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_static_screen_workflow.xml,v 1.3 2005/01/20 13:10:34 brobertson Exp $
+* $Id: edit_interface_static_screen_workflow.xml,v 1.4 2005/03/30 00:40:13 lwright Exp $
 *
 */
 -->
 
 <contents>
 	<section name="Running Workflows">
-		<field code="workflow_metadata_warning">
-			<display_name />
-			<note />
-		</field>
-		<field code="workflow_status_change">
-			<display_name />
-			<note />
-		</field>
-		<field code="workflow_log_message">
-			<display_name />
-			<note />
-		</field>
-		<field code="workflow_status_commit">
-			<display_name />
-			<note />
-		</field>
-		<field code="workflow_logs">
-			<display_name />
-			<note />
-		</field>
-		<field code="workflow_report">
-			<display_name />
-			<note />
-		</field>
+		<field code="workflow_metadata_warning" />
+		<field code="workflow_status_change" />
+		<field code="workflow_log_message" />
+		<field code="workflow_status_commit" />
+		<field code="workflow_logs" />
+		<field code="workflow_report" />
 	</section>
 	<section name="Workflow Schemas">
-		<field code="workflow_schemas">
-			<display_name />
-			<note />
-		</field>
-		<field code="workflow_add_schemas">
-			<display_name />
-			<note />
-		</field>
+		<field code="workflow_schemas" />
+		<field code="workflow_add_schemas" />
 	</section>
 	<section name="Cascade Options" read_access="admin:workflow">
-		<field code="workflow_cascade_options">
-			<display_name />
-			<note />
-		</field>
+		<field code="workflow_cascade_options" />
 	</section>
 </contents>

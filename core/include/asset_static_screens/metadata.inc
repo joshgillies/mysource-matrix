@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata.inc,v 1.12 2005/02/01 11:24:25 brobertson Exp $
+* $Id: metadata.inc,v 1.13 2005/03/30 00:40:14 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * MetaData Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix
 */
 
@@ -45,20 +45,16 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 */
 function paintMetadata(&$owner, &$o, &$ei, $keywords=null)
 {
-	if (!($file = $ei->findFile('static_screen_metadata'))) return false;
+	$root = &$ei->findScreen('static_screen_metadata');
+	if (is_null($root)) {
+		return false;
+	}
 
 	$prefix = $owner->getPrefix();
 	$print_commit_button = false;
 
 	$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
 	$schemas = $mm->getSchemas($owner->id, true);
-
-	$input = new XML_Tree($file);
-	$root  = &$input->getTreeFromFile();
-	if (PEAR::isError($root)) {
-		trigger_error('Unable to Read File : '.$file."\n".$root->getMessage()."\n".$root->getUserInfo(), E_USER_WARNING);
-		return false;
-	}
 
 	for ($i = 0; $i < count($root->children); $i++) {
 
@@ -75,7 +71,7 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=null)
 
 		if (!is_null($keywords) && isset($keywords['sections'][strtolower($section->attributes['name'])])) ob_start();
 
-		$o->openSection($section->attributes['name']);
+		$o->openSection(array_get_index($section->attributes, 'display_name', $section->attributes['name']));
 
 		if (!($num_fields = count($section->children))) continue;
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_sorting.xml,v 1.1 2005/02/11 00:48:55 lwright Exp $
+* $Id: edit_interface_screen_sorting.xml,v 1.2 2005/03/30 00:42:12 lwright Exp $
 *
 */
 -->
@@ -26,21 +26,15 @@
 <contents>
 	<section name="Sorting" write_access="write:attributes">
 		<field>
-			<display_name>Sort By</display_name>
-			<note />
 			<function_call>
 				<paint_function name="paintSortBy" />
 				<process_function name="processSortBy" />
 			</function_call>
 		</field>
 		<field attribute="reverse_sort">
-			<display_name>Reverse Sort</display_name>
-			<note />
 			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="num_per_page">
-			<display_name>Results Per Page</display_name>
-			<note></note>
 			<int width="5" />
 		</field>
 	</section>

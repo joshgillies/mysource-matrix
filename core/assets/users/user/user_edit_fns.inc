@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_edit_fns.inc,v 1.13 2005/03/01 05:46:04 gsherwood Exp $
+* $Id: user_edit_fns.inc,v 1.14 2005/03/30 00:40:04 lwright Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -87,13 +87,14 @@ class User_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintUserConditions(&$asset, &$o, $prefix)
 	{
-		if ($asset->writeAccess('attributes')) {
-			$groups = $this->_getLinkedGroups($asset);
+		$groups = $this->_getLinkedGroups($asset);
 
-			if (empty($groups)) {
-				echo 'This user is not a member of any user groups; it cannot be restricted';
-				return false;
-			}
+		if (empty($groups)) {
+			echo 'This user is not a member of any user groups; it cannot be restricted';
+			return false;
+		}
+			
+		if ($asset->writeAccess('attributes')) {
 
 			foreach ($groups as $group_assetid => $group) {
 				$group_menu[$group_assetid] = $group['name'];
@@ -232,6 +233,61 @@ class User_Edit_Fns extends Asset_Edit_Fns
 		return false;
 
 	}//end processUserConditions()
+
+
+	/**
+	* Interface painting function for locale settings
+	*
+	* @param object User				&$asset	the user asset
+	* @param object Backend_Outputter	&$o		the backend outputter
+	* @param string						$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintLocale(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+	
+		require SQ_FUDGE_PATH.'/standards_lists/locales.inc';
+		$current_locale = $asset->attr('locale');
+
+		if ($write_access) {
+			$standards_lists_locales = array_reverse($standards_lists_locales);
+			$standards_lists_locales[''] = '** Use System Default **';
+			$standards_lists_locales = array_reverse($standards_lists_locales);
+			combo_box($prefix.'_locale', $standards_lists_locales, false, $current_locale);
+		} else {
+			if (isset($standards_lists_locales[$current_locale])) {
+				echo $standards_lists_locales[$current_locale];
+			} elseif ($current_locale == '') {
+				// add system default to this message when it is determined
+				echo '<i>No locale is set for this user - system default "'.$standards_lists_locales[SQ_CONF_DEFAULT_BACKEND_LOCALE].'" used</i>';
+			} else {
+				echo '<i>Unknown locale "'.$current_locale.'" set</i>';
+			}
+		}
+
+		return $write_access;
+
+	}//end paintLocale()
+
+
+	/**
+	* Processes the interface for locale settings
+	*
+	* @param object User				&$asset	the user asset
+	* @param object Backend_Outputter	&$o		the backend outputter
+	* @param string						$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processLocale(&$asset, &$o, $prefix)
+	{
+		return false;
+
+	}//end processLocale()
 
 
 }//end class

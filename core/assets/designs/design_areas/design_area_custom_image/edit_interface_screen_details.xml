@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.7 2005/01/20 13:07:32 brobertson Exp $
+* $Id: edit_interface_screen_details.xml,v 1.8 2005/03/30 00:39:40 lwright Exp $
 *
 */
 -->
@@ -26,8 +26,6 @@
 <contents>
 	<section name="Details">
 		<field>
-			<display_name>Id Name</display_name>
-			<note />
 			<function_call>
 				<paint_function name="paintIdName" />
 			</function_call>
@@ -35,16 +33,12 @@
 	</section>
 	<section name="Image" write_access="write:attributes">
 		<field>
-			<display_name>Image Upload</display_name>
-			<note />
 			<function_call>
 				<paint_function   name="paintImageUpload" />
 				<process_function name="processImageUpload" />
 			</function_call>
 		</field>
 		<field>
-			<display_name>Current Image</display_name>
-			<note />
 			<function_call>
 				<paint_function   name="paintCurrentImage" />
 			</function_call>

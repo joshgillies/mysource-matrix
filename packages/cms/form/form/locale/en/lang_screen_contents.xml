@@ -1,0 +1,123 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Open Source Licence                                      |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_screen_contents.xml,v 1.1 2005/03/30 00:41:11 lwright Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="Questions (not attached to a section)">
+		<field>
+			<display_name>Current Questions</display_name>
+			<note>If you reorder or delete questions, you must commit the changes before they will take effect</note>
+			<function_call>
+				<paint_function   name="paintQuestionLinks"   />
+				<process_function name="processQuestionLinks" />
+			</function_call>
+		</field>
+		<field>
+			<display_name>Add Questions</display_name>
+			<note>Select the question type and the number of questions to add</note>
+			<function_call>
+				<paint_function   name="paintAddQuestions"   />
+				<process_function name="processAddQuestions" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Sections">
+		<field>
+			<display_name>Add Sections</display_name>
+			<note>Select the number of sections to add</note>
+			<function_call>
+				<paint_function   name="paintAddSections"   />
+				<process_function name="processAddSections" />
+			</function_call>
+		</field>
+		<field>
+			<display_name>Current Sections</display_name>
+			<note>Click on a section's name to display that section</note>
+			<function_call>
+				<paint_function   name="paintSectionLinks"   />
+				<process_function name="processSectionLinks" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Formatting">
+		<field>
+			<display_name>Use Bodycopy?</display_name>
+			<note>When bodycopy is not used, a default style will be used</note>
+			<function_call>
+				<paint_function   name="paintUseBodycopy"   />
+				<process_function name="processUseBodycopy" />
+			</function_call>
+		</field>
+		<field attribute="submit_button">
+			<display_name>Submit Button Text</display_name>
+			<note>If no custom text is entered here, &quot;Submit&quot; will be used.</note>
+		</field>
+		<field attribute="reset_button">
+			<display_name>Reset Button Text</display_name>
+			<note>If no custom text is entered here, &quot;Clear Form&quot; will be used.</note>
+		</field>
+		<field attribute="note_size">
+			<display_name>Note Text Size</display_name>
+			<note>Question notes (if any) will be displayed at this size.</note>
+		</field>
+	</section>
+	<section name="Validation">
+		<field attribute="use_client_side">
+			<display_name>Validation Method</display_name>
+			<note>Note that server-side validation will always be used if a browser does not support it on the client side</note>
+		</field>
+	</section>
+	<section name="Simple Formatting">
+		<field>
+			<display_name>Note</display_name>
+			<note />
+			<function_call>
+				<paint_function	name="paintSimpleFormatting" />
+				<process_function name="processSimpleFormatting" />
+			</function_call>
+		</field>
+		<field attribute="form_width">
+			<display_name>Form Width</display_name>
+			<note>The whole form will be this width when printed on the frontend. This can be a number of pixels or a percentage</note>
+		</field>
+		<field attribute="question_col_width">
+			<display_name>Question Width</display_name>
+			<note>The width of the column for question names. This can be a number of pixels or a percentage of the form width</note>
+		</field>
+		<field attribute="answer_col_width">
+			<display_name>Answer Width</display_name>
+			<note>The width of the column for the question answer fields. This can be a number of pixels or a percentage of the form width</note>
+		</field>
+	</section>
+	<section name="Complex Formatting">
+		<field>
+			<display_name>Keywords</display_name>
+			<note />
+			<function_call>
+				<paint_function	name="paintComplexFormatting" />
+				<process_function name="processComplexFormatting" />
+			</function_call>
+		</field>
+	</section>
+</contents>

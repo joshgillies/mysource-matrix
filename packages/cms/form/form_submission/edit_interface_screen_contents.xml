@@ -18,14 +18,9 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_contents.xml,v 1.8 2005/01/20 13:18:40 brobertson Exp $
+* $Id: edit_interface_screen_contents.xml,v 1.9 2005/03/30 00:41:12 lwright Exp $
 *
 */
 -->
 
-<contents>
-	<section name="contents">
-	    <field>
-		</field>
-	</section>
-</contents>
+<contents />

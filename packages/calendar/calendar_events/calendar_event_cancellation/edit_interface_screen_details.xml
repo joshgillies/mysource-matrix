@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.4 2005/01/20 13:21:53 brobertson Exp $
+* $Id: edit_interface_screen_details.xml,v 1.5 2005/03/30 00:40:53 lwright Exp $
 *
 */
 -->
@@ -26,24 +26,18 @@
 <contents>
 	<section name="Details" write_access="write:attributes">
 		<field>
-			<display_name>Recurring Event to Cancel</display_name>
-			<note />
 			<function_call>
 				<paint_function	  name="paintRecurringEventChooser" />
 				<process_function name="processRecurringEventChooser" />
 			</function_call>
 		</field>
 		<field>
-			<display_name>Occurrence to Cancel</display_name>
-			<note />
 			<function_call>
 				<paint_function   name="paintDateTimeChooser"  />
 				<process_function name="processDateTimeChooser" />
 			</function_call>
 		</field>
 		<field attribute="description">
-			<display_name>Reason for cancellation</display_name>
-			<note />
 			<wysiwyg style="div" width="100%" height="100" />
 		</field>
 	</section>

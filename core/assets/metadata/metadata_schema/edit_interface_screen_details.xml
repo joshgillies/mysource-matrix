@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.12 2005/01/20 13:07:35 brobertson Exp $
+* $Id: edit_interface_screen_details.xml,v 1.13 2005/03/30 00:39:49 lwright Exp $
 *
 */
 -->
@@ -26,15 +26,11 @@
 <contents>
 	<section name="Details" write_access="write:attributes">
 		<field attribute="name">
-			<display_name>Schema Name</display_name>
-			<note />
 			<text width="12" height="1" />
 		</field>
 	</section>
 	<section name="Sections Defined For This Metadata Schema" write_access="write:links">
 		<field>
-			<display_name></display_name>
-			<note />
 			<function_call>
 				<paint_function   name="paintSections"   />
 				<process_function name="processSections" />
@@ -43,8 +39,6 @@
 	</section>
 	<section name="Create New Section" read_access="write:links" write_access="write:links">
 		<field>
-			<display_name></display_name>
-			<note />
 			<function_call>
 				<paint_function   name="paintNewSection"   />
 				<process_function name="processNewSection" />
@@ -53,34 +47,26 @@
 	</section>
 	<section name="Regenerate Metadata Files" read_access="write:" write_access="write:">
 		<field>
-			<display_name></display_name>
-			<note />
 			<function_call>
 				<paint_function   name="paintRegenerate"   />
 				<process_function name="processRegenerate" />
 			</function_call>
 		</field>
 	</section>
-	<section name="XML Namespace settings" read_access="write:" write_access="write:">
+	<section name="XML Namespace Settings" read_access="write:" write_access="write:">
 		<field>
-			<display_name></display_name>
-			<note />
 			<function_call>
 				<paint_function   name="paintDefaultXMLns"   />
 				<process_function name="processDefaultXMLns" />
 			</function_call>
 		</field>
 		<field>
-			<display_name>Namespace</display_name>
-			<note />
 			<function_call>
 				<paint_function   name="paintNamespace"   />
 				<process_function name="processNamespace" />
 			</function_call>
 		</field>
 		<field>
-			<display_name>Namespace URI</display_name>
-			<note />
 			<function_call>
 				<paint_function   name="paintNsURL"   />
 				<process_function name="processNsURL" />
@@ -89,8 +75,6 @@
 	</section>
 	<section name="Options" write_access="write:attributes">
 		<field attribute="frontend">
-			<display_name>Show On Frontend</display_name>
-			<note />
 			<boolean true_text="Yes" false_text="No" />
 		</field>
 	</section>

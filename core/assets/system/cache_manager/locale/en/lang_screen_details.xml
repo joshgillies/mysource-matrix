@@ -1,0 +1,54 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Open Source Licence                                      |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_screen_details.xml,v 1.1 2005/03/30 00:39:54 lwright Exp $
+*
+*/
+-->
+<contents>
+	<section name="Cache Options">
+		<field attribute="enabled">
+			<display_name>Caching Status</display_name>
+			<note />
+		</field>
+		<field attribute="num_cache_dirs">
+			<display_name>Number of Cache Buckets</display_name>
+			<note>The number of cache buckets that will be created to avoid directory size limits. The maximum number of cache directories created for storage will be this number squared.</note>
+		</field>
+		<field attribute="expiry">
+			<display_name>Default Expiry</display_name>
+			<note>The length of time a cache entry is valid in seconds</note>
+		</field>
+	</section>
+	<section name="Cache Levels">
+		<field attribute="public_caching">
+			<display_name>Public Level Caching</display_name>
+			<note />
+		</field>
+		<field attribute="permission_caching">
+			<display_name>Permission Level Caching</display_name>
+			<note />
+		</field>
+		<field attribute="group_caching">
+			<display_name>Group Level Caching</display_name>
+			<note />
+		</field>
+	</section>
+</contents>

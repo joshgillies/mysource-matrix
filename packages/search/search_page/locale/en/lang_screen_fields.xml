@@ -1,0 +1,74 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Open Source Licence                                      |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_screen_fields.xml,v 1.1 2005/03/30 00:42:12 lwright Exp $
+*
+*/
+-->
+<contents>
+	<section name="Searchable asset types">
+		<field>
+			<display_name>Current Asset Types</display_name>
+			<note></note>
+			<function_call>
+				<paint_function   name="paintCurrentAssetTypes"   />
+				<process_function name="processCurrentAssetTypes" />
+			</function_call>
+		</field>
+		<field>
+			<display_name>Add Asset Type</display_name>
+			<note />
+			<function_call>
+				<paint_function   name="paintAddAssetType"   />
+				<process_function name="processAddAssetType" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Logical Grouping">
+		<field attribute="logic">
+			<display_name>Use AND / OR grouping</display_name> 
+			<note>Search logic does not apply to <b>Exclude</b> field types.</note>
+		</field>
+	</section>
+	<section name="Field Configuration">
+		<field>
+			<display_name />
+			<note></note>
+			<function_call>
+				<paint_function name="paintFields" />
+				<process_function name="processFields" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Field Styles">
+		<field attribute="use_picker">
+			<display_name>Use Date Picker ?</display_name>
+			<note>Use the Javascript date picker for all date fields ?</note>
+		</field>
+		<field>
+			<display_name>Field Styles</display_name>
+			<note></note>
+			<function_call>
+				<paint_function name="paintStyles" />
+				<process_function name="processStyles" />
+			</function_call>
+		</field>
+	</section>
+</contents>

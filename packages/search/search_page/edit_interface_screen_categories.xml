@@ -18,22 +18,18 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_categories.xml,v 1.2 2005/01/20 13:22:57 brobertson Exp $
+* $Id: edit_interface_screen_categories.xml,v 1.3 2005/03/30 00:42:12 lwright Exp $
 *
 */
 -->
 <contents>
 	<section name="General Category Settings">
 		<field write_access="write:attributes" attribute="no_category_text">
-			<display_name>Not Selected Text</display_name>
-			<note />
 			<text width="20" />
 		</field>
 	</section>
 	<section name="Select Existing Category" read_access="write:" write_access="write:attributes">
 		<field>
-			<display_name>Configure Search Category</display_name>
-			<note />
 			<function_call>
 				<paint_function name="paintChooseCategory" />
 				<process_function name="processChooseCategory" />
@@ -42,8 +38,6 @@
 	</section>
 	<section name="Search Category Management" write_access="write:attributes">
 		<field>
-			<display_name>Category Name</display_name>
-			<note />
 			<function_call>
 				<paint_function name="paintCustomiseCategory" />
 				<process_function name="processCustomiseCategory" />

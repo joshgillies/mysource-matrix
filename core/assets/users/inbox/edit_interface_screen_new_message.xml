@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_new_message.xml,v 1.1 2005/02/11 03:11:38 dbaranovskiy Exp $
+* $Id: edit_interface_screen_new_message.xml,v 1.2 2005/03/30 00:40:03 lwright Exp $
 *
 */
 -->
@@ -26,8 +26,6 @@
 <contents>
 	<section name="New Message" write_access="write:mail">
 		<field>
-			<display_name />
-			<note />
 			<function_call>
 				<paint_function   name="paintNewMessage"   />
 				<process_function name="processNewMessage" />

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.5 2005/01/20 13:07:33 brobertson Exp $
+* $Id: edit_interface_screen_details.xml,v 1.6 2005/03/30 00:39:44 lwright Exp $
 *
 */
 -->
@@ -26,52 +26,36 @@
 <contents>
 	<section name="Details" write_access="write:attributes" limbo_access="1">
 		<field attribute="name">
-			<display_name>File Name</display_name>
-			<note />
 			<text width="25" height="1" />
 		</field>
 		<field attribute="allow_unrestricted">
-			<display_name>Allow Unrestricted Access</display_name>
-			<note>Set to Yes to allow this file to be be served by the web server if it is Live and publically readable.</note>
 			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field>
-			<display_name>Upload File</display_name>
-			<note />
 			<function_call>
 				<paint_function		name="paintFileUpload" />
 				<process_function	name="processFileUpload" />
 			</function_call>
 		</field>
 		<field hidden="hidden" show_if="havePreUploadedFiles">
-			<display_name>Choose Pre-Uploaded File</display_name>
-			<note />
 			<function_call>
 				<paint_function   name="paintFileChooser"   />
 				<process_function name="processFileChooser" />
 			</function_call>
 		</field>
 		<field hidden="hidden">
-			<display_name></display_name>
-			<note></note>
 			<function_call>
 				<paint_function		name="paintCreateEditor" />
 				<process_function	name="processCreateEditor" />
 			</function_call>
 		</field>
 		<field attribute="alt">
-			<display_name>Alt</display_name>
-			<note>%description%</note>
 			<text width="40" height="1" />
 		</field>
 		<field attribute="title">
-			<display_name>Title</display_name>
-			<note>%description%</note>
 			<text width="40" height="1" />
 		</field>
 		<field attribute="caption">
-			<display_name>Caption</display_name>
-			<note>%description%</note>
 			<text width="60" height="2" />
 		</field>
 	</section>

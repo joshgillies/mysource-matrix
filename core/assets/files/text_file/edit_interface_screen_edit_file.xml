@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_edit_file.xml,v 1.1 2005/03/11 20:10:17 brobertson Exp $
+* $Id: edit_interface_screen_edit_file.xml,v 1.2 2005/03/30 00:39:45 lwright Exp $
 *
 */
 -->
@@ -26,8 +26,6 @@
 <contents>
 	<section name="Edit File" write_access="write:attributes">
 		<field>
-			<display_name />
-			<note />
 			<function_call>
 				<paint_function   name="paintEditFile"   />
 				<process_function name="processEditFile" />

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: settings.inc,v 1.24 2005/03/28 23:11:25 gsherwood Exp $
+* $Id: settings.inc,v 1.25 2005/03/30 00:40:14 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Settings Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix
 */
 
@@ -46,20 +46,16 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 */
 function paintSettings(&$owner, &$o, &$ei)
 {
-	if (!($file = $ei->findFile('static_screen_settings'))) return;
+	$root = &$ei->findScreen('static_screen_settings');
+	if (is_null($root)) {
+		return false;
+	}
 	$prefix = $owner->getPrefix();
 
 	$created = false;
 
-	$input = new XML_Tree($file);
-	$root  = &$input->getTreeFromFile();
-	if (PEAR::isError($root)) {
-		trigger_error($root->getMessage()."\n".$root->getUserInfo(), E_USER_WARNING);
-		return;
-	}
-
 	if (empty($root->children)) {
-		$o->OpenSection('There are no settings for "'.$owner->name.'"');
+		$o->openSection('There are no settings for "'.$owner->name.'"');
 		$o->closeSection();
 	}
 
@@ -69,7 +65,7 @@ function paintSettings(&$owner, &$o, &$ei)
 		// if we are in limbo and this section is not to be printed in limbo - dont print it
 		if (SQ_IN_LIMBO && (!isset($section->attributes['limbo_access']) || (int)$section->attributes['limbo_access'] == 0)) continue;
 
-		$o->openSection($section->attributes['name']);
+		$o->openSection(array_get_index($section->attributes, 'display_name', $section->attributes['name']));
 
 		if (!($num_fields = count($section->children))) continue;
 		for ($j = 0; $j < $num_fields; $j++) {

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_options.xml,v 1.9 2005/03/17 23:02:15 amiller Exp $
+* $Id: edit_interface_screen_options.xml,v 1.10 2005/03/30 00:39:55 lwright Exp $
 *
 */
 -->
@@ -26,26 +26,18 @@
 <contents>
 	<section name="Options" write_access="root:all" read_access="write:">
 		<field>
-			<display_name>Epoch</display_name>
-			<note />
 			<function_call>
 				<paint_function   name="paintEpoch" />
 				<process_function name="processEpoch" />
 			</function_call>
 		</field>
 		<field attribute="refresh_time">
-			<display_name>Refresh Time</display_name>
-			<note>%description%</note>
 			<duration biggest_units="hours" smallest_units="minutes" />
 		</field>
 		<field attribute="warn_after_num_run_checks">
-			<display_name>Warn After&lt;br&gt;Blocked Runs</display_name>
-			<note>%description%</note>
 			<int width="3" />
 		</field>
 		<field attribute="num_failed_attempts">
-			<display_name>Max Number of&lt;br&gt;Failed Attempts</display_name>
-			<note>%description%</note>
 			<int width="3" />
 		</field>
 	</section>

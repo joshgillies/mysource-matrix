@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.6 2005/01/20 13:07:34 brobertson Exp $
+* $Id: edit_interface_screen_details.xml,v 1.7 2005/03/30 00:39:48 lwright Exp $
 *
 */
 -->
@@ -26,46 +26,32 @@
 <contents>
 	<section name="Details" write_access="write:attributes">
 		<field>
-			<display_name></display_name>
-			<note />
 			<function_call>
 				<paint_function   name="paintKeywordInstructions"   />
 				<process_function name="processKeywordInstructions" />
 			</function_call>
 		</field>
 		<field attribute="name">
-			<display_name>Field Name</display_name>
-			<note />
 			<text width="30" height="1" />
 		</field>
 		<field attribute="scheme">
-			<display_name>Scheme</display_name>
-			<note />
 			<text width="30" height="1" />
 		</field>
 		<field attribute="language">
-			<display_name>Language</display_name>
-			<note />
 			<text width="30" height="1" />
 		</field>
 	</section>
 	<section name="Settings" write_access="write:attributes">
 		<field attribute="multiple">
-			<display_name>Allow Multiple</display_name>
-			<note />
 			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field>
-			<display_name>Style</display_name>
-			<note />
 			<function_call>
 				<paint_function   name="paintEditParams"   />
 				<process_function name="processEditParams" />
 			</function_call>
 		</field>
 		<field>
-			<display_name></display_name>
-			<note />
 			<function_call>
 				<paint_function   name="paintSelection"   />
 				<process_function name="processSelection" />
@@ -74,23 +60,15 @@
 	</section>
 	<section name="Options" write_access="write:attributes">
 		<field attribute="editable">
-			<display_name>Editable</display_name>
-			<note />
 			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="required">
-			<display_name>Required</display_name>
-			<note>%description%</note>
 			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="frontend">
-			<display_name>Show On Frontend</display_name>
-			<note>&lt;b&gt;Always:&lt;/b&gt; this metadata field will always be printed on the frontend.&lt;br&gt;&lt;b&gt;Only If Filled:&lt;/b&gt; this metadata field will only be printed on the frontend if data is entered in that field for that asset.&lt;br&gt;&lt;b&gt;Never:&lt;/b&gt; this metadata field will not be printed on the frontend.</note>
 			<selection style="list" />
 		</field>
 		<field>
-			<display_name>Relevance Weighting</display_name>
-			<note />
 			<function_call>
 				<paint_function		name="paintWeighting" />
 				<process_function	name="processWeighting" />

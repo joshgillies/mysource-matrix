@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_parse_file.xml,v 1.9 2005/01/20 13:07:31 brobertson Exp $
+* $Id: edit_interface_screen_parse_file.xml,v 1.10 2005/03/30 00:39:37 lwright Exp $
 *
 */
 -->
@@ -26,8 +26,6 @@
 <contents>
 	<section name="Edit Parse File" write_access="write:parsing">
 		<field>
-			<display_name />
-			<note />
 			<function_call>
 				<paint_function   name="paintEditParseFile"   />
 				<process_function name="processEditParseFile" />

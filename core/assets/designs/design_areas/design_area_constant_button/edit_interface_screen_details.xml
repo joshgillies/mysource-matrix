@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.8 2005/01/20 13:07:32 brobertson Exp $
+* $Id: edit_interface_screen_details.xml,v 1.9 2005/03/30 00:39:39 lwright Exp $
 *
 */
 -->
@@ -26,8 +26,6 @@
 <contents>
 	<section name="Details">
 		<field>
-			<display_name>Id Name</display_name>
-			<note />
 			<function_call>
 				<paint_function name="paintIdName" />
 			</function_call>
@@ -35,33 +33,23 @@
 	</section>
 	<section name="Link" write_access="write:attributes">
 		<field>
-			<display_name>Asset</display_name>
-			<note>The asset that this button is to link to</note>
 			<function_call>
 				<paint_function   name="paintAssetid" />
 				<process_function name="processAssetid" />
 			</function_call>
 		</field>
 		<field attribute="url">
-			<display_name>URL</display_name>
-			<note>The url that this button is to link to, only relevant if the assetid above is blank</note>
 			<text width="30" height="1" />
 		</field>
 	</section>
 	<section name="Settings" write_access="write:attributes">
 		<field attribute="new_window">
-			<display_name>New Window</display_name>
-			<note />
 			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="new_window_width">
-			<display_name>New Window Width</display_name>
-			<note>Only applicable if New Window is "Yes"</note>
 			<int width="5" />
 		</field>
 		<field attribute="new_window_height">
-			<display_name>New Window Height</display_name>
-			<note>Only applicable if New Window is "Yes"</note>
 			<int width="5" />
 		</field>
 	</section>

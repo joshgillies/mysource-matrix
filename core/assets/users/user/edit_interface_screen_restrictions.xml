@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_restrictions.xml,v 1.1 2005/02/22 22:57:35 lwright Exp $
+* $Id: edit_interface_screen_restrictions.xml,v 1.2 2005/03/30 00:40:04 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -26,8 +26,6 @@
 <contents>
 	<section name="User Restrictions" read_access="write:" write_access="write:attributes">
 		<field>
-			<display_name>Add Group Restriction</display_name>
-			<note />
 			<function_call>
 				<paint_function name="paintUserConditions" />
 				<process_function name="processUserConditions" />

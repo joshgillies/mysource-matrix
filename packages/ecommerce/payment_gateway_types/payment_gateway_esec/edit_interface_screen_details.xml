@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.4 2005/01/20 13:22:22 brobertson Exp $
+* $Id: edit_interface_screen_details.xml,v 1.5 2005/03/30 00:41:28 lwright Exp $
 *
 */
 -->
@@ -26,42 +26,25 @@
 <contents>
 	<section name="Details" write_access="write:attributes">
 		<field attribute="name">
-			<display_name>Page Name</display_name>
-			<note />
 			<text width="35" height="1" />
 		</field>
 		<field attribute="short_name">
-			<display_name>Short Name</display_name>
-			<note />
 			<text width="35" height="1" />
 		</field>
 	</section>
-
 	<section name="Identifiers" write_access="write:attributes">
 		<field attribute="merchant_id">
-			<display_name>Merchant ID</display_name>
-			<note />
 			<text width="35" height="1" />
 		</field>
 	</section>
-
 	<section name="Testing Mode" write_access="write:attributes">
 		<field attribute="test_mode">
-			<display_name>Test Mode</display_name>
-			<note>Turn this switch ON for testing purposes. This will set the merchant ID to test among other things. When turned on, the gateway screen will display that it is in testing mode.</note>
 			<boolean true_text="ON" false_text="OFF" />
 		</field>
 	</section>
-
 	<section name="Message" write_access="write:attributes">
-
 		<field attribute="message">
-			<display_name>Gateway Screen Message</display_name>
-			<note>This message will be displayed on the gateway upon redirect from the e-commerce page.</note>
 			<wysiwyg style="div" width="100%" height="100" />
 		</field>
-
 	</section>
-
-
 </contents>

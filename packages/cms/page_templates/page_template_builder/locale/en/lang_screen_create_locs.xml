@@ -1,0 +1,51 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Open Source Licence                                      |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_screen_create_locs.xml,v 1.1 2005/03/30 00:41:13 lwright Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="Fixed Create Locations">
+		<field>
+			<display_name />
+			<note />
+			<function_call>
+				<paint_function   name="paintFixedCreateLocations"   />
+				<process_function name="processFixedCreateLocations" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Additional Create Locations">
+		<field attribute="parameter_map">
+			<display_name>Additional Location Data Sources</display_name>
+			<note />
+		</field>
+		<field>
+			<display_name>Permitted Tree Locations</display_name>
+			<note>Create locations gathered from the data sources above will only be processed if they or one of their ancestor assets is listed above.</note>
+			<function_call>
+				<paint_function		name="paintAdditionalLocationParents" />
+				<process_function	name="processAdditionalLocationParents" />
+			</function_call>
+		</field>
+	</section>
+</contents>

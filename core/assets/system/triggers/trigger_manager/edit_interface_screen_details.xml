@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.2 2005/02/23 00:08:26 arailean Exp $
+* $Id: edit_interface_screen_details.xml,v 1.3 2005/03/30 00:40:01 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -26,8 +26,6 @@
 <contents>
 	<section name="Details" write_access="write:attributes">
 		<field attribute="enabled">
-			<display_name>Trigger Manager Status:</display_name>
-			<note>If disabled, no triggers will be executed</note>
 			<boolean true_text="Enabled" false_text="Disabled" />
 		</field>
 	</section>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.22 2005/01/20 13:07:31 brobertson Exp $
+* $Id: edit_interface_screen_details.xml,v 1.23 2005/03/30 00:39:37 lwright Exp $
 *
 */
 -->
@@ -26,23 +26,17 @@
 <contents>
 	<section name="Details" write_access="write:attributes">
 		<field attribute="id_name">
-			<display_name>Design Name</display_name>
-			<note />
 			<text width="60" height="1" />
 		</field>
 	</section>
 	<section name="Parse File" write_access="write:parsing" read_access="write:">
 		<field>
-			<display_name>Manual</display_name>
-			<note />
 			<function_call>
 				<paint_function   name="paintReparseFile"   />
 				<process_function name="processReparseFile" />
 			</function_call>
 		</field>
 		<field>
-			<display_name>Upload</display_name>
-			<note>All your images, stylesheets and javascript files &lt;b&gt;MUST&lt;/b&gt; be in the relative directory './mysource_files'</note>
 			<function_call>
 				<paint_function   name="paintParseFile"   />
 				<process_function name="processParseFile" />

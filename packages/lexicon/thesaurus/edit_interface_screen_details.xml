@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.4 2005/01/29 15:24:32 brobertson Exp $
+* $Id: edit_interface_screen_details.xml,v 1.5 2005/03/30 00:42:02 lwright Exp $
 *
 */
 -->
@@ -26,16 +26,12 @@
 <contents>
 	<section name="Details" write_access="write:attributes" limbo_access="1">
 		<field attribute="name">
-			<display_name>Name</display_name>
-			<note />
 			<text width="30" height="1" />
 		</field>
 	</section>
 
 	<section name="Status">
 		<field>
-			<display_name>Thesaurus is </display_name>
-			<note />
 			<function_call>
 				<paint_function		name="paintStatus" />
 			</function_call>
@@ -44,16 +40,12 @@
 
 	<section name="Import XML" write_access="write:attributes">
 		<field>
-			<display_name>Upload File</display_name>
-			<note />
 			<function_call>
 				<paint_function		name="paintImportXML" />
 				<process_function	name="processImportXML" />
 			</function_call>
 		</field>
 		<field>
-			<display_name>Example File</display_name>
-			<note />
 			<function_call>
 				<paint_function		name="paintExampleXMLFile" />
 			</function_call>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.18 2005/02/22 22:57:35 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.19 2005/03/30 00:40:04 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -26,30 +26,27 @@
 <contents>
 	<section name="User Details" read_access="write:" write_access="write:attributes" limbo_access="1">
 		<field attribute="username">
-			<display_name>Username</display_name>
-			<note>Unique system wide login name</note>
 			<text width="8" height="1" />
 		</field>
 		<field attribute="password">
-			<display_name>Password</display_name>
-			<note>Enter once, then again to confirm</note>
 			<password width="8" min_length="6" />
 		</field>
 		<field attribute="first_name">
-			<display_name>First Name</display_name>
-			<note />
 			<text width="40" height="1" />
 		</field>
 		<field attribute="last_name">
-			<display_name>Last Name</display_name>
-			<note />
 			<text width="40" height="1" />
 		</field>
 		<field attribute="email">
-			<display_name>Email</display_name>
-			<note />
 			<email width="25" />
 		</field>
 	</section>
-	
+	<section name="Internationalisation Settings" read_access="write:" write_access="write:attributes" limbo_access="1">
+		<field>
+			<function_call>
+				<paint_function   name="paintLocale"   />
+				<process_function name="processLocale" />
+			</function_call>
+		</field>
+	</section>
 </contents>

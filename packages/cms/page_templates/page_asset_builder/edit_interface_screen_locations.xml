@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_locations.xml,v 1.6 2005/01/20 13:18:40 brobertson Exp $
+* $Id: edit_interface_screen_locations.xml,v 1.7 2005/03/30 00:41:12 lwright Exp $
 *
 */
 -->
@@ -26,8 +26,6 @@
 <contents>
 	<section name="Fixed Create Locations" write_access="write:attributes">
 		<field>
-			<display_name />
-			<note />
 			<function_call>
 				<paint_function   name="paintFixedCreateLocations"   />
 				<process_function name="processFixedCreateLocations" />
@@ -36,8 +34,6 @@
 	</section>
 	<section name="Selectable Create Locations" write_access="write:attributes">
 		<field>
-			<display_name/>
-			<note />
 			<function_call>
 				<paint_function   name="paintSelectableLocationSets"   />
 				<process_function name="processSelectableLocationSets" />
@@ -46,8 +42,6 @@
 	</section>
 	<section name="Create Location Rules" write_access="write:attributes">
 		<field>
-			<display_name />
-			<note />
 			<function_call>
 				<paint_function   name="paintConditionalCreateLocations"   />
 				<process_function name="processConditionalCreateLocations" />
@@ -56,29 +50,21 @@
 	</section>
 	<section name="Additional Create Locations" write_access="write:attributes">
 		<field format="new_line">
-			<display_name />
-			<note />
 			<function_call>
 				<paint_function   name="paintAdditionalLocationsInfo"   />
 				<process_function name="processAdditionalLocationsInfo" />
 			</function_call>
 		</field>
 		<field attribute="parameter_map">
-			<display_name>Additional Location Data Sources</display_name>
-			<note />
 			<parameter_map />
 		</field>
 		<field>
-			<display_name>Permitted Tree Locations</display_name>
-			<note>Create locations gathered from the data sources above will only be processed if they or one of their ancestor assets is listed above.</note>
 			<function_call>
 				<paint_function		name="paintAdditionalLocationParents" />
 				<process_function	name="processAdditionalLocationParents" />
 			</function_call>
 		</field>
 		<field>
-			<display_name>Permitted Asset Types</display_name>
-			<note>Create locations gathered from the data sources above will only be processed if their asset type or one of its ancestor types is listed above.</note>
 			<function_call>
 				<paint_function		name="paintAdditionalLocationTypes" />
 				<process_function	name="processAdditionalLocationTypes" />

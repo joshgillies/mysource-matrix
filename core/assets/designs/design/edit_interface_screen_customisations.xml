@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_customisations.xml,v 1.9 2005/01/20 13:07:31 brobertson Exp $
+* $Id: edit_interface_screen_customisations.xml,v 1.10 2005/03/30 00:39:37 lwright Exp $
 *
 */
 -->
@@ -26,8 +26,6 @@
 <contents>
 	<section name="New Customisation" write_access="write:all" read_access="write:">
 		<field>
-			<display_name />
-			<note />
 			<function_call>
 				<paint_function   name="paintNewCustomisation"   />
 				<process_function name="processNewCustomisation" />
@@ -36,8 +34,6 @@
 	</section>
 	<section name="Current Customisations" read_access="write:">
 		<field>
-			<display_name />
-			<note />
 			<function_call>
 				<paint_function name="paintCurrentCustomisations" />
 			</function_call>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_paths.xml,v 1.11 2005/01/20 13:07:36 brobertson Exp $
+* $Id: edit_interface_screen_paths.xml,v 1.12 2005/03/30 00:39:53 lwright Exp $
 *
 */
 -->
@@ -26,8 +26,6 @@
 <contents>
 	<section name="Web Urls" write_access="write:lookups">
 		<field>
-			<display_name>URLs</display_name>
-			<note>If Force Secure is set (on the Settings Screen), then setting the HTTP option has no effect</note>
 			<function_call>
 				<paint_function   name="paintURLs"   />
 				<process_function name="processURLs" />

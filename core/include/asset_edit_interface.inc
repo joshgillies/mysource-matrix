@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.248 2005/03/28 23:11:24 gsherwood Exp $
+* $Id: asset_edit_interface.inc,v 1.249 2005/03/30 00:40:11 lwright Exp $
 *
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.248 $
+* @version $Revision: 1.249 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -687,7 +687,7 @@ class Asset_Edit_Interface extends MySource_Object
 		 //  EDIT INTERFACE  //
 		//////////////////////
 		if ($file) {
-			$print_commit_button |= $this->printEditInterface($file, $owner, $o, $creating, $create_sections);
+			$print_commit_button |= $this->printEditInterface('screen_'.$active_screen, $owner, $o, $creating, $create_sections);
 		}
 
 		// we have printed an editable interface on a static screen - show the commit button
@@ -815,7 +815,7 @@ class Asset_Edit_Interface extends MySource_Object
 		 //  EDIT INTERFACE  //
 		//////////////////////
 		if ($file) {
-			$print_commit_button |= $this->printEditInterface($file, $owner, $o, $creating, $create_sections);
+			$print_commit_button |= $this->printEditInterface('screen_'.$active_screen, $owner, $o, $creating, $create_sections);
 		}
 
 		return $print_commit_button;
@@ -824,7 +824,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 
 	/**
-	* Print the edit interface from the supplied XML file
+	* Print the edit interface from the supplied XML file(s)
 	*
 	* @param string		$file				The XML file to print
 	* @param object		&$owner				The asset having its interface printed
@@ -835,15 +835,16 @@ class Asset_Edit_Interface extends MySource_Object
 	* @return boolean	Whether a submittable interface has been printed
 	* @access public
 	*/
-	function printEditInterface($file, &$owner, &$o, $creating=false, $create_sections=Array())
+	function printEditInterface($screen, &$owner, &$o, $creating=false, $create_sections=Array())
 	{
-		$print_commit_button = false;
-		$input = new XML_Tree($file);
-		$root  = &$input->getTreeFromFile();
-		if (PEAR::isError($root)) {
-			trigger_error('Unable to Read File : '.$file."\n".$root->getMessage()."\n".$root->getUserInfo(), E_USER_WARNING);
-			return;
+		// grab the closest language file generated for this screen, then
+		// unserialise it to get our XML_Tree root
+		$root = $this->findScreen($screen);
+		if (is_null($root)) {
+			return false;
 		}
+
+		$print_commit_button = false;
 
 		// prefix for all the form vars
 		$prefix = $owner->getPrefix();
@@ -861,7 +862,12 @@ class Asset_Edit_Interface extends MySource_Object
 			$section_access = $this->_getAccess($owner, $section, $prefix);
 			if (!($section_access & SQ_EI_READ)) continue;
 
-			$o->openSection($section->attributes['name']);
+			// if a translated display name has been specified, use it
+			if (isset($section->attributes['display_name'])) {
+				$o->openSection($section->attributes['display_name']);
+			} else {
+				$o->openSection($section->attributes['name']);
+			}
 
 			if (!($num_fields = count($section->children))) continue;
 			if ($section->children[0]->name == 'function_call') {
@@ -892,12 +898,36 @@ class Asset_Edit_Interface extends MySource_Object
 					$field = &$section->children[$j];
 
 					switch ($field->name) {
-						case ('field'):
+						case 'field':
+							$display_name = '';
+							$field_note   = '';
+							$attr_tag     = null;
 
-							if ($field->children[0]->name != 'display_name') {
+							for($sub_index = 0; $sub_index < count($field->children); $sub_index++) {
+								$sub_field =& $field->children[$sub_index];
+								switch($sub_field->name) {
+									case 'display_name':
+										$display_name = $sub_field->content;
+									break;
+
+									case 'note':
+										$field_note = $sub_field->content;
+									break;
+
+									default:
+										if (!is_null($attr_tag)) {
+											trigger_error('More than one tag other than display_name or note found', E_USER_WARNING);
+										} else {
+											$attr_tag =& $sub_field;
+										}
+									break;
+								}//end switch
+
+							}
+							/*if ($field->children[0]->name != 'display_name') {
 								trigger_error('Display Name for "'.$field->attributes['attribute'].'" not found', E_USER_WARNING);
 								continue;
-							}
+							}*/
 
 							// if we are in limbo and this field is not to be printed in limbo - dont print it
 							if (SQ_IN_LIMBO && (isset($field->attributes['limbo_access']) && (int)$field->attributes['limbo_access'] == 0)) continue;
@@ -910,26 +940,26 @@ class Asset_Edit_Interface extends MySource_Object
 								// if this ain't a field, or if we are printing the create interface and this field is not included in that, ignore it
 								if ($field->name != 'field' || ($creating && (empty($field->attributes['attribute']) || !in_array($field->attributes['attribute'], $create_sections[$section->attributes['name']])))) continue;
 
-								$o->openField($field->children[0]->content, $field->attributes['format'], '', isset($field->attributes['hidden']));
+								$o->openField($display_name, $field->attributes['format'], '', isset($field->attributes['hidden']));
 
 								$attr = &$owner->getAttribute($field->attributes['attribute']);
 								if (is_null($attr)) continue;
-								if (!$attr->setEditParams($field->children[2])) continue;
+								if (!$attr->setEditParams($attr_tag)) continue;
 								$attr->paint($prefix.'_'.$attr->id, !($field_access & SQ_EI_WRITE));
 								if ($field_access & SQ_EI_WRITE) $print_commit_button = true;
 
-								if ($field->children[1]->name == 'note' && $field->children[1]->content) {
-									$field->children[1]->content = str_replace('%description%', $attr->description, $field->children[1]->content);
+								if (!empty($field_note)) {
+									$field_note = str_replace('%description%', $attr->description, $field_note);
 								}
 
-							} else if ($field->children[2]->name == 'function_call') {
+							} else if ($attr_tag->name == 'function_call') {
 
-								$paint_node = &$field->children[2]->children[0];
+								$paint_node = &$attr_tag->children[0];
 
 								// if this ain't a field, or if we are printing the create interface and this field is not included in that, ignore it
 								if ($field->name != 'field' || ($creating && !in_array($paint_node->attributes['name'], $create_sections[$section->attributes['name']]))) continue;
 
-								$o->openField($field->children[0]->content, $field->attributes['format'], '', isset($field->attributes['hidden']));
+								$o->openField($display_name, $field->attributes['format'], '', isset($field->attributes['hidden']));
 
 								if (empty($paint_node->attributes['name']) || !method_exists($this->_edit_fns, $paint_node->attributes['name'])) {
 									echo 'Function "'.$paint_node->attributes['name'].'" not found for painting';
@@ -941,13 +971,12 @@ class Asset_Edit_Interface extends MySource_Object
 
 							}//end if
 
-							if ($field->children[1]->name == 'note' && $field->children[1]->content) {
-								$o->note($field->children[1]->content);
+							if (!empty($field_note)) {
+								$o->note($field_note);
 							}
-
 						break;
 
-						case ('note'):
+						case 'note':
 							// notice that only the last "note" will be used if multiple are supplied
 							if (!empty($field->content)) {
 								$section_note = $field->content;
@@ -1104,17 +1133,21 @@ class Asset_Edit_Interface extends MySource_Object
 
 			// its not a static screen, so get the xml file and parse it for
 			// the keywords that we want, if the xml file exists
-			$file = @$this->findFile('screen_'.$screen);
+			$file = $this->findLanguageFile('screen_'.$screen);
 
-			if ($file) {
+			if (empty($file)) {
+				$file  = $this->findFile('screen_'.$screen);
 				$input = new XML_Tree($file);
 				$root  = &$input->getTreeFromFile();
-
 				if (PEAR::isError($root)) {
-					trigger_error('Unable to Read File : '.$file."\n".$root->getMessage()."\n".$root->getUserInfo(), E_USER_WARNING);
-					continue;
-				}//end if
+					trigger_error($root->getMessage()."\n".$root->getUserInfo(), E_USER_WARNING);
+					return false;
+				}
+			} else {
+				$root = unserialize(file_get_contents($file));
+			}
 
+			if ($root) {
 				// get the layout replacements for this NON-static screen
 				if ($this->_getLayoutKeywordReplacements($root, $o, $owner, $keywords, $screen, $entire_screen)) {
 					$print_commit_button = true;
@@ -1294,10 +1327,38 @@ class Asset_Edit_Interface extends MySource_Object
 						continue;
 					}
 
-					if ($field->children[0]->name != 'display_name') {
+					$display_name = '';
+					$field_note   = '';
+					$attr_tag     = null;
+
+					for($sub_index = 0; $sub_index < count($field->children); $sub_index++) {
+						$sub_field =& $field->children[$sub_index];
+						switch($sub_field->name) {
+							case 'display_name':
+								$display_name = $sub_field->content;
+							break;
+
+							case 'note':
+								$field_note = $sub_field->content;
+							break;
+
+							default:
+								if (!is_null($attr_tag)) {
+									trigger_error('More than one tag other than display_name or note found', E_USER_WARNING);
+								} else {
+									$attr_tag =& $sub_field;
+								}
+							break;
+						}//end switch
+
+					}
+
+					// get the names and notes from the language file
+					/*if ($field->children[0]->name != 'display_name') {
 						trigger_error('Display Name for "'.$field->attributes['attribute'].'" not found', E_USER_WARNING);
 						continue;
-					}
+					}*/
+
 					$field_access = $this->_getAccess($owner, $field, $prefix, $section_access);
 					if (!($field_access & SQ_EI_READ)) continue;
 
@@ -1318,11 +1379,11 @@ class Asset_Edit_Interface extends MySource_Object
 						if (!$get_field && !$get_section && !$get_screen) continue;
 
 						if ($field->name != 'field') continue;
-						$o->openField($field->children[0]->content, $field->attributes['format'], '', isset($field->attributes['hidden']));
+						$o->openField($display_name, $field->attributes['format'], '', isset($field->attributes['hidden']));
 
 						$attr = &$owner->getAttribute($field->attributes['attribute']);
 						if (is_null($attr)) continue;
-						if (!$attr->setEditParams($field->children[2])) continue;
+						if (!$attr->setEditParams($attr_tag)) continue;
 						// if this is not a wanted keyword, then continue on our way
 						if (isset($layout_keywords['screens'][$screen]['fields'][$field->attributes['attribute']]))
 
@@ -1332,8 +1393,8 @@ class Asset_Edit_Interface extends MySource_Object
 						$attr->paint($prefix.'_'.$attr->id, !(($field_access & SQ_EI_WRITE) && $limbo_access));
 						if (($field_access & SQ_EI_WRITE) && $limbo_access) $print_commit_button = true;
 
-						if ($field->children[1]->name == 'note' && $field->children[1]->content) {
-							$field->children[1]->content = str_replace('%description%', $attr->description, $field->children[1]->content);
+						if (!empty($field_note)) {
+							$field_note = str_replace('%description%', $attr->description, $field_note);
 						}
 
 						// end buffering
@@ -1343,7 +1404,7 @@ class Asset_Edit_Interface extends MySource_Object
 						}
 						$o->closeField();
 
-					} else if ($field->children[2]->name == 'function_call') {
+					} else if ($attr_tag->name == 'function_call') {
 
 						if (!isset($field->attributes['keyword'])) continue;
 
@@ -1353,11 +1414,11 @@ class Asset_Edit_Interface extends MySource_Object
 							$field_keyword = $layout_keywords['screens'][$screen]['fields'][$field->attributes['keyword']];
 						}
 
-						$paint_node = &$field->children[2]->children[0];
+						$paint_node = &$attr_tag->children[0];
 						// if this ain't a field, or if we are printing the create interface and this field is not included in that, ignore it
 						if ($field->name != 'field') continue;
 
-						$o->openField($field->children[0]->content, $field->attributes['format'], '', isset($field->attributes['hidden']));
+						$o->openField($display_name, $field->attributes['format'], '', isset($field->attributes['hidden']));
 
 						if (empty($paint_node->attributes['name']) || !method_exists($this->_edit_fns, $paint_node->attributes['name'])) {
 							echo 'Function not found for painting';
@@ -1378,8 +1439,8 @@ class Asset_Edit_Interface extends MySource_Object
 
 					}//end if
 
-					if ($field->children[1]->name == 'note' && $field->children[1]->content) {
-						$o->note($field->children[1]->content);
+					if (!empty($field_note)) {
+						$o->note($field_note);
 					}//end if
 				}//end for
 			}//end if section == function_call
@@ -1509,8 +1570,19 @@ class Asset_Edit_Interface extends MySource_Object
 				}
 
 				// try and find the file to print user defined
-				$file = @$this->findFile('screen_'.$active_screen);
+				$file = @$this->findLanguageFile('screen_'.$active_screen);
 
+				if (empty($file)) {
+					$file  = $this->findFile('screen_'.$active_screen);
+					$input = new XML_Tree($file);
+					$root  = &$input->getTreeFromFile();
+					if (PEAR::isError($root)) {
+						trigger_error($root->getMessage()."\n".$root->getUserInfo(), E_USER_WARNING);
+						return false;
+					}
+				} else {
+					$root = unserialize(file_get_contents($file));
+				}
 			} else {
 
 				// must be a normal screen
@@ -1520,18 +1592,11 @@ class Asset_Edit_Interface extends MySource_Object
 				}
 
 				// try and find the file to print user defined
-				$file = $this->findFile('screen_'.$active_screen);
-				if (!$file) return false;
+				$root = $this->findScreen('screen_'.$active_screen);
 
 			}//end if
 
-			if ($file && $owner->writeAccess('')) {
-				$input = new XML_Tree($file);
-				$root  = &$input->getTreeFromFile();
-				if (PEAR::isError($root)) {
-					trigger_error($root->getMessage()."\n".$root->getUserInfo(), E_USER_WARNING);
-					return false;
-				}
+			if (!is_null($root) && $owner->writeAccess('')) {
 
 				// prefix for all the form vars
 				$prefix = $owner->getPrefix();
@@ -1614,7 +1679,7 @@ class Asset_Edit_Interface extends MySource_Object
 									continue;
 								// There is something declared but the bloody thing doesn't exist - inform the Idiot
 								} else if (!method_exists($this->_edit_fns, $process_node->attributes['name'])) {
-									trigger_error('Function not found for processing field "'.$section->attributes['name'].'/'.$field->children[0]->content.'"', E_USER_WARNING);
+									trigger_error('Function not found for processing field "'.$section->attributes['name'].'/'.$field->children[2]->content.'"', E_USER_WARNING);
 								} else {
 									if ($this->_edit_fns->{$process_node->attributes['name']}($owner, $o, $prefix)) $ret_val = true;
 								}
@@ -1814,6 +1879,105 @@ class Asset_Edit_Interface extends MySource_Object
 		return $file;
 
 	}//end findFile()
+
+
+	/**
+	* Find a list of language files to extract from, searching up the
+	* directories for the closest match in the current language, then running
+	* through fallbacks (ie. the system's default backend locale)
+	*
+	* @param string		$file_name		the file to find
+	* @param boolean	$include_asset	whether the base asset is included
+	*									in search
+	*
+	* @return Array	an array of file names to potentially parse, most relevant
+	*				first
+	* @access public
+	*/
+	function findLanguageFile($file_name, $include_asset=true)
+	{
+		$type_parents = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($this->_type_code, $include_asset);
+		array_unshift($type_parents, $this->_type_code);
+
+		$file = '';
+		$test_locales = Array();
+		foreach($GLOBALS['SQ_SYSTEM']->lm->locale_stack as $locale) {
+			list($lang, $country, $variant) = $GLOBALS['SQ_SYSTEM']->lm->getLocaleParts($locale);
+
+			if(!is_null($variant)) $test_locales[] = $lang.'_'.$country.'@'.$variant;
+			if(!is_null($country)) $test_locales[] = $lang.'_'.$country;
+			$test_locales[] = $lang;
+		}
+
+		foreach($test_locales as $locale) {
+
+			foreach($type_parents as $type_code) {
+				$file_path = SQ_DATA_PATH.'/private/asset_types/'.$type_code.'/localised_screens/'.$file_name.'.'.$locale;
+				if (file_exists($file_path)) {
+					$file = $file_path;
+					break;
+				}
+			}
+
+			if (!empty($file)) break;
+
+		}
+		return $file;
+
+	}//end findLanguageFile()
+
+
+	/**
+	* Find the closest applicable static screen and return the root node
+	*
+	* Probably need a better way of doing this, but basically this is what it
+	* does:
+	* 1. Looks for a localised static screen for the asset, NOT including the
+	*    fall-back base asset
+	* 2. Looks for a non-localised version in the asset's directory - it could
+	*    be empty which would make a localised version a waste (and if a
+	*    partial version is there it *should* be localised in any case)
+	* 3. Repeat (1) but allow use of the localised version of the base asset
+	* 4. Last resort: repeat (2) but allow use of the base asset's non-localised
+	*    version
+	*
+	* @param string	$screen_name	the whole screen name (including the
+	*								'static_screen_' part)
+	*
+	* @return object XML_Tree_Node	the root node of the static screen, or NULL
+	*								on error or if none found
+	* @access public
+	*/
+	function &findScreen($screen_name)
+	{
+		$root = null;
+
+		if (($file = $this->findFile($screen_name))) {
+			$input = new XML_Tree($file);
+			$root  = &$input->getTreeFromFile();
+			if (PEAR::isError($root)) {
+				trigger_error($root->getMessage()."\n".$root->getUserInfo(), E_USER_WARNING);
+				$root = null;
+				return $root;
+			}
+
+			// if empty, then just skip the searching for language files,
+			// otherwise find the closest language file
+			if (!empty($root) && !empty($root->children)) {
+				$lang_file = $this->findLanguageFile($screen_name);
+				if (empty($lang_file)) {
+					trigger_error('No suitable language files were found for screen "'.$screen_name.'"', E_USER_WARNING);
+					$root = null;
+					return $root;
+				} else {
+					$root = unserialize(file_get_contents($lang_file));
+				}
+			}
+		}
+
+		return $root;
+
+	}//end findStaticScreen()
 
 
 	/**

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_report.xml,v 1.1 2005/02/16 06:02:14 dbaranovskiy Exp $
+* $Id: edit_interface_screen_report.xml,v 1.2 2005/03/30 00:39:52 lwright Exp $
 *
 */
 -->
@@ -26,8 +26,6 @@
 <contents>
 	<section name="Report" limbo_access="1">
 		<field>
-			<display_name></display_name>
-			<note />
 			<function_call>
 				<paint_function   name="paintReport"   />
 				<process_function name="processReport" />

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.8 2005/01/20 13:07:40 brobertson Exp $
+* $Id: edit_interface_screen_details.xml,v 1.9 2005/03/30 00:40:05 lwright Exp $
 *
 */
 -->
@@ -26,15 +26,11 @@
 <contents>
 	<section name="Details" write_access="write:attributes">
 		<field attribute="name">
-			<display_name>Schema Name</display_name>
-			<note />
 			<text width="20" height="1" />
 		</field>
 	</section>
 	<section name="Steps Defined For This Workflow" write_access="write:links">
 		<field format="blank">
-			<display_name></display_name>
-			<note />
 			<function_call>
 				<paint_function   name="paintSteps"   />
 				<process_function name="processSteps" />
@@ -43,8 +39,6 @@
 	</section>
 	<section name="Create New Step" read_access="write:links" write_access="write:links">
 		<field>
-			<display_name></display_name>
-			<note />
 			<function_call>
 				<paint_function   name="paintNewStep"   />
 				<process_function name="processNewStep" />

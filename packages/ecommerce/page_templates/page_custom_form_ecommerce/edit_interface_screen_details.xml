@@ -18,24 +18,18 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.2 2005/01/20 13:22:22 brobertson Exp $
+* $Id: edit_interface_screen_details.xml,v 1.3 2005/03/30 00:41:28 lwright Exp $
 *
 */
 -->
 
 <contents>
-
-	<section name="Details">
-		<field write_access="write:attributes" attribute="name">
-			<display_name>Name</display_name>
-			<note />
+	<section name="Details" write_access="write:attributes">
+		<field attribute="name">
 			<text width="15" />
 		</field>
-		<field write_access="write:attributes" attribute="short_name">
-			<display_name>Short Name</display_name>
-			<note />
+		<field attribute="short_name">
 			<text width="15" />
 		</field>
 	</section>
-
 </contents>

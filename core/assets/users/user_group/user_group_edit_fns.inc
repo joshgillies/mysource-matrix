@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_group_edit_fns.inc,v 1.17 2005/02/07 22:56:59 rhoward Exp $
+* $Id: user_group_edit_fns.inc,v 1.18 2005/03/30 00:40:05 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -90,18 +90,21 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 	function paintUnrestricted(&$asset, &$o, $prefix)
 	{
 		$current = $this->getCurrentRestrictions($asset);
+		$admin_access = $asset->adminAccess('security');
 
-		if (!$asset->adminAccess('security')) {
-			if (!$this->isRestricted($asset, $prefix)) echo 'Unrestricted access has been granted. No security restrictions apply on this user group.';
-			else echo 'Unrestricted access has not been granted. Security restrictions do apply on this user group.';
-			return false;
+		if (!$admin_access) {
+			if (!$this->isRestricted($asset, $prefix)) {
+				echo 'Unrestricted access has been granted. No security restrictions apply on this user group.';
+			} else {
+				echo 'Unrestricted access has not been granted. Security restrictions do apply on this user group.';
+			}
 		} else {
 			check_box($prefix.'_unrestricted', '1', !$this->isRestricted($asset, $prefix));
 			echo 'Grant Unrestricted Access';
 			echo '<br /><br />Check this box to give this user group unrestricted access to all assets';
 		}
-
-		return true;
+		
+		return $admin_access;
 
 	}//end paintUnrestricted()
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_formats.xml,v 1.1 2005/01/20 23:02:03 gsherwood Exp $
+* $Id: edit_interface_screen_formats.xml,v 1.2 2005/03/30 00:41:12 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -26,8 +26,6 @@
 <contents>
 	<section name="Default Formats">
 		<field>
-			<display_name />
-			<note></note>
 			<function_call>
 				<paint_function   name="paintDefaultFormatLinks"   />
 				<process_function name="processDefaultFormatLinks" />
@@ -36,8 +34,6 @@
 	</section>
 	<section name="Customised Asset Type Formats" write_access="write:links">
 		<field>
-			<display_name />
-			<note></note>
 			<function_call>
 				<paint_function   name="paintTypeFormats"   />
 				<process_function name="processTypeFormats" />
@@ -46,8 +42,6 @@
 	</section>
 	<section name="Customised List Position Formats" write_access="write:links">
 		<field>
-			<display_name />	
-			<note></note>
 			<function_call>
 				<paint_function   name="paintPositionFormats"   />
 				<process_function name="processPositionFormats" />

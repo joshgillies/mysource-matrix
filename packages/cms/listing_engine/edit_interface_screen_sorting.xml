@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_sorting.xml,v 1.1 2005/02/11 00:48:39 lwright Exp $
+* $Id: edit_interface_screen_sorting.xml,v 1.2 2005/03/30 00:41:12 lwright Exp $
 *
 */
 -->
@@ -26,25 +26,16 @@
 <contents>
 	<section name="Sorting" write_access="write:attributes">
 		<field>
-			<display_name>Sort By</display_name>
-			<note />
 			<function_call>
 				<paint_function name="paintSortBy" />
 				<process_function name="processSortBy" />
 			</function_call>
 		</field>
 		<field attribute="reverse_sort">
-			<display_name>Reverse Sort</display_name>
-			<note>&lt;b&gt;NOTE:&lt;/b&gt; This option is only valid when using the standard list format.</note>
 			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="num_per_page">
-			<display_name>Assets Per Page</display_name>
-			<note></note>
 			<int width="5" />
 		</field>
-		<note>
-			&lt;b&gt;Assets Per Page:&lt;/b&gt; if using standard list format, this option specifies how many assets should appear on each page - set to zero (0) to list all assets on the same page. If using random list format, this option defines how many assets are randomly displayed - the default of zero (0) displays a single asset.  
-		</note>
 	</section>
 </contents>

@@ -18,45 +18,28 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.2 2005/01/20 13:21:53 brobertson Exp $
+* $Id: edit_interface_screen_details.xml,v 1.3 2005/03/30 00:40:53 lwright Exp $
 *
 */
 -->
 
 <contents>
-
 	<section name="Details">
-
 		<field>
-			<display_name>Id Name</display_name>
-			<note />
 			<function_call>
 				<paint_function name="paintIdName" />
 			</function_call>
 		</field>
-
 	</section>
 	<section name="Calendar Options">
-
-		<field write_access="write:attributes"  attribute="target_assetid">
-			<display_name>Calendar Page</display_name>
-			<note />
+		<field attribute="target_assetid" write_access="write:attributes">
 			<assetid type_codes="page_calendar:D" />
 		</field>
-
 		<field attribute="element_id" write_access="write:attributes">
-			<display_name>Element ID</display_name>
-			<note>This is used by HTML, CSS and JS. Make sure it is unique on the page.</note>
 			<text width="30" height="1" />
 		</field>
-
-		<field write_access="write:attributes" attribute="style_assetid">
-			<display_name>Custom CSS File</display_name>
-			<note>Can be left blank. If nothing is supplied, a default stylesheet will be used</note>
+		<field attribute="style_assetid" write_access="write:attributes">
 			<assetid type_codes="file:D" />
 		</field>
-
-
 	</section>
-
 </contents>

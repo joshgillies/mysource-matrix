@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.11 2005/01/14 17:54:26 brobertson Exp $
+* $Id: edit_interface_screen_details.xml,v 1.12 2005/03/30 00:41:13 lwright Exp $
 *
 */
 -->
@@ -26,70 +26,45 @@
 <contents>
 	<section name="Details" write_access="write:attributes">
 		<field attribute="name">
-			<display_name>Page Name</display_name>
-			<note />
 			<text width="35" height="1" />
 		</field>
 		<field attribute="short_name">
-			<display_name>Page Short Name</display_name>
-			<note />
 			<text width="25" height="1" />
 		</field>
 	</section>
 	<section name="Location" write_access="write:redirect">
 		<field attribute="redirect_url">
-			<display_name>URL</display_name>
-			<note />
 			<text width="80" height="1" />
 		</field>
 		<field>
-			<display_name>or Asset</display_name>
-			<note />
 			<function_call>
 				<paint_function   name="paintRedirectAssetid" />
 				<process_function name="processRedirectAssetid" />
 			</function_call>
 		</field>
  		<field attribute="use_querystring_parameter">
- 			<display_name>or Use query &lt;br /&gt; string parameter?</display_name>
- 			<note>%description% &lt;br /&gt;
-			For example if &lt;i&gt;url&lt;/i&gt; was entered and a part of the inbound query string is
-			&lt;em&gt;url=http://matrix.squiz.net&lt;/em&gt; then the user would be redirected to matrix.squiz.net
-			</note>
  			<text width="20" height="1"/>
  		</field>
 	</section>
 	<section name="Location Options" write_access="write:attributes">
 		<field attribute="url_suffix">
-			<display_name>URL Suffix</display_name>
-			<note>%description%</note>
 			<text width="80" height="1" />
 		</field>
  		<field attribute="append_querystring">
- 			<display_name>Pass through query &lt;br /&gt; string parameters?</display_name>
- 			<note/>
  			<boolean true_text="Yes" false_text="No"/>
  		</field>
 	</section>
 	<section name="New Window" write_access="write:attributes">
 		<field attribute="new_window">
-			<display_name>New Window?</display_name>
-			<note />
 			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="new_window_options">
-			<display_name>Options</display_name>
-			<note />
 			<selection style="boxes" />
 		</field>
 		<field attribute="new_window_width">
-			<display_name>Window Width</display_name>
-			<note />
 			<int width="3" />
 		</field>
 		<field attribute="new_window_height">
-			<display_name>Window Height</display_name>
-			<note />
 			<int width="3" />
 		</field>
 	</section>

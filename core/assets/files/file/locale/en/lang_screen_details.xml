@@ -1,0 +1,53 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Open Source Licence                                      |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_screen_details.xml,v 1.1 2005/03/30 00:39:43 lwright Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="Details">
+		<field attribute="name">
+			<display_name>File Name</display_name>
+			<note />
+		</field>
+		<field attribute="allow_unrestricted">
+			<display_name>Allow Unrestricted Access</display_name>
+			<note>Set to Yes to allow this file to be be served by the web server if it is Live and publically readable.</note>
+		</field>
+		<field>
+			<display_name>Upload File</display_name>
+			<note />
+			<function_call>
+				<paint_function   name="paintFileUpload"   />
+				<process_function name="processFileUpload" />
+			</function_call>
+		</field>
+		<field>
+			<display_name>Choose Pre-Uploaded File</display_name>
+			<note />
+			<function_call>
+				<paint_function   name="paintFileChooser"   />
+				<process_function name="processFileChooser" />
+			</function_call>
+		</field>
+	</section>
+</contents>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.1 2005/01/21 00:05:06 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.2 2005/03/30 00:41:28 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -27,21 +27,14 @@
 
 	<section name="Details" write_access="write:attributes" limbo_access="1">
 		<field attribute="name">
-			<display_name>Cart Name</display_name>
-			<note />
 			<text width="35" height="1" />
 		</field>
-
 		<field attribute="short_name">
-			<display_name>Short Name</display_name>
-			<note />
 			<text width="35" height="1" />
 		</field>
 	</section>
 	<section name="tmp report" write_access="write:attributes">
 		<field attribute="name">
-			<display_name>test</display_name>
-			<note />
 			<function_call>
 				<paint_funtion name="paintExport" />
 				<process_function name="" />

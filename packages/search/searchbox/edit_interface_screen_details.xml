@@ -18,31 +18,25 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.8 2005/01/20 13:22:57 brobertson Exp $
+* $Id: edit_interface_screen_details.xml,v 1.9 2005/03/30 00:42:12 lwright Exp $
 *
 */
 -->
 <contents>
 	<section name="Details">
 		<field read_access="" write_access="write:attributes" attribute="id_name">
-			<display_name>ID Name</display_name>
-			<note />
 			<text width="60" height="1" />
 		</field>
 	</section>
 
 	<section name="Search Page Configuration">
 		<field write_access="write:attributes" >
-			<display_name>Search Page</display_name>
-			<note />
 			<function_call>
 				<paint_function name="paintBackendSearchPage" />
 				<process_function name="processBackendSearchPage" />
 			</function_call>
 		</field>
 		<field write_access="write:attributes" show_if="hasValidSearchPage">
-			<display_name>Search Field Name</display_name>
-			<note>The field must be defined in the search page above.</note>
 			<function_call>
 				<paint_function name="paintSearchFieldName" />
 				<process_function name="processSearchFieldName" />
@@ -51,25 +45,17 @@
 	</section>
 	<section name="Search Box Configuration">
 		<field write_access="write:attributes" attribute="querybox_width">
-			<display_name>Query Box Width</display_name>
-			<note />
 			<int width="5" />
 		</field>
 		<field write_access="write:attributes" attribute="default_text">
-			<display_name>Default Text</display_name>
-			<note />
 			<text width="30" />
 		</field>
 	</section>
 	<section name="Search Button Configuration">
 		<field write_access="write:attributes" attribute="submit_button">
-			<display_name>Submit Button</display_name>
-			<note />
 			<boolean />
 		</field>
 		<field write_access="write:attributes" show_if="isSubmitButton">
-			<display_name>Submit Image</display_name>
-			<note />
 			<function_call>
 				<paint_function		name="paintBackendSubmitImage" />
 				<process_function	name="processBackendSubmitImage" />

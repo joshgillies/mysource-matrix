@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: details.inc,v 1.13 2005/02/23 05:14:15 gsherwood Exp $
+* $Id: details.inc,v 1.14 2005/03/30 00:40:13 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Details Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix
 */
 
@@ -46,17 +46,13 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 */
 function paintDetails(&$owner, &$o, &$ei, $keywords=null)
 {
-	if (!($file = $ei->findFile('static_screen_details'))) return false;
+	$root = &$ei->findScreen('static_screen_details');
+	if (is_null($root)) {
+		return false;
+	}
 
 	$prefix = $owner->getPrefix();
 	$print_commit_button = false;
-
-	$input = new XML_Tree($file);
-	$root  = &$input->getTreeFromFile();
-	if (PEAR::isError($root)) {
-		trigger_error('Unable to Read File : '.$file."\n".$root->getMessage()."\n".$root->getUserInfo(), E_USER_WARNING);
-		return;
-	}
 
 	for ($i = 0; $i < count($root->children); $i++) {
 
@@ -70,7 +66,7 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=null)
 
 		if (!is_null($keywords) && isset($keywords['sections'][strtolower($section->attributes['name'])])) ob_start();
 
-		$o->openSection($section->attributes['name']);
+		$o->openSection(array_get_index($section->attributes, 'display_name', $section->attributes['name']));
 
 		if (!($num_fields = count($section->children))) continue;
 

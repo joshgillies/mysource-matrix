@@ -1,0 +1,55 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Open Source Licence                                      |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_screen_details.xml,v 1.1 2005/03/30 00:41:28 lwright Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="Details">
+		<field attribute="name">
+			<display_name>Page Name</display_name>
+			<note />
+		</field>
+		<field attribute="short_name">
+			<display_name>Short Name</display_name>
+			<note />
+		</field>
+	</section>
+	<section name="Identifiers">
+		<field attribute="merchant_id">
+			<display_name>Merchant ID</display_name>
+			<note />
+		</field>
+	</section>
+	<section name="Testing Mode">
+		<field attribute="test_mode">
+			<display_name>Test Mode</display_name>
+			<note>Turn this switch ON for testing purposes. This will set the merchant ID to test among other things. When turned on, the gateway screen will display that it is in testing mode.</note>
+		</field>
+	</section>
+	<section name="Message">
+		<field attribute="message">
+			<display_name>Gateway Screen Message</display_name>
+			<note>This message will be displayed on the gateway upon redirect from the e-commerce page.</note>
+		</field>
+	</section>
+</contents>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.1 2005/01/21 00:01:34 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.2 2005/03/30 00:41:28 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -26,8 +26,6 @@
 <contents>
 	<section name="Details">
 		<field>
-			<display_name>Id Name</display_name>
-			<note />
 			<function_call>
 				<paint_function name="paintIdName" />
 			</function_call>
@@ -35,18 +33,12 @@
 	</section>
 	<section name="Form" write_access="write:attributes">
 		<field attribute="cart">
-			<display_name>Cart</display_name>
-			<note />
 			<assetid type_codes="ecommerce_cart:D" />
 		</field>
 		<field attribute="ecom_form">
-			<display_name>E-Commerce Form</display_name>
-			<note />
 			<assetid type_codes="page_custom_form_ecommerce:D" />
 		</field>
 		<field attribute="show_price">
-			<display_name>Show Total</display_name>
-			<note />
 			<boolean true_text="Yes" false_text="No" />
 		</field>
 	</section>
