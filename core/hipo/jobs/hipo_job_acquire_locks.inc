@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_acquire_locks.inc,v 1.1 2005/02/18 06:06:49 mmcintyre Exp $
+* $Id: hipo_job_acquire_locks.inc,v 1.2 2005/02/22 03:46:50 gsherwood Exp $
 *
 */
 
@@ -29,14 +29,14 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * <pre>
 * Initial Running Vars :
-*    int    assetid                  -   the assetid with whose children we are going to attempt to lock
-*    array(string)|string lock_type  -   the type of lock(s) to get see Asset_Manager::acquireLock()
-*    bool   [dependants_only]        -   whether dependants only or all children, defaults to true
-*    bool   [forceably_acquire]      -   whether to attempt to forceably acquire the lock or not, defaults to false
+*    array(int)           assetid           - the assetids with whose children we are going to attempt to lock
+*    array(string)|string lock_type         - the type of lock(s) to get (see Asset_Manager::acquireLock())
+*    bool                 dependants_only   - whether dependants only or all children, defaults to true
+*    bool                 forceably_acquire - whether to attempt to forceably acquire the lock or not,  defaults to false
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -185,7 +185,8 @@ class HIPO_Job_Acquire_Locks extends HIPO_Job
 	/**
 	* Returns the current Threshold.
 	*
-	* Returns a value that represents the total percentage that this hipo would run in freestyle mode in its current state.
+	* Returns a value that represents the total percentage that this hipo would run in
+	* freestyle mode in its current state.
 	*
 	* @return float
 	* @access public
@@ -229,13 +230,6 @@ class HIPO_Job_Acquire_Locks extends HIPO_Job
 			trigger_error('Cannot initialise Acquire Locks HIPO, no start asset ID and/or lock type specified', E_USER_WARNING);
 			return false;
 		}
-
-		// so we have an assetid to start at, but make sure it is a valid assetid
-	//	$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['assetid']);
-	//	if (is_null($asset)) {
-	//		trigger_error('Cannot initialise Acquire Locks HIPO, invalid start asset ID specified ('.$this->_running_vars['assetid'].')', E_USER_WARNING);
-	//		return false;
-	//	}
 
 		// we were passed an invalid lock type, bugger off
 		if (empty($this->_running_vars['lock_types'])) {
@@ -282,8 +276,6 @@ class HIPO_Job_Acquire_Locks extends HIPO_Job
 			$this->_running_vars['forceably_acquire'] = (bool) $this->_running_vars['forceably_acquire'];
 		}
 
-	//	$GLOBALS['SQ_SYSTEM']->setLastAction('system:acquire_lock', 'Acquiring Lock', $this->_running_vars['assetid']);
-//		unset($asset);
 		return parent::prepare();
 
 	}//end prepare()
@@ -346,6 +338,7 @@ class HIPO_Job_Acquire_Locks extends HIPO_Job
 		return true;
 
 	}//end processLocking()
+
 
 }//end class
 
