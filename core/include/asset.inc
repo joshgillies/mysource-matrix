@@ -2642,6 +2642,7 @@ class Asset extends Resolve_Object
 	*/
 	function writeAccess($assetids=Array())
 	{
+		if ($this->status == SQ_STATUS_PENDING_APPROVAL || $this->status == SQ_STATUS_EDITING_APPROVAL) return false;
 		return $this->checkAccess(SQ_PERMISSION_WRITE, $assetids);
 	}//end writeAccess()
 
@@ -2657,6 +2658,7 @@ class Asset extends Resolve_Object
 	*/
 	function adminAccess($assetids=Array())
 	{
+		if ($this->status == SQ_STATUS_PENDING_APPROVAL || $this->status == SQ_STATUS_EDITING_APPROVAL) return false;
 		return $this->checkAccess(SQ_PERMISSION_ADMIN, $assetids);
 	}//end adminAccess()
 
