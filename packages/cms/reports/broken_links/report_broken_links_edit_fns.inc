@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_broken_links_edit_fns.inc,v 1.2 2004/07/06 05:05:15 gsherwood Exp $
+* $Id: report_broken_links_edit_fns.inc,v 1.3 2004/07/06 05:08:22 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -65,6 +65,7 @@ class Report_Broken_Links_Edit_Fns extends Report_Edit_Fns
 	function generateReport(&$job, &$step_data, $prefix)
 	{
 		require_once SQ_FUDGE_PATH.'/general/text.inc';
+		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 		$owner = &$GLOBALS['SQ_SYSTEM']->am->getAsset($job->_running_vars['assetid'], 'report_broken_links');
 
 		if (!isset($job->_running_vars['results'])) {
