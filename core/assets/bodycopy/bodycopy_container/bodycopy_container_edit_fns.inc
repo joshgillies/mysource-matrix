@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_edit_fns.inc,v 1.17 2004/10/25 06:49:54 lwright Exp $
+* $Id: bodycopy_container_edit_fns.inc,v 1.18 2004/11/15 02:10:28 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -216,6 +216,47 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 			$this->paint($asset, true);
 			$output = ob_get_contents();
 		ob_end_clean();
+		
+		if (!$this->createContentLinks($asset, $output)) return false;
+
+		$e = "(/?\./\\?a=)([0-9]+)([^0-9])";
+		$with = '<'.'?php echo $sq_asset_url_list[\\2]; ?'.'>';
+		$output = ereg_replace($e, $with.'\\3', $output);
+		
+		require_once SQ_FUDGE_PATH.'/general/text.inc';
+		$keywords = retrieve_keywords_replacements($output);
+
+		$attributes = $asset->attr('attributes');
+		if (empty($attributes['disable_keywords']) && !empty($keywords)) {
+			foreach ($keywords as $keyword) {
+				$output = preg_replace('|%((<([^>]+?)>)+)?'.$keyword.'((<([^>]+?)>)+)?%|', '\\1<'.'?php echo (isset($keyword_replacements["'.$keyword.'"])) ? $keyword_replacements["'.$keyword.'"] : ""; ?'.'>\\4', $output);
+			}
+		}
+
+		create_directory($asset->data_path);
+		return string_to_file($output, $asset->data_path.'/content_file.php');
+
+	}//end generateContentFile()
+	
+	
+	/**
+	* Creates and deletes NOTICE links based on the assets being linked to within the contents of this container
+	*
+	* @param object Bodycopy_Container	&$asset		the container
+	* @param string | NULL				$ouytput	the content of the bodycopy container,
+	*												leave NULL to have it generated for you
+	*
+	* @return boolean
+	* @access public
+	*/
+	function createContentLinks(&$asset, $output=null)
+	{
+		if (is_null($output)) {
+			ob_start();
+				$this->paint($asset, true);
+				$output = ob_get_contents();
+			ob_end_clean();
+		}
 
 		$existing_links = Array();
 		$notice_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE);
@@ -225,9 +266,6 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 		$matches = Array();
 		preg_match_all($e, $output, $matches);
 		$replace_assetids = $matches[1];
-
-		require_once SQ_FUDGE_PATH.'/general/text.inc';
-		$keywords = retrieve_keywords_replacements($output);
 
 		if ($asset->status & SQ_SC_STATUS_SAFE_EDITING) {
 			// this container currently has a system version floating around
@@ -244,7 +282,10 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 			foreach($notice_links as $link_data) {
 				if (!in_array($link_data['minorid'], $replace_assetids)) {
-					$asset->deleteLink($link_data['linkid']);
+					if (!$asset->deleteLink($link_data['linkid'])) {
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						return false;
+					}
 				}
 			}
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -262,25 +303,12 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 						@$asset->createLink($ereg_asset, SQ_LINK_NOTICE);
 					}
 				}
-
-				$e = "(/?\./\\?a={$assetid})([^0-9]+)";
-				$with = '<'.'?php echo $sq_asset_url_list['.$assetid.']; ?'.'>';
-				$output = ereg_replace($e, $with.'\\2', $output);
 			}
+		}//end if replace_assetids or notice_links
+		
+		return true;
 
-		}
-
-		$attributes = $asset->attr('attributes');
-		if (empty($attributes['disable_keywords']) && !empty($keywords)) {
-			foreach ($keywords as $keyword) {
-				$output = preg_replace('|%((<([^>]+?)>)+)?'.$keyword.'((<([^>]+?)>)+)?%|', '\\1<'.'?php echo (isset($keyword_replacements["'.$keyword.'"])) ? $keyword_replacements["'.$keyword.'"] : ""; ?'.'>\\4', $output);
-			}
-		}
-
-		create_directory($asset->data_path);
-		return string_to_file($output, $asset->data_path.'/content_file.php');
-
-	}//end generateContentFile()
+	}//end createContentLinks()
 
 
 	/**
