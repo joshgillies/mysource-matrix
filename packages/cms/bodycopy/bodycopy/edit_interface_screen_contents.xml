@@ -18,13 +18,13 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_contents.xml,v 1.7 2003/11/18 15:59:49 brobertson Exp $
+* $Id: edit_interface_screen_contents.xml,v 1.8 2003/11/23 22:10:11 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
 
 <contents>
-	<section name="Contents" write_access="write:content">
+	<section name="Contents" write_access="write:content" limbo_access="1">
 		<field>
 			<display_name></display_name>
 			<note></note>

@@ -18,13 +18,13 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.13 2003/11/18 15:58:52 brobertson Exp $
+* $Id: edit_interface_screen_details.xml,v 1.14 2003/11/23 22:10:10 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
 
 <contents>
-	<section name="User Details" read_access="write:" write_access="write:attributes">
+	<section name="User Details" read_access="write:" write_access="write:attributes" limbo_access="1">
 		<field attribute="username">
 			<display_name>Username</display_name>
 			<note>Unique system wide login name</note>
