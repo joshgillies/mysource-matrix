@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.41 2004/06/22 00:45:09 lwright Exp $
+* $Id: form.inc,v 1.42 2004/06/29 02:39:12 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -182,12 +182,9 @@ class Form extends Bridge
 			}
 
 			if (!is_null($sort_by)) {
-				error_log('--- SORT BY: '.$sort_by.' ---');
 				uasort($links, create_function('$a,$b','return $a["'.$sort_by.'"] > $b["'.$sort_by.'"];'));
 			}
-			error_log('--- CALLED FROM GETLINKS ---');
-			error_log(print_r($links,true));
-		
+
 			$this->_tmp['getLinks'][$assetid][$side_of_link] = $links;
 
 		}
