@@ -37,7 +37,7 @@
     Taking into account last comment on 
     http://www.php.net/manual/en/language.references.return.php
     and points in http://phplens.com/lens/php-book/optimizing-debugging-php.php 
-	- Global Stylesheets / Inheriting Designs ?
+  - Global Stylesheets / Inheriting Designs ?
   - RollBack...
 
 +----------------------------------------------------------------------------------------+
@@ -54,6 +54,27 @@
 
 
 +----------------------------------------------------------------------------------------+
+
+Ryan's Design areas Wish List
+  1. Have the option to use 1 style sheet for all designs
+  2. Make designs so that they can be design areas themselves.  
+     How this would work would be something like you have a design called 'Title bar' 
+	 which has a parse file that does nothing but print a title bar.  You would then 
+	 be able to check a tickbox to set it as a design area and then in other designs 
+	 you could refer to it like such '<MySource_AREA name="Title bar">'.
+  3. Make variables (ie set using MySource_SET) have the option of being global so for 
+     instance you could have an image that is on every design and is set as a custom 
+	 image you could update is sitewide by just changing it in one place.
+
+This would tie in with request 2. in that variables in it could be set either from 
+themselves or from the design that they are being included in.  
+eg you could have a titlebar that you include but it's colour scheme is set by each 
+   individual design that has it.  At the same time you could also have a custom image 
+   in the title bar that is locally set so that it remains consistent throughout all designs.
+
++----------------------------------------------------------------------------------------+
+
+
 
 Base Package Installation of Pear, see http://pear.php.net/manual/en/faq.flat-structure.php
 
