@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_edit_fns.inc,v 1.6 2003/11/26 00:51:32 gsherwood Exp $
+* $Id: search_page_edit_fns.inc,v 1.7 2003/12/24 03:13:17 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -29,7 +29,7 @@
 * Edit functions for search page.
 *
 * @author  Dominic WOng <dwong@squiz.net>
-* @version $Revision: 1.6 $ - 1.0
+* @version $Revision: 1.7 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -96,7 +96,7 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 		$assetid = null;
 
 		if (isset($_REQUEST[$name])) {
-			$assetid = $_REQUEST[$name];
+			$assetid = $_REQUEST[$name]['assetid'];
 		}
 		return $asset->setAttrValue('root_assetid', $assetid);
 	} // end processRootAsset()
