@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_management.inc,v 1.11 2004/08/16 05:32:21 tbarrett Exp $
+* $Id: page_asset_builder_management.inc,v 1.12 2004/08/19 02:16:36 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -48,11 +48,18 @@ class Page_Asset_Builder_Management extends Asset_Management
 		/**
 		* Array of asset type codes that this page can create
 		*/
-		$this->vars['create_type']						= Array(
-															'added'     => '0.1',
-															'type'      => 'serialise',
-															'default'   => Array(),
-														);
+		$this->vars['create_type']				= Array(
+													'added'     => '0.1',
+													'type'      => 'serialise',
+													'default'   => Array(),
+												);
+
+		$this->vars['create_status']			= Array(
+													'added'      => '0.1',
+													'type'       => 'int',
+													'default'    => 2,
+												);
+															
 		/**
 		* Locations under which created assets will always be linked
 		*	Array (assetid => link_type)
@@ -62,6 +69,8 @@ class Page_Asset_Builder_Management extends Asset_Management
 															'type'      => 'serialise',
 															'default'   => Array(),
 														);
+														
+		
 
 		/**
 		* Sets of locations for the user to choose from when creating assets, with selection options
