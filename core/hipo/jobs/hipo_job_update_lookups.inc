@@ -50,8 +50,8 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 	/**
 	* Returns a unique codename the HIPO can use to ensure it is not being run twice
 	*
-	* The Edit Permission HIPO appends the ID of the asset that the permissions are being set at
-	* (the top most parent) so that any other permission jobs on this asset do not start while it
+	* The Update Lookups HIPO appends the ID of the asset that the lookups are being updated at
+	* (the top most parent) so that any other update lookup jobs on this asset do not start while it
 	* is running. Due to locking of the interface, nobody should be allowed to run this HIPO at
 	* the same time on the same parent asset.
 	*
@@ -68,7 +68,7 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 	/**
 	* Set up vars and database information that the HIPO will need to run
 	*
-	* The Updtae Lookups HIPO also checks that there is an assetid to start this action on
+	* The Update Lookups HIPO also checks that there is an assetid to start this action on
 	* (the top most parent). It also saves a list of assets to perform this action on in the running vars.
 	*
 	* @return boolean
@@ -136,7 +136,7 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
 			if (!is_null($asset)) {
-				if (!$asset->_updateLookups(false)) return false;
+				if (!$asset->updateLookups()) return false;
 				$step_data['message'] = 'Updating Lookups for "'.$asset->name.'"';
 				$GLOBALS['SQ_SYSTEM']->am->unregisterAsset($asset);
 				unset($asset);

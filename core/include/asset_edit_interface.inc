@@ -1308,7 +1308,7 @@ class Asset_Edit_Interface extends Resolve_Object
 						}
 
 						// fianlly, try updating the lookups
-						if (!$owner->_updateLookups()) {
+						if (!$owner->updateLookups()) {
 							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 							return false;
 						}

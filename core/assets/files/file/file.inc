@@ -66,7 +66,7 @@ class File extends Asset
 		}
 
 		// update our lookup tables to not use __data
-		if (!parent::_updateLookups()) {
+		if (!parent::updateLookups()) {
 			trigger_error('Failed saving file "'.$this->name.'" to cache, failed updating lookups', E_USER_WARNING);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
@@ -198,7 +198,7 @@ class File extends Asset
 		}
 
 		// update our lookups to use __data again
-		$this->_updateLookups();
+		$this->updateLookups();
 
 		// update manually
 		unset($this->_tmp['IGNORE_UPDATE']);
@@ -313,7 +313,7 @@ class File extends Asset
 				}
 			}//end if effectiveUnrestricted
 
-			$this->_updateLookups();
+			$this->updateLookups();
 
 		}// end if
 
@@ -323,21 +323,18 @@ class File extends Asset
 
 
 	/**
-	* Fn that does the real processing of updateLookups()
-	* This is separated to allow for the DB transaction stuff
-	* Will be called by parent assets recursively on their kids so not 'really' private
-	* and by the saveWebPaths() so that their transaction calls can wrap around it
+	* Called to force an update of this assets lookup information
 	*
 	* @return boolean
 	* @access private
 	* @see Asset::updateLookups(), Asset::saveWebPaths()
 	*/
-	function _updateLookups()
+	function updateLookups()
 	{
 		if (!$this->effectiveUnrestricted() || ($this->status & SQ_SC_STATUS_SAFE_EDITING)) {
 			// this file is either in a safe edit or restricted
 			// so we dont worry about __data paths
-			return parent::_updateLookups();
+			return parent::updateLookups();
 		}
 
 		$existing = $this->_getExistingFile();
@@ -403,7 +400,7 @@ class File extends Asset
 
 		return true;
 
-	}//end _updateLookups()
+	}//end updateLookups()
 
 
 	/**
