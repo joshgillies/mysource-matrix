@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.21 2004/06/16 04:50:32 lwright Exp $
+* $Id: form_email_edit_fns.inc,v 1.22 2004/07/07 00:34:47 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -39,6 +39,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 */
 class Form_Email_Edit_Fns extends Form_Edit_Fns
 {
+	
 
 	/**
 	* Constructor
@@ -47,7 +48,8 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	function Form_Email_Edit_Fns()
 	{
 		$this->Form_Edit_Fns();
-	}//end Form_Email_Edit_Fns()
+
+	}//end constructor
 
 
 //--        SUBMISSIONS        --//
@@ -63,7 +65,8 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintSubmissions(&$asset, &$o, $prefix) {
+	function paintSubmissions(&$asset, &$o, $prefix) 
+	{
 		if (!$asset->writeAccess('attributes')) return false;
 
 		$expand_list = isset($_POST[$prefix.'_viewsub']) ? array_keys($_POST[$prefix.'_viewsub']) : Array();
@@ -168,7 +171,8 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 							<input type="checkbox" name="<?php echo $prefix ?>_viewsub[<?php echo $sub_id ?>]" value="1" <?php if ($sub_expanded) echo ' checked="checked"' ?>>
 						</td>
 					</tr>
-					<?php // display only if expanded
+					<?php
+						// display only if expanded
 						if ($sub_expanded) { ?>
 						<tr>
 						<?php
@@ -204,22 +208,21 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 							if ($this_child->name == 'section') {
 							?>
 							<tr>
-							<td class="sq-backend-table-cell">&nbsp;</td>
-							<td class="sq-backend-table-cell-alt" colspan="5">
-								<b>Section: <?php echo $this_child->getAttribute('name') ?></b>
-							</td>
+								<td class="sq-backend-table-cell">&nbsp;</td>
+								<td class="sq-backend-table-cell-alt" colspan="5">
+									<b>Section: <?php echo $this_child->getAttribute('name') ?></b>
+								</td>
 							</tr>
 							<tr>
 							<?php
-	
 								$elements = &$this->_generateSubmissionList($this_child);
 	
 								$i = 0;
-								foreach($elements as $element) {
+								foreach ($elements as $element) {
 									$i++;
-									if (($i % 2 == 1)) { ?>
-										<td class="sq-backend-table-cell">&nbsp;</td>
-									<?php }
+									if (($i % 2 == 1)) {
+										?><td class="sq-backend-table-cell">&nbsp;</td><?php
+									}
 									?>
 									<td class="sq-backend-table-cell">
 										<i><?php echo $element['name'] ?>:</i>
@@ -228,25 +231,23 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 										<?php echo $element['content'] ?>
 										</td>
 									<?php 
-									if (($i < count($elements)) && ($i % 2 == 0)) { ?>
-									</tr><tr>
-									<?php }
-								
-								}	// end-foreach section element
-
+									if (($i < count($elements)) && ($i % 2 == 0)) {
+										?></tr><tr><?php
+									}
+								}
 								?></tr><?php
 								
-							} // end-if this element is a section
+							}//end if this element is a section
 
-						} // end-foreach root element
+						}//end foreach root element
 
-					} // end-if this element expanded
+					}//end if this element expanded
 
-				} // end-if file's datestamp in range
+				}//end iff file's datestamp in range
 
-			} // end-while reading directories
+			}//end while reading directories
 
-		} // end-handle opened
+		}//end handle opened
 		closedir($handle);
 		?>
 		</table>
@@ -256,7 +257,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 
 	/**
-	* processes the submissions block (nothing to process!)
+	* Processes the submissions block (nothing to process!)
 	*
 	* @param object Form_Email			&$asset	the asset whose interface we are painting
 	* @param object	Backend_Outputter	&$o		the outputter class
@@ -265,8 +266,9 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function processSubmissions(&$asset, &$o, $prefix) {
-		return true;
+	function processSubmissions(&$asset, &$o, $prefix)
+	{
+		return false;
 
 	}//end processSubmissions()
 
@@ -281,7 +283,8 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintExport(&$asset, &$o, $prefix) {
+	function paintExport(&$asset, &$o, $prefix)
+	{
 		if (!$asset->writeAccess('attributes')) return false;
 
 		$parameters = Array(
@@ -353,20 +356,22 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function processExport(&$asset, &$o, $prefix) {
+	function processExport(&$asset, &$o, $prefix)
+	{
 		if (!$_POST[$prefix.'_export_switch']) return true;
 		$export_type = isset($_POST[$prefix.'_export_format']) ? $_POST[$prefix.'_export_format'] : '';
 		switch($export_type) {
 			case 'csv':
 				$this->processExportCSV($asset, $o, $prefix);
-				break;
+			break;
 
 			case 'xml':
 				$this->processExportXML($asset, $o, $prefix);
-				break;
+			break;
 		}
 
 		return true;
+
 	}//end processExport()
 
 
@@ -383,7 +388,8 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function processExportCSV(&$asset, &$o, $prefix) {
+	function processExportCSV(&$asset, &$o, $prefix)
+	{
 		require_once SQ_FUDGE_PATH.'/csv/csv.inc';
 		$csv = new CSV();
 		$csv->setFilename('submission_log.csv');
@@ -447,25 +453,21 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 					for (reset($kids); null !== ($k = key($kids)); next($kids)) {
 						$this_child =& $kids[$k];
 						if ($this_child->name == 'section') {
-	
 							$elements = &$this->_generateSubmissionList($this_child);
-	
 							foreach($elements as $element) {
 								$logs[$sub_id][$element['id']] = $element['content'];
 								if (!isset($headers[$element['id']])) {
 									$headers[$element['id']] = $element['name'];
 								}
 							}
-								
-						} // end-if this element is a section
+						}
+					}
 
-					} // end-foreach root element
+				}//end if file's datestamp in range
 
-				} // end-if file's datestamp in range
+			}//end while reading directories
 
-			} // end-while reading directories
-
-		} // end-handle opened
+		}//end if handle opened
 		closedir($handle);
 
 		$csv->setFieldHeaders($headers);
@@ -492,10 +494,11 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function processExportXML(&$asset, &$o, $prefix) {
+	function processExportXML(&$asset, &$o, $prefix)
+	{
 		header('Content-Type: application/xml');
 
-		// Defining the file as attachment forces most browsers to offer it for download
+		// defining the file as attachment forces most browsers to offer it for download
 		header('Content-Disposition: attachment; filename=submission_log.xml;');
 
 		// get the from and to values
@@ -514,7 +517,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$logs = Array();
 		$headers = Array('__time__' => 'Submission Time', '__user__' => 'User Submitting Form');
 
-		echo '<submissions>';			// opening tag
+		echo '<submissions>';
 
 		// search submission logs directory for files in the date range
 		if ($handle = opendir($log_path)) {
@@ -524,19 +527,15 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 				$sub_id = (int)substr($file,4,strpos($file,'.')-4);
 
 				$file_ts = filemtime($log_file);
-
 				if (($file_ts >= $from_ts) && ($file_ts <= $to_ts)) {
 					// time is good; load me up and print
 					echo file_to_string($log_file);
-
-				} // end-if file's datestamp in range
-
-			} // end-while reading directories
-
-		} // end-handle opened
+				}
+			}
+		}
 		closedir($handle);
 		
-		echo '</submissions>';				// closing tag
+		echo '</submissions>';
 		exit(0);
 
 		return true;
@@ -552,8 +551,8 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	* @return array with each element containing indices ('name', 'id', 'content')
 	* @access private
 	*/
-	function &_generateSubmissionList(&$tree_root) {
-		// initialise array
+	function &_generateSubmissionList(&$tree_root)
+	{
 		$children = Array();
 
 		$kids =& $tree_root->children;
@@ -564,16 +563,16 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 			$child_name = $this_child->getAttribute('name');
 			switch($this_child->name) {
 				case 'section':
-					break;
+				break;
 
 				case 'text_q':
 					$child_value = $this_child->content;
-					break;
+				break;
 	
 				case 'datetime_q':
 					$child_value = date('d M Y H:i:s',	iso8601_ts($this_child->content));
 					if ($this_child->getAttribute('circa')) $child_value = 'circa '.$child_value;
-					break;
+				break;
 
 				case 'select_q':
 					$select_options =& $this_child->children;
@@ -584,15 +583,12 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 						$child_value[] = $this_option->content;
 					}
 					$child_value = implode(', ', $child_value);
-	
-					break;
-
+				break;
 			}
 
 			if ($this_child->name != 'section') {
 				$children[] = Array('id' => $child_id, 'name' => $child_name, 'content' => $child_value);
 			}
-
 		}
 
 		return $children;
@@ -649,9 +645,10 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 	}//end processReceiptField()
 
+
 //--        SEND TO A FRIEND STUFF        --//
 
-	
+
 	/**
 	* Paints the interface for selecting a field containing send to a friend entries
 	*
@@ -670,8 +667,8 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 		return true;
 
-	}//end paintReceiptField()
-	
+	}//end paintSTAFField()
+
 
 	/**
 	* Processes the interface for selecting a field containing send to a friend entries
@@ -688,7 +685,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		if (!isset($_POST[$prefix.'_staf_field'])) return false;
 		$assetid = $_POST[$prefix.'_staf_field']['assetid'];
 
-		// add check that this is in the same form
+		// todo: add check that this is in the same form
 
 		// if we already have this as the not found asset, don't set it again
 		if ($assetid == $asset->attr('staf_field')) return false;
@@ -701,7 +698,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 //--        SELECTIVE E-MAILS        --//
 
-	
+
 	/**
 	* Paints the interface for creating a new Selective Email rule
 	*
@@ -720,7 +717,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 		return true;
 
-	}
+	}//end paintAddSelectiveEmailRule()
 
 
 	/**
@@ -795,8 +792,8 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		}
 
 		?>
-			<table class="sq-backend-table">
-				<tr>
+		<table class="sq-backend-table">
+			<tr>
 				<?php
 				if ($admin_access) {
 					?><td align="center" width="30" class="sq-backend-table-header" style="font-weight: bold;">Edit</td><?php
@@ -813,97 +810,105 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 				?>
 			</tr>
 		<?php
-
 		for (reset($all_se); null !== ($k = key($all_se)); next($all_se)) {
 			$info = &$all_se[$k];
 			$rule_prefix = $prefix.'_r'.$k;
 			$valid = true;
 			?>
-			
-			<tr><?php if ($admin_access) { ?><td valign="top"  align="center" width="30" class="sq-backend-table-cell<?php if ($ruleid == $k) echo '-alt' ?>"><a href="<?php echo $o->getCurrentLocation(); ?>&<?php echo $prefix?>_se_active_ruleid=<?php echo $k ?>"><img src="<?php echo sq_web_path('lib'); ?>/web/images/icons/edit_mode.png" width="15" height="15" border="0" /></a><?php } ?></td>
-<td valign="top" class="sq-backend-table-cell<?php if ($ruleid == $k) echo '-alt' ?>">
-			<?php
-
-			if (empty($info['rules'])) {
-				?>
-				<span><b>WARNING:</b> This rule contains no parts</span><br/>
+			<tr>
 				<?php
-				$valid = false;
-			} else {
-				$rules =& $info['rules'];
-
-				$i = 0;
-				for (reset($rules); null !== ($rule_key = key($rules)); next($rules)) {
-					$rule =& $rules[$rule_key];
-					$type_code = 'form_question_rule_type_'.$rule['name'];
-					$q_asset =& $am->getAsset($rule['assetid']);
-
-					// get operators and attributes from a static call
-					$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
-					$operators = eval('return '.$type_code.'::getOperators();');
-					$attributes = eval('return '.$type_code.'::getAttributes();');
-
-					// if this is not our first rule part, put in AND or OR as the case may be
-					if ($i > 0) {
-						if ($info['require'] == 'all') {
-							echo '<b>AND</b> ';
-						} else {
-							echo '<b>OR</b> ';
-						}
-					}
-					
-					$i++;
-					echo '<b>'.$q_asset->attr('name').'</b> ';
-					echo $operators[$rule['operator']];
-					echo '<b>';
-				
-					if (!$attributes['no_comparison']) {
-						// comparison question ID
-						if ($cqid = $rule['comparison_question_id']) {
-							$cq_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($cqid);
-								echo 'Value of "'.$cq_asset->name.'" ['.$cq_asset->type().' : '.$cqid . ']';
-						} else {
-							echo $rule['value'];
-						}
-					echo '</b>';
-					}?>
-							<br/>
-					<?php
-					$i++;
-					}// end foreach data
-				}
-
-				echo 'Send a <b>';
-				if ($info['send'] == 'staf') {
-					echo 'Send To A Friend';
-				} elseif ($info['send'] == 'recipient') {
-					echo 'Recipient';
-				} elseif ($info['send'] == 'receipt') {
-					echo 'Receipt';
-				} else {
-					echo 'Unknown E-mail Type';
-					$valid = false;
-				}
-				echo '</b> email to <b>';
-				if (empty($info['address'])) {
-					$valid = false;
-					echo 'No Email Address Specified';
-				} else {
-					echo $info['address'];
-				}
-				echo '</b>';
-				?></td>
-				<td valign="top"  align="center" width="70" class="sq-backend-table-cell<?php if ($ruleid == $k) echo '-alt' ?>"><img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $valid ? 'tick' : 'cross'; ?>.gif" width="15" height="15" /></td>
-				<?php
-				
-						if ($admin_access) {
-								?><td valign="top"  align="center" width="50" class="sq-backend-table-cell<?php if ($ruleid == $k) echo '-alt' ?>"><?php check_box($prefix.'_deletes[]', $k); ?></td>
-						<?php }
+				if ($admin_access) {
 					?>
-				</tr>
-				<?php } ?>
-				</table>
+					<td valign="top" align="center" width="30" class="sq-backend-table-cell<?php if ($ruleid == $k) echo '-alt' ?>"><a href="<?php echo $o->getCurrentLocation(); ?>&<?php echo $prefix?>_se_active_ruleid=<?php echo $k ?>"><img src="<?php echo sq_web_path('lib'); ?>/web/images/icons/edit_mode.png" width="15" height="15" border="0" /></a></td>
+					<?php
+				}
+				?>
+				<td valign="top" class="sq-backend-table-cell<?php if ($ruleid == $k) echo '-alt' ?>">
+					<?php
+					if (empty($info['rules'])) {
+						?>
+						<span><b>WARNING:</b> This rule contains no parts</span><br/>
+						<?php
+						$valid = false;
+					} else {
+						$rules =& $info['rules'];
+		
+						$i = 0;
+						for (reset($rules); null !== ($rule_key = key($rules)); next($rules)) {
+							$rule =& $rules[$rule_key];
+							$type_code = 'form_question_rule_type_'.$rule['name'];
+							$q_asset =& $am->getAsset($rule['assetid']);
+		
+							// get operators and attributes from a static call
+							$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
+							$operators = eval('return '.$type_code.'::getOperators();');
+							$attributes = eval('return '.$type_code.'::getAttributes();');
+		
+							// if this is not our first rule part, put in AND or OR as the case may be
+							if ($i > 0) {
+								if ($info['require'] == 'all') {
+									echo '<b>AND</b> ';
+								} else {
+									echo '<b>OR</b> ';
+								}
+							}
+							
+							$i++;
+							echo '<b>'.$q_asset->attr('name').'</b> ';
+							echo $operators[$rule['operator']];
+							echo '<b>';
+						
+							if (!$attributes['no_comparison']) {
+								// comparison question ID
+								if ($cqid = $rule['comparison_question_id']) {
+									$cq_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($cqid);
+										echo 'Value of "'.$cq_asset->name.'" ['.$cq_asset->type().' : '.$cqid . ']';
+								} else {
+									echo $rule['value'];
+								}
+								echo '</b>';
+							}
+							echo '<br />';
+							$i++;
+						}//end for
+		
+					}//end if rules not empty
+		
+					echo 'Send a <b>';
+					if ($info['send'] == 'staf') {
+						echo 'Send To A Friend';
+					} else if ($info['send'] == 'recipient') {
+						echo 'Recipient';
+					} else if ($info['send'] == 'receipt') {
+						echo 'Receipt';
+					} else {
+						echo 'Unknown E-mail Type';
+						$valid = false;
+					}
+		
+					echo '</b> email to <b>';
+					if (empty($info['address'])) {
+						$valid = false;
+						echo 'No Email Address Specified';
+					} else {
+						echo $info['address'];
+					}
+					echo '</b>';
+					?>
+				</td>
+				<td valign="top" align="center" width="70" class="sq-backend-table-cell<?php if ($ruleid == $k) echo '-alt' ?>"><img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $valid ? 'tick' : 'cross'; ?>.gif" width="15" height="15" /></td>
+				<?php
+				if ($admin_access) {
+					?><td valign="top"  align="center" width="50" class="sq-backend-table-cell<?php if ($ruleid == $k) echo '-alt' ?>"><?php check_box($prefix.'_deletes[]', $k); ?></td><?php
+				}
+				?>
+			</tr>
+			<?php 
+		}//end for all selective emails
+		?>
+		</table>
 		<?php
+
 		return true;
 
 	}//end paintCurrentSelectiveEmails()
@@ -924,7 +929,6 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		if (!isset($_POST[$prefix.'_deletes'])) return true;
 		
 		$all_se = $asset->attr('selective_emails');
-
 		$delete_ruleids = $_POST[$prefix.'_deletes'];
 
 		// delete our selective e-mail rules
@@ -940,6 +944,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 		$asset->setAttrValue('selective_emails', $all_se);
 		return $asset->saveAttributes();
+
 	}//end processCurrentSelectiveEmails()
 
 
@@ -955,7 +960,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	*/
 	function paintActiveQuestion(&$asset, &$o, $prefix)
 	{
-		if(!$asset->writeAccess('attributes')) return false;
+		if (!$asset->writeAccess('attributes')) return false;
 		if (isset($_REQUEST[$prefix.'_se_active_ruleid'])) {
 			$current_assetid = isset($_POST[$prefix.'_se_new_qid']['assetid']) ? $_POST[$prefix.'_se_new_qid']['assetid'] : 0;
 			asset_finder($prefix.'_se_new_qid', $current_assetid, Array('form_question' => 'D'));
@@ -1000,23 +1005,17 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		if (!isset($_POST[$prefix.'_se_new_qid']['assetid'])) {
 			echo 'You must select a question before you can select the type of rule part';
 			return false;
-
 		} else {
-			$am = &$GLOBALS['SQ_SYSTEM']->am;
-			$active_question =& $GLOBALS['SQ_SYSTEM']->am->getAsset($_POST[$prefix.'_se_new_qid']['assetid']);
+			$active_question = &$GLOBALS['SQ_SYSTEM']->am->getAsset($_POST[$prefix.'_se_new_qid']['assetid']);
 
 			$rule_codes = $active_question->getAllowedRules();
 			$type_codes = Array();
-
-			foreach	($rule_codes as $rule_code) {
-				$type_codes[] = 'form_question_rule_type_'.$rule_code;
-			}
+			foreach	($rule_codes as $rule_code) $type_codes[] = 'form_question_rule_type_'.$rule_code;
 
 			$desc = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_codes, 'description');
 			combo_box($prefix.'_new_rule', array_merge(Array(' ' => '------ Please Select ------'), $desc), false, '');
 		
-		return true;
-
+			return true;
 		}
 
 	}//end paintAddRulePart()
@@ -1034,18 +1033,17 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	*/
 	function processAddRulePart(&$asset, &$o, $prefix)
 	{
-		if(!$asset->adminAccess('attributes')) return false;
+		if (!$asset->adminAccess('attributes')) return false;
 
 		// rule id is not set || required "new rule part" fields not set = FAIL
-		if (!isset($_REQUEST[$prefix.'_se_active_ruleid']) || !isset($_REQUEST[$prefix.'_new_rule']) || empty($_POST[$prefix.'_se_new_qid']['assetid'])) {
+		if (!isset($_REQUEST[$prefix.'_se_active_ruleid']) ||
+			!isset($_REQUEST[$prefix.'_new_rule']) || empty($_POST[$prefix.'_se_new_qid']['assetid'])) {
 			return false;
 
 		} else {
-			$am = &$GLOBALS['SQ_SYSTEM']->am;
-			
 			$ruleid = $_REQUEST[$prefix.'_se_active_ruleid'];
 			$qid = $_POST[$prefix.'_se_new_qid']['assetid'];
-			$active_question = &$am->getAsset($qid);
+			$active_question = &$GLOBALS['SQ_SYSTEM']->am->getAsset($qid);
 
 			$type_code = $_POST[$prefix.'_new_rule'];
 			$rule_code = substr($type_code,24);
@@ -1087,7 +1085,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		if (!isset($_REQUEST[$prefix.'_se_active_ruleid'])) return false;
 		$ruleid = $_REQUEST[$prefix.'_se_active_ruleid'];
 
-		if(!$asset->writeAccess('attributes')) return false;
+		if (!$asset->writeAccess('attributes')) return false;
 		$admin_access = $asset->adminAccess('attributes');
 
 		$am		=& $GLOBALS['SQ_SYSTEM']->am;
@@ -1100,92 +1098,94 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		}
 
 		// set a get var so that we know what question was selected when we come back 
-				?>
-				<table class="sq-backend-table">
-					<tr>
-						<td class="sq-backend-table-header">
-							Question
-						</td>
-						<td class="sq-backend-table-header">
-							Rule
-						</td>
-						<td class="sq-backend-table-header">
-							Comparison Value
-						</td>
-						<td align="center" width="70" class="sq-backend-table-header">
-							Delete ?
-						</td>
-					</tr>
-				<?php
-
-
-					// sort order is based upon shadow asset id (eg. '87:q1'), not just question id - this 	
-					// will allow sections to be sorted in later
-					$i = 0;
-
-					for (reset($rules); null !== ($k = key($rules)); next($rules)) {
-						$rule = &$rules[$k];
-						$type_code = 'form_question_rule_type_'.$rule['name'];
-						$q_asset =& $am->getAsset($rule['assetid']);
-
-						// get operators and attributes from a static call
-						$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
-						$operators = eval('return '.$type_code.'::getOperators();');
-						$attributes = eval('return '.$type_code.'::getAttributes();');
-
-						// obtain a rule prefix
-						$rule_prefix = $prefix.'_r'.$k;
-						?>
-							<td valign="top" class="sq-backend-table-cell">
-							<?php echo $q_asset->attr('name'); ?>
-							</td>
-							<td class="sq-backend-table-cell">
-								<?php if ($asset->writeAccess('attributes')) {
-									combo_box($rule_prefix.'_operator', $operators, 
-									false, $rule['operator']); 
-								} else {
-									echo $operators[$rule['operator']];
-								} ?>
-							</td>
-							<td class="sq-backend-table-cell">
-								<?php if (!$attributes['no_comparison']) {
-									// only print if we need to compare with something
-									if ($asset->writeAccess('attributes')) {
-										if ($q_asset->isSelection() && !$attributes['force_text']) {
-											$options = $asset->getOptions();
-											combo_box($rule_prefix.'_value', array_merge(Array(' ' => '------ Please Select ------'), $options), 
-									false, $rule['value']); 
-										} else {
-											text_box($rule_prefix.'_value', $rule['value'], 30, 255);
-										}
-										// showing the asset finder?
-										if ($attributes['show_asset_finder']) {
-											echo ' Or<br />';
-											asset_finder($rule_prefix.'_cq_id', $rule['comparison_question_id'], Array('form_question' => 'D'));
-										}
-									} else {
-										// comparison question ID
-										if ($cqid = $rule['comparison_question_id']) {
-											$cq_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($cqid);
-											echo 'Value of "'.$cq_asset->name.'" ['.$cq_asset->type().' : '.$cqid . ']';
-										} else {
-											echo $rule['value'];
-										}
-									}
-								}?>
-							</td>
-							<?php if ($admin_access) {
-								?><td valign="top"  align="center" width="70" class="sq-backend-table-cell"><?php check_box($prefix.'_rule_deletes[]', $k); ?></td>
-							<?php } ?>
-						</tr>
-					<?php
-					$i++;
-					}// end foreach data
-				?>
-				</table>
+		?>
+		<table class="sq-backend-table">
+			<tr>
+				<td class="sq-backend-table-header">
+					Question
+				</td>
+				<td class="sq-backend-table-header">
+					Rule
+				</td>
+				<td class="sq-backend-table-header">
+					Comparison Value
+				</td>
+				<td align="center" width="70" class="sq-backend-table-header">
+					Delete ?
+				</td>
+			</tr>
 
 			<?php
-			return true;
+			// sort order is based upon shadow asset id (eg. '87:q1'), not just question id - this 	
+			// will allow sections to be sorted in later
+			$i = 0;
+
+			for (reset($rules); null !== ($k = key($rules)); next($rules)) {
+				$rule = &$rules[$k];
+				$type_code = 'form_question_rule_type_'.$rule['name'];
+				$q_asset =& $am->getAsset($rule['assetid']);
+
+				// get operators and attributes from a static call
+				$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
+				$operators = eval('return '.$type_code.'::getOperators();');
+				$attributes = eval('return '.$type_code.'::getAttributes();');
+
+				// obtain a rule prefix
+				$rule_prefix = $prefix.'_r'.$k;
+				?>
+				<td valign="top" class="sq-backend-table-cell">
+				<?php echo $q_asset->attr('name'); ?>
+				</td>
+				<td class="sq-backend-table-cell">
+					<?php if ($asset->writeAccess('attributes')) {
+						combo_box($rule_prefix.'_operator', $operators, 
+						false, $rule['operator']); 
+					} else {
+						echo $operators[$rule['operator']];
+					} ?>
+				</td>
+				<td class="sq-backend-table-cell">
+					<?php if (!$attributes['no_comparison']) {
+						// only print if we need to compare with something
+						if ($asset->writeAccess('attributes')) {
+							if ($q_asset->isSelection() && !$attributes['force_text']) {
+								$options = $asset->getOptions();
+								combo_box($rule_prefix.'_value', array_merge(Array(' ' => '------ Please Select ------'), $options), 
+						false, $rule['value']); 
+							} else {
+								text_box($rule_prefix.'_value', $rule['value'], 30, 255);
+							}
+							// showing the asset finder?
+							if ($attributes['show_asset_finder']) {
+								echo ' Or<br />';
+								asset_finder($rule_prefix.'_cq_id', $rule['comparison_question_id'], Array('form_question' => 'D'));
+							}
+						} else {
+							// comparison question ID
+							if ($cqid = $rule['comparison_question_id']) {
+								$cq_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($cqid);
+								echo 'Value of "'.$cq_asset->name.'" ['.$cq_asset->type().' : '.$cqid . ']';
+							} else {
+								echo $rule['value'];
+							}
+						}
+					}?>
+				</td>
+				<?php
+				if ($admin_access) {
+					?><td valign="top"  align="center" width="70" class="sq-backend-table-cell"><?php check_box($prefix.'_rule_deletes[]', $k); ?></td><?php
+				} 
+				?>
+				</tr>
+				<?php
+				$i++;
+
+			}//end for all rules
+		?>
+		</table>
+		<?php
+
+		return true;
 
 	}//end paintRuleParts()
 
@@ -1203,30 +1203,19 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	function processRuleParts(&$asset, &$o, $prefix)
 	{
 		$all_se = $asset->attr('selective_emails');
-
-		if (!isset($_REQUEST[$prefix.'_se_active_ruleid'])) {
-			return false;
-		}
+		if (!isset($_REQUEST[$prefix.'_se_active_ruleid'])) return false;
 
 		$ruleid = $_REQUEST[$prefix.'_se_active_ruleid'];
-
-		if (!isset($all_se[$ruleid])) {
-			return false;
-		}
+		if (!isset($all_se[$ruleid])) return false;
 
 		$rules =& $all_se[$ruleid]['rules'];
 
 		$prefix = $asset->getPrefix();
 
 		if (!empty($_POST[$prefix.'_rule_deletes'])) {
-		
-			$delete_ruleids = $_POST[$prefix.'_rule_deletes'];
-
 			// delete our selective e-mail rules
-			foreach ($delete_ruleids as $deleted_ruleid) {
-				unset($rules[$deleted_ruleid]);
-			}
-
+			$delete_ruleids = $_POST[$prefix.'_rule_deletes'];
+			foreach ($delete_ruleids as $deleted_ruleid) unset($rules[$deleted_ruleid]);
 		}
 
 		// modify what's left
@@ -1242,21 +1231,18 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 			if (isset($_POST[$rule_prefix.'_cq_id']) && ($_POST[$rule_prefix.'_cq_id']['assetid'] != 0)) {
 				// comparison question id overrides the static value!
 				if ($_POST[$rule_prefix.'_cq_id']['assetid'] == $asset->id) {
-				  trigger_error('Cannot compare "'.$asset->name.'" (# '.$asset->id.') with itself in a rule',  E_USER_WARNING);
-				  return false;
+					trigger_error('Cannot compare "'.$asset->name.'" (# '.$asset->id.') with itself in a rule',  E_USER_WARNING);
+					return false;
 				}
-
 				$rule['comparison_question_id'] = $_POST[$rule_prefix.'_cq_id']['assetid'];
 				$rule['value'] = '';
-			} elseif (!empty($_POST[$rule_prefix.'_value'])) {
+			} else if (!empty($_POST[$rule_prefix.'_value'])) {
 				// static value only specified - set c.q. ID to a duck
 				$rule['comparison_question_id'] = 0;
 				$rule['value'] = $_POST[$rule_prefix.'_value'];
 			}
+		}//end for
 
-
-
-		}
 		$asset->setAttrValue('selective_emails', $all_se);
 		return $asset->saveAttributes();
 
@@ -1275,27 +1261,20 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	*/
 	function paintActiveSend(&$asset, &$o, $prefix)
 	{
-		if(!$asset->adminAccess('attributes')) return false;
+		if (!$asset->adminAccess('attributes')) return false;
+		if (!isset($_REQUEST[$prefix.'_se_active_ruleid'])) return false;
 
-		if (!isset($_REQUEST[$prefix.'_se_active_ruleid'])) {
-			return false;
+		$ruleid = $_REQUEST[$prefix.'_se_active_ruleid'];
+		$all_se = $asset->attr('selective_emails');
 
-		} else {
-			$am = &$GLOBALS['SQ_SYSTEM']->am;
-			
-			$ruleid = $_REQUEST[$prefix.'_se_active_ruleid'];
-			$all_se = $asset->attr('selective_emails');
-
-			echo 'When ';
-			combo_box($prefix.'_require', Array('all' => 'ALL', 'any' => 'ANY'), false, Array($all_se[$ruleid]['require']));
-			echo ' rule parts are matched,<br/>send a ';
-			combo_box($prefix.'_send', Array('recipient' => 'Recipient E-mail', 'receipt' => 'Receipt', 'staf' => 'Send To A Friend E-mail'), false, Array($all_se[$ruleid]['send']));
-			echo ' to ';
-			text_box($prefix.'_address', $all_se[$ruleid]['address'], 30, 255);
+		echo 'When ';
+		combo_box($prefix.'_require', Array('all' => 'ALL', 'any' => 'ANY'), false, Array($all_se[$ruleid]['require']));
+		echo ' rule parts are matched,<br/>send a ';
+		combo_box($prefix.'_send', Array('recipient' => 'Recipient E-mail', 'receipt' => 'Receipt', 'staf' => 'Send To A Friend E-mail'), false, Array($all_se[$ruleid]['send']));
+		echo ' to ';
+		text_box($prefix.'_address', $all_se[$ruleid]['address'], 30, 255);
 		
 		return true;
-
-		}
 
 	}//end paintActiveSend()
 	
@@ -1313,23 +1292,17 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	function processActiveSend(&$asset, &$o, $prefix)
 	{
 		if(!$asset->adminAccess('attributes')) return false;
+		if (!isset($_REQUEST[$prefix.'_se_active_ruleid']) || !isset($_POST[$prefix.'_address'])) return false;
 
-		if (!isset($_REQUEST[$prefix.'_se_active_ruleid']) || !isset($_POST[$prefix.'_address'])) {
-			return false;
+		$ruleid = $_REQUEST[$prefix.'_se_active_ruleid'];
+		$all_se = $asset->attr('selective_emails');
 
-		} else {
-			$am = &$GLOBALS['SQ_SYSTEM']->am;
-			
-			$ruleid = $_REQUEST[$prefix.'_se_active_ruleid'];
-			$all_se = $asset->attr('selective_emails');
+		$all_se[$ruleid]['require'] = $_POST[$prefix.'_require'];
+		$all_se[$ruleid]['send']    = $_POST[$prefix.'_send'];
+		$all_se[$ruleid]['address'] = $_POST[$prefix.'_address'];
 
-			$all_se[$ruleid]['require'] = $_POST[$prefix.'_require'];
-			$all_se[$ruleid]['send']    = $_POST[$prefix.'_send'];
-			$all_se[$ruleid]['address'] = $_POST[$prefix.'_address'];
-
-			$asset->setAttrValue('selective_emails', $all_se);
-			return $asset->saveAttributes();
-		}
+		$asset->setAttrValue('selective_emails', $all_se);
+		return $asset->saveAttributes();
 
 	}//end processActiveSend()
 

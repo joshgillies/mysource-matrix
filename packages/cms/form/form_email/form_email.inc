@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email.inc,v 1.25 2004/07/01 00:56:33 lwright Exp $
+* $Id: form_email.inc,v 1.26 2004/07/07 00:34:47 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -52,7 +52,7 @@ class Form_Email extends Form
 	{
 		$this->Form($assetid);
 	
-	}//end Form_Email()
+	}//end constructor
 
 
 	/**
@@ -149,48 +149,45 @@ class Form_Email extends Form
 	function mailReceipt()
 	{
 		$email_field_assetid = $this->attr('receipt_field');
+		if (empty($email_field_assetid)) return false;
 
-		if (empty($email_field_assetid)) {
-			return false;
-		} else {
-			$email_field = $GLOBALS['SQ_SYSTEM']->am->getAsset($email_field_assetid);
-			$address = $email_field->getValue();
+		$email_field = $GLOBALS['SQ_SYSTEM']->am->getAsset($email_field_assetid);
+		$address = $email_field->getValue();
 
-			// get the form info (in both formats)
-			$info = $this->getFormInfo(true);
-			$info_text = $this->getFormInfo(false);
+		// get the form info (in both formats)
+		$info = $this->getFormInfo(true);
+		$info_text = $this->getFormInfo(false);
 
-			// get the form summary (both formats)
-			ob_start();
+		// get the form summary (both formats)
+		ob_start();
 			$this->printSummary(true);
 			$body = ob_get_contents();
-			ob_end_clean();
+		ob_end_clean();
 
-			ob_start();
+		ob_start();
 			$this->printSummary(false);
 			$body_text = ob_get_contents();
-			ob_end_clean();
+		ob_end_clean();
 
-			$reps = Array('receipt_address' => $address, 'form_summary_html' => $body, 'form_summary_text' => $body_text, 'form_info_html' => $info, 'form_info_text' => $info_text);
+		$reps = Array('receipt_address' => $address, 'form_summary_html' => $body, 'form_summary_text' => $body_text, 'form_info_html' => $info, 'form_info_text' => $info_text);
 
-			$email_format_attr = $this->getAttribute('receipt_emails_format');
+		$email_format_attr = $this->getAttribute('receipt_emails_format');
 
-			// append the 'To:' address with the address from the e-mail field
-			$current_value = @unserialize($email_format_attr->value);
-			$current_value['to'][] = $address;
+		// append the 'To:' address with the address from the e-mail field
+		$current_value = @unserialize($email_format_attr->value);
+		$current_value['to'][] = $address;
 
-			// substitute generic keywords with email format-specific keywords
-			$current_value['html_format'] = str_replace(
-				Array('%form_info%', '%form_summary%'), 
-				Array('%form_info_html%', '%form_summary_html%'), $current_value['html_format']);
-			$current_value['text_format'] = str_replace(
-				Array('%form_info%', '%form_summary%'), 
-				Array('%form_info_text%', '%form_summary_text%'), $current_value['text_format']);
+		// substitute generic keywords with email format-specific keywords
+		$current_value['html_format'] = str_replace(
+			Array('%form_info%', '%form_summary%'), 
+			Array('%form_info_html%', '%form_summary_html%'), $current_value['html_format']);
+		$current_value['text_format'] = str_replace(
+			Array('%form_info%', '%form_summary%'), 
+			Array('%form_info_text%', '%form_summary_text%'), $current_value['text_format']);
 
-			$email_format_attr->value = serialize($current_value);
+		$email_format_attr->value = serialize($current_value);
 
-			$email_format_attr->sendMail($reps);
-		}
+		$email_format_attr->sendMail($reps);
 
 		return true;
 
@@ -218,15 +215,14 @@ class Form_Email extends Form
 
 		// get the form summary
 		ob_start();
-		$this->printSummary(true);
-		$body = ob_get_contents();
+			$this->printSummary(true);
+			$body = ob_get_contents();
 		ob_end_clean();
 
 		ob_start();
-		$this->printSummary(false);
-		$body_text = ob_get_contents();
+			$this->printSummary(false);
+			$body_text = ob_get_contents();
 		ob_end_clean();
-
 
 		$reps = Array('form_summary_html' => $body, 'form_summary_text' => $body_text, 'form_info_html' => $info, 'form_info_text' => $info_text);
 
@@ -256,48 +252,45 @@ class Form_Email extends Form
 	function sendToFriends()
 	{
 		$email_field_assetid = $this->attr('staf_field');
+		if (empty($email_field_assetid)) return false;
 
-		if (empty($email_field_assetid)) {
-			return false;
-		} else {
-			$email_field = $GLOBALS['SQ_SYSTEM']->am->getAsset($email_field_assetid);
-			$addresses = preg_split('/[\s;,]+/',$email_field->getValue());
+		$email_field = $GLOBALS['SQ_SYSTEM']->am->getAsset($email_field_assetid);
+		$addresses = preg_split('/[\s;,]+/',$email_field->getValue());
 
-			// get the form info
-			$info = $this->getFormInfo(true);
-			$info_text = $this->getFormInfo(false);
+		// get the form info
+		$info = $this->getFormInfo(true);
+		$info_text = $this->getFormInfo(false);
 
-			// get the form summary
-			ob_start();
+		// get the form summary
+		ob_start();
 			$this->printSummary(true);
 			$body = ob_get_contents();
-			ob_end_clean();
+		ob_end_clean();
 
-			ob_start();
+		ob_start();
 			$this->printSummary(false);
 			$body_text = ob_get_contents();
-			ob_end_clean();
+		ob_end_clean();
 
-			$reps = Array('form_summary_html' => $body, 'form_summary_text' => $body_text, 'form_info_html' => $info, 'form_info_text' => $info_text);
+		$reps = Array('form_summary_html' => $body, 'form_summary_text' => $body_text, 'form_info_html' => $info, 'form_info_text' => $info_text);
 
-			$email_format_attr = $this->getAttribute('staf_format');
+		$email_format_attr = $this->getAttribute('staf_format');
 
-			// append the 'To:' address with the address from the e-mail field
-			$current_value = @unserialize($email_format_attr->value);
-			$current_value['to'] = array_merge($current_value['to'], $addresses);
+		// append the 'To:' address with the address from the e-mail field
+		$current_value = @unserialize($email_format_attr->value);
+		$current_value['to'] = array_merge($current_value['to'], $addresses);
 
-			// substitute generic keywords with email format-specific keywords
-			$current_value['html_format'] = str_replace(
-				Array('%form_info%', '%form_summary%'), 
-				Array('%form_info_html%', '%form_summary_html%'), $current_value['html_format']);
-			$current_value['text_format'] = str_replace(
-				Array('%form_info%', '%form_summary%'), 
-				Array('%form_info_text%', '%form_summary_text%'), $current_value['text_format']);
+		// substitute generic keywords with email format-specific keywords
+		$current_value['html_format'] = str_replace(
+			Array('%form_info%', '%form_summary%'), 
+			Array('%form_info_html%', '%form_summary_html%'), $current_value['html_format']);
+		$current_value['text_format'] = str_replace(
+			Array('%form_info%', '%form_summary%'), 
+			Array('%form_info_text%', '%form_summary_text%'), $current_value['text_format']);
 
-			$email_format_attr->value = serialize($current_value);
+		$email_format_attr->value = serialize($current_value);
 
-			$email_format_attr->sendMail($reps);
-		}
+		$email_format_attr->sendMail($reps);
 
 		return true;
 
@@ -305,18 +298,18 @@ class Form_Email extends Form
 
 
 	/**
-	* runs selective emails application
+	* Runs selective emails application
 	*
 	* @access public
 	* @return boolean
 	*/
 	function runSelectiveEmails()
 	{
-		// Attribute which holds all the selective email rules
+		// attribute which holds all the selective email rules
 		$selective_emails = $this->attr('selective_emails');
 
-		// These are where we store the recipients of each respective type of email...
-		// IF rules pass then this will contain who is receiving each email
+		// these are where we store the recipients of each respective type of email...
+		// if rules pass then this will contain who is receiving each email
 		$recipients	= Array();
 		$receipts	= Array();
 		$stafs		= Array();
@@ -331,7 +324,6 @@ class Form_Email extends Form
 			if (empty($sel_email['send'])) $valid = false;				// type of mail is empty
 			if (empty($sel_email['address'])) $valid = false;			// address to send to is empty
 
-			// we are still sweet, play on
 			if ($valid) {
 
 				// Short circuiting rules for this loop. If we are requiring ALL rule parts to succeed
@@ -367,18 +359,17 @@ class Form_Email extends Form
 
 					// Short Circuit evaluation, see note above this loop.
 					if ($require_all && !$rule_passed) {
-						// Require ALL, rule part FAILED => fail whole rule
+						// require ALL, rule part FAILED => fail whole rule
 						$passed = false;
 						break;
 					} elseif (!$require_all && $rule_passed) {
-						// Require ANY, rule part PASSED => pass whole rule
+						// require ANY, rule part PASSED => pass whole rule
 						$passed = true;
 						break;
 					}
 
-				}//end for-rule parts
+				}//end for rule parts
 
-				// Rule Passed, OMG!!
 				if ($passed) {
 					// parse addresses into an array in case multiples are sent
 					$addresses = preg_split('/[\s;,]+/',$sel_email['address']);
@@ -386,23 +377,22 @@ class Form_Email extends Form
 					switch($sel_email['send']) {
 						case 'recipient':
 							$recipients	= array_merge($recipients, $addresses);
-							break;
+						break;
 						case 'receipt':
 							$receipts	= array_merge($receipts, $addresses);
-							break;
+						break;
 						case 'staf':
 							$stafs		= array_merge($stafs, $addresses);
-							break;
-					}//end switch
-
-				}//end if passed
+						break;
+					}
+				}
 
 			}//end if valid
 
 		}//end selective email rules
 
-		// Form info will be common amongst all emails so we might as well capture it up the top
-		// of this thing
+		// form info will be common amongst all emails so we might as well
+		// capture it up the top of this thing
 
 		// get the form info
 		$info = $this->getFormInfo(true);
@@ -410,17 +400,21 @@ class Form_Email extends Form
 
 		// get the form summary
 		ob_start();
-		$this->printSummary(true);
-		$body = ob_get_contents();
+			$this->printSummary(true);
+			$body = ob_get_contents();
 		ob_end_clean();
 
 		ob_start();
-		$this->printSummary(false);
-		$body_text = ob_get_contents();
+			$this->printSummary(false);
+			$body_text = ob_get_contents();
 		ob_end_clean();
 
 		// keyword replacements
-		$reps = Array('form_summary_html' => $body, 'form_summary_text' => $body_text, 'form_info_html' => $info, 'form_info_text' => $info_text);
+		$reps = Array(	'form_summary_html' => $body,
+						'form_summary_text' => $body_text,
+						'form_info_html'    => $info,
+						'form_info_text'    => $info_text
+						);
 
 		// recipient emails
 		if (!empty($recipients)) {
@@ -446,7 +440,6 @@ class Form_Email extends Form
 
 				$email_format->sendMail($reps);
 			}
-
 		}
 
 		// receipt emails
@@ -472,9 +465,7 @@ class Form_Email extends Form
 				$email_format->value = serialize($current_value);
 
 				$email_format->sendMail($reps);
-			
 			}
-
 		}
 
 		// send to a friend
@@ -500,9 +491,7 @@ class Form_Email extends Form
 				$email_format->value = serialize($current_value);
 
 				$email_format->sendMail($reps);
-
 			}
-
 		}
 
 		return true;
