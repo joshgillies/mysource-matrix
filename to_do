@@ -20,7 +20,7 @@
 
   - Attribute Types
     - In Asset have a diff update case for diff types of attr
-	- Create date and selection attribute types
+	- Create date, colour and selection attribute types
 
   - Unique Usernames (or attr values in general) across system
 
