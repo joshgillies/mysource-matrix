@@ -112,9 +112,9 @@ class Asset extends Resolve_Object
 	/**
 	* Create this asset
 	* The return value will be:
-	*	FALSE if the asset wa snot created
-	*	the ID of the newly created link if the asset and intital link were created
-	*	TRUE if the asset was created but $link was empty
+	*    FALSE if the asset wa snot created
+	*    the ID of the newly created link if the asset and intital link were created
+	*    TRUE if the asset was created but $link was empty
 	*
 	* @param Array	&$link	information used to create the initial link, 
 	*						Array ('asset' => [ref major asset to create link under], 
@@ -1042,7 +1042,7 @@ class Asset extends Resolve_Object
 	* Aquires a lock on this asset and its dependant assets
 	*
 	* @param int	$source		the id of the asset that started this locking process
-	* @param string	$expires	when the lock expires (yyyy-mm-dd hh:mm:ss)
+	* @param string	$expires	when the lock expires
 	*
 	* @return boolean
 	* @access public
@@ -1058,19 +1058,35 @@ class Asset extends Resolve_Object
 			return true;
 		}
 
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
 		if($this->canForceablyAquireLock()) {
 			// special case where the current user is actually
 			// removing the current lock and taking it for themselves
+			$sql = 'SELECT assetid FROM sq_asset_lock
+					WHERE source_asset = '.$db->quote($current_lock['source_asset']);
+
+			$locked_ids = $db->getCol($sql);
+			if (DB::isError($locked_ids)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				trigger_error($locked_ids->getMessage().'<br/>'.$locked_ids->getUserInfo(), E_USER_WARNING);
+				return false;
+			}
+
 			if (!$this->releaseLock()) return false;
 			
 			// send an internal message
 			$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 			$current_user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserid());
 			$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_lock['userid']);
-			$body = 'User "'.$current_user->name.'" has forceably aquired the lock on '.$this->type().' "'.$this->name.'" formally held by user "'.$user->name.'".';
-			$to_list = array_keys($this->getPermission(SQ_PERMISSION_ADMIN));
-			$to_list[] = $user->id;
-			$ms->sendMessage($to_list, 0, 'Asset Lock Forceably Aquired', $body);
+
+			foreach ($locked_ids as $locked) {
+				$locked_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($locked);
+				$body = 'User "'.$current_user->name.'" has forceably aquired the lock on '.$locked_asset->type().' "'.$locked_asset->name.'", formally held by user "'.$user->name.'".';
+				$to_list = array_keys($locked_asset->getPermission(SQ_PERMISSION_ADMIN));
+				$to_list[] = $user->id;
+				$ms->sendMessage($to_list, 0, 'Asset Lock Forceably Aquired', $body);
+			}
 
 			// refresh the lock info
 			$current_lock = $this->getLockInfo();
@@ -1085,7 +1101,7 @@ class Asset extends Resolve_Object
 
 		// if we have no source, we are the asset aquiring the locks
 		if (!$source) $source = $this->id;
-		if (empty($expires)) $expires = ts_iso8601((time() + (100 * 60)));
+		if (empty($expires)) $expires = ts_iso8601((time() + (10 * 60)));
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
@@ -1102,7 +1118,6 @@ class Asset extends Resolve_Object
 		}
 
 		// now try and get the lock on ourself
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'INSERT INTO sq_asset_lock
 				(assetid, source_asset, userid, expires)
 				VALUES
@@ -1130,11 +1145,14 @@ class Asset extends Resolve_Object
 	*/
 	function releaseLock()
 	{
+		$current_lock = $this->getLockInfo(false);
+		if (empty($current_lock)) return true;
+
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'DELETE FROM sq_asset_lock
-				WHERE source_asset = '.$db->quote($this->id);
+				WHERE source_asset = '.$db->quote($current_lock['source_asset']);
 
 		$result = $db->query($sql);
 		if (DB::isError($result)) {
@@ -1151,11 +1169,16 @@ class Asset extends Resolve_Object
 	/**
 	* Updates the expiry date of the lock on this asset
 	*
+	* @param string	$expires	when the lock expires
+	*
 	* @return boolean
 	* @access public
 	*/
 	function updateLock($expires='')
 	{
+		$current_lock = $this->getLockInfo();
+		if (empty($current_lock)) return true;
+
 		if (empty($expires)) $expires = ts_iso8601((time() + (10 * 60)));
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -1163,7 +1186,7 @@ class Asset extends Resolve_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'UPDATE sq_asset_lock
 				SET expires = '.$db->quote($expires).'
-				WHERE assetid = '.$db->quote($this->id);
+				WHERE source_asset = '.$db->quote($current_lock['source_asset']);
 
 		$result = $db->query($sql);
 		if (DB::isError($result)) {
@@ -1180,10 +1203,12 @@ class Asset extends Resolve_Object
 	/**
 	* Returns an array of information about the current lock on this asset (if any)
 	*
+	* @param boolean	$check_expires	check the expiry date and cleanup the lock if it has expired
+	*
 	* @return array
 	* @access public
 	*/
-	function getLockInfo()
+	function getLockInfo($check_expires=true)
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
@@ -1197,12 +1222,13 @@ class Asset extends Resolve_Object
 			return Array();
 		}
 
-		if (!empty($result)) {
-			$result['expires'] = iso8601_ts($result['expires']);
-			if ($result['expires'] < time()) {
-				// this lock has expired
-				$this->cleanupLocks();
-				return Array();
+		if ($check_expires) {
+			if (!empty($result)) {
+				$result['expires'] = iso8601_ts($result['expires']);
+				if ($result['expires'] < time()) {
+					// this lock has expired
+					if ($this->cleanupLocks()) return Array();
+				}
 			}
 		}
 
@@ -1218,12 +1244,15 @@ class Asset extends Resolve_Object
 	*/
 	function cleanupLocks()
 	{
+		$current_lock = $this->getLockInfo(false);
+		if (empty($current_lock)) return true;
+
 		$now = date('Y-m-d H:i:s');
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		// just get the permissions set for this asset
 		$sql = 'DELETE FROM sq_asset_lock
-				WHERE source_asset = '.$db->quote($this->id).'
+				WHERE source_asset = '.$db->quote($current_lock['source_asset']).'
 				  AND expires < '.$db->quote($now);
 
 		$result = $db->query($sql);
