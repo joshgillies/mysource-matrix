@@ -18,9 +18,11 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_03.php,v 1.40 2004/06/25 01:31:36 lwright Exp $
+* $Id: step_03.php,v 1.41 2004/06/25 04:05:06 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
+
+
 /**
 * Install Step 3
 *
@@ -34,6 +36,7 @@
 ini_set('memory_limit', -1);
 error_reporting(E_ALL);
 $SYSTEM_ROOT = '';
+
 // from cmd line
 if ((php_sapi_name() == 'cli')) {
 	if (isset($_SERVER['argv'][1])) $SYSTEM_ROOT = $_SERVER['argv'][1];
@@ -56,28 +59,29 @@ if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
 // a complete load now that the database has been created
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
 // get the list of functions used during install
-require_once $SYSTEM_ROOT.'install/install.inc';
+require_once $SYSTEM_ROOT.'/install/install.inc';
 
 // Firstly let's check that we are OK for the version
 if(version_compare(PHP_VERSION, SQ_REQUIRED_PHP_VERSION, '<')) {
 	trigger_error('<i>'.SQ_SYSTEM_LONG_NAME.'</i> requires PHP Version '.SQ_REQUIRED_PHP_VERSION.'.<br/> You may need to upgrade.<br/> Your current version is '.PHP_VERSION, E_USER_ERROR);
 }
 
-// Let everyone know we are installing
+// let everyone know we are installing
 $GLOBALS['SQ_INSTALL'] = true;
 
 // call all the steps
 regenerate_configs();
 uninstall_asset_types();
+uninstall_packages();
 install_core();
 install_packages();
 install_authentication_types();
 generate_global_preferences();
 install_event_listeners();
 
-// currently needs to run the asset installation part twice
-// in order for a newly created Search Manager to get the default weightings
-install_core();
+// need to run the install packages twice
 install_packages();
-install_authentication_types();
+
+unset($GLOBALS['SQ_INSTALL']);
+
 ?>
