@@ -3,7 +3,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: design_area_searchbox_edit_fns.inc,v 1.3 2003/10/13 22:51:27 dwong Exp $
+* $Id: design_area_searchbox_edit_fns.inc,v 1.4 2003/10/15 06:10:42 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -15,7 +15,7 @@
 * @see Design_Area_Edit_Fns
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.3 $ - 1.0
+* @version $Revision: 1.4 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -94,7 +94,7 @@ class Design_Area_SearchBox_Edit_Fns extends Design_Area_Edit_Fns
 	function paintBackendSubmitImage(&$asset, &$o, $prefix)
 	{
 		if ($asset->writeAccess('attributes')) {
-			asset_finder($prefix.'_submit_image', $asset->attr('submit_image_assetid'), Array('page' => 'D'));
+			asset_finder($prefix.'_submit_image', $asset->attr('submit_image_assetid'), Array('file' => 'D'));
 		} else {
 			$submit_imageid = $asset->attr('submit_image_assetid');
 			if ($submit_imageid > 0) {

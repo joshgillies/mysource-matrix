@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: design_area_searchbox.inc,v 1.2 2003/10/13 10:03:14 brobertson Exp $
+* $Id: design_area_searchbox.inc,v 1.3 2003/10/15 06:10:42 dwong Exp $
 * $Name: not supported by cvs2svn $
 *
 */
@@ -14,7 +14,7 @@
 *
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.2 $ - 1.0
+* @version $Revision: 1.3 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -55,14 +55,20 @@ class Design_Area_Searchbox extends Design_Area
 
 		echo '<form method="GET" action="'. $asset->getURL(). '">';
 
-		echo '<input type=hidden name="mode" value="results">';
-		echo '<input type=text size="'. $this->attr('querybox_width') .'" name="queries['. $this->attr('field_name').'_query]" value="<?';
-		echo 'if (isset($_REQUEST[\'queries\'][\''. $this->attr('field_name'). '_query\'])) echo $_REQUEST[\'queries\'][\''. $this->attr('field_name'). '_query\'];';
-		echo '?>">';
+		echo '<table cellpadding="0" cellspacing="0" border="0"><tr><td><input type=hidden name="mode" value="results"></td>';
+		echo '<td><input type=text size="'. $this->attr('querybox_width') .'" name="queries['. $this->attr('field_name').'_query]" value="';
+
+		echo '<?php ';
+		echo 'if (isset($_REQUEST[\'queries\'][\''. $this->attr('field_name'). '_query\'])) 
+				echo $_REQUEST[\'queries\'][\''. $this->attr('field_name'). '_query\'];';
+		echo '?>';
+
+		echo '"></td>';
 
 		if ($this->attr('submit_button')) {
-			echo '<input type=submit value ="' . 'go' . '">';
+			echo '<td><input type=submit value ="' . 'go' . '"></td>';
 		} else {
+			echo '<td>';
 			$submit_image_assetid = $this->attr('submit_image_assetid');
 			if ($submit_image_assetid > 0) {
 				$submit_image_asset =& $am->getAsset($submit_image_assetid);
@@ -70,8 +76,9 @@ class Design_Area_Searchbox extends Design_Area
 			} else {
 				echo 'No image specified for submitting.';
 			}
+			echo '</td>';
 		}
-
+		echo '</td></tr></table>';
 		echo '</form>';
 		return true;
 
