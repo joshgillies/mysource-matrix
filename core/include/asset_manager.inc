@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.262 2005/01/17 17:48:24 brobertson Exp $
+* $Id: asset_manager.inc,v 1.263 2005/01/26 09:17:31 brobertson Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.262 $
+* @version $Revision: 1.263 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -843,16 +843,14 @@ class Asset_Manager extends MySource_Object
 	* @param string		$name			the name of the system asset
 	*									'root_folder', 'trash_folder', 'system_user_group',
 	*									'root_user', 'designs_folder', 'login_design', 'cron_manager'
-	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed because
-	*									you can't use the '@' operator when returning by reference
 	*
 	* @return mixed [string|boolean] assetid if found, false if not
 	* @access public
 	*/
-	function getSystemAssetidByName($name, $mute_errors=false)
+	function getSystemAssetid($name)
 	{
 		if (!is_string($name)) {
-			if (!$mute_errors) trigger_error('Invalid system asset name', E_USER_WARNING);
+			trigger_error('Invalid system asset name', E_USER_WARNING);
 			return false;
 		}
 
@@ -871,11 +869,11 @@ class Asset_Manager extends MySource_Object
 		if (isset($system_assets[$name])) {
 			return $system_assets[$name];
 		} else {
-			if (!$mute_errors) trigger_error('System asset name "'.$name.'" not installed or not known', E_USER_WARNING);
+			trigger_error('System asset name "'.$name.'" not installed or not known', E_USER_WARNING);
 			return false;
 		}
 
-	}//end getSystemAssetidByName()
+	}//end getSystemAssetid()
 
 
 	/**
@@ -891,13 +889,12 @@ class Asset_Manager extends MySource_Object
 	*/
 	function &getSystemAsset($name, $mute_errors=false)
 	{
-		$null = null;
-		$assetid = $this->getSystemAssetidByName($name, $mute_errors);
+		$assetid = ($mute_errors) ? @$this->getSystemAssetid($name) : $this->getSystemAssetid($name);
 
 		if ($assetid !== false) {
 			return $this->getAsset($assetid, $name, $mute_errors);
 		} else {
-			if (!$mute_errors) trigger_error('System asset name "'.$name.'" not installed or not known', E_USER_WARNING);
+			$null = null;
 			return $null;
 		}
 
