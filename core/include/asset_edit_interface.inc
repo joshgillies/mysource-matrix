@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_edit_interface.inc,v 1.159 2003/10/14 03:34:42 brobertson Exp $
+* $Id: asset_edit_interface.inc,v 1.160 2003/10/14 05:31:34 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -3152,12 +3152,11 @@ pre_echo("SCREEN LOCK TYPE : $screen_lock_type");
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$sql   = 'SELECT DISTINCT type FROM '.SQ_TABLE_RUNNING_PREFIX.'internal_message ';
-		$where = 'userto = 0 AND type LIKE "asset%"';
+		$where = 'userto = 0 AND type LIKE '.$db->quote('asset%');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
 		$log_types = $db->getCol($sql.$where);
 		if (DB::isError($log_types)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			trigger_error($log_types->getMessage().'<br/>'.$log_types->getUserInfo(), E_USER_WARNING);
 			return false;
 		}
