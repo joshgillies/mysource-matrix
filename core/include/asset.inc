@@ -152,6 +152,7 @@ class Asset extends Resolve_Object
 		$this->last_userid  = $userid;
 
 		$this->_loadVars();
+		$this->_updated();
 
 		return true;
 
@@ -161,7 +162,7 @@ class Asset extends Resolve_Object
 	/**
 	* Load the asset represented by the passed asset id
 	*
-	* @param int    $assetid      the asset id to be loaded
+	* @param int	$assetid	the asset id to be loaded
 	*
 	* @access public
 	*/
