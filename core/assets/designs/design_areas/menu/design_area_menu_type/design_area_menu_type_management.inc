@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type_management.inc,v 1.12 2003/11/26 00:50:57 gsherwood Exp $
+* $Id: design_area_menu_type_management.inc,v 1.13 2003/12/16 18:03:16 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -49,36 +49,37 @@ class Design_Area_Menu_Type_Management extends Asset_Management
 							'level' => Array(
 								'added'			=> '0.0.1',
 								'type'			=> 'int',
-								'default'		=> 0
+								'default'		=> 0,
+								'description'	=> 'The level in the heirarchy that we want to print, (zero is the top level, also "top" is a readable version for "0", and "sub" is a readable version for "1")',
 							),
 							'settings' => Array(
 								'added'			=> '0.0.1',
 								'type'			=> 'serialise',
-								'default'		=> Array()
+								'default'		=> Array(),
 							),
-							'page_contents' => Array(
+							'asset_contents' => Array(
 								'added'			=> '0.0.1',
 								'type'			=> 'serialise',
 								'default'		=> Array(),
-								'description'   => 'The contents that prints the page info in the output',
+								'description'	=> 'The contents that prints the asset info in the output',
 							),
 							'divider_contents' => Array(
 								'added'			=> '0.0.1',
 								'type'			=> 'serialise',
 								'default'		=> Array(),
-								'description'   => 'The contents that divides the pages in the output',
+								'description'	=> 'The contents that divides the assets in the output',
 							),
 							'prefix_with_divider' => Array(
 								'added'			=> '0.0.1',
 								'type'			=> 'boolean',
 								'default'		=> false,
-								'description'	=> 'whether or not to start the list with a divider'
+								'description'	=> 'whether or not to start the list with a divider',
 							),
 							'suffix_with_divider' => Array(
 								'added'			=> '0.0.1',
 								'type'			=> 'boolean',
 								'default'		=> true,
-								'description'	=> 'whether or not to end the list with a divider'
+								'description'	=> 'whether or not to end the list with a divider',
 							),
 							'show_subs' => Array(
 								'added'			=> '0.0.1',
@@ -91,7 +92,7 @@ class Design_Area_Menu_Type_Management extends Asset_Management
 											'always'		=> 'Always',
 									),
 								),
-								'description'   => 'When and how to display any sub menus that this menu might have'
+								'description'	=> 'When and how to display any sub menus that this menu might have',
 							),
 						);
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type.inc,v 1.37 2003/11/26 05:21:52 gsherwood Exp $
+* $Id: design_area_menu_type.inc,v 1.38 2003/12/16 18:03:16 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -67,7 +67,7 @@ class Design_Area_Menu_Type extends Design_Area
 	*/
 	function setAttrValue($name, $value)
 	{
-		// if they are trying to set a page position dependent setting
+		// if they are trying to set an asset position dependent setting
 		if (substr($name, 0, 9) == 'settings.') {
 			// The name is in the form 'settings.[var_name].[setting type]'
 			// where setting type is either 'normal', 'heirarchy' or 'current'
@@ -124,7 +124,7 @@ class Design_Area_Menu_Type extends Design_Area
 	*/
 	function attr($name)
 	{
-		// if they are trying to set a page position dependent setting
+		// if they are trying to set an asset position dependent setting
 		if (substr($name, 0, 9) == 'settings.') {
 			// The name is in the form 'settings.[var_name].[setting type]'
 			$split = explode('.', $name);
@@ -504,7 +504,7 @@ class Design_Area_Menu_Type extends Design_Area
 		//// SHOULD BE OVERRIDDEN ////
 
 		// the _assetids array holds all assetids that the sub level (if any) will printing kids of
-		// if the show_subs is only on_current the asset for the kids level in the page lineage is used
+		// if the show_subs is only on_current the asset for the kids level in the asset lineage is used
 		echo '
 		$'.$this->attr('id_name').'_assetids = Array(); // menu_get_assets(majorids);
 		$'.$this->attr('id_name').'_urls     = $am->getAssetURL($'.$this->attr('id_name').'_assetids);
@@ -531,7 +531,7 @@ class Design_Area_Menu_Type extends Design_Area
 	*/
 	function printVar($var, $args, $value_prefix='', $value_suffix='')
 	{
-		// if they are trying to set a page position dependent setting
+		// if they are trying to set an asset position dependent setting
 		if (substr($var, 0, 9) == 'settings.') {
 			// The name is in the form 'settings.[var_name].[setting type]'
 			list(,$setting_name) = explode('.', $var, 2);
@@ -556,9 +556,9 @@ class Design_Area_Menu_Type extends Design_Area
 			}// end if
 		} else {
 
-			// if we are not in the page looping section then we need to print the details of 
+			// if we are not in the asset looping section then we need to print the details of 
 			// our parent asset - if we are not a sub menu there is nothing we can do
-			if (empty($this->_tmp['outputting_page_section'])) {
+			if (empty($this->_tmp['outputting_asset_section'])) {
 				$parent_menu = &$this->getParentMenu();
 				// if we aren't a sub menu, there is nothing we can do
 				if (is_null($parent_menu)) {
@@ -566,7 +566,7 @@ class Design_Area_Menu_Type extends Design_Area
 				} else {
 					$id_name = $parent_menu->attr('id_name');
 				}
-			// otherwise we are in the page section and we want to print our data
+			// otherwise we are in the asset section and we want to print our data
 			} else {
 				$id_name = $this->attr('id_name');
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type_edit_fns.inc,v 1.31 2003/11/26 05:21:52 gsherwood Exp $
+* $Id: design_area_menu_type_edit_fns.inc,v 1.32 2003/12/16 18:03:16 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,6 +38,25 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 */
 class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 {
+
+	/**
+	* Returns an array of vars that are setable, used to create the parseString
+	*
+	* @param object Asset	$asset	the asset whose interface we are painting
+	*
+	* @return Array
+	* @access public
+	* @see Design_Area_Edit_Fns::createParseString()
+	*/
+	function getSetableVars(&$asset)
+	{
+		$vars = parent::getSetableVars($asset);
+		unset($vars['asset_contents']);
+		unset($vars['divider_contents']);
+		return $vars;
+
+	}// end getSetableVars()
+
 
 	/**
 	* Loops through the contents array and creates the necessary objects
@@ -73,16 +92,16 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 		if (!$asset->setAttrValue('settings', $settings)) return false;
 
 		$sub_menu_processed = false;
-		$page_index		= -1;
+		$asset_index	= -1;
 		$divider_index	= -1;
 		$sub_index		= -1;
-		// see if our page element has any sub's in it
+		// see if our asset element has any sub's in it
 		foreach($contents as $index => $element) {
 			if ($element['_type'] != 'TAG') continue;
 
 			switch ($element['operation']) {
-				case 'page' :
-					$page_index = $index;
+				case 'asset' :
+					$asset_index = $index;
 
 					// if there is nothing to do get out of here :)
 					if ($element['self_terminating'] || empty($element['contents'])) break;
@@ -126,9 +145,9 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 		}//end foreach
 
 		// OK, so we have a working sub menu, add it in
-		if ($sub_menu_processed && $page_index >= 0 && $sub_index >= 0) {
+		if ($sub_menu_processed && $asset_index >= 0 && $sub_index >= 0) {
 			// Now what we do is morph it so that this element doesn't contain all the un-necessary contents stuff
-			$contents[$page_index]['contents'][$sub_index] = Array(
+			$contents[$asset_index]['contents'][$sub_index] = Array(
 														'_type' => 'TAG',
 														'attributes'  => Array (),
 														'operation' => 'sub',
@@ -142,23 +161,23 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 			}
 		}// end if
 
-		// OK, so we have some page contents, so extract it
-		if ($page_index >= 0) {
+		// OK, so we have some asset contents, so extract it
+		if ($asset_index >= 0) {
 
 			// if there is no contents, then see if there is a default
-			if (empty($contents[$page_index]['contents'])) {
-				$contents[$page_index]['contents'] = $this->_getDefaultContents($asset, 'page');
+			if (empty($contents[$asset_index]['contents'])) {
+				$contents[$asset_index]['contents'] = $this->_getDefaultContents($asset, 'asset');
 			}
 
-			if (!$asset->setAttrValue('page_contents', $contents[$page_index]['contents'])) {
+			if (!$asset->setAttrValue('asset_contents', $contents[$asset_index]['contents'])) {
 				return false;
 			}
 
 			// Now what we do is morph it so that this element doesn't contain all the un-necessary contents stuff
-			$contents[$page_index] = Array(
+			$contents[$asset_index] = Array(
 											'_type' => 'TAG',
 											'attributes'  => Array (),
-											'operation' => 'page',
+											'operation' => 'asset',
 											'self_terminating' => 1
 										);
 
@@ -251,7 +270,22 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 	function _outputElement($element, &$asset, &$design)
 	{
 		switch($element['operation']) {
-			case 'page' :
+			case 'asset' :
+
+				if ($divider_contents = $asset->attr('divider_contents')) {
+					ob_start();
+					if (!$this->_outputContents($divider_contents, $asset, $design)) return false;
+					$divider = ob_get_contents();
+					ob_end_clean();
+				} else {
+					$divider = '';
+				}
+
+				// should we start with a divider ? 
+				if ($asset->attr('prefix_with_divider')) {
+					echo $divider;
+				}
+
 				echo '<', '?php
 
 				$'.$asset->attr('id_name').'_lineage_assetid = (empty($ASSET_LINEAGE[$'.$asset->attr('id_name').'_level + 1])) ? 0 : $ASSET_LINEAGE[$'.$asset->attr('id_name').'_level + 1][\'assetid\'];
@@ -278,17 +312,51 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 
 				}// end if
 
+				// if there is a divider to deal with and 
+				// if there is not divider at the end we these vars
+				if ($divider != '' && !$asset->attr('suffix_with_divider')) {
+					echo '
+
+				$'.$asset->attr('id_name').'_i = -1;
+				$'.$asset->attr('id_name').'_total = count($GLOBALS[\'MENU_DATA\']['.$parent_assetid_name.']);
+					';
+				}
+
 				echo '
 
 				foreach($GLOBALS[\'MENU_DATA\']['.$parent_assetid_name.'] as $'.$asset->attr('id_name').'_row) {
 					$'.$asset->attr('id_name').'_current_setting = ($'.$asset->attr('id_name').'_lineage_assetid == $'.$asset->attr('id_name').'_row[\'assetid\']) ? $'.$asset->attr('id_name').'_lineage_setting : \'normal\';
 				?', '>';
-				if ($page_contents = $asset->attr('page_contents')) {
-					$asset->_tmp['outputting_page_section'] = true;
-					if (!$this->_outputContents($page_contents, $asset, $design)) return false;
-					unset($asset->_tmp['outputting_page_section']);
+				if ($asset_contents = $asset->attr('asset_contents')) {
+					$asset->_tmp['outputting_asset_section'] = true;
+					if (!$this->_outputContents($asset_contents, $asset, $design)) return false;
+					unset($asset->_tmp['outputting_asset_section']);
 				}
-				echo '<', '?php
+
+
+				// if there is a divider to deal with
+				if ($divider != '') {
+
+					// if there is not divider at the end we need to check that we aren't at the end of the list
+					if (!$asset->attr('suffix_with_divider')) {
+						echo '<', '?php 
+							$'.$asset->attr('id_name').'_i++;
+							if ($'.$asset->attr('id_name').'_i != $'.$asset->attr('id_name').'_total - 1) {
+							?','>';
+					}
+
+					echo $divider;
+
+					// if there is not divider at the end we need to check that we aren't at the end of the list
+					if (!$asset->attr('suffix_with_divider')) {
+						echo '<','?php 
+							}// end if
+						?','>';
+					}
+
+				}// end if divider
+
+				echo '<', '?php 
 				}// end foreach '.$asset->attr('id_name').' data
 				?', '>';
 
