@@ -28,7 +28,7 @@ class Design_Area_Constant_Button extends Design_Area
 	{
 		// if they are trying to set the type_codes, split the string
 		if ($name == 'type_codes' && !is_array($value)) {
-			$value = preg_split('/[ ,]+/', $value);
+			$value = preg_split('/[ ,]+/', (string) $value);
 
 		}// end if
 
