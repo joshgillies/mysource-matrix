@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.69 2004/12/08 04:11:49 lwright Exp $
+* $Id: search_page.inc,v 1.70 2004/12/08 12:56:43 brobertson Exp $
 *
 */
 
@@ -37,7 +37,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.69 $
+* @version $Revision: 1.70 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1150,7 +1150,7 @@ class Search_Page extends Page
 		foreach ($keywords as $keyword) {
 			$replacement =& $replaces[$keyword];
 			$replacement = "%$keyword%";
-	
+
 			switch ($keyword) {
 				case 'result_list':
 					$replacement = '';
@@ -1243,7 +1243,7 @@ class Search_Page extends Page
 
 					} else if (ereg('(.+)_query_suggestions$', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
 
-						// spell-checking suggestions					
+						// spell-checking suggestions
 						$field_name = $matches[1];
 						if (isset($this->_tmp['search_suggestions'][$field_name])) {
 							$queries_temp = str_replace('queries_'.$field_name.'_query='.urlencode($this->getSearchedFieldReplacement($field_name)), 'queries_'.$field_name.'_query='.urlencode($this->_tmp['search_suggestions'][$field_name]), $queries);
@@ -1253,17 +1253,17 @@ class Search_Page extends Page
 						}
 
 					} else if (ereg('(.+)_query_synonyms$', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
-					
+
 						// synonym searching
 						$suggestion_string = Array();
-						foreach($this->_tmp['search_synonyms'][$field_name] as $word => $synonyms) {
-							foreach($synonyms as $synonym) {
+						foreach ($this->_tmp['search_synonyms'][$field_name] as $word => $synonyms) {
+							foreach ($synonyms as $synonym) {
 								$synonym = $synonym['name'];
 								$queries_temp = str_replace('queries_'.$field_name.'_query='.urlencode($this->getSearchedFieldReplacement($field_name)), 'queries_'.$field_name.'_query='.urlencode($synonym), $queries);
 								$suggestion_string[] = '<a href="'.$this->getURL().'?mode='.$mode.'&current_result_page='.($current_result_page + 1).'&results_per_page='.$results_per_page.$queries_temp.'">'.$synonym.'</a>';
 							}
 						}
-						
+
 						$replacement = implode(', ', $suggestion_string);
 
 					} else if (ereg('(.+)_query$', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
@@ -1495,7 +1495,7 @@ class Search_Page extends Page
 		$sm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
 
 		$fields = $this->attr('fields');
-					
+
 		// search category
 		$category = (isset($_REQUEST['search_category'])) ? $_REQUEST['search_category'] : '';
 		$categories = $this->attr('categories');
@@ -1555,17 +1555,17 @@ class Search_Page extends Page
 		}//end foreach fields
 
 		// spell-check suggestions
-		foreach(Array('include_all', 'exclude', 'metadata', 'asset_attrib') as $type) {
+		foreach (Array('include_all', 'exclude', 'metadata', 'asset_attrib') as $type) {
 			if (!isset($search_info[$type])) continue;
-			foreach($search_info[$type] as $field_name => $field_content) {
-			
+			foreach ($search_info[$type] as $field_name => $field_content) {
+
 				if ($sm->spellCheckAvailable()) {
 					// suggestion 'string' - this will be imploded later with spaces
 					$suggestion_string = Array();
 					$needs_suggestions = false;
-					
+
 					// loop over each word
-					foreach($field_content['words'] as $word) {
+					foreach ($field_content['words'] as $word) {
 						$suggestions = $sm->spellCheckWord($word);
 						if (!empty($suggestions)) {
 							$needs_suggestions = true;
@@ -1574,33 +1574,33 @@ class Search_Page extends Page
 							$suggestion_string[] = $word;
 						}
 					}
-					
+
 					if ($needs_suggestions) {
 						$this->_tmp['search_suggestions'][$field_name] = implode(' ', $suggestion_string);
 					}
-					
+
 				}//end if spell check available
-				
+
 				// thesaurus synonym searching
 				$t_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, 'asset', false, 'thesaurus');
-			
+
 				if (!empty($t_link)) {
 					$t_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($t_link['minorid']);
 					$this->_tmp['search_synonyms'][$field_name] = Array();
-					
+
 					// loop over each word, find synonyms
-					foreach($field_content['words'] as $word) {
+					foreach ($field_content['words'] as $word) {
 						if (!isset($this->_tmp['search_synonyms'][$field_name][$word])) {
 							$suggestions = $sm->findSynonymsForWord($word, $t_asset);
 							$this->_tmp['search_synonyms'][$field_name][$word] = $suggestions;
 						}
 					}
-					
+
 				}//end thesaurus exists
-				
+
 			}
 		}
-			
+
 		return $sm->processSearch($search_info);
 
 	}//end processSearch()

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.33 2004/12/08 04:11:44 lwright Exp $
+* $Id: search_manager.inc,v 1.34 2004/12/08 12:56:43 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1040,20 +1040,20 @@ class Search_Manager extends Asset
 			trigger_error('The asset "'.$thesaurus->getName().' (Id: #'.$thesaurus->id.') is not a Thesaurus asset, cannot use to find synonyms', E_USER_WARNING);
 			return Array();
 		}
-	
+
 		$entity = $thesaurus->getEntityByName($word);
-	
+
 		if (empty($entity)) {
 			return Array();
 		}
-		
-		$relation = $thesaurus->getRelationByName('Synonyms');	
-		
+
+		$relation = $thesaurus->getRelationByName('Synonyms');
+
 		return $thesaurus->getChildEntitiesInRelation($relation['id'], $entity['id']);
-	
+
 	}//end findSynonymsForWord()
-	
-	
+
+
 	/**
 	* Spell-checks a word and returns a list of suggestions if available
 	*
@@ -1074,17 +1074,17 @@ class Search_Manager extends Asset
 			// spell check not available, bugger
 			return Array();
 		}
-	
+
 		$pspell_config = pspell_config_create($language);
 		pspell_config_mode($pspell_config, PSPELL_FAST);
 		$pspell_instance = pspell_new_config($pspell_config);
-		
+
 		if (!$pspell_instance) {
 			return Array();
 		}
 
 		$check_spelling = true;
-		
+
 		// ignore numbers
 		if ($check_spelling) {
 			$converted_word = (int)$word;
@@ -1105,10 +1105,10 @@ class Search_Manager extends Asset
 			$suggestions = pspell_suggest($pspell_instance, $word);
 			return $suggestions;
 		}
-	
+
 	}//end spellCheckWord()
-	
-	
+
+
 	/**
 	* Returns true if the spell checker is available
 	*
@@ -1116,16 +1116,16 @@ class Search_Manager extends Asset
 	* reason, then this can be updated. It currently just checks whether the
 	* pSpell extension is available.
 	*
-	* @return boolean 
+	* @return boolean
 	* @access public
 	*/
 	function spellCheckAvailable()
 	{
 		return extension_loaded('pspell');
-			
+
 	}//end spellCheckAvailable()
-	
-	
+
+
 	/**
 	* Generates a base query for searching
 	*
