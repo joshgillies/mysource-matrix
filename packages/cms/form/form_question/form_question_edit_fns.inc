@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_edit_fns.inc,v 1.17 2004/05/06 05:04:13 lwright Exp $
+* $Id: form_question_edit_fns.inc,v 1.18 2004/05/10 00:20:38 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -131,7 +131,7 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 								<?php if (!$attributes['no_comparison']) {
 									// only print if we need to compare with something
 									if ($asset->writeAccess('all')) {
-										if ($asset->isSelection()) {
+										if ($asset->isSelection() && !$attributes['force_text']) {
 											$options = $asset->getOptions();
 											combo_box($rule_prefix.'_value', array_merge(Array(' ' => '------ Please Select ------'), $options), 
 									false, $rule['value']); 
