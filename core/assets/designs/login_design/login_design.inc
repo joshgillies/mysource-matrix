@@ -41,14 +41,14 @@ class Login_Design extends Design
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$sql = 'SELECT count(*) FROM '.SQ_TABLE_RUNNING_PREFIX.'asset ';
+		$sql = 'SELECT COUNT(*) FROM '.SQ_TABLE_RUNNING_PREFIX.'asset ';
 		$where = 'type_code = '.$db->quote($this->type());
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 		$exists = $db->getOne($sql.$where);
 		if (DB::isError($exists)) trigger_error($exists->getMessage().'<br/>'.$exists->getUserInfo(), E_USER_ERROR);
 
 		if ($exists) {
-			trigger_error('Unable to create another System Designs Folder, you are only allowed one', E_USER_WARNING);
+			trigger_error('Unable to create another Login Design, you are only allowed one', E_USER_WARNING);
 			return false;
 		}
 

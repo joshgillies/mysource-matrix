@@ -44,7 +44,7 @@ class Design_Area extends Asset
 		$id_name = trim($this->attr('id_name'));
 
 		if ($id_name == '') {
-			trigger_error('Unable to create a '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').' with a blank id', E_USER_WARNING);
+			trigger_error('Unable to create a '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').' with a blank id name', E_USER_WARNING);
 			return false;
 		}
 
