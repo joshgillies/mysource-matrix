@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: internal_message.inc,v 1.23 2003/10/20 01:10:01 gsherwood Exp $
+* $Id: internal_message.inc,v 1.24 2003/10/20 01:12:40 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -532,7 +532,7 @@ class Internal_Message extends MySource_Object
 				$send_to[] = $assetid;
 			}
 		}
-		trigger_error(print_r($send_to, true), E_USER_WARNING);
+
 		return array_unique($send_to);
 
 	}//end expandUsersTo()
