@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_01.php,v 1.24 2003/12/16 12:21:49 brobertson Exp $
+* $Id: step_01.php,v 1.24.2.1 2004/02/26 18:22:39 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -39,6 +39,7 @@ define('SQ_INCLUDE_PATH',  SQ_SYSTEM_ROOT.'/core/include');
 define('SQ_LIB_PATH',      SQ_SYSTEM_ROOT.'/core/lib');
 define('SQ_DATA_PATH',     SQ_SYSTEM_ROOT.'/data');
 define('SQ_FUDGE_PATH',    SQ_SYSTEM_ROOT.'/fudge');
+define('SQ_PHP_CLI', (php_sapi_name() == 'cli'));
 $GLOBALS['SQ_INSTALL'] = true;
 
 require_once SQ_INCLUDE_PATH.'/mysource_object.inc';
@@ -53,8 +54,8 @@ define('SQ_CONF_ASSET_TREE_BASE', 36);
 define('SQ_CONF_ASSET_TREE_SIZE', 4);
 define('SQ_CONF_ROLLBACK_ENABLED', '0');
 define('SQ_CONF_INDEXING_ENABLED', '0');
-define('SQ_CONF_DEFAULT_EMAIL', 'brobertson@squiz.net.au');
-define('SQ_CONF_TECH_EMAIL',    'brobertson@squiz.net.au');
+define('SQ_CONF_DEFAULT_EMAIL', 'brobertson@squiz.net');
+define('SQ_CONF_TECH_EMAIL',    'brobertson@squiz.net');
 
 trigger_error('Need to chmod cache and data directories', E_USER_NOTICE);
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_metadata_edit_fns.inc,v 1.5 2003/11/26 00:50:56 gsherwood Exp $
+* $Id: design_area_metadata_edit_fns.inc,v 1.5.2.1 2004/02/26 18:22:38 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -39,20 +39,6 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 class Design_Area_Metadata_Edit_Fns extends Design_Area_Edit_Fns
 {
 
-	/**
-	* Loops through the contents array and creates the necessary objects
-	*
-	* @param object Asset	$asset		the asset to which we belong
-	* @param array			$contents	the contents array we generated with _parseString()
-	*
-	* @return boolean
-	* @access private
-	*/
-	function _processContents(&$asset, &$contents)
-	{
-		return true;
-
-	}//end _processContents()
 
 }//end class
 

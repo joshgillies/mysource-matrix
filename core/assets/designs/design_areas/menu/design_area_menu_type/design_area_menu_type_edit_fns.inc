@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type_edit_fns.inc,v 1.32 2003/12/16 18:03:16 brobertson Exp $
+* $Id: design_area_menu_type_edit_fns.inc,v 1.32.2.1 2004/02/26 18:22:38 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -241,7 +241,9 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 		}
 
 		// set this value here so that if this sub has a sub, it's value can get in it's contents
-		$sub_level = $asset->attr('level') + 1;
+		$sub_level = $asset->attr('level');
+		if ($sub_level < 0) $sub_level--;
+		else $sub_level++;
 		$sub->setAttrValue('level', $sub_level);
 
 		$edit_fns = $sub->getEditFns();

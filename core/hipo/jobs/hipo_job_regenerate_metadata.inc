@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_regenerate_metadata.inc,v 1.4.2.1 2004/02/18 11:39:06 brobertson Exp $
+* $Id: hipo_job_regenerate_metadata.inc,v 1.4.2.2 2004/02/26 18:22:38 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -51,15 +51,37 @@ class HIPO_Job_Regenerate_Metadata extends HIPO_Job
 	*/
 	var $_steps = Array(
 					Array(
-						'name'             => 'Generating Metadata Files',
-						'function_call'    => Array(
+						'name'			=> 'Acquiring Metadata Locks',
+						'hipo_job'		=> Array(
+												'init_details_function' => 'getLockAssetDetails',
+												),
+						'running_mode'	=> 'server',
+						'auto_step'		=> true,
+						'percent_done'	=> 0,
+						'complete'		=> false,
+						'message'		=> '',
+					),
+					Array(
+						'name'			=> 'Generating Metadata Files',
+						'function_call'	=> Array(
 												'process_function' => 'processMetadata',
 												),
-						'running_mode'     => 'server',
-						'auto_step'        => true,
-						'percent_done'     => 0,
-						'complete'         => false,
-						'message'          => '',
+						'running_mode'	=> 'server',
+						'auto_step'		=> true,
+						'percent_done'	=> 0,
+						'complete'		=> false,
+						'message'		=> '',
+					),
+					Array(
+						'name'			=> 'Releasing Metadata Locks',
+						'function_call'	=> Array(
+												'process_function' => 'releaseLocks',
+												),
+						'running_mode'	=> 'server',
+						'auto_step'		=> true,
+						'percent_done'	=> 0,
+						'complete'		=> false,
+						'message'		=> '',
 					),
 				);
 
@@ -228,7 +250,7 @@ class HIPO_Job_Regenerate_Metadata extends HIPO_Job
 			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
 			if (!is_null($asset)) {
-				if (!$mm->generateContentFile($asset->id)) return false;
+				if (!$mm->regenerateMetadata($asset->id)) return false;
 				$step_data['message'] = 'Generating metadata file for "'.$asset->name.'"';
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 				unset($asset);
@@ -253,6 +275,58 @@ class HIPO_Job_Regenerate_Metadata extends HIPO_Job
 		return true;
 
 	}//end processMetadata()
+
+
+	/**
+	* This function is used to set-up the details for the locking the assets by the nested HIPO_Job
+	*
+	* @param string		&$job_type
+	* @param Array()	&$running_vars
+	* @param Array()	&$options
+	*
+	* @return void
+	* @access public
+	*/
+	function getLockAssetDetails(&$job_type, &$running_vars, &$options)
+	{
+		$job_type = 'hipo_job_acquire_lock';
+
+		$options['auto_complete'] = true;
+
+		$todo = Array();
+		$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($this->_running_vars['todo_assetids']);
+		foreach ($asset_info as $assetid => $info) $todo[$assetid] = $info['type_code'];
+
+		$running_vars['assetid']         = $this->_running_vars['schemaid'];
+		$running_vars['todo_assetids']   = $todo;
+		$running_vars['lock_type']       = 'metadata';
+		$running_vars['dependants_only'] = false;
+
+	}//end getLockAssetDetails()
+
+
+	/**
+	* Release the locks we acquired while setting the schemas
+	*
+	* @param array()	&$step_data	a reference to the array of information about the current step
+	* @param string		$prefix		prefix for form vars
+	*
+	* @return boolean
+	* @access public
+	*/
+	function releaseLocks(&$step_data, $prefix)
+	{
+		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['schemaid']);
+		if (!is_null($asset)) {
+			$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'metadata');
+			$step_data['message'] = 'Releasing Locks';
+		}
+		$step_data['percent_done'] = 100;
+		$step_data['complete']     = true;
+		return true;
+
+	}//end releaseLocks()
+
 
 }//end class
 

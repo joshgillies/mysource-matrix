@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_metadata.inc,v 1.5 2003/11/26 00:50:56 gsherwood Exp $
+* $Id: design_area_metadata.inc,v 1.5.2.1 2004/02/26 18:22:38 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -39,7 +39,8 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 class Design_Area_Metadata extends Design_Area
 {
 
-	/*
+
+	/**
 	* Outputs either the straight HTML or PHP code that is needed for this design area to be represented
 	*
 	* @param object Design	$design the design for which we are currently printing
@@ -50,15 +51,27 @@ class Design_Area_Metadata extends Design_Area
 	function printArea(&$design)
 	{
 		echo '<', '?php'."\n";
-		echo '
-				if (file_exists($ASSET->data_path.\'/metadata.php\')) {
-					require($ASSET->data_path.\'/metadata.php\');
-				}
-			 ';
+		$field_name = $this->attr('metadata_field');
+		if (empty($field_name)) {
+			// printing all metadata
+			echo '
+					if (file_exists($ASSET->data_path.\'/metadata.php\')) {
+						require($ASSET->data_path.\'/metadata.php\');
+					}
+				 ';
+		} else {
+			// printing a specific field
+			echo '
+					$METADATA_MANAGER = &$GLOBALS[\'SQ_SYSTEM\']->getMetadataManager();
+					$metadata_field_value = $METADATA_MANAGER->getMetadataFieldValues($ASSET->id, Array(\''.$field_name.'\'));
+					echo $metadata_field_value[\''.$field_name.'\']
+				 ';
+		}
 		echo '?', ">\n";
 		return true;
 
 	}//end printArea()
+
 
 }//end class
 

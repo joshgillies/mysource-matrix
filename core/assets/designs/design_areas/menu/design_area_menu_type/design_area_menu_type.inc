@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type.inc,v 1.38.2.1 2004/02/18 11:39:05 brobertson Exp $
+* $Id: design_area_menu_type.inc,v 1.38.2.2 2004/02/26 18:22:38 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -86,7 +86,7 @@ class Design_Area_Menu_Type extends Design_Area
 					$new_value[$split[1]][$split[2]] = $value;
 					$name  = 'settings';
 					$value = $new_value;
-					break;
+				break;
 
 				default :
 					trigger_error('Settings Type "'.$split[2].'" not known', E_USER_WARNING);
@@ -98,16 +98,21 @@ class Design_Area_Menu_Type extends Design_Area
 			switch(strtolower($value)) {
 				case 'top';
 					$value = 0;
-					break;
+				break;
 				case 'sub';
 					$value = 1;
-					break;
+				break;
+				case 'current';
+					$value = -1;
+				break;
+				case 'children';
+					$value = -2;
+				break;
 				default :
-					$value = max(0, (int) $value);
+					$value = (int) $value;
 			}// end switch
 
 		}// end if
-
 
 		return parent::setAttrValue($name, $value);
 
@@ -481,8 +486,14 @@ class Design_Area_Menu_Type extends Design_Area
 	*/
 	function printInitOutput(&$design)
 	{
-		echo '
-		$'.$this->attr('id_name').'_level = '.((int) $this->attr('level')).';';
+		$level = (int) $this->attr('level');
+		if ($level < 0) {
+			echo '
+			$'.$this->attr('id_name').'_level = (count($ASSET_LINEAGE) -2) + '.(-1 * ($level + 1)).';';
+		} else {
+			echo '
+			$'.$this->attr('id_name').'_level = '.$level.';';
+		}
 
 		$sub_menu = &$this->getSubMenu();
 		if (!is_null($sub_menu)) {

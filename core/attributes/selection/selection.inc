@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: selection.inc,v 1.14.2.2 2004/02/21 12:25:41 brobertson Exp $
+* $Id: selection.inc,v 1.14.2.3 2004/02/26 18:22:38 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -90,10 +90,11 @@ class Asset_Attribute_Selection extends Asset_Attribute
 
 
 	/**
-	* Print the interface for changing some params
+	* Print the interface for changing edit params
 	*
-	* @param string		$prefix		prefix for the form element
+	* @param string		$prefix		prefix for the form elements
 	*
+	* @return void
 	* @access public
 	*/
 	function paintEditParams($prefix, $write_access=false)
@@ -102,63 +103,63 @@ class Asset_Attribute_Selection extends Asset_Attribute
 		$searchStyles['list'] = 'List';
 		$searchStyles['checkbox'] = 'Checkbox';
 
-		// 1. _edit_params['style']
-		echo "Selection style: ";
-		if ($write_access) {
-			combo_box($prefix.'_selection_style', $searchStyles, false, $this->_edit_params['style']);
-		} else {
-			echo "<b>". $this->_edit_params['style'] ."</b>";
-		}
-		echo "<br />";
-
-		// 2. _edit_params['height']
-		echo "Selection height: ";
-		if ($write_access) {
-			text_box($prefix.'_selection_height', $this->_edit_params['height']);
-		} else {
-			echo "<b>". $this->_edit_params['height'] ."</b>";
-		}
-		echo "<br />";
-
-		// 3. _edit_params['columns']
-		echo "Selection columns: ";
-		if ($write_access) {
-			text_box($prefix.'_selection_columns', $this->_edit_params['columns']);
-		} else {
-			echo "<b>". $this->_edit_params['columns'] ."</b>";
-		}
-		echo "<br />";
+		?>
+		<table class="sq-backend-table">
+			<tr>
+				<td colspan="3" class="sq-backend-table-header"><?php echo $this->name; ?></td>
+			</tr>
+			<tr>
+				<td class="sq-backend-section-heading">Style</td>
+				<td class="sq-backend-section-heading">Height</td>
+				<td class="sq-backend-section-heading">Columns</td>
+			</tr>
+			<tr>
+				<td class="sq-backend-table-cell">
+					<?php
+					if ($write_access) combo_box($prefix.'_' . $this->name . '_style', $searchStyles, false, $this->_edit_params['style']);
+					else echo $this->_edit_params['style'];
+					?>
+				</td>
+				<td class="sq-backend-table-cell">
+					<?php
+					if ($write_access) text_box($prefix.'_' . $this->name . '_height', $this->_edit_params['height']);
+					else echo $this->_edit_params['height'];
+					?>
+				</td>
+				<td class="sq-backend-table-cell">
+					<?php
+					if ($write_access) text_box($prefix.'_' . $this->name . '_columns', $this->_edit_params['columns']);
+					else echo $this->_edit_params['columns'];
+					?>
+				</td>
+			</tr>
+		</table>
+		<?php
 
 	}//end paintEditParams()
 
 
 	/**
-	* process the interface for changing some params
+	* Process the interface for changing edit params
 	*
-	* @param string		$prefix		prefix for the form element
+	* @param string		$prefix		prefix for the form elements
+	*
+	* @return array
 	* @access public
-	*
-	* @return Array		structure of the return array must be:
-	*
-	*			attr_name => Array( key1 => value1,
-	*								key2 => value2,
-	*								key3 => value3
-	*						)
-	*
 	*/
 	function processEditParams($prefix)
 	{
 		// reading submitted vars
-		if (!empty($_POST[$prefix.'_selection_style'])) {
-			$this->_edit_params['style'] = $_POST[$prefix.'_selection_style'];
+		if (!empty($_POST[$prefix.'_' . $this->name . '_style'])) {
+			$this->_edit_params['style'] = $_POST[$prefix.'_' . $this->name . '_style'];
 		}
 
-		if (!empty($_POST[$prefix.'_selection_height'])) {
-			$this->_edit_params['height'] = $_POST[$prefix.'_selection_height'];
+		if (!empty($_POST[$prefix.'_' . $this->name . '_height'])) {
+			$this->_edit_params['height'] = $_POST[$prefix.'_' . $this->name . '_height'];
 		}
 
-		if (!empty($_POST[$prefix.'_selection_columns'])) {
-			$this->_edit_params['columns'] = $_POST[$prefix.'_selection_columns'];
+		if (!empty($_POST[$prefix.'_' . $this->name . '_columns'])) {
+			$this->_edit_params['columns'] = $_POST[$prefix.'_' . $this->name . '_columns'];
 		}
 
 		$values = Array();

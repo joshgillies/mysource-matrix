@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_section.inc,v 1.7.2.1 2004/02/18 11:39:05 brobertson Exp $
+* $Id: metadata_section.inc,v 1.7.2.2 2004/02/26 18:22:38 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -138,87 +138,6 @@ class Metadata_Section extends Folder
 		return false;
 
 	}//end prepareLink()
-
-
-	/**
-	* Creates a link between this asset and the passed asset, of a certain type
-	* and returns the linkid of the created link
-	*
-	* @return int
-	* @access public
-	* @see Asset::creatLink();
-	*/
-	function createLink(&$minor, $link_type, $value='', $sort_order=-1, $dependant='0', $exclusive='0')
-	{
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
-		$linkid = parent::createLink($minor, $link_type, $value, $sort_order, $dependant, $exclusive);
-		if (!$linkid) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return 0;
-		}
-
-		if (is_a($minor, 'metadata_field')) {
-			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
-			$schemaids = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'metadata_schema', true);
-			foreach ($schemaids as $schemaid) {
-				$vars = Array('schemaid' => $schemaid);
-				$code_name = $hh->queueHipo('hipo_job_regenerate_metadata', $vars);
-				if (empty($code_name)) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return 0;
-				}
-			}
-		}
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		return $linkid;
-
-	}// end createLink()
-
-
-	/**
-	* Remove a link where this asset is the major player
-	*
-	* @param int	$linkid	the link id of the link to remove
-	*
-	* @return boolean
-	* @access public
-	* @see Asset_Manager::deleteLink()
-	*/
-	function deleteLink($linkid)
-	{
-		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid, $this->id);
-		$minor = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid']);
-		$regenerate = false;
-		if (!is_null($minor) && is_a($minor, 'metadata_field')) {
-			$regenerate = true;
-		}
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
-		if (!parent::deleteLink($linkid)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
-
-		if ($regenerate) {
-			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
-			$schemaids = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'metadata_schema', true);
-			foreach ($schemaids as $schemaid) {
-				$vars = Array('schemaid' => $schemaid);
-				$code_name = $hh->queueHipo('hipo_job_regenerate_metadata', $vars);
-				if (empty($code_name)) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return false;
-				}
-			}
-		}
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		return true;
-
-	}//end deleteLink()
 
 
 }//end class

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_edit_fns.inc,v 1.15.2.1 2004/02/18 11:39:05 brobertson Exp $
+* $Id: metadata_field_edit_fns.inc,v 1.15.2.2 2004/02/26 18:22:38 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -396,10 +396,8 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 
 		$oldWeighting = $asset->attr('weighting');
 		if($_POST['weighting_include']) {
-			if (isset($_POST['weighting']))
-				$newWeighting = max(0, $_POST['weighting']);
-			else
-				$newWeighting = 1;
+			if (isset($_POST['weighting'])) $newWeighting = max(0, $_POST['weighting']);
+			else $newWeighting = 1;
 		} else {
 			$newWeighting = -1;
 		}
@@ -457,19 +455,27 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 	*
 	* @param object Metadata_Field	&$asset		the asset whose interface we are painting
 	* @param array					$values		the current metadata values
+	* @param array					&$tag_value	the metadata tag value
 	* @param array					&$keywords	an array we can put keywords in that need replacing
 	*
 	* @return boolean
 	* @access public
 	*/
-	function generateMetadata(&$asset, $values, &$keywords)
+	function generateMetadata(&$asset, &$values, &$tag_value, &$keywords)
 	{
 		require_once SQ_FUDGE_PATH.'/general/text.inc';
 
-		if (isset($values['value'])) $default = $values['value'];
-		else $default = $asset->attr('default');
+		if (!isset($values['using_default'])) $values['using_default'] = false;
+		if (isset($values['value']) && !$values['using_default']) {
+			$default = $values['value'];
+			$values['using_default'] = false;
+		} else {
+			$default = $asset->attr('default');
+			$values['value'] = $default;
+			$values['using_default'] = true;
+		}
 
-		$keywords = array_merge($keywords, retrieve_keywords_replacements($default));
+		$keywords = array_merge($keywords, retrieve_keywords_replacements($default, '.'));
 
 		echo '<meta name="'.$asset->name.'"';
 		if (trim($asset->attr('language')) != '') echo ' lang="'.$asset->attr('language').'"';
@@ -480,21 +486,23 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 
 		if (!empty($current_vc)) {
 			foreach ($current_vc as $vc_name => $vc_value) {
-				if (isset($values['value_components'][$vc_name])) {
-					$vc_value = $values['value_components'][$vc_name];
+				if (!isset($values['value_components'][$vc_name])) {
+					// install the default value
+					$values['value_components'][$vc_name] = $vc_value;
 				}
-				$keywords = array_merge($keywords, retrieve_keywords_replacements($vc_value));
+				$vc_value = $values['value_components'][$vc_name];
+				$keywords = array_merge($keywords, retrieve_keywords_replacements($vc_value, '.'));
 				$value_string .= $vc_name.'='.$vc_value.'; ';
 			}
 		}
 
-		echo ' content="';
+		echo ' content="<?php echo $metadata_values[\''.$asset->name.'\']; ?>" />'."\n";
+		
 		if (trim($default) != '') {
-			echo trim($default);
-			if (trim($value_string) != '') echo '; ';
+			$tag_value = $default;
+			if (trim($value_string) != '') $tag_value .= '; ';
 		}
-		if (trim($value_string) != '') echo trim($value_string);
-		echo "\" />\n";
+		if (trim($value_string) != '') $tag_value .= trim($value_string);
 
 		return true;
 
@@ -522,7 +530,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 		if (isset($values['value'])) $default = $values['value'];
 		else $default = $field->attr('default');
 
-		$used_keywords = retrieve_keywords_replacements($default);
+		$used_keywords = retrieve_keywords_replacements($default, '.');
 
 		$value_string = '';
 		$current_vc = $field->attr('value_components');
@@ -531,7 +539,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 				if (isset($values['value_components'][$vc_name])) {
 					$vc_value = $values['value_components'][$vc_name];
 				}
-				$used_keywords = array_merge($used_keywords, retrieve_keywords_replacements($vc_value));
+				$used_keywords = array_merge($used_keywords, retrieve_keywords_replacements($vc_value, '.'));
 				$value_string .= $vc_name.'='.$vc_value.'; ';
 			}
 		}

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_schema_edit_fns.inc,v 1.16.2.1 2004/02/18 11:39:05 brobertson Exp $
+* $Id: metadata_schema_edit_fns.inc,v 1.16.2.2 2004/02/26 18:22:38 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -146,11 +146,9 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 		if (!$asset->writeAccess('')) return false;
 
 		if (isset($_POST[$prefix.'_regenerate']) && $_POST[$prefix.'_regenerate']) {
-			//// START HIPO PROCESSING ////
 			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
 			$vars = Array('schemaid' => $asset->id);
 			$hh->queueHipo('hipo_job_regenerate_metadata', $vars);
-			////  END HIPO PROCESSING  ////
 		}
 
 		return true;
@@ -316,23 +314,34 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 	/**
 	* Output the complete metadata tags for this schema
 	*
-	* @param object Metadata_Schema	&$asset		the asset whose interface we are painting
-	* @param array					$values		the current metadata values
-	* @param array					&$keywords	an array we can put keywords in that need replacing
+	* @param object Metadata_Schema	&$asset			the asset whose interface we are painting
+	* @param array					&$values		the current metadata values
+	* @param array					&$tag_values	the metadata tag values
+	* @param array					&$keywords		an array we can put keywords in that need replacing
 	*
 	* @return boolean
 	* @access public
 	*/
-	function generateMetadata(&$asset, $values, &$keywords)
+	function generateMetadata(&$asset, &$values, &$tag_values, &$keywords)
 	{
 		echo "<!-- $asset->name //-->\n\n";
+
 		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_section', true, 'major', null, true);
+		$valid_sections = Array();
 		foreach ($current_links as $link) {
 			$section = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($section)) continue;
+			$valid_sections[] = $section->name;
+
 			$edit_fns = $section->getEditFns();
 			if (!isset($values['sections'][$section->name])) $values['sections'][$section->name] = Array();
-			if (!$edit_fns->generateMetadata($section, $values['sections'][$section->name], $keywords)) return false;
+			if (!$edit_fns->generateMetadata($section, $values['sections'][$section->name], $tag_values, $keywords)) return false;
+		}
+
+		// remove any invalid sections from the values array
+		$sections = $values['sections'];
+		foreach ($sections as $section_name => $section_data) {
+			if (!in_array($section_name, $valid_sections)) unset($values['sections'][$section_name]);
 		}
 
 		return true;
@@ -357,6 +366,7 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 		foreach ($current_links as $link) {
 			$section = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($section)) continue;
+			if (!isset($values['sections'][$section->name])) continue;
 			$edit_fns = $section->getEditFns();
 			if (!$edit_fns->getMetadataFieldValues($asset, $section, $values['sections'][$section->name], $fields)) return false;
 		}
@@ -381,11 +391,11 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 		// need to have write access to make any changes
 		if ($asset->writeAccess('')) {
 			?>
-			<p>
-				Check the box below if your schema is named <B>AGLS</B>, <B>DCL</B> or <B>EDNA</B>, and if you want to use default namespace definition for it, instead of entering custom values in the text input fields.</p>
+			<p>You can use this section to define a namespace to be used for any Harvest Control List (HCL) page you have created using this metadata schema. If you are going to include this metadata schema on a HCL page, you <b>must</b> define an XML namespace, because HCL page must be a well-formed XML document.
+			</p>
 		<?php
 			check_box($prefix.'_default_ns');
-			echo '&nbsp;Use default XML namespace definitions (this will delete any custom values!)';
+			echo '&nbsp;<b>Use default XML namespace definitions:</b> If your schema has one of the standard names - \'<b>AGLS</b>\', \'<b>DC</b>\', \'<b>EDNA</b>\' - you can use a default namespace definition instead of entering the custom namespace and custom namespace URI into the fields below.';
 		} else {
 			echo 'Permission Denied to change this property'; 
 
@@ -424,7 +434,7 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 				$asset -> setAttrValue('namespace', 'xmlns:dc');
 				$asset -> setAttrValue('nsurl', 'http://purl.org/dc/elements/1.1/');
 
-			} else { // in this case it's EDNA
+			} elseif ($schema_name == "edna") { 
 				
 				$asset -> setAttrValue('namespace', 'xmlns:edna');
 				$asset -> setAttrValue('nsurl', 'http://www.edna.edu.au/metadata/v1.1');

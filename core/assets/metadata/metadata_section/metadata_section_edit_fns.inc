@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_section_edit_fns.inc,v 1.11.2.1 2004/02/18 11:39:05 brobertson Exp $
+* $Id: metadata_section_edit_fns.inc,v 1.11.2.2 2004/02/26 18:22:38 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -37,6 +37,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 */
 class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 {
+
 
 	/**
 	* Constructor
@@ -119,7 +120,9 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 				
 				$contents = Array();
 				foreach ($descendant_types as  $type) {
-					$contents[$type] = $type;
+					// $te[2] - type of the field, which we need
+					$te = explode("_", $type);
+					$contents[$type] = ucfirst($te[2]); // capitalizing the first char
 				}
 
 				combo_box($prefix.'_field_type', $contents, false, 'metadata_field_text');
@@ -280,25 +283,37 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 	/**
 	* Output the complete metadata tags for this section
 	*
-	* @param object Metadata_Section	&$asset		the asset whose interface we are painting
-	* @param array						$values		the current metadata values
-	* @param array						&$keywords	an array we can put keywords in that need replacing
+	* @param object Metadata_Section	&$asset			the asset whose interface we are painting
+	* @param array						&$values		the current metadata values
+	* @param array						&$tag_values	the metadata tag values
+	* @param array						&$keywords		an array we can put keywords in that need replacing
 	*
 	* @return boolean
 	* @access public
 	*/
-	function generateMetadata(&$asset, $values, &$keywords)
+	function generateMetadata(&$asset, &$values, &$tag_values, &$keywords)
 	{
 		echo "<!-- $asset->name //-->\n";
+
 		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_field', false, 'major', null, true);
+		$valid_fields = Array();
 		foreach ($current_links as $link) {
 			$field = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($field)) continue;
+			$valid_fields[] = $field->name;
+
 			$edit_fns = $field->getEditFns();
 			if (!isset($values['fields'][$field->name])) $values['fields'][$field->name] = Array();
-			if (!$edit_fns->generateMetadata($field, $values['fields'][$field->name], $keywords)) return false;
+			$tag_values[$field->name] = '';
+			if (!$edit_fns->generateMetadata($field, $values['fields'][$field->name], $tag_values[$field->name], $keywords)) return false;
 		}
 		echo "\n";
+
+		// remove any invalid fields from the values array
+		$fields = $values['fields'];
+		foreach ($fields as $field_name => $field_data) {
+			if (!in_array($field_name, $valid_fields)) unset($values['fields'][$field_name]);
+		}
 
 		return true;
 
@@ -322,6 +337,7 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 		foreach ($current_links as $link) {
 			$field = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($field)) continue;
+			if (!isset($fields[$field->name])) continue;
 			$edit_fns = $field->getEditFns();
 			if (!isset($values['fields'][$field->name])) $values['fields'][$field->name] = Array();
 			if (!$edit_fns->getMetadataFieldValues($asset, $field, $values['fields'][$field->name], $fields)) return false;

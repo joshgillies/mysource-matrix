@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select_edit_fns.inc,v 1.2.2.1 2004/02/18 14:36:28 brobertson Exp $
+* $Id: metadata_field_select_edit_fns.inc,v 1.2.2.2 2004/02/26 18:22:38 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -180,11 +180,11 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 
 		// now adding two fields for new entry (key => value)
 		if ($write_access) {
-			$o->openField('New SelectBox Key');
+			$o->openField('Option Key');
 				text_box($prefix.'_select_key','');
 			$o->closeField();
 
-			$o->openField('New SelectBox Value');
+			$o->openField('Option Value');
 				text_box($prefix.'_select_val','');
 			$o->closeField();
 		}

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.16.2.1 2004/02/18 11:39:06 brobertson Exp $
+* $Id: text.inc,v 1.16.2.2 2004/02/26 18:22:38 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -61,6 +61,76 @@ class Asset_Attribute_Text extends Asset_Attribute
 
 
 	/**
+	* Print the interface for changing edit params
+	*
+	* @param string		$prefix		prefix for the form elements
+	*
+	* @return void
+	* @access public
+	*/
+	function paintEditParams($prefix, $write_access=false)
+	{
+		?>
+		<table class="sq-backend-table">
+			<tr>
+				<td colspan="2" class="sq-backend-table-header"><?php echo $this->name; ?></td>
+			</tr>
+			<tr>
+				<td class="sq-backend-section-heading">Width</td>
+				<td class="sq-backend-section-heading">Height</td>
+			</tr>
+			<tr>
+				<td class="sq-backend-table-cell">
+					<?php
+					if ($write_access) text_box($prefix.'_' . $this->name . '_width', $this->_edit_params['width']);
+					else echo $this->_edit_params['width'];
+					?>
+				</td>
+				<td class="sq-backend-table-cell">
+					<?php
+					if ($write_access) text_box($prefix.'_' . $this->name . '_height', $this->_edit_params['height']);
+					else echo $this->_edit_params['height'];
+					?>
+				</td>
+			</tr>
+		</table>
+		<?php
+
+	}//end paintEditParams()
+
+
+	/**
+	* Process the interface for changing edit params
+	*
+	* @param string		$prefix		prefix for the form elements
+	*
+	* @return array
+	* @access public
+	*/
+	function processEditParams($prefix)
+	{
+		// reading submitted vars
+		if (!empty($_POST[$prefix.'_' . $this->name . '_width'])) {
+			$this->_edit_params['width'] = $_POST[$prefix.'_' . $this->name . '_width'];
+		}
+
+		if (!empty($_POST[$prefix.'_' . $this->name . '_height'])) {
+			$this->_edit_params['height'] = $_POST[$prefix.'_' . $this->name . '_height'];
+		}
+
+		$values = Array();
+		$values['width'] = $this->_edit_params['width'];
+		$values['height'] = $this->_edit_params['height'];
+
+		$result = Array();
+		$result[$this->name] = $values;
+		
+		return $result;
+
+	}//end processEditParams()
+
+
+	/**
 	* Takes an XML_Tree_Node from an edit interface XML file and creates
 	* the params array from it
 	*
@@ -89,7 +159,7 @@ class Asset_Attribute_Text extends Asset_Attribute
 	*
 	* @access public
 	*/
-	function paint($prefix, $read_only=false)
+	function paint($prefix, $read_only=false) // '$add' is missing. TO-DO: check why? (maybe on purpose)
 	{
 		if ($read_only) {
 			echo $this->value;

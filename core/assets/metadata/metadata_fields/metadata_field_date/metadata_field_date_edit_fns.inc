@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date_edit_fns.inc,v 1.5.2.1 2004/02/18 14:36:28 brobertson Exp $
+* $Id: metadata_field_date_edit_fns.inc,v 1.5.2.2 2004/02/26 18:22:38 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -48,6 +48,45 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 		Metadata_Field_Edit_Fns::Metadata_Field_Edit_Fns(); // calling super
 
 	}//end constructor
+
+
+	/**
+	* Paint the interface for viewing available date format keys
+	*
+	* @param object Metadata_Field		&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintDateFormatKeys(&$asset, &$o, $prefix)
+	{
+		?>
+		<b>You can use the following set of Date object keys in order to define your own date format for this field.<br/>For a complete list of available keyword replacements <a href="#" onClick="Javascript: var win = window.open('<?php echo sq_web_path('data')?>/asset_types/metadata_field_date/popups/keywords.html', 'keywords', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=640,height=520'); return false;">click here </a></b>
+		<?php
+
+	}//end paintDateFormatKeys()
+
+
+	/**
+	* Processes the interface for viewing date format keys
+	*
+	* Note that keyword instructions are not processed so this function always
+	* returns false
+	*
+	* @param object Metadata_Field		$asset	the asset to which we belong
+	* @param object	Backend_Outputter	$o		the outputter class
+	* @param string						$prefix	prefix for the form element
+	*
+	* @return boolean (false always)
+	* @access public
+	*/
+	function processDateFormatKeys(&$asset, &$o, $prefix)
+	{
+		return false;
+
+	}//end processDateFormatKeys()
 
 
 	/**
@@ -141,6 +180,8 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 
 		$field = $this->_getEpochDateTimeField($asset, $prefix, $default);
 
+		echo "Value in this field is relevant only if you do not select a keyword replacement<br />";
+
 		// take into account lock, plus only root can edit
 		if ($asset->writeAccess('attributes')) $field->printField();
 		else echo $field->format();
@@ -193,6 +234,8 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 							'%asset_created%'	=> 'Creation date'
 		);
 
+		echo "Selected keyword replacement will be used instead of any entered default date values<br />";
+
 		// displaying default value if any values were actually saved in the array
 		if ($write_access) {
 			combo_box($prefix.'_repkeys', $select_options, false, $default);
@@ -242,6 +285,8 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 	function paintEpochSetup(&$asset, &$o, $prefix)
 	{
 		$field = $this->_getEpochDateTimeField($asset, $prefix);
+		
+		echo "Setup table below only affects how the field looks to the metadata editor,<br /> NOT how it is displayed in the META field of your web page.";
 
 		if ($asset->writeAccess('attributes')) {
 			// custom definition for edit interface
@@ -380,28 +425,42 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 	* Output the complete metadata tag for this field
 	*
 	* @param object Metadata_Field	&$asset		the asset whose interface we are painting
-	* @param array					$values		the current metadata values
+	* @param array					&$values		the current metadata values
+	 @param array					&$tag_value	the metadata tag value
 	* @param array					&$keywords	an array we can put keywords in that need replacing
 	*
 	* @return boolean
 	* @access public
 	*/
-	function generateMetadata(&$asset, $values, &$keywords)
+	function generateMetadata(&$asset, &$values, &$tag_value, &$keywords)
 	{
-		if (isset($values['value'])) $value = $values['value'];
-		else $value = $asset->attr('default');
+		if (!isset($values['using_default'])) $values['using_default'] = false;
+		if (isset($values['value']) && !$values['using_default']) {
+			$value = $values['value'];
+			$values['using_default'] = false;
+		} else {
+			$value = $asset->attr('default');
+			$values['value'] = $value;
+			$values['using_default'] = true;
+		}
 
 		$original = $value;
 
+		// we create a new array here to pass to our parent so we dont muck up the
+		// referenced timestamp values
+		$new_values = $values;
 		if (strpos($value, '%') === false) {
 			$field = $this->_getEpochDateTimeField($asset, '', $value);
-			$values['value'] = $field->format();
+			$new_values['value'] = $field->format();
 		} else {
-			$values['value'] = $value;
+			$new_values['value'] = $value;
 		}
+		// we dont want out default value restored even if we are using it
+		// because we have already formatted it here
+		$new_values['using_default'] = false;
 
 		ob_start();
-			parent::generateMetadata($asset, $values, $keywords);
+			parent::generateMetadata($asset, $new_values, $tag_value, $keywords);
 			$metadata_tag = ob_get_contents();
 		ob_end_clean();
 
