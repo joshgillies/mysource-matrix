@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.102 2004/11/17 23:43:39 mmcintyre Exp $
+* $Id: backend.inc,v 1.103 2004/11/18 16:48:45 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -562,23 +562,26 @@ class Backend extends MySource_Object
 		<style type="text/css">
 			body { background: #342939; }
 		</style>
-		<table cellpadding="1" border="0" cellspacing="1">
+		<table cellpadding="1" border="0" cellspacing="1" width="100%">
 			<tr>
-				<td nowrap class="sq-backend-header-item" valign="middle" height="99%">
+				<td nowrap class="sq-backend-header-item" valign="middle">
 					<img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="5" height="1">
 					<a class="sq-backend-header-item" style="text-decoration: none;" href="#" onclick="Javascript: reloadHeader(); return false;">
 					Logged in as: <b><?php echo $GLOBALS['SQ_SYSTEM']->user->name; ?> - <?php echo date('d M Y g:i a', $now); ?></a></b>
 				</td>
-				<td nowrap class="sq-backend-header-item" valign="middle" align="right" width="100%">
-				<?php
-					if (!SQ_IN_LIMBO) {
-						text_box('asset_search', (!empty($_POST['asset_search'])) ? $_POST['asset_search'] : $asset_search_default, 20, 0, empty($_POST['asset_search']), 'class="sq-backend-header-search-box"');
-					} else {
-						echo '&nbsp;';
-					}
-				?>
-				</td>
-				<td nowrap align="right">
+				<td nowrap class="sq-backend-header-item" valign="middle" align="right">
+					<table cellpadding="0" border="0" cellspacing="0">
+						<tr>
+							<td nowrap valign="middle">
+							<?php
+								if (!SQ_IN_LIMBO) {
+									text_box('asset_search', (!empty($_POST['asset_search'])) ? $_POST['asset_search'] : $asset_search_default, 20, 0, empty($_POST['asset_search']), 'class="sq-backend-header-search-box"');
+								} else {
+									echo '&nbsp;';
+								}
+							?>
+							</td>
+							<td nowrap>
 				<?php
 					$options = Array();
 					if (!SQ_IN_LIMBO) {
@@ -662,10 +665,14 @@ class Backend extends MySource_Object
 							 <?php echo (isset($option['target'])) ? 'target="'.$option['target'].'"' : ''; ?>
 							 <?php echo (isset($option['onclick'])) ? 'onClick="'.htmlspecialchars($option['onclick']).'"' : ''; ?>
 							 <?php echo (isset($option['extras'])) ? $option['extras'] : ''; ?>
+
 						  ><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $this->out->filesPath('/images/icons/header/'.$option['icon']); ?>", "20", "20", "<?php echo htmlspecialchars($option['title']);?>");</script></a>
 						&nbsp;&nbsp;<?php
 					}
 				?>
+							</td>
+						</tr>
+					</table>
 				</td>
 			</tr>
 		</table>
