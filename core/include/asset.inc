@@ -1211,6 +1211,13 @@ class Asset extends MySource_Object
 														'new_status' => $new_status,
 														));
 
+			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+			$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+			$message_body = 'The status of "'.$this->name.'" was successfully changed from "'.get_status_description($this->status).'" to "'.get_status_description($new_status).'"';
+			$message = $ms->newMessage(Array(), 'Asset Status Changed', $message_body, 'asset.status');
+			$message->parameters['assetid'] = $this->id;
+			$message->send();
+
 			$this->status = $new_status;
 			unset($this->_tmp['status_object']);
 			$this->_updated();
