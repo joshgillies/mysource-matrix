@@ -151,7 +151,7 @@ class Resolve
 			case 'login' :
 				if ($this->loginKey() == $_POST['SQ_LOGIN_KEY']) {
 					$this->am->includeAsset('user');
-					list($userid, $user_type) = User::find($_POST['SQ_LOGIN_USERNAME'], $_POST['SQ_LOGIN_PASSWORD']);
+					list($userid, $user_type) = User::find($_POST['SQ_LOGIN_USERNAME'], $_POST['SQ_LOGIN_PASSWORD'], 'backend_user');
 					if ($userid) {
 						$user = &$this->am->getAsset($userid, $user_type);
 						$_SESSION['userid']      = $userid;
@@ -163,11 +163,13 @@ class Resolve
 						$this->user = &$user;
 						break;
 
-					}//end if
-				// incorrect login key
+					} else {
+						$this->addMessage('User not found');
+					}
 				} else {
+					// incorrect login key
 					$this->addMessage('Login Key incorrect');
-				}//end if
+				}
 
 				// deliberalty don't have a break here so it the
 				// login fails we make sure that we're logged out

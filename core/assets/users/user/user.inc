@@ -143,7 +143,7 @@ class User extends Asset
 	* @return Array(int,string)
 	* @access public
 	*/
-	function find($username, $password) {
+	function find($username, $password, $type_code='user') {
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
@@ -157,8 +157,8 @@ class User extends Asset
 				  and av.custom_value = '.$db->quote($username);
 
 		$subs = Array( 'SELECT type_code FROM sq_asset_type_inherited 
-						WHERE inherited_type_code = '.$db->quote('user').'
-						   OR type_code = '.$db->quote('user'));
+						WHERE inherited_type_code = '.$db->quote($type_code).'
+						   OR type_code = '.$db->quote($type_code));
 
 		$sql = db_extras_subquery($db, $sql, $subs);
 

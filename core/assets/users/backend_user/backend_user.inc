@@ -1,0 +1,31 @@
+<?php
+
+require_once SQ_CORE_PACKAGE_PATH.'/user/user.inc';
+
+
+/**
+* Backend_User
+*
+* Purpose
+*
+*
+* @author  Greg Sherwood <greg@squiz.net>
+* @version $Version$ - 1.0
+* @package Resolve::packages::__core__
+*/
+class Backend_User extends User
+{
+
+	/**
+	* Constructor
+	*
+	* @param int	$assetid	the asset id to be loaded
+	*
+	*/
+	function Root_User($assetid=0)
+	{
+		$this->User($assetid);
+	}
+
+}//end class
+?>

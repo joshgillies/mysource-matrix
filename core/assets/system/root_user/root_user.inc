@@ -1,6 +1,6 @@
 <?php
 
-require_once SQ_CORE_PACKAGE_PATH.'/user/user.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/backend_user/backend_user.inc';
 
 
 /**
@@ -13,7 +13,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/user/user.inc';
 * @version $Version$ - 1.0
 * @package Resolve::packages::__core__
 */
-class Root_User extends User
+class Root_User extends Backend_User
 {
 
 	/**
