@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: embed_movie.php,v 1.8 2003/12/17 04:45:11 mmcintyre Exp $
+* $Id: embed_movie.php,v 1.9 2004/01/13 01:39:30 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,17 +33,11 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 		<title>Embed Movie</title>
 
 		<script type="text/javascript" src="../../core/popup.js"></script>
+		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/asset_map/javaExternalCall.js' ?>"></script>
+		<script type="text/javascript" src="<?php echo sq_web_path('fudge').'/var_serialise/var_serialise.js' ?>"></script>
 		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/html_form/html_form.js' ?>"></script>
 
 		<script type="text/javascript">
-			var parent_object = opener.editor_<?php echo $_REQUEST['editor_name']?>._object;
-			
-			window.opener.onFocus = function() { getFocus(); }
-			parent_object.onFocus = function() { getFocus(); }
-
-			function getFocus() {
-				setTimeout('self.focus()',100);
-			};
 
 			function Init() {
 				__dlg_init("matrixEmbedMovie");
@@ -76,13 +70,13 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 					}
 				}
 				__dlg_close("matrixEmbedMovie", param);
-				window.opener.focus();
+	
 				return false;
 			};
 
 			function onCancel() {
 				__dlg_close("matrixEmbedMovie", null);
-				window.opener.focus();
+	
 				return false;
 			};
 		</script>
@@ -156,36 +150,33 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 		</style>
 	</head>
 
-	<body onLoad="Init(); if (opener) opener.blockEvents('matrixEmbedMovie')" onUnload="if (opener) opener.unblockEvents(); asset_finder_onunload(); parent_object._tmp['disable_toolbar'] = false; parent_object.updateToolbar();">
+	<body>
 		
 		<div class="title">Embed Movie</div>
 		
 		<form action="" method="get" name="main_form">
 			<table width="100%">
 				<tr>
-					<td>
+					<td valign="top">
+						<?php embed_asset_map('simple'); ?>
+					</td>
+					<td valign="top">
 						<table width="100%" cellspacing="0" cellpadding="0">
 							<tr>
 								<td valign="top" width="100%">
 									<fieldset>
-									<legend><b>General</b></legend>
-									<table style="width:100%">
-										<tr>
-											<td class="label">Movie URL:</td>
-											<td>
-											<?php asset_finder('f_fileid', $_GET['f_fileid'], Array('file' => 'I'), (($_GET['in_popup']) ? 'opener.opener.top' : 'opener.top'), 'getFocus'); ?>
-											</td>
-										</tr>
-									</table>
+										<legend><b>General</b></legend>
+										<table style="width:100%">
+											<tr>
+												<td class="label">Movie URL:</td>
+												<td>
+													<?php asset_finder('f_fileid', $_GET['f_fileid'], Array('file' => 'I'), 'top'); ?>
+												</td>
+											</tr>
+										</table>
 									</fieldset>
 								</td>
 							</tr>
-						</table>
-					</td>
-				</tr>
-				<tr>
-					<td>
-						<table width="100%" cellspacing="0" cellpadding="0">
 							<tr>
 								<td valign="top" width="50%">
 									<fieldset>
@@ -196,14 +187,14 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 											</tr>
 											<tr>
 												<td class="label">Auto Start:</td>
-												<td>
-												<input type="checkbox" name="auto_start" id="f_auto_start" value="1" <?php echo ($_REQUEST['f_auto_start'] == '1') ? 'checked' : ''?> />
+												<td width="50%">
+													<input type="checkbox" name="auto_start" id="f_auto_start" value="1" <?php echo ($_REQUEST['f_auto_start'] == '1') ? 'checked' : ''?> />
 												</td>
 											</tr>
 											<tr>
 												<td class="label">Loop:</td>
 												<td>
-												<input type="checkbox" name="embed_loop" id="f_embed_loop" value="1" <?php echo ($_REQUEST['f_embed_loop'] == '1') ? 'checked' : ''?> />
+													<input type="checkbox" name="embed_loop" id="f_embed_loop" value="1" <?php echo ($_REQUEST['f_embed_loop'] == '1') ? 'checked' : ''?> />
 												</td>
 											</tr>
 											<tr>
@@ -212,27 +203,28 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 											<tr>
 												<td class="label">Show Controls:</td>
 												<td>
-												<input type="checkbox" name="show_controls" id="f_show_controls" value="1" <?php echo ($_REQUEST['f_show_controls'] == '1') ? 'checked' : ''?> />
+													<input type="checkbox" name="show_controls" id="f_show_controls" value="1" <?php echo ($_REQUEST['f_show_controls'] == '1') ? 'checked' : ''?> />
 												</td>
 											</tr>
 										</table>
 									</fieldset>
 								</td>
-								<td>&nbsp;</td>
+							</tr>
+							<tr>
 								<td valign="top" width="50%">
 									<fieldset>
 										<legend>Size</legend>
 										<table style="width:100%">
 											<tr>
-												<td class="label">Width:</td>
+												<td class="label" width="50%">Width:</td>
 												<td>
-												<input type="text" name="width" id="f_width" size="5" title="Width" value="<?php echo $_REQUEST['f_width']?>" />
+													<input type="text" name="width" id="f_width" size="5" title="Width" value="<?php echo $_REQUEST['f_width']?>" />
 												</td>
 											</tr>
 											<tr>
 												<td class="label">Height:</td>
 												<td>
-												<input type="text" name="height" id="f_height" size="5" title="Height" value="<?php echo $_REQUEST['f_height']?>" />
+													<input type="text" name="height" id="f_height" size="5" title="Height" value="<?php echo $_REQUEST['f_height']?>" />
 												</td>
 											</tr>
 										</table>
