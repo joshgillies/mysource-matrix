@@ -291,7 +291,7 @@ class DateTime_Field {
 	* @param string	$value	the value to check
 	*
 	* @access public
-	* @return void
+	* @return string
 	*/
 	function validateValue($value)
 	{
@@ -395,7 +395,6 @@ class DateTime_Field {
 				$value[$u] = min(max($value[$u],$min[$u]),$max[$u]);
 			}
 		}
-		
 		// DO CIRCA STUFF HERE ON DOWN
 		$validate_day_month = $value['y'] > 1901 && $value['y'] < 2038 && $value['m'] >= 0 && $value['d'] >= 0; // PHP limit
 		$value = $this->unitsArrayToStr($value);
@@ -453,15 +452,13 @@ class DateTime_Field {
 	*/
 	function unitsArrayToStr(&$v)
 	{
-		$r  = sprintf('%04d-%02d-%02d %02d:%02d:%02d',$v['y'],$v['m'],$v['d'],$v['h'],$v['i'],$v['s']);
-
-		if($v['y'] < 0 || !strlen($v['y']) || $v['y'][0]=='-') for($i=0; $i<4; $i++) $r[$i] = '-';
-		if($v['m'] < 0 || !strlen($v['m']) || $v['m'][0]=='-') for($i=5; $i<7; $i++) $r[$i] = '-';
-		if($v['d'] < 0 || !strlen($v['d']) || $v['d'][0]=='-') for($i=8; $i<10;$i++) $r[$i] = '-';
-		if($v['h'] < 0 || !strlen($v['h']) || $v['h'][0]=='-') for($i=11;$i<13;$i++) $r[$i] = '-';
-		if($v['i'] < 0 || !strlen($v['i']) || $v['i'][0]=='-') for($i=14;$i<16;$i++) $r[$i] = '-';
-		if($v['s'] < 0 || !strlen($v['s']) || $v['s'][0]=='-') for($i=17;$i<19;$i++) $r[$i] = '-';
-		if($this->getParam('allow_circa')) $r .= ' '.(isset($v['c']) && $v['c'] ? 1 : 0);
+		$r = (($v['y'] < 0 || !strlen($v['y']) || $v['y'][0] == '-') ? '----' : sprintf('%04d', $v['y'])).'-'
+			.(($v['m'] < 0 || !strlen($v['m']) || $v['m'][0] == '-') ?  '--'  : sprintf('%02d', $v['m'])).'-'
+			.(($v['d'] < 0 || !strlen($v['d']) || $v['d'][0] == '-') ?  '--'  : sprintf('%02d', $v['d'])).' '
+			.(($v['h'] < 0 || !strlen($v['h']) || $v['h'][0] == '-') ?  '--'  : sprintf('%02d', $v['h'])).':'
+			.(($v['i'] < 0 || !strlen($v['i']) || $v['i'][0] == '-') ?  '--'  : sprintf('%02d', $v['i'])).':'
+			.(($v['s'] < 0 || !strlen($v['s']) || $v['s'][0] == '-') ?  '--'  : sprintf('%02d', $v['s']));
+		if($this->getParam('allow_circa')) $r .= ' '.(isset($v['c']) && $v['c'] ? '1' : '0');
 		return $r;
 	}//end unitsArrayToStr()
 
