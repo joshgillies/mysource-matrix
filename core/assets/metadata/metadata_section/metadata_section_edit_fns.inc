@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_section_edit_fns.inc,v 1.17 2004/02/26 03:00:19 diarandine Exp $
+* $Id: metadata_section_edit_fns.inc,v 1.18 2004/03/24 06:25:44 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -92,7 +92,7 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 					?>
 					<tr>
 						<td align="left" class="sq-backend-table-cell"><?php echo $field->name;?></td>
-						<td align="center" class="sq-backend-table-cell">[ <a href="<?php echo $asset_href[$field->id];?>">Go To Edit Interface</a> ]</td>
+						<td align="center" class="sq-backend-table-cell">[ <a href="<?php echo $asset_href[$field->id];?>">Edit Metadata Field</a> ]</td>
 					<?php
 					if ($write_access) {
 						?><td align="center" class="sq-backend-table-cell"><?php
