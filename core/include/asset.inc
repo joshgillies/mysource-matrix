@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset.inc,v 1.235 2003/10/14 05:29:47 brobertson Exp $
+* $Id: asset.inc,v 1.236 2003/10/15 00:09:47 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -220,12 +220,24 @@ class Asset extends MySource_Object
 		$this->updated        = $now;
 		$this->updated_userid = $userid;
 
+		// log what happened
+		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$ms->openLog();
+
 		// do this so that all calls to getAsset() get a reference to us, and don't load a new instance from the DB
 		$GLOBALS['SQ_SYSTEM']->am->rememberAsset($this);
 
 		// OK, what we need to do here is set write access for this asset to the current user so that they can actually do anything
 		// NOW normally this would require admin access but this is a very special case
 		$this->_tmp[__CLASS__.'_in_create_setting_permissions'] = true;
+		if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'permissions')) {
+			$ms->abortLog();
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($this);
+			$this->id = 0;
+			return false;
+		}
+
 		if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($this->id, $GLOBALS['SQ_SYSTEM']->currentUserId(), SQ_PERMISSION_WRITE, true)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($this);
@@ -233,10 +245,6 @@ class Asset extends MySource_Object
 			return false;
 		}
 		unset($this->_tmp[__CLASS__.'_in_create_setting_permissions']);
-
-		// log what happened
-		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-		$ms->openLog();
 
 		$message_body = 'New '.$this->type().' "'.$this->name.'" created';
 		$message = $ms->newMessage(Array(), 'Asset Created', $message_body, 'asset');
@@ -317,6 +325,14 @@ class Asset extends MySource_Object
 				}
 			}
 			unset($this->_tmp[__CLASS__.'_in_create_setting_permissions']);
+			if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'permissions')) {
+				$ms->abortLog();
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($this);
+				$this->id = 0;
+				return false;
+			}
+			
 
 			// release locks depending on if the parent was locked before we were created
 			if (!$parent_was_locked) {
