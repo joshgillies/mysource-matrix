@@ -81,6 +81,7 @@ class Design_Area_Menu_Recursive_Management extends Asset_Management
 								'added'			=> '0.0.1',
 								'type'			=> 'colour',
 								'default'		=> '',
+								'parameters'	=> Array('allow_blanks' => true),
 								'description'	=> 'The Background Colour for the stalks, if not set a transperant background will be used'
 							)
 						);
