@@ -300,6 +300,7 @@ class Resolve
 
 	}// end setCurrentUser()
 
+
 	/**
 	* Returns a boolean if the passed user is the logged in user
 	*
@@ -556,8 +557,8 @@ class Resolve
 
 
 	/**
-	* Constructs and executes an update query after adding rollback entries for the rows
-	* that are going to be updated by the query
+	* Constructs and executes an update query before adding rollback entries for the rows
+	* that were updated by the query
 	*
 	* @param string	$table_name		the base name of the table (without prefixes)
 	*								eg. asset, workflow etc
@@ -573,12 +574,6 @@ class Resolve
 	{
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		// add the rollback entries for the rows we are going to update
-		if (!$this->addRollbackEntry($table_name, $where_cond)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
-
 		// construct the update query
 		$update_sql = 'UPDATE '.SQ_TABLE_PREFIX.$table_name.' SET ';
 		foreach ($update_values as $column => $value) {
@@ -591,6 +586,12 @@ class Resolve
 		if (DB::isError($result)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			return false;
+		}
+
+		// add the rollback entries for the rows we updated
+		if (!$this->addRollbackEntry($table_name, $where_cond)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
 
