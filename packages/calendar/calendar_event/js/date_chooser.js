@@ -45,7 +45,6 @@ function updateStartDate(name)
 
 function updateDurationValues(prefix) 
 {
-	msg('updating '+prefix);
 	if (isChecked(prefix + '_start_time_enabled')) {
 		d = new Date(document.getElementById(prefix + '_start_year').value, document.getElementById(prefix + '_start_month').value-1, document.getElementById(prefix + '_start_day').value, ((parseInt(document.getElementById(prefix + '_start_hours').value)%12) + (12 * document.getElementById(prefix + '_start_is_pm').value)) % 24, document.getElementById(prefix + '_start_minutes').value, 0);
 	} else {
