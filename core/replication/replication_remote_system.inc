@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: replication_remote_system.inc,v 1.1.2.2 2004/02/14 17:39:26 brobertson Exp $
+* $Id: replication_remote_system.inc,v 1.1.2.3 2004/02/14 19:51:10 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -291,6 +291,47 @@ class Replication_Remote_System extends MySource_Object
 
 	}// end setTransportMethod()
 
+
+	function connect()
+	{
+		require_once SQ_SYSTEM_ROOT.'/core/server/squiz_server_client_mysource3.inc';
+
+		$data = Array(
+					'systemid'	=> SQ_CONF_SYSTEM_ID, 
+				);
+
+		$client = new Squiz_Server_Client_MySource3($this->squiz_server['systemid'], $this->squiz_server['host'], $this->squiz_server['port']);
+		if (!$client->connect()) return false;
+
+		if (!$client->write('Replicator', $data)) {
+			$client->disconnect();
+			return false;
+		}
+		
+		$ack = $client->read();
+		pre_echo("RESULT : $ack");
+		if ($ack != 'ack') {
+			$client->disconnect();
+			return false;
+		}
+
+		// OK, if we have got this far it means that we have connected OK, 
+		// and we are now leaving the squiz server communication pipeline alone
+		// and using the transport method setup for this remote system
+		$this->transport->setSocketFd($client->getFd());
+		unset($client);
+
+		// attempt to authenticate
+		if (!$this->auth->authenticate($this->transport, true)) {
+			$this->transport->removeSocketFd(true);
+			return false;
+		}
+
+		pre_echo("AUTHENTICATED!!!!!!");
+
+		return true;
+
+	}// end connect()
 
 }//end class
 
