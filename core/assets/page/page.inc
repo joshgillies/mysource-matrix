@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page.inc,v 1.2 2004/06/18 13:56:13 brobertson Exp $
+* $Id: page.inc,v 1.3 2004/06/29 15:33:29 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 * @author  Greg Sherwoood <greg@squiz.net>
 * @version $Version$ - 1.0
 * @package MySource_Matrix_Packages
-* @subpackage cms
+* @subpackage __core__
 */
 class Page extends Asset
 {

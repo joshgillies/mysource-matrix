@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_standard.inc,v 1.1 2004/06/16 06:08:28 mmcintyre Exp $
+* $Id: page_standard.inc,v 1.2 2004/06/29 15:33:29 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -35,7 +35,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 * @author  Greg Sherwoood <greg@squiz.net>
 * @version $Version$ - 1.0
 * @package MySource_Matrix_Packages
-* @subpackage cms
+* @subpackage __core__
 */
 class Page_Standard extends Page
 {
