@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: form_question_rule_type_comparison_edit_fns.inc,v 1.6 2003/09/26 05:26:41 brobertson Exp $
+* $Id: form_question_rule_type_comparison_edit_fns.inc,v 1.7 2003/09/26 06:04:13 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -49,14 +49,6 @@ class Form_Question_Rule_Type_Comparison_Edit_Fns extends Form_Question_Rule_Edi
 		$contents = $asset->getOperators();
 		if (empty($contents)) return false;
 
-		// find out if we are some sort of select question
-		$select = false;
-		if ($asset->isSelection()) {
-			$select = true;
-			$my_question = &$asset->getMyQuestion();
-
-		}
-
 		// table tags are printed in caller (form_question_edit_fns::printRules())
 		?>
 		<tr>
@@ -65,19 +57,25 @@ class Form_Question_Rule_Type_Comparison_Edit_Fns extends Form_Question_Rule_Edi
 			</td>
 			<td>
 			<?php
-				if ($select) {
-					combo_box($prefix.'_value', $my_question->getOptions(), false, $asset->attr('value'), 1, '', 30);
+				$q = &$asset->getMyQuestion();
+				if ($q->isSelection()) {
+					$asset->getOptionDropdownList();
+					echo '&nbsp;Or';
 				} else {
 					text_box($prefix.'_value', $asset->attr('value'));
+					echo '&nbsp;Or';
 				}
 			?>
 			</td>
 			<td>
-			  
-			</td>
-			<td>
 				Delete? <?php check_box('delete_rule', $asset->id); ?>
 			</td>
+		</tr>
+		<tr>
+		<td>&nbsp;</td>
+		  <td>
+			  <?php $asset->printAssetFinder($asset->attr('comparison_question_id')) ?>
+		  </td>
 		</tr>
 		<?php
 		return true;
@@ -104,6 +102,9 @@ class Form_Question_Rule_Type_Comparison_Edit_Fns extends Form_Question_Rule_Edi
 		}
 		if (isset($_POST[$prefix.'_value'])) {
 			$asset->setAttrValue('value', $_POST[$prefix.'_value']);
+		}
+		if (isset($_POST[$prefix.'_comparison_question_id'])) {
+			$asset->setAttrValue('comparison_question_id', $_POST[$prefix.'_comparison_question_id']);
 		}
 
 		return $asset->saveAttributes();

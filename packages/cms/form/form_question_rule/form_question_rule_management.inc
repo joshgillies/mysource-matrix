@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: form_question_rule_management.inc,v 1.3 2003/09/26 05:26:41 brobertson Exp $
+* $Id: form_question_rule_management.inc,v 1.4 2003/09/26 06:03:46 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -39,8 +39,13 @@ class Form_Question_Rule_Management extends Asset_Management
 												'added'		=> '0.0.1',
 												'type'		=> 'text',
 												'default'	=> '',
-							),
-									);
+												),
+							'comparison_question_id' => Array(
+												'added'		=> '0.0.1',
+												'type'		=> 'int',
+												'default'	=> 0,
+								),
+							);
 	}//end constructor
 
 }//end class

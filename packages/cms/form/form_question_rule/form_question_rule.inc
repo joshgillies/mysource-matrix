@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: form_question_rule.inc,v 1.4 2003/09/26 05:26:41 brobertson Exp $
+* $Id: form_question_rule.inc,v 1.5 2003/09/26 06:03:46 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -43,6 +43,13 @@ class Form_Question_Rule extends Asset
 	* @var &object form_question
 	*/
 	var $my_question = null;
+
+
+	/**
+	* the active submission object
+	* @var object
+	*/
+	var $active_submission = null;
 
 
 	/**
@@ -102,31 +109,11 @@ class Form_Question_Rule extends Asset
 	/**
 	* @abstract
 	*/
-	function processForm(&$submission, $questionid, $question_name)
+	function processForm($questionid, $question_name)
 	{
 		return true;
 
 	} // end process form()
-
-
-	/**
-	* returns a list of question types that are selections
-	* the rule uses this information to see if it should be displaying
-	* any more information in the rule itself
-	*
-	* @access public
-	* @return Array()
-	*/
-	function getSelectionTypeQuestions()
-	{
-		$questions = Array(
-			'form_question_type_select',
-			'form_question_type_tickbox',
-		);
-
-		return $questions;
-	
-	} // end getSelectionTypeQuestions()
 
 
 	/**
@@ -168,30 +155,36 @@ class Form_Question_Rule extends Asset
 
 
 	/**
-	* returns TRUE if the question that this rule belongs to is a selection type question
+	* returns a dropdown list of the options in a select type question
 	*
 	* @access public
 	* @return boolean
 	*/
-	function isSelection()
+	function getOptionDropdownList()
 	{
-		if (in_array($this->getMyQuestionType(), $this->getSelectionTypeQuestions())) {
-			return true;
-		}
-		return false;
+		$my_question = &$this->getMyQuestion();
+		if (is_null($my_question)) return false;
+
+		$options = Array('------ None ------');
+		$options += $my_question->getOptions();
+
+		return combo_box($this->getPrefix().'_value', $options, false, $this->attr('value'), 1, '', 30);
 	
-	} // end isSelection()
+	} // end getOptionDropdownList()
+
 
 	/**
-	* prints a dropdown list of questions (id => question name)
+	* prints a the asset finder to choose a question for comparison
 	*
+	* @param integer $id the current chosen id
+	* 
 	* @access public
 	* @return boolean
 	*/
-	function getQuestionDropdownList()
+	function printAssetFinder($id=0)
 	{
-		return true;
-
+		return asset_finder($this->getPrefix().'_comparison_question_id', $id, Array('form_question' => 'D'));
+		
 	} // end getQuestionDropdownList()
 
 } // end class
