@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_list.inc,v 1.17 2004/05/17 02:29:52 lwright Exp $
+* $Id: form_question_type_tickbox_list.inc,v 1.18 2004/06/22 00:24:21 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -169,18 +169,47 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 
 		$form =& $this->getMySection();
 
-		if ($this->attr('required') && ($val == '')) {
-			$form->submission_errors[] = 'At least one option for the question "'.$this->attr('name').'" must be selected';
-			return false;
+		if ($this->attr('required')) {
+			$req_rule = Array('rule_code' => 'select_limit', 'operator' => '>=', 'value' => '1');
+			array_push($this->vars['rules']['value'], $req_rule);
 		}
 
-		$form->active_submission[$this->id] = $val;
-
 		parent::processForm();
-			
-		return true;
 
+		if ($this->attr('required')) {
+			array_pop($this->vars['rules']['value']);
+		}
+		
+		return true;
+	
 	}//end processForm()
+
+	
+	/**
+	* writes JavaScript code for client side validation
+	* 
+	* This function assumes the skeleton of a JS validation function has been created around this code
+	* with a form variable named 'form' passed (this is done when generating the content file).
+	*
+	* @access public
+	* @return string the javascript code used for client-side validation
+	*/
+	function generateJSCode()
+	{
+		if ($this->attr('required')) {
+			$req_rule = Array('rule_code' => 'select_limit', 'operator' => '>=', 'value' => '1');
+			array_push($this->vars['rules']['value'], $req_rule);
+		}
+
+		$code = parent::generateJSCode();
+
+		if ($this->attr('required')) {
+			array_pop($this->vars['rules']['value']);
+		}
+
+		return $code;
+
+	}//end generateJSCode()
 
 
 	/**
@@ -192,7 +221,7 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 	* @return Array(string => string)
 	*/
 	function getAllowedRules() {
-		return Array('select_limit');
+		return Array('comparison', 'select_limit');
 	
 	}//end getAllowedRules()
 
