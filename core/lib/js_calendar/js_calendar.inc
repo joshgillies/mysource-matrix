@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_calendar.inc,v 1.3 2004/09/14 13:46:06 brobertson Exp $
+* $Id: js_calendar.inc,v 1.4 2004/09/16 02:24:22 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -99,7 +99,7 @@ class JS_Calendar
 				@import url("<?php echo $css; ?>");
 			</style>
 			<script src="<?php echo sq_web_path('fudge'); ?>/js_calendar/js_calendar.js" language="Javascript" type="text/javascript"></script>
-			<!--span id="sq_js_calendar_span"></span-->
+			<span id="sq_js_calendar_span"></span>
 			<!-- End init of JS Calendar -->
 			<?php
 			$GLOBALS['SQ_JS_CALENDAR_INIT'] = true;
@@ -146,9 +146,10 @@ class JS_Calendar
 			if (!$popup) {
 				$container_name = $prefix.'_js_calendar_span';
 			}
+		} else {
+			?><span id="<?php echo $container_name; ?>"></span><?php
 		}
 		?>
-		<span id="<?php echo $container_name; ?>"></span>
 		<script language="Javascript" type="text/javascript">
 			<?php echo $prefix; ?>_cal = new Calendar("<?php echo $prefix; ?>_cal", "<?php echo $container_name; ?>");
 			<?php echo $prefix; ?>_cal.prefix = "<?php echo $prefix; ?>";
