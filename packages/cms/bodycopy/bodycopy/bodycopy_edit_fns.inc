@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_edit_fns.inc,v 1.44 2003/11/21 05:28:46 gsherwood Exp $
+* $Id: bodycopy_edit_fns.inc,v 1.45 2003/11/23 22:12:12 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -339,53 +339,6 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 				var form = document.main_form;
 				var container_type = form_element_value(form.<?php echo $prefix; ?>_insert_container_type);
 				eval('bodycopy_insert_' + container_type + '("' + bodycopy_name + '", ' + containerid + ', ' + before + ');');
-			}
-
-			// This function switches the view between wysiwyg and
-			// page content for a wysiwyg editing field on the page
-			var initialisedEditors = new Array();
-			function switchEditingMode(contentDivID, editDivID, editor) {
-				var contentDiv = document.getElementById(contentDivID); // div with page contents
-				var editDiv = document.getElementById(editDivID);       // div with wysiwyg
-
-				if (editDiv.style.display == "none") { // the edit div is hidden
-					var setDesignMode = true;
-
-					// initilise the wysiwg if this is the first time
-					// it is being shown - skip this otherwise
-					if (initialisedEditors[editor._uniqueID] == null) {
-						initialisedEditors[editor._uniqueID] = true;
-						editor.generate();
-						//editor.updateToolbar(false);
-						setDesignMode = false;
-					} else if (editor._initialised != true) {
-						return;
-					}
-
-					editDiv.style.display = ""; // show the wysiwyg
-
-					// if we are using an iframe for this editor, we resize it
-					// and set its designMode property if we need to
-					if (editor._iframe) {
-						editor._iframe.style.width = "100%";
-						if (setDesignMode && HTMLArea.is_gecko) { editor._iframe.contentWindow.document.designMode = "on"; }
-						var iframeHeight = contentDiv.offsetHeight - editor._toolbar.offsetHeight - editor._statusBar.offsetHeight;
-						if (iframeHeight < editor.config.height) { iframeHeight = editor.config.height; }
-						editor._iframe.style.height = iframeHeight + 'px';
-					}
-					contentDiv.style.display = "none"; // hide the contents
-				} else if (editor._initialised == true) {
-					// the content div is hidden and the
-					// wysiwyg editor has been initialised
-					contentDiv.innerHTML = editor.getHTML();
-					contentDiv.style.display = "";  // show the contents
-					editDiv.style.display = "none"; // hide the wysiwyg
-
-					if (editor._iframe) {
-						var editCell = document.getElementById(editor._uniqueID + "_cell");
-						if (editCell) { editCell.style.height = "100%"; }
-					}
-				}
 			}
 
 			bodycopy_current_data["<?php echo $prefix?>"] = new Object();

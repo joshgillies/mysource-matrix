@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.js,v 1.14 2003/11/18 15:37:36 brobertson Exp $
+* $Id: edit.js,v 1.15 2003/11/23 22:12:11 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -40,13 +40,13 @@ function sq_process_key_down() {
 	switch (key) {
 		case "s" :
 			// emulate pressing of the commit button
-			top.main.document.focus();
+			if (top.main) { top.main.document.focus(); }
 			submit_form();
 		break;
 
 		case "v" :
 			// preview the asset on the frontend in a new window
-			top.main.document.focus();
+			if (top.main) { top.main.document.focus(); }
 			if (document.main_form.sq_preview_url) {
 				preview_popup = window.open(document.main_form.sq_preview_url.value, 'preview', '');
 			}
@@ -78,3 +78,51 @@ function sq_redirect(url) {
 	window.location = url;
 
 }//end sq_redirect()
+
+
+// This function switches the view between wysiwyg and
+// page content for a wysiwyg editing field on the page
+var initialisedEditors = new Array();
+function switchEditingMode(contentDivID, editDivID, editor) {
+	var contentDiv = document.getElementById(contentDivID); // div with page contents
+	var editDiv = document.getElementById(editDivID);       // div with wysiwyg
+
+	if (editDiv.style.display == "none") { // the edit div is hidden
+		var setDesignMode = true;
+
+		// initilise the wysiwg if this is the first time
+		// it is being shown - skip this otherwise
+		if (initialisedEditors[editor._uniqueID] == null) {
+			initialisedEditors[editor._uniqueID] = true;
+			editor.generate();
+			//editor.updateToolbar(false);
+			setDesignMode = false;
+		} else if (editor._initialised != true) {
+			return;
+		}
+
+		editDiv.style.display = ""; // show the wysiwyg
+
+		// if we are using an iframe for this editor, we resize it
+		// and set its designMode property if we need to
+		if (editor._iframe) {
+			editor._iframe.style.width = "100%";
+			if (setDesignMode && HTMLArea.is_gecko) { editor._iframe.contentWindow.document.designMode = "on"; }
+			var iframeHeight = contentDiv.offsetHeight - editor._toolbar.offsetHeight - editor._statusBar.offsetHeight;
+			if (iframeHeight < editor.config.height) { iframeHeight = editor.config.height; }
+			editor._iframe.style.height = iframeHeight + 'px';
+		}
+		contentDiv.style.display = "none"; // hide the contents
+	} else if (editor._initialised == true) {
+		// the content div is hidden and the
+		// wysiwyg editor has been initialised
+		contentDiv.innerHTML = editor.getHTML();
+		contentDiv.style.display = "";  // show the contents
+		editDiv.style.display = "none"; // hide the wysiwyg
+
+		if (editor._iframe) {
+			var editCell = document.getElementById(editor._uniqueID + "_cell");
+			if (editCell) { editCell.style.height = "100%"; }
+		}
+	}
+}
