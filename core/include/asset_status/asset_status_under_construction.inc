@@ -39,6 +39,7 @@ class Asset_Status_Under_Construction extends Asset_Status
 	*
 	* @return string
 	* @access public
+	* @static
 	*/
 	function getDescription()
 	{

@@ -36,6 +36,7 @@ class Asset_Status_Approved extends Asset_Status
 	*
 	* @return string
 	* @access public
+	* @static
 	*/
 	function getDescription()
 	{

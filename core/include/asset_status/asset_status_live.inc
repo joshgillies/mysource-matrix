@@ -38,6 +38,7 @@ class Asset_Status_Live extends Asset_Status
 	*
 	* @return string
 	* @access public
+	* @static
 	*/
 	function getDescription()
 	{

@@ -35,6 +35,7 @@ class Asset_Status_Archived extends Asset_Status
 	*
 	* @return string
 	* @access public
+	* @static
 	*/
 	function getDescription()
 	{

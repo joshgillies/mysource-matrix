@@ -50,6 +50,7 @@ class Asset_Status extends Resolve_Object
 	*
 	* @return string
 	* @access public
+	* @static
 	*/
 	function getDescription()
 	{

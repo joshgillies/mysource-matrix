@@ -41,6 +41,7 @@ class Asset_Status_Editing_Approval extends Asset_Status_Pending_Approval
 	*
 	* @return string
 	* @access public
+	* @static
 	*/
 	function getDescription()
 	{

@@ -39,6 +39,7 @@ class Asset_Status_Editing extends Asset_Status
 	*
 	* @return string
 	* @access public
+	* @static
 	*/
 	function getDescription()
 	{
