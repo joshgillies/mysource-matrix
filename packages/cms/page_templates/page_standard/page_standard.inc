@@ -156,6 +156,8 @@ class Page_Standard extends Page
 		// get the bodycopy attached to us
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
 		$bodycopy_data = $this->getLink(SQ_LINK_TYPE_2, 'bodycopy', true, null, 'major', '1');
+		if (empty($bodycopy_data)) return;
+
 		$bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_data['minorid'], $bodycopy_data['type_code']);
 		$bodycopy->printBody();
 	}// end printBody()
