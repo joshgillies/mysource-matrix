@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager.inc,v 1.33.2.1 2005/02/15 23:27:39 lwright Exp $
+* $Id: cron_manager.inc,v 1.33.2.2 2005/03/31 02:20:31 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -147,7 +147,7 @@ class Cron_Manager extends Asset
 	function canClone()
 	{
 		return false;
-	
+
 	}//end canClone()
 
 
@@ -438,7 +438,7 @@ class Cron_Manager extends Asset
 			$periods = floor($secs / $refresh_time);
 			$this_run = $epoch + ($refresh_time * $periods);
 
-			// if we only every day (or higher) we need to take into account the effects of 
+			// if we only every day (or higher) we need to take into account the effects of
 			// daylight savings
 			if ($refresh_time >= (60 * 60 * 24)) {
 				$epoch_in_dst = (date('I', $epoch)      == '1');
@@ -819,32 +819,11 @@ echo "RESULT : ".$result.' .... '.implode(', ', get_bit_names('SQ_CRON_JOB_', $r
 		}
 
 		$GLOBALS['CRON_MANAGER_GET_JOBS_TO_RUN_START_TS'] = $start_ts;
-		usort($result, Array('Cron_Manager', 'getJobsToRunCmp'));
 		unset($GLOBALS['CRON_MANAGER_GET_JOBS_TO_RUN_START_TS']);
 
 		return $result;
 
 	}//end getJobsToRun()
-
-
-	/**
-	* Used by usort() in getJobsToRun() to sort the results in the proper order for execution
-	*
-	* @param Array()	$a	first value to compare
-	* @param Array()	$b	second value to compare
-	*
-	* @return int	negative means $a is before $b, zero means $a == $b, positive means $b is before $a
-	* @see getJobsToRun()
-	* @access public
-	*/
-	function getJobsToRunCmp($a, $b)
-	{
-		$a_ts = Cron_Job::getNextRun($a['when'], $GLOBALS['CRON_MANAGER_GET_JOBS_TO_RUN_START_TS']);
-		$b_ts = Cron_Job::getNextRun($b['when'], $GLOBALS['CRON_MANAGER_GET_JOBS_TO_RUN_START_TS']);
-		if ($a_ts == $b_ts) return 0;
-		return ($a_ts < $b_ts) ? -1 : 1;
-
-	}//end getJobsToRunCmp()
 
 
 	/**

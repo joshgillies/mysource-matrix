@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_status.inc,v 1.19 2004/12/03 15:29:23 brobertson Exp $
+* $Id: cron_job_future_status.inc,v 1.19.2.1 2005/03/31 02:20:32 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -125,7 +125,7 @@ class Cron_Job_Future_Status extends Cron_Job
 
 	}//end canDelete()
 
-	
+
 	/**
 	* Set the value for the passed variable to the passed value
 	*
@@ -192,7 +192,7 @@ class Cron_Job_Future_Status extends Cron_Job
 		if (empty($descs)) {
 			$descs['']  = '[Select Status]';
 			$statii = Cron_Job_Future_Status::_getAllStatii();
-			foreach ($statii as $value => $code) { 
+			foreach ($statii as $value => $code) {
 				$code = strtolower($code);
 				$status_code = 'asset_status_'.$code;
 				require_once SQ_INCLUDE_PATH.'/asset_status/'.$status_code.'.inc';
@@ -204,7 +204,7 @@ class Cron_Job_Future_Status extends Cron_Job
 
 	}//end _getAllStatiiDescs()
 
-	
+
 	/**
 	* Return the name of the status that this future status object is going to change the asset to
 	*
@@ -284,7 +284,7 @@ class Cron_Job_Future_Status extends Cron_Job
 			$status_errors = $hh->freestyleHipo('hipo_job_edit_status', $vars);
 			if (empty($status_errors)) {
 				// all OK, and we can be removed because we have done our one off task
-				$msg = 'Altered Status of "'.$asset->name.'" (#'.$asset->id.') from "'.$descs[$old_status].'" to "'.$descs[$asset->status].'"';
+				$msg = 'Altered Status of "'.$asset->name.'" (#'.$asset->id.') from "'.$this->statusName($old_status).'" to "'.$this->statusName($asset->status).'"';
 				return SQ_CRON_JOB_COMPLETED | SQ_CRON_JOB_REMOVE;
 			} else {
 				// process failed
@@ -327,7 +327,7 @@ class Cron_Job_Future_Status extends Cron_Job
 
 		$dates = Array();
 		for ($i = 0, $total = count($all_jobs); $i < $total; $i++) {
-			
+
 			$link = $GLOBALS['SQ_SYSTEM']->am->getLink($all_jobs[$i]->id, SQ_LINK_NOTICE, 'asset', false, 'updating');
 			if (!empty($link) && $link['minorid'] == $asset->id) {
 				$dates[$i] = $all_jobs[$i]->attr('when');
