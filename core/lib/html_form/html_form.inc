@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.62 2004/08/05 15:05:11 brobertson Exp $
+* $Id: html_form.inc,v 1.63 2004/09/08 00:03:11 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -294,6 +294,7 @@ function combo_box($name, $contents, $multiple, $defaults, $height=0, $extras=''
 	if (!is_array($defaults)) $defaults = Array($defaults);
 
 	echo	'<select name="', htmlspecialchars($name), '" ',
+			'id="', htmlspecialchars($name), '" ',
 			(($height > 1)? 'size="'.$height.'" ' : ''),
 			$extras,
 			'>';
