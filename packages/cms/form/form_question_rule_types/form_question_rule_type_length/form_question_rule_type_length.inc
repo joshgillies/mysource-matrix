@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_length.inc,v 1.5 2004/07/07 01:05:29 lwright Exp $
+* $Id: form_question_rule_type_length.inc,v 1.6 2004/11/05 00:08:49 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -108,7 +108,7 @@ class Form_Question_Rule_Type_Length extends Form_Question_Rule
 	*/
 	function processForm(&$q_asset, $operator, &$comparison)
 	{
-		if (!isset($q_asset->active_submission)) return false;
+		if (!$q_asset->active_submission) return false;
 		$answer = $q_asset->getValue();
 
 		$operators = eval('return '.__CLASS__.'::_getOperators();');	// get private operator texts
@@ -129,7 +129,7 @@ class Form_Question_Rule_Type_Length extends Form_Question_Rule
 			} else {
 				$error = $this->my_question->name.' '.$operators[$operator].' '.$comparison . ' characters in length';
 			}
-			$q_asset->submission_errors[] = $error;
+			$q_asset->active_submission->setError($error);
 			return false;
 		}
 		

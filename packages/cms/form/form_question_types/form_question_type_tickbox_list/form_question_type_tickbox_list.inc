@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_list.inc,v 1.26 2004/10/18 22:53:57 lwright Exp $
+* $Id: form_question_type_tickbox_list.inc,v 1.27 2004/11/05 00:08:50 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -105,7 +105,7 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 		$html .= "<table>\n";
 		$html .= ($hor) ? "<tr>\n" : '';
 
-		$defaults = isset($this->active_submission[$this->id]) ? $this->active_submission[$this->id] : $this->attr('default');
+		$defaults = isset($this->active_submission) ? $this->active_submission->getValue($this->id) : $this->attr('default');
 		if (!is_array($defaults)) $defaults = Array();
 		foreach ($options as $key => $value) {
 			$html .= ($hor) ? "<td nowrap=\"nowrap\">\n" : "<tr><td>\n";
@@ -160,6 +160,9 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 	*/
 	function processForm()
 	{
+		$form =& $this->getMySection();
+		if (!$form->active_submission) return false;
+
 		$val = isset($_POST[$this->id]) ? $_POST[$this->id] : '';
 
 		if (is_array($val)) {
@@ -168,8 +171,8 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 			$value = $this->getAnswerByOffset($val);
 		}
 
-		$form =& $this->getMySection();
-		$form->active_submission[$this->id] = $val;
+		$form->active_submission->setAnswer($this->id, $val);
+		$form->active_submission->setSummary($this->id, $this->attr('name'), $this->getSummary($val));
 
 		if ($this->attr('required')) {
 			$req_rule = Array('rule_code' => 'select_limit', 'operator' => '>=', 'value' => '1');
@@ -261,7 +264,7 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 	function isSelected($value)
 	{
 		if (isset($this->active_submission)) {
-			$values = $this->active_submission[$this->id];
+			$values = $this->active_submission->getAnswer($this->id);
 			if (isset($values)) {
 				if (is_array($values)) {
 					return in_array($value, $values);

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section.inc,v 1.26 2004/10/15 03:13:35 lwright Exp $
+* $Id: form_section.inc,v 1.27 2004/11/05 00:08:51 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -62,7 +62,7 @@ class Form_Section extends Bridge
 	* the active submission array
 	* @var Array
 	*/
-	var $active_submission = Array();
+	var $active_submission = null;
 
 
 	/**
@@ -261,7 +261,16 @@ class Form_Section extends Bridge
 		$entries = $this->getQuestions();
 
 		foreach ($entries as $questionid => $data) {
-			$children[$this->id.':q'.$questionid] = $data['question_type_code'];
+			if ($strict_type_code) {
+				if ($data['question_type_code'] == $type_code) {
+					$children[$this->id.':q'.$questionid] = $data['question_type_code'];
+				}
+			} else {
+				$type_desc = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($type_code) + Array($type_code);
+				if (in_array($data['question_type_code'], $type_desc)) {
+					$children[$this->id.':q'.$questionid] = $data['question_type_code'];
+				}
+			}
 		}
 
 		return $children;
@@ -383,16 +392,19 @@ class Form_Section extends Bridge
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$questions = &$this->getQuestions();
-		if (empty($questions)) {
-		  $new_key = 1;
+		if ($this->attr('next_questionid') > 0) {
+			$new_key = $this->attr('next_questionid');
+		} else if (empty($questions)) {
+			$new_key = 1;
 		} else {
-		  $new_key = max(array_keys($questions)) + 1;
+			$new_key = max(array_keys($questions)) + 1;
 		}
 
 		$questions[$new_key] = Array('question_type_code' => $type_code,
-							'attributes'	     => Array('name' => 'Question '.(count($questions)+1)));
+									'attributes'	     => Array('name' => 'Question '.(count($questions)+1)));
 
 		$this->setAttrValue('questions', $questions);
+		$this->setAttrValue('next_questionid', $new_key + 1);
 
 		$sort_order = $this->attr('sort_order');
 

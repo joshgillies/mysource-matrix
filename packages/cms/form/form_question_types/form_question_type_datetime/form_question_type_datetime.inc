@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_datetime.inc,v 1.15 2004/10/06 04:44:35 lwright Exp $
+* $Id: form_question_type_datetime.inc,v 1.16 2004/11/05 00:08:50 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -197,6 +197,7 @@ class Form_Question_Type_Datetime extends Form_Question
 	*/
 	function processForm()
 	{
+		if (!$this->active_submission) return false;
 		if (isset($_POST[$this->id.'value'])) {
 			// we need to create a variable for these value to pass by reference
 			$value = '';
@@ -204,7 +205,10 @@ class Form_Question_Type_Datetime extends Form_Question
 			$dt_field = new Datetime_Field($this->id, $value, $parameters);
 			$dt_field->processField();
 			$val = $_POST[$this->id.'value'];
-			$this->active_submission[$this->id] = sprintf('%04s-%02s-%02s %02s:%02s:%02s', $val['y'], $val['m'], $val['d'], $val['h'], $val['i'], $val['s']).(!isset($val['c']) ? '' : (' '.($val['c'] ? '1' : '0')));
+			$value = sprintf('%04s-%02s-%02s %02s:%02s:%02s', $val['y'], $val['m'], $val['d'], $val['h'], $val['i'], $val['s']).(!isset($val['c']) ? '' : (' '.($val['c'] ? '1' : '0')));
+			
+			$this->active_submission->setAnswer($this->id, $value);
+			$this->active_submission->setSummary($this->id, $this->attr('name'), $this->getSummary($value));
 
 			parent::processForm();
 		}

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_regexp.inc,v 1.11 2004/07/07 01:05:29 lwright Exp $
+* $Id: form_question_rule_type_regexp.inc,v 1.12 2004/11/05 00:08:49 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -106,7 +106,7 @@ class Form_Question_Rule_Type_Regexp extends Form_Question_Rule
 	*/
 	function processForm(&$q_asset, $operator, $comparison)
 	{
-		$answer   = $this->active_submission->getAnswer($questionid);
+		$answer   = $this->active_submission->getAnswer($q_asset->id);
 
 		$comparison = str_replace('|', '\|', $comparison);
 		$pattern = "|".$comparison."|";
@@ -142,8 +142,6 @@ class Form_Question_Rule_Type_Regexp extends Form_Question_Rule
 	*/
 	function valueTest($answer, $operator, $comparison)
 	{
-		$answer   = $this->active_submission->getAnswer($questionid);
-
 		$comparison = str_replace('|', '\|', $comparison);
 		$pattern = "|".$comparison."|";
 		$valid = (preg_match($pattern, $answer)) ? 1 : 0; 

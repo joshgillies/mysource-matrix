@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_comparison.inc,v 1.18 2004/09/23 02:00:25 arailean Exp $
+* $Id: form_question_rule_type_comparison.inc,v 1.19 2004/11/05 00:08:48 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -82,7 +82,7 @@ class Form_Question_Rule_Type_Comparison extends Form_Question_Rule
 	*/
 	function processForm(&$q_asset, $operator, &$comparison)
 	{
-		if (!isset($q_asset->active_submission)) return false;
+		if (!$q_asset->active_submission) return false;
 		$answer = $q_asset->getValue();
 
 		$operators = eval('return '.__CLASS__.'::getOperators();');
@@ -118,7 +118,7 @@ class Form_Question_Rule_Type_Comparison extends Form_Question_Rule
 					$error = $q_asset->name.' '.$operators[$operator].' '.$comparison;
 				}
 			}
-			$q_asset->submission_errors[] = $error;
+			$q_asset->active_submission->setError($error);
 			return false;
 		}
 

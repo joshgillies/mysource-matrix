@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_edit_fns.inc,v 1.42 2004/10/17 23:15:10 lwright Exp $
+* $Id: form_edit_fns.inc,v 1.43 2004/11/05 00:08:41 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -747,7 +747,7 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 			}
 			$output .= '</td><td';
 			$output .= ($asset->attr('answer_col_width')) ? ' width="'.$asset->attr('answer_col_width').'">' : '>';
-			$output .= '<'.'?php $q =$GLOBALS["SQ_SYSTEM"]->am->getAsset("'.$assetid.'"); $answer = isset($form_asset->active_submission["'.$assetid.'"]) ? $form_asset->active_submission["'.$assetid.'"] : ""; echo $q->getAnswer(true,$answer); ?'.'>'."\n";
+			$output .= '<'.'?php $q =$GLOBALS["SQ_SYSTEM"]->am->getAsset("'.$assetid.'"); $answer = ""; echo $q->getAnswer(true,$answer); ?'.'>'."\n";
 			$output .= '</td></tr>';
 		}
 		$output .= '</table>';

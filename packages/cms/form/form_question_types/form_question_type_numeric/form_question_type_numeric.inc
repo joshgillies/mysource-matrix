@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_numeric.inc,v 1.4 2004/06/22 00:44:22 lwright Exp $
+* $Id: form_question_type_numeric.inc,v 1.5 2004/11/05 00:08:50 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -92,7 +92,8 @@ class Form_Question_Type_Numeric extends Form_Question_Type_Text
 				array_push($this->vars['rules']['value'], $req_rule);
 			}
 
-			$form->active_submission[$this->id] = $val;
+			$form->active_submission->setValue($this->id, $val);
+			$form->active_submission->setSummary($this->id,  $this->attr('name'), $val);
 
 			parent::processForm();
 

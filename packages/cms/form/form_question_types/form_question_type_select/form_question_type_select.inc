@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_select.inc,v 1.23 2004/10/12 01:44:42 lwright Exp $
+* $Id: form_question_type_select.inc,v 1.24 2004/11/05 00:08:50 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -136,7 +136,7 @@ class Form_Question_Type_Select extends Form_Question
 	*/
 	function processForm()
 	{
-		//if (!$this->active_submission) return false;
+		if (!$this->active_submission) return false;
 		$val = isset($_POST[$this->id]) ? $_POST[$this->id] : '';
 
 		if (is_array($val)) {
@@ -146,7 +146,8 @@ class Form_Question_Type_Select extends Form_Question
 		}
 
 		$form =& $this->getMySection();
-		$form->active_submission[$this->id] = $val;
+		$this->active_submission->setAnswer($this->id, $value);
+		$this->active_submission->setSummary($this->id, $this->attr('name'), $this->getSummary($value));
 
 		parent::processForm();
 
@@ -218,7 +219,7 @@ class Form_Question_Type_Select extends Form_Question
 	function isSelected($option)
 	{
 		if (isset($this->active_submission)) {
-			$submission = $this->active_submission[$this->id];
+			$submission = $this->active_submission->getAnswer($this->id);
 			if (isset($submission)) {
 				if (is_array($submission)) {
 					return in_array($option,$submission);

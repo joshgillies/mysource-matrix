@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_email.inc,v 1.12 2004/07/07 01:05:29 lwright Exp $
+* $Id: form_question_rule_type_email.inc,v 1.13 2004/11/05 00:08:48 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -106,7 +106,8 @@ class Form_Question_Rule_Type_Email extends Form_Question_Rule
 	*/
 	function processForm(&$q_asset, $operator)
 	{
-		$answer   = $q_asset->active_submission[$q_asset->id];
+		if (!$q_asset->active_submission) return false;
+		$answer   = $q_asset->getValue();
 
 		$valid = valid_email($answer);
 
@@ -114,7 +115,7 @@ class Form_Question_Rule_Type_Email extends Form_Question_Rule
 			return true;
 		} else {
 			$error = $q_asset->name.' must '. (($operator) ? '' : 'not') .' be a valid Email Address';
-			$q_asset->submission_errors[] = $error;
+			$q_asset->active_submission->setError($error);
 			return false;
 		}
 

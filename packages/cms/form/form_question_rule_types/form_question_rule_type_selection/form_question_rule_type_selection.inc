@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_selection.inc,v 1.1 2004/10/12 01:35:03 lwright Exp $
+* $Id: form_question_rule_type_selection.inc,v 1.2 2004/11/05 00:08:49 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 * @static
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -121,7 +121,7 @@ class Form_Question_Rule_Type_Selection extends Form_Question_Rule
 	*/
 	function processForm(&$q_asset, $operator, &$comparison)
 	{
-		if (!isset($q_asset->active_submission)) return false;
+		if (!$q_asset->active_submission) return false;
 		$answer = $q_asset->getValue();
 
 		$operators = eval('return '.__CLASS__.'::_getOperators();');	// get private operator texts
@@ -133,7 +133,7 @@ class Form_Question_Rule_Type_Selection extends Form_Question_Rule
 		} else {
 			// tailor the error response depending
 			$error = $q_asset->name.$this->_getOperators[$operator];
-			$q_asset->submission_errors[] = $error;
+			$q_asset->active_submission->setError($error);
 			return false;
 		}
 		

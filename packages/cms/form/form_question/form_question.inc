@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question.inc,v 1.35 2004/10/11 06:45:47 arailean Exp $
+* $Id: form_question.inc,v 1.36 2004/11/05 00:08:47 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.35 $ - 1.0
+* @version $Revision: 1.36 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -360,8 +360,11 @@ class Form_Question extends Asset
 	*/
 	function getValue()
 	{
-		if (!empty($this->active_submission[$this->id])) {
-			$answer = $this->active_submission[$this->id];
+		$form = &$this->getMySection();
+		if (!$form->active_submission) return false;
+		
+		if ($form->active_submission->isProcessed($this->id)) {
+			$answer = $form->active_submission->getValue($this->id);
 			if ($answer) {
 				return $answer;
 			}

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.35 2004/10/22 05:15:26 lwright Exp $
+* $Id: form_email_edit_fns.inc,v 1.36 2004/11/05 00:08:47 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -103,11 +103,9 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 		$o->openField('Submissions');
 
-		$from_value = explode('-',iso8601_date_component($from_value));
-		$to_value = explode('-',iso8601_date_component($to_value));
+		$from_value = iso8601_date_component($from_value).' 00:00:00';
+		$to_value = iso8601_date_component($to_value).' 23:59:59';
 
-		if ((count($from_value) < 3) || (count($to_value) < 3)) return false;
-		
 		// convert the ISO times to time stamps but manually because we can't be sure
 		// about the h:m:s section of the above times
 		$from_ts = mktime(0,0,0,$from_value[1],$from_value[2],$from_value[0]);
@@ -119,7 +117,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		<table class="sq-backend-table">
 		<tr>
 			<td class="sq-backend-table-header">
-				ID
+				Asset ID
 			</td>
 			<td colspan="2" class="sq-backend-table-header">
 				Submission Time
@@ -134,128 +132,107 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		<?php
 
 		// search in the sub-logs directory for files that fit in the date range				
+		$assetids = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, 'form_submission'));
+		$assetid_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($assetids);
 		
-		if ($handle = opendir($log_path)) {
-			while (false !== ($file = readdir($handle))) {
-				if ($file == '.' || $file == '..') continue;			
-				$log_file = $log_path.'/'.$file;
-				$sub_id = (int)substr($file,4,strpos($file,'.')-4);
+		foreach ($assetids as $assetid) {
+				if (($assetid_info[$assetid]['created'] >= $from_value) && ($assetid_info[$assetid]['created'] <= $to_value)) {
+					// time is good, load me up
+					$sub_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+					$sub_user = $assetid_info[$assetid]['created_userid'];
+					$sub_time = $assetid_info[$assetid]['created'];
 
-				$file_ts = filemtime($log_file);
-
-				if (($file_ts >= $from_ts) && ($file_ts <= $to_ts)) {
-					// time is good; load me up
-					$tree = new XML_Tree($log_file);
-					$root = &$tree->getTreeFromFile();
-					if (PEAR::isError($root)) {
-						pre_echo($root->getMessage()."\n".$root->getUserInfo());
-						continue;
-					}
-
+					$sub_expanded = array_search($assetid, $expand_list) !== false;
+					
 					$num_subs++;
 
-					$sub_time = date('j M Y H:i:s', iso8601_ts($root->getAttribute('time')));
-					$sub_user = $root->getAttribute('user');
-					$sub_expanded = array_search($sub_id, $expand_list) !== false;
-					?>
-						<tr>
-						<td class="sq-backend-table-cell-alt">
-							<?php echo $sub_id ?>
-						</td>
-						<td class="sq-backend-table-cell-alt" colspan="2">
-							<?php echo $sub_time ?>
-						</td>
-						<td class="sq-backend-table-cell-alt" colspan="2">
-							<?php if (!is_null($sub_user)) {									
-								$sub_user_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($sub_user);
-								echo $sub_user_asset->name . ' (Id: #'.$sub_user.')';
-							} ?>
-						</td>
-						<td class="sq-backend-table-cell-alt">
-							<input type="checkbox" name="<?php echo $prefix ?>_viewsub[<?php echo $sub_id ?>]" value="1" <?php if ($sub_expanded) echo ' checked="checked"' ?>>
-						</td>
-					</tr>
+					?><tr>
+					<td class="sq-backend-table-cell-alt">
+						<?php echo $assetid ?>
+					</td>
+					<td class="sq-backend-table-cell-alt" colspan="2">
+						<?php echo $sub_time ?>
+					</td>
+					<td class="sq-backend-table-cell-alt" colspan="2">
+						<?php if (!is_null($sub_user)) {									
+							$sub_user_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($sub_user);
+							echo $sub_user_asset->name . ' (Id: #'.$sub_user.')';
+						} else { 
+							?><i>No logged in user</i><?php
+						} ?>
+					</td>
+					<td class="sq-backend-table-cell-alt">
+						<input type="checkbox" name="<?php echo $prefix ?>_viewsub[<?php echo $assetid ?>]" value="1" <?php if ($sub_expanded) echo ' checked="checked"' ?>>
+					</td>
+				</tr>
+				<?php
+					// display only if expanded
+					if ($sub_expanded) { ?>
+					<tr>
 					<?php
-						// display only if expanded
-						if ($sub_expanded) { ?>
+
+					$i = 0;
+					$elements =& $sub_asset->getSummary();
+					foreach($elements as $element) {
+						$i++;
+
+						if ($i % 2 == 1) { ?>
+							<td class="sq-backend-table-cell">&nbsp;</td>
+						<?php }
+						?>
+						<td class="sq-backend-table-cell">
+							<i><?php echo $element['name'] ?>:</i>
+						</td>
+						<td class="sq-backend-table-cell">
+							<?php echo $element['answer'] ?>
+						</td>
+						<?php 
+						if (($i < count($elements)) && ($i % 2 == 0)) { ?>
+							</tr><tr>
+					<?php }
+					}	//end-if sub_expanded
+	
+					?></tr><?php
+	/*
+					$kids =& $root->children;
+	
+					for (reset($kids); null !== ($k = key($kids)); next($kids)) {
+						$this_child =& $kids[$k];
+						if ($this_child->name == 'section') {
+						?>
+						<tr>
+							<td class="sq-backend-table-cell">&nbsp;</td>
+							<td class="sq-backend-table-cell-alt" colspan="5">
+								<b>Section: <?php echo $this_child->getAttribute('name') ?></b>
+							</td>
+						</tr>
 						<tr>
 						<?php
-	
-						$elements = &$this->_generateSubmissionList($root);
 
-						$i = 0;
-						foreach($elements as $element) {
-							$i++;
-	
-							if ($i % 2 == 1) { ?>
-								<td class="sq-backend-table-cell">&nbsp;</td>
-							<?php }
-							?>
-							<td class="sq-backend-table-cell">
-								<i><?php echo $element['name'] ?>:</i>
-							</td>
-							<td class="sq-backend-table-cell">
-								<?php echo $element['content'] ?>
-							</td>
-							<?php 
-							if (($i < count($elements)) && ($i % 2 == 0)) { ?>
-								</tr><tr>
-						<?php }
-						}	//end-if sub_expanded
-		
-						?></tr><?php
-		
-						$kids =& $root->children;
-		
-						for (reset($kids); null !== ($k = key($kids)); next($kids)) {
-							$this_child =& $kids[$k];
-							if ($this_child->name == 'section') {
-							?>
-							<tr>
-								<td class="sq-backend-table-cell">&nbsp;</td>
-								<td class="sq-backend-table-cell-alt" colspan="5">
-									<b>Section: <?php echo $this_child->getAttribute('name') ?></b>
-								</td>
-							</tr>
-							<tr>
-							<?php
-								$elements = &$this->_generateSubmissionList($this_child);
-	
-								$i = 0;
-								foreach ($elements as $element) {
-									$i++;
-									if (($i % 2 == 1)) {
-										?><td class="sq-backend-table-cell">&nbsp;</td><?php
-									}
-									?>
-									<td class="sq-backend-table-cell">
-										<i><?php echo $element['name'] ?>:</i>
-									</td>
-									<td class="sq-backend-table-cell">
-										<?php echo $element['content'] ?>
-										</td>
-									<?php 
-									if (($i < count($elements)) && ($i % 2 == 0)) {
-										?></tr><tr><?php
-									}
+							$i = 0;
+							foreach ($sub_asset->getSummary() as $element) {
+								$i++;
+								if (($i % 2 == 1)) {
+									?><td class="sq-backend-table-cell">&nbsp;</td><?php
 								}
-								?></tr><?php
-								
-							}//end if this element is a section
-
-						}//end foreach root element
-
-					}//end if this element expanded
-
-				}//end iff file's datestamp in range
-
-			}//end while reading directories
-
-		}//end handle opened
-		closedir($handle);
-		?>
-		</table>
-		<?php
+								?>
+								<td class="sq-backend-table-cell">
+									<i><?php echo $element['name'] ?>:</i>
+								</td>
+								<td class="sq-backend-table-cell">
+									<?php echo $element['content'] ?>
+									</td>
+								<?php 
+								if (($i < count($elements)) && ($i % 2 == 0)) {
+									?></tr><tr><?php
+								}
+							}
+							?></tr>
+					*/
+				}
+			}
+		}
+	?></table><?php
 
 	}//end paintSubmissions()
 
@@ -866,7 +843,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 							}
 							
 							$i++;
-							echo '<b>'.$q_asset->attr('name').'</b> ';
+							echo '<b>'.$q_asset->attr('name').' (Id: #'.$q_asset->id.')</b> ';
 							echo $operators[$rule['operator']];
 							echo '<b>';
 						

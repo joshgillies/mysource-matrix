@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_email_address.inc,v 1.10 2004/07/04 23:06:38 lwright Exp $
+* $Id: form_question_type_email_address.inc,v 1.11 2004/11/05 00:08:50 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -79,11 +79,13 @@ class Form_Question_Type_Email_Address extends Form_Question_Type_Text
 	*/
 	function processForm()
 	{	
+		if (!$this->active_submission) return false;
 		$form =& $this->getMySection();
 
 		if (isset($_POST[$this->id])) {
 			$val = $_POST[$this->id];
-			$form->active_submission[$this->id] = $val;
+			$form->active_submission->setAnswer($this->id, $val);
+			$form->active_submission->setSummary($this->id, $this->attr('name'), $val);
 
 			// borrow a 'valid email address' rule
 			$req_rule = Array('rule_code' => 'email', 'operator' => '1');

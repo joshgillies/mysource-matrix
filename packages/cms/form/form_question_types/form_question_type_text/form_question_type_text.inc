@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_text.inc,v 1.25 2004/09/23 01:52:39 arailean Exp $
+* $Id: form_question_type_text.inc,v 1.26 2004/11/05 00:08:50 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -118,7 +118,8 @@ class Form_Question_Type_Text extends Form_Question
 		$form =& $this->getMySection();
 
 		$val = isset($_POST[$this->id]) ? $_POST[$this->id] : '';
-		$form->active_submission[$this->id] = $val;
+		$form->active_submission->setAnswer($this->id, $val);
+		$form->active_submission->setSummary($this->id,  $this->attr('name'), $val);
 
 		if ($this->attr('required')) {
 			$req_rule = Array('rule_code' => 'comparison', 'operator' => '!=', 'value' => '');

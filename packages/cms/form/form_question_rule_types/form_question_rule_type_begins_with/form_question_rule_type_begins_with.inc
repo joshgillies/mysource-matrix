@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_begins_with.inc,v 1.6 2004/07/07 01:05:29 lwright Exp $
+* $Id: form_question_rule_type_begins_with.inc,v 1.7 2004/11/05 00:08:48 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -74,7 +74,7 @@ class Form_Question_Rule_Type_Begins_With extends Form_Question_Rule
 	*/
 	function processForm(&$q_asset, $operator, &$comparison)
 	{
-		if (!isset($q_asset->active_submission)) return false;
+		if (!$q_asset->active_submission) return false;
 		$answer = $q_asset->getValue();
 
 		// "Begins With" requires the first index of the comparison starts at zero
@@ -94,7 +94,7 @@ class Form_Question_Rule_Type_Begins_With extends Form_Question_Rule
 			} else {
 				$error = $q_asset->name.' must '. (($operator) ? '' : 'not') .' begin with \''.$comparison.'\'';
 			}
-			$q_asset->submission_errors[] = $error;
+			$q_asset->active_submission->setError($error);
 			return false;
 		}
 		
