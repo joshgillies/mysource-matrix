@@ -614,17 +614,23 @@ class Backend_Outputter
 						if (empty($this->_screens) && empty($this->_static_screens)) {
 							echo '&nbsp;';
 						} else {
-							$this->_screens = array_reverse($this->_screens);
-							//bam($this->_static_screens);
-							//bam($this->_screens);
-							$this->_screens['#'] = '------';
 							
-							foreach ($this->_static_screens as $url => $code) {
-								$this->_screens[$url] = $code;
+				
+							if (!empty($this->_screens)) {
+								$this->_screens = array_reverse($this->_screens);
+								$this->_screens['#'] = '------';
+								foreach (array_reverse($this->_static_screens) as $url => $code) {
+									$this->_screens[$url] = $code;
+								}
+								$this->_screens = array_reverse($this->_screens);
+							} else {
+								$this->_screens = $this->_static_screens;
 							}
-							$this->_screens = array_reverse($this->_screens);
+
 							combo_box('screen_menu', $this->_screens, false, $this->_current_screen, 1, 'id="screen_menu" onChange="javascript: self.location = form_element_value(this);"');
-							normal_button('screen_menu_go', 'Go', 'self.location = get_form_element_value("screen_menu");', 'id="screen_menu_go"');
+							echo '&nbsp;';
+							normal_button('screen_menu_go', ' Go ', 'self.location = get_form_element_value("screen_menu");', 'id="screen_menu_go"');
+							echo '&nbsp;';
 						}
 					?>
 					</td>
