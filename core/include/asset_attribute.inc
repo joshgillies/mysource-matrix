@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_attribute.inc,v 1.29 2004/12/06 14:38:11 brobertson Exp $
+* $Id: asset_attribute.inc,v 1.30 2005/02/18 05:35:14 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix
 */
 class Asset_Attribute extends MySource_Object
@@ -293,6 +293,30 @@ class Asset_Attribute extends MySource_Object
 		return true;
 
 	}//end setEditParams()
+
+
+	/**
+	* Manually set the value of an edit parameter for this attribute
+	*
+	* The parameter must already contain a default value to be set with this function
+	*
+	* @field	The parameter field to set
+	* @value	The value to set it to
+	*
+	* @access public
+	* @return boolean	True if parameter set successfully
+	*/
+	function setEditParam($field, $value) 
+	{
+		if (isset($this->_edit_params[$field])) {
+			$this->_edit_params[$field] = $value;
+			return true;
+		} else {
+			trigger_error('Unknown edit parameter '.$field.' for attribute type '.$this->type());
+			return false;
+		}
+
+	}//end setEditParam()
 
 
 	/**
