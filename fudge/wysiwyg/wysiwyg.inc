@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: wysiwyg.inc,v 1.23 2003/11/04 05:33:01 gsherwood Exp $
+* $Id: wysiwyg.inc,v 1.24 2003/11/07 01:40:02 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -123,12 +123,28 @@ class wysiwyg {
 	var $contents = '';
 
 	/**
+	* An array of plugins objects grouped for toolbar creation
+	*
+	* @var array
+	* @see open_group(), close_group()
+	*/
+	var $_plugins = Array();
+
+	/**
 	* An array of plugins objects to provide functionality to the editor
 	*
 	* @var array
 	* @see add_plugin()
 	*/
-	var $plugins = Array();
+	var $_loaded_plugins = Array();
+
+	/**
+	* Is a plugin group currently open
+	*
+	* @var boolean
+	* @see open_group(), close_group(), add_plugin()
+	*/
+	var $_group_open = false;
 
 	/**
 	* Has this WYSIWYG printed its header info yet?
@@ -282,9 +298,10 @@ class wysiwyg {
 						}
 						if (options) {
 							sel = document.createElement("select");
+							sel.className = "htmlarea-select";
 							var obj = {
 								name: txt,     // field name
-								element: sel,   // the UI element (SELECT)
+								element: sel,  // the UI element (SELECT)
 								enabled: true, // is it enabled?
 								text: false,   // enabled in text mode?
 								cmd: cmd,      // command ID
@@ -896,8 +913,8 @@ class wysiwyg {
 	function process()
 	{
 		$html = rawurldecode((isset($_POST[$this->name])) ? $_POST[$this->name] : '');
-		for(reset($this->plugins); null !== ($k = key($this->plugins)); next($this->plugins)) {
-			$plugin =& $this->plugins[$k];
+		for(reset($this->_loaded_plugins); null !== ($k = key($this->_loaded_plugins)); next($this->_loaded_plugins)) {
+			$plugin =& $this->_loaded_plugins[$k];
 			$plugin->process($html);
 		}
 		return $html;
@@ -965,14 +982,12 @@ class wysiwyg {
 
 					this.toolbar = [
 							<?php
-							if (!empty($this->plugins)) {
-								$buttons_done = 0;
-								$orphaned = Array();
+							if (!empty($this->_plugins)) {
 								$output = '';
-								foreach ($this->plugins as $name => $plugin) {
-									if (count($plugin->buttons) > 1) {
-										// a group of buttons
-										$output .= "[ ";
+								foreach ($this->_plugins as $plugin_group) {
+									$output .= "[ ";
+									foreach ($plugin_group as $name) {
+										$plugin = $this->_loaded_plugins[$name];
 										foreach ($plugin->buttons as $id => $button) {
 											if (isset($button['menu_end'])) {
 												$output .= ' ], ';
@@ -981,17 +996,9 @@ class wysiwyg {
 											if (isset($button['menu_start'])) $output .= '[ ';
 											if ($id) $output .= '["'.$id.'"], ';
 										}
-										$output .= '["separator"] ],'."\n\t\t\t\t\t\t\t";
-									} else {
-										foreach ($plugin->buttons as $id => $button) $orphaned[] = $id;
+										unset($plugin);
 									}
-								}
-
-								if (!empty($orphaned)) {
-									$output .= "[ ";
-									foreach ($orphaned as $id) $output .= '["'.$id.'"], ';
-									$output = trim($output,', ');
-									$output .= ' ],'."\n\t\t\t\t\t\t\t";
+									$output .= '["separator"] ],'."\n\t\t\t\t\t\t\t";
 								}
 								$output = trim($output,"\t\n,");
 								echo $output;
@@ -1003,7 +1010,7 @@ class wysiwyg {
 					this.btnList = {
 						<?php
 						$output = '';
-						foreach ($this->plugins as $name => $plugin) {
+						foreach ($this->_loaded_plugins as $name => $plugin) {
 							foreach ($plugin->buttons as $id => $button) {
 								if (isset($button['menu_end'])) continue;
 								if (!$button['command']) continue;
@@ -1037,7 +1044,7 @@ class wysiwyg {
 	*/
 	function print_plugin_vars()
 	{
-		foreach ($this->plugins as $name => $plugin) $plugin->print_plugin_vars();
+		foreach ($this->_loaded_plugins as $name => $plugin) $plugin->print_plugin_vars();
 
 	}//end print_plugin_vars()
 
@@ -1050,7 +1057,7 @@ class wysiwyg {
 	*/
 	function print_plugin_shortcuts()
 	{
-		foreach ($this->plugins as $name => $plugin) $plugin->print_plugin_shortcuts();
+		foreach ($this->_loaded_plugins as $name => $plugin) $plugin->print_plugin_shortcuts();
 
 	}//end print_plugin_shortcuts()
 
@@ -1063,7 +1070,7 @@ class wysiwyg {
 	*/
 	function print_plugin_create_select()
 	{
-		foreach ($this->plugins as $name => $plugin) $plugin->print_plugin_create_select();
+		foreach ($this->_loaded_plugins as $name => $plugin) $plugin->print_plugin_create_select();
 
 	}//end print_plugin_create_select()
 
@@ -1076,7 +1083,7 @@ class wysiwyg {
 	*/
 	function print_plugin_functions()
 	{
-		foreach ($this->plugins as $name => $plugin) $plugin->paint();
+		foreach ($this->_loaded_plugins as $name => $plugin) $plugin->paint();
 
 	}//end print_plugin_functions()
 
@@ -1089,7 +1096,7 @@ class wysiwyg {
 	*/
 	function print_plugin_generic_functions()
 	{
-		foreach ($this->plugins as $name => $plugin) $plugin->paint_generic();
+		foreach ($this->_loaded_plugins as $name => $plugin) $plugin->paint_generic();
 
 	}//end print_plugin_generic_functions()
 
@@ -1102,7 +1109,7 @@ class wysiwyg {
 	*/
 	function print_plugin_button_clicks()
 	{
-		foreach ($this->plugins as $name => $plugin) $plugin->print_plugin_button_click();
+		foreach ($this->_loaded_plugins as $name => $plugin) $plugin->print_plugin_button_click();
 
 	}//end print_plugin_button_clicks()
 
@@ -1115,7 +1122,7 @@ class wysiwyg {
 	*/
 	function print_plugin_combo_selected()
 	{
-		foreach ($this->plugins as $name => $plugin) $plugin->print_plugin_combo_selected();
+		foreach ($this->_loaded_plugins as $name => $plugin) $plugin->print_plugin_combo_selected();
 
 	}//end print_plugin_combo_selected()
 
@@ -1128,7 +1135,7 @@ class wysiwyg {
 	*/
 	function print_plugin_button_type()
 	{
-		foreach ($this->plugins as $name => $plugin) $plugin->print_plugin_button_type();
+		foreach ($this->_loaded_plugins as $name => $plugin) $plugin->print_plugin_button_type();
 
 	}//end print_plugin_button_type()
 
@@ -1141,7 +1148,7 @@ class wysiwyg {
 	*/
 	function print_plugin_update_toolbar()
 	{
-		foreach ($this->plugins as $name => $plugin) $plugin->print_plugin_update_toolbar();
+		foreach ($this->_loaded_plugins as $name => $plugin) $plugin->print_plugin_update_toolbar();
 
 	}//end print_plugin_update_toolbar()
 
@@ -1154,7 +1161,7 @@ class wysiwyg {
 	*/
 	function print_plugin_exec_commands()
 	{
-		foreach ($this->plugins as $name => $plugin) $plugin->print_plugin_exec_command();
+		foreach ($this->_loaded_plugins as $name => $plugin) $plugin->print_plugin_exec_command();
 
 	}//end print_plugin_exec_commands()
 
@@ -1167,7 +1174,7 @@ class wysiwyg {
 	*/
 	function print_plugin_get_html()
 	{
-		foreach ($this->plugins as $name => $plugin) $plugin->print_plugin_get_html();
+		foreach ($this->_loaded_plugins as $name => $plugin) $plugin->print_plugin_get_html();
 
 	}//end print_plugin_get_html()
 
@@ -1180,46 +1187,79 @@ class wysiwyg {
 	*/
 	function print_plugin_form_submit()
 	{
-		foreach ($this->plugins as $name => $plugin) $plugin->print_plugin_form_submit();
+		foreach ($this->_loaded_plugins as $name => $plugin) $plugin->print_plugin_form_submit();
 
 	}//end print_plugin_form_submit()
 
 
 	/**
 	* Adds a plugin to the plugins array - adding functionality
-	* This must be done BEFORE calling the paint() function
+	*
+	* This must be done BEFORE calling the paint() function.
+	* If no toolbar button group is currently open, the buttons for the
+	* plugin will be added to a new group, otherwise they will join the
+	* currently open one.
 	*
 	* @param string	$name	The unique name of this plugin
 	*
 	* @return boolean
 	* @access public
+	* @see open_group(), close_group()
 	*/
 	function add_plugin($name)
 	{
 		global $ROOT_PATH;
-		if ($this->plugin_loaded($name)) return true;
-		require_once($ROOT_PATH.'/plugins/'.$name.'/'.$name.'.inc');
-		$this->plugins[$name] = new $name($this);
+		if (!isset($this->_loaded_plugins[$name])) {
+			require_once($ROOT_PATH.'/plugins/'.$name.'/'.$name.'.inc');
+			$this->_loaded_plugins[$name] = new $name($this);
+		}
+
+		$own_group = false;
+		if ($this->_loaded_plugins[$name]->_show_in_toolbar && !$this->_group_open) {
+			if (!$this->open_group()) return false;
+			$own_group = true;
+		}
+
+		$groupid = count($this->_plugins) - 1;
+		$this->_plugins[$groupid][] = $name;
+
+		if ($own_group) return $this->close_group();
 		return true;
 
 	}//end add_plugin()
 
 
 	/**
-	* Removes a plugin from the plugins array - removing functionality
-	* This must be done BEFORE calling the paint() function
-	*
-	* @param string	$name	The unique name of this plugin
+	* Open a new toolbar grouping of buttons
 	*
 	* @return boolean
 	* @access public
+	* @see close_group()
 	*/
-	function remove_plugin($name)
+	function open_group()
 	{
-		unset($this->plugins[$name]);
+		if ($this->_group_open) return false;
+		$this->_group_open = true;
+		$new_group = Array();
+		return array_push($this->_plugins, $new_group);
+
+	}//end open_group()
+
+
+	/**
+	* Close the currently open grouping on toolbar buttons
+	*
+	* @return boolean
+	* @access public
+	* @see open_group()
+	*/
+	function close_group()
+	{
+		if (!$this->_group_open) return false;
+		$this->_group_open = false;
 		return true;
 
-	}//end remove_plugin()
+	}//end close_group()
 
 
 	/**
@@ -1229,10 +1269,11 @@ class wysiwyg {
 	*
 	* @return boolean
 	* @access public
+	* @see add_plugin()
 	*/
 	function plugin_loaded($name)
 	{
-		return isset($this->plugins[$name]);
+		return isset($this->_loaded_plugins[$name]);
 
 	}//end plugin_loaded()
 
@@ -1247,8 +1288,8 @@ class wysiwyg {
 	*/
 	function &get_plugin($name)
 	{
-		if (!$this->plugin_loaded($name)) return null;
-		return $this->plugins[$name];
+		if (!isset($this->_loaded_plugins[$name])) return null;
+		return $this->_loaded_plugins[$name];
 
 	}//end get_plugin()
 
@@ -1354,7 +1395,7 @@ class wysiwyg {
 	*/
 	function set_contents($contents)
 	{
-		foreach ($this->plugins as $name => $plugin) $plugin->set_contents($contents);
+		foreach ($this->_loaded_plugins as $name => $plugin) $plugin->set_contents($contents);
 		$this->contents = $contents;
 
 	}//end set_contents()

@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: wysiwyg_plugin.inc,v 1.9 2003/10/07 00:27:59 gsherwood Exp $
+* $Id: wysiwyg_plugin.inc,v 1.10 2003/11/07 01:40:02 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -28,6 +28,15 @@ class wysiwyg_plugin {
 	* @var array
 	*/
 	var $buttons = Array();
+
+	/**
+	* Show this plugin in the toolbar or not
+	* Some plugins will be just for modifying HTML on submit or something
+	* like that so not all of them actually have buttons
+	*
+	* @var array
+	*/
+	var $_show_in_toolbar = true;
 
 	/**
 	* A reference to the WYSIWYG object that created this plugin

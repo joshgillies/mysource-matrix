@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: html_tidy.inc,v 1.8 2003/10/09 06:52:55 gsherwood Exp $
+* $Id: html_tidy.inc,v 1.9 2003/11/07 01:40:03 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,6 +31,13 @@ class HTML_Tidy extends Wysiwyg_Plugin {
 	* @see new_inline_tag()
 	*/
 	var $_new_inline_tags = Array();
+
+	/**
+	* Show this plugin in the toolbar or not
+	*
+	* @var array
+	*/
+	var $_show_in_toolbar = false;
 
 
 	/**
