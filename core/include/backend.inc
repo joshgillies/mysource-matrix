@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: backend.inc,v 1.57 2003/09/26 05:26:31 brobertson Exp $
+* $Id: backend.inc,v 1.58 2003/10/02 06:09:06 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -339,8 +339,6 @@ class Backend extends MySource_Object
 			<?php
 		}// end if empty msgs
 
-		$url = $this->getBackendUrl('main').'&backend_section=';
-
 		if (SQ_ROLLBACK_VIEW) $now = strtotime($_SESSION['sq_rollback_view']['rollback_time']);
 		else $now = time();
 
@@ -355,7 +353,26 @@ class Backend extends MySource_Object
 					Logged in as: <b><?php echo $GLOBALS['SQ_SYSTEM']->user->name; ?> - <?php echo date('d M Y g:i a', $now); ?></b>
 				</td>
 				<td align="right" width="100%">
-					<a target="main" href="<?php echo $url;?>"><img src="<?php echo $this->out->filesPath('/images/icons/swish.gif'); ?>" width="20" height="20" border="0" alt="" /></a>
+				<?php
+					$options = Array();
+					if ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
+						$options[] = Array(
+										'url' => $this->getBackendUrl('main').'&backend_section=config',
+										'title' => 'System Config',
+										'icon' => 'swish.gif',
+										);
+					}
+					$options[] = Array(
+									'url' => $this->getBackendUrl('main').'&backend_section=am',
+									'title' => 'Asset Tree',
+									'icon' => 'swish.gif',
+									);
+
+					foreach($options as $option) {
+						?><a target="main" href="<?php echo $option['url'];?>"><img src="<?php echo $this->out->filesPath('/images/icons/'.$option['icon']); ?>" width="20" height="20" border="0" alt="<?php echo htmlspecialchars($option['title']);?>" /></a>&nbsp;&nbsp;<?php
+					}
+
+				?>
 				</td>
 			</tr>
 		</table>
