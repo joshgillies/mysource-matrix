@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.35 2004/12/06 14:40:32 brobertson Exp $
+* $Id: calendar_event.inc,v 1.36 2004/12/10 04:16:44 tbarrett Exp $
 *
 */
 
@@ -37,7 +37,7 @@ require_once dirname(__FILE__).'/../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -596,8 +596,19 @@ class Calendar_Event extends Asset
 	{
 		switch ($action_name) {
 			case 'move':
+				if (isset($_REQUEST['SQ_CALENDAR_OLD_LOC']) && !empty($_REQUEST['SQ_CALENDAR_OLD_LOC'])) {
+					$old_link = &$GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($_REQUEST['SQ_CALENDAR_OLD_LOC'], $this->id);
+					if (empty($old_link)) {
+						trigger_error('Cannot find old link, cannot move event', E_USER_WARNING);
+						return '';
+					}
+					if (!$GLOBALS['SQ_SYSTEM']->am->moveLink($old_link['linkid'], $_REQUEST['SQ_CALENDAR_NEW_LOC'], $old_link['link_type'], -1)) {
+						trigger_error('Cannot move link, cannot move event', E_USER_WARNING);
+						return '';
+					}
+				}
 				if (!isset($_REQUEST['SQ_CALENDAR_DATE'])) {
-					trigger_error($action_name.' is an unknown action for this type of event', E_USER_WARNING);
+					trigger_error('Cannot move event: new date not specified', E_USER_WARNING);
 					return '';
 				}
 				$duration = $this->getDuration();
