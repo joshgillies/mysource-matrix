@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: news_item.inc,v 1.7 2004/12/03 16:00:39 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: news_item.inc,v 1.7.2.1 2005/01/13 22:33:43 amiller Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * Purpose
 *
 * @author  Avi Miller <amiller@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.7.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -184,17 +184,48 @@ class News_Item extends Page
 		}
 
 		if (!$url == '') $url .= trim($this->attr('url_suffix'));
+
+		if ($this->attr('show_headline')) {
 		if (!$url == '') echo '<a href='.$url.'>';
-
 		?>
-		<h1><?php echo $this->attr('name'); ?></h1>
-		<?php 
-		if (!$url == '') echo '</a>';
-		?>
-
-		<p><?php echo $this->attr('summary'); ?></p>
-		<p><?php echo $this->attr('body'); ?></p>		
+			<h1><?php echo $this->attr('name'); ?></h1>
 		<?php
+			if (!$url == '') echo '</a>';
+		}
+		
+		if ($this->attr('show_summary')) {
+		?>
+		<div id="sq_news_summary">
+			<p><?php echo $this->attr('summary'); ?></p>
+		</div>
+		<?php 
+		}
+
+		if ($this->attr('show_body')) {
+		?>
+		<div id="sq_news_body">
+			<p><?php echo $this->attr('body'); ?></p>
+		</div>
+		<?php
+		}
+		
+		if ($this->attr('show_contact_name') || $this->attr('show_contact_phone')) {
+		?>
+		<div id="sq_news_contact">
+		<?php 
+			if ($this->attr('show_contact_name')) { ?>
+			<p><?php echo 'Contact: '.$this->attr('contact_name'); ?></p>
+		<?php
+			}
+		
+			if ($this->attr('show_contact_phone')) { ?>
+			<p><?php echo 'Phone: '.$this->attr('contact_phone'); ?></p>
+		<?php
+			}
+		?>
+		</div>
+		<?php
+		}
 
 	}//end printBody()
 
@@ -220,7 +251,7 @@ class News_Item extends Page
 	function getAssetKeywords($descriptions=false)
 	{
 		$keywords = parent::getAssetKeywords($descriptions);
-		
+
 		$keywords['asset_name_linked_to_link_url'] = Array();
 
 		if ($descriptions) {

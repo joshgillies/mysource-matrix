@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.3 2004/11/18 00:09:29 amiller Exp $
+* $Id: edit_interface_screen_details.xml,v 1.3.2.1 2005/01/13 22:33:43 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -55,6 +55,33 @@
                 </field>
 
         </section>
+	<section name="Display" write_access="write:attributes" limbo_access="1">
+		<field attribute="show_headline">
+				<display_name>Show headline?</display_name>
+				<note>Display the headline (asset name) in full view?</note>
+				<boolean true_text="Yes" false_text="No" />
+		</field>
+		<field attribute="show_summary">
+				<display_name>Show summary?</display_name>
+				<note>Display the summary content in full view?</note>
+				<boolean true_text="Yes" false_text="No" />
+		</field>
+		<field attribute="show_body">
+				<display_name>Show body?</display_name>
+				<note>Display the body content in full view?</note>
+				<boolean true_text="Yes" false_text="No" />
+		</field>
+		<field attribute="show_contact_name">
+				<display_name>Show contact name?</display_name>
+				<note>Display the contact name in full view?</note>
+				<boolean true_text="Yes" false_text="No" />
+		</field>
+		<field attribute="show_contact_phone">
+				<display_name>Show phone number?</display_name>
+				<note>Display the contact phone number in full view?</note>
+				<boolean true_text="Yes" false_text="No" />
+		</field>
+    </section>
 	<section name="Link" write_access="write:link_url" limbo_access="1">
 		<field attribute="link_url">
 			<display_name>URL</display_name>
