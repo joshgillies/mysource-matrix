@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_edit_fns.inc,v 1.21 2004/05/06 05:24:39 lwright Exp $
+* $Id: form_edit_fns.inc,v 1.22 2004/05/06 05:38:19 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -550,8 +550,9 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 		// if there is no bodycopy contents, then just ask
 		// all the sections to print themselves
 		//$questions = &$asset->getQuestions();
+		$output = '<'.'?php $form_asset=$GLOBALS["SQ_SYSTEM"]->am->getAsset('.$asset->id.'); ?'.'>'."\n";
 		if ($asset->attr('use_client_side')) {
-			ob_start();				// start vacumming up all the lovely javascript code
+			ob_start();				// start vacumming up all the lovely ja code
 			?><script language="JavaScript">
 			function beforeSubmitForm(form) {
 				var submission_errors = new Array();
@@ -571,10 +572,10 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 			}
 			</script>
 		<?php
-			$output = ob_get_contents();		// get the contents
+			$output .= ob_get_contents();		// get the contents
 			ob_end_clean();						// no more buffering
 		} else {
-			$output = '';
+			$output .= '';
 		}
 			$sections = &$asset->getSections();
 			$output .= $this->generateGenericSection($asset);
@@ -720,7 +721,8 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 			$output .= ($asset->attr('question_col_width')) ? ' width="'.$asset->attr('question_col_width').'">' : '>';
 			$output .= $q->getVal('title').'</td><td';
 			$output .= ($asset->attr('answer_col_width')) ? ' width="'.$asset->attr('answer_col_width').'">' : '>';
-			$output .= $q->getAnswer(true).'</td></tr>';
+			$output .= '<'.'?php $q =$GLOBALS["SQ_SYSTEM"]->am->getAsset("'.$assetid.'"); $answer = isset($form_asset->active_submission["'.$assetid.'"]) ? $form_asset->active_submission["'.$assetid.'"] : ""; echo $q->getAnswer(true,$answer); ?'.'>'."\n";
+			$output .= '</td></tr>';
 		}
 		$output .= '</table>';
 
