@@ -145,7 +145,7 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 						if ($set_data['previous_access'] === null) {
 							// to edit this permission, there must not currently be a permission set
 							// at all - either grant OR deny - for this user
-							$current = $asset->getPermission($perm, !(bool)$set_data['access'], false, false, true);
+							$current = $GLOBALS['SQ_SYSTEM']->am->getPermission($asset->id, $perm, !(bool)$set_data['access'], false, false, true);
 							if (isset($current[$set_data['userid']])) {
 								$new_access     = ($set_data['access']) ? 'grant' : 'revoke';
 								$current_access = ($current[$set_data['userid']]) ? 'granted' : 'revoked';
@@ -154,11 +154,8 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 							}
 						} else {
 							// we need to have a permission set and the access level be the same
-							$current = $asset->getPermission($perm, (bool)$set_data['previous_access'], false);
+							$current = $GLOBALS['SQ_SYSTEM']->am->getPermission($asset->id, $perm, (bool)$set_data['previous_access'], false);
 							if (empty($current)) {
-								$new_access     = ($set_data['previous_access']) ? 'grant'   : 'revoke';
-								$current_access = ($set_data['previous_access']) ? 'revoked' : 'granted';
-								$this->_addError('Could not '.$new_access.' '.$perm_name.' access for "'.$user_name.'" on "'.$asset->name.'" because this asset already has '.$current_access.' '.$perm_name.' access to "'.$user_name.'". The current permission for "'.$asset->name.'" has been retained.', true);
 								continue;
 							}
 						}
@@ -166,14 +163,14 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 						switch ($set_data['access']) {
 							case -1 :
 								// delete a permission
-								$asset->deletePermission($set_data['userid'], $perm);
+								$GLOBALS['SQ_SYSTEM']->am->deletePermission($asset->id, $set_data['userid'], $perm);
 							break;
 
 							case 0  :
 							case 1  :
 								// deny a permission
 								// grant a permission
-								$asset->setPermission($set_data['userid'], $perm, $set_data['access']);
+								$GLOBALS['SQ_SYSTEM']->am->setPermission($asset->id, $set_data['userid'], $perm, $set_data['access']);
 							break;
 						}
 					}
