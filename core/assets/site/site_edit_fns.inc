@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: site_edit_fns.inc,v 1.37 2003/10/16 01:51:30 brobertson Exp $
+* $Id: site_edit_fns.inc,v 1.38 2003/10/21 23:41:38 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -37,6 +37,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 	{
 		$this->Folder_Edit_Fns();
 		$this->static_screens['details']['lock_type'] = 'attr_links';
+		unset($this->static_screens['dependants']);
 
 	}//end constructor
 
@@ -125,6 +126,8 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 		</script>
 		<?php
 
+		return $wa;
+
 	}//end paintURLs()
 
 
@@ -142,7 +145,6 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 	*/
 	function _paintURL(&$o, $prefix, $i, $url_info, $write_access)
 	{
-
 		?>
 			<tr>
 				<td class="sq-backend-data">
@@ -235,7 +237,6 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 	*/
 	function paintPageSelection($page_type, &$asset, $prefix)
 	{
-
 		$link = $asset->getSpecialPageLink($page_type);
 		$selected = (empty($link)) ? 0 : $link['minorid'];
 
@@ -248,7 +249,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 				echo $page->name;
 			}
 			echo '</i>';
-			return;
+			return false;
 		}
 
 		$pages = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_BACKEND_NAV, '', false);
@@ -256,7 +257,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 		if (!count($pages)) {
 			echo '<i>There are no Pages that are children of this site.</i>';
 			hidden_field($prefix.'_'.$page_type, '0');
-			return;
+			return false;
 		}
 
 		$contents = Array('' => '');
@@ -267,6 +268,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 		}
 
 		combo_box($prefix.'_'.$page_type, $contents, false, $selected);
+		return true;
 
 	}//end paintPageSelection()
 
