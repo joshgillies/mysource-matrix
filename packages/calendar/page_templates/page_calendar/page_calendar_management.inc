@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_management.inc,v 1.1.1.1 2004/07/21 04:31:53 lwright Exp $
+* $Id: page_calendar_management.inc,v 1.2 2004/07/30 06:35:12 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -29,7 +29,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.1.1.1 $ - 1.0
+* @version $Revision: 1.2 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -47,6 +47,12 @@ class Page_Calendar_Management extends Asset_Management
 	{
 		$this->Asset_Management($pm);
 
+		$this->vars['root_nodes']			= Array(
+														'added'     => '0.1',
+														'type'      => 'serialise',
+														'default'   => Array(),
+														);
+		
 	}//end Page_Calendar_Management()
 
 
