@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_editing_approval.inc,v 1.11 2005/01/20 13:10:35 brobertson Exp $
+* $Id: asset_status_editing_approval.inc,v 1.12 2005/02/23 05:14:15 gsherwood Exp $
 *
 */
 
@@ -40,7 +40,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status_pending_approval.inc';
 *                                         there is workflow running and the user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix
 */
 class Asset_Status_Editing_Approval extends Asset_Status_Pending_Approval
@@ -108,6 +108,7 @@ class Asset_Status_Editing_Approval extends Asset_Status_Pending_Approval
 		return $return_statii;
 
 	}//end getAvailableStatii()
+
 
 }//end class
 

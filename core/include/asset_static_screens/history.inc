@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: history.inc,v 1.6 2005/01/20 13:10:34 brobertson Exp $
+* $Id: history.inc,v 1.7 2005/02/23 05:14:15 gsherwood Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * History Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 */
 
@@ -68,14 +68,14 @@ function paintHistory(&$owner, &$o, &$ei)
 
 	$o->openSection('Version History');
 		$o->openRaw();
-	
+
 			if (SQ_ROLLBACK_VIEW) {
 				?><p class="sq-backend-data"><b><i>The highlighted row in the version history is the current version of "<?php echo $owner->name; ?>" being viewed in rollback mode</i></b></p>
 				<?php
 			}
-	
+
 			hidden_field($prefix.'_rollback_version', '0');
-	
+
 			?>
 			<table class="sq-backend-table">
 				<tr>
@@ -90,12 +90,12 @@ function paintHistory(&$owner, &$o, &$ei)
 					}
 					?>
 				</tr>
-	
+
 				<?php
 				foreach ($result as $data) {
 					$from = $data['efrom'];
 					$to   = $data['eto'];
-			
+
 					$class = 'sq-backend-table-cell';
 					$show_view_btn = true;
 					if (SQ_ROLLBACK_VIEW) {
@@ -105,7 +105,7 @@ function paintHistory(&$owner, &$o, &$ei)
 							$show_view_btn = false;
 						}
 					}
-			
+
 					if (empty($to)) {
 						$to = 'present';
 						$ago = 'Most Recent';
@@ -118,7 +118,7 @@ function paintHistory(&$owner, &$o, &$ei)
 						if ($fd == $td) $to = $tt;
 						else $to = date('d/m/Y H:i:s', strtotime($to));
 					}
-			
+
 					?>
 					<tr>
 						<td class="<?php echo $class; ?>"><?php echo date('d/m/Y H:i:s', strtotime($from)); ?> - <?php echo $to; ?></td>

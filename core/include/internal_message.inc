@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: internal_message.inc,v 1.41 2004/12/06 14:54:48 brobertson Exp $
+* $Id: internal_message.inc,v 1.42 2005/02/23 05:14:15 gsherwood Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    An internal message to be sent around the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.41 $
+* @version $Revision: 1.42 $
 * @package MySource_Matrix
 */
 class Internal_Message extends MySource_Object
@@ -415,7 +415,7 @@ class Internal_Message extends MySource_Object
 		$header = '';
 		if (!is_null($user) && is_object($user) && is_a($user, 'user')) {
 			$header = $user->name.','.$term.$term;
-		} elseif (is_string($user) && $user != '') {
+		} else if (is_string($user) && $user != '') {
 			$header = $user.','.$term.$term;
 		}
 		// replace separator line for multiple-bodied message with a h-rule
@@ -642,6 +642,7 @@ class Internal_Message extends MySource_Object
 		return true;
 
 	}//end updateStatus()
+
 
 }//end class
 

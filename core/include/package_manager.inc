@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager.inc,v 1.62 2005/01/26 09:34:44 brobertson Exp $
+* $Id: package_manager.inc,v 1.63 2005/02/23 05:14:15 gsherwood Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
 *    packages and their assets, uses info gleened from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.62 $
+* @version $Revision: 1.63 $
 * @package MySource_Matrix
 */
 class Package_Manager extends MySource_Object
@@ -343,7 +343,7 @@ class Package_Manager extends MySource_Object
 				$this->_recurseLoadPackageAssets($assets, $full_path.'/'.$entry, $base_path.'/'.$entry);
 
 			// if we have an asset process it
-			} elseif ($entry == 'asset.xml') {
+			} else if ($entry == 'asset.xml') {
 
 				$info = Asset_Management::getAssetInfo($full_path.'/asset.xml');
 				if (empty($info)) {
@@ -410,14 +410,14 @@ class Package_Manager extends MySource_Object
 					$remove = true;
 
 				// if this type is inheriting from a type that will be installed before it, then all OK
-				} elseif (in_array($parent, $install_order)) {
+				} else if (in_array($parent, $install_order)) {
 					$install_order[] = $type_code;
 					$remove = true;
 
 
 				// if this type is not inheriting from a type that is yet to be dealt with, then
 				// the type is in heriting from something that doesn't exist
-				} elseif (!in_array($parent, $asset_types)) {
+				} else if (!in_array($parent, $asset_types)) {
 					trigger_error('Asset "'.$type_code.'" attempts to inherit from the unknown type "'.$parent.'"', E_USER_WARNING);
 					$remove = true;
 				}
@@ -780,6 +780,7 @@ class Package_Manager extends MySource_Object
 	{
 
 	}//end _postInstall()
+
 
 }//end class
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.367 2005/02/22 22:37:57 lwright Exp $
+* $Id: asset.inc,v 1.368 2005/02/23 05:14:15 gsherwood Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.367 $
+* @version $Revision: 1.368 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -2683,7 +2683,6 @@ class Asset extends MySource_Object
 	}//end processCustomKeywords()
 
 
-
 //--        PERMISSIONS/ACCESS        --//
 
 
@@ -2928,10 +2927,10 @@ class Asset extends MySource_Object
 				$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserId());
 				$assetids = $user->getUserGroups();
 				$assetids[] = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
-				
+
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($user);
-			} 
-			
+			}
+
 			$assetids[] = $GLOBALS['SQ_SYSTEM']->currentUserId();
 		}
 
@@ -3008,7 +3007,7 @@ class Asset extends MySource_Object
 		// Have they set a design name that they want to view ??
 		if (!empty($_GET['SQ_DESIGN_NAME'])) {
 			$design_name = 'design::user::'.$_GET['SQ_DESIGN_NAME'];
-		} elseif (!empty($_SESSION['SQ_DESIGN_NAME'])) {
+		} else if (!empty($_SESSION['SQ_DESIGN_NAME'])) {
 			$design_name = 'design::user::'.$_SESSION['SQ_DESIGN_NAME'];
 		} else {
 			$design_name = 'design::system::frontend';
@@ -3689,11 +3688,11 @@ class Asset extends MySource_Object
 
 		$lookups = $this->getLookups('url');
 
-		foreach($values as $url => $values_data) {
+		foreach ($values as $url => $values_data) {
 			if (!in_array($url, $lookups)) continue;
 			if (empty($values_data)) continue;
 			$names = Array();
-			foreach($values_data as $value_name => $value_data) {
+			foreach ($values_data as $value_name => $value_data) {
 
 				$insert_values = Array(
 									'url'   => $url,

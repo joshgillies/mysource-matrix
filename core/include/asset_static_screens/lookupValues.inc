@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: lookupValues.inc,v 1.2 2005/02/22 15:04:38 brobertson Exp $
+* $Id: lookupValues.inc,v 1.3 2005/02/23 05:14:15 gsherwood Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Settings Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 */
 
@@ -83,7 +83,7 @@ function paintLookupValues(&$owner, &$o, &$ei)
 
 	$editing_fields = false;
 
-	for(reset($lookup_value_details); null !== ($type_code = key($lookup_value_details)); next($lookup_value_details)) {
+	for (reset($lookup_value_details); null !== ($type_code = key($lookup_value_details)); next($lookup_value_details)) {
 
 		$o->openSection($lookup_value_details[$type_code]['title']);
 		$name_prefix = $lookup_value_details[$type_code]['name_prefix'];
@@ -130,10 +130,10 @@ function processLookupValues(&$owner, &$o, &$ei)
 		if (!$success) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
-		}//endif
+		}
 
-		foreach($values as $url => $values_data) {
-			foreach($values_data as $value_name => $data) {
+		foreach ($values as $url => $values_data) {
+			foreach ($values_data as $value_name => $data) {
 				// no value ? delete...
 				if ($data['value'] == '') {
 					if (isset($lookup_values[$url][$value_name])) unset($lookup_values[$url][$value_name]);

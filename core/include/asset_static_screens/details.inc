@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: details.inc,v 1.12 2005/01/05 04:33:43 gsherwood Exp $
+* $Id: details.inc,v 1.13 2005/02/23 05:14:15 gsherwood Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Details Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix
 */
 
@@ -102,7 +102,7 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=null)
 					// only print this field if the status can be changed
 					$statii = $owner->getAvailableStatii();
 					if (empty($statii)) break;
-					
+
 					if ($field->children[0]->name != 'display_name') $display_name = 'Change ?';
 					else $display_name = $field->children[0]->content;
 					$o->openField($display_name);
@@ -186,7 +186,7 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=null)
 								$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_status');
 								$fs = new Cron_Job_Future_Status();
 								$edit_fns = $fs->getEditFns();
-		
+
 								if (!is_null($keywords) && isset($keywords['fields']['status_future_status'])) ob_start();
 								$edit_fns->paintInLineBackend($fs, $o, $prefix.'_new_fs');
 

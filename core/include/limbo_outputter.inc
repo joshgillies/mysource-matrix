@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: limbo_outputter.inc,v 1.13 2004/12/06 14:38:12 brobertson Exp $
+* $Id: limbo_outputter.inc,v 1.14 2005/02/23 05:14:15 gsherwood Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/backend_outputter.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix
 */
 class Limbo_Outputter extends Backend_Outputter
@@ -493,7 +493,6 @@ class Limbo_Outputter extends Backend_Outputter
 		foreach ($this->_hidden_fields as $name => $value) hidden_field($name, $value);
 
 	}//end _paintBodyHeader()
-
 
 
 	/**

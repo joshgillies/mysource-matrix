@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.75 2005/02/21 18:58:46 brobertson Exp $
+* $Id: mysource.inc,v 1.76 2005/02/23 05:14:15 gsherwood Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_INCLUDE_PATH.'/asset_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.75 $
+* @version $Revision: 1.76 $
 * @package MySource_Matrix
 */
 class MySource
@@ -975,6 +975,7 @@ class MySource
 
 	}//end getEventManager()
 
+
 	/**
 	* Get the Trigger Manager
 	*
@@ -1010,6 +1011,7 @@ class MySource
 		}
 
 	}//end broadcastTriggerEvent()
+
 
 //--        DATABASE        --//
 

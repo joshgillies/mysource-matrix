@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.242 2005/02/22 06:32:15 ndvries Exp $
+* $Id: asset_edit_interface.inc,v 1.243 2005/02/23 05:14:15 gsherwood Exp $
 *
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.242 $
+* @version $Revision: 1.243 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -1424,7 +1424,7 @@ class Asset_Edit_Interface extends MySource_Object
 		$current_screen = (empty($_REQUEST['asset_ei_screen'])) ? 'details' : $_REQUEST['asset_ei_screen'];
 		return $this->processInline($owner, $o, $creating, $current_screen);
 
-	}// end process()
+	}//end process()
 
 
 	/**
@@ -1562,7 +1562,7 @@ class Asset_Edit_Interface extends MySource_Object
 						if (empty($process_node->attributes['name'])) {
 							continue;
 						// There is something declared but the bloody thing doesn't exist - inform the Idiot
-						} elseif (!method_exists($this->_edit_fns, $process_node->attributes['name'])) {
+						} else if (!method_exists($this->_edit_fns, $process_node->attributes['name'])) {
 							trigger_error('Function not found for processing section "'.$section->attributes['name'].'"', E_USER_WARNING);
 						} else {
 							// if we are processing the create interface and this section function is not included in that, ignore it
@@ -1614,7 +1614,7 @@ class Asset_Edit_Interface extends MySource_Object
 								if (empty($process_node->attributes['name'])) {
 									continue;
 								// There is something declared but the bloody thing doesn't exist - inform the Idiot
-								} elseif (!method_exists($this->_edit_fns, $process_node->attributes['name'])) {
+								} else if (!method_exists($this->_edit_fns, $process_node->attributes['name'])) {
 									trigger_error('Function not found for processing field "'.$section->attributes['name'].'/'.$field->children[0]->content.'"', E_USER_WARNING);
 								} else {
 									if ($this->_edit_fns->{$process_node->attributes['name']}($owner, $o, $prefix)) $ret_val = true;
@@ -1848,7 +1848,7 @@ class Asset_Edit_Interface extends MySource_Object
 			// Loop over the fields
 			for ($j = 0; $j < count($section->children); $j++) {
 
-				switch($section->children[$j]->name) {
+				switch ($section->children[$j]->name) {
 					case 'function_call' :
 						$fn_call_node = &$section->children[$j];
 						$fn_node = &$fn_call_node->children[(($painting) ? 0 : 1)];

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: settings.inc,v 1.21 2005/02/21 11:24:28 brobertson Exp $
+* $Id: settings.inc,v 1.22 2005/02/23 05:14:15 gsherwood Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Settings Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix
 */
 
@@ -277,7 +277,7 @@ function paintSettings(&$owner, &$o, &$ei)
 					} else {
 						if (isset($standards_lists_character_sets[$owner->charset])) {
 							echo $standards_lists_character_sets[$owner->charset];
-						} elseif ($owner->charset == '') {
+						} else if ($owner->charset == '') {
 							echo '<i>No character set is currently set for "'.$owner->name.'"</i>';
 						} else {
 							echo '<i>Unkown character set "'.$owner->charset.'" is currently set for "'.$owner->name.'"</i>';

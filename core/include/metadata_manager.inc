@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.65 2005/02/23 00:11:50 lwright Exp $
+* $Id: metadata_manager.inc,v 1.66 2005/02/23 05:14:15 gsherwood Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.65 $
+* @version $Revision: 1.66 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -321,7 +321,6 @@ class Metadata_Manager extends MySource_Object
 	}//end getMetadataFields()
 
 
-
 //--        METADATA VALUES        --//
 
 
@@ -367,7 +366,7 @@ class Metadata_Manager extends MySource_Object
 		$where = '	mv.assetid = '.$db->quote($asset->id).'
 				AND (';
 
-		foreach($schemas as $schemaid) {
+		foreach ($schemas as $schemaid) {
 			$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
 			if (is_null($schema)) {
 				trigger_error('Failed getting metadata, Schema #'.$schemaid.' does not exist', E_USER_WARNING);
@@ -413,7 +412,7 @@ class Metadata_Manager extends MySource_Object
 
 		$fields = $this->getMetadataFields($schema->id);
 		$default_values = Array();
-		foreach($fields as $fieldid => $type_code) {
+		foreach ($fields as $fieldid => $type_code) {
 			$field = &$am->getAsset($fieldid, $type_code);
 			if (is_null($field)) {
 				trigger_error('Failed getting metadata field, field #'.$schemaid.' does not exist', E_USER_WARNING);
@@ -480,14 +479,14 @@ class Metadata_Manager extends MySource_Object
 			// if they only want specific fields, then restrict the search to those
 			if (!empty($field_names)) {
 				$sql_parts['where'] .= ' AND a.name IN ('.$db->quote($field_names[0]);
-				for($i = 1; $i < count($field_names); $i++) $sql_parts['where'] .= ', '.$db->quote($field_names[$i]);
+				for ($i = 1; $i < count($field_names); $i++) $sql_parts['where'] .= ', '.$db->quote($field_names[$i]);
 				$sql_parts['where'] .= ')';
 			}
 
 			$fields = $db->getAssoc(implode(' ', $sql_parts));
 			assert_valid_db_result($fields);
 
-			foreach($fields as $fieldid => $type_code) {
+			foreach ($fields as $fieldid => $type_code) {
 				$field = &$am->getAsset($fieldid, $type_code);
 				if (is_null($field)) {
 					trigger_error('Failed getting metadata field, field #'.$schemaid.' does not exist', E_USER_WARNING);

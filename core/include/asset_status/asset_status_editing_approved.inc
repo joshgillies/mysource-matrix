@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_editing_approved.inc,v 1.12 2005/01/20 11:18:17 brobertson Exp $
+* $Id: asset_status_editing_approved.inc,v 1.13 2005/02/23 05:14:15 gsherwood Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status_approved.inc';
 *    EDITING_APPROVED -> EDITING if the user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix
 */
 class Asset_Status_Editing_Approved extends Asset_Status_Approved
@@ -118,6 +118,7 @@ class Asset_Status_Editing_Approved extends Asset_Status_Approved
 		return true;
 
 	}//end processStatusChange()
+
 
 }//end class
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_attribute.inc,v 1.30 2005/02/18 05:35:14 tbarrett Exp $
+* $Id: asset_attribute.inc,v 1.31 2005/02/23 05:14:15 gsherwood Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix
 */
 class Asset_Attribute extends MySource_Object
@@ -306,7 +306,7 @@ class Asset_Attribute extends MySource_Object
 	* @access public
 	* @return boolean	True if parameter set successfully
 	*/
-	function setEditParam($field, $value) 
+	function setEditParam($field, $value)
 	{
 		if (isset($this->_edit_params[$field])) {
 			$this->_edit_params[$field] = $value;

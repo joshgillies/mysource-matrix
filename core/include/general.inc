@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.64 2005/01/17 17:44:20 brobertson Exp $
+* $Id: general.inc,v 1.65 2005/02/23 05:14:15 gsherwood Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.64 $
+* @version $Revision: 1.65 $
 * @package MySource_Matrix
 */
 
@@ -544,7 +544,7 @@ function iso8601_ts($iso8601)
 			(int) substr($iso8601,0,4)
 		);
 	// valid but we only have the date
-	} elseif (preg_match("/^[0-9\-]{4}-[0-9\-]{2}-[0-9\-]{2}$/",$iso8601)) {
+	} else if (preg_match("/^[0-9\-]{4}-[0-9\-]{2}-[0-9\-]{2}$/",$iso8601)) {
 		return mktime(
 			0, 0, 0,
 			(int) substr($iso8601,5,2),
@@ -597,6 +597,7 @@ function array_get_index($array, $index, $default=null)
 
 //--        INTERFACES (IMPLENTATION) FNS        --//
 
+
 /**
 * Registers a class as implementing a certain interface
 * This is so that we can do things like implements_interface() below
@@ -612,7 +613,7 @@ function register_implementation($class, $interface)
 	if (!isset($GLOBALS['SQ_IMPLEMENTATION'])) $GLOBALS['SQ_IMPLEMENTATION'] = Array();
 	$GLOBALS['SQ_IMPLEMENTATION'][$class] = (is_array($interface)) ? $interface : Array($interface);
 
-}//end register_implentation()
+}//end register_implementation()
 
 
 /**
@@ -626,8 +627,12 @@ function register_implementation($class, $interface)
 */
 function implements_interface($class, $interface)
 {
-	if (is_object($class)) $class = get_class($class);
-	elseif (!class_exists($class)) trigger_error('Unable to check if "'.$class.'" implements an interface when it hasn\'t been declared', E_USER_ERROR);
+	if (is_object($class)) {
+		$class = get_class($class);
+	} else if (!class_exists($class)) {
+		trigger_error('Unable to check if "'.$class.'" implements an interface when it hasn\'t been declared', E_USER_ERROR);
+	}
+
 	do {
 		if (isset($GLOBALS['SQ_IMPLEMENTATION'][$class]) && in_array($interface, $GLOBALS['SQ_IMPLEMENTATION'][$class])) return true;
 	} while ($class = get_parent_class($class));
@@ -635,5 +640,6 @@ function implements_interface($class, $interface)
 	return false;
 
 }//end implements_interface()
+
 
 ?>

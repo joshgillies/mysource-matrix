@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow.inc,v 1.16 2005/02/21 23:48:54 ndvries Exp $
+* $Id: workflow.inc,v 1.17 2005/02/23 05:14:15 gsherwood Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once DIRNAME(__FILE__).'/details.inc';
 * Workflow Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix
 */
 
@@ -803,7 +803,6 @@ function processWorkflow(&$owner, &$o, &$ei)
 	return true;
 
 }//end processWorkflow()
-
 
 
 ?>

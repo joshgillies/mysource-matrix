@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.97 2005/02/21 10:36:22 brobertson Exp $
+* $Id: backend_outputter.inc,v 1.98 2005/02/23 05:14:15 gsherwood Exp $
 *
 */
 
@@ -42,7 +42,7 @@ define('SQ_BO_MSG_ERROR',       4);
 *    there will only ever be one instance of this object
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.97 $
+* @version $Revision: 1.98 $
 * @package MySource_Matrix
 */
 class Backend_Outputter
@@ -1381,7 +1381,9 @@ class Backend_Outputter
 
 	}//end sectionNote()
 
-	function _nbSectionNote($str) {
+
+	function _nbSectionNote($str)
+	{
 		?>
 					<br />
 				</td>
@@ -1390,7 +1392,8 @@ class Backend_Outputter
 				<td colspan="3">
 					<div class="sq-backend-section-note"><strong>Note: </strong><?php echo $str ?></div>
 		<?php
-	}
+
+	}//end _nbSectionNote()
 
 
 	/**
@@ -1574,11 +1577,13 @@ class Backend_Outputter
 
 	}//end onAssetStatusUpdate()
 
+
 	function getCurrentSectionNumber()
 	{
 		return $this->_section_count;
 
 	}//end getCurrentSectionNumber()
+
 
 }//end class
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: logs.inc,v 1.7 2005/01/20 13:10:34 brobertson Exp $
+* $Id: logs.inc,v 1.8 2005/02/23 05:14:15 gsherwood Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Logs Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix
 */
 
@@ -76,14 +76,14 @@ function paintLogs(&$owner, &$o, &$ei)
 		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 
 		switch ($active_log_type) {
-	
+
 			case 'asset.linking' :
 				$minor_logs = $ms->getLogs($active_log_type, Array('minorid' => $owner->id));
 				$major_logs = $ms->getLogs($active_log_type, Array('majorid' => $owner->id));
 				$logs = array_merge($minor_logs, $major_logs);
 				usort($logs, Array('Messaging_Service', 'sortMessages'));
 			break;
-	
+
 			case 'asset.workflow' :
 				// for workflow we want to show the user log messages as well
 				if (isset($_REQUEST['sq_workflow_log_version'])) {
@@ -103,11 +103,11 @@ function paintLogs(&$owner, &$o, &$ei)
 				$logs = array_merge($logs, $user_logs);
 				usort($logs, Array('Messaging_Service', 'sortMessages'));
 			break;
-	
+
 			default :
 				$logs = $ms->getLogs($active_log_type, Array('assetid' => $owner->id));
 			break;
-	
+
 		}//end switch
 
 		if (empty($logs)) {

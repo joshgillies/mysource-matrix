@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_editing.inc,v 1.24 2005/02/23 00:26:38 dbaranovskiy Exp $
+* $Id: asset_status_editing.inc,v 1.25 2005/02/23 05:14:15 gsherwood Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *                                the workflow the workflow and all required metadata is complete
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix
 */
 class Asset_Status_Editing extends Asset_Status
@@ -207,6 +207,7 @@ class Asset_Status_Editing extends Asset_Status
 		return true;
 
 	}//end processStatusChange()
+
 
 }//end class
 

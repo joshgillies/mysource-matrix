@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.44 2005/01/06 12:36:29 brobertson Exp $
+* $Id: system_config.inc,v 1.45 2005/02/23 05:14:15 gsherwood Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.45 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -225,7 +225,7 @@ class System_Config extends Config
 							trigger_error('Supplied Log File "'.$value.'" is invalid, either the directory does not exist or the file cannot be created', E_USER_WARNING);
 							return false;
 						}
-					} elseif (!is_writable($value)) {
+					} else if (!is_writable($value)) {
 						trigger_error('Supplied Log File "'.$value.'" exists, but is not writable', E_USER_WARNING);
 						return false;
 					}

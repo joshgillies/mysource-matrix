@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_archived.inc,v 1.9 2005/01/20 13:10:35 brobertson Exp $
+* $Id: asset_status_archived.inc,v 1.10 2005/02/23 05:14:15 gsherwood Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *    ARCHIVED -> UNDER_CONSTRUCTION if user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix
 */
 class Asset_Status_Archived extends Asset_Status
@@ -102,6 +102,7 @@ class Asset_Status_Archived extends Asset_Status
 		return true;
 
 	}//end processStatusChange()
+
 
 }//end class
 

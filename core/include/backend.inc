@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.112 2005/02/20 22:08:15 gsherwood Exp $
+* $Id: backend.inc,v 1.113 2005/02/23 05:14:15 gsherwood Exp $
 *
 */
 
@@ -32,7 +32,7 @@
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.112 $
+* @version $Revision: 1.113 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -840,7 +840,7 @@ class Backend extends MySource_Object
 				$from = time() - (8 * 3600); // 8 hours ago
 				$read_messages   = $ms->getMessages($GLOBALS['SQ_SYSTEM']->currentUserId(), null, Array(SQ_MSG_READ), Array(), $from, null, 'short_name');
 				$unread_messages = $ms->getMessages($GLOBALS['SQ_SYSTEM']->currentUserId(), null, Array(SQ_MSG_UNREAD), Array(), null, null, 'short_name');
-		
+
 				$messages = array_merge($read_messages, $unread_messages);
 				$num_messages = count($messages);
 				?>
