@@ -18,12 +18,12 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg.inc,v 1.1 2003/12/08 03:49:43 mmcintyre Exp $
+* $Id: content_type_wysiwyg.inc,v 1.2 2003/12/08 05:47:49 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
 
-require_once dirname(__FILE__).'/../../content_type/content_type.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type.inc';
 
 /**
 * Content_Type_WYSIWYG

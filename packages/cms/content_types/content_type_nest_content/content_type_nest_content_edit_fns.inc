@@ -18,12 +18,12 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content_edit_fns.inc,v 1.13 2003/12/08 03:44:41 gsherwood Exp $
+* $Id: content_type_nest_content_edit_fns.inc,v 1.14 2003/12/08 05:47:50 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
 
-require_once dirname(__FILE__).'/../../content_type/content_type_edit_fns.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 
 /**
 * Content_Type_Nest_Content_Edit_Fns

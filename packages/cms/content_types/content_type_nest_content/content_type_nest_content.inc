@@ -18,12 +18,12 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content.inc,v 1.14 2003/11/27 01:44:57 gsherwood Exp $
+* $Id: content_type_nest_content.inc,v 1.15 2003/12/08 05:47:50 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
 
-require_once dirname(__FILE__).'/../../content_type/content_type.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type.inc';
 
 /**
 * Content_Type_Nest_Content
