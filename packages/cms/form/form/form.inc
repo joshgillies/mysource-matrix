@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.42 2004/06/29 02:39:12 lwright Exp $
+* $Id: form.inc,v 1.43 2004/07/01 12:30:20 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -64,7 +64,7 @@ class Form extends Bridge
 
 	/**
 	* available bodycopy keywords
-	* @var object 
+	* @var Array() 
 	*/
 	var $_available_keywords = Array('form_contents', 'form_errors', 'submit_button', 'reset_button');
 
