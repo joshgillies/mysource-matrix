@@ -477,8 +477,6 @@ class Asset_Management extends Resolve_Object
 
 		$type_code = $this->getAssetType();
 
-		trigger_error('Need to have check to make sure that the variable type is valid' , E_USER_NOTICE);
-
 		$description = empty($this->vars[$name]['description']) ? '' : $this->vars[$name]['description'];
 
 		// update all the attributes that we own
@@ -488,13 +486,22 @@ class Asset_Management extends Resolve_Object
 				WHERE owning_type_code = '.$this->_db->quote($type_code).'
 				  AND name = '.$this->_db->quote($name);
 
-#		pre_echo($sql);
 		$result = $this->_db->query($sql);
 		if (DB::isError($result)) {
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 			return false;
 		}
 
+		$attr_type = $this->vars[$name]['type'];
+
+		require_once(SQ_ATTRIBUTES_PATH.'/'.$attr_type.'/'.$attr_type.'.inc');
+		$func = '$result = Asset_Attribute_'.$attr_type.'::validateValue($this->vars[$name][\'default\']);';
+		eval ($func);
+		if (!$result) {
+			// default value is not valid
+			trigger_error("Default value to attribute '$name' is not valid" , E_USER_NOTICE);
+			$this->vars[$name]['default'] = '';
+		}
 
 		// update all the attributes that are still using our default
 		$sql = 'UPDATE sq_asset_attribute
@@ -502,7 +509,6 @@ class Asset_Management extends Resolve_Object
 				WHERE default_type_code = '.$this->_db->quote($type_code).'
 				  AND name = '.$this->_db->quote($name);
 
-#		pre_echo($sql);
 		$result = $this->_db->query($sql);
 		if (DB::isError($result)) {
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
