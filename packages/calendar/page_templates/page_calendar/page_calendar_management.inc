@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_management.inc,v 1.37 2004/12/06 17:31:33 brobertson Exp $
+* $Id: page_calendar_management.inc,v 1.38 2004/12/14 04:37:39 tbarrett Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -352,7 +352,7 @@ class Page_Calendar_Management extends Asset_Management
 			$already_run[$name] = 1;
 			// in v0.3 these attributes changed from exes to pixels, so we need to adjust their values
 			// we make the assumption that there are 8 pixels in an ex.
-			$sql = 'UPDATE '.SQ_TABLE_PREFIX.'asset_attribute_value SET custom_value = CAST((CAST (custom_value AS INTEGER) * 8) AS INTEGER) WHERE attrid='.$this->_db->quote($curr_attr['attrid']);
+			$sql = 'UPDATE '.SQ_TABLE_PREFIX.'ast_attr_val SET custom_value = CAST((CAST (custom_val AS INTEGER) * 8) AS INTEGER) WHERE attrid='.$this->_db->quote($curr_attr['attrid']);
 			$res = $this->_db->query($sql);
 			if (!assert_valid_db_result($res)) return false;
 			return true;
