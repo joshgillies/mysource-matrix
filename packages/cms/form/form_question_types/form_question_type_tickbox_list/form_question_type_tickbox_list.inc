@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_list.inc,v 1.18 2004/06/22 00:24:21 lwright Exp $
+* $Id: form_question_type_tickbox_list.inc,v 1.19 2004/07/02 09:00:13 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -105,13 +105,13 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 		$html .= "<table cellpadding=\"0\" cellspacing=\"0\" width=\"100%\">\n";
 		$html .= ($hor) ? "<tr>\n" : '';
 		
+		$defaults = isset($this->active_submission[$this->id]) ? $this->active_submission[$this->id] : $this->attr('default');
+		if (!is_array($defaults)) $defaults = Array();
 		foreach ($options as $key => $value) {
 			$html .= ($hor) ? "<td nowrap>\n" : "<tr><td>\n";
 			$html .= '<input type="'.$type.'" ';
 			$html .= 'name="'.$this->id.(($multiple) ? '[]' : '').'" ';
 			$html .= 'value="'.htmlspecialchars($key).'"';
-
-			$defaults = isset($this->active_submission[$this->id]) ? $this->active_submission[$this->id] : $this->attr('default');
 
 			if (in_array($key, $defaults)) {
 				$html .= ' checked="checked"';
