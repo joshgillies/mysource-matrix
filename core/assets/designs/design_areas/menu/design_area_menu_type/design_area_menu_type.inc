@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type.inc,v 1.36 2003/11/26 00:50:57 gsherwood Exp $
+* $Id: design_area_menu_type.inc,v 1.37 2003/11/26 05:21:52 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -480,7 +480,6 @@ class Design_Area_Menu_Type extends Design_Area
 	*/
 	function printInitOutput(&$design)
 	{
-
 		echo '
 		$'.$this->attr('id_name').'_level = '.((int) $this->attr('level')).';';
 
@@ -622,6 +621,7 @@ class Design_Area_Menu_Type extends Design_Area
 		}
 
 	}//end _settingHasPHPCode()
+
 
 	/*
 	* Returns the settings array that will be need to be var_exported

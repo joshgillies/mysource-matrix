@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_custom_image_edit_fns.inc,v 1.11 2003/11/26 00:50:55 gsherwood Exp $
+* $Id: design_area_custom_image_edit_fns.inc,v 1.12 2003/11/26 05:21:52 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -123,6 +123,7 @@ class Design_Area_Custom_Image_Edit_Fns extends Design_Area_Edit_Fns
 		return true;
 
 	}//end processImageUpload()
+
 
 	/**
 	* Prints the interface for uploading a file

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type_edit_fns.inc,v 1.30 2003/11/26 00:50:57 gsherwood Exp $
+* $Id: design_area_menu_type_edit_fns.inc,v 1.31 2003/11/26 05:21:52 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -226,7 +226,7 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 		$sub->setAttrValue('level', $sub_level);
 
 		$edit_fns = $sub->getEditFns();
-		if (!$edit_fns->_processContents($sub, $contents)) return false;
+		if (!$edit_fns->_processContents($sub, $contents) && $sub->saveAttributes()) return false;
 
 		if ($sub->attr('level') != $sub_level) {
 			trigger_error('The sub menu for "'.$asset->attr('id_name').'" has a level value '.$sub->attr('level').', which is different from what it should be ('.$sub_level.'). This could cause display issues with the menu. Are you specifically setting the level in the sub menu section ? ', E_USER_WARNING);

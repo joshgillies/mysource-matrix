@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_declared_vars_edit_fns.inc,v 1.16 2003/11/26 00:50:56 gsherwood Exp $
+* $Id: design_area_declared_vars_edit_fns.inc,v 1.17 2003/11/26 05:21:52 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -99,6 +99,7 @@ class Design_Area_Declared_Vars_Edit_Fns extends Design_Area_Edit_Fns
 	
 	}// end _processContents()
 
+
 	/**
 	* Creates a string that would be able to be parsed to recreate this design area in its current form
 	*
@@ -176,5 +177,7 @@ class Design_Area_Declared_Vars_Edit_Fns extends Design_Area_Edit_Fns
 
 	}// end processDecVars()
 
+
 }//end class
+
 ?>

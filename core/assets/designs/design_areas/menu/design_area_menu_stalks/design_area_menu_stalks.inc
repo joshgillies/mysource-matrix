@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_stalks.inc,v 1.11 2003/11/26 00:50:57 gsherwood Exp $
+* $Id: design_area_menu_stalks.inc,v 1.12 2003/11/26 05:21:52 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -76,6 +76,7 @@ class Design_Area_Menu_Stalks extends Design_Area_Menu_Recursive
 				break;
 		}// end switch
 		return parent::setAttrValue($name, $value);
+
 	}//end setAttrValue()
 
 
@@ -89,7 +90,6 @@ class Design_Area_Menu_Stalks extends Design_Area_Menu_Recursive
 	*/
 	function printRecursiveFn(&$design)
 	{
-
 		$use_blanks  = !$this->attr('show_stalks');
 		$cell_class = '';
 		if ($this->settingExists('class')) { 

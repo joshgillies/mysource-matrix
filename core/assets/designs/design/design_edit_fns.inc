@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.57 2003/11/26 00:50:54 gsherwood Exp $
+* $Id: design_edit_fns.inc,v 1.58 2003/11/26 05:21:52 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -289,7 +289,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 		$str = file_to_string($parse_file);
 		$contents = $this->_parseString($str);
-		return (!is_null($contents) && $this->_processContents($asset, $contents));
+		return (!is_null($contents) && $this->_processContents($asset, $contents) && $asset->saveAttributes());
 
 	}// end parseAndProcessFile()
 
@@ -378,7 +378,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 			$id_names[$element['attributes']['id_name']] = $element['attributes']['design_area'];
 
-		}// end forenach
+		}// end foreach
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
@@ -452,7 +452,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			if (!$edit_fns->_processContents($design_areas[$element['attributes']['id_name']], $element['contents'])) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
-			} 
+			}
 			if (!$design_areas[$element['attributes']['id_name']]->saveAttributes()) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
