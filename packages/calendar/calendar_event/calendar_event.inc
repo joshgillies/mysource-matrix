@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.27 2004/09/09 01:23:50 lwright Exp $
+* $Id: calendar_event.inc,v 1.28 2004/09/16 04:05:00 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.27 $ - 1.0
+* @version $Revision: 1.28 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -68,18 +68,27 @@ class Calendar_Event extends Asset
 	*/
 	function create(&$link) 
 	{
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		
 		$name = $this->attr('name');
 		
 		// should not be able to create an event with a blank name
 		if ($name == '') {
 			trigger_error('Unable to create a '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').' with a blank name', E_USER_WARNING);
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
 		
-		$res = parent::create($link);
+		if (!parent::create($link)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		};
+		
 		if ($this->cacheCalendarData(false)) {
-			return $res;
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			return true;
 		} else {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
 
@@ -211,13 +220,13 @@ class Calendar_Event extends Asset
 		$end_has_time   = $this->getEndTime();
 		$start_has_date = $this->getStartDate();
 		$end_has_date   = $this->getEndDate();
-
+		
 		// All events must have a starting date at least!
 		if (!$start_has_date) {
 			trigger_error('Calendar Events must at least have a start date', E_USER_WARNING);
 			return false;
 		}
-
+		
 		// cannot have End Date being like '---------- 11:00:00'
 		if (!$end_has_date && $end_has_time) {
 			trigger_error('If the \'End Date\' includes a time component it must also include a date', E_USER_WARNING);
