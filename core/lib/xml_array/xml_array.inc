@@ -84,7 +84,7 @@ class XML_Array extends XML_Parser
 	/**
 	* Constructor
 	*
-	* @param array $defs
+	* @param array $arr_paths
 	*/
 	function XML_Array($arr_paths=Array()) {
 		$this->setArrayPaths($arr_paths);
@@ -127,7 +127,7 @@ class XML_Array extends XML_Parser
 		return $this->_results;
 	}
 
-	function getArrayFromString($str, $defs=Array())
+	function getArrayFromString($str, $arr_paths=Array())
 	{
 		if (count($arr_paths)) $this->setArrayPaths($arr_paths);
 
