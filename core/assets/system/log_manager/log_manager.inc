@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: log_manager.inc,v 1.2 2005/03/23 05:31:27 rhoward Exp $
+* $Id: log_manager.inc,v 1.3 2005/03/23 21:57:37 rhoward Exp $
 */
 
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -347,7 +347,7 @@ class Log_Manager extends Asset
 	* @param null|int	$rotation_index		the index of the log rotation
 	*
 	* @access private
-	* @return
+	* @return object Log_Iterator
 	*/
 	function &getLogIterator($logname, $rotation_index=null)
 	{
@@ -600,7 +600,7 @@ class Log_Manager extends Asset
 	* @param string		$file	the file to read
 	*
 	* @access private
-	* @return
+	* @return int
 	*/
 	function _getFileSize($file)
 	{
