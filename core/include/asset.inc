@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.307 2004/06/28 05:29:56 gsherwood Exp $
+* $Id: asset.inc,v 1.308 2004/06/30 07:02:01 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1232,7 +1232,6 @@ class Asset extends MySource_Object
 		$new_type_code = strtolower($new_type_code);
 		$old_type_code = $this->type();
 
-		// dickhead check
 		if ($this->type() == $new_type_code) return true;
 
 		if (!$GLOBALS['SQ_SYSTEM']->am->installed($new_type_code)) {
