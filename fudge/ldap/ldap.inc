@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap.inc,v 1.4 2004/08/20 06:21:51 gsherwood Exp $
+* $Id: ldap.inc,v 1.5 2005/01/13 22:26:07 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -67,14 +67,16 @@ class Ldap
 	* @param string	$h		the host used to connect to the LDAP server
 	* @param int	$p		the port used to connect to the LDAP server
 	* @param string	$pass	the password used to connect to the LDAP server
-	* @param string	$bdn	the root DN used to connect to the LDAP server
-	* @param string	$rdn	the DN used to bind to the LDAP server
+	* @param string	$bdn	the DN used to bind to the LDAP server
 	*
 	*/
-	function Ldap($h=null, $p=null, $pass=null, $bdn='', $rdn='')
+	function Ldap($h=null, $p=null, $pass=null, $bdn='')
 	{
 		// if a host has been specified, connect
-		if (!is_null($h) && !empty($h)) $this->connect($h, $p, $pass, $bdn, $rdn);
+		if (!is_null($h) && !empty($h)) {
+			$this->connect($h, $p, $pass, $bdn);
+			$this->bind($bdn, $pass);
+		}
 
 	}//end constructor
 
@@ -82,16 +84,13 @@ class Ldap
 	/**
 	* Connect to a certain LDAP server and bind to it
 	*
-	* @param string		$h		the host used to connect to the LDAP server
-	* @param int		$p		the port used to connect to the LDAP server
-	* @param string		$pass	the password used to connect to the LDAP server
-	* @param string		$bdn	the root DN used to connect to the LDAP server
-	* @param string		$rdn	the DN used to bind to the LDAP server
+	* @param string		$h	the host used to connect to the LDAP server
+	* @param int		$p	the port used to connect to the LDAP server
 	*
 	* @return boolean
 	* @access public
 	*/
-	function connect($h, $p=null, $pass=null, $bdn='', $rdn='')
+	function connect($h, $p=null)
 	{
 		if ($h != $this->host || $p != $this->port) {
 			// close old connection
@@ -104,6 +103,23 @@ class Ldap
 			$this->host = $h;
 			$this->port = $p;
 		}
+		return true;
+
+	}//end connect()
+	
+	
+	/**
+	* Bind to a LDAP server
+	*
+	* @param string		$bdn	the DN used to bind to the LDAP server
+	* @param string		$pass	the password used to connect to the LDAP server
+	*
+	* @return boolean
+	* @access public
+	*/
+	function bind($bdn='', $pass=null)
+	{
+		if (!$this->ptr) return false;
 
 		// bind to the server
 		if (is_null($pass)) {
@@ -115,18 +131,15 @@ class Ldap
 			}
 		} else {
 			if (!($r = ldap_bind($this->ptr, $bdn, $pass))) {
-				trigger_error('Unable to bind to LDAP server: '.$h.' BDN: '.$bindto.' Using Password: '.(($pass) ? 'YES' : 'NO'), E_USER_WARNING);
+				trigger_error('Unable to bind to LDAP server: '.$h.' BDN: '.$bdn.' Using Password: '.(($pass) ? 'YES' : 'NO'), E_USER_WARNING);
 				$this->ptr = null;
 				return false;
 			}
 		}
 
-		$this->host   = $h;
-		$this->port   = $p;
-
 		return $r;
 
-	}//end connect()
+	}//end bind()
 
 
 	/**
