@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: boolean.inc,v 1.12 2004/02/23 05:59:10 diarandine Exp $
+* $Id: boolean.inc,v 1.13 2004/02/24 02:01:09 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -90,9 +90,9 @@ class Asset_Attribute_Boolean extends Asset_Attribute
 	function paint($prefix, $read_only=false, $add=true)
 	{
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
-		$options = Array('_' => '-- Do not include into search --',
-						 0 => $this->_edit_params['false_text'],
-						 1 => $this->_edit_params['true_text']);
+		$options = Array(0 => $this->_edit_params['false_text'],
+						 1 => $this->_edit_params['true_text']
+						);
 
 		if ($read_only) {
 			echo $options[$this->value];
