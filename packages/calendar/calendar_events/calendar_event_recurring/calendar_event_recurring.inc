@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.22 2004/08/27 02:57:41 tbarrett Exp $
+* $Id: calendar_event_recurring.inc,v 1.23 2004/08/30 23:16:24 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.22 $ - 1.0
+* @version $Revision: 1.23 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -71,8 +71,8 @@ class Calendar_Event_Recurring extends Calendar_Event
 	/**
 	* Determines the next occurrence of an event after a certain time.
 	*
-	* This function can be called on an object (with just the first parameter) or statically
-	* (with all the parameters)
+	* This function can be called on an object (with no parameters or just the first parameter)
+	* or statically (with all the parameters)
 	*
 	* @param int	$after		the time for which we want the first occurrence after
 	*							if NULL, reverts to current server time
