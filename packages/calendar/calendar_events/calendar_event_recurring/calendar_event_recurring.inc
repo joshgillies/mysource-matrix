@@ -18,12 +18,13 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.14 2004/08/03 04:51:29 tbarrett Exp $
+* $Id: calendar_event_recurring.inc,v 1.15 2004/08/04 04:23:49 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
 require_once  dirname(__FILE__).'/../../calendar_event/calendar_event.inc';
 require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
+require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 
 /**
 * Calendar_Event_Recurring
@@ -32,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.14 $ - 1.0
+* @version $Revision: 1.15 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -51,25 +52,6 @@ class Calendar_Event_Recurring extends Calendar_Event
 		$this->Calendar_Event($assetid);
 
 	}//end Calendar_Event_Recurring()
-
-
-	/**
-	* Adds the specified number of months to the date supplied
-	*
-	* @param int	&$month	The month to add to
-	* @param int	&$year	The year to add to
-	* @param int	$num	The number of months to add
-	*
-	* @access private
-	*/
-	function _addMonths(&$month, &$year, $num)
-	{
-		$month += $num;
-		if ($month > 12) {
-			$year++;
-			$month = $month % 12;
-		}
-	}
 
 
 	/**
@@ -132,14 +114,14 @@ class Calendar_Event_Recurring extends Calendar_Event
 				$res_year = gmdate('Y', $after);
 				$month_diff = (12 * (gmdate('Y', $after) - gmdate('Y', $start_ts))) + $res_month - gmdate('n', $start_ts);
 				if (($month_diff % $interval) != 0) {
-					$this->_addMonths($res_month, $res_year, ($interval - ($month_diff % $interval)));
+					increment_month($res_month, $res_year, ($interval - ($month_diff % $interval)));
 				} elseif (((int)gmdate('j', $after) > (int)gmdate('j', $start_ts))) {
-					$this->_addMonths($res_month, $res_year, $interval);
+					increment_month($res_month, $res_year, $interval);
 				} elseif((((int)gmdate('j', $after) == (int)gmdate('j', $start_ts)) && ($this->_secondsToday($start_ts) < $this->_secondsToday($after)))) {
-					$this->_addMonths($res_month, $res_year, $interval);
+					increment_month($res_month, $res_year, $interval);
 				}
 				while (gmdate('j', $start_ts) > days_in_month($res_month, $res_year))
-					$this->_addMonths($res_month, $res_year, $interval);
+					increment_month($res_month, $res_year, $interval);
 				$result =  strtotime($res_year.'-'.sprintf('%02d', $res_month).gmdate('-d H:i:00', $start_ts).' GMT');
 			break;
 
@@ -153,14 +135,14 @@ class Calendar_Event_Recurring extends Calendar_Event
 
 				if (($month_diff % $interval) != 0) {
 					// go to the next valid month
-					$this->_addMonths($res_month, $res_year, $interval - ($month_diff % $interval));
+					increment_month($res_month, $res_year, $interval - ($month_diff % $interval));
 				} elseif ((int)((gmdate('j', $after) - 1) / 7) > $target_week_of_month) {
 					// we're in a valid month, but too late in it, so go to next valid month
-					$this->_addMonths($res_month, $res_year, $interval);
+					increment_month($res_month, $res_year, $interval);
 				} elseif (((int)((gmdate('j', $after) - 1) / 7) == $target_week_of_month) && (gmdate('w', $after) == $target_day_of_week) && ($this->_secondsToday($after) > $this->_secondsToday($start_ts))) {
 					// we're on the right day of a valid month, but too late in the day, 
 					// so go to next valid month
-					$this->_addMonths($res_month, $res_year, $interval);
+					increment_month($res_month, $res_year, $interval);
 				} elseif ((int)((gmdate('j', $after) - 1) / 7) == $target_week_of_month) {
 					$res_day = gmdate('d', $after);
 				}
@@ -170,7 +152,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 					$res_day++;
 					if (($res_day > $month_length) || ($res_day >= (($target_week_of_month+1) * 7))) {
 						// run out of days, so we'll have to start again in the next valid month
-						$this->_addMonths($res_month, $res_year, $interval);
+						increment_month($res_month, $res_year, $interval);
 						$month_length = days_in_month($res_month, $res_year);
 						$res_day = ($target_week_of_month * 7)+1;
 					}
@@ -185,15 +167,15 @@ class Calendar_Event_Recurring extends Calendar_Event
 
 				$month_diff = (12 * (gmdate('Y', $after) - gmdate('Y', $start_ts))) + $res_month - gmdate('n', $start_ts);
 				if (($month_diff % $interval) != 0) {
-					$this->_addMonths($res_month, $res_year, $interval - ($month_diff % $interval));
+					increment_month($res_month, $res_year, $interval - ($month_diff % $interval));
 				} elseif ((days_in_month($res_month, $res_year) - (int)gmdate('j', $after)) < $target_days_from_end) {
-					$this->_addMonths($res_month, $res_year, $interval);
+					increment_month($res_month, $res_year, $interval);
 				} elseif (((days_in_month($res_month, $res_year) - (int)gmdate('j', $after)) == $target_days_from_end) && ($this->_secondsToday($after) > $this->_secondsToday($start_ts))) {
-					$this->_addMonths($res_month, $res_year, $interval);
+					increment_month($res_month, $res_year, $interval);
 				}
 
 				while ((days_in_month($res_month, $res_year) - $target_days_from_end) < 0) {
-					$this->_addMonths($res_month, $res_year, $interval);
+					increment_month($res_month, $res_year, $interval);
 				}
 
 				$result =  strtotime($res_year.'-'.$res_month.'-'.sprintf('%02d', days_in_month($res_month, $res_year) - $target_days_from_end).gmdate(' H:i:00', $start_ts).' GMT');
@@ -212,10 +194,10 @@ class Calendar_Event_Recurring extends Calendar_Event
 					$res_month = gmdate('n', $after) + $interval - ($month_diff % $interval);
 				} elseif ((int)((days_in_month(gmdate('n', $after), gmdate('Y', $after)) - gmdate('j', $after)) / 7) < $target_weeks_from_end) {
 					// we're too far into this month, so go to the next valid month
-					$this->_addMonths($res_month, $res_year, $interval);
+					increment_month($res_month, $res_year, $interval);
 				} elseif (((int)((days_in_month(gmdate('n', $after), gmdate('Y', $after)) - gmdate('j', $after)) / 7) == $target_weeks_from_end) && (gmdate('w', $after) == $target_day_of_week) && ($this->_secondsToday($after) > $this->_secondsToday($start_ts))) {
 					// we're on the right day but too late so go to next valid month
-					$this->_addMonths($res_month, $res_year, $interval);
+					increment_month($res_month, $res_year, $interval);
 				} elseif ((int)((days_in_month(gmdate('n', $after), gmdate('Y', $after)) - gmdate('j', $after)) / 7) == $target_weeks_from_end) {
 					// we're in the right week so start from 'now', not the begining of the week,
 					$min_day = gmdate('d', $start_ts);
@@ -227,7 +209,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 					if ($res_day < $min_day) {
 						// can't get the nth-last xday in this month, either because
 						// it's already passed or because it doesn't exist, so goto next month
-						$this->_addMonths($res_month, $res_year, $interval);
+						increment_month($res_month, $res_year, $interval);
 						$res_day = days_in_month($res_month, $res_year) - ($target_weeks_from_end * 7);
 						$min_day = 1;
 					}
@@ -260,7 +242,8 @@ class Calendar_Event_Recurring extends Calendar_Event
 		$start_date = $this->getStartDate();
 		$start_ts = strtotime($start_date);
 		$query_ts = strtotime(substr($date,0,10));	
-		if ($query_ts > (iso9601_ts($this->attr('stop_date')) + $seconds_per_day)) return false;
+		$stop_ts = iso8601_ts($this->attr('stop_date'));
+		if (($stop_ts != -1) && ($query_ts > ($stop_ts + $seconds_per_day))) return false;
 		if ($query_ts < $start_ts) return false;
 
 		
@@ -468,7 +451,6 @@ class Calendar_Event_Recurring extends Calendar_Event
 	*/
 	function printBody()
 	{
-		require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 		?>
 		<table border="0" cellspacing="2" cellpadding="2">
 			<tr>
