@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general_occasional.inc,v 1.41 2005/02/15 00:57:57 arailean Exp $
+* $Id: general_occasional.inc,v 1.42 2005/02/15 01:05:39 arailean Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.41 $
+* @version $Revision: 1.42 $
 * @package MySource_Matrix
 */
 
@@ -64,7 +64,7 @@ function link_type_name($type)
 
 
 /**
-* Returns an array containing ALL the valid link types (names), indexed by code (int)
+* Returns an array containing ALL the valid link types (names), indexed by value (int)
 *
 * @access public
 * @return array(int => string)
@@ -73,7 +73,7 @@ function get_link_type_names()
 {
 	$link_types = get_constant_values('SQ_LINK_');
 
-	foreach ($link_types as $code=>$value) {
+	foreach ($link_types as $value) {
 		$type_names[$value] = link_type_name($value);
 	}
 
