@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_hcl.inc,v 1.5 2004/06/18 02:02:23 lwright Exp $
+* $Id: page_hcl.inc,v 1.6 2004/09/16 05:56:29 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -103,8 +103,8 @@ class Page_HCL extends Page
 		}
 
 	}//end describeLink()
-	
-	
+
+
 	/**
 	* Creates XML formatted list of the metadata entries
 	*
@@ -265,7 +265,7 @@ class Page_HCL extends Page
 				$namespace    = $schema_asset->attr('namespace');
 				$nsurl	      = $schema_asset->attr('nsurl');
 
-				if (isset($namespace) && isset($nsurl)) {
+				if (!empty($namespace) && !empty($nsurl)) {
 					$rdf_attrs[$namespace] = $nsurl;
 				}
 
@@ -322,7 +322,8 @@ class Page_HCL extends Page
 
 							// Before displaying the field name ('field_key'), we need
 							// to cut off the first part until the first separating dot
-							$dotpos = (strpos($field_key, '.')) + 1;
+							$first_char = strpos($field_key, '.');
+							$dotpos = ($first_char)?$first_char + 1:0;
 							$field_key = substr_replace($field_key, '', 0, $dotpos);
 
 							// Adding the namespace to the field key (name)
