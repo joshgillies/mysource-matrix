@@ -17,8 +17,8 @@
 * | enhancement to Squiz Pty Ltd for use and distribution under that   |
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
-* 
-* $Id: bodycopy_general.inc,v 1.3 2004/08/23 04:07:03 gsherwood Exp $
+*
+* $Id: bodycopy_general.inc,v 1.4 2004/09/03 06:56:29 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -47,16 +47,24 @@
 * @param string $height		The height of the icon
 *
 * @access  public
-* @returns void
+* @return void
 */
 function print_bodycopy_icon($href, $heading, $desc, $icon, $alt='', $extra='', $width='16', $height='16')
 {
-	?>
-	<a href="<?php echo $href?>" onmouseover="javascript: show_tooltip(event, '<?php echo addslashes(htmlspecialchars($heading))?>', '<?php echo addslashes(htmlspecialchars($desc))?>', null, 'bodycopyToolTipDiv'); return true;" onmouseout="javascript:hide_tooltip(); return true;" >
-	<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('data')?>/asset_types/bodycopy/images/icons/<?php echo $icon?>.png", "<?php echo $width?>", "<?php echo $height; ?>", "<?php echo $alt; ?>");</script></a>
-	<?php
+	$path = sq_web_path('data');
+	$tag ="
+	<a href='$href'>
+	<script language='JavaScript' type='text/javascript'>
+		sq_print_icon('$path/asset_types/bodycopy/images/icons/$icon.png', '$width', '$height', '');
+	</script>
+	</a>
+	";
 
-}// end print_bodycopy_icon()
+	$tag_with_tooltip = make_tooltip($tag, $desc, $heading);
+
+	echo $tag_with_tooltip;
+
+}//end print_bodycopy_icon()
 
 
 ?>
