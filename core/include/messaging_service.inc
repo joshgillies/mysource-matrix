@@ -130,8 +130,12 @@ class Messaging_Service extends Resolve_Object
 			foreach ($to_ids as $assetid) {
 				$send_queue[$assetid][$msg->subject][$msg->from]['bodies'][] = $msg->body;
 				// make sure we set the highest priority in the group
-				if ($msg->priority > $send_queue[$assetid][$msg->subject][$msg->from]['priority']) {
+				if (!isset($send_queue[$assetid][$msg->subject][$msg->from]['priority'])) {
 					$send_queue[$assetid][$msg->subject][$msg->from]['priority'] = $msg->priority;
+				} else {
+					if ($msg->priority > $send_queue[$assetid][$msg->subject][$msg->from]['priority']) {
+						$send_queue[$assetid][$msg->subject][$msg->from]['priority'] = $msg->priority;
+					}
 				}
 			}
 		}
