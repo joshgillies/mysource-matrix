@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_03.php,v 1.47 2004/11/17 04:26:19 mmcintyre Exp $
+* $Id: step_03.php,v 1.48 2004/11/18 04:35:47 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -85,14 +85,14 @@ install_core($package_list);
 $deferred = install_packages($package_list);
 
 
-// If there were deferred packages, try to reinstall them.
+// if there were deferred packages, try to reinstall them.
 if (is_array($deferred)) {
 	// try and install the deferred packages again in a loop until the result
-	// package is the same as the install package, at which point we know 
+	// package is the same as the install package, at which point we know
 	// the dependency has failed.
 	$deferred = install_deferred($deferred);
 	if (is_array($deferred)) {
-		trigger_error('The following assets could not be installed due to dependency failures (see previous warnings for details): '."\n".format_deferred($deferred), E_USER_ERROR);
+		trigger_error('The following assets could not be installed due to dependency failures (see previous warnings for details): '."\n".format_deferred_packages($deferred), E_USER_ERROR);
 	}
 }
 install_authentication_types();
@@ -101,30 +101,9 @@ install_event_listeners();
 
 // need to run the install packages twice
 install_packages($package_list);
-
 cache_asset_types();
 
 unset($GLOBALS['SQ_INSTALL']);
 
 
-
-/**
-* Format an array of packages=>Array(type_codes) for display
-* 
-* @param array $array the array of deferred types to format
-* @return string
-* @access public
-*/
-function format_deferred($array)
-{
-	$out = '';
-	foreach ($array as $package=>$types) {
-		$out .= "\n$package:\n";
-		foreach ($types as $type) {
-			$out .= "\t$type\n";
-		}
-	}
-	
-	return $out;
-}
 ?>
