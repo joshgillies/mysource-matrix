@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_edit_interface.inc,v 1.163 2003/10/15 09:17:20 brobertson Exp $
+* $Id: asset_edit_interface.inc,v 1.164 2003/10/15 23:08:17 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -221,8 +221,6 @@ class Asset_Edit_Interface extends MySource_Object
 					$screen_lock_type = $this->_screens[$active_screen]['lock_type'];
 				}
 			}// end if
-
-pre_echo("SCREEN LOCK TYPE : $screen_lock_type");
 
 			$locks = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($owner->id, $screen_lock_type, true);
 			
