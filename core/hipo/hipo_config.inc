@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_config.inc,v 1.15 2004/01/16 11:49:18 brobertson Exp $
+* $Id: hipo_config.inc,v 1.16 2004/01/22 00:36:47 diarandine Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -44,10 +44,9 @@ class HIPO_Config extends Config
 	* @var Array()
 	*/
 	var $config_vars = Array(
-		'SQ_HIPO_USE_SERVER'		=> Array('editable' => 1, 'default' => false),
-		'SQ_HIPO_TOTAL_THRESHOLD'	=> Array('editable' => 1, 'default' => 80),
+		'SQ_HIPO_USE_SERVER'					=> Array('editable' => 1, 'default' => false),
+		'SQ_HIPO_TOTAL_THRESHOLD'				=> Array('editable' => 1, 'default' => 80),
 	);
-
 
 	/**
 	* Constructor
@@ -187,18 +186,67 @@ class HIPO_Config extends Config
 
 		$o->openSection('HIPO Server Configuration');
 
+			// writing out standard fields, which are not specific to any single job
 			$o->openField('Use HIPO Server');
 			if($write_access) {
 				combo_box($class.'[SQ_HIPO_USE_SERVER]', Array('1' => 'Yes', '0' => 'No'), false, SQ_HIPO_USE_SERVER);
 			} else {
 				echo (SQ_HIPO_USE_SERVER) ? 'Yes' : 'No';
 			}
+			$o->closeField();
+
+			// total threshhold HIPO config entry
+			$o->openField('Total Threshhold');
+			if($write_access) {
+				text_box($class.'[SQ_HIPO_TOTAL_THRESHOLD]', SQ_HIPO_TOTAL_THRESHOLD, 5);
+			} else {
+				echo SQ_HIPO_TOTAL_THRESHOLD;
+			}
+			$o->closeField();
+
+			// looping through job class files and painting their backends
+			$this->paintJobsBackends($o, $class);
 
 		$o->closeSection();
 
 		if ($write_access) $o->commitButton('Commit', true);
 
 	}//end paintBackend()
+
+
+	/**
+	* One crazy function which calls paintBackend function of each job
+	*
+	* @return void
+	* @access private
+	*/
+	function paintJobsBackends(&$o, $class)
+	{
+		$hipo_job_path = SQ_SYSTEM_ROOT.'/core/hipo/jobs';
+		if (is_dir($hipo_job_path)) {
+			//require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+			$d = dir($hipo_job_path);
+			while (false !== ($file = $d->read())) {
+				if ($file == '.' || $file == '..') continue;
+				// skip hidden files
+				if (strpos($file, '.') == 0) continue;
+
+				if (!is_dir($hipo_job_path.'/'.$file)) {
+					require_once $hipo_job_path.'/'.$file;
+					if (get_file_type($file) != 'inc') continue;
+					$type_code = substr($file, 0, strpos($file, '.'));
+
+					if ($type_code) {
+						eval($type_code.'::paintConfig($o, $class);');
+					}
+				}
+			}// end while
+
+			$d->close();
+
+		}// end if
+
+	}//end paintJobsBackends();
 
 
 }//end class
