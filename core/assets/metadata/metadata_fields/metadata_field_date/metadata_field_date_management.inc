@@ -18,12 +18,12 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date_management.inc,v 1.1 2004/02/03 03:27:42 diarandine Exp $
+* $Id: metadata_field_date_management.inc,v 1.2 2004/02/03 04:29:42 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
 
-require_once dirname(__FILE__).'/../../metadata_field/metadata_field_management.inc';
+require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 
 /**
 * Metadata_Field_Text_Management
@@ -35,7 +35,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_management.
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
-class Metadata_Field_Date_Management extends Metadata_Field_Management
+class Metadata_Field_Date_Management extends Asset_Management
 {
 
 	/**
