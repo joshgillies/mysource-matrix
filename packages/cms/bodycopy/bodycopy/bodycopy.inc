@@ -138,6 +138,28 @@ class Bodycopy extends Asset
 
 
 	/**
+	* Returns TRUE if the passed minor asset can be linked to this asset, or a string with the error msg
+	*
+	* @param object Asset	$minor		the minor asset that we are linking to
+	* @param string			$link_type	the type of link this is
+	*
+	* @return TRUE|string
+	* @access public
+	*/
+	function canCreateLink(&$minor, $link_type, $exclusive)
+	{
+		if (!$this->id) return false;
+
+		// if you dont have write access to this asset you cant create any links
+		if (!$this->writeAccess()) {
+			return 'Cannot create link from '.$this->name.' (# '.$this->id.') to '.$minor->name.' (# '.$minor->id.'), permission denied';
+		}
+
+		return parent::canCreateLink($minor, $link_type, $exclusive);
+	}//end canCreateLink()
+
+
+	/**
 	* Returns an array of all the permitted links type, the type asset and the cardinality
 	*
 	* @see Asset::_getAllowLinks()
