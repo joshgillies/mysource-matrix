@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: word_doc.inc,v 1.10 2005/01/17 17:42:10 brobertson Exp $
+* $Id: word_doc.inc,v 1.11 2005/02/11 04:59:03 gsherwood Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -75,7 +75,7 @@ class Word_Doc extends File
 
 		// check that the extension is allowed
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-		$ext = get_file_type($info['name']);
+		$ext = get_file_type($info['filename']);
 		if (!in_array($ext, $this->allowed_extensions)) {
 			trigger_error('Uploaded file is not an MS Word document. Word doc files must be of type doc or dot', E_USER_WARNING);
 			return false;

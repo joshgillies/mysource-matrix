@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.82 2005/01/19 12:43:16 brobertson Exp $
+* $Id: file.inc,v 1.83 2005/02/11 04:59:03 gsherwood Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.82 $
+* @version $Revision: 1.83 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -212,7 +212,7 @@ class File extends Asset
 			$tmp = new $new_type_code();
 			$existing = $this->getExistingFile();
 			if (!empty($existing)) {
-				if (!$tmp->validFile($existing['path'])) {
+				if (!$tmp->validFile($existing)) {
 					trigger_error('Cannot morph "'.$this->name.'" to type "'.$new_type_code.'", currently uploaded file "'.$existing['filename'].'" is not a valid '.$new_type_code.' file (see above error)', E_USER_WARNING);
 					return false;
 				}
@@ -290,6 +290,7 @@ class File extends Asset
 			}
 		}
 
+		if (!isset($info['path'])) $info['path'] = array_get_index($info, 'tmp_name', '');
 		if (!$this->validFile($info)) return false;
 
 		// check that we are not going to have web path conflicts
@@ -777,7 +778,7 @@ class File extends Asset
 	function validFile($info)
 	{
 		// check the file size to ensure we are not violating any restrictions
-		$size = filesize($info['tmp_name']);
+		$size = filesize($info['path']);
 		$max_size = strtolower($GLOBALS['SQ_SYSTEM']->getUserPrefs('file', 'SQ_FILE_MAX_SIZE'));
 		if (!$max_size) return true;
 

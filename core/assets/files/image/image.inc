@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.27 2005/02/03 18:54:21 brobertson Exp $
+* $Id: image.inc,v 1.28 2005/02/11 04:59:03 gsherwood Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -133,7 +133,7 @@ class Image extends File
 
 		// check that the extension is allowed
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-		$ext = get_file_type($info['name']);
+		$ext = get_file_type($info['filename']);
 		if (!in_array($ext, $this->allowed_extensions)) {
 			$edit_fns = $this->getEditFns();
 			trigger_error('Uploaded file is not an image. Image files must be of type '.$edit_fns->_getExtensionString($this->allowed_extensions, 'or').'. The uploaded file is of type "'.strtoupper($ext).'"', E_USER_WARNING);
