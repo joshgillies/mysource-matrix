@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: config.inc,v 1.5 2003/10/02 05:37:09 brobertson Exp $
+* $Id: config.inc,v 1.6 2003/10/14 22:46:06 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -105,7 +105,7 @@ class Config extends MySource_Object
 
 		}// endif
 
-		if (SQ_PHP_CLI) pre_echo($str);
+		if (SQ_PHP_CLI) echo "----------------------------------\n".($str)."----------------------------------\n";
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 		if (!string_to_file($str, $this->config_file)) return false;
 
