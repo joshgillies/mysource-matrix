@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.65 2004/04/08 10:04:23 brobertson Exp $
+* $Id: design.inc,v 1.66 2004/06/30 00:34:24 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -510,7 +510,7 @@ class Design extends Design_Area
 				<script language="javascript" type="text/javascript"  src="<?php echo sq_web_path(\'lib\'); ?>/js/general.js"></script>
 
 				<?php
-				if (SQ_IN_LIMBO && !is_null($GLOBALS[\'SQ_SYSTEM\']->backend)) $GLOBALS[\'SQ_SYSTEM\']->backend->out->_paintHeader();
+				if (SQ_IN_LIMBO && !is_null($GLOBALS[\'SQ_SYSTEM\']->backend) && !is_null($GLOBALS[\'SQ_SYSTEM\']->backend->out)) $GLOBALS[\'SQ_SYSTEM\']->backend->out->_paintHeader();
 				if (SQ_ROLLBACK_VIEW) $GLOBALS[\'SQ_SYSTEM\']->printRollbackWarning();
 				?>
 				';
