@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: event_manager.inc,v 1.10 2004/05/06 07:01:26 lwright Exp $
+* $Id: event_manager.inc,v 1.11 2004/05/13 04:02:39 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -251,22 +251,37 @@ class Event_Manager extends MySource_Object
 		}
 
 		// if we don't have an entry for this event, then g.t.f.o
-		if (!isset($this->_tmp['event_listeners'][$broadcaster->type()][$event_name])) return false;
+		if (!isset($this->_tmp['event_listeners']['global'][$event_name]) && !isset($this->_tmp['event_listeners'][$broadcaster->type()][$event_name])) return false;
 		$listeners = Array();
+		$listener_codes = Array();
 
-		foreach ($this->_tmp['event_listeners'][$broadcaster->type()][$event_name] as $listener_type_code => $options) {
+		if (isset($this->_tmp['event_listeners']['global'][$event_name])) {
+			$listener_codes += $this->_tmp['event_listeners']['global'][$event_name];
+		}
+		if (isset($this->_tmp['event_listeners'][$broadcaster->type()][$event_name])) {
+			$listener_codes += $this->_tmp['event_listeners'][$broadcaster->type()][$event_name];
+		}
+
+		foreach ($listener_codes as $listener_type_code => $options) {
 			// these $options never seem to be set, force them to be set to avoid notices from PHP
-			if (!isset($options['type_code'])) {
+			if (empty($options['type_code'])) {
 				$options['type_code'] = '';
 			}
-			if (!isset($options['strict_type_code'])) {
+			if (empty($options['strict_type_code'])) {
 				$options['strict_type_code'] = false;
+			}
+			if (empty($options['global'])) {
+				$options['global'] = false;
 			}
 
 
-			$side_of_link = ($options['side_of_link'] == 'minor') ? 'major' : 'minor';
+			$side_of_link = (isset($options['side_of_link']) && ($options['side_of_link'] == 'minor')) ? 'major' : 'minor';
 
-			if ($options['indirect']) {
+			if ($options['global']) {
+				// Global: all global events should be heard even if outside the chain
+				$assetids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($listener_type_code, true);
+
+			} elseif ($options['indirect']) {
 
 				if ($options['dependant'] || $options['exclusive'] || $options['type_code']) {
 					$assetids = $this->_getDiscreteAssets($broadcaster->id, $listener_type_code, $side_of_link, $options);
