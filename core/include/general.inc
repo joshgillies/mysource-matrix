@@ -336,7 +336,7 @@ function bit_elements($num)
 
 
 /**
-* Takes an ISO-9601 compliant date-time string and returns a unix timestamp for it
+* Takes an ISO-8601 compliant date-time string and returns a unix timestamp for it
 *
 * @param string	$iso8601	date time string in 'YYYY-MM-DD HH:MM:SS' format
 *
@@ -355,7 +355,7 @@ function iso8601_ts($iso8601)
 }
 
 /**
-* Takes a unix timestamp for it and returns an ISO-9601 compliant date-time string
+* Takes a unix timestamp for it and returns an ISO-8601 compliant date-time string
 *
 * @param int	$timestamp	unix timestamp
 *
