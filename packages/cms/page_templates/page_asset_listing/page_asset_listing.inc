@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.20 2004/04/05 05:07:27 gsherwood Exp $
+* $Id: page_asset_listing.inc,v 1.21 2004/04/22 01:24:10 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -474,8 +474,8 @@ class Page_Asset_Listing extends Page
 			break;
 
 			case 'letter' :
-				foreach ($children as $childid => $child_data) {
-					$todo[strtolower($child_data['first_letter'])][$childid] = $child_data['type_code'];
+				foreach ($children as $childid => $data) {
+					$todo[strtolower($data['first_letter'])][$childid] = $data['type_code'];
 				}
 
 				$result_page = (isset($_REQUEST['result_page'])) ? $_REQUEST['result_page'] : '';
