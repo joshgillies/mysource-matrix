@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_edit_fns.inc,v 1.8 2004/05/26 05:20:11 gsherwood Exp $
+* $Id: bodycopy_container_edit_fns.inc,v 1.9 2004/05/26 06:54:52 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -167,18 +167,22 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 		if (!empty($bc_data[$prefix][$asset->id]['attributes']) || !empty($bc_saved[$prefix][$asset->id]['attributes'])) {
 			$attributes_updated = false;
 			$attributes = $asset->attr('attributes');
-			foreach($bc_data[$prefix][$asset->id]['attributes'] as $name => $value) {
-				if ($name == 'identifier') {
-					if ($asset->setAttrValue('name', $value)) $updated = true;
-				} else {
-					if ($this->setAttribute($attributes, $name, $value)) $attributes_updated = true;
+			if (isset($bc_data[$prefix][$asset->id]['attributes'])) {
+				foreach($bc_data[$prefix][$asset->id]['attributes'] as $name => $value) {
+					if ($name == 'identifier') {
+						if ($asset->setAttrValue('name', $value)) $updated = true;
+					} else {
+						if ($this->setAttribute($attributes, $name, $value)) $attributes_updated = true;
+					}
 				}
 			}
-			foreach($bc_saved[$prefix][$asset->id]['attributes'] as $name => $value) {
-				if ($name == 'identifier') {
-					if ($asset->setAttrValue('name', $value)) $updated = true;
-				} else {
-					if ($this->setAttribute($attributes, $name, $value)) $attributes_updated = true;
+			if (isset($bc_saved[$prefix][$asset->id]['attributes'])) {
+				foreach($bc_saved[$prefix][$asset->id]['attributes'] as $name => $value) {
+					if ($name == 'identifier') {
+						if ($asset->setAttrValue('name', $value)) $updated = true;
+					} else {
+						if ($this->setAttribute($attributes, $name, $value)) $attributes_updated = true;
+					}
 				}
 			}
 			if ($attributes_updated) {
@@ -202,9 +206,10 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function generateContentFile(&$asset)
 	{
+		bam('GENERATE');
 		ob_start();
-		$this->paint($asset, true);
-		$output = ob_get_contents();
+			$this->paint($asset, true);
+			$output = ob_get_contents();
 		ob_end_clean();
 
 		$existing_links = Array();

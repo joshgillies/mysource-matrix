@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_div.inc,v 1.4 2004/02/18 18:19:16 brobertson Exp $
+* $Id: bodycopy_div.inc,v 1.5 2004/05/26 06:54:52 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -92,6 +92,13 @@ class Bodycopy_Div extends Bodycopy_Container
 		$div_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'value' => 'div_contents', 'sort_order' => 1, 'dependant' => 1, 'exclusive' => 1);
 		$wysiwyg->setAttrValue('name', 'DIV Content');
 		if (!$wysiwyg->create($div_link)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$this->id = 0;
+			return false;
+		}
+
+		$edit_fns = $this->getEditFns();
+		if (!$this->saveAttributes() || !$edit_fns->generateContentFile($this)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$this->id = 0;
 			return false;

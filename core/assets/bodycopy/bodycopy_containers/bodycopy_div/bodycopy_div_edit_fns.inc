@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_div_edit_fns.inc,v 1.8 2004/04/13 02:34:55 gsherwood Exp $
+* $Id: bodycopy_div_edit_fns.inc,v 1.9 2004/05/26 06:54:52 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -311,7 +311,7 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 				$content_prefix = $prefix.'_'.get_class($content_type).'_'.$link['linkid'];
 				$content_edit = &$content_type->getEditFns();
 				if ($content_edit->processBackend(Array(), $content_type, $content_prefix)) {
-					$updated = $content_type->saveAttributes();
+					if ($content_type->saveAttributes()) $updated = true;
 				}
 			}
 		}
