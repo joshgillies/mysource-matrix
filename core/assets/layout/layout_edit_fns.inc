@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: layout_edit_fns.inc,v 1.2 2004/02/18 18:19:16 brobertson Exp $
+* $Id: layout_edit_fns.inc,v 1.3 2004/04/20 00:02:37 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -40,6 +40,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy_edit_fns.inc';
 class Layout_Edit_Fns extends Bodycopy_Edit_Fns
 {
 
+
 	/**
 	* Constructor
 	*
@@ -47,7 +48,10 @@ class Layout_Edit_Fns extends Bodycopy_Edit_Fns
 	function Layout_Edit_Fns() 
 	{
 		$this->Bodycopy_Edit_Fns();
-	}
+		
+	}//end constructor
+
 
 }//end class
+
 ?>

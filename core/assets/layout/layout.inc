@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: layout.inc,v 1.2 2004/02/18 18:19:16 brobertson Exp $
+* $Id: layout.inc,v 1.3 2004/04/20 00:02:37 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -40,7 +40,12 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy.inc';
 class Layout extends Bodycopy
 {
 
+	/**
+	* An array of keywords used in this layout
+	* @var array
+	*/
 	var $layout_keywords = Array();
+
 
 	/**
 	* Constructor
@@ -105,18 +110,20 @@ class Layout extends Bodycopy
 	*      'custom' => Array(
 	*          'contents',
 	*      ),
+	*      'layout' => Array(
+	*          'screen_menu',
+	*          'commit_button',
+	*      ),
 	*   );
 	* </PRE>
 	*
-	* Note: Some array keys will not be present if they are not in the content. eg. There will be no 'entire_screens'
-	* sub array if there are no entire_screen keywords in the content
-	*
-	* @return Array(mixed)
+	* @return array(string => array)
 	* @access public
 	*/
 	function getLayoutKeywords()
 	{
 		if (empty($this->layout_keywords)) {
+			
 			$keywords = $this->getKeywords();
 			if (empty($keywords)) return Array();
 
@@ -124,8 +131,10 @@ class Layout extends Bodycopy
 			$this->layout_keywords['screens']			= Array();
 			$this->layout_keywords['entire_screens']	= Array();
 			$this->layout_keywords['custom']			= Array();
+			$this->layout_keywords['layout']			= Array();
 
 			foreach ($keywords as $keyword) {
+				
 				if (false !== (strpos($keyword, '-'))) {
 					list($screen, $tag) = explode('-', $keyword);
 					$screen = strtolower($screen);
@@ -163,12 +172,18 @@ class Layout extends Bodycopy
 					} else {
 						if (!in_array($screen, $this->layout_keywords['entire_screens'])) {
 							$this->layout_keywords['entire_screens'][$screen] = $keyword;
-						}//end if
-					}//end if
-				}//end if
+						}
+					}
+					
+				} else {
+					// this keyword is a custom keyword for the layout
+					$this->layout_keywords['layout'][] = $keyword;
+				}
+				
 			}//end foreach
 
 		}//end if
+
 		return $this->layout_keywords;
 
 	}//end getLayoutKeywords()
