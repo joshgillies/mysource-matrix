@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_02.php,v 1.46 2004/01/15 14:53:08 brobertson Exp $
+* $Id: step_02.php,v 1.47 2004/04/30 10:41:41 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -204,7 +204,7 @@ if (!is_file(SQ_DATA_PATH.'/private/db/table_columns.inc')) {
 			echo ',';
 			echo implode(',', $other_keys);
 		}
-		echo ');';
+		echo ')';
 		$table_sql = ob_get_contents();
 		ob_end_clean();
 
@@ -238,7 +238,7 @@ if (!is_file(SQ_DATA_PATH.'/private/db/table_columns.inc')) {
 				echo ',';
 				echo implode(',', $other_rollback_keys);
 			}
-			echo ');';
+			echo ')';
 			$table_sql = ob_get_contents();
 			ob_end_clean();
 
@@ -262,7 +262,7 @@ if (!is_file(SQ_DATA_PATH.'/private/db/table_columns.inc')) {
 				$index_col_name = $table_index->children[$k]->attributes['name'];
 			}
 
-			$index_sql = 'CREATE INDEX '.SQ_TABLE_PREFIX.$table_name.'_'.$index_col_name.' ON '.SQ_TABLE_PREFIX.$table_name.' ('.$index_col_name.');';
+			$index_sql = 'CREATE INDEX '.SQ_TABLE_PREFIX.$table_name.'_'.$index_col_name.' ON '.SQ_TABLE_PREFIX.$table_name.' ('.$index_col_name.')';
 			$result = $db->query($index_sql);
 			if (DB::isError($result)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -324,7 +324,7 @@ if (!is_file(SQ_DATA_PATH.'/private/db/table_columns.inc')) {
 		$secondary_dsn = DB::parseDSN(SQ_CONF_DB2_DSN);
 
 		if ($primary_dsn['username'] != $secondary_dsn['username']) {
-			$grant_sql = 'SELECT '.SQ_TABLE_PREFIX.'grant_access('.$db->quote($secondary_dsn['username']).');';
+			$grant_sql = 'SELECT '.SQ_TABLE_PREFIX.'grant_access('.$db->quote($secondary_dsn['username']).')';
 			$result = $db->query($grant_sql);
 			if (DB::isError($result)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
