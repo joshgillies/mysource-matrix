@@ -46,7 +46,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 		if (!empty($existing)) {
 			?> 
 				<p style="font-size: 7pt">
-				<b><a href="<?php echo current_url().'?a='.$asset->id?>" target="_blank">Current File</a></b><br/>
+				<b><a href="<?php echo current_url().'?a='.$asset->id?>&now=<?php echo time()?>" target="_blank">Current File</a></b><br/>
 				<b>Size:</b> <?php echo easy_filesize($existing['size'])?><br/>
 				<?php
 				if ($existing['width'] && $existing['height']) {
