@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section_edit_fns.inc,v 1.17 2004/04/28 01:56:22 lwright Exp $
+* $Id: form_section_edit_fns.inc,v 1.18 2004/05/20 00:32:23 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -473,7 +473,11 @@ class Form_Section_Edit_Fns extends Bridge_Edit_Fns
 			$output .= '<tr>';
 			$output .= '<td valign="top"';
 			$output .= ($asset->attr('question_col_width')) ? ' width="'.$asset->attr('question_col_width').'">' : '>';
-			$output .= $q->getVal('title').'</td><td';
+			$output .= $q->getVal('title');
+			if ($q->getVal('note')) {
+				$output .= '<br><span style="font-size:80%">'.$q->getVal('note').'</span>';
+			}
+			$output .= '</td><td';
 			$output .= ($asset->attr('answer_col_width')) ? ' width="'.$asset->attr('answer_col_width').'">' : '>';
 			$output .= $q->getAnswer(true).'</td></tr>';
 		}
