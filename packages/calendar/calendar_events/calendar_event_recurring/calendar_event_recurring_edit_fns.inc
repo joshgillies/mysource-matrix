@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring_edit_fns.inc,v 1.3 2004/07/29 06:57:45 lwright Exp $
+* $Id: calendar_event_recurring_edit_fns.inc,v 1.4 2004/07/30 02:14:39 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once  dirname(__FILE__).'/../../calendar_event/calendar_event_edit_fns.i
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.3 $ - 1.0
+* @version $Revision: 1.4 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -144,17 +144,17 @@ class Calendar_Event_Recurring_Edit_Fns extends Calendar_Event_Edit_Fns
 	{
 		$res = true;
 		if (isset($_REQUEST[$prefix . '_stop_date_selected']) && ($_REQUEST[$prefix . '_stop_date_selected'])) {
-			$_REQUEST[$prefix . '_stop_year'] = (int)$prefix . '_stop_year';
+			$_REQUEST[$prefix . '_stop_year'] = (int)$_REQUEST[$prefix . '_stop_year'];
 			if (($_REQUEST[$prefix . '_stop_year'] < 1900) || ($_REQUEST[$prefix . '_stop_year'] > 2100)) {
 				trigger_error('You entered an invalid year value in the stop date field', E_USER_WARNING);
 				return false;
 			}
-			$_REQUEST[$prefix . '_stop_month'] = (int)$prefix . '_stop_month';
+			$_REQUEST[$prefix . '_stop_month'] = (int)$_REQUEST[$prefix . '_stop_month'];
 			if (($_REQUEST[$prefix . '_stop_month'] < 1) || ($_REQUEST[$prefix . '_stop_month'] > 12)) {
 				trigger_error('You entered an invalid month value in the stop date field', E_USER_WARNING);
 				return false;
 			}
-			$_REQUEST[$prefix . '_stop_day'] = (int)$prefix . '_stop_day';
+			$_REQUEST[$prefix . '_stop_day'] = (int)$_REQUEST[$prefix . '_stop_day'];
 			if (($_REQUEST[$prefix . '_stop_day'] < 1) || ($_REQUEST[$prefix . '_stop_day'] > 31)) {
 				trigger_error('You entered an invalid day value in the stop date field', E_USER_WARNING);
 				return false;
