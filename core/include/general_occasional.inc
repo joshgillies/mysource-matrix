@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general_occasional.inc,v 1.44 2005/03/02 01:09:04 gsherwood Exp $
+* $Id: general_occasional.inc,v 1.45 2005/03/11 00:48:47 gsherwood Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.45 $
 * @package MySource_Matrix
 */
 
@@ -314,7 +314,7 @@ function asset_link_treeid_convert($value, $encode)
 *
 * @param array	$paths	array of web paths to check
 *
-* @return Array(string)
+* @return array(string)
 * @access public
 */
 function make_valid_web_paths($paths)
@@ -340,7 +340,10 @@ function make_valid_web_paths($paths)
 		// no spaces in web paths
 		$path = preg_replace('/\\s+/', '_', $path);
 
-		// Taken (in part) from info here -> http://www.w3.org/Addressing/URL/5_URI_BNF.html
+		// no parentheses
+		$path = preg_replace('/[\(\)\[\]]/', '', $path);
+
+		// taken (in part) from info here -> http://www.w3.org/Addressing/URL/5_URI_BNF.html
 		$path = preg_replace('/[^a-zA-Z0-9\-$_@.!*~(),]/', '',  $path);
 
 		// ignore blanks
