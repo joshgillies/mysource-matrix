@@ -102,9 +102,62 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 
 
 	/**
+	* Paints this table as HTML
+	*
+	* @param object Bodycopy_Table	$asset	the table whose interface we are painting
+	*
+	* @return void
+	* @access public
+	*/
+	function paint(&$asset)
+	{
+		$table_rows = $asset->attr('rows');
+		$table_attributes = $asset->attr('attributes');
+
+		$attribute_list = '';
+		$bgimage = '';
+
+		for (reset($table_attributes); $name = key($table_attributes); next($table_attributes)) {
+			$val = $table_attributes[$name];
+			if ($val == '') continue;
+			if ($name == 'background') {
+				#$web = &get_web_system();
+				#$file = &$web->get_file(substr($val, 5));
+				#$bgimage = $file->get_href();
+				#$popup_attribute_list .= ' '.$name.'="'.str_replace('"', '&quot;', $file->filename).'"';
+				continue;
+			}
+			$attribute_list .= ' '.$name.'="'.str_replace('"', '&quot;', $val).'"';
+		}
+
+		echo "<table{$attribute_list} background=\"$bgimage\">\n";
+
+		for($i = 0; $i < count($table_rows); $i++) {
+			$attribute_list = '';
+			foreach($table_rows[$i]['attributes'] as $name => $val) {
+				if ($val == '') continue;
+				$attribute_list .= ' '.$name.'="'.str_replace('"', '&quot;', $val).'"';
+			}
+
+			echo "<tr{$attribute_list}>\n";
+			// now print the cell contents
+			for($x = 0; $x < count($table_rows[$i]['cells']); $x++) {
+				$table_rows[$i]['cells'][$x]->paint($asset);
+			}
+			echo "</tr>\n";
+		}
+
+		echo "</table>\n";
+
+		return true;
+
+	}// end paint()
+	
+	
+	/**
 	* Paint the interface for editing this table
 	*
-	* @param object Asset				$asser	the table whose interface we are painting
+	* @param object Asset				$asset	the table whose interface we are painting
 	* @param object	Backend_Outputter	$o		the outputter class
 	* @param string						$prefix	prefix for the form elements
 	*
@@ -294,6 +347,7 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 	function processTable(&$asset, $prefix)
 	{
 		global $bodycopy_action, $bodycopy_name, $bodycopy_data, $bodycopy_saved;
+		$updated = false;
 
 		// save any changed table attributes
 		if (!empty($bodycopy_saved[$prefix][$asset->id]['attributes'])) {
@@ -302,7 +356,10 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 			foreach($bodycopy_saved[$prefix][$asset->id]['attributes'] as $name => $value) {
 				if ($this->set_attribute($attributes, $name, $value)) $attributes_updated = true;
 			}
-			if ($attributes_updated) $asset->setAttrValue('attributes',$attributes);
+			if ($attributes_updated) {
+				$asset->setAttrValue('attributes',$attributes);
+				$updated = true;
+			}
 		}
 
 
@@ -425,8 +482,13 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 									} else if ($colspaning < $current_span) {
 										// decreasing the colspan
 										for($i = 0; $i < ($current_span - $colspaning); $i++) {
-											$this->insertCell($rows, $rowid, $cellid, false, true);
-											$rows_updated = true;
+											if ($this->insertCell($rows, $rowid, $cellid, false, true)) {
+												$rows_updated = true;
+											} else {
+												// insertCell failed
+												// dont end up changing the colspan at al
+												$bodycopy_saved[$prefix][$asset->id]['rows'][$rowid]['cells'][$cellid]['attributes']['colspan'] = $current_span;
+											}
 										}
 									}
 								}//end else
@@ -444,10 +506,11 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 				if ($rows[$rowid]['cells'][$i]->processCell($asset, $prefix, $asset->id, $rowid, $i)) $rows_updated = true;
 			}
 
-			
-
 			// only set the rows attributes if any of the rows (or cells within) have changed
-			if ($rows_updated) $asset->setAttrValue('rows',$rows);
+			if ($rows_updated) {
+				$asset->setAttrValue('rows',$rows);
+				$updated = true;
+			}
 
 		}
 
@@ -457,33 +520,34 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 			switch($bodycopy_action) {
 				
 				case 'insert_table_row' :
-					$this->insertRow($asset, $bodycopy_data['rowid'], $bodycopy_data['before']);
+					if ($this->insertRow($asset, $bodycopy_data['rowid'], $bodycopy_data['before'])) $updated = true;
 				break;
 
 				case 'delete_table_row' :
-					$this->deleteRow($asset, $bodycopy_data['rowid']);
+					if ($this->deleteRow($asset, $bodycopy_data['rowid'])) $updated = true;
 				break;
 
 				case 'edit_table_row_order' :
-					$this->reorderRows($asset, $bodycopy_data['row_order']);
+					if ($this->reorderRows($asset, $bodycopy_data['row_order'])) $updated = true;
 				break;
 
 				case 'insert_table_column' :
-					$this->insertColumn($asset, $bodycopy_data['colid'], $bodycopy_data['before']);
+					if ($this->insertColumn($asset, $bodycopy_data['colid'], $bodycopy_data['before'])) $updated = true;
 				break;
 
 				case 'delete_table_column' :
-					$this->deleteColumn($asset, $bodycopy_data['colid']);
+					if ($this->deleteColumn($asset, $bodycopy_data['colid'])) $updated = true;
 				break;
 
 				case 'edit_table_col_order' :
-					$msg[] = $this->reorderColumns($asset, $bodycopy_data['col_order']);
+					if ($this->reorderColumns($asset, $bodycopy_data['col_order'])) $updated = true;
 				break;
 
 			}
 		}
 
-	
+		return $updated;
+
 	}//end processTable()
 
 

@@ -3,6 +3,7 @@
 require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
 require_once SQ_FUDGE_PATH.'/general/general.inc';
+require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 
 /**
@@ -52,9 +53,35 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 
 
 	/**
+	* Paints this bodycopy as HTML
+	*
+	* @param object Bodycopy	$asset	the bodycopy
+	*
+	* @return void
+	* @access public
+	*/
+	function paint(&$asset)
+	{
+		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		
+		// get all the tables linked to this bodycopy
+		$tables = $asset->getLinks(SQ_LINK_UNITE, 'bodycopy_table');
+		
+		// paint each table
+		$i = 0;
+		foreach ($tables as $table_data) {
+			$table = &$am->getAsset($table_data['minorid'], $table_data['type_code']);
+			$table_edit = $table->getEditFns();
+			$table_edit->paint($table);
+		}
+
+	}// end paint()
+
+
+	/**
 	* Paint the interface for creating tables in the bodycopy
 	*
-	* @param object Asset				&$asset	the asset whose interface we are painting
+	* @param object Bodycopy			&$asset	the asset whose interface we are painting
 	* @param object	Backend_Outputter	&$o		the outputter class
 	* @param string						$prefix	prefix for the form elements
 	*
@@ -441,8 +468,8 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 	* This function processes some actions (such as insert_table) but
 	* lets ndividual tables handle other actions themselves
 	*
-	* @param object Asset	$owner	the asset whose interface we are processing
-	* @param string			$prefix	prefix for the form element
+	* @param object Bodycopy	&$asset	the asset whose interface we are processing
+	* @param string				$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
@@ -453,6 +480,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		global $_BODYCOPY;
 
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		$regenerate_file = false;
 		
 		// do some thing for the first time we print a bodycopy on this page
 		if (empty($_BODYCOPY['update_initialised'])) {
@@ -474,7 +502,6 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 			unset($tables);
 
 			$_BODYCOPY['update_initialised'] = true;
-
 		}
 
 		# get all the tables linked to this bodycopy
@@ -483,44 +510,66 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		foreach ($tables as $table_data) {
 			$table = &$am->getAsset($table_data['minorid'], $table_data['type_code']);
 			$table_edit = $table->getEditFns();
-			$table_edit->processTable($table, $prefix);
+			if ($table_edit->processTable($table, $prefix)) $regenerate_file = true;
 		}
 
 		// only update if we are the bodycopy that submitted the form
 		if ($bodycopy_name == $prefix || count($bodycopy_saved[$prefix])) {
 
 			// update the tables
-
 			if ($bodycopy_name == $prefix) {
 				switch($bodycopy_action) {
 					
 					case 'insert_table' :
-							$this->insertTable($asset, $bodycopy_data['tableid'],  $bodycopy_data['num_rows'], 
-																					$bodycopy_data['num_cols'], 
-																					$bodycopy_data['before'],
-																					$bodycopy_data['attributes']
-							);
+							if ($this->insertTable($asset, $bodycopy_data['tableid'],	$bodycopy_data['num_rows'], 
+																						$bodycopy_data['num_cols'], 
+																						$bodycopy_data['before'],
+																						$bodycopy_data['attributes']
+							)) $regenerate_file = true;
 						break;
 
 					case 'delete_table' :
-							$this->deleteTable($asset, $bodycopy_data['tableid']);
+							if ($this->deleteTable($asset, $bodycopy_data['tableid'])) $regenerate_file = true;
 						break;
 				}
 			}
+		}
+
+		if ($regenerate_file) {
+			$this->generateContentFile($asset);
 		}
 
 	}//end processBodycopy()
 
 
 	/**
+	* Creates a PHP file to print on the frontend instead of doing processing there
+	*
+	* @param object Bodycopy	&$asset	the bodycopy
+	*
+	* @return boolean
+	* @access public
+	*/
+	function generateContentFile(&$asset) {
+		ob_start();
+		$this->paint($asset);
+		$output = ob_get_contents();
+		ob_end_clean();
+		create_directory($asset->data_path);
+		if (string_to_file($output, $asset->data_path.'/content_file.inc')) return true;
+		return false;
+	}
+
+
+	/**
 	* Create a new bodycopy_table asset and attach it to this bodycopy
 	*
-	* @param object Asset	&$asset		the bodycopy
-	* @param int			$tableid	insert this table before or after this tableid
-	* @param int			$num_rows	the number of rows the new table should have
-	* @param int			$num_cols	the number of cells the new table should have
-	* @param boolean		$before		insert this table before the passed tableid
-	* @param array			$attributes	an array of attributes to apply to the new table
+	* @param object Bodycopy	&$asset		the bodycopy
+	* @param int				$tableid	insert this table before or after this tableid
+	* @param int				$num_rows	the number of rows the new table should have
+	* @param int				$num_cols	the number of cells the new table should have
+	* @param boolean			$before		insert this table before the passed tableid
+	* @param array				$attributes	an array of attributes to apply to the new table
 	*
 	* @return boolean
 	* @access public

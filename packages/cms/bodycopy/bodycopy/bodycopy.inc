@@ -115,6 +115,18 @@ class Bodycopy extends Asset
 
 
 	/**
+	* Called by the design to print the body of this asset
+	* it's up to the kids to override
+	*
+	* @access public
+	*/
+	function printBody()
+	{
+		include_once($this->data_path.'/content_file.inc');
+	}// end printBody()
+
+
+	/**
 	* Returns name of the asset
 	*
 	* @param bool	$short_name	whether or not we are after the shortname or the full name

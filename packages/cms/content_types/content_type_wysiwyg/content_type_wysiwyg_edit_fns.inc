@@ -56,6 +56,19 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 
 
 	/**
+	* Paints raw HTML
+	*
+	* @param object Content_Type_WYSIWYG	$asset	the wysiwyg object
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paint(&$asset) {
+		echo $asset->attr('html');
+	}
+
+
+	/**
 	* Processes the backend interface for this WYSIWYG editor
 	*
 	* @param object Content_Type_WYSIWYG	&$asset	the wysiwyg content type object
@@ -70,9 +83,9 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 		$html = (isset($_POST[$prefix])) ? $_POST[$prefix] : '';
 		$html = trim($html);
 		if ($html != $current_html) {
-			if (!$asset->setAttrValue('html', $html)) return false;
+			if ($asset->setAttrValue('html', $html)) return true;
 		}
-		return true;
+		return false;
 	}
 
 }//end class

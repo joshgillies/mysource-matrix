@@ -141,24 +141,30 @@ class BodyCopy_Table_Cell extends Resolve_Object {
 	* @return void
 	* @access public
 	*/
-	function paint(&$table, $prefix)
+	function paint(&$table, $prefix=false)
 	{
 		echo '<td';
 		foreach($this->attributes as $name => $val) {
 			if ($val == '') continue;
+			if ($name == 'linkid') continue;
+			if ($name == 'content_type') continue;
 			if (strtolower($name) == 'nowrap') {
 				if ($val) echo ' nowrap';
 			} else {
 				echo ' '.$name.'="'.str_replace('"', '&quot;', $val).'"';
 			}
 		}
-		echo '>';
+		echo ">\n";
 		$link = $table->getLinkById($this->attributes['linkid']);
 		$content_type = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['type_code']);
 		$content_edit = $content_type->getEditFns();
-		$content_prefix = $prefix.'_content_type_'.$this->attributes['content_type'].'_'.$this->attributes['linkid'];
-		$content_edit->paintBackend($content_type, $content_prefix);
-		echo '</td>';
+		if ($prefix) {
+			$content_prefix = $prefix.'_content_type_'.$this->attributes['content_type'].'_'.$this->attributes['linkid'];
+			$content_edit->paintBackend($content_type, $content_prefix);
+		} else {
+			$content_edit->paint($content_type);
+		}
+		echo "\n</td>\n";
 	}
 
 
@@ -228,7 +234,7 @@ class BodyCopy_Table_Cell extends Resolve_Object {
 		$content_type = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['type_code']);
 		$content_edit = $content_type->getEditFns();
 		$content_prefix = $prefix.'_content_type_'.$this->attributes['content_type'].'_'.$this->attributes['linkid'];
-		$content_edit->processBackend($content_type, $content_prefix);
+		if ($content_edit->processBackend($content_type, $content_prefix)) $updated = true;
 
 		if (isset($bodycopy_saved[$prefix][$tableid]['rows'][$rowid]['cells'][$cellid]['attributes'])) {
 			foreach($bodycopy_saved[$prefix][$tableid]['rows'][$rowid]['cells'][$cellid]['attributes'] as $name => $value) {

@@ -111,6 +111,22 @@ class Page extends Asset
 
 
 	/**
+	* Called by the design to print the body of this asset
+	* it's up to the kids to override
+	*
+	* @access public
+	*/
+	function printBody()
+	{
+		// get the bodycopy attached to us
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
+		$bodycopy_data = $this->getLink(SQ_LINK_EXCLUSIVE, 'bodycopy');
+		$bodycopy = $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_data['minorid'], $bodycopy_data['type_code']);
+		$bodycopy->printBody();
+	}// end printBody()
+
+
+	/**
 	* Returns name of the asset
 	*
 	* @param boolean	$short_name	whether or not we are after the short name or the full name
