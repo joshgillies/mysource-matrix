@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_create.xml,v 1.9 2003/11/26 00:51:04 gsherwood Exp $
+* $Id: edit_interface_create.xml,v 1.10 2004/03/15 00:48:54 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -27,5 +27,8 @@
 	<section name="User Details">
 		<field attribute="username" />
 		<field attribute="password" />
+		<field attribute="first_name" />
+		<field attribute="last_name" />
+		<field attribute="email" />
 	</section>
 </contents>
