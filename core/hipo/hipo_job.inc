@@ -353,8 +353,34 @@ class HIPO_Job
 						<td valign="middle" align="center">
 						<table border="0" cellspacing="2" cellpadding="0" width="90%" bgcolor="#000000">
 							<tr>
-								<td>
-								<table border="0" cellspacing="2" cellpadding="2" width="100%" bgcolor="#735B7D">
+								<td valign="top" bgcolor="#E0E0E0" nowrap>
+								<table>
+									<tr>
+										<td>
+<pre style="color:#412F49; font-size:11px;">
+<b>
+            _,..,_ (, )        
+         .,'      `,./         
+       .' :`.----.': `,        
+      :   : ^    ^ :   ;       
+     :   :  6    6  :   ;      
+     :   :          :   ;      
+     :   :    __    :   ;      
+      :   `:'.--.`:'   ;       
+       `.  : o  o :  .'        
+        :   `----'   :         
+        : .  :'`:  . :         
+        `.:.'    `.:.'         
+   Powered by HIPO Technology  
+    ( packed with ::Fudge:: )  
+</b>
+</pre>
+										</td>
+									</tr>
+								</table>
+								</td>
+								<td valign="top" width="100%" bgcolor="#735B7D">
+								<table border="0" cellspacing="2" cellpadding="2" width="100%" height="100%">
 									<tr>
 										<td>
 										<p>
