@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.109 2004/11/02 22:28:46 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.110 2004/11/10 00:54:41 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,7 +38,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.109 $ - 1.0
+* @version $Revision: 1.110 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -443,6 +443,7 @@ class Page_Calendar extends Page_Asset_Listing
 			} else {
 				// hack for now until we mod asset listing
 				foreach ($events as $id => $details) $events[$id] = $details['type_code'];
+				$this->filterAssetList($events);
 				$this->printAssetList($events);
 			}
 		} elseif ($format == 'list_with_headings') {
@@ -460,6 +461,7 @@ class Page_Calendar extends Page_Asset_Listing
 				} else {
 					// hack for now until we mod asset listing
 					foreach ($events[$month_num] as $id => $details) $events[$month_num][$id] = $details['type_code'];
+					$this->filterAssetList($events);
 					$this->printAssetList($events[$month_num]);
 				}
 			}
@@ -570,6 +572,7 @@ class Page_Calendar extends Page_Asset_Listing
 			} else {
 				// hack for now until we mod asset listing
 				foreach ($events as $id => $details) $events[$id] = $details['type_code'];
+				$this->filterAssetList($events);
 				$this->printAssetList($events);
 			}
 		} elseif ($format == 'list_with_headings') {
@@ -587,6 +590,7 @@ class Page_Calendar extends Page_Asset_Listing
 				} else {
 					// hack for now until we mod asset listing
 					foreach ($events[$current_day] as $id => $details) $events[$id] = $details['type_code'];
+					$this->filterAssetList($events);
 					$this->printAssetList($events);
 				}
 			}
@@ -743,6 +747,7 @@ class Page_Calendar extends Page_Asset_Listing
 			} else {
 				// hack for now until we mod asset listing
 				foreach ($events as $id => $details) $events[$id] = $details['type_code'];
+				$this->filterAssetList($events);
 				$this->printAssetList($events);
 			}
 		} elseif ($format == 'list_with_headings') {
@@ -757,6 +762,7 @@ class Page_Calendar extends Page_Asset_Listing
 				} else {
 					// hack for now until we mod asset listing
 					foreach ($events[$day_date] as $id => $details) $events[$day_date][$id] = $details['type_code'];
+					$this->filterAssetList($events);
 					$this->printAssetList($events);
 				}
 			}
@@ -798,6 +804,7 @@ class Page_Calendar extends Page_Asset_Listing
 			} else {
 				$new_events = Array();
 				foreach ($events as $id => $details) $new_events[strtok($id, ':')] = $details['type_code'];
+				$this->filterAssetList($new_events);
 				$this->printAssetList($new_events);
 			}
 		} else {
@@ -840,10 +847,9 @@ class Page_Calendar extends Page_Asset_Listing
 		// Might be better to do this ourselves, but for now we'll palm it off to Asset Builder
 		ob_start();
 			$info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($event_id));
-			// HACK
-			$info[$event_id]['type_code'] = 'calendar_event_single';
-			// END HACK
-			$this->printAssetList(Array($event_id => $info[$event_id]['type_code']));
+			$asset_list = Array($event_id => $info[$event_id]['type_code']);
+			$this->filterAssetList($asset_list);
+			$this->printAssetList($asset_list);
 			$res = ob_get_contents();
 		ob_end_clean();
 		return $res;
