@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_map.inc,v 1.81 2003/10/03 06:10:16 brobertson Exp $
+* $Id: asset_map.inc,v 1.82 2003/10/08 00:54:10 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -657,6 +657,12 @@ class Asset_Map
 			$moved = $GLOBALS['SQ_SYSTEM']->am->moveLink($link['linkid'], $new_parent->id, $link['link_type'], $input->root->attributes['to_parent_pos']);
 			if (!$moved) return;
 
+			//// START HIPO PROCESSING ////
+			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+			$vars = Array('assetids' => Array($asset->id));
+			$hh->queueHipo('hipo_job_update_lookups', $vars);
+			////  END HIPO PROCESSING  ////
+
 			// if our new parent has permission set, do the popup thang to ask the user if
 			// they want to go ahead and cascade these puppies
 			$skip_perms = true;
@@ -775,10 +781,14 @@ class Asset_Map
 		}
 
 		// First let's try and create the new link, if there are any issues then it will cryout for us
-		$GLOBALS['SQ_SYSTEM']->am->acquireLock($new_parent->id);
 		$linkid = $new_parent->createLink($asset, $link['link_type'], '', $input->root->attributes['to_parent_pos']);
-		$GLOBALS['SQ_SYSTEM']->am->releaseLock($new_parent->id);
 		if (!$linkid) return;
+
+		//// START HIPO PROCESSING ////
+		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		$vars = Array('assetids' => Array($asset->id));
+		$hh->queueHipo('hipo_job_update_lookups', $vars);
+		////  END HIPO PROCESSING  ////
 
 		// if our new parent has permission set, do the popup thang to ask the user if
 		// they want to go ahead and cascade these puppies

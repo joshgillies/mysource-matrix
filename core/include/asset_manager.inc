@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_manager.inc,v 1.129 2003/10/07 23:16:21 dwong Exp $
+* $Id: asset_manager.inc,v 1.130 2003/10/08 00:54:10 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1738,9 +1738,12 @@ class Asset_Manager extends MySource_Object
 		}//end for
 
 
-		// check if we are allowed to link to these type of assets
-		if (($err_msg = $major->canCreateLink($minor, $link_type, $exclusive)) !== true) {
-			trigger_error($err_msg, E_USER_WARNING);
+		// to create a link we need to lock the new parent, but we need to make sure
+		// we dont unlock it if it was already locked
+		$lock_info = @$this->getLockInfo($major->id);
+		$parent_was_locked = !empty($lock_info);
+		if (!$this->acquireLock($major->id)) {
+			trigger_error('Could not create new asset link - lock not acquired on major asset "'.$major->name.'"', E_USER_WARNING);
 			return 0;
 		}
 
@@ -2082,6 +2085,14 @@ class Asset_Manager extends MySource_Object
 			return 0;
 		}
 
+		// release locks depending on if the parent was locked before the link
+		if (!$parent_was_locked) {
+			if (!$this->releaseLock($major->id)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return 0;
+			}
+		}
+
 		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 		$message_body = '"'.$minor->name.'" was successfully linked to "'.$major->name.'"';
 		$message = $ms->newMessage(Array(), 'Asset Link Created', $message_body, 'asset.linking');
@@ -2257,6 +2268,15 @@ class Asset_Manager extends MySource_Object
 			return false;
 		}
 
+		// to delete a link we need to lock the old parent, but we need to make sure
+		// we dont unlock it if it was already locked
+		$lock_info = @$this->getLockInfo($major->id);
+		$parent_was_locked = !empty($lock_info);
+		if (!$this->acquireLock($major->id)) {
+			trigger_error('Could not delete asset link - lock not acquired on major asset "'.$major->name.'"', E_USER_WARNING);
+			return 0;
+		}
+
 		// check if we are allowed to delete this link
 		if (($err_msg = $major->canDeleteLink($linkid)) !== true) {
 			trigger_error($err_msg, E_USER_WARNING);
@@ -2405,7 +2425,15 @@ class Asset_Manager extends MySource_Object
 		}
 		if (!$minor->linksUpdated()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return 0;
+			return false;
+		}
+
+		// release locks depending on if the parent was locked before the link
+		if (!$parent_was_locked) {
+			if (!$this->releaseLock($major->id)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return false;
+			}
 		}
 
 		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
@@ -2507,24 +2535,14 @@ class Asset_Manager extends MySource_Object
 		// open the transaction
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		if (!$this->acquireLock($new_parent->id)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
 		$new_linkid = $new_parent->createLink($minor, $link_type, '', $to_parent_pos);
-		$this->releaseLock($new_parent->id);
 		if (!$new_linkid) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
 
 		// Now let's try and delete the old link
-		if (!$this->acquireLock($old_parent->id)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
 		$deleted = $old_parent->deleteLink($linkid);
-		$this->releaseLock($old_parent->id);
 		if (!$deleted) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;

@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: cron_job_future_lineage.inc,v 1.2 2003/09/26 05:26:27 brobertson Exp $
+* $Id: cron_job_future_lineage.inc,v 1.3 2003/10/08 00:54:10 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -316,30 +316,22 @@ class Cron_Job_Future_Lineage extends Cron_Job
 
 		$new_major = &$this->getAssetInLink('major');
 		if (!is_null($new_major)) {
-			$create_ok = false;
 
-			if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($new_major->id) && $GLOBALS['SQ_SYSTEM']->am->acquireLock($minor->id)) {
-
-				$link_info = $this->attr('link_info');
-				if (!isset($link_info['value']))		$link_info['value']			= '';
-				if (!isset($link_info['sort_order']))	$link_info['sort_order']	= null;
-				if (!isset($link_info['dependant']))	$link_info['dependant']		= '0';
-				if (!isset($link_info['exclusive']))	$link_info['exclusive']		= '0';
+			$link_info = $this->attr('link_info');
+			if (!isset($link_info['value']))		$link_info['value']			= '';
+			if (!isset($link_info['sort_order']))	$link_info['sort_order']	= null;
+			if (!isset($link_info['dependant']))	$link_info['dependant']		= '0';
+			if (!isset($link_info['exclusive']))	$link_info['exclusive']		= '0';
 
 
-				$linkid = $new_major->createLink($minor,
-													$link_info['link_type'],
-													$link_info['value'],
-													$link_info['sort_order'],
-													$link_info['dependant'],
-													$link_info['exclusive']);
+			$linkid = $new_major->createLink($minor,
+												$link_info['link_type'],
+												$link_info['value'],
+												$link_info['sort_order'],
+												$link_info['dependant'],
+												$link_info['exclusive']);
 
-				$GLOBALS['SQ_SYSTEM']->am->releaseLock($new_major->id);
-				$GLOBALS['SQ_SYSTEM']->am->releaseLock($minor->id);
-
-				$create_ok = ($linkid > 0);
-
-			}// end if
+			$create_ok = ($linkid > 0);
 
 			if (!$create_ok) {
 				trigger_error('Create of New Link under '.$new_major->name.' (#'.$new_major->id.') Failed', E_USER_WARNING);

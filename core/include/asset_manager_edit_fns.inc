@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_manager_edit_fns.inc,v 1.57 2003/10/06 23:35:39 brobertson Exp $
+* $Id: asset_manager_edit_fns.inc,v 1.58 2003/10/08 00:54:10 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -974,9 +974,13 @@ speed_check('FINISHED');
 			$asset = &$this->am->getAsset($_GET['delete_assetid']);
 			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($_GET['delete_linkid'], $asset->id, 'minor');
 			$parent = &$this->am->getAsset($link['majorid'], $link['major_type_code']);
-			$this->am->acquireLock($parent->id);
 			$parent->deleteLink($link['linkid']);
-			$this->am->releaseLock($parent->id);
+
+			//// START HIPO PROCESSING ////
+			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+			$vars = Array('assetids' => Array($asset->id));
+			$hh->queueHipo('hipo_job_update_lookups', $vars);
+			////  END HIPO PROCESSING  ////
 
 			// check for any queued HIPOs
 			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
