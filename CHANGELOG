@@ -156,6 +156,7 @@ Core
 * Fixed bug #152: database schema allows NULL values for fields that should not be NULL
 * Fixed bug #161: bodycopy containers are printing system variables in HTML output (eg. layout_type)
 * Fixed bug #163: incomplete metadata fields do not block workflow if metadata values have not yet been set
+* Fixed bug #169: You can delete a user's inbox and workspace
 
 CMS
 
