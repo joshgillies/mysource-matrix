@@ -131,14 +131,13 @@ class Form_Submission extends Asset
 	function setError($error)
 	{
 		$a = $this->attr('attributes');
-		if (!isset($a['is_error'])) $a['is_error'] = true;
+		if (!$a['is_error']) $a['is_error'] = true;
 		if (!isset($a['errors'])) $a['errors'] = Array();
 		$a['errors'][] = $error;
 		
 		if (!$this->setAttrValue('attributes', $a)) {
 			return false;
 		}
-		
 		return true;
 	
 	}// end setError()
