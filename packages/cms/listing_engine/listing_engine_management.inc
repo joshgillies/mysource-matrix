@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_management.inc,v 1.11 2005/02/16 00:10:48 lwright Exp $
+* $Id: listing_engine_management.inc,v 1.12 2005/02/16 05:23:34 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -216,8 +216,8 @@ class Listing_Engine_Management extends Asset_Management
 					$result = $this->_hoardAttribute($attr_name, 'page_asset_listing');
 				}
 				
-				foreach($result as $resultid => $result_info) {
-					$attributes[$resultid] = $result_info;
+				foreach($result as $result_info) {
+					$attributes[$result_info['attrid']] = $result_info;
 				}
 			}
 			
