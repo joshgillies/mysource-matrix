@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: product.inc,v 1.3 2005/01/26 09:49:21 brobertson Exp $
+* $Id: product.inc,v 1.4 2005/02/14 19:50:40 brobertson Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 * product class description here
 *
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -103,8 +103,9 @@ class Product extends Page
 	{
 		switch($name) {
 			case 'price' :
-				trigger_error('The price cannot be set directly. It must be set using the price_obj variable', E_USER_WARNING);
-				return false;
+				$price_obj = $this->attr('price_obj');
+				$price_obj->value = $value;
+				return $this->setAttrValue('price_obj', $price_obj);
 				break;
 			case 'price_obj' :
 				if (!parent::setAttrValue($name, $value)) return false;
