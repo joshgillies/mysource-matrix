@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager.inc,v 1.54 2004/10/25 23:36:17 mnyeholt Exp $
+* $Id: package_manager.inc,v 1.55 2004/11/04 00:29:17 mnyeholt Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -141,16 +141,20 @@ class Package_Manager extends MySource_Object
 
 	/**
 	* Checks to see if the installation/upgrade of this package is able to go ahead.
+	* Will return 'true' if all assets are okay, otherwise will return an array
+	* of assetids that failed requirements. 
 	*
 	* @param Array $update_assets		An array of asset types to check 
 	*									details for. If empty, will check all assets
-	* @return boolean
+	* @return mixed						
 	* @access public
 	*/
 	function checkPackageDetails($update_assets=Array())
 	{
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 
+		$deferred_assets = Array();
+		
 		for (reset($this->assets); null !== ($type_code = key($this->assets)); next($this->assets)) {
 			// Don't bother checking an asset that's not defined in the array.
 			if (count($update_assets)) {
@@ -165,8 +169,11 @@ class Package_Manager extends MySource_Object
 			list($result, $req) = $this->checkRequirementsFromFile($file, true);
 
 			if (!$result) {
-				trigger_error('Asset "'.$type_code.'" fails the "'.$req['type'].'" requirement for "'.$req['code'].' v'.$req['version'].'"'."\n".'As specified by '.$file, E_USER_WARNING);
-				return false;
+				trigger_error('Asset "'.$type_code.'" fails the "'.$req['type'].'" requirement for "'.$req['code'].' v'.$req['version'].'"'."\n".'As specified by '.$file.' and will be deferred', E_USER_WARNING);
+				// It failed the requirement, so we want to let the caller know what asset 
+				// failed so that it can be revisited at a later date if needbe
+				$deferred_assets[] = $type_code;
+				continue;
 			}
 
 			// OK, let's check that this asset is of an available type,
@@ -179,7 +186,8 @@ class Package_Manager extends MySource_Object
 
 		}//end for
 
-		return true;
+		
+		return count($deferred_assets) ? $deferred_assets : true;
 
 	}//end checkPackageDetails()
 
@@ -189,12 +197,16 @@ class Package_Manager extends MySource_Object
 	*
 	* @param Array $update_assets		An array of asset types to update 
 	*									details for. If empty, will do all assets
-	* @return boolean	success status
+	* @return mixed						success status, or an array of type codes
+	*									that has been deferred for later checking
 	* @access public
 	*/
 	function updatePackageDetails($update_assets=Array())
 	{
-		if (!$this->checkPackageDetails($update_assets)) return false;
+		// If there were some type codes that failed the requirements
+		if (is_array($deferred = $this->checkPackageDetails($update_assets))) {
+			return $deferred;
+		}
 		
 		$install_order = $this->_getInstallOrder();
 		if (!empty($install_order)) {

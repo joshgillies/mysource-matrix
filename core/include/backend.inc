@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.98 2004/10/07 23:33:30 mmcintyre Exp $
+* $Id: backend.inc,v 1.99 2004/11/04 00:29:17 mnyeholt Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -355,12 +355,8 @@ class Backend extends MySource_Object
 			 //  INTERNAL MESSAGE POPUP  //
 			//////////////////////////////
 			
-			$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-	
-			$msgs_from = (isset($_SESSION['backend_header_last_refresh'])) ? $_SESSION['backend_header_last_refresh'] : null;
-			$messages = $ms->getMessages($GLOBALS['SQ_SYSTEM']->user->id, null, Array(SQ_MSG_UNREAD), Array());
-
-			if (!empty($messages)) {
+			
+			/*if (!empty($messages)) {
 				$html = '
 				<table class="sq-backend-new-message-table">
 					<tr>
@@ -505,10 +501,11 @@ class Backend extends MySource_Object
 					}
 				</script>
 				<?php
-			}// end if empty msgs
+			}// end if empty msgs*/
 			
 		}//end if not in LIMBO
-
+		
+		
 		if (SQ_ROLLBACK_VIEW) $now = strtotime($_SESSION['sq_rollback_view']['rollback_time']);
 		else $now = time();
 
@@ -527,6 +524,19 @@ class Backend extends MySource_Object
 				<?php
 					$options = Array();
 					if (!SQ_IN_LIMBO) {
+						$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+	
+						$msgs_from = (isset($_SESSION['backend_header_last_refresh'])) ? $_SESSION['backend_header_last_refresh'] : null;
+						$messages = $ms->getMessages($GLOBALS['SQ_SYSTEM']->user->id, null, Array(SQ_MSG_UNREAD), Array());
+						if (!empty($messages)) {
+							$options[] = Array( 
+										'url'     => $this->getBackendUrl('main').'&backend_section=am',
+										'target'  => 'sq_main',
+										'title' 	=> 'You have new messages',
+										'icon'		=> '../mail.png',
+										);
+						}
+						
 						$options[] = Array(
 									'url'     => '#',
 									'onclick' => 'Javascript:
