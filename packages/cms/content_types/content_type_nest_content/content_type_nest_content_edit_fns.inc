@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content_edit_fns.inc,v 1.17 2004/01/19 22:48:20 gsherwood Exp $
+* $Id: content_type_nest_content_edit_fns.inc,v 1.18 2004/02/02 03:13:30 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -194,9 +194,10 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 		$assetid = (isset($_POST[$prefix.'_nested_assetid']['assetid'])) ? (int)$_POST[$prefix.'_nested_assetid']['assetid'] : 0;
 
 		if ($assetid) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 			if ($assetid != $current_assetid) {
+
+				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 				if ($current_assetid) {
 					$link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', true, 'nested_asset');
