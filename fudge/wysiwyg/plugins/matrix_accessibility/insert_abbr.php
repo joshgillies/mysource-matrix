@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_abbr.php,v 1.1 2004/09/09 01:39:39 amiller Exp $
+* $Id: insert_abbr.php,v 1.2 2004/09/09 02:47:15 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -80,17 +80,17 @@ if (!isset($_GET['title']))		  $_GET['title'] = "";
 			function buildForm() {
 				if (can_insert) {
 					document.write('<tr>');
-					document.write('	<td class="label">Abbreviation:</td>');
-					document.write('	<td colspan="3"><?php text_box('abbr', $_GET['abbr'], 40, 0);?></td>');
+					document.write('<td class="label">Abbreviation:</td>');
+					document.write('<td colspan="3"><?php text_box('abbr', trim($_GET['abbr']), 40, 0);?></td>');
 					document.write('</tr>');
 					document.write('<tr>');
-					document.write('	<td class="label">Definition:</td>');
-					document.write('	<td colspan="3"><?php text_box('title', $_GET['title'], 40, 0);?></td>');
+					document.write('    <td class="label">Definition:</td>');
+					document.write('    <td colspan="3"><?php text_box('title', trim($_GET['title']), 40, 0);?></td>');
 					document.write('</tr>');
 				} else {
 					document.write('<tr>');
-					document.write('	<td colspan="4">Internet Explorer does not support automatically');
-					document.write('	inserting the Abbreviation tag. You may insert this tag manually in Source View mode.</td>');
+					document.write('    <td colspan="4">Internet Explorer does not support automatically');
+					document.write('    inserting the Abbreviation tag. You may insert this tag manually in Source View mode.</td>');
 					document.write('</tr>');
 				}
 			};
