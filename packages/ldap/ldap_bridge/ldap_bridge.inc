@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.11 2004/04/13 01:07:50 gsherwood Exp $
+* $Id: ldap_bridge.inc,v 1.12 2004/04/14 01:58:55 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -104,7 +104,7 @@ class LDAP_Bridge extends Bridge
 		if (empty($shadowid)) return $asset;
 		
 		$ldap = $this->connectToLdap();
-		$result = $ldap->search($shadowid,'(objectClass=*)');
+		$result = $ldap->search($shadowid,'(objectClass=*)', false, false);
 		if (!$result) return $asset;
 		$data = $ldap->getEntries($result);
 		if (!$data['count']) return $asset;
