@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_attribute.inc,v 1.19 2003/10/07 06:58:04 dwong Exp $
+* $Id: asset_attribute.inc,v 1.20 2003/10/09 00:37:41 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -145,7 +145,7 @@ class Asset_Attribute extends MySource_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = 'SELECT type FROM '.SQ_TABLE_PREFIX.'asset_attribute
-				WHERE attributeid = \''.$attributeid.'\'';
+				WHERE attributeid = '.$db->quote($attributeid);
 
 		$type = $db->getOne($sql);
 		if (DB::isError($type)) {
