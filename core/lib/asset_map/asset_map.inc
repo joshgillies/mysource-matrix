@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.159 2004/08/23 04:07:03 gsherwood Exp $
+* $Id: asset_map.inc,v 1.160 2004/08/26 01:52:35 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -73,9 +73,9 @@ class Asset_Map
 				<td class="sq-backend-header-item" style="width: 100%;"><img style="margin-left: 7px;" src="<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/matrix_logo.gif" alt="MySource Matrix" /></td>
 			</tr>
 			<tr>
-				<td style="height: 100%; width: 100%;">
+				<td style="height: 100%; width: 100%;" valign="top">
 				<?php
-					$this->embed_asset_map('complex', '224', '99%');	
+					$this->embed_asset_map('complex', '224');
 				?>
 				</td>
 				</tr>
@@ -104,7 +104,7 @@ class Asset_Map
 	* @return void
 	* @access public
 	*/
-	function embed_asset_map($type='simple', $width=200, $height=350)
+	function embed_asset_map($type='simple', $width=200, $height=0)
 	{
 		$classname = '';
 		$jarname = '';
@@ -134,40 +134,59 @@ class Asset_Map
 		<script language="javascript" type="text/javascript" src="<?php echo sq_web_path('lib').'/js/detect.js' ?>"></script>
 		<script language="javascript" type="text/javascript" src="<?php echo sq_web_path('fudge').'/var_serialise/var_serialise.js' ?>"></script>
 		<script language="javascript" type="text/javascript" src="<?php echo sq_web_path('lib').'/asset_map/asset_map.js';?>"></script>
-
-		<applet id="sq_asset_map" width="<?php echo $width; ?>" height="<?php echo $height; ?>"  code="net/squiz/matrix/<?php echo $jarname; ?>/<?php echo $classname; ?>.class" archive="<?php echo sq_web_path('lib'); ?>/asset_map/java/<?php echo $jarname; ?>.jar?t=<?php echo time(); ?>" MAYSCRIPT>
-			<param name="BASE_URL" value="<?php echo $root_url; ?>" />
-			<param name="BACKEND_SUFFIX" value="<?php echo SQ_CONF_BACKEND_SUFFIX; ?>" />
-			<?php
-				if ($type == 'complex') {
-					
-					$user = &$GLOBALS['SQ_SYSTEM']->user;
-					$inbox_link = $GLOBALS['SQ_SYSTEM']->am->getLink($user->id, SQ_LINK_TYPE_2, 'inbox', true, null, 'major', '1');
-
-					if (empty($inbox_link)) {
-						$inbox_url = $user->getBackendHref();
-					} else {
-						$inbox_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($inbox_link['minorid'], $inbox_link['minor_type_code']);
-						$inbox_url = $inbox_asset->getBackendHref('details');
-					}
-					$inbox_url = str_replace('.', '', $inbox_url);
-
-					$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-					$new_messages = count($ms->getMessages($user->id, null, Array(SQ_MSG_UNREAD), Array(), null, null, 'short_name'));
-
-					$details_url = $user->getBackendHref('details');
-					if ($details_url{0} == '.') $details_url = substr($details_url, 1);
-
-					?><param name="INBOX_URL" value="<?php echo rawurlencode($inbox_url); ?>" />
-					  <param name="NEW_MSGS" value="<?php echo $new_messages; ?>" />
-					  <param name="DETAILS_URL" value="<?php echo rawurlencode($details_url); ?>" />
-					<?php
-				}
-			?>
-
-			Java is not installed on your system. Please download the latest version of the <a href="http://java.sun.com/webapps/getjava/BrowserRedirect?locale=en&host=www.java.com:80">Java Runtime Environment</a> and return once it has been installed.
-		</applet>
+		
 		<?php
+		ob_start();
+			?>
+			<applet id="sq_asset_map" width="<?php echo $width; ?>" height="%applet_height%" code="net/squiz/matrix/<?php echo $jarname; ?>/<?php echo $classname; ?>.class" archive="<?php echo sq_web_path('lib'); ?>/asset_map/java/<?php echo $jarname; ?>.jar?t=<?php echo time(); ?>" MAYSCRIPT>
+				<param name="BASE_URL" value="<?php echo $root_url; ?>" />
+				<param name="BACKEND_SUFFIX" value="<?php echo SQ_CONF_BACKEND_SUFFIX; ?>" />
+				<?php
+					if ($type == 'complex') {
+						
+						$user = &$GLOBALS['SQ_SYSTEM']->user;
+						$inbox_link = $GLOBALS['SQ_SYSTEM']->am->getLink($user->id, SQ_LINK_TYPE_2, 'inbox', true, null, 'major', '1');
+	
+						if (empty($inbox_link)) {
+							$inbox_url = $user->getBackendHref();
+						} else {
+							$inbox_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($inbox_link['minorid'], $inbox_link['minor_type_code']);
+							$inbox_url = $inbox_asset->getBackendHref('details');
+						}
+						$inbox_url = str_replace('.', '', $inbox_url);
+	
+						$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+						$new_messages = count($ms->getMessages($user->id, null, Array(SQ_MSG_UNREAD), Array(), null, null, 'short_name'));
+	
+						$details_url = $user->getBackendHref('details');
+						if ($details_url{0} == '.') $details_url = substr($details_url, 1);
+	
+						?>
+						  <param name="INBOX_URL" value="<?php echo rawurlencode($inbox_url); ?>" />
+						  <param name="NEW_MSGS" value="<?php echo $new_messages; ?>" />
+						  <param name="DETAILS_URL" value="<?php echo rawurlencode($details_url); ?>" />
+						<?php
+					}
+					?>
+						  <param name="SESSION_ID" value="<?php echo $_COOKIE['SQ_SYSTEM_SESSION']; ?>" />
+						  <param name="SESSION_KEY" value="<?php echo $GLOBALS['SQ_SYSTEM']->getUniqueSessionKey(); ?>" />
+				Java is not installed on your system. Please download the latest version of the <a href="http://java.sun.com/webapps/getjava/BrowserRedirect?locale=en&host=www.java.com:80">Java Runtime Environment</a> and return once it has been installed.
+			</applet>
+			<?php
+			$applet_tag = ob_get_contents();
+		ob_end_clean();
+		
+		if ($height <= 0) {
+			$height = "' + (document.body.offsetHeight - 60) + '";
+			$applet_tag = str_replace("\n", ' ', $applet_tag);
+			?>
+			<script language="javascript">
+				document.write('<?php echo str_replace('%applet_height%', $height, $applet_tag); ?>');
+			</script>
+			<?php
+		} else {
+			echo str_replace('%applet_height%', $height, $applet_tag);
+		}
 
 	}//end embed_asset_map()
 
