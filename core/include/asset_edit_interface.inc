@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.206 2004/04/20 00:12:25 gsherwood Exp $
+* $Id: asset_edit_interface.inc,v 1.207 2004/04/22 08:32:37 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -808,6 +808,7 @@ class Asset_Edit_Interface extends MySource_Object
 			$layout = &$lm->getLayout($owner->type(), $active_screen);
 			if (is_null($layout)) return false;
 			$keywords = $layout->getLayoutKeywords();
+			if (empty($keywords)) return false;
 			if (isset($keywords['custom']) && !empty($keywords['custom'])) {
 				// acquire any locks that the owner needs to paint the layout
 				$owner->acquireEditingLocks($keywords['custom']);
@@ -943,6 +944,8 @@ class Asset_Edit_Interface extends MySource_Object
 			}//end if
 
 		}//end if
+
+		if (!isset($keywords['layout'])) $keywords['layout'] = Array();
 
 		// we have printed an editable interface on a static screen - show the commit button
 		if (in_array('commit_button', $keywords['layout']) && $print_commit_button) {
