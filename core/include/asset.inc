@@ -944,8 +944,8 @@ class Asset extends Resolve_Object
 			trigger_error('Existing Link #'.$linkid.' not found, unable to update link', E_USER_WARNING);
 			return false;
 		}
-		pre_echo("SORT ORDER : ".$sort_order);
-		pre_echo(array_contents($link));
+//		pre_echo("SORT ORDER : ".$sort_order);
+//		pre_echo(array_contents($link));
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
@@ -1007,7 +1007,7 @@ class Asset extends Resolve_Object
 				WHERE linkid    = '.$db->quote($linkid).'
 				  AND majorid   = '.$db->quote($this->id);
 
-		pre_echo($sql);
+//		pre_echo($sql);
 
 		$result = $db->query($sql);
 		if (DB::isError($result)) {
