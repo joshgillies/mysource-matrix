@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.59 2004/06/08 02:37:57 gsherwood Exp $
+* $Id: file.inc,v 1.60 2004/06/18 04:30:57 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -526,6 +526,44 @@ class File extends Asset
 	}//end updateLookups()
 
 
+
+
+
+	/**
+	* Return the keywords with their replacements
+	*
+	* The return value is in the form:
+	* <pre>
+	* Array(
+	*     'name' => Array (
+	*          'value' => 'page',
+	*          'description' => 'the asset name',
+	*     ),
+	* )
+	* </pre>
+	*
+	* @param boolean $descriptions if TRUE descriptions will be included in the array
+	*
+	* @access public
+	* @return Array(mixed)
+	*/
+	function getAssetKeywords($descriptions=false)
+	{
+		$keywords = parent::getAssetKeywords($descriptions);
+
+		$keywords['asset_file_size_in_bytes'] = Array('value' => 0);
+		$keywords['asset_file_size_readable'] = Array('value' => '0 bytes');
+
+		if ($descriptions) {
+			$keywords['asset_file_size_in_bytes']['description'] = 'File size (in bytes)';
+			$keywords['asset_file_size_readable']['description'] = 'Asset size (in human-friendly format)';
+		}
+		
+		return $keywords;
+
+	}//end getAssetKeywords()
+	
+	
 	/**
 	* Processes a backend submission from this asset, returns true if all OK
 	*
