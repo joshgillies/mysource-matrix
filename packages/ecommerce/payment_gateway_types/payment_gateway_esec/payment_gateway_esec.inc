@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: payment_gateway_esec.inc,v 1.3 2004/10/15 01:13:35 arailean Exp $
+* $Id: payment_gateway_esec.inc,v 1.3.2.1 2004/10/18 22:50:21 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once dirname(__FILE__).'/esec_processor.inc';
 *
 * @author  Andrei Railean		<arailean@squiz.net>
 * @author  Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.3.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -46,7 +46,7 @@ class Payment_Gateway_Esec extends Payment_Gateway
 	* basic output function. root of output process
 	*
 	* @access public
-	* @return
+	* @return void
 	*/
 	function printBody()
 	{
@@ -76,7 +76,7 @@ class Payment_Gateway_Esec extends Payment_Gateway
 	* makes form for entering credit card details
 	*
 	* @access public
-	* @return
+	* @return string
 	*/
 	function makeCreditCardForm()
 	{
@@ -183,7 +183,7 @@ FORMBODY;
 	* process credit card details to gateway
 	*
 	* @access public
-	* @return
+	* @return boolean
 	*/
 	function processPayment()
 	{
@@ -231,10 +231,10 @@ FORMBODY;
 
 
 	/**
-	* returns back to e-commerce form, which called gateway
+	* redirects back to e-commerce form that called gateway
 	*
 	* @access public
-	* @return
+	* @return void
 	*/
 	function goBackToCaller()
 	{
