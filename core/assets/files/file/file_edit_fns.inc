@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_edit_fns.inc,v 1.36 2003/11/18 15:37:26 brobertson Exp $
+* $Id: file_edit_fns.inc,v 1.37 2003/11/25 18:08:28 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -53,6 +53,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 	function File_Edit_Fns()
 	{
 		$this->Asset_Edit_Fns();
+		$this->static_screens['details']['lock_type'] = 'attr_links';
 
 	}//end constructor
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.55 2003/11/18 15:37:26 brobertson Exp $
+* $Id: file.inc,v 1.56 2003/11/25 18:08:28 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -53,6 +53,21 @@ class File extends Asset
 	}//end constructor
 
 
+	/**
+	* Returns a list of lock types available for this asset type
+	*
+	* @return Array()
+	* @access public
+	*/
+	function lockTypes()
+	{
+		$lock_types = parent::lockTypes();
+		$lock_types['attr_links'] = ($lock_types['attributes'] | $lock_types['links']);
+		return $lock_types;
+
+	}//end lockTypes()
+
+	
 	/**
 	* Saves a copy of this asset at this point in time
 	* This copy gets used when the asset is live and the user does not have write access
