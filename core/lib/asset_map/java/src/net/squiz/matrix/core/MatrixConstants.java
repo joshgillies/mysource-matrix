@@ -48,5 +48,15 @@ public interface MatrixConstants {
 	
 	/** plain font 10pt */
 	public static final Font PLAIN_FONT_10 = new Font("plain_font_10", Font.PLAIN, 10);
+	
+	
+	//{{{ LINK TYPES
+	
+	public static final int LINK_TYPE_1 = 1;
+	
+	public static final int LINK_TYPE_2 = 2;
+	
+	public static final int LINK_TYPE_3 = 3;
+	
 
 }
