@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content_edit_fns.inc,v 1.21 2004/06/30 00:11:16 lwright Exp $
+* $Id: content_type_nest_content_edit_fns.inc,v 1.22 2004/07/02 10:58:42 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -153,7 +153,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 					<b>NOTE:</b> this nested asset contains form elements, therefore you cannot view its 
 					content in the backend.<br/>You can only view the nested content by previewing on the frontend.
 				</span>
-			<?
+			<?php
 				unset($GLOBALS['SQ_NEST_CONTENT_PAINTED'][$nested_asset->id]);
 				return true;
 			}#end if
