@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_clone_asset.inc,v 1.7 2004/11/11 02:43:22 gsherwood Exp $
+* $Id: hipo_job_clone_asset.inc,v 1.8 2004/11/18 04:49:33 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -347,7 +347,7 @@ class HIPO_Job_Clone_Asset extends HIPO_Job
 				<p>Please confirm that you are cloning "<?php echo $asset->short_name; ?>".</p><p>Press the <b>Next</b> button below to confirm or the <b>Cancel</b> button to abort.</p>
 				<?php
 				for (reset($tree); null !== ($treeid = key($tree)); next($tree)) {
-					if ($tree[$treeid]['dependant']) {
+					if ($tree[$treeid]['is_dependant']) {
 						$o->addHiddenField('clone_treeids['.$treeid.']', $tree[$treeid]['linkid']);
 					}
 				}

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadataSchemas.inc,v 1.5 2004/11/02 03:32:47 mmcintyre Exp $
+* $Id: metadataSchemas.inc,v 1.6 2004/11/18 04:48:01 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -51,9 +51,9 @@ function paintInlineMetadataSchemas(&$owner, &$o, &$ei)
 	$schemas = $mm->getSchemas($owner->id);
 
 	$direct = Array();
-	foreach($schemas as $schemaid => $access) {
-		if (!isset($direct[$access])) $direct[$access] = Array();
-		$direct[$access][] = $schemaid;
+	foreach($schemas as $schemaid => $granted) {
+		if (!isset($direct[$granted])) $direct[$granted] = Array();
+		$direct[$granted][] = $schemaid;
 	}
 	ksort($direct);
 
@@ -73,7 +73,7 @@ function paintInlineMetadataSchemas(&$owner, &$o, &$ei)
 			</tr>
 
 			<?php
-			foreach ($direct as $access => $schemaids) {
+			foreach ($direct as $granted => $schemaids) {
 				foreach($schemaids as $schemaid) {
 					if ($schemaid) {
 						$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
@@ -87,7 +87,7 @@ function paintInlineMetadataSchemas(&$owner, &$o, &$ei)
 						?>
 						</td>
 						<td class="sq-backend-table-cell" align="right">
-							<span style="color: <?php echo (($access == '0') ? 'red' : 'green'); ?>; font-weight: bold; "><?php echo (($access == '0') ? 'Denied' : 'Applied') ?></span>
+							<span style="color: <?php echo (($granted == '0') ? 'red' : 'green'); ?>; font-weight: bold; "><?php echo (($granted == '0') ? 'Denied' : 'Applied') ?></span>
 						</td>
 					</tr>
 				<?php
@@ -125,20 +125,20 @@ function paintMetadataSchemas(&$owner, &$o, &$ei)
 	$schemas = $mm->getSchemas($owner->id);
 
 	$direct = Array();
-	foreach($schemas as $schemaid => $access) {
-		if (!isset($direct[$access])) $direct[$access] = Array();
-		$direct[$access][] = $schemaid;
+	foreach($schemas as $schemaid => $granted) {
+		if (!isset($direct[$granted])) $direct[$granted] = Array();
+		$direct[$granted][] = $schemaid;
 	}
 	ksort($direct);
 
 	if (!empty($direct)) {
 		$o->openField('&nbsp;');
-		foreach ($direct as $access => $schemaids) {
+		foreach ($direct as $granted => $schemaids) {
 		?>
 			<table class="sq-backend-table">
 				<tr>
 					<td class="sq-backend-table-header">
-						<span style="color: <?php echo (($access == '0') ? 'red' : 'green'); ?>"><?php echo (($access == '0') ? 'Denied' : 'Applied') ?></span>
+						<span style="color: <?php echo (($granted == '0') ? 'red' : 'green'); ?>"><?php echo (($granted == '0') ? 'Denied' : 'Applied') ?></span>
 					</td>
 					<?php
 					if ($admin_access) {
@@ -179,7 +179,7 @@ function paintMetadataSchemas(&$owner, &$o, &$ei)
 
 	if ($admin_access) {
 		$o->openField('New ?', 'new_line');
-			combo_box($prefix.'_metadata[new][access]', Array('' => '', '1' => 'Apply', '0' => 'Deny'), false, '');
+			combo_box($prefix.'_metadata[new][granted]', Array('' => '', '1' => 'Apply', '0' => 'Deny'), false, '');
 			echo ' Metadata schema ';
 			asset_finder($prefix.'_metadata[new][schemaid]', 0, Array('metadata_schema' => 'D'), 'sq_sidenav', false, 'null', Array('clear'));
 		$o->closeField();
@@ -222,7 +222,7 @@ function paintMetadataSchemas(&$owner, &$o, &$ei)
 */
 function processMetadataSchemas(&$owner, &$o, &$ei)
 {
-	// if we dont have admin access, piss off
+	// if we dont have admin access, go away
 	if ($owner->id && !$owner->adminAccess('')) {
 		$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to edit the metadata schemas for <i>'.$owner->name.'</i>');
 		exit();
@@ -247,18 +247,18 @@ function processMetadataSchemas(&$owner, &$o, &$ei)
 
 	// apply a schema
 	if (!empty($post_data['new']['schemaid']['assetid'])) {
-		if (!isset($post_data['new']['access']) || $post_data['new']['access'] == '') {
+		if (!isset($post_data['new']['granted']) || $post_data['new']['granted'] == '') {
 			trigger_error('You need to select the type of access in order to apply schema #'.$post_data['new']['schemaid']['assetid'], E_USER_NOTICE);
 		} else {
 			if ($cascade_changes) {
 				// cascading access of some kind, so queue it up for the HIPO
-				$schema_vars[] = Array('access'          => (int)$post_data['new']['access'],
+				$schema_vars[] = Array('granted'         => (int)$post_data['new']['granted'],
 									   'schemaid'        => (int)$post_data['new']['schemaid']['assetid'],
 									   'previous_access' => null,
 									   );
 			} else {
 				// lets do this ourselves
-				if (!$mm->setSchema($owner->id, (int)$post_data['new']['schemaid']['assetid'], (int)$post_data['new']['access'])) return false;
+				if (!$mm->setSchema($owner->id, (int)$post_data['new']['schemaid']['assetid'], (int)$post_data['new']['granted'])) return false;
 			}
 		}
 	}
@@ -270,7 +270,7 @@ function processMetadataSchemas(&$owner, &$o, &$ei)
 			if ($cascade_changes) {
 				$schemas = $mm->getSchemas($owner->id);
 				$current_access = $schemas[$schemaid];
-				$schema_vars[] = Array('access'          => -1,
+				$schema_vars[] = Array('granted'         => -1,
 									   'schemaid'        => $schemaid,
 									   'previous_access' => $current_access,
 									   );
@@ -282,8 +282,8 @@ function processMetadataSchemas(&$owner, &$o, &$ei)
 
 	if (isset($_POST[$prefix.'_metadata']['manual_cascade']) && $_POST[$prefix.'_metadata']['manual_cascade']) {
 		$schemas = $mm->getSchemas($owner->id);
-		foreach ($schemas as $schemaid => $access) {
-			$schema_vars[] = Array('access'          => $access,
+		foreach ($schemas as $schemaid => $granted) {
+			$schema_vars[] = Array('granted'         => $granted,
 								   'schemaid'        => $schemaid,
 								   'previous_access' => null,
 								   );

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_install.inc,v 1.5 2004/11/16 05:39:22 lwright Exp $
+* $Id: db_install.inc,v 1.6 2004/11/18 04:53:00 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -55,25 +55,8 @@ function db_install($xml_file, $quiet=false)
 
 	$tables_in_db = $db->getCol($db->getSpecialQuery('tables'));
 	assert_valid_db_result($tables_in_db);
-	
-    // If this is MySQL we need to make sure that the table type is innodb
-	if ($db->phptype == 'mysql') {
 
-		$sql = 'SET table_type=innodb';
-		$result = $db->query($sql);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
-
-		if (!$quiet) pre_echo('MYSQL TABLE TYPE SET');
-
-	}// end if
-
-
-	// Create database tables
-	print $xml_file."\n";
+	// create database tables
 	$input = new XML_Tree($xml_file);
 	$root  = &$input->getTreeFromFile();
 	if (PEAR::isError($root)) {
@@ -96,7 +79,7 @@ function db_install($xml_file, $quiet=false)
 		$cached_table_columns = Array();
 	}
 
-	for($i = 0; $i < count($root->children[0]->children); $i++) {
+	for ($i = 0; $i < count($root->children[0]->children); $i++) {
 		$table = &$root->children[0]->children[$i];
 		$table_name = $table->attributes['name'];
 		$require_rollback = (($table->attributes['require_rollback'] == 1) ? true : false);
@@ -118,7 +101,7 @@ function db_install($xml_file, $quiet=false)
 
 		// loop through the table columns
 		$table_cols = &$table->children[0]->children;
-		for($j = 0; $j < count($table_cols); $j++) {
+		for ($j = 0; $j < count($table_cols); $j++) {
 			$table_column = &$table_cols[$j];
 			$column_name = $table_column->attributes['name'];
 			$allow_null = (($table_column->attributes['allow_null'] == 1) ? true : false);
@@ -133,7 +116,7 @@ function db_install($xml_file, $quiet=false)
 				$table_changed = true;
 			}
 
-			for($k = 0; $k < count($table_column->children); $k++) {
+			for ($k = 0; $k < count($table_column->children); $k++) {
 				$column_var = &$table_column->children[$k];
 
 				switch (strtolower($column_var->name)) {
@@ -176,12 +159,12 @@ function db_install($xml_file, $quiet=false)
 		$other_rollback_keys = Array();
 
 		$table_keys = &$table->children[1]->children;
-		for($j = 0; $j < count($table_keys); $j++) {
+		for ($j = 0; $j < count($table_keys); $j++) {
 			$table_key = &$table_keys[$j];
 
 			// work out the columns in this key
 			$key_columns = Array();
-			for($k = 0; $k < count($table_key->children); $k++) {
+			for ($k = 0; $k < count($table_key->children); $k++) {
 				$col_name = $table_key->children[$k]->attributes['name'];
 				$key_columns[] = $col_name;
 
@@ -195,15 +178,15 @@ function db_install($xml_file, $quiet=false)
 				case 'primary_key' :
 					// a primary key for the table
 					$primary_key = 'PRIMARY KEY('.implode(',',$key_columns).')';
-					$rollback_primary_key = 'PRIMARY KEY('.SQ_TABLE_PREFIX.'effective_from, '.implode(', ',$key_columns).')';
-					break;
+					$rollback_primary_key = 'PRIMARY KEY('.SQ_TABLE_PREFIX.'eff_from, '.implode(', ',$key_columns).')';
+				break;
 				case 'unique_key' :
 					$other_keys[] = 'UNIQUE('.implode(', ',$key_columns).')';
-					$other_rollback_keys[] = 'UNIQUE('.SQ_TABLE_PREFIX.'effective_from, '.implode(', ',$key_columns).')';
-					break;
+					$other_rollback_keys[] = 'UNIQUE('.SQ_TABLE_PREFIX.'eff_from, '.implode(', ',$key_columns).')';
+				break;
 				default :
 					continue;
-					break;
+				break;
 			}
 
 		}// end for
@@ -214,18 +197,21 @@ function db_install($xml_file, $quiet=false)
 			}
 		} else {
 
-			// NORMAL TABLE DEFINITION
-			ob_start();
-			echo 'CREATE TABLE '.SQ_TABLE_PREFIX.$table_name.' (';
-			echo $table_columns_string;
+			
+//--        NORMAL TABLE DEFINITION        --//
 
-			echo $primary_key;
-			if (!empty($other_keys)) {
-				echo ',';
-				echo implode(',', $other_keys);
-			}
-			echo ')';
-			$table_sql = ob_get_contents();
+
+			ob_start();
+				echo 'CREATE TABLE '.SQ_TABLE_PREFIX.$table_name.' (';
+				echo $table_columns_string;
+	
+				echo $primary_key;
+				if (!empty($other_keys)) {
+					echo ',';
+					echo implode(',', $other_keys);
+				}
+				echo ')';
+				$table_sql = ob_get_contents();
 			ob_end_clean();
 
 			$result = $db->query($table_sql);
@@ -234,26 +220,18 @@ function db_install($xml_file, $quiet=false)
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
-		
-			// ROLLBACK TABLE DEFINITION
+
+
+//--        ROLLBACK TABLE DEFINITION        --//
+
+
 			if ($require_rollback) {
-				// type variations
-				switch ($db->phptype) {
-					case 'mysql' :
-						$rollback_column_type = 'DATETIME';
-					break;
-					default :
-						$rollback_column_type = 'TIMESTAMP';
-					break;
-				}
-
-				ob_start();
+			ob_start();
 				echo 'CREATE TABLE '.SQ_TABLE_ROLLBACK_PREFIX.$table_name.' (';
-				echo SQ_TABLE_PREFIX.'effective_from '.$rollback_column_type.' NOT NULL,';
-				echo SQ_TABLE_PREFIX.'effective_to   '.$rollback_column_type.',';
-				echo SQ_TABLE_PREFIX.'deletion       CHAR(1),';
+				echo SQ_TABLE_PREFIX.'eff_from TIMESTAMP NOT NULL,';
+				echo SQ_TABLE_PREFIX.'eff_to   TIMESTAMP,';
 				echo $table_columns_string;
-
+	
 				echo $rollback_primary_key;
 				if (!empty($other_rollback_keys)) {
 					echo ',';
@@ -261,18 +239,16 @@ function db_install($xml_file, $quiet=false)
 				}
 				echo ')';
 				$table_sql = ob_get_contents();
-				ob_end_clean();
+			ob_end_clean();
 
-				$result = $db->query($table_sql);
-				if (DB::isError($result)) {
-					trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return false;
-				}
+			$result = $db->query($table_sql);
+			assert_valid_db_result($result);
+		}
 
-			}// end if require rollback
 
-			// TABLE INDEXES
+//--        TABLE INDEXES        --//
+
+
 			// check for any indexes that need creating
 			$table_indexes = &$table->children[2]->children;
 			for($j = 0; $j < count($table_indexes); $j++) {
@@ -317,8 +293,11 @@ function db_install($xml_file, $quiet=false)
 	unset($cached_table_columns_string);
 
 	if (!$quiet) pre_echo('TABLE CREATION COMPLETE');
-	
-	// CREATE SEQUENCES
+
+
+//--        SEQUENCES        --//
+
+
 	if (is_file($data_path.'/sequences.inc')) {
 		require $data_path.'/sequences.inc';
 		$cached_sequences = $sequences;
@@ -327,7 +306,7 @@ function db_install($xml_file, $quiet=false)
 		$cached_sequences = Array();
 	}
 
-	for($i = 0; $i < count($root->children[1]->children); $i++) {
+	for ($i = 0; $i < count($root->children[1]->children); $i++) {
 		$sequence = &$root->children[1]->children[$i];
 		$sequence_name = $sequence->attributes['name'];
 
@@ -340,8 +319,7 @@ function db_install($xml_file, $quiet=false)
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
-		
-	}// end for
+	}//end for
 
 	$cached_sequences_string = '<'.'?php $sequences = '.var_export($cached_sequences, true).'; ?'.'>';
 	if (!string_to_file($cached_sequences_string, $data_path.'/sequences.inc')) {
@@ -351,6 +329,10 @@ function db_install($xml_file, $quiet=false)
 	}
 	unset($cached_sequences);
 	unset($cached_sequences_string);
+
+	
+//--        PGSQL GRANT_ACCESS()        --//
+
 
 	if (!$quiet) pre_echo('SEQUENCE CREATION COMPLETE');
 
@@ -391,7 +373,7 @@ function db_install($xml_file, $quiet=false)
 
 			if (!$quiet) pre_echo('PGSQL GRANT ACCESS FUNCTION CREATED');
 
-		}// endif
+		}//end if
 
 		$primary_dsn   = DB::parseDSN(SQ_CONF_DB_DSN);
 		$secondary_dsn = DB::parseDSN(SQ_CONF_DB2_DSN);
@@ -407,11 +389,11 @@ function db_install($xml_file, $quiet=false)
 		}// end if
 		if (!$quiet) pre_echo('PGSQL SECONDARY USER PERMISSIONS FIXED');
 
-	}// end if
+	}//end if
 
 	$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 	return true;
 
-}// end db_install()
+}//end db_install()
 
 ?>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_update_lookups.inc,v 1.20 2004/11/08 03:42:02 mmcintyre Exp $
+* $Id: hipo_job_update_lookups.inc,v 1.21 2004/11/18 04:49:33 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -194,7 +194,7 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 			$sql = 'SELECT t.treeid
-					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link l ON t.linkid = l.linkid
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l ON t.linkid = l.linkid
 					'.$where.' LIMIT 1';
 
 			$treeid = $db->getOne($sql);
@@ -203,8 +203,8 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 			}
 
 			$sql = 'SELECT l.minorid, MAX(CHAR_LENGTH(t.treeid)) as length
-					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t
-					         INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link l ON t.linkid = l.linkid
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t
+					         INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l ON t.linkid = l.linkid
 					';
 			$where = 't.treeid LIKE '.$db->quote($treeid.'%').'
 					  GROUP BY l.minorid ORDER BY length';

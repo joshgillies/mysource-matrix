@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: logs.inc,v 1.4 2004/08/09 09:16:17 brobertson Exp $
+* $Id: logs.inc,v 1.5 2004/11/18 04:48:01 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -50,7 +50,7 @@ function paintLogs(&$owner, &$o, &$ei)
 
 	$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-	$sql   = 'SELECT DISTINCT type FROM '.SQ_TABLE_RUNNING_PREFIX.'internal_message ';
+	$sql   = 'SELECT DISTINCT type FROM '.SQ_TABLE_PREFIX.'internal_msg ';
 	$where = 'userto = 0 AND type LIKE '.$db->quote('asset%');
 	$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_status.inc,v 1.25 2004/11/08 03:42:02 mmcintyre Exp $
+* $Id: hipo_job_edit_status.inc,v 1.26 2004/11/18 04:49:33 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -53,7 +53,7 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 												),
 						'running_mode'     => 'server',
 						'auto_step'        => true,
-						'allow_cancel'	   => true,
+						'allow_cancel'     => true,
 						'percent_done'     => 0,
 						'complete'         => false,
 						'message'          => '',

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: permissions.inc,v 1.7 2004/09/19 23:53:28 gsherwood Exp $
+* $Id: permissions.inc,v 1.8 2004/11/18 04:48:01 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -72,15 +72,15 @@ function paintInlinePermissions(&$owner, &$o, &$ei)
 		$permissions = $GLOBALS['SQ_SYSTEM']->am->getPermission($owner->id, $perm, null, false, false, true);
 
 		$direct = Array();
-		foreach($permissions as $userid => $access) {
-			if (!isset($direct[$access])) $direct[$access] = Array();
-			$direct[$access][] = $userid;
+		foreach($permissions as $userid => $granted) {
+			if (!isset($direct[$granted])) $direct[$granted] = Array();
+			$direct[$granted][] = $userid;
 		}
 		ksort($direct);
 		if (empty($direct)) continue;
 
 		if (!empty($direct)) {
-			foreach ($direct as $access => $userids) {
+			foreach ($direct as $granted => $userids) {
 				foreach($userids as $userid) {
 					if ($userid) {
 						$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
@@ -97,7 +97,7 @@ function paintInlinePermissions(&$owner, &$o, &$ei)
 							<?php echo $title.' Access'?>
 						</td>
 						<td class="sq-backend-table-cell" align="right">
-							<span style="color: <?php echo (($access == '0') ? 'red' : 'green'); ?>; font-weight:bold;"><?php echo (($access == '0') ? 'Denied' : 'Granted') ?></span>
+							<span style="color: <?php echo (($granted == '0') ? 'red' : 'green'); ?>; font-weight:bold;"><?php echo (($granted == '0') ? 'Denied' : 'Granted') ?></span>
 						</td>
 					</tr>
 				<?php
@@ -139,20 +139,20 @@ function paintPermissions(&$owner, &$o, &$ei)
 		$permissions = $GLOBALS['SQ_SYSTEM']->am->getPermission($owner->id, $perm, null, false, false, true);
 
 		$direct = Array();
-		foreach($permissions as $userid => $access) {
-			if (!isset($direct[$access])) $direct[$access] = Array();
-			$direct[$access][] = $userid;
+		foreach($permissions as $userid => $granted) {
+			if (!isset($direct[$granted])) $direct[$granted] = Array();
+			$direct[$granted][] = $userid;
 		}
 		ksort($direct);
 
 		if (!empty($direct)) {
 			$o->openField('&nbsp;');
-			foreach ($direct as $access => $userids) {
+			foreach ($direct as $granted => $userids) {
 			?>
 				<table class="sq-backend-table">
 					<tr>
 						<td class="sq-backend-table-header">
-							<span style="color: <?php echo (($access == '0') ? 'red' : 'green'); ?>"><?php echo (($access == '0') ? 'Denied' : 'Granted') ?></span>
+							<span style="color: <?php echo (($granted == '0') ? 'red' : 'green'); ?>"><?php echo (($granted == '0') ? 'Denied' : 'Granted') ?></span>
 						</td>
 						<?php
 						if ($admin_access) {
@@ -206,11 +206,11 @@ function paintPermissions(&$owner, &$o, &$ei)
 			$o->openField('New ?', 'new_line');
 				// if Public Access isn't set
 				if (!isset($direct['0'])) {
-					combo_box($prefix.'_permissions['.$perm.'][public_access][access]', Array('' => '', '1' => 'Grant', '0' => 'Deny'), false, '');
+					combo_box($prefix.'_permissions['.$perm.'][public_access][granted]', Array('' => '', '1' => 'Grant', '0' => 'Deny'), false, '');
 					echo ' Public Access<br/>';
 				}
 
-				combo_box($prefix.'_permissions['.$perm.'][new][access]', Array('' => '', '1' => 'Grant', '0' => 'Deny'), false, '');
+				combo_box($prefix.'_permissions['.$perm.'][new][granted]', Array('' => '', '1' => 'Grant', '0' => 'Deny'), false, '');
 				echo ' Specific Access ';
 				asset_finder($prefix.'_permissions['.$perm.'][new][userid]', 0, Array('user' => 'D', 'user_group' => 'D'));
 			$o->closeField();
@@ -267,7 +267,7 @@ function paintPermissions(&$owner, &$o, &$ei)
 */
 function processPermissions(&$owner, &$o, &$ei)
 {
-	// if we dont have admin access, piss off
+	// if we dont have admin access, go away
 	if ($owner->id && !$owner->adminAccess('')) {
 		$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to edit the permissions for <i>'.$owner->name.'</i>');
 		exit();
@@ -293,33 +293,33 @@ function processPermissions(&$owner, &$o, &$ei)
 		$post_data = $_POST[$prefix.'_permissions'][$perm];
 
 		// grant public access
-		if (isset($post_data['public_access']['access']) && $post_data['public_access']['access'] != '') {
+		if (isset($post_data['public_access']['granted']) && $post_data['public_access']['granted'] != '') {
 			if ($cascade_changes) {
 				// cascading public access of some kind, so queue it up for the HIPO
-				$permission_vars[$perm][] = Array('access'          => (int)$post_data['public_access']['access'],
+				$permission_vars[$perm][] = Array('granted'         => (int)$post_data['public_access']['granted'],
 												  'userid'          => 0,
 												  'previous_access' => null,
 												  );
 			} else {
 				// lets do this ourselves
-				if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($owner->id, 0, $perm, $post_data['public_access']['access'])) return false;
+				if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($owner->id, 0, $perm, $post_data['public_access']['granted'])) return false;
 			}
 		}
 
 		// grant access to a user
 		if (!empty($post_data['new']['userid']['assetid'])) {
-			if (!isset($post_data['new']['access']) || $post_data['new']['access'] == '') {
+			if (!isset($post_data['new']['granted']) || $post_data['new']['granted'] == '') {
 				trigger_error('You need to select the type of access in order to set a permission for Asset #'.$post_data['new']['userid']['assetid'], E_USER_NOTICE);
 			} else {
 				if ($cascade_changes) {
 					// cascading access of some kind, so queue it up for the HIPO
-					$permission_vars[$perm][] = Array('access'          => (int)$post_data['new']['access'],
+					$permission_vars[$perm][] = Array('granted'         => (int)$post_data['new']['granted'],
 													  'userid'          => $post_data['new']['userid']['assetid'],
 													  'previous_access' => null,
 													  );
 				} else {
 					// lets do this ourselves
-					if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($owner->id, $post_data['new']['userid']['assetid'], $perm, $post_data['new']['access'])) return false;
+					if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($owner->id, $post_data['new']['userid']['assetid'], $perm, $post_data['new']['granted'])) return false;
 
 				}
 			}
@@ -332,7 +332,7 @@ function processPermissions(&$owner, &$o, &$ei)
 				if ($cascade_changes) {
 					$current = $GLOBALS['SQ_SYSTEM']->am->getPermission($owner->id, $perm, null, false, false, true);
 					$current_access = $current[$userid];
-					$permission_vars[$perm][] = Array('access'          => -1,
+					$permission_vars[$perm][] = Array('granted'         => -1,
 													  'userid'          => $userid,
 													  'previous_access' => $current_access,
 													  );
@@ -344,8 +344,8 @@ function processPermissions(&$owner, &$o, &$ei)
 
 		if (!empty($_POST[$prefix.'_permissions']['manual_cascade'])) {
 			$current = $GLOBALS['SQ_SYSTEM']->am->getPermission($owner->id, $perm, null, false, false, true);
-			foreach ($current as $userid => $access) {
-				$permission_vars[$perm][] = Array('access'          => $access,
+			foreach ($current as $userid => $granted) {
+				$permission_vars[$perm][] = Array('granted'         => $granted,
 												  'userid'          => $userid,
 												  'previous_access' => null,
 												  );

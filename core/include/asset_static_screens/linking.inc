@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: linking.inc,v 1.7 2004/09/28 04:09:32 gsherwood Exp $
+* $Id: linking.inc,v 1.8 2004/11/18 04:48:01 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -75,11 +75,11 @@ function paintLinking(&$owner, &$o, &$ei, $allow_edit=true)
 	} else {
 
 		$sql = 'SELECT ct.treeid as our_treeid, cl.minorid, pt.treeid as parent_treeid, a.name, a.assetid
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link cl
-						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree ct ON cl.linkid = ct.linkid,
-					 '.SQ_TABLE_RUNNING_PREFIX.'asset_link pl
-						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree pt ON pl.linkid = pt.linkid
-						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset a ON a.assetid = pl.minorid
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk cl
+						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree ct ON cl.linkid = ct.linkid,
+					 '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk pl
+						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree pt ON pl.linkid = pt.linkid
+						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON a.assetid = pl.minorid
 				';
 		$where = 'cl.minorid IN ('.implode(', ', array_keys($assetids)).')
 				  AND ct.treeid LIKE pt.treeid || '.$db->quote('%').'

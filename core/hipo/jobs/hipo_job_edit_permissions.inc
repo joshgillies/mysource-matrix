@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_permissions.inc,v 1.30 2004/11/18 00:57:42 lwright Exp $
+* $Id: hipo_job_edit_permissions.inc,v 1.31 2004/11/18 04:49:33 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    Array  permission_changes  -  the values that we are trying to set for our children, in the form :
 *                                  $changes = Array([perm] => Array (
 *                                                                       Array(
-*                                                                           'access'          => $access,
+*                                                                           'granted'         => $granted,
 *                                                                           'userid'          => $userid,
 *                                                                           'previous_access' => null,
 *                                                                      ),
@@ -284,9 +284,9 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 						if ($set_data['previous_access'] === null) {
 							// to edit this permission, there must not currently be a permission set
 							// at all - either grant OR deny - for this user
-							$current = $GLOBALS['SQ_SYSTEM']->am->getPermission($asset->id, $perm, !(bool)$set_data['access'], false, false, true);
+							$current = $GLOBALS['SQ_SYSTEM']->am->getPermission($asset->id, $perm, !(bool)$set_data['granted'], false, false, true);
 							if (isset($current[$set_data['userid']])) {
-								$new_access     = ($set_data['access']) ? 'grant' : 'revoke';
+								$new_access     = ($set_data['granted']) ? 'grant' : 'revoke';
 								$current_access = ($current[$set_data['userid']]) ? 'granted' : 'revoked';
 								$this->_addError('Could not '.$new_access.' '.$perm_name.' access for "'.$user_name.'" on "'.$asset->name.'" because this asset already has '.$current_access.' '.$perm_name.' access to "'.$user_name.'". The current permission for "'.$asset->name.'" has been retained.', true);
 								continue;
@@ -305,7 +305,7 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 
 						}
 
-						switch ($set_data['access']) {
+						switch ($set_data['granted']) {
 							case -1 :
 								// delete a permission
 								$GLOBALS['SQ_SYSTEM']->am->deletePermission($asset->id, $set_data['userid'], $perm);
@@ -315,7 +315,7 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 							case 1  :
 								// deny a permission
 								// grant a permission
-								$GLOBALS['SQ_SYSTEM']->am->setPermission($asset->id, $set_data['userid'], $perm, $set_data['access']);
+								$GLOBALS['SQ_SYSTEM']->am->setPermission($asset->id, $set_data['userid'], $perm, $set_data['granted']);
 							break;
 						}
 					}

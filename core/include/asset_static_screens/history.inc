@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: history.inc,v 1.3 2004/01/16 11:45:56 brobertson Exp $
+* $Id: history.inc,v 1.4 2004/11/18 04:48:01 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -55,10 +55,10 @@ function paintHistory(&$owner, &$o, &$ei)
 
 	// note that we dont prep this query for rollback select
 	// because we are selecting directly from the rollback table
-	$sql = 'SELECT '.SQ_TABLE_PREFIX.'effective_from AS efrom, '.SQ_TABLE_PREFIX.'effective_to AS eto, version
-			FROM '.SQ_TABLE_ROLLBACK_PREFIX.'asset
+	$sql = 'SELECT '.SQ_TABLE_PREFIX.'eff_from AS efrom, '.SQ_TABLE_PREFIX.'eff_to AS eto, version
+			FROM '.SQ_TABLE_ROLLBACK_PREFIX.'ast
 			WHERE assetid = '.$db->quote($owner->id).'
-			ORDER BY '.SQ_TABLE_PREFIX.'effective_from DESC';
+			ORDER BY '.SQ_TABLE_PREFIX.'eff_from DESC';
 
 	$result = $db->getAll($sql);
 	if (DB::isError($result)) {

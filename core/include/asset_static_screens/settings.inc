@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: settings.inc,v 1.13 2004/11/02 03:33:11 mmcintyre Exp $
+* $Id: settings.inc,v 1.14 2004/11/18 04:48:01 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -311,7 +311,7 @@ function paintSettings(&$owner, &$o, &$ei)
 							$user_type_cond = 'IN ('.implode(', ', $user_types).')';
 
 							$sql = 'SELECT type_code
-									FROM '.SQ_TABLE_PREFIX.'asset_type
+									FROM '.SQ_TABLE_PREFIX.'ast_typ
 									WHERE allowed_access '.$user_type_cond.'
 									  AND type_code '.$type_code_cond;
 

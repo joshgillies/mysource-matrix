@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_purge_trash.inc,v 1.16 2004/11/08 03:42:02 mmcintyre Exp $
+* $Id: hipo_job_purge_trash.inc,v 1.17 2004/11/18 04:49:33 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -172,7 +172,7 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = 'SELECT t.treeid
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link l ON t.linkid = l.linkid ';
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l ON t.linkid = l.linkid ';
 		$where = 'l.minorid = '.$db->quote($trash->id);
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
@@ -229,12 +229,12 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 
 					$db = &$GLOBALS['SQ_SYSTEM']->db;
 					
-					$sql = 'SELECT t2.treeid, l1.linkid, l2.minorid, l2.link_type, l2.dependant
-							FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link l1 INNER JOIN 
-								 '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t1 ON l1.linkid = t1.linkid,
-								 '.SQ_TABLE_RUNNING_PREFIX.'asset_link l2 INNER JOIN
-								 '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t2 ON l2.linkid = t2.linkid,
-								 '.SQ_TABLE_RUNNING_PREFIX.'asset a 
+					$sql = 'SELECT t2.treeid, l1.linkid, l2.minorid, l2.link_type, l2.is_dependant 
+							FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l1 INNER JOIN 
+								 '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t1 ON l1.linkid = t1.linkid,
+								 '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l2 INNER JOIN
+								 '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t2 ON l2.linkid = t2.linkid,
+								 '.SQ_TABLE_RUNNING_PREFIX.'ast a 
 							WHERE l1.minorid = '.$db->quote($asset->id).'
 							  AND SUBSTRING(t1.treeid FROM 1 FOR CHAR_LENGTH(t2.treeid)) = t2.treeid
 							  AND a.assetid=l2.minorid
@@ -278,7 +278,7 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 						
 						// we dont care about dependant links because we want to
 						// go right to the top of the dependant tree
-						if ($outside_link_info['dependant']) continue;
+						if ($outside_link_info['is_dependant']) continue;
 						if ($outside_link_info['link_type'] & SQ_SC_LINK_SIGNIFICANT) {
 							if ($last_linkid) $outside_links[] = $last_linkid;
 						}

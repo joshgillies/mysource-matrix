@@ -18,14 +18,14 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow.inc,v 1.9 2004/11/04 01:07:53 gsherwood Exp $
+* $Id: workflow.inc,v 1.10 2004/11/18 04:48:01 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 require_once DIRNAME(__FILE__).'/details.inc';
 
-/**
+/**a
 * Workflow Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
@@ -56,9 +56,9 @@ function paintInlineWorkflow(&$owner, &$o, &$ei)
 	$o->openSection('Workflow Schemas');
 
 	$direct = Array();
-	foreach($schemas as $schemaid => $access) {
-		if (!isset($direct[$access])) $direct[$access] = Array();
-		$direct[$access][] = $schemaid;
+	foreach($schemas as $schemaid => $granted) {
+		if (!isset($direct[$granted])) $direct[$granted] = Array();
+		$direct[$granted][] = $schemaid;
 	}
 	ksort($direct);
 	$o->openField('&nbsp;');
@@ -75,7 +75,7 @@ function paintInlineWorkflow(&$owner, &$o, &$ei)
 	<?php
 
 	if (!empty($direct)) {
-		foreach ($direct as $access => $schemaids) {
+		foreach ($direct as $granted => $schemaids) {
 			foreach($schemaids as $schemaid) {
 				if ($schemaid) {
 					$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
@@ -89,7 +89,7 @@ function paintInlineWorkflow(&$owner, &$o, &$ei)
 					?>
 					</td>
 					<td class="sq-backend-table-cell" align="right">
-						<span style="color: <?php echo (($access == '0') ? 'red' : 'green'); ?>; font-weight: bold;"><?php echo (($access == '0') ? 'Denied' : 'Applied') ?></span>
+						<span style="color: <?php echo (($granted == '0') ? 'red' : 'green'); ?>; font-weight: bold;"><?php echo (($granted == '0') ? 'Denied' : 'Applied') ?></span>
 					</td>
 				</tr>
 			<?php
@@ -482,9 +482,9 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 					} else {
 						$o->openField('Workflow Status');
 							if (!is_null($keywords) && isset($keywords['fields']['workflow_report'])) ob_start();
-							
+
 							echo 'Worklfow is not currently running for this asset';
-							
+
 							// if there is a keyword replacement for this, add it to the replacements
 							if (!is_null($keywords) && isset($keywords['fields']['workflow_report'])) {
 								$ei->_tmp['layout_keyword_replacements'][$keywords['fields']['workflow_report']] = ob_get_contents();
@@ -529,9 +529,9 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 				case 'workflow_schemas' :
 
 					$direct = Array();
-					foreach($schemas as $schemaid => $access) {
-						if (!isset($direct[$access])) $direct[$access] = Array();
-						$direct[$access][] = $schemaid;
+					foreach($schemas as $schemaid => $granted) {
+						if (!isset($direct[$granted])) $direct[$granted] = Array();
+						$direct[$granted][] = $schemaid;
 					}
 					ksort($direct);
 
@@ -541,12 +541,12 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 						if (empty($direct)) {
 							echo 'There are no workflow schemas applied to this asset';
 						} else {
-							foreach ($direct as $access => $schemaids) {
+							foreach ($direct as $granted => $schemaids) {
 							?>
 								<table class="sq-backend-table">
 									<tr>
 										<td class="sq-backend-table-header">
-											<span style="color: <?php echo (($access == '0') ? 'red' : 'green'); ?>"><?php echo (($access == '0') ? 'Denied' : 'Applied') ?></span>
+											<span style="color: <?php echo (($granted == '0') ? 'red' : 'green'); ?>"><?php echo (($granted == '0') ? 'Denied' : 'Applied') ?></span>
 										</td>
 										<?php
 										if ($admin_access) {
@@ -604,7 +604,7 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 							if (!is_null($keywords) && isset($keywords['fields']['workflow_add_schemas'])) ob_start();
 
 							$o->openField('New ?', 'new_line');
-								combo_box($prefix.'_workflow[new][access]', Array('' => '', '1' => 'Apply', '0' => 'Deny'), false, '');
+								combo_box($prefix.'_workflow[new][granted]', Array('' => '', '1' => 'Apply', '0' => 'Deny'), false, '');
 								echo ' Workflow schema ';
 								asset_finder($prefix.'_workflow[new][schemaid]', 0, Array('workflow_schema' => 'D'), 'sq_sidenav', false, 'null', Array('clear'));
 							$o->closeField();
@@ -750,18 +750,18 @@ function processWorkflow(&$owner, &$o, &$ei)
 
 	// apply a schema
 	if (!empty($post_data['new']['schemaid']['assetid'])) {
-		if (!isset($post_data['new']['access']) || $post_data['new']['access'] == '') {
+		if (!isset($post_data['new']['granted']) || $post_data['new']['granted'] == '') {
 			trigger_error('You need to select the type of access in order to apply schema #'.$post_data['new']['schemaid']['assetid'], E_USER_NOTICE);
 		} else {
 			if ($cascade_changes) {
 				// cascading access of some kind, so queue it up for the HIPO
-				$schema_vars[] = Array('access'          => (int)$post_data['new']['access'],
+				$schema_vars[] = Array('granted'         => (int)$post_data['new']['granted'],
 									   'schemaid'        => (int)$post_data['new']['schemaid']['assetid'],
 									   'previous_access' => null,
 									   );
 			} else {
 				// lets do this ourselves
-				if (!$wfm->setSchema($owner->id, (int)$post_data['new']['schemaid']['assetid'], (int)$post_data['new']['access'])) return $updated;
+				if (!$wfm->setSchema($owner->id, (int)$post_data['new']['schemaid']['assetid'], (int)$post_data['new']['granted'])) return $updated;
 			}
 		}
 	}
@@ -773,7 +773,7 @@ function processWorkflow(&$owner, &$o, &$ei)
 			if ($cascade_changes) {
 				$schemas = $wfm->getSchemas($owner->id);
 				$current_access = $schemas[$schemaid];
-				$schema_vars[] = Array('access'          => -1,
+				$schema_vars[] = Array('granted'         => -1,
 									   'schemaid'        => $schemaid,
 									   'previous_access' => $current_access,
 									   );
@@ -785,8 +785,8 @@ function processWorkflow(&$owner, &$o, &$ei)
 
 	if (isset($_POST[$prefix.'_workflow']['manual_cascade']) && $_POST[$prefix.'_workflow']['manual_cascade']) {
 		$schemas = $wfm->getSchemas($owner->id);
-		foreach ($schemas as $schemaid => $access) {
-			$schema_vars[] = Array('access'          => $access,
+		foreach ($schemas as $schemaid => $granted) {
+			$schema_vars[] = Array('granted'         => $granted,
 								   'schemaid'        => $schemaid,
 								   'previous_access' => null,
 								   );

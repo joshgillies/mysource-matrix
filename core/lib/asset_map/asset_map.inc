@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.161 2004/10/25 01:36:49 arailean Exp $
+* $Id: asset_map.inc,v 1.162 2004/11/18 04:51:27 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,10 +30,10 @@ require_once 'XML/Tree.php';
 *
 * Purpose
 *
-*    Co-ordinate communications between the flash and the PHP
+*    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.161 $
+* @version $Revision: 1.162 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -250,38 +250,38 @@ class Asset_Map
 		}
 
 
-		switch($root->attributes['action']) {
+		switch ($root->attributes['action']) {
 			case 'initialise' :
 				$this->_doInitialise($input);
-				break;
+			break;
 
 			case 'get assets' :
 				$this->_getAssets($input);
-				break;
+			break;
 
 			case 'menu items' :
 				$this->_getMenuItems($input);
-				break;
+			break;
 
 			case 'get url' :
 				$this->_getURL($input, $backend);
-				break;
+			break;
 
 			case 'clone' :
 				$this->_cloneAsset($input, $backend);
-				break;
+			break;
 
 			case 'move asset' :
 				$this->_moveAsset($input, $backend);
-				break;
+			break;
 
 			case 'new link' :
 				$this->_newLink($input);
-				break;
+			break;
 
 			case 'get mail' :
 				$this->_getMail($input);
-				break;
+			break;
 
 			default :
 				$this->_error('Action "'.$root->attributes['action'].'" not defined');
@@ -374,8 +374,7 @@ class Asset_Map
 
 
 	/**
-	* Appends the child assets of the specified asset in xml form
-	* to the specified node.
+	* Appends the child assets of the specified asset in xml form to the specified node
 	*
 	* @param &object XML_Tree 	$root 			the root to append the child assets to
 	* @param string 		$assetid		the asset of the parent asset
@@ -415,7 +414,7 @@ class Asset_Map
 		}
 
 		$sql  = 'SELECT a.assetid, a.short_name, a.type_code, a.status,
-					l.linkid, l.link_type, l.sort_order, lt.num_immediate_kids, u.url, ap.path,
+					l.linkid, l.link_type, l.sort_order, lt.num_kids, u.url, ap.path,
 					CASE u.'.$primary_protocol.'
 						WHEN '.$db->quote('1').' THEN '.$db->quote($primary_protocol).'
 						WHEN '.$db->quote('0').' THEN '.$db->quote($secondary_protocol).'
@@ -424,24 +423,23 @@ class Asset_Map
 
 		$u_where = 'a.assetid = u.assetid';
 		$u_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($u_where, 'u', 'ON');
-		$sql .= ' FROM (('.SQ_TABLE_RUNNING_PREFIX.'asset a LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_url u '.$u_where.')';
-
+		$sql .= ' FROM (('.SQ_TABLE_RUNNING_PREFIX.'ast a LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_url u '.$u_where.')';
 
 		$ap_where = 'a.assetid = ap.assetid';
 		$ap_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($ap_where, 'ap', 'ON');
-		$sql .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_path ap '.$ap_where.')';
+		$sql .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_path ap '.$ap_where.')';
 
 		if (!empty($userid_cond)) {
 			$p_where = '(
 							a.assetid = p.assetid AND
-							p.access  = 1 AND
+							p.granted  = 1 AND
 							p.permission >= '.$db->quote(SQ_PERMISSION_READ).$userid_cond.'
 						)';
 			$p_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($p_where, 'p', 'ON');
-			$sql .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_permission p '.$p_where;
+			$sql .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_perm p '.$p_where;
 		}
 
-		$sql .= ','.SQ_TABLE_RUNNING_PREFIX.'asset_link l, '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree lt';
+		$sql .= ','.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l, '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree lt';
 		$where = '	a.assetid = l.minorid AND
 				l.linkid = lt.linkid AND ';
 
@@ -505,7 +503,7 @@ class Asset_Map
 										'status'             => $link_asset->status,
 										'linkid'             => $link_data['linkid'],
 										'link_type'          => $link_data['link_type'],
-										'num_immediate_kids' => 1,
+										'num_kids'           => 1,
 										'sort_order'         => $link_data['sort_order'],
 										'url'                => $link_asset->getURL(),
 										'path'               => '',
@@ -516,9 +514,9 @@ class Asset_Map
 		}//end if a bridge
 
 		foreach ($result as $asset) {
-			if ($asset['num_immediate_kids'] == 0) {
+			if ($asset['num_kids'] == 0) {
 				$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset['assetid'], SQ_LINK_TYPE_1 | SQ_LINK_TYPE_2);
-				$asset['num_immediate_kids'] = count($links);
+				$asset['num_kids'] = count($links);
 			}
 
 			if (!in_array('accessible', array_keys($asset))) $asset['accessible'] = 1;
@@ -535,7 +533,7 @@ class Asset_Map
 				'accessible'    => $asset['accessible'],
 				'status'        => $asset['status'],
 				'linkid'        => $asset['linkid'],
-				'child_count'   => $asset['num_immediate_kids'],
+				'child_count'   => $asset['num_kids'],
 				'sort_order'    => $asset['sort_order'],
 				'url'           => $asset['url'],
 				'web_path'      => $asset['path'],
@@ -549,7 +547,7 @@ class Asset_Map
 
 
 	/**
-	* Processes the get assets request and outputs the xml to startdard out
+	* Processes the get assets request and outputs the xml to stardard out
 	*
 	* @param &object XML_Tree $input the request info from the Flash
 	*
@@ -604,15 +602,15 @@ class Asset_Map
 					$user_type = get_class($GLOBALS['SQ_SYSTEM']->user);
 					$hier = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeHierarchy('', $user_type);
 					$this->_recurseAddMenu($top_level, $hier);
-					break;
+				break;
 
 				default :
 					$this->_error('Menu Item "'.$name.'" not defined');
 					return;
 
-			}// end $name switch
+			}
 
-		}// end children for
+		}//end children for
 
 		$this->_send($output);
 
@@ -718,7 +716,7 @@ class Asset_Map
 				}
 
 				// if we get this far then it's all good
-					$link  = current_url().'?SQ_BACKEND_PAGE=main'
+				$link  = current_url().'?SQ_BACKEND_PAGE=main'
 						.'&backend_section=am'
 						.'&am_section=add_asset'
 						.'&type_code='.rawurlencode($attr['type_code'])

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_link.inc,v 1.22 2004/11/08 03:42:02 mmcintyre Exp $
+* $Id: hipo_job_create_link.inc,v 1.23 2004/11/18 04:49:33 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    Array  permission_changes  -  the values that we are trying to set for our children, in the form :
 *                                  $changes = Array([perm] => Array (
 *                                                                       Array(
-*                                                                           'access'          => $access,
+*                                                                           'granted'         => $granted,
 *                                                                           'userid'          => $userid,
 *                                                                           'previous_access' => null,
 *                                                                      ),
@@ -496,6 +496,7 @@ class HIPO_Job_Create_Link extends HIPO_Job
 				}
 				
 				?>
+
 				<p>The permissions, workflow schemas, and metadata schemas of "<?php echo $parent->name; ?>" are shown below.</p>
 
 				<p>To cascade the permissions, workflow schemas, and/or metadata schemas of "<?php echo $parent->name; ?>" to "<?php echo $asset->name; ?>" and its children, check the appropriate boxes below and press the <b><i>Next</i></b> button.</p>
@@ -602,8 +603,8 @@ class HIPO_Job_Create_Link extends HIPO_Job
 
 		foreach (Array(SQ_PERMISSION_READ, SQ_PERMISSION_WRITE, SQ_PERMISSION_ADMIN) as $perm) {
 			$set_perms = $GLOBALS['SQ_SYSTEM']->am->getPermission($this->_running_vars['parentid'], $perm, null, false, false, true);
-			foreach ($set_perms as $userid => $access) {
-				$permission_vars[$perm][] = Array('access'          => $access,
+			foreach ($set_perms as $userid => $granted) {
+				$permission_vars[$perm][] = Array('granted'         => $granted,
 												  'userid'          => $userid,
 												  'previous_access' => null,
 												  );
@@ -633,8 +634,8 @@ class HIPO_Job_Create_Link extends HIPO_Job
 		$schemas = $mm->getSchemas($this->_running_vars['parentid']);
 		$schema_vars = Array();
 
-		foreach ($schemas as $schemaid => $access) {
-			$schema_vars[] = Array('access'          => $access,
+		foreach ($schemas as $schemaid => $granted) {
+			$schema_vars[] = Array('granted'         => $granted,
 								   'schemaid'        => $schemaid,
 								   'previous_access' => null,
 								   );
@@ -662,8 +663,8 @@ class HIPO_Job_Create_Link extends HIPO_Job
 		$schemas = $wfm->getSchemas($this->_running_vars['parentid']);
 		$schema_vars = Array();
 
-		foreach ($schemas as $schemaid => $access) {
-			$schema_vars[] = Array('access'          => $access,
+		foreach ($schemas as $schemaid => $granted) {
+			$schema_vars[] = Array('granted'         => $granted,
 								   'schemaid'        => $schemaid,
 								   'previous_access' => null,
 						      );

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_metadata_schemas.inc,v 1.17 2004/11/08 03:42:02 mmcintyre Exp $
+* $Id: hipo_job_edit_metadata_schemas.inc,v 1.18 2004/11/18 04:49:33 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -270,9 +270,9 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 						if ($set_data['previous_access'] === null) {
 							// to edit this schema, there must not currently be a schema set
 							// at all - either grant OR deny - for this asset
-							$schemas = $mm->getSchemas($asset->id, $set_data['access']);
+							$schemas = $mm->getSchemas($asset->id, $set_data['granted']);
 							if (isset($schemas[$set_data['schemaid']])) {
-								$new_access     = ($set_data['access']) ? 'apply' : 'deny';
+								$new_access     = ($set_data['granted']) ? 'apply' : 'deny';
 								$current_access = ($schemas[$set_data['schemaid']]) ? 'applied' : 'denied';
 								$this->_addError('Could not '.$new_access.' schema "'.$schema_name.'" on "'.$asset->name.'" because this asset already has this schema '.$current_access.'. The current schema setting for "'.$asset->name.'" has been retained.', true);
 								continue;
@@ -290,7 +290,7 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 							}
 						}
 
-						switch ($set_data['access']) {
+						switch ($set_data['granted']) {
 							case -1 :
 								// delete a schema
 								$mm->deleteSchema($asset->id, $set_data['schemaid']);
@@ -299,7 +299,7 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 							case 0  :
 							case 1  :
 								// apply a schema
-								$mm->setSchema($asset->id, $set_data['schemaid'], $set_data['access']);
+								$mm->setSchema($asset->id, $set_data['schemaid'], $set_data['granted']);
 							break;
 						}
 					}

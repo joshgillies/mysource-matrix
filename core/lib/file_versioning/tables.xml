@@ -18,14 +18,14 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.1 2004/11/16 03:45:16 lwright Exp $
+* $Id: tables.xml,v 1.2 2004/11/18 04:53:00 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
 
 <schema>
 	<tables>
-		<table name="file_versioning_file" require_rollback="0">
+		<table name="file_vers_file" require_rollback="0">
 			<columns>
 				<column name="fileid" allow_null="0">
 					<type>VARCHAR(15)</type>
@@ -57,7 +57,7 @@
 			</keys>
 			<indexes />
 		</table>
-		<table name="file_versioning_file_history" require_rollback="0">
+		<table name="file_vers_history" require_rollback="0">
 			<columns>
 				<column name="fileid" allow_null="0">
 					<type>VARCHAR(15)</type>
@@ -137,7 +137,7 @@
 				</index>
 			</indexes>
 		</table>
-		<table name="file_versioning_file_lock" require_rollback="0">
+		<table name="file_vers_lock" require_rollback="0">
 			<columns>
 				<column name="fileid" allow_null="0">
 					<type>VARCHAR(15)</type>
@@ -155,6 +155,6 @@
 		</table>
 	</tables>
 	<sequences>
-		<sequence name="sequence_file_versioning_file" />
+		<sequence name="file_vers_file" />
 	</sequences>
 </schema>
