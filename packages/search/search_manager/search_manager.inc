@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.35 2004/12/13 02:46:07 gsherwood Exp $
+* $Id: search_manager.inc,v 1.36 2004/12/21 00:55:05 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -243,7 +243,7 @@ class Search_Manager extends Asset
 			switch ($datum['type']) {
 				case 'datetime':
 					// convert to ISO 8601 date format Y-m-d H:i:s if not already
-					if (!(ereg('[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}', $value))) {
+					if (!(ereg('([0-9]{4}|----)-([0-9]{2}|--)-([0-9]{2}|--) ([0-9]{2}|--):([0-9]{2}|--):([0-9]{2}|--)', $value))) {
 						$value = date('Y-m-d H:i:s', strtotime($value));
 					}
 				break;
@@ -669,7 +669,6 @@ class Search_Manager extends Asset
 									AND ai.type = '.$db->quote('datetime').'
 									AND ai.component = '.$db->quote('attr:'. $attr_info['params']['asset_type'].':'.$attribute->name).'
 									'.$where.' '.$group_by;
-
 							$result = $db->getAssoc($sql);
 							assert_valid_db_result($result);
 
