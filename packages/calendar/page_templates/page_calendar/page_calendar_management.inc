@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_management.inc,v 1.31 2004/11/18 05:16:04 gsherwood Exp $
+* $Id: page_calendar_management.inc,v 1.32 2004/11/22 05:38:55 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -29,7 +29,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.31 $ - 1.0
+* @version $Revision: 1.32 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -248,7 +248,14 @@ class Page_Calendar_Management extends Asset_Management
 													'type'		=> 'boolean',
 													'default'	=> 'false'
 												);
-		
+
+		// override name of the 'Other' column
+		$this->vars['other_column_name'] = Array(
+													'added'		=> '0.1',
+													'type'		=> 'text',
+													'default'	=> '',
+												);
+														
 	}//end Page_Calendar_Management()
 
 
