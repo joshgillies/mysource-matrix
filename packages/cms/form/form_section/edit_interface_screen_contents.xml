@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_contents.xml,v 1.6 2004/04/23 07:28:08 lwright Exp $
+* $Id: edit_interface_screen_contents.xml,v 1.7 2004/05/05 06:58:46 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -45,17 +45,17 @@
 	<section name="Section Widths">
 		<field attribute="section_width">
 			<display_name>Section Width</display_name>
-			<note>The section will be this width when printed on the frontend. This can be a number of pixels or a percentage</note>
+			<note>The section will be this width when printed on the frontend. This can be a number of pixels or a percentage of the form width</note>
 			<html_width />
 		</field>
 		<field attribute="question_col_width">
 			<display_name>Question Width</display_name>
-			<note>The width of the column for question names. This can be a number of pixels or a percentage of the form width</note>
+			<note>The width of the column for question names. This can be a number of pixels or a percentage of the section width</note>
 			<html_width />
 		</field>
 		<field attribute="answer_col_width">
 			<display_name>Answer Width</display_name>
-			<note>The width of the column for the question answer fields. This can be a number of pixels or a percentage of the form width</note>
+			<note>The width of the column for the question answer fields. This can be a number of pixels or a percentage of the section width</note>
 			<html_width />
 		</field>
 	</section>
