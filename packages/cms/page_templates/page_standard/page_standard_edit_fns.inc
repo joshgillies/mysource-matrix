@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: page_standard_edit_fns.inc,v 1.7 2003/10/28 01:15:58 gsherwood Exp $
+* $Id: page_standard_edit_fns.inc,v 1.8 2003/11/03 01:19:15 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -57,7 +57,8 @@ class Page_Standard_Edit_Fns extends Page_Edit_Fns
 		// redirect to the bodycopy's edit contents screen
 		$o->setRedirect($bodycopy->getBackendHref('contents'));
 
-		// fudge the navigation history a little
+		// fudge the navigation history a little so when they click on the link to ger back to the
+		// page it doesnt take them to the edit contents screen and then redirect them again
 		$_SESSION['sq_nav_history'][(count($_SESSION['sq_nav_history']) - 1)]['screen'] = 'details';
 
 		return false;
