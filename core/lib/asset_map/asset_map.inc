@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_map.inc,v 1.84 2003/10/12 22:48:52 dwong Exp $
+* $Id: asset_map.inc,v 1.85 2003/10/13 00:21:13 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -546,7 +546,7 @@ class Asset_Map
 				$error_message = '';
 				$link_types = Array(SQ_LINK_TYPE_1, SQ_LINK_TYPE_2);
 				foreach ($link_types as $link_type) {
-					if (($error_message = $GLOBALS['SQ_SYSTEM']->am->canLinkToType($parent, $attr['type_code'], $link_type)) === true) {
+					if (true === ($error_message = $GLOBALS['SQ_SYSTEM']->am->canLinkToType($parent, $attr['type_code'], $link_type))) {
 						// use this type
 						$use_link_type = $link_type;
 						break;
@@ -558,8 +558,9 @@ class Asset_Map
 					return;
 				}
 
-				if (!$parent->writeAccess('links')) {
-					$this->_error('Cannot create link, permission denied');
+				// check for plain write access, don't check for lock because locking happens in Asset::create()
+				if (!$parent->writeAccess('')) {
+					$this->_error('Cannot create link, no write access found permission denied');
 					return;
 				}
 
