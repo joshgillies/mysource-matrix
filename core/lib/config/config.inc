@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: config.inc,v 1.12 2004/01/15 21:51:24 gsherwood Exp $
+* $Id: config.inc,v 1.12.2.1 2004/01/21 18:47:38 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -173,6 +173,25 @@ class Config extends MySource_Object
 		return true;
 
 	}//end _paintConfigVar()
+
+
+	/**
+	* Check if the passed var is defined, and it not supply the default from the config_vars
+	* Mainly useful for editing interfaces where some the existance of config var is reliant 
+	* on another's value
+	*
+	* @return mixed
+	* @access private
+	*/
+	function _getVal($var_name)
+	{
+		if (!isset($this->config_vars[$var_name])) {
+			trigger_error('Config Var "'.$var_name.'" not known for '.$this->name, E_USER_WARNING);
+			return null;
+		}
+		return (defined($var_name)) ? constant($var_name) : $this->config_vars[$var_name]['default'];
+
+	}//end _getVal()
 
 
 	/**
