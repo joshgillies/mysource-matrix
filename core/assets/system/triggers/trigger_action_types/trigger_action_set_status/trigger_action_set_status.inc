@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_status.inc,v 1.1 2005/02/17 06:34:23 rhoward Exp $
+* $Id: trigger_action_set_status.inc,v 1.2 2005/02/23 23:30:55 arailean Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author	Andrei Railean <arailean@squiz.net>
 * @author	Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -69,6 +69,10 @@ class Trigger_Action_Set_Status extends Trigger_Action
 			} else {
 				$state['asset'] = &$GLOBALS['SQ_SYSTEM']->am->getAsset($state['assetid']);
 			}
+		}
+
+		if ($state['asset']->status == $settings['status']) {
+			return true;
 		}
 
 		$available_statuses = $state['asset']->getAvailableStatii();
