@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.136 2004/04/22 05:23:11 mmcintyre Exp $
+* $Id: asset_map.inc,v 1.137 2004/04/22 09:19:11 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -300,9 +300,6 @@ class Asset_Map
 
 		$current_user = &$GLOBALS['SQ_SYSTEM']->user;
 		
-		$current_user = $GLOBALS['SQ_SYSTEM']->am->getAsset(5);
-		
-		
 		$user_attrs = Array(
 			'assetid'   => $current_user->id,
 			'type_code' => $current_user->type(),
@@ -516,11 +513,8 @@ class Asset_Map
 			}
 		}
 		
-
 		$this->_send($output);
 		
-		error_log($output->get());
-
 	}//end _getAssets()
 
 
