@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_asset_config.inc,v 1.8 2004/02/06 03:09:54 gsherwood Exp $
+* $Id: system_asset_config.inc,v 1.9 2004/05/13 04:01:21 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -43,19 +43,27 @@ class System_Asset_Config extends Config
 		'PRINT_SYSTEM_ASSETS' => Array('editable' => 0, 'default' => ''),
 	);
 
+	/**
+	* Array of defined system asset type codes
+	*
+	* This should be defined in the order that they should be installed.
+	* Those found in packages should be listed last.
+	*
+	* @var array (string)
+	*/
 	var $system_asset_types = Array(
 									'root_folder',
 									'trash_folder',
 									'system_management_folder',
 									'system_user_group',
 									'root_user',
-									'designs_folder',
 									'authentication_folder',
 									'cron_manager',
-									'login_design',
-									'search_manager',
 									'layout_manager',
 									'remap_manager',
+									'designs_folder',
+									'login_design',
+									'search_manager',
 								);
 
 
@@ -108,10 +116,11 @@ class System_Asset_Config extends Config
 				foreach($this->system_asset_types as $type_code) {
 					$assetids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($type_code);
 					if (count($assetids) != 1) {
-						trigger_error('Unable to find a single asset with a type_code "'.$type_code.'", system asset generation failed', E_USER_WARNING);
-						return false;
+						trigger_error('Unable to find a single asset with a type_code "'.$type_code.'" in core, will look for it in packages', E_USER_WARNING);
+						//return false;
+					} else {
+						$system_assets[$type_code] = (int) $assetids[0];
 					}
-					$system_assets[$type_code] = (int) $assetids[0];
 				}//end foreach
 				echo '$system_assets = ';
 				var_export($system_assets);

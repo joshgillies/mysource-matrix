@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_search.inc,v 1.1 2004/02/10 16:37:22 brobertson Exp $
+* $Id: package_manager_search.inc,v 1.2 2004/05/13 04:01:22 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -48,6 +48,32 @@ class Package_Manager_Search extends Package_Manager
 		$this->Package_Manager();
 
 	}//end constructor
+
+
+	/**
+	* Create the search manager system asset
+	*
+	* @return object Search_Manager
+	* @access public
+	*/
+	function &create_search_manager()
+	{
+		$system_management_folder = &$GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM_ASSETS']['system_management_folder']);
+	
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('search_manager');
+		$search_manager = new Search_Manager();
+		$search_manager_link = Array('asset' => &$system_management_folder, 'link_type' => SQ_LINK_TYPE_1, 'exclusive' => 1);
+		if (!$search_manager->create($search_manager_link)) trigger_error('Search Manager NOT CREATED', E_USER_ERROR);
+		pre_echo('Search Manager Asset Id : '.$search_manager->id);
+	
+		trigger_error('You will have to run step_03.php again to set up the index weightings for the first time', E_USER_NOTICE);
+
+		$GLOBALS['SQ_SYSTEM_ASSETS']['search_manager'] = $search_manager->id;
+
+		return $search_manager;
+
+	}//end create_search_manager()
+
 
 }//end class
 

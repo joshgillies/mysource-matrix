@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager.inc,v 1.41 2004/02/10 16:05:43 brobertson Exp $
+* $Id: package_manager.inc,v 1.42 2004/05/13 04:01:21 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -255,6 +255,8 @@ class Package_Manager extends MySource_Object
 
 		// Commit the transaction if we got this far
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
+		$this->_postInstall();
 		return true;
 
 	}//end updatePackageDetails()
@@ -650,6 +652,58 @@ class Package_Manager extends MySource_Object
 
 	}//end installUserPreferences()
 
+
+	/**
+	* Post install script for package; runs at end of update packages
+	*
+	* @return int the number of system assets created (-1 reserved for error)
+	* @access protected
+	*/
+	function installSystemAssets()
+	{
+		// turn the flippin' install flag on
+		$GLOBALS['SQ_INSTALL'] = true;
+
+		// check for any system assets that have not yet been installed and install them if required
+		$sys_asset_cfg = new System_Asset_Config();
+		$updated = false;
+		$assets_created = 0;
+
+		$system_assets = $GLOBALS['SQ_SYSTEM_ASSETS'];
+		foreach (array_intersect($sys_asset_cfg->system_asset_types, array_keys($this->assets)) as $type) {
+			if (!isset($system_assets[$type])) {
+				$function = 'create_'.$type;
+				$new_system_asset = &$this->$function();
+				if (!is_null($new_system_asset)) {
+					if ($new_system_asset->id) $updated = true;
+					$assets_created++;
+				} else {			// could not create the asset?!?
+					return -1;
+				}
+			}
+		}
+
+		// regen the system assets file if needed
+		if ($updated) $sys_asset_cfg->save(Array(), false);
+
+		// install flag goes off - finally
+		$GLOBALS['SQ_INSTALL'] = false;
+
+		return $assets_created;
+
+	}//end installSystemAssets()
+
+
+	/**
+	* Post install script for package; runs at end of update packages
+	*
+	* @abstract
+	* @access protected
+	*/
+	function _postInstall()
+	{
+
+	}//end _postInstall()
 
 }//end class
 
