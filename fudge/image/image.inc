@@ -5,12 +5,12 @@ require_once dirname(__FILE__).'/../general/file_system.inc';
 /**
 * Image
 *
-* Purpose
-*     Image manipulation functions
+* Image manipulation functions
 *
 * @author  Blair Robertson <blair@squiz.net>
 * @version $Version$ - 1.0
-* @package Fudge::image
+* @package Fudge
+* @subpackage Image
 */
 class Image
 {

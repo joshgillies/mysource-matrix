@@ -7,14 +7,24 @@
 *
 * @author  Blair Robertson <blair@squiz.net>
 * @version $Version$ - 1.0
-* @package Resolve::lib
+* @package Fudge
+* @subpackage dev
 */
 
-   ########################################################
-  # Recursively prints array contents - works goodly on
- # associative arrays
-#########################################################
-function array_contents(&$array, $max_depth=0, $depth=0, $ignore_ints=false) {
+/**
+* Recursively prints array contents - works goodly on
+* associative arrays
+*
+* @param Array		$array			the array to create the contents of
+* @param int		$max_depth		the maximum depth to decend into the array
+* @param bool		$ignore_ints	whether to ignore integer keys or not
+* @param int		$depth			the current depth in the array
+*
+* @return string
+* @access public
+*/
+function array_contents(&$array, $max_depth=0, $ignore_ints=false, $depth=0) 
+{
 	$string = $indent = "";
 	for ($i = 0; $i < $depth; $i++) $indent .= "\t";
 	if (!empty($max_depth) && $depth >= $max_depth) {
@@ -31,7 +41,7 @@ function array_contents(&$array, $max_depth=0, $depth=0, $ignore_ints=false) {
 					.  ((is_string($key)) ? "\"$print_key\"": $key) . " => "
 					.  (($type == "array")?"array (\n":"")
 					.  (($type == "object")?"new ".get_class($value)." Object (\n":"");
-			$string .= array_contents($value, $max_depth, $depth + 1,  $ignore_ints);
+			$string .= array_contents($value, $max_depth, $ignore_ints, $depth + 1);
 			$string .= $indent . "),\n";
 		} else {
 			if (is_string($value)) $value = str_replace("\n","\\n",str_replace("\r","\\r",str_replace("\t","\\t",addslashes($value))));
@@ -42,26 +52,37 @@ function array_contents(&$array, $max_depth=0, $depth=0, $ignore_ints=false) {
 	}
 	$string[ strlen($string) - 2 ] = " ";
 	return $string;
-}
+}// end array_contents()
 
 
- #################################
-# One-line ASCII Chart !
+/**
+* One-line ASCII Chart !
+* courtesy of Agi
+*
+* @access public
+*/
 function ascii_chart(){for($i=0;$i<256;$i++)echo(($i==0)?"<table><tr>":"")."<td>$i:</td><td>".chr($i)."</td><td>&nbsp;</td>".((7==($i%8))?"</tr><tr>":"").(($i==255)?"</tr></table>":"");}
 
-
-
-# alias for pre_echo
-function bam($x='BAM!', $max_depth=0, $style='') {
+/**
+* Alias for {@link pre_echo()}
+* courtesy of Agi
+*
+* @access public
+* @see pre_echo()
+*/
+function bam($x='BAM!', $max_depth=0, $style='') 
+{
 	pre_echo($x, $max_depth, $style);
 }
 
 
-
-  #################################################################################
- # take any kind of variable and tries to print it out
-###############################################################################
-function pre_echo($x, $max_depth=0, $style='') {
+/**
+* take any kind of variable and tries to print it out
+*
+* @access public
+*/
+function pre_echo($x, $max_depth=0, $style='') 
+{
 ?> 
 	<div align="left"><pre style="<?php echo $style; ?>font-family: courier, monospace;"><?php
 	$type = gettype($x);
@@ -79,55 +100,19 @@ function pre_echo($x, $max_depth=0, $style='') {
 	
 	?></pre></div>
 <?php
+}//end pre_echo()
 
-}#end pre_echo()
-
-   ################################################################
-  # Prints out all HTTP get and post vars. For debug purposes.
- #  Alternative to phpinfo
-################################################################
-function print_http_vars() {
-
-	$var_arrays = array("HTTP_GET_VARS", "HTTP_POST_VARS", "HTTP_POST_FILES");
-
-
-	while(list($id, $var_name) = each($var_arrays))
-	{
-		global $$var_name;
-		if (isset($$var_name) && count($$var_name))
-		{
-		?>
-			<HR>
-			<h2><?php echo $var_name; ?></h2>
-			<table cellspacing=1 cellpadding=3 bgcolor=black>
-		<?php
-			ksort ($$var_name);
-			reset ($$var_name);
-			while (list($key, $val) = each($$var_name))
-			{
-		?>
-				<tr>
-					<td align=left valign=top style="color: black; background-color: white;"><B><?php echo $key; ?></B></td>
-					<td align=left valign=top style="color: black; background-color: white;"><?php pre_echo($val, 0, 'color: black; background-color: white;'); ?></td>
-				</tr>
-		<?php
-			} //end while
-		?>
-			</table>
-		<?php
-		}// endif
-
-	}// end while
-
-}# end  print_http_vars()
-
-
- ######################################################
-# For optimisaiton, this little funciton lets you track
-# down the slow bits.
-function speed_check($file="",$line="") {
+/**
+* For optimisaiton, this little function lets you track down the slow bits.
+*
+* @param string	$str	a comment that you want to have displayed with the speed result
+*
+* @access public
+*/
+function speed_check($str="") 
+{
 	list($msec, $sec) = explode(" ",microtime()); 
-	$BAM = ((double) $sec) + ((double) $msec); # Record time (note we ignore time spent IN this function)
+	$BAM = ((double) $sec) + ((double) $msec); // Record time (note we ignore time spent IN this function)
 
 	global $SPEED_CHECK_LAST_HIT, $SPEED_CHECK_TOTAL;
 	if($SPEED_CHECK_LAST_HIT) {
@@ -137,12 +122,21 @@ function speed_check($file="",$line="") {
 	}
 	list($msec, $sec) = explode(" ",microtime()); 
 	$SPEED_CHECK_LAST_HIT = ((double) $sec) + ((double) $msec); #initialize
-}
+}// end speed_check()
 
- ####################################################
-# Returns or prints out the memory usage for hte current script
-# Only work in unixey systems
-function mem_check($return_value=false) {
+/**
+* Returns or prints out the memory usage for hte current script
+* Only work in unixey systems
+*
+* Also see bcr_mem_fns php extension
+*
+* @param bool	$return_value	whether to return the value or just print it
+*
+* @return string
+* @access public
+*/
+function mem_check($return_value=false) 
+{
 	global $MEM_CHECK_LAST_HIT;
 	#$status = `cat /proc/\$PPID/status`;
 	#echo "<pre>".array_contents(getrusage())."</pre>";
@@ -171,10 +165,16 @@ function mem_check($return_value=false) {
 	if ($return_value) {
 		return $mem;
 	}
-}
+}// end mem_check()
 
-
-function print_function_list() {
+/**
+* Print a list of all user defined functions, both procedural and in classes
+* Only work in unixey systems
+*
+* @access public
+*/
+function print_function_list() 
+{
 	echo "<pre>";
 	foreach (get_loaded_extensions() as $extension) {
 		echo "<b>Extension: $extension</b><br>";
@@ -188,22 +188,29 @@ function print_function_list() {
 		print_r(get_class_methods($class));
 	}
 	echo "</pre>";
-}
 
-# Spews out a string to a PTS
+}//end print_function_list()
+
+/**
+* Spews out a string to a PTS
+*
+* @param int	$i	your pts number
+* @param int	$i	your pts number
+* @param bool	$return_value	whether to return the value or just print it
+*
+*
+* @access public
+*/
 function pts_spew($i,$s) {
-	if($i != (int) $i) {
-		report_error(__FILE__,__LINE__,"Can't spew to pts, \"$i\" is not a valid pts number.");
+	if($i != (int) $i || !file_exists("/dev/pts/$i")) {
+		trigger_error("Can't spew to pts, \"$i\" is not a valid pts number.", E_USER_WARNING);
 		return;
 	}
-	if(!file_exists("/dev/pts/$i")) {
-		report_error(__FILE__,__LINE__,"Can't spew to pts, \"$i\" is not a valid pts number.");
-		return;
-	}
+	require_once(dirname(__FILE__).'/../general/file_system.inc');
 	if(!string_to_file("$s\n","/dev/pts/$i")) {
-		report_error(__FILE__,__LINE__,"Try ensuring that /dev/pts/[your_pts_number] is writable by the web server.<br>$ w  # To find your pts<br>$ chmod a+w /dev/pts/[your_pts_number]<br>");
+		trigger_error("Try ensuring that /dev/pts/[your_pts_number] is writable by the web server.<br>$ w  # To find your pts<br>$ chmod a+w /dev/pts/[your_pts_number]<br>", E_USER_WARNING);
 	}
-}
+}// end pts_spew()
 
 
 ?>

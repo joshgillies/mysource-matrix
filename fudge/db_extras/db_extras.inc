@@ -1,5 +1,4 @@
 <?php
-
 /**
 * DB Extras
 *
@@ -9,11 +8,12 @@
 *
 * @author  Blair Robertson <blair@squiz.net>
 * @version $Version$ - 1.0
-* @package Resolve::lib
+* @package Fudge
+* @subpackage DB_Extras
 */
 
 
-/*
+/**
 * Takes a DB object, the primary SQL and the sub-queries,
 * and generates an SQL statement that can be used in the main program
 *

@@ -14,7 +14,8 @@
 *
 * @author  Blair Robertson <blair@squiz.net>
 * @version $Version$ - 1.0
-* @package Fudge::var_serialise
+* @package Fudge
+* @subpackage var_serialise
 */
 
 /**

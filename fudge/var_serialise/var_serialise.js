@@ -1,28 +1,20 @@
 //<!-- // --
-/*
-    ##############################################
-   ### SQUIZLIB ------------------------------###
-  ##- Generic Include Files -- PHP4 ----------##
- #-- Copyright Squiz.net ---------------------#
-##############################################
-## This file is subject to version 1.0 of the
-## MySource License, that is bundled with
-## this package in the file LICENSE, and is
-## available at through the world-wide-web at
-## http://mysource.squiz.net/
-## If you did not receive a copy of the MySource
-## license and are unable to obtain it through
-## the world-wide-web, please contact us at
-## mysource@squiz.net so we can mail you a copy
-## immediately.
-##
-## Desc: Javascript functions that serialise/unserialise an variables, so 
-##       they can be passed between Javascript and PHP
-## $Source: /home/csmith/conversion/cvs/mysource_matrix/core/mysource_matrix/fudge/var_serialise/var_serialise.js,v $
-## $Revision: 1.1.1.1 $
-## $Author: brobertson $
-## $Date: 2003/03/21 00:48:01 $
-#######################################################################
+/**
+* Var Serialise
+*
+* Purpose
+*     Allow the transportation of PHP variables to JS variables
+* Example
+*
+*     <script language="JavaScript" type="text/javascript" src="var_serialise.js"></script>
+*     <script language="JavaScript" type="text/javascript">
+*         var js_var = var_unserialise('<?php echo var_serialise($php_var, true)?>');
+*     </script>
+*
+* @author  Blair Robertson <blair@squiz.net>
+* @version $Version$ - 1.0
+* @package Fudge
+* @subpackage var_serialise
 */
 
  // this is a dummy fn to get the copy of the value then pass that copy by 
