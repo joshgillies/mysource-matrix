@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.64 2004/03/23 23:45:22 gsherwood Exp $
+* $Id: design.inc,v 1.65 2004/04/08 10:04:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -578,7 +578,7 @@ class Design extends Design_Area
 					case 'username'   : 
 					case 'first_name' : 
 					case 'last_name'  : 
-						$attr = 'attr(\''.$args['attr'].'\')';
+						$attr = 'attr('.var_export((string) $args['attr'], true).')';
 						break;
 
 					case 'name' :
@@ -594,7 +594,7 @@ class Design extends Design_Area
 
 
 			case 'file_path' :
-				echo '<','?php echo $FILE_URLS[\''.$args['filename'].'\'];?', '>';
+				echo '<','?php echo $FILE_URLS['.var_export((string) $args['filename'], true).'];?', '>';
 				break;
 
 			default :
