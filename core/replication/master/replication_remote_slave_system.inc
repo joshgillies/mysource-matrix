@@ -18,13 +18,14 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: replication_remote_system.inc,v 1.1.2.1 2004/02/13 17:18:58 brobertson Exp $
+* $Id: replication_remote_slave_system.inc,v 1.1.2.1 2004/02/14 12:38:13 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
+require_once SQ_SYSTEM_ROOT.'/core/replication/replication_remote_system.inc';
 
 /**
-* Replication_Remote_System
+* Replication_Remote_Slave_System
 *
 * Purpose
 *
@@ -35,21 +36,8 @@
 * @version $Version$ - 1.0
 * @package MySource_Matrix
 */
-class Replication_Remote_System extends MySource_Object
+class Replication_Remote_Slave_System extends Replication_Remote_System
 {
-	/**
-	* The uniq replication system id that has been given to this remote system
-	* @var int
-	*/
-	var $id = 0;
-
-	/**
-	* The uniq test string for this remote system
-	* @see Replicator::validSystemName()
-	* @var string
-	*/
-	var $name = '';
-
 	/**
 	* The timestamp for when this system was created
 	* @var int
@@ -62,43 +50,6 @@ class Replication_Remote_System extends MySource_Object
 	*/
 	var $retired = null;
 
-	/**
-	* The authentication object used to authenticate this server
-	* @var object Replication_System_Authentication
-	*/
-	var $auth = null;
-
-	/**
-	* The transport object used to communicate with this server
-	* @var object Replication_System_Transport
-	*/
-	var $transport = null;
-
-	/**
-	* Details for the squiz server on this remote server that we will use to connect to
-	* Maybe left blank for servers with dynamic IP
-	* @var string
-	*/
-	var $squiz_server = Array(
-							'systemid'	=> '',
-							'host'		=> '',
-							'port'		=> 0,
-						);
-
-	/**
-	* Whether the master server normally initiates replication to this server
-	* If false, then the slave server is expected to initiate the connection
-	* @var boolean
-	*/
-	var $master_initiates = true;
-
-	/**
-	* The amount of time (in seconds) that is be between syncronisation runs
-	* If the master server is not the initiator this is only an expected figure
-	* @var int
-	*/
-	var $interval = 0;
-
 
 	/**
 	* Constructor
@@ -106,9 +57,9 @@ class Replication_Remote_System extends MySource_Object
 	* @param string	$systemid	the id of the system that we are representing
 	*
 	*/
-	function Replication_Remote_System($systemid='')
+	function Replication_Remote_Slave_System($systemid='')
 	{
-		$this->MySource_Object();
+		$this->Replication_Remote_System();
 		if($systemid) $this->load($systemid);
 
 	}//end constructor
@@ -133,7 +84,7 @@ class Replication_Remote_System extends MySource_Object
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'SELECT COUNT(*) 
-				FROM '.SQ_TABLE_PREFIX.'replication_remote_system
+				FROM '.SQ_TABLE_PREFIX.'replication_remote_slave_system
 				WHERE name = '.$db->quote($name);
 
 		$result = $db->getOne($sql);
@@ -149,7 +100,7 @@ class Replication_Remote_System extends MySource_Object
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$systemid = $db->nextId(SQ_TABLE_PREFIX.'sequence_remote_system');
+		$systemid = $db->nextId(SQ_TABLE_PREFIX.'sequence_replication_slave');
 		if (DB::isError($systemid)) {
 			trigger_error($systemid->getMessage().'<br/>'.$systemid->getUserInfo(), E_USER_WARNING);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -158,7 +109,7 @@ class Replication_Remote_System extends MySource_Object
 
 		$now = time();
 
-		$sql = 'INSERT INTO '.SQ_TABLE_PREFIX.'replication_remote_system
+		$sql = 'INSERT INTO '.SQ_TABLE_PREFIX.'replication_remote_slave_system
 				(systemid, name, created, retired)
 				VALUES
 				('.$db->quote($systemid).', '.$db->quote($name).', '.$db->quote(ts_iso8601($now)).', NULL)';
@@ -177,18 +128,21 @@ class Replication_Remote_System extends MySource_Object
 		if (!$this->setAuthType($auth_type)) {
 			trigger_error('Unable to create Replication Remote System "'.$this->id.'" : Unable to set Authentication Type', E_USER_WARNING);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$this->id = null;
 			return false;
 		}
 
 		if (!$this->setTransportMethod($transport_method)) {
 			trigger_error('Unable to create Replication Remote System "'.$this->id.'" : Unable to set Transport Method', E_USER_WARNING);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$this->id = null;
 			return false;
 		}
 
 		if (!$this->save()) {
 			trigger_error('Unable to create Replication Remote System "'.$this->id.'" : unable to save', E_USER_WARNING);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$this->id = null;
 			return false;
 		}
 
@@ -199,40 +153,21 @@ class Replication_Remote_System extends MySource_Object
 
 
 	/**
-	* Saves this remote system
+	* Returns the conf file for this remote system
 	*
-	* @return boolean	indicates whether the file was written
+	* @return string
 	* @access public
+	* @see save(), load()
 	*/
-	function save()
+	function confFile()
 	{
-		if (!$this->id) return false;
-
-		if (is_null($this->auth) || is_null($this->transport)) {
-			trigger_error('Unable to save Remote System, either System Name, Auth Type or Transport Method not defined', E_USER_WARNING);
-			return false;
+		if (is_null($this->id)) {
+			trigger_error('Unable to get config filename : No System Id', E_USER_WARNING);
+			return '';
 		}
+		return SQ_DATA_PATH.'/private/conf/replication/'.$this->id.'_'.$this->name.'.inc';
 
-		$config = Array(
-					'auth_type'			=> $this->auth->type(),
-					'auth_data'			=> $this->auth->extractParams(),
-					'transport_method'	=> $this->transport->method(),
-					'transport_data'	=> $this->transport->extractParams(),
-					'squiz_server'		=> $this->squiz_server,
-					'master_initiates'	=> $this->master_initiates,
-					'interval'			=> $this->interval,
-				);
-		$str = '<'."?php\n".'$config = '.var_export($config, true).";\n?".">\n";
-
-		$config_file = SQ_DATA_PATH.'/private/conf/replication/'.$this->id.'_'.$this->name.'.inc';
-
-		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-		// make sure the directory exists
-		if (!create_directory(dirname($config_file))) return false;
-		// and save the file
-		return string_to_file($str, $config_file);
-
-	}// end save()
+	}// end confFile()
 
 
 	/**
@@ -246,10 +181,9 @@ class Replication_Remote_System extends MySource_Object
 	*/
 	function load($systemid)
 	{
-
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'SELECT systemid, name, created, retired
-				FROM '.SQ_TABLE_PREFIX.'replication_remote_system
+				FROM '.SQ_TABLE_PREFIX.'replication_remote_slave_system
 				WHERE systemid = '.$db->quote($systemid);
 
 		$result = $db->getRow($sql, null, DB_FETCHMODE_ORDERED);
@@ -266,50 +200,10 @@ class Replication_Remote_System extends MySource_Object
 		unset($result);
 
 		if (is_null($this->retired)) {
-			$config_file = SQ_DATA_PATH.'/private/conf/replication/'.$this->id.'_'.$this->name.'.inc';
-			if (!file_exists($config_file)) {
-				trigger_error('Config file doesn\'t exist for Remote System "'.$systemid.'"', E_USER_WARNING);
-			} else {
-				// include the file and hopefully there is a var called $config
-				require_once $config_file;
-
-				if (!isset($config) || !is_array($config)) {
-					trigger_error('Unable to load Remote System "'.$systemid.'", config var doesn\'t exist', E_USER_WARNING);
-					$this->id = 0;
-					return false;
-				}
-
-				if ($config['auth_type'] != '') {
-					require_once SQ_SYSTEM_ROOT.'/core/replication/authentication/replication_system_authentication_'.$config['auth_type'].'.inc';
-					$class = 'replication_system_authentication_'.$config['auth_type'];
-					$this->auth = new $class();
-					if (!$this->auth->loadParams($config['auth_data'])) {
-						unset($this->auth);
-						$this->auth = null;
-						$this->id = 0;
-						return false;
-					}
-				}
-				if ($config['transport_method'] != '') {
-					require_once SQ_SYSTEM_ROOT.'/core/replication/transport/replication_system_transport_'.$config['transport_method'].'.inc';
-					$class = 'replication_system_transport_'.$config['transport_method'];
-					$this->transport = new $class();
-					if (!$this->transport->loadParams($config['transport_data'])) {
-						unset($this->transport);
-						$this->transport = null;
-						$this->id = 0;
-						return false;
-					}
-				}
-
-				$this->squiz_server		= $config['squiz_server'];
-				$this->master_initiates	= (bool) $config['master_initiates'];
-				$this->interval			= (int) $config['interval'];
-
-			}// end if file_exists()
-		}// end if isnull retired
-
-		return true;
+			return parent::load();
+		} else {
+			return true;
+		}// end if
 
 	}// end load()
 
@@ -322,6 +216,8 @@ class Replication_Remote_System extends MySource_Object
 	*/
 	function retire()
 	{
+		if (is_null($this->id)) return false;
+
 		if ($this->isRetired()) {
 			trigger_error('Unable to retire Replication Remote System "'.$this->id.'" : System Already Retired', E_USER_WARNING);
 			return false;
@@ -331,7 +227,7 @@ class Replication_Remote_System extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$now = time();
-		$sql = 'UPDATE '.SQ_TABLE_PREFIX.'replication_remote_system
+		$sql = 'UPDATE '.SQ_TABLE_PREFIX.'replication_remote_slave_system
 				  SET retired = '.$db->quote(ts_iso8601($now)).'
 				WHERE systemid = '.$db->quote($this->id);
 
@@ -342,8 +238,8 @@ class Replication_Remote_System extends MySource_Object
 			return false;
 		}
 
-		$conf_file = SQ_DATA_PATH.'/private/conf/replication/'.$this->id.'_'.$this->name.'.inc';
-		if (file_exists($conf_file) && !unlink($conf_file)) {
+		$conf_file = $this->confFile();
+		if ($conf_file != '' && file_exists($conf_file) && !unlink($conf_file)) {
 			trigger_error('Unable to retire Replication Remote System "'.$this->id.'" : unable to remove config file', E_USER_WARNING);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
@@ -367,64 +263,6 @@ class Replication_Remote_System extends MySource_Object
 	{
 		return !is_null($this->retired);
 	}// end isRetired()
-
-
-	/**
-	* Set's the Authentication type for this remote system
-	*
-	* @param string	$auth_type	the name of the type
-	*
-	* @return boolean	true on success
-	* @access public
-	*/
-	function setAuthType($auth_type)
-	{
-		$auth_types = Replicator::getAuthTypes();
-		if (!isset($auth_types[$auth_type])) {
-			trigger_error('Unable to set Authentication Type for "'.$this->id.'" : Authentication Type "'.$auth_type.'" doesn\'t exist', E_USER_WARNING);
-			return false;
-		}
-
-		// if we are already set to this, don't override it with a new version
-		if (!is_null($this->auth) && $this->auth->type() == $auth_type) return true;
-
-		// create a brand new version
-		require_once SQ_SYSTEM_ROOT.'/core/replication/authentication/replication_system_authentication_'.$auth_type.'.inc';
-		$class = 'replication_system_authentication_'.$auth_type;
-		$this->auth = new $class();
-
-		return true;
-
-	}// end setAuthType()
-
-
-	/**
-	* Set's the Transport method for this remote system
-	*
-	* @param string	$transport_method	the name of the method
-	*
-	* @return boolean	true on success
-	* @access public
-	*/
-	function setTransportMethod($transport_method)
-	{
-		$transport_methods = Replicator::getTransportMethods();
-		if (!isset($transport_methods[$transport_method])) {
-			trigger_error('Unable to set Transport Method for "'.$this->id.'" : Transport Method "'.$transport_method.'" doesn\'t exist', E_USER_WARNING);
-			return false;
-		}
-
-		// if we are already set to this, don't override it with a new version
-		if (!is_null($this->transport) && $this->transport->method() == $transport_method) return true;
-
-		// create a brand new version
-		require_once SQ_SYSTEM_ROOT.'/core/replication/transport/replication_system_transport_'.$transport_method.'.inc';
-		$class = 'replication_system_transport_'.$transport_method;
-		$this->transport = new $class();
-
-		return true;
-
-	}// end setTransportMethod()
 
 }//end class
 

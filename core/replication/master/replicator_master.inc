@@ -18,13 +18,13 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: replicator_master.inc,v 1.1.2.3 2004/02/13 18:32:32 brobertson Exp $
+* $Id: replicator_master.inc,v 1.1.2.4 2004/02/14 12:38:13 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
 require_once SQ_SYSTEM_ROOT.'/core/replication/replicator.inc';
 require_once SQ_SYSTEM_ROOT.'/data/private/conf/replication.inc';
-require_once SQ_SYSTEM_ROOT.'/core/replication/master/replication_remote_system.inc';
+require_once SQ_SYSTEM_ROOT.'/core/replication/master/replication_remote_slave_system.inc';
 
 /**
 * Replicator
@@ -75,7 +75,7 @@ class Replicator_Master extends Replicator
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$sql = 'CREATE TABLE '.SQ_TABLE_PREFIX.'replication_remote_system (
+		$sql = 'CREATE TABLE '.SQ_TABLE_PREFIX.'replication_remote_slave_system (
 					systemid INT          NOT NULL,
 					name     VARCHAR(100) NOT NULL,
 					created  TIMESTAMP    NOT NULL,
@@ -93,7 +93,7 @@ class Replicator_Master extends Replicator
 			return false;
 		}
 
-		$result = $db->createSequence(SQ_TABLE_PREFIX.'sequence_remote_system');
+		$result = $db->createSequence(SQ_TABLE_PREFIX.'sequence_replication_slave');
 		if (DB::isError($result)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
@@ -112,21 +112,19 @@ class Replicator_Master extends Replicator
 
 
 	/**
-	* Load's all the remote system object's that we have installed into our cache
+	* Load's a remote slave replication system, caches it and returns a reference to that
 	*
-	* @return object Replication_Remote_System	NULL on error
+	* @return object Replication_Remote_Slave_System	NULL on error
 	* @access public
 	*/
-	function &getRemoteSystem($systemid)
+	function &getSlaveSystem($systemid)
 	{
 		static $null = null;
-		if (!$this->initialised()) {
-			return $null;
-		}
+		if (!$this->initialised()) return $null;
 
 		if (!isset($this->_tmp['systems'][$systemid])) {
-			$this->_tmp['systems'][$systemid] = new Replication_Remote_System($systemid);
-			if (!$this->_tmp['systems'][$systemid]->id) {
+			$this->_tmp['systems'][$systemid] = new Replication_Remote_Slave_System($systemid);
+			if (is_null($this->_tmp['systems'][$systemid]->id)) {
 				unset($this->_tmp['systems'][$systemid]);
 				return $null;
 			}
@@ -134,7 +132,7 @@ class Replicator_Master extends Replicator
 
 		return $this->_tmp['systems'][$systemid];
 
-	}// end getRemoteSystem()
+	}// end getSlaveSystem()
 
 
 	/**
@@ -146,12 +144,12 @@ class Replicator_Master extends Replicator
 	* @return Array('systemid' => 'name');
 	* @access public
 	*/
-	function getRemoteSystemsList($active=true, $retired=false)
+	function getSlaveSystemsList($active=true, $retired=false)
 	{
 		if (!$this->initialised()) return Array();
 
 		$sql = 'SELECT systemid, name
-				FROM '.SQ_TABLE_PREFIX.'replication_remote_system';
+				FROM '.SQ_TABLE_PREFIX.'replication_remote_slave_system';
 		if ($active && !$retired) {
 			$sql .= ' WHERE retired IS NULL';
 		} elseif (!$active && $retired) {
@@ -166,7 +164,7 @@ class Replicator_Master extends Replicator
 
 		return $result;
 
-	}// end getRemoteSystemsList()
+	}// end getSlaveSystemsList()
 
 
 	/**
@@ -197,6 +195,7 @@ class Replicator_Master extends Replicator
 		switch($cmd) {
 			case 'init' :
 				if ($this->initialise()) {
+					echo 'Master Replication System Initialised'."\n";
 					return 0;
 				} else {
 					return 1;
@@ -209,13 +208,14 @@ class Replicator_Master extends Replicator
 					return 1;
 				}
 
-				$rs = new Replication_Remote_System();
+				$rs = new Replication_Remote_Slave_System();
 				if (!$rs->create($_SERVER['argv'][2], $_SERVER['argv'][3], $_SERVER['argv'][4])) {
 					return 1;
 				}
 				echo 'Remote System "'.$rs->name.'" created.'."\n";
 				echo 'System Id : '.$rs->id."\n";
-				echo 'You may now edit this system configuration file in the [SYSTEM_ROOT]/data/conf/replication directory'."\n";
+				echo 'You may now edit this system configuration file :'."\n";
+				echo '  '.$rs->confFile()."\n";
 				return 0;
 
 				break;
@@ -241,7 +241,7 @@ class Replicator_Master extends Replicator
 					return 1;
 				}// end switch
 							
-				$remote_systems = $this->getRemoteSystemsList($active, $retired);
+				$remote_systems = $this->getSlaveSystemsList($active, $retired);
 				if (empty($remote_systems)) {
 					echo "No Remote Systems found\n";
 					return 0;
@@ -265,7 +265,7 @@ class Replicator_Master extends Replicator
 					return 1;
 				}// end if
 
-				$rs = &$this->getRemoteSystem($_SERVER['argv'][2]);
+				$rs = &$this->getSlaveSystem($_SERVER['argv'][2]);
 				if (!$rs->id) {
 					trigger_error($_SERVER['argv'][2].' is not a valid system', E_USER_WARNING);
 					return 1;
