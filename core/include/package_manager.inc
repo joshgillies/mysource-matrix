@@ -169,7 +169,7 @@ class Package_Manager extends Resolve_Object
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		// open the transaction
-#		$db->query('BEGIN');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$exists = $db->getOne('SELECT code_name FROM sq_package WHERE code_name = '.$db->quote($this->package));
 		if (DB::isError($exists)) trigger_error($exists->getMessage().'<br/>'.$exists->getUserInfo(), E_USER_ERROR);
@@ -192,7 +192,7 @@ class Package_Manager extends Resolve_Object
 		$result = $db->query($sql);
 		if (DB::isError($result)) {
 			// Abort Transaction
-			$db->query('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 			return;
 		}
@@ -213,14 +213,14 @@ class Package_Manager extends Resolve_Object
 				$management = new $class($this);
 				if (!$management->update()) {
 					// Abort Transaction
-					$db->query('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return false;
 				}
 
 			} else {
 				trigger_error('Asset "'.$type_code.'" does not have a management class defined for it in '.$file, E_USER_WARNING);
 				// Abort Transaction
-				$db->query('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
 
@@ -230,12 +230,12 @@ class Package_Manager extends Resolve_Object
 		if (!$this->_createAssetMapScreensXML()) {
 			trigger_error('Unable to create the Asset Map Screens XML', E_USER_WARNING);
 			// Abort Transaction
-			$db->query('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
 
 		// Commit the transaction if we got this far
-		$db->query('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
 
 	}//end updatePackageDetails()
