@@ -81,6 +81,7 @@ mcActionsBarButtonClass.prototype.setWidth = function(w)
 mcActionsBarButtonClass.prototype._setStyle = function(style) 
 {
 	this.text_format.color = this.colours[style].fg;
+	this.label_text.setTextFormat(this.text_format);
 
 	this.clear();
 	this.beginFill(this.colours[style].bg, 100);
