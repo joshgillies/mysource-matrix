@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.5 2004/07/29 02:18:43 tbarrett Exp $
+* $Id: calendar_event_recurring.inc,v 1.6 2004/07/29 05:17:10 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,7 +31,7 @@ require_once  dirname(__FILE__).'/../../calendar_event/calendar_event.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.5 $ - 1.0
+* @version $Revision: 1.6 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -270,6 +270,51 @@ class Calendar_Event_Recurring extends Calendar_Event
 			return "$res, until " . readable_datetime($stop_timestamp);
 
 	}//end getFriendlyFrequency()
+
+
+	/**
+	* Called by the design to print the body of this asset
+	*
+	* @return void
+	* @access public
+	*/
+	function printBody()
+	{
+		include_once SQ_FUDGE_PATH.'/general/datetime.inc';
+		?>
+		<table border="0" cellspacing="2" cellpadding="2">
+			<tr>
+				<td><b>Event Name</b></td>
+				<td><?php echo $this->attr('name'); ?></td>
+			</tr>
+			<tr>
+				<td><b>Start Date of first instance</b></td>
+				<td><?php echo $this->getFriendlyStart(); ?></td>
+			</tr>
+			<tr>
+				<td><b>End Date of first instance</b></td>
+				<td><?php echo $this->getFriendlyEnd(); ?></td>
+			</tr>
+			<tr>
+				<td><b>Duration of each instance</b></td>
+				<td><?php
+						// give useful info if no duration - easy_time_total returns empty string
+						$total_time = easy_time_total($this->getDuration(), true);
+						echo (empty($total_time) ? 'N/A' : $total_time);
+					?></td>
+			</tr>
+			<tr>
+				<td><b>Frequency</b></td>
+				<td>Recurs <?php echo $this->getFriendlyFrequency() ?></td>
+			</tr>
+			<tr>
+				<td><b>Description</b></td>
+				<td><?php echo $this->attr('description'); ?></td>
+			</tr>
+		</table>
+		<?php
+
+	}//end printBody()
 
 
 	/**

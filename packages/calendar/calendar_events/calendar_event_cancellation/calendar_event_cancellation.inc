@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_cancellation.inc,v 1.1 2004/07/29 03:16:02 tbarrett Exp $
+* $Id: calendar_event_cancellation.inc,v 1.2 2004/07/29 05:17:10 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once  dirname(__FILE__).'/../calendar_event_recurring/calendar_event_rec
 * which replaces the cancelled instance may be linked to it.
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.1 $ - 1.0
+* @version $Revision: 1.2 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -177,6 +177,50 @@ class Calendar_Event_Cancellation extends Calendar_Event
 
 
 	}//end saveAttributes()
+
+
+	/**
+	* Called by the design to print the body of this asset
+	*
+	* @return void
+	* @access public
+	*/
+	function printBody()
+	{
+		$root_url = array_values($GLOBALS['SQ_SYSTEM']->am->getRootURL());
+		if (is_array($root_url)) $root_url = $root_url[0];
+		include_once SQ_FUDGE_PATH.'/general/datetime.inc';
+		?>
+		<table border="0" cellspacing="2" cellpadding="2">
+			<tr>
+				<td><b>Event Name</b></td>
+				<td><?php echo $this->attr('name'); ?></td>
+			</tr>
+			<tr>
+				<td><b>Cancels</b></td>
+				<td><?php 
+				// get the parent recurring event asset
+				if ($recurring_events = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'calendar_event_recurring', false)) {
+					$recurring_event = &$GLOBALS['SQ_SYSTEM']->am->getAsset($recurring_events[0]);
+					echo '<a href="' . $root_url . '?a=' . $recurring_events[0] . '">' . $recurring_event->attr('name') . '</a>';
+				}?></td>
+			</tr>
+			<tr>
+				<td><b>Start Date of cancelled instance</b></td>
+				<td><?php echo $this->getFriendlyStart(); ?></td>
+			</tr>
+			<tr>
+				<td><b>End Date of cancelled instance</b></td>
+				<td><?php echo $this->getFriendlyEnd(); ?></td>
+			</tr>
+			<tr>
+				<td><b>Reason for Cancellation</b></td>
+				<td><?php echo $this->attr('description'); ?></td>
+			</tr>
+		</table>
+		<?php
+
+	}//end printBody()
 
 
 }//end class

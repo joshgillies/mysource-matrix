@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_single.inc,v 1.3 2004/07/29 03:09:28 tbarrett Exp $
+* $Id: calendar_event_single.inc,v 1.4 2004/07/29 05:17:10 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once  dirname(__FILE__).'/../../calendar_event/calendar_event.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.3 $ - 1.0
+* @version $Revision: 1.4 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -78,6 +78,64 @@ class Calendar_Event_Single extends Calendar_Event
 		return parent::create($link);
 
 	}//end create()
+
+
+	/**
+	* Called by the design to print the body of this asset
+	*
+	* @return void
+	* @access public
+	*/
+	function printBody()
+	{
+		include_once SQ_FUDGE_PATH.'/general/datetime.inc';
+		?>
+		<table border="0" cellspacing="2" cellpadding="2">
+			<tr>
+				<td><b>Event Name</b></td>
+				<td><?php echo $this->attr('name'); ?></td>
+			</tr>
+			<?php 
+				if ($recurring_events = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'calendar_event_recurring', false)) {
+					$root_url = array_values($GLOBALS['SQ_SYSTEM']->am->getRootURL());
+					if (is_array($root_url)) $root_url = $root_url[0];
+				?>
+			<tr>
+				<td><b>Replaces cancellation</b></td>
+				<td><?php 
+					// get the parent recurring event asset
+					$recurring_event = &$GLOBALS['SQ_SYSTEM']->am->getAsset($recurring_events[0]);
+					echo '<a href="' . $root_url . '?a=' . $recurring_events[0] . '">' . $recurring_event->attr('name') . '</a>';
+				?></td>
+			</tr>
+			<?php
+				}
+			?>
+			<tr>
+				<td><b>Start Date</b></td>
+				<td><?php echo $this->getFriendlyStart(); ?></td>
+			</tr>
+			<tr>
+				<td><b>End Date</b></td>
+				<td><?php echo $this->getFriendlyEnd(); ?></td>
+			</tr>
+			<tr>
+				<td><b>Duration</b></td>
+				<td><?php
+						// give useful info if no duration - easy_time_total returns empty string
+						$total_time = easy_time_total($this->getDuration(), true);
+						echo (empty($total_time) ? 'N/A' : $total_time);
+					?></td>
+			</tr>
+			<tr>
+				<td><b>Description</b></td>
+				<td><?php echo $this->attr('description'); ?></td>
+			</tr>
+		</table>
+		<?php
+
+	}//end printBody()
+
 
 }//end class
 
