@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: replication_remote_system.inc,v 1.1.2.7 2004/03/08 17:54:39 brobertson Exp $
+* $Id: replication_remote_system.inc,v 1.1.2.8 2004/03/09 18:18:20 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -321,7 +321,6 @@ class Replication_Remote_System extends Replication_Object
 		}
 
 		$ack = $client->read();
-		pre_echo("RESULT : $ack");
 		if ($ack != 'ack') {
 			$client->disconnect();
 			return false;
@@ -338,8 +337,6 @@ class Replication_Remote_System extends Replication_Object
 			$this->transport->removeSocketFd(true);
 			return false;
 		}
-
-		pre_echo("AUTHENTICATED!!!!!!");
 
 		return true;
 
