@@ -403,7 +403,7 @@ class Colour
 		// remove any hashes from the start
 		$input = preg_replace('/^#/', '', strtolower($input));
 		if (sprintf('%06x',hexdec($input)) != $input) {
-			# Must be a colour name, or a fuck-up
+			// Must be a colour name, or a fuck-up
 			if (isset($GLOBALS['COLOUR_PALETTE'][$input])) {
 				$input = $GLOBALS['COLOUR_PALETTE'][$input];
 			}
@@ -480,26 +480,26 @@ class Colour
 		$b = max(0,min(1,$input['b']));
 		$min = min($r,$g,$b);
 		$max = max($r,$g,$b);
-		if(!$max) { # Black
+		if(!$max) { // Black
 			return Array('h' => -1, 's' => 0, 'v' => 0);
 		}
 		$delta = $max - $min;
 		$v = $max;
 		$s = $delta / $max;
-		if (!$s) { # Grey
+		if (!$s) { // Grey
 			return Array('h' => -1, 's' => 0, 'v' => $v);
 		}
 		if ($r == $max) {
-			# between yellow & magenta
+			// between yellow & magenta
 			$h = ($g - $b) / $delta;
 		} elseif ($g == $max) {
-			# between cyan & yellow
+			// between cyan & yellow
 			$h = 2 + ($b - $r) / $delta;
 		} else {
-			# between magenta & cyan
+			// between magenta & cyan
 			$h = 4 + ($r - $g) / $delta;
 		}
-		$h *= 60; # degrees
+		$h *= 60; // degrees
 		if($h < 0) $h += 360;
 		return Array('h' => $h, 's' => $s, 'v' => $v);
 	}
@@ -518,49 +518,49 @@ class Colour
 		$h = $input['h'] % 360;
 		$s = max(0,min(1,$input['s']));
 		$v = max(0,min(1,$input['v']));
-		if (!$s) { # Grey
+		if (!$s) { // Grey
 			return Array('r' => $v, 'g' => $v, 'b' => $v);
 		}
-		# Split into the six sections of the colour wheel
+		// Split into the six sections of the colour wheel
 		$h /= 60;
-		# Section number (0 - 5)
+		// Section number (0 - 5)
 		$i  = floor($h);
-		# Amount through the sector towards the next one [0,1]
+		// Amount through the sector towards the next one [0,1]
 		$f  = $h - $i;
-		# Remember, $v is the value of the maximum colour [r,g,b]
-		# $p is the minimum colour, according to the saturation
+		// Remember, $v is the value of the maximum colour [r,g,b]
+		// $p is the minimum colour, according to the saturation
 		$p  = $v * (1 - $s);
-		# $q is the colour in between, assuming we're heading down
+		// $q is the colour in between, assuming we're heading down
 		$q  = $v * (1 - $s * $f );
-		# $tq is the colour in between, assuming we're heading up
+		// $tq is the colour in between, assuming we're heading up
 		$t  = $v * (1 - $s * (1 - $f ));
 		switch($i) {
-			case 0: # Between red and yellow
+			case 0: // Between red and yellow
 				$r = $v;
 				$g = $t;
 				$b = $p;
 				break;
-			case 1: # Between yellow and green
+			case 1: // Between yellow and green
 				$r = $q;
 				$g = $v;
 				$b = $p;
 				break;
-			case 2: # Between green and cyan
+			case 2: // Between green and cyan
 				$r = $p;
 				$g = $v;
 				$b = $t;
 				break;
-			case 3: # Between cyan and blue
+			case 3: // Between cyan and blue
 				$r = $p;
 				$g = $q;
 				$b = $v;
 				break;
-			case 4: # Between blue and magenta
+			case 4: // Between blue and magenta
 				$r = $t;
 				$g = $p;
 				$b = $v;
 				break;
-			case 5: default: # Between magenta and red
+			case 5: default: // Between magenta and red
 				$r = $v;
 				$g = $p;
 				$b = $q;
@@ -610,8 +610,8 @@ class Colour
 	{
 		$c = Colour::html_to_rgb($input);
 		$weight_r    = $c['r'] * 0.75;
-		$weight_g    = $c['g'] * 1.75; # Green's bright
-		$weight_b    = $c['b'] * 0.5;  # Blue's dim
+		$weight_g    = $c['g'] * 1.75; // Green's bright
+		$weight_b    = $c['b'] * 0.5;  // Blue's dim
 		if (($weight_r + $weight_g + $weight_b) >= 1.5) {
 			return '000000';
 		} else {
@@ -669,7 +669,7 @@ class Colour
 	function adjust_brightness($input, $amount)
 	{
 		$c = Colour::html_to_rgb($input);
-		if ($amount > 0 && $amount <= 1) { # Going up !
+		if ($amount > 0 && $amount <= 1) { // Going up !
 			$c['r'] += ((1 - $c['r']) * $amount);
 			$c['g'] += ((1 - $c['g']) * $amount);
 			$c['b'] += ((1 - $c['b']) * $amount);
@@ -857,6 +857,9 @@ class Colour
 	{
 		$tolerance = min(max($tolerance,0),1);
 		$input_hsv = Colour::html_to_hsv($input_html);
+
+		$shift           = Array();
+		$closeness_total = Array();
 		foreach($map as $from => $to) {
 			if (!$tolerance) {
 				if ($from == $input_html) {
@@ -865,14 +868,13 @@ class Colour
 			} else {
 				$from     = Colour::html_to_hsv($from);
 				$to       = Colour::html_to_hsv($to);
-				# The difference between the original colour and the new one
+				// The difference between the original colour and the new one
 				$map_diff = Array('h'=>$to['h']-$from['h'],'s'=>$to['s']-$from['s'],'v'=>$to['v']-$from['v']);
-				# The differnce between the original colour and the input
+				// The differnce between the original colour and the input
 				$in_diff = Array('h'=>$input_hsv['h']-$from['h'],'s'=>$input_hsv['s']-$from['s'],'v'=>$input_hsv['v']-$from['v']);
 
-				  #########################################################################
-				 # Work out how 'close' the input is to the from colour, this indicates
-				# How much effect this particular mapping should have on it
+				// Work out how 'close' the input is to the from colour, this indicates
+				// How much effect this particular mapping should have on it
 				$closeness['h'] = pow(1 - abs($in_diff['h'])/360, 16);
 				$closeness['s'] = pow(1 - abs($in_diff['s']), 8);
 				$closeness['v'] = pow(1 - abs($in_diff['v']), 2);
@@ -887,128 +889,36 @@ class Colour
 				$closeness['s'] = max(0,$closeness['s']);
 				$closeness['v'] = max(0,$closeness['v']);
 
-				 ##########################################################
-				# Another modifier ensuring that the hue MUST be close
+				// Another modifier ensuring that the hue MUST be close
 				$closeness['s'] *= pow($closeness['h'],1);
 				$closeness['v'] *= pow($closeness['h'],1);
 
-
-				 ######################
-				# Keep a total of this
+				// Keep a total of this
 				$closeness_total['h'] += $closeness['h'];
 				$closeness_total['s'] += $closeness['s'];
 				$closeness_total['v'] += $closeness['v'];
 
 
-				 ############################################################
-				# This is how much the input will be shifted in the output
-				# To by divided by the total closeness
+				// This is how much the input will be shifted in the output
+				// To by divided by the total closeness
 				$shift['h'] += $map_diff['h'] * $closeness['h'];
 				$shift['s'] += $map_diff['s'] * $closeness['s'];
 				$shift['v'] += $map_diff['v'] * $closeness['v'];
-			}
+
+			}// end if
+
+		}// end foreach
+
+		// Trim this down again
+		if ($tolerance) {
+			$input_hsv['h'] += $shift['h'] / $closeness_total['h'];
+			$input_hsv['s'] += $shift['s'] / $closeness_total['s'];
+			$input_hsv['v'] += $shift['v'] / $closeness_total['v'];
 		}
 
-		 ###############################
-		# Trim this down again
-		$input_hsv['h'] += $shift['h'] / $closeness_total['h'];
-		$input_hsv['s'] += $shift['s'] / $closeness_total['s'];
-		$input_hsv['v'] += $shift['v'] / $closeness_total['v'];
-
 		return Colour::hsv_to_html($input_hsv);
-	}
 
-//	/**
-//	* Takes a colour and a remap array.
-//	* Looks for the 'key' colours and replaces them with the 'value' colours
-//	* Might work nicer in HSV colour space.
-//	*
-//	* @param string	$input_html		hex string or html colour name
-//	* @param Array	$map			Array('old_colour' => 'new_colour');
-//	* @param float	$tolerance
-//	*
-//	* @return string
-//	* @access public
-//	*
-//	*/
-//	function colour_remap_new_broken($input,&$map,$tolerance = 0.2)
-//	{
-//		$tolerance = min(max($tolerance,0),1);
-//		echo "<font color=$input>$input</font><br>";
-//		foreach($map as $from => $to) {
-//			if (!$tolerance) {
-//				if ($from == $input) {
-//					$input = $to;
-//					break;
-//				}
-//			} else {
-//				# The difference between the original colour and the new one
-//				$map_diff = Colour::hsv_difference($from,$to);
-//				# The differnce between the original colour and the input
-//				$in_diff = Colour::hsv_difference($from,$input);
-//				$in_to_diff = Colour::hsv_difference($input,$to);
-//
-//				# Distill the in_diff into a single [0,1] value
-//				$max_diff = Array(
-//					"h"=>180,
-//					"s"=>(($from[s]>0.5)?$from[s]:1-$from[s]),
-//					"v"=>(($from[v]>0.5)?$from[v]:1-$from[v])
-//				); # The further possible absolute difference from the from_colour
-//
-//				# How far between the from colour and the maximum differnce in the input?
-//				# Average this out over the three channels
-//				$abs_in_diff[h]  = abs($in_diff[h]) / $max_diff[h];
-//				$abs_in_diff[s]  = abs($in_diff[s]) / $max_diff[s];
-//				$abs_in_diff[v]  = abs($in_diff[v]) / $max_diff[v];
-//				$abs_in_diff[a]  = 1 - (1-$abs_in_diff[h]) * (1-$abs_in_diff[s]) * (1-$abs_in_diff[v]);
-//
-//				# Now we compare this to the tolerance
-//				if ($abs_in_diff[s] <= $tolerance && $abs_in_diff[h] <= $tolerance) {
-//					if($tolerance) $map_diff[s] *= ($tolerance - $abs_in_diff[a]) / $tolerance;
-//					else           $map_diff[s] *= (($abs_in_diff[s]) ? 0 : 1); # Any difference? NOT TOLERATED!
-//				} else $map_diff[s] = 0;
-//				if ($abs_in_diff[v] <= $tolerance && $abs_in_diff[h] <= $tolerance) {
-//					if($tolerance) $map_diff[v] *= ($tolerance - $abs_in_diff[a]) / $tolerance;
-//					else           $map_diff[v] *= (($abs_in_diff[v]) ? 0 : 1); # Any difference? NOT TOLERATED!
-//				} else $map_diff[v] = 0;
-//
-//				# Now the hue is special, you can't just "fade" through hue-space because fading in the
-//				# hue-space is rally just surfing the rainbow, which produces very psychadelic
-//				# but not very practial artefacts
-//				# Instead we find the colour with no hue mapping, and the one with full hue-mapping, and mix them
-//				# in the appropriate quantities.
-//				if ($abs_in_diff[h] <= $tolerance) {
-//					if($tolerance) { # Mix the colours
-//						$mix_ratio = ($tolerance - $abs_in_diff[h]) / $tolerance;
-//						$mix_ratio = pow($mix_ratio,2);
-//						# Now lets figure out what hue we're heading towards (assuming this is a gradient)
-//						$target_hue = $tolerance * (($in_diff[h] > 0) ? 180 : -180);
-//						$nohue     = Colour::hsv_adjust($input, 0, $map_diff[s], $map_diff[v]);
-//						$fullhue   = Colour::hsv_adjust($input, $in_to_diff[h], $map_diff[s], $map_diff[v]);
-//						$inhue     = Colour::hsv_adjust($input, $in_diff[h], $map_diff[s], $map_diff[v]);
-//						$targethue = Colour::hsv_adjust($from, $target_hue, $map_diff[s], $map_diff[v]);
-//						$input     = Colour::mix($targethue,$fullhue,$mix_ratio);
-//						#$input = $targethue;
-//						# Correct Sat and Val which may have been screwed by the mixing
-//						#$hsv    = Colour::html_to_hsv($input);
-//						#$hsv2   = Colour::html_to_hsv($fullhue);
-//						#$hsv[s] = $hsv2[s];
-//						#$hsv[v] = $hsv2[v];
-//						#$input = Colour::hsv_to_html($hsv);
-//					} else { # No tolerance, only accept if there is NO difference
-//						if ($abs_in_diff[h]) {
-//							$input = Colour::hsv_adjust($input, $map_diff[h], $map_diff[s], $map_diff[v]);
-//						} else {
-//							$input = Colour::hsv_adjust($input, 0, $map_diff[s], $map_diff[v]);
-//						}
-//					}
-//				} else $input = Colour::hsv_adjust($input, 0, $map_diff[s], $map_diff[v]);
-//
-//			}#end if
-//		}
-//
-//		return $input;
-//	}
+	}// end remap()
 
 }// end class
 ?>
