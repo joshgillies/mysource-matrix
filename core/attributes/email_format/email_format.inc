@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: email_format.inc,v 1.10 2004/11/07 23:08:48 lwright Exp $
+* $Id: email_format.inc,v 1.11 2004/11/08 03:35:17 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -155,29 +155,41 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 			
 		}//end if read only
 
-
 		$wysiwyg = $this->_createEditor($prefix);
 		$wysiwyg->set_contents($current_value['html_format']);
 		
 		$current_to_string = '';
 		$current_to = '';
+
+		$i = 0;
+		
 		foreach ($current_value['to'] as $email) {
-			$current_to_string .= '[ <a href="#" onclick="Javascript: emailFormatDeleteAddress(\''.str_replace($email,'"','\"').'\', \''.$prefix.'\', \'to\'); return false;">del</a> ] '.htmlspecialchars($email).'<br>';
+			$current_to_string .= '<div id="'.$prefix.'_'.$i.'">[ <a href="#" onclick="Javascript: emailFormatDeleteAddress('.$i.', \''.$prefix.'\', \'to\'); return false;">del</a> ] <span id="'.$prefix.'_content_'.$i.'">'.htmlspecialchars($email).'</span></div>';
 			$current_to .= $email.';';
+			$i++;
 		}
 
 		?>
 		<script language="Javascript">
-
+		
+			// need to define 'next index' stuff as an array in case there is more than one option
+			// list/email format attribute on the screen
+			if (typeof next_index == 'undefined') {
+				next_index = new Array();
+			}
+			next_index['<?php echo $prefix ?>'] = <?php echo $i ?>;
+		
 			function emailFormatAddAddress(editor_name, type) {
 				var value = document.getElementById(editor_name + "_" + type);
 				var box = document.getElementById(editor_name + "_new_" + type);
 				var div = document.getElementById(editor_name + "_current_" + type);
-				
+
 				if (box.value == "") return;
 
-				div.innerHTML += '[ <a href="#" onclick="Javascript: emailFormatDeleteAddress(\'' + box.value + '\', \'' + editor_name + '\', \'' + type + '\'); return false;">del</a> ] ' + box.value.replace('<', '&lt;').replace('>', '&gt;') + '<br>';
+				div.innerHTML += '<div id="' + editor_name + '_' + next_index[editor_name].toString() + '">[ <a href="#" onclick="Javascript: emailFormatDeleteAddress(' + next_index[editor_name].toString() + ', \'' + editor_name + '\', \'' + type + '\'); return false;">del</a> ] <span id="' + editor_name + '_content_' + next_index[editor_name].toString() + '">' + box.value.replace('<', '&lt;').replace('>', '&gt;') + '</span></div>';
 				value.value   += box.value + ";";
+				
+				next_index[editor_name]++;
 				
 				box.value = "";
 				box.focus();
@@ -185,22 +197,29 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 			}//end emailFormatAddAddress()
 
 
-			function emailFormatDeleteAddress(address, editor_name, type) {
-				var value = document.getElementById(editor_name + "_" + type);
+			function emailFormatDeleteAddress(index, editor_name, type) {
 				var div = document.getElementById(editor_name + "_current_" + type);
+				var value = document.getElementById(editor_name + "_" + type);
 				
-				var current_emails = div.innerHTML;
-
-				lastIndex = i = 0;
 				arrIndex = 0;
 				email_array = new Array();
-				while(-1 != (i = current_emails.toLowerCase().indexOf("<br>", lastIndex))) {
-					email_array[arrIndex] = current_emails.substring(lastIndex, i).replace('&lt;', '<').replace('&gt;', '>');
+
+				// get the first div in the list				
+				divX = div.firstChild;
+				
+				while(divX != null) {
+					email_addr = divX.firstChild.nextSibling.nextSibling.nextSibling.innerHTML;
+				
+					// this is the one we want
+					if (divX.id == (editor_name + "_" + index)) {
+						divX.style.display = 'none';
+					} else {
+						email_array[arrIndex] = email_addr.replace('&lt;', '<').replace('&gt;', '>');
+					}
 					arrIndex++;
-					lastIndex = i+4;
+					divX = divX.nextSibling;
 				}
 				
-				var new_div_content = '';
 				var new_value_content = '';
 
 				for (var i = 0; i < email_array.length; i++) {
@@ -208,13 +227,9 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 					re = new RegExp("\\\[.*\\\] (.*)", "g");
 					email_addr = email.replace(re, "\$1");
 
-					if (email_addr != address && email_addr != "") {
-						new_div_content += email + "<br>";
-						new_value_content += email_addr + ";";
-					}
+					new_value_content += email_addr + ";";
 				}
 				
-				div.innerHTML = new_div_content;
 				value.value = new_value_content;
 
 			}//end emailFormatDeleteAddress()

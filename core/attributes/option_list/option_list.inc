@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: option_list.inc,v 1.10 2004/11/07 23:06:17 lwright Exp $
+* $Id: option_list.inc,v 1.11 2004/11/08 03:35:18 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -75,64 +75,86 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 		} else {	
 			$current_to_string = '';
 			$current_to = '';
+			$i = 0;
+
 			if (!empty($this->value)) {
+		
 				foreach ($current_value as $option) {
-					$current_to_string .= '[ <a href="#" onclick="Javascript: optionListRemoveOption(\''.str_replace($option,'"','\"').'\', \''.$prefix.'\', \'options\'); return false;">del</a> ] '.$option.'<br>';
+					$current_to_string .= '<div id="'.$prefix.'_'.$i.'">[ <a href="#" onclick="Javascript: optionListRemoveOption('.$i.', \''.$prefix.'\', \'options\'); return false;">del</a> ] <span id="'.$prefix.'_content_'.$i.'">'.htmlspecialchars($option).'</span></div>';
 					$current_to .= $option."\r\n";
+					$i++;
 				}
+				
 			}
 
 		?>
-		<script language="Javascript">
 
+		<script language="Javascript">
+			// need to define 'next index' stuff as an array in case there is more than one option
+			// list/email format attribute on the screen
+			if (typeof next_index == 'undefined') {
+				next_index = new Array();
+			}
+			next_index['<?php echo $prefix ?>'] = <?php echo $i ?>;
+		
 			function optionListAddOption(box_name, type) {
 				var value = document.getElementById(box_name + "_" + type);
 				var box = document.getElementById(box_name + "_new_" + type);
 				var div = document.getElementById(box_name + "_current_" + type);
-				
+
 				if (box.value == "") return;
 
-				div.innerHTML += '[ <a href="#" onclick="Javascript: optionListRemoveOption(\'' + box.value + '\', \'' + box_name + '\', \'' + type + '\'); return false;">del</a> ] ' + box.value + '<br>';
-				value.value += box.value + "\r\n";
+				div.innerHTML += '<div id="' + box_name + '_' + next_index[box_name].toString() + '">[ <a href="#" onclick="Javascript: optionListRemoveOption(' + next_index[box_name].toString() + ', \'' + box_name + '\', \'' + type + '\'); return false;">del</a> ] <span id="' + box_name + '_content_' + next_index[box_name].toString() + '">' + box.value.replace('<', '&lt;').replace('>', '&gt;') + '</span></div>';
+				value.value   += box.value + "\r\n";
+				
+				next_index[box_name]++;
 				
 				box.value = "";
-				
+				box.focus();
+			
 			}//end optionListAddOption()
 
 
-			function optionListRemoveOption(opt_delete, box_name, type) {
-				var value = document.getElementById(box_name + "_" + type);
+			function optionListRemoveOption(index, box_name, type) {
 				var div = document.getElementById(box_name + "_current_" + type);
+				var value = document.getElementById(box_name + "_" + type);
 				
-				var current_options = div.innerHTML;
-
-				lastIndex = i = 0;
 				arrIndex = 0;
 				option_array = new Array();
-				while(-1 != (i = current_options.toLowerCase().indexOf("<br>", lastIndex))) {
-					option_array[arrIndex] = current_options.substring(lastIndex, i);
-					arrIndex++;
-					lastIndex = i+4;
-				}
 
-				var new_div_content = '';
+				// get the first div in the list				
+				divX = div.firstChild;
+				
+				while(divX != null) {
+					this_option = divX.firstChild.nextSibling.nextSibling.nextSibling.innerHTML;
+				
+					// this is the one we want
+					if (divX.id == (box_name + "_" + index)) {
+						divX.style.display = 'none';
+					} else {
+						option_array[arrIndex] = this_option.replace('&lt;', '<').replace('&gt;', '>');
+					}
+					arrIndex++;
+					divX = divX.nextSibling;
+				}
+				
 				var new_value_content = '';
 
 				for (var i = 0; i < option_array.length; i++) {
 					var option = option_array[i];
-					re = new RegExp("\\\[.*\\\] (.*)", "gi");
-					this_option = option.replace(re, "\$1");
-
-					if (this_option != opt_delete && this_option != "") {
-						new_div_content += option + "<br>";
+					if (typeof option != 'undefined') {
+						re = new RegExp("\\\[.*\\\] (.*)", "g");
+						this_option = option.replace(re, "\$1");
+	
 						new_value_content += this_option + "\r\n";
 					}
 				}
 				
-				div.innerHTML = new_div_content;
 				value.value = new_value_content;
 
+
 			}//end optionListRemoveOption()
+			
 		</script>
 			<?php text_box($prefix.'_new_options', '', 50); ?>
 			[ <a href="#" onclick="Javascript: optionListAddOption('<?php echo $prefix ?>', 'options'); return false;">add</a> ]<br/>
