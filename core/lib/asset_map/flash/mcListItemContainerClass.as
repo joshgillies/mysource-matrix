@@ -648,6 +648,7 @@ mcListItemContainerClass.prototype.moveConfirm = function(move_type, params)
 			link = link.replace("%assetid%", escape(this.selected_item.assetid))
 			link = link.replace("%to_parent_assetid%", escape(params.parent_assetid));
 			link = link.replace("%to_parent_pos%", escape(params.relative_pos));
+			trace("getURL(" + link + ", " + _root.url_frame + ");");
 			getURL(link, _root.url_frame);
 
 		} else {
