@@ -172,7 +172,6 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 			<tr>
 				<td class="sq-backend-message-header">From</td>
 				<td class="sq-backend-message-header">Subject</td>
-				<td class="sq-backend-message-header">Body</td>
 				<td class="sq-backend-message-header">Sent</td>
 				<td class="sq-backend-message-header">Priority</td>
 				<td class="sq-backend-message-header">Recover</td>
@@ -182,14 +181,33 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 			foreach ($messages as $data) {
 				?>
 				<tr>
-					<td class="sq-backend-message-item" bgcolor="#FFFFFF"><?php echo $data['from_name'];?></td>
-					<td class="sq-backend-message-item" bgcolor="#FFFFFF"><?php echo $data['subject']?></td>
-					<td class="sq-backend-message-item" bgcolor="#FFFFFF"><?php echo $data['body']?></td>
-					<td class="sq-backend-message-item" bgcolor="#FFFFFF" width="130"><?php echo $data['sent']?></td>
-					<td class="sq-backend-message-item" bgcolor="#FFFFFF" align="middle"><?php echo $data['priority']?></td>
-					<td bgcolor="#FFFFFF" align="middle"><input type="checkbox" name="<?php echo $prefix.'_recover['.$data['messageid'].']'?>" value="1"></td>
-					<td width="20"><input type="submit" name="<?php echo $prefix.'_purge['.$data['messageid'].']'?>" value="x"></td>
+					<td class="sq-backend-message-item">
+						<a name="msg_<?php echo $data['messageid'];?>"></a>
+						<?php echo $data['from_name'];?>
 					</td>
+					<td class="sq-backend-message-item">
+						<?php echo $data['subject'];?>
+					</td>
+					<td class="sq-backend-message-item" style="white-space: nowrap;">
+						<?php echo $GLOBALS['SQ_SYSTEM']->datetime($data['sent']); ?>
+					</td>
+					<td class="sq-backend-message-item" style="text-align: center;">
+						<?php echo $data['priority']; ?>
+					</td>
+					<td class="sq-backend-message-item" style="text-align: center;">
+						<input type="checkbox" name="<?php echo $prefix.'_recover['.$data['messageid'].']'?>" value="1">
+					</td>
+					<td>
+						<input type="submit" name="<?php echo $prefix.'_purge['.$data['messageid'].']'?>" value="x">
+					</td>
+				</tr>
+				<tr>
+					<td class="sq-backend-message-item" colspan="6">
+						<?php echo $data['body'];?>
+					</td>
+				</tr>
+				<tr>
+					<td colspan="6"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="1" height="1" /></td>
 				</tr>
 				<?php
 			}
