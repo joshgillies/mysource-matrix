@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: step_02.php,v 1.39 2003/09/26 05:26:34 brobertson Exp $
+* $Id: step_02.php,v 1.40 2003/09/29 00:49:24 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -195,8 +195,8 @@ if (!is_file(SQ_DATA_PATH.'/private/db/table_columns.inc')) {
 
 			ob_start();
 			echo 'CREATE TABLE '.SQ_TABLE_ROLLBACK_PREFIX.$table_name.' (';
-			echo SQ_TABLE_PREFIX."effective_from $rollback_column_type NOT NULL,";
-			echo SQ_TABLE_PREFIX."effective_to   $rollback_column_type,";
+			echo SQ_TABLE_PREFIX.'effective_from '.$rollback_column_type.' NOT NULL,';
+			echo SQ_TABLE_PREFIX.'effective_to   '.$rollback_column_type.',';
 			echo $table_columns_string;
 
 			echo $rollback_primary_key;
@@ -258,6 +258,48 @@ if (!is_file(SQ_DATA_PATH.'/private/db/table_columns.inc')) {
 
 	pre_echo("DATABASE SEQUENCE CREATION COMPLETE");
 
+	// If this is PostgreSQL we need to do a couple of other things for the secondary user
+	if ($db->phptype == 'pgsql') {
+
+		$function_sql = "
+		CREATE OR REPLACE FUNCTION ".SQ_TABLE_PREFIX."grant_access(character varying) RETURNS TEXT
+		AS '
+		DECLARE
+			user_name ALIAS FOR $1;
+			table RECORD;
+			tablename TEXT;
+		BEGIN
+			FOR table IN SELECT c.relname AS name FROM pg_catalog.pg_class c LEFT JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace WHERE c.relkind IN (''r'',''v'',''S'','''') AND n.nspname NOT IN (''pg_catalog'', ''pg_toast'') AND pg_catalog.pg_table_is_visible(c.oid) LOOP
+				tablename=table.name;
+				RAISE NOTICE ''tablename is %'', tablename;
+				EXECUTE ''GRANT ALL ON '' || quote_ident(tablename) || '' TO '' || quote_ident(user_name::text);
+			END LOOP;
+			RETURN ''access granted.'';
+		END;
+		'
+		LANGUAGE plpgsql;
+		";
+		$result = $db->query($function_sql);
+		if (DB::isError($result)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+		}
+
+		$primary_dsn   = DB::parseDSN(SQ_CONF_DB_DSN);
+		$secondary_dsn = DB::parseDSN(SQ_CONF_DB2_DSN);
+
+		if ($primary_dsn['username'] != $secondary_dsn['username']) {
+			$grant_sql = 'SELECT '.SQ_TABLE_PREFIX.'grant_access('.$db->quote($secondary_dsn['username']).');';
+			$result = $db->query($grant_sql);
+			if (DB::isError($result)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+			}
+		}// end if
+		pre_echo("PGSQL SECONDARY USER PERMISSIONS FIXED");
+
+	}// end if
+
 }//end if table column cache file does not exist
 
 // if we didnt just create the database tables, loop through and work out the
@@ -290,35 +332,9 @@ if (empty($cached_table_columns)) {
 	}
 }
 
-
-$cached_table_columns_string = '';
-ob_start();
-
-echo "<?php\n";
-echo '$tables = Array('."\n";
-foreach ($cached_table_columns as $table_name => $table_data) {
-	echo "\t'$table_name' => Array(\n";
-		echo "\t\t'columns' => Array(\n";
-		foreach ($table_data['columns'] as $column_name) {
-			echo "\t\t\t'$column_name',\n";
-		}
-		echo "\t\t),\n";
-		echo "\t\t'primary_key' => Array(\n";
-		foreach ($table_data['primary_key'] as $column_name) {
-			echo "\t\t\t'$column_name',\n";
-		}
-		echo "\t\t),\n";
-	echo "\t),\n";
-}
-echo ");\n";
-echo '?>';
-
-$cached_table_columns_string = ob_get_contents();
-ob_end_clean();
-
-
 // write a new cache file with all the table names and their columns
 require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+$cached_table_columns_string = '<'.'?php $tables = '.var_export($cached_table_columns, true).'; ?'.'>';
 if (!string_to_file($cached_table_columns_string, SQ_DATA_PATH.'/private/db/table_columns.inc')) {
 	$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 	trigger_error('Failed writing database table column cache file', E_USER_ERROR);
