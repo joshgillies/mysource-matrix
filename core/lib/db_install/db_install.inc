@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_install.inc,v 1.13 2005/04/06 23:05:35 mmcintyre Exp $
+* $Id: db_install.inc,v 1.14 2005/04/06 23:40:28 mmcintyre Exp $
 *
 */
 
@@ -29,7 +29,7 @@
 * @author  Blair Robertson <blair@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -47,8 +47,6 @@
 */
 function db_install($xml_file, $verbose=true)
 {
-	$fp = fopen('/home/websites/matrix_oracle/matrix_tables.sql', 'a');
-	
 	require_once 'XML/Tree.php';
 	require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
@@ -230,8 +228,6 @@ function db_install($xml_file, $verbose=true)
 
 			$result = $db->query($table_sql);
 			assert_valid_db_result($result);
-			
-			fwrite($fp, $table_sql."\n");
 
 			//--        ROLLBACK TABLE DEFINITION        --//
 
@@ -369,9 +365,7 @@ function db_install($xml_file, $verbose=true)
 	unset($cached_table_columns_string);
 	
 	$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-	
-	fclose($fp);
-	
+
 	return true;
 
 }//end db_install()
