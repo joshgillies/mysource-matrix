@@ -42,13 +42,13 @@ table#year { border: 2px solid #EDEDED; background-color: white; border-collapse
 #year th.dayLabelWeekend { background-color: #41afe0; }
 
 /* All data cells, including completely empty ones */
-#year td { text-align: center; border-top: 1px solid #EDEDED; font-family: sans-serif}
+#year td { text-align: center; border-top: 1px solid #e0e0e0; font-family: sans-serif; background-color: #f6f6f6}
 
 /* Cells with dates */
 #year td.date { background-color: white; border: 1px solid #EDEDED; text-align: center; color: black}
 
 /* Weekend Cells, with or without dates */
-#year td.weekend { background-color: #f6f6f6;  }
+#year td.weekend { background-color: #cfcfcf;  }
 
 /* Cells with events */
 #year td.eventDate { background-color: #d0ecf6; }
@@ -65,14 +65,14 @@ table#year { border: 2px solid #EDEDED; background-color: white; border-collapse
  */
 
 table#month { border: 2px solid purple; background-color: #eeeeee; border-collapse: collapse  }
-#month th  { border: 1px solid black; }
+#month th  { border: 1px solid black; font-family: sans-serif }
 
 /* Header Cells */
 #month th.dayLabel { background-color: #bbbbff; }
 #month th.dayLabelWeekend { background-color: #8888aa; }
 
 /* All data cells, including completely empty ones */
-#month td { padding-left: 2px; text-align: left; vertical-align: top; border: 1px solid black; }
+#month td { padding-left: 2px; text-align: left; vertical-align: top; border: 1px solid black; font-family: sans-serif}
 
 /* Cells with dates */
 #month td.date { background-color: white; }
@@ -98,7 +98,7 @@ table#month { border: 2px solid purple; background-color: #eeeeee; border-collap
  */
 
 table#week { border: 2px solid purple; background-color: #eeeeee; border-collapse: collapse }
-#week td, #week th  { border: 1px solid black; }
+#week td, #week th  { border: 1px solid black; font-family: sans-serif}
 #week td, #week th.timeLabel { vertical-align: top; }
 
 /* header cells */
@@ -121,7 +121,7 @@ table#week { border: 2px solid purple; background-color: #eeeeee; border-collaps
 **/
 
 table#day { border: 2px solid purple; background-color: #eeeeee; border-collapse: collapse  }
-#day td, #day th  { border: 1px solid black; }
+#day td, #day th  { border: 1px solid black; font-family: sans-serif }
 #day td, #day th.timeLabel { vertical-align: top; }
 
 /* header cells */

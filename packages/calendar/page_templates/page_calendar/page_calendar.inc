@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.49 2004/09/03 07:09:11 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.50 2004/09/05 23:21:22 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once  dirname(__FILE__).'/../../calendar_events/calendar_event_recurring
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.49 $ - 1.0
+* @version $Revision: 1.50 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -455,7 +455,7 @@ class Page_Calendar extends Page_Asset_Listing
 				<tr>
 					<th class="dayLabel" style="width: 6ex">&nbsp;</th>
 			<?php
-			for ($i = $week_start_day; $i < $week_start_day + 36; $i++) {
+			for ($i = $week_start_day; $i < $week_start_day + 37; $i++) {
 				?>
 					<th class="dayLabel<?php echo (($i%7)==0 || ($i%7)==6) ? ' dayLabelWeekend' : ''; ?>" style="width: 3.5ex; text-align: center"><b><?php echo $this->day_names_very_short[$i % 7]; ?></b></th>
 				<?php
@@ -491,7 +491,7 @@ class Page_Calendar extends Page_Asset_Listing
 
 
 				// print the days of the month
-				for ($current_day = 1; $current_day < days_in_month($current_month, $year); $current_day++) {
+				for ($current_day = 1; $current_day <= days_in_month($current_month, $year); $current_day++) {
 					$i++;
 					$class = 'date';
 					if (in_array(date('D', strtotime("$year-$current_month-$current_day")), Array('Sat', 'Sun')))  $class .= ' weekend';
@@ -508,7 +508,7 @@ class Page_Calendar extends Page_Asset_Listing
 				}
 
 				// print blank days after the end of our month
-				while ($i < 36) {
+				while ($i < 37) {
 				?>
 					<td class="<?php echo (((($week_start_day + $i) % 7)==0) || ((($week_start_day + $i) % 7)==6)) ? ' weekend' : ''; ?>">&nbsp</td>
 				<?php
