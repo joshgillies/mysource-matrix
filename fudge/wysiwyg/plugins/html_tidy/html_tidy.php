@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_tidy.php,v 1.1 2004/10/13 00:52:47 dbaranovskiy Exp $
+* $Id: html_tidy.php,v 1.2 2004/11/05 02:47:42 dbaranovskiy Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -158,9 +158,9 @@ if (!isset($_GET['name']))		  $_GET['name'] = "";
 										<input type="checkbox" name="rep_type4" id="rep_type4" /> Remove <b>&lt;span&gt;</b> tags<br/>
 										<input type="checkbox" name="rep_type5" id="rep_type5" /> Remove <b>non-HTML</b> tags<br/>
 										<input type="checkbox" name="rep_type6" id="rep_type6" /> Remove double spaces<br/>
-										<input type="checkbox" name="rep_type7" id="rep_type7" /> Remove empty paragraphs<br/>
+										<input type="checkbox" name="rep_type7" id="rep_type7" /> Remove all empty tags<br/>
 										<input type="checkbox" name="rep_type8" id="rep_type8" /> Remove all tag's atributes<br/>
-										<input type="checkbox" name="rep_type9" id="rep_type9" /> Change word's bullets<br/>
+										<input type="checkbox" name="rep_type9" id="rep_type9" /> Change Microsoft Word<sup>&#174;</sup>'s bullets<br/>
 									</td>
 								</tr>
 							</table>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_tidy.inc,v 1.28 2004/11/05 01:07:11 dbaranovskiy Exp $
+* $Id: html_tidy.inc,v 1.29 2004/11/05 02:47:42 dbaranovskiy Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -160,7 +160,7 @@ class HTML_Tidy extends Wysiwyg_Plugin {
 
 
 	/**
-	* Open the popup colour selector to get the colour from the user
+	* Open the HTML tidy dialog
 	*
 	* @returns void
 	* @access  public
@@ -220,7 +220,7 @@ class HTML_Tidy extends Wysiwyg_Plugin {
 									break;
 								}
 								case 7	: {
-									reg = new RegExp("<p[^>]*>(&nbsp;| |\n|\t|<([^<>]*?)>)?<\/p>", "gi");
+									reg = new RegExp("<([A-Z][A-Z0-9]*)( [^>]*)?>(&nbsp;| |\n|\t)*<\/\\1>", "gi");
 									rep = "";
 									break;
 								}
