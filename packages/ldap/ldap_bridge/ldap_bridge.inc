@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.3 2004/03/19 01:21:15 gsherwood Exp $
+* $Id: ldap_bridge.inc,v 1.4 2004/03/31 00:29:33 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -277,7 +277,10 @@ class LDAP_Bridge extends Bridge
 	*/
 	function getChildren($assetid, $type_code='', $strict_type_code=true, $sort_by=null)
 	{
-		if (!is_array($type_code)) $type_code = Array($type_code);
+		if (!is_array($type_code)) {
+			if (empty($type_code)) $type_code = Array();
+			else $type_code = Array($type_code);
+		}
 		$ldap = $this->connectToLdap();
 
 		if ($assetid == $this->id) $base_dn = $this->attr('root_dn');
@@ -324,10 +327,10 @@ class LDAP_Bridge extends Bridge
 		$children = Array();
 
 		foreach ($entries as $data) {
-			if (in_array('user_group', $type_code) && in_array('organizationalunit', $data['objectclass'])) {
+			if ((in_array('user_group', $type_code) || empty($type_code)) && in_array('organizationalunit', $data['objectclass'])) {
 				$children[$this->id.':'.$data['dn']] = 'ldap_user_group';
 			}
-			if (in_array('user', $type_code) && in_array('organizationalPerson', $data['objectclass'])) {
+			if ((in_array('user', $type_code) || empty($type_code)) && in_array('organizationalPerson', $data['objectclass'])) {
 				$children[$this->id.':'.$data['dn']] = 'ldap_user';
 			}
 		}
