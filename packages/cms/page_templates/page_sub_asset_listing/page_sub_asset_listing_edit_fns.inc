@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: page_sub_asset_listing_edit_fns.inc,v 1.5 2003/10/10 06:49:28 brobertson Exp $
+* $Id: page_sub_asset_listing_edit_fns.inc,v 1.6 2003/10/13 01:06:49 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,6 +31,7 @@ class Page_Sub_Asset_Listing_Edit_Fns extends Page_Edit_Fns
 	{
 		$this->Page_Edit_Fns();
 		$this->static_screens['details']['force_unlock'] = false;
+		$this->static_screens['details']['lock_type'] = 'content';
 
 	}//end constructor
 	
