@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_edit_fns.inc,v 1.32 2004/12/08 04:11:49 lwright Exp $
+* $Id: search_page_edit_fns.inc,v 1.33 2004/12/08 12:57:50 brobertson Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *     Edit functions for search page
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1275,7 +1275,7 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 			return false;
 		}
 
-	}//end processRootAsset()
+	}//end processThesaurusAsset()
 
 
 }//end class
