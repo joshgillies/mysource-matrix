@@ -1,6 +1,5 @@
 truncate sq_asset;
 truncate sq_asset_attribute;
-truncate sq_asset_attribute_default;
 truncate sq_asset_attribute_value;
 truncate sq_asset_link;
 truncate sq_asset_type;
