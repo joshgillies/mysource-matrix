@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.76 2004/09/14 00:08:00 lwright Exp $
+* $Id: page_calendar.inc,v 1.77 2004/09/14 01:07:41 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once  dirname(__FILE__).'/../../calendar_events/calendar_event_recurring
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.76 $ - 1.0
+* @version $Revision: 1.77 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1891,7 +1891,7 @@ class Page_Calendar extends Page_Asset_Listing
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$sql =
-		'SELECT a.assetid, a.type_code, a.name, t.treeid ('.$this->_treeCaseQuery('t.treeid',$trees).") as root_node, cd.* \nFROM (".SQ_TABLE_RUNNING_PREFIX.'asset a join ('.SQ_TABLE_RUNNING_PREFIX.'asset_link l join '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t on l.linkid = t.linkid) on l.minorid = a.assetid) join '.SQ_TABLE_RUNNING_PREFIX."calendar_date_value cd on a.assetid = cd.assetid \nWHERE (a.type_code = ".$db->quote('calendar_event_recurring').") \nAND ";
+		'SELECT a.assetid, a.type_code, a.name, t.treeid,  ('.$this->_treeCaseQuery('t.treeid',$trees).") as root_node, cd.* \nFROM (".SQ_TABLE_RUNNING_PREFIX.'asset a join ('.SQ_TABLE_RUNNING_PREFIX.'asset_link l join '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t on l.linkid = t.linkid) on l.minorid = a.assetid) join '.SQ_TABLE_RUNNING_PREFIX."calendar_date_value cd on a.assetid = cd.assetid \nWHERE (a.type_code = ".$db->quote('calendar_event_recurring').") \nAND ";
 
 		$sql_freqs = Array();
 
@@ -2173,7 +2173,7 @@ class Page_Calendar extends Page_Asset_Listing
 
 		$sql .= implode(', ', $quoted_root_nodes).')';
 
-		$trees = $db->getAssoc($sql);
+		$trees = $db->getAssoc($sql);			
 		assert_valid_db_result($trees);
 		return $trees;
 
