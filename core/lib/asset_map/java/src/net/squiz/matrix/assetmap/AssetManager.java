@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: AssetManager.java,v 1.2 2004/06/29 03:39:30 mmcintyre Exp $
+* $Id: AssetManager.java,v 1.3 2004/06/30 01:39:34 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -395,6 +395,13 @@ public class AssetManager implements ReloadAssetListener {
 	public void updateAsset(Element childElement, Asset parent) {
 		NodeList childNodes = (NodeList) childElement.getChildNodes();
 
+		boolean hasShadowAssets = false;
+		
+		if (hasShadowAssets(childNodes)) {
+			hasShadowAssets = true;
+			parent.removeAllChildNodes();
+		}
+		
 		int index = 0;
 		ArrayList linkids = new ArrayList();
 		
@@ -412,13 +419,57 @@ public class AssetManager implements ReloadAssetListener {
 			linkids.add(linkid);
 			int sortOrder = Integer.parseInt(assetElement.getAttribute("sort_order"));
 			
-			if (parent.childrenLoaded())
-				parent.propogateNode(asset, linkid, sortOrder);
+			// if we have shadow assets we no longer has any chidren because
+			// we just blew them all away. So we need to start again
+			
+			if (hasShadowAssets) {
+				Iterator nodes = parent.getTreeNodes();
+				while (nodes.hasNext()) {
+					AssetTreeNode node = (AssetTreeNode) nodes.next();
+					node.insert(asset.createNode(linkid), 0);
+				}
+			} else {
+				if (parent.childrenLoaded())
+					parent.propogateNode(asset, linkid, sortOrder);
+			}
 			index++;
 		}
-		parent.cleanNodes(linkids);
+		if (!hasShadowAssets) {
+			parent.cleanNodes(linkids);
+		} else {
+			// because we have removed then re-added the child nodes
+			// of this parent, we need to fire an event so that the structure
+			// of the tree is updated for every occurence of this parent in the
+			// tree. Cheaper to do this at the end
+			
+			Iterator nodes = parent.getTreeNodes();
+			while (nodes.hasNext()) {
+				AssetTreeNode node = (AssetTreeNode) nodes.next();
+				((DefaultTreeModel) tree.getModel()).nodeStructureChanged(node);
+			}
+		}
 		parent.setChildCount(index);
 	}
+	
+	/**
+	 * Returns true if the XML NodeList contains shadow Assets. We know that
+	 * an asset is a shadow asset if the linkid = 0.
+	 * 
+	 * @param nodes the XML NodeList of assets
+	 * @return TRUE if this Element contains shadow assets
+	 */
+	private boolean hasShadowAssets(NodeList nodes) {
+		for (int i = 0; i < nodes.getLength(); i++) {
+			if (!(nodes.item(i) instanceof Element))
+				continue;
+			Element assetElement = (Element) nodes.item(i);
+			String linkid = MatrixToolkit.rawUrlDecode(assetElement.getAttribute("linkid"));
+			if (linkid.equals("0"))
+				return true;
+		}
+		return false;
+	}
+	
 	
 	/**
 	 * Propagates a url of an asset down to all its children (not only)
@@ -832,7 +883,8 @@ public class AssetManager implements ReloadAssetListener {
 		try {
 			response = MySource.INSTANCE.doRequest(xml);
 		} catch (IOException ioe) {
-			System.out.println("There was an error: " + ioe.getMessage());
+			System.out.println("Error Adding asset: " + ioe.getMessage());
+			ioe.printStackTrace();
 		}
 		if (response == null)
 			return;

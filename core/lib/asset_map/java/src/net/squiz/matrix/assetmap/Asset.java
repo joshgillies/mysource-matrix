@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: Asset.java,v 1.3 2004/06/29 03:39:30 mmcintyre Exp $
+* $Id: Asset.java,v 1.4 2004/06/30 01:39:49 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -25,7 +25,7 @@ package net.squiz.matrix.assetmap;
 
 import java.util.*;
 import java.awt.Color;
-import javax.swing.tree.MutableTreeNode;
+import javax.swing.tree.*;
 
 
 /**
@@ -424,6 +424,46 @@ public class Asset {
 		while (iterator.hasNext()) {
 			((AssetTreeNode) iterator.next()).removeDiffChildLinks(linkids);
 		}
+	}
+	
+	/**
+	 * Removes all the child nodes for each of the nodes that represent this
+	 * asset
+	 */
+	public void removeAllChildNodes() {
+		Iterator iterator = getTreeNodes();
+		while (iterator.hasNext()) {
+			AssetTreeNode node = (AssetTreeNode) iterator.next();
+			node.getAsset().removeChildNodes();
+			node.removeAllChildren();
+		}
+	}
+	
+	/**
+	 * Removes all instances of AssetTreeNodes from Asset from this branch down.
+	 */
+	public void removeChildNodes() {
+		Iterator iterator = getTreeNodes();
+		while (iterator.hasNext()) {
+			AssetTreeNode node = (AssetTreeNode) iterator.next();
+			Enumeration children = node.children();
+			while (children.hasMoreElements()) {
+				AssetTreeNode nextNode = (AssetTreeNode) children.nextElement();
+				Asset asset = nextNode.getAsset();
+				asset.removeNode(nextNode);
+				asset.removeChildNodes();
+			}
+		}
+	}
+	
+	/**
+	 * Removes a node from this Asset
+	 * 
+	 * @param node the node to remove
+	 */
+	public void removeNode(AssetTreeNode node) {
+		List nodeList = (List) nodes.get(node.getLinkId());
+		nodeList.remove(node);
 	}
 	
 	/**
