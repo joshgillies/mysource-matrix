@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.67 2004/04/19 01:09:11 gsherwood Exp $
+* $Id: design_edit_fns.inc,v 1.68 2004/04/19 11:50:46 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -205,10 +205,10 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		$str = file_to_string($parse_file);
 
 		if ($asset->writeAccess('parsing')) {
-			text_area($prefix.'_new_parse_file', str_replace("\t", "    ", $str), 120, 30);
+			text_area($prefix.'_new_parse_file', str_replace("\t", "    ", $str), 100, 30, 0, 'style="font-family: monospace; white-space: pre;"');
 			return true;
 		} else {
-			pre_echo($str);
+			echo '<pre>', htmlspecialchars($str), '</pre>';
 		}
 		return false;
 
