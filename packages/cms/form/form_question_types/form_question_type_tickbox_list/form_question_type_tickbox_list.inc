@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_list.inc,v 1.21 2004/09/10 00:24:36 lwright Exp $
+* $Id: form_question_type_tickbox_list.inc,v 1.22 2004/10/11 06:21:35 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -47,10 +47,10 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 	* @param array	$data		the section's entry for this question (contains all question data)
 	*
 	*/
-	function Form_Question_Type_Tickbox_List($assetid=0,$data=Array()) 
+	function Form_Question_Type_Tickbox_List($assetid=0,$data=Array())
 	{
 		$this->Form_Question($assetid,$data);
-	
+
 	}//end Form_Question_Type_Tickbox_List()
 
 
@@ -77,7 +77,7 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 	{
 		// generate some php for the value, which can be used for both
 		// auto-answer and returning to saved forms
-		
+
 		$html = $this->listBox($this->getOptions(), true, $this->attr('horizontal'), $this->attr('extra'));
 		return $html;
 
@@ -104,7 +104,7 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 		$html  = '';
 		$html .= "<table cellpadding=\"0\" cellspacing=\"0\" width=\"100%\">\n";
 		$html .= ($hor) ? "<tr>\n" : '';
-		
+
 		$defaults = isset($this->active_submission[$this->id]) ? $this->active_submission[$this->id] : $this->attr('default');
 		if (!is_array($defaults)) $defaults = Array();
 		foreach ($options as $key => $value) {
@@ -116,7 +116,7 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 			if (in_array($key, $defaults)) {
 				$html .= ' checked="checked"';
 			}
-			
+
 			$html .= $extras.' />';
 			$html .= '&nbsp;'.$value;
 			$html .= ($hor) ? "</td>\n" : "</td></tr>";
@@ -124,9 +124,9 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 
 		$html .= ($hor) ? "</tr>\n" : '';
 		$html .= '</table>';
-		
+
 		return $html;
-	
+
 	}//end listBox()
 
 
@@ -147,7 +147,7 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 		}
 
 		return $options;
-	
+
 	}//end getOptions()
 
 
@@ -160,7 +160,7 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 	function processForm()
 	{
 		$val = isset($_POST[$this->id]) ? $_POST[$this->id] : '';
-		
+
 		if (is_array($val)) {
 			$value = implode(', ', $this->getAnswerByOffset($val));
 		} else {
@@ -180,15 +180,15 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 		if ($this->attr('required')) {
 			array_pop($this->vars['rules']['value']);
 		}
-		
+
 		return true;
-	
+
 	}//end processForm()
 
-	
+
 	/**
 	* writes JavaScript code for client side validation
-	* 
+	*
 	* This function assumes the skeleton of a JS validation function has been created around this code
 	* with a form variable named 'form' passed (this is done when generating the content file).
 	*
@@ -214,7 +214,7 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 
 
 	/**
-	* returns an array of the types of rules 
+	* returns an array of the types of rules
 	*
 	* Returned array is 'short name' => 'full name'
 	*
@@ -223,15 +223,15 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 	*/
 	function getAllowedRules() {
 		return Array('comparison', 'select_limit');
-	
+
 	}//end getAllowedRules()
 
 
 	/**
 	* returns a summary for this question
 	*
-	* @param string $answer the answer to get the summary of 
-	* 
+	* @param string $answer the answer to get the summary of
+	*
 	* @access public
 	* @return mixed
 	*/
@@ -245,14 +245,14 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 			return implode(', ', $ans_str);
 		}
 		return $this->getAnswerByOffset($answer);
-	
+
 	}//end getSummary()
 
 
 	/**
 	* returns TRUE if this particuar tickbox is selected
 	*
-	* @param int $value the value to check 
+	* @param int $value the value to check
 	*
 	* @access public
 	* @return boolean
@@ -261,21 +261,39 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 	{
 		if (isset($this->active_submission)) {
 			$values = $this->active_submission[$this->id];
-			if ($values) {
+			if (isset($values)) {
 				if (is_array($values)) {
-					if (in_array($value, $values)) return true;
+					return in_array($value, $values);
 				} else {
-					if ($value == $values) return true;
+					return ($value == $values && !empty($values));
 				}
-			} 
+			}
 		} else {
 			$defaults = $this->attr('default');
 			if (in_array($value, $defaults)) return true;
 		}
 
 		return false;
-	
+
 	}//end isSelected()
+
+
+	/**
+	* Get option name
+	*
+	* Get the name for one particular option, specified by option code.
+	* Assumes option id is valid
+	*
+	* @param string $option_code    unique option id for this question
+	*
+	* @access public
+	* @return string
+	*/
+	function getOptionName($option_code)
+	{
+		return $this->getAnswerByOffset($option_code);
+
+	}//end getOptionName()
 
 
 	/**
@@ -306,7 +324,7 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 		return $contents;
 
 	}//end getXML()
-	
-	
+
+
 }//end class
 ?>
