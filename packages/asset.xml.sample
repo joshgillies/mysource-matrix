@@ -24,4 +24,7 @@
 			<version>3.5</version>
 		</requirement>
 	</requirements>
+	<editing_options>
+		<option action="code_value">Option Text</option>
+	</editing_options>
 </asset_info>
