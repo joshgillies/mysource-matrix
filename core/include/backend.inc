@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.87 2004/04/13 01:05:08 gsherwood Exp $
+* $Id: backend.inc,v 1.88 2004/04/22 04:29:12 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -324,144 +324,147 @@ class Backend extends MySource_Object
 		// refresh lock held on current page
 		if (!empty($_GET['current_assetid']) && !empty($_GET['sq_lock_type'])) {
 			$GLOBALS['SQ_SYSTEM']->am->updateLock($_GET['current_assetid'], $_GET['sq_lock_type']);
-		}// end if
-
-
-		// check for any new internal messages
-		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-
-		if (isset($_SESSION['backend_header_last_refresh']) && !empty($_GET['last_messages_clicked'])) {
-			$last_messages_click = $_SESSION['backend_header_last_refresh'];
-		} else {
-			$last_messages_click = (isset($_SESSION['backend_header_last_messages_click'])) ? $_SESSION['backend_header_last_messages_click'] : 0;
 		}
-		$_SESSION['backend_header_last_messages_click'] = $last_messages_click;
 
-		$msgs_from = (isset($_SESSION['backend_header_last_refresh'])) ? $_SESSION['backend_header_last_refresh'] : null;
-		$messages = $ms->getMessages($GLOBALS['SQ_SYSTEM']->user->id, null, Array(SQ_MSG_UNREAD), Array(), $last_messages_click);
-		if (!empty($messages)) {
-			// found unread messages
-			$html = '
-			<table class="sq-backend-new-message-table">
-				<tr>
-					<td rowspan="2" valign="middle" class="sq-backend-new-message-cell"><img src="'.$this->out->filesPath('/images/icons/mail.png').'" width="31" height="33" border="0" alt="" /></td>
-					<td class="sq-backend-new-message-heading" nowrap>New Messages</td>
-					<td class="sq-backend-new-message-heading" align="right">[<a class="sq-backend-new-message-body" href="#" onClick="Javascript: parent.frames[\'sq_header\'].cancelMsgDiv(); return false;">x</a>]</td>
-				</tr>
-				<tr>
-					<td class="sq-backend-new-message-body" nowrap colspan="2"><a class="sq-backend-new-message-body" href="#" onClick="Javascript: if (parent.frames[\'sq_sidenav\'] && parent.frames[\'sq_sidenav\'].refresh_internal_messages) { parent.frames[\'sq_header\'].last_messages_clicked = \'1\'; parent.frames[\'sq_sidenav\'].refresh_internal_messages(); }; return false;">'.$GLOBALS['SQ_SYSTEM']->user->name.' has '.count($messages).' new message'.((count($messages) > 1) ? 's' : '').'</a></td>
-				</tr>
-			</table>
-			';
-			$html = str_replace("\n", '', $html);
-			?>
-			<script language="Javascript" type="text/javascript">
-				var msgDiv = null;
-				var screenMenu = null;
-				var screenMenuFiller = null;
 
-				var delay = 30;     // milliseconds between movements.
-				var myTimer = null;
-				var counter = null; // number of times to move the div
-
-				var divTop = 0;
-				var divLeft = 0;
-				var smTop = 0;
-				var smLeft = 0;
-
-				function moveIt(x) {
-					divTop += x;
-					msgDiv.style.top = divTop + "px";
-					if (--counter < 0 && myTimer != null) {
-						clearInterval(myTimer);
-						setTimeout("hideMsgDiv()", 4000);
-					}
-				}
-
-				function hideIt() {
-					// IE tranparency
-					msgDiv.style.filter = "alpha(opacity=" + counter + ")";
-
-					// Mozilla transparency - DIV
-					var moz = '0.';
-					if (counter < 10) moz = moz + '0';
-					msgDiv.style.MozOpacity = moz + counter;
-
-					// Mozilla transparency - SELECT
-					moz = '0.';
-					if ((100 - counter) < 10) moz = moz + '0';
-					if (screenMenu) screenMenu.style.MozOpacity = moz + (100 - counter);
-
-					if (--counter < 0 && myTimer != null) {
-						cancelMsgDiv();
-					}
-				}
-
-				function showMsgDiv() {
-					if (screenMenu) {
-						if (window.navigator.userAgent.indexOf('MSIE') > 0) {
-							screenMenuFiller.style.width = screenMenu.offsetWidth;
-							screenMenuFiller.style.height = screenMenu.offsetHeight;
-							screenMenuFiller.style.display = "block";
-							screenMenu.style.display = "none";
+		// check for any new internal messages if we are not in LIMBO
+		if (!SQ_IN_LIMBO) {
+			$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+	
+			if (isset($_SESSION['backend_header_last_refresh']) && !empty($_GET['last_messages_clicked'])) {
+				$last_messages_click = $_SESSION['backend_header_last_refresh'];
+			} else {
+				$last_messages_click = (isset($_SESSION['backend_header_last_messages_click'])) ? $_SESSION['backend_header_last_messages_click'] : 0;
+			}
+			$_SESSION['backend_header_last_messages_click'] = $last_messages_click;
+	
+			$msgs_from = (isset($_SESSION['backend_header_last_refresh'])) ? $_SESSION['backend_header_last_refresh'] : null;
+			$messages = $ms->getMessages($GLOBALS['SQ_SYSTEM']->user->id, null, Array(SQ_MSG_UNREAD), Array(), $last_messages_click);
+			if (!empty($messages)) {
+				// found unread messages
+				$html = '
+				<table class="sq-backend-new-message-table">
+					<tr>
+						<td rowspan="2" valign="middle" class="sq-backend-new-message-cell"><img src="'.$this->out->filesPath('/images/icons/mail.png').'" width="31" height="33" border="0" alt="" /></td>
+						<td class="sq-backend-new-message-heading" nowrap>New Messages</td>
+						<td class="sq-backend-new-message-heading" align="right">[<a class="sq-backend-new-message-body" href="#" onClick="Javascript: parent.frames[\'sq_header\'].cancelMsgDiv(); return false;">x</a>]</td>
+					</tr>
+					<tr>
+						<td class="sq-backend-new-message-body" nowrap colspan="2"><a class="sq-backend-new-message-body" href="#" onClick="Javascript: if (parent.frames[\'sq_sidenav\'] && parent.frames[\'sq_sidenav\'].refresh_internal_messages) { parent.frames[\'sq_header\'].last_messages_clicked = \'1\'; parent.frames[\'sq_sidenav\'].refresh_internal_messages(); }; return false;">'.$GLOBALS['SQ_SYSTEM']->user->name.' has '.count($messages).' new message'.((count($messages) > 1) ? 's' : '').'</a></td>
+					</tr>
+				</table>
+				';
+				$html = str_replace("\n", '', $html);
+				?>
+				<script language="Javascript" type="text/javascript">
+					var msgDiv = null;
+					var screenMenu = null;
+					var screenMenuFiller = null;
+	
+					var delay = 30;     // milliseconds between movements.
+					var myTimer = null;
+					var counter = null; // number of times to move the div
+	
+					var divTop = 0;
+					var divLeft = 0;
+					var smTop = 0;
+					var smLeft = 0;
+	
+					function moveIt(x) {
+						divTop += x;
+						msgDiv.style.top = divTop + "px";
+						if (--counter < 0 && myTimer != null) {
+							clearInterval(myTimer);
+							setTimeout("hideMsgDiv()", 4000);
 						}
-						screenMenu.style.MozOpacity = "0";
 					}
-					msgDiv.style.display = "block";
-					counter = msgDiv.offsetHeight;
-					divTop = (counter * -1) + parent.frames["sq_main"].document.body.scrollTop;
-					divLeft = parent.frames["sq_main"].document.body.offsetWidth + parent.frames["sq_main"].document.body.scrollLeft - msgDiv.offsetWidth - 20;
-					msgDiv.style.top = divTop + "px";
-					msgDiv.style.left = divLeft + "px";
-
-					msgDiv.style.filter = "alpha(opacity=100)"; // IE transparency
-					msgDiv.style.MozOpacity = "1";              // Mozilla transparency
-
-					myTimer = setInterval("moveIt(1)", delay);
-				}
-
-				function hideMsgDiv() {
-					counter = 100;
-					myTimer = setInterval("hideIt()", delay);
-				}
-
-				function cancelMsgDiv() {
-					clearInterval(myTimer);
-					msgDiv.style.display = "none";
-					if (screenMenu) {
-						if (window.navigator.userAgent.indexOf('MSIE') > 0) {
-							screenMenu.style.display = "block";
-							screenMenuFiller.width = "0px";
-							screenMenuFiller.height = "0px";
-							screenMenuFiller.style.display = "none";
+	
+					function hideIt() {
+						// IE tranparency
+						msgDiv.style.filter = "alpha(opacity=" + counter + ")";
+	
+						// Mozilla transparency - DIV
+						var moz = '0.';
+						if (counter < 10) moz = moz + '0';
+						msgDiv.style.MozOpacity = moz + counter;
+	
+						// Mozilla transparency - SELECT
+						moz = '0.';
+						if ((100 - counter) < 10) moz = moz + '0';
+						if (screenMenu) screenMenu.style.MozOpacity = moz + (100 - counter);
+	
+						if (--counter < 0 && myTimer != null) {
+							cancelMsgDiv();
 						}
-						screenMenu.style.MozOpacity = "1";
 					}
-				}
-
-				if (parent.frames["sq_main"].document.body && parent.frames["sq_main"].SQ_DOCUMENT_LOADED) {
-					msgDiv = parent.frames["sq_main"].document.getElementById("new_message_popup");
-					screenMenu = parent.frames["sq_main"].document.getElementById("sq_screen_menu");
-					screenMenuFiller = parent.frames["sq_main"].document.getElementById("sq_screen_menu_filler");
-					if (msgDiv == null) {
-						msgDiv = parent.frames["sq_main"].document.createElement("div");
-						msgDiv.id = "new_message_popup";
-						msgDiv.style.position = "absolute";
+	
+					function showMsgDiv() {
+						if (screenMenu) {
+							if (window.navigator.userAgent.indexOf('MSIE') > 0) {
+								screenMenuFiller.style.width = screenMenu.offsetWidth;
+								screenMenuFiller.style.height = screenMenu.offsetHeight;
+								screenMenuFiller.style.display = "block";
+								screenMenu.style.display = "none";
+							}
+							screenMenu.style.MozOpacity = "0";
+						}
 						msgDiv.style.display = "block";
-						msgDiv.style.top = "-1000px";
-						msgDiv.style.left = "-1000px";
-						msgDiv.style.zIndex = "10";
-						parent.frames["sq_main"].document.body.appendChild(msgDiv);
+						counter = msgDiv.offsetHeight;
+						divTop = (counter * -1) + parent.frames["sq_main"].document.body.scrollTop;
+						divLeft = parent.frames["sq_main"].document.body.offsetWidth + parent.frames["sq_main"].document.body.scrollLeft - msgDiv.offsetWidth - 20;
+						msgDiv.style.top = divTop + "px";
+						msgDiv.style.left = divLeft + "px";
+	
+						msgDiv.style.filter = "alpha(opacity=100)"; // IE transparency
+						msgDiv.style.MozOpacity = "1";              // Mozilla transparency
+	
+						myTimer = setInterval("moveIt(1)", delay);
 					}
-
-					// set the contents of the div
-					msgDiv.innerHTML = '<?php echo addslashes($html)?>';
-
-					setTimeout("showMsgDiv()", 500);
-				}
-			</script>
-			<?php
-		}// end if empty msgs
+	
+					function hideMsgDiv() {
+						counter = 100;
+						myTimer = setInterval("hideIt()", delay);
+					}
+	
+					function cancelMsgDiv() {
+						clearInterval(myTimer);
+						msgDiv.style.display = "none";
+						if (screenMenu) {
+							if (window.navigator.userAgent.indexOf('MSIE') > 0) {
+								screenMenu.style.display = "block";
+								screenMenuFiller.width = "0px";
+								screenMenuFiller.height = "0px";
+								screenMenuFiller.style.display = "none";
+							}
+							screenMenu.style.MozOpacity = "1";
+						}
+					}
+	
+					if (parent.frames["sq_main"].document.body && parent.frames["sq_main"].SQ_DOCUMENT_LOADED) {
+						msgDiv = parent.frames["sq_main"].document.getElementById("new_message_popup");
+						screenMenu = parent.frames["sq_main"].document.getElementById("sq_screen_menu");
+						screenMenuFiller = parent.frames["sq_main"].document.getElementById("sq_screen_menu_filler");
+						if (msgDiv == null) {
+							msgDiv = parent.frames["sq_main"].document.createElement("div");
+							msgDiv.id = "new_message_popup";
+							msgDiv.style.position = "absolute";
+							msgDiv.style.display = "block";
+							msgDiv.style.top = "-1000px";
+							msgDiv.style.left = "-1000px";
+							msgDiv.style.zIndex = "10";
+							parent.frames["sq_main"].document.body.appendChild(msgDiv);
+						}
+	
+						// set the contents of the div
+						msgDiv.innerHTML = '<?php echo addslashes($html)?>';
+	
+						setTimeout("showMsgDiv()", 500);
+					}
+				</script>
+				<?php
+			}// end if empty msgs
+			
+		}//end if not in LIMBO
 
 		if (SQ_ROLLBACK_VIEW) $now = strtotime($_SESSION['sq_rollback_view']['rollback_time']);
 		else $now = time();
