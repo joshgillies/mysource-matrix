@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.285 2004/03/25 10:15:40 brobertson Exp $
+* $Id: asset.inc,v 1.286 2004/04/13 23:25:20 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -2397,11 +2397,9 @@ class Asset extends MySource_Object
 		$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 		$publishers = $wfm->whoCanPublish($this->id);
 		if (!empty($publishers) && in_array($GLOBALS['SQ_SYSTEM']->currentUserId(), $publishers)) return true;
-
-		// if asset is not live or asset does not give public read access
-		// we really need to check for write access
-		if ($this->status < SQ_STATUS_LIVE ||
-			!$this->_checkPermissionAccess(SQ_PERMISSION_READ, Array('0'))) {
+		
+		// if asset is not live we really need to check for write access
+		if ($this->status < SQ_STATUS_LIVE) {
 			// if we are in rollback view mode, bypass extra write access checks or we
 			// we always be returning false here (writeAccess returns false)
 			if (SQ_ROLLBACK_VIEW) return $this->_checkPermissionAccess(SQ_PERMISSION_WRITE, $assetids);
@@ -2605,6 +2603,7 @@ class Asset extends MySource_Object
 	*/
 	function _checkPermissionAccess($perm, $assetids=Array())
 	{
+
 		if (empty($assetids) && $GLOBALS['SQ_SYSTEM']->currentUserId()) {
 			// if we are the root user, we can do anything
 			if ($GLOBALS['SQ_SYSTEM']->userRoot()) return true;
@@ -2638,7 +2637,7 @@ class Asset extends MySource_Object
 
 		$grants  = $GLOBALS['SQ_SYSTEM']->am->getPermission($this->id, $perm, true);
 		$revokes = $GLOBALS['SQ_SYSTEM']->am->getPermission($this->id, $perm, false, false);
-
+		
 		// has their access been revoked at all?
 		if (!empty($revokes)) {
 			$revoked = array_intersect($assetids, $revokes);
