@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_asset_type.inc,v 1.3 2005/03/02 01:16:23 arailean Exp $
+* $Id: trigger_condition_asset_type.inc,v 1.4 2005/03/22 04:42:20 gsherwood Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -49,8 +49,8 @@ class Trigger_Condition_Asset_Type extends Trigger_Condition
 	*       );
 	* </PRE>
 	*
-	* @param array(string=>mixed)   $settings   the stored settings for this condition
-	* @param array(string=>mixed)   &$state     the state that describes the asset the condition is executing on
+	* @param array	$settings	the stored settings for this condition
+	* @param array	&$state		the state that describes the asset the condition is executing on
 	*
 	* @return boolean
 	* @access public
@@ -93,9 +93,9 @@ class Trigger_Condition_Asset_Type extends Trigger_Condition
 	/**
 	* Get the HTML editing interface for this condition. Returns the string instead of printing it
 	*
-	* @param Array      $settings  settings that this condition save in processInterface()
-	* @param string     $prefix    unique prefix
-	* @param boolean    $write_access   write access flag
+	* @param array		$settings		settings that this condition save in processInterface()
+	* @param string		$prefix			unique prefix
+	* @param boolean	$write_access	write access flag
 	*
 	* @access public
 	* @return boolean
@@ -116,20 +116,21 @@ class Trigger_Condition_Asset_Type extends Trigger_Condition
 
 		$is_descendant = array_get_index($settings, 'descendants', false);
 
-		if (!$write_access) {
-			$form_element_extras = 'disabled="disabled"';
+		ob_start();
+		echo 'Asset is of type ';
+		if ($write_access) {
+			combo_box($prefix.'[asset_type]', $asset_types, false, $selected_type);
+			check_box($prefix.'[descendants]', '1', $is_descendant);
+			echo ' include descendant types';
 		} else {
-			$form_element_extras = '';
+			echo '<b>';
+			echo $asset_types[$selected_type];
+			if ($is_descendant) {
+				echo ' (or descendant types)';
+			}
+			echo '</b>';
 		}
 
-		ob_start();
-		echo "Asset is of type:";
-		combo_box($prefix.'[asset_type]', $asset_types, false, $selected_type, null, $form_element_extras);
-		check_box($prefix.'[descendants]', '1', $is_descendant, null, $form_element_extras);
-
-		echo "Include Descendant Types";
-
-		// return the string
 		return ob_get_clean();
 
 	}//end getInterface()
@@ -140,9 +141,10 @@ class Trigger_Condition_Asset_Type extends Trigger_Condition
 	* together with settings it is expected to populate the hash object
 	* Consult the hash object to see the list of setter functions
 	*
-	* @param Array          $settings       a container for any data the condition might want to save
-	* @param object Hash    $hash           hash object that takes data that helps to speed up trigger firing
-	* @param array          $request_data   array of data corresponding to this condition as specified by the $prefix in the getInterface.
+	* @param array			$settings		a container for any data the condition might want to save
+	* @param object Hash	$hash			hash object that takes data that helps to speed up trigger firing
+	* @param array			$request_data	array of data corresponding to this condition
+	* 										as specified by the $prefix in the getInterface.
 	*
 	* @access public
 	* @return boolean
