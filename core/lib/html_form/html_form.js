@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.js,v 1.33 2005/02/03 22:28:08 rhoward Exp $
+* $Id: html_form.js,v 1.34 2005/02/14 22:49:40 rhoward Exp $
 *
 */
 
@@ -112,7 +112,11 @@ function validate_numeric_text_field(name, allow_negative)
 			}
 		}
 		name.value = outstr;
-		name.select();
+
+		var range = name.createTextRange();
+		range.moveStart("character", -input.value.length);
+		range.moveEnd("character", -input.value.length);
+		range.select();
 	}
 
 }
