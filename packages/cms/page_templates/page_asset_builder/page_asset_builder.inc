@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.14 2004/06/16 06:10:21 mmcintyre Exp $
+* $Id: page_asset_builder.inc,v 1.15 2004/06/21 00:07:00 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -476,6 +476,7 @@ class Page_Asset_Builder extends Page
 		// now check what rules dictate where the asset should be created
 		$location_rules = $this->attr('create_location_rules');
 		foreach ($location_rules as $i => $rules) {
+			$valid_rule = true;
 			foreach ($rules as $attr => $attr_rules) {
 				if ($attr == '_create_locations_') continue;
 
@@ -485,7 +486,6 @@ class Page_Asset_Builder extends Page
 					$attr_value = isset($attributes[$attr]) ? trim(strtolower($attributes[$attr])) : '';
 				}
 
-				$valid_rule = true;
 				foreach ($attr_rules as $cond => $value) {
 					$value = trim(strtolower($value));
 
@@ -502,16 +502,18 @@ class Page_Asset_Builder extends Page
 							if (!preg_match('|^.*'.$value.'$|', $attr_value)) $valid_rule = false;
 						break;
 					}
-				}
 
-				if ($valid_rule) {
-					if (!is_array($create_locations)) $create_locations = Array($create_locations);
-					$create_locations = array_merge($create_locations, $rules['_create_locations_']);
+					if (!$valid_rule) break(2);
 				}
+			}
+
+			if ($valid_rule) {
+				if (!is_array($create_locations)) $create_locations = Array($create_locations);
+				$create_locations = array_merge($create_locations, $rules['_create_locations_']);
 			}
 		}
 
-		return $create_locations;
+		return array_unique($create_locations);
 
 	}//end _getCreateLocations()
 
