@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container.inc,v 1.10 2004/08/19 05:17:01 gsherwood Exp $
+* $Id: bodycopy_container.inc,v 1.11 2004/08/19 22:28:55 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -291,7 +291,7 @@ class Bodycopy_Container extends Asset
 	*/
 	function printBody($keyword_replacements=Array())
 	{
-		if (!$this->readAccess('')) return;
+		if (!$this->readAccess()) return;
 
 		// create an array of urls that the content file is
 		// going to try and use to work out file urls, link hrefs etc

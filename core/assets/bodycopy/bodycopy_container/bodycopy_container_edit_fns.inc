@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_edit_fns.inc,v 1.13 2004/08/19 05:17:01 gsherwood Exp $
+* $Id: bodycopy_container_edit_fns.inc,v 1.14 2004/08/19 22:28:55 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -139,7 +139,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 	function paintContainer(&$asset, &$o, $prefix)
 	{
 		if (!$asset->writeAccess('content')) {
-			if ($asset->readAccess('')) {
+			if ($asset->readAccess()) {
 				$this->paint($asset);
 			} else {
 				echo '<span class="sq-backend-warning">You do not have access to view the contents of this container</span>';
