@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_table_cell.inc,v 1.6 2004/07/06 10:55:45 brobertson Exp $
+* $Id: bodycopy_table_cell.inc,v 1.7 2004/08/04 00:40:10 mnyeholt Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -192,6 +192,9 @@ class BodyCopy_Table_Cell extends MySource_Object
 			if ($val == '') continue;
 			if ($name == 'linkid') continue;
 			if ($name == 'content_type') continue;
+			// if we're in edit mode, we don't want to colspan anything at all; the colspan
+			// is handled by outer wrapping divs
+			if (($name == 'colspan') && !$generating && $table->writeAccess('content')) continue;
 			if (strtolower($name) == 'nowrap') {
 				if ($val) echo ' nowrap';
 			} else {
@@ -199,7 +202,7 @@ class BodyCopy_Table_Cell extends MySource_Object
 			}
 		}
 		if (!$generating && $table->writeAccess('content')) {
-			echo ' style="border-bottom: 1px dashed #C0C0C0; border-right: 1px dashed #C0C0C0; padding: 2px; vertical-align:top;" id="'.$content_prefix.'_cell"';
+			echo ' style="margin: 2px; vertical-align:top;" id="'.$content_prefix.'_cell"';
 		}
 		echo ">\n";
 
@@ -255,27 +258,22 @@ class BodyCopy_Table_Cell extends MySource_Object
 		}
 
 		// print out the edit buttons
-		?>
-		<td <?php echo ($colspaning > 0) ? 'colspan="'.$colspaning.'"' : '';?> align="right" nowrap>
-			<?php
-			print_bodycopy_icon("Javascript: bodycopy_edit_table_cell_properties('$prefix', $tableid, $rowid, $cellid);", 'Edit Cell '.($cellid + 1).'\'s Properties', (($attribute_list) ? 'Current Properties :<br>'.$attribute_list : ''), 'cell_properties');
+		
+		print_bodycopy_icon("Javascript: bodycopy_edit_table_cell_properties('$prefix', $tableid, $rowid, $cellid);", 'Edit Cell '.($cellid + 1).' - '.($rowid+1).'\'s Properties', (($attribute_list) ? 'Current Properties :<br>'.$attribute_list : ''), 'cell_properties');
 
-			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($this->attributes['linkid'], $table->id);
-			if (!empty($link)) {
-				$content_type = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
-			} else {
-				$content_type = null;
-			}
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($this->attributes['linkid'], $table->id);
+		if (!empty($link)) {
+			$content_type = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+		} else {
+			$content_type = null;
+		}
 
-			if (!is_null($content_type)) {
-				$content_edit = &$content_type->getEditFns();
-				$content_prefix = $prefix.'_content_type_'.$this->attributes['content_type'].'_'.$this->attributes['linkid'];
-				$content_edit->paintBackendIcons($content_type, $content_prefix);
-			}
-			?>
-		</td>
-		<?php
-
+		if (!is_null($content_type)) {
+			$content_edit = &$content_type->getEditFns();
+			$content_prefix = $prefix.'_content_type_'.$this->attributes['content_type'].'_'.$this->attributes['linkid'];
+			$content_edit->paintBackendIcons($content_type, $content_prefix);
+		}
+		
 		return true;
 
 	}//end paintCell()
