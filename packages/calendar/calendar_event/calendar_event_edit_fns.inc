@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_edit_fns.inc,v 1.19 2004/09/10 01:44:26 tbarrett Exp $
+* $Id: calendar_event_edit_fns.inc,v 1.20 2004/09/10 01:45:05 tbarrett Exp $
 * $prefix:  $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.19 $ - 1.0
+* @version $Revision: 1.20 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -75,7 +75,6 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 		<script language="JavaScript" type="text/javascript" src="<?php echo sq_web_path('data').'/asset_types/calendar_event/js/date_chooser.js'?>"></script>
 
 		<!-- start -->
-		<textarea id="textmessage"></textarea>
 		<table border="0" cellpadding="0" cellspacing="0" style="margin-bottom: 1ex">
 			<tr>
 				<td class="sq-backend-data" style="vertical-align: bottom">&nbsp;Occurs on&nbsp;
@@ -177,8 +176,6 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function processStartEndChooser(&$asset, &$o, $prefix) 
 	{
-		bam($_REQUEST);
-
 		// begin with the start time
 		$this->_validateDateTimeFields($prefix, '_start');
 		$start_date_value = $_REQUEST[$prefix.'_start_year'] .'-' 
