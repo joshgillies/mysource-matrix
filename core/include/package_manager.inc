@@ -383,6 +383,15 @@ class Package_Manager extends Resolve_Object
 
 			$type_node = &$root->addChild('type', '', $attrs);
 
+
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
+			$as =& new $type_code();
+			$ef = &$as->getEditFns();
+
+			if (!empty($ef->tabs['details'])) {
+				$type_node->addChild('screen', $ef->tabs['details']['name'], Array('code_name' => 'details'));
+			}
+
 			$ei = new Asset_Edit_Interface($type_code);
 			$screens = $ei->getScreens();
 			for(reset($screens); null !== ($code_name = key($screens)); next($screens)) {
@@ -393,6 +402,7 @@ class Package_Manager extends Resolve_Object
 			$as =& new $type_code();
 			$ef = &$as->getEditFns();
 			for(reset($ef->tabs); null !== ($code_name = key($ef->tabs)); next($ef->tabs)) {
+				if ($code_name == 'details') continue;
 				$type_node->addChild('screen', $ef->tabs[$code_name]['name'], Array('code_name' => $code_name));
 			}
 
