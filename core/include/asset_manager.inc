@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.226 2004/08/09 09:00:12 brobertson Exp $
+* $Id: asset_manager.inc,v 1.227 2004/08/11 01:07:50 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1940,7 +1940,7 @@ class Asset_Manager extends MySource_Object
 		$parents = $db->getCol($sql.$where);
 		assert_valid_db_result($parents);
 		
-		return $parents;
+		return array_unique($parents);
 
 	}//end getParents()
 
@@ -3256,7 +3256,7 @@ class Asset_Manager extends MySource_Object
 	*/
 	function moveLinkPos($linkid, $sort_order=-1)
 	{
-		return $this->_updateLink($linkid, null, null, $sort_order);
+		return $this->updateLink($linkid, null, null, $sort_order);
 
 	}//end moveLinkPos()
 
@@ -3275,7 +3275,7 @@ class Asset_Manager extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function _updateLink($linkid, $link_type=null, $value=null, $sort_order=null)
+	function updateLink($linkid, $link_type=null, $value=null, $sort_order=null)
 	{
 		// First, we should try and find the link
 		$link = $this->getLinkById($linkid);
@@ -3457,7 +3457,7 @@ class Asset_Manager extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
 
-	}//end _updateLink()
+	}//end updateLink()
 
 
 //--        PERMISSIONS        --//

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: linking.inc,v 1.5 2004/05/27 01:01:28 gsherwood Exp $
+* $Id: linking.inc,v 1.6 2004/08/11 01:07:50 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -280,7 +280,7 @@ function processLinking(&$owner, &$o, &$ei)
 		if (!isset($_POST[$prefix.'_link_type'][$link['linkid']])) continue;
 		$new_type = $_POST[$prefix.'_link_type'][$link['linkid']];
 		if ($link['link_type'] == $new_type) continue;
-		if (!$GLOBALS['SQ_SYSTEM']->am->_updateLink($link['linkid'], $new_type)) continue;
+		if (!$GLOBALS['SQ_SYSTEM']->am->updateLink($link['linkid'], $new_type)) continue;
 		$done_something = true;
 	}
 
