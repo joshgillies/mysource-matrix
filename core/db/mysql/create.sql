@@ -8,7 +8,6 @@ CREATE TABLE sq_package (
 );
 
 
-
 DROP TABLE IF EXISTS sq_asset;
 CREATE TABLE sq_asset (
   assetid        INT    UNSIGNED NOT NULL,
@@ -35,7 +34,6 @@ CREATE TABLE sq_asset_link (
   PRIMARY KEY(linkid),
   UNIQUE real_pk (majorid, minorid, link_type, value)
 );
-
 
 
 DROP TABLE IF EXISTS sq_asset_type;
@@ -116,4 +114,19 @@ CREATE TABLE sq_asset_lookup (
   root_urlid SMALLINT NOT NULL,
   designid   INT NOT NULL DEFAULT 0,
   PRIMARY KEY  (url)
+);
+
+
+DROP TABLE IF EXISTS sq_internal_message;
+CREATE TABLE sq_internal_message (
+  messageid  INT UNSIGNED NOT NULL,
+  userto     INT UNSIGNED NOT NULL DEFAULT 0,
+  userfrom   INT UNSIGNED NOT NULL DEFAULT 0,
+  subject    VARCHAR(255) NOT NULL DEFAULT '',
+  body       LONGTEXT     NOT NULL DEFAULT '',
+  sent       DATETIME     NOT NULL,
+  priority   CHAR(1)      NOT NULL DEFAULT 'L',
+  status     CHAR(1)      NOT NULL DEFAULT 'U',
+  parameters LONGTEXT     NOT NULL DEFAULT '',
+  PRIMARY KEY(messageid)
 );
