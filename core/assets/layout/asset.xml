@@ -22,7 +22,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.3 2004/04/19 03:55:41 gsherwood Exp $
+* $Id: asset.xml,v 1.4 2004/07/02 04:06:02 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -34,7 +34,7 @@
 	<name>Layout</name>
 	<description>Layouts are used to customise the look and feel of asset's frontends</description>
 	<instantiable>yes</instantiable>
-	<allowed_access>system_administrator</allowed_access>
+	<allowed_access>system_user</allowed_access>
 	<parent_type>bodycopy</parent_type>
 	<requirements />
 	<flash_menu_path>Layouts</flash_menu_path>
