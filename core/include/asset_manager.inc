@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.166 2004/01/20 03:27:43 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.167 2004/01/22 06:24:55 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1553,13 +1553,19 @@ class Asset_Manager extends MySource_Object
 		$query = $this->generateGetChildrenQuery($assetid, $type_code, $strict_type_code, $sort_by);
 		if (empty($query)) return Array();
 
-		$children = $db->getAssoc(implode(' ', $query));
-		if (DB::isError($children)) {
-			trigger_error($children->getMessage().'<br/>'.$children->getUserInfo(), E_USER_ERROR);
+		$result = $db->getAssoc(implode(' ', $query));
+		if (DB::isError($result)) {
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 			return Array();
 		}
 
-		return $children;
+		if (!is_null($sort_by)) {
+			$children = Array();
+			foreach ($result as $assetid => $asset_info) $children[$assetid] = $asset_info['type_code'];
+			return $children;
+		} else {
+			return $result;
+		}
 
 	}//end getChildren()
 
@@ -3905,6 +3911,7 @@ class Asset_Manager extends MySource_Object
 		} else {
 			// order by a specific field in the asset table
 			$order_by = 'ORDER BY a.'.$sort_by;
+			if ($sort_by != 'type_code') $select .= ', a.'.$sort_by.' AS sort_value';
 		}
 
 		return Array('select'   => $select,
@@ -4004,7 +4011,10 @@ class Asset_Manager extends MySource_Object
 
 		// order by a field if required
 		$order_by = '';
-		if (!is_null($sort_by)) $order_by = 'ORDER BY a.'.$sort_by;
+		if (!is_null($sort_by)) {
+			$order_by = 'ORDER BY a.'.$sort_by;
+			$select .= ', a.'.$sort_by.' AS sort_value';
+		}
 
 		return Array('select'   => $select,
 					 'from'     => $from,
