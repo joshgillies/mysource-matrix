@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_anchor.php,v 1.2 2004/04/07 23:25:37 lwright Exp $
+* $Id: insert_anchor.php,v 1.3 2004/09/09 03:34:17 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,7 +38,7 @@ if (!isset($_GET['name']))		  $_GET['name'] = "";
 
 ?>
 
-<html style="width: 360px; height: 180px;">
+<html style="width: 400px; height: 180px;">
 	<head>
 		<title>Insert Anchor</title>
 
@@ -148,40 +148,28 @@ if (!isset($_GET['name']))		  $_GET['name'] = "";
 	<body onload="Javascript: Init();">
 		<div class="title">Insert Anchor</div>
 		<form action="" method="get" name="main_form">
-			<table>
+			<table width="100%">
 				<tr>
-					<td valign="top">
-							<table width="100%">
-								<tr>
-									<td>
-										<table width="100%" cellspacing="0" cellpadding="0">
-											<tr>
-												<td valign="top" width="100%">
-													<fieldset>
-													<legend><b>General</b></legend>
-													<table style="width:100%">
-														<tr>
-															<td class="label">Anchor Name:</td>
-															<td colspan="3"><?php text_box('name', $_GET['name'], 40, 0);?>
-															</td>
-														</tr>
-													</table>
-													</fieldset>
-												</td>
-											</tr>
-										</table>
-									</td>
-								</tr>
-							</table>
-
-						<div style="margin-top: 5px; text-align: right;">
-						<hr />
-						<button type="button" name="ok" onclick="return onOK();">OK</button>
-						<button type="button" name="cancel" onclick="return onCancel();">Cancel</button>
-						</div>
+					<td valign="top" width="100%">
+						<fieldset>
+						<legend><b>General</b></legend>
+						<table style="width:100%">
+							<tr>
+								<td class="label">Anchor Name:</td>
+								<td colspan="3"><?php text_box('name', $_GET['name'], 40, 0);?>
+								</td>
+							</tr>
+						</table>
+						</fieldset>
 					</td>
-				<tr>
+				</tr>
 			</table>
+	
+			<div style="margin-top: 5px; margin-right: 5px; text-align: right;">
+			<hr />
+			<button type="button" name="ok" onclick="return onOK();">OK</button>
+			<button type="button" name="cancel" onclick="return onCancel();">Cancel</button>
+			</div>
 		</form>
 	</body>
 </html>

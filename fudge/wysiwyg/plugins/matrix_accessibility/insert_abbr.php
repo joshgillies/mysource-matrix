@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_abbr.php,v 1.3 2004/09/09 03:15:07 amiller Exp $
+* $Id: insert_abbr.php,v 1.4 2004/09/09 03:34:17 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,7 +38,7 @@ if (!isset($_GET['title']))		  $_GET['title'] = "";
 
 ?>
 
-<html style="width: 360px; height: 180px;">
+<html style="width: 400px; height: 200px;">
 	<head>
 		<title>Insert Abbreviation</title>
 
@@ -185,6 +185,7 @@ if (!isset($_GET['title']))		  $_GET['title'] = "";
 			</table> 
 	
 			<div style="margin-top: 5px; margin-right: 5px; text-align: right;">
+				<hr />
 				<script type="text/javascript" language="javascript">
 				if (can_insert) {
 					document.write('<button type="button" name="ok" onclick="return onOK();">OK</button>');

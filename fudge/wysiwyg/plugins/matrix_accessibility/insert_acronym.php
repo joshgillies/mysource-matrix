@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_acronym.php,v 1.2 2004/09/09 03:15:07 amiller Exp $
+* $Id: insert_acronym.php,v 1.3 2004/09/09 03:34:17 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,7 +38,7 @@ if (!isset($_GET['title']))		  $_GET['title'] = "";
 
 ?>
 
-<html style="width: 360px; height: 180px;">
+<html style="width: 400px; height: 200px;">
 	<head>
 		<title>Insert Acronym</title>
 
@@ -90,7 +90,7 @@ if (!isset($_GET['title']))		  $_GET['title'] = "";
 			table {
 				font: 11px Tahoma,Verdana,sans-serif;
 			}
-
+			
 			/* main popup title */
 			.title {
 				background: #402F48;
@@ -172,6 +172,7 @@ if (!isset($_GET['title']))		  $_GET['title'] = "";
 			</table>
 
 			<div style="margin-top: 5px; margin-right: 5px; text-align: right;">
+				<hr />
 				<button type="button" name="ok" onclick="return onOK();">OK</button>
 				<button type="button" name="cancel" onclick="return onCancel();">Cancel</button>
 			</div>
