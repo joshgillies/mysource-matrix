@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_herder.inc,v 1.56 2005/03/16 23:06:20 ndvries Exp $
+* $Id: hipo_herder.inc,v 1.57 2005/03/20 23:33:31 arailean Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) Herder (Manager ;P)
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.56 $
+* @version $Revision: 1.57 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -125,7 +125,7 @@ class HIPO_Herder extends MySource_Object
 			} else {
 					$job_dir = $vars['job_dir'];
 			}
-            require_once $job_dir.'/'.$job_type.'.inc';
+			require_once $job_dir.'/'.$job_type.'.inc';
 
 			$this->_jobs[$code_name] = new $job_type($code_name);
 
@@ -538,7 +538,6 @@ class HIPO_Herder extends MySource_Object
 		switch ($signo) {
 			case SIGINT:
 			case SIGTERM:
-				error_log('Aborting Job...');
 				if (!empty($this->_tmp['processing_server'])) {
 					$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db'); // just to make sure
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -547,7 +546,6 @@ class HIPO_Herder extends MySource_Object
 				if (!empty($this->_tmp['prepared_server'])) {
 					$source_job = &$this->getJob($this->_tmp['prepared_server']['source_code_name']);
 					if (!is_null($source_job)) {
-						error_log("ABORT JOB --->");
 						$source_job->abort();
 					}
 				}// end if
