@@ -66,8 +66,7 @@ class Asset extends Resolve_Object
 
 	/**
 	* The current unrestrcited data path for this asset
-	* This always points to the unrestricted directory but may also
-	* point to the .sq_system directory within it
+	* This always points to the unrestricted directory
 	* Only use this path for storage if the web server should serve the file
 	*
 	* @var string
