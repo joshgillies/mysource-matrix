@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select_edit_fns.inc,v 1.9 2004/11/07 22:32:41 gsherwood Exp $
+* $Id: metadata_field_select_edit_fns.inc,v 1.10 2004/11/07 22:48:30 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -81,10 +81,14 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 			if ($write_access && $asset->attr('editable')) {
 				combo_box($prefix.'_value', $select_options, $asset->attr('multiple'), $default);
 			} else {
-				if (!is_array($default)) $default = Array($default);
-				$default_string = '';
-				foreach ($default as $option) $default_string .= $select_options[$option].'; ';
-				echo trim($default_string, '; ');
+				if (empty($default)) {
+					echo '';
+				} else {
+					if (!is_array($default)) $default = Array($default);
+					$default_string = '';
+					foreach ($default as $option) $default_string .= $select_options[$option].'; ';
+					echo trim($default_string, '; ');
+				}
 			}
 		$o->closeField();
 
