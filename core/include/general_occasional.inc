@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: general_occasional.inc,v 1.24 2003/09/26 05:26:31 brobertson Exp $
+* $Id: general_occasional.inc,v 1.25 2003/10/13 07:21:12 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -255,7 +255,7 @@ function make_valid_web_paths($paths)
 		$path = preg_replace('/[^a-zA-Z0-9\-$_@.!*(),]/', '',  $path);
 		
 		// ignore blanks
-		if ($path && !in_array($path, $valid_paths)) $valid_paths[] = $path;
+		if ($path !== '' && !in_array($path, $valid_paths)) $valid_paths[] = $path;
 	}
 	return $valid_paths;
 
