@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: step_03.php,v 1.18 2003/10/20 07:24:20 brobertson Exp $
+* $Id: step_03.php,v 1.19 2003/10/21 04:07:59 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -15,6 +15,7 @@
 * @version $Version$ - 1.0
 * @package MySource_Matrix
 */
+ini_set('memory_limit', -1);
 error_reporting(E_ALL);
 $SYSTEM_ROOT = '';
 // from cmd line

@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: step_01.php,v 1.20 2003/10/13 02:15:07 brobertson Exp $
+* $Id: step_01.php,v 1.21 2003/10/21 04:07:59 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -15,7 +15,7 @@
 * @version $Version$ - 1.0
 * @package MySource_Matrix
 */
-
+ini_set('memory_limit', -1);
 error_reporting(E_ALL);
 define('SQ_SYSTEM_ROOT',   dirname(dirname(realpath(__FILE__))));
 define('SQ_INCLUDE_PATH',  SQ_SYSTEM_ROOT.'/core/include');
