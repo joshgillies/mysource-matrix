@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.283 2004/03/15 00:23:14 gsherwood Exp $
+* $Id: asset.inc,v 1.284 2004/03/24 23:35:32 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -379,7 +379,7 @@ class Asset extends MySource_Object
 				// the parent was locked before we created this asset and the new asset
 				// is dependantly linked, so make sure we have all the locks of our parent
 				$parent_lock_info = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($link['asset']->id, 'all');
-				foreach ($parent_lock_info as $lock_type => $lock_details) {
+				foreach (array_values($parent_lock_info) as $lock_details) {
 					if (empty($lock_details)) continue;
 					if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, $lock_details['lock_type'], $lock_details['source_assetid'])) {
 							$ms->abortLog();
@@ -588,6 +588,10 @@ class Asset extends MySource_Object
 			trigger_error('Cannot delete asset, asset is not in the trash', E_USER_WARNING);
 			return false;
 		}
+		
+		$this-readAccess();
+		
+		
 
 		// check that the trash link is the only significant link left
 		$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_SIGNIFICANT, '', true, 'minor');
@@ -1150,8 +1154,11 @@ class Asset extends MySource_Object
 		for (reset($version_parts); null !== ($k = key($version_parts)); next($version_parts)) {
 			$value =& $version_parts[$k];
 			$value = (int)$value;
-			if ($k == $part_num) $value++;
-			else if ($k > $part_num) $value = 0;
+			if ($k == $part_num) {
+				$value++;
+			} else if ($k > $part_num) {
+				$value = 0;
+			}
 		}
 
 		$new_version = implode('.', $version_parts);
@@ -1174,7 +1181,7 @@ class Asset extends MySource_Object
 			if (!is_null($dep_parent)) {
 				if (!$dep_parent->incrementVersion('micro')) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					$GLOABLS['SQ_SYSTEM']->am->forgetAsset($dep_parent);
+					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($dep_parent);
 					trigger_error('Failed incrementing version of "'.$this->name.'" [#'.$this->id.'], version updated of dependant parent "'.$dep_parent->name.'" [#'.$dep_parent->id.'] failed.', E_USER_WARNING);
 					return false;
 				}
@@ -1397,8 +1404,9 @@ class Asset extends MySource_Object
 		}// end if child links
 
 		// if there any parent links
-		if ($num_links = $GLOBALS['SQ_SYSTEM']->am->countLinks($this->id, 'minor')) {
-
+		$num_links = $GLOBALS['SQ_SYSTEM']->am->countLinks($this->id, 'minor');
+		if ($num_links) {
+			
 			$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_ALL, '', true, 'minor');
 			foreach($links as $link) {
 				$parent = &$am->getAsset($link['majorid'], $link['major_type_code']);
@@ -2823,7 +2831,6 @@ class Asset extends MySource_Object
 				} else {
 					return false;
 				}
-				break;
 
 			default :
 				return $ei->process($this, $o, false);
@@ -2993,7 +3000,6 @@ class Asset extends MySource_Object
 		if (!empty($inserts)) {
 			// now we need to check that none of our parents have
 			// any nav kids that are also using this path name
-			$siblingids = Array();
 			$parents = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_WEB_PATHS, '', null, 'minor');
 			for($i = 0; $i < count($parents); $i++) {
 				$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parents[$i]['majorid'], $parents[$i]['major_type_code']);
