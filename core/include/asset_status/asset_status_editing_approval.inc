@@ -64,10 +64,22 @@ class Asset_Status_Editing_Approval extends Asset_Status_Pending_Approval
 
 		// change some of the status codes to relect that we are safe editing
 		foreach ($statii as $code => $name) {
-			if ($code == SQ_STATUS_APPROVED) $return_statii[SQ_STATUS_EDITING_APPROVED] = $name;
-			else if ($code == SQ_STATUS_PENDING_APPROVAL) $return_statii[SQ_STATUS_EDITING_APPROVAL] = $name;
-			else if ($code == SQ_STATUS_UNDER_CONSTRUCTION) $return_statii[SQ_STATUS_EDITING] = $name;
-			else $return_statii[$code] = $name;
+			switch($code) {
+				case SQ_STATUS_APPROVED :
+					$return_statii[SQ_STATUS_EDITING_APPROVED] = $name;
+					break;
+
+				case SQ_STATUS_PENDING_APPROVAL :
+					$return_statii[SQ_STATUS_EDITING_APPROVAL] = $name;
+					break;
+
+				case SQ_STATUS_UNDER_CONSTRUCTION :
+					$return_statii[SQ_STATUS_EDITING] = $name;
+					break;
+
+				default :
+					$return_statii[$code] = $name;
+			}
 		}
 
 		return $return_statii;
