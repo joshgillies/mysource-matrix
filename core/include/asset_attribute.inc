@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_attribute.inc,v 1.18 2003/09/26 05:26:31 brobertson Exp $
+* $Id: asset_attribute.inc,v 1.19 2003/10/07 06:58:04 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -74,6 +74,13 @@ class Asset_Attribute extends MySource_Object
 	*/
 	var $processed = false;
 
+	/**
+	* The attribute's weighting when participating in searches.
+	* Negative values indicate that this attribute is never used for searching.
+	* Note: This value is indicative of all instances of this asset attribute.
+	* @var int
+	*/
+	var $weighting = 0;
 
 	/**
 	* Constructor
@@ -90,7 +97,7 @@ class Asset_Attribute extends MySource_Object
 		if ($attributeid) {
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-			$sql = 'SELECT attributeid, name, type, uniq, description, parameters_value, default_value
+			$sql = 'SELECT attributeid, name, type, uniq, description, parameters_value, default_value, weighting
 					FROM '.SQ_TABLE_PREFIX.'asset_attribute
 					WHERE attributeid = '.$db->quote($attributeid);
 
@@ -99,7 +106,7 @@ class Asset_Attribute extends MySource_Object
 
 			if (is_null($result)) return;
 
-			list($this->id, $this->name, $type, $this->uniq, $this->description, $parameters, $this->_default_value) = $result;
+			list($this->id, $this->name, $type, $this->uniq, $this->description, $parameters, $this->_default_value, $this->weighting) = $result;
 
 			// make sure the asset we are loading is of the same type as our class
 			if ($type != $this->type()) {
@@ -122,6 +129,34 @@ class Asset_Attribute extends MySource_Object
 
 	}// end contructor
 
+	/**
+	*
+	* Retrieves subclasses of Asset_Attribute
+	* 
+	* @static
+	* @access public
+	*/
+	function loadAttribute($attributeid = 0, $value = null, $default_params = Array())
+	{
+		if ($attributeid == 0) {
+			return new Asset_Attribute(0, $value, $default_params);;
+		}
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		$sql = 'SELECT type FROM '.SQ_TABLE_PREFIX.'asset_attribute
+				WHERE attributeid = \''.$attributeid.'\'';
+
+		$type = $db->getOne($sql);
+		if (DB::isError($type)) {
+			trigger_error('Could not retrieve type for Attribute #'.$attributeid, E_USER_WARNING);
+			return null;
+		}
+
+		$class = 'Asset_Attribute_'.$type;
+		require_once SQ_ATTRIBUTES_PATH.'/'.$type.'/'.$type.'.inc';
+		return new $class($attributeid, $value, $default_params);
+	}
 
 	/**
 	* Returns the type of this attribute
