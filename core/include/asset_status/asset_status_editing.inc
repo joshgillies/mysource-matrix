@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_editing.inc,v 1.21 2004/11/18 04:48:37 gsherwood Exp $
+* $Id: asset_status_editing.inc,v 1.22 2004/11/25 01:12:32 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -43,6 +43,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 */
 class Asset_Status_Editing extends Asset_Status
 {
+
 
 	/**
 	* Constructor
@@ -178,17 +179,6 @@ class Asset_Status_Editing extends Asset_Status
 				if (!$wfm->startWorkflow($this->owner->id)) {
 					trigger_error('Workflow failed to start for "'.$this->owner->name.'"', E_USER_WARNING);
 					return false;
-				}
-
-				// if the user who wants this asset to go live can also
-				// approve it as part of workflow, let their action to make this
-				// asset live signal their intention to approve it as well
-				$publishers = $wfm->whoCanPublish($this->owner->id);
-				if (in_array($current_userid, $publishers)) {
-					if (!$wfm->recordPublish($this->owner->id, $current_userid)) {
-						trigger_error('Approval by user '.$current_userid.' not set in processStatusChange', E_USER_WARNING);
-						// dont die here because they can try to approve again later
-					}
 				}
 
 				// send an internal message

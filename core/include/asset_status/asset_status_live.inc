@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_live.inc,v 1.19 2004/11/03 23:57:06 gsherwood Exp $
+* $Id: asset_status_live.inc,v 1.20 2004/11/25 01:12:32 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -145,7 +145,7 @@ class Asset_Status_Live extends Asset_Status
 						$msg->body .= ' You can also <SQ_MSG_LINK href="'.$asset_url.'">preview this asset.</SQ_MSG_LINK>';
 					}
 				
-					if (!$wfm->startWorkflow($this->owner->id, $msg)) {
+					if (!$wfm->startWorkflow($this->owner->id, false, $msg)) {
 						trigger_error('Workflow failed to start for "'.$this->owner->name.'"', E_USER_WARNING);
 						return false;
 					}

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.57 2004/11/23 01:07:35 arailean Exp $
+* $Id: workflow_manager.inc,v 1.58 2004/11/25 01:12:32 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -883,13 +883,15 @@ class Workflow_Manager extends MySource_Object
 	/**
 	* Starts workflow by writing out all workflow arrays to the workflow table for the passed assetID
 	*
-	* @param int						$assetid	the ID of the asset to start workflow for
-	* @param object Internal_Message	$msg		an internal message to be sent instead of the default
+	* @param int						$assetid		the ID of the asset to start workflow for
+	* @param boolean					$auto_approve	register that the current user has approed the workflow
+	*													once it has been started
+	* @param object Internal_Message	$msg			an internal message to be sent instead of the default
 	*
 	* @return boolean
 	* @access public
 	*/
-	function startWorkflow($assetid, $msg=null)
+	function startWorkflow($assetid, $auto_approve=true, $msg=null)
 	{
 		$assetid  = (int) $assetid;
 		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
@@ -920,6 +922,20 @@ class Workflow_Manager extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		$this->_tmp = Array();
+
+		if ($auto_approve) {
+			// if the user who has started this workflow is also able to
+			// approve it as part of workflow, let their action to start workflow
+			// signal their intention to approve it as well
+			$publishers = $this->whoCanPublish($asset->id);
+			$current_userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
+			if (in_array($current_userid, $publishers)) {
+				if (!$this->recordPublish($asset->id, $current_userid)) {
+					trigger_error('Approval by user '.$current_userid.' not set in processStatusChange', E_USER_WARNING);
+					// dont die here because they can try to approve again later, we just want to warn them
+				}
+			}
+		}
 
 		// send internal messages to everyone who can now publish the asset
 		$ms   = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
