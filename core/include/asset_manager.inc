@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.269 2005/02/17 06:06:27 rhoward Exp $
+* $Id: asset_manager.inc,v 1.270 2005/02/18 00:07:59 arailean Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.269 $
+* @version $Revision: 1.270 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3049,9 +3049,9 @@ class Asset_Manager extends MySource_Object
 			);
 
 			if ($major->type() != 'root_folder') {
-				$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_link_created', &$major, $event_data);
+				$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_link_created', $major, $event_data);
 			}
-			$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_link_created', &$minor, $event_data);
+			$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_link_created', $minor, $event_data);
 
 		}
 
