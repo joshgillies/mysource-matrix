@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_edit_fns.inc,v 1.5 2004/06/24 06:05:41 lwright Exp $
+* $Id: bodycopy_edit_fns.inc,v 1.6 2004/06/24 07:04:00 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -409,21 +409,27 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 					<input type="hidden" name="bodycopy_saved[<?php echo $prefix?>][<?php echo $container->id?>]" value="">
 					<table border="0" cellspacing="0" cellpadding="0">
 						<tr>
-							<? if ($asset->status & SQ_SC_STATUS_SAFE_EDITING) { ?>
-							<td colspan="2"><span class="sq-backend-warning"><b>NOTE:</b> You cannot insert a new Div or Table while in Safe Edit mode</span></td>
-							<? } else { ?>
-							<td>
 							<?php
-							print_bodycopy_icon("Javascript: document.main_form.{$prefix}_insert_container_type.value = document.main_form.{$prefix}_insert_container_type_before_{$i}.value; bodycopy_insert_container('$prefix', $i, true)", 'Insert Container', 'Select the type of container you want to create before clicking here', 'create_container');
-							?>
-							</td>
-							<td class="sq-backend-data" valign="top">
-								<?php
-								echo '&nbsp;&nbsp;Create New ';
-								echo combo_box($prefix.'_insert_container_type_before_'.$i, $container_type_options, false, '');
+							if ($asset->status & SQ_SC_STATUS_SAFE_EDITING) { 
 								?>
-							</td>
-							<? } ?>
+								<td colspan="2"><span class="sq-backend-warning"><b>NOTE:</b> You cannot insert a new Div or Table while in Safe Edit mode</span></td>
+								<?php 
+							} else {
+								?>
+								<td>
+									<?php
+									print_bodycopy_icon("Javascript: document.main_form.{$prefix}_insert_container_type.value = document.main_form.{$prefix}_insert_container_type_before_{$i}.value; bodycopy_insert_container('$prefix', $i, true)", 'Insert Container', 'Select the type of container you want to create before clicking here', 'create_container');
+									?>
+								</td>
+								<td class="sq-backend-data" valign="top">
+									<?php
+									echo '&nbsp;&nbsp;Create New ';
+									echo combo_box($prefix.'_insert_container_type_before_'.$i, $container_type_options, false, '');
+									?>
+								</td>
+							<?php 
+							} 
+							?>
 						</tr>
 					</table>
 				</td>
@@ -446,21 +452,27 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 				<td>
 					<table border="0" cellspacing="0" cellpadding="0">
 						<tr>
-							<? if ($asset->status & SQ_SC_STATUS_SAFE_EDITING) { ?>
-							<td colspan="2"><span class="sq-backend-warning"><b>NOTE:</b> You cannot insert a new Div or Table while in Safe Edit mode</span></td>
-							<? } else { ?>
-							<td>
 							<?php
-							print_bodycopy_icon("Javascript: document.main_form.{$prefix}_insert_container_type.value = document.main_form.{$prefix}_insert_container_type_after_{$i}.value; bodycopy_insert_container('$prefix', $i, false)", 'Insert Container', 'Select the type of container you want to create before clicking here', 'create_container');
-							?>
-							</td>
-							<td class="sq-backend-data" valign="top">
-								<?php
-								echo '&nbsp;&nbsp;Create New ';
-								echo combo_box($prefix.'_insert_container_type_after_'.$i, $container_type_options, false, '');
+							if ($asset->status & SQ_SC_STATUS_SAFE_EDITING) { 
 								?>
-							</td>
-							<? } ?>
+								<td colspan="2"><span class="sq-backend-warning"><b>NOTE:</b> You cannot insert a new Div or Table while in Safe Edit mode</span></td>
+								<?php 
+							} else {
+								?>
+								<td>
+									<?php
+									print_bodycopy_icon("Javascript: document.main_form.{$prefix}_insert_container_type.value = document.main_form.{$prefix}_insert_container_type_after_{$i}.value; bodycopy_insert_container('$prefix', $i, false)", 'Insert Container', 'Select the type of container you want to create before clicking here', 'create_container');
+									?>
+								</td>
+								<td class="sq-backend-data" valign="top">
+									<?php
+									echo '&nbsp;&nbsp;Create New ';
+									echo combo_box($prefix.'_insert_container_type_after_'.$i, $container_type_options, false, '');
+									?>
+								</td>
+							<?php 
+							} 
+							?>
 						</tr>
 					</table>
 				</td>
