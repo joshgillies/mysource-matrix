@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_table_edit_fns.inc,v 1.7 2004/07/19 01:02:14 mnyeholt Exp $
+* $Id: bodycopy_table_edit_fns.inc,v 1.8 2004/08/02 03:51:32 mnyeholt Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -359,8 +359,15 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 				?>
 				</td>
 		<?php
+			
 			for($i = 0; $i < $max_cols; $i++) {
+				// because a column might be spanned, have to make sure there's something
+				// to print out before printing.
+				if (!isset($table_rows[0]['cells'][$i])) {
+					continue;
+				}
 			?>
+				
 				<td align="center" background="" valign="middle" style="border-top: 1px dashed #C0C0C0; border-right: 1px dashed #C0C0C0; border-bottom: 1px dashed #C0C0C0;" id="<?php echo $prefix.'_cell_'.$asset->id.'_0_'.$i; ?>">
 					<table border="0" cellspacing="0" cellpadding="0" width="100%">
 						<tr>
@@ -371,7 +378,9 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 							</td>
 							<td nowrap>
 							<?php
+							
 							$table_rows[0]['cells'][$i]->paintCell($asset, $prefix, $asset->id, 0, $i);
+							
 							?>
 							</td>
 							<td width="100%" align="right" nowrap>
