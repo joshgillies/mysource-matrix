@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.121 2004/04/01 22:52:55 mmcintyre Exp $
+* $Id: asset_map.inc,v 1.122 2004/04/02 04:41:16 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -381,6 +381,7 @@ class Asset_Map
 			
 			foreach ($links as $link_data) {
 				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid'], $link_data['minor_type_code']);
+				$asset_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_1 | SQ_LINK_TYPE_2);
 				$result[] = Array(
 									'assetid' => $link_data['minorid'],
 									'short_name' => $asset->short_name,
@@ -388,7 +389,7 @@ class Asset_Map
 									'type_code' => $link_data['minor_type_code'],
 									'status' => $asset->status,
 									'linkid' => $link_data['linkid'],
-									'num_immediate_kids' => 1,
+									'num_immediate_kids' => count($asset_links),
 									'sort_order' => $link_data['sort_order'],
 								);
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
