@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.54 2004/09/03 06:58:09 arailean Exp $
+* $Id: general.inc,v 1.55 2004/09/14 15:19:30 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -550,17 +550,11 @@ function array_get_index($array, $index, $default=null)
 * @access public
 * @return string
 */
-function make_tooltip($tag, $text, $title=false)
+function make_tooltip($tag, $text, $title='')
 {
-	$new_text 		= rawurlencode($text);
-	$title 			= ($title)?rawurlencode($title):'';
-
-	$onMouseOver 	= "tooltip.show(this,'$text','$title')";
-	$onMouseOut		= 'tooltip.hide()';
-
-	$result = '<span onmouseover="'.$onMouseOver.'" onmouseout="'.$onMouseOut.'">'.$tag.'</span>';
-
-	return $result;
+	$text  = str_replace(array("\n", "\r"), '', nl2br(addslashes(htmlspecialchars($text))));
+	$title = str_replace(array("\n", "\r"), '', nl2br(addslashes(htmlspecialchars($title))));
+	return '<span onmouseover="javascript: tooltip.show(this, \''.$text.'\', \''.$title.'\');" onmouseout="javascript: tooltip.hide();">'.$tag.'</span>';
 
 }//end make_tooltip()
 
