@@ -18,11 +18,11 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_modification.inc,v 1.3 2004/07/28 23:31:35 tbarrett Exp $
+* $Id: calendar_event_modification.inc,v 1.4 2004/07/28 23:47:03 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
-require_once  dirname(__FILE__).'/../../event/calendar_event.inc';
+require_once  dirname(__FILE__).'/../../calendar_event/calendar_event.inc';
 require_once  dirname(__FILE__).'/../calendar_event_recurring/calendar_event_recurring.inc';
 
 /**
@@ -32,7 +32,7 @@ require_once  dirname(__FILE__).'/../calendar_event_recurring/calendar_event_rec
 * of a recurring event have changed for a particular instance of that event.
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.3 $ - 1.0
+* @version $Revision: 1.4 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */

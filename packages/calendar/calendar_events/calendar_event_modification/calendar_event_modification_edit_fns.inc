@@ -18,12 +18,12 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_modification_edit_fns.inc,v 1.1 2004/07/28 07:05:18 tbarrett Exp $
+* $Id: calendar_event_modification_edit_fns.inc,v 1.2 2004/07/28 23:47:03 tbarrett Exp $
 * $prefix:  $
 */
 
 
-require_once  dirname(__FILE__).'/../../event/calendar_event_edit_fns.inc';
+require_once  dirname(__FILE__).'/../../calendar_event/calendar_event_edit_fns.inc';
 
 /**
 * Page_Edit_Fns
@@ -32,7 +32,7 @@ require_once  dirname(__FILE__).'/../../event/calendar_event_edit_fns.inc';
 *
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.1 $ - 1.0
+* @version $Revision: 1.2 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */

@@ -18,11 +18,11 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.2 2004/07/28 07:04:27 tbarrett Exp $
+* $Id: calendar_event_recurring.inc,v 1.3 2004/07/28 23:47:03 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
-require_once  dirname(__FILE__).'/../../event/calendar_event.inc';
+require_once  dirname(__FILE__).'/../../calendar_event/calendar_event.inc';
 
 /**
 * Calendar_Event_Recurring
@@ -31,7 +31,7 @@ require_once  dirname(__FILE__).'/../../event/calendar_event.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.2 $ - 1.0
+* @version $Revision: 1.3 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
