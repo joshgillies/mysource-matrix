@@ -32,6 +32,12 @@ class Asset extends Resolve_Object
 	var $short_name;
 
 	/**
+	* Current status of the asset (live, under contrustion etc)
+	* @var int
+	*/
+	var $status;
+
+	/**
 	* Timestamp of when this asset was last updated
 	* @var int
 	*/
@@ -145,9 +151,9 @@ class Asset extends Resolve_Object
 		$userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
 
 		$sql = 'INSERT INTO sq_asset
-				(assetid, type_code, name, short_name, last_updated, last_userid)
+				(assetid, type_code, name, short_name, status, last_updated, last_userid)
 				VALUES
-				('.$db->quote($assetid).','.$db->quote($this->type()).', '.$db->quote($name).', '.$db->quote($name).', '.$db->quote(ts_iso8601($now)).', '.$db->quote($userid).')';
+				('.$db->quote($assetid).','.$db->quote($this->type()).', '.$db->quote($name).', '.$db->quote($name).', '.$db->quote(SQ_STATUS_UNDER_CONSTRUCTION).', '.$db->quote(ts_iso8601($now)).', '.$db->quote($userid).')';
 
 		$result = $db->query($sql);
 		if (DB::isError($result)) {
@@ -155,9 +161,10 @@ class Asset extends Resolve_Object
 			return false;
 		}
 
-		$this->id   = $assetid;
-		$this->name = $name;
+		$this->id           = $assetid;
+		$this->name         = $name;
 		$this->short_name   = $name;
+		$this->status       = SQ_STATUS_UNDER_CONSTRUCTION;
 		$this->last_updated = $now;
 		$this->last_userid  = $userid;
 
@@ -192,7 +199,7 @@ class Asset extends Resolve_Object
 
 		// OK, the first thing to do is check we actually exist :)
 
-		$sql = 'SELECT assetid, name, short_name, type_code, last_updated, last_userid
+		$sql = 'SELECT assetid, name, short_name, status, type_code, last_updated, last_userid
 				FROM sq_asset
 				WHERE assetid = '.$db->quote($assetid);
 		$result = $db->getRow($sql, null, DB_FETCHMODE_ORDERED);
@@ -202,7 +209,7 @@ class Asset extends Resolve_Object
 			return;
 		}
 
-		list($this->id, $this->name, $this->short_name, $type_code, $this->last_updated, $this->last_userid) = $result;
+		list($this->id, $this->name, $this->short_name, $this->status, $type_code, $this->last_updated, $this->last_userid) = $result;
 		$this->last_updated = iso8601_ts($this->last_updated);
 		unset($result);
 
@@ -297,15 +304,15 @@ class Asset extends Resolve_Object
 		$this->last_updated = $now;
 		$this->last_userid  = $userid;
 
-		$GLOBALS['SQ_SYSTEM']->broadcastEvent('AssetUpdate', Array( 'assetid' => $this->id,
-																	'old_name' => $old_name,
-																	'new_name' => $this->name,
-																	'old_short_name' => $old_short_name,
-																	'new_short_name' => $this->short_name,
+		$GLOBALS['SQ_SYSTEM']->broadcastEvent('AssetUpdate', Array( 'assetid'          => $this->id,
+																	'old_name'         => $old_name,
+																	'new_name'         => $this->name,
+																	'old_short_name'   => $old_short_name,
+																	'new_short_name'   => $this->short_name,
 																	'old_last_updated' => $this,
 																	'new_last_updated' => $this->last_updated,
-																	'old_last_userid' => $old_last_userid,
-																	'new_last_userid' => $this->last_userid
+																	'old_last_userid'  => $old_last_userid,
+																	'new_last_userid'  => $this->last_userid
 																   ));
 		return true;
 
@@ -325,16 +332,137 @@ class Asset extends Resolve_Object
 		return ucwords(str_replace('_', ' ', $this->type())).' #'.$this->id;
 	}//end _getName();
 
+	
+	/**
+	* Returns a description representing the passed or current status
+	*
+	* @param int	$status	the status to get the description for - leave blank
+	*						to get the description for the current status of this asset
+	*
+	* @return string
+	* @access public
+	*/
+	function getStatusDescription($status=0)
+	{
+		if (!$status) $status = $this->status;
+		$description = '';
+
+		switch ($status) {
+			case SQ_STATUS_LIVE :
+				$description = 'Live';
+				break;
+			case SQ_STATUS_PENDING_APPROVAL   :
+				$description = 'Pending Approval';
+				break;
+			case SQ_STATUS_UNDER_CONSTRUCTION :
+				$description = 'Under Construction';
+				break;
+		}
+
+		return $description;
+	}//end getStatusDescription()
+
 
 	/**
-	* Creates a duplicate of this asset. 
-	* The only child assetst that are duplicated are the ones that are DEPENDANTLY linked to this asset 
-	* NO OTHER linked assets are duplicated 
+	* Processes the changes required when a new status is set
+	*
+	* @param int	$new_status	the new status to set for this asset
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processStatusChange($new_status)
+	{
+		// dont change if we already have this status
+		if ($this->status == $new_status) return false;
+
+		$old_status = $this->status;
+
+		switch ($new_status) {
+			case SQ_STATUS_LIVE :
+				include_once SQ_INCLUDE_PATH.'/workflow_manager.inc';
+				$wfm = new Workflow_Manager($this);
+
+				if ($this->status == SQ_STATUS_PENDING_APPROVAL || $wfm->state == 'running') {
+					// we are doing a workflow and someone has just
+					// approved the asset, so record this
+					if (!$wfm->recordPublish($GLOBALS['SQ_SYSTEM']->currentUserId())) {
+						trigger_error('Approval by user '.$GLOBALS['SQ_SYSTEM']->currentUserId().' not set in processStatusChange', E_USER_WARNING);
+					}
+
+					$this->status = SQ_STATUS_PENDING_APPROVAL;
+
+					if ($wfm->state == 'complete') {
+						// all workflows are done so we
+						// can go ahead and make this live
+						$this->status = SQ_STATUS_LIVE;
+					}
+
+				} else if ($this->status == SQ_STATUS_UNDER_CONSTRUCTION) {
+					// we are going to make this asset live
+					// by starting the workflow process
+					$wfm->start();
+					$this->status = SQ_STATUS_PENDING_APPROVAL;
+				}
+
+				$wfm->save();
+
+				break;
+
+			case SQ_STATUS_PENDING_APPROVAL :
+				break;
+
+			case SQ_STATUS_UNDER_CONSTRUCTION :
+				// if we are currently live, we can set to
+				// under construction without problems
+				if ($this->status == SQ_STATUS_LIVE) {
+					$this->status = SQ_STATUS_UNDER_CONSTRUCTION;
+				}
+				break;
+
+			default :
+				trigger_error("Can not process status change, status '$new_status' not recognised", E_USER_WARNING);
+				return false;
+		}
+
+		if ($old_status != $this->status) {
+			$db = &$GLOBALS['SQ_SYSTEM']->db;
+			$sql = 'UPDATE sq_asset
+					SET status       = '.$db->quote($this->status).'
+					WHERE assetid = '.$db->quote($this->id);
+
+			$result = $db->query($sql);
+			if (DB::isError($result)) {
+				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+				return false;
+			}
+
+			$GLOBALS['SQ_SYSTEM']->broadcastEvent('AssetStatusUpdate', Array( 'assetid'    => $this->id,
+																			  'old_status' => $old_status,
+																			  'new_status' => $this->status,
+																			));
+
+			$this->_updated();
+		}
+
+		return true;
+	}//end processStatusChange()
+
+
+	/**
+	* Creates a duplicate of this asset.
+	* The only child assetst that are duplicated are the ones that are DEPENDANTLY linked to this asset
+	* NO OTHER linked assets are duplicated
 	* Returns a reference to the new object or if an error occured NULL
 	*
-	* @param Array	&$link				information used to create the initial link, Array ('asset' => [ref major asset to create link under], 'link_type' => SQ_LINK_?, 'value' => [link value], 'sort_order' => [link sort order], 'dependant' = [boolean])
-	* @param Array	&$dupe_map			a map for that can be used for re-indexing data held in assets of the form Array([old asset id] => [new asset id]);
-	* @param bool	$dupe_dependants	whether or not to duplicate any assets that are dependantly linked to this asset, only works if $link is not empty
+	* @param Array	&$link				information used to create the initial link, 
+	*									Array ('asset' => [ref major asset to create link under], 
+	*									'link_type' => SQ_LINK_?, 'value' => [link value], 
+	*									'sort_order' => [link sort order], 'dependant' = [boolean])
+	* @param Array	&$dupe_map			a map for that can be used for re-indexing data held in 
+	*									assets of the form Array([old asset id] => [new asset id]);
+	* @param bool	$dupe_dependants	whether or not to duplicate any assets that are dependantly 
+	*									linked to this asset, only works if $link is not empty
 	* @param bool	$dupe_directory		whether or not to duplicate this assets data directory
 	*
 	* @return object Asset | NULL
@@ -367,9 +495,9 @@ class Asset extends Resolve_Object
 		$userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
 
 		$sql = 'INSERT INTO sq_asset
-				(assetid, type_code, name, short_name, last_updated, last_userid)
+				(assetid, type_code, name, short_name, status, last_updated, last_userid)
 				VALUES
-				('.$db->quote($assetid).','.$db->quote($this->type()).', '.$db->quote($this->name.' - Duplicate').', '.$db->quote($this->short_name.' - Duplicate').', '.$db->quote(ts_iso8601($now)).', '.$db->quote($userid).')';
+				('.$db->quote($assetid).','.$db->quote($this->type()).', '.$db->quote($this->name.' - Duplicate').', '.$db->quote($this->short_name.' - Duplicate').', '.$db->quote(SQ_STATUS_UNDER_CONSTRUCTION).', '.$db->quote(ts_iso8601($now)).', '.$db->quote($userid).')';
 
 		$result = $db->query($sql);
 		if (DB::isError($result)) {
@@ -666,8 +794,10 @@ class Asset extends Resolve_Object
 	/**
 	* Get all asset ids that are above this asset in the various trees in which it exists
 	*
-	* @param string|array	$type_code			the type of asset that is linked (eg 'Page', 'File', etc) if an array returns link if matches any of the array values
-	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code or $type_code and any of it's sub-classes
+	* @param string|array	$type_code			the type of asset that is linked (eg 'Page', 'File', etc)
+	*											if an array returns link if matches any of the array values
+	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code 
+	*											or $type_code and any of it's sub-classes
 	*
 	* @return array(int)
 	* @access public
@@ -681,8 +811,10 @@ class Asset extends Resolve_Object
 	/**
 	* Get all asset ids that are below this asset in the various trees in which it exists
 	*
-	* @param string|array	$type_code			the type of asset that is linked (eg 'Page', 'File', etc) if an array returns link if matches any of the array values
-	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code or $type_code and any of it's sub-classes
+	* @param string|array	$type_code			the type of asset that is linked (eg 'Page', 'File', etc) 
+	*											if an array returns link if matches any of the array values
+	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code 
+	*											or $type_code and any of it's sub-classes
 	*
 	* @return array(int)
 	* @access public
@@ -745,8 +877,10 @@ class Asset extends Resolve_Object
 	* Returns information for a link that this asset is the major asset in
 	*
 	* @param int			$link_type		integer that should be a single integer of the SQ_LINK_* constants
-	* @param string|array	$type_code		the type of asset that is linked (eg 'Page', 'File', etc) if an array returns link if matches any of the array values
-	* @param bool			$strict			whether we are finding an asset that are just a $type_code or $type_code and any of it's sub-classes
+	* @param string|array	$type_code		the type of asset that is linked (eg 'Page', 'File', etc) 
+	*										if an array returns link if matches any of the array values
+	* @param bool			$strict			whether we are finding an asset that are just a $type_code 
+	*										or $type_code and any of it's sub-classes
 	* @param string			$value			the value that is associated with this link
 	* @param string			$side_of_link	Which side of the link this (the current) asset is on ('major' or 'minor')
 	*
@@ -811,9 +945,12 @@ class Asset extends Resolve_Object
 	/**
 	* Return all links that this asset has to other assets
 	*
-	* @param int			$link_types			integer that can be the product of bitwise operations on the SQ_LINK_* constants
-	* @param string|array	$type_code			the type of asset that is linked (eg 'Page', 'File', etc) if an array returns link if matches any of the array values
-	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code or $type_code and any of it's sub-classes
+	* @param int			$link_types			integer that can be the product of bitwise operations 
+	*											on the SQ_LINK_* constants
+	* @param string|array	$type_code			the type of asset that is linked (eg 'Page', 'File', etc) 
+	*											if an array returns link if matches any of the array values
+	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code 
+	*											or $type_code and any of it's sub-classes
 	* @param string			$side_of_link		Which side of the link this (the current) asset is on ('major' or 'minor')
 	* @param string			$value				The value for all the links must equal this (if not null)
 	* @param boolean		$dependant			The dependant status for all the links must be this (if not null)
@@ -874,14 +1011,18 @@ class Asset extends Resolve_Object
 
 	}//end getLinks()
 
+
 	/**
 	* Returns the number of links that this asset has as either a major or minor party,
 	* can be restricted by either link type and/or asset type code
 	*
-	* @param string			 $side_of_link		Which side of the link this (the current) asset is on ('major' or 'minor')
-	* @param int			$link_types			integer that can be the product of bitwise operations on the SQ_LINK_* constants
-	* @param string|array	$type_code			the type of asset that is linked (eg 'Page', 'File', etc) if an array returns link if matches any of the array values
-	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code or $type_code and any of it's sub-classes
+	* @param string			$side_of_link		Which side of the link this (the current) asset is on ('major' or 'minor')
+	* @param int			$link_types			integer that can be the product of bitwise operations 
+	*											on the SQ_LINK_* constants
+	* @param string|array	$type_code			the type of asset that is linked (eg 'Page', 'File', etc) 
+	*											if an array returns link if matches any of the array values
+	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code 
+	*											or $type_code and any of it's sub-classes
 	* @param int			$ignore_linkid		ignore the link represented by this link id when returning the count
 	*
 	* @return int
@@ -941,11 +1082,12 @@ class Asset extends Resolve_Object
 
 	}//end countLinks()
 
+
 	/**
 	* Returns TRUE if the passed minor asset can be linked to this asset, or a string with the error msg
 	*
-	* @param object Asset $minor  the minor asset that we are linking to
-	* @param string $link_type    the type of link this is
+	* @param object Asset	$minor		the minor asset that we are linking to
+	* @param string			$link_type	the type of link this is
 	*
 	* @return TRUE|string
 	* @access public
@@ -1028,15 +1170,18 @@ class Asset extends Resolve_Object
 
 	}// end canCreateLink()
 
+
 	/**
 	* Creates a link between this asset and the passed asset, of a certain type
 	* and returns the linkid of the created link
 	*
-	* @param object Asset $minor  the minor asset that we are linking to
-	* @param string $link_type    the type of link this is
-	* @param string $value        the value that is to be associated with this link
-	* @param string $sort_order   the position in the links list that this link should take, if less than zero places at end of list
-	* @param string $dependant    '0' / '1' on whether the this asset is dependant on the asset that will be linked by this new link
+	* @param object Asset	$minor		the minor asset that we are linking to
+	* @param string			$link_type	the type of link this is
+	* @param string			$value		the value that is to be associated with this link
+	* @param string			$sort_order	the position in the links list that this link should take, 
+	*									if less than zero places at end of list
+	* @param string			$dependant	'0' / '1' on whether the this asset is dependant on the 
+	*									asset that will be linked by this new link
 	*
 	* @return int
 	* @access public
@@ -1444,7 +1589,8 @@ class Asset extends Resolve_Object
 	* Moves a link from one place in this assets links order to another position
 	*
 	* @param int	$linkid		the link id of the link to move about
-	* @param int	$sort_order	the position in the links list that this link should take, if less than zero places at end of list
+	* @param int	$sort_order	the position in the links list that this link should take, 
+	*							if less than zero places at end of list
 	*
 	* @return boolean
 	* @access public
@@ -1473,7 +1619,8 @@ class Asset extends Resolve_Object
 	* @param int	$minorid
 	* @param int	$link_type
 	* @param string $value
-	* @param int	$sort_order	the position in the links list that this link should take, if less than zero places at end of list
+	* @param int	$sort_order	the position in the links list that this link should take, 
+	*							if less than zero places at end of list
 	*
 	* @return boolean
 	* @access public
@@ -2420,6 +2567,7 @@ class Asset extends Resolve_Object
 
 	}// end printFrontend()
 
+
 	/**
 	* Called by the design to print the body of this asset
 	* it's up to the kids to override
@@ -2429,6 +2577,7 @@ class Asset extends Resolve_Object
 	function printBody()
 	{
 	}// end printBody()
+
 
 	/**
 	* Prints out the backend interface for the asset
@@ -2444,6 +2593,7 @@ class Asset extends Resolve_Object
 		$ei = &$this->getEI();
 		$ei->paint($this, $backend->out, empty($this->id));
 	}// end paintBackend()
+
 
 	/**
 	* Processes a backend submission from this asset, returns true if all OK
@@ -2472,8 +2622,9 @@ class Asset extends Resolve_Object
 
 	}// end processBackend()
 
+
 	/**
-	* returns a reference to the edit interface for this asset type
+	* Returns a reference to the edit interface for this asset type
 	*
 	* @return object Asset_Edit_Interface
 	* @access public
@@ -2696,7 +2847,7 @@ class Asset extends Resolve_Object
 	*
 	* @return boolean
 	* @access private
-	* @see Asset::updateLookups(),  Asset::saveWebPaths()
+	* @see Asset::updateLookups(), Asset::saveWebPaths()
 	*/
 	function _updateLookups()
 	{

@@ -280,10 +280,8 @@ class Asset_Edit_Interface extends Resolve_Object
 
 		}// end if $file
 
-		if ($owner->writeAccess()) {
-			$o->openSection();
-			$o->commitButton('Commit');
-		}
+		$o->openSection();
+		$o->commitButton('Commit');
 
 	}// end paint();
 
@@ -300,13 +298,6 @@ class Asset_Edit_Interface extends Resolve_Object
 	*/
 	function process(&$owner, $creating)
 	{
-		// if we dont have read access, piss off
-		if ($owner->id && !$owner->writeAccess()) {
-			include SQ_INCLUDE_PATH.'/login.inc';
-			print_login('Login', 'You do not have permission to edit <i>'.$owner->name.'</i>');
-			return;
-		}
-
 		// if there are no screens or tabs, piss off
 		if (!count($this->_screens) && empty($this->_edit_fns->tabs)) return;
 
@@ -331,10 +322,20 @@ class Asset_Edit_Interface extends Resolve_Object
 				$this->$process_function($owner);
 			}
 
+			// if we dont have write access, dont process the rest of the screen
+			if ($owner->id && !$owner->writeAccess()) return Array();
+
 			// try and find the file to print user defined
 			$file = @$this->_findFile('tab_'.$active_screen);
 
 		} else {
+
+			// if we dont have write access, piss off
+			if ($owner->id && !$owner->writeAccess()) {
+				include SQ_INCLUDE_PATH.'/login.inc';
+				print_login('Login', 'You do not have permission to edit <i>'.$owner->name.'</i>');
+				return Array();
+			}
 
 			// must be a normal screen
 			if (empty($_GET['asset_ei_screen']) || empty($this->_screens[$_GET['asset_ei_screen']])) {
@@ -440,43 +441,71 @@ class Asset_Edit_Interface extends Resolve_Object
 	/**
 	* Paints the interface for editing details
 	*
-	* @param object	Asset				$owner		the asset whose interface we are painting
-	* @param object	Backend_Outputter	$o			the outputter class
+	* @param object	Asset				$owner	the asset whose interface we are painting
+	* @param object	Backend_Outputter	$o		the outputter class
 	*
 	* @access public
 	*/
 	function paintDetails(&$owner, &$o)
 	{
+		$prefix = $owner->type().'_'.$owner->id;
+
 		$o->openSection('Status');
-		$o->openField('Current');
 		
 		include_once SQ_INCLUDE_PATH.'/workflow_manager.inc';
-		$wfm = new Workflow_Manager($owner, true, false, true);
+		$wfm = new Workflow_Manager($owner);
+
+		$statii = Array();
 
 		switch ($wfm->state) {
 			case 'idle' :
 				// no workflows are currently being
 				// run on this asset, so we can publish
-				bam("can start workflow here");
+				if ($owner->status != SQ_STATUS_LIVE) {
+					$statii[SQ_STATUS_LIVE] = 'Make Live';
+				} else {
+					$statii[SQ_STATUS_UNDER_CONSTRUCTION] = 'Place Under Construction';
+				}
 				break;
 			case 'running' :
 				// workflows are currently running,
 				// so we are looking for publishers
+
+				// if this asset is currently pending approval, there
+				// must be a workflow in progress, so check to see if the
+				// user logged in can publish
 				$publishers = $wfm->whoCanPublish();
-				bam($publishers);
+				
+				$userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
+				if (in_array($userid, $publishers)) {
+					// the current user can approve this asset
+					// to keep the workflow going
+					$statii[SQ_STATUS_LIVE] = 'Approve';
+				}
 				break;
+		}
+
+		$o->openField('Current');
+		echo '<i>'.$owner->getStatusDescription().'</i>';
+
+		if (!empty($statii)) {
+			$statii = array_reverse($statii, true);
+			$statii[0] = '';
+			$statii = array_reverse($statii, true);
+			$o->openField('Change?');
+			combo_box($prefix.'_change_status', $statii, false, $owner->status);
 		}
 		
 		
 		//$wfm->start();
 		//bam($wfm->whoCanPublish());
 
-		//bam($wfm->_current_workflows);
+		//bam($wfm->current_workflows);
 		//$wfm->recordPublish('49');
 		//$wfm->recordPublish('4');
 		//$wfm->recordPublish('16');
 		//$wfm->recordPublish('4');
-		//bam($wfm->_current_workflows);
+		//bam($wfm->current_workflows);
 
 		//bam($wfm->whoCanPublish());
 		//$wfm->save();
@@ -493,6 +522,11 @@ class Asset_Edit_Interface extends Resolve_Object
 	*/
 	function processDetails(&$owner)
 	{
+		$prefix = $owner->type().'_'.$owner->id;
+
+		if (isset($_POST[$prefix.'_change_status']) && $_POST[$prefix.'_change_status'] > 0) {
+			$owner->processStatusChange($_POST[$prefix.'_change_status']);
+		}
 	}
 
 
@@ -693,6 +727,13 @@ class Asset_Edit_Interface extends Resolve_Object
 	*/
 	function processPermissions(&$owner)
 	{
+		// if we dont have write access, piss off
+		if ($owner->id && !$owner->writeAccess()) {
+			include SQ_INCLUDE_PATH.'/login.inc';
+			print_login('Login', 'You do not have permission to edit <i>'.$owner->name.'</i>');
+			return false;
+		}
+
 		// need to have write access to do any of this
 		if ($owner->writeAccess()) {
 			$prefix = $owner->type().'_'.$owner->id;
@@ -756,12 +797,124 @@ class Asset_Edit_Interface extends Resolve_Object
 		$prefix = $owner->type().'_'.$owner->id.'_permissions';
 
 		include_once SQ_INCLUDE_PATH.'/workflow_manager.inc';
-		$wfm = new Workflow_Manager($owner, true, false, false);
+		$wfm = new Workflow_Manager($owner, true, false, true);
+
+		$write_access = false;
+		if ($wfm->state == 'running') {
+			// cant edit workflow when workflow
+			// is currently running
+			$write_access = false;
+
+			$o->openSection('Current Workflow Progress');
+			$o->openField('Note');
+			echo 'Workflow for this asset is currently in progress. You can not edit the workflow for this asset at this time. The currently running workflows are displayed below followed by the workflow for this asset.';
+
+			foreach ($wfm->current_workflows['complete'] + $wfm->current_workflows['running'] as $workflowid => $workflow) {
+				list($assetid, $inheritid) = explode('~', $workflowid);
+				$workflow_title = 'Workflow set at ';
+				if ($assetid == $inheritid) {
+					$workflow_title .= 'this asset';
+				} else {
+					$inherit = &$GLOBALS['SQ_SYSTEM']->am->getAsset($inheritid);
+					if (!$inherit->id) $workflow_title .= "unknown asset $inheritid";
+					else $workflow_title .= $inherit->name;
+				}
+				$o->openSection($workflow_title);
+
+				foreach ($workflow['steps'] as $stepid => $step_data) {
+					$section_title = "Step $stepid";
+					if (!$workflow['current_step'] || $workflow['current_step'] > $stepid) {
+						$section_title .= ' - COMPLETED';
+					}
+
+					$o->openSection($section_title);
+
+					$o->openField('Step Logic');
+					if (isset($wfm->_valid_cond_logic[$step_data['logic']])) {
+						// a special type of logic statement
+						$step_logic = $step_data['logic'];
+						$step_logic_num = '';
+					} else {
+						list($step_logic, $step_logic_num) = explode(' ', $step_data['logic']);
+					}
+
+					echo '<i>'.$wfm->_valid_step_logic[$step_logic];
+					if ($step_logic_num) echo " $step_logic_num condition".(($step_logic_num > 1) ? 's' : '')." must be met</i>";
+
+					$o->openField('Conditions');
+
+					$has_conds = false;
+					ob_start();
+					?>
+					<table border="0" cellspacing="1" cellpadding="2" bgcolor="#000000" width="100%">
+						<tr>
+							<td bgcolor="#DDDDDD" class="sq-form-field">&nbsp;</td>
+							<td bgcolor="#DDDDDD" class="sq-form-field" width="270"><b>Group Logic</b></td>
+							<td bgcolor="#DDDDDD" align="center" width="100" class="sq-form-field"><b>Approved?</b></td>
+						</tr>
+					<?php
+					foreach ($step_data['conditions'] as $pub => $cond_data) {
+						$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($pub);
+						if (!$asset->id) continue;
+						?>
+						<tr>
+							<td bgcolor="#F0F0F0" class="sq-form-field"><?php echo '&nbsp;'.$asset->name.' ['.$asset->type()." : $pub]";?></td>
+							<td bgcolor="#F0F0F0" class="sq-form-field">
+						<?php
+						if (isset($wfm->_valid_cond_logic[$cond_data['require']])) {
+							// a special type of require statement
+							$cond_logic = $cond_data['require'];
+							$cond_logic_num = '';
+						} else {
+							list($cond_logic, $cond_logic_num) = explode(' ', $cond_data['require']);
+						}
+
+						if (is_a($asset, 'user')) {
+							echo '&nbsp;';
+						} else {
+							echo '<i>'.$wfm->_valid_cond_logic[$cond_logic];
+							if ($cond_logic_num) echo " $cond_logic_num group member".(($cond_logic_num > 1) ? 's' : '')." must approve</i>";
+						}
+
+						?></td>
+
+							<td bgcolor="#F0F0F0" align="center" class="sq-form-field">
+							<?php
+								if (is_a($asset, 'user')) {
+									echo ((in_array($asset->id, $cond_data['published_by'])) ? 'Yes' : '&nbsp;');
+								} else {
+									if ($cond_logic_num) $user_count = $cond_logic_num;
+									else $user_count = count($asset->getChildren(Array('user'), false));
+									echo count($cond_data['published_by']).' of '.$user_count;
+								}
+							?>
+							</td>
+						
+						</tr>
+						
+						<?php
+						$has_conds = true;
+					}
+
+					if (!$has_conds) {
+						ob_end_clean();
+						echo 'None';
+					} else {
+						ob_end_flush();
+						?></table><?php
+					}
+				}
+			}
+			
+			$o->openSection('Workflow set for this asset');
+		} else {
+			$write_access = $owner->writeAccess();
+		}
 
 		foreach ($wfm->_steps as $stepid => $step_data) {
 			$o->openSection("Step $stepid");
 			
-			if ($owner->writeAccess()) {
+			if ($write_access) {
 				$o->openField('Delete?');
 				check_box($prefix.'_steps['.$stepid.'][delete]');
 				echo '&nbsp; Delete this step and all its conditions?';
@@ -776,7 +929,7 @@ class Asset_Edit_Interface extends Resolve_Object
 				list($step_logic, $step_logic_num) = explode(' ', $step_data['logic']);
 			}
 
-			if (!$owner->writeAccess()) {
+			if (!$write_access) {
 				echo '<i>'.$wfm->_valid_step_logic[$step_logic];
 				if ($step_logic_num) echo " $step_logic_num condition".(($step_logic_num > 1) ? 's' : '')." must be met</i>";
 			} else {
@@ -796,7 +949,7 @@ class Asset_Edit_Interface extends Resolve_Object
 					<td bgcolor="#DDDDDD" class="sq-form-field">&nbsp;</td>
 					<td bgcolor="#DDDDDD" class="sq-form-field" width="270"><b>Group Logic</b></td>
 					<?php
-					if ($owner->writeAccess()) {
+					if ($write_access) {
 						?><td bgcolor="#DDDDDD" align="center" width="70" class="sq-form-field"><b>Delete ?</b></td><?php
 					}
 					?>
@@ -817,7 +970,7 @@ class Asset_Edit_Interface extends Resolve_Object
 				} else {
 					list($cond_logic, $cond_logic_num) = explode(' ', $cond_data['require']);
 				}
-				if (!$owner->writeAccess()) {
+				if (!$write_access) {
 					if (is_a($asset, 'user')) {
 						echo '&nbsp;';
 					} else {
@@ -837,7 +990,7 @@ class Asset_Edit_Interface extends Resolve_Object
 				}
 				?></td><?php
 
-				if ($owner->writeAccess()) {
+				if ($write_access) {
 					?><td bgcolor="#F0F0F0" align="center" class="sq-form-field"><?php
 					check_box($prefix.'_steps['.$stepid.'][conditions]['.$pub.'][delete]')
 					?></td><?php
@@ -854,13 +1007,13 @@ class Asset_Edit_Interface extends Resolve_Object
 				?></table><?php
 			}
 
-			if ($owner->writeAccess()) {
+			if ($write_access) {
 				$o->openField('New Condition?');
 				asset_finder($prefix.'_steps['.$stepid.'][new_condition]', 0, Array('user' => 'D', 'user_group' => 'D'));
 			}
 		}
 
-		if ($owner->writeAccess()) {
+		if ($write_access) {
 			$o->openSection("Create New Step");
 			$o->openField('');
 			check_box($prefix.'_create_step');
@@ -879,6 +1032,13 @@ class Asset_Edit_Interface extends Resolve_Object
 	*/
 	function processWorkflow(&$owner)
 	{
+		// if we dont have write access, piss off
+		if ($owner->id && !$owner->writeAccess()) {
+			include SQ_INCLUDE_PATH.'/login.inc';
+			print_login('Login', 'You do not have permission to edit <i>'.$owner->name.'</i>');
+			return false;
+		}
+
 		$prefix = $owner->type().'_'.$owner->id.'_permissions';
 
 		include_once SQ_INCLUDE_PATH.'/workflow_manager.inc';
@@ -937,7 +1097,6 @@ class Asset_Edit_Interface extends Resolve_Object
 	*/
 	function _findFile($file_name)
 	{
-
 		$file_name = 'edit_interface_'.$file_name.'.xml';
 
 		$file = '';
@@ -966,7 +1125,6 @@ class Asset_Edit_Interface extends Resolve_Object
 	*/
 	function _getCreateSections()
 	{
-
 		$create_sections = Array();
 
 		if (!($create_file = $this->_findFile('create'))) return $create_sections;
@@ -1001,7 +1159,6 @@ class Asset_Edit_Interface extends Resolve_Object
 		}// end for
 
 		return Array($create_sections, $root->attributes['screen']);
-
 	}// end _getCreateSections()
 
 }//end class
