@@ -1,0 +1,57 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Open Source Licence                                      |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: edit_interface_create.xml,v 1.1.1.1 2004/07/21 04:31:53 lwright Exp $
+* $Name: not supported by cvs2svn $
+*/
+-->
+
+<contents screen="details">
+	<section name="Details">
+		<field attribute="name" />
+		<field attribute="description" />
+		<field attribute="start_date">
+			<display_name>Start Date</display_name>
+			<note>The starting point for this event. Date component is mandatory, time component is optional</note>
+			<datetime min="1970-01-01 00:00:00" max="2030-12-31 23:59:59" allow_circa="0" allow_null="0">
+				<show>
+					<y style="s" allow_null="0" />
+					<m style="s" allow_null="0" />
+					<d style="s" allow_null="0" />
+					<h style="s" allow_null="1" />
+					<i style="s" allow_null="1" />
+				</show>
+			</datetime>
+		</field>
+		<field attribute="end_date">
+			<display_name>End Date</display_name>
+			<note>The end point for this event. May be ommitted, but must provide the same information as the start date if included</note>
+			<datetime min="1970-01-01 00:00:00" max="2030-12-31 23:59:59" allow_circa="0" allow_null="1">
+				<show>
+					<y style="s" allow_null="1" />
+					<m style="s" allow_null="1" />
+					<d style="s" allow_null="1" />
+					<h style="s" allow_null="1" />
+					<i style="s" allow_null="1" />
+				</show>
+			</datetime>
+		</field>
+	</section>
+</contents>

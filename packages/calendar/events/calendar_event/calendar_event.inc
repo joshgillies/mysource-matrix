@@ -1,0 +1,282 @@
+<?php
+/**
+* +--------------------------------------------------------------------+
+* | Squiz.net Open Source Licence                                      |
+* +--------------------------------------------------------------------+
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +--------------------------------------------------------------------+
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +--------------------------------------------------------------------+
+*
+* $Id: calendar_event.inc,v 1.1.1.1 2004/07/21 04:31:53 lwright Exp $
+* $Name: not supported by cvs2svn $
+*/
+
+
+require_once SQ_INCLUDE_PATH.'/asset.inc';
+require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
+
+/**
+* Calendar_Event
+*
+* Purpose
+*     
+*
+*
+* @author  Luke Wright <lwright@squiz.net>
+* @version $Revision: 1.1.1.1 $ - 1.0
+* @package MySource_Matrix_Packages
+* @subpackage calendar
+*/
+class Calendar_Event extends Asset
+{
+
+
+	/**
+	* Constructor
+	*
+	* @param int	$assetid	the asset id to be loaded
+	*
+	*/
+	function Calendar_Event($assetid=0)
+	{
+		$this->Asset($assetid);
+
+	}//end Calendar_Event()
+
+ 
+	/**
+	* Returns name of the asset
+	*
+	* @param bool	$short_name	whether or not we are after the shortname or the full name
+	*
+	* @see Asset::_getName()
+	* @return string
+	* @access protected
+	*/
+	function _getName($short_name=false)
+	{
+		return $this->attr('name');
+	
+	}//end _getName()
+
+
+	/**
+	* Returns an array of all the permitted links type, the type asset and the cardinality
+	*
+	* ?????
+	* The base calendar event asset accepts NO links underneath it. Calendar event subclasses may
+	* wish to create links to other assets which are meaningful to be associated to that type of
+	* event (eg. required resources); they should override this if they wish to do that.
+	*
+	* @return array
+	* @access protected
+	*/
+	//function _getAllowedLinks()
+	//{
+	//	return Array();
+	//
+	//}//end _getAllowedLinks()
+
+
+	/**
+	* Save attributes set with setAttrValue to the database
+	*
+	* @param boolean	$dont_run_updated	if true this->_updated() won't be run
+	*										(THIS IS ONLY EVER CALLED FROM Asset::create())
+	*
+	* @return boolean
+	* @access public
+	* @see setAttrValue()
+	*/
+	function saveAttributes($dont_run_updated=false)
+	{
+		$start_date = $this->attr('start_date');
+		$end_date   = $this->attr('end_date');
+
+		// work out if we have any 'null date' or 'null time' sections
+		$start_has_time = (strpos($start_date, '--:--:--', 11) === false);
+		$end_has_time   = (strpos($end_date, '--:--:--', 11) === false);
+		$start_has_date = (strpos($start_date, '----------') === false);
+		$end_has_date   = (strpos($end_date, '----------') === false);
+
+		// All events must have a starting date at least!
+		if (!$start_has_date) {
+			trigger_error('Calendar events must at a minimum include the date component of a Start Date', E_USER_WARNING);
+			return false;
+		}
+
+		// cannot have End Date being like '---------- 11:00:00'
+		if (!$end_has_date && $end_has_time) {
+			trigger_error('If the \'End Date\' includes a time component it must also include a date', E_USER_WARNING);
+			return false;
+		}
+
+		// cannot have Start Date having a time component and not the other, or v.v.
+		if ($start_has_time ^ $end_has_time) {
+			trigger_error('Only one of \'Start Date\' or \'End Date\' includes a time component. This is not allowed; either both start and end date must have a time or neither can', E_USER_WARNING);
+			return false;
+		}
+
+		// If an End Date is specified (and we need date component so we can use that to check),
+		// the End Date must be no earlier than the start Date
+		if ($end_has_date) {
+			if (iso8601_ts($end_date) < iso8601_ts($start_date)) {
+				trigger_error('The \'End Date\' of this '.ucwords(str_replace('_',' ',$this->type())).' cannot be prior to the \'Start Date\'', E_USER_WARNING);
+				return false;
+			}
+		}
+
+		// oh no, we're not using this to display anything... just to use its units extraction :-)
+		$datetime = new Datetime_Field('', $value='', $params=Array());
+
+		// check individual sections to make sure we can't commit part dates like '16th, 2005 48'
+		$start_components = $datetime->strToUnitsArray($start_date);
+		$end_components = $datetime->strToUnitsArray($end_date);
+
+		// don't need to check Start Date's date component as it is required!
+		// must check other parts of both Start and End Date so a meaningful date is stored
+
+		// For dates, this means all three parts of the date have a value
+		if ($end_has_date && (($end_components['d'] == -1) || ($end_components['m'] == -1) || ($end_components['y'] == -1))) {
+			trigger_error('If the date component of \'End Date\' is specified it must specify all of day, month and year', E_USER_WARNING);
+			return false;
+		}
+
+		// For times, at least hour and minute must be specified. You can get away with not specifying
+		// seconds, it's optional.
+		if ($start_has_time && (($start_components['h'] == -1) || ($start_components['i'] == -1))) {
+			trigger_error('If the time component of \'Start Date\' is specified it must specify at least hour and minute', E_USER_WARNING);
+			return false;
+		}
+
+		if ($end_has_time && (($end_components['h'] == -1) || ($end_components['i'] == -1))) {
+			trigger_error('If the time component of \'End Date\' is specified it must specify at least hour and minute', E_USER_WARNING);
+			return false;
+		}
+			
+		// all sweet, so it seems
+		return parent::saveAttributes($dont_run_updated);
+
+	}//end saveAttributes();
+	
+
+	/**
+	* Returns the duration between the start and end dates, if they are set
+	*
+	* If end date/time is null => return 0 if start time specified (single point in time)
+	*                          => return '1 day' (86400 seconds) if start time not specified
+	*                             (single-day event)
+	* If start date and end date only specified	=> return calendar days between two dates
+	*                                              (ie. calendar days * 86400)
+	* If both fields specified in full => return the difference between the two times in seconds
+	*
+	*
+	* @return int	the number of seconds between the two datetimes, or NULL if no time is set up
+	*				yet (ie. start date has not been filled)
+	* @access public
+	*/
+	function getDuration()
+	{
+		$seconds_per_day = 24*60*60;
+
+		$start_date = $this->attr('start_date');
+		$end_date   = $this->attr('end_date');
+
+		// work out if we have any 'null date' or 'null time' sections
+		$start_has_time = (strpos($start_date, '--:--:--', 11) === false);
+		$end_has_time   = (strpos($end_date, '--:--:--', 11) === false);
+		$start_has_date = (strpos($start_date, '----------') === false);
+		$end_has_date   = (strpos($end_date, '----------') === false);
+
+		if (!$start_has_date) {	// start has no date, then why are we here
+			return null;
+		}
+
+		if (!$end_has_date) {	// no end date
+			if ($start_has_time) {		// start has a time => single point in time
+				return 0;
+			} else {
+				return $seconds_per_day;	// start has no time => single day event, return '1 day'
+			}
+		}
+
+		// NOTE: no need to replace null time fields with 'midnight' (00:00:00) because the
+		// ISO-to-timestamp conversion function already recognises that it's not a full datetime
+		// if that's the case
+
+		if (!$start_has_time && !$end_has_time)	{		// multiple day event
+			// in a multiple day event without times it's assumed to be the start of the start date
+			// (ie. 00:00) to the end of the end date (ie. 00:00 the next day).
+			return iso8601_ts($end_date) - iso8601_ts($start_date) + $seconds_per_day;
+
+		} else {		// all fields specified, from one time point to another
+			return iso8601_ts($end_date) - iso8601_ts($start_date);
+
+		}
+
+	}//end getDuration()
+
+
+	/**
+	* Called by the design to print the body of this asset
+	*
+	* @access public
+	*/
+	function printBody()
+	{
+		include_once SQ_FUDGE_PATH.'/general/datetime.inc';
+		?>
+		<table border="0" cellspacing="2" cellpadding="2">
+			<tr>
+				<td><b>Event Name</b></td>
+				<td><?php echo $this->attr('name'); ?></td>
+			</tr>
+			<tr>
+				<td><b>Start Date</b></td>
+				<td><?php 
+						if (strpos($this->attr('start_date'), '--:--:--') === FALSE) { // has time
+							echo readable_datetime(iso8601_ts($this->attr('start_date')));
+						} else { 
+							echo date('d M Y', iso8601_ts($this->attr('start_date')));
+						}
+				?></td>
+			</tr>
+			<tr>
+				<td><b>End Date</b></td>
+				<td><?php 
+						if (strpos($this->attr('end_date'), '--:--:--') === FALSE) { // has time
+							echo readable_datetime(iso8601_ts($this->attr('end_date')));
+						} else { 
+							echo date('d M Y', iso8601_ts($this->attr('end_date')));
+						}
+				?></td>
+			</tr>
+			<tr>
+				<td><b>Duration</b></td>
+				<td><?php echo easy_time_total($this->getDuration()); ?></td>
+			</tr>
+			<tr>
+				<td><b>Description</b></td>
+				<td><?php echo $this->attr('description'); ?></td>
+			</tr>
+		</table>
+		<?php
+
+	}//end printBody()
+
+
+
+}//end class
+
+?>
