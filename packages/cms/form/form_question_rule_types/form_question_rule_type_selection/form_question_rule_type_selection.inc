@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_selection.inc,v 1.1.2.1 2004/10/12 03:29:54 lwright Exp $
+* $Id: form_question_rule_type_selection.inc,v 1.1.2.1.2.1 2005/01/07 04:05:38 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 * @static
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.1.2.1 $
+* @version $Revision: 1.1.2.1.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -124,6 +124,12 @@ class Form_Question_Rule_Type_Selection extends Form_Question_Rule
 		if (!isset($q_asset->active_submission)) return false;
 		$answer = $q_asset->getValue();
 
+		if (!is_array($answer)) {	// not an array, could be selection type
+			$answer = Array($answer);
+		} else if (count($answer) == 0) {	// no selections made at all
+			$answer = Array();
+		}
+		
 		$operators = eval('return '.__CLASS__.'::_getOperators();');	// get private operator texts
 
 		$valid = (array_search($comparison, $answer) !== false);
@@ -160,6 +166,11 @@ class Form_Question_Rule_Type_Selection extends Form_Question_Rule
 	function valueTest($answer, $operator, &$comparison)
 	{
 		$operators = eval('return '.__CLASS__.'::_getOperators();');	// get private operator texts
+		if (!is_array($answer)) {	// not an array, could be selection type
+			$answer = Array($answer);
+		} else if (count($answer) == 0) {	// no selections made at all
+			$answer = Array();
+		}
 
 		$valid = (array_search($comparison, $answer) !== false);
 
