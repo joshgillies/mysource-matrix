@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: page_sub_asset_listing.inc,v 1.1 2003/10/10 04:23:12 mmcintyre Exp $
+* $Id: page_sub_asset_listing.inc,v 1.2 2003/10/10 04:28:14 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -15,7 +15,7 @@ require_once dirname(__FILE__).'/../../page/page.inc';
 * Purpose
 *
 *
-* @author  Greg Sherwoood <greg@squiz.net>
+* @author  Marc McIntyre <mmcintyre@squiz.net>
 * @version $Version$ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
@@ -164,7 +164,6 @@ class Page_Sub_Asset_Listing extends Page
 	*/
 	function printBody()
 	{
-		inject_beef();
 		$wanted_types = $this->attr('types');
 		$children = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_BACKEND_NAV, $wanted_types, false);
 		$customised = $this->attr('customised');
@@ -239,8 +238,6 @@ class Page_Sub_Asset_Listing extends Page
 			}
 			echo html_entity_decode($contents);
 		}
-		inject_beef();
-		
 
 	}// end printBody()
 
