@@ -21,11 +21,12 @@ class Asset_Map
 	* Constructor
 	*
 	*/
-	function Asset_Map() 
+	function Asset_Map()
 	{
 	}
 
-	/*
+
+	/**
 	* Print out the code for the asset map
 	*
 	* @param object Backend
@@ -46,7 +47,6 @@ class Asset_Map
 		
 		$flash_vars = 'server_exec_path='.rawurlencode($backend->getBackendUrl('asset_map_request')).
 					  '&action_bar_path='.rawurlencode($backend->getBackendUrl().'&backend_section=am&am_section=edit_asset&assetid=%assetid%&asset_ei_screen=%action%').
-					  '&duplicate_path='.rawurlencode($backend->getBackendUrl().'&backend_section=am&am_section=duplicate&assetid=%assetid%&to_parent_assetid=%to_parent_assetid%&to_parent_pos=%to_parent_pos%').
 					  '&inbox_path='.rawurlencode($inbox_url).
 					  '&url_frame=main';
 
@@ -55,14 +55,14 @@ class Asset_Map
 		<!--
 			var flash_InternetExplorer = navigator.appName.indexOf("Microsoft") != -1;
 			// Handle all the the FSCommand messages in a Flash movie
-			function asset_map_DoFSCommand(command, args) 
+			function asset_map_DoFSCommand(command, args)
 			{
 				//var asset_mapObj = flash_InternetExplorer ? asset_map : document.asset_map;
 				if (command == "flashToJsCall") {
 					flashToJsCall(args);
 				}
 			}
-			// Hook for Internet Explorer 
+			// Hook for Internet Explorer
 			if (navigator.appName && navigator.appName.indexOf("Microsoft") != -1 && 
 				navigator.userAgent.indexOf("Windows") != -1 && navigator.userAgent.indexOf("Windows 3.1") == -1) {
 				document.write('<SCRIPT LANGUAGE="VBScript"\> \n');
@@ -74,7 +74,7 @@ class Asset_Map
 			}
 
 			// Reload the passed assetid in the flash
-			function reload_asset(assetid) 
+			function reload_asset(assetid)
 			{
 				//var asset_mapObj = flash_InternetExplorer ? asset_map : document.asset_map;
 				var asset_mapObj = document.asset_map;
@@ -83,7 +83,7 @@ class Asset_Map
 			}
 
 			// Reload the assetids represented in the flash
-			function reload_assets(assetids_xml) 
+			function reload_assets(assetids_xml)
 			{
 				//var asset_mapObj = flash_InternetExplorer ? asset_map : document.asset_map;
 				var asset_mapObj = document.asset_map;
@@ -91,7 +91,7 @@ class Asset_Map
 			}
 
 			// Reload the passed assetid in the flash
-			function refresh_internal_messages() 
+			function refresh_internal_messages()
 			{
 				//var asset_mapObj = flash_InternetExplorer ? asset_map : document.asset_map;
 				var asset_mapObj = document.asset_map;
@@ -100,7 +100,7 @@ class Asset_Map
 
 
 			// Reload the passed assetid in the flash
-			function add_messages(xml) 
+			function add_messages(xml)
 			{
 				//var asset_mapObj = flash_InternetExplorer ? asset_map : document.asset_map;
 				var asset_mapObj = document.asset_map;
@@ -116,7 +116,7 @@ class Asset_Map
 			*
 			*/
 			var ASSET_FINDER_CALL_BACK = null;
-			function asset_finder_start(fn, xml) 
+			function asset_finder_start(fn, xml)
 			{
 				if (ASSET_FINDER_CALL_BACK !== null) return;
 				ASSET_FINDER_CALL_BACK = fn;
@@ -130,7 +130,7 @@ class Asset_Map
 			* Informs the flash that we want to cancel the asset finder
 			*
 			*/
-			function asset_finder_cancel() 
+			function asset_finder_cancel()
 			{
 				if (ASSET_FINDER_CALL_BACK === null) return;
 				var asset_mapObj = document.asset_map;
@@ -144,7 +144,7 @@ class Asset_Map
 			* @param Array	params		array of params from the flash
 			*
 			*/
-			function asset_finder_done(params) 
+			function asset_finder_done(params)
 			{
 				if (ASSET_FINDER_CALL_BACK === null) return;
 				//alert("ASSET FINDER DONE : " + params.assetid + );
@@ -152,6 +152,13 @@ class Asset_Map
 				ASSET_FINDER_CALL_BACK = null;
 			}
 
+
+			// Reload the passed assetid in the flash
+			registerFlashToJsCall('asset_map_popup', asset_map_popup);
+			function asset_map_popup(params)
+			{
+				window.open(params['url'], 'sq_asset_map_popup', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=400,height=300');
+			}
 
 		//-->
 		</script>
@@ -167,7 +174,8 @@ class Asset_Map
 		<?php
 	}//end paint()
 
-	/*
+
+	/**
 	* Sends an XML Tree down the line
 	*
 	* @param object XML_Tree $output
@@ -176,13 +184,13 @@ class Asset_Map
 	*/
 	function _send($output) 
 	{
-#		error_log("XML OUT : \n".$output->get());
+		error_log("XML OUT : \n".$output->get());
 		header("Content-Type: text/xml");
 		$output->dump();
-	}
+	}//end _send()
 
 
-	/*
+	/**
 	* Creates and error message, and returns it to the Flash
 	*
 	* @param string $msg	the error message
@@ -194,9 +202,9 @@ class Asset_Map
 		$output = new XML_Tree();
 		$root = &$output->addRoot('error', $msg);
 		$this->_send($output);
-	}
+	}//end _error()
 
-	/*
+	/**
 	* Processes requests from the Flash and returns XML replies
 	*
 	* @param object Backend
@@ -224,7 +232,6 @@ class Asset_Map
 			return;
 		}
 
-
 		switch($root->attributes['action']) {
 			case 'initalise' :
 				$this->_doInitialise($input);
@@ -242,8 +249,12 @@ class Asset_Map
 				$this->_getURL($input, $backend);
 				break;
 
+			case 'dupe' :
+				$this->_dupeAsset($input, $backend);
+				break;
+
 			case 'move asset' :
-				$this->_moveAsset($input);
+				$this->_moveAsset($input, $backend);
 				break;
 
 			case 'new link' :
@@ -260,9 +271,10 @@ class Asset_Map
 
 		}// end switch
 
-	}//end _printAssetMapXML()
+	}//end process()
 
-	/*
+
+	/**
 	* Get's all the asset types and the root folder and the current user asset's
 	*
 	* @param object XML_Tree $input	the request info from the Flash
@@ -313,14 +325,15 @@ class Asset_Map
 		
 	}// end _doInitialise()
 
-	/*
+
+	/**
 	* Processes the get assets request
 	*
 	* @param object XML_Tree $input	the request info from the Flash
 	*
 	* @access private
 	*/
-	function _getAssets(&$input) 
+	function _getAssets(&$input)
 	{
 
 		$load_new_links = !empty($input->root->attributes['load_new_links']);
@@ -364,12 +377,14 @@ class Asset_Map
 
 	}// end _getAssets()
 
-	/*
+
+	/**
 	* Adds an asset to the XML root passed
 	*
 	* @param object XML_Tree_Node	$root			the root node to add the asset to
 	* @param int					$assetid		the assetid of the asset to add
-	* @param boolean				$load_new_links	whether or not to load the children of this asset not in the $current_kids array
+	* @param boolean				$load_new_links	whether or not to load the children of this 
+	*												asset not in the $current_kids array
 	* @param Array(int)				$current_kids	the children that the flash currently has
 	*
 	* @access private
@@ -416,7 +431,8 @@ class Asset_Map
 
 	}// end _assAssetToXML()
 
-	/*
+
+	/**
 	* Processes the menu items request
 	*
 	* @param object XML_Tree $input	the request info from the Flash
@@ -452,7 +468,7 @@ class Asset_Map
 	}// end _getMenuItems()
 
 
-	/*
+	/**
 	* Creates the XML object recusivly for the asset map menu
 	*
 	* @access private
@@ -479,12 +495,12 @@ class Asset_Map
 			if ($has_kids) {
 				$this->_recurseAddMenu($child, $heir[$type_code]['subs']);
 			}
-
 		}
 
 	}// end _recurseAddMenu()
 
-	/*
+
+	/**
 	* Processes the get url request
 	*
 	* @param object XML_Tree $input	the request info from the Flash
@@ -511,6 +527,17 @@ class Asset_Map
 					return;
 				}
 
+				if ($GLOBALS['SQ_SYSTEM']->am->assetInTrash($attr['parent_assetid'])) {
+					$this->_error('Unable to Add Asset, new parent (Asset #"'.$attr['parent_assetid'].'") is in the trash');
+					return;
+				}
+
+				$trash_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
+				if ($trash_folder->id == $attr['parent_assetid']) {
+					$this->_error('Unable to Add Asset, cant add an asset to the trash');
+					return;
+				}
+
 				if (($err_msg = $parent->canLinkToType($attr['type_code'], SQ_LINK_TYPE_1)) !== true) {
 					$this->_error($err_msg);
 					return;
@@ -534,7 +561,7 @@ class Asset_Map
 				return;
 		}// end switch()
 
-		if (empty($link) || empty($frame)) {		
+		if (empty($link) || empty($frame)) {
 			$this->_error('Empty XML Attributes for getting URL from server');
 			return;
 		}
@@ -547,14 +574,14 @@ class Asset_Map
 	}// end _getURL()
 
 
-	/*
+	/**
 	* Attempts to move an asset from one position to another
 	*
 	* @param object XML_Tree $input	the request info from the Flash
 	*
 	* @access private
 	*/
-	function _moveAsset(&$input) 
+	function _moveAsset(&$input, &$backend)
 	{
 
 		$old_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($input->root->attributes['from_parent_assetid']);
@@ -570,7 +597,6 @@ class Asset_Map
 		}
 
 		$linkid = null;
-
 
 		// if the from and to parentids are the same we are realy just altering the sort order for a parent
 		if ($old_parent->id == $input->root->attributes['to_parent_assetid']) {
@@ -590,7 +616,6 @@ class Asset_Map
 				return;
 			}
 
-
 			$new_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($input->root->attributes['to_parent_assetid']);
 			if (is_null($new_parent)) {
 				$this->_error('Unable to Move Asset, new parent (Asset #"'.$input->root->attributes['to_parent_assetid'].'") not found');
@@ -603,10 +628,28 @@ class Asset_Map
 			// will handle that for us
 			$trash_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
 			if ($new_parent->id != $trash_folder->id) {
+				if ($GLOBALS['SQ_SYSTEM']->am->assetInTrash($new_parent->id)) {
+					$this->_error('Unable to Move Asset, new parent (Asset #"'.$new_parent->id.'") is in the trash');
+					return;
+				}
+
 				$new_parent->aquireLock();
 				$linkid = $new_parent->createLink($asset, $link['link_type'], '', $input->root->attributes['to_parent_pos']);
 				$new_parent->releaseLock();
 				if (!$linkid) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return;
+				}
+			} else {
+				// we are moving to the trash, so we need to
+				// check if this is the last significant link we
+				// are deleting so we can warn of side effects
+				$num_other_links = $asset->countLinks('minor', SQ_LINK_SIGNIFICANT, '', true, $link['linkid']);
+				if (!$num_other_links) {
+					$url = '?SQ_BACKEND_PAGE=main&backend_section=am&am_section=delete&assetid='.$asset->id.'&linkid='.$link['linkid'];
+					$output = new XML_Tree();
+					$root = &$output->addRoot('url', $url, Array('js_function' => 'asset_map_popup'));
+					$this->_send($output);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return;
 				}
@@ -632,7 +675,52 @@ class Asset_Map
 	}// end _moveAsset()
 
 
-	/*
+	/**
+	* Attempts to move an asset from one position to another
+	*
+	* @param object XML_Tree $input	the request info from the Flash
+	*
+	* @access private
+	*/
+	function _dupeAsset(&$input, &$backend)
+	{
+
+		$old_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($input->root->attributes['from_parent_assetid']);
+		if (is_null($old_parent)) {
+			$this->_error('Unable to Duplicate Asset, existing parent (Asset #"'.$input->root->attributes['from_parent_assetid'].'") not found');
+			return;
+		}
+
+		$link = $old_parent->getLinkById($input->root->attributes['linkid']);
+		if (empty($link)) {
+			$this->_error('Unable to Duplicate Asset, Link #"'.$input->root->attributes['linkid'].'") not found');
+			return;
+		}
+
+		$linkid = null;
+
+		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid']);
+		if (is_null($asset)) {
+			$this->_error('Unable to Duplicate Asset, asset to be duplicated (Asset #"'.$link['minorid'].'") not found');
+			return;
+		}
+
+		$new_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($input->root->attributes['to_parent_assetid']);
+		if (is_null($new_parent)) {
+			$this->_error('Unable to Duplicate Asset, new parent (Asset #"'.$input->root->attributes['to_parent_assetid'].'") not found');
+			return;
+		}
+
+		$url = '?SQ_BACKEND_PAGE=main&backend_section=am&am_section=duplicate&assetid='.$asset->id.'&to_parent_assetid='.$new_parent->id.'&to_parent_pos='.$input->root->attributes['to_parent_pos'];
+
+		$output = new XML_Tree();
+		$root = &$output->addRoot('url', $url, Array('js_function' => 'asset_map_popup'));
+		$this->_send($output);
+
+	}// end _dupeAsset()
+
+
+	/**
 	* Attempts to create a new link
 	*
 	* @param object XML_Tree $input	the request info from the Flash
@@ -666,6 +754,17 @@ class Asset_Map
 			return;
 		}
 
+		if ($GLOBALS['SQ_SYSTEM']->am->assetInTrash($input->root->attributes['to_parent_assetid'])) {
+			$this->_error('Unable to Create New Link, new parent (Asset #"'.$input->root->attributes['to_parent_assetid'].'") is in the trash');
+			return;
+		}
+
+		$trash_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
+		if ($trash_folder->id == $input->root->attributes['to_parent_assetid']) {
+			$this->_error('Unable to Create New Link, cant create a new link to the trash');
+			return;
+		}
+
 		// First let's try and create the new link, if there are any issues then it will cryout for us
 		$new_parent->aquireLock();
 		$linkid = $new_parent->createLink($asset, $link['link_type'], '', $input->root->attributes['to_parent_pos']);
@@ -680,7 +779,8 @@ class Asset_Map
 
 	}// end _newLink()
 
-	/*
+
+	/**
 	* Returns an list of the mail messages that the current user has had in the last 8 hours
 	*
 	* @param object XML_Tree $input	the request info from the Flash

@@ -454,12 +454,15 @@ class Asset_Manager extends Resolve_Object
 		return $result;
 	}//end getTypeDescendants()
 
+
 	/**
 	* Get all asset ids that are above the passed assetid in the various trees in which it exists
 	*
 	* @param int			$assetid			the id of the asset to get its parents for
-	* @param string|array	$type_code			the type of asset that is linked (eg 'Page', 'File', etc) if an array returns link if matches any of the array values
-	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code or $type_code and any of it's sub-classes
+	* @param string|array	$type_code			the type of asset that is linked (eg 'Page', 'File', etc) 
+	*											if an array returns link if matches any of the array values
+	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code 
+	*											or $type_code and any of it's sub-classes
 	*
 	* @access public
 	*/
@@ -498,8 +501,6 @@ class Asset_Manager extends Resolve_Object
 			}
 		}// end if
 
-#pre_echo($sql);
-
 		$parents = $db->getCol($sql);
 		if (DB::isError($parents)) {
 			trigger_error($parents->getMessage().'<br/>'.$parents->getUserInfo(), E_USER_ERROR);
@@ -515,8 +516,10 @@ class Asset_Manager extends Resolve_Object
 	* Get all asset ids that are below the passed assetid in the various trees in which it exists
 	*
 	* @param int			$assetid			the id of the asset to get its children for
-	* @param string|array	$type_code			the type of asset that is linked (eg 'Page', 'File', etc) if an array returns link if matches any of the array values
-	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code or $type_code and any of it's sub-classes
+	* @param string|array	$type_code			the type of asset that is linked (eg 'Page', 'File', etc) 
+	*											if an array returns link if matches any of the array values
+	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code 
+	*											or $type_code and any of it's sub-classes
 	*
 	* @access public
 	*/
@@ -583,6 +586,23 @@ class Asset_Manager extends Resolve_Object
 		return $children;
 
 	}// end getChildren()
+
+
+	/**
+	* Returns true if the passed assetid is in the trash, false otherwise
+	* Note that if the passed assetid is the id of the trash folder, false will be returned
+	*
+	* @param int	$assetid	the asset id to check the trash for
+	*
+	* @access public
+	*/
+	function assetInTrash($assetid)
+	{
+		$parents = $this->getParents($assetid);
+		$trash = &$this->getSystemAsset('trash_folder');
+		return (in_array($trash->id, $parents));
+
+	}//end assetInTrash()
 
 
 	/**
@@ -786,6 +806,7 @@ class Asset_Manager extends Resolve_Object
 				'.$extra_where.'
 				ORDER BY CHARACTER_LENGTH(l.url) DESC
 				LIMIT 1';
+				bam($sql);
 		$row = $db->getRow($sql);
 		if (DB::isError($row)) trigger_error($row->getMessage().'<br/>'.$row->getUserInfo(), E_USER_ERROR);
 

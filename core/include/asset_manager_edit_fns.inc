@@ -162,6 +162,9 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 				$this->_dupeAsset();
 				break;
 
+			case 'delete' :
+				$this->_deleteAsset();
+				break;
 
 			default   :
 				$this->_printAssetList();
@@ -323,67 +326,6 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 		return $initialised;
 
 	}// end _dupeInit()
-
-
-	/**
-	* Returns all child links that the passed asset has, used by the duplication process
-	*
-	* @access private
-	* @return Array()
-	*/
-	function _getAllChildLinks($assetid)
-	{
-		if (!isset($this->_tmp['child_links'][$assetid])) {
-
-			$db = &$GLOBALS['SQ_SYSTEM']->db;
-			$sql = 'SELECT t.treeid
-					FROM sq_asset_link_tree t INNER JOIN sq_asset_link l ON t.linkid = l.linkid
-					WHERE l.minorid = '.$db->quote($assetid).'
-					LIMIT 1;';
-	//pre_echo($sql);
-			$treeid = $db->getOne($sql);
-			if (DB::isError($treeid)) {
-				trigger_error($treeid->getMessage().'<br/>'.$treeid->getUserInfo(), E_USER_ERROR);
-			}
-
-			$current_level = strlen($treeid) / SQ_CONF_ASSET_TREE_SIZE;
-
-			$sql = 'SELECT SUBSTRING(t.treeid FROM '.$db->quote(strlen($treeid) + 1).') as treeid,
-							(CHARACTER_LENGTH(t.treeid) / '.SQ_CONF_ASSET_TREE_SIZE.') '.(($current_level) ? ' - '.$current_level : '').' as level,
-							l.linkid, a.assetid, a.short_name, a.type_code, l.link_type, l.sort_order, l.value, l.dependant
-					FROM sq_asset_link_tree t
-						  INNER JOIN sq_asset_link l ON t.linkid = l.linkid
-						  INNER JOIN sq_asset a ON l.minorid = a.assetid
-					WHERE t.treeid LIKE '.$db->quote($treeid.'%').'
-					  AND t.treeid > '.$db->quote($treeid).'
-					ORDER BY t.treeid';
-
-			$child_links = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_ASSOC); // need all this because of DB API
-			if (DB::isError($child_links)) {
-				trigger_error($child_links->getMessage().'<br/>'.$child_links->getUserInfo(), E_USER_ERROR);
-			}
-
-			// OK, what we are going to do is set up the effective dependant treeid for each tree link 
-			for(reset($child_links); null !== ($treeid = key($child_links)); next($child_links)) {
-				if ($child_links[$treeid]['dependant']) {
-					$parent_treeid = substr($treeid, 0, -SQ_CONF_ASSET_TREE_SIZE);
-					if ($parent_treeid == '') {
-						$child_links[$treeid]['dependant_treeid'] = '';
-					} else {
-						$child_links[$treeid]['dependant_treeid'] = $child_links[$parent_treeid]['dependant_treeid'];
-					}
-				} else {
-					$child_links[$treeid]['dependant_treeid'] = $treeid;
-				}
-			}// end for
-
-			$this->_tmp['child_links'][$assetid] = $child_links;
-
-		}// end if
-
-		return $this->_tmp['child_links'][$assetid];
-
-	}// _getAllChildLinks()
 
 
 	/**
@@ -718,6 +660,106 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 	{
 		$pb->setStatusMsg('');
 	}// end _dupeStepRemapDone()
+
+
+	/**
+	* Looks after the deletion of assets and their trees, includes the interface
+	*
+	* @access private
+	*/
+	function _deleteAsset()
+	{
+		$o = &$this->backend->out;
+
+		if (isset($_GET['delete_linkid'])) {
+			// they have confirmed their intention to delete this asset
+			$asset = &$this->am->getAsset($_GET['delete_assetid']);
+			$link = $asset->getLinkById($_GET['delete_linkid'], 'minor');
+			$parent = &$this->am->getAsset($link['majorid'], $link['type_code']);
+			$parent->aquireLock();
+			$parent->deleteLink($link['linkid']);
+			$parent->releaseLock();
+			echo 'done';
+		} else {
+			$o->addFormActionGetVar('delete_assetid', $_GET['assetid']);
+			$o->addFormActionGetVar('delete_linkid', $_GET['linkid']);
+			$asset = &$this->am->getAsset($_GET['assetid']);
+			if (is_null($asset)) {
+				trigger_error('Asset #'.$_GET['assetid'].' not found', E_USER_WARNING);
+				break;
+			}
+
+			$o->openSection('Note');
+			$o->openField('&nbsp;');
+			echo 'You are deleting this asset to the trash. Below are a list of assets that will be affected by deleting this asset';
+			$ei = &$asset->getEI();
+			$ei->paintLinking($asset, $o);
+
+			$o->commitButton();
+		}
+
+	}// end _deleteAsset()
+
+
+	/**
+	* Returns all child links that the passed asset has, used by the duplication process
+	*
+	* @access private
+	* @return Array()
+	*/
+	function _getAllChildLinks($assetid)
+	{
+		if (!isset($this->_tmp['child_links'][$assetid])) {
+
+			$db = &$GLOBALS['SQ_SYSTEM']->db;
+			$sql = 'SELECT t.treeid
+					FROM sq_asset_link_tree t INNER JOIN sq_asset_link l ON t.linkid = l.linkid
+					WHERE l.minorid = '.$db->quote($assetid).'
+					LIMIT 1;';
+	//pre_echo($sql);
+			$treeid = $db->getOne($sql);
+			if (DB::isError($treeid)) {
+				trigger_error($treeid->getMessage().'<br/>'.$treeid->getUserInfo(), E_USER_ERROR);
+			}
+
+			$current_level = strlen($treeid) / SQ_CONF_ASSET_TREE_SIZE;
+
+			$sql = 'SELECT SUBSTRING(t.treeid FROM '.$db->quote(strlen($treeid) + 1).') as treeid,
+							(CHARACTER_LENGTH(t.treeid) / '.SQ_CONF_ASSET_TREE_SIZE.') '.(($current_level) ? ' - '.$current_level : '').' as level,
+							l.linkid, a.assetid, a.short_name, a.type_code, l.link_type, l.sort_order, l.value, l.dependant
+					FROM sq_asset_link_tree t
+						  INNER JOIN sq_asset_link l ON t.linkid = l.linkid
+						  INNER JOIN sq_asset a ON l.minorid = a.assetid
+					WHERE t.treeid LIKE '.$db->quote($treeid.'%').'
+					  AND t.treeid > '.$db->quote($treeid).'
+					ORDER BY t.treeid';
+
+			$child_links = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_ASSOC); // need all this because of DB API
+			if (DB::isError($child_links)) {
+				trigger_error($child_links->getMessage().'<br/>'.$child_links->getUserInfo(), E_USER_ERROR);
+			}
+
+			// OK, what we are going to do is set up the effective dependant treeid for each tree link 
+			for(reset($child_links); null !== ($treeid = key($child_links)); next($child_links)) {
+				if ($child_links[$treeid]['dependant']) {
+					$parent_treeid = substr($treeid, 0, -SQ_CONF_ASSET_TREE_SIZE);
+					if ($parent_treeid == '') {
+						$child_links[$treeid]['dependant_treeid'] = '';
+					} else {
+						$child_links[$treeid]['dependant_treeid'] = $child_links[$parent_treeid]['dependant_treeid'];
+					}
+				} else {
+					$child_links[$treeid]['dependant_treeid'] = $treeid;
+				}
+			}// end for
+
+			$this->_tmp['child_links'][$assetid] = $child_links;
+
+		}// end if
+
+		return $this->_tmp['child_links'][$assetid];
+
+	}// _getAllChildLinks()
 
 
 	/**
