@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type.inc,v 1.56 2004/12/03 15:29:22 brobertson Exp $
+* $Id: design_area_menu_type.inc,v 1.57 2005/01/13 22:22:24 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -396,7 +396,7 @@ class Design_Area_Menu_Type extends Design_Area
 						if ($GLOBALS[\'SQ_SYSTEM\']->userRoot() || $GLOBALS[\'SQ_SYSTEM\']->userSystemAdmin()) {
 							$USERIDS_COND = \'\';
 						} else {
-							$userids = $GLOBALS[\'SQ_SYSTEM\']->am->getParents($GLOBALS[\'SQ_SYSTEM\']->user->id, \'user_group\', false);
+							$userids = array_keys($GLOBALS[\'SQ_SYSTEM\']->am->getParents($GLOBALS[\'SQ_SYSTEM\']->user->id, \'user_group\', false));
 							array_push($userids, 0, $GLOBALS[\'SQ_SYSTEM\']->user->id);
 							for (reset($userids); null !== ($i = key($userids)); next($userids)) $userids[$i] = $db->quote($userids[$i]);
 							$USERIDS_COND = \'AND p.userid  IN (\'.implode(\',\', $userids).\')\';

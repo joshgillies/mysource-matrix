@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.74 2004/12/06 14:38:10 brobertson Exp $
+* $Id: user.inc,v 1.75 2005/01/13 22:22:24 gsherwood Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.74 $
+* @version $Revision: 1.75 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -328,7 +328,7 @@ class User extends Asset
 	function getGroups()
 	{
 		if (!isset($_SESSION['sq_user_groups'])) {
-			$_SESSION['sq_user_groups'] = $GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->currentUserId(), Array('user', 'user_group'), false);
+			$_SESSION['sq_user_groups'] = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->currentUserId(), Array('user', 'user_group'), false));
 		}
 		return $_SESSION['sq_user_groups'];
 

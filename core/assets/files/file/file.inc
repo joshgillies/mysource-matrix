@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.78 2005/01/07 06:21:18 gsherwood Exp $
+* $Id: file.inc,v 1.79 2005/01/13 22:22:24 gsherwood Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.78 $
+* @version $Revision: 1.79 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -481,8 +481,8 @@ class File extends Asset
 		$root_urls = explode("\n", trim(SQ_CONF_SYSTEM_ROOT_URLS));
 
 		$site_parents = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'site', false);
-		foreach ($site_parents as $assetid) {
-			$site = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		foreach ($site_parents as $assetid => $type_code) {
+			$site = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
 			if (is_null($site)) continue;
 			$urls = $site->getSiteURLS();
 
@@ -585,7 +585,7 @@ class File extends Asset
 	{
 		switch ($_POST['asset_action']) {
 			case 'create' :
-				$this->_tmp['uploading_file'] = true;
+				$this->_tmp['uploading_file'] = 1;
 				$ei = &$this->getEI();
 				if (!$ei->process($this, $o, true)) return false;
 
@@ -596,7 +596,7 @@ class File extends Asset
 
 				if ($linkid && $GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'attributes')) {
 					$edit = $this->getEditFns();
-					$this->_tmp['uploading_file'] = true;
+					$this->_tmp['uploading_file'] = 1;
 					$ret_val = $edit->processFileChooser($this, $o, $prefix);
 					$ret_val |= $edit->processFileUpload($this, $o, $prefix);
 					$this->saveAttributes();
