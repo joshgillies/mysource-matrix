@@ -123,7 +123,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 					$do_process_backend = true;
 
 					// try to acquire a lock on this asset?
-					if (isset($_POST['sq_acquire_lock'])) {
+					if (isset($_POST['sq_acquire_lock']) && $_POST['sq_acquire_lock']) {
 
 						//// START HIPO PROCESSING ////
 			
@@ -148,7 +148,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 					}
 
 					// try to release a lock on this asset?
-					if (isset($_POST['sq_manual_release_lock'])) {
+					if (isset($_POST['sq_manual_release_lock']) && $_POST['sq_manual_release_lock']) {
 						$this->am->releaseLock($asset->id);
 						$do_process_backend = false;
 					}
