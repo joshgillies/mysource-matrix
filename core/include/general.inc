@@ -220,10 +220,10 @@ function sq_web_path($path='base')
 			// remove any trailing slashes
 			$current_url = preg_replace('/\/+$/', '', $current_url);
 
-			$tmp = '';
-			foreach($root_urls as $url) {
-				if (substr($current_url, 0, strlen($url)) == $url && strlen($tmp) < strlen($url)) {
-					$tmp = $url;
+			$tmp = $root_urls[0];
+			for($i = 1; $i < count($root_urls); $i++) {
+				if (substr($current_url, 0, strlen($root_urls[$i])) == $root_urls[$i] && strlen($tmp) < strlen($root_urls[$i])) {
+					$tmp = $root_urls[$i];
 				}
 			}
 			$paths[$path] = $tmp;
@@ -326,7 +326,7 @@ function iso8601_ts($iso8601)
 */
 function ts_iso8601($timestamp)
 {
-	return date("Y-m-d H:i:s",$timestamp);
+	return date('Y-m-d H:i:s',$timestamp);
 }
 
 ?>
