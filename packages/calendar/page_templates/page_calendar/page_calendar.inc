@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.95 2004/10/05 01:02:03 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.96 2004/10/07 06:12:04 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,7 +38,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.95 $ - 1.0
+* @version $Revision: 1.96 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -1001,6 +1001,7 @@ class Page_Calendar extends Page_Asset_Listing
 	*/
 	function _getTimedTableCellContents(&$events, $show_event_links, &$root_nodes, $cell_ts, $partition_time, $cell_height, $event_width, $mousedown_code)
 	{
+
 		$res = '';
 		foreach ($events as $assetid => $details) {
 			$assetid_bits = current(explode(':', $assetid));
@@ -1020,11 +1021,11 @@ class Page_Calendar extends Page_Asset_Listing
 			// other layout things
 			$zero_length_code = $event_height ? '' : 'border-style: dashed; border-width: 2px; border-bottom: 0px; border-left: 0px; border-right: 0px; height: 0px; padding-top: 0px; background-color: transparent;';
 			$event_left_margin = $event_width * 0.02;
-			$inner_width = ($event_width * 0.96) - 0.25;
 			$cursor_code = $show_event_links ? 'cursor: pointer; cursor: hand;' : '';
 			$inner_margin_top = $event_height ? 1 : 0;
 			$onclick_code = $show_event_links ? 'onclick="clickChild(this);"' : '';
 			$this_event_width = $event_width / $this->_countOverlappingEvents($events, gmdate('H:i', $event_ts*60), gmdate('H:i', $end_ts*60), $partition_time);
+			$inner_width = ($this_event_width * 0.96) - 0.25;
 			$current_mousedown_code = ($details['type_code'] != 'calendar_event_recurring') ? $mousedown_code : '';
 
 			$current_mouse_over_out_code = '';
@@ -1039,6 +1040,7 @@ class Page_Calendar extends Page_Asset_Listing
 			$res .= $show_event_links ? '</a>' : '</span>';
 
 			$res .= '</div></div>';
+
 		}
 		return $res;
 
@@ -1267,7 +1269,7 @@ class Page_Calendar extends Page_Asset_Listing
 
 		$event_lists = Array();
 
-		foreach($events as $event) {
+		foreach(array_values($events) as $event) {
 			$event_start_time = $event['start_date_hours'] * 60 + $event['start_date_minutes'];
 			if (is_null($event['end_date_hours']) || is_null($event['end_date_minutes'])) {
 				$event_end_time   = $event_start_time;
@@ -1660,7 +1662,7 @@ class Page_Calendar extends Page_Asset_Listing
 		}
 
 		foreach ($res as $date => $events) {
-			foreach($partition_keys as $partition)process_exceptions($res[$date][$partition]);
+			foreach($partition_keys as $partition) process_exceptions($res[$date][$partition]);
 		}
 
 		return $res;

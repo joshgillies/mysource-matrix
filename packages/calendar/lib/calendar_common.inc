@@ -18,9 +18,9 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.2 2004/10/05 02:35:18 tbarrett Exp $
+* $Id: calendar_common.inc,v 1.3 2004/10/07 06:12:04 tbarrett Exp $
 * $Name: not supported by cvs2svn $
-* $Revision: 1.2 $
+* $Revision: 1.3 $
 *
 * This file contains global functions that are useful throughout the calendar module
 * (but not beyond)
@@ -57,10 +57,14 @@ function build_single_event_query_base(&$trees)
 	$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 	return
-	'SELECT a.assetid, a.type_code, a.name, ('.build_case_statement('t.treeid',$trees).') as root_node, cd.* FROM ('.SQ_TABLE_RUNNING_PREFIX.'asset a join ('.SQ_TABLE_RUNNING_PREFIX.'asset_link l join '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t on l.linkid = t.linkid) on l.minorid = a.assetid) join '.SQ_TABLE_RUNNING_PREFIX.'calendar_date_value cd on a.assetid = cd.assetid WHERE a.type_code IN ( '.$db->quote('calendar_event_single').', '.$db->quote('calendar_event_modification').', '.$db->quote('calendar_event_cancellation').')';
+	'SELECT a.assetid, a.type_code, a.name, ('.build_case_statement('t.treeid',$trees).') as root_node, cd.* FROM '.build_join_statements().' WHERE a.type_code IN ( '.$db->quote('calendar_event_single').', '.$db->quote('calendar_event_modification').', '.$db->quote('calendar_event_cancellation').')';
 
 }//end build_single_event_query_base()
 
+function build_join_statements()
+{
+	return '('.SQ_TABLE_RUNNING_PREFIX.'asset a join ('.SQ_TABLE_RUNNING_PREFIX.'asset_link l join '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t on l.linkid = t.linkid) on l.minorid = a.assetid) join '.SQ_TABLE_RUNNING_PREFIX.'calendar_date_value cd on a.assetid = cd.assetid';
+}
 
 /**
 * Builds the common part of the recurring events query
@@ -273,19 +277,153 @@ function build_recurring_event_query_base(&$trees, $view, $iso, $length=null)
 		break;
 
 		case 'period':
-			$last_day = date('Y-m-d', strtotime("$iso 12:00:00 +$length days"));
+			$last_date = date('Y-m-d', strtotime("$iso 12:00:00 +$length days"));
+			$last_date_components = get_date_components($last_date);
+			$last_day = $last_date_components['ds'];
 
+			$sql_freqs[] = '((frequency = '.$db->quote('DED').') AND ((period <= '.$length.') OR (floor(('.$now['ds'].' - start_date_ds) / period) < floor(('.$last_date_components['ds'].' - start_date_ds) / period)) OR (floor(('.$now['ds'].' - end_date_ds) / period) < floor(('.$last_date_components['ds'].' - end_date_ds) / period))))';
+
+			if (($length > 2) || !in_array($now['wday'], Array(0, 6)) || !in_array($last_date_components['wday'], Array(0, 6))) $sql_freqs[] = '(frequency = '.$db->quote('DWD').')';
+
+			$sql_freqs[] = '((frequency = '.$db->quote('WEW').') AND (((period * 7) <= '.$length.') OR (floor(('.$now['ds'].' - start_date_ds) / (period * 7)) < floor(('.$last_date_components['ds'].' - start_date_ds) / (period * 7))) OR (floor(('.$now['ds'].' - end_date_ds) / (period * 7)) < floor(('.$last_date_components['ds'].' - end_date_ds) / (period * 7)))))';
+
+			$monthly_conditions = Array();
+
+			if ($last_date_components['ms'] == $now['ms']) {
+				// we are within one month
+				//bam("Within one month");
+
+				// get MFN and MRN events
+				$monthly_conditions[] = '((frequency = '.$db->quote('MFN').') AND ((((('.$now['ms'].' - start_date_ms) % period) = 0) AND (start_date_mday BETWEEN '.$now['mday'].' AND '.$last_date_components['mday'].')) OR (((('.$now['ms'].' - end_date_ms) % period) = 0) AND (end_date_mday BETWEEN '.$now['mday'].' AND '.$last_date_components['mday'].'))))';
+				$monthly_conditions[] = '((frequency = '.$db->quote('MRN').') AND ((start_date_rwdom BETWEEN '.$last_date_components['rwdom'].' AND '.$now['rwdom'].') OR (end_date_rwdom BETWEEN '.$last_date_components['rwdom'].' AND '.$now['rwdom'].')))';
+
+				// get MFW events
+				$mfw_conditions = Array();
+				if ($last_date_components['wdom'] == $now['wdom']) {
+					// we are within one month-week
+					bam("Within one month week");
+
+					// double check these
+					$mfw_conditions[] = '(((('.$now['ms'].' - start_date_ms) % period) = 0) 
+						AND (start_date_wdom = '.$now['wdom'].') 
+						AND (start_date_mday - (7 * (start_date_wdom - 1)) BETWEEN '.($now['mday'] - (7 * ($now['wdom'] - 1))).' AND '.($last_date_components['mday'] - (7 * ($last_date_components['wdom'] - 1))).'))';
+					$mfw_conditions[] = '(((('.$now['ms'].' - end_date_ms) % period) = 0) 
+						AND (end_date_wdom = '.$now['wdom'].') 
+						AND (end_date_mday - (7 * (end_date_wdom - 1)) BETWEEN '.($now['mday'] - (7 * ($now['wdom'] - 1))).' AND '.($last_date_components['mday'] - (7 * ($last_date_components['wdom'] - 1))).'))';
+
+				} else {
+					// we start and end in different month-weeks
+					//bam("Crossing month weeks");
+
+					// want to know if an event starts or ends late enough in the start week 
+					$mfw_conditions[] = '(((start_date_wdom = '.$now['wdom'].') AND (start_date_mday - ((start_date_wdom - 1) * 7) >= '.($now['mday'] - (($now['wdom'] - 1) * 7)).')) OR (((end_date_wdom = '.$now['wdom'].') AND (end_date_mday - ((end_date_wdom - 1) * 7) >= '.($now['mday'] - (($now['wdom'] - 1) * 7)).'))))';
+
+					// or early enough in the end week
+					$mfw_conditions[] = '(((start_date_wdom = '.$last_date_components['wdom'].') AND (start_date_mday - ((start_date_wdom - 1) * 7) <= '.($last_date_components['mday'] - (($last_date_components['wdom'] - 1) * 7)).')) OR (((end_date_wdom = '.$last_date_components['wdom'].') AND (end_date_mday - ((end_date_wdom - 1) * 7) <= '.($last_date_components['mday'] - (($last_date_components['wdom'] - 1) * 7)).'))))';
+					
+					//  or covers the whole thing
+					$mfw_conditions[] = '((start_date_wdom <= '.$now['wdom'].') AND (end_date_wdom >= '.$last_date_components['wdom'].') AND (start_date_mday - ((start_date_wdom - 1) * 7) < '.($now['mday'] - (($now['wdom'] - 1) * 7)).') AND (end_date_mday - ((end_date_wdom - 1) * 7) > '.($last_date_components['mday'] - (($last_date_components['wdom'] - 1) * 7)).'))';
+					
+					if ($last_date_components['wdom'] - $now['wdom'] != 1) {
+						//bam("Has an intervening month-week");
+						// we have intervening weeks
+						// we want to know if any event started or ended in the intervening weeks
+						$mfw_conditions[] = '((frequency = '.$db->quote('MFW').') AND ((start_date_wdom BETWEEN '.($now['wdom'] + 1).' AND '.($last_date_components['wdom'] - 1).') OR (end_date_wdom BETWEEN ' .($now['wdom'] + 1).' AND '.($last_date_components['wdom'] - 1).'))';
+					}
+				}
+				$monthly_conditions[] = '((frequency = '.$db->quote('MFW').") AND (\n                    ".implode("\n                    OR ", $mfw_conditions)."\n\n     ))";
+
+				// get MRW events
+				$mrw_conditions = Array();
+				if ($last_date_components['rwdom'] == $now['rwdom']) {
+					// we are within one reverse-month-week
+					//bam("Within one reverse month_week");
+
+					$mrw_conditions[] = '(((('.$now['ms'].' - start_date_ms) % period) = 0) 
+						AND (start_date_rwdom = '.$now['rwdom'].') 
+						AND (start_date_rmday - (7 * (start_date_rwdom - 1)) BETWEEN '.($now['rmday'] - (7 * ($now['rwdom'] - 1))).' AND '.($last_date_components['rmday'] - (7 * ($last_date_components['rwdom'] - 1))).'))';
+					$mrw_conditions[] = '(((('.$now['ms'].' - end_date_ms) % period) = 0) 
+						AND (end_date_rwdom = '.$now['rwdom'].') 
+						AND (end_date_rmday - (7 * (end_date_rwdom - 1)) BETWEEN '.($now['rmday'] - (7 * ($now['rwdom'] - 1))).' AND '.($last_date_components['rmday'] - (7 * ($last_date_components['rwdom'] - 1))).'))';
+				} else {
+					// we start and end in different reverse-month-weeks
+					//bam("Crosses reverse month-weeks");
+
+					// want to know if an event starts or ends late enough in the start week 
+					$mrw_conditions[] = '(((start_date_rwdom = '.$now['rwdom'].') AND (start_date_rmday - ((start_date_rwdom - 1) * 7) >= '.($now['rmday'] - (($now['rwdom'] - 1) * 7)).')) OR (((end_date_rwdom = '.$now['rwdom'].') AND (end_date_rmday - ((end_date_rwdom - 1) * 7) <= '.($now['rmday'] - (($now['rwdom'] - 1) * 7)).'))))';
+
+					// or early enough in the end week
+					$mrw_conditions[] = '(((start_date_rwdom = '.$last_date_components['rwdom'].') AND (start_date_rmday - ((start_date_rwdom - 1) * 7) <= '.($last_date_components['rmday'] - (($last_date_components['rwdom'] - 1) * 7)).')) OR (((end_date_rwdom = '.$last_date_components['rwdom'].') AND (end_date_rmday - ((end_date_rwdom - 1) * 7) >= '.($last_date_components['rmday'] - (($last_date_components['rwdom'] - 1) * 7)).'))))';
+					
+					// or covers the whole thing
+					$mrw_conditions[] = '((start_date_rwdom >= '.$now['rwdom'].') AND (end_date_rwdom <= '.$last_date_components['rwdom'].') AND (start_date_rmday - ((start_date_rwdom - 1) * 7) > '.($now['rmday'] - (($now['rwdom'] - 1) * 7)).') AND (end_date_rmday - ((end_date_rwdom - 1) * 7) < '.($last_date_components['rmday'] - (($last_date_components['rwdom'] - 1) * 7)).'))';
+					
+					if ($last_date_components['rwdom'] - $now['rwdom'] != 1) {
+						// we have intervening weeks
+						//bam("There are intervening reverse-month-weeks");
+						// we want to know if any event started or ended in the intervening weeks
+						$mrw_conditions[] = '((start_date_rwdom BETWEEN '.($now['rwdom'] - 1).' AND '.($last_date_components['rwdom'] + 1).') OR (end_date_rwdom BETWEEN ' .($now['rwdom'] - 1).' AND '.($last_date_components['rwdom'] + 1).'))';
+					}
+				}
+				$monthly_conditions[] = '((frequency = '.$db->quote('MRW').") AND ( \n                    ".implode("\n                    OR", $mrw_conditions)."\n     ))";
+	
+				// get month events that cover the whole of our month
+				$sql_freqs[] = '((frequency LIKE '.$db->quote('M%').") AND (\n   ((end_date_ms IS NOT NULL) AND (end_date_ms - start_date_ms >= 3) AND ((".$now['ms']." - start_date_ms) % period) BETWEEN 1 AND (end_date_ms - start_date_ms - 1))\n   OR (\n\n((((".$now['ms'].' - start_date_ms) % period = 0) OR (('.$now['ms']." - end_date_ms) % period = 0)) AND (\n    ".implode("\n    OR ", $monthly_conditions)." \n))\n\n   )\n)))";
+
+			} else {
+				// start and end are in different months
+				//bam("View crosses months");
+
+				// we want to see if the start or end is late enough in the first month
+				$sql_freqs[] = '((frequency = '.$db->quote('MFN').') AND (((('.$now['ms'].' - start_date_ms) % period = 0) AND (start_date_mday >= '.$now['mday'].')) OR ((('.$now['ms'].' - end_date_ms) % period = 0) AND (end_date_mday >= '.$now['mday'].'))))';
+
+				$sql_freqs[] = '((frequency = '.$db->quote('MRN').') AND (((('.$now['ms'].' - start_date_ms) % period = 0) AND (start_date_rmday <= '.$now['rmday'].')) OR ((('.$now['ms'].' - end_date_ms) % period = 0) AND (end_date_rmday <= '.$now['rmday'].'))))';
+
+				$sql_freqs[] = '((frequency = '.$db->quote('MFW').') AND (('.$now['ms'].' - start_date_ms) % period = 0) AND ((start_date_wdom > '.$now['wdom'].') OR (((start_date_wdom = '.$now['wdom'].') AND (start_date_mday - ((start_date_wdom - 1) * 7) >= '.($now['mday'] - (($now['wdom'] - 1) * 7)).')))))';
+
+				$sql_freqs[] = '((frequency = '.$db->quote('MFW').') AND (('.$now['ms'].' - end_date_ms) % period = 0) AND ((end_date_wdom > '.$now['wdom'].') OR (((end_date_wdom = '.$now['wdom'].') AND (end_date_mday - ((end_date_wdom - 1) * 7) >= '.($now['mday'] - (($now['wdom'] - 1) * 7)).')))))';
+
+				$sql_freqs[] = '((frequency = '.$db->quote('MRW').') AND (('.$now['ms'].' - start_date_ms) % period = 0) AND ((start_date_rwdom < '.$now['rwdom'].') OR (((start_date_rwdom = '.$now['rwdom'].') AND (start_date_rmday - ((start_date_rwdom - 1) * 7) <= '.($now['rmday'] - (($now['rwdom'] - 1) * 7)).')))))';
+
+				$sql_freqs[] = '((frequency = '.$db->quote('MRW').') AND (('.$now['ms'].' - end_date_ms) % period = 0) AND ((end_date_rwdom > '.$now['rwdom'].') OR (((end_date_rwdom = '.$now['rwdom'].') AND (end_date_rmday - ((end_date_rwdom - 1) * 7) <= '.($now['rmday'] - (($now['rwdom'] - 1) * 7)).')))))';
+
+				// or early enough in the last month
+				$sql_freqs[] = '((frequency = '.$db->quote('MFN').') AND (((('.$last_date_components['ms'].' - start_date_ms) % period = 0) AND (start_date_mday <= '.$last_date_components['mday'].')) OR ((('.$last_date_components['ms'].' - end_date_ms) % period = 0) AND (end_date_mday <= '.$last_date_components['mday'].'))))';
+
+				$sql_freqs[] = '((frequency = '.$db->quote('MRN').') AND (((('.$last_date_components['ms'].' - start_date_ms) % period = 0) AND (start_date_rmday >= '.$last_date_components['rmday'].')) OR ((('.$last_date_components['ms'].' - end_date_ms) % period = 0) AND (end_date_rmday >= '.$last_date_components['rmday'].'))))';				
+
+				$sql_freqs[] = '((frequency = '.$db->quote('MFW').') AND (('.$now['ms'].' - start_date_ms) % period = 0) AND ((start_date_wdom < '.$now['wdom'].') OR (((start_date_wdom = '.$now['wdom'].') AND (start_date_mday - ((start_date_wdom - 1) * 7) <= '.($now['mday'] - (($now['wdom'] - 1) * 7)).')))))';
+
+				$sql_freqs[] = '((frequency = '.$db->quote('MFW').') AND (('.$now['ms'].' - end_date_ms) % period = 0) AND ((end_date_wdom < '.$now['wdom'].') OR (((end_date_wdom = '.$now['wdom'].') AND (end_date_mday - ((end_date_wdom - 1) * 7) <= '.($now['mday'] - (($now['wdom'] - 1) * 7)).')))))';
+
+				$sql_freqs[] = '((frequency = '.$db->quote('MRW').') AND (('.$now['ms'].' - start_date_ms) % period = 0) AND ((start_date_rwdom > '.$now['rwdom'].') OR (((start_date_rwdom = '.$now['rwdom'].') AND (start_date_rmday - ((start_date_rwdom - 1) * 7) >= '.($now['rmday'] - (($now['rwdom'] - 1) * 7)).')))))';
+
+				$sql_freqs[] = '((frequency = '.$db->quote('MRW').') AND (('.$now['ms'].' - end_date_ms) % period = 0) AND ((end_date_rwdom > '.$now['rwdom'].') OR (((end_date_rwdom = '.$now['rwdom'].') AND (end_date_rmday - ((end_date_rwdom - 1) * 7) <= '.($now['rmday'] - (($now['rwdom'] - 1) * 7)).')))))';
+
+				if ($last_date_components['ms'] - $now['ms'] > 1) {
+					//bam("View crosses a complete intervening month");
+					// we have intervening months, so we want to see if the event starts or ends in one of them
+					$sql_freqs[] = '((frequency LIKE '.$db->quote('M%').') AND (((('.$last_date_components['ms'].' - start_date_ms) % period) BETWEEN 1 AND '.($last_date_components['ms'] - $now['ms'] - 1).') OR ((('.$last_date_components['ms'].' - end_date_ms) % period) BETWEEN 1 AND '.($last_date_components['ms'] - $now['ms'] - 1).')))';
+				}
+			}
+/*
+			echo '<pre>';
+			foreach ($sql_freqs as $sqlf) echo "\n===\n$sqlf ";
+			echo '</pre>';
+*/
+			
 
 		break;
 
 	}//end switch on $view
-
-	$sql .= '('.implode("\n\n OR \n\n ", $sql_freqs).')';
+	$sql .= '('.implode("\n\n\nOR\n\n\n ", $sql_freqs).')';
 
 	// stop date
 	$sql .= ' AND ('.$last_day.' >= start_date_ds)';
 	$sql .= ' AND (stop_date = '.$db->quote('----------').' OR stop_date >= '.$db->quote($iso).')';
-
+	//bam("---------------------");
+	//echo '<pre>'.$sql.'</pre>';
+	//bam("---------------------");
 	return $sql;
 
 }//end build_recurring_event_query_base()
@@ -696,6 +834,13 @@ function expand_recurring_event(&$result_list, &$event, $assetid, $first_day, $l
 					$result_list[$assetid.':'.$i]['end_date_mon']    = date('n', $start_time);
 					$result_list[$assetid.':'.$i]['end_date_mday']   = date('j', $start_time);
 
+					if (!is_null($event['start_date_hours'])) {
+						$result_list[$assetid.':'.$i]['start_date_ts'] = strtotime($start_date.' '.$event['start_date_hours'].':'.$event['start_date_minutes'].':00');
+						$result_list[$assetid.':'.$i]['end_date_ts'] = strtotime($start_date.' '.$event['end_date_hours'].':'.$event['end_date_minutes'].':00');
+					} else {
+						$event[$assetid.':'.$i]['start_date_ts'] = strtotime($start_date);
+						$event[$assetid.':'.$i]['end_date_ts'] = strtotime($end_date);
+					}
 					$i++;
 				}
 			}
@@ -718,7 +863,13 @@ function expand_recurring_event(&$result_list, &$event, $assetid, $first_day, $l
 				$result_list[$assetid.':'.$i]['end_date_mon']    = date('n', $start_time);
 				$result_list[$assetid.':'.$i]['end_date_mday']   = date('j', $start_time);
 
-				$i++;
+				if (!is_null($event['start_date_hours'])) {
+					$result_list[$assetid.':'.$i]['start_date_ts'] = strtotime($start_date.' '.$event['start_date_hours'].':'.$event['start_date_minutes'].':00');
+					$result_list[$assetid.':'.$i]['end_date_ts'] = strtotime($start_date.' '.$event['end_date_hours'].':'.$event['end_date_minutes'].':00');
+				} else {
+					$event[$assetid.':'.$i]['start_date_ts'] = strtotime($start_date);
+					$event[$assetid.':'.$i]['end_date_ts'] = strtotime($end_date);
+				}				$i++;
 			}
 
 		}
@@ -874,3 +1025,13 @@ function get_date_components($iso, $prefix='')
 	return $res;	
 	
 }//end get_date_components()
+
+// testing
+/*
+$root_nodes = Array(30, 35);
+$trees = get_treeids($root_nodes);
+$sql = build_recurring_event_query_base($trees, 'period', '2004-10-20', 20);
+bam("=========");
+bam($sql);
+exit();
+*/
