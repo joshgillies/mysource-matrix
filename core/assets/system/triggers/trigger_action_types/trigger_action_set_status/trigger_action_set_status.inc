@@ -18,11 +18,12 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_status.inc,v 1.5 2005/03/21 06:22:21 gsherwood Exp $
+* $Id: trigger_action_set_status.inc,v 1.6 2005/03/22 04:54:18 gsherwood Exp $
 *
 */
 
 require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_action.inc';
 
 /**
 * Trigger Action Set Status
@@ -32,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
