@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime_field.inc,v 1.16 2004/06/24 05:14:05 lwright Exp $
+* $Id: datetime_field.inc,v 1.17 2004/07/14 10:10:24 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -538,14 +538,19 @@ class DateTime_Field {
 			if($c) $value['c'] = 1;
 		}
 		// Now we can assume we have an array of units values to verify
+		pre_echo(' value : '.$this->unitsArraytoStr($value));
 		$min = $this->strToUnitsArray($this->getParam('min'));
+		pre_echo('min : '.$this->getParam('min'));
 		$max = $this->strToUnitsArray($this->getParam('max'));
+		pre_echo('max : '.$this->getParam('max'));
 		$us = array('y','m','d','h','i','s');
 		foreach($us as $u) {
 			if($value[$u] >= 0) {
 				$value[$u] = min(max($value[$u],$min[$u]),$max[$u]);
 			}
 		}
+		pre_echo(' value : '.$this->unitsArraytoStr($value));
+		pre_echo('---------------------------------------------');
 		// DO CIRCA STUFF HERE ON DOWN
 		$validate_day_month = $value['y'] > 1901 && $value['y'] < 2038 && $value['m'] >= 0 && $value['d'] >= 0; // PHP limit
 		$value = $this->unitsArrayToStr($value);
@@ -580,12 +585,12 @@ class DateTime_Field {
 	function strToUnitsArray($value)
 	{
 		$r = array();
-		$r['y'] = ((($i = (int) ($s = substr($value,0,4)))  || ($s[0] != '-' && strlen($s))) ? $i : -1);
-		$r['m'] = ((($i = (int) ($s = substr($value,5,2)))  || ($s[0] != '-' && strlen($s))) ? $i : -1);
-		$r['d'] = ((($i = (int) ($s = substr($value,8,2)))  || ($s[0] != '-' && strlen($s))) ? $i : -1);
-		$r['h'] = ((($i = (int) ($s = substr($value,11,2))) || ($s[0] != '-' && strlen($s))) ? $i : -1);
-		$r['i'] = ((($i = (int) ($s = substr($value,14,2))) || ($s[0] != '-' && strlen($s))) ? $i : -1);
-		$r['s'] = ((($i = (int) ($s = substr($value,17,2))) || ($s[0] != '-' && strlen($s))) ? $i : -1);
+		$r['y'] = ((($i = (int) ($s = substr($value,0,4)))  || ($s{0} != '-' && strlen($s))) ? $i : -1);
+		$r['m'] = ((($i = (int) ($s = substr($value,5,2)))  || ($s{0} != '-' && strlen($s))) ? $i : -1);
+		$r['d'] = ((($i = (int) ($s = substr($value,8,2)))  || ($s{0} != '-' && strlen($s))) ? $i : -1);
+		$r['h'] = ((($i = (int) ($s = substr($value,11,2))) || ($s{0} != '-' && strlen($s))) ? $i : -1);
+		$r['i'] = ((($i = (int) ($s = substr($value,14,2))) || ($s{0} != '-' && strlen($s))) ? $i : -1);
+		$r['s'] = ((($i = (int) ($s = substr($value,17,2))) || ($s{0} != '-' && strlen($s))) ? $i : -1);
 		if($this->getParam('allow_circa')) {
 			$r['c'] = (substr($value,20,1)?1:0);
 		}
@@ -604,12 +609,12 @@ class DateTime_Field {
 	*/
 	function unitsArrayToStr($v)
 	{
-		$r = (($v['y'] < 0 || !strlen($v['y']) || $v['y'][0] == '-') ? '----' : sprintf('%04d', $v['y'])).'-'
-			.(($v['m'] < 0 || !strlen($v['m']) || $v['m'][0] == '-') ?  '--'  : sprintf('%02d', $v['m'])).'-'
-			.(($v['d'] < 0 || !strlen($v['d']) || $v['d'][0] == '-') ?  '--'  : sprintf('%02d', $v['d'])).' '
-			.(($v['h'] < 0 || !strlen($v['h']) || $v['h'][0] == '-') ?  '--'  : sprintf('%02d', $v['h'])).':'
-			.(($v['i'] < 0 || !strlen($v['i']) || $v['i'][0] == '-') ?  '--'  : sprintf('%02d', $v['i'])).':'
-			.(($v['s'] < 0 || !strlen($v['s']) || $v['s'][0] == '-') ?  '--'  : sprintf('%02d', $v['s']));
+		$r = (($v['y'] < 0 || !strlen($v['y']) || $v['y']{0} == '-') ? '----' : sprintf('%04d', $v['y'])).'-'
+			.(($v['m'] < 0 || !strlen($v['m']) || $v['m']{0} == '-') ?  '--'  : sprintf('%02d', $v['m'])).'-'
+			.(($v['d'] < 0 || !strlen($v['d']) || $v['d']{0} == '-') ?  '--'  : sprintf('%02d', $v['d'])).' '
+			.(($v['h'] < 0 || !strlen($v['h']) || $v['h']{0} == '-') ?  '--'  : sprintf('%02d', $v['h'])).':'
+			.(($v['i'] < 0 || !strlen($v['i']) || $v['i']{0} == '-') ?  '--'  : sprintf('%02d', $v['i'])).':'
+			.(($v['s'] < 0 || !strlen($v['s']) || $v['s']{0} == '-') ?  '--'  : sprintf('%02d', $v['s']));
 		if($this->getParam('allow_circa')) $r .= ' '.(isset($v['c']) && $v['c'] ? '1' : '0');
 		return $r;
 
