@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_edit_fns.inc,v 1.5 2003/12/17 01:09:40 gsherwood Exp $
+* $Id: bodycopy_container_edit_fns.inc,v 1.6 2003/12/28 21:26:18 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -253,7 +253,6 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 		}
 
 		if (!empty($keywords)) {
-			bam($keywords);
 			foreach ($keywords as $keyword) {
 				$output = preg_replace('|%((<([^>]+?)>)+)?'.$keyword.'((<([^>]+?)>)+)?%|', '\\1<'.'?php echo (isset($keyword_replacements["'.$keyword.'"])) ? $keyword_replacements["'.$keyword.'"] : ""; ?'.'>\\4', $output);
 			}
