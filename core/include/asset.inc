@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.286 2004/04/13 23:25:20 gsherwood Exp $
+* $Id: asset.inc,v 1.287 2004/04/14 00:57:12 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1544,7 +1544,7 @@ class Asset extends MySource_Object
 //--        STATUS        --//
 
 
-/**
+	/**
 	* Returns a status object for the current asset to be used for processing
 	*
 	* @return object Asset_Status
@@ -2605,6 +2605,7 @@ class Asset extends MySource_Object
 	{
 
 		if (empty($assetids) && $GLOBALS['SQ_SYSTEM']->currentUserId()) {
+
 			// if we are the root user, we can do anything
 			if ($GLOBALS['SQ_SYSTEM']->userRoot()) return true;
 
@@ -2625,13 +2626,14 @@ class Asset extends MySource_Object
 					$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 					$publishers = $wfm->whoCanPublish($this->id);
 					if (in_array($GLOBALS['SQ_SYSTEM']->currentUserId(), $publishers)) return true;
+
 					if (empty($publishers)) {
 						// nobody can publish - great
 						// better let admins take a punt
 						return $this->_checkPermissionAccess(SQ_PERMISSION_ADMIN, $assetids);
 					}
 				}
-				return false;
+				if ($perm != SQ_PERMISSION_READ) return false;
 			}
 		}
 
