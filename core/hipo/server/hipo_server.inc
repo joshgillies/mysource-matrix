@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_server.inc,v 1.10 2003/11/18 15:37:33 brobertson Exp $
+* $Id: hipo_server.inc,v 1.11 2003/11/18 17:38:37 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -142,6 +142,12 @@ class HIPO_Server extends HIPO_Server_Common
 			// include on purpose so that if it fails we don't bring the server down
 			$included = include($this->_conf_file);
 			if($included) {
+
+				if (!isset($systems) || !is_array($systems)) {
+					error_log('Config File '.$this->_conf_file.' does not contain $systems array to load');
+					return;
+				}
+
 				// now assign the systems array from the $systems from the include file
 				foreach($systems as $systemid => $system_root) {
 					if (!is_dir($system_root)) {
@@ -205,7 +211,8 @@ class HIPO_Server extends HIPO_Server_Common
 			return;
 		}
 
-		error_log('Server Started -> PID : '.posix_getpid().', listening on port '.$this->_port);
+		socket_getsockname($this->_init_fd, $sock_addr='', $sock_port='');
+		error_log('Server Started -> PID : '.posix_getpid().', listening on '.$sock_addr.':'.$sock_port);
 
 		// this allows the shutdown function to check whether the server is already shut down
 		$GLOBALS[__CLASS__.'_status'] = 'running';
