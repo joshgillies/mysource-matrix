@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: design_area_menu_page_lineage_edit_fns.inc,v 1.4 2003/09/29 05:44:11 gsherwood Exp $
+* $Id: design_area_menu_page_lineage_edit_fns.inc,v 1.5 2003/10/13 07:27:45 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -62,7 +62,7 @@ class Design_Area_Menu_Page_Lineage_Edit_Fns extends Design_Area_Menu_Type_Edit_
 		// the home link is start the loop at a different position
 		$start_index = ($asset->attr('prefix_with_home_link')) ? 0 : 1;
 
-		$total = 'COUNT($PAGE_LINEAGE)';
+		$total = 'COUNT($ASSET_LINEAGE)';
 		// because the page lineage array contains the current page, all we need to do to have or not have
 		// the current link is end the loop at a different position
 		if (!$asset->attr('suffix_with_current_link')) { 
@@ -91,10 +91,10 @@ class Design_Area_Menu_Page_Lineage_Edit_Fns extends Design_Area_Menu_Type_Edit_
 		}
 
 		if ($asset->attr('have_links')) {
-			echo '?','><a', $class, ' href="<','?php echo relative_href($'.$asset->attr('id_name').'_url, $'.$asset->attr('id_name').'_proto.\'://\'.$PAGE_LINEAGE[$'.$asset->attr('id_name').'_i][\'url\']); ?','>"><','?php ';
+			echo '?','><a', $class, ' href="<','?php echo relative_href($'.$asset->attr('id_name').'_url, $'.$asset->attr('id_name').'_proto.\'://\'.$ASSET_LINEAGE[$'.$asset->attr('id_name').'_i][\'url\']); ?','>"><','?php ';
 		}
 
-		echo 'echo htmlspecialchars($PAGE_LINEAGE[$'.$asset->attr('id_name').'_i][\'short_name\']);';
+		echo 'echo htmlspecialchars($ASSET_LINEAGE[$'.$asset->attr('id_name').'_i][\'short_name\']);';
 
 		if ($asset->attr('have_links')) {
 			echo '?','></a><','?php ';

@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: design_area_menu_stalks.inc,v 1.7 2003/09/26 05:26:25 brobertson Exp $
+* $Id: design_area_menu_stalks.inc,v 1.8 2003/10/13 07:27:45 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -120,7 +120,7 @@ class Design_Area_Menu_Stalks extends Design_Area_Menu_Recursive
 
 		function '.$this->attr('id_name').'_recursive_fn($level, $parentid, $'.$this->attr('id_name').'_base_url, $depth=Array())
 		{
-			global $RECURSIVE_MENU_PAGE_LINEAGE;
+			global $RECURSIVE_MENU_ASSET_LINEAGE;
 			static $'.$this->attr('id_name').'_settings = '.var_export($this->_getSettingsArray(), true).';
 
 			$blank_src    = sq_web_path(\'lib\').\'/web/images/blank.gif\';
@@ -130,8 +130,8 @@ class Design_Area_Menu_Stalks extends Design_Area_Menu_Recursive
 			$depth[] = true; 
 			$depth_count = count($depth);
 
-			$'.$this->attr('id_name').'_lineage_assetid = (empty($RECURSIVE_MENU_PAGE_LINEAGE[$level + 1])) ? 0 : $RECURSIVE_MENU_PAGE_LINEAGE[$level + 1][\'assetid\'];
-			$'.$this->attr('id_name').'_lineage_setting = (count($RECURSIVE_MENU_PAGE_LINEAGE) - 1 == $level + 1) ? \'current\' : \'hierarchy\';
+			$'.$this->attr('id_name').'_lineage_assetid = (empty($RECURSIVE_MENU_ASSET_LINEAGE[$level + 1])) ? 0 : $RECURSIVE_MENU_ASSET_LINEAGE[$level + 1][\'assetid\'];
+			$'.$this->attr('id_name').'_lineage_setting = (count($RECURSIVE_MENU_ASSET_LINEAGE) - 1 == $level + 1) ? \'current\' : \'hierarchy\';
 			$'.$this->attr('id_name').'_urls = $GLOBALS[\'SQ_SYSTEM\']->am->getAssetHref(array_keys($GLOBALS[\'MENU_DATA\'][$parentid]), $'.$this->attr('id_name').'_base_url);
 
 #			pre_echo("Lineage Setting : $'.$this->attr('id_name').'_lineage_setting");

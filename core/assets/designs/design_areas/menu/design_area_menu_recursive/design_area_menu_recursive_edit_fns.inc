@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: design_area_menu_recursive_edit_fns.inc,v 1.14 2003/09/26 05:26:25 brobertson Exp $
+* $Id: design_area_menu_recursive_edit_fns.inc,v 1.15 2003/10/13 07:27:45 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -77,10 +77,10 @@ class Design_Area_Menu_Recursive_Edit_Fns extends Design_Area_Menu_Type_Edit_Fns
 				$parent_menu = &$asset->getParentMenu();
 				// if we aren't a sub menu
 				if (is_null($parent_menu)) {
-					$parent_assetid_name = '$PAGE_LINEAGE[$'.$asset->attr('id_name').'_level][\'assetid\']';
+					$parent_assetid_name = '$ASSET_LINEAGE[$'.$asset->attr('id_name').'_level][\'assetid\']';
 
 					echo '
-				$'.$asset->attr('id_name').'_base_url = (empty($PAGE_LINEAGE[$'.$asset->attr('id_name').'_level])) ? \'\' : current_protocol().\'://\'.$PAGE_LINEAGE[$'.$asset->attr('id_name').'_level][\'url\'];
+				$'.$asset->attr('id_name').'_base_url = (empty($ASSET_LINEAGE[$'.$asset->attr('id_name').'_level])) ? \'\' : current_protocol().\'://\'.$ASSET_LINEAGE[$'.$asset->attr('id_name').'_level][\'url\'];
 					';
 
 				// else  we are a sub menu

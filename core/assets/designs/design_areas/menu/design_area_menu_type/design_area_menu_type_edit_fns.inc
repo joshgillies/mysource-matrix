@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: design_area_menu_type_edit_fns.inc,v 1.24 2003/09/30 00:27:18 gsherwood Exp $
+* $Id: design_area_menu_type_edit_fns.inc,v 1.25 2003/10/13 07:27:46 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -271,18 +271,18 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 			case 'page' :
 				echo '<', '?php
 
-				$'.$asset->attr('id_name').'_lineage_assetid = (empty($PAGE_LINEAGE[$'.$asset->attr('id_name').'_level + 1])) ? 0 : $PAGE_LINEAGE[$'.$asset->attr('id_name').'_level + 1][\'assetid\'];
-				$'.$asset->attr('id_name').'_lineage_setting = (count($PAGE_LINEAGE) - 1 == $'.$asset->attr('id_name').'_level + 1) ? \'current\' : \'hierarchy\';
+				$'.$asset->attr('id_name').'_lineage_assetid = (empty($ASSET_LINEAGE[$'.$asset->attr('id_name').'_level + 1])) ? 0 : $ASSET_LINEAGE[$'.$asset->attr('id_name').'_level + 1][\'assetid\'];
+				$'.$asset->attr('id_name').'_lineage_setting = (count($ASSET_LINEAGE) - 1 == $'.$asset->attr('id_name').'_level + 1) ? \'current\' : \'hierarchy\';
 
 				';
 				$parent_menu = &$asset->getParentMenu();
 				// if we aren't a sub menu
 				if (is_null($parent_menu)) {
-					$parent_assetid_name = '$PAGE_LINEAGE[$'.$asset->attr('id_name').'_level][\'assetid\']';
+					$parent_assetid_name = '$ASSET_LINEAGE[$'.$asset->attr('id_name').'_level][\'assetid\']';
 
 					echo '
-				$'.$asset->attr('id_name').'_base_url = (empty($PAGE_LINEAGE[$'.$asset->attr('id_name').'_level])) ? \'\' : current_protocol().\'://\'.$PAGE_LINEAGE[$'.$asset->attr('id_name').'_level][\'url\'];
-				$'.$asset->attr('id_name').'_urls     = $am->getAssetHref(array_keys($GLOBALS[\'MENU_DATA\'][$PAGE_LINEAGE[$'.$asset->attr('id_name').'_level][\'assetid\']]), $'.$asset->attr('id_name').'_base_url);
+				$'.$asset->attr('id_name').'_base_url = (empty($ASSET_LINEAGE[$'.$asset->attr('id_name').'_level])) ? \'\' : current_protocol().\'://\'.$ASSET_LINEAGE[$'.$asset->attr('id_name').'_level][\'url\'];
+				$'.$asset->attr('id_name').'_urls     = $am->getAssetHref(array_keys($GLOBALS[\'MENU_DATA\'][$ASSET_LINEAGE[$'.$asset->attr('id_name').'_level][\'assetid\']]), $'.$asset->attr('id_name').'_base_url);
 					';
 
 				} else {

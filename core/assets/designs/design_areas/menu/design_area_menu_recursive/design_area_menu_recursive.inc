@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: design_area_menu_recursive.inc,v 1.13 2003/09/30 00:27:18 gsherwood Exp $
+* $Id: design_area_menu_recursive.inc,v 1.14 2003/10/13 07:27:45 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -39,7 +39,7 @@ class Design_Area_Menu_Recursive extends Design_Area_Menu_Type
 		if (empty($GLOBALS['SQ_'.__CLASS__.__FUNCTION__.'_RUN_'.$design->id])) {
 			echo '
 			// because we need to be able to get to this with the recurse fn
-			$GLOBALS[\'RECURSIVE_MENU_PAGE_LINEAGE\'] = &$PAGE_LINEAGE;
+			$GLOBALS[\'RECURSIVE_MENU_ASSET_LINEAGE\'] = &$ASSET_LINEAGE;
 			';
 			$GLOBALS['SQ_'.__CLASS__.__FUNCTION__.'_RUN_'.$design->id] = true;
 		}
@@ -75,11 +75,11 @@ class Design_Area_Menu_Recursive extends Design_Area_Menu_Type
 
 		function '.$this->attr('id_name').'_recursive_fn($level, $parentid, $'.$this->attr('id_name').'_base_url)
 		{
-			global $RECURSIVE_MENU_PAGE_LINEAGE;
+			global $RECURSIVE_MENU_ASSET_LINEAGE;
 			static $'.$this->attr('id_name').'_settings = '.var_export($this->_getSettingsArray(), true).';
 
-			$'.$this->attr('id_name').'_lineage_assetid = (empty($RECURSIVE_MENU_PAGE_LINEAGE[$level + 1])) ? 0 : $RECURSIVE_MENU_PAGE_LINEAGE[$level + 1][\'assetid\'];
-			$'.$this->attr('id_name').'_lineage_setting = (count($RECURSIVE_MENU_PAGE_LINEAGE) - 1 == $level + 1) ? \'current\' : \'hierarchy\';
+			$'.$this->attr('id_name').'_lineage_assetid = (empty($RECURSIVE_MENU_ASSET_LINEAGE[$level + 1])) ? 0 : $RECURSIVE_MENU_ASSET_LINEAGE[$level + 1][\'assetid\'];
+			$'.$this->attr('id_name').'_lineage_setting = (count($RECURSIVE_MENU_ASSET_LINEAGE) - 1 == $level + 1) ? \'current\' : \'hierarchy\';
 			$'.$this->attr('id_name').'_urls = $GLOBALS[\'SQ_SYSTEM\']->am->getAssetHref(array_keys($GLOBALS[\'MENU_DATA\'][$parentid]), $'.$this->attr('id_name').'_base_url);
 
 			?', '>
@@ -155,7 +155,7 @@ class Design_Area_Menu_Recursive extends Design_Area_Menu_Type
 		$parent_menu = &$this->getParentMenu();
 
 		echo '
-		$'.$this->attr('id_name').'_num_repeats = count($PAGE_LINEAGE) - $'.$this->attr('id_name').'_level;
+		$'.$this->attr('id_name').'_num_repeats = count($ASSET_LINEAGE) - $'.$this->attr('id_name').'_level;
 		';
 
 		if ($this->attr('min_num_levels') > 0) {
@@ -201,12 +201,12 @@ class Design_Area_Menu_Recursive extends Design_Area_Menu_Type
 			if ('.$min_levels_extra_cond.' $'.$this->attr('id_name').'_i < '.((int) $this->attr('min_num_levels')).') {
 				$'.$this->attr('id_name').'_assetids_cond = $'.$this->attr('id_name').'_assetids;
 			} else {
-				$'.$this->attr('id_name').'_assetids_cond = Array((int) $PAGE_LINEAGE[$'.$this->attr('id_name').'_level + $'.$this->attr('id_name').'_i][\'assetid\']);
+				$'.$this->attr('id_name').'_assetids_cond = Array((int) $ASSET_LINEAGE[$'.$this->attr('id_name').'_level + $'.$this->attr('id_name').'_i][\'assetid\']);
 			}
 			';
 			$majorids = '$'.$this->attr('id_name').'_assetids_cond';
 		} else {
-			$majorids = 'Array((int) $PAGE_LINEAGE[$'.$this->attr('id_name').'_level + $'.$this->attr('id_name').'_i][\'assetid\'])';
+			$majorids = 'Array((int) $ASSET_LINEAGE[$'.$this->attr('id_name').'_level + $'.$this->attr('id_name').'_i][\'assetid\'])';
 		}
 
 		echo '

@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: design_area_menu_normal.inc,v 1.9 2003/09/26 05:26:25 brobertson Exp $
+* $Id: design_area_menu_normal.inc,v 1.10 2003/10/13 07:27:45 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ class Design_Area_Menu_Normal extends Design_Area_Menu_Type
 
 		// if we aren't a sub menu, or if our parent is only showing subs if we are in the lineage, use the asset from the lineage
 		if (is_null($parent_menu) || $parent_menu->attr('show_subs') == 'on_current') {
-			$majorids = 'Array((int) $PAGE_LINEAGE[$'.$this->attr('id_name').'_level][\'assetid\'])';
+			$majorids = 'Array((int) $ASSET_LINEAGE[$'.$this->attr('id_name').'_level][\'assetid\'])';
 		} else {
 			$majorids = '$'.$parent_menu->attr('id_name').'_assetids';
 		}// end if

@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: design_edit_fns.inc,v 1.44 2003/10/10 06:49:22 brobertson Exp $
+* $Id: design_edit_fns.inc,v 1.45 2003/10/13 07:27:45 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,7 +31,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	{
 		$this->Design_Area_Edit_Fns();
 		$this->static_screens['details']['force_unlock'] = false;
-		$this->static_screens['details']['lock_type']    = 'parse_file';
+		$this->static_screens['details']['lock_type']    = 'parsing';
 
 	}//end constructor
 
@@ -48,7 +48,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	*/
 	function paintParseFile(&$asset, &$o, $prefix)
 	{
-		if ($asset->writeAccess('parse_file')) {
+		if ($asset->writeAccess('parsing')) {
 			file_upload($prefix.'_parse_file');
 		}
 
@@ -67,7 +67,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	*/
 	function processParseFile(&$asset, &$o, $prefix)
 	{
-pre_echo("CHECK HERE");
+
 		$parse_file  = $asset->data_path.'/parse.txt';
 		$changes     = false;
 		$new_version = false;
@@ -172,7 +172,7 @@ pre_echo("CHECK HERE");
 	*/
 	function paintEditParseFile(&$asset, &$o, $prefix)
 	{
-		if ($asset->writeAccess('parse_file')) {
+		if ($asset->writeAccess('parsing')) {
 			$parse_file = $asset->data_path.'/parse.txt';
 			if (!is_file($parse_file)) {
 				echo 'You need to upload a parse file before you can edit it';
@@ -396,7 +396,7 @@ pre_echo("CHECK HERE");
 				$da = null; // do this so a new version will be created
 			}
 
-			// if it doesn't exist, create it
+			// if it doesn't exist, create it, and acquire the lock
 			if (is_null($da)) {
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset($design_area);
 				$da = new $design_area();
@@ -406,7 +406,10 @@ pre_echo("CHECK HERE");
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return false;
 				}
-				$GLOBALS['SQ_SYSTEM']->am->rememberAsset($da);
+				if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($da->id, 'parsing')) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return false;
+				}
 			}
 
 			$design_areas[$id_name] = &$da;
@@ -426,15 +429,10 @@ pre_echo("CHECK HERE");
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			} 
-			if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($design_areas[$element['attributes']['id_name']]->id, 'attributes')) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
-			}
 			if (!$design_areas[$element['attributes']['id_name']]->saveAttributes()) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
-			$GLOBALS['SQ_SYSTEM']->am->releaseLock($design_areas[$element['attributes']['id_name']]->id, 'attributes');
 
 
 			// if they want this design area to be printed then what we need to do is alter the contents
@@ -547,6 +545,8 @@ pre_echo("CHECK HERE");
 		$pre_str = '
 		<?php
 		$am = &$GLOBALS[\'SQ_SYSTEM\']->am;
+		$ASSET_LINEAGE = $am->getLineageFromURL(null, null, \'short_name\');
+		pre_echo($ASSET_LINEAGE);
 		?>
 		';
 

@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: design_area_menu_type.inc,v 1.32 2003/09/30 00:27:18 gsherwood Exp $
+* $Id: design_area_menu_type.inc,v 1.33 2003/10/13 07:27:46 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -297,10 +297,10 @@ class Design_Area_Menu_Type extends Design_Area
 		if (is_null($parent_menu)) {
 			$this->printInitOutput($design);
 			echo '
-		if (!empty($PAGE_LINEAGE) && !empty($PAGE_LINEAGE[$'.$this->attr('id_name').'_level])) {
+		if (!empty($ASSET_LINEAGE) && !empty($ASSET_LINEAGE[$'.$this->attr('id_name').'_level])) {
 			';
 			$this->printDataCollection($design);
-			$parent_assetid_name = '$PAGE_LINEAGE[$'.$this->attr('id_name').'_level][\'assetid\']';
+			$parent_assetid_name = '$ASSET_LINEAGE[$'.$this->attr('id_name').'_level][\'assetid\']';
 		} else {
 			$parent_assetid_name = '$'.$parent_menu->attr('id_name').'_row[\'assetid\']';
 		}// end if
@@ -316,7 +316,7 @@ class Design_Area_Menu_Type extends Design_Area
 		// if we aren't a sub menu
 		if (is_null($parent_menu)) {
 			echo '
-		}// end if found in PAGE_LINEAGE
+		}// end if found in ASSET_LINEAGE
 			';
 		}// end if
 
@@ -342,7 +342,6 @@ class Design_Area_Menu_Type extends Design_Area
 		if (empty($GLOBALS['SQ_'.__CLASS__.__FUNCTION__.'_RUN_'.$design->id])) {
 			echo '
 			$db = &$GLOBALS[\'SQ_SYSTEM\']->db;
-			$PAGE_LINEAGE = $am->getLineageFromURL(null, null, \'short_name\');
 
 			require_once SQ_FUDGE_PATH.\'/db_extras/db_extras.inc\';
 

@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: design_area.inc,v 1.28 2003/09/26 05:26:24 brobertson Exp $
+* $Id: design_area.inc,v 1.29 2003/10/13 07:27:45 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -58,6 +58,21 @@ class Design_Area extends Asset
 		return parent::create($link);
 
 	}//end create()
+
+
+	/**
+	* Returns a list of lock types available for this asset type
+	*
+	* @return Array()
+	* @access public
+	*/
+	function lockTypes()
+	{
+		$lock_types = parent::lockTypes();
+		$lock_types['parsing'] = ($lock_types['attributes'] | $lock_types['links']);
+		return $lock_types;
+
+	}//end lockTypes()
 
 
 	/**

@@ -2,12 +2,12 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: edit_interface_screens.xml,v 1.6 2003/10/10 06:49:22 brobertson Exp $
+* $Id: edit_interface_screens.xml,v 1.7 2003/10/13 07:27:45 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
 
 <screens>
-	<screen code_name="parse_file"     display_name="Edit Parse File" icon="create" force_unlock="0" lock_type="parse_file" />
+	<screen code_name="parse_file"     display_name="Edit Parse File" icon="create" force_unlock="0" lock_type="parsing" />
 	<screen code_name="customisations" display_name="Customisations"  icon="page"   lock_type="links" />
 </screens>

@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: design.inc,v 1.53 2003/10/12 23:17:05 gsherwood Exp $
+* $Id: design.inc,v 1.54 2003/10/13 07:27:45 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -89,21 +89,6 @@ class Design extends Design_Area
 					);
 
 	}//end _getAllowedLinks()
-
-
-	/**
-	* Returns a list of lock types available for this asset type
-	*
-	* @return Array()
-	* @access public
-	*/
-	function lockTypes()
-	{
-		$lock_types = parent::lockTypes();
-		$lock_types['parse_file'] = ($lock_types['attributes'] | $lock_types['links']);
-		return $lock_types;
-
-	}//end lockTypes()
 
 
 	/**
@@ -393,9 +378,9 @@ class Design extends Design_Area
 		foreach($customisation_links as $link) {
 			$customisation = &$am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($customisation)) continue;
-			if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($customisation->id, 'all')) {
+			if ($acquired = $GLOBALS['SQ_SYSTEM']->am->acquireLock($customisation->id, 'all')) {
 				$customisation->updateFromParent($this);
-				$GLOBALS['SQ_SYSTEM']->am->releaseLock($customisation->id, 'all');
+				if ($acquired != 2) $GLOBALS['SQ_SYSTEM']->am->releaseLock($customisation->id, 'all');
 			}
 		}// end foreach
 
@@ -434,8 +419,7 @@ class Design extends Design_Area
 				break;
 
 			case 'site_name' :
-			case 'asset_title' :
-				echo '"', ucwords(str_replace('_', ' ', $var)), '" NOT PROGRAMMED YET';
+				echo '<', '?php echo $ASSET_LINEAGE[0][\'short_name\']; ?', '>';
 				break;
 
 			case 'assetid' :
