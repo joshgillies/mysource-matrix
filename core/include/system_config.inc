@@ -1,9 +1,9 @@
 <?php
 
-require_once SQ_LIB_PATH.'/html_form/html_form.inc';
+require_once SQ_LIB_PATH.'/config/config.inc';
 
 /**
-* Config
+* System_Config
 *
 * Purpose
 *
@@ -13,11 +13,8 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @version $Version$ - 1.0
 * @package Resolve
 */
-class Config extends Resolve_Object
+class System_Config extends Config
 {
-
-	var $config_file;
-
 	var $config_vars = Array(
 		'SQ_CONF_DB_DSN'					=> Array('editable' => 0, 'default' => ''),
 		'SQ_CONF_PEAR_PATH'					=> Array('editable' => 0, 'default' => ''),
@@ -35,7 +32,6 @@ class Config extends Resolve_Object
 		'SQ_CONF_SYSTEM_NAME'				=> Array('editable' => 1, 'default' => 'Resolve System'),
 		'SQ_CONF_SYSTEM_OWNER'				=> Array('editable' => 1, 'default' => ''),
 		'SQ_CONF_SYSTEM_ROOT_URLS'			=> Array('editable' => 1, 'default' => ''),
-		'SQ_CONF_SUPER_USERS'				=> Array('editable' => 1, 'default' => ''),
 		'SQ_CONF_MAX_IDLE_TIME'				=> Array('editable' => 1, 'default' => 6000),
 		'SQ_CONF_MAX_LOGIN_ATTEMPTS'		=> Array('editable' => 1, 'default' => 3),
 		'SQ_CONF_DEFAULT_FRONTEND_LANGUAGE'	=> Array('editable' => 1, 'default' => 'en'),
@@ -50,120 +46,57 @@ class Config extends Resolve_Object
 	);
 
 
-
-
-/*
-	var $system_name = 'MySource System';
-	var $system_owner = 'System Owner';
-	var $webmaster_email;
-	var $backend_message_box_focus = 0;
-	var $backend_log_messages = '';
-	var $backend_brand_image = '';
-	var $jupload_path;
-
-
-	var $superusers = array('all' => array());
-
-	var $max_idle_time	= 6000;
-	var $max_login_attempts = 3;
-	var $log_visitors = 0;
-	var $log_remote_hosts = 0;
-
-	var $web_db_details = array('name'=>'','host'=>'','login'=>'','password'=>'', 'querylog'=>'');
-
-	var $virtual_paths  = 0;
-	var $strict_url_matching = 0;
-	var $backend_suffix = 'edit';
-	var $default_language;
-	var $default_charset;
-	var $moderate_caching;
-	var $illegal_filetypes = 'php php3 php4 php5 php6 inc act';
-	var $site_backend_dhtml_navigation = 0;
-	var $default_table_cell_type = 'richtext';
-
-	var $user_authentication = 'default';
-
-	var $user_db_details	= array('name'=>'','host'=>'','login'=>'','password'=>'','querylog'=>'');
-
-
-var $user_ldap_details  = array('host' => '', 'password' => '', 'rootdn' => '');
-*/
-
 	/**
 	* Constructor
 	*
 	*/
-	function Config()
+	function System_Config()
 	{
-		$this->Resolve_Object();
-		$this->config_file = SQ_DATA_PATH.'/private/conf/main.inc';
+		$this->Config(SQ_DATA_PATH.'/private/conf/main.inc');
 	}
+
 
 	/**
-	* Rewrites the conf file with current variables
+	* Paint's out the code for the config file for the passed config
+	* This allows extra things to be added for special cases
 	*
+	* @param string $name	the config var name
+	* @param mixed  $value	the value that the config var has
 	*/
-	function save($vars, $backup_existing=false) {
+	function _paintConfigVar($var_name, $value)
+	{
+		switch($var_name) {
+			case 'SQ_CONF_PEAR_PATH' :
+				parent::_paintConfigVar($var_name, $value);
+				if ($value) {
+					$sep = (substr(PHP_OS, 0, 3) == 'WIN') ? ';' : ':';
 
-		$str = "<"."?php\n";
+					// basically, if the first entry is '.' (ie the current directory) leave that,
+					// and insert the pear path just after that, otherwise just right at the front of the
+					// include path
+					echo "\$inc_dir = ini_get('include_path');\n";
+					echo "\$inc_dir = (substr(\$inc_dir, 0, 2) == '.".$sep."') ? '.".$sep.$value.$sep."'.substr(\$inc_dir, 2) : '".$value.$sep."'.\$inc_dir;\n";
+					echo "ini_set('include_path', \$inc_dir);\n\n";
+				}
+				break;
 
-		foreach($this->config_vars as $var_name => $data) {
+			case 'SQ_CONF_LOG_ERRORS' :
+				parent::_paintConfigVar($var_name, $value);
+				// NOTE: if they don't want to log errors we will leave
+				//       them with whatever their PHP settings are
+				if ($value) {
+					echo "ini_set('log_errors', '1');\n";
+					echo "ini_set('error_log',  SQ_DATA_PATH.'/private/logs/error.log');\n";
+				}
+				break;
 
-			$value = $data['default'];
-			if ($data['editable'] && isset($vars[$var_name])) {
-				$value = $vars[$var_name];
-			} elseif (defined($var_name)) {
-				$value = constant($var_name);
-			}
+			default :
+				parent::_paintConfigVar($var_name, $value);
 
-			$str .= "define('$var_name', ".var_export($value, true).");\n";
+		}// end switch
 
-			switch($var_name) {
-				case 'SQ_CONF_PEAR_PATH' :
-					if (!empty($value)) {
-						$str .= "\$sep = (substr(PHP_OS, 0, 3) == 'WIN') ? ';' : ':';\n";
-						$str .= "\$inc_dir = ini_get('include_path');\n";
-						// basically, if the first entry is '.' (ie the current directory) leave that,
-						// and insert the pear path just after that, otherwise just right at the front of the
-						// include path
-						$str .= "\$inc_dir = (substr(\$inc_dir, 0, 2) == '.'.\$sep) ? '.'.\$sep.SQ_CONF_PEAR_PATH.\$sep.substr(\$inc_dir, 2): SQ_CONF_PEAR_PATH.\$sep.\$inc_dir;\n";
-						$str .= "ini_set('include_path', \$inc_dir);\n\n";
-					}
-					break;
+	}//end _paintConfigVar()
 
-				case 'SQ_CONF_LOG_ERRORS' :
-					// NOTE: if they don't want to log errors we will leave
-					//       them with whatever their PHP settings are
-					if (!empty($value)) {
-						$str .= "ini_set('log_errors', '1');\n";
-						$str .= "ini_set('error_log',  SQ_DATA_PATH.'/private/logs/error.log');\n";
-					}
-					break;
-
-			}// end switch
-
-		}//end foreach
-
-		$str .= "?>\n";
-
-		if ($backup_existing && file_exists($this->config_file)) {
-
-			$i = 0;
-			do {
-				$i++;
-				$old_version = $this->config_file.'.'.$i;
-			} while(file_exists($old_version));
-
-			if (!copy($this->config_file, $old_version)) {
-				return false;
-			}
-
-		}
-
-		print_r($str);
-		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-		return string_to_file($str, $this->config_file);
-	}
 
 	/**
 	* Lets print the conf backend
