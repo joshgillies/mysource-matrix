@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.53.2.5.2.1 2004/12/19 23:11:04 lwright Exp $
+* $Id: form.inc,v 1.53.2.5.2.2 2004/12/21 01:03:03 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -35,7 +35,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.53.2.5.2.1 $
+* @version $Revision: 1.53.2.5.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -602,6 +602,8 @@ class Form extends Bridge
 		$section_links = &$this->getSectionLinks();
 		$sections = Array();
 
+		if (empty($section_links)) return Array();
+		
 		foreach ($section_links as $link) {
 			$sections[$link['sort_order']] = &$am->getAsset($link['minorid'], $link['minor_type_code']);
 		}
@@ -725,7 +727,28 @@ class Form extends Bridge
 		$clientside = ($this->attr('use_client_side'))?'onsubmit="return beforeSubmit_'.$prefix.'(this);"':'';
 
 		echo '<form name="'.$prefix.'" enctype="multipart/form-data" action="'.$_SERVER['PHP_SELF'].'" method="POST" '.$clientside.'>';
-
+		if ($this->attr('use_client_side')) {
+			?><script language="JavaScript">
+			function beforeSubmit_<?php echo $this->getPrefix() ?>(form) {
+				var submission_errors = new Array();
+				i = 0;
+					<?php
+					echo $this->generateJSCode();
+				?>
+					if (submission_errors.length > 0) {
+					var errors_list = "The following errors must be corrected before the form can be submitted:\n";
+					for(x in submission_errors) {
+						errors_list += submission_errors[x] + "\n";
+					}
+					alert(errors_list);
+					return false;
+				}
+				return true;
+			}
+			</script>
+		<?php
+		}
+		
 		$this->printStandard();
 		echo '</form>';
 
@@ -744,7 +767,7 @@ class Form extends Bridge
 			$this->includeContentFile('Standard');
 			$cf_output = ob_get_contents();
 		ob_end_clean();
-
+		
 		$error = array_get_index($this->_tmp,'is_error',false);
 
 		if ($error) {

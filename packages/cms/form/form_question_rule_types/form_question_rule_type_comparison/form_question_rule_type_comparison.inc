@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_comparison.inc,v 1.18 2004/09/23 02:00:25 arailean Exp $
+* $Id: form_question_rule_type_comparison.inc,v 1.18.4.1 2004/12/21 01:03:05 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -205,8 +205,7 @@ class Form_Question_Rule_Type_Comparison extends Form_Question_Rule
 		$code .= 'if (!(answer '.$operator.' '.$compare_value_parsed.')) {';	// START of js if
 			if (is_a($comparison, 'form_question')) {
 					$error = $q_asset->name.' '.$operators[$operator].
-						' '.$comparison->_getName().' in '.$comparison->getMySectionName().'
-						(\''.$compare_value.'\')';
+						' '.$comparison->_getName().' in '.$comparison->getMySectionName().' (\''.$compare_value.'\')';
 			} else {
 				if ($q_asset->isSelection()) {
 					$options = &$q_asset->getOptions();
