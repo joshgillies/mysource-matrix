@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.31 2004/09/09 23:53:54 lwright Exp $
+* $Id: form_email_edit_fns.inc,v 1.32 2004/09/10 00:51:26 mnyeholt Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -149,7 +149,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 					$root = &$tree->getTreeFromFile();
 					if (PEAR::isError($root)) {
 						pre_echo($root->getMessage()."\n".$root->getUserInfo());
-						return;
+						continue;
 					}
 
 					$num_subs++;
