@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_edit_fns.inc,v 1.8 2005/01/20 13:22:57 brobertson Exp $
+* $Id: search_manager_edit_fns.inc,v 1.9 2005/03/24 00:48:38 dheppell Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.8 $ - 1.0
+* @version $Revision: 1.9 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -110,9 +110,9 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 							$disabled = '0';
 						}
 						combo_box($prefix. "disable[$typeCode][$component]", Array(
-							'1' => 'Do not include in searches',
-							'0' => 'Include in searches'
-						), false, $disabled);
+																				   '1' => 'Do not include in searches',
+																				   '0' => 'Include in searches',
+																				   ), false, $disabled);
 
 						if (!$disabled) {
 							echo "&nbsp;Weight: ";

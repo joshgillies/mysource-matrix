@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.45 2005/03/17 01:01:35 ndvries Exp $
+* $Id: search_manager.inc,v 1.46 2005/03/24 00:48:38 dheppell Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.46 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -201,6 +201,7 @@ class Search_Manager extends Asset
 		if (!is_null($component)) $sql .= ' AND component = '.$db->quote($component);
 
 		$result = $db->query($sql);
+		assert_valid_db_result($result);
 		if (DB::isError($result)) {
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 		}
@@ -276,8 +277,11 @@ class Search_Manager extends Asset
 		$st = $db->prepare(
 			'INSERT INTO '.SQ_TABLE_PREFIX.'sch_idx(value, type, assetid, component, score)
 			 VALUES (?, ?, '.$db->quote($assetid).', ?, ?)');
+		assert_valid_db_result($st);
 
 		$result = $db->executeMultiple($st, $param_data);
+		assert_valid_db_result($result);
+
 		if (DB::isError($result)) {
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 			return false;
@@ -330,6 +334,7 @@ class Search_Manager extends Asset
 				WHERE type_code = '. $db->quote($type_code) . ' AND component = '. $db->quote($component) ;
 
 		$result = $db->query($sql);
+		assert_valid_db_result($result);
 		if (DB::isError($result)) {
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 		}
@@ -354,6 +359,7 @@ class Search_Manager extends Asset
 		$sql = 'DELETE FROM '.SQ_TABLE_PREFIX.'sch_idx_wgt
 				WHERE assetid = '.$db->quote($assetid).' AND component = '.$db->quote($component);
 		$result = $db->query($sql);
+		assert_valid_db_result($result);
 		if (DB::isError($result)) {
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 		}
@@ -366,6 +372,7 @@ class Search_Manager extends Asset
 						$db->quote($weighting) .
 					')';
 			$result = $db->query($sql);
+			assert_valid_db_result($result);
 			if (DB::isError($result)) {
 				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 			}
@@ -397,6 +404,7 @@ class Search_Manager extends Asset
 					a.assetid = ' . $db->quote($assetid) ;
 
 		$results = $db->getAll($sql);
+		assert_valid_db_result($results);
 		if (DB::isError($results)) {
 			trigger_error($results->getMessage().'<br/>'.$results->getUserInfo(), E_USER_ERROR);
 			return false;
@@ -761,11 +769,14 @@ class Search_Manager extends Asset
 				$field_asset_scores = null;
 				foreach ($attr_info['words'] as $word) {
 					$result = $cm->loadFromCache($this, $search_cache_key.'include_all'.$word);
+					assert_valid_db_result($result);
 					if (empty($result)) {
 						$sql = $start_sql.'
 							AND (ai.value LIKE '.$db->quote('%'.$word.'%').') '.$group_by;
 
-						$result = $include_context ? $db->getAll($sql) : $db->getAssoc($sql);
+						if ($include_context)  $result = $db->getAll($sql);
+						else $result = $db->getAssoc($sql);
+
 						assert_valid_db_result($result);
 
 						$cm->saveToCache($this, $search_cache_key.'include_all'.$word, serialize($result));
