@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select_edit_fns.inc,v 1.6.2.1 2004/09/30 01:09:27 gsherwood Exp $
+* $Id: metadata_field_select_edit_fns.inc,v 1.6.2.2 2004/10/19 01:06:43 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -276,6 +276,7 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 	function paintEditParams(&$asset, &$o, $prefix)
 	{
 		$selection = $asset->getSelectionAttribute();
+		$selection->_edit_params = $asset->attr('edit_params');
 		$selection->paintEditParams($prefix.'_style', $asset->writeAccess('attributes'));
 
 	}//end paintEditParams()
