@@ -49,7 +49,6 @@ CREATE TABLE sq_asset_type (
   level           SMALLINT     NOT NULL,
   dir             VARCHAR(255) NOT NULL DEFAULT 'asset',
   customisation   CHAR(1)      NOT NULL DEFAULT '0',
-  editing_options TEXT         NOT NULL DEFAULT '',
   PRIMARY KEY(type_code)
 );
 
