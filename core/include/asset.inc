@@ -59,7 +59,7 @@ class Asset extends Resolve_Object
 		}
 	}
 
-	/*
+	/**
 	* The type that t\his asset is
 	*
 	* @return string
@@ -70,7 +70,7 @@ class Asset extends Resolve_Object
 		return get_class($this);
 	}//end type();
 
-	/*
+	/**
 	* Create this asset
 	*
 	* @return boolean
@@ -113,7 +113,7 @@ class Asset extends Resolve_Object
 	}//end create()
 
 
-	/*
+	/**
 	* Load the asset represented by the passed asset id
 	*
 	* @param int    $assetid      the asset id to be loaded
@@ -155,7 +155,7 @@ class Asset extends Resolve_Object
 	}//end load()
 
 
-	/*
+	/**
 	* Loads the vars for this asset/ asset type into the vars array
 	*
 	* @access private
@@ -188,7 +188,7 @@ class Asset extends Resolve_Object
 
 	}//end _loadVars()
 
-	/*
+	/**
 	* Set's the last updated info for this asset
 	*
 	* @access private
@@ -223,7 +223,7 @@ class Asset extends Resolve_Object
 
 	}//end _updated();
 
-	/*
+	/**
 	* Returns a name to use to describe this instance of this asset
 	* should be overridden, used to set $this->name
 	*
@@ -234,7 +234,7 @@ class Asset extends Resolve_Object
 		return ucwords(str_replace('_', ' ', $this->type())).' #'.$this->id;
 	}//end _getName();
 
-	/*
+	/**
 	* Returns an array of all assets types that this asset extends from
 	*
 	* @param string $code_name  the code name for the asset that you want to check
@@ -249,7 +249,7 @@ class Asset extends Resolve_Object
 	}//end getParentList()
 
 
-	/*
+	/**
 	* Returns the link information for a specific link that this asset is the major asset in
 	* 
 	* @param int	linkid
@@ -277,7 +277,7 @@ class Asset extends Resolve_Object
 	}//end getLink()
 
 
-	/*
+	/**
 	* Return all links to this asset 
 	*
 	* @param int    $link_types  integer that can be the product of bitwise operations on the SQ_LINK_* constants
@@ -387,7 +387,7 @@ class Asset extends Resolve_Object
 
 
 
-	/*
+	/**
 	* Returns the number of links that this asset has as either a major or minor party
 	*
 	* @param int		$link_types		integer that can be the product of bitwise operations on the SQ_LINK_* constants
@@ -425,7 +425,7 @@ class Asset extends Resolve_Object
 
 	}//end countLinks()
 	
-	/*
+	/**
 	* Called when the links are changed for this asset so that the tmp cache can be cleared
 	*
 	* @param string $link_type    the type of link this is
@@ -450,7 +450,7 @@ class Asset extends Resolve_Object
 
 	}//end _linkChanged()
 
-	/*
+	/**
 	* Creates a link between this asset and the passed asset, of a certain type
 	* and returns the linkid of the created link
 	*
@@ -566,7 +566,7 @@ class Asset extends Resolve_Object
 	}//end createLink()
 
 
-	/*
+	/**
 	* Checks whether a link of a certain type can be made to this asset
 	* Returns TRUE if link allowed and a string containing the error if it is not
 	*
@@ -618,7 +618,7 @@ class Asset extends Resolve_Object
 	}// canLinkToType()
 
 
-	/*
+	/**
 	* Returns an array of all the permitted links type, the type asset and the cardinality
 	* In the form
 	*
@@ -641,7 +641,7 @@ class Asset extends Resolve_Object
 	}//end _getAllowedLinks()
 
 
-	/*
+	/**
 	* Moves a link from one place in this assets links order to another position
 	*
 	* @param int	$linkid		the link id of the link to move about
@@ -734,7 +734,7 @@ class Asset extends Resolve_Object
 	}//end moveLinkPos()
 
 
-	/*
+	/**
 	* Removes a link where this asset is the major player
 	*
 	* @param int	$linkid		the link id of the link to remove
@@ -794,7 +794,7 @@ class Asset extends Resolve_Object
 	}//end deleteLink()
 
 
-	/*
+	/**
 	* Set the value for the passed variable to the passed value
 	*
 	* @access public
@@ -873,7 +873,7 @@ class Asset extends Resolve_Object
 
 	}//end setAttrValue()
 
-	/*
+	/**
 	* Easy way to get the value of an attribute
 	*
 	* @param string	$name
@@ -890,7 +890,7 @@ class Asset extends Resolve_Object
 		return $this->vars[$name]['value'];
 	}//end attr();
 
-	/*
+	/**
 	* returns a reference to the actual attribute object, used for manipulting the object
 	*
 	* @param string		$name			the name of the attribute
@@ -926,7 +926,7 @@ class Asset extends Resolve_Object
 	}//end getAttribute()
 
 
-	/*
+	/**
 	* prints out the backend interface for the asset
 	* it's up to the kids to override
 	*
@@ -941,7 +941,7 @@ class Asset extends Resolve_Object
 		$ei->paint($this, $backend->out, empty($this->id));
 	}// end printBackend()
 
-	/*
+	/**
 	* processes a backend submission from this asset, returns true if all OK
 	*
 	* @return boolean
@@ -966,7 +966,7 @@ class Asset extends Resolve_Object
 		
 	}// end processBackend()
 
-	/*
+	/**
 	* returns a reference to the edit interface for this asset type
 	*
 	* @return boolean
