@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_management.inc,v 1.49 2004/02/10 16:01:42 brobertson Exp $
+* $Id: asset_management.inc,v 1.50 2004/08/11 06:12:56 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -585,13 +585,54 @@ class Asset_Management extends MySource_Object
 
 
 	/**
+	* Removes an attribute from the set of attributes owned by this asset
+	*
+	* This asset type must be the attribute's owning type.  If we have the
+	* attribute via inheritance or whatever, deletion is not allowed.
+	*
+	* @param string $name				the attribute to delete
+	*
+	* @return boolean					whether the delete was successful
+	* @access private
+	*/
+	function _deleteAttribute($name)
+	{
+		$type_code = $this->getAssetType();
+
+		// find the attributeid
+		$sql = 'SELECT attributeid FROM '.SQ_TABLE_PREFIX.'asset_attribute WHERE owning_type_code = \''.$type_code.'\' AND name=\''.$name.'\'';
+		$attributeid = $this->_db->getOne($sql);
+
+		if (is_null($attributeid)) {
+			trigger_error("Asset type $typecode has no attribute called $name", E_USER_ERROR);
+			return false;
+		}
+
+		// delete the attribute values
+		$sql = 'DELETE FROM '.SQ_TABLE_PREFIX.'asset_attribute_value WHERE attributeid='.$attributeid;
+		$result = $this->_db->query($sql);
+		assert_valid_db_result($result);
+
+		// delete the attribute
+		$sql = 'DELETE FROM '.SQ_TABLE_PREFIX.'asset_attribute WHERE attributeid='.$attributeid;
+		$result = $this->_db->query($sql);
+		assert_valid_db_result($result);
+		
+		// get rid of it in our array
+		if (isset($this->vars[$name])) unset($this->vars[$name]);
+		
+		return true;
+	}
+
+
+	/**
 	* Updates an attribute in this asset's set
 	*
 	* @param string	$name				the name of the attribute to update
 	* @param string	$current_version	the version of the asset that is currenly installed
 	*
 	* @return boolean
-	* @access private
+	* @access protected
 	*/
 	function _updateAttribute($name, $current_version)
 	{
