@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: settings.inc,v 1.9 2004/06/09 11:41:38 brobertson Exp $
+* $Id: settings.inc,v 1.10 2004/09/14 00:50:43 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -86,7 +86,7 @@ function paintSettings(&$owner, &$o, &$ei)
 					echo $owner->version;
 				break;
 
-				case 'version_update_verion' :
+				case 'version_update_version' :
 					// have to have admin access to update the major version
 					if ($owner->adminAccess('all')) {
 						$created = true;
@@ -98,6 +98,101 @@ function paintSettings(&$owner, &$o, &$ei)
 					} else {
 						$print_note = false;
 					}
+				break;
+
+				case 'date_created_date' :
+				case 'date_published_date' :
+
+					$date_type = (strtolower($field->attributes['code']) == 'date_created_date') ? 'created' : 'published';
+					require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
+
+					$parameters = Array(
+						'min'                   => '0000-00-00 00:00:00',
+						'max'                   => '9999-12-31 12:59:59',
+						'allow_circa'           => '0',
+						'show'                  => Array('y', 'm', 'd', 'h', 'i', 's'),
+						'null'                  => Array('y', 'm', 'd', 'h', 'i', 's'),
+						'style'                 => Array(
+														'y' => 't',
+														'm' => 's',
+														'd' => 's',
+														'h' => 's',
+														'i' => 's',
+														's' => 's',
+												),
+						'print_format'          => 'l, F jS, Y H:i:s',
+					);
+
+					if ($date_type == 'created') {
+						$value  = (!empty($owner->created)) ? ts_iso8601($owner->created) : '---------- --:--:--';
+						$userid = $owner->created_userid;
+					} else {
+						$value  = (!empty($owner->published)) ? ts_iso8601($owner->published) : '---------- --:--:--';
+						$userid = $owner->published_userid;
+					}
+
+					if ($field->children[0]->name != 'display_name') $display_name = ucfirst($date_type).' Date';
+					else $display_name = $field->children[0]->content;
+					$o->openField($display_name);
+
+					$date_field = new Datetime_Field($prefix.'_date_'.$date_type, $value, $parameters);
+
+					if ($owner->adminAccess('all')) {
+						$date_field->printField();
+
+						?>
+							<script language="javascript">
+								var TIME_UNITS = new Array();
+								<?php
+
+									$units = Array(
+										'Y' => 'y',
+										'n' => 'm',
+										'j' => 'd',
+										'G' => 'h',
+										'i' => 'i',
+										's' => 's',
+									);
+
+									foreach ($units as $php_unit => $js_unit) {
+										echo 'TIME_UNITS[\''.$js_unit.'\'] = \''.date($php_unit).'\';';
+									}
+								?>
+
+								function setCurrentTime(prefix) {
+									for (u in TIME_UNITS) {
+										var id = prefix + 'value[' + u + ']';
+										var unit = document.getElementById(id);
+
+										if (unit.type == 'text') {
+											unit.value = TIME_UNITS[u];
+										} else {
+											for (var i = 0; i < unit.options.length; i++) {
+												if (TIME_UNITS[u] == unit.options[i].value) {
+													unit.selectedIndex = i;
+												}
+											}
+										}
+									}
+								}
+							</script>
+						<?php
+						normal_button($prefix.'_set_time_'.$date_type, 'now', 'setCurrentTime(\''.$prefix.'_date_'.$date_type.'\');');
+						echo '&nbsp;<b>by</b>&nbsp;';
+						asset_finder($prefix.'_date_'.$date_type.'_userid', $userid, Array('user' => 'D'));
+						
+					} else {
+						$print_note = false;
+						if ($date_field->isEmpty() && $date_type == 'published') {
+							echo ' never published';
+						} else {
+							$info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($userid), 'user', false);
+							if (empty($info)) $info[$userid] = Array('name' => '&lt;unknown&gt;');
+
+							echo ucfirst($date_type).' by '.$info[$userid]['name'].' on '.date('d M Y h:i:s', strtotime($date_field->value));
+						}
+					}
+
 				break;
 
 				case 'force_secure' :
@@ -425,6 +520,68 @@ function processSettings(&$owner, &$o, &$ei)
 				trigger_error('Failed updating major version of "'.$owner->name.'"', E_USER_WARNING);
 			}
 		}
+	}
+
+	//// DATES ////
+	if ($owner->adminAccess('all')) {
+		require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
+
+		foreach (Array('created', 'published') as $date_type) {
+
+			// check to see if a user was selected for this particular date, 
+			// otherwise use the current logged in user
+			if (isset($_POST[$prefix.'_date_'.$date_type.'_userid']['assetid']) && $_POST[$prefix.'_date_'.$date_type.'_userid']['assetid'] != 0) {
+				$userid = $_POST[$prefix.'_date_'.$date_type.'_userid']['assetid'];
+			} else {
+				$userid = $GLOBALS['SQ_SYSTEM']->currentUserid();
+			}
+
+			$value = '';
+			$parameters = Array(
+				'min'                   => '0000-00-00 00:00:00',
+				'max'                   => '9999-12-31 12:59:59',
+				'allow_circa'           => '0',
+				'show'                  => Array('y', 'm', 'd', 'h', 'i', 's'),
+				'null'                  => Array('y', 'm', 'd', 'h', 'i', 's'),
+				'style'                 => Array(
+												'y' => 't',
+												'm' => 's',
+												'd' => 's',
+												'h' => 's',
+												'i' => 's',
+												's' => 's',
+										),
+				'print_format'          => 'l, F jS, Y H:i:s',
+			);
+
+			$date_field = new Datetime_Field($prefix.'_date_'.$date_type, $value, $parameters);
+			$date_field->processField();
+
+			// if the date is only partially complete, then don't set the date
+			if (!$date_field->isEmpty() && !preg_match("/^[0-9]{4}-[0-9]{2}-[0-9]{2} ([0-9]{2}\:?){3}$/", $date_field->value)) continue;
+
+			if ($date_type == 'created') {
+				// make sure that the date that is specified is not null for the created date
+				if ($date_field->isEmpty()) {
+					trigger_error('The created date cannot be empty', E_USER_WARNING);
+					continue;
+				}
+				$current_date   = $owner->created;
+				$current_userid = $owner->created_userid;
+			} else {
+				$current_date   = $owner->published;
+				$current_userid = $owner->published_userid;
+			}
+
+			if ($date_field->value != $current_date || $current_userid != $userid) {
+				$timestamp = (!$date_field->isEmpty()) ? strtotime($date_field->value) : null;
+
+				// the timestamp will be -1 if the date exceeds a 32bit integer
+				if ($timestamp === -1) continue;
+
+				$owner->setDate($timestamp, $userid, $date_type);
+			}
+		}//end foreach
 	}
 
 
