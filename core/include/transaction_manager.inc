@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: transaction_manager.inc,v 1.12 2005/01/20 13:10:34 brobertson Exp $
+* $Id: transaction_manager.inc,v 1.13 2005/03/02 01:09:04 gsherwood Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *    Also to handle nested transaction calls
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix
 */
 class Transaction_Manager extends MySource_Object
@@ -95,7 +95,7 @@ class Transaction_Manager extends MySource_Object
 		if ($this->_levels[$db_name] == 1) {
 			// first time we have started a transaction
 			$result = $GLOBALS['SQ_SYSTEM']->db->query('BEGIN');
-			if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+			assert_valid_db_result($result);
 		}
 		return true;
 
@@ -127,7 +127,7 @@ class Transaction_Manager extends MySource_Object
 		if ($this->_levels[$db_name] == 0) {
 			// this is the last commit
 			$result = $GLOBALS['SQ_SYSTEM']->db->query('COMMIT');
-			if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+			assert_valid_db_result($result);
 		}
 		return true;
 
@@ -155,7 +155,7 @@ class Transaction_Manager extends MySource_Object
 		if ($this->_levels[$db_name] == 0) {
 			// this is the last rollback
 			$result = $GLOBALS['SQ_SYSTEM']->db->query('ROLLBACK');
-			if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+			assert_valid_db_result($result);
 		}
 		return true;
 

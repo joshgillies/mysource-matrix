@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.65 2005/02/23 05:14:15 gsherwood Exp $
+* $Id: general.inc,v 1.66 2005/03/02 01:09:04 gsherwood Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.65 $
+* @version $Revision: 1.66 $
 * @package MySource_Matrix
 */
 
@@ -404,12 +404,12 @@ function current_url($inc_protocol=true, $strip_backend_suffix=false)
 function clean_url($url)
 {
 	$bits = Array(
-		'__data',
-		'__lib',
-		'__fudge',
-		SQ_CONF_LIMBO_SUFFIX,
-		SQ_CONF_BACKEND_SUFFIX,
-	);
+				  '__data',
+				  '__lib',
+				  '__fudge',
+				  SQ_CONF_LIMBO_SUFFIX,
+				  SQ_CONF_BACKEND_SUFFIX,
+				  );
 
 	foreach ($bits as $bit) {
 		$url = preg_replace('/\/'.$bit.'.*/', '/', $url);

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.243 2005/02/23 05:14:15 gsherwood Exp $
+* $Id: asset_edit_interface.inc,v 1.244 2005/03/02 01:09:04 gsherwood Exp $
 *
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.243 $
+* @version $Revision: 1.244 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -121,11 +121,11 @@ class Asset_Edit_Interface extends MySource_Object
 			$force_unlock = ((isset($root->children[$i]->attributes['force_unlock'])) ? $root->children[$i]->attributes['force_unlock'] : '1');
 
 			$this->_screens[$code_name] = Array(
-												'name'			=> $root->children[$i]->attributes['display_name'],
-												'force_unlock'	=> ($force_unlock != '0'),
-												'lock_type'		=> (isset($root->children[$i]->attributes['lock_type'])) ? $root->children[$i]->attributes['lock_type'] : '',
-												'invisible'		=> (!empty($root->children[$i]->attributes['invisible'])),
-											);
+												'name'         => $root->children[$i]->attributes['display_name'],
+												'force_unlock' => ($force_unlock != '0'),
+												'lock_type'    => (isset($root->children[$i]->attributes['lock_type'])) ? $root->children[$i]->attributes['lock_type'] : '',
+												'invisible'    => (!empty($root->children[$i]->attributes['invisible'])),
+												);
 
 
 			if (!empty($root->children[$i]->attributes['default'])) $this->_default_screen = $code_name;
@@ -1043,10 +1043,10 @@ class Asset_Edit_Interface extends MySource_Object
 		if (!$have_all_locks) {
 			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
 			$vars = Array(
-								'assetids' => Array($owner->id,),
-								'lock_type' => $locks,
-								'forceably_acquire' => false,
-							);
+						  'assetids'          => Array($owner->id,),
+						  'lock_type'         => $locks,
+						  'forceably_acquire' => false,
+						  );
 			$hh->queueHipo('hipo_job_acquire_locks', $vars);
 			$url = $hh->runQueuedJobs();
 			if (!empty($url)) $o->setRedirect(strip_url(current_url()).'/?sq_redirect_url='.urlencode($url));

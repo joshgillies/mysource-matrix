@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.67 2005/02/25 04:35:09 gsherwood Exp $
+* $Id: metadata_manager.inc,v 1.68 2005/03/02 01:09:04 gsherwood Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.67 $
+* @version $Revision: 1.68 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -124,10 +124,7 @@ class Metadata_Manager extends MySource_Object
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
 		$result = $db->getAll($sql.$where);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-			return Array();
-		}
+		assert_valid_db_result($result);
 
 		$schemas = Array();
 		foreach ($result as $data) {
@@ -196,9 +193,10 @@ class Metadata_Manager extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// add the schema to the database
-		$values = Array('assetid'  => $asset->id,
+		$values = Array(
+						'assetid'  => $asset->id,
 						'schemaid' => $schemaid,
-						'granted'  => (($granted) ? '1' : '0')
+						'granted'  => (($granted) ? '1' : '0'),
 						);
 		if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('ast_metadata', $values)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -281,10 +279,7 @@ class Metadata_Manager extends MySource_Object
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
 		$result = $db->getAll($sql.$where);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-			return Array();
-		}
+		assert_valid_db_result($result);
 
 		$assets = Array();
 		foreach ($result as $data) {
@@ -421,11 +416,10 @@ class Metadata_Manager extends MySource_Object
 			}
 
 			$default_values[$field->id] = Array(
-											'name'	=> $field->name,
-											'value' => $field->getDefaultValue(),
-										);
-
-		}// end for
+												'name'  => $field->name,
+												'value' => $field->getDefaultValue(),
+												);
+		}
 
 		return $default_values;
 
@@ -570,9 +564,10 @@ class Metadata_Manager extends MySource_Object
 				// we need to insert
 				if (!in_array($fieldid, $updates)) {
 
-					$values = Array('assetid'	=> $asset->id,
-									'fieldid'	=> $fieldid,
-									'value'		=> $metadata[$fieldid]['value'],
+					$values = Array(
+									'assetid' => $asset->id,
+									'fieldid' => $fieldid,
+									'value'   => $metadata[$fieldid]['value'],
 									);
 					if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('ast_metadata_value', $values)) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -583,9 +578,9 @@ class Metadata_Manager extends MySource_Object
 				} else {
 
 					$values = Array(
-									'value'		=> $db->quote($metadata[$fieldid]['value']),
+									'value' => $db->quote($metadata[$fieldid]['value']),
 									);
-					$where = '	assetid = '.$db->quote($asset->id).'
+					$where = '  assetid = '.$db->quote($asset->id).'
 							AND fieldid = '.$db->quote($fieldid);
 					if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('ast_metadata_value', $values, $where)) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: internal_message.inc,v 1.42 2005/02/23 05:14:15 gsherwood Exp $
+* $Id: internal_message.inc,v 1.43 2005/03/02 01:09:04 gsherwood Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    An internal message to be sent around the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix
 */
 class Internal_Message extends MySource_Object
@@ -277,11 +277,7 @@ class Internal_Message extends MySource_Object
 
 			// log a message for the system so it is not deleted
 			$messageid = $db->nextId('sq_internal_msg');
-			if (DB::isError($messageid)) {
-				trigger_error($messageid->getMessage().'<br/>'.$messageid->getUserInfo(), E_USER_ERROR);
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
-			}
+			assert_valid_db_result($messageid);
 
 			$log_body = preg_replace('|<SQ_MSG_LINK ([^>]*?)>(.*?)</SQ_MSG_LINK>|', '<a \\1>\\2</a>', $this->body);
 
@@ -311,9 +307,9 @@ class Internal_Message extends MySource_Object
 			$mail =& Mail::factory('mail', "-f$from_email");
 
 			$hdrs = Array(
-				'From'    => $from_string,
-				'Subject' => $this->subject
-			);
+						  'From'    => $from_string,
+						  'Subject' => $this->subject,
+						  );
 
 			// send each user a message - via email and into their internal message inbox
 			foreach ($send_to as $userid) {
@@ -358,11 +354,7 @@ class Internal_Message extends MySource_Object
 
 				// log the internal message
 				$messageid = $db->nextId('sq_internal_msg');
-				if (DB::isError($messageid)) {
-					trigger_error($messageid->getMessage().'<br/>'.$messageid->getUserInfo(), E_USER_ERROR);
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return false;
-				}
+				assert_valid_db_result($messageid);
 
 				$sql = 'INSERT INTO '.SQ_TABLE_PREFIX.'internal_msg (msgid, userto, userfrom, subject, body, type, priority, status, sent, parameters) VALUES ('.$db->quote($messageid).', '.$db->quote($userid).', '.$db->quote($this->from).', '.$db->quote($this->subject).', '.$db->quote($log_body).', '.$db->quote($this->type).', '.$db->quote($this->priority).', '.$db->quote($this->status).', '.$db->quote($this->sent).', '.$db->quote($param_string).')';
 				$result = $db->query($sql);

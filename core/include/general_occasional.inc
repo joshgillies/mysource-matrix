@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general_occasional.inc,v 1.43 2005/02/16 05:58:42 dbaranovskiy Exp $
+* $Id: general_occasional.inc,v 1.44 2005/03/02 01:09:04 gsherwood Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.44 $
 * @package MySource_Matrix
 */
 
@@ -51,7 +51,7 @@ function link_type_name($type)
 			$str .= $names[$i];
 			if ($i < count($names) - 2) {
 				$str .= ', ';
-			} elseif ($i < count($names) - 1) {
+			} else if ($i < count($names) - 1) {
 				$str .= ' or ';
 			}
 		}
@@ -100,14 +100,15 @@ function permission_type_name($type)
 
 
 /**
-* Takes a prefix to a set of constants and a bit value and returns an array if more than
-* one name is found, or a single name
+* Takes a prefix to a set of constants and a bit value and returns the matching names
 *
-* @param string	$prefix			the constants prefix (eg SQ_LINK_)
-* @param int	$bit_value		the bit value to check
-* @param bool	$force_array	force the return of an array even if only one name found
-* @param bool	$exact_value	find a match for $bit_value exactly - not an array of constants that
-*								that comprise it (ie 3 == 3 NOT 3 == 1|2)
+* An array is returned if more than one name is found.
+*
+* @param string		$prefix			the constants prefix (eg SQ_LINK_)
+* @param int		$bit_value		the bit value to check
+* @param boolean	$force_array	force the return of an array even if only one name found
+* @param boolean	$exact_value	find a match for $bit_value exactly - not an array of constants that
+* 									that comprise it (ie 3 == 3 NOT 3 == 1|2)
 *
 * @return string
 * @access public
@@ -127,9 +128,13 @@ function get_bit_names($prefix, $bit_value, $force_array=false, $exact_value=fal
 		}
 	}
 
-	if ($force_array || count($names) > 1) return $names;
-	elseif (count($names)) return $names[0];
-	else '';
+	if ($force_array || count($names) > 1) {
+		return $names;
+	} else if (count($names)) {
+		return $names[0];
+	}
+
+	return '';
 
 }//end get_bit_names()
 
@@ -260,7 +265,7 @@ function get_status_names()
 */
 function asset_link_treeid_convert($value, $encode)
 {
-	// These characters are chosen so as not to clash with any SQL control symbols - ie . * ^ \ [ ] { } ( ) < > ? & $
+	// these characters are chosen so as not to clash with any SQL control symbols - ie . * ^ \ [ ] { } ( ) < > ? & $
 	static $digits = Array(
 		 0 => '0',  1 => '1',  2 => '2',  3 => '3',  4 => '4',  5 => '5',  6 => '6',  7 => '7',
 		 8 => '8',  9 => '9', 10 => 'A', 11 => 'B', 12 => 'C', 13 => 'D', 14 => 'E', 15 => 'F',
@@ -269,7 +274,7 @@ function asset_link_treeid_convert($value, $encode)
 		32 => 'W', 33 => 'X', 34 => 'Y', 35 => 'Z', 36 => '_', 37 => 'a', 38 => 'b', 39 => 'c',
 		40 => 'd', 41 => 'e', 42 => 'f', 43 => 'g', 44 => 'h', 45 => 'i', 46 => 'j', 47 => 'k',
 		48 => 'l', 49 => 'm', 50 => 'n', 51 => 'o', 52 => 'p', 53 => 'q', 54 => 'r', 55 => 's',
-		56 => 't', 57 => 'u', 58 => 'v', 59 => 'w', 60 => 'x', 61 => 'y', 62 => 'z', 63 => '~'
+		56 => 't', 57 => 'u', 58 => 'v', 59 => 'w', 60 => 'x', 61 => 'y', 62 => 'z', 63 => '~',
 		);
 
 	// encode value ?
@@ -286,8 +291,8 @@ function asset_link_treeid_convert($value, $encode)
 		} else {
 			return str_pad($str, SQ_CONF_ASSET_TREE_SIZE, '0', STR_PAD_LEFT);
 		}
-	// else decode value
 	} else {
+		// decode value
 		$num = 0;
 		$str = (string) $value;
 		$len = strlen($str);

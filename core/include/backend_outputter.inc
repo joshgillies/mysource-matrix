@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.98 2005/02/23 05:14:15 gsherwood Exp $
+* $Id: backend_outputter.inc,v 1.99 2005/03/02 01:09:04 gsherwood Exp $
 *
 */
 
@@ -42,7 +42,7 @@ define('SQ_BO_MSG_ERROR',       4);
 *    there will only ever be one instance of this object
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.98 $
+* @version $Revision: 1.99 $
 * @package MySource_Matrix
 */
 class Backend_Outputter
@@ -171,14 +171,15 @@ class Backend_Outputter
 		// register that we want to listen to link update events
 		$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
 
-		$em->addEventListener($this, Array(  'CreateLink',
-											 'DeleteLink',
-											 'AssetUpdate',
-											 'AssetTypeUpdate',
-											 'BackendMessage',
-											 'AssetStatusUpdate'
-											)
-								);
+		$em->addEventListener($this, Array(
+										   'CreateLink',
+										   'DeleteLink',
+										   'AssetUpdate',
+										   'AssetTypeUpdate',
+										   'BackendMessage',
+										   'AssetStatusUpdate',
+										   )
+							);
 
 	}//end constructor
 
@@ -471,10 +472,10 @@ class Backend_Outputter
 	function openRaw()
 	{
 		$init_arr = Array(
-						'area_type'	=> 'section',
-						'type'		=> 'raw',
-						'contents'	=> ''
-					);
+						  'area_type' => 'section',
+						  'type'      => 'raw',
+						  'contents'  => '',
+						  );
 
 		$ret_val = $this->_openSection($init_arr);
 		ob_start();
@@ -512,12 +513,12 @@ class Backend_Outputter
 	function openSection($heading='', $icon='')
 	{
 		$init_arr = Array(
-						'area_type'	=> 'section',
-						'type'		=> 'normal',
-						'heading'	=> $heading,
-						'icon'		=> $icon,
-						'areas'		=> Array(),
-					);
+						  'area_type' => 'section',
+						  'type'      => 'normal',
+						  'heading'   => $heading,
+						  'icon'      => $icon,
+						  'areas'     => Array(),
+						  );
 		return $this->_openSection($init_arr);
 
 	}//end openSection()
@@ -564,7 +565,6 @@ class Backend_Outputter
 	function _openSection($init_arr)
 	{
 		if ($this->_is_open_field) $this->closeField();
-
 
 		if ($this->_buffering) {
 			if (!is_null($this->_current_field)) $this->closeField();
@@ -715,16 +715,16 @@ class Backend_Outputter
 			$stack_i = count($this->_section_stack) - 1;
 			$i = count($this->_section_stack[$stack_i]['areas']);
 			$this->_section_stack[$stack_i]['areas'][$i] = Array(
-																'area_type'		=> 'field',
-																'type'			=> 'normal',
-																'field_count'	=> $this->_field_count,
-																'name'			=> $name,
-																'format'		=> $format,
-																'note'			=> $note,
-																'contents'		=> '',
-																'hidden'		=> $hidden,
-																'id_name'		=> $id_name,
-															);
+																 'area_type'   => 'field',
+																 'type'        => 'normal',
+																 'field_count' => $this->_field_count,
+																 'name'        => $name,
+																 'format'      => $format,
+																 'note'        => $note,
+																 'contents'    => '',
+																 'hidden'      => $hidden,
+																 'id_name'     => $id_name,
+																 );
 
 			$this->_current_field = &$this->_section_stack[$stack_i]['areas'][$i];
 			ob_start();
@@ -740,7 +740,7 @@ class Backend_Outputter
 
 
 	/**
-	* prints a field without buffering (nb == non-buffering)
+	* Print a field without buffering (nb == non-buffering)
 	*
 	* @param string $name		label of the field
 	* @param string $format		format 'new_line' | 'blank' | 'commit' | ''
@@ -914,7 +914,7 @@ class Backend_Outputter
 			for ($i = 0; $i < count($this->_contents); $i++) {
 				$this->_paintSection($this->_contents[$i]);
 			}
-		}//end if
+		}
 
 		$this->_paintFooter();
 
@@ -930,8 +930,8 @@ class Backend_Outputter
 	function getAsString()
 	{
 		ob_start();
-		$this->paint();
-		$str = ob_get_contents();
+			$this->paint();
+			$str = ob_get_contents();
 		ob_end_clean();
 
 		return $str;

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.113 2005/02/23 05:14:15 gsherwood Exp $
+* $Id: backend.inc,v 1.114 2005/03/02 01:09:04 gsherwood Exp $
 *
 */
 
@@ -32,7 +32,7 @@
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.113 $
+* @version $Revision: 1.114 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -210,7 +210,8 @@ class Backend extends MySource_Object
 			$main_url = $_SERVER['PHP_SELF'].'?SQ_BACKEND_PAGE=main'.$main_extras;
 		}
 
-		$frame_urls = Array('header'  => $_SERVER['PHP_SELF'].'?SQ_BACKEND_PAGE=header',
+		$frame_urls = Array(
+							'header'  => $_SERVER['PHP_SELF'].'?SQ_BACKEND_PAGE=header',
 							'main'    => $main_url,
 							'sidenav' => $_SERVER['PHP_SELF'].'?SQ_BACKEND_PAGE=sidenav',
 							'resizer' => $_SERVER['PHP_SELF'].'?SQ_BACKEND_PAGE=resizer',
@@ -310,7 +311,9 @@ class Backend extends MySource_Object
 			$sql = 'SELECT assetid FROM '.SQ_TABLE_RUNNING_PREFIX.'ast '.$where;
 
 			$updated_assetids = $db->getCol($sql);
-			if (!DB::isError($updated_assetids) && !empty($updated_assetids)) {
+			assert_valid_db_result($updated_assetids);
+
+			if (!empty($updated_assetids)) {
 				$this->out->addOnLoad('
 					if (parent.frames["sq_sidenav"] && parent.frames["sq_sidenav"].reload_assets) {
 						parent.frames["sq_sidenav"].reload_assets("'.addslashes(implode(',', $updated_assetids)).'");
@@ -589,51 +592,51 @@ class Backend extends MySource_Object
 					if (!SQ_IN_LIMBO) {
 						if ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
 							$options[] = Array(
-								'url'    => $this->getBackendUrl('main').'&backend_section=config',
-								'target' => 'sq_main',
-								'title'  => 'System Configuration',
-								'icon'   => 'system_config.png',
-							);
+											   'url'    => $this->getBackendUrl('main').'&backend_section=config',
+											   'target' => 'sq_main',
+											   'title'  => 'System Configuration',
+											   'icon'   => 'system_config.png',
+											   );
 						}
 
 						if ($GLOBALS['SQ_SYSTEM']->userRoot()) {
 							$options[] = Array(
-								'url'    => $this->getBackendUrl('main').'&backend_section=maps',
-								'target' => 'sq_main',
-								'title'  => 'Automated Patching System',
-								'icon'   => 'maps.png',
-							);
+											   'url'    => $this->getBackendUrl('main').'&backend_section=maps',
+											   'target' => 'sq_main',
+											   'title'  => 'Automated Patching System',
+											   'icon'   => 'maps.png',
+											   );
 						}
 
 						$options[] = Array(
-							'url'     => $this->getBackendUrl('main').'&backend_section=hipo_herder',
-							'target'  => 'sq_main',
-							'title'   => 'HIPO Herder',
-							'icon'    => 'hipo_herder.png',
-						);
+										   'url'    => $this->getBackendUrl('main').'&backend_section=hipo_herder',
+										   'target' => 'sq_main',
+										   'title'  => 'HIPO Herder',
+										   'icon'   => 'hipo_herder.png',
+										   );
 
 						$options[] = Array(
-							'url'     => $this->getBackendUrl('main').'&backend_section=am',
-							'target'  => 'sq_main',
-							'title'   => 'Asset Tree',
-							'icon'    => 'asset_tree.png',
-						);
+										   'url'    => $this->getBackendUrl('main').'&backend_section=am',
+										   'target' => 'sq_main',
+										   'title'  => 'Asset Tree',
+										   'icon'   => 'asset_tree.png',
+										   );
 
 						$options[] = Array(
-							'url'     => $_SERVER['PHP_SELF'].'?SQ_ACTION=logout',
-							'target'  => '_top',
-							'title'   => 'Logout',
-							'icon'    => 'logout.png',
-						);
+										   'url'    => $_SERVER['PHP_SELF'].'?SQ_ACTION=logout',
+										   'target' => '_top',
+										   'title'  => 'Logout',
+										   'icon'   => 'logout.png',
+										   );
 
 					} else {
 
 						$options[] = Array(
-							'url'     => current_url(true, true),
-							'target'  => '_top',
-							'title'   => 'Exit Editing Mode',
-							'icon'    => 'exit_limbo.png',
-						);
+										   'url'    => current_url(true, true),
+										   'target' => '_top',
+										   'title'  => 'Exit Editing Mode',
+										   'icon'   => 'exit_limbo.png',
+										   );
 
 					}
 
@@ -731,8 +734,8 @@ class Backend extends MySource_Object
 			.myspace-section {
 				background-color:	#FFFFFF;
 				border:				1px solid #A2A2A2;
-				margin:				3px;
-				width:				270px;
+				margin:				2px;
+				width:				273px;
 			}
 			.myspace-section td, .myspace-section a {
 				font-family:		Arial;
@@ -829,7 +832,9 @@ class Backend extends MySource_Object
 				$inbox_url = '';
 			} else {
 				$inbox_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($inbox_link['minorid'], $inbox_link['minor_type_code']);
-				$inbox_url = $inbox_asset->getBackendHref('details');
+				$inbox_url       = $inbox_asset->getBackendHref('details');
+				$new_message_url = $inbox_asset->getBackendHref('new_message');
+				$sent_url        = $inbox_asset->getBackendHref('sent');
 			}
 
 			$details_url = $user->getBackendHref('details');
@@ -842,13 +847,16 @@ class Backend extends MySource_Object
 				$unread_messages = $ms->getMessages($GLOBALS['SQ_SYSTEM']->currentUserId(), null, Array(SQ_MSG_UNREAD), Array(), null, null, 'short_name');
 
 				$messages = array_merge($read_messages, $unread_messages);
-				$num_messages = count($messages);
 				?>
 				<table class="myspace-section">
 					<tr>
-						<td><a href="<?php echo $_SERVER['PHP_SELF'].$inbox_url; ?>" target="sq_main"><img src="<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/inbox_icon.png" align="left" border="0" /></a></td>
+						<td valign="top"><a href="<?php echo $_SERVER['PHP_SELF'].$inbox_url; ?>" target="sq_main"><img src="<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/inbox_icon.png" align="left" border="0" /></a></td>
 						<td width="100%">
-							<a href="<?php echo $_SERVER['PHP_SELF'].$inbox_url; ?>" target="sq_main"><span class="myspace-section-header">Inbox</span><br />You have [<b><?php echo $num_messages; ?></b>] new message(s)</a>
+							<p><a href="<?php echo $_SERVER['PHP_SELF'].$inbox_url; ?>" target="sq_main"><span class="myspace-section-header">My Inbox</span><br />You have <b><?php echo count($unread_messages); ?></b> unread and <b><?php echo count($messages); ?></b> total new message(s)</a></p>
+							<p><a href="<?php echo $_SERVER['PHP_SELF'].$inbox_url; ?>" target="sq_main"><span class="myspace-section-header">Inbox Actions</span><br />
+							<a href="<?php echo $_SERVER['PHP_SELF'].$inbox_url; ?>" target="sq_main">+ View your inbox</a><br />
+							<a href="<?php echo $_SERVER['PHP_SELF'].$new_message_url; ?>" target="sq_main">+ Send a new message</a><br />
+							<a href="<?php echo $_SERVER['PHP_SELF'].$sent_url; ?>" target="sq_main">+ View sent messages</a></p>
 						</td>
 					</tr>
 				</table>
@@ -858,9 +866,9 @@ class Backend extends MySource_Object
 			?>
 			<table class="myspace-section">
 				<tr>
-					<td><a href="<?php echo $_SERVER['PHP_SELF'].$details_url; ?>" target="sq_main"><img src="<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/mydetails_icon.png" align="left" border="0" /></a></td>
+					<td valign="top"><a href="<?php echo $_SERVER['PHP_SELF'].$details_url; ?>" target="sq_main"><img src="<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/mydetails_icon.png" align="left" border="0" /></a></td>
 					<td width="100%">
-						<span class="myspace-section-header"><a href="<?php echo $_SERVER['PHP_SELF'].$details_url; ?>" target="sq_main">My Details</a></span>
+						<span class="myspace-section-header"><a href="<?php echo $_SERVER['PHP_SELF'].$details_url; ?>" target="sq_main">My Details</span><br />Edit the details of your account</a>
 					</td>
 				</tr>
 			</table>

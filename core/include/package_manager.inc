@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager.inc,v 1.63 2005/02/23 05:14:15 gsherwood Exp $
+* $Id: package_manager.inc,v 1.64 2005/03/02 01:09:04 gsherwood Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
 *    packages and their assets, uses info gleened from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.63 $
+* @version $Revision: 1.64 $
 * @package MySource_Matrix
 */
 class Package_Manager extends MySource_Object
@@ -226,7 +226,7 @@ class Package_Manager extends MySource_Object
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 			$exists = $db->getOne('SELECT code_name FROM '.SQ_TABLE_PREFIX.'pkg WHERE code_name = '.$db->quote($package_name));
-			if (DB::isError($exists)) trigger_error($exists->getMessage()."\n".$exists->getUserInfo(), E_USER_ERROR);
+			assert_valid_db_result($exists);
 
 			if ($exists) {
 				$sql = 'UPDATE '.SQ_TABLE_PREFIX.'pkg
@@ -243,11 +243,7 @@ class Package_Manager extends MySource_Object
 			}
 
 			$result = $db->query($sql);
-			if (DB::isError($result)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				trigger_error($result->getMessage()."\n".$result->getUserInfo(), E_USER_WARNING);
-				return false;
-			}
+			assert_valid_db_result($result);
 
 			for (reset($install_order); null !== ($k = key($install_order)); next($install_order)) {
 				$type_code =& $install_order[$k];
@@ -461,14 +457,15 @@ class Package_Manager extends MySource_Object
 		for (reset($this->assets); null !== ($type_code = key($this->assets)); next($this->assets)) {
 			if (in_array($type_code, $deferred)) continue;
 
-			$attrs = Array(	'type_code'			=> $type_code,
-							'name'				=> $this->assets[$type_code]['name'],
-							'version'			=> $this->assets[$type_code]['version'],
-							'instantiable'		=> $this->assets[$type_code]['instantiable'],
-							'allowed_access'	=> $this->assets[$type_code]['allowed_access'],
-							'parent_type'		=> $this->assets[$type_code]['parent_type'],
-							'flash_menu_path'	=> $this->assets[$type_code]['flash_menu_path'],
-						);
+			$attrs = Array(
+						   'type_code'       => $type_code,
+						   'name'            => $this->assets[$type_code]['name'],
+						   'version'         => $this->assets[$type_code]['version'],
+						   'instantiable'    => $this->assets[$type_code]['instantiable'],
+						   'allowed_access'  => $this->assets[$type_code]['allowed_access'],
+						   'parent_type'     => $this->assets[$type_code]['parent_type'],
+						   'flash_menu_path' => $this->assets[$type_code]['flash_menu_path'],
+						   );
 
 			$type_node = &$root->addChild('type', '', $attrs);
 
@@ -537,7 +534,7 @@ class Package_Manager extends MySource_Object
 			switch ($req['@type']) {
 				case 'package' :
 					$installed_version = $GLOBALS['SQ_SYSTEM']->db->getOne('SELECT version FROM '.SQ_TABLE_PREFIX.'pkg WHERE code_name = '.$GLOBALS['SQ_SYSTEM']->db->quote($req['code']['value']));
-					if (DB::isError($installed_version)) trigger_error($installed_version->getMessage()."\n".$installed_version->getUserInfo(), E_USER_ERROR);
+					assert_valid_db_result($installed_version);
 
 					if ($installed_version) {
 						$ok = version_compare($installed_version, $req['version']['value'], '>=');
@@ -572,10 +569,10 @@ class Package_Manager extends MySource_Object
 
 				if ($need_feedback) {
 					$ret_arr = Array(
-									'type'    => $req['@type'],
-									'code'    => $req['code']['value'],
-									'version' => $req['version']['value']
-									);
+									 'type'    => $req['@type'],
+									 'code'    => $req['code']['value'],
+									 'version' => $req['version']['value'],
+									 );
 					return Array(false, $ret_arr);
 
 				} else {

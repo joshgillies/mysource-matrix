@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.78 2005/03/01 00:32:28 arailean Exp $
+* $Id: mysource.inc,v 1.79 2005/03/02 01:09:04 gsherwood Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_INCLUDE_PATH.'/asset_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.78 $
+* @version $Revision: 1.79 $
 * @package MySource_Matrix
 */
 class MySource
@@ -545,11 +545,8 @@ class MySource
 							  AND version = '.$this->db->quote($version);
 
 					$then = $this->db->getOne($sql);
-					if (DB::isError($then)) {
-						trigger_error($then->getMessage().'<br/>'.$then->getUserInfo(), E_USER_WARNING);
-					} else {
-						$_SESSION['sq_rollback_view'] = Array('rollback_time' => $then);
-					}
+					assert_valid_db_result($then);
+					$_SESSION['sq_rollback_view'] = Array('rollback_time' => $then);
 				}
 
 				unset($_GET['assetid']);
@@ -1384,11 +1381,7 @@ class MySource
 
 		// update the live data
 		$result = $this->db->query($live_sql);
-		if (DB::isError($result)) {
-			$this->doTransaction('ROLLBACK');
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-			return false;
-		}
+		assert_valid_db_result($result);
 
 		// update the rollback entries we added
 		// (but only if rollback is enabled!!)
@@ -1582,11 +1575,7 @@ class MySource
 		$delete_sql = 'DELETE FROM '.SQ_TABLE_PREFIX.$table_name.' WHERE '.$where_cond;
 
 		$result = $this->db->query($delete_sql);
-		if (DB::isError($result)) {
-			$this->doTransaction('ROLLBACK');
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-			return false;
-		}
+		assert_valid_db_result($result);
 
 		$this->doTransaction('COMMIT');
 		return true;
@@ -1622,8 +1611,8 @@ class MySource
 			} else {
 				$user = &$this->am->getAsset($current_lock['userid']);
 				return 'Cannot acquire lock, lock already held by "'.$user->name.'"';
-			}//end if
-		}//end if
+			}
+		}
 
 		// if we have no source, we are the asset aquiring the locks
 		if (empty($source_lockid)) $source_lockid = $lockid;
@@ -1639,11 +1628,9 @@ class MySource
 				VALUES
 				('.$this->db->quote($lockid).','.$this->db->quote($source_lockid).','.$this->db->quote($this->currentUserid()).','.$this->db->quote($expires).')';
 		$result = $this->db->query($sql);
+		if (!assert_valid_db_result($result, '', true, false)) return 'Database Error';
+
 		$this->restoreDatabaseConnection();
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-			return 'Database Error';
-		}
 		return true;
 
 	}//end acquireLock()
@@ -1667,11 +1654,9 @@ class MySource
 				WHERE source_lockid = '.$this->db->quote($current_lock['source_lockid']);
 
 		$result = $this->db->query($sql);
+		if (!assert_valid_db_result($result, '', true, false)) return 'Database Error';
+
 		$this->restoreDatabaseConnection();
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-			return 'Database Error';
-		}
 		return true;
 
 	}//end releaseLock()
@@ -1706,11 +1691,9 @@ class MySource
 				WHERE source_lockid = '.$this->db->quote($current_lock['source_lockid']);
 
 		$result = $this->db->query($sql);
+		if (!assert_valid_db_result($result, '', true, false)) return 'Database Error';
+
 		$this->restoreDatabaseConnection();
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-			return 'Database Error';
-		}
 		return true;
 
 	}//end updateLock()
@@ -1723,7 +1706,7 @@ class MySource
 	* @param boolean	$full_chain		return the info for every lock in the lock chain
 	* @param boolean	$check_expires	check the expiry date and cleanup the lock if it has expired
 	*
-	* @return Array
+	* @return array
 	* @access public
 	*/
 	function getLockInfo($lockid, $full_chain=false, $check_expires=true)
@@ -1735,11 +1718,7 @@ class MySource
 				WHERE lockid = '.$this->db->quote($lockid);
 
 		$result = $this->db->getRow($sql);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-			$this->restoreDatabaseConnection();
-			return Array();
-		}
+		assert_valid_db_result($result);
 
 		if (!empty($result)) {
 			$result['expires'] = empty($result['expires']) ? NULL : iso8601_ts($result['expires']);
@@ -1749,8 +1728,8 @@ class MySource
 					$this->restoreDatabaseConnection();
 					// this lock has expired
 					return Array();
-				}//end if
-			}//end if
+				}
+			}
 
 			if ($full_chain) {
 				$result['chained_assets'] = Array();
@@ -1759,11 +1738,7 @@ class MySource
 						WHERE source_lockid = '.$this->db->quote($result['source_lockid']).'
 						  AND lockid <> '.$this->db->quote($lockid);
 				$chain = $this->db->getAll($sql);
-				if (DB::isError($chain)) {
-					trigger_error($chain->getMessage().'<br/>'.$chain->getUserInfo(), E_USER_WARNING);
-					$this->restoreDatabaseConnection();
-					return Array();
-				}
+				assert_valid_db_result($chain);
 
 				foreach ($chain as $lock_row) {
 					$lock_row['expires'] = (empty($lock_row['expires'])) ? NULL : iso8601_ts($lock_row['expires']);
@@ -1873,12 +1848,7 @@ class MySource
 	{
 		$sql = 'SELECT code_name, version, name, description FROM '.SQ_TABLE_PREFIX.'pkg';
 		$packages = $this->db->getAll($sql);
-
-		if (DB::isError($packages)) {
-			trigger_error($packages->getMessage().'<br/>'.$packages->getUserInfo(), E_USER_WARNING);
-			return false;
-		}
-
+		assert_valid_db_result($packages);
 		return $packages;
 
 	}//end getInstalledPackages()

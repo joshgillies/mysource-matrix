@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.61 2005/02/23 00:26:38 dbaranovskiy Exp $
+* $Id: workflow_manager.inc,v 1.62 2005/03/02 01:09:04 gsherwood Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.61 $
+* @version $Revision: 1.62 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -88,10 +88,7 @@ class Workflow_Manager extends MySource_Object
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
 			$result = $db->getAll($sql.$where);
-			if (DB::isError($result)) {
-				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-				return Array();
-			}
+			assert_valid_db_result($result);
 
 			$schemas = Array();
 			foreach ($result as $data) {
@@ -174,10 +171,11 @@ class Workflow_Manager extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// add the schema to the database
-		$values = Array('assetid'  => $asset->id,
+		$values = Array(
+						'assetid'  => $asset->id,
 						'schemaid' => $schemaid,
 						'wflow'    => NULL,
-						'granted'  => (($granted) ? '1' : '0')
+						'granted'  => (($granted) ? '1' : '0'),
 						);
 		if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('ast_wflow', $values)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -281,17 +279,17 @@ class Workflow_Manager extends MySource_Object
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
 			$workflows = $db->getAssoc($sql.$where, false, Array(), DB_FETCHMODE_ASSOC);
-			if (DB::isError($workflows)) {
-				trigger_error($workflows->getMessage().'<br />'.$workflows->getUserInfo(), E_USER_WARNING);
-				return Array();
-			}
+			assert_valid_db_result($workflows);
 
 			for (reset($workflows); null !== ($k = key($workflows)); next($workflows)) {
 				$workflows[$k] = (is_null($workflows[$k])) ? '' : unserialize($workflows[$k]);
 			}
 
-			if ($schemaid == 'all') $this->_tmp['schema_workflows'][$assetid]['all'] = $workflows;
-			else					$this->_tmp['schema_workflows'][$assetid][$schemaid] = $workflows[$schemaid];
+			if ($schemaid == 'all') {
+				$this->_tmp['schema_workflows'][$assetid]['all'] = $workflows;
+			} else {
+				$this->_tmp['schema_workflows'][$assetid][$schemaid] = $workflows[$schemaid];
+			}
 		}
 
 		if (!isset($this->_tmp['schema_workflows'][$assetid][$schemaid])) return Array();

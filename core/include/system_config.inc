@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.46 2005/02/25 04:35:09 gsherwood Exp $
+* $Id: system_config.inc,v 1.47 2005/03/02 01:09:04 gsherwood Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.46 $
+* @version $Revision: 1.47 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -45,58 +45,32 @@ class System_Config extends Config
 	* @var Array()
 	*/
 	var $config_vars = Array(
-		'SQ_CONF_DB_DSN'					=> Array('editable' => 1, 'default' => ''),
-		'SQ_CONF_DB2_DSN'					=> Array('editable' => 1, 'default' => ''),
-		'SQ_CONF_PEAR_PATH'					=> Array('editable' => 0, 'default' => ''),
-		'SQ_CONF_BACKEND_SUFFIX'			=> Array('editable' => 1, 'default' => '_admin'),
-		'SQ_CONF_LIMBO_SUFFIX'				=> Array('editable' => 1, 'default' => '_edit'),
-
-		// Fixed Size of the number of digits that each link trees entry can be, run
-		//    pow(SQ_CONF_ASSET_TREE_BASE, SQ_CONF_ASSET_TREE_SIZE)
-		// to get max number of possible link entries per node
-		'SQ_CONF_ASSET_TREE_BASE'			=> Array('editable' => 0, 'default' => 64),
-		'SQ_CONF_ASSET_TREE_SIZE'			=> Array('editable' => 0, 'default' =>  4),
-
-		// Rollback Settings
-		'SQ_CONF_ROLLBACK_ENABLED'			=> Array('editable' => 0, 'default' => '0'),
-
-		// Debug Settings - bit element
-		'SQ_CONF_DEBUG'						=> Array('editable' => 1, 'default' => 0),
-
-//// START EDITABLE SETTINGS ////
-		// System Settings
-		'SQ_CONF_SYSTEM_NAME'				=> Array('editable' => 1, 'default' => 'The System'),
-		'SQ_CONF_SYSTEM_OWNER'				=> Array('editable' => 1, 'default' => ''),
-		'SQ_CONF_SYSTEM_ROOT_URLS'			=> Array('editable' => 1, 'default' => ''),
-
-		// Email Settings
-		'SQ_CONF_DEFAULT_EMAIL'				=> Array('editable' => 1, 'default' => ''),
-		'SQ_CONF_TECH_EMAIL'				=> Array('editable' => 1, 'default' => ''),
-
-		// Session/Login Settings
-		'SQ_CONF_MAX_LOGIN_ATTEMPTS'		=> Array('editable' => 1, 'default' => 3),
-		'SQ_CONF_MAX_IDLE_TIME'				=> Array('editable' => 1, 'default' => 6000),
-
-		// Interval Settings
-		'SQ_CONF_REFRESH_INTERVAL'			=> Array('editable' => 1, 'default' => 120),
-		'SQ_CONF_LOCK_LENGTH'				=> Array('editable' => 1, 'default' => 600),
-
-		// Error Settings
-		'SQ_CONF_LOG_FILE'					=> Array('editable' => 1, 'default' => ''),
-		'SQ_CONF_LOG_ERRORS'				=> Array('editable' => 1, 'default' => true),
-		'SQ_CONF_ERRORS_HIDE_FRONTEND'		=> Array('editable' => 1, 'default' => false),
-
-		// Internationalisation Settings
-		'SQ_CONF_DEFAULT_FRONTEND_LANGUAGE'	=> Array('editable' => 1, 'default' => 'en'),
-		'SQ_CONF_DEFAULT_CHARACTER_SET'		=> Array('editable' => 1, 'default' => 'iso-8859-1'),
-
-		// Allow IP to fluctuate ?
-		'SQ_CONF_ALLOW_IP_CHANGE'			=> Array('editable' => 1, 'default' => '0'),
-
-		// Commit Button Text
-		'SQ_CONF_COMMIT_BUTTON_TEXT'		=> Array('editable' => 1, 'default' => 'Commit'),
-	);
-
+							 'SQ_CONF_DB_DSN'                    => Array('editable' => 1, 'default' => ''),
+							 'SQ_CONF_DB2_DSN'                   => Array('editable' => 1, 'default' => ''),
+							 'SQ_CONF_PEAR_PATH'                 => Array('editable' => 0, 'default' => ''),
+							 'SQ_CONF_BACKEND_SUFFIX'            => Array('editable' => 1, 'default' => '_admin'),
+							 'SQ_CONF_LIMBO_SUFFIX'              => Array('editable' => 1, 'default' => '_edit'),
+							 'SQ_CONF_ASSET_TREE_BASE'           => Array('editable' => 0, 'default' => 64),
+							 'SQ_CONF_ASSET_TREE_SIZE'           => Array('editable' => 0, 'default' =>  4),
+							 'SQ_CONF_ROLLBACK_ENABLED'          => Array('editable' => 0, 'default' => '0'),
+							 'SQ_CONF_DEBUG'                     => Array('editable' => 1, 'default' => 0),
+							 'SQ_CONF_SYSTEM_NAME'               => Array('editable' => 1, 'default' => 'The System'),
+							 'SQ_CONF_SYSTEM_OWNER'              => Array('editable' => 1, 'default' => ''),
+							 'SQ_CONF_SYSTEM_ROOT_URLS'          => Array('editable' => 1, 'default' => ''),
+							 'SQ_CONF_DEFAULT_EMAIL'             => Array('editable' => 1, 'default' => ''),
+							 'SQ_CONF_TECH_EMAIL'                => Array('editable' => 1, 'default' => ''),
+							 'SQ_CONF_MAX_LOGIN_ATTEMPTS'        => Array('editable' => 1, 'default' => 3),
+							 'SQ_CONF_MAX_IDLE_TIME'             => Array('editable' => 1, 'default' => 6000),
+							 'SQ_CONF_REFRESH_INTERVAL'          => Array('editable' => 1, 'default' => 120),
+							 'SQ_CONF_LOCK_LENGTH'               => Array('editable' => 1, 'default' => 600),
+							 'SQ_CONF_LOG_FILE'                  => Array('editable' => 1, 'default' => ''),
+							 'SQ_CONF_LOG_ERRORS'                => Array('editable' => 1, 'default' => true),
+							 'SQ_CONF_ERRORS_HIDE_FRONTEND'      => Array('editable' => 1, 'default' => false),
+							 'SQ_CONF_DEFAULT_FRONTEND_LANGUAGE' => Array('editable' => 1, 'default' => 'en'),
+							 'SQ_CONF_DEFAULT_CHARACTER_SET'     => Array('editable' => 1, 'default' => 'iso-8859-1'),
+							 'SQ_CONF_ALLOW_IP_CHANGE'           => Array('editable' => 1, 'default' => '0'),
+							 'SQ_CONF_COMMIT_BUTTON_TEXT'        => Array('editable' => 1, 'default' => 'Commit'),
+							 );
 
 	/**
 	* Holds all the valid debug settings and their descriptions for SQ_CONF_DEBUG
@@ -104,9 +78,9 @@ class System_Config extends Config
 	* @var Array()
 	*/
 	var $debug_options = Array(
-		1 => 'Show File and Line number in error messages',
-		2 => 'Show Stack Trace in error messages',
-	);
+							   1 => 'Show File and Line number in error messages',
+							   2 => 'Show Stack Trace in error messages',
+							   );
 
 
 	/**

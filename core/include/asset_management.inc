@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_management.inc,v 1.59 2005/02/22 05:48:39 tbarrett Exp $
+* $Id: asset_management.inc,v 1.60 2005/03/02 01:09:04 gsherwood Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_LIB_PATH.'/xml_array/xml_array.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.59 $
+* @version $Revision: 1.60 $
 * @package MySource_Matrix
 */
 class Asset_Management extends MySource_Object
@@ -937,9 +937,9 @@ class Asset_Management extends MySource_Object
 		foreach ($this->components as $component => $data) {
 			if (!isset($components[$component])) {
 				$components[$component] = Array(
-					'description'		=> isset($data['description']) ? $data['description'] : $component,
-					'default_weighting' => isset($data['default_weighting']) ? $data['default_weighting'] : '1',
-				);
+												'description'       => isset($data['description']) ? $data['description'] : $component,
+												'default_weighting' => isset($data['default_weighting']) ? $data['default_weighting'] : '1',
+												);
 			} else {
 				if (isset($data['description'])) $components[$component]['description'] = $data['description'];
 				if (isset($data['default_weighting'])) $components[$component]['default_weighting'] = $data['default_weighting'];
@@ -980,16 +980,16 @@ class Asset_Management extends MySource_Object
 			$xml_array->close();
 
 			$GLOBALS['SQ_ASSET_MANAGEMENT_ASSET_INFO'][$file] = Array(
-																	'type_code'       => strtolower($info['type_code']['value']),
-																	'package'         => $info['package']['value'],
-																	'name'            => $info['name']['value'],
-																	'version'         => $info['version']['value'],
-																	'description'     => $info['description']['value'],
-																	'instantiable'    => ($info['instantiable']['value'] == 'yes') ? 1 : 0,
-																	'allowed_access'  => $info['allowed_access']['value'],
-																	'parent_type'     => $info['parent_type']['value'],
-																	'flash_menu_path' => (isset($info['flash_menu_path']['value'])) ? $info['flash_menu_path']['value'] : '',
-																);
+																	  'type_code'       => strtolower($info['type_code']['value']),
+																	  'package'         => $info['package']['value'],
+																	  'name'            => $info['name']['value'],
+																	  'version'         => $info['version']['value'],
+																	  'description'     => $info['description']['value'],
+																	  'instantiable'    => ($info['instantiable']['value'] == 'yes') ? 1 : 0,
+																	  'allowed_access'  => $info['allowed_access']['value'],
+																	  'parent_type'     => $info['parent_type']['value'],
+																	  'flash_menu_path' => (isset($info['flash_menu_path']['value'])) ? $info['flash_menu_path']['value'] : '',
+																	  );
 
 		}//end if
 

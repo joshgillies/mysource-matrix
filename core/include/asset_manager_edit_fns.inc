@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager_edit_fns.inc,v 1.82 2005/02/22 06:32:15 ndvries Exp $
+* $Id: asset_manager_edit_fns.inc,v 1.83 2005/03/02 01:09:04 gsherwood Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.82 $
+* @version $Revision: 1.83 $
 * @package MySource_Matrix
 */
 class Asset_Manager_Edit_Fns extends MySource_Object
@@ -111,10 +111,12 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 				if (!empty($_REQUEST['process_form']) && !empty($_REQUEST['am_form_submitted'])) {
 
 					// start the transaction to create the asset and initial link
-					$link = Array('asset'		=> &$parent,
-								  'link_type'	=> $_REQUEST['link_type'],
-								  'value'		=> '',
-								  'sort_order'	=> $_REQUEST['pos']);
+					$link = Array(
+								  'asset'      => &$parent,
+								  'link_type'  => $_REQUEST['link_type'],
+								  'value'      => '',
+								  'sort_order' => $_REQUEST['pos'],
+								  );
 
 					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 					$success = $asset->processBackend($this->backend->out, $link);
@@ -161,10 +163,10 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 					if (!empty($_POST['sq_lock_acquire']) && !empty($_POST['sq_lock_type'])) {
 						$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
 						$vars = Array(
-								'assetids' => Array($asset->id,),
-								'lock_type' => $_POST['sq_lock_type'],
-								'forceably_acquire' => (bool) $_POST['sq_lock_acquire_by_force'],
-							);
+									  'assetids'          => Array($asset->id,),
+									  'lock_type'         => $_POST['sq_lock_type'],
+									  'forceably_acquire' => (bool) $_POST['sq_lock_acquire_by_force'],
+									  );
 						$hh->queueHipo('hipo_job_acquire_locks', $vars);
 						$do_process_backend = false;
 					}
