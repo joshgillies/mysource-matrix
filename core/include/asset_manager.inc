@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.225 2004/08/03 05:58:38 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.226 2004/08/09 09:00:12 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -729,13 +729,15 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Returns a reference to a system asset
 	*
-	* @param string	$name	the name of the system asset
-	*						'root_folder', 'trash_folder', 'system_user_group',
-	*						'root_user', 'designs_folder', 'login_design', 'cron_manager'
+	* @param string		$name			the name of the system asset
+	*									'root_folder', 'trash_folder', 'system_user_group',
+	*									'root_user', 'designs_folder', 'login_design', 'cron_manager'
+	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed because
+	*									you can't use the '@' operator when returning by reference
 	*
 	* @access public
 	*/
-	function &getSystemAsset($name)
+	function &getSystemAsset($name, $mute_errors=false)
 	{
 		$null = null;
 		if (!is_string($name)) {
@@ -755,7 +757,7 @@ class Asset_Manager extends MySource_Object
 			}
 		}
 		if (isset($system_assets[$name])) {
-			return $this->getAsset($system_assets[$name], $name);
+			return $this->getAsset($system_assets[$name], $name, $mute_errors);
 		} else {
 			trigger_error('System asset name "'.$name.'" not installed or not known', E_USER_WARNING);
 			return $null;
@@ -2903,7 +2905,7 @@ class Asset_Manager extends MySource_Object
 		//// Now we need to check that the cardinality is kept valid ////
 
 		// if we are only allowed up to a certain number of these links
-		if ($allowed_links[$link_type][$type]['card'] != 'M') {
+		if ($allowed_links[$link_type][$type]['card'] != 'M' && $major->id) {
 			$num_curr_links = $this->countLinks($major->id, 'major', $link_type, $type, true, $ignore_linkid);
 			//  and we already have our quota of links, bugger off
 			if ($num_curr_links >= (int) $allowed_links[$link_type][$type]['card']) {
