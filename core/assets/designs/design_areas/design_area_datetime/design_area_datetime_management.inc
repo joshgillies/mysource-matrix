@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_datetime_management.inc,v 1.7 2003/12/12 18:42:57 brobertson Exp $
+* $Id: design_area_datetime_management.inc,v 1.8 2004/09/08 03:59:59 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -62,6 +62,8 @@ class Design_Area_DateTime_Management extends Asset_Management
 											'now'		=> 'When the page is loaded',
 											'updated'	=> 'When the page was last modified',
 									),
+									'multiple' => false,
+									'allow_empty' => false,
 								),
 								'description'	=> 'The value to be used',
 							),

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_colourise_image_management.inc,v 1.16 2004/09/08 01:25:14 gsherwood Exp $
+* $Id: design_area_colourise_image_management.inc,v 1.17 2004/09/08 03:59:59 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -77,6 +77,8 @@ class Design_Area_Colourise_Image_Management extends Asset_Management
 										'greyscale'			=> 'Greyscale', 
 										'multiple_colours'	=> 'Multiple Colours',
 									),
+									'allow_empty' => false,
+									'multiple' => false,
 								),
 							),
 							'tolerance' => Array(

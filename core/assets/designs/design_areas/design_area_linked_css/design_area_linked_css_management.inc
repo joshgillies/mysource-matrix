@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_linked_css_management.inc,v 1.2 2004/09/07 10:52:20 brobertson Exp $
+* $Id: design_area_linked_css_management.inc,v 1.3 2004/09/08 03:59:59 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -55,6 +55,7 @@ class Design_Area_Linked_Css_Management extends Asset_Management
 												'import_tag'	=> '@import Tag',
 											),
 										'multiple' => false,
+										'allow_empty' => false,
 										),
 										'default' => 'link_tag'
 									);
@@ -76,6 +77,7 @@ class Design_Area_Linked_Css_Management extends Asset_Management
 												'tv'		 => 'TV',
 											),
 										'multiple' => false,
+										'allow_empty' => false,
 										),
 										'default' => 'all'
 									);

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_management.inc,v 1.24 2004/09/08 01:23:36 gsherwood Exp $
+* $Id: form_management.inc,v 1.25 2004/09/08 04:00:00 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -102,6 +102,8 @@ class Form_Management extends Asset_Management
 																		100	=> '100 days',
 																		),
 																	),
+																	'multiple' => false,
+																	'allow_empty' => false,
 															),
 							'submit_button'			=> Array(
 															'added'     => '0.0.1',
@@ -149,6 +151,8 @@ class Form_Management extends Asset_Management
 																	5	=> 'I,II,III...',
 																	),
 																),
+																'multiple' => false,
+																'allow_empty' => false,
 															),
 							'question_index'		=> Array(
 															'added'	     => '0.0.1',
@@ -164,6 +168,8 @@ class Form_Management extends Asset_Management
 																	5	=> 'I,II,III...',
 																	),
 																),
+																'multiple' => false,
+																'allow_empty' => false,
 															),
 							'question_col_width'	=> Array(
 															'added'     => '0.0.1',

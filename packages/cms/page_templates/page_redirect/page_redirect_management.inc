@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_redirect_management.inc,v 1.11 2004/09/08 01:23:37 gsherwood Exp $
+* $Id: page_redirect_management.inc,v 1.12 2004/09/08 04:00:00 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -71,6 +71,7 @@ class Page_Redirect_Management extends Asset_Management
 											'default'    => false,
 											'parameters' => Array(
 																'multiple' => true,
+																'allow_empty' => false,
 																'options'  => Array(
 																				'hide_location'   => 'Hide Location Bar',
 																				'hide_menubar'    => 'Hide Menubar',

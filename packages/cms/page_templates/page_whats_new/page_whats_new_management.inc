@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_whats_new_management.inc,v 1.1 2004/08/19 05:48:35 gsherwood Exp $
+* $Id: page_whats_new_management.inc,v 1.2 2004/09/08 04:00:00 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -58,8 +58,9 @@ class Page_Whats_New_Management extends Asset_Management
 												'published'	=> 'Last Published Date',
 												),
 											),
-						'multiple' => false,
-					 ),
+											'multiple' => false,
+											'allow_empty' => false,
+										),
 				'date_range_from' => Array(
 						'added'		=> '0.1',
 						'type'		=> 'datetime',

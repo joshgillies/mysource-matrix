@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type_management.inc,v 1.16 2004/09/08 01:25:14 gsherwood Exp $
+* $Id: design_area_menu_type_management.inc,v 1.17 2004/09/08 03:59:59 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -90,13 +90,14 @@ class Design_Area_Menu_Type_Management extends Asset_Management
 							'show_subs' => Array(
 								'added'			=> '0.0.1',
 								'type'			=> 'selection',
-								'type'			=> 'selection',
 								'default'		=> 'on_current',
 								'parameters'	=> Array(
 									'options' => Array(
 											'on_current'	=> 'Only if in current lineage',
 											'always'		=> 'Always',
 									),
+									'multiple' => false,
+									'allow_empty' => false,
 								),
 								'description'	=> 'When and how to display any sub menus that this menu might have',
 							),

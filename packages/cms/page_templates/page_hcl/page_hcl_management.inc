@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_hcl_management.inc,v 1.4 2004/02/10 16:32:41 brobertson Exp $
+* $Id: page_hcl_management.inc,v 1.5 2004/09/08 04:00:00 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -53,6 +53,7 @@ class Page_HCL_Management extends Asset_Management
 												'xml'	=> 'XML',
 											),
 											'multiple' => false,
+											'allow_empty' => false,
 										),
 
 										'default' => 'xml',

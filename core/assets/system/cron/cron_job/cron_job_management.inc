@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_management.inc,v 1.5 2003/11/26 00:50:59 gsherwood Exp $
+* $Id: cron_job_management.inc,v 1.6 2004/09/08 03:59:59 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -56,6 +56,8 @@ class Cron_Job_Management extends Asset_Management
 										'one_off'	=> 'One Off', 
 										'repeating'	=> 'Repeating'
 									),
+									'multiple' => false,
+									'allow_empty' => false,
 								),
 							),
 							'when' => Array(

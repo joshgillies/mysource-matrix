@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_stalks_management.inc,v 1.8 2004/09/08 01:25:14 gsherwood Exp $
+* $Id: design_area_menu_stalks_management.inc,v 1.9 2004/09/08 03:59:59 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -56,6 +56,8 @@ class Design_Area_Menu_Stalks_Management extends Asset_Management
 											'left'	=> 'Left',
 											'right'	=> 'Right',
 									),
+									'multiple' => false,
+									'allow_empty' => false,
 								),
 								'description'	=> ''
 							),

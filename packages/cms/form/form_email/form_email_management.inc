@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_management.inc,v 1.16 2004/09/08 01:23:36 gsherwood Exp $
+* $Id: form_email_management.inc,v 1.17 2004/09/08 04:00:00 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -72,6 +72,8 @@ class Form_Email_Management extends Asset_Management
 															1	=> 'yes',
 															0	=> 'no',
 														),
+														'multiple' => false,
+														'allow_empty' => false,
 												),
 									),
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_management.inc,v 1.10 2004/05/05 07:10:12 lwright Exp $
+* $Id: form_question_management.inc,v 1.11 2004/09/08 04:00:00 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -67,16 +67,18 @@ class Form_Question_Management extends Asset_Management
 														'default'	=> '',
 														'update_fn'	=> '',
 														'parameters'	=> Array(	
-														'options'	=> Array(
-															''			=> '--- No Special Information ---',
-															'name'		=> 'User\'s Name',
-															'firstname'	=> 'User\'s Firstname',
-															'surname'	=> 'User\'s Surname',
-															'email'		=> 'User\'s Email',
-															'friend'	=> 'Send a note to these Friends\' Email Addresses',
+															'options'	=> Array(
+																''			=> '--- No Special Information ---',
+																'name'		=> 'User\'s Name',
+																'firstname'	=> 'User\'s Firstname',
+																'surname'	=> 'User\'s Surname',
+																'email'		=> 'User\'s Email',
+																'friend'	=> 'Send a note to these Friends\' Email Addresses',
+															),
+															'multiple' => false,
+															'allow_empty' => false,
 														),
-												),
-											),
+													),
 							'auto_answer'	=> Array(
 														'added'		=> '0.0.1',
 														'type'		=> 'selection',
@@ -91,6 +93,8 @@ class Form_Question_Management extends Asset_Management
 															'last_name'	=> 'User\'s Surname',
 															'email'		=> 'User\'s Email',
 														),
+														'multiple' => false,
+														'allow_empty' => false,
 												),
 											),
 								
