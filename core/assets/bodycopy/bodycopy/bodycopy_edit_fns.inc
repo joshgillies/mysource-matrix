@@ -19,38 +19,13 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_edit_fns.inc,v 1.7 2004/07/16 06:15:21 gsherwood Exp $
+* $Id: bodycopy_edit_fns.inc,v 1.8 2004/07/19 00:36:57 mnyeholt Exp $
 * $Name: not supported by cvs2svn $
 */
 
 
 require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
-
-
-/**
-* Print a bodycopy style icon
-*
-* @param string $href		The HREF that this icons points to
-* @param string $heading	The heading for the tooltip
-* @param string $desc		The main body of the tooltip
-* @param string $icon		The filename of the icon to display (must be a GIF file)
-* @param string $extra		Any extras you want to put at the end of the IMG tag
-* @param string $width		The width of the icon
-* @param string $height		The height of the icon
-*
-* @access  public
-* @returns void
-*/
-function print_bodycopy_icon($href, $heading, $desc, $icon, $extra='', $width='16', $height='16')
-{
-	?>
-	<a href="<?php echo $href?>" onmouseover="javascript: show_tooltip(event, '<?php echo addslashes(htmlspecialchars($heading))?>', '<?php echo addslashes(htmlspecialchars($desc))?>', null, 'bodycopyToolTipDiv'); return true;" onmouseout="javascript:hide_tooltip(); return true;" >
-	<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('data')?>/asset_types/bodycopy/images/icons/<?php echo $icon?>.png", "<?php echo $width?>", "<?php echo $height?>", "");</script>
-	</a>
-	<?php
-
-}// end print_bodycopy_icon()
 
 
 /**
@@ -149,9 +124,14 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		// get all the containers linked to this bodycopy
 		$containers = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'bodycopy_container', false);
 
+		
 		if (!$asset->writeAccess('content')) {
 			foreach ($containers as $container_data) {
 				$container = &$am->getAsset($container_data['minorid'], $container_data['minor_type_code']);
+				// make sure all child containers have had their locks released too so there's no 
+				// strange behaviour in this editing interface where 1 container can 
+				// be edited but others (and the overall bodycopy) can't
+				$GLOBALS['SQ_SYSTEM']->am->releaseLock($container->id, 'all');
 				if ($container->useSystemVersion()) {
 					$container->printBody();
 				} else {
@@ -399,6 +379,10 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 
 		<?php
 
+		// require library functions needed for drawing the bodycopy 
+		$type_info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo('bodycopy');
+		require_once SQ_SYSTEM_ROOT.'/'.$type_info['dir'].'/files/lib.php';
+		
 		// for each container, print it's editing interface
 		$i = 0;
 		foreach ($containers as $container_data) {
@@ -499,6 +483,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 	function processBodycopy(&$asset, &$o, $prefix)
 	{
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		
 		$updated = false;
 
 		// do some thing for the first time we process a bodycopy on this page
@@ -513,13 +498,15 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 			// if there is some bodycopy data, deserialise it into the arrays
 			// so that everything else can use it
 			if ($bc_data) $bc_data = var_unserialise($bc_data);
-
+			
+			// unserialize the data for a bodycopy.
 			for (reset($bc_saved); NULL !== ($k = key($bc_saved)); next($bc_saved)) {
 				$containers = &$bc_saved[$k];
 				for (reset($containers); NULL !== ($containersid = key($containers)); next($containers)) {
 					$containers[$containersid] = var_unserialise($containers[$containersid]);
 				}
 			}
+			
 			unset($containers);
 
 			$this->_tmp['update_initialised'] = true;
