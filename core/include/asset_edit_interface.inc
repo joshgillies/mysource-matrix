@@ -1234,7 +1234,7 @@ class Asset_Edit_Interface extends Resolve_Object
 			return false;
 		}
 
-		// if we dont have effective write access, dont process anything
+		// if we dont have effective admin access, dont process anything
 		if (!$owner->adminAccess()) return false;
 
 		include_once SQ_INCLUDE_PATH.'/workflow_manager.inc';
@@ -1434,14 +1434,21 @@ class Asset_Edit_Interface extends Resolve_Object
 	*/
 	function paintLinking(&$owner, &$o)
 	{
+		// prefix for all the form vars
+		$prefix = $this->getPrefix($owner);
+
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 		$o->openSection('Assets linking to "'.$owner->name.'"');
 		$o->openField('&nbsp;');
+		echo '<i>NOTE: <b>TYPE_1</b> links are displayed in both the frontend and backend navigation but <b>TYPE_2</b> links are only displayed in the backend navigation.</i><br/><br/>';
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$assetids = Array();
 		$asset_links = $owner->getLinks(SQ_LINK_ALL, '', true, 'minor');
-
+		$editable_link_types = Array(SQ_LINK_TYPE_1 => link_type_name(SQ_LINK_TYPE_1),
+									 SQ_LINK_TYPE_2 => link_type_name(SQ_LINK_TYPE_2)
+									);
+		
 		foreach ($asset_links as $link) $assetids[$link['majorid']] = Array();
 
 		$concat = ($db->phptype == 'mysql') ? 'CONCAT(pt.treeid, '.$db->quote('%').')' : 'pt.treeid || '.$db->quote('%');
@@ -1470,7 +1477,12 @@ class Asset_Edit_Interface extends Resolve_Object
 			// care that it is linking to this asset!!
 			if ($majorid == 1) continue;
 
-			$lineage_prefix = '[ '.link_type_name($link['link_type']).' ] Root Folder > ';
+			$can_edit = false;
+			if ($owner->writeAccess() && in_array($link['link_type'], array_keys($editable_link_types))) $can_edit = true;
+
+			$lineage_prefix = '';
+			if (!$can_edit) $lineage_prefix = '[ '.link_type_name($link['link_type']).' ] ';
+			$lineage_prefix .= 'Root Folder > ';
 			$lineage_suffix = '<b>'.$asset_info[$majorid]['name'].'</b><br/>';
 
 			$asset_lineage = $lineage_prefix;
@@ -1483,13 +1495,20 @@ class Asset_Edit_Interface extends Resolve_Object
 					echo $asset_lineage;
 					$asset_lineage = $lineage_prefix;
 				}
+				if ($tree_data[1] == '/') continue;
 				$last_treeid = $tree_data[0];
 				$asset_lineage .= $tree_data[1].' > ';
 			}
 			$asset_lineage .= $lineage_suffix;
-			echo $asset_lineage;
 			$done_something = true;
-		}
+			
+			if ($can_edit) {
+				combo_box($prefix.'_link_type['.$link['linkid'].']', $editable_link_types, false, $link['link_type']);
+				echo '&nbsp;';
+			}
+			echo $asset_lineage;
+
+		}//end foreach link
 
 		if (!$done_something) echo 'None';
 	}//end paintLinking()
@@ -1507,7 +1526,34 @@ class Asset_Edit_Interface extends Resolve_Object
 	*/
 	function processLinking(&$owner, &$o)
 	{
-		return false;
+		// if we dont have admin access, piss off
+		if ($owner->id && !$owner->writeAccess(Array(), false)) {
+			$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to edit the links of <i>'.$owner->name.'</i>');
+			return false;
+		}
+
+		// if we dont have effective write access, dont process anything
+		if (!$owner->writeAccess()) return false;
+
+		// prefix for all the form vars
+		$prefix = $this->getPrefix($owner);
+
+		$done_something = false;
+		$asset_links = $owner->getLinks(SQ_LINK_ALL, '', true, 'minor');
+
+		foreach ($asset_links as $link) {
+			if (!isset($_POST[$prefix.'_link_type'][$link['linkid']])) continue;
+			$new_type = $_POST[$prefix.'_link_type'][$link['linkid']];
+			if ($link['link_type'] == $new_type) continue;
+
+			$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid']);
+			if (!$parent->id) continue;
+			if (!$parent->_updateLink($link['linkid'], $new_type)) continue;
+
+			$done_something = true;
+		}
+
+		return $done_something;
 	}//end processLinking()
 
 
