@@ -1,0 +1,21 @@
+<!--
+/**
+* Copyright (c) 2003 - Squiz Pty Ltd
+*
+* $Id: edit_interface_screen_contents.xml,v 1.1 2003/10/28 01:15:58 gsherwood Exp $
+* $Name: not supported by cvs2svn $
+*/
+-->
+
+<contents>
+	<section name="Contents">
+		<field>
+			<display_name></display_name>
+			<note></note>
+			<function_call>
+				<paint_function   name="redirectToBodycopy"  />
+				<process_function name="redirectToBodycopy"  />
+			</function_call>
+		</field>
+	</section>
+</contents>
