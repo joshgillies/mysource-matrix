@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_edit_fns.inc,v 1.18 2004/05/05 06:53:43 lwright Exp $
+* $Id: form_edit_fns.inc,v 1.19 2004/05/06 04:17:43 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -351,6 +351,65 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 
 
 	/**
+	* Paint the dropdowns to add questions to this section
+	*
+	* @param object Form_Section		&$asset		the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o			the outputter class
+	* @param string						$prefix		prefix for the form elements
+	*
+	* @return boolean false if no questions in this section, true otherwise
+	* @access public
+	*/
+	function paintUseBodycopy(&$asset, &$o, $prefix)
+	{
+		if (!$asset->writeAccess('links')) return false;
+
+		check_box('use_bodycopy_main', '1', $asset->attr('use_bodycopy_main'));
+		echo 'use main bodycopy<br/>';
+		check_box('use_bodycopy_thank_you', '1', $asset->attr('use_bodycopy_thank_you'));
+		echo 'use thank you bodycopy<br/>';
+		return true;
+	
+	}//end paintUseBodycopy()
+	
+	
+	/**
+	* creates a new section if one was selected to be added
+	*
+	* @param object Form				&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processUseBodycopy(&$asset, &$o, $prefix)
+	{
+		if (isset($_POST['use_bodycopy_main']) && !$asset->getBodycopy('page_contents')) {
+			if ($asset->createBodycopy('Page Contents')) {
+				return false;
+			}
+		}
+
+		$asset->setAttrValue('use_bodycopy_main', isset($_POST['use_bodycopy_main']));
+
+		if (isset($_POST['use_bodycopy_thank_you']) && !$asset->getBodycopy('thank_you')) {
+			if ($asset->createBodycopy('Thank You')) {
+				return false;
+			}
+		}
+
+		$asset->setAttrValue('use_bodycopy_thank_you', isset($_POST['use_bodycopy_thank_you']));
+
+		$asset->saveAttributes();
+		$asset->_updated();
+
+		return true;
+
+	}//end processUseBodycopy()
+	
+	
+	/**
 	* Process the newly added questions
 	*
 	* @param object Form_Section		&$asset		the asset whose interface we are painting
@@ -408,7 +467,7 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 		echo ' New Section';
 
 		return true;
-	}//paintAddSections()
+	}//end paintAddSections()
 
 
 	/**
@@ -488,136 +547,58 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 	*/
 	function generateStandardContentFile(&$asset)
 	{
-		//$bodycopy = &$asset->getBodycopy('format');
-		
-		// if there is no bodycopy, we will assume that we are trying to generate the 
-		// content file at form creation time, so just return true (it will get generated later)
-		if (isset($bodycopy)) { //return true;
 
-		// TO-DO: Put back the body-copy functions here
 
-		// check to see if the bodycopy attached to this form has any content
-//		if (!$bodycopy->isEmpty()) {
 
-//			ob_start();
-//			$bodycopy->printBody();
-//			$output = ob_get_contents(); 
-//			ob_end_clean();
-
-//			ob_start();
-//			$bodycopy->printBody();
-//			$output = ob_get_contents(); 
-//			ob_end_clean();
-			
-//			$replaced = true;
-//			if (!$output = $this->processSectionReplacements($asset, $output)) $replaced = false;
-//			if (!$output = $this->processQuestionReplacements($asset, $output)) $replaced = false;
-
-			// if output is the same as it was before replacements, trigger error
-//			if (!$replaced) {
-//				trigger_error('could not find any sections or questions to replace in the Format Bodycopy (Standard Mode)', E_USER_WARNING);
-//				return false;
-//			}
-		
-			// there should only be a keyword replacement for a submit button, 
-			// so only replace that with a submit button, anything else
-			// will get stripped out later
-
-//			$search = '%submit_button%';
-			
-			// if no title for the submit button is specified in the backend
-			// just use 'submit'
-
-//			$button_name = ($asset->attr('submit_button')) ? $asset->attr('submit_button') : 'Submit'; 
-
-//			ob_start();
-//			submit_button($asset->getPrefix().'_submit', $button_name);
-//			$replacement = ob_get_contents();
-//			ob_end_clean();
-			
-//			$output = str_replace($search, $replacement, $output);
-		
-		// no contents in the bodycopy
-		} else {
-			
-			// if there is no bodycopy contents, then just ask
-			// all the sections to print themselves
-			//$questions = &$asset->getQuestions();
-			ob_start();				// start vacumming up all the lovely javascript code
-			?><script language="JavaScript">
-			function beforeSubmitForm(form) {
-				var submission_errors = new Array();
-				i = 0;
-
+		// if there is no bodycopy contents, then just ask
+		// all the sections to print themselves
+		//$questions = &$asset->getQuestions();
+		ob_start();				// start vacumming up all the lovely javascript code
+		?><script language="JavaScript">
+		function beforeSubmitForm(form) {
+			var submission_errors = new Array();
+			i = 0;
 				<?php 
-					echo $asset->generateJSCode();
-				?>
-
+				echo $asset->generateJSCode();
+			?>
 				if (submission_errors.length > 0) {
-					var errors_list = "The following errors must be corrected before the form can be submitted:\n";
-					for(x in submission_errors) {
-						errors_list += submission_errors[x] + "\n";
-					}
-					alert(errors_list);
-					return false;
+				var errors_list = "The following errors must be corrected before the form can be submitted:\n";
+				for(x in submission_errors) {
+					errors_list += submission_errors[x] + "\n";
 				}
-				return true;
+				alert(errors_list);
+				return false;
 			}
-			</script>
-			<?php
-			$output = ob_get_contents();		// get the contents
-			ob_end_clean();						// no more buffering
-
+			return true;
+		}
+		</script>
+		<?php
+		$output = ob_get_contents();		// get the contents
+		ob_end_clean();						// no more buffering
 			$sections = &$asset->getSections();
-
 			$output .= $this->generateGenericSection($asset);
-
 			$i = 1; // used for indexing
-			for (reset($sections); null !== ($k = key($sections)); next($sections)) {
-				$section =& $sections[$k];
-
+		for (reset($sections); null !== ($k = key($sections)); next($sections)) {
+			$section =& $sections[$k];
 				// if there is a section index, add it to the ouput
-				if ($asset->attr('section_index')) {
-					$output .= '<'.'?php echo $this->getSectionIndex('.$i++.')."<BR />"; ?'.'>';
-				}
-				// tell the section what its quesiton index is
-				$section->question_index = $asset->attr('question_index');
-
-				// let the section know what its column widths are
-				$section->question_col_width = $asset->attr('question_col_width');
-				$section->answer_col_width = $asset->attr('answer_col_width');
-			
-				// let the section know what the current submission object is
-				$section->active_submission =& $asset->active_submission;
-				
-				$output .= '<'.'?php $active_form =& $this; ?'.'>';
-				// get the section to regen
-				$section->fileRegeneration(false);
-				$output .= '<'.'?php include_once("'.$section->data_path.'/content_file.php'.'"); ?'.'>';
+			if ($asset->attr('section_index')) {
+				$output .= '<'.'?php echo $this->getSectionIndex('.$i++.')."<BR />"; ?'.'>';
 			}
+			// tell the section what its quesiton index is
+			$section->question_index = $asset->attr('question_index');
 
-			// if no title for the submit button is specified in the backend
-			// just use 'Submit'
-
-			$button_name = ($asset->attr('submit_button')) ? $asset->attr('submit_button') : 'Submit'; 
+			// let the section know what its column widths are
+			$section->question_col_width = $asset->attr('question_col_width');
+			$section->answer_col_width = $asset->attr('answer_col_width');
+		
+			// let the section know what the current submission object is
+			$section->active_submission =& $asset->active_submission;
 			
-			$output .= '<table width="'.$asset->attr('form_width').'"><tr>';
-			if ($asset->attr('question_index')) {
-				$output .= '<td width="20">&nbsp;</td>';
-			}
-			$output .= '<td';
-			$output .= ($asset->attr('question_col_width')) ? ' width="'.$asset->attr('question_col_width').'">' : '>';
-			$output .='&nbsp;</td><td';
-			$output .= ($asset->attr('answer_col_width')) ? ' width="'.$asset->attr('answer_col_width').'">' : '>';
-			
-			ob_start();
-			submit_button($asset->getPrefix().'_submit', $button_name);
-			$output .= ob_get_contents();
-			ob_end_clean();
-			
-			$output .= '</td></tr></table>';
-			
-		} //end if
+			$output .= '<'.'?php $active_form =& $this; ?'.'>';
+			// get the section to regen
+			$section->fileRegeneration(false);
+			$output .= '<'.'?php include_once("'.$section->data_path.'/content_file.php'.'"); ?'.'>';
+		}
 
 		// if there are any tags left that haven't been replaced, 
 		// we want to strip them out

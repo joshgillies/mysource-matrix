@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_contents.xml,v 1.9 2004/05/05 06:52:08 lwright Exp $
+* $Id: edit_interface_screen_contents.xml,v 1.10 2004/05/06 04:17:43 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -60,7 +60,17 @@
 			</function_call>
 		</field>
 	</section>
-	<section name="Table Widths">
+	<section name="Formatting">
+		<field>
+			<display_name>Use Bodycopy?</display_name>
+			<note></note>
+			<function_call>
+				<paint_function   name="paintUseBodycopy"   />
+				<process_function name="processUseBodycopy" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Simple Formatting">
 		<field attribute="form_width">
 			<display_name>Form Width</display_name>
 			<note>The whole form will be this width when printed on the frontend. This can be a number of pixels or a percentage</note>

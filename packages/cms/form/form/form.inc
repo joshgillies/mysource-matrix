@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.21 2004/05/05 06:52:51 lwright Exp $
+* $Id: form.inc,v 1.22 2004/05/06 04:17:43 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -449,7 +449,8 @@ class Form extends Bridge
 	function _getAllowedLinks()
 	{
 		$page_links = Array(SQ_LINK_TYPE_2 => Array(
-						'form_section' => Array('card' => 'M', 'exclusive' => false)
+						'form_section' => Array('card' => 'M', 'exclusive' => false),
+						'folder' => Array('card' => '1', 'exclusive' => true)
 						));
 		return $page_links;
 
@@ -587,7 +588,6 @@ class Form extends Bridge
 			
 			// check to see if there is an error with the form
 			if (count($this->submission_errors)) { 
-				$this->printErrors();
 				$is_error = true;
 			} else {
 				$this->finishForm();
@@ -596,7 +596,62 @@ class Form extends Bridge
 
 		// nothing submitted yet, or there was an error
 		if (!isset($_POST[$prefix.'_submit']) || $is_error) {
+
+			ob_start();
 			$this->includeContentFile('Standard');
+			$cf_output = ob_get_contents();
+			ob_end_clean();
+
+			if ($is_error) {
+				ob_start();
+				$this->printErrors();
+				$err_output = ob_get_contents();
+				ob_end_clean();
+			} else {
+				$err_output = '';
+			}
+
+			$bodycopy = &$this->getBodycopy('Page Contents');
+			
+			// if no title for the submit button is specified in the backend
+			// just use 'Submit'
+			$button_name = ($this->attr('submit_button')) ? $this->attr('submit_button') : 'Submit'; 
+		
+			ob_start();
+			submit_button($this->getPrefix().'_submit', $button_name);
+			$submit_button = ob_get_contents();
+			ob_end_clean();
+	
+			// check to see if the bodycopy attached to this form has any content
+			if ($this->attr('use_bodycopy_main') && $bodycopy && !$bodycopy->isEmpty()) {
+
+				ob_start();
+				$bodycopy->setKeywordReplacements(Array('form_contents' => &$cf_output, 'form_errors' => &$err_output, 'submit_button' => &$submit_button));
+				$bodycopy->printBody();
+				$output = ob_get_contents(); 
+				ob_end_clean();
+
+				echo $output;
+
+			} else {
+				$output = $cf_output;
+	
+				$output .= '<table width="'.$this->attr('form_width').'"><tr>';
+				if ($this->attr('question_index')) {
+					$output .= '<td width="20">&nbsp;</td>';
+				}
+				$output .= '<td';
+				$output .= ($this->attr('question_col_width')) ? ' 	width="'.$this->attr('question_col_width').'">' : '>';
+				$output .='&nbsp;</td><td';
+				$output .= ($this->attr('answer_col_width')) ? ' 	width="'.$this->attr('answer_col_width').'">' 	: '>';
+			
+				$output .= $submit_button;		
+	
+				$output .= '</td></tr></table>';
+
+				echo $output;
+			}
+
 		}
 		return true;
 
@@ -628,6 +683,100 @@ class Form extends Bridge
 	}//end processSection()
 
 
+	/**
+	* create a bodycopy and attach to form
+	* 
+	* @param string $name the name of the bodycopy
+	*
+	* @access public
+	* @return boolean false on error or if bodycopy already exists, true if successful
+	*/
+	function createBodycopy($name)
+	{
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		// search for a bodycopies folder and create one if there isn't one there
+		$folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', true, 'bodycopies_folder');
+		if (empty($folder_link)) {
+
+			// create a folder for the bodycopies
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset('folder');
+			$folder = new Folder();
+			$folder->setAttrValue('name', 'Bodycopies');
+
+			$folder_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'value' => 'bodycopies_folder', 'dependant' => 1, 'exclusive' => 1);
+
+			if (!$folder->create($folder_link)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return false;
+			}
+		}
+
+		// now get the folder reference
+		$folder = &$GLOBALS['SQ_SYSTEM']->am->getAsset($folder_link['minorid'], $folder_link['minor_type_code']); 
+		if (is_null($folder)) return false;
+
+		// and see whether this bodycopy already exists
+		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', true, $name);
+		if (!empty($bodycopy_link)) return false;
+
+		// bodycopy doesn't exist, so create it willya
+		// create a link to the folder so we can put the bodycopies in it
+		$copy_link = Array('asset' => &$folder, 'link_type' => SQ_LINK_TYPE_2, 'dependant' => 1, 'exclusive' => 1, 'value' => $name);
+
+		// create the thing
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
+		$bodycopy = new Bodycopy();
+		$bodycopy->setAttrValue('name', $name);
+			
+		// create an appropriate value for this link
+		// to reflect that of the name
+		$name = strtolower(str_replace(' ', '_', $name));
+
+		if (!$bodycopy->create($copy_link)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
+		return true;
+
+	}//end attachQuestion()
+	
+	
+	/**
+	* returns a reference to a bodycopy based of the name of the bodycopy
+	*
+	* @param string		$name	the name of the bodycopy
+	*
+	* @access public
+	* @return &asset bodycopy
+	*/
+	function &getBodycopy($name='')
+	{
+		$null = null;
+		if (!$name) return $null;
+		$am = &$GLOBALS['SQ_SYSTEM']->am;
+
+		$folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', true, 'bodycopies_folder');
+		if (empty($folder_link)) return false;
+		
+		$folder = &$am->getAsset($folder_link['minorid'], $folder_link['minor_type_code']); 
+		if (is_null($folder)) return false;
+
+		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', true, $name);
+		if (empty($bodycopy_link)) return false;
+
+		$bodycopy = &$am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
+		
+		return ($bodycopy) ? $bodycopy : false;
+	
+	}//end getBodycopy()
+
+	
 	/**
 	* includes the content file for this form
 	*
@@ -710,34 +859,32 @@ class Form extends Bridge
 	*/
 	function finishForm()
 	{
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
-
 		// we want delete the cookie, so that when they come back to fill
 		// this form on another day, they start fresh, so set the number of days to -1
 		//$this->setFormCookie(0, -1);
 		
-		/*$tyb = &$this->getBodycopy('thank_you');
-		
-		if (!$tyb->isEmpty()) {
+		$tyb = &$this->getBodycopy('Thank You');
+					
+		ob_start();
+		$this->printSummary(true);
+		$summary_info = ob_get_contents();
+		ob_end_clean();
+	
+		// check to see if the bodycopy attached to this form has any content
+		if ($this->attr('use_bodycopy_thank_you') && $tyb && !$tyb->isEmpty()) {
+
+			if ($this->attr('show_results')) {
+				$tyb->setKeywordReplacements(Array('form_summary' => &$summary_info));
+			}
+
 			$tyb->printBody();
-		}*/
 
-		?>
-		<SPAN style="color: red">
-		<B>Thank you, here are your responses</B><BR/>
-		</SPAN>
-		<?php
+		} else {			// no bodycopy
 
-		// print the results if we need to 
-		if ($this->attr('show_results')) $this->printSummary(true);
+			// print the results if we need to 
+			if ($this->attr('show_results')) $this->printSummary(true);
 
-		// if we are not logging submissions, then we want to remove the submission asset
-		// now that we have finished with it
-
-		/*if (!$this->attr('log_submissions')) {
-			$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->active_submission->id, SQ_LINK_TYPE_3, 'form', false, '', 'minor');
-			$this->deleteLink($link['linkid']);
-		}*/
+		}
 
 	}//end finishForm()
 
@@ -832,7 +979,7 @@ class Form extends Bridge
 					echo ($html) ? '<tr><td><li>' : '';
 					echo $question->attr('name');
 					echo ($html) ? ': </li></td><td>' : ' : ';
-					echo $this->active_submission[$k];
+					echo $question->getSummary($this->active_submission[$k]);
 					echo ($html) ? '</td></tr>' : "\n";
 				}
 
