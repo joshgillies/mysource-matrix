@@ -21,7 +21,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.1 2003/11/27 02:48:47 gsherwood Exp $
+* $Id: asset.xml,v 1.2 2004/01/15 05:16:34 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -34,10 +34,10 @@
 	<description>Account Manager Page, users can edit their details, create accounts, join groups etc</description>
 	<instantiable>yes</instantiable>
 	<allowed_access>backend_user</allowed_access>
-	<parent_type>page</parent_type>
+	<parent_type>page_asset_builder</parent_type>
 	<requirements>
 		<requirement type="asset">
-			<code>page</code>
+			<code>page_asset_builder</code>
 			<version>0.1</version>
 		</requirement>
 	</requirements>

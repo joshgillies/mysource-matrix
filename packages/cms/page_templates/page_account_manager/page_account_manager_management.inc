@@ -18,24 +18,23 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager_management.inc,v 1.4 2003/12/12 03:37:07 gsherwood Exp $
+* $Id: page_account_manager_management.inc,v 1.5 2004/01/15 05:16:34 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
 
-require_once SQ_PACKAGES_PATH.'/cms/page/page_management.inc';
+require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_builder/page_asset_builder_management.inc';
 
 /**
 * Page_Account_Manager_Management
 *
-* @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @version $Version$ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
-class Page_Account_Manager_Management extends Page_Management
+class Page_Account_Manager_Management extends Page_Asset_Builder_Management
 {
 
 	/**
@@ -44,30 +43,13 @@ class Page_Account_Manager_Management extends Page_Management
 	*/
 	function Page_Account_Manager_Management(&$pm)
 	{
-		$this->Page_Management($pm);
+		$this->Page_Asset_Builder_Management($pm);
 
-		$this->vars['create_groupid']			= Array(
-														'added'     => '0.1',
-														'type'      => 'assetid',
-														'default'   => '',
-													);
 		$this->vars['create_type']				= Array(
 														'added'     => '0.1',
 														'type'      => 'text',
 														'default'   => 'user',
 													);
-		$this->vars['create_options']			= Array(
-														'added'      => '0.1',
-														'type'       => 'selection',
-														'default'    => '',
-														'parameters' => Array(
-																				'options' => Array(
-																								'create_live' => 'Make new accounts Live upon creation',
-																								  ),
-																				'multiple' => true
-																			  ),
-													);
-
 
 		$this->vars['login_invite']				= Array(
 														'added'     => '0.1',
@@ -106,33 +88,6 @@ class Page_Account_Manager_Management extends Page_Management
 													);
 
 	}//end constructor
-
-
-	/**
-	* Return an array with information about the events that the account manager is listening for
-	*
-	* @access public
-	* @return boolean
-	*/
-	function getEventList()
-	{
-		return Array(
-				Array(
-					'event_name'				 => 'requestKeywords',
-					'broadcast_type_code'		 => 'content_type_wysiwyg',
-					'broadcast_strict_type_code' => true,
-					'options'	=> Array(
-						'side_of_link'		=> 'major',
-						'indirect'			=> true,
-						'exclusive'			=> null,
-						'dependant'			=> 1,
-						'value'				=> '',
-						'link_type'			=> SQ_LINK_TYPE_2 | SQ_LINK_TYPE_1,
-					),
-				),
-		);
-
-	}//end getEventList()
 
 
 }//end class

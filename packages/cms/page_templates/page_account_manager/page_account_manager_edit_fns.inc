@@ -18,12 +18,12 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager_edit_fns.inc,v 1.1 2003/11/27 02:48:47 gsherwood Exp $
+* $Id: page_account_manager_edit_fns.inc,v 1.2 2004/01/15 05:16:34 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
 
-require_once dirname(__FILE__).'/../../page/page_edit_fns.inc';
+require_once dirname(__FILE__).'/../../page_templates/page_asset_builder/page_asset_builder_edit_fns.inc';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 
 /**
@@ -37,7 +37,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
-class Page_Account_Manager_Edit_Fns extends Page_Edit_Fns
+class Page_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 {
 
 	/**
@@ -46,7 +46,7 @@ class Page_Account_Manager_Edit_Fns extends Page_Edit_Fns
 	*/
 	function Page_Standard_Edit_Fns()
 	{
-		$this->Page_Edit_Fns();
+		$this->Page_Asset_Builder_Edit_Fns();
 
 	}//end constructor
 
@@ -64,8 +64,7 @@ class Page_Account_Manager_Edit_Fns extends Page_Edit_Fns
 	function paintCreateType(&$asset, &$o, $prefix)
 	{
 		if (!$asset->writeAccess('attributes')) {
-			$info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->attr('create_type'));
-			echo $info['name'];
+			parent::paintCreateType($asset, $o, $prefix);
 		} else {
 			$user_types = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('user');
 		
@@ -83,22 +82,76 @@ class Page_Account_Manager_Edit_Fns extends Page_Edit_Fns
 
 
 	/**
-	* Processes the interface for choosing the user type that is created
+	* Paint the interface for choosing the location to create new assets
 	*
-	* @param object Page_Account_Manager	$asset	the asset to which we belong
-	* @param object	Backend_Outputter		$o		the outputter class
-	* @param string							$prefix	prefix for the form element
+	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processCreateType(&$asset, &$o, $prefix)
+	function paintCreateLocation(&$asset, &$o, $prefix)
 	{
-		if (!isset($_POST[$prefix.'_create_type'])) return false;
-		$create_type = trim($_POST[$prefix.'_create_type']);
-		return $asset->setAttrValue('create_type', $create_type);
+		$write_access = $asset->writeAccess('attributes');
+		$locations = $asset->attr('create_location');
 
-	}//end processCreateType()
+		echo '<p>';
+		if (empty($locations)) {
+			echo 'No user groups have been specified.';
+		} else if (count($locations) == 1) {
+			echo 'All new user accounts will be created in the user group ';
+			$locationid = array_pop($locations);
+			$location = &$GLOBALS['SQ_SYSTEM']->am->getAsset($locationid);
+			if (!is_null($location)) {
+				echo '"'.$location->name.'" [#'.$location->id.']';
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($location);
+			}
+			echo ' ';
+			check_box($prefix.'_delete_location['.$location->id.']');
+			echo ' Delete ?';
+		} else {
+			?>
+			<table class="sq-backend-table">
+				<tr>
+					<td class="sq-backend-table-header">Group Name</td>
+					<?php
+					if ($write_access) {
+						?><td class="sq-backend-table-header">Delete</td><?php
+					}
+					?>
+				</tr>
+				<?php
+				foreach ($locations as $locationid => $null) {
+					$location = &$GLOBALS['SQ_SYSTEM']->am->getAsset($locationid);
+					if (is_null($location)) continue;
+					?>
+					<tr>
+						<td class="sq-backend-table-cell"><?php echo $location->name; ?></td>
+						<?php
+						if ($write_access) {
+							?><td class="sq-backend-table-cell"><?php check_box($prefix.'_delete_location['.$location->id.']'); ?></td><?php
+						}
+						?>
+					</tr>
+					<?php
+					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($location);
+				}
+				?>
+			</table>
+			<?php
+		}
+		echo '</p>';
+
+		if ($write_access) {
+			$o->closeField();
+			$o->openField('Add New Group');
+			asset_finder($prefix.'_new_create_location', 0, Array('user_group' => 'D'));
+		}
+
+		return $write_access;
+
+	}//end paintCreateLocation()
 
 
 }//end class
