@@ -16,9 +16,9 @@
 ##
 ## Desc: Some General JS functions 
 ## $Source: /home/csmith/conversion/cvs/mysource_matrix/core/mysource_matrix/core/lib/js/general.js,v $
-## $Revision: 1.1.1.1 $
+## $Revision: 1.2 $
 ## $Author: brobertson $
-## $Date: 2003/01/23 06:25:36 $
+## $Date: 2003/02/06 07:10:20 $
 #######################################################################
 */
 
@@ -97,7 +97,7 @@ function array_search(arr, val) {
 	}
 	return null;
 
-}// end array_remove_element()
+}// end array_search()
 
  ///////////////////////////////////////////////////////
 // takes an array and returns a copy of it
