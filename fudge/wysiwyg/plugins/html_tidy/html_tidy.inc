@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_tidy.inc,v 1.18 2004/06/24 00:20:08 mnyeholt Exp $
+* $Id: html_tidy.inc,v 1.19 2004/09/08 07:23:17 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -116,7 +116,7 @@ class HTML_Tidy extends Wysiwyg_Plugin {
 		/////////////////
 
 		// tidy the HTML produced using the HTMLTidy program
-		$path_to_tidy = '/usr/local/bin/tidy';
+		$path_to_tidy = SQ_TOOL_HTML_TIDY_PATH;
 		
 		// is_executable doesn't exist on windows pre 5.0.0
 		if (function_exists('is_executable')) {
