@@ -712,11 +712,15 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 			$o->openField('&nbsp;');
 			echo 'You are deleting this asset to the trash. Below are a list of assets that will be affected by deleting this asset';
 			$ei = &$asset->getEI();
-			$ei->paintLinking($asset, $o);
+			$ei->paintLinking($asset, $o, false);
 
 			$o->closeSection();
 
-			$o->commitButton();
+			$o->openField('', 'commit');
+			normal_button('cancel', 'Cancel', 'window.close()');
+			echo '&nbsp;';
+			submit_button('commit', 'Commit');
+			//$o->commitButton();
 		}
 
 	}// end _deleteAsset()

@@ -1593,13 +1593,14 @@ class Asset_Edit_Interface extends Resolve_Object
 	/**
 	* Paints the interface for viewing links to/from this asset
 	*
-	* @param object	Asset				$owner	the asset whose interface we are painting
-	* @param object	Backend_Outputter	$o		the outputter class
+	* @param object	Asset				$owner		the asset whose interface we are painting
+	* @param object	Backend_Outputter	$o			the outputter class
+	* @param boolean					$allow_edit	allow editing of link types if user has access
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintLinking(&$owner, &$o)
+	function paintLinking(&$owner, &$o, $allow_edit=true)
 	{
 		// prefix for all the form vars
 		$prefix = $this->getPrefix($owner);
@@ -1650,8 +1651,12 @@ class Asset_Edit_Interface extends Resolve_Object
 			// care that it is linking to this asset!!
 			if ($majorid == 1) continue;
 
+			// work out if the user can change the link types
+			// the arg $allow_edit must be set to TRUE to try the write access test
 			$can_edit = false;
-			if ($owner->writeAccess(Array(), true, false) && in_array($link_type, array_keys($editable_link_types)) && !in_array($linkid, $editing_linkids)) $can_edit = true;
+			if ($allow_edit) {
+				if ($owner->writeAccess(Array(), true, false) && in_array($link_type, array_keys($editable_link_types)) && !in_array($linkid, $editing_linkids)) $can_edit = true;
+			}
 
 			$asset_lineage = 'Root Folder > ';
 			foreach ($link_tree as $tree_data) {
