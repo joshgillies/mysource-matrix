@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_insert_link.inc,v 1.19 2003/12/16 12:44:11 brobertson Exp $
+* $Id: matrix_insert_link.inc,v 1.20 2004/01/13 01:38:49 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -70,16 +70,13 @@ class matrix_insert_link extends wysiwyg_plugin {
 		?>
 		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/js/general.js' ?>"></script>
 		<script type="text/javascript" src="<?php echo sq_web_path('fudge').'/var_serialise/var_serialise.js' ?>"></script>
+
 		<script type="text/javascript" language="Javascript">
 			var wysiwyg_editing = true; // just so that onclick link's don't execute in wysiwyg
 
 			// Called when the user clicks on "InsertImage" button
 			HTMLArea.prototype._matrixInsertLink = function() {
 				var editor = this; // for nested functions
-
-				// disable the toolbar
-				this._tmp['disable_toolbar'] = true;
-				this.updateToolbar(false);
 
 				// all available new window options
 				var NEW_WINDOW_OPTIONS = new Array('toolbar','menubar','location','status','scrollbars','resizable','width','height');
@@ -211,7 +208,7 @@ class matrix_insert_link extends wysiwyg_plugin {
 				editor_<?php echo $this->wysiwyg->name?>._object = this;
 				var strPage = "<?php echo $this->get_popup_href('insert_link.php')?>?assetid=" + escape(currArgs["assetid"]) + "&url=" + escape(currArgs["url"]) + "&status_text=" + escape(currArgs["status_text"]) + "&new_window=" + escape(currArgs["new_window"]) + "&new_window_options=" + escape(var_serialise(currArgs["new_window_options"])) + "&editor_name=" + escape("<?php echo $this->wysiwyg->name; ?>") + "&in_popup=" + escape(in_popup);
 
-				this._popupDialog("matrixInsertLink", strPage, 400, 350, false, function(param) {
+				this._popupDialog("matrixInsertLink", strPage, 650, 440, true, function(param) {
 					if (param && param["url"] != "") {
 		
 						var html = '';

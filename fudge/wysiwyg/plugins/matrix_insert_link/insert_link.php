@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_link.php,v 1.12 2003/12/17 04:44:48 mmcintyre Exp $
+* $Id: insert_link.php,v 1.13 2004/01/13 01:38:49 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -65,13 +65,12 @@ if (!isset($_GET['new_window'])) {
 		<title>Insert Link</title>
 
 		<script type="text/javascript" src="../../core/popup.js"></script>
+		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/asset_map/javaExternalCall.js' ?>"></script>
+		<script type="text/javascript" src="<?php echo sq_web_path('fudge').'/var_serialise/var_serialise.js' ?>"></script>
 		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/html_form/html_form.js' ?>"></script>
 
+
 		<script type="text/javascript">
-			var parent_object = opener.editor_<?php echo $_REQUEST['editor_name']?>._object;
-			
-			window.opener.onFocus = function() { getFocus(); }
-			parent_object.onFocus = function() { getFocus(); }
 
 			function getFocus() {
 				setTimeout('self.focus()',100);
@@ -110,13 +109,11 @@ if (!isset($_GET['new_window'])) {
 				}
 
 				__dlg_close("matrixInsertLink", param);
-				window.opener.focus();
 				return false;
 			};
 
 			function onCancel() {
 				__dlg_close("matrixInsertLink", null);
-				window.opener.focus();
 				return false;
 			};
 
@@ -224,110 +221,117 @@ if (!isset($_GET['new_window'])) {
 		</style>
 	</head>
 
-	<body onLoad="Init(); if (opener) opener.blockEvents('matrixInsertLink')" onUnload="if (opener) opener.unblockEvents(); asset_finder_onunload(); parent_object._tmp['disable_toolbar'] = false; parent_object.updateToolbar();">
-		
+	<body>
 		<div class="title">Insert Link</div>
-		
 		<form action="" method="get" name="main_form">
-			<table width="100%">
+			<table>
 				<tr>
-					<td>
-						<table width="100%" cellspacing="0" cellpadding="0">
-							<tr>
-								<td valign="top" width="100%">
-									<fieldset>
-									<legend><b>General</b></legend>
-									<table style="width:100%">
-										<tr>
-											<td class="label">Protocol:</td>
-											<td><?php  combo_box('url_protocol', $url_protocol_options, $_GET['protocol'], 'style="font-family: courier new; font-size: 11px;"'); ?></td>
-											<td class="label">Link:</td>
-											<td><?php text_box('url_link', $_GET['url'], 40, 0)?></td>
-										</tr>
-										<tr>
-											<td class="label">Select Asset:</td>
-											<td colspan="3"><?php asset_finder('assetid', $_GET['assetid'], Array(), (($_GET['in_popup']) ? 'opener.opener.top' : 'opener.top'), 'setUrl'); ?></td>
-										</tr>
-									</table>
-									</fieldset>
-								</td>
-							</tr>
-						</table>
+					<td valign="top">
+						<?php embed_asset_map('simple'); ?>
 					</td>
-				</tr>
-				<tr>
-					<td>
-						<table width="100%" cellspacing="0" cellpadding="0">
-							<tr>
-								<td valign="top" width="100%">
-									<fieldset>
-										<legend>Options</legend>
-										<table style="width:100%">
+					<td valign="top">
+							<table width="100%">
+								<tr>
+									<td>
+										<table width="100%" cellspacing="0" cellpadding="0">
 											<tr>
-												<td class="label">Status Bar Text:</td>
-												<td><?php text_box('status_text', $_GET['status_text'], 50); ?></td>
-											</tr>
-										</table>
-									</fieldset>
-								</td>
-							</tr>
-						</table>
-					</td>
-				</tr>
-				<tr>
-					<td>
-						<table width="100%" cellspacing="0" cellpadding="0">
-							<tr>
-								<td valign="top" width="100%">
-									<fieldset>
-										<legend>New Window Options</legend>
-										<table style="width:100%">
-											<tr>
-												<td class="label" rowspan="2" valign="top">New Window:</td>
-												<td><?php combo_box('new_window', Array('0' => 'No', '1' => 'Yes'), false, $_GET['new_window'], 1, 'onChange="javascript: enable_new_window(this.form, form_element_value(this));"'); ?></td>
-											</tr>
-											<tr>
-												<td>
-													<table border="0" cellspacing="0" cellpadding="0">
+												<td valign="top" width="100%">
+													<fieldset>
+													<legend><b>General</b></legend>
+													<table style="width:100%">
 														<tr>
-														<?php
-															$count = 0;
-															foreach($new_window_bool_options as $var => $name) {
-																$count++;
-															?> 
-																	<td width="33%">
-																		<input type="checkbox" value="1" name="<?php echo $var?>" <?php echo ($_GET['new_window_options'][$var]) ? 'checked' : '';?>>
-																		<?php echo $name?>
-																	</td>
-															<?php
-																if ($count % 2 == 0) {
-																	echo '</tr><tr>';
-																}
-															}
-														?>
+															<td class="label">Protocol:</td>
+															<td><?php  combo_box('url_protocol', $url_protocol_options, $_GET['protocol'], 'style="font-family: courier new; font-size: 11px;"'); ?></td>
+															<td class="label">Link:</td>
+															<td><?php text_box('url_link', $_GET['url'], 40, 0)?></td>
 														</tr>
 														<tr>
-															<td colspan="3">
-																Size : <input type="text" value="<?php echo $_GET['new_window_options']['width']?>" size="3" name="width"> (w) x <input type="text" value="<?php echo $_GET['new_window_options']['height']?>" size="3" name="height"> (h)
-															</td>
+															<td class="label">Select Asset:</td>
+															<td colspan="3"><?php asset_finder('assetid', $_GET['assetid'], Array(), 'top', 'setUrl'); ?></td>
 														</tr>
 													</table>
+													</fieldset>
 												</td>
 											</tr>
 										</table>
-									</fieldset>
-								</td>
-							</tr>
-						</table>
-					</td>
-				</tr>
-			</table>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<table width="100%" cellspacing="0" cellpadding="0">
+											<tr>
+												<td valign="top" width="100%">
+													<fieldset>
+														<legend>Options</legend>
+														<table style="width:100%">
+															<tr>
+																<td class="label">Status Bar Text:</td>
+																<td><?php text_box('status_text', $_GET['status_text'], 50); ?></td>
+															</tr>
+														</table>
+													</fieldset>
+												</td>
+											</tr>
+										</table>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<table width="100%" cellspacing="0" cellpadding="0">
+											<tr>
+												<td valign="top" width="100%">
+													<fieldset>
+														<legend>New Window Options</legend>
+														<table style="width:100%">
+															<tr>
+																<td class="label" rowspan="2" valign="top">New Window:</td>
+																<td><?php combo_box('new_window', Array('0' => 'No', '1' => 'Yes'), false, $_GET['new_window'], 1, 'onChange="javascript: enable_new_window(this.form, form_element_value(this));"'); ?></td>
+															</tr>
+															<tr>
+																<td>
+																	<table border="0" cellspacing="0" cellpadding="0">
+																		<tr>
+																		<?php
+																			$count = 0;
+																			foreach($new_window_bool_options as $var => $name) {
+																				$count++;
+																			?> 
+																					<td width="33%">
+																						<input type="checkbox" value="1" name="<?php echo $var?>" <?php echo ($_GET['new_window_options'][$var]) ? 'checked' : '';?>>
+																						<?php echo $name?>
+																					</td>
+																			<?php
+																				if ($count % 2 == 0) {
+																					echo '</tr><tr>';
+																				}
+																			}
+																		?>
+																		</tr>
+																		<tr>
+																			<td colspan="3">
+																				Size : <input type="text" value="<?php echo $_GET['new_window_options']['width']?>" size="3" name="width"> (w) x <input type="text" value="<?php echo $_GET['new_window_options']['height']?>" size="3" name="height"> (h)
+																			</td>
+																		</tr>
+																	</table>
+																</td>
+															</tr>
+														</table>
+													</fieldset>
+												</td>
+											</tr>
+										</table>
+									</td>
+								</tr>
+							</table>
 
-			<div style="margin-top: 5px; text-align: right;">
-			<hr />
-			<button type="button" name="ok" onclick="return onOK();">OK</button>
-			<button type="button" name="cancel" onclick="return onCancel();">Cancel</button>
-			</div>
+						<div style="margin-top: 5px; text-align: right;">
+						<hr />
+						<button type="button" name="ok" onclick="return onOK();">OK</button>
+						<button type="button" name="cancel" onclick="return onCancel();">Cancel</button>
+						</div>
+					</td>
+				<tr>
+			</table>
 		</form>
 	</body>
 </html>
