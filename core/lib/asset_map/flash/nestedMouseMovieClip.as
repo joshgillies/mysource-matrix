@@ -58,10 +58,10 @@ NestedMouseMovieClip.prototype._NM_findMc = function(x, y)
 	return null;
 }// end __findMc__
 
-NestedMouseMovieClip.prototype.onEnterFrame = function() 
+// disable drag and rollover
+NestedMouseMovieClip.prototype.notOnMouseMove = function() 
 {
 	if (this._nm_on_press_mc != null || this._nm_on_roll_active) {
-//		trace (this + "::NestedMouseMovieClip.onEnterFrame()");
 		var mc_name = this._NM_findMc(this._xmouse, this._ymouse);
 
 		if (this._nm_on_press_mc != null) {
@@ -110,12 +110,14 @@ NestedMouseMovieClip.prototype.onEnterFrame = function()
 *
 */
 
-NestedMouseMovieClip.prototype.onRollOut = function() 
+NestedMouseMovieClip.prototype.notonRollOut = function() 
 {
+	trace (this + "::NestedMouseMovieClip.onRollOut()");
 	this._nm_on_roll_active = false;
 }
-NestedMouseMovieClip.prototype.onRollOver = function() 
+NestedMouseMovieClip.prototype.notonRollOver = function() 
 {
+	trace (this + "::NestedMouseMovieClip.onRollOver()");
 //	trace("onRollOver : " + this);
 	this._nm_on_roll_active = true;
 }

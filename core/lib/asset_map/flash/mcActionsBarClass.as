@@ -81,8 +81,11 @@ mcActionsBarClass.prototype.show = function(actions, labels, x, y)
 	var height = ypos + this.border_gap;
 	this.setSize(width, height);
 
-	x = Math.min (this._parent._width - width, x);
-	y = Math.min (this._parent._height - height, y);
+	var scroll_pane = this._parent._parent.scroll_pane;
+	var scroll_position = scroll_pane.getScrollPosition();
+	trace(scroll_position.x + ", " + scroll_position.y);
+	x = Math.min (scroll_position.x + scroll_pane.getInnerPaneWidth() - width - 5, x);
+	y = Math.min (scroll_position.y + scroll_pane.getInnerPaneHeight() - height - 5, y);
 
 	this._x = x;
 	this._y = y;
@@ -90,7 +93,7 @@ mcActionsBarClass.prototype.show = function(actions, labels, x, y)
 	
 	this._visible = true;
 
-
+	this.onMouseMove = this.checkSelections;
 }// end show()
 
 /**
@@ -104,6 +107,8 @@ mcActionsBarClass.prototype.hide = function()
 	this._x = this._y = 0;
 	this.buttons = new Array();
 	this._visible = false;
+
+	delete this.onMouseMove;
 }
 
 
@@ -151,12 +156,13 @@ mcActionsBarClass.prototype.onDragOver = function()
 }
 
 /**
-* Fired when the button is pressed
+* Fired when the button is pressed and the popup is showing
 *
 * @access public
 */
-mcActionsBarClass.prototype.onMouseMove = function() 
+mcActionsBarClass.prototype.checkSelections = function() 
 {
+	trace (this + "::mcActionsBarClass.checkSelections()");
 	if (this.mouse_over_us) {
 		var mc_name = this._NM_findMc(this._xmouse, this._ymouse);
 		if (mc_name === null) {
@@ -177,7 +183,7 @@ mcActionsBarClass.prototype.onMouseMove = function()
 
 		} // end if
 	}// end if
-}// end onMouseMove()
+}// end checkSelections()
 
 /**
 * Fired when the mouse button was pressed over us and when it's lifted and it's still over us

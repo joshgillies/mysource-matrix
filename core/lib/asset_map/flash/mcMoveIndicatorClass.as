@@ -35,6 +35,8 @@ mcMoveIndicatorClass.prototype.startIndicator = function(on_end_obj, on_end_fn)
 	this.parent_assetid		= 0;
 	this.relative_pos		= -1;
 
+	this.onMouseMove = this.checkPositions;
+
 	return true;
 
 }// end startIndicator()
@@ -56,11 +58,13 @@ mcMoveIndicatorClass.prototype.stopIndicator = function()
 	this.active   = false;
 	this._visible = false;
 
+	this.onMouseMove = null;
 }// end endIndicator()
 
 
-mcMoveIndicatorClass.prototype.onMouseMove = function() 
+mcMoveIndicatorClass.prototype.checkPositions = function() 
 {
+	trace (this + "::mcMoveIndicatorClass.onMouseMove()");
 	if (this.active) {
 
 		var list = this._parent.list;

@@ -14,8 +14,8 @@ function mcMenuItemClass()
 	this._rollOverTextFormat = new TextFormat();
 	this._rollOverTextFormat.color = 0xffffff;
 
-	this.onRollOver = this._drawHighlight;
-	this.onRollOut = this.onReleaseOutside = this._clearHighlight;
+//	this.onRollOver = this._drawHighlight;
+//	this.onRollOut = this.onReleaseOutside = this._clearHighlight;
 
 }
 

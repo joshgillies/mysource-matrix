@@ -55,17 +55,6 @@ mcMenuContainerClass.prototype.onRelease = function()
 	return super.onRelease();
 }
 
-mcMenuContainerClass.prototype.onRollOver = function()
-{
-//	trace (this + "::mcMenuContainerClass.onRollOver()");
-	return super.onRollOver();
-}
-
-mcMenuContainerClass.prototype.onRollOut = function()
-{
-//	trace (this + "::mcMenuContainerClass.onRollOver()");
-	return super.onRollOut();
-}
 
 mcMenuContainerClass.prototype.__addAssetFn = function() 
 {
