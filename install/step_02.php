@@ -85,6 +85,28 @@ if (is_null($root_folder)) {
 		trigger_error('Major Problem: The new Root User Asset was not given assetid #4. This needs to be fixed by You, before the installation/upgrade can be completed', E_USER_ERROR);
 	}
 
+	// Create the designs folder
+	$GLOBALS['SQ_SYSTEM']->am->includeAsset('designs_folder');
+	$designs_folder = new Designs_Folder();
+	$designs_folder_link = Array('asset' => &$root_folder, 'link_type' => SQ_LINK_EXCLUSIVE);
+	if (!$designs_folder->create($designs_folder_link)) die('Designs Folder NOT CREATED');
+	pre_echo('Design Folder Asset Id : '.$designs_folder->id);
+	if ($designs_folder->id != 7) {
+		trigger_error('Major Problem: The new Designs Folder Asset was not given assetid #7. This needs to be fixed by You, before the installation/upgrade can be completed', E_USER_ERROR);
+	}
+
+	// Create the login design
+	$GLOBALS['SQ_SYSTEM']->am->includeAsset('login_design');
+	$login_design = new Login_Design();
+	$login_design_link = Array('asset' => &$designs_folder, 'link_type' => SQ_LINK_EXCLUSIVE);
+	$login_design->setAttrValue('id_name', 'login_design');
+	if (!$login_design->create($login_design_link)) die('Login Design NOT CREATED');
+	pre_echo('Login Design Asset Id : '.$login_design->id);
+	if ($login_design->id != 8) {
+		trigger_error('Major Problem: The new Login Design Asset was not given assetid #8. This needs to be fixed by You, before the installation/upgrade can be completed', E_USER_ERROR);
+	}
+
+
 	// From here on in, the user needs to be logged in to create assets and links
 	$GLOBALS['SQ_INSTALL'] = false;
 
@@ -93,7 +115,6 @@ if (is_null($root_folder)) {
 	$GLOBALS['SQ_SYSTEM']->user = $root_user;
 
 }// end if
-
 
 /* INSTALL PACKAGES */
 
