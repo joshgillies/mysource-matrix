@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_prefs.inc,v 1.3 2004/10/28 01:19:07 tbarrett Exp $
+* $Id: content_type_wysiwyg_prefs.inc,v 1.4 2004/11/01 21:49:50 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -158,7 +158,7 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 			if (is_null($pref)) $o->closeField();
 		}
 
-		if (is_null($pref) || $pref == 'SQ_THESAURUS') {
+		if ($GLOBALS['SQ_SYSTEM']->am->installed('thesaurus') && (is_null($pref) || $pref == 'SQ_THESAURUS')) {
 			if (is_null($pref)) $o->openField('Thesaurus');
 			if ($have_lock && $is_admin) {
 				asset_finder('prefs[SQ_THESAURUS]', $this->pref_vars['SQ_THESAURUS']['default'], Array('thesaurus'=>'A'));
