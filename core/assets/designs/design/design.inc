@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: design.inc,v 1.50 2003/10/01 06:17:23 gsherwood Exp $
+* $Id: design.inc,v 1.51 2003/10/01 22:41:00 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -401,12 +401,12 @@ class Design extends Design_Area
 		switch($var) {
 			case 'html_header' :
 				echo '
-				<!--   <?php echo SQ_CONF_SYSTEM_NAME; ?>
-					  Content © Copyright <?php echo SQ_CONF_SYSTEM_OWNER; ?>
-					Running <?php echo SQ_SYSTEM_LONG_NAME; ?> - <?php echo SQ_SYSTEM_URL; ?>
+				<!--   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
+					  Content © Copyright <?php echo SQ_CONF_SYSTEM_OWNER."\n"; ?>
+					Running <?php echo SQ_SYSTEM_LONG_NAME; ?> - <?php echo SQ_SYSTEM_URL."\n"; ?>
 				   Developed by Squiz  - http://www.squiz.net
 				  © Copyright <?php echo date(\'Y\') ?>. All rights reserved.
-				  Page generated: <?php echo date(\'d F Y\'); ?>
+				  Page generated: <?php echo date(\'d F Y\')."\n"; ?>
 				-->
 				<script language="javascript" type="text/javascript"  src="<?php echo sq_web_path(\'lib\'); ?>/js/general.js"></script>
 
