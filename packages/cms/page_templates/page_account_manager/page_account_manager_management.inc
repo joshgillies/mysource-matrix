@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager_management.inc,v 1.1 2003/11/27 02:48:47 gsherwood Exp $
+* $Id: page_account_manager_management.inc,v 1.2 2003/12/03 23:09:10 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -51,7 +51,7 @@ class Page_Account_Manager_Management extends Page_Management
 														'type'      => 'assetid',
 														'default'   => '',
 													);
-		$this->vars['create_type']			= Array(
+		$this->vars['create_type']				= Array(
 														'added'     => '0.1',
 														'type'      => 'text',
 														'default'   => 'user',
@@ -67,7 +67,6 @@ class Page_Account_Manager_Management extends Page_Management
 																				'multiple' => true
 																			  ),
 													);
-		
 
 
 		$this->vars['login_invite']				= Array(
