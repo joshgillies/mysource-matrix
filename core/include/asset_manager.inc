@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.197 2004/03/31 00:28:15 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.198 2004/04/01 00:27:37 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -3670,8 +3670,6 @@ class Asset_Manager extends MySource_Object
 	*/
 	function deletePermission($assetid, $userid, $permission)
 	{
-		$assetid    = (int) $assetid;
-		$userid     = (int) $userid;
 		$permission = (int) $permission;
 
 		$asset = &$this->getAsset($assetid);
