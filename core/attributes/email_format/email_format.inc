@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: email_format.inc,v 1.11 2004/11/08 03:35:17 lwright Exp $
+* $Id: email_format.inc,v 1.11.2.1 2004/12/20 00:52:25 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -208,15 +208,18 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 				divX = div.firstChild;
 				
 				while(divX != null) {
-					email_addr = divX.firstChild.nextSibling.nextSibling.nextSibling.innerHTML;
-				
-					// this is the one we want
-					if (divX.id == (editor_name + "_" + index)) {
-						divX.style.display = 'none';
-					} else {
-						email_array[arrIndex] = email_addr.replace('&lt;', '<').replace('&gt;', '>');
+					if (divX.style.display != 'none') {
+						email_addr = divX.firstChild.nextSibling.nextSibling.nextSibling.innerHTML;
+					
+						// this is the one we want
+						if (divX.id == (editor_name + "_" + index)) {
+							divX.style.display = 'none';
+						} else {
+							email_array[arrIndex] = email_addr.replace('&lt;', '<').replace('&gt;', '>');
+						}
+						arrIndex++;
 					}
-					arrIndex++;
+					
 					divX = divX.nextSibling;
 				}
 				
@@ -224,10 +227,12 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 
 				for (var i = 0; i < email_array.length; i++) {
 					var email = email_array[i];
-					re = new RegExp("\\\[.*\\\] (.*)", "g");
-					email_addr = email.replace(re, "\$1");
-
-					new_value_content += email_addr + ";";
+					if (typeof email != 'undefined') {
+						re = new RegExp("\\\[.*\\\] (.*)", "g");
+						email_addr = email.replace(re, "\$1");
+	
+						new_value_content += email_addr + ";";
+					}
 				}
 				
 				value.value = new_value_content;
