@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_tool_reindex.inc,v 1.2 2005/03/16 23:13:37 ndvries Exp $
+* $Id: hipo_job_tool_reindex.inc,v 1.3 2005/03/17 01:06:45 ndvries Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Manager
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -70,7 +70,7 @@ class HIPO_Job_Tool_ReIndex extends HIPO_Job
 	function HIPO_Job_Tool_ReIndex($code_name='')
 	{
 		$this->uses_trans = false;
-		$this->_hipo_vars['job_dir'] = '/packages/search/tools/tool_reindex';
+		$this->_hipo_vars['job_dir'] = SQ_PACKAGES_PATH.'/search/tools/tool_reindex';
 		$this->HIPO_Job($code_name);
 
 	}//end constructor
