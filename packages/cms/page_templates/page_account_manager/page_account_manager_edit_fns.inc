@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager_edit_fns.inc,v 1.6 2004/07/28 01:41:54 lwright Exp $
+* $Id: page_account_manager_edit_fns.inc,v 1.7 2004/08/11 07:09:30 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -45,9 +45,9 @@ class Page_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 	* @var array(string => string)
 	*/
 	var $location_messages = Array(
-						'mandatory' => 'All new user accounts will be placed into these user groups',
-						'optional'  => 'When creating a new account, the user will have the option of placing themselves into one or more of these user groups',
-						'rules'     => 'These rules define where new user accounts should be created based on the values filled in by the user',
+						'fixed' => 'All new user accounts will be placed into these user groups',
+						'selectable'  => 'When creating a new account, the user will have the option of placing themselves into users groups from these sets',
+						'conditional'     => 'These rules define where new user accounts should be created based on the values filled in by the user',
 										);
 
 	/**
