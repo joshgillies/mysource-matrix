@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager.inc,v 1.7 2004/03/29 06:28:11 mmcintyre Exp $
+* $Id: remap_manager.inc,v 1.8 2004/05/13 06:31:31 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.7 $ - 0.1
+* @version $Revision: 1.8 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -230,12 +230,12 @@ class Remap_Manager extends Asset
 		if (is_null($url)) $url = strip_url(current_url(false, true));
 
 		$url = $protocol.'://'.$url;
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db  =& $GLOBALS['SQ_SYSTEM']->db;
 
-		$sql = 'SELECT remap_url
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup_remap';
+		$sql   = 'SELECT remap_url
+				  FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup_remap';
 		$where = 'url = '.$db->quote($url).'
-				  AND expires IS NULL OR expires > NOW()';
+				  AND (expires IS NULL OR expires > NOW())';
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
 		$remap_url = $db->getOne($sql.$where);
@@ -297,7 +297,7 @@ class Remap_Manager extends Asset
 		$asset = &$this->getPageNotFoundAsset();
 		if (is_null($asset)) return false;
 		
-		//send a 404 header
+		// send a 404 header
 		header("HTTP/1.0 404 Not Found");
 		
 		$url = strip_url($this->getURL(), true);
