@@ -94,7 +94,7 @@ class Transaction_Manager extends MySource_Object
 
 		if (!empty($this->_rollback[$db_name])) {
 			trigger_error('Unable to Commit, Transaction has already been aborted', E_USER_WARNING);
-			$this->rollback();
+			$this->rollback($db_name);
 			return false;
 		}
 		$this->_levels[$db_name]--;
