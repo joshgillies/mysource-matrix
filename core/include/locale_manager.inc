@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: locale_manager.inc,v 1.1 2005/03/30 00:40:12 lwright Exp $
+* $Id: locale_manager.inc,v 1.2 2005/04/06 06:22:04 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,7 +31,7 @@
 *    number/date formats
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 class Locale_Manager extends MySource_Object
@@ -148,6 +148,19 @@ class Locale_Manager extends MySource_Object
 	}//end restoreCurrentLocale()
 
 
+	/**
+	* Split a full locale into its parts
+	*
+	* Can be called using, eg:
+	* list($country, $language, $variant) =
+	*	$GLOBALS['SQ_SYSTEM']->lm->getLocaleParts('en_AU');
+	*
+	* @param string	$locale	the full locale
+	*
+	* @return Array	three element array with country, language and variant
+	*		(if any are missing they will be NULL)
+	* @access public
+	*/
 	function getLocaleParts($locale)
 	{
 		$locale_parts = Array(null, null, null);
@@ -185,26 +198,44 @@ class Locale_Manager extends MySource_Object
 
 	/**
 	* gets a string translation
+	*
+	* @param string	$string_code	the string code
+	* 
+	* @return string	the translated string or '' if not found
+	* @access public
 	*/
-	function getString($string_code, $locale=null)
+	function getString($string_code)
 	{
-		if ($locale == null) {
-			$locale = $this->getCurrentLocale();
+		$locale = $this->getCurrentLocale();
+		
+		// if second parameter is an array, use that as our list of params
+		if (!is_array($func_args = func_get_arg(1))) {
+			$func_args = func_get_args();
+			$func_args = array_slice($func_args,1);
 		}
-
+		
 		if (!isset($this->_strings[$locale])) {
-			return '***';
+			return '';
 		}
 
 		if (!isset($this->_strings[$locale][$string_code])) {
-			return '***';
+			return '';
 		}
 
-		return $this->_strings[$locale][$string_code];
+		return vsprintf($this->_strings[$locale][$string_code],$func_args);
 
 	}//end getString()
 
 
+	/**
+	* Includes the compiled strings for a specified asset, if they haven't already
+	*
+	* @param string	$type_code	the type code to include strings for
+	* @param string	$locale		the locale to use (default to current)
+	*
+	* @return void
+	* @access public
+	*/
 	function includeAssetStrings($type_code, $locale=null)
 	{
 		// keep track of which assets have been included so we don't include
@@ -216,20 +247,42 @@ class Locale_Manager extends MySource_Object
 			if ($locale == null) {
 				$locale = $this->getCurrentLocale();
 			}
-
-			$file = SQ_DATA_PATH.'/private/asset_types/'.$type_code.'/strings.'.$locale;
-
-			if (file_exists($file)) {
-				$strings = unserialize(file_get_contents($file));
-
-				if (!isset($this->_strings[$locale])) {
-					$this->_strings[$locale] = Array();
+			
+			list($lang, $country, $variant) = $this->getLocaleParts($locale);
+			$locales = Array($lang);
+			if (!empty($country)) {
+				$locales[] = $lang.'_'.$country;
+				if (!empty($variant)) {
+					$locales[] = $lang.'_'.$country.'@'.$variant;
 				}
-				$this->_strings[$locale] = array_merge($this->_strings[$locale], $strings);
+			}
+			
+			foreach($locales as $this_locale) {
+				$file = SQ_DATA_PATH.'/private/asset_types/'.$type_code.'/strings.'.$this_locale;
+	
+				if (file_exists($file)) {
+					$strings = unserialize(file_get_contents($file));
+	
+					if (!isset($this->_strings[$locale])) {
+						$this->_strings[$locale] = Array();
+					}
+					$this->_strings[$locale] = array_merge($this->_strings[$locale], $strings);
+				}
 			}
 		}
-	}
+		
+	}//end includeAssetStrings()
 
+
+	/**
+	* Includes the strings from a package, if they haven't already
+	*
+	* @param string	$package_name	the name of the package
+	* @param string	$locale		the locale to use (default = current)
+	*
+	* @return void
+	* @access public
+	*/
 	function includePackageStrings($package_name, $locale=null)
 	{
 		// keep track of which packages have been included so we don't include
@@ -253,8 +306,17 @@ class Locale_Manager extends MySource_Object
 				$this->_strings[$locale] = array_merge($this->_strings[$locale], $strings);
 			}
 		}
-	}
+	}//end includePackageStrings()
+	
 
+	/**
+	* Include the system-wide core strings, if they haven't already
+	*
+	* @param string	$locale	the locale to include (default to current locale)
+	*
+	* @return void
+	* @access public
+	*/
 	function includeCoreStrings($locale=null)
 	{
 		// keep track of whether we've included the core strings already
@@ -277,7 +339,8 @@ class Locale_Manager extends MySource_Object
 				$this->_strings[$locale] = array_merge($this->_strings[$locale], $strings);
 			}
 		}
-	}
+	}//end includeCoreStrings()
+	
 
 }//end class
 ?>
