@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_modification.inc,v 1.1 2004/07/28 07:05:18 tbarrett Exp $
+* $Id: calendar_event_modification.inc,v 1.2 2004/07/28 23:30:09 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once  dirname(__FILE__).'/../calendar_event_recurring/calendar_event_rec
 * of a recurring event have changed for a particular instance of that event.
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.1 $ - 1.0
+* @version $Revision: 1.2 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -123,11 +123,6 @@ class Calendar_Event_Modification extends Calendar_Event
 	{
 		if (!parent::saveAttributes($dont_run_updated)) return false;
 		if ($this->id && !$dont_run_updated) {
-			bam("ID is " . $this->id);
-			
-			// look in POST for the modified event to link to.
-			// We couldn't do this before because we didn't have an ID
-			//$this->_updateModifiedEvent();
 	
 			// check that the date given matches the date of an instance of the modified event
 			$recurring_event_ids = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'calendar_event_recurring', false);
