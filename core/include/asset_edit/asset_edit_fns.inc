@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_edit_fns.inc,v 1.26 2003/10/21 06:59:56 dwong Exp $
+* $Id: asset_edit_fns.inc,v 1.27 2003/10/21 07:57:14 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -208,6 +208,7 @@ class Asset_Edit_Fns extends MySource_Object
 					echo "&nbsp;&nbsp;Weight: ";
 					echo $weightingData['weighting'];
 					$o->addHiddenField($prefix. "weightings[$component][weighting]", $weightingData['weighting']);
+					$o->addHiddenField($prefix. "include[$component][weighting]", ($weightingData['weighting'] > 0)?'1':'0');
 				} else {
 					combo_box($prefix. "include[$component]", Array("0" => "Do not include in searches", "1" => "Include in searches"), false, ($weightingData['weighting'] > 0)?'1':'0');
 					if ($weightingData['weighting'] > 0) {
@@ -236,7 +237,7 @@ class Asset_Edit_Fns extends MySource_Object
 	function processWeights(&$owner, &$o, $prefix)
 	{
 		$weightings = $_POST[$prefix.'weightings'];
-		$included = $_POST[$prefix.'include'];
+		$included   = $_POST[$prefix.'include'];
 		$im =& $GLOBALS['SQ_SYSTEM']->getIndexingManager();
 
 		foreach ($weightings as $component => $weightingData) {
