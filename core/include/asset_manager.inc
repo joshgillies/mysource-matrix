@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.185 2004/03/02 04:12:17 mmcintyre Exp $
+* $Id: asset_manager.inc,v 1.186 2004/03/07 22:50:21 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -722,7 +722,7 @@ class Asset_Manager extends MySource_Object
 	{
 		static $system_assets = null;
 		if (is_null($system_assets)) {
-			// include the main system config file
+			// include the system asset config file
 			require SQ_DATA_PATH.'/private/conf/system_assets.inc';
 		}
 		if (isset($system_assets[$name])) {
@@ -744,17 +744,16 @@ class Asset_Manager extends MySource_Object
 	*/
 	function canPurgeAsset(&$asset)
 	{
-		if ($asset->id <= SQ_NUM_RESERVED_ASSETIDS) {
-			// this asset is a direct system asset
-			// so we can not purge this asset
-			return false;
-		}
+		// check if we are trying to purge a system asset
+		require SQ_DATA_PATH.'/private/conf/system_assets.inc';
+		$system_asset_ids = array_values($system_assets);
+		if (in_array($asset->id, $system_asset_ids)) return false;
 
 		// if we get to here, it is not one of the
 		// system assets, but it may be dependantly linked to one
 		// so lets check for that
 		$parents = $this->getLinks($asset->id, SQ_SC_LINK_SIGNIFICANT, '', null, 'minor', '', 1);
-		for($i = 0; $i < count($parents); $i++) if ($parents[$i]['majorid'] <= SQ_NUM_RESERVED_ASSETIDS) return false;
+		for($i = 0; $i < count($parents); $i++) if (in_array($parents[$i]['majorid'], $system_asset_ids)) return false;
 
 		return true;
 
