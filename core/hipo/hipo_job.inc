@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: hipo_job.inc,v 1.30 2003/10/28 23:21:10 mmcintyre Exp $
+* $Id: hipo_job.inc,v 1.31 2003/10/30 23:26:40 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -745,12 +745,6 @@ class HIPO_Job extends MySource_Object
 	*/
 	function process()
 	{
-		if ($this->complete()) {
-			error_log('1 complete');
-		} else {
-			error_log('1 not complete');
-		}
-
 
 		if ($this->userid != $GLOBALS['SQ_SYSTEM']->currentUserId()) {
 			trigger_error('You cannot process "'.$result['job_type'].'" HIPO job that you do not own', E_USER_WARNING);

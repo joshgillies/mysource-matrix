@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: hipo_job_create_link.inc,v 1.1 2003/10/28 23:25:19 mmcintyre Exp $
+* $Id: hipo_job_create_link.inc,v 1.2 2003/10/30 23:26:53 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -305,7 +305,6 @@ class HIPO_Job_Create_Link extends HIPO_Job
 	*/
 	function cascadePermissions(&$job_type, &$running_vars, &$options)
 	{
-		error_log('in here1');
 		$job_type = 'hipo_job_edit_permissions';
 		$permission_vars = Array();
 
@@ -339,7 +338,6 @@ class HIPO_Job_Create_Link extends HIPO_Job
 	*/
 	function cascadeMetadata(&$job_type, &$running_vars, &$options)
 	{
-		error_log('in here2');
 		$job_type = 'hipo_job_edit_metadata_schemas';
 		$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
 		$schemas = $mm->getSchemas($this->_running_vars['parentid']);
@@ -371,7 +369,6 @@ class HIPO_Job_Create_Link extends HIPO_Job
 	*/
 	function cascadeWorkflow(&$job_type, &$running_vars, &$options)
 	{
-		error_log('in here3');
 		$job_type = 'hipo_job_edit_workflow_schemas';
 		$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 		$schemas = $wfm->getSchemas($this->_running_vars['parentid']);
