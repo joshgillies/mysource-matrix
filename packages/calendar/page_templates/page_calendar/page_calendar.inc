@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.77 2004/09/14 01:07:41 lwright Exp $
+* $Id: page_calendar.inc,v 1.78 2004/09/14 02:06:25 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once  dirname(__FILE__).'/../../calendar_events/calendar_event_recurring
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.77 $ - 1.0
+* @version $Revision: 1.78 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -398,7 +398,7 @@ class Page_Calendar extends Page_Asset_Listing
 			}
 			$replacements['up_link'] = $up_view ? '<a class="calendarNavLink"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$up_view.'&amp;SQ_CALENDAR_DATE='.$cal_date.'">'.str_replace('%v%', ucfirst($up_view), $this->attr('up_link_text')).'</a>' : '';
 
-			echo "<script>if (typeof cal != 'undefined') cal.setDate('$cal_date')</script>";
+			echo "<script>if (typeof js_calendar_cal != 'undefined') js_calendar_cal.setDate('$cal_date')</script>";
 
 			// print the contents of page - replacing the global keywords
 			$format_bodycopy->setKeywordReplacements($replacements);
@@ -1690,7 +1690,7 @@ class Page_Calendar extends Page_Asset_Listing
 		foreach ($res as $node => $events) {
 			foreach($partition_keys as $partition) $this->_processExceptions($res[$node][$partition]);
 		}
-		
+
 		return $res;
 
 	}//end getDayEventsByRootNodeAndTime()
@@ -2173,7 +2173,7 @@ class Page_Calendar extends Page_Asset_Listing
 
 		$sql .= implode(', ', $quoted_root_nodes).')';
 
-		$trees = $db->getAssoc($sql);			
+		$trees = $db->getAssoc($sql);
 		assert_valid_db_result($trees);
 		return $trees;
 
@@ -2193,16 +2193,16 @@ class Page_Calendar extends Page_Asset_Listing
 
 		// this query to get the treeids of the root nodes to plug into the main query/ies
 		$sql = 'case';
-		
+
 		// order the tree array in decreasing order of tree length - ie. most specific first
-		uasort($trees, create_function('$a,$b','return strlen($b) - strlen($a);'));		
-		
+		uasort($trees, create_function('$a,$b','return strlen($b) - strlen($a);'));
+
 		foreach($trees as $root_node => $treeid) {
 			$sql .= ' when '.$comparison.' LIKE '.$db->quote($treeid.'%').' THEN '.$db->quote($root_node);
 		}
 		$sql .= ' ELSE 0';
 		$sql .= ' END';
-		
+
 		return $sql;
 
 	}//end _treeCaseQuery()
@@ -2221,7 +2221,7 @@ class Page_Calendar extends Page_Asset_Listing
 	* @param string $last_day		The last day to expand recurring events for (specified in
 	*								ISO8601 date-only format)
 	*
-	* @return array	the expanded event list	
+	* @return array	the expanded event list
 	* @access private
 	*/
 	function &_expandEventList(&$events, $cal_date, $last_day) {
