@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: hipo_herder.inc,v 1.16 2003/09/26 05:26:31 brobertson Exp $
+* $Id: hipo_herder.inc,v 1.17 2003/09/29 01:40:45 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -133,8 +133,8 @@ class HIPO_Herder extends MySource_Object
 			}
 		}
 		// they want to stop all processing and cancel the HIPO
-		if (!empty($_POST['cancel_hipo'])) { 
-			if ($source_job->abort()) { 
+		if (!empty($_POST['cancel_hipo'])) {
+			if ($source_job->abort()) {
 				$_POST['aborting_hipo'] = $source_job->code_name;
 				$_POST['aborting_hipo_url'] = $source_job->getOption('on_complete_url');
 			}
@@ -175,7 +175,6 @@ class HIPO_Herder extends MySource_Object
 		$onload = '';
 		$delay  = false;
 		$auto_step = false;
-
 
 		// if the source job is null it means that an abort finally finished
 		// (we couldn't get here otherwise) so print that and get out of here
@@ -288,10 +287,10 @@ class HIPO_Herder extends MySource_Object
 								<td>
 <pre style="font-size:11px;">
 <?php
-if (!empty($done_hipo)) { 
+if (!empty($done_hipo)) {
 	echo '<span style="color:#000000;">'.implode("\n", $done_hipo)."</span>\n";
 }
-if (!empty($todo_hipo)) { 
+if (!empty($todo_hipo)) {
 	echo '<span style="color:#C0C0C0;">'.implode("\n", $todo_hipo)."</span>\n";
 }
 ?>
@@ -535,6 +534,106 @@ if (!empty($todo_hipo)) {
 
 	}// end serverSigHandler()
 
+
+	/**
+	* Queue up a HIPO Job to run at the next refresh
+	*
+	* @param string	$job_type	the type of job (hipo_job_BLAH)
+	* @param array	$vars		HIPO vars to send to the job
+	* @param string	$on_complete_url	the URL to redirect to once all HIPOs are done
+	*									(can be left blank to use the current URL)
+	*
+	* @return string
+	* @access public
+	*/
+	function queueHipo($job_type, $vars=Array(), $on_complete_url='')
+	{
+		if (empty($on_complete_url)) $on_complete_url = $_SERVER['REQUEST_URI'];
+
+		require_once SQ_SYSTEM_ROOT.'/core/hipo/jobs/'.$job_type.'.inc';
+		$init_hipo = new $job_type();
+
+		$init_hipo->setRunningVars($vars);
+		$init_hipo->setOption('on_complete_url', $on_complete_url);
+
+		return $init_hipo->initialise();
+
+	}//end queueHipo()
+
+
+	/**
+	* Prepare the HIPO Jobs that have been queued for the current user
+	*
+	* @param string	$on_complete_url	the URL to redirect to once all HIPOs are done
+	*									(can be left blank to use the current URL when the
+	*									HIPO jobs were queued)
+	*
+	* @return string
+	* @access public
+	*/
+	function runQueuedJobs($on_complete_url='')
+	{
+		// note that we do not check rollback tables here becasue the
+		// hipo job table doesnt need one and doesnt want one!!
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$sql = 'SELECT code_name, job_type
+				FROM '.SQ_TABLE_PREFIX.'hipo_job
+				WHERE userid = '.$db->quote($GLOBALS['SQ_SYSTEM']->currentUserId()).'
+				  AND running = 0';
+		$queued_jobs = $db->getAll($sql);
+
+		if (DB::isError($queued_jobs)) {
+			trigger_error($queued_jobs->getMessage().'<br/>'.$queued_jobs->getUserInfo(), E_USER_WARNING);
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return '';
+		}
+
+		if (empty($queued_jobs)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			return '';
+		}
+
+		$job_codes = Array();
+
+		for ($i = 0; $i < count($queued_jobs); $i++) {
+			$job_data = $queued_jobs[$i];
+			$job = &$this->getJob($job_data['code_name'], $job_data['job_type']);
+			$job_codes[] = $db->quote($job_data['code_name']);
+
+			if (isset($queued_jobs[($i+1)])) {
+				$url = $this->getProcessURL($job_data['code_name']);
+				$next_url = $this->getProcessURL($queued_jobs[($i+1)]['code_name']);
+				$job->setOption('on_complete_url', $next_url);
+				if (!$job->save()) {
+					trigger_error('HIPO Job failed to save', E_USER_WARNING);
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return '';
+				}
+			} else if (!empty($on_complete_url)) {
+				$job->setOption('on_complete_url', $on_complete_url);
+				if (!$job->save()) {
+					trigger_error('HIPO Job failed to save', E_USER_WARNING);
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return '';
+				}
+			}
+		}
+
+		$sql = 'UPDATE '.SQ_TABLE_PREFIX.'hipo_job SET running = 1
+				WHERE code_name IN ('.implode(', ',$job_codes).')';
+
+		$result = $db->query($sql);
+		if (DB::isError($result)) {
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return '';
+		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		return $this->getProcessURL($queued_jobs[0]['code_name']);
+
+	}//end runQueuedJobs()
 
 }//end class
 

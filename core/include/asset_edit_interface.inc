@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_edit_interface.inc,v 1.149 2003/09/26 05:26:31 brobertson Exp $
+* $Id: asset_edit_interface.inc,v 1.150 2003/09/29 01:40:45 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -894,25 +894,9 @@ class Asset_Edit_Interface extends MySource_Object
 		if (isset($_POST[$prefix.'_change_status']) && (int) $_POST[$prefix.'_change_status'] > 0) {
 
 			//// START HIPO PROCESSING ////
-
+			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
 			$vars = Array('assetid' => $owner->id, 'new_status' => $_POST[$prefix.'_change_status']);
-			$complete_url = $_SERVER['REQUEST_URI'];
-
-			require_once(SQ_SYSTEM_ROOT.'/core/hipo/jobs/hipo_job_edit_status.inc');
-			$init_hipo = new HIPO_Job_Edit_Status();
-
-			$init_hipo->setRunningVars($vars);
-			$init_hipo->setOption('on_complete_url', $complete_url);
-
-			$code_name = $init_hipo->initialise();
-			if ($code_name) {
-				$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
-				if ($url = $hh->getProcessURL($code_name)) $o->setRedirect($url);
-				return true;
-			} else {
-				return false;
-			}
-
+			$hh->queueHipo('hipo_job_edit_status', $vars);
 			////  END HIPO PROCESSING  ////
 		}
 
@@ -1486,22 +1470,10 @@ class Asset_Edit_Interface extends MySource_Object
 		}// end if
 
 		//// START HIPO PROCESSING ////
-		if (!empty($assets_affected_lookups)) {
-			require_once SQ_SYSTEM_ROOT.'/core/hipo/jobs/hipo_job_update_lookups.inc';
-			$init_hipo = new HIPO_Job_Update_Lookups();
-
-			$init_hipo->setRunningVars(Array('assetids' => array_unique($assets_affected_lookups)));
-			$init_hipo->setOption('on_complete_url', $_SERVER['REQUEST_URI']);
-
-			$code_name = $init_hipo->initialise();
-			if ($code_name) {
-				$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
-				if ($url = $hh->getProcessURL($code_name)) $o->setRedirect($url);
-			}
-		}// end if
-
+		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		$vars = Array('assetids' => array_unique($assets_affected_lookups));
+		$hh->queueHipo('hipo_job_update_lookups', $vars);
 		////  END HIPO PROCESSING  ////
-
 
 		return true;
 
@@ -1738,23 +1710,9 @@ class Asset_Edit_Interface extends MySource_Object
 		if (!empty($permission_vars)) {
 
 			//// START HIPO PROCESSING ////
-
+			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
 			$vars = Array('assetid' => $owner->id, 'permission_changes' => $permission_vars);
-			$code_name = 'HIPO_edit_permissions';
-			$complete_url = $_SERVER['REQUEST_URI'];
-
-			require_once SQ_SYSTEM_ROOT.'/core/hipo/jobs/hipo_job_edit_permissions.inc';
-			$init_hipo = new HIPO_Job_Edit_Permissions();
-
-			$init_hipo->setRunningVars($vars);
-			$init_hipo->setOption('on_complete_url', $complete_url);
-
-			$code_name = $init_hipo->initialise();
-			if ($code_name) {
-				$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
-				if ($url = $hh->getProcessURL($code_name)) $o->setRedirect($url);
-			}
-
+			$hh->queueHipo('hipo_job_edit_permissions', $vars);
 			////  END HIPO PROCESSING  ////
 
 		}//end if we have permission to set
@@ -2181,23 +2139,9 @@ class Asset_Edit_Interface extends MySource_Object
 		if (!empty($schema_vars)) {
 
 			//// START HIPO PROCESSING ////
-
+			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
 			$vars = Array('assetid' => $owner->id, 'schema_changes' => $schema_vars);
-			$code_name = 'HIPO_edit_workflow_schemas';
-			$complete_url = $_SERVER['REQUEST_URI'];
-
-			require_once SQ_SYSTEM_ROOT.'/core/hipo/jobs/hipo_job_edit_workflow_schemas.inc';
-			$init_hipo = new HIPO_Job_Edit_Workflow_Schemas();
-
-			$init_hipo->setRunningVars($vars);
-			$init_hipo->setOption('on_complete_url', $complete_url);
-
-			$code_name = $init_hipo->initialise();
-			if ($code_name) {
-				$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
-				if ($url = $hh->getProcessURL($code_name)) $o->setRedirect($url);
-			}
-
+			$hh->queueHipo('hipo_job_edit_workflow_schemas', $vars);
 			////  END HIPO PROCESSING  ////
 
 		}//end if we have schemas to set
@@ -2396,23 +2340,9 @@ class Asset_Edit_Interface extends MySource_Object
 		if (!empty($schema_vars)) {
 
 			//// START HIPO PROCESSING ////
-
+			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
 			$vars = Array('assetid' => $owner->id, 'schema_changes' => $schema_vars);
-			$code_name = 'HIPO_edit_metadata_schemas';
-			$complete_url = $_SERVER['REQUEST_URI'];
-
-			require_once SQ_SYSTEM_ROOT.'/core/hipo/jobs/hipo_job_edit_metadata_schemas.inc';
-			$init_hipo = new HIPO_Job_Edit_Metadata_Schemas();
-
-			$init_hipo->setRunningVars($vars);
-			$init_hipo->setOption('on_complete_url', $complete_url);
-
-			$code_name = $init_hipo->initialise();
-			if ($code_name) {
-				$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
-				if ($url = $hh->getProcessURL($code_name)) $o->setRedirect($url);
-			}
-
+			$hh->queueHipo('hipo_job_edit_metadata_schemas', $vars);
 			////  END HIPO PROCESSING  ////
 
 		}//end if we have schemas to set

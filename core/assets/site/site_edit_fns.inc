@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: site_edit_fns.inc,v 1.33 2003/09/26 05:26:27 brobertson Exp $
+* $Id: site_edit_fns.inc,v 1.34 2003/09/29 01:40:45 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -206,20 +206,9 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 		if (!$asset->saveWebURLs($urls)) return false;
 
 		//// START HIPO PROCESSING ////
-
-		require_once SQ_SYSTEM_ROOT.'/core/hipo/jobs/hipo_job_update_lookups.inc';
-		$init_hipo = new HIPO_Job_Update_Lookups();
-
-		$init_hipo->setRunningVars(Array('assetids' => Array($asset->id)));
-		$init_hipo->setOption('on_complete_url', $_SERVER['REQUEST_URI']);
-
-		$code_name = $init_hipo->initialise();
-		if ($code_name) {
-			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
-			if ($url = $hh->getProcessURL($code_name)) $o->setRedirect($url);
-		}
-
-
+		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		$vars = Array('assetids' => Array($asset->id));
+		$hh->queueHipo('hipo_job_update_lookups', $vars);
 		////  END HIPO PROCESSING  ////
 
 		return true;

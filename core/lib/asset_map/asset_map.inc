@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_map.inc,v 1.79 2003/09/26 05:26:31 brobertson Exp $
+* $Id: asset_map.inc,v 1.80 2003/09/29 01:40:46 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -192,6 +192,7 @@ class Asset_Map
 #		error_log("XML OUT : \n".$output->get());
 		header("Content-Type: text/xml");
 		$output->dump();
+
 	}//end _send()
 
 
@@ -207,7 +208,9 @@ class Asset_Map
 		$output = new XML_Tree();
 		$root = &$output->addRoot('error', $msg);
 		$this->_send($output);
+
 	}//end _error()
+
 
 	/**
 	* Processes requests from the Flash and returns XML replies
@@ -288,7 +291,6 @@ class Asset_Map
 	*/
 	function _doInitialise(&$input)
 	{
-
 		$output = new XML_Tree();
 		$root = &$output->addRoot('current_user', '', Array('assetid' => $GLOBALS['SQ_SYSTEM']->currentUserId()));
 
@@ -340,7 +342,6 @@ class Asset_Map
 	*/
 	function _getAssets(&$input)
 	{
-
 		$load_new_links = !empty($input->root->attributes['load_new_links']);
 
 		$output = new XML_Tree();
@@ -396,7 +397,6 @@ class Asset_Map
 	*/
 	function _addAssetToXML(&$root, $assetid, $load_new_links=false, $current_kids=Array())
 	{
-
 		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, '', true);
 
 		if (is_null($asset)) {
@@ -447,7 +447,6 @@ class Asset_Map
 	*/
 	function _getMenuItems(&$input)
 	{
-
 		$output = new XML_Tree();
 		$root = &$output->addRoot('options', '');
 
@@ -515,7 +514,6 @@ class Asset_Map
 	*/
 	function _getURL(&$input, &$backend)
 	{
-
 		$link  = '';
 		$frame = '';
 
@@ -603,7 +601,6 @@ class Asset_Map
 	*/
 	function _moveAsset(&$input, &$backend)
 	{
-
 		$old_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($input->root->attributes['from_parent_assetid']);
 		if (is_null($old_parent)) {
 			$this->_error('Unable to Move Asset, existing parent (Asset #"'.$input->root->attributes['from_parent_assetid'].'") not found');
@@ -668,8 +665,17 @@ class Asset_Map
 				if (!empty($set_perms)) $skip_perms = false;
 			}
 
+			$perm_url = '';
 			if (!$skip_perms) {
-				$url = '?SQ_BACKEND_PAGE=main&backend_section=am&am_section=move_asset&assetid='.$asset->id.'&parentid='.$new_parent->id.'&old_parentid='.$old_parent->id;
+				$perm_url = '?SQ_BACKEND_PAGE=main&backend_section=am&am_section=move_asset&assetid='.$asset->id.'&parentid='.$new_parent->id.'&old_parentid='.$old_parent->id;
+			}
+
+			// check for any HIPOs that have been queued
+			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+			$url = $hh->runQueuedJobs(((!empty($perm_url)) ? $perm_url : 'Javascript: window.close()'));
+			if (empty($url)) $url = $perm_url;
+
+			if (!empty($url)) {
 				$output = new XML_Tree();
 				$root = &$output->addRoot('url', $url, Array('js_function' => 'asset_map_popup'));
 				$this->_send($output);
@@ -694,7 +700,6 @@ class Asset_Map
 	*/
 	function _dupeAsset(&$input, &$backend)
 	{
-
 		$old_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($input->root->attributes['from_parent_assetid']);
 		if (is_null($old_parent)) {
 			$this->_error('Unable to Duplicate Asset, existing parent (Asset #"'.$input->root->attributes['from_parent_assetid'].'") not found');
@@ -739,7 +744,6 @@ class Asset_Map
 	*/
 	function _newLink(&$input)
 	{
-
 		$old_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($input->root->attributes['from_parent_assetid']);
 		if (is_null($old_parent)) {
 			$this->_error('Unable to Create New Link, existing parent (Asset #"'.$input->root->attributes['from_parent_assetid'].'") not found');
@@ -787,8 +791,17 @@ class Asset_Map
 			}
 		}
 
+		$perm_url = '';
 		if (!$skip_perms) {
-			$url = '?SQ_BACKEND_PAGE=main&backend_section=am&am_section=link_asset&assetid='.$asset->id.'&parentid='.$new_parent->id;
+			$perm_url = '?SQ_BACKEND_PAGE=main&backend_section=am&am_section=link_asset&assetid='.$asset->id.'&parentid='.$new_parent->id;
+		}
+
+		// check for any HIPOs that have been queued
+		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		$url = $hh->runQueuedJobs(((!empty($perm_url)) ? $perm_url : 'Javascript: window.close()'));
+		if (empty($url)) $url = $perm_url;
+
+		if (!empty($url)) {
 			$output = new XML_Tree();
 			$root = &$output->addRoot('url', $url, Array('js_function' => 'asset_map_popup'));
 			$this->_send($output);
@@ -851,4 +864,5 @@ class Asset_Map
 	}// end _getMail()
 
 }//end class
+
 ?>

@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: mysource.inc,v 1.6 2003/09/26 05:26:31 brobertson Exp $
+* $Id: mysource.inc,v 1.7 2003/09/29 01:40:46 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -402,7 +402,7 @@ class MySource
 			break;
 
 			case 'hipo' :
-				$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+				$hh = &$this->getHipoHerder();
 				if (!$hh->processWeb()) trigger_error('HIPO failed to process', E_USER_ERROR);
 				$hh->paintWeb();
 				exit();

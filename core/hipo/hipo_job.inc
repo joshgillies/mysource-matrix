@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: hipo_job.inc,v 1.25 2003/09/26 05:26:31 brobertson Exp $
+* $Id: hipo_job.inc,v 1.26 2003/09/29 01:40:45 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -308,10 +308,11 @@ class HIPO_Job extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db  = &$GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'INSERT INTO '.SQ_TABLE_PREFIX.'hipo_job
-				(code_name, job_type, userid, source_code_name, hipo_vars, options, steps, running_vars)
+				(code_name, job_type, userid, running, source_code_name, hipo_vars, options, steps, running_vars)
 				VALUES ('.$db->quote($code_name).',
 						'.$db->quote(get_class($this)).',
 						'.$db->quote($GLOBALS['SQ_SYSTEM']->currentUserId()).',
+						0,
 						'.$db->quote($source_code_name).',
 						'.$db->quote($hipo_vars).',
 						'.$db->quote($options).',
@@ -342,7 +343,7 @@ class HIPO_Job extends MySource_Object
 	{
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db  = &$GLOBALS['SQ_SYSTEM']->db;
-		$sql = 'SELECT job_type, userid, source_code_name, hipo_vars, options, steps, running_vars
+		$sql = 'SELECT job_type, userid, running, source_code_name, hipo_vars, options, steps, running_vars
 				FROM '.SQ_TABLE_PREFIX.'hipo_job
 				WHERE code_name = '.$db->quote($code_name);
 
@@ -377,12 +378,13 @@ class HIPO_Job extends MySource_Object
 	/**
 	* Save the HIPO vars to the database OR delete from database if complete
 	*
-	* @param boolean $ignore_running_mode	whether to ignore the running mode check or not (SHOULD ONLY BE USED BY setRunningMode())
+	* @param boolean $ignore_running_mode	whether to ignore the running mode check or not
+	*										(SHOULD ONLY BE USED BY setRunningMode())
 	*
 	* @return boolean
-	* @access private
+	* @access public
 	*/
-	function _save($ignore_running_mode=false)
+	function save($ignore_running_mode=false)
 	{
 		// if we have called save and we aren't the running version, bugger off
 		if (!$ignore_running_mode && $this->_current_mode != $this->_hipo_vars['running_mode']) {
@@ -451,7 +453,7 @@ class HIPO_Job extends MySource_Object
 
 		return true;
 
-	}//end _save()
+	}//end save()
 
 
 	/**
@@ -513,7 +515,7 @@ class HIPO_Job extends MySource_Object
 
 		$this->_hipo_vars['running_mode']  = $mode;
 		$this->_hipo_vars['server_taskid'] = $server_taskid;
-		if ($this->_save(true)) {
+		if ($this->save(true)) {
 			return true;
 		} else {
 			return false;
@@ -660,7 +662,7 @@ class HIPO_Job extends MySource_Object
 		if ($this->_current_mode != $this->_hipo_vars['running_mode']) return true;
 
 		// if we are complete, then just save (which will clear the DB if needed)
-		if ($this->complete()) return $this->_save();
+		if ($this->complete()) return $this->save();
 
 		$step = $this->_hipo_vars['current_step'];
 
@@ -821,7 +823,7 @@ class HIPO_Job extends MySource_Object
 
 		}// end if
 
-		$save_ok = $this->_save();
+		$save_ok = $this->save();
 		return ($process_ok && $save_ok);
 
 	}//end processWeb()
@@ -848,7 +850,7 @@ class HIPO_Job extends MySource_Object
 				if (!$this->$fn($step_data, $prefix)) {
 					return false;
 				}
-				$this->_save();
+				$this->save();
 			}
 			return true;
 
@@ -873,7 +875,7 @@ class HIPO_Job extends MySource_Object
 
 			$step_data['hipo_job']['code_name'] = $code_name;
 			$step_data['hipo_job']['job_type']  = $job_type;
-			$this->_save();
+			$this->save();
 
 			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
 			$hipo = &$hh->getJob($code_name, $job_type);
@@ -884,7 +886,7 @@ class HIPO_Job extends MySource_Object
 				$step_data['running_mode'] = $hipo->getRunningMode();
 				$step_data['percent_done'] = $hipo->percentDone();
 				$step_data['complete']     = $hipo->complete();
-				$this->_save();
+				$this->save();
 			}// end if
 
 			return true;
@@ -992,7 +994,7 @@ class HIPO_Job extends MySource_Object
 	{
 		$this->setOption('auto_complete', true);
 		$this->_hipo_vars['aborted'] = true;
-		return $this->_save();
+		return $this->save();
 
 	}//end jobAborted()
 	

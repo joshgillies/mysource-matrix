@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: tables.xml,v 1.19 2003/09/29 00:53:57 brobertson Exp $
+* $Id: tables.xml,v 1.20 2003/09/29 01:40:45 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -1022,6 +1022,14 @@
 				<type_variations />
 				<default>''</default>
 				<description />
+			</column>
+			<column name="running" allow_null="0">
+				<type>INT</type>
+				<type_variations>
+					<mysql>INT UNSIGNED</mysql>
+				</type_variations>
+				<default>0</default>
+				<description>Flag to indicate if the HIPO Job has started running yet</description>
 			</column>
 			<column name="userid" allow_null="0">
 				<type>INT</type>

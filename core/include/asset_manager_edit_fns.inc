@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_manager_edit_fns.inc,v 1.52 2003/09/26 05:26:31 brobertson Exp $
+* $Id: asset_manager_edit_fns.inc,v 1.53 2003/09/29 01:40:46 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -131,26 +131,11 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 
 					// try to acquire a lock on this asset?
 					if (isset($_POST['sq_acquire_lock']) && $_POST['sq_acquire_lock']) {
-
 						//// START HIPO PROCESSING ////
-			
+						$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
 						$vars = Array('assetid' => $asset->id, 'forceably_acquire' => (bool) $_POST['sq_acquire_by_force']);
-						$complete_url = $_SERVER['REQUEST_URI'];
-
-						require_once SQ_SYSTEM_ROOT.'/core/hipo/jobs/hipo_job_acquire_lock.inc';
-						$init_hipo = new HIPO_Job_Acquire_Lock();
-
-						$init_hipo->setRunningVars($vars);
-						$init_hipo->setOption('on_complete_url', $complete_url);
-
-						$code_name = $init_hipo->initialise();
-						if ($code_name) {
-							$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
-							if ($url = $hh->getProcessURL($code_name)) $o->setRedirect($url);
-						}
-						
+						$hh->queueHipo('hipo_job_acquire_lock', $vars);
 						////  END HIPO PROCESSING  ////
-
 						$do_process_backend = false;
 					}
 
@@ -181,6 +166,12 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 							}
 						}
 					}// endif
+
+					// the backend of the asset has been processed so lets see if we have any HIPO
+					// jobs that need to be run
+					$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+					$url = $hh->runQueuedJobs();
+					if (!empty($url)) $o->setRedirect($url);
 				}
 
 				$asset->paintBackend($this->backend->out);
@@ -986,8 +977,15 @@ speed_check('FINISHED');
 			$this->am->acquireLock($parent->id);
 			$parent->deleteLink($link['linkid']);
 			$this->am->releaseLock($parent->id);
-			$trash = &$this->am->getSystemAsset('trash_folder');
 
+			// check for any queued HIPOs
+			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+			$url = $hh->runQueuedJobs('Javascript: window.close()');
+			if (!empty($url)) {
+				$o->setRedirect($url);
+			}
+
+			$trash = &$this->am->getSystemAsset('trash_folder');
 			// action is done, close the window and refresh the asset map
 			require_once 'XML/Tree.php';
 			$xml = new XML_Tree();
@@ -999,7 +997,7 @@ speed_check('FINISHED');
 				if (window.opener.top.sidenav && window.opener.top.sidenav.reload_asset) {
 					window.opener.top.sidenav.reload_assets("<?php echo str_replace("\n", "\\n", addslashes($xml->get())); ?>");
 				}
-				window.close();
+				<?php if (empty($url)) echo 'window.close()'; ?>
 			</script>
 			<?php
 		} else {
@@ -1105,25 +1103,12 @@ speed_check('FINISHED');
 			}
 
 			//// START HIPO PROCESSING ////
-			
+			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
 			$vars = Array('assetid' => $_GET['link_assetid'], 'permission_changes' => $permission_vars);
 			$complete_url = $_SERVER['REQUEST_URI'].'&link_completed=1';
-
-			require_once SQ_SYSTEM_ROOT.'/core/hipo/jobs/hipo_job_edit_permissions.inc';
-			$init_hipo = new HIPO_Job_Edit_Permissions();
-
-			$init_hipo->setRunningVars($vars);
-			$init_hipo->setOption('on_complete_url', $complete_url);
-
-			$code_name = $init_hipo->initialise();
-			if ($code_name) {
-				$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
-				if ($url = $hh->getProcessURL($code_name)) $o->setRedirect($url);
-			}
-			
+			$hh->queueHipo('hipo_job_edit_permissions', $vars, $complete_url);
 			////  END HIPO PROCESSING  ////
 
-			
 		} else {
 			$o->addFormActionGetVar('link_assetid',  $_GET['assetid']);
 			$o->addFormActionGetVar('link_parentid', $_GET['parentid']);
