@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: news_item_edit_fns.inc,v 1.1.1.1 2004/06/24 05:37:11 amiller Exp $
+* $Id: news_item_edit_fns.inc,v 1.2 2004/11/17 23:22:39 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -130,7 +130,7 @@ class News_Item_Edit_Fns extends Page_Edit_Fns
 				$wysiwyg = new Asset_Attribute_WYSIWYG();
 				$wysiwyg->value = $asset->attr('summary');
 				$wysiwyg->name = 'attr_summary';
-				$wysiwyg->paint($prefix);
+				$wysiwyg->paint($prefix.'_summary_');
 			} else {
 				echo $asset->attr('summary');
 			}
@@ -151,7 +151,7 @@ class News_Item_Edit_Fns extends Page_Edit_Fns
 				$wysiwyg = new Asset_Attribute_WYSIWYG();
 				$wysiwyg->value = $asset->attr('body');
 				$wysiwyg->name = 'attr_body';
-				$wysiwyg->paint($prefix);
+				$wysiwyg->paint($prefix.'_body_');
 			} else {
 				echo $asset->attr('body');
 			}
@@ -185,14 +185,14 @@ class News_Item_Edit_Fns extends Page_Edit_Fns
 		$wysiwyg = new Asset_Attribute_WYSIWYG();
 
 		$wysiwyg->name = 'attr_summary';
-		$wysiwyg->process($prefix);
+		$wysiwyg->process($prefix.'_summary_');
 
 		if ($asset->setAttrValue('summary', $wysiwyg->value)) {
 			$proc_summary = true;
 		}
 
 		$wysiwyg->name = 'attr_body';
-		$wysiwyg->process($prefix);
+		$wysiwyg->process($prefix.'_body_');
 
 		if ($asset->setAttrValue('body', $wysiwyg->value)) {
 			$proc_body = true;
