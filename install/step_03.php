@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_03.php,v 1.31 2004/02/06 03:09:54 gsherwood Exp $
+* $Id: step_03.php,v 1.32 2004/02/10 16:39:19 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -92,10 +92,11 @@ $db = &$GLOBALS['SQ_SYSTEM']->db;
 
 //--        INSTALL CORE        --//
 
-require_once(SQ_INCLUDE_PATH.'/package_manager.inc');
-$pm = new Package_Manager('__core__');
-if (!$pm->updatePackageDetails()) exit(1);
-pre_echo("CORE PACKAGE DONE");
+require_once SQ_CORE_PACKAGE_PATH.'/package_manager_core.inc';
+$pm = new Package_Manager_Core();
+$result = $pm->updatePackageDetails();
+pre_echo("CORE PACKAGE ".(($result) ? "DONE SUCCESSFULLY" : "FAILED"));
+if (!$result) exit(1);
 
 // Firstly let's create some Assets that we require to run
 
@@ -194,7 +195,7 @@ if (is_null($root_folder)) {
 		if (!isset($system_assets[$type])) {
 			$function = 'create_'.$type;
 			$new_system_asset = &$function();
-			if (!is_null($new_system_asset)) $updated = true;
+			if ($new_system_asset->id) $updated = true;
 		}
 	}
 
@@ -214,11 +215,13 @@ while (false !== ($entry = $d->read())) {
 	if ($entry == '.' || $entry == '..') continue;
 	# if this is a directory, process it
 	if ($entry != 'CVS' && is_dir(SQ_PACKAGES_PATH.'/'.$entry)) {
-		$pm = new Package_Manager($entry);
-		if ($pm->package) {
-			$result = $pm->updatePackageDetails();
-			pre_echo(strtoupper($entry)." PACKAGE DONE");
-		}
+		require_once SQ_PACKAGES_PATH.'/'.$entry.'/package_manager_'.$entry.'.inc';
+		$class = 'package_manager_'.$entry;
+		$pm = new $class();
+		$result = $pm->updatePackageDetails();
+		pre_echo(strtoupper($entry)." PACKAGE ".(($result) ? "DONE SUCCESSFULLY" : "FAILED"));
+		if (!$result) exit(1);
+		unset($pm);
 	}
 }
 $d->close();
@@ -264,10 +267,18 @@ $preferences = Array();
 if (is_file(SQ_DATA_PATH.'/private/conf/preferences.inc')) include SQ_DATA_PATH.'/private/conf/preferences.inc';
 
 foreach ($packages as $package) {
-	$pm = new Package_Manager($package['code_name']);
-	if ($pm->package) {
-		$pm->installUserPreferences($preferences);
+	// slight change for the core package
+	if ($package['code_name'] == '__core__') {
+		require_once SQ_CORE_PACKAGE_PATH.'/package_manager_core.inc';
+		$class = 'package_manager_core';
+	} else {
+		require_once SQ_PACKAGES_PATH.'/'.$package['code_name'].'/package_manager_'.$package['code_name'].'.inc';
+		$class = 'package_manager_'.$package['code_name'];
 	}
+
+	$pm = new $class();
+	$pm->installUserPreferences($preferences);
+	unset($pm);
 }
 $str = '<'.'?php $preferences = '.var_export($preferences, true).'; ?'.'>';
 if (!string_to_file($str, SQ_DATA_PATH.'/private/conf/preferences.inc')) return false;
@@ -283,10 +294,18 @@ pre_echo('GLOBAL PREFERENCES DONE');
 $packages = $GLOBALS['SQ_SYSTEM']->getInstalledPackages();
 
 foreach ($packages as $package) {
-	$pm = new Package_Manager($package['code_name']);
-	if ($pm->package) {
-		$pm->installEventListeners();
+	// slight change for the core package
+	if ($package['code_name'] == '__core__') {
+		require_once SQ_CORE_PACKAGE_PATH.'/package_manager_core.inc';
+		$class = 'package_manager_core';
+	} else {
+		require_once SQ_PACKAGES_PATH.'/'.$package['code_name'].'/package_manager_'.$package['code_name'].'.inc';
+		$class = 'package_manager_'.$package['code_name'];
 	}
+
+	$pm = new $class();
+	$pm->installEventListeners();
+	unset($pm);
 }
 $em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
 $em->writeStaticEventsCacheFile();
