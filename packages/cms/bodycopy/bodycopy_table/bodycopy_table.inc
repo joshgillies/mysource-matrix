@@ -95,6 +95,53 @@ class Bodycopy_Table extends Asset
 
 
 	/**
+	* Remaps existing assetids used by this asset to new ones
+	*
+	* @param Array	&$map	a map of the form Array([old asset id] => [new asset id]);
+	*
+	* @return bool
+	* @access public
+	*/
+	function remapAssetids($map)
+	{
+		if (!parent::remapAssetids($map)) return false;
+
+		$old_assetid = array_search($this->id, $map);
+		if ($old_assetid === FALSE) return true;
+
+		$old_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($old_assetid, $this->type());
+		$our_links = $this->getLinks(SQ_LINK_SIGNIFICANT, 'content_type', false);
+		
+		if (is_null($old_asset) || empty($our_links)) return true;
+		$rows = $this->attr('rows');
+
+		for($i = 0; $i < count($rows); $i++) {
+			// now print the cell contents
+			for($j = 0; $j < count($rows[$i]['cells']); $j++) {
+				$old_linkid = $rows[$i]['cells'][$j]->attributes['linkid'];
+				$old_link = $old_asset->getLinkById($old_linkid);
+				if (empty($old_link)) continue;
+
+				if (isset($map[$old_link['minorid']])) {
+					$new_assetid = $map[$old_link['minorid']];
+
+					foreach($our_links as $our_link) {
+						if ($our_link['minorid'] == $new_assetid) {
+							$rows[$i]['cells'][$j]->attributes['linkid'] = $our_link['linkid'];
+							break;
+						}
+					}// end for
+
+				}// end if
+			}// end for
+		}// end for
+
+		return $this->setAttrValue('rows', $rows);
+
+	}// end remapAssetids()
+
+
+	/**
 	* Returns an array of all the permitted link type, the type asset and the cardinality
 	*
 	* @see Asset::_getAllowLinks()

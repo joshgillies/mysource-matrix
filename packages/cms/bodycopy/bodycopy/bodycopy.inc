@@ -48,7 +48,7 @@ class Bodycopy extends Asset
 
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy_table');
 			$bodycopy_table =& new Bodycopy_Table();
-			$copy_link = Array('asset' => &$this, 'link_type' => SQ_LINK_UNITE, 'value' => '', 'position' => 1, 'dependant' => 1);
+			$copy_link = Array('asset' => &$this, 'link_type' => SQ_LINK_UNITE, 'value' => '', 'sort_order' => 1, 'dependant' => 1);
 			if (!$bodycopy_table->create($copy_link, 'Table 1')) return false;
 			$this->setAttrValue('name', $name);
 			

@@ -592,7 +592,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		if (!$before) $tableid++;
 
 		// now add the table
-		$copy_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_UNITE, 'value' => '', 'position' => $tableid);
+		$copy_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_UNITE, 'value' => '', 'sort_order' => $tableid);
 		$am->includeAsset('bodycopy_table');
 		$new_table = new Bodycopy_Table();
 		if (!$new_table->create($copy_link, "Table $tableid", $num_rows, $num_cols, $attributes)) return false;
