@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.19 2004/04/26 23:30:19 lwright Exp $
+* $Id: form.inc,v 1.20 2004/04/26 23:51:30 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -102,6 +102,7 @@ class Form extends Bridge
 			// pick up the question in question (!)
 			$questionid = substr($shadowid, 1, strlen($shadowid));
 			$data = $this->getQuestionById($questionid);
+			if (empty($data)) return $asset;
 
 			$data['questionid'] = $questionid;
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section.inc,v 1.16 2004/04/26 23:30:28 lwright Exp $
+* $Id: form_section.inc,v 1.17 2004/04/26 23:51:31 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -109,6 +109,7 @@ class Form_Section extends Bridge
 			
 			$questionid = substr($shadowid, 1, strlen($shadowid));
 			$data = $this->getQuestionById($questionid);
+			if (empty($data)) return $asset;
 
 			$data['questionid'] = $questionid;
 
