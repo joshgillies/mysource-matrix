@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.31 2004/06/21 01:20:49 mnyeholt Exp $
+* $Id: system_config.inc,v 1.32 2004/06/21 04:25:00 mnyeholt Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -165,7 +165,7 @@ class System_Config extends Config
 
 		}// end if
 
-		return parent::save($vars, $backup_existing);
+		return parent::save($vars, $backup_existing, $send_message);
 
 	}//end save()
 
