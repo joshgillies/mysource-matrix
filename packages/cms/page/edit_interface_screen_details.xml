@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: edit_interface_screen_details.xml,v 1.6 2003/09/26 05:26:42 brobertson Exp $
+* $Id: edit_interface_screen_details.xml,v 1.7 2003/10/08 00:51:59 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -12,7 +12,7 @@
 		<field attribute="name">
 			<display_name>Page Name</display_name>
 			<note />
-			<text width="12" height="1" />
+			<text width="25" height="1" />
 		</field>
 		<field attribute="short_name">
 			<display_name>Page Short Name</display_name>
