@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_sub_asset_listing.inc,v 1.9 2003/11/18 15:43:38 brobertson Exp $
+* $Id: page_sub_asset_listing.inc,v 1.10 2003/11/21 02:56:05 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -146,7 +146,7 @@ class Page_Sub_Asset_Listing extends Page
 
 		return parent::createLink($minor, $link_type, $value, $sort_order, $dependant, $exclusive);
 
-	}// end createLink()
+	}//end createLink()
 
 
 	/**
@@ -159,13 +159,12 @@ class Page_Sub_Asset_Listing extends Page
 	*/
 	function canDeleteLink($linkid)
 	{
-		// the only reason why we would object to this link being
-		// deleted is if it is the bodycopy linked to us
-		$bodycopies = Array('default_format', 'page_contents');
-		foreach ($bodycopies as $name) {
-			$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'major', $name, '1', '1');
-			if ($bodycopy_link[0]['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) return 'You cant delete the link between the '.ucwords(str_replace('_', ' ', $name)).' and the sub asset listing page';
-		}
+		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'page_contents');
+		if ($bodycopy_link['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) return 'You cannot delete the link between the page contents and the sub asset listing page';
+
+		$folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', true, 'type_formats');
+		if ($folder_link['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) return 'You cannot delete the link between the type formats folder and the sub asset listing page';
+
 		return parent::canDeleteLink($linkid);
 
 	}//end canDeleteLink()
@@ -210,7 +209,7 @@ class Page_Sub_Asset_Listing extends Page
 			parent::paintBackend($o);
 		}
 
-	}// end paintBackend()
+	}//end paintBackend()
 
 
 	/**
@@ -231,7 +230,7 @@ class Page_Sub_Asset_Listing extends Page
 
 		return $folder;
 
-	} // end getFolder
+	}//end getFolder
 
 
 	/**
