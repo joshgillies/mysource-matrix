@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.338.2.7 2004/12/30 03:19:05 tbarrett Exp $
+* $Id: asset.inc,v 1.338.2.8 2005/02/15 12:03:40 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.338.2.7 $
+* @version $Revision: 1.338.2.8 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -224,8 +224,9 @@ class Asset extends MySource_Object
 	{
 		if (!empty($link)) {
 			// make sure the initial link information is passed in
-			if (!isset($link['asset']))     trigger_error('Cant create asset without an asset to link to', E_USER_ERROR);
-			if (!isset($link['link_type'])) trigger_error('Cant create asset without a link type', E_USER_ERROR);
+			assert_isset_array_index($link, 'asset', 'Cannot create asset without an asset to link to');
+			assert_isset_array_index($link, 'link_type', 'Cannot create asset without a link type');
+			assert_not_empty(($link['link_type'] & SQ_SC_LINK_SIGNIFICANT), 'Cannot create asset with an insignificant link type');
 		}
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
