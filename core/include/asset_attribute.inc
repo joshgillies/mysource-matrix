@@ -71,7 +71,7 @@ class Asset_Attribute extends Resolve_Object
 		if ($attributeid) {
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-			$sql = 'SELECT attributeid, name, type, parameters, default_value
+			$sql = 'SELECT attributeid, name, type, parameters_value, default_value
 					FROM sq_asset_attribute
 					WHERE attributeid = '.$db->quote($attributeid);
 
