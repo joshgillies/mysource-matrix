@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.71 2004/08/11 01:06:44 gsherwood Exp $
+* $Id: user.inc,v 1.72 2004/10/01 01:06:37 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -282,7 +282,31 @@ class User extends Asset
 			return parent::_checkPermissionAccess($perm, $assetids);
 		}
 
-	}//end checkAccess()
+	}//end _checkPermissionAccess()
+	
+	
+	/**
+	* Returns TRUE if we can delete the passed link, or a string with the error msg
+	*
+	* @param int	$linkid	the link id of the link to remove
+	*
+	* @return mixed TRUE or error msg string
+	* @access public
+	*/
+	function isDeletableLink($linkid)
+	{
+		if ($GLOBALS['SQ_PURGING_TRASH']) return true;
+
+		// we dont want our inbox or workspace deleted
+		$inbox_link = $this->getInboxLink();
+		if ($inbox_link['linkid'] == $linkid) return 'You cant delete the link between a user and their inbox';
+		
+		$workspace_link = $this->getWorkspaceLink();
+		if ($workspace_link['linkid'] == $linkid) return 'You cant delete the link between a user and their workspace';
+
+		return parent::isDeletableLink($linkid);
+
+	}//end isDeletableLink()
 
 
 	/**
@@ -322,11 +346,24 @@ class User extends Asset
 
 	}//end getGroups()
 
-	
+
+	/**
+	* Returns the link to the inbox
+	*
+	* @return array
+	* @access public
+	*/
+	function getInboxLink()
+	{
+		return $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'inbox');
+		
+	}//end getInboxLink()
+
+
 	/**
 	* Returns the link to the workspace
 	*
-	* @return Array
+	* @return array
 	* @access public
 	*/
 	function getWorkspaceLink()
