@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: bodycopy_management.inc,v 1.9 2003/11/03 01:22:28 gsherwood Exp $
+* $Id: bodycopy_management.inc,v 1.10 2003/11/03 05:01:19 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -50,7 +50,7 @@ class Bodycopy_Management extends Asset_Management
 					 'images/icons/add.png',
 					 'images/icons/delete.png',
 					 'images/icons/reorder.png',
-					 'images/icons/create_table.png',
+					 'images/icons/create_container.png',
 					 'images/icons/table_properties.png',
 					 'images/icons/row_properties.png',
 					 'images/icons/cell_properties.png',

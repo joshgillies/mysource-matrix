@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: bodycopy_edit_fns.inc,v 1.39 2003/11/03 01:22:28 gsherwood Exp $
+* $Id: bodycopy_edit_fns.inc,v 1.40 2003/11/03 05:01:19 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -399,7 +399,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 						<tr>
 							<td>
 							<?php
-							print_bodycopy_icon("Javascript: document.main_form.{$prefix}_insert_container_type.value = document.main_form.{$prefix}_insert_container_type_before_{$i}.value; bodycopy_insert_container('$prefix', $i, true)", 'Insert Container', 'Select the type of container you want to create before clicking here', 'create_table');
+							print_bodycopy_icon("Javascript: document.main_form.{$prefix}_insert_container_type.value = document.main_form.{$prefix}_insert_container_type_before_{$i}.value; bodycopy_insert_container('$prefix', $i, true)", 'Insert Container', 'Select the type of container you want to create before clicking here', 'create_container');
 							?>
 							</td>
 							<td class="sq-backend-data" valign="top">
@@ -432,7 +432,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 						<tr>
 							<td>
 							<?php
-							print_bodycopy_icon("Javascript: document.main_form.{$prefix}_insert_container_type.value = document.main_form.{$prefix}_insert_container_type_after_{$i}.value; bodycopy_insert_container('$prefix', $i, false)", 'Insert Container', 'Select the type of container you want to create before clicking here', 'create_table');
+							print_bodycopy_icon("Javascript: document.main_form.{$prefix}_insert_container_type.value = document.main_form.{$prefix}_insert_container_type_after_{$i}.value; bodycopy_insert_container('$prefix', $i, false)", 'Insert Container', 'Select the type of container you want to create before clicking here', 'create_container');
 							?>
 							</td>
 							<td class="sq-backend-data" valign="top">
