@@ -958,7 +958,6 @@ class Resolve
 		foreach ($insert_values as $col => $value) {
 			if ($this->db->phptype == 'mysql') {
 				$concat_string = 'CONCAT('.implode(', '.$this->db->quote('~').', ', array_values($concat_values)).')';
-				
 				$concat_col = 'CONCAT('.implode(', '.$this->db->quote('~').', ', array_keys($concat_values)).')';
 			} else {
 				$concat_string = implode(' || '.$this->db->quote('~').' || ', array_values($concat_values));
@@ -971,6 +970,7 @@ class Resolve
 		$where_clause = $concat_col.' IN (~SQ0~)';
 		$subs = Array('SELECT '.$concat_string.' FROM '.$select_from.' WHERE '.$where_cond);
 		$where_clause = db_extras_subquery($this->db, $where_clause, $subs);
+
 		if (DB::isError($where_clause)) {
 			trigger_error($where_clause->getMessage().'<br/>'.$where_clause->getUserInfo(), E_USER_WARNING);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -999,7 +999,6 @@ class Resolve
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
-
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
