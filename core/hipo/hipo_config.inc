@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_config.inc,v 1.10 2003/12/30 05:25:38 gsherwood Exp $
+* $Id: hipo_config.inc,v 1.11 2004/01/14 19:21:46 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -40,9 +40,6 @@ class HIPO_Config extends Config
 {
 	var $config_vars = Array(
 		'SQ_HIPO_USE_SERVER'		=> Array('editable' => 1, 'default' => false),
-		'SQ_HIPO_SERVER_DOMAIN'		=> Array('editable' => 1, 'default' => ''),
-		'SQ_HIPO_SERVER_PORT'		=> Array('editable' => 1, 'default' => 0),
-		'SQ_HIPO_SERVER_SYSTEMID'	=> Array('editable' => 1, 'default' => ''),
 		'SQ_HIPO_TOTAL_THRESHOLD'	=> Array('editable' => 1, 'default' => 80),
 	);
 

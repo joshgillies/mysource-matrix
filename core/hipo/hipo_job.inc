@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job.inc,v 1.38 2003/12/18 04:31:22 gsherwood Exp $
+* $Id: hipo_job.inc,v 1.39 2004/01/14 19:21:46 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -404,6 +404,7 @@ class HIPO_Job extends MySource_Object
 	* 
 	* @access public
 	* @return Array()
+	* @static
 	*/
 	function getConfigVars()
 	{
@@ -864,19 +865,18 @@ class HIPO_Job extends MySource_Object
 				// let's put a call through the HIPO phone to the server
 				case 'server' :
 
-					require_once SQ_SYSTEM_ROOT.'/core/hipo/server/hipo_client.inc';
+					require_once SQ_SYSTEM_ROOT.'/core/server/squiz_server_client_mysource3.inc';
 
-					$data = Array('hipo_job' => Array(
-													'command'			=> 'start', 
-													'userid'			=> $GLOBALS['SQ_SYSTEM']->currentUserId(),
-													'source_code_name'	=> $this->source_code_name,
-												),
+					$data = Array(
+								'command'			=> 'start', 
+								'userid'			=> $GLOBALS['SQ_SYSTEM']->currentUserId(),
+								'source_code_name'	=> $this->source_code_name,
 							);
 
 					$ret_val = false;
-					$client = new HIPO_Client();
+					$client = new Squiz_Server_Client_MySource3();
 					if ($client->connect()) {
-						if ($client->write($data)) {
+						if ($client->write('HIPO_Job', $data)) {
 							$ack = $client->read();
 							if (!is_null($ack)) {
 								switch ($ack['result']) {
@@ -1099,20 +1099,19 @@ class HIPO_Job extends MySource_Object
 				return false;
 			}
 
-			require_once SQ_SYSTEM_ROOT.'/core/hipo/server/hipo_client.inc';
+			require_once SQ_SYSTEM_ROOT.'/core/server/squiz_server_client_mysource3.inc';
 
-			$data = Array('hipo_job' => Array(
-											'command'			=> 'abort', 
-											'userid'			=> $GLOBALS['SQ_SYSTEM']->currentUserId(),
-											'source_code_name'	=> $this->source_code_name,
-											'taskid'			=> $this->_hipo_vars['server_taskid'],
-										),
+			$data = Array(
+						'command'			=> 'abort', 
+						'userid'			=> $GLOBALS['SQ_SYSTEM']->currentUserId(),
+						'source_code_name'	=> $this->source_code_name,
+						'taskid'			=> $this->_hipo_vars['server_taskid'],
 					);
 
 			$ret_val = false;
-			$client = new HIPO_Client();
+			$client = new Squiz_Server_Client_MySource3();
 			if ($client->connect()) {
-				if ($client->write($data)) {
+				if ($client->write('HIPO_Job', $data)) {
 					$ack = $client->read();
 					if (!is_null($ack)) {
 						switch ($ack['result']) {
