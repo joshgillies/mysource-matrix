@@ -3,7 +3,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: indexing_manager.inc,v 1.4 2003/10/21 06:24:01 dwong Exp $
+* $Id: indexing_manager.inc,v 1.5 2003/10/22 05:12:25 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -14,7 +14,7 @@
 
 *
 * @author  Dominic Wong<dwong@squiz.net>
-* @version $Revision: 1.4 $ - 1.0
+* @version $Revision: 1.5 $ - 1.0
 * @package MySource_Matrix
 */
 class Indexing_Manager extends MySource_Object 
@@ -95,16 +95,16 @@ class Indexing_Manager extends MySource_Object
 	  * @returns void
 	  * 
 	*/
-	function addKeyData($assetid, &$keyData) 
+	function addKeyData($assetid, &$keydata) 
 	{	
-		if (!is_array($keyData))
+		if (!is_array($keydata))
 			return;
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$paramData = array();
-		foreach($keyData as $i => $datum) {
+		foreach($keydata as $i => $datum) {
 			# convert to ISO 8601 date format Y-m-d H:i:s if not already
-			$datum =& $keyData[$i];
+			$datum =& $keydata[$i];
 			if ($datum['type'] == 'date') {
 				if (!(ereg('[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}', $datum['type']))) {
 					$datum['value'] = date("Y-m-d H:i:s", strtotime($datum['value']));
