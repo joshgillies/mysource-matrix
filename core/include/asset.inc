@@ -132,7 +132,7 @@ class Asset extends Resolve_Object
 	/**
 	* Create this asset
 	*
-	* @param Array	&$link		information used to create the initial link, Array ('asset' => [ref major asset to create link under], 'link_type' => SQ_LINK_?, 'value' => [link value], 'position' => [link sort order], 'dependant' = [0|1])
+	* @param Array	&$link		information used to create the initial link, Array ('asset' => [ref major asset to create link under], 'link_type' => SQ_LINK_?, 'value' => [link value], 'sort_order' => [link sort order], 'dependant' = [0|1])
 	*
 	* @return boolean
 	* @access public
@@ -178,10 +178,10 @@ class Asset extends Resolve_Object
 
 		if (!empty($link)) {
 			// create the initial link
-			if (!isset($link['value'])) $link['value'] = '';
-			if (!isset($link['position'])) $link['position'] = -1;
-			if (!isset($link['dependant'])) $link['dependant'] = 0;
-			$linkid = $link['asset']->createLink($this, $link['link_type'], $link['value'], $link['position'], $link['dependant']);
+			if (!isset($link['value']))	     $link['value']      = '';
+			if (!isset($link['sort_order'])) $link['sort_order'] = -1;
+			if (!isset($link['dependant']))	 $link['dependant']  = 0;
+			$linkid = $link['asset']->createLink($this, $link['link_type'], $link['value'], $link['sort_order'], $link['dependant']);
 			return !empty($linkid);
 		} else {
 			return true;
@@ -339,10 +339,12 @@ class Asset extends Resolve_Object
 
 
 	/**
-	* Creates a duplicate of this asset. It DOES NOT duplicate the links that this asset has either to it or from it
-	* Returns a reference to the new object or if an error occured FALSE
+	* Creates a duplicate of this asset. 
+	* The only child assetst that are duplicated are the ones that are DEPENDANTLY linked to this asset 
+	* NO OTHER linked assets are duplicated 
+	* Returns a reference to the new object or if an error occured NULL
 	*
-	* @param Array	&$link				information used to create the initial link, Array ('asset' => [ref major asset to create link under], 'link_type' => SQ_LINK_?, 'value' => [link value], 'position' => [link sort order], 'dependant' = [boolean])
+	* @param Array	&$link				information used to create the initial link, Array ('asset' => [ref major asset to create link under], 'link_type' => SQ_LINK_?, 'value' => [link value], 'sort_order' => [link sort order], 'dependant' = [boolean])
 	* @param Array	&$dupe_map			a map for that can be used for re-indexing data held in assets of the form Array([old asset id] => [new asset id]);
 	* @param bool	$dupe_dependants	whether or not to duplicate any assets that are dependantly linked to this asset, only works if $link is not empty
 	* @param bool	$dupe_directory		whether or not to duplicate this assets data directory
@@ -404,10 +406,10 @@ class Asset extends Resolve_Object
 
 		if (!empty($link)) {
 			// create the initial link
-			if (!isset($link['value']))     $link['value'] = '';
-			if (!isset($link['position']))  $link['position']  = -1;
-			if (!isset($link['dependant'])) $link['dependant'] = '0';
-			$linkid = $link['asset']->createLink($dupe, $link['link_type'], $link['value'], $link['position'], $link['dependant']);
+			if (!isset($link['value']))	     $link['value']      = '';
+			if (!isset($link['sort_order'])) $link['sort_order'] = -1;
+			if (!isset($link['dependant']))	 $link['dependant']  = 0;
+			$linkid = $link['asset']->createLink($dupe, $link['link_type'], $link['value'], $link['sort_order'], $link['dependant']);
 			if(empty($linkid)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return $null;
@@ -419,22 +421,42 @@ class Asset extends Resolve_Object
 				$dependant_links = $this->getLinks(SQ_LINK_SIGNIFICANT, '', true, 'major', null, 1);
 
 				if (!empty($dependant_links)) {
-					$create_link = Array('asset'    => &$dupe, 
-										'link_type' => null, 
-										'value'     => null,
-										'dependant' => '1');
+					$create_link = Array('asset'		=> &$dupe, 
+										'link_type'		=> null, 
+										'value'			=> null,
+										'sort_order'	=> -1,
+										'dependant'		=> '1');
 					$am = &$GLOBALS['SQ_SYSTEM']->am;
 					foreach($dependant_links as $data) {
-						$child = &$am->getAsset($data['minorid'], $data['type_code']);
-						if (is_null($child)) continue;
+						// If this asset has already been duplicated in this duplication run
+						// then just link it to the new duplicate of ourselves
+						if (isset($dupe_map[$data['minorid']])) { 
 
-						$create_link['link_type'] = $data['link_type'];
-						$create_link['value']     = $data['value'];
-						$child_dupe = &$child->duplicate($create_link, $dupe_map, true, $dupe_directory);
-						if (is_null($child_dupe)) {
-							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-							return $null;
-						}
+							$duped_child = &$GLOBALS['SQ_SYSTEM']->am->getAsset($dupe_map[$data['minorid']], $data['type_code']);
+							if (is_null($duped_child)) {
+								$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+								return $null;
+							}// end if
+
+							$linkid = $dupe->createLink($duped_child, $data['link_type'], $data['value'], $data['sort_order'], '1');
+							if (!$linkid) {
+								$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+								return $null;
+							}// end if
+
+						// otherwise duplicate and link
+						} else {
+							$child = &$am->getAsset($data['minorid'], $data['type_code']);
+							if (is_null($child)) continue;
+							$create_link['link_type']	= $data['link_type'];
+							$create_link['value']		= $data['value'];
+							$create_link['sort_order']	= $data['sort_order'];
+							$duped_child = &$child->duplicate($create_link, $dupe_map, true, $dupe_directory);
+							if (is_null($duped_child)) {
+								$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+								return $null;
+							}
+						}// end if
 					}// end fpr
 				}// end if empty 
 			}// end if dupe dependants
@@ -470,7 +492,7 @@ class Asset extends Resolve_Object
 	function remapAssetids($map)
 	{
 		return true;
-	}// end remapAssetds()
+	}// end remapAssetids()
 
 
 	/**
@@ -699,12 +721,13 @@ class Asset extends Resolve_Object
 	* Returns the link information for a specific link that this asset is the major asset in
 	*
 	* @param int	$linkid
-	* @param string $side_of_link	Which side of the link this (the current) asset is on ('major' or 'minor')
+	* @param string	$side_of_link	Which side of the link this (the current) asset is on ('major' or 'minor')
+	* @param bool	$ignore_this	if true we don't care whether this link is ours or not
 	*
 	* @return Array
 	* @access public
 	*/
-	function getLinkById($linkid, $side_of_link='major')
+	function getLinkById($linkid, $side_of_link='major', $ignore_this=false)
 	{
 		if ($side_of_link != 'major' && $side_of_link != 'minor')
 			trigger_error('Unknown Side of Link "'.$side_of_link.'"', E_USER_ERROR);
@@ -717,8 +740,9 @@ class Asset extends Resolve_Object
 		$sql = 'SELECT l.linkid, l.'.$other_side.'id, l.value, l.link_type, a.type_code, l.sort_order, l.dependant
 				FROM sq_asset_link l, sq_asset a
 				WHERE l.linkid = '.$db->quote($linkid).'
-				  AND l.'.$side_of_link.'id = '.$db->quote($this->id).'
 				  AND l.'.$other_side.'id   = a.assetid';
+
+		if (!$ignore_this) $sql .= ' AND l.'.$side_of_link.'id = '.$db->quote($this->id);
 
 		$result = $db->getRow($sql);
 		if (DB::isError($result))
@@ -2170,7 +2194,8 @@ class Asset extends Resolve_Object
 
 		} else {
 			// just get the permissions set for this asset
-			$sql = 'SELECT userid, assetid, extras FROM sq_asset_permission
+			$sql = 'SELECT userid, assetid, extras 
+					FROM sq_asset_permission
 					WHERE assetid = '.$db->quote($this->id).'
 					  AND permission '.(($and_greater) ? '>=' : '=').' '.$db->quote($permission).'
 					  AND revoked = 0';
