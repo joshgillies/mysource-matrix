@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_customisation_edit_fns.inc,v 1.21 2003/11/26 00:50:57 gsherwood Exp $
+* $Id: design_customisation_edit_fns.inc,v 1.22 2004/03/02 04:19:09 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -149,13 +149,13 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 			if (is_null($da)) continue;
 
 			// First let's duplicate the DA, ignoring the directory with the files
-			$dupe = &$da->duplicate($create_link, $map, true, false);
-			if (is_null($dupe)) {
+			$clone = &$GLOBALS['SQ_SYSTEM']->am->cloneAsset($da, $create_link, $map, Array('attributes'), false);
+			if (is_null($clone)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
 
-			$data[$id_name] = Array($dupe->id, $dupe->type());
+			$data[$id_name] = Array($clone->id, $clone->type());
 
 		}// end foreach
 
