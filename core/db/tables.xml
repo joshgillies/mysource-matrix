@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.45 2004/08/12 02:25:15 lwright Exp $
+* $Id: tables.xml,v 1.46 2004/08/17 03:49:21 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -176,6 +176,15 @@
 			</index>
 			<index>
 				<column name="name" />
+			</index>
+			<index>
+				<column name="created" />
+			</index>
+			<index>
+				<column name="updated" />
+			</index>
+			<index>
+				<column name="published" />
 			</index>
 		</indexes>
 	</table>
