@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_selection_edit_fns.inc,v 1.1 2004/10/12 01:35:03 lwright Exp $
+* $Id: form_question_rule_type_selection_edit_fns.inc,v 1.1.2.1 2004/10/12 03:29:54 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
