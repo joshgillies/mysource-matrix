@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.19 2004/11/22 05:37:48 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.20 2004/12/03 05:37:41 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -148,6 +148,11 @@
 				<process_function name="processWeekDays" />
 			</function_call>
 		</field>
+		<field attribute="table_column_width">
+			<display_name>Width of WEEK columns (px)</display_name>
+			<note />
+			<int width="6" />
+		</field>
 	</section>
 
 	<section name="Settings for Week and Day Views" write_access="write:attributes">
@@ -177,15 +182,10 @@
 			<note></note>
 			<int width="6" />
 		</field>
-		<field attribute="table_column_width">
-			<display_name>Width of WEEK columns (px)</display_name>
-			<note />
-			<int width="6" />
-		</field>
-		<field attribute="day_column_width">
-			<display_name>Width of DAY columns (px)</display_name>
-			<note />
-			<int width="6" />
+		<field attribute="column_capacity">
+			<display_name>Expected Column Capacity</display_name>
+			<note>Consider this as the number of events you expect to normally occur concurrently.  If you leave it blank or zero, event widths will be set only according to the number of events actually present.  However if you enter a nonzero value, event widths will be set so that there is always room for this number of events to sit side by side, even if fewer than this number of events are actually present</note>
+			<int width="3" />
 		</field>
 		<field attribute="asset_builder_page">
 			<display_name>Event Input Page</display_name>
@@ -220,6 +220,11 @@
 			<display_name>Name of 'Other' Column</display_name>
 			<note>If no 'Columnise by Root Node' settings are set the default column name is 'Events'; otherwise the default is 'Other'. Enter a column name here to override these defaults</note>
 			<text width="40" height="1" />
+		</field>
+		<field attribute="day_column_width">
+			<display_name>Width of DAY columns (px)</display_name>
+			<note />
+			<int width="6" />
 		</field>
 	</section>
 

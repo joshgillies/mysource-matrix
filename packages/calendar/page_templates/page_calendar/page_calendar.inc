@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.123 2004/12/01 22:18:42 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.124 2004/12/03 05:37:41 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,7 +38,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.123 $ - 1.0
+* @version $Revision: 1.124 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -952,7 +952,7 @@ class Page_Calendar extends Page_Asset_Listing
 			foreach ($column_names as $id => $name) {
 				$col_events = $events[$id];
 				$event_link_date = is_iso8601($id) ? $id : $_REQUEST['SQ_CALENDAR_DATE'];
-				$click_to_add_code = ($click_to_add_ab && empty($col_events['all_day'])) ? ' onclick="addEvent(\''.$event_link_date.'\', \'*\');" style="cursor: pointer; cursor: hand"' : '';
+				$click_to_add_code = ($click_to_add_ab) ? ' onclick="addEvent(\''.$event_link_date.'\', \'*\');" style="cursor: pointer; cursor: hand"' : '';
 				echo '<td id="'.$id.'_allday"'.$click_to_add_code.'>';
 				if (empty($col_events['all_day'])) echo '&nbsp;';
 				foreach($col_events['all_day'] as $assetid => $event) {
@@ -986,12 +986,13 @@ class Page_Calendar extends Page_Asset_Listing
 				$col_events = $events[$id];
 				$time_key = sprintf('%02d:%02d', $current_hour, $current_mins);
 				if (is_iso8601($id)) $_REQUEST['SQ_CALENDAR_DATE'] = $id;
-				$click_to_add_code = ($click_to_add_ab && empty($col_events[$time_key])) ? ' onclick="addEvent(\''.$_REQUEST['SQ_CALENDAR_DATE'].'\', \''.$time_key.'\');"' : '';
-				$click_to_add_style = ($click_to_add_ab && empty($col_events[$time_key])) ? 'cursor: pointer; cursor: hand' : '';
+				$click_to_add_code = ($click_to_add_ab) ? ' onclick="addEvent(\''.$_REQUEST['SQ_CALENDAR_DATE'].'\', \''.$time_key.'\');"' : '';
+				$click_to_add_style = ($click_to_add_ab) ? 'cursor: pointer; cursor: hand' : '';
 				?>
 				<td id="<?php echo $_REQUEST['SQ_CALENDAR_DATE'].'_'.$time_key ?>" style="<?php echo $width; ?>px; height: <?php echo $partition_height; ?>px; padding-left: 1px; <?php echo $click_to_add_style; ?>" <?php echo $click_to_add_code; ?>>
 				<?php
-					echo $this->_getTimedTableCellContents($col_events[$time_key], $show_event_links, $root_nodes, ($current_mins + ($current_hour * 60)), $partition_time, $partition_height, $div_width / $col_events['_overlap_'], $layout_maps[$id], $mousedown_code, $mouseup_code);
+					$denominator = max($col_events['_overlap_'], $this->attr('column_capacity'));
+					echo $this->_getTimedTableCellContents($col_events[$time_key], $show_event_links, $root_nodes, ($current_mins + ($current_hour * 60)), $partition_time, $partition_height, $div_width / $denominator, $layout_maps[$id], $mousedown_code, $mouseup_code);
 				?>
 				&nbsp;
 				</td>
