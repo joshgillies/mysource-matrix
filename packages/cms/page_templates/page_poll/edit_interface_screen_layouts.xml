@@ -1,0 +1,77 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Open Source Licence                                      |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: edit_interface_screen_layouts.xml,v 1.1 2004/12/23 04:04:42 dheppell Exp $
+* $Name: not supported by cvs2svn $
+*/
+-->
+
+<contents>
+	<section name="Edit Question Layouts" write_access="write:attributes">
+		<field attribute="question_format">
+			<display_name>Question Layout</display_name>
+			<note>
+			This is the format that will be used to print the box the user selects the poll answers from. You can use the following keywords:&lt;br /&gt;
+            &lt;ul&gt;
+            &lt;li&gt;&lt;b&gt;%question%&lt;/b&gt; - the question of the poll, eg. 'What Colour is Blue?' &lt;/li&gt;
+			&lt;li&gt;&lt;b&gt;%date%&lt;/b&gt; - the date the poll was created on&lt;/li&gt;
+			&lt;li&gt;&lt;b&gt;%option_list%&lt;/b&gt; - a list of the options the user can select (radio buttons and labels)&lt;/li&gt;
+            &lt;li&gt;&lt;b&gt;%vote_button%&lt;/b&gt; - a button that votes for the selected option, then takes the user to the results screen&lt;/li&gt;
+			&lt;li&gt;&lt;b&gt;%vote_button_javascript%&lt;/b&gt; - the javascript for %vote_button% - insert into an image or a link, eg. &amp;lt;img alt="Pic1" src="Pic1.jpg" onClick="%vote_button_javascript%" /&amp;gt;&lt; /li&gt;
+			&lt;li&gt;&lt;b&gt;%view_results%&lt;/b&gt; - a text link to the results, without the user voting&lt;/li&gt;
+			&lt;li&gt;&lt;b&gt;%view_results_url%&lt;/b&gt; - a URL pointing to the results, for inclusion inside an &amp;lt;a href="..."&amp;gt; tag&lt;/li&gt;
+			&lt;li&gt;&lt;b&gt;%view_past_questions%&lt;/b&gt; - a link to a list of previous questions, from where you can select the results&lt;/li&gt;
+			&lt;li&gt;&lt;b&gt;%view_past_questions_url%&lt;/b&gt; - a URL pointing to the list of previous questions, for inclusion inside an &amp;lt;a href="..."&amp;gt; tag&lt;/li&gt;
+            &lt;/ul&gt;
+			</note>
+			<wysiwyg style="div" width="100%" height="100" />
+		</field>
+		<field attribute="results_format">
+			<display_name>Results Layout</display_name>
+			<note>
+			This is the format that will be used to print the question results after the user votes, elects to view the results, or views a past poll. You can use the following keywords:&lt;br /&gt;
+            &lt;ul&gt;
+            &lt;li&gt;&lt;b&gt;%question%&lt;/b&gt; - the question of the poll, eg. 'What Colour is Blue?' &lt;/li&gt;
+			&lt;li&gt;&lt;b&gt;%date%&lt;/b&gt; - the date the poll was created on&lt;/li&gt;
+			&lt;li&gt;&lt;b&gt;%graph%&lt;/b&gt; - a horizontal bar graph of the results&lt;/li&gt;
+            &lt;li&gt;&lt;b&gt;%key%&lt;/b&gt; - a key matching an option number on the bar graph to an option description&lt;/li&gt;
+			&lt;li&gt;&lt;b&gt;%view_past_questions%&lt;/b&gt; - a link to a list of previous questions, from where you can select the results&lt;/li&gt;
+			&lt;li&gt;&lt;b&gt;%view_past_questions_url%&lt;/b&gt; - a URL pointing to the list of previous questions, for inclusion inside an &amp;lt;a href="..."&amp;gt; tag&lt;/li&gt;
+            &lt;/ul&gt;
+			</note>
+			<wysiwyg style="div" width="100%" height="100" />
+		</field>
+		<field attribute="past_questions_format">
+			<display_name>Past Questions Layout</display_name>
+			<note>
+			This is the format that will be used to print the box the user selects the poll answers from. You can use the following keywords:&lt;br /&gt;
+            &lt;ul&gt;
+            &lt;li&gt;&lt;b&gt;%question_list%&lt;/b&gt; - a list of the previous questions, displayed inside &amp;lt;ul&amp;gt;&amp;lt;/ul&amp;gt; (list) tags &lt;/li&gt;
+			&lt;li&gt;&lt;b&gt;%question_list_date%&lt;/b&gt; - a list of the previous questions, displayed inside &amp;lt;ul&amp;gt;&amp;lt;/ul&amp;gt; (list) tags, with the questions' creation dates &lt;/li&gt;
+			&lt;li&gt;&lt;b&gt;%question_list_no_active%&lt;/b&gt; - a list of the previous questions, displayed inside &amp;lt;ul&amp;gt;&amp;lt;/ul&amp;gt; (list) tags, without the active question &lt;/li&gt;
+			&lt;li&gt;&lt;b&gt;%question_list_date_no_active%&lt;/b&gt; - a list of the previous questions, displayed inside &amp;lt;ul&amp;gt;&amp;lt;/ul&amp;gt; (list) tags, with the questions' creation dates, but without the active question &lt;/li&gt;
+			&lt;li&gt;&lt;b&gt;%active_question%&lt;/b&gt; - a link to the active question (already present in %question_list%)&lt;/li&gt;
+			&lt;li&gt;&lt;b&gt;%active_question_date%&lt;/b&gt; - a link to the active question (already present in %question_list%), with the question's creation date&lt;/li&gt;
+			&lt;/ul&gt;
+			</note>
+			<wysiwyg style="div" width="100%" height="100" />
+		</field>
+	</section>
+</contents>
