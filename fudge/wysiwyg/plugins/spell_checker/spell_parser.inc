@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: spell_parser.inc,v 1.4 2003/10/10 02:18:24 gsherwood Exp $
+* $Id: spell_parser.inc,v 1.5 2003/10/24 01:42:01 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ Class Spell_Parser {
 	{
 		echo '<'.$elem.' ';
 		foreach ($attribs as $key => $val) {
-			echo $key.'="'.addslashes($val).'" ';
+			echo $key.'="'.str_replace('"', '\\"', $val).'" ';
 		}
 		echo ' >';
 		return true;
