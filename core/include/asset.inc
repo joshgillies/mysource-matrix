@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset.inc,v 1.226 2003/09/26 06:56:49 brobertson Exp $
+* $Id: asset.inc,v 1.227 2003/10/01 06:17:47 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -556,6 +556,7 @@ class Asset extends MySource_Object
 				return $null;
 			}
 		}
+		$dupe->saveAttributes();
 
 		if (!empty($link)) {
 			// create the initial link
