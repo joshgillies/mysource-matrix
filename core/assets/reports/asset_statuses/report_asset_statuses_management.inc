@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_asset_statuses_management.inc,v 1.1 2005/02/16 06:02:14 dbaranovskiy Exp $
+* $Id: report_asset_statuses_management.inc,v 1.2 2005/02/16 08:58:56 brobertson Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Dmitry Baranovskiy <dbaranovskiy@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -50,29 +50,34 @@ class Report_Asset_Statuses_Management extends Asset_Management
 
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 
-		$this->vars['search_status'] = Array('added'       => '0.1',
-											 'type'        => 'selection',
-											 'default'     => 511,
-											 'description' => 'The status we\'re interested in',
-											 'parameters'  => Array('options'  => Array(SQ_SC_STATUS_ALL => 'Any Status') + get_status_names(),
-																	'multiple' => false,
-																	'allow_empty' => false,
-															  ),
-									   );
-
-
-		$this->vars['status_change_comparator_more_than'] = Array('added'       => '0.1',
-																  'type'        => 'boolean',
-																  'default'     => 0,
-																  'description' => 'are we interested in status changes before or after the time specified?',
-																  'parameters' => Array('allow_empty' => false)
-															);
-
-		$this->vars['status_change_period'] = Array('added'         => '0.1',
-													'type'			=> 'int',
-													'default'		=> 0,
-													'description'	=> 'number of minutes in the past that we want to compare status change time to',
-											 );
+		$this->vars = Array(
+							'search_status' => Array(
+								'added'       => '0.1',
+								'type'        => 'selection',
+								'default'     => SQ_SC_STATUS_ALL,
+								'description' => 'The status we are interested in',
+								'parameters'  => Array(
+									'options'  => Array(SQ_SC_STATUS_ALL => 'Any Status') + get_status_names(),
+									'multiple' => false,
+									'allow_empty' => false,
+								),
+							),
+							'status_change_comparator_more_than' => Array(
+								'added'       => '0.1',
+								'type'        => 'boolean',
+								'default'     => 0,
+								'description' => 'Are we interested in status changes before or after the time specified?',
+								'parameters'  => Array(
+									'allow_empty' => false,
+								),
+							),
+							'status_change_period' => Array(
+								'added'         => '0.1',
+								'type'			=> 'int',
+								'default'		=> 0,
+								'description'	=> 'Number of minutes in the past that we want to compare status change time to',
+							),
+		);
 
 	}//end constructor
 
