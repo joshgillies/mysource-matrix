@@ -4,6 +4,7 @@ Stage.scaleMode = "noScale";
 Stage.align = "TL";
 
 
+#include "functions.as"
 #include "test.as"
 #include "stageResize.as"
 #include "general.as"
@@ -11,6 +12,7 @@ Stage.align = "TL";
 #include "serverExec.as"
 #include "assetType.as"
 #include "asset.as"
+#include "assetLink.as"
 #include "assetManager.as"
 #include "mcMenuContainerClass.as"
 #include "mcMenuItemClass.as"

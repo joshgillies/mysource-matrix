@@ -106,11 +106,11 @@ mcListContainerClass.prototype.showKids = function(parent_assetid, parent_name, 
 
 	if (dont_refresh == undefined) dont_refresh = false;
 
-	// we don't know anything about this or it's got know kids, bugger off
-	if (_root.asset_manager.assets[parent_assetid] == undefined || !_root.asset_manager.assets[parent_assetid].kids.length) return;
+	// we don't know anything about this or it's got no kids, bugger off
+	if (_root.asset_manager.assets[parent_assetid] == undefined || !_root.asset_manager.assets[parent_assetid].links.length) return;
 
 	var params = {parent_assetid: parent_assetid, parent_name: parent_name, dont_refresh: dont_refresh};
-	_root.asset_manager.loadAssets(_root.asset_manager.assets[parent_assetid].kids, this, "showKidsLoaded", params);
+	_root.asset_manager.loadAssets(_root.asset_manager.assets[parent_assetid].getLinkAssetids(), this, "showKidsLoaded", params);
 
 }// end showKids()
 
@@ -124,12 +124,11 @@ mcListContainerClass.prototype.showKidsLoaded = function(params)
 	var parent_name	   = params.parent_name;
 
 //	trace('Show Kids Loaded    : ' + parent_assetid + ', ' + parent_name);
-//	trace('Show Kids Kids list : ' + _root.asset_manager.assets[parent_assetid].kids);
 
 	// Now create the kids list items, if they don't already exist
-	for(var j = 0; j < _root.asset_manager.assets[parent_assetid].kids.length; j++) {
-		var assetid = _root.asset_manager.assets[parent_assetid].kids[j];
-		var item_name = parent_name + "_" + assetid;
+	for(var j = 0; j < _root.asset_manager.assets[parent_assetid].links.length; j++) {
+		var assetid = _root.asset_manager.assets[parent_assetid].links[j].assetid;
+		var item_name = parent_name + "_" + _root.asset_manager.assets[parent_assetid].links[j].linkid;
 
 		this._createItem(parent_name, parent_assetid, item_name, assetid);
 
@@ -162,11 +161,11 @@ mcListContainerClass.prototype._recurseDisplayKids = function(parent_assetid, pa
 	var i = parent_i + 1;
 
 	// Now add the kids into the items order array in the correct spot
-	trace('Kids of ' + parent_assetid + ' : ' + _root.asset_manager.assets[parent_assetid].kids);
-	for(var j = 0; j < _root.asset_manager.assets[parent_assetid].kids.length; j++) {
-		var name = parent_name + "_" + _root.asset_manager.assets[parent_assetid].kids[j];
+	trace('Kids of ' + parent_assetid + ' : ' + _root.asset_manager.assets[parent_assetid].links);
+	for(var j = 0; j < _root.asset_manager.assets[parent_assetid].links.length; j++) {
+		var name = parent_name + "_" + _root.asset_manager.assets[parent_assetid].links[j].linkid;
 		if (this[name] == undefined) continue;
-		this._insertItem(i, name, (j == _root.asset_manager.assets[parent_assetid].kids.length - 1));
+		this._insertItem(i, name, (j == _root.asset_manager.assets[parent_assetid].links.length - 1));
 		if (this[name].expanded()) {
 			i = this._recurseDisplayKids(this[name].assetid, name, i);
 		} else {
@@ -219,7 +218,7 @@ mcListContainerClass.prototype._deleteItem = function(item_name)
 {
 	if (this[item_name] == undefined) return;
 
-	array_remove_element(this.asset_list_items[this[item_name].assetid], item_name);
+	this.asset_list_items[this[item_name].assetid].remove_element(item_name);
 	this._removeItem(item_name);
 	this[item_name].removeMovieClip();
 
@@ -297,11 +296,11 @@ mcListContainerClass.prototype.hideKids = function(parent_assetid, parent_name, 
 mcListContainerClass.prototype._recurseHideKids = function(parent_assetid, parent_name) 
 {
 
-	var num_kids = _root.asset_manager.assets[parent_assetid].kids.length;
+	var num_kids = _root.asset_manager.assets[parent_assetid].links.length;
 	
 	// loop through all the kids and make them invisible, also recursivly remove their kids
-	for(var j = 0; j < _root.asset_manager.assets[parent_assetid].kids.length; j++) {
-		var name = parent_name + "_" + _root.asset_manager.assets[parent_assetid].kids[j];
+	for(var j = 0; j < _root.asset_manager.assets[parent_assetid].links.length; j++) {
+		var name = parent_name + "_" + _root.asset_manager.assets[parent_assetid].links[j].linkid;
 		if (this[name] == undefined) continue;
 		if (this[name].expanded()) {
 			num_kids += this._recurseHideKids(this[name].assetid, name);
@@ -326,12 +325,12 @@ mcListContainerClass.prototype.onAssetReload = function(assetid, new_asset, old_
 {
 
 	trace("RELOAD ASSET ID : " + assetid);
-	var deletes = array_diff(old_asset.kids, new_asset.kids);
-	var inserts = array_diff(new_asset.kids, old_asset.kids);
+	var deletes = old_asset.links.diff(new_asset.links);
+	var inserts = new_asset.links.diff(old_asset.links);
 
 	// if it's the root folder
 	if (assetid == 1) {
-		this._reloadAssetListItem(assetid, this.item_prefix, -1, true, deletes, inserts, new_asset.kids);
+		this._reloadAssetListItem(assetid, this.item_prefix, -1, true, deletes, inserts, new_asset.links);
 
 	// else it's just a normal asset
 	} else {
@@ -346,7 +345,7 @@ mcListContainerClass.prototype.onAssetReload = function(assetid, new_asset, old_
 			}
 			if (pos >= this.items_order.length) continue; // we didn't find it
 
-			this._reloadAssetListItem(assetid, item_name, pos, this[item_name].expanded(), deletes, inserts, new_asset.kids);
+			this._reloadAssetListItem(assetid, item_name, pos, this[item_name].expanded(), deletes, inserts, new_asset.links);
 
 		}// end for
 
@@ -354,7 +353,7 @@ mcListContainerClass.prototype.onAssetReload = function(assetid, new_asset, old_
 
 	this.refreshList();
 
-
+	// Now if there has been a asset move and we know where to select, then do so
 	if (this.tmp.move_asset.new_select_pos != undefined) {
 		this.select(this[this.items_order[this.tmp.move_asset.new_select_pos].name]);
 		delete this.tmp.move_asset.new_select_pos;
@@ -370,9 +369,9 @@ mcListContainerClass.prototype.onAssetReload = function(assetid, new_asset, old_
 * @param string		item_name	the list item we are reloading
 * @param int		pos			the current pos of the list item
 * @param boolean	expanded	whether this list item is expanded or not
-* @param Array		deletes		kids that have been removed
-* @param Array		inserts		kids that have been added
-* @param Array		all_kids	all the kids for the asset
+* @param Array		deletes		links that have been removed
+* @param Array		inserts		links that have been added
+* @param Array		all_links	all the links for the asset
 *
 * @access private
 */

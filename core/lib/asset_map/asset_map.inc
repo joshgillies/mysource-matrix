@@ -251,7 +251,7 @@ class Asset_Map
 		$links = $asset->getLinks(SQ_LINK_EXCLUSIVE | SQ_LINK_UNITE, '', 'S');
 		if (count($links)) {
 			for($j = 0; $j < count($links); $j++) {
-				$kid_node = &$asset_node->addChild('child', '', Array('assetid' => $links[$j]['minorid'], 'link_type' => $links[$j]['link_type'], 'value' => $links[$j]['value']));
+				$kid_node = &$asset_node->addChild('child', '', Array('linkid' => $links[$j]['linkid'], 'minorid' => $links[$j]['minorid'], 'link_type' => $links[$j]['link_type']));
 			}
 
 			if ($load_new_kids) {

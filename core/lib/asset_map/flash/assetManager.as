@@ -105,16 +105,16 @@ AssetManager.prototype.getTopTypes = function()
 * @param string		call_back_fn		the fn in this class to execute after the loading has finished
 * @param Object		call_back_params	an object of params to send to the call back fn
 * @param boolean	force_reload		reload from server, even if we already have references to the passed assets
-* @param boolean	load_new_kids		Upon a reload from the server asks the server to supply information about any new kids that the assets have
+* @param boolean	load_new_links		Upon a reload from the server asks the server to supply information about any new links that the assets have
 *
 */
-AssetManager.prototype.loadAssets = function(assetids, call_back_obj, call_back_fn, call_back_params, force_reload, load_new_kids) 
+AssetManager.prototype.loadAssets = function(assetids, call_back_obj, call_back_fn, call_back_params, force_reload, load_new_links) 
 {
 
 	if (force_reload !== true)  force_reload  = false;
-	if (load_new_kids !== true) load_new_kids = false;
+	if (load_new_links !== true) load_new_links = false;
 
-	var load_assetids = array_unique(assetids);
+	var load_assetids = assetids.unique();
 
 	if (!force_reload) {
 	    for (var i = 0; i < load_assetids.length; i++) {
@@ -132,19 +132,20 @@ AssetManager.prototype.loadAssets = function(assetids, call_back_obj, call_back_
 
 		var xml = new XML();
 		var cmd_elem = xml.createElement("command");
-		cmd_elem.attributes.action        = "get assets";
-		cmd_elem.attributes.load_new_kids = (load_new_kids) ? 1 : 0;
+		cmd_elem.attributes.action         = "get assets";
+		cmd_elem.attributes.load_new_links = (load_new_links) ? 1 : 0;
 		xml.appendChild(cmd_elem);
 
 	    for (var i = 0; i < load_assetids.length; i++) {
 			var asset_elem = xml.createElement("asset");
 			asset_elem.attributes.assetid = load_assetids[i];
 
-			if (load_new_kids && this.assets[load_assetids[i]] != undefined) {
-				for(var j = 0; j < this.assets[load_assetids[i]].kids.length; j++) {
-					var kid_elem = xml.createElement("child");
-					kid_elem.attributes.assetid = this.assets[load_assetids[i]].kids[j];
-					asset_elem.appendChild(kid_elem);
+			if (load_new_links && this.assets[load_assetids[i]] != undefined) {
+				for(var j = 0; j < this.assets[load_assetids[i]].links.length; j++) {
+					var link_elem = xml.createElement("child");
+					link_elem.attributes.linkid  = this.assets[load_assetids[i]].links[j].linkid;
+					link_elem.attributes.assetid = this.assets[load_assetids[i]].links[j].assetid;
+					asset_elem.appendChild(link_elem);
 				}
 			}// end if
 
@@ -185,10 +186,14 @@ AssetManager.prototype.loadAssetsFromXML = function(xml, exec_indentifier)
 		var asset_node = xml.firstChild.childNodes[i];
 		if (asset_node.nodeName.toLowerCase() == "asset") {
 
-			var kids = new Array();
+			var links = new Array();
 
 			for (var j = 0; j < asset_node.childNodes.length; j++) {
-				kids.push(asset_node.childNodes[j].attributes.assetid);
+				var link = new AssetLink(asset_node.childNodes[j].attributes.linkid, 
+										asset_node.childNodes[j].attributes.majorid, 
+										asset_node.childNodes[j].attributes.minorid, 
+										asset_node.childNodes[j].attributes.link_type);
+				links.push(link);
 			}
 
 			// only create if it doesn't already exist
@@ -198,10 +203,9 @@ AssetManager.prototype.loadAssetsFromXML = function(xml, exec_indentifier)
 			// take backup before we update
 			} else {
 				old_assets[asset_node.attributes.assetid] = this.assets[asset_node.attributes.assetid].clone();
-
 			}
 
-			this.assets[asset_node.attributes.assetid].setInfo(asset_node.attributes.assetid, asset_node.attributes.type_code, asset_node.attributes.name, kids);
+			this.assets[asset_node.attributes.assetid].setInfo(asset_node.attributes.assetid, asset_node.attributes.type_code, asset_node.attributes.name, links);
 //			trace(this.assets[asset_node.attributes.assetid]);
 
 			new_assets[asset_node.attributes.assetid] = this.assets[asset_node.attributes.assetid];
@@ -230,10 +234,8 @@ AssetManager.prototype.loadAssetsFromXML = function(xml, exec_indentifier)
 */
 AssetManager.prototype.reloadAssets = function(assetids) 
 {
-	assetids = array_unique(assetids);
-	
+	assetids = assetids.unique();
 	this.loadAssets(assetids, this, "reloadAssetsLoaded", {assetids: assetids}, true, true);
-
 }// end reloadAssets()
 
 /**
