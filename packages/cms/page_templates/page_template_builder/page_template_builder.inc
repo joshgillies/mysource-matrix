@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_template_builder.inc,v 1.9 2005/03/01 22:54:21 tbarrett Exp $
+* $Id: page_template_builder.inc,v 1.10 2005/04/04 04:33:57 lwright Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -311,8 +311,15 @@ class Page_Template_Builder extends Page
 				$under_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				if (is_null($bc_asset)) {
 					$bc_asset =& $this->createBodycopy(date('d M Y H:i:s'), '', $res, $under_asset);
+					if (!$bc_asset) {
+						trigger_error('Failed to place bodycopy underneath asset "'.$under_asset->attr('name').'" (Id: #'.$under_asset->id.')', E_USER_WARNING);
+						return;
+					}
 				} else {
-					$GLOBALS['SQ_SYSTEM']->am->createAssetLink($under_asset, $bc_asset, SQ_LINK_TYPE_2);
+					if (!$GLOBALS['SQ_SYSTEM']->am->createAssetLink($under_asset, $bc_asset, SQ_LINK_TYPE_2)) {
+						trigger_error('Failed to place bodycopy underneath asset '.$under_asset->attr('name').' (Id: #'.$under_asset->attr('name').')', E_USER_WARNING);
+						return;
+					}
 				}
 			}
 			if (!$bc_asset->processStatusChange($this->attr('create_status'))) {
