@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: inbox_edit_fns.inc,v 1.31 2004/02/05 05:56:05 gsherwood Exp $
+* $Id: inbox_edit_fns.inc,v 1.32 2004/02/16 22:30:26 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -117,10 +117,22 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 				<td class="sq-backend-table-header">FROM</td>
 				<td class="sq-backend-table-header">SUBJECT</td>
 				<td class="sq-backend-table-header">SENT</td>
-				<td class="sq-backend-table-header">READ</td>
+				<td class="sq-backend-table-header">
+					<?php
+					if ($write_access) {
+						check_box($prefix.'_select_all_read', '1', false, "check_all(document.main_form, '{$prefix}_mark_as_read', this.checked);");
+					}
+					?>
+					READ
+				</td>
 				<?php
 				if ($write_access) {
-					?><td class="sq-backend-table-header">DELETE</td><?php
+					?>
+					<td class="sq-backend-table-header">
+						<?php check_box($prefix.'_select_all_delete', '1', false, "check_all(document.main_form, '{$prefix}_delete', this.checked);"); ?>
+						DELETE
+					</td>
+					<?php
 				}
 				?>
 			</tr>
@@ -168,13 +180,12 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 						&nbsp;<?php echo $GLOBALS['SQ_SYSTEM']->datetime($data['sent']); ?>
 					</td>
 					<td class="<?php echo $class ?>" nowrap>
-						<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib'); ?>/web/images/icons/internal_message/message_<?php echo (($data['status'] == SQ_MSG_UNREAD) ? 'un' : ''); ?>read.png", "16", "16", "");</script>&nbsp;
 						<?php
 						if ($asset->writeAccess('mail')) {
 							check_box($prefix.'_mark_as_read['.$data['messageid'].']', '1', ($data['status'] == SQ_MSG_READ));
 						}
 						?>
-						
+						&nbsp;<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib'); ?>/web/images/icons/internal_message/message_<?php echo (($data['status'] == SQ_MSG_UNREAD) ? 'un' : ''); ?>read.png", "16", "16", "");</script>
 					</td>
 					<?php
 					if ($write_access) {
@@ -344,8 +355,14 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 				<?php
 				if ($write_access) {
 					?>
-					<td class="sq-backend-table-header">RECOVER</td>
-					<td class="sq-backend-table-header">PURGE</td>
+					<td class="sq-backend-table-header">
+						<?php check_box($prefix.'_select_all_recover', '1', false, "check_all(document.main_form, '{$prefix}_recover', this.checked);"); ?>
+						RECOVER
+					</td>
+					<td class="sq-backend-table-header">
+						<?php check_box($prefix.'_select_all_purge', '1', false, "check_all(document.main_form, '{$prefix}_purge', this.checked);"); ?>
+						PURGE
+					</td>
 					<?php
 				}
 				?>
