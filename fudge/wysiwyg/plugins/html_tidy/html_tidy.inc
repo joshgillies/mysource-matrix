@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: html_tidy.inc,v 1.9 2003/11/07 01:40:03 gsherwood Exp $
+* $Id: html_tidy.inc,v 1.10 2003/11/10 21:34:12 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -80,10 +80,29 @@ class HTML_Tidy extends Wysiwyg_Plugin {
 	function process(&$html)
 	{
 		if (empty($html)) return;
+
+		  //////////////////////////////
+		 //  UNSUPPORTED CHARACTERS  //
+		//////////////////////////////
+
+		// Remove the following unsupported character codes that do not get replaced
+		// back to their original characters through the encoding process (mostly MS Word chars)
+		$search  = Array("%u2018","%u2019","%u2013");
+		$replace = Array("'"     , "'"    ,"-"     );
+		$html = str_replace($search, $replace, $html);
+
+
+		  /////////////////
+		 //  HTML TIDY  //
+		/////////////////
+
+		// tidy the HTML produced using the HTMLTidy program
 		$tidy = Array();
 		$path_to_tidy = '/home/gsherwood/mysource_matrix/tidy';
 		$command = "/bin/echo ".escapeshellarg($html)." | $path_to_tidy -iq --show-body-only y --show-errors 0 --show-warnings 0 --wrap 0 -asxml --word-2000 1 --force-output 1";
 
+		// add any inline tags that other plugins may use (possibly for encapsulating plugin specific data)
+		// so HTMLTidy doesnt strip them out
 		if (!empty($this->_new_inline_tags)) $command .= ' --new-inline-tags "'.implode('","',$this->_new_inline_tags).'"';
 		
 		exec($command, $tidy);
