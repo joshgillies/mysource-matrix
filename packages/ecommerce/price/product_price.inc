@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: product_price.inc,v 1.2 2005/02/03 15:22:50 brobertson Exp $
+* $Id: product_price.inc,v 1.3 2005/02/19 13:42:44 brobertson Exp $
 *
 */
 
@@ -29,7 +29,7 @@
 *     Provides an extensible method for representing the price in a Product
 *
 * @author  Blair Robertson
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -162,9 +162,9 @@ class Product_Price extends MySource_Object
 	*/
 	function _processBackendField(&$o, $prefix, $var)
 	{
-		$changes = false;
+		if (!isset($_POST[$prefix.'_'.$var])) return false;
 
-		if (!isset($_POST[$prefix.'_'.$var])) continue;
+		$changes = false;
 		$val = trim($_POST[$prefix.'_'.$var]);
 		switch($var) {
 			case 'value' :
