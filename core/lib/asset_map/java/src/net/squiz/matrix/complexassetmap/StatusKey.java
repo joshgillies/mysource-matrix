@@ -1,3 +1,25 @@
+/**
+* +--------------------------------------------------------------------+
+* | Squiz.net Open Source Licence                                      |
+* +--------------------------------------------------------------------+
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +--------------------------------------------------------------------+
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +--------------------------------------------------------------------+
+*
+* $Id: StatusKey.java,v 1.2 2004/09/26 23:15:12 mmcintyre Exp $
+* $Name: not supported by cvs2svn $
+*/
 
 
 package net.squiz.matrix.complexassetmap;
@@ -8,6 +30,11 @@ import java.awt.image.*;
 import javax.swing.border.*;
 import net.squiz.matrix.assetmap.*;
 
+/**
+* Creates a panel with a key of the status colours used in the asset map
+*
+* @author Marc McIntyre <mmcintyre@squiz.net>
+*/
 class StatusKey extends JPanel {
 
 	public static final int KEY_SIZE = 15;
@@ -15,6 +42,9 @@ class StatusKey extends JPanel {
 	public static final Font keyFont = new Font("key_font", Font.PLAIN, 10);
 	public static final Dimension fillerSize = new Dimension(1, 1);
 	
+	/**
+	* Constructs a status key
+	*/
 	public StatusKey() {
 		createKey();
 		setBackground(Color.white);
@@ -22,6 +52,9 @@ class StatusKey extends JPanel {
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 	}
 	
+	/**
+	* Creates the key and adds the conponents to the panel
+	*/
 	private void createKey() {
 		add(createColourKey(Asset.ARCHIVED_COLOUR, "Archived"));
 		add(createColourKey(Asset.UNDER_CONSTRUCTION_COLOUR, "Under Construction"));
@@ -51,7 +84,7 @@ class StatusKey extends JPanel {
 
 		g.setColor(c);
 		g.fillRect(0, 0, KEY_SIZE, KEY_SIZE);
-		g.setColor(KEY_BORDER);
+		g.setColor(c.darker());
 		g.drawRect(0, 0, KEY_SIZE - 1, KEY_SIZE - 1);
 		g.dispose();
 
