@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 * 
-* $Id: install.inc,v 1.3 2004/06/25 04:04:35 gsherwood Exp $
+* $Id: install.inc,v 1.4 2004/06/28 05:30:26 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -104,13 +104,13 @@ function uninstall_asset_types()
 	
 			if ($exists == 0) {	// does not exist
 				// check how many assets are in the system that depend on this type
-				$assetid_count = count($GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($asset_type,false));
+				$assetid_count = count($GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($asset_type, false));
 				if ($assetid_count > 0) {
 					// file gone but there are still assets depending on it!
 					trigger_error('The files for the asset type \''.$asset_type.'\' has been removed from its location ([SYSTEM_ROOT]/'.$type_info['dir'].'), but '.$assetid_count.' assets exist which depend on this type. The system may be broken until you restore the necessary files to this location', E_USER_WARNING);
 					$missing_files = true;
 	
-				} elseif(substr(SQ_SYSTEM_ROOT.'/'.$type_info['dir'], 0, strlen(SQ_CORE_PACKAGE_PATH)) == SQ_CORE_PACKAGE_PATH) {
+				} else if (substr(SQ_SYSTEM_ROOT.'/'.$type_info['dir'], 0, strlen(SQ_CORE_PACKAGE_PATH)) == SQ_CORE_PACKAGE_PATH) {
 					// we're not friggin' touching anything in the core -- if it's not there then we have
 					// a problem!!
 					trigger_error('Cannot uninstall asset type \''.$asset_type.'\' as it is in the core. The system may be broken until you restore this asset type\'s files to its original location.', E_USER_WARNING);
@@ -250,7 +250,6 @@ function uninstall_packages()
 	}//end if installed packages not empty
 	
 }//end uninstall_packages()
-
 
 
 /**
