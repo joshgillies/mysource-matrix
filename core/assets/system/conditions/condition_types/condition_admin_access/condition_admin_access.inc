@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_admin_access.inc,v 1.1 2004/11/10 21:38:16 amiller Exp $
+* $Id: condition_admin_access.inc,v 1.2 2004/11/11 00:30:12 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition.inc';
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.1 $ - 0.1
+* @version $Revision: 1.2 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -68,7 +68,7 @@ class Condition_Admin_Access extends Condition
 
 		// next, check to see if the currently logged in user
 		// has write access
-		if (!$asset->adminAccess('', $userid)) return false;
+		if (!$asset->adminAccess('')) return false;
 		
 		return true;
 		
