@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.64 2004/03/30 04:20:38 gsherwood Exp $
+* $Id: design_edit_fns.inc,v 1.65 2004/04/08 02:19:53 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -353,7 +353,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	function _processContents(&$asset, $contents)
 	{
 		$id_names = Array();
-		//// FIRST, let's check to see if all the design areas have unique names
+		// let's check to see if all the design areas have unique names
 		foreach($contents as $index => $element) {
 			if ($element['_type'] != 'TAG' || $element['operation'] != 'area') continue;
 
@@ -380,27 +380,30 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			$id_names[$element['attributes']['id_name']] = $element['attributes']['design_area'];
 
 		}// end foreach
-
+		
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		
+		if (isset($GLOBALS['SQ_PROCESSED_DESIGN_AREAS'])) {
+			// let's remove any design area links that we aren't going to be using any more
+			$existing_da_links = $asset->getDesignAreaLink();
+			$existing_id_names = Array();
+			foreach ($existing_da_links as $link) $existing_id_names[$link['value']] = $link['linkid'];
 
-		//// SECOND, let's remove any design area links that we aren't going to be using any more ////
+			$removed_id_names = array_diff(array_keys($existing_id_names), array_keys($GLOBALS['SQ_PROCESSED_DESIGN_AREAS']));
 
-		$existing_da_links = $asset->getDesignAreaLink();
-		$existing_id_names = Array();
-		foreach ($existing_da_links as $link) $existing_id_names[$link['value']] = $link['linkid'];
-
-		$removed_id_names = array_diff(array_keys($existing_id_names), array_keys($id_names));
-
-		// now remove any unused design area customisations
-		foreach($removed_id_names as $id_name) {
-			if (!$asset->deleteLink($existing_id_names[$id_name])) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
-			}
-		}// end foreach
+			// now remove any unused design area customisations
+			foreach($removed_id_names as $id_name) {
+				if (!$asset->deleteLink($existing_id_names[$id_name])) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return false;
+				}
+			}// end foreach
+		} else {
+			$GLOBALS['SQ_PROCESSED_DESIGN_AREAS'] = Array();
+		}
 
 
-		//// THIRD, let's validate the design areas that we are going to use ////
+		// validate the design areas that we are going to use
 
 		$design_areas = Array();
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type.inc,v 1.45 2004/04/07 23:16:45 gsherwood Exp $
+* $Id: design_area_menu_type.inc,v 1.46 2004/04/08 02:19:53 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -257,7 +257,7 @@ class Design_Area_Menu_Type extends Design_Area
 	function &getParentMenu()
 	{
 		if (!isset($this->_tmp['parent_menu_link'])) {
-			$this->_tmp['parent_menu_link'] = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_3, 'design_area_menu_type', false, 'sub_menu', 'minor');
+			$this->_tmp['parent_menu_link'] = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, 'design_area_menu_type', false, 'sub_menu', 'minor');
 		}
 		if (empty($this->_tmp['parent_menu_link'])) {
 			$null = null;
@@ -489,12 +489,26 @@ class Design_Area_Menu_Type extends Design_Area
 	function printInitOutput(&$design)
 	{
 		$level = (int) $this->attr('level');
-		if ($level < 0) {
-			echo '
-			$'.$this->attr('id_name').'_level = (count($ASSET_LINEAGE) -2) + '.(-1 * ($level + 1)).';';
-		} else {
-			echo '
-			$'.$this->attr('id_name').'_level = '.$level.';';
+		$parent_menu = &$this->getParentMenu();
+		if (!is_null($parent_menu)) {
+			// we are a sub menu
+			if ($level == 0) {
+				// we dont have a specific level to print (or they want to print the top level - thats wierd)
+				// so dynamically get the level to print based on our parent's level at runtime
+				$level = null;
+				echo '
+				$'.$this->attr('id_name').'_level = $'.$parent_menu->attr('id_name').'_level + 1;';
+			}
+		}
+
+		if (!is_null($level)) {
+			if ($level < 0) {
+				echo '
+				$'.$this->attr('id_name').'_level = (count($ASSET_LINEAGE) -2) + '.(-1 * ($level + 1)).';';
+			} else {
+				echo '
+				$'.$this->attr('id_name').'_level = '.$level.';';
+			}
 		}
 
 		$sub_menu = &$this->getSubMenu();

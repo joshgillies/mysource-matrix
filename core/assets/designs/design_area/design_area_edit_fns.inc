@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_edit_fns.inc,v 1.35 2004/04/01 03:59:53 gsherwood Exp $
+* $Id: design_area_edit_fns.inc,v 1.36 2004/04/08 02:19:53 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -494,6 +494,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	function _processContents(&$asset, $contents)
 	{
 		if ($this->_setVariables($asset, $contents)) {
+			$GLOBALS['SQ_PROCESSED_DESIGN_AREAS'][$asset->attr('id_name')] = true;
 			return $asset->setAttrValue('contents', $contents);
 		} else {
 			return false;

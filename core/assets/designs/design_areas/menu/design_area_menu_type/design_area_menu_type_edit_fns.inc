@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type_edit_fns.inc,v 1.35 2004/04/07 23:16:45 gsherwood Exp $
+* $Id: design_area_menu_type_edit_fns.inc,v 1.36 2004/04/08 02:19:53 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -201,7 +201,7 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 
 		}// end if
 
-
+		$GLOBALS['SQ_PROCESSED_DESIGN_AREAS'][$asset->attr('id_name')] = true;
 		return $asset->setAttrValue('contents', $contents);
 
 	}//end _processContents()
@@ -249,18 +249,8 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 			if (!$sub->setAttrValue('id_name', $asset->attr('id_name').'__sub_menu')) return false;
 		}
 
-		// set this value here so that if this sub has a sub, it's value can get in it's contents
-		$sub_level = $asset->attr('level');
-		if ($sub_level < 0) $sub_level--;
-		else $sub_level++;
-		$sub->setAttrValue('level', $sub_level);
-
 		$edit_fns = $sub->getEditFns();
 		if (!$edit_fns->_processContents($sub, $contents) && $sub->saveAttributes()) return false;
-
-		if ($sub->attr('level') != $sub_level) {
-			trigger_error('The sub menu for "'.$asset->attr('id_name').'" has a level value '.$sub->attr('level').', which is different from what it should be ('.$sub_level.'). This could cause display issues with the menu. Are you specifically setting the level in the sub menu section ? ', E_USER_WARNING);
-		}
 
 		return true;
 
