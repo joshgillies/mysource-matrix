@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: inbox.inc,v 1.22 2004/12/06 14:38:10 brobertson Exp $
+* $Id: inbox.inc,v 1.23 2005/02/07 22:36:23 dbaranovskiy Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -159,6 +159,24 @@ class Inbox extends Asset
 	}//end printFrontend()
 
 
+	function paintBackend(&$o)
+	{
+		if (isset($_REQUEST['gettrash'])) {
+			$user = &$this->_getUser();
+
+			$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+			$messages = $ms->getMessages($user->id, null, Array(SQ_MSG_DELETED), Array(), null, null, 'name');
+			echo '<root>';
+			foreach ($messages as $key => $message) {
+				echo '<message from="'.$message['from_name'].'" id="'.$message['msgid'].'" date="'.$GLOBALS['SQ_SYSTEM']->datetime($message['sent']).'"';
+				echo ' subject="'.$message['subject'].'">'.$message['body'].'</message>';
+			}
+			echo '</root>';
+			exit();
+		}
+		parent::paintBackend(&$o);
+	}
+
 	/**
 	* Called by the design to print the body of this asset
 	*
@@ -167,14 +185,30 @@ class Inbox extends Asset
 	function printBody()
 	{
 		$edit = $this->getEditFns();
-
 		if (isset($_REQUEST['msgid'])) {
 			// they want to print a single message
 			$edit->paintMessage($_REQUEST['msgid']);
 		} else {
 			// they want to print all mail
+			if (!SQ_IN_BACKEND) {
+				$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'mail');
+				$user =& $this->_getUser();
+				?>
+				<script type="text/javascript" src="<?php echo sq_web_path('lib'); ?>/js/general.js"></script>
+				<script type="text/javascript" src="<?php echo sq_web_path('lib'); ?>/html_form/html_form.js"></script>
+				<h2 style="margin-bottom: 2px">Inbox for <?php echo $user->attr('first_name').' '.$user->attr('last_name'); ?></h2>
+				<form method="POST" action="<?php echo $_SERVER['REQUEST_URI']; ?>" name="main_form" id="main_form">
+				<?php
+			}
+
 			$null = '';
 			$edit->paintMail($this, $null, 'inbox');
+
+			if (!SQ_IN_BACKEND) {
+				?>
+				</form>
+				<?php
+			}
 		}
 
 	}//end printBody()
