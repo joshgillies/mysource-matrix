@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.19 2004/08/20 01:18:41 lwright Exp $
+* $Id: calendar_event_recurring.inc,v 1.20 2004/08/26 00:50:07 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.19 $ - 1.0
+* @version $Revision: 1.20 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -542,7 +542,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 	* @return boolean	indicating success
 	* @access private
 	*/
-	function _cacheCalendarData($updating=true)
+	function cacheCalendarData($updating=true)
 	{
 		$db = $GLOBALS['SQ_SYSTEM']->db;
 	
@@ -594,7 +594,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
 			
-	}//end _cacheCalendarData()
+	}//end cacheCalendarData()
 	
 
 }//end class
