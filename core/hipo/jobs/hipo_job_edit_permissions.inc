@@ -1,6 +1,5 @@
 <?php
 require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
-include_once SQ_LIB_PATH.'/html_form/html_form.inc';
 
 /**
 * Highly Intensive Processing Object (HIPO) to edit asset permissions
@@ -101,7 +100,6 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 			$child_assets = Array();
 			$child_assets = array_merge(Array($asset->id), $asset->getChildren());
 			$this->_running_vars['todo_assetids'] = $child_assets;
-			$this->_running_vars['done_assetids'] = Array();
 		}
 
 		unset($asset);
