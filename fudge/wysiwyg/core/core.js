@@ -225,9 +225,11 @@ HTMLArea.prototype.insertNodeAtSelection = function(toBeInserted) {
  * Call this function to insert HTML code at the current position.  It deletes
  * the selection, if any.
  */
-HTMLArea.prototype.insertHTML = function(html) {
-	var sel = this._getSelection();
-	var range = this._createRange(sel);
+HTMLArea.prototype.insertHTML = function(html, range) {
+	if (range == null) {
+		var sel = this._getSelection();
+		var range = this._createRange(sel);
+	}
 	if (HTMLArea.is_ie) {
 		range.pasteHTML(html);
 	} else {
