@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime_field.inc,v 1.13 2004/05/05 06:00:56 lwright Exp $
+* $Id: datetime_field.inc,v 1.14 2004/05/28 10:29:58 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -54,7 +54,30 @@ class DateTime_Field {
 
 	/**
 	* Setting for the field (min, max values etc)
-	* @var array
+	* <code>
+	* Array(
+	*	// datetime elements to show 
+	* 	'show'			=> Array(['d'],['m'],['y'],['h'],['i'],['s']),
+	*	// style of each of the elements (s = select box, t = textbox)
+	* 	'style'			=> Array(
+	* 							['d' => '[s|t]',]
+	* 							['m' => '[s|t]',]
+	* 							['y' => '[s|t]',]
+	* 							['h' => '[s|t]',]
+	* 							['i' => '[s|t]',]
+	* 							['s' => '[s|t]',]
+	* 						),
+	*	// datetime elements to allow a null element for
+	* 	'null'			=> Array(['d'],['m'],['y'],['h'],['i'],['s']),
+	* 	'max'			=> 'YYYY-MM-DD HH:II:SS',
+	* 	'min'			=> 'YYYY-MM-DD HH:II:SS',
+	* 	'allow_circa'	=> '0',
+	*	// see PHP date() fn
+	* 	'print_format'	=> 'l, F jS, Y H:i:s',
+	* );
+	* </code>
+	*
+	* @var array()
 	*/
 	var $parameters='';
 
@@ -67,7 +90,7 @@ class DateTime_Field {
 	* @param array	&$parameters	settings for this field (min, max, show etc)
 	*
 	*/
-	function DateTime_Field($prefix='', &$value, &$parameters)
+	function DateTime_Field($prefix, &$value, &$parameters)
 	{
 		$this->prefix     =  $prefix;
 		$this->value      = &$value;
