@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_redirect_management.inc,v 1.13 2005/01/14 17:54:26 brobertson Exp $
+* $Id: page_redirect_management.inc,v 1.14 2005/03/08 05:36:10 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -71,7 +71,7 @@ class Page_Redirect_Management extends Asset_Management
 											'default'    => false,
 											'parameters' => Array(
 																'multiple' => true,
-																'allow_empty' => false,
+																'allow_empty' => true,
 																'options'  => Array(
 																				'hide_location'   => 'Hide Location Bar',
 																				'hide_menubar'    => 'Hide Menubar',

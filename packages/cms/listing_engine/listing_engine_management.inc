@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_management.inc,v 1.12 2005/02/16 05:23:34 lwright Exp $
+* $Id: listing_engine_management.inc,v 1.13 2005/03/08 05:36:10 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -68,10 +68,10 @@ class Listing_Engine_Management extends Asset_Management
 												'__attr__'=> 'Asset Attributes...',
 											),
 											'multiple' => false,
-											'allow_empty' => false,
+											'allow_empty' => true,
 										),
 										'default' => 'name'
-										);
+									);
 		
 		$this->vars['sort_by_attr'] = Array(
 										'added'   => '0.1',

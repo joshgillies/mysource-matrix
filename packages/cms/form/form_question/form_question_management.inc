@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_management.inc,v 1.13 2005/01/17 18:25:47 brobertson Exp $
+* $Id: form_question_management.inc,v 1.14 2005/03/08 05:36:10 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -76,7 +76,7 @@ class Form_Question_Management extends Asset_Management
 																'friend'	=> 'Send a note to these Friends\' Email Addresses',
 															),
 															'multiple' => false,
-															'allow_empty' => false,
+															'allow_empty' => true,
 														),
 													),
 							'auto_answer'	=> Array(
@@ -94,7 +94,7 @@ class Form_Question_Management extends Asset_Management
 															'email'		=> 'User\'s Email',
 														),
 														'multiple' => false,
-														'allow_empty' => false,
+														'allow_empty' => true,
 												),
 											),
 
