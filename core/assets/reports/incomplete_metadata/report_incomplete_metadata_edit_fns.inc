@@ -18,13 +18,13 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_incomplete_metadata_edit_fns.inc,v 1.2 2004/08/12 04:38:35 gsherwood Exp $
+* $Id: report_incomplete_metadata_edit_fns.inc,v 1.3 2004/08/19 08:25:18 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 
 
 require_once SQ_CORE_PACKAGE_PATH.'/report/report_edit_fns.inc';
-
+require_once SQ_FUDGE_PATH.'/general/general.inc';
 /**
 * Report_Incomplete_Metadata_Edit_Fns
 *
