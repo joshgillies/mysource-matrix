@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: bodycopy_edit_fns.inc,v 1.40 2003/11/03 05:01:19 gsherwood Exp $
+* $Id: bodycopy_edit_fns.inc,v 1.41 2003/11/05 01:35:17 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -306,14 +306,9 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 					if (editor._iframe) {
 						editor._iframe.style.width = "100%";
 						if (setDesignMode && HTMLArea.is_gecko) { editor._iframe.contentWindow.document.designMode = "on"; }
-						editor._iframe.style.height = contentDiv.offsetHeight - editor._toolbar.offsetHeight - editor._statusBar.offsetHeight;
-
-						var editCell = document.getElementById(editor._uniqueID + "_cell");
-						editCell.style.height = editor._iframe.offsetHeight;
-						editCell.height = editor._iframe.offsetHeight;
-						editor._iframe.style.height = editCell.offsetHeight - editor._toolbar.offsetHeight - editor._statusBar.offsetHeight;
-						editCell.style.height = editor._iframe.offsetHeight;
-						
+						var iframeHeight = contentDiv.offsetHeight - editor._toolbar.offsetHeight - editor._statusBar.offsetHeight;
+						if (iframeHeight < 0) { iframeHeight = 400; }
+						editor._iframe.style.height = iframeHeight + 'px';
 					}
 					contentDiv.style.display = "none"; // hide the contents
 				} else if (editor._initialised == true) {
@@ -325,7 +320,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 
 					if (editor._iframe) {
 						var editCell = document.getElementById(editor._uniqueID + "_cell");
-						editCell.style.height = "100%";
+						if (editCell) { editCell.style.height = "100%"; }
 					}
 				}
 			}
