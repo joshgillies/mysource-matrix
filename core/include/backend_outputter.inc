@@ -87,6 +87,14 @@ class Backend_Outputter
 	var $_field_opened  = false;
 	var $_field_count = 0;
 
+	
+	/**
+	* Constructor
+	*
+	* @param string	$type_code
+	*
+	* @access  public
+	*/
 	function Backend_Outputter()
 	{
 
@@ -94,21 +102,21 @@ class Backend_Outputter
 		if (!empty($_SESSION['backend_outputter_msgs'])) {
 			$this->_messages = $_SESSION['backend_outputter_msgs'];
 			$_SESSION['backend_outputter_msgs'] = Array();
-		}//end if
+		}
 
 		$this->_files_path = sq_web_path('lib').'/web';
 		$this->_action = $_SERVER['PHP_SELF'];
 
-		# register that we want to listen to link update events
+		// register that we want to listen to link update events
 		$GLOBALS['SQ_SYSTEM']->addEventListener($this, array('CreateLink',
 															 'DeleteLink',
 															 'AssetUpdate'
 															));
+	}//end constructor
 
-	}
 
-	 ////////////////////////////////////////////////////////
-	// set the redirect for page
+	/**
+	* Set the redirect for the page
 	function setRedirect($link)
 	{
 		$this->_redirect = trim($link);
@@ -116,8 +124,7 @@ class Backend_Outputter
 
 
 	/**
-	* add an onLoad call, something JS that needs to be executed right
-	* after the page finishes loading
+	* Add an onLoad call, something JS that needs to be executed right after the page finishes loading
 	*
 	* @param string $call	JS code to execute
 	*
@@ -130,7 +137,7 @@ class Backend_Outputter
 
 
 	/**
-	* allows you to add get vars to the action section of the form
+	* Allows you to add get vars to the action section of the form
 	*
 	* @param string $name
 	* @param string $value
@@ -142,9 +149,9 @@ class Backend_Outputter
 		$this->_action .= ((strstr($this->_action, '?')) ? '&' : '?').rawurlencode($name).'='.rawurlencode($value);
 	}//end addFormActionGetVar()
 
+
 	/**
-	* returns the current action, which realistically is going to be the
-	* way to get to the current location
+	* Returns the current action, which realistically is going to be the way to get to the current location
 	*
 	* @access public
 	*/
@@ -154,16 +161,20 @@ class Backend_Outputter
 	}//end getCurrentLocation()
 
 
-	 ////////////////////////////////////////////////////////
-	// set the anchor that the page will submit to
+	/**
+	* Set the anchor that the page will submit to
+	*
+	* @access public
+	*/
 	function setFormAnchor($anchor)
 	{
 		$anchor = trim($anchor);
 		$this->_anchor = ($anchor) ? '//'.$anchor : '';
 	}//end setFormAnchor()
 
+
 	/**
-	* set the heading for page
+	* Set the heading for page
 	*
 	* @param string $heading
 	* @param string $icon
@@ -178,7 +189,7 @@ class Backend_Outputter
 
 
 	/**
-	* set the sub heading for page
+	* Set the sub heading for page
 	*
 	* @param string $heading
 	* @param string $icon
@@ -192,8 +203,12 @@ class Backend_Outputter
 		$this->_sub_heading_icon = $icon;
 	}//end setSubHeading()
 
-	 ////////////////////////////////////////////////////////////////////////////////////////
-	// add a message to be displayed to the user
+
+	/**
+	* Add a message to be displayed to the user
+	*
+	* @access public
+	*/
 	function addMessage($type, $msg)
 	{
 		$msg = trim($msg);
@@ -203,32 +218,47 @@ class Backend_Outputter
 		}
 	}//end addMessage()
 
-	 ////////////////////////////////////////////////////////////////////////////////////////
-	// add a stylesheet file to the page
+
+	/**
+	* Add a stylesheet file to the page
+	*
+	* @access public
+	*/
 	function addCssInclude($file)
 	{
 		if (in_array($file, $this->_css_includes)) return;
 		$this->_css_includes[] = $file;
 	}//end addCssInclude()
 
-	 ////////////////////////////////////////////////////////////////////////////////////////
-	// add a javascript file to the page
+
+	/**
+	* Add a javascript file to the page
+	*
+	* @access public
+	*/
 	function addJsInclude($file)
 	{
 		if (in_array($file, $this->_js_includes)) return;
 		$this->_js_includes[] = $file;
 	}//end addJsInclude()
 
-	 ////////////////////////////////////////////////////////////////////////////////////////
-	// add an onSubmit call, something JS that
-    // needs to be executed before the form submits
+
+	/**
+	* Add an onSubmit call, something JS that needs to be executed before the form submits
+	*
+	* @access public
+	*/
 	function addOnSubmit($call)
 	{
 		$this->_on_submit_calls[] = $call;
 	}//end addOnSubmit()
 
-	 ////////////////////////////////////////////////////////////////////////////////////////
-	// add a hidden field to the output
+
+	/**
+	* Add a hidden field to the output
+	*
+	* @access public
+	*/
 	function addHiddenField($name, $value='')
 	{
 		$this->_hidden_fields[$name] = $value;
@@ -299,12 +329,16 @@ class Backend_Outputter
 	}//end setCurrentTab()
 
 
-	 ////////////////////////////////////////////////////////////////////////////////////////
-	// adds a preload image
+	/**
+	* Adds a preload image
+	*
+	* @access public
+	*/
 	function addPreloadImg($file)
 	{
 		$this->_preload_imgs[] = $file;
 	}//end add_img_rollover()
+
 
 	/**
 	* Opens a section of the page for raw output
@@ -325,6 +359,7 @@ class Backend_Outputter
 
 	}//end openRaw()
 
+
 	/**
 	* Closes a raw output section
 	*
@@ -336,7 +371,6 @@ class Backend_Outputter
 		$this->_contents[$this->_section_count]['contents'] = ob_get_contents();
 		ob_end_clean();
 		$this->_raw_opened = false;
-
 	}//end closeRaw()
 
 
@@ -363,6 +397,7 @@ class Backend_Outputter
 		return 'section_'.$this->_section_count;
 	}
 
+
 	/**
 	* Closes a section
 	*
@@ -373,6 +408,7 @@ class Backend_Outputter
 		if ($this->_field_opened) $this->closeField();
 		$this->_section_opened = false;
 	}
+
 
 	/**
 	* Opens a field inside a section
@@ -399,6 +435,7 @@ class Backend_Outputter
 		$this->_field_opened = true;
 	}
 
+
 	/**
 	* Closes a field
 	*
@@ -412,8 +449,9 @@ class Backend_Outputter
 		$this->_field_opened = false;
 	}
 
+
 	/**
-	* returns the path to the web dir in lib
+	* Returns the path to the web dir in lib
 	*
 	* @param string $file  if supplied is concatinated onto the path before returning
 	*
@@ -453,8 +491,9 @@ class Backend_Outputter
 
 	}//end paint();
 
+
 	/**
-	* returns the outputters painted contents as a string
+	* Returns the outputters painted contents as a string
 	*
 	* @access public
 	*/
@@ -471,14 +510,14 @@ class Backend_Outputter
 
 	}//end getAsString()
 
+
 	/**
-	* paint the header of the page
+	* Paint the header of the page
 	*
 	* @access private
 	*/
 	function _paintHeader()
 	{
-
 	?>
 		<html>
 		<head>
@@ -502,7 +541,6 @@ class Backend_Outputter
 		?>
 			<script language="Javascript" type="text/javascript">
 			<!--
-				function sayHi() { alert('hi'); }
 				function page_on_load() {
 
 			<?php
@@ -626,8 +664,9 @@ class Backend_Outputter
 
 	}//end _paintHeader()
 
+
 	/**
-	* paint the contents of the page
+	* Paint the contents of the page
 	*
 	* @access private
 	*/
@@ -737,8 +776,9 @@ class Backend_Outputter
 
 	}//end _paintContents()
 
+
 	/**
-	* paint the footer of the page
+	* Paint the footer of the page
 	*
 	* @access private
 	*/
@@ -789,8 +829,12 @@ class Backend_Outputter
 //
 //	}//end _paintMessages()
 
-	 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	// outputs a stylesheet include line for the passed file
+
+	/**
+	* Outputs a stylesheet include line for the passed file
+	*
+	* @access public
+	*/
 	function _paintCssInclude($file)
 	{
 		?>
@@ -798,14 +842,19 @@ class Backend_Outputter
 		<?php
 	}//end _paintCssInclude()
 
-	 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	// outputs a javascript include line for the passed file
+	
+	/**
+	* Outputs a javascript include line for the passed file
+	*
+	* @access public
+	*/
 	function _paintJsInclude($file)
 	{
 		?>
 			<script type="text/javascript" language="javascript" src="<?php echo $file;?>"></script>
 		<?php
 	}//end _paintJsInclude()
+
 
 	/**
 	* Outputs a note in the proper css format
@@ -816,6 +865,7 @@ class Backend_Outputter
 	{
 		echo '<div class="sq-backend-smallprint">'.$str.'</div>';
 	}//end note()
+
 
 	/**
 	* Creates a standardised commit button

@@ -43,6 +43,7 @@ class Asset_Edit_Interface extends Resolve_Object
 	*/
 	var $_default_screen = '';
 
+
 	/**
 	* Constructor
 	*
@@ -118,9 +119,9 @@ class Asset_Edit_Interface extends Resolve_Object
 	/**
 	* Returns the prefix that will be used by paint() and process()
 	*
-	* @param object	Asset				$owner		the asset whose interface we are painting
+	* @param object	Asset	$owner	the asset whose interface we are painting
 	*
-	* @access  public
+	* @access public
 	*/
 	function getPrefix(&$owner)
 	{
@@ -135,7 +136,7 @@ class Asset_Edit_Interface extends Resolve_Object
 	* @param object	Backend_Outputter	$o			the outputter class
 	* @param boolean					$creating	whether we are creating or editing
 	*
-	* @access  public
+	* @access public
 	*/
 	function paint(&$owner, &$o, $creating)
 	{
@@ -202,7 +203,7 @@ class Asset_Edit_Interface extends Resolve_Object
 		if (!$creating) {
 			for(reset($this->_screens); null !== ($code = key($this->_screens)); next($this->_screens)) {
 				$o->addScreen($current_location.'asset_ei_screen='.rawurlencode($code), $this->_screens[$code]['name']);
-			}// end for
+			}
 		}
 
 		// add tabs for the asset if not creating
@@ -382,7 +383,7 @@ class Asset_Edit_Interface extends Resolve_Object
 		if ($creating) {
 			list($create_sections, $active_screen) = $this->_getCreateSections(false);
 			if (!count($create_sections)) return false;
-		}// end if creating
+		}
 
 		// check the active screen for special system defined tabs
 		$file = null;
