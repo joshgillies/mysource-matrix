@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: lookupValues.inc,v 1.3 2005/02/23 05:14:15 gsherwood Exp $
+* $Id: lookupValues.inc,v 1.4 2005/02/23 22:35:44 brobertson Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Settings Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 */
 
@@ -73,7 +73,7 @@ function paintLookupValues(&$owner, &$o, &$ei)
 
 	foreach ($lookup_values as $url => $data) {
 		foreach ($data as $value_name => $value_data) {
-			if (!preg_match('/^([^:]+)::/', $value_name, $matches=Array())) continue;
+			if (!preg_match('/^([^:]+)(::|$)/', $value_name, $matches=Array())) continue;
 			if (!isset($values[$matches[1]])) continue; // unknown prefix..
 			if (!isset($values[$matches[1]][$url])) $values[$matches[1]][$url] = Array();
 			$values[$matches[1]][$url][$value_name] = $value_data;
@@ -152,7 +152,6 @@ function processLookupValues(&$owner, &$o, &$ei)
 		$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 		return false;
 	}
-
 	$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 	//// START HIPO PROCESSING ////
