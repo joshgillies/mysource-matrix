@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_table.inc,v 1.2 2004/10/13 22:28:38 lwright Exp $
+* $Id: form_question_type_tickbox_table.inc,v 1.2.2.1 2004/10/15 07:01:10 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
