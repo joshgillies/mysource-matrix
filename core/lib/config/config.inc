@@ -41,8 +41,13 @@ class Config extends Resolve_Object
 	* Rewrites the conf file with current variables
 	*
 	*/
-	function save($vars, $backup_existing=false) 
+	function save($vars, $backup_existing=false)
 	{
+		// attempt to load the config file to make sure we get any current settings
+		if (file_exists($this->config_file)) {
+			require_once $this->config_file;
+		}
+
 		ob_start();
 		foreach($this->config_vars as $var_name => $data) {
 
