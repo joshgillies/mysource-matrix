@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.83 2005/01/20 03:59:04 lwright Exp $
+* $Id: form.inc,v 1.84 2005/02/10 04:44:33 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.83 $
+* @version $Revision: 1.84 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -903,7 +903,8 @@ class Form extends Asset
 		if ($this->attr('use_bodycopy_main') && $bodycopy && !$bodycopy->isEmpty()) {
 			$questions = $this->getQuestions();
 			$sections = &$this->getSections();
-
+			$replacements = Array();
+			
 			foreach ($questions as $q_id => $question) {
 				$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
 				$q_name = $q_asset->attr('name');
