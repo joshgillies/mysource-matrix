@@ -18,12 +18,11 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_schema.inc,v 1.6 2003/11/26 00:51:04 gsherwood Exp $
+* $Id: workflow_schema.inc,v 1.7 2004/02/10 16:15:03 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
-
-require_once SQ_INCLUDE_PATH.'/asset.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 
 /**
 * Workflow_Schema
@@ -36,7 +35,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
-class Workflow_Schema extends Asset
+class Workflow_Schema extends Folder
 {
 
 	/**
@@ -47,7 +46,7 @@ class Workflow_Schema extends Asset
 	*/
 	function Workflow_Schema($assetid=0)
 	{
-		$this->Asset($assetid);
+		$this->Folder($assetid);
 
 	}//end constructor
 
