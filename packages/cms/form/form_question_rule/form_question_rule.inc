@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule.inc,v 1.13 2004/06/15 23:15:17 lwright Exp $
+* $Id: form_question_rule.inc,v 1.14 2004/10/12 01:39:23 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -70,6 +70,8 @@ class Form_Question_Rule extends Asset
 		return Array('no_comparison' => false,			// no comparison required?
 					 'force_text' => false,				// force a textbox comparison even if select?
 					 'show_asset_finder' => true,		// show asset finder?
+					 'validation_rule' => true,			// makes sense as a validation rule?
+					 'selective_email_rule' => true,	// makes sense as a selective email rule?
 				);
 
 	}//end getAttributes()
