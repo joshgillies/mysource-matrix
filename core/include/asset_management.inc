@@ -186,9 +186,8 @@ class Asset_Management extends Resolve_Object
 				WHERE type_code = '.$this->_db->quote($this->getAssetType());
 		$current_vars = $this->_db->getCol($sql);
 
-		// we only need to check the vars that we defined, we don't need to worry about those
-		// we inherit because the owner of those attrs will look after any updates to them
-		for(reset($this->vars); null !== ($name = key($this->vars)); next($this->vars)) {
+		$all_vars = $this->_getAllVars();
+		foreach($all_vars as $name) {
 
 			// if we already have this attribute installed, then let's update it
 			if (in_array($name, $current_vars)) {
@@ -371,7 +370,7 @@ class Asset_Management extends Resolve_Object
 
 		}// end if parents using this name
 
-		trigger_error('Need to have check to make sure that the variable type is valid' , E_USER_WARNING);
+		trigger_error('Need to have check to make sure that the variable type is valid' , E_USER_NOTICE);
 
 		$attributeid = $this->_db->nextId('sq_sequence_asset_attribute');
 		if (DB::isError($attributeid)) {
@@ -417,7 +416,7 @@ class Asset_Management extends Resolve_Object
 
 		$type_code = $this->getAssetType();
 
-		trigger_error('Need to have check to make sure that the variable type is valid' , E_USER_WARNING);
+		trigger_error('Need to have check to make sure that the variable type is valid' , E_USER_NOTICE);
 
 		// if they have defined an update fn for this, then we don't need to do anything
 		if (!empty($this->vars[$name]['update_fn'])) {
@@ -470,7 +469,7 @@ class Asset_Management extends Resolve_Object
 
 		$type_code = $this->getAssetType();
 
-		trigger_error('Need to have check to make sure that the variable type is valid' , E_USER_WARNING);
+		trigger_error('Need to have check to make sure that the variable type is valid' , E_USER_NOTICE);
 
 		// update all the attributes that we own
 		$sql = 'UPDATE sq_asset_attribute
