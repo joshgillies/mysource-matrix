@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.15 2004/06/21 00:07:00 gsherwood Exp $
+* $Id: page_asset_builder.inc,v 1.16 2004/07/28 01:40:16 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -270,13 +270,7 @@ class Page_Asset_Builder extends Page
 	{
 		?>
 		<script type="text/javascript" language="javascript" src="<?php echo sq_web_path('lib');?>/html_form/html_form.js"></script>
-		<form name="asset_builder" method="POST" action="<?php echo $_SERVER['PHP_SELF']; ?>" enctype="multipart/form-data">
-			<?php
-			echo hidden_field('ASSET_BUILDER_ACTION', $this->_default_state);
-			$this->_printContents();
-			?>
-		</form>
-		<?php
+		<?php $this->_printContents();
 
 	}//end _printBody()
 
@@ -311,7 +305,7 @@ class Page_Asset_Builder extends Page
 
 					// create our dummy asset so we can access all its you beaut functions
 					// to make life easier for ourselves
-					$create_type = $this->attr('create_type');
+					$create_type = $_POST['ASSET_BUILDER_CREATE_TYPE'];
 					$GLOBALS['SQ_SYSTEM']->am->includeAsset($create_type);
 					$new_asset = new $create_type();
 
@@ -340,7 +334,7 @@ class Page_Asset_Builder extends Page
 						}
 
 					}//end foreach
-
+					
 					if ($required_error) break;
 
 
@@ -348,7 +342,7 @@ class Page_Asset_Builder extends Page
 					 //  CREATE LOCATIONS  //
 					////////////////////////
 
-					$create_locations = $this->_getCreateLocations();
+					$create_locations = $this->_getCreateLocations($create_type);
 
 					// if we dont have any create locations, there is no point in continuing with this charade
 					// whoever set this up may think they want to build asset on the frontend, but they dont really
@@ -374,7 +368,7 @@ class Page_Asset_Builder extends Page
 					}
 
 					$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($create_parentid);
-					if (is_null($parent)) {
+					if (is_null($parent)) {						
 						$this->_replacements['create_error'] = $this->attr('create_error');
 						break;
 					}
@@ -445,16 +439,17 @@ class Page_Asset_Builder extends Page
 	/**
 	* Work out the create locations for a new asset
 	*
-	* @param array	$attributes	an array of attributes to use for rule comparison
-	*							leave empty to use the submitted form vars
+	* @param string	$create_type	the type of asset we are getting create locations for
+	* @param array	$attributes		an array of attributes to use for rule comparison
+	*								leave empty to use the submitted form vars
 	*
 	* @return array
 	* @access private
 	*/
-	function _getCreateLocations($attributes=Array())
+	function _getCreateLocations($create_type, $attributes=Array())
 	{
 		if (empty($attributes)) {
-			$create_type = $this->attr('create_type');
+			$create_type = $_POST['ASSET_BUILDER_CREATE_TYPE'];
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($create_type);
 			$temp_asset = new $create_type();
 			$prefix = $temp_asset->getPrefix();
@@ -475,41 +470,43 @@ class Page_Asset_Builder extends Page
 
 		// now check what rules dictate where the asset should be created
 		$location_rules = $this->attr('create_location_rules');
-		foreach ($location_rules as $i => $rules) {
-			$valid_rule = true;
-			foreach ($rules as $attr => $attr_rules) {
-				if ($attr == '_create_locations_') continue;
-
-				if (empty($attributes)) {
-					$attr_value = isset($_POST[$prefix.'_'.$attr]) ? trim(strtolower($_POST[$prefix.'_'.$attr])) : '';
-				} else{
-					$attr_value = isset($attributes[$attr]) ? trim(strtolower($attributes[$attr])) : '';
-				}
-
-				foreach ($attr_rules as $cond => $value) {
-					$value = trim(strtolower($value));
-
-					switch ($cond) {
-						case 'equals' :
-							if ($attr_value != $value) $valid_rule = false;
-						break;
-						
-						case 'starts_with' :
-							if (!preg_match('|^'.$value.'.*$|', $attr_value)) $valid_rule = false;
-						break;
-						
-						case 'ends_with' :
-							if (!preg_match('|^.*'.$value.'$|', $attr_value)) $valid_rule = false;
-						break;
+		if (!empty($location_rules[$create_type])) {
+			foreach ($location_rules[$create_type] as $i => $rules) {
+				$valid_rule = true;
+				foreach ($rules as $attr => $attr_rules) {
+					if ($attr == '_create_locations_') continue;
+	
+					if (empty($attributes)) {
+						$attr_value = isset($_POST[$prefix.'_'.$attr]) ? trim(strtolower($_POST[$prefix.'_'.$attr])) : '';
+					} else{
+						$attr_value = isset($attributes[$attr]) ? trim(strtolower($attributes[$attr])) : '';
 					}
-
-					if (!$valid_rule) break(2);
+	
+					foreach ($attr_rules as $cond => $value) {
+						$value = trim(strtolower($value));
+	
+						switch ($cond) {
+							case 'equals' :
+								if ($attr_value != $value) $valid_rule = false;
+							break;
+							
+							case 'starts_with' :
+								if (!preg_match('|^'.$value.'.*$|', $attr_value)) $valid_rule = false;
+							break;
+							
+							case 'ends_with' :
+								if (!preg_match('|^.*'.$value.'$|', $attr_value)) $valid_rule = false;
+							break;
+						}
+	
+						if (!$valid_rule) break(2);
+					}
 				}
-			}
-
-			if ($valid_rule) {
-				if (!is_array($create_locations)) $create_locations = Array($create_locations);
-				$create_locations = array_merge($create_locations, $rules['_create_locations_']);
+	
+				if ($valid_rule) {
+					if (!is_array($create_locations)) $create_locations = Array($create_locations);
+					$create_locations = array_merge($create_locations, $rules['_create_locations_']);
+				}
 			}
 		}
 
@@ -615,27 +612,71 @@ class Page_Asset_Builder extends Page
 
 			require_once SQ_INCLUDE_PATH.'/limbo_outputter.inc';
 			$o = new Limbo_Outputter();
-
+		
 			// print the create interface for the asset
-			$create_type = $this->attr('create_type');
-			$GLOBALS['SQ_SYSTEM']->am->includeAsset($create_type);
-			$asset = new $create_type();
-			$asset->paintBackend($o);
+			$create_types = $this->attr('create_type');
+			if (!is_array($create_types)) $create_types = Array($create_types);
 
-			// used to indicate to the edit interface that we are creating an asset
-			?><input type="hidden" name="asset_action" value="create"><?php
+			$i = 0;
+			foreach($create_types as $create_type => $value) {
+				$prefix = $this->type().'_'.$this->id.'_type_'.$create_type;
+				?><form name="asset_builder_<?php echo $create_type ?>" method="POST" action="<?php echo $_SERVER['PHP_SELF']; ?>" enctype="multipart/form-data"><div id="<?php echo $prefix ?>" style="display:<?php echo ($i==0) ? 'block' : 'none' ?>">
+				<?php
+				$GLOBALS['SQ_SYSTEM']->am->includeAsset($create_type);
+				$asset = new $create_type();
+				$asset->paintBackend($o);
 
-			// paint the buffered sections
-			$o->paintSections();
+				// used to indicate to the edit interface that we are creating an asset
+				echo hidden_field('ASSET_BUILDER_ACTION', $this->_default_state);
+				?><input type="hidden" name="asset_action" value="create"><input type="hidden" name="ASSET_BUILDER_CREATE_TYPE" value="<?php echo $create_type ?>"><?php
+ 
+				// paint the buffered sections, then clean it up
+				$o->paintSections();
+				$o->_contents = Array();
+
+				?></div></form><?php
+				$i++;
+			}
 
 			// okay, open your eyes again
 			$this->_replacements['create_form'] = ob_get_contents();
 		ob_end_clean();
 
+		if (count($create_types) > 1) {
+			ob_start();
+			$create_types = array_keys($create_types);
+			?>
+			<script language="JavaScript"><!-- 
+				var current_option = '<?php echo $this->type().'_'.$this->id.'_type_'.current($create_types) ?>';
+				
+				function showAssetBuilderTab(type_code)
+				{
+					document.getElementById(current_option).style.display = 'none';
+					current_option = '<?php echo $this->type().'_'.$this->id.'_type_' ?>' + type_code;
+					document.getElementById(current_option).style.display = 'block';
+				}//end showAssetBuilderTab()
+				
+			// --></script>
+			<?php
+			foreach($create_types as $create_type) {
+				$prefix = $this->type().'_'.$this->id.'_type_'.$create_type;
+			?>
+				<div id="<?php echo $prefix.'_tab'; ?>">
+				<a href="#" onclick="showAssetBuilderTab('<?php echo $create_type ?>'); return false;"><?php 
+					$type_name = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($create_type, 'name');
+					echo $type_name;
+				?></a>
+				</div>
+			<?php
+			}
+			$this->_replacements['create_form'] = ob_get_contents().$this->_replacements['create_form'];
+			ob_end_clean();
+		}
+				
 		ob_start();
 			$create_locations = $this->attr('create_location_optional');
 			if (empty($create_locations)) {
-				bam('EMBEDDED ASSET MAP WILL GO HERE WITH AN ASSET FINDER');
+				;//bam('EMBEDDED ASSET MAP WILL GO HERE WITH AN ASSET FINDER');
 			} else {
 				$options = Array();
 				$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($create_locations));
@@ -701,6 +742,8 @@ class Page_Asset_Builder extends Page
 	function _errorHandler($err_no, $err_msg, $err_file, $err_line)
 	{
 		$terminate = ((E_USER_ERROR | E_ERROR) & $err_no);
+		
+		pre_echo(debug_backtrace());
 
 		// if the function didn't have an '@' prepended OR if we are about to terminate
 		// catch the error

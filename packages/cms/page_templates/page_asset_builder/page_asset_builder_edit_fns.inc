@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_edit_fns.inc,v 1.10 2004/06/29 07:16:30 gsherwood Exp $
+* $Id: page_asset_builder_edit_fns.inc,v 1.11 2004/07/28 01:40:16 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -70,6 +70,166 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 
 
 	/**
+	* Paint the current asset types that have been added
+	*
+	* @param object Form				&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintCurrentAssetTypes(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+
+		// do a check to see if any of the bodycopies have been removed manually
+		$types = $asset->attr('create_type');
+		if (empty($types)) {
+			echo 'There are no Types Defined';
+			return false;
+		}
+
+		?>
+		<table class="sq-backend-table">
+		<tr>
+			<td class="sq-backend-table-header">Asset Type</td>
+			<?php
+			if ($write_access) {
+				?>
+				<td class="sq-backend-table-header">Remove?</td>
+				<?php
+			}
+			?>
+		</tr>
+			<?php
+			foreach ($types as $type => $value) {
+				?>
+				<tr>
+					<td class="sq-backend-table-cell">
+						<?php
+						$info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type);
+						echo $info['name'];
+						?>
+					</td>
+					<?php
+					if ($write_access) {
+						?>
+						<td class="sq-backend-table-cell">
+							<?php
+							check_box($prefix.'_remove[]', $type, false);
+							?>
+						</td>
+						<?php
+					}
+					?>
+				</tr>
+				<?php
+			}
+		?>
+		</table>
+		<?php
+
+	}//end paintCurrentAssetTypes()
+
+
+	/**
+	* Process the current asset types that have been added
+	*
+	* @param object Form				&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processCurrentAssetTypes(&$asset, &$o, $prefix)
+	{
+		$types = $asset->attr('create_type');
+
+		// we are looking to see if any types have been removed
+		if (isset($_POST[$prefix.'_remove'])) {
+			foreach ($_POST[$prefix.'_remove'] as $type) {
+				if (isset($types[$type])) unset($types[$type]);
+			}
+		}
+
+		$asset->setAttrValue('create_type', $types);
+
+		return true;
+
+	}//end processCurrentAssetTypes()
+
+
+	/**
+	* Paint section to add an asset type
+	*
+	* @param object Form				&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintAddCreateType(&$asset, &$o, $prefix)
+	{
+		if (!$asset->writeAccess('attributes')) {
+			if ($asset->attr('create_type') == '') {
+				echo 'No asset type selected';
+			} else {
+				$is_multiple = (count($asset->attr('create_type')) > 1);
+				if ($is_multiple) echo '<ul>';
+				foreach(array_keys($asset->attr('create_type')) as $create_type) {
+					$info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($create_type);
+					if ($is_multiple) echo '<li>';
+					echo $info['name'];
+					if ($is_multiple) echo '</li>';
+				}
+				if ($is_multiple) echo '</ul>';
+			}
+		} else {
+			$asset_types = $GLOBALS['SQ_SYSTEM']->am->getTypeList();
+			$options = Array('' => '-- select asset type --');
+			foreach ($asset_types as $type_code) {
+				$info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code);
+				if ($info['allowed_access'] != 'system' && $info['instantiable']) {
+					$options[$type_code] = $info['name'];
+				}
+			}
+			combo_box($prefix.'_new_type', $options, false, $asset->attr('create_type'));
+		}
+
+	}//end paintAddCreateType()
+
+
+	/**
+	* Process the section to add a new format for an asset
+	*
+	* @param object Form				&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processAddCreateType(&$asset, &$o, $prefix)
+	{
+		if (isset($_POST[$prefix.'_new_type'])) {
+			$type = trim($_POST[$prefix.'_new_type']);
+			if (empty($type)) return false;
+			$types = $asset->attr('create_type');
+			if (!isset($types[$type])) {
+				$types[$type] = true;
+				$asset->setAttrValue('create_type', $types);
+				return true;
+			}
+		}
+		return false;
+
+	}//end processAddCreateType()
+	
+	
+	/**
 	* Paint the interface for choosing the type of newly created assets
 	*
 	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
@@ -97,7 +257,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 					$options[$type_code] = $info['name'];
 				}
 			}
-			combo_box($prefix.'_create_type', $options, false, $asset->attr('create_type'));
+			combo_box($prefix.'_new_type', $options, false, $asset->attr('create_type'));
 		}
 
 	}//end paintCreateType()
@@ -380,138 +540,156 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 	{
 		$write_access = $asset->writeAccess('attributes');
 		$current_rules = $asset->attr('create_location_rules');
-
-		$attributes = Array();
-		$attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($asset->attr('create_type'), Array('name', 'attributeid', 'type'));
-		foreach ($attrs as $name => $data) $attributes[$name] = ucwords(str_replace('_', ' ', $name));
-
-		if (empty($attributes)) {
+		$current_assets = $asset->attr('create_type');
+		
+		if (empty($current_assets)) {
 			echo 'You must specify the type of asset to create before create location rules can be defined';
 			return false;
 		}
-
 		echo '<i><b>'.$this->location_messages['rules'].'</b></i><br/>';
+		foreach(array_keys($asset->attr('create_type')) as $create_type) {
 
-		$attributes = array_reverse($attributes, true);
-		$attributes[''] = '-- select attribute --';
-		$attributes = array_reverse($attributes, true);
-
-		if (!empty($current_rules)) ?><table class="sq-backend-table"><?php
-
-		$i = -1;
-		foreach ($current_rules as $i => $attr_rules) {
-
-			foreach ($attr_rules as $attr => $rule_conds) {
-				if ($attr == '_create_locations_') continue;
+			$attributes = Array();
+			$attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($create_type, Array('name', 'attributeid', 'type'));
+			foreach ($attrs as $name => $data) $attributes[$name] = ucwords(str_replace('_', ' ', $name));
 			
-				$x = 0;
-				foreach ($rule_conds as $cond => $cond_value) {
+			$type_name = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($create_type, 'name');
+			$o->openSection($type_name);
+			$o->openRaw();
+			
+			if (empty($current_rules[$create_type])) $current_rules[$create_type] = Array();
+			$type_current_rules = $current_rules[$create_type];
+			
+			$type_prefix = $prefix.'_'.$create_type;
+			
+			$attributes = array_reverse($attributes, true);
+			$attributes[''] = '-- select attribute --';
+			$attributes = array_reverse($attributes, true);
+
+			if (!empty($type_current_rules)) ?><table class="sq-backend-table"><?php
+
+			$i = -1;
+			foreach ($type_current_rules as $i => $attr_rules) {
+
+				foreach ($attr_rules as $attr => $rule_conds) {
+					if ($attr == '_create_locations_') continue;
+			
+					$x = 0;
+					foreach ($rule_conds as $cond => $cond_value) {
 	
-					if ($write_access) {
-						require_once SQ_ATTRIBUTES_PATH.'/'.$attrs[$attr]['type'].'/'.$attrs[$attr]['type'].'.inc';
-						$attr_class = 'Asset_Attribute_'.$attrs[$attr]['type'];
-						$attribute = new $attr_class($attrs[$attr]['attributeid'], $cond_value);
-					}
+						if ($write_access) {
+							require_once SQ_ATTRIBUTES_PATH.'/'.$attrs[$attr]['type'].'/'.$attrs[$attr]['type'].'.inc';
+							$attr_class = 'Asset_Attribute_'.$attrs[$attr]['type'];
+							$attribute = new $attr_class($attrs[$attr]['attributeid'], $cond_value);
+						}
+		
+						?>
+						<tr>
+							<td class="sq-backend-table-cell">the value of attribute </td>
+							<td class="sq-backend-table-cell">
+								<?php
+									if ($write_access) {
+										combo_box($type_prefix.'_rules['.$i.']['.$attr.'][attrs]['.$x.']', $attributes, false, $attr);
+									} else {
+										echo $attributes[$attr];
+									}
+								?>
+							</td>
+							<td class="sq-backend-table-cell">
+								<?php
+									$conditions = Array('equals'      => 'equals',
+														'starts_with' => 'starts with',
+														'ends_with'   => 'ends with'
+														);
 	
+									if ($write_access) {
+										combo_box($type_prefix.'_rules['.$i.']['.$attr.'][condition]['.$x.']', $conditions, false, $cond);
+									} else {
+										echo $conditions[$cond];
+									}
+								?>
+							</td>
+							<td class="sq-backend-table-cell">
+								<?php
+									if ($write_access) {
+										$attribute->paint($type_prefix.'_rules['.$i.']['.$attr.'][values]['.$x.']', false);
+									} else {
+										echo $cond_value;
+									}
+								?>
+							</td>
+						</tr>
+						<?php
+		
+						$x++;
+		
+					}//end foreach
+					
+				}//end foreach
+	
+	
+				if ($write_access) {
 					?>
 					<tr>
-						<td class="sq-backend-table-cell">the value of attribute </td>
-						<td class="sq-backend-table-cell">
+						<td class="sq-backend-table-cell"><b>New Attribute</b></td>
+						<td class="sq-backend-table-cell" colspan="3"><?php combo_box($type_prefix.'_rules['.$i.'][new_attr]', $attributes, false, ''); ?></td>
+					</tr>
+					<?php
+				}
+				
+	
+				$l = 1;
+						
+				$locations = $attr_rules['_create_locations_'];
+				if (!$write_access) $location_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_values($locations));
+				foreach ($locations as $location) {
+					?>
+					<tr>
+						<td class="sq-backend-table-cell"><?php echo ($l == 1) ? '<b>Location(s)</b>' : ''; ?></td>
+						<td class="sq-backend-table-cell" colspan="3">
 							<?php
 								if ($write_access) {
-									combo_box($prefix.'_rules['.$i.']['.$attr.'][attrs]['.$x.']', $attributes, false, $attr);
+									asset_finder($type_prefix.'_rule_location['.$i.']['.$l.']', $location, $this->location_types);
 								} else {
-									echo $attributes[$attr];
-								}
-							?>
-						</td>
-						<td class="sq-backend-table-cell">
-							<?php
-								$conditions = Array('equals'      => 'equals',
-													'starts_with' => 'starts with',
-													'ends_with'   => 'ends with'
-													);
-
-								if ($write_access) {
-									combo_box($prefix.'_rules['.$i.']['.$attr.'][condition]['.$x.']', $conditions, false, $cond);
-								} else {
-									echo $conditions[$cond];
-								}
-							?>
-						</td>
-						<td class="sq-backend-table-cell">
-							<?php
-								if ($write_access) {
-									$attribute->paint($prefix.'_rules['.$i.']['.$attr.'][values]['.$x.']', false);
-								} else {
-									echo $cond_value;
+									echo $location_info[$location]['name'].' [# '.$location.']';
 								}
 							?>
 						</td>
 					</tr>
 					<?php
-	
-					$x++;
-	
+					$l++;
 				}//end foreach
-				
+	
+				if ($write_access) {
+					?>
+					<tr>
+						<td class="sq-backend-table-cell"><b>New Location</b></td>
+						<td class="sq-backend-table-cell" colspan="3"><?php asset_finder($type_prefix.'_rule_location['.$i.']['.$l.']', 0, $this->location_types); ?></td>
+					</tr>
+					<?php
+				}
+				?>
+				<tr>
+					<td class="sq-backend-table-cell" colspan="4"><hr/></td>
+				</tr>
+				<?php
+	
 			}//end foreach
-
-
+	
+			if (!empty($current_rules)) { ?></table><?php }
+	
 			if ($write_access) {
-				?>
-				<tr>
-					<td class="sq-backend-table-cell"><b>New Attribute</b></td>
-					<td class="sq-backend-table-cell" colspan="3"><?php combo_box($prefix.'_rules['.$i.'][new_attr]', $attributes, false, ''); ?></td>
-				</tr>
-				<?php
+				if ($i >=0) $i++;
+				else $i = 0;
+				echo '<b>New Rule:</b> ';
+				$attributes[''] = '-- select attribute --';
+				combo_box($type_prefix.'_rules['.$i.'][new_attr]', $attributes, false, '');
 			}
-			
-
-			$l = 1;
-			$locations = $attr_rules['_create_locations_'];
-			if (!$write_access) $location_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_values($locations));
-			foreach ($locations as $location) {
-				?>
-				<tr>
-					<td class="sq-backend-table-cell"><?php echo ($l == 1) ? '<b>Location(s)</b>' : ''; ?></td>
-					<td class="sq-backend-table-cell" colspan="3">
-						<?php
-							if ($write_access) {
-								asset_finder($prefix.'_rule_location['.$i.']['.$l.']', $location, $this->location_types);
-							} else {
-								echo $location_info[$location]['name'].' [# '.$location.']';
-							}
-						?>
-					</td>
-				</tr>
-				<?php
-				$l++;
-			}//end foreach
-
-			if ($write_access) {
-				?>
-				<tr>
-					<td class="sq-backend-table-cell"><b>New Location</b></td>
-					<td class="sq-backend-table-cell" colspan="3"><?php asset_finder($prefix.'_rule_location['.$i.']['.$l.']', 0, $this->location_types); ?></td>
-				</tr>
-				<?php
-			}
+				$o->closeRaw();
+				$o->closeSection();
 			?>
-			<tr>
-				<td class="sq-backend-table-cell" colspan="4"><hr/></td>
-			</tr>
-			<?php
-
-		}//end foreach
-
-		if (!empty($current_rules)) ?></table><?php
-
-		if ($write_access) {
-			if ($i >=0) $i++;
-			else $i = 0;
-			echo '<b>New Rule:</b> ';
-			combo_box($prefix.'_rules['.$i.'][new_attr]', $attributes, false, '');
+				
+			<?php 
 		}
 
 		return true;
@@ -532,34 +710,43 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 	function processCreateLocationRules(&$asset, &$o, $prefix)
 	{
 		$rules = Array();
-		foreach ($_POST[$prefix.'_rules'] as $i => $rule_data) {
-
-			foreach ($rule_data as $attr => $rule) {
-
-				if ($attr == '') continue;
-				
-				if ($attr == 'new_attr') {
-					if (!empty($rule)) $rules[$i][$rule]['equals'] = '';
-					continue;
-				}
-
-				foreach ($rule['condition'] as $x => $condition) {
-					if (empty($rule['attrs'][$x])) continue;
-					$value = (isset($rule['values'][$x])) ? $rule['values'][$x] : '';
-					$rules[$i][$attr][$condition] = $value;
-				}
-			}
-
-			if (isset($rules[$i])) {
-				$locations = Array();
-				if (isset($_POST[$prefix.'_rule_location'][$i])) {
-					foreach ($_POST[$prefix.'_rule_location'][$i] as $loc) {
-						$locid = $loc['assetid'];
-						if (!$locid) continue;
-						$locations[] = $locid;
+		foreach (array_keys($asset->attr('create_type')) as $create_type) {
+			
+			$type_prefix = $prefix.'_'.$create_type;
+			
+			foreach ($_POST[$type_prefix.'_rules'] as $i => $rule_data) {
+		
+				foreach ($rule_data as $attr => $rule) {
+					
+					if ($attr == '') continue;
+					
+					if ($attr == 'new_attr') {
+						if (!empty($rule)) $rules[$create_type][$i][$rule]['equals'] = '';
+						continue;
+					}
+		
+					foreach ($rule['condition'] as $x => $condition) {
+						if (empty($rule['attrs'][$x])) continue;
+						$value = (isset($rule['values'][$x])) ? $rule['values'][$x] : '';
+						$rules[$create_type][$i][$attr][$condition] = $value;
 					}
 				}
-				$rules[$i]['_create_locations_'] = array_unique($locations);
+
+				if (isset($rules[$create_type][$i])) {
+					$locations = Array();
+					
+					if (isset($_POST[$type_prefix.'_rule_location'][$i])) {
+						
+						foreach ($_POST[$type_prefix.'_rule_location'][$i] as $loc) {
+							$locid = $loc['assetid'];
+							if (!$locid) continue;
+							$locations[] = $locid;
+							
+						}
+					}
+					
+					$rules[$create_type][$i]['_create_locations_'] = array_unique($locations);
+				}
 			}
 		}
 
@@ -626,62 +813,79 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 	function paintRequiredFields(&$asset, &$o, $prefix)
 	{
 		$write_access = $asset->writeAccess('attributes');
-		$attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($asset->attr('create_type'), Array('name'));
-		foreach ($attrs as $name) $attributes[$name] = ucwords(str_replace('_', ' ', $name));
 		$current = $asset->attr('required_fields');
 		
-		if (empty($current)) {
-			echo 'No attributes are currently set to be required';
-		} else {
-			?>
-			<table class="sq-backend-table">
-				<tr>
-					<td class="sq-backend-table-header">Name</td>
-					<td class="sq-backend-table-header">Error Text</td>
-					<?php
-					if ($write_access) {
-						?><td class="sq-backend-table-header">Delete</td><?php
-					}
-					?>
-				</tr>
-				<?php
-				foreach ($current as $attr => $error_text) {
-					?>
+		foreach(array_keys($asset->attr('create_type')) as $create_type) {
+		
+			$attributes = Array();
+			$attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($create_type, Array('name'));
+			foreach ($attrs as $name) $attributes[$name] = ucwords(str_replace('_', ' ', $name));
+			
+			if (!isset($current[$create_type])) $current[$create_type] = Array();	
+			$type_prefix = $prefix.'_'.$create_type;
+			
+			$type_name = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($create_type, 'name');
+			$o->openSection($type_name);
+			$o->openRaw();
+			
+			if (empty($current[$create_type])) {
+				echo 'No attributes are currently set to be required';
+			} else {
+				
+				?>
+				<table class="sq-backend-table">
 					<tr>
-						<td class="sq-backend-table-cell"><?php echo $attributes[$attr]; ?></td>
-						<td class="sq-backend-table-cell">
-							<?php
-							if ($write_access) {
-								text_box($prefix.'_required_field['.$attr.']', $error_text, 50);
-							} else {
-								echo $error_text;
-							}
-							?>
-						</td>
+						<td class="sq-backend-table-header">Name</td>
+						<td class="sq-backend-table-header">Error Text</td>
 						<?php
 						if ($write_access) {
-							?>
-							<td class="sq-backend-table-cell">
-								<?php check_box($prefix.'_delete_required['.$attr.']'); ?>
-							</td>
-							<?php
+							?><td class="sq-backend-table-header">Delete</td><?php
 						}
 						?>
 					</tr>
 					<?php
-				}
-				?>
-			</table>
-			<?php
-		}
-
-		if ($write_access) {
-			$attributes = array_reverse($attributes, true);
-			$attributes[''] = '-- select attribute --';
-			$attributes = array_reverse($attributes, true);
-
-			echo '<br/><b>New required attribute ? </b>';
-			combo_box($prefix.'_new_required', $attributes, false, '');
+					foreach ($current[$create_type] as $attr => $error_text) {
+						?>
+						<tr>
+							<td class="sq-backend-table-cell"><?php echo $attributes[$attr]; ?></td>
+							<td class="sq-backend-table-cell">
+								<?php
+								if ($write_access) {
+									text_box($type_prefix.'_required_field['.$attr.']', $error_text, 50);
+								} else {
+									echo $error_text;
+								}
+								?>
+							</td>
+							<?php
+							if ($write_access) {
+								?>
+								<td class="sq-backend-table-cell">
+									<?php check_box($type_prefix.'_delete_required['.$attr.']'); ?>
+								</td>
+								<?php
+							}
+							?>
+						</tr>
+						<?php
+					}
+					?>
+				</table>
+				<?php
+			}
+	
+			if ($write_access) {
+				$attributes = array_reverse($attributes, true);
+				$attributes[''] = '-- select attribute --';
+				$attributes = array_reverse($attributes, true);
+	
+				echo '<br/><b>New required attribute ? </b>';
+				combo_box($type_prefix.'_new_required', $attributes, false, '');
+			}
+			
+			$o->closeRaw();
+			$o->closeSection();
+			
 		}
 
 		return $write_access;
@@ -704,19 +908,25 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 		$current = $asset->attr('required_fields');
 		$required_fields = Array();
 
-		// construct new required fields array removing deleted fields and updating error text
-		foreach ($current as $attr => $error_text) {
-			if (!isset($_POST[$prefix.'_delete_required'][$attr]) || !$_POST[$prefix.'_delete_required'][$attr]) {
-				$required_fields[$attr] = (isset($_POST[$prefix.'_required_field'][$attr])) ? trim($_POST[$prefix.'_required_field'][$attr]) : $current[$attr];
+		foreach (array_keys($asset->attr('create_type')) as $create_type) {
+		
+			if (!isset($current[$create_type])) $current[$create_type] = Array();
+			$type_prefix = $prefix.'_'.$create_type;
+			
+			// construct new required fields array removing deleted fields and updating error text
+			foreach ($current[$create_type] as $attr => $error_text) {
+				if (!isset($_POST[$type_prefix.'_delete_required'][$attr]) || !$_POST[$type_prefix.'_delete_required'][$attr]) {
+					$required_fields[$create_type][$attr] = (isset($_POST[$type_prefix.'_required_field'][$attr])) ? trim($_POST[$type_prefix.'_required_field'][$attr]) : $current[$create_type][$attr];
+				}
+			}
+	
+			// add new required field
+			if (isset($_POST[$type_prefix.'_new_required']) && !empty($_POST[$type_prefix.'_new_required'])) {
+				$new_required = $_POST[$type_prefix.'_new_required'];
+				if (!in_array($new_required, $required_fields)) $required_fields[$create_type][$new_required] = '';
 			}
 		}
-
-		// add new required field
-		if (isset($_POST[$prefix.'_new_required']) && !empty($_POST[$prefix.'_new_required'])) {
-			$new_required = $_POST[$prefix.'_new_required'];
-			if (!in_array($new_required, $required_fields)) $required_fields[$new_required] = '';
-		}
-
+			
 		return $asset->setAttrValue('required_fields', $required_fields);
 
 	}//end processRequiredFields()
@@ -737,6 +947,20 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 	}//end definesMultipleLocations()
 
 
+	/**
+	* Returns true if the asset builder allows the user to create more than one asset type
+	*
+	* @param object Page_Asset_Builder	&$asset	the asset to which we belong
+	*
+	* @return boolean
+	* @access public
+	*/
+	function definesMultipleAssetTypes(&$asset)
+	{
+		return (count($asset->attr('create_type')) > 1);
+
+	}//end definesMultipleLocations()
+	
 }//end class
 
 ?>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_management.inc,v 1.6 2004/05/19 10:12:57 brobertson Exp $
+* $Id: page_asset_builder_management.inc,v 1.7 2004/07/28 01:40:16 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -83,8 +83,8 @@ class Page_Asset_Builder_Management extends Asset_Management
 														);
 		$this->vars['create_type']				= Array(
 														'added'     => '0.1',
-														'type'      => 'text',
-														'default'   => '',
+														'type'      => 'serialise',
+														'default'   => Array(),
 													);
 		$this->vars['create_link_type']			= Array(
 														'added'     => '0.1',
@@ -177,6 +177,7 @@ class Page_Asset_Builder_Management extends Asset_Management
 					return false;
 				}
 
+				// 0.1->0.2 upgrades
 				$new_locations = Array();
 				$old_locations = $asset->attr('create_location_rules');
 				
@@ -198,6 +199,13 @@ class Page_Asset_Builder_Management extends Asset_Management
 				}
 				
 				$asset->setAttrValue('create_location_rules', $new_locations);
+				
+				// 0.1->0.3 upgrades - see v0.2 comments below for more info 
+				$create_type = $asset->attr('create_type');
+				$create_type = Array($create_type => true);
+								
+				$asset->setAttrValue('create_type', $create_type);
+				
 				if (!$asset->saveAttributes()) { 
 					trigger_error('Asset Builder Upgrade Failed', E_USER_WARNING);
 					return false;
@@ -208,6 +216,37 @@ class Page_Asset_Builder_Management extends Asset_Management
 			
 			bam('ASSET BUILDER UPGRADE COMPLETE - VERSION 0.1');
 		}//end version 0.1 upgrade
+
+		if ($current_version == '0.2') {
+			// this update changed the way create types are stored, to allow for the creation
+			// of multiple asset types
+			bam('STARTING ASSET BUILDER UPGRADE - VERSION 0.2');
+
+			$root_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
+			$children = $GLOBALS['SQ_SYSTEM']->am->getChildren($root_folder->id, $this->getAssetType(), false);
+			foreach ($children as $assetid => $type) {
+				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type);
+				if (is_null($asset)) continue;
+
+				if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'attributes')) { 
+					trigger_error('Asset Builder Upgrade [from 0.2] Failed - Unable to Acquire Lock on "'.$asset->name.'" (#'.$asset->id.')', E_USER_WARNING);
+					return false;
+				}
+
+				$create_type = $asset->attr('create_type');
+				$create_type = Array($create_type => true);
+								
+				$asset->setAttrValue('create_type', $create_type);
+				if (!$asset->saveAttributes()) { 
+					trigger_error('Asset Builder Upgrade [from 0.2] Failed', E_USER_WARNING);
+					return false;
+				}
+				$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'attributes'); 
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+			}
+			
+			bam('ASSET BUILDER UPGRADE COMPLETE - VERSION 0.2');
+		}//end version 0.2 upgrade
 
 		return true;
 
