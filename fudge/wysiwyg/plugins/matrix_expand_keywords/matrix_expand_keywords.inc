@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_expand_keywords.inc,v 1.1 2004/10/27 00:13:31 tbarrett Exp $
+* $Id: matrix_expand_keywords.inc,v 1.2 2004/10/27 00:42:06 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@
 *     to replace it with its full version as you type
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -85,15 +85,6 @@ class matrix_expand_keywords  extends wysiwyg_plugin {
 
 		HTMLArea.prototype.replaceLastWord = function(oldWord, newWord) {
 			switch (this._editMode) {
-				case "textmode":
-					if (HTMLArea.is_gecko) {
-						var html = this._iframe.contentWindow.document.body.ownerDocument.createRange();
-						html.selectNodeContents(this._iframe.contentWindow.document.body);
-						retVal = html.toString();
-					} else if (HTMLArea.is_ie) {
-						retVal = this._docContent.innerText;
-					}
-				break;
 				case "wysiwyg":
 					if (HTMLArea.is_gecko) {
 						oldContents = this._iframe.contentWindow.document.body.innerHTML.toString();
@@ -105,6 +96,9 @@ class matrix_expand_keywords  extends wysiwyg_plugin {
 						oldWordStart = oldContents.lastIndexOf(oldWord);
 						this._docContent.innerHTML = oldContents.substring(0, oldWordStart) + newWord;
 					}
+				break;
+				case "textmode":
+					// code me!
 				break;
 			}
 		}
