@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_management.inc,v 1.7 2005/02/15 05:25:33 lwright Exp $
+* $Id: listing_engine_management.inc,v 1.8 2005/02/15 23:58:33 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -260,7 +260,7 @@ class Listing_Engine_Management extends Asset_Management
 		
 		$attrs_quoted = Array();
 		foreach($attrs as $attr => $detail) {
-			$attrs_quoted[] = $attr; 
+			$attrs_quoted[] = $db->quote($attr); 
 		}
 		
 		$sql = 'DELETE FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_attr WHERE attrid IN ('.implode(', ', $attrs_quoted).')';
