@@ -218,7 +218,7 @@ function asset_link_treeid_convert($value, $encode)
 * @return array(string)
 * @access public
 */
-function make_valid_web_paths($paths=Array())
+function make_valid_web_paths($paths)
 {
 	$valid_paths = Array();
 	foreach($paths as $path) {
@@ -228,11 +228,14 @@ function make_valid_web_paths($paths=Array())
 			continue;
 		}
 
+		// no ampersands in web paths
+		$path = str_replace('&', '_and_',  $path);
+
 		// no spaces in web paths
 		$path = preg_replace('/\\s+/', '_', $path);
 		
 		// Taken (in part) from info here -> http://www.w3.org/Addressing/URL/5_URI_BNF.html
-		$path = preg_replace('/[^a-zA-Z0-9\-$_@.&!*(),]/', '',  $path);
+		$path = preg_replace('/[^a-zA-Z0-9\-$_@.!*(),]/', '',  $path);
 		$path = trim($path);
 		
 		// ignore blanks
