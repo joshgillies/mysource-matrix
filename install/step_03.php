@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: step_03.php,v 1.11 2003/10/02 05:35:33 brobertson Exp $
+* $Id: step_03.php,v 1.12 2003/10/07 07:16:43 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -155,6 +155,16 @@ if (is_null($root_folder)) {
 		trigger_error('Major Problem: The new Cron Manager Asset was not given assetid #8. This needs to be fixed by You, before the installation/upgrade can be completed', E_USER_ERROR);
 	}
 
+	// Create the search manager
+	$GLOBALS['SQ_SYSTEM']->am->includeAsset('search_manager');
+	$search_manager = new Search_Manager();
+	$search_manager_link = Array('asset' => &$root_folder, 'link_type' => SQ_LINK_TYPE_1, 'exclusive' => 1);
+	if (!$search_manager->create($search_manager_link)) trigger_error('Search Manager NOT CREATED', E_USER_ERROR);
+	pre_echo('Search Manager Asset Id : '.$search_manager->id);
+	if ($search_manager->id != 9) {
+		trigger_error('Major Problem: The new Search Manager Asset was not given assetid #9. This needs to be fixed by You, before the installation/upgrade can be completed', E_USER_ERROR);
+	}
+
 	// Create the login design
 	$GLOBALS['SQ_SYSTEM']->am->includeAsset('login_design');
 	$login_design = new Login_Design();
@@ -162,8 +172,8 @@ if (is_null($root_folder)) {
 	$login_design->setAttrValue('id_name', 'login_design');
 	if (!$login_design->create($login_design_link)) trigger_error('Login Design NOT CREATED', E_USER_ERROR);
 	pre_echo('Login Design Asset Id : '.$login_design->id);
-	if ($login_design->id != 9) {
-		trigger_error('Major Problem: The new Login Design Asset was not given assetid #9. This needs to be fixed by You, before the installation/upgrade can be completed', E_USER_ERROR);
+	if ($login_design->id != 10) {
+		trigger_error('Major Problem: The new Login Design Asset was not given assetid #10. This needs to be fixed by You, before the installation/upgrade can be completed', E_USER_ERROR);
 	}
 
 	$GLOBALS['SQ_SYSTEM']->am->releaseLock($cron_manager->id);
