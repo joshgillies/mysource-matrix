@@ -421,8 +421,8 @@ class Backend extends Resolve_Object
 
 		switch($_GET['backend_section']) {
 			case 'config' :
-				require_once SQ_INCLUDE_PATH.'/config.inc';
-				$cfg = new Config();
+				require_once SQ_INCLUDE_PATH.'/system_config.inc';
+				$cfg = new System_Config();
 				$cfg->paintBackend($this);
 			break;
 

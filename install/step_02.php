@@ -36,8 +36,8 @@ require_once 'XML/Tree.php';
 $db = &$GLOBALS['SQ_SYSTEM']->db;
 
 // Re-generate the Config to make sure that we get any new defines that may have been issued
-require_once SQ_INCLUDE_PATH.'/config.inc';
-$cfg = new Config();
+require_once SQ_INCLUDE_PATH.'/system_config.inc';
+$cfg = new System_Config();
 $cfg->save(Array(), false);
 
 

@@ -17,7 +17,7 @@ define('SQ_DATA_PATH',     SQ_SYSTEM_ROOT.'/data');
 define('SQ_FUDGE_PATH',    SQ_SYSTEM_ROOT.'/fudge');
 
 require_once SQ_INCLUDE_PATH.'/resolve_object.inc';
-require_once SQ_INCLUDE_PATH.'/config.inc';
+require_once SQ_INCLUDE_PATH.'/system_config.inc';
 
 define('SQ_CONF_DB_DSN', 'mysql://root@localhost/greg_matrix');
 #define('SQ_CONF_DB_DSN', 'pgsql://brobertson@unix+localhost/blair_resolve');
@@ -32,7 +32,7 @@ define('SQ_CONF_TECH_EMAIL',    'techos@squiz.net');
 
 trigger_error('Need to chmod cache and data directories', E_USER_NOTICE);
 
-$cfg = new Config();
+$cfg = new System_Config();
 $cfg->save(Array(), true);
 
 ?>
