@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.50 2004/08/23 01:16:00 gsherwood Exp $
+* $Id: form.inc,v 1.51 2004/08/27 01:55:03 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -149,6 +149,9 @@ class Form extends Bridge
 	{
 		// there are no links away from the shadow asset (ie:questions)
 		if (!is_numeric($assetid)) return Array();
+		
+		// only TYPE_2 links are ever returned
+		if (!($link_types & SQ_LINK_TYPE_2)) return Array();
 
 		if (!isset($this->_tmp['getLinks'][$assetid][$side_of_link])) {
 
@@ -159,22 +162,19 @@ class Form extends Bridge
 			$entries = $this->getQuestions();
 
 			$i = 0;
-
-			foreach ($links as $link) {
-				$i = max($i, $link['sort_order']);
-			}
+			foreach ($links as $link) $i = max($i, $link['sort_order']);
 
 			foreach ($entries as $questionid => $data) {
 				
 				$links[] = Array('linkid' => 0,
-								 'majorid' => $this->id,
-								 'minorid' => $this->id.':q'.$questionid,
+								 'majorid'         => $this->id,
+								 'minorid'         => $this->id.':q'.$questionid,
 								 'minor_type_code' => $data['question_type_code'],
-								 'value' => '',
-								 'link_type' => SQ_LINK_TYPE_2,
-								 'dependant' => true,
-								 'exclusive' => false,
-								 'sort_order' => $i + array_search($this->id.':q'.$questionid, $this->attr('sort_order')),
+								 'value'           => '',
+								 'link_type'       => SQ_LINK_TYPE_2,
+								 'dependant'       => true,
+								 'exclusive'       => false,
+								 'sort_order'      => $i + array_search($this->id.':q'.$questionid, $this->attr('sort_order')),
 								);
 			}
 
