@@ -21,10 +21,11 @@ class Trash_Folder extends Folder
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Trash_Folder($assetid=0) 
+	function Trash_Folder($assetid=0)
 	{
 		$this->Folder($assetid);
-	}
+
+	}//end constructor
 
 
 	/**
@@ -38,7 +39,6 @@ class Trash_Folder extends Folder
 	*/
 	function create(&$link)
 	{
-
 		$this->_tmp[__CLASS__.'_in_create'] = true;
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
@@ -64,7 +64,8 @@ class Trash_Folder extends Folder
 
 
 	/**
-	* Creates a duplicate of this asset. It DOES NOT duplicate the links that this asset has either to it or from it
+	* Creates a duplicate of this asset
+	* It DOES NOT duplicate the links that this asset has either to it or from it
 	* Returns a reference to the new object or if an error occured FALSE
 	*
 	* @param bool	$dupe_directory	whether or not to duplicate thia assets data directory
@@ -78,6 +79,7 @@ class Trash_Folder extends Folder
 		trigger_error('Unable to duplicate Trash Folder, you are only allowed one', E_USER_WARNING);
 		$null = NULL; // 'cause we need to return by reference :)
 		return $null;
+
 	}//end duplicate()
 
 
@@ -95,6 +97,7 @@ class Trash_Folder extends Folder
 	{
 		trigger_error('Unable to morph Trash Folder', E_USER_WARNING);
 		return false;
+
 	}//end morph()
 
 
@@ -117,6 +120,7 @@ class Trash_Folder extends Folder
 		}
 
 		return parent::setAttrValue($name, $value, $dont_run_updated);
+
 	}//end setAttrValue()
 
 
@@ -124,7 +128,7 @@ class Trash_Folder extends Folder
 	* Moves a link from one place in this assets links order to another position
 	*
 	* @param int	$linkid		the link id of the link to move about
-	* @param string	$sort_order	the position in the links list that this link should take, 
+	* @param string	$sort_order	the position in the links list that this link should take,
 	*							if less than zero places at end of list
 	*
 	* @see Asset::moveLinkPos()
@@ -136,6 +140,7 @@ class Trash_Folder extends Folder
 	{
 		trigger_error('You cannot move assets\'s around in the trash', E_USER_WARNING);
 		return false;
+
 	}//end moveLinkPos()
 
 
@@ -169,8 +174,7 @@ class Trash_Folder extends Folder
 	function paintBackend(&$o)
 	{
 		$o->addHiddenField('asset_action', (($this->id) ? 'edit' : 'create'));
-		$ei = &$this->getEI();
-		$prefix = $ei->getPrefix($this);
+		$prefix = $this->getPrefix($this);
 
 		if (isset($_REQUEST[$prefix.'_purge_complete']) && (int)$_REQUEST[$prefix.'_purge_complete'] === 1) {
 			$o->addOnLoad('	if (top.sidenav && top.sidenav.reload_asset) {
@@ -200,6 +204,7 @@ class Trash_Folder extends Folder
 	function readAccess($assetids=Array())
 	{
 		return true;
+
 	}//end readAccess()
 
 
@@ -217,6 +222,7 @@ class Trash_Folder extends Folder
 	function writeAccess($assetids=Array(), $effective=true, $editing=true)
 	{
 		return true;
+
 	}//end writeAccess()
 
 
@@ -231,7 +237,10 @@ class Trash_Folder extends Folder
 		if ($GLOBALS['SQ_SYSTEM']->userRoot()) return true;
 		if ($GLOBALS['SQ_SYSTEM']->userSystemAdmin()) return true;
 		return false;
+
 	}//end purgeAccess()
 
+
 }//end class
+
 ?>

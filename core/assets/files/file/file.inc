@@ -421,7 +421,7 @@ class File extends Asset
 				$ei = &$this->getEI();
 				if (!$ei->process($this, $o, true)) return false;
 
-				$prefix = $ei->getPrefix($this);
+				$prefix = $this->getPrefix($this);
 
 				$this->setAttrValue('name', 'temp');
 				$linkid = $this->create($link);
