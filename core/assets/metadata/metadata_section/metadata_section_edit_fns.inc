@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_section_edit_fns.inc,v 1.18 2004/03/24 06:25:44 gsherwood Exp $
+* $Id: metadata_section_edit_fns.inc,v 1.19 2004/07/07 04:24:36 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -294,6 +294,10 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 	function generateMetadata(&$asset, &$values, &$tag_values, &$keywords)
 	{
 		echo "<!-- $asset->name //-->\n";
+
+		$frontend_option = $asset->attr('frontend');
+		// if we aren't printing this on the frontend then don't print anything
+		if (!$frontend_option) return true;
 
 		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_field', false, 'major', null, true);
 		$valid_fields = Array();

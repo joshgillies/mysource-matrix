@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.10 2004/01/13 05:59:36 diarandine Exp $
+* $Id: edit_interface_screen_details.xml,v 1.11 2004/07/07 04:24:36 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -85,6 +85,13 @@
 				<paint_function   name="paintNsURL"   />
 				<process_function name="processNsURL" />
 			</function_call>
+		</field>
+	</section>
+	<section name="Options" write_access="write:attributes">
+		<field attribute="frontend">
+			<display_name>Show On Frontend</display_name>
+			<note />
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 	</section>
 </contents>

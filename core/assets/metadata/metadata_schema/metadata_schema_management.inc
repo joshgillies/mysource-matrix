@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_schema_management.inc,v 1.6 2004/01/13 05:59:36 diarandine Exp $
+* $Id: metadata_schema_management.inc,v 1.7 2004/07/07 04:24:36 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -60,7 +60,12 @@ class Metadata_Schema_Management extends Asset_Management
 											'added'     => '0.1',
 											'type'      => 'text', 
 											'default'   => ''
-											)
+											),
+							'frontend' => Array(
+											'added' => '0.1',
+											'type'  => 'boolean',
+											'default'   => true
+											),
 							);
 	}//end constructor
 
