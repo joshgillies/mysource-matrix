@@ -226,7 +226,7 @@ class Trash_Folder extends Folder
 	* Checks whether a link of a certain type can be made to this asset
 	* Returns TRUE if link allowed and a string containing the error if it is not
 	*
-	* @see Asset::createLink()
+	* @see Asset::canLinkToType()
 	*
 	* @return boolean
 	* @access public
@@ -235,6 +235,25 @@ class Trash_Folder extends Folder
 	{
 		return 'The Trash Folder cannot have assets linked to it. The Trash holds all assets that are not linked to any other asset';
 	}// end canLinkToType()
+
+
+	/*
+	* Moves a link from one place in this assets links order to another position
+	*
+	* @param int	$linkid		the link id of the link to move about
+	* @param string $sort_order	the position in the links list that this link should take, if less than zero places at end of list
+	*
+	* @see Asset::moveLinkPos()
+	*
+	* @return boolean
+	* @access public
+	*/
+	function moveLinkPos($linkid, $sort_order=-1) 
+	{
+		trigger_error('You cannot move assets\'s around in the trash', E_USER_WARNING);
+		return false;
+	}//end moveLinkPos()
+
 
 
 }#end class
