@@ -26,8 +26,8 @@
  * or contain a date and event(s). Several of the following
  * rules could apply to a given cell.
  */
-table#year { border: 2px solid purple; background-color: #eeeeee }
-#year th  { border-top: 1px solid black; border-right: 1px solid black; }
+table#year { border: 2px solid purple; background-color: #eeeeee; border-collapse: collapse  }
+#year th  { border: 1px solid black; }
 
 /* Header cells */
 #year th.monthLabel { background-color: #bbbbff; }
@@ -39,13 +39,10 @@ table#year { border: 2px solid purple; background-color: #eeeeee }
 #year td { text-align: center; border-top: 1px solid black; }
 
 /* Cells with dates */
-#year td.date { background-color: white; border-right: 1px solid black; }
+#year td.date { background-color: white; border: 1px solid black; }
 
 /* Weekend Cells, with or without dates */
 #year td.weekend { background-color: #aaaaaa }
-
-/* The last blank cell before the dates begin (allows us to put the left border in) */
-#year td.lastBlankCell { border-right: 1px solid black; }
 
 /* Cells with events */
 #year td.eventDate { cursor: pointer; cursor: hand; background-color: red; }
@@ -61,8 +58,8 @@ table#year { border: 2px solid purple; background-color: #eeeeee }
  * rules could apply to a given cell.
  */
 
-table#month { border: 2px solid purple; background-color: #eeeeee }
-#month th  { border-top: 1px solid black; border-right: 1px solid black; }
+table#month { border: 2px solid purple; background-color: #eeeeee; border-collapse: collapse  }
+#month th  { border: 1px solid black; }
 
 /* Header Cells */
 #month th.monthLabel { background-color: #bbbbff; }
@@ -71,19 +68,16 @@ table#month { border: 2px solid purple; background-color: #eeeeee }
 #month th.dayLabelWeekend { background-color: #8888aa; }
 
 /* All data cells, including completely empty ones */
-#month td { padding-left: 2px; text-align: left; vertical-align: top; height: 7ex; width: 10ex; border-top: 1px solid black; }
+#month td { padding-left: 2px; text-align: left; vertical-align: top; height: 7ex; width: 10ex; border: 1px solid black; }
 
 /* Cells with dates */
-#month td.date { background-color: white; border-right: 1px solid black }
+#month td.date { background-color: white; }
 
 /* Weekend Cells, with or without dates */
 #month td.weekend { background-color: #aaaaaa }
 
 /* Cells with events */
 #month td.eventDate { cursor: pointer; cursor: hand; background-color: red; }
-
-/* The last blank cell before the dates begin (allows us to put the left border in) */
-#month td.lastBlankCell { border-right: 1px solid black; }
 
 /* Linked dates at top left of cells */
 #month td.eventDate a.dateLink, #month td.eventDate a.dateLink:visited, #month td.eventDate a.dateLink:hover { color: white; font-weight: bold; text-decoration: none; } 
@@ -99,8 +93,8 @@ table#month { border: 2px solid purple; background-color: #eeeeee }
  * Data cells can contain DIVs that represent events
  */
 
-table#week { border: 2px solid purple; background-color: #eeeeee; }
-#week td, #week th  { border-top: 1px solid black; border-right: 1px solid black; }
+table#week { border: 2px solid purple; background-color: #eeeeee; border-collapse: collapse }
+#week td, #week th  { border: 1px solid black; }
 #week td, #week th.timeLabel { vertical-align: top; }
 
 /* header cells */
@@ -123,8 +117,8 @@ table#week { border: 2px solid purple; background-color: #eeeeee; }
  * Data cells can contain DIVs that represent events
 **/
 
-table#day { border: 2px solid purple; background-color: #eeeeee;  }
-#day td, #day th  { border-top: 1px solid black; border-right: 1px solid black; }
+table#day { border: 2px solid purple; background-color: #eeeeee; border-collapse: collapse  }
+#day td, #day th  { border: 1px solid black; }
 #day td, #day th.timeLabel { vertical-align: top; }
 
 /* header cells */

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.12 2004/08/19 06:56:28 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.13 2004/08/19 23:07:36 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.12 $ - 1.0
+* @version $Revision: 1.13 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -43,21 +43,26 @@ class Page_Calendar extends Page_Asset_Listing
 	// All the view options available
 	var $view_options = Array(	
 		'year'	=> Array(
+			''						=>'(none)',
 			'list_without_headings'	=>'List without Headings', 
 			'list_with_headings'	=>'List with Headings', 
 			'calendar_format'		=>'Calendar Format'),
 		'month' => Array(
+			''						=>'(none)',
 			'list_without_headings'	=>'List without Headings',
 			'list_with_headings'=>'List with Headings',
 			'calendar_format'=>'Calendar Format'),
 		'week' => Array(	
+			''						=>'(none)',
 			'list_without_headings'=>'List without Headings',
 			'list_with_headings'=>'List with Headings',
 			'calendar_format'=>'Calendar Format'),
 		'day' => Array(
+			''						=>'(none)',
 			'list_without_headings'=>'List without Headings',
 			'calendar_format'=>'Calendar Format'),
 		'event' => Array(	
+			''						=>'(none)',
 			'single_event'=>'Single Event Display')
 	);
 
@@ -166,7 +171,7 @@ class Page_Calendar extends Page_Asset_Listing
 		for ($current_month=1; $current_month<13; $current_month++) {
 		?>
 			<tr>
-				<th class="monthLabel">
+				<th class="monthLabel" <?php if ($enabled_views['month']) { ?> onclick="clickChild(this);" style="cursor: pointer; cursor: hand" <?php } ?>>
 				<?php
 					// print the month name, linked to month view if it's available
 					if ($enabled_views['month']) {
@@ -182,16 +187,11 @@ class Page_Calendar extends Page_Asset_Listing
 			<?php
 			// print blank days of week before the day our month starts on
 			$i=0;
-			if ($blank_days = (date('w', strtotime("$year-".sprintf('%02d', $current_month).'-01')) + 7 - $week_start_day) % 7) {
-				for ($i = 0; $i < ($blank_days-1); $i++) {
-				?>
-					<td class="<?php echo (((($week_start_day + $i) % 7)==0) || ((($week_start_day + $i) % 7)==6)) ? ' weekend' : ''; ?> ">&nbsp;</td>
-				<?php
-				}
-				?>
-					<td class="lastBlankCell <?php echo (((($week_start_day + $i) % 7)==0) || ((($week_start_day + $i) % 7)==6)) ? ' weekend' : ''; ?>">&nbsp;</td>
-				<?php
-					$i++;
+			$blank_days = (date('w', strtotime("$year-".sprintf('%02d', $current_month).'-01')) + 7 - $week_start_day) % 7;
+			for ($i = 0; $i < $blank_days; $i++) {
+			?>
+				<td class="<?php echo (((($week_start_day + $i) % 7)==0) || ((($week_start_day + $i) % 7)==6)) ? ' weekend' : ''; ?> ">&nbsp;</td>
+			<?php
 			}
 
 			// print the days of the month
@@ -270,16 +270,11 @@ class Page_Calendar extends Page_Asset_Listing
 
 		// print blank days if necessrary
 		$i = 0;
-		if ($blank_days = (date('w', strtotime("$year-".sprintf('%02d', $month).'-01')) + 7 - $week_start_day) % 7) {
-			for ($i = 0; $i < $blank_days-1; $i++) {
-			?>
-					<td class="<?php echo (((($week_start_day + $i) % 7)==0) || ((($week_start_day + $i) % 7)==6)) ? ' weekend' : ''; ?>">&nbsp;</td>
-			<?php
-			}
-			?>
-				<td class="lastBlankCell <?php echo (((($week_start_day + $i) % 7)==0) || ((($week_start_day + $i) % 7)==6)) ? ' weekend' : ''; ?>">&nbsp;</td>
-			<?php
-			$i++;
+		$blank_days = (date('w', strtotime("$year-".sprintf('%02d', $month).'-01')) + 7 - $week_start_day) % 7;
+		for ($i = 0; $i < $blank_days-1; $i++) {
+		?>
+				<td class="<?php echo (((($week_start_day + $i) % 7)==0) || ((($week_start_day + $i) % 7)==6)) ? ' weekend' : ''; ?>">&nbsp;</td>
+		<?php
 		}
 		
 		// print the rest of the first week

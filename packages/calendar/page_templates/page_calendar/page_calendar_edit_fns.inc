@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_edit_fns.inc,v 1.4 2004/08/19 06:56:28 tbarrett Exp $
+* $Id: page_calendar_edit_fns.inc,v 1.5 2004/08/19 23:07:36 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.4 $ - 1.0
+* @version $Revision: 1.5 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -159,7 +159,7 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 				?>
 				<br /><label style="width: 20ex" for="<?php echo $prefix.'_enabled_views['.$category.']'; ?>"><?php echo ucwords($category); ?> view type: </label>
 				<?php
-				combo_box($prefix.'_enabled_views['.$category.']', Array(''=>'none')+$options, 0,  $current_views[$category], 0, 'style="width: 25ex"');
+				combo_box($prefix.'_enabled_views['.$category.']', $options, 0,  $current_views[$category], 0, 'style="width: 25ex"');
 			} else {
 				?>
 				<br /><div style="display: inline; width: 20ex"><?php echo ucwords($category); ?></div><?php echo $asset->view_options[$category][$current_views[$category]]; ?>
