@@ -65,6 +65,7 @@ class Page_Standard extends Page
 
 	}//end create()
 
+
 	/**
 	* Creates a link between this asset and the passed asset, of a certain type
 	* and returns the linkid of the created link
@@ -84,6 +85,24 @@ class Page_Standard extends Page
 
 	}// end createLink()
 
+
+	/**
+	* Returns TRUE if we can delete the passed link, or a string with the error msg
+	*
+	* @param int	$linkid	the link id of the link to remove
+	*
+	* @return TRUE|string
+	* @access public
+	*/
+	function canDeleteLink($linkid)
+	{
+		// the only reason why we would object to this link being
+		// deleted is if it is the bodycopy linked to us
+		$bodycopy_link = $this->getLinks(SQ_LINK_EXCLUSIVE, 'bodycopy', true, 'major', '', 1);
+		if ($bodycopy_link[0]['linkid'] == $linkid) return 'You cant delete the link between the bodycopy and the standard page';
+
+		return parent::canDeleteLink($linkid);
+	}//end canDeleteLink()
 
 
 	/**
