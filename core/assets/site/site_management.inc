@@ -20,7 +20,7 @@ class Site_Management extends Asset_Management
 	*/
 	function Site_Management(&$pm)
 	{
-		$this->Asset_Management(&$pm);
+		$this->Asset_Management($pm);
 
 	}//end constructor
 

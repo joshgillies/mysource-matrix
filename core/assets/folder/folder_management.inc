@@ -20,7 +20,7 @@ class Folder_Management extends Asset_Management
 	*/
 	function Folder_Management(&$pm)
 	{
-		$this->Asset_Management(&$pm);
+		$this->Asset_Management($pm);
 
 		$this->vars = Array('name' => Array(
 												'added'     => '0.1',

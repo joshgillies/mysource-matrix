@@ -20,7 +20,7 @@ class Trash_Folder_Management extends Asset_Management
 	*/
 	function Trash_Folder_Management(&$pm)
 	{
-		$this->Asset_Management(&$pm);
+		$this->Asset_Management($pm);
 
 	}//end constructor
 

@@ -20,7 +20,7 @@ class Root_Folder_Management extends Asset_Management
 	*/
 	function Root_Folder_Management(&$pm)
 	{
-		$this->Asset_Management(&$pm);
+		$this->Asset_Management($pm);
 
 		// only need to have the default here because the other information will be 
 		// gleaned from the 'folder' type

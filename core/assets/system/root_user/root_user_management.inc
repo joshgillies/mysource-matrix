@@ -20,7 +20,7 @@ class Root_User_Management extends Asset_Management
 	*/
 	function Root_User_Management(&$pm)
 	{
-		$this->Asset_Management(&$pm);
+		$this->Asset_Management($pm);
 
 	}//end constructor
 
