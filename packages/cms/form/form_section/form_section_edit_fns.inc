@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: form_section_edit_fns.inc,v 1.11 2003/10/10 06:49:28 brobertson Exp $
+* $Id: form_section_edit_fns.inc,v 1.12 2003/10/13 05:27:10 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -339,7 +339,7 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 				$index = $asset->getQuestionIndex($k-1);
 				$output .= '<td width="20">'.$index.'</td>';
 			} 
-			$output .= '<td';
+			$output .= '<td valign="top"';
 			$output .= ($asset->question_col_width) ? ' width="'.$asset->question_col_width.'">' : '>';
 			$output .= $q->getVal('title').'</td><td';
 			$output .= ($asset->answer_col_width) ? ' width="'.$asset->answer_col_width.'">' : '>';
