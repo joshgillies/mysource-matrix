@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: upgrade_file_versioning.php,v 1.5 2004/11/16 04:54:31 lwright Exp $
+* $Id: upgrade_file_versioning.php,v 1.6 2004/11/16 05:58:31 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -88,6 +88,16 @@ foreach(Array('file_versioning_file', 'file_versioning_file_history', 'file_vers
 	
 }
 
+printName('Change sequence name');
+$result = $db->query('create sequence '.SQ_TABLE_PREFIX.'sequence_file_versioning_file_seq');
+assert_valid_db_result($result);
+
+$result = $db->query('select setval('.$db->quote(SQ_TABLE_PREFIX.'sequence_file_versioning_file_seq').', nextval('.$db->quote('fudge_file_versioning_file_seq').'), false)');
+assert_valid_db_result($result);
+
+$result = $db->query('drop sequence fudge_file_versioning_file_seq');
+assert_valid_db_result($result);
+printUpdateStatus('OK');
 
 // "No Such Table" error = the renamed table doesn't exist
 printName('Drop repository field');
