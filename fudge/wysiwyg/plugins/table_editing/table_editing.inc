@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: table_editing.inc,v 1.17 2004/12/02 04:08:48 dbaranovskiy Exp $
+* $Id: table_editing.inc,v 1.17.2.1 2005/02/09 04:41:15 dbaranovskiy Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -80,7 +80,8 @@ class Table_Editing extends WYSIWYG_Plugin {
 	function paint_generic()
 	{
 		?>
-		<script type="text/javascript" language="Javascript">
+		<script type="text/javascript">
+		//<![CDATA[
 			// helper function that clears the content in a table row
 			HTMLArea.prototype.clearRow = function(tr) {
 				var mozbr = HTMLArea.is_gecko ? "<br />" : "";
@@ -187,17 +188,18 @@ class Table_Editing extends WYSIWYG_Plugin {
 
 				// retrieve existing values
 				var table = this.getClosest("table");
-				var div = document.createElement("DIV");
-				div.appendChild(table.cloneNode(true));
-				var tablekeeper = div.innerHTML;
+				if (HTMLArea.is_ie) {
+					//workaround against stupid IE behaviour. We will use native MS functions
+					var tablekeeper = table.outerHTML;
+				} else {
+					var div = document.createElement("DIV");
+					div.appendChild(table.cloneNode(true));
+					var tablekeeper = div.innerHTML;
+				}
 
 				strPage = "<?php echo $this->get_popup_href('edit_table.php')?>";
 				var width = 820;
 				var height = 570;
-				if (this.is_ie) {
-					width = 900;
-					height = 650;
-				}
 				this._popupDialog("editTableProperties", strPage, width, height, true, function(params) {
 					if (!params) {
 						// user must have pressed Cancel
@@ -223,7 +225,7 @@ class Table_Editing extends WYSIWYG_Plugin {
 				}, tablekeeper);
 			};
 
-
+		//]]>
 		</script>
 		<?php
 
