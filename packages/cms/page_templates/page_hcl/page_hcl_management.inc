@@ -18,12 +18,13 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_hcl_management.inc,v 1.2 2004/01/13 10:40:55 brobertson Exp $
+* $Id: page_hcl_management.inc,v 1.3 2004/01/14 22:54:28 diarandine Exp $
 * $Name: not supported by cvs2svn $
 */
 
-
 require_once SQ_PACKAGES_PATH.'/cms/page/page_management.inc';
+
+
 /**
 * Page_HCL_Management
 *
@@ -36,7 +37,6 @@ require_once SQ_PACKAGES_PATH.'/cms/page/page_management.inc';
 */
 class Page_HCL_Management extends Page_Management
 {
-
 	/**
 	* Constructor
 	*
@@ -45,27 +45,18 @@ class Page_HCL_Management extends Page_Management
 	{
 		$this->Page_Management($pm);
 
-		$this->vars = Array('rootid' => Array (
-										'added'		=> '0.0.1',
-										'type'		=> 'assetid',
-										'default'	=> '',
-								), // end name
-							'schemas'	=> Array (
-										'added'	=> '0.0.1',
-										'type'	=> 'serialise',
-										'default' => Array(),
-							),
-							'type'	=> Array(
+		$this->vars = Array('type'	=> Array(
 										'added'	=> '0.0.1',
 										'type'	=> 'selection',
 										'parameters' => Array(
 											'options' => Array(
-												1	=> 'RDF',
-												2	=> 'XML',
+												'rdf'	=> 'RDF',
+												'xml'	=> 'XML',
 											),
 											'multiple' => false,
 										),
-										'default' => 2,
+
+										'default' => 'xml',
 							),
 		);
 

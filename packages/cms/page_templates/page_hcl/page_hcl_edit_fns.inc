@@ -18,12 +18,12 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_hcl_edit_fns.inc,v 1.2 2004/01/13 10:40:55 brobertson Exp $
+* $Id: page_hcl_edit_fns.inc,v 1.3 2004/01/14 22:54:28 diarandine Exp $
 * $Name: not supported by cvs2svn $
 */
 
-
 require_once dirname(__FILE__).'/../../page/page_edit_fns.inc';
+
 
 /**
 * Page_HCL_Edit_Fns
@@ -37,7 +37,6 @@ require_once dirname(__FILE__).'/../../page/page_edit_fns.inc';
 */
 class Page_HCL_Edit_Fns extends Page_Edit_Fns
 {
-
 	/**
 	* Constructor
 	*/
@@ -60,18 +59,21 @@ class Page_HCL_Edit_Fns extends Page_Edit_Fns
 	*/
 	function paintRootNode(&$asset, &$o, $prefix) 
 	{
+		$rootarr = Array();
+		$rootarr = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', false, 'root');
+		$root_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($rootarr['minorid']);
 
-		if (!$asset->writeAccess('links')) return false; // if details page is not locked, do not proceed
-
-		$rootid	= $asset->attr('rootid'); // get the attr rootid if available
-
-		if (empty($rootid)) {
-			asset_finder($prefix.'_rootid'); // if $rootid is null, then just display select box
+		if (!$asset->writeAccess('links')) {
+			echo $root_asset->name . ' (Id: #' . $root_asset->id . ')';
+			return false;
 		} else {
-			asset_finder($prefix.'_rootid', $rootid); // otherwise display which root node is selected
+			if (!empty($rootarr)) {
+				asset_finder($prefix.'_rootid', $rootarr['minorid']);
+			} else {
+				asset_finder($prefix.'_rootid');
+			}
+			return true;
 		}
-		
-		return true;
 
 	}//end paintRootNode()
 
@@ -86,16 +88,43 @@ class Page_HCL_Edit_Fns extends Page_Edit_Fns
 	* @return void
 	* @access private
 	*/
-	function processRootNode(&$asset, &$o, $prefix) 
+	function processRootNode(&$asset, &$o, $prefix)
 	{
+		if (!isset($_POST[$prefix.'_rootid']['assetid'])) return false;
+		$new_root  = $_POST[$prefix.'_rootid']['assetid']; // submitted new root id
 
-		if (isset($_POST[$prefix.'_rootid']['assetid'])) {
-			$asset->setAttrValue('rootid', $_POST[$prefix.'_rootid']['assetid']);
-		} else {
-			echo "<B>WARNING!</B> No rootid was selected, HCL template will not work properly.";
+		// getting the array of existing links
+		$rootarr = Array();
+		$rootarr = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', false, 'root');
+		$old_root = $rootarr['minorid'];
+		$old_link = $rootarr['linkid'];
+
+		if ($old_root == $new_root) return false; // if this link already exists, returning
+
+		$ok = true; // if everything went OK ('true' by default)
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN'); // beginning transaction
+
+		// deleting old root link if any found...
+		if (!$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($old_link)) $ok = false;
+
+		// setting new root link...
+		if ($new_root) {
+			$root = &$GLOBALS['SQ_SYSTEM']->am->getAsset($new_root);
+			if (!is_null($root)) {
+				if (!$asset->createLink($root, SQ_LINK_NOTICE, 'root')) {
+					$ok = false;
+					trigger_error('Failed adding new root node "'.$root->name.'" [#'.$root->id.']', E_USER_WARNING);
+				}
+			}
 		}
 
-		$asset->saveAttributes();
+		// checking our flag and committing or rolling back the whole transaction
+		if ($ok) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		} else {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+		}
 
 	}//end processRootNode()
 
@@ -110,45 +139,52 @@ class Page_HCL_Edit_Fns extends Page_Edit_Fns
 	* @return boolean
 	* @access private
 	*/
-	function paintHCLSchemas(&$asset, &$o, $prefix) 
+	function paintHCLSchemas(&$asset, &$o, $prefix)
 	{
+		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		$write_access = $asset->writeAccess('links');
 
-		$am = &$GLOBALS['SQ_SYSTEM']->am; // instantiating Asset Manager
-		if (!$asset->writeAccess('links')) return false; // if details page is not locked, do not proceed
+		$schemas = Array();
+		$schemas = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE, 'metadata_schema', false, 'major', 'schema');
 
-		// 1). Creating the list of schemas stored in attributes Array of this page
+		if (!empty($schemas)) {
+			?>
+			<table class="sq-backend-table">
+				<tr>
+					<td class="sq-backend-table-header">Schema Name</td>
+					<?php
+						if ($write_access) {
+							?><td class="sq-backend-table-header">Delete ?</td><?php
+						}
+					?>
+				</tr>
+			<?php
 
-		$schemas = $asset->attr('schemas'); // get the attr array of stored selection
+			foreach ($schemas as $schema_link) {
 
-		?>
-			<table border="1" cellpadding="2" cellspacing="0" class="sq-backend-table">
-		<?
-			
-		if (isset($schemas)) {
-
-			echo "<tr><td class=\"sq-backend-table-header\"><b>Schema name</b></td><td width=50 class=\"sq-backend-table-header\"><b>Delete ?</b></td></tr>\n";
-
-			foreach ($schemas as $schema_id) {
-			
-				$schema_asset = &$am->getAsset($schema_id); 
+				$schema_asset = &$am->getAsset($schema_link['minorid']);
 				if (is_null($schema_asset)) continue;
-				$schema_name = $schema_asset->attr('name');
-				
-				echo "<tr><td class=\"sq-backend-table-cell\">".$schema_name."</td><td class=\"sq-backend-table-cell\">\n";
-					check_box($prefix.'_schemas[]', $schema_id); 
-				echo "</td></tr>\n";
+
+				?>
+				<tr>
+					<td class="sq-backend-table-cell"><?php echo $schema_asset->name; ?></td>
+					<?php
+					if ($write_access) {
+						?><td class="sq-backend-table-cell"><?php check_box($prefix.'_schemas[]', $schema_link['linkid']); ?></td><?php
+					}
+					?>
+				</tr>
+				<?php
 
 			} // end foreach schemas
 
+			?></table><?php
+
 		} else {
-			echo "<tr><td colspan=\"2\" class=\"sq-backend-table-cell\">There are currently no Metadata schemas in this list</td></tr>\n";
+			echo 'There are currently no Metadata schemas in this list';
 		}
 
-		echo "<tr><td colspan=\"2\" class=\"sq-backend-table-cell\">Add schema: "; 
-			asset_finder($prefix.'_newschema', 0, Array('metadata_schema' => 'I')); 
-		echo "</td></tr></table>\n";
-
-		return true;
+		return $write_access;
 
 	}//end paintHCLSchemas()
 
@@ -163,36 +199,70 @@ class Page_HCL_Edit_Fns extends Page_Edit_Fns
 	* @return void
 	* @access private
 	*/
-	function processHCLSchemas(&$asset, &$o, $prefix)
+	function processHCLSchemas(&$asset, &$o, $prefix) 
 	{
-
-		if (!isset($_POST[$prefix.'_newschema']['assetid'])) return false;
-		$new_schema  = $_POST[$prefix.'_newschema']['assetid']; // submitted root id
-
-		$stored_schemas = $asset->attr('schemas'); // schemas that are already in the system
-
 		// now checking if there were any checkboxes marked->delete those schemas from list
 		if (isset($_POST[$prefix.'_schemas'])) {
-			$marked_schemas  = $_POST[$prefix.'_schemas'];
-		}
-
-		// if there were some schemas marked for deletion...
-		if (isset($marked_schemas)) {
-			foreach ($marked_schemas as $delete_id) {
-				unset($stored_schemas[$delete_id]); // removing element(s) from schemas array		
+			foreach ($_POST[$prefix.'_schemas'] as $linkid) {
+				$linkid = (int)$linkid;
+				if (!$linkid) continue;
+				if (!$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($linkid)) {
+					$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
+					$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+					trigger_error('Failed removing metadata schema "'.$schema->name.'" [#'.$schema->id.']', E_USER_WARNING);
+				}
 			}
 		}
 
-		// now finished deleting, let's add new value to our list, but first check if value exists
-		if ($new_schema && !array_key_exists($new_schema, array_keys($stored_schemas))) {
-			$stored_schemas[$new_schema] = $new_schema;
-		}
-		
-		// assigning the new value
-		$asset->setAttrValue('schemas', $stored_schemas);
-
 	}//end processHCLSchemas()
-	
+
+
+	/** 
+	* Paints the interface for adding a metadata schema
+	*
+	* @param object	Asset				&$rootid	asset being painted
+	* @param object Backend_Outputter	&$o			backend outputter
+	* @param String						$prefix		prefix for the html doc element name
+	*						
+	* @return boolean
+	* @access private
+	*/
+	function paintAddSchema(&$asset, &$o, $prefix)
+	{
+		$am = &$GLOBALS['SQ_SYSTEM']->am; // instantiating Asset Manager
+		if (!$asset->writeAccess('links')) return false; // if details page is not locked, do not proceed
+
+		asset_finder($prefix.'_newschema', 0, Array('metadata_schema' => 'I'));
+
+		return true;
+
+	}//end paintAddSchema()
+
+
+	/** 
+	* Process the interface for adding a metadata schema
+	*
+	* @param object	Asset				&$rootid	asset being painted
+	* @param object Backend_Outputter	&$o			backend outputter
+	* @param String						$prefix		prefix for the html doc element name
+	*						
+	* @return void
+	* @access private
+	*/
+	function processAddSchema(&$asset, &$o, $prefix) 
+	{
+		if (!isset($_POST[$prefix.'_newschema']['assetid'])) return false;
+		$new_schema  = $_POST[$prefix.'_newschema']['assetid']; // submitted root id
+
+		if ($new_schema) {
+			$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($new_schema);
+			if (!is_null($schema)) {
+				if (!$asset->createLink($schema, SQ_LINK_NOTICE, 'schema')) {
+					trigger_error('Failed adding metadata schema "'.$schema->name.'" [#'.$schema->id.']', E_USER_WARNING);
+				}
+			}
+		}
+	}//end processAddSchema()
 
 }//end class
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_hcl.inc,v 1.1 2004/01/13 05:50:49 diarandine Exp $
+* $Id: page_hcl.inc,v 1.2 2004/01/14 22:54:28 diarandine Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -26,11 +26,11 @@
 require_once dirname(__FILE__).'/../../page/page.inc';
 require_once 'XML/Tree.php';
 
+
 /**
 * Page_HCL
 *
 * Purpose
-*
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
 * @version $Version$ - 1.0
@@ -39,7 +39,6 @@ require_once 'XML/Tree.php';
 */
 class Page_HCL extends Page
 {
-
 	/**
 	* Constructor
 	*
@@ -53,8 +52,23 @@ class Page_HCL extends Page
 	}//end constructor
 
 
+	/**
+	* Returns an array of all the permitted link type, the type asset and the cardinality
+	*
+	* @see Page::_getAllowLinks()
+	* @access private
+	*/
+	function _getAllowedLinks()
+	{
+		$allowed = parent::_getAllowedLinks();
+		$allowed[SQ_LINK_NOTICE]['asset'] = Array('card' => 'M', 'exclusive' => false);
+		return $allowed;
+
+	}//end _getAllowedLinks()
+
+
 	/** 
-	* Creates XML formatted list of the metadata entries. 
+	* Creates XML formatted list of the metadata entries
 	*
 	* @param int	$rootid		asset ID of the root element to start processing with
 	* @param Array	$schemas	array of schema IDs, that should be used for fields selection
@@ -64,11 +78,9 @@ class Page_HCL extends Page
 	*/
 	function createAndOutputHCL($rootid, $schemas)
 	{
-		// instantiating our managers
 		$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager(); 
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 		
-		// preparing XML Tree
 		$output = new XML_Tree();
 		$root = &$output->addRoot('tmp', '');
 	
@@ -128,15 +140,8 @@ class Page_HCL extends Page
 						// this schema id for current asset:
 						
 						// 1). Getting the name of this schema and adding another XML node with this name
-						$typecodes      = Array('metadata_schema');
-						$tempid_arr		= Array(); 
-						array_push($tempid_arr, $schema_id);
-
-						$schema_attribs = $am->getAssetInfo($tempid_arr, $typecodes); 
-						foreach ($schema_attribs as $key => $values_arr) {
-							$tempname = $values_arr['name'];
-						}
-						$tempname = strtolower($tempname); // making the string lowercase
+						$schema = &$am->getAsset($schema_id, 'metadata_schema');
+						$tempname = strtolower($schema->name); // making the string lowercase
 						$schema_node = &$metadata_node->addChild($tempname); // adding node...
 	
 						// 2). Get all the IDs of schema fields and then the array of their attribs
@@ -166,15 +171,12 @@ class Page_HCL extends Page
 							$schema_node->addChild($field_key, $field_val);
 						
 						} // end foreach field name/value
-
 					} // end if in_array
-
 				} // end foreach schemas
 
 				$am->forgetAsset($asset);
 
 			} // end if allows metadata
-
 		} // end foreach
 
 		$str .= $getrecord_node->get(); // assembling the output string from the top XML node
@@ -188,7 +190,7 @@ class Page_HCL extends Page
 
 
 	/** 
-	* Creates RDF formatted list of the metadata entries. 
+	* Creates RDF formatted list of the metadata entries
 	*
 	* @param int	 $rootid	asset ID of the root element to start processing with
 	* @param Array	 $schemas	array of schema IDs, that should be used for fields selection
@@ -198,7 +200,6 @@ class Page_HCL extends Page
 	*/
 	function createAndOutputRDF($rootid, $schemas)
 	{
-		// instantiating our managers
 		$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager(); 
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 		
@@ -210,7 +211,6 @@ class Page_HCL extends Page
 		$output->registerName('dc', 'http://purl.org/dc/elements/1.1/');
 		$output->registerName('edna', 'http://www.edna.edu.au/metadata/v1.1');
 
-		// adding root element
 		$root = &$output->addRoot('tmp', '');
 		
 		$str = '';
@@ -264,15 +264,8 @@ class Page_HCL extends Page
 						// this schema id for current asset:
 						
 						// 1). Getting the name of this schema and storing it to use later as namespace pointer
-						$typecodes      = Array('metadata_schema');
-						$tempid_arr		= Array(); 
-						array_push($tempid_arr, $schema_id);
-
-						$schema_attribs = $am->getAssetInfo($tempid_arr, $typecodes); 
-						foreach ($schema_attribs as $key => $values_arr) {
-							$tempname = $values_arr['name'];
-						}
-						$namespace = strtolower($tempname); 
+						$schema = &$am->getAsset($schema_id, 'metadata_schema');
+						$namespace = strtolower($schema->name); 
 
 						// 2). Get all the IDs of schema fields and then the array of their attribs
 						$schema_fields = $mm->getMetadataFields($schema_id); 
@@ -304,15 +297,12 @@ class Page_HCL extends Page
 							$description_node->addChild($field_key, $field_val);
 						
 						} // end foreach field name/value
-
 					} // end if in_array
-
 				} // end foreach schemas
 
 				$am->forgetAsset($asset);
 
 			} // end if allows metadata
-
 		} // end foreach
 
 		$str .= $rdf_root_node->get(); // assembling the output string from the top XML node
@@ -346,11 +336,27 @@ class Page_HCL extends Page
 			return;
 		}
 
-		$schemas = $this->attr('schemas');
-		$rootid	 = $this->attr('rootid'); 
-		$type	 = $this->attr('type');
-	
-		if ($type == 1) {
+		// getting assoc. array of links 
+		$schema_links = Array();
+		$schema_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE, 'metadata_schema', false, 'major', 'schema');
+
+		// looping through schema links assoc. array, extracting a value, adding to a normal array
+		$schemas = Array();
+		foreach ($schema_links as $key => $schema_link) {
+			array_push($schemas, $schema_link['minorid']);
+		}
+
+		// getting one-element array of rootid
+		$rootarr = Array();
+		$rootarr = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', false, 'root');
+
+		if (empty($schemas) || empty ($rootarr)) return false; // not going to continue if arrays empty
+
+		$rootid  = $rootarr['minorid'];
+
+		$type = $this->attr('type');
+		
+		if ($type == "rdf") {
 			$testresult = $this->createAndOutputRDF($rootid, $schemas);
 		} else {
 			$testresult = $this->createAndOutputHCL($rootid, $schemas);
