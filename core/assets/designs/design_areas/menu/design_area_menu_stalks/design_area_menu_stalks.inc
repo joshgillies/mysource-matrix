@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_stalks.inc,v 1.15 2004/07/27 10:00:28 brobertson Exp $
+* $Id: design_area_menu_stalks.inc,v 1.16 2004/08/12 07:12:00 mnyeholt Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -215,7 +215,7 @@ class Design_Area_Menu_Stalks extends Design_Area_Menu_Recursive
 
 						?', '>><img alt="" src="<', '?php
 						if ($j != $depth_count - 1) { 
-							echo $blank_src;
+							echo $blank_src.\'"\';
 						} elseif ($end) { 
 							echo $stalk_prefix, \'endbranch.png"\';
 						} else {
