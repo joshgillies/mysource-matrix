@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.6 2003/11/26 00:51:32 gsherwood Exp $
+* $Id: edit_interface_screen_details.xml,v 1.7 2003/12/29 00:22:48 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -50,6 +50,11 @@
 			<display_name>Results Per Page</display_name>
 			<note>The default results per page.</note>
 			<int width="5" />
+		</field>
+		<field attribute="lineage_seperator" read_access="" write_access="write:attributes" >
+			<display_name>Lineage Seperator</display_name>
+			<note>Seperator to use when printing the lineage to a search result asset.</note>
+			<text />
 		</field>
 	</section>
 </contents>

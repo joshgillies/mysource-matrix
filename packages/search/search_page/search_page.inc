@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.17 2003/12/28 22:37:55 gsherwood Exp $
+* $Id: search_page.inc,v 1.18 2003/12/29 00:22:48 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,7 +31,7 @@
 *
 * @author  Dominic Wong <dwong@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.17 $ - 1.0
+* @version $Revision: 1.18 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -538,7 +538,7 @@ class Search_Page extends Page
 					$first = true;
 					$parentAssetIds = $am->getParents($asset->id);
 					foreach ($parentAssetIds as $parentAssetId) {
-						if (!$first) $replacement .= " / ";
+						if (!$first) $replacement .= $this->attr('lineage_seperator');
 						$first = false;
 						$ancestorAsset =& $am->getAsset($parentAssetId);
 						$replacement .= $ancestorAsset->name;
@@ -550,7 +550,7 @@ class Search_Page extends Page
 					$first = true;
 					foreach ($am->getParents($asset->id) as $parentAssetId) {
 						if ($parentAssetId == 1) continue;
-						if (!$first) $replacement .= " / ";
+						if (!$first) $replacement .= $this->attr('lineage_seperator');
 						$first = false;
 						$ancestorAsset =& $am->getAsset($parentAssetId);
 						$replacement .= "<a href=\"". $ancestorAsset->getUrl(). "\">". $ancestorAsset->name. "</a>";

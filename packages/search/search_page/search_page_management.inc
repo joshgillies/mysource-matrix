@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_management.inc,v 1.5 2003/12/28 21:28:37 gsherwood Exp $
+* $Id: search_page_management.inc,v 1.6 2003/12/29 00:22:48 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -46,7 +46,7 @@ class Search_Page_Management extends Page_Management
 	{
 		$this->Page_Management($pm);
 
-		$this->vars = array(
+		$this->vars = Array(
 			'root_assetid' => Array(
 				'added'			=> '0.1',
 				'type'			=> 'int',
@@ -58,6 +58,12 @@ class Search_Page_Management extends Page_Management
 				'type'			=> 'int',
 				'default'		=> 10,
 				'description'	=> 'Default results per page when searching.',
+			),
+			'lineage_seperator' => Array (
+				'added'			=> '0.1',
+				'type'			=> 'text',
+				'default'		=> ' > ',
+				'description'	=> 'Seperator to use when printing the lineage to a search result asset.',
 			),
 			'fields' => Array(
 				'added'			=> '0.1',
