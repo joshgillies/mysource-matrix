@@ -153,9 +153,13 @@ class Design extends Design_Area
 	*/
 	function createLink(&$minor, $link_type, $value='', $sort_order=null, $dependant='0', $exclusive='0')
 	{
+		// if this is a file then we need to make it a dependant link
+		if (is_a($minor, 'file')) $dependant = '1';
+
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		if (!parent::createLink($minor, $link_type, $value, $sort_order, $dependant, $exclusive)) {
+		$linkid = parent::createLink($minor, $link_type, $value, $sort_order, $dependant, $exclusive);
+		if (!$linkid) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
@@ -195,7 +199,7 @@ class Design extends Design_Area
 		}//end if is_a file
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		return true;
+		return $linkid;
 
 	}//end createLink()
 
