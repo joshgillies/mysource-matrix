@@ -5,7 +5,7 @@
 General comments:
 ------------------------------------
 All comment lines should start with: "* " (note the space character after the astrix) - exccept for the first and last lines.
-All fucntions should have 2 blank lines before and after them (including the constructor and the last function in a file).
+All fucntions should have 2 blank lines between them. The first function in a class should have 2 blank lines before it and the last function in a class should have 2 blank lines after it.
 
 
 
