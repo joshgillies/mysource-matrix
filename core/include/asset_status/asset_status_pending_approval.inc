@@ -64,17 +64,18 @@ class Asset_Status_Pending_Approval extends Asset_Status
 		// cant do anything without write access
 		if (!$this->owner->readAccess()) return $statii;
 
-		$wf = &$this->getWorkflow();
+		$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+		$running_schemas = $wfm->getSchemas($this->owner->id, true, true);
 
-		if ($wf->state == 'running') {
+		if (!empty($running_schemas)) {
 			// check to see if the user logged in can publish
-			$publishers = $wf->whoCanPublish();
+			$publishers = $wfm->whoCanPublish($this->owner->id);
 
 			$userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
 			if (in_array($userid, $publishers)) {
 				// the current user can approve this asset to keep the workflow going
-				$status = $wf->testPublish($GLOBALS['SQ_SYSTEM']->currentUserId());
-				if ($status == 'complete') $statii[SQ_STATUS_APPROVED] = 'Approve';
+				$wf_complete = $wfm->testPublish($this->owner->id, $GLOBALS['SQ_SYSTEM']->currentUserId());
+				if ($wf_complete) $statii[SQ_STATUS_APPROVED] = 'Approve';
 				else $statii[SQ_STATUS_PENDING_APPROVAL] = 'Approve Changes';
 				$statii[SQ_STATUS_UNDER_CONSTRUCTION] = 'Reject Changes';
 			} else if ($this->owner->adminAccess(Array(), false)) {
@@ -104,12 +105,12 @@ class Asset_Status_Pending_Approval extends Asset_Status
 	{
 		if (!parent::processStatusChange($new_status)) return false;
 		
-		$wf = &$this->getWorkflow();
+		$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 		$current_userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
 
 		if ($new_status & SQ_SC_STATUS_CAN_APPROVE) {
 			// someone has rejected the changes, so we need to cancel the workflow
-			if (!$wf->cancel()) {
+			if (!$wfm->cancelWorkflow($this->owner->id)) {
 				trigger_error('Workflow cancel failed', E_USER_WARNING);
 				return false;
 			} else {
@@ -130,41 +131,52 @@ class Asset_Status_Pending_Approval extends Asset_Status
 				$ms->closeQueue();
 			}
 
-		} else if ($wf->state == 'running') {
-			
-			// we are doing a workflow and someone has just approved the asset, so record this
-			if (!$wf->recordPublish($current_userid)) {
-				trigger_error('Approval by user '.$current_userid.' not set in processStatusChange', E_USER_WARNING);
-				return false;
-			}
+		} else {
 
-			// send an internal message
-			$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-			$ms->openQueue();
-			$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
+			$running_schemas = $wfm->getSchemas($this->owner->id, true, true);
+			if (!empty($running_schemas)) {
 			
-			$message = $ms->newMessage();
-			$message->subject = 'Asset Changes Approved';
-			$message->body = 'User "'.$user->name.'" has approved '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name').' "'.$this->owner->name.'" to go live.';
-			$message->to   = $GLOBALS['SQ_SYSTEM']->am->getPermission($this->owner->id, SQ_PERMISSION_ADMIN, true, false);
-			$message->from = 0; // a system message
-			$ms->enqueueMessage($message);
+				// we are doing a workflow and someone has just approved the asset, so record this
+				if (!$wfm->recordPublish($this->owner->id, $current_userid)) {
+					trigger_error('Approval by user '.$current_userid.' not set in processStatusChange', E_USER_WARNING);
+					return false;
+				}
 
-			if ($new_status == SQ_STATUS_APPROVED) {
-				// send another internal message
+				// if the workflow process is now complete, we can go ahead and clear out the schemas
+				if ($wfm->isWorkflowComplete($this->owner->id)) {
+					if (!$wfm->cancelWorkflow($this->owner->id)) {
+						trigger_error('Workflow cancel failed', E_USER_WARNING);
+						return false;
+					}
+				}
+
+				// send an internal message
+				$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+				$ms->openQueue();
+				$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
+				
 				$message = $ms->newMessage();
-				$message->subject = 'Workflow Completed';
-				$message->body = 'The workflow process for '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name').' "'.$this->owner->name.'" has been completed. "'.$this->owner->name.'" is now approved and can be made live by an administrator.';
+				$message->subject = 'Asset Changes Approved';
+				$message->body = 'User "'.$user->name.'" has approved '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name').' "'.$this->owner->name.'" to go live.';
 				$message->to   = $GLOBALS['SQ_SYSTEM']->am->getPermission($this->owner->id, SQ_PERMISSION_ADMIN, true, false);
 				$message->from = 0; // a system message
 				$ms->enqueueMessage($message);
-			}
 
-			$ms->closeQueue();
-		}
+				if ($new_status == SQ_STATUS_APPROVED) {
+					// send another internal message
+					$message = $ms->newMessage();
+					$message->subject = 'Workflow Completed';
+					$message->body = 'The workflow process for '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name').' "'.$this->owner->name.'" has been completed. "'.$this->owner->name.'" is now approved and can be made live by an administrator.';
+					$message->to   = $GLOBALS['SQ_SYSTEM']->am->getPermission($this->owner->id, SQ_PERMISSION_ADMIN, true, false);
+					$message->from = 0; // a system message
+					$ms->enqueueMessage($message);
+				}
 
-		// save the workflow
-		$wf->save();
+				$ms->closeQueue();
+
+			}//end if
+
+		}//end else
 
 		return true;
 

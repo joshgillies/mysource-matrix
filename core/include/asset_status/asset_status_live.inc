@@ -61,9 +61,10 @@ class Asset_Status_Live extends Asset_Status
 		// cant do anything without write access
 		if (!$this->owner->writeAccess(Array(), false)) return $statii;
 
-		$wf = &$this->getWorkflow();
+		$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+		$running_schemas = $wfm->getSchemas($this->owner->id, true, true);
 
-		if ($wf->state == 'running') {
+		if (!empty($running_schemas)) {
 			// workflow is currently running, but it should not be
 			// because LIVE doesnt need workflow
 			bam('FIXME: SOMETHING HAS GONE WRONG HERE');
@@ -99,15 +100,13 @@ class Asset_Status_Live extends Asset_Status
 			case SQ_STATUS_LIVE_APPROVAL :
 				// up for review basically means that we need to start
 				// the workflow process and get this asset re-approved
-				$wf = &$this->getWorkflow();
+				$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 				$current_userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
 
-				if (!$wf->start()) {
+				if (!$wfm->startWorkflow($this->owner->id)) {
 					trigger_error('Workflow failed to start for "'.$this->owner->name.'"', E_USER_WARNING);
 					return false;
 				}
-
-				$wf->save();
 
 				// send an internal message
 				$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();

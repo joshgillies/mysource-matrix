@@ -59,9 +59,10 @@ class Asset_Status_Approved extends Asset_Status
 		// cant do anything without admin access
 		if (!$this->owner->adminAccess(Array(), false)) return $statii;
 
-		$wf = &$this->getWorkflow();
+		$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+		$running_schemas = $wfm->getSchemas($this->owner->id, true, true);
 
-		if ($wf->state == 'running') {
+		if (!empty($running_schemas)) {
 			// workflow is currently running, but it should not be
 			// because APPROVED means workflow is finished
 			bam('FIXME: SOMETHING HAS GONE WRONG HERE');

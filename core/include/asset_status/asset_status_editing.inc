@@ -65,15 +65,17 @@ class Asset_Status_Editing extends Asset_Status
 		// any editor can cancel the safe edit
 		$statii[SQ_STATUS_LIVE] = 'Cancel Safe Edit';
 
-		$wf = &$this->getWorkflow();
+		$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+		$running_schemas = $wfm->getSchemas($this->owner->id, true, true);
 
-		if ($wf->state == 'running') {
+		if (!empty($running_schemas)) {
 			// workflow is currently running, but it should not be
 			// because EDITING does not require workflow
 			bam('FIXME: SOMETHING HAS GONE WRONG HERE');
 		} else {
 			// workflow is not currently running for this asset
-			if (empty($wf->steps) && empty($wf->inherited_workflows)) {
+			$schemas = $wfm->getSchemas($this->owner->id, true);
+			if (empty($schemas)) {
 				// no workflow defined, so any admin can make this live
 				if ($this->owner->adminAccess(Array(), false)) {
 					$statii[SQ_STATUS_EDITING_APPROVED] = 'Approve';
@@ -82,8 +84,8 @@ class Asset_Status_Editing extends Asset_Status
 				// so we have workflows, but none of them are running
 				// so lets see what will happen if this user approves
 				// to determine if they can live edit
-				$wf_status = $wf->testPublish($GLOBALS['SQ_SYSTEM']->currentUserId());
-				if ($wf_status == 'complete') $statii[SQ_STATUS_EDITING_APPROVED] = 'Approve';
+				$wf_complete = $wfm->testPublish($this->owner->id, $GLOBALS['SQ_SYSTEM']->currentUserId());
+				if ($wf_complete) $statii[SQ_STATUS_EDITING_APPROVED] = 'Approve';
 				else $statii[SQ_STATUS_EDITING_APPROVAL] = 'Make Live';
 			}
 		}//end if workflow running
@@ -114,30 +116,24 @@ class Asset_Status_Editing extends Asset_Status
 			break;
 
 			case SQ_STATUS_EDITING_APPROVAL :
-				$wf = &$this->getWorkflow();
+				$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 
 				// we are going to make this asset live by starting the workflow process
 				$current_userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
 
-				if (!$wf->start()) {
+				if (!$wfm->startWorkflow($this->owner->id)) {
 					trigger_error('Workflow failed to start for "'.$this->owner->name.'"', E_USER_WARNING);
 					return false;
 				}
 
-				// save the workflow and force a refresh to load it up again
-				$wf->save();
-				$wf = &$this->getWorkflow(true);
-
 				// if the user who wants this asset to go live can also
 				// approve it as part of workflow, let their action to make this
 				// asset live signal their intention to approve it as well
-				$publishers = $wf->whoCanPublish();
+				$publishers = $wfm->whoCanPublish($this->owner->id);
 				if (in_array($current_userid, $publishers)) {
-					if (!$wf->recordPublish($current_userid)) {
+					if (!$wfm->recordPublish($this->owner->id, $current_userid)) {
 						trigger_error('Approval by user '.$current_userid.' not set in processStatusChange', E_USER_WARNING);
 						// dont die here because they can try to approve again later
-					} else {
-						$wf->save();
 					}
 				}
 

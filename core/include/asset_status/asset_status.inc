@@ -25,12 +25,6 @@ class Asset_Status extends Resolve_Object
 	*/
 	var $owner = null;
 
-	/**
-	* The workflow for the owner asset
-	* @var object Workflow_Manager
-	*/
-	var $workflow = null;
-
 
 	/**
 	* Constructor
@@ -109,23 +103,6 @@ class Asset_Status extends Resolve_Object
 
 	}//end processStatusChange()
 
-
-	/**
-	* Returns a reference to the workflow manager for the owner asset
-	*
-	* @param boolean	$force_refresh	dont use the cached version of the manager even if it exists
-	*
-	* @return object Workflow_Manager
-	* @access public
-	*/
-	function &getWorkflow($force_refresh=false)
-	{
-		if (!$force_refresh && !is_null($this->workflow)) return $this->workflow;
-		require_once SQ_INCLUDE_PATH.'/workflow_manager.inc';
-		$wf = new Workflow_Manager($this->owner);
-		return $wf;
-
-	}//end &getWorkflow()
 
 }//end class
 
