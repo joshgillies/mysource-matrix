@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.25 2004/08/26 02:48:29 lwright Exp $
+* $Id: page_calendar.inc,v 1.26 2004/08/26 04:29:09 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.25 $ - 1.0
+* @version $Revision: 1.26 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -399,11 +399,17 @@ class Page_Calendar extends Page_Asset_Listing
 		$drill_down_view = $this->attr('year_drill_down_view');
 
 		if ($format == 'list_without_headings') {
+			$list_entry_types = $this->attr('list_entry_types');
 			$events = $this->getYearEvents($year);
-			// hack for now until we mod asset listing
-			foreach ($events as $id => $details) $events[$id] = $details['type'];
-			$this->printAssetList($events);
+			if ($list_entry_types['year'] == 'title') {
+				echo $this->_getTitleList($events, $enabled_views['event']);
+			} else {
+				// hack for now until we mod asset listing
+				foreach ($events as $id => $details) $events[$id] = $details['type_code'];
+				$this->printAssetList($events);
+			}
 		} elseif ($format == 'list_with_headings') {
+			$list_entry_types = $this->attr('list_entry_types');
 			$events = $this->getYearEventsByMonth($year);
 			foreach ($this->month_names_full as $month_num => $month_name) {
 				echo '<h3>';
@@ -411,24 +417,27 @@ class Page_Calendar extends Page_Asset_Listing
 				echo $month_name;
 				if ($enabled_views['month']) echo '</a>';
 				echo '</h3>';
-		
-				// hack for now until we mod asset listing
-				foreach ($events[$month_num] as $id => $details) $events[$month_num][$id] = $details['type'];
-				
-				$this->printAssetList($events[$month_num]);
+
+				if ($list_entry_types['year'] == 'title') {
+					echo $this->_getTitleList($events[$month_num], $enabled_views['event']);
+				} else {
+					// hack for now until we mod asset listing
+					foreach ($events[$month_num] as $id => $details) $events[$month_num][$id] = $details['type_code'];
+					$this->printAssetList($events[$month_num]);
+				}
 			}
 		} else {
 			$events = $this->getYearEventsByMonthAndDay($year);
 			$week_start_day = $this->attr('week_starts_on');
 			$this->_printClickChildScript();
 			?>
-			<table id="year" border="0" cellspacing="0" cellpadding="0" style="width: 118ex; font-size: 90%">
+			<table id="year" border="0" cellspacing="0" cellpadding="0" style="width: 131ex; font-size: 90%">
 				<tr>
 					<th class="dayLabel" style="width: 6ex">&nbsp;</th>
 			<?php
 			for ($i = $week_start_day; $i < $week_start_day + 36; $i++) {
 				?>
-					<th class="dayLabel<?php echo (($i%7)==0 || ($i%7)==6) ? ' dayLabelWeekend' : ''; ?>" style="width: 3ex; text-align: center"><b><?php echo $this->day_names_very_short[$i % 7]; ?></b></th>
+					<th class="dayLabel<?php echo (($i%7)==0 || ($i%7)==6) ? ' dayLabelWeekend' : ''; ?>" style="width: 3.5ex; text-align: center"><b><?php echo $this->day_names_very_short[$i % 7]; ?></b></th>
 				<?php
 			}
 			?>
@@ -517,11 +526,17 @@ class Page_Calendar extends Page_Asset_Listing
 		while (empty($enabled_views[$drill_down_view]) && ($drill_down_view !== FALSE)) $drill_down_view = next($drill_down_views);
 		ob_start();
 		if ($format == 'list_without_headings') {
+			$list_entry_types = $this->attr('list_entry_types');
 			$events = $this->getMonthEvents($year, $month);
-			// hack for now until we mod asset listing
-			foreach ($events as $id => $details) $events[$id] = $details['type'];
-			$this->printAssetList($events);
+			if ($list_entry_types['month'] == 'title') {
+				echo $this->_getTitleList($events, $enabled_views['event']);
+			} else {
+				// hack for now until we mod asset listing
+				foreach ($events as $id => $details) $events[$id] = $details['type_code'];
+				$this->printAssetList($events);
+			}
 		} elseif ($format == 'list_with_headings') {
+			$list_entry_types = $this->attr('list_entry_types');
 			$events = $this->getMonthEventsByDay($year, $month);
 			$month_length = days_in_month($month, $year);
 			for ($current_day = 1; $current_day <= $month_length; $current_day++) {
@@ -530,10 +545,13 @@ class Page_Calendar extends Page_Asset_Listing
 				echo date('l jS', strtotime("$year-$month-$current_day"));
 				if ($drill_down_view) echo '</a>';
 				echo '</h3>';
-				// hack for now until we mod asset listing
-				foreach ($events[$current_day] as $id => $details) $events[$current_day][$id] = $details['type'];
-				$this->printAssetList($events[$current_day]);
-			}
+				if ($list_entry_types['month'] == 'title') {
+					echo $this->_getTitleList($events[$current_day], $enabled_views['event']);
+				} else {
+					// hack for now until we mod asset listing
+					foreach ($events[$current_day] as $id => $details) $events[$id] = $details['type_code'];
+					$this->printAssetList($events);
+				}			}
 		} else {
 			$show_event_links = (bool)$enabled_views['event'];
 			$events = $this->getMonthEventsByDay($year, $month);
@@ -662,19 +680,29 @@ class Page_Calendar extends Page_Asset_Listing
 		$root_nodes = $this->attr('root_nodes');
 		$enabled_views = $this->attr('enabled_views');
 		if ($format == 'list_without_headings') {
+			$list_entry_types = $this->attr('list_entry_types');
 			$events = $this->getWeekEvents($date);
-			// hack for now until we mod asset listing
-			foreach ($events as $id => $details) $events[$id] = $details['type'];
-			$this->printAssetList($events);
+			if ($list_entry_types['week'] == 'title') {
+				echo $this->_getTitleList($events, $enabled_views['event']);
+			} else {
+				// hack for now until we mod asset listing
+				foreach ($events as $id => $details) $events[$id] = $details['type_code'];
+				$this->printAssetList($events);
+			}
 		} elseif ($format == 'list_with_headings') {
+			$list_entry_types = $this->attr('list_entry_types');
 			$events = $this->getWeekEventsByDay($date);
 			foreach ($events as $day_date => $day_events) {
-				echo '<h3>'.(isset($column_links[$date]) ? '<a href="'.$column_links[$date].'">' : '');
+				echo '<h3>'.(($enabled_views['day']) ? '<a href="'.$this->getHref().'?SQ_CALENDAR_VIEW=day&SQ_CALENDAR_DATE='.$day_date.'"">' : '');
 				echo date('l jS', strtotime($day_date));
-				echo (isset($column_links[$date]) ? '</a>' : '').'</h3>';
-				// hack for now until we mod asset listing
-				foreach ($day_events as $id => $details) $day_events[$id] = $details['type'];
-				$this->printAssetList($events[$day_date]);
+				echo (($enabled_views['day']) ? '</a>' : '').'</h3>';
+				if ($list_entry_types['week'] == 'title') {
+					echo $this->_getTitleList($events[$day_date], $enabled_views['event']);
+				} else {
+					// hack for now until we mod asset listing
+					foreach ($events[$day_date] as $id => $details) $events[$day_date][$id] = $details['type_code'];
+					$this->printAssetList($events);
+				}
 			}
 		} else {
 /*
@@ -717,10 +745,16 @@ class Page_Calendar extends Page_Asset_Listing
 	{
 		ob_start();
 		if (strpos($format, 'list') === 0) {
+			$list_entry_types = $this->attr('list_entry_types');
+			$enabled_views = $this->attr('enabled_views');
 			$events = $this->getDayEvents($date);
-			// hack for now until we mod asset listing
-			foreach ($events as $id => $details) $events[$id] = $details['type'];
-			$this->printAssetList($events);
+			if ($list_entry_types['day'] == 'title') {
+				echo $this->_getTitleList($events, $enabled_views['event']);
+			} else {
+				// hack for now until we mod asset listing
+				foreach ($events as $id => $details) $events[$id] = $details['type_code'];
+				$this->printAssetList($events);
+			}
 		} else {
 			$column_names = Array();
 			$column_links = Array();
@@ -770,9 +804,9 @@ class Page_Calendar extends Page_Asset_Listing
 	function getEventView($event_id)
 	{
 		ob_start();
-
-
-		$res = ob_get_contents();
+			$info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($event_id));
+			$this->printAssetList(Array($event_id => $info[$event_id]['type_code']));
+			$res = ob_get_contents();
 		ob_end_clean();
 		return $res;
 
@@ -800,6 +834,22 @@ class Page_Calendar extends Page_Asset_Listing
 
 //--        HELPER FUNCTIONS FOR VIEW PRINTING FUNCTIONS        --//
 
+	
+	function _getTitleList($events, $show_links=true) {
+		$details = $link = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($events));
+		$res = '<ul>';
+		foreach ($details as $id => $data) {
+			$res .= '<li>';
+			if ($show_links) $res .= '<a href="'.$this->getHref().'?SQ_CALENDAR_VIEW=event&SQ_CALENDAR_EVENT_ID='.$id.'">';
+			$res .= $data['name'];
+			if ($show_links) $res .= '</a>';
+			$res .= '</li>';
+		}
+		$res .= '</ul>';
+		return $res;
+	}
+
+
 	/**
 	* Get the contents of a cell in the month table
 	*/
@@ -821,41 +871,38 @@ class Page_Calendar extends Page_Asset_Listing
 	*/
 	function _getTimedTableCellContents($events, $show_event_links, $root_nodes, $cell_ts, $partition_time, $partition_height, $event_width) 
 	{
-		if (empty($events)) return '';
-		
 		$res = '';
-		foreach ($events as $assetid => $details) {
-			// get top position of div
-			$event_ts = $details['start_date_minutes'] + (60 * $details['start_date_hours']);
-			$event_top_margin = (($event_ts - $cell_ts) / $partition_time) * $partition_height;
+		if ($events) {
+			foreach ($events as $assetid => $details) {
+				// get top position of div
+				$event_ts = $details['start_date_minutes'] + (60 * $details['start_date_hours']);
+				$event_top_margin = (($event_ts - $cell_ts) / $partition_time) * $partition_height;
 
-			// get height of div
-			$event_duration = is_null($details['end_date_ts']) ? 0 : ($details['end_date_ts'] - $details['start_date_ts'])/60;
-			$event_height = ($event_duration / $partition_time) * $partition_height;
+				// get height of div
+				$event_duration = is_null($details['end_date_ts']) ? 0 : ($details['end_date_ts'] - $details['start_date_ts'])/60;
+				$event_height = ($event_duration / $partition_time) * $partition_height;
 
-			// get class to use for div
-			$event_class = $root_nodes[$details['root_node']]['class_name'];
+				// get class to use for div
+				$event_class = $root_nodes[$details['root_node']]['class_name'];
 
-			// other layout things
-			$zero_length_code = $event_height ? '' : 'border-style: dashed; border-width: 2px; border-bottom: 0px; border-left: 0px; border-right: 0px; height: 0px; padding-top: 0px; background-color: transparent;';
-			$event_left_margin = $event_width * 0.02;
-			$inner_width = $event_width * 0.95;
-			$cursor_code = $show_event_links ? 'cursor: pointer; cursor: hand;' : '';
-			$inner_margin_top = $event_height ? 1 : 0;
-			$onclick_code = $show_event_links ? 'onclick="clickChild(this);"' : '';
+				// other layout things
+				$zero_length_code = $event_height ? '' : 'border-style: dashed; border-width: 2px; border-bottom: 0px; border-left: 0px; border-right: 0px; height: 0px; padding-top: 0px; background-color: transparent;';
+				$event_left_margin = $event_width * 0.02;
+				$inner_width = $event_width * 0.95;
+				$cursor_code = $show_event_links ? 'cursor: pointer; cursor: hand;' : '';
+				$inner_margin_top = $event_height ? 1 : 0;
+				$onclick_code = $show_event_links ? 'onclick="clickChild(this);"' : '';
 
-			$res .= "<div class=\"{$event_class} event\" style=\"border:3px solid green; position: absolute; width: {$event_width}ex; margin-left: {$event_left_margin}ex; margin-top: {$event_top_margin}ex; height: {$event_height}ex; $cursor_code $zero_length_code\" $onclick_code><div class=\"eventText\" style=\"position: absolute; width: {$inner_width}ex; border: none; margin-top: {$inner_margin_top}px background-color: transparent\">";
-			$res . $assetid.' ';
-			$res .= $show_event_links ? '<a class="event '.$event_class.'"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW=event&SQ_CALENDAR_EVENT_ID='.$assetid.'">' : '<span class="event '.$event_class.'">';
-			$res .= $details['name'];
-			$res .= '<br/>Event Height:'.$event_height.'ex';
-			$res .= $show_event_links ? '</a>' : '</span>';
+				$res = "<div class=\"{$event_class} event\" style=\"position: absolute; width: {$event_width}ex; margin-left: {$event_left_margin}ex; margin-top: {$event_top_margin}ex; height: {$event_height}ex; $cursor_code $zero_length_code\" $onclick_code><div class=\"eventText\" style=\"position: absolute; width: {$inner_width}ex; border: none; margin-top: {$inner_margin_top}px background-color: transparent\">";
 
-			$res .= '</div></div>';
+				$res .= $show_event_links ? '<a class="event '.$event_class.'"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW=event&SQ_CALENDAR_EVENT_ID='.$assetid.'">' : '<span class="event '.$event_class.'">';
+				$res .= $details['name'];
+				$res .= $show_event_links ? '</a>' : '</span>';
+				$res .= '</div></div>';
+			}
 		}
-		
 		return $res;
-		
+
 	}//end _getTimedTableCellContents()
 
 
@@ -981,7 +1028,7 @@ class Page_Calendar extends Page_Asset_Listing
 	function getYearEvents($year)
 	{
 		$res = Array();
-		$res[388] = Array('type'=>'calendar_event_single', 'root_node'=>115);
+		$res[388] = Array('type_code'=>'calendar_event_single', 'root_node'=>115);
 		return $res;
 	}
 
@@ -997,7 +1044,7 @@ class Page_Calendar extends Page_Asset_Listing
 		for($m = 1; $m <= 12; $m++) {
 			$res[$m] = Array();
 			if (rand(0, 100) < 20) {
-				$res[$m][388] = Array('type'=>'calendar_event_single', 'root_node'=>115);
+				$res[$m][388] = Array('type_code'=>'calendar_event_single', 'root_node'=>115);
 			}
 		}
 		return $res;
@@ -1016,7 +1063,7 @@ class Page_Calendar extends Page_Asset_Listing
 			for ($d = 1; $d <= days_in_month($m, $year); $d++) {
 				$res[$m][$d] = Array();
 				if (rand(0, 100) < 20) {
-					$res[$m][$d][388] = Array('type'=>'calendar_event_single', 'root_node'=>115);
+					$res[$m][$d][388] = Array('type_code'=>'calendar_event_single', 'root_node'=>115);
 				}
 			}
 		}
@@ -1032,7 +1079,7 @@ class Page_Calendar extends Page_Asset_Listing
 	function getMonthEvents($year, $month)
 	{
 		$res = Array();
-		$res[388] = Array('type'=>'calendar_event_single', 'root_node'=>115);
+		$res[388] = Array('type_code'=>'calendar_event_single', 'root_node'=>115);
 		return $res;
 	}
 
@@ -1048,10 +1095,10 @@ class Page_Calendar extends Page_Asset_Listing
 		for ($d = 1; $d <= days_in_month($month, $year); $d++) {
 			$res[$d] = Array();
 			if (rand(0, 100) < 60) {
-				$res[$d][388] = Array('type'=>'calendar_event_single', 'root_node'=>115, 'name'=>'single');
+				$res[$d][388] = Array('type_code'=>'calendar_event_single', 'root_node'=>115, 'name'=>'single');
 			}
 			if (rand(0, 100) > 40) {
-				$res[$d][391] = Array('type'=>'calendar_event_recurring', 'root_node'=>374, 'name'=>'recurring');
+				$res[$d][391] = Array('type_code'=>'calendar_event_recurring', 'root_node'=>374, 'name'=>'recurring');
 			}
 		}
 		return $res;
@@ -1066,8 +1113,8 @@ class Page_Calendar extends Page_Asset_Listing
 	function getWeekEvents($date)
 	{
 		$res = Array();
-		$res[388] = Array('type'=>'calendar_event_single', 'root_node'=>115, 'name'=>'single');
-		$res[391] = Array('type'=>'calendar_event_recurring', 'root_node'=>374, 'name'=>'recurring');
+		$res[388] = Array('type_code'=>'calendar_event_single', 'root_node'=>115, 'name'=>'single');
+		$res[391] = Array('type_code'=>'calendar_event_recurring', 'root_node'=>374, 'name'=>'recurring');
 		return $res;
 
 	}
@@ -1092,6 +1139,7 @@ class Page_Calendar extends Page_Asset_Listing
 		}
 		$passed_today = false;
 		foreach ($ordered_days as $current_day) {
+			if ($current_day == $today_day) $passed_today = true;
 			if ($enabled_days[$current_day]) {
 				$key = date('Y-m-d', strtotime(($passed_today ? '' : 'last ').$this->day_names_full[$current_day], $today_ts));
 				$res[$key] = Array();
@@ -1105,7 +1153,7 @@ class Page_Calendar extends Page_Asset_Listing
 						$rand_end_ts = rand(0, 60*60*4);
 						if ($rand_end_ts < 29*60) $rand_end_ts = 0;
 						$rand_end_ts += $rand_start_ts;
-						$res[$key][388] = Array('type'=>'calendar_event_single', 'root_node'=>115, 'name'=>'single', 'start_date_hours'=>$rand_hours, 'start_date_minutes'=>$rand_mins, 'start_date_ts'=>$rand_start_ts, 'end_date_ts'=>$rand_end_ts);
+						$res[$key][388] = Array('type_code'=>'calendar_event_single', 'root_node'=>115, 'name'=>'single', 'start_date_hours'=>$rand_hours, 'start_date_minutes'=>$rand_mins, 'start_date_ts'=>$rand_start_ts, 'end_date_ts'=>$rand_end_ts);
 					}
 					if (rand(0, 100) > 70) {
 						$rand_mins = rand(0,59);
@@ -1114,12 +1162,11 @@ class Page_Calendar extends Page_Asset_Listing
 						$rand_end_ts = rand(0, 60*60*4);
 						if ($rand_end_ts < 5*60) $rand_end_ts = 0;
 						$rand_end_ts += $rand_start_ts;
-						$res[$key][391] = Array('type'=>'calendar_event_recurring', 'root_node'=>374, 'name'=>'single', 'start_date_hours'=>rand(0,23), 'start_date_minutes'=>rand(0,59), 'start_date_ts'=>$rand_start_ts, 'end_date_ts'=>$rand_end_ts);
+						$res[$key][391] = Array('type_code'=>'calendar_event_recurring', 'root_node'=>374, 'name'=>'single', 'start_date_hours'=>rand(0,23), 'start_date_minutes'=>rand(0,59), 'start_date_ts'=>$rand_start_ts, 'end_date_ts'=>$rand_end_ts);
 					}
 				}
 				// end random gen
 			}
-			if ($current_day == $today_day) $passed_today = true;
 		}
 		return $res;
 	}
@@ -1177,22 +1224,22 @@ class Page_Calendar extends Page_Asset_Listing
 	{
 		$res = Array();
 		if (rand(0, 100) < 70) {
-						$rand_mins = rand(0,59);
-						$rand_hours = rand(0,23);
-						$rand_start_ts = strtotime("$date $rand_hours:$rand_mins");
-						$rand_end_ts = rand(0, 60*60*4);
-						if ($rand_end_ts < 29*60) $rand_end_ts = 0;
-						$rand_end_ts += $rand_start_ts;
-			$res[388] = Array('type'=>'calendar_event_single', 'root_node'=>115, 'name'=>'single', 'start_date_hours'=>rand(0,23), 'start_date_minutes'=>rand(0,59), 'start_date_ts'=>$rand_start_ts, 'end_date_ts'=>$rand_end_ts);
+			$rand_mins = rand(0,59);
+			$rand_hours = rand(9,17);
+			$rand_start_ts = strtotime("$date $rand_hours:$rand_mins");
+			$rand_end_ts = rand(0, 60*60*4);
+			if ($rand_end_ts < 29*60) $rand_end_ts = 0;
+			$rand_end_ts += $rand_start_ts;
+			$res[388] = Array('type_code'=>'calendar_event_single', 'root_node'=>115, 'name'=>'single', 'start_date_hours'=>rand(0,23), 'start_date_minutes'=>rand(0,59), 'start_date_ts'=>$rand_start_ts, 'end_date_ts'=>$rand_end_ts);
 		}
 		if (rand(0, 100) < 70) {
-						$rand_mins = rand(0,59);
-						$rand_hours = rand(0,23);
-						$rand_start_ts = strtotime("$date $rand_hours:$rand_mins");
-						$rand_end_ts = rand(0, 60*60*4);
-						if ($rand_end_ts < 29*60) $rand_end_ts = 0;
-						$rand_end_ts += $rand_start_ts;
-			$res[391] = Array('type'=>'calendar_event_recurring', 'root_node'=>374, 'name'=>'single', 'start_date_hours'=>rand(0,23), 'start_date_minutes'=>rand(0,59), 'start_date_ts'=>$rand_start_ts, 'end_date_ts'=>$rand_end_ts);
+			$rand_mins = rand(0,59);
+			$rand_hours = rand(9,17);
+			$rand_start_ts = strtotime("$date $rand_hours:$rand_mins");
+			$rand_end_ts = rand(0, 60*60*4);
+			if ($rand_end_ts < 29*60) $rand_end_ts = 0;
+			$rand_end_ts += $rand_start_ts;
+			$res[391] = Array('type_code'=>'calendar_event_recurring', 'root_node'=>374, 'name'=>'single', 'start_date_hours'=>rand(0,23), 'start_date_minutes'=>rand(0,59), 'start_date_ts'=>$rand_start_ts, 'end_date_ts'=>$rand_end_ts);
 		}
 		return $res;
 	}
