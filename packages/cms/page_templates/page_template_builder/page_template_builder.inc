@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_template_builder.inc,v 1.8 2005/01/13 22:30:58 gsherwood Exp $
+* $Id: page_template_builder.inc,v 1.9 2005/03/01 22:54:21 tbarrett Exp $
 *
 */
 
@@ -31,16 +31,17 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * Template_Builder
 *
 * Purpose
-*
+*	Creates bodycopy assets by collecting values from the user and subsituting them into a template
+*	that was set up in the backend
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.8 $
+* @author  Tom Barrett <tbarrett@squiz.net>
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
 class Page_Template_Builder extends Page
 {
-
 
 	/**
 	* Constructor
@@ -83,7 +84,6 @@ class Page_Template_Builder extends Page
 	*/
 	function _getAllowedLinks()
 	{
-
 		return Array(SQ_LINK_TYPE_2 => Array('bodycopy' => Array('card' => 'M', 'exclusive' => false)));
 
 	}//end _getAllowedLinks()
@@ -94,11 +94,9 @@ class Page_Template_Builder extends Page
 	*
 	* @param string	$name		the name of the bodycopy asset
 	* @param string $link_value	the value attached to the link
-	* @param string $bc_text	the bodycopy text to be placed inside the first
-	*							bodycopy DIV
+	* @param string $bc_text	the bodycopy text to be placed inside the first bodycopy DIV
 	* @param string $underneath the asset which created bodycopies will be created
-	*							underneath (defaults to underneath the Template Builder
-	*							itself)
+	*							underneath (defaults to underneath the Template Builder	itself)
 	*
 	* @return boolean	true indicates success
 	* @access public
@@ -125,10 +123,17 @@ class Page_Template_Builder extends Page
 	}//end createBodycopy()
 
 
+	/**
+	* Get the locations that the bodycopy should be linked under
+	*
+	* @access protected
+	* @return array	list of assetids
+	*/
 	function getCreateLocations()
 	{
 		$res = $this->attr('create_locations') + $this->getAdditionalCreateLocations();
 		return $res;
+
 	}//end getCreateLocations()
 
 
@@ -177,8 +182,10 @@ class Page_Template_Builder extends Page
 				}
 				*/
 				if (!in_array($assetid, $valid_parents)) {
-					$matches = array_intersect($GLOBALS['SQ_SYSTEM']->am->getParents($assetid), $valid_parents);
-					if (empty($matches)) unset($res[$assetid]);
+					$matches = array_intersect(array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($assetid)), $valid_parents);
+					if (empty($matches)) {
+						unset($res[$assetid]);
+					}
 				}
 			}
 		}
@@ -295,7 +302,12 @@ class Page_Template_Builder extends Page
 			echo $res;
 			echo $this->paintPrintButton($res);
 			$bc_asset = null;
-			foreach ($this->getCreateLocations() as $assetid => $link_type) {
+			$create_locations = $this->getCreateLocations();
+			if (empty($create_locations)) {
+				trigger_error('You have not selected any locations to create the result bodycopy in', E_USER_WARNING);
+				return;
+			}
+			foreach ($create_locations as $assetid => $link_type) {
 				$under_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				if (is_null($bc_asset)) {
 					$bc_asset =& $this->createBodycopy(date('d M Y H:i:s'), '', $res, $under_asset);
@@ -303,9 +315,8 @@ class Page_Template_Builder extends Page
 					$GLOBALS['SQ_SYSTEM']->am->createAssetLink($under_asset, $bc_asset, SQ_LINK_TYPE_2);
 				}
 			}
-			if (true !== ($status_result = $this->_setAssetStatus($bc_asset))) {
-				trigger_error('Error setting status: '.implode(",\n", $status_result), E_USER_WARNING);
-				return false;
+			if (!$bc_asset->processStatusChange($this->attr('create_status'))) {
+				trigger_error('Error setting status of new asset', E_USER_WARNING);
 			}
 		}
 
@@ -313,27 +324,13 @@ class Page_Template_Builder extends Page
 
 
 	/**
-	* Set the status of the newly created asset
+	* Paint a button to print a printer-friendly version of the result
 	*
-	* @param object Asset	&$new_asset		the newly created asset
+	* @param string	$content	The content for printing
 	*
-	* @return boolean
 	* @access private
+	* @return void
 	*/
-	function _setAssetStatus(&$new_asset)
-	{
-		$create_status = $this->attr('create_status');
-		if ($new_asset->status != $create_status) {
-			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
-			$vars = Array('assetid' => $new_asset->id, 'new_status' => $create_status);
-			$status_errors = $hh->freestyleHipo('hipo_job_edit_status', $vars);
-			return (!empty($status_errors) ? $status_errors : true);
-		}
-		return true;
-
-	}//end _setAssetStatus()
-
-
 	function paintPrintButton($content)
 	{
 		?>
@@ -352,6 +349,7 @@ class Page_Template_Builder extends Page
 		</script>
 		<input type="button" value="Print" onclick="print_result()" />
 		<?php
+
 	}//end paintPrintButton()
 
 
@@ -522,5 +520,4 @@ class Page_Template_Builder extends Page
 
 
 }//end class
-
 ?>
