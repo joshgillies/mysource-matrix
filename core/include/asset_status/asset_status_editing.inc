@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_editing.inc,v 1.15 2004/01/06 00:08:22 gsherwood Exp $
+* $Id: asset_status_editing.inc,v 1.16 2004/07/08 00:52:06 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -192,7 +192,7 @@ class Asset_Status_Editing extends Asset_Status
 					$log->type    = 'asset.workflow';
 					$log->parameters['assetid'] = $this->owner->id;
 					$log->parameters['version'] = substr($this->owner->version, 0, strrpos($this->owner->version, '.'));
-					$log->send();
+					$ms->enqueueMessage($log);
 				}
 
 			break;

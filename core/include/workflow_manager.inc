@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.46 2004/05/26 23:15:52 lwright Exp $
+* $Id: workflow_manager.inc,v 1.47 2004/07/08 00:52:06 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -872,7 +872,7 @@ class Workflow_Manager extends MySource_Object
 			$log->body .= "\n\n".'A full report for the Workflow of "'.$asset->name.'" can be found on the <SQ_MSG_LINK href="'.current_url().$asset->getBackendHref('workflow').'">Workflow Screen</SQ_MSG_LINK>';
 			$log->type    = 'asset.workflow.invitation';
 			$log->parameters['assetid'] = $asset->id;
-			$log->send();
+			$ms->enqueueMessage($log);
 		}
 
 		return true;
@@ -964,7 +964,7 @@ class Workflow_Manager extends MySource_Object
 			$msg->body .= "\n\n".'A full report for the Workflow of "'.$asset->name.'" can be found on the <SQ_MSG_LINK href="'.current_url().$asset->getBackendHref('workflow').'">Workflow Screen</SQ_MSG_LINK>';
 			$msg->type    = 'asset.workflow.announce';
 			$msg->parameters['assetid'] = $asset->id;
-			$msg->send();
+			$ms->enqueueMessage($msg);
 		}
 
 		return true;

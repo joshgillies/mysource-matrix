@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_under_construction.inc,v 1.17 2004/07/06 02:20:39 lwright Exp $
+* $Id: asset_status_under_construction.inc,v 1.18 2004/07/08 00:52:06 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -176,7 +176,7 @@ class Asset_Status_Under_Construction extends Asset_Status
 					$log->type    = 'asset.workflow';
 					$log->parameters['assetid'] = $this->owner->id;
 					$log->parameters['version'] = substr($this->owner->version, 0, strrpos($this->owner->version, '.'));
-					$log->send();
+					$ms->enqueueMessage($log);
 				}
 				break;
 

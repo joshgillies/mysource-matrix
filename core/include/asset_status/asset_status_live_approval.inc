@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_live_approval.inc,v 1.20 2004/07/06 02:20:39 lwright Exp $
+* $Id: asset_status_live_approval.inc,v 1.21 2004/07/08 00:52:06 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -236,7 +236,7 @@ class Asset_Status_Live_Approval extends Asset_Status
 						$log->body .= "\n\n".'A full report for the Workflow of "'.$this->owner->name.'" can be found on the <SQ_MSG_LINK href="'.current_url().$this->owner->getBackendHref('workflow').'">Workflow Screen</SQ_MSG_LINK>.';
 						$log->parameters['assetid'] = $this->owner->id;
 						$log->parameters['version'] = substr($this->owner->version, 0, strrpos($this->owner->version, '.'));
-						$log->send();
+						$ms->enqueueMessage($log);
 					}
 				}
 
