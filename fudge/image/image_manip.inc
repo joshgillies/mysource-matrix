@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_manip.inc,v 1.1 2005/01/13 11:08:09 brobertson Exp $
+* $Id: image_manip.inc,v 1.2 2005/03/10 20:06:44 brobertson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once dirname(__FILE__).'/../general/file_system.inc';
 * Image manipulation functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package Fudge
 * @subpackage Image
 */
@@ -161,11 +161,19 @@ class Image_Manip
 			$d_img = imageCreateTrueColor($w, $h);
 		}
 
-		if (!ImageCopyResampled($d_img, $s_img, 0, 0, 0, 0, $w, $h, imageSx($s_img), imageSy($s_img))) {
-			return false;
+		$ret_val = false;
+
+		$ret_val = ImageCopyResampled($d_img, $s_img, 0, 0, 0, 0, $w, $h, imageSx($s_img), imageSy($s_img));
+		imageDestroy($s_img); // kill this to save memory before save
+
+		if ($ret_val) {
+			$ret_val = Image_Manip::toFile($d_img, $output);
 		}
 
-		return Image_Manip::toFile($d_img, $output);
+		// finally destory dest image
+		imageDestroy($d_img);
+
+		return $ret_val;
 
 	}//end resize()
 
