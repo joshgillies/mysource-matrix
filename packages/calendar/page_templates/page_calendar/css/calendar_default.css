@@ -48,7 +48,7 @@ table#year { border: 2px solid #EDEDED; background-color: white; border-collapse
 #year td.date { background-color: white; border: 1px solid #EDEDED; text-align: center; color: black}
 
 /* Weekend Cells, with or without dates */
-#year td.weekend { background-color: #cfcfcf;  }
+#year td.weekend { background-color: #c0c0c0;  }
 
 /* Cells with events */
 #year td.eventDate { background-color: #d0ecf6; }
