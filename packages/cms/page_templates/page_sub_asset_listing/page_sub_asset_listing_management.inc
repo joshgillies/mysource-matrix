@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_sub_asset_listing_management.inc,v 1.5 2003/11/26 00:51:31 gsherwood Exp $
+* $Id: page_sub_asset_listing_management.inc,v 1.6 2003/12/03 23:08:53 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -46,30 +46,27 @@ class Page_Sub_Asset_Listing_Management extends Page_Management
 	{
 		$this->Page_Management($pm);
 
-		$this->vars = Array(
-					'name' => Array (
-						'added'		=> '0.0.1',
-						'type'		=> 'text',
-						'default'	=> '',
-					), // end name
-					'types' => Array(
-						'added'		=> '0.0.1',
-						'type'		=> 'serialise',
-						'default'	=> Array(),
-					),
-					'customised' => Array(
-						'added'		=> '0.0.1',
-						'type'		=> 'serialise',
-						'default'	=> Array(),
-					),
+		$this->vars['types']      => Array(
+										'added'   => '0.0.1',
+										'type'    => 'serialise',
+										'default' => Array(),
+										);
+
+		$this->vars['customised'] => Array(
+										'added'   => '0.0.1',
+										'type'    => 'serialise',
+										'default' => Array(),
+										);
 		);
+
 	}//end constructor
 
+
 	/**
-	* Gets the keyword file for deployment
+	* Get the keyword file for deployment
 	*
+	* @return Array(string)
 	* @access private
-	* @return array(string)
 	*/
 	function _getFileList()
 	{
@@ -78,6 +75,7 @@ class Page_Sub_Asset_Listing_Management extends Page_Management
 					 );
 
 	}//end _getFileList()
+
 
 }//end class
 
