@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: lookupValues.inc,v 1.1 2005/02/21 11:27:30 brobertson Exp $
+* $Id: lookupValues.inc,v 1.2 2005/02/22 15:04:38 brobertson Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Settings Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 
@@ -152,11 +152,6 @@ function processLookupValues(&$owner, &$o, &$ei)
 		$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 		return false;
 	}
-
-//	if (!$owner->updateLookups()) {
-//		$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-//		return false;
-//	}
 
 	$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
