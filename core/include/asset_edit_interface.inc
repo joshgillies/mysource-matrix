@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_edit_interface.inc,v 1.152 2003/10/02 00:13:55 dwong Exp $
+* $Id: asset_edit_interface.inc,v 1.153 2003/10/02 00:18:00 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -653,7 +653,7 @@ class Asset_Edit_Interface extends MySource_Object
 					return 0;
 			} else {
 				// if show if function doesn't exist, spew, then continue as normal
-				trigger_error('Error : Show If function for section '. $node->name. ' not found.', E_USER_ERROR);
+				trigger_error('Error : Show If function for section '. $node->name. ' not found.', E_USER_WARNING);
 			}
 		}
 
