@@ -18,11 +18,12 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_edit_fns.inc,v 1.48 2005/01/17 18:21:13 brobertson Exp $
+* $Id: form_edit_fns.inc,v 1.49 2005/04/07 03:15:28 lwright Exp $
 *
 */
 
 require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
+require_once SQ_SYSTEM_ROOT.'/core/attributes/option_list/option_list.inc';
 require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 /**
@@ -32,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.48 $
+* @version $Revision: 1.49 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -233,11 +234,11 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 				$sort_order = $asset->attr('sort_order');
 
 				if (!empty($sort_order)) {
-					// sort order is based upon shadow asset id (eg. '87:q1'), not just question id - this 	
+					// sort order is based upon shadow asset id (eg. '87:q1'), not just question id - this
 					// will allow sections to be sorted in later
 					$i = 0;
 					foreach ($sort_order as $sort_id => $assetid) {
-						$q = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+						$q =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 						if (is_null($q)) continue;
 						$href = $q->getBackendHref('details');
 						?>
@@ -246,7 +247,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 								<span name="<?php echo $prefix.'_order_o'.$sort_id ?>" id="<?php echo 	$prefix.'_order_o'.$sort_id ?>"><a href="<?php echo $href ?>"><?php	echo $q->attr('name')?></a></span><?php hidden_field($prefix.'_order[reorder]['.$sort_id.']', $assetid); ?>
 							</td>
 							<td class="sq-backend-table-cell">
-								<span name="<?php echo $prefix.'_order_t'.$sort_id ?>" id="<?php echo 	$prefix.'_order_t'.$sort_id ?>"><?php	
+								<span name="<?php echo $prefix.'_order_t'.$sort_id ?>" id="<?php echo 	$prefix.'_order_t'.$sort_id ?>"><?php
 									$q_type = str_replace('form_question_type', '', get_class($q));
 									$q_type = str_replace('_', ' ', $q_type);
 									$q_type = trim(ucwords($q_type));
@@ -268,7 +269,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 										}
 
 										if ($i != count($sort_order) -1) {
-											?><a href="#" onclick="sortOrderMoveDown(<?php echo $sort_id ?>); return false;"><img src="<?php echo sq_web_path('lib').'/web/images/icons/down_arrow.png' ?>" width="16" height="16" border="0"alt="Move Down" /></a><?php
+											?><a href="#" onclick="sortOrderMoveDown(<?php echo $sort_id ?>); return false;"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/down_arrow.png' ?>", "16", "16", "Move Down");</script></a><?php
 										}
 										?>
 								</td>
@@ -310,8 +311,10 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 			}
 		}
 
+		// use array_merge() here so that the assets get re-ordered without
+		//
 		if (isset($_POST[$prefix . '_order']['reorder'])) {
-			$asset->setAttrValue('sort_order', $_POST[$prefix . '_order']['reorder']);
+			$asset->setAttrValue('sort_order', array_merge($_POST[$prefix . '_order']['reorder']));
 			$asset->saveAttributes();
 		}
 
@@ -336,13 +339,25 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintUseBodycopy(&$asset, &$o, $prefix)
 	{
-		if (!$asset->writeAccess('links')) return false;
+		if (!$asset->writeAccess('links')) {
+			$num_bodycopies = ($asset->attr('use_bodycopy_main') ? 1 : 0) + ($asset->attr('use_bodycopy_thank_you') ? 1 : 0);
 
-		check_box('use_bodycopy_main', '1', $asset->attr('use_bodycopy_main'));
-		echo 'Page Contents<br/>';
-		check_box('use_bodycopy_thank_you', '1', $asset->attr('use_bodycopy_thank_you'));
-		echo 'Thank You<br/>';
-		return true;
+			if ($num_bodycopies == 2) {
+				?>Page Contents and Thank You bodycopies are both customised<br/><?php
+			} else if ($num_bodycopies == 0) {
+				?>No bodycopies are customised<br/><?php
+			} else if ($asset->attr('use_bodycopy_main')) {
+				?>Page Contents bodycopy is customised<br/><?php
+			} else if ($asset->attr('use_bodycopy_thank_you')) {
+				?>Thank You bodycopy is customised<br/><?php
+			}
+		} else {
+			check_box('use_bodycopy_main', '1', $asset->attr('use_bodycopy_main'));
+			echo 'Page Contents<br/>';
+			check_box('use_bodycopy_thank_you', '1', $asset->attr('use_bodycopy_thank_you'));
+			echo 'Thank You<br/>';
+			return true;
+		}
 
 	}//end paintUseBodycopy()
 
@@ -479,11 +494,8 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 		// start at zero, so if the (l)user presses commit without selecting anything
 		// it doesn't add a section
 
-		$num = Array();
-		for ($i = 0; $i <= 10; $i++) {
-			$num[$i] = $i;
-		}
-		combo_box('num_sections', $num, false, '');
+		$option_list = new Asset_Attribute_Option_List();
+		$option_list->paint($prefix.'_sections');
 
 		return true;
 
@@ -502,12 +514,29 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function processAddSections(&$asset, &$o, $prefix)
 	{
-		$number = (isset($_POST['num_sections'])) ? $_POST['num_sections'] : '';
+		if (!isset($_POST[$prefix.'_sections_options'])) {
+			return false;
+		}
 
+		$section_text = $_POST[$prefix.'_sections_options'];
+
+		$sections = Array();
+		if (!empty($section_text)) {
+			$section_names = explode("\r\n", trim($section_text));
+			// make sure the section names are not empty
+			foreach ($section_names as $option) {
+				$option = trim($option);
+				if (empty($option)) continue;
+				$sections[] = $option;
+			}
+		}
+
+		// now that we have the section names, display them in the order entered
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		for ($i = 0; $i < $number; $i++) {
+		for ($i = 0; $i < count($sections); $i++) {
+			$section_name = $sections[$i];
 
 			$section_count = $asset->getSectionCount() + 1;
 
@@ -515,7 +544,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 			$section = new Form_Section();
 			$copy_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 0, 'is_exclusive' => 0);
 
-			$section->setAttrValue('name', 'Section '.$section_count);
+			$section->setAttrValue('name', $section_name);
 
 			if (!$section->create($copy_link)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -643,9 +672,6 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 
 				if ($s = &$asset->getSectionByOrder($section)) {
 
-					// tell the section what its question indexes are
-					$s->question_index = $this->attr('question_index');
-
 					// let the section know what its column widths are
 					$section->question_col_width = $asset->attr('question_col_width');
 					$section->answer_col_width = $asset->attr('answer_col_width');
@@ -723,6 +749,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 
 		foreach ($sort_order as $i => $assetid) {
 			$q =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			if (is_null($q)) continue;
 
 			$output .= '<tr>';
 			$output .= '<td valign="top"';
@@ -733,7 +760,8 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 			}
 			$output .= '</td><td';
 			$output .= ($asset->attr('answer_col_width')) ? ' width="'.$asset->attr('answer_col_width').'">' : '>';
-			$output .= '<'.'?php $q =$GLOBALS["SQ_SYSTEM"]->am->getAsset("'.$assetid.'"); $answer = ""; echo $q->getAnswer(true,$answer); ?'.'>'."\n";
+			$output .= '<'.'?php $q =$GLOBALS["SQ_SYSTEM"]->am->getAsset("'.$assetid.'");
+			$answer = ""; echo $q->getAnswer(true,$answer); ?'.'>'."\n";
 			$output .= '</td></tr>';
 		}
 		$output .= '</table>';

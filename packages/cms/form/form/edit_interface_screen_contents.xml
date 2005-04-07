@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_contents.xml,v 1.18 2005/03/30 00:41:11 lwright Exp $
+* $Id: edit_interface_screen_contents.xml,v 1.19 2005/04/07 03:15:28 lwright Exp $
 *
 */
 -->
@@ -31,7 +31,7 @@
 				<process_function name="processQuestionLinks" />
 			</function_call>
 		</field>
-		<field>
+		<field read_access="write:menu" write_access="write:menu">
 			<function_call>
 				<paint_function   name="paintAddQuestions"   />
 				<process_function name="processAddQuestions" />
@@ -41,14 +41,14 @@
 	<section name="Sections">
 		<field>
 			<function_call>
-				<paint_function   name="paintAddSections"   />
-				<process_function name="processAddSections" />
-			</function_call>
-		</field>
-		<field>
-			<function_call>
 				<paint_function   name="paintSectionLinks"   />
 				<process_function name="processSectionLinks" />
+			</function_call>
+		</field>
+		<field read_access="write:menu" write_access="write:menu">
+			<function_call>
+				<paint_function   name="paintAddSections"   />
+				<process_function name="processAddSections" />
 			</function_call>
 		</field>
 	</section>

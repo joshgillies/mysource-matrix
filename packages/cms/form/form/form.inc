@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.91 2005/03/31 06:52:20 lwright Exp $
+* $Id: form.inc,v 1.92 2005/04/07 03:15:28 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.91 $
+* @version $Revision: 1.92 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -47,13 +47,19 @@ class Form extends Asset
 	* the active submission array
 	* @var object Form_Submission
 	*/
-	var $active_submission = null;
+	var $active_submission = Array();
 
 	/**
 	* the active section object
 	* @var object
 	*/
 	var $active_section = null;
+
+	/**
+	* the current submission's errors
+	* @var object
+	*/
+	var $submission_errors = null;
 
 	/**
 	* available bodycopy keywords
@@ -89,6 +95,9 @@ class Form extends Asset
 		return $this->attr('name');
 
 	}//end _getName()
+
+
+//--        BRIDGE FUNCTIONS        --//
 
 
 	/**
@@ -176,16 +185,17 @@ class Form extends Asset
 
 			foreach ($entries as $questionid => $data) {
 
-				$links[] = Array('linkid' => 0,
-								 'majorid'         => $this->id,
-								 'minorid'         => $this->id.':q'.$questionid,
-								 'minor_type_code' => $data['question_type_code'],
-								 'value'           => '',
-								 'link_type'       => SQ_LINK_TYPE_2,
-								 'is_dependant'    => true,
-								 'is_exclusive'    => false,
-								 'sort_order'      => $i + array_search($this->id.':q'.$questionid, $this->attr('sort_order')),
-								);
+				$links[] = Array(
+							'linkid'			=> 0,
+							'majorid'			=> $this->id,
+							'minorid'			=> $this->id.':q'.$questionid,
+							'minor_type_code'	=> $data['question_type_code'],
+							'value'				=> '',
+							'link_type'			=> SQ_LINK_TYPE_2,
+							'is_dependant'		=> true,
+							'is_exclusive'		=> false,
+							'sort_order'		=> $i + array_search($this->id.':q'.$questionid, $this->attr('sort_order')),
+						   );
 			}
 
 			if (is_null($sort_by)) {
@@ -297,7 +307,7 @@ class Form extends Asset
 			}
 		}
 
-		// now questions		
+		// now questions
 		$entries = $this->getQuestions();
 		if (empty($type_code)) {
 			foreach ($entries as $questionid => $data) {
@@ -419,12 +429,12 @@ class Form extends Asset
 		if (is_a($minor, 'form_submission')) {
 			return true;
 		}
-		
+
 		return parent::canCreateLink($minor, $link_type, $exclusive);
-		
+
 	}//end canCreateLink()
 
-	
+
 	/**
 	* regenerates the content file for this form
 	*
@@ -439,17 +449,42 @@ class Form extends Asset
 	}//end fileRegeneration()
 
 
+//--       QUESTION MANAGEMENT       --//
+
+
 	/**
 	* get the question links attached to this form
 	*
 	* @access public
 	* @return Array(link)
 	*/
-	function getQuestions($force=false)
+	function getQuestions()
 	{
 		return $this->attr('questions');
 
 	}//end getQuestions()
+
+
+	/**
+	* get the assetids of ALL of this form's questions, including those
+	* inside sections
+	*
+	* @access public
+	* @return array
+	*/
+	function &getAllQuestions()
+	{
+		$all_questions =& $this->getQuestions();
+
+		$sections = &$this->getSections();
+		foreach ($sections as $section) {
+			$questions =& $section->getQuestions();
+			$all_questions = array_merge($all_questions, $questions);
+		}
+
+		return $all_questions;
+
+	}//end getAllQuestions()
 
 
 	/**
@@ -467,7 +502,7 @@ class Form extends Asset
 		if (!empty($questions)) {
 			foreach ($questions as $q_id => $question) {
 				$id           = $this->id.':q'.$q_id;
-				$result[$id]  = $am->getAsset($id);
+				$result[$id]  =& $am->getAsset($id);
 			}
 		}
 
@@ -497,6 +532,9 @@ class Form extends Asset
 	}//end getAllQuestionAssets()
 
 
+//--        ADDING AND DELETING QUESTIONS        --//
+
+
 	/**
 	* attach a question to this form
 	*
@@ -520,8 +558,10 @@ class Form extends Asset
 			$new_key = max(array_keys($questions)) + 1;
 		}
 
-		$questions[$new_key] = Array('question_type_code' => $type_code,
-							'attributes'	     => Array('name' => 'Question '.(count($questions)+1)));
+		$questions[$new_key] = Array(
+								'question_type_code'	=> $type_code,
+								'attributes'			=> Array('name' => 'Question '.(count($questions)+1)),
+							   );
 
 		$this->setAttrValue('questions', $questions);
 		$this->setAttrValue('next_questionid', $new_key + 1);
@@ -645,16 +685,30 @@ class Form extends Asset
 	*/
 	function _getAllowedLinks()
 	{
-		$page_links = Array(SQ_LINK_TYPE_2 => Array(
-						'form_section' => Array('card' => 'M', 'exclusive' => false),
-						'folder' => Array('card' => '1', 'exclusive' => true)
-						),
-						SQ_LINK_TYPE_3 => Array(
-						'form_submission' => Array('card' => 'M', 'exclusive' => false),
-						));
+		$page_links = Array(
+						SQ_LINK_TYPE_2	=> Array(
+											'form_section'	=> Array(
+																'card'		=> 'M',
+																'exclusive'	=> false,
+															   ),
+											'folder'		=> Array(
+																'card'		=> '1',
+																'exclusive'	=> true,
+															   ),
+										   ),
+						SQ_LINK_TYPE_3	=> Array(
+											'form_submission'	=> Array(
+																	'card'		=> 'M',
+																	'exclusive'	=> false,
+																   ),
+										   ),
+					  );
 		return $page_links;
 
 	}//end _getAllowedLinks()
+
+
+//--       SECTION MANAGEMENT       --//
 
 
 	/**
@@ -718,24 +772,6 @@ class Form extends Asset
 
 
 	/**
-	* saves a cookie to the client based on a submission id so they can
-	* come back later to view saved forms
-	*
-	* @param string		$id		the value to be saved to the cookie
-	* @param int		$days	the number of days before expiry
-	*
-	* @access public
-	* @return boolean
-	*/
-	function setFormCookie($id, $days=0)
-	{
-		$_SESSION['SQ_FORM_'.$this->getPrefix()] = $id;
-		return true;
-
-	}//end setFormCookie()
-
-
-	/**
 	* Clones certain specified components of the asset
 	*
 	* @param object asset &$clone the clone asset shell
@@ -780,38 +816,7 @@ class Form extends Asset
 	}//end cloneComponents()
 
 
-	/**
-	* print out headers or HTML that the asset requires to be printed before the design
-	*
-	* We have to do a little bit of trickery here to make sure that the design
-	* printed, and the global asset variables printed out, are for the form
-	* PAGE, rather than the form CONTENTS. Hence, this printFrontend() doesn't
-	* go back to its parent to print the design, allowing the form to do
-	* exactly that.
-	*
-	* @return boolean	indicating success (currently always true)
-	* @access public
-	*/
-	function printFrontend()
-	{
-		$prefix = $this->getPrefix();
-		// try to get the form cookie and gather the active submission
-		if (isset($_SESSION['SQ_FORM_'.$prefix])) {
-			$submissionid = $_SESSION['SQ_FORM_'.$prefix];
-			if ($submissionid) {
-				$this->active_submission = &$GLOBALS['SQ_SYSTEM']->am->getAsset($submissionid, 'form_submission');
-			}
-		}
-
-		// if the active submission does not yet exist, create it
-		if (!$this->active_submission && array_get_index($_POST, $prefix.'_submit', false)) {
-			$this->active_submission = &$this->createSubmission();
-			$this->setFormCookie($this->active_submission->id, $this->attr('cookie_time'));
-		}
-
-		return true;
-
-	}//end printFrontend()
+//--       BODYCOPIES       --//
 
 
 	/**
@@ -874,7 +879,7 @@ class Form extends Asset
 			$cf_output = ob_get_contents();
 		ob_end_clean();
 
-		$error = array_get_index($this->_tmp,'is_error',false);
+		$error = !empty($this->submission_errors);
 
 		if ($error) {
 			ob_start();
@@ -908,7 +913,7 @@ class Form extends Asset
 			$questions = $this->getQuestions();
 			$sections = &$this->getSections();
 			$replacements = Array();
-			
+
 			foreach ($questions as $q_id => $question) {
 				$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
 				$q_name = $q_asset->attr('name');
@@ -938,9 +943,6 @@ class Form extends Asset
 			$output = $cf_output;
 
 			$output .= '<table width="'.$this->attr('form_width').'"><tr>';
-			if ($this->attr('question_index')) {
-				$output .= '<td width="20">&nbsp;</td>';
-			}
 			$output .= '<td';
 			$output .= ($this->attr('question_col_width')) ? ' 	width="'.$this->attr('question_col_width').'">' : '>';
 			$output .='&nbsp;</td><td';
@@ -982,29 +984,6 @@ class Form extends Asset
 		return true;
 
 	}//end printStandard()
-
-
-	/**
-	* gets a section to process itself
-	*
-	* @param integer $order the section order to process
-	*
-	* @access public
-	* @return boolean
-	*/
-	function processSection($order)
-	{
-		// get the section to process itself
-		$posted_section = &$this->getSectionByOrder($order);
-
-		if (!is_null($this->active_submission)) {
-			// let this section know what the current submission and errors arrays are
-			$posted_section->active_submission =& $this->active_submission;
-		}
-
-		return $posted_section->processForm();
-
-	}//end processSection()
 
 
 	/**
@@ -1125,6 +1104,9 @@ class Form extends Asset
 	}//end includeContentFile()
 
 
+//--       FORM PROCESSING       --//
+
+
 	/**
 	* processes the form (non-wizard)
 	*
@@ -1135,34 +1117,66 @@ class Form extends Asset
 	*/
 	function processForm()
 	{
-		$this->active_submission->flushErrors();
-		$questions = $this->getQuestions();
+		$ok = true;
+		$this->submission_errors = Array();
+
+		$questions = $this->getAllQuestionAssets();
 		foreach (array_keys($questions) as $key) {
-			$question = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$key);
+			$question = &$GLOBALS['SQ_SYSTEM']->am->getAsset($key);
 			$question->active_submission =& $this->active_submission;
-			$question->processForm();
+			$question->populate();
 		}
 
-		$sections = &$this->getSections();
-		foreach (array_keys($sections) as $key) {
-			$section =& $sections[$key];
-			// there is still no problem with the section sharing the form's active submission
-			$section->active_submission =& $this->active_submission;
-			$section->processForm();
+		foreach (array_keys($questions) as $key) {
+			$question = &$GLOBALS['SQ_SYSTEM']->am->getAsset($key);
+			$question->active_submission =& $this->active_submission;
+			if (!$question->evaluate()) {
+				$this->submission_errors = array_merge($this->submission_errors, $question->failed_rules);
+				$ok = false;
+			}
 		}
 
-		// set complete flag when no error
-		if (!$this->active_submission->isError()) {
-			$this->active_submission->setAttrValue('complete', true);
+		if ($ok) {
+			// if the active submission does not yet exist, create it
+			$submission_asset = &$this->createSubmission();
+			foreach (array_keys($questions) as $key) {
+				$question = &$GLOBALS['SQ_SYSTEM']->am->getAsset($key);
+				$question->active_submission =& $this->active_submission;
+				$submission_asset->setAnswer($key, $question->getValue());
+				$submission_asset->setSummary($key, $question->attr('name'), $question->getSummary($question->getValue()));
+				$submission_asset->setProcessed($key);
+			}
+			$submission_asset->setAttrValue('complete', true);
+			$submission_asset->setAttrValue('xml', $this->getXML());
+			$submission_asset->saveAttributes();
 		}
-		$this->active_submission->saveAttributes();
 
-		// check to see if there is an error with the form
-		$this->_tmp['is_error'] = $this->active_submission->isError();
-
-		return !$this->_tmp['is_error'];
+		return $ok;
 
 	}//end processForm()
+
+
+	/**
+	* gets a section to process itself
+	*
+	* @param integer $order the section order to process
+	*
+	* @access public
+	* @return boolean
+	*/
+	function processSection($order)
+	{
+		// get the section to process itself
+		$posted_section = &$this->getSectionByOrder($order);
+
+		if (!is_null($this->active_submission)) {
+			// let this section know what the current submission and errors arrays are
+			$posted_section->active_submission =& $this->active_submission;
+		}
+
+		return $posted_section->processForm();
+
+	}//end processSection()
 
 
 	/**
@@ -1174,10 +1188,6 @@ class Form extends Asset
 	function finishForm()
 	{
 		$tyb = &$this->getBodycopy('Thank You');
-
-		// we want delete the cookie, so that when they come back to fill
-		// this form on another day, they start fresh, so set the number of days to -1
-		$this->setFormCookie(0, -1);
 
 		ob_start();
 		$this->printSummary(true);
@@ -1196,7 +1206,7 @@ class Form extends Asset
 				foreach ($questions as $q_id => $question) {
 					$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
 					$q_name = $q_asset->attr('name');
-					$replacements['response_'.$this->id.'_q'.$q_id] = $this->active_submission->getSummary($q_asset->id);
+					$replacements['response_'.$q_asset->id] = $q_asset->getSummary($q_asset->getValue());
 				}
 
 				foreach ($sections as $section) {
@@ -1205,7 +1215,7 @@ class Form extends Asset
 					foreach ($questions as $q_id => $question) {
 						$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($section->id.':q'.$q_id);
 						$q_name = $section->attr('name').': '.$q_asset->attr('name');
-						$replacements['response_'.$section->id.'_q'.$q_id] = $this->active_submission->getSummary($q_asset->id);
+						$replacements['response_'.$q_asset->id] = $q_asset->getSummary($q_asset->getValue());
 					}
 				}
 
@@ -1236,10 +1246,9 @@ class Form extends Asset
 	*/
 	function printErrors()
 	{
-		if (isset($this->active_submission)) {
-			$errors = $this->active_submission->getErrors();
+		if (!empty($this->submission_errors)) {
 			?><ul><?php
-			foreach ($errors as $error) {
+			foreach ($this->submission_errors as $error) {
 				?><li><?php echo $error ?></li><?php
 			}
 			?></ul><?php
@@ -1272,7 +1281,7 @@ class Form extends Asset
 			// check to see whether this belongs to us (if it isn't then perhaps a section took care)
 			if ($this->id == strtok($assetid, ':')) {
 				$question = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-				echo $question->getXML($this->active_submission->getAnswer($assetid));
+				echo $question->getXML($question->getValue());
 			}
 
 		}
@@ -1290,7 +1299,7 @@ class Form extends Asset
 				// check to see whether this belongs to the section
 				if ($section->id == strtok($assetid, ':')) {
 					$question = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-					echo $question->getXML($this->active_submission->getAnswer($assetid));
+					echo $question->getXML($question->getValue($assetid));
 				}
 
 			}
@@ -1332,7 +1341,7 @@ class Form extends Asset
 				echo ($html) ? '<tr><td><li>' : '';
 				echo $question->attr('name');
 				echo ($html) ? ': </li></td><td>' : ' : ';
-				echo $this->active_submission->getSummary($assetid);
+				echo $question->getSummary($question->getValue());
 				echo ($html) ? '</td></tr>' : "\n";
 			}
 
@@ -1357,7 +1366,7 @@ class Form extends Asset
 					echo ($html) ? '<tr><td><li>' : '';
 					echo $question->attr('name');
 					echo ($html) ? ': </li></td><td>' : ' : ';
-					echo $this->active_submission->getSummary($assetid);
+					echo $question->getSummary($question->getValue());
 					echo ($html) ? '</td></tr>' : "\n";
 				}
 
@@ -1405,69 +1414,24 @@ class Form extends Asset
 	{
 		if (!$this->attr('use_client_side')) return '';
 
-		$questions = $this->getQuestions();
-		$sections = &$this->getSections();
-		$code = '';						// blank sheet of code to start with
+		ob_start();
+		?>
+			submission_errors = new Array();
+		<?php
+		$code = ob_get_contents();
+		ob_end_clean();
 
-		foreach ($questions as $q_id => $question) {
-			$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
-			$q_code = $q_asset->generateJSCode();
+		$questions = $this->getAllQuestionAssets();
+
+		foreach (array_keys($questions) as $key) {
+			$question = &$GLOBALS['SQ_SYSTEM']->am->getAsset($key);
+			$q_code = $question->generateJSCode();
 			$code .= $q_code . (empty($q_code) ? "" : "\n");
-		}
-
-		foreach ($sections as $section) {
-			$s_code = $section->generateJSCode();
-			$code .= $s_code . (empty($s_code) ? "" : "\n");
 		}
 
 		return $code;
 
 	}//end generateJSCode()
-
-
-	/**
-	* logs submission to XML
-	*
-	* @access public
-	* @return boolean
-	*/
-	function logSubmission($log_id=null)
-	{
-		if (!$this->attr('log')) return false;
-
-		$contents = $this->getXML();
-
-		$submission_date = iso8601_date_component(ts_iso8601(time()));
-
-		$log_path = $this->data_path.'/submission_logs';		// log path
-
-		if (!is_dir($log_path)) {	// doesn't exist = create it
-			mkdir($log_path);
-		}
-
-		$filename_base = $log_path.'/log_';
-
-		// if log id is set - only take it if the submission already exists
-		if (!is_null($log_id)) {
-			$filename = $filename_base.$log_id.'.xml';
-			if (!file_exists($filename)) {	// file doesn't exist, we need a fresh ID
-				$log_id = null;
-			}
-		}
-
-		// run this always (instead of an 'else') because it may have been nulled out by prev block
-		if (is_null($log_id)) {
-			for ($i=1;;$i++) {		// loop through possible files (to be replaced by attribute?)
-			$filename = $filename_base.$i.'.xml';
-				if (!file_exists($filename)) {	// file doesn't exist, sweet
-					break;
-				}
-			}
-		}
-
-		return string_to_file($contents, $filename);
-
-	}//end logSubmission()
 
 
 	/**
@@ -1488,13 +1452,11 @@ class Form extends Asset
 		$copy_link  = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_3, 'is_dependant' => 1, 'is_exclusive' => 1);
 
 		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
-		$success = $submission->create($copy_link);
-		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
-
-		if (!$success) {
+		if (!$submission->create($copy_link)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
+		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		return $submission;
@@ -1584,7 +1546,6 @@ class Form extends Asset
 					foreach ($questions as $q_id => $question) {
 						$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($section->id.':q'.$q_id);
 						$q_name = $q_asset->attr('name');
-						
 						$keywords['response_'.$section->id.'_q'.$q_id] = 'Response: '.ellipsisize($section->attr('name'),20).': '.ellipsisize($q_name,30);
 					}
 				}
