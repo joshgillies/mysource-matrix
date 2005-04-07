@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: option_list.inc,v 1.14 2005/03/31 22:42:29 lwright Exp $
+* $Id: option_list.inc,v 1.15 2005/04/07 02:48:35 lwright Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *    <option_list />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -161,10 +161,10 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 			}//end optionListRemoveOption()
 
 		</script>
-			<?php text_box($prefix.'_new_options', '', 50); ?>
+			<?php text_box($prefix.'_new_options', '', 30); ?>
 			[ <a href="#" onclick="optionListAddOption('<?php echo $prefix ?>', 'options'); return false;">add</a> ]<br/>
 			<div id="<?php echo $prefix; ?>_current_options"><?php echo $current_to_string; ?></div>
-			<span style="display:none"><?php text_area($prefix.'_options', $current_to, 50, 5); ?></span>
+			<span style="display:none"><?php text_area($prefix.'_options', $current_to, 30, 5); ?></span>
 		<?php
 		}
 
