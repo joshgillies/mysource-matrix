@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_04.php,v 1.2 2005/03/30 01:09:57 lwright Exp $
+* $Id: step_04.php,v 1.3 2005/04/07 02:43:09 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@
 * Compiles languages on the system
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -89,6 +89,15 @@ array_unshift($asset_types, Array(
 								  'type_code' => 'asset',
 								  'dir'       => 'core/include/asset_edit',
 								  'name'      => 'Base Asset',
+								  ));
+
+// also add top-level global strings - this will not appear on screen as there
+// are no static screens for it (as it is not really an asset), but is important
+// to catch languages which may only have strings in the top level
+array_unshift($asset_types, Array(
+								  'type_code' => '',
+								  'dir'       => 'core',
+								  'name'      => 'Global Strings',
 								  ));
 
 echo 'Compiling localised edit interfaces...'."\n";
