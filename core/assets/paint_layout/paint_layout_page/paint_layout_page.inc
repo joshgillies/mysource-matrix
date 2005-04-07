@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_page.inc,v 1.1 2005/04/06 22:10:23 gnoel Exp $
+* $Id: paint_layout_page.inc,v 1.2 2005/04/07 17:58:45 gnoel Exp $
 *
 */
 
@@ -41,7 +41,7 @@ define('SQ_PAINT_LAYOUT_DEFAULT_FORMAT_NAME', 'default_format');
 * Those bodycopies also support conditions.
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -123,9 +123,6 @@ class Paint_Layout_Page extends Page_Standard
 	function printBody()
 	{
 		$asset_id = $this->_getAssetToPaint();
-
-		error_log('PLP - print body' . $asset_id);
-			
 			
 		$this->paintAssetFromId($asset_id);
 		
@@ -146,6 +143,8 @@ class Paint_Layout_Page extends Page_Standard
 	{
 		if (!isset($vars['keywords'])) return;
 		
+		$is_main_content_type = true;
+		
 		$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id, SQ_PAINT_LAYOUT_FORMAT_ASSET_TYPE, true);
 
 		// if we're being handled here (instead of one of our extensions),
@@ -156,7 +155,6 @@ class Paint_Layout_Page extends Page_Standard
 
 		$type_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($folder->id, SQ_LINK_TYPE_2, SQ_PAINT_LAYOUT_FORMAT_ASSET_TYPE);
 		
-		$type_code = '';
 		foreach ($type_links as $link_info) {
 			if (isset($parents[$link_info['minorid']])) {
 				$type_code = $link_info['value'];
@@ -164,9 +162,14 @@ class Paint_Layout_Page extends Page_Standard
 				
 				$type_format = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link_info['minorid']);
 				if (!empty($type_format)) $type_format->getKeywordsDescription($vars['keywords'], $type_code);
+				$is_main_content_type = false;
 				break;
 			}
 		}
+		
+		if ($is_main_content_type) {
+			$vars['keywords']['paint_layout'] = 'Paint Layout';
+		} 
 		
 	}//end onRequestKeywords()
 	
@@ -218,19 +221,39 @@ class Paint_Layout_Page extends Page_Standard
 	function paint(&$asset)
 	{
 		if (!empty($asset)) {
+			$bodycopy = &$this->getBodycopy();
+			$bodycopy->setKeywordReplacements($this->_getKeywordReplacements($bodycopy->getKeywords(), $asset));
 			
-			$asset_type_code = $asset->type();
-			$bodycopy = &$this->_getBodycopyFromAssetTypeCode($asset_type_code);
-			
-			if (!empty($bodycopy)) {
-				$painted_asset = $bodycopy->paintAsset($asset);
-				
-				echo $painted_asset;				
-			} 
-			
+			$bodycopy->printBody();	
 		}
 		
 	}//end paint()
+
+
+
+	/**
+	* Returns replacements for the page bodycopy keywords
+	* 
+	* @param Array 			$keywords	the keywords to replace
+	* @param Object Asset 	$asset		the asset to represent
+	* 
+	* @return Array(keyword => value)
+	* @access private 
+	*/
+	function &_getKeywordReplacements($keywords, &$asset)
+	{
+		$ret = Array();
+		
+		if (in_array('paint_layout', $keywords)) {
+			$asset_type_code = $asset->type();
+			$bodycopy = &$this->_getBodycopyFromAssetTypeCode($asset_type_code);
+			
+			$ret['paint_layout'] = (!empty($bodycopy)) ? $bodycopy->paintAsset($asset) : '';				
+		} 
+	
+		return $ret;
+		 
+	}
 
 
 	/**
