@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type_management.inc,v 1.19 2005/01/20 13:07:32 brobertson Exp $
+* $Id: design_area_menu_type_management.inc,v 1.20 2005/04/07 04:18:56 mmcintyre Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -50,7 +50,7 @@ class Design_Area_Menu_Type_Management extends Asset_Management
 								'added'			=> '0.0.1',
 								'type'			=> 'int',
 								'default'		=> 0,
-								'description'	=> 'The level in the heirarchy that we want to print, (-1 is the children, -2 is the current level, zero is the top level, 1 is the first sub level, and so on. Also, "top" is a readable version for "0", "sub" is a readable version for "1", "current" is a readble version for "-1", and "children" is a readble version for "-2")',
+								'description'	=> 'The level in the heirarchy that we want to print',
 							),
 							'settings' => Array(
 								'added'			=> '0.0.1',

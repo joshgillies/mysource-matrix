@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager_management.inc,v 1.13 2005/03/17 23:02:15 amiller Exp $
+* $Id: cron_manager_management.inc,v 1.14 2005/04/07 04:20:12 mmcintyre Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -51,7 +51,7 @@ class Cron_Manager_Management extends Asset_Management
 								'added'			=> '0.0.1',
 								'type'			=> 'int',
 								'default'		=> 0,
-								'description'	=> 'The GMT time of the "first" run that the Cron Manager made (or will make) was at this time, this is used in conjunction with the refresh time to generate the times that the Operating System\'s Cron (or other scheduler) will be initiating a cron run, mainly so that if a current script that is already running happens to run over into the next period it will run the jobs for that period as well',
+								'description'	=> 'The GMT time of the "first" run that the Cron Manager made (or will make) was at this time',
 							),
 							'refresh_time' => Array(
 								'added'			=> '0.0.1',
