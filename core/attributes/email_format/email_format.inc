@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: email_format.inc,v 1.11.2.1 2004/12/20 00:52:25 lwright Exp $
+* $Id: email_format.inc,v 1.11.2.2 2005/04/07 02:47:44 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -74,7 +74,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 		if (!isset($current_value['subject']))     $current_value['subject'] = '';
 		if (!isset($current_value['html_format'])) $current_value['html_format'] = '';
 		if (!isset($current_value['text_format'])) $current_value['text_format'] = '';
-		
+
 		if ($read_only) {
 			?>
 			<script language="Javascript">
@@ -82,20 +82,20 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 					var textDiv = document.getElementById(editor_name + "_text_format");
 					var htmlDiv = document.getElementById(editor_name + "_html_format");
 					var formatSpan = document.getElementById(editor_name + "_format_mode");
-				
+
 					if (htmlDiv.style.display == "none") {
 
 						htmlDiv.style.display = "";
 						textDiv.style.display = "none";
 						formatSpan.innerHTML = 'HTML Email Version';
-	
+
 					} else {
-						
+
 						textDiv.style.display = "";
 						htmlDiv.style.display = "none";
 						formatSpan.innerHTML = 'Text Email Version';
 					}
-					
+
 				}//end emailFormatSwitchEditingMode()
 			</script>
 			<table border="0">
@@ -150,19 +150,19 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 				</tr>
 			</table>
 			<?php
-			
+
 			return;
-			
+
 		}//end if read only
 
 		$wysiwyg = $this->_createEditor($prefix);
 		$wysiwyg->set_contents($current_value['html_format']);
-		
+
 		$current_to_string = '';
 		$current_to = '';
 
 		$i = 0;
-		
+
 		foreach ($current_value['to'] as $email) {
 			$current_to_string .= '<div id="'.$prefix.'_'.$i.'">[ <a href="#" onclick="Javascript: emailFormatDeleteAddress('.$i.', \''.$prefix.'\', \'to\'); return false;">del</a> ] <span id="'.$prefix.'_content_'.$i.'">'.htmlspecialchars($email).'</span></div>';
 			$current_to .= $email.';';
@@ -171,14 +171,14 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 
 		?>
 		<script language="Javascript">
-		
+
 			// need to define 'next index' stuff as an array in case there is more than one option
 			// list/email format attribute on the screen
 			if (typeof next_index == 'undefined') {
 				next_index = new Array();
 			}
 			next_index['<?php echo $prefix ?>'] = <?php echo $i ?>;
-		
+
 			function emailFormatAddAddress(editor_name, type) {
 				var value = document.getElementById(editor_name + "_" + type);
 				var box = document.getElementById(editor_name + "_new_" + type);
@@ -188,29 +188,29 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 
 				div.innerHTML += '<div id="' + editor_name + '_' + next_index[editor_name].toString() + '">[ <a href="#" onclick="Javascript: emailFormatDeleteAddress(' + next_index[editor_name].toString() + ', \'' + editor_name + '\', \'' + type + '\'); return false;">del</a> ] <span id="' + editor_name + '_content_' + next_index[editor_name].toString() + '">' + box.value.replace('<', '&lt;').replace('>', '&gt;') + '</span></div>';
 				value.value   += box.value + ";";
-				
+
 				next_index[editor_name]++;
-				
+
 				box.value = "";
 				box.focus();
-				
+
 			}//end emailFormatAddAddress()
 
 
 			function emailFormatDeleteAddress(index, editor_name, type) {
 				var div = document.getElementById(editor_name + "_current_" + type);
 				var value = document.getElementById(editor_name + "_" + type);
-				
+
 				arrIndex = 0;
 				email_array = new Array();
 
-				// get the first div in the list				
+				// get the first div in the list
 				divX = div.firstChild;
-				
+
 				while(divX != null) {
 					if (divX.style.display != 'none') {
 						email_addr = divX.firstChild.nextSibling.nextSibling.nextSibling.innerHTML;
-					
+
 						// this is the one we want
 						if (divX.id == (editor_name + "_" + index)) {
 							divX.style.display = 'none';
@@ -219,10 +219,10 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 						}
 						arrIndex++;
 					}
-					
+
 					divX = divX.nextSibling;
 				}
-				
+
 				var new_value_content = '';
 
 				for (var i = 0; i < email_array.length; i++) {
@@ -230,15 +230,15 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 					if (typeof email != 'undefined') {
 						re = new RegExp("\\\[.*\\\] (.*)", "g");
 						email_addr = email.replace(re, "\$1");
-	
+
 						new_value_content += email_addr + ";";
 					}
 				}
-				
+
 				value.value = new_value_content;
 
 			}//end emailFormatDeleteAddress()
-			
+
 			var initialisedEmailEditors = new Array();
 			function emailFormatSwitchEditingMode(editor_name) {
 				var editor = eval('editor_' + editor_name);
@@ -246,10 +246,10 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 				var textDiv = document.getElementById(editor_name + "_text_body_div");
 				var htmlDiv = document.getElementById(editor_name + "_html_body_div");
 				var formatSpan = document.getElementById(editor_name + "_format_mode");
-			
+
 				if (htmlDiv.style.display == "none") {
 					var setDesignMode = true;
-			
+
 					// initilise the wysiwg if this is the first time
 					// it is being shown - skip this otherwise
 					if (initialisedEmailEditors[editor._uniqueID] == null) {
@@ -259,9 +259,9 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 					} else if (editor._initialised != true) {
 						return;
 					}
-			
+
 					htmlDiv.style.display = "";
-					
+
 					// if we are using an iframe for this editor, we set its designMode property if we need to
 					if (editor._iframe) {
 						editor._iframe.style.width = editor.config.width;
@@ -273,12 +273,12 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 					formatSpan.innerHTML = 'HTML Email Version';
 
 				} else if (editor._initialised == true) {
-					
+
 					textDiv.style.display = "";
 					htmlDiv.style.display = "none";
 					formatSpan.innerHTML = 'Text Email Version';
 				}
-				
+
 			}//end emailFormatSwitchEditingMode()
 
 		</script>
@@ -373,7 +373,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 
 		$value['from']    = (isset($_REQUEST[$prefix.'_from'])) ? $_REQUEST[$prefix.'_from'] : '';
 		$value['subject'] = (isset($_REQUEST[$prefix.'_subject'])) ? $_REQUEST[$prefix.'_subject'] : '';
-		
+
 		$this->processed = $this->setValue($value);
 
 	}//end process()
@@ -396,7 +396,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 			if (is_scalar($unser)) return false;
 			else $value = $unser;
 		}
-		
+
 		if (!is_array($value)) return false;
 		if (!isset($value['to']))          $test_value['to'] = Array();
 		if (!isset($value['from']))        $test_value['from'] = '';
@@ -408,8 +408,8 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 		return true;
 
 	}//end validateValue()
-	
-	
+
+
 	/**
 	* Use the values stored in this attribute to send an email
 	*
@@ -427,6 +427,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 
 		// replace keywords in all our values
 		$from      = replace_keywords($current_value['from'],        $replacements);
+		$to        = replace_keywords($current_value['to'],          $replacements);
 		$subject   = replace_keywords($current_value['subject'],     $replacements);
 		$text_body = replace_keywords($current_value['text_format'], $replacements);
 		$html_body = replace_keywords($current_value['html_format'], $replacements);
@@ -452,7 +453,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 
 		$hdrs = Array('From' => $from, 'Subject' => $subject);
 
-		foreach ($current_value['to'] as $to_email) {
+		foreach ($to as $to_email) {
 
 			$to_email = trim($to_email);
 
