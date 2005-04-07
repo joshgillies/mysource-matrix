@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.17 2005/04/06 23:05:33 mmcintyre Exp $
+* $Id: tables.xml,v 1.18 2005/04/07 05:39:42 mmcintyre Exp $
 *
 */
 -->
@@ -34,7 +34,7 @@
 					<description />
 				</column>
 				<column name="version" allow_null="0">
-					<type>VARCHAR(10)</type>
+					<type>VARCHAR(20)</type>
 					<type_variations />
 					<default>'0.0.1'</default>
 					<description />
@@ -92,7 +92,7 @@
 					<description />
 				</column>
 				<column name="status" allow_null="0">
-					<type>INT</type>
+					<type>SMALLINT</type>
 					<type_variations />
 					<default>1</default>
 					<description />
@@ -276,10 +276,8 @@
 		<table name="ast_lnk_tree" require_rollback="1">
 			<columns>
 				<column name="treeid" allow_null="0">
-					<type>TEXT</type>
-					<type_variations>
-						<oci8>VARCHAR(4000)</oci8>
-					</type_variations>
+					<type>VARCHAR(2000)</type>
+					<type_variations />
 					<default>''</default>
 					<description />
 				</column>
@@ -316,7 +314,7 @@
 					<description />
 				</column>
 				<column name="version" allow_null="0">
-					<type>VARCHAR(10)</type>
+					<type>VARCHAR(20)</type>
 					<type_variations />
 					<default>'0.0.1'</default>
 					<description />
@@ -401,14 +399,14 @@
 					<default>''</default>
 					<description />
 				</column>
-				<column name="name" allow_null="1">
-					<type>VARCHAR(128)</type>
+				<column name="name" allow_null="0">
+					<type>VARCHAR(100)</type>
 					<type_variations />
 					<default />
 					<description />
 				</column>
-				<column name="type" allow_null="1">
-					<type>VARCHAR(128)</type>
+				<column name="type" allow_null="0">
+					<type>VARCHAR(50)</type>
 					<type_variations />
 					<default />
 					<description>There are different types of attributes.. classname</description>
@@ -448,10 +446,8 @@
 					<description />
 				</column>
 				<column name="description" allow_null="1">
-					<type>TEXT</type>
-					<type_variations>
-						<oci8>CLOB</oci8>
-					</type_variations>
+					<type>VARCHAR(255)</type>
+					<type_variations />
 					<default>''</default>
 					<description />
 				</column>
@@ -601,15 +597,14 @@
 					<description />
 				</column>
 				<column name="assetid" allow_null="0">
-					<type>VARCHAR(255)</type>
+					<type>VARCHAR(15)</type>
 					<type_variations />
 					<default />
 					<description />
 				</column>
 				<column name="url" allow_null="0">
-					<type>TEXT</type>
-					<type_variations>
-						<oci8>CLOB</oci8>
+					<type>VARCHAR(500)</type>
+					<type_variations />
 					</type_variations>
 					<default>''</default>
 					<description />
@@ -656,7 +651,7 @@
 					<description />
 				</column>
 				<column name="sort_order" allow_null="0">
-					<type>INT</type>
+					<type>SMALLINT</type>
 					<type_variations />
 					<default>0</default>
 					<description />
@@ -677,10 +672,8 @@
 		<table name="ast_lookup" require_rollback="1">
 			<columns>
 				<column name="url" allow_null="0">
-					<type>TEXT</type>
-					<type_variations>
-						<oci8>CLOB</oci8>
-					</type_variations>
+					<type>VARCHAR(500)</type>
+					<type_variations />
 					<default>''</default>
 					<description />
 				</column>
@@ -723,15 +716,13 @@
 		<table name="ast_lookup_value" require_rollback="1">
 			<columns>
 				<column name="url" allow_null="0">
-					<type>TEXT</type>
-					<type_variations>
-						<oci8>CLOB</oci8>
-					</type_variations>
+					<type>VARCHAR(500)</type>
+					<type_variations />
 					<default>''</default>
 					<description />
 				</column>
 				<column name="name" allow_null="0">
-					<type>VARCHAR(64)</type>
+					<type>VARCHAR(50)</type>
 					<type_variations/>
 					<default />
 					<description />
@@ -764,18 +755,14 @@
 		<table name="ast_lookup_remap" require_rollback="1">
 			<columns>
 				<column name="url" allow_null="0">
-					<type>TEXT</type>
-					<type_variations>
-						<oci8>CLOB</oci8>
-					</type_variations>
+					<type>VARCHAR(500)</type>
+					<type_variations />
 					<default>''</default>
 					<description>The URL that is remapping to another URL</description>
 				</column>
 				<column name="remap_url" allow_null="0">
-					<type>TEXT</type>
-					<type_variations>
-						<oci8>CLOB</oci8>
-					</type_variations>
+					<type>VARCHAR(500)</type>
+					<type_variations />
 					<default>''</default>
 					<description>The (hopefully) valid URL that is being remapped to</description>
 				</column>
@@ -808,7 +795,7 @@
 					<description />
 				</column>
 				<column name="permission" allow_null="0">
-					<type>INT</type>
+					<type>SMALLINT</type>
 					<type_variations />
 					<default>0</default>
 					<description />
@@ -845,7 +832,7 @@
 					<description />
 				</column>
 				<column name="type_code" allow_null="1">
-					<type>VARCHAR(255)</type>
+					<type>VARCHAR(100)</type>
 					<type_variations />
 					<default />
 					<description>The type code of the asset type which we are restricting access to. Set to NULL to allow access to all asset types.</description>
@@ -944,7 +931,7 @@
 		<table name="ast_wflow" require_rollback="1">
 			<columns>
 				<column name="assetid" allow_null="0">
-					<type>VARCHAR(255)</type>
+					<type>VARCHAR(15)</type>
 					<type_variations />
 					<default />
 					<description />
@@ -1013,7 +1000,7 @@
 					<description />
 				</column>
 				<column name="type" allow_null="0">
-					<type>VARCHAR(255)</type>
+					<type>VARCHAR(100)</type>
 					<type_variations />
 					<default />
 					<description>The type of the message as a path eg. asset.workflow OR asset.permissions</description>
@@ -1067,9 +1054,9 @@
 					<description />
 				</column>
 				<column name="running" allow_null="0">
-					<type>INT</type>
+					<type>CHAR(1)</type>
 					<type_variations />
-					<default>0</default>
+					<default>'0'</default>
 					<description>Flag to indicate if the HIPO Job has started running yet</description>
 				</column>
 				<column name="userid" allow_null="0">
@@ -1192,7 +1179,7 @@
 		<table name="sch_idx_wgt_dflt" require_rollback="0">
 			<columns>
 				<column name="type_code" allow_null="0">
-					<type>VARCHAR(255)</type>
+					<type>VARCHAR(100)</type>
 					<type_variations />
 					<default />
 					<description>The type code of the asset type to which this component weighting applies to.</description>
@@ -1204,15 +1191,13 @@
 					<description />
 				</column>
 				<column name="description" allow_null="1">
-					<type>TEXT</type>
-					<type_variations>
-						<oci8>CLOB</oci8>
-					</type_variations>
+					<type>VARCHAR(255)</type>
+					<type_variations />
 					<default></default>
 					<description />
 				</column>
 				<column name="weight" allow_null="0">
-					<type>INT</type>
+					<type>SMALLINT</type>
 					<type_variations />
 					<default>0</default>
 					<description />
@@ -1298,11 +1283,9 @@
 					<default />
 					<description>Asset Type of the asset broadcasting the event</description>
 				</column>
-				<column name="treeid" allow_null="0">
-					<type>TEXT</type>
-					<type_variations>
-						<oci8>CLOB</oci8>
-					</type_variations>
+				<column name="treeid" allow_null="1">
+					<type>VARCHAR(2000)</type>
+					<type_variations />
 					<default />
 					<description>Tree ID. If broadcaster is a child of it (immediate or not) the trigger might want to be executed.</description>
 				</column>
