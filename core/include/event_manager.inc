@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: event_manager.inc,v 1.16 2005/04/06 23:05:34 mmcintyre Exp $
+* $Id: event_manager.inc,v 1.17 2005/04/07 06:43:56 mmcintyre Exp $
 *
 */
 
@@ -64,7 +64,7 @@
 * </PRE>
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix
 */
 class Event_Manager extends MySource_Object
@@ -360,7 +360,7 @@ class Event_Manager extends MySource_Object
 				  INNER JOIN sq_ast_lnk_tree t2 ON l2.linkid = t2.linkid, 
 				  sq_ast a 
 				WHERE l1.'.$side_of_link.'id = '.$db->quote($assetid).' 
-				  AND SUBSTRING(t1.treeid FROM 1 FOR CHAR_LENGTH(t2.treeid)) = t2.treeid 
+				  AND SUBSTR(t1.treeid, 1, LENGTH(t2.treeid)) = t2.treeid 
 				  AND a.assetid=l2.'.$side_of_link.'id 
 				  AND a.type_code='.$db->quote($type_code).'
 				ORDER BY t2.treeid DESC';
@@ -382,7 +382,7 @@ class Event_Manager extends MySource_Object
 				  INNER JOIN sq_ast_lnk_tree t2 ON l2.linkid = t2.linkid, 
 				  sq_ast a
 				WHERE l1.'.$side_of_link.'id = '.$db->quote($assetid).'
-					AND SUBSTRING(t1.treeid FROM 1 FOR CHAR_LENGTH(t2.treeid)) = t2.treeid
+					AND SUBSTR(t1.treeid, 1, LENGTH(t2.treeid)) = t2.treeid
 					AND a.assetid = l2.'.$side_of_link.'id
 					AND ('.$treeid_string.')
 				ORDER BY t2.treeid';

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_asset_statuses_edit_fns.inc,v 1.5 2005/04/06 23:05:34 mmcintyre Exp $
+* $Id: report_asset_statuses_edit_fns.inc,v 1.6 2005/04/07 06:43:05 mmcintyre Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 * @author  Dmitry Baranovskiy <dbaranovskiy@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -77,7 +77,7 @@ class Report_Asset_Statuses_Edit_Fns extends Report_Edit_Fns
 			// need to restrict results according to link tree position too
 			$parent_treeid = $db->getOne('SELECT t.treeid FROM sq_ast_lnk_tree t WHERE linkid IN (SELECT linkid FROM sq_ast_lnk WHERE minorid = '.$root_link['minorid'].')');
 			assert_valid_db_result($parent_treeid);
-			$where[] = 'SUBSTRING(t.treeid FROM 1 FOR '.strlen($parent_treeid).') = '.$db->quote($parent_treeid);
+			$where[] = 'SUBSTR(t.treeid, 1, '.strlen($parent_treeid).') = '.$db->quote($parent_treeid);
 			$tables[] = 'ast_lnk l';
 			$tables[] = 'ast_lnk_tree t';
 			$where[] = 'l.linkid = t.linkid';

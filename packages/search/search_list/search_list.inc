@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_list.inc,v 1.6 2005/03/24 03:04:29 dheppell Exp $
+* $Id: search_list.inc,v 1.7 2005/04/07 06:48:56 mmcintyre Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_listing/page_asset
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -111,7 +111,7 @@ class Search_List extends Page_Asset_Listing
 		$sm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
 		$search_info = $search_page->populateBaseSearchInfo();
 		$base_sql = $sm->constructBaseSearchQuery($search_info);
-		$base_sql['select'] = ' SELECT ai.value, ai.assetid, SUBSTRING(ai.value, 1, 1) AS first_letter';
+		$base_sql['select'] = ' SELECT ai.value, ai.assetid, SUBSTR(ai.value, 1, 1) AS first_letter';
 
 		switch ($field_type) {
 			case 'attribute' :

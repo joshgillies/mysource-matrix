@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_whats_new.inc,v 1.13 2005/02/15 00:04:30 lwright Exp $
+* $Id: page_whats_new.inc,v 1.14 2005/04/07 06:40:38 mmcintyre Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../page_templates/page_asset_listing/page_as
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -160,7 +160,7 @@ class Page_Whats_New extends Page_Asset_Listing
 
 			// special case for A-Z listings because they require another field selected from the database
 			if ($group_by == 'letter') {
-				$query['select'] .= ', SUBSTRING(a.'.$sort_by.', 1, 1) AS first_letter';
+				$query['select'] .= ', SUBSTR(a.'.$sort_by.', 1, 1) AS first_letter';
 			}
 
 			$links = $db->getAll(implode(' ', $query));
@@ -190,7 +190,7 @@ class Page_Whats_New extends Page_Asset_Listing
 
 			// special case for A-Z listings because they require another field selected from the database
 			if ($group_by == 'letter') {
-				$query['select'] .= ', SUBSTRING(a.'.$sort_by.', 1, 1) AS first_letter';
+				$query['select'] .= ', SUBSTR(a.'.$sort_by.', 1, 1) AS first_letter';
 			}
 
 			$children = $db->getAssoc(implode(' ', $query));

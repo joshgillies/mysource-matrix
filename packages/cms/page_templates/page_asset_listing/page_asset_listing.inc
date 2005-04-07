@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.66 2005/03/23 03:56:35 tbarrett Exp $
+* $Id: page_asset_listing.inc,v 1.67 2005/04/07 06:39:24 mmcintyre Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.66 $
+* @version $Revision: 1.67 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -283,7 +283,7 @@ class Page_Asset_Listing extends Listing_Engine
 					foreach ($root_asset_ids as $root_asset_id) {
 						$query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($root_asset_id, SQ_SC_LINK_BACKEND_NAV, array_keys($wanted_types), false, $side_of_link, null, null, null, $sort_by, SQ_PERMISSION_READ);
 						if (empty($query)) return Array();
-						$query['select'] .= ', SUBSTRING(a.'.$sort_by.', 1, 1) AS first_letter';
+						$query['select'] .= ', SUBSTR(a.'.$sort_by.', 1, 1) AS first_letter';
 
 						$db = &$GLOBALS['SQ_SYSTEM']->db;
 						$new_links = $db->getAll(implode(' ', $query));
@@ -329,7 +329,7 @@ class Page_Asset_Listing extends Listing_Engine
 							$query = $GLOBALS['SQ_SYSTEM']->am->generateGetParentsQuery($root_asset_id, array_keys($wanted_types), false, $sort_by, SQ_PERMISSION_READ);
 						}
 						if (empty($query)) return Array();
-						$query['select'] .= ', SUBSTRING(a.'.$sort_by.', 1, 1) AS first_letter';
+						$query['select'] .= ', SUBSTR(a.'.$sort_by.', 1, 1) AS first_letter';
 						$db = &$GLOBALS['SQ_SYSTEM']->db;
 						$new_assets_to_list = $db->getAssoc(implode(' ', $query));
 						assert_valid_db_result($new_assets_to_list);
