@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.77 2005/04/04 23:12:46 tbarrett Exp $
+* $Id: general.inc,v 1.78 2005/04/07 02:45:22 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.77 $
+* @version $Revision: 1.78 $
 * @package MySource_Matrix
 */
 
@@ -149,7 +149,7 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 				}
 
 				// Uncomment below for debugging from cmdline
-				#error_log($str."\n".$bt_str."\n".str_repeat("=+", 50)."\n", 3, SQ_DATA_PATH.'/private/logs/back_traces.log');
+				error_log($str."\n".$bt_str."\n".str_repeat("=+", 50)."\n", 3, SQ_DATA_PATH.'/private/logs/back_traces.log');
 
 				break;
 
@@ -802,5 +802,19 @@ function hide_system_root($message='')
 
 }//end hide_system_root()
 
+
+/**
+* Provides a 'shorthand' interface to the Locale Manager's getString() method
+*
+* @return string
+* @access public
+*/
+function translate($string)
+{
+	$args = array_slice(func_get_args(),1);
+	if (!isset($GLOBALS['SQ_SYSTEM'])) return false;
+	return $GLOBALS['SQ_SYSTEM']->lm->getString($string, $args);
+
+}//end translate()
 
 ?>
