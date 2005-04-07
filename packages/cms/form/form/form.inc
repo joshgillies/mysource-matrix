@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.70.2.12 2005/03/18 04:36:48 lwright Exp $
+* $Id: form.inc,v 1.70.2.13 2005/04/07 05:58:25 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -35,7 +35,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.70.2.12 $
+* @version $Revision: 1.70.2.13 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -176,7 +176,7 @@ class Form extends Bridge
 			if (is_null($sort_by)) {
 				$sort_by = 'sort_order';
 			}
-			
+
 			uasort($links, create_function('$a,$b','return $a["'.$sort_by.'"] < $b["'.$sort_by.'"];'));
 
 			$this->_tmp['getLinks'][$assetid][$side_of_link] = $links;
@@ -187,7 +187,7 @@ class Form extends Bridge
 
 	}//end getLinks()
 
-	
+
 	/**
 	* Used by asset map to return a asset map-style link array
 	*
@@ -228,7 +228,7 @@ class Form extends Bridge
 			unset($link['is_exclusive']);
 
 		}
-		
+
 		return $links;
 
 	}//end getAssetMapLinks()
@@ -282,7 +282,7 @@ class Form extends Bridge
 			}
 		}
 
-		// now questions		
+		// now questions
 		$entries = $this->getQuestions();
 		if ($type_code == Array()) {
 			foreach ($entries as $questionid => $data) {
@@ -363,12 +363,12 @@ class Form extends Bridge
 		if (is_a($minor, 'form_submission')) {
 			return true;
 		}
-		
+
 		return parent::canCreateLink($minor, $link_type, $exclusive);
-		
+
 	}//end canCreateLink()
-	
-	
+
+
 	/**
 	* Set the last updated info for this asset
 	*
@@ -641,7 +641,7 @@ class Form extends Bridge
 		$sections = Array();
 
 		if (empty($section_links)) return Array();
-		
+
 		foreach ($section_links as $link) {
 			$sections[$link['sort_order']] = &$am->getAsset($link['minorid'], $link['minor_type_code']);
 		}
@@ -721,7 +721,7 @@ class Form extends Bridge
 	*                       );
 	*                       or alternately
 	*                       Array('all');
-	* 
+	*
 	* @return boolean
 	* @access public
 	* @see asset::cloneComponents()
@@ -729,28 +729,28 @@ class Form extends Bridge
 	function cloneComponents(&$clone, $components)
 	{
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		
+
 		if (!parent::cloneComponents($clone, $components)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;			
+			return false;
 		}
-		
+
 		if (in_Array('attributes', $components) || in_Array('all', $components)) {
 			$sort_order = $this->attr('sort_order');
 			$sort_order = str_replace($this->id.':q', $clone->id.':q', $sort_order);
-			
+
 			// save the information
 			$clone->setAttrValue('sort_order', $sort_order);
 			$clone->saveAttributes();
-			
+
 		}
-		
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');		
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
-	
+
 	}//end cloneComponents()
-	
-	
+
+
 	/**
 	* print out headers or HTML that the asset requires to be printed before the design
 	*
@@ -773,18 +773,18 @@ class Form extends Bridge
 				$this->active_submission = &$GLOBALS['SQ_SYSTEM']->am->getAsset($submissionid, 'form_submission');
 			}
 		}
-		
+
 		// if the active submission does not yet exist, create it
 		if (!$this->active_submission && array_get_index($_POST, $prefix.'_submit', false)) {
 			$this->active_submission = &$this->createSubmission();
 			$this->setFormCookie($this->active_submission->id, $this->attr('cookie_time'));
 		}
-	
+
 		return true;
-		
+
 	}//end printFrontend()
-	
-	
+
+
 	/**
 	* Called by the design to print the body of this asset
 	*
@@ -820,13 +820,13 @@ class Form extends Bridge
 			</script>
 		<?php
 		}
-		
+
 		$this->printStandard();
 		echo '</form>';
-		
+
 		$result = ob_get_contents();
 		ob_end_clean();
-		
+
 		echo $result;
 
 	}//end printBody()
@@ -1106,8 +1106,8 @@ class Form extends Bridge
 	*/
 	function processForm()
 	{
-		$this->active_submission->flushErrors();		
-		
+		$this->active_submission->flushErrors();
+
 		$questions = &$this->getQuestions();
 		foreach (array_keys($questions) as $key) {
 			$question = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$key);
@@ -1124,7 +1124,7 @@ class Form extends Bridge
 		}
 
 		$this->active_submission->saveAttributes();
-		
+
 		// check to see if there is an error with the form
 		$this->_tmp['is_error'] = $this->active_submission->isError();
 
@@ -1146,7 +1146,7 @@ class Form extends Bridge
 		// we want delete the cookie, so that when they come back to fill
 		// this form on another day, they start fresh, so set the number of days to -1
 		$this->setFormCookie(0, -1);
-		
+
 		ob_start();
 		$this->printSummary(true);
 		$summary_info = ob_get_contents();
@@ -1288,7 +1288,7 @@ class Form extends Bridge
 	function printSummary($html = false)
 	{
 		echo ($html) ? '<table>' : '';
-		
+
 		// unattached questions first
 		$sort_order = $this->attr('sort_order');
 
@@ -1437,7 +1437,7 @@ class Form extends Bridge
 
 	}//end logSubmission()
 
-	
+
 	/**
 	* creates a new submission object
 	*
@@ -1450,11 +1450,11 @@ class Form extends Bridge
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('form_submission');
-		
+
 		// create the form submission asset
 		$submission = new Form_Submission();
 		$copy_link  = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_3, 'is_dependant' => 1, 'is_exclusive' => 1);
-		
+
 		// need to create this no matter what, even if other users have the
 		// links lock
 		$GLOBALS['SQ_INSTALL'] = true;
@@ -1468,8 +1468,8 @@ class Form extends Bridge
 		return $submission;
 
 	} // end createSubmission()
-	
-	
+
+
 	/**
 	* Add valid keywords for this asset to an array of keywords when asked
 	*
@@ -1482,6 +1482,7 @@ class Form extends Bridge
 	*/
 	function onRequestKeywords(&$broadcaster, $vars=Array())
 	{
+
 		if (!isset($vars['keywords'])) return;
 
 		$keywords = Array();
@@ -1499,10 +1500,11 @@ class Form extends Bridge
 
 		$bodycopies = Array();
 		foreach ($bodycopy_links as $link_info) {
-			if (isset($parents[$link_info['minorid']])) {
+			if (array_search($link_info['minorid'], $parents) !== false) {
 				$bodycopies[] = $link_info['value'];
 			}
 		}
+
 		if (empty($bodycopies)) return;
 
 		$questions = $this->getQuestions();
@@ -1547,7 +1549,7 @@ class Form extends Bridge
 				}
 
 				foreach ($sections as $section) {
-					$keywords['section_title_'.$section->id] = 'Section Title: '.$q_name;
+					$keywords['section_title_'.$section->id] = 'Section Title: '.$section->attr('name');
 					$questions = &$section->getQuestions();
 					foreach ($questions as $q_id => $question) {
 						$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($section->id.':q'.$q_id);
