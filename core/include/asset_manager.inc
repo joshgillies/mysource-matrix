@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.294 2005/04/06 23:05:34 mmcintyre Exp $
+* $Id: asset_manager.inc,v 1.295 2005/04/07 06:46:03 mmcintyre Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.294 $
+* @version $Revision: 1.295 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2196,8 +2196,8 @@ class Asset_Manager extends MySource_Object
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
-			$sql = 'SELECT SUBSTR(t.treeid, '.$db->quote(strlen($treeid) + 1).') as treeid,
-							(LENGTH(t.treeid) / '.SQ_CONF_ASSET_TREE_SIZE.') '.(($current_level) ? ' - '.$current_level : '').' as level,
+			$sql = 'SELECT SUBSTR(t.treeid, '.$db->quoteSmart((int) strlen($treeid) + 1).') as treeid,
+							((LENGTH(t.treeid) / '.SQ_CONF_ASSET_TREE_SIZE.') '.(($current_level) ? ' - '.$current_level : '').') as lvl,
 							l.linkid, a.assetid, a.short_name, a.type_code, l.link_type, l.sort_order, l.value, l.is_dependant
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t
 						  INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l ON t.linkid = l.linkid
