@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.92 2005/04/07 03:15:28 lwright Exp $
+* $Id: form.inc,v 1.93 2005/04/07 05:34:36 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.92 $
+* @version $Revision: 1.93 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1138,17 +1138,19 @@ class Form extends Asset
 
 		if ($ok) {
 			// if the active submission does not yet exist, create it
-			$submission_asset = &$this->createSubmission();
-			foreach (array_keys($questions) as $key) {
-				$question = &$GLOBALS['SQ_SYSTEM']->am->getAsset($key);
-				$question->active_submission =& $this->active_submission;
-				$submission_asset->setAnswer($key, $question->getValue());
-				$submission_asset->setSummary($key, $question->attr('name'), $question->getSummary($question->getValue()));
-				$submission_asset->setProcessed($key);
+			if ($this->attr('log_submissions')) {
+				$submission_asset = &$this->createSubmission();
+				foreach (array_keys($questions) as $key) {
+					$question = &$GLOBALS['SQ_SYSTEM']->am->getAsset($key);
+					$question->active_submission =& $this->active_submission;
+					$submission_asset->setAnswer($key, $question->getValue());
+					$submission_asset->setSummary($key, $question->attr('name'), $question->getSummary($question->getValue()));
+					$submission_asset->setProcessed($key);
+				}
+				$submission_asset->setAttrValue('complete', true);
+				$submission_asset->setAttrValue('xml', $this->getXML());
+				$submission_asset->saveAttributes();
 			}
-			$submission_asset->setAttrValue('complete', true);
-			$submission_asset->setAttrValue('xml', $this->getXML());
-			$submission_asset->saveAttributes();
 		}
 
 		return $ok;

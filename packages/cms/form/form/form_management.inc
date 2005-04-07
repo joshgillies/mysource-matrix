@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_management.inc,v 1.32 2005/04/07 03:15:28 lwright Exp $
+* $Id: form_management.inc,v 1.33 2005/04/07 05:34:36 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -57,7 +57,7 @@ class Form_Management extends Asset_Management
 						'log_submissions'			=> Array(
 														'added'			=> '0.0.1',
 														'type'			=> 'boolean',
-														'default'		=> 0,
+														'default'		=> true,
 														'parameters'	=> Array(
 																			'allow_empty'	=> false,
 																		   ),
@@ -65,7 +65,7 @@ class Form_Management extends Asset_Management
 						'show_results'				=> Array(
 														'added'			=> '0.0.1',
 														'type'			=> 'boolean',
-														'default'		=> 1,
+														'default'		=> true,
 														'parameters'	=> Array(
 																			'allow_empty'	=> false,
 																		   ),

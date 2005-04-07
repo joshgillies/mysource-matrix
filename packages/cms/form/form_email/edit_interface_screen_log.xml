@@ -18,12 +18,17 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_log.xml,v 1.5 2005/03/31 06:56:17 lwright Exp $
+* $Id: edit_interface_screen_log.xml,v 1.6 2005/04/07 05:34:36 lwright Exp $
 *
 */
 -->
 
 <contents>
+	<section name="Enable / Disable Logging">
+		<field attribute="log_submissions">
+			<boolean true_text="Yes" false_text="No" />
+		</field>
+	</section>
 	<section name="Export">
 		<field>
 			<function_call>
