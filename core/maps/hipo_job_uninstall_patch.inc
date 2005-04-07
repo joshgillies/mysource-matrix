@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_uninstall_patch.inc,v 1.9 2005/04/06 23:05:35 mmcintyre Exp $
+* $Id: hipo_job_uninstall_patch.inc,v 1.10 2005/04/07 02:44:21 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix
 * @subpackage MAPS
 */
@@ -705,7 +705,7 @@ class HIPO_Job_Uninstall_Patch extends HIPO_Job
 
 
 	/**
-	* Run step 3 of the install if required
+	* Run step 3 & 4 of the install if required
 	*
 	* We dont die on errors because it's a bit too late for that
 	*
@@ -724,6 +724,7 @@ class HIPO_Job_Uninstall_Patch extends HIPO_Job
 			$_GET['SYSTEM_ROOT'] = SQ_SYSTEM_ROOT;
 			ob_start();
 				include SQ_SYSTEM_ROOT.'/install/step_03.php';
+				include SQ_SYSTEM_ROOT.'/install/step_04.php';
 			ob_end_clean();
 		}
 
