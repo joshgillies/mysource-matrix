@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.4 2005/03/30 00:41:11 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.5 2005/04/07 03:16:30 lwright Exp $
 *
 */
 -->
@@ -55,18 +55,12 @@
 		</field>
 	</section>
 	<section name="Complex Validation Rules" write_access="write:attributes">
-		<field>
-			<function_call>
-				<paint_function   name="paintFileSizeNote"   />
-				<process_function name="processFileSizeNote" />
-			</function_call>
-		</field>
-		<field>
-			<function_call>
-				<paint_function   name="paintRules"   />
-				<process_function name="processRules" />
-			</function_call>
-		</field>
+		<function_call>
+			<paint_function   name="paintRules"   />
+			<process_function name="processRules" />
+		</function_call>
+	</section>
+	<section name="Add New Rule" write_access="write:attributes" read_access="write:attributes">
 		<field>
 			<function_call>
 				<paint_function   name="paintAddRule"   />

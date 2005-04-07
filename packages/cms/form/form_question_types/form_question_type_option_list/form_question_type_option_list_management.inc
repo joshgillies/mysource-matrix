@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_option_list_management.inc,v 1.5 2004/12/06 14:41:39 brobertson Exp $
+* $Id: form_question_type_option_list_management.inc,v 1.6 2005/04/07 03:16:30 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -47,40 +47,38 @@ class Form_Question_Type_Option_List_Management extends Asset_Management
 		$this->Asset_Management($pm);
 
 		$this->vars = Array(
-							'options' => Array(
-									'added'     => '0.0.1',
-									'type'      => 'option_list',
-									'default'   => '',
-									),
-							'default' => Array(
-										'added'		=> '0.0.1',
-										'type'		=> 'serialise',
-										'default'	=> Array(),
-										'update_fn' => '',
-									),
-							'extra'	 => Array(
-									'added'     => '0.0.1',
-									'type'      => 'text',
-									'default'   => '',
-							),
-							'horizontal' => Array(
-									'added'		=> '0.0.1',
-									'type'		=> 'boolean',
-									'default'	=> false,
-									'parameters' => Array(
-															'allow_empty' => false
-														),
-						),
-							'required'	=> Array(
-									'added'     => '0.0.1',
-									'type'      => 'boolean',
-									'default'   => false,
-									'parameters' => Array(
-															'allow_empty' => false
-														),
-									),
-
-			);
+						'options'		=> Array(
+											'added'		=> '0.0.1',
+											'type'		=> 'option_list',
+											'default'	=> '',
+										   ),
+						'default'		=> Array(
+											'added'		=> '0.0.1',
+											'type'		=> 'serialise',
+											'default'	=> Array(),
+										   ),
+						'extra'			=> Array(
+											'added'		=> '0.0.1',
+											'type'		=> 'text',
+											'default'	=> '',
+										   ),
+						'horizontal'	=> Array(
+											'added'			=> '0.0.1',
+											'type'			=> 'boolean',
+											'default'		=> false,
+											'parameters'	=> Array(
+																'allow_empty'	=> false,
+															   ),
+										   ),
+						'required'		=> Array(
+											'added'			=> '0.0.1',
+											'type'			=> 'boolean',
+											'default'		=> false,
+											'parameters'	=> Array(
+																'allow_empty'	=> false,
+															   ),
+										   ),
+					  );
 	}//end constructor
 
 

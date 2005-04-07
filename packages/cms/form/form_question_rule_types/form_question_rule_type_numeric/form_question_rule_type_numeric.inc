@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_numeric.inc,v 1.13 2004/12/06 14:41:39 brobertson Exp $
+* $Id: form_question_rule_type_numeric.inc,v 1.14 2005/04/07 03:16:29 lwright Exp $
 *
 */
 
@@ -31,9 +31,8 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 * Purpose
 *
 *
-* @static
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -57,26 +56,6 @@ class Form_Question_Rule_Type_Numeric extends Form_Question_Rule
 
 
 	/**
-	* Returns an array of definition variables in an array
-	*
-	* Since we are not instantiating the question rules, we do not have access to member variables
-	* (at least not until PHP5). So this overrides the usual attribute gathering function.
-	* Those methods wishing to override this function should call its parent first then modify the
-	* returned array.
-	*
-	* @access public
-	* @return array (string => mixed) an array of parameter values indexed by a parameter id
-	*/
-	function getAttributes()
-	{
-		$attrs = parent::getAttributes();
-		$attrs['no_comparison'] = true;
-		return $attrs;
-
-	}//end getAttributes()
-
-
-	/**
 	* Returns a list of operators for this rule type
 	*
 	* @access public
@@ -85,98 +64,108 @@ class Form_Question_Rule_Type_Numeric extends Form_Question_Rule
 	*/
 	function getOperators()
 	{
-		return Array(1 => 'Must Be Numeric',
-			0 => 'Must Not Be Numeric');
+		return Array(
+				1	=> 'Must Be Numeric',
+				0	=> 'Must Not Be Numeric',
+			   );
 
 	}//end getOperators()
 
 
 	/**
-	* processes the form question and returns true if it is valid
+	* writes JavaScript code for client side validation
 	*
-	* Because the Form Question Rule classes will not be instantiable, this function MUST called
-	* statically.
+	* @param object Form_Question	&$q_asset		reference to the question asset
+	* @param Array					$rule_data		the rule data being used
 	*
-	* @param object form_question	&$q_asset		reference to the question asset
-	* @param string					$operator		the operator being used to compare
-	*
-	* @see Form_Question_Rule::processForm()
 	* @access public
 	* @return boolean
 	*/
-	function processForm(&$q_asset, $operator)
+	function generateJSCode(&$q_asset, $rule_data)
 	{
-		if (!$q_asset->active_submission) return false;
+		// have we printed out the validation function yet?
+		// (since this is static across all class instances, this will work)
+		static $printed_fn = false;
 
-		$answer   = $q_asset->getValue();
+		$operator = array_get_index($rule_data, 'operator', 1);
 
-		$valid = (is_numeric($answer)) ? 1 : 0;
+		// regex code - allow leading plus or minute, digits, decimal point
+		$regex_code = '/^[-+]?\d*\.?\d+$/';
 
-		if ($valid == $operator) {
-			return true;
-		} else {
-			$error = $q_asset->name.' must '. (($operator) ? '' : 'not') .' be Numeric';
-			$q_asset->active_submission->setError($error);
-			return false;
-		}
+		ob_start();			// buffer this please
 
-	}//end processForm()
+			if (!$printed_fn) {
+				$printed_fn = true;
+
+					?>
+					function sq_form_validate_numeric(answer)
+					{
+						answer.replace(/,/, "");
+						return answer.match(<?php echo $regex_code ?>);
+
+					}//end sq_form_validate_numeric()
+					<?php
+
+			}
+
+			?>
+				if (<?php echo ($operator == 1) ? '!' : ''; ?>sq_form_validate_numeric(document.getElementById("<?php echo $q_asset->id; ?>").value)) {
+					submission_errors[submission_errors.length] = "<?php
+						if (empty($rule_data['custom_text'])) {
+							echo addslashes($this->defaultError($q_asset, $rule_data));
+						} else {
+							echo addslashes($rule_data['custom_text']);
+						}
+					?>";
+				}
+			<?php
+
+		$contents = ob_get_contents();
+		ob_end_clean();
+
+		return $contents;
+
+	}//end generateJSCode()
 
 
 	/**
 	* processes a test on a single static value
 	*
-	* Used when we are using rules outside of validating a form - for example selective emails.
-	*
-	* Because the Form Question Rule classes will not be instantiable by Matrix NOR will be
-	* instantiated manually in code, this function MUST called statically.
+	* Rule data is an array with the following fields:
+	* [operator] => operator to compare with (boolean: 1 or 0)
 	*
 	* @param mixed	$answer			the answer being passed to us
-	* @param string	$operator		the operator being used to compare
+	* @param string	$rule_data		the rule's data
 	*
-	* @static
 	* @access public
 	* @return boolean true only if rule succeeds
 	*/
-	function valueTest($answer, $operator)
+	function evaluate($answer, $rule_data)
 	{
-		$valid = (is_numeric($answer)) ? 1 : 0;
+		$operator = array_get_index($rule_data, 'operator', 1);
 
+		$valid = (is_numeric($answer)) ? 1 : 0;
 		return ($valid == $operator);
 
-	}//end valueTest()
+	}//end evaluate()
 
 
 	/**
-	* writes JavaScript code for client side validation
+	* returns a description of this rule
 	*
-	* @param object form_question	&$q_asset		reference to the question asset
-	* @param string					$operator		the operator being used to compare
+	* @param object Form_Question	&$q_asset	the question asset that failed
+	* @param array					$rule_data	the rule data
 	*
+	* @return string	the error message
 	* @access public
-	* @return boolean
 	*/
-	function generateJSCode(&$q_asset, $operator)
+	function ruleDescription(&$q_asset, $rule_data)
 	{
-		// this assumes the skeleton of a JS validation function has been created around this code
-		// with a 'form' variable defined (this should have been done when generating content file).
-		$code = 'var answer = document.getElementById("'.$q_asset->id.'").value; ';
+		$error_str = 'The response to "'.$q_asset->attr('name').'" must '.($rule_data['operator'] == 0 ? 'not ' : '').' be a numeric value';
 
-		$op = ($operator == 1) ? '!' : '';
+		return $error_str;
 
-		$regex_code = '/^[-+]?\d+$/';		// allow digits, leading +/-, no dec pt!
-
-		$code .= 'answer.replace(/,/, ""); ';
-
-		// this is a form question - get its current value from the form then
-		$code .= 'if ('.$op.'answer.match('.$regex_code.')) {';	// START of js if
-		$error = $q_asset->name.' must '. (($operator) ? '' : 'not ') .'be a numeric value';
-
-		$code .= 'submission_errors[i] = "'.addslashes($error).'"; i++;'; // add submission error
-		$code .= '}';	//end of js if
-		return $code;
-
-	}//end generateJSCode()
+	}//end ruleDescription()
 
 
 }//end class

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email.inc,v 1.37 2005/01/17 18:23:52 brobertson Exp $
+* $Id: form_email.inc,v 1.38 2005/04/07 03:16:27 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -99,7 +99,6 @@ class Form_Email extends Form
 		$this->mailReceipt();
 		$this->sendToFriends();
 		$this->runSelectiveEmails();
-		$this->logSubmission();
 
 		return true;
 
@@ -200,7 +199,7 @@ class Form_Email extends Form
 		$email_field_assetid = $this->attr('receipt_field');
 		if (empty($email_field_assetid)) return false;
 
-		$email_field = $GLOBALS['SQ_SYSTEM']->am->getAsset($email_field_assetid);
+		$email_field =& $GLOBALS['SQ_SYSTEM']->am->getAsset($email_field_assetid);
 		$address = $email_field->getValue();
 
 		// get the form info (in both formats)
@@ -219,11 +218,12 @@ class Form_Email extends Form
 		ob_end_clean();
 
 		$reps = Array(
-					'receipt_address'   => $address,
-					'form_summary_html' => $body,
-					'form_summary_text' => $body_text,
-					'form_info_html'    => $info,
-					'form_info_text'    => $info_text);
+					'receipt_address'	=> $address,
+					'form_summary_html'	=> $body,
+					'form_summary_text'	=> $body_text,
+					'form_info_html'	=> $info,
+					'form_info_text'	=> $info_text,
+				);
 
 		// replacements of question responses
 		$questions = $this->getQuestions();
@@ -232,7 +232,7 @@ class Form_Email extends Form
 		foreach ($questions as $q_id => $question) {
 			$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
 			$q_name = $q_asset->attr('name');
-			$reps['response_'.$this->id.'_q'.$q_id] = $this->active_submission->getSummary($q_asset->id);
+			$reps['response_'.$this->id.'_q'.$q_id] = $q_asset->getSummary($q_asset->getValue());
 		}
 
 		foreach ($sections as $section) {
@@ -241,11 +241,11 @@ class Form_Email extends Form
 			foreach ($questions as $q_id => $question) {
 				$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($section->id.':q'.$q_id);
 				$q_name = $section->attr('name').': '.$q_asset->attr('name');
-				$reps['response_'.$section->id.'_q'.$q_id] = $this->active_submission->getSummary($q_asset->id);
+				$reps['response_'.$section->id.'_q'.$q_id] = $q_asset->getSummary($q_asset->getValue());
 			}
 		}
 
-		$email_format_attr = $this->getAttribute('receipt_emails_format');
+		$email_format_attr =& $this->getAttribute('receipt_emails_format');
 
 		// append the 'To:' address with the address from the e-mail field
 		$current_value = @unserialize($email_format_attr->value);
@@ -276,7 +276,7 @@ class Form_Email extends Form
 	*/
 	function mailRecipients()
 	{
-		$email_format_attr = $this->getAttribute('recipient_emails_format');
+		$email_format_attr =& $this->getAttribute('recipient_emails_format');
 
 		$current_value = @unserialize($email_format_attr->value);
 
@@ -299,10 +299,11 @@ class Form_Email extends Form
 		ob_end_clean();
 
 		$reps = Array(
-					'form_summary_html' => $body,
-					'form_summary_text' => $body_text,
-					'form_info_html'    => $info,
-					'form_info_text'    => $info_text);
+					'form_summary_html'	=> $body,
+					'form_summary_text'	=> $body_text,
+					'form_info_html'	=> $info,
+					'form_info_text'	=> $info_text,
+				);
 
 		// replacements of question responses
 		$questions = $this->getQuestions();
@@ -311,7 +312,7 @@ class Form_Email extends Form
 		foreach ($questions as $q_id => $question) {
 			$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
 			$q_name = $q_asset->attr('name');
-			$reps['response_'.$this->id.'_q'.$q_id] = $this->active_submission->getSummary($q_asset->id);
+			$reps['response_'.$this->id.'_q'.$q_id] = $q_asset->getSummary($q_asset->getValue());
 		}
 
 		foreach ($sections as $section) {
@@ -320,7 +321,7 @@ class Form_Email extends Form
 			foreach ($questions as $q_id => $question) {
 				$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($section->id.':q'.$q_id);
 				$q_name = $section->attr('name').': '.$q_asset->attr('name');
-				$reps['response_'.$section->id.'_q'.$q_id] = $this->active_submission->getSummary($q_asset->id);
+				$reps['response_'.$section->id.'_q'.$q_id] = $q_asset->getSummary($q_asset->getValue());
 			}
 		}
 
@@ -352,7 +353,7 @@ class Form_Email extends Form
 		$email_field_assetid = $this->attr('staf_field');
 		if (empty($email_field_assetid)) return false;
 
-		$email_field = $GLOBALS['SQ_SYSTEM']->am->getAsset($email_field_assetid);
+		$email_field =& $GLOBALS['SQ_SYSTEM']->am->getAsset($email_field_assetid);
 		$addresses = preg_split('/[\s;,]+/',$email_field->getValue());
 
 		// get the form info
@@ -373,12 +374,13 @@ class Form_Email extends Form
 		$prefix = $this->getPrefix();
 		$referer = (isset($_POST[$prefix.'_referral_url'])) ? $_POST[$prefix.'_referral_url'] : '';
 
-		$reps = Array('form_summary_html' => $body,
-					  'form_summary_text' => $body_text,
-					  'form_info_html'    => $info,
-					  'form_info_text'    => $info_text,
-					  'referral_url'      => $referer,
-					  );
+		$reps = Array(
+					'form_summary_html'	=> $body,
+					'form_summary_text'	=> $body_text,
+					'form_info_html'	=> $info,
+					'form_info_text'	=> $info_text,
+					'referral_url'		=> $referer,
+				);
 
 		// replacements of question responses
 		$questions = $this->getQuestions();
@@ -387,7 +389,7 @@ class Form_Email extends Form
 		foreach ($questions as $q_id => $question) {
 			$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
 			$q_name = $q_asset->attr('name');
-			$reps['response_'.$this->id.'_q'.$q_id] = $this->active_submission->getSummary($q_asset->id);
+			$reps['response_'.$this->id.'_q'.$q_id] = $q_asset->getSummary($q_asset->getValue());
 		}
 
 		foreach ($sections as $section) {
@@ -396,11 +398,11 @@ class Form_Email extends Form
 			foreach ($questions as $q_id => $question) {
 				$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($section->id.':q'.$q_id);
 				$q_name = $section->attr('name').': '.$q_asset->attr('name');
-				$reps['response_'.$section->id.'_q'.$q_id] = $this->active_submission->getSummary($q_asset->id);
+				$reps['response_'.$section->id.'_q'.$q_id] = $q_asset->getSummary($q_asset->getValue());
 			}
 		}
 
-		$email_format_attr = $this->getAttribute('staf_format');
+		$email_format_attr =& $this->getAttribute('staf_format');
 
 		// append the 'To:' address with the address from the e-mail field
 		$current_value = @unserialize($email_format_attr->value);
@@ -456,7 +458,7 @@ class Form_Email extends Form
 				// then we start with a Pass outcome and exit on the first Fail. If we are only needing
 				// ANY then we start with a Fail and exit on the first Pass.
 				$require_all = ($sel_email['require'] == 'all');
-				$passed = ($require_all ? true : false);
+				$passed = $require_all;
 
 				// find the rule parts
 				$rule_parts =& $sel_email['rules'];
@@ -464,31 +466,19 @@ class Form_Email extends Form
 				for (reset($rule_parts); null !== ($rule_key = key($rule_parts)); next($rule_parts)) {
 					$rule =& $rule_parts[$rule_key];
 					$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($rule['assetid']);
-					$answer = $this->active_submission->getAnswer($q_asset->id);
+					$answer = $q_asset->getValue();
 
 					$type_code = 'form_question_rule_type_' . $rule['name'];
-
-					if ($rule['comparison_question_id']) {
-						$comparison = &$GLOBALS['SQ_SYSTEM']->am->getAsset($rule['comparison_question_id']);
-					} else {
-						$comparison = $rule['value'];
-					}
-
 					$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
-					$attributes = eval('return '.$type_code.'::getAttributes();');
-
-					if (!$attributes['no_comparison']) {		// comparison value required!
-						$rule_passed = eval('return '.$type_code.'::valueTest($answer, $rule["operator"], $comparison);');
-					} else {
-						$rule_passed = eval('return '.$type_code.'::valueTest($answer, $rule["operator"]);');
-					}
+					$rule_asset = new $type_code();
+					$rule_passed = $rule_asset->evaluate($answer, $rule, $q_asset);
 
 					// Short Circuit evaluation, see note above this loop.
 					if ($require_all && !$rule_passed) {
 						// require ALL, rule part FAILED => fail whole rule
 						$passed = false;
 						break;
-					} elseif (!$require_all && $rule_passed) {
+					} else if (!$require_all && $rule_passed) {
 						// require ANY, rule part PASSED => pass whole rule
 						$passed = true;
 						break;
@@ -536,11 +526,12 @@ class Form_Email extends Form
 		ob_end_clean();
 
 		// keyword replacements
-		$reps = Array(	'form_summary_html' => $body,
-						'form_summary_text' => $body_text,
-						'form_info_html'    => $info,
-						'form_info_text'    => $info_text
-						);
+		$reps = Array(
+					'form_summary_html'	=> $body,
+					'form_summary_text'	=> $body_text,
+					'form_info_html'	=> $info,
+					'form_info_text'	=> $info_text,
+				);
 
 		// replacements of question responses
 		$questions = $this->getQuestions();
@@ -549,7 +540,7 @@ class Form_Email extends Form
 		foreach ($questions as $q_id => $question) {
 			$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
 			$q_name = $q_asset->attr('name');
-			$reps['response_'.$this->id.'_q'.$q_id] = $this->active_submission->getSummary($q_asset->id);
+			$reps['response_'.$this->id.'_q'.$q_id] = $q_asset->getSummary($q_asset->getValue());
 		}
 
 		foreach ($sections as $section) {
@@ -558,7 +549,7 @@ class Form_Email extends Form
 			foreach ($questions as $q_id => $question) {
 				$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($section->id.':q'.$q_id);
 				$q_name = $section->attr('name').': '.$q_asset->attr('name');
-				$reps['response_'.$section->id.'_q'.$q_id] = $this->active_submission->getSummary($q_asset->id);
+				$reps['response_'.$section->id.'_q'.$q_id] = $q_asset->getSummary($q_asset->getValue());
 			}
 		}
 
@@ -567,7 +558,7 @@ class Form_Email extends Form
 			// only send one of each type of email to each recipient
 			$recipients = array_unique($recipients);
 
-			$email_format = $this->getAttribute('recipient_emails_format');
+			$email_format =& $this->getAttribute('recipient_emails_format');
 
 			// substitute generic keywords with email format-specific keywords
 			$current_value = @unserialize($email_format->value);
@@ -593,7 +584,7 @@ class Form_Email extends Form
 			// only send one of each type of email to each recipient
 			$receipts = array_unique($receipts);
 
-			$email_format = $this->getAttribute('receipt_emails_format');
+			$email_format =& $this->getAttribute('receipt_emails_format');
 
 			// substitute generic keywords with email format-specific keywords
 			$current_value = @unserialize($email_format->value);
@@ -619,7 +610,7 @@ class Form_Email extends Form
 			// only send one of each type of email to each recipient
 			$stafs = array_unique($stafs);
 
-			$email_format = $this->getAttribute('staf_format');
+			$email_format =& $this->getAttribute('staf_format');
 
 			// substitute generic keywords with email format-specific keywords
 			$current_value = @unserialize($email_format->value);

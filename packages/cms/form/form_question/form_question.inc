@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question.inc,v 1.47 2005/03/18 04:37:11 lwright Exp $
+* $Id: form_question.inc,v 1.48 2005/04/07 03:16:27 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.47 $
+* @version $Revision: 1.48 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -88,6 +88,13 @@ class Form_Question extends Asset
 
 
 	/**
+	* the rules that were failed
+	* @var &object Form
+	*/
+	var $failed_rules = null;
+
+
+	/**
 	* Constructor
 	*
 	* @param int	$formid     the asset id to be loaded
@@ -102,8 +109,6 @@ class Form_Question extends Asset
 		if (is_null($form)) return;
 		$this->_formid = $formid;
 		$this->_questionid = $data['questionid'];
-
-		$this->active_submission = &$form->active_submission;
 
 		// set the data paths
 		$this->data_path = $form->data_path.'/'.$data['questionid'];
@@ -186,12 +191,7 @@ class Form_Question extends Asset
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
 		$existing = $db->getAssoc($sql.$where);
-		if (DB::isError($existing)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			trigger_error($existing->getMessage().'<br/>'.$existing->getUserInfo(), E_USER_WARNING);
-			$ms->abortLog();
-			return false;
-		}
+		assert_valid_db_result($existing);
 
 		// check against default values; we don't need to save that attribute if it is
 		foreach ($existing as $name => $default_value) {
@@ -314,46 +314,6 @@ class Form_Question extends Asset
 
 
 	/**
-	* process itself in the form
-	*
-	* @access public
-	* @return boolean
-	*/
-	function processForm()
-	{
-		$rules = &$this->getRules();
-		$ok = true;						// We start as being all OK
-
-		$this->active_submission->setProcessed($this->id);
-
-		foreach ($rules as $k=>$rule) {
-			$type_code = 'form_question_rule_type_' . $rule['rule_code'];
-
-			$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
-			$attributes = eval('return '.$type_code.'::getAttributes();');
-
-			if (!$attributes['no_comparison']) {		// comparison value required!
-				if (!empty($rule['comparison_question_id'])) {
-					$comparison = &$GLOBALS['SQ_SYSTEM']->am->getAsset($rule['comparison_question_id']);
-				} else {
-					$comparison = $rule['value'];
-				}
-
-				$ok = eval('return '.$type_code.'::processForm($this, $rule["operator"], $comparison);') && $ok;
-			} else {
-				$ok = eval('return '.$type_code.'::processForm($this, $rule["operator"]);') && $ok;
-			}
-
-		}
-
-		if (!$ok) return false;
-
-		return true;
-
-	}//end processForm()
-
-
-	/**
 	* returns the current value of the question, or the default value if no current value exists
 	*
 	* @access public
@@ -361,17 +321,15 @@ class Form_Question extends Asset
 	*/
 	function getValue()
 	{
-		$form = &$this->getMySection();
-		if (!$form->active_submission) return $this->attr('default');
-
-		if ($form->active_submission->isProcessed($this->id)) {
-			$answer = $form->active_submission->getAnswer($this->id);
-			if ($answer) {
-				return $answer;
-			}
+		if (!$this->active_submission) {
+			return null;
 		}
 
-		return $this->attr('default');
+		if (isset($this->active_submission[$this->id])) {
+			return $this->active_submission[$this->id];
+		} else {
+			return $this->attr('default');
+		}
 
 	}//end getValue()
 
@@ -583,15 +541,16 @@ class Form_Question extends Asset
 	function getSelectionTypeQuestions()
 	{
 		$questions = Array(
-			'form_question_type_select',
-			'form_question_type_tickbox_list',
-			'form_question_type_option_list',
-			'form_question_type_country',
-		);
+						'form_question_type_select',
+						'form_question_type_tickbox_list',
+						'form_question_type_option_list',
+						'form_question_type_country',
+					 );
 
 		return $questions;
 
 	}//end getSelectionTypeQuestions()
+
 
 	/**
 	* returns the section that this question belongs to (or form if not attached to a section)
@@ -641,26 +600,14 @@ class Form_Question extends Asset
 		$rules = &$this->getRules();
 		$code = '';						// blank sheet of code to start with
 
-		for (reset($rules); null !== ($k = key($rules)); next($rules)) {
-			$rule =& $rules[$k];
+		foreach ($rules as $k => $rule) {
 			$type_code = 'form_question_rule_type_' . $rule['rule_code'];
 
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
-			$attributes = eval('return '.$type_code.'::getAttributes();');
+			$rule_asset = new $type_code();
+			$code .= $rule_asset->generateJSCode($this, $rule);
+			$code .= "\n";
 
-			if (!$attributes['no_comparison']) {		// comparison value required!
-				if (!empty($rule['comparison_question_id'])) {
-					$comparison = &$GLOBALS['SQ_SYSTEM']->am->getAsset($rule['comparison_question_id']);
-				} else {
-					$comparison = $rule['value'];
-				}
-				
-				$code .= eval('return '.$type_code.'::generateJSCode($this, $rule["operator"], $comparison);');
-			} else {
-				$code .= eval('return '.$type_code.'::generateJSCode($this, $rule["operator"]);');
-			}
-
-			$code .= "\n";			// add a blank line to separate things inside the JS
 		}
 
 		return $code;
@@ -820,6 +767,68 @@ class Form_Question extends Asset
 		return $form->_checkPermissionAccess($perm, $assetids);
 
 	}//end _checkPermissionAccess()
+
+
+	/**
+	* Evaluates the question to check if any rules are broken
+	*
+	* @param string	$answer	the answer to check with (use current value if
+	*						omitted)
+	*
+	* @return boolean	true if all rules pass
+	* @access public
+	*/
+	function evaluate($answer=null)
+	{
+		if (is_null($answer)) {
+			$answer = $this->getValue();
+		}
+
+		$rules = &$this->getRules();
+		$ok = true;						// We start as being all OK
+		$this->failed_rules = Array();	// initialise this now
+
+		foreach ($rules as $k=>$rule) {
+			$type_code = 'form_question_rule_type_' . $rule['rule_code'];
+
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
+			$rule_asset = new $type_code();
+			$rule_ok = $rule_asset->evaluate($answer, $rule, $this);
+
+			if (!$rule_ok) {
+				$ok = false;
+				$custom_text = array_get_index($rule, 'custom_text', '');
+				if (!empty($custom_text)) {
+					$this->failed_rules[] = $rule['custom_text'];
+				} else {
+					$this->failed_rules[] = $rule_asset->defaultError($this, $rule);
+				}
+			}
+
+		}
+
+		return $ok;
+
+	}//end evaluate()
+
+
+	/**
+	* Populates the question response from the form data
+	*
+	* Override this function in a child (ie. question type) if any special
+	* processing of the answer is required.
+	*
+	* @return boolean
+	* @access public
+	*/
+	function populate()
+	{
+		if (isset($_POST[$this->id])) {
+			$this->active_submission[$this->id] = $_POST[$this->id];
+		}
+		return true;
+
+	}//end populate()
 
 
 }//end class

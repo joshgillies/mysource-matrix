@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_list.inc,v 1.32 2004/12/10 04:58:52 lwright Exp $
+* $Id: form_question_type_tickbox_list.inc,v 1.33 2005/04/07 03:16:30 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -158,10 +158,9 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 	* @access public
 	* @return boolean
 	*/
-	function processForm()
+	function evaluate()
 	{
 		$form =& $this->getMySection();
-		if (!$form->active_submission) return false;
 
 		$val = isset($_POST[$this->id]) ? $_POST[$this->id] : '';
 
@@ -171,23 +170,20 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 			$value = $this->getAnswerByOffset($val);
 		}
 
-		$form->active_submission->setAnswer($this->id, $val);
-		$form->active_submission->setSummary($this->id, $this->attr('name'), $this->getSummary($val));
-
 		if ($this->attr('required')) {
 			$req_rule = Array('rule_code' => 'select_limit', 'operator' => '>=', 'value' => '1');
 			array_push($this->vars['rules']['value'], $req_rule);
 		}
 
-		parent::processForm();
+		$ok = parent::evaluate();
 
 		if ($this->attr('required')) {
 			array_pop($this->vars['rules']['value']);
 		}
 
-		return true;
+		return $ok;
 
-	}//end processForm()
+	}//end evaluate()
 
 
 	/**

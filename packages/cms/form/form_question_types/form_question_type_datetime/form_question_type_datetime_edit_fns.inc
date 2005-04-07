@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_datetime_edit_fns.inc,v 1.10 2004/12/06 14:41:39 brobertson Exp $
+* $Id: form_question_type_datetime_edit_fns.inc,v 1.11 2005/04/07 03:16:30 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question_edit_fns.inc'
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -142,7 +142,7 @@ class Form_Question_Type_Datetime_Edit_Fns extends Form_Question_Edit_Fns
 
 				if ($entity == '_null') {
 					$current_param =& $null_params;
-				} elseif ($entity == '_text') {
+				} else if ($entity == '_text') {
 					$current_param =& $text_params;
 				} else {
 					$current_param =& $show_params;

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_file_upload.inc,v 1.6 2005/02/15 23:05:45 lwright Exp $
+* $Id: form_question_type_file_upload.inc,v 1.7 2005/04/07 03:16:30 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -94,6 +94,20 @@ class Form_Question_Type_File_Upload extends Form_Question
 	}//end getAnswer()
 
 
+	function getValue()
+	{
+		if (!$this->active_submission) {
+			return null;
+		}
+
+		if (isset($this->active_submission[$this->id])) {
+			return $this->active_submission[$this->id];
+		} else {
+			return '';
+		}
+	}//end getValue()
+
+
 	/**
 	* process this question
 	*
@@ -102,7 +116,7 @@ class Form_Question_Type_File_Upload extends Form_Question
 	* @access public
 	* @return boolean
 	*/
-	function processForm()
+	function evaluate()
 	{
 		$missing = false;
 		$form =& $this->getMySection();
@@ -111,37 +125,46 @@ class Form_Question_Type_File_Upload extends Form_Question
 
 		// there was an error
 		if ($file === false) {
-			$form->active_submission->setError('There was an error uploading the file for File Upload question "'.$this->attr('name').'"');
+			$form->failed_rules[] = 'There was an error uploading the file for File Upload question "'.$this->attr('name').'"';
 			return false;
 		}
 
 		// no file uploaded
-		if (is_array($file) && empty($file) && $this->attr('required')) {
-			$form->active_submission->setError('No file uploaded for required File Upload question "'.$this->attr('name').'"');
-			return false;
+		if (is_array($file) && empty($file)) {
+			if ($this->attr('required')) {
+				$this->failed_rules[] = 'No file uploaded for required File Upload question "'.$this->attr('name').'"';
+				return false;
+			} else {
+				$this->_tmp['summary'] = 'No file uploaded';
+				return true;
+			}
 		}
 
 		// no create location set!!
 		$create_loc = $this->attr('create_location');
 		if (empty($create_loc)) {
-			$form->active_submission->setError('No create location has been set for File Upload question "'.$this->attr('name').'"');
+			$this->failed_rules[] = 'No create location has been set for File Upload question "'.$this->attr('name').'"';
 			return false;
 		}
 
-		if (!parent::processForm()) return false;
+		$this->active_submission[$this->id] = $file['name'];
+		if (!parent::evaluate()) {
+			return false;
+		}
 
-		$create_loc_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($create_loc);
+		$create_loc_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($create_loc);
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('file');
 
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
-		$existing_file = $db->getOne('select a.assetid from sq_asset a join sq_asset_link l on a.assetid = l.minorid where l.majorid = '.$db->quoteSmart($create_loc).' and a.name = '.$db->quoteSmart($file['name']));
+		$existing_file = $db->getOne('select a.assetid from '.SQ_TABLE_RUNNING_PREFIX.'ast a join '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l on a.assetid = l.minorid where l.majorid = '.$db->quoteSmart($create_loc).' and a.name = '.$db->quoteSmart($file['name']));
+		assert_valid_db_result($existing_file);
 
 		$ok = true;
 		if ($existing_file) {
 			switch ($this->attr('overwrite_rule')) {
 				case 'D':
-					$form->active_submission->setError('There was an error uploading the file for File Upload question "'.$this->attr('name').'" - file already exists in path');
+					$this->failed_rules[] = 'There was an error uploading the file for File Upload question "'.$this->attr('name').'" - file already exists in path';
 					$ok = false;
 				break;
 
@@ -152,17 +175,19 @@ class Form_Question_Type_File_Upload extends Form_Question
 					include_once SQ_FUDGE_PATH.'/general/file_system.inc';
 					while ($existing_file) {
 						$file['name'] = increment_filename($file['name']);
-						$existing_file = $db->getOne('select a.assetid from sq_asset a join sq_asset_link l on a.assetid = l.minorid where l.majorid = '.$db->quoteSmart($create_loc).' and a.name = '.$db->quoteSmart($file['name']));
+						$existing_file = $db->getOne('select a.assetid from '.SQ_TABLE_RUNNING_PREFIX.'ast a join '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l on a.assetid = l.minorid where l.majorid = '.$db->quoteSmart($create_loc).' and a.name = '.$db->quoteSmart($file['name']));
+						assert_valid_db_result($existing_file);
 					}
 				break;
 			}
 		}
 
-		if (!$ok) return false;
+		if (!$ok) {
+			return false;
+		}
 
 		if ($existing_file) {
-
-			$file_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($existing_file);
+			$file_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($existing_file);
 
 			$lock_status = $GLOBALS['SQ_SYSTEM']->am->acquireLock($file_asset->id, 'attributes');
 			$edit_fns = $file_asset->getEditFns();
@@ -183,25 +208,13 @@ class Form_Question_Type_File_Upload extends Form_Question
 
 			if (!$file_asset->create($link, $file)) return false;
 
-			$lock_status = $GLOBALS['SQ_SYSTEM']->am->acquireLock($file_asset->id, 'attributes');
-			$edit_fns = $file_asset->getEditFns();
-
-			if (!$edit_fns->processFileUpload($file_asset, $o, $file_asset->getPrefix(), $file)) {
-				if ($lock_status === 1) $GLOBALS['SQ_SYSTEM']->am->releaseLock($file_asset->id, 'attributes');
-				return false;
-			}
-			if ($lock_status === 1) $GLOBALS['SQ_SYSTEM']->am->releaseLock($file_asset->id, 'attributes');
-
 		}
 
-		$summary = $file['name'].', type '.$file['type'].', '.easy_filesize($file['size']);
-
-		$form->active_submission->setAnswer($this->id, $file['name']);
-		$form->active_submission->setSummary($this->id,  $this->attr('name'), $summary);
+		$this->_tmp['summary'] = $file['name'].', type '.$file['type'].', '.easy_filesize($file['size']);
 
 		return true;
 
-	}//end processForm()
+	}//end evaluate()
 
 
 	/**
@@ -217,6 +230,13 @@ class Form_Question_Type_File_Upload extends Form_Question
 		return Array('file_size', 'file_type');
 
 	}//end getAllowedRules()
+
+
+	function getSummary()
+	{
+		return array_get_index($this->_tmp, 'summary', 'No file uploaded');
+
+	}//end getSummary()
 
 
 }//end class

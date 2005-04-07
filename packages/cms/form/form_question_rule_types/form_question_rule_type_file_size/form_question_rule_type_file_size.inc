@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_file_size.inc,v 1.2 2004/12/06 14:41:39 brobertson Exp $
+* $Id: form_question_rule_type_file_size.inc,v 1.3 2005/04/07 03:16:29 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 * @static
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -42,24 +42,16 @@ class Form_Question_Rule_Type_File_Size extends Form_Question_Rule
 
 
 	/**
-	* Returns an array of definition variables in an array
+	* Constructor
 	*
-	* Since we are not instantiating the question rules, we do not have access to member variables
-	* (at least not until PHP5). So this overrides the usual attribute gathering function.
-	* Those methods wishing to override this function should call its parent first then modify the
-	* returned array.
+	* @param int	$assetid	the asset id to be loaded
 	*
-	* @access public
-	* @return array (string => mixed) an array of parameter values indexed by a parameter id
 	*/
-	function getAttributes()
+	function Form_Question_Rule_Type_File_Size($assetid=0)
 	{
-		$attrs = parent::getAttributes();
-		$attrs['show_asset_finder'] = false;
-		$attrs['selective_email_rule'] = false;
-		return $attrs;
+		$this->Form_Question_Rule($assetid);
 
-	}//end getAttributes()
+	}//end constructor
 
 
 	/**
@@ -72,9 +64,9 @@ class Form_Question_Rule_Type_File_Size extends Form_Question_Rule
 	function getOperators()
 	{
 		$operators = Array(
-			'<=' => 'Must be no larger than ',
-			'>=' => 'Must be no smaller than ',
-		);
+						'<='	=> 'Must be no larger than ',
+						'>='	=> 'Must be no smaller than ',
+					 );
 		return $operators;
 
 	}//end getOperators()
@@ -96,12 +88,14 @@ class Form_Question_Rule_Type_File_Size extends Form_Question_Rule
 	* @access public
 	* @return boolean
 	*/
-	function processForm(&$q_asset, $operator, &$comparison)
+	function evaluate($answer, $rule_data, &$q_asset)
 	{
-		if (!$q_asset->active_submission) return false;
 		$answer = $_FILES[$q_asset->id];
+		$operator = array_get_index($rule_data, 'operator', '<=');
 
-		$operators = eval('return '.__CLASS__.'::getOperators();');
+		// comparison value will be the concatenation of the value and the
+		// multiplier
+		$comparison = array_get_index($rule_data, 'value', '').array_get_index($rule_data, 'multiplier', '');
 
 		$filesize = $answer['size'];
 		$comparison = strtolower(trim($comparison));
@@ -118,18 +112,43 @@ class Form_Question_Rule_Type_File_Size extends Form_Question_Rule
 		}
 
 		$expression = "return $filesize $operator $comp_value;";
-		print $expression;
 		$valid = eval($expression);
 
-		if ($valid) {
-			return true;
-		} else {
-			$error = $q_asset->name.' '.strtolower($operators[$operator]).' '.strtoupper(easy_filesize($comp_value));
-			$q_asset->active_submission->setError($error);
-			return false;
-		}
+		return $valid;
 
-	}//end processForm()
+	}//end evaluate()
+
+
+	/**
+	* returns a description of the rule
+	*
+	* @param object Form_Question	&$q_asset	the question asset that failed
+	* @param array					$rule_data	the rule data
+	*
+	* @return string	the error message
+	* @access public
+	*/
+	function ruleDescription(&$q_asset, $rule_data)
+	{
+		$operator = array_get_index($rule_data, 'operator', '<=');
+		$comparison = array_get_index($rule_data, 'value', '').' '.array_get_index($rule_data, 'multiplier', '');
+
+		$error_str = 'The file uploaded at question "'.$q_asset->attr('name').'" must be ';
+
+		switch ($operator) {
+			case '>=':
+				$error_str .= 'no smaller than '.$comparison;
+			break;
+
+			case '<=':
+				$error_str .= 'no larger than '.$comparison;
+			break;
+
+		}//end switch
+
+		return $error_str;
+
+	}//end ruleDescription()
 
 
 }//end class

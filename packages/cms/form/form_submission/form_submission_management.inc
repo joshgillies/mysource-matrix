@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_submission_management.inc,v 1.10 2005/03/31 06:51:39 lwright Exp $
+* $Id: form_submission_management.inc,v 1.11 2005/04/07 03:16:31 lwright Exp $
 *
 */
 
@@ -31,12 +31,13 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
 class Form_Submission_Management extends Asset_Management
 {
+
 
 	/**
 	* Constructor
@@ -46,24 +47,30 @@ class Form_Submission_Management extends Asset_Management
 	{
 		$this->Asset_Management($pm);
 
-		$this->vars = Array('id' => Array(
-												'added'     => '0.0.1',
-												'type'      => 'text',
-												'default'   => '',
-											),
-							'attributes' => Array(
-												'added'		=> '0.0.1',
-												'type'		=> 'serialise',
-												'default'	=> Array(),
-												'update_fn' => '',
-											),
-							'complete'	=> Array(
-												'added'		=> '0.2',
-												'type'		=> 'boolean',
-												'default'	=> false,
-											),
-									);
+		$this->vars = Array(
+						'id'			=> Array(
+											'added'		=> '0.0.1',
+											'type'		=> 'text',
+											'default'	=> '',
+										   ),
+						'attributes'	=> Array(
+											'added'		=> '0.0.1',
+											'type'		=> 'serialise',
+											'default'	=> Array(),
+										   ),
+						'complete'		=> Array(
+											'added'		=> '0.2',
+											'type'		=> 'boolean',
+											'default'	=> false,
+										   ),
+						'xml'			=> Array(
+											'added'		=> '0.2',
+											'type'		=> 'text',
+											'default'	=> '',
+										   ),
+					  );
 	}//end constructor
+
 
 }//end class
 ?>

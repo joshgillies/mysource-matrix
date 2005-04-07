@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule.inc,v 1.15 2004/12/06 14:41:38 brobertson Exp $
+* $Id: form_question_rule.inc,v 1.16 2005/04/07 03:16:27 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @static
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -55,26 +55,29 @@ class Form_Question_Rule extends Asset
 
 
 	/**
-	* Returns an array of definition variables in an array
+	* return true if this rule can be used for form validation
 	*
-	* Since we are not instantiating the question rules, we do not have access to member variables
-	* (at least not until PHP5). So this overrides the usual attribute gathering function.
-	* Those methods wishing to override this function should call its parent first then modify the
-	* returned array.
-	*
+	* @return boolean
 	* @access public
-	* @return array (string => mixed) an array of parameter values indexed by a parameter id
 	*/
-	function getAttributes()
+	function isValidationRule()
 	{
-		return Array('no_comparison' => false,			// no comparison required?
-					 'force_text' => false,				// force a textbox comparison even if select?
-					 'show_asset_finder' => true,		// show asset finder?
-					 'validation_rule' => true,			// makes sense as a validation rule?
-					 'selective_email_rule' => true,	// makes sense as a selective email rule?
-				);
+		return true;
 
-	}//end getAttributes()
+	}//end isValidationRule()
+
+
+	/**
+	* return true if this rule can be used for processing selective emails
+	*
+	* @return boolean
+	* @access public
+	*/
+	function isSelectiveEmailRule()
+	{
+		return true;
+
+	}//end isSelectiveEmailRule()
 
 
 	/**
@@ -94,31 +97,41 @@ class Form_Question_Rule extends Asset
 	/**
 	* @abstract
 	*/
-	function processForm(&$q_asset, $operator)
+	function evaluate($answer, $rule_data)
 	{
 		return true;
 
-	}//end processForm()
+	}//end evaluate()
 
 
 	/**
 	* @abstract
 	*/
-	function valueTest($answer, $operator)
-	{
-		return true;
-
-	}//end valueTest()
-
-
-	/**
-	* @abstract
-	*/
-	function generateJSCode(&$q_asset, $operator)
+	function generateJSCode(&$q_asset, $rule_data)
 	{
 		return '';
 
 	}//end generateJSCode()
+
+
+	/**
+	* @abstract
+	*/
+	function defaultError(&$q_asset, $rule_data)
+	{
+		return $this->ruleDescription($q_asset, $rule_data);
+
+	}//end defaultError()
+
+
+	/**
+	* @abstract
+	*/
+	function ruleDescription(&$q_asset, $rule_data)
+	{
+		return '';
+
+	}//end ruleDescription()
 
 
 }//end class

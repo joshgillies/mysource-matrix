@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_email_management.inc,v 1.7 2005/01/20 13:18:39 brobertson Exp $
+* $Id: form_question_rule_type_email_management.inc,v 1.8 2005/04/07 03:16:28 lwright Exp $
 *
 */
 
@@ -31,12 +31,13 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
 class Form_Question_Rule_Type_Email_Management extends Asset_Management
 {
+
 
 	/**
 	* Constructor
@@ -48,6 +49,7 @@ class Form_Question_Rule_Type_Email_Management extends Asset_Management
 
 		$this->vars = Array();
 	}//end constructor
+
 
 }//end class
 ?>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_selective_emails.xml,v 1.7 2005/03/30 00:41:11 lwright Exp $
+* $Id: edit_interface_screen_selective_emails.xml,v 1.8 2005/04/07 03:16:27 lwright Exp $
 *
 */
 -->
@@ -41,12 +41,12 @@
 		</field>
 	</section>
 	<section name="Active Rule">
-		<field>
-			<function_call>
-				<paint_function   name="paintRuleParts"   />
-				<process_function name="processRuleParts" />
-			</function_call>
-		</field>
+		<function_call>
+			<paint_function   name="paintRuleParts"   />
+			<process_function name="processRuleParts" />
+		</function_call>
+	</section>
+	<section name="Email Options for Active Rule">
 		<field>
 			<function_call>
 				<paint_function   name="paintActiveSend"   />

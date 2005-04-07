@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section_edit_fns.inc,v 1.33 2005/01/17 18:27:39 brobertson Exp $
+* $Id: form_section_edit_fns.inc,v 1.34 2005/04/07 03:16:31 lwright Exp $
 *
 */
 
@@ -32,12 +32,13 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
 class Form_Section_Edit_Fns extends Asset_Edit_Fns
 {
+
 
 	/**
 	* Constructor
@@ -182,11 +183,11 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 				$sort_order = $asset->attr('sort_order');
 
 				if (!empty($sort_order)) {
-					// sort order is based upon shadow asset id (eg. '87:q1'), not just question id - this 	
+					// sort order is based upon shadow asset id (eg. '87:q1'), not just question id - this
 					// will allow sections to be sorted in later
 					$i = 0;
 					foreach ($sort_order as $sort_id => $assetid) {
-						$q = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+						$q =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 						if (is_null($q)) continue;
 						$href = $q->getBackendHref('details');
 						?>
@@ -195,7 +196,7 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 								<span name="<?php echo $prefix.'_order_o'.$sort_id ?>" id="<?php echo 	$prefix.'_order_o'.$sort_id ?>"><a href="<?php echo $href ?>"><?php	echo $q->attr('name')?></a></span><?php hidden_field($prefix.'_order[reorder]['.$sort_id.']', $assetid); ?>
 							</td>
 							<td class="sq-backend-table-cell">
-								<span name="<?php echo $prefix.'_order_t'.$sort_id ?>" id="<?php echo 	$prefix.'_order_t'.$sort_id ?>"><?php	
+								<span name="<?php echo $prefix.'_order_t'.$sort_id ?>" id="<?php echo 	$prefix.'_order_t'.$sort_id ?>"><?php
 									$q_type = str_replace('form_question_type', '', get_class($q));
 									$q_type = str_replace('_', ' ', $q_type);
 									$q_type = trim(ucwords($q_type));
@@ -417,11 +418,13 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 			$output .= ($asset->attr('question_col_width')) ? ' width="'.$asset->attr('question_col_width').'">' : '>';
 			$output .= $q->getVal('title');
 			if ($q->getVal('note')) {
-				$output .= '<br><span style="font-size:80%">'.$q->getVal('note').'</span>';
+				$output .= '<br><span style="font-size:'.($asset->attr('note_size') ? $asset->attr('note_size') : '80%').'">'.$q->getVal('note').'</span>';
 			}
 			$output .= '</td><td';
 			$output .= ($asset->attr('answer_col_width')) ? ' width="'.$asset->attr('answer_col_width').'">' : '>';
-			$output .= $q->getAnswer(true).'</td></tr>';
+			$output .= '<'.'?php $q =$GLOBALS["SQ_SYSTEM"]->am->getAsset("'.$assetid.'");
+			$answer = ""; echo $q->getAnswer(true,$answer); ?'.'>'."\n";
+			$output .= '</td></tr>';
 		}
 		$output .= '</table>';
 

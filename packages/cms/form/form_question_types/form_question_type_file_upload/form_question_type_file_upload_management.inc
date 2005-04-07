@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_file_upload_management.inc,v 1.4 2004/12/06 14:41:39 brobertson Exp $
+* $Id: form_question_type_file_upload_management.inc,v 1.5 2005/04/07 03:16:30 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -47,42 +47,39 @@ class Form_Question_Type_File_Upload_Management extends Asset_Management
 		$this->Asset_Management($pm);
 
 		$this->vars = Array(
-							'create_location'	=> Array(
-									'added'		=> '0.0.1',
-									'type'		=> 'assetid',
-									'default'	=> '',
-								),
-							'required'			=> Array(
-									'added'     => '0.0.1',
-									'type'      => 'boolean',
-									'default'   => false,
-									'parameters' => Array(
-															'allow_empty' => false
-														),
-									),
+						'create_location'	=> Array(
+												'added'		=> '0.0.1',
+												'type'		=> 'assetid',
+												'default'	=> '',
+											   ),
+						'required'			=> Array(
+												'added'			=> '0.0.1',
+												'type'			=> 'boolean',
+												'default'		=> false,
+												'parameters'	=> Array(
+																	'allow_empty'	=> false,
+																   ),
+											   ),
+						'overwrite_rule'	=> Array(
+												'added'			=> '0.0.1',
+												'type'			=> 'selection',
+												'default'		=> 'D',
+												'parameters'	=> Array(
+																	'allow_empty'	=> false,
+																	'options'		=> Array(
+																						'O'	=> 'Overwrite Existing File',
+																						'R'	=> 'Rename Uploaded File',
+																						'D'	=> 'Raise a Submission Error',
+																					   ),
+																   ),
+											   ),
+						'extra'				=> Array(
+												'added'		=> '0.0.1',
+												'type'		=> 'text',
+												'default'	=> '',
+											   ),
+					  );
 
-							'overwrite_rule'	=> Array(
-									'added'     => '0.0.1',
-									'type'      => 'selection',
-									'default'   => 'D',
-									'parameters'	=> Array(
-											'allow_empty' => false,
-											'options'	=> Array(
-												// overwrite, rename, deny
-												'O'	=> 'Overwrite Existing File',
-												'R'	=> 'Rename Uploaded File',
-												'D'	=> 'Raise a Submission Error',
-												),
-											),
-									),
-
-							'extra'	=> Array(
-									'added'		=> '0.0.1',
-									'type'		=> 'text',
-									'default'	=> '',
-								),
-
-			);
 	}//end constructor
 
 

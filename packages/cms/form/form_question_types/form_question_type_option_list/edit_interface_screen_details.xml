@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.4 2005/03/30 00:41:11 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.5 2005/04/07 03:16:30 lwright Exp $
 *
 */
 -->
@@ -58,20 +58,6 @@
 	<section name="Simple Validation Rules" write_access="write:attributes">
 	    <field attribute="required">
 			<boolean true_text="Required" false_text="Optional" />
-		</field>
-	</section>
-	<section name="Complex Validation Rules" write_access="write:attributes">
-		<field>
-			<function_call>
-				<paint_function   name="paintRules"   />
-				<process_function name="processRules" />
-			</function_call>
-		</field>
-		<field>
-			<function_call>
-				<paint_function   name="paintAddRule"   />
-				<process_function name="processAddRule" />
-			</function_call>
 		</field>
 	</section>
 </contents>

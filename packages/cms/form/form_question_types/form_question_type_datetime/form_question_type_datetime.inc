@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_datetime.inc,v 1.18 2004/12/06 14:41:39 brobertson Exp $
+* $Id: form_question_type_datetime.inc,v 1.19 2005/04/07 03:16:30 lwright Exp $
 *
 */
 
@@ -33,12 +33,13 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
 class Form_Question_Type_Datetime extends Form_Question
 {
+
 
 	/**
 	* Constructor
@@ -65,6 +66,27 @@ class Form_Question_Type_Datetime extends Form_Question
 		return Array();
 
 	}//end _getAllowedLinks()
+
+
+	/**
+	* returns the current value of the question, or the default value if no current value exists
+	*
+	* @access public
+	* @return mixed type depends on the subclass of question
+	*/
+	function getValue()
+	{
+		if (!$this->active_submission) {
+			return null;
+		}
+
+		if (isset($this->active_submission[$this->id])) {
+			return $this->active_submission[$this->id];
+		} else {
+			return $this->attr('default');
+		}
+
+	}//end getValue()
 
 
 	/**
@@ -178,9 +200,8 @@ class Form_Question_Type_Datetime extends Form_Question
 	* @access public
 	* @return boolean
 	*/
-	function processForm()
+	function evaluate($answer=null)
 	{
-		if (!$this->active_submission) return false;
 		if (isset($_POST[$this->id.'value'])) {
 			// we need to create a variable for these value to pass by reference
 			$value = '';
@@ -190,15 +211,12 @@ class Form_Question_Type_Datetime extends Form_Question
 			$val = $_POST[$this->id.'value'];
 			$value = sprintf('%04s-%02s-%02s %02s:%02s:%02s', $val['y'], $val['m'], $val['d'], $val['h'], $val['i'], $val['s']).(!isset($val['c']) ? '' : (' '.($val['c'] ? '1' : '0')));
 
-			$this->active_submission->setAnswer($this->id, $value);
-			$this->active_submission->setSummary($this->id, $this->attr('name'), $this->getSummary($value));
-
-			parent::processForm();
+			$ok = parent::evaluate($value);
 		}
 
-		return true;
+		return $ok;
 
-	}//end processForm()
+	}//end evaluate()
 
 
 	/**
@@ -212,7 +230,6 @@ class Form_Question_Type_Datetime extends Form_Question
 	function getSummary($answer)
 	{
 		$allow_circa = false;
-
 		$show_params = $this->attr('show');
 		if ($show_params['c']) {
 			$allow_circa = true;
@@ -230,10 +247,94 @@ class Form_Question_Type_Datetime extends Form_Question
 		// break apart the date into correct portions
 		list($val['y'], $val['m'], $val['d']) = sscanf($date, '%04s-%02s-%02s');
 
-		// so we can extract the correct month and day-suffix- using 2000 as it's a leap year
-		$temp_date = mktime(0,0,0,$val['m'],$val['d'],2000);
+		// build the date string based on what wacky combinations we have
+		$show_date_str = (($val['y'] == '----') ? '' : 'y').(($val['m'] == '--') ? '' : 'm').(($val['d'] == '--') ? '' : 'd');
 
-		return ($circa ? 'circa ' : '') . date('F jS', $temp_date). ', '. (int)$val['y'] . ' ' . $time;
+		switch ($show_date_str) {
+			case 'ymd':
+				$temp_date = mktime(0,0,0,$val['m'],$val['d'],2000);
+				$show_date = date('F jS', $temp_date).', '.$val['y'];
+			break;
+
+			case 'yd':
+				$temp_date = mktime(0,0,0,1,$val['d'],2000);
+				$show_date = date('jS', $temp_date).' day of month, '.$val['y'];
+			break;
+
+			case 'md':
+				$temp_date = mktime(0,0,0,$val['m'],$val['d'],2000);
+				$show_date = date('F jS', $temp_date);
+			break;
+
+			case 'ym':
+				$temp_date = mktime(0,0,0,$val['m'],1,2000);
+				$show_date = date('F', $temp_date).', '.$val['y'];
+			break;
+
+			case 'y':
+				$show_date = 'Year '.$val['y'];
+			break;
+
+			case 'm':
+				$temp_date = mktime(0,0,0,$val['m'],1,2000);
+				$show_date = date('F', $temp_date);
+			break;
+
+			case 'd':
+				$temp_date = mktime(0,0,0,1,$val['d'],2000);
+				$show_date = date('jS', $temp_date).' day of month';
+			break;
+
+			default:
+				$show_date = '';
+			break;
+
+		}
+
+		// break apart the date into correct portions
+		list($val['h'], $val['i'], $val['s']) = sscanf($time, '%02s-%02s-%02s');
+
+		// do similar with the time string
+		$show_time_str = (($val['h'] == '--') ? '' : 'h').(($val['i'] == '--') ? '' : 'i').(($val['s'] == '--') ? '' : 's');
+
+		switch ($show_time_str) {
+			case 'his':
+				$show_time = $time;
+			break;
+
+			case 'hi':
+				$show_time = substr($time,5);
+			break;
+
+			case 'hs':
+				$show_time = date('F jS', $temp_date);
+			break;
+
+			case 'is':
+				$show_time = $val['i'].' min '.$val['s'].' sec';
+			break;
+
+			case 'h':
+				$show_time = $val['h'].' hour'.($val['h'] == 1 ? '' : 's');
+			break;
+
+			case 'i':
+				$show_time = $val['i'].' minute'.($val['i'] == 1 ? '' : 's');
+			break;
+
+			case 's':
+				$show_time = $val['s'].' seconds'.($val['s'] == 1 ? '' : 's');
+			break;
+
+			default:
+				$show_date = '';
+			break;
+
+		}
+
+		// so we can extract the correct month and day-suffix- using 2000 as it's a leap year (so we can extract for Jan 29).
+
+		return ($circa ? 'circa ' : '') . trim($show_date).(empty($show_date) || empty($show_time) ? '' : ', ').trim($show_time);
 
 	}//end getSummary()
 
@@ -277,6 +378,71 @@ class Form_Question_Type_Datetime extends Form_Question
 		return $contents;
 
 	}//end getXML()
+
+
+	/**
+	* Populates this question's response from the form data
+	*
+	* @return boolean
+	* @access public
+	*/
+	function populate()
+	{
+		$val = '';
+		$value = $_POST[$this->id.'value'];
+		$show = $_POST[$this->id.'show'];
+
+		if (strpos($show, 'y') === false) {
+			$val .= '----';
+		} else {
+			$val .= str_pad($_POST[$this->id.'value']['y'], 4, '0', STR_PAD_LEFT);
+		}
+
+		$val .= '-';
+
+		if (strpos($show, 'm') === false) {
+			$val .= '--';
+		} else {
+			$val .= str_pad($_POST[$this->id.'value']['m'], 2, '0', STR_PAD_LEFT);
+		}
+
+		$val .= '-';
+
+		if (strpos($show, 'd') === false) {
+			$val .= '--';
+		} else {
+			$val .= str_pad($_POST[$this->id.'value']['d'], 2, '0', STR_PAD_LEFT);
+		}
+
+		$val .= ' ';
+
+		if (strpos($show, 'h') === false) {
+			$val .= '--';
+		} else {
+			$val .= str_pad($_POST[$this->id.'value']['h'], 2, '0', STR_PAD_LEFT);
+		}
+
+		$val .= ':';
+
+		if (strpos($show, 'i') === false) {
+			$val .= '--';
+		} else {
+			$val .= str_pad($_POST[$this->id.'value']['i'], 2, '0', STR_PAD_LEFT);
+		}
+
+		$val .= ':';
+
+		if (strpos($show, 's') === false) {
+			$val .= '--';
+		} else {
+			$val .= str_pad($_POST[$this->id.'value']['s'], 2, '0', STR_PAD_LEFT);
+		}
+
+		$this->active_submission[$this->id] = $val;
+
+		return true;
+
+	}//end populate()
 
 
 }//end class

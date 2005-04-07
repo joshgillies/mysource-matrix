@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_select_limit_edit_fns.inc,v 1.2 2004/12/06 14:41:39 brobertson Exp $
+* $Id: form_question_rule_type_select_limit_edit_fns.inc,v 1.3 2005/04/07 03:16:30 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule_edi
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -49,6 +49,61 @@ class Form_Question_Rule_Type_Select_Limit_Edit_Fns extends Form_Question_Rule_E
 		$this->Form_Question_Rule_Edit_Fns();
 
 	}//end constructor
+
+
+	function paintRule(&$asset, &$o, $prefix, $rule_data, $write_access)
+	{
+		$operator_list = $asset->getOperators();
+
+		if (!$write_access) {
+			$o->openField('Rule Details');
+			echo 'Response '.strtolower($operator_list[array_get_index($rule_data, 'operator', '==')]);
+
+			echo ' "'.array_get_index($rule_data, 'value', '').'"';
+			$o->closeField();
+
+		} else {
+
+			$o->openField('Operator');
+			// list of operators
+			combo_box($prefix.'[operator]', $operator_list, false, array_get_index($rule_data, 'operator', '=='));
+			$o->closeField();
+
+			$o->openField('Number of Options');
+			// give a text box to write the comparison value in
+			text_box($prefix.'[value]', array_get_index($rule_data, 'value', ''), 3);
+			echo ' option(s)';
+			$o->closeField();
+
+			$o->sectionNote('Enter the number of selected options to compare against in the text box above.');
+		}
+
+		return $write_access;
+
+	}//end paintRule()
+
+
+	/**
+	* Process the rule's interface
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processRule(&$asset, &$o, $prefix, &$rule_data)
+	{
+		if (!isset($_POST[$prefix])) {
+			return false;
+		}
+
+		$operator = array_get_index($_POST[$prefix], 'operator', null);
+		$comparison = array_get_index($_POST[$prefix], 'value', null);
+
+		$rule_data['operator'] = $operator;
+		$rule_data['value'] = $comparison;
+
+		return true;
+
+	}//end processRule()
 
 
 }//end class

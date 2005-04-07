@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_selective_emails.xml,v 1.1 2005/03/30 00:41:11 lwright Exp $
+* $Id: lang_screen_selective_emails.xml,v 1.2 2005/04/07 03:16:27 lwright Exp $
 *
 */
 -->
@@ -45,14 +45,12 @@
 		</field>
 	</section>
 	<section name="Active Rule">
-		<field>
-			<display_name>Current Rule Parts</display_name>
-			<note>When an asset is selected as the comparison value, it will override the value entered in the text box</note>
-			<function_call>
-				<paint_function   name="paintRuleParts"   />
-				<process_function name="processRuleParts" />
-			</function_call>
-		</field>
+		<function_call>
+			<paint_function   name="paintRuleParts"   />
+			<process_function name="processRuleParts" />
+		</function_call>
+	</section>
+	<section name="Add New Rule Part">
 		<field>
 			<display_name>Email Settings</display_name>
 			<note>You can send emails to more than one recipient by separating email addresses with white space, a comma or a semi-colon</note>

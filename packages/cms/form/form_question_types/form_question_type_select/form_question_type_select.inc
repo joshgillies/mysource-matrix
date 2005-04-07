@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_select.inc,v 1.28 2004/12/09 22:04:09 lwright Exp $
+* $Id: form_question_type_select.inc,v 1.29 2005/04/07 03:16:30 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -126,28 +126,6 @@ class Form_Question_Type_Select extends Form_Question
 		return $options;
 
 	}//end getOptions()
-
-
-	/**
-	* process this question in the form
-	*
-	* @access public
-	* @return boolean
-	*/
-	function processForm()
-	{
-		if (!$this->active_submission) return false;
-		$val = isset($_POST[$this->id]) ? $_POST[$this->id] : '';
-
-		$form =& $this->getMySection();
-		$this->active_submission->setAnswer($this->id, $val);
-		$this->active_submission->setSummary($this->id, $this->attr('name'), $this->getSummary($val));
-
-		parent::processForm();
-
-		return true;
-
-	}//end processForm()
 
 
 	/**

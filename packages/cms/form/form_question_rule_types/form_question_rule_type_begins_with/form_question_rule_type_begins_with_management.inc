@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_begins_with_management.inc,v 1.2 2005/01/20 13:18:39 brobertson Exp $
+* $Id: form_question_rule_type_begins_with_management.inc,v 1.3 2005/04/07 03:16:27 lwright Exp $
 *
 */
 
@@ -31,12 +31,13 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
 class Form_Question_Rule_Type_Begins_With_Management extends Asset_Management
 {
+
 
 	/**
 	* Constructor
@@ -47,6 +48,7 @@ class Form_Question_Rule_Type_Begins_With_Management extends Asset_Management
 		$this->Asset_Management($pm);
 
 	}//end constructor
+
 
 }//end class
 ?>

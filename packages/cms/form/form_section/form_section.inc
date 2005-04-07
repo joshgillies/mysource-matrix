@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section.inc,v 1.36 2005/01/20 03:59:15 lwright Exp $
+* $Id: form_section.inc,v 1.37 2005/04/07 03:16:30 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -207,16 +207,17 @@ class Form_Section extends Asset
 
 			foreach ($entries as $questionid => $data) {
 
-				$links[] = Array('linkid'          => 0,
-								 'majorid'         => $this->id,
-								 'minorid'         => $this->id.':q'.$questionid,
-								 'minor_type_code' => $data['question_type_code'],
-								 'value'           => '',
-								 'link_type'       => SQ_LINK_TYPE_2,
-								 'is_dependant'    => true,
-								 'is_exclusive'    => false,
-								 'sort_order'      => $i,
-								);
+				$links[] = Array(
+							'linkid'			=> 0,
+							'majorid'			=> $this->id,
+							'minorid'			=> $this->id.':q'.$questionid,
+							'minor_type_code'	=> $data['question_type_code'],
+							'value'				=> '',
+							'link_type'			=> SQ_LINK_TYPE_2,
+							'is_dependant'		=> true,
+							'is_exclusive'		=> false,
+							'sort_order'		=> $i,
+						   );
 				$i++;
 			}
 
@@ -361,8 +362,8 @@ class Form_Section extends Asset
 		$questions = $this->attr('questions');
 		if (!empty($questions)) {
 			foreach ($questions as $q_id => $question) {
-				$id           = $this->id.':q'.$q_id;
-				$result[$id]  = $am->getAsset($id);
+				$id           =  $this->id.':q'.$q_id;
+				$result[$id]  =& $am->getAsset($id);
 			}
 		}
 
@@ -422,8 +423,12 @@ class Form_Section extends Asset
 			$new_key = max(array_keys($questions)) + 1;
 		}
 
-		$questions[$new_key] = Array('question_type_code' => $type_code,
-									'attributes'	     => Array('name' => 'Question '.(count($questions)+1)));
+		$questions[$new_key] = Array(
+								'question_type_code'	=> $type_code,
+								'attributes'			=> Array(
+															'name'	=> 'Question '.(count($questions)+1),
+														   ),
+							   );
 
 		$this->setAttrValue('questions', $questions);
 		$this->setAttrValue('next_questionid', $new_key + 1);

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_password_management.inc,v 1.8 2004/12/06 14:41:39 brobertson Exp $
+* $Id: form_question_type_password_management.inc,v 1.9 2005/04/07 03:16:30 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -47,42 +47,40 @@ class Form_Question_Type_Password_Management extends Asset_Management
 		$this->Asset_Management($pm);
 
 		$this->vars = Array(
-
-							'default'	=> Array(
-									'added'		=> '0.0.1',
-									'type'		=> 'text',
-									'default'	=> '',
-								),
-							'width' => Array(
-									'added'     => '0.0.1',
-									'type'      => 'text',
-									'default'   => '30',
-									),
-							'verify'=> Array(
-									'added'		=> '0.0.1',
-									'type'		=> 'boolean',
-									'default'	=> true,
-									'parameters' => Array(
-															'allow_empty' => false
-														),
-							),
-							'max' => Array(
-									'added'     => '0.0.1',
-									'type'      => 'text',
-									'default'   => '30',
-							),
-							'min' => Array(
-									'added'     => '0.0.1',
-									'type'      => 'text',
-									'default'   => '2',
-							),
-							'extra'	=> Array(
-									'added'     => '0.0.1',
-									'type'      => 'text',
-									'default'   => '',
-							),
-
-			);
+						'default'	=> Array(
+										'added'		=> '0.0.1',
+										'type'		=> 'text',
+										'default'	=> '',
+									   ),
+						'width'		=> Array(
+										'added'		=> '0.0.1',
+										'type'		=> 'text',
+										'default'	=> '30',
+									   ),
+						'verify'	=> Array(
+										'added'			=> '0.0.1',
+										'type'			=> 'boolean',
+										'default'		=> true,
+										'parameters'	=> Array(
+															'allow_empty'	=> false,
+														   ),
+									   ),
+						'max'		=> Array(
+										'added'		=> '0.0.1',
+										'type'		=> 'text',
+										'default'	=> '30',
+									   ),
+						'min'		=> Array(
+										'added'		=> '0.0.1',
+										'type'		=> 'text',
+										'default'	=> '2',
+									   ),
+						'extra'		=> Array(
+										'added'		=> '0.0.1',
+										'type'		=> 'text',
+										'default'	=> '',
+									   ),
+					  );
 	}//end constructor
 
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_country_management.inc,v 1.8 2004/12/06 14:41:39 brobertson Exp $
+* $Id: form_question_type_country_management.inc,v 1.9 2005/04/07 03:16:30 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -47,39 +47,38 @@ class Form_Question_Type_Country_Management extends Asset_Management
 		$this->Asset_Management($pm);
 
 		$this->vars = Array(
-							'width' => Array(
-									'added'     => '0.0.1',
-									'type'      => 'text',
-									'default'   => '30',
-									),
-							'height' => Array(
-									'added'     => '0.0.1',
-									'type'      => 'text',
-									'default'   => '1',
-									),
-							'max' => Array(
-									'added'     => '0.0.1',
-									'type'      => 'text',
-									'default'   => '300',
-									),
-							'extra'	=> Array(
-									'added'     => '0.0.1',
-									'type'      => 'text',
-									'default'   => '',
-									),
-							'default' => Array(
+						'width'		=> Array(
+										'added'		=> '0.0.1',
+										'type'		=> 'text',
+										'default'	=> '30',
+									   ),
+						'height'	=> Array(
+										'added'		=> '0.0.1',
+										'type'		=> 'text',
+										'default'	=> '1',
+									   ),
+						'max'		=> Array(
+										'added'		=> '0.0.1',
+										'type'		=> 'text',
+										'default'	=> '300',
+									   ),
+						'extra'		=> Array(
+										'added'		=> '0.0.1',
+										'type'		=> 'text',
+										'default'	=> '',
+									   ),
+						'default'	=> Array(
 										'added'		=> '0.0.1',
 										'type'		=> 'serialise',
 										'default'	=> Array(),
-										'update_fn' => '',
-									),
-							'available' => Array(
+									   ),
+						'available'	=> Array(
 										'added'		=> '0.0.1',
 										'type'		=> 'serialise',
 										'default'	=> Array(),
-										'update_fn' => '',
-									),
-					);
+									   ),
+					  );
+
 	}//end constructor
 
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_email_address.inc,v 1.13 2004/12/06 14:41:39 brobertson Exp $
+* $Id: form_question_type_email_address.inc,v 1.14 2005/04/07 03:16:30 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -78,15 +78,13 @@ class Form_Question_Type_Email_Address extends Form_Question_Type_Text
 	* @access public
 	* @return boolean
 	*/
-	function processForm()
+	function evaluate()
 	{
 		if (!$this->active_submission) return false;
 		$form =& $this->getMySection();
 
 		if (isset($_POST[$this->id])) {
 			$val = $_POST[$this->id];
-			$form->active_submission->setAnswer($this->id, $val);
-			$form->active_submission->setSummary($this->id, $this->attr('name'), $val);
 
 			// borrow a 'valid email address' rule, but only if the question is not blank
 			if (!empty($val)) {
@@ -94,16 +92,16 @@ class Form_Question_Type_Email_Address extends Form_Question_Type_Text
 				array_push($this->vars['rules']['value'], $req_rule);
 			}
 
-			parent::processForm();
+			$ok = parent::evaluate();
 
 			if (!empty($val)) {
 				array_pop($this->vars['rules']['value']);
 			}
 		}
 
-		return true;
+		return $ok;
 
-	}//end processForm()
+	}//end evaluate()
 
 
 	/**

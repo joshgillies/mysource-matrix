@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_email_edit_fns.inc,v 1.10 2004/12/06 14:41:39 brobertson Exp $
+* $Id: form_question_rule_type_email_edit_fns.inc,v 1.11 2005/04/07 03:16:28 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule_edi
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -48,6 +48,50 @@ class Form_Question_Rule_Type_Email_Edit_Fns extends Form_Question_Rule_Edit_Fns
 	{
 		$this->Form_Question_Rule_Edit_Fns();
 	}//end constructor
+
+
+	function paintRule(&$asset, &$o, $prefix, $rule_data, $write_access)
+	{
+		$operator_list = $asset->getOperators();
+
+		if (!$write_access) {
+			$o->openField('Rule Details');
+			echo 'Response '.strtolower($operator_list[array_get_index($rule_data, 'operator', 1)]);
+			$o->closeField();
+
+		} else {
+
+			$o->openField('Condition');
+			// list of operators
+			combo_box($prefix.'[operator]', $operator_list, false, array_get_index($rule_data, 'operator', '1'));
+			$o->closeField();
+
+			$o->sectionNote('This rule requires only the condition to be satisfied to be set.');
+		}
+
+		return $write_access;
+
+	}//end paintRule()
+
+
+	/**
+	* Process the rule's interface
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processRule(&$asset, &$o, $prefix, &$rule_data)
+	{
+		if (!isset($_POST[$prefix])) {
+			return false;
+		}
+
+		$operator = array_get_index($_POST[$prefix], 'operator', '1');
+		$rule_data['operator'] = $operator;
+
+		return true;
+
+	}//end processRule()
 
 
 }//end class

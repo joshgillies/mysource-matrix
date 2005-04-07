@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_selection.inc,v 1.5 2005/01/07 04:06:39 lwright Exp $
+* $Id: form_question_rule_type_selection.inc,v 1.6 2005/04/07 03:16:30 lwright Exp $
 *
 */
 
@@ -31,9 +31,8 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 * Purpose
 *
 *
-* @static
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -42,24 +41,29 @@ class Form_Question_Rule_Type_Selection extends Form_Question_Rule
 
 
 	/**
-	* Returns an array of definition variables in an array
+	* Constructor
 	*
-	* Since we are not instantiating the question rules, we do not have access to member variables
-	* (at least not until PHP5). So this overrides the usual attribute gathering function.
-	* Those methods wishing to override this function should call its parent first then modify the
-	* returned array.
+	* @param int	$assetid	the asset id to be loaded
 	*
-	* @access public
-	* @return array (string => mixed) an array of parameter values indexed by a parameter id
 	*/
-	function getAttributes()
+	function Form_Question_Rule_Type_Selection($assetid=0)
 	{
-		$attrs = parent::getAttributes();
-		$attrs['show_asset_finder'] = false;
-		$attrs['validation_rule'] = false;
-		return $attrs;
+		$this->Form_Question_Rule($assetid);
 
-	}//end getAttributes()
+	}//end constructor
+
+
+	/**
+	* return true if this rule can be used for form validation
+	*
+	* @return boolean
+	* @access public
+	*/
+	function isValidationRule()
+	{
+		return false;
+
+	}//end isValidationRule()
 
 
 	/**
@@ -72,9 +76,9 @@ class Form_Question_Rule_Type_Selection extends Form_Question_Rule
 	function getOperators()
 	{
 		$operators = Array(
-			'1' => 'Option must be selected: ',
-			'0' => 'Option must not be selected: ',
-		);
+						1	=> 'Option must be selected: ',
+						0	=> 'Option must not be selected: ',
+					 );
 
 		return $operators;
 
@@ -94,88 +98,13 @@ class Form_Question_Rule_Type_Selection extends Form_Question_Rule
 	function _getOperators()
 	{
 		$operators = Array(
-			'1' => 'must be selected',
-			'0' => 'must not be selected',
-		);
+						1	=> 'must be selected',
+						0	=> 'must not be selected',
+					 );
 
 		return $operators;
 
 	}//end _getOperators()
-
-
-	/**
-	* processes the form question and returns true if it is valid
-	*
-	* Because the Form Question Rule classes will not be instantiable by Matrix NOR will be
-	* instantiated manually in code, this function MUST called statically. (Hence also why we have
-	* manually pass question assets all the time - don't think static variables would work here)
-	*
-	* @param object form_question	&$q_asset		reference to the question asset
-	* @param string					$operator		the operator being used to compare
-	* @param mixed					&$comparison	either a value or a form_question asset (based on
-	*												comparison question id), being used to compare
-	*
-	* @see Form_Question_Rule::processForm()
-	* @access public
-	* @return boolean
-	*/
-	function processForm(&$q_asset, $operator, &$comparison)
-	{
-		if (!$q_asset->active_submission) return false;
-		$answer = $q_asset->getValue();
-		if (!is_array($answer)) {	// not an array, could be selection type
-			$answer = Array($answer);
-		} else if (count($answer) == 0) {	// no selections made at all
-			$answer = Array();
-		}
-		
-		$operators = eval('return '.__CLASS__.'::_getOperators();');	// get private operator texts
-
-		$valid = (array_search($comparison, $answer) !== false);
-
-		if ($valid == $operator) {
-			return true;
-		} else {
-			// tailor the error response depending
-			$error = $q_asset->name.$this->_getOperators[$operator];
-			$q_asset->active_submission->setError($error);
-			return false;
-		}
-
-	}//end processForm()
-
-
-	/**
-	* processes a test on a single static value
-	*
-	* Used when we are using rules outside of validating a form - for example selective emails.
-	*
-	* Because the Form Question Rule classes will not be instantiable by Matrix NOR will be
-	* instantiated manually in code, this function MUST called statically.
-	*
-	* @param mixed	$answer			the answer being passed to us
-	* @param string	$operator		the operator being used to compare
-	* @param mixed	&$comparison	either a value or a form_question asset (based on
-	*								comparison question id), being used to compare
-	*
-	* @static
-	* @access public
-	* @return boolean true only if rule succeeds
-	*/
-	function valueTest($answer, $operator, &$comparison)
-	{
-		$operators = eval('return '.__CLASS__.'::_getOperators();');	// get private operator texts
-		if (!is_array($answer)) {	// not an array, could be selection type
-			$answer = Array($answer);
-		} else if (count($answer) == 0) {	// no selections made at all
-			$answer = Array();
-		}
-
-		$valid = (array_search($comparison, $answer) !== false);
-
-		return ($valid == $operator);
-
-	}//end valueTest()
 
 
 	/**
@@ -184,21 +113,68 @@ class Form_Question_Rule_Type_Selection extends Form_Question_Rule
 	* This function assumes the skeleton of a JS validation function has been created around this code
 	* with a form variable named 'form' passed (this is done when generating the content file).
 	*
-	* Because the Form Question Rule classes will not be instantiable by Matrix NOR will be
-	* instantiated manually in code, this function MUST called statically.
-	*
-	* @param object form_question	&$q_asset		reference to the question asset
-	* @param string					$operator		the operator being used to compare
-	* @param mixed					&$comparison	either a value or a form_question asset (based on
-	*												comparison question id), being used to compare
+	* @param object Form_Question	&$q_asset		reference to the question asset
+	* @param Array					$rule_data		the rule data being used
 	*
 	* @access public
 	* @return boolean
 	*/
-	function generateJSCode(&$q_asset, $operator, &$comparison)
+	function generateJSCode(&$q_asset, $rule_data)
 	{
+		// this isn't used as a validation rule, so no JS code is required
+		return '';
 
 	}//end generateJSCode()
+
+
+	/**
+	* processes a test on a single static value
+	*
+	* Rule data is an array with the following fields:
+	* [operator] => operator to compare with (string, ==, !=, <, <=, >, >=)
+	* [value] => comparison static value
+	*
+	* @param mixed	$answer			the answer being passed to us
+	* @param string	$rule_data		the rule's data
+	*
+	* @access public
+	* @return boolean true only if rule succeeds
+	*/
+	function evaluate($answer, $rule_data)
+	{
+		$operator = array_get_index($rule_data, 'operator', 1);
+		$value = array_get_index($rule_data, 'value', '');
+
+		if (!is_array($answer)) {	// not an array, could be selection type
+			$answer = Array($answer);
+		} else if (count($answer) == 0) {	// no selections made at all
+			$answer = Array();
+		}
+
+		$valid = (array_search($value, $answer) !== false);
+
+		return ($valid == $operator);
+
+	}//end evaluate()
+
+
+	/**
+	* returns a description of this rule
+	*
+	* @param object Form_Question	&$q_asset		reference to the question asset
+	* @param Array					$rule_data		the rule data being used
+	*
+	* @access public
+	* @return boolean true only if rule succeeds
+	*/
+	function ruleDescription(&$q_asset, $rule_data)
+	{
+		$operator = array_get_index($rule_data, 'operator', 1);
+		$value = array_get_index($rule_data, 'value', '');
+
+		return 'Option "'.$q_asset->getSummary($value).'" must '.($operator ? '' : 'not ').'be selected at "'.$q_asset->attr('name').'"';
+
+	}//end ruleDescription()
 
 
 }//end class

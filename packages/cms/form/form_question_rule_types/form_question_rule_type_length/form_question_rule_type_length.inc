@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_length.inc,v 1.7 2004/12/06 14:41:39 brobertson Exp $
+* $Id: form_question_rule_type_length.inc,v 1.8 2005/04/07 03:16:29 lwright Exp $
 *
 */
 
@@ -31,9 +31,8 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 * Purpose
 *
 *
-* @static
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -51,13 +50,13 @@ class Form_Question_Rule_Type_Length extends Form_Question_Rule
 	function getOperators()
 	{
 		$operators = Array(
-			'==' => 'Must be this many characters in length...',
-			'!=' => 'Must not be this many characters in length...',
-			'>'  => 'Length must be greater than this many characters...',
-			'<'  => 'Length must be less than this many characters...',
-			'>=' => 'Length must be at least this many characters...',
-			'<=' => 'Length must be no more than this many characters...',
-		);
+						'=='	=> 'Must be this many characters in length...',
+						'!='	=> 'Must not be this many characters in length...',
+						'>'		=> 'Length must be greater than this many characters...',
+						'<'		=> 'Length must be less than this many characters...',
+						'>='	=> 'Length must be at least this many characters...',
+						'<='	=> 'Length must be no more than this many characters...',
+					 );
 
 		return $operators;
 
@@ -77,96 +76,17 @@ class Form_Question_Rule_Type_Length extends Form_Question_Rule
 	function _getOperators()
 	{
 		$operators = Array(
-			'==' => 'Must Be Equal to ',
-			'!=' => 'Must Not Be Equal to ',
-			'>'  => 'Must be Greater Than ',
-			'<'  => 'Must be Less Than ',
-			'>=' => 'Must be No Less Than ',
-			'<=' => 'Must be No More Than ',
-		);
+						'=='	=> 'Must Be ',
+						'!='	=> 'Must Not Be ',
+						'>'		=> 'Must be Greater Than ',
+						'<'		=> 'Must be Less Than ',
+						'>='	=> 'Must be No Less Than ',
+						'<='	=> 'Must be No More Than ',
+					 );
 
 		return $operators;
 
 	}//end _getOperators()
-
-
-	/**
-	* processes the form question and returns true if it is valid
-	*
-	* Because the Form Question Rule classes will not be instantiable by Matrix NOR will be
-	* instantiated manually in code, this function MUST called statically. (Hence also why we have
-	* manually pass question assets all the time - don't think static variables would work here)
-	*
-	* @param object form_question	&$q_asset		reference to the question asset
-	* @param string					$operator		the operator being used to compare
-	* @param mixed					&$comparison	either a value or a form_question asset (based on
-	*												comparison question id), being used to compare
-	*
-	* @see Form_Question_Rule::processForm()
-	* @access public
-	* @return boolean
-	*/
-	function processForm(&$q_asset, $operator, &$comparison)
-	{
-		if (!$q_asset->active_submission) return false;
-		$answer = $q_asset->getValue();
-
-		$operators = eval('return '.__CLASS__.'::_getOperators();');	// get private operator texts
-
-		// comparison sent is a question asset!!
-		if (is_a($comparison, 'form_question')) {
-			$valid = eval('return \''.strlen($answer).'\''.$operator.'\''.$comparison->getValue().'\';');
-		} else {	// sent just a value
-			$valid = eval('return \''.strlen($answer).'\''.$operator.'\''.$comparison.'\';');
-		}
-
-		if ($valid == $operator) {
-			return true;
-		} else {
-			// tailor the error response depending on whether comparison is against question or static
-			if (is_a($comparison, 'form_question')) {
-				$error = $q_asset->name.' '.$operators[$operator].' '.$comparison->getValue(). ' characters in length ('.$comparison->_getName().' in '.$comparison->getMySectionName().')';
-			} else {
-				$error = $this->my_question->name.' '.$operators[$operator].' '.$comparison . ' characters in length';
-			}
-			$q_asset->active_submission->setError($error);
-			return false;
-		}
-
-	}//end processForm()
-
-
-	/**
-	* processes a test on a single static value
-	*
-	* Used when we are using rules outside of validating a form - for example selective emails.
-	*
-	* Because the Form Question Rule classes will not be instantiable by Matrix NOR will be
-	* instantiated manually in code, this function MUST called statically.
-	*
-	* @param mixed	$answer			the answer being passed to us
-	* @param string	$operator		the operator being used to compare
-	* @param mixed	&$comparison	either a value or a form_question asset (based on
-	*								comparison question id), being used to compare
-	*
-	* @static
-	* @access public
-	* @return boolean true only if rule succeeds
-	*/
-	function valueTest($answer, $operator, &$comparison)
-	{
-		$operators = eval('return '.__CLASS__.'::_getOperators();');	// get private operator texts
-
-		// comparison sent is a question asset!!
-		if (is_a($comparison, 'form_question')) {
-			$valid = eval('return \''.strlen($answer).'\''.$operator.'\''.$comparison->getValue().'\';');
-		} else {	// sent just a value
-			$valid = eval('return \''.strlen($answer).'\''.$operator.'\''.$comparison.'\';');
-		}
-
-		return ($valid == $operator);
-
-	}//end valueTest()
 
 
 	/**
@@ -175,44 +95,83 @@ class Form_Question_Rule_Type_Length extends Form_Question_Rule
 	* This function assumes the skeleton of a JS validation function has been created around this code
 	* with a form variable named 'form' passed (this is done when generating the content file).
 	*
-	* Because the Form Question Rule classes will not be instantiable by Matrix NOR will be
-	* instantiated manually in code, this function MUST called statically.
-	*
-	* @param object form_question	&$q_asset		reference to the question asset
-	* @param string					$operator		the operator being used to compare
-	* @param mixed					&$comparison	either a value or a form_question asset (based on
-	*												comparison question id), being used to compare
+	* @param object Form_Question	&$q_asset		reference to the question asset
+	* @param Array					$rule_data		the rule data being used
 	*
 	* @access public
 	* @return boolean
 	*/
-	function generateJSCode(&$q_asset, $operator, &$comparison)
+	function generateJSCode(&$q_asset, $rule_data)
 	{
-		$code = '';
+		$operator = array_get_index($rule_data, 'operator', 1);
+		$value = array_get_index($rule_data, 'value', '');
 
-		$code .= 'var answer = document.getElementById("'.$q_asset->id.'").value; ';
+		ob_start();			// buffer this please
 
-		$operators = eval('return '.__CLASS__.'::_getOperators();');	// get private operator texts
+			?>
+				if (!(document.getElementById("<?php echo $q_asset->id; ?>").value.length <?php echo $operator ?> <?php echo $value ?>)) {
+					submission_errors[submission_errors.length] = "<?php
+						if (empty($rule_data['custom_text'])) {
+							echo addslashes($this->defaultError($q_asset, $rule_data));
+						} else {
+							echo addslashes($rule_data['custom_text']);
+						}
+					?>";
+				}
+			<?php
 
-		if (is_a($comparison, 'form_question')) {
-			$compare_value = 'document.getElementById("'.$comparison->id.'").value';
-		} else {	// sent just a value
-			$compare_value = '"'.$comparison.'"';
-		}
+		$contents = ob_get_contents();
+		ob_end_clean();
 
-		// this is a form question - get its current value from the form then
-		$code .= 'if (!(answer.length '.$operator.' '.$compare_value.')) {';	// START of js if
-			if (is_a($comparison, 'form_question')) {
-					$error = $q_asset->name.' '.$operators[$operator].' '.$compare_value. ' characters in length ('.$comparison->_getName().' in '.$comparison->getMySectionName().')';
-			} else {
-				$error = $q_asset->name.' '.$operators[$operator].' '.$compare_value . ' characters in length';
-			}
-		$code .= 'submission_errors[i] = "'.addslashes($error).'"; i++;'; // add submission error
-		$code .= '}';	//end of js if
-
-		return $code;
+		return $contents;
 
 	}//end generateJSCode()
+
+
+	/**
+	* processes a test on a single static value
+	*
+	* Rule data is an array with the following fields:
+	* [operator] => operator to compare with (string, ==, !=, <, <=, >, >=)
+	* [value] => comparison static value
+	*
+	* @param mixed	$answer			the answer being passed to us
+	* @param string	$rule_data		the rule's data
+	*
+	* @access public
+	* @return boolean true only if rule succeeds
+	*/
+	function evaluate($answer, $rule_data)
+	{
+		$operator = array_get_index($rule_data, 'operator', '==');
+		$value = array_get_index($rule_data, 'value', '');
+
+		$valid = eval('return \''.strlen($answer).'\''.$operator.'\''.$value.'\';');
+		return $valid;
+
+	}//end evaluate()
+
+
+	/**
+	* returns a description of the rule
+	*
+	* @param object Form_Question	&$q_asset	the question asset that failed
+	* @param array					$rule_data	the rule data
+	*
+	* @return string	the error message
+	* @access public
+	*/
+	function ruleDescription(&$q_asset, $rule_data)
+	{
+		$operator_list = $this->_getOperators();
+		$error_str = 'The length of the response to "'.$q_asset->attr('name').'" '.strtolower($operator_list[array_get_index($rule_data, 'operator', '==')]).' ';
+
+		$value = array_get_index($rule_data, 'value', '');
+		$error_str .= $value.' character'.($value == 1 ? '' : 's');
+
+		return $error_str;
+
+	}//end ruleDescription()
 
 
 }//end class

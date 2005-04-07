@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_regexp.inc,v 1.13 2004/12/06 14:41:39 brobertson Exp $
+* $Id: form_question_rule_type_regexp.inc,v 1.14 2005/04/07 03:16:29 lwright Exp $
 *
 */
 
@@ -31,9 +31,8 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 * Purpose
 *
 *
-* @static
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -55,27 +54,6 @@ class Form_Question_Rule_Type_Regexp extends Form_Question_Rule
 
 
 	/**
-	* Returns an array of definition variables in an array
-	*
-	* Since we are not instantiating the question rules, we do not have access to member variables
-	* (at least not until PHP5). So this overrides the usual attribute gathering function.
-	* Those methods wishing to override this function should call its parent first then modify the
-	* returned array.
-	*
-	* @access public
-	* @return array (string => mixed) an array of parameter values indexed by a parameter id
-	*/
-	function getAttributes()
-	{
-		$attrs = parent::getAttributes();
-		$attrs['force_text'] = true;
-		$attrs['show_asset_finder'] = false;
-		return $attrs;
-
-	}//end getAttributes()
-
-
-	/**
 	* Returns a list of operators for this rule type
 	*
 	* @access public
@@ -84,103 +62,121 @@ class Form_Question_Rule_Type_Regexp extends Form_Question_Rule
 	*/
 	function getOperators()
 	{
-		return Array(1 => 'Must Match the Regular Expression...',
-			0 => 'Must Not Match the Regular Expression...');
+		return Array(
+				1	=> 'Must Match the Regular Expression',
+				0	=> 'Must Not Match the Regular Expression',
+			   );
 
 	}//end getOperators()
 
 
 	/**
-	* processes the form question and returns true if it is valid
+	* writes JavaScript code for client side validation
 	*
-	* Because the Form Question Rule classes will not be instantiable, this function MUST called
-	* statically.
+	* @param object Form_Question	&$q_asset		reference to the question asset
+	* @param Array					$rule_data		the rule data being used
 	*
-	* @param object form_question	&$q_asset		reference to the question asset
-	* @param string					$operator		the operator being used to compare
-	* @param mixed					$comparison		value used to compare (no asset allowed here)
-	*
-	* @see Form_Question_Rule::processForm()
 	* @access public
 	* @return boolean
 	*/
-	function processForm(&$q_asset, $operator, $comparison)
+	function generateJSCode(&$q_asset, $rule_data)
 	{
-		$answer   = $this->active_submission->getAnswer($q_asset->id);
+		$operator = array_get_index($rule_data, 'operator', 1);
+		$value = array_get_index($rule_data, 'value', '');
 
-		$comparison = str_replace('|', '\|', $comparison);
-		$pattern = "|".$comparison."|";
-		(preg_match($pattern, $answer)) ? $valid = 1 : $valid = 0;
+		ob_start();			// buffer this please
 
-		if ($valid == $operator) {
-			return true;
-		} else {
-			$error = $question_name.' is not in the correct format';
-			$this->active_submission->setError($error);
-			return false;
-		}
+			// JavaScript only accepts forward slashes for their regexs
+			?>
+				if (<?php echo ($operator == 1) ? '!' : ''; ?>document.getElementById("<?php echo $q_asset->id; ?>").value.match(/<?php echo str_replace('/', '\/', $value) ?>/)) {
+					submission_errors[submission_errors.length] = "<?php
+						if (empty($rule_data['custom_text'])) {
+							echo addslashes($this->defaultError($q_asset, $rule_data));
+						} else {
+							echo addslashes($rule_data['custom_text']);
+						}
+					?>";
+				}
+			<?php
 
-	}//end processForm()
+		$contents = ob_get_contents();
+		ob_end_clean();
+
+		return $contents;
+
+	}//end generateJSCode()
 
 
 	/**
 	* processes a test on a single static value
 	*
-	* Used when we are using rules outside of validating a form - for example selective emails.
-	*
-	* Because the Form Question Rule classes will not be instantiable by Matrix NOR will be
-	* instantiated manually in code, this function MUST called statically.
+	* Rule data is an array with the following fields:
+	* [operator] => operator to compare with (boolean: 1 or 0)
+	* [value] => comparison value (regular expression)
+	* [case_sensitive] => whether the comparison is case sensitive
 	*
 	* @param mixed	$answer			the answer being passed to us
-	* @param string	$operator		the operator being used to compare
-	* @param mixed	&$comparison	either a value or a form_question asset (based on
-	*								comparison question id), being used to compare
+	* @param string	$rule_data		the rule's data
 	*
-	* @static
 	* @access public
 	* @return boolean true only if rule succeeds
 	*/
-	function valueTest($answer, $operator, $comparison)
+	function evaluate($answer, $rule_data)
 	{
-		$comparison = str_replace('|', '\|', $comparison);
+		$operator = array_get_index($rule_data, 'operator', 1);
+		$comparison = str_replace('|', '\|', array_get_index($rule_data, 'value', ''));
 		$pattern = "|".$comparison."|";
+
+		// case insensitive?
+		if (!array_get_index($rule_data, 'case_sensitive', 1)) {
+			$pattern .= 'i';
+		}
+
 		$valid = (preg_match($pattern, $answer)) ? 1 : 0;
 
 		return ($valid == $operator);
 
-	}//end valueTest()
+	}//end evaluate()
 
 
 	/**
-	* writes JavaScript code for client side validation
+	* returns a default error message for this rule
 	*
-	* @param object form_question	&$q_asset		reference to the question asset
-	* @param string					$operator		the operator being used to compare
-	* @param mixed					$comparison		value used to compare (no asset allowed here)
+	* @param object Form_Question	&$q_asset	the question asset that failed
+	* @param array					$rule_data	the rule data
 	*
+	* @return string	the error message
 	* @access public
-	* @return boolean
 	*/
-	function generateJSCode(&$q_asset, $operator, $comparison)
+	function defaultError(&$q_asset, $rule_data)
 	{
-		// this assumes the skeleton of a JS validation function has been created around this code
-		// with a 'form' variable defined (this should have been done when generating content file).
-		$code = 'var answer = document.getElementById("'.$q_asset->id.'").value; ';
+		$error_str = 'The response to "'.$q_asset->attr('name').'" is not in the correct format';
 
-		$op = ($operator == 1) ? '!' : '';
+		return $error_str;
 
-		$comparison = str_replace('/', '\/', $comparison);
-		$regex_code = "/".$comparison."/";		// JavaScript regexp will only accept fwd slashes
+	}//end defaultError()
 
-		// this is a form question - get its current value from the form then
-		$code .= 'if ('.$op.'answer.match('.$regex_code.')) {';	// START of js if
-		$error = $q_asset->name.' is not in the correct format';
 
-		$code .= 'submission_errors[i] = "'.addslashes($error).'"; i++;'; // add submission error
-		$code .= '}';	//end of js if
-		return $code;
+	/**
+	* returns a description of the rule
+	*
+	* @param object Form_Question	&$q_asset	the question asset that failed
+	* @param array					$rule_data	the rule data
+	*
+	* @return string	the error message
+	* @access public
+	*/
+	function ruleDescription(&$q_asset, $rule_data)
+	{
+		$operator = array_get_index($rule_data, 'operator', 1);
+		$value = array_get_index($rule_data, 'value', '');
+		$operator_list = $this->getOperators();
 
-	}//end generateJSCode()
+		$error_str = 'The response to "'.$q_asset->attr('name').'" '.strtolower($operator_list[$operator]).' "'.$value."'";
+
+		return $error_str;
+
+	}//end ruleDescription()
 
 
 }//end class

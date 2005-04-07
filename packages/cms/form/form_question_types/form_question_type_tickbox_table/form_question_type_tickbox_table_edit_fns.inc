@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_table_edit_fns.inc,v 1.5 2004/12/09 05:16:49 gsherwood Exp $
+* $Id: form_question_type_tickbox_table_edit_fns.inc,v 1.6 2005/04/07 03:16:30 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question_edit_fns.inc'
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -48,7 +48,7 @@ class Form_Question_Type_Tickbox_Table_Edit_Fns extends Form_Question_Edit_Fns
 	{
 		$this->Form_Question_Edit_Fns();
 
-	}//end Form_Question_Type_Tickbox_Table_Edit_Fns()
+	}//end constructor
 
 
 	/**

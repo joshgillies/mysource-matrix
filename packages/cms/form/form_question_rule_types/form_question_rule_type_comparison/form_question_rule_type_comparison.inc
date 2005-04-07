@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_comparison.inc,v 1.22 2005/01/20 13:18:39 brobertson Exp $
+* $Id: form_question_rule_type_comparison.inc,v 1.23 2005/04/07 03:16:27 lwright Exp $
 *
 */
 
@@ -31,9 +31,8 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 * Purpose
 *
 *
-* @static
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -51,111 +50,17 @@ class Form_Question_Rule_Type_Comparison extends Form_Question_Rule
 	function getOperators()
 	{
 		$operators = Array(
-			'==' => 'Must Be Equal to ',
-			'!=' => 'Must Not Be Equal to ',
-			'>'  => 'Must be Greater Than ',
-			'<'  => 'Must be Less Than ',
-			'>=' => 'Must be Greater Than or Equal To ',
-			'<=' => 'Must be Less Than or Equal To ',
-		);
+						'=='	=> 'Must Be Equal to ',
+						'!='	=> 'Must Not Be Equal to ',
+						'>'		=> 'Must be Greater Than ',
+						'<'		=> 'Must be Less Than ',
+						'>='	=> 'Must be Greater Than or Equal To ',
+						'<='	=> 'Must be Less Than or Equal To ',
+					 );
 
 		return $operators;
 
 	}//end getOperators()
-
-
-	/**
-	* processes the form question and returns true if it is valid
-	*
-	* Because the Form Question Rule classes will not be instantiable by Matrix NOR will be
-	* instantiated manually in code, this function MUST called statically. (Hence also why we have
-	* manually pass question assets all the time - don't think static variables would work here)
-	*
-	* @param object form_question	&$q_asset		reference to the question asset
-	* @param string					$operator		the operator being used to compare
-	* @param mixed					&$comparison	either a value or a form_question asset (based on
-	*												comparison question id), being used to compare
-	*
-	* @see Form_Question_Rule::processForm()
-	* @access public
-	* @return boolean
-	*/
-	function processForm(&$q_asset, $operator, &$comparison)
-	{
-		if (!$q_asset->active_submission) return false;
-		$answer = $q_asset->getValue();
-
-		$operators = eval('return '.__CLASS__.'::getOperators();');
-
-		// comparison sent is a question asset!!
-		if (is_a($comparison, 'form_question')) {
-			$comp_value = $comparison->getValue();
-		} else {	// sent just a value
-			$comp_value = $comparison;
-		}
-
-		$answer     = addslashes($answer);
-		$comp_value = addslashes($comp_value);
-
-		$expression = "return '$answer' $operator '$comp_value';";
-
-		if (eval($expression)) {
-			return true;
-		} else {
-			// tailor the error response depending
-			if (is_a($comparison, 'form_question')) {
-				$error = $q_asset->name.' '.$operators[$operator].
-			' '.$comparison->_getName().' in '.$comparison->getMySectionName().' (\''.$comparison->getValue().'\')';
-			} else {
-				if ($q_asset->isSelection()) {
-					$options = &$q_asset->getOptions();
-					$comparison = '"'.$options[(int)$comparison].'"';
-				}
-				// special case for "not equal to empty string" which is basically 'Is Required' rule
-				if (($operator == '!=') && ($comparison == '')) {
-					$error = $q_asset->name.' must be filled in';
-				} else {
-					$error = $q_asset->name.' '.$operators[$operator].' "'.$comparison.'"';
-				}
-			}
-			$q_asset->active_submission->setError($error);
-			return false;
-		}
-
-	}//end processForm()
-
-
-	/**
-	* processes a test on a single static value
-	*
-	* Used when we are using rules outside of validating a form - for example selective emails.
-	*
-	* Because the Form Question Rule classes will not be instantiable by Matrix NOR will be
-	* instantiated manually in code, this function MUST called statically.
-	*
-	* @param mixed	$answer			the answer being passed to us
-	* @param string	$operator		the operator being used to compare
-	* @param mixed	&$comparison	either a value or a form_question asset (based on
-	*								comparison question id), being used to compare
-	*
-	* @static
-	* @access public
-	* @return boolean true only if rule succeeds
-	*/
-	function valueTest($answer, $operator, &$comparison)
-	{
-		$operators = eval('return '.__CLASS__.'::getOperators();');
-
-		// comparison sent is a question asset!!
-		if (is_a($comparison, 'form_question')) {
-			$valid = eval('return \''.$answer.'\''.$operator.'\''.$comparison->getValue().'\';');
-		} else {	// sent just a value
-			$valid = eval('return \''.$answer.'\''.$operator.'\''.$comparison.'\';');
-		}
-
-		return $valid;
-
-	}//end valueTest()
 
 
 	/**
@@ -164,66 +69,116 @@ class Form_Question_Rule_Type_Comparison extends Form_Question_Rule
 	* This function assumes the skeleton of a JS validation function has been created around this code
 	* with a form variable named 'form' passed (this is done when generating the content file).
 	*
-	* Because the Form Question Rule classes will not be instantiable by Matrix NOR will be
-	* instantiated manually in code, this function MUST called statically.
-	*
-	* @param object form_question	&$q_asset		reference to the question asset
-	* @param string					$operator		the operator being used to compare
-	* @param mixed					&$comparison	either a value or a form_question asset (based on
-	*												comparison question id), being used to compare
+	* @param object Form_Question	&$q_asset		reference to the question asset
+	* @param Array					$rule_data		the rule data being used
 	*
 	* @access public
 	* @return boolean
 	*/
-	function generateJSCode(&$q_asset, $operator, &$comparison)
+	function generateJSCode(&$q_asset, $rule_data)
 	{
-		$code = '';
+		$operator = array_get_index($rule_data, 'operator', 1);
+		$cq_id = array_get_index($rule_data, 'comparison_question_id', 0);
+		$value = array_get_index($rule_data, 'value', '');
 
-		$code .= 'var answer = document.getElementById("'.$q_asset->id.'").value; ';
+		ob_start();			// buffer this please
 
-		if ($q_asset->type() == 'form_question_type_numeric') {
-			$code .= 'answer = parseFloat(answer); ';
-		}
-
-		$operators = eval('return '.__CLASS__.'::getOperators();');
-
-		if (is_a($comparison, 'form_question')) {
-			$compare_value = 'document.getElementById("'.$comparison->id.'").value';
-		} else {	// sent just a value
-			$compare_value = '"'.$comparison.'"';
-		}
-
-		// I don't care what the comparison value is, if our question is numeric than we are
-		// comparing it as a number!
-		if ($q_asset->type() == 'form_question_type_numeric') {
-			$compare_value_parsed = 'parseFloat('.$compare_value.')';
-		} else {
-			$compare_value_parsed = $compare_value;
-		}
-
-		// this is a form question - get its current value from the form then
-		$code .= 'if (!(answer '.$operator.' '.$compare_value_parsed.')) {';	// START of js if
-			if (is_a($comparison, 'form_question')) {
-					$error = $q_asset->name.' '.$operators[$operator].
-						' '.$comparison->_getName().' in '.$comparison->getMySectionName().' (\''.$compare_value.'\')';
+			if ($cq_id != 0) {
+				$comparison = 'document.getElementById("'.$cq_id.'").value';
 			} else {
-				if ($q_asset->isSelection()) {
-					$options = &$q_asset->getOptions();
-					$compare_value = '"'.$options[(int)$comparison].'"';
-				}
-				// special case for "not equal to empty string" which is basically 'Is Required' rule
-				if (($operator == '!=') || ($compare_value == '')) {
-					$error = $q_asset->name.' must be filled in';
-				} else {
-					$error = $q_asset->name.' '.$operators[$operator].' '.$compare_value;
-				}
+				$comparison = '"'.addslashes($value).'"';
 			}
-		$code .= 'submission_errors[i] = "'.addslashes($error).'"; i++;'; // add submission error
-		$code .= '}';	//end of js if
 
-		return $code;
+			// if it's a numeric field, make sure that JavaScript
+			// interprets it as a number
+			if (is_a($q_asset, 'form_question_type_numeric')) {	?>
+				if (!(parseFloat(document.getElementById("<?php echo $q_asset->id; ?>").value) <?php echo $operator ?> parseFloat(<?php echo $comparison ?>))) {
+			<?php } else { ?>
+				if (!(document.getElementById("<?php echo $q_asset->id; ?>").value <?php echo $operator ?> <?php echo $comparison ?>)) {
+			<?php } ?>
+					submission_errors[submission_errors.length] = "<?php
+						if (empty($rule_data['custom_text'])) {
+							echo addslashes($this->defaultError($q_asset, $rule_data));
+						} else {
+							echo addslashes($rule_data['custom_text']);
+						}
+					?>";
+				}
+			<?php
+
+		$contents = ob_get_contents();
+		ob_end_clean();
+
+		return $contents;
 
 	}//end generateJSCode()
+
+
+	/**
+	* processes a test on a single static value
+	*
+	* Rule data is an array with the following fields:
+	* [operator] => operator to compare with (string, ==, !=, <, <=, >, >=)
+	* [value] => comparison static value
+	* [comparison_question_id] => comparison question assetid
+	* [case_sensitive] => whether the comparison is case sensitive
+	*
+	* @param mixed	$answer			the answer being passed to us
+	* @param string	$rule_data		the rule's data
+	*
+	* @access public
+	* @return boolean true only if rule succeeds
+	*/
+	function evaluate($answer, $rule_data)
+	{
+		$operator = array_get_index($rule_data, 'operator', '==');
+		$cq_id = array_get_index($rule_data, 'comparison_question_id', 0);
+		$value = array_get_index($rule_data, 'value', '');
+
+		if ($cq_id != 0) {
+			$comparison =& $GLOBALS['SQ_SYSTEM']->am->getAsset($cq_id);
+			$valid = eval('return \''.$answer.'\''.$operator.'\''.$comparison->getValue().'\';');
+		} else {	// sent just a value
+			$valid = eval('return \''.$answer.'\''.$operator.'\''.$value.'\';');
+		}
+
+		return $valid;
+
+	}//end evaluate()
+
+
+	/**
+	* returns a description of the rule
+	*
+	* @param object Form_Question	&$q_asset	the question asset that failed
+	* @param array					$rule_data	the rule data
+	*
+	* @return string	the error message
+	* @access public
+	*/
+	function ruleDescription(&$q_asset, $rule_data)
+	{
+		$operator = array_get_index($rule_data, 'operator', '==');
+		$cq_id = array_get_index($rule_data, 'comparison_question_id', 0);
+		$value = array_get_index($rule_data, 'value', '');
+
+		if (($value == '') && ($operator == '!=')) {
+			$error_str = 'Question "'.$q_asset->attr('name').'" is a required field; it must be filled in';
+		} else {
+			$operator_list = $this->getOperators();
+			$error_str = 'The response to "'.$q_asset->attr('name').'" '.strtolower($operator_list[array_get_index($rule_data, 'operator', '==')]).' ';
+
+			if ($cq_id != 0) {
+				$comparison =& $GLOBALS['SQ_SYSTEM']->am->getAsset($cq_id);
+			$error_str .= 'the response to question "'.$comparison->attr('name').'"';
+			} else {	// sent just a value
+				$error_str .= '"'.$value.'"';
+			}
+		}
+
+		return $error_str;
+
+	}//end ruleDescription()
 
 
 }//end class

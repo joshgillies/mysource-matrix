@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_submission.inc,v 1.20 2005/03/21 06:25:31 gsherwood Exp $
+* $Id: form_submission.inc,v 1.21 2005/04/07 03:16:31 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -52,6 +52,17 @@ class Form_Submission extends Asset
 		return $this->Asset($assetid);
 
 	}//end constructor
+
+
+	function create(&$link)
+	{
+		if (!($linkid = parent::create($link))) {
+			return 0;
+		}
+
+		return $linkid;
+
+	}//end create()
 
 
 	/**
@@ -220,6 +231,13 @@ class Form_Submission extends Asset
 
 		if (empty($a['summary'])) $a['summary'] = Array();
 
+		/*if (!isset($a['summary'][$section_id])) {
+			$a['summary'][$section_id] = Array(
+				'section_name'	=> $section_name,
+				'questions'		=> Array(),
+			);
+		}*/
+
 		$a['summary'][$question_id]['answer']  = $value;
 		$a['summary'][$question_id]['name']    = $name;
 
@@ -233,7 +251,7 @@ class Form_Submission extends Asset
 
 
 	/**
-	* Return an array with summary information
+	* returns an Array with summary information
 	*
 	* @access public
 	* @return Array()
@@ -314,5 +332,4 @@ class Form_Submission extends Asset
 
 
 }//end class
-
 ?>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_management.inc,v 1.20 2005/02/11 05:43:40 tbarrett Exp $
+* $Id: form_email_management.inc,v 1.21 2005/04/07 03:16:27 lwright Exp $
 *
 */
 
@@ -31,12 +31,13 @@ require_once  SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
 class Form_Email_Management extends Asset_Management
 {
+
 
 	/**
 	* Constructor
@@ -47,179 +48,45 @@ class Form_Email_Management extends Asset_Management
 		$this->Asset_Management($pm);
 
 		$this->vars = Array(
-						/// Receipt screen ///
-
-							'receipt_emails_format' => Array(
-													'added'		=> '0.0.1',
-													'type'		=> 'email_format',
-													'default'	=> Array(),
-
-									),//end recipient_emails
-
-							'receipt_field' => Array(
-													'added'		=> '0.0.1',
-													'type'		=> 'assetid',
-													'default'	=> '',
-
-									),//end recipient_emails
-
-							'receipt'				=> Array(
-													'added'		=> '0.0.1',
-													'type'		=> 'selection',
-													'default'	=> 0,
-													'parameters'	=> Array(
-														'options'	=> Array(
-															1	=> 'yes',
-															0	=> 'no',
-														),
-														'multiple' => false,
-														'allow_empty' => false,
-												),
-									),
-
-							'receipt_from_address' => Array(
-													'added'		=> '0.0.1',
-													'type'		=> 'text',
-													'default'	=> '',
-
-									),//end receipt_from_address
-
-							'receipt_subject' => Array(
-													'added'		=> '0.0.1',
-													'type'		=> 'text',
-													'default'	=> '',
-
-									),//end receipt_subject
-
-							'receipt_body' => Array(
-													'added'		=> '0.0.1',
-													'type'		=> 'text',
-													'default'	=> '',
-
-									),//end receipt_subject
-
-							'receipt_allow_html' => Array(
-													'added'		=> '0.0.1',
-													'type'		=> 'boolean',
-													'default'	=> false,
-													'parameters' => Array(
-															'allow_empty' => false
-														),
-									),//end receipt_allow_html
-
-							'receipt_send_answers' => Array(
-													'added'		=> '0.0.1',
-													'type'		=> 'boolean',
-													'default'	=> false,
-													'parameters' => Array(
-															'allow_empty' => false
-														),
-									),//end receipt_send_answers
-
-							'recipient_emails_format' => Array(
-													'added'		=> '0.0.1',
-													'type'		=> 'email_format',
-													'default'	=> Array(),
-
-									),//end recipient_emails
-
-							'recipient_emails' => Array(
-													'added'		=> '0.0.1',
-													'type'		=> 'text',
-													'default'	=> '',
-
-									),//end recipient_emails
-
-							'recipient_body'	=> Array(
-													'added'		=> '0.0.1',
-													'type'		=> 'text',
-													'default'	=> '',
-
-									),//end recipient_body
-
-							'recipient_subject'	=> Array(
-													'added'		=> '0.0.1',
-													'type'		=> 'text',
-													'default'	=> '',
-
-									),//end recipient_subject
-
-							'recipient_allow_html' => Array(
-													'added'		=> '0.0.1',
-													'type'		=> 'boolean',
-													'default'	=> false,
-													'parameters' => Array(
-															'allow_empty' => false
-														),
-									),//end recipient_allow_html
-
-							'recipient_send_info' => Array(
-													'added'		=> '0.0.1',
-													'type'		=> 'boolean',
-													'default'	=> false,
-													'parameters' => Array(
-															'allow_empty' => false
-														),
-									),//end recipient_send_info
-
-							'recipient_send_answers' => Array(
-													'added'		=> '0.0.1',
-													'type'		=> 'boolean',
-													'default'	=> false,
-													'parameters' => Array(
-															'allow_empty' => false
-														),
-									),//end recipient_send_answers
-
-								/// STAF (Send To A Friend) ///
-							'staf_field' => Array(
-													'added'		=> '0.0.1',
-													'type'		=> 'assetid',
-													'default'	=> '',
-
-									),//end staf_field
-
-							'staf_format' => Array(
-													'added'		=> '0.0.1',
-													'type'		=> 'email_format',
-													'default'	=> Array(),
-
-									),//end recipient_emails
-
-							'staf_from_address'	=> Array(
-													'added'		=> '0.0.1',
-													'type'		=> 'text',
-													'default'	=> '',
-											),
-							'staf_subject'			=> Array(
-													'added'		=> '0.0.1',
-													'type'		=> 'text',
-													'default'	=> '',
-											),
-							'staf_message'			=> Array(
-													'added'		=> '0.0.1',
-													'type'		=> 'text',
-													'default'	=> '',
-											),
-
-							'selective_emails'		=> Array(
-													'added'		=> '0.0.1',
-													'type'		=> 'serialise',
-													'default'	=> Array(),
-													'update_fn' => '',
-											),
-
-								/// Submission Logging ///
-
-							'log'					=> Array(
-													'added'		=> '0.0.1',
-													'type'		=> 'boolean',
-													'default'	=> false,
-													'parameters' => Array(
-															'allow_empty' => false
-														),
-											),
-							);
+						'receipt_emails_format'		=> Array(
+														'added'		=> '0.0.1',
+														'type'		=> 'email_format',
+														'default'	=> Array(),
+													   ),
+						'receipt_field'				=> Array(
+														'added'		=> '0.0.1',
+														'type'		=> 'assetid',
+														'default'	=> '',
+													   ),
+						'recipient_emails_format'	=> Array(
+														'added'		=> '0.0.1',
+														'type'		=> 'email_format',
+														'default'	=> Array(),
+													   ),
+						'staf_field'				=> Array(
+														'added'		=> '0.0.1',
+														'type'		=> 'assetid',
+														'default'	=> '',
+													   ),
+						'staf_format'				=> Array(
+														'added'		=> '0.0.1',
+														'type'		=> 'email_format',
+														'default'	=> Array(),
+													   ),
+						'selective_emails'			=> Array(
+														'added'		=> '0.0.1',
+														'type'		=> 'serialise',
+														'default'	=> Array(),
+													   ),
+						'log'						=> Array(
+														'added'			=> '0.0.1',
+														'type'			=> 'boolean',
+														'default'		=> false,
+														'parameters'	=> Array(
+																			'allow_empty'	=> false,
+																		   ),
+													   ),
+					  );
 	}//end constructor
 
 
@@ -233,19 +100,19 @@ class Form_Email_Management extends Asset_Management
 	{
 		return Array(
 				Array(
-					'event_name'                 => 'requestKeywords',
-					'broadcast_type_code'        => 'content_type',
-					'broadcast_strict_type_code' => false,
-					'options'	=> Array(
-						'side_of_link' => 'major',
-						'indirect'     => true,
-						'is_exclusive' => null,
-						'is_dependant' => 1,
-						'value'        => '',
-						'link_type'    => SQ_LINK_TYPE_2 | SQ_LINK_TYPE_1,
-					),
+					'event_name'					=> 'requestKeywords',
+					'broadcast_type_code'			=> 'content_type',
+					'broadcast_strict_type_code'	=> false,
+					'options'						=> Array(
+														'side_of_link'	=> 'major',
+														'indirect'		=> true,
+														'is_exclusive'	=> null,
+														'is_dependant'	=> 1,
+														'value'			=> '',
+														'link_type'		=> SQ_LINK_TYPE_2 | SQ_LINK_TYPE_1,
+													   ),
 				),
-		);
+			   );
 	}//end getEventList()
 
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_select_limit.inc,v 1.9 2005/02/22 05:29:29 lwright Exp $
+* $Id: form_question_rule_type_select_limit.inc,v 1.10 2005/04/07 03:16:30 lwright Exp $
 *
 */
 
@@ -31,14 +31,26 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 * Purpose
 *
 *
-* @static
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
 class Form_Question_Rule_Type_Select_Limit extends Form_Question_Rule
 {
+
+
+	/**
+	* Constructor
+	*
+	* @param int	$assetid	the asset id to be loaded
+	*
+	*/
+	function Form_Question_Rule_Type_Select_Limit($assetid=0)
+	{
+		$this->Form_Question_Rule($assetid);
+
+	}//end constructor
 
 
 	/**
@@ -51,142 +63,17 @@ class Form_Question_Rule_Type_Select_Limit extends Form_Question_Rule
 	function getOperators()
 	{
 		$operators = Array(
-			'==' => 'Must select exactly this many options...',
-			'!=' => 'Must not select this many options...',
-			'>'  => 'Must select more than this many options...',
-			'<'  => 'Must select less than this many options...',
-			'>=' => 'Must select at least this many options...',
-			'<=' => 'Must select no more than this many options...',
-		);
+						'=='	=> 'Must select exactly this many options...',
+						'!='	=> 'Must not select this many options...',
+						'>'		=> 'Must select more than this many options...',
+						'<'		=> 'Must select less than this many options...',
+						'>='	=> 'Must select at least this many options...',
+						'<='	=> 'Must select no more than this many options...',
+					 );
 
 		return $operators;
 
 	}//end getOperators()
-
-
-	/**
-	* Returns a list of operators for this rule type, for use with error messages
-	*
-	* This extra operator function is declared in this case so that we can easily create a legible rule
-	* using the public function then use this for the error messages.
-	*
-	* @access private
-	* @return array (mixed => string) an array of descriptions indexed by operator id (which can be
-	*                                 anything, generally string or (int)0|1 for a boolean value)
-	*/
-	function _getOperators()
-	{
-		$operators = Array(
-			'==' => 'must have exactly ',
-			'!=' => 'must not have ',
-			'>'  => 'must have more than ',
-			'<'  => 'must have less than ',
-			'>=' => 'must have no less than ',
-			'<=' => 'must have no more than ',
-		);
-
-		return $operators;
-
-	}//end _getOperators()
-
-
-	/**
-	* Returns an array of definition variables in an array
-	*
-	* Since we are not instantiating the question rules, we do not have access to member variables
-	* (at least not until PHP5). So this overrides the usual attribute gathering function.
-	* Those methods wishing to override this function should call its parent first then modify the
-	* returned array.
-	*
-	* @access public
-	* @return array (string => mixed) an array of parameter values indexed by a parameter id
-	*/
-	function getAttributes()
-	{
-		$attrs = parent::getAttributes();
-		$attrs['force_text'] = true;
-		return $attrs;
-
-	}//end getAttributes()
-
-
-	/**
-	* processes the form question and returns true if it is valid
-	*
-	* Because the Form Question Rule classes will not be instantiable by Matrix NOR will be
-	* instantiated manually in code, this function MUST called statically. (Hence also why we have
-	* manually pass question assets all the time - don't think static variables would work here)
-	*
-	* @param object form_question	&$q_asset		reference to the question asset
-	* @param string					$operator		the operator being used to compare
-	* @param mixed					&$comparison	either a value or a form_question asset (based on
-	*												comparison question id), being used to compare
-	*
-	* @see Form_Question_Rule::processForm()
-	* @access public
-	* @return boolean
-	*/
-	function processForm(&$q_asset, $operator, &$comparison)
-	{
-		if (!$q_asset->active_submission) return false;
-		$answer = $q_asset->getValue();
-
-		$operators = eval('return '.__CLASS__.'::_getOperators();');	// get private operator texts
-
-		// comparison sent is a question asset!!
-		if (is_a($comparison, 'form_question')) {
-			$valid = eval('return \''.count($answer).'\''.$operator.'\''.$comparison->getValue().'\';');
-		} else {	// sent just a value
-			$valid = eval('return \''.count($answer).'\''.$operator.'\''.$comparison.'\';');
-		}
-
-		if ($valid == $operator) {
-			return true;
-		} else {
-			// tailor the error response depending
-			if (is_a($comparison, 'form_question')) {
-				$error = $q_asset->name.' '.$operators[$operator].' '.$comparison->getValue(). ' options selected ('.$comparison->_getName().' in '.$comparison->getMySectionName().')';
-			} else {
-				$error = '"' . $q_asset->name.'" '.$operators[$operator].' '.$comparison . ' options selected';
-			}
-			$q_asset->active_submission->setError($error);
-			return false;
-		}
-
-	}//end processForm()
-
-
-	/**
-	* processes a test on a single static value
-	*
-	* Used when we are using rules outside of validating a form - for example selective emails.
-	*
-	* Because the Form Question Rule classes will not be instantiable by Matrix NOR will be
-	* instantiated manually in code, this function MUST called statically.
-	*
-	* @param mixed	$answer			the answer being passed to us
-	* @param string	$operator		the operator being used to compare
-	* @param mixed	&$comparison	either a value or a form_question asset (based on
-	*								comparison question id), being used to compare
-	*
-	* @static
-	* @access public
-	* @return boolean true only if rule succeeds
-	*/
-	function valueTest($answer, $operator, &$comparison)
-	{
-		$operators = eval('return '.__CLASS__.'::_getOperators();');	// get private operator texts
-
-		// comparison sent is a question asset!!
-		if (is_a($comparison, 'form_question')) {
-			$valid = eval('return \''.count($answer).'\''.$operator.'\''.$comparison->getValue().'\';');
-		} else {	// sent just a value
-			$valid = eval('return \''.count($answer).'\''.$operator.'\''.$comparison.'\';');
-		}
-
-		return ($valid == $operator);
-
-	}//end valueTest()
 
 
 	/**
@@ -195,9 +82,6 @@ class Form_Question_Rule_Type_Select_Limit extends Form_Question_Rule
 	* This function assumes the skeleton of a JS validation function has been created around this code
 	* with a form variable named 'form' passed (this is done when generating the content file).
 	*
-	* Because the Form Question Rule classes will not be instantiable by Matrix NOR will be
-	* instantiated manually in code, this function MUST called statically.
-	*
 	* @param object form_question	&$q_asset		reference to the question asset
 	* @param string					$operator		the operator being used to compare
 	* @param mixed					&$comparison	either a value or a form_question asset (based on
@@ -206,58 +90,211 @@ class Form_Question_Rule_Type_Select_Limit extends Form_Question_Rule
 	* @access public
 	* @return boolean
 	*/
-	function generateJSCode(&$q_asset, $operator, &$comparison)
+	function generateJSCode(&$q_asset, $rule_data)
 	{
-		$code = '';
+		$operator = array_get_index($rule_data, 'operator', '==');
+		$value = array_get_index($rule_data, 'value', '');
 
 		if (is_a($q_asset, 'form_question_type_select')) {
 			// selection list or derivative - check multiple attribute
 			$q_id = $q_asset->id . ($q_asset->attr('multiple') ? '[]' : '');
 		} else if (is_a($q_asset, 'form_question_type_option_list')) {
 			// option list - always single (*sniff* :`-( )
-			$q_id = $q_asset->id;	
+			$q_id = $q_asset->id;
 		} else {
 			// tickbox list - always multiple
 			$q_id = $q_asset->id.'[]';
 		}
 
-		$code .= 'var select = document.getElementById("'.$q_id.'"); ';
-
-		$operators = eval('return '.__CLASS__.'::_getOperators();');	// get private operator texts
-
-		if (is_a($comparison, 'form_question')) {
-			$compare_value = 'document.getElementById("'.$comparison->id.'").value';
-		} else {	// sent just a value
-			$compare_value = $comparison;
-		}
-
-		$code .= 'var selectCount = 0; ';
-
 		// since this is going to be a generic rule type applicable to both select lists and tickbox
 		// lists, we need different types of magic for each possible question type.
 
 		// For a selection list (and descendants) we need something like this.......
-		if (is_a($q_asset, 'form_question_type_select')) {
-			$loop_code = ' for(i=0; i<select.options.length; i++) {if (select.options[i].selected) {selectCount++;} }';
-		} else {			// tickbox (or option) list needs something else
-			$loop_code = 'for(i=0; i<select.length; i++) {if (select.elements[i].checked) {selectCount++;} }';
-		}
+		ob_start();
 
-		$code .= $loop_code;		// add loop code
+			?>
+			var selectCount = 0;
 
-		// this is a form question - get its current value from the form then
-		$code .= 'if (!(selectCount '.$operator.' '.$compare_value.')) {';	// START of js if
-			if (is_a($comparison, 'form_question')) {
-					$error = $q_asset->name.' '.$operators[$operator].' '.$compare_value. ' options selected ('.$comparison->_getName().' in '.$comparison->getMySectionName().')';
-			} else {
-				$error = $q_asset->name.' '.$operators[$operator].' '.$compare_value . ' options selected';
+			<?php
+			if (is_a($q_asset, 'form_question_type_select')) {
+				?>var select = form.elements["<?php echo $q_id ?>"];
+				for(i=0; i<select.options.length; i++) {
+					if (select.options[i].selected) selectCount++;
+				}<?php
+			} else {			// tickbox (or option) list needs something else
+				foreach ($q_asset->getOptions() as $key => $option) {
+					?>if (document.getElementById('<?php echo $q_asset->id.'_'.$key ?>').checked) selectCount++;
+					<?php
+				}
 			}
-		$code .= 'submission_errors[i] = "'.addslashes($error).', "+selectCount+" selected"; i++;'; // add submission error
-		$code .= '}';	//end of js if
 
-		return $code;
+			?>
+			if (!(selectCount <?php echo $operator ?> <?php echo $value ?>)) {
+				submission_errors[submission_errors.length] = "<?php
+					if (empty($rule_data['custom_text'])) {
+						?>You have selected "+selectCount+" option"+(selectCount == 1 ? "" : "s")+" at question \"<?php echo addslashes($q_asset->attr('name')) ?>\" - <?php
+						switch ($operator) {
+							case '==':
+								echo ' you must select '.$value;
+							break;
+
+							case '!=':
+								echo ' you must not select this many';
+							break;
+
+							case '>':
+								echo ' you must select more than '.$value;
+							break;
+
+							case '>=':
+								echo ' you must select at least '.$value;
+							break;
+
+							case '<':
+								echo ' you must select less than '.$value;
+							break;
+
+							case '<=':
+								echo ' you must select no more than '.$value;
+							break;
+
+						}//end switch
+					} else {
+						echo addslashes($rule_data['custom_text']);
+					}
+				?>";
+			}
+			<?php
+		$contents = ob_get_contents();
+		ob_end_clean();
+
+		return $contents;
 
 	}//end generateJSCode()
+
+
+	/**
+	* processes a test on a single static value
+	*
+	* Rule data is an array with the following fields:
+	* [operator] => operator to compare with (string, ==, !=, <, <=, >, >=)
+	* [value] => comparison static value
+	*
+	* @param mixed	$answer			the answer being passed to us
+	* @param string	$rule_data		the rule's data
+	*
+	* @access public
+	* @return boolean true only if rule succeeds
+	*/
+	function evaluate($answer, $rule_data)
+	{
+		$operator = array_get_index($rule_data, 'operator', '==');
+		$value = array_get_index($rule_data, 'value', '');
+
+		$valid = eval('return \''.count($answer).'\''.$operator.'\''.$value.'\';');
+		return $valid;
+
+	}//end evaluate()
+
+
+	/**
+	* returns a default error message for this rule
+	*
+	* @param object Form_Question	&$q_asset	the question asset that failed
+	* @param array					$rule_data	the rule data
+	*
+	* @return string	the error message
+	* @access public
+	*/
+	function defaultError(&$q_asset, $rule_data)
+	{
+		$operator = array_get_index($rule_data, 'operator', '==');
+		$value = array_get_index($rule_data, 'value', '');
+
+		$selected_options = count($q_asset->getValue());
+
+		$error_str = 'You have selected '.$selected_options.' option'.($selected_options == 1 ? '' : 's').' at question "'.$q_asset->attr('name').'" - ';
+
+		switch ($operator) {
+			case '==':
+				$error_str .= ' you must select '.$value;
+			break;
+
+			case '!=':
+				$error_str .= ' you must not select this many';
+			break;
+
+			case '>':
+				$error_str .= ' you must select more than '.$value;
+			break;
+
+			case '>=':
+				$error_str .= ' you must select at least '.$value;
+			break;
+
+			case '<':
+				$error_str .= ' you must select less than '.$value;
+			break;
+
+			case '<=':
+				$error_str .= ' you must select no more than '.$value;
+			break;
+
+		}//end switch
+
+		return $error_str;
+
+	}//end defaultError()
+
+
+	/**
+	* returns a description for the rule
+	*
+	* @param object Form_Question	&$q_asset	the question asset that failed
+	* @param array					$rule_data	the rule data
+	*
+	* @return string	the error message
+	* @access public
+	*/
+	function ruleDescription(&$q_asset, $rule_data)
+	{
+		$operator = array_get_index($rule_data, 'operator', '==');
+		$value = array_get_index($rule_data, 'value', '');
+
+		$selected_options = count($q_asset->getValue());
+
+		switch ($operator) {
+			case '==':
+				$error_str = 'Must select ';
+			break;
+
+			case '!=':
+				$error_str = 'Must not select ';
+			break;
+
+			case '>':
+				$error_str = 'Must select more than ';
+			break;
+
+			case '>=':
+				$error_str = 'Must select at least ';
+			break;
+
+			case '<':
+				$error_str = 'Must select less than ';
+			break;
+
+			case '<=':
+				$error_str = 'Must select no more than ';
+			break;
+
+		}//end switch
+
+		$error_str .= $value.' option'.($selected_options == 1 ? '' : 's').' at "'.$q_asset->attr('name').'" - ';
+
+		return $error_str;
+
+	}//end ruleDescription()
 
 
 }//end class

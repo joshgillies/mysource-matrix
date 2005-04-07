@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_password.inc,v 1.14 2004/12/06 14:41:39 brobertson Exp $
+* $Id: form_question_type_password.inc,v 1.15 2005/04/07 03:16:30 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -114,38 +114,32 @@ class Form_Question_Type_Password extends Form_Question
 	* @access public
 	* @return boolean
 	*/
-	function processForm()
+	function evaluate()
 	{
-		parent::processForm();
+		if (!$this->active_submission) return false;
 
-		$form = &$this->getMySection();
-		if (!$form->active_submission) return false;
+		if (!$this->answeredCorrectly()) {
+			$this->failed_rules[] = 'Password field "'.$this->attr('name').'" was entered differently on each try';
+			return false;
+		}
 
 		if (isset($_POST[$this->id.'_1'])) {
 			$val = $_POST[$this->id.'_1'];
 
 			if (strlen($val) < $this->attr('min')) {
-				$form->active_submission->setError('Password field "'.$this->attr('name').'" must be no less than '.$this->attr('min').' characters');
+				$this->failed_rules[] = 'Password field "'.$this->attr('name').'" must be no less than '.$this->attr('min').' characters';
 				return false;
 			}
 			if (strlen($val) > $this->attr('max')) {
-				$form->active_submission->setError('Password field "'.$this->attr('name').'" must be no more than '.$this->attr('max').' characters');
-				return false;
-			}
-			if (!$this->answeredCorrectly()) {
-				$form->active_submission->setError('Password field "'.$this->attr('name').'" was entered differently on each try');
+				$this->failed_rules[] = 'Password field "'.$this->attr('name').'" must be no more than '.$this->attr('max').' characters';
 				return false;
 			}
 
-			$form->active_submission->setAnswer($this->id, $val);
-			$form->active_submission->setSummary($this->id,  $this->attr('name'), $val);
-
-			parent::processForm();
+			return parent::evaluate($val);
 		}
 
-		return true;
+	}//end evaluate()
 
-	}//end processForm()
 
 	/**
 	* returns TRUE if this question has been answered correctly
@@ -165,6 +159,7 @@ class Form_Question_Type_Password extends Form_Question
 			if ($val1 != $val2) return false;
 		}
 		return true;
+
 	}//end answeredCorrectly()
 
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.1 2005/03/30 00:41:12 lwright Exp $
+* $Id: lang_screen_details.xml,v 1.2 2005/04/07 03:16:30 lwright Exp $
 *
 */
 -->
@@ -66,18 +66,11 @@
 			<note>If required, this question must be answered before the form can be submitted</note>
 		</field>
 	</section>
-	<section name="Complex Validation Rules">
-		<field>
-			<display_name>Question Rules</display_name>
-			<note>When the value of an asset is specified as the comparison value, it takes precedence over any static value entered</note>
-			<function_call>
-				<paint_function   name="paintRules"   />
-				<process_function name="processRules" />
-			</function_call>
-		</field>
+	<section name="Complex Validation Rules" />
+	<section name="Add New Rule">
 		<field>
 			<display_name>Add Rule</display_name>
-			<note></note>
+			<note />
 			<function_call>
 				<paint_function   name="paintAddRule"   />
 				<process_function name="processAddRule" />
