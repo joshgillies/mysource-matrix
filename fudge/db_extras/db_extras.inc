@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_extras.inc,v 1.14 2005/04/06 23:44:32 mmcintyre Exp $
+* $Id: db_extras.inc,v 1.15 2005/04/07 23:00:36 mmcintyre Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *     like Sub-Queries
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package Fudge
 * @subpackage DB_Extras
 */
@@ -175,8 +175,8 @@ function db_extras_insert_select(&$db, $insert, $select)
 */
 function db_extras_bitand(&$db, $val1, $val2)
 {
-	if ((int) $val1 != $val1) $val1 = $db->quote($val1);
-	if ((int) $val2 != $val2) $val2 = $db->quote($val2);
+	if ((int) $val1 != $val1) $val1 = $db->quoteSmart($val1);
+	if ((int) $val2 != $val2) $val2 = $db->quoteSmart($val2);
 	
 	if ($db->phptype == 'oci8') {
 		$bit_op = 'BITAND('.$val1.', '.$val2.')';
@@ -201,7 +201,11 @@ function db_extras_bitand(&$db, $val1, $val2)
 */
 function db_extras_todate(&$db, $iso8601_date)
 {
-	return 'TO_DATE('.$db->quote($iso8601_date).','.$db->quote('YYYY-MM-DD HH24:MI:SS').')';
+	if ($db->phptype == 'pgsql') {
+		return 'TO_TIMESTAMP('.$db->quote($iso8601_date).','.$db->quote('YYYY-MM-DD HH24:MI:SS').')';
+	} else if ($db->phptype == 'oci8') {
+		return 'TO_DATE('.$db->quote($iso8601_date).','.$db->quote('YYYY-MM-DD HH24:MI:SS').')';
+	}
 
 }//end db_extras_todate()
 
