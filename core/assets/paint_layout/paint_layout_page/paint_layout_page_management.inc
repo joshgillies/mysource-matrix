@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_page_management.inc,v 1.1 2005/04/06 22:10:23 gnoel Exp $
+* $Id: paint_layout_page_management.inc,v 1.2 2005/04/07 17:57:06 gnoel Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -66,7 +66,7 @@ class Paint_Layout_Page_Management extends Asset_Management
 				Array(
 					'event_name'				 => 'requestKeywords',
 					'broadcast_type_code'		 => 'content_type',
-					'broadcast_strict_type_code' => true,
+					'broadcast_strict_type_code' => false,
 					'options'	=> Array(
 						'side_of_link'		=> 'major',
 						'indirect'			=> true,
