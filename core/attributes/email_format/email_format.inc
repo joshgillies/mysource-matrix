@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: email_format.inc,v 1.13 2004/12/20 00:48:22 lwright Exp $
+* $Id: email_format.inc,v 1.14 2005/04/07 02:47:29 lwright Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_ATTRIBUTES_PATH.'/wysiwyg/wysiwyg.inc';
 *    <email_format />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -210,7 +210,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 				while(divX != null) {
 					if (divX.style.display != 'none') {
 						email_addr = divX.firstChild.nextSibling.nextSibling.nextSibling.innerHTML;
-	
+
 						// this is the one we want
 						if (divX.id == (editor_name + "_" + index)) {
 							divX.style.display = 'none';
@@ -219,10 +219,10 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 						}
 						arrIndex++;
 					}
-					
+
 					divX = divX.nextSibling;
 				}
-				
+
 				var new_value_content = '';
 
 				for (var i = 0; i < email_array.length; i++) {
@@ -230,7 +230,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 					if (typeof email != 'undefined') {
 						re = new RegExp("\\\[.*\\\] (.*)", "g");
 						email_addr = email.replace(re, "\$1");
-						
+
 						new_value_content += email_addr + ";";
 					}
 
@@ -428,6 +428,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 
 		// replace keywords in all our values
 		$from      = replace_keywords($current_value['from'],        $replacements);
+		$to        = replace_keywords($current_value['to'],          $replacements);
 		$subject   = replace_keywords($current_value['subject'],     $replacements);
 		$text_body = replace_keywords($current_value['text_format'], $replacements);
 		$html_body = replace_keywords($current_value['html_format'], $replacements);
@@ -453,7 +454,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 
 		$hdrs = Array('From' => $from, 'Subject' => $subject);
 
-		foreach ($current_value['to'] as $to_email) {
+		foreach ($to as $to_email) {
 
 			$to_email = trim($to_email);
 
