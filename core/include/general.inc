@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.80 2005/04/08 06:01:44 lwright Exp $
+* $Id: general.inc,v 1.81 2005/04/08 06:14:08 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.80 $
+* @version $Revision: 1.81 $
 * @package MySource_Matrix
 */
 
@@ -831,7 +831,7 @@ function translate($string)
 * @return string
 * @access public
 */
-function trigger_matrix_error($code, $error_level)
+function trigger_localised_error($code, $error_level)
 {
 	$args = array_slice(func_get_args(),2);
 	if (!isset($GLOBALS['SQ_SYSTEM'])) {
@@ -840,5 +840,5 @@ function trigger_matrix_error($code, $error_level)
 	}
 	return $GLOBALS['SQ_SYSTEM']->lm->raiseError($code, $error_level, $args);
 
-}//end trigger_matrix_error()
+}//end trigger_localised_error()
 ?>
