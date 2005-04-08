@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.79 2005/04/08 05:39:09 gsherwood Exp $
+* $Id: general.inc,v 1.80 2005/04/08 06:01:44 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.79 $
+* @version $Revision: 1.80 $
 * @package MySource_Matrix
 */
 
@@ -805,6 +805,9 @@ function hide_system_root($message='')
 
 /**
 * Provides a 'shorthand' interface to the Locale Manager's getString() method
+* for the current locale
+*
+* @param string	$string			the string code to translate
 *
 * @return string
 * @access public
@@ -818,4 +821,24 @@ function translate($string)
 }//end translate()
 
 
+/**
+* Provides a 'shorthand' interface to the Locale Manager's raiseError() method
+* (for the current locale)
+*
+* @param string	$code			the error code (eg. SYS0013)
+* @param int	$error_level	the error level (use E_USER_* constant only)
+*
+* @return string
+* @access public
+*/
+function trigger_matrix_error($code, $error_level)
+{
+	$args = array_slice(func_get_args(),2);
+	if (!isset($GLOBALS['SQ_SYSTEM'])) {
+		trigger_error('Error occurred ['.$code.']', $error_level);
+		return false;
+	}
+	return $GLOBALS['SQ_SYSTEM']->lm->raiseError($code, $error_level, $args);
+
+}//end trigger_matrix_error()
 ?>
