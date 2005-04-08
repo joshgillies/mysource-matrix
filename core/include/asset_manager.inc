@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.296 2005/04/08 03:28:32 tbarrett Exp $
+* $Id: asset_manager.inc,v 1.297 2005/04/08 03:34:10 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.296 $
+* @version $Revision: 1.297 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -1138,7 +1138,7 @@ class Asset_Manager extends MySource_Object
 			// and append them after the assetid so we can use getAssoc
 			// to produce assetid => Array(info)
 			require SQ_DATA_PATH.'/private/db/table_columns.inc';
-			unset($tables['ast']['columns'][array_search($tables['ast']['columns'], 'assetid')]);
+			unset($tables['ast']['columns'][array_search('assetid', $tables['ast']['columns'])]);
 			$col_string = implode(', ', $tables['ast']['columns']);
 		}
 
