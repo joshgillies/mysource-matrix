@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question.inc,v 1.49 2005/04/08 00:05:01 lwright Exp $
+* $Id: form_question.inc,v 1.50 2005/04/08 00:16:59 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.49 $
+* @version $Revision: 1.50 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -321,6 +321,10 @@ class Form_Question extends Asset
 	*/
 	function getValue()
 	{
+		if (empty($this->active_submission)) {
+			return $this->attr('default');
+		}
+
 		if (isset($this->active_submission[$this->id])) {
 			return $this->active_submission[$this->id];
 		} else {
