@@ -18,15 +18,13 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.2 2005/04/08 07:19:20 arailean Exp $
-* $Name: not supported by cvs2svn $
+* $Id: lang_screen_details.xml,v 1.1 2005/04/08 07:19:22 arailean Exp $
+*
 */
 -->
 
 <contents>
-	<section name="Known Logs" write_access="write:attributes">
-		<function_call>
-			<paint_function   name="paintLogList" />
-		</function_call>
+	<section name="Known Logs">
+		<note>This is a list of logs this system knows about</note>
 	</section>
 </contents>

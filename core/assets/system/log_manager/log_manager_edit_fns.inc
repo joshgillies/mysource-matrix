@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: log_manager_edit_fns.inc,v 1.1 2005/03/23 03:00:54 arailean Exp $
+* $Id: log_manager_edit_fns.inc,v 1.2 2005/04/08 07:19:22 arailean Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard  <rhoward@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -57,6 +57,279 @@ class Log_Manager_Edit_Fns extends Asset_Edit_Fns
 		$this->static_screens['details']['force_unlock'] = false;
 
 	}//end constructor
+
+
+	/**
+	* Paint Log List
+	*
+	* @param object Log_Manager			&$lm	log manager
+	* @param object Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @access public
+	*/
+	function paintLogList(&$lm, &$o, $prefix)
+	{
+		$write_access = $lm->writeAccess();
+
+		$o->openRaw();
+		$logs = $lm->getLogs();
+		if (empty($logs)) {
+			echo "<h2>No Logs Found</h2>";
+			return $write_access;
+		}
+
+		?>
+		<script type="text/javascript">
+			//<![CDATA[
+			var prefix 			 = "<?php echo $prefix; ?>";
+			var communicator_url = "<?php echo $lm->getCommunicatorUrl(); ?>";
+			var action_prefix    = prefix + "_action";
+			var action_value     = prefix + "_value";
+			var logname_index    = prefix + "_log";
+			var offset_index     = prefix + "_offset";
+
+			var refresh_interval = 30000; //seconds
+			var last_offset = null;
+
+			var log_refresh = true;
+			var refresher   = null;
+			var current_log = null;
+
+			/**
+			* Start monitoring a new log from the known log list
+			*/
+			function monitorLog(logname)
+			{
+				if (logname == null) {
+					logname = current_log;
+				} else {
+					current_log = logname;
+				}
+
+				if (logname == null) {
+					return false;
+				}
+
+				document.getElementById('sq-log-monitor-containter').style.display = 'block';
+				setIdValue('sq-log-name', logname);
+
+				// initial setting
+				if (log_refresh && null === refresher) {
+					enableRefresh();
+				}
+
+				last_offset = null;
+				loadLog();
+
+				return false;
+
+			}//end monitorLog()
+
+
+			/**
+			* Load current log into the monitor frame
+			*/
+			function loadLog()
+			{
+				request_url = communicator_url+'&'+action_prefix+'=monitor&'+logname_index+'='+current_log+'&rand='+ Math.random();
+				if (null !== last_offset) {
+					request_url = request_url+'&'+offset_index+'='+last_offset;
+				}
+
+				document.getElementById('sq-log-monitor').src = request_url;
+				return true;
+
+			}//end loadLog()
+
+
+			//// Setter Functions
+			/**
+			* Load current log into the monitor frame
+			*/
+			function setRefreshInterval(interval)
+			{
+				var value = parseInt(interval);
+				if (!isNaN(value)) {
+					document.refresh_interval = value;
+				}
+
+			}//end setRefreshInterval()
+
+
+			/**
+			* Sets the parameters of the last refresh
+			*
+			* This function is used by the page included by the monitor
+			* when loaded, that function passes us some data that we can use in the next request
+			* or just for information display
+			*
+			* @param date_string	value	number of bytes representing the offset into the log file
+			* @return void
+			*/
+			function setLastRefreshInfo(date_string, num_rows, offset)
+			{
+				setIdValue('sq-log-last-refresh', date_string);
+				setIdValue('sq-log-total-rows', num_rows);
+				setLastOffset(offset);
+
+			}//end setLastRefreshInfo()
+
+
+			function setIdValue(id, value)
+			{
+				document.getElementById(id).innerHTML = value;
+
+			}//end setIdValue()
+
+
+			/**
+			* Set the offset at the end of the last line read from the log
+			*
+			* this is required for smart reloading, i.e. obtaining entries starting from where
+			* the previous request finished
+			*
+			* @param integer	value	number of bytes representing the offset into the log file
+			* @return void
+			*/
+			function setLastOffset(value)
+			{
+				var value = parseInt(value);
+				if (!isNaN(value)) {
+					last_offset = value;
+				}
+
+			}//end setLastOffset()
+
+
+			/**
+			* Enable log refresh
+			*
+			* Sets the appropriate labels and kills the existing timer and starts a new one
+			*
+			* @return void
+			*/
+			function enableRefresh()
+			{
+				if (null !== refresher) {
+					clearTimeout(refresher);
+				}
+				refresher = setInterval(loadLog, refresh_interval);
+
+				setIdValue('sq-log-refresh-status', 'ON');
+				document.getElementById('sq-log-refresh-enabler').value='Disable';
+
+				log_refresh = true;
+
+			}//end enableRefresh()
+
+
+			/**
+			* Disable log refresh
+			*
+			* Sets the appropriate labels and kills the timer
+			*/
+			function disableRefresh()
+			{
+				if (null !== refresher) {
+					clearInterval(refresher);
+					refresher = null;
+				}
+
+				setIdValue('sq-log-refresh-status', 'OFF');
+				document.getElementById('sq-log-refresh-enabler').value='Enable';
+
+				log_refresh = false;
+
+			}//end disableRefresh()
+
+
+			/**
+			* Toggle Refresh to the opposite state
+			*/
+			function toggleLogRefreshStatus()
+			{
+
+				if (!log_refresh) {
+					enableRefresh();
+				} else {
+					disableRefresh();
+				}
+
+				return true;
+
+			}//end toggleLogRefreshStatus()
+
+
+			//]]>
+		</script>
+		<table class="sq-backend-table">
+			<tr>
+				<th style="width: 10%">Log Name</th>
+				<th style="width: 50%">Info</th>
+				<th>Action</th>
+			</tr>
+		<?php
+		foreach ($logs as $logname => $rotation) {
+			$filepath = SQ_LOG_PATH.'/'.$logname.SQ_CONF_LOG_EXTENSION;
+			$last_modified = date('G:i:s - M d', filemtime($filepath));
+
+			$last_rotated = array_get_index($rotation, 'last_timestamp');
+			if (empty($last_rotated)){
+				$last_rotated = 'Never';
+			} else {
+				$last_rotated = date('G:i:s - M d', $last_rotated);
+			}
+
+			?>
+			<tr>
+				<td><strong><?php echo $logname; ?></strong></td>
+				<td>
+					Modified: <strong><?php echo $last_modified; ?></strong>
+					<br />
+					Rotated: <strong><?php echo $last_rotated; ?></strong>
+				</td>
+				<td><a href="#" onclick="return monitorLog('<?php echo $logname; ?>');" >Monitor</a></td>
+			</tr>
+			<?php
+		}
+		echo "</table>";
+
+		$o->closeRaw();
+		$o->closeSection();
+
+		$o->openSection('Log Monitor');
+			$o->openRaw('');
+				?>
+				<div id="sq-log-monitor-containter" style="display: none;">
+					<table class="sq-backend-table">
+						<tr>
+							<td>
+								Log: <strong id="sq-log-name"></strong>
+								&nbsp;&nbsp;&nbsp;
+								Loaded: <strong id="sq-log-last-refresh"></strong>
+								&nbsp;&nbsp;&nbsp;
+								Rows displayed: <strong id="sq-log-total-rows"></strong>
+
+							</td>
+							<td style="text-align: right">
+								Auto-Refresh: <strong id="sq-log-refresh-status">&nbsp;</strong>
+								<input type="button" onclick="toggleLogRefreshStatus();" id="sq-log-refresh-enabler" value="" />
+								&nbsp;&nbsp;&nbsp;
+								<input type="button" onclick="loadLog();" id="sq-log-refresh-force" value="Refresh Now" />
+							</td>
+						</tr>
+					</table>
+					<br />
+					<iframe id="sq-log-monitor" src="" style="width: 100%; height: 400px; border: 1px solid #C3C3C3;"></iframe>
+				</div>
+				<?php
+			$o->closeRaw();
+		$o->closeSection();
+
+		return $write_access;
+
+	}//end paintLogList()
 
 
 }//end class

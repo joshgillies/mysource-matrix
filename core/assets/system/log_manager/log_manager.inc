@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: log_manager.inc,v 1.8 2005/04/01 03:26:52 arailean Exp $
+* $Id: log_manager.inc,v 1.9 2005/04/08 07:19:21 arailean Exp $
 */
 
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -39,6 +39,8 @@ class Log_Manager extends Asset
 {
 
 	var $log_level_map;
+
+	var $min_tail_lines = 10;
 
 
 	// Constructor
@@ -334,7 +336,7 @@ class Log_Manager extends Asset
 		// the string contain data in the format:
 		// [DATE][USERNAME:USERID][LEVEL(LEVELID)][FLAG] DATA
 		// NOTE: only flags ' ' and 'S' are read - raw ('R') log entries are ignored
-		preg_match('/\[([^[\]]*)\]\[([^[\]]*):([^[\]]*)\]\[(\d+):([^[\]]*)\]\[([ S])\] (.*)/', $line, $matches);
+		preg_match('/\[([^[\]]*)\]\[([^[\]]*):([^[\]]*)\]\[(\d+):([^[\]]*)\]\[(.)\] (.*)/', $line, $matches);
 
 		if (empty($matches)) {
 			return false;
@@ -356,7 +358,7 @@ class Log_Manager extends Asset
 							'userid'	=> $matches[2],
 							'user'		=> $user,
 							'date'		=> strtotime($matches[1]),
-							'level'		=> (int) $matches[5],
+							'level'		=> (int) $matches[4],
 							'data'		=> $data,
 						);
 
@@ -433,13 +435,10 @@ class Log_Manager extends Asset
 		}
 
 		$filesize = false;
-		if (file_exists($file) && $handle = fopen($file, 'r')) {
-			fseek($handle, 0, SEEK_END);
-			$filesize = ftell($handle);
-			fclose($handle);
+		if (file_exists($file)) {
+			$filesize = sprintf("%u", filesize($file));
 		}
-		else {
-		}
+
 		return $filesize;
 
 	}//end _getFileSize()
@@ -551,6 +550,208 @@ class Log_Manager extends Asset
 		}
 
 	}//end _rotateLogFiles()
+
+
+	/**
+	* Get URL of this asset for direct communication
+	*
+	* Returns a backend URL of this asset that can service direct connections
+	* (ignoring backend frames)
+	*
+	* @access public
+	* @return void
+	*/
+	function getCommunicatorUrl()
+	{
+		return $this->getBackendHref().'&'.$this->getPrefix().'_direct_connection=true&ignore_frames=1';
+
+	}//end getCommunicatorUrl()
+
+
+	/**
+	* Backend Painter
+	*
+	* @param $o object    bakcend outputter
+	*
+	* @access public
+	* @return void
+	*/
+	function paintBackend(&$o)
+	{
+		$prefix = $this->getPrefix();
+
+		$direct = array_get_index($_REQUEST, $prefix.'_direct_connection', false);
+
+		// if a direct connection is requested, pass the control
+		// to the direct Communicator, otherwise take normal course of action
+		if ($direct) {
+			$this->_directCommunicator();
+			exit; // need this since Matrix tries to print extras after this section is done
+		} else {
+			parent::paintBackend($o);
+		}
+
+	}//end paintBackend()
+
+
+	/**
+	* Direct Communicator
+	*
+	* Performs the direct communication bypassing matrix interface
+	*
+	* @access public
+	* @return void
+	*/
+	function _directCommunicator()
+	{
+		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+
+		$prefix = $this->getPrefix();
+
+		$action  = array_get_index($_REQUEST, $prefix.'_action');
+		$value   = array_get_index($_REQUEST, $prefix.'_value');
+		$logname = array_get_index($_REQUEST, $prefix.'_log');
+		$offset  = array_get_index($_REQUEST, $prefix.'_offset');
+
+		$content = '';
+
+		if (empty($action)) {
+			echo "No action supplied";
+			return true;
+
+		} else if ($action == 'monitor' && !empty($logname)) {
+			$num_lines = empty($value)?$this->min_tail_lines:(int)$value;
+			$filename = SQ_LOG_PATH.'/'.$logname.SQ_CONF_LOG_EXTENSION;
+
+			if (!is_readable($filename)) {
+				echo "File cannot is not readable";
+				return true;
+			}
+
+			if (empty($offset)) {
+				$lines = get_last_lines_from_file($filename, $num_lines);
+				$new_offset = filesize($filename);
+			} else {
+				$handle = fopen($filename, 'r');
+				if (!$handle) {
+					echo "Cannot open file";
+					return;
+				}
+
+				$error_status = fseek($handle, $offset);
+				if ($error_status) {
+					fclose($handle);
+					$lines = get_last_lines_from_file($filename, $num_lines);
+					$new_offset = filesize($filename);
+				} else {
+					while (!feof($handle)) {
+						$lines[] = rtrim(fgets($handle));
+					}
+
+					$new_offset = ftell($handle);
+					fclose($handle);
+					if (count($lines) < $num_lines) {
+						$old = $lines;
+						$lines = get_last_lines_from_file($filename, $num_lines);
+						$new_offset = filesize($filename);
+					}
+				}
+			}
+			$current_time = date('r');
+
+			$content = '<table class="sq-backend-table"><tr><th style="width: 150px">Meta Data</th><th>Message</th></tr>';
+			$date_string = date("G:i:s - d M");
+			if (empty($lines)) {
+				$content .= "Empty";
+			} else {
+				foreach ($lines as $line) {
+					if (empty($line)) {
+						continue;
+					}
+					$d_line = $this->_decodeLine($line);
+					if ($d_line !== false) {
+						$content .= '
+						<tr>
+							<td style="background-color: #eee;">
+								'.date('G:i:s - d M',$d_line['date']).'<br />
+								User:&nbsp;<strong>'.$d_line['user'].'</strong>&nbsp;('.$d_line['userid'].')<br />
+								Level:&nbsp;<strong>'.get_error_name($d_line['level']).'</strong><br />
+							</td>
+							<td><span style="font: mono;">'.$d_line['data'].'<span></td>
+						</tr>';
+					} else {
+						$content .= '
+						<tr class="alt">
+							<td style="color: red; background-color: #eef; text-align: right;">
+								<strong>RAW:</strong>
+							</td>
+							<td><span style="font: mono;">'.$line.'<span></td>
+						</tr>';
+					}
+
+				}
+			}
+
+			$content .= '</table>';
+
+		} else {
+			trigger_error('Unknown action or invalid input', E_USER_WARNING);
+			return true;
+		}
+
+		?>
+		<html>
+				<head>
+					<title>Log Monitor</title>
+					<link rel="stylesheet" type="text/css" href="<?php echo sq_web_path('lib');?>/web/css/edit.css" />
+					<script type="text/javascript">
+						//<![CDATA[
+						/**
+						* Get the absolute co-ordinates of an element
+						*
+						* @param Object   elt   The element to find the position of
+						* @return Array   The co-ordinates (x=>123, y=>456)
+						*/
+						function getEltPosition(elt)
+						{
+							var posX = 0;
+							var posY = 0;
+							while (elt != null) {
+							   posX += elt.offsetLeft;
+							   posY += elt.offsetTop;
+							   elt = elt.offsetParent;
+							}
+							return {x:posX,y:posY};
+
+						}//end getEltPosition()
+
+						/**
+						* Scroll to the bottom of the page
+						*
+						* @return boolean
+						*/
+						function scrolToBottom()
+						{
+							elt = document.getElementById("sq-log-end");
+							coords = getEltPosition(elt);
+
+							window.scrollTo(0,coords.y);
+							return true;
+
+						}//end getEltPosition()
+						//]]>
+					</script>
+				</head>
+				<body onload="scrolToBottom(); parent.setLastRefreshInfo('<?php echo $date_string; ?>','<?php echo count($lines); ?>','<?php echo $new_offset; ?>')">
+					<?php echo $content; ?>
+					<a name="bottom" id="sq-log-end" />
+				</body>
+		</html>
+
+		<?php
+		return true;
+
+	}//end _directCommunicator()
 
 
 }//end class
