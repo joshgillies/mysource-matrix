@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_broken_links.inc,v 1.4 2005/02/16 22:49:29 dbaranovskiy Exp $
+* $Id: report_links.inc,v 1.1 2005/04/08 03:44:33 ndvries Exp $
 *
 */
 
@@ -26,18 +26,18 @@
 require_once SQ_CORE_PACKAGE_PATH.'/report/report.inc';
 
 /**
-* Report_Broken_Links
+* Report_Links
 *
 * Purpose
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
-register_implementation('report_broken_links', 'bridge');
-class Report_Broken_Links extends Report
+register_implementation('report_links', 'bridge');
+class Report_Links extends Report
 {
 
 
@@ -47,7 +47,7 @@ class Report_Broken_Links extends Report
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Report_Broken_Links($assetid=0)
+	function Report_Links($assetid=0)
 	{
 		$this->Report($assetid);
 
@@ -77,7 +77,7 @@ class Report_Broken_Links extends Report
 	*/
 	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=true, $side_of_link='major', $sort_by=null)
 	{
-		assert_equals($assetid, $this->id, 'The Broken Links Report can only get its own links');
+		assert_equals($assetid, $this->id, 'The Links Report can only get its own links');
 
 		if (!isset($this->_tmp['getLinks'])) {
 
@@ -108,15 +108,15 @@ class Report_Broken_Links extends Report
 			foreach ($root->children as $asset_element) {
 				if ($asset_element->name != 'asset') continue;
 				$links[] = Array(
-								'linkid'          => 0,
-								'minorid'         => $asset_element->attributes['assetid'],
-								'value'           => '',
-								'link_type'    	  => SQ_LINK_TYPE_1,
-								'minor_type_code' => $asset_element->attributes['type_code'],
-								'sort_order'      => $sort_order,
-								'is_dependant'    => '0',
-								'is_exclusive'    => '0',
-							);
+							'linkid'			=> 0,
+							'minorid'			=> $asset_element->attributes['assetid'],
+							'value'				=> '',
+							'link_type'			=> SQ_LINK_TYPE_1,
+							'minor_type_code'	=> $asset_element->attributes['type_code'],
+							'sort_order'		=> $sort_order,
+							'is_dependant'		=> '0',
+							'is_exclusive'		=> '0',
+						   );
 
 				$sort_order++;
 			}
@@ -167,19 +167,19 @@ class Report_Broken_Links extends Report
 			foreach ($root->children as $asset_element) {
 				if ($asset_element->name != 'asset') continue;
 				$links[] = Array(
-								'assetid'    => $asset_element->attributes['assetid'],
-								'short_name' => $asset_element->attributes['short_name'],
-								'name'       => $asset_element->attributes['name'],
-								'accessible' => 1,
-								'type_code'  => $asset_element->attributes['type_code'],
-								'status'     => $asset_element->attributes['status'],
-								'linkid'     => '0',
-								'link_type'  => SQ_LINK_TYPE_1,
-								'num_kids'   => 0,
-								'sort_order' => $sort_order,
-								'url'        => '',
-								'path'       => '',
-							);
+							'assetid'		=> $asset_element->attributes['assetid'],
+							'short_name'	=> $asset_element->attributes['short_name'],
+							'name'			=> $asset_element->attributes['name'],
+							'accessible'	=> 1,
+							'type_code'		=> $asset_element->attributes['type_code'],
+							'status'		=> $asset_element->attributes['status'],
+							'linkid'		=> '0',
+							'link_type'		=> SQ_LINK_TYPE_1,
+							'num_kids'		=> 0,
+							'sort_order'	=> $sort_order,
+							'url'			=> '',
+							'path'			=> '',
+						   );
 
 				$sort_order++;
 			}
@@ -208,7 +208,7 @@ class Report_Broken_Links extends Report
 	*/
 	function getParents($assetid, $type_code='', $strict_type_code=true)
 	{
-		assert_equals($assetid, $this->id, 'The Broken Links Report can only get its own links');
+		assert_equals($assetid, $this->id, 'The Links Report can only get its own links');
 		return Array();
 
 	}//end getParents()
@@ -233,7 +233,7 @@ class Report_Broken_Links extends Report
 	*/
 	function getChildren($assetid, $type_code='', $strict_type_code=true, $sort_by=null)
 	{
-		assert_equals($assetid, $this->id, 'The Broken Links Report can only get its own links');
+		assert_equals($assetid, $this->id, 'The Links Report can only get its own links');
 		return Array();
 
 	}//end getChildren()

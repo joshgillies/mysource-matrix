@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_broken_links_edit_fns.inc,v 1.13 2005/04/06 06:33:02 ndvries Exp $
+* $Id: report_links_edit_fns.inc,v 1.1 2005/04/08 03:44:33 ndvries Exp $
 *
 */
 
@@ -26,17 +26,17 @@
 require_once SQ_CORE_PACKAGE_PATH.'/report/report_edit_fns.inc';
 
 /**
-* Report_Broken_Links_Edit_Fns
+* Report_Links_Edit_Fns
 *
 * Purpose
-*	Generate a report of broken links
+*	Generate a report of links
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
-class Report_Broken_Links_Edit_Fns extends Report_Edit_Fns
+class Report_Links_Edit_Fns extends Report_Edit_Fns
 {
 
 
@@ -44,7 +44,7 @@ class Report_Broken_Links_Edit_Fns extends Report_Edit_Fns
 	* Constructor
 	*
 	*/
-	function Report_Broken_Links_Edit_Fns()
+	function Report_Links_Edit_Fns()
 	{
 		$this->Report_Edit_Fns();
 
@@ -66,7 +66,7 @@ class Report_Broken_Links_Edit_Fns extends Report_Edit_Fns
 	{
 		require_once SQ_FUDGE_PATH.'/general/text.inc';
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-		$owner = &$GLOBALS['SQ_SYSTEM']->am->getAsset($job->_running_vars['assetid'], 'report_broken_links');
+		$owner = &$GLOBALS['SQ_SYSTEM']->am->getAsset($job->_running_vars['assetid'], 'report_links');
 
 		if (!isset($job->_running_vars['results'])) {
 			$job->_running_vars['todo'] = $GLOBALS['SQ_SYSTEM']->am->getChildren($this->getRootAssetid($owner), 'content_type', false);
@@ -104,7 +104,7 @@ class Report_Broken_Links_Edit_Fns extends Report_Edit_Fns
 				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
 
 				if (!is_null($asset)) {
-					$step_data['message'] = 'Generating broken links report...';
+					$step_data['message'] = 'Generating links report...';
 
 					$content = '';
 					$wysiwyg_html = $asset->attr('html');
@@ -160,7 +160,7 @@ class Report_Broken_Links_Edit_Fns extends Report_Edit_Fns
 
 				} else {
 					$step_data['message'] = 'Skipping asset '.$assetid;
-					$job->_addError('Could not generate broken links report for assetd #'.$assetid.', asset does not exist');
+					$job->_addError('Could not generate links report for assetd #'.$assetid.', asset does not exist');
 				}
 
 			}//end if nest content cell
@@ -417,7 +417,7 @@ class Report_Broken_Links_Edit_Fns extends Report_Edit_Fns
 		}//end foreach
 
 
-		echo '<b>Note</b> The current broken links report is shown below. You can regenerate this report on the details screen.';
+		echo '<b>Note</b> The current links report is shown below. You can regenerate this report on the details screen.';
 		$o->closeSection();
 
 

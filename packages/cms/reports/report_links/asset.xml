@@ -21,17 +21,17 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.2 2005/01/20 13:18:40 brobertson Exp $
+* $Id: asset.xml,v 1.1 2005/04/08 03:44:33 ndvries Exp $
 *
 */
 -->
 
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../asset.xsd">
 	<package>cms</package>
-	<type_code>report_broken_links</type_code>
+	<type_code>report_links</type_code>
 	<version>0.1</version>
-	<name>Broken Links Report</name>
-	<description>Broken Links Report, displays a report of broken internal and external links in content</description>
+	<name>Links Report</name>
+	<description>Links Report, displays a report of internal and external links in content with a description if they are broken</description>
 	<instantiable>yes</instantiable>
 	<allowed_access>backend_user</allowed_access>
 	<parent_type>report</parent_type>

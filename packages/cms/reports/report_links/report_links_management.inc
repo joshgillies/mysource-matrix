@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_broken_links_management.inc,v 1.2 2005/01/20 13:18:40 brobertson Exp $
+* $Id: report_links_management.inc,v 1.1 2005/04/08 03:44:33 ndvries Exp $
 *
 */
 
@@ -26,16 +26,16 @@
 require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 
 /**
-* Report_Broken_Links_Management
+* Report_Links_Management
 *
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
-class Report_Broken_Links_Management extends Asset_Management
+class Report_Links_Management extends Asset_Management
 {
 
 
@@ -43,7 +43,7 @@ class Report_Broken_Links_Management extends Asset_Management
 	* Constructor
 	*
 	*/
-	function Report_Broken_Links_Management(&$pm)
+	function Report_Links_Management(&$pm)
 	{
 		$this->Asset_Management($pm);
 
