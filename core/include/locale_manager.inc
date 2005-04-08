@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: locale_manager.inc,v 1.3 2005/04/08 05:39:09 gsherwood Exp $
+* $Id: locale_manager.inc,v 1.4 2005/04/08 05:58:43 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,7 +31,7 @@
 *    number/date formats
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 */
 class Locale_Manager extends MySource_Object
@@ -48,12 +48,21 @@ class Locale_Manager extends MySource_Object
 
 
 	/**
-	* Holds a stack of locale settings - most current first
+	* Holds a stack of strings for each language
 	*
 	* @var Array
 	* @access public
 	*/
 	var $_strings = Array();
+
+
+	/**
+	* Holds a stack of errors for each language
+	*
+	* @var Array
+	* @access public
+	*/
+	var $_errors = Array();
 
 
 	/**
@@ -240,13 +249,28 @@ class Locale_Manager extends MySource_Object
 	function includeAssetStrings($type_code, $locale=null)
 	{
 		// keep track of which assets have been included so we don't include
-		// a certain set of strings more than once
+		// a certain set of strings more than once for each locale
 		static $assets_included = Array();
 
 		if (!isset($assets_included[$type_code])) {
+			$assets_included[$type_code] = Array();
+		}
+
+		if (!array_get_index($assets_included[$type_code], $locale, false)) {
 			$assets_included[$type_code] = true;
 			if ($locale == null) {
 				$locale = $this->getCurrentLocale();
+			}
+
+			if ($type_code != 'asset') {
+				$asset_dir = SQ_SYSTEM_ROOT.'/'.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code, 'dir');
+				if (strpos($asset_dir, SQ_CORE_PACKAGE_PATH) !== false) {
+					$this->includePackageStrings('__core__', $locale);
+				} else {
+					$asset_dir = str_replace(SQ_PACKAGES_PATH.'/', '', $asset_dir);
+					$package = substr($asset_dir, 0, strpos($asset_dir, '/'));
+					$this->includePackageStrings($package, $locale);
+				}
 			}
 
 			list($lang, $country, $variant) = $this->getLocaleParts($locale);
@@ -287,24 +311,49 @@ class Locale_Manager extends MySource_Object
 	function includePackageStrings($package_name, $locale=null)
 	{
 		// keep track of which packages have been included so we don't include
-		// a certain set of strings more than once
+		// a certain set of strings more than once for each locale
 		static $packages_included = Array();
 
 		if (!isset($packages_included[$package_name])) {
-			$packages_included[$package_name] = true;
+			$packages_included[$package_name] = Array();
+		}
+
+		if (!array_get_index($packages_included[$package_name], $locale, false)) {
+			$packages_included[$package_name][$locale] = true;
 
 			if ($locale == null) {
 				$locale = $this->getCurrentLocale();
 			}
 
-			$file = SQ_DATA_PATH.'/private/packages/'.$package_name.'/strings.'.$locale;
-			if (file_exists($file)) {
-				$strings = unserialize(file_get_contents($file));
-
-				if (!isset($this->_strings[$locale])) {
-					$this->_strings[$locale] = Array();
+			list($lang, $country, $variant) = $this->getLocaleParts($locale);
+			$locales = Array($lang);
+			if (!empty($country)) {
+				$locales[] = $lang.'_'.$country;
+				if (!empty($variant)) {
+					$locales[] = $lang.'_'.$country.'@'.$variant;
 				}
-				$this->_strings[$locale] = array_merge($this->_strings[$locale], $strings);
+			}
+
+			foreach ($locales as $this_locale) {
+				$file = SQ_DATA_PATH.'/private/packages/'.$package_name.'/strings.'.$this_locale;
+				if (file_exists($file)) {
+					$strings = unserialize(file_get_contents($file));
+
+					if (!isset($this->_strings[$locale])) {
+						$this->_strings[$locale] = Array();
+					}
+					$this->_strings[$locale] = array_merge($this->_strings[$locale], $strings);
+				}
+
+				$file = SQ_DATA_PATH.'/private/packages/'.$package_name.'/errors.'.$this_locale;
+				if (file_exists($file)) {
+					$strings = unserialize(file_get_contents($file));
+
+					if (!isset($this->_errors[$locale])) {
+						$this->_errors[$locale] = Array();
+					}
+					$this->_errors[$locale] = array_merge($this->_errors[$locale], $strings);
+				}
 			}
 		}
 
@@ -322,27 +371,94 @@ class Locale_Manager extends MySource_Object
 	function includeCoreStrings($locale=null)
 	{
 		// keep track of whether we've included the core strings already
-		static $core_included = false;
+		// (for this locale at least)
+		static $core_included = Array();
 
-		if (!$core_included) {
-			$core_included = true;
+		if (!array_get_index($core_included, $locale, false)) {
+			$core_included[$locale] = true;
 
 			if ($locale == null) {
 				$locale = $this->getCurrentLocale();
 			}
 
-			$file = SQ_DATA_PATH.'/private/asset_types/asset/strings.'.$locale;
-			if (file_exists($file)) {
-				$strings = unserialize(file_get_contents($file));
-
-				if (!isset($this->_strings[$locale])) {
-					$this->_strings[$locale] = Array();
+			list($lang, $country, $variant) = $this->getLocaleParts($locale);
+			$locales = Array($lang);
+			if (!empty($country)) {
+				$locales[] = $lang.'_'.$country;
+				if (!empty($variant)) {
+					$locales[] = $lang.'_'.$country.'@'.$variant;
 				}
-				$this->_strings[$locale] = array_merge($this->_strings[$locale], $strings);
+			}
+
+			foreach ($locales as $this_locale) {
+				$file = SQ_DATA_PATH.'/private/system/core/strings.'.$this_locale;
+				if (file_exists($file)) {
+					$strings = unserialize(file_get_contents($file));
+
+					if (!isset($this->_strings[$locale])) {
+						$this->_strings[$locale] = Array();
+					}
+					$this->_strings[$locale] = array_merge($this->_strings[$locale], $strings);
+				}
+
+				$file = SQ_DATA_PATH.'/private/system/core/errors.'.$this_locale;
+				if (file_exists($file)) {
+					$strings = unserialize(file_get_contents($file));
+
+					if (!isset($this->_errors[$locale])) {
+						$this->_errors[$locale] = Array();
+					}
+					$this->_errors[$locale] = array_merge($this->_errors[$locale], $strings);
+				}
 			}
 		}
 
 	}//end includeCoreStrings()
+
+
+	/**
+	* fetches an error translation for the current and triggers the error
+	*
+	* @param string	$code			the error code
+	* @param int	$error_level	the PHP error level (must be one of:
+	*								E_USER_ERROR, E_USER_WARNING, E_USER_NOTICE)
+	*
+	* @return void
+	* @access public
+	*/
+	function raiseError($code, $error_level)
+	{
+		$locale = $this->getCurrentLocale();
+
+		if (($error_level != E_USER_ERROR) && ($error_level != E_USER_WARNING) && ($error_level != E_USER_NOTICE)) {
+			trigger_error('Invalid error level passed when raising error ['.$code.']: '.$error_level, E_USER_WARNING);
+			$error_level = E_USER_ERROR;
+		}
+
+		// if third parameter is an array, use that as our list of params
+		// otherwise, everything after 2nd param is our list of params that we
+		// will pump into the error, sprintf() style
+		if (!is_array($func_args = func_get_arg(2))) {
+			$func_args = func_get_args();
+			$func_args = array_slice($func_args,2);
+		}
+
+		$valid_code = true;
+		if (!isset($this->_errors[$locale])) {
+			$valid_code = false;
+		}
+
+		if (!isset($this->_errors[$locale][$code])) {
+			$valid_code = false;
+		}
+
+		if ($valid_code) {
+			trigger_error(vsprintf($this->_errors[$locale][$code], $func_args).' ['.$code.']', $error_level);
+		} else {
+			trigger_error('Error text not found for this code and locale ['.$code.']', $error_level);
+		}
+
+	}//end raiseError()
 
 
 }//end class
