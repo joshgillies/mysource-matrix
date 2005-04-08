@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job.inc,v 1.64 2005/04/06 23:05:34 mmcintyre Exp $
+* $Id: hipo_job.inc,v 1.65 2005/04/08 01:11:06 mmcintyre Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_DATA_PATH.'/private/conf/hipo.inc';
 * Highly Intensive Processing Object (HIPO)
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.64 $
+* @version $Revision: 1.65 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -429,9 +429,13 @@ class HIPO_Job extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db  = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$sql = 'SELECT userid, last_updated
-				FROM sq_hipo_job
-				WHERE code_name = '.$db->quote($code_name);
+		$sql = 'SELECT 
+					userid, last_updated
+				FROM
+					sq_hipo_job
+				WHERE
+					code_name = '.$db->quoteSmart($code_name);
+
 		$existing = $db->getRow($sql);
 		assert_valid_db_result($existing);
 
@@ -443,25 +447,55 @@ class HIPO_Job extends MySource_Object
 
 		$now = time();
 		
-		$date = $db->quote(ts_iso8601($now));
-		
-		if ($db->phptype == 'oci8') {
-			$date = 'TO_DATE('.$date.', '.$db->quote('YYYY-MM-DD HH24:MI:SS').')';
-		}
+		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
-		$sql = 'INSERT INTO sq_hipo_job
-				(code_name, job_type, userid, running, source_code_name, hipo_vars, options, steps, running_vars, last_updated)
-				VALUES ('.$db->quote($code_name).',
-						'.$db->quote(get_class($this)).',
-						'.$db->quote($GLOBALS['SQ_SYSTEM']->currentUserId()).',
-						0,
-						'.$db->quote($source_code_name).',
-						'.$db->quote($hipo_vars).',
-						'.$db->quote($options).',
-						'.$db->quote($steps).',
-						'.$db->quote($vars).',
-						'.$date.'
-						)';
+		$prepared = $db->prepare('INSERT INTO
+									sq_hipo_job
+									(
+										code_name,
+										job_type,
+										userid,
+										running,
+										source_code_name,
+										hipo_vars,
+										options,
+										steps,
+										running_vars,
+										last_updated
+									)
+									VALUES
+									(
+										?,
+										?,
+										?,
+										?,
+										?,
+										?,
+										?,
+										?,
+										?,
+										'.db_extras_prepare_todate($db).'
+									)'
+								);
+					
+		
+					
+		$values = Array(
+				$code_name,
+				get_class($this),
+				$GLOBALS['SQ_SYSTEM']->currentUserId(),
+				0,
+				$source_code_name,
+				$hipo_vars,
+				$options,
+				$steps,
+				$vars,
+				ts_iso8601($now),
+				'YYYY-MM-DD HH24:MI:SS'
+			);
+		$result = $db->execute($prepared, $values);
+		assert_valid_db_result($result);
+		
 		$result = $db->query($sql);
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		assert_valid_db_result($result);
@@ -669,28 +703,42 @@ class HIPO_Job extends MySource_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		// now we just do what we are told
 		if ($delete) {
-			$sql = 'DELETE FROM sq_hipo_job
-					WHERE code_name = '.$db->quote($this->code_name);
-
+			$sql = 'DELETE FROM
+						sq_hipo_job
+					WHERE
+						code_name = '.$db->quoteSmart($this->code_name);
+			$result = $db->query($sql);
+			assert_valid_db_result($result);
 		} else {
 			
-			$date = $db->quote(ts_iso8601($now));
-			if ($db->phptype == 'oci8') {
-				$date = 'TO_DATE('.$date.', '.$db->quote('YYYY-MM-DD HH24:MI:SS').')';
-			}
+			require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 			
-			$sql = 'UPDATE sq_hipo_job
-					SET hipo_vars    = '.$db->quote(serialize($this->_hipo_vars)).',
-						options      = '.$db->quote(serialize($this->_options)).',
-						steps        = '.$db->quote(serialize($this->_steps)).',
-						running_vars = '.$db->quote(serialize($this->_running_vars)).',
-						last_updated = '.$date.'
-					WHERE code_name  = '.$db->quote($this->code_name);
+			$prepared = $db->prepare(
+									'UPDATE
+										sq_hipo_job
+									SET
+										hipo_vars		= ?,
+										options			= ?,
+										steps			= ?,
+										running_vars	= ?,
+										last_updated	= '.db_extras_prepare_todate($db).'
+									WHERE
+										code_name	= ?');
+				
+			$values = Array(
+					serialize($this->_hipo_vars),
+					serialize($this->_options),
+					serialize($this->_steps),
+					serialize($this->_running_vars),
+					ts_iso8601($now),
+					'YYYY-MM-DD HH24:MI:SS',
+					$this->code_name
+				);
+			$result = $db->execute($prepared, $values);
+			assert_valid_db_result($result);
 		}
-		$result = $db->query($sql);
+		
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-		assert_valid_db_result($result);
-
 		$this->last_updated = $now;
 
 		return true;
