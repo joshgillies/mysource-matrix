@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.inc,v 1.33 2005/04/06 23:15:17 mmcintyre Exp $
+* $Id: install.inc,v 1.34 2005/04/08 05:55:55 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * Purpose
 * Functions used to install and upgrade the system
 *
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -309,7 +309,7 @@ function install_core($package_list=Array())
 
 /**
 * Returns the entire list of packages that exist in the package directory
-* 
+*
 * @return array() the packages
 * @access public
 */
@@ -326,7 +326,7 @@ function get_package_list()
 		}
 	}
 	$d->close();
-	
+
 	return $packages;
 
 }//end get_package_list()
@@ -417,7 +417,7 @@ function install_package($package, $package_assets=Array())
 		$message = $ms->newMessage(Array(), 'Install', $message_body, 'install.system');
 		$message->send();
 	}
-	
+
 	if ($result == -1) exit(1);
 	unset($pm);
 
@@ -1056,9 +1056,9 @@ function build_localised_static_screen($asset_type, $screen, $locale) {
 }//end build_localised_static_screen()
 
 
-function find_string_language_files($asset_dirs, $locale)
+function find_string_language_files($asset_dirs, $locale, $file='strings')
 {
-	$file_name = 'lang_strings.xml';
+	$file_name = 'lang_'.$file.'.xml';
 
 	$files = Array();
 
@@ -1086,16 +1086,24 @@ function find_string_language_files($asset_dirs, $locale)
 }//end find_string_language_files()
 
 
+/**
+* Builds the locale error file for a certain locale
+*
+* @param string	$locale	the locale to be compiled
+*
+* @return void
+* @access public
+*/
 function build_locale_string_file($locale)
 {
 	$asset_types = $GLOBALS['SQ_SYSTEM']->am->getAssetTypes();
 	$packages = $GLOBALS['SQ_SYSTEM']->getInstalledPackages();
 
 	$files_to_parse = Array(
-							'core'		=> Array(),
-							'packages'	=> Array(),
-							'assets'	=> Array()
-						);
+						'core'		=> Array(),
+						'packages'	=> Array(),
+						'assets'	=> Array(),
+					  );
 
 	$strings = Array();
 
@@ -1130,10 +1138,9 @@ function build_locale_string_file($locale)
 		$strings = array_merge(array_get_index($strings, 'core', Array()), extract_strings_from_xml($file));
 
 		if (!empty($strings)) {
-			create_directory(SQ_DATA_PATH.'/private/asset_types/asset');
-			string_to_file(serialize($strings), SQ_DATA_PATH.'/private/asset_types/asset/strings.'.$locale);
+			create_directory(SQ_DATA_PATH.'/private/system/core');
+			string_to_file(serialize($strings), SQ_DATA_PATH.'/private/system/core/strings.'.$locale);
 		}
-		print '.';
 	}
 
 	foreach($files_to_parse['packages'] as $package_name => $files) {
@@ -1171,6 +1178,12 @@ function build_locale_string_file($locale)
 
 /**
 * Extract strings from an xml string source file
+*
+* @param string $file	the file to extract strings from
+*
+* @return Array	the extracted strings (source code => string)
+*				or empty array if error
+* @access public
 */
 function extract_strings_from_xml($file)
 {
@@ -1184,18 +1197,18 @@ function extract_strings_from_xml($file)
 	}
 
 	if ($root->name != 'strings') {
-		trigger_error('XML file ".$file." does not appear to be a valid string source XML file - expecting "strings" as document element, found "'.$root->name.'"', E_USER_WARNING);
+		trigger_error('XML file "'.$file.'" does not appear to be a valid string source XML file - expecting "strings" as document element, found "'.$root->name.'"', E_USER_WARNING);
 		return Array();
 	}
 
 	foreach($root->children as $string_node) {
 		if ($string_node->name != 'string') {
-			trigger_error('XML file ".$file." does not appear to be a valid string source XML file - expecting node "string", found "'.$string_node->name.'"', E_USER_WARNING);
+			trigger_error('XML file "'.$file.'" does not appear to be a valid string source XML file - expecting node "string", found "'.$string_node->name.'"', E_USER_WARNING);
 			return Array();
 		}
 
 		if (!isset($string_node->attributes['source'])) {
-			trigger_error('XML file ".$file." does not appear to be a valid string source XML file - missing attribute "source" in string node', E_USER_WARNING);
+			trigger_error('XML file "'.$file.'" does not appear to be a valid string source XML file - missing attribute "source" in string node', E_USER_WARNING);
 			return Array();
 		}
 
@@ -1206,7 +1219,7 @@ function extract_strings_from_xml($file)
 
 		// have it already been set in this file?
 		if(isset($extracted_strings[$source_code])) {
-			trigger_error('XML file ".$file." does not appear to be a valid string source XML file - detected duplicate string source code "'.$source_code.'"', E_USER_WARNING);
+			trigger_error('XML file "'.$file.'" does not appear to be a valid string source XML file - detected duplicate string source code "'.$source_code.'"', E_USER_WARNING);
 			return Array();
 		} else if (empty($translation)) {
 			trigger_error('Skipping translation for string source code "'.$source_code.'" as the translation appears to be empty', E_USER_NOTICE);
@@ -1219,5 +1232,132 @@ function extract_strings_from_xml($file)
 	return $extracted_strings;
 
 }//end extract_strings_from_xml()
+
+
+/**
+* Builds the locale error file for a certain locale
+*
+* Error files are expected to include one for each package, one for the
+*
+* @param string	$locale	the locale to be compiled
+*
+* @return void
+* @access public
+*/
+function build_locale_error_file($locale)
+{
+	$packages = $GLOBALS['SQ_SYSTEM']->getInstalledPackages();
+
+	$files_to_parse = Array(
+						'core'		=> Array(),
+						'packages'	=> Array(),
+					  );
+
+	$strings = Array();
+
+	// run through the core
+	$asset_dirs = Array(SQ_SYSTEM_ROOT.'/core');
+	$files_to_parse['core'] = find_string_language_files($asset_dirs, $locale, 'errors');
+
+	// run through each installed package
+	foreach($packages as $package) {
+		$package_name = $package['code_name'];
+
+		if ($package_name == '__core__') {
+			$asset_dirs = Array(SQ_CORE_PACKAGE_PATH);
+		} else {
+			$asset_dirs = Array(SQ_PACKAGES_PATH.'/'.$package_name);
+		}
+
+		$files_to_parse['packages'][$package_name] = find_string_language_files($asset_dirs, $locale, 'errors');
+	}
+
+	bam($files_to_parse);
+
+	$strings = Array();
+
+	foreach($files_to_parse['core'] as $file) {
+		$strings = array_merge(array_get_index($strings, 'core', Array()), extract_errors_from_xml($file));
+
+		if (!empty($strings)) {
+			create_directory(SQ_DATA_PATH.'/private/system/core');
+			string_to_file(serialize($strings), SQ_DATA_PATH.'/private/system/core/errors.'.$locale);
+		}
+	}
+
+	foreach($files_to_parse['packages'] as $package_name => $files) {
+		$strings = Array();
+		foreach($files as $file) {
+			$strings = array_merge($strings, extract_errors_from_xml($file));
+		}
+
+		if ($package_name == '__core__') {
+			$package_dir = Array(SQ_CORE_PACKAGE_PATH);
+		} else {
+			$package_dir = Array(SQ_PACKAGES_PATH.'/'.$package_name);
+		}
+		if (!empty($strings)) {
+			create_directory(SQ_DATA_PATH.'/private/packages/'.$package_name);
+			string_to_file(serialize($strings), SQ_DATA_PATH.'/private/packages/'.$package_name.'/errors.'.$locale);
+		}
+	}
+
+}//end build_locale_error_file()
+
+
+/**
+* Extract strings from an xml localised errors file
+*
+* @param string $file	the file to extract strings from
+*
+* @return Array	the extracted error strings (error code => error text)
+*				or empty array if error while reading file
+* @access public
+*/
+function extract_errors_from_xml($file)
+{
+	$extracted_errors = Array();
+
+	$input = new XML_Tree($file);
+	$root  = &$input->getTreeFromFile();
+	if (PEAR::isError($root)) {
+		trigger_error('Unable to Read File : '.$file."\n".$root->getMessage()."\n".$root->getUserInfo(), E_USER_WARNING);
+		return Array();
+	}
+
+	if ($root->name != 'errors') {
+		trigger_error('XML file "'.$file.'" does not appear to be a valid localised errors XML file - expecting "errors" as document element, found "'.$root->name.'"', E_USER_WARNING);
+		return Array();
+	}
+
+	foreach($root->children as $string_node) {
+		if ($string_node->name != 'error') {
+			trigger_error('XML file "'.$file.'" does not appear to be a valid localised errors XML file - expecting node "error", found "'.$string_node->name.'"', E_USER_WARNING);
+			return Array();
+		}
+
+		if (!isset($string_node->attributes['code'])) {
+			trigger_error('XML file "'.$file.'" does not appear to be a valid localised errors XML file - missing attribute "code" in string node', E_USER_WARNING);
+			return Array();
+		}
+
+		$source_code = $string_node->attributes['code'];
+		$translation = $string_node->content;
+
+		// have it already been set in this file?
+		if(isset($extracted_errors[$source_code])) {
+			trigger_error('XML file "'.$file.'" does not appear to be a valid localised errors XML file - detected duplicate error code "'.$source_code.'"', E_USER_WARNING);
+			return Array();
+		} else if (empty($translation)) {
+			trigger_error('Skipping translation for string source code "'.$source_code.'" as the translation appears to be empty', E_USER_NOTICE);
+		} else {
+			$extracted_errors[$source_code] = $translation;
+		}
+
+	}//end foreach string_node
+
+	return $extracted_errors;
+
+}//end extract_errors_from_xml()
 
 ?>
