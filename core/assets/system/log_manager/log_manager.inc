@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: log_manager.inc,v 1.9 2005/04/08 07:19:21 arailean Exp $
+* $Id: log_manager.inc,v 1.10 2005/04/08 08:13:42 arailean Exp $
 */
 
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -463,8 +463,7 @@ class Log_Manager extends Asset
 		foreach ($logs as $logname => $log_data) {
 
 			// determine whether we need to rotate the log
-			// FIXME: Debug +86400
-			if (time()+86400 - $log_data['rotation']['last_timestamp'] > $log_data['rotation']['interval']) {
+			if (time() - $log_data['rotation']['last_timestamp'] > $log_data['rotation']['interval']) {
 				$log_data = $this->rotateLog($logname, $log_data);
 				if (!empty($log_data)) {
 					$logs[$logname] = $log_data;
