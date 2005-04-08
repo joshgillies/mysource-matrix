@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: internal_message.inc,v 1.47 2005/04/06 23:05:34 mmcintyre Exp $
+* $Id: internal_message.inc,v 1.48 2005/04/08 05:39:09 gsherwood Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    An internal message to be sent around the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.47 $
+* @version $Revision: 1.48 $
 * @package MySource_Matrix
 */
 class Internal_Message extends MySource_Object
@@ -279,7 +279,7 @@ class Internal_Message extends MySource_Object
 			if ($db->phptype == 'oci8') {
 				$sent = 'TO_DATE('.$sent.', \'YYYY-MM-DD HH24:MI:SS\')';
 			}
-			
+
 			$sql = 'INSERT INTO sq_internal_msg (msgid, userto, userfrom, subject, body, type, priority, status, sent, parameters) 
 					VALUES ('.$db->quote($messageid).', 0, '.$db->quote($this->from).', '.$db->quote($this->subject).', '.$db->quote($log_body).', '.$db->quote($this->type).', '.$db->quote($this->priority).', '.$db->quote($this->status).', '.$sent.', '.$db->quote($param_string).')';
 			$result = $db->query($sql);
@@ -360,7 +360,7 @@ class Internal_Message extends MySource_Object
 				if ($db->phptype == 'oci8') {
 					$sent = 'TO_DATE('.$sent.', \'YYYY-MM-DD HH24:MI:SS\')';
 				}
-				
+
 				$sql = 'INSERT INTO sq_internal_msg (msgid, userto, userfrom, subject, body, type, priority, status, sent, parameters) VALUES ('.$db->quote($messageid).', '.$db->quote($userid).', '.$db->quote($this->from).', '.$db->quote($this->subject).', '.$db->quote($log_body).', '.$db->quote($this->type).', '.$db->quote($this->priority).', '.$db->quote($this->status).', '.$sent.', '.$db->quote($param_string).')';
 				$result = $db->query($sql);
 				assert_valid_db_result($result);

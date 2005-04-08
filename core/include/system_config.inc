@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.54 2005/03/30 00:40:13 lwright Exp $
+* $Id: system_config.inc,v 1.55 2005/04/08 05:39:09 gsherwood Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.54 $
+* @version $Revision: 1.55 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -44,32 +44,32 @@ class System_Config extends Config
 	* @var array
 	*/
 	var $config_vars = Array(
-						'SQ_CONF_DB_DSN'                    => Array('editable' => 1, 'default' => ''),
-						'SQ_CONF_DB2_DSN'                   => Array('editable' => 1, 'default' => ''),
-						'SQ_CONF_PEAR_PATH'                 => Array('editable' => 0, 'default' => ''),
-						'SQ_CONF_BACKEND_SUFFIX'            => Array('editable' => 1, 'default' => '_admin'),
-						'SQ_CONF_LIMBO_SUFFIX'              => Array('editable' => 1, 'default' => '_edit'),
-						'SQ_CONF_ASSET_TREE_BASE'           => Array('editable' => 0, 'default' => 64),
-						'SQ_CONF_ASSET_TREE_SIZE'           => Array('editable' => 0, 'default' =>  4),
-						'SQ_CONF_ROLLBACK_ENABLED'          => Array('editable' => 0, 'default' => '0'),
-						'SQ_CONF_DEBUG'                     => Array('editable' => 1, 'default' => 0),
-						'SQ_CONF_SYSTEM_NAME'               => Array('editable' => 1, 'default' => 'The System'),
-						'SQ_CONF_SYSTEM_OWNER'              => Array('editable' => 1, 'default' => ''),
-						'SQ_CONF_SYSTEM_ROOT_URLS'          => Array('editable' => 1, 'default' => ''),
-						'SQ_CONF_DEFAULT_EMAIL'             => Array('editable' => 1, 'default' => ''),
-						'SQ_CONF_TECH_EMAIL'                => Array('editable' => 1, 'default' => ''),
-						'SQ_CONF_MAX_LOGIN_ATTEMPTS'        => Array('editable' => 1, 'default' => 3),
-						'SQ_CONF_MAX_IDLE_TIME'             => Array('editable' => 1, 'default' => 6000),
-						'SQ_CONF_REFRESH_INTERVAL'          => Array('editable' => 1, 'default' => 120),
-						'SQ_CONF_LOCK_LENGTH'               => Array('editable' => 1, 'default' => 600),
-						'SQ_CONF_LOG_FILE'                  => Array('editable' => 1, 'default' => ''),
-						'SQ_CONF_LOG_ERRORS'                => Array('editable' => 1, 'default' => true),
-						'SQ_CONF_ERRORS_HIDE_FRONTEND'      => Array('editable' => 1, 'default' => false),
-						'SQ_CONF_DEFAULT_FRONTEND_LANGUAGE' => Array('editable' => 1, 'default' => 'en'),
-						'SQ_CONF_DEFAULT_BACKEND_LOCALE'    => Array('editable' => 1, 'default' => 'en_AU'),
-						'SQ_CONF_DEFAULT_CHARACTER_SET'     => Array('editable' => 1, 'default' => 'iso-8859-1'),
-						'SQ_CONF_ALLOW_IP_CHANGE'           => Array('editable' => 1, 'default' => '0'),
-						'SQ_CONF_COMMIT_BUTTON_TEXT'        => Array('editable' => 1, 'default' => 'Commit'),
+						'SQ_CONF_DB_DSN'					=> Array('editable' => 1, 'default' => ''),
+						'SQ_CONF_DB2_DSN'					=> Array('editable' => 1, 'default' => ''),
+						'SQ_CONF_PEAR_PATH'					=> Array('editable' => 0, 'default' => ''),
+						'SQ_CONF_BACKEND_SUFFIX'			=> Array('editable' => 1, 'default' => '_admin'),
+						'SQ_CONF_LIMBO_SUFFIX'				=> Array('editable' => 1, 'default' => '_edit'),
+						'SQ_CONF_ASSET_TREE_BASE'			=> Array('editable' => 0, 'default' => 64),
+						'SQ_CONF_ASSET_TREE_SIZE'			=> Array('editable' => 0, 'default' =>  4),
+						'SQ_CONF_ROLLBACK_ENABLED'			=> Array('editable' => 0, 'default' => '0'),
+						'SQ_CONF_DEBUG'						=> Array('editable' => 1, 'default' => 0),
+						'SQ_CONF_SYSTEM_NAME'				=> Array('editable' => 1, 'default' => 'The System'),
+						'SQ_CONF_SYSTEM_OWNER'				=> Array('editable' => 1, 'default' => ''),
+						'SQ_CONF_SYSTEM_ROOT_URLS'			=> Array('editable' => 1, 'default' => ''),
+						'SQ_CONF_DEFAULT_EMAIL'				=> Array('editable' => 1, 'default' => ''),
+						'SQ_CONF_TECH_EMAIL'				=> Array('editable' => 1, 'default' => ''),
+						'SQ_CONF_MAX_LOGIN_ATTEMPTS'		=> Array('editable' => 1, 'default' => 3),
+						'SQ_CONF_MAX_IDLE_TIME'				=> Array('editable' => 1, 'default' => 6000),
+						'SQ_CONF_REFRESH_INTERVAL'			=> Array('editable' => 1, 'default' => 120),
+						'SQ_CONF_LOCK_LENGTH'				=> Array('editable' => 1, 'default' => 600),
+						'SQ_CONF_LOG_FILE'					=> Array('editable' => 1, 'default' => ''),
+						'SQ_CONF_LOG_ERRORS'				=> Array('editable' => 1, 'default' => true),
+						'SQ_CONF_ERRORS_HIDE_FRONTEND'		=> Array('editable' => 1, 'default' => false),
+						'SQ_CONF_DEFAULT_FRONTEND_LANGUAGE'	=> Array('editable' => 1, 'default' => 'en'),
+						'SQ_CONF_DEFAULT_BACKEND_LOCALE'	=> Array('editable' => 1, 'default' => 'en_AU'),
+						'SQ_CONF_DEFAULT_CHARACTER_SET'		=> Array('editable' => 1, 'default' => 'iso-8859-1'),
+						'SQ_CONF_ALLOW_IP_CHANGE'			=> Array('editable' => 1, 'default' => '0'),
+						'SQ_CONF_COMMIT_BUTTON_TEXT'		=> Array('editable' => 1, 'default' => 'Commit'),
 						'SQ_CONF_LOG_EXTENSION'				=> Array('editable' => 0, 'default' => '.log'),
 						'SQ_CONF_LOG_FILE_SYSTEM'			=> Array('editable' => 0, 'default' => 'system'),
 						'SQ_CONF_LOG_FILE_ERROR'			=> Array('editable' => 0, 'default' => 'error'),

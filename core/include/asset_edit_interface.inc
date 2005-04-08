@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.253 2005/04/06 23:05:34 mmcintyre Exp $
+* $Id: asset_edit_interface.inc,v 1.254 2005/04/08 05:39:08 gsherwood Exp $
 *
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.253 $
+* @version $Revision: 1.254 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -903,9 +903,9 @@ class Asset_Edit_Interface extends MySource_Object
 							$field_note   = '';
 							$attr_tag     = null;
 
-							for($sub_index = 0; $sub_index < count($field->children); $sub_index++) {
+							for ($sub_index = 0; $sub_index < count($field->children); $sub_index++) {
 								$sub_field =& $field->children[$sub_index];
-								switch($sub_field->name) {
+								switch ($sub_field->name) {
 									case 'display_name':
 										$display_name = $sub_field->content;
 									break;
@@ -1331,9 +1331,9 @@ class Asset_Edit_Interface extends MySource_Object
 					$field_note   = '';
 					$attr_tag     = null;
 
-					for($sub_index = 0; $sub_index < count($field->children); $sub_index++) {
+					for ($sub_index = 0; $sub_index < count($field->children); $sub_index++) {
 						$sub_field =& $field->children[$sub_index];
-						switch($sub_field->name) {
+						switch ($sub_field->name) {
 							case 'display_name':
 								$display_name = $sub_field->content;
 							break;
@@ -1909,17 +1909,17 @@ class Asset_Edit_Interface extends MySource_Object
 
 		$file = '';
 		$test_locales = Array();
-		foreach($GLOBALS['SQ_SYSTEM']->lm->locale_stack as $locale) {
+		foreach ($GLOBALS['SQ_SYSTEM']->lm->locale_stack as $locale) {
 			list($lang, $country, $variant) = $GLOBALS['SQ_SYSTEM']->lm->getLocaleParts($locale);
 
-			if(!is_null($variant)) $test_locales[] = $lang.'_'.$country.'@'.$variant;
-			if(!is_null($country)) $test_locales[] = $lang.'_'.$country;
+			if (!is_null($variant)) $test_locales[] = $lang.'_'.$country.'@'.$variant;
+			if (!is_null($country)) $test_locales[] = $lang.'_'.$country;
 			$test_locales[] = $lang;
 		}
 
-		foreach($test_locales as $locale) {
+		foreach ($test_locales as $locale) {
 
-			foreach($type_parents as $type_code) {
+			foreach ($type_parents as $type_code) {
 				$file_path = SQ_DATA_PATH.'/private/asset_types/'.$type_code.'/localised_screens/'.$file_name.'.'.$locale;
 				if (file_exists($file_path)) {
 					$file = $file_path;
@@ -1982,7 +1982,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 		return $root;
 
-	}//end findStaticScreen()
+	}//end findScreen()
 
 
 	/**

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.75 2005/04/06 23:05:34 mmcintyre Exp $
+* $Id: metadata_manager.inc,v 1.76 2005/04/08 05:39:09 gsherwood Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.75 $
+* @version $Revision: 1.76 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -205,7 +205,7 @@ class Metadata_Manager extends MySource_Object
 						'.$db->quoteSmart($schemaid).',
 						'.$db->quoteSmart((($granted) ? '1' : '0')).'
 					)';
-		
+
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
 
@@ -252,7 +252,7 @@ class Metadata_Manager extends MySource_Object
 				WHERE
 						schemaid	= '.$db->quoteSmart($schemaid).'
 					AND	assetid		= '.$db->quoteSmart($asset->id);
-		
+
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
 
@@ -552,15 +552,15 @@ class Metadata_Manager extends MySource_Object
 		if (!empty($quoted_fieldids)) {
 			$where .= ' AND fieldid NOT IN ('.implode(',', $quoted_fieldids).')';
 		}
-		
+
 		$sql = 'DELETE FROM
 					sq_ast_metadata_value
 				WHERE
 					'.$where;
-		
+
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
-		
+
 		if (!empty($quoted_fieldids)) {
 			// Find any fields that have existing entries...so we know what to update and what to insert
 			$sql = 'SELECT fieldid
@@ -590,7 +590,7 @@ class Metadata_Manager extends MySource_Object
 									'.$db->quoteSmart($fieldid).',
 									'.$db->quoteSmart($metadata[$fieldid]['value']).'
 								)';
-					
+
 					$result = $db->query($sql);
 					assert_valid_db_result($result);
 
@@ -604,7 +604,7 @@ class Metadata_Manager extends MySource_Object
 							WHERE
 									assetid	= '.$db->quoteSmart($asset->id).'
 								AND	fieldid	= '.$db->quoteSmart($fieldid);
-					
+
 					$result = $db->query($sql);
 					assert_valid_db_result($result);
 
@@ -1051,25 +1051,25 @@ class Metadata_Manager extends MySource_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$where_cond = 'assetid = '.$db->quote($assetid);
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		
+
 		$sql = 'DELETE FROM
 					sq_ast_metadata
 				WHERE
 					assetid	= '.$db->quoteSmart($assetid);
-					
+
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
-		
+
 		$sql = 'DELETE FROM
 					sq_ast_metadata_value
 				WHERE
 					assetid	= '.$db->quoteSmart($assetid);
-		
+
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		
+
 		return true;
 
 	}//end purgeMetadata()

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.96 2005/04/06 23:05:34 mmcintyre Exp $
+* $Id: mysource.inc,v 1.97 2005/04/08 05:39:09 gsherwood Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.96 $
+* @version $Revision: 1.97 $
 * @package MySource_Matrix
 */
 class MySource
@@ -1220,7 +1220,7 @@ class MySource
 					return;
 				}
 				break;
-			
+
 			default:
 				trigger_error('Database Connection Type "'.$conn.'" unknown', E_USER_WARNING);
 				return;
@@ -1233,14 +1233,14 @@ class MySource
 			}
 			// make sure all results are assoc arrays
 			$this->_db_conns[$conn]->setFetchMode(DB_FETCHMODE_ASSOC);
-			
+
 			// if we are using oracle we want to set all tables and fields
 			// to have lowercase names
 			if ($this->_db_conns[$conn]->phptype == 'oci8') {
 				$this->_db_conns[$conn]->setOption('portability', DB_PORTABILITY_ALL);
 			}
 		}
-		
+
 		array_push($this->_db_stack, $conn);
 		$this->db = &$this->_db_conns[$conn];
 
@@ -1454,7 +1454,7 @@ class MySource
 		if ($this->db->phptype == 'oci8') {
 			$expires = 'TO_DATE('.$expires.', '.$this->db->quote('YYYY-MM-DD HH24:MI:SS').')';
 		}
-		
+
 		$this->changeDatabaseConnection('db2');
 		$sql = 'INSERT INTO sq_lock
 				(lockid, source_lockid, userid, expires)

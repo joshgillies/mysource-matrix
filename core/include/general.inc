@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.78 2005/04/07 02:45:22 lwright Exp $
+* $Id: general.inc,v 1.79 2005/04/08 05:39:09 gsherwood Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.78 $
+* @version $Revision: 1.79 $
 * @package MySource_Matrix
 */
 
@@ -816,5 +816,6 @@ function translate($string)
 	return $GLOBALS['SQ_SYSTEM']->lm->getString($string, $args);
 
 }//end translate()
+
 
 ?>

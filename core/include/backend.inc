@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.122 2005/04/06 23:05:34 mmcintyre Exp $
+* $Id: backend.inc,v 1.123 2005/04/08 05:39:09 gsherwood Exp $
 *
 */
 
@@ -32,7 +32,7 @@
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.122 $
+* @version $Revision: 1.123 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -310,7 +310,7 @@ class Backend extends MySource_Object
 			if ($db->phptype == 'oci8') {
 				$date = 'TO_DATE('.$date.', '.$db->quote('YYYY-MM-DD HH24:Mi:SS').')';
 			}
-			
+
 			$where = 'updated > '.$date;
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 			$sql = 'SELECT assetid FROM '.SQ_TABLE_RUNNING_PREFIX.'ast '.$where;

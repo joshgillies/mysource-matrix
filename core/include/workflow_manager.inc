@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.64 2005/04/06 23:05:34 mmcintyre Exp $
+* $Id: workflow_manager.inc,v 1.65 2005/04/08 05:39:09 gsherwood Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.64 $
+* @version $Revision: 1.65 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -185,7 +185,7 @@ class Workflow_Manager extends MySource_Object
 						'.$db->quoteSmart(null).',
 						'.$db->quoteSmart((($granted) ? '1' : '0')).'
 					)';
-		
+
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
 
@@ -236,7 +236,7 @@ class Workflow_Manager extends MySource_Object
 				WHERE
 					schemaid	= '.$db->quoteSmart($schemaid).'
 				AND	assetid		= '.$db->quoteSmart($asset->id);
-		
+
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
 
@@ -362,7 +362,7 @@ class Workflow_Manager extends MySource_Object
 					WHERE
 							assetid		= '.$db->quote($asset->id).'
 						AND	schemaid	= '.$db->quote($schema->id);
-			
+
 			$result = $db->query($sql);
 			assert_valid_db_result($result);
 
@@ -675,7 +675,7 @@ class Workflow_Manager extends MySource_Object
 			$workflow =& $schema_workflows[$schemaid];
 			if ($this->_recordPublish($workflow, $publisher)) {
 				$new_workflow = serialize($workflow);
-				
+
 				$sql = 'UPDATE
 							sq_ast_wflow
 						SET
@@ -683,7 +683,7 @@ class Workflow_Manager extends MySource_Object
 						WHERE
 								assetid		= '.$db->quoteSmart($assetid).'
 							AND	schemaid	= '.$db->quoteSmart($schemaid);
-				
+
 				$result = $db->query($sql);
 				assert_valid_db_result($result);
 
@@ -938,10 +938,9 @@ class Workflow_Manager extends MySource_Object
 					WHERE
 							assetid		= '.$db->quoteSmart($assetid).'
 						AND	schemaid	= '.$db->quoteSmart($schemaid);
-			
+
 			$result = $db->query($sql);
 			assert_valid_db_result($result);
-		
 		}
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
@@ -1136,7 +1135,7 @@ class Workflow_Manager extends MySource_Object
 	function _clearWorkflow($assetid)
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		
+
 		$sql = 'UPDATE
 					sq_ast_wflow
 				SET
@@ -1146,7 +1145,7 @@ class Workflow_Manager extends MySource_Object
 
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
-		
+
 		unset($this->_tmp['schemas'][$assetid]);
 		unset($this->_tmp['schema_workflows'][$assetid]);
 		return true;
@@ -1165,7 +1164,7 @@ class Workflow_Manager extends MySource_Object
 	function purgeWorkflow($assetid)
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		
+
 		$sql = 'DELETE FROM
 					sq_ast_wflow
 				WHERE
@@ -1173,7 +1172,7 @@ class Workflow_Manager extends MySource_Object
 
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
-		
+
 		return true;
 
 	}//end purgeWorkflow()

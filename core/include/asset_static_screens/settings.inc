@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: settings.inc,v 1.26 2005/04/06 23:05:34 mmcintyre Exp $
+* $Id: settings.inc,v 1.27 2005/04/08 05:39:09 gsherwood Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Settings Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix
 */
 
@@ -553,7 +553,7 @@ function processSettings(&$owner, &$o, &$ei)
 
 			// if the date is only partially complete, then don't set the date
 			if (!$date_field->isEmpty() && !preg_match("/^[0-9]{4}-[0-9]{2}-[0-9]{2} ([0-9]{2}\:?){3}$/", $date_field->value)) continue;
-			
+
 			if ($date_type == 'created') {
 				// make sure that the date that is specified is not null for the created date
 				if ($date_field->isEmpty()) {

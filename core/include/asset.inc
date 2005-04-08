@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.384 2005/04/07 02:46:00 lwright Exp $
+* $Id: asset.inc,v 1.385 2005/04/08 05:39:08 gsherwood Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.384 $
+* @version $Revision: 1.385 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -200,7 +200,7 @@ class Asset extends MySource_Object
 	{
 		$this->MySource_Object();
 		$GLOBALS['SQ_SYSTEM']->lm->includeAssetStrings(get_class($this));
-		foreach($GLOBALS['SQ_SYSTEM']->am->getTypeAncestors(get_class($this)) as $type_parent) {
+		foreach ($GLOBALS['SQ_SYSTEM']->am->getTypeAncestors(get_class($this)) as $type_parent) {
 			$GLOBALS['SQ_SYSTEM']->lm->includeAssetStrings($type_parent);
 		}
 
@@ -252,7 +252,7 @@ class Asset extends MySource_Object
 				assert_not_empty(($link['link_type'] & SQ_SC_LINK_SIGNIFICANT), 'Cannot create asset with an insignificant link type');
 			}
 		}
-		
+
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
 		// let the system know that we are creating this asset so we dont
@@ -266,7 +266,7 @@ class Asset extends MySource_Object
 		$now    = time();
 		$userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
 		$initial_version = '0.0.1';
-		
+
 		$now_sql = db_extras_todate($db, ts_iso8601($now));
 		$sql = 'INSERT INTO
 					sq_ast
@@ -302,10 +302,10 @@ class Asset extends MySource_Object
 					  null,
 					'.$now_sql.',
 					'.$db->quoteSmart($userid).')';
-					
+
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
-		
+
 		$this->id                    = $assetid;
 		$this->version               = $initial_version;
 		$this->name                  = $name;
@@ -771,7 +771,7 @@ class Asset extends MySource_Object
 					sq_ast
 				WHERE
 					assetid	= '.$db->quoteSmart($this->id);
-		
+
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
 
@@ -780,24 +780,24 @@ class Asset extends MySource_Object
 					sq_ast_attr_val
 				WHERE
 					assetid	= '.$db->quoteSmart($this->id);
-		
+
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
-				
+
 		$sql = 'DELETE FROM
 					sq_ast_attr_uniq_val
 				WHERE
 					assetid	= '.$db->quoteSmart($this->id);
-		
+
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
-		
+
 		$sql = 'DELETE FROM
 					sq_ast_perm
 				WHERE
 						assetid	= '.$db->quoteSmart($this->id).'
 					OR	userid	= '.$db->quoteSmart($this->id);
-		
+
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
 
@@ -807,14 +807,14 @@ class Asset extends MySource_Object
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
-		
+
 		// delete any workflow values that this asset might have
 		$wm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 		if (!$wm->purgeWorkflow($this->id)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
-		
+
 		// now try and clear the data directories for this asset
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 		if (is_dir($this->data_path)) {
@@ -1064,7 +1064,7 @@ class Asset extends MySource_Object
 	function _updated($update_parents=true)
 	{
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-		
+
 		if (isset($this->_tmp['__creating__']) && $this->_tmp['__creating__']) return true;
 
 		$updated = time();
@@ -1077,7 +1077,7 @@ class Asset extends MySource_Object
 
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-			
+
 			$sql = 'UPDATE
 						sq_ast
 					SET
@@ -1090,21 +1090,21 @@ class Asset extends MySource_Object
 						updated_userid	= '.$db->quoteSmart($updated_userid).'
 					WHERE
 						assetid	= '.$db->quoteSmart($this->id);
-			
+
 			$result = $db->query($sql);
 			assert_valid_db_result($result);
 
 			$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
 			$data = Array(
-					'old_name'				=> $this->name,
-					'new_name'				=> $name,
-					'old_short_name'		=> $this->short_name,
-					'new_short_name'		=> $short_name,
-					'old_updated'			=> $this->updated,
-					'new_updated'			=> $updated,
-					'old_updated_userid'	=> $this->updated_userid,
-					'new_updated_userid'	=> $updated_userid,
-				  );
+						'old_name'				=> $this->name,
+						'new_name'				=> $name,
+						'old_short_name'		=> $this->short_name,
+						'new_short_name'		=> $short_name,
+						'old_updated'			=> $this->updated,
+						'new_updated'			=> $updated,
+						'old_updated_userid'	=> $this->updated_userid,
+						'new_updated_userid'	=> $updated_userid,
+					);
 			$em->broadcastEvent($this, 'AssetUpdate', $data);
 
 			// increment the micro version number
@@ -1233,7 +1233,7 @@ class Asset extends MySource_Object
 					version	= '.$db->quoteSmart($new_version).'
 				WHERE
 					assetid	= '.$db->quoteSmart($this->id);
-					
+
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
 
@@ -1502,7 +1502,7 @@ class Asset extends MySource_Object
 
 		if ($common_var_list) {
 			foreach ($common_var_list as $var_name) {
-				
+
 				$current_id = $this->vars[$var_name]['attrid'];
 				$new_id     = $tmp->vars[$var_name]['attrid'];
 
@@ -1513,11 +1513,11 @@ class Asset extends MySource_Object
 						WHERE
 								assetid	= '.$db->quoteSmart($this->id).'
 							AND	attrid	= '.$db->quoteSmart($current_id);
-				
+
 				$result = $db->query($sql);
 				assert_valid_db_result($result);
 			}
-		}// end if common var list
+		}//end if common var list
 
 		// Get all the vars that aren't available in the new type and delete them
 		$deletes_var_list = array_diff($current_var_list, $new_var_list);
@@ -1527,7 +1527,7 @@ class Asset extends MySource_Object
 			foreach ($deletes_var_list as $var_name) {
 				$deletes_attributeids .= (($deletes_attributeids) ? ',' : '').$db->quoteSmart($this->vars[$var_name]['attrid']);
 			}
-			
+
 			$sql = 'DELETE FROM
 						sq_ast_attr_val
 					WHERE
@@ -1536,10 +1536,10 @@ class Asset extends MySource_Object
 						(
 							'.$deletes_attributeids.'
 						)';
-			
+
 			$result = $db->query($sql);
 			assert_valid_db_result($result);
-	
+
 		}// end if delete var list
 
 		$sql = 'UPDATE
@@ -1548,11 +1548,11 @@ class Asset extends MySource_Object
 					type_code = '.$db->quote($new_type_code).'
 				WHERE
 					assetid = '.$db->quote($this->id);
-		
+
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
 
-		// Now load this new asset into the temporary
+		// now load this new asset into the temporary
 		$tmp->load($this->id);
 		$all_ok = false;
 		if ($tmp->id) {
@@ -1578,7 +1578,6 @@ class Asset extends MySource_Object
 			$this = $tmp;
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
-
 			$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
 			$em->broadcastEvent($this, 'AssetTypeUpdate', Array(
 															'old_type'	=> $old_type_code,
@@ -1589,7 +1588,7 @@ class Asset extends MySource_Object
 			return true;
 
 		} else {
-			// bugger something went wrong
+			// bugger something went wrong190
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 
@@ -1892,15 +1891,15 @@ class Asset extends MySource_Object
 						status_changed_userid	= '.$db->quoteSmart($GLOBALS['SQ_SYSTEM']->user->id).'
 					WHERE
 						assetid = '.$db->quoteSmart($this->id);
-			
+
 			$result = $db->query($sql);
 			assert_valid_db_result($result);
 
 			// broadcast event notifying of status change
 			$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
 			$data = Array(
-						'old_status' => $this->status,
-						'new_status' => $new_status,
+						'old_status'	=> $this->status,
+						'new_status'	=> $new_status,
 					);
 			$em->broadcastEvent($this, 'AssetStatusUpdate', $data);
 
@@ -1969,7 +1968,7 @@ class Asset extends MySource_Object
 
 		require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-		
+
 		// construct a string to represent the current date value
 		if ($this->$date_type != null) {
 			$old_date_string = readable_datetime($this->$date_type);
@@ -2008,7 +2007,7 @@ class Asset extends MySource_Object
 					  $date_type.'_userid	= '.$db->quoteSmart($userid).'
 				WHERE
 					assetid	= '.$db->quoteSmart($this->id);
-		
+
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
 
@@ -2433,10 +2432,13 @@ class Asset extends MySource_Object
 
 		// update existing custom attribute values
 		if (!empty($existing)) {
-			
-			$prepared      = $db->prepare('UPDATE sq_ast_attr_val SET custom_val = ? WHERE attrid = ? AND assetid = '.$db->quote($this->id));
+
+			$prepared = $db->prepare('UPDATE sq_ast_attr_val SET custom_val = ? WHERE attrid = ? AND assetid = '.$db->quote($this->id));
+			assert_valid_db_result($prepared);
+
 			$prepared_uniq = $db->prepare('UPDATE sq_ast_attr_uniq_val SET custom_val = ? WHERE owning_attrid = ? AND assetid = '.$db->quote($this->id));
-			
+			assert_valid_db_result($prepared_uniq);
+
 			foreach ($existing as $attr_id) {
 				$attr_id = (int) $attr_id;
 				$attr_value = $save_vars[$attr_id]['value'];
@@ -2458,10 +2460,13 @@ class Asset extends MySource_Object
 
 		// insert new custom attribute values
 		if (!empty($new)) {
-			
-			$prepared      = $db->prepare('INSERT INTO sq_ast_attr_val (attrid, custom_val, assetid) VALUES (?, ?, '.$db->quote($this->id).')');
+
+			$prepared = $db->prepare('INSERT INTO sq_ast_attr_val (attrid, custom_val, assetid) VALUES (?, ?, '.$db->quote($this->id).')');
+			assert_valid_db_result($prepared);
+
 			$prepared_uniq = $db->prepare('INSERT INTO sq_ast_attr_uniq_val (owning_attrid, custom_val, assetid) VALUES (?, ?, '.$db->quote($this->id).')');
-			
+			assert_valid_db_result($prepared_uniq);
+
 			foreach ($new as $attr_id) {
 				$attr_id = (int) $attr_id;
 				$attr_value = $save_vars[$attr_id]['value'];
@@ -2489,7 +2494,7 @@ class Asset extends MySource_Object
 
 		unset($this->_tmp['vars_set']);
 
-		// If we get this far, then it's all OK
+		// if we get this far, then it's all OK
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$ms->closeLog();
 		$this->informChanges();
@@ -3465,12 +3470,12 @@ class Asset extends MySource_Object
 					sq_ast_path
 				WHERE
 					assetid	= '.$db->quoteSmart($this->id);
-		
+
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
-		
+
 		foreach ($save_paths as $sort_order => $path) {
-			
+
 			$sql = 'INSERT INTO
 						sq_ast_path
 					(
@@ -3484,7 +3489,7 @@ class Asset extends MySource_Object
 						'.$db->quoteSmart($this->id).',
 						'.$db->quoteSmart($sort_order).'
 					)';
-		
+
 			$result = $db->query($sql);
 			assert_valid_db_result($result);
 		}
@@ -3531,7 +3536,7 @@ class Asset extends MySource_Object
 			assert_valid_db_result($result);
 			$this->_tmp['lookups'] = $result;
 
-		}// end if
+		}//end if
 
 		if (!$field) {
 			return $this->_tmp['lookups'];
@@ -3671,15 +3676,15 @@ class Asset extends MySource_Object
 		foreach ($old_urls as $url_data) $current_urls[] = $db->quoteSmart($url_data['url']);
 
 		if (!empty($current_urls)) {
-			
+
 			$sql = 'DELETE FROM
 						sq_ast_lookup_value
 					WHERE 
 						url IN ('.implode(',', $current_urls).')';
-			
+
 			$result = $db->query($sql);
 			assert_valid_db_result($result);
-			
+
 			$sql = 'DELETE FROM
 						sq_ast_lookup
 					WHERE
@@ -3702,8 +3707,8 @@ class Asset extends MySource_Object
 													'value'	=> $link['minorid'],
 													'inhd'	=> '0',
 												   );
-				}// end if
-			}// end foreach
+				}
+			}
 			unset($link);
 			unset($our_design_links);
 
@@ -3752,7 +3757,7 @@ class Asset extends MySource_Object
 						$done_urls[] = $new_url;
 						$result = $db->query($sql);
 						assert_valid_db_result($result);
-						
+
 						$lookup_values = (isset($our_lookup_values[$new_url])) ? $our_lookup_values[$new_url] : Array();
 
 						// all designs go to all urls (at the moment anyway), so merge them all in
@@ -3786,14 +3791,14 @@ class Asset extends MySource_Object
 											'.$db->quoteSmart($data['value']).',
 											'.$db->quoteSmart($data['inhd']).'
 										)';
-				
+
 							$result = $db->query($sql);
 							assert_valid_db_result($result);
 						}
 
-					}// end for paths
-				}// end for parent_urls
-			}// end for parents
+					}//end for paths
+				}//end for parent_urls
+			}//end for parents
 
 			if (!empty($old_urls)) {
 				$rm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('remap_manager');
@@ -3805,11 +3810,11 @@ class Asset extends MySource_Object
 							if ($url_data['http'])  $rm->addRemapURL('http://'.$old_url,  'http://'.$new_url);
 							if ($url_data['https']) $rm->addRemapURL('https://'.$old_url, 'https://'.$new_url);
 						}
-					}//end foreach
+					}
 				}
 			}
 
-		}// end if count paths
+		}//end if count paths
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_lookups_updated', $this);
@@ -3868,13 +3873,12 @@ class Asset extends MySource_Object
 
 		$lookups = $this->getLookups('url');
 
-		
 		foreach ($values as $url => $values_data) {
 			if (!in_array($url, $lookups)) continue;
 			if (empty($values_data)) continue;
-			
+
 			foreach ($values_data as $value_name => $value_data) {
-				
+
 				$sql = 'INSERT INTO
 							sq_ast_lookup_value
 							(
@@ -3890,7 +3894,7 @@ class Asset extends MySource_Object
 								'.$db->quoteSmart($value_data['value']).',
 								'.$db->quoteSmart('0').'
 							)';
-				
+
 				$result = $db->query($sql);
 				assert_valid_db_result($result);
 			}

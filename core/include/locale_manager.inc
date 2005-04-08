@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: locale_manager.inc,v 1.2 2005/04/06 06:22:04 lwright Exp $
+* $Id: locale_manager.inc,v 1.3 2005/04/08 05:39:09 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,7 +31,7 @@
 *    number/date formats
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 */
 class Locale_Manager extends MySource_Object
@@ -66,14 +66,15 @@ class Locale_Manager extends MySource_Object
 	{
 		$this->MySource_Object();
 
-	}//end Locale_Manager()
+	}//end constructor
 
 
 	/**
 	* Gets the code of the current locale
 	*
-	* @return mixed (string|boolean) the code of the current language, or
-	*                                boolean FALSE if locale stack underflowed
+	* Returns the code of the current language, or boolean FALSE if locale stack underflowed
+	*
+	* @return mixed	(string|boolean)
 	* @access public
 	*/
 	function getCurrentLocale()
@@ -172,7 +173,7 @@ class Locale_Manager extends MySource_Object
 		// have 4, if just the language we will have 2. This means the time can
 		// be ripe for a fall-through switch
 
-		switch(count($matches)) {
+		switch (count($matches)) {
 			case 6:
 				$locale_parts[2] = $matches[5];
 			// no break; fall through to case 4
@@ -200,20 +201,20 @@ class Locale_Manager extends MySource_Object
 	* gets a string translation
 	*
 	* @param string	$string_code	the string code
-	* 
+	*
 	* @return string	the translated string or '' if not found
 	* @access public
 	*/
 	function getString($string_code)
 	{
 		$locale = $this->getCurrentLocale();
-		
+
 		// if second parameter is an array, use that as our list of params
 		if (!is_array($func_args = func_get_arg(1))) {
 			$func_args = func_get_args();
 			$func_args = array_slice($func_args,1);
 		}
-		
+
 		if (!isset($this->_strings[$locale])) {
 			return '';
 		}
@@ -247,7 +248,7 @@ class Locale_Manager extends MySource_Object
 			if ($locale == null) {
 				$locale = $this->getCurrentLocale();
 			}
-			
+
 			list($lang, $country, $variant) = $this->getLocaleParts($locale);
 			$locales = Array($lang);
 			if (!empty($country)) {
@@ -256,13 +257,13 @@ class Locale_Manager extends MySource_Object
 					$locales[] = $lang.'_'.$country.'@'.$variant;
 				}
 			}
-			
-			foreach($locales as $this_locale) {
+
+			foreach ($locales as $this_locale) {
 				$file = SQ_DATA_PATH.'/private/asset_types/'.$type_code.'/strings.'.$this_locale;
-	
+
 				if (file_exists($file)) {
 					$strings = unserialize(file_get_contents($file));
-	
+
 					if (!isset($this->_strings[$locale])) {
 						$this->_strings[$locale] = Array();
 					}
@@ -270,7 +271,7 @@ class Locale_Manager extends MySource_Object
 				}
 			}
 		}
-		
+
 	}//end includeAssetStrings()
 
 
@@ -306,8 +307,9 @@ class Locale_Manager extends MySource_Object
 				$this->_strings[$locale] = array_merge($this->_strings[$locale], $strings);
 			}
 		}
+
 	}//end includePackageStrings()
-	
+
 
 	/**
 	* Include the system-wide core strings, if they haven't already
@@ -339,8 +341,9 @@ class Locale_Manager extends MySource_Object
 				$this->_strings[$locale] = array_merge($this->_strings[$locale], $strings);
 			}
 		}
+
 	}//end includeCoreStrings()
-	
+
 
 }//end class
 ?>
