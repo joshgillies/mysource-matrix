@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.75 2005/04/01 04:22:59 tbarrett Exp $
+* $Id: html_form.inc,v 1.76 2005/04/08 01:46:52 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.75 $
+* @version $Revision: 1.76 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -403,74 +403,6 @@ function colour_box($name, $default='000000', $allow_blanks=false, $button_text=
 	}
 
 }//end colour_box()
-
-
-/**
-*  Takes timestamp and draws a set of selection boxes using it as default
-*/
-function date_box($name, $default_timestamp=null, $show_time=true, $extras='')
-{
-	if (!stristr($extras, 'class=')) $extras .= ' class="sq-form-field"';
-
-	trigger_error('*cough*, date_box has not been fully converted - "Calendar::" references and maybe we should be using the datetime_field ?', E_USER_WARNING);
-	return '';
-
-	if (!$default_timestamp) $default_timestamp = Calendar::get_next_time_period();
-
-	// if we aren't showing the time set the timestamp to start of day
-	if (!$show_time) $default_timestamp = Calendar::get_day_start($default_timestamp);
-
-	// calc the start and end years
-	$default = getdate($default_timestamp);
-
-	$start_year = ($default['year'] < 2002) ? $default['year'] : 2002;
-	$end_year   = max($default['year'], $start_year) + 10;
-
-
-	$extras .= ' onchange="check_date(\''.$name.'\', '.(($show_time) ? 'true':'false').');"';
-	hidden_field($name, $default_timestamp);
-
-	$days = Array();
-	for ($i = 1; $i <= 31; $i++) $days[$i] = $i;
-	combo_box('day_'.$name, $days, $default['mday'], $extras);
-
-	$months = Array();
-	for ($i = 1; $i <= 12; $i++) $months[$i] = date('M', mktime(0,0,0,$i,1,2000));
-	combo_box('month_'.$name, $months, $default['mon'], $extras);
-
-	$years = Array();
-	for ($i = $start_year; $i <= $end_year; $i++) $years[$i] = $i;
-	combo_box('year_'.$name, $years, $default['year'], $extras);
-
-	if ($show_time) {
-
-		echo '&nbsp;&nbsp;';
-		time_box('hour_'.$name, $default['hours'], 'min_'.$name, $default['minutes'], $extras);
-
-	}//end if
-
-}//end date_box()
-
-
-/**
-* Takes number of hours and minutes and creates a pair of combo boxes
-*/
-function time_box($hours_name, $hours, $mins_name, $mins, $extras='')
-{
-	if (!stristr($extras, 'class=')) $extras .= ' class="sq-form-field"';
-	trigger_error('*cough*, time_box has not been fully converted - maybe we should be using the datetime_field ?', E_USER_WARNING);
-	return '';
-
-	$hours_list = Array('0' => '12am', '1' => ' 1am', '2' => ' 2am', '3' => ' 3am', '4' => ' 4am', '5' => ' 5am', '6' => ' 6am', '7' => ' 7am', '8' => ' 8am', '9' => ' 9am', '10' => '10am', '11' => '11am', '12' => '12pm', '13' => ' 1pm', '14' => ' 2pm', '15' => ' 3pm', '16' => ' 4pm', '17' => ' 5pm', '18' => ' 6pm', '19' => ' 7pm', '20' => ' 8pm', '21' => ' 9pm', '22' => '10pm', '23' => '11pm');
-	combo_box($hours_name, $hours_list, $hours, $extras);
-
-	$mins_list = Array();
-	for ($i = 0; $i < 60; $i++) {
-		$mins_list[$i] = sprintf(':%02d', $i);
-	}
-	combo_box($mins_name, $mins_list, $mins, $extras);
-
-}//end time_box()
 
 
 /**
