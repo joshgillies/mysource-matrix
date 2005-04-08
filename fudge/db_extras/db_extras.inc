@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_extras.inc,v 1.15 2005/04/07 23:00:36 mmcintyre Exp $
+* $Id: db_extras.inc,v 1.16 2005/04/08 01:12:05 mmcintyre Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *     like Sub-Queries
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package Fudge
 * @subpackage DB_Extras
 */
@@ -162,8 +162,8 @@ function db_extras_insert_select(&$db, $insert, $select)
 *
 * Example use:
 * <pre>
-*   $sql = 'SELECT link_type FROM sq_ast_lnk'.
-*          'WHERE '.db_extras_bitand('link_type, '.$link_types).' > 0';
+*   $sql = 'SELECT link_type FROM sq_ast_lnk
+*           WHERE '.db_extras_bitand('link_type, '.$link_types).' > 0';
 * </pre>
 *
 * @param &object DB	$db		the db object
@@ -208,5 +208,25 @@ function db_extras_todate(&$db, $iso8601_date)
 	}
 
 }//end db_extras_todate()
+
+
+/**
+* Prepares a date for insertion or update in a prepare statement
+*
+* @param &object DB	$db	the db object
+*
+* @return string
+* @access public
+*/
+function db_extras_prepare_todate(&$db)
+{
+	if ($db->phptype == 'pgsql') {
+		return 'TO_TIMESTAMP(?, ?)';
+	} else if ($db->phptype == 'oci8') {
+		return 'TO_DATE(?, ?)';
+	}
+
+}//end db_extras_prepare_todate()
+
 
 ?>
