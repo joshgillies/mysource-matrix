@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: news_item_management.inc,v 1.5 2005/01/20 13:20:01 brobertson Exp $
+* $Id: news_item_management.inc,v 1.6 2005/04/11 07:11:44 amiller Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Avi Miller <amiller@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -48,20 +48,20 @@ class News_Item_Management extends Asset_Management
 		$this->Asset_Management($pm);
 
 		$this->vars['name']			= Array(
-										'added'     => '0.1',
-										'type'      => 'text',
-										'default'   => '',
-										);
+											   'added'   => '0.1',
+											   'type'    => 'text',
+											   'default' => '',
+											   );
 		$this->vars['link_url']		= Array(
-										'added'     => '0.1',
-										'type'      => 'text',
-										'default'   => '',
-										);
+											   'added'   => '0.1',
+											   'type'    => 'text',
+											   'default' => '',
+											   );
 		$this->vars['url_suffix']  = Array(
-										'added'       => '0.1',
-										'type'        => 'text',
-										'default'     => '',
-										'description' => 'Extra text to send as part of the URL query string',
+											   'added'       => '0.1',
+											   'type'        => 'text',
+											   'default'     => '',
+											   'description' => 'Extra text to send as part of the URL query string',
 										);
 		$this->vars['summary'] 		= Array(
 										'added'     => '0.1',
@@ -131,6 +131,15 @@ class News_Item_Management extends Asset_Management
 													 'allow_empty' => false
 													 ),
 										);
+
+		$this->components['summary'] = Array (
+											'description'       => 'Summary',
+											'default_weighting' => '1',
+											);
+		$this->components['body']    = Array (
+											'description'       => 'Body',
+											'default_weighting' => '1',
+											);
 
 
 	}//end constructor
