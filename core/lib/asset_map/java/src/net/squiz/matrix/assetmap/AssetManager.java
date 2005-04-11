@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: AssetManager.java,v 1.6 2004/11/02 02:47:26 mmcintyre Exp $
+* $Id: AssetManager.java,v 1.6.2.1 2005/04/11 01:13:47 ndvries Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -360,8 +360,8 @@ public class AssetManager implements ReloadAssetListener {
 		int linkType	   = Integer.parseInt(assetElement.getAttribute("link_type"));
 		boolean accessible = assetElement.getAttribute("accessible").equals("1");
 		int status         = Integer.parseInt(assetElement.getAttribute("status"));
-		String url         = assetElement.getAttribute("url");
-		String webPath     = assetElement.getAttribute("web_path");
+		String url         = MatrixToolkit.rawUrlDecode(assetElement.getAttribute("url"));
+		String webPath     = MatrixToolkit.rawUrlDecode(assetElement.getAttribute("web_path"));
 		//int sortOrder    = Integer.parseInt(assetElement.getAttribute("sort_order"));
 
 		if (!assets.containsKey(assetid)) {
