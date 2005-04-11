@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: log_manager_edit_fns.inc,v 1.3 2005/04/11 02:58:58 arailean Exp $
+* $Id: log_manager_edit_fns.inc,v 1.4 2005/04/11 04:18:34 arailean Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard  <rhoward@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -53,8 +53,9 @@ class Log_Manager_Edit_Fns extends Asset_Edit_Fns
 		$this->static_screens = Array();
 
 		// enable just the details
-		$this->static_screens['details']['name'] ='Details';
+		$this->static_screens['details']['name']         ='Details';
 		$this->static_screens['details']['force_unlock'] = false;
+		$this->static_screens['details']['lock_type']    = 'none';
 
 	}//end constructor
 
@@ -111,6 +112,7 @@ class Log_Manager_Edit_Fns extends Asset_Edit_Fns
 					return false;
 				}
 
+				document.getElementById('sq-log-monitor-initial-message').style.display = 'none';
 				document.getElementById('sq-log-monitor-containter').style.display = 'block';
 				setIdValue('sq-log-name', logname);
 
@@ -304,7 +306,9 @@ class Log_Manager_Edit_Fns extends Asset_Edit_Fns
 					<br />
 					Rotated: <strong><?php echo $last_rotated; ?></strong>
 				</td>
-				<td><a href="#" onclick="return monitorLog('<?php echo $logname; ?>');" >Monitor</a></td>
+				<td>
+					<input type="button" onclick="monitorLog('<?php echo $logname; ?>');" value="Monitor" />
+				</td>
 			</tr>
 			<?php
 		}
@@ -316,6 +320,9 @@ class Log_Manager_Edit_Fns extends Asset_Edit_Fns
 		$o->openSection('Log Monitor');
 			$o->openRaw('');
 				?>
+				<div id="sq-log-monitor-initial-message">
+					To monitor a log, click "Monitor" in the list of known logs (above).
+				</div>
 				<div id="sq-log-monitor-containter" style="display: none;">
 					<table class="sq-backend-table">
 						<tr>
