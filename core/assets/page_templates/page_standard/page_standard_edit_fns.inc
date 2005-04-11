@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_standard_edit_fns.inc,v 1.3 2004/12/06 14:38:09 brobertson Exp $
+* $Id: page_standard_edit_fns.inc,v 1.4 2005/04/11 00:36:08 mmcintyre Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -63,7 +63,7 @@ class Page_Standard_Edit_Fns extends Page_Edit_Fns
 	function redirectToBodycopy(&$asset, &$o, $prefix)
 	{
 		// get the bodycopy attached to us
-		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'major', '', '1', '1');
+		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'major', null, '1', '1');
 		$bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link[0]['minorid'], 'bodycopy');
 		if (is_null($bodycopy)) {
 			trigger_error('Could not locate the bodycopy for standard page "'.$asset->name.'"', E_USER_ERROR);
