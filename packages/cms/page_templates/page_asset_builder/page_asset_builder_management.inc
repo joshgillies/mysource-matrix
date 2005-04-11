@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_management.inc,v 1.21 2005/02/11 05:43:47 tbarrett Exp $
+* $Id: page_asset_builder_management.inc,v 1.22 2005/04/11 23:30:14 ndvries Exp $
 *
 */
 
@@ -30,12 +30,13 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
 class Page_Asset_Builder_Management extends Asset_Management
 {
+
 
 	/**
 	* Constructor
@@ -43,38 +44,39 @@ class Page_Asset_Builder_Management extends Asset_Management
 	*/
 	function Page_Asset_Builder_Management(&$pm)
 	{
+
 		$this->Asset_Management($pm);
 
 		/**
 		* Array of asset type codes that this page can create
 		*/
-		$this->vars['create_type']				= Array(
-													'added'     => '0.1',
-													'type'      => 'serialise',
-													'default'   => Array(),
-												);
+		$this->vars['create_type'] = Array(
+										'added'		=> '0.1',
+										'type'		=> 'serialise',
+										'default'	=> Array(),
+									 );
 
-		$this->vars['create_status']			= Array(
-													'added'      => '0.1',
-													'type'       => 'int',
-													'default'    => 2,
-												);
+		$this->vars['create_status'] = Array(
+										'added'		=> '0.1',
+										'type'		=> 'int',
+										'default'	=> 2,
+									   );
 
-		$this->vars['required_fields']			= Array(
-													'added'     => '0.1',
-													'type'      => 'serialise',
-													'default'   => Array(),
-													);
+		$this->vars['required_fields'] = Array(
+											'added'		=> '0.1',
+											'type'		=> 'serialise',
+											'default'	=> Array(),
+										 );
 
 		/**
 		* Locations under which created assets will always be linked
 		*	Array (assetid => link_type)
 		*/
-		$this->vars['create_location']			= Array(
-															'added'     => '0.1',
-															'type'      => 'serialise',
-															'default'   => Array(),
-														);
+		$this->vars['create_location'] = Array(
+											'added'		=> '0.1',
+											'type'		=> 'serialise',
+											'default'	=> Array(),
+										 );
 
 
 
@@ -88,11 +90,11 @@ class Page_Asset_Builder_Management extends Asset_Management
 		*						 )
 		*		  )
 		*/
-		$this->vars['create_location_optional']	= Array(
-															'added'     => '0.1',
-															'type'      => 'serialise',
-															'default'   => Array(),
-														);
+		$this->vars['create_location_optional'] = Array(
+													'added'		=> '0.1',
+													'type'		=> 'serialise',
+													'default'	=> Array(),
+												  );
 		/**
 		* Rules governing additional create locations
 		*   Array (create_type => Array (index => Array('attributes'  => Array(index => attribute_name),
@@ -105,61 +107,61 @@ class Page_Asset_Builder_Management extends Asset_Management
 		*								)
 		*		  )
 		*/
-		$this->vars['create_location_rules']			= Array(
-															'added'     => '0.1',
-															'type'      => 'serialise',
-															'default'   => Array(),
-														);
+		$this->vars['create_location_rules'] = Array(
+												'added'		=> '0.1',
+												'type'		=> 'serialise',
+												'default'	=> Array(),
+											   );
 
 		/**
 		* WYSIWYGs
 		*/
-		$this->vars['login_invite']						= Array(
-															'added'     => '0.1',
-															'type'      => 'wysiwyg',
-															'default'   => '<p>Sign in using the form below.</p>',
-														);
-		$this->vars['login_error']						= Array(
-															'added'     => '0.1',
-															'type'      => 'wysiwyg',
-															'default'   => '<p>Incorrect username or password entered. Please try again.</p>',
-														);
-		$this->vars['create_invite']					= Array(
-															'added'     => '0.1',
-															'type'      => 'wysiwyg',
-															'default'   => '<p>Create an asset using the form below.</p>',
-														);
-		$this->vars['create_error']						= Array(
-															'added'     => '0.1',
-															'type'      => 'wysiwyg',
-															'default'   => '<p>The new asset was not created. Ensure you have entered all required information and try again.</p>',
-														);
+		$this->vars['login_invite'] = Array(
+										'added'		=> '0.1',
+										'type'		=> 'wysiwyg',
+										'default'	=> '<p>Sign in using the form below.</p>',
+									  );
+		$this->vars['login_error'] = Array(
+										'added'		=> '0.1',
+										'type'		=> 'wysiwyg',
+										'default'	=> '<p>Incorrect username or password entered. Please try again.</p>',
+									 );
+		$this->vars['create_invite'] = Array(
+										'added'		=> '0.1',
+										'type'		=> 'wysiwyg',
+										'default'	=> '<p>Create an asset using the form below.</p>',
+									   );
+		$this->vars['create_error'] = Array(
+										'added'		=> '0.1',
+										'type'		=> 'wysiwyg',
+										'default'	=> '<p>The new asset was not created. Ensure you have entered all required information and try again.</p>',
+									  );
 
 		/* Additional (query-fed) create locations must be children of one of these */
-		$this->vars['additional_location_parents']		= Array(
-															'added'		=> '0.5',
-															'type'		=> 'serialise',
-															'default'	=> Array(),
-														);
+		$this->vars['additional_location_parents'] = Array(
+														'added'		=> '0.5',
+														'type'		=> 'serialise',
+														'default'	=> Array(),
+													 );
 
 		/* Additional (query-fed) create locations must be of one of these types */
-		$this->vars['additional_location_types']		= Array(
-															'added'		=> '0.5',
-															'type'		=> 'serialise',
-															'default'	=> Array(),
-														);
+		$this->vars['additional_location_types'] = Array(
+													'added'		=> '0.5',
+													'type'		=> 'serialise',
+													'default'	=> Array(),
+												   );
 
 		/* Map for connecting runtime data sources with parameters */
-		$this->vars['parameter_map']					= Array(
-															'added'		=> '0.6',
-															'type'		=> 'parameter_map',
-															'parameters' => Array(
-																				'parameters' => Array(
-																					'additional_locations' => 'Additional Create Locations',
-																				)
-																			),
-															'default' => Array(),
-														);
+		$this->vars['parameter_map'] = Array(
+										'added'			=> '0.6',
+										'type'			=> 'parameter_map',
+										'parameters'	=> Array(
+															'parameters'	=> Array(
+																				'additional_locations'	=> 'Additional Create Locations',
+																			   ),
+														   ),
+										'default'		=> Array(),
+									   );
 
 	}//end constructor
 
@@ -174,19 +176,19 @@ class Page_Asset_Builder_Management extends Asset_Management
 	{
 		return Array(
 				Array(
-					'event_name'                 => 'requestKeywords',
-					'broadcast_type_code'        => 'content_type',
-					'broadcast_strict_type_code' => false,
-					'options'	=> Array(
-						'side_of_link' => 'major',
-						'indirect'     => true,
-						'is_exclusive' => null,
-						'is_dependant' => 1,
-						'value'        => '',
-						'link_type'    => SQ_LINK_TYPE_2 | SQ_LINK_TYPE_1,
-					),
+					'event_name'					=> 'requestKeywords',
+					'broadcast_type_code'			=> 'content_type',
+					'broadcast_strict_type_code'	=> false,
+					'options'						=> Array(
+														'side_of_link'	=> 'major',
+														'indirect'		=> true,
+														'is_exclusive'	=> null,
+														'is_dependant'	=> 1,
+														'value'			=> '',
+														'link_type'		=> SQ_LINK_TYPE_2 | SQ_LINK_TYPE_1,
+													   ),
 				),
-		);
+			   );
 
 	}//end getEventList()
 
@@ -383,10 +385,12 @@ class Page_Asset_Builder_Management extends Asset_Management
 				foreach ($old_rules as $create_type => $type_rules) {
 					$create_location_rules[$create_type] = Array();
 					foreach ($type_rules as $i => $rule_details) {
-						$new_rule = Array('attributes' => Array(),
-										  'comparators' => Array(),
-										  'values' => Array(),
-										  'locations' => Array());
+						$new_rule = Array(
+										'attributes'	=> Array(),
+										'comparators'	=> Array(),
+										'values'		=> Array(),
+										'locations'		=> Array(),
+									);
 						foreach ($rule_details as $attr_name => $conditions) {
 							if ($attr_name == '_create_locations_') continue;
 							foreach ($conditions as $comparator => $value) {
@@ -400,7 +404,7 @@ class Page_Asset_Builder_Management extends Asset_Management
 								$new_rule['locations'][] = $assetid;
 								$new_rule['link_types'][] = $old_link_type;
 							}
-						} elseif ($rule_details['_create_locations_']) {
+						} else if ($rule_details['_create_locations_']) {
 							$new_rule['locations'][$rule_details['_create_locations_']] = $old_link_type;
 						}
 						$create_location_rules[$create_type][] = $new_rule;
@@ -460,6 +464,7 @@ class Page_Asset_Builder_Management extends Asset_Management
 			$this->_deleteAttribute('create_link_type');
 
 	}//end _upgrade03To04()
+
 
 }//end class
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_edit_fns.inc,v 1.25 2004/12/06 14:41:39 brobertson Exp $
+* $Id: page_asset_builder_edit_fns.inc,v 1.26 2005/04/11 23:30:13 ndvries Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -48,9 +48,9 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 	var $location_messages = Array(
 								'fixed'			=> 'All assets created will be linked under the following locations',
 								'selectable'	=> 'When creating a new asset, the user will asked to choose a location from each of the sets below',
-								'conditional'   => 'New assets will be linked under additional locations according to the rules below',
+								'conditional'	=> 'New assets will be linked under additional locations according to the rules below',
 								'additional'	=> 'If you specify some data sources to get additional location data from, and the assetids supplied by those data sources at runtime satisfy the conditions below, the created asset will be linked under those locations as well.  Lists of locations can be supplied in the format assetid;assetid;assetid or assetid-linktype;assetid-linktype;',
-							);
+							 );
 
 	/**
 	* An array of asset types that can be passed to asset_finder to define what types of create locations are allowed
@@ -72,6 +72,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 
 
 //--        DETAILS SCREEN        --//
+
 
 	/**
 	* Paint the current asset types that have been added
@@ -238,6 +239,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 
 	}//end processAddCreateType()
 
+
 	/**
 	* Paint the interface for choosing the status of newly created assets
 	*
@@ -254,10 +256,11 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 		if (!$asset->writeAccess('attributes')) {
 			echo get_status_description($asset->attr('create_status'));
 		} else {
-			$status_options = Array(SQ_STATUS_ARCHIVED => 'Archived',
-									SQ_STATUS_UNDER_CONSTRUCTION => 'Under Construction',
-									SQ_STATUS_LIVE => 'Live',
-									);
+			$status_options = Array(
+								SQ_STATUS_ARCHIVED				=> 'Archived',
+								SQ_STATUS_UNDER_CONSTRUCTION	=> 'Under Construction',
+								SQ_STATUS_LIVE					=> 'Live',
+							  );
 			combo_box($prefix.'_create_status', $status_options, false, $asset->attr('create_status'));
 		}
 
@@ -283,8 +286,8 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 	}//end processCreateStatus()
 
 
-
 //--        CREATE LOCATIONS SCREEN         --//
+
 
 	/**
 	* Paint the interface for choosing the locations to which all new assets will be linked
@@ -613,12 +616,13 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 
 		// see if there is a new set to create
 		if ($_POST[$prefix.'_new_set_name']) {
-			$sets[$_POST[$prefix.'_new_set_name']] = Array('locations'		=> Array(),
-														   'allow_empty'	=> 0,
-														   'allow_multiple' => 0,
-														   'input_style'	=> 'dropdown',
-														   'link_type'		=> SQ_LINK_TYPE_1
-														   );
+			$sets[$_POST[$prefix.'_new_set_name']] = Array(
+														'locations'			=> Array(),
+														'allow_empty'		=> 0,
+														'allow_multiple'	=> 0,
+														'input_style'		=> 'dropdown',
+														'link_type'			=> SQ_LINK_TYPE_1,
+													 );
 		}
 
 		$asset->setAttrValue('create_location_optional', $sets);
@@ -655,10 +659,11 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 		$link_type_names = Array(SQ_LINK_TYPE_1 => '', SQ_LINK_TYPE_2 => '', SQ_LINK_TYPE_3 => '', SQ_LINK_NOTICE => '');
 		foreach ($link_type_names as $lt => $null) $link_type_names[$lt] = 	link_type_name($lt);
 
-		$comparators = Array('equals'      => 'equals',
-							 'starts_with' => 'starts with',
-							 'ends_with'   => 'ends with',
-							 'contains'	   => 'contains'
+		$comparators = Array(
+						'equals'		=> 'equals',
+						'starts_with'	=> 'starts with',
+						'ends_with'		=> 'ends with',
+						'contains'		=> 'contains',
 					   );
 
 		$create_types = $asset->attr('create_type');
@@ -883,7 +888,6 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 	}//end processAdditionalLocationsInfo()
 
 
-
 	/**
 	* Paints the interface for saying where additional create locations can come from
 	*
@@ -1053,6 +1057,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 
 //--         REQUIRED FIELDS SCREEN          --//
 
+
 	/**
 	* Paint the interface for choosing the status of newly created assets
 	*
@@ -1189,6 +1194,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 
 
 //--         OTHER STUFF          --//
+
 
 	/**
 	* Returns true if the asset builder allows the user to select multiple create locations
