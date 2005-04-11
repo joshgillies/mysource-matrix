@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.84 2005/04/11 02:05:51 ndvries Exp $
+* $Id: design.inc,v 1.85 2005/04/11 05:27:02 mmcintyre Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.84 $
+* @version $Revision: 1.85 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -323,9 +323,9 @@ class Design extends Design_Area
 		foreach ($file_links as $link) $file_link_ids[] = $link['minorid'];
 		$file_link_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_unique($file_link_ids));
 
-		foreach ($file_link_info as $file_info) {
+		foreach ($file_link_info as $assetid => $file_info) {
 			if ($file_info['name'] == $filename) {
-				return $GLOBALS['SQ_SYSTEM']->am->getAsset($file_info['assetid'], $file_info['type_code']);
+				return $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $file_info['type_code']);
 			}
 		}
 
