@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: log_manager.inc,v 1.10 2005/04/08 08:13:42 arailean Exp $
+* $Id: log_manager.inc,v 1.11 2005/04/11 02:56:45 arailean Exp $
 */
 
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -656,10 +656,15 @@ class Log_Manager extends Asset
 					}
 				}
 			}
-			$current_time = date('r');
 
-			$content = '<table class="sq-backend-table"><tr><th style="width: 150px">Meta Data</th><th>Message</th></tr>';
 			$date_string = date("G:i:s - d M");
+			$content = '
+				<table class="sq-backend-table">
+					<tr>
+						<th style="width: 150px">Meta Data</th>
+						<th>Message</th>
+					</tr>';
+
 			if (empty($lines)) {
 				$content .= "Empty";
 			} else {
@@ -669,22 +674,26 @@ class Log_Manager extends Asset
 					}
 					$d_line = $this->_decodeLine($line);
 					if ($d_line !== false) {
+						$error_type_name   = get_error_name($d_line['level']);
+						$error_type_colour = get_error_colour($d_line['level']);
+						$log_date = date('G:i:s - d M',$d_line['date']);
+
 						$content .= '
 						<tr>
-							<td style="background-color: #eee;">
-								'.date('G:i:s - d M',$d_line['date']).'<br />
+							<td style="background-color: '.$error_type_colour.'; color: white">
+								'.$log_date.'<br />
 								User:&nbsp;<strong>'.$d_line['user'].'</strong>&nbsp;('.$d_line['userid'].')<br />
-								Level:&nbsp;<strong>'.get_error_name($d_line['level']).'</strong><br />
+								Level:&nbsp;<strong>'.$error_type_name.'</strong><br />
 							</td>
-							<td><span style="font: mono;">'.$d_line['data'].'<span></td>
+							<td><span style="font-family: monospace;">'.$d_line['data'].'<span></td>
 						</tr>';
 					} else {
 						$content .= '
 						<tr class="alt">
 							<td style="color: red; background-color: #eef; text-align: right;">
-								<strong>RAW:</strong>
+								<strong>Raw Entry:</strong>
 							</td>
-							<td><span style="font: mono;">'.$line.'<span></td>
+							<td><span style="font-family: monospace;">'.$line.'<span></td>
 						</tr>';
 					}
 
