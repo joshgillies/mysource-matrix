@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_update_lookups.inc,v 1.28 2005/04/06 23:05:34 mmcintyre Exp $
+* $Id: hipo_job_update_lookups.inc,v 1.29 2005/04/11 05:24:02 mmcintyre Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -212,7 +212,7 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 				$treeid = $db->getOne($sql);
 				assert_valid_db_result($treeid);
 
-				$sql = 'SELECT l.minorid, MAX(CHAR_LENGTH(t.treeid)) as length
+				$sql = 'SELECT l.minorid, MAX(LENGTH(t.treeid)) as length
 						FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t
 								 INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l ON t.linkid = l.linkid
 						';
