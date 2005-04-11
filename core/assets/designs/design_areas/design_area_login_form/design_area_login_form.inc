@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_login_form.inc,v 1.14 2005/04/01 02:25:04 amiller Exp $
+* $Id: design_area_login_form.inc,v 1.15 2005/04/11 05:19:41 arailean Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -148,19 +148,18 @@ class Design_Area_Login_Form extends Design_Area
 				}
 				echo '<input type="hidden" name="SQ_LOGIN_KEY"      value="<', '?php echo $GLOBALS[\'SQ_SYSTEM\']->generateLoginKey(); ?', '>" />
 					  <input type="hidden" name="SQ_LOGIN_REFERER"  value="<', '?php echo htmlspecialchars('.$referer.'); ?', '>" />';
-					  
+
 				text_box('SQ_LOGIN_USERNAME', '', empty($args['size']) ? 10 : $args['size'], 0, false, $extras);
 				if ($this->attr('give_username_focus')) {
-					echo '<script type="text/javascript">
-						<!--
-						<![CDATA[
+					echo '<script type="text/javascript"><!--
+						//<![CDATA[
 						function set_'.$this->attr('id_name').'_username_box_focus() {
 							'.$this->attr('id_name').'_username_box_other_onload();
-							document.'.$this->attr('id_name').'_login_prompt.elements[\'SQ_LOGIN_USERNAME\'].focus();
+							document.getElementById("'.$this->attr('id_name').'_login_prompt").elements["SQ_LOGIN_USERNAME"].focus();
 						}
 						var '.$this->attr('id_name').'_username_box_other_onload = (window.onload) ? window.onload : new Function;
 						window.onload = set_'.$this->attr('id_name').'_username_box_focus;
-						]]>
+						//]]>
 						-->
 						</script>';
 				}
