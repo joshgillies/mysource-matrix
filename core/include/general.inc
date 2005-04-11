@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.81 2005/04/08 06:14:08 lwright Exp $
+* $Id: general.inc,v 1.82 2005/04/11 01:50:44 arailean Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.81 $
+* @version $Revision: 1.82 $
 * @package MySource_Matrix
 */
 
@@ -77,18 +77,8 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 			unset($bt);
 		}
 
-		$err_name = get_error_name($err_no);
-		$bg_colour = '';
-		switch ($err_no) {
-			case E_USER_ERROR:		$bg_colour = '#993333';	break;
-			case E_USER_WARNING:	$bg_colour = '#DBA53B'; break;
-			case E_USER_NOTICE:		$bg_colour = '#17AA92';	break;
-			case E_ERROR:			$bg_colour = '#0066CC'; break;
-			case E_WARNING:			$bg_colour = '#0066CC'; break;
-			case E_NOTICE:			$bg_colour = '#0066CC'; break;
-			default:				$bg_colour = '#FF0000';	break;
-		}//end switch
-
+		$err_name  = get_error_name($err_no);
+		$bg_colour = get_error_colour($err_no);
 
 		// send a report to the system error log
 		if (ini_get('log_errors')) {
@@ -302,6 +292,33 @@ function get_error_name($error_code)
 	return $name;
 
 }//end get_error_name()
+
+
+/**
+* Specifies HTML colour to be used when displaying the PHP error code
+*
+* @param int	$error_code	PHP error code
+*
+* @return string
+* @access public
+*/
+function get_error_colour($error_code)
+{
+	$colour = '';
+
+	switch ($error_code) {
+		case E_USER_ERROR   : $colour = '#993333'; break;
+		case E_USER_WARNING : $colour = '#DBA53B'; break;
+		case E_USER_NOTICE  : $colour = '#17AA92'; break;
+		case E_ERROR        : $colour = '#0066CC'; break;
+		case E_WARNING      : $colour = '#0066CC'; break;
+		case E_NOTICE       : $colour = '#0066CC'; break;
+		default             : $colour = '#FF0000'; break;
+	}//end switch
+
+	return $colour;
+
+}//end get_error_colour()
 
 
 /**
@@ -841,4 +858,6 @@ function trigger_localised_error($code, $error_level)
 	return $GLOBALS['SQ_SYSTEM']->lm->raiseError($code, $error_level, $args);
 
 }//end trigger_localised_error()
+
+
 ?>
