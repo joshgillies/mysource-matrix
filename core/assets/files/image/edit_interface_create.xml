@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_create.xml,v 1.4 2005/01/20 13:07:33 brobertson Exp $
+* $Id: edit_interface_create.xml,v 1.5 2005/04/11 02:40:51 ndvries Exp $
 *
 */
 -->
@@ -45,6 +45,15 @@
 				<paint_function   name="paintCreateEditor"   />
 				<process_function name="processCreateEditor" />
 			</function_call>
+		</field>
+		<field attribute="alt">
+			<text width="40" height="1" />
+		</field>
+		<field attribute="title">
+			<text width="40" height="1" />
+		</field>
+		<field attribute="caption">
+			<text width="60" height="2" />
 		</field>
 	</section>
 </contents>
