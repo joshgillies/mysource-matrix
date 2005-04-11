@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: internal_message.inc,v 1.48 2005/04/08 05:39:09 gsherwood Exp $
+* $Id: internal_message.inc,v 1.49 2005/04/11 04:50:11 mmcintyre Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    An internal message to be sent around the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.48 $
+* @version $Revision: 1.49 $
 * @package MySource_Matrix
 */
 class Internal_Message extends MySource_Object
@@ -122,8 +122,10 @@ class Internal_Message extends MySource_Object
 		if (!$messageid) return false;
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$sql   = 'SELECT msgid, userto, userfrom, subject, body, type, sent, priority, status, parameters
-				  FROM sq_internal_msg WHERE msgid = '.$db->quote($messageid);
+		$sql = 'SELECT
+					msgid, userto, userfrom, subject, body, type, sent, priority, status, parameters
+				FROM
+					sq_internal_msg WHERE msgid = '.$db->quoteSmart($messageid);
 
 		$result = $db->getRow($sql);
 		assert_valid_db_result($result);
@@ -224,8 +226,44 @@ class Internal_Message extends MySource_Object
 		}
 
 		$param_string = '';
-		foreach ($this->parameters as $key => $value) $param_string .= "$key:$value;";
+		foreach ($this->parameters as $key => $value) {
+			$param_string .= "$key:$value;";
+		}
 
+		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		// generic prepared statement for inserting
+		$sql = 'INSERT INTO
+					sq_internal_msg
+					(
+						msgid,
+						userto,
+						userfrom,
+						subject,
+						body,
+						type,
+						priority,
+						status,
+						sent,
+						parameters
+					)
+					VALUES
+					(
+						?,
+						?,
+						?,
+						?,
+						?,
+						?,
+						?,
+						?,
+						'.db_extras_prepare_todate($db).',
+						?
+					)';
+
+		$prepared = $db->prepare($sql);
+		assert_valid_db_result($prepared);
 
 		  //////////////////////////////
 		 // LOG MESSAGES TO LOG FILE //
@@ -240,7 +278,6 @@ class Internal_Message extends MySource_Object
 
 
 		if ($log_to_db || $send_mail) {
-			$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 			// work out the email address the the email will be sent from
 			$from_email = SQ_CONF_DEFAULT_EMAIL;
@@ -275,14 +312,21 @@ class Internal_Message extends MySource_Object
 
 			$log_body = preg_replace('|<SQ_MSG_LINK ([^>]*?)>(.*?)</SQ_MSG_LINK>|', '<a \\1>\\2</a>', $this->body);
 
-			$sent = $db->quote($this->sent);
-			if ($db->phptype == 'oci8') {
-				$sent = 'TO_DATE('.$sent.', \'YYYY-MM-DD HH24:MI:SS\')';
-			}
+			$values = Array(
+						$messageid,
+						0,
+						$this->from,
+						$this->subject,
+						$log_body,
+						$this->type,
+						$this->priority,
+						$this->status,
+						$this->sent,
+						'YYYY-MM-DD HH24:MI:SS',
+						$param_string,
+					  );
 
-			$sql = 'INSERT INTO sq_internal_msg (msgid, userto, userfrom, subject, body, type, priority, status, sent, parameters) 
-					VALUES ('.$db->quote($messageid).', 0, '.$db->quote($this->from).', '.$db->quote($this->subject).', '.$db->quote($log_body).', '.$db->quote($this->type).', '.$db->quote($this->priority).', '.$db->quote($this->status).', '.$sent.', '.$db->quote($param_string).')';
-			$result = $db->query($sql);
+			$result = $db->execute($prepared, $values);
 			assert_valid_db_result($result);
 
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -356,13 +400,20 @@ class Internal_Message extends MySource_Object
 				$messageid = $db->nextId('sq_internal_msg');
 				assert_valid_db_result($messageid);
 
-				$sent = $db->quote($this->sent);
-				if ($db->phptype == 'oci8') {
-					$sent = 'TO_DATE('.$sent.', \'YYYY-MM-DD HH24:MI:SS\')';
-				}
-
-				$sql = 'INSERT INTO sq_internal_msg (msgid, userto, userfrom, subject, body, type, priority, status, sent, parameters) VALUES ('.$db->quote($messageid).', '.$db->quote($userid).', '.$db->quote($this->from).', '.$db->quote($this->subject).', '.$db->quote($log_body).', '.$db->quote($this->type).', '.$db->quote($this->priority).', '.$db->quote($this->status).', '.$sent.', '.$db->quote($param_string).')';
-				$result = $db->query($sql);
+				$values = Array(
+							$messageid,
+							$userid,
+							$this->from,
+							$this->subject,
+							$log_body,
+							$this->type,
+							$this->priority,
+							$this->status,
+							$this->sent,
+							'YYYY-MM-DD HH24:MI:SS', // for the todate prepare statement
+							$param_string,
+						  );
+				$result = $db->execute($prepared, $values);
 				assert_valid_db_result($result);
 
 				// now send an email as well
