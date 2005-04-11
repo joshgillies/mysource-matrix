@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: log_manager_edit_fns.inc,v 1.2 2005/04/08 07:19:22 arailean Exp $
+* $Id: log_manager_edit_fns.inc,v 1.3 2005/04/11 02:58:58 arailean Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard  <rhoward@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -127,6 +127,20 @@ class Log_Manager_Edit_Fns extends Asset_Edit_Fns
 			}//end monitorLog()
 
 
+
+			/**
+			* Rorces the refresh of the log
+			*
+			* Loads log and re-sets the timeout counter
+			*/
+			function forceRefresh()
+			{
+				loadLog();
+				enableRefresh();
+
+			}//end forceRefresh()
+
+
 			/**
 			* Load current log into the monitor frame
 			*/
@@ -151,7 +165,8 @@ class Log_Manager_Edit_Fns extends Asset_Edit_Fns
 			{
 				var value = parseInt(interval);
 				if (!isNaN(value)) {
-					document.refresh_interval = value;
+					refresh_interval = value * 1000;
+					enableRefresh();
 				}
 
 			}//end setRefreshInterval()
@@ -316,7 +331,15 @@ class Log_Manager_Edit_Fns extends Asset_Edit_Fns
 								Auto-Refresh: <strong id="sq-log-refresh-status">&nbsp;</strong>
 								<input type="button" onclick="toggleLogRefreshStatus();" id="sq-log-refresh-enabler" value="" />
 								&nbsp;&nbsp;&nbsp;
-								<input type="button" onclick="loadLog();" id="sq-log-refresh-force" value="Refresh Now" />
+								Refresh Interval:
+								<select name="sq-log-refresh-interval" id="sq-log-refresh-interval" onchange="setRefreshInterval(this.value)">
+									<option value="15">15 sec</option>
+									<option value="30" selected="selected">30 sec</option>
+									<option value="60">1 min</option>
+									<option value="300">5 min</option>
+								</select>
+								&nbsp;&nbsp;&nbsp;
+								<input type="button" onclick="forceRefresh();" id="sq-log-refresh-force" value="Refresh Now" />
 							</td>
 						</tr>
 					</table>
@@ -327,7 +350,7 @@ class Log_Manager_Edit_Fns extends Asset_Edit_Fns
 			$o->closeRaw();
 		$o->closeSection();
 
-		return $write_access;
+		return false;
 
 	}//end paintLogList()
 
