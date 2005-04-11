@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.83 2005/03/15 00:45:26 amiller Exp $
+* $Id: design.inc,v 1.84 2005/04/11 02:05:51 ndvries Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.83 $
+* @version $Revision: 1.84 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -351,9 +351,9 @@ class Design extends Design_Area
 
 		$return_values = Array();
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-		foreach ($file_link_info as $file_info) {
+		foreach ($file_link_info as $assetid => $file_info) {
 			if (get_file_type($file_info['name']) == 'css') {
-				$return_values[$file_info['assetid']] = $file_info['name'];
+				$return_values[$assetid] = $file_info['name'];
 			}
 		}
 
@@ -513,7 +513,7 @@ if (!empty($SQ_PRIMARY_URL)) {
 	?>
 	<script type="text/javascript" src="<?php echo sq_web_path(\'lib\'); ?>/js/JsHttpConnector.js"></script>
 	<script type="text/javascript" src="<?php echo $SQ_PRIMARY_URL; ?>/__lib/session/session.php?in_primary=<?php echo (sq_web_path(\'root_url\') == $SQ_PRIMARY_URL) ? 1 : 0; ?>&site_network=<?php echo $SQ_SITE_NETWORK->id; ?>"></script>
-	<?php 
+	<?php
 	if (sq_web_path(\'root_url\') != $SQ_PRIMARY_URL) {
 		?>
 		<script type="text/javascript">
@@ -545,7 +545,7 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 
 			case 'html_footer' :
 			break;
-			
+
 			case 'content_type' :
 				if (!empty($args['content_type'])) {
 					echo '<', '?php header("Content-type: '.$args['content_type'].'"); ?', '>';
@@ -630,7 +630,7 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 			break;
 
 			case 'current_user' :
-			
+
 				if (empty($args['attr'])) $args['attr'] = 'name';
 				switch ($args['attr']) {
 					case 'username'   :
