@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.125.2.7 2005/04/11 06:28:37 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.125.2.8 2005/04/11 06:34:01 tbarrett Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.125.2.7 $
+* @version $Revision: 1.125.2.8 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -696,7 +696,7 @@ class Page_Calendar extends Page_Asset_Listing
 			<?php
 			if ($this->attr('month_links_to_week')) {
 				?>
-				<th class="weekLink" onClick="location.href = this.childNodes[0].href;"><a class="dateLink" href="<?php echo $this->getHref().'?SQ_CALENDAR_VIEW=week&amp;SQ_CALENDAR_DATE='.add_days_to_iso($current_date) ?>">&raquo;</a></th>
+				<th class="weekLink" onclick="location.href = this.childNodes[0].href;"><a class="dateLink" href="<?php echo $this->getHref().'?SQ_CALENDAR_VIEW=week&amp;SQ_CALENDAR_DATE='.add_days_to_iso($current_date) ?>">&raquo;</a></th>
 				<?php
 			}
 
@@ -729,7 +729,9 @@ class Page_Calendar extends Page_Asset_Listing
 			for ($w = 0; $w < $num_full_weeks; $w++) {
 				echo '<tr>';
 				if ($this->attr('month_links_to_week')) {
-					?><th class="weekLink" onClick="location.href = this.childNodes[0].href;"><a  class="dateLink"  href="<?php echo $this->getHref().'?SQ_CALENDAR_VIEW=week&amp;SQ_CALENDAR_DATE='.add_days_to_iso($current_date) ?>">&raquo;</a></th><?php
+					?>
+					<th class="weekLink" onclick="location.href = this.childNodes[0].href;"><a class="dateLink" href="<?php echo $this->getHref().'?SQ_CALENDAR_VIEW=week&amp;SQ_CALENDAR_DATE='.add_days_to_iso($current_date) ?>">&raquo;</a></th>
+					<?php
 				}
 				for ($i=0; $i < $week_length; $i++) {
 					$current_date = sprintf('%04d-%02d-%02d', $year, $month, $current_day);
@@ -751,7 +753,7 @@ class Page_Calendar extends Page_Asset_Listing
 				echo '<tr>';
 				if ($this->attr('month_links_to_week')) { 
 					?>
-					<th class="weekLink" onClick="location.href = this.childNodes[0].href;"><a  class="dateLink"  href="<?php echo $this->getHref().'?SQ_CALENDAR_VIEW=week&amp;SQ_CALENDAR_DATE='.$current_date ?>">&raquo;</a></th>
+					<th class="weekLink" onclick="location.href = this.childNodes[0].href;"><a  class="dateLink"  href="<?php echo $this->getHref().'?SQ_CALENDAR_VIEW=week&amp;SQ_CALENDAR_DATE='.$current_date ?>">&raquo;</a></th>
 					<?php
 				}
 				while ($current_day <= $month_length) {
