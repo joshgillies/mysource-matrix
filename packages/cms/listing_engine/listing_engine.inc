@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.25 2005/04/06 23:09:36 mmcintyre Exp $
+* $Id: listing_engine.inc,v 1.26 2005/04/11 02:29:26 tbarrett Exp $
 *
 */
 
@@ -40,7 +40,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  David Heppell <dheppell@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1050,6 +1050,7 @@ class Listing_Engine extends Page
 			foreach ($this->_tmp['assets_info'][$assetid] as $field => $value) {
 				$keywords['asset_'.$field] = $value;
 			}
+			$keywords['asset_assetid'] = $assetid;
 		}//end if needs asset
 		if (preg_match_all('|%asset_metadata_([^%]+)%|is', $contents, $matches)) {
 			if (is_null($mm)) $mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
