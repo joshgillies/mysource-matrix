@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.76 2005/04/08 05:39:09 gsherwood Exp $
+* $Id: metadata_manager.inc,v 1.77 2005/04/11 04:36:13 mmcintyre Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.76 $
+* @version $Revision: 1.77 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -279,8 +279,11 @@ class Metadata_Manager extends MySource_Object
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$sql = '  SELECT DISTINCT assetid, granted
-				  FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_metadata ';
+		$sql = 'SELECT DISTINCT
+					assetid, granted
+				FROM
+					'.SQ_TABLE_RUNNING_PREFIX.'ast_metadata ';
+
 		$where = 'schemaid = '.$db->quote($schemaid);
 		if (!is_null($granted)) $where .= ' AND granted = '.$db->quote((($granted) ? '1' : '0'));
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
@@ -363,10 +366,14 @@ class Metadata_Manager extends MySource_Object
 
 		// And to think I didn't like it when this generating query got pulled out of the Asset_Manager::getChildren() :)
 		// Instead of doing any thinking...let them do it all for us and use it in our query
-		$sql = '  SELECT DISTINCT mv.fieldid, a.name, mv.value
-				  FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_metadata_value mv
-							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON mv.fieldid = a.assetid';
-		$where = '	mv.assetid = '.$db->quote($asset->id).'
+		$sql = 'SELECT
+					mv.fieldid, a.name, mv.value
+				FROM
+					'.SQ_TABLE_RUNNING_PREFIX.'ast_metadata_value mv
+				INNER JOIN
+					'.SQ_TABLE_RUNNING_PREFIX.'ast a ON mv.fieldid = a.assetid';
+
+		$where = '	mv.assetid = '.$db->quoteSmart($asset->id).'
 				AND (';
 
 		foreach ($schemas as $schemaid) {
@@ -563,49 +570,69 @@ class Metadata_Manager extends MySource_Object
 
 		if (!empty($quoted_fieldids)) {
 			// Find any fields that have existing entries...so we know what to update and what to insert
-			$sql = 'SELECT fieldid
-					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_metadata_value
-					';
+			$sql = 'SELECT
+						fieldid
+					FROM
+						'.SQ_TABLE_RUNNING_PREFIX.'ast_metadata_value';
+
 			$where = '	assetid = '.$db->quote($asset->id).'
-					AND fieldid IN ('.implode(',', $quoted_fieldids).')';
+					 AND fieldid IN ('.implode(',', $quoted_fieldids).')';
+
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 			$updates = $db->getCol($sql.$where);
 			assert_valid_db_result($updates);
+
+			$sql = 'INSERT INTO
+						sq_ast_metadata_value
+						(
+							assetid,
+							fieldid,
+							value
+						)
+						VALUES
+						(
+							?,
+							?,
+							?
+						)';
+
+			$insert_prepared = $db->prepare($sql);
+			assert_valid_db_result($insert_prepared);
+
+			$sql = 'UPDATE
+						sq_ast_metadata_value
+					SET
+						value	= ?
+					WHERE
+							assetid	= ?
+						AND	fieldid	= ?';
+
+			$update_prepared = $db->prepare($sql);
+			assert_valid_db_result($update_prepared);
 
 			for (reset($metadata); NULL !== ($fieldid = key($metadata)); next($metadata)) {
 
 				// we need to insert
 				if (!in_array($fieldid, $updates)) {
 
-					$sql = 'INSERT INTO
-								sq_ast_metadata_value
-								(
-									assetid,
-									fieldid,
-									value
-								)
-								VALUES
-								(
-									'.$db->quoteSmart($asset->id).',
-									'.$db->quoteSmart($fieldid).',
-									'.$db->quoteSmart($metadata[$fieldid]['value']).'
-								)';
+					$values = Array(
+								$asset->id,
+								$fieldid,
+								$metadata[$fieldid]['value'],
+							  );
 
-					$result = $db->query($sql);
+					$result = $db->execute($insert_prepared, $values);
 					assert_valid_db_result($result);
 
 				// we are updating
 				} else {
+					$values = Array(
+								$metadata[$fieldid]['value'],
+								$asset->id,
+								$fieldid,
+							  );
 
-					$sql = 'UPDATE
-								sq_ast_metadata_value
-							SET
-								value	= '.$db->quoteSmart($metadata[$fieldid]['value']).'
-							WHERE
-									assetid	= '.$db->quoteSmart($asset->id).'
-								AND	fieldid	= '.$db->quoteSmart($fieldid);
-
-					$result = $db->query($sql);
+					$result = $db->execute($update_prepared, $values);
 					assert_valid_db_result($result);
 
 				}//end if
@@ -721,6 +748,9 @@ class Metadata_Manager extends MySource_Object
 			foreach ($nested_tag_values as $i => $values) {
 				echo '$metadata_values_'.$i.' = Array(';
 				foreach ($values as $n => $v) {
+					$v = stripslashes($v);
+					$v = preg_replace('%\'%', '\\\'', $v);
+					$v = preg_replace('%\"%', '&quot;', $v);
 					$v = preg_replace('|(\$metadata_replacements\[)\\\\\'([^\]]+)\\\\\'(\])|', '\'.\\1\'\\2\'\\3.\'', $v);
 					$v = preg_replace('|(\$metadata_values[^\[]+\[)\\\\\'([^\]]+)\\\\\'(\])|', '\'.\\1\'\\2\'\\3.\'', $v);
 					echo "'$n' => '$v',\n";
