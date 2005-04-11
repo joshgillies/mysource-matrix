@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.125.2.6 2005/03/11 05:17:09 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.125.2.7 2005/04/11 06:28:37 tbarrett Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.125.2.6 $
+* @version $Revision: 1.125.2.7 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -696,7 +696,7 @@ class Page_Calendar extends Page_Asset_Listing
 			<?php
 			if ($this->attr('month_links_to_week')) {
 				?>
-				<th class="weekLink" onClick="location.href = this.childNodes[0].href;"><a class="dateLink" href="<?php echo $this->getHref().'?SQ_CALENDAR_VIEW=week&amp;SQ_CALENDAR_DATE='.add_days_to_iso($current_date) ?>">&raquo;</a></td>
+				<th class="weekLink" onClick="location.href = this.childNodes[0].href;"><a class="dateLink" href="<?php echo $this->getHref().'?SQ_CALENDAR_VIEW=week&amp;SQ_CALENDAR_DATE='.add_days_to_iso($current_date) ?>">&raquo;</a></th>
 				<?php
 			}
 
@@ -722,15 +722,14 @@ class Page_Calendar extends Page_Asset_Listing
 				$current_day++;
 				$i++;
 			}
-
 			echo '</tr>';
 
 			// print the full weeks
 			$num_full_weeks = floor(($month_length - $current_day) / 7);
 			for ($w = 0; $w < $num_full_weeks; $w++) {
-				?><tr><?php
+				echo '<tr>';
 				if ($this->attr('month_links_to_week')) {
-					?><th class="weekLink" onClick="location.href = this.childNodes[0].href;"><a  class="dateLink"  href="<?php echo $this->getHref().'?SQ_CALENDAR_VIEW=week&amp;SQ_CALENDAR_DATE='.add_days_to_iso($current_date) ?>">&raquo;</a></td><?php
+					?><th class="weekLink" onClick="location.href = this.childNodes[0].href;"><a  class="dateLink"  href="<?php echo $this->getHref().'?SQ_CALENDAR_VIEW=week&amp;SQ_CALENDAR_DATE='.add_days_to_iso($current_date) ?>">&raquo;</a></th><?php
 				}
 				for ($i=0; $i < $week_length; $i++) {
 					$current_date = sprintf('%04d-%02d-%02d', $year, $month, $current_day);
@@ -743,18 +742,17 @@ class Page_Calendar extends Page_Asset_Listing
 					echo '</td>';
 					$current_day++;
 				}
-				?></tr><?php
+				echo '</tr>';
 			}
 
 			// print the final week, if necessary
 			if ($current_day <= $month_length) {
 				$i = 0;
 				echo '<tr>';
-				?>
-				<tr>
-				<?php if ($this->attr('month_links_to_week')) { ?>
-					<th class="weekLink" onClick="location.href = this.childNodes[0].href;"><a  class="dateLink"  href="<?php echo $this->getHref().'?SQ_CALENDAR_VIEW=week&amp;SQ_CALENDAR_DATE='.$current_date ?>">&raquo;</a></td>
-				<?php
+				if ($this->attr('month_links_to_week')) { 
+					?>
+					<th class="weekLink" onClick="location.href = this.childNodes[0].href;"><a  class="dateLink"  href="<?php echo $this->getHref().'?SQ_CALENDAR_VIEW=week&amp;SQ_CALENDAR_DATE='.$current_date ?>">&raquo;</a></th>
+					<?php
 				}
 				while ($current_day <= $month_length) {
 					$current_date = sprintf('%04d-%02d-%02d', $year, $month, $current_day);
@@ -771,13 +769,12 @@ class Page_Calendar extends Page_Asset_Listing
 
 				// print blank days, if necessary
 				while ($i < $week_length) {
-				?>
+					?>
 					<td class="<?php echo (((($week_start_day + $i) % 7)==0) || ((($week_start_day + $i) % 7)==6)) ? ' weekend' : ''; ?>">&nbsp;</td>
-				<?php
+					<?php
 					$i++;
 				}
-
-				?></tr><?php
+				echo '</tr>';
 			}
 			echo '</table>';
 		}
@@ -914,7 +911,6 @@ class Page_Calendar extends Page_Asset_Listing
 	*/
 	function getEventView($event_id)
 	{
-		// Might be better to do this ourselves, but for now we'll palm it off to Asset Builder
 		ob_start();
 			$info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($event_id));
 			$asset_list = Array($event_id => $info[$event_id]['type_code']);
@@ -1328,6 +1324,7 @@ class Page_Calendar extends Page_Asset_Listing
 	{
 		$res = '';
 		foreach ($events as $assetid => $details) {
+			$assetid = strtok($assetid, ':');
 			$event_class = (isset($root_nodes[$details['root_node']]['class_name'])) ? $root_nodes[$details['root_node']] ['class_name'] : '';
 			$onclick_code =$show_event_link ? ' onclick="clickChild(this); "' : '';
 			$cursor_code = $show_event_link ? 'cursor: pointer; cursor: hand;' : '';
