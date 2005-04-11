@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: news_item.inc,v 1.9 2005/01/13 22:32:50 amiller Exp $
+* $Id: news_item.inc,v 1.10 2005/04/11 06:31:03 amiller Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * Purpose
 *
 * @author  Avi Miller <amiller@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -91,6 +91,8 @@ class News_Item extends Page
 	*/
 	function &getLinkAsset()
 	{
+		if ($this->id == 0) return null;
+
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', true, 'link_asset');
 		if (empty($link)) {
 			$null = null;
