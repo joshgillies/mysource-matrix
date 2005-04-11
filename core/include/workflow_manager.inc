@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.65 2005/04/08 05:39:09 gsherwood Exp $
+* $Id: workflow_manager.inc,v 1.66 2005/04/11 07:00:47 mmcintyre Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.65 $
+* @version $Revision: 1.66 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -180,13 +180,23 @@ class Workflow_Manager extends MySource_Object
 					)
 					VALUES
 					(
-						'.$db->quoteSmart($asset->id).',
-						'.$db->quoteSmart($schemaid).',
-						'.$db->quoteSmart(null).',
-						'.$db->quoteSmart((($granted) ? '1' : '0')).'
+						?,
+						?,
+						?,
+						?
 					)';
 
-		$result = $db->query($sql);
+		$prepared = $db->prepare($sql);
+		assert_valid_db_result($prepared);
+
+		$values = Array(
+					$asset->id,
+					$schemaid,
+					null,
+					(($granted) ? '1' : '0'),
+				  );
+
+		$result = $db->execute($prepared, $values);
 		assert_valid_db_result($result);
 
 		unset($this->_tmp['schemas'][(int)$assetid]);
@@ -339,6 +349,17 @@ class Workflow_Manager extends MySource_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
+		$sql = 'UPDATE
+					sq_ast_wflow
+				SET
+					wflow	= ?
+				WHERE
+						assetid		= ?
+					AND	schemaid	= ?';
+
+		$prepared = $db->prepare($sql);
+		assert_valid_db_result($prepared);
+
 		foreach ($schemas as $schemaid) {
 			$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
 			if (is_null($schema)) {
@@ -355,15 +376,13 @@ class Workflow_Manager extends MySource_Object
 
 			if (!isset($workflow[$schema->name])) continue;
 
-			$sql = 'UPDATE
-						sq_ast_wflow
-					SET
-						wflow = '.$db->quoteSmart(serialize($workflow[$schema->name])).'
-					WHERE
-							assetid		= '.$db->quote($asset->id).'
-						AND	schemaid	= '.$db->quote($schema->id);
+			$values = Array(
+						serialize($workflow[$schema->name]),
+						$asset->id,
+						$schema->id,
+					  );
 
-			$result = $db->query($sql);
+			$result = $db->execute($prepared, $values);
 			assert_valid_db_result($result);
 
 			$this->_tmp['schema_workflows'][$assetid][$schemaid] = $workflow[$schema->name];
@@ -670,21 +689,31 @@ class Workflow_Manager extends MySource_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
+		$sql = 'UPDATE
+					sq_ast_wflow
+				SET
+					wflow	= ?
+				WHERE
+						assetid		= ?
+					AND	schemaid	= ?';
+
+		$prepared = $db->prepare($sql);
+		assert_valid_db_result($prepared);
+
 		for (reset($schema_workflows); null !== ($schemaid = key($schema_workflows)); next($schema_workflows)) {
 			if (!in_array($schemaid, $running_schemas)) continue;
 			$workflow =& $schema_workflows[$schemaid];
 			if ($this->_recordPublish($workflow, $publisher)) {
 				$new_workflow = serialize($workflow);
 
-				$sql = 'UPDATE
-							sq_ast_wflow
-						SET
-							wflow = '.$db->quoteSmart($new_workflow).'
-						WHERE
-								assetid		= '.$db->quoteSmart($assetid).'
-							AND	schemaid	= '.$db->quoteSmart($schemaid);
+				$values = Array(
+							$new_workflow,
+							$assetid,
+							$schemaid,
+						  );
 
-				$result = $db->query($sql);
+				$result = $db->execute($prepared, $values);
+
 				assert_valid_db_result($result);
 
 				// updated cached version of this workflow
@@ -926,20 +955,30 @@ class Workflow_Manager extends MySource_Object
 		if (empty($schemas)) return false;
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		$sql = 'UPDATE
+					sq_ast_wflow
+				SET
+					wflow	= ?
+				WHERE
+						assetid		= ?
+					AND	schemaid	= ?';
+
+		$prepared = $db->prepare($sql);
+		assert_valid_db_result($prepared);
+
 		foreach ($schemas as $schemaid) {
 			$workflow = $this->generateWorkflowArray($assetid, $schemaid);
 			if (empty($workflow['steps'])) continue;
 			$workflow = serialize($workflow);
 
-			$sql = 'UPDATE
-						sq_ast_wflow
-					SET
-						wflow	= '.$db->quoteSmart($workflow).'
-					WHERE
-							assetid		= '.$db->quoteSmart($assetid).'
-						AND	schemaid	= '.$db->quoteSmart($schemaid);
+			$values = Array(
+						$workflow,
+						$assetid,
+						$schemaid,
+					  );
 
-			$result = $db->query($sql);
+			$result = $db->execute($prepared, $values);
 			assert_valid_db_result($result);
 		}
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -1141,9 +1180,14 @@ class Workflow_Manager extends MySource_Object
 				SET
 					wflow = NULL
 				WHERE
-					assetid	 = '.$db->quoteSmart($assetid);
+					assetid	 = ?';
 
-		$result = $db->query($sql);
+		$prepared = $db->prepare($sql);
+		assert_valid_db_result($prepared);
+
+		$values = Array($assetid);
+
+		$result = $db->execute($prepared, $values);
 		assert_valid_db_result($result);
 
 		unset($this->_tmp['schemas'][$assetid]);
