@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.3 2005/03/30 00:41:54 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.4 2005/04/12 02:17:19 arailean Exp $
 *
 */
 -->
@@ -40,6 +40,12 @@
 		<field write_access="write:attributes"  attribute="thesaurus_assetid">
 			<assetid type_codes="thesaurus:D" />
 		</field>
+		<field attribute="allow_manual">
+			<boolean true_text="Yes" false_text="No" />
+		</field>
+		<field attribute="force_thesaurus">
+			<boolean true_text="Yes" false_text="No" />
+		</field>
 	</section>
 
 	<section name="Options" write_access="write:attributes">
@@ -59,12 +65,5 @@
 			</function_call>
 		</field>
 	</section>
-	<section name="Thesaurus Settings" write_access="write:attributes">
-		<field attribute="allow_manual">
-			<boolean true_text="Yes" false_text="No" />
-		</field>
-		<field attribute="force_thesaurus">
-			<boolean true_text="Yes" false_text="No" />
-		</field>
-	</section>
+
 </contents>
