@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager.inc,v 1.17 2005/04/06 23:05:34 mmcintyre Exp $
+* $Id: remap_manager.inc,v 1.18 2005/04/12 00:28:46 mmcintyre Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -187,7 +187,7 @@ class Remap_Manager extends Asset
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
 		$count = $db->getOne($sql.$where);
-		if (DB::isError($count)) trigger_error($count->getMessage().'<br/>'.$count->getUserInfo(), E_USER_ERROR);
+		assert_valid_db_result($count);
 
 		if ((int)$count > 0) {
 			trigger_error('Failed adding URL remap, URL "'.$old_url.'" is already remapping to another URL', E_USER_WARNING);
@@ -199,7 +199,7 @@ class Remap_Manager extends Asset
 					sq_ast_lookup_remap
 				WHERE
 					url = '.$db->quoteSmart($new_url);
-					
+
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
 
@@ -216,10 +216,10 @@ class Remap_Manager extends Asset
 						'.$db->quoteSmart($new_url).',
 						'.$db->quoteSmart((is_null($expires)) ? $expires : ts_iso8601($expires)).'
 					)';
-		
+
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
-		
+
 		return 1;
 
 	}//end addRemapURL()
@@ -245,7 +245,7 @@ class Remap_Manager extends Asset
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
 		$urls = $db->getAll($sql.$where);
-		if (DB::isError($urls)) trigger_error($urls->getMessage().'<br/>'.$urls->getUserInfo(), E_USER_ERROR);
+		assert_valid_db_result($urls);
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
@@ -286,23 +286,25 @@ class Remap_Manager extends Asset
 	*/
 	function loadRemapFromURL($protocol=null, $url=null)
 	{
+		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
+
 		if (is_null($protocol)) $protocol = current_protocol();
 		if (is_null($url)) $url = strip_url(current_url(false, true));
 
 		$url = $protocol.'://'.$url;
-		$db  =& $GLOBALS['SQ_SYSTEM']->db;
+		$db  = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$sql   = 'SELECT remap_url
-				  FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_remap';
+		$sql = 'SELECT
+					remap_url
+				FROM
+					'.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_remap';
+
 		$where = 'url = '.$db->quote($url).'
-				  AND (expires IS NULL OR expires > NOW())';
+				  AND (expires IS NULL OR expires > '.db_extras_todate($db, ts_iso8601(time())).')';
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
 		$remap_url = $db->getOne($sql.$where);
-
-		if (DB::isError($remap_url)) {
-			trigger_error($remap_url->getMessage().'<br/>'.$remap_url->getUserInfo(), E_USER_ERROR);
-		}
+		assert_valid_db_result($remap_url);
 
 		// if we have a remap url, display it
 		if (!empty($remap_url)) {
@@ -421,14 +423,11 @@ class Remap_Manager extends Asset
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'lv');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
-		$sql .= $where.' LIMIT 1';
+		$sql .= $where;
+		$sql = $db->modifyLimitQuery($sql, 0, 1);
 
 		$result = $db->getRow($sql);
-
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
-			return $null;
-		}
+		assert_valid_db_result($result);
 
 		if ($result) {
 			return $GLOBALS['SQ_SYSTEM']->am->getAsset($result['designid'], $result['type_code']);
