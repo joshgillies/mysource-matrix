@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.53 2005/04/12 07:35:05 ndvries Exp $
+* $Id: page_asset_builder.inc,v 1.54 2005/04/12 23:07:34 ndvries Exp $
 *
 */
 
@@ -37,7 +37,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.53 $
+* @version $Revision: 1.54 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -771,8 +771,8 @@ class Page_Asset_Builder extends Page
 		$this->_replacements['created_asset_name']			= $this->_tmp['created_asset']->name;
 		$this->_replacements['created_asset_short_name']	= $this->_tmp['created_asset']->short_name;
 		$this->_replacements['created_asset_url']			= $this->_tmp['created_asset']->getURL();
-		$this->_replacements['created_asset_edit']			= $this->_tmp['created_asset']->getURL().'/_edit/';
-		$this->_replacements['created_asset_backend']		= $this->_tmp['created_asset']->getBackendHref('details');
+		$this->_replacements['created_asset_edit']			= $this->_tmp['created_asset']->getURL().'/_edit';
+		$this->_replacements['created_asset_backend']		= sq_web_path('root_url').'/'.$this->_tmp['created_asset']->getBackendHref('contents');
 
 	}//end _loadAssetReplacements()
 
