@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: transaction_manager.inc,v 1.15 2005/04/06 23:05:34 mmcintyre Exp $
+* $Id: transaction_manager.inc,v 1.16 2005/04/12 03:55:55 gsherwood Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *    Also to handle nested transaction calls
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix
 */
 class Transaction_Manager extends MySource_Object
@@ -66,7 +66,7 @@ class Transaction_Manager extends MySource_Object
 	/**
 	* Returns whether we are in a transaction or not
 	*
-	* @param $db_name	The name of the database object in the $GLOBALS['SQ_SYSTEM'] object
+	* @param string	$db_name	the name of the database object in the $GLOBALS['SQ_SYSTEM'] object
 	*
 	* @return boolean
 	* @access public
@@ -80,17 +80,21 @@ class Transaction_Manager extends MySource_Object
 
 	/**
 	* Begins a transaction
+	*
 	* Only does a real begin if this is the first begin
 	*
-	* @param $db_name	The name of the database object in the $GLOBALS['SQ_SYSTEM'] object
+	* @param string	$db_name	the name of the database object in the $GLOBALS['SQ_SYSTEM'] object
 	*
 	* @return boolean
 	* @access public
 	*/
 	function begin($db_name)
 	{
-		if (isset($this->_levels[$db_name])) $this->_levels[$db_name]++;
-		else $this->_levels[$db_name] = 1;
+		if (isset($this->_levels[$db_name])) {
+			$this->_levels[$db_name]++;
+		} else {
+			$this->_levels[$db_name] = 1;
+		}
 
 		if ($this->_levels[$db_name] == 1) {
 			if ($GLOBALS['SQ_SYSTEM']->db->phptype != 'oci8') {
@@ -106,16 +110,21 @@ class Transaction_Manager extends MySource_Object
 
 	/**
 	* Commits a transaction
+	*
 	* Only does a real commit if this is the last commit
 	*
-	* @param $db_name	The name of the database object in the $GLOBALS['SQ_SYSTEM'] object
+	* @param string	$db_name	the name of the database object in the $GLOBALS['SQ_SYSTEM'] object
 	*
 	* @return boolean
 	* @access public
 	*/
 	function commit($db_name)
 	{
-		if ($GLOBALS['SQ_SYSTEM']->db->phptype == 'oci8') return true;
+		// oracle does not issue COMMIT queries
+		if ($GLOBALS['SQ_SYSTEM']->db->phptype == 'oci8') {
+			return true;
+		}
+
 		if (empty($this->_levels[$db_name])) {
 			trigger_error('Unable to Commit, No Transaction is Open', E_USER_WARNING);
 			return false;
@@ -139,9 +148,10 @@ class Transaction_Manager extends MySource_Object
 
 	/**
 	* Rolls back all open transactions
+	*
 	* Only does a real rollback if this is the last rollback
 	*
-	* @param $db_name	The name of the database object in the $GLOBALS['SQ_SYSTEM'] object
+	* @param string	$db_name	the name of the database object in the $GLOBALS['SQ_SYSTEM'] object
 	*
 	* @return boolean
 	* @access public
