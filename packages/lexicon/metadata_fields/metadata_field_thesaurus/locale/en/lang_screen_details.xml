@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.1 2005/03/30 00:42:02 lwright Exp $
+* $Id: lang_screen_details.xml,v 1.2 2005/04/12 02:11:30 arailean Exp $
 *
 */
 -->
@@ -44,6 +44,14 @@
 			<display_name>Source Thesaurus Asset</display_name>
 			<note />
 		</field>
+		<field attribute="allow_manual">
+			<display_name>Allow Manual Input</display_name>
+			<note>Whether to allow for manual input of this field</note>
+		</field>
+		<field attribute="force_thesaurus">
+			<display_name>Force Thesaurus</display_name>
+			<note>If set to true will only accept values from the thesaurus, to be used with "Allow Manual Input"</note>
+		</field>
 	</section>
 
 	<section name="Options">
@@ -68,14 +76,5 @@
 			</function_call>
 		</field>
 	</section>
-	<section name="Thesaurus Settings">
-		<field attribute="allow_manual">
-			<display_name>Allow Manual Input</display_name>
-			<note>Whether to allow for manual input of this field</note>
-		</field>
-		<field attribute="force_thesaurus">
-			<display_name>Force Thesaurus</display_name>
-			<note>If set to true will only accept values from the thesaurus, to be used with "Allow Manual Input"</note>
-		</field>
-	</section>
+
 </contents>
