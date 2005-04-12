@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager.inc,v 1.48 2005/04/06 23:05:34 mmcintyre Exp $
+* $Id: cron_manager.inc,v 1.49 2005/04/12 11:24:16 brobertson Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.48 $
+* @version $Revision: 1.49 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -488,12 +488,8 @@ class Cron_Manager extends Asset
 						$cron_job = &$am->getAsset($job_info['assetid'], $job_info['type_code']);
 						if (is_null($cron_job)) continue;
 
-						echo "RUN    : ".$cron_job->id.' .... '.$cron_job->name."\n";
-
 						$result = $cron_job->run();
-
 						require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-						echo "RESULT : ".$result.' .... '.implode(', ', get_bit_names('SQ_CRON_JOB_', $result, true))."\n\n";
 
 						// we have been asked to remove this cron job
 						if ($result & SQ_CRON_JOB_REMOVE) {
