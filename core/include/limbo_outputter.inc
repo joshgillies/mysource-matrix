@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: limbo_outputter.inc,v 1.14 2005/02/23 05:14:15 gsherwood Exp $
+* $Id: limbo_outputter.inc,v 1.15 2005/04/12 07:35:04 ndvries Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/backend_outputter.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix
 */
 class Limbo_Outputter extends Backend_Outputter
@@ -122,12 +122,13 @@ class Limbo_Outputter extends Backend_Outputter
 			}
 		}
 
-		$this->_paintCssInclude($this->filesPath('css/edit.css'));
+		$this->addCssInclude($this->filesPath('css/edit.css'));
 		foreach ($this->_css_includes as $file) $this->_paintCssInclude($file);
 
-		$this->_paintJsInclude(sq_web_path('lib').'/html_form/html_form.js');
-		$this->_paintJsInclude(sq_web_path('lib').'/js/debug.js');
-		$this->_paintJsInclude(sq_web_path('lib').'/js/edit.js');
+		$this->addJsInclude(sq_web_path('lib').'/html_form/html_form.js');
+		$this->addJsInclude(sq_web_path('lib').'/js/general.js');
+		$this->addJsInclude(sq_web_path('lib').'/js/debug.js');
+		$this->addJsInclude(sq_web_path('lib').'/js/edit.js');
 		foreach ($this->_js_includes as $file) $this->_paintJsInclude($file);
 
 		?>

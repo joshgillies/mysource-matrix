@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_backend_outputter.inc,v 1.9 2005/03/23 22:57:15 ndvries Exp $
+* $Id: hipo_backend_outputter.inc,v 1.10 2005/04/12 07:35:04 ndvries Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_SYSTEM_ROOT.'/core/include/backend_outputter.inc';
 *    suite hipo jobs
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix
 */
 class Hipo_Backend_Outputter extends Backend_Outputter
@@ -96,14 +96,14 @@ class Hipo_Backend_Outputter extends Backend_Outputter
 				<title>HIPO Processing</title>
 				<?php
 
-				$this->_paintCssInclude($this->filesPath('css/edit.css'));
-				$this->_paintCssInclude($this->filesPath('css/hipo.css'));
+				$this->addCssInclude($this->filesPath('css/edit.css'));
+				$this->addCssInclude($this->filesPath('css/hipo.css'));
 				foreach ($this->_css_includes as $file) $this->_paintCssInclude($file);
 
-				$this->_paintJsInclude(sq_web_path('lib').'/html_form/html_form.js');
-				$this->_paintJsInclude(sq_web_path('lib').'/js/general.js');
-				$this->_paintJsInclude(sq_web_path('lib').'/js/debug.js');
-				$this->_paintJsInclude(sq_web_path('lib').'/js/edit.js');
+				$this->addJsInclude(sq_web_path('lib').'/html_form/html_form.js');
+				$this->addJsInclude(sq_web_path('lib').'/js/general.js');
+				$this->addJsInclude(sq_web_path('lib').'/js/debug.js');
+				$this->addJsInclude(sq_web_path('lib').'/js/edit.js');
 				foreach ($this->_js_includes as $file) $this->_paintJsInclude($file);
 				?>
 				<script language="Javascript" type="text/javascript">

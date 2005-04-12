@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.101 2005/03/28 23:11:25 gsherwood Exp $
+* $Id: backend_outputter.inc,v 1.102 2005/04/12 07:35:04 ndvries Exp $
 *
 */
 
@@ -42,7 +42,7 @@ define('SQ_BO_MSG_ERROR',   4);
 *    there will only ever be one instance of this object
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.101 $
+* @version $Revision: 1.102 $
 * @package MySource_Matrix
 */
 class Backend_Outputter
@@ -961,13 +961,13 @@ class Backend_Outputter
 			<title><?php echo $this->_heading; ?></title>
 			<?php
 
-			$this->_paintCssInclude($this->filesPath('css/edit.css'));
+			$this->addCssInclude($this->filesPath('css/edit.css'));
 			foreach ($this->_css_includes as $file) $this->_paintCssInclude($file);
 
-			$this->_paintJsInclude(sq_web_path('lib').'/html_form/html_form.js');
-			$this->_paintJsInclude(sq_web_path('lib').'/js/general.js');
-			$this->_paintJsInclude(sq_web_path('lib').'/js/debug.js');
-			$this->_paintJsInclude(sq_web_path('lib').'/js/edit.js');
+			$this->addJsInclude(sq_web_path('lib').'/html_form/html_form.js');
+			$this->addJsInclude(sq_web_path('lib').'/js/general.js');
+			$this->addJsInclude(sq_web_path('lib').'/js/debug.js');
+			$this->addJsInclude(sq_web_path('lib').'/js/edit.js');
 			foreach ($this->_js_includes as $file) $this->_paintJsInclude($file);
 		?>
 			<script language="Javascript" type="text/javascript">

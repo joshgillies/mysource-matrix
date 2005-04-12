@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.85 2005/04/11 05:27:02 mmcintyre Exp $
+* $Id: design.inc,v 1.86 2005/04/12 07:35:03 ndvries Exp $
 *
 */
 
@@ -32,12 +32,13 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.85 $
+* @version $Revision: 1.86 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Design extends Design_Area
 {
+
 
 	/**
 	* Constructor
@@ -85,13 +86,20 @@ class Design extends Design_Area
 	*/
 	function _getAllowedLinks()
 	{
-		return Array(SQ_LINK_TYPE_1 => Array('design_css'              	=> Array('card' => 'M', 'exclusive' => false)),
-					 SQ_LINK_TYPE_2 => Array('design_customisation' 	=> Array('card' => 'M', 'exclusive' => false),
-											 'design_css'              	=> Array('card' => 'M', 'exclusive' => false),
- 											 'file'                 	=> Array('card' => 'M', 'exclusive' => false)),
-					 SQ_LINK_TYPE_3 => Array('design_area'          	=> Array('card' => 'M', 'exclusive' => false)),
-					 SQ_LINK_NOTICE => Array()
-					);
+		return Array(
+				SQ_LINK_TYPE_1	=> Array(
+									'design_css'	=> Array('card'	=> 'M', 'exclusive'	=> false),
+								   ),
+				SQ_LINK_TYPE_2	=> Array(
+									'design_customisation'	=> Array('card'	=> 'M', 'exclusive'	=> false),
+									'design_css'			=> Array('card'	=> 'M', 'exclusive'	=> false),
+									'file'					=> Array('card'	=> 'M', 'exclusive'	=> false),
+								   ),
+				SQ_LINK_TYPE_3	=> Array(
+									'design_area'	=> Array('card'	=> 'M', 'exclusive' => false),
+								   ),
+				SQ_LINK_NOTICE	=> Array(),
+			   );
 
 	}//end _getAllowedLinks()
 
@@ -506,7 +514,6 @@ echo '<!--   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
   (c) Copyright <?php echo date(\'Y\') ?>. All rights reserved.
   Page generated: <?php echo date(\'d F Y\')."\n"; ?>
 -->
-<script type="text/javascript" src="<?php echo sq_web_path(\'lib\'); ?>/js/general.js"></script>
 
 <?php
 if (!empty($SQ_PRIMARY_URL)) {

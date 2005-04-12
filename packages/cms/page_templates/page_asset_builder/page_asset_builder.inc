@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.52 2005/04/11 02:29:27 tbarrett Exp $
+* $Id: page_asset_builder.inc,v 1.53 2005/04/12 07:35:05 ndvries Exp $
 *
 */
 
@@ -37,7 +37,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.52 $
+* @version $Revision: 1.53 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -767,10 +767,12 @@ class Page_Asset_Builder extends Page
 	*/
 	function _loadAssetReplacements()
 	{
-		$this->_replacements['created_assetid']          = $this->_tmp['created_asset']->id;
-		$this->_replacements['created_asset_name']       = $this->_tmp['created_asset']->name;
-		$this->_replacements['created_asset_short_name'] = $this->_tmp['created_asset']->short_name;
-		$this->_replacements['created_asset_url']        = $this->_tmp['created_asset']->getURL();
+		$this->_replacements['created_assetid']				= $this->_tmp['created_asset']->id;
+		$this->_replacements['created_asset_name']			= $this->_tmp['created_asset']->name;
+		$this->_replacements['created_asset_short_name']	= $this->_tmp['created_asset']->short_name;
+		$this->_replacements['created_asset_url']			= $this->_tmp['created_asset']->getURL();
+		$this->_replacements['created_asset_edit']			= $this->_tmp['created_asset']->getURL().'/_edit/';
+		$this->_replacements['created_asset_backend']		= $this->_tmp['created_asset']->getBackendHref('details');
 
 	}//end _loadAssetReplacements()
 
@@ -792,10 +794,10 @@ class Page_Asset_Builder extends Page
 
 			require_once SQ_INCLUDE_PATH.'/limbo_outputter.inc';
 			$o = new Limbo_Outputter();
-			$o->_paintJsInclude(sq_web_path('lib').'/js/general.js');
-			$o->_paintJsInclude(sq_web_path('lib').'/html_form/html_form.js');
-			$o->_paintJsInclude(sq_web_path('lib').'/js/debug.js');
-			$o->_paintJsInclude(sq_web_path('lib').'/js/edit.js');
+			$o->addJsInclude(sq_web_path('lib').'/html_form/html_form.js');
+			$o->addJsInclude(sq_web_path('lib').'/js/general.js');
+			$o->addJsInclude(sq_web_path('lib').'/js/debug.js');
+			$o->addJsInclude(sq_web_path('lib').'/js/edit.js');
 
 
 			// print the create interface for the asset
@@ -1000,10 +1002,12 @@ class Page_Asset_Builder extends Page
 		if (!isset($vars['keywords'])) return;
 
 		$keywords = $this->_available_keywords;
-		$keywords['created_assetid']          = 'Created Asset ID';
-		$keywords['created_asset_name']       = 'Created Asset Name';
-		$keywords['created_asset_short_name'] = 'Created Asset Short Name';
-		$keywords['created_asset_url']        = 'Created Asset URL';
+		$keywords['created_assetid']			= 'Created Asset ID';
+		$keywords['created_asset_name']			= 'Created Asset Name';
+		$keywords['created_asset_short_name']	= 'Created Asset Short Name';
+		$keywords['created_asset_url']			= 'Created Asset URL';
+		$keywords['created_asset_edit']			= 'Created Asset Edit URL';
+		$keywords['created_asset_backend']		= 'Created Asset Backend URL';
 
 		$vars['keywords'] = array_merge($vars['keywords'], $keywords);
 		$vars['keywords'] = array_merge($vars['keywords'], $this->getSelectableLocationKeywords());
