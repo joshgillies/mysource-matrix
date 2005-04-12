@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type.inc,v 1.60 2005/02/21 19:21:05 brobertson Exp $
+* $Id: design_area_menu_type.inc,v 1.61 2005/04/12 00:15:43 mmcintyre Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.60 $
+* @version $Revision: 1.61 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -48,11 +48,12 @@ class Design_Area_Menu_Type extends Design_Area
 	*/
 	function _getAllowedLinks()
 	{
-		return Array(SQ_LINK_TYPE_1 => Array(),
-					 SQ_LINK_TYPE_2 => Array(),
-					 SQ_LINK_TYPE_3 => Array(),
-					 SQ_LINK_NOTICE => Array('design_area_menu_type' => Array('card' => 'M', 'exclusive' => false))
-					);
+		return Array(
+				SQ_LINK_TYPE_1	=> Array(),
+				SQ_LINK_TYPE_2	=> Array(),
+				SQ_LINK_TYPE_3	=> Array(),
+				SQ_LINK_NOTICE	=> Array('design_area_menu_type' => Array('card' => 'M', 'exclusive' => false)),
+			   );
 
 	}//end _getAllowedLinks()
 
@@ -417,7 +418,7 @@ class Design_Area_Menu_Type extends Design_Area
 						     INNER JOIN \'.SQ_TABLE_RUNNING_PREFIX.\'ast_perm p ON a.assetid = p.assetid \';
 				}
 				$where  = \'l.majorid IN (\'.substr($majorids_str, 0, -1).\')
-						     AND (l.link_type & \'.$db->quote(SQ_SC_LINK_FRONTEND_NAV).\') > 0 \';
+						     AND \'.db_extras_bitand($db, \'l.link_type\', SQ_SC_LINK_FRONTEND_NAV).\' > 0 \';
 				$where  = $GLOBALS[\'SQ_SYSTEM\']->constructRollbackWhereClause($where, \'a\');
 				$where  = $GLOBALS[\'SQ_SYSTEM\']->constructRollbackWhereClause($where, \'l\');
 				if (!empty($USERIDS_COND)) {
