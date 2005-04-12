@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: news_item.inc,v 1.10 2005/04/11 06:31:03 amiller Exp $
+* $Id: news_item.inc,v 1.11 2005/04/12 03:25:36 amiller Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * Purpose
 *
 * @author  Avi Miller <amiller@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -266,15 +266,15 @@ class News_Item extends Page
 			if (is_null($link_asset)) {
 				$link_url = $this->attr('link_url');
 				if (!empty($link_url)) {
-					$url = 'http://'.trim($this->attr('link_url')).'?'.trim($this->attr('url_suffix'));
+					$url = trim($this->attr('link_url')).'?'.trim($this->attr('url_suffix'));
 				}
 			} else {
 				$url = $link_asset->getURL();
 				if (empty($url)) $url = current_url().'?a='.$link_asset->id;
 			}
 			if (empty($url)) {
-				// no URL or Asset, so just display the Asset name
-				$keywords['asset_name_linked_to_link_url']['value'] = $this->attr('name');
+				// no URL or Asset, so link to the asset itself
+				$keywords['asset_name_linked_to_link_url']['value'] = '<a href="'.$this->getURL().'">'.$this->attr('name').'</a>';
 			} else {
 				$keywords['asset_name_linked_to_link_url']['value'] = '<a href="'.$url.'">'.$this->attr('name').'</a>';
 			}
