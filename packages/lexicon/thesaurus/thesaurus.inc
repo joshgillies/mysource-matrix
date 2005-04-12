@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.10 2005/04/06 23:09:43 mmcintyre Exp $
+* $Id: thesaurus.inc,v 1.11 2005/04/12 00:55:27 arailean Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Dmitry Baranovskiy <dbaranovskiy@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage lexicon
 */
@@ -281,13 +281,15 @@ class Thesaurus extends Asset
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$sql = "SELECT id, name, description FROM !lex_thes_ent WHERE thes_id = ?";
-		$data = Array(
-			'sq_',
-			$this->id,
-		);
+		$sql = '
+			SELECT
+				id, name, description
+			FROM
+				sq_lex_thes_ent
+			WHERE
+				thes_id = '.$db->quoteSmart($this->id);
 
-		$result = $db->getAll($sql, $data);
+		$result = $db->getAll($sql);
 
 		assert_valid_db_result($result);
 		return $result;
@@ -305,13 +307,15 @@ class Thesaurus extends Asset
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$sql = "SELECT count(*) FROM !lex_thes_ent WHERE thes_id = ?";
-		$data = Array(
-			'sq_',
-			$this->id,
-		);
+		$sql = '
+			SELECT
+				count(*)
+			FROM
+				sq_lex_thes_ent
+			WHERE
+				thes_id = '.$db->quoteSmart($this->id);
 
-		$result = $db->getOne($sql, $data);
+		$result = $db->getOne($sql);
 
 		assert_valid_db_result($result);
 		return $result;
@@ -328,21 +332,24 @@ class Thesaurus extends Asset
 	*/
 	function searchEntities($guess='')
 	{
-		if (empty($guess))
+		if (empty($guess)) {
 			return Array();
+		}
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$sql = "SELECT id, name, description FROM !lex_thes_ent WHERE thes_id = ? AND name ILIKE '%!%'";
-		$data = Array(
-			'sq_',
-			$this->id,
+		$sql = '
+			SELECT
+				id, name, description
+			FROM
+				sq_lex_thes_ent
+			WHERE
+					thes_id = '.$db->quoteSmart($this->id).'
+				AND
+					name ILIKE \'%'.$db->escapeSimple($guess).'%\'
+			';
 
-			$db->escapeSimple($guess),
-		);
-
-		$result = $db->getAll($sql, $data);
-
+		$result = $db->getAll($sql);
 		assert_valid_db_result($result);
 		return $result;
 
@@ -364,15 +371,16 @@ class Thesaurus extends Asset
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$sql = 'SELECT id, name, description FROM !lex_thes_ent WHERE thes_id = ? AND id = ? ';
+		$sql = '
+			SELECT
+				id, name, description
+			FROM
+				sq_lex_thes_ent
+			WHERE
+				thes_id = '.$db->quoteSmart($this->id).'
+				AND id = '.$db->quoteSmart($entity_id);
 
-		$data = Array(
-			'sq_',
-			$this->id,
-			$entity_id,
-		);
-
-		$result = $db->getRow($sql, $data);
+		$result = $db->getRow($sql);
 
 		assert_valid_db_result($result);
 		return $result;
@@ -395,17 +403,16 @@ class Thesaurus extends Asset
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$sql = 'SELECT id, name, description FROM !lex_thes_ent WHERE thes_id = ? AND name = ? ';
+		$sql = '
+			SELECT
+				id, name, description
+			FROM
+				sq_lex_thes_ent
+			WHERE
+				thes_id = '.$db->quoteSmart($this->id).'
+				AND name = '.$db->quoteSmart($name);
 
-		$data = Array(
-			'sq_',
-			$this->id,
-
-			$name,
-		);
-
-		$result = $db->getRow($sql, $data);
-
+		$result = $db->getRow($sql);
 		assert_valid_db_result($result);
 		return $result;
 
@@ -430,39 +437,29 @@ class Thesaurus extends Asset
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = '
-
 			SELECT DISTINCT
 				e.id,
 				e.name,
 				e.description
 			FROM
-				!lex_thes_ent_rel er,
-				!lex_thes_ent e
+				sq_lex_thes_ent_rel er,
+				sq_lex_thes_ent e
 			WHERE
-					er.thes_id  = ?
+					er.thes_id  = '.$db->quoteSmart($this->id).'
 				AND
-					er.rel_id   = ?
+					er.rel_id   = '.$db->quoteSmart($relation_id).'
 				AND
 					e.thes_id   = er.thes_id
 				AND
 					e.id         = er.cld_ent_id
 		';
 
-		$data = Array(
-			'sq_',
-			'sq_',
-			$this->id,
-
-			$relation_id,
-		);
-
 		// restrict the result to only the children of a given parent
 		if (!empty($parent_id)) {
-			$sql .= " and er.pnt_ent_id = ?";
-			$data[] = $parent_id;
+			$sql .= ' AND er.pnt_ent_id = '.$db->quoteSmart($parent_id);
 		}
 
-		$result = $db->getAll($sql, $data);
+		$result = $db->getAll($sql);
 
 		assert_valid_db_result($result);
 		return $result;
@@ -489,21 +486,22 @@ class Thesaurus extends Asset
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$sql = ' SELECT COUNT(*) FROM !lex_thes_ent_rel WHERE "thes_id"  = ? AND "rel_id"   = ? ';
-
-		$data = Array(
-			'sq_',
-			$this->id,
-			$relation_id,
-		);
+		$sql = '
+			SELECT
+				COUNT(*)
+			FROM
+				sq_lex_thes_ent_rel
+			WHERE
+					thes_id  = '.$db->quoteSmart($this->id).'
+				AND
+					rel_id   = '.$db->quoteSmart($relation_id);
 
 		// restrict the result to only the children of a given parent
 		if (!empty($parent_id)) {
-			$sql .= ' AND "pnt_ent_id" = ?';
-			$data[] = $parent_id;
+			$sql .= ' AND pnt_ent_id = '.$db->quoteSmart($parent_id);
 		}
 
-		$result = $db->getOne($sql, $data);
+		$result = $db->getOne($sql);
 
 		assert_valid_db_result($result);
 		return $result;
@@ -538,12 +536,12 @@ class Thesaurus extends Asset
 				e.name,
 				e.description
 			FROM
-				!lex_thes_ent_rel er,
-				!lex_thes_ent e
+				sq_lex_thes_ent_rel er,
+				sq_lex_thes_ent e
 			WHERE
-					er.thes_id  = ?
+					er.thes_id  = '.$db->quoteSmart($this->id).'
 				AND
-					er.rel_id   = ?
+					er.rel_id   = '.$db->quoteSmart($relation_id).'
 				AND
 					e.thes_id   = er.thes_id
 				AND
@@ -551,18 +549,9 @@ class Thesaurus extends Asset
 
 		';
 
-		$data = Array(
-			'sq_',
-			'sq_',
-			$this->id,
-
-			$relation_id,
-		);
-
 		// restrict the result to only the parents of a given child
 		if (!empty($child_id)) {
-			$sql .= " and er.cld_ent_id = ?";
-			$data[] = $child_id;
+			$sql .= ' AND er.cld_ent_id = '.$db->quoteSmart($child_id);
 		}
 
 		$result = $db->getAll($sql, $data);
@@ -595,25 +584,17 @@ class Thesaurus extends Asset
 				r.id,
 				r.name
 			FROM
-				!lex_thes_rel r,
-				!lex_thes_ent_rel er
+				sq_lex_thes_rel r,
+				sq_lex_thes_ent_rel er
 			WHERE
-					r.thes_id     = ?
+					r.thes_id     = '.$db->quoteSmart($this->id).'
 				AND
-					er.cld_ent_id = ?
+					er.cld_ent_id = '.$db->quoteSmart($child_entity_id).'
 				AND
 					er.thes_id    = r.thes_id
 				AND
 					er.reln_id    = r.id
 		';
-
-		$data = Array(
-			'sq_',
-			'sq_',
-			$this->id,
-
-			$child_entity_id,
-		);
 
 		$result = $db->getAll($sql, $data);
 
@@ -641,16 +622,17 @@ class Thesaurus extends Asset
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$sql = "SELECT count(rel_id) FROM !lex_thes_ent_rel WHERE  thes_id = ? AND cld_ent_id = ?";
+		$sql = '
+			SELECT
+				COUNT(rel_id)
+			FROM
+				sq_lex_thes_ent_rel
+			WHERE
+					thes_id = '.$db->quoteSmart($this->id).'
+				AND
+					cld_ent_id = '.$db->quoteSmart($child_entity_id);
 
-		$data = Array(
-			'sq_',
-			$this->id,
-
-			$child_entity_id,
-		);
-
-		$result = $db->getOne($sql, $data);
+		$result = $db->getOne($sql);
 
 		assert_valid_db_result($result);
 		return $result;
@@ -676,16 +658,17 @@ class Thesaurus extends Asset
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$sql = 'SELECT count(rel_id) FROM !lex_thes_ent_rel WHERE "thes_id" = ? AND "pnt_ent_id" = ?';
+		$sql = '
+			SELECT
+				count(rel_id)
+			FROM
+				sq_lex_thes_ent_rel
+			WHERE
+					thes_id = '.$db->quoteSmart($this->id).'
+				AND
+					pnt_ent_id = '.$db->quoteSmart($parent_entity_id);
 
-		$data = Array(
-			'sq_',
-			$this->id,
-
-			$parent_entity_id,
-		);
-
-		$result = $db->getOne($sql, $data);
+		$result = $db->getOne($sql);
 
 		assert_valid_db_result($result);
 		return $result;
@@ -711,20 +694,17 @@ class Thesaurus extends Asset
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$table_prefix = 'sq_';
-
 		$sql ='
-
 			SELECT DISTINCT
 				r.id,
 				r.name
 			FROM
-				!lex_thes_rel r,
-				!lex_thes_ent_rel er
+				sq_lex_thes_rel r,
+				sq_lex_thes_ent_rel er
 			WHERE
-					r.thes_id     = ?
+					r.thes_id     = '.$db->quoteSmart($this->id).'
 				AND
-					er.pnt_ent_id = ?
+					er.pnt_ent_id = '.$db->quoteSmart($parent_entity_id).'
 				AND
 					er.thes_id    = r.thes_id
 				AND
@@ -732,15 +712,7 @@ class Thesaurus extends Asset
 
 		';
 
-		$data = Array(
-			'sq_',
-			'sq_',
-			$this->id,
-
-			$parent_entity_id,
-		);
-
-		$result = $db->getAll($sql, $data);
+		$result = $db->getAll($sql);
 
 		assert_valid_db_result($result);
 		return $result;
@@ -759,13 +731,15 @@ class Thesaurus extends Asset
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$sql = 'SELECT id, name FROM !lex_thes_rel where "thes_id" = ?';
-		$data = Array(
-			'sq_',
-			$this->id,
-		);
+		$sql = '
+			SELECT
+				id, name
+			FROM
+				sq_lex_thes_rel
+			WHERE
+				thes_id = '.$db->quoteSmart($this->id);
 
-		$result = $db->getAll($sql, $data);
+		$result = $db->getAll($sql);
 
 		assert_valid_db_result($result);
 		return $result;
@@ -784,13 +758,15 @@ class Thesaurus extends Asset
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$sql = "SELECT count(*) FROM !lex_thes_rel where thes_id = ?";
-		$data = Array(
-			'sq_',
-			$this->id,
-		);
+		$sql = '
+			SELECT
+				count(*)
+			FROM
+				sq_lex_thes_rel
+			WHERE
+				thes_id = '.$db->quoteSmart($this->id);
 
-		$result = $db->getOne($sql, $data);
+		$result = $db->getOne($sql);
 
 		assert_valid_db_result($result);
 		return $result;
@@ -814,16 +790,17 @@ class Thesaurus extends Asset
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$sql = "SELECT id, name FROM !lex_thes_rel WHERE thes_id = ? AND id = ?";
+		$sql = '
+			SELECT
+				id, name
+			FROM
+				sq_lex_thes_rel
+			WHERE
+					thes_id = '.$db->quoteSmart($this->id).'
+				AND
+					id = '.$db->quoteSmart($id);
 
-		$data = Array(
-			'sq_',
-			$this->id,
-
-			$id,
-		);
-
-		$result = $db->getRow($sql, $data);
+		$result = $db->getRow($sql);
 
 		assert_valid_db_result($result);
 		return $result;
@@ -856,18 +833,20 @@ class Thesaurus extends Asset
 			// then check the database
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-			$sql = "SELECT id, name FROM !lex_thes_rel WHERE thes_id = ? AND name = ?";
+			$sql = '
+				SELECT
+					id, name
+				FROM
+					sq_lex_thes_rel
+				WHERE
+						thes_id = '.$db->quoteSmart($this->id).'
+					AND
+						name = '.$db->quoteSmart($name);
 
-			$data = Array(
-				'sq_',
-				$this->id,
-
-				$name,
-			);
-
-			$result = $db->getRow($sql, $data);
+			$result = $db->getRow($sql);
 
 			assert_valid_db_result($result);
+
 			// if relation exists, cache it
 			if (!empty($result)) {
 				$relations[$name] = $result['id'];
@@ -908,13 +887,13 @@ class Thesaurus extends Asset
 				e2.name,
 				e2.description
 			FROM
-				!lex_thes_ent e1,
-				!lex_thes_ent e2,
-				!lex_thes_ent_rel er
+				sq_lex_thes_ent e1,
+				sq_lex_thes_ent e2,
+				sq_lex_thes_ent_rel er
 			WHERE
-					er.thes_id = ?
+					er.thes_id = '.$db->quoteSmart($this->id).'
 				AND
-					er.rel_id  = ?
+					er.rel_id  = '.$db->quoteSmart($relation_id).'
 				AND
 					e1.id      = er.pnt_ent_id
 				AND
@@ -926,18 +905,8 @@ class Thesaurus extends Asset
 
 		';
 
-		$data = Array(
-			'sq_',
-			'sq_',
-			'sq_',
-			$this->id,
-
-			$relation_id,
-		);
-
-		$result = $db->getAll($sql, $data, DB_FETCHMODE_ORDERED);
-
-		// check that result is not an error
+		$db->setFetchMode(DB_FETCHMODE_ASSOC);
+		$result = $db->getAll($sql);
 		assert_valid_db_result($result);
 
 		// assemble an array of entity tuples ((entity, entity),...)
@@ -978,20 +947,13 @@ class Thesaurus extends Asset
 		$id = $db->nextId('sq_lex_thes_ent_id');
 		assert_valid_db_result($id);
 
-		$sql = 'INSERT INTO !lex_thes_ent ("thes_id", "id", "name", "description") VALUES (?,?,?,?)';
+		$sql = '
+			INSERT INTO sq_lex_thes_ent
+				(thes_id, id, name, description)
+			VALUES
+				('.$db->quoteSmart($this->id).','.$db->quoteSmart($id).','.$db->quoteSmart($name).','.$db->quoteSmart($description).')';
 
-		$data = Array(
-			'sq_',
-			$this->id,
-
-			$id,
-			$name,
-			$description,
-		);
-
-		$prepared = $db->prepare($sql);
-		$result   = $db->execute($prepared,$data);
-
+		$result = $db->query($sql);
 		assert_valid_db_result($result);
 
 		return $id;
@@ -1018,18 +980,22 @@ class Thesaurus extends Asset
 		$id = $db->nextId('sq_lex_thes_rel_id');
 		assert_valid_db_result($id);
 
-		$sql = 'INSERT INTO !lex_thes_rel ("thes_id", "id", "name") VALUES (?,?,?)';
+		$sql = '
+			INSERT INTO sq_lex_thes_rel
+				(
+					thes_id,
+					id,
+					name
+				)
+			VALUES
+				('.
+					$db->quoteSmart($this->id).','.
+					$db->quoteSmart($id).','.
+					$db->quoteSmart($name).'
+				)
+		';
 
-		$data = Array(
-			'sq_',
-			$this->id,
-
-			$id,
-			$name,
-		);
-
-		$prepared = $db->prepare($sql);
-		$result   = $db->execute($prepared,$data);
+		$result   = $db->query($sql);
 
 		assert_valid_db_result($result);
 
@@ -1064,26 +1030,23 @@ class Thesaurus extends Asset
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$sql ='
-
-			INSERT INTO !lex_thes_ent_rel
-				("thes_id", "pnt_ent_id", "cld_ent_id", "rel_id")
+			INSERT INTO sq_lex_thes_ent_rel
+				(
+					thes_id,
+					pnt_ent_id,
+					cld_ent_id,
+					rel_id
+				)
 			VALUES
-				(?,?,?,?)
-
+				('.
+					$db->quoteSmart($this->id).','.
+					$db->quoteSmart($parent_id).','.
+					$db->quoteSmart($child_id).','.
+					$db->quoteSmart($relation_id).'
+				)
 		';
 
-		$data = Array(
-			'sq_',
-			$this->id,
-
-			$parent_id,
-			$child_id,
-			$relation_id,
-		);
-
-		$prepared = $db->prepare($sql);
-		$result   = $db->execute($prepared,$data);
-
+		$result   = $db->query($sql);
 		assert_valid_db_result($result);
 
 		return true;
@@ -1124,45 +1087,39 @@ class Thesaurus extends Asset
 		}
 
 		$sql ='
-
 			SELECT
-				"id",
-				"name",
-				"description"
+				id,
+				name,
+				description
 			FROM
-				!lex_thes_ent
+				sq_lex_thes_ent
 			WHERE
-				"id" IN (
+				id IN (
 					SELECT DISTINCT
-						"pnt_ent_id"
+						pnt_ent_id
 					FROM
-						!lex_thes_ent_rel
+						sq_lex_thes_ent_rel
 					WHERE
-						"thes_id" = ?
-						AND "rel_id" = ?
-						AND "pnt_ent_id" NOT IN (
-							SELECT DISTINCT
-								"cld_ent_id"
-							FROM
-								!lex_thes_ent_rel
-							WHERE
-								"thes_id" = ?
-								AND "rel_id" = ?
+							thes_id = '.$db->quoteSmart($this->id).'
+						AND
+							rel_id  = '.$db->quoteSmart($relation_id).'
+						AND
+							pnt_ent_id NOT IN (
+								SELECT DISTINCT
+									cld_ent_id
+								FROM
+									sq_lex_thes_ent_rel
+								WHERE
+										thes_id = '.$db->quoteSmart($this->id).'
+									AND
+										rel_id  = '.$db->quoteSmart($relation_id).'
 						)
 				)
 		';
 
-		$data = Array(
-			'sq_',
-			'sq_',
-			$this->id,
-			$relation_id,
-			'sq_',
-			$this->id,
-			$relation_id,
-		);
+		$result = $db->getAll($sql);
+		assert_valid_db_result($result);
 
-		$result = $db->getAll($sql, $data);
 		return $result;
 
 	}//end getAbsoluteParentsInRelation()
@@ -1196,7 +1153,7 @@ class Thesaurus extends Asset
 	/**
 	* Deletes the contents of the database for this thesaurus
 	*
-	* NOTICE: does not disable the thesaurus
+	* NOTE: does not disable the thesaurus
 	*
 	* @access private
 	* @return boolean
@@ -1206,29 +1163,17 @@ class Thesaurus extends Asset
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = '
-			DELETE FROM !lex_thes_ent     WHERE "thes_id" = ?;
-			DELETE FROM !lex_thes_rel     WHERE "thes_id" = ?;
-			DELETE FROM !lex_thes_ent_rel WHERE "thes_id" = ?;
+			DELETE FROM sq_lex_thes_ent     WHERE thes_id = '.$db->quoteSmart($this->id).';
+			DELETE FROM sq_lex_thes_rel     WHERE thes_id = '.$db->quoteSmart($this->id).';
+			DELETE FROM sq_lex_thes_ent_rel WHERE thes_id = '.$db->quoteSmart($this->id).';
 		';
 
-		$data = Array(
-			'sq_',
-			$this->id,
-			'sq_',
-			$this->id,
-			'sq_',
-			$this->id,
-		);
-
-		$prepared = $db->prepare($sql);
-		$result   = $db->execute($prepared,$data);
-
+		$result   = $db->query($sql);
 		assert_valid_db_result($result);
 
 		return true;
 
 	}//end _deleteStoredContents()
-
 
 
 	/**
@@ -1271,7 +1216,6 @@ class Thesaurus extends Asset
 		return $this->attr('active');
 
 	}//end isActive()
-
 
 
 }//end class
