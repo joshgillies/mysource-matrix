@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_user_agent_edit_fns.inc,v 1.2 2005/02/22 22:03:02 lwright Exp $
+* $Id: condition_user_agent_edit_fns.inc,v 1.3 2005/04/12 11:22:04 brobertson Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition_edit_f
 * @see Asset_Edit_Fns
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -97,7 +97,7 @@ class Condition_User_Agent_Edit_Fns extends Condition_Edit_Fns
 			'condition_data' => Array(
 				'user_agent' => $_POST[$prefix]['compare'],
 			),
-				'match' => $_POST[$prefix]['match'],
+			'match' => $_POST[$prefix]['match'],
 		);
 		
 		return $results;
