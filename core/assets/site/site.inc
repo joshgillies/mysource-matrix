@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.67 2005/04/06 23:05:34 mmcintyre Exp $
+* $Id: site.inc,v 1.68 2005/04/12 00:08:40 mmcintyre Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.67 $
+* @version $Revision: 1.68 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -161,12 +161,8 @@ class Site extends Folder
 			$sql .= $where.'ORDER BY urlid';
 
 			$result = $GLOBALS['SQ_SYSTEM']->db->getAssoc($sql, true, Array(), DB_FETCHMODE_ASSOC);
-			if (DB::isError($result)) {
-				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-				$this->_tmp['urls_info'] = Array();
-			} else {
-				$this->_tmp['urls_info'] = $result;
-			}
+			assert_valid_db_result($result);
+			$this->_tmp['urls_info'] = $result;
 
 		}//end if not cached
 
@@ -266,7 +262,7 @@ class Site extends Folder
 							WHERE
 									urlid	= '.$db->quoteSmart($save_urlid).'
 								AND	assetid	= '.$db->quoteSmart($this->id);
-						
+
 					$result = $db->query($sql);
 					assert_valid_db_result($result);
 					$updated = true;
@@ -276,7 +272,7 @@ class Site extends Folder
 
 				$curr_urlid = $db->nextId('sq_ast_url');
 				assert_valid_db_result($curr_urlid);
-				
+
 				$sql = 'INSERT INTO
 							sq_ast_url
 							(
@@ -315,10 +311,10 @@ class Site extends Folder
 						sq_ast_url
 					WHERE
 						 urlid = '.$db->quote($urlid);
-						
+
 			$result = $db->query($sql);
 			assert_valid_db_result($result);
-			
+
 			$updated = true;
 		}
 
@@ -382,15 +378,15 @@ class Site extends Folder
 								assetid = '.$db->quoteSmart($this->id).'
 						)
 					AND	name LIKE '.$db->quoteSmart('design::%');
-		
+
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
-		
+
 		$sql = 'DELETE FROM
 					sq_ast_lookup
 				WHERE
 					assetid = '.$db->quote($this->id);
-				
+
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
 
@@ -406,7 +402,7 @@ class Site extends Folder
 
 		// if we have urls then do some url inserting
 		for (reset($urls); null !== ($urlid = key($urls)); next($urls)) {
-			
+
 			$sql = 'INSERT INTO
 						sq_ast_lookup
 						(
@@ -424,7 +420,7 @@ class Site extends Folder
 							'.$db->quoteSmart($urls[$urlid]['https']).',
 							'.$db->quoteSmart($urlid).'
 						)';
-			
+
 			$result = $db->query($sql);
 			assert_valid_db_result($result);
 
@@ -444,7 +440,7 @@ class Site extends Folder
 								'.$db->quoteSmart($designid).',
 								'.$db->quoteSmart('0').'
 							)';
-				
+
 				$result = $db->query($sql);
 				assert_valid_db_result($result);
 			}
@@ -539,7 +535,7 @@ class Site extends Folder
 		// Have they set a design name that they want to view ??
 		if (!empty($_GET['SQ_DESIGN_NAME'])) {
 			$design_name = 'design::user::'.$_GET['SQ_DESIGN_NAME'];
-		} elseif (!empty($_SESSION['SQ_DESIGN_NAME'])) {
+		} else if (!empty($_SESSION['SQ_DESIGN_NAME'])) {
 			$design_name = 'design::user::'.$_SESSION['SQ_DESIGN_NAME'];
 		} else {
 			$design_name = 'design::system::frontend';
@@ -560,7 +556,8 @@ class Site extends Folder
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'lv');
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
-			$sql .= $where.' LIMIT 1';
+			$sql .= $where;
+			$sql = $db->modifyLimitQuery($sql, 0, 1);
 
 			$result = $db->getRow($sql);
 			assert_valid_db_result($result);
@@ -665,7 +662,7 @@ class Site extends Folder
 
 		$network_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_SIGNIFICANT, 'site_network', false, 'minor');
 		if (empty($network_links)) return $null;
-		
+
 		$site_network = &$GLOBALS['SQ_SYSTEM']->am->getAsset($network_links[0]['majorid'], $network_links[0]['major_type_code']);
 		return $site_network;
 
