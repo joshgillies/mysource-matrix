@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_install.inc,v 1.14 2005/04/06 23:40:28 mmcintyre Exp $
+* $Id: db_install.inc,v 1.15 2005/04/12 01:31:32 ndvries Exp $
 *
 */
 
@@ -29,7 +29,7 @@
 * @author  Blair Robertson <blair@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -102,7 +102,7 @@ function db_install($xml_file, $verbose=true)
 		// loop through the table columns
 		$table_cols = &$table->children[0]->children;
 		for ($j = 0; $j < count($table_cols); $j++) {
-			
+
 			$table_column = &$table_cols[$j];
 			$column_name  = $table_column->attributes['name'];
 			$allow_null   = (($table_column->attributes['allow_null'] == 1) ? true : false);
@@ -214,7 +214,7 @@ function db_install($xml_file, $verbose=true)
 					echo implode(',', $other_keys);
 				}
 				echo ')';
-				
+
 				// oracle repication requires row dependencies so
 				// that the replicating server knows what order to create
 				// the new entries
@@ -247,14 +247,12 @@ function db_install($xml_file, $verbose=true)
 					if ($db->phptype == 'oci8') {
 						echo ' ROWDEPENDENCIES';
 					}
-					
+
 					$table_sql = ob_get_contents();
 				ob_end_clean();
 
 				$result = $db->query($table_sql);
 				assert_valid_db_result($result);
-				
-				fwrite($fp, $table_sql."\n");
 			}
 
 			//--        TABLE INDEXES        --//
@@ -309,15 +307,15 @@ function db_install($xml_file, $verbose=true)
 				  AND c.relkind = \'S\'
 				  AND NOT EXISTS (SELECT 1 FROM pg_views WHERE viewname = c.relname)
 				  AND c.relname !~ '.$db->quote('^(pg_|sql_)');
-		
+
 		$sequences_in_db = $db->getCol($sql);
 		assert_valid_db_result($sequences_in_db);
 	} else if ($db->phptype == 'oci8') {
 		$sql = 'SELECT sequence_name FROM user_sequences';
-		
+
 		$sequences_in_db = $db->getCol($sql);
 		assert_valid_db_result($sequences_in_db);
-		
+
 		for (reset($sequences_in_db); null !== ($key = key($sequences_in_db)); next($sequences_in_db)) {
 			$sequences_in_db[$key] = strtolower($sequences_in_db[$key]);
 		}
@@ -334,7 +332,7 @@ function db_install($xml_file, $verbose=true)
 	for ($i = 0; $i < count($root->children[1]->children); $i++) {
 		$sequence = &$root->children[1]->children[$i];
 		$sequence_name = $sequence->attributes['name'];
-		
+
 		if (!in_array($sequence_name, $cached_sequences)) $cached_sequences[] = $sequence_name;
 		if (in_array('sq_'.$sequence_name.'_seq', $sequences_in_db)) continue;
 
@@ -348,9 +346,9 @@ function db_install($xml_file, $verbose=true)
 		$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 		return false;
 	}
-	
+
 	if ($verbose) pre_echo('SEQUENCE CREATION COMPLETE');
-	
+
 	// if rollback is enabled, install the rollback triggers
 	// otherwise remove them
 	if (SQ_CONF_ROLLBACK_ENABLED) {
@@ -363,7 +361,7 @@ function db_install($xml_file, $verbose=true)
 	unset($cached_sequences_string);
 	unset($cached_table_columns);
 	unset($cached_table_columns_string);
-	
+
 	$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 	return true;
@@ -393,16 +391,16 @@ function grant_secondary_user_perms($verbose=true)
 			$result = $db->query($grant_sql);
 			assert_valid_db_result($result);
 		}
-		
+
 		if ($verbose) pre_echo('PGSQL SECONDARY USER PERMISSIONS FIXED');
 	}
-	
+
 }//end grant_secondary_user_perms()
 
 
 /**
 * Installs the stored procedures needed by each database type
-* 
+*
 * @param boolean	$verbose	TRUE if we should display messages
 *
 * @return void
@@ -412,12 +410,12 @@ function install_stored_procedures($verbose=true)
 {
 	$db = &$GLOBALS['SQ_SYSTEM']->db;
 	$fns_file = SQ_SYSTEM_ROOT.'/install/'.$db->phptype.'_functions.sql';
-	
+
 	if (file_exists($fns_file)) {
 		$sql = file_get_contents($fns_file);
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
-		
+
 		if ($verbose) pre_echo(strtoupper($db->phptype).' STORED PROCEDURES CREATED');
 	}
 
@@ -434,7 +432,7 @@ function get_installed_rollback_triggers()
 {
 	$db = &$GLOBALS['SQ_SYSTEM']->db;
 	$trigger_like_sql = $db->quote('sq_%_rb_trg');
-	
+
 	if ($db->phptype == 'oci8') {
 		$sql = 'SELECT trigger_name FROM user_triggers WHERE trigger_name';
 		$trigger_like_sql = strtoupper($trigger_like_sql);
@@ -444,7 +442,7 @@ function get_installed_rollback_triggers()
 	$sql .= ' LIKE '.$trigger_like_sql;
 	$triggers = $db->getCol($sql);
 	assert_valid_db_result($triggers);
-	
+
 	return $triggers;
 
 }//end get_installed_rollback_triggers()
@@ -468,17 +466,17 @@ function install_rollback_triggers($table_columns, $verbose=true)
 	$db = &$GLOBALS['SQ_SYSTEM']->db;
 	$curr_triggers      = Array();
 	$installed_triggers = Array();
-	
+
 	// get the current triggers in the system, as we don't want
 	// to try to re-install them as postgres does not support the OR REPLACE
 	// clause when defining triggers
-	
+
 	$curr_triggers = get_installed_rollback_triggers();
-	
+
 	for (reset($curr_triggers); null !== ($key = key($curr_triggers)); next($curr_triggers)) {
 		$curr_triggers[$key] = strtolower($curr_triggers[$key]);
 	}
-	
+
 	foreach ($table_columns as $table_name => $table_info) {
 		// we only care about rollback tables
 		if (!isset($table_info['rollback']) || !$table_info['rollback']) continue;
@@ -499,11 +497,11 @@ function install_rollback_triggers($table_columns, $verbose=true)
 			// if we are oracle make sure that we are not a remote
 			// replication server as the rows will get replicated for us
 			$sql .= 'IF DBMS_REPUTIL.FROM_REMOTE = TRUE THEN RETURN; END IF;';
-			
+
 			// set the timestamp for this session
 			// note that the timestamp is set only once per session
 			$sql .= 'common_pkg.set_timestamp;';
-			
+
 			$if_inserting = 'IF INSERTING THEN ';
 			$if_updating  = 'IF UPDATING THEN ';
 			$if_deleting  = 'IF DELETING THEN ';
@@ -511,21 +509,21 @@ function install_rollback_triggers($table_columns, $verbose=true)
 			$get_timestamp_fn = 'common_pkg.get_timestamp';
 
 		} else if ($db->phptype == 'pgsql') {
-			// if we are postgres then we want to define the trigger to call a 
+			// if we are postgres then we want to define the trigger to call a
 			// procedure, end the trigger and begin the prodecure declaration
 			$sql .= 'EXECUTE PROCEDURE '.$trigger_name.'_fn();';
-			
-			// because postgres triggers can only execute a trigger function, we need to 
+
+			// because postgres triggers can only execute a trigger function, we need to
 			// store the actual trigger and execute it AFTER the creation of the trigger function
 			$trigger_sql = $sql;
 			$sql  = '';
 			$sql .= 'CREATE OR REPLACE FUNCTION '.$trigger_name."_fn() RETURNS trigger AS '";
 			$sql .= ' DECLARE BEGIN ';
-			
+
 			// set the timestamp for this session
 			// note that the timestamp is set only once per session
 			$sql .= 'PERFORM sq_set_rollback_timestamp();';
-			
+
 			$if_inserting     = "IF TG_OP = ''INSERT'' THEN ";
 			$if_updating      = "IF TG_OP = ''UPDATE'' THEN ";
 			$if_deleting      = "IF TG_OP = ''DELETE'' THEN ";
@@ -551,7 +549,7 @@ function install_rollback_triggers($table_columns, $verbose=true)
 		$new_val_string = ' ('.$get_timestamp_fn.',null,';
 		$old_val_string = $new_val_string;
 		$update_string  = '';
-		
+
 		$i = 0;
 
 		foreach ($table_info['columns'] as $column) {
@@ -560,9 +558,9 @@ function install_rollback_triggers($table_columns, $verbose=true)
 			$is_unique_key  = (isset($table_info['primary_key']) && in_array($column, $table_info['primary_key']));
 			$is_unique_key |= (isset($table_info['unique_key'])  && in_array($column, $table_info['unique_key']));
 			$col_string    .= $column;
-			
+
 			if (!$is_unique_key) $update_string .= $column.' = ';
-			
+
 			// old and new vars are treated like bind variables in oracle
 			// and therefore require a colon before them
 			if ($db->phptype == 'oci8') {
@@ -573,7 +571,7 @@ function install_rollback_triggers($table_columns, $verbose=true)
 			$new_val_string .= 'NEW.'.$column;
 			$old_val_string .= 'OLD.'.$column;
 			if (!$is_unique_key) $update_string  .= 'NEW.'.$column;
-			
+
 			if (++$i != count($table_info['columns'])) {
 				$col_string     .= ',';
 				$new_val_string .= ',';
@@ -588,7 +586,7 @@ function install_rollback_triggers($table_columns, $verbose=true)
 
 		// if we are inserting then we just want to insert the new
 		// row into the rollback table
-		
+
 		$sql .= $if_inserting.
 				'INSERT INTO '.$rollback_table.
 				$col_string.' VALUES '.$new_val_string;
@@ -640,7 +638,7 @@ function install_rollback_triggers($table_columns, $verbose=true)
 		$sql .= $if_deleting.$update_sql;
 		if ($db->phptype == 'pgsql') $sql .= ' RETURN OLD; ';
 		$sql .= 'END IF;';
-		
+
 		// end begin
 		$sql .= 'END;';
 
@@ -654,11 +652,11 @@ function install_rollback_triggers($table_columns, $verbose=true)
 
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
-		
+
 		$installed_triggers[] = $trigger_name;
 
 	}//end foreach tables
-	
+
 	if ($verbose) {
 		$trigger_names = (!empty($installed_triggers)) ? 'New Triggers:'."\n".implode("\n", $installed_triggers) : 'No Triggers Installed';
 		pre_echo('DATABASE TRIGGER CREATION COMPLETE'."\n".$trigger_names);
