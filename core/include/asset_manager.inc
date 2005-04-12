@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.297 2005/04/08 03:34:10 tbarrett Exp $
+* $Id: asset_manager.inc,v 1.298 2005/04/12 00:26:03 mmcintyre Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.297 $
+* @version $Revision: 1.298 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -4510,17 +4510,25 @@ class Asset_Manager extends MySource_Object
 			$protocol_select = $db->quote($protocol).' as protocol';
 		} else {
 			$curr_proto = current_protocol();
-			$protocol_select = 'CASE WHEN l.'.$curr_proto.' = '.$db->quote('1').' THEN '.$db->quote($curr_proto).' ELSE '.$db->quote(($curr_proto == 'http') ? 'https' : 'http').' END as protocol';
+			$protocol_select = 'CASE WHEN l.'.$curr_proto.' = '.$db->quote('1').' THEN '.$db->quote($curr_proto).' ELSE '.$db->quote(($curr_proto == 'http') ? 'https' : 'http').' END';
+		}
+
+		// if we are using oracle, we cannot specify an alias
+		// in a group by clause. We must use the result set definition
+		if ($db->phptype == 'pgsql') {
+			$group_by_protocol = 'protocol';
+		} else if ($db->phptype == 'oci8') {
+			$group_by_protocol = $protocol_select;
 		}
 
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
-		$sql = 'SELECT l.url, l.assetid, a.name, a.short_name, a.type_code, '.$protocol_select.', MIN(al.link_type) AS link_type
+		$sql = 'SELECT l.url, l.assetid, a.name, a.short_name, a.type_code, '.$protocol_select.' as protocol, MIN(al.link_type) AS link_type
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l
 				  INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON l.assetid = a.assetid
 				  INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk al ON a.assetid = al.minorid
 				'.$where.'
-				GROUP BY l.url, l.assetid, a.name, a.short_name, a.type_code, protocol
+				GROUP BY l.url, l.assetid, a.name, a.short_name, a.type_code, '.$group_by_protocol.'
 				ORDER BY l.url ASC';
 
 		$result = $db->getAll($sql);
