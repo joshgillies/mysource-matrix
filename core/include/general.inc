@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.82 2005/04/11 01:50:44 arailean Exp $
+* $Id: general.inc,v 1.83 2005/04/12 16:19:09 brobertson Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.82 $
+* @version $Revision: 1.83 $
 * @package MySource_Matrix
 */
 
@@ -70,7 +70,7 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 
 		// if this is a serious error, do a backtrace
 		$bt_str = '';
-		if (($err_no & ~E_USER_NOTICE) && (SQ_CONF_DEBUG & 2)) {
+		if ($terminate || (($err_no & ~E_USER_NOTICE) && (SQ_CONF_DEBUG & 2))) {
 			require_once SQ_FUDGE_PATH.'/dev/dev.inc';
 			$bt = debug_backtrace();
 			$bt_str = hide_system_root(array_contents($bt, 3));
@@ -139,7 +139,7 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 				}
 
 				// Uncomment below for debugging from cmdline
-				error_log($str."\n".$bt_str."\n".str_repeat("=+", 50)."\n", 3, SQ_DATA_PATH.'/private/logs/back_traces.log');
+				#error_log($str."\n".$bt_str."\n".str_repeat("=+", 50)."\n", 3, SQ_DATA_PATH.'/private/logs/back_traces.log');
 
 				break;
 
