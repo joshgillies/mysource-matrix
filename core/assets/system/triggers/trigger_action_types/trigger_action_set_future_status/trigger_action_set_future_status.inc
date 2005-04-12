@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_future_status.inc,v 1.2 2005/03/21 06:22:29 gsherwood Exp $
+* $Id: trigger_action_set_future_status.inc,v 1.3 2005/04/12 07:01:33 arailean Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 *
 * @author   Avi Miller <amiller@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -183,7 +183,7 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 		$set_status = $_POST[$munge_prefix.'_status'];
 
 		if (!$set_status) {
-			return false;
+			return 'Status not specified';
 		}
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_status');
@@ -198,9 +198,9 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 		// check if the status is valid
 		if (isset($status_list[$set_status])) {
 			$settings['status'] = $set_status;
-			return true;
-		} else {
 			return false;
+		} else {
+			return 'Invalid Status specified';
 		}
 
 	}//end processInterface()

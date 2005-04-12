@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_link_exists.inc,v 1.4 2005/04/01 04:30:28 tbarrett Exp $
+* $Id: trigger_condition_link_exists.inc,v 1.5 2005/04/12 07:01:35 arailean Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -174,22 +174,25 @@ class Trigger_Condition_Link_Exists extends Trigger_Condition
 		// event-specific
 		$use_new_link       = array_get_index($settings, 'use_new_link', false);
 
-		$is_major_list     = Array(0 => 'Parent',
-								   1 => 'Child'
-								   );
+		$is_major_list = Array(
+							0	=> 'Parent',
+							1	=> 'Child',
+						 );
 
 		$link_type_list = Array('' => '--- Any ---');
 		$link_type_list = array_merge($link_type_list, get_link_type_names());
 
-		$dependant_options = Array(''=>"--- Any ---",
-								   '1'=>"Yes",
-								   '0'=>"No",
-								   );
+		$dependant_options = Array(
+								''	=> "--- Any ---",
+								'1'	=> "Yes",
+								'0'	=> "No",
+							 );
 
-		$exclusive_options = Array(''=>"--- Any ---",
-								   '1'=>"Yes",
-								   '0'=>"No",
-								   );
+		$exclusive_options = Array(
+								''	=> "--- Any ---",
+								'1'	=> "Yes",
+								'0'	=> "No",
+							 );
 
 		if (!$write_access) {
 			$form_element_extras = 'disabled="disabled"';
@@ -280,8 +283,7 @@ class Trigger_Condition_Link_Exists extends Trigger_Condition
 
 				$settings['asset_type'] = array_get_index($request_data, 'asset_type');
 				if (is_null($settings['asset_type'])) {
-					trigger_error("Invalid asset type selected. This condition will always fail.", E_USER_WARNING);
-					return false;
+					return "Invalid asset type selected. This condition will always fail.";
 				}
 
 				// dump the settings into the hash
@@ -293,9 +295,8 @@ class Trigger_Condition_Link_Exists extends Trigger_Condition
 
 				$id_selector          = array_get_index($request_data, 'asset_id');
 				$settings['asset_id'] = array_get_index($id_selector, 'assetid');
-				if (is_null($settings['asset_id'])) {
-					trigger_error("Invalid asset ID selected. This condition will always fail.", E_USER_WARNING);
-					return false;
+				if (empty($settings['asset_id'])) {
+					return "Asset id is not specified.";
 				}
 
 				// dump the settings into the hash
@@ -304,8 +305,7 @@ class Trigger_Condition_Link_Exists extends Trigger_Condition
 			break;
 
 			default:
-				trigger_error("You have to choose the appropriate asset ID or asset type selector", E_USER_WARNING);
-				return false;
+				return "You have to choose the appropriate asset ID or asset type selector";
 		}
 
 		$link_type                  = array_get_index($request_data, 'link_type');
@@ -321,7 +321,7 @@ class Trigger_Condition_Link_Exists extends Trigger_Condition
 		$settings['is_exclusive']   = array_get_index($request_data, 'is_exclusive');
 		$settings['use_new_link']   = isset($request_data['use_new_link']);
 
-		return true;
+		return false;
 
 	}//end processInterface()
 

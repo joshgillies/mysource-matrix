@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager_edit_fns.inc,v 1.13 2005/04/06 23:05:34 mmcintyre Exp $
+* $Id: trigger_manager_edit_fns.inc,v 1.14 2005/04/12 07:01:36 arailean Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard  <rhoward@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -724,11 +724,11 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 	{
 		$edit_data = array_get_index($request_data, 'edit', Array());
 		$edit_id = array_get_index($edit_data, 'id');
-	
+
 		if (empty($edit_data) || empty($edit_id)) {
 			return false;
 		}
-		
+
 		$trigger = $tm->_loadTrigger($edit_id);
 		if (empty($trigger)) {
 			return false;
@@ -835,7 +835,7 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 
 		$i = 1;
 		foreach ($raw_components as $component) {
-			$status = true;
+			$error = false;
 			if (isset($component['delete'])) {
 				continue;
 			}
@@ -848,7 +848,11 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 
 			$data = array_get_index($component, 'data', Array());
 			if (!array_get_index($component, 'new', false)) {
-				eval('$status = '.$type.'::processInterface($settings, $hash, $data);');
+				eval('$error = '.$type.'::processInterface($settings, $hash, $data);');
+			}
+
+			if (false !== $error) {
+				trigger_error("Condition $i ($type) not saved: $error", E_USER_NOTICE);
 			}
 
 			$processed_components[] = Array(
@@ -856,9 +860,6 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 										'data'	=> $settings,
 									  );
 
-			if (!$status) {
-				trigger_error("Settings for Condition number $i ($type) could not be saved. Please make sure the input is complete.", E_USER_NOTICE);
-			}
 			$i++;
 		}
 
@@ -889,7 +890,7 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 
 		$i=1;
 		foreach ($raw_components as $component) {
-			$status = true;
+			$error = false;
 			if (isset($component['delete'])) {
 				continue;
 			}
@@ -904,7 +905,7 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 
 			$data = array_get_index($component, 'data', Array());
 			if (!array_get_index($component, 'new', false)) {
-				eval('$status = '.$type.'::processInterface($settings, $data);');
+				eval('$error = '.$type.'::processInterface($settings, $data);');
 			}
 
 			$processed_components[] = Array(
@@ -914,8 +915,8 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 										'ignore_permissions'	=> isset($component['ignore_permissions']),
 									  );
 
-			if (!$status) {
-				trigger_error("Settings for Action number $i ($type) could not be saved. Please make sure the input is complete.", E_USER_NOTICE);
+			if (false !== $error) {
+				trigger_error("Action $i ($type) not saved. $error", E_USER_NOTICE);
 			}
 			$i++;
 		}

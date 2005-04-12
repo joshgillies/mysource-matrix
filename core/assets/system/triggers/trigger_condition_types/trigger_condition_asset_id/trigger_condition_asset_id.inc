@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_asset_id.inc,v 1.3 2005/03/01 00:25:31 arailean Exp $
+* $Id: trigger_condition_asset_id.inc,v 1.4 2005/04/12 07:01:34 arailean Exp $
 *
 */
 
@@ -31,12 +31,13 @@
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Trigger_Condition_Asset_ID extends Trigger_Condition
 {
+
 
 	/**
 	* Evaluate this condition
@@ -130,19 +131,23 @@ class Trigger_Condition_Asset_ID extends Trigger_Condition
 	* @param array          $request_data   array of data corresponding to this condition as specified by the $prefix in the getInterface.
 	*
 	* @access public
-	* @return boolean
+	* @return string|false
 	*/
 	function processInterface(&$settings, &$hash, $request_data)
 	{
-		if (empty($request_data) || empty($request_data['assetid']) || empty($request_data['assetid']['assetid'])) {
-			return false;
+		if (empty($request_data)) {
+			return 'There was an error with input data';
+		}
+
+		if (empty($request_data['assetid']) || empty($request_data['assetid']['assetid'])) {
+			return 'Asset id is not specified';
 		}
 
 		$assetid = $request_data['assetid']['assetid'];
 		$settings['assetid'] = $assetid;
 		$hash->setAssetID($assetid);
 
-		return true;
+		return false;
 
 	}//end processInterface()
 

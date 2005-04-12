@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_create_image_variety.inc,v 1.3 2005/03/10 19:47:43 brobertson Exp $
+* $Id: trigger_action_create_image_variety.inc,v 1.4 2005/04/12 07:01:32 arailean Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -147,10 +147,10 @@ class Trigger_Action_Create_Image_Variety extends Trigger_Action
 		echo '<br />';
 		echo 'and constrain by:';
 		$options = Array(
-				'width'		=> 'Width',
-				'height'	=> 'Height',
-				'none'		=> 'Neither',
-			);
+					'width'		=> 'Width',
+					'height'	=> 'Height',
+					'none'		=> 'Neither',
+				   );
 		combo_box($prefix.'[constrain]', $options, false, $settings['constrain'], 0, $form_element_extras);
 		echo 'and size it to: (width)';
 		int_text_box($prefix.'[width]', $settings['width'], false, '', '', false, $form_element_extras);
@@ -176,13 +176,16 @@ class Trigger_Action_Create_Image_Variety extends Trigger_Action
 	{
 
 		if (empty($request_data)) {
-			return false;
+			return 'Input Data is missing';
 		}
 
 		// check if the name, constrain, width and height are set
-		if (!isset($request_data['name']) || !isset($request_data['constrain']) || !isset($request_data['width']) || !isset($request_data['height'])) {
-			// must have constrain, height and width set, even if one is zero
-			return false;
+		if (empty($request_data['name'])) {
+			return 'Variety name cannot be empty';
+		}
+
+		if (!isset($request_data['constrain']) || !isset($request_data['width']) || !isset($request_data['height'])) {
+			return 'must have constrain, height and width set, even if one is zero';
 		}
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('image_variety');
@@ -192,22 +195,22 @@ class Trigger_Action_Create_Image_Variety extends Trigger_Action
 
 		// name
 		if (!$variety->setAttrValue('name', $request_data['name'])) {
-			return false;
+			return 'Cannot set variety\'s "name" value';
 		}
 
 		// constrain
 		if (!$variety->setAttrValue('constrain', $request_data['constrain'])) {
-			return false;
+			return 'Cannot set variety\'s "constrain" value';
 		}
 
 		// width
 		if (!$variety->setAttrValue('width', $request_data['width'])) {
-			return false;
+			return 'Cannot set variety\'s "width" value';
 		}
 
 		// height
 		if (!$variety->setAttrValue('height', $request_data['height'])) {
-			return false;
+			return 'Cannot set variety\'s "height" value';
 		}
 
 		unset($variety);
@@ -218,7 +221,7 @@ class Trigger_Action_Create_Image_Variety extends Trigger_Action
 		$settings['width'] = strval($request_data['width']);
 		$settings['height'] = strval($request_data['height']);
 
-		return true;
+		return false;
 
 	}//end processInterface()
 

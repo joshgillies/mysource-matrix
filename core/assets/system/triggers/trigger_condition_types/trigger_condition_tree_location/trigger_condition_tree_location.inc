@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_tree_location.inc,v 1.5 2005/03/14 23:53:25 arailean Exp $
+* $Id: trigger_condition_tree_location.inc,v 1.6 2005/04/12 07:01:36 arailean Exp $
 *
 */
 
@@ -32,12 +32,13 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Trigger_Condition_Tree_Location extends Trigger_Condition
 {
+
 
 	/**
 	* Evaluate this condition
@@ -195,12 +196,12 @@ class Trigger_Condition_Tree_Location extends Trigger_Condition
 	* @param array          $request_data   array of data corresponding to this condition as specified by the $prefix in the getInterface.
 	*
 	* @access public
-	* @return boolean
+	* @return false|string
 	*/
 	function processInterface(&$settings, &$hash, $request_data)
 	{
 		if (empty($request_data) || empty($request_data['assetid']['assetid'])) {
-			return false;
+			return 'No tree location selected';
 		} else {
 			$assetid = $request_data['assetid']['assetid'];
 		}
@@ -216,7 +217,7 @@ class Trigger_Condition_Tree_Location extends Trigger_Condition
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 
 		if (!$am->assetExists($assetid)) {
-			return false;
+			return 'Selected asset does not exist';
 		};
 
 		$treeid = $am->getAssetTreeids($assetid);
@@ -228,7 +229,7 @@ class Trigger_Condition_Tree_Location extends Trigger_Condition
 		// only use the raw tree value in the hash
 		$hash->setLinkTree($treeid, $propagate);
 
-		return true;
+		return false;
 
 	}//end processInterface()
 

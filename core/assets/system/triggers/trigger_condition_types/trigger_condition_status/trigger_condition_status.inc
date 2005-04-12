@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_status.inc,v 1.2 2005/03/01 00:25:31 arailean Exp $
+* $Id: trigger_condition_status.inc,v 1.3 2005/04/12 07:01:35 arailean Exp $
 *
 */
 
@@ -32,12 +32,13 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Trigger_Condition_Status extends Trigger_Condition
 {
+
 
 	/**
 	* Evaluate this condition
@@ -131,13 +132,13 @@ class Trigger_Condition_Status extends Trigger_Condition
 	* @param array          $request_data   array of data corresponding to this condition as specified by the $prefix in the getInterface.
 	*
 	* @access public
-	* @return boolean
+	* @return false|string
 	*/
 	function processInterface(&$settings, &$hash, $request_data)
 	{
 		$status = array_get_index($request_data, 'status', false);
 		if (!$status) {
-			return false;
+			return 'No status selected';
 		}
 
 		$status_list = &trigger_condition_status::_getStatusList();
@@ -145,9 +146,9 @@ class Trigger_Condition_Status extends Trigger_Condition
 		// check if the status is valid
 		if (isset($status_list[$status])) {
 			$settings['status'] = $status;
-			return true;
-		} else {
 			return false;
+		} else {
+			return 'Selected status is invalid';
 		}
 
 	}//end processInterface()

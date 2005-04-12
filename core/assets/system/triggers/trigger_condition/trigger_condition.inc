@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition.inc,v 1.3 2005/03/01 00:25:31 arailean Exp $
+* $Id: trigger_condition.inc,v 1.4 2005/04/12 07:01:34 arailean Exp $
 *
 */
 
@@ -31,12 +31,13 @@
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Trigger_Condition extends Asset
 {
+
 
 	/**
 	* Evaluate this condition - needs to be overridden by the conditions themselves.
@@ -94,13 +95,14 @@ class Trigger_Condition extends Asset
 	* Function that handles the conversion of interface to settings
 	* together with settings it is expected to populate the hash object
 	* Consult the hash object to see the list of setter functions
+	* NOTE: returns false if there is no error
 	*
 	* @param Array          $settings       a container for any data the condition might want to save
 	* @param object Hash    $hash           hash object that takes data that helps to speed up trigger firing
 	* @param array          $request_data   array of data corresponding to this condition as specified by the $prefix in the getInterface.
 	*
 	* @access public
-	* @return boolean
+	* @return false|string		false on succsess, error string on failure
 	*/
 	function processInterface(&$settings, &$hash, $request_data)
 	{
@@ -109,7 +111,7 @@ class Trigger_Condition extends Asset
 		// populate the hash object
 		// return status
 
-		return true;
+		return false;
 
 	}//end processInterface()
 

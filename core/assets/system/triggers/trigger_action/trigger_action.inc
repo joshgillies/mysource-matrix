@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action.inc,v 1.2 2005/03/01 00:25:30 arailean Exp $
+* $Id: trigger_action.inc,v 1.3 2005/04/12 07:01:16 arailean Exp $
 *
 */
 
@@ -31,12 +31,13 @@
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Trigger_Action extends Asset
 {
+
 
 	/**
 	* Execute this action - needs to be overridden by the actions themselves.
@@ -92,13 +93,14 @@ class Trigger_Action extends Asset
 
 	/**
 	* Function that handles the conversion of interface to settings
-	* together with settings it is expected to populate the hash object
+	*
+	* NOTE: Returns false on success
 	*
 	* @param Array          $settings       a container for any data the action might want to save
 	* @param array          $request_data   array of data corresponding to this action as specified by the $prefix in getInterface.
 	*
 	* @access public
-	* @return boolean
+	* @return false|string
 	*/
 	function processInterface(&$settings, $request_data)
 	{
@@ -115,19 +117,17 @@ class Trigger_Action extends Asset
 	* Get the list of locks that the action needs to acquire before executing
 	* Default to no locks - the children can override if necessary
 	*
+	* <code>
+	*	$locks = Array('assetid'   => Array('attributes','links'),);
+	* </code>
+	*
 	* @access public
 	* @return array(assetid=>locktype)
 	*/
 	function getLocks($settings, &$state)
 	{
-		/* Sample lock list:
-		$locks = Array('assetid'   => Array('attributes',
-											'links
-											)
-					   );
-		*/
 
-		// no locks needed
+		// by default no locks needed
 		return Array();
 
 	}//end getLocks()

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_create_clone.inc,v 1.6 2005/03/06 21:49:43 rhoward Exp $
+* $Id: trigger_action_create_clone.inc,v 1.7 2005/04/12 07:01:31 arailean Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -109,18 +109,18 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 
 		// the new link
 		$link = Array(
-					  'asset'        => &$major,
-					  'link_type'    => $settings['link_type'],
-					  'value'        => $settings['value'],
-					  'sort_order'   => null,
-					  'is_dependant' => $is_dependant,
-					  'is_exclusive' => $is_exclusive
-					  );
+					'asset'			=> &$major,
+					'link_type'		=> $settings['link_type'],
+					'value'			=> $settings['value'],
+					'sort_order'	=> null,
+					'is_dependant'	=> $is_dependant,
+					'is_exclusive'	=> $is_exclusive,
+				);
 
 		// old -> new asset id mapping
 		$clone_map = Array();
 
-		$clone = $am->cloneAsset($minor, $link, $clone_map, Array('all'));
+		$clone = &$am->cloneAsset($minor, $link, $clone_map, Array('all'));
 		if (is_null($clone)) {
 			trigger_error('clone failed', E_USER_WARNING);
 			return false;
@@ -222,11 +222,11 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 
 		// make sure the assetid isn't blank
 		if (empty($request_data['assetid']['assetid'])) {
-			return false;
+			return 'Parent to clone under is missing';
 		}
 
 		if (empty($request_data['link_type']) || !isset($link_type_list[$request_data['link_type']])) {
-			return false;
+			return 'Link type is missing';
 		}
 
 		$settings['assetid']   = $request_data['assetid']['assetid'];
@@ -238,7 +238,7 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 		$settings['is_exclusive']        = array_get_index($request_data, 'is_exclusive', 0);
 		$settings['disallow_duplicates'] = array_get_index($request_data, 'disallow_duplicates', 0);
 
-		return true;
+		return false;
 
 	}//end processInterface()
 
@@ -253,8 +253,8 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 	{
 		// get 'all' locks on the firing asset
 		$locks = Array(
-					   $state['assetid'] => Array('all')
-					   );
+					$state['assetid']	=> Array('all'),
+				 );
 
 		$dependant_children = &$GLOBALS['SQ_SYSTEM']->am->getDependantChildren($state['assetid']);
 		foreach ($dependant_children as $assetid => $asset_type) {

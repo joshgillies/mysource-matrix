@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_design.inc,v 1.5 2005/03/03 00:42:03 gsherwood Exp $
+* $Id: trigger_action_set_design.inc,v 1.6 2005/04/12 07:01:32 arailean Exp $
 *
 */
 
@@ -33,12 +33,13 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Trigger_Action_Set_Design extends Trigger_Action
 {
+
 
 	/**
 	* Execute this action
@@ -194,12 +195,12 @@ class Trigger_Action_Set_Design extends Trigger_Action
 	{
 		// make sure the assetid isn't blank
 		if (empty($request_data['assetid']['assetid'])) {
-			return false;
+			return 'Design Asset id is not specified';
 		}
 
 		// check if the status is valid
 		$settings['assetid'] = $request_data['assetid']['assetid'];
-		return true;
+		return false;
 
 	}//end processInterface()
 

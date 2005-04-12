@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_permission.inc,v 1.1 2005/03/22 04:56:11 gsherwood Exp $
+* $Id: trigger_action_set_permission.inc,v 1.2 2005/04/12 07:01:33 arailean Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -171,30 +171,38 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 	{
 		// check if the permission is valid
 		$permission = array_get_index($request_data, 'permission', false);
-		if (!$permission) return false;
+		if (!$permission) {
+			return 'Permission not specified';
+		}
 
 		$valid_permissions = &Trigger_Action_Set_Permission::_getPermissionList();
 		if (isset($valid_permissions[$permission])) {
 			$settings['permission'] = $permission;
 		} else {
-			return false;
+			return 'Specified permission is invalid';
 		}
 
 		// access must be either 1 or 0
 		$granted = array_get_index($request_data, 'granted', false);
-		if ($granted != '1' && $granted != '0') return false;
+		if ($granted != '1' && $granted != '0') {
+			return 'Access parameter is invalid';
+		}
 		$settings['granted'] = $granted;
 
 		// a userid must have been selected
 		$user_data = array_get_index($request_data, 'userid', false);
 		$userid = $user_data['assetid'];
-		if (empty($userid)) return false;
+		if (empty($userid)) {
+			return 'User id is not specified';
+		}
 
 		$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
-		if (is_null($user)) return false;
+		if (is_null($user)) {
+			return 'Specified user is not a valid asset';
+		}
 		$settings['userid'] = $userid;
 
-		return true;
+		return false;
 
 	}//end processInterface()
 
@@ -208,10 +216,10 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 	function _getPermissionList()
 	{
 		return Array(
-					 SQ_PERMISSION_READ  => 'read',
-					 SQ_PERMISSION_WRITE => 'write',
-					 SQ_PERMISSION_ADMIN => 'admin',
-					 );
+				SQ_PERMISSION_READ	=> 'read',
+				SQ_PERMISSION_WRITE	=> 'write',
+				SQ_PERMISSION_ADMIN	=> 'admin',
+			   );
 
 	}//end _getPermissionList()
 

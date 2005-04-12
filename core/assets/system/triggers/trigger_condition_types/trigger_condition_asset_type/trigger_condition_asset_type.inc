@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_asset_type.inc,v 1.5 2005/04/01 04:30:28 tbarrett Exp $
+* $Id: trigger_condition_asset_type.inc,v 1.6 2005/04/12 07:01:35 arailean Exp $
 *
 */
 
@@ -31,12 +31,13 @@
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Trigger_Condition_Asset_Type extends Trigger_Condition
 {
+
 
 	/**
 	* Evaluate this condition
@@ -114,7 +115,7 @@ class Trigger_Condition_Asset_Type extends Trigger_Condition
 			asset_type_chooser($prefix, false, Array('type_code' => $selected_type, 'inherit' => $is_descendant), null, false, true);
 		} else {
 			echo '<b>';
-			echo $asset_types[$selected_type];
+			echo $selected_type;
 			if ($is_descendant) {
 				echo ' (or descendant types)';
 			}
@@ -137,17 +138,17 @@ class Trigger_Condition_Asset_Type extends Trigger_Condition
 	* 										as specified by the $prefix in the getInterface.
 	*
 	* @access public
-	* @return boolean
+	* @return false|string
 	*/
 	function processInterface(&$settings, &$hash, $request_data)
 	{
 		if (empty($request_data)) {
-			return false;
+			return 'There was an error with input data';
 		}
 
 		$asset_type = array_get_index($request_data, 'type_code', false);
 		if (!$asset_type) {
-			return false;
+			return 'Asset type code has not been supplied';
 		}
 
 		// descendants is set to either '1' or not at all
@@ -157,7 +158,7 @@ class Trigger_Condition_Asset_Type extends Trigger_Condition
 		$settings['descendants'] = $descendants;
 		$hash->setAssetType($asset_type, ($descendants == '1' ? true : false));
 
-		return true;
+		return false;
 
 	}//end processInterface()
 
