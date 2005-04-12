@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_herder.inc,v 1.59 2005/04/06 23:05:34 mmcintyre Exp $
+* $Id: hipo_herder.inc,v 1.60 2005/04/12 01:07:30 arailean Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) Herder (Manager ;P)
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.59 $
+* @version $Revision: 1.60 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -851,7 +851,7 @@ class HIPO_Herder extends MySource_Object
 
 			// regular users can only see own HIPO
 			if (!$hipo_admin) {
-				$sql .= ' WHERE '.$db->quoteIdentifier('userid').' = '.$db->quoteSmart($current_user_id);
+				$sql .= ' WHERE userid = '.$db->quoteSmart($current_user_id);
 			}
 
 			$result = $db->query($sql);
