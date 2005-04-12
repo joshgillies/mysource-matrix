@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.298 2005/04/12 00:26:03 mmcintyre Exp $
+* $Id: asset_manager.inc,v 1.299 2005/04/12 11:00:31 brobertson Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.298 $
+* @version $Revision: 1.299 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -4963,15 +4963,6 @@ class Asset_Manager extends MySource_Object
 		$edit_fns->paintBackend();
 
 	}//end paintBackend()
-
-
-	function paintLimbo(&$backend)
-	{
-		require_once SQ_INCLUDE_PATH.'/asset_manager_edit_fns.inc';
-		$edit_fns =& new Asset_Manager_Edit_Fns($this, $backend);
-		$edit_fns->paintLimbo();
-
-	}//end paintLimbo()
 
 
 //--        QUERY GENERATORS        --//
