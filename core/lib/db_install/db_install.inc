@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_install.inc,v 1.16 2005/04/13 01:45:29 mmcintyre Exp $
+* $Id: db_install.inc,v 1.17 2005/04/13 02:17:00 mmcintyre Exp $
 *
 */
 
@@ -29,7 +29,7 @@
 * @author  Blair Robertson <blair@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -457,11 +457,12 @@ function get_installed_rollback_triggers()
 *
 * @param array		$table_columns	the table column information from the tables xml file
 * @param boolean	$verbose		TRUE if we should display messages
+* @param boolean	$override		if TRUE override any current triggers with new ones
 *
 * @return void
 * @access public
 */
-function install_rollback_triggers($table_columns, $verbose=true)
+function install_rollback_triggers($table_columns, $verbose=true, $override=false)
 {
 	$db = &$GLOBALS['SQ_SYSTEM']->db;
 	$curr_triggers      = Array();
@@ -486,7 +487,9 @@ function install_rollback_triggers($table_columns, $verbose=true)
 		$table          = 'sq_'.$table_name;
 
 		// don't install triggers that have allready been installed
-		if (in_array($trigger_name, $curr_triggers)) continue;
+		if (!$override) {
+			if (in_array($trigger_name, $curr_triggers)) continue;
+		}
 
 		$sql = 'CREATE TRIGGER '.$trigger_name.
 			  ' BEFORE INSERT OR UPDATE OR DELETE ON '.$table.
@@ -669,7 +672,7 @@ function install_rollback_triggers($table_columns, $verbose=true)
 			// before we finish we will re-order the sql
 			// so that the trigger sql is AFTER the actual trigger function
 			// sql so that postgres doesn't complain about functions that does exist
-			$sql = $sql.$trigger_sql;
+			if (!$override) $sql = $sql.$trigger_sql;
 		}
 
 		$result = $db->query($sql);
