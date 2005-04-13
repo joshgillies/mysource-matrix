@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_text_edit_fns.inc,v 1.5 2004/12/21 17:19:36 brobertson Exp $
+* $Id: metadata_field_text_edit_fns.inc,v 1.6 2005/04/13 01:58:37 ndvries Exp $
 *
 */
 
@@ -32,12 +32,13 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 {
+
 
 	/**
 	* Constructor
@@ -55,7 +56,7 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 	*
 	* @param object Metadata_Field		&$asset			the asset whose interface we are painting
 	* @param object	Backend_Outputter	&$o				the outputter class
-	* @param string						$value_str		the current value for this field in the asset (NOT $asset) 
+	* @param string						$value_str		the current value for this field in the asset (NOT $asset)
 	*													NULL means that there is no current value set
 	* @param boolean					$write_access	does the current user have write access to the asset
 	*													that we are setting metadata for (NOT THE SAME AS $asset)
@@ -174,7 +175,7 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 		$value = array_get_index($_POST, $prefix.'_value', '');
 		$value_components = $asset->attr('value_components');
 
-		for(reset($value_components); null !== ($vc_name = key($value_components)); next($value_components)) {
+		for (reset($value_components); null !== ($vc_name = key($value_components)); next($value_components)) {
 			if (isset($_POST[$prefix.'_vc_value'][$vc_name])) {
 				$value_components[$vc_name] = str_replace(Array("\n", "\r"), Array(" ", ""), trim($_POST[$prefix.'_vc_value'][$vc_name]));
 			}

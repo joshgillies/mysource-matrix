@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_status.inc,v 1.31 2005/03/23 22:57:15 ndvries Exp $
+* $Id: hipo_job_edit_status.inc,v 1.32 2005/04/13 01:58:38 ndvries Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to change the status of an asset
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -46,19 +46,19 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 	* @var Array
 	*/
 	var $_steps = Array(
-						Array(
-							  'name'          => 'Editing Status',
-							  'function_call' => Array(
-													   'process_function' => 'processStatus',
-													   ),
-							  'running_mode'  => 'server',
-							  'auto_step'     => true,
-							  'allow_cancel'  => true,
-							  'percent_done'  => 0,
-							  'complete'      => false,
-							  'message'       => '',
-							  ),
-						);
+					Array(
+						'name'			=> 'Editing Status',
+						'function_call'	=> Array(
+											'process_function'	=> 'processStatus',
+										   ),
+						'running_mode'	=> 'server',
+						'auto_step'		=> true,
+						'allow_cancel'	=> true,
+						'percent_done'	=> 0,
+						'complete'		=> false,
+						'message'		=> '',
+					),
+				  );
 
 
 	/**
@@ -110,8 +110,8 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 	function getConfigVars()
 	{
 		return Array(
-					 'SQ_HIPO_EDIT_STATUS_THRESHOLD' => Array('editable' => 1, 'default' => 1),
-					 );
+				'SQ_HIPO_EDIT_STATUS_THRESHOLD'	=> Array('editable'	=> 1, 'default'	=> 1),
+			   );
 
 	}//end getConfigVars()
 

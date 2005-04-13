@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job.inc,v 1.65 2005/04/08 01:11:06 mmcintyre Exp $
+* $Id: hipo_job.inc,v 1.66 2005/04/13 01:58:38 ndvries Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_DATA_PATH.'/private/conf/hipo.inc';
 * Highly Intensive Processing Object (HIPO)
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.65 $
+* @version $Revision: 1.66 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -429,7 +429,7 @@ class HIPO_Job extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db  = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$sql = 'SELECT 
+		$sql = 'SELECT
 					userid, last_updated
 				FROM
 					sq_hipo_job
@@ -446,7 +446,7 @@ class HIPO_Job extends MySource_Object
 		}
 
 		$now = time();
-		
+
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
 		$prepared = $db->prepare('INSERT INTO
@@ -477,25 +477,26 @@ class HIPO_Job extends MySource_Object
 										'.db_extras_prepare_todate($db).'
 									)'
 								);
-					
-		
-					
+
+
+
 		$values = Array(
-				$code_name,
-				get_class($this),
-				$GLOBALS['SQ_SYSTEM']->currentUserId(),
-				0,
-				$source_code_name,
-				$hipo_vars,
-				$options,
-				$steps,
-				$vars,
-				ts_iso8601($now),
-				'YYYY-MM-DD HH24:MI:SS'
-			);
+					$code_name,
+					get_class($this),
+					$GLOBALS['SQ_SYSTEM']->currentUserId(),
+					0,
+					$source_code_name,
+					$hipo_vars,
+					$options,
+					$steps,
+					$vars,
+					ts_iso8601($now),
+					'YYYY-MM-DD HH24:MI:SS',
+				  );
+
 		$result = $db->execute($prepared, $values);
 		assert_valid_db_result($result);
-		
+
 		$result = $db->query($sql);
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		assert_valid_db_result($result);
@@ -710,9 +711,9 @@ class HIPO_Job extends MySource_Object
 			$result = $db->query($sql);
 			assert_valid_db_result($result);
 		} else {
-			
+
 			require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-			
+
 			$prepared = $db->prepare(
 									'UPDATE
 										sq_hipo_job
@@ -724,20 +725,20 @@ class HIPO_Job extends MySource_Object
 										last_updated	= '.db_extras_prepare_todate($db).'
 									WHERE
 										code_name	= ?');
-				
+
 			$values = Array(
-					serialize($this->_hipo_vars),
-					serialize($this->_options),
-					serialize($this->_steps),
-					serialize($this->_running_vars),
-					ts_iso8601($now),
-					'YYYY-MM-DD HH24:MI:SS',
-					$this->code_name
-				);
+						serialize($this->_hipo_vars),
+						serialize($this->_options),
+						serialize($this->_steps),
+						serialize($this->_running_vars),
+						ts_iso8601($now),
+						'YYYY-MM-DD HH24:MI:SS',
+						$this->code_name,
+					  );
 			$result = $db->execute($prepared, $values);
 			assert_valid_db_result($result);
 		}
-		
+
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		$this->last_updated = $now;
 

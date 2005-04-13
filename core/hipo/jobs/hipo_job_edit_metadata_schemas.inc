@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_metadata_schemas.inc,v 1.29 2005/03/23 22:57:15 ndvries Exp $
+* $Id: hipo_job_edit_metadata_schemas.inc,v 1.30 2005/04/13 01:58:38 ndvries Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to edit metadata schemas
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -46,43 +46,43 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 	* @var Array
 	*/
 	var $_steps = Array(
-						Array(
-							  'name'         => 'Acquiring Metadata Locks',
-							  'hipo_job'     => Array(
-							  						'init_details_function' => 'getLockAssetDetails',
-													  ),
-							  'running_mode' => 'server',
-							  'auto_step'    => true,
-							  'allow_cancel' => true,
-							  'percent_done' => 0,
-							  'complete'     => false,
-							  'message'      => '',
-							  ),
-						Array(
-							  'name'          => 'Updating Metadata Schemas',
-							  'function_call' => Array(
-							  						 'process_function' => 'processSchemas',
-													   ),
-							  'running_mode'  => 'server',
-							  'auto_step'     => true,
-							  'allow_cancel'  => true,
-							  'percent_done'  => 0,
-							  'complete'      => false,
-							  'message'       => '',
-							  ),
-						Array(
-							  'name'          => 'Releasing Metadata Locks',
-							  'function_call' => Array(
-													   'process_function' => 'releaseLocks',
-													   ),
-							  'running_mode'  => 'server',
-							  'auto_step'     => true,
-							  'allow_cancel'  => false,
-							  'percent_done'  => 0,
-							  'complete'      => false,
-							  'message'       => '',
-							  ),
-						);
+					Array(
+						'name'			=> 'Acquiring Metadata Locks',
+						'hipo_job'		=> Array(
+											'init_details_function'	=> 'getLockAssetDetails',
+										   ),
+						'running_mode'	=> 'server',
+						'auto_step'		=> true,
+						'allow_cancel'	=> true,
+						'percent_done'	=> 0,
+						'complete'		=> false,
+						'message'		=> '',
+					),
+					Array(
+						'name'			=> 'Updating Metadata Schemas',
+						'function_call'	=> Array(
+											'process_function'	=> 'processSchemas',
+										   ),
+						'running_mode'	=> 'server',
+						'auto_step'		=> true,
+						'allow_cancel'	=> true,
+						'percent_done'	=> 0,
+						'complete'		=> false,
+						'message'		=> '',
+					),
+					Array(
+						'name'			=> 'Releasing Metadata Locks',
+						'function_call'	=> Array(
+											'process_function'	=> 'releaseLocks',
+										   ),
+						'running_mode'	=> 'server',
+						'auto_step'		=> true,
+						'allow_cancel'	=> false,
+						'percent_done'	=> 0,
+						'complete'		=> false,
+						'message'		=> '',
+					),
+				  );
 
 
 	/**
@@ -136,8 +136,8 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 	function getConfigVars()
 	{
 		return Array(
-					 'SQ_HIPO_METADATA_THRESHOLD' => Array('editable' => 1, 'default' => 1),
-					 );
+				'SQ_HIPO_METADATA_THRESHOLD'	=> Array('editable'	=> 1, 'default'	=> 1),
+			   );
 
 	}//end getConfigVars()
 
@@ -357,11 +357,11 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 		$options['auto_complete'] = true;
 
 		$running_vars = Array(
-							  'assetids'          => array_keys($this->_running_vars['assets']),
-							  'lock_type'         => Array('metadata'),
-							  'forceably_acquire' => false,
-							  'dependants_only'   => false,
-							  );
+							'assetids'			=> array_keys($this->_running_vars['assets']),
+							'lock_type'			=> Array('metadata'),
+							'forceably_acquire'	=> false,
+							'dependants_only'	=> false,
+						);
 
 	}//end getLockAssetDetails()
 

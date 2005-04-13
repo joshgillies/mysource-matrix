@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: squiz_server_client_mysource3.inc,v 1.2 2004/12/06 14:38:13 brobertson Exp $
+* $Id: squiz_server_client_mysource3.inc,v 1.3 2005/04/13 01:58:38 ndvries Exp $
 *
 */
 
@@ -33,11 +33,12 @@ require_once SQ_SERVER_SYSTEM_ROOT.'/code/squiz_server_client.inc';
 * so that individual users don't need to worry about that crap
 *
 * @author Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 */
 class Squiz_Server_Client_MySource3 extends Squiz_Server_Client
 {
+
 
 	/**
 	* create a new client
@@ -53,6 +54,7 @@ class Squiz_Server_Client_MySource3 extends Squiz_Server_Client
 		$this->Squiz_Server_Client($systemid, $domain, $port);
 
 	}//end constructor
+
 
 }//end class
 ?>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_permissions.inc,v 1.44 2005/04/04 04:31:02 ndvries Exp $
+* $Id: hipo_job_edit_permissions.inc,v 1.45 2005/04/13 01:58:38 ndvries Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.45 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -62,43 +62,43 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 	* @var Array
 	*/
 	var $_steps = Array(
-						Array(
-							  'name'         => 'Acquiring Permission Locks',
-							  'hipo_job'     => Array(
-													  'init_details_function' => 'getLockAssetDetails',
-													  ),
-							  'running_mode' => 'server',
-							  'auto_step'    => true,
-							  'allow_cancel' => true,
-							  'percent_done' => 0,
-							  'complete'     => false,
-							  'message'      => '',
-							  ),
-						Array(
-							  'name'          => 'Updating Permissions',
-							  'function_call' => Array(
-													   'process_function' => 'processPermissions',
-													   ),
-							  'running_mode'  => 'server',
-							  'auto_step'     => true,
-							  'allow_cancel'  => true,
-							  'percent_done'  => 0,
-							  'complete'      => false,
-							  'message'       => '',
-							  ),
-						Array(
-							  'name'          => 'Releasing Permission Locks',
-							  'function_call' => Array(
-													   'process_function' => 'releaseLocks',
-													   ),
-							  'running_mode'  => 'server',
-							  'auto_step'     => true,
-							  'allow_cancel'  => false,
-							  'percent_done'  => 0,
-							  'complete'      => false,
-							  'message'       => '',
-							  ),
-						);
+					Array(
+						'name'			=> 'Acquiring Permission Locks',
+						'hipo_job'		=> Array(
+											'init_details_function'	=> 'getLockAssetDetails',
+										   ),
+						'running_mode'	=> 'server',
+						'auto_step'		=> true,
+						'allow_cancel'	=> true,
+						'percent_done'	=> 0,
+						'complete'		=> false,
+						'message'		=> '',
+					),
+					Array(
+						'name'			=> 'Updating Permissions',
+						'function_call'	=> Array(
+											'process_function'	=> 'processPermissions',
+										   ),
+						'running_mode'	=> 'server',
+						'auto_step'		=> true,
+						'allow_cancel'	=> true,
+						'percent_done'	=> 0,
+						'complete'		=> false,
+						'message'		=> '',
+					),
+					Array(
+						'name'			=> 'Releasing Permission Locks',
+						'function_call'	=> Array(
+											'process_function'	=> 'releaseLocks',
+										   ),
+						'running_mode'	=> 'server',
+						'auto_step'		=> true,
+						'allow_cancel'	=> false,
+						'percent_done'	=> 0,
+						'complete'		=> false,
+						'message'		=> '',
+					),
+				  );
 
 
 	/**
@@ -152,8 +152,8 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 	function getConfigVars()
 	{
 		return Array(
-					 'SQ_HIPO_PERMISSIONS_THRESHOLD' => Array('editable' => 1, 'default' => 1),
-					 );
+				'SQ_HIPO_PERMISSIONS_THRESHOLD'	=> Array('editable'	=> 1, 'default'	=> 1),
+			   );
 
 	}//end getConfigVars()
 
@@ -370,11 +370,11 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 		$options['auto_complete'] = true;
 
 		$running_vars = Array(
-							  'assetids'          => array_keys($this->_running_vars['assets']),
-							  'lock_type'         => Array('permissions'),
-							  'forceably_acquire' => false,
-							  'dependants_only'   => false,
-							  );
+							'assetids'			=> array_keys($this->_running_vars['assets']),
+							'lock_type'			=> Array('permissions'),
+							'forceably_acquire'	=> false,
+							'dependants_only'	=> false,
+						);
 
 	}//end getLockAssetDetails()
 

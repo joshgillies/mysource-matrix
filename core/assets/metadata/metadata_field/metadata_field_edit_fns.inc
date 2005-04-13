@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_edit_fns.inc,v 1.29 2005/01/13 22:23:00 gsherwood Exp $
+* $Id: metadata_field_edit_fns.inc,v 1.30 2005/04/13 01:58:37 ndvries Exp $
 *
 */
 
@@ -32,12 +32,13 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 {
+
 
 	/**
 	* Constructor
@@ -206,7 +207,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 			if (isset($current_vc[$new_vc])) {
 				trigger_error('Value component "'.$new_vc.'" already exists for field "'.$asset->name.'"', E_USER_WARNING);
 			} else if (preg_match('/^[1-9][0-9]+$/', $new_vc)) {
-				// we are not allowing just numbers because we want to use array_merge() 
+				// we are not allowing just numbers because we want to use array_merge()
 				// and if there is only numbers it thinks the elements are in from an indexed array and it all goes bad.
 				trigger_error('Value components are can not allowed to contain only all numeric characters is the first character is zero', E_USER_WARNING);
 			} else {
@@ -230,7 +231,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 	*
 	* @param object Metadata_Field		&$asset			the asset whose interface we are painting
 	* @param object	Backend_Outputter	&$o				the outputter class
-	* @param string						$value_str		the current value for this field in the asset (NOT $asset) 
+	* @param string						$value_str		the current value for this field in the asset (NOT $asset)
 	*													NULL means that there is no current value set
 	* @param boolean					$write_access	does the current user have write access to the asset
 	*													that we are setting metadata for (NOT THE SAME AS $asset)
@@ -316,7 +317,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 	* Check if all required fields have been completed in the values supplied
 	*
 	* @param object Metadata_Field	&$asset		the asset whose metadata we are checking
-	* @param string					$value_str	the current value for this field in the asset (NOT $asset) 
+	* @param string					$value_str	the current value for this field in the asset (NOT $asset)
 	*											NULL means that there is no current value set
 	*
 	* @return boolean
@@ -352,7 +353,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 	* Output the complete metadata tag for this field
 	*
 	* @param object Metadata_Field	&$asset		the asset whose interface we are painting
-	* @param string					$value_str	the current value for this field in the asset (NOT $asset) 
+	* @param string					$value_str	the current value for this field in the asset (NOT $asset)
 	*											NULL means that there is no current value set
 	* @param array					&$tag_value	the metadata tag value
 	* @param array					&$keywords	an array we can put keywords in that need replacing

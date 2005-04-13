@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_acquire_locks.inc,v 1.8 2005/03/23 22:57:15 ndvries Exp $
+* $Id: hipo_job_acquire_locks.inc,v 1.9 2005/04/13 01:58:38 ndvries Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -54,19 +54,19 @@ class HIPO_Job_Acquire_Locks extends HIPO_Job
 	* @var Array
 	*/
 	var $_steps = Array(
-						Array(
-							  'name'          => 'Acquiring Locks',
-							  'function_call' => Array(
-													   'process_function' => 'processLocking',
-													   ),
-							  'running_mode'  => 'server',
-							  'auto_step'     => true,
-							  'allow_cancel'  => true,
-							  'percent_done'  => 0,
-							  'complete'      => false,
-							  'message'       => '',
-							  ),
-						);
+					Array(
+						'name'			=> 'Acquiring Locks',
+						'function_call'	=> Array(
+											'process_function'	=> 'processLocking',
+										   ),
+						'running_mode'	=> 'server',
+						'auto_step'		=> true,
+						'allow_cancel'	=> true,
+						'percent_done'	=> 0,
+						'complete'		=> false,
+						'message'		=> '',
+					),
+				  );
 
 
 	/**
@@ -118,8 +118,8 @@ class HIPO_Job_Acquire_Locks extends HIPO_Job
 	function getConfigVars()
 	{
 		return Array(
-					 'SQ_HIPO_ACQUIRE_LOCK_THRESHOLD' => Array('editable' => 1, 'default' => 1),
-					 );
+				'SQ_HIPO_ACQUIRE_LOCK_THRESHOLD'	=> Array('editable'	=> 1, 'default'	=> 1),
+			   );
 
 	}//end getConfigVars()
 

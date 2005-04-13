@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date_management.inc,v 1.6 2004/12/06 14:38:09 brobertson Exp $
+* $Id: metadata_field_date_management.inc,v 1.7 2005/04/13 01:58:37 ndvries Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -48,22 +48,22 @@ class Metadata_Field_Date_Management extends Asset_Management
 		$this->Asset_Management($pm);
 
 		$this->vars = Array(
-							'offset'		=> Array(
-													'added'   => '0.1',
-													'type'    => 'text',
-													'default' => ' ',
-													),
-							'format'		=> Array(
-													'added'   => '0.1',
-													'type'    => 'text',
-													'default' => 'd/m/Y H:i:s',
-													),
-							'setup_params'	=> Array(
-													'added'   => '0.0.1',
-													'type'    => 'serialise',
-													'default' => Array(),
-													),
-						);
+						'offset'		=> Array(
+											'added'		=> '0.1',
+											'type'		=> 'text',
+											'default'	=> ' ',
+										   ),
+						'format'		=> Array(
+											'added'		=> '0.1',
+											'type'		=> 'text',
+											'default'	=> 'd/m/Y H:i:s',
+										   ),
+						'setup_params'	=> Array(
+											'added'		=> '0.0.1',
+											'type'		=> 'serialise',
+											'default'	=> Array(),
+										   ),
+					  );
 
 	}//end constructor
 
@@ -77,8 +77,8 @@ class Metadata_Field_Date_Management extends Asset_Management
 	function _getFileList()
 	{
 		return Array(
-					 'popups/keywords.html',
-					 );
+				'popups/keywords.html',
+			   );
 
 	}//end _getFileList()
 

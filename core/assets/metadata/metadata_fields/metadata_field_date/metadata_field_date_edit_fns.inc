@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date_edit_fns.inc,v 1.15 2004/12/21 17:30:09 brobertson Exp $
+* $Id: metadata_field_date_edit_fns.inc,v 1.16 2005/04/13 01:58:37 ndvries Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -199,12 +199,11 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 		$default = $asset->attr('default');
 
 		$select_options = Array(
-							''                  => '-- keywords --',
-							'%asset_created%'   => 'Creation date',
-							'%asset_updated%'   => 'Last updated date',
-							'%asset_published%' => 'Last published date',
-
-		);
+							''					=> '-- keywords --',
+							'%asset_created%'	=> 'Creation date',
+							'%asset_updated%'	=> 'Last updated date',
+							'%asset_published%'	=> 'Last published date',
+						  );
 
 		echo 'Selected keyword replacement will be used instead of any entered default date values<br />';
 
@@ -325,11 +324,11 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 		if ($asset->attr('required')) $field_name .= ' <span style="color: #FF0000">*</span>';
 
 		$select_options = Array(
-							''                  => '-- keywords --',
-							'%asset_created%'   => 'Creation date',
-							'%asset_updated%'   => 'Last updated date',
-							'%asset_published%' => 'Last published date',
-		);
+							''					=> '-- keywords --',
+							'%asset_created%'	=> 'Creation date',
+							'%asset_updated%'	=> 'Last updated date',
+							'%asset_published%'	=> 'Last published date',
+						  );
 
 		$o->openField($field_name);
 
@@ -395,7 +394,7 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 	* Output the complete metadata tag for this field
 	*
 	* @param object Metadata_Field	&$asset		the asset whose interface we are painting
-	* @param string					$value_str	the current value for this field in the asset (NOT $asset) 
+	* @param string					$value_str	the current value for this field in the asset (NOT $asset)
 	*											NULL means that there is no current value set
 	* @param array					&$tag_value	the metadata tag value
 	* @param array					&$keywords	an array we can put keywords in that need replacing
@@ -454,7 +453,7 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 			// replace the plain keyword with the one that contains the format
 			$tag_value = str_replace($original, $key, $tag_value);
 
-			// replace the plain keyword (or at least it's first occurance in the keywords array) 
+			// replace the plain keyword (or at least it's first occurance in the keywords array)
 			// with the one that contains the format
 			$keyword = substr($original, 1, -1);
 			if (($i = array_search($keyword, $keywords)) !== false) {

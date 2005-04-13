@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: squiz_server_config.inc,v 1.10 2005/03/21 06:15:33 gsherwood Exp $
+* $Id: squiz_server_config.inc,v 1.11 2005/04/13 01:58:38 ndvries Exp $
 *
 */
 
@@ -33,22 +33,24 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the squiz server config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix
 */
 class Squiz_Server_Config extends Config
 {
+
+
 	/**
 	* Holds all the vars for this that config vars for this config
 	* In the form : Array([var name] => Array('editable' => [boolean], 'default' => [mixed scalar]))
 	* @var Array()
 	*/
 	var $config_vars = Array(
-		'SQ_SERVER_SYSTEM_ROOT'	=> Array('editable' => 1, 'default' => ''),
-		'SQ_SERVER_SYSTEMID'	=> Array('editable' => 1, 'default' => ''),
-		'SQ_SERVER_DOMAIN'		=> Array('editable' => 1, 'default' => ''),
-		'SQ_SERVER_PORT'		=> Array('editable' => 1, 'default' => 0),
-	);
+						'SQ_SERVER_SYSTEM_ROOT'	=> Array('editable'	=> 1, 'default'	=> ''),
+						'SQ_SERVER_SYSTEMID'	=> Array('editable'	=> 1, 'default'	=> ''),
+						'SQ_SERVER_DOMAIN'		=> Array('editable'	=> 1, 'default'	=> ''),
+						'SQ_SERVER_PORT'		=> Array('editable'	=> 1, 'default'	=> 0),
+					   );
 
 
 	/**
@@ -79,7 +81,7 @@ class Squiz_Server_Config extends Config
 
 
 	/**
-	* Does the current user have writeAccess() to this config ? 
+	* Does the current user have writeAccess() to this config ?
 	*
 	* @return boolean
 	* @access public
@@ -98,7 +100,7 @@ class Squiz_Server_Config extends Config
 	/**
 	* Paints the interface for our config options.
 	*
-	* If you (as a sub-class) put your config vars so that when they are submitted appear in 
+	* If you (as a sub-class) put your config vars so that when they are submitted appear in
 	* $_POST[get_class($this)] then you probably won't need to override processBackend()
 	*
 	* @param object Backend_Outputter	&$o			reference to the backend outputter

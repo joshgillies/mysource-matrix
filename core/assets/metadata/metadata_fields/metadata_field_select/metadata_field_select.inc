@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select.inc,v 1.5 2004/12/06 14:38:09 brobertson Exp $
+* $Id: metadata_field_select.inc,v 1.6 2005/04/13 01:58:37 ndvries Exp $
 *
 */
 
@@ -32,12 +32,13 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field.inc';
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Metadata_Field_Select extends Metadata_Field
 {
+
 
 	/**
 	* Constructor

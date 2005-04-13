@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_clone_assets.inc,v 1.9 2005/03/23 22:57:15 ndvries Exp $
+* $Id: hipo_job_clone_assets.inc,v 1.10 2005/04/13 01:58:38 ndvries Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -48,86 +48,86 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 	* @var Array
 	*/
 	var $_steps = Array(
-						Array(
-							  'name'          => 'Clone Options',
-							  'function_call' => Array(
-													   'paint_function'   => 'paintCloneOptions',
-													   'process_function' => 'processCloneOptions',
-													   ),
-							  'running_mode'  => 'web',
-							  'skip_step'     => false,
-							  'auto_step'     => false,
-							  'allow_cancel'  => true,
-							  'percent_done'  => 0,
-							  'complete'      => false,
-							  'message'       => '',
-							  ),
-						Array(
-							  'name'         => 'Acquiring Locks',
-							  'hipo_job'     => Array(
-													  'init_details_function' => 'getLockAssetDetails',
-													  ),
-							  'running_mode' => 'server',
-							  'auto_step'    => true,
-							  'allow_cancel' => false,
-							  'percent_done' => 0,
-							  'complete'     => false,
-							  'message'      => '',
-							  ),
-						Array(
-							  'name'          => 'Cloning Assets',
-							  'function_call' => Array(
-													   'process_function' => 'processCloneAssets',
-													   ),
-							  'running_mode'  => 'server',
-							  'skip_step'     => false,
-							  'auto_step'     => true,
-							  'allow_cancel'  => true,
-							  'percent_done'  => 0,
-							  'complete'      => false,
-							  'message'       => '',
-							  ),
-						Array(
-							  'name'          => 'Remapping Assets',
-							  'function_call' => Array(
-													   'process_function' => 'processRemap',
-													   ),
-							  'running_mode'  => 'server',
-							  'skip_step'     => false,
-							  'auto_step'     => true,
-							  'allow_cancel'  => false,
-							  'percent_done'  => 0,
-							  'complete'      => false,
-							  'message'       => '',
-							  ),
-						Array(
-							  'name'          => 'Releasing Locks',
-							  'function_call' => Array(
-													   'process_function' => 'releaseLocks',
-													   ),
-							  'running_mode'  => 'server',
-							  'auto_step'     => true,
-							  'skip_step'     => false,
-							  'allow_cancel'  => false,
-							  'percent_done'  => 0,
-							  'complete'      => false,
-							  'message'       => '',
-							  ),
-						Array(
-							  'name'          => 'Refreshing Asset Map',
-							  'function_call' => Array(
-													   'paint_function'   => 'paintRefresh',
-													   'process_function' => 'processRefresh',
-													   ),
-							  'running_mode'  => 'web',
-							  'auto_step'     => true,
-							  'skip_step'     => false,
-							  'allow_cancel'  => false,
-							  'percent_done'  => 0,
-							  'complete'      => false,
-							  'message'       => '',
-							  ),
-						);
+					Array(
+						'name'			=> 'Clone Options',
+						'function_call'	=> Array(
+											'paint_function'	=> 'paintCloneOptions',
+											'process_function'	=> 'processCloneOptions',
+										   ),
+						'running_mode'	=> 'web',
+						'skip_step'		=> false,
+						'auto_step'		=> false,
+						'allow_cancel'	=> true,
+						'percent_done'	=> 0,
+						'complete'		=> false,
+						'message'		=> '',
+					),
+					Array(
+						'name'			=> 'Acquiring Locks',
+						'hipo_job'		=> Array(
+											'init_details_function'	=> 'getLockAssetDetails',
+										   ),
+						'running_mode'	=> 'server',
+						'auto_step'		=> true,
+						'allow_cancel'	=> false,
+						'percent_done'	=> 0,
+						'complete'		=> false,
+						'message'		=> '',
+					),
+					Array(
+						'name'			=> 'Cloning Assets',
+						'function_call'	=> Array(
+											'process_function'	=> 'processCloneAssets',
+										   ),
+						'running_mode'	=> 'server',
+						'skip_step'		=> false,
+						'auto_step'		=> true,
+						'allow_cancel'	=> true,
+						'percent_done'	=> 0,
+						'complete'		=> false,
+						'message'		=> '',
+					),
+					Array(
+						'name'			=> 'Remapping Assets',
+						'function_call'	=> Array(
+											'process_function'	=> 'processRemap',
+										   ),
+						'running_mode'	=> 'server',
+						'skip_step'		=> false,
+						'auto_step'		=> true,
+						'allow_cancel'	=> false,
+						'percent_done'	=> 0,
+						'complete'		=> false,
+						'message'		=> '',
+					),
+					Array(
+						'name'			=> 'Releasing Locks',
+						'function_call'	=> Array(
+											'process_function'	=> 'releaseLocks',
+										   ),
+						'running_mode'	=> 'server',
+						'auto_step'		=> true,
+						'skip_step'		=> false,
+						'allow_cancel'	=> false,
+						'percent_done'	=> 0,
+						'complete'		=> false,
+						'message'		=> '',
+					),
+					Array(
+						'name'			=> 'Refreshing Asset Map',
+						'function_call'	=> Array(
+											'paint_function'	=> 'paintRefresh',
+											'process_function'	=> 'processRefresh',
+										   ),
+						'running_mode'	=> 'web',
+						'auto_step'		=> true,
+						'skip_step'		=> false,
+						'allow_cancel'	=> false,
+						'percent_done'	=> 0,
+						'complete'		=> false,
+						'message'		=> '',
+					),
+				  );
 
 
 	/**
@@ -179,8 +179,8 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 	function getConfigVars()
 	{
 		return Array(
-					 'SQ_DUPE_ASSET_THRESHOLD' => Array('editable' => 1, 'default' => 1),
-					 );
+				'SQ_DUPE_ASSET_THRESHOLD'	=> Array('editable'	=> 1, 'default'	=> 1),
+			   );
 
 	}//end getConfigVars()
 
@@ -275,11 +275,11 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 		$options['auto_complete'] = true;
 
 		$running_vars = Array(
-							  'assetids'          => array_keys($this->_running_vars['assets']),
-							  'lock_type'         => Array('all'),
-							  'forceably_acquire' => false,
-							  'dependants_only'   => true,
-							  );
+							'assetids'			=> array_keys($this->_running_vars['assets']),
+							'lock_type'			=> Array('all'),
+							'forceably_acquire'	=> false,
+							'dependants_only'	=> true,
+						);
 
 	}//end getLockAssetDetails()
 
@@ -426,21 +426,21 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 		unset($this->_running_vars['clone_assets'][$assetid]);
 
 		$link = Array(
-					  'asset'      => $parent_asset,
-					  'link_type'  => $orig_link['link_type'],
-					  'sort_order' => $this->_running_vars['to_parent_pos'],
-					  'value'      => '',
-					  );
+					'asset'			=> $parent_asset,
+					'link_type'		=> $orig_link['link_type'],
+					'sort_order'	=> $this->_running_vars['to_parent_pos'],
+					'value'			=> '',
+				);
 
 		$this->_running_vars['to_parent_pos']++;
 
 		$components = Array(
-							'attributes',
-							'metadata_schemas',
-							'metadata',
-							'workflow',
-							'permissions',
-							);
+						'attributes',
+						'metadata_schemas',
+						'metadata',
+						'workflow',
+						'permissions',
+					  );
 
 		$step_data['message'] = 'Cloning "'.$orig->name.'" to "'.$parent_asset->name.'".';
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_management.inc,v 1.14 2005/01/20 13:07:34 brobertson Exp $
+* $Id: metadata_field_management.inc,v 1.15 2005/04/13 01:58:37 ndvries Exp $
 *
 */
 
@@ -31,12 +31,13 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Metadata_Field_Management extends Asset_Management
 {
+
 
 	/**
 	* Constructor
@@ -46,62 +47,59 @@ class Metadata_Field_Management extends Asset_Management
 	{
 		$this->Asset_Management($pm);
 
-		$this->vars = Array('name'				=> Array(
-													'added' => '0.1',
-													'type'  => 'text', 'default'   => ''
-													),
-							'default'			 => Array(
-													'added' => '0.1',
-													'type'  => 'text', 'default'   => ''
-													),
-							'scheme'			=> Array(
-													'added' => '0.1',
-													'type'  => 'text', 'default'   => ''
-													),
-							'language'			=> Array(
-													'added' => '0.1',
-													'type'  => 'text', 'default'   => ''
-													),
-							'value_components'	=> Array(
-													'added' => '0.0.1',
-													'type'  => 'serialise', 'default' => Array()
-													),
-							'editable'			=> Array(
-													'added'      => '0.1',
-													'type'       => 'boolean',
-													'default'    => true,
-													'parameters' => Array(
-															'allow_empty' => false
-														),
-													),
-							'required'			=> Array(
-													'added'       => '0.1',
-													'type'        => 'boolean',
-													'default'     => false,
-													'parameters'  => Array(
-															'allow_empty' => false
-														),
-													'description' => 'If this field is Required, then either the value or any one of the value components must be set for an asset to be approved',
-													),
-							'weighting'			=> Array(
-													'added' => '0.1',
-													'type'	=> 'int', 'default' => '-1'
-													),
-							'frontend'			=> Array(
-													'added' => '0.1',
-													'type'       => 'selection',
-													'default'    => 'show',
-													'parameters' => Array(
-																			'options' => Array(
-																					'show'	=> 'Always',
-																					'fill'	=> 'Only If Filled',
-																					'hide'	=> 'Never',
-																			),
-																			'multiple' => false,
-																			'allow_empty' => false,
-																		),
-													),
-							);
+		$this->vars = Array(
+						'name'				=> Array(
+												'added'	=> '0.1',
+												'type'	=> 'text', 'default'	=> '',
+											   ),
+						'default'			=> Array(
+												'added'	=> '0.1',
+												'type'	=> 'text', 'default'	=> '',
+											   ),
+						'scheme'			=> Array(
+												'added'	=> '0.1',
+												'type'	=> 'text', 'default'	=> '',
+											   ),
+						'language'			=> Array(
+												'added'	=> '0.1',
+												'type'	=> 'text', 'default'	=> '',
+											   ),
+						'value_components'	=> Array(
+												'added'	=> '0.0.1',
+												'type'	=> 'serialise', 'default'	=> Array(),
+											   ),
+						'editable'			=> Array(
+												'added'			=> '0.1',
+												'type'			=> 'boolean',
+												'default'		=> true,
+												'parameters'	=> Array('allow_empty'	=> false),
+											   ),
+						'required'			=> Array(
+												'added'			=> '0.1',
+												'type'			=> 'boolean',
+												'default'		=> false,
+												'parameters'	=> Array('allow_empty' => false),
+												'description'	=> 'If this field is Required, then either the value or any one of the value components must be set for an asset to be approved',
+											   ),
+						'weighting'			=> Array(
+												'added'	=> '0.1',
+												'type'	=> 'int', 'default'	=> '-1',
+											   ),
+						'frontend'			=> Array(
+												'added'			=> '0.1',
+												'type'			=> 'selection',
+												'default'		=> 'show',
+												'parameters'	=> Array(
+																	'options'		=> Array(
+																						'show'	=> 'Always',
+																						'fill'	=> 'Only If Filled',
+																						'hide'	=> 'Never',
+																					   ),
+																	'multiple'		=> false,
+																	'allow_empty'	=> false,
+																   ),
+											   ),
+					  );
 	}//end constructor
 
 
@@ -114,11 +112,12 @@ class Metadata_Field_Management extends Asset_Management
 	function _getFileList()
 	{
 		return Array(
-					 'popups/keywords.html',
-					 'popups/keyword_extraction.php',
-					 );
+				'popups/keywords.html',
+				'popups/keyword_extraction.php',
+			   );
 
 	}//end _getFileList()
+
 
 }//end class
 

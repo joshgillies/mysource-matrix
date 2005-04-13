@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_schema_management.inc,v 1.9 2004/12/06 14:38:09 brobertson Exp $
+* $Id: metadata_schema_management.inc,v 1.10 2005/04/13 01:58:37 ndvries Exp $
 *
 */
 
@@ -31,12 +31,13 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Metadata_Schema_Management extends Asset_Management
 {
+
 
 	/**
 	* Constructor
@@ -46,31 +47,31 @@ class Metadata_Schema_Management extends Asset_Management
 	{
 		$this->Asset_Management($pm);
 
-		$this->vars = Array('name' => Array(
-											'added'     => '0.1',
-											'type'      => 'text',
-											'default'   => ''
-											),
-							'namespace' => Array(
-											'added'     => '0.1',
-											'type'      => 'text',
-											'default'   => ''
-											),
-							'nsurl' => Array(
-											'added'     => '0.1',
-											'type'      => 'text',
-											'default'   => ''
-											),
-							'frontend' => Array(
-											'added'      => '0.1',
-											'type'       => 'boolean',
-											'default'    => true,
-											'parameters' => Array(
-															'allow_empty' => false
-														),
-											),
-							);
+		$this->vars = Array(
+						'name'		=> Array(
+										'added'		=> '0.1',
+										'type'		=> 'text',
+										'default'	=> '',
+									   ),
+						'namespace'	=> Array(
+										'added'		=> '0.1',
+										'type'		=> 'text',
+										'default'	=> '',
+									   ),
+						'nsurl'		=> Array(
+										'added'		=> '0.1',
+										'type'		=> 'text',
+										'default'	=> '',
+									   ),
+						'frontend'	=> Array(
+										'added'			=> '0.1',
+										'type'			=> 'boolean',
+										'default'		=> true,
+										'parameters'	=> Array('allow_empty'	=> false),
+									   ),
+					  );
 	}//end constructor
+
 
 }//end class
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_config.inc,v 1.25 2005/03/23 22:57:15 ndvries Exp $
+* $Id: hipo_config.inc,v 1.26 2005/04/13 01:58:38 ndvries Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the hipo config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix
 */
 class HIPO_Config extends Config
@@ -44,9 +44,9 @@ class HIPO_Config extends Config
 	* @var Array()
 	*/
 	var $config_vars = Array(
-							 'SQ_HIPO_USE_SERVER'      => Array('editable' => 1, 'default' => false),
-							 'SQ_HIPO_TOTAL_THRESHOLD' => Array('editable' => 1, 'default' => 80),
-							 );
+						'SQ_HIPO_USE_SERVER'		=> Array('editable' => 1, 'default' => false),
+						'SQ_HIPO_TOTAL_THRESHOLD'	=> Array('editable' => 1, 'default' => 80),
+					   );
 
 
 	/**

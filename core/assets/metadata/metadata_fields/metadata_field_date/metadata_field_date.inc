@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date.inc,v 1.5 2005/03/02 03:20:50 gsherwood Exp $
+* $Id: metadata_field_date.inc,v 1.6 2005/04/13 01:58:37 ndvries Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field.inc';
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -127,33 +127,33 @@ class Metadata_Field_Date extends Metadata_Field
 
 		$date = getdate(iso8601_ts($value));
 		$value_arr = Array(
-						   'y' => $date['year'],
-						   'm' => $date['mon'],
-						   'd' => $date['mday'],
-						   'h' => $date['hours'],
-						   'i' => $date['minutes'],
-						   's' => $date['seconds'],
-						   );
+						'y'	=> $date['year'],
+						'm'	=> $date['mon'],
+						'd'	=> $date['mday'],
+						'h'	=> $date['hours'],
+						'i'	=> $date['minutes'],
+						's'	=> $date['seconds'],
+					 );
 
 		// parameters
 		$parameters = $this->attr('setup_params');
 		if (empty($parameters)) {
 			$date = getdate();
 			$parameters = Array(
-								'min'         => '2003-01-01 00:00:00',
-								'max'         => ($date['year'] + 1).'-12-31 23:59:59',
-								'allow_circa' => '0',
-								'show'        => Array('y', 'm', 'd', 'h', 'i', 's'),
-								'null'        => Array(),
-								'style'       => Array(
-													   'y' => 's',
-													   'm' => 's',
-													   'd' => 's',
-													   'h' => 's',
-													   'i' => 's',
-													   's' => 's',
-													   ),
-								);
+							'min'			=> '2003-01-01 00:00:00',
+							'max'			=> ($date['year'] + 1).'-12-31 23:59:59',
+							'allow_circa'	=> '0',
+							'show'			=> Array('y', 'm', 'd', 'h', 'i', 's'),
+							'null'			=> Array(),
+							'style'			=> Array(
+												'y'	=> 's',
+												'm'	=> 's',
+												'd'	=> 's',
+												'h'	=> 's',
+												'i'	=> 's',
+												's'	=> 's',
+											   ),
+						  );
 		}
 		$parameters['print_format'] = $this->attr('format');
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_regenerate_metadata.inc,v 1.18 2005/03/16 00:28:15 ndvries Exp $
+* $Id: hipo_job_regenerate_metadata.inc,v 1.19 2005/04/13 01:58:38 ndvries Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    schemaid	-	the ID of the schema that has been updated
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -50,43 +50,43 @@ class HIPO_Job_Regenerate_Metadata extends HIPO_Job
 	* @var Array
 	*/
 	var $_steps = Array(
-						Array(
-							  'name'         => 'Acquiring Metadata Locks',
-							  'hipo_job'     => Array(
-													  'init_details_function' => 'getLockAssetDetails',
-													  ),
-							  'running_mode' => 'server',
-							  'auto_step'    => true,
-							  'allow_cancel' => true,
-							  'percent_done' => 0,
-							  'complete'     => false,
-							  'message'      => '',
-							  ),
-						Array(
-							  'name'          => 'Generating Metadata Files',
-							  'function_call' => Array(
-													   'process_function' => 'processMetadata',
-													   ),
-							  'running_mode'  => 'server',
-							  'auto_step'     => true,
-							  'allow_cancel'  => true,
-							  'percent_done'  => 0,
-							  'complete'      => false,
-							  'message'       => '',
-							  ),
-						Array(
-							  'name'          => 'Releasing Metadata Locks',
-							  'function_call' => Array(
-													   'process_function' => 'releaseLocks',
-													   ),
-							  'running_mode'  => 'server',
-							  'auto_step'     => true,
-							  'allow_cancel'  => false,
-							  'percent_done'  => 0,
-							  'complete'      => false,
-							  'message'       => '',
-							  ),
-						);
+					Array(
+						'name'			=> 'Acquiring Metadata Locks',
+						'hipo_job'		=> Array(
+											'init_details_function'	=> 'getLockAssetDetails',
+										   ),
+						'running_mode'	=> 'server',
+						'auto_step'		=> true,
+						'allow_cancel'	=> true,
+						'percent_done'	=> 0,
+						'complete'		=> false,
+						'message'		=> '',
+					),
+					Array(
+						'name'			=> 'Generating Metadata Files',
+						'function_call'	=> Array(
+											'process_function'	=> 'processMetadata',
+										   ),
+						'running_mode'	=> 'server',
+						'auto_step'		=> true,
+						'allow_cancel'	=> true,
+						'percent_done'	=> 0,
+						'complete'		=> false,
+						'message'		=> '',
+					),
+					Array(
+						'name'			=> 'Releasing Metadata Locks',
+						'function_call'	=> Array(
+											'process_function'	=> 'releaseLocks',
+										   ),
+						'running_mode'	=> 'server',
+						'auto_step'		=> true,
+						'allow_cancel'	=> false,
+						'percent_done'	=> 0,
+						'complete'		=> false,
+						'message'		=> '',
+					),
+				  );
 
 
 	/**
@@ -289,11 +289,11 @@ class HIPO_Job_Regenerate_Metadata extends HIPO_Job
 		foreach ($asset_info as $assetid => $info) $todo[$assetid] = $info['type_code'];
 
 		$running_vars = Array(
-							  'assetids'        => array_keys($todo),
-							  'todo_assetids'   => $todo,
-							  'lock_type'       => Array('metadata'),
-							  'dependants_only' => false,
-							  );
+							'assetids'			=> array_keys($todo),
+							'todo_assetids'		=> $todo,
+							'lock_type'			=> Array('metadata'),
+							'dependants_only'	=> false,
+						);
 
 	}//end getLockAssetDetails()
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field.inc,v 1.11 2005/04/06 18:26:06 brobertson Exp $
+* $Id: metadata_field.inc,v 1.12 2005/04/13 01:58:37 ndvries Exp $
 *
 */
 
@@ -32,12 +32,13 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Metadata_Field extends Asset
 {
+
 
 	/**
 	* Constructor
@@ -101,11 +102,12 @@ class Metadata_Field extends Asset
 	*/
 	function _getAllowedLinks()
 	{
-		return Array(SQ_LINK_TYPE_1 => Array(),
-					 SQ_LINK_TYPE_2 => Array(),
-					 SQ_LINK_TYPE_3 => Array(),
-					 SQ_LINK_NOTICE => Array()
-					);
+		return Array(
+				SQ_LINK_TYPE_1	=> Array(),
+				SQ_LINK_TYPE_2	=> Array(),
+				SQ_LINK_TYPE_3	=> Array(),
+				SQ_LINK_NOTICE	=> Array(),
+			   );
 
 	}//end _getAllowedLinks()
 
@@ -129,18 +131,18 @@ class Metadata_Field extends Asset
 	* Generate an array of current values for the passed metadata field names
 	*
 	* @param object Asset			&$asset		the asset whose field values we are getting
-	* @param string					$value_str	the current value for this field in the asset (NOT $asset) 
+	* @param string					$value_str	the current value for this field in the asset (NOT $asset)
 	*											NULL means that there is no current value set
 	*
 	* @access public
-	* @return string	the metadata value for the passed asset 
+	* @return string	the metadata value for the passed asset
 	*/
 	function getMetadataValue(&$asset, $value_str)
 	{
 		require_once SQ_FUDGE_PATH.'/general/text.inc';
 		$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
 
-		// if there are no components that we know about and we are not being displayed on the frontend, 
+		// if there are no components that we know about and we are not being displayed on the frontend,
 		// then just unescape the value string and return that
 		if (!$this->attr('value_components') && $this->attr('frontend') == 'hide') {
 			Metadata_Field::decodeValueString($value_str, $value='', $components=Array());
@@ -173,7 +175,7 @@ class Metadata_Field extends Asset
 	*					[address] => 140 Tabernacle St Old Street
 	*				)
 	*
-	*   // this will return 
+	*   // this will return
 	*
 	*   This is a test desc; corporateName=squiz UK; jurisdiction=uk; email=brobertson@squiz.co.uk; address=140 Tabernacle St Old Street;
 	* </code>
@@ -196,7 +198,7 @@ class Metadata_Field extends Asset
 		$replace = '\\\\$1';
 
 		$str = preg_replace($regex, $replace, $value);
-		foreach($components as $k => $v) {
+		foreach ($components as $k => $v) {
 			$str .= '; '.preg_replace($regex, $replace, $k).'='.preg_replace($regex, $replace, $v);
 		}// end foreach
 
@@ -212,7 +214,7 @@ class Metadata_Field extends Asset
 	*  example string :
 	* <code>
 	*   This is a test desc; corporateName=squiz UK; jurisdiction=uk; email=brobertson@squiz.co.uk; address=140 Tabernacle St Old Street;
-	*   // this will return 
+	*   // this will return
 	*
 	*	VALUE : This is a test desc
 	*	COMPONENTS : Array
@@ -229,7 +231,7 @@ class Metadata_Field extends Asset
 	*
 	* @param string		$str				the string to decode
 	* @param string		&$value				the variable to place the value into
-	*										the value is defined as the concatentation of all strings that don't 
+	*										the value is defined as the concatentation of all strings that don't
 	*										have a component name (ie a 'name=' before them)
 	* @param Array()	&$components		the associative array to put the components into
 	*										If the array is NOT empty then only components in $str that are elements
@@ -252,7 +254,7 @@ class Metadata_Field extends Asset
 		$value = '';
 		$check_component = !empty($components);
 		$parts = explode(';', $str);
-		foreach($parts as $part) {
+		foreach ($parts as $part) {
 			if ($part == '') continue;
 			$pair = explode('=', $part, 2);
 
@@ -267,7 +269,7 @@ class Metadata_Field extends Asset
 				if ($value != '') $value .= '; ';
 				$value .= $pair[0];
 			// if the array wasn't empty, then we need to make sure that the component is already in the array
-			} elseif (!$check_component || isset($components[$pair[0]])) {
+			} else if (!$check_component || isset($components[$pair[0]])) {
 				$components[$pair[0]] = $pair[1];
 			}
 
