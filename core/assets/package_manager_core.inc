@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_core.inc,v 1.25 2005/04/06 07:08:11 mmcintyre Exp $
+* $Id: package_manager_core.inc,v 1.26 2005/04/13 04:32:57 rhoward Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/package_manager.inc';
 *    uses info gleened from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix
 */
 class Package_Manager_Core extends Package_Manager
@@ -185,6 +185,7 @@ class Package_Manager_Core extends Package_Manager
 				'designs_folder',
 				'login_design',
 				'cron_job_expired_workflow',
+				'cron_job_generate_log_reports',
 			   );
 
 	}//end getSystemAssetTypes()
@@ -266,9 +267,9 @@ class Package_Manager_Core extends Package_Manager
 		// we will also turn all 'zero' permissions into the public user's while we're at it
 		// THIS IS AN UPGRADE AND SHOULD BE REMOVED
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		
+
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		
+
 		$sql = 'UPDATE
 					sq_ast_perm
 				SET
@@ -477,7 +478,9 @@ class Package_Manager_Core extends Package_Manager
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('remap_manager');
 		$remap_manager = new Remap_Manager();
 		$remap_manager_link = Array('asset' => &$system_management_folder, 'link_type' => SQ_LINK_TYPE_1, 'is_exclusive' => 1);
-		if (!$remap_manager->create($remap_manager_link)) trigger_error('Remap Manager NOT CREATED', E_USER_ERROR);
+		if (!$remap_manager->create($remap_manager_link)) {
+			trigger_error('Remap Manager NOT CREATED', E_USER_ERROR);
+		}
 		pre_echo('Remap Manager Asset Id : '.$remap_manager->id);
 
 		$GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('remap_manager',$remap_manager->id);
@@ -687,6 +690,37 @@ class Package_Manager_Core extends Package_Manager
 		return $cron_job;
 
 	}//end createCronJobExpiredWorkflow()
+
+
+	/**
+	* Create the generate log report cron job
+	*
+	* @return object Cron_Job_Generate_Log_Report
+	* @access public
+	*/
+	function &createCronJobGenerateLogReports()
+	{
+		$cron_manager =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+		if (is_null($cron_manager)) {
+			trigger_error('Couldn\'t get cron manager, couldn\'t create generate log reports cron job', E_USER_WARNING);
+			$null = null;
+			return $null;
+		}
+
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_generate_log_reports');
+
+		$cron_job = new Cron_Job_Generate_Log_Reports();
+		$root_user = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+		if (!$cron_manager->addJob($cron_job, $root_user, SQ_LINK_TYPE_2)) {
+			trigger_error('Generate Log Reports Cron Job NOT CREATED', E_USER_ERROR);
+		}
+		pre_echo('Generate Log Reports Cron Job Id: '.$cron_job->id);
+
+		$GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('cron_job_generate_log_reports', $cron_job->id);
+
+		return $cron_job;
+
+	}//end createCronJobGenerateLogReports()
 
 
 }//end class
