@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.299 2005/04/12 11:00:31 brobertson Exp $
+* $Id: asset_manager.inc,v 1.300 2005/04/13 05:59:25 mmcintyre Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.299 $
+* @version $Revision: 1.300 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2876,7 +2876,7 @@ class Asset_Manager extends MySource_Object
 			}
 		}//end for
 
-		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LINK_VALIDATION)) {
+		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LINK_INTEGRITY)) {
 			// check if we are allowed to link to these type of assets
 			if (($err_msg = $major->canCreateLink($minor, $link_type, $exclusive)) !== true) {
 				trigger_error($err_msg, E_USER_WARNING);
@@ -3525,7 +3525,7 @@ class Asset_Manager extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// let's try and delete the old link
-		$deleted = $old_parent->deleteLink($linkid);
+		$deleted = $old_parent->deleteLink($linkid, true);
 		if (!$deleted) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return 0;
@@ -3616,7 +3616,7 @@ class Asset_Manager extends MySource_Object
 				return false;
 			}
 
-			if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LINK_VALIDATION)) {
+			if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LINK_INTEGRITY)) {
 				if (($err_msg = $this->canLinkToType($major, $minor->type(), $link_type)) !== true) {
 					trigger_error('Unable to update link #'.$linkid.' ('.$err_msg.')', E_USER_WARNING);
 					$ms->abortLog();
@@ -3786,12 +3786,13 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Remove a link by id
 	*
-	* @param int	$linkid	the link id of the link to remove
+	* @param int		$linkid	the link id of the link to remove
+	* @param boolean	$moving	TRUE if this delete is part of a move operation
 	*
 	* @return boolean
 	* @access public
 	*/
-	function deleteAssetLink($linkid)
+	function deleteAssetLink($linkid, $moving=false)
 	{
 		// first, we should try and find the link
 		$link = $this->getLinkById($linkid);
@@ -3817,7 +3818,7 @@ class Asset_Manager extends MySource_Object
 			}
 		}
 
-		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LINK_VALIDATION)) {
+		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LINK_INTEGRITY)) {
 			// check if we are allowed to delete this link
 			if (($err_msg = $major->canDeleteLink($linkid)) !== true) {
 				trigger_error($err_msg, E_USER_WARNING);
@@ -3842,40 +3843,48 @@ class Asset_Manager extends MySource_Object
 			$num_other_links = $this->countLinks($minor->id, 'minor', SQ_SC_LINK_SIGNIFICANT, '', true, $linkid);
 
 			// we create a new link to the trash if this is the last significant link
-			// being deleted and if we are not purging the trash
-			if (!$num_other_links && !$GLOBALS['SQ_PURGING_TRASH']) {
-				// some assets may not be able to have their last significant link
-				// deleted, so lets check first before going ahead
-				if (!$minor->canDelete()) {
-					trigger_error($minor->name.' can not have its last significant link removed' , E_USER_WARNING);
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return false;
-				}
+			// being deleted and if we are not purging the trash. We check the moving
+			// flag so that if we are the last significant link, we dont create a link
+			// to the trash as the move operation will re-create the link elsewhere
+			if (!$moving && !$num_other_links && !$GLOBALS['SQ_PURGING_TRASH']) {
 
-				$trash_folder = &$this->getSystemAsset('trash_folder');
-				if (is_null($trash_folder)) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return false;
-				}
+				error_log(var_export(debug_backtrace(), 1));
 
-				// this asset is destined for the trash, so we need to set its permissions to
-				// whatever it is inheriting right now so it keeps them while in the trash
-				$perms = Array(SQ_PERMISSION_ADMIN, SQ_PERMISSION_WRITE, SQ_PERMISSION_READ);
-				foreach ($perms as $perm) {
-					$all_permissions = $this->getPermission($minor->id, $perm, null, false, false, true);
-					foreach ($all_permissions as $userid => $granted) {
-						// we are deliberatly not checking for the return value here
-						// because if for some reason the permission can't be set that is really just
-						// bad luck
-						@$this->setPermission($minor->id, $userid, $perm, $granted);
+				if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LINK_INTEGRITY)) {
+
+					// some assets may not be able to have their last significant link
+					// deleted, so lets check first before going ahead
+					if (!$minor->canDelete()) {
+						trigger_error($minor->name.' can not have its last significant link removed' , E_USER_WARNING);
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						return false;
+					}
+
+					$trash_folder = &$this->getSystemAsset('trash_folder');
+					if (is_null($trash_folder)) {
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						return false;
+					}
+
+					// this asset is destined for the trash, so we need to set its permissions to
+					// whatever it is inheriting right now so it keeps them while in the trash
+					$perms = Array(SQ_PERMISSION_ADMIN, SQ_PERMISSION_WRITE, SQ_PERMISSION_READ);
+					foreach ($perms as $perm) {
+						$all_permissions = $this->getPermission($minor->id, $perm, null, false, false, true);
+						foreach ($all_permissions as $userid => $granted) {
+							// we are deliberatly not checking for the return value here
+							// because if for some reason the permission can't be set that is really just
+							// bad luck
+							@$this->setPermission($minor->id, $userid, $perm, $granted);
+						}
+					}
+
+					if (!$trash_folder->createLink($minor, SQ_LINK_TYPE_2)) {
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						return false;
 					}
 				}
-
-				if (!$trash_folder->createLink($minor, SQ_LINK_TYPE_2)) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return false;
-				}
-			}
+			}//end if last significant link
 
 			//// UPDATE THE TREE ////
 

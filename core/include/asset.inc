@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.385 2005/04/08 05:39:08 gsherwood Exp $
+* $Id: asset.inc,v 1.386 2005/04/13 05:59:34 mmcintyre Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.385 $
+* @version $Revision: 1.386 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -2295,20 +2295,21 @@ class Asset extends MySource_Object
 	/**
 	* Remove a link where this asset is the major player
 	*
-	* @param int	$linkid	the link id of the link to remove
+	* @param int		$linkid	the link id of the link to remove
+	* @param boolean	$moving	TRUE if this is part of a move operation
 	*
 	* @return boolean
 	* @access public
 	* @see Asset_Manager::deleteAssetLink()
 	*/
-	function deleteLink($linkid)
+	function deleteLink($linkid, $moving=false)
 	{
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid, $this->id);
 		if (empty($link)) {
 			trigger_error('Unable to delete link, Link #'.$linkid.' does not exist', E_USER_NOTICE);
 			return false;
 		} else {
-			return $GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($linkid);
+			return $GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($linkid, $moving);
 		}
 
 	}//end deleteLink()
@@ -3679,7 +3680,7 @@ class Asset extends MySource_Object
 
 			$sql = 'DELETE FROM
 						sq_ast_lookup_value
-					WHERE 
+					WHERE
 						url IN ('.implode(',', $current_urls).')';
 
 			$result = $db->query($sql);
