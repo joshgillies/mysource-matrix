@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_permissions.inc,v 1.45 2005/04/13 01:58:38 ndvries Exp $
+* $Id: hipo_job_edit_permissions.inc,v 1.46 2005/04/13 23:49:30 ndvries Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.46 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -182,7 +182,9 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 	function getThresholdPercentageRequired()
 	{
 		if (SQ_HIPO_PERMISSIONS_THRESHOLD == 0) return 0;
-		if (!isset($this->_running_vars['todo_assetids'])) return 0;
+		if (!isset($this->_running_vars['todo_assetids'])) {
+			return 0;
+		}
 		return ((count($this->_running_vars['todo_assetids']) / (SQ_HIPO_PERMISSIONS_THRESHOLD / count($this->_running_vars['permission_changes']))) * 100);
 
 	}//end getThresholdPercentageRequired()
@@ -197,7 +199,9 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 	function freestyle()
 	{
 		while (!empty($this->_running_vars['todo_assetids'])) {
-			if (!$this->processPermissions($this->_steps[0], get_class($this))) return false;
+			if (!$this->processPermissions($this->_steps[0], get_class($this))) {
+				return false;
+			}
 		}
 		return true;
 

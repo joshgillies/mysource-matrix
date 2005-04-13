@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_text_edit_fns.inc,v 1.6 2005/04/13 01:58:37 ndvries Exp $
+* $Id: metadata_field_text_edit_fns.inc,v 1.7 2005/04/13 23:49:30 ndvries Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -79,14 +79,19 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 		}
 
 		$field_name = $asset->name;
-		if ($asset->attr('required')) $field_name .= ' <span style="color: #FF0000">*</span>';
+		if ($asset->attr('required')) {
+			$field_name .= ' <span style="color: #FF0000">*</span>';
+		}
 
 		$o->openField($field_name);
 
 			if ($asset->attr('editable')) {
 				if ($write_access) {
-					if ($asset->attr('multi_line')) text_area($prefix.'_value', $value, 45, 7);
-					else text_box($prefix.'_value', $value, 30);
+					if ($asset->attr('multi_line')) {
+						text_area($prefix.'_value', $value, 45, 7);
+					} else {
+						text_box($prefix.'_value', $value, 30);
+					}
 				} else {
 					echo $value;
 				}
@@ -110,14 +115,19 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 								echo '<td width="150" valign="top" class="sq-backend-table-cell">';
 								echo '<b>'.$vc_name.'</b>';
 								echo '<br />';
-								if ($write_access) text_area($prefix.'_vc_value['.$vc_name.']', $vc_value, 30, 4);
-								else echo $vc_value;
+								if ($write_access) {
+									text_area($prefix.'_vc_value['.$vc_name.']', $vc_value, 30, 4);
+								} else {
+									echo $vc_value;
+								}
 								echo '</td>';
 
 								$num_done++;
 							}
 							if ($num_done && $num_done != $num_per_row) {
-								for ($i = ($num_per_row - $num_done); $i > 0; $i--) echo'<td width="150" class="sq-backend-table-cell">&nbsp;</td>';
+								for ($i = ($num_per_row - $num_done); $i > 0; $i--) {
+									echo'<td width="150" class="sq-backend-table-cell">&nbsp;</td>';
+								}
 							}
 							?>
 						</tr>

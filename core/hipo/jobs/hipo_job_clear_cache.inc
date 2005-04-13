@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_clear_cache.inc,v 1.7 2005/04/13 01:58:38 ndvries Exp $
+* $Id: hipo_job_clear_cache.inc,v 1.8 2005/04/13 23:49:30 ndvries Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -82,8 +82,11 @@ class HIPO_Job_Clear_Cache extends HIPO_Job
 	*/
 	function getCodeName()
 	{
-		if (isset($this->_running_vars['linkid'])) return parent::getCodeName().$this->_running_vars['linkid'];
-		else return parent::getCodeName().$this->_running_vars['assetid'];
+		if (isset($this->_running_vars['linkid'])) {
+			return parent::getCodeName().$this->_running_vars['linkid'];
+		} else {
+			return parent::getCodeName().$this->_running_vars['assetid'];
+		}
 
 	}//end getCodeName()
 
@@ -130,7 +133,9 @@ class HIPO_Job_Clear_Cache extends HIPO_Job
 		$this->_running_vars['cache_dirs'] = Array();
 		$dh = opendir(SQ_CACHE_PATH);
 		while (false !== ($file = readdir($dh))) {
-			if ($file == '.' || $file == '..') continue;
+			if ($file == '.' || $file == '..') {
+				continue;
+			}
 			if (!is_dir(SQ_CACHE_PATH.'/'.$file)) continue;
 
 			// cache directories should only be 4 digits long
@@ -156,7 +161,9 @@ class HIPO_Job_Clear_Cache extends HIPO_Job
 	function freestyle()
 	{
 		while (!empty($this->_running_vars['todo_assetids']) || !$this->_running_vars['done_root']) {
-			if (!$this->processClearCache($this->_steps[0], get_class($this))) return false;
+			if (!$this->processClearCache($this->_steps[0], get_class($this))) {
+				return false;
+			}
 		}
 		return true;
 
@@ -198,7 +205,9 @@ class HIPO_Job_Clear_Cache extends HIPO_Job
 						if (is_dir($abs_path)) continue;
 						// if the file starts with the assetid_code for the asset
 						// then back up in the unlinking with the resurection
-						if (substr($file, 0, strlen($assetid_code)) == $assetid_code) unlink($abs_path);
+						if (substr($file, 0, strlen($assetid_code)) == $assetid_code) {
+							unlink($abs_path);
+						}
 					}
 					closedir($dh);
 				}

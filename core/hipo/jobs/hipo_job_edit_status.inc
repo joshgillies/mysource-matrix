@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_status.inc,v 1.32 2005/04/13 01:58:38 ndvries Exp $
+* $Id: hipo_job_edit_status.inc,v 1.33 2005/04/13 23:49:30 ndvries Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to change the status of an asset
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -145,7 +145,9 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 	function getThresholdPercentageRequired()
 	{
 		if (SQ_HIPO_EDIT_STATUS_THRESHOLD == 0) return 0;
-		if (!isset($this->_running_vars['todo_assetids'])) return 0;
+		if (!isset($this->_running_vars['todo_assetids'])) {
+			return 0;
+		}
 		return ((count($this->_running_vars['todo_assetids']) / SQ_HIPO_EDIT_STATUS_THRESHOLD) * 100);
 
 	}//end getThresholdPercentageRequired()
@@ -226,7 +228,9 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 	function freestyle()
 	{
 		while (!empty($this->_running_vars['todo_assetids']) || !$this->_running_vars['done_root']) {
-			if (!$this->processStatus($this->_steps[0], get_class($this))) return false;
+			if (!$this->processStatus($this->_steps[0], get_class($this))) {
+				return false;
+			}
 		}
 		return true;
 

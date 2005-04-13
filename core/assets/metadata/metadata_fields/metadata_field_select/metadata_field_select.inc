@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select.inc,v 1.6 2005/04/13 01:58:37 ndvries Exp $
+* $Id: metadata_field_select.inc,v 1.7 2005/04/13 23:49:30 ndvries Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field.inc';
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -65,12 +65,16 @@ class Metadata_Field_Select extends Metadata_Field
 
 		$selection = new Asset_Attribute_Selection();
 		$edit_params = $this->attr('edit_params');
-		if (!empty($edit_params)) $selection->_edit_params = $edit_params;
+		if (!empty($edit_params)) {
+			$selection->_edit_params = $edit_params;
+		}
 		$selection->_params['options'] = $this->attr('select_options');
 		$selection->_params['multiple'] = $this->attr('multiple');
 
 		$default = $this->attr('default');
-		if ($this->attr('multiple')) $default = explode('; ', $default);
+		if ($this->attr('multiple')) {
+			$default = explode('; ', $default);
+		}
 		$selection->setValue($default);
 
 		return $selection;

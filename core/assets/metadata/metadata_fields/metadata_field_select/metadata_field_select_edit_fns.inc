@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select_edit_fns.inc,v 1.13 2005/04/13 01:58:37 ndvries Exp $
+* $Id: metadata_field_select_edit_fns.inc,v 1.14 2005/04/13 23:49:30 ndvries Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -79,7 +79,9 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 		}
 
 		$field_name = $asset->name;
-		if ($asset->attr('required')) $field_name .= ' <span style="color: #FF0000">*</span>';
+		if ($asset->attr('required')) {
+			$field_name .= ' <span style="color: #FF0000">*</span>';
+		}
 
 		$o->openField($field_name);
 
@@ -87,8 +89,11 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 
 			if ($asset->attr('multiple')) {
 				// if there is no value we need a blank array...not and array with one elemenr (a blank string)
-				if ($value == '') $value = Array();
-				else $value = explode('; ', $value);
+				if ($value == '') {
+					$value = Array();
+				} else {
+					$value = explode('; ', $value);
+				}
 			}
 
 			if ($write_access && $asset->attr('editable')) {
@@ -99,7 +104,9 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 				} else {
 					if (!is_array($value)) $value = Array($value);
 					$value_output = '';
-					foreach ($value as $option) $value_output .= $select_options[$option].'; ';
+					foreach ($value as $option) {
+						$value_output .= $select_options[$option].'; ';
+					}
 					echo trim($value_output, '; ');
 				}
 			}
@@ -270,10 +277,14 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 		$new_default = '';
 		if (!empty($select_options) && isset($_POST[$prefix.'_default'])) {
 			$new_default = $_POST[$prefix.'_default'];
-			if (is_array($new_default)) $new_default = implode('; ', $new_default);
+			if (is_array($new_default)) {
+				$new_default = implode('; ', $new_default);
+			}
 		}
 		if (!$asset->attr('multiple')) {
-			if (!isset($select_options[$new_default])) $new_default = '';
+			if (!isset($select_options[$new_default])) {
+				$new_default = '';
+			}
 		}
 		$asset->setAttrValue('default', $new_default);
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_purge_trash.inc,v 1.23 2005/04/13 01:58:38 ndvries Exp $
+* $Id: hipo_job_purge_trash.inc,v 1.24 2005/04/13 23:49:30 ndvries Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -133,7 +133,9 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 	function getThresholdPercentageRequired()
 	{
 		if (SQ_HIPO_PURGE_TRASH_THRESHOLD == 0) return 0;
-		if (!isset($this->_running_vars['todo_assetids'])) return 0;
+		if (!isset($this->_running_vars['todo_assetids'])) {
+			return 0;
+		}
 		return ((count($this->_running_vars['todo_assetids']) / SQ_HIPO_PURGE_TRASH_THRESHOLD) * 100);
 
 	}//end getThresholdPercentageRequired()
@@ -148,7 +150,9 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 	function freestyle()
 	{
 		while (!empty($this->_running_vars['todo_links'])) {
-			if (!$this->processTrash($this->_steps[0], $this->getCodeName())) return false;
+			if (!$this->processTrash($this->_steps[0], $this->getCodeName())) {
+				return false;
+			}
 		}
 
 		return true;
@@ -252,11 +256,15 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 
 					foreach ($other_links as $outside_link_info) {
 						$found_ourself_this_run = false;
-						if ($outside_link_info['minorid'] == $asset->id) $found_ourself_this_run = true;
+						if ($outside_link_info['minorid'] == $asset->id) {
+							$found_ourself_this_run = true;
+						}
 
 						// check if we are looking at links that are in the trash
 						if (substr($outside_link_info['treeid'], 0, strlen($this->_running_vars['trash_treeid'])) == $this->_running_vars['trash_treeid']) {
-							if ($outside_link_info['minorid'] == $asset->id) $inside_links[] = $outside_link_info['linkid'];
+							if ($outside_link_info['minorid'] == $asset->id) {
+								$inside_links[] = $outside_link_info['linkid'];
+							}
 							continue;
 						}
 

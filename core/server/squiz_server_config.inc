@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: squiz_server_config.inc,v 1.11 2005/04/13 01:58:38 ndvries Exp $
+* $Id: squiz_server_config.inc,v 1.12 2005/04/13 23:49:30 ndvries Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the squiz server config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix
 */
 class Squiz_Server_Config extends Config
@@ -89,7 +89,9 @@ class Squiz_Server_Config extends Config
 	function writeAccess()
 	{
 		if (!parent::writeAccess()) return false;
-		if (!$GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS)) return true;
+		if (!$GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS)) {
+			return true;
+		}
 
 		// need to be root
 		return $GLOBALS['SQ_SYSTEM']->userRoot();

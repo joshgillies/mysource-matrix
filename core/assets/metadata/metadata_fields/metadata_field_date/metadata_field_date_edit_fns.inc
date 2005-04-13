@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date_edit_fns.inc,v 1.16 2005/04/13 01:58:37 ndvries Exp $
+* $Id: metadata_field_date_edit_fns.inc,v 1.17 2005/04/13 23:49:29 ndvries Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -116,8 +116,11 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 
 		$field = $asset->_getDateTimeField($prefix, $default);
 
-		if ($asset->writeAccess('attributes')) $field->printField();
-		else echo $field->format();
+		if ($asset->writeAccess('attributes')) {
+			$field->printField();
+		} else {
+			echo $field->format();
+		}
 
 	}//end paintDefaultDateTime()
 
@@ -159,8 +162,11 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 	function paintOffset(&$asset, &$o, $prefix)
 	{
 		$offset = $asset->attr('offset');
-		if ($asset->writeAccess('attributes')) text_box($prefix.'_offset', $offset, 30);
-		else echo $offset;
+		if ($asset->writeAccess('attributes')) {
+			text_box($prefix.'_offset', $offset, 30);
+		} else {
+			 echo $offset;
+		}
 
 	}//end paintOffset()
 
@@ -211,8 +217,11 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 		if ($write_access) {
 			combo_box($prefix.'_repkeys', $select_options, false, $default);
 		} else {
-			if (strpos($default, '%') === 0) echo $default;
-			else echo 'None selected';
+			if (strpos($default, '%') === 0) {
+				echo $default;
+			} else {
+				echo 'None selected';
+			}
 		}
 
 		return true;
@@ -236,7 +245,9 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 		if (!$asset->writeAccess('attributes')) return false;
 
 		$new_default = trim($_POST[$prefix.'_repkeys']);
-		if ($new_default != '') $asset->setAttrValue('default', $new_default);
+		if ($new_default != '') {
+			$asset->setAttrValue('default', $new_default);
+		}
 
 		return true;
 
@@ -321,7 +332,9 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 		}
 
 		$field_name = $asset->name;
-		if ($asset->attr('required')) $field_name .= ' <span style="color: #FF0000">*</span>';
+		if ($asset->attr('required')) {
+			$field_name .= ' <span style="color: #FF0000">*</span>';
+		}
 
 		$select_options = Array(
 							''					=> '-- keywords --',

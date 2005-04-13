@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_schema_edit_fns.inc,v 1.34 2005/04/13 01:58:37 ndvries Exp $
+* $Id: metadata_schema_edit_fns.inc,v 1.35 2005/04/13 23:49:30 ndvries Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -185,7 +185,9 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 					$o->closeField();
 				}
 				$edit_fns = $section->getEditFns();
-				if (!$edit_fns->paintInlineOptionInterface($section, $o)) return false;
+				if (!$edit_fns->paintInlineOptionInterface($section, $o)) {
+					return false;
+				}
 			$o->closeSection();
 		}
 
@@ -216,7 +218,9 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 			$section = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid']);
 			if (is_null($section)) continue;
 			$edit_fns = $section->getEditFns();
-			if ($edit_fns->processInlineOptionInterface($section, $o)) $updated = true;
+			if ($edit_fns->processInlineOptionInterface($section, $o)) {
+				$updated = true;
+			}
 		}
 
 		// delete any sections that need deleting
@@ -252,7 +256,9 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 			$section = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($section)) continue;
 			$edit_fns = $section->getEditFns();
-			if (!$edit_fns->paintInlineValueInterface($section, $o, $values, $write_access)) return false;
+			if (!$edit_fns->paintInlineValueInterface($section, $o, $values, $write_access)) {
+				return false;
+			}
 		}
 		$o->closeSection();
 
@@ -277,7 +283,9 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 			$section = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($section)) continue;
 			$edit_fns = $section->getEditFns();
-			if (!$edit_fns->processInlineValueInterface($section, $new_values)) return false;
+			if (!$edit_fns->processInlineValueInterface($section, $new_values)) {
+				return false;
+			}
 		}
 
 		return true;
@@ -301,7 +309,9 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 			$section = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($section)) continue;
 			$edit_fns = $section->getEditFns();
-			if (!$edit_fns->requiredFieldsComplete($section, $values)) return false;
+			if (!$edit_fns->requiredFieldsComplete($section, $values)) {
+				return false;
+			}
 		}
 
 		return true;
@@ -336,7 +346,9 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 			$valid_sections[] = $section->name;
 
 			$edit_fns = $section->getEditFns();
-			if (!$edit_fns->generateMetadata($section, $values, $tag_values, $keywords)) return false;
+			if (!$edit_fns->generateMetadata($section, $values, $tag_values, $keywords)) {
+				return false;
+			}
 		}
 
 		return true;
@@ -455,7 +467,9 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 	function processNamespace(&$asset, &$o, $prefix)
 	{
 		if (!$asset->writeAccess('')) return false;
-		if (isset($_POST[$prefix.'_default_ns']) && $_POST[$prefix.'_default_ns']) return false;
+		if (isset($_POST[$prefix.'_default_ns']) && $_POST[$prefix.'_default_ns']) {
+			return false;
+		}
 
 		if (isset($_POST[$prefix.'_namespace'])) {
 				$asset -> setAttrValue('namespace', $_POST[$prefix.'_namespace']);
@@ -509,7 +523,9 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 	function processNsURL(&$asset, &$o, $prefix)
 	{
 		if (!$asset->writeAccess('')) return false;
-		if (isset($_POST[$prefix.'_default_ns']) && $_POST[$prefix.'_default_ns']) return false;
+		if (isset($_POST[$prefix.'_default_ns']) && $_POST[$prefix.'_default_ns']) {
+			return false;
+		}
 
 		if (isset($_POST[$prefix.'_nsurl'])) {
 				$asset -> setAttrValue('nsurl', $_POST[$prefix.'_nsurl']);

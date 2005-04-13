@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_edit_fns.inc,v 1.30 2005/04/13 01:58:37 ndvries Exp $
+* $Id: metadata_field_edit_fns.inc,v 1.31 2005/04/13 23:49:26 ndvries Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -129,11 +129,17 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 						}
 
 						echo '<td width="150" valign="top" class="sq-backend-table-cell">';
-						if ($write_access) text_box($prefix.'_vc_name['.$vc_name.']', $vc_name, 30);
-						else echo '<b>'.$vc_name.'</b>';
+						if ($write_access) {
+							text_box($prefix.'_vc_name['.$vc_name.']', $vc_name, 30);
+						} else {
+							echo '<b>'.$vc_name.'</b>';
+						}
 						echo '<br />';
-						if ($write_access) text_area($prefix.'_vc_value['.$vc_name.']', $vc_value, 30, 4);
-						else echo $vc_value;
+						if ($write_access) {
+							text_area($prefix.'_vc_value['.$vc_name.']', $vc_value, 30, 4);
+						} else {
+							echo $vc_value;
+						}
 						if ($write_access) {
 							echo '<br />';
 							check_box($prefix.'_vc_delete['.$vc_name.']');
@@ -144,7 +150,9 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 						$num_done++;
 					}
 					if ($num_done && $num_done != $num_per_row) {
-						for ($i = ($num_per_row - $num_done); $i > 0; $i--) echo'<td width="200" class="sq-backend-table-cell">&nbsp;</td>';
+						for ($i = ($num_per_row - $num_done); $i > 0; $i--) {
+							echo'<td width="200" class="sq-backend-table-cell">&nbsp;</td>';
+						}
 					}
 					?>
 				</tr>
@@ -183,8 +191,12 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 				continue;
 			}
 
-			if (isset($_POST[$prefix.'_vc_name'][$vc_name]))  $new_vc_name  = trim($_POST[$prefix.'_vc_name'][$vc_name]);
-			if (isset($_POST[$prefix.'_vc_value'][$vc_name])) $new_vc_value = trim($_POST[$prefix.'_vc_value'][$vc_name]);
+			if (isset($_POST[$prefix.'_vc_name'][$vc_name]))  {
+				$new_vc_name  = trim($_POST[$prefix.'_vc_name'][$vc_name]);
+			}
+			if (isset($_POST[$prefix.'_vc_value'][$vc_name])) {
+				$new_vc_value = trim($_POST[$prefix.'_vc_value'][$vc_name]);
+			}
 			if (empty($new_vc_name)) continue;
 
 			// change the default value of a value component
@@ -280,7 +292,9 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 		if ($asset->writeAccess('attributes')) {
 			echo combo_box('weighting_include', Array('0' => 'Do not include in searches', '1' => 'Include in searches'), false, ($weighting >= 0)?'1':'0');
 
-			if ($weighting >= 0) echo text_box('weight', $weighting, 5);
+			if ($weighting >= 0) {
+				echo text_box('weight', $weighting, 5);
+			}
 
 		} else {
 			echo ($weighting >= 0) ? $weighting : "Not included in searching.";
@@ -300,8 +314,11 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 
 		$oldWeighting = $asset->attr('weighting');
 		if ($_POST['weighting_include']) {
-			if (isset($_POST['weight'])) $newWeighting = max(0, $_POST['weight']);
-			else $newWeighting = 1;
+			if (isset($_POST['weight'])) {
+				$newWeighting = max(0, $_POST['weight']);
+			} else {
+				$newWeighting = 1;
+			}
 		} else {
 			$newWeighting = -1;
 		}
@@ -390,11 +407,17 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 		}
 
 		// if we are empty and it must be filled to be printed, then don't print anything
-		if (($frontend_option == 'fill') && $value == '' && $empty_vc) return true;
+		if (($frontend_option == 'fill') && $value == '' && $empty_vc) {
+			return true;
+		}
 
 		echo '<meta name="'.$asset->name.'"';
-		if (trim($asset->attr('language')) != '') echo ' lang="'.$asset->attr('language').'"';
-		if (trim($asset->attr('scheme'))   != '') echo ' scheme="'.$asset->attr('scheme').'"';
+		if (trim($asset->attr('language')) != '') {
+			echo ' lang="'.$asset->attr('language').'"';
+		}
+		if (trim($asset->attr('scheme'))   != '') {
+			echo ' scheme="'.$asset->attr('scheme').'"';
+		}
 
 		echo ' content="<?php echo $metadata_values[\''.$asset->name.'\']; ?>" />'."\n";
 

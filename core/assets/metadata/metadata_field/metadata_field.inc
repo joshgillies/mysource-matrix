@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field.inc,v 1.12 2005/04/13 01:58:37 ndvries Exp $
+* $Id: metadata_field.inc,v 1.13 2005/04/13 23:49:26 ndvries Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -263,7 +263,9 @@ class Metadata_Field extends Asset
 
 			// convert % escaped characters back
 			$pair[0] = preg_replace('/%(\d+)%/e', 'chr($1)', $pair[0]);
-			if (isset($pair[1])) $pair[1] = preg_replace('/%(\d+)%/e', 'chr($1)', $pair[1]);
+			if (isset($pair[1])) {
+				$pair[1] = preg_replace('/%(\d+)%/e', 'chr($1)', $pair[1]);
+			}
 
 			if (!isset($pair[1])) {
 				if ($value != '') $value .= '; ';

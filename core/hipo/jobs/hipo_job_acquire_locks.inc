@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_acquire_locks.inc,v 1.9 2005/04/13 01:58:38 ndvries Exp $
+* $Id: hipo_job_acquire_locks.inc,v 1.10 2005/04/13 23:49:30 ndvries Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -197,7 +197,9 @@ class HIPO_Job_Acquire_Locks extends HIPO_Job
 	function getThresholdPercentageRequired()
 	{
 		if (SQ_HIPO_ACQUIRE_LOCK_THRESHOLD == 0) return 0;
-		if (!isset($this->_running_vars['child_assetids'])) return 0;
+		if (!isset($this->_running_vars['child_assetids'])) {
+			return 0;
+		}
 		// note that we add 1 to the cound to take the root assetid into account
 		return (($this->_running_vars['total_count'] + 1 / SQ_HIPO_ACQUIRE_LOCK_THRESHOLD) * 100);
 
@@ -213,7 +215,9 @@ class HIPO_Job_Acquire_Locks extends HIPO_Job
 	function freestyle()
 	{
 		while (!empty($this->_running_vars['assetids'])/* || !$this->_running_vars['done_root']*/) {
-			if (!$this->processLocking($this->_steps[0], get_class($this))) return false;
+			if (!$this->processLocking($this->_steps[0], get_class($this))) {
+				return false;
+			}
 		}
 		return true;
 
@@ -329,7 +333,9 @@ class HIPO_Job_Acquire_Locks extends HIPO_Job
 			// if we are done with the current parent asset's children, then move onto the next one
 			if (empty($this->_running_vars['child_assetids'][$parent_assetid])) {
 				array_shift($this->_running_vars['assetids']);
-				if (!empty($this->_running_vars['assetids'])) $this->_running_vars['current_assetid'] = $this->_running_vars['assetids'][0];
+				if (!empty($this->_running_vars['assetids'])) {
+					$this->_running_vars['current_assetid'] = $this->_running_vars['assetids'][0];
+				}
 			}
 		}
 

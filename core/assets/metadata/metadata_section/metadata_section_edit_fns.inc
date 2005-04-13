@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_section_edit_fns.inc,v 1.25 2004/12/21 16:56:30 brobertson Exp $
+* $Id: metadata_section_edit_fns.inc,v 1.26 2005/04/13 23:49:30 ndvries Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -68,7 +68,9 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_field', false, 'major', null, true, true);
 		if (!empty($current_links)) {
 			$assetids = Array();
-			foreach ($current_links as $link) $assetids[$link['minorid']] = 'details';
+			foreach ($current_links as $link) {
+				$assetids[$link['minorid']] = 'details';
+			}
 			$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($assetids));
 			$asset_href = $GLOBALS['SQ_SYSTEM']->am->getAssetBackendHref($assetids);
 
@@ -217,7 +219,9 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 			$field = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($field)) continue;
 			$edit_fns = $field->getEditFns();
-			if (!$edit_fns->paintInlineValueInterface($field, $o, (isset($values[$field->id])) ? $values[$field->id]['value'] : null, $write_access)) return false;
+			if (!$edit_fns->paintInlineValueInterface($field, $o, (isset($values[$field->id])) ? $values[$field->id]['value'] : null, $write_access)) {
+				return false;
+			}
 		}
 		$o->closeSection();
 
@@ -240,10 +244,14 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_field', false, 'major', null, true);
 		foreach ($current_links as $link) {
 			$field = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
-			if (is_null($field) || !$field->attr('editable')) continue;
+			if (is_null($field) || !$field->attr('editable')) {
+				continue;
+			}
 			$edit_fns = $field->getEditFns();
 			$new_values[$field->id] = Array('name' => $field->name, 'value' => '');
-			if (!$edit_fns->processInlineValueInterface($field, $new_values[$field->id]['value'])) return false;
+			if (!$edit_fns->processInlineValueInterface($field, $new_values[$field->id]['value'])) {
+				return false;
+			}
 		}
 
 		return true;
@@ -267,7 +275,9 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 			$field = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($field)) continue;
 			$edit_fns = $field->getEditFns();
-			if (!$edit_fns->requiredFieldsComplete($field, (isset($values[$field->id])) ? $values[$field->id]['value'] : null)) return false;
+			if (!$edit_fns->requiredFieldsComplete($field, (isset($values[$field->id])) ? $values[$field->id]['value'] : null)) {
+				return false;
+			}
 		}
 
 		return true;
@@ -303,7 +313,9 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 
 			$edit_fns = $field->getEditFns();
 			$tag_values[$field->name] = '';
-			if (!$edit_fns->generateMetadata($field, ((isset($values[$field->id])) ? $values[$field->id]['value'] : null), $tag_values[$field->name], $keywords)) return false;
+			if (!$edit_fns->generateMetadata($field, ((isset($values[$field->id])) ? $values[$field->id]['value'] : null), $tag_values[$field->name], $keywords)) {
+				return false;
+			}
 		}
 		echo "\n";
 

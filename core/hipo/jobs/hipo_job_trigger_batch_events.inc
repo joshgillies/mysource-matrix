@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_trigger_batch_events.inc,v 1.5 2005/04/13 01:58:38 ndvries Exp $
+* $Id: hipo_job_trigger_batch_events.inc,v 1.6 2005/04/13 23:49:30 ndvries Exp $
 *
 */
 
@@ -37,7 +37,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -156,9 +156,7 @@ class HIPO_Job_Trigger_Batch_Events extends HIPO_Job
 			return 0;
 		}
 
-		if (empty($this->_running_vars['assets'])) {
-			return 0;
-		}
+		if (empty($this->_running_vars['assets'])) return 0;
 
 		return (($this->_running_vars['total_steps'] / SQ_HIPO_TRIGGER_BATCH_EVENTS_THRESHOLD) * 100);
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: permissions.inc,v 1.18 2005/04/04 04:31:03 ndvries Exp $
+* $Id: permissions.inc,v 1.19 2005/04/13 23:49:30 ndvries Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Permissions Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix
 */
 
@@ -73,7 +73,9 @@ function paintInlinePermissions(&$owner, &$o, &$ei)
 
 		$direct = Array();
 		foreach ($permissions as $userid => $granted) {
-			if (!isset($direct[$granted])) $direct[$granted] = Array();
+			if (!isset($direct[$granted])) {
+				$direct[$granted] = Array();
+			}
 			$direct[$granted][] = $userid;
 		}
 		ksort($direct);
@@ -84,7 +86,9 @@ function paintInlinePermissions(&$owner, &$o, &$ei)
 				foreach ($userids as $userid) {
 					if ($userid) {
 						$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
-						if (!$user->id || (!is_a($user, 'user') && !is_a($user, 'user_group'))) continue;
+						if (!$user->id || (!is_a($user, 'user') && !is_a($user, 'user_group'))) {
+							continue;
+						}
 					}
 					?>
 					<tr>
@@ -140,7 +144,9 @@ function paintPermissions(&$owner, &$o, &$ei)
 
 		$direct = Array();
 		foreach ($permissions as $userid => $granted) {
-			if (!isset($direct[$granted])) $direct[$granted] = Array();
+			if (!isset($direct[$granted])) {
+				$direct[$granted] = Array();
+			}
 			$direct[$granted][] = $userid;
 		}
 		ksort($direct);
@@ -282,7 +288,9 @@ function processPermissions(&$owner, &$o, &$ei)
 
 	$permission_vars = Array();
 	$prefix = $owner->getPrefix();
-	if (!isset($_POST[$prefix.'_permissions'])) return false;
+	if (!isset($_POST[$prefix.'_permissions'])) {
+		return false;
+	}
 
 	$cascade_changes = !empty($_POST[$prefix.'_permissions']['cascade_changes']);
 

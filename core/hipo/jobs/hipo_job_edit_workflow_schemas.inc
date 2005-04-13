@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_workflow_schemas.inc,v 1.26 2005/04/13 01:58:38 ndvries Exp $
+* $Id: hipo_job_edit_workflow_schemas.inc,v 1.27 2005/04/13 23:49:30 ndvries Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to edit workflow schemas
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -172,7 +172,9 @@ class HIPO_Job_Edit_Workflow_Schemas extends HIPO_Job
 	function getThresholdPercentageRequired()
 	{
 		if (SQ_HIPO_WORKFLOW_SCHEMAS_THRESHOLD == 0) return 0;
-		if (!isset($this->_running_vars['todo_assetids'])) return 0;
+		if (!isset($this->_running_vars['todo_assetids'])) {
+			return 0;
+		}
 		return ((count($this->_running_vars['todo_assetids']) / (SQ_HIPO_WORKFLOW_SCHEMAS_THRESHOLD / count($this->_running_vars['schema_changes']))) * 100);
 
 	}//end getThresholdPercentageRequired()
@@ -187,7 +189,9 @@ class HIPO_Job_Edit_Workflow_Schemas extends HIPO_Job
 	function freestyle()
 	{
 		while (!empty($this->_running_vars['todo_assetids'])) {
-			if (!$this->processSchemas($this->_steps[0], get_class($this))) return false;
+			if (!$this->processSchemas($this->_steps[0], get_class($this))) {
+				return false;
+			}
 		}
 		return true;
 
@@ -254,8 +258,11 @@ class HIPO_Job_Edit_Workflow_Schemas extends HIPO_Job
 				foreach ($this->_running_vars['schema_changes'] as $set_data) {
 					if ($set_data['schemaid']) {
 						$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($set_data['schemaid']);
-						if (is_null($schema)) $schema_name = 'Unknown Schema';
-						else $schema_name = $schema->name;
+						if (is_null($schema)) {
+							$schema_name = 'Unknown Schema';
+						} else {
+							$schema_name = $schema->name;
+						}
 					} else {
 						continue;
 					}

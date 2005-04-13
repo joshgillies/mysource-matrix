@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_clone_assets.inc,v 1.10 2005/04/13 01:58:38 ndvries Exp $
+* $Id: hipo_job_clone_assets.inc,v 1.11 2005/04/13 23:49:30 ndvries Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -215,7 +215,9 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 	function getThresholdPercentageRequired()
 	{
 		if (SQ_DUPE_ASSET_THRESHOLD == 0) return 0;
-		if (!isset($this->_running_vars['todo_assetids'])) return 0;
+		if (!isset($this->_running_vars['todo_assetids'])) {
+			return 0;
+		}
 		return ((count($this->_running_vars['todo_assetids']) / SQ_DUPE_ASSET_THRESHOLD) * 100);
 
 	}//end getThresholdPercentageRequired()
@@ -230,7 +232,9 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 	function freestyle()
 	{
 		while (!empty($this->_running_vars['todo_assetids'])) {
-			if (!$this->processLookups($this->_steps[0], get_class($this))) return false;
+			if (!$this->processLookups($this->_steps[0], get_class($this))) {
+				return false;
+			}
 		}
 		return true;
 
@@ -402,8 +406,9 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 	*/
 	function processCloneAssets(&$step_data, $prefix)
 	{
-		if (!isset($this->_running_vars['clone_assets']))
+		if (!isset($this->_running_vars['clone_assets'])) {
 			 $this->_running_vars['clone_assets'] = $this->_running_vars['assets'];
+		}
 
 		$assetid = key($this->_running_vars['clone_assets']);
 
@@ -458,9 +463,7 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 		$valid_paths = make_valid_web_paths($orig->getWebPaths());
 		$good_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($link['asset'], $valid_paths, $clone->id, true);
 
-		if (!$clone->saveWebPaths($good_paths)) {
-			return false;
-		}
+		if (!$clone->saveWebPaths($good_paths)) return false;
 
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($parent_asset);
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($orig);

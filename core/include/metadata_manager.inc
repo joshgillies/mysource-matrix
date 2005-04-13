@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.77 2005/04/11 04:36:13 mmcintyre Exp $
+* $Id: metadata_manager.inc,v 1.78 2005/04/13 23:49:30 ndvries Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.77 $
+* @version $Revision: 1.78 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -74,7 +74,9 @@ class Metadata_Manager extends MySource_Object
 			if (is_null($schema)) continue;
 			if (!is_a($schema, 'metadata_schema')) continue;
 			$edit_fns = $schema->getEditFns();
-			if (!$edit_fns->requiredFieldsComplete($schema, $values)) return false;
+			if (!$edit_fns->requiredFieldsComplete($schema, $values)) {
+				return false;
+			}
 		}
 
 		return true;
@@ -120,7 +122,9 @@ class Metadata_Manager extends MySource_Object
 		$sql = '  SELECT DISTINCT schemaid, granted
 				  FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_metadata ';
 		$where = 'assetid = '.$db->quote($assetid);
-		if (!is_null($granted)) $where .= ' AND granted = '.$db->quote((($granted) ? '1' : '0'));
+		if (!is_null($granted)) {
+			$where .= ' AND granted = '.$db->quote((($granted) ? '1' : '0'));
+		}
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
 		$result = $db->getAll($sql.$where);
@@ -128,8 +132,11 @@ class Metadata_Manager extends MySource_Object
 
 		$schemas = Array();
 		foreach ($result as $data) {
-			if (is_null($granted)) $schemas[$data['schemaid']] = $data['granted'];
-			else $schemas[] = $data['schemaid'];
+			if (is_null($granted)) {
+				$schemas[$data['schemaid']] = $data['granted'];
+			} else {
+				$schemas[] = $data['schemaid'];
+			}
 		}
 
 		return $schemas;
@@ -285,7 +292,9 @@ class Metadata_Manager extends MySource_Object
 					'.SQ_TABLE_RUNNING_PREFIX.'ast_metadata ';
 
 		$where = 'schemaid = '.$db->quote($schemaid);
-		if (!is_null($granted)) $where .= ' AND granted = '.$db->quote((($granted) ? '1' : '0'));
+		if (!is_null($granted)) {
+			$where .= ' AND granted = '.$db->quote((($granted) ? '1' : '0'));
+		}
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
 		$result = $db->getAll($sql.$where);
@@ -293,8 +302,11 @@ class Metadata_Manager extends MySource_Object
 
 		$assets = Array();
 		foreach ($result as $data) {
-			if (is_null($granted)) $assets[$data['assetid']] = $data['granted'];
-			else $assets[] = $data['assetid'];
+			if (is_null($granted)) {
+				$assets[$data['assetid']] = $data['granted'];
+			} else {
+				$assets[] = $data['assetid'];
+			}
 		}
 
 		return $assets;
@@ -319,7 +331,9 @@ class Metadata_Manager extends MySource_Object
 			$fieldids = Array();
 			foreach ($schemaids as $schemaid) {
 				$field_children = $GLOBALS['SQ_SYSTEM']->am->getChildren($schemaid, 'metadata_field', false);
-				foreach ($field_children as $fieldid => $field_type) $fieldids[$fieldid] = $field_type;
+				foreach ($field_children as $fieldid => $field_type) {
+					$fieldids[$fieldid] = $field_type;
+				}
 			}
 			return $fieldids;
 		}
@@ -488,7 +502,9 @@ class Metadata_Manager extends MySource_Object
 			// if they only want specific fields, then restrict the search to those
 			if (!empty($field_names)) {
 				$sql_parts['where'] .= ' AND a.name IN ('.$db->quote($field_names[0]);
-				for ($i = 1; $i < count($field_names); $i++) $sql_parts['where'] .= ', '.$db->quote($field_names[$i]);
+				for ($i = 1; $i < count($field_names); $i++) {
+					$sql_parts['where'] .= ', '.$db->quote($field_names[$i]);
+				}
 				$sql_parts['where'] .= ')';
 			}
 
@@ -772,10 +788,15 @@ class Metadata_Manager extends MySource_Object
 
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 		if (!create_directory($asset->data_path)) return false;
-		if (!string_to_file($metadata_str, $asset->data_path.'/metadata.php')) return false;
+		if (!string_to_file($metadata_str, $asset->data_path.'/metadata.php')) {
+			return false;
+		}
 
-		if (!$regenerate) return true;
-		else return $this->setMetadata($assetid, $metadata);
+		if (!$regenerate) {
+			return true;
+		} else {
+			return $this->setMetadata($assetid, $metadata);
+		}
 
 	}//end generateContentFile()
 
@@ -803,7 +824,9 @@ class Metadata_Manager extends MySource_Object
 		$metadata_replacements = Array();
 		$keywords = array_unique($keywords);
 
-		if (!empty($keywords) && $generating) echo '$metadata_replacements = Array();'."\n";
+		if (!empty($keywords) && $generating) {
+			echo '$metadata_replacements = Array();'."\n";
+		}
 
 		$thumbnail_generated = false;
 
@@ -1025,9 +1048,11 @@ class Metadata_Manager extends MySource_Object
 							case 'created':
 							case 'updated':
 							case 'published':
-								if (empty($offset)) $date = '$metadata_asset->'.$key;
-								else $date = 'strtotime(\''.$offset.'\', $metadata_asset->'.$key.')';
-
+								if (empty($offset)) {
+									$date = '$metadata_asset->'.$key;
+								} else {
+									$date = 'strtotime(\''.$offset.'\', $metadata_asset->'.$key.')';
+								}
 								echo '$metadata_replacements[\''.$original.'\'] = date(\''.$format.'\', '.$date.');'."\n";
 							break;
 							default:

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_links.inc,v 1.9 2005/04/13 01:58:38 ndvries Exp $
+* $Id: hipo_job_create_links.inc,v 1.10 2005/04/13 23:49:30 ndvries Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -432,8 +432,9 @@ class HIPO_Job_Create_Links extends HIPO_Job
 	{
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		if (!isset($this->_running_vars['process_create_links']))
+		if (!isset($this->_running_vars['process_create_links'])) {
 			 $this->_running_vars['process_create_links'] = $this->_running_vars['assets'];
+		}
 
 		$assets = $this->_running_vars['process_create_links'];
 		$assetid = key($assets);
@@ -630,11 +631,17 @@ class HIPO_Job_Create_Links extends HIPO_Job
 		if (isset($_REQUEST['form_submitted'])) {
 			if (isset($_REQUEST['cascade'])) {
 				// permissions
-				if (!in_array('cascade_pe', $_REQUEST['cascade'])) $this->skipStep(4);
+				if (!in_array('cascade_pe', $_REQUEST['cascade'])) {
+					$this->skipStep(4);
+				}
 				// metadata
-				if (!in_array('cascade_ms', $_REQUEST['cascade'])) $this->skipStep(5);
+				if (!in_array('cascade_ms', $_REQUEST['cascade'])) {
+					$this->skipStep(5);
+				}
 				//workflow
-				if (!in_array('cascade_wf', $_REQUEST['cascade'])) $this->skipStep(6);
+				if (!in_array('cascade_wf', $_REQUEST['cascade'])) {
+					$this->skipStep(6);
+				}
 			} else {
 				$this->skipStep(4); // permissions
 				$this->skipStep(5); // metadata
