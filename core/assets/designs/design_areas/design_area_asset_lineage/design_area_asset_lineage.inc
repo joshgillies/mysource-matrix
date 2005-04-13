@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_asset_lineage.inc,v 1.8 2005/01/20 13:07:31 brobertson Exp $
+* $Id: design_area_asset_lineage.inc,v 1.9 2005/04/13 06:22:50 ndvries Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -64,7 +64,7 @@ class Design_Area_Asset_Lineage extends Design_Area
 
 			case 'asset_short_name' :
 			case 'asset_name' :
-				echo '<', '?php echo ', $this->_escapeVar($value_prefix.'$ASSET_LINEAGE[$'.$this->attr('id_name').'_i]['.var_export((string) substr($var, 6), true).']'.$value_suffix, $args), '; ?', '>';
+				echo '<', '?php echo ', $this->_escapeVar($value_prefix.'htmlspecialchars($ASSET_LINEAGE[$'.$this->attr('id_name').'_i]['.var_export((string) substr($var, 6), true).'])'.$value_suffix, $args), '; ?', '>';
 			break;
 
 			default :

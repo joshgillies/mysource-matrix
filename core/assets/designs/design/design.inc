@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.86 2005/04/12 07:35:03 ndvries Exp $
+* $Id: design.inc,v 1.87 2005/04/13 06:22:50 ndvries Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.86 $
+* @version $Revision: 1.87 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -578,7 +578,7 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 			break;
 
 			case 'site_name' :
-				echo '<', '?php echo $ASSET_LINEAGE[0][\'short_name\']; ?', '>';
+				echo '<', '?php echo htmlspecialchars($ASSET_LINEAGE[0][\'short_name\']); ?', '>';
 			break;
 
 			case 'assetid' :
@@ -586,11 +586,13 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 			break;
 
 			case 'asset_name' :
-				echo '<', '?php echo ', $this->_escapeVar('$ASSET->name', $args), '; ?', '>';
+				$asset_name = $this->_escapeVar('htmlspecialchars($ASSET->name)', $args);
+				echo '<', '?php echo ', $asset_name, '; ?', '>';
 			break;
 
 			case 'asset_short_name' :
-				echo '<', '?php echo ', $this->_escapeVar('$ASSET->short_name', $args), '; ?', '>';
+				$asset_short_name = $this->_escapeVar('htmlspecialchars($ASSET->short_name)', $args);
+				echo '<', '?php echo ', $asset_short_name, '; ?', '>';
 			break;
 
 			case 'asset_link' :
