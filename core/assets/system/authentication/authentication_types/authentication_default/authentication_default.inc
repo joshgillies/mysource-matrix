@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: authentication_default.inc,v 1.3 2004/11/18 05:00:41 gsherwood Exp $
+* $Id: authentication_default.inc,v 1.3.2.1 2005/04/13 04:48:40 ndvries Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -89,7 +89,7 @@ class Authentication_Default extends Authentication
 
 		if ($result['assetid']) {
 			$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($result['assetid']);
-			
+
 			if (is_null($user)) {
 				// no user was found with that username
 			} else if (!$user->comparePassword($password)) {
@@ -123,6 +123,7 @@ class Authentication_Default extends Authentication
 		if (!isset($_SESSION['user_login_attempts'])) $_SESSION['user_login_attempts'] = Array();
 		if (empty($_SESSION['user_login_attempts'][$username])) $_SESSION['user_login_attempts'][$username] = 1;
 		else $_SESSION['user_login_attempts'][$username]++;
+		if (SQ_CONF_MAX_LOGIN_ATTEMPTS == '0') return;
 
 		if ($_SESSION['user_login_attempts'][$username] >= SQ_CONF_MAX_LOGIN_ATTEMPTS) {
 			if (!is_null($user) && $user->canLogin()) {
