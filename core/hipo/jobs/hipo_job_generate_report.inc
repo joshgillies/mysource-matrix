@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_generate_report.inc,v 1.6 2005/04/13 01:58:38 ndvries Exp $
+* $Id: hipo_job_generate_report.inc,v 1.7 2005/04/13 04:32:58 rhoward Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -97,6 +97,24 @@ class HIPO_Job_Generate_Report extends HIPO_Job
 
 
 	/**
+	* Performs the duties of this hipo, without showing any output on the frontend.
+	*
+	* @return boolean
+	* @access public
+	*/
+	function freestyle()
+	{
+		while (empty($this->_running_vars['complete']) && !empty($this->_running_vars['assetid'])) {
+			if (!$this->processReport($this->_steps[0], get_class($this))) {
+				return false;
+			}
+		}
+		return true;
+
+	}//end freestyle()
+
+
+	/**
 	* Prepares the running vars
 	*
 	* @return boolean
@@ -111,7 +129,7 @@ class HIPO_Job_Generate_Report extends HIPO_Job
 
 		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['assetid']);
 		$this->_running_vars['type_code'] = $asset->type();
-
+		$this->_running_vars['complete']  = false;
 		return parent::prepare();
 
 	}//end prepare()
