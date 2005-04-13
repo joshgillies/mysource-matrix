@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: conditions_list.inc,v 1.1 2005/04/06 21:54:17 gnoel Exp $
+* $Id: conditions_list.inc,v 1.2 2005/04/13 10:49:45 gnoel Exp $
 *
 */
 
@@ -39,7 +39,7 @@ define('SQ_KEYWORD_CONDITION_ELSE', 'else');
 * parameters in a single attribute (of type Array).
 *
 * @author  Geoffroy Noel <gnoel@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 class Conditions_List
@@ -372,14 +372,15 @@ class Conditions_List
 					$o->closeField();
 				}
 
-				//$o->openField('Condition Type');
-				//echo ucwords(str_replace('_', ' ', $parameters['type_code']));
-				//$o->closeField();
-
 				// let the condition paint itself 
 				$condition_type = $parameters['type_code'];				
 				$condition = &$this->_getConditionAsset($condition_type);
 				$condition_edit_fns = &$this->_getConditionAsset($condition_type, true);
+				
+				if (isset($parameters['restriction']) && empty($parameters['restriction']['condition_data'])) {
+					$parameters['restriction']['condition_data'] = Array();
+				}
+				
 				$condition_edit_fns->paintEditInterface($condition, $o, $condition_prefix, $parameters['restriction'], $write_access, $allowed_keywords);
 
 				unset($condition_edit_fns);
@@ -455,7 +456,7 @@ class Conditions_List
 				$new_condition_type = $_REQUEST[$prefix . '_new_condition_type'];
 				
 				// find a new name
-				$conditions_parameters_new[$this->_generateUniqueName('', $conditions_parameters_new)] = Array('type_code' => $new_condition_type, 'restriction' => Array('match' => 1));
+				$conditions_parameters_new[$this->_generateUniqueName('', $conditions_parameters_new)] = Array('type_code' => $new_condition_type, 'restriction' => Array('match' => 1, 'condition_data' => Array()));
 			}		
 			
 			if ($ret) {
