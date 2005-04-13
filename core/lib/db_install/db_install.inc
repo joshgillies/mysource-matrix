@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_install.inc,v 1.15 2005/04/12 01:31:32 ndvries Exp $
+* $Id: db_install.inc,v 1.16 2005/04/13 01:45:29 mmcintyre Exp $
 *
 */
 
@@ -29,7 +29,7 @@
 * @author  Blair Robertson <blair@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -496,7 +496,9 @@ function install_rollback_triggers($table_columns, $verbose=true)
 			$sql .= ' DECLARE BEGIN ';
 			// if we are oracle make sure that we are not a remote
 			// replication server as the rows will get replicated for us
-			$sql .= 'IF DBMS_REPUTIL.FROM_REMOTE = TRUE THEN RETURN; END IF;';
+			$sql .= 'IF DBMS_REPUTIL.FROM_REMOTE = TRUE THEN
+						RETURN;
+					END IF;';
 
 			// set the timestamp for this session
 			// note that the timestamp is set only once per session
@@ -530,15 +532,25 @@ function install_rollback_triggers($table_columns, $verbose=true)
 			$get_timestamp_fn = 'sq_get_rollback_timestamp()';
 		}
 
+		$old_primary_key_where = '';
+		$new_primary_key_where = '';
 		$primary_key_where = '';
+
+		$i = 0;
+
 		foreach ($table_info['primary_key'] as $key) {
-			$primary_key_where .= ' AND '.$key.' = ';
+			$primary_key_where = '';
+			if ($i++ != 0) $primary_key_where = ' AND ';
+			$primary_key_where .= $key.' = ';
 			// old and new vars are treated like bind variables in oracle
 			// and therefore require a colon before them
 			if ($db->phptype == 'oci8') $primary_key_where .= ':';
-			$primary_key_where .= 'OLD.'.$key;
+
+			$old_primary_key_where .= $primary_key_where.'OLD.'.$key;
+			$new_primary_key_where .= $primary_key_where.'NEW.'.$key;
 		}
-		$primary_key_where .= ';';
+		$old_primary_key_where .= ';';
+		$new_primary_key_where .= ';';
 
 		// construct a column string for the column names
 		// and two strings for inserting - one for inserting the values
@@ -584,35 +596,45 @@ function install_rollback_triggers($table_columns, $verbose=true)
 		$new_val_string .= ');';
 		$old_val_string .= ');';
 
-		// if we are inserting then we just want to insert the new
-		// row into the rollback table
-
-		$sql .= $if_inserting.
-				'INSERT INTO '.$rollback_table.
-				$col_string.' VALUES '.$new_val_string;
-		if ($db->phptype == 'pgsql') $sql .= ' RETURN NEW; ';
-		$sql .= 'END IF;';
-
-		// if we are updating the we want to align the most
-		// recent entry in the rollback table and insert any
-		// affected rows from the non-rollback table into rollback
-
-		$update_sql = 'UPDATE '.$rollback_table.
-					 ' SET sq_eff_to = '.$get_timestamp_fn.
-					 ' WHERE sq_eff_to IS NULL '.
-						$primary_key_where;
-
-		// update any entries that were performed in the current session
-		// where the timestamp is the same as the session timestamp
-		$replace_sql = 'UPDATE '.$rollback_table.
-					  ' SET '.$update_string.
-					  ' WHERE sq_eff_from = '.$get_timestamp_fn.$primary_key_where;
-
 		if ($db->phptype == 'oci8') {
 			$not_found = 'SQL%NOTFOUND';
 		} else if ($db->phptype == 'pgsql') {
 			$not_found = 'NOT FOUND';
 		}
+
+		// remove any constraint collisions
+		// we don't do an update because you cant update primary
+		// key columns in oracle
+		$remove_rollback_collision = 'DELETE FROM '.
+									 $rollback_table.
+									 ' WHERE sq_eff_to = '.$get_timestamp_fn.
+									 ' AND '.$new_primary_key_where;
+
+		// if we are inserting then we just want to insert the new
+		// row into the rollback table
+
+		$sql .= $if_inserting.
+				$remove_rollback_collision.
+				'INSERT INTO '.$rollback_table.
+				$col_string.' VALUES '.$new_val_string;
+
+		if ($db->phptype == 'pgsql') $sql .= ' RETURN NEW; ';
+		$sql .= 'END IF;';
+
+		// if we are updating then we want to align the most
+		// recent entry in the rollback table and insert any
+		// affected rows from the non-rollback table into rollback
+
+		$update_sql = 'UPDATE '.$rollback_table.
+					 ' SET sq_eff_to = '.$get_timestamp_fn.
+					 ' WHERE sq_eff_to IS NULL AND '.
+						$old_primary_key_where;
+
+		// update any entries that were performed in the current session
+		// where the timestamp is the same as the session timestamp
+		$replace_sql = 'UPDATE '.$rollback_table.
+					  ' SET '.$update_string.
+					  ' WHERE sq_eff_from = '.$get_timestamp_fn.' AND '.$old_primary_key_where;
 
 		if (trim($update_string) != '') {
 			$sql .= $if_updating.
