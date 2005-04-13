@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager.inc,v 1.49 2005/04/12 11:24:16 brobertson Exp $
+* $Id: cron_manager.inc,v 1.50 2005/04/13 23:14:39 rhoward Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.49 $
+* @version $Revision: 1.50 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -70,7 +70,9 @@ class Cron_Manager extends Asset
 	function create(&$link)
 	{
 		require_once SQ_CORE_PACKAGE_PATH.'/system/system_asset_fns.inc';
-		if (!system_asset_fns_create_pre_check($this)) return false;
+		if (!system_asset_fns_create_pre_check($this)) {
+			return false;
+		}
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		if ($linkid = parent::create($link)) {
@@ -561,7 +563,9 @@ class Cron_Manager extends Asset
 
 						$this->setAttrValue('run_check', 0);
 						if (!empty($remove_jobs)) {
-							foreach ($remove_jobs as $linkid) $this->deleteLink($linkid);
+							foreach ($remove_jobs as $linkid) {
+								$this->deleteLink($linkid);
+							}
 						}
 
 						$this->saveAttributes();
@@ -784,7 +788,9 @@ class Cron_Manager extends Asset
 					)';
 
 		if (!empty($ignore_jobs)) {
-			for ($i = 0; $i < count($ignore_jobs); $i++) $ignore_jobs[$i] = $db->quote($ignore_jobs[$i]);
+			for ($i = 0; $i < count($ignore_jobs); $i++) {
+				$ignore_jobs[$i] = $db->quote($ignore_jobs[$i]);
+			}
 			$where .= ' AND a.assetid NOT IN ('.implode(',', $ignore_jobs).')';
 		}
 
@@ -841,7 +847,9 @@ class Cron_Manager extends Asset
 			$lines = explode("\n", $err_msg);
 			$len = 7 + strlen($err_file);
 			$len = max($len, 7 + strlen($err_line));
-			foreach ($lines as $line) $len = max($len, strlen($line));
+			foreach ($lines as $line) {
+				$len = max($len, strlen($line));
+			}
 			$len += 2;
 			$str =	'+'.str_repeat('-', $len)."+\n".
 					'| '.$err_name.str_repeat(' ', $len - 2 - strlen($err_name))." |\n".
@@ -855,7 +863,9 @@ class Cron_Manager extends Asset
 
 			$str .= '+'.str_repeat('-', $len)."+\n";
 
-			if (!isset($this->_tmp['running_errors'])) $this->_tmp['running_errors'] = '';
+			if (!isset($this->_tmp['running_errors'])) {
+				$this->_tmp['running_errors'] = '';
+			}
 			$this->_tmp['running_errors'] .= $str;
 
 		}//end error_reporting
