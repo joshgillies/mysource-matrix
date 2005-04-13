@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: log_manager.inc,v 1.11 2005/04/11 02:56:45 arailean Exp $
+* $Id: log_manager.inc,v 1.12 2005/04/13 04:32:59 rhoward Exp $
 */
 
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -164,17 +164,14 @@ class Log_Manager extends Asset
 	{
 		$files = glob(SQ_LOG_PATH.'/*.log');
 		$logs = $this->attr('logs');
-
 		foreach ($files as $file) {
 			$logname = $this->_getLogPrefixFromFileName($file);
-			if (!empty($logname) && !empty($logname)) {
+			if (!empty($logname)) {
 				if (!isset($logs[$logname])) {
-					$logs[$logname] = $this->_setLogDefaults($logname);
+					$logs[$logname] = $this->_setLogDefaults();
 				}
 			}
-
 		}
-
 		return $logs;
 
 	}//end getLogs()
@@ -292,7 +289,7 @@ class Log_Manager extends Asset
 	* @access private
 	* @return Array(mixed)
 	*/
-	function _setLogDefaults($log)
+	function _setLogDefaults($log=Array())
 	{
 		$rotation = array_get_index($log, 'rotation', Array());
 
@@ -328,9 +325,7 @@ class Log_Manager extends Asset
 	*/
 	function _decodeLine($line)
 	{
-		if (empty($line)) {
-			return false;
-		}
+		if (empty($line)) return false;
 
 		// matches the first three brackets containing metadata, then splits off the rest of the line containing the log data
 		// the string contain data in the format:
@@ -338,9 +333,7 @@ class Log_Manager extends Asset
 		// NOTE: only flags ' ' and 'S' are read - raw ('R') log entries are ignored
 		preg_match('/\[([^[\]]*)\]\[([^[\]]*):([^[\]]*)\]\[(\d+):([^[\]]*)\]\[(.)\] (.*)/', $line, $matches);
 
-		if (empty($matches)) {
-			return false;
-		}
+		if (empty($matches)) return false;
 
 		// unmangle the user name
 		$user = $matches[3];
@@ -391,9 +384,7 @@ class Log_Manager extends Asset
 	*/
 	function _readLineFromFile($file, $offset=0)
 	{
-		if (empty($file)) {
-			return false;
-		}
+		if (empty($file)) return false;
 
 		$file_contents = Array();
 
@@ -430,9 +421,7 @@ class Log_Manager extends Asset
 	*/
 	function _getFileSize($file)
 	{
-		if (empty($file)) {
-			return false;
-		}
+		if (empty($file)) return false;
 
 		$filesize = false;
 		if (file_exists($file)) {
@@ -461,18 +450,15 @@ class Log_Manager extends Asset
 		$rotated_logs = Array();
 
 		foreach ($logs as $logname => $log_data) {
-
 			// determine whether we need to rotate the log
 			if (time() - $log_data['rotation']['last_timestamp'] > $log_data['rotation']['interval']) {
-				$log_data = $this->rotateLog($logname, $log_data);
-				if (!empty($log_data)) {
+				if ($this->rotateLog($logname, $log_data)) {
 					$logs[$logname] = $log_data;
 					$rotated_logs[] = $logname;
 				}
 			}
 
 		}
-
 
 		// turn on forced run level, as not everything has write privileges to log_manager's attributes
 		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
@@ -496,30 +482,30 @@ class Log_Manager extends Asset
 	* @access public
 	* @return false|Array(mixed)
 	*/
-	function rotateLog($logname, $log_data)
+	function rotateLog($logname, &$log_data)
 	{
 		$rotation       = array_get_index($log_data, 'rotation', Array());
 		$interval       = array_get_index($rotation, 'interval');
-		$min_rotation   = array_get_index($rotation, 'min_index');
-		$max_rotation   = array_get_index($rotation, 'max_index');
+		$min_index      = array_get_index($rotation, 'min_index');
+		$max_index      = array_get_index($rotation, 'max_index');
 		$last_rotation  = array_get_index($rotation, 'last_index');
 		$last_timestamp = array_get_index($rotation, 'last_timestamp');
 
 		// check to see if we have the settings we need, otherwise, fail
-		if (empty($rotation) || empty($interval) || empty($min_rotation) || empty($max_rotation)) {
+		if (empty($rotation) || empty($interval) || !is_numeric($min_index) || empty($max_index) || $min_index > $max_index) {
 			$status = false;
 		} else {
 
 			// if we can't increment the rotation index any higher, start at the beginning again
-			$next_rotation = (($last_rotation + 1) > $max_rotation) ? $min_rotation : $last_rotation + 1;
+			$next_rotation = (($last_rotation + 1) > $max_index) ? $min_index : $last_rotation + 1;
 			$status = $this->_rotateLogFiles(SQ_LOG_PATH.'/'.$logname.SQ_CONF_LOG_EXTENSION, $next_rotation);
 
 			if ($status) {
-				$status['rotation']['interval']       = $interval;
-				$status['rotation']['min_index']      = $min_rotation;
-				$status['rotation']['max_index']      = $max_rotation;
-				$status['rotation']['last_index']     = $next_rotation;
-				$status['rotation']['last_timestamp'] = time();
+				$log_data['rotation']['interval']       = $interval;
+				$log_data['rotation']['min_index']      = $min_index;
+				$log_data['rotation']['max_index']      = $max_index;
+				$log_data['rotation']['last_index']     = $next_rotation;
+				$log_data['rotation']['last_timestamp'] = time();
 			} else {
 				$status = false;
 			}
@@ -623,7 +609,7 @@ class Log_Manager extends Asset
 			$filename = SQ_LOG_PATH.'/'.$logname.SQ_CONF_LOG_EXTENSION;
 
 			if (!is_readable($filename)) {
-				echo "File cannot is not readable";
+				echo "File is not readable";
 				return true;
 			}
 
@@ -669,9 +655,7 @@ class Log_Manager extends Asset
 				$content .= "Empty";
 			} else {
 				foreach ($lines as $line) {
-					if (empty($line)) {
-						continue;
-					}
+					if (empty($line)) continue;
 					$d_line = $this->_decodeLine($line);
 					if ($d_line !== false) {
 						$error_type_name   = get_error_name($d_line['level']);

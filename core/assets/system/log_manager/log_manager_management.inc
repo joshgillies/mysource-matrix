@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: log_manager_management.inc,v 1.1 2005/03/23 03:00:54 arailean Exp $
+* $Id: log_manager_management.inc,v 1.2 2005/04/13 04:32:59 rhoward Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author	Andrei Railean <arailean@squiz.net>
 * @author	Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -48,22 +48,22 @@ class Log_Manager_Management extends Asset_Management
 		$this->Asset_Management($pm);
 
 		$this->vars = Array(
-							'enabled' => Array(
-											   'added'       => '0.1',
-											   'type'        => 'boolean',
-											   'default'     => true,
-											   'parameters'  => Array(
-																	  'allow_empty' => false,
-																	  ),
-											   'description' => 'A flag which enables or disables logging',
-											   ),
-							'logs'    => Array(
-											   'added'       => '0.1',
-											   'type'        => 'serialise',
-											   'default'     => Array(),
-											   'description' => 'Log metadata relating to rotations',
-											   ),
-							);
+						'enabled'	=> Array(
+										'added'			=> '0.1',
+										'type'			=> 'boolean',
+										'default'		=> true,
+										'parameters'	=> Array(
+															'allow_empty'	=> false,
+														   ),
+										'description'	=> 'A flag which enables or disables logging',
+									   ),
+						'logs'		=> Array(
+										'added'			=> '0.1',
+										'type'			=> 'serialise',
+										'default'		=> Array(),
+										'description'	=> 'Log metadata relating to rotations',
+									   ),
+					  );
 
 
 	}//end constructor

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: log_manager_edit_fns.inc,v 1.4 2005/04/11 04:18:34 arailean Exp $
+* $Id: log_manager_edit_fns.inc,v 1.5 2005/04/13 04:32:59 rhoward Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard  <rhoward@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -289,6 +289,8 @@ class Log_Manager_Edit_Fns extends Asset_Edit_Fns
 		<?php
 		foreach ($logs as $logname => $rotation) {
 			$filepath = SQ_LOG_PATH.'/'.$logname.SQ_CONF_LOG_EXTENSION;
+			if (!file_exists($filepath)) continue;
+
 			$last_modified = date('G:i:s - M d', filemtime($filepath));
 
 			$last_rotated = array_get_index($rotation, 'last_timestamp');

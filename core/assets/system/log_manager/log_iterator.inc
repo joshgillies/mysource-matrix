@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: log_iterator.inc,v 1.2 2005/04/01 02:09:21 arailean Exp $
+* $Id: log_iterator.inc,v 1.3 2005/04/13 04:32:59 rhoward Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 */
 class Log_Iterator
@@ -93,31 +93,16 @@ class Log_Iterator
 	*       'percentage_done' => int      // the current progress in the form of a percentage
 	*       'complete'        => boolean  // whether the read is complete
 	*       )
+	* </pre>
 	*
 	* @access private
 	* @return Array(mixed)
 	*/
 	function getCurrentProgress()
 	{
-		if ($this->total_size > 0) {
-
-			$percentage_done = (int) (($this->offset * 100) / $this->total_size);
-			if ($this->offset >= $this->total_size) {
-				$complete        = true;
-			} else {
-				$complete        = false;
-			}
-
-		} else {
-
-			$percentage_done = 100;
-			$complete        = true;
-
-		}
-
 		$result = Array(
-					'percentage_done'	=> $percentage_done,
-					'complete'			=> $complete,
+					'current'	=> $this->offset,
+					'total'		=> $this->total_size,
 				  );
 
 		return $result;
