@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_config.inc,v 1.26 2005/04/13 01:58:38 ndvries Exp $
+* $Id: hipo_config.inc,v 1.27 2005/04/13 05:08:21 ndvries Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the hipo config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix
 */
 class HIPO_Config extends Config
@@ -80,7 +80,9 @@ class HIPO_Config extends Config
 			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 			$d = dir($hipo_job_path);
 			while (false !== ($file = $d->read())) {
-				if ($file == '.' || $file == '..') continue;
+				if ($file == '.' || $file == '..') {
+					continue;
+				}
 				// skip hidden files
 				if (strpos($file, '.') == 0) continue;
 
@@ -159,7 +161,9 @@ class HIPO_Config extends Config
 	function writeAccess()
 	{
 		if (!parent::writeAccess()) return false;
-		if (!$GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS)) return true;
+		if (!$GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS)) {
+			return true;
+		}
 
 		// need to be root
 		return $GLOBALS['SQ_SYSTEM']->userRoot();
@@ -231,7 +235,9 @@ class HIPO_Config extends Config
 			//require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 			$d = dir($hipo_job_path);
 			while (false !== ($file = $d->read())) {
-				if ($file == '.' || $file == '..') continue;
+				if ($file == '.' || $file == '..') {
+					continue;
+				}
 				// skip hidden files
 				if (strpos($file, '.') == 0) continue;
 

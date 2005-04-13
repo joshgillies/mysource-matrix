@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_backend_outputter.inc,v 1.10 2005/04/12 07:35:04 ndvries Exp $
+* $Id: hipo_backend_outputter.inc,v 1.11 2005/04/13 05:08:20 ndvries Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_SYSTEM_ROOT.'/core/include/backend_outputter.inc';
 *    suite hipo jobs
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix
 */
 class Hipo_Backend_Outputter extends Backend_Outputter
@@ -98,13 +98,17 @@ class Hipo_Backend_Outputter extends Backend_Outputter
 
 				$this->addCssInclude($this->filesPath('css/edit.css'));
 				$this->addCssInclude($this->filesPath('css/hipo.css'));
-				foreach ($this->_css_includes as $file) $this->_paintCssInclude($file);
+				foreach ($this->_css_includes as $file) {
+					$this->_paintCssInclude($file);
+				}
 
 				$this->addJsInclude(sq_web_path('lib').'/html_form/html_form.js');
 				$this->addJsInclude(sq_web_path('lib').'/js/general.js');
 				$this->addJsInclude(sq_web_path('lib').'/js/debug.js');
 				$this->addJsInclude(sq_web_path('lib').'/js/edit.js');
-				foreach ($this->_js_includes as $file) $this->_paintJsInclude($file);
+				foreach ($this->_js_includes as $file) {
+					$this->_paintJsInclude($file);
+				}
 				?>
 				<script language="Javascript" type="text/javascript">
 				<!--
@@ -129,7 +133,9 @@ class Hipo_Backend_Outputter extends Backend_Outputter
 						<td align="center">
 						<form name="<?php echo $this->_form_data['form_name']; ?>" method="post" action="<?php echo $this->_form_data['url']; ?>">
 					<?php
-					foreach ($this->_hidden_fields as $name => $value) hidden_field($name, $value);
+					foreach ($this->_hidden_fields as $name => $value) {
+						hidden_field($name, $value);
+					}
 
 	}//end _paintHeader()
 

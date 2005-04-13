@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_herder.inc,v 1.60 2005/04/12 01:07:30 arailean Exp $
+* $Id: hipo_herder.inc,v 1.61 2005/04/13 05:08:21 ndvries Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) Herder (Manager ;P)
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.60 $
+* @version $Revision: 1.61 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -488,7 +488,9 @@ class HIPO_Herder extends MySource_Object
 	*/
 	function processServer()
 	{
-		if (empty($this->_tmp['prepared_server'])) return false;
+		if (empty($this->_tmp['prepared_server'])) {
+			return false;
+		}
 
 		$source_job = &$this->getJob($this->_tmp['prepared_server']['source_code_name']);
 		if (is_null($source_job)) {
@@ -544,9 +546,7 @@ class HIPO_Herder extends MySource_Object
 				}
 				if (!empty($this->_tmp['prepared_server'])) {
 					$source_job = &$this->getJob($this->_tmp['prepared_server']['source_code_name']);
-					if (!is_null($source_job)) {
-						$source_job->abort();
-					}
+					if (!is_null($source_job)) $source_job->abort();
 				}// end if
 				exit();
 			default:
@@ -572,8 +572,12 @@ class HIPO_Herder extends MySource_Object
 	*/
 	function queueHipo($job_type, $vars=Array(), $on_complete_url='', $job_dir='')
 	{
-		if (empty($on_complete_url)) $on_complete_url = $_SERVER['REQUEST_URI'];
-		if (empty($job_dir)) $job_dir = SQ_SYSTEM_ROOT.'/core/hipo/jobs';
+		if (empty($on_complete_url)) {
+			$on_complete_url = $_SERVER['REQUEST_URI'];
+		}
+		if (empty($job_dir)) {
+			$job_dir = SQ_SYSTEM_ROOT.'/core/hipo/jobs';
+		}
 
 		require_once $job_dir.'/'.$job_type.'.inc';
 		$init_hipo = new $job_type();
@@ -603,7 +607,9 @@ class HIPO_Herder extends MySource_Object
 		// in a single script execution
 		$hipo_code = $init_hipo->getCodeName();
 		if (isset($this->_queued_jobs[$GLOBALS['SQ_SYSTEM']->currentUserId()])) {
-			if (in_array($hipo_code, $this->_queued_jobs[$GLOBALS['SQ_SYSTEM']->currentUserId()])) return true;
+			if (in_array($hipo_code, $this->_queued_jobs[$GLOBALS['SQ_SYSTEM']->currentUserId()])) {
+				return true;
+			}
 		}
 
 		if (!$init_hipo->initialise()) return false;
@@ -636,9 +642,7 @@ class HIPO_Herder extends MySource_Object
 				  AND running = 0';
 		$queued_jobs = $db->getAll($sql);
 
-		if (!assert_valid_db_result($queued_jobs)) {
-			return '';
-		}
+		if (!assert_valid_db_result($queued_jobs)) return '';
 
 		if (empty($queued_jobs)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -675,9 +679,7 @@ class HIPO_Herder extends MySource_Object
 				WHERE code_name IN ('.implode(', ',$job_codes).')';
 
 		$result = $db->query($sql);
-		if (!assert_valid_db_result($result)) {
-			return '';
-		}
+		if (!assert_valid_db_result($result)) return '';
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return $this->getProcessURL($queued_jobs[0]['code_name']);
@@ -698,7 +700,9 @@ class HIPO_Herder extends MySource_Object
 	*/
 	function freestyleHipo($job_type, $vars=Array(), $job_dir='')
 	{
-		if (empty($job_dir)) $job_dir = SQ_SYSTEM_ROOT.'/core/hipo/jobs';
+		if (empty($job_dir)) {
+			$job_dir = SQ_SYSTEM_ROOT.'/core/hipo/jobs';
+		}
 
 		require_once $job_dir.'/'.$job_type.'.inc';
 		$init_hipo = new $job_type();
@@ -965,9 +969,7 @@ class HIPO_Herder extends MySource_Object
 
 		$o->closeSection();
 
-		if ($have_lock) {
-			$o->commitButton('', true);
-		}
+		if ($have_lock) $o->commitButton('', true);
 
 	}//end paintBackend()
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job.inc,v 1.66 2005/04/13 01:58:38 ndvries Exp $
+* $Id: hipo_job.inc,v 1.67 2005/04/13 05:08:21 ndvries Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_DATA_PATH.'/private/conf/hipo.inc';
 * Highly Intensive Processing Object (HIPO)
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.66 $
+* @version $Revision: 1.67 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -332,11 +332,13 @@ class HIPO_Job extends MySource_Object
 	function _addError($error, $warning=false)
 	{
 		$error = trim($error);
-		if (!empty($error)) $this->_hipo_vars['errors'][] = Array(
-																'time'		=> time(),
-																'message'	=> $error,
-																'warning'	=> $warning,
-															);
+		if (!empty($error)) {
+			$this->_hipo_vars['errors'][] = Array(
+												'time'		=> time(),
+												'message'	=> $error,
+												'warning'	=> $warning,
+											);
+		}
 
 	}//end _addError()
 
@@ -395,7 +397,9 @@ class HIPO_Job extends MySource_Object
 		} else {
 			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
 			$source_job = &$hh->getJob($source_code_name);
-			if (is_null($source_job) || ($source_job->source_code_name != $source_job->code_name)) return '';
+			if (is_null($source_job) || ($source_job->source_code_name != $source_job->code_name)) {
+				return '';
+			}
 			$source_initialise_mode = $source_job->getInitialiseMode();
 		}
 
@@ -424,7 +428,9 @@ class HIPO_Job extends MySource_Object
 		$code_name = $this->getCodeName();
 		$message   = '';
 
-		if (empty($source_code_name)) $source_code_name = $code_name;
+		if (empty($source_code_name)) {
+			$source_code_name = $code_name;
+		}
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db  = &$GLOBALS['SQ_SYSTEM']->db;
@@ -477,7 +483,7 @@ class HIPO_Job extends MySource_Object
 										'.db_extras_prepare_todate($db).'
 									)'
 								);
-
+		assert_valid_db_result($prepared);
 
 
 		$values = Array(
@@ -556,9 +562,7 @@ class HIPO_Job extends MySource_Object
 	function getThreshold()
 	{
 		$config_vars = $this->getConfigVars();
-		if (empty($config_vars)) {
-			return 1;
-		}
+		if (empty($config_vars)) return 1;
 		foreach ($config_vars as $name => $value) {
 			if (strpos($name, 'THRESHOLD') !== false) {
 				return constant($name);
@@ -665,7 +669,9 @@ class HIPO_Job extends MySource_Object
 			$this_step_per = ($this->complete()) ? 0 : ((1 / count($this->_steps)) * $this->_steps[$step]['percent_done']);
 			$this->_hipo_vars['percent_done'] = round($prev_step_per + $this_step_per, 2);
 
-			if (!empty($this->_steps[$step]['complete'])) $this->getNextStep();
+			if (!empty($this->_steps[$step]['complete'])) {
+				$this->getNextStep();
+			}
 
 		}// end if
 
@@ -725,6 +731,7 @@ class HIPO_Job extends MySource_Object
 										last_updated	= '.db_extras_prepare_todate($db).'
 									WHERE
 										code_name	= ?');
+			assert_valid_db_result($prepared);
 
 			$values = Array(
 						serialize($this->_hipo_vars),
@@ -800,9 +807,7 @@ class HIPO_Job extends MySource_Object
 
 		$sub_job = &$this->_getSubJob();
 		if (!is_null($sub_job)) {
-			if (!$sub_job->setRunningMode($mode)) {
-				return false;
-			}
+			if (!$sub_job->setRunningMode($mode)) return false;
 		}// end if
 
 		$this->_hipo_vars['running_mode']  = $mode;
@@ -1003,9 +1008,7 @@ class HIPO_Job extends MySource_Object
 		}
 
 		// if we are complete, then just save (which will clear the DB if needed)
-		if ($this->complete()) {
-			return $this->save();
-		}
+		if ($this->complete()) return $this->save();
 
 		$step = $this->_hipo_vars['current_step'];
 		if ($this->_steps[$step]['running_mode'] == $this->_hipo_vars['running_mode']) {
@@ -1202,9 +1205,7 @@ class HIPO_Job extends MySource_Object
 		if (!empty($step_data['function_call'])) {
 			$fn = $step_data['function_call']['process_function'];
 			while (!$step_data['complete']){
-				if (!$this->$fn($step_data, $prefix)) {
-					return false;
-				}
+				if (!$this->$fn($step_data, $prefix)) return false;
 				$this->save();
 			}
 			return true;
@@ -1227,7 +1228,9 @@ class HIPO_Job extends MySource_Object
 			$init_hipo = new $job_type();
 
 			$init_hipo->setRunningVars($running_vars);
-			foreach ($options as $k => $v) $init_hipo->setOption($k, $v);
+			foreach ($options as $k => $v) {
+				$init_hipo->setOption($k, $v);
+			}
 
 			$code_name = $init_hipo->initialise($this->source_code_name);
 			if (!$code_name) return false;
@@ -1271,7 +1274,9 @@ class HIPO_Job extends MySource_Object
 		if ($this->source_code_name != $this->code_name) {
 			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
 			$source_job = &$hh->getJob($this->source_code_name);
-			if (is_null($source_job) || ($source_job->source_code_name != $source_job->code_name)) return false;
+			if (is_null($source_job) || ($source_job->source_code_name != $source_job->code_name)) {
+				return false;
+			}
 			$source_job->abort();
 		}
 
@@ -1330,9 +1335,7 @@ class HIPO_Job extends MySource_Object
 		$this->jobAborted();
 
 		$sub_job = &$this->_getSubJob();
-		if (!is_null($sub_job)) {
-			$sub_job->jobAborted();
-		}// end if
+		if (!is_null($sub_job)) $sub_job->jobAborted();
 
 		return true;
 
