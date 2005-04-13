@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager.inc,v 1.18 2005/04/12 00:28:46 mmcintyre Exp $
+* $Id: remap_manager.inc,v 1.19 2005/04/13 07:03:07 ndvries Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -178,6 +178,9 @@ class Remap_Manager extends Asset
 			trigger_error('Unable to remap URL, the URLs passed must both be strings', E_USER_WARNING);
 			return 0;
 		}
+
+		// there is no use remapping a URL to itself
+		if (strcmp($old_url, $new_url) == 0) return 1;
 
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
