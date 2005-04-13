@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: designs_folder.inc,v 1.22 2005/03/21 06:19:55 gsherwood Exp $
+* $Id: designs_folder.inc,v 1.23 2005/04/13 06:02:02 mmcintyre Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -152,7 +152,7 @@ class Designs_Folder extends Folder
 	*/
 	function createLink(&$minor, $link_type, $value='', $sort_order=null, $dependant='0', $exclusive='0')
 	{
-		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LINK_VALIDATION)) {
+		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LINK_INTEGRITY)) {
 			trigger_error('You cannot create a new link to the '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'), E_USER_WARNING);
 			return 0;
 

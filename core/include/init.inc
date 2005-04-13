@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: init.inc,v 1.79 2005/03/21 06:11:21 gsherwood Exp $
+* $Id: init.inc,v 1.80 2005/04/13 06:00:03 mmcintyre Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * The file that needs to be included to do anything
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.79 $
+* @version $Revision: 1.80 $
 * @package MySource_Matrix
 */
 
@@ -175,7 +175,7 @@ define('SQ_SC_STATUS_ALL',          511); // short cut for SQ_STATUS_*
 define('SQ_SECURITY_PERMISSIONS',      1); // enable permissions checking
 define('SQ_SECURITY_LOCKING',          2); // enable locking
 define('SQ_SECURITY_DATA_VALIDATION',  4); // enable data value validation
-define('SQ_SECURITY_LINK_VALIDATION',  8); // enable link validation
+define('SQ_SECURITY_LINK_INTEGRITY',   8); // enable link validation
 define('SQ_SECURITY_INTEGRITY',       16); // enable additional actions to ensure system/asset integrity
 define('SQ_SECURITY_TRIGGERS',        32); // enable triggering/event system
 
