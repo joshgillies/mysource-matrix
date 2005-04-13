@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_asset_lineage.inc,v 1.7 2004/12/03 15:29:22 brobertson Exp $
+* $Id: design_area_asset_lineage.inc,v 1.7.2.1 2005/04/13 06:22:51 ndvries Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -64,7 +64,7 @@ class Design_Area_Asset_Lineage extends Design_Area
 
 			case 'asset_short_name' :
 			case 'asset_name' :
-				echo '<', '?php echo ', $this->_escapeVar($value_prefix.'$ASSET_LINEAGE[$'.$this->attr('id_name').'_i]['.var_export((string) substr($var, 6), true).']'.$value_suffix, $args), '; ?', '>';
+				echo '<', '?php echo ', $this->_escapeVar($value_prefix.'htmlspecialchars($ASSET_LINEAGE[$'.$this->attr('id_name').'_i]['.var_export((string) substr($var, 6), true).'])'.$value_suffix, $args), '; ?', '>';
 			break;
 
 			default :

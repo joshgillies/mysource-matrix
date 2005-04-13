@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type.inc,v 1.56 2004/12/03 15:29:22 brobertson Exp $
+* $Id: design_area_menu_type.inc,v 1.56.2.1 2005/04/13 06:22:51 ndvries Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -615,13 +615,13 @@ class Design_Area_Menu_Type extends Design_Area
 
 				case 'asset_short_name' :
 					if ($id_name) {
-						echo '<', '?php echo ', $this->_escapeVar($value_prefix.'$'.$id_name.'_row[\'short_name\']'.$value_suffix, $args), '; ?', '>';
+						echo '<', '?php echo ', $this->_escapeVar($value_prefix.'htmlspecialchars($'.$id_name.'_row[\'short_name\'])'.$value_suffix, $args), '; ?', '>';
 					}
 					break;
 
 				case 'asset_name' :
 					if ($id_name) {
-						echo '<', '?php echo ', $this->_escapeVar($value_prefix.'$'.$id_name.'_row[\'name\']'.$value_suffix, $args), '; ?', '>';
+						echo '<', '?php echo ', $this->_escapeVar($value_prefix.'htmlspecialchars($'.$id_name.'_row[\'name\'])'.$value_suffix, $args), '; ?', '>';
 					}
 					break;
 
