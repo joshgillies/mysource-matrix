@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.77.2.1 2005/03/31 17:01:34 brobertson Exp $
+* $Id: design_edit_fns.inc,v 1.77.2.2 2005/04/14 00:18:11 ndvries Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -71,8 +71,8 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		return false;
 
 	}//end paintParseFile()
-	
-	
+
+
 	/**
 	* Processes the interface for the parse file uploading
 	*
@@ -88,7 +88,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		// make sure a file was uploaded before processing it
 		$upload_info = get_file_upload_info($prefix.'_parse_file');
 		if (empty($upload_info)) return false;
-		
+
 		$parse_file  = $asset->data_path.'/parse.txt';
 		$changes     = false;
 		$new_version = false;
@@ -202,7 +202,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	function paintEditParseFile(&$asset, &$o, $prefix)
 	{
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-		
+
 		if (SQ_ROLLBACK_VIEW) {
 			// get an older version of the parse file
 			$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
@@ -230,7 +230,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 	}//end paintEditParseFile()
 
-	
+
 	/**
 	* Processes the interface for the editing the parse file
 	*
@@ -275,7 +275,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 				} else {
 					$changes = true;
 				}
-				
+
 			} else {
 				trigger_error('Failed writing parse file, trying to recover previous version from repository', E_USER_WARNING);
 			}
@@ -285,7 +285,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 				trigger_error('Failed checking out latest version of parse file', E_USER_WARNING);
 				return false;
 			}
-			
+
 			if ($changes) return $this->parseAndProcessFile($asset);
 		}
 
@@ -311,7 +311,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		return (!is_null($contents) && $this->_processContents($asset, $contents) && $asset->saveAttributes());
 
 	}//end parseAndProcessFile()
-	
+
 
 	/**
 	* Parses the string into an array recursively cut up into html and tag pieces
@@ -338,7 +338,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			$file_contents= $temp[0]
 							."<head>\n<".$this->tag_name."_PRINT id_name='__global__' var='html_header' />\n"
 							.$temp[1];
-		} 
+		}
 
 		// Let's place an print operation after the termination body tag
 		// to allow us to print the anything that has come to our attention
@@ -348,7 +348,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			$file_contents= $temp[0]
 							."\n<".$this->tag_name."_PRINT id_name='__global__' var='html_footer' />\n</body>"
 							.$temp[1];
-		} 
+		}
 
 		return parent::_parseString($file_contents);
 
@@ -394,9 +394,9 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			$id_names[$element['attributes']['id_name']] = $element['attributes']['design_area'];
 
 		}// end foreach
-		
+
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		
+
 		if (isset($GLOBALS['SQ_PROCESSED_DESIGN_AREAS'])) {
 			// let's remove any design area links that we aren't going to be using any more
 			$existing_da_links = $asset->getDesignAreaLink();
@@ -436,7 +436,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 				unset($da); // unset so we don't set the value or all ref's to null
 				$da = null; // do this so a new version will be created
 			}
-			
+
 			// if it doesn't exist, create it, and acquire the lock
 			if (is_null($da)) {
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset($design_area);
@@ -456,7 +456,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			$design_areas[$id_name] = &$da;
 
 		}// end foreach
-		
+
 
 		// Now that we have set all the design areas up we can get on with the processing of the contents array
 		$remove_indexes = Array();
@@ -479,9 +479,9 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			// if they want this design area to be printed then what we need to do is alter the contents
 			// array to become a _PRINT operation
 			switch ($element['attributes']['print']) {
-				case 'yes'  : 
-				case 'true' : 
-				case '1'    : 
+				case 'yes'  :
+				case 'true' :
+				case '1'    :
 					// Now what we do is morph it so that this element is now a print tag
 					$contents[$index] = Array(
 												'_type' => 'TAG',
@@ -491,12 +491,12 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 											);
 					break;
 				// otherwise we just remove it as there is nothing for us to do with it anymore
-				default : 
+				default :
 					$remove_indexes[] = $index;
 			}// end switch
 
 		}//end foreach
-		
+
 		// Now remove the elems
 		// reverse the order so we don't throw the numbers out of whack by removing one from the start
 		rsort($remove_indexes, SORT_NUMERIC);
@@ -527,7 +527,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	function createDesignFile(&$asset)
 	{
 		$design_area_links = $asset->getDesignAreaLink();
-		
+
 		// Firstly we need to set all the var_reference variables so that when the design areas are
 		// printed they can work correctly
 		//
@@ -764,7 +764,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		$existing = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'file', false);
 		foreach ($existing as $link) $existing_ids[$link['minorid']] = $link['linkid'];
 		$existing_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($existing_ids));
-		
+
 		$existing_fileid = 0;
 		foreach ($existing_info as $existing_info) {
 			// if the name is the same, delete the link
@@ -849,8 +849,6 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			return false;
 		}
 
-		$GLOBALS['SQ_SYSTEM']->am->rememberAsset($da);
-
 		// Acquire a lock on the new object
 		if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($clone->id, 'all')) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -909,7 +907,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			}
 		}
 		$am->forgetAsset($minor);
-		
+
 		// link up all the css files from this design to the customisation
 		$css_link_ids = Array();
 		$css_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3, 'design_css', false);
@@ -935,8 +933,8 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		return true;
 
 	}//end processNewCustomisation()
-	
-	
+
+
 	/**
 	*
 	* @param object Asset				$asset	the asset whose interface we are painting
