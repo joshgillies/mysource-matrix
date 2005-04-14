@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: conditions_list.inc,v 1.2 2005/04/13 10:49:45 gnoel Exp $
+* $Id: conditions_list.inc,v 1.3 2005/04/14 12:10:52 gnoel Exp $
 *
 */
 
@@ -39,7 +39,7 @@ define('SQ_KEYWORD_CONDITION_ELSE', 'else');
 * parameters in a single attribute (of type Array).
 *
 * @author  Geoffroy Noel <gnoel@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 */
 class Conditions_List
@@ -421,7 +421,7 @@ class Conditions_List
 	* @return boolean 
 	* @access public
 	*/
-	function processConditionsList(&$asset, &$o, $prefix, $write_access)
+	function processConditionsList(&$asset, &$o, $prefix, $write_access, $allowed_keywords)
 	{
 		$ret = true;
 		
@@ -446,7 +446,7 @@ class Conditions_List
 					$condition_type = $parameters['type_code'];				
 					$condition = &$this->_getConditionAsset($condition_type);
 					$condition_edit_fns = &$this->_getConditionAsset($condition_type, true);
-					$conditions_parameters_new[$new_name]['restriction'] = $condition_edit_fns->processEditInterface($condition, $o, $condition_prefix, $parameters['restriction'], $write_access);
+					$conditions_parameters_new[$new_name]['restriction'] = $condition_edit_fns->processEditInterface($condition, $o, $condition_prefix, $parameters['restriction'], $write_access, $allowed_keywords);
 					$conditions_parameters_new[$new_name]['type_code'] = $condition_type; 					
 				} 
 			}

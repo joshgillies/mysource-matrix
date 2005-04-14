@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_bodycopy_edit_fns.inc,v 1.1 2005/04/06 22:03:23 gnoel Exp $
+* $Id: paint_layout_bodycopy_edit_fns.inc,v 1.2 2005/04/14 12:10:52 gnoel Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy_edit_fns.inc';
 *
 *
 * @author Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -79,9 +79,13 @@ class Paint_Layout_Bodycopy_Edit_Fns extends Bodycopy_Edit_Fns
 	*/
 	function processConditionalKeywords(&$asset, &$o, $prefix)
 	{
+		$allowed_keywords = Array();		
+		$asset->getKeywordsDescription($allowed_keywords, $asset->getAssociatedAssetType());
+		$allowed_keywords = array_keys($allowed_keywords);
+
 		$write_access = $asset->writeAccess('attributes');
 		$condition_list = new Conditions_List($asset, 'conditional_keywords');
-		return $condition_list->processConditionsList($asset, $o, $prefix, $write_access);
+		return $condition_list->processConditionsList($asset, $o, $prefix, $write_access, $allowed_keywords);
 
 	}
 
