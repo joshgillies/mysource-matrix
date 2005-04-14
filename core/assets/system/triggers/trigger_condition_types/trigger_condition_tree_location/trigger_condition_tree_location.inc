@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_tree_location.inc,v 1.6 2005/04/12 07:01:36 arailean Exp $
+* $Id: trigger_condition_tree_location.inc,v 1.7 2005/04/14 04:58:12 rhoward Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -83,9 +83,7 @@ class Trigger_Condition_Tree_Location extends Trigger_Condition
 			}
 		}
 
-		if (!isset($settings['immed_child'])) {
-			return false;
-		}
+		if (!isset($settings['immed_child'])) return false;
 
 		// grab the data we need to check the condition, if it's not already cached
 		// note that new state is modified and new data is available to other conditions

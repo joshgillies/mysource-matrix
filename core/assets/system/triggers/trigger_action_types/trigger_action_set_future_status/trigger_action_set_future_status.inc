@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_future_status.inc,v 1.3 2005/04/12 07:01:33 arailean Exp $
+* $Id: trigger_action_set_future_status.inc,v 1.4 2005/04/14 04:58:12 rhoward Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 *
 * @author   Avi Miller <amiller@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -153,7 +153,9 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_status');
 		$fs = new Cron_Job_Future_Status();
 
-		if (!is_null($settings['status'])) $fs->setAttrValue('status', $settings['status']);
+		if (!is_null($settings['status'])) {
+			$fs->setAttrValue('status', $settings['status']);
+		}
 
 		$edit_fns = $fs->getEditFns();
 
@@ -182,9 +184,7 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 		$munge_prefix = $request_data['prefix'];
 		$set_status = $_POST[$munge_prefix.'_status'];
 
-		if (!$set_status) {
-			return 'Status not specified';
-		}
+		if (!$set_status) return 'Status not specified';
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_status');
 		$fs = new Cron_Job_Future_Status();

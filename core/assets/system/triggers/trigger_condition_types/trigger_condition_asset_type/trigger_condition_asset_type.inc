@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_asset_type.inc,v 1.6 2005/04/12 07:01:35 arailean Exp $
+* $Id: trigger_condition_asset_type.inc,v 1.7 2005/04/14 04:58:12 rhoward Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -68,9 +68,8 @@ class Trigger_Condition_Asset_Type extends Trigger_Condition
 			}
 		}
 
-		if (empty($settings['asset_type'])) {
-			return false;
-		}
+		if (empty($settings['asset_type'])) return false;
+
 		// check the condition
 		if (array_get_index($settings, 'descendants', false)) {
 			$type_desc = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($settings['asset_type'], true);
@@ -116,9 +115,7 @@ class Trigger_Condition_Asset_Type extends Trigger_Condition
 		} else {
 			echo '<b>';
 			echo $selected_type;
-			if ($is_descendant) {
-				echo ' (or descendant types)';
-			}
+			if ($is_descendant) echo ' (or descendant types)';
 			echo '</b>';
 		}
 

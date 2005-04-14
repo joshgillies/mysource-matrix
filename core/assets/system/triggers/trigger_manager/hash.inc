@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hash.inc,v 1.6 2005/04/05 00:26:51 arailean Exp $
+* $Id: hash.inc,v 1.7 2005/04/14 04:58:12 rhoward Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 */
 class Hash
@@ -95,9 +95,7 @@ class Hash
 			$this->hash[$name] = Array();
 		}
 
-		if (!is_array($value)) {
-			$value = Array($value);
-		}
+		if (!is_array($value)) $value = Array($value);
 
 		foreach ($value as $one_value) {
 			$this->hash[$name][] = $one_value;
@@ -255,9 +253,7 @@ class Hash
 
 		// make sure every field has data, and that no fields are null
 		foreach ($result as $id => $data) {
-			if (empty($result[$id])) {
-				unset($result[$id]);
-			}
+			if (empty($result[$id])) unset($result[$id]);
 		}
 
 		return $this->_createCombinations($result);

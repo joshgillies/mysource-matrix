@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_create_image_variety.inc,v 1.4 2005/04/12 07:01:32 arailean Exp $
+* $Id: trigger_action_create_image_variety.inc,v 1.5 2005/04/14 04:58:12 rhoward Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -74,9 +74,7 @@ class Trigger_Action_Create_Image_Variety extends Trigger_Action
 		}
 
 		// type - must be image
-		if (!is_a($state['asset'], 'image')) {
-			return false;
-		}
+		if (!is_a($state['asset'], 'image')) return false;
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('image_variety');
 

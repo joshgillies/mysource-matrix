@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager.inc,v 1.13 2005/04/11 06:30:35 mmcintyre Exp $
+* $Id: trigger_manager.inc,v 1.14 2005/04/14 04:58:12 rhoward Exp $
 *
 */
 
@@ -51,7 +51,7 @@ require_once 'hash.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -211,10 +211,7 @@ class Trigger_Manager extends Asset
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 
 		// include the event asset
-		if (!$this->_loadComponent($event_name)) {
-			return false;
-		}
-
+		if (!$this->_loadComponent($event_name)) return false;
 
 		// calculate state, prepare state hash
 		$state = $this->_calculateState($event_name, $broadcaster, $parameters);
@@ -315,9 +312,8 @@ class Trigger_Manager extends Asset
 
 		// uses type 1,2 and 3 only
 		$tmp_treeid = $am->getAssetTreeids($state['assetid']);
-		if ($tmp_treeid) {
-			$state['treeid'] = $tmp_treeid;
-		}
+
+		if ($tmp_treeid) $state['treeid'] = $tmp_treeid;
 
 		return $state;
 
@@ -370,9 +366,7 @@ class Trigger_Manager extends Asset
 		}
 
 		foreach ($state_hash['treeid'] as $current_treeid) {
-			if (empty($current_treeid)) {
-				continue;
-			}
+			if (empty($current_treeid)) continue;
 
 			$tree_length = strlen($current_treeid) - SQ_CONF_ASSET_TREE_SIZE;
 			$tree_length = $db->quoteSmart($tree_length);
@@ -513,9 +507,7 @@ class Trigger_Manager extends Asset
 
 			// if condition fails return with Success
 			// (trigger does not need execution, false alarm but trigger did not fail)
-			if (!$condition_success) {
-				return SQ_TRIG_RESULT_FALSE;
-			}
+			if (!$condition_success) return SQ_TRIG_RESULT_FALSE;
 		}
 
 
@@ -932,7 +924,9 @@ class Trigger_Manager extends Asset
 		assert_valid_db_result($trigger_db);
 
 		if (empty($trigger_db)) {
-			if (!$mute_errors) trigger_error('Trigger #'.$trigger_id.' does not exist', E_USER_WARNING);
+			if (!$mute_errors) {
+				trigger_error('Trigger #'.$trigger_id.' does not exist', E_USER_WARNING);
+			}
 			return null;
 		}
 
@@ -1071,9 +1065,7 @@ class Trigger_Manager extends Asset
 	*/
 	function _getComponentInterface($type_code, $data, $prefix, $write_access=false)
 	{
-		if (!$this->_loadComponent($type_code)) {
-			return '';
-		}
+		if (!$this->_loadComponent($type_code)) return '';
 
 		eval('$interface = '.$type_code.'::getInterface($data, $prefix, $write_access);');
 

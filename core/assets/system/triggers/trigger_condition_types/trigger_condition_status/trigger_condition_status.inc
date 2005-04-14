@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_status.inc,v 1.3 2005/04/12 07:01:35 arailean Exp $
+* $Id: trigger_condition_status.inc,v 1.4 2005/04/14 04:58:12 rhoward Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -137,9 +137,7 @@ class Trigger_Condition_Status extends Trigger_Condition
 	function processInterface(&$settings, &$hash, $request_data)
 	{
 		$status = array_get_index($request_data, 'status', false);
-		if (!$status) {
-			return 'No status selected';
-		}
+		if (!$status) return 'No status selected';
 
 		$status_list = &trigger_condition_status::_getStatusList();
 

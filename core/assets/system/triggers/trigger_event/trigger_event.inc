@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_event.inc,v 1.3 2005/03/01 00:25:31 arailean Exp $
+* $Id: trigger_event.inc,v 1.4 2005/04/14 04:58:12 rhoward Exp $
 *
 */
 
@@ -31,22 +31,27 @@
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Trigger_Event extends Asset
 {
 
+
 	// broadcaster of the event
 	var $broadcaster;
 
-	// CONSTRUCTOR
+
+	/**
+	* Constructor
+	*/
 	function Trigger_Event($assetid=0)
 	{
 		$this->Asset($assetid);
 
-	}//end Trigger_Event()
+	}//end constructor
+
 
 	/**
 	* Sets the broadcaster of the event to the passed asset
@@ -75,6 +80,7 @@ class Trigger_Event extends Asset
 		return $this->broadcaster;
 
 	}//end getBroadcaster()
+
 
 }//end class
 

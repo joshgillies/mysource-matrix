@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_link_exists.inc,v 1.5 2005/04/12 07:01:35 arailean Exp $
+* $Id: trigger_condition_link_exists.inc,v 1.6 2005/04/14 04:58:12 rhoward Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -95,29 +95,21 @@ class Trigger_Condition_Link_Exists extends Trigger_Condition
 		}
 
 		$selector_type = array_get_index($settings, 'selector_type', false);
-		if (!$selector_type) {
-			return false;
-		}
+		if (!$selector_type) return false;
 
 		switch ($selector_type) {
 			case 'asset_type':
 				$selected_type = array_get_index($settings, 'asset_type');
-				if (empty($selected_type)) {
-					return false;
-				}
+				if (empty($selected_type)) return false;
 				$links = $am->getLinks($assetid, $link_type, $selected_type, true, $link_side, $value, $dependant, $exclusive);
 
 			break;
 
 			case 'asset_id':
 				$selected_id   = array_get_index($settings, 'asset_id');
-				if (!isset($selected_id)) {
-					return false;
-				}
+				if (!isset($selected_id)) return false;
 
-				if (empty($link_type)) {
-					$link_type = null;
-				}
+				if (empty($link_type)) $link_type = null;
 
 				// do the request
 				$links = $am->getLinkByAsset($assetid, $selected_id, $link_type, $value, $link_side, true, $dependant, $exclusive);
@@ -129,16 +121,12 @@ class Trigger_Condition_Link_Exists extends Trigger_Condition
 		}
 
 		// we rely on the fact that the links that we got already satisfy the criteria
-		if (empty($links)) {
-			return false;
-		}
+		if (empty($links)) return false;
 
 		// now do the final test to see if we are looking for a particular link ID
 		if ($use_new_link) {
 			foreach ($links as $link) {
-				if ($new_link == $link['linkid']) {
-					return true;
-				}
+				if ($new_link == $link['linkid']) return true;
 			}
 			return false;
 		}

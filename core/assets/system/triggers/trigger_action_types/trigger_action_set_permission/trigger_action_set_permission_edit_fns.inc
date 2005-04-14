@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_permission_edit_fns.inc,v 1.1 2005/03/22 04:56:11 gsherwood Exp $
+* $Id: trigger_action_set_permission_edit_fns.inc,v 1.2 2005/04/14 04:58:12 rhoward Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 * Trigger_Action_Set_Permission_Edit_Fns
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -45,7 +45,6 @@ class Trigger_Action_Set_Permission_Edit_Fns extends Trigger_Action_Edit_Fns
 		$this->Trigger_Action_Edit_Fns();
 
 	}//end constructor
-
 
 
 }//end class

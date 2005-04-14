@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_create_link.inc,v 1.5 2005/03/21 06:21:51 gsherwood Exp $
+* $Id: trigger_action_create_link.inc,v 1.6 2005/04/14 04:58:12 rhoward Exp $
 *
 */
 
@@ -32,12 +32,13 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Trigger_Action_Create_Link extends Trigger_Action
 {
+
 
 	/**
 	* Execute this action
@@ -193,14 +194,16 @@ class Trigger_Action_Create_Link extends Trigger_Action
 		text_box($prefix.'[value]', $value, '', '', false, $form_element_extras);
 		echo ' and link the child ';
 
-		$is_dependant_list = Array(0 => 'Non-dependantly',
-								   1 => 'Dependantly'
-								   );
+		$is_dependant_list = Array(
+								0	=> 'Non-dependantly',
+								1	=> 'Dependantly',
+							 );
 		combo_box($prefix.'[is_dependant]', $is_dependant_list, false, $is_dependant, null, $form_element_extras);
 		echo ' and ';
-		$is_exclusive_list = Array(0 => 'Non-exclusively',
-								   1 => 'Exclusively'
-								   );
+		$is_exclusive_list = Array(
+								0	=> 'Non-exclusively',
+								1	=> 'Exclusively',
+							 );
 		combo_box($prefix.'[is_exclusive]', $is_exclusive_list, false, $is_exclusive, null, $form_element_extras);
 		echo ' to the parent.';
 

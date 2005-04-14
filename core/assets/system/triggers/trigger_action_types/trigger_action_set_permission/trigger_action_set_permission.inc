@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_permission.inc,v 1.2 2005/04/12 07:01:33 arailean Exp $
+* $Id: trigger_action_set_permission.inc,v 1.3 2005/04/14 04:58:12 rhoward Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -171,9 +171,7 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 	{
 		// check if the permission is valid
 		$permission = array_get_index($request_data, 'permission', false);
-		if (!$permission) {
-			return 'Permission not specified';
-		}
+		if (!$permission) return 'Permission not specified';
 
 		$valid_permissions = &Trigger_Action_Set_Permission::_getPermissionList();
 		if (isset($valid_permissions[$permission])) {
@@ -192,9 +190,8 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 		// a userid must have been selected
 		$user_data = array_get_index($request_data, 'userid', false);
 		$userid = $user_data['assetid'];
-		if (empty($userid)) {
-			return 'User id is not specified';
-		}
+
+		if (empty($userid)) return 'User id is not specified';
 
 		$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
 		if (is_null($user)) {

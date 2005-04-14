@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager_edit_fns.inc,v 1.14 2005/04/12 07:01:36 arailean Exp $
+* $Id: trigger_manager_edit_fns.inc,v 1.15 2005/04/14 04:58:12 rhoward Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard  <rhoward@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -84,9 +84,7 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 			$this->_tmp['edit_id'] = $_REQUEST[$prefix]['edit_id'];
 		}
 
-		if (isset($this->_tmp['edit_id'])) {
-			$screen = 'edit';
-		}
+		if (isset($this->_tmp['edit_id'])) $screen = 'edit';
 
 		// determine which subscreen to display
 		switch ($screen) {
@@ -384,9 +382,7 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 				check_box($event_prefix.'[]', $e_type, $checked);
 				echo $e_name."<br />";
 			} else {
-				if ($checked) {
-					echo $e_name."<br />";
-				}
+				if ($checked) echo $e_name."<br />";
 			}
 		}
 
@@ -488,9 +484,9 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 			</div>
 			<?php
 			} else {
-				if ($i < 0) {
-					echo "No Conditions Specified";
-				}
+
+				if ($i < 0) echo "No Conditions Specified";
+
 			}
 			?>
 		</div>
@@ -589,9 +585,9 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 				</div>
 				<?php
 			} else {
-				if ($i < 0) {
-					echo "No Actions Specified";
-				}
+
+				if ($i < 0) echo "No Actions Specified";
+
 			}
 			?>
 			</div>
@@ -637,9 +633,8 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 		}
 
 		$screen = array_get_index($request_data, 'sub_screen', 'list');
-		if (isset($request_data['edit'])) {
-			$screen = 'edit';
-		}
+
+		if (isset($request_data['edit'])) $screen = 'edit';
 
 		switch ($screen) {
 			case 'list':
@@ -686,9 +681,7 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 			}
 		}
 
-		if ($edit_id) {
-			$this->_tmp['edit_id'] = $edit_id;
-		}
+		if ($edit_id) $this->_tmp['edit_id'] = $edit_id;
 
 		// delete the requested triggers
 		$to_delete = array_get_index($request_data, 'delete', false);
@@ -730,18 +723,14 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 		}
 
 		$trigger = $tm->_loadTrigger($edit_id);
-		if (empty($trigger)) {
-			return false;
-		}
+		if (empty($trigger)) return false;
 
 		// set this to make sure we return to edit screen of the same trigger
 		if (!isset($edit_data['finish'])) {
 			$this->_tmp['edit_id'] = $edit_id;
 		}
 
-		if (!$write_access) {
-			return false;
-		}
+		if (!$write_access) return false;
 
 		$hash = $tm->_getHashObject();
 		$edit_info = array_get_index($edit_data, 'info');
@@ -836,9 +825,7 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 		$i = 1;
 		foreach ($raw_components as $component) {
 			$error = false;
-			if (isset($component['delete'])) {
-				continue;
-			}
+			if (isset($component['delete'])) continue;
 			$settings = Array();
 
 			$type = array_get_index($component, 'type');
@@ -891,9 +878,7 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 		$i=1;
 		foreach ($raw_components as $component) {
 			$error = false;
-			if (isset($component['delete'])) {
-				continue;
-			}
+			if (isset($component['delete'])) continue;
 
 			$settings = Array();
 
@@ -1098,9 +1083,7 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 			$error = true;
 		}
 
-		if ($error) {
-			return false;
-		}
+		if ($error) return false;
 
 		// grab all the children of the target if applicable, then add the target itself
 		$all_targets = Array();
