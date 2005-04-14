@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_page.inc,v 1.3 2005/04/14 08:26:34 gnoel Exp $
+* $Id: paint_layout_page.inc,v 1.4 2005/04/14 16:28:39 brobertson Exp $
 *
 */
 
@@ -32,16 +32,16 @@ define('SQ_PAINT_LAYOUT_DEFAULT_FORMAT_NAME', 'default_format');
 
 /**
 * Paint_Layout_Page
-* 
+*
 * This asset is used to represent other assets in the system.
-* 
+*
 * The representation of each asset type is done by a different bodycopy which
 * has access to all the keywords of the asset.
-* 
+*
 * Those bodycopies also support conditions.
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -58,10 +58,10 @@ class Paint_Layout_Page extends Page_Standard
 	function Paint_Layout_Page($assetid=0)
 	{
 		// We have at least one attribute of type "serialise"
-		// We set this flag to unserialise the attributes when the asset is loaded 
+		// We set this flag to unserialise the attributes when the asset is loaded
 		$this->_ser_attrs = true;
 		$this->Page_Standard($assetid);
-		
+
 	}//end constructor
 
 
@@ -81,7 +81,7 @@ class Paint_Layout_Page extends Page_Standard
 
 		// add a bodycopy to this page when creating
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset(SQ_PAINT_LAYOUT_FORMAT_ASSET_TYPE);
-		
+
 		// 1. create type formats folder
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('folder');
 
@@ -102,7 +102,7 @@ class Paint_Layout_Page extends Page_Standard
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 			unset($asset);
 		}
-		
+
 		// 2. create default format bodycopy
 		$type_format_asset_type_code = SQ_PAINT_LAYOUT_FORMAT_ASSET_TYPE;
 		$asset = new $type_format_asset_type_code();
@@ -115,6 +115,41 @@ class Paint_Layout_Page extends Page_Standard
 
 
 	/**
+	* Queue the setting of the value of an attribute
+	*
+	* This function sets the value of the attribute locally, but does not database updating.
+	* The change is queued awaiting the call of saveAttributes()
+	*
+	* @param string		$name	the name of the attribute
+	* @param string		$value	the new value of the attribute
+	*
+	* @return boolean
+	* @access public
+	* @see saveAttributes()
+	*/
+	function setAttrValue($name, $value)
+	{
+		if ($name == 'types' && !empty($value)) {
+			// because of way that we use the 'types' attribute in _getBodycopyFromAssetTypeCode() we need to make sure
+			// that all the types that inherit from other types are at the start of the list
+			// otherwise if we have 'page' and 'page_standard' in the list in that order, and we are viewing a page_standard asset
+			// it will pick the 'page' format bodycopy because 'page_standard' inherits from 'page'
+			$orig_value = $value;
+			$value = Array();
+			$levels = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo(array_keys($orig_value), 'lvl');
+			arsort($levels);
+			foreach($levels as $type_code => $lvl) {
+				$value[$type_code] = $orig_value[$type_code];
+			}
+
+		}
+
+		return parent::setAttrValue($name, $value);
+
+	}//end setAttrValue()
+
+
+	/**
 	* Called by the design to print the body of this asset
 	*
 	* @return void
@@ -122,13 +157,13 @@ class Paint_Layout_Page extends Page_Standard
 	*/
 	function printBody()
 	{
-		$asset_id = $this->_getAssetToPaint();
-			
-		$this->paintAssetFromId($asset_id);
-		
+		$assetid = $this->_getAssetToPaint();
+
+		$this->paintAssetFromId($assetid);
+
 	}//end printBody()
-	
-	
+
+
 	/**
 	* Add valid keywords for this asset to an array of keywords when asked
 	*
@@ -142,9 +177,9 @@ class Paint_Layout_Page extends Page_Standard
 	function onRequestKeywords(&$broadcaster, $vars=Array())
 	{
 		if (!isset($vars['keywords'])) return;
-		
+
 		$is_main_content_type = true;
-		
+
 		$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id, SQ_PAINT_LAYOUT_FORMAT_ASSET_TYPE, true);
 
 		// if we're being handled here (instead of one of our extensions),
@@ -154,61 +189,61 @@ class Paint_Layout_Page extends Page_Standard
 		if (is_null($folder)) return;
 
 		$type_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($folder->id, SQ_LINK_TYPE_2, SQ_PAINT_LAYOUT_FORMAT_ASSET_TYPE);
-		
+
 		foreach ($type_links as $link_info) {
 			if (isset($parents[$link_info['minorid']])) {
 				$type_code = $link_info['value'];
 				if ($type_code == SQ_PAINT_LAYOUT_DEFAULT_FORMAT_NAME) $type_code = '';
-				
+
 				$type_format = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link_info['minorid']);
 				if (!empty($type_format)) $type_format->getKeywordsDescription($vars['keywords'], $type_code);
 				$is_main_content_type = false;
 				break;
 			}
 		}
-		
+
 		if ($is_main_content_type) {
 			$vars['keywords']['paint_layout'] = 'Paint Layout';
-		} 
-		
+		}
+
 	}//end onRequestKeywords()
-	
+
 
 	/**
 	 * Returns the id of the asset to paint.
-	 * 
+	 *
 	 * @return int
 	 * @access private
 	 */
 	function _getAssetToPaint()
 	{
 		$ret = 0;
-				
+
 		if (!empty($_REQUEST[SQ_PAINT_LAYOUT_REQUEST_VAR_ASSET])) $ret = $_REQUEST[SQ_PAINT_LAYOUT_REQUEST_VAR_ASSET];
-		
+
 		return $ret;
-		
+
 	}//end _getAssetToPaint()
-	
-	
+
+
 	/**
 	 * Paint an asset
-	 * 
-	 * @param int $asset_id		the id of the asset to paint
-	 * 
-	 * @return void 
+	 *
+	 * @param int $assetid		the id of the asset to paint
+	 *
+	 * @return void
 	 * @access public
 	 */
-	function paintAssetFromId($asset_id=0)
+	function paintAssetFromId($assetid=0)
 	{
-		if (!empty($asset_id)) {			
-			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($asset_id);
-			
+		if (!empty($assetid)) {
+			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+
 			$this->paint($asset);
 		}
-		
+
 	}//end paintAssetFromId()
-	
+
 
 	/**
 	* Paints out our layout
@@ -223,54 +258,60 @@ class Paint_Layout_Page extends Page_Standard
 		if (!empty($asset)) {
 			$bodycopy = &$this->getBodycopy();
 			$bodycopy->setKeywordReplacements($this->_getKeywordReplacements($bodycopy->getKeywords(), $asset));
-			
-			$bodycopy->printBody();	
+
+			$bodycopy->printBody();
 		}
-		
+
 	}//end paint()
 
 
 
 	/**
 	* Returns replacements for the page bodycopy keywords
-	* 
+	*
 	* @param Array 			$keywords	the keywords to replace
 	* @param Object Asset 	$asset		the asset to represent
-	* 
+	*
 	* @return Array(keyword => value)
-	* @access private 
+	* @access private
 	*/
 	function &_getKeywordReplacements($keywords, &$asset)
 	{
 		$ret = Array();
-		
+
 		if (in_array('paint_layout', $keywords)) {
 			$asset_type_code = $asset->type();
 			$bodycopy = &$this->_getBodycopyFromAssetTypeCode($asset_type_code);
-			
-			$ret['paint_layout'] = (!empty($bodycopy)) ? $bodycopy->paintAsset($asset) : '';				
-		} 
-	
+
+			if (!empty($bodycopy)) {
+				$ret['paint_layout'] = $bodycopy->paintAsset($asset);
+			} else {
+				ob_start();
+				$asset->printBody();
+				$ret['paint_layout'] = ob_get_clean();
+			}
+		}
+
 		return $ret;
-		 
+
 	}
 
 
 	/**
 	 * Returns a reference to the format bodycopy corresponding to
 	 * $asset_type_code
-	 * 
+	 *
 	 * @param string	$asset_type_code	type of the asset to represent
-	 * 
+	 *
 	 * @return Asset
 	 * @access private
 	 */
 	function &_getBodycopyFromAssetTypeCode($asset_type_code)
 	{
 		$ret = null;
-						
-		$supported_types = $this->attr('types');		 
-		
+
+		$supported_types = $this->attr('types');
+
 		$format_type = '';
 		foreach ($supported_types as $supported_type => $inherited) {
 			$supported_type_and_children = ($inherited) ? $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($supported_type, true) : Array($supported_type);
@@ -279,24 +320,24 @@ class Paint_Layout_Page extends Page_Standard
 				break;
 			}
 		}
-		
+
 		if (!empty($format_type)) {
 			// this asset type is supported by the paint layout page
 			$folder = &$this->getFolder();
-			
+
 			$format_link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, SQ_PAINT_LAYOUT_FORMAT_ASSET_TYPE, true, $format_type);
 			if (empty($format_link)) {
 				// not a customized type, so let's take the default format
-				$format_link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, SQ_PAINT_LAYOUT_FORMAT_ASSET_TYPE, true, SQ_PAINT_LAYOUT_DEFAULT_FORMAT_NAME);				
+				$format_link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, SQ_PAINT_LAYOUT_FORMAT_ASSET_TYPE, true, SQ_PAINT_LAYOUT_DEFAULT_FORMAT_NAME);
 			}
-			
+
 			if (!empty($format_link)) {
 				$ret = &$GLOBALS['SQ_SYSTEM']->am->getAsset($format_link['minorid'], $format_link['minor_type_code']);
-			}	
+			}
 		}
-		
+
 		return $ret;
-		
+
 	}//end _getBodycopyFromAssetTypeCode()
 
 
@@ -320,7 +361,7 @@ class Paint_Layout_Page extends Page_Standard
 		return $folder;
 
 	}//end getFolder()
-	
+
 
 	/**
 	* Get a list of all formats of a certain type
@@ -348,23 +389,23 @@ class Paint_Layout_Page extends Page_Standard
 		return $this->_tmp['formats'][$type];
 
 	}//end getFormats()
-	
+
 
 	/**
-	 * Create a new type format/bodycopy in the Type Format Folder. 
-	 * 
+	 * Create a new type format/bodycopy in the Type Format Folder.
+	 *
 	 * Return true if successful
-	 * 
+	 *
 	 * @param string $type	an asset type code that the new type format must
 	 * 						implement
-	 * 
+	 *
 	 * @return boolean
 	 * @access public
 	 */
-	function createTypeFormatBodycopy($type) 
-	{		
+	function createTypeFormatBodycopy($type)
+	{
 		$ret = false;
-		
+
 		// create new bodycopy for that type
 		$folder = &$this->getFolder('type_formats');
 		$new_type = $type;
@@ -384,7 +425,7 @@ class Paint_Layout_Page extends Page_Standard
 
 			if ($bodycopy->create($copy_link)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-				$ret = true;							
+				$ret = true;
 			} else {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			}
@@ -392,10 +433,10 @@ class Paint_Layout_Page extends Page_Standard
 			//trigger_error('Cannot customise type '.$new_type.', it is already customised', E_USER_WARNING);
 			$ret = true;
 		}
-		
+
 		return $ret;
-		
+
 	}//end createTypeFormatBodycopy()
-	
-	
+
+
 }
