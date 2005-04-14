@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_logical_edit_fns.inc,v 1.1 2005/04/06 21:40:00 gnoel Exp $
+* $Id: condition_logical_edit_fns.inc,v 1.2 2005/04/14 12:05:46 gnoel Exp $
 *
 */
 
@@ -28,12 +28,12 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition_edit_f
 /**
 * Condition_Logical_Edit_Fns
 *
-* Edit functions for the logged in conditional
+* Edit functions for the logical condition
 *
-* @see Asset_Edit_Fns
+* @see Condition_Edit_Fns
 *
 * @author  Geoffroy Noel <gnoel@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -81,12 +81,6 @@ class Condition_Logical_Edit_Fns extends Condition_Edit_Fns
 			echo 'Expression must be '.strtolower($options[$restriction['match']]);
 			$o->closeField();
 		} else {
-			/*					
-			$o->openField('Logical Keywords');
-			text_box($prefix.'[logical_keywords]', join(array_keys($condition_data['logical_keywords']), ', '), 30);				
-			$o->closeField();
-			*/
-			
 			if (!empty($allowed_keywords)) {
 				$selected_keywords = array_keys($condition_data['logical_keywords']);
 				$selected_keywords['-- none --'] = '-- none --';
@@ -105,19 +99,18 @@ class Condition_Logical_Edit_Fns extends Condition_Edit_Fns
 						$special_option = Array('none' => '-- remove --');
 					}
 					
-					$metadata = Array();
-					if (preg_match('/^asset_metadata_(.*)$/', $keyword, $metadata)) {
-						$keyword = 'asset_metadata_';						
-						$metadata = $metadata[1];
-					}
-
+					$keyword_info = $this->_getKeywordInfo($keyword, $allowed_keywords);
+					
 					$o->openField('Logical Keyword ' . $i);
-					combo_box($prefix.'[keyword' . $i . ']', array_merge($special_option, $keyword_options), false, $keyword);
+					combo_box($prefix.'[keyword' . $i . ']', array_merge($special_option, $keyword_options), false, $keyword_info['constant_part']);
 					$o->closeField();
 					
-					if (!is_array($metadata)) {
-						$o->openField('Metadata');
-						text_box($prefix.'[metadata' . $i . ']', $metadata, 30);
+					// This is a special case for generic/variable keywords (like asset_metadata_)
+					// which name must be completed.
+					// For those keywords, we show an additional box to type the rest of the name  
+					if ($keyword_info['is_variable']) {
+						$o->openField($keyword_info['constant_part']);
+						text_box($prefix.'[name_extension_' . $i . ']', $keyword_info['variable_part'], 30);
 						$o->closeField();
 					}
 					
@@ -148,31 +141,19 @@ class Condition_Logical_Edit_Fns extends Condition_Edit_Fns
 	* @return Array 
 	* @access public
 	*/
-	function processEditInterface(&$asset, &$o, $prefix, &$restriction, $write_access)
-	{
-		//$keywords = $_POST[$prefix]['logical_keywords'];
-		//$keywords = trim($keywords);		
-		//$keywords = preg_replace('/ *, */', ',', $keywords);
-		/*  
-		$keywords = preg_replace('/ +/', '_', $keywords);
-		$keywords = explode(',', $keywords);
-		//error_log($keywords);
-		$logical_keywords = Array();
-		foreach ($keywords as $keyword_name) {
-			if (!empty($keyword_name)) $logical_keywords[$keyword_name] = '';
-		}
-		*/
-		
+	function processEditInterface(&$asset, &$o, $prefix, &$restriction, $write_access, $allowed_keywords=Array())
+	{		
 		$logical_keywords = Array();
 		
 		for ($i = 0; $i < 100; $i++) {
 			if (isset($_POST[$prefix]['keyword' . $i])) {
 				$keyword_name = $_POST[$prefix]['keyword' . $i];
 				if ($keyword_name != 'none') {
-					if (preg_match('/^asset_metadata/', $keyword_name)) {
-						if (!empty($_POST[$prefix]['metadata' . $i])) {
-							$metadata_name = trim($_POST[$prefix]['metadata' . $i]);
-							if (!empty($metadata_name)) $keyword_name = 'asset_metadata_' . $metadata_name;
+					$keyword_info = $this->_getKeywordInfo($keyword_name, $allowed_keywords);
+					if ($keyword_info['is_variable']) {
+						if (!empty($_POST[$prefix]['name_extension_' . $i])) {
+							$name_extension = trim($_POST[$prefix]['name_extension_' . $i]);
+							if (!empty($name_extension)) $keyword_name = $keyword_info['constant_part'] . $name_extension;
 						}
 					}
 					$logical_keywords[$keyword_name] = '';
@@ -193,6 +174,47 @@ class Condition_Logical_Edit_Fns extends Condition_Edit_Fns
 		return $results;
 		
 	}//end processEditInterface()
+	
+	
+	/**
+	* Returns an array containing information about a keyword name 
+	* We consider a keyword variable if it contains a part that is defined by
+	* the user. Example: asset_metadata_XXX.
+	* 
+	* constant part= asset_metadata_
+	* variable part= XXX
+	* 
+	* Array(
+	* 		'is_variable' => boolean,
+	* 		'constant_part' => string,
+	* 		'variable_part' => string,
+	* 		) 
+	* 
+	* @param string			$keyword_name		the keyword to analyse
+	* @param Array(string)	$allowed_keywords	allowed keywords, this is the
+	* list of keywords as returned by getAssetKeywords().
+	* 
+	* @return Array
+	* @access private
+	*/
+	function _getKeywordInfo($keyword_name, &$allowed_keywords)
+	{
+		$ret = Array('is_variable' => false, 'constant_part' => $keyword_name, 'variable_part' => '');
+		
+		$keyword_parts = Array();
+		foreach ($allowed_keywords as $allowed_keyword) {
+			if (preg_match('/_$/', $allowed_keyword)) {
+				// $allowed_keyword is a variable keyword
+				if (preg_match('/^' . $allowed_keyword . '(.*)$/', $keyword_name, $keyword_parts)) {
+					// $keyword_name is a variable keyword
+					$ret = Array('is_variable' => true, 'constant_part' => $allowed_keyword, 'variable_part' => $keyword_parts[1]);
+				}
+			}
+		}
+		
+		return $ret;
+		
+	}
 	
 	
 }//end class
