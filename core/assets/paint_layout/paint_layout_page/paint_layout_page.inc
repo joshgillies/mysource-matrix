@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_page.inc,v 1.2 2005/04/07 17:58:45 gnoel Exp $
+* $Id: paint_layout_page.inc,v 1.3 2005/04/14 08:26:34 gnoel Exp $
 *
 */
 
@@ -41,7 +41,7 @@ define('SQ_PAINT_LAYOUT_DEFAULT_FORMAT_NAME', 'default_format');
 * Those bodycopies also support conditions.
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -173,7 +173,7 @@ class Paint_Layout_Page extends Page_Standard
 		
 	}//end onRequestKeywords()
 	
-	
+
 	/**
 	 * Returns the id of the asset to paint.
 	 * 

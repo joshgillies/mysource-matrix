@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_lookup_value.inc,v 1.1 2005/04/06 21:49:01 gnoel Exp $
+* $Id: paint_layout_lookup_value.inc,v 1.2 2005/04/14 08:26:34 gnoel Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/lookup_value/lookup_value.inc';
 *
 *
 * @author	Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -48,7 +48,7 @@ class Paint_Layout_Lookup_Value extends Lookup_Value
 	*/
 	function lookupValueName()
 	{
-		return 'Paint Layout Page';
+		return 'Paint Layout';
 
 	}//end lookupValueName()
 
@@ -62,7 +62,7 @@ class Paint_Layout_Lookup_Value extends Lookup_Value
 	*/
 	function namePrefix()
 	{
-		return 'paint_layout_page';
+		return 'paint_layout';
 
 	}//end namePrefix()
 
