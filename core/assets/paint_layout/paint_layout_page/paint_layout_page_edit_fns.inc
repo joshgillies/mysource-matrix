@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_page_edit_fns.inc,v 1.1 2005/04/06 22:10:23 gnoel Exp $
+* $Id: paint_layout_page_edit_fns.inc,v 1.2 2005/04/14 16:41:10 brobertson Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/paint_layout/paint_layout_page/paint_layout_
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -120,7 +120,7 @@ class Paint_Layout_Page_Edit_Fns extends Page_Standard_Edit_Fns
 		</table>
 		<?php
 		return true;
-		
+
 	}//end paintCurrentAssetTypes()
 
 
@@ -151,7 +151,7 @@ class Paint_Layout_Page_Edit_Fns extends Page_Standard_Edit_Fns
 					$link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, SQ_PAINT_LAYOUT_FORMAT_ASSET_TYPE, true, $type);
 					if (empty($link)) {
 						trigger_error('Format for type '.$type.' not found', E_USER_WARNING);
-					} else { 
+					} else {
 						// back up in your trash with the resurection
 						$folder->deleteLink($link['linkid']);
 					}
@@ -194,8 +194,8 @@ class Paint_Layout_Page_Edit_Fns extends Page_Standard_Edit_Fns
 		combo_box($prefix.'_new_type', $type_options, false, '');
 
 	}//end paintAddAssetType()
-	
-	
+
+
 	/**
 	* Process the section to add a new format for an asset
 	*
@@ -209,25 +209,25 @@ class Paint_Layout_Page_Edit_Fns extends Page_Standard_Edit_Fns
 	function processAddAssetType(&$asset, &$o, $prefix)
 	{
 		$ret = false;
-		
+
 		if (isset($_POST[$prefix.'_new_type'])) {
-			
+
 			$type = trim($_POST[$prefix.'_new_type']);
-			
+
 			if (!empty($type)) {
 				// add new type in the types list
 				$types = $asset->attr('types');
 				if (!isset($types[$type])) {
 					$types[$type] = true;
 					$asset->setAttrValue('types', $types);
-					$ret = true;							
+					$ret = true;
 
 					$ret = ($asset->createTypeFormatBodycopy($type));
 				}
 			}
 
 		}
-		
+
 		return $ret;
 
 	}//end processAddAssetType()
