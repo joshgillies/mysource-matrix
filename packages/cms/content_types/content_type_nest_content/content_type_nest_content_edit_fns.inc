@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content_edit_fns.inc,v 1.24.2.1 2004/12/09 03:17:26 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: content_type_nest_content_edit_fns.inc,v 1.24.2.2 2005/04/14 02:31:45 rhoward Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.24.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -64,6 +64,10 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 	{
 		if ($asset->writeAccess('links') && $asset->writeAccess('attributes')) {
 			$nested_asset = &$this->_getNestedAsset($asset);
+			$asset_link = &$GLOBALS['SQ_SYSTEM']->am->getAssetURL($nested_asset->id);
+			if (empty($asset_link)) {
+				$asset_link = strip_url(current_url(false, true)).'/?a='.$nested_asset->id;
+			}
 
 			if (!is_null($nested_asset)) {
 				?>
@@ -75,10 +79,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 						<td class="sq-backend-table-cell"><?php asset_finder($prefix.'_nested_assetid', $nested_asset->id, Array('page' => 'D')); ?></td>
 					</tr>
 					<tr>
-						<td class="sq-backend-table-cell"><b>The nested content is printed below</b></td>
-					</tr>
-					<tr>
-						<td style="border-top: 1px solid black"><br/><?php $this->paint($asset, $prefix, true);?><br/></td>
+						<td class="sq-backend-table-cell"><b><a href="<?php echo $asset_link; ?>" id="sq_preview_new_window" target="_blank">Click to preview in a new window</a></b></td>
 					</tr>
 				</table>
 				<?php
@@ -95,14 +96,14 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 				<?php
 			}
 		}
-
 		return true;
 
 	}//end paintBackend()
 
 
 	/**
-	* Just calls printBody on the nested asset and lets it take care of things
+	* Prints a link to the asset if it is being viewed from an edit interface, otherwise
+	* just calls printBody on the nested asset and lets it take care of things
 	*
 	* @param object Content_Type_Nest_Content	&$asset		the nest content content type object
 	* @param string								$prefix		prefix for form elements
@@ -139,31 +140,16 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 		// never get back here again
 		$GLOBALS['SQ_NEST_CONTENT_PAINTED'][$nested_asset->id] = 1;
 
-		// and now actually print it
+		// if it's being shown in an edit interface, print a link
 		if ($editing) {
-			if ($nested_asset->readAccess('')) {
-				ob_start();
-					$nested_asset->printBody();
-					$asset_contents = ob_get_contents();
-				ob_end_clean();
-			} else {
-				$asset_contents = '<span class="sq-backend-warning">You do not have access to view the contents of the nested page</span>';
+			// get the first url off the list, use it as the list
+			$asset_link = &$GLOBALS['SQ_SYSTEM']->am->getAssetURL($nested_asset->id);
+			if (empty($asset_link)) {
+				$asset_link = strip_url(current_url(false, true)).'/?a='.$nested_asset->id;
 			}
-	
-			$form_tags = Array('form', 'input' , 'select', 'option', 'textarea');
-			foreach ($form_tags as $tag) {
-				if (stristr($asset_contents, '<'.$tag) !== false) {
-					?>
-					<span class="sq-backend-warning">
-						<b>NOTE:</b> this nested asset contains form elements, therefore you cannot view its 
-						content in the backend.<br/>You can only view the nested content by previewing on the frontend.
-					</span>
-					<?php
-					unset($GLOBALS['SQ_NEST_CONTENT_PAINTED'][$nested_asset->id]);
-					return true;
-				}
-			}
+			$asset_contents = '<strong>Nested Content - '.$nested_asset->name.' (Id : #'.$nested_asset->id.'):</strong> <a href="'.$asset_link.'" id="sq_preview_new_window" target="_blank">Click to preview</a>.';
 		} else {
+			// otherwise just get the asset to print itself for us
 			ob_start();
 				$nested_asset->printBody();
 				$asset_contents = ob_get_contents();
@@ -182,7 +168,8 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 	/**
 	* Paints the content type as it should be cached
 	*
-	* @param object Bodycopy_Table	$asset	the table whose interface we are painting
+	* @param object Bodycopy_Table	$asset			the table whose interface we are painting
+	* @param object Asset			&$nested_asset	the asset to nest
 	*
 	* @return void
 	* @access public
