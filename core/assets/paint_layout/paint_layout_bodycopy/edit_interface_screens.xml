@@ -18,12 +18,12 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screens.xml,v 1.1 2005/04/06 22:03:23 gnoel Exp $
+* $Id: edit_interface_screens.xml,v 1.2 2005/04/14 16:19:52 brobertson Exp $
 *
 */
 -->
 
 <screens>
-	<screen code_name="conditional_keywords" display_name="Conditional Keywords" icon="web" force_unlock="0" />
 	<screen code_name="contents" display_name="Edit Contents" icon="create" default="1" force_unlock="0" lock_type="content" />
+	<screen code_name="conditional_keywords" display_name="Conditional Keywords" icon="web" force_unlock="0" />
 </screens>
