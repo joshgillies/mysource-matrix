@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_lineage.inc,v 1.14 2005/03/03 00:42:03 gsherwood Exp $
+* $Id: cron_job_future_lineage.inc,v 1.15 2005/04/14 04:30:24 rhoward Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -100,13 +100,10 @@ class Cron_Job_Future_Lineage extends Cron_Job
 		$minor = &$this->getAssetInLink('minor');
 		if (is_null($minor)) {
 			return 'Asset-less Future Linking Cron Job';
-
-		} elseif ($short_name) {
+		} else if ($short_name) {
 			return 'FL for "'.$minor->short_name.'" (#'.$minor->id.')';
-
 		} else {
 			return 'Future Linking for "'.$minor->name.'" (#'.$minor->id.')';
-
 		}//end if
 
 	}//end _getName()
@@ -196,7 +193,9 @@ class Cron_Job_Future_Lineage extends Cron_Job
 		if ($this->id) {
 			return (bool) $this->createLink($asset, SQ_LINK_NOTICE, $side_of_link.'_asset');
 		} else {
-			if (!isset($this->_tmp['asset_in_link'])) $this->_tmp['asset_in_link'] = Array();
+			if (!isset($this->_tmp['asset_in_link'])) {
+				$this->_tmp['asset_in_link'] = Array();
+			}
 			$this->_tmp['asset_in_link'][$side_of_link] = Array('minorid' => $asset->id, 'minor_type_code' => $asset->type());
 			return true;
 		}
@@ -258,7 +257,9 @@ class Cron_Job_Future_Lineage extends Cron_Job
 
 		$new_major = &$this->getAssetInLink('major');
 
-		if ($this->attr('delete_linkid') && !is_null($new_major)) $str .= "\n";
+		if ($this->attr('delete_linkid') && !is_null($new_major)) {
+			$str .= "\n";
+		}
 
 		if (!is_null($new_major)) {
 			$str .= 'Creating new link for '.$minor->name.' (#'.$minor->id.') under '.$new_major->name.' (#'.$new_major->id.')';
@@ -315,10 +316,18 @@ class Cron_Job_Future_Lineage extends Cron_Job
 		if (!is_null($new_major)) {
 
 			$link_info = $this->attr('link_info');
-			if (!isset($link_info['value']))        $link_info['value']        = '';
-			if (!isset($link_info['sort_order']))   $link_info['sort_order']   = null;
-			if (!isset($link_info['is_dependant'])) $link_info['is_dependant'] = '0';
-			if (!isset($link_info['is_exclusive'])) $link_info['is_exclusive'] = '0';
+			if (!isset($link_info['value'])) {
+				$link_info['value'] = '';
+			}
+			if (!isset($link_info['sort_order'])) {
+				$link_info['sort_order'] = null;
+			}
+			if (!isset($link_info['is_dependant'])) {
+				$link_info['is_dependant'] = '0';
+			}
+			if (!isset($link_info['is_exclusive'])) {
+				$link_info['is_exclusive'] = '0';
+			}
 
 			$linkid = $new_major->createLink($minor,
 											 $link_info['link_type'],

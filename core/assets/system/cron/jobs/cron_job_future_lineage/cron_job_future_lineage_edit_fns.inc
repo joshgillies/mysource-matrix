@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_lineage_edit_fns.inc,v 1.13 2005/03/17 23:02:15 amiller Exp $
+* $Id: cron_job_future_lineage_edit_fns.inc,v 1.14 2005/04/14 04:30:25 rhoward Exp $
 *
 */
 
@@ -32,12 +32,13 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 {
+
 
 	/**
 	* Constructor
@@ -80,9 +81,10 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 		$o->openField('New Link Type');
 		$link_info = $asset->attr('link_info');
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-		$editable_link_types = Array(SQ_LINK_TYPE_1 => link_type_name(SQ_LINK_TYPE_1),
-									 SQ_LINK_TYPE_2 => link_type_name(SQ_LINK_TYPE_2)
-									);
+		$editable_link_types = Array(
+								SQ_LINK_TYPE_1	=> link_type_name(SQ_LINK_TYPE_1),
+								SQ_LINK_TYPE_2	=> link_type_name(SQ_LINK_TYPE_2),
+							   );
 		$link_type = (isset($link_info['link_type'])) ? $link_info['link_type'] : '';
 		combo_box($prefix.'_link_type', $editable_link_types, false, $link_type);
 
@@ -122,7 +124,9 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 	*/
 	function processInLineBackend(&$asset, &$o, $prefix)
 	{
-		if (empty($_POST[$prefix.'_delete_linkid']) && (empty($_POST[$prefix.'_link_type']) || empty($_POST[$prefix.'_major_assetid']['assetid']))) return false;
+		if (empty($_POST[$prefix.'_delete_linkid']) && (empty($_POST[$prefix.'_link_type']) || empty($_POST[$prefix.'_major_assetid']['assetid']))) {
+			return false;
+		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 

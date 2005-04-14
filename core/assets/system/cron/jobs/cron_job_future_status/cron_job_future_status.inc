@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_status.inc,v 1.22 2005/03/31 02:21:16 lwright Exp $
+* $Id: cron_job_future_status.inc,v 1.23 2005/04/14 04:30:25 rhoward Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -67,7 +67,7 @@ class Cron_Job_Future_Status extends Cron_Job
 		$asset = &$this->getAssetToUpdate();
 		if (is_null($asset)) {
 			return 'Asset-less Future Status Cron Job';
-		} elseif ($short_name) {
+		} else if ($short_name) {
 			return 'FS for "'.$asset->short_name.'" (#'.$asset->id.')';
 		} else {
 			return 'Future Status for "'.$asset->name.'" (#'.$asset->id.')';
@@ -162,7 +162,7 @@ class Cron_Job_Future_Status extends Cron_Job
 				SQ_STATUS_UNDER_CONSTRUCTION	=> 'UNDER_CONSTRUCTION',
 				SQ_STATUS_LIVE					=> 'LIVE',
 				SQ_STATUS_LIVE_APPROVAL			=> 'LIVE_APPROVAL',
-		);
+			   );
 
 	}//end _getAllStatii()
 
@@ -329,7 +329,9 @@ class Cron_Job_Future_Status extends Cron_Job
 		asort($dates, SORT_STRING);
 		$assets_jobs = Array();
 
-		foreach ($dates as $i => $date) $assets_jobs[] = &$all_jobs[$i];
+		foreach ($dates as $i => $date) {
+			$assets_jobs[] = &$all_jobs[$i];
+		}
 
 		return $assets_jobs;
 

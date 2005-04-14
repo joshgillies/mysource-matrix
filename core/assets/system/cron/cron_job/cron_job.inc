@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job.inc,v 1.28 2005/03/29 01:53:50 arailean Exp $
+* $Id: cron_job.inc,v 1.29 2005/04/14 04:30:20 rhoward Exp $
 *
 */
 
@@ -40,7 +40,7 @@ define('SQ_CRON_JOB_RETRY',			16);// cron job requests to be retried (only valid
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -245,7 +245,9 @@ class Cron_Job extends Asset
 							case 'minute' :
 								$minutes = date($format_string, $then);
 								$interval = $cron_mgr->attr('refresh_time') / 60;
-								while ($minutes % $interval != 0) $minutes++;
+								while ($minutes % $interval != 0) {
+									$minutes++;
+								}
 								if ($minutes >= 60) $minutes = $minutes - $interval;
 								$fields[$field] = $minutes;
 								$when_str .= $fields[$field];
@@ -287,13 +289,19 @@ class Cron_Job extends Asset
 	function canDelete()
 	{
 		$user = &$this->getRunningUser();
-		if (!is_null($user) && $GLOBALS['SQ_SYSTEM']->currentUser($user)) return true;
+		if (!is_null($user) && $GLOBALS['SQ_SYSTEM']->currentUser($user)) {
+			return true;
+		}
 
 		// if this is to be run as the root user, it can only be deleted by the root user
-		if (!is_null($user) && $GLOBALS['SQ_SYSTEM']->userRoot($user) && !$GLOBALS['SQ_SYSTEM']->userRoot()) return false;
+		if (!is_null($user) && $GLOBALS['SQ_SYSTEM']->userRoot($user) && !$GLOBALS['SQ_SYSTEM']->userRoot()) {
+			return false;
+		}
 
 		// else root user or sys admins can delete
-		if ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin()) return true;
+		if ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
+			return true;
+		}
 
 		return false;
 
@@ -575,7 +583,10 @@ class Cron_Job extends Asset
 
 			// If we are a one off type and we aren't yet being removed do so
 			if ($this->attr('type') == 'one_off' && !($exec_result & SQ_CRON_JOB_REMOVE)) {
-				if ($exec_result & SQ_CRON_JOB_RETRY) $exec_result &= ~SQ_CRON_JOB_RETRY; // delete any retry attempts
+				if ($exec_result & SQ_CRON_JOB_RETRY) {
+					// delete any retry attempts
+					$exec_result &= ~SQ_CRON_JOB_RETRY;
+				}
 				$exec_result |= SQ_CRON_JOB_REMOVE;
 			}
 
@@ -657,7 +668,9 @@ class Cron_Job extends Asset
 			$lines = explode("\n", $err_msg);
 			$len = 7 + strlen($err_file);
 			$len = max($len, 7 + strlen($err_line));
-			foreach ($lines as $line) $len = max($len, strlen($line));
+			foreach ($lines as $line) {
+				$len = max($len, strlen($line));
+			}
 			$len += 2;
 			$str =	'+'.str_repeat('-', $len)."+\n".
 					'| '.$err_name.str_repeat(' ', $len - 2 - strlen($err_name))." |\n".
@@ -671,7 +684,9 @@ class Cron_Job extends Asset
 
 			$str .= '+'.str_repeat('-', $len)."+\n";
 
-			if (!isset($this->_tmp['running_errors'])) $this->_tmp['running_errors'] = '';
+			if (!isset($this->_tmp['running_errors'])) {
+				$this->_tmp['running_errors'] = '';
+			}
 			$this->_tmp['running_errors'] .= $str;
 
 		}//end error_reporting
@@ -749,9 +764,7 @@ class Cron_Job extends Asset
 		$start = getdate($start_ts);
 
 		// EveryTime is even simpler
-		if ($when['type'] == 'ET') {
-			return $start_ts + 1;
-		}
+		if ($when['type'] == 'ET') return $start_ts + 1;
 
 		$add = Array('minutes' => 0, 'hours' => 0, 'days' => 0);
 

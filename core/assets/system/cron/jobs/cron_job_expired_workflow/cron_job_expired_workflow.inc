@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_expired_workflow.inc,v 1.6 2005/03/14 02:56:45 tbarrett Exp $
+* $Id: cron_job_expired_workflow.inc,v 1.7 2005/04/14 04:30:24 rhoward Exp $
 *
 */
 
@@ -38,12 +38,13 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *	Note that this is a singleton asset - when the asset type is installed it creates a single
 *	instance of itself under the cron manager, which should remain there always.
 *
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Cron_Job_Expired_WorkFlow extends Cron_Job
 {
+
 
 	/**
 	* Constructor
@@ -70,7 +71,9 @@ class Cron_Job_Expired_WorkFlow extends Cron_Job
 	function create(&$link)
 	{
 		require_once SQ_CORE_PACKAGE_PATH.'/system/system_asset_fns.inc';
-		if (!system_asset_fns_create_pre_check($this)) return false;
+		if (!system_asset_fns_create_pre_check($this)) {
+			return false;
+		}
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		if ($linkid = parent::create($link)) {
@@ -79,8 +82,11 @@ class Cron_Job_Expired_WorkFlow extends Cron_Job
 			}
 		}
 
-		if ($linkid) $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		else $GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+		if ($linkid) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		} else {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+		}
 
 		return $linkid;
 
@@ -165,7 +171,7 @@ class Cron_Job_Expired_WorkFlow extends Cron_Job
 	function _exec(&$msg)
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$sql = 'SELECT w.*, a.name 
+		$sql = 'SELECT w.*, a.name
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_wflow w
 					NATURAL JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a
 				WHERE w.wflow IS NOT NULL
@@ -187,7 +193,7 @@ class Cron_Job_Expired_WorkFlow extends Cron_Job
 					}
 				}
 			}
-			
+
 		}
 		unset($rows);
 		return SQ_CRON_JOB_COMPLETED;
@@ -204,9 +210,11 @@ class Cron_Job_Expired_WorkFlow extends Cron_Job
 	* @access private
 	* @return void
 	*/
-	function _processExpiredWorkflowStep($assetid, $asset_name, $schema_name, $step_data) 
+	function _processExpiredWorkflowStep($assetid, $asset_name, $schema_name, $step_data)
 	{
-		if (Workflow_Manager::silentWorkflowParty($assetid)) return;
+		if (Workflow_Manager::silentWorkflowParty($assetid)) {
+			return;
+		}
 		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 		$subject = 'Stale Workflow Step';
 		$hrefs = $GLOBALS['SQ_SYSTEM']->am->getAssetBackendHref(Array($assetid => 'workflow'));
@@ -219,7 +227,7 @@ class Cron_Job_Expired_WorkFlow extends Cron_Job
 		$msg = $ms->newMessage($admins, $subject, $body, $type);
 		$msg->send();
 
-	}//end _processExpiredWorkflow()
+	}//end _processExpiredWorkflowStep()
 
 
 	/**
@@ -230,8 +238,8 @@ class Cron_Job_Expired_WorkFlow extends Cron_Job
 	*
 	* @return int	bitmask of the SQ_CRON_JOB_* constants to tell the cron manager what to do
 	* @access public
-	*/	
-	function run() 
+	*/
+	function run()
 	{
 		$res = parent::run();
 		if ($res & SQ_CRON_JOB_REMOVE) {
@@ -240,6 +248,7 @@ class Cron_Job_Expired_WorkFlow extends Cron_Job
 		return $res;
 
 	}//end run()
+
 
 }//end class
 

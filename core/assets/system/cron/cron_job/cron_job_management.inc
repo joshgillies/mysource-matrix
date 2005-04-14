@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_management.inc,v 1.8 2004/12/15 05:33:29 gsherwood Exp $
+* $Id: cron_job_management.inc,v 1.9 2005/04/14 04:30:21 rhoward Exp $
 *
 */
 
@@ -31,12 +31,13 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Cron_Job_Management extends Asset_Management
 {
+
 
 	/**
 	* Constructor
@@ -46,35 +47,36 @@ class Cron_Job_Management extends Asset_Management
 	{
 		$this->Asset_Management($pm);
 
-		$this->vars =	Array(
-							'type' => Array(
-								'added'			=> '0.0.1',
-								'type'			=> 'selection',
-								'default'		=> 'one_off',
-								'parameters'	=> Array(
-									'options' => Array(
-										'one_off'	=> 'One Off',
-										'repeating'	=> 'Repeating'
-									),
-									'multiple' => false,
-									'allow_empty' => false,
-								),
-							),
-							'when' => Array(
-								'added'			=> '0.1',
-								'type'			=> 'text',
-								'default'		=> '',
-								'description'	=> 'This is an encoded description of when this job is to run',
-							),
-							'running_as' => Array(
-								'added'			=> '0.2',
-								'type'			=> 'assetid',
-								'default'		=> '',
-								'description'	=> 'The user the cron job will run as when executed',
-							),
-						);
+		$this->vars = Array(
+						'type'			=> Array(
+											'added'			=> '0.0.1',
+											'type'			=> 'selection',
+											'default'		=> 'one_off',
+											'parameters'	=> Array(
+																'options'		=> Array(
+																					'one_off'	=> 'One Off',
+																					'repeating'	=> 'Repeating',
+																				   ),
+																'multiple'		=> false,
+																'allow_empty'	=> false,
+															   ),
+										   ),
+						'when'			=> Array(
+											'added'			=> '0.1',
+											'type'			=> 'text',
+											'default'		=> '',
+											'description'	=> 'This is an encoded description of when this job is to run',
+										   ),
+						'running_as'	=> Array(
+											'added'			=> '0.2',
+											'type'			=> 'assetid',
+											'default'		=> '',
+											'description'	=> 'The user the cron job will run as when executed',
+										   ),
+					  );
 
 	}//end constructor
+
 
 }//end class
 ?>
