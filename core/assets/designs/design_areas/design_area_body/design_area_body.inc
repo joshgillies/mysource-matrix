@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_body.inc,v 1.17 2005/01/20 13:07:31 brobertson Exp $
+* $Id: design_area_body.inc,v 1.18 2005/04/14 15:15:49 brobertson Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -63,10 +63,48 @@ class Design_Area_Body extends Design_Area
 				$body = $cm->loadFromCache($ASSET);
 			}
 			if (empty($body)) {
+
 				ob_start();
+
+				$url = strip_url(current_url(false, true));
+
+				// Have they set a paint layout name that they want to view ??
+				if (!empty($_GET[\'SQ_PAINT_LAYOUT_NAME\'])) {
+					$layout_name = \'paint_layout::user::\'.$_GET[\'SQ_PAINT_LAYOUT_NAME\'];
+				// is it in the session ?
+				} elseif (!empty($_SESSION[\'SQ_PAINT_LAYOUT_NAME\'])) {
+					$layout_name = \'paint_layout::user::\'.$_SESSION[\'SQ_PAINT_LAYOUT_NAME\'];
+
+				// Maybe they have a design name that we can use to match against
+				} elseif (!empty($_GET[\'SQ_DESIGN_NAME\'])) {
+					$layout_name = \'paint_layout::user::\'.$_GET[\'SQ_DESIGN_NAME\'];
+				} elseif (!empty($_SESSION[\'SQ_DESIGN_NAME\'])) {
+					$layout_name = \'paint_layout::user::\'.$_SESSION[\'SQ_DESIGN_NAME\'];
+
+				} else {
+					$layout_name = \'paint_layout::system::frontend\';
+
+				}
+
+				$result = $GLOBALS[\'SQ_SYSTEM\']->am->getValueFromURL($url, $layout_name);
+
+				// if no layout was found, try and get the default frontend
+				// layout if we were not already trying to get it
+				if (empty($result) && $layout_name != \'paint_layout::system::frontend\') {
+					$result = $GLOBALS[\'SQ_SYSTEM\']->am->getValueFromURL($url, \'paint_layout::system::frontend\');
+				}
+
+				if ($result) {
+					// we have found the design to use
+					$layout = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($result);
+					$layout->paint($ASSET);
+				} else {
+					// we can\'t find a layout, oh well let\'s just print out our body
 					$ASSET->printBody();
-					$body = ob_get_contents();
-				ob_end_clean();
+				}
+
+				$body = ob_get_clean();
+
 			}
 		';
 
