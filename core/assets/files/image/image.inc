@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.33 2005/03/30 17:08:06 brobertson Exp $
+* $Id: image.inc,v 1.34 2005/04/14 12:33:38 gnoel Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -224,6 +224,7 @@ class Image extends File
 			$keywords['image_width']['description']		= 'Width of the image in pixels';
 			$keywords['image_height']['description']	= 'Height of the image in pixels';
 			$keywords['image_tag']['description']		= 'HTML IMG tag to display this image';
+			$keywords['image_v_'] = Array('description'	=> 'Image variation');
 		}
 
 		return $keywords;
