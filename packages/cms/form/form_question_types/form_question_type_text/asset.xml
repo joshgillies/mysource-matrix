@@ -21,15 +21,15 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.8 2004/04/23 07:28:08 lwright Exp $
-* $Name: not supported by cvs2svn $
+* $Id: asset.xml,v 1.8.6.1 2005/04/14 01:43:57 lwright Exp $
+*
 */
 -->
 
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../asset.xsd">
 	<package>cms</package>
 	<type_code>form_question_type_text</type_code>
-	<version>0.2</version>
+	<version>0.3</version>
 	<name>Form Question - Text</name>
 	<description>Text question for Form</description>
 	<instantiable>yes</instantiable>

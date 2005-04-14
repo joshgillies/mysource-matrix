@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_numeric_edit_fns.inc,v 1.3 2004/05/05 07:10:14 lwright Exp $
-* $Name: not supported by cvs2svn $
+* $Id: form_question_type_numeric_edit_fns.inc,v 1.3.6.1 2005/04/14 01:43:57 lwright Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../form_question_type_text/form_question_type_t
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.3.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -48,7 +48,7 @@ class Form_Question_Type_Numeric_Edit_Fns extends Form_Question_Type_Text_Edit_F
 	{
 		$this->Form_Question_Type_Text_Edit_Fns();
 
-	}//end Form_Question_Type_Numeric_Edit_Fns()
+	}//end constructor
 
 
 }//end class

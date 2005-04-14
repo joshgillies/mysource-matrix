@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_numeric.inc,v 1.7 2004/11/28 22:03:05 lwright Exp $
-* $Name: not supported by cvs2svn $
+* $Id: form_question_type_numeric.inc,v 1.7.2.1 2005/04/14 01:43:57 lwright Exp $
+*
 */
 
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.7.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -52,7 +52,7 @@ class Form_Question_Type_Numeric extends Form_Question_Type_Text
 	{
 		$this->Form_Question_Type_Text($assetid, $data);
 
-	}//end Form_Question_Type_Numeric()
+	}//end constructor
 
 
 	/**
@@ -63,7 +63,8 @@ class Form_Question_Type_Numeric extends Form_Question_Type_Text
 	* @access public
 	* @return Array(string => string)
 	*/
-	function getAllowedRules() {
+	function getAllowedRules()
+	{
 		return Array('comparison', 'integer', 'length');
 
 	}//end getAllowedRules()
@@ -75,42 +76,33 @@ class Form_Question_Type_Numeric extends Form_Question_Type_Text
 	* @access public
 	* @return boolean
 	*/
-	function processForm()
+	function evaluate($answer=null)
 	{
-		$form =& $this->getMySection();
+		$val = $this->getValue();
 
-		if (isset($_POST[$this->id])) {
-			$val = $_POST[$this->id];
+		if (!empty($val)) {
+			$req_rule = Array('rule_code' => 'numeric', 'operator' => 1);
+			array_unshift($this->vars['rules']['value'], $req_rule);
 
-			// Add Force Numeric in any case
-			if (!empty($val)) {
-				$req_rule = Array('rule_code' => 'numeric', 'operator' => 1);
-				array_push($this->vars['rules']['value'], $req_rule);
-	
-				// Add Force Integer if required
-				if ($this->attr('is_int')) {
-					$req_rule = Array('rule_code' => 'integer', 'operator' => 1);
-					array_push($this->vars['rules']['value'], $req_rule);
-				}
+			// Add Force Integer if required
+			if ($this->attr('is_int')) {
+				$req_rule = Array('rule_code' => 'integer', 'operator' => 1);
+				array_unshift($this->vars['rules']['value'], $req_rule);
 			}
-
-			$form->active_submission->setAnswer($this->id, $val);
-			$form->active_submission->setSummary($this->id,  $this->attr('name'), $val);
-
-			parent::processForm();
-
-			if (!empty($val)) {
-				if ($this->attr('is_int')) {						// Remove Force Integer
-					array_pop($this->vars['rules']['value']);
-				}
-				array_pop($this->vars['rules']['value']);			// Remove Force Numeric in any case
-			}
-
 		}
 
-		return true;
+		$ok = parent::evaluate();
 
-	}//end processForm()
+		if (!empty($val)) {
+			if ($this->attr('is_int')) {						// Remove Force Integer
+				array_shift($this->vars['rules']['value']);
+			}
+			array_shift($this->vars['rules']['value']);			// Remove Force Numeric in any case
+		}
+
+		return $ok;
+
+	}//end evaluate()
 
 
 	/**
@@ -126,20 +118,20 @@ class Form_Question_Type_Numeric extends Form_Question_Type_Text
 	{
 		// Add Force Numeric in any case
 		$req_rule = Array('rule_code' => 'numeric', 'operator' => 1);
-		array_push($this->vars['rules']['value'], $req_rule);
+		array_unshift($this->vars['rules']['value'], $req_rule);
 
 		// Add Force Integer if required
 		if ($this->attr('is_int')) {
 			$req_rule = Array('rule_code' => 'integer', 'operator' => 1);
-			array_push($this->vars['rules']['value'], $req_rule);
+			array_unshift($this->vars['rules']['value'], $req_rule);
 		}
 
 		$code = parent::generateJSCode();
 
 		if ($this->attr('is_int')) {						// Remove Force Integer
-			array_pop($this->vars['rules']['value']);
+			array_shift($this->vars['rules']['value']);
 		}
-		array_pop($this->vars['rules']['value']);			// Remove Force Numeric in any case
+		array_shift($this->vars['rules']['value']);			// Remove Force Numeric in any case
 
 		return $code;
 

@@ -21,15 +21,15 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.9 2004/11/04 23:43:44 lwright Exp $
-* $Name: not supported by cvs2svn $
+* $Id: asset.xml,v 1.9.2.1 2005/04/14 01:43:58 lwright Exp $
+*
 */
 -->
 
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../asset.xsd">
 	<package>cms</package>
 	<type_code>form_submission</type_code>
-	<version>0.1</version>
+	<version>0.3</version>
 	<name>Form Submission</name>
 	<description>Form Submission for the form template</description>
 	<instantiable>yes</instantiable>

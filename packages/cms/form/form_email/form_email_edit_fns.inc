@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.38.2.4 2005/02/25 11:41:08 mkeehan Exp $
+* $Id: form_email_edit_fns.inc,v 1.38.2.5 2005/04/14 01:43:56 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.38.2.4 $
+* @version $Revision: 1.38.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -74,17 +74,17 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$num_subs = 0;
 
 		$parameters = Array(
-			'min'			=> '2003-01-01 00:00:00',
-			'max'			=> ts_iso8601(time()),
-			'allow_circa'	=> '0',
-			'show'			=> Array('y', 'm', 'd'),
-			'null'			=> Array(),
-			'style'			=> Array(
-						'y' => 's',
-						'm' => 's',
-						'd' => 's',
-					),
-			);
+						'min'			=> '2003-01-01 00:00:00',
+						'max'			=> ts_iso8601(time()),
+						'allow_circa'	=> '0',
+						'show'			=> Array('y', 'm', 'd'),
+						'null'			=> Array(),
+						'style'			=> Array(
+											'y'	=> 's',
+											'm'	=> 's',
+											'd'	=> 's',
+										   ),
+					  );
 
 		$parameters['print_format'] = 'j M Y';
 
@@ -135,14 +135,16 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$assetids = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, 'form_submission'));
 		$assetid_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($assetids);
 
-		?><p><i>There are <b><?php echo count($assetids) ?></b> submissions during the time period specified above</i></p><?php
+		uasort($assetid_info, create_function('$a, $b', 'return $a[\'created\'] < $b[\'created\'];'));
 
-		foreach ($assetids as $assetid) {
-				if (($assetid_info[$assetid]['created'] >= $from_value) && ($assetid_info[$assetid]['created'] <= $to_value)) {
+		?><p><i>There are <b><?php echo count($assetids) ?></b> submissions during the time period specified above - most recent are displayed first</i></p><?php
+
+		foreach ($assetid_info as $assetid => $asset_info) {
+				if (($asset_info['created'] >= $from_value) && ($asset_info['created'] <= $to_value)) {
 					// time is good, load me up
 					$sub_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-					$sub_user = $assetid_info[$assetid]['created_userid'];
-					$sub_time = $assetid_info[$assetid]['created'];
+					$sub_user = $asset_info['created_userid'];
+					$sub_time = $asset_info['created'];
 
 					$sub_expanded = array_search($assetid, $expand_list) !== false;
 
@@ -158,17 +160,17 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 					<td class="sq-backend-table-cell-alt" colspan="2">
 						<?php
 						$valid_user = false;
-						if (!empty($sub_user)) {									
+						if (!empty($sub_user)) {
 							$sub_user_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($sub_user);
 							if (!empty($sub_user_asset)) {
 								echo $sub_user_asset->name . ' (Id: #'.$sub_user.')';
 								$valid_user = true;
 							}
-						} 
-						
-						if (!$valid_user) { 
+						}
+
+						if (!$valid_user) {
 							?><i>No logged in user</i><?php
-						} 
+						}
 						?>
 					</td>
 					<td class="sq-backend-table-cell-alt">
@@ -186,7 +188,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 					if (!empty($elements)) {
 						foreach ($elements as $element) {
 							$i++;
-	
+
 							if ($i % 2 == 1) { ?>
 								<td class="sq-backend-table-cell">&nbsp;</td>
 							<?php }
@@ -203,7 +205,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 						<?php }
 						}	//end-if sub_expanded
 					}
-					
+
 					?></tr><?php
 	/*
 					$kids =& $root->children;
@@ -281,17 +283,17 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		if (!$asset->writeAccess('attributes')) return false;
 
 		$parameters = Array(
-			'min'			=> '2003-01-01 00:00:00',
-			'max'			=> ts_iso8601(time()),
-			'allow_circa'	=> '0',
-			'show'			=> Array('y', 'm', 'd'),
-			'null'			=> Array(),
-			'style'			=> Array(
-						'y' => 's',
-						'm' => 's',
-						'd' => 's',
-					),
-			);
+						'min'			=> '2003-01-01 00:00:00',
+						'max'			=> ts_iso8601(time()),
+						'allow_circa'	=> '0',
+						'show'			=> Array('y', 'm', 'd'),
+						'null'			=> Array(),
+						'style'			=> Array(
+											'y'	=> 's',
+											'm'	=> 's',
+											'd'	=> 's',
+										   ),
+					  );
 
 		$parameters['print_format'] = 'j M Y';
 
@@ -309,18 +311,15 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 		$o->openField('Format');
 
-		$options = Array('' => '------- Please Select -------',
-						 'csv' => 'Comma Separated Values (CSV)',
-						 'csv_nhr' => 'Comma Separated Values (CSV) - No Header Row',
-						 'xml' => 'XML Format');
+		$options = Array(
+					''			=> '------- Please Select -------',
+					'csv'		=> 'Comma Separated Values (CSV)',
+					'csv_nhr'	=> 'Comma Separated Values (CSV) - No Header Row',
+					'xml'		=> 'XML Format',
+				   );
 
 		echo combo_box($prefix.'_export_format', $options, false, '');
 		echo hidden_field($prefix.'_export_switch', '0');
-
-		$delimiter_text = ',';
-		echo ' &nbsp; Delimiter &nbsp;';
-		echo text_box($prefix.'_delimiter',$delimiter_text,1,1,true);
-		echo ' </p>';
 
 		$o->closeField();
 
@@ -358,19 +357,14 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	function processExport(&$asset, &$o, $prefix)
 	{
 		if (!$_POST[$prefix.'_export_switch']) return true;
-
-		$export_delimiter = isset($_POST[$prefix.'_delimiter']) ? $_POST[$prefix.'_delimiter'] : '';
-
 		$export_type = isset($_POST[$prefix.'_export_format']) ? $_POST[$prefix.'_export_format'] : '';
-		
 		switch ($export_type) {
-
 			case 'csv':
-				$this->processExportCSV($asset, $o, $prefix, true, $export_delimiter);
+				$this->processExportCSV($asset, $o, $prefix);
 			break;
 
 			case 'csv_nhr':
-				$this->processExportCSV($asset, $o, $prefix, false, $export_delimiter);
+				$this->processExportCSV($asset, $o, $prefix, false);
 			break;
 
 			case 'xml':
@@ -397,12 +391,11 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function processExportCSV(&$asset, &$o, $prefix, $header_row=true, $delimiter=',')
+	function processExportCSV(&$asset, &$o, $prefix, $header_row=true)
 	{
 		require_once SQ_FUDGE_PATH.'/csv/csv.inc';
 		$csv = new CSV();
 		$csv->setFilename('submission_log.csv');
-		$csv->setDeliminator($delimiter);
 
 		// get the from and to values
 		$from_value = isset($_POST[$prefix.'_export_fromvalue']) ? ts_iso8601(mktime(0,0,0,$_POST[$prefix.'_export_fromvalue']['m'],$_POST[$prefix.'_export_fromvalue']['d'],$_POST[$prefix.'_export_fromvalue']['y'])) : '---------- --:--:--';
@@ -416,69 +409,34 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$from_ts = mktime(0,0,0,$from_value[1],$from_value[2],$from_value[0]);
 		$to_ts   = mktime(23,59,59,$to_value[1],$to_value[2],$to_value[0]);
 
-		$log_path = $asset->data_path.'/submission_logs';
 		$logs = Array();
 		$headers = Array('__time__' => 'Submission Time', '__user__' => 'User Submitting Form');
 
-		// search submission logs directory for files in the date range
-		if ($handle = opendir($log_path)) {
-			while (false !== ($file = readdir($handle))) {
-				if ($file == '.' || $file == '..') continue;
-				$log_file = $log_path.'/'.$file;
-				$sub_id = (int)substr($file,4,strpos($file,'.')-4);
+		$assetids = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, 'form_submission'));
+		$assetid_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($assetids);
 
-				$file_ts = filemtime($log_file);
+		foreach ($assetids as $assetid) {
+			$create_time = strtotime($assetid_info[$assetid]['created']);
 
-				if (($file_ts >= $from_ts) && ($file_ts <= $to_ts)) {
-					// time is good; load me up
-					$tree = new XML_Tree($log_file);
-					$root  = &$tree->getTreeFromFile();
-					$logs[$sub_id] = Array();
-					if (PEAR::isError($root)) {
-						pre_echo($root->getMessage()."\n".$root->getUserInfo());
-						return;
+			if (($create_time >= $from_ts) && ($create_time <= $to_ts)) {
+				$sub_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				if (!$sub_asset->attr('complete')) continue;
+				$summary = $sub_asset->getSummary();
+
+				$logs[$assetid] = Array(
+									'__time__'	=> date('Y-m-d H:i:s', $create_time),
+									'__user__'	=> $assetid_info[$assetid]['created_userid'],
+								  );
+				if (empty($summary)) $summary = Array();
+				foreach ($summary as $id => $element) {
+					if (!isset($headers[$id])) {
+						$headers[$id] = $element['name'];
 					}
 
-					$sub_time = str_replace('T',' ',$root->getAttribute('time'));
-					$sub_user = $root->getAttribute('user');
-					$logs[$sub_id]['__time__'] = $sub_time;
-					if (!is_null($sub_user)) {
-						$sub_user_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($sub_user);
-						$logs[$sub_id]['__user__'] = $sub_user_asset->name . ' (Id: #'.$sub_user.')';
-					} else {
-						$logs[$sub_id]['__user__'] = '';
-					}
-
-					$elements = &$this->_generateSubmissionList($root);
-
-					foreach ($elements as $element) {
-						$logs[$sub_id][$element['id']] = $element['content'];
-						if (!isset($headers[$element['id']])) {
-							$headers[$element['id']] = $element['name'];
-						}
-					}
-
-					$kids =& $root->children;
-
-					for (reset($kids); null !== ($k = key($kids)); next($kids)) {
-						$this_child =& $kids[$k];
-						if ($this_child->name == 'section') {
-							$elements = &$this->_generateSubmissionList($this_child);
-							foreach ($elements as $element) {
-								$logs[$sub_id][$element['id']] = $element['content'];
-								if (!isset($headers[$element['id']])) {
-									$headers[$element['id']] = $element['name'];
-								}
-							}
-						}
-					}
-
-				}//end if file's datestamp in range
-
-			}//end while reading directories
-
-		}//end if handle opened
-		closedir($handle);
+					$logs[$assetid][$id] = $element['answer'];
+				}
+			}
+		}
 
 		if ($header_row) {
 			$csv->setFieldHeaders($headers);
@@ -525,27 +483,24 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$from_ts = mktime(0,0,0,$from_value[1],$from_value[2],$from_value[0]);
 		$to_ts   = mktime(23,59,59,$to_value[1],$to_value[2],$to_value[0]);
 
-		$log_path = $asset->data_path.'/submission_logs';
 		$logs = Array();
 		$headers = Array('__time__' => 'Submission Time', '__user__' => 'User Submitting Form');
 
 		echo '<submissions>';
 
-		// search submission logs directory for files in the date range
-		if ($handle = opendir($log_path)) {
-			while (false !== ($file = readdir($handle))) {
-				if ($file == '.' || $file == '..') continue;
-				$log_file = $log_path.'/'.$file;
-				$sub_id = (int)substr($file,4,strpos($file,'.')-4);
+		$assetids = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, 'form_submission'));
+		$assetid_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($assetids);
 
-				$file_ts = filemtime($log_file);
-				if (($file_ts >= $from_ts) && ($file_ts <= $to_ts)) {
-					// time is good; load me up and print
-					echo file_to_string($log_file);
-				}
+		foreach ($assetids as $assetid) {
+			$create_time = strtotime($assetid_info[$assetid]['created']);
+
+			if (($create_time >= $from_ts) && ($create_time <= $to_ts)) {
+				$sub_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				if (!$sub_asset->attr('complete')) continue;
+				if (trim($sub_asset->attr('xml')) == '') continue;
+				echo $sub_asset->attr('xml');
 			}
 		}
-		closedir($handle);
 
 		echo '</submissions>';
 		exit(0);
@@ -571,8 +526,8 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 		for (reset($kids); null !== ($k = key($kids)); next($kids)) {
 			$this_child =& $kids[$k];
-			$child_id = $this_child->getAttribute('id');
-			$child_name = $this_child->getAttribute('name');
+			$child_id =& $this_child->getAttribute('id');
+			$child_name =& $this_child->getAttribute('name');
 			switch ($this_child->name) {
 				case 'section':
 				break;
@@ -583,7 +538,8 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 				case 'datetime_q':
 					$child_value = date('d M Y H:i:s',	iso8601_ts($this_child->content));
-					if ($this_child->getAttribute('circa')) $child_value = 'circa '.$child_value;
+					$circa =& $this_child->getAttribute('circa');
+					if ($circa) $child_value = 'circa '.$child_value;
 				break;
 
 				case 'select_q':
@@ -755,11 +711,13 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		}
 
 		// fill out the defaults
-		$all_se[$new_id] = Array('assetid' => '',
-								 'rules'   => Array(),
-								 'require' => 'all',
-								 'send'    => 'recipient',
-								 'address' => '');
+		$all_se[$new_id] = Array(
+							'assetid'	=> '',
+							'rules'		=> Array(),
+							'require'	=> 'all',
+							'send'		=> 'recipient',
+							'address'	=> '',
+						   );
 
 		// set the post/request variables so the later functions know to show the new rule
 		$_REQUEST[$prefix.'_se_active_ruleid'] = $new_id;
@@ -851,10 +809,9 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 							$type_code = 'form_question_rule_type_'.$rule['name'];
 							$q_asset =& $am->getAsset($rule['assetid']);
 
-							// get operators and attributes from a static call
 							$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
-							$operators = eval('return '.$type_code.'::getOperators();');
-							$attributes = eval('return '.$type_code.'::getAttributes();');
+							$rule_asset = new $type_code();
+							$description = $rule_asset->ruleDescription($q_asset, $rule);
 
 							// if this is not our first rule part, put in AND or OR as the case may be
 							if ($i > 0) {
@@ -866,22 +823,8 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 							}
 
 							$i++;
-							echo '<b>'.$q_asset->attr('name').' (Id: #'.$q_asset->id.')</b> ';
-							echo $operators[$rule['operator']];
-							echo '<b>';
-
-							if (!$attributes['no_comparison']) {
-								// comparison question ID
-								if ($cqid = $rule['comparison_question_id']) {
-									$cq_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($cqid);
-										echo 'Value of "'.$cq_asset->name.'" ['.$cq_asset->type().' : '.$cqid . ']';
-								} else {
-									echo $q_asset->getSummary($rule['value']);
-								}
-								echo '</b>';
-							}
+							echo $description;
 							echo '<br />';
-							$i++;
 						}//end for
 
 					}//end if rules not empty
@@ -972,10 +915,13 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	function paintActiveQuestion(&$asset, &$o, $prefix)
 	{
 		if (!$asset->writeAccess('attributes')) return false;
+
 		if (isset($_REQUEST[$prefix.'_se_active_ruleid'])) {
 			$current_assetid = isset($_POST[$prefix.'_se_new_qid']['assetid']) ? $_POST[$prefix.'_se_new_qid']['assetid'] : 0;
 			asset_finder($prefix.'_se_new_qid', $current_assetid, Array('form_question' => 'D'));
 			return true;
+		} else {
+			return false;
 		}
 
 	}//end paintActiveQuestion()
@@ -1029,8 +975,8 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 			foreach ($rule_codes as $rule_code) {
 				$type_code = 'form_question_rule_type_'.$rule_code;
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
-				$attributes = eval('return '.$type_code.'::getAttributes();');
-				if ($attributes['selective_email_rule']) $type_codes[] = $type_code;
+				$se_rule = eval('return '.$type_code.'::isSelectiveEmailRule();');
+				if ($se_rule) $type_codes[] = $type_code;
 			}
 
 			$desc = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_codes, 'description');
@@ -1077,11 +1023,13 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
 			$operators = array_keys(eval('return '.$type_code.'::getOperators();'));
 
-			$rules[] = Array('assetid'				=> $qid,
-						   'name'					=> $rule_code,
-						   'operator'				=> $operators[0],
-						   'value'					=> '',
-						   'comparison_question_id'	=> 0);
+			$rules[] = Array(
+						'assetid'					=> $qid,
+						'name'						=> $rule_code,
+						'operator'					=> $operators[0],
+						'value'						=> '',
+						'comparison_question_id'	=> 0,
+					   );
 
 
 			$asset->setAttrValue('selective_emails', $all_se);
@@ -1103,110 +1051,69 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	*/
 	function paintRuleParts(&$asset, &$o, $prefix)
 	{
-		if (!isset($_REQUEST[$prefix.'_se_active_ruleid'])) return false;
+		if (!$asset->writeAccess('attributes')) {
+			$o->openField('Note');
+			echo 'Unlock the form to select an active Selective Email rule';
+			$o->closeField();
+			return false;
+		}
+
+		if (!isset($_REQUEST[$prefix.'_se_active_ruleid'])) {
+			$o->openField('Note');
+			echo 'Select an active Selective Email rule to edit it';
+			$o->closeField();
+			return false;
+		}
+
 		$ruleid = $_REQUEST[$prefix.'_se_active_ruleid'];
 
-		if (!$asset->writeAccess('attributes')) return false;
-		$admin_access = $asset->adminAccess('attributes');
+		$write_access = $asset->writeAccess('attributes');
 
 		$am		=& $GLOBALS['SQ_SYSTEM']->am;
 		$all_se	=& $asset->attr('selective_emails');
 		$rules  =& $all_se[$ruleid]['rules'];
+		$descs  =  Array();
 
 		if (empty($rules)) {
-			echo 'This rule is empty';
+			$o->openField('Note');
+			echo 'This Selective Email rule is empty';
+			$o->closeField();
 			return false;
 		}
 
-		// set a get var so that we know what question was selected when we come back
-		?>
-		<table class="sq-backend-table">
-			<tr>
-				<td class="sq-backend-table-header">
-					Question
-				</td>
-				<td class="sq-backend-table-header">
-					Rule
-				</td>
-				<td class="sq-backend-table-header">
-					Comparison Value
-				</td>
-				<td align="center" width="70" class="sq-backend-table-header">
-					Delete ?
-				</td>
-			</tr>
+		for (reset($rules); null !== ($k = key($rules)); next($rules)) {
+			$rule = &$rules[$k];
+			// let the rule paint itself here!!
+			$type_code = 'form_question_rule_type_'.$rule['name'];
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
+			$rule_asset = new $type_code();
+			$edit_fns = $rule_asset->getEditFns();
 
-			<?php
-			// sort order is based upon shadow asset id (eg. '87:q1'), not just question id - this
-			// will allow sections to be sorted in later
-			$i = 0;
+			if (!isset($descs[$type_code])) {
+				$asset_info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo(Array($type_code), 'description');
+				$descs[$type_code] = $asset_info[$type_code];
+			}
 
-			for (reset($rules); null !== ($k = key($rules)); next($rules)) {
-				$rule = &$rules[$k];
-				$type_code = 'form_question_rule_type_'.$rule['name'];
-				$q_asset =& $am->getAsset($rule['assetid']);
+			$o->openSection($descs[$type_code]);
 
-				// get operators and attributes from a static call
-				$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
-				$operators = eval('return '.$type_code.'::getOperators();');
-				$attributes = eval('return '.$type_code.'::getAttributes();');
+			$o->openField('Applies To');
+			$q_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($rule['assetid']);
+			echo $q_asset->attr('name').' (Id: #'.$q_asset->id.')';
+			$o->closeField();
 
-				// obtain a rule prefix
-				$rule_prefix = $prefix.'_r'.$k;
-				?>
-				<td valign="top" class="sq-backend-table-cell">
-				<?php echo $q_asset->attr('name'); ?>
-				</td>
-				<td class="sq-backend-table-cell">
-					<?php if ($asset->writeAccess('attributes')) {
-						combo_box($rule_prefix.'_operator', $operators,
-						false, $rule['operator']);
-					} else {
-						echo $operators[$rule['operator']];
-					} ?>
-				</td>
-				<td class="sq-backend-table-cell">
-					<?php if (!$attributes['no_comparison']) {
-						// only print if we need to compare with something
-						if ($asset->writeAccess('attributes')) {
-							if ($q_asset->isSelection() && !$attributes['force_text']) {
-								$options = $q_asset->getOptions();
-								combo_box($rule_prefix.'_value', array_merge(Array(' ' => '------ Please Select ------'), $options),
-						false, $rule['value']);
-							} else {
-								text_box($rule_prefix.'_value', $rule['value'], 30, 255);
-							}
-							// showing the asset finder?
-							if ($attributes['show_asset_finder']) {
-								echo ' Or<br />';
-								asset_finder($rule_prefix.'_cq_id', $rule['comparison_question_id'], Array('form_question' => 'D'));
-							}
-						} else {
-							// comparison question ID
-							if ($cqid = $rule['comparison_question_id']) {
-								$cq_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($cqid);
-								echo 'Value of "'.$cq_asset->name.'" ['.$cq_asset->type().' : '.$cqid . ']';
-							} else {
-								echo $rule['value'];
-							}
-						}
-					}?>
-				</td>
-				<?php
-				if ($admin_access) {
-					?><td valign="top"  align="center" width="70" class="sq-backend-table-cell"><?php check_box($prefix.'_rule_deletes[]', $k); ?></td><?php
-				}
-				?>
-				</tr>
-				<?php
-				$i++;
+			$edit_fns->paintRule($rule_asset, $o, $prefix.'_rule_'.$k, $rule, $write_access, $q_asset);
 
-			}//end for all rules
-		?>
-		</table>
-		<?php
+			if ($write_access) {
+				$o->openField('Delete ?');
+				check_box($prefix.'_rule_'.$k.'[delete]');
+				$o->closeField();
+			}
 
-		return true;
+			$o->closeSection();
+
+		}//end for all rules
+
+		return $write_access;
 
 	}//end paintRuleParts()
 
@@ -1233,36 +1140,28 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 		$prefix = $asset->getPrefix();
 
-		if (!empty($_POST[$prefix.'_rule_deletes'])) {
-			// delete our selective e-mail rules
-			$delete_ruleids = $_POST[$prefix.'_rule_deletes'];
-			foreach ($delete_ruleids as $deleted_ruleid) unset($rules[$deleted_ruleid]);
+		// delete rules first
+		foreach (array_keys($rules) as $k) {
+			$rule_prefix = $prefix.'_rule_'.$k;
+			if (!isset($_POST[$rule_prefix])) {
+				continue;
+			}
+			if (array_get_index($_POST[$rule_prefix], 'delete', 0)) {
+				unset($rules[$k]);
+			}
 		}
 
 		// modify what's left
 		for (reset($rules); null !== ($k = key($rules)); next($rules)) {
 			$rule = &$rules[$k];
-			$type = 'form_question_rule_type_'.$rule['name'];
-			$rule_prefix = $prefix.'_r'.$k;
+			// let the rule paint itself here!!
+			$type_code = 'form_question_rule_type_'.$rule['name'];
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
+			$rule_asset = new $type_code();
+			$edit_fns = $rule_asset->getEditFns();
 
-			if (isset($_POST[$rule_prefix.'_operator'])) {
-				$rule['operator'] = $_POST[$rule_prefix.'_operator'];
-			}
-
-			if (isset($_POST[$rule_prefix.'_cq_id']) && ($_POST[$rule_prefix.'_cq_id']['assetid'] != 0)) {
-				// comparison question id overrides the static value!
-				if ($_POST[$rule_prefix.'_cq_id']['assetid'] == $asset->id) {
-					trigger_error('Cannot compare "'.$asset->name.'" (# '.$asset->id.') with itself in a rule',  E_USER_WARNING);
-					return false;
-				}
-				$rule['comparison_question_id'] = $_POST[$rule_prefix.'_cq_id']['assetid'];
-				$rule['value'] = '';
-			} else if (isset($_POST[$rule_prefix.'_value'])) {
-				// static value only specified - set c.q. ID to a duck
-				$rule['comparison_question_id'] = 0;
-				$rule['value'] = $_POST[$rule_prefix.'_value'];
-			}
-		}//end for
+			$edit_fns->processRule($rule_asset, $o, $prefix.'_rule_'.$k, $rule);
+		}
 
 		$asset->setAttrValue('selective_emails', $all_se);
 		return $asset->saveAttributes();

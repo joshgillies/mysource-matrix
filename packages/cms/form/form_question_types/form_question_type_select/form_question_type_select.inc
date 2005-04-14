@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_select.inc,v 1.26.2.1 2004/12/09 22:04:35 lwright Exp $
-* $Name: not supported by cvs2svn $
+* $Id: form_question_type_select.inc,v 1.26.2.2 2005/04/14 01:43:57 lwright Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.26.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -51,7 +51,7 @@ class Form_Question_Type_Select extends Form_Question
 	{
 		$this->Form_Question($assetid,$data);
 
-	}//end Form_Question_Type_Select()
+	}//end constructor
 
 
 	/**
@@ -129,28 +129,6 @@ class Form_Question_Type_Select extends Form_Question
 
 
 	/**
-	* process this question in the form
-	*
-	* @access public
-	* @return boolean
-	*/
-	function processForm()
-	{
-		if (!$this->active_submission) return false;
-		$val = isset($_POST[$this->id]) ? $_POST[$this->id] : '';
-
-		$form =& $this->getMySection();
-		$this->active_submission->setAnswer($this->id, $val);
-		$this->active_submission->setSummary($this->id, $this->attr('name'), $this->getSummary($val));
-
-		parent::processForm();
-
-		return true;
-
-	}//end processForm()
-
-
-	/**
 	* returns a summary for this question
 	*
 	* @param string $answer the answer to get the summary of
@@ -167,6 +145,7 @@ class Form_Question_Type_Select extends Form_Question
 			}
 			return implode(', ', $ans_str);
 		}
+
 		return $this->getAnswerByOffset($answer);
 
 	}//end getSummary()

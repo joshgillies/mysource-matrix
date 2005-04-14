@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_file_type_management.inc,v 1.1 2004/11/09 04:16:17 lwright Exp $
-* $Name: not supported by cvs2svn $
+* $Id: form_question_rule_type_file_type_management.inc,v 1.1.2.1 2005/04/14 01:43:57 lwright Exp $
+*
 */
 
 
@@ -31,12 +31,13 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.1.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
 class Form_Question_Rule_Type_File_Type_Management extends Asset_Management
 {
+
 
 	/**
 	* Constructor
@@ -47,6 +48,7 @@ class Form_Question_Rule_Type_File_Type_Management extends Asset_Management
 		$this->Asset_Management($pm);
 
 	}//end constructor
+
 
 }//end class
 ?>

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_table_edit_fns.inc,v 1.3.2.1 2004/12/09 05:17:03 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: form_question_type_tickbox_table_edit_fns.inc,v 1.3.2.2 2005/04/14 01:43:58 lwright Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question_edit_fns.inc'
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.3.2.1 $
+* @version $Revision: 1.3.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -48,7 +48,7 @@ class Form_Question_Type_Tickbox_Table_Edit_Fns extends Form_Question_Edit_Fns
 	{
 		$this->Form_Question_Edit_Fns();
 
-	}//end Form_Question_Type_Tickbox_Table_Edit_Fns()
+	}//end constructor
 
 
 	/**

@@ -18,14 +18,9 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_contents.xml,v 1.7 2004/11/04 23:43:44 lwright Exp $
-* $Name: not supported by cvs2svn $
+* $Id: edit_interface_screen_contents.xml,v 1.7.2.1 2005/04/14 01:43:58 lwright Exp $
+*
 */
 -->
 
-<contents>
-	<section name="contents">
-	    <field>
-		</field>
-	</section>
-</contents>
+<contents />

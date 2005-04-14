@@ -18,10 +18,9 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section.inc,v 1.30.2.3 2005/01/20 04:05:54 lwright Exp $
-* $Name: not supported by cvs2svn $
+* $Id: form_section.inc,v 1.30.2.4 2005/04/14 01:43:58 lwright Exp $
+*
 */
-
 
 require_once SQ_CORE_PACKAGE_PATH.'/bridge/bridge.inc';
 
@@ -32,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.30.2.3 $
+* @version $Revision: 1.30.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -80,15 +79,15 @@ class Form_Section extends Bridge
 	function Form_Section($assetid=0)
 	{
 		$this->_ser_attrs = true;
-		$this->Bridge($assetid);
+		$this->Asset($assetid);
 
-	}//end Form_Section()
+	}//end constructor
 
 
 	/**
 	* Returns a reference to the asset represented by the passed assetid
 	*
-	* @param int		$assetid		the asset id to be loaded
+	* @param int		$shadowid		the shadow part asset id to be loaded (i.e part after the ':')
 	* @param string		$type_code		if this exists then this object is used to
 	*									load the asset, if not then the DB is queried
 	*									to find out the asset type
@@ -207,16 +206,17 @@ class Form_Section extends Bridge
 
 			foreach ($entries as $questionid => $data) {
 
-				$links[] = Array('linkid'          => 0,
-								 'majorid'         => $this->id,
-								 'minorid'         => $this->id.':q'.$questionid,
-								 'minor_type_code' => $data['question_type_code'],
-								 'value'           => '',
-								 'link_type'       => SQ_LINK_TYPE_2,
-								 'is_dependant'    => true,
-								 'is_exclusive'    => false,
-								 'sort_order'      => $i,
-								);
+				$links[] = Array(
+							'linkid'			=> 0,
+							'majorid'			=> $this->id,
+							'minorid'			=> $this->id.':q'.$questionid,
+							'minor_type_code'	=> $data['question_type_code'],
+							'value'				=> '',
+							'link_type'			=> SQ_LINK_TYPE_2,
+							'is_dependant'		=> true,
+							'is_exclusive'		=> false,
+							'sort_order'		=> $i,
+						   );
 				$i++;
 			}
 
@@ -258,7 +258,7 @@ class Form_Section extends Bridge
 		$children = Array();
 
 		$entries = $this->getQuestions();
-		if ($type_code == Array()) {
+		if (empty($type_code)) {
 			foreach ($entries as $questionid => $data) {
 				$children[$this->id.':q'.$questionid] = $data['question_type_code'];
 			}
@@ -320,16 +320,55 @@ class Form_Section extends Bridge
 
 
 	/**
+	* Returns an array of assetid's + info in the order that they propogate out from THIS BRIDGE'S url
+	*
+	* @param string	$assetid	the id of the last asset in the lineage
+	* @param string	$protocol	the protocol to match -> null means it is ignored
+	* @param string	$url		the urls to check for -> null defaults it to current url
+	*
+	* @return array
+	* @access public
+	*/
+	function getLineageFromURL($assetid, $protocol, $url)
+	{
+	}//end getLineageFromURL()
+
+
+	/**
 	* get the section links attached to this form
 	*
 	* @access public
 	* @return array(link)
 	*/
-	function &getQuestions($force=false)
+	function getQuestions($force=false)
 	{
 		return $this->attr('questions');
 
 	}//end getQuestions()
+
+
+	/**
+	* get the question assets attached to this section
+	*
+	* @access public
+	* @return array
+	*/
+	function &getQuestionAssets()
+	{
+		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		$result = Array();
+
+		$questions = $this->attr('questions');
+		if (!empty($questions)) {
+			foreach ($questions as $q_id => $question) {
+				$id           =  $this->id.':q'.$q_id;
+				$result[$id]  =& $am->getAsset($id);
+			}
+		}
+
+		return $result;
+
+	}//end getQuestionAssets()
 
 
 	/**
@@ -343,7 +382,7 @@ class Form_Section extends Bridge
 		$questions = $this->getQuestions();
 		return (isset($questions[$questionid])) ? $questions[$questionid] : Array();
 
-	}//end getQuestionById()
+	}//end getQuestionByID()
 
 
 	/**
@@ -361,30 +400,6 @@ class Form_Section extends Bridge
 
 
 	/**
-	* get the question assets attached to this section
-	*
-	* @access public
-	* @return array
-	*/
-	function &getQuestionAssets()
-	{
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
-		$result = Array();
-
-		$questions = $this->attr('questions');
-		if (!empty($questions)) {
-			foreach ($questions as $q_id => $question) {
-				$id           = $this->id.':q'.$q_id;
-				$result[$id]  = $am->getAsset($id);
-			}
-		}
-
-		return $result;
-
-	}//end getQuestionAssets()
-
-
-	/**
 	* attach a question to this form
 	*
 	* @param object Form_Question	&$question	the question object to attach
@@ -398,7 +413,7 @@ class Form_Section extends Bridge
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$questions = &$this->getQuestions();
+		$questions = $this->getQuestions();
 		if ($this->attr('next_questionid') > 0) {
 			$new_key = $this->attr('next_questionid');
 		} else if (empty($questions)) {
@@ -407,8 +422,12 @@ class Form_Section extends Bridge
 			$new_key = max(array_keys($questions)) + 1;
 		}
 
-		$questions[$new_key] = Array('question_type_code' => $type_code,
-									'attributes'	     => Array('name' => 'Question '.(count($questions)+1)));
+		$questions[$new_key] = Array(
+								'question_type_code'	=> $type_code,
+								'attributes'			=> Array(
+															'name'	=> 'Question '.(count($questions)+1),
+														   ),
+							   );
 
 		$this->setAttrValue('questions', $questions);
 		$this->setAttrValue('next_questionid', $new_key + 1);
@@ -447,7 +466,7 @@ class Form_Section extends Bridge
 		if ($question->_questionid == 0) return false;
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$questions = &$this->getQuestions();
+		$questions = $this->getQuestions();
 
 		unset($questions[$question->_questionid]);
 
@@ -563,7 +582,7 @@ class Form_Section extends Bridge
 	*                       );
 	*                       or alternately
 	*                       Array('all');
-	* 
+	*
 	* @return boolean
 	* @access public
 	* @see asset::cloneComponents()
@@ -571,28 +590,28 @@ class Form_Section extends Bridge
 	function cloneComponents(&$clone, $components)
 	{
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		
+
 		if (!parent::cloneComponents($clone, $components)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;			
+			return false;
 		}
-		
+
 		if (in_array('attributes', $components) || in_array('all', $components)) {
 			$sort_order = $this->attr('sort_order');
 			$sort_order = str_replace($this->id.':q', $clone->id.':q', $sort_order);
-						
+
 			// save the information
 			$clone->setAttrValue('sort_order', $sort_order);
 			$clone->saveAttributes();
-			
+
 		}
-		
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');		
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
-	
+
 	}//end cloneComponents()
-	
-	
+
+
 	/**
 	* returns the count of questions linked to this section
 	*
@@ -603,7 +622,7 @@ class Form_Section extends Bridge
 	*/
 	function getQuestionCount()
 	{
-		$questions = &$this->getQuestions();
+		$questions = $this->getQuestions();
 		return count($questions);
 
 	}//end getQuestionCount()
@@ -615,8 +634,9 @@ class Form_Section extends Bridge
 	* @access public
 	* @return boolean
 	*/
-	function processForm() {
-		$questions = &$this->getQuestions();
+	function processForm()
+	{
+		$questions = $this->getQuestions();
 		for (reset($questions); null !== ($k = key($questions)); next($questions)) {
 			$question = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$k);
 			$question->active_submission =& $this->active_submission;
@@ -653,7 +673,7 @@ class Form_Section extends Bridge
 	*/
 	function generateJSCode()
 	{
-		$questions = &$this->getQuestions();
+		$questions = $this->getQuestions();
 		$code = '';						// blank sheet of code to start with
 
 		foreach ($questions as $q_id => $question) {

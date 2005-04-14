@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_country.inc,v 1.7 2004/04/29 05:19:40 lwright Exp $
-* $Name: not supported by cvs2svn $
+* $Id: form_question_type_country.inc,v 1.7.6.1 2005/04/14 01:43:57 lwright Exp $
+*
 */
 
 
@@ -35,7 +35,7 @@ require_once SQ_FUDGE_PATH.'/standards_lists/countries.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.7.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -50,16 +50,16 @@ class Form_Question_Type_Country extends Form_Question_Type_Select
 	* @param array	$data		the section's entry for this question (contains all question data)
 	*
 	*/
-	function Form_Question_Type_Country($assetid=0,$data=Array()) 
+	function Form_Question_Type_Country($assetid=0,$data=Array())
 	{
 		$this->Form_Question_Type_Select($assetid,$data);
 
-	}//end Form_Question_Type_Country()
+	}//end constructor
 
 
 	/**
 	* returns the options currently in the dropdown list
-	* 
+	*
 	* @access public
 	* @return Array()
 	*/
@@ -77,10 +77,10 @@ class Form_Question_Type_Country extends Form_Question_Type_Select
 		}
 
 		return $options;
-	
-	}//end getoptions()
 
-	
+	}//end getOptions()
+
+
 	/**
 	* returns the complete set of countries
 	*
@@ -91,7 +91,7 @@ class Form_Question_Type_Country extends Form_Question_Type_Select
 	{
 		global $standards_lists_countries;
 		return $standards_lists_countries;
-		
+
 	}//end getCompleteOptions()
 
 

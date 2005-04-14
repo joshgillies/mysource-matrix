@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_submission_management.inc,v 1.8 2004/11/04 23:43:44 lwright Exp $
-* $Name: not supported by cvs2svn $
+* $Id: form_submission_management.inc,v 1.8.2.1 2005/04/14 01:43:58 lwright Exp $
+*
 */
 
 
@@ -31,12 +31,13 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.8.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
 class Form_Submission_Management extends Asset_Management
 {
+
 
 	/**
 	* Constructor
@@ -46,19 +47,30 @@ class Form_Submission_Management extends Asset_Management
 	{
 		$this->Asset_Management($pm);
 
-		$this->vars = Array('id' => Array(
-												'added'     => '0.0.1',
-												'type'      => 'text',  
-												'default'   => '',
-											),
-							'attributes' => Array(
-												'added'		=> '0.0.1',
-												'type'		=> 'serialise',
-												'default'	=> Array(),
-												'update_fn' => '',
-											),
-									);
+		$this->vars = Array(
+						'id'			=> Array(
+											'added'		=> '0.0.1',
+											'type'		=> 'text',
+											'default'	=> '',
+										   ),
+						'attributes'	=> Array(
+											'added'		=> '0.0.1',
+											'type'		=> 'serialise',
+											'default'	=> Array(),
+										   ),
+						'complete'		=> Array(
+											'added'		=> '0.2',
+											'type'		=> 'boolean',
+											'default'	=> false,
+										   ),
+						'xml'			=> Array(
+											'added'		=> '0.2',
+											'type'		=> 'text',
+											'default'	=> '',
+										   ),
+					  );
 	}//end constructor
+
 
 }//end class
 ?>

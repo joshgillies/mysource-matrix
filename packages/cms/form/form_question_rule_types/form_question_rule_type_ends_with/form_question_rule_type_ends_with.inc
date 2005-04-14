@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_ends_with.inc,v 1.7 2004/11/05 00:08:48 lwright Exp $
-* $Name: not supported by cvs2svn $
+* $Id: form_question_rule_type_ends_with.inc,v 1.7.2.1 2005/04/14 01:43:56 lwright Exp $
+*
 */
 
 
@@ -29,16 +29,29 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 * Form_Question_Rule_Type_Ends_With
 *
 * Purpose
+*	Form Question Rule: Value Ends With...
 *
 *
-* @static
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.7.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
 class Form_Question_Rule_Type_Ends_With extends Form_Question_Rule
 {
+
+
+	/**
+	* Constructor
+	*
+	* @param int	$assetid	the asset id to be loaded
+	*
+	*/
+	function Form_Question_Rule_Type_Ends_With($assetid=0)
+	{
+		$this->Form_Question_Rule($assetid);
+
+	}//end constructor
 
 
 	/**
@@ -48,143 +61,167 @@ class Form_Question_Rule_Type_Ends_With extends Form_Question_Rule
 	* @return array (mixed => string) an array of descriptions indexed by operator id (which can be
 	*                                 anything, generally string or (int)0|1 for a boolean value)
 	*/
-	function getOperators() 
+	function getOperators()
 	{
-		return Array(1 => 'Must End With...',
-			0 => 'Must Not End With...');
-	
+		return Array(
+				1	=> 'Must End With',
+				0	=> 'Must Not End With',
+			   );
+
 	}//end getOperators()
-	
-	
+
+
 	/**
-	* processes the form question and returns true if it is valid
+	* writes JavaScript code for client side validation
 	*
-	* Because the Form Question Rule classes will not be instantiable by Matrix NOR will be
-	* instantiated manually in code, this function MUST called statically.
-	* 
-	* @param object form_question	&$q_asset		reference to the question asset
-	* @param string					$operator		the operator being used to compare
-	* @param mixed					&$comparison	either a value or a form_question asset (based on
-	*												comparison question id), being used to compare
+	* This function assumes the skeleton of a JS validation function has been created around this code
+	* with a form variable named 'form' passed (this is done when generating the content file).
 	*
-	* @see Form_Question_Rule::processForm()
-	* @static
+	* @param object Form_Question	&$q_asset		reference to the question asset
+	* @param Array					$rule_data		the rule data being used
+	*
 	* @access public
-	* @return boolean
+	* @return string
 	*/
-	function processForm(&$q_asset, $operator, &$comparison)
+	function generateJSCode(&$q_asset, $rule_data)
 	{
-		if (!$q_asset->active_submission) return false;
-		$answer = $q_asset->getValue();
+		// have we printed out the validation function yet?
+		// (since this is static across all class instances, this will work)
+		static $printed_fn = false;
 
-		// "Ends With" requires the last index of the comparison starts where it would be if it were
-		// at the end of the string.
-		// comparison sent is a question asset!!
-		if (is_a($comparison, 'form_question')) {
-			$valid = (strrpos($answer, $comparison->getValue()) === strlen($answer)-strlen($comparison->getValue())) ? 1 : 0;			
-		} else {	// sent just a value
-			$valid = (strrpos($answer, $comparison) ===  strlen($answer)-strlen($comparison)) ? 1 : 0;
-		}
+		$operator = array_get_index($rule_data, 'operator', 1);
+		$cq_id = array_get_index($rule_data, 'comparison_question_id', 0);
+		$value = array_get_index($rule_data, 'value', '');
+		$case_sensitive = array_get_index($rule_data, 'case_sensitive', 1);
 
-		if ($valid == $operator) {
-			return true;
-		} else {
-			// tailor the error response depending
-			if (is_a($comparison, 'form_question')) {
-				$error = $q_asset->name.' must '. (($operator) ? '' : 'not') .' end with the value \''.$comparison->getValue().'\' ('.$comparison->name.' in '.$comparison->getMySectionName().')';
-			} else {
-				$error = $q_asset->name.' must '. (($operator) ? '' : 'not') .' end with \''.$comparison.'\'';
+		ob_start();			// buffer this please
+
+			if (!$printed_fn) {
+				$printed_fn = true;
+
+					?>
+					function sq_form_validate_ends_with(answer, comparison, case_sensitive)
+					{
+						if (case_sensitive) {
+							pos = answer.indexOf(comparison);
+						} else {
+							pos =  answer.toLowerCase().indexOf(comparison.toLowerCase());
+						}
+
+						// if position is less than zero than it can't be found,
+						// therefore it can't end with it
+						return (pos >= 0) && (pos == answer.length - comparison.length);
+					}//end sq_form_validate_ends_with()
+					<?php
+
 			}
-			$q_asset->active_submission->setError($error);
-			return false;
-		}
-		
-	}//end processForm()
+
+			if ($cq_id != 0) {
+				$comparison = 'document.getElementById("'.$cq_id.'").value';
+			} else {
+				$comparison = '"'.addslashes($value).'"';
+			}
+
+			?>
+				if (<?php echo ($operator == 1) ? '!' : ''; ?>sq_form_validate_ends_with(document.getElementById("<?php echo $q_asset->id; ?>").value, <?php echo $comparison ?>, <?php echo (int)$case_sensitive; ?>)) {
+					submission_errors[submission_errors.length] = "<?php
+						if (empty($rule_data['custom_text'])) {
+							echo addslashes($this->defaultError($q_asset, $rule_data));
+						} else {
+							echo addslashes($rule_data['custom_text']);
+						}
+					?>";
+				}
+			<?php
+
+		$contents = ob_get_contents();
+		ob_end_clean();
+
+		return $contents;
+
+	}//end generateJSCode()
 
 
 	/**
 	* processes a test on a single static value
 	*
-	* Used when we are using rules outside of validating a form - for example selective emails.
+	* Rule data is an array with the following fields:
+	* [operator] => operator to compare with (string, ==, !=, <, <=, >, >=)
+	* [value] => comparison static value
+	* [comparison_question_id] => comparison question assetid
+	* [case_sensitive] => whether the comparison is case sensitive
 	*
-	* Because the Form Question Rule classes will not be instantiable by Matrix NOR will be
-	* instantiated manually in code, this function MUST called statically.
-	* 
 	* @param mixed	$answer			the answer being passed to us
-	* @param string	$operator		the operator being used to compare
-	* @param mixed	&$comparison	either a value or a form_question asset (based on
-	*								comparison question id), being used to compare
+	* @param string	$rule_data		the rule's data
 	*
-	* @static
 	* @access public
 	* @return boolean true only if rule succeeds
 	*/
-	function valueTest($answer, $operator, &$comparison)
+	function evaluate($answer, $rule_data)
 	{
-		// "Ends With" requires the last index of the comparison starts where it would be if it were
-		// at the end of the string.
-		// comparison sent is a question asset!!
-		if (is_a($comparison, 'form_question')) {
-			$valid = (strrpos($answer, $comparison->getValue()) === strlen($answer)-strlen($comparison->getValue())) ? 1 : 0;			
-		} else {	// sent just a value
-			$valid = (strrpos($answer, $comparison) ===  strlen($answer)-strlen($comparison)) ? 1 : 0;
+		$operator = array_get_index($rule_data, 'operator', 1);
+		$cq_id = array_get_index($rule_data, 'comparison_question_id', 0);
+		$value = array_get_index($rule_data, 'value', '');
+		$case_sensitive = array_get_index($rule_data, 'case_sensitive', 1);
+
+		if ($cq_id != 0) {
+			$comparison =& $GLOBALS['SQ_SYSTEM']->am->getAsset($cq_id);
+			$value = $comparison->getValue();
 		}
 
-		return ($valid == $operator);
-		
-	}//end valueTest()
+		if (!$case_sensitive) {
+			$value = strtolower($value);
+			$answer = strtolower($answer);
+		}
+
+		// we could use strrpos() if we were in PHP5, but since it's limited to
+		// one character needles in PHP4, we need to do an iterative search
+
+		$last_pos = -1;
+		while (($pos = strpos($answer, $value, $last_pos + 1)) !== false) {
+			$last_pos = $pos;
+		}
+
+		$valid = ($last_pos === strlen($answer)-strlen($value)) ? 1 : 0;
+		return $valid == $operator;
+
+	}//end evaluate()
 
 
 	/**
-	* writes JavaScript code for client side validation
-	* 
-	* This function assumes the skeleton of a JS validation function has been created around this code
-	* with a form variable named 'form' passed (this is done when generating the content file).
+	* returns a description of this rule
 	*
-	* Because the Form Question Rule classes will not be instantiable by Matrix NOR will be
-	* instantiated manually in code, this function MUST called statically.
+	* @param object Form_Question	&$q_asset	the question asset that failed
+	* @param array					$rule_data	the rule data
 	*
-	* @param object form_question	&$q_asset		reference to the question asset
-	* @param string					$operator		the operator being used to compare
-	* @param mixed					&$comparison	either a value or a form_question asset (based on
-	*												comparison question id), being used to compare
-	*
-	* @static
+	* @return string	the error message
 	* @access public
-	* @return string
 	*/
-	function generateJSCode(&$q_asset, $operator, &$comparison)
+	function ruleDescription(&$q_asset, $rule_data)
 	{
-		ob_start();			// buffer this please
+		$error_str = 'The response to "'.$q_asset->attr('name').'" must '.($rule_data['operator'] == 0 ? 'not ' : '').' end with ';
+		$cq_id = array_get_index($rule_data, 'comparison_question_id', 0);
 
-		echo 'var answer = document.getElementById("'.$q_asset->id.'").value; ';
-
-		if (is_a($comparison, 'form_question')) {
-			$compare_value = 'document.getElementById("'.$comparison->id.'").value';
+		if ($cq_id != 0) {
+			$comparison =& $GLOBALS['SQ_SYSTEM']->am->getAsset($cq_id);
+		$error_str .= 'the response to question "'.$comparison->attr('name').'"';
 		} else {	// sent just a value
-			$compare_value = '"'.$comparison.'"';
+			$value = array_get_index($rule_data, 'value', '');
+			$error_str .= '"'.$value.'"';
 		}
 
-		$op = ($operator == 1) ? '!=' : '==';
+		$error_str .= ' (';
 
-		// this is a form question - get its current value from the form then
-		echo 'var compare_value = '.$compare_value.';';
-		echo 'if (answer.lastIndexOf(compare_value) '.$op.' answer.length - compare_value.length) {';	// START of js if
-			if (is_a($comparison, 'form_question')) {
-					$error = $q_asset->name.' must '.(($operator) ? '' : 'not') .' end with the value  \''.$compare_value.'\' ('.$comparison->name.' in '.$comparison->getMySectionName().')';
-			} else {
-				$error = $q_asset->name.' must '. (($operator) ? '' : 'not') .' end with  \''.$compare_value.'\'';
-			}
-		echo 'submission_errors[i] = "'.addslashes($error).'"; i++;'; // add submission error
-		echo '}';	//end of js if
+		if (array_get_index($rule_data, 'case_sensitive', 1) == 0) {
+			$error_str .= 'not ';
+		}
 
-		$contents = ob_get_contents();		// get our crown jewels
-		ob_end_clean();						// no more buffering please
+		$error_str .= 'case sensitive)';
 
-		return $contents;
+		return $error_str;
 
-	}//end generateJSCode()
-	
-	
+	}//end ruleDescription()
+
+
 }//end class
 ?>

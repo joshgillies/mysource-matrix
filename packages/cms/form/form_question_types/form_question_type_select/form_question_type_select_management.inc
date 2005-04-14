@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_select_management.inc,v 1.13 2004/09/08 01:23:36 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: form_question_type_select_management.inc,v 1.13.6.1 2005/04/14 01:43:57 lwright Exp $
+*
 */
 
 require_once SQ_INCLUDE_PATH.'/asset_management.inc';
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.13.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -47,39 +47,37 @@ class Form_Question_Type_Select_Management extends Asset_Management
 		$this->Asset_Management($pm);
 
 		$this->vars = Array(
-							'height' => Array(
-									'added'     => '0.0.1',
-									'type'      => 'text',  
-									'default'   => '1',
-									),
-							
-							'default' => Array(
+						'height'	=> Array(
+										'added'		=> '0.0.1',
+										'type'		=> 'text',
+										'default'	=> '1',
+									   ),
+						'default'	=> Array(
 										'added'		=> '0.0.1',
 										'type'		=> 'serialise',
 										'default'	=> Array(),
-										'update_fn' => '',
-									),
-							'multiple' => Array(
-									'added'		=> '0.0.1',
-									'type'		=> 'boolean',
-									'default'	=> false,
-									'parameters' => Array(
-															'allow_empty' => false
-														),
-								),
-							'extra'	 => Array(
-									'added'     => '0.0.1',
-									'type'      => 'text',  
-									'default'   => '',
-									),
-							'options' => Array(
-									'added'     => '0.0.1',
-									'type'      => 'option_list',  
-									'default'   => '',
-							),
-								
-			);
-	}//end Form_Question_Type_Select_Management()
+									   ),
+						'multiple'	=> Array(
+										'added'			=> '0.0.1',
+										'type'			=> 'boolean',
+										'default'		=> false,
+										'parameters'	=> Array(
+															'allow_empty'	=> false,
+														   ),
+									   ),
+						'extra'		=> Array(
+										'added'		=> '0.0.1',
+										'type'		=> 'text',
+										'default'	=> '',
+									   ),
+						'options'	=> Array(
+										'added'		=> '0.0.1',
+										'type'		=> 'option_list',
+										'default'	=> '',
+									   ),
+					  );
+
+	}//end constructor
 
 
 }//end class

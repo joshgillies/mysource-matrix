@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_regexp_edit_fns.inc,v 1.8 2004/05/05 07:10:13 lwright Exp $
-* $Name: not supported by cvs2svn $
+* $Id: form_question_rule_type_regexp_edit_fns.inc,v 1.8.6.1 2005/04/14 01:43:57 lwright Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule_edi
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.8.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -47,8 +47,68 @@ class Form_Question_Rule_Type_Regexp_Edit_Fns extends Form_Question_Rule_Edit_Fn
 	function Form_Question_Rule_Type_Regexp_Edit_Fns()
 	{
 		$this->Form_Question_Rule_Edit_Fns();
-	}//end Form_Question_Rule_Type_Regexp_Edit_Fns()
-	
+
+	}//end constructor
+
+
+	function paintRule(&$asset, &$o, $prefix, $rule_data, $write_access)
+	{
+		$operator_list = $asset->getOperators();
+
+		if (!$write_access) {
+			$o->openField('Rule Details');
+			echo 'Response '.strtolower($operator_list[array_get_index($rule_data, 'operator', 1)]).' "'.array_get_index($rule_data, 'value', '').'"';
+			$o->closeField();
+
+		} else {
+
+			$o->openField('Operator');
+			// list of operators
+			combo_box($prefix.'[operator]', $operator_list, false, array_get_index($rule_data, 'operator', 1));
+			$o->closeField();
+
+			$o->openField('Regular Expression');
+			// give a text box to write the comparison value in
+			text_box($prefix.'[value]', array_get_index($rule_data, 'value', ''), 30);
+			$o->closeField();
+
+			$o->openField('Case Sensitive ?');
+			// give a text box to write the comparison value in
+			check_box($prefix.'[case]', 1, array_get_index($rule_data, 'case_sensitive', 1));
+			$o->closeField();
+
+			$o->sectionNote('Enter a <a href="http://www.php.net/pcre">Perl-compatible regular expression</a> into the text box, without any delimiters.');
+		}
+
+		return $write_access;
+
+	}//end paintRule()
+
+
+	/**
+	* Process the rule's interface
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processRule(&$asset, &$o, $prefix, &$rule_data)
+	{
+		if (!isset($_POST[$prefix])) {
+			return false;
+		}
+
+		$operator = array_get_index($_POST[$prefix], 'operator', 1);
+		$regexp = array_get_index($_POST[$prefix], 'value', null);
+		$case = array_get_index($_POST[$prefix], 'case', 0);
+
+		$rule_data['operator'] = $operator;
+		$rule_data['value'] = $regexp;
+		$rule_data['case_sensitive'] = $case;
+
+		return true;
+
+	}//end processRule()
+
 
 }//end class
 ?>

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_numeric_management.inc,v 1.3 2004/09/08 01:23:36 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: form_question_type_numeric_management.inc,v 1.3.6.1 2005/04/14 01:43:57 lwright Exp $
+*
 */
 
 require_once SQ_INCLUDE_PATH.'/asset_management.inc';
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.3.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -47,50 +47,49 @@ class Form_Question_Type_Numeric_Management extends Asset_Management
 		$this->Asset_Management($pm);
 
 		$this->vars = Array(
-							'default'	=> Array(
-									'added'		=> '0.0.1',
-									'type'		=> 'text',
-									'default'	=> '',
-								),
-							'width' => Array(
-									'added'     => '0.0.1',
-									'type'      => 'text',  
-									'default'   => '30',
-									),
-							'height' => Array(
-									'added'     => '0.0.1',
-									'type'      => 'text',  
-									'default'   => '1',
-									),
-							'max' => Array(
-									'added'     => '0.0.1',
-									'type'      => 'text',  
-									'default'   => '300',
-									),
-							'extra'			=> Array(
-									'added'     => '0.0.1',
-									'type'      => 'text',  
-									'default'   => '',
-									),
-							'required'			=> Array(
-									'added'     => '0.0.1',
-									'type'      => 'boolean',  
-									'default'   => false,
-									'parameters' => Array(
-															'allow_empty' => false
-														),
-									),
-							'is_int'			=> Array(
-									'added'     => '0.0.1',
-									'type'      => 'boolean',
-									'default'   => false,
-									'parameters' => Array(
-															'allow_empty' => false
-														),
-									),
-								
-			);
-	}//end Form_Question_Type_Numeric_Management()
+						'default'	=> Array(
+										'added'		=> '0.0.1',
+										'type'		=> 'text',
+										'default'	=> '',
+									   ),
+						'width'		=> Array(
+										'added'		=> '0.0.1',
+										'type'		=> 'text',
+										'default'	=> '30',
+									   ),
+						'height'	=> Array(
+										'added'		=> '0.0.1',
+										'type'		=> 'text',
+										'default'	=> '1',
+									   ),
+						'max'		=> Array(
+										'added'		=> '0.0.1',
+										'type'		=> 'text',
+										'default'	=> '300',
+									   ),
+						'extra'		=> Array(
+										'added'		=> '0.0.1',
+										'type'		=> 'text',
+										'default'	=> '',
+									   ),
+						'required'	=> Array(
+										'added'			=> '0.0.1',
+										'type'			=> 'boolean',
+										'default'		=> false,
+										'parameters'	=> Array(
+															'allow_empty'	=> false,
+														   ),
+									   ),
+						'is_int'	=> Array(
+										'added'			=> '0.0.1',
+										'type'			=> 'boolean',
+										'default'		=> false,
+										'parameters'	=> Array(
+															'allow_empty'	=> false,
+														   ),
+									   ),
+					  );
+	}//end constructor
 
 
 }//end class

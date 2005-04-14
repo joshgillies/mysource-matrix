@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_datetime_management.inc,v 1.9 2004/09/08 01:23:36 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: form_question_type_datetime_management.inc,v 1.9.6.1 2005/04/14 01:43:57 lwright Exp $
+*
 */
 
 require_once SQ_INCLUDE_PATH.'/asset_management.inc';
@@ -30,12 +30,13 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.9.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
 class Form_Question_Type_Datetime_Management extends Asset_Management
 {
+
 
 	/**
 	* Constructor
@@ -46,66 +47,85 @@ class Form_Question_Type_Datetime_Management extends Asset_Management
 		$this->Asset_Management($pm);
 
 		$this->vars = Array(
-							'default'	=> Array(
-										'added'		=> '0.0.1',
-										'type'		=> 'datetime',
-										'default'	=> '---------- --:--:--',
-										'parameters' 	=> Array(
-											'allow_null' => true,
-										),
-									),
-
-							'extra'	=> Array(
-										'added'     => '0.0.1',
-										'type'      => 'text',  
-										'default'   => '',
-									),
-							'circa'	=> Array(
-										'added'     => '0.0.1',
-										'type'      => 'boolean',  
-										'default'   => false,
-										'parameters' => Array(
-															'allow_empty' => false
-														),
-									),
-							'show'	=> Array(
-										'added'     => '0.0.1',
-										'type'      => 'serialise',  
-										'default'   => Array('d' => 1, 'm' => 1, 'y' => 1, 'h' => 1, 'i' => 1, 's' => 1, 'c' => 0),
-									),
-							'null'	=> Array(
-										'added'     => '0.0.1',
-										'type'      => 'serialise',  
-										'default'   => Array('d' => 0, 'm' => 0, 'y' => 0, 'h' => 0, 'i' => 0, 's' => 0),
-									),
-							'text'	=> Array(
-										'added'     => '0.0.1',
-										'type'      => 'serialise',  
-										'default'   => Array('d' => 0, 'm' => 0, 'y' => 0, 'h' => 0, 'i' => 0, 's' => 0),
-									),
-							'minimum'	=> Array(	
-										'added'		=> '0.0.1',
-										'type'		=> 'datetime',
+						'default'	=> Array(
+										'added'			=> '0.0.1',
+										'type'			=> 'datetime',
 										'default'		=> '---------- --:--:--',
-										'parameters' 	=> Array(
-											'allow_null' => true,
-											'show'	=> Array(
-												'd', 'y',	
-											),
-										),
-										
-									),
-							'maximum'	=> Array(	
+										'parameters'	=> Array(
+															'allow_null'	=> true,
+														   ),
+									   ),
+						'extra'		=> Array(
 										'added'		=> '0.0.1',
-										'type'		=> 'datetime',
+										'type'		=> 'text',
+										'default'	=> '',
+									   ),
+						'circa'		=> Array(
+										'added'			=> '0.0.1',
+										'type'			=> 'boolean',
+										'default'		=> false,
+										'parameters'	=> Array(
+															'allow_empty'	=> false,
+														   ),
+									   ),
+						'show'		=> Array(
+										'added'		=> '0.0.1',
+										'type'		=> 'serialise',
+										'default'	=> Array(
+														'd'	=> 1,
+														'm'	=> 1,
+														'y'	=> 1,
+														'h'	=> 1,
+														'i'	=> 1,
+														's'	=> 1,
+														'c'	=> 0,
+													   ),
+									   ),
+						'null'		=> Array(
+										'added'		=> '0.0.1',
+										'type'		=> 'serialise',
+										'default'	=> Array(
+														'd'	=> 0,
+														'm'	=> 0,
+														'y'	=> 0,
+														'h'	=> 0,
+														'i'	=> 0,
+														's'	=> 0,
+													   ),
+									   ),
+						'text'		=> Array(
+										'added'		=> '0.0.1',
+										'type'		=> 'serialise',
+										'default'	=> Array(
+														'd'	=> 0,
+														'm'	=> 0,
+														'y'	=> 0,
+														'h'	=> 0,
+														'i'	=> 0,
+														's'	=> 0,
+													   ),
+									   ),
+						'minimum'	=> Array(
+										'added'			=> '0.0.1',
+										'type'			=> 'datetime',
 										'default'		=> '---------- --:--:--',
-										'parameters' 	=> Array(
-											'allow_null' => true,
-										),
-									),
-			);
+										'parameters'	=> Array(
+															'allow_null'	=> true,
+															'show'			=> Array('d', 'y'),
+														   ),
+									   ),
+						'maximum'	=> Array(
+										'added'			=> '0.0.1',
+										'type'			=> 'datetime',
+										'default'		=> '---------- --:--:--',
+										'parameters'	=> Array(
+															'allow_null'	=> true,
+														   ),
+									   ),
+					  );
 
-	}//end Form_Question_Type_Datetime_Management()
+	}//end constructor
+
 
 }//end class
 ?>

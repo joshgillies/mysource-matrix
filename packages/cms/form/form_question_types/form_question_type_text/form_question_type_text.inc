@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_text.inc,v 1.27 2004/11/23 05:43:05 lwright Exp $
-* $Name: not supported by cvs2svn $
+* $Id: form_question_type_text.inc,v 1.27.2.1 2005/04/14 01:43:57 lwright Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.27.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -51,7 +51,7 @@ class Form_Question_Type_Text extends Form_Question
 	{
 		$this->Form_Question($assetid, $data);
 
-	}//end Form_Question_Type_Text()
+	}//end constructor
 
 
 	/**
@@ -114,29 +114,24 @@ class Form_Question_Type_Text extends Form_Question
 	* @access public
 	* @return boolean
 	*/
-	function processForm()
+	function evaluate($answer=null)
 	{
 		$missing = false;
-		$form =& $this->getMySection();
-
-		$val = isset($_POST[$this->id]) ? $_POST[$this->id] : '';
-		$form->active_submission->setAnswer($this->id, $val);
-		$form->active_submission->setSummary($this->id,  $this->attr('name'), $val);
 
 		if ($this->attr('required')) {
 			$req_rule = Array('rule_code' => 'comparison', 'operator' => '!=', 'value' => '');
 			array_push($this->vars['rules']['value'], $req_rule);
 		}
 
-		parent::processForm();
+		$ok = parent::evaluate();
 
 		if ($this->attr('required')) {
 			array_pop($this->vars['rules']['value']);
 		}
 
-		return true;
+		return $ok;
 
-	}//end processForm()
+	}//end evaluate()
 
 
 	/**
@@ -176,7 +171,7 @@ class Form_Question_Type_Text extends Form_Question
 	*/
 	function getAllowedRules()
 	{
-		return Array('regexp', 'comparison', 'numeric', 'found_in', 'contain', 'length', 'email');
+		return Array('regexp', 'comparison', 'numeric', 'found_in', 'contain', 'length', 'email', 'begins_with', 'ends_with');
 
 	}//end getAllowedRules()
 

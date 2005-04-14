@@ -18,14 +18,14 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_log.xml,v 1.2 2004/05/17 06:35:26 lwright Exp $
-* $Name: not supported by cvs2svn $
+* $Id: edit_interface_screen_log.xml,v 1.2.6.1 2005/04/14 01:43:56 lwright Exp $
+*
 */
 -->
 
 <contents>
 	<section name="Enable / Disable Logging">
-		<field attribute="log">
+		<field attribute="log_submissions">
 			<display_name>Log Submissions</display_name>
 			<note></note>
 			<boolean true_text="Yes" false_text="No" />

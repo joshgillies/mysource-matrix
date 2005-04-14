@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_email_address.inc,v 1.12 2004/11/29 00:15:42 lwright Exp $
-* $Name: not supported by cvs2svn $
+* $Id: form_question_type_email_address.inc,v 1.12.2.1 2005/04/14 01:43:57 lwright Exp $
+*
 */
 
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.12.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -48,27 +48,28 @@ class Form_Question_Type_Email_Address extends Form_Question_Type_Text
 	* @param array	$data		the section's entry for this question (contains all question data)
 	*
 	*/
-	function Form_Question_Type_Email_Address($assetid=0, $data=Array()) 
+	function Form_Question_Type_Email_Address($assetid=0, $data=Array())
 	{
 		$this->Form_Question_Type_Text($assetid, $data);
 
-	}//end Form_Question_Type_Email_Address()
+	}//end constructor
 
 
 	/**
-	* returns an array of the types of rules 
+	* returns an array of the types of rules
 	*
 	* Returned array is 'short name' => 'full name'
 	*
 	* @access public
 	* @return Array(string => string)
 	*/
-	function getAllowedRules() {
+	function getAllowedRules()
+	{
 		return Array('comparison', 'found_in', 'contain', 'length', 'begins_with', 'ends_with');
-	
+
 	}//end getAllowedRules()
-	
-	
+
+
 	/**
 	* process this question
 	*
@@ -77,15 +78,13 @@ class Form_Question_Type_Email_Address extends Form_Question_Type_Text
 	* @access public
 	* @return boolean
 	*/
-	function processForm()
-	{	
+	function evaluate()
+	{
 		if (!$this->active_submission) return false;
 		$form =& $this->getMySection();
 
 		if (isset($_POST[$this->id])) {
 			$val = $_POST[$this->id];
-			$form->active_submission->setAnswer($this->id, $val);
-			$form->active_submission->setSummary($this->id, $this->attr('name'), $val);
 
 			// borrow a 'valid email address' rule, but only if the question is not blank
 			if (!empty($val)) {
@@ -93,21 +92,21 @@ class Form_Question_Type_Email_Address extends Form_Question_Type_Text
 				array_push($this->vars['rules']['value'], $req_rule);
 			}
 
-			parent::processForm();
+			$ok = parent::evaluate();
 
 			if (!empty($val)) {
 				array_pop($this->vars['rules']['value']);
 			}
 		}
-		
-		return true;
-	
-	}//end processForm()
+
+		return $ok;
+
+	}//end evaluate()
 
 
 	/**
 	* writes JavaScript code for client side validation
-	* 
+	*
 	* This function assumes the skeleton of a JS validation function has been created around this code
 	* with a form variable named 'form' passed (this is done when generating the content file).
 	*

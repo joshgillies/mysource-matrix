@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_contents.xml,v 1.16 2004/09/21 00:40:47 lwright Exp $
-* $Name: not supported by cvs2svn $
+* $Id: edit_interface_screen_contents.xml,v 1.16.6.1 2005/04/14 01:43:56 lwright Exp $
+*
 */
 -->
 
@@ -33,7 +33,7 @@
 				<process_function name="processQuestionLinks" />
 			</function_call>
 		</field>
-		<field>
+		<field read_access="write:menu" write_access="write:menu">
 			<display_name>Add Questions</display_name>
 			<note>Select the question type and the number of questions to add</note>
 			<function_call>
@@ -47,16 +47,16 @@
 			<display_name>Add Sections</display_name>
 			<note>Select the number of sections to add</note>
 			<function_call>
-				<paint_function   name="paintAddSections"   />
-				<process_function name="processAddSections" />
+				<paint_function   name="paintSectionLinks"   />
+				<process_function name="processSectionLinks" />
 			</function_call>
 		</field>
-		<field>
+		<field read_access="write:menu" write_access="write:menu">
 			<display_name>Current Sections</display_name>
 			<note>Click on a section's name to display that section</note>
 			<function_call>
-				<paint_function   name="paintSectionLinks"   />
-				<process_function name="processSectionLinks" />
+				<paint_function   name="paintAddSections"   />
+				<process_function name="processAddSections" />
 			</function_call>
 		</field>
 	</section>

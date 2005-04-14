@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_edit_fns.inc,v 1.11.2.1 2004/12/09 22:17:41 lwright Exp $
-* $Name: not supported by cvs2svn $
+* $Id: form_question_rule_edit_fns.inc,v 1.11.2.2 2005/04/14 01:43:56 lwright Exp $
+*
 */
 
 
@@ -27,12 +27,12 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 
 /**
 * Form_Question_Rule_Edit_Fns
-*
+
 * Purpose
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.11.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -47,8 +47,30 @@ class Form_Question_Rule_Edit_Fns extends Asset_Edit_Fns
 	function Form_Question_Rule_Edit_Fns()
 	{
 		$this->Asset_Edit_Fns();
-		
-	}//end Form_Question_Rule_Edit_Fns()
+
+	}//end constructor
+
+
+	/**
+	* Paints the rule's interface
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintRule(&$asset, &$o, $prefix, $rule_data, $write_access)
+	{
+	}//end paintRule()
+
+
+	/**
+	* Process the rule's interface
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processRule(&$asset, &$o, $prefix, &$rule_data)
+	{
+	}//end processRule()
 
 
 }//end class

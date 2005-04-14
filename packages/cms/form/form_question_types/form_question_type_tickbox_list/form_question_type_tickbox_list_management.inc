@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_list_management.inc,v 1.12 2004/09/08 01:23:36 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: form_question_type_tickbox_list_management.inc,v 1.12.6.1 2005/04/14 01:43:57 lwright Exp $
+*
 */
 
 require_once SQ_INCLUDE_PATH.'/asset_management.inc';
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.12.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -47,40 +47,38 @@ class Form_Question_Type_Tickbox_List_Management extends Asset_Management
 		$this->Asset_Management($pm);
 
 		$this->vars = Array(
-							'options' => Array(
-									'added'     => '0.0.1',
-									'type'      => 'option_list',  
-									'default'   => '',
-									),
-							'default' => Array(
-										'added'		=> '0.0.1',
-										'type'		=> 'serialise',
-										'default'	=> Array(),
-										'update_fn' => '',
-									),
-							'extra'	 => Array(
-									'added'     => '0.0.1',
-									'type'      => 'text',  
-									'default'   => '',
-							),
-							'horizontal' => Array(
-									'added'		=> '0.0.1',
-									'type'		=> 'boolean',
-									'default'	=> false,
-									'parameters' => Array(
-															'allow_empty' => false
-														),
-						),
-							'required'	=> Array(
-									'added'     => '0.0.1',
-									'type'      => 'boolean',  
-									'default'   => false,
-									'parameters' => Array(
-															'allow_empty' => false
-														),
-									),
-								
-			);
+						'options'		=> Array(
+											'added'		=> '0.0.1',
+											'type'		=> 'option_list',
+											'default'	=> '',
+										   ),
+						'default'		=> Array(
+											'added'		=> '0.0.1',
+											'type'		=> 'serialise',
+											'default'	=> Array(),
+										   ),
+						'extra'			=> Array(
+											'added'		=> '0.0.1',
+											'type'		=> 'text',
+											'default'	=> '',
+										   ),
+						'horizontal'	=> Array(
+											'added'			=> '0.0.1',
+											'type'			=> 'boolean',
+											'default'		=> false,
+											'parameters'	=> Array(
+																'allow_empty'	=> false,
+															   ),
+										   ),
+						'required'		=> Array(
+											'added'			=> '0.0.1',
+											'type'			=> 'boolean',
+											'default'		=> false,
+											'parameters'	=> Array(
+																'allow_empty'	=> false,
+															   ),
+										   ),
+					  );
 	}//end constructor
 
 

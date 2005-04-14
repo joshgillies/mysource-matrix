@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_list.inc,v 1.30.2.1 2004/12/10 04:59:24 lwright Exp $
-* $Name: not supported by cvs2svn $
+* $Id: form_question_type_tickbox_list.inc,v 1.30.2.2 2005/04/14 01:43:57 lwright Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.30.2.1 $
+* @version $Revision: 1.30.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -51,7 +51,7 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 	{
 		$this->Form_Question($assetid,$data);
 
-	}//end Form_Question_Type_Tickbox_List()
+	}//end constructor
 
 
 	/**
@@ -95,7 +95,7 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 	* @access public
 	* @return string
 	*/
-	function listBox($options, $multiple = false, $hor = false, $extras ='')
+	function listBox($options, $multiple=false, $hor=false, $extras='')
 	{
 		$type  = ($multiple) ? 'checkbox' : 'radio';
 		if (!stristr($extras, 'class=')) $extras .= ' class="sq-form-field"';
@@ -108,7 +108,7 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 		$defaults = $this->getValue();
 		if (!is_array($defaults)) $defaults = Array($defaults);
 		foreach ($options as $key => $value) {
-			$html .= ($hor) ? "<td nowrap=\"nowrap\">\n" : "<tr><td>";
+			$html .= ($hor) ? "<td nowrap=\"nowrap\">" : "<tr><td>";
 			$html .= '<input type="'.$type.'" ';
 			$html .= 'name="'.$this->id.(($multiple) ? '[]' : '').'" ';
 			$html .= 'id="'.$this->id.'_'.$key.'"';
@@ -158,10 +158,9 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 	* @access public
 	* @return boolean
 	*/
-	function processForm()
+	function evaluate()
 	{
 		$form =& $this->getMySection();
-		if (!$form->active_submission) return false;
 
 		$val = isset($_POST[$this->id]) ? $_POST[$this->id] : '';
 
@@ -171,23 +170,20 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 			$value = $this->getAnswerByOffset($val);
 		}
 
-		$form->active_submission->setAnswer($this->id, $val);
-		$form->active_submission->setSummary($this->id, $this->attr('name'), $this->getSummary($val));
-
 		if ($this->attr('required')) {
 			$req_rule = Array('rule_code' => 'select_limit', 'operator' => '>=', 'value' => '1');
 			array_push($this->vars['rules']['value'], $req_rule);
 		}
 
-		parent::processForm();
+		$ok = parent::evaluate();
 
 		if ($this->attr('required')) {
 			array_pop($this->vars['rules']['value']);
 		}
 
-		return true;
+		return $ok;
 
-	}//end processForm()
+	}//end evaluate()
 
 
 	/**
@@ -225,7 +221,8 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 	* @access public
 	* @return Array(string => string)
 	*/
-	function getAllowedRules() {
+	function getAllowedRules()
+	{
 		return Array('select_limit', 'selection');
 
 	}//end getAllowedRules()

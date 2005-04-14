@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.7 2004/11/04 23:43:44 lwright Exp $
-* $Name: not supported by cvs2svn $
+* $Id: edit_interface_screen_details.xml,v 1.7.2.1 2005/04/14 01:43:58 lwright Exp $
+*
 */
 -->
 
@@ -27,7 +27,7 @@
 	<section name="Details">
 	    <field attribute="name">
 			<display_name>Name</display_name>
-			<note>Defines the name of the form</note>
+			<note>Defines the name of the form submission</note>
 			<text width="12" height="1" />
 		</field>
 	</section>

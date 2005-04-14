@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_email_management.inc,v 1.6 2003/12/16 12:13:04 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: form_question_rule_type_email_management.inc,v 1.6.8.1 2005/04/14 01:43:56 lwright Exp $
+*
 */
 
 
@@ -31,12 +31,13 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.6.8.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
 class Form_Question_Rule_Type_Email_Management extends Asset_Management
 {
+
 
 	/**
 	* Constructor
@@ -48,6 +49,7 @@ class Form_Question_Rule_Type_Email_Management extends Asset_Management
 
 		$this->vars = Array();
 	}//end constructor
+
 
 }//end class
 ?>

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule.inc,v 1.14 2004/10/12 01:39:23 lwright Exp $
-* $Name: not supported by cvs2svn $
+* $Id: form_question_rule.inc,v 1.14.2.1 2005/04/14 01:43:56 lwright Exp $
+*
 */
 
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @static
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.14.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -47,36 +47,39 @@ class Form_Question_Rule extends Asset
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Form_Question_Rule($assetid=0) 
+	function Form_Question_Rule($assetid=0)
 	{
 		$this->Asset($assetid);
 
-	}//end Form_Question_Rule()
+	}//end constructor
 
 
 	/**
-	* Returns an array of definition variables in an array
+	* return true if this rule can be used for form validation
 	*
-	* Since we are not instantiating the question rules, we do not have access to member variables
-	* (at least not until PHP5). So this overrides the usual attribute gathering function.
-	* Those methods wishing to override this function should call its parent first then modify the
-	* returned array.
-	*
+	* @return boolean
 	* @access public
-	* @return array (string => mixed) an array of parameter values indexed by a parameter id
 	*/
-	function getAttributes()
+	function isValidationRule()
 	{
-		return Array('no_comparison' => false,			// no comparison required?
-					 'force_text' => false,				// force a textbox comparison even if select?
-					 'show_asset_finder' => true,		// show asset finder?
-					 'validation_rule' => true,			// makes sense as a validation rule?
-					 'selective_email_rule' => true,	// makes sense as a selective email rule?
-				);
+		return true;
 
-	}//end getAttributes()
+	}//end isValidationRule()
 
-	
+
+	/**
+	* return true if this rule can be used for processing selective emails
+	*
+	* @return boolean
+	* @access public
+	*/
+	function isSelectiveEmailRule()
+	{
+		return true;
+
+	}//end isSelectiveEmailRule()
+
+
 	/**
 	* Returns a list of operators for this rule type
 	*
@@ -90,37 +93,47 @@ class Form_Question_Rule extends Asset
 
 	}//end getOperators()
 
-	
+
 	/**
 	* @abstract
 	*/
-	function processForm(&$q_asset, $operator)
+	function evaluate($answer, $rule_data)
 	{
 		return true;
 
-	}//end processForm()
+	}//end evaluate()
 
 
 	/**
 	* @abstract
 	*/
-	function valueTest($answer, $operator)
-	{
-		return true;
-
-	}//end valueTest()
-
-	
-	/**
-	* @abstract
-	*/
-	function generateJSCode(&$q_asset, $operator)
+	function generateJSCode(&$q_asset, $rule_data)
 	{
 		return '';
 
 	}//end generateJSCode()
-	
-	
+
+
+	/**
+	* @abstract
+	*/
+	function defaultError(&$q_asset, $rule_data)
+	{
+		return $this->ruleDescription($q_asset, $rule_data);
+
+	}//end defaultError()
+
+
+	/**
+	* @abstract
+	*/
+	function ruleDescription(&$q_asset, $rule_data)
+	{
+		return '';
+
+	}//end ruleDescription()
+
+
 }//end class
 
 ?>

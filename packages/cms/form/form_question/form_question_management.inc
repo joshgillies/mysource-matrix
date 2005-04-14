@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_management.inc,v 1.12 2004/10/11 06:38:34 arailean Exp $
-* $Name: not supported by cvs2svn $
+* $Id: form_question_management.inc,v 1.12.2.1 2005/04/14 01:43:56 lwright Exp $
+*
 */
 
 
@@ -31,12 +31,13 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.12.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
 class Form_Question_Management extends Asset_Management
 {
+
 
 	/**
 	* Constructor
@@ -46,60 +47,26 @@ class Form_Question_Management extends Asset_Management
 	{
 		$this->Asset_Management($pm);
 
-		$this->vars = Array('name' => Array(
-												'added'     => '0.0.1',
-												'type'      => 'text',
-												'default'   => '',
-												),
-							'note' => Array(
-												'added'     => '0.0.1',
-												'type'      => 'text',
-												'default'   => '',
-												),
-							'rules' => Array(
-												'added'     => '0.0.1',
-												'type'      => 'serialise',
-												'default'   => Array(),
-												),
-							'special_info'	=> Array(
-														'added'		=> '0.0.1',
-														'type'		=> 'selection',
-														'default'	=> '',
-														'update_fn'	=> '',
-														'parameters'	=> Array(
-															'options'	=> Array(
-																''			=> '--- No Special Information ---',
-																'name'		=> 'User\'s Name',
-																'firstname'	=> 'User\'s Firstname',
-																'surname'	=> 'User\'s Surname',
-																'email'		=> 'User\'s Email',
-																'friend'	=> 'Send a note to these Friends\' Email Addresses',
-															),
-															'multiple' => false,
-															'allow_empty' => false,
-														),
-													),
-							'auto_answer'	=> Array(
-														'added'		=> '0.0.1',
-														'type'		=> 'selection',
-														'default'	=> '',
-														'update_fn'	=> '',
-														'parameters'	=> Array(
-														'options'	=> Array(
-															''			=> '--- No Auto Answer ---',
-															'name'		=> 'User\'s Name',
-															'username'	=> 'User\'s Username',
-															'first_name' => 'User\'s Firstname',
-															'last_name'	=> 'User\'s Surname',
-															'email'		=> 'User\'s Email',
-														),
-														'multiple' => false,
-														'allow_empty' => false,
-												),
-											),
+		$this->vars = Array(
+						'name'	=> Array(
+									'added'		=> '0.0.1',
+									'type'		=> 'text',
+									'default'	=> '',
+								   ),
+						'note'	=> Array(
+									'added'		=> '0.0.1',
+									'type'		=> 'text',
+									'default'	=> '',
+								   ),
+						'rules'	=> Array(
+									'added'		=> '0.0.1',
+									'type'		=> 'serialise',
+									'default'	=> Array(),
+								   ),
+					  );
 
-									);
 	}//end constructor
+
 
 }//end class
 ?>

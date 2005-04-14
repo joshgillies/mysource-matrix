@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_file_upload_management.inc,v 1.3 2004/11/09 22:19:19 lwright Exp $
-* $Name: not supported by cvs2svn $
+* $Id: form_question_type_file_upload_management.inc,v 1.3.2.1 2005/04/14 01:43:57 lwright Exp $
+*
 */
 
 require_once SQ_INCLUDE_PATH.'/asset_management.inc';
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.3.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -47,43 +47,40 @@ class Form_Question_Type_File_Upload_Management extends Asset_Management
 		$this->Asset_Management($pm);
 
 		$this->vars = Array(
-							'create_location'	=> Array(
-									'added'		=> '0.0.1',
-									'type'		=> 'assetid',
-									'default'	=> '',
-								),
-							'required'			=> Array(
-									'added'     => '0.0.1',
-									'type'      => 'boolean',  
-									'default'   => false,
-									'parameters' => Array(
-															'allow_empty' => false
-														),
-									),
-									
-							'overwrite_rule'	=> Array(
-									'added'     => '0.0.1',
-									'type'      => 'selection',  
-									'default'   => 'D',
-									'parameters'	=> Array(
-											'allow_empty' => false,
-											'options'	=> Array(
-												// overwrite, rename, deny
-												'O'	=> 'Overwrite Existing File',
-												'R'	=> 'Rename Uploaded File',
-												'D'	=> 'Raise a Submission Error',
-												),
-											),								
-									),
-																		
-							'extra'	=> Array(
-									'added'		=> '0.0.1',
-									'type'		=> 'text',
-									'default'	=> '',
-								),
+						'create_location'	=> Array(
+												'added'		=> '0.0.1',
+												'type'		=> 'assetid',
+												'default'	=> '',
+											   ),
+						'required'			=> Array(
+												'added'			=> '0.0.1',
+												'type'			=> 'boolean',
+												'default'		=> false,
+												'parameters'	=> Array(
+																	'allow_empty'	=> false,
+																   ),
+											   ),
+						'overwrite_rule'	=> Array(
+												'added'			=> '0.0.1',
+												'type'			=> 'selection',
+												'default'		=> 'D',
+												'parameters'	=> Array(
+																	'allow_empty'	=> false,
+																	'options'		=> Array(
+																						'O'	=> 'Overwrite Existing File',
+																						'R'	=> 'Rename Uploaded File',
+																						'D'	=> 'Raise a Submission Error',
+																					   ),
+																   ),
+											   ),
+						'extra'				=> Array(
+												'added'		=> '0.0.1',
+												'type'		=> 'text',
+												'default'	=> '',
+											   ),
+					  );
 
-			);
-	}//end Form_Question_Type_File_Upload_Management()
+	}//end constructor
 
 
 }//end class

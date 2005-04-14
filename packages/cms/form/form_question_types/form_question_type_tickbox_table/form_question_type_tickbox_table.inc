@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_table.inc,v 1.6 2004/11/23 05:43:05 lwright Exp $
-* $Name: not supported by cvs2svn $
+* $Id: form_question_type_tickbox_table.inc,v 1.6.2.1 2005/04/14 01:43:58 lwright Exp $
+*
 */
 
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.6.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -52,7 +52,7 @@ class Form_Question_Type_Tickbox_Table extends Form_Question
 	{
 		$this->Form_Question($assetid,$data);
 
-	}//end Form_Question_Type_Tickbox_Table()
+	}//end constructor
 
 
 	/**
@@ -100,7 +100,7 @@ class Form_Question_Type_Tickbox_Table extends Form_Question
 
 		$question_contents = $this->attr('question_contents');
 		$datapath = sq_web_path('data').'/asset_types/form_question_type_tickbox_table/files';
-		
+
 		$form =& $this->getMySection();
 		$submission = $this->getValue();
 
@@ -186,7 +186,7 @@ class Form_Question_Type_Tickbox_Table extends Form_Question
 							$to_output .= '<td class="sq-backend-table-cell">';
 							if (empty($option)) {
 								$to_output .= '&mdash;';
-							} elseif ($type != 'passive') {
+							} else if ($type != 'passive') {
 								ob_start();
 									check_box($prefix.'['.$question_id.']['.$option_id.']', '1', $submission && isset($submission[$question_id][$option_id]));
 									$to_output .= ob_get_contents();
@@ -214,30 +214,27 @@ class Form_Question_Type_Tickbox_Table extends Form_Question
 	* @access public
 	* @return boolean
 	*/
-	function processForm()
+	function evaluate()
 	{
 		$prefix = $this->getSafePrefix();
 
 		$submission = array_get_index($_REQUEST, $prefix, false);
 		$this->_tmp['submission'] = $submission;
-		$form =& $this->getMySection();
-		$form->active_submission->setAnswer($this->id, $submission);
-		$form->active_submission->setSummary($this->id,  $this->attr('name'), $submission);
 
 		if ($this->attr('required')) {
 			$req_rule = Array('rule_code' => 'select_limit', 'operator' => '>=', 'value' => '1');
 			array_push($this->vars['rules']['value'], $req_rule);
 		}
 
-		parent::processForm();
+		$ok = parent::evaluate();
 
 		if ($this->attr('required')) {
 			array_pop($this->vars['rules']['value']);
 		}
 
-		return true;
+		return $ok;
 
-	}//end processForm()
+	}//end evaluate()
 
 
 	/**
@@ -405,6 +402,14 @@ class Form_Question_Type_Tickbox_Table extends Form_Question
 		return $options;
 
 	}//end getOptions()
+
+
+	function populate()
+	{
+		$prefix = str_replace(':', '_', $this->getPrefix());
+		$this->active_submission[$this->id] = array_get_index($_POST, $prefix, Array());
+		return true;
+	}//end populate()
 
 
 }//end class

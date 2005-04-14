@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.4 2004/06/17 04:45:15 lwright Exp $
-* $Name: not supported by cvs2svn $
+* $Id: edit_interface_screen_details.xml,v 1.4.6.1 2005/04/14 01:43:57 lwright Exp $
+*
 */
 -->
 
@@ -71,21 +71,17 @@
 		<field attribute="extra">
 			<display_name>Extras</display_name>
 			<note></note>
-			<text width="20" height="1" />
+			text width="20" height="1" />
 		</field>
 	</section>
 	<section name="Complex Validation Rules" write_access="write:attributes">
+		<function_call>
+			<paint_function   name="paintRules"   />
+			<process_function name="processRules" />
+		</function_call>
+	</section>
+	<section name="Add New Rule" write_access="write:attributes" read_access="write:attributes">
 		<field>
-			<display_name>Question Rules</display_name>
-			<note>When the value of an asset is specified as the comparison value, it takes precedence over any static value entered</note>
-			<function_call>
-				<paint_function   name="paintRules"   />
-				<process_function name="processRules" />
-			</function_call>
-		</field>
-		<field>
-			<display_name>Add Rule</display_name>
-			<note></note>
 			<function_call>
 				<paint_function   name="paintAddRule"   />
 				<process_function name="processAddRule" />

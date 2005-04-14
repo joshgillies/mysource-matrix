@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_option_list.inc,v 1.7 2004/10/12 01:44:41 lwright Exp $
-* $Name: not supported by cvs2svn $
+* $Id: form_question_type_option_list.inc,v 1.7.2.1 2005/04/14 01:43:57 lwright Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../form_question_type_tickbox_list/form_questio
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.7.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -47,11 +47,11 @@ class Form_Question_Type_Option_List extends Form_Question_Type_Tickbox_List
 	* @param array	$data		the section's entry for this question (contains all question data)
 	*
 	*/
-	function Form_Question_Type_Option_List($assetid=0,$data=Array()) 
+	function Form_Question_Type_Option_List($assetid=0,$data=Array())
 	{
 		$this->Form_Question_Type_Tickbox_List($assetid,$data);
-	
-	}//end Form_Question_Type_Option_List()
+
+	}//end constructor
 
 
 	/**
@@ -64,7 +64,7 @@ class Form_Question_Type_Option_List extends Form_Question_Type_Tickbox_List
 	{
 		// generate some php for the value, which can be used for both
 		// auto-answer and returning to saved forms
-		
+
 		$html = $this->listBox($this->getOptions(), false, $this->attr('horizontal'), $this->attr('extra'));
 		return $html;
 
@@ -72,18 +72,19 @@ class Form_Question_Type_Option_List extends Form_Question_Type_Tickbox_List
 
 
 	/**
-	* returns an array of the types of rules 
+	* returns an array of the types of rules
 	*
 	* Returned array is 'short name' => 'full name'
 	*
 	* @access public
 	* @return Array(string => string)
 	*/
-	function getAllowedRules() {
-		return Array('selection');
-	
+	function getAllowedRules()
+	{
+		return Array();
+
 	}//end getAllowedRules()
-	
-	
+
+
 }//end class
 ?>
