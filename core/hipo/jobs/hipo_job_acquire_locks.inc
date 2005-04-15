@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_acquire_locks.inc,v 1.10 2005/04/13 23:49:30 ndvries Exp $
+* $Id: hipo_job_acquire_locks.inc,v 1.11 2005/04/15 00:37:27 lwright Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -234,13 +234,13 @@ class HIPO_Job_Acquire_Locks extends HIPO_Job
 	{
 		// to start acquiring locks, we need to have an asset id to acquire a lock on
 		if (empty($this->_running_vars['assetids']) || empty($this->_running_vars['lock_type'])) {
-			trigger_error('Cannot initialise Acquire Locks HIPO, no start asset ID and/or lock type specified', E_USER_WARNING);
+			trigger_localised_error('HIPO0035', E_USER_WARNING);
 			return false;
 		}
 
 		// we were passed an invalid lock type, bugger off
 		if (empty($this->_running_vars['lock_types'])) {
-			trigger_error('Cannot initialise Acquire Locks HIPO, lock type "'.$this->_running_vars['lock_type'].'" invalid', E_USER_WARNING);
+			trigger_localised_error('HIPO0034', E_USER_WARNING, $this->_running_vars['lock_type']);
 			return false;
 		}
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety_edit_fns.inc,v 1.8 2005/03/30 17:17:25 brobertson Exp $
+* $Id: image_variety_edit_fns.inc,v 1.9 2005/04/15 00:37:25 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -120,7 +120,7 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 			$attr->paint($prefix.'_'.$attr->name, !$wa);
 			unset($attr);
 		$o->closeField();
-		
+
 		$o->openField('Constrain by', '', '', ($variety_type != 'resize'), $prefix.'_field_constrain');
 			$sel_edit_params->attributes['extras'] = 'onclick="javascript: '.$js_prefix.'_update_visible_fields();"';
 			$attr = &$asset->getAttribute('constrain');
@@ -135,14 +135,14 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 			$attr->paint($prefix.'_'.$attr->name, !$wa);
 			unset($attr);
 		$o->closeField();
-		
+
 		$o->openField('Height', '', '', ($variety_type != 'resize' || $constrain == 'width'), $prefix.'_field_height');
 			$attr = &$asset->getAttribute('height');
 			$attr->setEditParams($int_edit_params);
 			$attr->paint($prefix.'_'.$attr->name, !$wa);
 			unset($attr);
 		$o->closeField();
-		
+
 		$o->openField('Upload', '', '', ($variety_type != 'upload'), $prefix.'_field_upload');
 			if ($wa) {
 				file_upload($prefix.'_upload_file');
@@ -238,7 +238,7 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 		$upload_ext = get_file_type($info['name']);
 
 		if ($img_ext != $upload_ext) {
-			trigger_error('An image uploaded for a variety MUST be of the same type as the original image.', E_USER_WARNING);
+			trigger_localised_error("CORE0003", E_USER_WARNING);
 			return false;
 		}
 
@@ -256,7 +256,7 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 			$up_to_date = $fv->upToDate($d_new_file);
 			if ($up_to_date & FUDGE_FV_OLD_VERSION) {
 				if (!$fv->checkOut($asset->data_path_suffix.'/'.$d_new_filename, $asset->data_path)) {
-					trigger_error('Update failed checking-out latest version of file', E_USER_WARNING);
+					trigger_localised_error("CORE0103", E_USER_WARNING);
 					return false;
 				}
 			}
@@ -267,17 +267,17 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 		if (is_uploaded_file($info['tmp_name'])) {
 			// a normal uploaded file
 			if (!move_uploaded_file($info['tmp_name'], $d_new_file)) {
-				trigger_error('Failed moving uploaded file ('.$info['tmp_name'].') to destination ('.$d_new_file.')', E_USER_WARNING);
+				trigger_localised_error("CORE0038", E_USER_WARNING ,$info['tmp_name'], $d_new_file);
 				return false;
 			}
 		} else if (isset($info['non_uploaded_file']) && $info['non_uploaded_file'] === true) {
 			// we have special permission to move a non-uploaded file
 			if (!copy($info['tmp_name'], $d_new_file)) {
-				trigger_error('Failed copying non-uploaded file ('.$info['tmp_name'].') to destination directory ('.$d_new_file.')', E_USER_WARNING);
+				trigger_localised_error("CORE0036", E_USER_WARNING, $info['tmp_name'], $d_new_file);
 				return false;
 			}
 		} else {
-			trigger_error('No file uploaded or non-uploaded, unable to process file upload', E_USER_ERROR);
+			trigger_localised_error("CORE0067", E_USER_ERROR);
 			return false;
 		}
 
@@ -288,7 +288,7 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 			if (!$fv->add($asset->data_path_suffix, $d_new_file, '', false)) return false;
 
 			if (!$fv->checkOut($asset->data_path_suffix.'/'.$d_new_filename, $asset->data_path)) {
-				trigger_error('Update failed checking-out latest version of file', E_USER_WARNING);
+				trigger_localised_error("CORE103", E_USER_WARNING);
 				return false;
 			}
 

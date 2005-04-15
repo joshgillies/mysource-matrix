@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type.inc,v 1.62 2005/04/13 06:22:50 ndvries Exp $
+* $Id: design_area_menu_type.inc,v 1.63 2005/04/15 00:37:24 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.62 $
+* @version $Revision: 1.63 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -75,7 +75,7 @@ class Design_Area_Menu_Type extends Design_Area
 			// where setting type is either 'normal', 'heirarchy' or 'current'
 			$split = explode('.', $name);
 			if (count($split) != 3) {
-				trigger_error('Setting "'.$name.'" unable to be set, three elements in name not found', E_USER_WARNING);
+				trigger_localised_error("CORE0173", E_USER_WARNING, $name);
 				return false;
 			}
 			switch ($split[2]) {
@@ -91,23 +91,23 @@ class Design_Area_Menu_Type extends Design_Area
 				break;
 
 				default :
-					trigger_error('Settings Type "'.$split[2].'" not known', E_USER_WARNING);
+					trigger_localised_error("CORE0174", E_USER_WARNING, $split[2]);
 					return false;
 			}// end switch
 
 		// if they are trying to set a level, so some validation
 		} else if ($name == 'level') {
 			switch (strtolower($value)) {
-				case 'top';
+				case 'top':
 					$value = 0;
 				break;
-				case 'sub';
+				case 'sub':
 					$value = 1;
 				break;
-				case 'current';
+				case 'current':
 					$value = -1;
 				break;
-				case 'children';
+				case 'children':
 					$value = -2;
 				break;
 				default :
@@ -429,9 +429,7 @@ class Design_Area_Menu_Type extends Design_Area
 						   ORDER BY l.majorid, l.sort_order\';
 
 				$result = $db->query($sql.$where);
-				if (DB::isError($result)) {
-					trigger_error($result->getMessage().\'<br/>\'.$result->getUserInfo(), E_USER_ERROR);
-				}
+				assert_valid_db_result($result);
 
 				$assetids = Array();
 				while (DB_OK === $result->fetchInto($row)) {

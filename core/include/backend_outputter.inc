@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.102 2005/04/12 07:35:04 ndvries Exp $
+* $Id: backend_outputter.inc,v 1.103 2005/04/15 00:37:28 lwright Exp $
 *
 */
 
@@ -42,7 +42,7 @@ define('SQ_BO_MSG_ERROR',   4);
 *    there will only ever be one instance of this object
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.102 $
+* @version $Revision: 1.103 $
 * @package MySource_Matrix
 */
 class Backend_Outputter
@@ -397,7 +397,7 @@ class Backend_Outputter
 	{
 		if (empty($url)) return;
 		if (in_array($name, $this->_screens)) {
-			trigger_error('Screen Code "'.$name.'" already in use', E_USER_ERROR);
+			trigger_localised_error("SYS0202", E_USER_ERROR, $name);
 		}
 		$this->_screens[$url] = $name;
 
@@ -431,7 +431,7 @@ class Backend_Outputter
 	{
 		if (empty($url)) return;
 		if (in_array($name, $this->_static_screens)) {
-			trigger_error('Staic Screen Code "'.$name.'" already in use', E_USER_ERROR);
+			trigger_localised_error("SYS0207", E_USER_ERROR, $name);
 		}
 		$this->_static_screens[$url] = $name;
 
@@ -1278,7 +1278,7 @@ class Backend_Outputter
 						break;
 
 					default :
-						trigger_error('Unknown Area Type : "'.$section['areas'][$j]['area_type'].'"', E_USER_ERROR);
+						trigger_localised_error("SYS0257", E_USER_ERROR, $section['areas'][$j]['area_type']);
 
 				}//end switch area type
 
@@ -1385,7 +1385,6 @@ class Backend_Outputter
 	function _nbSectionNote($str)
 	{
 		?>
-					<br />
 				</td>
 			</tr>
 			<tr>

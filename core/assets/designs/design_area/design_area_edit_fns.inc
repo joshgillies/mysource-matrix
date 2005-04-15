@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_edit_fns.inc,v 1.45 2004/12/06 14:54:48 brobertson Exp $
+* $Id: design_area_edit_fns.inc,v 1.46 2005/04/15 00:37:24 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.46 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -184,17 +184,14 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 
 					// else we're missing a terminate tag, so die screaming
 					} else {
-
-						$die_str  = 'There is a missing &lt;/'.$this->tag_name.'&gt; tag for this tag :';
-						$die_str .= "<br/>&lt;".$this->tag_name;
-
+						$die_str = $this->tag_name;
 						$die_str .= (empty($tag['operation'])) ? '' : '_'.$tag['operation'];
 
-						foreach ($tag['attributes'] as $name => $value) $die_str .= ' '.$name.'="'.$value.'"';
+						foreach ($tag['attributes'] as $name => $value){
+							$die_str .= ' '.$name.'="'.$value.'"';
+						}
 
-						$die_str .= "&gt;\n";
-
-						trigger_error($die_str, E_USER_WARNING);
+						trigger_localised_error("CORE0213", E_USER_WARNING, $this->tag_name, $die_str);
 						return null;
 
 					}// end if
@@ -511,13 +508,13 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 				}
 
 				if (!$asset->setAttrValue($element['attributes']['name'], $element['attributes']['value'])) {
-					trigger_error('Unable to set the value of "'.$element['attributes']['name'].'" in "'.$asset->attr('id_name').'"', E_USER_WARNING);
+					trigger_localised_error("CORE0189", E_USER_WARNING, $element['attributes']['name'], $asset->attr('id_name'));
 					return false;
 				}
 
 			// else something is amiss and we don't know what we can do, so barf in their direction
 			} else {
-				trigger_error('Unable to set "'.$element['attributes']['name'].'" in "'.$asset->attr('id_name').'". Either a value must be set or both the id_name and name attributes must be set', E_USER_WARNING);
+				trigger_localised_error("CORE0188", E_USER_WARNING, $element['attributes']['name'], $asset->attr('id_name'));
 
 
 			}// endif
@@ -657,7 +654,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 				if (empty($element['attributes']['id_name']) && empty($element['attributes']['var'])) {
 					$attr_str = '';
 					foreach ($element['attributes'] as $k => $v) $attr_str .= $k.'="'.$v.'"';
-					trigger_error('Print tag found without id_name or var attributes, ignoring print operation<br> Attributes : '.$attr_str, E_USER_WARNING);
+					trigger_localised_error("CORE0171", E_USER_WARNING, $attr_str);
 					return false;
 				}
 
@@ -673,7 +670,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 				} else {
 					$id_obj = &$design->getDesignArea($element['attributes']['id_name']);
 					if (is_null($id_obj)) {
-						trigger_error('Design Area "'.$element['attributes']['id_name'].'" not found, ignoring print operation', E_USER_WARNING);
+						trigger_localised_error("CORE0153", E_USER_WARNING, $element['attributes']['id_name']);
 						return false;
 					}
 				}
@@ -694,7 +691,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 				return true;
 
 			default :
-				trigger_error('Tag Operation "'.$element['operation'].'" unknown', E_USER_WARNING);
+				trigger_localised_error("CORE0175", E_USER_WARNING, $element['operation']);
 				return false;
 
 		}// end switch

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_trigger_batch_events.inc,v 1.6 2005/04/13 23:49:30 ndvries Exp $
+* $Id: hipo_job_trigger_batch_events.inc,v 1.7 2005/04/15 00:37:27 lwright Exp $
 *
 */
 
@@ -37,7 +37,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -191,7 +191,7 @@ class HIPO_Job_Trigger_Batch_Events extends HIPO_Job
 	{
 		// to start the batch events, we need to have asset ids and the events to fire on each
 		if (empty($this->_running_vars['assets']) || empty($this->_running_vars['events'])) {
-			trigger_error('Cannot initialise Trigger Batch Events HIPO, no assets or events specified', E_USER_WARNING);
+			trigger_localised_error('HIPO0002', E_USER_WARNING);
 			return false;
 		}
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_import_thesaurus_xml.inc,v 1.4 2005/02/22 06:58:40 ndvries Exp $
+* $Id: hipo_job_import_thesaurus_xml.inc,v 1.5 2005/04/15 00:37:56 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    thesaurus_id	-	the ID of the thesaurus that is being added to
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -193,14 +193,14 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 	{
 		// to start regenerating metadata, we need to have a root assetid - default to root folder if none is supplied
 		if (is_null($this->_running_vars['thesaurus_id'])) {
-			trigger_error('Cannot initialise "Import Thesaurus XML" HIPO, thesaurus asset ID not specified', E_USER_WARNING);
+			trigger_localised_error('LEX0002', E_USER_WARNING);
 			return false;
 		}
 
 		// so we have an assetid to start at, but make sure it is a valid assetid
 		$asset = &$this->getThesaurusRef();
 		if (is_null($asset)) {
-			trigger_error('Cannot initialise "Import Thesaurus XML" HIPO, invalid thesaurus asset ID specified ('.$this->_running_vars['thesaurus_id'].')', E_USER_WARNING);
+			trigger_localised_error('LEX0003', E_USER_WARNING, $this->_running_vars['thesaurus_id']);
 			return false;
 		}
 
@@ -243,7 +243,7 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 		$th_asset = &$this->getThesaurusRef();
 
 		if (!$th_asset->erase()) {
-			trigger_error('Cannot Erase Contents of the Thesaurus', E_USER_WARNING);
+			trigger_localised_error('LEX0004', E_USER_WARNING);
 			return false;
 		}
 
@@ -275,12 +275,12 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 		$input = new XML_Tree($import_path);
 		$root  = &$input->getTreeFromFile();
 		if (PEAR::isError($root)) {
-			trigger_error('Cannot parse XML file', E_USER_WARNING);
+			trigger_localised_error('LEX0005', E_USER_WARNING);
 			return false;
 		}
 
 		if ($root->name != 'thesaurus') {
-			trigger_error('Supplied XML file is not a proper thesaurus definition', E_USER_WARNING);
+			trigger_localised_error('LEX0006', E_USER_WARNING);
 			return false;
 		}
 
@@ -428,7 +428,7 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 		$total_count  = $this->_running_vars['entity_count'];
 
 		if ($total_count == 0) {
-			trigger_error("Thesaurus contains no entities, you will not be able to do anything with it.", E_USER_WARNING);
+			trigger_localised_error('LEX0007', E_USER_WARNING);
 			$step_data['complete'] = true;
 			return true;
 		}
@@ -496,7 +496,7 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 				$rel = $th_asset->getRelationByName($rel_name);
 
 				if (empty($rel)) {
-					trigger_error("Cannot make child links from entity '$name'. Relation '$rel_name' is not defined.", E_USER_WARNING);
+					trigger_localised_error('LEX0008', E_USER_WARNING, $name, $rel_name);
 					continue;
 				}
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager.inc,v 1.14 2005/04/14 04:58:12 rhoward Exp $
+* $Id: trigger_manager.inc,v 1.15 2005/04/15 00:37:26 lwright Exp $
 *
 */
 
@@ -51,7 +51,7 @@ require_once 'hash.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -232,7 +232,7 @@ class Trigger_Manager extends Asset
 
 			switch ($status) {
 				case SQ_TRIG_RESULT_FAILURE:
-					trigger_error('FAILURE '.$trigger_info_line, E_USER_WARNING);
+					trigger_localised_error("CORE0127", E_USER_WARNING, $trigger_info_line);
 				break;
 
 				case SQ_TRIG_RESULT_SUCCESS:
@@ -573,11 +573,11 @@ class Trigger_Manager extends Asset
 
 			if (!$action_success) {
 				if (!$not_required) {
-					trigger_error('Trigger Action: '.$action['type'].' Failed, but was not required. Trigger continues.', E_USER_WARNING);
+					trigger_localised_error("CORE0134", E_USER_NOTICE, $action['type']);
 					continue;
 				} else {
 					$status = SQ_TRIG_RESULT_FAILURE;
-					trigger_error('Trigger Action: '.$action['type'].' Failed', E_USER_WARNING);
+					trigger_localised_error("CORE1035", E_USER_NOTICE, $action['type']);
 					break;
 				}
 			}
@@ -925,8 +925,9 @@ class Trigger_Manager extends Asset
 
 		if (empty($trigger_db)) {
 			if (!$mute_errors) {
-				trigger_error('Trigger #'.$trigger_id.' does not exist', E_USER_WARNING);
+				trigger_localised_error("CORE0133", E_USER_WARNING, $trigger_id);
 			}
+
 			return null;
 		}
 

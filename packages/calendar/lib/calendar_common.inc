@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.26 2005/04/06 23:09:32 mmcintyre Exp $
+* $Id: calendar_common.inc,v 1.27 2005/04/15 00:37:40 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -746,6 +746,7 @@ function expand_single_event(&$result_list, &$event, $assetid, $first_day, $last
 function expand_recurring_event(&$result_list, &$event, $assetid, $first_day, $last_day, $day_start_time, $day_end_time)
 {
 	require_once dirname(__FILE__).'/../calendar_events/calendar_event_recurring/calendar_event_recurring.inc';
+	$GLOBALS['SQ_SYSTEM']->am->includeAsset('calendar_event_recurring');
 
 	$event['expanded'] = 1;
 

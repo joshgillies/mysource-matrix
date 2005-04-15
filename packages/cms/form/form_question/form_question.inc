@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question.inc,v 1.50 2005/04/08 00:16:59 lwright Exp $
+* $Id: form_question.inc,v 1.51 2005/04/15 00:37:46 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.50 $
+* @version $Revision: 1.51 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -163,7 +163,7 @@ class Form_Question extends Asset
 		$form = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_formid, 'form');
 
 		if (!$GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] && !$form->writeAccess('attributes')) {
-			trigger_error('You do not have permission to save the attributes of "'.$this->name.'" (#'.$this->id.')', E_USER_WARNING);
+			trigger_localised_error('CMS0004', E_USER_WARNING, $this->name, $this->id);
 			return false;
 		}
 

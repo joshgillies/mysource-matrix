@@ -18,7 +18,7 @@
 // |          Michele Manzato <michele.manzato@verona.miz.it>             |
 // +----------------------------------------------------------------------+
 //
-// $Id: Node.php,v 1.2 2003/08/30 03:37:57 brobertson Exp $
+// $Id: Node.php,v 1.3 2005/04/15 00:37:33 lwright Exp $
 //
 
 /**
@@ -254,7 +254,14 @@ class XML_Tree_Node {
 
             $attr_in  = array('"', '\'');
             $attr_out = array('&quot;', '&apos;');
-            foreach ($this->attributes as $name => $value) {
+
+			error_log('NODE');
+			error_log(print_r($this,true));
+			error_log('BACKTRACE');
+			error_log(print_r(debug_backtrace(),true));
+			error_log('--------------------');
+
+			foreach ($this->attributes as $name => $value) {
                 $out .= ' ' . $name . '="' . str_replace($attr_in, $attr_out, $value) . '"';
             }
 

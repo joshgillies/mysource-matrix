@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_edit_fns.inc,v 1.31 2005/01/14 06:00:37 tbarrett Exp $
+* $Id: calendar_event_edit_fns.inc,v 1.32 2005/04/15 00:37:40 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -142,29 +142,29 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 			}
 			$_REQUEST[$prefix.$component.'_hours'] = (int)$_REQUEST[$prefix.$component.'_hours'];
 			if (($_REQUEST[$prefix.$component.'_hours'] < 0) || ($_REQUEST[$prefix.$component.'_hours'] > 23)) {
-				trigger_error('You entered an invalid hour: '.$_REQUEST[$prefix.$component.'_hours'], E_USER_WARNING);
+				trigger_localised_error('CAL0001', E_USER_WARNING, $_REQUEST[$prefix.$component.'_hours']);
 				return false;
 			}
 			$_REQUEST[$prefix.$component.'_minutes'] = (int)$_REQUEST[$prefix.$component.'_minutes'];
 			if (($_REQUEST[$prefix.$component.'_minutes'] < 0) || ($_REQUEST[$prefix.$component.'_minutes'] > 59)) {
-				trigger_error('You entered an invalid minute', E_USER_WARNING);
+				trigger_localised_error('CAL0002', E_USER_WARNING, $_REQUEST[$prefix.$component.'_minutes']);
 				return false;
 			}
 		}
 		if (isset($_REQUEST[$prefix.$component.'_year'])) {
 			$_REQUEST[$prefix.$component.'_year'] = (int)$_REQUEST[$prefix.$component.'_year'];
 			if (($_REQUEST[$prefix.$component.'_year'] < 1900) || ($_REQUEST[$prefix.$component.'_year'] > 2100)) {
-				trigger_error('You entered an invalid year value', E_USER_WARNING);
+				trigger_localised_error('CAL0003', E_USER_WARNING, $_REQUEST[$prefix.$component.'_year']);
 				return false;
 			}
 			$_REQUEST[$prefix.$component.'_month'] = (int)$_REQUEST[$prefix.$component.'_month'];
 			if (($_REQUEST[$prefix.$component.'_month'] < 1) || ($_REQUEST[$prefix.$component.'_month'] > 12)) {
-				trigger_error('You entered an invalid month value', E_USER_WARNING);
+				trigger_localised_error('CAL0004', E_USER_WARNING, $_REQUEST[$prefix.$component.'_month']);
 				return false;
 			}
 			$_REQUEST[$prefix.$component.'_day'] = (int)$_REQUEST[$prefix.$component.'_day'];
 			if (($_REQUEST[$prefix.$component.'_day'] < 1) || ($_REQUEST[$prefix.$component.'_day'] > 31)) {
-				trigger_error('You entered an invalid day value', E_USER_WARNING);
+				trigger_localised_error('CAL0005', E_USER_WARNING, $_REQUEST[$prefix.$component.'_day']);
 				return false;
 			}
 		}
@@ -220,12 +220,12 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 		// the end is more complex...
 		if (isset($_REQUEST[$prefix.'_end_enabled'])) {
 			if (!isset($_REQUEST[$prefix.'_end_type'])) {
-				trigger_error('End type not specified', E_USER_WARNING);
+				trigger_localised_error('CAL0006', E_USER_WARNING);
 				return false;
 			}
 			if ($_REQUEST[$prefix.'_end_type'] == 'duration') {
 				if (!isset($_REQUEST[$prefix.'_duration'])) {
-					trigger_error('Duration value not specified', E_USER_WARNING);
+					trigger_localised_error('CAL0007', E_USER_WARNING);
 					return false;
 				}
 				$start_ts = iso8601_ts($start_date_value);

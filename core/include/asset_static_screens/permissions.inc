@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: permissions.inc,v 1.19 2005/04/13 23:49:30 ndvries Exp $
+* $Id: permissions.inc,v 1.20 2005/04/15 00:37:28 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Permissions Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix
 */
 
@@ -317,7 +317,7 @@ function processPermissions(&$owner, &$o, &$ei)
 		// grant access to a user
 		if (!empty($post_data['new']['userid']['assetid'])) {
 			if (!isset($post_data['new']['granted']) || $post_data['new']['granted'] == '') {
-				trigger_error('You need to select the type of access in order to set a permission for Asset #'.$post_data['new']['userid']['assetid'], E_USER_NOTICE);
+				trigger_localised_error("SYS0269", E_USER_NOTICE, $post_data['new']['userid']['assetid']);
 			} else {
 					$permission_vars[$perm][] = Array(
 													'granted'			=> (int)$post_data['new']['granted'],

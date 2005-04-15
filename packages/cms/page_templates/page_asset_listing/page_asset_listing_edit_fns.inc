@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing_edit_fns.inc,v 1.22 2005/03/23 03:56:35 tbarrett Exp $
+* $Id: page_asset_listing_edit_fns.inc,v 1.23 2005/04/15 00:37:46 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -149,7 +149,7 @@ class Page_Asset_Listing_Edit_Fns extends Listing_Engine_Edit_Fns
 				$new_root = &$GLOBALS['SQ_SYSTEM']->am->getAsset($node['assetid']);
 				if (!$asset->createLink($new_root, SQ_LINK_NOTICE, 'root')) {
 					$ok = false;
-					trigger_error('Failed adding new root node "'.$new_root->name.'" [#'.$new_root->id.']', E_USER_WARNING);
+					trigger_localised_error('CMS0016', E_USER_WARNING, $new_root->name, $new_root->id);
 					break;
 				}
 			}

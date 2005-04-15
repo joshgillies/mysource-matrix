@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_page_edit_fns.inc,v 1.2 2005/04/14 16:41:10 brobertson Exp $
+* $Id: paint_layout_page_edit_fns.inc,v 1.3 2005/04/15 00:37:26 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/paint_layout/paint_layout_page/paint_layout_
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -150,7 +150,7 @@ class Paint_Layout_Page_Edit_Fns extends Page_Standard_Edit_Fns
 					// we also want to send the bodycopy to the trash
 					$link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, SQ_PAINT_LAYOUT_FORMAT_ASSET_TYPE, true, $type);
 					if (empty($link)) {
-						trigger_error('Format for type '.$type.' not found', E_USER_WARNING);
+						trigger_localised_error("CORE0216", E_USER_WARNING);
 					} else {
 						// back up in your trash with the resurection
 						$folder->deleteLink($link['linkid']);

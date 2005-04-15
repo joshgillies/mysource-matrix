@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config_edit_interface.inc,v 1.12 2005/03/28 23:11:25 gsherwood Exp $
+* $Id: system_config_edit_interface.inc,v 1.13 2005/04/15 00:37:28 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *    Looks after the editing of the system config
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix
 */
 class System_Config_Edit_Interface extends MySource_Object
@@ -156,7 +156,7 @@ class System_Config_Edit_Interface extends MySource_Object
 				return;
 
 			default :
-				trigger_error('Active Screen "'.$active_screen.'" not known', E_USER_WARNING);
+				trigger_localised_error("SYS0076", E_USER_WARNING, $active_screen);
 		}// end switch
 
 	}//end paint()

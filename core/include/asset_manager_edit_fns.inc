@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager_edit_fns.inc,v 1.84 2005/03/28 23:11:25 gsherwood Exp $
+* $Id: asset_manager_edit_fns.inc,v 1.85 2005/04/15 00:37:28 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.84 $
+* @version $Revision: 1.85 $
 * @package MySource_Matrix
 */
 class Asset_Manager_Edit_Fns extends MySource_Object
@@ -89,13 +89,13 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 
 				$parent = &$this->am->getAsset($_REQUEST['parent_assetid']);
 				if (is_null($parent)) {
-					trigger_error('Parent Asset #'.$_REQUEST['parent_assetid'].' not found', E_USER_WARNING);
+					trigger_localised_error("SYS0200", E_USER_WARNING, $_REQUEST['parent_assetid']);
 					break;
 				}
 
 				// make sure that we are allowed to link this type to the parent
 				if (($err_msg = $GLOBALS['SQ_SYSTEM']->am->canLinkToType($parent, $_REQUEST['type_code'], $_REQUEST['link_type'])) !== true) {
-					trigger_error($err_msg, E_USER_WARNING);
+					trigger_localised_error("SYS0303", E_USER_WARNING, $err_msg);
 					break;
 				}
 
@@ -140,7 +140,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 
 				$asset = &$this->am->getAsset($_REQUEST['assetid']);
 				if (is_null($asset)) {
-					trigger_error('No Asset found for Id #'.$_REQUEST['assetid'], E_USER_WARNING);
+					trigger_localised_error("SYS0195", E_USER_WARNING, $_REQUEST['assetid']);
 					return;
 				}
 				if (SQ_IN_LIMBO) {
@@ -182,12 +182,12 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 						if (!empty($_POST['sq_lock_release']) && !empty($_POST['sq_lock_type'])) {
 							// committing changes and releasing the lock
 							if (!$this->am->releaseLock($asset->id, $_POST['sq_lock_type'])) {
-								trigger_error('Failed to release "'.$_POST['sq_lock_type'].'" lock on "'.$asset->name.'"', E_USER_WARNING);
+								trigger_localised_error("SYS0182", E_USER_WARNING, $_POST['sq_lock_type'], $asset->name);
 							}
 						} else {
 							// not releasing the lock, so re-acquire
 							if (!$this->am->updateLock($asset->id, $_POST['sq_lock_type'])) {
-								trigger_error('Failed to re-acquire "'.$_POST['sq_lock_type'].'" lock on "'.$asset->name.'"', E_USER_WARNING);
+								trigger_localised_error("SYS0181", E_USER_WARNING, $_POST['sq_lock_type'], $asset->name);
 							}
 						}
 					}//end if
@@ -229,7 +229,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 			// they have confirmed their intention to forceably acquire the lock on this asset
 			$asset = &$this->am->getAsset($_GET['assetid']);
 			if (is_null($asset)) {
-				trigger_error('Asset #'.$_GET['assetid'].' not found', E_USER_WARNING);
+				trigger_localised_error("SYS0086", E_USER_WARNING, $_GET['assetid']);
 				return;
 			}
 
@@ -252,7 +252,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 		$o->addFormActionGetVar('ignore_frames', '1');
 		$asset = &$this->am->getAsset($_GET['assetid']);
 		if (is_null($asset)) {
-			trigger_error('Asset #'.$_GET['assetid'].' not found', E_USER_WARNING);
+			trigger_localised_error("SYS0086", E_USER_WARNING, $_GET['assetid']);
 			return;
 		}
 
@@ -347,7 +347,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 						foreach ($lock['chained_assets'] as $chained_info) {
 							$chained_asset = &$this->am->getAsset($chained_info['assetid']);
 							if (is_null($chained_asset)) {
-								trigger_error('Asset #'.$chained_assetid.' not found', E_USER_WARNING);
+								trigger_localised_error("SYS0086", E_USER_WARNING, $chained_assetid);
 								continue;
 							}
 							echo '<li class="sq-backend-data">'.$chained_asset->name.'</li>';

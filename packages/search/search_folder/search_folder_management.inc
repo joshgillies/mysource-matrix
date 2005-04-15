@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_folder_management.inc,v 1.8 2005/03/24 03:04:29 dheppell Exp $
+* $Id: search_folder_management.inc,v 1.9 2005/04/15 00:38:01 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -107,7 +107,7 @@ class Search_Folder_Management extends Asset_Management
 				$asset->setAttrValue('settings', $settings);
 
 				if (!$asset->saveAttributes()) {
-					trigger_error('Search Folder Upgrade [to 0.3] FAILED - Couldn\'t save attributes', E_USER_WARNING);
+					trigger_localised_error('SCH0009', E_USER_WARNING);
 					return false;
 				}
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_template_builder_edit_fns.inc,v 1.5 2004/12/06 14:41:40 brobertson Exp $
+* $Id: page_template_builder_edit_fns.inc,v 1.6 2005/04/15 00:37:47 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -198,7 +198,7 @@ class Page_Template_Builder_Edit_Fns extends Page_Edit_Fns
 		$bc_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'bodycopy', false, 'major', 'template');
 		$bc = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bc_link[0]['minorid']);
 		if (is_null($bc)) {
-			trigger_error('Could not locate the Template Bodycopy for template builder page "'.$asset->name.'"', E_USER_ERROR);
+			trigger_localised_error('CMS0015', E_USER_ERROR, $asset->name);
 			return false;
 		}
 

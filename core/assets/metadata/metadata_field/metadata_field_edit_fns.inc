@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_edit_fns.inc,v 1.31 2005/04/13 23:49:26 ndvries Exp $
+* $Id: metadata_field_edit_fns.inc,v 1.32 2005/04/15 00:37:25 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -217,11 +217,11 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 		if (isset($_POST[$prefix.'_new_vc']) && trim($_POST[$prefix.'_new_vc']) != '') {
 			$new_vc = trim($_POST[$prefix.'_new_vc']);
 			if (isset($current_vc[$new_vc])) {
-				trigger_error('Value component "'.$new_vc.'" already exists for field "'.$asset->name.'"', E_USER_WARNING);
+				trigger_localised_error("CORE0206", E_USER_WARNING, $asset->name);
 			} else if (preg_match('/^[1-9][0-9]+$/', $new_vc)) {
 				// we are not allowing just numbers because we want to use array_merge()
 				// and if there is only numbers it thinks the elements are in from an indexed array and it all goes bad.
-				trigger_error('Value components are can not allowed to contain only all numeric characters is the first character is zero', E_USER_WARNING);
+				trigger_localised_error("CORE0207", E_USER_WARNING);
 			} else {
 				$current_vc[$new_vc] = '';
 				$updated = true;

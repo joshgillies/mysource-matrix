@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_link_exists.inc,v 1.6 2005/04/14 04:58:12 rhoward Exp $
+* $Id: trigger_condition_link_exists.inc,v 1.7 2005/04/15 00:37:26 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -271,6 +271,7 @@ class Trigger_Condition_Link_Exists extends Trigger_Condition
 
 				$settings['asset_type'] = array_get_index($request_data, 'asset_type');
 				if (is_null($settings['asset_type'])) {
+
 					return "Invalid asset type selected. This condition will always fail.";
 				}
 
@@ -283,6 +284,7 @@ class Trigger_Condition_Link_Exists extends Trigger_Condition
 
 				$id_selector          = array_get_index($request_data, 'asset_id');
 				$settings['asset_id'] = array_get_index($id_selector, 'assetid');
+
 				if (empty($settings['asset_id'])) {
 					return "Asset id is not specified.";
 				}

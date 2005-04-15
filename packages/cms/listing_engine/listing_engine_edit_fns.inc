@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.6 2005/04/01 04:24:26 tbarrett Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.7 2005/04/15 00:37:46 lwright Exp $
 *
 */
 
@@ -40,7 +40,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 * @author  David Heppell <dheppell@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -54,10 +54,10 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	function Listing_Engine_Edit_Fns($assetid=0)
 	{
 		$this->Page_Edit_Fns($assetid);
-		
+
 	}//end Listing_Engine_Edit_Fns()
 
-	
+
 	/**
 	* Paint the interface for choosing which asset types to list
 	*
@@ -110,7 +110,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 			}
 			return false;
 		}
-		
+
 	}//end paintAssetTypes()
 
 
@@ -230,7 +230,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		} else {
 			echo 'There are no asset positions defined. All assets will be listed using the sorting settings.';
 		}
-		
+
 		if ($write_access) {
 			echo '<p><b>New Asset Position: </b>';
 			text_box($prefix.'_new_asset_position_pos', '', 5);
@@ -265,14 +265,14 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				$asset_positions[$new_position_pos] = $new_position_assetid;
 			}
 		}
-		
+
 		$current_asset_positions = array_get_index($_POST, $prefix.'_asset_position', Array());
 		foreach ($current_asset_positions as $position => $data) {
 			if ($data['assetid']) {
 				$asset_positions[$position] = $data['assetid'];
 			}
 		}
-		
+
 		$delete_asset_position = array_get_index($_POST, $prefix.'_delete_asset_position', Array());
 		foreach ($delete_asset_position as $position => $on) {
 			unset($asset_positions[$position]);
@@ -297,7 +297,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	{
 		$write_access = $asset->writeAccess('attributes');
 		$current = $asset->attr('column_layout');
-		
+
 		?>
 		<table class="sq-backend-table">
 			<tr>
@@ -395,7 +395,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		foreach ($deleted_rows as $row => $on) {
 			if (isset($column_layout[$row])) unset($column_layout[$row]);
 		}
-		
+
 		// add a new column setting
 		$new_row = (int)array_get_index($_POST, $prefix.'_new_row', 0);
 		$new_column = (int)array_get_index($_POST, $prefix.'_new_column', 0);
@@ -404,13 +404,13 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				if (!isset($column_layout[$new_row])) {
 					$column_layout[$new_row] = $new_column;
 				} else {
-					trigger_error('Failed adding customisation for row '.$new_row.', row has already been customised', E_USER_WARNING);
+					trigger_localised_error('CMS0040', E_USER_WARNING, $new_row);
 				}
 			} else {
-				trigger_error('Failed adding customisation for row '.$new_row.', number of columns must be greater than zero', E_USER_WARNING);
+				trigger_localised_error('CMS0041', E_USER_WARNING, $new_row);
 			}
 		}
-		
+
 		return $asset->setAttrValue('column_layout', $column_layout);
 
 	}//end processColumnSettings()
@@ -433,7 +433,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 		$num_rows = max(array_keys($column_layout)) + 1;
 		$num_columns = max(array_values($column_layout));
-		
+
 		?>
 		<table class="sq-backend-table">
 			<?php
@@ -489,8 +489,8 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		return false;
 
 	}//end processColumnPreview()
-	
-	
+
+
 	/**
 	* Paint links to the defaut formats
 	*
@@ -525,7 +525,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				</tr>
 				<?php
 			}
-			
+
 			$folder = &$asset->getFolder('type_formats');
 			$link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'default_format');
 			if (!empty($link)) {
@@ -584,7 +584,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				<?php
 				foreach ($formats as $minorid => $value) {
 					if ($value == 'default_format') continue;
-	
+
 					$info = Array($minorid => 'contents');
 					$href = $GLOBALS['SQ_SYSTEM']->am->getAssetBackendHref($info);
 					$type_name = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($value, 'name');
@@ -620,7 +620,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		} else {
 			echo 'There are no custom type formats defined';
 		}//end if cutomised formats
-		
+
 		if ($write_access) {
 			$new_format_options = Array('' => '');
 			foreach ($types as $type => $inherit) {
@@ -652,11 +652,11 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	{
 		$folder = &$asset->getFolder('type_formats');
 		$types = $asset->attr('types');
-		
+
 		$deleted_formats = array_get_index($_POST, $prefix.'_delete_type', Array());
 		$new_type = array_get_index($_POST, $prefix.'_new_type', '');
 		if (isset($deleted_formats[$new_type])) {
-			trigger_error('You cant delete a format and create it at the same time. The current type format for type'.$new_type.' has not been deleted.', E_USER_WARNING);
+			trigger_localised_error('CMS0042', E_USER_WARNING, $new_type);
 			unset($deleted_formats[$new_type]);
 			$new_type = '';
 		}
@@ -664,17 +664,17 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		foreach ($deleted_formats as $type => $on) {
 			$current_link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', true, $type);
 			if (empty($current_link)) {
-				trigger_error('Failed deleting format for type '.$type.', couldnt get format bodycopy link', E_USER_WARNING);
+				trigger_localised_error('CMS0043', E_USER_WARNING, $type);
 			} else {
 				if (!$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($current_link['linkid'])) {
-					trigger_error('Failed deleting format for type '.$type, E_USER_WARNING);
+					trigger_localised_error('CMS0044', E_USER_WARNING, $type);
 				}
 			}
 		}
 
 		// check that the new type is valid
 		if ($new_type != '' && !isset($types[$new_type])) {
-			trigger_error('Cannot customtise the format of type '.$new_type.', type is not valid', E_USER_WARNING);
+			trigger_localised_error('CMS0045', E_USER_WARNING, $new_type);
 			$new_type = '';
 		}
 
@@ -685,19 +685,19 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				// create a new format bodycopy for this type
 				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
-	
+
 				$copy_link = Array('asset' => &$folder, 'value' => $new_type, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
-	
+
 				$bodycopy = new Bodycopy();
 				$bodycopy->setAttrValue('name', $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($new_type, 'name').' Format');
-	
+
 				if (!$bodycopy->create($copy_link)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return false;
 				}
 				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			} else {
-				trigger_error('Cannot customise type '.$new_type.', it is already customised', E_USER_WARNING);
+				trigger_localised_error('CMS0046', E_USER_WARNING, $new_type);
 			}
 		}
 		if (isset($asset->_tmp['formats']['type_formats'])) unset($asset->_tmp['formats']['type_formats']);
@@ -770,7 +770,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		} else {
 			echo 'There are no custom position formats defined';
 		}
-		
+
 		if ($write_access) {
 			echo '<p><b>New Position Format: </b>';
 			text_box($prefix.'_new_position', '', 5);
@@ -795,11 +795,11 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	function processPositionFormats(&$asset, &$o, $prefix)
 	{
 		$folder = &$asset->getFolder('position_formats');
-		
+
 		$deleted_formats = array_get_index($_POST, $prefix.'_delete_position', Array());
 		$new_position = (int) array_get_index($_POST, $prefix.'_new_position', 0);
 		if (isset($deleted_formats[$new_position])) {
-			trigger_error('You cant delete a format and create it at the same time. The current list position format for position '.$new_position.' has not been deleted.', E_USER_WARNING);
+			trigger_localised_error('CMS0047', E_USER_WARNING, $new_position);
 			unset($deleted_formats[$new_position]);
 			$new_position = 0;
 		}
@@ -807,10 +807,10 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		foreach ($deleted_formats as $position => $on) {
 			$current_link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'position_'.$position);
 			if (empty($current_link)) {
-				trigger_error('Failed deleting format for position '.$position.', couldnt get format bodycopy link', E_USER_WARNING);
+				trigger_localised_error('CMS0048', E_USER_WARNING, $position);
 			} else {
 				if (!$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($current_link['linkid'])) {
-					trigger_error('Failed deleting format for position '.$position, E_USER_WARNING);
+					trigger_localised_error('CMS0049', E_USER_WARNING, $position);
 				}
 			}
 		}
@@ -823,19 +823,19 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				// create a new format bodycopy for this list position
 				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
-	
+
 				$copy_link = Array('asset' => &$folder, 'value' => 'position_'.$new_position, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
-	
+
 				$bodycopy = new Bodycopy();
 				$bodycopy->setAttrValue('name', 'Position '.$new_position.' Format');
-	
+
 				if (!$bodycopy->create($copy_link)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return false;
 				}
 				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			} else {
-				trigger_error('Cannot customise list position '.$new_position.', it is already customised', E_USER_WARNING);
+				trigger_localised_error('CMS0050', E_USER_POSITION, $new_position);
 			}
 		}
 		if (isset($asset->_tmp['formats']['position_formats'])) unset($asset->_tmp['formats']['position_formats']);
@@ -865,26 +865,26 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		} else {
 			$sort_by_options = $this->_getSortByOptions($asset);
 		}
-		
+
 		if ($write_access) {
 			combo_box($prefix.'_sort_by', $sort_by_options, false, $curr_value);
-			
+
 		} else {
 			echo $sort_by_options[$curr_value];
-			
+
 		}
-		
+
 		if ($curr_value == '__attr__') {
 			// if we are sorting on attributes, then we need to print the
 			// asset list table again!
 			$sort_by_attr = $asset->attr('sort_by_attr');
-			
+
 			$types = $asset->attr('types');
 			if (empty($types)) {
 				?>There are no types defined. No sorting can be applied.<?php
 				return false;
 			}
-	
+
 			?>
 			<table class="sq-backend-table">
 				<tr>
@@ -906,13 +906,13 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 							if ($write_access) {
 								$x_type_attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($type);
 								$type_attrs = Array('' => '-- Do Not Sort --');
-								
+
 								foreach($x_type_attrs as $x_type => $value) {
 									$type_attrs[$x_type] = $x_type;
 								}
-								
+
 								combo_box($prefix.'_sort_by_attr['.$type.']', $type_attrs, false, $sort_field);
-								
+
 							} else {
 								echo $sort_field;
 							}
@@ -925,12 +925,12 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 			</table>
 			<?php
 		}
-		
+
 		return $write_access;
-		
+
 	}//end paintSortBy()
-	
-	
+
+
 	/**
 	* Paints the interface for selecting sort field
 	*
@@ -945,27 +945,27 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	{
 		$curr_value = $asset->attr('sort_by');
 		$updated = false;
-		
+
 		if ($curr_value != array_get_index($_POST, $prefix.'_sort_by', '')) {
 			$asset->setAttrValue('sort_by', array_get_index($_POST, $prefix.'_sort_by', ''));
 			$updated = true;
 		}
-		
+
 		// only update the sort by attribute stuff if we came from the sort by
-		// attribute table to begin with 
+		// attribute table to begin with
 		if (($asset->attr('sort_by') == '__attr__') && $curr_value = '__attr__') {
 			$asset->setAttrValue('sort_by_attr', array_get_index($_POST, $prefix.'_sort_by_attr', Array()));
 			$updated = true;
 		}
-		
+
 		if ($updated) {
 			return $asset->saveAttributes();
 		} else {
 			return false;
 		}
 	}//end processSortBy()
-	
-	
+
+
 	/**
 	* Get the possible 'sort by' options
 	*
@@ -976,13 +976,13 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	{
 		if ($asset->attr('group_by') == 'letter') {
 			return Array(
-				'' 				=> '-- No Sorting --', 
+				'' 				=> '-- No Sorting --',
 				'name'			=> 'Name',
 				'short_name'	=> 'Short Name',
 			);
 		} else {
 			return Array(
-				'' 				=> '-- No Sorting --', 
+				'' 				=> '-- No Sorting --',
 				'assetid'		=> 'Asset ID',
 				'version'		=> 'Version',
 				'name'			=> 'Name',
@@ -993,9 +993,9 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				'__attr__'		=> 'Asset Attribute(s)...',
 			);
 		}
-		
+
 	}//end _getSortByOptions()
-	
-	
+
+
 }//end class
 ?>

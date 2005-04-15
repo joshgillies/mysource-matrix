@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_poll_edit_fns.inc,v 1.1 2004/12/23 04:04:42 dheppell Exp $
+* $Id: page_poll_edit_fns.inc,v 1.2 2005/04/15 00:37:46 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -108,7 +108,7 @@ class Page_Poll_Edit_Fns extends Page_Edit_Fns
 		$poll_question->setAttrValue('name', $poll_name);
 
 		if (!$poll_question->create($initial_link)) {
-			trigger_error('Poll question not created', E_USER_WARNING);
+			trigger_localised_error('CMS0021', E_USER_WARNING);
 		}
 
 		return false;

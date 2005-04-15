@@ -1,0 +1,99 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Open Source Licence                                      |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_errors.xml,v 1.1 2005/04/15 00:38:00 lwright Exp $
+*
+*/
+
+	Search xml error file
+	errors are added in the format:
+	PKGN0000 where PKGN is a 3-4 letter abbreviation of the package and 0000
+	is a number representing the number of this error(start at 1 and increment)
+-->
+
+<errors>
+	<error code="SCH0001">Unable to initialise Search Reindexing HIPO, invalid root asset ID specified (%s)</error>
+		<!-- packages/search/tools/tool_reindex/hipo_job_tool_reindex.inc:140: -->
+
+	<error code="SCH0002">Required search string was blank</error>
+		<!-- packages/search/tools/tool_search_replace/tool_search_replace.inc:136: -->
+
+	<error code="SCH0003">No asset types were selected</error>
+		<!-- packages/search/tools/tool_search_replace/tool_search_replace.inc:142: -->
+
+	<error code="SCH0004">No asset statuses were selected</error>
+		<!-- packages/search/tools/tool_search_replace/tool_search_replace.inc:148: -->
+
+	<error code="SCH0005">No root has been specified</error>
+		<!-- packages/search/tools/tool_search_replace/tool_search_replace.inc:154: -->
+
+	<error code="SCH0006">No Matches for "%s" could be found</error>
+		<!-- packages/search/tools/tool_search_replace/tool_search_replace.inc:198: -->
+		<!-- packages/search/tools/tool_search_replace/tool_search_replace.inc:207: -->
+
+	<error code="SCH0007">Search Manager NOT CREATED</error>
+		<!-- packages/search/package_manager_search.inc:84: -->
+
+	<error code="SCH0008">The asset "%1$s" (Id: #%2$s) is not a Thesaurus asset, unable to use to find synonyms</error>
+		<!-- packages/search/search_manager/search_manager.inc:1116: -->
+
+	<error code="SCH0009">Search Folder Upgrade [to 0.3] FAILED - Couldn't save attributes</error>
+		<!-- packages/search/search_folder/search_folder_management.inc:110: -->
+
+	<error code="SCH0010">The Search Folder does not contain any of the shadow assets it presents to the world</error>
+		<!-- packages/search/search_folder/search_folder.inc:89: -->
+
+	<error code="SCH0011">Failed adding new search page "%1$s" [#%2$s]</error>
+		<!-- packages/search/search_list/search_list_edit_fns.inc:118: -->
+
+	<error code="SCH0012">Failed adding new root node "%1$s" [#%2$s]</error>
+		<!-- packages/search/search_page/search_page_edit_fns.inc:127: -->
+
+	<error code="SCH0013">Unable to create the format folder</error>
+		<!-- packages/search/search_page/search_page_edit_fns.inc:1012: -->
+
+	<error code="SCH0014">Unable to create the %s bodycopy</error>
+		<!-- packages/search/search_page/search_page_edit_fns.inc:1032: -->
+
+	<error code="SCH0015">Unable to update the link type for bodycopy %s</error>
+		<!-- packages/search/search_page/search_page_edit_fns.inc:1040: -->
+		<!-- packages/search/search_page/search_page_edit_fns.inc:1051: -->
+
+	<error code="SCH0016">Unable to update the link type for the format folder</error>
+		<!-- packages/search/search_page/search_page_edit_fns.inc:1066: -->
+
+	<error code="SCH0017">Failed adding new root node "%1$s" [#%2$s]</error>
+		<!-- packages/search/search_page/search_page_edit_fns.inc:1142: -->
+
+	<error code="SCH0018">Search Page Upgrade [to 0.6] FAILED - Couldn't save attributes</error>
+		<!-- packages/search/search_page/search_page_management.inc:246: -->
+
+	<error code="SCH0019">%s has already been created. Maybe the upgrade script is being run twice?</error>
+		<!-- packages/search/search_page/search_page_management.inc:280: -->
+
+	<error code="SCH0020">Result Element bodycopy no longer exists. Maybe the upgrade script is being run twice?</error>
+		<!-- packages/search/search_page/search_page_management.inc:301: -->
+
+	<error code="SCH0021">Search Page Upgrade [to 0.8] FAILED - Couldn't save attributes</error>
+		<!-- packages/search/search_page/search_page_management.inc:349: -->
+
+	<error code="SCH0022">Unable to initialise Search Reindexing HIPO, invalid root asset ID specified (%s)</error>
+		<!-- packages/search/hipo_jobs/hipo_job_reindex.inc:129: -->
+</errors>

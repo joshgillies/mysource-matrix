@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: root_folder.inc,v 1.45 2005/04/06 23:05:34 mmcintyre Exp $
+* $Id: root_folder.inc,v 1.46 2005/04/15 00:37:26 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.46 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -75,7 +75,7 @@ class Root_Folder extends Folder
 		if ($ret_val) {
 			if ($this->id != 1) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				trigger_error('The new Root Folder Asset was not given assetid #1. This needs to be fixed by YOU, consider this system corrupted', E_USER_ERROR);
+				trigger_localised_error("CORE0077", E_USER_ERROR);
 				return false;
 			}
 
@@ -84,10 +84,10 @@ class Root_Folder extends Folder
 
 			if ($linkid != 1) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				trigger_error('The new Root Folder Asset was not given linkid #1. This needs to be fixed by YOU, consider this system corrupted', E_USER_ERROR);
+				trigger_localised_error("CORE0078", E_USER_ERROR);
 				return false;
 			}
-			
+
 			require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
 			// right, we need to do some manipulation for the link table to put in some initial values
@@ -119,8 +119,8 @@ class Root_Folder extends Folder
 							'.db_extras_todate($db, ts_iso8601(time())).',
 							'.$db->quoteSmart(0).'
 						)';
-			
-			
+
+
 			$result = $db->query($sql);
 			assert_valid_db_result($result);
 
@@ -137,7 +137,7 @@ class Root_Folder extends Folder
 							'.$db->quoteSmart(1).',
 							'.$db->quoteSmart(0).'
 						)';
-			
+
 			$result = $db->query($sql);
 			assert_valid_db_result($sql);
 
@@ -254,7 +254,7 @@ class Root_Folder extends Folder
 	function setAttrValue($name, $value)
 	{
 		if ($name == 'name' && empty($this->_tmp[__CLASS__.'_in_create'])) {
-			trigger_error('You are not able to alter the name for the root folder', E_USER_WARNING);
+			trigger_localised_error("CORE0112", E_USER_WARNING);
 			return false;
 		}
 

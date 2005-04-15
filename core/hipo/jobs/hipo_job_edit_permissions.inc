@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_permissions.inc,v 1.46 2005/04/13 23:49:30 ndvries Exp $
+* $Id: hipo_job_edit_permissions.inc,v 1.47 2005/04/15 00:37:27 lwright Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.46 $
+* @version $Revision: 1.47 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -217,12 +217,12 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 	function prepare()
 	{
 		if (empty($this->_running_vars['assets'])) {
-			trigger_error('Cannot initialise Edit Permissions HIPO, no asset(s) specified', E_USER_WARNING);
+			trigger_localised_error('HIPO0015', E_USER_WARNING);
 			return '';
 		}
 
 		if (empty($this->_running_vars['permission_changes'])) {
-			trigger_error('Cannot initialise Edit Permissions HIPO, no permission changes specified', E_USER_WARNING);
+			trigger_localised_error('HIPO0014', E_USER_WARNING);
 			return '';
 		}
 
@@ -231,7 +231,7 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 		for (reset($assets); null !== ($assetid = key($assets)); next($assets)) {
 			$asset_info = &$GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid));
 			if (empty($asset_info)) {
-				trigger_error('Cannot initialise Edit Permissions HIPO, invalid asset ID specified ('.$assetid.')', E_USER_WARNING);
+				trigger_localised_error('HIPO0013', E_USER_WARNING, $assetid);
 				return '';
 			}
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_list_edit_fns.inc,v 1.3 2004/12/06 14:44:15 brobertson Exp $
+* $Id: search_list_edit_fns.inc,v 1.4 2005/04/15 00:38:01 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_listing/page_asset
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -115,7 +115,7 @@ class Search_List_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 			if (!is_null($search_page)) {
 				if (!$asset->createLink($search_page, SQ_LINK_NOTICE, 'search_page')) {
 					$ok = false;
-					trigger_error('Failed adding new search page "'.$search_page->name.'" [#'.$search_page->id.']', E_USER_WARNING);
+					trigger_localised_error('SCH0011', E_USER_WARNING, $search_page->name, $search_page->id);
 				}
 			}
 		}

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_group_edit_fns.inc,v 1.19 2005/04/06 23:05:34 mmcintyre Exp $
+* $Id: user_group_edit_fns.inc,v 1.20 2005/04/15 00:37:27 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -68,9 +68,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
 		$result = $db->getAssoc($sql.$where, false, Array(), DB_FETCHMODE_ASSOC, true);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
-		}
+		assert_valid_db_result($result);
 
 		return $result;
 

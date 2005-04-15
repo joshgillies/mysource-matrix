@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: inbox_edit_fns.inc,v 1.45 2005/03/30 00:40:03 lwright Exp $
+* $Id: inbox_edit_fns.inc,v 1.46 2005/04/15 00:37:26 lwright Exp $
 *
 */
 
@@ -34,12 +34,13 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dmitry Baranovskiy <dbaranovskiy@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.46 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Inbox_Edit_Fns extends Asset_Edit_Fns
 {
+
 
 	/**
 	* Constructor
@@ -49,13 +50,14 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 	{
 		$this->Asset_Edit_Fns();
 
-		$this->static_screens = Array(	'details'		=> Array(
-															'name'			=> 'Inbox',
-															'use_tab'		=> true,
-															'force_unlock'	=> false,
-															'lock_type'		=> 'mail',
-															),
-									);
+		$this->static_screens = Array(
+									'details'	=> Array(
+													'name'			=> 'Inbox',
+													'use_tab'		=> true,
+													'force_unlock'	=> false,
+													'lock_type'		=> 'mail',
+												   ),
+								);
 
 	}//end constructor
 
@@ -152,7 +154,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 			$message->priority = $_POST[$prefix.'_Priority'];
 			$message->send();
 
-			foreach($recepients as $key => $sender) {
+			foreach ($recepients as $key => $sender) {
 				if (empty($sender)) {
 					continue;
 				}
@@ -424,7 +426,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 			}
 
 		$this->_processReadStatus($asset, $prefix);
-		
+
 		return $write_access;
 
 	}//end paintInbox()
@@ -457,11 +459,11 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 				// change message status (read/unread)
 				if (in_array($data['msgid'], $read) && $data['status'] == SQ_MSG_UNREAD) {
 					if (!$message->updateStatus(SQ_MSG_READ)) {
-						trigger_error('Status of message '.$data['msgid'].' was not updated', E_USER_WARNING);
+						trigger_localised_error("CORE0076", E_USER_WARNING, $data['msgid']);
 					}
 				} else if (!in_array($data['msgid'], $read) && $data['status'] == SQ_MSG_READ) {
 					if (!$message->updateStatus(SQ_MSG_UNREAD)) {
-						trigger_error('Status of message '.$data['msgid'].' was not updated', E_USER_WARNING);
+						trigger_localised_error("CORE0076", E_USER_WARNING, $data['msgid']);
 					}
 				}
 			}
@@ -498,7 +500,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 				// delete messages
 				if (in_array($data['msgid'], $delete) && $data['status'] != SQ_MSG_DELETED) {
 					if (!$message->updateStatus(SQ_MSG_DELETED)) {
-						trigger_error('Message '.$data['msgid'].' was not deleted', E_USER_WARNING);
+						trigger_localised_error("CORE0063", E_USER_WARNING, $data['msgid']);
 					}
 				}
 			}
@@ -568,6 +570,8 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 					</td>
 					<?php
 				}
+
+
 				?>
 			</tr>
 			<?php
@@ -626,8 +630,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 			</div>
 			<div id="sq_message_body"></div>
 		<?php }
-		?>
-		<?php
+
 		return true;
 
 	}//end paintTrash()
@@ -659,7 +662,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 				// recover messages to inbox
 				$message = $ms->getMessageById($messageid);
 				if (!$message->updateStatus(SQ_MSG_READ)) {
-					trigger_error('Message '.$messageid.' was not recovered', E_USER_WARNING);
+					trigger_localised_error("CORE0064", E_USER_WARNING, $messageid);
 				}
 			}
 		}
@@ -669,7 +672,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 				// delete messsage FOREVER
 				$message = $ms->getMessageById($messageid);
 				if (!$message->delete()) {
-					trigger_error('Message '.$messageid.' was not deleted', E_USER_WARNING);
+					trigger_localised_error("CORE0063", E_USER_WARNING, $data['msgid']);
 				}
 			}
 		}
@@ -677,12 +680,14 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 
 	}//end processTrash()
 
+
 }//end class
 
 
-function sq_print_icon($path, $width, $height, $alt = '', $title = '')
+function sq_print_icon($path, $width, $height, $alt='', $title='')
 {
 	echo '<img src="'.sq_web_path('lib').'/web/images/blank.gif" alt="'.$alt.'" title="'.$title.'" style="background:url('.$path.'); background: expression(\'none\');filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src=\''.$path.'\', sizingMethod=\'crop\');width: '.$width.'px; height: '.$height.'px" />';
-}
+}//end sq_print_icon()
+
 
 ?>

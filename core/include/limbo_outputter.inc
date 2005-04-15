@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: limbo_outputter.inc,v 1.15 2005/04/12 07:35:04 ndvries Exp $
+* $Id: limbo_outputter.inc,v 1.16 2005/04/15 00:37:28 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/backend_outputter.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix
 */
 class Limbo_Outputter extends Backend_Outputter
@@ -435,7 +435,7 @@ class Limbo_Outputter extends Backend_Outputter
 						break;
 
 					default :
-						trigger_error('Unknown Area Type : "'.$section['areas'][$j]['area_type'].'"', E_USER_ERROR);
+						trigger_localised_error("SYS0257", E_USER_ERROR, $section['areas'][$j]['area_type']);
 
 				}// end switch area type
 

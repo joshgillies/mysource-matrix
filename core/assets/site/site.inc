@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.68 2005/04/12 00:08:40 mmcintyre Exp $
+* $Id: site.inc,v 1.69 2005/04/15 00:37:26 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.68 $
+* @version $Revision: 1.69 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -206,7 +206,12 @@ class Site extends Folder
 				$clean_paths = make_valid_web_paths(Array($path));
 				$clean_path = (empty($clean_paths)) ? '' : $clean_paths[0];
 				if ($path != $clean_path) {
-					trigger_error('URL "'.$save_urls[$save_urlid]['url'].'" contains a path "'.$path.'" which was deemed to be not valid. '.(($clean_path != '') ? 'A valid version is "'.$clean_path.'"' : ''), E_USER_WARNING);
+					if($clean_path != '') {
+						trigger_localised_error("CORE0080", $save_urls[$save_urlid]['url'], $path, $clean_path, E_USER_WARNING);
+					} else {
+						trigger_localised_error("CORE0124", $save_urls[$save_urlid]['url'], $path, E_USER_WARNING);
+					}
+
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return false;
 				}
@@ -223,7 +228,7 @@ class Site extends Folder
 			}
 
 			if (!$found_root_url) {
-				trigger_error('URL "'.$save_urls[$save_urlid]['url'].'" is not based upon an existing System Root URL', E_USER_WARNING);
+				trigger_localised_error("CORE0082", E_USER_WARNING, $save_urls[$save_urlid]['url']);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
@@ -242,7 +247,7 @@ class Site extends Folder
 			if (!$found) {
 				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAssetFromURL(null, $save_urls[$save_urlid]['url'], true, true);
 				if (!is_null($asset)) {
-					trigger_error('URL "'.$save_urls[$save_urlid]['url'].'" is already in use by "'.$asset->name.'" [#'.$asset->id.']', E_USER_WARNING);
+					trigger_localised_error("CORE0081", E_USER_WARNING, $save_urls[$save_urlid]['url'], $asset->name, $asset->id);
 					continue;
 				}
 			}
@@ -495,7 +500,7 @@ class Site extends Folder
 
 		$index_page = &$this->getSpecialPage('index');
 		if (is_null($index_page)) {
-			trigger_error('No Index Page Set for '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').' "'.$this->name.'" (Id #'.$this->id.')', E_USER_NOTICE);
+			trigger_localised_error("CORE0065", E_USER_NOTICE, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'), $this->name, $this->id);
 			return;
 		}
 		$this->paintAsset($index_page);
@@ -591,7 +596,7 @@ class Site extends Folder
 	{
 		$index_page = &$this->getSpecialPage('index');
 		if (is_null($index_page)) {
-			trigger_error('No Index Page Set for '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').' "'.$this->name.'" (Id #'.$this->id.')', E_USER_NOTICE);
+			trigger_localised_error("CORE0065", E_USER_NOTICE, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'), $this->name, $this->id);
 			return;
 		}
 
@@ -620,7 +625,7 @@ class Site extends Folder
 			break;
 
 			default :
-				trigger_error('Special Page "'.$page.'" unknown');
+				trigger_localised_error("CORE0075", $page);
 				return Array();
 		}
 

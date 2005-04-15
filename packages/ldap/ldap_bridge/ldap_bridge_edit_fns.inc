@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge_edit_fns.inc,v 1.14 2005/04/06 23:09:40 mmcintyre Exp $
+* $Id: ldap_bridge_edit_fns.inc,v 1.15 2005/04/15 00:37:55 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -106,8 +106,8 @@ class LDAP_Bridge_Edit_Fns extends Asset_Edit_Fns
 		} else {
 			echo '<span style="color: green"><b>Connected</b></span>';
 		}
-		
-	
+
+
 		return false;
 
 	}//end paintConnectionTest()
@@ -219,7 +219,7 @@ class LDAP_Bridge_Edit_Fns extends Asset_Edit_Fns
 		// we get back for the users
 		$user = &$asset->getAsset($asset->attr('bind_dn'));
 		if (is_null($user)) {
-			trigger_error('Failed getting user attributes from LDAP directory', E_USER_WARNING);
+			trigger_localised_error('LDAP0001', E_USER_WARNING);
 			return;
 		}
 

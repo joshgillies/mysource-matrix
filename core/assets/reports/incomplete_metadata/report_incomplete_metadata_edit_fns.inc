@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_incomplete_metadata_edit_fns.inc,v 1.6 2005/02/16 06:02:14 dbaranovskiy Exp $
+* $Id: report_incomplete_metadata_edit_fns.inc,v 1.7 2005/04/15 00:37:26 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -75,20 +75,20 @@ class Report_Incomplete_Metadata_Edit_Fns extends Report_Edit_Fns
 
 			if (!is_dir($owner->data_path)) {
 				if (!create_directory($owner->data_path)) {
-					trigger_error('Could not create data directory, report generation aborted', E_USER_WARNING);
+					trigger_localised_error("CORE0198", E_USER_WARNING);
 					return false;
 				}
 			}
 			$temp_file = fopen($owner->data_path.'/report.tmp', 'w');
 			if ($temp_file === false) {
-				trigger_error('Could not open temporary file, report generation aborted', E_USER_WARNING);
+				trigger_localised_error("CORE0201", E_USER_WARNING);
 				return false;
 			}
 			fwrite($temp_file, "<assets>\n");
 		} else {
 			$temp_file = fopen($owner->data_path.'/report.tmp', 'a');
 			if ($temp_file === false) {
-				trigger_error('Could not open temporary file, report generation aborted', E_USER_WARNING);
+				trigger_localised_error("CORE0201", E_USER_WARNING);
 				return false;
 			}
 		}
@@ -139,11 +139,11 @@ class Report_Incomplete_Metadata_Edit_Fns extends Report_Edit_Fns
 			// move the temp file to become the real report XML file
 			fwrite($temp_file, "</assets>\n");
 			if (!copy($owner->data_path.'/report.tmp', $owner->data_path.'/report.xml')) {
-				trigger_error('Could not move temporary file, report generation aborted', E_USER_WARNING);
+				trigger_localised_error("CORE0200", E_USER_WARNING);
 				return false;
 			}
 			if (!unlink($owner->data_path.'/report.tmp')) {
-				trigger_error('Could not delete temporary file, report generation continues', E_USER_WARNING);
+				trigger_localised_error("CORE0199", E_USER_WARNING);
 			}
 		} else {
 			$total = count($job->_running_vars['todo']) + count($job->_running_vars['done']);
@@ -181,7 +181,7 @@ class Report_Incomplete_Metadata_Edit_Fns extends Report_Edit_Fns
 		$input = new XML_Tree($report_path);
 		$root  = &$input->getTreeFromFile();
 		if (PEAR::isError($root)) {
-			trigger_error('Unable to read report file : '.$report_path."\n".$root->getMessage()."\n".$root->getUserInfo(), E_USER_WARNING);
+			trigger_localised_error("CORE0092", E_USER_WARNING, $report_path, $root->getMessage(), $root->getUserInfo());
 			return;
 		}
 

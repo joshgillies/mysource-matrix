@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_edit_fns.inc,v 1.45 2005/04/06 23:09:46 mmcintyre Exp $
+* $Id: search_page_edit_fns.inc,v 1.46 2005/04/15 00:38:01 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine_edit_fns.inc';
 *     Edit functions for search page
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.46 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -124,7 +124,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 			if (!is_null($root)) {
 				if (!$asset->createLink($root, SQ_LINK_NOTICE, $link_value)) {
 					$ok = false;
-					trigger_error('Failed adding new root node "'.$root->name.'" [#'.$root->id.']', E_USER_WARNING);
+					trigger_localised_error('SCH0012', E_USER_WARNING, $root->name, $root->id);
 				}
 			}
 		}
@@ -1009,7 +1009,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 
 					if (!$format_folder->create($copy_link)) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-						trigger_error('Could not create the format folder', E_USER_WARNING);
+						trigger_localised_error('SCH0013', E_USER_WARNING);
 						return false;
 					}
 					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -1037,7 +1037,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 					$bodycopy_link = $asset->getFormatBodycopyLink($value);
 					if ($bodycopy_link['link_type'] != SQ_LINK_TYPE_2) {
 						if (!$GLOBALS['SQ_SYSTEM']->am->updateLink($bodycopy_link['linkid'], SQ_LINK_TYPE_2)) {
-							trigger_error('Could not update the link type for bodycopy '.$form_name, E_USER_WARNING);
+							trigger_localised_error('SCH0014', E_USER_WARNING, $form_name);
 							return false;
 						}
 					}
@@ -1048,7 +1048,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 				$bodycopy_link = $asset->getFormatBodycopyLink($value);
 				if (!empty($bodycopy_link['link_type']) && $bodycopy_link['link_type'] != SQ_LINK_TYPE_3) {
 					if (!$GLOBALS['SQ_SYSTEM']->am->updateLink($bodycopy_link['linkid'], SQ_LINK_TYPE_3)) {
-						trigger_error('Could not update the link type for bodycopy '.$form_name, E_USER_WARNING);
+						trigger_localised_error('SCH0015', E_USER_WARNING, $form_name);
 						return false;
 					}
 				}
@@ -1063,7 +1063,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 		$folder_link = $asset->getFormatFolderLink();
 		if (!empty($folder_link['link_type']) && $folder_link['link_type'] != $folder_link_type) {
 			if (!$GLOBALS['SQ_SYSTEM']->am->updateLink($folder_link['linkid'], $folder_link_type)) {
-				trigger_error('Could not update the link type for the format folder', E_USER_WARNING);
+				trigger_localised_error('SCH0016', E_USER_WARNING);
 				return false;
 			}
 		}
@@ -1139,7 +1139,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 			if (!is_null($root)) {
 				if (!$asset->createLink($root, SQ_LINK_NOTICE, $link_value)) {
 					$ok = false;
-					trigger_error('Failed adding new root node "'.$root->name.'" [#'.$root->id.']', E_USER_WARNING);
+					trigger_localised_error('SCH0017', E_USER_WARNING, $root->name, $root->id);
 				}
 			}
 		}

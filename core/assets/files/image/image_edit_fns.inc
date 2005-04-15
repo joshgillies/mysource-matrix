@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_edit_fns.inc,v 1.35 2005/03/30 17:08:06 brobertson Exp $
+* $Id: image_edit_fns.inc,v 1.36 2005/04/15 00:37:25 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -115,7 +115,7 @@ class Image_Edit_Fns extends File_Edit_Fns
 
 		if ($save_attrs) {
 			if (!$asset->saveAttributes()) {
-				trigger_error('Failed saving attributes for file', E_USER_WARNING);
+				trigger_localised_error("CORE0052", E_USER_WARNING);
 				return false;
 			}
 		}
@@ -533,7 +533,7 @@ class Image_Edit_Fns extends File_Edit_Fns
 
 	}//end _paintApplet()
 
-	
+
 	/**
 	* Regenerates the variety images after an upload or fix
 	*

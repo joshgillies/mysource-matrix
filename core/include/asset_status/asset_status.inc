@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status.inc,v 1.13 2005/01/20 13:10:35 brobertson Exp $
+* $Id: asset_status.inc,v 1.14 2005/04/15 00:37:29 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Provide a generic framework for status objects
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix
 */
 class Asset_Status extends MySource_Object
@@ -117,7 +117,7 @@ class Asset_Status extends MySource_Object
 			require_once SQ_INCLUDE_PATH.'/asset_status/'.$status_code.'.inc';
 			eval('$desc = '.$status_code.'::getDescription();');
 
-			trigger_error('Unable to process the status change.<br>"'.$desc.'" is not a valid option for the "'.$this->owner->name.'" '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name').' asset (# '.$this->owner->id.') in it\'s current "'.$this->getDescription().'" state.<br>This may be due to permissions for the current user "'.$GLOBALS['SQ_SYSTEM']->user->name.'" (# '.$GLOBALS['SQ_SYSTEM']->user->id.')', E_USER_WARNING);
+			trigger_localised_error('SYS0250', E_USER_WARNING, $desc, $this->owner->name, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type()), $this->owner->id, $this->getDescription(), $GLOBALS['SQ_SYSTEM']->user->name, $GLOBALS['SQ_SYSTEM']->user->id);
 
 			return false;
 		} else {

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_prefs.inc,v 1.2 2004/12/06 14:38:09 brobertson Exp $
+* $Id: file_prefs.inc,v 1.3 2005/04/15 00:37:25 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/config/prefs.inc';
 *    Looks after the creation the WYSIWYG preferences
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 */
 class File_Prefs extends Prefs
@@ -146,7 +146,7 @@ class File_Prefs extends Prefs
 				if (empty($max_size)) $max_size = 0;
 
 				if (!empty($max_size) && !preg_match('|^[0-9]+[KM]$|', $max_size)) {
-					trigger_error('"'.$max_size.'" is not a valid file size', E_USER_WARNING);
+					trigger_localised_error("CORE0002", E_USER_WARNING, $max_size);
 				} else {
 					$this->pref_vars['SQ_FILE_MAX_SIZE']['default'] = $max_size;
 				}

@@ -18,17 +18,17 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_asset_fns.inc,v 1.7 2005/01/20 13:07:36 brobertson Exp $
+* $Id: system_asset_fns.inc,v 1.8 2005/04/15 00:37:26 lwright Exp $
 *
 */
 
 /**
 * Functions that are used by system assets to clean-up any issues that arrise because they are not "normal" assets.
-* Ideally this would have been done with some sort of interface (or "implements") structure on the classes 
+* Ideally this would have been done with some sort of interface (or "implements") structure on the classes
 * but this is not to be
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -46,16 +46,16 @@ function system_asset_fns_create_pre_check(&$asset)
 {
 	$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-	$sql = 'SELECT COUNT(*) 
-			FROM '.SQ_TABLE_RUNNING_PREFIX.'ast 
+	$sql = 'SELECT COUNT(*)
+			FROM '.SQ_TABLE_RUNNING_PREFIX.'ast
 			';
 	$where = 'type_code = '.$db->quote($asset->type());
 	$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 	$exists = $db->getOne($sql.$where);
-	if (DB::isError($exists)) trigger_error($exists->getMessage().'<br/>'.$exists->getUserInfo(), E_USER_ERROR);
+	assert_valid_db_result($exists);
 
 	if ($exists) {
-		trigger_error('Unable to create another "'.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name').'", it is a System Asset and you are only allowed one', E_USER_WARNING);
+		trigger_localised_error("CORE0085", E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'));
 		return false;
 	}
 

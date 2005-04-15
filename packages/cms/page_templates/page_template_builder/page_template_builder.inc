@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_template_builder.inc,v 1.10 2005/04/04 04:33:57 lwright Exp $
+* $Id: page_template_builder.inc,v 1.11 2005/04/15 00:37:47 lwright Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -304,7 +304,7 @@ class Page_Template_Builder extends Page
 			$bc_asset = null;
 			$create_locations = $this->getCreateLocations();
 			if (empty($create_locations)) {
-				trigger_error('You have not selected any locations to create the result bodycopy in', E_USER_WARNING);
+				trigger_localised_error('CMS0012', E_USER_WARNING);
 				return;
 			}
 			foreach ($create_locations as $assetid => $link_type) {
@@ -312,18 +312,18 @@ class Page_Template_Builder extends Page
 				if (is_null($bc_asset)) {
 					$bc_asset =& $this->createBodycopy(date('d M Y H:i:s'), '', $res, $under_asset);
 					if (!$bc_asset) {
-						trigger_error('Failed to place bodycopy underneath asset "'.$under_asset->attr('name').'" (Id: #'.$under_asset->id.')', E_USER_WARNING);
+						trigger_localised_error('CMS0013', E_USER_WARNING, $under_asset->attr('name'), $under_asset->id);
 						return;
 					}
 				} else {
 					if (!$GLOBALS['SQ_SYSTEM']->am->createAssetLink($under_asset, $bc_asset, SQ_LINK_TYPE_2)) {
-						trigger_error('Failed to place bodycopy underneath asset '.$under_asset->attr('name').' (Id: #'.$under_asset->attr('name').')', E_USER_WARNING);
+						trigger_localised_error('CMS0013', E_USER_WARNING, $under_asset->attr('name'), $under_asset->id);
 						return;
 					}
 				}
 			}
 			if (!$bc_asset->processStatusChange($this->attr('create_status'))) {
-				trigger_error('Error setting status of new asset', E_USER_WARNING);
+				trigger_localised_error('CMS0014', E_USER_WARNING);
 			}
 		}
 

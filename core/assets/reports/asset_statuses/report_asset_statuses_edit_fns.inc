@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_asset_statuses_edit_fns.inc,v 1.6 2005/04/07 06:43:05 mmcintyre Exp $
+* $Id: report_asset_statuses_edit_fns.inc,v 1.7 2005/04/15 00:37:26 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 * @author  Dmitry Baranovskiy <dbaranovskiy@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -103,7 +103,7 @@ class Report_Asset_Statuses_Edit_Fns extends Report_Edit_Fns
 
 		$result = $db->getAll($sql);
 		assert_valid_db_result($result);
-		
+
 		if (empty($result)) {
 			$step_data['percent_done'] = 100;
 			$step_data['complete']     = true;
@@ -145,7 +145,7 @@ class Report_Asset_Statuses_Edit_Fns extends Report_Edit_Fns
 
 		if (!is_dir($report_dir)) {
 			if (!create_directory($report_dir)) {
-				trigger_error('Could not create data directory, report generation aborted', E_USER_WARNING);
+				trigger_localised_error("CORE0198", E_USER_WARNING);
 				return false;
 			}
 		}
@@ -153,7 +153,7 @@ class Report_Asset_Statuses_Edit_Fns extends Report_Edit_Fns
 		// file manipulation section
 		$file_handler = fopen($xml_file_name, 'w');
 		if ($file_handler === false) {
-			trigger_error('Could not open report file, report generation aborted', E_USER_WARNING);
+			trigger_localised_error("CORE0017", E_USER_WARNING);
 			return false;
 		}
 		fwrite($file_handler, $contents);
@@ -246,7 +246,7 @@ class Report_Asset_Statuses_Edit_Fns extends Report_Edit_Fns
 		$input = new XML_Tree($report_path);
 		$root  = &$input->getTreeFromFile();
 		if (PEAR::isError($root)) {
-			trigger_error('Unable to read report file : '.$report_path."\n".$root->getMessage()."\n".$root->getUserInfo(), E_USER_WARNING);
+			trigger_localised_error("CORE0092", E_USER_WARNING, $report_path, $root->getMessage(), $root->getUserInfo());
 			return;
 		}
 

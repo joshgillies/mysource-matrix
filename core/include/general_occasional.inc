@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general_occasional.inc,v 1.46 2005/03/28 23:11:25 gsherwood Exp $
+* $Id: general_occasional.inc,v 1.47 2005/04/15 00:37:28 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.46 $
+* @version $Revision: 1.47 $
 * @package MySource_Matrix
 */
 
@@ -286,7 +286,7 @@ function asset_link_treeid_convert($value, $encode)
 			$i = floor($i / SQ_CONF_ASSET_TREE_BASE);
 		}
 		if (strlen($str) > SQ_CONF_ASSET_TREE_SIZE) {
-			trigger_error('The length of the encoded value of '.(int) $value.' size larger than than stored with '.SQ_CONF_ASSET_TREE_SIZE.' digits - the range is 0 to '.(pow(SQ_CONF_ASSET_TREE_BASE, SQ_CONF_ASSET_TREE_SIZE) - 1).' inclusive', E_USER_WARNING);
+			trigger_localised_error("SYS0213", E_USER_WARNING, (int) $value, SQ_CONF_ASSET_TREE_SIZE, (pow(SQ_CONF_ASSET_TREE_BASE, SQ_CONF_ASSET_TREE_SIZE) - 1));
 			return null;
 		} else {
 			return str_pad($str, SQ_CONF_ASSET_TREE_SIZE, '0', STR_PAD_LEFT);
@@ -325,12 +325,12 @@ function make_valid_web_paths($paths)
 
 		// get rid of paths that are the same as the backend suffix
 		if ($path == SQ_CONF_BACKEND_SUFFIX) {
-			trigger_error('Cannot set web path to "'.$path.'", this is reserved for backend access', E_USER_WARNING);
+			trigger_localised_error("SYS0114", E_USER_WARNING, $path);
 			continue;
 		}
 		// get rid of paths that start with the two underscores
 		if (preg_match('/^__/', $path)) {
-			trigger_error('Cannot set web path to start with two underscores ("__"), these are reserved for system use only', E_USER_WARNING);
+			trigger_localised_error("SYS0115", E_USER_WARNING);
 			continue;
 		}
 

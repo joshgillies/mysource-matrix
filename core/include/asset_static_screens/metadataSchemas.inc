@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadataSchemas.inc,v 1.11 2005/03/28 23:11:25 gsherwood Exp $
+* $Id: metadataSchemas.inc,v 1.12 2005/04/15 00:37:28 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * MetaData Schemas Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix
 */
 
@@ -248,7 +248,7 @@ function processMetadataSchemas(&$owner, &$o, &$ei)
 	// apply a schema
 	if (!empty($post_data['new']['schemaid']['assetid'])) {
 		if (!isset($post_data['new']['granted']) || $post_data['new']['granted'] == '') {
-			trigger_error('You need to select the type of access in order to apply schema #'.$post_data['new']['schemaid']['assetid'], E_USER_NOTICE);
+			trigger_localised_error("SYS0268", E_USER_NOTICE, $post_data['new']['schemaid']['assetid']);
 		} else {
 			if ($cascade_changes) {
 				// cascading access of some kind, so queue it up for the HIPO

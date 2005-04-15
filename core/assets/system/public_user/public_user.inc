@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: public_user.inc,v 1.2 2005/03/21 06:18:44 gsherwood Exp $
+* $Id: public_user.inc,v 1.3 2005/04/15 00:37:26 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/users/user/user.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -98,7 +98,7 @@ class Public_User extends User
 	function morph($new_type_code)
 	{
 		// trying to morph an unprivileged public user... why would you bother?
-		trigger_error('Unable to morph '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'), E_USER_WARNING);
+		trigger_localised_error("CORE0091", E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
 		return false;
 
 	}//end morph()
@@ -156,10 +156,10 @@ class Public_User extends User
 	function canSetAsCurrentUser()
 	{
 		return true;
-	
+
 	}//end canSetAsCurrentUser()
-	
-	
+
+
 	/**
 	* Set the value for the passed variable to the passed value
 	*
@@ -172,7 +172,7 @@ class Public_User extends User
 	function setAttrValue($name, $value)
 	{
 		if ($name == 'username') {
-			trigger_error('You are not able to alter the username for the "'.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').'"', E_USER_WARNING);
+			trigger_localised_error("CORE0113", E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
 			return false;
 		}
 
@@ -186,7 +186,7 @@ class Public_User extends User
 	*
 	* As it makes no sense for a public access user to have a user name or
 	* password, we will skip this check
-	* 
+	*
 	* @param string	$username	the passed user name
 	* @param string $password	the passed pass
 	*
@@ -196,10 +196,10 @@ class Public_User extends User
 	function _catchBlankUserNamePass($username, $password)
 	{
 		return true;
-		
+
 	}//end _catchBlankUserNamePass()
-	
-	
+
+
 	/**
 	* Catches blank username being set during User::setAttrValue()
 	*
@@ -207,16 +207,16 @@ class Public_User extends User
 	* skip this check
 	*
 	* @param string	$username	the passed user name
-	* 
+	*
 	* @return boolean	overridden so always returns true
 	* @access public
 	*/
 	function _catchBlankSetUserName($username)
 	{
 		return true;
-		
+
 	}//end _catchBlankSetUserName()
-	
-	
+
+
 }//end class
 ?>

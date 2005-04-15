@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.153 2005/04/11 06:34:25 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.154 2005/04/15 00:37:40 lwright Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.153 $
+* @version $Revision: 1.154 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -339,7 +339,7 @@ class Page_Calendar extends Page_Asset_Listing
 		// if we've somehow ended up with an invalid date, use today's
 		list($year, $month, $day) = explode('-', $cal_date);
 		if (!checkdate($month, $day, $year)) {
-			trigger_error('Date passed to calendar page is not valid, using today\'s date as fallback', E_USER_WARNING);
+			trigger_localised_error('CAL0022', E_USER_WARNING, $cal_date);
 			$cal_date = date('Y-m-d');
 		}
 
@@ -347,7 +347,7 @@ class Page_Calendar extends Page_Asset_Listing
 		$event_id = false;
 		if (($cal_view == 'event') || ($cal_view == 'edit')) {
 			if (!isset($_REQUEST['SQ_CALENDAR_EVENT_ID'])) {
-				trigger_error(ucfirst($_cal_view).' View requested but no Event ID supplied', E_USER_WARNING);
+				trigger_localised_error('CAL0023', E_USER_WARNING, ucfirst($_cal_view));
 				return false;
 			}
 			if (!assert_valid_assetid($_REQUEST['SQ_CALENDAR_EVENT_ID'])) {
@@ -928,7 +928,7 @@ class Page_Calendar extends Page_Asset_Listing
 		require_once SQ_INCLUDE_PATH.'/limbo_outputter.inc';
 		$o = new Limbo_Outputter();
 		if (!$event->id) {
-			trigger_error('Could not load calendar event asset #'.$eventid);
+			trigger_localised_error('CAL0024', E_USER_WARNING, $event_id);
 			return false;
 		}
 
@@ -950,7 +950,7 @@ class Page_Calendar extends Page_Asset_Listing
 
 		// Acquire the lock and print the interface
 		if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($event_id, 'attributes')) {
-			trigger_error("Couldn't acquire lock", E_USER_WARNING);
+			trigger_localised_error('CAL0025', E_USER_WARNING, $event->name, $event_id);
 			return $this->getEventView($event_id);
 		}
 		$o->addHiddenField('SQ_CALENDAR_VIEW', 'edit');
@@ -1682,7 +1682,7 @@ class Page_Calendar extends Page_Asset_Listing
 		$trees =&get_treeids($root_nodes);
 
 		if (empty($trees)) {
-			trigger_error('WARNING: No valid root nodes are set for this Calendar Page', E_USER_WARNING);
+			trigger_localised_error('CAL0026', E_USER_WARNING);
 			return Array();
 		}
 
@@ -1795,7 +1795,7 @@ class Page_Calendar extends Page_Asset_Listing
 		$trees =& get_treeids($root_nodes);
 
 		if (empty($trees)) {
-			trigger_error('WARNING: No valid root nodes are set for this Calendar Page', E_USER_WARNING);
+			trigger_localised_error('CAL0027', E_USER_WARNING);
 			return Array();
 		}
 
@@ -1885,7 +1885,7 @@ class Page_Calendar extends Page_Asset_Listing
 		$trees = &get_treeids($root_nodes);
 
 		if (empty($trees)) {
-			trigger_error('WARNING: No valid root nodes are set for this Calendar Page', E_USER_WARNING);
+			trigger_localised_error('CAL0028', E_USER_WARNING);
 			return Array();
 		}
 
@@ -2039,7 +2039,7 @@ class Page_Calendar extends Page_Asset_Listing
 		$trees =& get_treeids($root_nodes);
 
 		if (empty($trees)) {
-			trigger_error('WARNING: No valid root nodes are set for this Calendar Page', E_USER_WARNING);
+			trigger_localised_error('CAL0029', E_USER_WARNING);
 			return Array();
 		}
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_colourise_image_edit_fns.inc,v 1.16 2005/01/13 11:11:15 brobertson Exp $
+* $Id: design_area_colourise_image_edit_fns.inc,v 1.17 2005/04/15 00:37:24 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -73,14 +73,14 @@ class Design_Area_Colourise_Image_Edit_Fns extends Design_Area_Edit_Fns
 
 		$image_asset = $design->getAssociatedFile($asset->attr('image'));
 		if (is_null($image_asset)) {
-			trigger_error('Unable to colourise "'.$asset->attr('id_name').'", source file asset for "'.$asset->attr('image').'" not found', E_USER_WARNING);
+			trigger_localised_error("CORE0184", E_USER_WARNING, $asset->attr('id_name'), $asset->attr('image'));
 			return '';
 		}
 
 		$source = $image_asset->data_path.'/'.$image_asset->attr('name');
 		// check the source file exists
 		if (!file_exists($source)) {
-			trigger_error('Unable to colourise "'.$asset->attr('id_name').'", source file "'.$source.'" doesn\'t exist', E_USER_WARNING);
+			trigger_localised_error("CORE0183", E_USER_WARNING, $asset->attr('id_name'), $source);
 			return '';
 		}
 
@@ -88,7 +88,7 @@ class Design_Area_Colourise_Image_Edit_Fns extends Design_Area_Edit_Fns
 		$dest = $asset->data_path_public.'/colourised_'.$design->id.'_'.$asset->attr('image');
 
 		if (!create_directory($asset->data_path_public)) {
-			trigger_error('Unable to colourise "'.$asset->attr('id_name').'", unable to create destination directory "'.$asset->data_path_public.'"', E_USER_WARNING);
+			trigger_localised_error("CORE0185", E_USER_WARNING, $asset->attr('id_name'), $asset->data_path_public);
 			return '';
 		}
 
@@ -98,7 +98,7 @@ class Design_Area_Colourise_Image_Edit_Fns extends Design_Area_Edit_Fns
 
 			case 'greyscale' :
 				if (!isset($colours['black_colour']) || !isset($colours['white_colour'])) {
-					trigger_error('Unable to colourise "'.$asset->attr('id_name').'", you need to set both the black_colour and white_colour attributes in order to greyscale colourise an image', E_USER_WARNING);
+					trigger_localised_error("CORE0186", E_USER_WARNING, $asset->attr('id_name'));
 					return '';
 				}
 				if (Image_Manip::gradientPalette($source, $dest, $colours['black_colour'], $colours['white_colour'])) {
@@ -123,7 +123,7 @@ class Design_Area_Colourise_Image_Edit_Fns extends Design_Area_Edit_Fns
 			break;
 
 			default :
-				trigger_error('Unable to Colourise Image "'.$asset->attr('id_name').'",  type "'.$this->get_val('type').'" unknown.', E_USER_WARNING);
+				trigger_localised_error("CORE0182", E_USER_WARNING, $asset->attr('id_name'), $this->get_val('type'));
 
 		}//end switch
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_uninstall_patch.inc,v 1.10 2005/04/07 02:44:21 lwright Exp $
+* $Id: hipo_job_uninstall_patch.inc,v 1.11 2005/04/15 00:37:33 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix
 * @subpackage MAPS
 */
@@ -203,7 +203,7 @@ class HIPO_Job_Uninstall_Patch extends HIPO_Job
 	function initialise($source_code_name=null)
 	{
 		if (!isset($this->_running_vars['patchid'])) {
-			trigger_error('Cannot initialise Install Patch HIPO, no patch ID specified', E_USER_WARNING);
+			trigger_localised_error('MAPS0058', E_USER_WARNING);
 			return '';
 		}
 
@@ -421,12 +421,12 @@ class HIPO_Job_Uninstall_Patch extends HIPO_Job
 					// so make sure we can actually delete it
 					$assetid_count = count($GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($type_code, false));
 					if ($assetid_count > 0) {
-						trigger_error('This patch cannot be removed because it will delete asset type "'.$type_code.'", which is currently in use ('.$assetid_count.' "'.$type_code.'" asset(s) exist in the system)', E_USER_ERROR);
+						trigger_localised_error('MAPS0016', E_USER_ERROR, $type_code, $assetid_count);
 						return false;
 					} else {
 						$type_info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code);
 						if (substr(SQ_SYSTEM_ROOT.'/'.$type_info['dir'], 0, strlen(SQ_CORE_PACKAGE_PATH)) == SQ_CORE_PACKAGE_PATH) {
-							trigger_error('This patch cannot be removed because it will delete asset type "'.$type_code.'", which is a core asset type', E_USER_ERROR);
+							trigger_localised_error('MAPS0015', E_USER_ERROR, $type_code);
 							return false;
 						}
 					}
@@ -458,7 +458,7 @@ class HIPO_Job_Uninstall_Patch extends HIPO_Job
 			// the system version must be exactly equal to what is defined
 			// in the patch or else the patch is unpatching an untested system
 			if ($patch_info['requirements']['system']['new_version'] != SQ_SYSTEM_VERSION) {
-				trigger_error('This patch can only be removed from version '.$patch_info['requirements']['system']['new_version'].' of the system (current version is '.SQ_SYSTEM_VERSION.')', E_USER_ERROR);
+				trigger_localised_error('MAPS0017', E_USER_ERROR, $patch_info['requirements']['system']['new_version'], SQ_SYSTEM_VERSION);
 				return false;
 			}
 		}
@@ -467,7 +467,7 @@ class HIPO_Job_Uninstall_Patch extends HIPO_Job
 			foreach ($patch_info['requirements']['packages'] as $package_code => $versions) {
 				$package_path = SQ_PACKAGES_PATH.'/'.$package_code.'/package_manager_'.$package_code.'.inc';
 				if (!is_file($package_path)) {
-					trigger_error('This patch can only be removed from version '.$versions['new_version'].' of package "'.strtoupper($package_code).'" (package is not installed on this system)', E_USER_ERROR);
+					trigger_localised_error('MAPS0018', E_USER_ERROR, $versions['new_version'], strtoupper($package_code));
 					return false;
 				}
 				require_once $package_path;
@@ -475,7 +475,7 @@ class HIPO_Job_Uninstall_Patch extends HIPO_Job
 				$package = new $package_class();
 
 				if ($package->version != $versions['new_version']) {
-					trigger_error('This patch can only be removed from version '.$versions['new_version'].' of package  "'.strtoupper($package_code).'" (current version is '.$package->version.')', E_USER_ERROR);
+					trigger_localised_error('MAPS0019', E_USER_ERROR, $versions['new_version'], strtoupper($package_code), $package->version);
 					return false;
 				}
 			}
@@ -485,7 +485,7 @@ class HIPO_Job_Uninstall_Patch extends HIPO_Job
 			foreach ($patch_info['requirements']['assets'] as $type_code => $versions) {
 				$installed_version = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code, 'version');
 				if ($installed_version != $versions['new_version']) {
-					trigger_error('This patch can only be removed from version '.$versions['new_version'].' of asset type "'.$type_code.'" (current version is '.$installed_version.')', E_USER_ERROR);
+					trigger_localised_error('MAPS0020', E_USER_ERROR, $versions['new_version'], $type_code, $installed_version);
 					return false;
 				}
 			}
@@ -521,7 +521,7 @@ class HIPO_Job_Uninstall_Patch extends HIPO_Job
 				// should be a directory
 				if (!$this->_running_vars['option_ignore_file_checks']) {
 					if (!is_dir($from)) {
-						trigger_error('Could not remove directory "'.$from.'" - directory does not exist in your MySource installation', E_USER_ERROR);
+						trigger_localised_error('MAPS0039', E_USER_ERROR, $from);
 						return false;
 					}
 				}
@@ -531,13 +531,13 @@ class HIPO_Job_Uninstall_Patch extends HIPO_Job
 				// should be a regular file
 				if (!$this->_running_vars['option_ignore_file_checks']) {
 					if (!is_file($from)) {
-						trigger_error('Could not remove file "'.$from.'" - file does not exist in your MySource installation', E_USER_ERROR);
+						trigger_localised_error('MAPS0037', E_USER_ERROR, $from);
 						return false;
 					}
 
 					// check the MD5 sum of the file to ensure it has not been changed since installing
 					if ($file_info['md5'] != md5(file_get_contents($from))) {
-						trigger_error('Could not remove file "'.$from.'" - MD5 strings did not match - local file may have been modified since being patched', E_USER_ERROR);
+						trigger_localised_error('MAPS0038', E_USER_ERROR, $from);
 						return false;
 					}
 				}
@@ -551,22 +551,22 @@ class HIPO_Job_Uninstall_Patch extends HIPO_Job
 			$from = $backup_path.'/'.$path;
 
 			if (!is_file($from)) {
-				trigger_error('Could not unpatch file "'.$to.'" - old version does not exist in patch backup directory', E_USER_ERROR);
+				trigger_localised_error('MAPS0030', E_USER_ERROR, $to);
 				return false;
 			}
 			if (!$this->_running_vars['option_ignore_file_checks']) {
 				if (!is_file($to)) {
-					trigger_error('Could not unpatch file "'.$to.'" - file does not exist in your MySource installation and it was not removed in this patch', E_USER_ERROR);
+					trigger_localised_error('MAPS0031', E_USER_ERROR, $to);
 					return false;
 				}
 
 				// check the MD5 sum of the files to ensure they have not been changed since installing
 				if ($file_info['md5'] != md5(file_get_contents($to))) {
-					trigger_error('Could not update file "'.$to.'" - MD5 strings did not match - local file may have been modified since being patched', E_USER_ERROR);
+					trigger_localised_error('MAPS0027', E_USER_ERROR, $to);
 					return false;
 				}
 				if ($file_info['local_md5'] != md5(file_get_contents($from))) {
-					trigger_error('Could not unpatch file "'.$to.'" - MD5 strings did not match - backup file may have been modified since being backed up', E_USER_ERROR);
+					trigger_localised_error('MAPS0032', E_USER_ERROR, $to);
 					return false;
 				}
 			}
@@ -578,18 +578,18 @@ class HIPO_Job_Uninstall_Patch extends HIPO_Job
 			$from = $backup_path.'/'.$path;
 
 			if (!is_file($from)) {
-				trigger_error('Could not restore file "'.$to.'" - old version does not exist in patch backup directory', E_USER_ERROR);
+				trigger_localised_error('MAPS0034', E_USER_ERROR, $to);
 				return false;
 			}
 
 			if (!$this->_running_vars['option_ignore_file_checks']) {
 				if (is_file($to)) {
-					trigger_error('Could not restore file "'.$to.'" - a file with the same name exists in your MySource installation and it was removed in this patch', E_USER_ERROR);
+					trigger_localised_error('MAPS0035', E_USER_ERROR, $to);
 					return false;
 				}
 
 				if ($file_info['local_md5'] != md5(file_get_contents($from))) {
-					trigger_error('Could not restore file "'.$to.'" - MD5 strings did not match - backup file may have been modified since being backed up', E_USER_ERROR);
+					trigger_localised_error('MAPS0059', E_USER_ERROR, $to);
 					return false;
 				}
 			}
@@ -627,7 +627,7 @@ class HIPO_Job_Uninstall_Patch extends HIPO_Job
 
 				include_once(SQ_FUDGE_PATH.'/general/file_system.inc');
 				if (!delete_directory($from)) {
-					trigger_error('Could not remove directory "'.$from.'" - patch uninstall aborted', E_USER_ERROR);
+					trigger_localised_error('MAPS0040', E_USER_ERROR, $from);
 					return false;
 				}
 			}
@@ -635,7 +635,7 @@ class HIPO_Job_Uninstall_Patch extends HIPO_Job
 			// we check that this file exists again here because if we have deleted
 			// the directory it was in, it will already have been deleted for us
 			if (is_file($from) && !unlink($from)) {
-				trigger_error('Could not remove file "'.$from.'" - patch uninstall aborted', E_USER_ERROR);
+				trigger_localised_error('MAPS0036', E_USER_ERROR, $from);
 				return false;
 			}
 		}
@@ -645,7 +645,7 @@ class HIPO_Job_Uninstall_Patch extends HIPO_Job
 			$from = $backup_path.'/'.$path;
 
 			if (!copy($from, $to)) {
-				trigger_error('Could not unpatch file "'.$to.'" - patch uninstall aborted', E_USER_ERROR);
+				trigger_localised_error('MAPS0029', E_USER_ERROR, $to);
 				return false;
 			}
 		}
@@ -655,7 +655,7 @@ class HIPO_Job_Uninstall_Patch extends HIPO_Job
 			$from = $backup_path.'/'.$path;
 
 			if (!copy($from, $to)) {
-				trigger_error('Could not restore file "'.$to.'" - patch uninstall aborted', E_USER_ERROR);
+				trigger_localised_error('MAPS0033', E_USER_ERROR, $to);
 				return false;
 			}
 		}
@@ -688,7 +688,7 @@ class HIPO_Job_Uninstall_Patch extends HIPO_Job
 			$query = str_replace('ROLLBACK_PREFIX_', SQ_TABLE_ROLLBACK_PREFIX, $query);
 
 			$result = $db->query($query);
-			if (DB::isError($result)) {
+			if (!assert_valid_db_result($result, '', false, false)) {
 				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
@@ -757,16 +757,14 @@ class HIPO_Job_Uninstall_Patch extends HIPO_Job
 
 		$sql = 'DELETE FROM sq_patches WHERE patchid = '.$db->quote($patch_info['id']);
 		$result = $db->query($sql);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-			// dont actually die because we cant exactly abort at this point
-			// we'll sort it out later another way
-		}
+		assert_valid_db_result($result, '', false, false);
+		// dont actually die because we cant exactly abort at this point
+		// we'll sort it out later another way
 
 		// remove the backup directory for this patch because we dont need that any more
 		require_once(SQ_FUDGE_PATH.'/general/file_system.inc');
 		if (!delete_directory($backup_path)) {
-			trigger_error('Unable to delete patch backup directory "'.$backup_path.'" - continuing', E_USER_WARNING);
+			trigger_localised_error('MAPS0014', E_USER_WARNING, $backup_path);
 			// dont actually die because we cant exactly abort at this point
 			// we'll sort it out later another way
 		}

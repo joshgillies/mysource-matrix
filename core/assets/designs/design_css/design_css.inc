@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css.inc,v 1.8 2005/03/21 06:23:20 gsherwood Exp $
+* $Id: design_css.inc,v 1.9 2005/04/15 00:37:24 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design.inc';
 * in standard Designs
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -156,7 +156,7 @@ class Design_Css extends Design
 
 				if ($insert_link) {
 					if (!$customisation->createLink($minor, SQ_LINK_TYPE_3, '', null, 1)) {
-						trigger_error('Failed creating file link to customisation', E_USER_WARNING);
+						trigger_localised_error("CORE0162", E_USER_WARNING);
 						$am->forgetAsset($customisation);
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						return false;
@@ -188,7 +188,7 @@ class Design_Css extends Design
 		// first, we should try and find the link
 		$delete_link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid, $this->id);
 		if (empty($delete_link)) {
-			trigger_error('Existing Link #'.$linkid.' not found, unable to delete link', E_USER_WARNING);
+			trigger_localised_error("CORE0155", E_USER_WARNING, $linkid);
 			return false;
 		}
 
@@ -212,7 +212,7 @@ class Design_Css extends Design
 					if ($link['minorid'] == $delete_link['minorid']) {
 						// found the link to delete
 						if (!$customisation->deleteLink($link['linkid'])) {
-							trigger_error('Failed deleting file link from customisation', E_USER_WARNING);
+							trigger_localised_error("CORE0165", E_USER_WARNING);
 							$am->forgetAsset($customisation);
 							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 							return false;
@@ -253,7 +253,7 @@ class Design_Css extends Design
 		// first, we should try and find the link
 		$delete_link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid, $this->id);
 		if (empty($delete_link)) {
-			trigger_error('Existing Link #'.$linkid.' not found, unable to delete link', E_USER_WARNING);
+			trigger_localised_error("CORE0155", E_USER_WARNING, $linkid);
 			return false;
 		}
 

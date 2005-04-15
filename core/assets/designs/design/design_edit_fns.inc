@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.85 2005/04/14 00:18:11 ndvries Exp $
+* $Id: design_edit_fns.inc,v 1.86 2005/04/15 00:37:24 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.85 $
+* @version $Revision: 1.86 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -99,7 +99,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		if (is_file($parse_file)) {
 			$new_version = true;
 			if (!unlink($parse_file)) {
-				trigger_error('Failed deleting existing parse file', E_USER_WARNING);
+				trigger_localised_error("CORE0164", E_USER_WARNING);
 				return false;
 			}
 		}
@@ -116,20 +116,20 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 				$file_status = $fv->upToDate($parse_file);
 				if (FUDGE_FV_MODIFIED & $file_status) {
 					if (!$fv->commit($parse_file, '', false)) {
-						trigger_error('Failed committing file version', E_USER_WARNING);
+						trigger_localised_error("CORE0160", E_USER_WARNING);
 					}
 				}
 			} else {
 				// attempt to add the parse file to the repository
 				if (!$fv->add($asset->data_path_suffix, $parse_file, '', false)) {
-					trigger_error('Failed adding parse file version', E_USER_WARNING);
+					trigger_localised_error("CORE1057", E_USER_WARNING);
 				}
 			}
 		}//end if file uploaded
 
 		// make sure we have the latest version of our file
 		if (!$fv->checkOut($asset->data_path_suffix.'/parse.txt', $asset->data_path)) {
-			trigger_error('Failed checking out latest version of parse file', E_USER_WARNING);
+			trigger_localised_error("CORE0158", E_USER_WARNING);
 			return false;
 		}
 
@@ -254,7 +254,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 			// delete existing parse file
 			if (!unlink($parse_file)) {
-				trigger_error('Failed deleting existing parse file', E_USER_WARNING);
+				trigger_localised_error("CORE0164", E_USER_WARNING);
 				return false;
 			}
 
@@ -270,19 +270,19 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 				$file_status = $fv->upToDate($parse_file);
 				if (FUDGE_FV_MODIFIED & $file_status) {
 					if (!$fv->commit($parse_file, '', false)) {
-						trigger_error('Failed committing file version', E_USER_WARNING);
+						trigger_localised_error("CORE0160", E_USER_WARNING);
 					}
 				} else {
 					$changes = true;
 				}
 
 			} else {
-				trigger_error('Failed writing parse file, trying to recover previous version from repository', E_USER_WARNING);
+				trigger_localised_error("CORE0167", E_USER_WARNING);
 			}
 
 			// make sure we have the latest version of our file
 			if (!$fv->checkOut($asset->data_path_suffix.'/parse.txt', $asset->data_path)) {
-				trigger_error('Failed checking out latest version of parse file', E_USER_WARNING);
+				trigger_localised_error("CORE0158", E_USER_WARNING);
 				return false;
 			}
 
@@ -373,13 +373,13 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 			// if there is a name and it's not the the same type as the current design area
 			if (empty($element['attributes']['id_name']) || empty($element['attributes']['design_area'])) {
-				trigger_error('All design areas need to have an "id_name" and a "design_area"', E_USER_WARNING);
+				trigger_localised_error("CORE0143", E_USER_WARNING);
 				return false;
 			}//end if
 
 			// validate id name
 			if (!preg_match('/^[a-z][a-z0-9_]*$/i', $element['attributes']['id_name']) || $element['attributes']['id_name'] != preg_replace('/__+/', '', $element['attributes']['id_name'])) {
-				trigger_error('The id_name "'.$element['attributes']['id_name'].'" contains illegal characters, the id_name must be an alpha character, optionally followed by any number of alphanumeric characters or underscores.<br>NOTE: you cannot have more that one consecutive underscore', E_USER_WARNING);
+				trigger_localised_error("CORE0181", E_USER_WARNING, $element['attributes']['id_name']);
 				return false;
 			}
 
@@ -387,7 +387,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 			// if there is a name and it's not the the same type as the current design area
 			if (isset($id_names[$element['attributes']['id_name']])) {
-				trigger_error('All design areas MUST have a unique id_name, "'.$element['attributes']['id_name'].'" is used at least twice', E_USER_WARNING);
+				trigger_localised_error("CORE0142", E_USER_WARNING, $element['attributes']['id_name']);
 				return false;
 			}//end if
 
@@ -642,7 +642,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		if ($new_file) {
 			// attempt to add the file to the repository
 			if (!$fv->add($asset->data_path_suffix, $file, '', false)) {
-				trigger_error('Failed adding design file version', E_USER_WARNING);
+				trigger_localised_error("CORE0156", E_USER_WARNING);
 				return false;
 			}
 		} else {
@@ -650,7 +650,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			$file_status = $fv->upToDate($file);
 			if (FUDGE_FV_MODIFIED & $file_status) {
 				if (!$fv->commit($file, '', false)) {
-					trigger_error('Failed committing design file version', E_USER_WARNING);
+					trigger_localised_error("CORE0159", E_USER_WARNING);
 					return false;
 				}
 			}
@@ -658,7 +658,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 		// make sure we have the latest version of our file
 		if (!$fv->checkOut($asset->data_path_suffix.'/design_file.php', $asset->data_path)) {
-			trigger_error('Failed checking out latest version of design file', E_USER_WARNING);
+			trigger_localised_error("CORE0031", E_USER_WARNING);
 			return false;
 		}
 
@@ -921,7 +921,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		foreach ($file_links as $link) {
 			$minor = &$am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (!$clone->createLink($minor, SQ_LINK_TYPE_3, '', null, 1)) {
-				trigger_error('Failed creating file link to customisation', E_USER_WARNING);
+				trigger_localised_error("CORE0162", E_USER_WARNING);
 				$am->forgetAsset($minor);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
@@ -935,7 +935,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		foreach ($css_links as $link) {
 			$minor = &$am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (!$clone->createLink($minor, SQ_LINK_TYPE_3, '', null, 1)) {
-				trigger_error('Failed creating css file link to customisation', E_USER_WARNING);
+				trigger_localised_error("CORE0161", E_USER_WARNING);
 				$am->forgetAsset($minor);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;

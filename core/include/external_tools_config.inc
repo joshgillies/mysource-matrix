@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: external_tools_config.inc,v 1.13 2005/03/28 23:11:25 gsherwood Exp $
+* $Id: external_tools_config.inc,v 1.14 2005/04/15 00:37:28 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    e.g. HTML Tidy, PDFtoHTML, Antiword, etc.
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix
 */
 class External_Tools_Config extends Config
@@ -86,7 +86,7 @@ class External_Tools_Config extends Config
 
 			// if we dont have access, go away
 			if (!$is_admin) {
-				trigger_error('You need to be either the Root User or a System Administrator to save the '.$this->name, E_USER_WARNING);
+				trigger_localised_error("SYS0267", E_USER_WARNING, $this->name);
 				return false;
 			}
 		}

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.67 2005/04/07 06:39:24 mmcintyre Exp $
+* $Id: page_asset_listing.inc,v 1.68 2005/04/15 00:37:46 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.67 $
+* @version $Revision: 1.68 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -238,7 +238,7 @@ class Page_Asset_Listing extends Listing_Engine
 		// if there are no types to list, we cant list anything
 		$wanted_types = $this->attr('types');
 		if (empty($wanted_types)) {
-			trigger_error('No type settings have been configured for this page - no assets will be listed', E_USER_NOTICE);
+			trigger_localised_error('CMS0019', E_USER_NOTICE);
 			return Array();
 		}
 
@@ -456,7 +456,7 @@ class Page_Asset_Listing extends Listing_Engine
 						// nodes. If so, use the dynamic parameter as the root node; otherwise return an error.
 						$matching_root_ids = array_intersect(array_keys($dynamic_parents), $root_asset_ids);
 						if (empty($matching_root_ids)) {
-							trigger_error('Supplied dynamic root node (Id: #'.$dynamic_root.') is in an unauthorised part of the system.  Defaulting to static root node', E_USER_WARNING);
+							trigger_localised_error('CMS0020', E_USER_WARNING, $dynamic_root);
 						} else {
 							$dynamic_root_nodes[] = $dynamic_root;
 						}

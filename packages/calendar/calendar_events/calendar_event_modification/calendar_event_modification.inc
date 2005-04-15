@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_modification.inc,v 1.15 2005/03/21 06:26:05 gsherwood Exp $
+* $Id: calendar_event_modification.inc,v 1.16 2005/04/15 00:37:40 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once  dirname(__FILE__).'/../calendar_event_recurring/calendar_event_rec
 * of a recurring event have changed for a particular instance of that event.
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -68,13 +68,13 @@ class Calendar_Event_Modification extends Calendar_Event
 		if (!parent::_preCreateCheck($link)) return false;
 
 		if (!($link['value'] = $this->getStartDate())) {
-			trigger_error('You need to specify a start date before you can call create() for a modification event', E_USER_ERROR);
+			trigger_localised_error('CAL0049', E_USER_ERROR);
 			return false;
 		}
 
 		$parent = &$link['asset'];
 		if ($parent->type() != 'calendar_event_recurring') {
-			trigger_error('Recurring Event Cancellations can only be created underneath recurring events', E_USER_ERROR);
+			trigger_localised_error('CAL0050', E_USER_ERROR);
 			return false;
 		}
 
@@ -115,7 +115,7 @@ class Calendar_Event_Modification extends Calendar_Event
 	{
 		// check that it has an occurrence on the date specified
 		if (!$parent->hasOccurrenceOnDate($this->getStartDate())) {
-			trigger_error('There is no occurrence of the specified recurring event on the specified date', E_USER_ERROR);
+			trigger_localised_error('CAL0051', E_USER_ERROR, $this->getStartDate());
 			return false;
 		}
 
@@ -158,7 +158,7 @@ class Calendar_Event_Modification extends Calendar_Event
 				// get the parent recurring event asset
 				$recurring_event_ids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'calendar_event_recurring', false));
 				if (empty($recurring_event_ids)) {
-					trigger_error('Recurring Event Modifications can only be created underneath recurring events', E_USER_ERROR);
+					trigger_localised_error('CAL0052', E_USER_ERROR);
 					return false;
 				}
 				$recurring_event = &$GLOBALS['SQ_SYSTEM']->am->getAsset($recurring_event_ids[0]);

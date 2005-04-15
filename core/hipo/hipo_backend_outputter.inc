@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_backend_outputter.inc,v 1.11 2005/04/13 05:08:20 ndvries Exp $
+* $Id: hipo_backend_outputter.inc,v 1.12 2005/04/15 00:37:27 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_SYSTEM_ROOT.'/core/include/backend_outputter.inc';
 *    suite hipo jobs
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix
 */
 class Hipo_Backend_Outputter extends Backend_Outputter
@@ -304,7 +304,7 @@ class Hipo_Backend_Outputter extends Backend_Outputter
 						break;
 
 					default :
-						trigger_error('Unknown Area Type : "'.$section['areas'][$j]['area_type'].'"', E_USER_ERROR);
+						trigger_localised_error('HIPO0059', E_USER_ERROR, $section['areas'][$j]['area_type']);
 
 				}// end switch area type
 

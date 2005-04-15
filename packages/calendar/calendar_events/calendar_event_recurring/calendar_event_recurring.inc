@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.54 2005/04/06 23:09:32 mmcintyre Exp $
+* $Id: calendar_event_recurring.inc,v 1.55 2005/04/15 00:37:40 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.54 $
+* @version $Revision: 1.55 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -96,7 +96,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 
 		// if we are calling statically make sure that we have all our arguments
 		if ((!(isset($this) && is_a($this, "Calendar_Event_Recurring"))) && (func_num_args() < 5)) {
-			trigger_error('If Calendar_Event_Recurring::getFirstOccurrenceAfter() is called statically it must be called using all 5 arguments', E_USER_ERROR);
+			trigger_localised_error('CAL0030', E_USER_ERROR);
 		}
 
 		if (is_null($start)) {
@@ -272,7 +272,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 	{
 		// if we are calling statically make sure that we have all our arguments
 		if (is_null($this) && (func_num_args() < 5)) {
-			trigger_error('If Calendar_Event_Recurring::hasOccurrenceOnDate() is called statically it must be called using all 5 arguments', E_USER_ERROR);
+			trigger_localised_error('CAL0031', E_USER_ERROR);
 		}
 
 		// fill in defaults if we haven't been provided with all values
@@ -726,7 +726,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 		switch ($action_name) {
 			case 'cancel1':
 				if (!isset($_REQUEST['SQ_CALENDAR_DATE'])) {
-					trigger_error('Attempt to create a cancellation with no date', E_USER_WARNING);
+					trigger_localised_error('CAL0032', E_USER_WARNING);
 					return '';
 				}
 				$res = '<form method="POST" action="?SQ_CALENDAR_VIEW=event&amp;SQ_CALENDAR_EVENT_ID='.$this->id.'&amp;SQ_CALENDAR_EVENT_ACTION=cancel2&amp;SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'].'"><table cellpadding="4" border="0">';
@@ -736,7 +736,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 
 			case 'cancel2':
 				if ((!isset($_REQUEST['SQ_CALENDAR_DATE'])) || (!isset($_REQUEST['event_cancellation_reason']))) {
-					trigger_error('Attempt to create a cancellation one of the parameters missing', E_USER_WARNING);
+					trigger_localised_error('CAL0033', E_USER_WARNING);
 					return '';
 				}
 
@@ -749,7 +749,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 
 			case 'modify1':
 				if (!isset($_REQUEST['SQ_CALENDAR_DATE'])) {
-					trigger_error('Attempt to create a modification with no date', E_USER_WARNING);
+					trigger_localised_error('CAL0034', E_USER_WARNING);
 					return '';
 				}
 				$res = '<form method="POST" action="?SQ_CALENDAR_VIEW=event&amp;SQ_CALENDAR_EVENT_ID='.$this->id.'&amp;SQ_CALENDAR_EVENT_ACTION=modify2&amp;SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'].'"><table cellpadding="4" border="0">';
@@ -833,7 +833,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 	function &addCancellation($date, $reason)
 	{
 		if (!$this->writeAccess('')) {
-			trigger_error('You don\'t have sufficient access to create a cancellation for this event', SQ_USER_WARNING);
+			trigger_localised_error('CAL0035', E_USER_WARNING);
 			return false;
 		}
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('calendar_event_cancellation');
@@ -856,7 +856,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 			$cancellation_event->create($link);
 		} else {
 			if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($cancellation_event->id, 'attributes')) {
-				trigger_error('Could not get lock to save attrs of asset "'.$cancellation_event->name.'"', E_USER_WARNING);
+				trigger_localised_error('CAL0036', E_USER_WARNING, $cancellation_event->name);
 				return 0;
 			}
 			$cancellation_event->saveAttributes();
@@ -880,7 +880,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 	function &addModification($date, $description)
 	{
 		if (!$this->writeAccess('')) {
-			trigger_error('You don\'t have sufficient access to create a modification for this event', SQ_USER_WARNING);
+			trigger_localised_error('CAL0037', E_USER_WARNING);
 			return false;
 		}
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('calendar_event_modification');
@@ -902,7 +902,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 			$modification_event->create($link);
 		} else {
 			if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($modification_event->id, 'attributes')) {
-				trigger_error('Could not get lock to save attrs of asset "'.$modification_event->name.'"', E_USER_WARNING);
+				trigger_localised_error('CAL0038', E_USER_WARNING, $modification_event->name);
 				return 0;
 			}
 			$modification_event->saveAttributes();
@@ -949,12 +949,12 @@ class Calendar_Event_Recurring extends Calendar_Event
 		if (!$updating) {
 			// set the asset ids
 			$date_values['assetid'] = $this->id;
-			
+
 			for (reset($date_values); null !== ($key = key($date_values)); next($date_values)) {
 				$date_values[$key] = $db->quoteSmart($date_values[$key]);
 			}
 			$val_string = implode(',', $date_values);
-			
+
 			$sql = 'INSERT INTO
 						sq_cal_date_val
 						(
@@ -964,7 +964,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 						(
 							'.$val_string.'
 						)';
-			
+
 			$result = $db->query($sql);
 			assert_valid_db_result($result);
 
@@ -973,7 +973,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 			$sql = 'UPDATE
 						sq_cal_date_val
 					SET ';
-				
+
 			$set_array = Array();
 			foreach ($date_values as $key => $value) {
 				$set_array[] = $key.' = '.((is_null($value)) ? 'null' : $db->quoteSmart($value));

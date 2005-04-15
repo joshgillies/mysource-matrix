@@ -1,4 +1,4 @@
-<?php 
+<?php
 /**
 * +--------------------------------------------------------------------+
 * | Squiz.net Open Source Licence                                      |
@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: product.inc,v 1.6 2005/02/19 13:43:36 brobertson Exp $
+* $Id: product.inc,v 1.7 2005/04/15 00:37:53 lwright Exp $
 *
 */
 
@@ -28,15 +28,15 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 
 /**
 * Product
-* 
+*
 * product class description here
 *
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
- 
+
 class Product extends Page
 {
 	/**
@@ -51,9 +51,9 @@ class Product extends Page
 	{
 		$this->_ser_attrs = true;
 		$this->Page($assetid);
-		
+
 	}//end Product()
-		
+
 
 	/**
 	* Load the vars for this asset/ asset type into the vars array
@@ -86,7 +86,7 @@ class Product extends Page
 		return $this->attr('name');
 
 	}// end _getName()
-	
+
 
 	/**
 	* Queue the setting of the value of an attribute
@@ -131,22 +131,22 @@ class Product extends Page
 	{
 		//if we just submitted this form
 		if(!is_null($qty = array_get_index($_POST, 'quantity', null))) {
-			
+
 			if ($qty > 0) {
-				$this->processSelection();				
+				$this->processSelection();
 			}
-		
+
 			//if form submitted but invalid quantity
 			else if($qty < 1 || !is_int($qty)) {
 				// invalid selection - set flag here;
 			}
 		}
-		
+
 		parent::printFrontend();
-		
+
 	}//end printFrontend()
-	
-	
+
+
 	/**
 	* Prints out the body of the asset
 	*
@@ -163,33 +163,33 @@ class Product extends Page
 		</form>
 		</div>
 		<?php
-		
+
 	}//end printBody()
-	
+
 	/**
 	* Handles finding which cart to add the order to
 	*
 	* @return boolean	indicating success
 	* @access public
 	*/
-	function processSelection() 
+	function processSelection()
 	{
 
 		$cart_assetid = $this->getActiveCartAssetid();
 
 		if ($cart_assetid === false) {
-			trigger_error('There was no active cart found', E_USER_WARNING);
+			trigger_localised_error('ECOM0011', E_USER_WARNING);
 			return false;
 		}
 
 		if (!is_numeric($qty = $_POST['quantity'])) {
-			trigger_error('Invalid quantity entered', E_USER_WARNING);
+			trigger_localised_error('ECOM0012', E_USER_WARNING);
 			return false;
 		}
 
 		//get the cart asset
 		$cart =& $GLOBALS['SQ_SYSTEM']->am->getAsset($cart_assetid);
-					
+
 		//update item and quantity to cart
 		if (isset($_SESSION['sq_cart_contents'][$this->id])) {
 			$cart->update($this->id, (int)$qty);
@@ -197,7 +197,7 @@ class Product extends Page
 			$cart->add($this->id, $this->attr('price'), (int)$qty);
 		}
 		return true;
-		
+
 	}//end processSelection()
 
 
@@ -239,8 +239,8 @@ class Product extends Page
 		}
 
 	}//end getActiveCartAssetid()
-	
-	
+
+
 	/**
 	* Return the keywords with their replacements
 	*
@@ -262,14 +262,14 @@ class Product extends Page
 	function getAssetKeywords($descriptions=false)
 	{
 		$keywords = parent::getAssetKeywords($descriptions);
-		
+
 		// only expose the image stuff if we are a real asset (and not a dunmmy
 		// one, as used in the asset listing to put our keywords in a drop down)
 		if ($this->id) {
 
 			// Adjust the quantity/commit keywords depending in whether there are
 			// items in the cart already
-			if (isset($_SESSION['sq_cart_contents'])) { 
+			if (isset($_SESSION['sq_cart_contents'])) {
 
 				$qty = array_get_index($_SESSION['sq_cart_contents'], $this->id, Array('quantity' => 0));
 				if ($qty['quantity'] != 0) {
@@ -288,7 +288,7 @@ class Product extends Page
 			}
 
 		}
-		
+
 		return $keywords;
 
 	}//end getAssetKeywords()

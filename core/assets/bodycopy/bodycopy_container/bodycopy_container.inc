@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container.inc,v 1.24 2005/03/31 00:15:36 ndvries Exp $
+* $Id: bodycopy_container.inc,v 1.25 2005/04/15 00:37:24 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -89,7 +89,7 @@ class Bodycopy_Container extends Asset
 
 		$name = trim($this->attr('name'));
 		if ($name == '') {
-			trigger_error('Unable to create a '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').' with a blank name', E_USER_WARNING);
+			trigger_localised_error("CORE0083", E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
 			return false;
 		}
 
@@ -157,7 +157,7 @@ class Bodycopy_Container extends Asset
 		// save a version of the container as it appears now
 		$edit = $this->getEditFns();
 		if (!$edit->generateContentFile($this)) {
-			trigger_error('Failed saving asset "'.$this->name.'" to cache, could not create content file', E_USER_WARNING);
+			trigger_localised_error("CORE0047", E_USER_WARNING, $this->name);
 			return false;
 		}
 
@@ -168,7 +168,7 @@ class Bodycopy_Container extends Asset
 
 		// save the links we currently use (./?a=xx)
 		if (!string_to_file(serialize($replace_assetids), $this->data_path.'/.sq_system/.notice_links')) {
-			trigger_error('Failed saving asset "'.$this->name.'" to cache, could not create notice links file', E_USER_WARNING);
+			trigger_localised_error("CORE0048", E_USER_WARNING, $this->name);
 			return false;
 		}
 
@@ -382,7 +382,7 @@ class Bodycopy_Container extends Asset
 		}
 
 		if (!file_exists($this->data_path.'/content_file.php')) {
-			trigger_error('Content file failed to generate for bodycopy container '.$this->name, E_USER_WARNING);
+			trigger_localised_error("CORE0009", E_USER_WARNING, $this->name);
 		} else {
 			include($this->data_path.'/content_file.php');
 		}

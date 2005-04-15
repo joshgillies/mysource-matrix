@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_edit_fns.inc,v 1.28 2005/04/01 00:15:01 ndvries Exp $
+* $Id: bodycopy_container_edit_fns.inc,v 1.29 2005/04/15 00:37:24 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -396,10 +396,9 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
 			$designid = $db->getOne($sql.$where);
+			assert_valid_db_result($designid);
 			if ($designid) {
-				if (DB::isError($designid)) {
-					trigger_error($designid->getMessage().'<br/>'.$designid->getUserInfo(), E_USER_ERROR);
-				} else if (!SQ_IN_LIMBO) {
+				if (!SQ_IN_LIMBO) {
 					$design = &$am->getAsset($designid);
 					$stylesheets = $design->getStylesheets();
 

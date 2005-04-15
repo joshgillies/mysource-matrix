@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.66 2005/04/11 07:00:47 mmcintyre Exp $
+* $Id: workflow_manager.inc,v 1.67 2005/04/15 00:37:28 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.66 $
+* @version $Revision: 1.67 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -122,30 +122,30 @@ class Workflow_Manager extends MySource_Object
 
 		$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
 		if (is_null($schema)) {
-			trigger_error('Failed setting workflow schema, Schema Asset #'.$schemaid.' does not exist', E_USER_WARNING);
+			trigger_localised_error("SYS0175", E_USER_WARNING, $schemaid);
 			return false;
 		}
 
 		if (!is_a($schema, 'workflow_schema')) {
-			trigger_error('Failed setting workflow schema, "'.$schema->name.'" (Asset #'.$schemaid.') is not a workflow schema', E_USER_WARNING);
+			trigger_localised_error("SYS0173", E_USER_WARNING, $schema->name, $schemaid);
 			return false;
 		}
 
 		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
-			trigger_error('Failed setting workflow schema, Asset #'.$assetid.' does not exist', E_USER_WARNING);
+			trigger_localised_error("SYS0174", E_USER_WARNING, $assetid);
 			return false;
 		}
 
 		if (!$asset->adminAccess('workflow')) {
-			trigger_error('Cannot set workflow schema for "'.$asset->name.'", permission denied', E_USER_WARNING);
+			trigger_localised_error("SYS0117", E_USER_WARNING, $asset->name);
 			return false;
 		}
 
 		// check for any running schemas - because if the asset is in workflow we cant do anything
 		$running_schemas = $this->getSchemas($assetid, true, true);
 		if (!empty($running_schemas)) {
-			trigger_error('Cannot set workflow schema for "'.$asset->name.'", workflow is currently running', E_USER_WARNING);
+			trigger_localised_error("SYS0118", E_USER_WARNING, $asset->name);
 			return false;
 		}
 
@@ -162,7 +162,7 @@ class Workflow_Manager extends MySource_Object
 				$new_access     = ($granted) ? 'apply'  : 'deny';
 				$current_access = ($granted) ? 'denied' : 'applied';
 
-				trigger_error('Could not '.$new_access.' workflow schema "'.$schema->name.'" on "'.$asset->name.'" because this asset already has this schema '.$current_access, E_USER_WARNING);
+				trigger_localised_error("SYS0124", E_USER_WARNING, $new_access, $schema->name, $asset->name, $current_access);
 				return false;
 			}
 		}
@@ -222,19 +222,19 @@ class Workflow_Manager extends MySource_Object
 
 		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
-			trigger_error('Failed deleting workflow schema, Asset #'.$assetid.' does not exist', E_USER_WARNING);
+			trigger_localised_error("SYS0153", E_USER_WARNING, $assetid);
 			return false;
 		}
 
 		if (!$asset->adminAccess('workflow')) {
-			trigger_error('Cannot delete workflow schema for "'.$asset->name.'", permission denied', E_USER_WARNING);
+			trigger_localised_error("SYS0105", E_USER_WARNING, $asset->name);
 			return false;
 		}
 
 		// check for any running schemas - because if the asset is in workflow we cant do anything
 		$running_schemas = $this->getSchemas($assetid, true, true);
 		if (!empty($running_schemas)) {
-			trigger_error('Cannot delete workflow schema for "'.$asset->name.'", workflow is currently running', E_USER_WARNING);
+			trigger_localised_error("SYS0106", E_USER_WARNING, $asset->name);
 			return false;
 		}
 
@@ -334,12 +334,12 @@ class Workflow_Manager extends MySource_Object
 
 		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
-			trigger_error('Failed setting workflow, Asset #'.$assetid.' does not exist', E_USER_WARNING);
+			trigger_localised_error("SYS0177", E_USER_WARNING, $assetid);
 			return false;
 		}
 
 		if (!$asset->adminAccess('workflow')) {
-			trigger_error('Cannot set workflow for "'.$asset->name.'", permission denied', E_USER_WARNING);
+			trigger_localised_error("SYS0117", E_USER_WARNING, $asset->name);
 			return false;
 		}
 
@@ -363,13 +363,13 @@ class Workflow_Manager extends MySource_Object
 		foreach ($schemas as $schemaid) {
 			$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
 			if (is_null($schema)) {
-				trigger_error('Failed setting workflow, Schema #'.$schemaid.' does not exist', E_USER_WARNING);
+				trigger_localised_error("SYS0174", E_USER_WARNING, $schemaid);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
 
 			if (!is_a($schema, 'workflow_schema')) {
-				trigger_error('Failed setting workflow, "'.$schema->name.'" (Asset #'.$schemaid.') is not a workflow schema', E_USER_WARNING);
+				trigger_localised_error("SYS0176", E_USER_WARNING, $schema->name, $schemaid);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
@@ -449,7 +449,7 @@ class Workflow_Manager extends MySource_Object
 
 		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
-			trigger_error('Failed to notify, asset #'.$assetid.' does not exist', E_USER_WARNING);
+			trigger_localised_error("SYS0180", E_USER_WARNING, $assetid);
 			return false;
 		}
 
@@ -671,7 +671,7 @@ class Workflow_Manager extends MySource_Object
 		$assetid = (int) $assetid;
 		$asset   = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
-			trigger_error('Failed recording workflow publish, Asset #'.$assetid.' does not exist', E_USER_WARNING);
+			trigger_localised_error("SYS0160", E_USER_WARNING, $assetid);
 			return false;
 		}
 
@@ -904,18 +904,18 @@ class Workflow_Manager extends MySource_Object
 
 		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
-			trigger_error('Failed getting workflow, Asset #'.$assetid.' does not exist', E_USER_WARNING);
+			trigger_localised_error("SYS0155", E_USER_WARNING, $assetid);
 			return false;
 		}
 
 		$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
 		if (is_null($schema)) {
-			trigger_error('Failed getting workflow, Schema #'.$schemaid.' does not exist', E_USER_WARNING);
+			trigger_localised_error("SYS0156", E_USER_WARNING, $schemaid);
 			return false;
 		}
 
 		if (!is_a($schema, 'workflow_schema')) {
-			trigger_error('Failed getting workflow, "'.$schema->name.'" (Asset #'.$schemaid.') is not a workflow schema', E_USER_WARNING);
+			trigger_localised_error("SYS0154", E_USER_WARNING, $schema->name, $schemaid);
 			return false;
 		}
 
@@ -945,7 +945,7 @@ class Workflow_Manager extends MySource_Object
 		$assetid  = (int) $assetid;
 		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
-			trigger_error('Failed starting workflow, Asset #'.$assetid.' does not exist', E_USER_WARNING);
+			trigger_localised_error("SYS0179", E_USER_WARNING, $assetid);
 			return false;
 		}
 
@@ -993,7 +993,7 @@ class Workflow_Manager extends MySource_Object
 			$current_userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
 			if (in_array($current_userid, $publishers)) {
 				if (!$this->recordPublish($asset->id, $current_userid)) {
-					trigger_error('Approval by user '.$current_userid.' not set in processStatusChange', E_USER_WARNING);
+					trigger_localised_error("SYS0078", E_USER_WARNING, $current_userid);
 					// dont die here because they can try to approve again later, we just want to warn them
 				}
 			}
@@ -1100,7 +1100,7 @@ class Workflow_Manager extends MySource_Object
 		$assetid = (int) $assetid;
 		$asset   = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
-			trigger_error('Failed cancelling workflow, Asset #'.$assetid.' does not exist', E_USER_WARNING);
+			trigger_localised_error("SYS0146", E_USER_WARNING, $assetid);
 			return false;
 		}
 
@@ -1154,7 +1154,7 @@ class Workflow_Manager extends MySource_Object
 		$assetid = (int) $assetid;
 		$asset   = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
-			trigger_error('Failed completing workflow, Asset #'.$assetid.' does not exist', E_USER_WARNING);
+			trigger_localised_error("SYS0150", E_USER_WARNING, $assetid);
 			return false;
 		}
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_custom_form_ecommerce_edit_fns.inc,v 1.4 2004/12/06 14:42:21 brobertson Exp $
+* $Id: page_custom_form_ecommerce_edit_fns.inc,v 1.5 2005/04/15 00:37:53 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_custom_form/page_custom_
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -56,7 +56,7 @@ class Page_Custom_Form_Ecommerce_Edit_Fns extends Page_Custom_Form_Edit_Fns
 		$form_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'form_ecommerce', false, 'major', '', '1', '1');
 		$form = &$GLOBALS['SQ_SYSTEM']->am->getAsset($form_link[0]['minorid']);
 		if (is_null($form)) {
-			trigger_error('Could not locate the Ecommerce Rules for ecommerce custom form page "'.$asset->name.'"', E_USER_ERROR);
+			trigger_localised_error('ECOM0002', E_USER_ERROR, $asset->name, $asset->id);
 			return false;
 		}
 

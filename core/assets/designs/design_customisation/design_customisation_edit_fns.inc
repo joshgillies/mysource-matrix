@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_customisation_edit_fns.inc,v 1.31 2005/04/04 00:37:16 ndvries Exp $
+* $Id: design_customisation_edit_fns.inc,v 1.32 2005/04/15 00:37:25 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -315,14 +315,14 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 			$da = &$am->getAsset($link['minorid'], $link['minor_type_code']);
 
 			if ($da->attr('id_name') == '') {
-				trigger_error('Design Area #'.$da->id.' does not have an id_name set. Attempting to recover.', E_USER_NOTICE);
+				trigger_localised_error("CORE0154", E_USER_NOTICE, $da->id);
 				foreach ($links as $link) {
 					if ($link['minorid'] == $da->id) {
 						if (!empty($link['value'])) {
 							$da->setAttrValue('id_name', $link['value']);
 							$da->saveAttributes();
 						} else {
-							trigger_error('Could not recover id_name for design area #'.$da->id, E_USER_WARNING);
+							trigger_localised_error("CORE0149", $da->id, E_USER_WARNING);
 						}
 						break;
 					}

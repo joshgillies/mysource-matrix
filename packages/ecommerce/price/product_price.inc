@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: product_price.inc,v 1.3 2005/02/19 13:42:44 brobertson Exp $
+* $Id: product_price.inc,v 1.4 2005/04/15 00:37:53 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@
 *     Provides an extensible method for representing the price in a Product
 *
 * @author  Blair Robertson
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -173,7 +173,7 @@ class Product_Price extends MySource_Object
 				} else {
 					$val = floatval($val);
 					if ($val < 0) {
-						trigger_error('Price Value cannot be negative', E_USER_WARNING);
+						trigger_localised_error('ECOM0001', E_USER_WARNING);
 						return false;
 					}
 				}

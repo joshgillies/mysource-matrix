@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_create_clone.inc,v 1.7 2005/04/12 07:01:31 arailean Exp $
+* $Id: trigger_action_create_clone.inc,v 1.8 2005/04/15 00:37:26 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -122,7 +122,7 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 
 		$clone = &$am->cloneAsset($minor, $link, $clone_map, Array('all'));
 		if (is_null($clone)) {
-			trigger_error('clone failed', E_USER_WARNING);
+			trigger_localised_error("CORE0138", E_USER_WARNING);
 			return false;
 		}
 

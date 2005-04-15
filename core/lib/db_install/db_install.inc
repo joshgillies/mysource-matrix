@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_install.inc,v 1.18 2005/04/14 17:47:49 brobertson Exp $
+* $Id: db_install.inc,v 1.19 2005/04/15 00:37:32 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@
 * @author  Blair Robertson <blair@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -69,7 +69,7 @@ function db_install($xml_file, $verbose=true)
 	}
 
 	if ($root->name != 'schema' || $root->children[0]->name != 'tables' || $root->children[1]->name != 'sequences') {
-		trigger_error('Invalid Schema for DB install', E_USER_WARNING);
+		trigger_localised_error('SYS0012', E_USER_WARNING);
 		$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 		return false;
 	}
@@ -253,6 +253,9 @@ function db_install($xml_file, $verbose=true)
 
 				$result = $db->query($table_sql);
 				assert_valid_db_result($result);
+
+				fwrite($fp, $table_sql."\n");
+
 			}
 
 			//--        TABLE INDEXES        --//
@@ -288,7 +291,7 @@ function db_install($xml_file, $verbose=true)
 	// write a new cache file with all the table names and their columns
 	$cached_table_columns_string = '<'.'?php $tables = '.var_export($cached_table_columns, true).'; ?'.'>';
 	if (!string_to_file($cached_table_columns_string, $data_path.'/table_columns.inc')) {
-		trigger_error('Failed writing database table column cache file', E_USER_WARNING);
+		trigger_localised_error('SYS0011', E_USER_WARNING);
 		$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 		return false;
 	}
@@ -342,7 +345,7 @@ function db_install($xml_file, $verbose=true)
 
 	$cached_sequences_string = '<'.'?php $sequences = '.var_export($cached_sequences, true).'; ?'.'>';
 	if (!string_to_file($cached_sequences_string, $data_path.'/sequences.inc')) {
-		trigger_error('Failed writing database sequence column cache file', E_USER_WARNING);
+		trigger_localised_error('SYS0010', E_USER_WARNING);
 		$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 		return false;
 	}
@@ -499,6 +502,7 @@ function install_rollback_triggers($table_columns, $verbose=true, $override=fals
 			$sql .= ' DECLARE BEGIN ';
 			// if we are oracle make sure that we are not a remote
 			// replication server as the rows will get replicated for us
+
 			$sql .= 'IF DBMS_REPUTIL.FROM_REMOTE = TRUE THEN
 						RETURN;
 					END IF;';

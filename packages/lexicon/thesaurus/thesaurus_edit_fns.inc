@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus_edit_fns.inc,v 1.4 2005/01/29 15:24:32 brobertson Exp $
+* $Id: thesaurus_edit_fns.inc,v 1.5 2005/04/15 00:37:56 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage lexicon
 */
@@ -106,7 +106,7 @@ class Thesaurus_Edit_Fns extends Asset_Edit_Fns
 		if (is_uploaded_file($info['tmp_name'])) {
 			// a normal uploaded file
 			if (!move_uploaded_file($info['tmp_name'], $asset->getImportPath())) {
-				trigger_error('Failed copying uploaded file ('.$info['tmp_name'].') to destination directory ('.$asset->getImportPath().')', E_USER_WARNING);
+				trigger_localised_error('LEX0001', E_USER_WARNING, $info['tmp_name'], $asset->getImportPath());
 				return false;
 			}
 		}

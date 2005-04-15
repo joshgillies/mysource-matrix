@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: locale_manager.inc,v 1.4 2005/04/08 05:58:43 lwright Exp $
+* $Id: locale_manager.inc,v 1.5 2005/04/15 00:37:28 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,7 +31,7 @@
 *    number/date formats
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 */
 class Locale_Manager extends MySource_Object
@@ -196,7 +196,7 @@ class Locale_Manager extends MySource_Object
 			break;
 
 			default:
-				trigger_error('Locale code "'.$locale.'" does not seem to be valid', E_USER_WARNING);
+				trigger_localised_error('CORE0193', E_USER_WARNING, $locale);
 				return false;
 			break;
 		}//end switch
@@ -417,7 +417,12 @@ class Locale_Manager extends MySource_Object
 
 
 	/**
-	* fetches an error translation for the current and triggers the error
+	* fetches an error translation for the current locale and triggers the error
+	*
+	* This differs from the getErrorMessage() method in that this actually calls
+	* trigger_error() as well. Use the raw getErrorMessage() where error handling
+	* needs to differ ()
+	* Shortcut defined in general.inc: trigger_localised_error()
 	*
 	* @param string	$code			the error code
 	* @param int	$error_level	the PHP error level (must be one of:
@@ -438,9 +443,39 @@ class Locale_Manager extends MySource_Object
 		// if third parameter is an array, use that as our list of params
 		// otherwise, everything after 2nd param is our list of params that we
 		// will pump into the error, sprintf() style
-		if (!is_array($func_args = func_get_arg(2))) {
+		if (func_num_args() == 2) {
+			$func_args = Array();
+		} else if (!is_array($func_args = func_get_arg(2))) {
 			$func_args = func_get_args();
 			$func_args = array_slice($func_args,2);
+		}
+
+		$error_msg = $this->getErrorMessage($code, $func_args);
+		trigger_error($error_msg, $error_level);
+
+	}//end raiseError()
+
+
+	/**
+	* fetches an error translation for the current locale
+	*
+	* @param string	$code			the error code
+	*
+	* @return void
+	* @access public
+	*/
+	function getErrorMessage($code)
+	{
+		$locale = $this->getCurrentLocale();
+
+		// if second parameter is an array, use that as our list of params
+		// otherwise, everything after 1st param is our list of params that we
+		// will pump into the error, sprintf() style
+		if (func_num_args() == 1) {
+			$func_args = Array();
+		} else if (!is_array($func_args = func_get_arg(1))) {
+			$func_args = func_get_args();
+			$func_args = array_slice($func_args,1);
 		}
 
 		$valid_code = true;
@@ -453,12 +488,14 @@ class Locale_Manager extends MySource_Object
 		}
 
 		if ($valid_code) {
-			trigger_error(vsprintf($this->_errors[$locale][$code], $func_args).' ['.$code.']', $error_level);
+			$error_msg = vsprintf($this->_errors[$locale][$code], $func_args).' ['.$code.']';
 		} else {
-			trigger_error('Error text not found for this code and locale ['.$code.']', $error_level);
+			$error_msg = 'Error text not found for this code and locale ['.$code.']';
 		}
 
-	}//end raiseError()
+		return $error_msg;
+
+	}//end getErrorMessage()
 
 
 }//end class

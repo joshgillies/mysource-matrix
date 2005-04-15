@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety.inc,v 1.16 2005/04/06 23:05:34 mmcintyre Exp $
+* $Id: image_variety.inc,v 1.17 2005/04/15 00:37:25 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -108,10 +108,10 @@ class Image_Variety extends Asset
 		switch ($name) {
 			case 'name' :
 				if (trim($this->attr('name')) != '') {
-					trigger_error('You cannot change the name of a variety', E_USER_WARNING);
+					trigger_localised_error("CORE0116", E_USER_WARNING);
 					return false;
 				} elseif (trim($value) == '') {
-					trigger_error('You cannot set a blank name for a variety', E_USER_WARNING);
+					trigger_localised_error("CORE0120", E_USER_WARNING);
 				} else {
 					// make sure the name is valid for a web path
 					require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
@@ -122,12 +122,12 @@ class Image_Variety extends Asset
 			case 'width' :
 			case 'height' :
 				if ((int) $value < 0) {
-					trigger_error('Unable to set '.$name.' in "'.$this->name.'" (#'.$this->id.') - it must be greater than or equal to zero', E_USER_WARNING);
+					trigger_localised_error("CORE0101", E_USER_WARNING, $name, $this->name, $this->id);
 					return false;
 				}
 
 				if ((int) $value == 0 && ($this->attr('constrain') == 'none' || $this->attr('constrain') == $name)) {
-					trigger_error('Unable to set '.$name.' in "'.$this->name.'" (#'.$this->id.') - it must be greater than zero if it is going to be contrained to', E_USER_WARNING);
+					trigger_localised_error("CORE0102", E_USER_WARNING, $name, $this->name, $this->id);
 					return false;
 				}
 				break;
@@ -160,13 +160,13 @@ class Image_Variety extends Asset
 		if (empty($this->_tmp['vars_set'])) return true;
 
 		if (!$GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] && !$this->writeAccess('attributes')) {
-			trigger_error('You do not have permission to save the attributes of "'.$this->name.'" (#'.$this->id.')', E_USER_WARNING);
+			trigger_localised_error("CORE0121", E_USER_WARNING, $this->name, $this->id);
 			return false;
 		}
 
 		if ($this->attr('variety_type') == 'resize' && $this->attr('constrain') != 'none') {
 			if ((int) $this->attr($this->attr('constrain')) == 0) {
-				trigger_error('Unable to save "'.$this->name.'" (#'.$this->id.') - Unable to constrain by '.$this->attr('constrain').' and have '.$this->attr('constrain').' set to zero', E_USER_WARNING);
+				trigger_localised_error("CORE0096", E_USER_WARNING, $this->name, $this->id, $this->attr('constrain'));
 				return false;
 			}
 		}
@@ -266,7 +266,7 @@ class Image_Variety extends Asset
 			switch($this->attr('constrain')) {
 				case 'width' :
 					if ($d_width <= 0) {
-						trigger_error('Cannot constrain to width if width is zero', E_USER_WARNING);
+						trigger_localised_error("CORE0007", E_USER_WARNING);
 						return false;
 					}
 
@@ -275,7 +275,7 @@ class Image_Variety extends Asset
 
 				case 'height' :
 					if ($d_height <= 0) {
-						trigger_error('Cannot constrain to height if height is zero', E_USER_WARNING);
+						trigger_localised_error("CORE0006", E_USER_WARNING);
 						return false;
 					}
 					$d_width  = round((int) $source_image_info['width']  * ($d_height / (int) $source_image_info['height']));
@@ -283,7 +283,7 @@ class Image_Variety extends Asset
 			}
 
 			if ($d_width <= 0 || $d_height <= 0) {
-				trigger_error('Both height and width needs to be greater than zero', E_USER_WARNING);
+				trigger_localised_error("CORE0005", E_USER_WARNING);
 				return false;
 			}
 
@@ -296,7 +296,7 @@ class Image_Variety extends Asset
 				$up_to_date = $fv->upToDate($d_new_file);
 				if ($up_to_date & FUDGE_FV_OLD_VERSION) {
 					if (!$fv->checkOut($this->data_path_suffix.'/'.$d_new_filename, $this->data_path)) {
-						trigger_error('Update failed checking-out latest version of file', E_USER_WARNING);
+						trigger_localised_error("COR0103", E_USER_WARNING);
 						return false;
 					}
 				}
@@ -312,7 +312,7 @@ class Image_Variety extends Asset
 				if (!$fv->add($this->data_path_suffix, $d_new_file, '', false)) return false;
 
 				if (!$fv->checkOut($this->data_path_suffix.'/'.$d_new_filename, $this->data_path)) {
-					trigger_error('Update failed checking-out latest version of file', E_USER_WARNING);
+					trigger_localised_error("COR0103", E_USER_WARNING);
 					return false;
 				}
 
@@ -369,7 +369,7 @@ class Image_Variety extends Asset
 
 		} else {
 			if (!($fv->remove($d_file, '', false) & FUDGE_FV_OK)) {
-				trigger_error('Failed removing "'.$d_filename.'" from the repository', E_USER_WARNING);
+				trigger_localised_error("CORE0041", E_USER_WARNING, $d_filename);
 				return false;
 			}
 
@@ -408,7 +408,7 @@ class Image_Variety extends Asset
 			// if there is no current file or if the current file is out of date, check out a fresh copy
 			if ($fv->upToDate($unrestricted) & (FUDGE_FV_NOT_CHECKED_OUT | FUDGE_FV_OLD_VERSION)) {
 				if (!$fv->checkOut($this->data_path_suffix.'/'.$filename, $this->data_path_public)) {
-					trigger_error('Update failed checking-out latest version of file', E_USER_WARNING);
+					trigger_localised_error("COR0103", E_USER_WARNING);
 					return false;
 				}
 			}
@@ -416,7 +416,7 @@ class Image_Variety extends Asset
 			// need to make sure our file is in the NOT in the public data directory
 			if (is_file($unrestricted)) {
 				if (!$fv->clearOut($unrestricted) & FUDGE_FV_OK) {
-					trigger_error('Update failed deleting file from public data directory', E_USER_WARNING);
+					trigger_localised_error("COR0104", E_USER_WARNING);
 					return false;
 				}
 			}
@@ -460,13 +460,13 @@ class Image_Variety extends Asset
 						(
 							SELECT
 								url
-							FROM 
+							FROM
 								sq_ast_lookup l
 							WHERE
 								assetid = '.$db->quoteSmart($this->id).'
 						)
 					AND	name LIKE '.$db->quoteSmart('design::%');
-		
+
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
 
@@ -474,7 +474,7 @@ class Image_Variety extends Asset
 					sq_ast_lookup
 				WHERE
 					assetid = '.$db->quoteSmart($this->id);
-		
+
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
 
@@ -525,7 +525,7 @@ class Image_Variety extends Asset
 
 
 		foreach ($save_urls as $url => $url_data) {
-			
+
 			$sql = 'INSERT INTO
 						sq_ast_lookup
 						(
@@ -543,7 +543,7 @@ class Image_Variety extends Asset
 							'.$db->quoteSmart($url_data['https']).',
 							'.$db->quoteSmart('0').'
 						)';
-			
+
 			$result = $db->query($sql);
 			assert_valid_db_result($result);
 

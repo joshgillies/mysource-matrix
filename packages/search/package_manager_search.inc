@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_search.inc,v 1.10 2005/03/29 07:00:04 arailean Exp $
+* $Id: package_manager_search.inc,v 1.11 2005/04/15 00:38:00 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/package_manager.inc';
 *    uses info gleened from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -81,7 +81,7 @@ class Package_Manager_Search extends Package_Manager
 		$search_manager = new Search_Manager();
 		$search_manager_link = Array('asset' => &$system_management_folder, 'link_type' => SQ_LINK_TYPE_1, 'is_exclusive' => 1);
 		if (!$search_manager->create($search_manager_link)) {
-			trigger_error('Search Manager NOT CREATED', E_USER_ERROR);
+			trigger_localised_error('SCH0007', E_USER_ERROR);
 		}
 		pre_echo('Search Manager Asset Id : '.$search_manager->id);
 

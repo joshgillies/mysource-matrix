@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_management.inc,v 1.22 2005/04/11 23:30:14 ndvries Exp $
+* $Id: page_asset_builder_management.inc,v 1.23 2005/04/15 00:37:46 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -205,7 +205,7 @@ class Page_Asset_Builder_Management extends Asset_Management
 	{
 		// important upgrades that must be taken care of before create type becomes
 		// a serialise in 0.3
-		if ($current_version <= '0.2') {
+		if (version_compare($current_version, '0.2', '<=')) {
 			$root_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
 			$children = $GLOBALS['SQ_SYSTEM']->am->getChildren($root_folder->id, $this->getAssetType(), false);
 			foreach ($children as $assetid => $type) {
@@ -214,7 +214,7 @@ class Page_Asset_Builder_Management extends Asset_Management
 				if (is_null($asset)) continue;
 
 				if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'attributes')) {
-					trigger_error('Asset Builder Upgrade [from 0.2] Failed - Unable to Acquire Lock on "'.$asset->name.'" (#'.$asset->id.')', E_USER_WARNING);
+					trigger_localised_error('CMS0025', E_USER_WARNING, '0.2', $asset->name, $asset->id);
 					return false;
 				}
 
@@ -223,7 +223,7 @@ class Page_Asset_Builder_Management extends Asset_Management
 				$asset->setAttrValue('create_type', serialize($create_type));
 
 				if (!$asset->saveAttributes()) {
-					trigger_error('Asset Builder Upgrade [from 0.2] Failed', _USER_WARNING);
+					trigger_localised_error('CMS0026', E_USER_WARNING, '0.2');
 					return false;
 				}
 
@@ -246,7 +246,7 @@ class Page_Asset_Builder_Management extends Asset_Management
 				if (is_null($asset)) continue;
 
 				if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'attributes')) {
-					trigger_error('Asset Builder Upgrade Failed - Unable to Acquire Lock on "'.$asset->name.'" (#'.$asset->id.')', E_USER_WARNING);
+					trigger_localised_error('CMS0025', E_USER_WARNING, '0.1', $asset->name, $asset->id);
 					return false;
 				}
 
@@ -274,7 +274,7 @@ class Page_Asset_Builder_Management extends Asset_Management
 				$asset->setAttrValue('create_location_rules', $new_locations);
 
 				if (!$asset->saveAttributes()) {
-					trigger_error('Asset Builder Upgrade Failed', E_USER_WARNING);
+					trigger_localised_error('CMS0026', E_USER_WARNING, '0.1');
 					return false;
 				}
 				$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'attributes');
@@ -296,7 +296,7 @@ class Page_Asset_Builder_Management extends Asset_Management
 				if (is_null($asset)) continue;
 
 				if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'attributes')) {
-					trigger_error('Asset Builder Upgrade [from 0.2] Failed - Unable to Acquire Lock on "'.$asset->name.'" (#'.$asset->id.')', E_USER_WARNING);
+					trigger_localised_error('CMS0025', E_USER_WARNING, '0.2', $asset->name, $asset->id);
 					return false;
 				}
 
@@ -310,7 +310,7 @@ class Page_Asset_Builder_Management extends Asset_Management
 
 				$asset->setAttrValue('required_fields', $required_fields);
 				if (!$asset->saveAttributes()) {
-					trigger_error('Asset Builder Upgrade [from 0.2] Failed', E_USER_WARNING);
+					trigger_localised_error('CMS0026', E_USER_WARNING, '0.2');
 					return false;
 				}
 				$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'attributes');
@@ -343,7 +343,7 @@ class Page_Asset_Builder_Management extends Asset_Management
 
 
 				if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'attributes')) {
-					trigger_error('Asset Builder Upgrade [to 0.4] Failed - Unable to Acquire Lock on "'.$asset->name.'" (#'.$asset->id.')', E_USER_WARNING);
+					trigger_localised_error('CMS0025', E_USER_WARNING, '0.3', $asset->name, $asset->id);
 					return false;
 				}
 
@@ -413,7 +413,7 @@ class Page_Asset_Builder_Management extends Asset_Management
 				$asset->setAttrValue('create_location_rules', $create_location_rules);
 
 				if (!$asset->saveAttributes()) {
-					trigger_error('Asset Builder Upgrade [to 0.4] Failed - Couldn\'t save attributes', E_USER_WARNING);
+					trigger_localised_error('CMS0027', E_USER_WARNING, '0.3');
 					return false;
 				}
 
@@ -422,7 +422,7 @@ class Page_Asset_Builder_Management extends Asset_Management
 				foreach (array_keys($content_assetids) as $assetid) {
 					$content_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 					if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($content_asset->id, 'attributes')) {
-						trigger_error('Asset Builder Upgrade [to 0.4] Failed - Unable to Acquire Lock on "'.$content_asset->name.'" (#'.$content_asset->id.')', E_USER_WARNING);
+						trigger_localised_error('CMS0025', E_USER_WARNING, '0.3', $content_asset->name, $content_asset->id);
 						return false;
 					}
 					$html = $content_asset->attr('html');
@@ -439,7 +439,7 @@ class Page_Asset_Builder_Management extends Asset_Management
 				foreach (array_keys($container_assetids) as $assetid) {
 					$container_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 					if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($container_asset->id, 'attributes')) {
-						trigger_error('Asset Builder Upgrade [to 0.4] Failed - Unable to Acquire Lock on "'.$container_asset->name.'" (#'.$container_asset->id.')', E_USER_WARNING);
+						trigger_localised_error('CMS0025', E_USER_WARNING, '0.3', $container_asset->name, $container_asset->id);
 						return false;
 					}
 					$container_asset->saveSystemVersion();
@@ -451,7 +451,7 @@ class Page_Asset_Builder_Management extends Asset_Management
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 
 				if (!$asset->saveAttributes()) {
-					trigger_error('Asset Builder Upgrade [to 0.4] Failed - Couldn\'t save attributes', E_USER_WARNING);
+					trigger_localised_error('CMS0027', E_USER_WARNING, '0.3');
 					return false;
 				}
 

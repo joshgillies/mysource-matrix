@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thumbnail.inc,v 1.17 2005/02/11 04:59:03 gsherwood Exp $
+* $Id: thumbnail.inc,v 1.18 2005/04/15 00:37:25 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -80,7 +80,7 @@ class Thumbnail extends Image
 		// check that the image dimensions are not greater than our limits
 		$size = @getimagesize($info['filename']);
 		if (!empty($size) && ($size[0] > $this->max_width || $size[1] > $this->max_height)) {
-			trigger_error('Uploaded file is too large. Thumbnails must be no more than '.$this->max_width.' x '.$this->max_height.' pixels', E_USER_WARNING);
+			trigger_localised_error("CORE0108", E_USER_WARNING, $this->max_width, $this->max_height);
 			return false;
 		}
 		return true;

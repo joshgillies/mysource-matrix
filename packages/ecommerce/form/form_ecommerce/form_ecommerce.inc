@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce.inc,v 1.14 2005/03/21 06:27:12 gsherwood Exp $
+* $Id: form_ecommerce.inc,v 1.15 2005/04/15 00:37:53 lwright Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/orders/order/order.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -350,7 +350,6 @@ class Form_Ecommerce extends Form_Email
 		parent::mailReceipt();
 		parent::sendToFriends();
 		parent::runSelectiveEmails();
-		parent::logSubmission();
 
 	}//end emailAndLog()
 
@@ -669,13 +668,7 @@ class Form_Ecommerce extends Form_Email
 		return true;
 
 	}//end runSelectiveEmails()
-
-
-	function logSubmission()
-	{
-		return true;
-
-	}//end logSubmission()
+	
 	
 }//end class
 

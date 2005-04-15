@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_status.inc,v 1.23 2005/04/14 04:30:25 rhoward Exp $
+* $Id: cron_job_future_status.inc,v 1.24 2005/04/15 00:37:26 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -132,13 +132,13 @@ class Cron_Job_Future_Status extends Cron_Job
 			case 'status' :
 				$value = (int) $value;
 				if (!in_array($value, array_keys($this->_getAllStatii()))) {
-					trigger_error('Unable to set the status, it is not valid', E_USER_NOTICE);
+					trigger_localised_error("CRON0031", E_USER_NOTICE);
 					return false;
 				}
 				break;
 
 			case 'type' :
-				trigger_error('You can\'t set the type of a future status cron job it can only be a one off event', E_USER_NOTICE);
+				trigger_localised_error("CRON0038", E_USER_NOTICE);
 				return false;
 				break;
 		}//end if
@@ -226,7 +226,7 @@ class Cron_Job_Future_Status extends Cron_Job
 	function setAssetToUpdate(&$asset)
 	{
 		if (!is_a($asset, 'asset')) {
-			trigger_error('Unable to set asset to update, the asset must be a asset object', E_asset_WARNING);
+			trigger_localised_error("CRON0030", E_USER_WARNING);
 			return false;
 		}
 
@@ -279,12 +279,12 @@ class Cron_Job_Future_Status extends Cron_Job
 				return SQ_CRON_JOB_COMPLETED | SQ_CRON_JOB_REMOVE;
 			} else {
 				// process failed
-				trigger_error('Changing Status of "'.$asset->name.'" (#'.$asset->id.') Failed', E_USER_WARNING);
+				trigger_localised_error("CRON0003", $asset->name, $asset->id, E_USER_WARNING);
 			}
 
 		} else {
 			// asset not found
-			trigger_error('Couldn\'t find asset to update the status of', E_USER_WARNING);
+			trigger_localised_error("CRON0020", E_USER_WARNING);
 		}
 
 		// we can be removed because the error is beyound our control

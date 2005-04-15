@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_stalks.inc,v 1.19 2005/02/10 03:05:19 gnewton Exp $
+* $Id: design_area_menu_stalks.inc,v 1.20 2005/04/15 00:37:24 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_areas/menu/design_area_menu_r
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -66,7 +66,7 @@ class Design_Area_Menu_Stalks extends Design_Area_Menu_Recursive
 		switch ($name) {
 			case 'prefix_with_divider' :
 			case 'suffix_with_divider' :
-				trigger_error('The divider is not used by the "'.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').'" therefore the setting of "'.$name.'" has no effect', E_USER_NOTICE);
+				trigger_localised_error("CORE0180", E_USER_NOTICE, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'), $name);
 				break;
 
 			case 'alignment' :
@@ -76,7 +76,7 @@ class Design_Area_Menu_Stalks extends Design_Area_Menu_Recursive
 			case 'min_height' :
 				$value = (int) $value;
 				if ($value <= 0) {
-					trigger_error('The "'.$name.'" attribute must be set to a number greater than zero');
+					trigger_localised_error("CORE0177", E_USER_WARNING, $name);
 					return false;
 				}
 				break;

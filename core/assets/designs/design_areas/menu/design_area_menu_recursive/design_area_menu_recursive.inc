@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_recursive.inc,v 1.20 2004/12/06 14:38:08 brobertson Exp $
+* $Id: design_area_menu_recursive.inc,v 1.21 2005/04/15 00:37:24 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_areas/menu/design_area_menu_t
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -53,7 +53,7 @@ class Design_Area_Menu_Recursive extends Design_Area_Menu_Type
 		// make sure the aligment is lower case
 		switch ($name) {
 			case 'show_subs' :
-				trigger_error('The "'.$name.'" attribute has no effect in a "'.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').'", use the "min_num_levels" and "max_num_levels" attributes', E_USER_NOTICE);
+				trigger_localised_error("CORE0176", E_USER_NOTICE, $name, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
 				break;
 
 		}//end switch

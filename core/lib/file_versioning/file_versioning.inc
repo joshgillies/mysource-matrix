@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_versioning.inc,v 1.7 2005/04/06 23:05:35 mmcintyre Exp $
+* $Id: file_versioning.inc,v 1.8 2005/04/15 00:37:32 lwright Exp $
 *
 */
 
@@ -39,7 +39,7 @@ define('FUDGE_FV_OLD_VERSION',      64);
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package Fudge
 * @subpackage File_Versioning
 */
@@ -74,7 +74,7 @@ class File_Versioning
 	{
 		// if errors have occured, we can't be guaranteed that the system is integral, die
 		if (file_exists($dir.'/.FFV/error.log')) {
-			trigger_error('Unable to use File Versioning, an error occured and integrity needs to be restored, read '.$dir.'/.FFV/error.log for more details, then remove this file', E_USER_ERROR);
+			trigger_localised_error('FVER0024', E_USER_ERROR, $dir);
 		}
 		$this->_dir = $dir;
 		$this->_db  = &$db;
@@ -96,7 +96,7 @@ class File_Versioning
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 //		if (!db_install(dirname(__FILE__).'/tables.xml')) {
-//			trigger_error('Unable to initialise File Version system : Table Install Failure', E_USER_WARNING);
+//			trigger_localised_error('FVER0021', E_USER_WARNING);
 //			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 //			return false;
 //		}
@@ -104,7 +104,7 @@ class File_Versioning
 		$dir = SQ_DATA_PATH.'/file_repository';
 		$this->_dir = $dir;
 		if (!create_directory($dir)) {
-			trigger_error('Unable to initialise File Version system, unable to create directory "'.$dir.'"', E_USER_WARNING);
+			trigger_localised_error('FVER0022', E_USER_WARNING, $dir);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}//end if
@@ -168,10 +168,7 @@ class File_Versioning
 				WHERE f.fileid = '.$this->_db->quote($fileid).'
 				  AND '.((is_null($version)) ? 'to_date IS NULL' : 'version = '.$this->_db->quote($version));
 		$result = $this->_db->getRow($sql);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-			return Array();
-		}
+		assert_valid_db_result($result);
 
 		if (!empty($result)) {
 			$result['fileid']    = (int) $result['fileid'];
@@ -205,24 +202,24 @@ class File_Versioning
 
 		$ffv = parse_ini_file($ffv_file);
 		if (!is_array($ffv)) {
-			trigger_error('File Versioning information corrupt', E_USER_WARNING);
+			trigger_localised_error('FVER0025', E_USER_WARNING);
 			return FUDGE_FV_ERROR;
 		}
 
 		if ($this->_dir != $ffv['dir']) {
-			trigger_error('File Belongs to different Repository', E_USER_WARNING);
+			trigger_localised_error('FVER0008', E_USER_WARNING);
 			return FUDGE_FV_ERROR;
 		}
 
 		$info = $this->_getFileInfoAtVersion($ffv['fileid'], (int) $ffv['version']);
 		if (empty($info)) {
-			trigger_error('File versioning information at version '.$ffv['version'].' missing for file #'.$ffv['fileid'], E_USER_WARNING);
+			trigger_localised_error('FVER0028', E_USER_WARNING, $ffv['version'], $ffv['fileid']);
 			return FUDGE_FV_ERROR;
 		}
 
 		$rep_file = $this->_dir.'/'.$info['path'].'/'.$info['filename'].',ffv'.$info['version'];
 		if (empty($info['removal']) && (!is_dir($this->_dir.'/'.$info['path']) || !is_file($rep_file))) {
-			trigger_error('File "'.$info['path'].'/'.$info['filename'].'" with Version #'.$info['version'].' not found in Repository', E_USER_NOTICE);
+			trigger_localised_error('FVER0027', E_USER_NOTICE, $info['path'], $info['filename'], $info['version']);
 			return FUDGE_FV_ERROR;
 		}
 
@@ -250,10 +247,7 @@ class File_Versioning
 				WHERE path = '.$this->_db->quote(dirname($file_path)).'
 				  AND filename = '.$this->_db->quote(basename($file_path));
 		$fileid = $this->_db->getOne($sql);
-		if (DB::isError($fileid)) {
-			trigger_error($fileid->getMessage().'<br/>'.$fileid->getUserInfo(), E_USER_WARNING);
-			return Array();
-		}
+		assert_valid_db_result($fileid);
 
 		if (empty($fileid)) return Array();
 		return $this->_getFileInfoAtVersion($fileid);
@@ -279,10 +273,8 @@ class File_Versioning
 		for ($i = 0; $i < $this->num_lock_attempts; $i++) {
 
 			$result = $this->_db->getOne($select);
-			if (DB::isError($result)) {
-				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-				return false;
-			}
+			assert_valid_db_result($result);
+
 			if (empty($result)) {
 				$result = $this->_db->query($insert);
 				// insert didn't fail ? means no duplicate key
@@ -315,10 +307,7 @@ class File_Versioning
 		$sql = 'DELETE FROM sq_file_vers_lock
 				WHERE fileid = '.$this->_db->quote($fileid);
 		$result = $this->_db->query($sql);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-			return false;
-		}
+		assert_valid_db_result($result);
 
 		return true;
 
@@ -340,7 +329,7 @@ class File_Versioning
 	{
 		// make sure we can get to the file
 		if (!is_file($real_file) || !is_readable($real_file)) {
-			trigger_error('File "'.$real_file.'" doesn\'t exist or is not readable', E_USER_NOTICE);
+			trigger_localised_error('FVER0003', E_USER_NOTICE, $real_file);
 			return false;
 		}
 
@@ -350,7 +339,7 @@ class File_Versioning
 		// make sure there isn't already a .FFV entry for this file (or that it hasn't been removed)
 		$existing_ffv_info = $this->_getFileInfoFromRealFile($real_file);
 		if ($existing_ffv_info != FUDGE_FV_NOT_CHECKED_OUT && empty($existing_ffv_info['removal'])) {
-			trigger_error('Unable to add file "'.$real_file.'", there is already a .FFV entry for this file', E_USER_NOTICE);
+			trigger_localised_error('FVER0017', E_USER_NOTICE, $real_file);
 			return false;
 		}
 
@@ -363,12 +352,12 @@ class File_Versioning
 		foreach ($bits as $bit) {
 			// convert to upper for case insensitiveness
 			if (strtoupper($bit) == '.FFV') {
-				trigger_error('Unable to add file "'.$real_file.'" to path "'.$rep_path.'", name or somewhere in path is ".FFV"', E_USER_NOTICE);
+				trigger_localised_error('FVER0015', E_USER_NOTICE, $real_file, $rep_path);
 				return false;
 			}
 
 			if (preg_match('/,FFV[0-9]+$/i', $bit)) {
-				trigger_error('Unable to add file "'.$real_file.'" to path "'.$rep_path.'", name or somewhere in path is ends in ",ffv" followed by only numeric chars', E_USER_NOTICE);
+				trigger_localised_error('FVER0016', E_USER_NOTICE, $real_file, $rep_path);
 				return false;
 			}
 
@@ -377,7 +366,7 @@ class File_Versioning
 		$current_info = $this->_getFileInfoFromPath($rep_file);
 		// if there is a current file and it hasn't been "removed", you can't add a new file
 		if (!empty($current_info) && empty($current_info['removal'])) {
-			trigger_error('File "'.$rep_file.'" already exists in the repository', E_USER_WARNING);
+			trigger_localised_error('FVER0004', E_USER_WARNING, $rep_file);
 			return false;
 
 		// if there is no current file, check that this new file's path isn't already is use
@@ -395,7 +384,7 @@ class File_Versioning
 			$result = $this->_db->getOne($sql);
 			assert_valid_db_result($result);
 			if (!empty($result)) {
-				trigger_error('Unable to add file "'.$real_file.'" to path "'.$rep_path.'", either the file already exists in the repository path or part of the repository path is already a file in the repository', E_USER_NOTICE);
+				trigger_localised_error('FVER0014', E_USER_NOTICE, $real_file, $rep_path);
 				return false;
 			}
 
@@ -427,10 +416,10 @@ class File_Versioning
 
 		// get the lock now that we have inserted the details
 		if (!$this->_lockFile($fileid)) {
-			trigger_error('Unable to aquire lock', E_USER_NOTICE);
+			trigger_localised_error('FVER0018', E_USER_NOTICE);
 			if ($use_trans) {
 				$result = $this->_db->query('ROLLBACK');
-				if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+				assert_valid_db_result($result);
 			}
 			return false;
 		}//end if
@@ -441,7 +430,7 @@ class File_Versioning
 			$this->_releaseFile($fileid);
 			if ($use_trans) {
 				$result = $this->_db->query('ROLLBACK');
-				if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+				assert_valid_db_result($result);
 			}
 			return false;
 		}
@@ -450,7 +439,7 @@ class File_Versioning
 
 		if ($use_trans) {
 			$result = $this->_db->query('COMMIT');
-			if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			assert_valid_db_result($result);
 		}
 
 		return true;
@@ -476,10 +465,7 @@ class File_Versioning
 				FROM sq_file_vers_history
 				WHERE fileid = '.$this->_db->quote($fileid);
 		$version = $this->_db->getOne($sql);
-		if (DB::isError($version)) {
-			trigger_error($version->getMessage().'<br/>'.$version->getUserInfo(), E_USER_WARNING);
-			return 0;
-		}
+		assert_valid_db_result($version);
 
 		$now = time();
 		$date = $this->_db->quote($this->_tsIso8601($now));
@@ -492,10 +478,7 @@ class File_Versioning
 				WHERE fileid = '.$this->_db->quote($fileid).'
 				  AND to_date IS NULL';
 		$result = $this->_db->query($sql);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-			return 0;
-		}
+		assert_valid_db_result($result);
 
 		$version   = (int) $version;
 		if (file_exists($real_file)) {
@@ -509,7 +492,7 @@ class File_Versioning
 			$sha1      = '';
 			$removal   = '1';
 		}
-		
+
 		$sql = 'INSERT INTO sq_file_vers_history
 				(fileid, version, from_date, to_date, file_size, md5, sha1, removal, extra_info)
 				VALUES
@@ -519,10 +502,7 @@ class File_Versioning
 				'.$this->_db->quote($sha1).', '.$this->_db->quote($removal).',
 				'.$this->_db->quote($extra_info).')';
 		$result = $this->_db->query($sql);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-			return 0;
-		}
+		assert_valid_db_result($result);
 
 		// if we aren't removing, copy the file into the repository
 		if (file_exists($real_file)) {
@@ -530,7 +510,7 @@ class File_Versioning
 			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 			$rep_dir = $this->_dir.'/'.$rep_path;
 			if (!is_dir($rep_dir) && !create_directory($rep_dir)) {
-				trigger_error('Unable to create directory "'.$rep_dir.'"', E_USER_NOTICE);
+				trigger_localised_error('FVER0020', E_USER_NOTICE, $rep_dir);
 				return 0;
 			}//end if
 
@@ -582,7 +562,7 @@ class File_Versioning
 				rename($ffv_file.'.bup', $ffv_file);
 			}//end if ffv_file exists
 		} else {
-			trigger_error('Unable to create directory "'.$ffv_dir.'"', E_USER_NOTICE);
+			trigger_localised_error('FVER0020', E_USER_NOTICE, $ffv_dir);
 
 		}//end if create ffv_dir
 
@@ -607,12 +587,12 @@ class File_Versioning
 	{
 		$info = $this->_getFileInfoFromPath($rep_file);
 		if (empty($info)) {
-			trigger_error('File "'.$rep_file.'" not found in the repository', E_USER_WARNING);
+			trigger_localised_error('FVER0007', E_USER_WARNING,$rep_file);
 			return false;
 		}
 
 		if (!$this->_lockFile($info['fileid'])) {
-			trigger_error('Unable to aquire lock', E_USER_NOTICE);
+			trigger_localised_error('FVER0018', E_USER_NOTICE);
 			return false;
 		}
 
@@ -629,12 +609,12 @@ class File_Versioning
 						  AND to_date IS NULL';
 				$nice_date = $this->_tsIso8601(time());
 			} else {
-				
+
 				$date = $this->_db->quote($this->_tsIso8601($date));
 				if ($this->_db->phptype == 'oci8') {
 					$date = 'TO_DATE('.$date.', '.$this->_db->quote('YYYY-MM-DD HH24:MI:SS').')';
 				}
-				
+
 				require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 				$sql = 'SELECT version, removal
 						FROM sq_file_vers_history
@@ -646,14 +626,10 @@ class File_Versioning
 			}//end if
 
 			$ver_info = $this->_db->getRow($sql);
-			if (DB::isError($ver_info)) {
-				trigger_error($ver_info->getMessage().'<br/>'.$ver_info->getUserInfo(), E_USER_WARNING);
-				$this->_releaseFile($info['fileid']);
-				return false;
-			}
+			assert_valid_db_result($ver_info);
 
 			if (empty($ver_info)) {
-				trigger_error('File "'.$rep_file.'" does not have an available version for "'.$nice_date.'"', E_USER_NOTICE);
+				trigger_localised_error('FVER0006', E_USER_NOTICE, $rep_file);
 				$this->_releaseFile($info['fileid']);
 				return false;
 			}
@@ -666,14 +642,10 @@ class File_Versioning
 					  AND version = '.$this->_db->quote($version);
 
 			$ver_info = $this->_db->getRow($sql);
-			if (DB::isError($ver_info)) {
-				trigger_error($ver_info->getMessage().'<br/>'.$ver_info->getUserInfo(), E_USER_WARNING);
-				$this->_releaseFile($info['fileid']);
-				return false;
-			}
+			assert_valid_db_result($ver_info);
 
 			if (empty($ver_info)) {
-				trigger_error('File "'.$rep_file.'" does not have a version "'.$version.'"', E_USER_NOTICE);
+				trigger_localised_error('FVER0005', E_USER_NOTICE, $rep_file);
 				$this->_releaseFile($info['fileid']);
 				return false;
 			}
@@ -705,7 +677,7 @@ class File_Versioning
 	{
 		// make sure we can save the file
 		if (!is_dir($dest_dir) || !is_writable($dest_dir)) {
-			trigger_error('Directory "'.$dest_dir.'" doesn\'t exist or is not writable', E_USER_NOTICE);
+			trigger_localised_error('FVER0001', E_USER_NOTICE, $dest_dir);
 			return false;
 		}
 
@@ -760,7 +732,7 @@ class File_Versioning
 		if (empty($info)) return false;
 
 		if ($info['removal']) {
-			trigger_error('There is no version available to be output for file "'.$rep_file.'"', E_USER_NOTICE);
+			trigger_localised_error('FVER0013', E_USER_NOTICE, $rep_file);
 			return false;
 		}
 
@@ -783,25 +755,25 @@ class File_Versioning
 		$info = $this->_getFileInfoFromRealFile($real_file);
 		if (!is_array($info)) {
 			if ($info == FUDGE_FV_ERROR) {
-				trigger_error('Error occured getting file information, unable to run '.__FUNCTION__.'()', E_USER_WARNING);
+				trigger_localised_error('FVER0002', E_USER_WARNING, __FUNCTION__);
 			}
 			return $info;
 		}
 
 		if (!$this->_lockFile($info['fileid'])) {
-			trigger_error('Unable to aquire lock', E_USER_NOTICE);
+			trigger_localised_error('FVER0018', E_USER_NOTICE);
 			return FUDGE_FV_ERROR;
 		}
 
 		$curr_ver_info = $this->_getFileInfoAtVersion($info['fileid']);
 		if (empty($curr_ver_info)) {
-			trigger_error('No current information found for "'.$real_file.'"', E_USER_NOTICE);
+			trigger_localised_error('FVER0026', E_USER_NOTICE, $real_file);
 			return FUDGE_FV_ERROR;
 		}
 
 		$file_ver_info = $this->_getFileInfoAtVersion($info['fileid'], $info['version']);
 		if (empty($file_ver_info)) {
-			trigger_error('No information found for Version #'.$info['version'], E_USER_NOTICE);
+			trigger_localised_error('FVER0009', E_USER_NOTICE, $info['version']);
 			return FUDGE_FV_ERROR;
 		}
 
@@ -850,24 +822,21 @@ class File_Versioning
 		$info = $this->_getFileInfoFromRealFile($real_file);
 		if (!is_array($info)) {
 			if ($info == FUDGE_FV_ERROR) {
-				trigger_error('Error occured getting file information, unable to run '.__FUNCTION__.'()', E_USER_WARNING);
+				trigger_localised_error('FVER0002', E_USER_WARNING, __FUNCTION__);
 			}
 			return $info;
 		}
 
 		if ($use_trans) {
 			$result = $this->_db->query('BEGIN');
-			if (DB::isError($result)) {
-				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-				return FUDGE_FV_ERROR;
-			}
+			assert_valid_db_result($result);
 		}
 
 		if (!$this->_lockFile($info['fileid'])) {
-			trigger_error('Unable to aquire lock', E_USER_NOTICE);
+			trigger_localised_error('FVER0018', E_USER_NOTICE);
 			if ($use_trans) {
 				$result = $this->_db->query('ROLLBACK');
-				if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+				assert_valid_db_result($result);
 			}
 			return FUDGE_FV_ERROR;
 		}
@@ -875,11 +844,11 @@ class File_Versioning
 		// get the lastest current info about this file
 		$curr_ver_info = $this->_getFileInfoAtVersion($info['fileid']);
 		if (empty($curr_ver_info)) {
-			trigger_error('No information found for the Current version of "'.$info['path'].'/'.$info['filename'].'"', E_USER_NOTICE);
+			trigger_localised_error('FVER0011', E_USER_NOTICE, $info['path'], $info['filename']);
 			$this->_releaseFile($info['fileid']);
 			if ($use_trans) {
 				$result = $this->_db->query('ROLLBACK');
-				if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+				assert_valid_db_result($result);
 			}
 			return FUDGE_FV_ERROR;
 		}
@@ -887,11 +856,11 @@ class File_Versioning
 		// get the info about the version that this file is current checked out as
 		$file_ver_info = $this->_getFileInfoAtVersion($info['fileid'], $info['version']);
 		if (empty($file_ver_info)) {
-			trigger_error('No information found for Version #'.$info['version'].' of "'.$info['path'].'/'.$info['filename'].'"', E_USER_NOTICE);
+			trigger_localised_error('FVER0010', E_USER_NOTICE, $info['version'], $info['path'], $info['filename']);
 			$this->_releaseFile($info['fileid']);
 			if ($use_trans) {
 				$result = $this->_db->query('ROLLBACK');
-				if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+				assert_valid_db_result($result);
 			}
 			return FUDGE_FV_ERROR;
 		}
@@ -899,11 +868,11 @@ class File_Versioning
 		// if the version that this file is checked out as is not the current version then
 		// they are not allowed to commit this file
 		if ($curr_ver_info['version'] != $file_ver_info['version']) {
-			trigger_error('Unable to commit "'.$info['path'].'/'.$info['filename'].'", it is checked out as version #'.$file_ver_info['version'].', and needs to be updated to the latest version (#'.$curr_ver_info['version'].'), before committing can occur', E_USER_NOTICE);
+			trigger_localised_error('FVER0019', E_USER_NOTICE, $info['path'], $info['filename'], $file_ver_info['version']);
 			$this->_releaseFile($info['fileid']);
 			if ($use_trans) {
 				$result = $this->_db->query('ROLLBACK');
-				if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+				assert_valid_db_result($result);
 			}
 			return FUDGE_FV_ERROR;
 		}
@@ -912,7 +881,7 @@ class File_Versioning
 			$this->_releaseFile($info['fileid']);
 			if ($use_trans) {
 				$result = $this->_db->query('ROLLBACK');
-				if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+				assert_valid_db_result($result);
 			}
 			return FUDGE_FV_NOT_MODIFIED;
 		}
@@ -923,7 +892,7 @@ class File_Versioning
 			$this->_releaseFile($info['fileid']);
 			if ($use_trans) {
 				$result = $this->_db->query('ROLLBACK');
-				if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+				assert_valid_db_result($result);
 			}
 			return FUDGE_FV_ERROR;
 		}
@@ -933,7 +902,7 @@ class File_Versioning
 			$this->_releaseFile($info['fileid']);
 			if ($use_trans) {
 				$result = $this->_db->query('ROLLBACK');
-				if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+				assert_valid_db_result($result);
 			}
 			return FUDGE_FV_ERROR;
 		}//end if
@@ -942,10 +911,7 @@ class File_Versioning
 
 		if ($use_trans) {
 			$result = $this->_db->query('COMMIT');
-			if (DB::isError($result)) {
-				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-				return FUDGE_FV_ERROR;
-			}
+			assert_valid_db_result($result);
 		}
 
 		return FUDGE_FV_OK;
@@ -968,24 +934,21 @@ class File_Versioning
 		$info = $this->_getFileInfoFromRealFile($real_file);
 		if (!is_array($info)) {
 			if ($info == FUDGE_FV_ERROR) {
-				trigger_error('Error occured getting file information, unable to run '.__FUNCTION__.'()', E_USER_WARNING);
+				trigger_localised_error('FVER0002', E_USER_WARNING, __FUNCTION__);
 			}
 			return $info;
 		}
 
 		if ($use_trans) {
 			$result = $this->_db->query('BEGIN');
-			if (DB::isError($result)) {
-				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-				return FUDGE_FV_ERROR;
-			}
+			assert_valid_db_result($result);
 		}
 
 		if (!$this->_lockFile($info['fileid'])) {
-			trigger_error('Unable to aquire lock', E_USER_NOTICE);
+			trigger_localised_error('FVER0018', E_USER_NOTICE);
 			if ($use_trans) {
 				$result = $this->_db->query('ROLLBACK');
-				if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+				assert_valid_db_result($result);
 			}
 			return FUDGE_FV_ERROR;
 		}
@@ -993,11 +956,11 @@ class File_Versioning
 		// get the lastest current info about this file
 		$curr_ver_info = $this->_getFileInfoAtVersion($info['fileid']);
 		if (empty($curr_ver_info)) {
-			trigger_error('No information found for the Current version of "'.$info['path'].'/'.$info['filename'].'", it has already been removed', E_USER_NOTICE);
+			trigger_localised_error('FVER0012', E_USER_NOTICE, $info['path'], $info['filename']);
 			$this->_releaseFile($info['fileid']);
 			if ($use_trans) {
 				$result = $this->_db->query('ROLLBACK');
-				if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+				assert_valid_db_result($result);
 			}
 			return FUDGE_FV_ERROR;
 		}
@@ -1005,11 +968,11 @@ class File_Versioning
 		// get the info about the version that this file is current checked out as
 		$file_ver_info = $this->_getFileInfoAtVersion($info['fileid'], $info['version']);
 		if (empty($file_ver_info)) {
-			trigger_error('No information found for Version #'.$info['version'].' of "'.$info['path'].'/'.$info['filename'].'"', E_USER_NOTICE);
+			trigger_localised_error('FVER0010', E_USER_NOTICE, $info['version'], $info['path'], $info['filename']);
 			$this->_releaseFile($info['fileid']);
 			if ($use_trans) {
 				$result = $this->_db->query('ROLLBACK');
-				if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+				assert_valid_db_result($result);
 			}
 			return FUDGE_FV_ERROR;
 		}
@@ -1017,11 +980,11 @@ class File_Versioning
 		// if the version that this file is checked out as is not the current version then
 		// they are not allowed to remove this file
 		if ($curr_ver_info['version'] != $file_ver_info['version']) {
-			trigger_error('Unable to remove "'.$info['path'].'/'.$info['filename'].'", it is checked out as version #'.$file_ver_info['version'].', and needs to be updated to the latest version (#'.$curr_ver_info['version'].'), before removal can occur', E_USER_NOTICE);
+			trigger_localised_error('FVER0023', E_USER_NOTICE, $info['path'], $info['filename'], $curr_ver_info['version']);
 			$this->_releaseFile($info['fileid']);
 			if ($use_trans) {
 				$result = $this->_db->query('ROLLBACK');
-				if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+				assert_valid_db_result($result);
 			}
 			return FUDGE_FV_ERROR;
 		}
@@ -1031,7 +994,7 @@ class File_Versioning
 			$this->_releaseFile($info['fileid']);
 			if ($use_trans) {
 				$result = $this->_db->query('ROLLBACK');
-				if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+				assert_valid_db_result($result);
 			}
 			return FUDGE_FV_ERROR;
 		}
@@ -1044,7 +1007,7 @@ class File_Versioning
 			$this->_releaseFile($info['fileid']);
 			if ($use_trans) {
 				$result = $this->_db->query('ROLLBACK');
-				if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+				assert_valid_db_result($result);
 			}
 			return FUDGE_FV_ERROR;
 		}
@@ -1054,7 +1017,7 @@ class File_Versioning
 			$this->_releaseFile($info['fileid']);
 			if ($use_trans) {
 				$result = $this->_db->query('ROLLBACK');
-				if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+				assert_valid_db_result($result);
 			}
 			return FUDGE_FV_ERROR;
 		}//end if
@@ -1063,10 +1026,7 @@ class File_Versioning
 
 		if ($use_trans) {
 			$result = $this->_db->query('COMMIT');
-			if (DB::isError($result)) {
-				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-				return FUDGE_FV_ERROR;
-			}
+			assert_valid_db_result($result);
 		}
 
 		return FUDGE_FV_OK;
@@ -1087,7 +1047,7 @@ class File_Versioning
 		$info = $this->_getFileInfoFromRealFile($real_file);
 		if (!is_array($info)) {
 			if ($info == FUDGE_FV_ERROR) {
-				trigger_error('Error occured getting file information, unable to run '.__FUNCTION__.'()', E_USER_WARNING);
+				trigger_localised_error('FVER0002', E_USER_WARNING, __FUNCTION__);
 			}
 			return $info;
 		}

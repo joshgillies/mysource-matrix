@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.89 2005/04/06 23:05:34 mmcintyre Exp $
+* $Id: file.inc,v 1.90 2005/04/15 00:37:25 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.89 $
+* @version $Revision: 1.90 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -70,7 +70,7 @@ class File extends Asset
 
 		$name = trim($this->attr('name'));
 		if ($name == '') {
-			trigger_error('Unable to create a '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').' with a blank name', E_USER_WARNING);
+			trigger_localised_error("CORE0083", E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
 			return false;
 		}
 
@@ -80,7 +80,7 @@ class File extends Asset
 			$edit = $this->getEditFns();
 			$info = $edit->getChosenFileInfo($this->getPrefix());
 			if ($info === false || empty($info)) {
-				trigger_error('File upload failed. Unable to create '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'), E_USER_WARNING);
+				trigger_localised_error("CORE0056", E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
 				return false;
 			}
 		}
@@ -98,7 +98,7 @@ class File extends Asset
 		// make sure the new web path is not already is use
 		$bad_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($link['asset'], Array($name));
 		if (!empty($bad_paths)) {
-			trigger_error('Unable to create file with name "'.$name.'", web path already exists?', E_USER_WARNING);
+			trigger_localised_error("CORE0086", E_USER_WARNING, $name);
 			return false;
 		}
 
@@ -122,9 +122,9 @@ class File extends Asset
 	function _createAdditional(&$link)
 	{
 		if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'attributes')) return false;
-		
+
 		$edit = $this->getEditFns();
-		
+
 		// we need to fudge a few attributes to make sure we can
 		// process the file upload in the middle of creation
 		$this->_tmp['uploading_file'] = 1;
@@ -169,7 +169,7 @@ class File extends Asset
 
 		$edit_fns = $clone->getEditFns();
 		if (!$edit_fns->processFileUpload($clone, $GLOBALS['SQ_SYSTEM']->backend->out, $clone->getPrefix(), $temp_info)) {
-			trigger_error('Could not clone file '.$this->name.' (#'.$this->id.')', E_USER_WARNING);
+			trigger_localised_error("CORE0010", E_USER_WARNING, $this->name, $this->id);
 			return false;
 		}
 
@@ -206,31 +206,31 @@ class File extends Asset
 
 		// make sure our data directory exists
 		if (!create_directory($this->data_path)) {
-			trigger_error('Failed saving asset "'.$this->name.'" to cache, could not create restricted data directory', E_USER_WARNING);
+			trigger_localised_error("CORE0049", E_USER_WARNING, $this->name);
 			return false;
 		}
 
 		// make sure our system directory exists
 		if (!create_directory($this->data_path.'/.sq_system')) {
-			trigger_error('Failed saving asset "'.$this->name.'" to cache, could not create restricted system directory', E_USER_WARNING);
+			trigger_localised_error("CORE0050", E_USER_WARNING, $this->name);
 			return false;
 		}
 
 		// make sure there is nothing in the system directory
 		if (!clear_directory($this->data_path.'/.sq_system')) {
-			trigger_error('Failed saving asset "'.$this->name.'" to cache, could not clear restricted system directory', E_USER_WARNING);
+			trigger_localised_error("CORE0046", E_USER_WARNING, $this->name);
 			return false;
 		}
 
 		// save the object for later (in the restricted directory)
 		if (!string_to_file(serialize($this), $this->data_path.'/.sq_system/.object_data')) {
-			trigger_error('Failed saving asset "'.$this->name.'" to cache, could not write object data file', E_USER_WARNING);
+			trigger_localised_error("CORE0051", E_USER_WARNING, $this->name);
 			return false;
 		}
 
 		// update our lookup tables to not use __data
 		if (!parent::updateLookups()) {
-			trigger_error('Failed saving file "'.$this->name.'" to cache, failed updating lookups', E_USER_WARNING);
+			trigger_localised_error("CORE0053", E_USER_WARNING, $this->name);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
@@ -261,7 +261,7 @@ class File extends Asset
 
 		// clear the private data directory to get rid of the new uploaded file we had there
 		if (!clear_directory($this->data_path)) {
-			trigger_error('Failed reverting file "'.$this->name.'" to system version, could not clear restricted data directory', E_USER_WARNING);
+			trigger_localised_error("CORE0045", E_USER_WARNING, $this->name);
 			return false;
 		}
 
@@ -269,7 +269,7 @@ class File extends Asset
 		$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
 		$existing = $this->getExistingFile();
 		if (!$fv->checkOut($this->data_path_suffix.'/'.$existing['filename'], $this->data_path)) {
-			trigger_error('Failed reverting file "'.$this->name.'" to system version, could not check-out latest version of file', E_USER_WARNING);
+			trigger_localised_error("CORE0044", E_USER_WARNING, $this->name);
 			return false;
 		}
 
@@ -301,7 +301,7 @@ class File extends Asset
 			$existing = $this->getExistingFile();
 			if (!empty($existing)) {
 				if (!$tmp->validFile($existing)) {
-					trigger_error('Cannot morph "'.$this->name.'" to type "'.$new_type_code.'", currently uploaded file "'.$existing['filename'].'" is not a valid '.$new_type_code.' file (see above error)', E_USER_WARNING);
+					trigger_localised_error("CORE0008", E_USER_WARNING, $this->name, $new_type_code, $existing['filename'], $new_type_code);
 					return false;
 				}
 			}
@@ -429,7 +429,7 @@ class File extends Asset
 		if ($this->effectiveUnrestricted()) {
 			// make sure our data directory exists
 			if (!create_directory($this->data_path_public)) {
-				trigger_error('Failed saving asset "'.$this->name.'" to cache, could not create restricted data directory', E_USER_WARNING);
+				trigger_localised_error("CORE0049", E_USER_WARNING, $this->name);
 				return false;
 			}
 
@@ -439,7 +439,7 @@ class File extends Asset
 				if ($fv->checkOut($this->data_path_suffix.'/'.$existing['filename'], $this->data_path_public)) {
 					$changed = true;
 				} else {
-					trigger_error('Update failed checking-out latest version of file', E_USER_WARNING);
+					trigger_localised_error("CORE0032", E_USER_WARNING);
 					return false;
 				}
 			}
@@ -450,7 +450,7 @@ class File extends Asset
 				if ($fv->clearOut($unrestricted) & FUDGE_FV_OK) {
 					$changed = true;
 				} else {
-					trigger_error('Update failed deleting file from public data directory', E_USER_WARNING);
+					trigger_localised_error("CORE0104", E_USER_WARNING);
 					return false;
 				}
 			}
@@ -517,7 +517,7 @@ class File extends Asset
 								assetid = '.$db->quoteSmart($this->id).'
 						)
 					AND	name LIKE '.$db->quoteSmart('design::%');
-		
+
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
 
@@ -525,7 +525,7 @@ class File extends Asset
 					sq_ast_lookup
 				WHERE
 					assetid = '.$db->quote($this->id);
-		
+
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
 
@@ -574,7 +574,7 @@ class File extends Asset
 		}//end foreach
 
 		foreach ($save_urls as $url => $url_data) {
-			
+
 			$sql = 'INSERT INTO
 						sq_ast_lookup
 						(
@@ -592,7 +592,7 @@ class File extends Asset
 							'.$db->quoteSmart($url_data['https']).',
 							'.$db->quoteSmart(0).'
 						)';
-			
+
 			$result = $db->query($sql);
 			assert_valid_db_result($result);
 
@@ -706,7 +706,7 @@ class File extends Asset
 
 				// the name has changed so we need to save the web paths
 				if (!$this->saveWebPaths(Array($new_filename))) {
-					trigger_error('Failed updating web path. Path already exists?', E_USER_WARNING);
+					trigger_localised_error("CORE0056", E_USER_WARNING);
 					parent::setAttrValue('name', $old_filename);
 					return false;
 				}
@@ -718,7 +718,7 @@ class File extends Asset
 				// copy the file instead of a direct rename because removing the
 				// file from the repository will also remove it from the file system
 				if (!copy($data_path.'/'.$old_filename, $data_path.'/'.$new_filename)) {
-					trigger_error('Failed renaming file, try again.', E_USER_WARNING);
+					trigger_localised_error("CORE0026", E_USER_WARNING);
 					parent::setAttrValue('name', $old_filename);
 					return false;
 				}
@@ -727,21 +727,21 @@ class File extends Asset
 				// the repository and add the new one in
 				$result = $fv->remove($data_path.'/'.$old_filename, '', false);
 				if ($result != FUDGE_FV_OK && $result != FUDGE_FV_NOT_CHECKED_OUT) {
-					trigger_error('Failed removing file from repository', E_USER_WARNING);
+					trigger_localised_error("CORE0042", E_USER_WARNING);
 					parent::setAttrValue('name', $old_filename);
 					return false;
 				}
 
 				// attempt to add a new version of the file to the repository
 				if (!$fv->add($this->data_path_suffix, $this->data_path.'/'.$new_filename, '', false)) {
-					trigger_error('Failed adding file version', E_USER_WARNING);
+					trigger_localised_error("CORE0026", E_USER_WARNING);
 					parent::setAttrValue('name', $old_filename);
 					return false;
 				}
 
 				// make sure we have the latest version of our file
 				if (!$fv->checkOut($this->data_path_suffix.'/'.$new_filename, $this->data_path)) {
-					trigger_error('Failed checking out latest version of file', E_USER_WARNING);
+					trigger_localised_error("CORE0032", E_USER_WARNING);
 					parent::setAttrValue('name', $old_filename);
 					return false;
 				}
@@ -796,12 +796,12 @@ class File extends Asset
 			$old_ext = get_file_type($old_filename);
 			$new_ext = get_file_type($value);
 			if (trim($old_ext) != '' && $old_ext != $new_ext) {
-				trigger_error('You can not change the extension of the file. Upload a new file to change the extension.', E_USER_WARNING);
+				trigger_localised_error("CORE0115", E_USER_WARNING);
 				$value = $old_filename;
 				return false;
 			}
 			if (!is_file($data_path.'/'.$old_filename)) {
-				trigger_error('Current file not found. Upload a file before renaming.', E_USER_WARNING);
+				trigger_localised_error("CORE0023", E_USER_WARNING);
 				$value = $old_filename;
 				return false;
 			}
@@ -834,7 +834,7 @@ class File extends Asset
 		}
 		if ($size > $max_size) {
 			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-			trigger_error('File upload failed. File size was too large. The maximum file size is '.strtoupper(easy_filesize($max_size)).' but the uploaded file was '.strtoupper(easy_filesize($size)), E_USER_WARNING);
+			trigger_localised_error("CORE0057", E_USER_WARNING, strtoupper(easy_filesize($max_size)), strtoupper(easy_filesize($size)));
 			return false;
 		}
 		return true;

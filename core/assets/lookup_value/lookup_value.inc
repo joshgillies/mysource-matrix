@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: lookup_value.inc,v 1.1 2005/02/21 11:18:44 brobertson Exp $
+* $Id: lookup_value.inc,v 1.2 2005/04/15 00:37:25 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author	Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -59,7 +59,7 @@ class Lookup_Value extends Asset
 	*/
 	function namePrefix()
 	{
-		trigger_error('You need to override '.__CLASS__.'::'.__FUNCTION__.'()', E_USER_ERROR);
+		trigger_localised_error("CORE0123", E_USER_ERROR, __CLASS__, __FUNCTION__);
 
 	}//end namePrefix()
 
@@ -94,7 +94,7 @@ class Lookup_Value extends Asset
 			$o->openSection($url);
 
 			if (empty($lookup_values[$url])) $lookup_values[$url] = Array();
-			
+
 			// add blank entry if we have write access
 			if ($wa) {
 				$lookup_values[$url][''] =  Array('value' => '', 'inhd' => '0');

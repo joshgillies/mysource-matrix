@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site_network_edit_fns.inc,v 1.1 2005/02/25 04:45:51 gsherwood Exp $
+* $Id: site_network_edit_fns.inc,v 1.2 2005/04/15 00:37:26 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -105,11 +105,11 @@ class Site_Network_Edit_Fns extends Folder_Edit_Fns
 
 		// dont process anything if the primary site has not changed
 		if (!empty($site_link) && $site_link['minorid'] == $new_site) return false;
-		
+
 		// make sure this new primary site is in our network
 		$network_link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($asset->id, $new_site, SQ_SC_LINK_SIGNIFICANT);
 		if (empty($network_link)) {
-			trigger_error('You must select a Site from inside this Site Network to use for the primary URL', E_USER_WARNING);
+			trigger_localised_error("CORE0122", E_USER_WARNING);
 			return false;
 		}
 
@@ -124,7 +124,7 @@ class Site_Network_Edit_Fns extends Folder_Edit_Fns
 			if (!is_null($site)) {
 				if (!$asset->createLink($site, SQ_LINK_NOTICE, 'primary_site')) {
 					$ok = false;
-					trigger_error('Failed adding new primary site "'.$site->name.'" [#'.$site->id.']', E_USER_WARNING);
+					trigger_localised_error("CORE0028", E_USER_WARNING, $site->name, $site->id);
 				}
 			}
 		}
@@ -134,7 +134,7 @@ class Site_Network_Edit_Fns extends Folder_Edit_Fns
 		} else {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 		}
-		
+
 		// return false because we dont need our attributes saved
 		return false;
 

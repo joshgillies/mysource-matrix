@@ -1,0 +1,67 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Open Source Licence                                      |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_errors.xml,v 1.1 2005/04/15 00:37:53 lwright Exp $
+*
+*/
+
+	Ecommerce xml error file
+	errors are added in the format:
+	PKGN0000 where PKGN is a 3-4 letter abbreviation of the package and 0000
+	is a number representing the number of this error(start at 1 and increment)
+-->
+
+<errors>
+	<error code="ECOM0001">Price Value cannot be negative</error>
+		<!-- ecommerce/price/product_price.inc:176: -->
+
+	<error code="ECOM0002">Unable to locate the Ecommerce Rules for ecommerce custom form page "%1$s" (Id: #%2$s)</error>
+		<!-- ecommerce/page_templates/page_custom_form_ecommerce/page_custom_form_ecommerce_edit_fns.inc:59: -->
+
+	<error code="ECOM0003">Unable to locate the form asset for Ecommerce Custom Form "%1$s" (Id: #%2$s)</error>
+		<!-- ecommerce/page_templates/page_custom_form_ecommerce/page_custom_form_ecommerce.inc:96: -->
+
+	<error code="ECOM0004">Quantity to add() to cart cannot be less than zero</error>
+		<!-- ecommerce/ecommerce_cart/ecommerce_cart.inc:148: -->
+
+	<error code="ECOM0005">Assetid sent to cart add() function (#%s) is not a Product asset</error>
+		<!-- ecommerce/ecommerce_cart/ecommerce_cart.inc:158: -->
+
+	<error code="ECOM0006">Attempt to remove() items from cart when there is none of that product</error>
+		<!-- ecommerce/ecommerce_cart/ecommerce_cart.inc:196: -->
+
+	<error code="ECOM0007">Quantity to remove() from cart cannot be less than zero</error>
+		<!-- ecommerce/ecommerce_cart/ecommerce_cart.inc:211: -->
+
+	<error code="ECOM0008">Quantity to remove() from cart cannot be more than how many of that product are actually in the cart</error>
+		<!-- ecommerce/ecommerce_cart/ecommerce_cart.inc:216: -->
+
+	<error code="ECOM0009">Cannot update() an item in a cart when there is nothing to update</error>
+		<!-- ecommerce/ecommerce_cart/ecommerce_cart.inc:251: -->
+
+	<error code="ECOM0010">Cannot update() an item with a negative quantity</error>
+		<!-- ecommerce/ecommerce_cart/ecommerce_cart.inc:257: -->
+
+	<error code="ECOM0011">There was no active cart found</error>
+		<!-- ecommerce/product/product.inc:181: -->
+
+	<error code="ECOM0012">Invalid quantity entered</error>
+		<!-- ecommerce/product/product.inc:186: -->
+</errors>

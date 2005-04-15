@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_file_size_edit_fns.inc,v 1.3 2005/04/07 03:16:29 lwright Exp $
+* $Id: form_question_rule_type_file_size_edit_fns.inc,v 1.4 2005/04/15 00:37:46 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule_edi
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -119,7 +119,7 @@ class Form_Question_Rule_Type_File_Size_Edit_Fns extends Form_Question_Rule_Edit
 		$comparison_size = (float)$comparison * pow(2, 10 * array_search($multiplier, $multipliers));
 
 		if ($comparison_size > $this->_maxUploadSize()) {
-			trigger_error('Comparison size exceeds maximum file upload limit of '.easy_filesize($this->_maxUploadSize()).', setting to this maximum');
+			trigger_localised_error('CMS0003', E_USER_NOTICE, easy_filesize($this->_maxUploadSize()));
 			$comparison_size = $this->_maxUploadSize();
 		}
 

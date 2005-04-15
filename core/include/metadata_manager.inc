@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.78 2005/04/13 23:49:30 ndvries Exp $
+* $Id: metadata_manager.inc,v 1.79 2005/04/15 00:37:28 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.78 $
+* @version $Revision: 1.79 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -158,23 +158,23 @@ class Metadata_Manager extends MySource_Object
 	{
 		$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
 		if (is_null($schema)) {
-			trigger_error('Failed setting metadata schema, Schema Asset #'.$schemaid.' does not exist', E_USER_WARNING);
+			trigger_localised_error("SYS0047", E_USER_WARNING, $schemaid);
 			return false;
 		}
 
 		if (!is_a($schema, 'metadata_schema')) {
-			trigger_error('Failed setting metadata schema, "'.$schema->name.'" (Asset #'.$schemaid.') is not a metadata schema', E_USER_WARNING);
+			trigger_localised_error("SYS0045", E_USER_WARNING, $schema->name, $schemaid);
 			return false;
 		}
 
 		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
-			trigger_error('Failed setting metadata schema, Asset #'.$assetid.' does not exist', E_USER_WARNING);
+			trigger_localised_error("SYS0046", E_USER_WARNING, $assetid);
 			return false;
 		}
 
 		if (!$asset->adminAccess('metadata')) {
-			trigger_error('Cannot set metadata schema for "'.$asset->name.'", permission denied', E_USER_WARNING);
+			trigger_localised_error("SYS0031", E_USER_WARNING, $asset->name);
 			return false;
 		}
 
@@ -191,7 +191,7 @@ class Metadata_Manager extends MySource_Object
 				$new_access     = ($granted) ? 'apply'  : 'deny';
 				$current_access = ($granted) ? 'denied' : 'applied';
 
-				trigger_error('Could not '.$new_access.' metadata schema "'.$schema->name.'" on "'.$asset->name.'" because this asset already has this schema '.$current_access, E_USER_WARNING);
+				trigger_localised_error("SYS0032", E_USER_WARNING, $new_access, $schema->name, $asset->name, $current_access);
 				return false;
 			}
 		}
@@ -242,12 +242,12 @@ class Metadata_Manager extends MySource_Object
 	{
 		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
-			trigger_error('Failed deleting metadata schema, Asset #'.$assetid.' does not exist', E_USER_WARNING);
+			trigger_localised_error("SYS0036", E_USER_WARNING, $assetid);
 			return false;
 		}
 
 		if (!$asset->adminAccess('metadata')) {
-			trigger_error('Cannot delete metadata schema for "'.$asset->name.'", permission denied', E_USER_WARNING);
+			trigger_localised_error("SYS0029", E_USER_WARNING, $asset->name);
 			return false;
 		}
 
@@ -362,7 +362,7 @@ class Metadata_Manager extends MySource_Object
 	{
 		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
-			trigger_error('Failed getting metadata, Asset #'.$assetid.' does not exist', E_USER_WARNING);
+			trigger_localised_error("SYS0043", E_USER_WARNING, $assetid);
 			return false;
 		}
 
@@ -393,7 +393,7 @@ class Metadata_Manager extends MySource_Object
 		foreach ($schemas as $schemaid) {
 			$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
 			if (is_null($schema)) {
-				trigger_error('Failed getting metadata, Schema #'.$schemaid.' does not exist', E_USER_WARNING);
+				trigger_localised_error("SYS0044", E_USER_WARNING, $schemaid);
 				return false;
 			}
 			$where .= '
@@ -430,7 +430,7 @@ class Metadata_Manager extends MySource_Object
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 		$schema = &$am->getAsset($schemaid);
 		if (is_null($schema)) {
-			trigger_error('Failed getting default metadata, schema #'.$schemaid.' does not exist', E_USER_WARNING);
+			trigger_localised_error("SYS0040", E_USER_WARNING, $schemaid);
 			return Array();
 		}
 
@@ -439,7 +439,7 @@ class Metadata_Manager extends MySource_Object
 		foreach ($fields as $fieldid => $type_code) {
 			$field = &$am->getAsset($fieldid, $type_code);
 			if (is_null($field)) {
-				trigger_error('Failed getting metadata field, field #'.$schemaid.' does not exist', E_USER_WARNING);
+				trigger_localised_error("SYS0041", E_USER_WARNING, $schemaid);
 				continue;
 			}
 
@@ -475,7 +475,7 @@ class Metadata_Manager extends MySource_Object
 
 		$asset = &$am->getAsset($assetid);
 		if (is_null($asset)) {
-			trigger_error('Failed generating keyword replacements, Asset #'.$assetid.' does not exist', E_USER_WARNING);
+			trigger_localised_error("SYS0038", E_USER_WARNING, $assetid);
 			return $field_values;
 		}
 
@@ -488,12 +488,12 @@ class Metadata_Manager extends MySource_Object
 		foreach ($schemas as $schemaid) {
 			$schema = &$am->getAsset($schemaid);
 			if (is_null($schema)) {
-				trigger_error('Failed generating keyword replacements, Schema #'.$schemaid.' does not exist', E_USER_WARNING);
+				trigger_localised_error("SYS0039", E_USER_WARNING, $schemaid);
 				return $field_values;
 			}
 
 			if (!is_a($schema, 'metadata_schema')) {
-				trigger_error('Failed generating keyword replacements, "'.$schema->name.'" (Asset #'.$schemaid.') is not a metadata schema', E_USER_WARNING);
+				trigger_localised_error("SYS0037", E_USER_WARNING, $schema->name, $schemaid);
 				return $field_values;
 			}
 
@@ -514,7 +514,7 @@ class Metadata_Manager extends MySource_Object
 			foreach ($fields as $fieldid => $type_code) {
 				$field = &$am->getAsset($fieldid, $type_code);
 				if (is_null($field)) {
-					trigger_error('Failed getting metadata field, field #'.$schemaid.' does not exist', E_USER_WARNING);
+					trigger_localised_error("SYS0041", E_USER_WARNING, $schemaid);
 					continue;
 				}
 
@@ -544,12 +544,12 @@ class Metadata_Manager extends MySource_Object
 
 		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
-			trigger_error('Failed setting metadata, Asset #'.$assetid.' does not exist', E_USER_WARNING);
+			trigger_localised_error("SYS0043", E_USER_WARNING. $assetid);
 			return false;
 		}
 
 		if (!$asset->writeAccess('metadata')) {
-			trigger_error('Cannot set metadata for "'.$asset->name.'", permission denied', E_USER_WARNING);
+			trigger_localised_error("SYS0030", E_USER_WARNING, $asset->name);
 			return false;
 		}
 
@@ -686,7 +686,7 @@ class Metadata_Manager extends MySource_Object
 	{
 		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
-			trigger_error('Failed caching metadata, Asset #'.$assetid.' does not exist', E_USER_WARNING);
+			trigger_localised_error("SYS0034", E_USER_WARNING, $assetid);
 			return false;
 		}
 
@@ -707,12 +707,12 @@ class Metadata_Manager extends MySource_Object
 		foreach ($schemas as $schemaid) {
 			$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
 			if (is_null($schema)) {
-				trigger_error('Failed caching metadata, Schema #'.$schemaid.' does not exist', E_USER_WARNING);
+				trigger_localised_error("SYS0035", E_USER_WARNING, $schemaid);
 				return false;
 			}
 
 			if (!is_a($schema, 'metadata_schema')) {
-				trigger_error('Failed caching metadata, "'.$schema->name.'" (Asset #'.$schemaid.') is not a metadata schema', E_USER_WARNING);
+				trigger_localised_error("SYS0033", E_USER_WARNING, $schema->name, $schemaid);
 				return false;
 			}
 

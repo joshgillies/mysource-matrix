@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_status.inc,v 1.33 2005/04/13 23:49:30 ndvries Exp $
+* $Id: hipo_job_edit_status.inc,v 1.34 2005/04/15 00:37:27 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to change the status of an asset
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -163,14 +163,14 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 	{
 		// to start editing a status, we need to have an asset id to edit
 		if (!isset($this->_running_vars['assetid'])) {
-			trigger_error('Cannot initialise Edit Status HIPO, no start asset ID specified', E_USER_WARNING);
+			trigger_localised_error('HIPO0012', E_USER_WARNING);
 			return '';
 		}
 
 		// so we have an assetid to start at, but make sure it is a valid assetid
 		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['assetid']);
 		if (is_null($asset)) {
-			trigger_error('Cannot initialise Edit Status HIPO, invalid start asset ID specified ('.$this->_running_vars['assetid'].')', E_USER_WARNING);
+			trigger_localised_error('HIPO0011', E_USER_WARNING, $this->_running_vars['assetid']);
 			return '';
 		}
 

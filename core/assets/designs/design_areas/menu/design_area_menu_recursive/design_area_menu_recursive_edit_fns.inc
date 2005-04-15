@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_recursive_edit_fns.inc,v 1.20 2004/12/06 14:38:08 brobertson Exp $
+* $Id: design_area_menu_recursive_edit_fns.inc,v 1.21 2005/04/15 00:37:24 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_areas/menu/design_area_menu_t
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -67,7 +67,7 @@ class Design_Area_Menu_Recursive_Edit_Fns extends Design_Area_Menu_Type_Edit_Fns
 	function _processSubMenu(&$asset, &$contents)
 	{
 		// we just want to ignore any stupid sub menu's in our asset contents
-		trigger_error('You are unable to set sub menu\'s on the recursive menu type', E_USER_WARNING);
+		trigger_localised_error("CORE0215", E_USER_WARNING);
 		return false;
 	}//end _processSubMenu()
 

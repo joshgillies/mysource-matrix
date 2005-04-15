@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css_edit_fns.inc,v 1.6 2004/12/06 14:38:08 brobertson Exp $
+* $Id: design_css_edit_fns.inc,v 1.7 2005/04/15 00:37:24 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design_edit_fns.inc';
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -230,7 +230,7 @@ class Design_Css_Edit_Fns extends Design_Edit_Fns
 		if ($new_file) {
 			// attempt to add the file to the repository
 			if (!$fv->add($asset->data_path_suffix, $file, '', false)) {
-				trigger_error('Failed adding design file version', E_USER_WARNING);
+				trigger_localised_error("CORE0165", E_USER_WARNING);
 				return false;
 			}
 		} else {
@@ -238,7 +238,7 @@ class Design_Css_Edit_Fns extends Design_Edit_Fns
 			$file_status = $fv->upToDate($file);
 			if (FUDGE_FV_MODIFIED & $file_status) {
 				if (!$fv->commit($file, '', false)) {
-					trigger_error('Failed committing design file version', E_USER_WARNING);
+					trigger_localised_error("CORE0159", E_USER_WARNING);
 					return false;
 				}
 			}
@@ -246,7 +246,7 @@ class Design_Css_Edit_Fns extends Design_Edit_Fns
 
 		// make sure we have the latest version of our file
 		if (!$fv->checkOut($asset->data_path_suffix.'/design_file.php', $asset->data_path)) {
-			trigger_error('Failed checking out latest version of design file', E_USER_WARNING);
+			trigger_localised_error("CORE0031", E_USER_WARNING);
 			return false;
 		}
 
@@ -354,7 +354,7 @@ class Design_Css_Edit_Fns extends Design_Edit_Fns
 		foreach ($file_links as $link) {
 			$minor = &$am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (!$clone->createLink($minor, SQ_LINK_TYPE_3, '', null, 1)) {
-				trigger_error('Failed creating file link to customisation', E_USER_WARNING);
+				trigger_localised_error("CORE0162", E_USER_WARNING);
 				$am->forgetAsset($minor);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;

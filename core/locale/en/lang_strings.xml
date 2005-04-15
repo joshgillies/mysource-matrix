@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.1 2005/03/30 00:40:15 lwright Exp $
+* $Id: lang_strings.xml,v 1.2 2005/04/15 00:37:33 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -29,4 +29,5 @@
 	%s
 	%s</string>
 	<string source="str_global_asset">Asset</string>
+	<string source="str_global_locking_editing">Locking / Editing</string>
 </strings>

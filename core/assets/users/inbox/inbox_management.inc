@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: inbox_management.inc,v 1.9 2005/02/23 06:01:43 dbaranovskiy Exp $
+* $Id: inbox_management.inc,v 1.10 2005/04/15 00:37:27 lwright Exp $
 *
 */
 
@@ -31,12 +31,13 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Inbox_Management extends Asset_Management
 {
+
 
 	/**
 	* Constructor
@@ -58,9 +59,9 @@ class Inbox_Management extends Asset_Management
 	function _getFileList()
 	{
 		return Array(
-					 'css/inbox.css.php',
-					 'js/inbox.js',
-					 );
+				'css/inbox.css.php',
+				'js/inbox.js',
+			   );
 
 	}//end _getFileList()
 

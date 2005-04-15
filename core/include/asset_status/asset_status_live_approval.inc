@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_live_approval.inc,v 1.33 2005/04/06 23:05:34 mmcintyre Exp $
+* $Id: asset_status_live_approval.inc,v 1.34 2005/04/15 00:37:29 lwright Exp $
 *
 */
 
@@ -40,7 +40,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *                                   there is workflow running and the user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix
 */
 class Asset_Status_Live_Approval extends Asset_Status
@@ -172,14 +172,14 @@ class Asset_Status_Live_Approval extends Asset_Status
 				}
 
 				if (!$wfm->cancelWorkflow($this->owner->id, $msg)) {
-					trigger_error('Workflow cancel failed', E_USER_WARNING);
+					trigger_localised_error("SYS0260", E_USER_WARNING);
 					return false;
 				}
 			}
 
 			// we are safe editing
 			if (!$this->owner->saveSystemVersion()) {
-				trigger_error('Status change failed, could not save to cache', E_USER_WARNING);
+				trigger_localised_error("SYS0208", E_USER_WARNING);
 				return false;
 			}
 
@@ -217,13 +217,13 @@ class Asset_Status_Live_Approval extends Asset_Status
 
 				if ($wfm->isWorkflowComplete($this->owner->id) && $m_complete && ($new_status & SQ_STATUS_LIVE)) {
 					if (!$wfm->completeWorkflow($this->owner->id)) {
-						trigger_error('Workflow completion failed', E_USER_WARNING);
+						trigger_localised_error("SYS0261", E_USER_WARNING);
 						return false;
 					}
 				} else {
 					// we are doing a workflow and someone has just approved the asset, so record this
 					if (!$wfm->recordPublish($this->owner->id, $current_userid)) {
-						trigger_error('Approval by user '.$current_userid.' not set in processStatusChange for "'.$this->owner->name.'"', E_USER_WARNING);
+						trigger_localised_error("SYS0077", E_USER_WARNING, $current_userid, $this->owner->name);
 						return false;
 					}
 
@@ -231,7 +231,7 @@ class Asset_Status_Live_Approval extends Asset_Status
 					// as long as all our metadata is also complete
 					if ($wfm->isWorkflowComplete($this->owner->id) && $m_complete && ($new_status & SQ_STATUS_LIVE)) {
 						if (!$wfm->completeWorkflow($this->owner->id)) {
-							trigger_error('Workflow completion failed', E_USER_WARNING);
+							trigger_localised_error("SYS0261", E_USER_WARNING);
 							return false;
 						}
 					}

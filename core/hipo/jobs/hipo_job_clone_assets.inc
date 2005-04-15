@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_clone_assets.inc,v 1.11 2005/04/13 23:49:30 ndvries Exp $
+* $Id: hipo_job_clone_assets.inc,v 1.12 2005/04/15 00:37:27 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -251,7 +251,7 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 	{
 		// there must be assets in the _running_vars to clone
 		if (empty($this->_running_vars['assets'])) {
-			trigger_error('Cannot initialise Clone Asset HIPO, no assets specified', E_USER_WARNING);
+			trigger_localised_error('HIPO0031', E_USER_WARNING);
 			return false;
 		}
 
@@ -415,14 +415,14 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 		$parent_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['to_parent_assetid']);
 
 		if (is_null($parent_asset)) {
-			trigger_error('Cannot clone asset, invalid destination asset ID specified (#'.$this->_running_vars['to_parent_assetid'].')', E_USER_WARNING);
+			trigger_localised_error('HIPO0030', E_USER_WARNING, $this->_running_vars['to_parent_assetid']);
 			return false;
 		}
 
 		$orig = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
 		if (is_null($orig)) {
-			trigger_error('Cannot clone asset, invalid asset ID for cloning specified (#'.$assetid.')', E_USER_WARNING);
+			trigger_localised_error('HIPO0029', E_USER_WARNING, $assetid);
 			return false;
 		}
 
@@ -452,7 +452,7 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 		$clone = &$GLOBALS['SQ_SYSTEM']->am->cloneAsset($orig, $link, $remap, $components, true);
 
 		if (is_null($clone)) {
-			trigger_error('Cannot clone asset and it\'s required components. Cloning failed.', E_USER_WARNING);
+			trigger_localised_error('HIPO0028', E_USER_WARNING);
 			return false;
 		}
 
@@ -509,7 +509,7 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 		$step_data['message'] = 'Remapping "'.$asset->name.'" and its dependant assets.';
 
 		if (!$asset->remapAssetids($map)) {
-			trigger_error('Remap failed for asset, Asset Id #'.$asset->id, E_USER_WARNING);
+			trigger_localised_error('HIPO0027', E_USER_WARNING, $asset->id);
 			return false;
 		}
 

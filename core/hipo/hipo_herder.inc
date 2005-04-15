@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_herder.inc,v 1.61 2005/04/13 05:08:21 ndvries Exp $
+* $Id: hipo_herder.inc,v 1.62 2005/04/15 00:37:27 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) Herder (Manager ;P)
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.61 $
+* @version $Revision: 1.62 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -174,7 +174,7 @@ class HIPO_Herder extends MySource_Object
 	function processWeb()
 	{
 		if (empty($_GET['hipo_source_code_name'])) {
-			trigger_error('HIPO source codename not specified', E_USER_WARNING);
+			trigger_localised_error('HIPO0058', E_USER_WARNING);
 			return false;
 		}
 
@@ -182,7 +182,7 @@ class HIPO_Herder extends MySource_Object
 		if (is_null($source_job)) {
 			// if we aren't actually waiting for an aborted hipo to remove itself then, display an error
 			if (empty($_POST['aborting_hipo'])) {
-				trigger_error('Unable to find a source job with the codename "'.$_GET['hipo_source_code_name'].'"', E_USER_WARNING);
+				trigger_localised_error('HIPO0057', E_USER_WARNING, $_GET['hipo_source_code_name']);
 				return false;
 			// else the server has finally killed the job so we are now done
 			} else {
@@ -229,13 +229,13 @@ class HIPO_Herder extends MySource_Object
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 
 		if (empty($_GET['hipo_source_code_name'])) {
-			trigger_error('HIPO source codename not specified', E_USER_WARNING);
+			trigger_localised_error('HIPO0058', E_USER_WARNING);
 			return false;
 		}
 
 		$source_job = &$this->getJob($_GET['hipo_source_code_name']);
 		if (is_null($source_job) && empty($_POST['aborting_hipo'])) {
-			trigger_error('Unable to find a source job with the codename "'.$_GET['hipo_source_code_name'].'"', E_USER_WARNING);
+			trigger_localised_error('HIPO0057', E_USER_WARNING, $_GET['hipo_source_code_name']);
 			return false;
 		}
 
@@ -494,7 +494,7 @@ class HIPO_Herder extends MySource_Object
 
 		$source_job = &$this->getJob($this->_tmp['prepared_server']['source_code_name']);
 		if (is_null($source_job)) {
-			trigger_error('Unable to find a source job with the codename "'.$this->_tmp['prepared_server']['source_code_name'].'"', E_USER_WARNING);
+			trigger_localised_error('HIPO0057', E_USER_WARNING, $this->_tmp['prepared_server']['source_code_name']);
 			return false;
 		}
 
@@ -550,7 +550,7 @@ class HIPO_Herder extends MySource_Object
 				}// end if
 				exit();
 			default:
-				trigger_error('Signal '.$signo.' not handled', E_USER_NOTICE);
+				trigger_localised_error('HIPO0056', E_USER_NOTICE, $signo);
 				break;
 		}// end switch
 
@@ -660,14 +660,14 @@ class HIPO_Herder extends MySource_Object
 				$next_url = $this->getProcessURL($queued_jobs[($i+1)]['code_name']);
 				$job->setOption('on_complete_url', $next_url);
 				if (!$job->save()) {
-					trigger_error('HIPO Job failed to save', E_USER_WARNING);
+					trigger_localised_error('HIPO0055', E_USER_WARNING);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return '';
 				}
 			} else if (!empty($on_complete_url)) {
 				$job->setOption('on_complete_url', $on_complete_url);
 				if (!$job->save()) {
-					trigger_error('HIPO Job failed to save', E_USER_WARNING);
+					trigger_localised_error('HIPO0055', E_USER_WARNING);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return '';
 				}

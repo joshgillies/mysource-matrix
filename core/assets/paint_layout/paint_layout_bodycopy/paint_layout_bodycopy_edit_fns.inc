@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_bodycopy_edit_fns.inc,v 1.2 2005/04/14 12:10:52 gnoel Exp $
+* $Id: paint_layout_bodycopy_edit_fns.inc,v 1.3 2005/04/15 00:37:26 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy_edit_fns.inc';
 *
 *
 * @author Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -60,10 +60,10 @@ class Paint_Layout_Bodycopy_Edit_Fns extends Bodycopy_Edit_Fns
 	*/
 	function paintConditionalKeywords(&$asset, &$o, $prefix)
 	{
-		$allowed_keywords = Array();		
+		$allowed_keywords = Array();
 		$asset->getKeywordsDescription($allowed_keywords, $asset->getAssociatedAssetType());
 		$allowed_keywords = array_keys($allowed_keywords);
-		
+
 		$write_access = $asset->writeAccess('attributes');
 		$condition_list = new Conditions_List($asset, 'conditional_keywords');
 		return $condition_list->paintConditionsList($asset, $o, $prefix, $write_access, $allowed_keywords);
@@ -123,10 +123,7 @@ class Paint_Layout_Bodycopy_Edit_Fns extends Bodycopy_Edit_Fns
 					case SQ_KEYWORD_CONDITION_ELSE :
 						$current_scope = end($stack);
 						if (end($stack) != $test_keyword) {
-							$msg =	'Validate Error: "%'.$keyword.'%" keyword out of position'."\n".
-									'Expecting "%'.SQ_KEYWORD_CONDITION_ELSE.'_'.$current_scope.'%" or "%'.SQ_KEYWORD_CONDITION_END.'_'.$current_scope.'%"'."\n".
-									'Either matching "%'.SQ_KEYWORD_CONDITION_BEGIN.'_'.$test_keyword.'%" does not exist or it is not in the same scope';
-							trigger_error($msg, E_USER_WARNING);
+							trigger_localised_error("CORE0202", E_USER_WARNING, $keyword, SQ_KEYWORD_CONDITION_ELSE.'_'.$current_scope, SQ_KEYWORD_CONDITION_END.'_'.$current_scope, SQ_KEYWORD_CONDITION_BEGIN.'_'.$test_keyword);
 							$validated = false;
 							break 2; //exit out of loop
 						}
@@ -134,10 +131,7 @@ class Paint_Layout_Bodycopy_Edit_Fns extends Bodycopy_Edit_Fns
 					case SQ_KEYWORD_CONDITION_END :
 						$current_scope = array_pop($stack);
 						if ($current_scope != $test_keyword) {
-							$msg =	'Validate Error: "%'.$keyword.'%" keyword out of position'."\n".
-									'Expecting "%'.SQ_KEYWORD_CONDITION_ELSE.'_'.$current_scope.'%" or "%'.SQ_KEYWORD_CONDITION_END.'_'.$current_scope.'%"'."\n".
-									'Either matching "%'.SQ_KEYWORD_CONDITION_BEGIN.'_'.$test_keyword.'%" does not exist or it is not in the same scope';
-							trigger_error($msg, E_USER_WARNING);
+							trigger_localised_error("CORE0202", E_USER_WARNING, $keyword, SQ_KEYWORD_CONDITION_ELSE.'_'.$current_scope, SQ_KEYWORD_CONDITION_END.'_'.$current_scope, SQ_KEYWORD_CONDITION_BEGIN.'_'.$test_keyword);
 							$validated = false;
 							break 2; //exit out of loop
 						}

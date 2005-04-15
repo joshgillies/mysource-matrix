@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_custom_form_edit_fns.inc,v 1.8 2004/12/06 14:41:40 brobertson Exp $
+* $Id: page_custom_form_edit_fns.inc,v 1.9 2005/04/15 00:37:46 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -65,7 +65,7 @@ class Page_Custom_Form_Edit_Fns extends Page_Edit_Fns
 		$form_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'form', false, 'major', '', '1', '1');
 		$form = &$GLOBALS['SQ_SYSTEM']->am->getAsset($form_link[0]['minorid']);
 		if (is_null($form)) {
-			trigger_error('Could not locate the Form Contents for custom form page "'.$asset->name.'"', E_USER_ERROR);
+			trigger_localised_error('CMS0022', E_USER_ERROR, $asset->name, $asset->id);
 			return false;
 		}
 

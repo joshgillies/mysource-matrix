@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_cancellation.inc,v 1.16 2005/03/21 06:26:05 gsherwood Exp $
+* $Id: calendar_event_cancellation.inc,v 1.17 2005/04/15 00:37:40 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once  dirname(__FILE__).'/../calendar_event_recurring/calendar_event_rec
 * which replaces the cancelled instance may be linked to it.
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -69,13 +69,13 @@ class Calendar_Event_Cancellation extends Calendar_Event
 		if (!parent::_preCreateCheck($link)) return false;
 
 		if (!($link['value'] = $this->getStartDate())) {
-			trigger_error('You need to specify a start date before you can call create() for a modification event', E_USER_WARNING);
+			trigger_localised_error('CAL0053', E_USER_WARNING);
 			return false;
 		}
 
 		$parent = &$link['asset'];
 		if (!is_a($parent, 'calendar_event_recurring')) {
-			trigger_error('Recurring Event Cancellations can only be created underneath recurring events', E_USER_WARNING);
+			trigger_localised_error('CAL0054', E_USER_WARNING);
 			return false;
 		}
 
@@ -132,7 +132,7 @@ class Calendar_Event_Cancellation extends Calendar_Event
 	{
 		// check that it has an occurrence on the date specified
 		if (!$parent->hasOccurrenceOnDate($this->getStartDate())) {
-			trigger_error('There is no occurrence of the specified recurring event on the specified date, being '.$this->getStartDate(), E_USER_ERROR);
+			trigger_localised_error('CAL0055', E_USER_ERROR, $this->getStartDate());
 			return false;
 		}
 
@@ -167,7 +167,7 @@ class Calendar_Event_Cancellation extends Calendar_Event
 	function addReplacement($start_date, $end_date, $description)
 	{
 		if (!$this->writeAccess('')) {
-			trigger_error('You don\'t have sufficient access to create a cancellation for this event', SQ_USER_WARNING);
+			trigger_localised_error('CAL0056', E_USER_WARNING);
 			return false;
 		}
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('calendar_event_single');
@@ -184,7 +184,7 @@ class Calendar_Event_Cancellation extends Calendar_Event
 			$replacement_event->create($link);
 		} else {
 			if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($replacement_event->id, 'attributes')) {
-				trigger_error('Could not get lock to save attrs of asset "'.$replacement_event->name.'"', E_USER_WARNING);
+				trigger_localised_error('CAL0057', E_USER_WARNING, $replacement_event->name);
 				return 0;
 			}
 			$replacement_event->saveAttributes();

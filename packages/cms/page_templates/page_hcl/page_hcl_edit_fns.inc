@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_hcl_edit_fns.inc,v 1.8 2005/01/20 13:18:40 brobertson Exp $
+* $Id: page_hcl_edit_fns.inc,v 1.9 2005/04/15 00:37:46 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 * Purpose
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -112,7 +112,7 @@ class Page_HCL_Edit_Fns extends Page_Edit_Fns
 			if (!is_null($root)) {
 				if (!$asset->createLink($root, SQ_LINK_NOTICE, 'root')) {
 					$ok = false;
-					trigger_error('Failed adding new root node "'.$root->name.'" [#'.$root->id.']', E_USER_WARNING);
+					trigger_localised_error('CMS0016', E_USER_WARNING, $root->name, $root->id);
 				}
 			}
 		}
@@ -209,7 +209,7 @@ class Page_HCL_Edit_Fns extends Page_Edit_Fns
 				if (!$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($linkid)) {
 					$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
 					$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
-					trigger_error('Failed removing metadata schema "'.$schema->name.'" [#'.$schema->id.']', E_USER_WARNING);
+					trigger_localised_error('CMS0017', E_USER_WARNING, $schema->name, $schema->id);
 				}
 			}
 		}
@@ -258,7 +258,7 @@ class Page_HCL_Edit_Fns extends Page_Edit_Fns
 			$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($new_schema);
 			if (!is_null($schema)) {
 				if (!$asset->createLink($schema, SQ_LINK_NOTICE, 'schema')) {
-					trigger_error('Failed adding metadata schema "'.$schema->name.'" [#'.$schema->id.']', E_USER_WARNING);
+					trigger_localised_error('CMS0018', E_USER_WARNING, $schema->name, $schema->id);
 				}
 			}
 		}

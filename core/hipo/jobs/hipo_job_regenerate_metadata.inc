@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_regenerate_metadata.inc,v 1.20 2005/04/13 23:49:30 ndvries Exp $
+* $Id: hipo_job_regenerate_metadata.inc,v 1.21 2005/04/15 00:37:27 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    schemaid	-	the ID of the schema that has been updated
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -207,7 +207,7 @@ class HIPO_Job_Regenerate_Metadata extends HIPO_Job
 	{
 		// to start regenerating metadata, we need to have a schema that has been updated
 		if (empty($this->_running_vars['schemaids'])) {
-			trigger_error('Cannot initialise Regenerate Metdata HIPO, no schemaID(s) specified', E_USER_WARNING);
+			trigger_localised_error('HIPO0003', E_USER_WARNING);
 			return false;
 		}
 

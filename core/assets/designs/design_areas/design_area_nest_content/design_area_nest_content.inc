@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_nest_content.inc,v 1.15 2004/12/06 14:38:08 brobertson Exp $
+* $Id: design_area_nest_content.inc,v 1.16 2005/04/15 00:37:24 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -56,7 +56,7 @@ class Design_Area_Nest_Content extends Design_Area
 			if (!is_array($value)) $value = preg_split('/[ ,]+/', (string) $value);
 			foreach ($value as $type_code) {
 				if (!$GLOBALS['SQ_SYSTEM']->am->installed($type_code)) {
-					trigger_error('Asset Type "'.$type_code.'" is not installed in this system, unable to set "type_codes"', E_USER_WARNING);
+					trigger_localised_error("CORE0145", E_USER_WARNING, $type_code);
 					return false;
 				}
 			}

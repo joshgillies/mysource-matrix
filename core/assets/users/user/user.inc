@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.83 2005/03/21 06:23:20 gsherwood Exp $
+* $Id: user.inc,v 1.84 2005/04/15 00:37:27 lwright Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.83 $
+* @version $Revision: 1.84 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -75,7 +75,7 @@ class User extends Asset
 		$password = $this->attr('password');
 
 		if (!$this->_catchBlankUserNamePass($username, $password)) {
-			trigger_error('Unable to create a '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').' without a username and password', E_USER_WARNING);
+			trigger_localised_error("CORE0084", E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
 			return false;
 		}
 
@@ -104,23 +104,23 @@ class User extends Asset
 		$valid_paths = make_valid_web_paths(Array($initial_path));
 		$good_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($link['asset'], $valid_paths, $this->id, true);
 		if (!$this->saveWebPaths($good_paths)) {
-			trigger_error('Could not set an initial web path for "'.$this->name.'"', E_USER_WARNING);
+			trigger_localised_error("CORE0019", E_USER_WARNING, $this->name);
 			return false;
 		}
 
 		if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'permissions')) {
-			trigger_error('Could not create user - "permissions" lock not acquired on user asset "'.$this->name.'"', E_USER_WARNING);
+			trigger_localised_error("CORE0014", E_USER_WARNING, $this->name);
 			return false;
 		}
 
 		// give the user admin access to him/herself
 		if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($this->id, $this->id, SQ_PERMISSION_ADMIN, true)) {
-			trigger_error('Could not create user - permission could not be set on user asset "'.$this->name.'"', E_USER_WARNING);
+			trigger_localised_error("CORE0015", E_USER_WARNING, $this->name);
 			return false;
 		}
 
 		if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'permissions')) {
-			trigger_error('Could not create user - "permissions" lock could not be released on user asset "'.$this->name.'"', E_USER_WARNING);
+			trigger_localised_error("CORE0013", E_USER_WARNING, $this->name);
 			return false;
 		}
 
@@ -177,7 +177,7 @@ class User extends Asset
 
 		} else if ($name == 'username') {
 			if (!$this->_catchBlankSetUserName(trim($value))) {
-				trigger_error('Username cannot be blank', E_USER_WARNING);
+				trigger_localised_error("CORE0110", E_USER_WARNING);
 				return false;
 			}
 		}
@@ -450,13 +450,13 @@ class User extends Asset
 		$link = $this->getWorkspaceLink();
 
 		if (empty($link)) {
-			trigger_error('User '.$this->name.' does not have a workspace', E_USER_WARNING);
+			trigger_localised_error("CORE0109", E_USER_WARNING,$this->name);
 			return $null;
 		}
 
 		$workspace = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid']);
 		if (is_null($workspace)) {
-			trigger_error('User '.$this->name.' does not have a workspace', E_USER_WARNING);
+			trigger_localised_error("CORE0109", E_USER_WARNING,$this->name);
 			return $null;
 		}
 		return $workspace;

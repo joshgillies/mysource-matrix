@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.386 2005/04/13 05:59:34 mmcintyre Exp $
+* $Id: asset.inc,v 1.387 2005/04/15 00:37:27 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.386 $
+* @version $Revision: 1.387 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -600,7 +600,7 @@ class Asset extends MySource_Object
 
 		// make sure the asset we are loading is of the same type as our class
 		if ($type_code != $this->type()) {
-			trigger_error('Asset #'.$assetid.' is not a '.$this->type(), E_USER_WARNING);
+			trigger_localised_error("SYS0089", E_USER_WARNING, $assetid, $this->type());
 			$this->id                    = 0;
 			$this->created               = null;
 			$this->created_userid        = null;
@@ -616,7 +616,7 @@ class Asset extends MySource_Object
 		if ($this->useSystemVersion()) {
 			$this->_loadDataPaths();
 			if (!$this->loadSystemVersion()) {
-				trigger_error('Asset #'.$assetid.' failed loading from cache', E_USER_WARNING);
+				trigger_localised_error("SYS0088", E_USER_WARNING, $assetid);
 				return;
 			}
 			$this->_loadDataPaths();
@@ -721,7 +721,7 @@ class Asset extends MySource_Object
 	{
 		// check that we are in the trash
 		if (!$GLOBALS['SQ_SYSTEM']->am->assetInTrash($this->id)) {
-			trigger_error('Cannot delete asset, asset "'.$this->name.'" [#'.$this->id.'] is not in the trash', E_USER_WARNING);
+			trigger_localised_error("SYS0103", E_USER_WARNING, $this->name, $this->id);
 			return false;
 		}
 
@@ -735,7 +735,7 @@ class Asset extends MySource_Object
 			if (!is_null($major)) {
 				$major->deleteLink($link['linkid']);
 			} else {
-				trigger_error('Could not load asset with id '.$link['majorid'], E_USER_WARNING);
+				trigger_localised_error("SYS0128", E_USER_WARNING, $link['majorid']);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
@@ -745,7 +745,7 @@ class Asset extends MySource_Object
 			// we are about to go to the big asset manager in the sky,
 			// so we wont be needing worldly things such as locks
 			if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'all')) {
-				trigger_error('Delete failed, the lock on "'.$this->name.'" could not be released', E_USER_WARNING);
+				trigger_localised_error("SYS0131", E_USER_WARNING, $this->name);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
@@ -753,7 +753,7 @@ class Asset extends MySource_Object
 
 		// remove web paths
 		if (!$this->saveWebPaths(Array())) {
-			trigger_error('Delete failed, unable to clear the web paths of "'.$this->name.'"', E_USER_WARNING);
+			trigger_localised_error("SYS0133", E_USER_WARNING, $this->name);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
@@ -761,7 +761,7 @@ class Asset extends MySource_Object
 		// update the lookups to clear them; figures that if there are no web paths there cannot
 		// be any lookups
 		if (!$this->updateLookups()) {
-			trigger_error('Delete failed, unable to clear the lookups of "'.$this->name.'"', E_USER_WARNING);
+			trigger_localised_error("SYS0132", E_USER_WARNING, $this->name);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
@@ -819,7 +819,7 @@ class Asset extends MySource_Object
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 		if (is_dir($this->data_path)) {
 			if (!delete_directory($this->data_path)) {
-				trigger_error('Failed deleteing asset "'.$this->name.'", could not delete restricted data directory', E_USER_WARNING);
+				trigger_localised_error("SYS0151", E_USER_WARNING, $this->name);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
@@ -827,7 +827,7 @@ class Asset extends MySource_Object
 
 		if (is_dir($this->data_path_public)) {
 			if (!delete_directory($this->data_path_public)) {
-				trigger_error('Failed deleteing asset "'.$this->name.'", could not delete restricted data directory', E_USER_WARNING);
+				trigger_localised_error("SYS0151", E_USER_WARNING, $this->name);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
@@ -883,7 +883,7 @@ class Asset extends MySource_Object
 
 		// make sure our data directory exists
 		if (!file_exists($this->data_path.'/.object_data')) {
-			trigger_error('Failed loading asset "'.$this->id.'" from cache, object data file "'.$this->data_path.'/.object_data'.'" not found', E_USER_WARNING);
+			trigger_localised_error("SYS0159", E_USER_WARNING, $this->id, $this->data_path);
 			return false;
 		}
 
@@ -909,25 +909,25 @@ class Asset extends MySource_Object
 
 		// make sure our data directories exists
 		if (!create_directory($this->data_path)) {
-			trigger_error('Failed saving asset "'.$this->name.'" to cache, could not create restricted data directory', E_USER_WARNING);
+			trigger_localised_error("CORE0049", E_USER_WARNING, $this->name);
 			return false;
 		}
 
 		// make sure our system directories exists
 		if (!create_directory($this->data_path.'/.sq_system')) {
-			trigger_error('Failed saving asset "'.$this->name.'" to cache, could not create restricted system directory', E_USER_WARNING);
+			trigger_localised_error("CORE0050", E_USER_WARNING, $this->name);
 			return false;
 		}
 
 		// make sure there is nothing in the system directories
 		if (!clear_directory($this->data_path.'/.sq_system')) {
-			trigger_error('Failed saving asset "'.$this->name.'" to cache, could not clear restricted system directory', E_USER_WARNING);
+			trigger_localised_error("CORE0050", E_USER_WARNING, $this->name);
 			return false;
 		}
 
 		// save the object for later (in the restricted directory)
 		if (!string_to_file(serialize($this), $this->data_path.'/.sq_system/.object_data')) {
-			trigger_error('Failed saving asset "'.$this->name.'" to cache, could not write object data file', E_USER_WARNING);
+			trigger_localised_error("CORE0051", E_USER_WARNING, $this->name);
 			return false;
 		}
 
@@ -936,7 +936,7 @@ class Asset extends MySource_Object
 		$files_to_copy = list_files($this->data_path);
 		foreach ($files_to_copy as $filename) {
 			if (!copy_file($this->data_path.'/'.$filename, $this->data_path.'/.sq_system/'.$filename)) {
-				trigger_error('Failed saving asset "'.$this->name.'" to cache, could not copy file "'.$filename.'" to restricted system directory', E_USER_WARNING);
+				trigger_localised_error("SYS0166", E_USER_WARNING, $this->name, $filename);
 				return false;
 			}
 		}
@@ -958,18 +958,18 @@ class Asset extends MySource_Object
 
 		// make sure our data directory exists
 		if (!create_directory($this->data_path)) {
-			trigger_error('Failed clearing system version of asset "'.$this->name.'", could not create data directory', E_USER_WARNING);
+			trigger_localised_error("SYS0148", E_USER_WARNING, $this->name);
 			return false;
 		}
 
 		// make sure our system directory exists
 		if (!create_directory($this->data_path.'/.sq_system')) {
-			trigger_error('Failed clearing system version of asset "'.$this->name.'", could not create system directory', E_USER_WARNING);
+			trigger_localised_error("SYS0299", E_USER_WARNING, $this->name);
 			return false;
 		}
 
 		if (!clear_directory($this->data_path.'/.sq_system')) {
-			trigger_error('Failed clearing system version of asset "'.$this->name.'"', E_USER_WARNING);
+			trigger_localised_error("SYS0147", E_USER_WARNING, $this->name);
 			return false;
 		}
 
@@ -996,7 +996,7 @@ class Asset extends MySource_Object
 		if (is_file($this->data_path.'/.sq_system/.object_data')) {
 			$old_version = unserialize(file_to_string($this->data_path.'/.sq_system/.object_data'));
 		} else {
-			trigger_error('Failed reverting asset "'.$this->name.'" to system version, could not locate object data file', E_USER_WARNING);
+			trigger_localised_error("SYS0163", E_USER_WARNING, $this->name);
 			$GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] = false;
 			return false;
 		}
@@ -1008,7 +1008,7 @@ class Asset extends MySource_Object
 			if (strpos($filename, '.') === 0) continue;
 
 			if (!copy_file($this->data_path.'/.sq_system/'.$filename, $this->data_path.'/'.$filename)) {
-				trigger_error('Failed reverting asset "'.$this->name.'" to system version, could not copy file "'.$filename.'" to restricted data directory', E_USER_WARNING);
+				trigger_localised_error("SYS0162", E_USER_WARNING, $this->name, $filename);
 				$GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] = false;
 				return false;
 			}
@@ -1018,19 +1018,19 @@ class Asset extends MySource_Object
 		foreach ($old_version->vars as $var_name => $var_data) {
 			if ($var_data['type'] == 'serialise') $var_data['value'] = serialize($var_data['value']);
 			if (!$this->setAttrValue($var_name, $var_data['value'], true)) {
-				trigger_error('Failed reverting asset "'.$this->name.'" to system version, could not save value of attribute "'.$var_name.'"', E_USER_WARNING);
+				trigger_localised_error("SYS0165", E_USER_WARNING, $this->name, $var_name);
 				$GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] = false;
 				return false;
 			}
 		}
 		if (!$this->saveAttributes()) {
-			trigger_error('Failed reverting asset "'.$this->name.'" to system version, could not save previous version of attributes', E_USER_WARNING);
+			trigger_localised_error("SYS0164", E_USER_WARNING, $this->name);
 			$GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] = false;
 			return false;
 		}
 
 		if (!$this->clearSystemVersion()) {
-			trigger_error('Failed reverting asset "'.$this->name.'" to system version, could not clear system version', E_USER_WARNING);
+			trigger_localised_error("SYS0161", E_USER_WARNING, $this->name);
 			$GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] = false;
 			return false;
 		}
@@ -1109,7 +1109,7 @@ class Asset extends MySource_Object
 
 			// increment the micro version number
 			if (!$this->incrementVersion('micro', $update_parents)) {
-				trigger_error('Failed updating "'.$this->name.'", version not incremented', E_USER_WARNING);
+				trigger_localised_error("SYS0183", E_USER_WARNING, $this->name);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
@@ -1204,7 +1204,7 @@ class Asset extends MySource_Object
 				$part_num = 2;
 			break;
 			default :
-				trigger_error('Failed incrementing version of "'.$this->name.'" [#'.$this->id.'], number part "'.$number.'" not known.', E_USER_WARNING);
+				trigger_localised_error("SYS0157", E_USER_WARNING, $this->name, $this->id, $number);
 				return false;
 			break;
 		}
@@ -1247,7 +1247,7 @@ class Asset extends MySource_Object
 					if (!$dep_parent->_updated(false)) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($dep_parent);
-						trigger_error('Failed incrementing version of "'.$this->name.'" [#'.$this->id.'], version updated of dependant parent "'.$dep_parent->name.'" [#'.$dep_parent->id.'] failed.', E_USER_WARNING);
+						trigger_localised_error("SYS0158", E_USER_WARNING, $this->name, $this->id, $dep_parent->name, $dep_parent->id);
 						return false;
 					}
 				}
@@ -1301,7 +1301,7 @@ class Asset extends MySource_Object
 		$old_languages = $this->languages;
 		$this->languages = $set_languages;
 		if (!$this->_updated()) {
-			trigger_error('Failed setting languages for "'.$this->name.'"', E_USER_WARNING);
+			trigger_localised_error("SYS0172", E_USER_WARNING, $this->name);
 			$this->languages = $old_languages;
 			return false;
 		}
@@ -1331,7 +1331,7 @@ class Asset extends MySource_Object
 		$old_charset = $this->charset;
 		$this->charset = $charset;
 		if (!$this->_updated()) {
-			trigger_error('Failed setting character set for "'.$this->name.'"', E_USER_WARNING);
+			trigger_localised_error("SYS0170", E_USER_WARNING, $this->name);
 			$this->charset = $old_charset;
 			return false;
 		}
@@ -1358,7 +1358,7 @@ class Asset extends MySource_Object
 	function setForceSecure($force_secure)
 	{
 		if (!$this->adminAccess('settings')) {
-			trigger_error('Unable to set the Force Secure flag, Permission Denied', E_USER_WARNING);
+			trigger_localised_error("SYS0252", E_USER_WARNING);
 			return false;
 		}
 
@@ -1367,7 +1367,7 @@ class Asset extends MySource_Object
 		$old_force_secure = $this->force_secure;
 		$this->force_secure = $force_secure;
 		if (!$this->_updated()) {
-			trigger_error('Failed setting Force Secure flag for "'.$this->name.'" (#'.$this->id.')', E_USER_WARNING);
+			trigger_localised_error("SYS0169", E_USER_WARNING, $this->name, $this->id);
 			$this->force_secure = $old_force_secure;
 			return false;
 		}
@@ -1431,7 +1431,7 @@ class Asset extends MySource_Object
 		if ($this->type() == $new_type_code) return true;
 
 		if (!$GLOBALS['SQ_SYSTEM']->am->installed($new_type_code)) {
-			trigger_error('Asset "'.$new_type_code.'" is not installed on the system', E_USER_WARNING);
+			trigger_localised_error("SYS0085", E_USER_WARNING, $new_type_code);
 			return false;
 		}
 
@@ -1449,7 +1449,7 @@ class Asset extends MySource_Object
 		$count = $db->getOne($sql);
 		assert_valid_db_result($count);
 		if ($count == 0) {
-			trigger_error('Unable to cast "'.$this->name.'" to "'.$new_type_code.'", "'.$new_type_code.'" is not in the "'.$this->type().'" asset type hierarchy.', E_USER_WARNING);
+			trigger_localised_error("SYS0234", E_USER_WARNING, $this->name, $new_type_code, $this->type());
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
@@ -1466,7 +1466,7 @@ class Asset extends MySource_Object
 			foreach ($links as $link) {
 				if ($GLOBALS['SQ_SYSTEM']->am->canLinkToType($tmp, $link['minor_type_code'], $link['link_type'], 0, $link['is_exclusive']) !== true) {
 					require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-					trigger_error('Unable to cast "'.$this->name.'" to "'.$new_type_code.'",<br>"'.$link['minor_type_code'].'" assets are not allowed to be "'.link_type_name($link['link_type']).'" linked to "'.$new_type_code.'" assets.', E_USER_WARNING);
+					trigger_localised_error("SYS0236", E_USER_WARNING, $this->name, $new_type_code, $link['minor_type_code'], link_type_name($link['link_type']), $new_type_code);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return false;
 				}
@@ -1484,7 +1484,7 @@ class Asset extends MySource_Object
 				if (is_null($parent)) continue;
 				if (($err_msg = $GLOBALS['SQ_SYSTEM']->am->canLinkToType($parent, $new_type_code, $link['link_type'], $link['linkid'], $link['is_exclusive'])) !== true) {
 					require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-					trigger_error('Unable to cast "'.$this->name.'" to "'.$new_type_code.'", "'.$parent->name.'" (Asset # '.$parent->id.') cannot be linked to the new Asset - ('.$err_msg.')', E_USER_WARNING);
+					trigger_localised_error("SYS0235", E_USER_WARNING, $this->name, $new_type_code, $parent->name, $parent->id, $err_msg);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return false;
 				}
@@ -1919,7 +1919,7 @@ class Asset extends MySource_Object
 			// if we have just made this asset live, we update its minor version
 			if ($new_status == SQ_STATUS_LIVE) {
 				if (!$this->incrementVersion('minor')) {
-					trigger_error('processStatusChange failed for asset "'.$this->name.'", version not updated', E_USER_WARNING);
+					trigger_localised_error("SYS0271", E_USER_WARNING, $this->name);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return false;
 				}
@@ -1949,7 +1949,7 @@ class Asset extends MySource_Object
 	function setDate($date_type, $time=null, $userid=null)
 	{
 		if (!in_array($date_type, Array('published' ,'created'))) {
-			trigger_error('Only the published and created dates can be manually modified', E_USER_WARNING);
+			trigger_localised_error("SYS0198", E_USER_WARNING);
 			return false;
 		}
 
@@ -2306,7 +2306,7 @@ class Asset extends MySource_Object
 	{
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid, $this->id);
 		if (empty($link)) {
-			trigger_error('Unable to delete link, Link #'.$linkid.' does not exist', E_USER_NOTICE);
+			trigger_localised_error("SYS0243", E_USER_NOTICE, $linkid);
 			return false;
 		} else {
 			return $GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($linkid, $moving);
@@ -2351,7 +2351,7 @@ class Asset extends MySource_Object
 		if (!$this->id) return true;
 		if (empty($this->_tmp['vars_set'])) return true;
 		if (!$GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] && !$this->writeAccess('attributes')) {
-			trigger_error('You do not have permission to save the attributes of "'.$this->name.'" (#'.$this->id.')', E_USER_WARNING);
+			trigger_localised_error("CORE0121", E_USER_WARNING, $this->name, $this->id);
 			return false;
 		}
 
@@ -2525,12 +2525,12 @@ class Asset extends MySource_Object
 	function setAttrValue($name, $value)
 	{
 		if (empty($this->vars[$name])) {
-			trigger_error('Attribute "'.$name.'" not found for Asset of type "'.$this->type().'"', E_USER_WARNING);
+			trigger_localised_error("SYS0093", E_USER_WARNING, $name, $this->type());
 			return false;
 		}
 		$attribute = &$this->getAttribute($name);
 		if (!$attribute->setValue($value)) {
-			trigger_error('"'.$value.'" is not a valid value for attribute "'.$name.'"', E_USER_WARNING);
+			trigger_localised_error("SYS0073", E_USER_WARNING, $value, $name);
 			$attribute->setValue($this->vars[$name]['value']);
 			return false;
 		}
@@ -2558,7 +2558,7 @@ class Asset extends MySource_Object
 			assert_valid_db_result($result);
 
 			if ((int) $result > 0) {
-				trigger_error('Unable to set "'.$name.'" it is a unique attribute and another asset already uses "'.$value.'"', E_USER_WARNING);
+				trigger_localised_error("SYS0251", E_USER_WARNING, $name, $value);
 				$attribute->setValue($this->vars[$name]['value']);
 				return false;
 			}
@@ -2590,7 +2590,7 @@ class Asset extends MySource_Object
 	function attr($name)
 	{
 		if (!isset($this->vars[$name])) {
-			trigger_error('Attribute "'.$name.'" not found for Asset "'.$this->name.'" (# '.$this->id.')', E_USER_WARNING);
+			trigger_localised_error("SYS0092", E_USER_WARNING, $name, $this->name, $this->id);
 			return null;
 		}
 		return $this->vars[$name]['value'];
@@ -2609,7 +2609,7 @@ class Asset extends MySource_Object
 	function &attrByRef($name)
 	{
 		if (!isset($this->vars[$name])) {
-			trigger_error('Attribute "'.$name.'" not found for Asset "'.$this->name.'" (# '.$this->id.')', E_USER_WARNING);
+			trigger_localised_error("SYS0092", E_USER_WARNING, $name, $this->name, $this->id);
 			return null;
 		}
 		return $this->vars[$name]['value'];
@@ -2635,7 +2635,10 @@ class Asset extends MySource_Object
 			if (empty($this->_tmp['attributes'])) $this->_tmp['attributes'] = Array();
 
 			if (empty($this->vars[$name])) {
-				if (!$mute_errors) trigger_error('Attribute "'.$name.'" not found for Asset"'.$this->type().'"', E_USER_WARNING);
+				if (!$mute_errors) {
+					trigger_localised_error("SYS0094", E_USER_WARNING, $name, $this->type());
+				}
+
 				$this->_tmp['attributes'][$name] = null;
 			} else {
 
@@ -3013,7 +3016,7 @@ class Asset extends MySource_Object
 	function checkAccess($perm, $lock_type, $assetids=Array())
 	{
 		if ($perm == SQ_PERMISSION_READ) {
-			trigger_error(__CLASS__.'::'.__FUNCTION__.' is not to be used for read access', E_USER_ERROR);
+			trigger_localised_error("SYS0172", E_USER_ERROR, __CLASS__, __FUNCTION__);
 		}
 
 		if ($lock_type == '') {
@@ -3459,7 +3462,7 @@ class Asset extends MySource_Object
 				if (is_null($parent)) continue;
 				$bad_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($parent, $inserts, $this->id);
 				if (!empty($bad_paths)) {
-					trigger_error('Path(s) "'.implode('", "', $bad_paths).'" already in use by one of the siblings of "'.$parent->name.'"', E_USER_WARNING);
+					trigger_localised_error("SYS0201", E_USER_WARNING, implode('", "', $bad_paths), $parent->name);
 					return false;
 				}
 			}
@@ -3848,7 +3851,7 @@ class Asset extends MySource_Object
 	function setLookupValues($values)
 	{
 		if (!$this->writeAccess('lookups')) {
-			trigger_error('You do not have permission to set the lookup values of "'.$this->name.'" (#'.$this->id.')', E_USER_WARNING);
+			trigger_localised_error("SYS0265", E_USER_WARNING, $this->name, $this->id);
 			return false;
 		}
 

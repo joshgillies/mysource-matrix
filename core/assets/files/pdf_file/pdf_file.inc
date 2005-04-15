@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: pdf_file.inc,v 1.12 2005/02/11 04:59:03 gsherwood Exp $
+* $Id: pdf_file.inc,v 1.13 2005/04/15 00:37:25 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -77,7 +77,7 @@ class PDF_File extends File
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 		$ext = get_file_type($info['filename']);
 		if (!in_array($ext, $this->allowed_extensions)) {
-			trigger_error('Uploaded file is not a PDF file', E_USER_WARNING);
+			trigger_localised_error("CORE0105", E_USER_WARNING);
 			return false;
 		}
 		return true;

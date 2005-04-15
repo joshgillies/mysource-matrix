@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.54 2005/04/12 23:07:34 ndvries Exp $
+* $Id: page_asset_builder.inc,v 1.55 2005/04/15 00:37:46 lwright Exp $
 *
 */
 
@@ -37,7 +37,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.54 $
+* @version $Revision: 1.55 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -360,7 +360,7 @@ class Page_Asset_Builder extends Page
 					// whoever set this up may think they want to build asset on the frontend, but they dont really
 					// know what they want - let them get back to us with something we can use
 					if (empty($create_locations)) {
-						trigger_error('Unable to determine where to create this '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($new_asset->type(), 'name'), E_USER_WARNING);
+						trigger_localised_error('CMS0033', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($new_asset->type(), 'name'));
 						break;
 					}
 
@@ -413,11 +413,11 @@ class Page_Asset_Builder extends Page
 
 								$link_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link_parentid, '', true);
 								if (is_null($link_parent)) {
-									trigger_error('Asset '.$link_parentid.' was null', E_USER_WARNING);
+									trigger_localised_error('CMS0034', E_USER_WARNING, $link_parentid);
 									continue;
 								}
 								if (!$GLOBALS['SQ_SYSTEM']->am->createAssetLink($link_parent, $new_asset, $link_type)) {
-									trigger_error('Failed to create link to asset '.$link_parent->id, E_USER_WARNING);
+									trigger_localised_error('CMS0035', E_USER_WARNING, $link_parent->id);
 									continue;
 								}
 							}
@@ -492,7 +492,7 @@ class Page_Asset_Builder extends Page
 					}
 				}
 			} else if (!$details['allow_empty']) {
-				trigger_error('You must select an option from the '.$set_name.' field', E_USER_WARNING);
+				trigger_localised_error('CMS0036', E_USER_WARNING, $set_name);
 				return false;
 			}
 		}

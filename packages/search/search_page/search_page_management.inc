@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_management.inc,v 1.35 2005/04/06 23:09:46 mmcintyre Exp $
+* $Id: search_page_management.inc,v 1.36 2005/04/15 00:38:01 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -243,7 +243,7 @@ class Search_Page_Management extends Asset_Management
 				}
 				$asset->setAttrValue('fields', $new_fields);
 				if (!$asset->saveAttributes()) {
-					trigger_error('Search Page Upgrade [to 0.6] failed - Couldn\'t save attributes', E_USER_WARNING);
+					trigger_localised_error('SCH0018', E_USER_WARNING);
 					return false;
 				}
 
@@ -277,7 +277,7 @@ class Search_Page_Management extends Asset_Management
 				foreach ($sub_assets as $name => $type) {
 					$link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_2, $type, true, $name);
 					if (!is_null($link)) {
-						trigger_error(ucwords(str_replace('_', ' ', $name.' '.$type)).' has already been created. Maybe the upgrade script is being run twice?', E_USER_WARNING);
+						trigger_localised_error('SCH0019', E_USER_WARNING, ucwords(str_replace('_', ' ', $name.' '.$type)));
 						continue;
 					}
 
@@ -298,7 +298,7 @@ class Search_Page_Management extends Asset_Management
 				$ri_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_2, 'bodycopy', false, 'result_element');
 
 				if (is_null($ri_link)) {
-					trigger_error('Result Element bodycopy no longer exists. Maybe the upgrade script is being run twice?', E_USER_WARNING);
+					trigger_localised_error('SCH0020', E_USER_WARNING);
 					continue;
 				} else {
 
@@ -319,7 +319,7 @@ class Search_Page_Management extends Asset_Management
 								value	= '.$db->quoteSmart('default_format').'
 							WHERE
 								linkid = '.$db->quoteSmart($ri_link['linkid']);
-									 
+
 					$result = $db->query($sql);
 					assert_valid_db_result($result);
 
@@ -346,7 +346,7 @@ class Search_Page_Management extends Asset_Management
 
 
 				if (!$asset->saveAttributes()) {
-					trigger_error('Search Page Upgrade [to 0.8] FAILED - Couldn\'t save attributes', E_USER_WARNING);
+					trigger_localised_error('SCH0021', E_USER_WARNING);
 					return false;
 				}
 

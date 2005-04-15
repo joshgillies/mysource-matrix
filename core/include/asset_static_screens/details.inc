@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: details.inc,v 1.14 2005/03/30 00:40:13 lwright Exp $
+* $Id: details.inc,v 1.15 2005/04/15 00:37:28 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Details Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix
 */
 
@@ -380,7 +380,7 @@ function processDetails(&$owner, &$o, &$ei)
 					$GLOBALS['SQ_SYSTEM']->am->releaseLock($cron_mgr->id, 'links');
 
 				} else {
-					trigger_error('Unable to acquire the lock on the Cron Manager, unable to remove jobs', E_USER_NOTICE);
+					trigger_localised_error("SYS0232", E_USER_NOTICE);
 
 				}// end if
 
@@ -437,7 +437,7 @@ function processDetails(&$owner, &$o, &$ei)
 			if (!is_null($thumb)) {
 				if (!$owner->createLink($thumb, SQ_LINK_NOTICE, 'thumbnail')) {
 					$ok = false;
-					trigger_error('Failed adding new thumbnail "'.$thumb->name.'" [#'.$thumb->id.']', E_USER_WARNING);
+					trigger_localised_error("SYS0145", E_USER_WARNING, $thumb->name, $thumb->id);
 				}
 			}
 		}

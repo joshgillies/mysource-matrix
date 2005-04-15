@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_clear_cache.inc,v 1.8 2005/04/13 23:49:30 ndvries Exp $
+* $Id: hipo_job_clear_cache.inc,v 1.9 2005/04/15 00:37:27 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -100,14 +100,14 @@ class HIPO_Job_Clear_Cache extends HIPO_Job
 	function prepare()
 	{
 		if (empty($this->_running_vars['assetid'])) {
-			trigger_error('Cannot initialise Clear Cache HIPO, no start asset ID specified', E_USER_WARNING);
+			trigger_localised_error('HIPO0033', E_USER_WARNING);
 			return false;
 		}
 
 		// so we have an assetid to start at, but make sure it is a valid assetid
 		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['assetid']);
 		if (is_null($asset)) {
-			trigger_error('Cannot initialise Clear Cache HIPO, invalid start asset ID specified ('.$this->_running_vars['assetid'].')', E_USER_WARNING);
+			trigger_localised_error('HIPO0032', E_USER_WARNING, $this->_running_vars['assetid']);
 			return false;
 		}
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.76 2005/04/08 01:46:52 lwright Exp $
+* $Id: html_form.inc,v 1.77 2005/04/15 00:37:32 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.76 $
+* @version $Revision: 1.77 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -47,9 +47,18 @@ function submit_button($name, $value, $on_click='', $extras='')
 {
 	// Make sure that they don't use 'submit' as the form field, because it clashes
 	// with the submit() fn that the form has
-	if ($name == 'submit') trigger_error('Rename your Submit button, so as not use "submit"', E_USER_ERROR);
-	if ($on_click) $extras .= ' onclick="'.htmlspecialchars($on_click).' "';
-	if (!stristr($extras, 'class=')) $extras .= ' class="sq-form-field"';
+	if ($name == 'submit') {
+		trigger_localised_error('SYS0019', E_USER_ERROR);
+	}
+
+	if ($on_click) {
+		$extras .= ' onclick="'.htmlspecialchars($on_click).' "';
+	}
+
+	if (!stristr($extras, 'class=')) {
+		$extras .= ' class="sq-form-field"';
+	}
+
 	echo '<input type="submit" name="', htmlspecialchars($name), '" id="', htmlspecialchars($name), '" value="', htmlspecialchars($value), '" ', $extras, ' />';
 
 }//end submit_button()
@@ -70,9 +79,18 @@ function reset_button($name, $value, $on_click='', $extras='')
 {
 	// Make sure that they don't use 'reset' as the form field, because it clashes
 	// with the reset() fn that the form has
-	if ($name == 'reset') trigger_error('Rename your Reset button, so as not use "reset"', E_USER_ERROR);
-	if ($on_click) $extras .= ' onclick="'.htmlspecialchars($on_click).' "';
-	if (!stristr($extras, 'class=')) $extras .= ' class="sq-form-field"';
+	if ($name == 'reset') {
+		trigger_localised_error('SYS0018', E_USER_ERROR);
+	}
+
+	if ($on_click) {
+		$extras .= ' onclick="'.htmlspecialchars($on_click).' "';
+	}
+
+	if (!stristr($extras, 'class=')) {
+		$extras .= ' class="sq-form-field"';
+	}
+
 	echo '<input type="reset" name="', htmlspecialchars($name), '" id="', htmlspecialchars($name), '" value="', htmlspecialchars($value), '" ', $extras, ' />';
 
 }//end reset_button()
@@ -443,17 +461,17 @@ function get_file_upload_info($name)
 			break;
 
 		case UPLOAD_ERR_INI_SIZE  :
-			trigger_error('The uploaded file "'.$nice_name.'" excedded the size specified by the <i>upload_max_size</i> directive in php.ini ('.ini_get('upload_max_size').')', E_USER_WARNING);
+			trigger_localised_error('SYS0022', E_USER_WARNING, $nice_name, easy_filesize(ini_get('upload_max_size')));
 			return false;
 			break;
 
 		case UPLOAD_ERR_FORM_SIZE :
-			trigger_error('The uploaded file "'.$nice_name.'" excedded the MAX_FILE_SIZE directive in form ('.$_POST['MAX_FILE_SIZE'].' bytes)', E_USER_WARNING);
+			trigger_localised_error('SYS0021', E_USER_WARNING, $nice_name, easy_filesize($_POST['MAX_FILE_SIZE']));
 			return false;
 			break;
 
 		case UPLOAD_ERR_PARTIAL :
-			trigger_error('The uploaded file "'.$nice_name.'" was only partially uploaded.', E_USER_WARNING);
+			trigger_localised_error('SYS0023', E_USER_WARNING, $nice_name);
 			return false;
 			break;
 
@@ -491,7 +509,7 @@ function commit_file_upload($name, $dest, $overwrite=false, $max_size=0, $restri
 	$nice_name = str_replace('_', ' ', $name);
 
 	if ($max_size > 0 && $max_size < $info['size']) {
-		trigger_error('The uploaded file "'.$nice_name.'" excedded the '.$max_size.' bytes', E_USER_WARNING);
+		trigger_localised_error('SYS0020', E_USER_WARNING, $nice_name, easy_filesize($max_size));
 		return false;
 	}
 
@@ -506,7 +524,7 @@ function commit_file_upload($name, $dest, $overwrite=false, $max_size=0, $restri
 
 		// see $restrict_exts documentation in function header
 		if (($restrict_exts && !$in_arr) || (!$restrict_exts && $in_arr)) {
-			trigger_error($ext.' files are not allowed for "'.$nice_name.'"', E_USER_WARNING);
+			trigger_localised_error('SYS0002', E_USER_WARNING, $ext, $nice_name);
 			return false;
 		}//end if
 	}//end if
@@ -516,7 +534,7 @@ function commit_file_upload($name, $dest, $overwrite=false, $max_size=0, $restri
 	// Doe dest exist and is it a directory ?
 	if (is_dir($dest)) {
 		if (!is_writable($dest)) {
-			trigger_error('Destination Directory "'.$dest.'" is not writable', E_USER_WARNING);
+			trigger_localised_error('SYS0007', E_USER_WARNING, $dest);
 			return false;
 		}
 		$dest .= '/'.$info['name'];
@@ -525,11 +543,11 @@ function commit_file_upload($name, $dest, $overwrite=false, $max_size=0, $restri
 	// Now we know we have a proper filename, if it exists are we allowed to write over it
 	if (file_exists($dest)) {
 		if (!$overwrite) {
-			trigger_error('Unable to upload file "'.$info['name'].'", filename already in use', E_USER_WARNING);
+			trigger_localised_error('SYS0027', E_USER_WARNING, $info['name']);
 			return false;
 		}
 		if (!is_writable($dest)) {
-			trigger_error('Destination File "'.$dest.'" is not writable', E_USER_WARNING);
+			trigger_localised_error('SYS0008', E_USER_WARNING, $dest);
 			return false;
 		}
 
@@ -539,17 +557,17 @@ function commit_file_upload($name, $dest, $overwrite=false, $max_size=0, $restri
 		$parent = dirname($dest);
 		// if the parent isn't a directory, can we create it ?
 		if (!is_dir($parent) && !create_directory($parent)) {
-			trigger_error('Parent Directory "'.$parent.'" does not exist', E_USER_WARNING);
+			trigger_localised_error('SYS0015', E_USER_WARNING, $parent);
 			return false;
 		} else if (!is_writable($parent)) {
-			trigger_error('Parent Directory "'.$parent.'" is not writable', E_USER_WARNING);
+			trigger_localised_error('SYS0016', E_USER_WARNING, $parent);
 			return false;
 		}
 	}//end dest exists
 
 	// Move file over
 	if (!move_uploaded_file($info['tmp_name'], $dest)) {
-		trigger_error('Unable to create file: '.$dest, E_USER_WARNING);
+		trigger_localised_error('SYS0025', E_USER_WARNING, $dest);
 		return false;
 	}
 

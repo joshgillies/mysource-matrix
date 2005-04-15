@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_asset_config.inc,v 1.19 2005/03/28 23:11:25 gsherwood Exp $
+* $Id: system_asset_config.inc,v 1.20 2005/04/15 00:37:28 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation system asset config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix
 */
 class System_Asset_Config extends Config
@@ -111,11 +111,7 @@ class System_Asset_Config extends Config
 
 					foreach ($sys_asset_types as $type_code) {
 						$assetids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($type_code);
-						if (count($assetids) != 1) {
-							// MARCUS - silence this warning, it's no longer really needed.
-							// trigger_error('Unable to find a single asset with a type_code "'.$type_code.'" in core, will look for it in packages', E_USER_WARNING);
-							//return false;
-						} else {
+						if (count($assetids) > 1) {
 							$system_assets[$type_code] = (int) $assetids[0];
 						}
 					}//end foreach

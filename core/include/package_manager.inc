@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager.inc,v 1.67 2005/04/06 23:05:34 mmcintyre Exp $
+* $Id: package_manager.inc,v 1.68 2005/04/15 00:37:28 lwright Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
 *    packages and their assets, uses info gleened from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.67 $
+* @version $Revision: 1.68 $
 * @package MySource_Matrix
 */
 class Package_Manager extends MySource_Object
@@ -93,12 +93,12 @@ class Package_Manager extends MySource_Object
 		$this->MySource_Object();
 
 		if (!isset($this->_full_path) || !is_dir($this->_full_path)) {
-			trigger_error('Unable to construct "'.get_class($this).'" because there is no _full_path set', E_USER_ERROR);
+			trigger_localised_error("SYS0238", E_USER_ERROR, get_class($this));
 		}
 
 		// make sure that this package is in our system rootm, otherwise the base path won't work
 		if (substr($this->_full_path, 0, strlen(SQ_SYSTEM_ROOT)) != SQ_SYSTEM_ROOT) {
-			trigger_error('Unable to construct "'.get_class($this).'" because there is the _full_path is not under the SYSTEM_ROOT', E_USER_ERROR);
+			trigger_localised_error("SYS0239", E_USER_ERROR, get_class($this));
 		}
 
 		// OK, if this is the "core" package then we just need to fiddle with the path
@@ -108,11 +108,11 @@ class Package_Manager extends MySource_Object
 			$xml = new XML_Array();
 			$info = $xml->getArrayFromFile($this->_full_path.'/package.xml');
 			if (PEAR::isError($info)) {
-				trigger_error($info->error_message_prefix.$info->message, E_USER_ERROR);
+				trigger_error('SYS0066', E_USER_ERROR, $info->error_message_prefix, $info->message); //ast-val-db fix
 			}
 			$xml->close();
 			if ($this->getPackageName() != $info['code_name']['value']) {
-				trigger_error('The code name for the package in the file "'.$this->_full_path.'/package.xml" does not match the package that we are trying to open ('.$this->getPackageName().').', E_USER_ERROR);
+				trigger_localised_error("SYS0211", E_USER_ERROR, $this->_full_path, $this->getPackageName());
 			}
 			$this->name			= $info['name']['value'];
 			$this->version		= $info['version']['value'];
@@ -121,7 +121,7 @@ class Package_Manager extends MySource_Object
 			$this->_loadPackageAssets();
 
 		} else {
-			trigger_error('Package "'.$this->getPackageName().'" does not have a package.xml file', E_USER_ERROR);
+			trigger_localised_error("SYS0199", E_USER_ERROR, $this->getPackageName());
 		}
 
 	}//end constructor
@@ -280,7 +280,7 @@ class Package_Manager extends MySource_Object
 					}
 
 				} else {
-					trigger_error('Asset "'.$type_code.'" does not have a management class defined for it in '.$file, E_USER_WARNING);
+					trigger_localised_error("SYS0083", E_USER_WARNING, $type_code, $file);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return false;
 				}
@@ -294,7 +294,7 @@ class Package_Manager extends MySource_Object
 
 		// create the xml summarys of screens info for the asset map
 		if (!$this->_createAssetMapScreensXML($deferred)) {
-			trigger_error('Unable to create the Asset Map Screens XML', E_USER_WARNING);
+			trigger_localised_error("SYS0242", E_USER_WARNING);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
@@ -349,7 +349,7 @@ class Package_Manager extends MySource_Object
 				}
 
 				if ($package != $info['package']) {
-					trigger_error('The Asset Information file "'.$full_path.'/asset.xml" is in the "'.$package.'" Package directory, but states that it is belongs to "'.$info['package'].'"', E_USER_ERROR);
+					trigger_localised_error("SYS0210", E_USER_ERROR, $full_path, $package, $info['package']);
 				}
 
 				$info['dir'] = $base_path;
@@ -416,7 +416,7 @@ class Package_Manager extends MySource_Object
 				// if this type is not inheriting from a type that is yet to be dealt with, then
 				// the type is in heriting from something that doesn't exist
 				} else if (!in_array($parent, $asset_types)) {
-					trigger_error('Asset "'.$type_code.'" attempts to inherit from the unknown type "'.$parent.'"', E_USER_WARNING);
+					trigger_localised_error("SYS0080", E_USER_WARNING, $type_code, $parent);
 					$remove = true;
 				}
 				// else we do nothing with the asset_type
@@ -430,7 +430,7 @@ class Package_Manager extends MySource_Object
 			}//end for
 
 			if ($last_count == count($asset_types)) {
-				trigger_error('There seems to be the possibility of recursive inheriting for the "'.$this->getPackageName().'" package.'."\n".'The install order for these assets could not be established: '.implode(', ', $asset_types), E_USER_WARNING);
+				trigger_localised_error("SYS0216", E_USER_WARNING, $this->getPackageName(), implode(', ', $asset_types));
 				return Array();
 			}
 
@@ -520,7 +520,7 @@ class Package_Manager extends MySource_Object
 		$xml_array = new XML_Array(Asset_Management::getAssetArrayPaths());
 		$info = $xml_array->getArrayFromFile($file);
 		if (PEAR::isError($info)) {
-			trigger_error($info->error_message_prefix.$info->message, E_USER_WARNING);
+			trigger_error('SYS0067', E_USER_WARNING, $info->error_message_prefix, $info->message); //ast-val-db fix
 			return ($need_feedback) ? Array(false, null) : false;
 		}
 
@@ -604,7 +604,7 @@ class Package_Manager extends MySource_Object
 	function getTypeAncestors($type_code)
 	{
 		if (!isset($this->assets[$type_code])) {
-			trigger_error('Asset "'.$type_code.'" does not exist in the "'.$this->getPackageName().'" package', E_USER_ERROR);
+			trigger_localised_error("SYS0082", E_USER_ERROR, $type_code, $this->getPackageName());
 			return Array();
 		}
 
@@ -642,7 +642,7 @@ class Package_Manager extends MySource_Object
 	function getTypeInfo($type_code, $field='')
 	{
 		if (!isset($this->assets[$type_code])) {
-			trigger_error('Asset "'.$type_code.'" does not exist in the "'.$this->getPackageName().'" package', E_USER_WARNING);
+			trigger_localised_error("SYS0082", E_USER_ERROR, $type_code, $this->getPackageName());
 			return ($field) ? null : Array();
 		}
 
@@ -671,7 +671,7 @@ class Package_Manager extends MySource_Object
 				$management = new $class($this);
 				$events = $management->getEventList();
 				if (!is_array($events)) {
-					trigger_error('Expected Array in function getEventList() (Asset "'.$type_code.'"), got '.gettype($events), E_USER_WARNING);
+					trigger_localised_error("SYS0142", E_USER_WARNING, $type_code, gettype($events));
 					return false;
 				}
 				if (empty($events)) continue;

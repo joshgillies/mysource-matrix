@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager.inc,v 1.19 2005/04/13 07:03:07 ndvries Exp $
+* $Id: remap_manager.inc,v 1.20 2005/04/15 00:37:26 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -175,7 +175,7 @@ class Remap_Manager extends Asset
 	{
 		// old url and new url must be strings, makes not sense otherwise
 		if (!is_string($old_url) || !is_string($new_url)) {
-			trigger_error('Unable to remap URL, the URLs passed must both be strings', E_USER_WARNING);
+			trigger_localised_error("CORE0093", E_USER_WARNING);
 			return 0;
 		}
 
@@ -193,7 +193,7 @@ class Remap_Manager extends Asset
 		assert_valid_db_result($count);
 
 		if ((int)$count > 0) {
-			trigger_error('Failed adding URL remap, URL "'.$old_url.'" is already remapping to another URL', E_USER_WARNING);
+			trigger_localised_error("CORE0024", E_USER_WARNING, $old_url);
 			return -1;
 		}
 
@@ -256,7 +256,7 @@ class Remap_Manager extends Asset
 			if ($url_data['http']) {
 				$retval = @$this->addRemapURL('http://'.$url_data['url'], $new_url, $expires);
 				if ($retval === 0) {
-					trigger_error('Failed remapping all URLs for Asset #'.$assetid.' to "'.$new_url.'"', E_USER_WARNING);
+					trigger_localised_error("CORE0039", E_USER_WARNING, $assetid, $new_url);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return false;
 				}
@@ -264,7 +264,7 @@ class Remap_Manager extends Asset
 			if ($url_data['https']) {
 				$retval = @$this->addRemapURL('https://'.$url_data['url'], $new_url, $expires);
 				if ($retval === 0) {
-					trigger_error('Failed remapping all URLs for Asset #'.$assetid.' to "'.$new_url.'"', E_USER_WARNING);
+					trigger_localised_error("CORE0039", E_USER_WARNING, $assetid, $new_url);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return false;
 				}

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_edit_fns.inc,v 1.49 2005/04/07 03:15:28 lwright Exp $
+* $Id: form_edit_fns.inc,v 1.50 2005/04/15 00:37:46 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.49 $
+* @version $Revision: 1.50 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -683,7 +683,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 
 				} else {
 					$replacement = '';
-					trigger_error('could not find a section with order '.$section, E_USER_NOTICE);
+					trigger_localised_error('CMS0001', E_USER_NOTICE, $section);
 				}
 				$output = str_replace($search, $replacement, $output);
 			}//end foreach

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_search_replace.inc,v 1.5 2005/04/01 04:27:26 tbarrett Exp $
+* $Id: tool_search_replace.inc,v 1.6 2005/04/15 00:38:01 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 *
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -133,25 +133,25 @@ class Tool_Search_Replace extends Tool
 	{
 		//ensure we have a search string
 		if ($_REQUEST[$type_code.'_search_string'] == '') {
-			trigger_error('Required search string was blank', E_USER_NOTICE);
+			trigger_localised_error('SCH0002', E_USER_NOTICE);
 			Tool_Search_Replace::paintTool($o, $type_code);
 			return;
 		}
 
 		if (!isset($_REQUEST[$type_code.'_search_types'])) {
-			trigger_error('No asset types were selected', E_USER_NOTICE);
+			trigger_localised_error('SCH0003', E_USER_NOTICE);
 			Tool_Search_Replace::paintTool($o, $type_code);
 			return;
 		}
 
 		if (!isset($_REQUEST[$type_code.'_statuses'])) {
-			trigger_error('No asset statuses were selected', E_USER_NOTICE);
+			trigger_localised_error('SCH0004', E_USER_NOTICE);
 			Tool_Search_Replace::paintTool($o, $type_code);
 			return;
 		}
 
 		if (!isset($_REQUEST[$type_code.'_root_assetid']) && !isset($_REQUEST[$type_code.'_root_folder'])) {
-			trigger_error('No root has been specified', E_USER_NOTICE);
+			trigger_localised_error('SCH0005', E_USER_NOTICE);
 			Tool_Search_Replace::paintTool($o, $type_code);
 			return;
 		}
@@ -195,7 +195,7 @@ class Tool_Search_Replace extends Tool
 
 		//no matches were found, trigger error and paint getInterface
 		if (!$search_results) {
-			trigger_error('No Matches for "'.$_REQUEST[$type_code.'_search_string'].'" could be found', E_USER_NOTICE);
+			trigger_localised_error('SCH0006', E_USER_NOTICE, $_REQUEST[$type_code.'_search_string']);
 			Tool_Search_Replace::paintTool($o, $type_code);
 			return;
 		}
@@ -204,7 +204,7 @@ class Tool_Search_Replace extends Tool
 
 		//after formatting the results, there were no real replaceable matches
 		if (empty($formatted_results)) {
-			trigger_error('No Matches for "'.$_REQUEST[$type_code.'_search_string'].'" could be found', E_USER_NOTICE);
+			trigger_localised_error('SCH0006', E_USER_NOTICE, $_REQUEST[$type_code.'_search_string']);
 			Tool_Search_Replace::paintTool($o, $type_code);
 			return;
 		}

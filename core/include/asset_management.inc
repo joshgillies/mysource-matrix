@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_management.inc,v 1.64 2005/04/06 23:05:34 mmcintyre Exp $
+* $Id: asset_management.inc,v 1.65 2005/04/15 00:37:28 lwright Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_LIB_PATH.'/xml_array/xml_array.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.64 $
+* @version $Revision: 1.65 $
 * @package MySource_Matrix
 */
 class Asset_Management extends MySource_Object
@@ -98,27 +98,7 @@ class Asset_Management extends MySource_Object
 	{
 
 		if (get_parent_class($this) != __CLASS__) {
-			$msg = 'Unable to Construct "'.get_class($this).'".
-
-					All Asset Management classes MUST inherit directly from the
-					Asset_Management class.
-
-					The main reason for this is to help understanding when things do not
-					work exactly as planned when setting the $vars and $components arrays.
-					If you are allowed to inherit from the Asset Management class of your
-					parent asset, you may think that you are able to REMOVE some elements
-					from these arrays (which you can quite easily do) and these elements
-					will therefore not become part of the new asset type.
-
-					However, this is really is not what Object Oriented is about, because
-					with polymorhism some section of code using a type of asset has the
-					right to expect that all assets types derived from it will contain at
-					least the same information.
-
-					So, in essense, the forcing of the inheritance from Asset_Management
-					is to make you aware of this reasoning as much as anything else.
-					';
-			trigger_error(preg_replace('/^[\t ]+/m', '', $msg), E_USER_ERROR);
+			trigger_localised_error("SYS0274", E_USER_ERROR, get_class($this));
 		}
 
 
@@ -165,13 +145,13 @@ class Asset_Management extends MySource_Object
 		$asset_edit_fns_parent_type = preg_replace('/_edit_fns$/', '', get_parent_class($type_code.'_edit_fns'));
 
 		if ($asset_xml_parent_type != $asset_parent_type || $asset_xml_parent_type != $asset_edit_fns_parent_type) {
-			trigger_error('Unable to update "'.$type_code.'". Parent is different between asset.xml, '.$type_code.'.inc and '.$type_code.'_edit_fns.inc', E_USER_WARNING);
+			trigger_localised_error("SYS0254", E_USER_WARNING, $type_code, $type_code, $type_code);
 			return false;
 		}
 
 		// if the parent asset type hasn't been installed, abort
 		if ($asset_xml_parent_type != 'asset' && !$this->_am->installed($asset_xml_parent_type)) {
-			trigger_error('Unable to update "'.$type_code.'". Parent "'.$asset_xml_parent_type.'" is not installed', E_USER_WARNING);
+			trigger_localised_error("SYS0253", E_USER_WARNING, $type_code, $asset_xml_parent_type);
 			return false;
 		}
 
@@ -201,7 +181,7 @@ class Asset_Management extends MySource_Object
 		}
 
 		if (!is_file($from_icon_path)) {
-			trigger_error('No icon file found for asset type "'.$type_code.'" or its ancestors.', E_USER_WARNING);
+			trigger_localised_error("CORE0068", E_USER_WARNING, $type_code);
 		} else {
 			if (!copy_file($from_icon_path, $to_icon_path)) return false;
 		}
@@ -271,10 +251,7 @@ class Asset_Management extends MySource_Object
 				'.$this->_db->quote($info['parent_type']).', '.$this->_db->quote($level).',
 				'.$this->_db->quote($info['dir']).', 0)';
 		$result = $this->_db->query($sql);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-			return false;
-		}
+		assert_valid_db_result($result);
 
 		// now inform the asset manager that this asset is available for use
 		$this->_am->refreshAssetType($type_code);
@@ -321,8 +298,7 @@ class Asset_Management extends MySource_Object
 				WHERE type_code = '.$this->_db->quote($this->getAssetType());
 
 		$result = $this->_db->query($sql);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+		if (!assert_valid_db_result($result, '', false, false)) {
 			return false;
 		}
 
@@ -371,9 +347,8 @@ class Asset_Management extends MySource_Object
 				  AND i.inhd_type_code = atr.type_code';
 
 		$parent_vars = $this->_db->getCol($sql);
-		if (DB::isError($parent_vars)) {
-			trigger_error($parent_vars->getMessage().'<br/>'.$parent_vars->getUserInfo(), E_USER_ERROR);
-		}
+		assert_valid_db_result($parent_vars);
+		
 		// array_values() to get proper indexed array
 		$vars = array_values(array_unique(array_merge($parent_vars, array_keys($this->vars))));
 		return $vars;
@@ -431,8 +406,7 @@ class Asset_Management extends MySource_Object
 				  AND atr.type_code = at.type_code';
 
 		$parent_info = $this->_db->getRow($sql);
-		if (DB::isError($parent_info)) {
-			trigger_error($parent_info->getMessage().'<br/>'.$parent_info->getUserInfo(), E_USER_WARNING);
+		if (assert_valid_db_result($parent_info, '', false, false)) {
 			return false;
 		}
 
@@ -447,12 +421,11 @@ class Asset_Management extends MySource_Object
 					  AND i.type_code = a.type_code
 					  AND a.name = '.$this->_db->quote($name);
 			$children = $this->_db->getCol($sql);
-			if (DB::isError($children)) {
-				trigger_error($children->getMessage().'<br/>'.$children->getUserInfo(), E_USER_WARNING);
+			if (assert_valid_db_result($children, '', false, false)) {
 				return false;
 			}
 			if (count($children)) {
-				trigger_error('Unable to add attribute "'.$name.'" to Asset "'.$type_code.'" because variable name is already used by it\'s children "'.implode('","', $children).'"' , E_USER_WARNING);
+				trigger_localised_error("SYS0233", E_USER_WARNING, $name, $type_code, implode('","', $children));
 				return false;
 			}
 
@@ -496,8 +469,7 @@ class Asset_Management extends MySource_Object
 
 			$min_sql = $sql.$this->_db->quote($parent_info['min']);
 			$attr_owner = $this->_db->getRow($min_sql);
-			if (DB::isError($attr_owner)) {
-				trigger_error($attr_owner->getMessage().'<br/>'.$attr_owner->getUserInfo(), E_USER_WARNING);
+			if (assert_valid_db_result($attr_owner, '', false, false)) {
 				return false;
 			}
 
@@ -514,8 +486,7 @@ class Asset_Management extends MySource_Object
 				// else we want to inherit the default value
 				$max_sql = $sql.$this->_db->quote($parent_info['max']);
 				$attr_default = $this->_db->getRow($max_sql);
-				if (DB::isError($attr_default)) {
-					trigger_error($attr_default->getMessage().'<br/>'.$attr_default->getUserInfo(), E_USER_WARNING);
+				if (assert_valid_db_result($attr_default, '', false, false)) {
 					return false;
 				}
 
@@ -531,8 +502,7 @@ class Asset_Management extends MySource_Object
 				// else we want to inherit the default value
 				$max_sql = $sql.$this->_db->quote($parent_info['max']);
 				$attr_default = $this->_db->getRow($max_sql);
-				if (DB::isError($attr_default)) {
-					trigger_error($attr_default->getMessage().'<br/>'.$attr_default->getUserInfo(), E_USER_WARNING);
+				if (assert_valid_db_result($attr_default, '', false, false)) {
 					return false;
 				}
 
@@ -544,18 +514,17 @@ class Asset_Management extends MySource_Object
 
 		// make sure this is a valid attribute type
 		if (!$this->_am->validAttributeType($attr_info['type'])) {
-			trigger_error('Attribute Type "'.$attr_info['type'].'" is not known (for the "'.$this->getAssetType().'" Asset Type) ' , E_USER_WARNING);
+			trigger_localised_error("SYS0096", E_USER_WARNING, $attr_info['type'], $this->getAssetType());
 			return false;
 		}//end if
 
 		if (!$this->_validateAttributeDefault($attr_info['default_val'], $attr_info['type'], $attr_info['parameters'])) {
-			trigger_error('Default value of attribute "'.$name.'" is not valid for Asset Type "'.$this->getAssetType().'"' , E_USER_WARNING);
+			trigger_localised_error("SYS0130", E_USER_WARNING, $name, $this->getAssetType());
 			return false;
 		}
 
 		$attributeid = $this->_db->nextId('sq_ast_attr');
-		if (DB::isError($attributeid)) {
-			trigger_error($attributeid->getMessage().'<br/>'.$attributeid->getUserInfo(), E_USER_WARNING);
+		if (assert_valid_db_result($attributeid, '', false, false)) {
 			return false;
 		}
 
@@ -576,8 +545,7 @@ class Asset_Management extends MySource_Object
 				'.$this->_db->quote($attr_info['description']).')';
 
 		$result = $this->_db->query($sql);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+		if (assert_valid_db_result($result, '', false, false)) {
 			return false;
 		}
 
@@ -607,7 +575,7 @@ class Asset_Management extends MySource_Object
 
 		assert_valid_db_result($attributeid);
 		if (is_null($attributeid)) {
-			trigger_error("Asset type $typecode has no attribute called $name", E_USER_WARNING);
+			trigger_localised_error("SYS0050", E_USER_WARNING, $typecode, $name);
 			return false;
 		}
 
@@ -655,8 +623,7 @@ class Asset_Management extends MySource_Object
 					  AND name = '.$this->_db->quote($name);
 
 			$curr_attr = $this->_db->getRow($sql);
-			if (DB::isError($curr_attr)) {
-				trigger_error($curr_attr->getMessage().'<br/>'.$curr_attr->getUserInfo(), E_USER_WARNING);
+			if (assert_valid_db_result($curr_attr, '', false, false)) {
 				return false;
 			}
 
@@ -678,8 +645,7 @@ class Asset_Management extends MySource_Object
 						  AND name = '.$this->_db->quote($name);
 
 				$parent_attr = $this->_db->getRow($sql);
-				if (DB::isError($parent_attr)) {
-					trigger_error($parent_attr->getMessage().'<br/>'.$parent_attr->getUserInfo(), E_USER_WARNING);
+				if (assert_valid_db_result($parent_attr, '', false, false)) {
 					return false;
 				}
 
@@ -715,7 +681,7 @@ class Asset_Management extends MySource_Object
 
 					$parameters = unserialize($parameters_value);
 					if (!$this->_validateAttributeDefault($default_value, $curr_attr['type'], $parameters)) {
-						trigger_error('Default value of attribute "'.$name.'" is not valid for Asset Type "'.$this->getAssetType().'"' , E_USER_WARNING);
+						trigger_localised_error("SYS0130", E_USER_WARNING, $name, $this->getAssetType());
 						return false;
 					}
 
@@ -758,7 +724,7 @@ class Asset_Management extends MySource_Object
 
 		// make sure this is a valid attribute type
 		if (!$this->_am->validAttributeType($this->vars[$name]['type'])) {
-			trigger_error('Attribute Type "'.$this->vars[$name]['type'].'" is not known (for the "'.$this->getAssetType().'" Asset Type) ' , E_USER_WARNING);
+			trigger_localised_error("SYS0096", E_USER_WARNING, $this->vars[$name]['type'], $this->getAssetType());
 			return false;
 		}//end if
 
@@ -773,13 +739,12 @@ class Asset_Management extends MySource_Object
 				  AND name = '.$this->_db->quote($name);
 
 		$result = $this->_db->query($sql);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+		if (assert_valid_db_result($result, '', false, false)) {
 			return false;
 		}
 
 		if (!$this->_validateAttributeDefault($this->vars[$name]['default'], $this->vars[$name]['type'], (empty($this->vars[$name]['parameters']) ? Array() : $this->vars[$name]['parameters']))) {
-			trigger_error('Default value of attribute "'.$name.'" is not valid for Asset Type "'.$this->getAssetType().'"' , E_USER_WARNING);
+			trigger_localised_error("SYS0130", E_USER_WARNING, $name, $this->getAssetType());
 			return false;
 		}
 
@@ -790,8 +755,7 @@ class Asset_Management extends MySource_Object
 				  AND name = '.$this->_db->quote($name);
 
 		$result = $this->_db->query($sql);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+		if (assert_valid_db_result($result, '', false, false)) {
 			return false;
 		}
 
@@ -803,8 +767,7 @@ class Asset_Management extends MySource_Object
 					  AND name = '.$this->_db->quote($name);
 
 			$result = $this->_db->query($sql);
-			if (DB::isError($result)) {
-				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			if (assert_valid_db_result($result, '', false, false)) {
 				return false;
 			}
 		}
@@ -891,8 +854,7 @@ class Asset_Management extends MySource_Object
 				WHERE type_code = '.$this->_db->quote($type_code);
 
 		$result = $this->_db->query($sql);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+		if (assert_valid_db_result($result, '', false, false)) {
 			return false;
 		}
 
@@ -906,8 +868,7 @@ class Asset_Management extends MySource_Object
 					'.$this->_db->quote($weighting['description']).','.$this->_db->quote($weighting['default_weighting']).')';
 
 			$result = $this->_db->query($sql);
-			if (DB::isError($result)) {
-				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			if (assert_valid_db_result($result, '', false, false)) {
 				return false;
 			}
 		}//end foreach
@@ -932,9 +893,7 @@ class Asset_Management extends MySource_Object
 				WHERE iwd.type_code = '.$this->_db->quote($parent_type);
 
 		$components = $this->_db->getAssoc($sql, false, Array(), DB_FETCHMODE_ASSOC); // need all this because of DB API
-		if (DB::isError($components)) {
-			trigger_error($components->getMessage().'<br/>'.$components->getUserInfo(), E_USER_ERROR);
-		}
+		assert_valid_db_result($components);
 
 		foreach ($this->components as $component => $data) {
 			if (!isset($components[$component])) {
@@ -975,7 +934,7 @@ class Asset_Management extends MySource_Object
 
 			$info = $xml_array->getArrayFromFile($file);
 			if (PEAR::isError($info)) {
-				trigger_error($info->error_message_prefix.$info->message.'<br/>In File:'.$file, E_USER_WARNING);
+				trigger_error($info->error_message_prefix.$info->message.'<br/>In File:'.$file, E_USER_WARNING); //ast-val-db fix
 				return Array();
 			}
 

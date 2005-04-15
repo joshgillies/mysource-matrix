@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: event_manager.inc,v 1.17 2005/04/07 06:43:56 mmcintyre Exp $
+* $Id: event_manager.inc,v 1.18 2005/04/15 00:37:28 lwright Exp $
 *
 */
 
@@ -64,7 +64,7 @@
 * </PRE>
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix
 */
 class Event_Manager extends MySource_Object
@@ -321,7 +321,7 @@ class Event_Manager extends MySource_Object
 			$function = 'on'.$event_name;
 
 			if (!method_exists($listener, $function)) {
-				trigger_error('Could not find event callback function "'.$function.'" in Asset "'.$listener->type().'" (#'.$asset->id.')', E_USER_WARNING);
+				trigger_localised_error("SYS0127", E_USER_WARNING, $function, $listener->type(), $asset->id);
 				return false;
 			}
 			$listener->$function($broadcaster, $vars);
@@ -355,13 +355,13 @@ class Event_Manager extends MySource_Object
 
 		$sql = 'SELECT (t2.treeid || '.$db->quote('%').')
 				FROM sq_ast_lnk l1
-				  INNER JOIN sq_ast_lnk_tree t1 ON l1.linkid = t1.linkid, 
+				  INNER JOIN sq_ast_lnk_tree t1 ON l1.linkid = t1.linkid,
 				  sq_ast_lnk l2
-				  INNER JOIN sq_ast_lnk_tree t2 ON l2.linkid = t2.linkid, 
-				  sq_ast a 
-				WHERE l1.'.$side_of_link.'id = '.$db->quote($assetid).' 
-				  AND SUBSTR(t1.treeid, 1, LENGTH(t2.treeid)) = t2.treeid 
-				  AND a.assetid=l2.'.$side_of_link.'id 
+				  INNER JOIN sq_ast_lnk_tree t2 ON l2.linkid = t2.linkid,
+				  sq_ast a
+				WHERE l1.'.$side_of_link.'id = '.$db->quote($assetid).'
+				  AND SUBSTR(t1.treeid, 1, LENGTH(t2.treeid)) = t2.treeid
+				  AND a.assetid=l2.'.$side_of_link.'id
 				  AND a.type_code='.$db->quote($type_code).'
 				ORDER BY t2.treeid DESC';
 
@@ -377,9 +377,9 @@ class Event_Manager extends MySource_Object
 
 		$sql = 'SELECT a.assetid, t2.treeid, a.type_code, l2.link_type, l2.is_dependant, l2.is_exclusive
 				FROM sq_ast_lnk l1
-				  INNER JOIN sq_ast_lnk_tree t1 ON l1.linkid = t1.linkid, 
+				  INNER JOIN sq_ast_lnk_tree t1 ON l1.linkid = t1.linkid,
 				  sq_ast_lnk l2
-				  INNER JOIN sq_ast_lnk_tree t2 ON l2.linkid = t2.linkid, 
+				  INNER JOIN sq_ast_lnk_tree t2 ON l2.linkid = t2.linkid,
 				  sq_ast a
 				WHERE l1.'.$side_of_link.'id = '.$db->quote($assetid).'
 					AND SUBSTR(t1.treeid, 1, LENGTH(t2.treeid)) = t2.treeid
@@ -501,7 +501,7 @@ class Event_Manager extends MySource_Object
 			if (!isset($info['options']['value'])) $info['options']['value'] = '';
 
 			if (!is_array($info['options'])) {
-				trigger_error('Expecting Array for event options for "'.$listener_type_code.'", got '.gettype($info['options']), E_USER_WARNING);
+				trigger_localised_error("SYS0143", E_USER_WARNING, $listener_type_code, gettype($info['options']));
 				return false;
 			}
 

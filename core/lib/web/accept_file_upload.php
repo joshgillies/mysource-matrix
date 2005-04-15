@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: accept_file_upload.php,v 1.6 2004/12/06 14:38:13 brobertson Exp $
+* $Id: accept_file_upload.php,v 1.7 2005/04/15 00:37:32 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Script to accept HTTP uploads and save them to the temp dir
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 */
 
@@ -37,7 +37,7 @@ require_once dirname(dirname(dirname(__FILE__))).'/include/init.inc';
 
 // kick out the wrong types of people
 if (empty($GLOBALS['SQ_SYSTEM']->user) || !is_a($GLOBALS['SQ_SYSTEM']->user, 'backend_user')) {
-	trigger_error('You must be logged in as a backend user to upload files', E_USER_ERROR);
+	trigger_localised_error('SYS0028', E_USER_ERROR);
 	exit();
 }
 
@@ -58,7 +58,7 @@ foreach ($_FILES as $id => $details) {
 					$message = $ms->newMessage(Array(), 'File Uploaded to temp dir', $message_body);
 					$ms->logMessage($message);
 				} else {
-					trigger_error('Error uploading file '.$_FILES[$id]['name'][$index], E_USER_WARNING);
+					trigger_localised_error('SYS0009', E_USER_WARNING);
 				}
 			}
 		}
@@ -73,7 +73,7 @@ foreach ($_FILES as $id => $details) {
 				$message = $ms->newMessage(Array(), 'File Uploaded to temp dir', $message_body);
 				$ms->logMessage($message);
 			} else {
-				trigger_error('Error uploading file '.$_FILES[$id]['name'], E_USER_WARNING);
+				trigger_localised_error('SYS0009', E_USER_WARNING);
 			}
 		}
 	}

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_attribute.inc,v 1.33 2005/04/06 23:05:34 mmcintyre Exp $
+* $Id: asset_attribute.inc,v 1.34 2005/04/15 00:37:27 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix
 */
 class Asset_Attribute extends MySource_Object
@@ -119,7 +119,7 @@ class Asset_Attribute extends MySource_Object
 
 			// make sure the asset we are loading is of the same type as our class
 			if ($type != $this->type()) {
-				trigger_error('Attribute #'.$attributeid.' is not a '.$this->type(), E_USER_WARNING);
+				trigger_localised_error("SYS0095", E_USER_WARNING, $attributeid, $this->type());
 				$this->id = null;
 				return;
 			}
@@ -288,7 +288,7 @@ class Asset_Attribute extends MySource_Object
 	function setEditParams(&$node)
 	{
 		if (strtolower($node->name) != strtolower($this->type())) {
-			trigger_error('XML Tree Node type "'.$node->name.'" not compatible with attribute type "'.$this->type().'"<br/>Full Node Contents :<br/><pre>'.htmlspecialchars($node->get()).'</pre>', E_USER_WARNING);
+			trigger_localised_error("SYS0300", E_USER_WARNING, $node->name, $this->type(), '<pre>'.htmlspecialchars($node->get()).'</pre>');
 			return false;
 		}
 		return true;
@@ -313,7 +313,7 @@ class Asset_Attribute extends MySource_Object
 			$this->_edit_params[$field] = $value;
 			return true;
 		} else {
-			trigger_error('Unknown edit parameter '.$field.' for attribute type '.$this->type());
+			trigger_localised_error("SYS0258", $field, $this->type());
 			return false;
 		}
 

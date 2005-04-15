@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_links_edit_fns.inc,v 1.1 2005/04/08 03:44:33 ndvries Exp $
+* $Id: report_links_edit_fns.inc,v 1.2 2005/04/15 00:37:47 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report_edit_fns.inc';
 *	Generate a report of links
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -75,20 +75,20 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 
 			if (!is_dir($owner->data_path)) {
 				if (!create_directory($owner->data_path)) {
-					trigger_error('Could not create data directory, report generation aborted', E_USER_WARNING);
+					trigger_localised_error('CMS0005', E_USER_WARNING);
 					return false;
 				}
 			}
 			$temp_file = fopen($owner->data_path.'/report.tmp', 'w');
 			if ($temp_file === false) {
-				trigger_error('Could not open temporary file, report generation aborted', E_USER_WARNING);
+				trigger_localised_error('CMS0006', E_USER_WARNING);
 				return false;
 			}
 			fwrite($temp_file, "<links>\n");
 		} else {
 			$temp_file = fopen($owner->data_path.'/report.tmp', 'a');
 			if ($temp_file === false) {
-				trigger_error('Could not open temporary file, report generation aborted', E_USER_WARNING);
+				trigger_localised_error('CMS0006', E_USER_WARNING);
 				return false;
 			}
 		}
@@ -176,11 +176,11 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 			// move the temp file to become the real report XML file
 			fwrite($temp_file, '</links>');
 			if (!copy($owner->data_path.'/report.tmp', $owner->data_path.'/report.xml')) {
-				trigger_error('Could not move temporary file, report generation aborted', E_USER_WARNING);
+				trigger_localised_error('CMS0007', E_USER_WARNING);
 				return false;
 			}
 			if (!unlink($owner->data_path.'/report.tmp')) {
-				trigger_error('Could not delete temporary file, report generation continues', E_USER_WARNING);
+				trigger_localised_error('CMS0008', E_USER_WARNING);
 			}
 		} else {
 			$total = count($job->_running_vars['todo']) + count($job->_running_vars['done']);
@@ -374,7 +374,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 		$input = new XML_Tree($report_path);
 		$root  = &$input->getTreeFromFile();
 		if (PEAR::isError($root)) {
-			trigger_error('Unable to read report file : '.$report_path."\n".$root->getMessage()."\n".$root->getUserInfo(), E_USER_WARNING);
+			trigger_localised_error('CMS0009', E_USER_WARNING, $report_path, $root->getMessage(), $root->getUserInfo());
 			return;
 		}
 
@@ -389,7 +389,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 			if ($asset_element->name != 'asset') continue;
 			foreach ($asset_element->children as $link) {
 				if ($link->name != 'link') continue;
-				assert_isset_array_index($reported_links, $link->attributes['type'], 'Unkown link type "'.$link->attributes['type'].'"');
+				assert_isset_array_index($reported_links, $link->attributes['type'], 'Unknown link type "'.$link->attributes['type'].'"');
 
 				$new_link = Array();
 				foreach ($link->children as $link_child) {

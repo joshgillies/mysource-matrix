@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: password.inc,v 1.20 2005/01/20 13:10:34 brobertson Exp $
+* $Id: password.inc,v 1.21 2005/04/15 00:37:27 lwright Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_ATTRIBUTES_PATH.'/text/text.inc';
 *    <password width="8" min_length="6" />
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -128,15 +128,13 @@ class Asset_Attribute_Password extends Asset_Attribute_Text
 			if ($this->setValue($one)) {
 				$this->processed = true;
 			} else {
-				$error_msg = 'Password validation failed';
 				if ($this->_edit_params['min_length']) {
-					$error_msg .= ' Please ensure your password is at least '.$this->_edit_params['min_length'].' characters long';
+					trigger_localised_error('SYS0001', E_USER_WARNING, $this->_edit_params['min_length']);
 				}
-				trigger_error($error_msg, E_USER_WARNING);
 				$this->processed = false;
 			}
 		} else {
-			trigger_error('Password and confirmation don\'t match', E_USER_WARNING);
+			trigger_localised_error('SYS0017', E_USER_WARNING);
 			$this->processed = false;
 		}
 

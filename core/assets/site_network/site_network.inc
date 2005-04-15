@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site_network.inc,v 1.2 2005/02/28 03:11:55 gsherwood Exp $
+* $Id: site_network.inc,v 1.3 2005/04/15 00:37:26 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -126,20 +126,20 @@ class Site_Network extends Folder
 		if (!isset($this->_tmp['primary_url'])) {
 			$site_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, 'site', false, 'primary_site');
 			if (empty($site_link)) return '';
-	
+
 			$sql = 'SELECT url, http, https
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_url
 					';
 			$where = 'assetid = '.$GLOBALS['SQ_SYSTEM']->db->quote($site_link['minorid']);
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 			$sql .= $where.'ORDER BY urlid LIMIT 1';
-	
+
 			$primary_url_data = $GLOBALS['SQ_SYSTEM']->db->getRow($sql);
 			assert_valid_db_result($primary_url_data);
-	
+
 			if (empty($primary_url_data)) return '';
 			$primary_url = $primary_url_data['url'];
-	
+
 			if ($primary_url['https'] == '1') $primary_url = 'https://'.$primary_url;
 			else $primary_url = 'http://'.$primary_url;
 
@@ -149,8 +149,8 @@ class Site_Network extends Folder
 		return $this->_tmp['primary_url'];
 
 	}//end getPrimaryURL()
-	
-	
+
+
 	/**
 	* Unserialises a session file
 	*
@@ -168,20 +168,20 @@ class Site_Network extends Folder
 		// break the session at the word boundaries and the pipes
 		$parts = preg_split('/\w+\|/', $session_str, -1, PREG_SPLIT_OFFSET_CAPTURE);
 		$session_arr = Array();
-		
+
 		for ($i = 0; $i < count($parts); $i++) {
 			if ($i == count($parts) - 1) continue;
 			$offset = $parts[$i][1] + strlen($parts[$i][0]);
 			$len = $parts[$i + 1][1] - 1 - $offset;
-			
+
 			$key = substr($session_str, $offset, $len);
 			$session_arr[$key] = unserialize($parts[$i + 1][0]);
 		}
 		return $session_arr;
-	
+
 	}//end unserialiseSessionFile()
-	
-	
+
+
 	/**
 	* Serialises the specified session contents and writes it to the specified session file
 	*
@@ -196,29 +196,29 @@ class Site_Network extends Folder
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 		if (!file_exists($session_file)) {
-			trigger_error('Session file "'.$session_file.'" does not exist', E_USER_WARNING);
+			trigger_localised_error("CORE0072", E_USER_WARNING, $session_file);
 			return false;
 		}
-		
+
 		if (!is_array($session_contents)) {
-			trigger_error('Array expected for second argument, got '.gettype($session_contents), E_USER_WARNING);
+			trigger_localised_error("CORE0004", E_USER_WARNING, gettype($session_contents));
 			return false;
 		}
-	
+
 		$session_str = '';
 		foreach ($session_contents as $key => $val) {
 			$session_str .= $key.'|'.serialize($val);
 		}
 
 		if (!string_to_file($session_str, $session_file)) {
-			trigger_error('Could not write to session file "'.$session_file.'"', E_USER_WARNING);
+			trigger_localised_error("CORE0021", E_USER_WARNING, $session_file);
 			return false;
 		}
 		return true;
-	
+
 	}//end serialiseSessionFile()
-	
-	
+
+
 	/**
 	* Synchronises the specified primary session with the current (secondary) session
 	*
@@ -234,18 +234,18 @@ class Site_Network extends Folder
 	function syncSessionFile($pri_sessionid)
 	{
 		$pri_sess = $this->unserialiseSessionFile(SQ_CACHE_PATH.'/sess_'.$pri_sessionid);
-	
+
 		if (!is_array($pri_sess)) {
 			// something is definately wrong
-			trigger_error('Primary session is currupt', E_USER_ERROR);
+			trigger_localised_error("CORE0071", E_USER_ERROR);
 			return false;
 		}
-	
+
 		$pri_timestamp = array_get_index($pri_sess, 'SQ_SESSION_TIMESTAMP', -1);
 		$sec_timestamp = array_get_index($_SESSION, 'SQ_SESSION_TIMESTAMP', -1);
 		$pri_login_key = array_get_index($pri_sess, 'SQ_LOGIN_KEY', null);
 		$sec_login_key = array_get_index($_SESSION, 'SQ_LOGIN_KEY', null);
-	
+
 		// if primary is younger
 		if ($pri_timestamp > $sec_timestamp || $pri_timestamp == -1) {
 			// copy primary to secondary
@@ -254,27 +254,27 @@ class Site_Network extends Folder
 			// copy secondary to primary
 			$pri_sess = $_SESSION;
 		}
-	
+
 		$now = time();
 		$pri_sess['SQ_SESSION_TIMESTAMP'] = $now;
 		$_SESSION['SQ_SESSION_TIMESTAMP'] = $now;
-	
+
 		// preserve login keys
 		if (!is_null($pri_login_key)) $pri_sess['SQ_LOGIN_KEY'] = $pri_login_key;
 		if (!is_null($sec_login_key)) $_SESSION['SQ_LOGIN_KEY'] = $sec_login_key;
-	
+
 		// save the sessionid of the primary so that we
 		// know that we have run this script before. We won't have to
 		// do anther browser refresh if we know this.
 		$_SESSION['PRIMARY_SESSIONID'] = $pri_sessionid;
-	
+
 		// *** JEDI MIND TRICK *** you did not see us doing this... move along
 		if (!$this->serialiseSessionFile(SQ_CACHE_PATH.'/sess_'.$pri_sessionid, $pri_sess)) {
-			trigger_error('Could not write session back to primary session file', E_USER_ERROR);
+			trigger_localised_error("CORE0020", E_USER_ERROR);
 			return false;
 		}
 		return true;
-	
+
 	}//end syncSessionFile()
 
 

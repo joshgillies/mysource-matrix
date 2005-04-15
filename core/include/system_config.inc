@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.55 2005/04/08 05:39:09 gsherwood Exp $
+* $Id: system_config.inc,v 1.56 2005/04/15 00:37:28 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.55 $
+* @version $Revision: 1.56 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -120,7 +120,7 @@ class System_Config extends Config
 
 				// if we dont have access, go away
 				if (!$is_admin) {
-					trigger_error('You need to be either the Root User or a System Administrator to save the '.$this->name, E_USER_WARNING);
+					trigger_localised_error("SYS0267", E_USER_WARNING, $this->name);
 					return false;
 				}
 			} else {

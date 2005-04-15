@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_customisation.inc,v 1.32 2005/01/14 01:00:43 tbarrett Exp $
+* $Id: design_customisation.inc,v 1.33 2005/04/15 00:37:25 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -81,7 +81,7 @@ class Design_Customisation extends Design
 		// first, we should try and find the link
 		$delete_link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid, $this->id);
 		if (empty($delete_link)) {
-			trigger_error('Existing Link #'.$linkid.' not found, unable to delete link', E_USER_WARNING);
+			trigger_localised_error("CORE0155", E_USER_WARNING, $linkid);
 			return false;
 		}
 
@@ -111,7 +111,7 @@ class Design_Customisation extends Design
 					// found the link to create
 					$new_minor = &$am->getAsset($info['assetid']);
 					if (!$this->createLink($new_minor, SQ_LINK_TYPE_3, '', null, '1')) {
-						trigger_error('Failed creating file link to customisation', E_USER_WARNING);
+						trigger_localised_error("CORE0162", E_USER_WARNING);
 						$am->forgetAsset($design);
 						$am->forgetAsset($new_minor);
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -141,7 +141,7 @@ class Design_Customisation extends Design
 					// found the link to create
 					$new_minor = &$am->getAsset($info['assetid']);
 					if (!$this->createLink($new_minor, SQ_LINK_TYPE_3, '', null, '1')) {
-						trigger_error('Failed creating css file link to customisation', E_USER_WARNING);
+						trigger_localised_error("CORE0161", E_USER_WARNING);
 						$am->forgetAsset($design);
 						$am->forgetAsset($new_minor);
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -177,7 +177,7 @@ class Design_Customisation extends Design
 		// first, we should try and find the link
 		$delete_link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid, $this->id);
 		if (empty($delete_link)) {
-			trigger_error('Existing Link #'.$linkid.' not found, unable to delete link', E_USER_WARNING);
+			trigger_localised_error("CORE0155", E_USER_WARNING, $linkid);
 			return false;
 		}
 
@@ -381,7 +381,7 @@ class Design_Customisation extends Design
 		foreach ($file_links as $link) $file_link_ids[] = $link['minorid'];
 		$file_link_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_unique($file_link_ids));
 		$file_link_urls = $GLOBALS['SQ_SYSTEM']->am->getAssetURL(array_unique($file_link_ids));
-		
+
 		foreach ($file_link_info as $minorid => $file_info) {
 			$file_url = $file_link_urls[$minorid];
 			if ($file_url == '') $file_url = "Javascript: alert('No URL found for &quot;".$file_info['name']."&quot;; Design &quot;".$this->attr('id_name')."&quot; might not be linked under a site with a URL');";

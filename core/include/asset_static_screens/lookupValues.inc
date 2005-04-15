@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: lookupValues.inc,v 1.6 2005/03/28 23:11:25 gsherwood Exp $
+* $Id: lookupValues.inc,v 1.7 2005/04/15 00:37:28 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Settings Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 */
 
@@ -84,7 +84,6 @@ function paintLookupValues(&$owner, &$o, &$ei)
 	$editing_fields = false;
 
 	for (reset($lookup_value_details); null !== ($type_code = key($lookup_value_details)); next($lookup_value_details)) {
-
 		$o->openSection($lookup_value_details[$type_code]['title']);
 		$name_prefix = $lookup_value_details[$type_code]['name_prefix'];
 		eval('$editing_fields |= '.$type_code.'::paintInterface($owner, $o, $lookups, $values[$name_prefix], $prefix.\'_lookup_values_\'.$name_prefix);');

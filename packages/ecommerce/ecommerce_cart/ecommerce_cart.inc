@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart.inc,v 1.4 2005/03/21 06:27:12 gsherwood Exp $
+* $Id: ecommerce_cart.inc,v 1.5 2005/04/15 00:37:53 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -145,7 +145,7 @@ class Ecommerce_Cart extends Page
 		if ($quantity == 0) {
 			return true;
 		} else if ($quantity < 0) {
-			trigger_error('Quantity to add() to cart cannot be less than zero', E_USER_WARNING);
+			trigger_localised_error('ECOM0004', E_USER_WARNING);
 			return false;
 		}
 
@@ -155,7 +155,7 @@ class Ecommerce_Cart extends Page
 		$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($product_assetid), 'product', false);
 
 		if (empty($asset_info)) {
-			trigger_error('Assetid sent to cart add() function is not a Product asset', E_USER_WARNING);
+			trigger_localised_error('ECOM0005', E_USER_WARNING, $product_assetid);
 			return false;
 		}
 
@@ -193,7 +193,7 @@ class Ecommerce_Cart extends Page
 			if (is_null($quantity) || ($quantity == 0)) {
 				return true;
 			} else if ($quantity > 0) {
-				trigger_error('Attempt to remove() items from cart when there is none of that product', E_USER_WARNING);
+				trigger_localised_error('ECOM0006', E_USER_WARNING);
 				return false;
 			}
 		}
@@ -208,12 +208,12 @@ class Ecommerce_Cart extends Page
 		if ($quantity == 0) {
 			return true;
 		} else if ($quantity < 0) {
-			trigger_error('Quantity to remove() from cart cannot be less than zero', E_USER_WARNING);
+			trigger_localised_error('ECOM0007', E_USER_WARNING);
 			return false;
 		}
 
 		if ($quantity > $cart[$product_assetid]['quantity']) {
-			trigger_error('Quantity to remove() from cart cannot be more than how many of that product are actually in the cart', E_USER_WARNING);
+			trigger_localised_error('ECOM0008', E_USER_WARNING);
 			return false;
 		} else if ($quantity == $cart[$product_assetid]['quantity']) {
 			unset($cart[$product_assetid]);
@@ -248,13 +248,13 @@ class Ecommerce_Cart extends Page
 
 		// product doesn't exist in cart, then silently return, otherwise error
 		if (!isset($cart[$product_assetid])) {
-			trigger_error('Attempt to update() an item in a cart when there is nothing to update', E_USER_WARNING);
+			trigger_localised_error('ECOM0009', E_USER_WARNING);
 			return false;
 		}
 
 		// Qty < 0, throw an error
 		if ($quantity < 0) {
-			trigger_error('Quantity to update() an item with a negative quantity', E_USER_WARNING);
+			trigger_localised_error('ECOM0010', E_USER_WARNING);
 			return false;
 		} else if ($quantity == 0) {
 			unset($cart[$product_assetid]);
@@ -385,7 +385,7 @@ class Ecommerce_Cart extends Page
 
 		<?php if (!empty($cart)) { ?>
 			<input type="submit" value="Update Quantity">
-			<?php 
+			<?php
 			$form_id = $this->attr('ecom_form_id');
 			if (!empty($form_id)) {
 				$ecom_form_url = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($form_id); ?>

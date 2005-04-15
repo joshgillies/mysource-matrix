@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_folder.inc,v 1.14 2005/03/24 03:04:29 dheppell Exp $
+* $Id: search_folder.inc,v 1.15 2005/04/15 00:38:00 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -86,7 +86,7 @@ class Search_Folder extends Asset
 	*/
 	function &getAsset($shadowid, $type_code='', $mute_errors=false)
 	{
-		trigger_error('The Search Folder does not contain any of the shadow assets it presents to the world', E_USER_ERROR);
+		trigger_localised_error('SCH0010', E_USER_ERROR);
 		$null = null;
 		return $null;
 	}//end getAsset()

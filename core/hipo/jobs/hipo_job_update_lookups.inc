@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_update_lookups.inc,v 1.31 2005/04/13 23:49:30 ndvries Exp $
+* $Id: hipo_job_update_lookups.inc,v 1.32 2005/04/15 00:37:27 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -186,7 +186,7 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 	{
 		// to start updating lookups, we need to have an asset id to start updating lookups at
 		if (empty($this->_running_vars['assetids'])) {
-			trigger_error('Cannot initialise Update Lookups HIPO, no start asset IDs specified', E_USER_WARNING);
+			trigger_localised_error('HIPO0001', E_USER_WARNING);
 			return false;
 		}
 

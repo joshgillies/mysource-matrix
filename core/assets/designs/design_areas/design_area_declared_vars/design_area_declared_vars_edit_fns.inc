@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_declared_vars_edit_fns.inc,v 1.20 2004/12/06 14:38:08 brobertson Exp $
+* $Id: design_area_declared_vars_edit_fns.inc,v 1.21 2005/04/15 00:37:24 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -58,7 +58,7 @@ class Design_Area_Declared_Vars_Edit_Fns extends Design_Area_Edit_Fns
 
 			// if there is a name and it's not the the same type as the current design area
 			if (empty($element['attributes']['name']) || empty($element['attributes']['type'])) {
-				trigger_error('All declared variables need to have a name and a type', E_USER_WARNING);
+				trigger_localised_error("CORE0141", E_USER_WARNING);
 				continue;
 			}//end if
 
@@ -67,12 +67,12 @@ class Design_Area_Declared_Vars_Edit_Fns extends Design_Area_Edit_Fns
 
 			$name = preg_replace('/[^a-z0-9_]/i', '_', $element['attributes']['name']);
 			if ($name != $element['attributes']['name']) {
-				trigger_error('Declared Variable "'.$element['attributes']['name'].'" in "'.$asset->attr('id_name').'" contained illegal characters and has been changed to "'.$name.'"', E_USER_WARNING);
+				trigger_localised_error("CORE0150", E_USER_WARNING, $element['attributes']['name'], $asset->attr('id_name'), $name);
 			}
 
 			// make sure this is a valid attribute type
 			if (!$GLOBALS['SQ_SYSTEM']->am->validAttributeType($element['attributes']['type'])) {
-				trigger_error('Declared Variable "'.$name.'" in "'.$asset->attr('id_name').'" is specified as unknown in Attribute Type "'.$element['attributes']['type'].'"', E_USER_WARNING);
+				trigger_localised_error("CORE0152", E_USER_WARNING, $name, $asset->attr('id_name'), $element['attributes']['type']);
 				return false;
 			}//end if
 
@@ -81,7 +81,7 @@ class Design_Area_Declared_Vars_Edit_Fns extends Design_Area_Edit_Fns
 			$class = 'Asset_Attribute_'.$element['attributes']['type'];
 			$attr = new $class();
 			if (!$attr->validateValue($element['attributes']['value'])) {
-				trigger_error('Declared Variable "'.$name.'" in "'.$asset->attr('id_name').'" has an invalid value "'.$element['attributes']['value'].'" for an "'.$element['attributes']['type'].'" attribute type', E_USER_WARNING);
+				trigger_localised_error("CORE0151", E_USER_WARNING, $name, $asset->attr('id_name'), $element['attributes']['value'], $element['attributes']['type']);
 				return false;
 			}//end if
 

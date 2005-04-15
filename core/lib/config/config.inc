@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: config.inc,v 1.21 2005/03/22 06:15:49 arailean Exp $
+* $Id: config.inc,v 1.22 2005/04/15 00:37:31 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *    Looks after the creation of the config files that are in PHP code
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix
 */
 class Config extends MySource_Object
@@ -82,7 +82,7 @@ class Config extends MySource_Object
 	function save($vars, $backup_existing=false, $send_message=true)
 	{
 		if (!$this->writeAccess()) {
-			trigger_error('Unable to save "'.$this->name.'", permission denied', E_USER_WARNING);
+			trigger_localised_error('SYS0026', E_USER_WARNING, $this->name);
 			return false;
 		}
 

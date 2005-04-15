@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager_edit_fns.inc,v 1.22 2005/04/13 23:14:39 rhoward Exp $
+* $Id: cron_manager_edit_fns.inc,v 1.23 2005/04/15 00:37:26 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -496,7 +496,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 					return true;
 
 				} else {
-					trigger_error('The security key entered was incorrect.', E_USER_NOTICE);
+					trigger_localised_error("CRON0013", E_USER_NOTICE);
 				}//end if
 			}//end if
 		}//endif

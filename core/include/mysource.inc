@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.97 2005/04/08 05:39:09 gsherwood Exp $
+* $Id: mysource.inc,v 1.98 2005/04/15 00:37:28 lwright Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.97 $
+* @version $Revision: 1.98 $
 * @package MySource_Matrix
 */
 class MySource
@@ -361,7 +361,7 @@ class MySource
 
 					if (!$rm->paintPageNotFoundRemap()) {
 						// last resort, display little green error
-						trigger_error('URL "'.$url.'" not found', E_USER_NOTICE);
+						trigger_localised_error("SYS0218", E_USER_NOTICE, $url);
 					}
 				}//end if !load remap
 
@@ -400,7 +400,7 @@ class MySource
 			if (is_null($current_asset)) {
 				$current_asset = &$this->am->getSystemAsset('root_folder');
 				if (is_null($current_asset)) {
-					trigger_error('Unable to get Root Folder Asset', E_USER_ERROR);
+					trigger_localised_error("SYS0248", E_USER_ERROR);
 				}
 			}
 
@@ -471,7 +471,7 @@ class MySource
 					// get a list of all the installed authentication systems
 					$auth_folder = &$this->am->getSystemAsset('authentication_folder');
 					if (is_null($auth_folder)) {
-						trigger_error('Unable to locate authentication system', E_USER_ERROR);
+						trigger_localised_error("SYS0249", E_USER_ERROR);
 						return;
 					}
 					$auth_systems = $auth_folder->getAuthSystems();
@@ -719,7 +719,7 @@ class MySource
 		if (is_null($asset_type)) return $prefs;
 
 		if (!isset($prefs[$asset_type])) {
-			trigger_error('There are no user preferences for asset type "'.$asset_type.'"', E_USER_WARNING);
+			trigger_localised_error("SYS0215", E_USER_WARNING, $asset_type);
 			return Array();
 		}
 		$prefs = $prefs[$asset_type];
@@ -730,7 +730,7 @@ class MySource
 			// try the global preferences before throwing an error
 			include SQ_DATA_PATH.'/private/conf/preferences.inc';
 			if (!isset($preferences[$asset_type][$pref])) {
-				trigger_error('User preference "'.$pref.'" for asset type "'.$asset_type.'" does not exist', E_USER_WARNING);
+				trigger_localised_error("SYS0259", E_USER_WARNING, $pref, $asset_type);
 				return Array();
 			} else {
 				$prefs = $preferences[$asset_type];
@@ -783,7 +783,7 @@ class MySource
 	function setCurrentUser(&$user)
 	{
 		if (!is_a($user, 'user')) {
-			trigger_error('Failed setting current user, passed object is not a user', E_USER_WARNING);
+			trigger_locaalised_error("SYS0171", E_USER_WARNING);
 			return false;
 		}
 
@@ -1138,7 +1138,7 @@ class MySource
 	{
 		if (empty($this->_run_level_stack)) {
 			// there is no run level to restore
-			trigger_error('Cannot restore run level - no previous run level set', E_USER_ERROR);
+			trigger_localised_error("SYS0110", E_USER_ERROR);
 		}
 
 		array_pop($this->_run_level_stack);
@@ -1181,7 +1181,7 @@ class MySource
 		$current_run_level = $this->getRunLevel();
 		if (is_null($current_run_level)) {
 			// there is no run level to check
-			trigger_error('Cannot check run level - no run level set', E_USER_ERROR);
+			trigger_localised_error("SYS0102", E_USER_ERROR);
 		}
 
 		return ($security_system & $current_run_level);
@@ -1222,15 +1222,14 @@ class MySource
 				break;
 
 			default:
-				trigger_error('Database Connection Type "'.$conn.'" unknown', E_USER_WARNING);
+				trigger_localised_error("SYS0129", E_USER_WARNING, $conn);
 				return;
 		}
 
 		if (empty($this->_db_conns[$conn])) {
 			$this->_db_conns[$conn] = DB::connect(SQ_CONF_DB_DSN);
-			if (DB::isError($this->_db_conns[$conn])) {
-				trigger_error($this->_db_conns[$conn]->getMessage(), E_USER_ERROR);
-			}
+			assert_valid_db_result($this->_db_conns[$conn]);
+			
 			// make sure all results are assoc arrays
 			$this->_db_conns[$conn]->setFetchMode(DB_FETCHMODE_ASSOC);
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: log_manager.inc,v 1.12 2005/04/13 04:32:59 rhoward Exp $
+* $Id: log_manager.inc,v 1.13 2005/04/15 00:37:26 lwright Exp $
 */
 
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -402,7 +402,7 @@ class Log_Manager extends Asset
 			}
 			fclose($handle);
 		} else {
-			trigger_error('Could not read from logfile: '.$file, E_USER_ERROR);
+			trigger_localised_error("CORE0018", E_USER_ERROR, $file);
 			$result = false;
 		}
 
@@ -687,7 +687,7 @@ class Log_Manager extends Asset
 			$content .= '</table>';
 
 		} else {
-			trigger_error('Unknown action or invalid input', E_USER_WARNING);
+			trigger_localised_error("CORE0125", E_USER_WARNING);
 			return true;
 		}
 

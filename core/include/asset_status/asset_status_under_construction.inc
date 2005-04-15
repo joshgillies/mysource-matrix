@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_under_construction.inc,v 1.30 2005/04/06 01:42:02 gsherwood Exp $
+* $Id: asset_status_under_construction.inc,v 1.31 2005/04/15 00:37:29 lwright Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *                                           the workflow and all required metadata is complete
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix
 */
 class Asset_Status_Under_Construction extends Asset_Status
@@ -156,7 +156,7 @@ class Asset_Status_Under_Construction extends Asset_Status
 				$current_userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
 
 				if (!$wfm->startWorkflow($this->owner->id)) {
-					trigger_error('Workflow failed to start for "'.$this->owner->name.'"', E_USER_WARNING);
+					trigger_localised_error("SYS0262", E_USER_WARNING, $this->owner->name);
 					return false;
 				}
 

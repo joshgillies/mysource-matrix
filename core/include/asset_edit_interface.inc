@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.254 2005/04/08 05:39:08 gsherwood Exp $
+* $Id: asset_edit_interface.inc,v 1.255 2005/04/15 00:37:27 lwright Exp $
 *
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.254 $
+* @version $Revision: 1.255 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -109,7 +109,7 @@ class Asset_Edit_Interface extends MySource_Object
 		$input = new XML_Tree($file);
 		$root  = &$input->getTreeFromFile();
 		if (PEAR::isError($root)) {
-			trigger_error('Unable to Read File : '.$file."\n".$root->getMessage()."\n".$root->getUserInfo(), E_USER_WARNING);
+			trigger_localised_error("SYS0230", E_USER_WARNING, $file, $root->getMessage(), $root->getUserInfo());
 			return;
 		}
 
@@ -209,7 +209,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 		if (!isset($this->_edit_fns->static_screens[$active_screen]) && empty($this->_screens[$active_screen])) {
 			// we cant find this screen, so we will use the details screen as a backup
-			trigger_error('Active Screen ("'.$active_screen.'") unknown', E_USER_WARNING);
+			trigger_localised_error("SYS0076", E_USER_WARNING, $active_screen);
 			$active_screen = 'details';
 		}
 
@@ -763,7 +763,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 		if (!isset($this->_edit_fns->static_screens[$active_screen]) && empty($this->_screens[$active_screen])) {
 			// we cant find this screen, so we will use the details screen as a backup
-			trigger_error('Active Screen ("'.$active_screen.'") unknown', E_USER_WARNING);
+			trigger_localised_error("SYS0076", E_USER_WARNING, $active_screen);
 			$active_screen = 'details';
 		}
 
@@ -916,7 +916,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 									default:
 										if (!is_null($attr_tag)) {
-											trigger_error('More than one tag other than display_name or note found', E_USER_WARNING);
+											trigger_localised_error("SYS0194", E_USER_WARNING);
 										} else {
 											$attr_tag =& $sub_field;
 										}
@@ -984,7 +984,7 @@ class Asset_Edit_Interface extends MySource_Object
 						break;
 
 						default:
-							trigger_error('Expected "field" or "note" tag in section, found "'.$field->name.'"', E_USER_WARNING);
+							trigger_localised_error("SYS0140", E_USER_WARNING, $field->name);
 							continue;
 
 					}
@@ -1140,7 +1140,7 @@ class Asset_Edit_Interface extends MySource_Object
 				$input = new XML_Tree($file);
 				$root  = &$input->getTreeFromFile();
 				if (PEAR::isError($root)) {
-					trigger_error($root->getMessage()."\n".$root->getUserInfo(), E_USER_WARNING);
+					trigger_error($root->getMessage()."\n".$root->getUserInfo(), E_USER_WARNING); //asst-val-db fix
 					return false;
 				}
 			} else {
@@ -1323,7 +1323,7 @@ class Asset_Edit_Interface extends MySource_Object
 					$field = &$section->children[$j];
 
 					if ($field->name != 'field') {
-						trigger_error('Expected "field" tag in section, found "'.$field->name.'"', E_USER_WARNING);
+						trigger_localised_error("SYS0141", E_USER_WARNING, $field->name);
 						continue;
 					}
 
@@ -1344,7 +1344,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 							default:
 								if (!is_null($attr_tag)) {
-									trigger_error('More than one tag other than display_name or note found', E_USER_WARNING);
+									trigger_localised_error("SYS0194", E_USER_WARNING);
 								} else {
 									$attr_tag =& $sub_field;
 								}
@@ -1583,7 +1583,7 @@ class Asset_Edit_Interface extends MySource_Object
 						$input = new XML_Tree($file);
 						$root  = &$input->getTreeFromFile();
 						if (PEAR::isError($root)) {
-							trigger_error($root->getMessage()."\n".$root->getUserInfo(), E_USER_WARNING);
+							trigger_error($root->getMessage()."\n".$root->getUserInfo(), E_USER_WARNING); //ast-val-db fix
 							$root = null;
 						}
 					}
@@ -1594,7 +1594,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 				// must be a normal screen
 				if (empty($this->_screens[$active_screen])) {
-					trigger_error('Active Screen "'.$active_screen.'" unknown unable to process', E_USR_WARNING);
+					trigger_localised_error("SYS0076", E_USR_WARNING, $active_screen);
 					return false;
 				}
 
@@ -1634,7 +1634,7 @@ class Asset_Edit_Interface extends MySource_Object
 							continue;
 						// There is something declared but the bloody thing doesn't exist - inform the Idiot
 						} else if (!method_exists($this->_edit_fns, $process_node->attributes['name'])) {
-							trigger_error('Function not found for processing section "'.$section->attributes['name'].'"', E_USER_WARNING);
+							trigger_localised_error("SYS0188", E_USER_WARNING, $section->attributes['name']);
 						} else {
 							// if we are processing the create interface and this section function is not included in that, ignore it
 							if ($creating && !in_array($process_node->attributes['name'], $create_sections[$section->attributes['name']])) continue;
@@ -1688,7 +1688,7 @@ class Asset_Edit_Interface extends MySource_Object
 									continue;
 								// There is something declared but the bloody thing doesn't exist - inform the Idiot
 								} else if (!method_exists($this->_edit_fns, $process_node->attributes['name'])) {
-									trigger_error('Function not found for processing field "'.$section->attributes['name'].'/'.$field->children[$last_child]->content.'"', E_USER_WARNING);
+									trigger_localised_error("SYS0187", E_USER_WARNING, $section->attributes['name'], $field->children[$last_child]->content);
 								} else {
 									if ($this->_edit_fns->{$process_node->attributes['name']}($owner, $o, $prefix)) $ret_val = true;
 								}
@@ -1739,7 +1739,7 @@ class Asset_Edit_Interface extends MySource_Object
 				if (!$edit_fns->$show_if_fn($owner, $prefix)) return 0;
 			} else {
 				// if show if function doesn't exist, spew, then continue as normal
-				trigger_error('Error : Show If function "'.$show_if_fn.'" for '.$node->name.' not found.', E_USER_WARNING);
+				trigger_localised_error("SYS0136", E_USER_WARNING, $show_if_fn, $node->name);
 				return 0;
 			}
 		}
@@ -1880,7 +1880,7 @@ class Asset_Edit_Interface extends MySource_Object
 			}
 		}
 		if (!$file) {
-			trigger_error($file_name.' not found for Asset Type "'.$this->_type_code.'"', E_USER_WARNING);
+			trigger_localised_error("SYS0065", E_USER_WARNING, $file_name, $this->_type_code);
 			return false;
 		}
 
@@ -1971,7 +1971,7 @@ class Asset_Edit_Interface extends MySource_Object
 			if (!empty($root) && !empty($root->children)) {
 				$lang_file = $this->findLanguageFile($screen_name);
 				if (empty($lang_file)) {
-					trigger_error('No suitable language files were found for screen "'.$screen_name.'"', E_USER_WARNING);
+					trigger_localised_error("SYS0197", E_USER_WARNING, $screen_name);
 					$root = null;
 					return $root;
 				} else {

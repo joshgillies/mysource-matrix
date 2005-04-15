@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: maps.inc,v 1.15 2005/04/06 23:05:35 mmcintyre Exp $
+* $Id: maps.inc,v 1.16 2005/04/15 00:37:33 lwright Exp $
 *
 */
 
@@ -36,7 +36,7 @@ define('SQ_MAPS_INSTALLED'  , 'I');
 *    Looks aftet the automated patching of the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix
 * @subpackage MAPS
 */
@@ -123,7 +123,7 @@ class Maps extends MySource_Object
 			break;
 
 			default :
-				trigger_error('Active Screen "'.$active_screen.'" not known', E_USER_WARNING);
+				trigger_localised_error('MAPS0013', E_USER_WARNING, $active_screen);
 		}//end switch
 
 	}//end paintBackend()
@@ -180,7 +180,7 @@ class Maps extends MySource_Object
 				}
 			}
 		} else {
-			trigger_error('Downloaded patches directory "'.SQ_DATA_PATH.'/private/maps/downloaded_patches'.'" does not exist.', E_USER_WARNING);
+			trigger_localised_error('MAPS0012', E_USER_WARNING, SQ_DATA_PATH.'/private/maps/downloaded_patches');
 		}
 
 		// look for installed patches that are not in the DB for some reason
@@ -188,7 +188,7 @@ class Maps extends MySource_Object
 		if ($handle = opendir(SQ_DATA_PATH.'/private/maps/installed_patches')) {
 			while (false !== ($patchid = readdir($handle))) {
 				if (!preg_match('|^\w*[0-9]{12}$|', $patchid)) continue;
-				
+
 				$patch_details = $this->getPatchDetails($patchid);
 				if (!isset($db_patches[$patchid])) {
 					$installed_patches[$patchid] = Array(
@@ -199,7 +199,7 @@ class Maps extends MySource_Object
 				}
 			}
 		} else {
-			trigger_error('Installed patches directory "'.SQ_DATA_PATH.'/private/maps/installed_patches'.'" does not exist.', E_USER_WARNING);
+			trigger_localised_error('MAPS0011', E_USER_WARNING, SQ_DATA_PATH.'/private/maps/installed_patches');
 		}
 
 
@@ -230,18 +230,18 @@ class Maps extends MySource_Object
 							} else {
 								?>
 								<script language="javascript" type="text/javascript">
-								
+
 									/**
-									* Confirm whether to install a patch or not. If not, 
+									* Confirm whether to install a patch or not. If not,
 									* make sure the checkbox is deselected
 									* @param 	object 	box	The checkbox to deselect
 									*/
 									function confirm_uploaded_patch_delete(box)
 									{
 										var warning='This will delete all files associated with this patch.';
-										
+
 										var res = confirm(warning);
-										
+
 										box.checked = res;
 									}
 								</script>
@@ -295,9 +295,9 @@ class Maps extends MySource_Object
 							} else {
 								?>
 								<script language="javascript" type="text/javascript">
-								
+
 									/**
-									* Confirm whether to install a patch or not. If not, 
+									* Confirm whether to install a patch or not. If not,
 									* make sure the checkbox is deselected
 									* @param 	object 	box	The checkbox to deselect
 									*/
@@ -308,9 +308,9 @@ class Maps extends MySource_Object
 													'You must uninstall the patch to remove these files. '+
 													'Once deleted, this patch cannot be reinstalled without '+
 													'reuploading the patch files. Are you sure?';
-										
+
 										var res = confirm(warning);
-										
+
 										box.checked = res;
 									}
 								</script>
@@ -379,14 +379,14 @@ class Maps extends MySource_Object
 				// $patchid = substr($info['name'], -12, 12);
 				$patchid = $info['name'];
 				if (is_dir(SQ_DATA_PATH.'/private/maps/downloaded_patches/'.$patchid)) {
-					trigger_error('A patch with the same ID has already been uploaded', E_USER_WARNING);
+					trigger_localised_error('MAPS0010', E_USER_WARNING);
 				} else {
 					require_once 'Archive/Tar.php';
 					$tar = new Archive_Tar($info['tmp_name']);
 					$tar->extract(SQ_DATA_PATH.'/private/maps/downloaded_patches');
 				}
 			} else {
-				trigger_error('The uploaded file did not appear to be a valid patch', E_USER_WARNING);
+				trigger_localised_error('MAPS0009', E_USER_WARNING);
 			}
 		}
 
@@ -401,11 +401,11 @@ class Maps extends MySource_Object
 				if ($this->_deletePatch($patchid)) {
 					$deleted[$patchid] = 1;
 				} else {
-					trigger_error("Deletion of patch $patchid failed.", E_USER_WARNING);
+					trigger_localised_error('MAPS0008', E_USER_WARNING, $patchid);
 				}
 			}
 		}
-		
+
 		// install new patches
 		if (isset($_POST['maps_install_patch'])) {
 			foreach ($_POST['maps_install_patch'] as $patchid => $on) {
@@ -424,11 +424,11 @@ class Maps extends MySource_Object
 				if ($this->_retirePatch($patchid)) {
 					$deleted[$patchid] = 1;
 				} else {
-					trigger_error("Retiring of patch $patchid failed.", E_USER_WARNING);
+					trigger_localised_error('MAPS0007', E_USER_WARNING, $patchid);
 				}
 			}
 		}
-		
+
 		// uninstall patches
 		if (isset($_POST['maps_uninstall_patch'])) {
 			foreach ($_POST['maps_uninstall_patch'] as $patchid => $on) {
@@ -441,7 +441,7 @@ class Maps extends MySource_Object
 		if (!empty($url)) $o->setRedirect($url);
 
 	}//end processPatches()
-	
+
 
 	/**
 	* Paint a list of active locks
@@ -460,9 +460,7 @@ class Maps extends MySource_Object
 				ORDER BY expires DESC';
 
 		$db_locks = $db->getAll($sql);
-		if (DB::isError($db_locks)) {
-			trigger_error($db_locks->getMessage().'<br />'.$db_locks->getUserInfo(), E_USER_ERROR);
-		}
+		assert_valid_db_result($db_locks);
 
 
 		if (empty($db_locks)) {
@@ -590,7 +588,7 @@ class Maps extends MySource_Object
 	* Deletes an uploaded MAPs patch from the data/private/maps/available_patches
 	* directory.
 	*
-	* Checks if the patch is installed by querying the db. 
+	* Checks if the patch is installed by querying the db.
 	* If not, will delete its directory from the data/private/maps directory.
 	*
 	* @param 	string		$patchid	The id of the patch to be deleted.
@@ -604,35 +602,34 @@ class Maps extends MySource_Object
 		$sql = 'SELECT patchid, installed
 				FROM sq_patches WHERE patchid='.$db->quote($patchid);
 		$db_patches = $db->getOne($sql);
-		
-		if (DB::isError($db_patches)) {
-			trigger_error($db_patches->getMessage().'<br/>'.$db_patches->getUserInfo(), E_USER_WARNING);
+
+		if (!assert_valid_db_result($db_patches, '', false, false)) {
 			return false;
 		}
-		
+
 		if (strlen($db_patches)) {
-			trigger_error('You cannot delete an installed patch', E_USER_WARNING);
+			trigger_localised_error('MAPS0006', E_USER_WARNING, $patchid);
 			return false;
 		}
-		
+
 		// Just get the patch path and delete it.
 		$patch_path = SQ_DATA_PATH.'/private/maps/downloaded_patches/'.$patchid;
-		
+
 		if (!is_dir($patch_path)) {
-			trigger_error("Could not find patch path $patch_path", E_USER_WARNING);
+			trigger_localised_error('MAPS0004', E_USER_WARNING, $patch_path);
 		}
 
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-		
+
 		// Okay, now remove the directory
 		if (!delete_directory($patch_path)) {
-			trigger_error("Patch $patch_path could not be deleted.", E_USER_WARNING);
+			trigger_localised_error('MAPS0005', E_USER_WARNING, $patch_path);
 		}
-		
+
 		return true;
 	}//end _deletePatch
-	
-	
+
+
 	/**
 	* Retires a patch from the system
 	*
@@ -647,45 +644,42 @@ class Maps extends MySource_Object
 	function _retirePatch($patchid)
 	{
 		$backup_path = SQ_DATA_PATH.'/private/maps/installed_patches/'.$patchid;
-		
+
 		// Check if the patch is in the database.
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'SELECT patchid, installed
 				FROM sq_patches WHERE patchid='.$db->quote($patchid);
 		$db_patches = $db->getOne($sql);
-		
-		if (DB::isError($db_patches)) {
-			trigger_error($db_patches->getMessage().'<br/>'.$db_patches->getUserInfo(), E_USER_WARNING);
+
+		if (!assert_valid_db_result($db_patches, '', false, false)) {
 			return false;
 		}
-		
-		
+
+
 		if (!strlen($db_patches)) {
-			trigger_error("Could not find patch $patchid in the database.", E_USER_WARNING);
+			trigger_localised_error('MAPS0004', E_USER_WARNING, $patchid);
 			// Just because it wasn't found, doesn't mean you shouldn't continue to delete the rest of it
 		}
-		
-		
+
+
 		$sql = 'DELETE FROM sq_patches WHERE patchid = '.$db->quote($patchid);
 		$result = $db->query($sql);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-			// dont actually die because we cant exactly abort at this point
-			// we'll sort it out later another way
-		}
-		
+		assert_valid_db_result($result, '', false, false);
+		// dont actually die because we cant exactly abort at this point
+		// we'll sort it out later another way
+
 		// remove the backup directory for this patch because we dont need that any more
 		require_once(SQ_FUDGE_PATH.'/general/file_system.inc');
 		if (!delete_directory($backup_path)) {
-			trigger_error('Unable to delete patch backup directory "'.$backup_path.'" - continuing', E_USER_WARNING);
+			trigger_localised_error('MAPS0002', E_USER_WARNING, $backup_path);
 			// dont actually die because we cant exactly abort at this point
 			// we'll sort it out later another way
 		}
-				
+
 		return $this->_deletePatch($patchid);
 	}
-	
-	
+
+
 	/**
 	* Get details about a specific patch
 	*
@@ -703,11 +697,11 @@ class Maps extends MySource_Object
 		require_once 'XML/Tree.php';
 
 		$patch_file = SQ_DATA_PATH.'/private/maps/downloaded_patches/'.$patchid.'/patch'.$patchid.'.xml';
-		
+
 		$input = new XML_Tree($patch_file);
 		$root  = &$input->getTreeFromFile();
 		if (PEAR::isError($root)) {
-			trigger_error('Unable to Read File : '.$patch_file."\n".$root->getMessage()."\n".$root->getUserInfo(), E_USER_WARNING);
+			trigger_localised_error('MAPS0001', E_USER_WARNING, $patch_file, $root->getMessage(), $root->getUserInfo());
 			return;
 		}
 

@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_user_ip_edit_fns.inc,v 1.2 2005/04/04 06:47:19 lwright Exp $
+* $Id: condition_user_ip_edit_fns.inc,v 1.3 2005/04/15 00:37:26 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition_edit_f
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -52,8 +52,8 @@ class Condition_User_IP_Edit_Fns extends Condition_Edit_Fns
 		$this->Condition_Edit_Fns();
 
 	}//end constructor
-	
-	
+
+
 	/**
 	* Paint the backend editing interface for this condition
 	*
@@ -63,7 +63,7 @@ class Condition_User_IP_Edit_Fns extends Condition_Edit_Fns
 	function paintEditInterface(&$asset, &$o, $prefix, &$restriction, $write_access)
 	{
 		$options = $asset->getOptions();
-		
+
 		if (!$write_access) {
 			$o->openField('Condition Details');
 			echo 'User IP '.strtolower($options[$restriction['match']]).' pattern "'.$restriction['condition_data']['user_ip'].'"';
@@ -72,21 +72,21 @@ class Condition_User_IP_Edit_Fns extends Condition_Edit_Fns
 			$o->openField('Match Condition');
 			combo_box($prefix.'[match]', $options, false, $restriction['match']);
 			$o->closeField();
-		
+
 			$o->openField('Compare to IP');
 			text_box($prefix.'[compare]', array_get_index($restriction['condition_data'], 'user_ip', ''), 30);
 			$o->closeField();
 		}
 		$o->sectionNote('Insert an IP address in the Compare box. You can use an asterisk ("*") in place of a number to match all possible numbers within that octet.');
 		return true;
-		
+
 	}//end paintEditInterface()
 
-	
+
 	/**
 	* Process the backend editing interface for this condition
 	*
-	* @return Array 
+	* @return Array
 	* @access public
 	*/
 	function processEditInterface(&$asset, &$o, $prefix, &$restriction, $write_access)
@@ -100,9 +100,9 @@ class Condition_User_IP_Edit_Fns extends Condition_Edit_Fns
 			),
 				'match' => $_POST[$prefix]['match'],
 		);
-		
+
 		return $results;
-		
+
 	}//end processEditInterface()
 
 

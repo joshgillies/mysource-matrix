@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.34 2005/04/14 12:33:38 gnoel Exp $
+* $Id: image.inc,v 1.35 2005/04/15 00:37:25 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -129,7 +129,7 @@ class Image extends File
 		$ext = get_file_type($info['filename']);
 		if (!in_array($ext, $this->allowed_extensions)) {
 			$edit_fns = $this->getEditFns();
-			trigger_error('Uploaded file is not an image. Image files must be of type '.$edit_fns->_getExtensionString($this->allowed_extensions, 'or').'. The uploaded file is of type "'.strtoupper($ext).'"', E_USER_WARNING);
+			trigger_localised_error("CORE0107", E_USER_WARNING, $edit_fns->_getExtensionString($this->allowed_extensions, 'or'), strtoupper($ext));
 			return false;
 		}
 		return true;
@@ -279,7 +279,7 @@ class Image extends File
 	function saveVariety($variety, $recreate_image=true, $save_attrs=true)
 	{
 		if (!$this->writeAccess('attributes')) {
-			trigger_error('Permission denied to add an Image Variety to "'.$this->name.'" (#'.$this->id.')', E_USER_WARNING);
+			trigger_localised_error("CORE0069", E_USER_WARNING, $this->name, $this->id);
 			return false;
 
 		}
@@ -287,7 +287,7 @@ class Image extends File
 		// use attr() instead of just ->name because if the variety hasn't been created yet it won't have a name
 		$name = $variety->attr('name');
 		if (trim($name) == '') {
-			trigger_error('Unable to save variety. It must have a name', E_USER_WARNING);
+			trigger_localised_error("CORE0100", E_USER_WARNING);
 			return false;
 
 		}
@@ -298,19 +298,19 @@ class Image extends File
 		if ($variety->id) {
 			list($assetid, $varietyid) = explode(':', $variety->id, 2);
 			if ($assetid != $this->id) {
-				trigger_error('Unable to save variety. It belongs to another asset', E_USER_WARNING);
+				trigger_localised_error("CORE0099", E_USER_WARNING);
 				return false;
 
 			}
 
 			if (isset($varieties['data'][$varietyid])) {
 				if ($varieties['data'][$varietyid]['name'] != $name) {
-					trigger_error('Unable to save variety. A variety with the id "'.$varietyid.'" already exists, but it has a different name', E_USER_WARNING);
+					trigger_localised_error("CORE0097", E_USER_WARNING, $varietyid);
 					return false;
 
 				}
 			} else {
-				trigger_error('Unable to save variety. A variety with the id "'.$varietyid.'" does not exist already exist in "'.$this->name.'" #'.$this->id, E_USER_WARNING);
+				trigger_localised_error("CORE0098", E_USER_WARNING, $varietyid, $this->name, $this->id);
 				return false;
 
 			}
@@ -382,14 +382,14 @@ class Image extends File
 	function deleteVariety($varietyid)
 	{
 		if (!$this->writeAccess('attributes')) {
-			trigger_error('Permission denied to delete an Image Variety to "'.$this->name.'" (#'.$this->id.')', E_USER_WARNING);
+			trigger_localised_error("CORE0070", E_USER_WARNING, $this->name, $this->id);
 			return false;
 		}
 
 		if (strpos($varietyid, ':') !== false) {
 			list($assetid, $varietyid) = explode(':', $varietyid, 2);
 			if ($assetid != $this->id) {
-				trigger_error('Unable to delete variety. It belongs to another asset', E_USER_WARNING);
+				trigger_localised_error("CORE088", E_USER_WARNING);
 				return false;
 			}
 		}
@@ -408,7 +408,7 @@ class Image extends File
 		$varieties = $this->attr('varieties');
 
 		if (!isset($varieties['data'][$varietyid])) {
-			trigger_error('Unable to delete variety "'.$varietyid.'" it does not exist', E_USER_WARNING);
+			trigger_localised_error("CORE87", $varietyid, E_USER_WARNING);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
@@ -527,7 +527,7 @@ class Image extends File
 			$varieties = $this->attr('varieties');
 
 			if (!isset($varieties['data'][$shadowid])) {
-				trigger_error('Shadow Asset #'.$this->id.':'.$shadowid.' not known', E_USER_WARNING);
+				trigger_localised_error("CORE0073", E_USER_WARNING, $this->id, $shadowid);
 				return $asset;
 			}
 
@@ -595,7 +595,7 @@ class Image extends File
 				if ($this->id == $assetid) {
 					if ($side_of_link == 'minor') {
 						// should never happen...but anyway
-						trigger_error('Unable to get the links from the minor side to the major side when the assetid is not a shadow assets id', E_USER_ERROR);
+						trigger_localised_error("CORE0089", E_USER_ERROR);
 
 					} else {
 						$i = 0;
@@ -622,7 +622,7 @@ class Image extends File
 					// if we are looking up the tree all we can see is this image asset
 					if ($side_of_link == 'minor') {
 						if (!isset($varieties['data'][$assetid])) {
-							trigger_error('Shadow asset #'.$assetid.' is not known to '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').' Asset #'.$this->id, E_USER_WARNING);
+							trigger_localised_error("CORE0074", E_USER_WARNING, $assetid, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'), $this->id);
 							return Array();
 
 						} else {
@@ -733,7 +733,7 @@ class Image extends File
 	{
 		if ($assetid == $this->id || (string) $assetid{0} != 'v') {
 			// should never happen...but anyway
-			trigger_error('Unable to get the parents when the assetid is not a shadow assets id', E_USER_ERROR);
+			trigger_localised_error("CORE0090", E_USER_ERROR);
 		}
 
 		$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, $type_code, $strict_type_code);

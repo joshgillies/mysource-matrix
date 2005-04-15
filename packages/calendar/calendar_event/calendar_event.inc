@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.43 2005/04/06 23:09:32 mmcintyre Exp $
+* $Id: calendar_event.inc,v 1.44 2005/04/15 00:37:40 lwright Exp $
 *
 */
 
@@ -37,7 +37,7 @@ require_once dirname(__FILE__).'/../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.44 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -74,7 +74,7 @@ class Calendar_Event extends Asset
 
 		$name = $this->attr('name');
 		if ($name == '') {
-			trigger_error('Unable to create a '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').' with a blank name', E_USER_WARNING);
+			trigger_localised_error('CAL0008', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
 			return false;
 		}
 
@@ -120,7 +120,7 @@ class Calendar_Event extends Asset
 					sq_cal_date_val
 				WHERE
 					 assetid = '.$db->quoteSmart($this->id);
-		
+
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
 
@@ -218,7 +218,7 @@ class Calendar_Event extends Asset
 
 	}//end getAssetKeywords()
 
-	
+
 	/**
 	* Get the link that users can click to delete this event
 	*
@@ -259,25 +259,25 @@ class Calendar_Event extends Asset
 
 		// All events must have a starting date at least!
 		if (!$start_has_date) {
-			trigger_error('Calendar Events must at least have a start date', E_USER_WARNING);
+			trigger_localised_error('CAL0009', E_USER_WARNING);
 			return false;
 		}
 
 		// cannot have End Date being like '---------- 11:00:00'
 		if (!$end_has_date && $end_has_time) {
-			trigger_error('If the \'End Date\' includes a time component it must also include a date', E_USER_WARNING);
+			trigger_localised_error('CAL0010', E_USER_WARNING);
 			return false;
 		}
 
 		// Cannot have an end time if you have no start time
 		if ($end_has_time && (!$start_has_time)) {
-			trigger_error('You have specified an end time but not a start time.  Please specify a start time.', E_USER_WARNING);
+			trigger_localised_error('CAL0011', E_USER_WARNING);
 			return false;
 		}
 
 		// Cannot have an end date and start time if you have no end time
 		if ($end_has_date && $start_has_time && (!$end_has_time)) {
-			trigger_error('You have specified an end date and a start time but no end time.  Please specify an end time.', E_USER_WARNING);
+			trigger_localised_error('CAL0012', E_USER_WARNING);
 			return false;
 		}
 
@@ -285,7 +285,7 @@ class Calendar_Event extends Asset
 		// the End Date must be no earlier than the start Date
 		if ($end_has_date) {
 			if (iso8601_ts($end_date) < iso8601_ts($start_date)) {
-				trigger_error('The \'End Date\' of this '.ucwords(str_replace('_',' ',$this->type())).' cannot be prior to the \'Start Date\'', E_USER_WARNING);
+				trigger_localised_error('CAL0013', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
 				return false;
 			}
 		}
@@ -302,19 +302,19 @@ class Calendar_Event extends Asset
 
 		// For dates, this means all three parts of the date have a value
 		if ($end_has_date && (($end_components['d'] == -1) || ($end_components['m'] == -1) || ($end_components['y'] == -1))) {
-			trigger_error('If the date component of \'End Date\' is specified it must specify all of day, month and year '.$end_date, E_USER_WARNING);
+			trigger_localised_error('CAL0014', E_USER_WARNING);
 			return false;
 		}
 
 		// For times, at least hour and minute must be specified. You can get away with not specifying
 		// seconds, it's optional.
 		if ($start_has_time && (($start_components['h'] == -1) || ($start_components['i'] == -1))) {
-			trigger_error('If the time component of \'Start Date\' is specified it must specify at least hour and minute', E_USER_WARNING);
+			trigger_localised_error('CAL0015', E_USER_WARNING);
 			return false;
 		}
 
 		if ($end_has_time && (($end_components['h'] == -1) || ($end_components['i'] == -1))) {
-			trigger_error('If the time component of \'End Date\' is specified it must specify at least hour and minute', E_USER_WARNING);
+			trigger_localised_error('CAL0016', E_USER_WARNING);
 			return false;
 		}
 
@@ -617,16 +617,16 @@ class Calendar_Event extends Asset
 				if (isset($_REQUEST['SQ_CALENDAR_OLD_LOC']) && !empty($_REQUEST['SQ_CALENDAR_OLD_LOC'])) {
 					$old_link = &$GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($_REQUEST['SQ_CALENDAR_OLD_LOC'], $this->id);
 					if (empty($old_link)) {
-						trigger_error('Cannot find old link from asset '.$_REQUEST['SQ_CALENDAR_OLD_LOC'].' to asset '.$this->id.', cannot move event', E_USER_WARNING);
+						trigger_localised_error('CAL0017', E_USER_WARNING, $_REQUEST['SQ_CALENDAR_OLD_LOC'], $this->id);
 						return '';
 					}
 					if (!$GLOBALS['SQ_SYSTEM']->am->moveLink($old_link['linkid'], $_REQUEST['SQ_CALENDAR_NEW_LOC'], $old_link['link_type'], -1)) {
-						trigger_error('Cannot move link, cannot move event', E_USER_WARNING);
+						trigger_localised_error('CAL0018', E_USER_WARNING, $_REQUEST['SQ_CALENDAR_OLD_LOC'], $_REQUEST['SQ_CALENDAR_NEW_LOC']);
 						return '';
 					}
 				}
 				if (!isset($_REQUEST['SQ_CALENDAR_DATE'])) {
-					trigger_error('Cannot move event: new date not specified', E_USER_WARNING);
+					trigger_localised_error('CAL0019', E_USER_WARNING);
 					return '';
 				}
 				$duration = $this->getDuration();
@@ -640,7 +640,7 @@ class Calendar_Event extends Asset
 					$this->setAttrValue('end_date', $new_end_date.' '.$new_end_time);
 				}
 				if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'attributes')) {
-					trigger_error('Could not acquire lock on asset '.$this->name.' to move it', E_USER_WARNING);
+					trigger_localised_error('CAL0020', E_USER_WARNING, $this->name, $this->id);
 					return '';
 				}
 				$this->saveAttributes();
@@ -652,7 +652,7 @@ class Calendar_Event extends Asset
 			break;
 
 			default:
-				trigger_error($action_name.' is an unknown action for this type of event', E_USER_WARNING);
+				trigger_localised_error('CAL0021', E_USER_WARNING, $action_name);
 				return '';
 			break;
 		}
@@ -699,12 +699,12 @@ class Calendar_Event extends Asset
 		if (!$updating) {
 			// set the asset ids
 			$date_values['assetid'] = $this->id;
-			
+
 			for (reset($date_values); null !== ($key = key($date_values)); next($date_values)) {
 				$date_values[$key] = $db->quoteSmart($date_values[$key]);
 			}
 			$val_string = implode(',', $date_values);
-			
+
 			$sql = 'INSERT INTO
 						sq_cal_date_val
 						(
@@ -714,7 +714,7 @@ class Calendar_Event extends Asset
 						(
 							'.$val_string.'
 						)';
-			
+
 			$result = $db->query($sql);
 			assert_valid_db_result($result);
 
@@ -723,7 +723,7 @@ class Calendar_Event extends Asset
 			$sql = 'UPDATE
 						sq_cal_date_val
 					SET ';
-				
+
 			$set_array = Array();
 			foreach ($date_values as $key => $value) {
 				$set_array[] = $key.' = '.((is_null($value)) ? 'null' : $db->quoteSmart($value));
@@ -737,7 +737,7 @@ class Calendar_Event extends Asset
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		
+
 		return true;
 
 	}//end cacheCalendarData()

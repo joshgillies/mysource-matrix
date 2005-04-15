@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_edit_fns.inc,v 1.55 2005/03/30 17:18:43 brobertson Exp $
+* $Id: file_edit_fns.inc,v 1.56 2005/04/15 00:37:25 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.55 $
+* @version $Revision: 1.56 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -159,7 +159,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 				if (is_null($parent)) continue;
 				$bad_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($parent, Array($name), $asset->id);
 				if (!empty($bad_paths)) {
-					trigger_error('Failed updating web path, file not uploaded. Path already exists?', E_USER_WARNING);
+					trigger_localised_error("CORE0055", E_USER_WARNING);
 					return false;
 				}
 			}
@@ -180,7 +180,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 			// files from the repository - just marks the branch as complete)
 			$result = $fv->remove($existing['path'], '', false);
 			if ($result != FUDGE_FV_OK && $result != FUDGE_FV_NOT_CHECKED_OUT) {
-				trigger_error('Failed removing file from repository', E_USER_WARNING);
+				trigger_localised_error("CORE0042", E_USER_WARNING);
 				return false;
 			}
 		}
@@ -189,17 +189,17 @@ class File_Edit_Fns extends Asset_Edit_Fns
 		if (is_uploaded_file($info['tmp_name'])) {
 			// a normal uploaded file
 			if (!move_uploaded_file($info['tmp_name'], $asset->data_path.'/'.$name)) {
-				trigger_error('Failed copying uploaded file ('.$info['tmp_name'].') to destination directory ('.$asset->data_path.'/'.$name.')', E_USER_WARNING);
+				trigger_localised_error("CORE0037", E_USER_WARNING, $info['tmp_name'], $asset->data_path.'/'.$name);
 				return false;
 			}
 		} else if (isset($info['non_uploaded_file']) && $info['non_uploaded_file'] === true) {
 			// we have special permission to move a non-uploaded file
 			if (!copy($info['tmp_name'], $asset->data_path.'/'.$name)) {
-				trigger_error('Failed copying non-uploaded file ('.$info['tmp_name'].') to destination directory ('.$asset->data_path.'/'.$name.')', E_USER_WARNING);
+				trigger_localised_error("CORE0036", E_USER_WARNING, $info['tmp_name'], $asset->data_path.'/'.$name);
 				return false;
 			}
 		} else {
-			trigger_error('No file uploaded or non-uploaded, unable to process file upload', E_USER_ERROR);
+			trigger_localised_error("CORE0067", E_USER_ERROR);
 			return false;
 		}
 
@@ -209,21 +209,21 @@ class File_Edit_Fns extends Asset_Edit_Fns
 			$file_status = $fv->upToDate($asset->data_path.'/'.$name);
 			if (FUDGE_FV_MODIFIED & $file_status) {
 				if (!$fv->commit($asset->data_path.'/'.$name, '', false)) {
-					trigger_error('Failed committing file version', E_USER_WARNING);
+					trigger_localised_error("CORE0034", E_USER_WARNING);
 					return false;
 				}
 			}
 		} else {
 			// attempt to add the file to the repository
 			if (!$fv->add($asset->data_path_suffix, $asset->data_path.'/'.$name, '', false)) {
-				trigger_error('Failed adding file version', E_USER_WARNING);
+				trigger_localised_error("CORE0026", E_USER_WARNING);
 				return false;
 			}
 		}
 
 		// make sure we have the latest version of our file
 		if (!$fv->checkOut($asset->data_path_suffix.'/'.$name, $asset->data_path)) {
-			trigger_error('Failed checking out latest version of file', E_USER_WARNING);
+			trigger_localised_error("CORE0032", E_USER_WARNING);
 			return false;
 		}
 
@@ -231,13 +231,13 @@ class File_Edit_Fns extends Asset_Edit_Fns
 		$asset->_tmp['uploading_file'] = true;
 		$name_changed = $asset->setAttrValue('name', $name);
 		if (!$asset->saveAttributes()) {
-			trigger_error('Failed saving attributes for file', E_USER_WARNING);
+			trigger_localised_error("CORE0052", E_USER_WARNING);
 			return false;
 		}
 		$asset->_tmp['uploading_file'] = false;
 
 		if (!$asset->saveWebPaths(Array($name))) {
-			trigger_error('Failed saving web paths', E_USER_WARNING);
+			trigger_localised_error("CORE0054", E_USER_WARNING);
 			return false;
 		}
 

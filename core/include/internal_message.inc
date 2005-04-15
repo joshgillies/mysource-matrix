@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: internal_message.inc,v 1.49 2005/04/11 04:50:11 mmcintyre Exp $
+* $Id: internal_message.inc,v 1.50 2005/04/15 00:37:28 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    An internal message to be sent around the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.49 $
+* @version $Revision: 1.50 $
 * @package MySource_Matrix
 */
 class Internal_Message extends MySource_Object
@@ -327,6 +327,7 @@ class Internal_Message extends MySource_Object
 					  );
 
 			$result = $db->execute($prepared, $values);
+
 			assert_valid_db_result($result);
 
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -579,17 +580,17 @@ class Internal_Message extends MySource_Object
 						switch ($type[1]) {
 							case 'linking' :
 								if (!isset($this->parameters['majorid'])) {
-									trigger_error('Failed sending internal message, no majorid specified (type: '.$this->type.')', E_USER_WARNING);
+									trigger_localised_error("SYS0168", E_USER_WARNING, $this->type);
 								} else if (!isset($this->parameters['minorid'])) {
-									trigger_error('Failed sending internal message, no minorid specified (type: '.$this->type.')', E_USER_WARNING);
+									trigger_localised_error("SYS0168", E_USER_WARNING, $this->type);
 								} else {
 									$major = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->parameters['majorid']);
 									if (is_null($major)) {
-										trigger_error('Failed sending internal message, invalid majorid ['.$this->parameters['majorid'].'] specified (type: '.$this->type.')', E_USER_WARNING);
+										trigger_localised_error("SYS0167", E_USER_WARNING, $this->parameters['majorid'], $this->type);
 									}
 									$minor = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->parameters['minorid']);
 									if (is_null($minor)) {
-										trigger_error('Failed sending internal message, invalid minorid ['.$this->parameters['minorid'].'] specified (type: '.$this->type.')', E_USER_WARNING);
+										trigger_localised_error("SYS0167", E_USER_WARNING, $this->parameters['minorid'], $this->type);
 									}
 								}
 							break(2);
@@ -604,12 +605,12 @@ class Internal_Message extends MySource_Object
 
 					if (!isset($this->parameters['assetid'])) {
 						// cant send an asset message if we dont know which asset is affected
-						trigger_error('Failed sending internal message, no assetid specified (type: '.$this->type.')', E_USER_WARNING);
+						trigger_localised_error("SYS0168", E_USER_WARNING, $this->type);
 					} else {
 						$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->parameters['assetid']);
 						if (is_null($asset)) {
 							// cant send an asset message if we dont know which asset is affected
-							trigger_error('Failed sending internal message, invalid assetid ['.$this->parameters['assetid'].'] specified (type: '.$this->type.')', E_USER_WARNING);
+							trigger_localised_error("SYS0167", E_USER_WARNING, $this->parameters['assetid'], $this->type);
 						}
 
 						$this->to += $GLOBALS['SQ_SYSTEM']->am->getPermission($asset->id, SQ_PERMISSION_ADMIN, true, false);

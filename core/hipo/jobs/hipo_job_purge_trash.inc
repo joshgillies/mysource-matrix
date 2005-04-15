@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_purge_trash.inc,v 1.24 2005/04/13 23:49:30 ndvries Exp $
+* $Id: hipo_job_purge_trash.inc,v 1.25 2005/04/15 00:37:27 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -319,13 +319,13 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 								} else {
 									$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['major_type_code']);
 									if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'links') || !$GLOBALS['SQ_SYSTEM']->am->acquireLock($parent->id, 'links')) {
-										trigger_error('Purge aborted, unable to lock the links of either "'.$asset->name.'" or its parent "'.$parent->name.'"', E_USER_WARNING);
+										trigger_localised_error('HIPO0007', E_USER_WARNING, $asset->name, $parent->name);
 										$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 										return false;
 									}
 
 									if (!$parent->deleteLink($link_info['linkid'])) {
-										trigger_error('Purge aborted, unable to delete link '.$link_info['linkid'].' between "'.$parent->name.'" and "'.$asset->name.'"', E_USER_WARNING);
+										trigger_localised_error('HIPO0006', E_USER_WARNING, $link_info['linkid'], $parent->name, $asset->name);
 
 										$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'links');
 										$GLOBALS['SQ_SYSTEM']->am->releaseLock($parent->id, 'links');
@@ -344,20 +344,20 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 								// we have an asset ready to delete, but we need to check with
 								// the asset manager that we are allowed to delete it
 								if (!$GLOBALS['SQ_SYSTEM']->am->canPurgeAsset($asset)) {
-									trigger_error('Purge aborted, unable to delete "'.$asset->name.'" ['.$asset->id.']', E_USER_WARNING);
+									trigger_localised_error('HIPO0004', E_USER_WARNING, $asset->name, $asset->id);
 									$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 									return false;
 								}
 
 								if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->_running_vars['trash_id'], 'all') || !$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'all', $this->_running_vars['trash_id'])) {
-									trigger_error('Purge aborted, unable to lock the asset "'.$asset->name.'"', E_USER_WARNING);
+									trigger_localised_error('HIPO0005', E_USER_WARNING, $asset->name, $asset->id);
 									$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 									return false;
 								}
 
 								// this is the last link for this asset, so lets delete it for good
 								if (!$asset->delete(false)) {
-									trigger_error('Purge aborted, unable to delete "'.$asset->name.'" ['.$asset->id.']', E_USER_WARNING);
+									trigger_localised_error('HIPO0004', E_USER_WARNING, $asset->name, $asset->id);
 									$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'all');
 									$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 									return false;

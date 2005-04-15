@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_lineage.inc,v 1.15 2005/04/14 04:30:24 rhoward Exp $
+* $Id: cron_job_future_lineage.inc,v 1.16 2005/04/15 00:37:26 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -68,14 +68,14 @@ class Cron_Job_Future_Lineage extends Cron_Job
 
 		if (!empty($this->_tmp['asset_in_link'])) {
 			if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'links')) {
-				trigger_error('Could not create future lineage cron job, unable to aquire "links" lock', E_USER_WARNING);
+				trigger_localised_error("CRON0018", E_USER_WARNING);
 				return false;
 			}
 
 			foreach ($this->_tmp['asset_in_link'] as $side_of_link => $link) {
 				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 				if (is_null($asset) || !$this->setAssetInLink($asset, $side_of_link)) {
-					trigger_error('Could not create future lineage cron job, could not set asset in link', E_USER_WARNING);
+					trigger_localised_error("CRON0017", E_USER_WARNING);
 					return false;
 				}
 			}
@@ -160,7 +160,7 @@ class Cron_Job_Future_Lineage extends Cron_Job
 	function setAttrValue($name, $value)
 	{
 		if ($name == 'type') {
-			trigger_error('You can\'t set the type of a future lineage cron job it can only be a one off event', E_USER_NOTICE);
+			trigger_localised_error("CRON0039", E_USER_NOTICE);
 			return false;
 		}//end if
 
@@ -181,12 +181,12 @@ class Cron_Job_Future_Lineage extends Cron_Job
 	function setAssetInLink(&$asset, $side_of_link)
 	{
 		if ($side_of_link != 'major' && $side_of_link != 'minor') {
-			trigger_error('Unknown Side of Link "'.$side_of_link.'"', E_USER_WARNING);
+			trigger_localised_error("CRON0033", E_USER_WARNING, $side_of_link);
 			return false;
 		}
 
 		if (!is_a($asset, 'asset')) {
-			trigger_error('Unable to set asset to update, the asset must be a asset object', E_asset_WARNING);
+			trigger_localised_error("CRON0030", E_USER_WARNING);
 			return false;
 		}
 
@@ -215,7 +215,7 @@ class Cron_Job_Future_Lineage extends Cron_Job
 	{
 		$null = null; // because we need to return by ref
 		if ($side_of_link != 'major' && $side_of_link != 'minor') {
-			trigger_error('Unknown Side of Link "'.$side_of_link.'"', E_USER_WARNING);
+			trigger_localised_error("CRON0033", E_USER_WARNING, $side_of_link);
 			return $null;
 		}
 
@@ -289,7 +289,7 @@ class Cron_Job_Future_Lineage extends Cron_Job
 
 		$minor = &$this->getAssetInLink('minor');
 		if (is_null($minor)) {
-			trigger_error('Couldn\'t find Minor Asset to use to update the lineage', E_USER_WARNING);
+			trigger_localised_error("CRON0019", E_USER_WARNING);
 			return $failed_ret_val;
 		}
 
@@ -305,7 +305,7 @@ class Cron_Job_Future_Lineage extends Cron_Job
 			}
 
 			if (!$delete_ok) {
-				trigger_error('Delete of Link # '.$this->attr('delete_linkid').' Failed', E_USER_WARNING);
+				trigger_localised_error("CRON0007", E_USER_WARNING, $this->attr('delete_linkid'));
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return $failed_ret_val;
 			}
@@ -340,7 +340,7 @@ class Cron_Job_Future_Lineage extends Cron_Job
 			$create_ok = ($linkid > 0);
 
 			if (!$create_ok) {
-				trigger_error('Create of New Link under '.$new_major->name.' (#'.$new_major->id.') Failed', E_USER_WARNING);
+				trigger_localised_error("CRON0004", E_USER_WARNING, $new_major->name, $new_major->id);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return $failed_ret_val;
 			}
@@ -351,7 +351,7 @@ class Cron_Job_Future_Lineage extends Cron_Job
 		$vars = Array('assetids' => Array($minor->id));
 		$lookup_errors = $hh->freestyleHipo('hipo_job_update_lookups', $vars);
 		if (!empty($lookup_errors)) {
-			trigger_error('Future Lineage of "'.$minor->name.'" (#'.$minor->id.') failed updating lookups', E_USER_WARNING);
+			trigger_localised_error("CRON0008", E_USER_WARNING, $minor->name, $minor->id);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return $failed_ret_val;
 		}

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.87 2005/04/13 06:22:50 ndvries Exp $
+* $Id: design.inc,v 1.88 2005/04/15 00:37:24 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.87 $
+* @version $Revision: 1.88 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -130,7 +130,7 @@ class Design extends Design_Area
 	*/
 	function moveLinkPos($linkid, $sort_order=-1)
 	{
-		trigger_error('Links under Designs are system controlled and therefore cannot be moved', E_USER_WARNING);
+		trigger_localised_error("CORE0168", E_USER_WARNING);
 		return false;
 
 	}//end moveLinkPos()
@@ -236,7 +236,7 @@ class Design extends Design_Area
 
 				if ($insert_link) {
 					if (!$customisation->createLink($minor, SQ_LINK_TYPE_3, '', null, 1)) {
-						trigger_error('Failed creating file link to customisation', E_USER_WARNING);
+						trigger_localised_error("CORE0162", E_USER_WARNING);
 						$am->forgetAsset($customisation);
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						return false;
@@ -268,7 +268,7 @@ class Design extends Design_Area
 		// first, we should try and find the link
 		$delete_link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid, $this->id);
 		if (empty($delete_link)) {
-			trigger_error('Existing Link #'.$linkid.' not found, unable to delete link', E_USER_WARNING);
+			trigger_localised_error("CORE0155", E_USER_WARNING, $linkid);
 			return false;
 		}
 
@@ -292,7 +292,7 @@ class Design extends Design_Area
 					if ($link['minorid'] == $delete_link['minorid']) {
 						// found the link to delete
 						if (!$customisation->deleteLink($link['linkid'])) {
-							trigger_error('Failed deleting file link from customisation', E_USER_WARNING);
+							trigger_localised_error("CORE1065", E_USER_WARNING);
 							$am->forgetAsset($customisation);
 							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 							return false;

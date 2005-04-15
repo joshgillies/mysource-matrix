@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.178 2005/04/06 23:05:34 mmcintyre Exp $
+* $Id: asset_map.inc,v 1.179 2005/04/15 00:37:29 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.178 $
+* @version $Revision: 1.179 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -195,22 +195,33 @@ class Asset_Map
 	function _send($output)
 	{
 		header("Content-Type: text/xml");
+		error_log(var_export($output, true));
 		$output->dump();
 
 	}//end _send()
 
 
 	/**
-	* Creates and error message, and returns it to the Flash
+	* Creates and error message, and returns it to the asset map
 	*
-	* @param string $msg	the error message
+	* @param string $code	the error code
 	*
 	* @access private
 	*/
-	function _error($msg)
+	function _error($code)
 	{
+		// if second parameter is an array, use that as our list of params
+		// otherwise, everything after 1st param is our list of params that we
+		// will pump into the error, sprintf() style
+		if (func_num_args() == 1) {
+			$func_args = Array();
+		} else if (!is_array($func_args = func_get_arg(1))) {
+			$func_args = func_get_args();
+			$func_args = array_slice($func_args,1);
+		}
+
 		$output = new XML_Tree();
-		$root = &$output->addRoot('error', $msg);
+		$root = &$output->addRoot('error', $GLOBALS['SQ_SYSTEM']->lm->getErrorMessage($code, $func_args));
 		$this->_send($output);
 
 	}//end _error()
@@ -233,12 +244,12 @@ class Asset_Map
 		$input = new XML_Tree('php://input');
 		$root  = &$input->getTreeFromFile();
 		if (PEAR::isError($root)) {
-			$this->_error($root->getMessage()."\n".$root->getUserInfo());
+			$this->_error('AMAP0001', $root->getMessage(), $root->getUserInfo());
 			return;
 		}
 
 		if ($root->name != 'command' || empty($root->attributes['action'])) {
-			$this->_error('No action was defined, or the root node is not "command"');
+			$this->_error('AMAP0002');
 			return;
 		}
 
@@ -262,7 +273,7 @@ class Asset_Map
 				$this->_newLinks($input);
 			break;
 			default :
-				$this->_error('Action "'.$root->attributes['action'].'" not defined');
+				$this->_error('AMAP0003', $root->attributes['action']);
 				return;
 
 		}//end switch
@@ -329,7 +340,7 @@ class Asset_Map
 	* Returns an array of the asset's information to be used by the asset map
 	*
 	* @param string $assetid the assetid of the asset's wanted info
-	* 
+	*
 	* @return Array()
 	* @access private
 	*/
@@ -422,16 +433,16 @@ class Asset_Map
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 
 			$sql .= ' '.$where;
-			
+
 			$asset = $db->getRow($sql);
 			if (!assert_valid_db_result($asset, '', true, false)) {
-				return $this->_error('Could not load asset #'.$assetid.' '.$asset->getMessage());
+				return $this->_error('AMAP0004', $assetid, $asset->getMessage());
 			}
-			
+
 			// if the asset map did a request for an asset that no longer exists
 			// then return nothing
 			if (empty($asset)) return Array();
-			
+
 			if (!isset($asset['accessible'])) $asset['accessible'] = 0;
 			if (empty($asset['accessible']) || $asset['accessible'] < 1) $asset['accessible'] = 0;
 			if ($asset['accessible'] > 1) $asset['accessible'] = 1;
@@ -448,7 +459,7 @@ class Asset_Map
 
 				$num_kids = $db->getOne($sql.' '.$where);
 				if (!assert_valid_db_result($num_kids, '', true, false)) {
-					return $this->_error('Could not load asset #'.$assetid.' '.$asset->getMessage());
+					return $this->_error('AMAP0004', $assetid, $num_kids->getMessage());
 				}
 			}
 
@@ -553,7 +564,7 @@ class Asset_Map
 
 		$db_result = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_DEFAULT, true);
 		if (!assert_valid_db_result($db_result, '', true, false)) {
-			return $this->_error('Could not load child assets for assetid '.$assetid.' '.$db_result->getMessage());
+			return $this->_error('AMAP0005', $assetid, $db_result->getMessage());
 		}
 
 		// create the result array to be a single (assetid => asset_data)
@@ -576,7 +587,7 @@ class Asset_Map
 
 		$num_kids = $db->getAssoc($sql.' '.$where, false, Array(), DB_FETCHMODE_DEFAULT, false);
 		if (!assert_valid_db_result($num_kids, '', true, false)) {
-			return $this->_error('Could not load child assets for assetid '.$assetid.' '.$db_result->getMessage());
+			return $this->_error('AMAP0005', $assetid, $db_result->getMessage());
 		}
 
 
@@ -675,7 +686,7 @@ class Asset_Map
 	function _getAssets(&$input)
 	{
 		if (!count($input->root->children)) {
-			$this->_error('No assets were returned for loading');
+			$this->_error('AMAP0006');
 		}
 
 		$output = new XML_Tree();
@@ -719,24 +730,24 @@ class Asset_Map
 				$attr = $input->root->attributes;
 				$parent_assetid = rawurldecode($attr['parent_assetid']);
 				if (empty($parent_assetid) || !isset($attr['pos']) || empty($attr['type_code'])) {
-					$this->_error('Parent Asset Id, Relative Position and Asset Type need to be passed');
+					$this->_error('AMAP0007');
 					return;
 				}
 
 				$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parent_assetid, '', true);
 				if (is_null($parent)) {
-					$this->_error('Parent Asset #'.$parent_assetid.' not found');
+					$this->_error('AMAP0008', $parent_assetid);
 					return;
 				}
 
 				if ($GLOBALS['SQ_SYSTEM']->am->assetInTrash($parent_assetid, true)) {
-					$this->_error('Unable to Add Asset, new parent (Asset #"'.$attr['parent_assetid'].'") is in the trash');
+					$this->_error('AMAP0009', $attr['parent_assetid']);
 					return;
 				}
 
 				$trash_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
 				if ($trash_folder->id == $parent_assetid) {
-					$this->_error('Unable to Add Asset, unable add an asset to the trash');
+					$this->_error('AMAP0010');
 					return;
 				}
 
@@ -752,13 +763,13 @@ class Asset_Map
 				}
 
 				if (!$use_link_type) {
-					$this->_error($error_message);
+					$this->_error('AMAP0011', $error_message);
 					return;
 				}
 
 				// check for plain write access, don't check for lock because locking happens in Asset::create()
 				if (!$parent->writeAccess('')) {
-					$this->_error('Cannot create link, no write access found permission denied');
+					$this->_error('AMAP0012');
 					return;
 				}
 
@@ -776,13 +787,13 @@ class Asset_Map
 			break;
 
 			default :
-				$this->_error('URL Name "'.$input->root->attributes['name'].'" not defined');
+				$this->_error('AMAP0013', $input->root->attributes['name']);
 				return;
 
 		}//end switch
 
 		if (empty($link) || empty($frame)) {
-			$this->_error('Empty XML Attributes for getting URL from server');
+			$this->_error('AMAP0014');
 			return;
 		}
 
@@ -810,14 +821,14 @@ class Asset_Map
 
 		$old_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($input->root->attributes['from_parent_assetid']);
 		if (is_null($old_parent)) {
-			$this->_error('Unable to Move Asset, existing parent (Asset #"'.$input->root->attributes['from_parent_assetid'].'") not found');
+			$this->_error('AMAP0015', $input->root->attributes['from_parent_assetid']);
 			return;
 		}
 
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($input->root->attributes['linkid'], $old_parent->id);
 
 		if (empty($link)) {
-			$this->_error('Unable to Move Asset, Link #"'.$input->root->attributes['linkid'].'") not found');
+			$this->_error('AMAP0016', $input->root->attributes['linkid']);
 			return;
 		}
 
@@ -841,19 +852,19 @@ class Asset_Map
 
 			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($asset)) {
-				$this->_error('Unable to Move Asset, asset to be moved (Asset #"'.$link['minorid'].'") not found');
+				$this->_error('AMAP0017', $link['minorid']);
 				return;
 			}
 
 			// check if we are allowed to delete this link
 			if (($err_msg = $old_parent->isDeletableLink($link['linkid'])) !== true) {
-				$this->_error($err_msg);
+				$this->_error('AMAP0018', $err_msg);
 				return;
 			}
 
 			$new_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($input->root->attributes['to_parent_assetid']);
 			if (is_null($new_parent)) {
-				$this->_error('Unable to Move Asset, new parent (Asset #"'.$input->root->attributes['to_parent_assetid'].'") not found');
+				$this->_error('AMAP0019', $input->root->attributes['to_parent_assetid']);
 				return;
 			}
 
@@ -900,13 +911,13 @@ class Asset_Map
 
 		$old_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($input->root->attributes['from_parent_assetid']);
 		if (is_null($old_parent)) {
-			$this->_error('Unable to Clone Asset, existing parent (Asset #"'.$input->root->attributes['from_parent_assetid'].'") not found');
+			$this->_error('AMAP0020', $input->root->attributes['from_parent_assetid']);
 			return;
 		}
 
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($input->root->attributes['linkid'], $old_parent->id);
 		if (empty($link)) {
-			$this->_error('Unable to Clone Asset, Link #"'.$input->root->attributes['linkid'].'") not found');
+			$this->_error('AMAP0021', $input->root->attributes['linkid']);
 			return;
 		}
 
@@ -914,18 +925,18 @@ class Asset_Map
 
 		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 		if (is_null($asset)) {
-			$this->_error('Unable to Clone Asset, asset to be cloned (Asset #"'.$link['minorid'].'") not found');
+			$this->_error('AMAP0022', $link['minorid']);
 			return;
 		}
 
 		// check to see if the root asset chosen can be cloned
 		if (!$asset->canClone()) {
-			$this->_error('Unable to Clone Asset '.$asset->name.', Assets of type '.(ucwords(str_replace('_', ' ', $asset->type()))).' cannot be cloned');
+			$this->_error('AMAP0023', $asset->name, (ucwords(str_replace('_', ' ', $asset->type()))));
 		}
 
 		$new_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($input->root->attributes['to_parent_assetid']);
 		if (is_null($new_parent)) {
-			$this->_error('Unable to Clone Asset, new parent (Asset #"'.$input->root->attributes['to_parent_assetid'].'") not found');
+			$this->_error('AMAP0024', $input->root->attributes['to_parent_assetid']);
 			return;
 		}
 
@@ -967,31 +978,31 @@ class Asset_Map
 
 		$old_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($input->root->attributes['from_parent_assetid']);
 		if (is_null($old_parent)) {
-			$this->_error('Unable to Create New Link, existing parent (Asset #"'.$input->root->attributes['from_parent_assetid'].'") not found');
+			$this->_error('AMAP0025', $input->root->attributes['from_parent_assetid']);
 			return;
 		}
 
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($input->root->attributes['linkid'], $old_parent->id);
 		if (empty($link)) {
-			$this->_error('Unable to Create New Link, existing Link #"'.$input->root->attributes['linkid'].'") not found');
+			$this->_error('AMAP0026', $input->root->attributes['linkid']);
 			return;
 		}
 
 		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 		if (is_null($asset)) {
-			$this->_error('Unable to Create New Link, asset to be moved (Asset #"'.$link['minorid'].'") not found');
+			$this->_error('AMAP0027', $link['minorid']);
 			return;
 		}
 
 		$new_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($input->root->attributes['to_parent_assetid']);
 		if (is_null($new_parent)) {
-			$this->_error('Unable to Create New Link, new parent (Asset #"'.$input->root->attributes['to_parent_assetid'].'") not found');
+			$this->_error('AMAP0028', $input->root->attributes['to_parent_assetid']);
 			return;
 		}
 
 		$trash_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
 		if ($trash_folder->id == $input->root->attributes['to_parent_assetid']) {
-			$this->_error('Unable to Create New Link, cant create a new link to the trash');
+			$this->_error('AMAP0029');
 			return;
 		}
 
@@ -1042,7 +1053,7 @@ class Asset_Map
 		$new_parent_pos = $input->root->attributes['to_parent_pos'];
 
 		if (is_null($new_parent)) {
-			$this->_error('Unable to Move Asset, new parent (Asset #"'.$input->root->attributes['to_parent_assetid'].'") not found');
+			$this->_error('AMAP0030', $input->root->attributes['to_parent_assetid']);
 			return;
 		}
 
@@ -1055,22 +1066,22 @@ class Asset_Map
 			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($asset_node->attributes['linkid'], $old_parent->id);
 
 			if (is_null($old_parent)) {
-				$this->_error('Unable to Move Asset, existing parent (Asset #"'.$input->root->attributes['from_parent_assetid'].'") not found');
+				$this->_error('AMAP0031', $input->root->attributes['from_parent_assetid']);
 				return;
 			}
 
 			if (empty($link)) {
-				$this->_error('Unable to Move Asset, Link #"'.$link['linkid'].'") not found');
+				$this->_error('AMAP0032', $link['linkid']);
 				return;
 			}
 
 			if (($err_msg = $old_parent->isDeletableLink($link['linkid'])) !== true) {
-				$this->_error($err_msg);
+				$this->_error('AMAP0033', $err_msg);
 				return;
 			}
 
 			if (is_null($asset)) {
-				$this->_error('Unable to Move Asset, asset to be moved (Asset #"'.$link['minorid'].'") not found');
+				$this->_error('AMAP0034', $link['minorid']);
 				return;
 			}
 
@@ -1181,7 +1192,7 @@ class Asset_Map
 		$new_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($input->root->attributes['to_parent_assetid']);
 
 		if (is_null($new_parent)) {
-			$this->_error('Unable to Clone Asset, new parent (Asset #"'.$input->root->attributes['to_parent_assetid'].'") not found');
+			$this->_error('AMAP0035', $input->root->attributes['to_parent_assetid']);
 			return;
 		}
 
@@ -1191,23 +1202,23 @@ class Asset_Map
 			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($asset_node->attributes['linkid'], $old_parent->id);
 
 			if (is_null($old_parent)) {
-				$this->_error('Unable to Clone Asset, existing parent (Asset #"'.$asset_node->attributes['parentid'].'") not found');
+				$this->_error('AMAP0036', $asset_node->attributes['parentid']);
 				return;
 			}
 
 			if (empty($link)) {
-				$this->_error('Unable to Clone Asset, Link #"'.$asset_node->attributes['linkid'].'") not found');
+				$this->_error('AMAP0037', $asset_node->attributes['linkid']);
 				return;
 			}
 
 			if (is_null($asset)) {
-				$this->_error('Unable to Clone Asset, asset to be cloned (Asset #"'.$asset_node->attributes['assetid'].'") not found');
+				$this->_error('AMAP0038', $asset_node->attributes['assetid']);
 				return;
 			}
 
 			// check to see if the root asset chosen can be cloned
 			if (!$asset->canClone()) {
-				$this->_error('Unable to Clone Asset '.$asset->name.', Assets of type '.(ucwords(str_replace('_', ' ', $asset->type()))).' cannot be cloned');
+				$this->_error('AMAP0039', $asset->name, (ucwords(str_replace('_', ' ', $asset->type()))));
 				return;
 			}
 
@@ -1266,7 +1277,7 @@ class Asset_Map
 		$new_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($input->root->attributes['to_parent_assetid']);
 
 		if (is_null($new_parent)) {
-			$this->_error('Unable to Clone Asset, new parent (Asset #"'.$input->root->attributes['to_parent_assetid'].'") not found');
+			$this->_error('AMAP0040', $input->root->attributes['to_parent_assetid']);
 			return;
 		}
 
@@ -1278,17 +1289,17 @@ class Asset_Map
 			$trash_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
 
 			if (is_null($old_parent)) {
-				$this->_error('Unable to Create New Link, existing parent (Asset #"'.$asset_node->attributes['parentid'].'") not found');
+				$this->_error('AMAP0041', $asset_node->attributes['parentid']);
 				return;
 			}
 
 			if (empty($link)) {
-				$this->_error('Unable to Create New Link, Link #"'.$asset_node->attributes['linkid'].'") not found');
+				$this->_error('AMAP0042', $asset_node->attributes['linkid']);
 				return;
 			}
 
 			if ($trash_folder->id == $input->root->attributes['to_parent_assetid']) {
-				$this->_error('Unable to Create New Link, cant create a new link to the trash');
+				$this->_error('AMAP0043');
 				return;
 			}
 

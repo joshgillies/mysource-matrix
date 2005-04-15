@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: assertions.inc,v 1.12 2004/12/06 14:38:11 brobertson Exp $
+* $Id: assertions.inc,v 1.13 2005/04/15 00:37:27 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix
 */
 
@@ -476,7 +476,10 @@ function trigger_exception($msg, $silent=false, $fatal=false)
 	$file = $backtrace[1]['file'];
 	$error_type = ($fatal) ? E_USER_ERROR : E_USER_WARNING;
 
-	if (!$silent) trigger_error('[ASSERT EXCEPTION] '.$msg.' (LINE '.$line.' IN '.$file.')', $error_type);
+	if (!$silent) {
+		trigger_localised_error("SYS0270", $error_type, $msg, $line, $file);
+	}
+
 	if ($fatal) exit();
 
 }//end trigger_exception()

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_live.inc,v 1.24 2005/04/06 23:05:34 mmcintyre Exp $
+* $Id: asset_status_live.inc,v 1.25 2005/04/15 00:37:29 lwright Exp $
 *
 */
 
@@ -37,7 +37,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *    LIVE -> UNDER_CONSTRUCTION if the user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix
 */
 class Asset_Status_Live extends Asset_Status
@@ -146,7 +146,7 @@ class Asset_Status_Live extends Asset_Status
 					}
 
 					if (!$wfm->startWorkflow($this->owner->id, false, $msg)) {
-						trigger_error('Workflow failed to start for "'.$this->owner->name.'"', E_USER_WARNING);
+						trigger_localised_error("SYS0262", E_USER_WARNING, $this->owner->name);
 						return false;
 					}
 				}
@@ -175,7 +175,7 @@ class Asset_Status_Live extends Asset_Status
 			case SQ_STATUS_EDITING :
 				// we are safe editing
 				if (!$this->owner->saveSystemVersion()) {
-					trigger_error('Status change failed, could not save to cache', E_USER_WARNING);
+					trigger_localised_error("SYS0208", E_USER_WARNING);
 					return false;
 				}
 			break;

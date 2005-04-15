@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_login_form.inc,v 1.15 2005/04/11 05:19:41 arailean Exp $
+* $Id: design_area_login_form.inc,v 1.16 2005/04/15 00:37:24 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -58,7 +58,7 @@ class Design_Area_Login_Form extends Design_Area
 			case 'form_close' :
 			case 'submit_button' :
 				if ($this->_tmp['painting_section'] != 'login' && $this->_tmp['painting_section'] != 'logout') {
-					trigger_error('The "'.$var.'" var can only be printed inside the login or logout sections of the login_form design area "'.$this->attr('id_name').'"', E_USER_WARNING);
+					trigger_localised_error("CORE0178", E_USER_WARNING, $var, $this->attr('id_name'));
 					return false;
 				}
 				break;
@@ -67,7 +67,7 @@ class Design_Area_Login_Form extends Design_Area
 			case 'username_box' :
 			case 'password_box' :
 				if ($this->_tmp['painting_section'] != 'login') {
-					trigger_error('The "'.$var.'" var can only be printed inside the login section of the login_form design area "'.$this->attr('id_name').'"', E_USER_WARNING);
+					trigger_localised_error("CORE0179", E_USER_WARNING, $var, $this->attr('id_name'));
 					return false;
 				}
 				break;

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_install_patch.inc,v 1.10 2005/04/07 02:44:21 lwright Exp $
+* $Id: hipo_job_install_patch.inc,v 1.11 2005/04/15 00:37:33 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix
 * @subpackage MAPS
 */
@@ -430,13 +430,13 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 				$patch_info['requirements']['system']['new_version']) {
 				// if the current version is lower than the minimum required version
 				if (version_compare(SQ_SYSTEM_VERSION,$patch_info['requirements']['system']['old_version']) < 0) {
-					trigger_error('This patch can only be applied to version '.$patch_info['requirements']['system']['old_version'].' of the system (current version is '.SQ_SYSTEM_VERSION.')', E_USER_ERROR);
+					trigger_localised_error('MAPS0021', E_USER_ERROR, $patch_info['requirements']['system']['old_version'], SQ_SYSTEM_VERSION);
 					return false;
 				}
 			} else if ($patch_info['requirements']['system']['old_version'] != SQ_SYSTEM_VERSION) {
 				// the system version must be exactly equal to what is defined
 				// in the patch or else the patch is patching an untested system
-				trigger_error('This patch can only be applied to version '.$patch_info['requirements']['system']['old_version'].' of the system (current version is '.SQ_SYSTEM_VERSION.')', E_USER_ERROR);
+				trigger_localised_error('MAPS0021', E_USER_ERROR, $patch_info['requirements']['system']['old_version'], SQ_SYSTEM_VERSION);
 				return false;
 			}
 		}
@@ -453,14 +453,14 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 						require_once $package_path;
 						$package = new $package_class();
 
-						trigger_error('This patch can only be applied to a system without a current "'.strtoupper($package_code).'" package (current system has version '.$package->version.' installed)', E_USER_ERROR);
+						trigger_localised_error('MAPS0025', E_USER_ERROR, strtoupper($package_code), $package->version);
 						return false;
 					}
 				} else if ($versions['old_version'] == $versions['new_version']) {
 					// if the new and old versions are the same, make sure the
 					// package version is at least that of the required version.
 					if (!is_file($package_path)) {
-						trigger_error('This patch can only be applied to version '.$versions['old_version'].' of package "'.strtoupper($package_code).'", but it does not appear to be installed.', E_USER_ERROR);
+						trigger_localised_error('MAPS0022', E_USER_ERROR, $versions['old_version'], strtoupper($package_code));
 						return false;
 					}
 					require_once $package_path;
@@ -469,20 +469,20 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 					// if the current version is lower than the minimum required version
 					// then the requirement fails.
 					if (version_compare($package->version,$versions['old_version']) < 0) {
-						trigger_error('This patch can only be applied to version '.$patch_info['requirements']['system']['old_version'].' of the system (current version is '.SQ_SYSTEM_VERSION.')', E_USER_ERROR);
+						trigger_localised_error('MAPS0021', E_USER_ERROR, $patch_info['requirements']['system']['old_version'], SQ_SYSTEM_VERSION);
 						return false;
 					}
 
 				} else {
 					if (!is_file($package_path)) {
-						trigger_error('This patch can only be applied to version '.$versions['old_version'].' of package "'.strtoupper($package_code).'", but it does not appear to be installed.', E_USER_ERROR);
+						trigger_localised_error('MAPS0022', E_USER_ERROR, $versions['old_version'], strtoupper($package_code));
 						return false;
 					}
 					require_once $package_path;
 					$package = new $package_class();
 
 					if ($package->version != $versions['old_version']) {
-						trigger_error('This patch can only be applied to version '.$versions['old_version'].' of package "'.strtoupper($package_code).'" (current version is '.$package->version.')', E_USER_ERROR);
+						trigger_localised_error('MAPS0023', E_USER_ERROR, $versions['old_version'], strtoupper($package_code), $package->version);
 						return false;
 					}
 				}
@@ -495,7 +495,7 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 					// we are installing a new assset type, so a previous version should not be installed
 					if ($GLOBALS['SQ_SYSTEM']->am->installed($type_code)) {
 						$installed_version = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code, 'version');
-						trigger_error('This patch can only be applied to a system without a current "'.$type_code.'" asset type installed (current system has version '.$installed_version.' installed)', E_USER_ERROR);
+						trigger_localised_error('MAPS0026', E_USER_ERROR, $type_code, $installed_version);
 						return false;
 					}
 				} else if ($versions['old_version'] == $versions['new_version']) {
@@ -506,14 +506,14 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 					// if the current version is lower than the minimum required version
 					// then the requirement fails.
 					if (version_compare($installed_version,$versions['old_version']) < 0) {
-						trigger_error('This patch can only be applied to version '.$versions['old_version'].' of asset type "'.$type_code.'" (current version is '.$installed_version.')', E_USER_ERROR);
+						trigger_localised_error('MAPS0024', E_USER_ERROR, $versions['old_version'], $type_code, $installed_version);
 						return false;
 					}
 
 				} else {
 					$installed_version = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code, 'version');
 					if ($installed_version != $versions['old_version']) {
-						trigger_error('This patch can only be applied to version '.$versions['old_version'].' of asset type "'.$type_code.'" (current version is '.$installed_version.')', E_USER_ERROR);
+						trigger_localised_error('MAPS0024', E_USER_ERROR, $versions['old_version'], $type_code, $installed_version);
 						return false;
 					}
 				}
@@ -550,14 +550,14 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 
 				// this should be a directory
 				if (!is_dir($from)) {
-					trigger_error('Could not install new directory "'.$from.'" - directory does not exist in patch', E_USER_ERROR);
+					trigger_localised_error('MAPS0054', E_USER_ERROR, $from);
 					return false;
 				}
 
 				if (!$this->_running_vars['option_ignore_file_checks']) {
 					// check that the directory does not already exist in the system
 					if (is_dir($to)) {
-						trigger_error('Could not install new directory "'.$to.'" - a directory with the same name already exists in your MySource installation', E_USER_ERROR);
+						trigger_localised_error('MAPS0055', E_USER_ERROR, $to);
 						return false;
 					}
 				}
@@ -565,21 +565,21 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 			} else {
 				// this should be a regular file
 				if (!is_file($from)) {
-					trigger_error('Could not install new file "'.$from.'" - file does not exist in patch', E_USER_ERROR);
+					trigger_localised_error('MAPS0053', E_USER_ERROR, $from);
 					return false;
 				}
 
 				if (!$this->_running_vars['option_ignore_file_checks']) {
 					// check that there is no file already installed
 					if (is_file($to)) {
-						trigger_error('Could not install new file "'.$to.'" - a file with the same name already exists in your MySource installation', E_USER_ERROR);
+						trigger_localised_error('MAPS0052', E_USER_ERROR, $to);
 						return false;
 					}
 				}
 
 				// check the MD5 sum of the file to ensure it has not been changed since downloading
 				if ($file_info['md5'] != md5(file_get_contents($from))) {
-					trigger_error('Could not update file "'.$to.'" - MD5 strings did not match - downloded file may have been modified', E_USER_ERROR);
+					trigger_localised_error('MAPS0050', E_USER_ERROR, $to);
 					return false;
 				}
 
@@ -592,27 +592,27 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 			$from = $patch_path.'/'.$path;
 
 			if (!is_file($from)) {
-				trigger_error('Could not install update file "'.$from.'" - file does not exist in patch', E_USER_ERROR);
+				trigger_localised_error('MAPS0051', E_USER_ERROR, $from);
 				return false;
 			}
 
 			if (!$this->_running_vars['option_ignore_file_checks']) {
 				// make sure there is a file to replace
 				if (!is_file($to)) {
-					trigger_error('Could not update file "'.$to.'" - no file with that name exists in your MySource installation', E_USER_ERROR);
+					trigger_localised_error('MAPS0048', E_USER_ERROR, $to);
 					return false;
 				}
 
 				// check the MD5 sum of the file to ensure it has not been changed locally
 				if ($file_info['local_md5'] != md5(file_get_contents($to))) {
-					trigger_error('Could not update file "'.$to.'" - MD5 strings did not match - local file may have been modified', E_USER_ERROR);
+					trigger_localised_error('MAPS0049', E_USER_ERROR, $to);
 					return false;
 				}
 			}
 
 			// check the MD5 sum of the file to ensure it has not been changed since downloading
 			if ($file_info['md5'] != md5(file_get_contents($from))) {
-				trigger_error('Could not update file "'.$to.'" - MD5 strings did not match - downloded file may have been modified', E_USER_ERROR);
+				trigger_localised_error('MAPS0050', E_USER_ERROR, $to);
 				return false;
 			}
 		}
@@ -624,13 +624,13 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 			if (!$this->_running_vars['option_ignore_file_checks']) {
 				// make sure there is a file to delete
 				if (!is_file($from)) {
-					trigger_error('Could not delete file "'.$from.'" - no file with that name exists in your MySource installation', E_USER_ERROR);
+					trigger_localised_error('MAPS0056', E_USER_ERROR, $from);
 					return false;
 				}
 
 				// check the MD5 sum of the file to ensure it has not been changed locally
 				if ($file_info['local_md5'] != md5(file_get_contents($from))) {
-					trigger_error('Could not delete file "'.$from.'" - MD5 strings did not match - local file may have been modified', E_USER_ERROR);
+					trigger_localised_error('MAPS0057', E_USER_ERROR, $from);
 					return false;
 				}
 			}
@@ -664,7 +664,7 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 		// make the backup directory
 		require_once(SQ_FUDGE_PATH.'/general/file_system.inc');
 		if (!is_dir($backup_path) && !create_directory($backup_path)) {
-			trigger_error('Failed to create backup directory "'.$backup_path.'" for patch "'.$patch_info['id'].'" - upgrade aborted', E_USER_ERROR);
+			trigger_localised_error('MAPS0044', E_USER_ERROR, $backup_path, $patch_info['id']);
 			return false;
 		}
 
@@ -676,7 +676,7 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 			if (!empty($file_info['md5']) && is_file($to)) {
 				// try and create the backup directory for this file if it doesnt exist
 				if (!is_dir(dirname($to)) && !create_directory(dirname($to))) {
-					trigger_error('Failed to create backup directory "'.$path.'" for patch "'.$patch_info['id'].'" - upgrade aborted', E_USER_ERROR);
+					trigger_localised_error('MAPS0044', E_USER_ERROR, $path, $patch_info['id']);
 					return false;
 				}
 				// backup the existing file
@@ -693,7 +693,7 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 
 			// try and create the backup directory for this file if it doesnt exist
 			if (!is_dir(dirname($to)) && !create_directory(dirname($to))) {
-				trigger_error('Failed to create backup directory "'.$path.'" for patch "'.$patch_info['id'].'" - upgrade aborted', E_USER_ERROR);
+				trigger_localised_error('MAPS0044', E_USER_ERROR, $path, $patch_info['id']);
 				return false;
 			}
 
@@ -718,7 +718,7 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 
 			// try and create the backup directory for this file if it doesnt exist
 			if (!is_dir(dirname($to)) && !create_directory(dirname($to))) {
-				trigger_error('Failed to create backup directory "'.$path.'" for patch "'.$patch_info['id'].'" - upgrade aborted', E_USER_ERROR);
+				trigger_localised_error('MAPS0044', E_USER_ERROR, $path, $patch_info['id']);
 				return false;
 			}
 
@@ -734,10 +734,10 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 			if (!copy_file($from, $to)) {
 				if (!$this->_running_vars['option_ignore_file_checks']) {
-					trigger_error('Failed to backup file "'.$from.'" - upgrade aborted', E_USER_ERROR);
+					trigger_localised_error('MAPS0046', E_USER_ERROR, $from);
 					return false;
 				} else {
-					trigger_error('Failed to backup file "'.$from.'" - upgrade continuing');
+					trigger_localised_error('MAPS0045', E_USER_NOTICE, $from);
 				}
 			}
 		}
@@ -769,12 +769,12 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 
 			if (empty($file_info['md5'])) {
 				if (!mkdir($to)) {
-					trigger_error('Failed to install new directory "'.$path.'" - upgrade aborted', E_USER_ERROR);
+					trigger_localised_error('MAPS0042', E_USER_ERROR, $path);
 					return false;
 				}
 			} else {
 				if (!copy($from, $to)) {
-					trigger_error('Failed to install new file "'.$path.'" - upgrade aborted', E_USER_ERROR);
+					trigger_localised_error('MAPS0041', E_USER_ERROR, $path);
 					return false;
 				}
 			}
@@ -785,7 +785,7 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 			$from = $patch_path.'/'.$path;
 
 			if (!copy($from, $to)) {
-				trigger_error('Failed to update file "'.$path.'" - upgrade aborted', E_USER_ERROR);
+				trigger_localised_error('MAPS0028', E_USER_ERROR, $path);
 				return false;
 			}
 		}
@@ -800,7 +800,7 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 			}
 
 			if (!unlink($from)) {
-				trigger_error('Failed to delete file "'.$path.'" - upgrade aborted', E_USER_ERROR);
+				trigger_localised_error('MAPS0043', E_USER_ERROR, $path);
 				return false;
 			}
 		}
@@ -833,11 +833,7 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 			$query = str_replace('ROLLBACK_PREFIX_', SQ_TABLE_ROLLBACK_PREFIX, $query);
 
 			$result = $db->query($query);
-			if (DB::isError($result)) {
-				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
-			}
+			assert_valid_db_result($result);
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -906,9 +902,7 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 				';
 
 		$result = $db->query($sql);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
-		}
+		assert_valid_db_result($result);
 
 		$step_data['percent_done'] = 100;
 		$step_data['complete']     = true;

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css_customisation.inc,v 1.5 2005/01/14 01:00:43 tbarrett Exp $
+* $Id: design_css_customisation.inc,v 1.6 2005/04/15 00:37:24 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_css/design_css.inc';
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -81,7 +81,7 @@ class Design_Css_Customisation extends Design_Css
 		// first, we should try and find the link
 		$delete_link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid, $this->id);
 		if (empty($delete_link)) {
-			trigger_error('Existing Link #'.$linkid.' not found, unable to delete link', E_USER_WARNING);
+			trigger_localised_error("CORE0155", E_USER_WARNING, $linkid);
 			return false;
 		}
 
@@ -111,7 +111,7 @@ class Design_Css_Customisation extends Design_Css
 					// found the link to create
 					$new_minor = &$am->getAsset($info['assetid']);
 					if (!$this->createLink($new_minor, SQ_LINK_TYPE_3, '', null, '1')) {
-						trigger_error('Failed creating file link to customisation', E_USER_WARNING);
+						trigger_localised_error("CORE0162", E_USER_WARNING);
 						$am->forgetAsset($design);
 						$am->forgetAsset($new_minor);
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -147,7 +147,7 @@ class Design_Css_Customisation extends Design_Css
 		// first, we should try and find the link
 		$delete_link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid, $this->id);
 		if (empty($delete_link)) {
-			trigger_error('Existing Link #'.$linkid.' not found, unable to delete link', E_USER_WARNING);
+			trigger_localised_error("CORE0155", E_USER_WARNING, $linkid);
 			return false;
 		}
 

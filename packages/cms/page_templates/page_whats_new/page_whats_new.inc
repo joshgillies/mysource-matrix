@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_whats_new.inc,v 1.14 2005/04/07 06:40:38 mmcintyre Exp $
+* $Id: page_whats_new.inc,v 1.15 2005/04/15 00:37:47 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../page_templates/page_asset_listing/page_as
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -80,7 +80,7 @@ class Page_Whats_New extends Page_Asset_Listing
 		// if there are no types to list, we cant list anything
 		$wanted_types = $this->attr('types');
 		if (empty($wanted_types)) {
-			trigger_error('No type settings have been configured for this page - no assets will be listed', E_USER_NOTICE);
+			trigger_localised_error('CMS0010', E_USER_NOTICE);
 			return Array();
 		}
 
@@ -149,7 +149,7 @@ class Page_Whats_New extends Page_Asset_Listing
 
 		// if there are no date conditions - we dont display anything
 		if (empty($where)) {
-			trigger_error('No date settings have been configured for this page - no assets will be listed', E_USER_NOTICE);
+			trigger_localised_error('CMS0011', E_USER_NOTICE);
 			return Array();
 		}
 

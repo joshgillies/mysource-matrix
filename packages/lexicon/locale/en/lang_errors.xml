@@ -1,0 +1,55 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Open Source Licence                                      |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_errors.xml,v 1.1 2005/04/15 00:37:56 lwright Exp $
+*
+*/
+
+	Lexicon xml error file
+	errors are added in the format:
+	PKGN0000 where PKGN is a 3-4 letter abbreviation of the package and 0000
+	is a number representing the number of this error(start at 1 and increment)
+-->
+
+<errors>
+	<error code="LEX0001">Failed copying uploaded file (%1$s) to destination directory (%2$s)</error>
+		<!-- lexicon/thesaurus/thesaurus_edit_fns.inc:109: -->
+
+	<error code="LEX0002">Unable to initialise "Import Thesaurus XML" HIPO, thesaurus asset ID not specified</error>
+		<!-- lexicon/hipo_jobs/hipo_job_import_thesaurus_xml.inc:196: -->
+
+	<error code="LEX0003">Unable to initialise "Import Thesaurus XML" HIPO, invalid thesaurus asset ID specified (%s)</error>
+		<!-- lexicon/hipo_jobs/hipo_job_import_thesaurus_xml.inc:203: -->
+
+	<error code="LEX0004">Unable to Erase Contents of the Thesaurus</error>
+		<!-- lexicon/hipo_jobs/hipo_job_import_thesaurus_xml.inc:246: -->
+
+	<error code="LEX0005">Unable to parse XML file</error>
+		<!-- lexicon/hipo_jobs/hipo_job_import_thesaurus_xml.inc:278: -->
+
+	<error code="LEX0006">Supplied XML file is not a proper thesaurus definition</error>
+		<!-- lexicon/hipo_jobs/hipo_job_import_thesaurus_xml.inc:283: -->
+
+	<error code="LEX0007">Thesaurus contains no entities, you will not be able to do anything with it.</error>
+		<!-- lexicon/hipo_jobs/hipo_job_import_thesaurus_xml.inc:431: -->
+
+	<error code="LEX0008">Unable to make child links from entity %1$s. Relation %2$s is not defined.</error>
+		<!-- lexicon/hipo_jobs/hipo_job_import_thesaurus_xml.inc:499: -->
+</errors>

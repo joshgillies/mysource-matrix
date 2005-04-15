@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.83 2005/04/12 16:19:09 brobertson Exp $
+* $Id: general.inc,v 1.84 2005/04/15 00:37:28 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.83 $
+* @version $Revision: 1.84 $
 * @package MySource_Matrix
 */
 
@@ -413,7 +413,7 @@ function current_url($inc_protocol=true, $strip_backend_suffix=false)
 			// if previous test failed, this one will probably not help, but before dying we try anyway
 			$host = array_get_index($_SERVER, 'SERVER_NAME', false);
 			if (!$host) {
-				trigger_error('Cannot determine host for current URL', E_USER_ERROR);
+				trigger_localised_error("SYS0107", E_USER_ERROR);
 			}
 		}
 
@@ -676,7 +676,7 @@ function implements_interface($class, $interface)
 	if (is_object($class)) {
 		$class = get_class($class);
 	} else if (!class_exists($class)) {
-		trigger_error('Unable to check if "'.$class.'" implements an interface when it hasn\'t been declared', E_USER_ERROR);
+		trigger_localised_error("SYS0237", E_USER_ERROR, $class);
 	}
 
 	do {
@@ -705,7 +705,7 @@ function implements_interface($class, $interface)
 function log_write($data, $logname=SQ_CONF_LOG_FILE_SYSTEM, $level=E_USER_NOTICE, $encode=true)
 {
 	if (empty($logname) || empty($level)) {
-		trigger_error('Cannot Log. An error has occured', E_USER_ERROR);
+		trigger_localised_error("SYS0099", E_USER_ERROR);
 		return false;
 	}
 
@@ -761,7 +761,7 @@ function log_write($data, $logname=SQ_CONF_LOG_FILE_SYSTEM, $level=E_USER_NOTICE
 
 	$handle = fopen($logfile, 'a');
 	if (!fwrite($handle, $log_entry)) {
-		trigger_error("Cannot Write to log file: $logfile", E_USER_WARNING);
+		trigger_localised_error("SYS0051", E_USER_WARNING, $logfile);
 		return false;
 	}
 	fclose($handle);
@@ -787,7 +787,7 @@ function log_write($data, $logname=SQ_CONF_LOG_FILE_SYSTEM, $level=E_USER_NOTICE
 function log_error($message, $level=E_USER_NOTICE, $file='', $line='', $log_name=SQ_CONF_LOG_FILE_ERROR)
 {
 	if (!is_string($message)){
-		trigger_error('Ivalid message format for error log', E_USER_WARNING);
+		trigger_localised_error("SYS0191", E_USER_WARNING);
 		return false;
 	}
 

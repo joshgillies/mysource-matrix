@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_reindex.inc,v 1.10 2005/03/24 03:04:29 dheppell Exp $
+* $Id: hipo_job_reindex.inc,v 1.11 2005/04/15 00:38:00 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    schemaid	-	the ID of the schema that has been updated
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -126,7 +126,7 @@ class HIPO_Job_ReIndex extends HIPO_Job
 		// so we have an assetid to start at, but make sure it is a valid assetid
 		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['root_assetid']);
 		if (is_null($asset)) {
-			trigger_error('Cannot initialise Search Reindexing HIPO, invalid root asset ID specified ('.$this->_running_vars['root_assetid'].')', E_USER_WARNING);
+			trigger_localised_error('SCH0022', E_USER_WARNING, $this->_running_vars['root_assetid']);
 			return false;
 		}
 

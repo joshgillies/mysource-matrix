@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_workflow_schemas.inc,v 1.27 2005/04/13 23:49:30 ndvries Exp $
+* $Id: hipo_job_edit_workflow_schemas.inc,v 1.28 2005/04/15 00:37:27 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to edit workflow schemas
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -208,7 +208,7 @@ class HIPO_Job_Edit_Workflow_Schemas extends HIPO_Job
 	{
 		// to start editing schemas, we need to have an asset id to start editing schemas at
 		if (empty($this->_running_vars['assets'])) {
-			trigger_error('Cannot initialise Edit Workflow Schemas HIPO, no asset IDs specified', E_USER_WARNING);
+			trigger_localised_error('HIPO0010', E_USER_WARNING);
 			return false;
 		}
 
@@ -222,7 +222,7 @@ class HIPO_Job_Edit_Workflow_Schemas extends HIPO_Job
 			for (reset($assets); null !== ($assetid = key($assets)); next($assets)) {
 				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				if (is_null($asset)) {
-					trigger_error('Cannot initialise Edit Workflow Schemas HIPO, invalid asset ID specified ('.$assetid.')', E_USER_WARNING);
+					trigger_localised_error('HIPO0009', E_USER_WARNING, $assetid);
 					return '';
 				}
 				$child_assets += $GLOBALS['SQ_SYSTEM']->am->getChildren($assetid);

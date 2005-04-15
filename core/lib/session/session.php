@@ -34,10 +34,10 @@ if ($primary_url == sq_web_path('root_url')) {
 
 	if (!isset($_GET['sessionid'])) {
 		// something is definately wrong
-		trigger_error('Missing primary sessionid', E_USER_ERROR);
+		trigger_localised_error('SYS0013', E_USER_ERROR);
 	}
 	if (is_null($site_network)) {
-		trigger_error('Missing site network', E_USER_ERROR);
+		trigger_localised_error('SYS0014', E_USER_ERROR);
 	}
 
 	$site_network->syncSessionFile($_REQUEST['sessionid']);

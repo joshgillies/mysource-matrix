@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_generate_report.inc,v 1.7 2005/04/13 04:32:58 rhoward Exp $
+* $Id: hipo_job_generate_report.inc,v 1.8 2005/04/15 00:37:27 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -123,7 +123,7 @@ class HIPO_Job_Generate_Report extends HIPO_Job
 	function prepare()
 	{
 		if (empty($this->_running_vars['assetid'])) {
-			trigger_error('Cannot initialise Generate Report HIPO, no report asset ID specified', E_USER_WARNING);
+			trigger_localised_error('HIPO0008', E_USER_WARNING);
 			return false;
 		}
 

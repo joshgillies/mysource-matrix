@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.inc,v 1.34 2005/04/08 05:55:55 lwright Exp $
+* $Id: install.inc,v 1.35 2005/04/15 00:37:33 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * Purpose
 * Functions used to install and upgrade the system
 *
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -1333,6 +1333,7 @@ function extract_errors_from_xml($file)
 	foreach($root->children as $string_node) {
 		if ($string_node->name != 'error') {
 			trigger_error('XML file "'.$file.'" does not appear to be a valid localised errors XML file - expecting node "error", found "'.$string_node->name.'"', E_USER_WARNING);
+			bam($root);
 			return Array();
 		}
 

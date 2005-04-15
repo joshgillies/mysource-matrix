@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: settings.inc,v 1.27 2005/04/08 05:39:09 gsherwood Exp $
+* $Id: settings.inc,v 1.28 2005/04/15 00:37:29 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Settings Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix
 */
 
@@ -511,7 +511,7 @@ function processSettings(&$owner, &$o, &$ei)
 	if ($owner->adminAccess('all')) {
 		if (isset($_POST[$prefix.'_version_update_version'])) {
 			if (!$owner->incrementVersion('major')) {
-				trigger_error('Failed updating major version of "'.$owner->name.'"', E_USER_WARNING);
+				trigger_localised_error("SYS0184", E_USER_WARNING, $owner->name);
 			}
 		}
 	}
@@ -557,7 +557,7 @@ function processSettings(&$owner, &$o, &$ei)
 			if ($date_type == 'created') {
 				// make sure that the date that is specified is not null for the created date
 				if ($date_field->isEmpty()) {
-					trigger_error('The created date cannot be empty', E_USER_WARNING);
+					trigger_localised_error("SYS0212", E_USER_WARNING);
 					continue;
 				}
 				$current_date   = $owner->created;
@@ -622,7 +622,7 @@ function processSettings(&$owner, &$o, &$ei)
 				// errors for morphing will get reported in the morph function
 				$owner->morph($_POST[$prefix.'_morph_new_type']);
 			} else {
-				trigger_error('The security key entered was incorrect. Asset type remains unchanged.', E_USER_WARNING);
+				trigger_localised_error("SYS0214", E_USER_WARNING);
 			}
 		}
 	}
@@ -645,7 +645,7 @@ function processSettings(&$owner, &$o, &$ei)
 				$design_name .= strtolower($design_data['name']);
 
 				if ($GLOBALS['SQ_SYSTEM']->am->getLink($owner->id, SQ_LINK_NOTICE, 'design', false, $design_name)) {
-					trigger_error('Design Name "'.$design_data['name'].'" already in use', E_USER_WARNING);
+					trigger_localised_error("SYS0134", E_USER_WARNING, $design_data['name']);
 					continue;
 				}// end if
 

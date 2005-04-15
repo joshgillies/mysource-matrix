@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager_edit_fns.inc,v 1.13 2005/04/06 23:05:34 mmcintyre Exp $
+* $Id: remap_manager_edit_fns.inc,v 1.14 2005/04/15 00:37:26 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -82,9 +82,7 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 		$sql = 'SELECT url, remap_url, expires
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_remap';
 		$remap_urls = $db->getAll($sql);
-		if (DB::isError($remap_urls)) {
-			trigger_error($remap_urls->getMessage().'<br/>'.$remap_urls->getUserInfo(), E_USER_ERROR);
-		}
+		assert_valid_db_result($remap_urls);
 
 		if (empty($remap_urls)) {
 			echo 'There are no URL remappings in the system';
@@ -185,12 +183,12 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 							(
 								'.implode(',', $deletes).'
 							)';
-			
+
 			$result = $db->query($sql);
 			assert_valid_db_result($result);
 		}
 		return true;
-		
+
 	}//end processEditRemapURLs()
 
 
@@ -359,7 +357,7 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 			if (!is_null($root)) {
 				if (!$asset->createLink($root, SQ_LINK_NOTICE, '404')) {
 					$ok = false;
-					trigger_error('Failed adding new 404 node "'.$root->name.'" [#'.$root->id.']', E_USER_WARNING);
+					trigger_localised_error("CORE0027", E_USER_WARNING, $root->name, $root->id);
 				}
 			}
 		}

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_links.inc,v 1.10 2005/04/13 23:49:30 ndvries Exp $
+* $Id: hipo_job_create_links.inc,v 1.11 2005/04/15 00:37:27 lwright Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -206,15 +206,15 @@ class HIPO_Job_Create_Links extends HIPO_Job
 	function initialise($source_code_name=null)
 	{
 		if (empty($this->_running_vars['assets'])) {
-			trigger_error('Cannot initialise Create Link HIPO, no assets specified', E_USER_WARNING);
+			trigger_localised_error('HIPO0026', E_USER_WARNING);
 			return '';
 		}
 		if (!isset($this->_running_vars['to_parent_assetid'])) {
-			trigger_error('Cannot initialise Create Link HIPO, no new parent ID specified', E_USER_WARNING);
+			trigger_localised_error('HIPO0025', E_USER_WARNING);
 			return '';
 		}
 		if (!isset($this->_running_vars['to_parent_pos'])) {
-			trigger_error('Cannot initialise Create Link HIPO, no new parent position specified', E_USER_WARNING);
+			trigger_localised_error('HIPO0024', E_USER_WARNING);
 			return '';
 		}
 
@@ -446,7 +446,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 			$new_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['to_parent_assetid']);
 
 			if (is_null($new_parent)) {
-				trigger_error('Cannot create new link, invalid destination asset ID specified (#'.$this->_running_vars['to_parent_assetid'].')', E_USER_WARNING);
+				trigger_localised_error('HIPO0023', E_USER_WARNING, $this->_running_vars['to_parent_assetid']);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
@@ -454,7 +454,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
 			if (is_null($new_parent)) {
-				trigger_error('Cannot create new link, invalid asset ID specified ('.$assetid.')', E_USER_WARNING);
+				trigger_localised_error('HIPO0022', E_USER_WARNING, $assetid);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
@@ -463,7 +463,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 
 			$linkid = $new_parent->createLink($asset, $value['link_type'], '', $this->_running_vars['to_parent_pos']);
 			if (!$linkid) {
-				trigger_error('Unable to create a link between "'.$asset->name.'" and "'.$new_parent->name.'".', E_USER_WARNING);
+				trigger_localised_error('HIPO0021', E_USER_WARNING, $asset->name, $new_parent->name);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
@@ -481,7 +481,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 			$linkid = $GLOBALS['SQ_SYSTEM']->am->moveLink($value['linkid'], $this->_running_vars['to_parent_assetid'], $link['link_type'], $this->_running_vars['to_parent_pos']);
 
 			if (!$linkid) {
-				trigger_error('Unable to move asset with ID #'.$assetid.' to the parent with asset ID $#'.$this->_running_vars['to_parent_assetid'], E_USER_WARNING);
+				trigger_localised_error('HIPO0020', E_USER_WARNING, $assetid, $this->_running_vars['to_parent_assetid']);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
@@ -491,7 +491,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($new_link['minorid'], $new_link['minor_type_code']);
 
 			if (is_null($asset)) {
-				trigger_error('Failed to move asset #'.$assetid.'.', E_USER_WARNING);
+				trigger_localised_error('HIPO0019', E_USER_WARNING, $assetid);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
@@ -559,7 +559,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 
 		$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['to_parent_assetid']);
 		if (is_null($parent)) {
-			trigger_error('Asset #'.$this->_running_vars['to_parent_assetid'].' not found', E_USER_WARNING);
+			trigger_localised_error('HIPO0018', E_USER_WARNING, $this->_running_vars['to_parent_assetid']);
 			return false;
 		}
 

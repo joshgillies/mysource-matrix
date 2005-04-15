@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager_edit_fns.inc,v 1.15 2005/04/14 04:58:12 rhoward Exp $
+* $Id: trigger_manager_edit_fns.inc,v 1.16 2005/04/15 00:37:26 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard  <rhoward@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -124,7 +124,7 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 		$trigger = $tm->_loadTrigger($trigger_id);
 		if (empty($trigger)) {
 			// paint error message
-			trigger_error("Trigger not found", E_USER_WARNING);
+			trigger_localised_error("CORE0136", E_USER_WARNING);
 			return false;
 		}
 
@@ -847,6 +847,9 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 										'data'	=> $settings,
 									  );
 
+			if (!$status) {
+				trigger_localised_error("CORE0131", E_USER_NOTICE, $i, $type);
+			}
 			$i++;
 		}
 
@@ -901,7 +904,7 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 									  );
 
 			if (false !== $error) {
-				trigger_error("Action $i ($type) not saved. $error", E_USER_NOTICE);
+				trigger_localised_error("CORE0130", E_USER_NOTICE, $i, $type, $error);
 			}
 			$i++;
 		}
@@ -1074,12 +1077,12 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 		$this->_tmp['include_children'] = $propagate;
 
 		if (empty($target_id)) {
-			trigger_error('Target asset not specified. Trigger batching cannot proceed.', E_USER_WARNING);
+			trigger_localised_error("CORE0132", E_USER_WARNING);
 			$error = true;
 		}
 
 		if (empty($events)) {
-			trigger_error('Events not specified. Trigger batching cannot proceed.', E_USER_WARNING);
+			trigger_localised_error("CORE0126", E_USER_WARNING);
 			$error = true;
 		}
 

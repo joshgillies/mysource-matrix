@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.48 2005/04/06 23:09:46 mmcintyre Exp $
+* $Id: search_manager.inc,v 1.49 2005/04/15 00:38:01 lwright Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.48 $
+* @version $Revision: 1.49 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -202,9 +202,6 @@ class Search_Manager extends Asset
 
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-		}
 
 	}//end flushKeyData()
 
@@ -282,11 +279,6 @@ class Search_Manager extends Asset
 		$result = $db->executeMultiple($st, $param_data);
 		assert_valid_db_result($result);
 
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-			return false;
-		}
-
 		return true;
 
 	}//end addKeyData()
@@ -335,9 +327,6 @@ class Search_Manager extends Asset
 
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-		}
 
 	}//end setComponentDefaultWeighting()
 
@@ -360,9 +349,6 @@ class Search_Manager extends Asset
 				WHERE assetid = '.$db->quote($assetid).' AND component = '.$db->quote($component);
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-		}
 
 		if (!is_null($weighting)) {
 			$sql = 'INSERT INTO sq_sch_idx_wgt(assetid, component, weight)
@@ -373,9 +359,6 @@ class Search_Manager extends Asset
 					')';
 			$result = $db->query($sql);
 			assert_valid_db_result($result);
-			if (DB::isError($result)) {
-				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-			}
 		}
 
 	}//end setComponentWeighting()
@@ -405,10 +388,6 @@ class Search_Manager extends Asset
 
 		$results = $db->getAll($sql);
 		assert_valid_db_result($results);
-		if (DB::isError($results)) {
-			trigger_error($results->getMessage().'<br/>'.$results->getUserInfo(), E_USER_ERROR);
-			return false;
-		}
 
 		$weightings = Array();
 		foreach ($results as $result) {
@@ -1113,7 +1092,7 @@ class Search_Manager extends Asset
 	{
 		if (!is_a($thesaurus, 'thesaurus')) {
 			// why did you pass us a lemon instead of a thesaurus?
-			trigger_error('The asset "'.$thesaurus->getName().' (Id: #'.$thesaurus->id.') is not a Thesaurus asset, cannot use to find synonyms', E_USER_WARNING);
+			trigger_localised_error('SCH0008', E_USER_WARNING, $thesaurus->getName(), $thesaurus->id);
 			return Array();
 		}
 

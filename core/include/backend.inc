@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.123 2005/04/08 05:39:09 gsherwood Exp $
+* $Id: backend.inc,v 1.124 2005/04/15 00:37:28 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.123 $
+* @version $Revision: 1.124 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -105,7 +105,7 @@ class Backend extends MySource_Object
 			$printing_assetid = (SQ_IN_LIMBO) ? $_REQUEST['limbo_assetid'] : $_REQUEST['assetid'];
 			$printing_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($printing_assetid);
 			if (is_null($printing_asset)) {
-				trigger_error('No Asset found for Id #'.$printing_assetid, E_USER_WARNING);
+				trigger_lcoalised_error("SYS0195", E_USER_WARNING, $printing_assetid);
 				return;
 			}
 			// lets ask the asset itself if we are allowed access to its backend (no dirty thoughts)
@@ -125,7 +125,7 @@ class Backend extends MySource_Object
 		if (isset($_REQUEST['a'])) {
 			$frontend_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($_REQUEST['a']);
 			if (is_null($frontend_asset)) {
-				trigger_error('No Asset found for Id #'.$_REQUEST['a'], E_USER_WARNING);
+				trigger_lcoalised_error("SYS0195", E_USER_WARNING, $_REQUEST['a']);
 				return;
 			}
 			$frontend_asset->printFrontend();
@@ -175,7 +175,7 @@ class Backend extends MySource_Object
 				break;
 
 				default:
-					trigger_error('Backend Page "'.$_REQUEST['SQ_BACKEND_PAGE'].'" unknown', E_USER_ERROR);
+					trigger_localised_error("SYS0097", E_USER_ERROR, $_REQUEST['SQ_BACKEND_PAGE']);
 
 			}//end switch
 
@@ -1003,7 +1003,7 @@ class Backend extends MySource_Object
 			break;
 
 			default :
-				trigger_error('Backend Section "'.$_REQUEST['backend_section'].'" not known', E_USER_ERROR);
+				trigger_localised_error("SYS0098", E_USER_ERROR, $_REQUEST['backend_section']);
 
 		}//end switch
 

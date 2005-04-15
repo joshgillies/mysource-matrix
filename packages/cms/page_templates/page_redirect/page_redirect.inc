@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_redirect.inc,v 1.14 2005/01/15 16:07:55 brobertson Exp $
+* $Id: page_redirect.inc,v 1.15 2005/04/15 00:37:47 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -182,7 +182,7 @@ class Page_Redirect extends Page
 		}//end if
 
 		if ($url == '') {
-			trigger_error('No URL or Asset selected for this "'.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').'"', E_USER_NOTICE);
+			trigger_localised_error('CMS0037', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
 			return;
 		}
 

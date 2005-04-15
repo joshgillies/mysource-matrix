@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_edit_fns.inc,v 1.8 2005/03/21 02:54:35 arailean Exp $
+* $Id: report_edit_fns.inc,v 1.9 2005/04/15 00:37:26 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *	Base Edit Interface for all reports
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -180,7 +180,7 @@ class Report_Edit_Fns extends Page_Edit_Fns
 			if (!is_null($root)) {
 				if (!$asset->createLink($root, SQ_LINK_NOTICE, 'root')) {
 					$ok = false;
-					trigger_error('Failed adding new root node "'.$root->name.'" [#'.$root->id.']', E_USER_WARNING);
+					trigger_localised_error("CORE0029", E_USER_WARNING, $root->name);
 				}
 			}
 		}
@@ -263,7 +263,7 @@ class Report_Edit_Fns extends Page_Edit_Fns
 	*/
 	function generateReport(&$job, &$step_data, $prefix)
 	{
-		trigger_error('This report can not be generated', E_USER_WARNING);
+		trigger_localised_error("CORE0079", E_USER_WARNING);
 		$step_data['percent_done'] = 100;
 		$step_data['complete'] = true;
 		return true;

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_custom_form_ecommerce.inc,v 1.4 2004/12/06 14:42:21 brobertson Exp $
+* $Id: page_custom_form_ecommerce.inc,v 1.5 2005/04/15 00:37:53 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_custom_form/page_custom_
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -93,7 +93,7 @@ class Page_Custom_Form_Ecommerce extends Page_Custom_Form
 		$form = &$GLOBALS['SQ_SYSTEM']->am->getAsset($form_link['minorid'], $form_link['minor_type_code']);
 
 		if (is_null($form)) {
-			trigger_error('Could not locate the form asset for Custom Form "'.$this->name.'"', E_USER_ERROR);
+			trigger_localised_error('ECOM0002', E_USER_ERROR, $this->name, $this->id);
 			return false;
 		}
 		$form->printBody();
