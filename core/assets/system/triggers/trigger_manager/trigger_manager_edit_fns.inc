@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager_edit_fns.inc,v 1.16 2005/04/15 00:37:26 lwright Exp $
+* $Id: trigger_manager_edit_fns.inc,v 1.17 2005/04/15 05:33:50 gsherwood Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard  <rhoward@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -830,7 +830,8 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 
 			$type = array_get_index($component, 'type');
 			if (empty($type) || !$tm->_loadComponent($type)) {
-				continue; // invalid type is silently ignored
+				// invalid type is silently ignored
+				continue;
 			}
 
 			$data = array_get_index($component, 'data', Array());
@@ -846,10 +847,6 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 										'type'	=> $type,
 										'data'	=> $settings,
 									  );
-
-			if (!$status) {
-				trigger_localised_error("CORE0131", E_USER_NOTICE, $i, $type);
-			}
 			$i++;
 		}
 
