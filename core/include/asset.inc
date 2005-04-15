@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.387 2005/04/15 00:37:27 lwright Exp $
+* $Id: asset.inc,v 1.388 2005/04/15 13:52:09 gnoel Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.387 $
+* @version $Revision: 1.388 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3861,8 +3861,6 @@ class Asset extends MySource_Object
 		$sql = 'DELETE FROM
 					sq_ast_lookup_value
 				WHERE
-						inhd	= '.$db->quoteSmart('0').'
-					AND
 						url IN
 					(
 						SELECT
