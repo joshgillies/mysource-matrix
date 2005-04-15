@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_herder.inc,v 1.62 2005/04/15 00:37:27 lwright Exp $
+* $Id: hipo_herder.inc,v 1.63 2005/04/15 02:07:24 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) Herder (Manager ;P)
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.62 $
+* @version $Revision: 1.63 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -860,7 +860,7 @@ class HIPO_Herder extends MySource_Object
 
 			$result = $db->query($sql);
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			if (assert_valid_db_result($result)) {
+			if (!assert_valid_db_result($result)) {
 				while (DB_OK === $result->fetchInto($row)) {
 					$source_code_name = ($row['source_code_name'] == $row['code_name']) ? '' : $row['source_code_name'];
 					if (!isset($source_jobs[$source_code_name])) {

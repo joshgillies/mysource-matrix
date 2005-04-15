@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_management.inc,v 1.65 2005/04/15 00:37:28 lwright Exp $
+* $Id: asset_management.inc,v 1.66 2005/04/15 02:07:24 lwright Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_LIB_PATH.'/xml_array/xml_array.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.65 $
+* @version $Revision: 1.66 $
 * @package MySource_Matrix
 */
 class Asset_Management extends MySource_Object
@@ -406,7 +406,7 @@ class Asset_Management extends MySource_Object
 				  AND atr.type_code = at.type_code';
 
 		$parent_info = $this->_db->getRow($sql);
-		if (assert_valid_db_result($parent_info, '', false, false)) {
+		if (!assert_valid_db_result($parent_info, '', false, false)) {
 			return false;
 		}
 
@@ -421,7 +421,7 @@ class Asset_Management extends MySource_Object
 					  AND i.type_code = a.type_code
 					  AND a.name = '.$this->_db->quote($name);
 			$children = $this->_db->getCol($sql);
-			if (assert_valid_db_result($children, '', false, false)) {
+			if (!assert_valid_db_result($children, '', false, false)) {
 				return false;
 			}
 			if (count($children)) {
@@ -469,7 +469,7 @@ class Asset_Management extends MySource_Object
 
 			$min_sql = $sql.$this->_db->quote($parent_info['min']);
 			$attr_owner = $this->_db->getRow($min_sql);
-			if (assert_valid_db_result($attr_owner, '', false, false)) {
+			if (!assert_valid_db_result($attr_owner, '', false, false)) {
 				return false;
 			}
 
@@ -486,7 +486,7 @@ class Asset_Management extends MySource_Object
 				// else we want to inherit the default value
 				$max_sql = $sql.$this->_db->quote($parent_info['max']);
 				$attr_default = $this->_db->getRow($max_sql);
-				if (assert_valid_db_result($attr_default, '', false, false)) {
+				if (!assert_valid_db_result($attr_default, '', false, false)) {
 					return false;
 				}
 
@@ -502,7 +502,7 @@ class Asset_Management extends MySource_Object
 				// else we want to inherit the default value
 				$max_sql = $sql.$this->_db->quote($parent_info['max']);
 				$attr_default = $this->_db->getRow($max_sql);
-				if (assert_valid_db_result($attr_default, '', false, false)) {
+				if (!assert_valid_db_result($attr_default, '', false, false)) {
 					return false;
 				}
 
@@ -524,7 +524,7 @@ class Asset_Management extends MySource_Object
 		}
 
 		$attributeid = $this->_db->nextId('sq_ast_attr');
-		if (assert_valid_db_result($attributeid, '', false, false)) {
+		if (!assert_valid_db_result($attributeid, '', false, false)) {
 			return false;
 		}
 
@@ -545,7 +545,7 @@ class Asset_Management extends MySource_Object
 				'.$this->_db->quote($attr_info['description']).')';
 
 		$result = $this->_db->query($sql);
-		if (assert_valid_db_result($result, '', false, false)) {
+		if (!assert_valid_db_result($result, '', false, false)) {
 			return false;
 		}
 
@@ -623,7 +623,7 @@ class Asset_Management extends MySource_Object
 					  AND name = '.$this->_db->quote($name);
 
 			$curr_attr = $this->_db->getRow($sql);
-			if (assert_valid_db_result($curr_attr, '', false, false)) {
+			if (!assert_valid_db_result($curr_attr, '', false, false)) {
 				return false;
 			}
 
@@ -645,7 +645,7 @@ class Asset_Management extends MySource_Object
 						  AND name = '.$this->_db->quote($name);
 
 				$parent_attr = $this->_db->getRow($sql);
-				if (assert_valid_db_result($parent_attr, '', false, false)) {
+				if (!assert_valid_db_result($parent_attr, '', false, false)) {
 					return false;
 				}
 
@@ -739,7 +739,7 @@ class Asset_Management extends MySource_Object
 				  AND name = '.$this->_db->quote($name);
 
 		$result = $this->_db->query($sql);
-		if (assert_valid_db_result($result, '', false, false)) {
+		if (!assert_valid_db_result($result, '', false, false)) {
 			return false;
 		}
 
@@ -755,7 +755,7 @@ class Asset_Management extends MySource_Object
 				  AND name = '.$this->_db->quote($name);
 
 		$result = $this->_db->query($sql);
-		if (assert_valid_db_result($result, '', false, false)) {
+		if (!assert_valid_db_result($result, '', false, false)) {
 			return false;
 		}
 
@@ -767,7 +767,7 @@ class Asset_Management extends MySource_Object
 					  AND name = '.$this->_db->quote($name);
 
 			$result = $this->_db->query($sql);
-			if (assert_valid_db_result($result, '', false, false)) {
+			if (!assert_valid_db_result($result, '', false, false)) {
 				return false;
 			}
 		}
@@ -854,7 +854,7 @@ class Asset_Management extends MySource_Object
 				WHERE type_code = '.$this->_db->quote($type_code);
 
 		$result = $this->_db->query($sql);
-		if (assert_valid_db_result($result, '', false, false)) {
+		if (!assert_valid_db_result($result, '', false, false)) {
 			return false;
 		}
 
@@ -868,7 +868,7 @@ class Asset_Management extends MySource_Object
 					'.$this->_db->quote($weighting['description']).','.$this->_db->quote($weighting['default_weighting']).')';
 
 			$result = $this->_db->query($sql);
-			if (assert_valid_db_result($result, '', false, false)) {
+			if (!assert_valid_db_result($result, '', false, false)) {
 				return false;
 			}
 		}//end foreach
