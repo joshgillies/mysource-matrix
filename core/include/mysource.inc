@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.98 2005/04/15 00:37:28 lwright Exp $
+* $Id: mysource.inc,v 1.99 2005/04/15 02:40:21 lwright Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.98 $
+* @version $Revision: 1.99 $
 * @package MySource_Matrix
 */
 class MySource
@@ -783,7 +783,7 @@ class MySource
 	function setCurrentUser(&$user)
 	{
 		if (!is_a($user, 'user')) {
-			trigger_locaalised_error("SYS0171", E_USER_WARNING);
+			trigger_localised_error("SYS0171", E_USER_WARNING);
 			return false;
 		}
 
