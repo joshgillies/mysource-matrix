@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.inc,v 1.35 2005/04/15 00:37:33 lwright Exp $
+* $Id: install.inc,v 1.36 2005/04/15 00:53:32 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * Purpose
 * Functions used to install and upgrade the system
 *
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -1271,8 +1271,6 @@ function build_locale_error_file($locale)
 
 		$files_to_parse['packages'][$package_name] = find_string_language_files($asset_dirs, $locale, 'errors');
 	}
-
-	bam($files_to_parse);
 
 	$strings = Array();
 
