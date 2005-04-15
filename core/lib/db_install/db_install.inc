@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_install.inc,v 1.19 2005/04/15 00:37:32 lwright Exp $
+* $Id: db_install.inc,v 1.20 2005/04/15 01:52:43 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@
 * @author  Blair Robertson <blair@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -253,8 +253,6 @@ function db_install($xml_file, $verbose=true)
 
 				$result = $db->query($table_sql);
 				assert_valid_db_result($result);
-
-				fwrite($fp, $table_sql."\n");
 
 			}
 
