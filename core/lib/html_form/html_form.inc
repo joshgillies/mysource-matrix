@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.77 2005/04/15 00:37:32 lwright Exp $
+* $Id: html_form.inc,v 1.78 2005/04/17 23:49:40 ndvries Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.77 $
+* @version $Revision: 1.78 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -109,8 +109,12 @@ function reset_button($name, $value, $on_click='', $extras='')
 */
 function normal_button($name, $value, $on_click='', $extras='')
 {
-	if ($on_click) $extras .= ' onclick="'.htmlspecialchars($on_click).' "';
-	if (!stristr($extras, 'class=')) $extras .= ' class="sq-form-field"';
+	if ($on_click) {
+		$extras .= ' onclick="'.htmlspecialchars($on_click).' "';
+	}
+	if (!stristr($extras, 'class=')) {
+		$extras .= ' class="sq-form-field"';
+	}
 	echo '<input type="button" name="', htmlspecialchars($name), '" id="', htmlspecialchars($name), '" value="', htmlspecialchars($value), '" ', $extras, ' />';
 
 }//end normal_button()
@@ -151,7 +155,9 @@ function text_box($name, $value, $size='', $max='', $hide_value=false, $extras='
 {
 	$size = (int) $size;
 	$max  = (int) $max;
-	if (!stristr($extras, 'class=')) $extras .= ' class="sq-form-field"';
+	if (!stristr($extras, 'class=')) {
+		$extras .= ' class="sq-form-field"';
+	}
 	echo	'<input type="text" ',
 			'id="', htmlspecialchars($name), '" ',
 			'name="', htmlspecialchars($name), '" ',
@@ -212,7 +218,9 @@ function password_box($name, $value='', $size='', $max='', $extras='')
 {
 	$size = (int) $size;
 	$max  = (int) $max;
-	if (!stristr($extras, 'class=')) $extras .= ' class="sq-form-field"';
+	if (!stristr($extras, 'class=')) {
+		$extras .= ' class="sq-form-field"';
+	}
 	echo	'<input type="password" ',
 			'name="', htmlspecialchars($name), '" ',
 			'id="',htmlspecialchars($name), '" ',
@@ -243,7 +251,9 @@ function text_area($name, $contents, $cols=0, $rows=0, $max=0, $extras='')
 	$cols = (int) $cols;
 	$rows = (int) $rows;
 	$max  = (int) $max;
-	if (!stristr($extras, 'class=')) $extras .= ' class="sq-form-field"';
+	if (!stristr($extras, 'class=')) {
+		$extras .= ' class="sq-form-field"';
+	}
 	echo	'<textarea name="', htmlspecialchars($name), '" ',
 			'id="', htmlspecialchars($name), '" ',
 			(($cols)  ? 'cols="'.$cols.'" ' : ''),
@@ -271,8 +281,12 @@ function text_area($name, $contents, $cols=0, $rows=0, $max=0, $extras='')
 */
 function radio_button($name, $value='1', $checked=false, $on_click='', $extras='')
 {
-	if ($on_click) $extras .= ' onclick="'.htmlspecialchars($on_click).' "';
-	if (!stristr($extras, 'class=')) $extras .= ' class="sq-form-field"';
+	if ($on_click) {
+		$extras .= ' onclick="'.htmlspecialchars($on_click).' "';
+	}
+	if (!stristr($extras, 'class=')) {
+		$extras .= ' class="sq-form-field"';
+	}
 	echo	'<input type="radio" ',
 			'name="', htmlspecialchars($name), '" ',
 			'value="', htmlspecialchars($value), '" ',
@@ -297,8 +311,12 @@ function radio_button($name, $value='1', $checked=false, $on_click='', $extras='
 */
 function check_box($name, $value='1', $checked=false, $on_click='', $extras='')
 {
-	if ($on_click) $extras .= ' onclick="'.htmlspecialchars($on_click).' "';
-	if (!stristr($extras, 'class=')) $extras .= ' class="sq-form-field"';
+	if ($on_click) {
+		$extras .= ' onclick="'.htmlspecialchars($on_click).' "';
+	}
+	if (!stristr($extras, 'class=')) {
+		$extras .= ' class="sq-form-field"';
+	}
 	echo	'<input type="checkbox" ',
 			'name="', htmlspecialchars($name), '" ',
 			'id="', htmlspecialchars($name), '" ',
@@ -332,7 +350,9 @@ function combo_box($name, $contents, $multiple, $defaults, $height=0, $extras=''
 {
 	$height    = (int) $height;
 	$maxlength = (int) $maxlength;
-	if (!stristr($extras, 'class=')) $extras .= ' class="sq-form-field"';
+	if (!stristr($extras, 'class=')) {
+		$extras .= ' class="sq-form-field"';
+	}
 
 	if ($multiple) {
 		$extras .= ' multiple="multiple"';
@@ -351,7 +371,9 @@ function combo_box($name, $contents, $multiple, $defaults, $height=0, $extras=''
 	foreach ($contents as $key => $value) {
 		if ($maxlength) {
 			$value = str_replace('&nbsp;', ' ', $value);  // we don't want a space to take 6 chars do we ?
-			if (strlen($value) > $maxlength) $value = substr($value, 0, $maxlength - 3).'...';
+			if (strlen($value) > $maxlength) {
+				$value = substr($value, 0, $maxlength - 3).'...';
+			}
 		}
 		$value = str_replace(' ', '&nbsp;', htmlspecialchars($value));
 		echo	'<option value="', htmlspecialchars($key), '"',
@@ -403,8 +425,9 @@ function colour_box($name, $default='000000', $allow_blanks=false, $button_text=
 	if ($show_text_box) {
 		$extras  = ' id="colour_box_'.$name.'" style="font-family: courier;"'
 				 . ' onchange="this.value = check_colour(this.value, '.(($allow_blanks) ? 'true' : 'false').');"';
-
-		if ($show_current_colour) $extras .= ' show_colour_change(\''.addslashes($name).'\');';
+		if ($show_current_colour) {
+			 $extras .= ' show_colour_change(\''.addslashes($name).'\');';
+		}
 		text_box($name, $default, 7, 6, false, $extras);
 	} else {
 		hidden_box($name, $default);
@@ -433,7 +456,9 @@ function colour_box($name, $default='000000', $allow_blanks=false, $button_text=
 */
 function file_upload($name, $extras='')
 {
-	if (!stristr($extras, 'class=')) $extras .= ' class="sq-form-field"';
+	if (!stristr($extras, 'class=')) {
+		$extras .= ' class="sq-form-field"';
+	}
 	echo '<input type="file" name="', $name, '" ', $extras, ' />';
 
 }//end file_upload()
@@ -477,7 +502,9 @@ function get_file_upload_info($name)
 
 	}//end switch
 
-	if (empty($_FILES[$name]['name']) || !is_uploaded_file($_FILES[$name]['tmp_name'])) return false;
+	if (empty($_FILES[$name]['name']) || !is_uploaded_file($_FILES[$name]['tmp_name'])) {
+		return false;
+	}
 
 	return $_FILES[$name];
 
@@ -518,7 +545,9 @@ function commit_file_upload($name, $dest, $overwrite=false, $max_size=0, $restri
 	// Are we worried about the extension ?
 	if (count($extensions)) {
 		$exts = Array();
-		foreach ($extensions as $v) $exts[] = strtolower($v);
+		foreach ($extensions as $v) {
+			$exts[] = strtolower($v);
+		}
 		$ext = strtolower(substr(strrchr($info['name'],"."), 1));
 		$in_arr = in_array($ext, $exts);
 
@@ -641,13 +670,18 @@ function asset_finder($name, $assetid=0, $type_codes=Array(), $map_frame='sq_sid
 	} else {
 		$map_frame = 'top';
 	}
-	if ($new_window) $map_frame = 'window.opener.'.$map_frame;
+	if ($new_window) {
+		$map_frame = 'window.opener.'.$map_frame;
+	}
 
 	$label = '';
 	if ($assetid) {
 		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-		if (is_null($asset)) $assetid = 0;
-		else $label = $asset->short_name.' (Id : #'.$asset->id.')';
+		if (is_null($asset)) {
+			$assetid = 0;
+		} else {
+			$label = $asset->short_name.' (Id : #'.$asset->id.')';
+		}
 	}
 
 	$safe_name = 'sq_asset_finder_'.preg_replace('/[^A-Za-z0-9]/', '_', $name);
@@ -799,8 +833,12 @@ function security_key($key_len, $box_len, $zoom=1, $img_on_newline=false, $bg='F
 */
 function validate_security_key()
 {
-	if (!isset($_POST['SQ_SYSTEM_SECURITY_KEY_VALUE'])) return false;
-	if (!isset($_SESSION['SQ_SYSTEM_SECURITY_KEY']['key'])) return false;
+	if (!isset($_POST['SQ_SYSTEM_SECURITY_KEY_VALUE'])) {
+		return false;
+	}
+	if (!isset($_SESSION['SQ_SYSTEM_SECURITY_KEY']['key'])) {
+		return false;
+	}
 	$entered_value = $_POST['SQ_SYSTEM_SECURITY_KEY_VALUE'];
 	$real_value = $_SESSION['SQ_SYSTEM_SECURITY_KEY']['key'];
 	unset($_SESSION['SQ_SYSTEM_SECURITY_KEY']);
@@ -851,7 +889,9 @@ function var_to_hidden_field($var, $name='')
 function asset_type_chooser($name, $multiple=false, $defaults=Array(), $instantiable=null, $system_accessible=false, $show_inherit_checkbox=false)
 {
 	$types = $GLOBALS['SQ_SYSTEM']->am->getAssetTypes($instantiable, !$system_accessible);
-	foreach ($types as $code => $details) $types[$code] = $details['name'];
+	foreach ($types as $code => $details) {
+		$types[$code] = $details['name'];
+	}
 	asort($types);
 	if ($multiple) {
 		$types = Array(''=>'') + $types;
