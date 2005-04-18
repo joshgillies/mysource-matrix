@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.78 2005/04/17 23:49:40 ndvries Exp $
+* $Id: html_form.inc,v 1.79 2005/04/18 09:15:04 brobertson Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.78 $
+* @version $Revision: 1.79 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -879,6 +879,7 @@ function var_to_hidden_field($var, $name='')
 *
 * @param string		$name					Name for the field
 * @param boolean	$multiple				Whether we want to be able to choose several types
+* @param Array		$defaults				The default values
 * @param boolean	$instatiable			Do we want instantiable or non-instantiable assets? (null means both)
 * @param boolean	$system_accessible		Do we want to include assets that only have system access?
 * @param boolean	$show_inherit_checkbox	Do we want to show a checkbox for inheriting from a type?
@@ -926,9 +927,9 @@ function asset_type_chooser($name, $multiple=false, $defaults=Array(), $instanti
 		echo '<br />';
 	} else {
 		if ($show_inherit_checkbox) {
-			combo_box($name.'[type_code]', $types, false, $defaults['type_code']);
-			hidden_field($name.'[inherit]', $defaults['inherit']);
-			check_box('', 1, $defaults['inherit'], 'toggleLastHiddenField(this)');
+			combo_box($name.'[type_code]', $types, false, array_get_index($defaults, 'type_code', ''));
+			hidden_field($name.'[inherit]', array_get_index($defaults, 'inherit', '0'));
+			check_box('', 1, array_get_index($defaults, 'inherit', '0'), 'toggleLastHiddenField(this)');
 			echo 'inherit ';
 		} else {
 			combo_box($name, $types, false, $defaults);
