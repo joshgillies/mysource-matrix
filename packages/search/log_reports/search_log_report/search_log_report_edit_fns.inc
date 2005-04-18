@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_log_report_edit_fns.inc,v 1.1 2005/04/13 04:38:46 rhoward Exp $
+* $Id: search_log_report_edit_fns.inc,v 1.2 2005/04/18 05:06:16 rhoward Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *	A report that lists searches by month, week, or day, and by assetid
 *
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -264,6 +264,7 @@ class Search_Log_Report_Edit_Fns extends Log_Report_Edit_Fns
 		// rollover - archive the current report so that we can start writing another one for the new day/week/month
 		if ($job_vars['mode'] == 'rollover') {
 			$this->_performRollover($meta['report'], $job_vars['previous_date']);
+			$job_vars['indices'] = Array();
 
 			$progress = &$iterator->getCurrentProgress();
 			$total   = array_get_index($progress, 'total', 0);
