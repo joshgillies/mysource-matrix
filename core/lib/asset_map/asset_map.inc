@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.179 2005/04/15 00:37:29 lwright Exp $
+* $Id: asset_map.inc,v 1.180 2005/04/18 06:00:35 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.179 $
+* @version $Revision: 1.180 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -195,7 +195,6 @@ class Asset_Map
 	function _send($output)
 	{
 		header("Content-Type: text/xml");
-		error_log(var_export($output, true));
 		$output->dump();
 
 	}//end _send()
