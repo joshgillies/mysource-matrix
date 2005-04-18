@@ -1,4 +1,5 @@
 <?php
+
 /**
 * +--------------------------------------------------------------------+
 * | Squiz.net Open Source Licence                                      |
@@ -18,10 +19,9 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: inbox_edit_fns.inc,v 1.46 2005/04/15 00:37:26 lwright Exp $
+* $Id: inbox_edit_fns.inc,v 1.47 2005/04/18 00:16:14 lwright Exp $
 *
 */
-
 
 require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -34,33 +34,22 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dmitry Baranovskiy <dbaranovskiy@squiz.net>
-* @version $Revision: 1.46 $
+* @version $Revision: 1.47 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
-class Inbox_Edit_Fns extends Asset_Edit_Fns
-{
-
+class Inbox_Edit_Fns extends Asset_Edit_Fns {
 
 	/**
 	* Constructor
 	*
 	*/
-	function Inbox_Edit_Fns()
-	{
+	function Inbox_Edit_Fns() {
 		$this->Asset_Edit_Fns();
 
-		$this->static_screens = Array(
-									'details'	=> Array(
-													'name'			=> 'Inbox',
-													'use_tab'		=> true,
-													'force_unlock'	=> false,
-													'lock_type'		=> 'mail',
-												   ),
-								);
+		$this->static_screens = Array ('details' => Array ('name' => 'Inbox', 'use_tab' => true, 'force_unlock' => false, 'lock_type' => 'mail',),);
 
-	}//end constructor
-
+	} //end constructor
 
 	/**
 	* Prints the new message interface
@@ -72,14 +61,14 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintNewMessage(&$asset, &$o, $prefix)
-	{
-		$user = &$asset->_getUser();
+	function paintNewMessage(& $asset, & $o, $prefix) {
+		$user = & $asset->_getUser();
 
-		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-		$messages = $ms->getMessages($user->id, null, Array(SQ_MSG_UNREAD, SQ_MSG_READ), Array(), null, null, 'name');
+		$ms = & $GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$messages = $ms->getMessages($user->id, null, Array (SQ_MSG_UNREAD, SQ_MSG_READ), Array (), null, null, 'name');
 		$write_access = $asset->writeAccess('mail');
-		if ($write_access) { ?>
+		if ($write_access) {
+?>
 			<style type="text/css">
 				@import url(<?php echo sq_web_path('data')?>/asset_types/inbox/css/inbox.css.php);
 			</style>
@@ -116,16 +105,17 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 				</tr>
 			</table>
 			<?php
+
 		} else {
-			?>
+?>
 			<div style="text-align: center">Please lock the Inbox to send messages</div>
 			<?php
+
 		}
 
 		return $write_access;
 
-	}//end paintNewMessage()
-
+	} //end paintNewMessage()
 
 	/**
 	* Processes the new message interface
@@ -137,29 +127,28 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function processNewMessage(&$asset, &$o, $prefix)
-	{
-		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+	function processNewMessage(& $asset, & $o, $prefix) {
+		$ms = & $GLOBALS['SQ_SYSTEM']->getMessagingService();
 		// send the message
 		$noaction = true;
-		if (isset($_POST[$prefix.'_To'])) {
+		if (isset ($_POST[$prefix.'_To'])) {
 			$userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
 
-			$recepients = Array();
+			$recepients = Array ();
 			foreach ($_POST[$prefix.'_To'] as $key => $sender) {
 				$recepients[] = $sender['assetid'];
 			}
 
-			$message = $ms->newMessage($recepients, $_POST[$prefix.'_Subject'], $_POST[$prefix.'_Content'], 'hipo.some');
+			$message = $ms->newMessage($recepients, $_POST[$prefix.'_Subject'], $_POST[$prefix.'_Content'], 'inbox.message');
 			$message->priority = $_POST[$prefix.'_Priority'];
 			$message->send();
 
 			foreach ($recepients as $key => $sender) {
-				if (empty($sender)) {
+				if (empty ($sender)) {
 					continue;
 				}
 				$noaction = true;
-				$message = $ms->newMessage(Array($userid), $_POST[$prefix.'_Subject'], $_POST[$prefix.'_Content'], 'hipo.sent');
+				$message = $ms->newMessage(Array ($userid), $_POST[$prefix.'_Subject'], $_POST[$prefix.'_Content'], 'inbox.sent');
 				$message->from = $sender;
 				$message->status = 'R';
 				$message->priority = $_POST[$prefix.'_Priority'];
@@ -171,8 +160,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 			echo '<!-- ###No Action### -->';
 		}
 
-	}//end processNewMessage()
-
+	} //end processNewMessage()
 
 	/**
 	* Prints the sent box interface
@@ -184,17 +172,16 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintSent(&$asset, &$o, $prefix)
-	{
-		$user = &$asset->_getUser();
+	function paintSent(& $asset, & $o, $prefix) {
+		$user = & $asset->_getUser();
 
-		$priority = Array('', 'Highest', 'High', 'Normal', 'Low', 'Lowest');
+		$priority = Array ('', 'Highest', 'High', 'Normal', 'Low', 'Lowest');
 
-		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-		$messages = $ms->getMessages($user->id, null, Array(SQ_MSG_UNREAD, SQ_MSG_READ), Array(), null, null, 'name');
+		$ms = & $GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$messages = $ms->getMessages($user->id, null, Array (SQ_MSG_UNREAD, SQ_MSG_READ), Array (), null, null, 'name');
 		$write_access = $asset->writeAccess('mail');
 		$num_messages = count($messages);
-		?>
+?>
 			<style type="text/css">
 				@import url(<?php echo sq_web_path('data')?>/asset_types/inbox/css/inbox.css.php);
 			</style>
@@ -213,32 +200,35 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 				<td class="sq-backend-table-header">SUBJECT</td>
 				<td class="sq-backend-table-header">SENT</td>
 				<?php
-				if ($write_access) {
-					?>
+
+		if ($write_access) {
+?>
 					<td class="sq-backend-table-header">
 						<?php check_box($prefix.'_delete_all', '1', false, 'changeAllDelStatuses(this.checked)'); ?>
 						<img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" alt="" id="trashIcon" class="trash" onclick="changeAllStatuses()" />
 						DELETE
 					</td>
 					<?php
-				}
-				?>
+
+		}
+?>
 			</tr>
 			<?php
 
-			for ($i = 0; $i < $num_messages; $i++) {
 
-				$data = $messages[$i];
-				if ($data['type'] != 'hipo.sent') {
-					continue;
-				}
+		for ($i = 0; $i < $num_messages; $i ++) {
 
-				// work out the sender icon
-				$sender_img = $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($data['type_code']);
-				// work out the message body
-				$body = preg_replace("/[\n\t\r]/im", '<br />', $data['body']);
-				$body = str_replace("\"", '&quot;', $body);
-				?>
+			$data = $messages[$i];
+			if ($data['type'] != 'inbox.sent') {
+				continue;
+			}
+
+			// work out the sender icon
+			$sender_img = $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($data['type_code']);
+			// work out the message body
+			$body = preg_replace("/[\n\t\r]/im", '<br />', $data['body']);
+			$body = str_replace("\"", '&quot;', $body);
+?>
 				<script type="text/javascript">
 				//<![CDATA[
 					Bodies["<?php echo $data['msgid'];?>"] = "<?php echo $body; ?>";
@@ -259,28 +249,31 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 						&nbsp;<?php echo $GLOBALS['SQ_SYSTEM']->datetime($data['sent']); ?>
 					</td>
 					<?php
-					if ($write_access) {
-						?>
+
+			if ($write_access) {
+?>
 						<td class="sq-backend-table-cell" nowrap="nowrap">
 							<?php check_box($prefix.'_delete['.$data['msgid'].']', '1', false, 'changeStatus('.$data['msgid'].')'); ?>
 							<img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" alt="" id="trashIcon<?php echo $data['msgid'];?>" class="trash" onclick="changeStatus('<?php echo $data['msgid'];?>')" />
 						</td>
 						<?php
-					}
-					?>
+
+			}
+?>
 				</tr>
 				<?php
-			}
-			?>
+
+		}
+?>
 			</table>
 			</div>
 			<div id="sq_message_body"></div>
 		<?php
 
+
 		return $write_access;
 
-	}//end paintSent()
-
+	} //end paintSent()
 
 	/**
 	* Prints the inbox interface
@@ -292,32 +285,31 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintInbox(&$asset, &$o, $prefix)
-	{
-		$user = &$asset->_getUser();
+	function paintInbox(& $asset, & $o, $prefix) {
+		$user = & $asset->_getUser();
 
-		$priority = Array('', 'Highest', 'High', 'Normal', 'Low', 'Lowest');
+		$priority = Array ('', 'Highest', 'High', 'Normal', 'Low', 'Lowest');
 
-		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-		$messages = $ms->getMessages($user->id, null, Array(SQ_MSG_UNREAD, SQ_MSG_READ), Array(), null, null, 'name');
+		$ms = & $GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$messages = $ms->getMessages($user->id, null, Array (SQ_MSG_UNREAD, SQ_MSG_READ), Array (), null, null, 'name');
 		$write_access = $asset->writeAccess('mail');
 
-			$allread = true;
-			$num_messages = count($messages);
-			$num_sent = 0;
-			$num_inbox = 0;
-			for ($i = 0; $i < $num_messages; $i++) {
-				$data = $messages[$i];
-				if ($data['status'] == SQ_MSG_UNREAD) {
-					$allread = false;
-				}
-				if ($data['type'] == 'hipo.sent') {
-					$num_sent++;
-				} else {
-					$num_inbox++;
-				}
+		$allread = true;
+		$num_messages = count($messages);
+		$num_sent = 0;
+		$num_inbox = 0;
+		for ($i = 0; $i < $num_messages; $i ++) {
+			$data = $messages[$i];
+			if ($data['status'] == SQ_MSG_UNREAD) {
+				$allread = false;
 			}
-			?>
+			if ($data['type'] == 'inbox.sent') {
+				$num_sent ++;
+			} else {
+				$num_inbox ++;
+			}
+		}
+?>
 			<script type="text/javascript" src="<?php echo sq_web_path('lib'); ?>/js/JsHttpConnector.js"></script>
 			<script type="text/javascript">
 			//<![CDATA[
@@ -331,10 +323,11 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 			</style>
 			<div id="inbox_container">
 			<?php
-				if ($num_inbox == 0) {
-					echo '<div style="text-align: center">Your inbox is empty.</div></div>';
-				} else {
-			?>
+
+		if ($num_inbox == 0) {
+			echo '<div style="text-align: center">Your inbox is empty.</div></div>';
+		} else {
+?>
 			<table border="0" cellspacing="0" cellpadding="1" id="inbox_table">
 			<tr>
 				<td class="sq-backend-table-header">FROM</td>
@@ -342,30 +335,37 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 				<td class="sq-backend-table-header">SENT</td>
 				<td class="sq-backend-table-header">
 					<?php
-					if ($write_access) { ?>
+
+			if ($write_access) {
+?>
 						<img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" alt="" id="letterIcon" class="read" />
-					<?php }
-					?>
+					<?php
+
+			}
+?>
 					&nbsp;READ
 				</td>
 				<?php
-				if ($write_access) {
-					?>
+
+			if ($write_access) {
+?>
 					<td class="sq-backend-table-header">
 						<?php check_box($prefix.'_delete_all', '1', false, 'changeAllDelStatuses(this.checked)'); ?>
 						<img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" alt="" id="trashIcon" class="trash" />
 						DELETE
 					</td>
 					<?php
-				}
-				?>
+
+			}
+?>
 			</tr>
 			<?php
 
-			for ($i = 0; $i < $num_messages; $i++) {
+
+			for ($i = 0; $i < $num_messages; $i ++) {
 
 				$data = $messages[$i];
-				if ($data['type'] == 'hipo.sent') {
+				if ($data['type'] == 'inbox.sent') {
 					continue;
 				}
 
@@ -373,7 +373,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 				$sender_img = $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($data['type_code']);
 				$body = str_replace("\n", '<br />', $data['body']);
 				$body = str_replace("\"", '&quot;', $body);
-				?>
+?>
 				<script type="text/javascript">
 				//<![CDATA[
 					// adding body text of the messages into JS array.
@@ -396,24 +396,28 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 					</td>
 					<td class="sq-backend-table-cell" nowrap="nowrap">
 						<?php
-							check_box($prefix.'_mark_as_read['.$data['msgid'].']', '1', ($data['status'] == SQ_MSG_READ), 'readClick(this)', ($write_access)?'':'style="display:none"');
-						?>
+
+				check_box($prefix.'_mark_as_read['.$data['msgid'].']', '1', ($data['status'] == SQ_MSG_READ), 'readClick(this)', ($write_access) ? '' : 'style="display:none"');
+?>
 						<img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" alt="" id="letterIcon[<?php echo $data['msgid'];?>]" class="<?php echo (($data['status'] == SQ_MSG_UNREAD) ? 'un' : ''); ?>read" onclick="readClick(this)" />
 					</td>
 					<?php
-					if ($write_access) {
-						?>
+
+				if ($write_access) {
+?>
 						<td class="sq-backend-table-cell" nowrap="nowrap">
 							<?php check_box($prefix.'_delete['.$data['msgid'].']', '1', false, 'changeStatus('.$data['msgid'].')'); ?>
 							<img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" alt="" id="trashIcon[<?php echo $data['msgid'];?>]" class="trash" onclick="changeStatus('<?php echo $data['msgid'];?>', 'delete')" />
 						</td>
 						<?php
-					}
-					?>
+
+				}
+?>
 				</tr>
 				<?php
+
 			}
-			?>
+?>
 			</table>
 			</div>
 			<script type="text/javascript">
@@ -423,14 +427,14 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 			</script>
 			<div id="sq_message_body"></div>
 			<?php
-			}
+
+		}
 
 		$this->_processReadStatus($asset, $prefix);
 
 		return $write_access;
 
-	}//end paintInbox()
-
+	} //end paintInbox()
 
 	/**
 	* Processes the read statuses of the messages
@@ -441,19 +445,19 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 	* @return void
 	* @access private
 	*/
-	function _processReadStatus(&$asset, $prefix)
-	{
-		$msgs   = (isset($_POST[$prefix.'_messages'])) ? array_keys($_POST[$prefix.'_messages']) : Array();
-		$read   = (isset($_POST[$prefix.'_mark_as_read'])) ? array_keys($_POST[$prefix.'_mark_as_read']) : Array();
+	function _processReadStatus(& $asset, $prefix) {
+		$msgs = (isset ($_POST[$prefix.'_messages'])) ? array_keys($_POST[$prefix.'_messages']) : Array ();
+		$read = (isset ($_POST[$prefix.'_mark_as_read'])) ? array_keys($_POST[$prefix.'_mark_as_read']) : Array ();
 
-		$user = &$asset->_getUser();
+		$user = & $asset->_getUser();
 
-		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$ms = & $GLOBALS['SQ_SYSTEM']->getMessagingService();
 		$messages = $ms->getMessages($user->id);
 
-		if (!empty($messages)) {
+		if (!empty ($messages)) {
 			foreach ($messages as $data) {
-				if (!in_array($data['msgid'], $msgs)) continue;
+				if (!in_array($data['msgid'], $msgs))
+					continue;
 				$message = $ms->getMessageById($data['msgid']);
 
 				// change message status (read/unread)
@@ -461,16 +465,16 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 					if (!$message->updateStatus(SQ_MSG_READ)) {
 						trigger_localised_error("CORE0076", E_USER_WARNING, $data['msgid']);
 					}
-				} else if (!in_array($data['msgid'], $read) && $data['status'] == SQ_MSG_READ) {
-					if (!$message->updateStatus(SQ_MSG_UNREAD)) {
-						trigger_localised_error("CORE0076", E_USER_WARNING, $data['msgid']);
+				} else
+					if (!in_array($data['msgid'], $read) && $data['status'] == SQ_MSG_READ) {
+						if (!$message->updateStatus(SQ_MSG_UNREAD)) {
+							trigger_localised_error("CORE0076", E_USER_WARNING, $data['msgid']);
+						}
 					}
-				}
 			}
 		}
 
-	}//end _processReadStatus()
-
+	} //end _processReadStatus()
 
 	/**
 	* Processes the inbox interface
@@ -482,19 +486,19 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function processInbox(&$asset, &$o, $prefix)
-	{
-		$msgs   = (isset($_POST[$prefix.'_messages'])) ? array_keys($_POST[$prefix.'_messages']) : Array();
-		$delete = (isset($_POST[$prefix.'_delete'])) ? array_keys($_POST[$prefix.'_delete']) : Array();
+	function processInbox(& $asset, & $o, $prefix) {
+		$msgs = (isset ($_POST[$prefix.'_messages'])) ? array_keys($_POST[$prefix.'_messages']) : Array ();
+		$delete = (isset ($_POST[$prefix.'_delete'])) ? array_keys($_POST[$prefix.'_delete']) : Array ();
 
-		$user = &$asset->_getUser();
+		$user = & $asset->_getUser();
 
-		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$ms = & $GLOBALS['SQ_SYSTEM']->getMessagingService();
 		$messages = $ms->getMessages($user->id);
 
-		if (!empty($messages)) {
+		if (!empty ($messages)) {
 			foreach ($messages as $data) {
-				if (!in_array($data['msgid'], $msgs)) continue;
+				if (!in_array($data['msgid'], $msgs))
+					continue;
 				$message = $ms->getMessageById($data['msgid']);
 
 				// delete messages
@@ -510,8 +514,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 
 		return true;
 
-	}//end processInbox()
-
+	} //end processInbox()
 
 	/**
 	* Prints the trash interface
@@ -523,17 +526,15 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintTrash(&$asset, &$o, $prefix)
-	{
-		$user = &$asset->_getUser();
+	function paintTrash(& $asset, & $o, $prefix) {
+		$user = & $asset->_getUser();
 
-		$priority = Array('', 'Highest', 'High', 'Normal', 'Low', 'Lowest');
+		$priority = Array ('', 'Highest', 'High', 'Normal', 'Low', 'Lowest');
 
-		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-		$messages = $ms->getMessages($user->id, null, Array(SQ_MSG_DELETED), Array(), null, null, 'name');
+		$ms = & $GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$messages = $ms->getMessages($user->id, null, Array (SQ_MSG_DELETED), Array (), null, null, 'name');
 		$write_access = $asset->writeAccess('mail');
-
-			?>
+?>
 			<style type="text/css">
 				@import url(<?php echo sq_web_path('data')?>/asset_types/inbox/css/inbox.css.php);
 			</style>
@@ -545,11 +546,12 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 			</script>
 			<script type="text/javascript" src="<?php echo sq_web_path('data'); ?>/asset_types/inbox/js/inbox.js"></script>
 		<?php
-		if (empty($messages)) {
+
+		if (empty ($messages)) {
 			echo '<div style="text-align: center">Your trash is empty.</div>';
 			return false;
 		} else {
-		?>
+?>
 			<div id="inbox_container">
 
 			<table border="0" cellspacing="0" cellpadding="1" id="inbox_table">
@@ -558,8 +560,9 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 				<td class="sq-backend-table-header">SUBJECT</td>
 				<td class="sq-backend-table-header">SENT</td>
 				<?php
-				if ($write_access) {
-					?>
+
+			if ($write_access) {
+?>
 					<td class="sq-backend-table-header">
 						<?php check_box($prefix.'_select_all_recover', '1', false, "check_all(document.main_form, '{$prefix}_recover', this.checked);"); ?>
 						RECOVER
@@ -569,15 +572,15 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 						PURGE
 					</td>
 					<?php
-				}
 
-
-				?>
+			}
+?>
 			</tr>
 			<?php
+
 			$num_messages = count($messages);
 
-			for ($i = 0; $i < $num_messages; $i++) {
+			for ($i = 0; $i < $num_messages; $i ++) {
 
 				$data = $messages[$i];
 
@@ -586,7 +589,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 
 				$body = preg_replace("/[\n\t\r]/im", '<br />', $data['body']);
 				$body = str_replace("\"", '&quot;', $body);
-				?>
+?>
 				<script type="text/javascript">
 				//<![CDATA[
 					Bodies["<?php echo $data['msgid'];?>"] = "<?php echo $body; ?>";
@@ -608,33 +611,40 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 					</td>
 
 					<?php
-					if ($write_access) {
-						?>
+
+				if ($write_access) {
+?>
 						<td class="sq-backend-table-cell" nowrap>
 							<?php
-							if ($asset->writeAccess('mail')) check_box($prefix.'_recover['.$data['msgid'].']');
-							else echo '&nbsp;';
-							?>
+
+					if ($asset->writeAccess('mail'))
+						check_box($prefix.'_recover['.$data['msgid'].']');
+					else
+						echo '&nbsp;';
+?>
 						</td>
 						<td class="sq-backend-table-cell" nowrap>
 							<?php check_box($prefix.'_purge['.$data['msgid'].']'); ?>
 						</td>
 						<?php
-					}
-					?>
+
+				}
+?>
 				</tr>
 				<?php
+
 			}
-			?>
+?>
 			</table>
 			</div>
 			<div id="sq_message_body"></div>
-		<?php }
+		<?php
+
+		}
 
 		return true;
 
-	}//end paintTrash()
-
+	} //end paintTrash()
 
 	/**
 	* Processes the trash interface
@@ -646,18 +656,17 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function processTrash(&$asset, &$o, $prefix)
-	{
-		$msgs    = (isset($_POST[$prefix.'_messages'])) ? array_keys($_POST[$prefix.'_messages']) : Array();
-		$recover = (isset($_POST[$prefix.'_recover'])) ? array_keys($_POST[$prefix.'_recover']) : Array();
-		$purge   = (isset($_POST[$prefix.'_purge'])) ? array_keys($_POST[$prefix.'_purge']) : Array();
+	function processTrash(& $asset, & $o, $prefix) {
+		$msgs = (isset ($_POST[$prefix.'_messages'])) ? array_keys($_POST[$prefix.'_messages']) : Array ();
+		$recover = (isset ($_POST[$prefix.'_recover'])) ? array_keys($_POST[$prefix.'_recover']) : Array ();
+		$purge = (isset ($_POST[$prefix.'_purge'])) ? array_keys($_POST[$prefix.'_purge']) : Array ();
 
-		$user = &$asset->_getUser();
+		$user = & $asset->_getUser();
 
-		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$ms = & $GLOBALS['SQ_SYSTEM']->getMessagingService();
 		$messages = $ms->getMessages($user->id);
 
-		if (!empty($recover)) {
+		if (!empty ($recover)) {
 			foreach ($recover as $messageid) {
 				// recover messages to inbox
 				$message = $ms->getMessageById($messageid);
@@ -667,7 +676,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 			}
 		}
 
-		if (!empty($purge)) {
+		if (!empty ($purge)) {
 			foreach ($purge as $messageid) {
 				// delete messsage FOREVER
 				$message = $ms->getMessageById($messageid);
@@ -678,16 +687,12 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 		}
 		return true;
 
-	}//end processTrash()
+	} //end processTrash()
 
+} //end class
 
-}//end class
-
-
-function sq_print_icon($path, $width, $height, $alt='', $title='')
-{
+function sq_print_icon($path, $width, $height, $alt = '', $title = '') {
 	echo '<img src="'.sq_web_path('lib').'/web/images/blank.gif" alt="'.$alt.'" title="'.$title.'" style="background:url('.$path.'); background: expression(\'none\');filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src=\''.$path.'\', sizingMethod=\'crop\');width: '.$width.'px; height: '.$height.'px" />';
-}//end sq_print_icon()
-
-
+} //end sq_print_icon()
 ?>
+
