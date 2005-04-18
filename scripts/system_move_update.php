@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_move_update.php,v 1.10 2005/03/21 06:28:39 gsherwood Exp $
+* $Id: system_move_update.php,v 1.11 2005/04/18 09:15:58 brobertson Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Small script to be run AFTER the system root directory is changed
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -64,8 +64,9 @@ require_once $SYSTEM_ROOT.'/core/include/init.inc';
 if ((php_sapi_name() == 'cli')) {
 	if (isset($_SERVER['argv'][2])) {
 		$old_system_root = rtrim(trim($_SERVER['argv'][2]), '/');
-		while (strtolower(get_line('Confirm "'.$old_system_root.'" (Y/N) : ')) != 'y')
-			continue;
+		if (strtolower(get_line('Confirm "'.$old_system_root.'" (Y/N) : ')) != 'y') {
+			unset($old_system_root);
+		}
 	}
 }
 
