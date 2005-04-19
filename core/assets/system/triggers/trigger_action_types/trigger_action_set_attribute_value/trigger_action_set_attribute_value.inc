@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_attribute_value.inc,v 1.1 2005/04/15 05:36:01 gsherwood Exp $
+* $Id: trigger_action_set_attribute_value.inc,v 1.2 2005/04/19 04:51:30 gsherwood Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -45,9 +45,8 @@ class Trigger_Action_Set_Attribute_Value extends Trigger_Action
 	* The settings used by this action are in the form:<BR />
 	* <PRE>
 	* Array(
-	*       'permission' => int    // the permission level (read, write or admin)
-	*       'granted'    => int    // is access granted ('1') or denied ('0')
-	*       'userid'     => string // the assetid of the user the permission is being set for
+	*       'attribute' => string // the attribute to modify
+	*       'value'     => string // the value to set
 	*       );
 	* </PRE>
 	*
