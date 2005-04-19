@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.302 2005/04/19 00:15:28 tbarrett Exp $
+* $Id: asset_manager.inc,v 1.303 2005/04/19 04:50:45 gsherwood Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.302 $
+* @version $Revision: 1.303 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -666,38 +666,6 @@ class Asset_Manager extends MySource_Object
 	}//end validAttributeType()
 
 
-	/**
-	* Retrieves the attributes (with null values) for the asset type
-	*
-	* @param string			$type_code		the type of asset
-	* @param array(string)	$details		an array of columns from the DB table you want returned
-	*
-	* @return array
-	* @access public
-	*/
-	function getAssetTypeAttributes($type_code, $details=Array('name', 'type'))
-	{
-		if (!is_string($type_code)) return Array();
-
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
-
-		$sql = 'SELECT '.implode(', ', $details).' FROM sq_ast_attr
-				WHERE type_code = '.$db->quote($type_code);
-
-		if (count($details) > 1) {
-			$result = $db->getAssoc($sql);
-		} else {
-			$result = $db->getCol($sql);
-		}
-
-		assert_valid_db_result($result);
-
-		return $result;
-
-	}//end getAssetTypeAttributes()
-
-
 //--        ATTRIBUTES        --//
 
 
@@ -766,6 +734,38 @@ class Asset_Manager extends MySource_Object
 		return $this->_attributes[$attrid]['object'];
 
 	}//end getAttribute()
+
+
+	/**
+	* Retrieves the attributes (with null values) for the asset type
+	*
+	* @param string			$type_code		the type of asset
+	* @param array(string)	$details		an array of columns from the DB table you want returned
+	*
+	* @return array
+	* @access public
+	*/
+	function getAssetTypeAttributes($type_code, $details=Array('name', 'type'))
+	{
+		if (!is_string($type_code)) return Array();
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
+
+		$sql = 'SELECT '.implode(', ', $details).' FROM sq_ast_attr
+				WHERE type_code = '.$db->quote($type_code);
+
+		if (count($details) > 1) {
+			$result = $db->getAssoc($sql);
+		} else {
+			$result = $db->getCol($sql);
+		}
+
+		assert_valid_db_result($result);
+
+		return $result;
+
+	}//end getAssetTypeAttributes()
 
 
 //--        ASSETS        --//
