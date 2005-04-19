@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.79 2005/04/18 09:15:04 brobertson Exp $
+* $Id: html_form.inc,v 1.80 2005/04/19 04:49:11 gsherwood Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.79 $
+* @version $Revision: 1.80 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -894,8 +894,8 @@ function asset_type_chooser($name, $multiple=false, $defaults=Array(), $instanti
 		$types[$code] = $details['name'];
 	}
 	asort($types);
+	$types = Array('' => '') + $types;
 	if ($multiple) {
-		$types = Array(''=>'') + $types;
 		if ($show_inherit_checkbox) {
 			foreach ($defaults['type_code'] as $i => $type_code) {
 				if (empty($type_code)) continue;
