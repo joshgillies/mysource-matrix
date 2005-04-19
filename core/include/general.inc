@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.84 2005/04/15 00:37:28 lwright Exp $
+* $Id: general.inc,v 1.85 2005/04/19 00:16:18 tbarrett Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.84 $
+* @version $Revision: 1.85 $
 * @package MySource_Matrix
 */
 
@@ -201,7 +201,7 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 													function print_backtrace_<?php echo $num_errors; ?>() {
 														var alert_win = window.open('', 'backtrace_window_<?php echo $num_errors; ?>', 'resizable=yes,scrollbars=yes,width=800,height=500');
 														alert_win.document.open();
-														alert_win.document.writeln("<html><body><pre>");
+														alert_win.document.writeln("<html><head><title>MySource Backtrace</title></head><body><pre>");
 														alert_win.document.writeln("<?php echo str_replace("\n", '\\n', addslashes(htmlspecialchars($bt_str))); ?>");
 														alert_win.document.writeln("</pre></body></html>");
 														alert_win.document.close();
