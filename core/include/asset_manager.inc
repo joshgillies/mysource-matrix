@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.301 2005/04/15 00:37:28 lwright Exp $
+* $Id: asset_manager.inc,v 1.302 2005/04/19 00:15:28 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.301 $
+* @version $Revision: 1.302 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3805,7 +3805,7 @@ class Asset_Manager extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function deleteAssetLink($linkid, $moving)
+	function deleteAssetLink($linkid, $moving=false)
 	{
 		// first, we should try and find the link
 		$link = $this->getLinkById($linkid);
