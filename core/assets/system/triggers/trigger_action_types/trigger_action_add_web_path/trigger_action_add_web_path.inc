@@ -1,0 +1,161 @@
+<?php
+/**
+* +--------------------------------------------------------------------+
+* | Squiz.net Open Source Licence                                      |
+* +--------------------------------------------------------------------+
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +--------------------------------------------------------------------+
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +--------------------------------------------------------------------+
+*
+* $Id: trigger_action_add_web_path.inc,v 1.1 2005/04/19 04:52:35 gsherwood Exp $
+*
+*/
+
+require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_action.inc';
+
+/**
+* Trigger_Action_Add_Web_Path
+*
+* A trigger action that sets a the value of an asset attribute
+*
+*
+* @author  Greg Sherwood <greg@squiz.net>
+* @version $Revision: 1.1 $
+* @package MySource_Matrix_Packages
+* @subpackage __core__
+*/
+class Trigger_Action_Add_Web_Path extends Trigger_Action
+{
+
+
+	/**
+	* Execute this action
+	*
+	* The settings used by this action are in the form:<BR />
+	* <PRE>
+	* Array(
+	*       'path' => string // the web path to add
+	*       );
+	* </PRE>
+	*
+	* @param array	$settings	the stored settings for this action
+	* @param array	&$state		the state that describes the asset the action is executing on
+	*
+	* @return boolean
+	* @access public
+	*/
+	function execute($settings, &$state)
+	{
+		// check required settings
+		if (!isset($settings['path'])) return false;
+		if ($settings['path'] == '') return false;
+
+		if (empty($state['asset'])) {
+			// grab the asset if assetid is given, but not the asset.
+			if (empty($state['assetid'])) {
+				return false;
+			} else {
+				$state['asset'] = &$GLOBALS['SQ_SYSTEM']->am->getAsset($state['assetid']);
+			}
+		}
+
+		if (is_null($state['asset'])) return false;
+
+		// dont change anything if the asset already has this web path
+		$web_paths = $state['asset']->getWebPaths();
+		if (in_array($settings['path'], $web_paths)) {
+			return true;
+		}
+
+		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LOCKING)) {
+			// lock the asset
+			if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($state['assetid'], 'lookups')) {
+				return false;
+			}
+		}
+
+		// add the new web path (note that lookups are updated by the saveWebPaths fn)
+		$web_paths[] = $settings['path'];
+		if (!$state['asset']->saveWebPaths($web_paths)) {
+			return false;
+		}
+
+		// note that we dont update the lookups of all our children so we have
+		// the greatest level of control over what occurs during things like imports
+
+		// probably need another trigger action to update lookups (run the HIPO job)
+
+		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LOCKING)) {
+			// release the attributes lock, but dont fail if we cant unlock
+			$GLOBALS['SQ_SYSTEM']->am->releaseLock($state['assetid'], 'lookups');
+		}
+
+		return true;
+
+	}//end execute()
+
+
+	/**
+	* Get the HTML editing interface for this action. Returns the string instead of printing it
+	*
+	* @param array		$settings		settings that this condition saves in processInterface()
+	* @param string		$prefix			unique prefix
+	* @param boolean	$write_access	determines whether the interface is editable
+	*
+	* @access public
+	* @return boolean
+	*/
+	function getInterface($settings, $prefix, $write_access=false)
+	{
+		ob_start();
+
+		$web_path = array_get_index($settings, 'path', '');
+		echo 'Add the web path ';
+		if ($write_access) {
+			text_box($prefix.'[path]', $web_path, 20);
+		} else {
+			echo '<b>'.$web_path.'</b>';
+		}
+
+		return ob_get_clean();
+
+	}//end getInterface()
+
+
+	/**
+	* Function that handles the conversion of interface to settings
+	* together with settings it is expected to populate the hash object
+	*
+	* @param array	$settings		a container for any data the action might want to save
+	* @param string	$request_data	array of data corresponding to this action as
+	* 								specified by the $prefix in getInterface.
+	*
+	* @access public
+	* @return boolean
+	*/
+	function processInterface(&$settings, $request_data)
+	{
+		$web_path = array_get_index($request_data, 'path', '');
+		$web_path = trim($web_path);
+		if ($web_path == '') return 'Web Path not specified';
+		$settings['path'] = $web_path;
+
+		return false;
+
+	}//end processInterface()
+
+
+}//end class
+
+?>
