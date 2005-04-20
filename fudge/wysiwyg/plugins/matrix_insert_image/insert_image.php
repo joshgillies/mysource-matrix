@@ -18,8 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_image.php,v 1.20 2004/11/10 22:38:32 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: insert_image.php,v 1.20.2.1 2005/04/20 23:53:07 gsherwood Exp $
 */
 
 /**
@@ -66,7 +65,7 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 				while (path.indexOf("/") >= 0) path = path.substring(path.indexOf("/") + 1);
 				ext = "";
 				i = path.length;
-				while (ext.charAt(0) != "." || i==0) ext = path.substring(i--);
+				while (ext.charAt(0) != "." && i > 0) ext = path.substring(i--);
 				path = path.substring(0, ++i);
 
 				document.getElementById("f_alt").value = path;
