@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.56 2005/04/20 00:16:59 ndvries Exp $
+* $Id: page_asset_builder.inc,v 1.57 2005/04/20 23:04:12 rhoward Exp $
 *
 */
 
@@ -37,7 +37,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.56 $
+* @version $Revision: 1.57 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1151,8 +1151,8 @@ class Page_Asset_Builder extends Page
 	* @param Array(string)				&$output_tree	optional, used internally
 	*
 	* @see Page_Asset_Builder::_IDListToTree()
-	* @access public
-	* @return
+	* @access private
+	* @return void
 	*/
 	function _drawTree($tree, &$all_child_links, &$output_tree, $parent='', $prefix='', $parent_prefix='')
 	{
