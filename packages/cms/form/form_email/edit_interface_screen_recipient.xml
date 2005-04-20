@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_recipient.xml,v 1.14.2.1 2005/04/14 01:43:56 lwright Exp $
+* $Id: edit_interface_screen_recipient.xml,v 1.14.2.2 2005/04/20 01:56:43 ndvries Exp $
 *
 */
 -->
@@ -37,7 +37,7 @@
 	<section name="Recipient Email Options">
 		<field attribute="recipient_emails_format">
 			<display_name>Recipient Email Format</display_name>
-			<note>If the 'To' field is empty then no Recipient e-mails will be sent. In addition to the keyword replacements pointed to at the top of this screen, you may use the following keywords in any of the above fields:&lt;br /&gt;
+			<note>If the 'To' field is empty then no Recipient e-mails will be sent. In addition to the keyword replacements pointed to at the top of this screen, you may use the following keywords in any of the above fields:&lt;br /&gt;</note>
 			<email_format />
 		</field>
 	</section>
