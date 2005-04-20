@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_image.php,v 1.25 2005/01/20 13:32:41 brobertson Exp $
+* $Id: insert_image.php,v 1.26 2005/04/20 23:54:43 gsherwood Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Insert Image Popup for the WYSIWYG
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix
 */
 
@@ -101,7 +101,7 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 					while (path.indexOf("/") >= 0) path = path.substring(path.indexOf("/") + 1);
 					ext = "";
 					i = path.length;
-					while (ext.charAt(0) != "." || i==0) ext = path.substring(i--);
+					while (ext.charAt(0) != "." && i > 0) ext = path.substring(i--);
 					imageInfo['alt'] = path.substring(0, ++i);
 				}
 
