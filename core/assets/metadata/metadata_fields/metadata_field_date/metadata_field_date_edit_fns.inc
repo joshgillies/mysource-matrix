@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date_edit_fns.inc,v 1.18 2005/04/15 00:37:26 lwright Exp $
+* $Id: metadata_field_date_edit_fns.inc,v 1.19 2005/04/20 00:51:59 ndvries Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -391,7 +391,7 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 				$value = $field->value;
 			} else {
 				// field could not be processed
-				trigger_localised_error("CORE0203", E_USER_WARNING, $asset->name);
+				trigger_localised_error('CORE0203', E_USER_WARNING, $asset->name);
 				return false;
 			}
 		}

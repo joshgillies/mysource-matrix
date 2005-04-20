@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job.inc,v 1.68 2005/04/15 00:37:27 lwright Exp $
+* $Id: hipo_job.inc,v 1.69 2005/04/20 00:51:59 ndvries Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_DATA_PATH.'/private/conf/hipo.inc';
 * Highly Intensive Processing Object (HIPO)
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.68 $
+* @version $Revision: 1.69 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -1089,7 +1089,7 @@ class HIPO_Job extends MySource_Object
 				case 'web' :
 					// if we have reached a new step, that uses a different running mode to ourselves, then change our running mode
 					// pre_echo(__FUNCTION__."::".__LINE__.">>>>>>>>>>>>>>>>> RESET RUNNING MODE TO web <<<<<<<<<<<<<<<<<<<");
-					log_error("The Squiz Server reset the running mode to WEB for User ID #".$GLOBALS['SQ_SYSTEM']->currentUserId()." and Job ".$this->source_code_name);
+					log_error('The Squiz Server reset the running mode to WEB for User ID #'.$GLOBALS['SQ_SYSTEM']->currentUserId().' and Job '.$this->source_code_name);
 					return $this->setRunningMode('web');
 				break;
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_text_edit_fns.inc,v 1.7 2005/04/13 23:49:30 ndvries Exp $
+* $Id: metadata_field_text_edit_fns.inc,v 1.8 2005/04/20 00:51:59 ndvries Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -187,7 +187,7 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 
 		for (reset($value_components); null !== ($vc_name = key($value_components)); next($value_components)) {
 			if (isset($_POST[$prefix.'_vc_value'][$vc_name])) {
-				$value_components[$vc_name] = str_replace(Array("\n", "\r"), Array(" ", ""), trim($_POST[$prefix.'_vc_value'][$vc_name]));
+				$value_components[$vc_name] = str_replace(Array('\n', '\r'), Array(' ', ''), trim($_POST[$prefix.'_vc_value'][$vc_name]));
 			}
 		}
 

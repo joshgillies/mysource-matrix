@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_section_edit_fns.inc,v 1.26 2005/04/13 23:49:30 ndvries Exp $
+* $Id: metadata_section_edit_fns.inc,v 1.27 2005/04/20 00:51:59 ndvries Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -123,7 +123,7 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 				$contents = Array();
 				foreach ($descendant_types as  $type) {
 					// $te[2] - type of the field, which we need
-					$te = explode("_", $type);
+					$te = explode('_', $type);
 					$contents[$type] = ucfirst($te[2]); // capitalizing the first char
 				}
 
