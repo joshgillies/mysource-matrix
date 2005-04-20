@@ -1,0 +1,249 @@
+<?php
+/**
+* +--------------------------------------------------------------------+
+* | Squiz.net Open Source Licence                                      |
+* +--------------------------------------------------------------------+
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +--------------------------------------------------------------------+
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +--------------------------------------------------------------------+
+*
+* $Id: trigger_action_create_asset.inc,v 1.1 2005/04/20 04:23:20 gsherwood Exp $
+*
+*/
+
+require_once SQ_LIB_PATH.'/html_form/html_form.inc';
+require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_action.inc';
+
+/**
+* Trigger Action Create Asset
+*
+* A trigger action that creates a clone of the firing asset
+*
+*
+* @author  Greg Sherwood <greg@squiz.net>
+* @version $Revision: 1.1 $
+* @package MySource_Matrix_Packages
+* @subpackage __core__
+*/
+class Trigger_Action_Create_Asset extends Trigger_Action
+{
+
+
+	/**
+	* Execute this action
+	*
+	* Returns an array of data about what it did, or false on error
+	*
+	* The settings used by this action are in the form:<BR />
+	* <PRE>
+	* Array(
+	*       'parentid'     => string  // the ID of the new asset's parent
+	*       'type_code'    => string  // the type of the new asset
+	*       'link_type'    => int     // the type of link to attach to the parent
+	*       'value'        => string  // the value associated with a link (optional)
+	*       'is_dependant' => boolean // whether the link is dependant (optional)
+	*       'is_exclusive' => boolean // whether the link is exclusive (optional)
+	*       );
+	* </PRE>
+	*
+	* @param array	$settings	the stored settings for this action
+	* @param array	&$state		the state that describes the asset the action is executing on
+	*
+	* @return array | boolean
+	* @access public
+	*/
+	function execute($settings, &$state)
+	{
+		// check required settings
+		if (empty($settings['type_code'])) return false;
+		if (empty($settings['parentid'])) return false;
+		if (empty($settings['link_type'])) return false;
+
+		$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($settings['parentid']);
+		if (is_null($parent)) return false;
+
+		// check the optional settings, assign defaults
+		$is_dependant = array_get_index($settings, 'is_dependant', 0);
+		$is_exclusive = array_get_index($settings, 'is_exclusive', 0);
+
+		// the new link
+		$link = Array(
+					'asset'			=> &$parent,
+					'link_type'		=> $settings['link_type'],
+					'value'			=> $settings['value'],
+					'sort_order'	=> null,
+					'is_dependant'	=> (bool) $is_dependant,
+					'is_exclusive'	=> (bool) $is_exclusive,
+				);
+
+		$type_code = $settings['type_code'];
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
+		$new_asset = new $type_code();
+		$linkid = $new_asset->create($link);
+		if (!$linkid) return false;
+
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
+
+		return Array(
+				'assetid'		=> $link['minorid'],
+				'parentid'		=> $link['majorid'],
+				'linkid'		=> $link['linkid'],
+				'link_type'		=> $link['link_type'],
+				'value'			=> $link['value'],
+				'sort_order'	=> $link['sort_order'],
+				'is_dependant'	=> $link['is_dependant'],
+				'is_exclusive'	=> $link['is_exclusive'],
+			   );
+
+	}//end execute()
+
+
+	/**
+	* Get the HTML editing interface for this action. Returns the string instead of printing it
+	*
+	* @param array		$settings		settings that this condition saves in processInterface()
+	* @param string		$prefix			unique prefix
+	* @param boolean	$write_access	determines whether the interface is editable
+	*
+	* @access public
+	* @return boolean
+	*/
+	function getInterface($settings, $prefix, $write_access=false)
+	{
+		// check settings, set defaults if necessary
+		$parentid     = array_get_index($settings, 'parentid', 0);
+		$type_code    = array_get_index($settings, 'type_code', 0);
+		$link_type    = array_get_index($settings, 'link_type', SQ_LINK_TYPE_1);
+		$value        = array_get_index($settings, 'value', '');
+		$is_dependant = array_get_index($settings, 'is_dependant', 0);
+		$is_exclusive = array_get_index($settings, 'is_exclusive', 0);
+
+		// check if the parent asset is valid
+		if ($parentid && !$GLOBALS['SQ_SYSTEM']->am->assetExists($parentid)) {
+			$parentid = 0;
+		}
+
+		ob_start();
+			echo 'Create a new asset of type ';
+			if ($write_access) {
+				asset_type_chooser($prefix.'[type_code]', false, Array($type_code), true);
+			} else {
+				echo '<b>'.$type_code.'</b>';
+			}
+
+			echo ' linked under ';
+			if ($write_access) {
+				asset_finder($prefix.'[parentid]', $parentid, Array('asset' => 'D'));
+			} else {
+				$parent = null;
+				if ($parentid > 0) {
+					$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parentid);
+				}
+				if (is_null($parent)) {
+					echo '<b>[no parent selected]</b>';
+				} else {
+					echo '<b>'.$parent->name.' (#'.$parent->id.')</b>';
+				}
+			}
+
+			$link_type_list = get_link_type_names();
+			unset($link_type_list[SQ_LINK_NOTICE]);
+			echo '<br />using a ';
+			if ($write_access) {
+				combo_box($prefix.'[link_type]', $link_type_list, false, $link_type);
+			} else {
+				echo '<b>'.$link_type_list[$link_type].'</b>';
+			}
+			echo ' link.<br /><br />';
+
+			?>
+			<b>Optional items for Advanced users:</b><br />Use the link value 
+			<?php
+			if ($write_access) {
+				text_box($prefix.'[value]', $value, '', '');
+			} else {
+				if (empty($value)) $value = '[no value entered]';
+				echo '<b>'.$value.'</b>';
+			}
+
+			echo ' and link the asset ';
+			$is_dependant_list = Array(0 => 'non-dependantly', 1 => 'dependantly');
+			if ($write_access) {
+				combo_box($prefix.'[is_dependant]', $is_dependant_list, false, $is_dependant);
+			} else {
+				echo '<b>'.$is_dependant_list[$is_dependant].'</b>';
+			}
+
+			echo ' and ';
+			$is_exclusive_list = Array(0 => 'non-exclusively', 1 => 'exclusively');
+			if ($write_access) {
+				combo_box($prefix.'[is_exclusive]', $is_exclusive_list, false, $is_exclusive);
+			} else {
+				echo '<b>'.$is_exclusive_list[$is_exclusive].'</b>';
+			}
+
+			echo ' to the parent.<br /><br />';
+			?>
+			<span class="sq-backend-warning"><b>You can only create assets that do not have required attribute values</b></span>
+			<?php
+
+		return ob_get_clean();
+
+	}//end getInterface()
+
+
+	/**
+	* Handle the conversion of interface to settings
+	* together with settings it is expected to populate the hash object
+	*
+	* @param array	$settings		a container for any data the action might want to save
+	* @param string	$request_data	array of data corresponding to this action as specified
+	* 								by the $prefix in getInterface.
+	*
+	* @access public
+	* @return boolean
+	*/
+	function processInterface(&$settings, $request_data)
+	{
+		// make sure the parentid isn't blank
+		if (empty($request_data['parentid']['assetid'])) {
+			return 'Parent to create under is missing';
+		}
+
+		$link_type_list = get_link_type_names();
+		if (empty($request_data['link_type']) || !isset($link_type_list[$request_data['link_type']])) {
+			return 'Link type is missing';
+		}
+
+		$settings['parentid']  = $request_data['parentid']['assetid'];
+		$settings['link_type'] = $request_data['link_type'];
+
+		$type_code = array_get_index($request_data, 'type_code', false);
+		if (!$type_code) return 'Asset type not specified';
+		$settings['type_code'] = $type_code;
+
+		// optional fields
+		$settings['value']        = array_get_index($request_data, 'value', '');
+		$settings['is_dependant'] = array_get_index($request_data, 'is_dependant', 0);
+		$settings['is_exclusive'] = array_get_index($request_data, 'is_exclusive', 0);
+
+		return false;
+
+	}//end processInterface()
+
+
+}//end class
+
+?>
