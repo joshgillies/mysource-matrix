@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_tree_location.inc,v 1.7 2005/04/14 04:58:12 rhoward Exp $
+* $Id: trigger_condition_tree_location.inc,v 1.8 2005/04/20 04:15:13 gsherwood Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -154,30 +154,28 @@ class Trigger_Condition_Tree_Location extends Trigger_Condition
 		$immed_child = array_get_index($settings, 'immed_child', '0');
 		$immed_child = ($immed_child == '0' ? false : true);
 
-		if (!$write_access) {
-			$form_element_extras = 'disabled="disabled"';
-		} else {
-			$form_element_extras = '';
-		}
-
-
-		// capture anything printed
 		ob_start();
 
 		// create an asset_finder, and pre-select the asset that is saved in settings (if any)
-		echo "Asset is under this tree node:";
+		echo 'Asset is under ';
 		if ($write_access) {
 			asset_finder($prefix.'[assetid]', $selected_assetid);
+			check_box($prefix.'[immed_child]', '1', $immed_child);
+			echo "Immediate child only";
 		} else {
-			if ($selected_assetid) {
-				$selected_assetname = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($selected_assetid), Array(), true, 'name');
-				text_box($prefix.'[assetid]', $selected_assetname[$selected_assetid].' (#'.$selected_assetid.')', '', '', false, $form_element_extras);
+			$tree_asset = null;
+			if ($selected_assetid > 0) {
+				$tree_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($selected_assetid);
+			}
+			if (is_null($tree_asset)) {
+				echo '<b>[no asset selected]</b>';
 			} else {
-				text_box($prefix.'[assetid]', '', '', '', false, $form_element_extras);
+				echo '<b>'.$tree_asset->name.' (#'.$tree_asset->id.')</b>';
+				if ($immed_child) {
+					echo '<b> as an immediate child only</b>';
+				}
 			}
 		}
-		check_box($prefix.'[immed_child]', '1', $immed_child, null, $form_element_extras);
-		echo "Immediate child only";
 
 		return ob_get_clean();
 
