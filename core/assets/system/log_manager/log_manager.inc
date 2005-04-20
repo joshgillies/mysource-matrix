@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: log_manager.inc,v 1.13 2005/04/15 00:37:26 lwright Exp $
+* $Id: log_manager.inc,v 1.14 2005/04/20 00:30:38 rhoward Exp $
 */
 
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -272,7 +272,7 @@ class Log_Manager extends Asset
 	*/
 	function &getLogIterator($logname, $rotation_index=null)
 	{
-		include_once "log_iterator.inc";
+		include_once 'log_iterator.inc';
 		// start up the generate report HIPO
 		$iterator = new Log_Iterator($logname, $rotation_index);
 		return $iterator;
@@ -402,7 +402,7 @@ class Log_Manager extends Asset
 			}
 			fclose($handle);
 		} else {
-			trigger_localised_error("CORE0018", E_USER_ERROR, $file);
+			trigger_localised_error('CORE0018', E_USER_ERROR, $file);
 			$result = false;
 		}
 
@@ -425,7 +425,7 @@ class Log_Manager extends Asset
 
 		$filesize = false;
 		if (file_exists($file)) {
-			$filesize = sprintf("%u", filesize($file));
+			$filesize = sprintf('%u', filesize($file));
 		}
 
 		return $filesize;
@@ -601,7 +601,7 @@ class Log_Manager extends Asset
 		$content = '';
 
 		if (empty($action)) {
-			echo "No action supplied";
+			echo 'No action supplied';
 			return true;
 
 		} else if ($action == 'monitor' && !empty($logname)) {
@@ -609,7 +609,7 @@ class Log_Manager extends Asset
 			$filename = SQ_LOG_PATH.'/'.$logname.SQ_CONF_LOG_EXTENSION;
 
 			if (!is_readable($filename)) {
-				echo "File is not readable";
+				echo 'File is not readable';
 				return true;
 			}
 
@@ -619,7 +619,7 @@ class Log_Manager extends Asset
 			} else {
 				$handle = fopen($filename, 'r');
 				if (!$handle) {
-					echo "Cannot open file";
+					echo 'Cannot open file';
 					return;
 				}
 
@@ -643,7 +643,7 @@ class Log_Manager extends Asset
 				}
 			}
 
-			$date_string = date("G:i:s - d M");
+			$date_string = date('G:i:s - d M');
 			$content = '
 				<table class="sq-backend-table">
 					<tr>
@@ -652,7 +652,7 @@ class Log_Manager extends Asset
 					</tr>';
 
 			if (empty($lines)) {
-				$content .= "Empty";
+				$content .= 'Empty';
 			} else {
 				foreach ($lines as $line) {
 					if (empty($line)) continue;
@@ -687,7 +687,7 @@ class Log_Manager extends Asset
 			$content .= '</table>';
 
 		} else {
-			trigger_localised_error("CORE0125", E_USER_WARNING);
+			trigger_localised_error('CORE0125', E_USER_WARNING);
 			return true;
 		}
 

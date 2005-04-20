@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: log_manager_edit_fns.inc,v 1.5 2005/04/13 04:32:59 rhoward Exp $
+* $Id: log_manager_edit_fns.inc,v 1.6 2005/04/20 00:30:39 rhoward Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard  <rhoward@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -76,7 +76,7 @@ class Log_Manager_Edit_Fns extends Asset_Edit_Fns
 		$o->openRaw();
 		$logs = $lm->getLogs();
 		if (empty($logs)) {
-			echo "<h2>No Logs Found</h2>";
+			echo '<h2>No Logs Found</h2>';
 			return $write_access;
 		}
 
@@ -314,7 +314,7 @@ class Log_Manager_Edit_Fns extends Asset_Edit_Fns
 			</tr>
 			<?php
 		}
-		echo "</table>";
+		echo '</table>';
 
 		$o->closeRaw();
 		$o->closeSection();
