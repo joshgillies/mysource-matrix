@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.41 2005/04/20 05:33:10 tbarrett Exp $
+* $Id: wysiwyg.inc,v 1.42 2005/04/20 05:35:48 tbarrett Exp $
 *
 */
 
@@ -33,7 +33,7 @@
 *     to do this.
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.41 $
+* @version $Revision: 1.42 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -743,7 +743,6 @@ class wysiwyg
 							// get the stuff to put in the <p>
 							var range = this._createTextRange(this._getSelection());
 							var lastElt = range.commonAncestorContainer;
-							alert(lastElt);
 							if (lastElt.tagName != 'BODY') {
 								var firstElt = lastElt;
 								while ((firstElt.previousSibling != null) && ((firstElt.previousSibling.tagName == 'BR') || (firstElt.previousSibling.nodeType == 3))) {
