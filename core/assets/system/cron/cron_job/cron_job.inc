@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job.inc,v 1.30 2005/04/15 00:37:26 lwright Exp $
+* $Id: cron_job.inc,v 1.31 2005/04/20 02:04:09 rhoward Exp $
 *
 */
 
@@ -40,7 +40,7 @@ define('SQ_CRON_JOB_RETRY',			16);// cron job requests to be retried (only valid
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -76,7 +76,7 @@ class Cron_Job extends Asset
 		if (!parent::_preCreateCheck($link)) return false;
 
 		if (!$this->attr('type') || !$this->attr('when')) {
-			trigger_localised_error("CRON0002", E_USER_ERROR);
+			trigger_localised_error('CRON0002', E_USER_ERROR);
 			return false;
 		}
 
@@ -128,7 +128,7 @@ class Cron_Job extends Asset
 	*/
 	function morph($new_type_code)
 	{
-		trigger_localised_error("CRON0024", E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
+		trigger_localised_error('CRON0024', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
 		return false;
 
 	}//end morph()
@@ -148,7 +148,7 @@ class Cron_Job extends Asset
 	*/
 	function moveLinkPos($linkid, $sort_order=-1)
 	{
-		trigger_localised_error("CRON0041", E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
+		trigger_localised_error('CRON0041', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
 		return false;
 
 	}//end moveLinkPos()
@@ -184,11 +184,11 @@ class Cron_Job extends Asset
 
 			$value = (string) $value;
 			if ($this->attr('type') != 'one_off' && substr($value, 0, 2) == 'OO') {
-				trigger_localised_error("CRON0009", E_USER_NOTICE);
+				trigger_localised_error('CRON0009', E_USER_NOTICE);
 				return false;
 			}//end if
 			if ($this->attr('type') == 'one_off' && substr($value, 0, 2) != 'OO') {
-				trigger_localised_error("CRON0043", E_USER_NOTICE);
+				trigger_localised_error('CRON0043', E_USER_NOTICE);
 				return false;
 			}// end if
 
@@ -264,7 +264,7 @@ class Cron_Job extends Asset
 
 				if ($when_ts < $cron_mgr->timeOfNextRun()) {
 					require_once SQ_FUDGE_PATH.'/general/datetime.inc';
-					trigger_localised_error("CRON0042", E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'), easy_datetime($cron_mgr->timeOfNextRun()));
+					trigger_localised_error('CRON0042', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'), easy_datetime($cron_mgr->timeOfNextRun()));
 					return false;
 				}//end if
 
@@ -346,7 +346,7 @@ class Cron_Job extends Asset
 			case 'MT' : return 'Monthly';
 			case 'YR' : return 'Yearly';
 			default :
-				trigger_localised_error("CRON0005", $type, E_USER_NOTICE);
+				trigger_localised_error('CRON0005', $type, E_USER_NOTICE);
 			return '';
 		}
 	}//end whenTypeName()
@@ -372,7 +372,7 @@ class Cron_Job extends Asset
 			case 5 : return 'Friday';
 			case 6 : return 'Saturday';
 			default :
-				trigger_localised_error("CRON0034", E_USER_NOTICE, $wday);
+				trigger_localised_error('CRON0034', E_USER_NOTICE, $wday);
 				return '';
 		}//end switch
 
@@ -527,7 +527,7 @@ class Cron_Job extends Asset
 
 				// else couldn't set the current user
 				} else {
-					trigger_localised_error("CRON0027", E_USER_WARNING, $this->name, $this->id, $user->name, $user->id);
+					trigger_localised_error('CRON0027', E_USER_WARNING, $this->name, $this->id, $user->name, $user->id);
 					// we can retry because the user may have just been being edited, or something
 					$exec_result = SQ_CRON_JOB_ERROR | SQ_CRON_JOB_RETRY;
 				}
@@ -536,7 +536,7 @@ class Cron_Job extends Asset
 
 			// else acquireLock failed
 			} else {
-				trigger_localised_error("CRON0025", E_USER_WARNING, $this->name, $this->id);
+				trigger_localised_error('CRON0025', E_USER_WARNING, $this->name, $this->id);
 				// we can retry because the lock might be free by the time that we try again
 				$exec_result = SQ_CRON_JOB_ERROR | SQ_CRON_JOB_RETRY;
 
@@ -544,7 +544,7 @@ class Cron_Job extends Asset
 
 		// else no running user
 		} else {
-			trigger_localised_error("CRON0026", E_USER_WARNING, $this->name, $this->id);
+			trigger_localised_error('CRON0026', E_USER_WARNING, $this->name, $this->id);
 			// we can be removed because without the running user we can't do anything
 			$exec_result = SQ_CRON_JOB_ERROR | SQ_CRON_JOB_REMOVE;
 
@@ -705,7 +705,7 @@ class Cron_Job extends Asset
 			$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 			$msg = $ms->newMessage();
 			$msg->subject = 'TERMINATION of '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name');
-			$msg->body	  = "The job \"".$this->name."\" (#".$this->id.") fatally triggered an error and terminated the cron script.\n"
+			$msg->body	  = 'The job "'.$this->name.'" (#'.$this->id.') fatally triggered an error and terminated the cron script.'."\n"
 							."It has been removed from the cron manager\n\nError Messages :\n"
 							.$this->_tmp['running_errors'];
 
@@ -736,7 +736,7 @@ class Cron_Job extends Asset
 	*/
 	function _exec(&$msg)
 	{
-		trigger_localised_error("CRON0028", E_USER_WARNING, $this->name, $this->id);
+		trigger_localised_error('CRON0028', E_USER_WARNING, $this->name, $this->id);
 		// we can be removed because we haven't been done
 		return SQ_CRON_JOB_ERROR | SQ_CRON_JOB_REMOVE;
 

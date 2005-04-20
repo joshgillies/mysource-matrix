@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager.inc,v 1.51 2005/04/15 00:37:26 lwright Exp $
+* $Id: cron_manager.inc,v 1.52 2005/04/20 02:04:10 rhoward Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.51 $
+* @version $Revision: 1.52 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -166,7 +166,7 @@ class Cron_Manager extends Asset
 	*/
 	function morph($new_type_code)
 	{
-		trigger_localised_error("CRON0024", E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
+		trigger_localised_error('CRON0024', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
 		return false;
 
 	}//end morph()
@@ -186,7 +186,7 @@ class Cron_Manager extends Asset
 	*/
 	function moveLinkPos($linkid, $sort_order=-1)
 	{
-		trigger_localised_error("CRON0041", E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
+		trigger_localised_error('CRON0041', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
 		return false;
 
 	}//end moveLinkPos()
@@ -204,7 +204,7 @@ class Cron_Manager extends Asset
 	function setAttrValue($name, $value)
 	{
 		if (!$GLOBALS['SQ_SYSTEM']->userRoot()) {
-			trigger_localised_error("CRON0025", E_USER_WARNING, $name, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
+			trigger_localised_error('CRON0025', E_USER_WARNING, $name, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
 			return false;
 		}
 
@@ -218,19 +218,19 @@ class Cron_Manager extends Asset
 			if ($value >= $one_day) {
 				// if we are over a day we must be a multiple of one day
 				if ($value % $one_day) {
-					trigger_localised_error("CRON0035", E_USER_WARNING, $one_day);
+					trigger_localised_error('CRON0035', E_USER_WARNING, $one_day);
 					return false;
 				}
 			} else if ($value >= $one_hour) {
 				// if we are over an hour we must be a multiple of one hour
 				if ($value % $one_hour || $one_day % $value) {
-					trigger_localised_error("CRON0036", E_USER_WARNING, $one_hour);
+					trigger_localised_error('CRON0036', E_USER_WARNING, $one_hour);
 					return false;
 				}
 			} else {
 				// if we less than an hour we must divide evenly into an hour
 				if ($one_hour % $value) {
-					trigger_localised_error("CRON0037", E_USER_WARNING, $one_hour);
+					trigger_localised_error('CRON0037', E_USER_WARNING, $one_hour);
 					return false;
 				}
 			}
@@ -260,7 +260,7 @@ class Cron_Manager extends Asset
 	function addJob(&$job, &$user, $link_type=SQ_LINK_TYPE_3)
 	{
 		if (!is_a($job, 'cron_job')) {
-			trigger_localised_error("CRON0001", E_USER_WARNING, $job->type());
+			trigger_localised_error('CRON0001', E_USER_WARNING, $job->type());
 			return false;
 		}
 
@@ -287,7 +287,7 @@ class Cron_Manager extends Asset
 	function removeJob(&$job)
 	{
 		if (!is_a($job, 'cron_job')) {
-			trigger_localised_error("CRON0001", E_USER_WARNING, $job->type());
+			trigger_localised_error('CRON0001', E_USER_WARNING, $job->type());
 			return false;
 		}
 
@@ -385,12 +385,12 @@ class Cron_Manager extends Asset
 		set_error_handler(Array(&$this, '_errorHandler'));
 
 		if (!empty($GLOBALS['SQ_SYSTEM']->tm) && $GLOBALS['SQ_SYSTEM']->tm->inTransaction('db')) {
-			trigger_localised_error("CRON0012", E_USER_WARNING);
+			trigger_localised_error('CRON0012', E_USER_WARNING);
 			return;
 		}
 
 		if ($start_time < (int) $this->attr('epoch')) {
-			trigger_localised_error("CRON0011", E_USER_WARNING);
+			trigger_localised_error('CRON0011', E_USER_WARNING);
 			return;
 		}
 
@@ -430,7 +430,7 @@ class Cron_Manager extends Asset
 				$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'attributes');
 
 			} else {
-				trigger_localised_error("CRON0016", E_USER_WARNING, $this->name);
+				trigger_localised_error('CRON0016', E_USER_WARNING, $this->name);
 			}
 
 		} else {
@@ -573,7 +573,7 @@ class Cron_Manager extends Asset
 						$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'attr_links');
 
 					} else {
-						trigger_localised_error("CRON0015", E_USER_WARNING, $this->name);
+						trigger_localised_error('CRON0015', E_USER_WARNING, $this->name);
 						return;
 					}
 
@@ -592,15 +592,15 @@ class Cron_Manager extends Asset
 					if ($this->setAttrValue('last_run', $this_run) && $this->setAttrValue('running', false) && $this->saveAttributes()) {
 						$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'attributes');
 					} else {
-						trigger_localised_error("CRON0032", E_USER_WARNING, $this->name);
+						trigger_localised_error('CRON0032', E_USER_WARNING, $this->name);
 					}
 				} else {
-					trigger_localised_error("CRON0016", E_USER_WARNING, $this->name);
+					trigger_localised_error('CRON0016', E_USER_WARNING, $this->name);
 				}
 
 			} else {
 				// aquire or set running failed
-				trigger_localised_error("CRON0015", E_USER_WARNING, $this->name);
+				trigger_localised_error('CRON0015', E_USER_WARNING, $this->name);
 
 			}//end if aquire lock
 
@@ -630,7 +630,7 @@ class Cron_Manager extends Asset
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		if ($end_ts < $start_ts) {
-			trigger_localised_error("CRON0014", E_USER_WARNING);
+			trigger_localised_error('CRON0014', E_USER_WARNING);
 			return Array();
 		}
 
@@ -798,7 +798,7 @@ class Cron_Manager extends Asset
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'av');
 
 		$result = $db->getAll($sql.$where);
-		if(!assert_valid_db_result($result, '', false, false)) {
+		if (!assert_valid_db_result($result, '', false, false)) {
 			return Array();
 		}
 

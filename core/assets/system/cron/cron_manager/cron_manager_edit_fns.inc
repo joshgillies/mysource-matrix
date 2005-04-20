@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager_edit_fns.inc,v 1.23 2005/04/15 00:37:26 lwright Exp $
+* $Id: cron_manager_edit_fns.inc,v 1.24 2005/04/20 02:04:10 rhoward Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -496,7 +496,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 					return true;
 
 				} else {
-					trigger_localised_error("CRON0013", E_USER_NOTICE);
+					trigger_localised_error('CRON0013', E_USER_NOTICE);
 				}//end if
 			}//end if
 		}//endif
