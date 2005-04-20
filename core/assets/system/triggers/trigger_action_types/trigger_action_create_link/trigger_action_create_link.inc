@@ -18,12 +18,13 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_create_link.inc,v 1.6 2005/04/14 04:58:12 rhoward Exp $
+* $Id: trigger_action_create_link.inc,v 1.7 2005/04/20 04:20:36 gsherwood Exp $
 *
 */
 
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_action.inc';
 
 /**
 * Trigger Action Create Link
@@ -32,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -43,22 +44,24 @@ class Trigger_Action_Create_Link extends Trigger_Action
 	/**
 	* Execute this action
 	*
+	* Returns an array of data about what it did, or false on error
+	*
 	* The settings used by this action are in the form:<BR />
 	* <PRE>
 	* Array(
-	*       'assetid'      => int,     // the assetid to link to
-	*       'is_major'     => string,  // '1' or '0',
-	*       'link_type'    => int,     // the type of link,
-	*       'value'        => string,  // the value associated with a link (optional)
-	*       'is_dependant' => int,     // whether the link is dependant (optional)
-	*       'is_exclusive' => int      // whether the link is exclusive (optional)
+	*       'assetid'      => int,    // the assetid to link to
+	*       'is_major'     => string, // '1' or '0',
+	*       'link_type'    => int,    // the type of link,
+	*       'value'        => string, // the value associated with a link (optional)
+	*       'is_dependant' => int,    // whether the link is dependant (optional)
+	*       'is_exclusive' => int     // whether the link is exclusive (optional)
 	*       );
 	* </PRE>
 	*
 	* @param array	$settings	the stored settings for this action
 	* @param array	&$state		the state that describes the asset the action is executing on
 	*
-	* @return boolean
+	* @return array | boolean
 	* @access public
 	*/
 	function execute($settings, &$state)
@@ -76,7 +79,6 @@ class Trigger_Action_Create_Link extends Trigger_Action
 		$is_dependant = array_get_index($settings, 'is_dependant', 0);
 		$is_exclusive = array_get_index($settings, 'is_exclusive', 0);
 
-		// state
 		if (empty($state['asset'])) {
 			// grab the asset if assetid is given, but not the asset
 			if (empty($state['assetid'])) {
@@ -100,29 +102,31 @@ class Trigger_Action_Create_Link extends Trigger_Action
 
 		// the link is already there, so count as success
 		$side_of_link = ($settings['is_major']) ? 'major' : 'minor';
-		if ($am->getLinkByAsset($state['assetid'], $settings['assetid'], $settings['link_type'], null, $side_of_link)) {
-			// update the lookup in case the original creator of the link didn't
-			$major->updateLookups();
-			$minor->updateLookups();
-			return true;
+		$link_info = $am->getLinkByAsset($state['assetid'], $settings['assetid'], $settings['link_type'], null, $side_of_link, true);
+		if (empty($link_info)) {
+			// create a link
+			$linkid = $am->createAssetLink($major, $minor, $settings['link_type'], $settings['value'], null, $is_dependant, $is_exclusive);
+			if (!$linkid) return false;
+
+			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
+		} else {
+			$link = array_shift($link_info);
 		}
 
-		// create a link
-		$am->createAssetLink(
-			$major,
-			$minor,
-			$settings['link_type'],
-			$settings['value'],
-			null, // assume null, add option to change sort_order later if required
-			$is_dependant,
-			$is_exclusive
-		);
-
-		// take the link and insert the relevant entries into the lookup tables, if required
+		// update lookups for both assets
 		$major->updateLookups();
 		$minor->updateLookups();
 
-		return true;
+		return Array(
+				'linkid'		=> $link['linkid'],
+				'majorid'		=> $link['majorid'],
+				'minorid'		=> $link['minorid'],
+				'link_type'		=> $link['link_type'],
+				'value'			=> $link['value'],
+				'sort_order'	=> $link['sort_order'],
+				'is_dependant'	=> $link['is_dependant'],
+				'is_exclusive'	=> $link['is_exclusive'],
+			   );
 
 	}//end execute()
 
@@ -139,12 +143,6 @@ class Trigger_Action_Create_Link extends Trigger_Action
 	*/
 	function getInterface($settings, $prefix, $write_access=false)
 	{
-		// Link as the [Child] of the asset: [     asset] using a [Type 1] link.
-		// <b>Optional items for Advanced users:</b>
-		// Use this value as the link value: [Value]
-		// Link the child [Non-dependantly] and [Non-exclusively] to the parent.
-
-
 		// check settings, set defaults if necessary
 		$selected_assetid   = array_get_index($settings, 'assetid', 0);
 		$is_major           = array_get_index($settings, 'is_major', 0);

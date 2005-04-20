@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_status.inc,v 1.8 2005/04/14 04:58:12 rhoward Exp $
+* $Id: trigger_action_set_status.inc,v 1.9 2005/04/20 04:20:36 gsherwood Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -43,6 +43,8 @@ class Trigger_Action_Set_Status extends Trigger_Action
 
 	/**
 	* Execute this action
+	*
+	* Returns an array of data about what it did, or false on error
 	*
 	* The settings used by this action are in the form:<BR />
 	* <PRE>
@@ -54,7 +56,7 @@ class Trigger_Action_Set_Status extends Trigger_Action
 	* @param array	$settings	the stored settings for this action
 	* @param array	&$state		the state that describes the asset the action is executing on
 	*
-	* @return boolean
+	* @return array | boolean
 	* @access public
 	*/
 	function execute($settings, &$state)
@@ -71,18 +73,25 @@ class Trigger_Action_Set_Status extends Trigger_Action
 			}
 		}
 
-		if ($state['asset']->status == $settings['status']) {
-			return true;
+		$old_status = $state['asset']->status;
+		if ($old_status != $settings['status']) {
+			$available_statuses = $state['asset']->getAvailableStatii();
+
+			if (!isset($available_statuses[$settings['status']])) {
+				// invalid status, fail
+				return false;
+			}
+
+			if (!$state['asset']->processStatusChange($settings['status'])) {
+				return false;
+			}
 		}
 
-		$available_statuses = $state['asset']->getAvailableStatii();
-
-		if (!isset($available_statuses[$settings['status']])) {
-			// invalid status, fail
-			return false;
-		}
-
-		return ($state['asset']->processStatusChange($settings['status']));
+		return Array(
+				'assetid'		=> $state['asset']->id,
+				'old_status'	=> $old_status,
+				'new_status'	=> $state['asset']->status,
+			   );
 
 	}//end execute()
 

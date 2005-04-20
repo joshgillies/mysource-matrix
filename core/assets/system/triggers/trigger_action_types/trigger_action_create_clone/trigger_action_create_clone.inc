@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_create_clone.inc,v 1.8 2005/04/15 00:37:26 lwright Exp $
+* $Id: trigger_action_create_clone.inc,v 1.9 2005/04/20 04:20:36 gsherwood Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -44,22 +44,25 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 	/**
 	* Execute this action
 	*
+	* Returns an array of data about what it did, or false on error
+	*
 	* The settings used by this action are in the form:
 	* <PRE>
 	* Array(
 	*       'assetid'             => int,    // the assetid to link to
 	*       'link_type'           => int,    // the type of link, eg. type_1, type_2, type_3 or notice
-	*       'disallow_duplicates' => int,    // if '1', then a new clone will not be created if an asset with the same name and link_type to the target exists.
 	*       'value'               => string, // optional, the value associated with a link
 	*       'is_dependant'        => int,    // optional, whether the link is dependant
 	*       'is_exclusive'        => int,    // optional, whether the link is exclusive
+	*       'disallow_duplicates' => int,    // if '1', then clone will not be created if an asset
+	*                                        // with the same name and link_type to the target exists.
 	*       );
 	* </PRE>
 	*
-	* @param array(string => mixed) $settings   the stored settings for this action
-	* @param array(string => mixed) &$state     the state that describes the asset the action is executing on
+	* @param array	$settings	the stored settings for this action
+	* @param array	&$state		the state that describes the asset the action is executing on
 	*
-	* @return boolean
+	* @return array | boolean
 	* @access public
 	*/
 	function execute($settings, &$state)
@@ -100,9 +103,16 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 				$name = $am->getAssetInfo(Array($childid), Array(), true, 'name');
 				$short_name = $am->getAssetInfo(Array($childid), Array(), true, 'short_name');
 				$type_code = $am->getAssetInfo(Array($childid), Array(), true, 'type_code');
-				if ($name[$childid] == $minor->name && $short_name[$childid] == $minor->short_name && $type_code[$childid] = $minor->type()) {
+				if ($name[$childid] == $minor->name && $short_name[$childid] == $minor->short_name && $type_code[$childid] == $minor->type()) {
 					// a copy of the clone already exists
-					return true;
+					return Array(
+							'assetid'		=> $childid,
+							'parentid'		=> $major->id,
+							'link_type'		=> $settings['link_type'],
+							'value'			=> $settings['value'],
+							'is_dependant'	=> $is_dependant,
+							'is_exclusive'	=> $is_exclusive,
+						   );
 				}
 			}
 		}
@@ -122,7 +132,7 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 
 		$clone = &$am->cloneAsset($minor, $link, $clone_map, Array('all'));
 		if (is_null($clone)) {
-			trigger_localised_error("CORE0138", E_USER_WARNING);
+			trigger_localised_error('CORE0138', E_USER_WARNING);
 			return false;
 		}
 
@@ -132,7 +142,14 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 		$clone->saveWebPaths($good_paths);
 		$clone->remapAssetids($clone_map);
 
-		return true;
+		return Array(
+				'assetid'		=> $clone->id,
+				'parentid'		=> $major->id,
+				'link_type'		=> $settings['link_type'],
+				'value'			=> $settings['value'],
+				'is_dependant'	=> $is_dependant,
+				'is_exclusive'	=> $is_exclusive,
+			   );
 
 	}//end execute()
 
@@ -140,9 +157,9 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 	/**
 	* Get the HTML editing interface for this action. Returns the string instead of printing it
 	*
-	* @param Array(string=>mixed)   $settings      settings that this condition saves in processInterface()
-	* @param string                 $prefix        unique prefix
-	* @param boolean                $write_access  determines whether the interface is editable
+	* @param array		$settings		settings that this condition saves in processInterface()
+	* @param string		$prefix			unique prefix
+	* @param boolean	$write_access	determines whether the interface is editable
 	*
 	* @access public
 	* @return boolean
@@ -207,11 +224,12 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 
 
 	/**
-	* Handle the conversion of interface to settings together with settings it is expected to populate the hash object
+	* Handle the conversion of interface to settings
+	* together with settings it is expected to populate the hash object
 	*
-	* @param array(string = >mixed) $settings       a container for any data the action might want to save
-	* @param string                 $request_data   array of data corresponding to this action as specified
-	*                                               by the $prefix in getInterface.
+	* @param array	$settings		a container for any data the action might want to save
+	* @param string	$request_data	array of data corresponding to this action as specified
+	* 								by the $prefix in getInterface.
 	*
 	* @access public
 	* @return boolean
@@ -241,29 +259,6 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 		return false;
 
 	}//end processInterface()
-
-
-	/**
-	* Get the list of locks that the action needs acquire before executing.
-	*
-	* @access public
-	* @return array(assetid=>locktype)
-	*/
-	function getLocks($settings, &$state)
-	{
-		// get 'all' locks on the firing asset
-		$locks = Array(
-					$state['assetid']	=> Array('all'),
-				 );
-
-		$dependant_children = &$GLOBALS['SQ_SYSTEM']->am->getDependantChildren($state['assetid']);
-		foreach ($dependant_children as $assetid => $asset_type) {
-			$locks[$assetid][] = 'all';
-		}
-
-		return $locks;
-
-	}//end getLocks()
 
 
 }//end class

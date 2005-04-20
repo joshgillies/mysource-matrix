@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_permission.inc,v 1.3 2005/04/14 04:58:12 rhoward Exp $
+* $Id: trigger_action_set_permission.inc,v 1.4 2005/04/20 04:20:36 gsherwood Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -42,6 +42,8 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 
 	/**
 	* Execute this action
+	*
+	* Returns an array of data about what it did, or false on error
 	*
 	* The settings used by this action are in the form:<BR />
 	* <PRE>
@@ -55,7 +57,7 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 	* @param array	$settings	the stored settings for this action
 	* @param array	&$state		the state that describes the asset the action is executing on
 	*
-	* @return boolean
+	* @return array | boolean
 	* @access public
 	*/
 	function execute($settings, &$state)
@@ -64,27 +66,21 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 		if (empty($settings['permission'])) return false;
 		if (empty($settings['userid'])) return false;
 		if (empty($state['assetid'])) return false;
-
-		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LOCKING)) {
-			// lock the asset
-			if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($state['assetid'], 'permissions')) {
-				return false;
-			}
-		}
+		$granted = array_get_index($settings, 'granted', true);
 
 		// set the permission on the asset
 		// note that the asset manager already checks if the permission has been
 		// and returns true if it has
-		if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($state['assetid'], $settings['userid'], $settings['permission'], $settings['granted'])) {
+		if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($state['assetid'], $settings['userid'], $settings['permission'], $granted)) {
 			return false;
 		}
 
-		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LOCKING)) {
-			// release the permissions lock, but dont fail if we cant unlock
-			$GLOBALS['SQ_SYSTEM']->am->releaseLock($state['assetid'], 'permissions');
-		}
-
-		return true;
+		return Array(
+				'assetid'		=> $state['assetid'],
+				'userid'		=> $settings['userid'],
+				'permission'	=> $settings['permission'],
+				'granted'		=> $granted,
+			   );
 
 	}//end execute()
 
@@ -219,6 +215,19 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 			   );
 
 	}//end _getPermissionList()
+
+
+	/**
+	* Get the list of locks that the action needs acquire before executing
+	*
+	* @access public
+	* @return array
+	*/
+	function getLocks($settings, &$state)
+	{
+		return Array($state['assetid'] => Array('permissions'));
+
+	}//end getLocks()
 
 
 }//end class

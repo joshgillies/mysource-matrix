@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager.inc,v 1.15 2005/04/15 00:37:26 lwright Exp $
+* $Id: trigger_manager.inc,v 1.16 2005/04/20 04:20:36 gsherwood Exp $
 *
 */
 
@@ -51,7 +51,7 @@ require_once 'hash.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -571,7 +571,7 @@ class Trigger_Manager extends Asset
 				eval('$action_success = '.$action['type'].'::execute($action["data"], $state_data);');
 			}
 
-			if (!$action_success) {
+			if ($action_success === false) {
 				if (!$not_required) {
 					trigger_localised_error("CORE0134", E_USER_NOTICE, $action['type']);
 					continue;

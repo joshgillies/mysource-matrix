@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_attribute_value.inc,v 1.2 2005/04/19 04:51:30 gsherwood Exp $
+* $Id: trigger_action_set_attribute_value.inc,v 1.3 2005/04/20 04:20:36 gsherwood Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -41,6 +41,8 @@ class Trigger_Action_Set_Attribute_Value extends Trigger_Action
 
 	/**
 	* Execute this action
+	*
+	* Returns an array of data about what it did, or false on error
 	*
 	* The settings used by this action are in the form:<BR />
 	* <PRE>
@@ -53,7 +55,7 @@ class Trigger_Action_Set_Attribute_Value extends Trigger_Action
 	* @param array	$settings	the stored settings for this action
 	* @param array	&$state		the state that describes the asset the action is executing on
 	*
-	* @return boolean
+	* @return array | boolean
 	* @access public
 	*/
 	function execute($settings, &$state)
@@ -75,38 +77,34 @@ class Trigger_Action_Set_Attribute_Value extends Trigger_Action
 		$value = $settings['value'];
 
 		// handle serialised attributes
-		$attr = &$state['asset']->getAttribute($settings['attribute']);
-		switch (get_class($attr)) {
-			case 'asset_attribute_serialise' :
-			case 'asset_attribute_parameter_map' :
-				// set $value to be the contents of the array
-				eval('$value = '.$value);
-			break;
+		if (is_scalar($value)) {
+			$attr = &$state['asset']->getAttribute($settings['attribute']);
+			if (is_null($attr)) return false;
+
+			switch (get_class($attr)) {
+				case 'asset_attribute_serialise' :
+				case 'asset_attribute_parameter_map' :
+					// set $value to be the contents of the array
+					eval('$value = '.$value);
+				break;
+			}
 		}
 
 		// dont change anything if the attribute already has the required value
 		$current_value = $state['asset']->attr($settings['attribute']);
-		if ($current_value == $value) return true;
-
-		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LOCKING)) {
-			// lock the asset
-			if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($state['assetid'], 'attributes')) {
+		if ($current_value != $value) {
+			if (!$state['asset']->setAttrValue($settings['attribute'], $value)) {
 				return false;
 			}
+			if (!$state['asset']->saveAttributes()) return false;
 		}
 
-		// set attribute value here
-		if (!$state['asset']->setAttrValue($settings['attribute'], $value)) {
-			return false;
-		}
-		if (!$state['asset']->saveAttributes()) return false;
-
-		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LOCKING)) {
-			// release the attributes lock, but dont fail if we cant unlock
-			$GLOBALS['SQ_SYSTEM']->am->releaseLock($state['assetid'], 'attributes');
-		}
-
-		return true;
+		return Array(
+				'assetid'	=> $state['asset']->id,
+				'attribute'	=> $settings['attribute'],
+				'old_value'	=> $current_value,
+				'new_value'	=> $state['asset']->attr($settings['attribute']),
+			   );
 
 	}//end execute()
 
@@ -190,6 +188,19 @@ class Trigger_Action_Set_Attribute_Value extends Trigger_Action
 		return false;
 
 	}//end processInterface()
+
+
+	/**
+	* Get the list of locks that the action needs acquire before executing
+	*
+	* @access public
+	* @return array
+	*/
+	function getLocks($settings, &$state)
+	{
+		return Array($state['assetid'] => Array('attributes'));
+
+	}//end getLocks()
 
 
 }//end class

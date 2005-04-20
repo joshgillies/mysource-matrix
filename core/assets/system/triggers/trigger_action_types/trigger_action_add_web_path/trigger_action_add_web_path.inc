@@ -18,10 +18,11 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_add_web_path.inc,v 1.1 2005/04/19 04:52:35 gsherwood Exp $
+* $Id: trigger_action_add_web_path.inc,v 1.2 2005/04/20 04:20:35 gsherwood Exp $
 *
 */
 
+require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_action.inc';
 
 /**
@@ -31,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -41,6 +42,8 @@ class Trigger_Action_Add_Web_Path extends Trigger_Action
 
 	/**
 	* Execute this action
+	*
+	* Returns an array of data about what it did, or false on error
 	*
 	* The settings used by this action are in the form:<BR />
 	* <PRE>
@@ -52,7 +55,7 @@ class Trigger_Action_Add_Web_Path extends Trigger_Action
 	* @param array	$settings	the stored settings for this action
 	* @param array	&$state		the state that describes the asset the action is executing on
 	*
-	* @return boolean
+	* @return array | boolean
 	* @access public
 	*/
 	function execute($settings, &$state)
@@ -72,36 +75,28 @@ class Trigger_Action_Add_Web_Path extends Trigger_Action
 
 		if (is_null($state['asset'])) return false;
 
+		$valid_paths = make_valid_web_paths(Array($settings['path']));
+		$web_path = array_shift($valid_paths);
+
 		// dont change anything if the asset already has this web path
 		$web_paths = $state['asset']->getWebPaths();
-		if (in_array($settings['path'], $web_paths)) {
-			return true;
-		}
-
-		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LOCKING)) {
-			// lock the asset
-			if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($state['assetid'], 'lookups')) {
+		if (!in_array($web_path, $web_paths)) {
+			// add the new web path (note that lookups are updated by the saveWebPaths fn)
+			$web_paths[] = $web_path;
+			if (!$state['asset']->saveWebPaths($web_paths)) {
 				return false;
 			}
+
+			// note that we dont update the lookups of all our children so we have
+			// the greatest level of control over what occurs during things like imports
+
+			// probably need another trigger action to update lookups (run the HIPO job)
 		}
 
-		// add the new web path (note that lookups are updated by the saveWebPaths fn)
-		$web_paths[] = $settings['path'];
-		if (!$state['asset']->saveWebPaths($web_paths)) {
-			return false;
-		}
-
-		// note that we dont update the lookups of all our children so we have
-		// the greatest level of control over what occurs during things like imports
-
-		// probably need another trigger action to update lookups (run the HIPO job)
-
-		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LOCKING)) {
-			// release the attributes lock, but dont fail if we cant unlock
-			$GLOBALS['SQ_SYSTEM']->am->releaseLock($state['assetid'], 'lookups');
-		}
-
-		return true;
+		return Array(
+				'assetid'	=> $state['asset']->id,
+				'path'		=> $web_path,
+			   );
 
 	}//end execute()
 
@@ -154,6 +149,19 @@ class Trigger_Action_Add_Web_Path extends Trigger_Action
 		return false;
 
 	}//end processInterface()
+
+
+	/**
+	* Get the list of locks that the action needs acquire before executing
+	*
+	* @access public
+	* @return array
+	*/
+	function getLocks($settings, &$state)
+	{
+		return Array($state['assetid'] => Array('lookups'));
+
+	}//end getLocks()
 
 
 }//end class

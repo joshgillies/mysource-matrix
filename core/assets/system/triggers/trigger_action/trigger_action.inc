@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action.inc,v 1.3 2005/04/12 07:01:16 arailean Exp $
+* $Id: trigger_action.inc,v 1.4 2005/04/20 04:20:35 gsherwood Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -40,12 +40,15 @@ class Trigger_Action extends Asset
 
 
 	/**
-	* Execute this action - needs to be overridden by the actions themselves.
+	* Execute this action
 	*
-	* @param array(string=>mixed)   $settings   the stored settings for this action
-	* @param array(string=>mixed)   &$state the state that describes the asset the action is executing on
+	* Returns an array of data about what it did, or false on error.
+	* Must be overridden by the actions themselves.
 	*
-	* @return boolean
+	* @param array	$settings	the stored settings for this action
+	* @param array	&$state		the state that describes the asset the action is executing on
+	*
+	* @return array | boolean
 	* @access public
 	*/
 	function execute($settings, $state)
@@ -58,9 +61,9 @@ class Trigger_Action extends Asset
 	/**
 	* Get the HTML editing interface for this action. Returns the string instead of printing it
 	*
-	* @param Array(string=>mixed)   $settings      settings that this condition saves in processInterface()
-	* @param string                 $prefix        unique prefix
-	* @param boolean                $write_access  determines whether the interface is editable
+	* @param array		$settings		settings that this condition saves in processInterface()
+	* @param string		$prefix			unique prefix
+	* @param boolean	$write_access	determines whether the interface is editable
 	*
 	* @access public
 	* @return boolean
@@ -86,7 +89,7 @@ class Trigger_Action extends Asset
 
 		// see the trigger_action_set_status condition for an example of use
 
-		return $interface_string;
+		return '';
 
 	}//end getInterface()
 
@@ -96,8 +99,9 @@ class Trigger_Action extends Asset
 	*
 	* NOTE: Returns false on success
 	*
-	* @param Array          $settings       a container for any data the action might want to save
-	* @param array          $request_data   array of data corresponding to this action as specified by the $prefix in getInterface.
+	* @param array	$settings		a container for any data the action might want to save
+	* @param array	$request_data	array of data corresponding to this action
+	* 								as specified by the $prefix in getInterface
 	*
 	* @access public
 	* @return false|string
@@ -115,18 +119,17 @@ class Trigger_Action extends Asset
 
 	/**
 	* Get the list of locks that the action needs to acquire before executing
-	* Default to no locks - the children can override if necessary
 	*
-	* <code>
-	*	$locks = Array('assetid'   => Array('attributes','links'),);
-	* </code>
+	* Default to no locks - the children can override if necessary
+	* <PRE>
+	*	$locks = Array('assetid' => Array('attributes','links'));
+	* </PRE>
 	*
 	* @access public
-	* @return array(assetid=>locktype)
+	* @return array
 	*/
 	function getLocks($settings, &$state)
 	{
-
 		// by default no locks needed
 		return Array();
 

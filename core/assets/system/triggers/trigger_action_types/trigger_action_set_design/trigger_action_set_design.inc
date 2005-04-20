@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_design.inc,v 1.6 2005/04/12 07:01:32 arailean Exp $
+* $Id: trigger_action_set_design.inc,v 1.7 2005/04/20 04:20:36 gsherwood Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -44,17 +44,19 @@ class Trigger_Action_Set_Design extends Trigger_Action
 	/**
 	* Execute this action
 	*
+	* Returns an array of data about what it did, or false on error
+	*
 	* The settings used by this action are in the form:
 	* <PRE>
 	* Array(
-	*       'assetid' => int        // the assetid of the design that will be applied to the asset stored in $state
+	*       'assetid' => int // the assetid of the design that will be applied to the asset stored in $state
 	*       );
 	* </PRE>
 	*
-	* @param array(string=>mixed)   $settings   the stored settings for this action
-	* @param array(string=>mixed)   &$state the state that describes the asset the action is executing on
+	* @param array	$settings	the stored settings for this action
+	* @param array	&$state		the state that describes the asset the action is executing on
 	*
-	* @return boolean
+	* @return array | boolean
 	* @access public
 	*/
 	function execute($settings, &$state)
@@ -123,7 +125,11 @@ class Trigger_Action_Set_Design extends Trigger_Action
 		// take the link and insert the relevant entries into the lookup tables
 		$state['asset']->updateLookups();
 
-		return true;
+		return Array(
+				'assetid'	=> $state['asset']->id,
+				'designid'	=> $settings['assetid'],
+				'code'		=> 'system::frontend',
+			   );
 
 	}//end execute()
 
@@ -131,9 +137,9 @@ class Trigger_Action_Set_Design extends Trigger_Action
 	/**
 	* Get the HTML editing interface for this action. Returns the string instead of printing it
 	*
-	* @param Array(string=>mixed)   $settings      settings that this condition saves in processInterface()
-	* @param string                 $prefix        unique prefix
-	* @param boolean                $write_access  determines whether the interface is editable
+	* @param array		$settings		settings that this condition saves in processInterface()
+	* @param string		$prefix			unique prefix
+	* @param boolean	$write_access	determines whether the interface is editable
 	*
 	* @access public
 	* @return boolean
@@ -185,8 +191,9 @@ class Trigger_Action_Set_Design extends Trigger_Action
 	* Function that handles the conversion of interface to settings
 	* together with settings it is expected to populate the hash object
 	*
-	* @param Array          $settings       a container for any data the action might want to save
-	* @param string         $request_data   array of data corresponding to this action as specified by the $prefix in getInterface.
+	* @param array	$settings		a container for any data the action might want to save
+	* @param string	$request_data	array of data corresponding to this action
+	* 								as specified by the $prefix in getInterface.
 	*
 	* @access public
 	* @return boolean

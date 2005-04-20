@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_future_status.inc,v 1.4 2005/04/14 04:58:12 rhoward Exp $
+* $Id: trigger_action_set_future_status.inc,v 1.5 2005/04/20 04:20:36 gsherwood Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 *
 * @author   Avi Miller <amiller@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -41,6 +41,8 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 
 	/**
 	* Execute this action
+	*
+	* Returns an array of data about what it did, or false on error
 	*
 	* The settings used by this action are in the form:
 	* <PRE>
@@ -74,46 +76,48 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 		}
 
 		$cron_mgr = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+		if (is_null($cron_mgr)) return false;
+
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_status');
 
-		if (!is_null($cron_mgr)) {
+		$fs = new Cron_Job_Future_Status();
+		$fs->setAttrValue('status', $settings['status']);
+		$fs->setAttrValue('when', $settings['when']);
 
-			$fs = new Cron_Job_Future_Status();
-			$fs->setAttrValue('status', $settings['status']);
-			$fs->setAttrValue('when', $settings['when']);
+		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS)) {
+			$user_for_status_change = $GLOBALS['SQ_SYSTEM']->user;
+		} else {
+			// not doing the whole "security" thing - so pretend we are root
+			$user_for_status_change = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+		}
 
-			if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS)) {
-				$user_for_status_change = $GLOBALS['SQ_SYSTEM']->user;
-			} else {
-				// not doing the whole "security" thing - so pretend we are root
-				$user_for_status_change = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
-			}
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-			$success = true;
-
-			if ($cron_mgr->addJob($fs, $user_for_status_change)) {
-				if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($fs->id, 'links')) {
-					if ($fs->setAssetToUpdate($state['asset'])) {
-						$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-						$is_updated = true;
-						$GLOBALS['SQ_SYSTEM']->am->releaseLock($fs->id, 'links');
-					} else {
-						$success = false;
-						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					}
+		if ($cron_mgr->addJob($fs, $user_for_status_change)) {
+			if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($fs->id, 'links')) {
+				if ($fs->setAssetToUpdate($state['asset'])) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+					$is_updated = true;
+					$GLOBALS['SQ_SYSTEM']->am->releaseLock($fs->id, 'links');
 				} else {
-					$success = false;
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return false;
 				}
 			} else {
-				$success = false;
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return false;
 			}
+		} else {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
 
-		}//end is_null $cron_mgr
-
-		return $success;
+		return Array(
+				'jobid'		=> $fs->id,
+				'userid'	=> $user_for_status_change->id,
+				'status'	=> $fs->attr('status'),
+				'when'		=> $fs->attr('when'),
+			   );
 
 	}//end execute()
 
