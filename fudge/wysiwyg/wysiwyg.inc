@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.33.2.2 2005/04/06 01:54:02 tbarrett Exp $
+* $Id: wysiwyg.inc,v 1.33.2.3 2005/04/20 05:37:12 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -743,30 +743,32 @@ class wysiwyg
 							// get the stuff to put in the <p>
 							var range = this._createTextRange(this._getSelection());
 							var lastElt = range.commonAncestorContainer;
-							var firstElt = lastElt;
-							while ((firstElt.previousSibling != null) && ((firstElt.previousSibling.tagName == 'BR') || (firstElt.previousSibling.nodeType == 3))) {
-								// keep going while our previous sibling is a <br> or a text node
-								firstElt = firstElt.previousSibling;
-							}
+							if (lastElt.tagName != 'BODY') {
+								var firstElt = lastElt;
+								while ((firstElt.previousSibling != null) && ((firstElt.previousSibling.tagName == 'BR') || (firstElt.previousSibling.nodeType == 3))) {
+									// keep going while our previous sibling is a <br> or a text node
+									firstElt = firstElt.previousSibling;
+								}
 
-							// insert the <p> into the document tree
-							var para = document.createElement('P');
-							var parent = firstElt.parentNode;
-							parent.insertBefore(para, firstElt);
-							var movingElt = firstElt;
-							var nextMovingElt = movingElt;
-							while (nextMovingElt != lastElt) {
-								nextMovingElt = movingElt.nextSibling;
-								parent.removeChild(movingElt);
-								para.appendChild(movingElt);
-								movingElt = nextMovingElt;
-							}
-							parent.removeChild(lastElt);
-							para.appendChild(lastElt);
+								// insert the <p> into the document tree
+								var para = document.createElement('P');
+								var parent = firstElt.parentNode;
+								parent.insertBefore(para, firstElt);
+								var movingElt = firstElt;
+								var nextMovingElt = movingElt;
+								while (nextMovingElt != lastElt) {
+									nextMovingElt = movingElt.nextSibling;
+									parent.removeChild(movingElt);
+									para.appendChild(movingElt);
+									movingElt = nextMovingElt;
+								}
+								parent.removeChild(lastElt);
+								para.appendChild(lastElt);
 
-							// get rid of extraneous <br>s
-							while (para.nextSibling && (para.nextSibling.tagName == 'BR')) {
-								parent.removeChild(para.nextSibling);
+								// get rid of extraneous <br>s
+								while (para.nextSibling && (para.nextSibling.tagName == 'BR')) {
+									parent.removeChild(para.nextSibling);
+								}
 							}
 						}
 					}
