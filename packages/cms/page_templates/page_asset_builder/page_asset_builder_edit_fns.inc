@@ -18,13 +18,14 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_edit_fns.inc,v 1.26 2005/04/11 23:30:13 ndvries Exp $
+* $Id: page_asset_builder_edit_fns.inc,v 1.27 2005/04/20 00:16:59 ndvries Exp $
 *
 */
 
 
 require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
+require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 
 /**
 * Page_Asset_Builder_Edit_Fns
@@ -34,12 +35,13 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
 class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 {
+
 
 	/**
 	* Messages used to provide info about the differnt types of create locations
@@ -50,6 +52,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 								'selectable'	=> 'When creating a new asset, the user will asked to choose a location from each of the sets below',
 								'conditional'	=> 'New assets will be linked under additional locations according to the rules below',
 								'additional'	=> 'If you specify some data sources to get additional location data from, and the assetids supplied by those data sources at runtime satisfy the conditions below, the created asset will be linked under those locations as well.  Lists of locations can be supplied in the format assetid;assetid;assetid or assetid-linktype;assetid-linktype;',
+								'dynamic'		=> 'When creating a new asset, the frontend user will be asked to chose a location (or multiple locations), which is generated dynamically according to the assets currently available under the root folder.',
 							 );
 
 	/**
@@ -279,7 +282,9 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 	*/
 	function processCreateStatus(&$asset, &$o, $prefix)
 	{
-		if (!isset($_POST[$prefix.'_create_status'])) return false;
+		if (!isset($_POST[$prefix.'_create_status'])) {
+			return false;
+		}
 		$create_status = (int)$_POST[$prefix.'_create_status'];
 		return $asset->setAttrValue('create_status', $create_status);
 
@@ -304,7 +309,9 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 
 		$link_type_names = Array(SQ_LINK_TYPE_1=>'', SQ_LINK_TYPE_2=>'', SQ_LINK_TYPE_3=>'', SQ_LINK_NOTICE=>'');
-		foreach ($link_type_names as $link_type => $null) $link_type_names[$link_type] = link_type_name($link_type);
+		foreach ($link_type_names as $link_type => $null) {
+			$link_type_names[$link_type] = link_type_name($link_type);
+		}
 
 		echo '<p><i><b>'.$this->location_messages['fixed'].'</b></i></p>';
 
@@ -395,18 +402,22 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 		// delete existing create locations
 		if (isset($_POST[$prefix.'_delete_location'])) {
 			foreach ($_POST[$prefix.'_delete_location'] as $locationid => $on) {
-				if (isset($new_locations[$locationid])) unset($new_locations[$locationid]);
+				if (isset($new_locations[$locationid])) {
+					unset($new_locations[$locationid]);
+				}
 			}
 		}
 
-		if ($old_locations != $new_locations) return $asset->setAttrValue('create_location', $new_locations);
+		if ($old_locations != $new_locations) {
+			return $asset->setAttrValue('create_location', $new_locations);
+		}
 		return false;
 
 	}//end processFixedCreateLocations()
 
 
 	/**
-	* Paint the interface for a single set of selectble create locations
+	* Paint the interface for a single set of selectable create locations
 	*
 	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
 	* @param object	Backend_Outputter	&$o		the outputter class
@@ -453,7 +464,9 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 				<td class="sq-backend-table-cell">
 				<?php
 					$link_type_names = Array(SQ_LINK_TYPE_1=>'', SQ_LINK_TYPE_2=>'', SQ_LINK_TYPE_3=>'', SQ_LINK_NOTICE=>'');
-					foreach ($link_type_names as $link_type => $null) $link_type_names[$link_type] = 	link_type_name($link_type);
+					foreach ($link_type_names as $link_type => $null) {
+						$link_type_names[$link_type] = link_type_name($link_type);
+					}
 					if ($write_access) {
 						combo_box($prefix.'_'.$code_name.'_link_type', $link_type_names, false, $data['link_type']);
 					} else {
@@ -539,7 +552,9 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 
 		$write_access = $asset->writeAccess('attributes');
 		if (is_array($sets = $asset->attr('create_location_optional')) && (!empty($sets))) {
-			foreach ($sets as $name => $data) $this->_paintSelectableLocationSet($asset, $o, $prefix, $name, $data);
+			foreach ($sets as $name => $data) {
+				$this->_paintSelectableLocationSet($asset, $o, $prefix, $name, $data);
+			}
 		} else {
 			echo 'No sets of selectable locations have been specified';
 		}
@@ -657,7 +672,9 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 		$current_rules = $asset->attr('create_location_rules');
 
 		$link_type_names = Array(SQ_LINK_TYPE_1 => '', SQ_LINK_TYPE_2 => '', SQ_LINK_TYPE_3 => '', SQ_LINK_NOTICE => '');
-		foreach ($link_type_names as $lt => $null) $link_type_names[$lt] = 	link_type_name($lt);
+		foreach ($link_type_names as $lt => $null) {
+			$link_type_names[$lt] = 	link_type_name($lt);
+		}
 
 		$comparators = Array(
 						'equals'		=> 'equals',
@@ -673,7 +690,9 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 
 			$attributes = Array();
 			$attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($create_type, Array('name', 'attrid', 'type'));
-			foreach ($attrs as $name => $data) $attributes[$name] = ucwords(str_replace('_', ' ', $name));
+			foreach ($attrs as $name => $data) {
+				$attributes[$name] = ucwords(str_replace('_', ' ', $name));
+			}
 			$attributes = Array(''=>'--Choose Attribute--') + $attributes;
 
 			$i = 1;
@@ -930,7 +949,9 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 		$new_parents = Array();
 		if (isset($_POST[$prefix.'_additional_location_parents']) && is_array($_POST[$prefix.'_additional_location_parents'])) {
 			foreach ($_POST[$prefix.'_additional_location_parents'] as $parent) {
-				if ($parent['assetid']) $new_parents[] = $parent['assetid'];
+				if ($parent['assetid']) {
+					$new_parents[] = $parent['assetid'];
+				}
 			}
 		}
 		$asset->setAttrValue('additional_location_parents', $new_parents);
@@ -957,79 +978,11 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 			}
 			echo '</ul>';
 		} else {
-			?>
-			<script type="text/javascript">
-			function cloneSelect(elt, prefix)
-			{
-				var index = 0;
-				while (document.getElementById(prefix+'_additional_location_types_'+index) != null) index++;
-				var newSelect = document.createElement('select');
-				newSelect.style.width = '30ex';
-				newSelect.name = prefix+'_additional_location_types['+index+']';
-				newSelect.id = prefix+'_additional_location_types_'+index;
-				for (var i=0; i < elt.length; i++) {
-					newOption = document.createElement('option');
-					newOption.value = elt.options[i].value;
-					newOption.appendChild(document.createTextNode(elt.options[i].text));
-					newSelect.appendChild(newOption);
-				}
-				return newSelect;
-			}
-			function makeClearButton(selectID)
-			{
-				newButton = document.createElement('input');
-				newButton.type = 'button';
-				newButton.value = 'Clear';
-				newButton.onclick = new Function('', "document.getElementById('"+selectID+"').selectedIndex = 0;");
-				return newButton;
-			}
-
-			function prependTypeSelector(elt, prefix)
-			{
-				newSelect = cloneSelect(document.getElementById(prefix+'_additional_location_types_0'), prefix);
-				clearButton = makeClearButton(newSelect.id);
-				elt.parentNode.insertBefore(document.createElement('br'), elt);
-				elt.parentNode.insertBefore(newSelect, elt);
-				elt.parentNode.insertBefore(clearButton, elt);
-			}
-			</script>
-			<?php
-			$current_types = $asset->attr('additional_location_types');
-			$type_options = Array('') + $GLOBALS['SQ_SYSTEM']->am->getTypeList();
-			sort($type_options);
-
-			foreach ($current_types as $index => $type_code) {
-				$this->_printAdditionalLocationType($prefix, $index, $type_options, $type_code);
-			}
-			$this->_printAdditionalLocationType($prefix, count($current_types), $type_options, '');
-			echo '<input type="button" value="More..." onclick="prependTypeSelector(this, \''.$prefix.'\');" />';
+			asset_type_chooser($prefix.'_additional_location_types', true, $asset->attr('additional_location_types'));
 		}
 		return true;
 
 	}//end paintAdditionalLocationTypes()
-
-
-	/**
-	* Print an entry in the additinoal location types list
-	*
-	* @param	string	$prefix			The prefix for the list overall
-	* @param	int		$index			The array index to use for this entry in the list
-	* @param	array	$type_options	The asset type options to offer
-	* @param	string	$current_value	The option that is currently selected
-	*
-	* @access	private
-	* @return	void
-	*/
-	function _printAdditionalLocationType($prefix, $index, $type_options, $current_value)
-	{
-		echo '<br /><select style="width: 30ex;" id="'.$prefix.'_additional_location_types_'.$index.'" name="'.$prefix.'_additional_location_types['.$index.']">';
-		foreach ($type_options as $type_code) {
-			echo '<option '.(($type_code == $current_value) ? 'selected="selected"' : '').' value="'.$type_code.'">'.ucfirst(str_replace('_', ' ', $type_code)).'</option>';
-		}
-		echo '</select>';
-		echo '<input type="button" value="Clear" onclick="document.getElementById(\''.$prefix.'_additional_location_types_'.$index.'\').selectedIndex = 0" />';
-
-	}//end _printAdditionalLocationType()
 
 
 	/**
@@ -1050,9 +1003,425 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 				if ($type) $new_types[] = $type;
 			}
 		}
+
 		return $asset->setAttrValue('additional_location_types', array_unique($new_types));
 
 	}//end processAdditionalLocationTypes()
+
+
+	/**
+	* Paint the interface for choosing sets of dynamic create locations for the frontend user to choose from
+	*
+	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintDynamicCreateLocations(&$asset, &$o, $prefix)
+	{
+		echo '<p><i><b>'.$this->location_messages['dynamic'].'</b></i></p>';
+
+		$write_access = $asset->writeAccess('attributes');
+		if (is_array($sets = $asset->attr('create_location_dynamic')) && (!empty($sets))) {
+			foreach ($sets as $name => $data) {
+				$this->_paintDynamicCreateLocationSet($asset, $o, $prefix, $name, $data);
+			}
+		} else {
+			echo 'No sets of dynamic locations have been specified';
+		}
+
+		if ($write_access) {
+			echo '<p><b>Add New Set: </b> ';
+			text_box($prefix.'_new_dynamic_set_name', '');
+			echo '</p>';
+		}
+
+		return $write_access;
+
+		$o->openRaw();
+		$array = Array();
+		$this->_paintDynamicCreateLocation($asset, $o, $prefix, 'My Sample Set', $array);
+		$o->closeRaw();
+
+		$o->openRaw();
+		?>
+			<ul>
+				<li>Main Options:
+					<ul>
+						<li>Root node</li>
+						<li>Depth</li>
+						<li>Asset types</li>
+					</ul>
+				</li>
+				<li>Style / Interface Options:
+					<ul>
+						<li>Selection style</li>
+						<li>Link type</li>
+						<li>Allow no selection</li>
+						<li>Allow multiple selection</li>
+					</ul>
+				</li>
+			</ul>
+		<?php
+		$o->closeRaw();
+		return true;
+
+	}//end paintDynamicCreateLocations()
+
+
+	/**
+	* Handles the painting of a Dynamic Create Locations set box
+	*
+	* @param object Page_Asset_Builder	&$asset	the asset to which we belong
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form element
+	* @param string						$name	the name of the selectable locations set
+	* @param array						&$data	details of the selectable locations set
+	*
+	* @access private
+	* @return boolean
+	*/
+	function _paintDynamicCreateLocationSet(&$asset, &$o, $prefix, $name, &$data)
+	{
+		$write_access = $asset->writeAccess('attributes');
+		$code_name    = 'dynamic_location_'.str_replace(' ', '_', strtolower($name));
+		?>
+		<table class="sq-backend-table">
+			<tr>
+				<td colspan="2" class="sq-backend-table-header">
+					<?php echo $name; ?>
+				</td>
+			</tr>
+			<tr>
+				<td class="sq-backend-table-cell">
+					<b>Root Node:</b>
+				</td>
+				<td class="sq-backend-table-cell">
+					<?php
+						if ($write_access) {
+							asset_finder($prefix.'_'.$code_name.'_root', array_get_index($data, 'root', 0), $this->location_types);
+						} else {
+							$rootid = array_get_index($data, 'root', 0);
+							if ($rootid > 0 && $GLOBALS['SQ_SYSTEM']->am->assetExists($rootid)) {
+								$root_name = &$GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($rootid), Array(), false, 'name');
+								echo '<p>'.$root_name[$rootid].' (ID #'.$rootid.')</p>';
+							} else {
+								echo '<p>None selected</p>';
+							}
+						}
+					?>
+				</td>
+			</tr>
+			<tr>
+				<td class="sq-backend-table-cell">
+					<b>Depth:</b>
+				</td>
+				<td class="sq-backend-table-cell">
+					<?php
+						if ($write_access) {
+							int_text_box($prefix.'_'.$code_name.'_depth', array_get_index($data, 'depth', 0), false, 3);
+							echo ' Levels (0 is unlimited depth)';
+						} else {
+							$levels = array_get_index($data, 'depth', 0);
+							if ($levels == 0) $levels = 'Infinite';
+							echo '<p>'.$levels.' Levels</p>';
+						}
+					?>
+				</td>
+			</tr>
+			<tr>
+				<td class="sq-backend-table-cell">
+					<b>Restrict to these Asset Types:</b>
+				</td>
+				<td class="sq-backend-table-cell">
+					<?php
+						if (isset($data['types'])) {
+							$selected_asset_types = $data['types'];
+						} else {
+							$selected_asset_types = Array(
+														'type_code'	=> Array(),
+														'inherit'	=> Array(),
+													);
+						}
+
+						if ($write_access) {
+							asset_type_chooser($prefix.'_'.$code_name.'_types', true, $selected_asset_types, null, false, true);
+						} else {
+							foreach ($selected_asset_types['type_code'] as $index => $type) {
+								if (empty($type)) {
+									unset($selected_asset_types['type_code'][$index]);
+								} else {
+									$selected_asset_types['type_code'][$index] = &$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type, 'name');
+								}
+							}
+							echo implode(",<br />\n", $selected_asset_types['type_code']);
+						}
+					?>
+				</td>
+			</tr>
+			<tr>
+				<td class="sq-backend-table-cell">
+					<b>Include links of the following <br/>type in the locations list:</b>
+				</td>
+				<td class="sq-backend-table-cell">
+				<?php
+					// the link types that dynamic create locations concern themselves with
+					$link_types = Array(
+									SQ_LINK_TYPE_1	=> 'TYPE_1',
+									SQ_LINK_TYPE_2	=> 'TYPE_2',
+								  );
+					if ($write_access) {
+						foreach ($link_types as $link_type => $link_name) {
+							if (isset($data['filter_link_type'][$link_type])) {
+								$selected = true;
+							} else {
+								$selected = false;
+							}
+							check_box($prefix.'_'.$code_name.'_filter_link_type['.$link_type.']', '1', $selected);
+							?>&nbsp;<?php echo $link_name; ?><br />
+							<?php
+						}
+					} else {
+						$display_link_types = Array();
+						foreach (array_get_index($data, 'filter_link_type', Array()) as $filter_link_type => $filter_link_type_data) {
+							if (isset($link_types[$filter_link_type])) {
+								$display_link_types[] = $link_types[$filter_link_type];
+							}
+						}
+						if (empty($display_link_types)) {
+							echo 'No exclusions.';
+						} else {
+							echo implode(",<br />\n", $display_link_types);
+						}
+					}
+				?>
+				</td>
+			</tr>
+			<tr>
+				<td class="sq-backend-table-cell">
+					<b>Link Type of Created Asset:</b>
+				</td>
+				<td class="sq-backend-table-cell">
+				<?php
+					$link_type_names = get_link_type_names();
+					$selected_link_type = array_get_index($data, 'link_type', SQ_LINK_TYPE_1);
+					if ($write_access) {
+						combo_box($prefix.'_'.$code_name.'_link_type', $link_type_names, false, $selected_link_type);
+					} else {
+						echo $link_type_names[$data['link_type']];
+					}
+				?>
+				</td>
+			</tr>
+
+			<tr>
+				<td class="sq-backend-table-cell">
+					<b>Input style</b>
+				</td>
+
+				<td class="sq-backend-table-cell">
+				<?php
+				$input_style        = array_get_index($data, 'input_style', 'None Selected');
+				$display_structured = array_get_index($data, 'display_structured', 0);
+				$options = Array(
+							'dropdown'	=> 'Dropdown',
+							'radio'		=> 'Radio Buttons',
+						   );
+				if ($write_access) {
+					?><select name="<?php echo $prefix.'_'.$code_name.'_input_style'; ?>"><?php
+					foreach ($options as $opt_value => $opt_text) {
+						echo '<option value="'.$opt_value.'" '.($input_style == $opt_value ? 'selected="selected"' : '').'>'.$opt_text.'</option>'."\n";
+					}
+					?></select>&nbsp;<?php
+
+					// display structured?
+					check_box($prefix.'_'.$code_name.'_display_structured', '1', ($display_structured == 1 ? true : false));
+					echo "&nbsp;Display Assets as a Tree\n";
+
+				} else {
+					echo '<p>'.$options[$input_style].' ('.($display_structured ? 'Display Assets as a Tree' : 'Display Assets as a Normal List').')</p>';
+				}
+				?>
+				</td>
+			</tr>
+			<tr>
+				<td class="sq-backend-table-cell" >
+					Rules:
+				</td>
+				<td class="sq-backend-table-cell">
+					<table border="0" cellpadding="0" cellspacing="0" style="width: 100%">
+						<tr>
+							<td style="width: 48%">
+								<?php
+								$selected_allow_empty = array_get_index($data, 'allow_empty', false);
+								if ($write_access) {
+									?>
+									<input type="checkbox" name="<?php echo $prefix.'_'.$code_name.'_allow_empty'; ?>" id="<?php echo $prefix.'_'.$code_name.'_allow_empty'; ?>" value="1"  class="sq-form-field"  <?php echo $selected_allow_empty ? 'checked="checked"' : ''; ?> />
+									<?php
+								} else {
+									?>
+									<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $selected_allow_empty ? 'tick' : 'cross'; ?>.gif" width="15" height="15" />
+									<?php
+								}
+								?> Allow No Selection &nbsp;&nbsp;&nbsp;&nbsp;
+							</td>
+
+							<td style="width: 48%;">
+								<?php
+								$selected_allow_multiple = array_get_index($data, 'allow_multiple', false);
+								if ($write_access) {
+									?>
+									<input type="checkbox" name="<?php echo $prefix.'_'.$code_name.'_allow_multiple'; ?>" id="<?php echo $prefix.'_'.$code_name.'_allow_multiple'; ?>" value="1"  class="sq-form-field"  <?php echo $selected_allow_multiple ? 'checked="checked"' : ''; ?> />
+									<?php
+								} else {
+									?>
+									<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $selected_allow_multiple ? 'tick' : 'cross'; ?>.gif" width="15" height="15" />
+									<?php
+								}
+								?> Allow Multiple Selections &nbsp;&nbsp;&nbsp;&nbsp;
+							</td>
+
+							<td style="width: 4%; text-align: right">
+							<?php if ($write_access) { ?>
+								<input type="hidden" name="<?php echo $prefix.'_'.$code_name.'_delete' ?>" id="<?php echo $prefix.'_'.$code_name.'_delete' ?>" value="0"  class="sq-form-field" /><input type="button" value="Delete Set" onclick="if (confirm('Are you sure you want to delete this set of dynamic create locations?')) { document.getElementById('<?php echo $prefix.'_'.$code_name.'_delete' ?>').value=1; form.submit(); }" />
+							<?php } ?>
+							</td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+		</table>
+		<br />
+		<?php
+
+	}//end _paintDynamicCreateLocationSet()
+
+
+	/**
+	* Processes the interface for choosing sets of dynamic create locations for the frontend user to choose from
+	*
+	* @param object Page_Asset_Builder	&$asset	the asset to which we belong
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processDynamicCreateLocations(&$asset, &$o, $prefix)
+	{
+		/** Settings structure:
+		* $sets = Array(
+		*			'set_name' => Array(
+		*							'root'			=> location_id, 	// from asset_finder
+		*							'types'			=> Array(
+		*												0 => 'page',
+		*											   ),
+		*							'depth'			=> 0, 				// default to infinite levels
+		*							'input_style'	=> 'dropdown',		// or 'radio', 'checkbox', 'multiselect'
+		*							'allow_empty'	=> false, 			// boolean
+		*							'link_type'		=> SQ_LINK_TYPE_1,
+		*						  )
+		*		  )
+		*/
+
+		$sets = $asset->attr('create_location_dynamic');
+
+		// see if there is a set to delete altogether
+		foreach (array_keys($sets) as $name) {
+			$code_name = 'dynamic_location_'.str_replace(' ', '_', strtolower($name));
+
+			if ($_POST[$prefix.'_'.$code_name.'_delete']) {
+				unset($sets[$name]);
+				$asset->setAttrValue('create_location_dynamic', $sets);
+				$asset->saveAttributes();
+
+				// when deleting a set, nothing else should be done.
+				return true;
+			}
+		}
+
+		// update the details for existing sets
+		foreach ($sets as $name => $details) {
+			$code_name = 'dynamic_location_'.str_replace(' ', '_', strtolower($name));
+
+			// root
+			if (isset($_POST[$prefix.'_'.$code_name.'_root']['assetid'])) {
+				$sets[$name]['root'] = $_POST[$prefix.'_'.$code_name.'_root']['assetid'];
+			}
+
+			// depth
+			if (isset($_POST[$prefix.'_'.$code_name.'_depth'])) {
+				$sets[$name]['depth'] = $_POST[$prefix.'_'.$code_name.'_depth'];
+			}
+
+			// backend display
+			if (isset($_POST[$prefix.'_'.$code_name.'_types'])) {
+				$sets[$name]['types'] = $_POST[$prefix.'_'.$code_name.'_types'];
+			}
+
+			// filter link_type
+			if (isset($_POST[$prefix.'_'.$code_name.'_filter_link_type'])) {
+				$sets[$name]['filter_link_type'] = $_POST[$prefix.'_'.$code_name.'_filter_link_type'];
+			} else {
+				$sets[$name]['filter_link_type'] = Array();
+			}
+
+			// input style
+			if (in_array(($input_style = $_POST[$prefix.'_'.$code_name.'_input_style']), Array('dropdown', 'radio'))) {
+				$sets[$name]['input_style'] = $input_style;
+			}
+
+			// display structured?
+			if (isset($_POST[$prefix.'_'.$code_name.'_display_structured'])) {
+				$sets[$name]['display_structured'] = $_POST[$prefix.'_'.$code_name.'_display_structured'];
+			} else {
+				$sets[$name]['display_structured'] = 0;
+			}
+
+			// link_type
+			if (isset($_POST[$prefix.'_'.$code_name.'_link_type'])) {
+				$link_type_list = get_link_type_names();
+				if (isset($link_type_list[$_POST[$prefix.'_'.$code_name.'_link_type']])) {
+					$sets[$name]['link_type'] = (int) $_POST[$prefix.'_'.$code_name.'_link_type'];
+				}
+			}
+
+			// update the other options
+			$sets[$name]['allow_empty']    = (int) isset($_POST[$prefix.'_'.$code_name.'_allow_empty']);
+			$sets[$name]['allow_multiple'] = (int) isset($_POST[$prefix.'_'.$code_name.'_allow_multiple']);
+		}
+
+
+		// see if there is a new set to create
+		if ($_POST[$prefix.'_new_dynamic_set_name']) {
+			$sets[$_POST[$prefix.'_new_dynamic_set_name']] = Array(
+																'root'				=> 0,
+																'depth'				=> 0,
+																'allow_empty'		=> 0,
+																'allow_multiple'	=> 0,
+																'input_style'		=> 'dropdown',
+																'link_type'			=> SQ_LINK_TYPE_1,
+																'filter_link_type'	=> Array(
+																						SQ_LINK_TYPE_1	=> '1',
+																						SQ_LINK_TYPE_2	=> '1',
+																					   ),
+																'types'				=> Array(
+																						'type_code'	=> Array(),
+																						'inherit'	=> Array(),
+																					   ),
+																'diplay_structured'	=> 0,
+															 );
+		}
+
+		$asset->setAttrValue('create_location_dynamic', $sets);
+		$asset->saveAttributes();
+		$asset->_updated();
+
+		return true;
+
+	}//end processDynamicCreateLocations()
 
 
 //--         REQUIRED FIELDS SCREEN          --//
@@ -1077,9 +1446,13 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 
 			$attributes = Array();
 			$attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($create_type, Array('name'));
-			foreach ($attrs as $name) $attributes[$name] = ucwords(str_replace('_', ' ', $name));
+			foreach ($attrs as $name) {
+				$attributes[$name] = ucwords(str_replace('_', ' ', $name));
+			}
 
-			if (!isset($current[$create_type])) $current[$create_type] = Array();
+			if (!isset($current[$create_type])) {
+				$current[$create_type] = Array();
+			}
 			$type_prefix = $prefix.'_'.$create_type;
 
 			$type_name = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($create_type, 'name');
@@ -1171,7 +1544,9 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 
 		foreach (array_keys($asset->attr('create_type')) as $create_type) {
 
-			if (!isset($current[$create_type])) $current[$create_type] = Array();
+			if (!isset($current[$create_type])) {
+				$current[$create_type] = Array();
+			}
 			$type_prefix = $prefix.'_'.$create_type;
 
 			// construct new required fields array removing deleted fields and updating error text
@@ -1184,7 +1559,9 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 			// add new required field
 			if (isset($_POST[$type_prefix.'_new_required']) && !empty($_POST[$type_prefix.'_new_required'])) {
 				$new_required = $_POST[$type_prefix.'_new_required'];
-				if (!isset($required_fields[$create_type][$new_required])) $required_fields[$create_type][$new_required] = '';
+				if (!isset($required_fields[$create_type][$new_required])) {
+					$required_fields[$create_type][$new_required] = '';
+				}
 			}
 		}
 

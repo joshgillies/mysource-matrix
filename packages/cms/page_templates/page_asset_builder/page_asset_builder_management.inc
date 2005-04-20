@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_management.inc,v 1.23 2005/04/15 00:37:46 lwright Exp $
+* $Id: page_asset_builder_management.inc,v 1.24 2005/04/20 00:16:59 ndvries Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -95,6 +95,35 @@ class Page_Asset_Builder_Management extends Asset_Management
 													'type'		=> 'serialise',
 													'default'	=> Array(),
 												  );
+
+		/**
+		* Dynamically-generated sets of locations for the user to choose from when creating assets
+		*   Array(
+		*		'set_name' => Array(
+		*						'root'					=> location_id, 					// from asset_finder
+		*						'depth'					=> 0,								// default to infinite levels
+		*						'types'					=> Array(							// follows the format of the asset_type_selector
+		*													'type_code'	=> Array(
+		*																	0 => 'sample_type_code',
+		*																   ),
+		*													'inherit'	=> Array(
+		*																	0 => '1',
+		*																   ),
+		*						'filter_link_type'		=> Array(),							// filter the locations list with this/these link_type(s). excludes the selected link types, none selected by default
+		*						'link_types'			=> SQ_LINK_TYPE_1,					// create the asset and link it with this link_type
+		*						'input_style'			=> 'dropdown',						// or 'radio'
+		*						'display_structured'	=> 0								// Whether the dropbox or radio displays a tree, or a flat list of asset names
+		*						'allow_multiple'		=> false, 							// boolean
+		*						'allow_empty'			=> false, 							// boolean
+		*					  )
+		*   )
+		*/
+		$this->vars['create_location_dynamic'] = Array(
+													'added'		=> '0.7',
+													'type'		=> 'serialise',
+													'default'	=> Array(),
+												 );
+
 		/**
 		* Rules governing additional create locations
 		*   Array (create_type => Array (index => Array('attributes'  => Array(index => attribute_name),
@@ -351,7 +380,9 @@ class Page_Asset_Builder_Management extends Asset_Management
 
 				// convert the fixed create locations by adding the link types
 				$old_create_locations = $asset->attr('create_location');
-				if (!Array($old_create_locations)) $old_create_locations = Array(0 => $old_create_locations);
+				if (!Array($old_create_locations)) {
+					$old_create_locations = Array(0 => $old_create_locations);
+				}
 				$fixed_create_locations = Array();
 				foreach ($old_create_locations as $assetid => $null) {
 					$fixed_create_locations[$assetid] = $old_link_type;
@@ -362,7 +393,9 @@ class Page_Asset_Builder_Management extends Asset_Management
 				if ($asset->attr('create_location_optional')) {
 					$old_input_style = ($asset->attr('create_location_type') == 'select') ? 'dropdown' : 'radio';
 					$old_selectable_locations = array_values($asset->attr('create_location_optional'));
-					if (!is_array($old_selectable_locations)) $old_selectable_locations = Array($old_selectable_locations);
+					if (!is_array($old_selectable_locations)) {
+						$old_selectable_locations = Array($old_selectable_locations);
+					}
 					$old_allow_multiple = $asset->attr('create_location_multiple') ? 1 : 0;
 					$selectable_locations_set_details = Array();
 					$location_details = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($old_selectable_locations);

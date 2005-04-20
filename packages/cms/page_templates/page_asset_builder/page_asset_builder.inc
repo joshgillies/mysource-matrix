@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.55 2005/04/15 00:37:46 lwright Exp $
+* $Id: page_asset_builder.inc,v 1.56 2005/04/20 00:16:59 ndvries Exp $
 *
 */
 
@@ -37,7 +37,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.55 $
+* @version $Revision: 1.56 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -182,7 +182,9 @@ class Page_Asset_Builder extends Page
 		// the only reason why we would object to this link being deleted is if it is a bodycopy linked to us
 		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'major', null, '1', '1');
 
-		if ($bodycopy_link[0]['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) return 'You cant delete the link between the bodycopy and the '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').' page';
+		if ($bodycopy_link[0]['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) {
+			return 'You cant delete the link between the bodycopy and the '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').' page';
+		}
 
 		return parent::isDeletableLink($linkid);
 
@@ -224,7 +226,9 @@ class Page_Asset_Builder extends Page
 
 			if (!empty($this->_errors)) {
 				$errors = '';
-				foreach ($this->_errors as $text) $errors .= '<li>'.$text.'</li>';
+				foreach ($this->_errors as $text) {
+					$errors .= '<li>'.$text.'</li>';
+				}
 				$this->_replacements[strtolower($_POST['ASSET_BUILDER_ACTION']).'_error'] .= '<ul>'.$errors.'</ul>';
 			}
 		}
@@ -332,11 +336,15 @@ class Page_Asset_Builder extends Page
 							$attribute = $real_attribute;
 							$attribute->process($prefix.'_'.$attribute->id);
 							if (!$attribute->processed) {
-								if (empty($error_text)) $error_text = 'The value of '.$attribute->name.' is not valid';
+								if (empty($error_text)) {
+									$error_text = 'The value of '.$attribute->name.' is not valid';
+								}
 								trigger_error($error_text, E_USER_NOTICE);
 								$required_error = true;
 							} else if (empty($attribute->value)) {
-								if (empty($error_text)) $error_text = 'Please enter a value for '.$attribute->name;
+								if (empty($error_text)) {
+									$error_text = 'Please enter a value for '.$attribute->name;
+								}
 								trigger_error($error_text, E_USER_NOTICE);
 								$required_error = true;
 							}
@@ -354,7 +362,9 @@ class Page_Asset_Builder extends Page
 					 //  CREATE LOCATIONS  //
 					////////////////////////
 
-					if (($create_locations = $this->getCreateLocations($create_type)) === FALSE) return false;
+					if (($create_locations = $this->getCreateLocations($create_type)) === FALSE) {
+						return false;
+					}
 
 					// if we dont have any create locations, there is no point in continuing with this charade
 					// whoever set this up may think they want to build asset on the frontend, but they dont really
@@ -484,7 +494,9 @@ class Page_Asset_Builder extends Page
 					// check the list options are valid
 					$selected_locations = array_intersect($selected_locations, array_keys($details['locations']));
 					// add them to the collection
-					foreach ($selected_locations as $location_id) $all_selected_locations[(int)$location_id] = (int)$details['link_type'];
+					foreach ($selected_locations as $location_id) {
+						$all_selected_locations[(int)$location_id] = (int)$details['link_type'];
+					}
 				} else {
 					// if it's valid, add it to the list
 					if (in_array($_POST[$code_name], array_keys($details['locations']))) {
@@ -585,15 +597,21 @@ class Page_Asset_Builder extends Page
 						break;
 
 						case 'starts_with':
-							if (!preg_match('|^'.$rule['values'][$j].'.*$|', $attr_value)) $pass = false;
+						if (!preg_match('|^'.$rule['values'][$j].'.*$|', $attr_value)) {
+							$pass = false;
+						}
 						break;
 
 						case 'ends_with':
-							if (!preg_match('|^.*'.$rule['values'][$j].'$|', $attr_value)) $pass = false;
+						if (!preg_match('|^.*'.$rule['values'][$j].'$|', $attr_value)) {
+							$pass = false;
+						}
 						break;
 
 						case 'contains':
-							if (strpos($attr_value, $rule['values'][$j]) === FALSE) $pass = false;
+						if (strpos($attr_value, $rule['values'][$j]) === FALSE) {
+							$pass = false;
+						}
 						break;
 					}
 					$j++;
@@ -625,7 +643,8 @@ class Page_Asset_Builder extends Page
 			return $this->getFixedCreateLocations()
 				+ $selected_locs
 				+ $this->getRuleMatchCreateLocations($create_type)
-				+ $this->getAdditionalCreateLocations();
+				+ $this->getAdditionalCreateLocations()
+				+ $this->getDynamicCreateLocations();
 		} else {
 			// failed to select some compulsory selectable locations
 			return false;
@@ -682,6 +701,44 @@ class Page_Asset_Builder extends Page
 		return $res;
 
 	}//end getAdditionalCreateLocations()
+
+
+	/**
+	* Get a list of dynamic create locations from the REQUEST var
+	*
+	* @return array(parentid => link_type)
+	* @access protected
+	*/
+	function getDynamicCreateLocations()
+	{
+		$all_selected_locations = Array();
+		foreach ($this->attr('create_location_dynamic') as $set_name => $details) {
+			$selected_locations = Array();
+			$code_name = str_replace(' ', '_', strtolower($set_name));
+			if (isset($_POST[$code_name])) {
+				if ($details['allow_multiple'] && is_array($_POST[$code_name])) {
+					foreach ($_POST[$code_name] as $location_id) {
+						// add it to the list
+						preg_match('/\d+_(\d+)/', $location_id, $match);
+						$selected_locations[] = $match[1];
+					}
+					// add them to the collection
+					foreach ($selected_locations as $location_id) {
+						$all_selected_locations[(int)$location_id] = (int)$details['link_type'];
+					}
+				} else {
+					// add the single item to the list
+					$all_selected_locations[(int)$_POST[$code_name]] = (int)$details['link_type'];
+				}
+			} else if (!$details['allow_empty']) {
+				trigger_localised_error('CMS0036', E_USER_WARNING, $set_name);
+				return false;
+			}
+		}
+
+		return $all_selected_locations;
+
+	}//end getDynamicCreateLocations()
 
 
 	/**
@@ -803,7 +860,9 @@ class Page_Asset_Builder extends Page
 			// print the create interface for the asset
 			?><input type="hidden" name="asset_action" value="create"><?php
 			$create_types = $this->attr('create_type');
-			if (!is_array($create_types)) $create_types = Array($create_types);
+			if (!is_array($create_types)) {
+				$create_types = Array($create_types);
+			}
 
 			$i = 0;
 			foreach ($create_types as $create_type => $value) {
@@ -894,7 +953,6 @@ class Page_Asset_Builder extends Page
 						combo_box($code_name, $options, $data['allow_multiple'], $default,  $height);
 					break;
 
-					case 'radio':
 						if ($data['allow_multiple']) {
 							// print checkboxes
 							$checked = !$data['allow_empty'];
@@ -924,7 +982,226 @@ class Page_Asset_Builder extends Page
 
 		}
 
+		foreach ($this->attr('create_location_dynamic') as $name => $data) {
+			$code_name = str_replace(' ', '_', strtolower($name));
+
+			// get the selected asset types and inherited types if necessary
+			$types = Array();
+			if (is_array($new_types = $data['types'])) {
+				if (isset($new_types['type_code']) && isset($new_types['inherit'])) {
+					if (count($new_types['type_code']) == count($new_types['inherit'])) {
+						$new_types_keys = array_keys($new_types['type_code']);
+
+						for ($ii = reset($new_types_keys); $ii < count($new_types_keys); $ii++) {
+							if (empty($new_types['type_code'][$ii])) continue;
+							if ($new_types['inherit'][$ii] == '1') {
+								// get all descendants, add them to the types array
+								$descendant_types = &$GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($new_types['type_code'][$ii], true);
+								foreach ($descendant_types as $type_code) {
+									if (!isset($types[$type_code])) {
+										$types[$type_code] = '';
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			$types = array_keys($types);
+
+			// get all children of the root node and filter based on the rules
+			// specified in the backend
+			$all_child_links = $GLOBALS['SQ_SYSTEM']->am->getAllChildLinks($data['root']);
+			$child_links = $all_child_links;
+			foreach ($child_links as $treeid => $child) {
+				if ((strlen($treeid)/4) > $data['depth'] && $data['depth'] != 0) {
+					unset($child_links[$treeid]);
+				} else if (!isset($data['filter_link_type'][$child['link_type']])) {
+					unset($child_links[$treeid]);
+				} else if (!empty($types)) {
+					if (!in_array($child['type_code'], $types)) {
+						unset($child_links[$treeid]);
+					}
+				}
+			}
+
+			// if the filters gave removed all child links, or the root never had
+			// any children anyway provide a message to the user
+			if (empty($child_links)) {
+				ob_start();
+					echo 'This asset builder is incorrectly configured. There are no create locations available using the rules specified by the backend user.';
+					$this->_replacements[$code_name.'_field'] = ob_get_contents();
+				ob_end_clean();
+				return;
+			}
+
+			if ($data['display_structured']) {
+				$tree = Array();
+				foreach ($child_links as $treeid => $child) {
+					$this->_IDListToTree($treeid, $tree);
+				}
+				$options = Array();
+				$this->_drawTree($tree, $all_child_links, $options);
+			} else {
+				$unique_assetids = Array();
+				foreach ($child_links as $treeid => $child) {
+					if (!in_array($child['assetid'], $unique_assetids)) {
+						$options[$child['linkid'].'_'.$child['assetid']] = $child['short_name'];
+						$unique_assetids[] = $child['assetid'];
+					}
+				}
+			}
+
+			ob_start();
+				echo '<pre style="font-family: verdana, arial, sans-serif, monospace;">';
+				switch ($data['input_style']) {
+
+					case 'dropdown':
+						if ($data['allow_empty'] && !$data['allow_multiple']) {
+							$options = Array(''=>'') + $options;
+						}
+						$default = $data['allow_empty'] ? Array() : key($options);
+						$height = $data['allow_multiple'] ? 5 : 1;
+						combo_box($code_name, $options, $data['allow_multiple'], $default,  $height);
+					break;
+					case 'radio':
+						if ($data['allow_multiple']) {
+							// print checkboxes
+							$checked = !$data['allow_empty'];
+							$i = 0;
+							foreach ($options as $id => $name) {
+								check_box($code_name."[$i]", $id, $checked);
+								echo '&nbsp;' . $name . '<br />';
+								$checked = false;
+								$i++;
+							}
+						} else {
+							$checked = !$data['allow_empty'];
+							foreach ($options as $id => $name) {
+								radio_button($code_name, $id, $checked);
+								echo '&nbsp;' . $name . '<br />';
+								$checked = false;
+							}
+						}
+					break;
+
+					default:
+						echo '(UNDEFINED INPUT STYLE ' . $data['input_style'] . ')';
+					break;
+				}
+				echo '</pre>';
+				$this->_replacements[$code_name.'_field'] = ob_get_contents();
+			ob_end_clean();
+		}
+
 	}//end _loadCreateReplacements()
+
+
+	/**
+	* Takes a tree ID and inserts it into a tree
+	*
+	* $tree is in the following format:
+	* <pre>
+	* Array(
+	*	'0001'	=> 0,
+	*	'0002'	=> Array(
+	*				'00020001'	=> 0,
+	*			   ),
+	* )
+	* </pre>
+	*
+	* @param string		`			$treeid			the ID of the tree to format
+	* @param Array(string=>mixed)	&$tree			the tree to insert the formatted ID into
+	* @param string					$chunk_prefix	optional, used internally
+	*
+	* @access private
+	* @return void
+	*/
+	function _IDListToTree($treeid, &$tree, $chunk_prefix='')
+	{
+		$branch_str_len = 4;
+
+		if (strlen($treeid) < $branch_str_len) {
+			// n00b out
+			return false;
+		}
+
+		$first_chunk = substr($treeid, 0, $branch_str_len);
+
+		if (strlen($treeid) > $branch_str_len) {
+			$remaining_chunk = substr($treeid, $branch_str_len, strlen($treeid));
+			if (!isset($tree[$chunk_prefix.$first_chunk]) || !is_array($tree[$chunk_prefix.$first_chunk])) {
+				$tree[$chunk_prefix.$first_chunk] = Array();
+			}
+			$this->_IDListToTree($remaining_chunk, $tree[$chunk_prefix.$first_chunk], $chunk_prefix.$first_chunk);
+		} else {
+			$tree[$chunk_prefix.$first_chunk] = 0;
+		}
+
+	}//end _IDListToTree()
+
+
+	/**
+	* Takes a tree array and an output array, and fills the output array with an ascii tree, with each line of the tree as an element in the array
+	*
+	* @param array(string=>mixed)		$tree			the tree to format
+	* @param string						$parent			optional, the root node, eg. '/'
+	* @param string						$prefix			optional, used internally
+	* @param string						$parent_prefix	optional, used internally
+	* @param Array(string)				&$output_tree	optional, used internally
+	*
+	* @see Page_Asset_Builder::_IDListToTree()
+	* @access public
+	* @return
+	*/
+	function _drawTree($tree, &$all_child_links, &$output_tree, $parent='', $prefix='', $parent_prefix='')
+	{
+		if (!empty($parent)) {
+			$parent_info = $all_child_links[$parent];
+			$output_tree[$parent_info['linkid'].'_'.$parent_info['assetid']] = $parent_prefix.$parent_info['short_name'];
+		}
+
+		if (empty($tree)) return false;
+
+		$last_element = count($tree) - 1;
+		$ii = 0;
+
+		foreach ($tree as $branch => $branch_data) {
+			// if no parent, list the top level without the 'branches'
+			if ($parent != '') {
+				if ($ii == $last_element) {
+					$branch_prefix = '  `-- ';
+				} else {
+					$branch_prefix = '  |-- ';
+				}
+			} else {
+				$branch_prefix = '';
+			}
+
+			if (is_array($branch_data) && !empty($branch_data)) {
+				// recurse into child elements
+				// calculate $prefix
+				if ($parent != '') {
+					if ($ii == $last_element) {
+						$new_prefix = '      ';
+					} else {
+						$new_prefix = '  |   ';
+					}
+				} else {
+					$new_prefix = '';
+				}
+				$this->_drawTree($branch_data, $all_child_links, $output_tree, $branch, $prefix.$new_prefix, $prefix.$branch_prefix);
+
+			} else {
+				$branch_info = $all_child_links[$branch];
+				$output_tree[$branch_info['linkid'].'_'.$branch_info['assetid']] = $prefix.$branch_prefix.$branch_info['short_name'];
+
+			}
+
+			$ii++;
+		}
+
+	}//end _drawTree()
 
 
 	/**
@@ -1011,6 +1288,7 @@ class Page_Asset_Builder extends Page
 
 		$vars['keywords'] = array_merge($vars['keywords'], $keywords);
 		$vars['keywords'] = array_merge($vars['keywords'], $this->getSelectableLocationKeywords());
+		$vars['keywords'] = array_merge($vars['keywords'], $this->getDynamicLocationKeywords());
 
 	}//end onRequestKeywords()
 
@@ -1031,6 +1309,24 @@ class Page_Asset_Builder extends Page
 		return $keywords;
 
 	}//end getSelectableLocationKeywords()
+
+
+	/**
+	* Get the keyword replacements used to select dynamic create locations
+	*
+	* @access protected
+	* @return array(keyword => replacement)
+	*/
+	function getDynamicLocationKeywords()
+	{
+		$keywords = Array();
+		foreach ($this->attr('create_location_dynamic') as $name => $data) {
+			$keyword_name = str_replace(' ', '_', strtolower($name)).'_field';
+			$keywords[$keyword_name] = $name.' Field';
+		}
+		return $keywords;
+
+	}//end getDynamicLocationKeywords()
 
 
 }//end class
