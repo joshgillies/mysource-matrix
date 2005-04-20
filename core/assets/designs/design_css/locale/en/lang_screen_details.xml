@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.1 2005/03/30 00:39:42 lwright Exp $
+* $Id: lang_screen_details.xml,v 1.2 2005/04/20 23:25:26 tbarrett Exp $
 *
 */
 -->
@@ -26,7 +26,7 @@
 <contents>
 	<section name="Details">
 		<field attribute="id_name">
-			<display_name>Design Name</display_name>
+			<display_name>CSS File Name</display_name>
 			<note />
 		</field>
 	</section>
