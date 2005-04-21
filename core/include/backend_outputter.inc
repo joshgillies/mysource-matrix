@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.103 2005/04/15 00:37:28 lwright Exp $
+* $Id: backend_outputter.inc,v 1.104 2005/04/21 23:02:34 tbarrett Exp $
 *
 */
 
@@ -42,7 +42,7 @@ define('SQ_BO_MSG_ERROR',   4);
 *    there will only ever be one instance of this object
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.103 $
+* @version $Revision: 1.104 $
 * @package MySource_Matrix
 */
 class Backend_Outputter
@@ -1417,7 +1417,7 @@ class Backend_Outputter
 			$this->openField('', 'commit');
 				hidden_field('sq_lock_release', 0);
 				hidden_field('sq_lock_release_on_submit', $release_lock);
-				$this->addOnSubmit('set_hidden_field(\'sq_lock_release\',  get_form_element_value(\'sq_lock_release_on_submit\'));');
+				$this->addOnSubmit('document.getElementById(\'sq_lock_release\').value = document.getElementById(\'sq_lock_release_on_submit\').value;');
 
 				normal_button('sq_commit_button', $value, 'if (submit_form) { submit_form(this.form); } else { this.form.submit(); this.disabled = \'disabled\'; } ', 'accesskey="s"');
 
