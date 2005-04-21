@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: limbo_outputter.inc,v 1.16 2005/04/15 00:37:28 lwright Exp $
+* $Id: limbo_outputter.inc,v 1.17 2005/04/21 06:08:50 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/backend_outputter.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix
 */
 class Limbo_Outputter extends Backend_Outputter
@@ -64,7 +64,9 @@ class Limbo_Outputter extends Backend_Outputter
 	*/
 	function addFormActionGetVar($name, $value, $persistant=false)
 	{
-		if ($persistant) return parent::addFormActionGetVar($name, $value, true);
+		if ($persistant) {
+			return parent::addFormActionGetVar($name, $value, true);
+		}
 		return $this->addHiddenField($name, $value);
 
 	}//end addFormActionGetVar()
@@ -80,7 +82,9 @@ class Limbo_Outputter extends Backend_Outputter
 	{
 		if ($this->_raw_opened) $this->closeRaw();
 		// close all sections
-		while (!empty($this->_section_stack)) $this->closeSection();
+		while (!empty($this->_section_stack)) {
+			$this->closeSection();
+		}
 		$this->_paintBodyHeader();
 		?><div id="sq_backend_sections"><?php
 		if (!$this->_redirect) $this->paintSections();
@@ -122,26 +126,35 @@ class Limbo_Outputter extends Backend_Outputter
 			}
 		}
 
-		$this->addCssInclude($this->filesPath('css/edit.css'));
-		foreach ($this->_css_includes as $file) $this->_paintCssInclude($file);
+		if (SQ_IN_LIMBO) {
+			// need to leave this out for asset builders
+			$this->addCssInclude($this->filesPath('css/edit.css'));
+		}
+		foreach ($this->_css_includes as $file) {
+			$this->_paintCssInclude($file);
+		}
 
 		$this->addJsInclude(sq_web_path('lib').'/html_form/html_form.js');
 		$this->addJsInclude(sq_web_path('lib').'/js/general.js');
 		$this->addJsInclude(sq_web_path('lib').'/js/debug.js');
 		$this->addJsInclude(sq_web_path('lib').'/js/edit.js');
-		foreach ($this->_js_includes as $file) $this->_paintJsInclude($file);
+		foreach ($this->_js_includes as $file) {
+			$this->_paintJsInclude($file);
+		}
 
 		?>
-		<script language="Javascript" type="text/javascript">
-		<!--
+		<script type="text/javascript"><!--
+		//<![CDATA[
+
 			// slip our own onLoad function into the onLoad event of the window
-			var SQ_DOCUMENT_LOADED = false;
 			if (window.onload) {
 				var sqOtherOnLoad = window.onload;
 				window.onload = function() { sqOtherOnLoad(); page_on_load(); }
 			} else {
 				window.onload = function() { page_on_load(); }
 			}
+
+			var SQ_DOCUMENT_LOADED = false;
 
 			function page_on_load() {
 
@@ -157,8 +170,8 @@ class Limbo_Outputter extends Backend_Outputter
 
 			}// end page_on_load()
 
-
 			var SQ_FORM_SUBMITTED = false;
+
 			function form_on_submit() {
 				if (SQ_FORM_SUBMITTED) {
 					alert('The form has already been submitted, please wait ...');
@@ -168,9 +181,9 @@ class Limbo_Outputter extends Backend_Outputter
 				<?php
 					foreach ($this->_on_submit_calls as $call) {
 					?>
-						<?php echo $call;?>;
+						<?php echo $call; ?>;
 					<?php
-					}//end foreach
+					}
 				?>
 
 				// basically if they get this far then we can submit
@@ -185,8 +198,9 @@ class Limbo_Outputter extends Backend_Outputter
 				preload_image('<?php echo $file;?>');
 			<?php
 			}//end foreach
+
 			?>
-		// -->
+		//]]> -->
 		</script>
 		<?php
 
@@ -435,7 +449,7 @@ class Limbo_Outputter extends Backend_Outputter
 						break;
 
 					default :
-						trigger_localised_error("SYS0257", E_USER_ERROR, $section['areas'][$j]['area_type']);
+						trigger_localised_error('SYS0257', E_USER_ERROR, $section['areas'][$j]['area_type']);
 
 				}// end switch area type
 
@@ -465,7 +479,7 @@ class Limbo_Outputter extends Backend_Outputter
 		// if a redirect has been set - add an onLoad call so we redirect as normal
 		if ($this->_redirect) {
 			?>
-			<script language="Javascript" type="text/javascript">
+			<script type="text/javascript">
 				<?php echo $this->_redirect_target; ?>.location = "<?php echo addslashes($this->_redirect); ?>";
 			</script>
 			<?php
@@ -487,13 +501,28 @@ class Limbo_Outputter extends Backend_Outputter
 			}
 		</style>
 
-		<form action="<?php echo $this->_action.$this->_anchor;?>" id="main_form" name="main_form" method="post" enctype="multipart/form-data" onSubmit="javascript: return form_on_submit();">
-		<?php
+		<form action="<?php echo $this->_action.$this->_anchor;?>" id="main_form" name="main_form" method="post" enctype="multipart/form-data" onsubmit="return form_on_submit();">
 
+		<?php
 		hidden_field('process_form', '1');
-		foreach ($this->_hidden_fields as $name => $value) hidden_field($name, $value);
+		$this->_paintHiddenFields();
 
 	}//end _paintBodyHeader()
+
+
+	/**
+	* Paint the buffered hidden fields
+	*
+	* @access public
+	* @return void
+	*/
+	function _paintHiddenFields()
+	{
+		foreach ($this->_hidden_fields as $name => $value) {
+			hidden_field($name, $value);
+		}
+
+	}//end _paintHiddenFields()
 
 
 	/**
