@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager_edit_fns.inc,v 1.85 2005/04/15 00:37:28 lwright Exp $
+* $Id: asset_manager_edit_fns.inc,v 1.86 2005/04/21 06:02:05 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.85 $
+* @version $Revision: 1.86 $
 * @package MySource_Matrix
 */
 class Asset_Manager_Edit_Fns extends MySource_Object
@@ -280,7 +280,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 		?>
 		<table border="0">
 			<tr>
-				<td class="sq-backend-data">
+				<td>
 					To acquire the lock, enter the 8 character string you see below into the box supplied,
 					then press the Commit button
 				</td>
@@ -382,7 +382,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 	{
 		$o = &$this->backend->out;
 
-		$o->setHeading('Asset Types', '<script language="JavaScript" type="text/javascript">sq_print_icon("'.$o->filesPath('/images/icons/header/asset_tree.png').'", "20", "20", "HIPO Icon");</script>');
+		$o->setHeading('Asset Types', '<script type="text/javascript">sq_print_icon("'.$o->filesPath('/images/icons/header/asset_tree.png').'", "20", "20", "HIPO Icon");</script>');
 
 		$o->addHiddenField('am_action');
 		$o->addHiddenField('am_new_type_code');
@@ -402,83 +402,24 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 			sort($offspring[$type_code]);
 		}
 
-	?>
-		<script language="JavaScript" type="text/javascript">
-		<!--
-
-			var current_asset_name = '';
-
-			function asset_checked(asset_name, customisation) {
-				current_asset_name = asset_name;
-
-				var button = get_form_element('edit_button');
-				if (customisation) {
-					button.value = 'Edit ' + asset_name;
-				} else {
-					button.value = '- - - - - - - - - - - - -';
-				}
-			}
-
-			function create_custom() {
-
-				if (get_form_element_value('am_type_code')) {
-
-					var type_codes = new Array("<?php echo implode('", "', array_keys($this->am->_asset_types)); ?>");
-					var new_type_code = '';
-					var prompt_str = '';
-					do {
-
-						if (new_type_code == '') {
-							prompt_str = 'Please Enter a unique Asset Type Code for your new customisation';
-						} else {
-							prompt_str = '"' + new_type_code + '" is already in use\nPlease enter a unique Asset Type Code';
-						}
-
-						new_type_code = prompt(prompt_str, new_type_code);
-						// they hit cancel
-						if (new_type_code == null) return false;
-
-						// make sure it's in a proper format
-						new_type_code = new_type_code.toLowerCase();
-						new_type_code = new_type_code.replace(/ /g, '_');
-						new_type_code = new_type_code.replace(/[^a-z_]/g, '');
-						new_type_code = new_type_code.replace(/_+/g, '_');
-
-					} while (array_search(type_codes, new_type_code) != null)
-
-					set_hidden_field('am_new_type_code', new_type_code);
-					set_hidden_field('am_action', 'create_custom');
-					return true;
-				}
-				return false;
-			}
-
-		//-->
-		</script>
-
+		?>
 		<table cellpadding="0" cellspacing="0" border="0">
 			<tr>
-				<td class="sq-backend-data"><img src="<?php echo $o->filesPath('/images/blank.gif'); ?>" width="1" height="20" border="0" alt="branch" /></td>
-				<td class="sq-backend-data">
+				<td><img src="<?php echo $o->filesPath('/images/blank.gif'); ?>" width="1" height="20" border="0" alt="branch" /></td>
+				<td>
 					&nbsp;Asset
 				</td>
 			</tr>
 			<tr>
-				<td class="sq-backend-data"><img src="<?php echo $o->filesPath('/images/blank.gif'); ?>" width="1" height="1" alt="blank" /></td>
-				<td class="sq-backend-data">
-			<?php
-				$this->_recursePrintAssetList($offspring, 'asset');
-			?>
+				<td><img src="<?php echo $o->filesPath('/images/blank.gif'); ?>" width="1" height="1" alt="blank" /></td>
+				<td>
+					<?php
+						$this->_recursePrintAssetList($offspring, 'asset');
+					?>
 				</td>
 			</tr>
 			<tr>
-				<td class="sq-backend-data"><img src="<?php echo $o->filesPath('/images/blank.gif'); ?>" width="1" height="1" alt="blank" /></td>
-				<td class="sq-backend-data">
-			<?php
-				//submit_button('create_button', 'Create Custom Asset', 'return create_custom();');
-				//submit_button('edit_button', '- - - - - - - - - - - - -', 'if (this.value.substr(0, 4) == \'Edit\') { set_hidden_field(\'am_action\', \'edit\'); return true; } else { return false };');
-			?>
-				</td>
+				<td><img src="<?php echo $o->filesPath('/images/blank.gif'); ?>" width="1" height="1" alt="blank" /></td>
 			</tr>
 		</table>
 	<?php
@@ -487,6 +428,15 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 	}//end _printAssetTypeList()
 
 
+	/**
+	* Print a portion of the asset type tree, recursively
+	*
+	* @param array	$offspring	Map of parents => children
+	* @param object	$parent		The parent whose subtree should be printed
+	*
+	* @access private
+	* @return void
+	*/
 	function _recursePrintAssetList(&$offspring, $parent)
 	{
 		$o = &$this->backend->out;
@@ -502,8 +452,8 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 			$bg = ($end) ? '' : 'background="'.$o->filesPath('/images/tree/stalk.gif').'"';
 		?>
 			<tr>
-				<td class="sq-backend-data" <?php echo $bg; ?>><img src="<?php echo $o->filesPath('/images/tree/branch.gif');?>" width="20" height="20" border="0" alt="branch" /></td>
-				<td class="sq-backend-data">
+				<td <?php echo $bg; ?>><img src="<?php echo $o->filesPath('/images/tree/branch.gif');?>" width="20" height="20" border="0" alt="branch" /></td>
+				<td>
 					<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $this->am->getAssetIconURL($type_code); ?>", "16", "16", "");</script>&nbsp;&nbsp;<?php echo $this->am->_asset_types[$type_code]['name'].' ('.$type_code.')';?>
 				</td>
 			</tr>
@@ -511,8 +461,8 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 			if (!empty($offspring[$type_code])) {
 			?>
 				<tr>
-					<td class="sq-backend-data" <?php echo $bg; ?>><img src="<?php echo $o->filesPath('/images/blank.gif'); ?>" width="1" height="1" alt="blank" /></td>
-					<td class="sq-backend-data">
+					<td <?php echo $bg; ?>><img src="<?php echo $o->filesPath('/images/blank.gif'); ?>" width="1" height="1" alt="blank" /></td>
+					<td>
 				<?php
 					$this->_recursePrintAssetList($offspring, $type_code);
 				?>
