@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.35 2005/04/15 00:37:25 lwright Exp $
+* $Id: image.inc,v 1.36 2005/04/21 00:24:15 gsherwood Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -249,6 +249,7 @@ class Image extends File
 				$output['alt']    = $this->attr('alt');
 				$output['width']  = $this->attr('width');
 				$output['height'] = $this->attr('height');
+				$output['name']   = $this->name;
 				echo var_serialise($output);
 				exit();
 			default :

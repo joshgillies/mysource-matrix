@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_image.php,v 1.26 2005/04/20 23:54:43 gsherwood Exp $
+* $Id: insert_image.php,v 1.27 2005/04/21 00:23:54 gsherwood Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Insert Image Popup for the WYSIWYG
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix
 */
 
@@ -97,8 +97,7 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 				// generate the alt text from the file name if they have not set it
 				// for the image asset
 				if (imageInfo['alt'] == '') {
-					var path = document.getElementById("f_imageid[url]").value;
-					while (path.indexOf("/") >= 0) path = path.substring(path.indexOf("/") + 1);
+					var path = imageInfo['name'];
 					ext = "";
 					i = path.length;
 					while (ext.charAt(0) != "." && i > 0) ext = path.substring(i--);
