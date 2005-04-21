@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: limbo_outputter.inc,v 1.18 2005/04/21 06:55:43 tbarrett Exp $
+* $Id: limbo_outputter.inc,v 1.19 2005/04/21 07:36:37 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/backend_outputter.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix
 */
 class Limbo_Outputter extends Backend_Outputter
@@ -143,7 +143,12 @@ class Limbo_Outputter extends Backend_Outputter
 		}
 
 		// Event handlers
-		$this->_printEventHandlers();
+		$this->_paintEventHandlers();
+
+		// Preloaded images
+		foreach ($this->_preload_imgs as $file) {
+			echo "\t\tpreload_image('".$file."');\n";
+		}
 
 	}//end _paintHeader()
 
@@ -161,7 +166,7 @@ class Limbo_Outputter extends Backend_Outputter
 		<style type="text/css">
 			<?php
 			foreach ($this->_css_includes as $file) {
-				echo "\t\t\t\t@import url($file)\n";
+				echo "\t\t@import url($file)\n";
 			}
 			?>
 		</style>
@@ -176,11 +181,16 @@ class Limbo_Outputter extends Backend_Outputter
 			$this->_paintJsInclude($file);
 		}
 
-		// Event handers
-		$this->_printEventHandlers();
+		// Event handlers
+		$this->_paintEventHandlers();
 
 		// Hidden Fields
 		$this->_paintHiddenFields();
+
+		// Preload images
+		foreach ($this->_preload_imgs as $file) {
+			echo "\t\tpreload_image('".$file."');\n";
+		}
 
 	}//end _paintInlineHeader()
 
@@ -191,7 +201,7 @@ class Limbo_Outputter extends Backend_Outputter
 	* @access public
 	* @return void
 	*/
-	function _printEventHandlers()
+	function _paintEventHandlers()
 	{
 		?>
 		<script type="text/javascript"><!--
@@ -207,13 +217,12 @@ class Limbo_Outputter extends Backend_Outputter
 
 			var SQ_DOCUMENT_LOADED = false;
 
-			function page_on_load() {
-
+			function page_on_load() 
+			{
 				<?php
 				foreach ($this->_on_load_calls as $call) {
-					echo "\n".$call;
+					echo "\t\t$call;\n";
 				}//end foreach
-
 				?>
 
 				// let everyone know the document is loaded
@@ -223,7 +232,8 @@ class Limbo_Outputter extends Backend_Outputter
 
 			var SQ_FORM_SUBMITTED = false;
 
-			function form_on_submit() {
+			function form_on_submit() 
+			{
 				if (SQ_FORM_SUBMITTED) {
 					alert('The form has already been submitted, please wait ...');
 					return;
@@ -231,9 +241,7 @@ class Limbo_Outputter extends Backend_Outputter
 
 				<?php
 					foreach ($this->_on_submit_calls as $call) {
-					?>
-						<?php echo $call; ?>;
-					<?php
+						echo "\t\t$call;\n";
 					}
 				?>
 
@@ -241,21 +249,13 @@ class Limbo_Outputter extends Backend_Outputter
 				SQ_FORM_SUBMITTED = true;
 				return true;
 
-			}// end form_on_submit()
+			}//end form_on_submit()
 
-			<?php
-			foreach ($this->_preload_imgs as $file) {
-			?>
-				preload_image('<?php echo $file;?>');
-			<?php
-			}//end foreach
-
-			?>
 		//]]> -->
 		</script>
 		<?php
 
-	}//end _printEventHandlers()
+	}//end _paintEventHandlers()
 
 
 	/**
