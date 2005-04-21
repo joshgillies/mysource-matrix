@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: limbo_outputter.inc,v 1.17 2005/04/21 06:08:50 tbarrett Exp $
+* $Id: limbo_outputter.inc,v 1.18 2005/04/21 06:55:43 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/backend_outputter.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix
 */
 class Limbo_Outputter extends Backend_Outputter
@@ -111,12 +111,13 @@ class Limbo_Outputter extends Backend_Outputter
 
 
 	/**
-	* Paint the header of the page
+	* Paint the header of the page as it should appear in the <head> of the document
 	*
 	* @access private
 	*/
 	function _paintHeader()
 	{
+		// Charset header
 		if (!headers_sent()) {
 			if ($this->_charset) {
 				header("Content-type: text/html; charset=$this->_charset");
@@ -126,14 +127,13 @@ class Limbo_Outputter extends Backend_Outputter
 			}
 		}
 
-		if (SQ_IN_LIMBO) {
-			// need to leave this out for asset builders
-			$this->addCssInclude($this->filesPath('css/edit.css'));
-		}
+		// CSS includes
+		$this->addCssInclude($this->filesPath('css/edit.css'));
 		foreach ($this->_css_includes as $file) {
 			$this->_paintCssInclude($file);
 		}
 
+		// JS includes, including some defaults
 		$this->addJsInclude(sq_web_path('lib').'/html_form/html_form.js');
 		$this->addJsInclude(sq_web_path('lib').'/js/general.js');
 		$this->addJsInclude(sq_web_path('lib').'/js/debug.js');
@@ -142,6 +142,57 @@ class Limbo_Outputter extends Backend_Outputter
 			$this->_paintJsInclude($file);
 		}
 
+		// Event handlers
+		$this->_printEventHandlers();
+
+	}//end _paintHeader()
+
+
+	/**
+	* Paint the header as it would appear if the contents of this ouputter were being printed in the <body> of a document
+	*
+	* @access public
+	* @return void
+	*/
+	function _paintInlineHeader()
+	{
+		// CSS includes, inline style
+		?>
+		<style type="text/css">
+			<?php
+			foreach ($this->_css_includes as $file) {
+				echo "\t\t\t\t@import url($file)\n";
+			}
+			?>
+		</style>
+		<?php
+
+		// JS includes, including some defaults
+		$this->addJsInclude(sq_web_path('lib').'/html_form/html_form.js');
+		$this->addJsInclude(sq_web_path('lib').'/js/general.js');
+		$this->addJsInclude(sq_web_path('lib').'/js/debug.js');
+		$this->addJsInclude(sq_web_path('lib').'/js/edit.js');
+		foreach ($this->_js_includes as $file) {
+			$this->_paintJsInclude($file);
+		}
+
+		// Event handers
+		$this->_printEventHandlers();
+
+		// Hidden Fields
+		$this->_paintHiddenFields();
+
+	}//end _paintInlineHeader()
+
+
+	/**
+	* Print the JS that attaches the specified onload and onsubmit handlers
+	*
+	* @access public
+	* @return void
+	*/
+	function _printEventHandlers()
+	{
 		?>
 		<script type="text/javascript"><!--
 		//<![CDATA[
@@ -204,7 +255,7 @@ class Limbo_Outputter extends Backend_Outputter
 		</script>
 		<?php
 
-	}//end _paintHeader()
+	}//end _printEventHandlers()
 
 
 	/**
