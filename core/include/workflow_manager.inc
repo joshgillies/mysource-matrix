@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.67 2005/04/15 00:37:28 lwright Exp $
+* $Id: workflow_manager.inc,v 1.68 2005/04/21 01:46:34 gsherwood Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.67 $
+* @version $Revision: 1.68 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -84,7 +84,9 @@ class Workflow_Manager extends MySource_Object
 					  FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_wflow ';
 			$where = 'assetid = '.$db->quote($assetid);
 			if ($running) $where .= ' AND wflow IS NOT NULL';
-			if (!is_null($granted) || $running) $where .= ' AND granted = '.$db->quote((($granted) ? '1' : '0'));
+			if (!is_null($granted) || $running) {
+				$where .= ' AND granted = '.$db->quote((($granted) ? '1' : '0'));
+			}
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
 			$result = $db->getAll($sql.$where);
@@ -92,8 +94,11 @@ class Workflow_Manager extends MySource_Object
 
 			$schemas = Array();
 			foreach ($result as $data) {
-				if (is_null($granted)) $schemas[$data['schemaid']] = $data['granted'];
-				else $schemas[] = $data['schemaid'];
+				if (is_null($granted)) {
+					$schemas[$data['schemaid']] = $data['granted'];
+				} else {
+					$schemas[] = $data['schemaid'];
+				}
 			}
 
 			$this->_tmp['schemas'][(int)$assetid][$storage_access][(int)$running] = $schemas;
@@ -122,30 +127,30 @@ class Workflow_Manager extends MySource_Object
 
 		$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
 		if (is_null($schema)) {
-			trigger_localised_error("SYS0175", E_USER_WARNING, $schemaid);
+			trigger_localised_error('SYS0175', E_USER_WARNING, $schemaid);
 			return false;
 		}
 
 		if (!is_a($schema, 'workflow_schema')) {
-			trigger_localised_error("SYS0173", E_USER_WARNING, $schema->name, $schemaid);
+			trigger_localised_error('SYS0173', E_USER_WARNING, $schema->name, $schemaid);
 			return false;
 		}
 
 		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
-			trigger_localised_error("SYS0174", E_USER_WARNING, $assetid);
+			trigger_localised_error('SYS0174', E_USER_WARNING, $assetid);
 			return false;
 		}
 
 		if (!$asset->adminAccess('workflow')) {
-			trigger_localised_error("SYS0117", E_USER_WARNING, $asset->name);
+			trigger_localised_error('SYS0117', E_USER_WARNING, $asset->name);
 			return false;
 		}
 
 		// check for any running schemas - because if the asset is in workflow we cant do anything
 		$running_schemas = $this->getSchemas($assetid, true, true);
 		if (!empty($running_schemas)) {
-			trigger_localised_error("SYS0118", E_USER_WARNING, $asset->name);
+			trigger_localised_error('SYS0118', E_USER_WARNING, $asset->name);
 			return false;
 		}
 
@@ -162,7 +167,7 @@ class Workflow_Manager extends MySource_Object
 				$new_access     = ($granted) ? 'apply'  : 'deny';
 				$current_access = ($granted) ? 'denied' : 'applied';
 
-				trigger_localised_error("SYS0124", E_USER_WARNING, $new_access, $schema->name, $asset->name, $current_access);
+				trigger_localised_error('SYS0124', E_USER_WARNING, $new_access, $schema->name, $asset->name, $current_access);
 				return false;
 			}
 		}
@@ -222,19 +227,19 @@ class Workflow_Manager extends MySource_Object
 
 		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
-			trigger_localised_error("SYS0153", E_USER_WARNING, $assetid);
+			trigger_localised_error('SYS0153', E_USER_WARNING, $assetid);
 			return false;
 		}
 
 		if (!$asset->adminAccess('workflow')) {
-			trigger_localised_error("SYS0105", E_USER_WARNING, $asset->name);
+			trigger_localised_error('SYS0105', E_USER_WARNING, $asset->name);
 			return false;
 		}
 
 		// check for any running schemas - because if the asset is in workflow we cant do anything
 		$running_schemas = $this->getSchemas($assetid, true, true);
 		if (!empty($running_schemas)) {
-			trigger_localised_error("SYS0106", E_USER_WARNING, $asset->name);
+			trigger_localised_error('SYS0106', E_USER_WARNING, $asset->name);
 			return false;
 		}
 
@@ -296,7 +301,10 @@ class Workflow_Manager extends MySource_Object
 
 			$where = 'assetid = '.$db->quote($assetid).'
 						AND granted = 1';
-			if ($schemaid != 'all') $where .= ' AND schemaid = '.$db->quote($schemaid);
+
+			if ($schemaid != 'all') {
+				$where .= ' AND schemaid = '.$db->quote($schemaid);
+			}
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
 			$workflows = $db->getAssoc($sql.$where, false, Array(), DB_FETCHMODE_ASSOC);
@@ -313,7 +321,9 @@ class Workflow_Manager extends MySource_Object
 			}
 		}
 
-		if (!isset($this->_tmp['schema_workflows'][$assetid][$schemaid])) return Array();
+		if (!isset($this->_tmp['schema_workflows'][$assetid][$schemaid])) {
+			return Array();
+		}
 		return $this->_tmp['schema_workflows'][$assetid][$schemaid];
 
 	}//end getSchemaWorkflows()
@@ -334,12 +344,12 @@ class Workflow_Manager extends MySource_Object
 
 		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
-			trigger_localised_error("SYS0177", E_USER_WARNING, $assetid);
+			trigger_localised_error('SYS0177', E_USER_WARNING, $assetid);
 			return false;
 		}
 
 		if (!$asset->adminAccess('workflow')) {
-			trigger_localised_error("SYS0117", E_USER_WARNING, $asset->name);
+			trigger_localised_error('SYS0117', E_USER_WARNING, $asset->name);
 			return false;
 		}
 
@@ -363,13 +373,13 @@ class Workflow_Manager extends MySource_Object
 		foreach ($schemas as $schemaid) {
 			$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
 			if (is_null($schema)) {
-				trigger_localised_error("SYS0174", E_USER_WARNING, $schemaid);
+				trigger_localised_error('SYS0174', E_USER_WARNING, $schemaid);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
 
 			if (!is_a($schema, 'workflow_schema')) {
-				trigger_localised_error("SYS0176", E_USER_WARNING, $schema->name, $schemaid);
+				trigger_localised_error('SYS0176', E_USER_WARNING, $schema->name, $schemaid);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
@@ -418,7 +428,9 @@ class Workflow_Manager extends MySource_Object
 		$can_publish = Array();
 
 		foreach ($running_schemas as $sid) {
-			if (!is_null($schemaid) && $sid != $schemaid) continue;
+			if (!is_null($schemaid) && $sid != $schemaid) {
+				continue;
+			}
 			if ($group) {
 				$can_publish[$sid] = $this->_whoCanPublishWorkflow($assetid, $sid);
 				$can_publish[$sid] = array_unique($can_publish[$sid]);
@@ -449,7 +461,7 @@ class Workflow_Manager extends MySource_Object
 
 		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
-			trigger_localised_error("SYS0180", E_USER_WARNING, $assetid);
+			trigger_localised_error('SYS0180', E_USER_WARNING, $assetid);
 			return false;
 		}
 
@@ -524,8 +536,12 @@ class Workflow_Manager extends MySource_Object
 				$cond_data =& $step_data['conditions'][$pub];
 
 				// safety code
-				if (!isset($cond_data['complete'])) $cond_data['complete'] = false;
-				if (!isset($cond_data['published_by'])) $cond_data['published_by'] = Array();
+				if (!isset($cond_data['complete'])) {
+					$cond_data['complete'] = false;
+				}
+				if (!isset($cond_data['published_by'])) {
+					$cond_data['published_by'] = Array();
+				}
 
 				if ($cond_data['complete']) {
 					$complete = true;
@@ -590,8 +606,12 @@ class Workflow_Manager extends MySource_Object
 				$cond_data =& $step_data['conditions'][$pub];
 
 				// safety code
-				if (!isset($cond_data['complete'])) $cond_data['complete'] = false;
-				if (!isset($cond_data['published_by'])) $cond_data['published_by'] = Array();
+				if (!isset($cond_data['complete'])) {
+					$cond_data['complete'] = false;
+				}
+				if (!isset($cond_data['published_by'])) {
+					$cond_data['published_by'] = Array();
+				}
 
 				if (empty($cond_data['published_by'])) {
 					// nobody has approved this, so it cant be finished
@@ -648,7 +668,9 @@ class Workflow_Manager extends MySource_Object
 					}
 				}
 			}
-			if ($step_data['logic'] == 'all' && $completed_conds < count($step_data['conditions'])) $continue = false;
+			if ($step_data['logic'] == 'all' && $completed_conds < count($step_data['conditions'])) {
+				$continue = false;
+			}
 			if (!$continue) break;
 		}
 
@@ -671,7 +693,7 @@ class Workflow_Manager extends MySource_Object
 		$assetid = (int) $assetid;
 		$asset   = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
-			trigger_localised_error("SYS0160", E_USER_WARNING, $assetid);
+			trigger_localised_error('SYS0160', E_USER_WARNING, $assetid);
 			return false;
 		}
 
@@ -806,7 +828,9 @@ class Workflow_Manager extends MySource_Object
 			if (!in_array($schemaid, $running_schemas)) continue;
 			$workflow =& $schema_workflows[$schemaid];
 			if ($workflow['complete']) return true;
-			if (!$this->_recordPublish($workflow, $publisher)) return false;
+			if (!$this->_recordPublish($workflow, $publisher)) {
+				return false;
+			}
 			if (!$workflow['complete']) return false;
 		}
 
@@ -832,10 +856,14 @@ class Workflow_Manager extends MySource_Object
 		$workflow_updated = false;
 
 		// safety code for blank workflows
-		if (empty($workflow['steps'])) $workflow_updated = true;
+		if (empty($workflow['steps'])) {
+			$workflow_updated = true;
+		}
 
 		for (reset($workflow['steps']); null !== ($stepid = key($workflow['steps'])); next($workflow['steps'])) {
-			if (!isset($workflow['current_step'])) $workflow['current_step'] = 1;
+			if (!isset($workflow['current_step'])) {
+				$workflow['current_step'] = 1;
+			}
 			if ($stepid != $workflow['current_step']) continue;
 			$step_data =& $workflow['steps'][$stepid];
 
@@ -855,7 +883,9 @@ class Workflow_Manager extends MySource_Object
 				}
 
 				if (in_array($publisher, $can_publish)) {
-					if (!isset($cond_data['published_by'])) $cond_data['published_by'] = Array();
+					if (!isset($cond_data['published_by'])) {
+						$cond_data['published_by'] = Array();
+					}
 					// if the publisher has not already published
 					if (!isset($cond_data['published_by'][$publisher])) {
 						$cond_data['published_by'][$publisher] = time();
@@ -870,6 +900,10 @@ class Workflow_Manager extends MySource_Object
 			$this->_loadCurrentStep($workflow);
 			if ($workflow['current_step'] === 0) {
 				$workflow['complete'] = true;
+				$num_steps = count($workflow['steps']);
+				if ($num_steps > 0) {
+					$workflow['steps'][$num_steps]['completed'] = time();
+				}
 			} else {
 				if (!$workflow['steps'][$workflow['current_step']]['started']) {
 					$workflow['steps'][$workflow['current_step']]['started'] = time();
@@ -904,18 +938,18 @@ class Workflow_Manager extends MySource_Object
 
 		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
-			trigger_localised_error("SYS0155", E_USER_WARNING, $assetid);
+			trigger_localised_error('SYS0155', E_USER_WARNING, $assetid);
 			return false;
 		}
 
 		$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
 		if (is_null($schema)) {
-			trigger_localised_error("SYS0156", E_USER_WARNING, $schemaid);
+			trigger_localised_error('SYS0156', E_USER_WARNING, $schemaid);
 			return false;
 		}
 
 		if (!is_a($schema, 'workflow_schema')) {
-			trigger_localised_error("SYS0154", E_USER_WARNING, $schema->name, $schemaid);
+			trigger_localised_error('SYS0154', E_USER_WARNING, $schema->name, $schemaid);
 			return false;
 		}
 
@@ -945,7 +979,7 @@ class Workflow_Manager extends MySource_Object
 		$assetid  = (int) $assetid;
 		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
-			trigger_localised_error("SYS0179", E_USER_WARNING, $assetid);
+			trigger_localised_error('SYS0179', E_USER_WARNING, $assetid);
 			return false;
 		}
 
@@ -993,7 +1027,7 @@ class Workflow_Manager extends MySource_Object
 			$current_userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
 			if (in_array($current_userid, $publishers)) {
 				if (!$this->recordPublish($asset->id, $current_userid)) {
-					trigger_localised_error("SYS0078", E_USER_WARNING, $current_userid);
+					trigger_localised_error('SYS0078', E_USER_WARNING, $current_userid);
 					// dont die here because they can try to approve again later, we just want to warn them
 				}
 			}
@@ -1010,7 +1044,9 @@ class Workflow_Manager extends MySource_Object
 			$msg->to = array_merge($msg->to, $publishers);
 
 			// complete any missing internal message fields that have not been supplied
-			if (empty($msg->subject)) $msg->subject = 'Workflow Approval Required';
+			if (empty($msg->subject)) {
+				$msg->subject = 'Workflow Approval Required';
+			}
 			if (empty($msg->body)) {
 				$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserId());
 				$asset_type = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name');
@@ -1024,7 +1060,9 @@ class Workflow_Manager extends MySource_Object
 					$msg->body .= "\n".' You can also <SQ_MSG_LINK href="'.current_url().$asset->getBackendHref('preview').'">preview this asset.</SQ_MSG_LINK>';
 				}
 			}
-			if (empty($msg->type)) $msg->type = 'asset.workflow.invitation';
+			if (empty($msg->type)) {
+				$msg->type = 'asset.workflow.invitation';
+			}
 
 			$msg->parameters['assetid'] = $asset->id;
 			$ms->enqueueMessage($msg);
@@ -1100,7 +1138,7 @@ class Workflow_Manager extends MySource_Object
 		$assetid = (int) $assetid;
 		$asset   = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
-			trigger_localised_error("SYS0146", E_USER_WARNING, $assetid);
+			trigger_localised_error('SYS0146', E_USER_WARNING, $assetid);
 			return false;
 		}
 
@@ -1117,7 +1155,9 @@ class Workflow_Manager extends MySource_Object
 			$msg->to = array_merge($msg->to, $publishers);
 
 			// complete any missing internal message fields that have not been supplied
-			if (empty($msg->subject)) $msg->subject = 'Asset Changes Rejected';
+			if (empty($msg->subject)) {
+				$msg->subject = 'Asset Changes Rejected';
+			}
 			if (empty($msg->body)) {
 				$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserId());
 				$asset_type = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name');
@@ -1130,7 +1170,9 @@ class Workflow_Manager extends MySource_Object
 					$msg->body .= "\n".' You can also <SQ_MSG_LINK href="'.current_url().$asset->getBackendHref('preview').'">preview this asset.</SQ_MSG_LINK>';
 				}
 			}
-			if (empty($msg->type)) $msg->type = 'asset.workflow.announce';
+			if (empty($msg->type)) {
+				$msg->type = 'asset.workflow.announce';
+			}
 
 			$msg->parameters['assetid'] = $asset->id;
 			$ms->enqueueMessage($msg);
@@ -1154,7 +1196,7 @@ class Workflow_Manager extends MySource_Object
 		$assetid = (int) $assetid;
 		$asset   = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
-			trigger_localised_error("SYS0150", E_USER_WARNING, $assetid);
+			trigger_localised_error('SYS0150', E_USER_WARNING, $assetid);
 			return false;
 		}
 
