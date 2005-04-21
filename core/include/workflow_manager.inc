@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.59.2.1 2005/02/22 23:41:22 dbaranovskiy Exp $
-* $Name: not supported by cvs2svn $
+* $Id: workflow_manager.inc,v 1.59.2.2 2005/04/21 01:48:55 gsherwood Exp $
+* 
 */
 
 
@@ -825,6 +825,10 @@ class Workflow_Manager extends MySource_Object
 			$this->_loadCurrentStep($workflow);
 			if ($workflow['current_step'] === 0) {
 				$workflow['complete'] = true;
+				$num_steps = count($workflow['steps']);
+				if ($num_steps > 0) {
+					$workflow['steps'][$num_steps]['completed'] = time();
+				}
 			} else {
 				if (!$workflow['steps'][$workflow['current_step']]['started']) {
 					$workflow['steps'][$workflow['current_step']]['started'] = time();
