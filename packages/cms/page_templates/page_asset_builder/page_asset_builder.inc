@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.57 2005/04/20 23:04:12 rhoward Exp $
+* $Id: page_asset_builder.inc,v 1.58 2005/04/21 07:53:36 tbarrett Exp $
 *
 */
 
@@ -37,7 +37,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.57 $
+* @version $Revision: 1.58 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -267,8 +267,7 @@ class Page_Asset_Builder extends Page
 	function _printBody()
 	{
 		?>
-		<script type="text/javascript" language="javascript" src="<?php echo sq_web_path('lib');?>/html_form/html_form.js"></script>
-		<form name="asset_builder_<?php echo $this->id; ?>" method="POST" action="<?php echo replace_query_string_vars(Array()); ?>" enctype="multipart/form-data">
+		<form name="asset_builder_<?php echo $this->id; ?>" id="asset_builder_<?php echo $this->id; ?>" method="post" action="<?php echo replace_query_string_vars(Array()); ?>" enctype="multipart/form-data">
 			<?php
 			hidden_field('ASSET_BUILDER_ACTION', $this->_default_state);
 			$parameter_map = &$this->getAttribute('parameter_map');
@@ -597,21 +596,21 @@ class Page_Asset_Builder extends Page
 						break;
 
 						case 'starts_with':
-						if (!preg_match('|^'.$rule['values'][$j].'.*$|', $attr_value)) {
-							$pass = false;
-						}
+							if (!preg_match('|^'.$rule['values'][$j].'.*$|', $attr_value)) {
+								$pass = false;
+							}
 						break;
 
 						case 'ends_with':
-						if (!preg_match('|^.*'.$rule['values'][$j].'$|', $attr_value)) {
-							$pass = false;
-						}
+							if (!preg_match('|^.*'.$rule['values'][$j].'$|', $attr_value)) {
+								$pass = false;
+							}
 						break;
 
 						case 'contains':
-						if (strpos($attr_value, $rule['values'][$j]) === FALSE) {
-							$pass = false;
-						}
+							if (strpos($attr_value, $rule['values'][$j]) === false) {
+								$pass = false;
+							}
 						break;
 					}
 					$j++;
@@ -842,60 +841,53 @@ class Page_Asset_Builder extends Page
 	*/
 	function _loadCreateReplacements()
 	{
+		  ///////////////////////////
+		 // CREATE INVITE KEYWORD //
+		///////////////////////////
+		$this->_replacements['create_invite'] = $this->attr('create_invite');
+
+		  /////////////////////////
+		 // CREATE FORM KEYWORD //
+		 ////////////////////////
+		$create_types = $this->attr('create_type');
+		if (!is_array($create_types)) {
+			$create_types = Array($create_types);
+		}
+
+		require_once SQ_INCLUDE_PATH.'/limbo_outputter.inc';
+		$o = new Limbo_Outputter();
+		$o->addHiddenField('asset_action', 'create');
+		$o->addHiddenField('ASSET_BUILDER_CREATE_TYPE', key($create_types)); // first asset type is selected initially
+
+		// get each asset type's form fields for the create form
 		ob_start();
-			$this->_replacements['create_invite'] = $this->attr('create_invite');
-
-			// close you eyes while you go through this next bit of code
-			// its not pretty and tries to fudge some stuff so we can pretend
-			// we are in the backend when we are not even in limbo
-
-			require_once SQ_INCLUDE_PATH.'/limbo_outputter.inc';
-			$o = new Limbo_Outputter();
-			$o->addJsInclude(sq_web_path('lib').'/html_form/html_form.js');
-			$o->addJsInclude(sq_web_path('lib').'/js/general.js');
-			$o->addJsInclude(sq_web_path('lib').'/js/debug.js');
-			$o->addJsInclude(sq_web_path('lib').'/js/edit.js');
-
-
-			// print the create interface for the asset
-			?><input type="hidden" name="asset_action" value="create"><?php
-			$create_types = $this->attr('create_type');
-			if (!is_array($create_types)) {
-				$create_types = Array($create_types);
-			}
-
-			$i = 0;
+			$display = 'block'; // first create type is shown initially
 			foreach ($create_types as $create_type => $value) {
 				$prefix = $this->type().'_'.$this->id.'_type_'.$create_type;
-				?><div class="sq-asset-builder-tab-content" id="<?php echo $prefix ?>" style="display:<?php echo ($i==0) ? 'block' : 'none' ?>">
-				<?php
+				echo '<div class="sq-asset-builder-tab-content" id="'.$prefix.'" style="display: '.$display.'">';
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset($create_type);
 				$asset = new $create_type();
 				$asset->paintBackend($o);
-				// paint the buffered sections, then clean it up
 				$o->paintSections();
 				$o->_contents = Array();
-
-				?></div><?php
-				$i++;
+				echo '</div>';
+				$display = 'none'; // all subsequent create types hidden initially
 			}
-
-			$create_type = array_shift(array_keys($create_types));
-			hidden_field('ASSET_BUILDER_CREATE_TYPE', $create_type);
-
-			// okay, open your eyes again
-			hidden_field('asset_action', 'create');
-			$contents = ob_get_contents();
-			$this->_replacements['create_form'] = $contents;
+			$this->_replacements['create_form'] =  ob_get_contents();
 		ob_end_clean();
 
-		if (count($create_types) > 1) {
-			ob_start();
-				$create_types = array_keys($create_types);
+		// get the header for the create form
+		ob_start();
+			// Header material from the limbo outputter
+			$o->addOnLoad('document.getElementById("asset_builder_'.$this->id.'").onsubmit = form_on_submit');
+			$o->_paintInlineHeader();
+
+			// Tabs if necessary
+			if (count($create_types) > 1) {
 				?>
-				<script language="JavaScript">
-					<!--
-					var current_option = '<?php echo $this->type().'_'.$this->id.'_type_'.current($create_types) ?>';
+				<script type="text/javascript"><!--
+				//<![CDATA[
+					var current_option = '<?php echo $this->type().'_'.$this->id.'_type_'.key($create_types) ?>';
 
 					function showAssetBuilderTab(type_code)
 					{
@@ -907,40 +899,39 @@ class Page_Asset_Builder extends Page
 						document.getElementById('ASSET_BUILDER_CREATE_TYPE').value = type_code;
 
 					}//end showAssetBuilderTab()
-					// -->
-					</script>
-				<?php
-				$i = 0;
-				?>
+				//]]> -->
+				</script>
+
 				<div id="sq-asset-builder-header">
 					<ul>
-				<?php
-				foreach ($create_types as $create_type) {
-					$prefix = $this->type().'_'.$this->id.'_type_'.$create_type;
-					?>
-						<li class="sq-asset-builder-tab<?php echo ($i == 0) ? '-active' : ''; ?>" id="<?php echo $prefix.'_tab'; ?>">
-							<a href="#" onclick="showAssetBuilderTab('<?php echo $create_type ?>'); return false;">
-								<?php
-								$type_name = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($create_type, 'name');
-								echo $type_name;
-								?>
-							</a>
-						</li>
 					<?php
-					$i++;
-				}
-				?>
+					$active = '-active'; // first asset type is shown initially
+					foreach ($create_types as $create_type => $value) {
+						$prefix = $this->type().'_'.$this->id.'_type_'.$create_type;
+						$type_name = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($create_type, 'name');
+						?>
+							<li class="sq-asset-builder-tab<?php echo $active; ?>" id="<?php echo $prefix; ?>_tab">
+								<a href="#" onclick="showAssetBuilderTab('<?php echo $create_type ?>'); return false;">
+									<?php echo $type_name; ?>
+								</a>
+							</li>
+						<?php
+						$active = ''; // subsequent asset types are hidden initially
+					}
+					?>
 					</ul>
 				</div>
 				<?php
-				$this->_replacements['create_form'] = ob_get_contents().$this->_replacements['create_form'];
-			ob_end_clean();
-		}
+			}
+			$this->_replacements['create_form'] = ob_get_contents().$this->_replacements['create_form'];
+		ob_end_clean();
 
+		  //////////////////////////////////////////
+		 // SELECTABLE CREATE LOCATIONS KEYWORDS //
+		//////////////////////////////////////////
 		foreach ($this->attr('create_location_optional') as $name => $data) {
 			$code_name = str_replace(' ', '_', strtolower($name));
 			$options = $data['locations'];
-
 			ob_start();
 				switch ($data['input_style']) {
 
@@ -979,8 +970,7 @@ class Page_Asset_Builder extends Page
 				}
 				$this->_replacements[$code_name.'_field'] = ob_get_contents();
 			ob_end_clean();
-
-		}
+		}//end foreach selectable create location
 
 		foreach ($this->attr('create_location_dynamic') as $name => $data) {
 			$code_name = str_replace(' ', '_', strtolower($name));

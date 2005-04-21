@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_edit_fns.inc,v 1.27 2005/04/20 00:16:59 ndvries Exp $
+* $Id: page_asset_builder_edit_fns.inc,v 1.28 2005/04/21 07:53:36 tbarrett Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -673,7 +673,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 
 		$link_type_names = Array(SQ_LINK_TYPE_1 => '', SQ_LINK_TYPE_2 => '', SQ_LINK_TYPE_3 => '', SQ_LINK_NOTICE => '');
 		foreach ($link_type_names as $lt => $null) {
-			$link_type_names[$lt] = 	link_type_name($lt);
+			$link_type_names[$lt] = link_type_name($lt);
 		}
 
 		$comparators = Array(
