@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_bodycopy.inc,v 1.2 2005/04/15 00:37:26 lwright Exp $
+* $Id: paint_layout_bodycopy.inc,v 1.3 2005/04/21 15:42:20 gnoel Exp $
 *
 */
 
@@ -49,7 +49,7 @@ require_once 'include/conditions_list.inc';
 * If an attribute is not recognised, the condition will be evaluated as false.
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -285,6 +285,25 @@ class Paint_Layout_Bodycopy extends Bodycopy
 			$ret[$keyword_name] = $keyword['value'];
 		}
 
+		// asset lineage	
+		if (in_array('asset_lineage', $required_keywords) || in_array('asset_lineage_linked', $required_keywords)) {
+			$asset_lineage = $GLOBALS['SQ_SYSTEM']->am->getLineageFromURL();
+			
+			$ret['asset_lineage'] = '';
+			$ret['asset_lineage_linked'] = '';
+			$lineage_separator = ' > ';
+			$lineage_separator = $this->attr('lineage_separator');
+			
+			foreach ($asset_lineage as $asset_lineage_item) {
+				if (!empty($ret['asset_lineage'])) {
+					$ret['asset_lineage'] .= $lineage_separator;
+					$ret['asset_lineage_linked'] .= $lineage_separator;
+				}  
+				$ret['asset_lineage'] .= $asset_lineage_item['short_name'];  
+				$ret['asset_lineage_linked'] .= '<a href="' . $asset_lineage_item['protocol'] . '://' . $asset_lineage_item['url'] . '">' . $asset_lineage_item['short_name'] . '</a>';  
+			}			
+		}
+
 		// 3. asset metadata
 		$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
 		$metadata_keywords = $mm->getMetadataFieldValues($asset->id);
@@ -366,6 +385,10 @@ class Paint_Layout_Bodycopy extends Bodycopy
 			}
 
 			unset($asset);
+			
+			// lineage
+			$keywords['asset_lineage'] = 'Asset Lineage'; 
+			$keywords['asset_lineage_linked'] = 'Asset Lineage Linked'; 
 
 			// 3. asset metadata
 			$keywords['asset_metadata_'] = 'Asset Metadata X';

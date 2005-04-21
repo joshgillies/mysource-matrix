@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_bodycopy_management.inc,v 1.1 2005/04/06 22:03:23 gnoel Exp $
+* $Id: paint_layout_bodycopy_management.inc,v 1.2 2005/04/21 15:42:20 gnoel Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -62,6 +62,12 @@ class Paint_Layout_Bodycopy_Management extends Asset_Management
 							'added'		=> '0.1',
 							'type'		=> 'text',  
 							'default'	=> '',
+						),
+						'lineage_separator' => Array (
+							'added'			=> '0.1',
+							'type'			=> 'text',
+							'default'		=> ' > ',
+							'description'	=> 'Seperator to use when painting the lineage of an asset.',
 						),
 					);
 
