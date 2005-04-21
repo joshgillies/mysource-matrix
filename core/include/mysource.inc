@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.99 2005/04/15 02:40:21 lwright Exp $
+* $Id: mysource.inc,v 1.100 2005/04/21 10:43:54 gnoel Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.99 $
+* @version $Revision: 1.100 $
 * @package MySource_Matrix
 */
 class MySource
@@ -501,7 +501,7 @@ class MySource
 
 							// generate a new login key so that when they try and login next
 							// they have to re-enter the details
-							$this->generateLoginKey();
+							$this->generateLoginKey(true);
 
 							$_SESSION['user_is_root']      = $this->_user_is_root;
 							$_SESSION['user_is_sys_admin'] = $this->_user_is_sys_admin;
@@ -617,16 +617,19 @@ class MySource
 	/**
 	* Generates a new login key and returns it
 	*
+	* @param boolean 	$force_new_key 	if true the key will regenerated even if
+	* 					there is already a value save in the session
+	*
 	* @access public
 	*/
-	function generateLoginKey()
+	function generateLoginKey($force_new_key=false)
 	{
 		require_once SQ_FUDGE_PATH.'/general/general.inc';
-		static $generated = false;
-		if (!$generated) {
+		
+		if ($force_new_key || empty($_SESSION['SQ_LOGIN_KEY'])) {
 			$_SESSION['SQ_LOGIN_KEY'] = random_password(20);
-			$generated = true;
 		}
+		
 		return $_SESSION['SQ_LOGIN_KEY'];
 
 	}//end generateLoginKey()
