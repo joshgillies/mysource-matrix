@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general_occasional.inc,v 1.47 2005/04/15 00:37:28 lwright Exp $
+* $Id: general_occasional.inc,v 1.48 2005/04/21 01:29:48 arailean Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.47 $
+* @version $Revision: 1.48 $
 * @package MySource_Matrix
 */
 
@@ -115,8 +115,11 @@ function permission_type_name($type)
 */
 function get_bit_names($prefix, $bit_value, $force_array=false, $exact_value=false)
 {
-	if ($exact_value) $bit_values = Array($bit_value);
-	else $bit_values = bit_elements($bit_value);
+	if ($exact_value) {
+		$bit_values = Array($bit_value);
+	} else {
+		$bit_values = bit_elements($bit_value);
+	}
 
 	$constants = get_defined_constants();
 
@@ -267,14 +270,14 @@ function asset_link_treeid_convert($value, $encode)
 {
 	// these characters are chosen so as not to clash with any SQL control symbols - ie . * ^ \ [ ] { } ( ) < > ? & $
 	static $digits = Array(
-						 0 => '0',  1 => '1',  2 => '2',  3 => '3',  4 => '4',  5 => '5',  6 => '6',  7 => '7',
-						 8 => '8',  9 => '9', 10 => 'A', 11 => 'B', 12 => 'C', 13 => 'D', 14 => 'E', 15 => 'F',
-						16 => 'G', 17 => 'H', 18 => 'I', 19 => 'J', 20 => 'K', 21 => 'L', 22 => 'M', 23 => 'N',
-						24 => 'O', 25 => 'P', 26 => 'Q', 27 => 'R', 28 => 'S', 29 => 'T', 30 => 'U', 31 => 'V',
-						32 => 'W', 33 => 'X', 34 => 'Y', 35 => 'Z', 36 => '_', 37 => 'a', 38 => 'b', 39 => 'c',
-						40 => 'd', 41 => 'e', 42 => 'f', 43 => 'g', 44 => 'h', 45 => 'i', 46 => 'j', 47 => 'k',
-						48 => 'l', 49 => 'm', 50 => 'n', 51 => 'o', 52 => 'p', 53 => 'q', 54 => 'r', 55 => 's',
-						56 => 't', 57 => 'u', 58 => 'v', 59 => 'w', 60 => 'x', 61 => 'y', 62 => 'z', 63 => '~',
+						0	=> '0',  1	=> '1',  2	=> '2',  3	=> '3',  4	=> '4',  5	=> '5',  6	=> '6',  7	=> '7',
+						8	=> '8',  9	=> '9', 10	=> 'A', 11	=> 'B', 12	=> 'C', 13	=> 'D', 14	=> 'E', 15	=> 'F',
+						16	=> 'G', 17	=> 'H', 18	=> 'I', 19	=> 'J', 20	=> 'K', 21	=> 'L', 22	=> 'M', 23	=> 'N',
+						24	=> 'O', 25	=> 'P', 26	=> 'Q', 27	=> 'R', 28	=> 'S', 29	=> 'T', 30	=> 'U', 31	=> 'V',
+						32	=> 'W', 33	=> 'X', 34	=> 'Y', 35	=> 'Z', 36	=> '=', 37	=> 'a', 38	=> 'b', 39	=> 'c',
+						40	=> 'd', 41	=> 'e', 42	=> 'f', 43	=> 'g', 44	=> 'h', 45	=> 'i', 46	=> 'j', 47	=> 'k',
+						48	=> 'l', 49	=> 'm', 50	=> 'n', 51	=> 'o', 52	=> 'p', 53	=> 'q', 54	=> 'r', 55	=> 's',
+						56	=> 't', 57	=> 'u', 58	=> 'v', 59	=> 'w', 60	=> 'x', 61	=> 'y', 62	=> 'z', 63	=> '~',
 					 );
 
 	// encode value ?
@@ -286,7 +289,7 @@ function asset_link_treeid_convert($value, $encode)
 			$i = floor($i / SQ_CONF_ASSET_TREE_BASE);
 		}
 		if (strlen($str) > SQ_CONF_ASSET_TREE_SIZE) {
-			trigger_localised_error("SYS0213", E_USER_WARNING, (int) $value, SQ_CONF_ASSET_TREE_SIZE, (pow(SQ_CONF_ASSET_TREE_BASE, SQ_CONF_ASSET_TREE_SIZE) - 1));
+			trigger_localised_error('SYS0213', E_USER_WARNING, (int) $value, SQ_CONF_ASSET_TREE_SIZE, (pow(SQ_CONF_ASSET_TREE_BASE, SQ_CONF_ASSET_TREE_SIZE) - 1));
 			return null;
 		} else {
 			return str_pad($str, SQ_CONF_ASSET_TREE_SIZE, '0', STR_PAD_LEFT);
@@ -298,7 +301,9 @@ function asset_link_treeid_convert($value, $encode)
 		$len = strlen($str);
 		$x = pow(SQ_CONF_ASSET_TREE_BASE, $len - 1);
 		for ($i = 0; $i < $len; $i++) {
-			if (($d = array_search($str{$i}, $digits)) === FALSE) return null;
+			if (($d = array_search($str{$i}, $digits)) === FALSE) {
+				return null;
+			}
 			$num += $x * $d;
 			$x = $x / SQ_CONF_ASSET_TREE_BASE;
 		}
@@ -325,12 +330,12 @@ function make_valid_web_paths($paths)
 
 		// get rid of paths that are the same as the backend suffix
 		if ($path == SQ_CONF_BACKEND_SUFFIX) {
-			trigger_localised_error("SYS0114", E_USER_WARNING, $path);
+			trigger_localised_error('SYS0114', E_USER_WARNING, $path);
 			continue;
 		}
 		// get rid of paths that start with the two underscores
 		if (preg_match('/^__/', $path)) {
-			trigger_localised_error("SYS0115", E_USER_WARNING);
+			trigger_localised_error('SYS0115', E_USER_WARNING);
 			continue;
 		}
 
@@ -347,7 +352,9 @@ function make_valid_web_paths($paths)
 		$path = preg_replace('/[^a-zA-Z0-9\-$_@.!*~(),]/', '',  $path);
 
 		// ignore blanks
-		if ($path !== '' && !in_array($path, $valid_paths)) $valid_paths[] = $path;
+		if ($path !== '' && !in_array($path, $valid_paths)) {
+			$valid_paths[] = $path;
+		}
 	}
 	return $valid_paths;
 
