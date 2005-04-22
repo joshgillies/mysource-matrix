@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_04.php,v 1.4 2005/04/08 05:55:55 lwright Exp $
+* $Id: step_04.php,v 1.5 2005/04/22 11:15:53 gnoel Exp $
 *
 */
 
@@ -29,7 +29,7 @@
 * Compiles languages on the system
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -166,17 +166,17 @@ foreach ($asset_types as $asset_type) {
 					}
 				} else if (preg_match('|lang\_errors\.xml|', $entry, $matches)) {
 					list($country,$lang,$variant) = $GLOBALS['SQ_SYSTEM']->lm->getLocaleParts($locale_name);
-					if (!in_array($country, $string_locales)) {
+					if (!in_array($country, $error_locales)) {
 						$error_locales[] = $country;
 					}
 
 					if (!empty($lang)) {
-						if (!in_array($country.'_'.$lang, $string_locales)) {
+						if (!in_array($country.'_'.$lang, $error_locales)) {
 							$error_locales[] = $country.'_'.$lang;
 						}
 
 						if (!empty($variant)) {
-							if (!in_array($country.'_'.$lang.'@'.$variant, $string_locales)) {
+							if (!in_array($country.'_'.$lang.'@'.$variant, $error_locales)) {
 								$error_locales[] = $country.'_'.$lang.'@'.$variant;
 							}
 						}
