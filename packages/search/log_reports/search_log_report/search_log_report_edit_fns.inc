@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_log_report_edit_fns.inc,v 1.2 2005/04/18 05:06:16 rhoward Exp $
+* $Id: search_log_report_edit_fns.inc,v 1.3 2005/04/25 23:32:57 rhoward Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *	A report that lists searches by month, week, or day, and by assetid
 *
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -218,11 +218,13 @@ class Search_Log_Report_Edit_Fns extends Log_Report_Edit_Fns
 							$row_count = $meta['report']->attr('row_count');
 
 							// update the indices
-							$value = array_get_index($results, 'total_searches', 0);
-							$this->_updateIndex($job_vars['indices'][$id][$date]['index_popular'], $term, $value, $row_count);
-
-							$value = array_get_index($results, 'zero_results', 0);
-							$this->_updateIndex($job_vars['indices'][$id][$date]['index_failed'], $term, $value, $row_count);
+							$total_value = array_get_index($results, 'total_searches', 0);
+							$zero_value = array_get_index($results, 'zero_results', 0);
+							if ($zero_value) {
+								$this->_updateIndex($job_vars['indices'][$id][$date]['index_failed'], $term, $zero_value, $row_count);
+							} else {
+								$this->_updateIndex($job_vars['indices'][$id][$date]['index_popular'], $term, $total_value, $row_count);
+							}
 						}
 					}
 				}
