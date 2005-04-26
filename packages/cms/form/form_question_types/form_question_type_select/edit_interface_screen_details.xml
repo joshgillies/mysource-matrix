@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.4.6.1 2005/04/14 01:43:57 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.4.6.2 2005/04/26 06:48:31 lwright Exp $
 *
 */
 -->
@@ -82,6 +82,8 @@
 	</section>
 	<section name="Add New Rule" write_access="write:attributes" read_access="write:attributes">
 		<field>
+			<display_name>Add Rule</display_name>
+			<note></note>
 			<function_call>
 				<paint_function   name="paintAddRule"   />
 				<process_function name="processAddRule" />

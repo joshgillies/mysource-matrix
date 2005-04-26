@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.2.4.1 2005/04/14 01:43:58 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.2.4.2 2005/04/26 06:48:31 lwright Exp $
 *
 */
 -->
@@ -44,9 +44,4 @@
 			</function_call>
 		</field>
 	</section>
-	<!--section name="Simple Validation Rules" write_access="write:attributes">
-		<field attribute="required">
-			<boolean true_text="Required" false_text="Optional" />
-		</field>
-	</section-->
 </contents>
