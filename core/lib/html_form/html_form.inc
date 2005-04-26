@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.81 2005/04/26 05:47:58 tbarrett Exp $
+* $Id: html_form.inc,v 1.82 2005/04/26 06:41:47 tbarrett Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.81 $
+* @version $Revision: 1.82 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -133,6 +133,9 @@ function hidden_field($name, $value='', $extras='')
 {
 	if (!stristr($extras, 'class=')) {
 		$extras .= ' class="sq-form-field"';
+	}
+	if (!stristr($extras, 'id=')) {
+		$extras .= ' id="'.htmlspecialchars($name).'"';
 	}
 	echo '<input type="hidden" name="', htmlspecialchars($name), '" value="', htmlspecialchars($value), '" ', $extras, ' />';
 
