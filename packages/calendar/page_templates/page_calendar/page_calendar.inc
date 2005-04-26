@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.125.2.8 2005/04/11 06:34:01 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.125.2.9 2005/04/26 00:51:33 tbarrett Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.125.2.8 $
+* @version $Revision: 1.125.2.9 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -1232,12 +1232,10 @@ class Page_Calendar extends Page_Asset_Listing
 			$real_assetid = current(explode(':', $assetid));
 			$event_href = $this->getHref().'?SQ_CALENDAR_VIEW=event&amp;SQ_CALENDAR_DATE='.$event_link_date.'&amp;SQ_CALENDAR_EVENT_ID='.$real_assetid;
 
-			// get horizontal position of div
-			reset($layout_map);
-			$dont_overdo_it = 0;
-			while (($dont_overdo_it < 20) && (key($layout_map) != $time_label)) {
+			// get horizontal position of div and update the layout map
+			$k = reset($layout_map);
+			while ((key($layout_map) != $time_label) && (false !== $k)) {
 				next($layout_map);
-				$dont_overdo_it++;
 			}
 			$horizontal_index = 0;
 			while (isset($layout_map[$time_label][$horizontal_index])) $horizontal_index++;
