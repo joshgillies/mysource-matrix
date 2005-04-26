@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.80 2005/04/19 04:49:11 gsherwood Exp $
+* $Id: html_form.inc,v 1.81 2005/04/26 05:47:58 tbarrett Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.80 $
+* @version $Revision: 1.81 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -129,9 +129,12 @@ function normal_button($name, $value, $on_click='', $extras='')
 * @return void
 * @access public
 */
-function hidden_field($name, $value='')
+function hidden_field($name, $value='', $extras='')
 {
-	echo '<input type="hidden" name="', htmlspecialchars($name), '" id="', htmlspecialchars($name), '" value="', htmlspecialchars($value), '" />';
+	if (!stristr($extras, 'class=')) {
+		$extras .= ' class="sq-form-field"';
+	}
+	echo '<input type="hidden" name="', htmlspecialchars($name), '" value="', htmlspecialchars($value), '" ', $extras, ' />';
 
 }//end hidden_field()
 
@@ -158,8 +161,10 @@ function text_box($name, $value, $size='', $max='', $hide_value=false, $extras='
 	if (!stristr($extras, 'class=')) {
 		$extras .= ' class="sq-form-field"';
 	}
+	if (!stristr($extras, 'id=')) {
+		$extras .= ' id="'.htmlspecialchars($name).'"';
+	}
 	echo	'<input type="text" ',
-			'id="', htmlspecialchars($name), '" ',
 			'name="', htmlspecialchars($name), '" ',
 			'value="', htmlspecialchars($value), '" ',
 			(($size)   ? 'size="'.$size.'" '     : ''),
@@ -189,15 +194,15 @@ function text_box($name, $value, $size='', $max='', $hide_value=false, $extras='
 */
 function int_text_box($name, $value, $allow_negative=true, $size='', $max='', $hide_value=false, $extras='')
 {
-		?><script type="text/javascript" src="<?php echo sq_web_path('lib')?>/html_form/html_form.js"></script><?php
+	?><script type="text/javascript" src="<?php echo sq_web_path('lib')?>/html_form/html_form.js"></script><?php
 
-		$allow_negative = $allow_negative ? 'true' : 'false';
-		$javascript ='
-			onkeyup="validate_numeric_text_field(this, '.$allow_negative.');"
-			onchange="validate_numeric_text_field(this, '.$allow_negative.');"
-		';
+	$allow_negative = $allow_negative ? 'true' : 'false';
+	$javascript ='
+		onkeyup="validate_numeric_text_field(this, '.$allow_negative.');"
+		onchange="validate_numeric_text_field(this, '.$allow_negative.');"
+	';
 
-		text_box($name, $value, $size, $max, $hide_value, $javascript.$extras);
+	text_box($name, $value, $size, $max, $hide_value, $javascript.$extras);
 
 }//end int_text_box()
 
@@ -221,9 +226,11 @@ function password_box($name, $value='', $size='', $max='', $extras='')
 	if (!stristr($extras, 'class=')) {
 		$extras .= ' class="sq-form-field"';
 	}
+	if (!stristr($extras, 'id=')) {
+		$extras .= ' id="'.htmlspecialchars($name).'"';
+	}
 	echo	'<input type="password" ',
 			'name="', htmlspecialchars($name), '" ',
-			'id="',htmlspecialchars($name), '" ',
 			'value="', htmlspecialchars($value), '" ',
 			(($size)   ? 'size="'.$size.'" '     : ''),
 			(($max)    ? 'maxlength="'.$max.'" ' : ''),
@@ -254,8 +261,10 @@ function text_area($name, $contents, $cols=0, $rows=0, $max=0, $extras='')
 	if (!stristr($extras, 'class=')) {
 		$extras .= ' class="sq-form-field"';
 	}
+	if (!stristr($extras, 'id=')) {
+		$extras .= ' id="'.htmlspecialchars($name).'"';
+	}
 	echo	'<textarea name="', htmlspecialchars($name), '" ',
-			'id="', htmlspecialchars($name), '" ',
 			(($cols)  ? 'cols="'.$cols.'" ' : ''),
 			(($rows)  ? 'rows="'.$rows.'" ' : ''),
 			(($max)   ? 'onkeypress="if (this.value.length > '.$max.') { this.value = this.value.substr(0,'.$max.'); alert(\'This field can contain no more than '.$max.' characters.\'); this.focus()}" ' : ''),
@@ -287,6 +296,9 @@ function radio_button($name, $value='1', $checked=false, $on_click='', $extras='
 	if (!stristr($extras, 'class=')) {
 		$extras .= ' class="sq-form-field"';
 	}
+	if (!stristr($extras, 'id=')) {
+		$extras .= ' id="'.htmlspecialchars($name).'"';
+	}
 	echo	'<input type="radio" ',
 			'name="', htmlspecialchars($name), '" ',
 			'value="', htmlspecialchars($value), '" ',
@@ -314,12 +326,14 @@ function check_box($name, $value='1', $checked=false, $on_click='', $extras='')
 	if ($on_click) {
 		$extras .= ' onclick="'.htmlspecialchars($on_click).' "';
 	}
+	if (!stristr($extras, 'id=')) {
+		$extras .= ' id="'.htmlspecialchars($name).'"';
+	}
 	if (!stristr($extras, 'class=')) {
 		$extras .= ' class="sq-form-field"';
 	}
 	echo	'<input type="checkbox" ',
 			'name="', htmlspecialchars($name), '" ',
-			'id="', htmlspecialchars($name), '" ',
 			'value="', htmlspecialchars($value), '" ',
 			(($checked) ? 'checked="checked" ' : ''),
 			$extras,
@@ -329,10 +343,9 @@ function check_box($name, $value='1', $checked=false, $on_click='', $extras='')
 
 
 /**
-* Prints out a
-* Given a name, an array of keys and values, and a default value, prints a combo box
+* Given a name, an array of keys and values, and a default value, prints a dropdown box
 *
-* @param string	$name		the form name to use for the combo box
+* @param string	$name		the form name to use for the dropdown box
 * @param Array	$contents	an array of whose keys are values to be returned when that
 *							option is selected and whose values are the display text for the option
 * @param bool	$multiple	whether you can multiple selections can be made or not
@@ -353,17 +366,18 @@ function combo_box($name, $contents, $multiple, $defaults, $height=0, $extras=''
 	if (!stristr($extras, 'class=')) {
 		$extras .= ' class="sq-form-field"';
 	}
-
 	if ($multiple) {
 		$extras .= ' multiple="multiple"';
 		$name .= '[]';
+	}
+	if (!stristr($extras, 'id=')) {
+		$extras .= ' id="'.htmlspecialchars($name).'"';
 	}
 
 	if (!is_array($contents)) $contents = Array($contents);
 	if (!is_array($defaults)) $defaults = Array($defaults);
 
 	echo	'<select name="', htmlspecialchars($name), '" ',
-			'id="', htmlspecialchars($name), '" ',
 			(($height > 1)? 'size="'.$height.'" ' : ''),
 			$extras,
 			'>';
@@ -385,6 +399,25 @@ function combo_box($name, $contents, $multiple, $defaults, $height=0, $extras=''
 	echo '</select>';
 
 }//end combo_box()
+
+
+/**
+* Prints a label
+*
+* @param string	$text	The text to go inside the label
+* @param string	$for	The ID of the form element this label applies to
+* @param string $extras	Any extra HTML to put in the label tag
+*
+* @return void
+* @access public
+*/
+function label($text, $for='', $extras='')
+{
+	if (!empty($for)) $extras .= ' for="'.$for.'"';
+	if (!empty($extras)) $extras = ' '.$extras;
+	echo '<label'.$extras.'>'.$text.'</label>';
+
+}//end label()
 
 
 /**
@@ -548,7 +581,7 @@ function commit_file_upload($name, $dest, $overwrite=false, $max_size=0, $restri
 		foreach ($extensions as $v) {
 			$exts[] = strtolower($v);
 		}
-		$ext = strtolower(substr(strrchr($info['name'],"."), 1));
+		$ext = strtolower(substr(strrchr($info['name'], '.'), 1));
 		$in_arr = in_array($ext, $exts);
 
 		// see $restrict_exts documentation in function header
