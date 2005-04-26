@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_edit_fns.inc,v 1.25 2005/03/10 01:31:29 tbarrett Exp $
+* $Id: page_calendar_edit_fns.inc,v 1.26 2005/04/26 00:41:10 tbarrett Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -252,8 +252,12 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 			foreach ($enabled_views as $name => $status) {
 				if (empty($status)) unset($view_options[$name]);
 			}
-			foreach ($view_options as $key => $val) $view_options[$key] = ucfirst($key).' View';
-			if (!in_array($selected_view, array_keys($view_options))) $selected_view = current($view_options);
+			foreach ($view_options as $key => $val) {
+				$view_options[$key] = ucfirst($key).' View';
+			}
+			if (!in_array($selected_view, array_keys($view_options))) {
+				$selected_view = current($view_options);
+			}
 			combo_box($prefix.'_initial_view', $view_options, 0, $selected_view, 0);
 		} else {
 			echo $selected_view;
@@ -304,7 +308,9 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	{
 		$hour_options = Array(12=>12, 1=>1, 2=>2, 3=>3, 4=>4, 5=>5, 6=>6, 7=>7, 8=>8, 9=>9, 10=>10, 11=>11, 12=>12);
 		$min_options = Array();
-		for ($i=0; $i < 60; $i += 5) $min_options[sprintf('%02d', $i)] = sprintf('%02d', $i);
+		for ($i=0; $i < 60; $i += 5) {
+			$min_options[sprintf('%02d', $i)] = sprintf('%02d', $i);
+		}
 		$is_pm_options = Array(0=>'am', 1=>'pm');
 		combo_box($prefix.'[hours]', $hour_options, false, $default_hour, 0);
 		echo ' : ';
@@ -326,10 +332,18 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	function _process5MinTimeField($prefix)
 	{
 		if (!isset($_POST[$prefix])) return false;
-		if ($_POST[$prefix]['hours'] != (int)$_POST[$prefix]['hours']) return false;
-		if ($_POST[$prefix]['minutes'] != (int)$_POST[$prefix]['minutes']) return false;
-		if ($_POST[$prefix]['is_pm'] && ($_POST[$prefix]['hours'] != 12)) $_POST[$prefix]['hours'] += 12;
-		if (!$_POST[$prefix]['is_pm'] && ($_POST[$prefix]['hours'] == 12)) $_POST[$prefix]['hours'] = 0;
+		if ($_POST[$prefix]['hours'] != (int)$_POST[$prefix]['hours']) {
+			return false;
+		}
+		if ($_POST[$prefix]['minutes'] != (int)$_POST[$prefix]['minutes']) {
+			return false;
+		}
+		if ($_POST[$prefix]['is_pm'] && ($_POST[$prefix]['hours'] != 12)) {
+			$_POST[$prefix]['hours'] += 12;
+		}
+		if (!$_POST[$prefix]['is_pm'] && ($_POST[$prefix]['hours'] == 12)) {
+			$_POST[$prefix]['hours'] = 0;
+		}
 		return sprintf('%02d', $_POST[$prefix]['hours']) . ':' . $_POST[$prefix]['minutes'];
 
 	}//end _process5MinTimeField()
@@ -483,7 +497,9 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	{
 		if (isset($_POST[$prefix.'_show_days']) && is_array($_POST[$prefix.'_show_days'])) {
 			foreach (range(0, 6) as $day_number) {
-				if (!isset($_POST[$prefix.'_show_days'][$day_number])) $_POST[$prefix.'_show_days'][$day_number] = 0;
+				if (!isset($_POST[$prefix.'_show_days'][$day_number])) {
+					$_POST[$prefix.'_show_days'][$day_number] = 0;
+				}
 			}
 			$asset->setAttrValue('week_view_show_days', $_POST[$prefix.'_show_days']);
 			return true;
