@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.58 2005/04/21 07:53:36 tbarrett Exp $
+* $Id: page_asset_builder.inc,v 1.59 2005/04/26 23:52:56 ndvries Exp $
 *
 */
 
@@ -37,7 +37,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.58 $
+* @version $Revision: 1.59 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1132,65 +1132,33 @@ class Page_Asset_Builder extends Page
 
 
 	/**
-	* Takes a tree array and an output array, and fills the output array with an ascii tree, with each line of the tree as an element in the array
+	* Takes a tree array and an output array, and fills the output array with an ascii tree,
+	* with each line of the tree as an element in the array
 	*
-	* @param array(string=>mixed)		$tree			the tree to format
-	* @param string						$parent			optional, the root node, eg. '/'
-	* @param string						$prefix			optional, used internally
-	* @param string						$parent_prefix	optional, used internally
-	* @param Array(string)				&$output_tree	optional, used internally
+	* @param Array(string=>mixed)	$tree				the tree to format
+	* @param Array(string=>mixed)	$all_child_links	assetInfo() for use when printing
+	* @param Array(string=>mixed)	$output_tree		the array to store the output array
+	* @param string					$branch				optional, used internally
+	* @param Array(string)			&$level				optional, used internally
 	*
 	* @see Page_Asset_Builder::_IDListToTree()
 	* @access private
 	* @return void
 	*/
-	function _drawTree($tree, &$all_child_links, &$output_tree, $parent='', $prefix='', $parent_prefix='')
+	function _drawTree($tree, &$all_child_links, &$output_tree, $branch='', $level=0)
 	{
-		if (!empty($parent)) {
-			$parent_info = $all_child_links[$parent];
-			$output_tree[$parent_info['linkid'].'_'.$parent_info['assetid']] = $parent_prefix.$parent_info['short_name'];
-		}
-
 		if (empty($tree)) return false;
 
-		$last_element = count($tree) - 1;
-		$ii = 0;
-
 		foreach ($tree as $branch => $branch_data) {
-			// if no parent, list the top level without the 'branches'
-			if ($parent != '') {
-				if ($ii == $last_element) {
-					$branch_prefix = '  `-- ';
-				} else {
-					$branch_prefix = '  |-- ';
-				}
-			} else {
-				$branch_prefix = '';
-			}
-
 			if (is_array($branch_data) && !empty($branch_data)) {
-				// recurse into child elements
-				// calculate $prefix
-				if ($parent != '') {
-					if ($ii == $last_element) {
-						$new_prefix = '      ';
-					} else {
-						$new_prefix = '  |   ';
-					}
-				} else {
-					$new_prefix = '';
-				}
-				$this->_drawTree($branch_data, $all_child_links, $output_tree, $branch, $prefix.$new_prefix, $prefix.$branch_prefix);
-
+				$this->_drawTree($branch_data, $all_child_links, $output_tree, $branch, $level++);
 			} else {
+				$prefix = '';
+				for ($i = 1; $i < $level; $i++) $prefix .= ' - ';
 				$branch_info = $all_child_links[$branch];
-				$output_tree[$branch_info['linkid'].'_'.$branch_info['assetid']] = $prefix.$branch_prefix.$branch_info['short_name'];
-
+				$output_tree[$branch_info['linkid'].'_'.$branch_info['assetid']] = $prefix.$branch_info['short_name'];
 			}
-
-			$ii++;
 		}
-
 	}//end _drawTree()
 
 
