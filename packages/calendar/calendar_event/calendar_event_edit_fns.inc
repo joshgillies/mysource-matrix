@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_edit_fns.inc,v 1.32 2005/04/15 00:37:40 lwright Exp $
+* $Id: calendar_event_edit_fns.inc,v 1.33 2005/04/26 05:03:01 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -235,6 +235,9 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 					break;
 					case 'h':
 						$end_ts = $start_ts + ((int)$_REQUEST[$prefix.'_duration'] * 60 * 60);
+					break;
+					case 'd':
+						$end_ts = $start_ts + ((int)$_REQUEST[$prefix.'_duration'] * 60 * 60 * 24);
 					break;
 				}
 				$end_date_value = ts_iso8601($end_ts);
