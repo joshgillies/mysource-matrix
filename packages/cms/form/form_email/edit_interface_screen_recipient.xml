@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_recipient.xml,v 1.14.2.3 2005/04/26 06:48:31 lwright Exp $
+* $Id: edit_interface_screen_recipient.xml,v 1.14.2.4 2005/04/27 01:04:10 lwright Exp $
 * $Name: not supported by cvs2svn $
 *
 */
@@ -82,11 +82,11 @@
 			<display_name>STAF Email Format</display_name>
 			<note>You can use the 'To' address to specify additional email addresses that the email should be sent to, in addition to what is entered in the question specified above. In addition to the keyword replacements pointed to at the top of this screen, you may use the following keywords in any of the above fields:&lt;br /&gt;
 
-			<![CDATA[&lt;ul&gt;
-			&lt;li&gt;%form_info% - a list of form information including the asset id, name and URL of the form, and the name and asset id of the site&lt;/li&gt;
-			&lt;li&gt;%form_summary% - a list of responses received from this submission&lt;/li&gt;
-			&lt;li&gt;%referral_url% - the URL that the user was viewing before comming to this form&lt;/li&gt;
-			&lt;/ul&gt;]]>
+			<![CDATA[<ul>
+			<li>%form_info% - a list of form information including the asset id, name and URL of the form, and the name and asset id of the site</li>
+			<li>%form_summary% - a list of responses received from this submission</li>
+			<li>%referral_url% - the URL that the user was viewing before comming to this form</li>
+			</ul>]]>
 			</note>
 			<email_format />
 		</field>
