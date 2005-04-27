@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: messaging_service.inc,v 1.38 2005/04/27 00:14:43 lwright Exp $
+* $Id: messaging_service.inc,v 1.39 2005/04/27 01:22:20 lwright Exp $
 *
 */
 
@@ -44,7 +44,7 @@ define('SQ_MSG_PRIORITY_VERY_HIGH' , 5);
 *    Facilitate the sending and management of internal messages
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix
 */
 class Messaging_Service extends MySource_Object
@@ -366,7 +366,7 @@ class Messaging_Service extends MySource_Object
 		if (!is_null($get_user_name) && $get_user_name != 'name')
 			$get_user_name = 'short_name';
 
-		$sql = 'SELECT m.msgid, m.userto, m.userfrom, m.subject, m.body, m.sent, m.priority, m.status, m.type, m.parameters, m.replacements';
+		$sql = 'SELECT m.msgid, m.userto, m.userfrom, m.subject, m.body, m.sent, m.priority, m.status, m.type, m.parameters';
 		if (is_string($get_user_name)) {
 			$sql .= ',
 					CASE

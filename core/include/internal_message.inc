@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: internal_message.inc,v 1.53 2005/04/27 01:09:03 lwright Exp $
+* $Id: internal_message.inc,v 1.54 2005/04/27 01:22:20 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    An internal message to be sent around the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.53 $
+* @version $Revision: 1.54 $
 * @package MySource_Matrix
 */
 class Internal_Message extends MySource_Object
@@ -99,6 +99,7 @@ class Internal_Message extends MySource_Object
 
 	/**
 	 * A set of keyword replacements (separate from params) that are used to localise messages
+	 * Note that these are temporary and is not saved in localised messages
 	 * @var array
 	 */
 	var $replacements = Array();
