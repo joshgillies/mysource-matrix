@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_04.php,v 1.6 2005/04/27 00:14:44 lwright Exp $
+* $Id: compile_locale.php,v 1.1 2005/04/27 01:29:50 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@
 * Compiles languages on the system
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.1 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -38,15 +38,18 @@ error_reporting(E_ALL);
 $SYSTEM_ROOT = '';
 
 // from cmd line
+$cli = true;
+
 if ((php_sapi_name() == 'cli')) {
-	if (isset($_SERVER['argv'][1])) $SYSTEM_ROOT = $_SERVER['argv'][1];
+	if (isset($_SERVER['argv'][1])) {
+		$SYSTEM_ROOT = $_SERVER['argv'][1];
+	}
 	$err_msg = "You need to supply the path to the System Root as the first argument\n";
 
 } else {
-	if (isset($_GET['SYSTEM_ROOT'])) $SYSTEM_ROOT = $_GET['SYSTEM_ROOT'];
 	$err_msg = '
 	<div style="background-color: red; color: white; font-weight: bold;">
-		You need to supply the path to the System Root as a query string variable called SYSTEM_ROOT
+		You can only run the '.$_SERVER['argv'][0].' script from the command line
 	</div>
 	';
 }
@@ -56,6 +59,28 @@ if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
 }
 
 
+// only use console stuff if we're running from the command line
+if ($cli) {
+	require_once 'Console/Getopt.php';
+
+	$shortopt = '';
+	$longopt = Array('locale=');
+
+	$con  = new Console_Getopt;
+	$args = $con->readPHPArgv();
+	array_shift($args);			// remove the system root
+	$options = $con->getopt($args, $shortopt, $longopt);
+
+	if (is_array($options[0])) {
+		$locale_list = get_console_list($options[0]);
+	}
+
+}
+
+if (empty($locale_list)) {
+	trigger_error('You need to specify one or more languages using the --locale parameter', E_USER_ERROR);
+}
+
 // dont set SQ_INSTALL flag before this include because we want
 // a complete load now that the database has been created
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
@@ -63,6 +88,7 @@ require_once $SYSTEM_ROOT.'/core/include/init.inc';
 require_once $SYSTEM_ROOT.'/install/install.inc';
 require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 require_once 'XML/Tree.php';
+
 
 // firstly let's check that we are OK for the version
 if (version_compare(PHP_VERSION, SQ_REQUIRED_PHP_VERSION, '<')) {
@@ -77,9 +103,13 @@ if (!regenerate_configs()) {
 	trigger_error('Config Generation Failed', E_USER_ERROR);
 }
 
+// list of languages where we need to compile these for
 $string_locales = Array();
 $error_locales  = Array();
 $message_locales = Array();
+
+// flag that controls when 'compiling edit interfaces' message is printed
+$first_ei = true;
 
 $asset_screen_dir = SQ_DATA_PATH.'/private/asset_types/asset/localised_screens';
 create_directory($asset_screen_dir);
@@ -103,7 +133,26 @@ array_unshift($asset_types, Array(
 								  'name'      => 'Global Strings',
 								  ));
 
-echo 'Compiling localised edit interfaces...'."\n";
+$locale_names = array_keys($locale_list);
+foreach($locale_names as $locale) {
+	list($country,$lang,$variant) = $GLOBALS['SQ_SYSTEM']->lm->getLocaleParts($locale);
+	if (!in_array($country, $locale_names)) {
+		$locale_list[$country] = $locale_list[$locale];
+	}
+
+	if (!empty($lang)) {
+		if (!in_array($country.'_'.$lang, $locale_names)) {
+			$locale_list[$country.'_'.$lang] = $locale_list[$locale];
+		}
+
+		if (!empty($variant)) {
+			if (!in_array($country.'_'.$lang.'@'.$variant, $locale_names)) {
+			$locale_list[$country.'_'.$lang.'@'.$variant] = $locale_list[$locale];
+		}
+		}
+	}
+}
+
 
 foreach ($asset_types as $asset_type) {
 
@@ -134,12 +183,18 @@ foreach ($asset_types as $asset_type) {
 
 			while (false !== ($entry = readdir($d))) {
 				if (($entry == '..') || ($entry == '.') || ($entry == 'CVS')) continue;
-				
+
 				if (is_dir($dir_read.'/'.$entry)) {
 					$dirs_to_read[] = $dir_read.'/'.$entry;
 				}
 
 				if (preg_match('|lang\_((static_)?screen\_.*)\.xml|', $entry, $matches)) {
+					if (!in_array($locale_name, array_keys($locale_list))
+						|| (!in_array('all', $locale_list[$locale_name])
+						&& !in_array('screens', $locale_list[$locale_name]))) {
+						continue;
+					}
+
 					if (!isset($screens[$locale_name])) {
 						$screens[$locale_name] = Array();
 					}
@@ -219,12 +274,18 @@ foreach ($asset_types as $asset_type) {
 
 	}
 
-	if (!empty($all_screens)) {
+	// if there are edit interface files AND there are screens that we are localising...
+	if (!empty($all_screens) && !empty($screens)) {
+		if ($first_ei) {
+			$first_ei = false;
+			echo 'Compiling localised edit interfaces...'."\n";
+		}
 		echo $asset_type['type_code'].' ('.$asset_type['name'].')';
 	}
 
 	if (!empty($screens)) {
 		foreach ($screens as $locale => $locale_screens) {
+
 			foreach ($locale_screens as $screen_type) {
 
 				if (!file_exists($local_screen_dir)) {
@@ -243,7 +304,7 @@ foreach ($asset_types as $asset_type) {
 		}
 	}
 
-	if (!empty($all_screens)) {
+	if (!empty($all_screens) && !empty($screens)) {
 		echo "\n";
 	}
 
@@ -251,20 +312,78 @@ foreach ($asset_types as $asset_type) {
 
 // compile the strings for each locale where a lang_strings.xml exists
 foreach ($string_locales as $locale) {
+	if (!in_array($locale, array_keys($locale_list))
+		|| (!in_array('all', $locale_list[$locale])
+		&& !in_array('strings', $locale_list[$locale]))) {
+		continue;
+	}
+
 	echo 'Compiling strings for locale '.$locale."\n";
 	build_locale_string_file($locale);
 }
 
 // then, compile errors for each locale (using lang_errors.xml)
 foreach ($error_locales as $locale) {
+	if (!in_array($locale, array_keys($locale_list))
+		|| (!in_array('all', $locale_list[$locale])
+		&& !in_array('errors', $locale_list[$locale]))) {
+		continue;
+	}
+
 	echo 'Compiling localised errors for locale '.$locale."\n";
 	build_locale_error_file($locale);
 }
 
 // finally, compile internal messages for each locale (using lang_messages.xml)
 foreach ($message_locales as $locale) {
+if (!in_array($locale, array_keys($locale_list))
+		|| (!in_array('all', $locale_list[$locale])
+		&& !in_array('messages', $locale_list[$locale]))) {
+		continue;
+	}
+
 	echo 'Compiling localised internal messages for locale '.$locale."\n";
 	build_locale_internal_messages_file($locale);
 }
 
 $GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+
+
+/**
+* Gets a list of supplied package options from the command line arguments given
+*
+* Returns an array in the format needed for package_list
+*
+* @param array	$options	the options as retrieved from Console::getopts
+*
+* @return array
+* @access public
+*/
+function get_console_list($options)
+{
+	$list = Array();
+
+	foreach ($options as $option) {
+		// if nothing set, skip this entry
+		if (!isset($option[0]) || !isset($option[1])) continue;
+
+		if ($option[0] != '--locale') continue;
+
+		// Now process the list
+		$parts = split('-', $option[1]);
+
+		$types = Array();
+		if (count($parts) == 2 && strlen($parts[1])) {
+			$types = split(',', $parts[1]);
+		} else {
+			$types = Array('all');
+		}
+
+		$list[$parts[0]] = $types;
+	}
+
+	return $list;
+
+}//end get_console_list()
+
+?>
