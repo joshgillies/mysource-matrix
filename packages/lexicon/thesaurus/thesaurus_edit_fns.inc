@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus_edit_fns.inc,v 1.5 2005/04/15 00:37:56 lwright Exp $
+* $Id: thesaurus_edit_fns.inc,v 1.6 2005/04/27 06:55:16 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage lexicon
 */
@@ -61,9 +61,9 @@ class Thesaurus_Edit_Fns extends Asset_Edit_Fns
 	{
 
 		if ($asset->attr('active')) {
-			echo "<h2>Enabled</h2>Thesaurus has been imported. Uploading a new file will erase the existing thesaurus.";
+			echo translate('lexicon_thesaurus_enabled');
 		} else {
-			echo "<h2>Disabled</h2>This thesaurus in not ready for use. Please import XML file first.";
+			echo translate('lexicon_thesaurus_disabled');
 		}
 
 	}//end paintStatus()
@@ -126,9 +126,8 @@ class Thesaurus_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintExampleXMLFile(&$asset, &$o, $prefix)
 	{
-		?>
-		<a href="<?php echo sq_web_path('data'); ?>/asset_types/thesaurus/files/example.xml" target="_blank">Click Here</a>
-		<?php
+		echo translate('lexicon_example_xml_file', sq_web_path('data').'/asset_types/thesaurus/files/example.xml');
+		
 		// don't ever need a commit button
 		return false;
 

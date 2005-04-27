@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_thesaurus_edit_fns.inc,v 1.3 2005/01/20 13:21:22 brobertson Exp $
+* $Id: metadata_field_thesaurus_edit_fns.inc,v 1.4 2005/04/27 06:55:16 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/metadata/metadata_field/metadata_field
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Dmitry Baranovskiy <dbaranovskiy@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage lexicon
 */
@@ -75,7 +75,7 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 
 		// thesaurus has to be active for successful operation
 		if (!$asset->isThesaurusActive()) {
-			echo '<span style="color: #FF0000">Linked Thesaurus is <strong>INACTIVE</strong>. This value cannot be set!</span>';
+			echo '<span style="color: #FF0000">'.translate('lexicon_linked_thesaurus_inactive').'</span>';
 		} else {
 			if ($write_access) {
 				$text_box_extra = ($asset->attr('allow_manual'))?'':'readonly="readonly"';
@@ -125,7 +125,7 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 					$th = $asset->getThesaurusRef();
 					$term = $th->getEntityByName($value);
 					if (empty($term) && !empty($value)) {
-						$asset->_tmp['error'] = 'Term not found in thesaurus';
+						$asset->_tmp['error'] = translate('lexicon_term_not_found');
 						return false;
 					}
 					$value = $term['name'];

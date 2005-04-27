@@ -18,45 +18,15 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.2 2005/04/27 06:55:16 lwright Exp $
+* $Id: lang_strings.xml,v 1.1 2005/04/27 06:55:16 lwright Exp $
 *
 */
+
+LDAP Localised String File
 -->
 
-<contents>
-	<section name="Details">
-		<field attribute="name">
-			<display_name>Name</display_name>
-			<note />
-		</field>
-	</section>
-
-	<section name="Status">
-		<field>
-			<display_name>Thesaurus Status</display_name>
-			<note />
-			<function_call>
-				<paint_function		name="paintStatus" />
-			</function_call>
-		</field>
-	</section>
-
-	<section name="Import XML">
-		<field>
-			<display_name>Upload File</display_name>
-			<note />
-			<function_call>
-				<paint_function		name="paintImportXML" />
-				<process_function	name="processImportXML" />
-			</function_call>
-		</field>
-		<field>
-			<display_name>Example File</display_name>
-			<note />
-			<function_call>
-				<paint_function		name="paintExampleXMLFile" />
-			</function_call>
-		</field>
-	</section>
-
-</contents>
+<strings>
+<string source="lexicon_term_not_found">Term not found in thesaurus</string>
+<string source="lexicon_entity_description">Description: %s</string>
+<string source="lexicon_linked_thesaurus_inactive">Linked thesaurus is <![CDATA[<strong>INACTIVE</strong>]]>. This value cannot be set.</string>
+</strings>

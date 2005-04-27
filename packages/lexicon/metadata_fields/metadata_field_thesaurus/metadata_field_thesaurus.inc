@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_thesaurus.inc,v 1.4 2005/01/20 13:21:22 brobertson Exp $
+* $Id: metadata_field_thesaurus.inc,v 1.5 2005/04/27 06:55:16 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/metadata/metadata_field/metadata_field
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage lexicon
 */
@@ -112,17 +112,17 @@ class Metadata_Field_Thesaurus extends Metadata_Field
 					$init_list[] = $child["name"];
 				}
 			}
-			$out = 'parent.Browser.setNewList(Array(Array("Result"), Array(Array("'.implode('","', $init_list).'"))))';
+			$out = 'parent.Browser.setNewList(Array(Array("'.translate('result').'"), Array(Array("'.implode('","', $init_list).'"))))';
 
 		} else if (isset($term_name)) {
 			$term = $thesaurus->getEntityByName($term_name);
 			if (empty($term)) {
-				$out = 'alert("Term not found in thesaurus");';
+				$out = 'alert("'.translate('lexicon_term_not_found').'");';
 			}
 
 			if ($request_info) { // only requesting info
 				$description = $term['description'];
-				$out = "parent.Browser.entityInfo(Array('$term_name','Description: $description.'));";
+				$out = 'parent.Browser.entityInfo(Array(\''.$term_name.'\', \''.translate('lexicon_entity_description', $description).'\'));';
 			} else { // requesting the list of related entities
 				$child_relations = $thesaurus->getChildRelationsForEntity($term['id']);
 				if (!empty($child_relations)) {

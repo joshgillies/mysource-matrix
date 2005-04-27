@@ -18,45 +18,24 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.2 2005/04/27 06:55:16 lwright Exp $
+* $Id: lang_strings.xml,v 1.1 2005/04/27 06:55:16 lwright Exp $
 *
 */
+
+Lexicon Package Localised Strings File.
 -->
 
-<contents>
-	<section name="Details">
-		<field attribute="name">
-			<display_name>Name</display_name>
-			<note />
-		</field>
-	</section>
+<strings>
+	<string source="lexicon_hipo_starting_process">Starting up process</string>
+	<string source="lexicon_hipo_acquiring_locks">Acquiring Permission Locks</string>
+	<string source="lexicon_hipo_parsing_xml">Parsing XML file</string>
+	<string source="lexicon_hipo_erasing_thesaurus">Erasing Thesaurus Contents</string>
+	<string source="lexicon_hipo_adding_relations">Adding Relations to the Database</string>
+	<string source="lexicon_hipo_adding_entities">Adding Entities to the Database</string>
+	<string source="lexicon_hipo_linking_entities">Linking Entities Together</string>
+	<string source="lexicon_hipo_finalising_import">Finalising Import</string>
+	<string source="lexicon_hipo_confirm_erase">Please confirm that you want to erase the existing thesaurus. Your XML file looks valid and is ready to be imported, its contents will replace the existing thesaurus data.</string>
+	<string source="lexicon_hipo_cleaning_up">Cleaning up and moving out</string>
+	<string source="lexicon_hipo_setting_up_env">Setting up the environment</string>
 
-	<section name="Status">
-		<field>
-			<display_name>Thesaurus Status</display_name>
-			<note />
-			<function_call>
-				<paint_function		name="paintStatus" />
-			</function_call>
-		</field>
-	</section>
-
-	<section name="Import XML">
-		<field>
-			<display_name>Upload File</display_name>
-			<note />
-			<function_call>
-				<paint_function		name="paintImportXML" />
-				<process_function	name="processImportXML" />
-			</function_call>
-		</field>
-		<field>
-			<display_name>Example File</display_name>
-			<note />
-			<function_call>
-				<paint_function		name="paintExampleXMLFile" />
-			</function_call>
-		</field>
-	</section>
-
-</contents>
+</strings>
