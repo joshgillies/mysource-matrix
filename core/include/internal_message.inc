@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: internal_message.inc,v 1.52 2005/04/27 01:01:50 lwright Exp $
+* $Id: internal_message.inc,v 1.53 2005/04/27 01:09:03 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    An internal message to be sent around the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.52 $
+* @version $Revision: 1.53 $
 * @package MySource_Matrix
 */
 class Internal_Message extends MySource_Object
@@ -265,7 +265,7 @@ class Internal_Message extends MySource_Object
 						?,
 						?,
 						'.db_extras_prepare_todate($db).',
-						?,
+						?
 					)';
 
 		$prepared = $db->prepare($sql);
