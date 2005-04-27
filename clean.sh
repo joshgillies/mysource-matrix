@@ -18,7 +18,7 @@
 #* | licence.                                                           |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: clean.sh,v 1.18 2005/03/30 01:09:05 lwright Exp $
+#* $Id: clean.sh,v 1.19 2005/04/27 03:25:24 lwright Exp $
 #* $Name: not supported by cvs2svn $
 #*/
 
@@ -85,11 +85,7 @@ esac
 php -d output_buffering=0 "${SYSTEM_ROOT}/install/step_02.php" "${SYSTEM_ROOT}"
 if [ "$?" == "0" ]; then
 	php -d output_buffering=0 "${SYSTEM_ROOT}/install/step_03.php" "${SYSTEM_ROOT}"
-	if [ "$?" == "0" ]; then
-		php -d output_buffering=0 "${SYSTEM_ROOT}/install/step_04.php" "${SYSTEM_ROOT}"
-	fi
 fi
-
 
 chmod 775 cache
 find data -type d -exec chmod 2775 {} \; 2> /dev/null
