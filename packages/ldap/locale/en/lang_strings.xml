@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.1 2005/04/27 04:36:59 lwright Exp $
+* $Id: lang_strings.xml,v 1.2 2005/04/27 05:23:46 lwright Exp $
 *
 */
 
@@ -30,4 +30,10 @@ LDAP Localised String File
 <string source="ldap_attribute_name">LDAP Attribute Name</string>
 <string source="ldap_common_name">Common Name</string>
 <string source="ldap_use_for_sorting_question">Use for Sorting ?</string>
+<string source="ldap_user_id">User Id</string>
+<string source="ldap_first_name">First Name</string>
+<string source="ldap_last_name">Last Name</string>
+<string source="ldap_email_address">Email Address</string>
+<string source="ldap_group_membership">Group Membership</string>
+<string source="ldap_group_name">Group Name</string>
 </strings>
