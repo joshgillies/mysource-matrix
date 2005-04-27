@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: internal_message.inc,v 1.51 2005/04/27 00:14:43 lwright Exp $
+* $Id: internal_message.inc,v 1.52 2005/04/27 01:01:50 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    An internal message to be sent around the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.51 $
+* @version $Revision: 1.52 $
 * @package MySource_Matrix
 */
 class Internal_Message extends MySource_Object
@@ -236,11 +236,6 @@ class Internal_Message extends MySource_Object
 			$param_string .= "$key:$value;";
 		}
 
-		$rep_string = '';
-		foreach ($this->replacements as $key => $value) {
-			$rep_string .= "$key:$value;";
-		}
-
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
@@ -257,8 +252,7 @@ class Internal_Message extends MySource_Object
 						priority,
 						status,
 						sent,
-						parameters,
-						replacements
+						parameters
 					)
 					VALUES
 					(
@@ -272,7 +266,6 @@ class Internal_Message extends MySource_Object
 						?,
 						'.db_extras_prepare_todate($db).',
 						?,
-						?
 					)';
 
 		$prepared = $db->prepare($sql);
@@ -339,7 +332,6 @@ class Internal_Message extends MySource_Object
 						$this->sent,
 						'YYYY-MM-DD HH24:MI:SS',
 						$param_string,
-						$rep_string,
 					  );
 
 			$result = $db->execute($prepared, $values);
@@ -439,7 +431,6 @@ class Internal_Message extends MySource_Object
 							$this->sent,
 							'YYYY-MM-DD HH24:MI:SS', // for the todate prepare statement
 							$param_string,
-							$rep_string,
 						  );
 				$result = $db->execute($prepared, $values);
 				assert_valid_db_result($result);
