@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_install_patch.inc,v 1.11 2005/04/15 00:37:33 lwright Exp $
+* $Id: hipo_job_install_patch.inc,v 1.12 2005/04/27 03:26:28 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix
 * @subpackage MAPS
 */
@@ -869,7 +869,6 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 			$_GET['SYSTEM_ROOT'] = SQ_SYSTEM_ROOT;
 			ob_start();
 				include SQ_SYSTEM_ROOT.'/install/step_03.php';
-				include SQ_SYSTEM_ROOT.'/install/step_04.php';
 			ob_end_clean();
 		}
 
