@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_live_approval.inc,v 1.34 2005/04/15 00:37:29 lwright Exp $
+* $Id: asset_status_live_approval.inc,v 1.35 2005/04/27 00:14:43 lwright Exp $
 *
 */
 
@@ -40,7 +40,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *                                   there is workflow running and the user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix
 */
 class Asset_Status_Live_Approval extends Asset_Status
@@ -161,14 +161,20 @@ class Asset_Status_Live_Approval extends Asset_Status
 
 				$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 				$msg = $ms->newMessage();
-				$msg->subject = 'Asset Review Cancelled';
-
-				$msg->body = 'User "'.$user->name.'" has started a safe edit of '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name').' "'.$this->owner->name.'" during a review. The review has been cancelled and the status of "'.$this->owner->name.'" is now '.get_status_description($new_status);
-				// create a link for navigation to the workflow screen for this asset
-				$msg->body .= "\n\n".'A full report for the Workflow of "'.$this->owner->name.'" can be found on the <SQ_MSG_LINK href="'.current_url().$this->owner->getBackendHref('workflow').'">Workflow Screen</SQ_MSG_LINK>.';
+				$msg_reps     = Array(
+									'user_name'		=> $user->name,
+									'type_code'		=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name'),
+									'asset_name'	=> $this->owner->name,
+									'status'		=> get_status_description($new_status),
+									'workflow_url'	=> current_url().$this->owner->getBackendHref('workflow'),
+								);
+				$msg->replacements = $msg_reps;
+				$msg->type = 'asset.workflow.review.cancel';
 				$asset_edt_fns = $this->owner->getEditFns();
 				if (isset($asset_edt_fns->static_screens['preview'])) {
-					$msg->body .= "\n".' You can also <SQ_MSG_LINK href="'.current_url().$this->owner->getBackendHref('preview').'">preview this asset.</SQ_MSG_LINK>';
+					$msg->replacements['preview_url'] = current_url().$this->owner->getBackendHref('preview');
+				} else {
+					$msg->replacements['preview_url'] = current_url().$this->owner->getBackendHref('details');
 				}
 
 				if (!$wfm->cancelWorkflow($this->owner->id, $msg)) {
@@ -191,13 +197,22 @@ class Asset_Status_Live_Approval extends Asset_Status
 
 			if (!$wfm->silentWorkflowParty($this->owner->id)) {
 				$log = $ms->newMessage();
-				$log->subject = 'Asset Review Cancelled';
-				$log->body    = 'User "'.$user->name.'" has started a safe edit of '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name').' "'.$this->owner->name.'" during a review. The review has been cancelled and the status of "'.$this->owner->name.'" is now '.get_status_description($new_status);
-				if (!empty($running_schemas)) {
-					// create a link for navigation to the workflow screen for this asset
-					$log->body .= "\n\n".'A full report for the Workflow of "'.$this->owner->name.'" can be found on the <SQ_MSG_LINK href="'.current_url().$this->owner->getBackendHref('workflow').'">Workflow Screen</SQ_MSG_LINK>.';
+				$msg_reps     = Array(
+					'user_name'		=> $user->name,
+					'type_code'		=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name'),
+					'asset_name'	=> $this->owner->name,
+					'status'		=> get_status_description($new_status),
+					'workflow_url'	=> current_url().$this->owner->getBackendHref('workflow'),
+				);
+				$log->replacements = $msg_reps;
+				$asset_edt_fns = $this->owner->getEditFns();
+				if (isset($asset_edt_fns->static_screens['preview'])) {
+					$log->replacements['preview_url'] = current_url().$this->owner->getBackendHref('preview');
+				} else {
+					$log->replacements['preview_url'] = current_url().$this->owner->getBackendHref('details');
 				}
-				$log->type = 'asset.workflow';
+
+				$log->type = 'asset.workflow.review.cancel';
 				$log->parameters['assetid'] = $this->owner->id;
 				$log->parameters['version'] = substr($this->owner->version, 0, strrpos($this->owner->version, '.'));
 				$log->send();
@@ -253,15 +268,22 @@ class Asset_Status_Live_Approval extends Asset_Status
 
 					if (!$wfm->silentWorkflowParty($this->owner->id)) {
 						$log = $ms->newMessage();
-						$log->subject = 'Review Completed';
-						$log->body    = 'The review process for '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name').' "'.$this->owner->name.'" has been completed. "'.$this->owner->name.'" is now live.';
-						$log->type    = 'asset.workflow';
-						// create a link for navigation to the workflow screen for this asset
-						$log->body .= "\n\n".'A full report for the Workflow of "'.$this->owner->name.'" can be found on the <SQ_MSG_LINK href="'.current_url().$this->owner->getBackendHref('workflow').'">Workflow Screen</SQ_MSG_LINK>.';
+						$msg_reps = Array(
+										'user_name'		=> $user->name,
+										'type_code'		=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name'),
+										'asset_name'	=> $this->owner->name,
+										'status'		=> get_status_description($new_status),
+										'workflow_url'	=> current_url().$this->owner->getBackendHref('workflow'),
+									);
+						$log->replacements = $msg_reps;
+						$log->type = 'asset.workflow.review.complete';
 						$asset_edt_fns = $this->owner->getEditFns();
 						if (isset($asset_edt_fns->static_screens['preview'])) {
-							$log->body .= "\n".' You can also <SQ_MSG_LINK href="'.current_url().$this->owner->getBackendHref('preview').'">preview this asset.</SQ_MSG_LINK>';
+							$log->replacements['preview_url'] = current_url().$this->owner->getBackendHref('preview');
+						} else {
+							$log->replacements['preview_url'] = current_url().$this->owner->getBackendHref('details');
 						}
+
 						$log->parameters['assetid'] = $this->owner->id;
 						$log->parameters['version'] = substr($this->owner->version, 0, strrpos($this->owner->version, '.'));
 						$ms->enqueueMessage($log);

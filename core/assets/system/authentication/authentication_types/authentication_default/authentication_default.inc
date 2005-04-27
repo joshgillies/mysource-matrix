@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: authentication_default.inc,v 1.6 2005/04/06 23:05:34 mmcintyre Exp $
+* $Id: authentication_default.inc,v 1.7 2005/04/27 00:14:43 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/authentication/authentication/authent
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -142,8 +142,11 @@ class Authentication_Default extends Authentication
 					// we are actually logged in as ROOT
 					if ($success) {
 						$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-						$log_body = 'User "'.$username.'" has had their account locked after '.(int)SQ_CONF_MAX_LOGIN_ATTEMPTS.' unsuccessful login attempts';
-						$log = $ms->newMessage(Array(), 'User Account Locked', $log_body, 'system.security.login');
+						$msg_reps = Array(
+								'user_name'		=> $username,
+								'num_attempts'	=> (int)SQ_CONF_MAX_LOGIN_ATTEMPTS,
+							);
+						$log = $ms->newMessage(Array(), 'system.security.login', $msg_reps);
 						$log->parameters['remote_addr'] = $_SERVER['REMOTE_ADDR'];
 						$log->parameters['sessionid'] = session_id();
 						$log->send();

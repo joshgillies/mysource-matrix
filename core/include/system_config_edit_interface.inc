@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config_edit_interface.inc,v 1.13 2005/04/15 00:37:28 lwright Exp $
+* $Id: system_config_edit_interface.inc,v 1.14 2005/04/27 00:14:43 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *    Looks after the editing of the system config
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix
 */
 class System_Config_Edit_Interface extends MySource_Object
@@ -302,12 +302,19 @@ class System_Config_Edit_Interface extends MySource_Object
 
 			if ($changed_vars) {
 				$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-				$message_body = '';
+				$ms->openQueue();
 				foreach ($changed_vars as $var_name => $values) {
-					$message_body .= ucwords(str_replace('_', ' ', $values['type_code'])).' preference variable "'.$var_name.'" changed from '.var_export($values['old'], true).' to '.var_export($values['new'], true)."\n";
+					$msg_reps = Array(
+						'type_code'	=> ucwords(str_replace('_', ' ', $values['type_code'])),
+						'setting'	=> $var_name,
+						'old_value'	=> var_export($values['old'], true),
+						'new_value'	=> var_export($values['new'], true),
+					);
+					$message = $ms->newMessage(Array(), 'prefs.system', $msg_reps);			
+					$ms->enqueueMessage($message);
 				}
-				$message = $ms->newMessage(Array(), 'System Preferences Updated', $message_body, 'prefs.system');
-				$message->send();
+				$ms->closeQueue();
+				
 
 			}// end if
 

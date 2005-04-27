@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_expired_workflow.inc,v 1.9 2005/04/20 02:04:10 rhoward Exp $
+* $Id: cron_job_expired_workflow.inc,v 1.10 2005/04/27 00:14:43 lwright Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *	Note that this is a singleton asset - when the asset type is installed it creates a single
 *	instance of itself under the cron manager, which should remain there always.
 *
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -221,10 +221,18 @@ class Cron_Job_Expired_WorkFlow extends Cron_Job
 		$href = str_replace('./', '', current($hrefs));
 		$root_urls = explode("\n", SQ_CONF_SYSTEM_ROOT_URLS);
 		$url = 'http://'.current($root_urls).'/'.$href;
-		$body = 'Asset "'.$asset_name.'" [#'.$assetid.'] has been in step "'.$step_data['step_name'].'" of workflow schema "'.$schema_name.'" since '.easy_datetime($step_data['started']).', and has exceeded the '.easy_time_total($step_data['expiry_time']).' within which this step is meant to be completed.  You may want to consider intervening to progress this workflow by visiting the asset\'s <SQ_MSG_LINK href="'.$url.'">workflow screen</SQ_MSG_LINK>.';
 		$type = 'asset.workflow.stale';
 		$admins = $GLOBALS['SQ_SYSTEM']->am->getPermission($assetid, SQ_PERMISSION_ADMIN, true, false, true);
-		$msg = $ms->newMessage($admins, $subject, $body, $type);
+		$msg_reps = Array(
+						'asset_name'	=> $asset_name,
+						'assetid'		=> $assetid,
+						'step'			=> $step_data['step_name'],
+						'schema'		=> $schema_name,
+						'started_time'	=> easy_datetime($step_data['started']),
+						'expiry_time'	=> easy_time_total($step_data['expiry_time']),
+						'workflow_url'	=> $url,
+					);	
+		$msg = $ms->newMessage($admins, $type, $msg_reps);
 		$msg->send();
 
 	}//end _processExpiredWorkflowStep()

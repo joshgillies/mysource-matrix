@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_04.php,v 1.5 2005/04/22 11:15:53 gnoel Exp $
+* $Id: step_04.php,v 1.6 2005/04/27 00:14:44 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@
 * Compiles languages on the system
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -79,6 +79,7 @@ if (!regenerate_configs()) {
 
 $string_locales = Array();
 $error_locales  = Array();
+$message_locales = Array();
 
 $asset_screen_dir = SQ_DATA_PATH.'/private/asset_types/asset/localised_screens';
 create_directory($asset_screen_dir);
@@ -133,7 +134,7 @@ foreach ($asset_types as $asset_type) {
 
 			while (false !== ($entry = readdir($d))) {
 				if (($entry == '..') || ($entry == '.') || ($entry == 'CVS')) continue;
-
+				
 				if (is_dir($dir_read.'/'.$entry)) {
 					$dirs_to_read[] = $dir_read.'/'.$entry;
 				}
@@ -178,6 +179,23 @@ foreach ($asset_types as $asset_type) {
 						if (!empty($variant)) {
 							if (!in_array($country.'_'.$lang.'@'.$variant, $error_locales)) {
 								$error_locales[] = $country.'_'.$lang.'@'.$variant;
+							}
+						}
+					}
+				} else if (preg_match('|lang\_messages\.xml|', $entry, $matches)) {
+					list($country,$lang,$variant) = $GLOBALS['SQ_SYSTEM']->lm->getLocaleParts($locale_name);
+					if (!in_array($country, $message_locales)) {
+						$message_locales[] = $country;
+					}
+
+					if (!empty($lang)) {
+						if (!in_array($country.'_'.$lang, $message_locales)) {
+							$message_locales[] = $country.'_'.$lang;
+						}
+
+						if (!empty($variant)) {
+							if (!in_array($country.'_'.$lang.'@'.$variant, $message_locales)) {
+								$message_locales[] = $country.'_'.$lang.'@'.$variant;
 							}
 						}
 					}
@@ -241,6 +259,12 @@ foreach ($string_locales as $locale) {
 foreach ($error_locales as $locale) {
 	echo 'Compiling localised errors for locale '.$locale."\n";
 	build_locale_error_file($locale);
+}
+
+// finally, compile internal messages for each locale (using lang_messages.xml)
+foreach ($message_locales as $locale) {
+	echo 'Compiling localised internal messages for locale '.$locale."\n";
+	build_locale_internal_messages_file($locale);
 }
 
 $GLOBALS['SQ_SYSTEM']->restoreRunLevel();

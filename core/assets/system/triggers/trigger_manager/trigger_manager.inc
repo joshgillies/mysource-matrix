@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager.inc,v 1.16 2005/04/20 04:20:36 gsherwood Exp $
+* $Id: trigger_manager.inc,v 1.17 2005/04/27 00:14:43 lwright Exp $
 *
 */
 
@@ -51,7 +51,7 @@ require_once 'hash.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -224,23 +224,29 @@ class Trigger_Manager extends Asset
 		foreach ($candidate_trigger_ids as $trigger_id) {
 
 			$status_message = null;
+			$msg_type = null;
 			// re-create a trigger
 			$trigger = $this->_loadTrigger($trigger_id);
 			$status  = $this->_executeTrigger($trigger['data'], $state);
 
-			$trigger_info_line = 'Trigger "'.$trigger['name'].'"('.$trigger['id'].'), Event: "'.$event_name.'" broadcast by Asset: "'.$broadcaster->name.'"('.$broadcaster->id.')';
-
+			$msg_reps = Array(
+							'trigger_name'	=> $trigger['name'],
+							'triggerid'		=> $trigger['id'],
+							'event'			=> $event_name,
+							'asset_name'	=> $broadcaster->name,
+							'assetid'		=> $broadcaster->id,
+						);
 			switch ($status) {
 				case SQ_TRIG_RESULT_FAILURE:
 					trigger_localised_error("CORE0127", E_USER_WARNING, $trigger_info_line);
 				break;
 
 				case SQ_TRIG_RESULT_SUCCESS:
-					$status_message = "SUCCESS";
+					$msg_type = 'trigger.success';
 				break;
 
 				case SQ_TRIG_RESULT_INVALID:
-					$status_message = "INVALID (Trigger components could not be loaded)";
+					$msg_type = 'trigger.invalid';
 				break;
 
 				default:
@@ -249,7 +255,8 @@ class Trigger_Manager extends Asset
 			if (!empty($status_message)) {
 				// log message using messaging service
 				$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-				$message = $ms->newMessage(Array(), 'Execution Status', $status_message.' '.$trigger_info_line, 'trigger_manager');
+				
+				$message = $ms->newMessage(Array(), $msg_type, $msg_reps);
 				$message->send();
 			}
 		}

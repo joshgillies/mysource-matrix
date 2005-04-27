@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job.inc,v 1.31 2005/04/20 02:04:09 rhoward Exp $
+* $Id: cron_job.inc,v 1.32 2005/04/27 00:14:43 lwright Exp $
 *
 */
 
@@ -40,7 +40,7 @@ define('SQ_CRON_JOB_RETRY',			16);// cron job requests to be retried (only valid
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -556,7 +556,12 @@ class Cron_Job extends Asset
 		$ms->openQueue();
 		$msg = $ms->newMessage();
 
-		$msg->subject = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').' ';
+		$msg_reps = Array(
+						'cron_job_code'	=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'),
+						'cron_job_name'	=> $this->name,
+						'cron_job_when'	=> $this->readableWhen(),
+					);
+
 		$msg->from = 0; // a system message
 
 		// if no user was found resort to sys admins
@@ -568,18 +573,13 @@ class Cron_Job extends Asset
 			$msg->to = Array($user->id);
 		}
 
-		$msg->body = $this->name."\n"
-					.'Scheduled : '.$this->readableWhen()."\n";
-
 		// Exec failed
 		if ($exec_result & SQ_CRON_JOB_ERROR) {
-			$msg->subject .= 'Failure';
-			$msg->body    .= 'Failed';
+			$msg->type 	   = 'cron.job.fail';
 
 		// Exec successful and completed
 		} else if ($exec_result & SQ_CRON_JOB_COMPLETED) {
-			$msg->subject .= 'Success';
-			$msg->body    .= 'Completed Successfully';
+			$msg->type 	   = 'cron.job.success';
 
 			// If we are a one off type and we aren't yet being removed do so
 			if ($this->attr('type') == 'one_off' && !($exec_result & SQ_CRON_JOB_REMOVE)) {
@@ -592,18 +592,14 @@ class Cron_Job extends Asset
 
 		// Exec successful and but still more to do
 		} else if ($exec_result & SQ_CRON_JOB_NOT_COMPLETE) {
-			$msg->subject .= 'Success';
-			$msg->body    .= 'Successful, but there is still more work to do';
+			$msg->type 	   = 'cron.job.success.incomplete';
 
 		// Exec stuffed up, email the sys admins - SHOULD NEVER HAPPEN ;)
 		} else {
 			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-			$msg->subject .= 'ERROR';
-			$msg->body    .= '###################################################################'."\n"
-							.'#  RETURNED AN INVALID RESULT FROM _exec()'."\n"
-							.'#  Returned Value : '.$exec_result."\n"
-							.'#  (Transated : '.implode(', ', get_bit_names('SQ_CRON_JOB_', $exec_result, true)).')'."\n"
-							.'###################################################################';
+			$msg_reps['result']      = $exec_result;
+			$msg_reps['result_bits'] = implode(', ', get_bit_names('SQ_CRON_JOB_', $exec_result, true));
+			$msg->type 	             = 'cron.job.error';
 
 			$root_user  = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 			$sys_admins = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_user_group');
@@ -613,17 +609,17 @@ class Cron_Job extends Asset
 
 		}//end if
 
-		if (!empty($exec_msg)) {
-			$msg->body .= "\n".$exec_msg."\n";
-		}
+		$msg_reps['exec_msg'] = $exec_msg;
 
 		if (!empty($this->_tmp['running_errors'])) {
-			$msg->body .= "\nError Messages :\n".$this->_tmp['running_errors'];
+			$msg_reps['errors'] = $this->_tmp['running_errors'];
+		} else {
+			$msg_reps['errors'] = 'Nil';
 		}
 
+		$msg->replacements = $msg_reps;
 		$ms->enqueueMessage($msg);
 		$ms->closeQueue();
-
 
 		return $exec_result;
 
@@ -704,14 +700,19 @@ class Cron_Job extends Asset
 
 			$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 			$msg = $ms->newMessage();
-			$msg->subject = 'TERMINATION of '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name');
-			$msg->body	  = 'The job "'.$this->name.'" (#'.$this->id.') fatally triggered an error and terminated the cron script.'."\n"
-							."It has been removed from the cron manager\n\nError Messages :\n"
-							.$this->_tmp['running_errors'];
+
+			$msg_reps = Array(
+							'cron_type_code'	=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'),
+							'asset_name'		=> $this->name,
+							'assetid'			=> $this->id,
+							'errors'			=> $this->_tmp['running_errors'],
+						);
 
 			// userid zero sends a msg to SQ_CONF_DEFAULT_EMAIL and SQ_CONF_TECH_EMAIL
-			$msg->to   = Array(0, $user->id, $root_user->id, $sys_admins->id);
-			$msg->from = 0; // a system message
+			$msg->to           = Array(0, $user->id, $root_user->id, $sys_admins->id);
+			$msg->from         = 0; // a system message
+			$msg->type         = 'cron.job.term';
+			$msg->replacements = $msg_reps;
 
 			$msg->send();
 

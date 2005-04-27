@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: internal_message.inc,v 1.50 2005/04/15 00:37:28 lwright Exp $
+* $Id: internal_message.inc,v 1.51 2005/04/27 00:14:43 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    An internal message to be sent around the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.50 $
+* @version $Revision: 1.51 $
 * @package MySource_Matrix
 */
 class Internal_Message extends MySource_Object
@@ -97,6 +97,12 @@ class Internal_Message extends MySource_Object
 	*/
 	var $parameters = Array();
 
+	/**
+	 * A set of keyword replacements (separate from params) that are used to localise messages
+	 * @var array
+	 */
+	var $replacements = Array();
+
 
 	/**
 	* Constructor
@@ -155,12 +161,12 @@ class Internal_Message extends MySource_Object
 	function send()
 	{
 		// make sure we have the required fields
-		assert_not_empty(trim($this->subject), 'Could not send internal message with empty subject');
-		assert_not_empty(trim($this->body),    'Could not send internal message with empty body');
+		assert_not_empty(trim($this->type),    'Could not send internal message without a type set');
 
 		// lets work out what action should be conducted on this type of message
 		// ie. should it logged, mailed etc
 		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$lm = &$GLOBALS['SQ_SYSTEM']->lm;
 
 		foreach (Array('log_to_file', 'log_to_db', 'send_mail') as $main_type_code) {
 			if (!isset($ms->_tmp['message_type_logs'][$main_type_code][$this->type])) {
@@ -218,7 +224,7 @@ class Internal_Message extends MySource_Object
 			if (!is_null($user_from)) {
 				$from_name = $user_from->name;
 			} else {
-				$from_name = 'Unkown User #'.$this->from;
+				$from_name = 'Unknown User #'.$this->from;
 			}
 		} else {
 			// message from the system
@@ -228,6 +234,11 @@ class Internal_Message extends MySource_Object
 		$param_string = '';
 		foreach ($this->parameters as $key => $value) {
 			$param_string .= "$key:$value;";
+		}
+
+		$rep_string = '';
+		foreach ($this->replacements as $key => $value) {
+			$rep_string .= "$key:$value;";
 		}
 
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
@@ -246,7 +257,8 @@ class Internal_Message extends MySource_Object
 						priority,
 						status,
 						sent,
-						parameters
+						parameters,
+						replacements
 					)
 					VALUES
 					(
@@ -259,6 +271,7 @@ class Internal_Message extends MySource_Object
 						?,
 						?,
 						'.db_extras_prepare_todate($db).',
+						?,
 						?
 					)';
 
@@ -270,7 +283,9 @@ class Internal_Message extends MySource_Object
 		//////////////////////////////
 		if ($log_to_file) {
 			$log_body = preg_replace('|<SQ_MSG_LINK[^>]*?>(.*?)</SQ_MSG_LINK>|', '\\1', $this->body);
-			$log_line = '['.$this->type.' - '.$param_string.'] ('.$this->subject.') - '.$log_body;
+			$log_line = '['.$this->type.' - '.$param_string.'] ('.
+				$lm->getInternalMessageSubject($this->type, $this->replacements, SQ_CONF_DEFAULT_BACKEND_LOCALE).') - '.
+				$lm->getInternalMessageBody($this->type, $this->replacements, SQ_CONF_DEFAULT_BACKEND_LOCALE);
 
 			log_write($log_line);
 
@@ -316,14 +331,15 @@ class Internal_Message extends MySource_Object
 						$messageid,
 						0,
 						$this->from,
-						$this->subject,
-						$log_body,
+						$lm->getInternalMessageSubject($this->type, $this->replacements, SQ_CONF_DEFAULT_BACKEND_LOCALE),
+						$lm->getInternalMessageBody($this->type, $this->replacements, SQ_CONF_DEFAULT_BACKEND_LOCALE),
 						$this->type,
 						$this->priority,
 						$this->status,
 						$this->sent,
 						'YYYY-MM-DD HH24:MI:SS',
 						$param_string,
+						$rep_string,
 					  );
 
 			$result = $db->execute($prepared, $values);
@@ -365,6 +381,9 @@ class Internal_Message extends MySource_Object
 					$tech = SQ_CONF_TECH_EMAIL;
 					$to_email = '';
 
+					$user_locale = SQ_CONF_DEFAULT_BACKEND_LOCALE;
+					$subject = $lm->getInternalMessageSubject($this->type, $this->replacements, $user_locale);
+
 					if (!empty($default)) $to_email .= $default;
 					if (!empty($tech)) {
 						if (!empty($to_email)) $to_email .= ',';
@@ -373,10 +392,17 @@ class Internal_Message extends MySource_Object
 
 					// get the body with a header and a footer attached
 					$owner = SQ_CONF_SYSTEM_OWNER;
-					$log_body = preg_replace('|<SQ_MSG_LINK ([^>]*?)>(.*?)</SQ_MSG_LINK>|', '<a \\1>\\2</a>', $this->body);
+					$log_body = $lm->getInternalMessageBody($this->type, $this->replacements, $user_locale);
+					$log_body = preg_replace('|<SQ_MSG_LINK ([^>]*?)>(.*?)</SQ_MSG_LINK>|', '<a \\1>\\2</a>', $log_body);
+
 					$text_body = $this->formatEmail($log_body, $owner, 'text');
 					$html_body = $this->formatEmail($log_body, $owner, 'html');
 
+					$ms->queueEmail($this->from, 0, $subject, $log_body);
+					if (!$ms->sending_queue) {
+						$ms->sendQueuedEmails();
+					}
+					/*
 					$mime->setTXTBody(strip_tags($text_body));
 					$mime->setHTMLBody($html_body);
 
@@ -386,7 +412,7 @@ class Internal_Message extends MySource_Object
 
 					if (!empty($to_email)) {
 						$mail->send($to_email, $hdrs, $body);
-					}
+					}*/
 
 					continue;
 				}
@@ -405,7 +431,7 @@ class Internal_Message extends MySource_Object
 							$messageid,
 							$userid,
 							$this->from,
-							$this->subject,
+							$subject,
 							$log_body,
 							$this->type,
 							$this->priority,
@@ -413,6 +439,7 @@ class Internal_Message extends MySource_Object
 							$this->sent,
 							'YYYY-MM-DD HH24:MI:SS', // for the todate prepare statement
 							$param_string,
+							$rep_string,
 						  );
 				$result = $db->execute($prepared, $values);
 				assert_valid_db_result($result);
@@ -426,6 +453,11 @@ class Internal_Message extends MySource_Object
 				$text_body = $this->formatEmail($log_body, $user, 'text');
 				$html_body = $this->formatEmail($log_body, $user, 'html');
 
+				$ms->queueEmail($this->from, $userid, $subject, $log_body);
+				if (!$ms->sending_queue) {
+					$ms->sendQueuedEmails();
+				}
+/*
 				$mime->setTXTBody(strip_tags($text_body));
 				$mime->setHTMLBody($html_body);
 
@@ -436,7 +468,7 @@ class Internal_Message extends MySource_Object
 				if (!empty($to_email) && valid_email($to_email)) {
 					$msg = $mail->send($to_email, $hdrs, $body);
 				}
-
+*/
 			}//end foreach
 
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -548,13 +580,19 @@ class Internal_Message extends MySource_Object
 	*/
 	function formatBody(&$user)
 	{
-		if (!is_a($user, 'user')) return $this->body;
+		$lm =& $GLOBALS['SQ_SYSTEM']->lm;
+		if (!is_a($user, 'user')) return $lm->getInternalMessageBody($this->type, $this->replacements, SQ_CONF_DEFAULT_BACKEND_LOCALE);
 		require_once SQ_FUDGE_PATH."/general/text.inc";
 
 		$replacements = Array();
 		$replacements['user_name'] = $user->name;
 
-		return replace_keywords($this->body, $replacements);
+		$user_locale = $user->attr('locale');
+		if (empty($user_locale)) {
+			$user_locale = SQ_CONF_DEFAULT_BACKEND_LOCALE;
+		}
+		$body = $lm->getInternalMessageBody($this->type, $this->replacements, $user_locale);
+		return replace_keywords($body, $replacements);
 
 	}//end formatBody()
 

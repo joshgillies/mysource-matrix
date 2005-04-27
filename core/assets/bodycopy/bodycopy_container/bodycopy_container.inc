@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container.inc,v 1.25 2005/04/15 00:37:24 lwright Exp $
+* $Id: bodycopy_container.inc,v 1.26 2005/04/27 00:14:40 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -272,20 +272,6 @@ class Bodycopy_Container extends Asset
 		$matches = Array();
 		preg_match_all($e, $output, $matches);
 		$replace_assetids = $matches[1];
-
-		if (in_array($link['minorid'], $replace_assetids)) {
-			// we were using this asset... thanks very much... I'm telling...
-			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
-			$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-			$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserid());
-
-			$message = $ms->newMessage();
-			$message->subject = 'Bodcopy Container Link Deleted';
-			$message->body = 'User "'.$user->name.'" has deleted '.$asset->type().' "'.$asset->name.'" which was being linked to in container "'.$this->name.'". At least one URL or image is now broken in this container.';
-			$message->to = $GLOBALS['SQ_SYSTEM']->am->getPermission($this->id, SQ_PERMISSION_ADMIN, true, false);
-			$message->from = 0; // a system message
-			$message->send();
-		}
 
 		return true;
 

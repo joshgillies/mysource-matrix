@@ -1,0 +1,8 @@
+<messages>
+
+	<message type="system.security.login.ldap">
+		<subject>User Account Access Warning</subject>
+		<body>LDAP User "%asset_name%" (username: %user_name%) has had their account accessed unsuccessfully %num_attempts% times in a session</body><!-- asset-name, user-name, #-attempts -->
+	</message>
+
+</messages>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.388 2005/04/15 13:52:09 gnoel Exp $
+* $Id: asset.inc,v 1.389 2005/04/27 00:14:43 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.388 $
+* @version $Revision: 1.389 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -351,7 +351,11 @@ class Asset extends MySource_Object
 		}
 
 		$message_body = 'New '.$this->type().' "'.$this->name.'" created';
-		$message = $ms->newMessage(Array(), 'Asset Created', $message_body, 'asset');
+		$msg_reps = Array(
+						'type_code'		=> $this->type(),
+						'asset_name'	=> $this->name,
+					);
+		$message = $ms->newMessage(Array(), 'asset', $msg_reps);
 		$message->parameters['assetid'] = $this->id;
 		$message->send();
 
@@ -1906,8 +1910,12 @@ class Asset extends MySource_Object
 			// send message notifying of status change
 			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 			$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-			$message_body = 'The status of "'.$this->name.'" was successfully changed from "'.get_status_description($this->status).'" to "'.get_status_description($new_status).'"';
-			$message = $ms->newMessage(Array(), 'Asset Status Changed', $message_body, 'asset.status');
+			$msg_reps = Array(
+				'asset_name'	=> $this->name,
+				'old_status'	=> get_status_description($this->status), 
+				'new_status'	=> get_status_description($new_status),
+			);
+			$message = $ms->newMessage(Array(), 'asset.status', $msg_reps);
 			$message->parameters['assetid'] = $this->id;
 			$message->send();
 
@@ -2014,8 +2022,13 @@ class Asset extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-		$message_body = 'The '.$date_type.' date of "'.$this->name.'" was successfully changed from "'.$old_date_string.'" to "'.$new_date_string.'"';
-		$message = $ms->newMessage(Array(), 'Asset Date Changed', $message_body, 'asset.dates');
+		$msg_reps = Array(
+			'date_type'		=> $date_type,
+			'asset_name'	=> $this->name,
+			'old_date'		=> $old_date_string, 
+			'new_date'		=> $new_date_string,
+		);
+		$message = $ms->newMessage(Array(), 'asset.dates', $msg_reps);
 		$message->parameters['assetid'] = $this->id;
 		$message->send();
 
@@ -2392,21 +2405,29 @@ class Asset extends MySource_Object
 			$attr_ids[] = $attr_id;
 
 			// log a message for the asset - this wont get logged until we close the queue
-			$message_body = 'The value of attribute "'.$attribute->name.'" for asset "'.$this->name.'" has been changed';
+			$msg_reps = Array(
+				'asset_name'	=> $this->name,
+				'attr_name'		=> $attribute->name, 
+			);
+			$msg_type = 'asset.attributes.fulllog';
 			if (is_scalar($var_data['old_value']) && is_scalar($attr_value)) {
-				$message_body .= ' from "'.$var_data['old_value'].'" to "'.$attr_value.'"';
+				$msg_reps['old_value'] = $var_data['old_value'];
+				$msg_reps['new_value'] = $attr_value;
+				$msg_type .= '.scalar';
 			}
-			$message = $ms->newMessage(Array(), 'Asset Attribute Updated', $message_body, 'asset.attributes.fulllog');
+			$message = $ms->newMessage(Array(), $msg_type, $msg_reps);
 			$message->parameters['assetid'] = $this->id;
 			$ms->logMessage($message);
 
 			// log a smaller message for users to view - this wont get logged until we close the queue
 			require_once SQ_FUDGE_PATH.'/general/general.inc';
-			$message_body = 'The value of attribute "'.$attribute->name.'" for asset "'.$this->name.'" has been changed';
+			$msg_type = 'asset.attributes';
 			if (is_scalar($var_data['old_value']) && is_scalar($attr_value)) {
-				$message_body .= ' from "'.ellipsisize($var_data['old_value'], 30).'" to "'.ellipsisize($attr_value, 30).'"';
+				$msg_reps['old_value'] = ellipsisize($var_data['old_value'],30);
+				$msg_reps['new_value'] = ellipsisize($attr_value,30);
+				$msg_type .= '.scalar';
 			}
-			$sml_message = $ms->newMessage(Array(), 'Asset Attribute Updated', $message_body, 'asset.attributes');
+			$sml_message = $ms->newMessage(Array(), $msg_type, $msg_reps);
 			$sml_message->parameters['assetid'] = $this->id;
 			$ms->logMessage($sml_message);
 

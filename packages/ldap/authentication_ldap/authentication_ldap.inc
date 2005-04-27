@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: authentication_ldap.inc,v 1.2 2005/01/20 13:19:50 brobertson Exp $
+* $Id: authentication_ldap.inc,v 1.3 2005/04/27 00:14:51 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -151,8 +151,12 @@ class Authentication_LDAP extends Authentication
 			if (!is_null($user) && $user->canLogin()) {
 				// log a message so we know someone has tried to log in too many times
 				$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-				$log_body = 'LDAP User "'.$user->name.'" (username: '.$username.') has had their account accessed unsuccessfully '.(int)SQ_CONF_MAX_LOGIN_ATTEMPTS.' times in a session';
-				$log = $ms->newMessage(Array(), 'User Account Access Warning', $log_body, 'system.security.login');
+				$msg_reps = Array(
+								'asset_name'	=> $user->name,
+								'user_name'		=> $username,
+								'num_attempts'	=> (int)SQ_CONF_MAX_LOGIN_ATTEMPTS,
+							);
+				$log = $ms->newMessage(Array(), 'system.security.login.ldap', $msg_reps);
 				$log->parameters['remote_addr'] = $_SERVER['REMOTE_ADDR'];
 				$log->parameters['sessionid'] = session_id();
 				$log->send();

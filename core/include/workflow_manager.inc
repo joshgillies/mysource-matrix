@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.68 2005/04/21 01:46:34 gsherwood Exp $
+* $Id: workflow_manager.inc,v 1.69 2005/04/27 00:14:43 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.68 $
+* @version $Revision: 1.69 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -489,17 +489,23 @@ class Workflow_Manager extends MySource_Object
 			$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 
 			$msg = $ms->newMessage($notify);
-			$msg->subject = 'Asset Made Live';
 			$msg->type    = 'asset.status.notify';
-			$msg->body    = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name').' "'.$asset->name.'" has gone live from '.get_status_description($old_status);
+			$msg_reps     = Array(
+								'type_code'		=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'),
+								'asset_name'	=> $asset_name,
+								'status'		=> get_status_description($old_status),
+							);
 
-			// create a link for navigation to the workflow screen for this asset
-			$asset_url = $asset->getURL();
-			if (!empty($asset_url)) {
-				$msg->body .= "\n\n".'You can view the asset <SQ_MSG_LINK href="'.$asset_url.'">here</SQ_MSG_LINK>.';
+			// create a link to the preview screen, or to the details screen if preview doesn't exist
+			$asset_edt_fns = $asset->getEditFns();
+			if (isset($asset_edt_fns->static_screens['preview'])) {
+				$msg_reps['asset_url'] = current_url().$this->owner->getBackendHref('preview');
+			} else {
+				$msg_reps['asset_url'] = current_url().$this->owner->getBackendHref('details');
 			}
 
 			$msg->parameters['assetid'] = $asset->id;
+			$msg->replacements          = $msg_reps;
 			$ms->enqueueMessage($msg);
 		}
 
@@ -752,10 +758,13 @@ class Workflow_Manager extends MySource_Object
 		$ms         = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 
 		$log = $ms->newMessage();
-		$log->subject = 'Asset Changes Approved';
-		$log->body    = 'User "'.$user->name.'" has approved the changes to '.$asset_type.' "'.$asset->name.'".';
-		// create a link for navigation to the workflow screen for this asset
-		$log->body .= "\n\n".'A full report for the Workflow of "'.$asset->name.'" can be found on the <SQ_MSG_LINK href="'.current_url().$asset->getBackendHref('workflow').'">Workflow Screen</SQ_MSG_LINK>';
+		$msg_reps = Array(
+						'user_name'		=> $user->name,
+						'type_code'		=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'),
+						'asset_name'	=> $asset_name,
+						'workflow_url'	=> current_url().$asset->getBackendHref('workflow'),
+					);
+		$log->replacements = $msg_reps;
 		$log->parameters['assetid'] = $asset->id;
 		$log->parameters['version'] = substr($asset->version, 0, strrpos($asset->version, '.'));
 		$log->send();
@@ -763,10 +772,9 @@ class Workflow_Manager extends MySource_Object
 		// send internal messages to everyone who could approve before to let them know that someone did
 		if (!$this->silentWorkflowParty($asset->id)) {
 			$msg = $ms->newMessage($publishers_before);
-			$msg->subject = $log->subject;
-			$msg->body    = $log->body;
-			$msg->type    = 'asset.workflow.announce';
+			$msg->type    = 'asset.workflow.announce.approve';
 			$msg->parameters['assetid'] = $asset->id;
+			$msg->replacements = $msg_reps;
 			$msg->send();
 		}
 
@@ -779,16 +787,26 @@ class Workflow_Manager extends MySource_Object
 					$publishers = $this->whoCanPublish($asset->id, $schemaid);
 					// send internal messages to everyone in the next step who can now publish the asset
 					$msg = $ms->newMessage($publishers);
-					$msg->subject = 'Workflow Approval Required';
-					$msg->body    = $asset_type.' "'.$asset->name.'" is currently in workflow and has progressed from step '.(int)$steps_before[$schemaid].' to step '.(int)$step.'.'."\n".'You are now required to approve or reject the changes made to "'.$asset->name.'" so the workflow process can continue.';
-					// create a link for navigation to the workflow screen for this asset
-					$msg->body .= "\n\n".'A full report for the Workflow of "'.$asset->name.'" can be found on the <SQ_MSG_LINK href="'.current_url().$asset->getBackendHref('workflow').'">Workflow Screen</SQ_MSG_LINK>';
+
+					$msg_reps = Array(
+									'user_name'		=> $user->name,
+									'type_code'		=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'),
+									'asset_name'	=> $asset_name,
+									'old_step'		=> (int)$steps_before[$schemaid],
+									'new_step'		=> (int)$step,
+									'workflow_url'	=> current_url().$asset->getBackendHref('workflow'),
+								);
+
 					$asset_edt_fns = $asset->getEditFns();
 					if (isset($asset_edt_fns->static_screens['preview'])) {
-						$msg->body .= "\n".' You can also <SQ_MSG_LINK href="'.current_url().$asset->getBackendHref('preview').'">preview this asset.</SQ_MSG_LINK>';
+						$msg_reps['preview_url'] = current_url().$asset->getBackendHref('preview');
+					} else {
+						$msg_reps['preview_url'] = current_url().$asset->getBackendHref('details');
 					}
-					$msg->type    = 'asset.workflow.invitation';
+
+					$msg->type    = 'asset.workflow.invitation.progress';
 					$msg->parameters['assetid'] = $asset->id;
+					$msg->replacements = $msg_reps;
 					$msg->send();
 				}
 			}
@@ -1044,21 +1062,20 @@ class Workflow_Manager extends MySource_Object
 			$msg->to = array_merge($msg->to, $publishers);
 
 			// complete any missing internal message fields that have not been supplied
-			if (empty($msg->subject)) {
-				$msg->subject = 'Workflow Approval Required';
-			}
-			if (empty($msg->body)) {
-				$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserId());
-				$asset_type = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name');
+			if (empty($msg->replacements)) {
+				$msg_reps = Array(
+								'user_name'		=> $user->name,
+								'type_code'		=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'),
+								'asset_name'	=> $asset_name,
+								'workflow_url'	=> current_url().$asset->getBackendHref('workflow'),
+							);
 
-				$msg->body = $asset_type.' "'.$asset->name.'" is currently in workflow.'."\n".'You are now required to approve or reject the changes made to "'.$asset->name.'" so the workflow process can continue.';
-
-				// create a link for navigation to the workflow screen for this asset
-				$msg->body .= "\n\n".'A full report for the Workflow of "'.$asset->name.'" can be found on the <SQ_MSG_LINK href="'.current_url().$asset->getBackendHref('workflow').'">Workflow Screen</SQ_MSG_LINK>';
-				$asset_edt_fns = $asset->getEditFns();
 				if (isset($asset_edt_fns->static_screens['preview'])) {
-					$msg->body .= "\n".' You can also <SQ_MSG_LINK href="'.current_url().$asset->getBackendHref('preview').'">preview this asset.</SQ_MSG_LINK>';
+					$msg_reps['preview_url'] = current_url().$asset->getBackendHref('preview');
+				} else {
+					$msg_reps['preview_url'] = current_url().$asset->getBackendHref('details');
 				}
+				$msg->replacements = $msg_reps;
 			}
 			if (empty($msg->type)) {
 				$msg->type = 'asset.workflow.invitation';
@@ -1155,23 +1172,22 @@ class Workflow_Manager extends MySource_Object
 			$msg->to = array_merge($msg->to, $publishers);
 
 			// complete any missing internal message fields that have not been supplied
-			if (empty($msg->subject)) {
-				$msg->subject = 'Asset Changes Rejected';
-			}
-			if (empty($msg->body)) {
-				$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserId());
-				$asset_type = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name');
-
-				$msg->body = 'User "'.$user->name.'" has rejected the changes made to '.$asset_type.' "'.$asset->name.'". The workflow process has been cancelled.';
-				// create a link for navigation to the workflow screen for this asset
-				$msg->body .= "\n\n".'A full report for the Workflow of "'.$asset->name.'" can be found on the <SQ_MSG_LINK href="'.current_url().$asset->getBackendHref('workflow').'">Workflow Screen</SQ_MSG_LINK>';
-				$asset_edt_fns = $asset->getEditFns();
+			if (empty($msg->replacements)) {
+				$msg_reps = Array(
+								'user_name'		=> $user->name,
+								'type_code'		=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'),
+								'asset_name'	=> $asset_name,
+								'workflow_url'	=> current_url().$asset->getBackendHref('workflow'),
+							);
 				if (isset($asset_edt_fns->static_screens['preview'])) {
-					$msg->body .= "\n".' You can also <SQ_MSG_LINK href="'.current_url().$asset->getBackendHref('preview').'">preview this asset.</SQ_MSG_LINK>';
+					$msg_reps['preview_url'] = current_url().$asset->getBackendHref('preview');
+				} else {
+					$msg_reps['preview_url'] = current_url().$asset->getBackendHref('details');
 				}
+				$msg->replacements = $msg_reps;
 			}
 			if (empty($msg->type)) {
-				$msg->type = 'asset.workflow.announce';
+				$msg->type = 'asset.workflow.announce.reject';
 			}
 
 			$msg->parameters['assetid'] = $asset->id;

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: accept_file_upload.php,v 1.7 2005/04/15 00:37:32 lwright Exp $
+* $Id: accept_file_upload.php,v 1.8 2005/04/27 00:14:44 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Script to accept HTTP uploads and save them to the temp dir
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix
 */
 
@@ -53,10 +53,6 @@ foreach ($_FILES as $id => $details) {
 				while (file_exists(SQ_TEMP_PATH.'/'.$file_name)) $file_name = increment_filename($file_name);
 				if (move_uploaded_file($_FILES[$id]['tmp_name'][$index], SQ_TEMP_PATH.'/'.$file_name)) {
 					print("\nOK ".$file_name."\n");
-					$message_body = 'The file '.$_FILES[$id]['name'][$index].' was uploaded to the temp dir';
-					if ($file_name != $_FILES[$id]['name'][$index]) $message_body .= ' and renamed to '.$file_name;
-					$message = $ms->newMessage(Array(), 'File Uploaded to temp dir', $message_body);
-					$ms->logMessage($message);
 				} else {
 					trigger_localised_error('SYS0009', E_USER_WARNING);
 				}
@@ -68,10 +64,6 @@ foreach ($_FILES as $id => $details) {
 			while (file_exists(SQ_TEMP_PATH.'/'.$file_name)) $file_name = increment_filename($file_name);
 			if (move_uploaded_file($_FILES[$id]['tmp_name'], SQ_TEMP_PATH.'/'.$file_name)) {
 				print("\nOK ".$file_name."\n");
-				$message_body = 'The file '.$_FILES[$id]['name'].' was uploaded to the temp dir';
-				if ($file_name != $_FILES[$id]['name']) $message_body .= ' and renamed to '.$file_name;
-				$message = $ms->newMessage(Array(), 'File Uploaded to temp dir', $message_body);
-				$ms->logMessage($message);
 			} else {
 				trigger_localised_error('SYS0009', E_USER_WARNING);
 			}

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: config.inc,v 1.22 2005/04/15 00:37:31 lwright Exp $
+* $Id: config.inc,v 1.23 2005/04/27 00:14:43 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *    Looks after the creation of the config files that are in PHP code
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix
 */
 class Config extends MySource_Object
@@ -145,13 +145,19 @@ class Config extends MySource_Object
 		// Check if a message should be sent.
 		if ($changed_vars && $send_message) {
 			$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-			$message_body = '';
+			$ms->openQueue();
 			foreach ($changed_vars as $var_name => $values) {
-				$message_body .= $var_name.' changed from '.var_export($values['old'], true).' to '.var_export($values['new'], true)."\n";
+				$message_body = $var_name.' changed from '.var_export($values['old'], true).' to '.var_export($values['new'], true)."\n";
+				$config_name = ucwords(str_replace('_', ' ', get_class($this)));
+				$msg_reps = Array(
+								'setting'	=> $var_name,
+								'old_value'	=> var_export($values['old'], true),
+								'new_value' => var_export($values['new'], true),
+							);
+				$message = $ms->newMessage(Array(), 'config.'.get_class($this), $msg_reps);
+				$ms->enqueueMessage($message);
 			}
-			$config_name = ucwords(str_replace('_', ' ', get_class($this)));
-			$message = $ms->newMessage(Array(), $config_name.' Updated', $message_body, 'config.'.get_class($this));
-			$message->send();
+			$ms->closeQueue();
 
 		}// end if
 

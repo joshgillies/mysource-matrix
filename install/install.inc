@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.inc,v 1.36 2005/04/15 00:53:32 lwright Exp $
+* $Id: install.inc,v 1.37 2005/04/27 00:14:44 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * Purpose
 * Functions used to install and upgrade the system
 *
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -174,10 +174,12 @@ function uninstall_asset_types()
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		// report if we did uninstall some asset types
-		if (!empty($types_to_delete)) {
+		if (!empty($asset_types)) {
 			$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-			$message_body = 'UNINSTALLED the following asset types as they are no longer recognised by any package:'."\n".implode("\n", $types_to_delete);
-			$message = $ms->newMessage(Array(), 'Install', $message_body, 'install.system');
+			$msg_reps = Array(
+							'type_code_list'	=> implode("\n", $asset_types),
+						);
+			$message = $ms->newMessage(Array(), 'install.asset_type.uninstall', $msg_reps);
 			$message->send();
 		}
 
@@ -230,7 +232,10 @@ function uninstall_packages()
 
 				$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 				$message_body = 'Uninstalled '.$package;
-				$message = $ms->newMessage(Array(), 'Install', $message_body, 'install.system');
+				$msg_reps = Array(
+								'package'	=> $package,
+							);
+				$message = $ms->newMessage(Array(), 'install.package.uninstall', $msg_reps);
 				$message->send();
 
 			}//end if exists
@@ -277,8 +282,10 @@ function install_core($package_list=Array())
 	$result = $pm->updatePackageDetails($assets);
 
 	$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-	$message_body = 'Core Package '.(($result) ? 'done successfully' : 'FAILED');
-	$message = $ms->newMessage(Array(), 'Install', $message_body, 'install.system');
+	$msg_reps = Array(
+					'package'	=> 'Core',
+				);
+	$message = $ms->newMessage(Array(), 'install.package.'.($result ? 'success' : 'fail'), $msg_reps);
 	$message->send();
 
 	if (!$result) {
@@ -290,8 +297,11 @@ function install_core($package_list=Array())
 	// 0 (zero) indicates success, but no system assets were created - suppress in this case
 	if ($result != 0) {
 		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-		$message_body = 'Core System Asset '.(($result == -1) ? 'FAILED' : (': '.$result.' new assets created'));
-		$message = $ms->newMessage(Array(), 'Install', $message_body, 'install.system');
+		$msg_reps = Array(
+						'package'		=> 'Core',
+						'num_assets'	=> $result,
+					);
+		$message = $ms->newMessage(Array(), 'install.system_assets.'.($result != -1 ? 'success' : 'fail'), $msg_reps);
 		$message->send();
 
 	}
@@ -400,21 +410,30 @@ function install_package($package, $package_assets=Array())
 	$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 
 	if (is_array($result)) {
-		$message_body = strtoupper($package)." PACKAGE DEFERRED FOR DEPENDENCY RESOLUTION";
-		$message = $ms->newMessage(Array(), 'Install', $message_body, 'install.system');
+		$msg_reps = Array(
+						'package'	=> $package,
+					);
+		$message = $ms->newMessage(Array(), 'install.package.deferred', $msg_reps);
 		$message->send();
 		return $result;
 	}
 
 	$message_body = strtoupper($package)." PACKAGE ".(($result) ? "DONE SUCCESSFULLY" : "FAILED");
-	$message = $ms->newMessage(Array(), 'Install', $message_body, 'install.system');
+	$msg_reps = Array(
+					'package'	=> $package,
+				);
+	$message = $ms->newMessage(Array(), 'install.package.'.($result ? 'success' : 'fail'), $msg_reps);
 	$message->send();
 
 	if (!$result) exit(1);
 	$result = $pm->installSystemAssets();
 	if ($result != 0) {	// 0 indicates success, but no system assets were created - suppress in this case
+		$msg_reps = Array(
+						'package'		=> $package,
+						'num_assets'	=> $result,
+					);
 		$message_body = strtoupper($package)." SYSTEM ASSET CREATION ".(($result == -1) ? "FAILED" : (": ".$result." NEW ASSETS CREATED"));
-		$message = $ms->newMessage(Array(), 'Install', $message_body, 'install.system');
+		$message = $ms->newMessage(Array(), 'install.system_assets.'.($result ? 'success' : 'fail'), $msg_reps);
 		$message->send();
 	}
 
@@ -476,8 +495,11 @@ function install_authentication_types()
 			trigger_error('AUTHENTICATION TYPE "'.strtoupper($type_code).'" NOT CREATED', E_USER_WARNING);
 		} else {
 			$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-			$message_body = 'AUTHENTICATION TYPE "'.strtoupper($type_code).'" CREATED: '.$auth->id;
-			$message = $ms->newMessage(Array(), 'Install', $message_body, 'install.system');
+			$msg_reps = Array(
+							'auth_type_name'	=> strtoupper($type_code),
+							'assetid'			=> $auth->id,
+						);
+			$message = $ms->newMessage(Array(), 'install.authentication', $msg_reps);
 			$message->send();
 
 		}
@@ -520,8 +542,7 @@ function generate_global_preferences()
 	if (!string_to_file($str, SQ_DATA_PATH.'/private/conf/preferences.inc')) return false;
 
 	$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-	$message_body = 'Global Preferences Done';
-	$message = $ms->newMessage(Array(), 'Install', $message_body, 'install.system');
+	$message = $ms->newMessage(Array(), 'install.prefs', Array());
 	$message->send();
 
 	return true;
@@ -581,8 +602,7 @@ function install_event_listeners()
 	$em->writeStaticEventsCacheFile();
 
 	$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-	$message_body = 'Event Listeners Done';
-	$message = $ms->newMessage(Array(), 'Install', $message_body, 'install.system');
+	$message = $ms->newMessage(Array(), 'install.event_listeners', Array());
 	$message->send();
 
 	return true;
@@ -733,7 +753,7 @@ function build_localised_screen($asset_type, $screen, $locale) {
 
 	$lang_files = find_edit_interface_language_files($asset_type, $screen, $locale);
 
-	foreach($lang_files as $lang_file) {
+	foreach ($lang_files as $lang_file) {
 
 		// get the XML for the edit interface file
 		$lang_input = new XML_Tree($lang_file);
@@ -935,7 +955,7 @@ function build_localised_static_screen($asset_type, $screen, $locale) {
 
 	$lang_files = find_edit_interface_language_files($asset_type, $screen, $locale);
 
-	foreach($lang_files as $lang_file) {
+	foreach ($lang_files as $lang_file) {
 
 		// get the XML for the edit interface file
 		$lang_input = new XML_Tree($lang_file);
@@ -1112,7 +1132,7 @@ function build_locale_string_file($locale)
 	$files_to_parse['core'] = find_string_language_files($asset_dirs, $locale);
 
 	// run through each installed package
-	foreach($packages as $package) {
+	foreach ($packages as $package) {
 		$package_name = $package['code_name'];
 
 		if ($package_name == '__core__') {
@@ -1125,7 +1145,7 @@ function build_locale_string_file($locale)
 	}
 
 	// run through each installed asset
-	foreach($asset_types as $asset_type) {
+	foreach ($asset_types as $asset_type) {
 		$type_code = $asset_type['type_code'];
 		$asset_dirs =& find_asset_type_dirs($type_code);
 
@@ -1134,8 +1154,8 @@ function build_locale_string_file($locale)
 
 	$strings = Array();
 
-	foreach($files_to_parse['core'] as $file) {
-		$strings = array_merge(array_get_index($strings, 'core', Array()), extract_strings_from_xml($file));
+	foreach ($files_to_parse['core'] as $file) {
+		$strings = array_merge(array_get_index($strings, 'core', Array()), extract_strings_from_xml($file, 'strings', 'string', 'source'));
 
 		if (!empty($strings)) {
 			create_directory(SQ_DATA_PATH.'/private/system/core');
@@ -1143,10 +1163,10 @@ function build_locale_string_file($locale)
 		}
 	}
 
-	foreach($files_to_parse['packages'] as $package_name => $files) {
+	foreach ($files_to_parse['packages'] as $package_name => $files) {
 		$strings = Array();
-		foreach($files as $file) {
-			$strings = array_merge($strings, extract_strings_from_xml($file));
+		foreach ($files as $file) {
+			$strings = array_merge($strings, extract_strings_from_xml($file, 'strings', 'string', 'source'));
 		}
 
 		if ($package_name == '__core__') {
@@ -1160,10 +1180,10 @@ function build_locale_string_file($locale)
 		}
 	}
 
-	foreach($files_to_parse['assets'] as $type_code => $files) {
+	foreach ($files_to_parse['assets'] as $type_code => $files) {
 		$strings = Array();
-		foreach($files as $file) {
-			$strings = array_merge($strings, extract_strings_from_xml($file));
+		foreach ($files as $file) {
+			$strings = array_merge($strings, extract_strings_from_xml($file, 'strings', 'string', 'source'));
 		}
 
 		$asset_dir = $asset_types[$type_code]['dir'];
@@ -1174,64 +1194,6 @@ function build_locale_string_file($locale)
 	}
 
 }//end build_locale_string_file()
-
-
-/**
-* Extract strings from an xml string source file
-*
-* @param string $file	the file to extract strings from
-*
-* @return Array	the extracted strings (source code => string)
-*				or empty array if error
-* @access public
-*/
-function extract_strings_from_xml($file)
-{
-	$extracted_strings = Array();
-
-	$input = new XML_Tree($file);
-	$root  = &$input->getTreeFromFile();
-	if (PEAR::isError($root)) {
-		trigger_error('Unable to Read File : '.$file."\n".$root->getMessage()."\n".$root->getUserInfo(), E_USER_WARNING);
-		return Array();
-	}
-
-	if ($root->name != 'strings') {
-		trigger_error('XML file "'.$file.'" does not appear to be a valid string source XML file - expecting "strings" as document element, found "'.$root->name.'"', E_USER_WARNING);
-		return Array();
-	}
-
-	foreach($root->children as $string_node) {
-		if ($string_node->name != 'string') {
-			trigger_error('XML file "'.$file.'" does not appear to be a valid string source XML file - expecting node "string", found "'.$string_node->name.'"', E_USER_WARNING);
-			return Array();
-		}
-
-		if (!isset($string_node->attributes['source'])) {
-			trigger_error('XML file "'.$file.'" does not appear to be a valid string source XML file - missing attribute "source" in string node', E_USER_WARNING);
-			return Array();
-		}
-
-		$source_code = $string_node->attributes['source'];
-		$translation = $string_node->content;
-		$export_to_js = array_get_index($string_node->attributes, 'export_to_js', '0');
-		$export_to_java = array_get_index($string_node->attributes, 'export_to_java', '0');
-
-		// have it already been set in this file?
-		if(isset($extracted_strings[$source_code])) {
-			trigger_error('XML file "'.$file.'" does not appear to be a valid string source XML file - detected duplicate string source code "'.$source_code.'"', E_USER_WARNING);
-			return Array();
-		} else if (empty($translation)) {
-			trigger_error('Skipping translation for string source code "'.$source_code.'" as the translation appears to be empty', E_USER_NOTICE);
-		} else {
-			$extracted_strings[$source_code] = $translation;
-		}
-
-	}//end foreach string_node
-
-	return $extracted_strings;
-
-}//end extract_strings_from_xml()
 
 
 /**
@@ -1260,7 +1222,7 @@ function build_locale_error_file($locale)
 	$files_to_parse['core'] = find_string_language_files($asset_dirs, $locale, 'errors');
 
 	// run through each installed package
-	foreach($packages as $package) {
+	foreach ($packages as $package) {
 		$package_name = $package['code_name'];
 
 		if ($package_name == '__core__') {
@@ -1274,8 +1236,8 @@ function build_locale_error_file($locale)
 
 	$strings = Array();
 
-	foreach($files_to_parse['core'] as $file) {
-		$strings = array_merge(array_get_index($strings, 'core', Array()), extract_errors_from_xml($file));
+	foreach ($files_to_parse['core'] as $file) {
+		$strings = array_merge(array_get_index($strings, 'core', Array()), extract_strings_from_xml($file, 'errors', 'error', 'code'));
 
 		if (!empty($strings)) {
 			create_directory(SQ_DATA_PATH.'/private/system/core');
@@ -1283,10 +1245,10 @@ function build_locale_error_file($locale)
 		}
 	}
 
-	foreach($files_to_parse['packages'] as $package_name => $files) {
+	foreach ($files_to_parse['packages'] as $package_name => $files) {
 		$strings = Array();
-		foreach($files as $file) {
-			$strings = array_merge($strings, extract_errors_from_xml($file));
+		foreach ($files as $file) {
+			$strings = array_merge($strings, extract_strings_from_xml($file, 'errors', 'error', 'code'));
 		}
 
 		if ($package_name == '__core__') {
@@ -1304,17 +1266,78 @@ function build_locale_error_file($locale)
 
 
 /**
-* Extract strings from an xml localised errors file
+* Builds the locale internal messages file for a certain locale
 *
-* @param string $file	the file to extract strings from
+* @param string	$locale	the locale to be compiled
 *
-* @return Array	the extracted error strings (error code => error text)
-*				or empty array if error while reading file
+* @return void
 * @access public
 */
-function extract_errors_from_xml($file)
+function build_locale_internal_messages_file($locale)
 {
-	$extracted_errors = Array();
+	$packages = $GLOBALS['SQ_SYSTEM']->getInstalledPackages();
+
+	$files_to_parse = Array(
+						'core'		=> Array(),
+						'packages'	=> Array(),
+					  );
+
+	$strings = Array();
+
+	// run through the core
+	$asset_dirs = Array(SQ_SYSTEM_ROOT.'/core');
+	$files_to_parse['core'] = find_string_language_files($asset_dirs, $locale, 'messages');
+
+	// run through each installed package
+	foreach ($packages as $package) {
+		$package_name = $package['code_name'];
+
+		if ($package_name == '__core__') {
+			$asset_dirs = Array(SQ_CORE_PACKAGE_PATH);
+		} else {
+			$asset_dirs = Array(SQ_PACKAGES_PATH.'/'.$package_name);
+		}
+
+		$files_to_parse['packages'][$package_name] = find_string_language_files($asset_dirs, $locale, 'messages');
+	}
+
+	$strings = Array();
+
+	foreach ($files_to_parse['core'] as $file) {
+		$strings = array_merge(array_get_index($strings, 'core', Array()), extract_internal_messages($file));
+
+		if (!empty($strings)) {
+			create_directory(SQ_DATA_PATH.'/private/system/core');
+			string_to_file(serialize($strings), SQ_DATA_PATH.'/private/system/core/internal_messages.'.$locale);
+		}
+	}
+
+	foreach ($files_to_parse['packages'] as $package_name => $files) {
+		$strings = Array();
+		foreach ($files as $file) {
+			$strings = array_merge($strings, extract_internal_messages($file));
+		}
+
+		if ($package_name == '__core__') {
+			$package_dir = Array(SQ_CORE_PACKAGE_PATH);
+		} else {
+			$package_dir = Array(SQ_PACKAGES_PATH.'/'.$package_name);
+		}
+		if (!empty($strings)) {
+			create_directory(SQ_DATA_PATH.'/private/packages/'.$package_name);
+			string_to_file(serialize($strings), SQ_DATA_PATH.'/private/packages/'.$package_name.'/internal_messages.'.$locale);
+		}
+	}
+
+}//end build_locale_internal_messages_file()
+
+
+/**
+ *
+ */
+function &extract_child_nodes_from_xml($file, $root_element, $child_element, $key_attribute)
+{
+	$extracted_strings = Array();
 
 	$input = new XML_Tree($file);
 	$root  = &$input->getTreeFromFile();
@@ -1323,40 +1346,119 @@ function extract_errors_from_xml($file)
 		return Array();
 	}
 
-	if ($root->name != 'errors') {
-		trigger_error('XML file "'.$file.'" does not appear to be a valid localised errors XML file - expecting "errors" as document element, found "'.$root->name.'"', E_USER_WARNING);
+	if ($root->name != $root_element) {
+		trigger_error('XML file "'.$file.'" does not appear to be valid - expecting "'.$root_element.'" as document element, found "'.$root->name.'"', E_USER_WARNING);
 		return Array();
 	}
 
-	foreach($root->children as $string_node) {
-		if ($string_node->name != 'error') {
-			trigger_error('XML file "'.$file.'" does not appear to be a valid localised errors XML file - expecting node "error", found "'.$string_node->name.'"', E_USER_WARNING);
-			bam($root);
+	foreach ($root->children as $string_node) {
+		if ($string_node->name != $child_element) {
+			trigger_error('XML file "'.$file.'" does not appear to be valid - expecting node "'.$child_element.'", found "'.$string_node->name.'"', E_USER_WARNING);
 			return Array();
 		}
 
-		if (!isset($string_node->attributes['code'])) {
-			trigger_error('XML file "'.$file.'" does not appear to be a valid localised errors XML file - missing attribute "code" in string node', E_USER_WARNING);
+		if (!isset($string_node->attributes[$key_attribute])) {
+			trigger_error('XML file "'.$file.'" does not appear to be valid - missing attribute "'.$key_attribute.'" in string node', E_USER_WARNING);
 			return Array();
 		}
 
-		$source_code = $string_node->attributes['code'];
+		}//end foreach string_node
+
+	return $root->children;
+
+}//end extract_strings_from_xml()
+
+
+/**
+ *
+ */
+function extract_strings_from_xml($file, $root_element, $child_element, $key_attribute)
+{
+	$extracted_strings = Array();
+
+	$children = extract_child_nodes_from_xml($file, $root_element, $child_element, $key_attribute);
+
+	foreach ($children as $string_node) {
+		if ($string_node->name != $child_element) {
+			trigger_error('XML file "'.$file.'" does not appear to be valid - expecting node "'.$child_element.'", found "'.$string_node->name.'"', E_USER_WARNING);
+			return Array();
+		}
+
+		if (!isset($string_node->attributes[$key_attribute])) {
+			trigger_error('XML file "'.$file.'" does not appear to be valid - missing attribute "'.$key_attribute.'" in string node', E_USER_WARNING);
+			return Array();
+		}
+
+		$source_code = $string_node->attributes[$key_attribute];
 		$translation = $string_node->content;
 
 		// have it already been set in this file?
-		if(isset($extracted_errors[$source_code])) {
-			trigger_error('XML file "'.$file.'" does not appear to be a valid localised errors XML file - detected duplicate error code "'.$source_code.'"', E_USER_WARNING);
+		if (isset($extracted_strings[$source_code])) {
+			trigger_error('XML file "'.$file.'" does not appear to be valid - detected duplicate code "'.$source_code.'"', E_USER_WARNING);
 			return Array();
 		} else if (empty($translation)) {
-			trigger_error('Skipping translation for string source code "'.$source_code.'" as the translation appears to be empty', E_USER_NOTICE);
+			trigger_error('Skipping translation for code "'.$source_code.'" as the translation appears to be empty', E_USER_NOTICE);
 		} else {
-			$extracted_errors[$source_code] = $translation;
+			$extracted_strings[$source_code] = $translation;
 		}
 
 	}//end foreach string_node
 
-	return $extracted_errors;
+	return $extracted_strings;
 
-}//end extract_errors_from_xml()
+}//end extract_strings_from_xml()
 
+
+/**
+ *
+ */
+function extract_internal_messages($file)
+{
+	$root_element = 'messages';
+	$child_element = 'message';
+	$key_attribute = 'type';
+	$extracted_messages = Array();
+
+	$children = extract_child_nodes_from_xml($file, $root_element, $child_element, $key_attribute);
+
+	foreach ($children as $string_node) {
+		if ($string_node->name != $child_element) {
+			trigger_error('XML file "'.$file.'" does not appear to be valid - expecting node "'.$child_element.'", found "'.$string_node->name.'"', E_USER_WARNING);
+			return Array();
+		}
+
+		if (!isset($string_node->attributes[$key_attribute])) {
+			trigger_error('XML file "'.$file.'" does not appear to be valid - missing attribute "'.$key_attribute.'" in string node', E_USER_WARNING);
+			return Array();
+		}
+
+		$source_code = $string_node->attributes[$key_attribute];
+		$translation = Array();
+
+		foreach ($string_node->children as $sub_node) {
+			if (($sub_node->name == 'subject') || ($sub_node->name == 'body')) {
+				$translation[$sub_node->name] =& $sub_node->content;
+			}
+		}
+
+		if (!isset($translation['subject']) || !isset($translation['body'])) {
+			// we don't have enough stuff?
+			trigger_error('XML file "'.$file.'" does not appear to be valid - internal message type "'.$source_code.'" does not seem to have a subject and body', E_USER_WARNING);
+		} else if (isset($extracted_messages[$source_code])) {
+			// have it already been set in this file?
+			trigger_error('XML file "'.$file.'" does not appear to be valid - detected duplicate message type "'.$source_code.'"', E_USER_WARNING);
+			return Array();
+		} else if (empty($translation)) {
+			trigger_error('Skipping translation for code "'.$source_code.'" as the translation appears to be empty', E_USER_NOTICE);
+		} else {
+			// replace \n with a new line, but not \\n
+			$extracted_messages[$source_code]['subject'] = str_replace('\n', "\n", $translation['subject']);
+			$extracted_messages[$source_code]['body']    = str_replace('\n', "\n", $translation['body']);
+		}
+
+	}//end foreach string_node
+
+	return $extracted_messages;
+
+}//end extract_internal_messages()
 ?>

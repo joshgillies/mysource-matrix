@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.303 2005/04/19 04:50:45 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.304 2005/04/27 00:14:43 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.303 $
+* @version $Revision: 1.304 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -1684,8 +1684,13 @@ class Asset_Manager extends MySource_Object
 
 					// create a new message object and populate it, before adding to
 					// the message queue in the internal messaging system to sending later
-					$log_body = 'User "'.$GLOBALS['SQ_SYSTEM']->user->name.'" has forceably acquired the lock on '.$this->getTypeInfo($locked_asset->type(), 'name').' "'.$locked_asset->name.'", formally held by user "'.$user->name.'".';
-					$log = $ms->newMessage(Array(), 'Asset Lock Forceably Acquired', $log_body, 'asset.locking.forced');
+					$msg_reps = Array(
+								'user_name'		=> $GLOBALS['SQ_SYSTEM']->user->name,
+								'type_code'		=> $this->getTypeInfo($locked_asset->type(), 'name'),
+								'asset_name'	=> $locked_asset->name,
+								'old_user_name'	=> $user->name,
+							);
+					$log = $ms->newMessage(Array(), 'asset.locking.forced', $msg_reps);
 					$log->parameters['assetid'] = $locked_asset->id;
 					$log->parameters['former_userid'] = $user->id;
 					$ms->logMessage($log);
@@ -3278,8 +3283,11 @@ class Asset_Manager extends MySource_Object
 		}
 
 		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-		$message_body = '"'.$minor->name.'" was successfully linked to "'.$major->name.'"';
-		$message = $ms->newMessage(Array(), 'Asset Link Created', $message_body, 'asset.linking');
+		$msg_reps = Array(
+						'major_name'	=> $major->name,
+						'minor_name'	=> $minor->name,
+					);
+		$message = $ms->newMessage(Array(), 'asset.linking.create', $msg_reps);
 		$message->parameters['majorid'] = $major->id;
 		$message->parameters['minorid'] = $minor->id;
 		$message->parameters['linkid']  = $linkid;
@@ -3652,8 +3660,14 @@ class Asset_Manager extends MySource_Object
 			$set_clauses['link_type'] = $db->quoteSmart($link_type);
 
 			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-			$message_body = 'The type of link #'.$linkid.' (between "'.$major->name.'" and "'.$minor->name.'") was successfully changed from '.link_type_name($link['link_type']).' to '.link_type_name($link_type);
-			$message = $ms->newMessage(Array(), 'Asset Link Type Updated', $message_body, 'asset.linking.type');
+			$msg_reps = Array(
+							'linkid'		=> $linkid,
+							'major_name'	=> $major->name,
+							'minor_name'	=> $minor->name,
+							'old_link_type'	=> link_type_name($link['link_type']),
+							'new_link_type'	=> link_type_name($link_type),
+						);
+			$message = $ms->newMessage(Array(), 'asset.linking.type', $msg_reps);
 			$message->parameters['majorid']  = $major->id;
 			$message->parameters['minorid']  = $minor->id;
 			$message->parameters['linkid']   = $linkid;
@@ -3665,8 +3679,14 @@ class Asset_Manager extends MySource_Object
 
 			$set_clauses['value'] = $db->quoteSmart($value);
 
-			$message_body = 'The value on link #'.$linkid.' (between "'.$major->name.'" and "'.$minor->name.'") was successfully changed from '.$link['value'].' to '.$value;
-			$message = $ms->newMessage(Array(), 'Asset Link Value Updated', $message_body, 'asset.linking.value');
+			$msg_reps = Array(
+							'linkid'			=> $linkid,
+							'major_name'		=> $major->name,
+							'minor_name'		=> $minor->name,
+							'old_link_value'	=> $link['value'],
+							'new_link_value'	=> $value,
+						);
+			$message = $ms->newMessage(Array(), 'asset.linking.value', $msg_reps);
 			$message->parameters['majorid']   = $major->id;
 			$message->parameters['minorid']   = $minor->id;
 			$message->parameters['linkid']    = $linkid;
@@ -3690,8 +3710,14 @@ class Asset_Manager extends MySource_Object
 
 			$set_clauses['sort_order'] = $db->quoteSmart($sort_order);
 
-			$message_body = 'The sort order of link #'.$linkid.' (between "'.$major->name.'" and "'.$minor->name.'") was successfully changed from '.$link['sort_order'].' to '.$sort_order;
-			$message = $ms->newMessage(Array(), 'Asset Link Sort Order Updated', $message_body, 'asset.linking.order');
+			$msg_reps = Array(
+							'linkid'			=> $linkid,
+							'major_name'		=> $major->name,
+							'minor_name'		=> $minor->name,
+							'old_sort_order'	=> $link['sort_order'],
+							'new_sort_order'	=> $sort_order,
+						);
+			$message = $ms->newMessage(Array(), 'asset.linking.order', $msg_reps);
 			$message->parameters['majorid'] = $major->id;
 			$message->parameters['minorid'] = $minor->id;
 			$message->parameters['linkid']  = $linkid;
@@ -4010,8 +4036,12 @@ class Asset_Manager extends MySource_Object
 		}
 
 		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-		$message_body = '"'.$minor->name.'" was successfully unlinked from "'.$major->name.'"';
-		$message = $ms->newMessage(Array(), 'Asset Link Deleted', $message_body, 'asset.linking');
+		
+		$msg_reps = Array(
+						'major_name'	=> $major->name,
+						'minor_name'	=> $minor->name,
+					);
+		$message = $ms->newMessage(Array(), 'asset.linking.delete', $msg_reps);
 		$message->parameters['majorid'] = $major->id;
 		$message->parameters['minorid'] = $minor->id;
 		$message->parameters['linkid']  = $linkid;
@@ -4294,8 +4324,13 @@ class Asset_Manager extends MySource_Object
 		// log the action
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-		$message_body = permission_type_name($permission).' permission has been '.(($granted) ? 'granted' : 'denied').' on asset "'.$asset->name.'" for "'.$user_name.'"';
-		$message = $ms->newMessage(Array(), 'Asset Permission Set', $message_body, 'asset.permissions');
+
+		$msg_reps = Array(
+						'perm_name'		=> permission_type_name($permission),
+						'asset_name'	=> $asset->name,
+						'user_name'		=> $user_name,
+					);
+		$message = $ms->newMessage(Array(), 'asset.permissions.'.($granted ? 'grant' : 'deny'), $msg_reps);
 		$message->parameters['assetid'] = $asset->id;
 		$message->send();
 
@@ -4371,8 +4406,13 @@ class Asset_Manager extends MySource_Object
 		// log the action
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-		$message_body = permission_type_name($permission).' permission has been deleted on asset "'.$asset->name.'" for "'.$user_name.'"';
-		$message = $ms->newMessage(Array(), 'Asset Permission Deleted', $message_body, 'asset.permissions');
+		
+		$msg_reps = Array(
+						'perm_name'		=> permission_type_name($permission),
+						'asset_name'	=> $asset->name,
+						'user_name'		=> $user_name,
+					);
+		$message = $ms->newMessage(Array(), 'asset.permissions.delete', $msg_reps);
 		$message->parameters['assetid'] = $asset->id;
 		$message->send();
 

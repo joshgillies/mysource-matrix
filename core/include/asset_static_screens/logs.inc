@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: logs.inc,v 1.11 2005/04/06 23:05:34 mmcintyre Exp $
+* $Id: logs.inc,v 1.12 2005/04/27 00:14:43 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Logs Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix
 */
 
@@ -72,42 +72,40 @@ function paintLogs(&$owner, &$o, &$ei)
 
 		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 
-		switch ($active_log_type) {
+		if (strpos($active_log_type, 'asset.linking') === 0) {
 
-			case 'asset.linking' :
-				$minor_logs = $ms->getLogs($active_log_type, Array('minorid' => $owner->id));
-				$major_logs = $ms->getLogs($active_log_type, Array('majorid' => $owner->id));
-				$logs = array_merge($minor_logs, $major_logs);
-				usort($logs, Array('Messaging_Service', 'sortMessages'));
-			break;
+			$minor_logs = $ms->getLogs($active_log_type, Array('minorid' => $owner->id));
+			$major_logs = $ms->getLogs($active_log_type, Array('majorid' => $owner->id));
+			$logs = array_merge($minor_logs, $major_logs);
+			usort($logs, Array('Messaging_Service', 'sortMessages'));
 
-			case 'asset.workflow' :
-				// for workflow we want to show the user log messages as well
-				if (isset($_REQUEST['sq_workflow_log_version'])) {
-					$o->addFormActionGetVar('sq_workflow_log_version', $_REQUEST['sq_workflow_log_version']);
-					$logs = $ms->getLogs($active_log_type, Array(
-															'assetid'	=> $owner->id,
-															'version'	=> $_REQUEST['sq_workflow_log_version'],
-														   )
-								);
-					$user_logs = $ms->getLogs($active_log_type.'.userlog', Array(
-																			'assetid'	=> $owner->id,
-																			'version'	=> $_REQUEST['sq_workflow_log_version'],
-																		   )
-								);
-				} else {
-					$logs = $ms->getLogs($active_log_type, Array('assetid' => $owner->id));
-					$user_logs = $ms->getLogs($active_log_type.'.userlog', Array('assetid' => $owner->id));
-				}
-				$logs = array_merge($logs, $user_logs);
-				usort($logs, Array('Messaging_Service', 'sortMessages'));
-			break;
+		} else if (strpos($active_log_type, 'asset.workflow') === 0) {
 
-			default :
+			// for workflow we want to show the user log messages as well
+			if (isset($_REQUEST['sq_workflow_log_version'])) {
+				$o->addFormActionGetVar('sq_workflow_log_version', $_REQUEST['sq_workflow_log_version']);
+				$logs = $ms->getLogs($active_log_type, Array(
+														'assetid'	=> $owner->id,
+														'version'	=> $_REQUEST['sq_workflow_log_version'],
+													   )
+							);
+				$user_logs = $ms->getLogs($active_log_type.'.userlog', Array(
+																		'assetid'	=> $owner->id,
+																		'version'	=> $_REQUEST['sq_workflow_log_version'],
+																	   )
+							);
+			} else {
 				$logs = $ms->getLogs($active_log_type, Array('assetid' => $owner->id));
-			break;
+				$user_logs = $ms->getLogs($active_log_type.'.userlog', Array('assetid' => $owner->id));
+			}
+			$logs = array_merge($logs, $user_logs);
+			usort($logs, Array('Messaging_Service', 'sortMessages'));
 
-		}//end switch
+		} else {
+
+			$logs = $ms->getLogs($active_log_type, Array('assetid' => $owner->id));
+
+		}//end if ($active_log_type)
 
 		if (empty($logs)) {
 			$o->openRaw();
@@ -115,6 +113,7 @@ function paintLogs(&$owner, &$o, &$ei)
 			$o->closeRaw();
 		} else {
 			$o->openRaw();
+			$lm =& $GLOBALS['SQ_SYSTEM']->lm;
 				?>
 				<table class="sq-backend-table">
 					<tr>
@@ -134,11 +133,12 @@ function paintLogs(&$owner, &$o, &$ei)
 							continue;
 						}
 						$log_data = $logs[$i];
+
 						?>
 						<tr>
 							<td class="sq-backend-table-cell" nowrap><?php echo ts_iso8601($log_data['sent']); ?></td>
 							<td class="sq-backend-table-cell" nowrap><?php echo $log_data['from_name']; ?></td>
-							<td class="sq-backend-table-cell" width="100%"><b><?php echo $log_data['subject']; ?></b><br/><?php echo $log_data['body']; ?></td>
+							<td class="sq-backend-table-cell" width="100%"><b><?php echo $log_data['subject']; ?></b><br/><?php echo nl2br($log_data['body']); ?></td>
 						</tr>
 						<?php
 						$num_printed++;
@@ -164,7 +164,7 @@ function paintLogs(&$owner, &$o, &$ei)
 						}
 						?>
 						&nbsp;<b>Page <?php echo round(($start_printing_at + $num_per_page) / $num_per_page); ?> of <?php echo round(($num_logs / $num_per_page) + 0.5); ?></b>&nbsp;
-	
+
 						<?php
 						if (($start_printing_at + $num_per_page) < $num_logs) {
 							?><a style="text-decoration: none;" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix; ?>_start_at', '<?php echo $start_printing_at + $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager.inc,v 1.52 2005/04/20 02:04:10 rhoward Exp $
+* $Id: cron_manager.inc,v 1.53 2005/04/27 00:14:43 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.52 $
+* @version $Revision: 1.53 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -406,17 +406,18 @@ class Cron_Manager extends Asset
 
 				$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 				$msg = $ms->newMessage();
-				$msg->subject = 'POTENTIAL CRON MANAGER DEAD LOCK ISSUE';
-				$msg->body	  = 'The cron manager for the system "'.SQ_CONF_SYSTEM_NAME.'" has attempted to run '.$this->attr('warn_after_num_run_checks').' times, but has not been able to for one of two reasons' ."\n"
-								.'1) An existing cron manager is currently running an extremely long running job.'."\n"
-								.'2) Some thing has caused the cron manager to exit uncleanly and the lock wasn\'t able to be removed.'."\n"
-								.'Check the cron error log (in "'.SQ_LOG_PATH.'/'.$this->error_log_file_name.SQ_CONF_LOG_EXTENSION.'") for any information'."\n"
-								."\n"
-								.'(System Root Urls : '.str_replace("\n", ',', SQ_CONF_SYSTEM_ROOT_URLS).')'."\n";
-
+				$msg_reps = Array(
+								'system_name'		=> SQ_CONF_SYSTEM_NAME,
+								'num_attempts'		=> $this->attr('warn_after_num_run_checks'),
+								'error_log_path'	=> SQ_LOG_PATH.'/'.$this->error_log_file_name.SQ_CONF_LOG_EXTENSION,
+								'root_urls'			=> str_replace("\n", ',', SQ_CONF_SYSTEM_ROOT_URLS),
+							);
+				
 				// userid zero sends a msg to SQ_CONF_DEFAULT_EMAIL and SQ_CONF_TECH_EMAIL
-				$msg->to   = Array(0, $root_user->id, $sys_admins->id);
-				$msg->from = 0; // a system message
+				$msg->to           = Array(0, $root_user->id, $sys_admins->id);
+				$msg->from         = 0; // a system message
+				$msg->type         = 'cron.deadlock';
+				$msg->replacements = $msg_reps;
 
 				$msg->send();
 
@@ -520,11 +521,15 @@ class Cron_Manager extends Asset
 									$sys_admins = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_user_group');
 
 									$msg = $ms->newMessage();
-									$msg->subject = 'FORCED FAILURE of '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($cron_job->type(), 'name');
-									$msg->body	  = 'The job "'.$cron_job->name.'" (#'.$cron_job->id.') has failed to run '.$this->attr('num_failed_attempts').' times.'."\n"
-													.'It will be removed from the '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').' and will NOT be run again';
-									$msg->to   = Array($user->id, $root_user->id, $sys_admins->id);
-									$msg->from = 0; // a system message
+									$msg_reps = Array(
+													'cron_job_code'	=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($cron_job->type(), 'name'),
+													'asset_name'	=> $cron_job->name,
+													'assetid'		=> $cron_job->id,
+												);
+									$msg->to           = Array($user->id, $root_user->id, $sys_admins->id);
+									$msg->from         = 0; // a system message
+									$msg->type         = 'cron.forced_fail';
+									$msg->replacements = $msg_reps;
 
 									$ms->enqueueMessage($msg);
 
@@ -878,15 +883,17 @@ class Cron_Manager extends Asset
 
 			$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 			$msg = $ms->newMessage();
-			$msg->subject = 'TERMINATION of '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name');
-			$msg->body	  = 'The cron manager for the system "'.SQ_CONF_SYSTEM_NAME.'" fatally triggered an error, terminating the cron manager\'s run.'."\n"
-							.'Check the cron error log (in "'.SQ_LOG_PATH.'/'.$this->error_log_file_name.SQ_CONF_LOG_EXTENSION.'") for any information'."\n"
-							."\n"
-							.'(System Root Urls : '.str_replace("\n", ',', SQ_CONF_SYSTEM_ROOT_URLS).')'."\n";
-
+			$msg_reps = Array(
+							'system_name'		=> SQ_CONF_SYSTEM_NAME,
+							'error_log_path'	=> SQ_LOG_PATH.'/'.$this->error_log_file_name.SQ_CONF_LOG_EXTENSION,
+							'root_urls'			=> str_replace("\n", ',', SQ_CONF_SYSTEM_ROOT_URLS),
+						);
+			$msg->replacements = $msg_reps;
+			
 			// userid zero sends a msg to SQ_CONF_DEFAULT_EMAIL and SQ_CONF_TECH_EMAIL
 			$msg->to   = Array(0, $root_user->id, $sys_admins->id);
 			$msg->from = 0; // a system message
+			$msg->type = 'cron.term';
 
 			$msg->send();
 

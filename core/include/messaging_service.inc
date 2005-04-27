@@ -18,12 +18,14 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: messaging_service.inc,v 1.37 2005/04/06 23:05:34 mmcintyre Exp $
+* $Id: messaging_service.inc,v 1.38 2005/04/27 00:14:43 lwright Exp $
 *
 */
 
 
 require_once SQ_DATA_PATH.'/private/conf/messaging_service.inc';
+require_once 'Mail.php';
+require_once 'Mail/mime.php';
 
 define('SQ_MSG_UNREAD' , 'U');
 define('SQ_MSG_READ'   , 'R');
@@ -42,7 +44,7 @@ define('SQ_MSG_PRIORITY_VERY_HIGH' , 5);
 *    Facilitate the sending and management of internal messages
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix
 */
 class Messaging_Service extends MySource_Object
@@ -57,6 +59,25 @@ class Messaging_Service extends MySource_Object
 					'queues'	=> Array(),
 					'logs'		=> Array(),
 				   );
+
+
+	/**
+	* Queued email messages, that will be sent by sendQueuedEmails()
+	*
+	* @var Array()
+	*/
+	var $_emails = Array();
+
+	/**
+	* Flag that is set when queued messages are sent using send()
+	*
+	* This is used by the internal messages to work out whether it
+	* needs to initiate sending the email itself - if a queue/log is
+	* being processed, it'll be handled by that.
+	*
+	* @var boolean
+	*/
+	var $sending_queue = false;
 
 
 	/**
@@ -274,17 +295,16 @@ class Messaging_Service extends MySource_Object
 	* @return object Internal_Message
 	* @access public
 	*/
-	function newMessage($to=Array(), $subject='', $body='', $type='')
+	function newMessage($to=Array(), $type='', $reps=Array())
 	{
 		require_once SQ_INCLUDE_PATH.'/internal_message.inc';
 
 		$new_message = new Internal_Message();
-		$new_message->sent    = ts_iso8601(time());
-		$new_message->from    = $GLOBALS['SQ_SYSTEM']->currentUserId();
-		$new_message->to      = $to;
-		$new_message->subject = $subject;
-		$new_message->body    = $body;
-		$new_message->type    = $type;
+		$new_message->sent         = ts_iso8601(time());
+		$new_message->from         = $GLOBALS['SQ_SYSTEM']->currentUserId();
+		$new_message->to           = $to;
+		$new_message->type         = $type;
+		$new_message->replacements = $reps;
 		return $new_message;
 
 	}//end newMessage()
@@ -303,39 +323,15 @@ class Messaging_Service extends MySource_Object
 		// lets try and work out if any of the messages to be
 		// sent can actually be amalgamated based on who the message is being
 		// sent to, who it is from, the message type, and the subject line of the message
-		$send_queue = Array();
-		foreach ($msgs as $msg) {
-			$to_ids = $msg->expandUsersTo();
-			foreach ($to_ids as $assetid) {
-				$send_queue[$assetid][$msg->type][$msg->subject][$msg->from]['bodies'][] = $msg->body;
-				// make sure we set the highest priority in the group
-				if (!isset($send_queue[$assetid][$msg->type][$msg->subject][$msg->from]['priority'])) {
-					$send_queue[$assetid][$msg->type][$msg->subject][$msg->from]['priority'] = $msg->priority;
-				} else {
-					if ($msg->priority > $send_queue[$assetid][$msg->type][$msg->subject][$msg->from]['priority']) {
-						$send_queue[$assetid][$msg->type][$msg->subject][$msg->from]['priority'] = $msg->priority;
-					}
-				}
-			}
-		}
-
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		$this->sending_queue = true;
 
-		foreach ($send_queue as $userid => $message_data) {
-			foreach ($message_data as $type => $type_data) {
-				foreach ($type_data as $subject => $subject_data) {
-					foreach ($subject_data as $from => $from_data) {
-						$message = $this->newMessage();
-						$message->to = Array($userid);
-						$message->from = $from;
-						$message->subject = $subject;
-						$message->body = implode("\n\n".str_repeat('-', 50)."\n\n", $from_data['bodies']);
-						$message->type = $type;
-						$message->send();
-					}
-				}
-			}
+		foreach ($msgs as $msg) {
+			$msg->send();
 		}
+
+		$this->sending_queue = false;
+		$this->sendQueuedEmails();
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
@@ -370,7 +366,7 @@ class Messaging_Service extends MySource_Object
 		if (!is_null($get_user_name) && $get_user_name != 'name')
 			$get_user_name = 'short_name';
 
-		$sql = 'SELECT m.msgid, m.userto, m.userfrom, m.subject, m.body, m.sent, m.priority, m.status, m.type, m.parameters';
+		$sql = 'SELECT m.msgid, m.userto, m.userfrom, m.subject, m.body, m.sent, m.priority, m.status, m.type, m.parameters, m.replacements';
 		if (is_string($get_user_name)) {
 			$sql .= ',
 					CASE
@@ -500,6 +496,154 @@ class Messaging_Service extends MySource_Object
 		return ($a['sent'] > $b['sent']) ? -1 : 1;
 
 	}//end sortMessages()
+
+
+	/**
+	* queue up an email to send at the conclusion of the script
+	*
+	* @param string	$from		the assetid of the user to send from (0 for system)
+	* @param string	$to			the assetid of the user to send to (0 for system)
+	* @param string $subject	subject of the internal message
+	* @param string $body		body of the internal message
+	*
+	* @return void
+	* @access public
+	*/
+	function queueEmail($from, $to, $subject, $body)
+	{
+		if (!isset($this->_emails[$from])) {
+			$this->_emails[$from] = Array();
+		}
+
+		if (!isset($this->_emails[$from][$to])) {
+			$this->_emails[$from][$to] = Array();
+		}
+
+		if (!isset($this->_emails[$from][$to][$subject])) {
+			$this->_emails[$from][$to][$subject] = Array();
+		}
+
+		$this->_emails[$from][$to][$subject][] = $body;
+
+	}//end queueEmail()
+
+
+	/**
+	* Sends queued-up emails
+	*
+	* @return boolean
+	* @access public
+	*/
+	function sendQueuedEmails()
+	{
+		$crlf = "\n";
+		$mime = new Mail_mime($crlf);
+
+		foreach ($this->_emails as $from => $from_emails) {
+			// work out the email address the the email will be sent from
+			$from_email = SQ_CONF_DEFAULT_EMAIL;
+			$from_string = '';
+			if ($from) {
+				$user_from = &$GLOBALS['SQ_SYSTEM']->am->getAsset($from);
+				if (!is_null($user_from)) {
+					$from_string = $user_from->name.' <'.$user_from->attr('email').'>';
+					$from_email = $user_from->attr('email');
+				}
+			}
+			if (empty($from_email)) {
+				if (isset($_SERVER['HOSTNAME']) && isset($_SERVER['HTTP_HOST'])) {
+					$from_email = 'webmaster@'.((SQ_PHP_CLI) ? $_SERVER['HOSTNAME'] : $_SERVER['HTTP_HOST']);
+				} else {
+					$from_email = SQ_CONF_DEFAULT_EMAIL;
+				}
+			}
+			if (empty($from_string)) {
+				$from_string = '"'.SQ_SYSTEM_SHORT_NAME.' System" <'.$from_email.'>';
+			}
+
+			foreach ($from_emails as $to => $to_emails) {
+				if (!$to) {
+					// if the userid is empty, we are sending a message to the system
+					// so we send to the default email and tech email
+					$default = SQ_CONF_DEFAULT_EMAIL;
+					$tech = SQ_CONF_TECH_EMAIL;
+					$to_email = '';
+
+					if (!empty($default)) $to_email .= $default;
+					if (!empty($tech)) {
+						if (!empty($to_email)) $to_email .= ',';
+						$to_email .= $tech;
+					}
+					$user = SQ_CONF_SYSTEM_OWNER;
+				} else {
+					$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($to);
+					if (is_null($user)) continue;
+					$to_email = trim($user->attr('email'));
+				}
+
+				foreach ($to_emails as $subject => $bodies) {
+
+					$body = implode("\n\n".str_repeat('-', 50)."\n\n", $bodies);
+					$mail =& Mail::factory('mail', "-f$from_email");
+
+					$hdrs = Array(
+								'From'		=> $from_string,
+								'Subject'	=> $subject,
+							);
+
+					$text_body = $this->formatEmail($body, $user, 'text');
+					$html_body = $this->formatEmail($body, $user, 'html');
+
+					$mime->setTXTBody(strip_tags($text_body));
+					$mime->setHTMLBody($html_body);
+
+					// get() must be called before headers()
+					$body = $mime->get();
+					$hdrs = $mime->headers($hdrs);
+
+					if (!empty($to_email)) {
+						$mail->send($to_email, $hdrs, $body);
+					}
+				}
+			}
+		}
+
+	}//end sendQueuedEmails()
+
+
+	/**
+	* formats the body of an email with a header and a footer
+	*
+	* @param mixed	$user	either the user object or a string containing the user's name that the email is intended for
+	* @param string	$body	the email body
+	*
+	* @access public
+	* @return string the body
+	*/
+	function formatEmail($body, &$user, $type='text')
+	{
+		$term = ($type=='text') ? "\n" : '<br />';
+
+		$header = '';
+		if (!is_null($user) && is_object($user) && is_a($user, 'user')) {
+			$header = $user->name.','.$term.$term;
+		} else if (is_string($user) && $user != '') {
+			$header = $user.','.$term.$term;
+		}
+		// replace separator line for multiple-bodied message with a h-rule
+		if ($type == 'html') $body = str_replace("\n\n".str_repeat('-', 50)."\n\n",'<hr />',$body);
+		if ($type == 'html') $body = nl2br($body);	// give it newlines
+
+		$line = ($type == 'text') ? str_repeat('-', 20).$term : '<hr />';
+
+		$footer = $term.$term.$line
+				.'This is an automated message from '.SQ_CONF_SYSTEM_NAME.' running '.SQ_SYSTEM_LONG_NAME.$term
+				.'System Root URLs : '.$term.str_replace("\n", $term, SQ_CONF_SYSTEM_ROOT_URLS).$term
+				.$term
+				.'Contact '.SQ_CONF_SYSTEM_OWNER.' ('.SQ_CONF_TECH_EMAIL.') for support.';
+		return $header.$body.$footer;
+
+	}//end formatEmail()
 
 
 }//end class

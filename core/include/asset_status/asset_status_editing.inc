@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_editing.inc,v 1.27 2005/04/15 00:37:29 lwright Exp $
+* $Id: asset_status_editing.inc,v 1.28 2005/04/27 00:14:43 lwright Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *                                the workflow the workflow and all required metadata is complete
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix
 */
 class Asset_Status_Editing extends Asset_Status
@@ -157,9 +157,14 @@ class Asset_Status_Editing extends Asset_Status
 
 				if (!$wfm->silentWorkflowParty($this->owner->id)) {
 					$log = $ms->newMessage();
-					$log->subject = 'Asset Safe Edit Cancelled';
-					$log->body    = 'User "'.$user->name.'" has cancelled the safe edit of '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name').' "'.$this->owner->name.'". "'.$this->owner->name.'" has reverted to the previously saved version and the status of "'.$this->owner->name.'" is now '.get_status_description($new_status);
-					$log->type = 'asset.workflow';
+					$msg_reps = Array(
+									'user_name'		=> $user->name,
+									'type_code'		=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name'),
+									'asset_name'	=> $this->owner->name,
+									'status'		=> get_status_description($new_status),
+								);
+					$log->replacements = $msg_reps;
+					$log->type = 'asset.workflow.safeedit.cancel';
 					$log->parameters['assetid'] = $this->owner->id;
 					$log->parameters['version'] = substr($this->owner->version, 0, strrpos($this->owner->version, '.'));
 					$log->send();
@@ -187,15 +192,21 @@ class Asset_Status_Editing extends Asset_Status
 
 				if (!$wfm->silentWorkflowParty($this->owner->id)) {
 					$log = $ms->newMessage();
-					$log->subject = 'Workflow Started';
-					$log->body    = 'User "'.$user->name.'" has requested '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name').' "'.$this->owner->name.'" to go live from '.$this->getDescription().'.';
-					// create a link for navigation to the workflow screen for this asset
-					$log->body .= "\n\n".'A full report for the Workflow of "'.$this->owner->name.'" can be found on the <SQ_MSG_LINK href="'.current_url().$this->owner->getBackendHref('workflow').'">Workflow Screen</SQ_MSG_LINK>';
+					$msg_reps = Array(
+									'user_name'		=> $user->name,
+									'type_code'		=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name'),
+									'asset_name'	=> $this->owner->name,
+									'status'		=> $this->getDescription(),
+									'workflow_url'	=> current_url().$this->owner->getBackendHref('workflow'),
+								);
+					$log->replacements = $msg_reps;
 					$asset_edt_fns = $this->owner->getEditFns();
 					if (isset($asset_edt_fns->static_screens['preview'])) {
-						$log->body .= "\n".' You can also <SQ_MSG_LINK href="'.current_url().$this->owner->getBackendHref('preview').'">preview this asset.</SQ_MSG_LINK>';
+						$log->replacements['preview_url'] = current_url().$this->owner->getBackendHref('preview');
+					} else {
+						$log->replacements['preview_url'] = current_url().$this->owner->getBackendHref('details');
 					}
-					$log->type    = 'asset.workflow';
+					$log->type    = 'asset.workflow.started';
 					$log->parameters['assetid'] = $this->owner->id;
 					$log->parameters['version'] = substr($this->owner->version, 0, strrpos($this->owner->version, '.'));
 					$ms->enqueueMessage($log);

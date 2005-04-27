@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.100 2005/04/21 10:43:54 gnoel Exp $
+* $Id: mysource.inc,v 1.101 2005/04/27 00:14:43 lwright Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.100 $
+* @version $Revision: 1.101 $
 * @package MySource_Matrix
 */
 class MySource
@@ -235,8 +235,7 @@ class MySource
 			// check to see if the session key is the same as that used to login
 			if ($session_set && $this->getUniqueSessionKey() != $_GET['SESSION_KEY']) {
 				$ms = &$this->getMessagingService();
-				$log_body = 'Possible attempt to steal session detected!';
-				$log = $ms->newMessage(Array(), 'Security Alert', $log_body, 'system.security.alert');
+				$log = $ms->newMessage(Array(), 'system.security.alert', Array());
 				$log->parameters['remote_addr'] = $_SERVER['REMOTE_ADDR'];
 				$log->parameters['sessionid'] = session_id();
 				$log->parameters['userid'] = $_SESSION['userid'];
@@ -372,7 +371,7 @@ class MySource
 			$asset->printFrontend();
 
 		}//end if backend/limbo
-
+		
 		$this->db->disconnect();
 
 	}//end start()
@@ -493,8 +492,10 @@ class MySource
 
 							// log a message so we know someone has logged in
 							$ms = &$this->getMessagingService();
-							$log_body = 'User "'.$user->name.'" logged in';
-							$log = $ms->newMessage(Array(), 'User Logged In', $log_body, 'system.security.login');
+							$msg_reps = Array(
+											'user_name'	=> $user->name,
+										);
+							$log = $ms->newMessage(Array(), 'system.security.login', $msg_reps);
 							$log->parameters['remote_addr'] = $_SERVER['REMOTE_ADDR'];
 							$log->parameters['sessionid'] = session_id();
 							$log->send();
@@ -524,8 +525,10 @@ class MySource
 				if ($this->user && !is_a($this->user, 'public_user')) {
 					// log a message so we know someone has logged out
 					$ms = &$this->getMessagingService();
-					$log_body = 'User "'.$this->user->name.'" logged out';
-					$log = $ms->newMessage(Array(), 'User Logged Out', $log_body, 'system.security.login');
+					$msg_reps = Array(
+									'user_name'	=> $user->name,
+								);
+					$log = $ms->newMessage(Array(), 'system.security.login', $msg_reps);
 					$log->parameters['remote_addr'] = $_SERVER['REMOTE_ADDR'];
 					$log->parameters['sessionid'] = session_id();
 					$log->send();

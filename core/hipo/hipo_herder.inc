@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_herder.inc,v 1.64 2005/04/19 00:56:13 tbarrett Exp $
+* $Id: hipo_herder.inc,v 1.65 2005/04/27 00:14:43 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) Herder (Manager ;P)
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.64 $
+* @version $Revision: 1.65 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -762,7 +762,10 @@ class HIPO_Herder extends MySource_Object
 				}
 
 				$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-				$message = $ms->newMessage(Array(), 'HIPO Herder', $message_body, 'hipo.force_kill');
+				$msg_reps = Array(
+								'hipo_code_name'	=> $source_code_name,
+							);
+				$message = $ms->newMessage(Array(), 'hipo.force_kill', $msg_reps);
 				$message->send();
 
 			}

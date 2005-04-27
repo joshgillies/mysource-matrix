@@ -18,9 +18,12 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: locale_manager.inc,v 1.5 2005/04/15 00:37:28 lwright Exp $
+* $Id: locale_manager.inc,v 1.6 2005/04/27 00:14:43 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
+
+
+require_once SQ_FUDGE_PATH.'/general/text.inc';
 
 
 /**
@@ -31,7 +34,7 @@
 *    number/date formats
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 */
 class Locale_Manager extends MySource_Object
@@ -65,6 +68,15 @@ class Locale_Manager extends MySource_Object
 	var $_errors = Array();
 
 
+	/**
+	* Holds a stack of internal messages for each language
+	*
+	* @var Array
+	* @access public
+	*/
+	var $_internal_messages = Array();
+	
+	
 	/**
 	* Constructor
 	*
@@ -354,6 +366,16 @@ class Locale_Manager extends MySource_Object
 					}
 					$this->_errors[$locale] = array_merge($this->_errors[$locale], $strings);
 				}
+				
+				$file = SQ_DATA_PATH.'/private/packages/'.$package_name.'/internal_messages.'.$this_locale;
+				if (file_exists($file)) {
+					$strings = unserialize(file_get_contents($file));
+
+					if (!isset($this->_internal_messages[$locale])) {
+						$this->_internal_messages[$locale] = Array();
+					}
+					$this->_internal_messages[$locale] = array_merge($this->_internal_messages[$locale], $strings);
+				}
 			}
 		}
 
@@ -409,6 +431,16 @@ class Locale_Manager extends MySource_Object
 						$this->_errors[$locale] = Array();
 					}
 					$this->_errors[$locale] = array_merge($this->_errors[$locale], $strings);
+				}
+				
+				$file = SQ_DATA_PATH.'/private/system/core/internal_messages.'.$this_locale;
+				if (file_exists($file)) {
+					$strings = unserialize(file_get_contents($file));
+
+					if (!isset($this->_internal_messages[$locale])) {
+						$this->_internal_messages[$locale] = Array();
+					}
+					$this->_internal_messages[$locale] = array_merge($this->_internal_messages[$locale], $strings);
 				}
 			}
 		}
@@ -497,6 +529,74 @@ class Locale_Manager extends MySource_Object
 
 	}//end getErrorMessage()
 
+
+	/**
+	* fetches an internal message subject translation for the current locale
+	*
+	* @param string	$type			the internal message type
+	*
+	* @return void
+	* @access public
+	*/
+	function getInternalMessageSubject($type, $keywords, $locale=null)
+	{
+		if (is_null($locale)) {
+			$locale = $this->getCurrentLocale();
+		}
+
+		$valid_code = true;
+		if (!isset($this->_internal_messages[$locale])) {
+			$valid_code = false;
+		}
+
+		if (!isset($this->_internal_messages[$locale][$type])) {
+			$valid_code = false;
+		}
+
+		if ($valid_code) {
+			$subject = replace_keywords($this->_internal_messages[$locale][$type]['subject'], $keywords);
+		} else {
+			$subject = 'Internal message translation not found for this code and locale ['.$type.']';
+		}
+
+		return $subject;
+
+	}//end getInternalMessageSubject()
+	
+	
+	/**
+	* fetches an internal message body translation for the current locale
+	*
+	* @param string	$type			the internal message type
+	*
+	* @return void
+	* @access public
+	*/
+	function getInternalMessageBody($type, $keywords, $locale=null)
+	{
+		if (is_null($locale)) {
+			$locale = $this->getCurrentLocale();
+		}
+
+		$valid_code = true;
+		if (!isset($this->_internal_messages[$locale])) {
+			$valid_code = false;
+		}
+
+		if (!isset($this->_internal_messages[$locale][$type])) {
+			$valid_code = false;
+		}
+
+		if ($valid_code) {
+			$body    = replace_keywords($this->_internal_messages[$locale][$type]['body'], $keywords);
+		} else {
+			$body    = 'Internal message translation not found for this code and locale ['.$type.']';
+		}
+
+		return $body;
+
+	}//end getInternalMessageBody()
+	
 
 }//end class
 ?>

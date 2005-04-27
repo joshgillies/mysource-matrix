@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_pending_approval.inc,v 1.30 2005/04/15 00:37:29 lwright Exp $
+* $Id: asset_status_pending_approval.inc,v 1.31 2005/04/27 00:14:43 lwright Exp $
 *
 */
 
@@ -40,7 +40,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *                                           there is workflow running and the user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix
 */
 class Asset_Status_Pending_Approval extends Asset_Status
@@ -162,11 +162,15 @@ class Asset_Status_Pending_Approval extends Asset_Status
 				$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
 				if (!$wfm->silentWorkflowParty($this->owner->id)) {
 					$log = $ms->newMessage();
-					$log->subject = 'Asset Changes Rejected';
-					$log->body    = 'User "'.$user->name.'" has rejected the changes made to '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name').' "'.$this->owner->name.'". The status of "'.$this->owner->name.'" has reverted to '.get_status_description($new_status);
-					// create a link for navigation to the workflow screen for this asset
-					$log->body .= "\n\n".'A full report for the Workflow of "'.$this->owner->name.'" can be found on the <SQ_MSG_LINK href="'.current_url().$this->owner->getBackendHref('workflow').'">Workflow Screen</SQ_MSG_LINK>.';
-					$log->type    = 'asset.workflow';
+					$msg_reps = Array(
+									'user_name'		=> $user->name,
+									'type_code'		=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name'),
+									'asset_name'	=> $this->owner->name,
+									'status'		=> get_status_description($new_status),
+									'workflow_url'	=> current_url().$this->owner->getBackendHref('workflow'),
+								);
+					$log->replacements = $msg_reps;
+					$log->type    = 'asset.workflow.reject';
 					$log->parameters['assetid'] = $this->owner->id;
 					$log->parameters['version'] = substr($this->owner->version, 0, strrpos($this->owner->version, '.'));
 					$log->send();
@@ -214,13 +218,21 @@ class Asset_Status_Pending_Approval extends Asset_Status
 					if (!$wfm->silentWorkflowParty($this->owner->id)) {
 						$log = $ms->newMessage();
 						$log->subject = 'Workflow Completed';
-						$log->body    = 'The workflow process for '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name').' "'.$this->owner->name.'" has been completed. "'.$this->owner->name.'" is now approved and can be made live by an administrator.';
-						$log->body .= "\n\n".'A full report for the Workflow of "'.$this->owner->name.'" can be found on the <SQ_MSG_LINK href="'.current_url().$this->owner->getBackendHref('workflow').'">Workflow Screen</SQ_MSG_LINK>.';
+						$msg_reps = Array(
+										'type_code'		=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name'),
+										'asset_name'	=> $this->owner->name,
+										'workflow_url'	=> current_url().$this->owner->getBackendHref('workflow'),
+									);
+
+						$log->replacements = $msg_reps;
 						$asset_edt_fns = $this->owner->getEditFns();
 						if (isset($asset_edt_fns->static_screens['preview'])) {
-							$log->body .= "\n".' You can also <SQ_MSG_LINK href="'.current_url().$this->owner->getBackendHref('preview').'">preview this asset.</SQ_MSG_LINK>';
+							$log->replacements['preview_url'] = current_url().$this->owner->getBackendHref('preview');
+						} else {
+							$log->replacements['preview_url'] = current_url().$this->owner->getBackendHref('details');
 						}
-						$log->type    = 'asset.workflow';
+
+						$log->type    = 'asset.workflow.complete';
 						$log->parameters['assetid'] = $this->owner->id;
 						$log->parameters['version'] = substr($this->owner->version, 0, strrpos($this->owner->version, '.'));
 						$ms->enqueueMessage($log);

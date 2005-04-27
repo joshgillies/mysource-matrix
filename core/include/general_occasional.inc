@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general_occasional.inc,v 1.48 2005/04/21 01:29:48 arailean Exp $
+* $Id: general_occasional.inc,v 1.49 2005/04/27 00:14:43 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.48 $
+* @version $Revision: 1.49 $
 * @package MySource_Matrix
 */
 
@@ -268,7 +268,7 @@ function get_status_names()
 */
 function asset_link_treeid_convert($value, $encode)
 {
-	// these characters are chosen so as not to clash with any SQL control symbols - ie . * ^ \ [ ] { } ( ) < > ? & $
+	// these characters are chosen so as not to clash with any SQL control symbols - ie . * ^ \ [ ] { } ( ) < > ? & $ _
 	static $digits = Array(
 						0	=> '0',  1	=> '1',  2	=> '2',  3	=> '3',  4	=> '4',  5	=> '5',  6	=> '6',  7	=> '7',
 						8	=> '8',  9	=> '9', 10	=> 'A', 11	=> 'B', 12	=> 'C', 13	=> 'D', 14	=> 'E', 15	=> 'F',

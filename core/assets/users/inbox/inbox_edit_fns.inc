@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: inbox_edit_fns.inc,v 1.47 2005/04/18 00:16:14 lwright Exp $
+* $Id: inbox_edit_fns.inc,v 1.48 2005/04/27 00:14:43 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dmitry Baranovskiy <dbaranovskiy@squiz.net>
-* @version $Revision: 1.47 $
+* @version $Revision: 1.48 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -138,8 +138,13 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns {
 			foreach ($_POST[$prefix.'_To'] as $key => $sender) {
 				$recepients[] = $sender['assetid'];
 			}
+			
+			$msg_reps = Array(
+							'subject'	=> $_POST[$prefix.'_Subject'],
+							'body'		=> $_POST[$prefix.'_Content'],
+						);
 
-			$message = $ms->newMessage($recepients, $_POST[$prefix.'_Subject'], $_POST[$prefix.'_Content'], 'inbox.message');
+			$message = $ms->newMessage($recepients, 'inbox.message', $msg_reps);
 			$message->priority = $_POST[$prefix.'_Priority'];
 			$message->send();
 
@@ -148,7 +153,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns {
 					continue;
 				}
 				$noaction = true;
-				$message = $ms->newMessage(Array ($userid), $_POST[$prefix.'_Subject'], $_POST[$prefix.'_Content'], 'inbox.sent');
+				$message = $ms->newMessage(Array ($userid), 'inbox.sent', $msg_reps);
 				$message->from = $sender;
 				$message->status = 'R';
 				$message->priority = $_POST[$prefix.'_Priority'];
