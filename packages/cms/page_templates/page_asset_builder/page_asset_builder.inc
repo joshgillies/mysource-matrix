@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.59 2005/04/26 23:52:56 ndvries Exp $
+* $Id: page_asset_builder.inc,v 1.60 2005/04/27 01:49:30 tbarrett Exp $
 *
 */
 
@@ -37,7 +37,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.59 $
+* @version $Revision: 1.60 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -851,7 +851,7 @@ class Page_Asset_Builder extends Page
 		 ////////////////////////
 		$create_types = $this->attr('create_type');
 		if (!is_array($create_types)) {
-			$create_types = Array($create_types);
+			$create_types = Array($create_types => '');
 		}
 
 		require_once SQ_INCLUDE_PATH.'/limbo_outputter.inc';
@@ -884,6 +884,7 @@ class Page_Asset_Builder extends Page
 
 			// Tabs if necessary
 			if (count($create_types) > 1) {
+				reset($create_types);
 				?>
 				<script type="text/javascript"><!--
 				//<![CDATA[
