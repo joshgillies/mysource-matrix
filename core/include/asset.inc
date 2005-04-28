@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.389 2005/04/27 00:14:43 lwright Exp $
+* $Id: asset.inc,v 1.390 2005/04/28 05:18:16 rhoward Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.389 $
+* @version $Revision: 1.390 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -1859,6 +1859,8 @@ class Asset extends MySource_Object
 	*/
 	function processStatusChange($new_status)
 	{
+		$old_status = $this->status;
+
 		if ($this->status != $new_status) {
 			// if we are dependant minor assets, we can only change
 			// our status to a status higher than or equal to all
@@ -1932,6 +1934,12 @@ class Asset extends MySource_Object
 					return false;
 				}
 			}
+
+			// fire trigger_event_status_changed
+			$event_data = Array(
+							'old_status' => $old_status,
+						  );
+			$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_status_changed', $this, $event_data);
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
