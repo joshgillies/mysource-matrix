@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.68 2005/04/15 00:37:46 lwright Exp $
+* $Id: page_asset_listing.inc,v 1.69 2005/04/28 04:59:57 arailean Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.68 $
+* @version $Revision: 1.69 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -92,7 +92,9 @@ class Page_Asset_Listing extends Listing_Engine
 	function isDeletableLink($linkid)
 	{
 		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'page_contents');
-		if ($bodycopy_link['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) return 'You cannot delete the link between the page contents and the asset listing page';
+		if ($bodycopy_link['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) {
+			return 'You cannot delete the link between the page contents and the asset listing page';
+		}
 
 		return parent::isDeletableLink($linkid);
 
@@ -121,7 +123,7 @@ class Page_Asset_Listing extends Listing_Engine
 	* @return void
 	* @access public
 	*/
-	function printBody()
+	function printContents()
 	{
 		// we need a unique cache key to represent the current result page
 		$cache_key = $this->_getCacheKey();
@@ -142,8 +144,10 @@ class Page_Asset_Listing extends Listing_Engine
 			if (is_null($format_bodycopy)) return false;
 
 			require_once SQ_FUDGE_PATH.'/general/text.inc';
-			$replacements = retrieve_keywords_replacements($format_bodycopy->getRawBodycopyContent());
-			if (!in_array('asset_listing', $replacements)) {
+			$keywords = $format_bodycopy->getKeywords();
+			$replacements = Array();
+
+			if (!in_array('asset_listing', $keywords)) {
 				// there is no asset listing keyword in the contents, so we dont
 				// need to do all the extra processing for the listing
 				$format_bodycopy->printBody();
@@ -154,9 +158,12 @@ class Page_Asset_Listing extends Listing_Engine
 			$num_kids = count($children);
 			$this->filterAssetList($children);
 
+			foreach ($keywords as $word) {
+				$replacements[$word] = $this->getKeywordReplacement($word);
+			}
+
 			// if there are no children available, just print the page bodycopy
 			if (empty($children)) {
-				$replacements = $this->getKeywordReplacements();
 				$replacements['asset_count'] = $num_kids;
 				$format_bodycopy->setKeywordReplacements($replacements);
 				$format_bodycopy->printBody();
@@ -188,15 +195,13 @@ class Page_Asset_Listing extends Listing_Engine
 			$replacements['last_asset_position'] = min($num_kids, $num_per_page * $result_page);
 			$replacements['root_nodes'] = implode(',', $this->getRootNodes());
 
-
-			$other_replacements = $this->getKeywordReplacements();
-			$replacements = array_merge($replacements, $other_replacements);
-
 			// print the contents of page - replacing the global keywords
 			$format_bodycopy->setKeywordReplacements($replacements);
 			ob_start();
 				$format_bodycopy->printBody();
-				if (!empty($cache_key)) $cm->saveToCache($this, $cache_key, ob_get_contents());
+				if (!empty($cache_key)) {
+					$cm->saveToCache($this, $cache_key, ob_get_contents());
+				}
 			ob_end_flush();
 
 		} else {
@@ -209,7 +214,7 @@ class Page_Asset_Listing extends Listing_Engine
 		// clean up after ourselves
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($bodycopy);
 
-	}//end printBody()
+	}//end printContents()
 
 
 	/**
@@ -247,19 +252,18 @@ class Page_Asset_Listing extends Listing_Engine
 		// if there are no root assets, we will use ourselves and print our children
 		$root_asset_ids = $this->getRootNodes();
 
-		// this is what we are going to sort the reults by (passed directly to the getLinks
-		// and getChildren functions)
-		// must be a column in the asset table (null = no sorting)
-		$sort_by = $this->attr('sort_by');
-		if (empty($sort_by)) $sort_by = null;
-
+		$sort_info = $this->getSortInfo();
 
 		// if we are showing an A-Z listing but the user has not selected a proper sort field,
 		// we will use the 'name' attribute of the asset to work out the listing
-		if (($group_by == 'letter') && ($sort_by != 'name') && ($sort_by != 'short_name')) $sort_by = 'name';
+		if ($group_by == 'letter'){
+			if (empty($sort_info) || !($sort_info['type'] == 'field') || ($sort_info['params']['field'] != 'short_name')) {
+				$letter_sort_by = 'name';
+			} else {
+				$letter_sort_by = $sort_info['field'];
+			}
+		}
 
-		// if the sort by is set to use an attribute, sort by name at this
-		// stage
 		$assets_to_list = Array();
 
 		if ($this->attr('subs_only')) {
@@ -269,67 +273,54 @@ class Page_Asset_Listing extends Listing_Engine
 			$links = Array();
 
 			switch ($group_by) {
-				case 'number' :
-					foreach ($root_asset_ids as $root_asset_id) {
-						$links = array_merge($links, $GLOBALS['SQ_SYSTEM']->am->getLinks($root_asset_id, SQ_SC_LINK_BACKEND_NAV, array_keys($wanted_types), false, $side_of_link, null, null, null, (substr($sort_by,0,2) == '__' ? 'name' : $sort_by), SQ_PERMISSION_READ));
-					}
-					foreach ($links as $link_info) $assets_to_list[$link_info[$link_type.'id']] = $link_info[$link_type.'_type_code'];
-					if ($sort_by) {
-						$assets_to_list = $this->sortAssetList($assets_to_list, $sort_by, array_keys($wanted_types));
-					}
-				break;
 
 				case 'letter' :
 					foreach ($root_asset_ids as $root_asset_id) {
-						$query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($root_asset_id, SQ_SC_LINK_BACKEND_NAV, array_keys($wanted_types), false, $side_of_link, null, null, null, $sort_by, SQ_PERMISSION_READ);
+						$query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($root_asset_id, SQ_SC_LINK_BACKEND_NAV, array_keys($wanted_types), false, $side_of_link, null, null, null, $letter_sort_by, SQ_PERMISSION_READ);
 						if (empty($query)) return Array();
-						$query['select'] .= ', SUBSTR(a.'.$sort_by.', 1, 1) AS first_letter';
+						$query['select'] .= ', SUBSTR(a.'.$letter_sort_by.', 1, 1) AS first_letter';
 
 						$db = &$GLOBALS['SQ_SYSTEM']->db;
 						$new_links = $db->getAll(implode(' ', $query));
 						assert_valid_db_result($new_links);
 						$links = array_merge($links, $new_links);
 					}
-					foreach ($links as $link_info) $assets_to_list[$link_info[$link_type.'id']] = Array('type_code' => $link_info[$link_type.'_type_code'], 'first_letter' => $link_info['first_letter']);
+					foreach ($links as $link_info) {
+						$assets_to_list[$link_info[$link_type.'id']] = Array(
+																		'type_code'		=> $link_info[$link_type.'_type_code'],
+																		'first_letter'	=> $link_info['first_letter'],
+																	   );
+					}
 				break;
 
 				case 'random' :
+				case 'number' :
 					foreach ($root_asset_ids as $root_asset_id) {
-						$links = array_merge($links, $GLOBALS['SQ_SYSTEM']->am->getLinks($root_asset_id, SQ_SC_LINK_BACKEND_NAV, array_keys($wanted_types), false, $side_of_link, null, null, null, null, SQ_PERMISSION_READ));
+						$new_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($root_asset_id, SQ_SC_LINK_BACKEND_NAV, array_keys($wanted_types), false, $side_of_link, null, null, null, null, SQ_PERMISSION_READ);
+						$links = array_merge($links, $new_links);
 					}
-					foreach ($links as $link_info) $assets_to_list[$link_info[$link_type.'id']] = $link_info[$link_type.'_type_code'];
+					foreach ($links as $link_info) {
+						$assets_to_list[$link_info[$link_type.'id']] = $link_info[$link_type.'_type_code'];
+					}
+
 				break;
 			}//end switch
 
 		} else {
 
 			switch ($group_by) {
-				case 'number' :
-					if ($this->attr('direction') == 'down') {
-						foreach ($root_asset_ids as $root_asset_id) {
-							$assets_to_list = $assets_to_list + $GLOBALS['SQ_SYSTEM']->am->getChildren($root_asset_id, array_keys($wanted_types), false, (substr($sort_by,0,2) == '__' ? 'name' : $sort_by), SQ_PERMISSION_READ);
-						}
-					} else {
-						foreach ($root_asset_ids as $root_asset_id) {
-							$assets_to_list = $assets_to_list + $GLOBALS['SQ_SYSTEM']->am->getParents($root_asset_id, array_keys($wanted_types), false, (substr($sort_by,0,2) == '__' ? 'name' : $sort_by), SQ_PERMISSION_READ);
-						}
-					}
-					if ($sort_by) {
-						$assets_to_list = $this->sortAssetList($assets_to_list, $sort_by);
-					}
-				break;
-
 				case 'letter' :
 					foreach ($root_asset_ids as $root_asset_id) {
 						if ($this->attr('direction') == 'down') {
 							$root_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($root_asset_id);
-							$query = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($root_asset, array_keys($wanted_types), false, $sort_by, SQ_PERMISSION_READ);
+							$query = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($root_asset, array_keys($wanted_types), false, $letter_sort_by, SQ_PERMISSION_READ);
 							$GLOBALS['SQ_SYSTEM']->am->forgetAsset($root_asset);
 						} else {
-							$query = $GLOBALS['SQ_SYSTEM']->am->generateGetParentsQuery($root_asset_id, array_keys($wanted_types), false, $sort_by, SQ_PERMISSION_READ);
+							$query = $GLOBALS['SQ_SYSTEM']->am->generateGetParentsQuery($root_asset_id, array_keys($wanted_types), false, $letter_sort_by, SQ_PERMISSION_READ);
 						}
-						if (empty($query)) return Array();
-						$query['select'] .= ', SUBSTR(a.'.$sort_by.', 1, 1) AS first_letter';
+						if (empty($query)) $new_assets_to_list = Array();
+
+						$query['select'] .= ', SUBSTR(a.'.$letter_sort_by.', 1, 1) AS first_letter';
 						$db = &$GLOBALS['SQ_SYSTEM']->db;
 						$new_assets_to_list = $db->getAssoc(implode(' ', $query));
 						assert_valid_db_result($new_assets_to_list);
@@ -337,6 +328,7 @@ class Page_Asset_Listing extends Listing_Engine
 					}
 				break;
 
+				case 'number' :
 				case 'random' :
 					if ($this->attr('direction') == 'down') {
 						foreach ($root_asset_ids as $root_asset_id) {
@@ -347,10 +339,15 @@ class Page_Asset_Listing extends Listing_Engine
 							$assets_to_list = $assets_to_list + $GLOBALS['SQ_SYSTEM']->am->getParents($root_asset_id, array_keys($wanted_types), false, null, SQ_PERMISSION_READ);
 						}
 					}
+
 				break;
 			}//end switch
 
-		}//end if subs_only
+		}
+
+		if ($group_by == 'number') {
+			$assets_to_list = $this->sortAssetList($assets_to_list, $sort_info);
+		}
 
 		return $assets_to_list;
 
@@ -409,18 +406,17 @@ class Page_Asset_Listing extends Listing_Engine
 		$keywords = parent::getContentsKeywords();
 
 		$keywords += Array(
-							'asset_listing' => 'Asset Listing',
-							'previous_page' => 'Previous Page Link',
-							'next_page'     => 'Next Page Link',
-							'page_list'     => 'Page List',
-							'page_number' => 'Page Number',
-							'asset_count' => 'Total Assets Listed',
-							'page_asset_count' => 'Total Assets Listed This Page',
-							'first_asset_position' => 'First Asset on Page\'s Position Number',
-							'last_asset_position' => 'Last Asset on Page\'s Position Number',
-							'root_nodes'	=> 'Root Nodes (Separated by Commas)',
-
-						);
+						'asset_listing'			=> 'Asset Listing',
+						'previous_page'			=> 'Previous Page Link',
+						'next_page'				=> 'Next Page Link',
+						'page_list'				=> 'Page List',
+						'page_number'			=> 'Page Number',
+						'asset_count'			=> 'Total Assets Listed',
+						'page_asset_count'		=> 'Total Assets Listed This Page',
+						'first_asset_position'	=> 'First Asset on Page\'s Position Number',
+						'last_asset_position'	=> 'Last Asset on Page\'s Position Number',
+						'root_nodes'			=> 'Root Nodes (Separated by Commas)',
+					 );
 
 		return $keywords;
 

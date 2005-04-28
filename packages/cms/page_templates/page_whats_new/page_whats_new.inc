@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_whats_new.inc,v 1.15 2005/04/15 00:37:47 lwright Exp $
+* $Id: page_whats_new.inc,v 1.16 2005/04/28 04:59:57 arailean Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../page_templates/page_asset_listing/page_as
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -94,16 +94,16 @@ class Page_Whats_New extends Page_Asset_Listing
 			if (is_null($root_asset)) return Array();
 		}
 
-		// this is what we are going to sort the reults by (passed directly to the getLinks
-		// and getChildren functions)
-		// must be a column in the asset table (null = no sorting)
-		$sort_by = $this->attr('sort_by');
-		if (empty($sort_by)) $sort_by = null;
-
+		$sort_info = $this->getSortInfo();
 
 		// if we are showing an A-Z listing but the user has not selected a proper sort field,
 		// we will use the 'name' attribute of the asset to work out the listing
-		if ($group_by == 'letter' && $sort_by != 'name' && $sort_by != 'short_name') $sort_by = 'name';
+		$letter_sort_by = 'name';
+		if ($group_by == 'letter'){
+			if (!empty($sort_info) && ($sort_info['type'] == 'field') && ($sort_info['params']['field'] == 'short_name')) {
+				$letter_sort_by = 'short_name';
+			}
+		}
 
 		$children = Array();
 
@@ -127,8 +127,8 @@ class Page_Whats_New extends Page_Asset_Listing
 			$to = new Asset_Attribute_DateTime();
 			$to->value = $ranges[$id]['newest_date'];
 		} else {
-			$from = $this->getAttribute('date_range_from');
-			$to   = $this->getAttribute('date_range_to');
+			$from = &$this->getAttribute('date_range_from');
+			$to   = &$this->getAttribute('date_range_to');
 		}
 
 		$from = $from->getISO8601();
@@ -155,61 +155,62 @@ class Page_Whats_New extends Page_Asset_Listing
 
 		if ($this->attr('subs_only')) {
 
-			$query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($root_asset->id, SQ_SC_LINK_BACKEND_NAV, array_keys($wanted_types), false, 'major', null, null, null, $sort_by, SQ_PERMISSION_READ);
+			$query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($root_asset->id, SQ_SC_LINK_BACKEND_NAV, array_keys($wanted_types), false, 'major', null, null, null, $letter_sort_by, SQ_PERMISSION_READ);
 			$query['where'] .= $where;
 
 			// special case for A-Z listings because they require another field selected from the database
 			if ($group_by == 'letter') {
-				$query['select'] .= ', SUBSTR(a.'.$sort_by.', 1, 1) AS first_letter';
+				$query['select'] .= ', SUBSTR(a.'.$letter_sort_by.', 1, 1) AS first_letter';
 			}
 
 			$links = $db->getAll(implode(' ', $query));
 			assert_valid_db_result($links);
 
 			switch ($group_by) {
-				case 'number' :
-					foreach ($links as $link_info) $children[$link_info['minorid']] = $link_info['minor_type_code'];
-					if ($this->attr('reverse_sort')) $children = array_reverse($children, true);
-				break;
 
 				case 'letter' :
-					foreach ($links as $link_info) $children[$link_info['minorid']] = Array('type_code' => $link_info['minor_type_code'], 'first_letter' => $link_info['first_letter']);
+					foreach ($links as $link_info) {
+						$children[$link_info['minorid']] = Array(
+															'type_code'		=> $link_info['minor_type_code'],
+															'first_letter'	=> $link_info['first_letter'],
+														   );
+					}
 				break;
 
+				case 'number' :
 				case 'random' :
-					foreach ($links as $link_info) $children[$link_info['minorid']] = $link_info['minor_type_code'];
+					foreach ($links as $link_info) {
+						$children[$link_info['minorid']] = $link_info['minor_type_code'];
+					}
 				break;
 			}
 
 		} else {
 
-			if ($group_by == 'random') $sort_by = null;
-
-			$query = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($root_asset, array_keys($wanted_types), false, $sort_by, SQ_PERMISSION_READ);
+			$query = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($root_asset, array_keys($wanted_types), false, $letter_sort_by, SQ_PERMISSION_READ);
 			$query['where'] .= $where;
 
 			// special case for A-Z listings because they require another field selected from the database
 			if ($group_by == 'letter') {
-				$query['select'] .= ', SUBSTR(a.'.$sort_by.', 1, 1) AS first_letter';
+				$query['select'] .= ', SUBSTR(a.'.$letter_sort_by.', 1, 1) AS first_letter';
 			}
 
 			$children = $db->getAssoc(implode(' ', $query));
 			assert_valid_db_result($children);
 
-			// normal number grouping may require a reverse sort
-			if ($group_by == 'number') {
-				if ($this->attr('reverse_sort')) $children = array_reverse($children, true);
-			}
-
 			// only A-Z listings require the type_code to be in an array
 			// all other formats require a simple assetid => type_code return value
-			if ($group_by != 'letter' && $sort_by != null) {
-				for (reset($children); null !== ($child_id = key($children)); next($children)) {
-					$children[$child_id] = $children[$child_id]['type_code'];
+			if ($group_by != 'letter') {
+				foreach ($children as $child_id => $child_data) {
+					$children[$child_id] = $child_data['type_code'];
 				}
 			}
 
 		}//end if subs_only
+
+		if ($group_by == 'number') {
+			$assets_to_list = $this->sortAssetList($children, $sort_info);
+		}
 
 		// clean up after ourselves
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($root_asset);
@@ -263,7 +264,9 @@ class Page_Whats_New extends Page_Asset_Listing
 		$ranges = $this->attr('date_ranges');
 		$prefix = 'asset_'.$this->id;
 
-		foreach ($ranges as $id => $info) $names[$id] = $info['name'];
+		foreach ($ranges as $id => $info) {
+			$names[$id] = $info['name'];
+		}
 		$selected = (isset($_REQUEST[$prefix.'_date_range']) ? $_REQUEST[$prefix.'_date_range'] : '');
 		$url = $_SERVER['PHP_SELF'];
 
