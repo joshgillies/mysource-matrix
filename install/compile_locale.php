@@ -18,18 +18,18 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: compile_locale.php,v 1.1 2005/04/27 01:29:50 lwright Exp $
+* $Id: compile_locale.php,v 1.2 2005/04/28 05:33:27 lwright Exp $
 *
 */
 
 
 /**
-* Install Step 4
+* Install: Compile Locale script (formerly step 4)
 *
 * Compiles languages on the system
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 * @subpackage install
 */
