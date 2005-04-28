@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_management.inc,v 1.14 2005/04/15 00:37:46 lwright Exp $
+* $Id: listing_engine_management.inc,v 1.15 2005/04/28 04:59:09 arailean Exp $
 *
 */
 
@@ -31,12 +31,13 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
 class Listing_Engine_Management extends Asset_Management
 {
+
 
 	/**
 	* Constructor
@@ -46,111 +47,111 @@ class Listing_Engine_Management extends Asset_Management
 	{
 		$this->Asset_Management($pm);
 
-		$this->vars['types']		= Array(
-										'added'   => '0.1',
-										'type'    => 'serialise',
-										'default' => Array(),
-										);
+		$this->vars['types'] = Array(
+								'added'		=> '0.1',
+								'type'		=> 'serialise',
+								'default'	=> Array(),
+							   );
 
-		$this->vars['sort_by']		= Array(
-										'added'	=> '0.1',
-										'type'	=> 'selection',
-										'parameters' => Array(
-											'options' => Array(
-												''=> '-- No Sorting --',
-												'assetid'=> 'ID',
-												'version'=> 'Version',
-												'name'=> 'Name',
-												'short_name'=> 'Short Name',
-												'created'=> 'Created Date',
-												'updated'=> 'Last Updated Date',
-												'published'=> 'Last Published Date',
-												'__attr__'=> 'Asset Attributes...',
-											),
-											'multiple' => false,
-											'allow_empty' => true,
-										),
-										'default' => 'name'
-									);
+		$this->vars['submit_button_text'] = Array(
+												'added'		=> '0.1',
+												'type'		=> 'text',
+												'default'	=> 'Submit',
+											);
 
-		$this->vars['sort_by_attr'] = Array(
-										'added'   => '0.1',
-										'type'    => 'serialise',
-										'default' => Array(),
-										);
+		$this->vars['sort_by'] = Array(
+									'added'		=> '0.1',
+									'type'		=> 'serialise',
+									'default'	=> Array(),
+								 );
 
-		$this->vars['reverse_sort']	= Array(
-										'added'     => '0.1',
-										'type'      => 'boolean',
-										'default'   => false,
-										'parameters' => Array(
-															'allow_empty' => false
-														),
-										);
-		$this->vars['subs_only']	= Array(
-										'added'     => '0.1',
-										'type'      => 'boolean',
-										'default'   => false,
-										'parameters' => Array(
-															'allow_empty' => false
-														),
-										);
+		$this->vars['default_sort_by'] = Array(
+											'added'		=> '0.1',
+											'type'		=> 'int',
+											'default'	=> 0,
+										 );
 
-		$this->vars['direction']	= Array(
-										'added'	=> '0.1',
-										'type'	=> 'selection',
-										'parameters' => Array(
-											'options' => Array(
-												'up'	=> 'Up the tree',
-												'down'	=> 'Down the tree',
-											),
-											'multiple' => false,
-											'allow_empty' => false,
-										),
-										'default' => 'down'
-										);
+		$this->vars['reverse_sort'] = Array(
+										'added'			=> '0.1',
+										'type'			=> 'boolean',
+										'default'		=> false,
+										'parameters'	=> Array('allow_empty'	=> false,),
+									  );
 
-		$this->vars['group_by']		= Array(
-										'added'	=> '0.1',
-										'type'	=> 'selection',
-										'parameters' => Array(
-											'options' => Array(
-												'number'		=> 'Standard',
-												'letter'		=> 'A-Z listing',
-												'random'		=> 'Random',
-											),
-											'multiple' => false,
-											'allow_empty' => false,
-										),
-										'default' => 'number'
-										);
+		$this->vars['sort_direction_asc_text'] = Array(
+													'added'		=> '0.1',
+													'type'		=> 'text',
+													'default'	=> 'Ascending',
+												 );
 
-		$this->vars['num_per_page']	= Array(
-										'added'   => '0.1',
-										'type'    => 'int',
-										'default' => 0,
-										);
+		$this->vars['sort_direction_desc_text'] = Array(
+													'added'		=> '0.1',
+													'type'		=> 'text',
+													'default'	=> 'Descending',
+												  );
 
-		$this->vars['column_layout']	= Array(
-										'added'   => '0.1',
-										'type'    => 'serialise',
-										'default' => Array('0' => '1'),
-										);
+		$this->vars['subs_only'] = Array(
+									'added'			=> '0.1',
+									'type'			=> 'boolean',
+									'default'		=> false,
+									'parameters'	=> Array( 'allow_empty' => false,),
+								   );
 
-		$this->vars['asset_positions']	= Array(
-										'added'   => '0.1',
-										'type'    => 'serialise',
-										'default' => Array(),
-										);
+		$this->vars['direction'] = Array(
+									'added'			=> '0.1',
+									'type'			=> 'selection',
+									'default'		=> 'down',
+									'parameters'	=> Array(
+														'multiple'		=> false,
+														'allow_empty'	=> false,
+														'options'		=> Array(
+																			'up'	=> 'Up the tree',
+																			'down'	=> 'Down the tree',
+																		   ),
+													   ),
+								   );
+
+		$this->vars['group_by'] = Array(
+									'added'			=> '0.1',
+									'type'			=> 'selection',
+									'default'		=> 'number',
+									'parameters'	=> Array(
+														'multiple'		=> false,
+														'allow_empty'	=> false,
+														'options'		=> Array(
+																			'number'	=> 'Standard',
+																			'letter'	=> 'A-Z listing',
+																			'random'	=> 'Random',
+																		   ),
+													   ),
+								  );
+
+		$this->vars['num_per_page'] = Array(
+										'added'		=> '0.1',
+										'type'		=> 'int',
+										'default'	=> 10,
+									  );
+
+		$this->vars['column_layout'] = Array(
+										'added'		=> '0.1',
+										'type'		=> 'serialise',
+										'default'	=> Array('0' => '1'),
+									   );
+
+		$this->vars['asset_positions'] = Array(
+											'added'		=> '0.1',
+											'type'		=> 'serialise',
+											'default'	=> Array(),
+										 );
 
 		$this->vars['lineage_seperator'] = Array (
-										'added'			=> '0.1',
-										'type'			=> 'text',
-										'default'		=> ' > ',
-										'description'	=> 'Seperator to use when printing the lineage to a search result asset.',
-										);
+											'added'			=> '0.1',
+											'type'			=> 'text',
+											'default'		=> ' > ',
+											'description'	=> 'Seperator to use when printing the lineage to a search result asset.',
+										   );
 
-	}//end Listing_Engine_Management()
+	}//end constructor
 
 
 	/**
@@ -164,19 +165,18 @@ class Listing_Engine_Management extends Asset_Management
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$search_page_fields = Array('lineage_seperator');
-
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$attributes = Array();
 
-		foreach($this->vars as $attr_name => $attr_info) {
+		foreach ($this->vars as $attr_name => $attr_info) {
 			if (in_array($attr_name, $search_page_fields)) {
 				$result = $this->_hoardAttribute($attr_name, 'search_page');
 			} else {
 				$result = $this->_hoardAttribute($attr_name, 'page_asset_listing');
 			}
 
-			foreach($result as $result_info) {
+			foreach ($result as $result_info) {
 				$attributes[$result_info['attrid']] = $result_info;
 			}
 		}
@@ -199,24 +199,24 @@ class Listing_Engine_Management extends Asset_Management
 
 	function _upgrade($current_version)
 	{
-		$search_page_fields = Array('lineage_seperator');
-
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 
 		if (version_compare($current_version,'0.1','==')) {
+			$search_page_fields = Array('lineage_seperator');
+
 			bam('UPGRADING LISTING ENGINE - FROM VERSION '.$current_version);
 
 			$attributes = Array();
 
-			foreach($this->vars as $attr_name => $attr_info) {
+			foreach ($this->vars as $attr_name => $attr_info) {
 				if (in_array($attr_name, $search_page_fields)) {
 					$result = $this->_hoardAttribute($attr_name, 'search_page');
 				} else {
 					$result = $this->_hoardAttribute($attr_name, 'page_asset_listing');
 				}
 
-				foreach($result as $result_info) {
+				foreach ($result as $result_info) {
 					$attributes[$result_info['attrid']] = $result_info;
 				}
 			}
@@ -231,6 +231,110 @@ class Listing_Engine_Management extends Asset_Management
 			bam('LISTING ENGINE UPGRADE COMPLETE - FROM VERSION '.$current_version);
 		}
 
+		if (version_compare($current_version, '0.3', '<=')) {
+			$search_page_fields = Array('submit_button_text', 'reverse_sort');
+
+			$fields_to_delete = Array('sort_by_attr');
+
+			bam('UPGRADING LISTING ENGINE - FROM VERSION '.$current_version);
+			// move reverse sort into sort_direction
+			// move sort by to sort by list
+			// move sort_by attr to sort by list
+
+			$hoarded_attributes = Array();
+
+			foreach ($this->vars as $attr_name => $attr_info) {
+				if (in_array($attr_name, $search_page_fields)) {
+					$result = $this->_hoardAttribute($attr_name, 'search_page');
+				}
+
+				foreach ($result as $result_info) {
+					$hoarded_attributes[$result_info['attrid']] = $result_info;
+				}
+			}
+
+			$children = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), false);
+
+			foreach ($children as $assetid) {
+				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+
+				$sort_by = $asset->attr('sort_by');
+
+				if (!empty($sort_by) && $sort_by != '__attr__') {
+
+					$edit_fns = $asset->getEditFns();
+					// note that __attr__ has changed to asset_attrib in the new version
+					$sort_by_options = $edit_fns->_getSortByOptions($asset);
+					$name = array_get_index($sort_by_options, $sort_by, $sort_by);
+
+					$sort_by_list = Array(
+										'0'	=> Array(
+												'name'		=> $name,
+												'type'		=> 'field',
+												'params'	=> Array(
+																'field'	=> $sort_by,
+															   ),
+											   ),
+									);
+
+				} else if ($sort_by == '__attr__') {
+					$sort_by_attr = $asset->attr('sort_by_attr');
+					$sort_by_list = Array();
+
+					$attributes = Array();
+					// get the attributes for each type
+					foreach (array_keys($sort_by_attr) as $type) {
+						$attributes[$type] = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($type);
+					}
+
+					foreach ($sort_by_attr as $type => $attr_name) {
+						$attr_type = $attributes[$type][$attr_name];
+						$sort_by_list[] = Array(
+											'name'		=> $attr_name,
+											'type'		=> 'asset_attrib',
+											'params'	=> Array(
+															'type_code'	=> $type,
+															'attr_type'	=> $attr_type,
+															'attribute'	=> $attr_name,
+														   ),
+										  );
+					}
+
+				}//end if attr
+
+				$this->_tmp['sort_by'][$assetid] = $sort_by_list;
+
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset, true);
+
+			}//end foreach listing engines
+
+			$this->_removeAttributes($hoarded_attributes);
+			if (!parent::_upgrade($current_version)) {
+				trigger_localised_error('CMS0039', E_USER_WARNING, '0.3');
+				return false;
+			}
+			$this->_restoreAttributes($hoarded_attributes);
+
+			$to_save = array_get_index($this->_tmp, 'sort_by', Array());
+			foreach ($to_save as $assetid => $sort_by_list) {
+				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+
+				$asset->setAttrValue('sort_by', $sort_by_list);
+
+				if (!$asset->saveAttributes()) {
+					trigger_localised_error('CMS0026', E_USER_WARNING, '0.3');
+					return false;
+				}
+
+			}//end foreach listing engines
+
+			// delete unneded attributes
+			foreach ($fields_to_delete as $type) {
+				$this->_deleteAttribute($type);
+			}
+
+		}//end if version 0.3
+
 		return true;
 
 	}//end _upgrade()
@@ -238,62 +342,69 @@ class Listing_Engine_Management extends Asset_Management
 
 	function _hoardAttribute($attr_name, $from)
 	{
-		if (!$GLOBALS['SQ_SYSTEM']->am->installed($from)) return Array();
+		if (!$GLOBALS['SQ_SYSTEM']->am->installed($from)) {
+			return Array();
+		}
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$sql = 'SELECT * FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_attr WHERE name = '.$db->quote($attr_name).' AND owning_type_code = '.$db->quote($from);
+		$sql = 'SELECT * FROM sq_ast_attr WHERE name = '.$db->quote($attr_name).' AND owning_type_code = '.$db->quote($from);
 
 		$result = $db->getAll($sql);
 		assert_valid_db_result($result);
 
 		return $result;
 
-	}//end _transferAttribute()
+	}//end _hoardAttribute()
 
 
 	function _removeAttributes($attrs)
 	{
 		if (empty($attrs)) return true;
-
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$attrs_quoted = Array();
-		foreach($attrs as $attr => $detail) {
+		foreach ($attrs as $attr => $detail) {
 			$attrs_quoted[] = $db->quote($attr);
 		}
 
-		$sql = 'DELETE FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_attr WHERE attrid IN ('.implode(', ', $attrs_quoted).')';
+		$sql = 'DELETE FROM sq_ast_attr WHERE attrid IN ('.implode(', ', $attrs_quoted).')';
 
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
 
 		return true;
 
-	}//end _transferAttribute()
+	}//end _removeAttributes()
 
 
 	function _restoreAttributes($attrs)
 	{
 		if (empty($attrs)) return true;
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		foreach($attrs as $attrid => $attr) {
-			$sql = 'INSERT INTO '.SQ_TABLE_RUNNING_PREFIX.'ast_attr ('.implode(',', array_keys($attr)).') VALUES (';
-
+		foreach ($attrs as $attrid => $attr) {
 			$fields_quoted = Array();
-			foreach($attr as $field_name => $field) {
+			$keys_quoted = Array();
+
+			foreach ($attr as $field_name => $field) {
+				$keys[$field_name] = $field_name;
+
 				if (in_array($field_name, Array('owning_type_code', 'default_type_code', 'parameters_type_code'))) {
-					$fields_quoted[$field_name] = $db->quote($this->getAssetType());
+					$fields_quoted[$field_name] = $db->quoteSmart($this->getAssetType());
 				} else if (in_array($field_name, Array('parameters', 'default', 'type'))) {
-					$fields_quoted[$field_name] = $db->quote($this->vars[$attr['name']][$field_name]);
+					$fields_quoted[$field_name] = $db->quoteSmart($this->vars[$attr['name']][$field_name]);
 				} else {
-					$fields_quoted[$field_name] = $db->quote($field);
+					$fields_quoted[$field_name] = $db->quoteSmart($field);
 				}
 			}
 
-			$sql .= implode(', ', $fields_quoted).')';
+			$keys   = implode(',', $keys);
+			$fields_quoted = implode(',', $fields_quoted);
+
+			$sql = 'INSERT INTO sq_ast_attr ('.$keys.') VALUES ('.$fields_quoted.')';
+
 			$result = $db->query($sql);
 			assert_valid_db_result($result);
 
@@ -310,7 +421,8 @@ class Listing_Engine_Management extends Asset_Management
 
 		return true;
 
-	}//end _transferAttribute()
+	}//end _restoreAttributes()
+
 
 }//end class
 

@@ -18,24 +18,46 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_sorting.xml,v 1.2 2005/03/30 00:41:12 lwright Exp $
+* $Id: edit_interface_screen_sorting.xml,v 1.3 2005/04/28 04:59:09 arailean Exp $
 *
 */
 -->
 
 <contents>
-	<section name="Sorting" write_access="write:attributes">
+	<section name="Sort Defaults" write_access="write:attributes">
+		<field>
+			<function_call>
+				<paint_function name="paintDefaultSortDirection" />
+				<process_function name="processDefaultSortDirection" />
+			</function_call>
+		</field>
+		<field>
+			<function_call>
+				<paint_function name="paintDefaultSortByOption" />
+				<process_function name="processDefaultSortByOption" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Asset Sorting Options" write_access="write:attributes">
 		<field>
 			<function_call>
 				<paint_function name="paintSortBy" />
 				<process_function name="processSortBy" />
 			</function_call>
 		</field>
-		<field attribute="reverse_sort">
-			<boolean true_text="Yes" false_text="No" />
+		<field>
+			<function_call>
+				<paint_function name="paintOrderSortOptions" />
+				<process_function name="processOrderSortOptions" />
+			</function_call>
 		</field>
-		<field attribute="num_per_page">
-			<int width="5" />
+	</section>
+	<section name="Sort Direction Text" write_access="write:attributes">
+		<field write_access="write:attributes" attribute="sort_direction_asc_text">
+			<text width="15" />
+		</field>
+		<field write_access="write:attributes" attribute="sort_direction_desc_text">
+			<text width="15" />
 		</field>
 	</section>
 </contents>
