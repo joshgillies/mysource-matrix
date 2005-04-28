@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.1 2005/03/30 00:42:12 lwright Exp $
+* $Id: lang_screen_details.xml,v 1.2 2005/04/28 05:01:40 arailean Exp $
 *
 */
 -->
@@ -52,6 +52,10 @@
 		</field>
 	</section>
 	<section name="Display Options">
+		<field attribute="num_per_page">
+			<display_name>Assets Per Page</display_name>
+			<note>Set to '0' (zero) to list all assets on the same page.</note>
+		</field>
 		<field>
 			<display_name>Search Forms</display_name>
 			<note>Search forms that require customising for the search page</note>
