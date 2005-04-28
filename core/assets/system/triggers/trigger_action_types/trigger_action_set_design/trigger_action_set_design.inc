@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_design.inc,v 1.7 2005/04/20 04:20:36 gsherwood Exp $
+* $Id: trigger_action_set_design.inc,v 1.8 2005/04/28 05:22:07 rhoward Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -210,6 +210,24 @@ class Trigger_Action_Set_Design extends Trigger_Action
 		return false;
 
 	}//end processInterface()
+
+
+	/**
+	* Get the list of locks that the action needs to acquire before executing
+	*
+	* @access public
+	* @return array
+	*/
+	function getLocks($settings, &$state)
+	{
+		return Array(
+				$state['assetid']	=> Array(
+										'links',
+										'lookups',
+									   ),
+			   );
+
+	}//end getLocks()
 
 
 }//end class

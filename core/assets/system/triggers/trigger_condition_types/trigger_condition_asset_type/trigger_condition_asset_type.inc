@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_asset_type.inc,v 1.7 2005/04/14 04:58:12 rhoward Exp $
+* $Id: trigger_condition_asset_type.inc,v 1.8 2005/04/28 05:22:07 rhoward Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -126,8 +126,6 @@ class Trigger_Condition_Asset_Type extends Trigger_Condition
 
 	/**
 	* Function that handles the conversion of interface to settings
-	* together with settings it is expected to populate the hash object
-	* Consult the hash object to see the list of setter functions
 	*
 	* @param array			$settings		a container for any data the condition might want to save
 	* @param object Hash	$hash			hash object that takes data that helps to speed up trigger firing
@@ -137,7 +135,7 @@ class Trigger_Condition_Asset_Type extends Trigger_Condition
 	* @access public
 	* @return false|string
 	*/
-	function processInterface(&$settings, &$hash, $request_data)
+	function processInterface(&$settings, $request_data)
 	{
 		if (empty($request_data)) {
 			return 'There was an error with input data';
@@ -153,11 +151,30 @@ class Trigger_Condition_Asset_Type extends Trigger_Condition
 
 		$settings['asset_type'] = $asset_type;
 		$settings['descendants'] = $descendants;
-		$hash->setAssetType($asset_type, ($descendants == '1' ? true : false));
 
 		return false;
 
 	}//end processInterface()
+
+
+	/**
+	* Sets the hash using the settings from the condition
+	* Consult the hash object to see the list of setter functions
+	*
+	* @param Array          $settings       a container for any data the condition might want to save
+	* @param object Hash    $hash           hash object that takes data that helps to speed up trigger firing
+	*
+	* @access public
+	* @return string|false
+	*/
+	function setHash(&$settings, &$hash)
+	{
+		if (isset($settings['asset_type']) && isset($settings['descendants'])) {
+			$hash->setAssetType($settings['asset_type'], ($settings['descendants'] == '1' ? true : false));
+		}
+		return false;
+
+	}//end setHash()
 
 
 }//end class

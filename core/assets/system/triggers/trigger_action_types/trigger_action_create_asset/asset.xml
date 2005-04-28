@@ -20,7 +20,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.1 2005/04/20 04:23:18 gsherwood Exp $
+* $Id: asset.xml,v 1.2 2005/04/28 05:22:06 rhoward Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -37,7 +37,7 @@
 	<requirements>
 		<requirement type="asset">
 			<code>trigger_manager</code>
-			<version>0.1</version>
+			<version>0.4</version>
 		</requirement>
 		<requirement type="asset">
 			<code>trigger_action</code>

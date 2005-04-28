@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager_management.inc,v 1.2 2005/04/14 04:58:12 rhoward Exp $
+* $Id: trigger_manager_management.inc,v 1.3 2005/04/28 05:22:07 rhoward Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author	Andrei Railean <arailean@squiz.net>
 * @author	Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -47,15 +47,17 @@ class Trigger_Manager_Management extends Asset_Management
 	{
 		$this->Asset_Management($pm);
 
-		$this->vars['enabled'] = Array(
-									'added'			=> '0.1',
-									'type'			=> 'boolean',
-									'default'		=> false,
-									'parameters'	=> Array(
-														'allow_empty'	=> false,
-													   ),
-									'description'	=> 'A flag which enables or disables the execution of trigger events',
-								 );
+		$this->vars = Array(
+						'enabled'	=> Array(
+										'added'			=> '0.1',
+										'type'			=> 'boolean',
+										'default'		=> false,
+										'parameters'	=> Array(
+															'allow_empty'	=> false,
+														   ),
+										'description'	=> 'A flag which enables or disables the execution of trigger events',
+									   ),
+					  );
 
 	}//end constructor
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager_edit_fns.inc,v 1.17 2005/04/15 05:33:50 gsherwood Exp $
+* $Id: trigger_manager_edit_fns.inc,v 1.18 2005/04/28 05:22:07 rhoward Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard  <rhoward@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -75,7 +75,7 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 	{
 		$write_access = $tm->writeAccess('attributes');
 
-		$o->openField("");
+		$o->openField('');
 
 		$screen = 'list';
 
@@ -124,7 +124,7 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 		$trigger = $tm->_loadTrigger($trigger_id);
 		if (empty($trigger)) {
 			// paint error message
-			trigger_localised_error("CORE0136", E_USER_WARNING);
+			trigger_localised_error('CORE0136', E_USER_WARNING);
 			return false;
 		}
 
@@ -323,9 +323,9 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 				echo 'Active?';
 			} else {
 				if (SQ_TRIG_STATUS_ACTIVE == $active_status) {
-					echo "Active";
+					echo 'Active';
 				} else {
-					echo "Inactive";
+					echo 'Inactive';
 				}
 			}
 		$o->closeField();
@@ -380,14 +380,14 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 
 			if ($write_access) {
 				check_box($event_prefix.'[]', $e_type, $checked);
-				echo $e_name."<br />";
+				echo $e_name.'<br />';
 			} else {
-				if ($checked) echo $e_name."<br />";
+				if ($checked) echo $e_name.'<br />';
 			}
 		}
 
 		if (!$write_access && !$events_selected) {
-			echo "<strong>No Events Were Selected</strong>";
+			echo '<strong>No Events Were Selected</strong>';
 		}
 
 
@@ -440,13 +440,19 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 							<?php echo $type_name; ?>
 						</div>
 						<div class="sq-backend-triggers-component-controls">
-						<?php  if ($write_access) { ?>
+						<?php
+						if ($write_access) {
+						?>
 							<input type="checkbox" name="<?php echo $delete_prefix; ?>" >
 							Delete
 								&nbsp;&nbsp;&nbsp;&nbsp;
 							<a href="#" onclick="moveUp(this.parentNode.parentNode.parentNode); conditionOrdererObject.moveUp(<?php echo $i; ?>); return false;"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/up_arrow.png' ?>", "16", "16", "Move Up");</script></a>
 							<a href="#" onclick="moveDown(this.parentNode.parentNode.parentNode); conditionOrdererObject.moveDown(<?php echo $i; ?>); return false;"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/down_arrow.png' ?>", "16", "16", "Move Down");</script></a>
-						<?php  } else { echo "&nbsp;"; }?>
+						<?php
+						} else {
+							echo '&nbsp;';
+						}
+						?>
 						</div>
 					</div>
 					<div class="sq-backend-triggers-component-body">
@@ -485,7 +491,7 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 			<?php
 			} else {
 
-				if ($i < 0) echo "No Conditions Specified";
+				if ($i < 0) echo 'No Conditions Specified';
 
 			}
 			?>
@@ -539,7 +545,7 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 								<a href="#" onclick="moveDown(this.parentNode.parentNode.parentNode); actionOrdererObject.moveDown(<?php echo $i; ?>); return false;"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/down_arrow.png' ?>", "16", "16", "Move Down");</script></a>
 								<?php
 							} else {
-								echo "&nbsp;";
+								echo '&nbsp;';
 							}
 							?>
 						</div>
@@ -553,10 +559,10 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 						}
 
 						check_box($ignore_permissions_prefix, 1, $ignore_permissions, null, $extras);
-						echo "Ignore Permissions";
+						echo 'Ignore Permissions';
 
 						check_box($not_required_prefix, 1, $not_required, null, $extras);
-						echo "NOT required";
+						echo 'NOT required';
 						?>
 					</div>
 					<div class="sq-backend-triggers-component-body">
@@ -586,7 +592,7 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 				<?php
 			} else {
 
-				if ($i < 0) echo "No Actions Specified";
+				if ($i < 0) echo 'No Actions Specified';
 
 			}
 			?>
@@ -600,7 +606,7 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 			$o->openSection('Other');
 			$o->openField('');
 				check_box($prefix.'[finish]');
-				echo "Finish Editing (save and display the trigger list)";
+				echo 'Finish Editing (save and display the trigger list)';
 			$o->closeSection();
 		}
 
@@ -732,7 +738,6 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 
 		if (!$write_access) return false;
 
-		$hash = $tm->_getHashObject();
 		$edit_info = array_get_index($edit_data, 'info');
 
 		// setup basic trigger info
@@ -745,14 +750,13 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 		$processed_events = Array();
 		foreach ($raw_events as $one_event_type) {
 			$processed_events[$one_event_type] = $one_event_type;
-			$hash->setEvent($one_event_type);
 		}
 
 		// conditions
 		$raw_conditions = array_get_index($edit_data, 'conditions');
 		$condition_order = array_get_index($edit_data, 'condition_order');
 		if (!empty($condition_order)) {
-			$order_array = explode(",", $condition_order);
+			$order_array = explode(',', $condition_order);
 			foreach ($order_array as $position) {
 				$new_raw_conditions[] = $raw_conditions[$position];
 			}
@@ -765,13 +769,13 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 
 			$raw_conditions[] = $new_condition;
 		}
-		$processed_conditions = $this->_processRawConditionSet($tm, $raw_conditions, $hash);
+		$processed_conditions = $this->_processRawConditionSet($tm, $raw_conditions);
 
 		// actions
 		$raw_actions = array_get_index($edit_data, 'actions');
 		$action_order = array_get_index($edit_data, 'action_order');
 		if (!empty($action_order)) {
-			$order_array = explode(",", $action_order);
+			$order_array = explode(',', $action_order);
 			foreach ($order_array as $position) {
 				$new_raw_actions[] = $raw_actions[$position];
 			}
@@ -794,7 +798,6 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 		$trigger['data']['events']     = $processed_events;
 		$trigger['data']['conditions'] = $processed_conditions;
 		$trigger['data']['actions']    = $processed_actions;
-		$trigger['state_hash']         = &$hash;
 
 		$tm->_saveTrigger($trigger);
 
@@ -814,7 +817,8 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 	*
 	* @access private
 	*/
-	function _processRawConditionSet(&$tm, $raw_components, &$hash)
+	//function _processRawConditionSet(&$tm, $raw_components, &$hash)
+	function _processRawConditionSet(&$tm, $raw_components)
 	{
 		$processed_components = Array();
 
@@ -836,7 +840,8 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 
 			$data = array_get_index($component, 'data', Array());
 			if (!array_get_index($component, 'new', false)) {
-				eval('$error = '.$type.'::processInterface($settings, $hash, $data);');
+				//eval('$error = '.$type.'::processInterface($settings, $hash, $data);');
+				eval('$error = '.$type.'::processInterface($settings, $data);');
 			}
 
 			if (false !== $error) {
@@ -901,7 +906,7 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 									  );
 
 			if (false !== $error) {
-				trigger_localised_error("CORE0130", E_USER_NOTICE, $i, $type, $error);
+				trigger_localised_error('CORE0130', E_USER_NOTICE, $i, $type, $error);
 			}
 			$i++;
 		}
@@ -929,14 +934,14 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 
 		if ($write_access) {
 			$o->openSection('Add New Trigger');
-			$o->openField("New Trigger Name: ");
+			$o->openField('New Trigger Name: ');
 			text_box($prefix.'[add_name]', '');
-			echo "<br />To add a new trigger, enter the name in this box and submit the form";
+			echo '<br />To add a new trigger, enter the name in this box and submit the form';
 			$o->closeSection();
 		}
 
 		$o->openSection('Trigger List');
-		$o->openField("");
+		$o->openField('');
 		?>
 		<script type="text/javascript">
 			//<![CDATA[
@@ -996,7 +1001,7 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 		<?php
 
 		$o->closeSection();
-		$o->addOnsubmit("return confirmDelete();");
+		$o->addOnsubmit('return confirmDelete();');
 
 		return true;
 
@@ -1022,7 +1027,7 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 
 			$o->openField('Children');
 			check_box($prefix.'[include_children]', 'yes', array_get_index($this->_tmp, 'include_children', true));
-			echo "Include Children?";
+			echo 'Include Children?';
 
 			$o->openField('Events');
 			$event_type_list = $tm->_getEventList();
@@ -1037,7 +1042,7 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 				}
 				check_box($event_prefix.'['.$e_type.']', $e_type, $checked);
 				echo $e_name;
-				echo "<br />";
+				echo '<br />';
 			}
 			return true;
 		} else {
@@ -1074,12 +1079,12 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 		$this->_tmp['include_children'] = $propagate;
 
 		if (empty($target_id)) {
-			trigger_localised_error("CORE0132", E_USER_WARNING);
+			trigger_localised_error('CORE0132', E_USER_WARNING);
 			$error = true;
 		}
 
 		if (empty($events)) {
-			trigger_localised_error("CORE0126", E_USER_WARNING);
+			trigger_localised_error('CORE0126', E_USER_WARNING);
 			$error = true;
 		}
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_tree_location.inc,v 1.8 2005/04/20 04:15:13 gsherwood Exp $
+* $Id: trigger_condition_tree_location.inc,v 1.9 2005/04/28 05:22:07 rhoward Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -161,7 +161,7 @@ class Trigger_Condition_Tree_Location extends Trigger_Condition
 		if ($write_access) {
 			asset_finder($prefix.'[assetid]', $selected_assetid);
 			check_box($prefix.'[immed_child]', '1', $immed_child);
-			echo "Immediate child only";
+			echo 'Immediate child only';
 		} else {
 			$tree_asset = null;
 			if ($selected_assetid > 0) {
@@ -184,17 +184,14 @@ class Trigger_Condition_Tree_Location extends Trigger_Condition
 
 	/**
 	* Function that handles the conversion of interface to settings
-	* together with settings it is expected to populate the hash object
-	* Consult the hash object to see the list of setter functions
 	*
 	* @param Array          $settings       a container for any data the condition might want to save
-	* @param object Hash    $hash           hash object that takes data that helps to speed up trigger firing
 	* @param array          $request_data   array of data corresponding to this condition as specified by the $prefix in the getInterface.
 	*
 	* @access public
 	* @return false|string
 	*/
-	function processInterface(&$settings, &$hash, $request_data)
+	function processInterface(&$settings, $request_data)
 	{
 		if (empty($request_data) || empty($request_data['assetid']['assetid'])) {
 			return 'No tree location selected';
@@ -204,10 +201,10 @@ class Trigger_Condition_Tree_Location extends Trigger_Condition
 
 		if (empty($request_data['immed_child'])) {
 			$immed_child = '0';
-			$propagate = SQ_TRIG_TREE_PROPAGATE;
+			$settings['propagate'] = SQ_TRIG_TREE_PROPAGATE;
 		} else {
 			$immed_child = '1';
-			$propagate = SQ_TRIG_TREE_NO_PROPAGATE;
+			$settings['propagate'] = SQ_TRIG_TREE_NO_PROPAGATE;
 		}
 
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
@@ -222,12 +219,31 @@ class Trigger_Condition_Tree_Location extends Trigger_Condition
 		$settings['assetid']     = $assetid;
 		$settings['immed_child'] = $immed_child;
 
-		// only use the raw tree value in the hash
-		$hash->setLinkTree($treeid, $propagate);
-
 		return false;
 
 	}//end processInterface()
+
+
+	/**
+	* Sets the hash using the settings from the condition
+	* Consult the hash object to see the list of setter functions
+	*
+	* @param Array          $settings       a container for any data the condition might want to save
+	* @param object Hash    $hash           hash object that takes data that helps to speed up trigger firing
+	*
+	* @access public
+	* @return string|false
+	*/
+	function setHash(&$settings, &$hash)
+	{
+		if (isset($settings['assetid']) && isset($settings['propagate'])) {
+			// only use the raw tree value in the hash, generate from assetid dynamically
+			$hash->setLinkTree($GLOBALS['SQ_SYSTEM']->am->getAssetTreeids($settings['assetid']), $settings['propagate']);
+		}
+
+		return false;
+
+	}//end setHash()
 
 
 	/**

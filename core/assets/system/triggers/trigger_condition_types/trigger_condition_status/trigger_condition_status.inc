@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_status.inc,v 1.4 2005/04/14 04:58:12 rhoward Exp $
+* $Id: trigger_condition_status.inc,v 1.5 2005/04/28 05:22:07 rhoward Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -114,7 +114,7 @@ class Trigger_Condition_Status extends Trigger_Condition
 		// capture anything printed
 		ob_start();
 
-		echo "Asset has the current status of:";
+		echo 'Asset has the current status of:';
 		combo_box($prefix.'[status]', $status_list, false, $selected_status, null, $form_element_extras);
 
 		return ob_get_clean();
@@ -124,17 +124,14 @@ class Trigger_Condition_Status extends Trigger_Condition
 
 	/**
 	* Function that handles the conversion of interface to settings
-	* together with settings it is expected to populate the hash object
-	* Consult the hash object to see the list of setter functions
 	*
 	* @param Array          $settings       a container for any data the condition might want to save
-	* @param object Hash    $hash           hash object that takes data that helps to speed up trigger firing
 	* @param array          $request_data   array of data corresponding to this condition as specified by the $prefix in the getInterface.
 	*
 	* @access public
 	* @return false|string
 	*/
-	function processInterface(&$settings, &$hash, $request_data)
+	function processInterface(&$settings, $request_data)
 	{
 		$status = array_get_index($request_data, 'status', false);
 		if (!$status) return 'No status selected';

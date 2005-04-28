@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_link_exists.inc,v 1.7 2005/04/15 00:37:26 lwright Exp $
+* $Id: trigger_condition_link_exists.inc,v 1.8 2005/04/28 05:22:07 rhoward Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -171,15 +171,15 @@ class Trigger_Condition_Link_Exists extends Trigger_Condition
 		$link_type_list = array_merge($link_type_list, get_link_type_names());
 
 		$dependant_options = Array(
-								''	=> "--- Any ---",
-								'1'	=> "Yes",
-								'0'	=> "No",
+								''	=> '--- Any ---',
+								'1'	=> 'Yes',
+								'0'	=> 'No',
 							 );
 
 		$exclusive_options = Array(
-								''	=> "--- Any ---",
-								'1'	=> "Yes",
-								'0'	=> "No",
+								''	=> '--- Any ---',
+								'1'	=> 'Yes',
+								'0'	=> 'No',
 							 );
 
 		if (!$write_access) {
@@ -198,7 +198,7 @@ class Trigger_Condition_Link_Exists extends Trigger_Condition
 			<li>
 				<?php
 				radio_button($prefix.'[selector_type]', 'asset_type', $selector_type == 'asset_type', null, $form_element_extras);
-				echo "of type";
+				echo 'of type';
 
 				if ($write_access) {
 					asset_type_chooser($prefix.'[asset_type]', false, $asset_type);
@@ -251,51 +251,38 @@ class Trigger_Condition_Link_Exists extends Trigger_Condition
 
 	/**
 	* Function that handles the conversion of interface to settings
-	* together with settings it is expected to populate the hash object
-	* Consult the hash object to see the list of setter functions
 	*
 	* @param Array          $settings       a container for any data the condition might want to save
-	* @param object Hash    $hash           hash object that takes data that helps to speed up trigger firing
 	* @param array          $request_data   array of data corresponding to this condition as specified by the $prefix in the getInterface.
 	*
 	* @access public
 	* @return boolean
 	*/
-	function processInterface(&$settings, &$hash, $request_data)
+	function processInterface(&$settings, $request_data)
 	{
 		$settings['is_major']       = !empty($request_data['is_major']);
 
 		$settings['selector_type'] = array_get_index($request_data, 'selector_type');
 		switch ($settings['selector_type']) {
 			case 'asset_type':
-
 				$settings['asset_type'] = array_get_index($request_data, 'asset_type');
 				if (is_null($settings['asset_type'])) {
 
-					return "Invalid asset type selected. This condition will always fail.";
+					return 'Invalid asset type selected. This condition will always fail.';
 				}
-
-				// dump the settings into the hash
-				$hash->setLinkedType($settings['asset_type'], $settings['is_major']);
-
 			break;
 
 			case 'asset_id':
-
 				$id_selector          = array_get_index($request_data, 'asset_id');
 				$settings['asset_id'] = array_get_index($id_selector, 'assetid');
 
 				if (empty($settings['asset_id'])) {
-					return "Asset id is not specified.";
+					return 'Asset id is not specified.';
 				}
-
-				// dump the settings into the hash
-				$hash->setLinkedID($settings['asset_id'], $settings['is_major']);
-
 			break;
 
 			default:
-				return "You have to choose the appropriate asset ID or asset type selector";
+				return 'You have to choose the appropriate asset ID or asset type selector';
 		}
 
 		$link_type                  = array_get_index($request_data, 'link_type');
@@ -314,6 +301,39 @@ class Trigger_Condition_Link_Exists extends Trigger_Condition
 		return false;
 
 	}//end processInterface()
+
+
+	/**
+	* Sets the hash using the settings from the condition
+	* Consult the hash object to see the list of setter functions
+	*
+	* @param Array          $settings       a container for any data the condition might want to save
+	* @param object Hash    $hash           hash object that takes data that helps to speed up trigger firing
+	*
+	* @access public
+	* @return string|false
+	*/
+	function setHash(&$settings, &$hash)
+	{
+		if (isset($settings['selector_type']) && isset($settings['is_major'])) {
+			switch ($settings['selector_type']) {
+				case 'asset_type':
+					if (isset($settings['asset_type'])) {
+						$hash->setLinkedType($settings['asset_type'], $settings['is_major']);
+					}
+				break;
+
+				case 'asset_id':
+					if (isset($settings['asset_id'])) {
+						$hash->setLinkedID($settings['asset_id'], $settings['is_major']);
+					}
+				break;
+			}
+		}
+
+		return false;
+
+	}//end setHash()
 
 
 	/**

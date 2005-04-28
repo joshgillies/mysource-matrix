@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager.inc,v 1.17 2005/04/27 00:14:43 lwright Exp $
+* $Id: trigger_manager.inc,v 1.18 2005/04/28 05:22:07 rhoward Exp $
 *
 */
 
@@ -40,7 +40,7 @@ define('SQ_TRIG_RESULT_FAILURE',  0);
 define('SQ_TRIG_TABLE_MAIN', 'trig');
 define('SQ_TRIG_TABLE_HASH', 'trig_hash');
 
-
+require_once SQ_INCLUDE_PATH.'/asset.inc';
 require_once 'hash.inc';
 
 /**
@@ -51,7 +51,7 @@ require_once 'hash.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -228,7 +228,6 @@ class Trigger_Manager extends Asset
 			// re-create a trigger
 			$trigger = $this->_loadTrigger($trigger_id);
 			$status  = $this->_executeTrigger($trigger['data'], $state);
-
 			$msg_reps = Array(
 							'trigger_name'	=> $trigger['name'],
 							'triggerid'		=> $trigger['id'],
@@ -236,9 +235,10 @@ class Trigger_Manager extends Asset
 							'asset_name'	=> $broadcaster->name,
 							'assetid'		=> $broadcaster->id,
 						);
+
 			switch ($status) {
 				case SQ_TRIG_RESULT_FAILURE:
-					trigger_localised_error("CORE0127", E_USER_WARNING, $trigger_info_line);
+					trigger_localised_error('CORE0127', E_USER_WARNING, $trigger['id'], $trigger['name'], $event_name, $broadcaster->id, $broadcaster->name);
 				break;
 
 				case SQ_TRIG_RESULT_SUCCESS:
@@ -252,14 +252,18 @@ class Trigger_Manager extends Asset
 				default:
 			}
 
-			if (!empty($status_message)) {
+			if (!empty($msg_type)) {
 				// log message using messaging service
 				$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-				
+
 				$message = $ms->newMessage(Array(), $msg_type, $msg_reps);
 				$message->send();
 			}
+
 		}
+
+		// clear out the record of running triggers
+		$this->_tmp['running_triggers'] = Array();
 
 		return true;
 
@@ -320,7 +324,11 @@ class Trigger_Manager extends Asset
 		// uses type 1,2 and 3 only
 		$tmp_treeid = $am->getAssetTreeids($state['assetid']);
 
-		if ($tmp_treeid) $state['treeid'] = $tmp_treeid;
+		if ($tmp_treeid) {
+			$state['treeid'] = $tmp_treeid;
+		} else {
+			$state['treeid'] = Array();
+		}
 
 		return $state;
 
@@ -367,7 +375,7 @@ class Trigger_Manager extends Asset
 		$NO_PROPAGATE   = $db->quoteSmart(SQ_TRIG_TREE_NO_PROPAGATE);
 
 		// compose the link_tree SQL block
-		$treeid_sql_array[] = "treeid IS NULL";
+		$treeid_sql_array[] = 'treeid IS NULL';
 		if (empty($state_hash['treeid'])) {
 			$state_hash['treeid'] = Array();
 		}
@@ -389,7 +397,7 @@ class Trigger_Manager extends Asset
 						)';
 
 		}
-		$treeid_sql = implode($treeid_sql_array, " OR ");
+		$treeid_sql = implode($treeid_sql_array, ' OR ');
 
 
 		//// PARENTS
@@ -566,7 +574,7 @@ class Trigger_Manager extends Asset
 				}
 
 				if (!$lock_success) {
-					if (!$not_required) {
+					if ($not_required) {
 						continue; // next action, please
 					} else {
 						$status = SQ_TRIG_RESULT_FAILURE;
@@ -579,12 +587,12 @@ class Trigger_Manager extends Asset
 			}
 
 			if ($action_success === false) {
-				if (!$not_required) {
-					trigger_localised_error("CORE0134", E_USER_NOTICE, $action['type']);
+				if ($not_required) {
+					trigger_localised_error('CORE0134', E_USER_NOTICE, $action['type']);
 					continue;
 				} else {
 					$status = SQ_TRIG_RESULT_FAILURE;
-					trigger_localised_error("CORE1035", E_USER_NOTICE, $action['type']);
+					trigger_localised_error('CORE1035', E_USER_NOTICE, $action['type']);
 					break;
 				}
 			}
@@ -740,10 +748,31 @@ class Trigger_Manager extends Asset
 		// the edit interface can set the optional 'save_hash' index to false, which will cause
 		// the hash not to be saved for this trigger, for whatever reason
 		if ($status && array_get_index($trigger, 'save_hash', true) && $trigger['active']) {
-			$hash = array_get_index($trigger, 'state_hash');
 
-			if (empty($hash)) $hash = $this->_getHashObject();
+			$hash = $this->_getHashObject();
 			$hash->setTriggerId($trigger['id']);
+
+			// update the hash
+			if (isset($trigger['data'])) {
+				if (isset($trigger['data']['events'])) {
+					foreach ($trigger['data']['events'] as $event) {
+						$hash->setEvent($event);
+					}
+				}
+				if (isset($trigger['data']['conditions'])) {
+					foreach ($trigger['data']['conditions'] as $condition) {
+						if ($GLOBALS['SQ_SYSTEM']->am->installed(array_get_index($condition, 'type', ''))) {
+							if ($this->_loadComponent($condition['type'])) {
+								if (isset($condition['data'])) {
+									$settings = &$condition['data'];
+									eval($condition['type'].'::setHash($settings, $hash);');
+								}
+							}
+						}
+					}
+				}
+			}
+
 			$status = $status && $this->_saveTriggerHash($hash);
 		}
 
@@ -902,12 +931,151 @@ class Trigger_Manager extends Asset
 
 
 	/**
+	* Returns a list of all the triggers, including data
+	* See Trigger_Manager::getTrigger() for a complete description of the return format
+	*
+	* @see Trigger_Manager::getTrigger()
+	* @access public
+	* @return Array(string=>mixed)
+	*/
+	function &getTriggerList()
+	{
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$query = 'SELECT
+					id,
+					name,
+					data,
+					description,
+					active
+				FROM
+					'.SQ_TABLE_RUNNING_PREFIX.'trig';
+
+		$trigger_db = $db->getAll($query);
+		assert_valid_db_result($trigger_db);
+
+		if (empty($trigger_db)) {
+			foreach ($trigger_db as $trigger_data) {
+				$trigger_data['data'] = (isset($trigger_data['data']) && !empty($trigger_data['data'])) ? unserialize($trigger_data['data']) : '';
+			}
+		}
+
+		return $trigger_db;
+
+	}//end getTriggerList()
+
+
+	/**
+	* Returns a trigger with the passed ID
+	*
+	* <pre>
+	* Array(
+	*	'id'			=> integer,			// the triggerid
+	*	'name'			=> string,			// the name of the trigger
+	*	'description'	=> string,			// a description of the trigger
+	*	'active'		=> boolean,			// on/off switch for each trigger
+	*	'data'			=> Array(
+	*						'events'		=> Array(
+	*											'event_name'	=> 'event_name',
+	*										   ),
+	*						'conditions'	=> Array(
+	*											int	=> Array(
+	*													'type'	=> string							// the type_code of the condition
+	*													'data'	=> Array(mixed)						// condition-specific data
+	*												   ),
+	*										   ),
+	*						'actions'		=> Array(
+	*											int	=> Array(
+	*													'type'					=> string			// the type_code of the condition
+	*													'data'					=> Array(mixed)		// condition-specific data
+	*													'not_required'			=> boolean			// if true, if the action fails, the trigger will continue to run
+	*													'ignore_permissions'	=> boolean			// whether to run with elevated privileges
+	*												   ),
+	*										   ),
+	*					   ),
+	* )
+	* </pre>
+	*
+	* @param triggerid
+	*
+	* @access public
+	* @return null|Array(string=>mixed)
+	*/
+	function getTrigger($triggerid)
+	{
+		if (is_numeric($triggerid)) {
+			return $this->_loadTrigger($triggerid);
+		} else {
+			return null;
+		}
+
+	}//end getTrigger()
+
+
+	/**
+	* Creates a trigger from data passed, and returns the id of the new trigger
+	* See Trigger_Manager::getTrigger() for a complete description of $trigger,
+	* except that new triggers do not require $trigger['id']
+	*
+	* @param int|null	$triggerid		// the id of the trigger to use to create the hash, null for all
+	*
+	* @see Trigger_Manager::getTrigger()
+	* @access public
+	* @return false|integer
+	*/
+	function createTrigger(&$trigger)
+	{
+		// check the structure of trigger
+		// $s contains the status - if any part of $trigger fails the checking,
+		// $s will stop further checks from happening
+		$s  = true;
+		$am = &$GLOBALS['SQ_SYSTEM']->am;
+
+		// basic elements
+		$s = $s && isset($trigger['name']);
+		$s = $s && isset($trigger['description']);
+		$s = $s && isset($trigger['active']);
+		$s = $s && isset($trigger['data']);
+
+		// events
+		$s = $s && isset($trigger['data']['events']);
+
+		// conditions
+		$s = $s && isset($trigger['data']['conditions']);
+		if ($s && !empty($trigger['data']['conditions'])) {
+			foreach ($trigger['data']['conditions'] as $condition) {
+				$s = $s && isset($condition['type']) && $am->installed($condition['type']);
+				$s = $s && isset($condition['data']);
+			}
+		}
+
+		// actions
+		$s = $s && isset($trigger['data']['actions']);
+		if ($s && !empty($trigger['data']['actions'])) {
+			foreach ($trigger['data']['actions'] as $action) {
+				$s = $s && isset($action['type']) && $am->installed($action['type']);
+				$s = $s && isset($action['data']);
+				$s = $s && isset($action['not_required']);
+				$s = $s && isset($action['ignore_permissions']);
+			}
+		}
+
+		if ($s) {
+			return $this->_saveTrigger($trigger);
+		} else {
+			trigger_localised_error('CORE0217', E_USER_WARNING);
+			return false;
+		}
+
+	}//end createTrigger()
+
+
+	/**
 	* Load Trigger Data
 	*
 	* @param integer	$id	the ID of the trigger to load
 	*
 	* @access private
-	* @return array
+	* @return null|Array(string=>mixed)
 	*/
 	function _loadTrigger($trigger_id=null)
 	{
@@ -932,7 +1100,7 @@ class Trigger_Manager extends Asset
 
 		if (empty($trigger_db)) {
 			if (!$mute_errors) {
-				trigger_localised_error("CORE0133", E_USER_WARNING, $trigger_id);
+				trigger_localised_error('CORE0133', E_USER_WARNING, $trigger_id);
 			}
 
 			return null;

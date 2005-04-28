@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_asset_id.inc,v 1.4 2005/04/12 07:01:34 arailean Exp $
+* $Id: trigger_condition_asset_id.inc,v 1.5 2005/04/28 05:22:07 rhoward Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -123,17 +123,14 @@ class Trigger_Condition_Asset_ID extends Trigger_Condition
 
 	/**
 	* Function that handles the conversion of interface to settings
-	* together with settings it is expected to populate the hash object
-	* Consult the hash object to see the list of setter functions
 	*
 	* @param Array          $settings       a container for any data the condition might want to save
-	* @param object Hash    $hash           hash object that takes data that helps to speed up trigger firing
 	* @param array          $request_data   array of data corresponding to this condition as specified by the $prefix in the getInterface.
 	*
 	* @access public
 	* @return string|false
 	*/
-	function processInterface(&$settings, &$hash, $request_data)
+	function processInterface(&$settings, $request_data)
 	{
 		if (empty($request_data)) {
 			return 'There was an error with input data';
@@ -145,11 +142,30 @@ class Trigger_Condition_Asset_ID extends Trigger_Condition
 
 		$assetid = $request_data['assetid']['assetid'];
 		$settings['assetid'] = $assetid;
-		$hash->setAssetID($assetid);
 
 		return false;
 
 	}//end processInterface()
+
+
+	/**
+	* Sets the hash using the settings from the condition
+	* Consult the hash object to see the list of setter functions
+	*
+	* @param Array          $settings       a container for any data the condition might want to save
+	* @param object Hash    $hash           hash object that takes data that helps to speed up trigger firing
+	*
+	* @access public
+	* @return string|false
+	*/
+	function setHash(&$settings, &$hash)
+	{
+		if (isset($settings['assetid'])) {
+			$hash->setAssetID($settings['assetid']);
+		}
+		return false;
+
+	}//end setHash()
 
 
 }//end class

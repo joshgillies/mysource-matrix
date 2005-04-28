@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_create_clone.inc,v 1.9 2005/04/20 04:20:36 gsherwood Exp $
+* $Id: trigger_action_create_clone.inc,v 1.10 2005/04/28 05:22:06 rhoward Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -259,6 +259,21 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 		return false;
 
 	}//end processInterface()
+
+
+	/**
+	* Get the list of locks that the action needs to acquire before executing
+	*
+	* @access public
+	* @return array
+	*/
+	function getLocks($settings, &$state)
+	{
+		return Array(
+				$state['assetid']	=> Array('all'),
+			   );
+
+	}//end getLocks()
 
 
 }//end class
