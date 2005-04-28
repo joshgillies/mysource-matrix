@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_searchbox.inc,v 1.17 2005/02/06 22:03:09 amiller Exp $
+* $Id: design_area_searchbox.inc,v 1.18 2005/04/28 05:02:26 arailean Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -66,8 +66,11 @@ class Design_Area_Searchbox extends Design_Area
 	function printArea(&$design)
 	{
 		$assetid = $this->attr('search_page_assetid');
-		if ($assetid <= 0) return true;
-		else return parent::printArea($design);
+		if ($assetid <= 0) {
+			return true;
+		} else {
+			return parent::printArea($design);
+		}
 
 	}//end printArea()
 
@@ -91,8 +94,10 @@ class Design_Area_Searchbox extends Design_Area
 		switch ($var) {
 
 			case 'form_start' :
-				echo '<'.'?php $asset = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset('.$asset->id.', "'.$asset->type().'"); ?'.'>'."\n";
-				echo '<form method="get" action="<'.'?php echo $asset->getURL(); ?'.'>">';
+				echo '
+					<?php $asset = &$GLOBALS["SQ_SYSTEM"]->am->getAsset('.$asset->id.'); ?>
+					<form method="get" action="<?php echo $asset->getURL(); ?>">
+				';
 			break;
 
 			case 'form_end' :
@@ -100,29 +105,48 @@ class Design_Area_Searchbox extends Design_Area
 			break;
 
 			case 'box' :
-				echo '<input type="hidden" name="mode" value="results" />
-				<'.'?php
-				$default_value = \''.$this->attr('default_text').'\';
-				$hide_default = true;
-				if (isset($_REQUEST[\'queries_'. $this->attr('field_name'). '_query\'])) {
-					$default_value = $_REQUEST[\'queries_'. $this->attr('field_name'). '_query\'];
-					$hide_default = false;
-				}
-				$class = \''.((isset($args['class'])) ? $args['class'] : '').'\';
 
-				require_once SQ_LIB_PATH.\'/html_form/html_form.inc\';
-				text_box(\'queries_'. $this->attr('field_name').'_query\', $default_value, \''.$this->attr('querybox_width').'\', \'\', $hide_default, (empty($class)) ? \'\' : \'class="\'.$class.\'"\');
-				?'.'>
+				$class = isset($args['class'])?'class="'.$args['class'].'"' :'';
+
+				echo '
+				<input type="hidden" name="mode" value="results" />
+				<?php
+					$asset = &$GLOBALS["SQ_SYSTEM"]->am->getAsset('.$asset->id.');
+
+					$field_name = "'.$this->attr('field_name').'";
+					$box_width  = '.$this->attr('querybox_width').';
+
+					$form_field_name = "queries_".$field_name."_query";
+					$field_value     = $asset->getQueryFieldValue($field_name);
+
+					if (empty($field_value)) {
+						$field_value = "'.$this->attr('default_text').'";
+						$hide_default = true;
+					} else {
+						$hide_default = false;
+					}
+
+					require_once SQ_LIB_PATH."/html_form/html_form.inc";
+					text_box($form_field_name, $field_value, $box_width, "", $hide_default, "'.$class.'");
+				?>
 				';
+			break;
+
+			case 'category_list' :
+				echo '
+				<?php
+					$asset = &$GLOBALS["SQ_SYSTEM"]->am->getAsset('.$asset->id.');
+					echo $asset->getGeneralReplacement("category_list");
+				?>';
 			break;
 
 			case 'submit' :
 				if ($this->attr('submit_button')) {
-					echo '<input type="submit" value ="' . 'go' . '"';
-					if (isset($args['class'])) {
-						echo ' class="'. $args['class'] . '"';
-					}
-					echo ' />';
+					$class = isset($args['class'])?'class="'.$args['class'].'"' :'';
+
+					$button_value = $this->attr('submit_button_text');
+					echo '<input type="submit" value ="'.$button_value.'"'.$class.' />';
+
 				} else {
 					$submit_image_assetid = $this->attr('submit_image_assetid');
 					if ($submit_image_assetid > 0) {

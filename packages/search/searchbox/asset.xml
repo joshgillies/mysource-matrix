@@ -20,7 +20,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.5 2005/01/20 13:22:57 brobertson Exp $
+* $Id: asset.xml,v 1.6 2005/04/28 05:02:26 arailean Exp $
 *
 */
 -->
@@ -28,7 +28,7 @@
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../asset.xsd">
 	<package>search</package>
 	<type_code>design_area_searchbox</type_code>
-	<version>0.1</version>
+	<version>0.2</version>
 	<name>Searchbox design area</name>
 	<description>Input textbox to be used in designs for searching.</description>
 	<instantiable>yes</instantiable>

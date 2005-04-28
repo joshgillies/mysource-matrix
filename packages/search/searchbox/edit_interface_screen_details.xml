@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.9 2005/03/30 00:42:12 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.10 2005/04/28 05:02:26 arailean Exp $
 *
 */
 -->
@@ -52,6 +52,9 @@
 		</field>
 	</section>
 	<section name="Search Button Configuration">
+		<field write_access="write:attributes" attribute="submit_button_text">
+			<text width="25" height="1" />
+		</field>
 		<field write_access="write:attributes" attribute="submit_button">
 			<boolean />
 		</field>
