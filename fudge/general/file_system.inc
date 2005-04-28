@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_system.inc,v 1.31 2005/04/05 02:31:16 arailean Exp $
+* $Id: file_system.inc,v 1.32 2005/04/28 00:51:28 ndvries Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *     Generic functions for the file system
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package Fudge
 * @subpackage General
 */
@@ -210,7 +210,7 @@ function list_files($dir, $fullpath=false)
 		while (($file = readdir($handle)) !== false) {
 			if ($file == '.' || $file == '..') continue;
 			if (is_file($dir.'/'.$file)) {
-				if ($restrict && (preg_match('%$restrict%', '$file'))) {
+				if ($restrict && (preg_match("%$restrict%", $file))) {
 					$files[] = ($fullpath) ? $dir.'/'.$file : $file;
 				}
 				if (!$restrict) {
