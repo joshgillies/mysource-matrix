@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.4.6.2 2005/04/26 06:48:31 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.4.6.3 2005/04/28 06:47:40 lwright Exp $
 *
 */
 -->
@@ -71,7 +71,7 @@
 		<field attribute="extra">
 			<display_name>Extras</display_name>
 			<note></note>
-			text width="20" height="1" />
+			<text width="20" height="1" />
 		</field>
 	</section>
 	<section name="Complex Validation Rules" write_access="write:attributes">
