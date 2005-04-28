@@ -18,8 +18,7 @@
 #* | licence.                                                           |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: clean.sh,v 1.19 2005/04/27 03:25:24 lwright Exp $
-#* $Name: not supported by cvs2svn $
+#* $Id: clean.sh,v 1.20 2005/04/28 11:00:05 brobertson Exp $
 #*/
 
 # Creates a clean system by removing data and cache directories 
