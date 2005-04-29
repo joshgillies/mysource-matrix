@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.27 2005/04/28 04:59:09 arailean Exp $
+* $Id: listing_engine.inc,v 1.28 2005/04/29 00:28:18 arailean Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
 *
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -345,6 +345,11 @@ class Listing_Engine extends Page
 				$cache_key = (isset($_REQUEST['result_page'])) ? $_REQUEST['result_page'] : 'A';
 			break;
 		}
+
+		// cache key takes into account different sorting scenarios
+		$cache_key .= serialize($this->getSortInfo());
+		$cache_key .= (int)$this->isDescending();
+
 		return $cache_key;
 
 	}//end _getCacheKey()
