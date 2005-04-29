@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.51 2005/04/29 05:38:41 gsherwood Exp $
+* $Id: search_manager.inc,v 1.52 2005/04/29 06:46:33 arailean Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.51 $
+* @version $Revision: 1.52 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -616,7 +616,7 @@ class Search_Manager extends Asset
 			$search_cache_key .= implode(':', $search_info['search_types']);
 		}
 
-		if (isset($search_info['sort_by'])) {
+		if (!empty($search_info['sort_by'])) {
 			if ($search_info['sort_by']['type'] == 'field') {
 				$key = $search_info['sort_by']['params']['field'];
 				$group_by .= ', sort_by';
@@ -1228,7 +1228,7 @@ class Search_Manager extends Asset
 		// sorting by relevance by default
 		$sort_string = 'SUM(ai.score)';
 
-		if (isset($search_info['sort_by'])) {
+		if (!empty($search_info['sort_by'])) {
 			if ($search_info['sort_by']['type'] == 'field') {
 				$sort_by = $search_info['sort_by']['params']['field'];
 				$valid_sort_fields = Array('assetid', 'name', 'short_name', 'created', 'updated', 'published', 'type_code');
