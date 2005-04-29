@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager.inc,v 1.18 2005/04/28 05:22:07 rhoward Exp $
+* $Id: trigger_manager.inc,v 1.19 2005/04/29 02:02:59 rhoward Exp $
 *
 */
 
@@ -51,7 +51,7 @@ require_once 'hash.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -424,27 +424,41 @@ class Trigger_Manager extends Asset
 
 
 		//// CHILDREN
-		$child_id_array = Array();
-		$child_type_array = Array();
-
-		$children = $state_hash['children'];
-		foreach ($children as $id => $type) {
-			$child_id_array[]   = $db->quoteSmart($id);
-			$child_type_array[$type] = $db->quoteSmart($type);
-		}
-
-		// child IDs
-		$child_id_sql = 'childid IS NULL';
-		if (!empty($child_id_array)) {
-			$child_id_sql .= ' OR childid IN ('.implode(',', $child_id_array).')';
-		}
-
-		// child types
+		$child_id_sql   = 'childid IS NULL';
 		$child_type_sql = 'child_type IS NULL';
-		if (!empty($child_type_array)) {
-			$child_type_sql .= ' OR child_type IN ('.implode(',', $child_type_array).')';
-		}
 
+		if (!empty($state_hash['treeid'])) {
+			// children will always be the same, regardless which treeid is used, so just choose the first one off the top
+			$treeid        = reset($state_hash['treeid']);
+			$quoted_treeid = $db->quoteSmart($treeid);
+
+			// get all the immediate children
+			$child_fromwhere_sql = '
+				FROM
+					(sq_ast_lnk_tree t INNER JOIN sq_ast_lnk l ON t.linkid = l.linkid)
+					INNER JOIN sq_ast a ON l.minorid = a.assetid
+				WHERE
+					t.treeid LIKE '.$db->quoteSmart($treeid.'%').'
+					AND t.treeid > '.$quoted_treeid.'
+					AND LENGTH(t.treeid) <= LENGTH('.$quoted_treeid.') + 4
+			';
+
+			$child_id_sql .= '
+				OR childid IN
+				(
+				SELECT DISTINCT l.minorid
+				'.$child_fromwhere_sql.'
+				)
+			';
+
+			$child_type_sql .= '
+				OR child_type IN
+				(
+				SELECT DISTINCT a.type_code
+				'.$child_fromwhere_sql.'
+				)
+			';
+		}
 
 		// event
 		$event_sql = 'event IS NULL';
@@ -568,6 +582,7 @@ class Trigger_Manager extends Asset
 						if ($lock_success) {
 							$locks_held[$lock_assetid][$lock_type] = true;
 						} else {
+							// bail if we can't get all of the locks
 							break 2;
 						}
 					}
@@ -575,7 +590,8 @@ class Trigger_Manager extends Asset
 
 				if (!$lock_success) {
 					if ($not_required) {
-						continue; // next action, please
+						// next action, please
+						continue;
 					} else {
 						$status = SQ_TRIG_RESULT_FAILURE;
 						break;
@@ -592,7 +608,7 @@ class Trigger_Manager extends Asset
 					continue;
 				} else {
 					$status = SQ_TRIG_RESULT_FAILURE;
-					trigger_localised_error('CORE1035', E_USER_NOTICE, $action['type']);
+					trigger_localised_error('CORE0135', E_USER_NOTICE, $action['type']);
 					break;
 				}
 			}
