@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_management.inc,v 1.15 2005/04/28 04:59:09 arailean Exp $
+* $Id: listing_engine_management.inc,v 1.16 2005/04/29 11:38:04 brobertson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -229,6 +229,7 @@ class Listing_Engine_Management extends Asset_Management
 			$this->_restoreAttributes($attributes);
 
 			bam('LISTING ENGINE UPGRADE COMPLETE - FROM VERSION '.$current_version);
+
 		}
 
 		if (version_compare($current_version, '0.3', '<=')) {
@@ -246,10 +247,9 @@ class Listing_Engine_Management extends Asset_Management
 			foreach ($this->vars as $attr_name => $attr_info) {
 				if (in_array($attr_name, $search_page_fields)) {
 					$result = $this->_hoardAttribute($attr_name, 'search_page');
-				}
-
-				foreach ($result as $result_info) {
-					$hoarded_attributes[$result_info['attrid']] = $result_info;
+					foreach ($result as $result_info) {
+						$hoarded_attributes[$result_info['attrid']] = $result_info;
+					}
 				}
 			}
 
@@ -335,7 +335,7 @@ class Listing_Engine_Management extends Asset_Management
 
 		}//end if version 0.3
 
-		return true;
+		return parent::_upgrade($current_version);
 
 	}//end _upgrade()
 
@@ -389,7 +389,7 @@ class Listing_Engine_Management extends Asset_Management
 			$keys_quoted = Array();
 
 			foreach ($attr as $field_name => $field) {
-				$keys[$field_name] = $field_name;
+				$keys_quoted[$field_name] = $db->quoteIdentifier($field_name);
 
 				if (in_array($field_name, Array('owning_type_code', 'default_type_code', 'parameters_type_code'))) {
 					$fields_quoted[$field_name] = $db->quoteSmart($this->getAssetType());
@@ -400,23 +400,23 @@ class Listing_Engine_Management extends Asset_Management
 				}
 			}
 
-			$keys   = implode(',', $keys);
-			$fields_quoted = implode(',', $fields_quoted);
+			$keys   = implode(',', $keys_quoted);
+			$fields = implode(',', $fields_quoted);
 
-			$sql = 'INSERT INTO sq_ast_attr ('.$keys.') VALUES ('.$fields_quoted.')';
+			$sql = 'INSERT INTO sq_ast_attr ('.$keys.') VALUES ('.$fields.')';
 
 			$result = $db->query($sql);
 			assert_valid_db_result($result);
 
-			/*$sql = 'UPDATE '.SQ_TABLE_RUNNING_PREFIX.'ast_attr set
-			owning_type_code = '.$db->quote($this->getAssetType()).',
-			default_type_code = '.$db->quote($this->getAssetType()).',
-			parameters_type_code = '.$db->quote($this->getAssetType()).'
-			parameters = '.$db->quote($this->getAssetType()).'
-			default = '.$db->quote($this->getAssetType()).'
-			WHERE name = '.$db->quote($attr['name']).' AND owning_type_code = '.$db->quote($attr['owning_type_code']);
+			$sql = '
+				UPDATE sq_ast_attr 
+				SET
+					owning_type_code = '.$db->quote($this->getAssetType()).'
+				WHERE 
+					name = '.$db->quote($attr['name']).' 
+				AND owning_type_code IN (SELECT type_code FROM sq_ast_typ_inhd WHERE inhd_type_code = '.$db->quote($attr['owning_type_code']).')';
 			$result = $db->query($sql);
-			assert_valid_db_result($result);*/
+			assert_valid_db_result($result);
 		}
 
 		return true;
