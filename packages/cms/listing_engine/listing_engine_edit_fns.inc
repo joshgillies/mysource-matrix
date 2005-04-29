@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.8 2005/04/28 04:59:09 arailean Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.9 2005/04/29 00:30:37 arailean Exp $
 *
 */
 
@@ -40,7 +40,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 * @author  David Heppell <dheppell@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1417,13 +1417,11 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	*/
 	function processDefaultSortDirection(&$asset, &$o, $prefix)
 	{
-		$direction = array_get_index($_POST, $prefix.'_default_sort_direction', '');
-		if (!empty($direction)) {
-			if ($direction != $asset->attr('reverse_sort')) {
-				$asset->setAttrValue('reverse_sort', $direction);
-				return true;
-			}
-
+		$direction = array_get_index($_POST, $prefix.'_default_sort_direction');
+		if (!is_null($direction)) {
+			$direction = (int)(bool)$direction;
+			$asset->setAttrValue('reverse_sort', $direction);
+			return true;
 		}
 		return false;
 
