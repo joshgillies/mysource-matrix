@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_custom_form.inc,v 1.13.2.1 2005/03/17 03:27:23 lwright Exp $
+* $Id: page_custom_form.inc,v 1.13.2.2 2005/04/29 01:08:31 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.13.2.1 $
+* @version $Revision: 1.13.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -110,11 +110,6 @@ class Page_Custom_Form extends Page
 			return false;
 		}
 
-		if (!$form->printFrontend()) {
-			trigger_error('Form container for "'.$this->_getName().'" (Id: #'.$this->id.') could not print frontend');
-			return false;
-		}
-		
 		return parent::printFrontend();
 
 	}
