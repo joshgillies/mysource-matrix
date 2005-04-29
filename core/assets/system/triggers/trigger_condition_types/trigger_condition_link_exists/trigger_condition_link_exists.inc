@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_link_exists.inc,v 1.8 2005/04/28 05:22:07 rhoward Exp $
+* $Id: trigger_condition_link_exists.inc,v 1.9 2005/04/29 01:03:07 rhoward Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -198,12 +198,14 @@ class Trigger_Condition_Link_Exists extends Trigger_Condition
 			<li>
 				<?php
 				radio_button($prefix.'[selector_type]', 'asset_type', $selector_type == 'asset_type', null, $form_element_extras);
-				echo 'of type';
+				echo 'of type: ';
 
 				if ($write_access) {
 					asset_type_chooser($prefix.'[asset_type]', false, $asset_type);
 				} else {
-					echo $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset_type, 'name');
+					if ($asset_type) {
+						echo $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset_type, 'name');
+					}
 				}
 				?>
 			</li>
@@ -266,8 +268,7 @@ class Trigger_Condition_Link_Exists extends Trigger_Condition
 		switch ($settings['selector_type']) {
 			case 'asset_type':
 				$settings['asset_type'] = array_get_index($request_data, 'asset_type');
-				if (is_null($settings['asset_type'])) {
-
+				if (is_null($settings['asset_type']) || empty($settings['asset_type'])) {
 					return 'Invalid asset type selected. This condition will always fail.';
 				}
 			break;
