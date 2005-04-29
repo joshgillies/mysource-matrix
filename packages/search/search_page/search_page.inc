@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.88 2005/04/29 05:38:41 gsherwood Exp $
+* $Id: search_page.inc,v 1.89 2005/04/29 06:52:58 arailean Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.88 $
+* @version $Revision: 1.89 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -258,16 +258,15 @@ class Search_Page extends Listing_Engine
 			$_SESSION['SQ_LAST_SEARCH'][$this->id] = Array();
 		} else {
 			switch ($mode) {
-				case 'results':
-					if (empty($this->_tmp['searched_queries'])) {
-						$this->_tmp['searched_queries'] = $_SESSION['SQ_LAST_SEARCH'][$this->id];
-					}
-				break;
 				case 'sis':
 					// do nothing
 				break;
-				break;
 
+				case 'results':
+					// preserve the previous query
+					$this->_tmp['potential_searched_queries'] = $_SESSION['SQ_LAST_SEARCH'][$this->id];
+
+					// we intentioally fall-through to default
 				default:
 					$_SESSION['SQ_LAST_SEARCH'][$this->id] = Array();
 			}
@@ -933,7 +932,7 @@ class Search_Page extends Listing_Engine
 				} else {
 					$replacement  = '<input type="submit" name="'.$field_name.'" onclick="
 						document.listing_form.current_result_page.value=\'0\';
-						document.listing_form.mode.value = \'results\';
+						if (typeof document.listing_form.mode != \'undefined\') document.listing_form.mode.value = \'results\';
 						return true;
 					" value="'. $this->attr('submit_button_text').'" />';
 				}
@@ -1747,6 +1746,12 @@ class Search_Page extends Listing_Engine
 				}
 			}
 			$queries = $last_search;
+		}
+
+		// if it seems that nothing is submitted, check if there was a previous query
+		// and use it's details
+		if (empty($queries) && !empty($this->_tmp['potential_searched_queries'])) {
+			$queries = $this->_tmp['potential_searched_queries'];
 		}
 
 		return $queries;
