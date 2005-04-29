@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: email_format.inc,v 1.11.2.2 2005/04/07 02:47:44 lwright Exp $
+* $Id: email_format.inc,v 1.11.2.3 2005/04/29 01:51:38 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -431,6 +431,12 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 		$subject   = replace_keywords($current_value['subject'],     $replacements);
 		$text_body = replace_keywords($current_value['text_format'], $replacements);
 		$html_body = replace_keywords($current_value['html_format'], $replacements);
+
+		// if no 'From:' address (possibly because of empty keyword replacement)
+		// send from the system's default email address
+		if (trim($from) == '') {
+			$from = SQ_CONF_DEFAULT_EMAIL;
+		}
 
 		// replace internal links to pages and images with their full URLs
 		$matches = Array();
