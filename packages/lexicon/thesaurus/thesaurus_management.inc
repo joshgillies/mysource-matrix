@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus_management.inc,v 1.5 2005/04/29 05:39:50 gsherwood Exp $
+* $Id: thesaurus_management.inc,v 1.6 2005/05/01 23:41:54 tbarrett Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Dmitry Baranovskiy <dbaranovskiy@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage lexicon
 */
@@ -56,7 +56,7 @@ class Thesaurus_Management extends Asset_Management
 			'active' => Array(
 				'added'       => '0.0.1',
 				'type'        => 'boolean',
-				'default'   => false,
+				'default'   => '0',
 			),
 
 			'relations' => Array(
