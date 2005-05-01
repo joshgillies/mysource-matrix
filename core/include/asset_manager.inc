@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.304 2005/04/27 00:14:43 lwright Exp $
+* $Id: asset_manager.inc,v 1.305 2005/05/01 23:46:38 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.304 $
+* @version $Revision: 1.305 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -1913,7 +1913,7 @@ class Asset_Manager extends MySource_Object
 	* Get details of a link with the specified characteristics
 	*
 	* @param int			$assetid			id of the the $side_of_link asset
-	* @param int			$link_type			integer that should be a single integer of the SQ_LINK_* constants
+	* @param int			$link_type			One of the SQ_LINK_* constants (NB No bitwise logic allowed here)
 	* @param string|array	$type_code			the type of asset that is linked
 	*											(eg 'Page', 'File', etc)
 	*											if an array returns link if matches any
@@ -3886,8 +3886,6 @@ class Asset_Manager extends MySource_Object
 			// flag so that if we are the last significant link, we dont create a link
 			// to the trash as the move operation will re-create the link elsewhere
 			if (!$moving && !$num_other_links && !$GLOBALS['SQ_PURGING_TRASH']) {
-
-				error_log(var_export(debug_backtrace(), 1));
 
 				if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LINK_INTEGRITY)) {
 
