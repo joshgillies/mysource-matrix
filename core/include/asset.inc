@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.390 2005/04/28 05:18:16 rhoward Exp $
+* $Id: asset.inc,v 1.391 2005/05/01 23:43:44 tbarrett Exp $
 *
 */
 
@@ -26,11 +26,11 @@
 /**
 * Asset
 *
-* Purpose
+*	Basic data item in MySource Matrix, from which all pages, users and other items inherit
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.390 $
+* @version $Revision: 1.391 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
