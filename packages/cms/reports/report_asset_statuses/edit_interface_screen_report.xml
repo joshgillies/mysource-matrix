@@ -1,0 +1,28 @@
+<!--
+/**
+* +--------------------------------------------------------------------+
+* | Squiz.net Commercial Module Licence                                |
+* +--------------------------------------------------------------------+
+* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
+* +--------------------------------------------------------------------+
+* | This source file is not open source or freely usable and may be    |
+* | used subject to, and only in accordance with, the Squiz Commercial |
+* | Module Licence.                                                    |
+* | Please refer to http://www.squiz.net/licence for more information. |
+* +--------------------------------------------------------------------+
+*
+* $Id: edit_interface_screen_report.xml,v 1.1 2005/05/02 02:43:01 ndvries Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="Report" limbo_access="1">
+		<field>
+			<function_call>
+				<paint_function   name="paintReport"   />
+				<process_function name="processReport" />
+			</function_call>
+		</field>
+	</section>
+</contents>

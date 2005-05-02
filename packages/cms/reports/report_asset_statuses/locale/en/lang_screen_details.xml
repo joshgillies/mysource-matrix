@@ -1,0 +1,54 @@
+<!--
+/**
+* +--------------------------------------------------------------------+
+* | Squiz.net Commercial Module Licence                                |
+* +--------------------------------------------------------------------+
+* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
+* +--------------------------------------------------------------------+
+* | This source file is not open source or freely usable and may be    |
+* | used subject to, and only in accordance with, the Squiz Commercial |
+* | Module Licence.                                                    |
+* | Please refer to http://www.squiz.net/licence for more information. |
+* +--------------------------------------------------------------------+
+*
+* $Id: lang_screen_details.xml,v 1.1 2005/05/02 02:43:01 ndvries Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="Details">
+		<field attribute="name">
+			<display_name>Report Name</display_name>
+			<note />
+		</field>
+		<field>
+			<display_name>Root Node</display_name>
+			<note>Leave blank to generate this report on the entire system</note>
+			<function_call>
+				<paint_function   name="paintRootNode"  />
+				<process_function name="processRootNode" />
+			</function_call>
+		</field>
+		<field attribute="search_status">
+			<display_name>Current Status</display_name>
+			<note />
+		</field>
+		<field>
+			<display_name>Last Status Change</display_name>
+			<note />
+			<function_call>
+				<paint_function   name="paintLastStatusChange" />
+				<process_function name="processLastStatusChange" />
+			</function_call>
+		</field>
+		<field>
+			<display_name>Regenerate Report</display_name>
+			<note />
+			<function_call>
+				<paint_function   name="paintRegenerate"   />
+				<process_function name="processRegenerate" />
+			</function_call>
+		</field>
+	</section>
+</contents>

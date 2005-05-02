@@ -1,0 +1,80 @@
+<?php
+/**
+* +--------------------------------------------------------------------+
+* | Squiz.net Commercial Module Licence                                |
+* +--------------------------------------------------------------------+
+* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
+* +--------------------------------------------------------------------+
+* | This source file is not open source or freely usable and may be    |
+* | used subject to, and only in accordance with, the Squiz Commercial |
+* | Module Licence.                                                    |
+* | Please refer to http://www.squiz.net/licence for more information. |
+* +--------------------------------------------------------------------+
+*
+* $Id: report_asset_statuses_management.inc,v 1.1 2005/05/02 02:43:01 ndvries Exp $
+*
+*/
+
+
+require_once SQ_INCLUDE_PATH.'/asset_management.inc';
+
+/**
+* Report_Asset_Statuses_Management
+*
+* @see Asset_Management
+*
+* @author  Dmitry Baranovskiy <dbaranovskiy@squiz.net>
+* @author  Tom Barrett <tbarrett@squiz.net>
+* @version $Revision: 1.1 $
+* @package MySource_Matrix_Packages
+* @subpackage cms
+*/
+class Report_Asset_Statuses_Management extends Asset_Management
+{
+
+
+	/**
+	* Constructor
+	*
+	*/
+	function Report_Asset_Statuses_Management(&$pm)
+	{
+		$this->Asset_Management($pm);
+
+		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+
+		$this->vars = Array(
+							'search_status' => Array(
+								'added'       => '0.1',
+								'type'        => 'selection',
+								'default'     => SQ_STATUS_LIVE,
+								'description' => 'The statuses we are interested in',
+								'parameters'  => Array(
+									'options'  => get_status_names(),
+									'multiple' => true,
+									'allow_empty' => false,
+								),
+							),
+							'status_change_comparator_more_than' => Array(
+								'added'       => '0.1',
+								'type'        => 'boolean',
+								'default'     => 0,
+								'description' => 'Are we interested in status changes before or after the time specified?',
+								'parameters'  => Array(
+									'allow_empty' => false,
+								),
+							),
+							'status_change_period' => Array(
+								'added'         => '0.1',
+								'type'			=> 'duration',
+								'default'		=> 0,
+								'description'	=> 'Number of seconds in the past that we want to compare status change time to',
+							),
+		);
+
+	}//end constructor
+
+
+}//end class
+
+?>
