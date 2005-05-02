@@ -1,6 +1,54 @@
 MYSOURCE MATRIX CHANGELOG
 
 
+VERSION 3.4.2
+
+Complete Changelog
+----------------------
+
+Core
+*	Fixed bug #196: uncustomising then recustomising design area in design cust causes lock error
+*	Fixed bug #352: some people can't login using Firefox
+*	Fixed bug #360: adding an image without a URL causes the Insert Image script to freeze
+*	Fixed bug #406: permissions should always cascade to dependant assets
+*	Fixed bug #504: cant replace live file assets
+*	Fixed bug #527: possible undeclared variable in design_edit_fns
+*	Fixed bug #532: force <p> and <br> tags in the editor
+*	Fixed bug #551: CSS comments stop WYSIWYG styles from being shown
+*	Fixed bug #562: email format does not replace keywords in 'To' field
+*	Fixed bug #568: asset names contain unencoded HTML characters
+*	Fixed bug #570: asset map "Preview" option doesn't work
+*	Fixed bug #572: sysadmins getting locked out with 0 max login attempts
+*	Fixed bug #576: remap manager maps identical URLs
+*	Fixed bug #577: infinite loop with insert_image.php
+*	Fixed bug #578: hitting enter twice produces a mispositioned line
+*	Fixed bug #586: completed time not shown on the last step of a workflow
+*	Fixed bug #602: email receipts not sent if a blank email address is entered
+
+CMS
++	New sections can now be named when created (custom form)
++	The number of new sections that can be created at once is no longer limited to 10 (custom form)
++	Form submissions are now listed in order of their submisson time (custom form)
++	Form rule 'Value Begins With' now has a case sensative option (custom form)
++	Form rule 'Value Ends With' now has a case sensative option (custom form)
++	Form rule 'Value Contains' now has a case sensative option (custom form)
++	Form rule 'Value Found In' now has a case sensative option (custom form)
++	Form rule 'Regular Expression' now has a case sensative option (custom form)
+*	Fixed bug #492: bookmarks show in Broken link report (broken links report)
+*	Fixed bug #566: custom form's bodycopies not showing keyword drop-down (custom form)
+*	Fixed bug #574: nested redirect assets will still redirect if viewed in the backend (nest content)
+*	Fixed bug #575: custom form breaks when nested in a standard page (custom form)
+*	Fixed bug #579: closing </note> tag missing in form_email screen_recipients.xml (custom form)
+
+LDAP
+*	Fixed bug #561: LDAP fails to get groups based on the DN (ldap bridge)
+
+Calendar
+*	Fixed bug #594: using an asset builder to create a calendar event returns error (calendar event)
+
+
+
+
 VERSION 3.4.1
 
 Complete Changelog
