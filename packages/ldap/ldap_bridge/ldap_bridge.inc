@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.28 2005/04/29 05:38:57 gsherwood Exp $
+* $Id: ldap_bridge.inc,v 1.29 2005/05/02 04:19:19 gsherwood Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -39,13 +39,14 @@ class LDAP_Bridge extends Asset
 	*
 	* @var array(string => string)
 	*/
-	var $_group_types = Array('organizationalunit' => 'ou',
-							  'group'              => 'cn',
-							  'groupofnames'       => 'cn',
-							  'domain'             => 'dc',
-							  'container'          => 'cn',
-							  'organization'       => 'o'
-							);
+	var $_group_types = Array(
+							'organizationalunit'	=> 'ou',
+							'group'					=> 'cn',
+							'groupofnames'			=> 'cn',
+							'domain'				=> 'dc',
+							'container'				=> 'cn',
+							'organization'			=> 'o',
+						);
 
 	/**
 	* An array of objectclass values that represent users in LDAP
@@ -53,7 +54,10 @@ class LDAP_Bridge extends Asset
 	*
 	* @var array(string)
 	*/
-	var $_user_types = Array('organizationalperson' => 'cn');
+	var $_user_types = Array(
+						'organizationalperson'	=> 'cn',
+						'inetorgperson'			=> 'cn',
+					   );
 
 
 	/**
