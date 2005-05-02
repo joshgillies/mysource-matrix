@@ -23,6 +23,7 @@ Core
 *	Fixed bug #577: infinite loop with insert_image.php
 *	Fixed bug #578: hitting enter twice produces a mispositioned line
 *	Fixed bug #586: completed time not shown on the last step of a workflow
+*	Fixed bug #601: URL not found error should send a 404 HTTP response
 *	Fixed bug #602: email receipts not sent if a blank email address is entered
 
 CMS
