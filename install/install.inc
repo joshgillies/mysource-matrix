@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.inc,v 1.38 2005/04/28 05:33:27 lwright Exp $
+* $Id: install.inc,v 1.39 2005/05/02 04:36:40 mmcintyre Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * Purpose
 * Functions used to install and upgrade the system
 *
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -184,6 +184,9 @@ function uninstall_asset_types()
 		}
 
 	}//end if asset types not empty
+
+	// clear the type cache
+	@unlink(SQ_DATA_PATH.'/private/db/asset_types.inc');
 
 	return true;
 
