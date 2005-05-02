@@ -307,6 +307,10 @@ You can also <![CDATA[<SQ_MSG_LINK href="%preview_url%">preview this asset.</SQ_
 		<subject>External Tools Config Updated</subject>
 		<body>%setting% changed from %old_value% to %new_value%</body>
 	</message>
+	<message type="config.squiz_server_config">
+		<subject>Squiz Server Config Updated</subject>
+		<body>%setting% changed from %old_value% to %new_value%</body>
+	</message>
 	<message type="config.messaging_service_config">
 		<subject>Messaging Service Config Updated</subject>
 		<body>%setting% changed from %old_value% to %new_value%</body>
