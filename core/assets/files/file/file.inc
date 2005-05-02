@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.90 2005/04/15 00:37:25 lwright Exp $
+* $Id: file.inc,v 1.91 2005/05/02 07:24:53 ndvries Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.90 $
+* @version $Revision: 1.91 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -66,28 +66,34 @@ class File extends Asset
 	*/
 	function create(&$link, $info=Array())
 	{
-		$this->_tmp['file_create_data'] = $info;
+		$this->_tmp['file_create_data'] = &$info;
 
 		$name = trim($this->attr('name'));
 		if ($name == '') {
-			trigger_localised_error("CORE0083", E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
+			trigger_localised_error('CORE0083', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
 			return false;
 		}
 
 		// check that a file was uploaded at least and that it succeeded
-		if (empty($info)) $info = get_file_upload_info($this->getPrefix());
+		if (empty($info)) {
+			$info = get_file_upload_info($this->getPrefix());
+		}
 		if ($info === false || empty($info)) {
 			$edit = $this->getEditFns();
 			$info = $edit->getChosenFileInfo($this->getPrefix());
 			if ($info === false || empty($info)) {
-				trigger_localised_error("CORE0056", E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
+				trigger_localised_error('CORE0056', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
 				return false;
 			}
 		}
 
 		// make the info array look like a result from getExistingFile()
-		if (!isset($info['path'])) $info['path'] = array_get_index($info, 'tmp_name', '');
-		if (!isset($info['filename'])) $info['filename'] = array_get_index($info, 'name', '');
+		if (!isset($info['path'])) {
+			$info['path'] = array_get_index($info, 'tmp_name', '');
+		}
+		if (!isset($info['filename'])) {
+			$info['filename'] = array_get_index($info, 'name', '');
+		}
 		if (!$this->validFile($info)) return false;
 
 		// check that we are not going to have web path conflicts
@@ -98,7 +104,7 @@ class File extends Asset
 		// make sure the new web path is not already is use
 		$bad_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($link['asset'], Array($name));
 		if (!empty($bad_paths)) {
-			trigger_localised_error("CORE0086", E_USER_WARNING, $name);
+			trigger_localised_error('CORE0086', E_USER_WARNING, $name);
 			return false;
 		}
 
@@ -121,7 +127,9 @@ class File extends Asset
 	*/
 	function _createAdditional(&$link)
 	{
-		if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'attributes')) return false;
+		if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'attributes')) {
+			return false;
+		}
 
 		$edit = $this->getEditFns();
 
@@ -169,7 +177,7 @@ class File extends Asset
 
 		$edit_fns = $clone->getEditFns();
 		if (!$edit_fns->processFileUpload($clone, $GLOBALS['SQ_SYSTEM']->backend->out, $clone->getPrefix(), $temp_info)) {
-			trigger_localised_error("CORE0010", E_USER_WARNING, $this->name, $this->id);
+			trigger_localised_error('CORE0010', E_USER_WARNING, $this->name, $this->id);
 			return false;
 		}
 
@@ -206,31 +214,31 @@ class File extends Asset
 
 		// make sure our data directory exists
 		if (!create_directory($this->data_path)) {
-			trigger_localised_error("CORE0049", E_USER_WARNING, $this->name);
+			trigger_localised_error('CORE0049', E_USER_WARNING, $this->name);
 			return false;
 		}
 
 		// make sure our system directory exists
 		if (!create_directory($this->data_path.'/.sq_system')) {
-			trigger_localised_error("CORE0050", E_USER_WARNING, $this->name);
+			trigger_localised_error('CORE0050', E_USER_WARNING, $this->name);
 			return false;
 		}
 
 		// make sure there is nothing in the system directory
 		if (!clear_directory($this->data_path.'/.sq_system')) {
-			trigger_localised_error("CORE0046", E_USER_WARNING, $this->name);
+			trigger_localised_error('CORE0046', E_USER_WARNING, $this->name);
 			return false;
 		}
 
 		// save the object for later (in the restricted directory)
 		if (!string_to_file(serialize($this), $this->data_path.'/.sq_system/.object_data')) {
-			trigger_localised_error("CORE0051", E_USER_WARNING, $this->name);
+			trigger_localised_error('CORE0051', E_USER_WARNING, $this->name);
 			return false;
 		}
 
 		// update our lookup tables to not use __data
 		if (!parent::updateLookups()) {
-			trigger_localised_error("CORE0053", E_USER_WARNING, $this->name);
+			trigger_localised_error('CORE0053', E_USER_WARNING, $this->name);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
@@ -261,7 +269,7 @@ class File extends Asset
 
 		// clear the private data directory to get rid of the new uploaded file we had there
 		if (!clear_directory($this->data_path)) {
-			trigger_localised_error("CORE0045", E_USER_WARNING, $this->name);
+			trigger_localised_error('CORE0045', E_USER_WARNING, $this->name);
 			return false;
 		}
 
@@ -269,7 +277,7 @@ class File extends Asset
 		$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
 		$existing = $this->getExistingFile();
 		if (!$fv->checkOut($this->data_path_suffix.'/'.$existing['filename'], $this->data_path)) {
-			trigger_localised_error("CORE0044", E_USER_WARNING, $this->name);
+			trigger_localised_error('CORE0044', E_USER_WARNING, $this->name);
 			return false;
 		}
 
@@ -301,7 +309,7 @@ class File extends Asset
 			$existing = $this->getExistingFile();
 			if (!empty($existing)) {
 				if (!$tmp->validFile($existing)) {
-					trigger_localised_error("CORE0008", E_USER_WARNING, $this->name, $new_type_code, $existing['filename'], $new_type_code);
+					trigger_localised_error('CORE0008', E_USER_WARNING, $this->name, $new_type_code, $existing['filename'], $new_type_code);
 					return false;
 				}
 			}
@@ -358,11 +366,11 @@ class File extends Asset
 	function _getAllowedLinks()
 	{
 		return Array(
-				SQ_LINK_TYPE_1 => Array(),
-				SQ_LINK_TYPE_2 => Array(),
-				SQ_LINK_TYPE_3 => Array(),
-				SQ_LINK_NOTICE => Array('thumbnail' => Array('card' => 1, 'exclusive' => false))
-			);
+				SQ_LINK_TYPE_1	=> Array(),
+				SQ_LINK_TYPE_2	=> Array(),
+				SQ_LINK_TYPE_3	=> Array(),
+				SQ_LINK_NOTICE	=> Array('thumbnail' => Array('card' => 1, 'exclusive' => false)),
+			   );
 
 	}//end _getAllowedLinks()
 
@@ -396,7 +404,7 @@ class File extends Asset
 
 	/**
 	* Called when the any permission is updated for this asset
-
+	*
 	* @return boolean	whether everything is OK
 	* @access public
 	*/
@@ -429,7 +437,7 @@ class File extends Asset
 		if ($this->effectiveUnrestricted()) {
 			// make sure our data directory exists
 			if (!create_directory($this->data_path_public)) {
-				trigger_localised_error("CORE0049", E_USER_WARNING, $this->name);
+				trigger_localised_error('CORE0049', E_USER_WARNING, $this->name);
 				return false;
 			}
 
@@ -439,7 +447,7 @@ class File extends Asset
 				if ($fv->checkOut($this->data_path_suffix.'/'.$existing['filename'], $this->data_path_public)) {
 					$changed = true;
 				} else {
-					trigger_localised_error("CORE0032", E_USER_WARNING);
+					trigger_localised_error('CORE0032', E_USER_WARNING);
 					return false;
 				}
 			}
@@ -450,7 +458,7 @@ class File extends Asset
 				if ($fv->clearOut($unrestricted) & FUDGE_FV_OK) {
 					$changed = true;
 				} else {
-					trigger_localised_error("CORE0104", E_USER_WARNING);
+					trigger_localised_error('CORE0104', E_USER_WARNING);
 					return false;
 				}
 			}
@@ -563,8 +571,12 @@ class File extends Asset
 				if (empty($root_url)) continue;
 
 				if (isset($save_urls[$root_url])) {
-					if (empty($save_urls[$root_url]['http']))  $save_urls[$root_url]['http']  = $data['http'];
-					if (empty($save_urls[$root_url]['https'])) $save_urls[$root_url]['https'] = $data['https'];
+					if (empty($save_urls[$root_url]['http'])) {
+						$save_urls[$root_url]['http']  = $data['http'];
+					}
+					if (empty($save_urls[$root_url]['https'])) {
+						$save_urls[$root_url]['https'] = $data['https'];
+					}
 				} else {
 					$save_urls[$root_url] = Array('http' => $data['http'], 'https' => $data['https']);
 				}
@@ -698,15 +710,20 @@ class File extends Asset
 				$old_filename = $this->_tmp['vars_set']['name']['old_value'];
 				$new_filename = $this->attr('name');
 
-				if (is_file($this->data_path.'/'.$old_filename)) $data_path = $this->data_path;
-				else $data_path = $this->data_path_public;
+				if (is_file($this->data_path.'/'.$old_filename)) {
+					$data_path = $this->data_path;
+				} else {
+					$data_path = $this->data_path_public;
+				}
 
 				// try and set the new filename - return false if it fails
-				if (!parent::saveAttributes($dont_run_updated)) return false;
+				if (!parent::saveAttributes($dont_run_updated)) {
+					return false;
+				}
 
 				// the name has changed so we need to save the web paths
 				if (!$this->saveWebPaths(Array($new_filename))) {
-					trigger_localised_error("CORE0056", E_USER_WARNING);
+					trigger_localised_error('CORE0056', E_USER_WARNING);
 					parent::setAttrValue('name', $old_filename);
 					return false;
 				}
@@ -718,7 +735,7 @@ class File extends Asset
 				// copy the file instead of a direct rename because removing the
 				// file from the repository will also remove it from the file system
 				if (!copy($data_path.'/'.$old_filename, $data_path.'/'.$new_filename)) {
-					trigger_localised_error("CORE0026", E_USER_WARNING);
+					trigger_localised_error('CORE0026', E_USER_WARNING);
 					parent::setAttrValue('name', $old_filename);
 					return false;
 				}
@@ -727,21 +744,21 @@ class File extends Asset
 				// the repository and add the new one in
 				$result = $fv->remove($data_path.'/'.$old_filename, '', false);
 				if ($result != FUDGE_FV_OK && $result != FUDGE_FV_NOT_CHECKED_OUT) {
-					trigger_localised_error("CORE0042", E_USER_WARNING);
+					trigger_localised_error('CORE0042', E_USER_WARNING);
 					parent::setAttrValue('name', $old_filename);
 					return false;
 				}
 
 				// attempt to add a new version of the file to the repository
 				if (!$fv->add($this->data_path_suffix, $this->data_path.'/'.$new_filename, '', false)) {
-					trigger_localised_error("CORE0026", E_USER_WARNING);
+					trigger_localised_error('CORE0026', E_USER_WARNING);
 					parent::setAttrValue('name', $old_filename);
 					return false;
 				}
 
 				// make sure we have the latest version of our file
 				if (!$fv->checkOut($this->data_path_suffix.'/'.$new_filename, $this->data_path)) {
-					trigger_localised_error("CORE0032", E_USER_WARNING);
+					trigger_localised_error('CORE0032', E_USER_WARNING);
 					parent::setAttrValue('name', $old_filename);
 					return false;
 				}
@@ -787,8 +804,11 @@ class File extends Asset
 			$valid_names = make_valid_web_paths(Array($value));
 			$value = array_shift($valid_names);
 
-			if (is_file($this->data_path.'/'.$this->attr('name'))) $data_path = $this->data_path;
-			else $data_path = $this->data_path_public;
+			if (is_file($this->data_path.'/'.$this->attr('name'))) {
+				$data_path = $this->data_path;
+			} else {
+				$data_path = $this->data_path_public;
+			}
 
 			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
@@ -796,12 +816,12 @@ class File extends Asset
 			$old_ext = get_file_type($old_filename);
 			$new_ext = get_file_type($value);
 			if (trim($old_ext) != '' && $old_ext != $new_ext) {
-				trigger_localised_error("CORE0115", E_USER_WARNING);
+				trigger_localised_error('CORE0115', E_USER_WARNING);
 				$value = $old_filename;
 				return false;
 			}
 			if (!is_file($data_path.'/'.$old_filename)) {
-				trigger_localised_error("CORE0023", E_USER_WARNING);
+				trigger_localised_error('CORE0023', E_USER_WARNING);
 				$value = $old_filename;
 				return false;
 			}
@@ -834,7 +854,7 @@ class File extends Asset
 		}
 		if ($size > $max_size) {
 			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-			trigger_localised_error("CORE0057", E_USER_WARNING, strtoupper(easy_filesize($max_size)), strtoupper(easy_filesize($size)));
+			trigger_localised_error('CORE0057', E_USER_WARNING, strtoupper(easy_filesize($max_size)), strtoupper(easy_filesize($size)));
 			return false;
 		}
 		return true;
@@ -913,8 +933,11 @@ class File extends Asset
 	*/
 	function getHref($base_url=null, $ignore_rollback=false)
 	{
-		if (SQ_ROLLBACK_VIEW) return './?a='.$this->id;
-		else return parent::getHref($base_url, $ignore_rollback);
+		if (SQ_ROLLBACK_VIEW) {
+			return './?a='.$this->id;
+		} else {
+			return parent::getHref($base_url, $ignore_rollback);
+		}
 
 	}//end getHref()
 

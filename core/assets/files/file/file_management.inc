@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_management.inc,v 1.10 2005/01/20 13:07:33 brobertson Exp $
+* $Id: file_management.inc,v 1.11 2005/05/02 07:24:53 ndvries Exp $
 *
 */
 
@@ -31,12 +31,13 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class File_Management extends Asset_Management
 {
+
 
 	/**
 	* Constructor
@@ -46,24 +47,26 @@ class File_Management extends Asset_Management
 	{
 		$this->Asset_Management($pm);
 
-		$this->vars = Array('name' => Array(
-												'added'       => '0.1',
-												'type'        => 'text',
-												'default'     => '',
-												'description' => 'The name of the file (eg. myfile.zip)',
-												'update_fn'   => '',
-												),
-							'allow_unrestricted' => Array(
-												'added'       => '0.2',
-												'type'        => 'boolean',
-												'default'     => true,
-												'description' => 'Allows the use of the __data URL if true',
-												'parameters'  => Array('allow_empty' => false),
-												'update_fn'   => '',
-												),
-							);
+		$this->vars = Array(
+						'name'					=> Array(
+													'added'			=> '0.1',
+													'type'			=> 'text',
+													'default'		=> '',
+													'description'	=> 'The name of the file (eg. myfile.zip)',
+													'update_fn'		=> '',
+												   ),
+						'allow_unrestricted'	=> Array(
+													'added'			=> '0.2',
+													'type'			=> 'boolean',
+													'default'		=> true,
+													'description'	=> 'Allows the use of the __data URL if true',
+													'parameters'	=> Array('allow_empty' => false),
+													'update_fn'		=> '',
+												   ),
+					  );
 
 	}//end constructor
+
 
 }//end class
 ?>

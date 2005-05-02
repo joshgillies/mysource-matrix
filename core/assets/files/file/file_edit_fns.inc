@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_edit_fns.inc,v 1.56 2005/04/15 00:37:25 lwright Exp $
+* $Id: file_edit_fns.inc,v 1.57 2005/05/02 07:24:53 ndvries Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.56 $
+* @version $Revision: 1.57 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -131,7 +131,9 @@ class File_Edit_Fns extends Asset_Edit_Fns
 	function processFileUpload(&$asset, &$o, $prefix, $info=Array())
 	{
 		if (!$asset->writeAccess('attributes')) return false;
-		if (empty($info) && isset($_POST[$prefix.'_server_file']) && !empty($_POST[$prefix.'_server_file'])) return false;
+		if (empty($info) && isset($_POST[$prefix.'_server_file']) && !empty($_POST[$prefix.'_server_file'])) {
+			return false;
+		}
 
 		// assetid will not be set if we are creating
 		if (!$asset->id) return true;
@@ -139,12 +141,18 @@ class File_Edit_Fns extends Asset_Edit_Fns
 		if (empty($info)) {
 			$info = get_file_upload_info($prefix);
 			// return on failed or no upload
-			if ($info === false || empty($info)) return false;
+			if ($info === false || empty($info)) {
+				return false;
+			}
 		}
 
 		// make the info array look like a result from getExistingFile()
-		if (!isset($info['path'])) $info['path'] = array_get_index($info, 'tmp_name', '');
-		if (!isset($info['filename'])) $info['filename'] = array_get_index($info, 'name', '');
+		if (!isset($info['path'])) {
+			$info['path'] = array_get_index($info, 'tmp_name', '');
+		}
+		if (!isset($info['filename'])) {
+			$info['filename'] = array_get_index($info, 'name', '');
+		}
 		if (!$asset->validFile($info)) return false;
 
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
@@ -159,7 +167,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 				if (is_null($parent)) continue;
 				$bad_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($parent, Array($name), $asset->id);
 				if (!empty($bad_paths)) {
-					trigger_localised_error("CORE0055", E_USER_WARNING);
+					trigger_localised_error('CORE0055', E_USER_WARNING);
 					return false;
 				}
 			}
@@ -180,7 +188,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 			// files from the repository - just marks the branch as complete)
 			$result = $fv->remove($existing['path'], '', false);
 			if ($result != FUDGE_FV_OK && $result != FUDGE_FV_NOT_CHECKED_OUT) {
-				trigger_localised_error("CORE0042", E_USER_WARNING);
+				trigger_localised_error('CORE0042', E_USER_WARNING);
 				return false;
 			}
 		}
@@ -189,17 +197,17 @@ class File_Edit_Fns extends Asset_Edit_Fns
 		if (is_uploaded_file($info['tmp_name'])) {
 			// a normal uploaded file
 			if (!move_uploaded_file($info['tmp_name'], $asset->data_path.'/'.$name)) {
-				trigger_localised_error("CORE0037", E_USER_WARNING, $info['tmp_name'], $asset->data_path.'/'.$name);
+				trigger_localised_error('CORE0037', E_USER_WARNING, $info['tmp_name'], $asset->data_path.'/'.$name);
 				return false;
 			}
 		} else if (isset($info['non_uploaded_file']) && $info['non_uploaded_file'] === true) {
 			// we have special permission to move a non-uploaded file
 			if (!copy($info['tmp_name'], $asset->data_path.'/'.$name)) {
-				trigger_localised_error("CORE0036", E_USER_WARNING, $info['tmp_name'], $asset->data_path.'/'.$name);
+				trigger_localised_error('CORE0036', E_USER_WARNING, $info['tmp_name'], $asset->data_path.'/'.$name);
 				return false;
 			}
 		} else {
-			trigger_localised_error("CORE0067", E_USER_ERROR);
+			trigger_localised_error('CORE0067', E_USER_ERROR);
 			return false;
 		}
 
@@ -209,21 +217,21 @@ class File_Edit_Fns extends Asset_Edit_Fns
 			$file_status = $fv->upToDate($asset->data_path.'/'.$name);
 			if (FUDGE_FV_MODIFIED & $file_status) {
 				if (!$fv->commit($asset->data_path.'/'.$name, '', false)) {
-					trigger_localised_error("CORE0034", E_USER_WARNING);
+					trigger_localised_error('CORE0034', E_USER_WARNING);
 					return false;
 				}
 			}
 		} else {
 			// attempt to add the file to the repository
 			if (!$fv->add($asset->data_path_suffix, $asset->data_path.'/'.$name, '', false)) {
-				trigger_localised_error("CORE0026", E_USER_WARNING);
+				trigger_localised_error('CORE0026', E_USER_WARNING);
 				return false;
 			}
 		}
 
 		// make sure we have the latest version of our file
 		if (!$fv->checkOut($asset->data_path_suffix.'/'.$name, $asset->data_path)) {
-			trigger_localised_error("CORE0032", E_USER_WARNING);
+			trigger_localised_error('CORE0032', E_USER_WARNING);
 			return false;
 		}
 
@@ -231,13 +239,13 @@ class File_Edit_Fns extends Asset_Edit_Fns
 		$asset->_tmp['uploading_file'] = true;
 		$name_changed = $asset->setAttrValue('name', $name);
 		if (!$asset->saveAttributes()) {
-			trigger_localised_error("CORE0052", E_USER_WARNING);
+			trigger_localised_error('CORE0052', E_USER_WARNING);
 			return false;
 		}
 		$asset->_tmp['uploading_file'] = false;
 
 		if (!$asset->saveWebPaths(Array($name))) {
-			trigger_localised_error("CORE0054", E_USER_WARNING);
+			trigger_localised_error('CORE0054', E_USER_WARNING);
 			return false;
 		}
 

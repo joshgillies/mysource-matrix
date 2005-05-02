@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_prefs.inc,v 1.3 2005/04/15 00:37:25 lwright Exp $
+* $Id: file_prefs.inc,v 1.4 2005/05/02 07:24:53 ndvries Exp $
 *
 */
 
@@ -33,19 +33,20 @@ require_once SQ_LIB_PATH.'/config/prefs.inc';
 *    Looks after the creation the WYSIWYG preferences
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 */
 class File_Prefs extends Prefs
 {
 
 	var $pref_vars = Array(
-		'SQ_FILE_MAX_SIZE'   => Array(	'name'			=> 'Max File Size',
-										'description'	=> 'This preference allows you to change the maximum size of files that can be uploaded',
-										'default'		=> 0,
-										'protected'		=> false
-									),
-	);
+						'SQ_FILE_MAX_SIZE'	=> Array(
+												'name'			=> 'Max File Size',
+												'description'	=> 'This preference allows you to change the maximum size of files that can be uploaded',
+												'default'		=> 0,
+												'protected'		=> false,
+											   ),
+					 );
 
 
 	/**
@@ -97,7 +98,7 @@ class File_Prefs extends Prefs
 
 			if ($have_lock && $is_admin) {
 				text_box('prefs[SQ_FILE_MAX_SIZE]', $this->pref_vars['SQ_FILE_MAX_SIZE']['default'], 10);
-				echo "<p>The maximum file size can be entered in shorthand notation: 'K' for kilobytes, 'M' for megabytes. The maximum file size allowed by PHP on this sytem is <b>".strtoupper(easy_filesize($php_max_file_size))."</b></p>";
+				echo '<p>The maximum file size can be entered in shorthand notation: \'K\' for kilobytes, \'M\' for megabytes. The maximum file size allowed by PHP on this sytem is <b>'.strtoupper(easy_filesize($php_max_file_size)).'</b></p>';
 			} else {
 				if (!$this->pref_vars['SQ_FILE_MAX_SIZE']['default']) {
 					echo 'You have not set a maximum file upload size. The current PHP limit of <b>'.strtoupper(easy_filesize($php_max_file_size)).'</b> will be applied to all file uploads.';
@@ -146,7 +147,7 @@ class File_Prefs extends Prefs
 				if (empty($max_size)) $max_size = 0;
 
 				if (!empty($max_size) && !preg_match('|^[0-9]+[KM]$|', $max_size)) {
-					trigger_localised_error("CORE0002", E_USER_WARNING, $max_size);
+					trigger_localised_error('CORE0002', E_USER_WARNING, $max_size);
 				} else {
 					$this->pref_vars['SQ_FILE_MAX_SIZE']['default'] = $max_size;
 				}
@@ -197,8 +198,11 @@ class File_Prefs extends Prefs
 							$pref_1_size = $pref_1_size * 1024 * 1024;
 						}
 
-						if ($pref_1_size > $pref_2_size) $merged_prefs[$var_name] = $prefs1[$var_name];
-						else $merged_prefs[$var_name] = $prefs2[$var_name];
+						if ($pref_1_size > $pref_2_size) {
+							$merged_prefs[$var_name] = $prefs1[$var_name];
+						} else {
+							$merged_prefs[$var_name] = $prefs2[$var_name];
+						}
 					break;
 				}
 
