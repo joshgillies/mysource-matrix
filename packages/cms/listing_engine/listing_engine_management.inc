@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_management.inc,v 1.16 2005/04/29 11:38:04 brobertson Exp $
+* $Id: listing_engine_management.inc,v 1.17 2005/05/02 02:22:41 arailean Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -232,7 +232,7 @@ class Listing_Engine_Management extends Asset_Management
 
 		}
 
-		if (version_compare($current_version, '0.3', '<=')) {
+		if (version_compare($current_version, '0.3', '<')) {
 			$search_page_fields = Array('submit_button_text', 'reverse_sort');
 
 			$fields_to_delete = Array('sort_by_attr');
@@ -409,11 +409,11 @@ class Listing_Engine_Management extends Asset_Management
 			assert_valid_db_result($result);
 
 			$sql = '
-				UPDATE sq_ast_attr 
+				UPDATE sq_ast_attr
 				SET
 					owning_type_code = '.$db->quote($this->getAssetType()).'
-				WHERE 
-					name = '.$db->quote($attr['name']).' 
+				WHERE
+					name = '.$db->quote($attr['name']).'
 				AND owning_type_code IN (SELECT type_code FROM sq_ast_typ_inhd WHERE inhd_type_code = '.$db->quote($attr['owning_type_code']).')';
 			$result = $db->query($sql);
 			assert_valid_db_result($result);
