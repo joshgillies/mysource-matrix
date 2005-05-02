@@ -17,12 +17,57 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: JsHttpConnector.js,v 1.4 2005/03/24 00:48:46 tbarrett Exp $
+* $Id: JsHttpConnector.js,v 1.5 2005/05/02 02:45:20 tbarrett Exp $
 *
 */
 
+
 /**
-* Constructor of the JsHttpConnector object
+* Handle a change in an XMLHttpRequest request object's state by finding the relevant JsHttpConnector object
+*
+* @access private
+* @return void
+*/
+function _processJsHttpStateChange(id)
+{
+	var thread = _allJsHttpConnectorThreads[id];
+	if (thread.requestObject.readyState == 4) {
+		// state is "loaded"
+		if (thread.requestObject.status == 200) {
+			// status is "OK"
+			//try {
+				thread.process(thread.requestObject.responseText, thread.requestObject.responseXML);
+			//} catch (e) {
+				//thread._handleReceiveError(e.message);
+			//}
+		 } else {
+			 thread._handleReceiveError(thread.requestObject.statusText, thread.requestObject.status);
+		 }
+		delete( _allJsHttpConnectorThreads["t"+thread.id]);
+	}
+
+}//end _processJsHttpStateChange()
+
+
+/**
+* Get the next thread id to use
+*
+* @access public
+* @return void
+*/
+function getNextJsHttpThreadId()
+{
+	_numJsHttpConnectorThreads++;
+	if (_numJsHttpConnectorThreads == MAX_JS_HTTP_THREADS) {
+		_numJsHttpConnectorThreads = 0;
+	}
+	return _numJsHttpConnectorThreads;
+
+}//end getNextJsHttpThreadId()
+
+
+/**
+* Constructor for a JsHttpConnector object
 *
 * This object wraps around the browser's JsHttpConnectorRequest object and enables
 * communication between web pages and servers using JavaScript.
@@ -35,21 +80,77 @@
 *
 * See matrix_root/docs/example_code/JsHttpConnectorDemo.html for usage
 *
-* @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
+* @author	Tom Barrett <tbarrett@squiz.net>, based on previous work by Dmitry Baranovskiy
 *
 * @return object
 * @access public
 */
-TJsHttpConnector = function()
-{
+TJsHttpConnector = function() {
 
-	this.isIE = false;
-	this.responseXML = null;
-	this.temp = null;
+	// Return false if browser support is not there
+	try {
+		if ((!window.ActiveXObject) && (!window.XMLHttpRequest)) {
+			//alert('Browser does not support XMLHttpRequest');
+			return false;
+		}
+	} catch (e) {
+		//alert('Browser does not support XMLHttpRequest');
+		return false;
+	}
 
 
 	/**
-	* Submit a form using JsHttpConnector
+	* Submit a form
+	*
+	* @param	formid		ID of the form to send
+	* @param	func		Function to call to process the server's response
+	*
+	* @return void
+	* @access public
+	*/
+	this.submitForm = function(formid, func)
+	{
+		var thread = new JsHttpConnectorThread();
+		thread.submitForm(formid, func);
+	}
+
+
+	/**
+	* Submit a simple GET request
+	*
+	* @param	url		URL to submit to
+	* @param	func	Function to call to process the server's response
+	*
+	* @return void
+	* @access public
+	*/
+	this.submitRequest = function(url, func)
+	{
+		var thread = new JsHttpConnectorThread();
+		thread.submitRequest(url, func);
+	}
+
+
+}//end class
+
+
+/**
+* Constructor for a JsHttpConnectorThread object.  These objects are created by
+* JsHttpConnector to submit and process a single transaction with the server.
+*/
+function JsHttpConnectorThread()
+{
+	// instance variables for this object
+	this.isIE = (typeof window.ActiveXObject != "undefined");
+	this.requestObject = this.isIE ? new ActiveXObject("Microsoft.XMLHTTP") : new XMLHttpRequest();
+	this.id = getNextJsHttpThreadId();
+
+	// register this object with the global list
+	_allJsHttpConnectorThreads["t"+this.id] = this;
+
+	
+	/**
+	* Submit a form
 	*
 	* @param	formid		ID of the form to send
 	* @param	func		Function to call to process the response
@@ -60,16 +161,19 @@ TJsHttpConnector = function()
 	this.submitForm = function(formid, func)
 	{
 		var form = document.getElementById(formid);
+		if (null === form) {
+			this._handleTransmitError('Could not find form with ID '+formid+' to submit');
+			return;
+		}
 		var post = "";
 		for (var i = 0; i < form.length; i++) {
 			post += form.elements[i].name + "=" + form.elements[i].value + "&";
 		}
 
 		if (typeof func == "function") {
-			this.temp = this.process;
 			this.process = func;
 		}
-		this.loadXMLDoc(form.action, post, form.method);
+		this._submitRequest(form.action, post, form.method);
 
 	}//end submitForm()
 
@@ -86,11 +190,11 @@ TJsHttpConnector = function()
 	this.submitRequest = function(url, func)
 	{
 		if (typeof func == "function") {
-			this.temp = this.process;
 			this.process = func;
 		}
-		this.loadXMLDoc(url);
-	}
+		this._submitRequest(url);
+
+	}//end submitRequest()
 
 
 	/**
@@ -104,77 +208,40 @@ TJsHttpConnector = function()
 	* @param	method			'POST' or 'GET'
 	*
 	* @return void
-	* @access public
+	* @access private
 	*/
-	this.loadXMLDoc = function(url, parameters, method)
+	this._submitRequest = function(url, parameters, method)
 	{
+		this.requestObject.onreadystatechange = this.getStateChangeHandler();
 		if (typeof parameters == "undefined" || parameters == "") parameters = null;
 		if (typeof method == "undefined" || method == "") method = "GET";
-		else method = method.toUpperCase();
+		method = method.toUpperCase();
 
 		if (method == "GET" && parameters != null) {
 			url += "?" + parameters;
 			parameters = null;
 		}
 
-		if (Global_XMLHttp_Request) {
-			Global_XMLHttp_Request.open(method, url, true);
-			if (method == "POST") {
-				Global_XMLHttp_Request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-			}
-			if (this.isIE) {
-				if (parameters == null) {
-					Global_XMLHttp_Request.send();
-				}
-				else Global_XMLHttp_Request.send(parameters);
-			} else {
-				Global_XMLHttp_Request.send(parameters);
-			}
+		this.requestObject.open(method, url, true);
+		if (method == "POST") {
+			this.requestObject.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+		}
+		if (this.isIE && (parameters === null)) {
+			this.requestObject.send();
+		} else {
+			this.requestObject.send(parameters);
 		}
 
-	}//end loadXMLDoc
+	}//end _submitRequest
 
 
 	/**
-	* See if the browser supports HttpRequest
-	*
-	* @return boolean
-	* @access public
-	*/
-	this.isBrowserOk = function()
-	{
-		try {
-			if (window.JsHttpConnectorRequest) return true;
-			if (window.ActiveXObject) return true;
-			return false;
-		}
-		catch(e) {
-			return false;
-		}
-
-	}//end isBrowserOk
-
-
-	/**
-	* Get the native XMLHttp_Request object
-	*
-	* @return object
-	* @access public
-	*/
-	this.request = function()
-	{
-		return Global_XMLHttp_Request;
-
-	}//end request
-
-
-	/**
-	* Process received XML
+	* Process server response - will be overridden
 	*
 	* @return void
 	* @access public
 	*/
-	this.process = function(responseText)
+	this.process = function(responseText, responseXML)
 	{
 		return;
 
@@ -182,102 +249,63 @@ TJsHttpConnector = function()
 
 
 	/**
-	* Get content of the response
+	* Handle a transmission error
 	*
-	* @return String
-	* @access public
-	*/
-	this.getResponseText = function()
-	{
-		return Global_XMLHttp_Request.responseText;
-
-	}//end getResponseText()
-
-
-	/**
-	* Handle a processing error
-	*
-	* This will be called on error in processing (could be overwriten)
+	* This will be called on error in processing
 	*
 	* @param	message		error message
 	*
 	* @return String
-	* @access public
+	* @access private
 	*/
-	this.processError = function(message)
+	this._handleTransmitError = function(message)
 	{
-		//do nothing;
+		alert("JSHTTPCONNECTOR TRANSMIT ERROR: \n"+message);
 
-	}//end processError()
+	}//end _handleTransmitError()
 
 
 	/**
-	* Handle a receiving error
+	* Handle a receive error
 	*
-	* Will be called on error in receiving (could be overwriten)
+	* This will be called on error in processing
 	*
 	* @param	message		error message
-	* @param	status		status code
 	*
 	* @return String
-	* @access public
+	* @access private
 	*/
-	this.receiveError = function(message, status)
+	this._handleReceiveError = function(message, status)
 	{
-		// do nothing;
+		var msg = "JSHTTPCONNECTOR RECEIVE ERROR: \n"+message;
+		if (typeof status != 'undefined') msg += "\n(HTTP Status = "+status;
+		alert(msg);
 
-	}//end receiveError()
+	}//end _handleReceiveError()
 
 
-	this.initGlobal = function()
+	/**
+	* Get a function to attach to our XMLHttpRequest object as its state handler
+	*
+	* @return object function
+	* @access private
+	*/
+	this.getStateChangeHandler = function()
 	{
-		if (window.XMLHttpRequest) {
-			Global_XMLHttp_Request = new XMLHttpRequest();
-			Global_XMLHttp_Request.onreadystatechange = processJsHttpStateChange;
-		} else if (window.ActiveXObject) {
-			this.isIE = true;
-			Global_XMLHttp_Request = new ActiveXObject("Microsoft.XMLHTTP");
-			Global_XMLHttp_Request.onreadystatechange = processJsHttpStateChange;
-		}
-	}//end initGlobal()
-
-	this.initGlobal();
-
-}//end of constructor for class JsHttpConnector
-
-
-/**
-* Handle onreadystatechange event of request object
-*
-* @return void
-* @access public
-*/
-function processJsHttpStateChange()
-{
-	// only if req shows "loaded"
-	if (Global_XMLHttp_Request.readyState == 4) {
-		// only if "OK"
-		if (Global_XMLHttp_Request.status == 200) {
-			JsHttpConnector.responseXML = Global_XMLHttp_Request.responseXML;
-			try {
-				JsHttpConnector.process(JsHttpConnector.getResponseText());
-				if (JsHttpConnector.temp != null) {
-					JsHttpConnector.process	= JsHttpConnector.temp;
-					JsHttpConnector.temp	= null;
-				}
-			}
-			catch (e) {
-				JsHttpConnector.processError(e.message);
-			}
-		 } else {
-			 JsHttpConnector.receiveError(Global_XMLHttp_Request.statusText, Global_XMLHttp_Request.status);
-		 }
+		return new Function('_processJsHttpStateChange("t'+this.id+'")');
 	}
 
-}//end processJsHttpStateChange()
+}//end class
 
-// global request and XML document object
-var Global_XMLHttp_Request = null;
+var MAX_JS_HTTP_THREADS = 256;
 
-// if no JsHttpConnector variable created, create it.
-if (typeof JsHttpConnector == "undefined") var JsHttpConnector = new TJsHttpConnector();
+if (typeof _allJsHttpConnectorThreads == "undefined") {
+	// collection of all JsHttpConnector threads
+	var _allJsHttpConnectorThreads = Array();
+	var _numJsHttpConnectorThreads = 0;
+}
+
+if (typeof JsHttpConnector == "undefined") {
+	// the singleton/"static" JsHttpConnector object
+	var JsHttpConnector = new TJsHttpConnector();
+}
