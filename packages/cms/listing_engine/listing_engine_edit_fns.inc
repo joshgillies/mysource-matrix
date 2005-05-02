@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.9 2005/04/29 00:30:37 arailean Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.10 2005/05/02 02:31:59 arailean Exp $
 *
 */
 
@@ -40,7 +40,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 * @author  David Heppell <dheppell@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1091,6 +1091,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 		if (!empty($sort_by) && !empty($name)) {
 			if (!$invalid_name) {
+				$invalid = false;
 				$new_index = count($save_list);
 				$save_list[$new_index] = Array();
 				$save_list[$new_index]['params'] = Array();
@@ -1108,13 +1109,21 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 						$save_list[$new_index]['params']['type_code'] = $default_type;
 						$save_list[$new_index]['params']['attribute'] = array_shift(array_keys($attributes));
 						$save_list[$new_index]['params']['attr_type'] = array_shift($attributes);
+					} else {
+						trigger_localised_error('CMS0051', E_USER_WARNING, $name);
+						$invalid = true;
 					}
 				} else {
 					$type = 'field';
 					$save_list[$new_index]['params']['field'] = $sort_by;
 				}
-				$save_list[$new_index]['type'] = $type;
-				$save = true;
+
+				if (!$invalid) {
+					$save_list[$new_index]['type'] = $type;
+					$save = true;
+				} else {
+					unset($save_list[$new_index]);
+				}
 			}
 		}//end if
 
