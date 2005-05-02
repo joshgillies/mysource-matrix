@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager_edit_fns.inc,v 1.18 2005/04/28 05:22:07 rhoward Exp $
+* $Id: trigger_manager_edit_fns.inc,v 1.19 2005/05/02 07:33:48 rhoward Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard  <rhoward@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -319,8 +319,8 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 		$o->openField('Status:');
 			$active_status = array_get_index($trigger, 'active', SQ_TRIG_STATUS_DEFAULT);
 			if ($write_access) {
-				check_box($prefix.'[info][active]','1', $active_status);
-				echo 'Active?';
+				check_box($prefix.'[info][active]', '1', $active_status, '', 'id="info_active"');
+				label('Active?', 'info_active');
 			} else {
 				if (SQ_TRIG_STATUS_ACTIVE == $active_status) {
 					echo 'Active';
@@ -329,6 +329,25 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 				}
 			}
 		$o->closeField();
+
+		$o->openField('Blocking:');
+			if (isset($trigger['data']['settings'])) {
+				$blocking = array_get_index($trigger['data']['settings'], 'blocking', false);
+			} else {
+				$blocking = false;
+			}
+			if ($write_access) {
+				check_box($prefix.'[info][blocking]', '1', $blocking, '', 'id="info_blocking"');
+				label('Blocks other triggers from firing on failure?', 'info_blocking');
+			} else {
+				if ($blocking) {
+					echo 'Yes';
+				} else {
+					echo 'No';
+				}
+			}
+		$o->closeField();
+
 
 		$o->openField('Name:');
 			$name = array_get_index($trigger, 'name', '');
@@ -606,7 +625,7 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 			$o->openSection('Other');
 			$o->openField('');
 				check_box($prefix.'[finish]');
-				echo 'Finish Editing (save and display the trigger list)';
+				echo 'Finish Editing (save and return to the trigger list)';
 			$o->closeSection();
 		}
 
@@ -741,9 +760,10 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 		$edit_info = array_get_index($edit_data, 'info');
 
 		// setup basic trigger info
-		$trigger['name']        = array_get_index($edit_info, 'name');
-		$trigger['description'] = array_get_index($edit_info, 'description');
-		$trigger['active']      = array_get_index($edit_info, 'active');
+		$trigger['name']                         = array_get_index($edit_info, 'name');
+		$trigger['description']                  = array_get_index($edit_info, 'description');
+		$trigger['active']                       = array_get_index($edit_info, 'active');
+		$trigger['data']['settings']['blocking'] = array_get_index($edit_info, 'blocking');
 
 		// events
 		$raw_events = array_get_index($edit_data, 'events', Array());

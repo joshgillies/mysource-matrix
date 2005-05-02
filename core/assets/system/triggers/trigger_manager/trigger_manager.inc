@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager.inc,v 1.19 2005/04/29 02:02:59 rhoward Exp $
+* $Id: trigger_manager.inc,v 1.20 2005/05/02 07:33:48 rhoward Exp $
 *
 */
 
@@ -51,7 +51,7 @@ require_once 'hash.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -217,6 +217,8 @@ class Trigger_Manager extends Asset
 		$state = $this->_calculateState($event_name, $broadcaster, $parameters);
 		$state_hash = $this->_calculateStateHash($state);
 
+		$broadcast_status = true;
+
 		// lookup triggers
 		$candidate_trigger_ids = $this->_lookupCandidateTriggers($state_hash);
 
@@ -228,6 +230,12 @@ class Trigger_Manager extends Asset
 			// re-create a trigger
 			$trigger = $this->_loadTrigger($trigger_id);
 			$status  = $this->_executeTrigger($trigger['data'], $state);
+
+			// get settings
+			$trigger_settings = &$trigger['data']['settings'];
+			$blocking         = array_get_index($trigger['data']['settings'], 'blocking', false);
+
+			// prepare message data
 			$msg_reps = Array(
 							'trigger_name'	=> $trigger['name'],
 							'triggerid'		=> $trigger['id'],
@@ -239,6 +247,15 @@ class Trigger_Manager extends Asset
 			switch ($status) {
 				case SQ_TRIG_RESULT_FAILURE:
 					trigger_localised_error('CORE0127', E_USER_WARNING, $trigger['id'], $trigger['name'], $event_name, $broadcaster->id, $broadcaster->name);
+
+					// if the trigger is set to block, then drop out of the
+					// loop to prevent the other triggers from running
+					// only allowing blocking triggers to affect the broadcast status
+					if ($blocking) {
+						$broadcast_status = false;
+						break 2;
+					}
+
 				break;
 
 				case SQ_TRIG_RESULT_SUCCESS:
@@ -265,7 +282,7 @@ class Trigger_Manager extends Asset
 		// clear out the record of running triggers
 		$this->_tmp['running_triggers'] = Array();
 
-		return true;
+		return $broadcast_status;
 
 	}//end broadcastEvent()
 
@@ -563,7 +580,7 @@ class Trigger_Manager extends Asset
 			$not_required = array_get_index($action, 'not_required', false);
 			$ignore_permissions = array_get_index($action, 'ignore_permissions', false);
 
-			if ($ignore_permissions) {
+			if ($ignore_permissions || !$GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LOCKING)) {
 
 				// execute action
 				$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
@@ -1007,6 +1024,10 @@ class Trigger_Manager extends Asset
 	*													'ignore_permissions'	=> boolean			// whether to run with elevated privileges
 	*												   ),
 	*										   ),
+	*						'settings'		=> Array(
+	*											'blocking'	=> boolean,		// if true, then if this trigger fails it will halt the
+	*																		// execution of any further triggers scheduled to run
+	*										   ),
 	*					   ),
 	* )
 	* </pre>
@@ -1123,6 +1144,12 @@ class Trigger_Manager extends Asset
 		}
 
 		$trigger_db['data'] = (isset($trigger_db['data']) && !empty($trigger_db['data'])) ? unserialize($trigger_db['data']) : '';
+
+		// set defaults if not present
+		if (!isset($trigger_db['data']['events'])) $trigger_db['data']['events'] = Array();
+		if (!isset($trigger_db['data']['conditions'])) $trigger_db['data']['conditions'] = Array();
+		if (!isset($trigger_db['data']['actions'])) $trigger_db['data']['actions'] = Array();
+		if (!isset($trigger_db['data']['settings'])) $trigger_db['data']['settings'] = Array();
 
 		return $trigger_db;
 
