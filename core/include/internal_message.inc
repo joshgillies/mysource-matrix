@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: internal_message.inc,v 1.55 2005/05/02 01:12:09 lwright Exp $
+* $Id: internal_message.inc,v 1.56 2005/05/02 01:14:38 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    An internal message to be sent around the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.55 $
+* @version $Revision: 1.56 $
 * @package MySource_Matrix
 */
 class Internal_Message extends MySource_Object
@@ -412,6 +412,11 @@ class Internal_Message extends MySource_Object
 
 				$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
 				if (is_null($user)) continue;
+				$subject = $lm->getInternalMessageSubject($this->type, $this->replacements, $user_locale);
+				$hdrs = Array(
+					'From'		=> $from_string,
+					'Subject'	=> $subject,
+				);
 
 				$body = $this->formatBody($user);
 				$log_body = preg_replace('|<SQ_MSG_LINK[^>]*?href="([^"]+)"[^>]*?>(.*?)</SQ_MSG_LINK>|', '<a href="#" onClick="self.parent.location=\'\\1\'; return false;">\\2</a>', $body);
