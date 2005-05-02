@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: locale_manager.inc,v 1.6 2005/04/27 00:14:43 lwright Exp $
+* $Id: locale_manager.inc,v 1.7 2005/05/02 04:32:47 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    number/date formats
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 */
 class Locale_Manager extends MySource_Object
@@ -75,8 +75,8 @@ class Locale_Manager extends MySource_Object
 	* @access public
 	*/
 	var $_internal_messages = Array();
-	
-	
+
+
 	/**
 	* Constructor
 	*
@@ -260,6 +260,7 @@ class Locale_Manager extends MySource_Object
 	*/
 	function includeAssetStrings($type_code, $locale=null)
 	{
+
 		// keep track of which assets have been included so we don't include
 		// a certain set of strings more than once for each locale
 		static $assets_included = Array();
@@ -269,7 +270,8 @@ class Locale_Manager extends MySource_Object
 		}
 
 		if (!array_get_index($assets_included[$type_code], $locale, false)) {
-			$assets_included[$type_code] = true;
+
+			$assets_included[$type_code][$locale] = true;
 			if ($locale == null) {
 				$locale = $this->getCurrentLocale();
 			}
@@ -366,7 +368,7 @@ class Locale_Manager extends MySource_Object
 					}
 					$this->_errors[$locale] = array_merge($this->_errors[$locale], $strings);
 				}
-				
+
 				$file = SQ_DATA_PATH.'/private/packages/'.$package_name.'/internal_messages.'.$this_locale;
 				if (file_exists($file)) {
 					$strings = unserialize(file_get_contents($file));
@@ -432,7 +434,7 @@ class Locale_Manager extends MySource_Object
 					}
 					$this->_errors[$locale] = array_merge($this->_errors[$locale], $strings);
 				}
-				
+
 				$file = SQ_DATA_PATH.'/private/system/core/internal_messages.'.$this_locale;
 				if (file_exists($file)) {
 					$strings = unserialize(file_get_contents($file));
@@ -562,8 +564,8 @@ class Locale_Manager extends MySource_Object
 		return $subject;
 
 	}//end getInternalMessageSubject()
-	
-	
+
+
 	/**
 	* fetches an internal message body translation for the current locale
 	*
@@ -596,7 +598,7 @@ class Locale_Manager extends MySource_Object
 		return $body;
 
 	}//end getInternalMessageBody()
-	
+
 
 }//end class
 ?>
