@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: inbox_edit_fns.inc,v 1.48 2005/04/27 00:14:43 lwright Exp $
+* $Id: inbox_edit_fns.inc,v 1.49 2005/05/02 04:56:13 gsherwood Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dmitry Baranovskiy <dbaranovskiy@squiz.net>
-* @version $Revision: 1.48 $
+* @version $Revision: 1.49 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -700,4 +700,3 @@ function sq_print_icon($path, $width, $height, $alt = '', $title = '') {
 	echo '<img src="'.sq_web_path('lib').'/web/images/blank.gif" alt="'.$alt.'" title="'.$title.'" style="background:url('.$path.'); background: expression(\'none\');filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src=\''.$path.'\', sizingMethod=\'crop\');width: '.$width.'px; height: '.$height.'px" />';
 } //end sq_print_icon()
 ?>
-
