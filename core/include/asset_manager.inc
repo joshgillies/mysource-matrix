@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.305 2005/05/01 23:46:38 tbarrett Exp $
+* $Id: asset_manager.inc,v 1.306 2005/05/02 04:30:18 mmcintyre Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.305 $
+* @version $Revision: 1.306 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -267,106 +267,76 @@ class Asset_Manager extends MySource_Object
 	*/
 	function getTypeInfo($type_code, $field='')
 	{
-		$do_query = false;
+		$field = trim($field);
 
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		// if the file does not exist, then we must be installing so get the info from the database
+		if (!file_exists(SQ_DATA_PATH.'/private/db/asset_types.inc')) {
 
-		// need to do some checking on the field to make sure it's in the table
-		// but only do it if the field is specified
-		if (!empty($field)) {
-			$field_info_array = $db->tableInfo('sq_ast_typ');
-			assert_valid_db_result($field_info_array);
+			$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-			$field_found = false;
-
-			foreach ($field_info_array as $field_info) {
-				if ($field_info['name'] == $field) {
-					$field_found = true;
-					break;
+			if (is_array($type_code)) {
+				for (reset($type_code); null !== ($key = key($type_code)); next($type_code)) {
+					$type_code[$key] = $db->quoteSmart($type_code[$key]);
 				}
+				$type_code_cond = 'IN ('.implode(', ', $type_code).')';
+			} else {
+				$type_code_cond = ' = '.$db->quoteSmart($type_code);
 			}
 
-			// field not found
-			if (!$field_found) {
-				trigger_localised_error("SYS0185", E_USER_WARNING, $field);
-				return ($field) ? null : Array();
+			// if they have not specified any fields, then we want to select *
+			if ($field == '') $field = '*';
+
+			$sql = 'SELECT
+						type_code, '.$field.'
+					FROM
+						sq_ast_typ
+					WHERE
+						type_code '.$type_code_cond;
+
+			$result = $db->getAssoc($sql);
+			assert_valid_db_result($result);
+
+			if (!is_array($type_code) && !empty($field)) {
+				return $result[$type_code];
 			}
-		}
-
-		// multiple typecodes
-		if (is_array($type_code)) {
-
-			if (empty($type_code)) return Array();
-
-			// we want to create a query with only the type_codes that
-			// we do not have cached, but keep the type_code array intact for
-			// looping through later
-			$tmp = $type_code;
-
-			// need to fix number of type codes here otherwise it'll affect the count() in the loop
-			$num_type_codes = count($type_code);
-
-			// if there are multiple type_codes we need to select the type_code as well
-			// as the field from the database so we know what field belongs to what typecode
-			$columns = 'type_code, '.$field;
-
-			for ($i = 0; $i < $num_type_codes; $i++) {
-				if (!is_string($type_code[$i])) {
-					trigger_localised_error("SYS0217", E_USER_WARNING, $type_code[$i]);
-					unset($type_code[$i]);
-					unset($tmp[$i]);
-					continue;
-				} else if (!isset($this->_asset_types[$type_code[$i]])) {
-					trigger_localised_error("SYS0085", E_USER_WARNING, $type_code[$i]);
-					unset($type_code[$i]);
-					unset($tmp[$i]);
-					continue;
-				} else {
-					if ($field && !isset($this->_asset_types[$type_code[$i]][$field])) {
-						$do_query = true;
-						$tmp[$i] = $db->quote($type_code[$i]);
-					} else {
-						unset($tmp[$i]);
-					}
-				}
-			}//end for
-			$type_code_cond = 'IN ('.implode(', ', $tmp).')';
+			return $result;
 
 		} else {
-			// just a single typecode
-			assert_type($type_code, 'string', 'Type code "'.$type_code.'" is not a string');
-			assert_isset_array_index($this->_asset_types, $type_code, 'Asset "'.$type_code.'" is not installed on the system');
-
-			$columns = $field;
-			if ($field && !isset($this->_asset_types[$type_code][$field])) {
-				$do_query = true;
-				$type_code_cond = '= '.$db->quote($type_code);
-			}
-		}//end if $type_code is an array
-
-		if ($do_query) {
-			$sql = 'SELECT '.$columns.'
-					FROM sq_ast_typ
-					WHERE type_code '.$type_code_cond;
-			$result = $db->getAll($sql);
-			assert_valid_db_result($result);
+			// else we should have our own store of asset types
 			if (is_array($type_code)) {
-				for ($i = 0; $i < count($result); $i++) {
-					$this->_asset_types[$result[$i]['type_code']][$field] = $result[$i][$field];
+				$result = Array();
+				foreach ($type_code as $type) {
+					if (!isset($this->_asset_types[$type])) {
+						trigger_localised_error('SYS0091', E_USER_WARNING, $type);
+						continue;
+					}
+					if (empty($field)) {
+						$result[$type] = $this->_asset_types[$type];
+					} else {
+						if (!isset($this->_asset_types[$type][$field])) {
+							trigger_localised_error('SYS0185', E_USER_WARNING, $field);
+							continue;
+						}
+						$result[$type] = $this->_asset_types[$type][$field];
+					}
 				}
+				return $result;
 			} else {
-				$this->_asset_types[$type_code][$field] = $result[0][$field];
+				if (!isset($this->_asset_types[$type_code])) {
+					trigger_localised_error('SYS0091', E_USER_WARNING, $type_code);
+					return (empty($field)) ? Array() : null;
+				}
+				if (empty($field)) {
+					return $this->_asset_types[$type_code];
+				} else {
+					if (!isset($this->_asset_types[$type_code][$field])) {
+						trigger_localised_error('SYS0185', E_USER_WARNING, $field);
+						return null;
+					}
+					return $this->_asset_types[$type_code][$field];
+				}
 			}
-		}//end if
-
-		if (is_array($type_code)) {
-			$type_codes = Array();
-			foreach ($type_code as $code) {
-				$type_codes[$code] = ($field) ? $this->_asset_types[$code][$field] : $this->_asset_types[$code];
-			}
-			return $type_codes;
-		}
-		return ($field) ? $this->_asset_types[$type_code][$field] : $this->_asset_types[$type_code];
+		}//end if asset_types.inc exists
 
 	}//end getTypeInfo()
 
@@ -1913,7 +1883,7 @@ class Asset_Manager extends MySource_Object
 	* Get details of a link with the specified characteristics
 	*
 	* @param int			$assetid			id of the the $side_of_link asset
-	* @param int			$link_type			One of the SQ_LINK_* constants (NB No bitwise logic allowed here)
+	* @param int			$link_type			integer that should be a single integer of the SQ_LINK_* constants
 	* @param string|array	$type_code			the type of asset that is linked
 	*											(eg 'Page', 'File', etc)
 	*											if an array returns link if matches any
@@ -4034,7 +4004,7 @@ class Asset_Manager extends MySource_Object
 		}
 
 		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-		
+
 		$msg_reps = Array(
 						'major_name'	=> $major->name,
 						'minor_name'	=> $minor->name,
@@ -4404,7 +4374,7 @@ class Asset_Manager extends MySource_Object
 		// log the action
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-		
+
 		$msg_reps = Array(
 						'perm_name'		=> permission_type_name($permission),
 						'asset_name'	=> $asset->name,
