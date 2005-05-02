@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: internal_message.inc,v 1.54 2005/04/27 01:22:20 lwright Exp $
+* $Id: internal_message.inc,v 1.55 2005/05/02 01:12:09 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    An internal message to be sent around the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.54 $
+* @version $Revision: 1.55 $
 * @package MySource_Matrix
 */
 class Internal_Message extends MySource_Object
@@ -360,11 +360,6 @@ class Internal_Message extends MySource_Object
 			$mime = new Mail_mime($crlf);
 			$mail =& Mail::factory('mail', "-f$from_email");
 
-			$hdrs = Array(
-						'From'		=> $from_string,
-						'Subject'	=> $this->subject,
-					);
-
 			// send each user a message - via email and into their internal message inbox
 			foreach ($send_to as $userid) {
 				if (!$userid) {
@@ -375,7 +370,12 @@ class Internal_Message extends MySource_Object
 					$to_email = '';
 
 					$user_locale = SQ_CONF_DEFAULT_BACKEND_LOCALE;
+
 					$subject = $lm->getInternalMessageSubject($this->type, $this->replacements, $user_locale);
+					$hdrs = Array(
+						'From'		=> $from_string,
+						'Subject'	=> $subject,
+					);
 
 					if (!empty($default)) $to_email .= $default;
 					if (!empty($tech)) {
