@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.102 2005/05/02 05:36:07 arailean Exp $
+* $Id: mysource.inc,v 1.103 2005/05/02 07:26:50 ndvries Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.102 $
+* @version $Revision: 1.103 $
 * @package MySource_Matrix
 */
 class MySource
@@ -784,22 +784,23 @@ class MySource
 	/**
 	* Broadcast a trigger event
 	*
-	* @param string			$event_name		a valid trigger event name
-	* @param object Asset	&$broadcaster	an asset that broadcast the event
-	* @param array			$parameters		an array of parameters that trigger conditions are expected to understand
+	* @param string         $event_name     a valid trigger event name
+	* @param object Asset   &$broadcaster   an asset that broadcast the event
+	* @param array          $parameters     an array of parameters that trigger conditions are expected to understand
 	*
 	* @access public
-	* @return void
+	* @return boolean
 	*/
 	function broadcastTriggerEvent($event_name, &$broadcaster, $parameters=null)
 	{
 		if (!$GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_TRIGGERS)) {
-			return;
+			return true;
 		}
-
 		$tm = &$this->getTriggerManager();
 		if (!is_null($tm)) {
-			$tm->broadcastEvent($event_name, $broadcaster, $parameters);
+			return $tm->broadcastEvent($event_name, $broadcaster, $parameters);
+		} else {
+			return true;
 		}
 
 	}//end broadcastTriggerEvent()
