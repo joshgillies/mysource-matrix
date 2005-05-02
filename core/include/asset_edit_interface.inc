@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.255 2005/04/15 00:37:27 lwright Exp $
+* $Id: asset_edit_interface.inc,v 1.256 2005/05/02 04:31:08 mmcintyre Exp $
 *
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.255 $
+* @version $Revision: 1.256 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -86,7 +86,8 @@ class Asset_Edit_Interface extends MySource_Object
 	{
 		$this->_type_code = $type_code;
 
-		$asset_dir = SQ_SYSTEM_ROOT.'/'.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->_type_code, 'dir');
+		$type_info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->_type_code);
+		$asset_dir = SQ_SYSTEM_ROOT.'/'.$type_info['dir'];
 		$class_name = $this->_type_code.'_edit_fns';
 		require_once $asset_dir.'/'.$class_name.'.inc';
 		$this->_edit_fns = new $class_name();
@@ -96,9 +97,12 @@ class Asset_Edit_Interface extends MySource_Object
 		assert_isset($this->_edit_fns->static_screens['details'], "Asset Edit Functions for '$type_code' do not define a 'details' tab");
 
 		$this->_dirs = Array($asset_dir);
-		$parent_type = $this->_type_code;
-		while (($parent_type = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($parent_type, 'parent_type')) != 'asset') {
-			$this->_dirs[] = SQ_SYSTEM_ROOT.'/'.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($parent_type, 'dir');
+		$parent_type = $type_info['parent_type'];
+
+		while ($parent_type != 'asset') {
+			$type_info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($parent_type);
+			$this->_dirs[] = SQ_SYSTEM_ROOT.'/'.$type_info['dir'];
+			$parent_type = $type_info['parent_type'];
 		}
 
 		// add the default for Asset
