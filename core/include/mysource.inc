@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.101 2005/04/27 00:14:43 lwright Exp $
+* $Id: mysource.inc,v 1.102 2005/05/02 05:36:07 arailean Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.101 $
+* @version $Revision: 1.102 $
 * @package MySource_Matrix
 */
 class MySource
@@ -291,7 +291,9 @@ class MySource
 
 			// if we are using the 'a' querystring arg, remove any trailing exclamation marks
 			// that are used as termination characters in different kinds of content
-			if (isset($_REQUEST['a'])) $_REQUEST['a'] = rtrim($_REQUEST['a'], '$');
+			if (isset($_REQUEST['a'])) {
+				$_REQUEST['a'] = rtrim($_REQUEST['a'], '$');
+			}
 
 		} else {
 			define('SQ_ROLLBACK_VIEW',        '0');
@@ -299,7 +301,9 @@ class MySource
 		}//end if
 
 		// process any global actions we have
-		if (!empty($_REQUEST['SQ_ACTION'])) $this->_processGlobalActions();
+		if (!empty($_REQUEST['SQ_ACTION'])) {
+			$this->_processGlobalActions();
+		}
 
 	}//end init()
 
@@ -325,8 +329,12 @@ class MySource
 			// we are on the frontend
 
 			// check for ./?a=xx type urls or normal
-			if (isset($_REQUEST['a'])) $asset = &$this->am->getAsset($_REQUEST['a']);
-			else $asset = &$this->am->getAssetFromURL(current_protocol(), null, true, true);
+			if (isset($_REQUEST['a'])) {
+				$asset = &$this->am->getAsset($_REQUEST['a']);
+			} else {
+				$asset = &$this->am->getAssetFromURL(current_protocol(), null, true, true);
+			}
+
 			if (is_null($asset)) {
 
 				$protocol = current_protocol();
@@ -348,7 +356,7 @@ class MySource
 						if (!is_null($site)) {
 							$page = &$site->getSpecialPage('not_found');
 							if (!is_null($page)) {
-								header("HTTP/1.0 404 Not Found");
+								header('HTTP/1.0 404 Not Found');
 								$site->paintAsset($page);
 								exit(1);
 							}
@@ -359,19 +367,21 @@ class MySource
 					// the remap manager to remap to its 404 page
 
 					if (!$rm->paintPageNotFoundRemap()) {
+						header('HTTP/1.0 404 Not Found');
 						// last resort, display little green error
-						trigger_localised_error("SYS0218", E_USER_NOTICE, $url);
+						trigger_localised_error('SYS0218', E_USER_NOTICE, $url);
 					}
 				}//end if !load remap
 
 				exit(1);
 			}//end if is_null(asset)
 
+
 			$this->frontend_asset = &$asset;
 			$asset->printFrontend();
 
 		}//end if backend/limbo
-		
+
 		$this->db->disconnect();
 
 	}//end start()
@@ -389,7 +399,7 @@ class MySource
 	{
 		$db = &$this->db;
 
-		header("HTTP/1.0 403 Forbidden");
+		header('HTTP/1.0 403 Forbidden');
 		$GLOBALS['SQ_LOGIN_FORM'] = Array('paint' => 'login', 'heading' => $heading, 'msg' => $msg);
 
 		if (empty($_GET['FORCE_BACKUP_LOGIN'])) {
@@ -399,7 +409,7 @@ class MySource
 			if (is_null($current_asset)) {
 				$current_asset = &$this->am->getSystemAsset('root_folder');
 				if (is_null($current_asset)) {
-					trigger_localised_error("SYS0248", E_USER_ERROR);
+					trigger_localised_error('SYS0248', E_USER_ERROR);
 				}
 			}
 
@@ -443,7 +453,9 @@ class MySource
 				$_SESSION['user_type_code'].
 				$_SESSION['SQ_LOGIN_KEY'];
 
-		if (!SQ_CONF_ALLOW_IP_CHANGE) $key .= $_SESSION['remote_addr'];
+		if (!SQ_CONF_ALLOW_IP_CHANGE) {
+			$key .= $_SESSION['remote_addr'];
+		}
 
 		return md5($key);
 
@@ -459,18 +471,26 @@ class MySource
 	{
 		switch ($_REQUEST['SQ_ACTION']) {
 			case 'login' :
+				$login_username = array_get_index($_POST, 'SQ_LOGIN_USERNAME');
+				$login_password = array_get_index($_POST, 'SQ_LOGIN_PASSWORD');
+				$login_key      = array_get_index($_POST, 'SQ_LOGIN_KEY');
+
 				// if this person is already logged in, don't bother trying again because
 				// we will only be giving them an incorrect login key error
-				if (!isset($_POST['SQ_LOGIN_USERNAME']) || !isset($_POST['SQ_LOGIN_PASSWORD'])) return;
-				if (!is_null($this->user) && isset($_POST['SQ_LOGIN_USERNAME']) && $_POST['SQ_LOGIN_USERNAME'] == $this->user->attr('username')) return;
+				if (is_null($login_username) || is_null($login_password)) {
+					return;
+				}
 
-				if (isset($_POST['SQ_LOGIN_KEY']) && isset($_POST['SQ_LOGIN_USERNAME']) &&
-					isset($_POST['SQ_LOGIN_PASSWORD']) && $this->loginKey() == $_POST['SQ_LOGIN_KEY']) {
+				if (!is_null($this->user) && $login_username == $this->user->attr('username')) {
+					return;
+				}
+
+				if (!is_null($login_key) && $this->loginKey() == $login_key) {
 
 					// get a list of all the installed authentication systems
 					$auth_folder = &$this->am->getSystemAsset('authentication_folder');
 					if (is_null($auth_folder)) {
-						trigger_localised_error("SYS0249", E_USER_ERROR);
+						trigger_localised_error('SYS0249', E_USER_ERROR);
 						return;
 					}
 					$auth_systems = $auth_folder->getAuthSystems();
@@ -480,7 +500,8 @@ class MySource
 					foreach ($auth_systems as $systemid) {
 						$system = &$this->am->getAsset($systemid);
 						if (is_null($system)) continue;
-						$user = &$system->authenticateUser($_POST['SQ_LOGIN_USERNAME'], $_POST['SQ_LOGIN_PASSWORD']);
+
+						$user = &$system->authenticateUser($login_username, $login_password);
 						if (!is_null($user)) break;
 					}
 
@@ -526,9 +547,9 @@ class MySource
 					// log a message so we know someone has logged out
 					$ms = &$this->getMessagingService();
 					$msg_reps = Array(
-									'user_name'	=> $user->name,
+									'user_name'	=> $this->user->name,
 								);
-					$log = $ms->newMessage(Array(), 'system.security.login', $msg_reps);
+					$log = $ms->newMessage(Array(), 'system.security.logout', $msg_reps);
 					$log->parameters['remote_addr'] = $_SERVER['REMOTE_ADDR'];
 					$log->parameters['sessionid'] = session_id();
 					$log->send();
@@ -584,7 +605,9 @@ class MySource
 			break;
 
 			case 'rollback_view_stop' :
-				if (isset($_SESSION['sq_rollback_view'])) unset($_SESSION['sq_rollback_view']);
+				if (isset($_SESSION['sq_rollback_view'])) {
+					unset($_SESSION['sq_rollback_view']);
+				}
 			break;
 
 			case 'hipo' :
@@ -599,7 +622,9 @@ class MySource
 			break;
 
 			case 'clear_design_name' :
-				if (isset($_SESSION['SQ_DESIGN_NAME'])) unset($_SESSION['SQ_DESIGN_NAME']);
+				if (isset($_SESSION['SQ_DESIGN_NAME'])) {
+					unset($_SESSION['SQ_DESIGN_NAME']);
+				}
 			break;
 
 			case 'asset_map_request' :
@@ -628,11 +653,11 @@ class MySource
 	function generateLoginKey($force_new_key=false)
 	{
 		require_once SQ_FUDGE_PATH.'/general/general.inc';
-		
+
 		if ($force_new_key || empty($_SESSION['SQ_LOGIN_KEY'])) {
 			$_SESSION['SQ_LOGIN_KEY'] = random_password(20);
 		}
-		
+
 		return $_SESSION['SQ_LOGIN_KEY'];
 
 	}//end generateLoginKey()
@@ -691,8 +716,11 @@ class MySource
 					}
 				}
 
-				if (is_null($pref_1)) $pref_1 = $preferences;
-				else $pref_2 = $preferences;
+				if (is_null($pref_1)) {
+					$pref_1 = $preferences;
+				} else {
+					$pref_2 = $preferences;
+				}
 
 				if (!is_null($pref_2)) {
 					// merge the preference files
@@ -725,7 +753,7 @@ class MySource
 		if (is_null($asset_type)) return $prefs;
 
 		if (!isset($prefs[$asset_type])) {
-			trigger_localised_error("SYS0215", E_USER_WARNING, $asset_type);
+			trigger_localised_error('SYS0215', E_USER_WARNING, $asset_type);
 			return Array();
 		}
 		$prefs = $prefs[$asset_type];
@@ -736,7 +764,7 @@ class MySource
 			// try the global preferences before throwing an error
 			include SQ_DATA_PATH.'/private/conf/preferences.inc';
 			if (!isset($preferences[$asset_type][$pref])) {
-				trigger_localised_error("SYS0259", E_USER_WARNING, $pref, $asset_type);
+				trigger_localised_error('SYS0259', E_USER_WARNING, $pref, $asset_type);
 				return Array();
 			} else {
 				$prefs = $preferences[$asset_type];
@@ -744,8 +772,11 @@ class MySource
 		}
 		$prefs = $prefs[$pref];
 
-		if (!$value_only) return $prefs;
-		else return $prefs['default'];
+		if (!$value_only) {
+			return $prefs;
+		} else {
+			return $prefs['default'];
+		}
 
 	}//end getUserPrefs()
 
@@ -789,7 +820,7 @@ class MySource
 	function setCurrentUser(&$user)
 	{
 		if (!is_a($user, 'user')) {
-			trigger_localised_error("SYS0171", E_USER_WARNING);
+			trigger_localised_error('SYS0171', E_USER_WARNING);
 			return false;
 		}
 
@@ -797,7 +828,9 @@ class MySource
 		if (!$user->canSetAsCurrentUser()) return false;
 
 		if (!is_null($this->user)) {
-			if (!isset($this->_tmp['current_user_cache'])) $this->_tmp['current_user_cache'] = Array();
+			if (!isset($this->_tmp['current_user_cache'])) {
+				$this->_tmp['current_user_cache'] = Array();
+			}
 			array_push($this->_tmp['current_user_cache'], Array($this->user->id, $this->user->type()));
 		}
 
@@ -925,7 +958,9 @@ class MySource
 		// now make sure that the user is in the system administrators group
 		$sys_admin_group = &$this->am->getSystemAsset('system_user_group');
 		$sys_admins = $this->am->getLinks($sys_admin_group->id, SQ_LINK_TYPE_1, 'system_user');
-		foreach ($sys_admins as $data) if ($data['minorid'] == $user->id) return true;
+		foreach ($sys_admins as $data) {
+			if ($data['minorid'] == $user->id) return true;
+		}
 
 		return false;
 
@@ -1144,7 +1179,7 @@ class MySource
 	{
 		if (empty($this->_run_level_stack)) {
 			// there is no run level to restore
-			trigger_localised_error("SYS0110", E_USER_ERROR);
+			trigger_localised_error('SYS0110', E_USER_ERROR);
 		}
 
 		array_pop($this->_run_level_stack);
@@ -1187,7 +1222,7 @@ class MySource
 		$current_run_level = $this->getRunLevel();
 		if (is_null($current_run_level)) {
 			// there is no run level to check
-			trigger_localised_error("SYS0102", E_USER_ERROR);
+			trigger_localised_error('SYS0102', E_USER_ERROR);
 		}
 
 		return ($security_system & $current_run_level);
@@ -1228,14 +1263,14 @@ class MySource
 				break;
 
 			default:
-				trigger_localised_error("SYS0129", E_USER_WARNING, $conn);
+				trigger_localised_error('SYS0129', E_USER_WARNING, $conn);
 				return;
 		}
 
 		if (empty($this->_db_conns[$conn])) {
 			$this->_db_conns[$conn] = DB::connect(SQ_CONF_DB_DSN);
 			assert_valid_db_result($this->_db_conns[$conn]);
-			
+
 			// make sure all results are assoc arrays
 			$this->_db_conns[$conn]->setFetchMode(DB_FETCHMODE_ASSOC);
 
@@ -1392,17 +1427,24 @@ class MySource
 	{
 		// trim off a current prefix keyword if it exists
 		$where = trim($where);
-		if (strtoupper(substr($where, 0, strlen($prefix))) == strtoupper($prefix)) $where = substr($where, strlen($prefix));
-
+		if (strtoupper(substr($where, 0, strlen($prefix))) == strtoupper($prefix)) {
+			$where = substr($where, strlen($prefix));
+		}
 
 		if (!SQ_ROLLBACK_VIEW) {
 			// we are not in rollback view so we dont need anything special in the where clause
-			if (empty($where)) return '';
-			else return ' '.$prefix.' '.$where;
+			if (empty($where)) {
+				return '';
+			} else {
+				return ' '.$prefix.' '.$where;
+			}
 		}
 
-		if (!is_null($table_alias)) $table_alias .= '.';
-		else $table_alias = '';
+		if (!is_null($table_alias)) {
+			$table_alias .= '.';
+		} else {
+			$table_alias = '';
+		}
 
 		$then = $_SESSION['sq_rollback_view']['rollback_time'];
 
@@ -1466,7 +1508,9 @@ class MySource
 				VALUES
 				('.$this->db->quote($lockid).','.$this->db->quote($source_lockid).','.$this->db->quote($this->currentUserid()).','.$expires.')';
 		$result = $this->db->query($sql);
-		if (!assert_valid_db_result($result, '', true, false)) return 'Database Error';
+		if (!assert_valid_db_result($result, '', true, false)) {
+			return 'Database Error';
+		}
 
 		$this->restoreDatabaseConnection();
 		return true;
@@ -1492,7 +1536,9 @@ class MySource
 				WHERE source_lockid = '.$this->db->quote($current_lock['source_lockid']);
 
 		$result = $this->db->query($sql);
-		if (!assert_valid_db_result($result, '', true, false)) return 'Database Error';
+		if (!assert_valid_db_result($result, '', true, false)) {
+			return 'Database Error';
+		}
 
 		$this->restoreDatabaseConnection();
 		return true;
@@ -1516,7 +1562,9 @@ class MySource
 	function updateLock($lockid, $expires=0)
 	{
 		$current_lock = $this->getLockInfo($lockid);
-		if (empty($current_lock) || empty($current_lock['expires'])) return true;
+		if (empty($current_lock) || empty($current_lock['expires'])) {
+			return true;
+		}
 
 		if (!is_null($expires)) {
 			$expires = (!$expires) ? (time() + SQ_CONF_LOCK_LENGTH) : (int) $expires;
@@ -1529,7 +1577,9 @@ class MySource
 				WHERE source_lockid = '.$this->db->quote($current_lock['source_lockid']);
 
 		$result = $this->db->query($sql);
-		if (!assert_valid_db_result($result, '', true, false)) return 'Database Error';
+		if (!assert_valid_db_result($result, '', true, false)) {
+			return 'Database Error';
+		}
 
 		$this->restoreDatabaseConnection();
 		return true;
