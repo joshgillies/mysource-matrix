@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: xml_array.inc,v 1.12 2004/12/03 15:33:23 brobertson Exp $
+* $Id: xml_array.inc,v 1.12.2.1 2005/05/03 06:35:08 ndvries Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -88,14 +88,6 @@ class XML_Array extends XML_Parser
 	* @var Array(&Array())
 	*/
 	var $_path_ptrs = Array();
-
-	/**
-	* Stack used in parsing to determine type (simple/complex) of current element
-	*
-	* @var Array(char)
-	*/
-	var $_path_ptrs = Array();
-
 
 	/**
 	* Storage unit used in parsing
@@ -214,7 +206,7 @@ class XML_Array extends XML_Parser
 			//  $parent->children[] = &new $this->_node_class(null, $this->cdata);
 			//}
 
-			// create this elements entry, need to check 
+			// create this elements entry, need to check
 			// if it exists here so that we don't overright multiple entry
 			// elements contents
 			if (!isset($parent[$elem]) || !is_array($parent[$elem])) {
@@ -227,7 +219,7 @@ class XML_Array extends XML_Parser
 			$this->_path[]       = $elem;
 			$this->_path_types[] = 's'; // every element start's out simple :)
 			$this->_path_ptrs[]  = &$parent[$elem];
-			
+
 			// OK, this element in one of possibly many with the same name
 			// so what we have to do is create an indexed array with each element under it
 			$path_str = implode('/', $this->_path);
@@ -285,7 +277,7 @@ class XML_Array extends XML_Parser
 		}//end if
 
 		// OK, this element in one of possibly many with the same name
-		// so what we need to pop 2 elements of the ptr's array 
+		// so what we need to pop 2 elements of the ptr's array
 		// because we put 2 on in startHandler
 		$path_str = implode('/', $this->_path);
 		if (in_array($path_str, $this->_array_paths)) {
