@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.84 2005/04/15 00:37:27 lwright Exp $
+* $Id: user.inc,v 1.85 2005/05/03 04:43:07 rhoward Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.84 $
+* @version $Revision: 1.85 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -75,7 +75,7 @@ class User extends Asset
 		$password = $this->attr('password');
 
 		if (!$this->_catchBlankUserNamePass($username, $password)) {
-			trigger_localised_error("CORE0084", E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
+			trigger_localised_error('CORE0084', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
 			return false;
 		}
 
@@ -104,23 +104,23 @@ class User extends Asset
 		$valid_paths = make_valid_web_paths(Array($initial_path));
 		$good_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($link['asset'], $valid_paths, $this->id, true);
 		if (!$this->saveWebPaths($good_paths)) {
-			trigger_localised_error("CORE0019", E_USER_WARNING, $this->name);
+			trigger_localised_error('CORE0019', E_USER_WARNING, $this->name);
 			return false;
 		}
 
 		if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'permissions')) {
-			trigger_localised_error("CORE0014", E_USER_WARNING, $this->name);
+			trigger_localised_error('CORE0014', E_USER_WARNING, $this->name);
 			return false;
 		}
 
 		// give the user admin access to him/herself
 		if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($this->id, $this->id, SQ_PERMISSION_ADMIN, true)) {
-			trigger_localised_error("CORE0015", E_USER_WARNING, $this->name);
+			trigger_localised_error('CORE0015', E_USER_WARNING, $this->name);
 			return false;
 		}
 
 		if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'permissions')) {
-			trigger_localised_error("CORE0013", E_USER_WARNING, $this->name);
+			trigger_localised_error('CORE0013', E_USER_WARNING, $this->name);
 			return false;
 		}
 
@@ -177,7 +177,7 @@ class User extends Asset
 
 		} else if ($name == 'username') {
 			if (!$this->_catchBlankSetUserName(trim($value))) {
-				trigger_localised_error("CORE0110", E_USER_WARNING);
+				trigger_localised_error('CORE0110', E_USER_WARNING);
 				return false;
 			}
 		}
@@ -203,9 +203,7 @@ class User extends Asset
 	{
 		$password = $this->attr('password');
 
-		if (!trim($password)) {
-			return false;
-		}
+		if (!trim($password)) return false;
 
 		return (crypt($entered_password,$password) == $password);
 
@@ -250,13 +248,21 @@ class User extends Asset
 			} else if ($GLOBALS['SQ_SYSTEM']->userSystemAdmin($this)) {
 				// this is a sysadmin so they need to
 				// be root or the sysadmin themselves
-				if (!$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) return false;
-				if ($this->id == $GLOBALS['SQ_SYSTEM']->currentUserId()) return true;
+				if (!$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
+					return false;
+				}
+				if ($this->id == $GLOBALS['SQ_SYSTEM']->currentUserId()) {
+					return true;
+				}
 				return false;
 			} else {
 				// any other user's details
-				if ($GLOBALS['SQ_SYSTEM']->userSystemAdmin()) return true;
-				if ($this->id == $GLOBALS['SQ_SYSTEM']->currentUserId()) return true;
+				if ($GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
+					return true;
+				}
+				if ($this->id == $GLOBALS['SQ_SYSTEM']->currentUserId()) {
+					return true;
+				}
 			}
 
 			return false;
@@ -284,10 +290,14 @@ class User extends Asset
 
 		// we dont want our inbox or workspace deleted
 		$inbox_link = $this->getInboxLink();
-		if ($inbox_link['linkid'] == $linkid) return 'You cant delete the link between a user and their inbox';
+		if ($inbox_link['linkid'] == $linkid) {
+			return 'You cant delete the link between a user and their inbox';
+		}
 
 		$workspace_link = $this->getWorkspaceLink();
-		if ($workspace_link['linkid'] == $linkid) return 'You cant delete the link between a user and their workspace';
+		if ($workspace_link['linkid'] == $linkid) {
+			return 'You cant delete the link between a user and their workspace';
+		}
 
 		return parent::isDeletableLink($linkid);
 
@@ -304,10 +314,14 @@ class User extends Asset
 	function canLogin()
 	{
 		// check that this user is live
-		if ($this->status & SQ_SC_STATUS_NOT_LIVE) return false;
+		if ($this->status & SQ_SC_STATUS_NOT_LIVE) {
+			return false;
+		}
 
 		// check that this user is not only in the trash
-		if ($GLOBALS['SQ_SYSTEM']->am->assetInTrash($this->id, true)) return false;
+		if ($GLOBALS['SQ_SYSTEM']->am->assetInTrash($this->id, true)) {
+			return false;
+		}
 
 		return true;
 
@@ -450,13 +464,13 @@ class User extends Asset
 		$link = $this->getWorkspaceLink();
 
 		if (empty($link)) {
-			trigger_localised_error("CORE0109", E_USER_WARNING,$this->name);
+			trigger_localised_error('CORE0109', E_USER_WARNING,$this->name);
 			return $null;
 		}
 
 		$workspace = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid']);
 		if (is_null($workspace)) {
-			trigger_localised_error("CORE0109", E_USER_WARNING,$this->name);
+			trigger_localised_error('CORE0109', E_USER_WARNING,$this->name);
 			return $null;
 		}
 		return $workspace;

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_edit_fns.inc,v 1.15 2005/04/04 06:44:48 lwright Exp $
+* $Id: user_edit_fns.inc,v 1.16 2005/05/03 04:43:07 rhoward Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -93,7 +93,7 @@ class User_Edit_Fns extends Asset_Edit_Fns
 			echo 'This user is not a member of any user groups; it cannot be restricted';
 			return false;
 		}
-			
+
 		if ($asset->writeAccess('attributes')) {
 
 			foreach ($groups as $group_assetid => $group) {
@@ -220,10 +220,10 @@ class User_Edit_Fns extends Asset_Edit_Fns
 			$restrictions = $asset->attr('restrictions');
 			$group_list = $_POST[$prefix.'_group_list'];
 			$restrictions[$group_list][] = Array(
-												 'name'           => $_POST[$prefix.'_restriction_list'],
-												 'condition_data' => Array(),
-												 'match'          => true,
-												 );
+											'name'				=> $_POST[$prefix.'_restriction_list'],
+											'condition_data'	=> Array(),
+											'match'				=> true,
+										   );
 		}
 
 
@@ -248,7 +248,7 @@ class User_Edit_Fns extends Asset_Edit_Fns
 	function paintLocale(&$asset, &$o, $prefix)
 	{
 		$write_access = $asset->writeAccess('attributes');
-	
+
 		require SQ_FUDGE_PATH.'/standards_lists/locales.inc';
 		$current_locale = $asset->attr('locale');
 
@@ -260,7 +260,7 @@ class User_Edit_Fns extends Asset_Edit_Fns
 		} else {
 			if (isset($standards_lists_locales[$current_locale])) {
 				echo $standards_lists_locales[$current_locale];
-			} elseif ($current_locale == '') {
+			} else if ($current_locale == '') {
 				// add system default to this message when it is determined
 				echo '<i>No locale is set for this user - system default "'.$standards_lists_locales[SQ_CONF_DEFAULT_BACKEND_LOCALE].'" used</i>';
 			} else {
