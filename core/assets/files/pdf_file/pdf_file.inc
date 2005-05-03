@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: pdf_file.inc,v 1.13 2005/04/15 00:37:25 lwright Exp $
+* $Id: pdf_file.inc,v 1.14 2005/05/03 07:09:56 arailean Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -77,7 +77,7 @@ class PDF_File extends File
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 		$ext = get_file_type($info['filename']);
 		if (!in_array($ext, $this->allowed_extensions)) {
-			trigger_localised_error("CORE0105", E_USER_WARNING);
+			trigger_localised_error('CORE0105', E_USER_WARNING);
 			return false;
 		}
 		return true;
@@ -112,27 +112,41 @@ class PDF_File extends File
 
 		$indexer_path = dirname(__FILE__).'/files';
 
-		$file = ereg_replace("\"","\\\"",$file);
-		$tmp_file = $this->data_path . '/pdf_'.time();
-
-		copy($file,$tmp_file);
+		$file = ereg_replace('\"','\\\"',$file);
 
 		$output = '';
+
 		if (SQ_TOOL_PDFTOHTML_ENABLED) {
 			// Run a program that converts a PDF to HTML, set environment variable of bin_path
-			$cmd = 'DIR='.$this->data_path.' PDFTOHTMLBIN_DIR='.dirname(SQ_TOOL_PDFTOHTML_PATH).' '.SQ_TOOL_PDFTOHTML_PATH.' -stdout '.$tmp_file;
-			$output =`$cmd`;
+			$cmd = 'DIR='.$this->data_path.' PDFTOHTMLBIN_DIR='.dirname(SQ_TOOL_PDFTOHTML_PATH).' '.SQ_TOOL_PDFTOHTML_PATH.' -nomerge -noframes -stdout '.$file;
+			$output = shell_exec($cmd);
 		}
 
-		unlink($tmp_file);
-		if (!$output) {
-			return $keydata;
-		}
+		if (!$output) return $keydata;
 
 		// strip out the tags
-		$output = strip_tags($output);
-		// strip out the whitespace
-		$output = strtolower(trim(preg_replace("/[\s]+/", " ", $output)));
+		$output = trim(strip_tags($output));
+
+		// in some cases file path ends up as the first string in the file
+		// this is the way pdftohtml treats files without the title, it puts filename into html title
+
+		// if file extension is .pdf, the .pdf part is omitted by pdftohtml from the first string (strange)
+		// here we prepare the file name for that case
+		if (substr($file, -4) == '.pdf') {
+			$file = substr($file, 0, strlen($file)-4);
+		}
+
+		// if we suspect that the first string is the file path, remove it
+		// NOTE: this will only work on *nix type filesystems. This is
+		if ($output{0} == '/') {
+			$output = substr($output, strlen($file));
+		}
+
+		// strip out the unnecessary whitespace and html entities like &amp;
+		$search = Array('/[\s]+/', '/\&[^;\s]+;/');
+		$replace = Array(' ', '');
+
+		$output = strtolower(trim(preg_replace($search, $replace, $output)));
 
 		// index attributes
 		$weightings = $this->getWeightings();
