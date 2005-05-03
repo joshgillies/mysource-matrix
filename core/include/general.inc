@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.85 2005/04/19 00:16:18 tbarrett Exp $
+* $Id: general.inc,v 1.86 2005/05/03 04:30:37 rhoward Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.85 $
+* @version $Revision: 1.86 $
 * @package MySource_Matrix
 */
 
@@ -104,7 +104,7 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 				require_once 'XML/Tree.php';
 				$output = new XML_Tree();
 				$root = &$output->addRoot('error', $msg);
-				header("Content-Type: text/xml");
+				header('Content-Type: text/xml');
 				$output->dump();
 				exit(); // we need to always exit for XML otherwise we are likely to end up with XML parse errors at the other end
 				break;
@@ -115,7 +115,9 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 				$lines = explode("\n", $err_msg);
 				$len = 7 + strlen($err_file);
 				$len = max($len, 7 + strlen($err_line));
-				foreach ($lines as $line) $len = max($len, strlen($line));
+				foreach ($lines as $line) {
+					$len = max($len, strlen($line));
+				}
 				$len += 2;
 				$str =	'+'.str_repeat('-', $len)."+\n".
 						'| '.$err_name.str_repeat(' ', $len - 2 - strlen($err_name))." |\n".
@@ -354,7 +356,9 @@ function sq_web_path($path='base')
 			$root_urls = explode("\n", SQ_CONF_SYSTEM_ROOT_URLS);
 			$current_url = strip_url(current_url(false, true));
 			// if we are in the backend strip the suffix
-			if (SQ_IN_BACKEND) $current_url = preg_replace('/\\/'.SQ_CONF_BACKEND_SUFFIX.'$/', '', $current_url);
+			if (SQ_IN_BACKEND) {
+				$current_url = preg_replace('/\\/'.SQ_CONF_BACKEND_SUFFIX.'$/', '', $current_url);
+			}
 			$tmp = $root_urls[0];
 			for ($i = 1; $i < count($root_urls); $i++) {
 				if (substr($current_url, 0, strlen($root_urls[$i])) == $root_urls[$i]) {
@@ -413,7 +417,7 @@ function current_url($inc_protocol=true, $strip_backend_suffix=false)
 			// if previous test failed, this one will probably not help, but before dying we try anyway
 			$host = array_get_index($_SERVER, 'SERVER_NAME', false);
 			if (!$host) {
-				trigger_localised_error("SYS0107", E_USER_ERROR);
+				trigger_localised_error('SYS0107', E_USER_ERROR);
 			}
 		}
 
@@ -513,7 +517,9 @@ function strip_url($url, $strip_protocol=false)
 function replace_query_string_vars($replacements, $base_url=null, $query_string=null)
 {
 	if (is_null($base_url)) $base_url = current_url();
-	if (is_null($query_string)) $query_string = stripslashes($_SERVER['QUERY_STRING']);
+	if (is_null($query_string)) {
+		$query_string = stripslashes($_SERVER['QUERY_STRING']);
+	}
 
 	$url = $base_url.'?'.$query_string;
 
@@ -522,14 +528,18 @@ function replace_query_string_vars($replacements, $base_url=null, $query_string=
 		$url = preg_replace($find, '\\1', $url);
 		if (is_null($value)) continue;
 		$last_chr = $url{strlen($url) - 1};
-		if ($last_chr != '&' && $last_chr != '?') $url .= '&';
+		if ($last_chr != '&' && $last_chr != '?') {
+			$url .= '&';
+		}
 		$url .= $var.'='.$value;
 	}
 
 	// if the last replacement was null, there might be a & or ? on the end
 	// of the query string
 	$last_chr = $url{strlen($url) - 1};
-	if ($last_chr == '&' || $last_chr == '?') $url = substr($url, 0, -1);
+	if ($last_chr == '&' || $last_chr == '?') {
+		$url = substr($url, 0, -1);
+	}
 
 	return $url;
 
@@ -656,7 +666,9 @@ function array_get_index($array, $index, $default=null)
 */
 function register_implementation($class, $interface)
 {
-	if (!isset($GLOBALS['SQ_IMPLEMENTATION'])) $GLOBALS['SQ_IMPLEMENTATION'] = Array();
+	if (!isset($GLOBALS['SQ_IMPLEMENTATION'])) {
+		$GLOBALS['SQ_IMPLEMENTATION'] = Array();
+	}
 	$GLOBALS['SQ_IMPLEMENTATION'][$class] = (is_array($interface)) ? $interface : Array($interface);
 
 }//end register_implementation()
@@ -676,11 +688,13 @@ function implements_interface($class, $interface)
 	if (is_object($class)) {
 		$class = get_class($class);
 	} else if (!class_exists($class)) {
-		trigger_localised_error("SYS0237", E_USER_ERROR, $class);
+		trigger_localised_error('SYS0237', E_USER_ERROR, $class);
 	}
 
 	do {
-		if (isset($GLOBALS['SQ_IMPLEMENTATION'][$class]) && in_array($interface, $GLOBALS['SQ_IMPLEMENTATION'][$class])) return true;
+		if (isset($GLOBALS['SQ_IMPLEMENTATION'][$class]) && in_array($interface, $GLOBALS['SQ_IMPLEMENTATION'][$class])) {
+			return true;
+		}
 	} while ($class = get_parent_class($class));
 
 	return false;
@@ -705,7 +719,7 @@ function implements_interface($class, $interface)
 function log_write($data, $logname=SQ_CONF_LOG_FILE_SYSTEM, $level=E_USER_NOTICE, $encode=true)
 {
 	if (empty($logname) || empty($level)) {
-		trigger_localised_error("SYS0099", E_USER_ERROR);
+		trigger_localised_error('SYS0099', E_USER_ERROR);
 		return false;
 	}
 
@@ -746,22 +760,18 @@ function log_write($data, $logname=SQ_CONF_LOG_FILE_SYSTEM, $level=E_USER_NOTICE
 	$date = date('Y-m-d H:i:s');
 	$log_entry  = "[$date][$userid:$username][$level:$level_name][$flag] $data\n";
 
-	if (!$log_entry) {
-		return false;
-	}
+	if (!$log_entry) return false;
 
 	$logfile = SQ_LOG_PATH.'/'.$logname.SQ_CONF_LOG_EXTENSION;
 	// check if filename is valid
 
 	// set the UMASK to u=rw,g=rw,o=r (0002), so that the user can write the logfiles
 	// needed so that step_03 can be run
-	if (substr(PHP_OS, 0, 3) != 'WIN') {
-		umask(0113);
-	}
+	if (substr(PHP_OS, 0, 3) != 'WIN') umask(0113);
 
 	$handle = fopen($logfile, 'a');
 	if (!fwrite($handle, $log_entry)) {
-		trigger_localised_error("SYS0051", E_USER_WARNING, $logfile);
+		trigger_localised_error('SYS0051', E_USER_WARNING, $logfile);
 		return false;
 	}
 	fclose($handle);
@@ -787,7 +797,7 @@ function log_write($data, $logname=SQ_CONF_LOG_FILE_SYSTEM, $level=E_USER_NOTICE
 function log_error($message, $level=E_USER_NOTICE, $file='', $line='', $log_name=SQ_CONF_LOG_FILE_ERROR)
 {
 	if (!is_string($message)){
-		trigger_localised_error("SYS0191", E_USER_WARNING);
+		trigger_localised_error('SYS0191', E_USER_WARNING);
 		return false;
 	}
 
