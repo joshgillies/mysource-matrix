@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_management.inc,v 1.38 2005/04/29 05:38:41 gsherwood Exp $
+* $Id: search_page_management.inc,v 1.39 2005/05/03 23:13:22 rhoward Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -312,6 +312,34 @@ class Search_Page_Management extends Asset_Management
 
 		}//end version 0.7 upgrade
 
+
+		if (version_compare($current_version, '0.9', '<=')) {
+			// version 0.9->0.10
+			// create a new No Results bodycopy for each search_page
+			bam('STARTING SEARCH PAGE UPGRADE - FROM VERSION 0.9');
+			$children = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), false);
+			foreach ($children as $assetid) {
+				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				// TODO: FIXME: cvs -D, test upgrade
+				$copy_link = Array(
+								'asset'			=> &$asset,
+								'link_type'		=> SQ_LINK_TYPE_2,
+								'is_dependant'	=> 1,
+								'is_exclusive'	=> 1,
+								'value'			=> 'no_results',
+							 );
+
+				$bodycopy = new Bodycopy();
+				$bodycopy->setAttrValue('name', 'No Results Page Layout');
+				if (!$bodycopy->create($copy_link)) {
+					trigger_localised_error('SCH0023', E_USER_WARNING);
+					return false;
+				}
+
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+			}
+			bam('SEARCH PAGE UPGRADE COMPLETE - FROM VERSION 0.9');
+		}//end version 0.9 upgrade
 		return true;
 
 	}//end _upgrade()
