@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager.inc,v 1.53 2005/04/27 00:14:43 lwright Exp $
+* $Id: cron_manager.inc,v 1.54 2005/05/03 04:25:28 rhoward Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.53 $
+* @version $Revision: 1.54 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -412,7 +412,7 @@ class Cron_Manager extends Asset
 								'error_log_path'	=> SQ_LOG_PATH.'/'.$this->error_log_file_name.SQ_CONF_LOG_EXTENSION,
 								'root_urls'			=> str_replace("\n", ',', SQ_CONF_SYSTEM_ROOT_URLS),
 							);
-				
+
 				// userid zero sends a msg to SQ_CONF_DEFAULT_EMAIL and SQ_CONF_TECH_EMAIL
 				$msg->to           = Array(0, $root_user->id, $sys_admins->id);
 				$msg->from         = 0; // a system message
@@ -889,7 +889,7 @@ class Cron_Manager extends Asset
 							'root_urls'			=> str_replace("\n", ',', SQ_CONF_SYSTEM_ROOT_URLS),
 						);
 			$msg->replacements = $msg_reps;
-			
+
 			// userid zero sends a msg to SQ_CONF_DEFAULT_EMAIL and SQ_CONF_TECH_EMAIL
 			$msg->to   = Array(0, $root_user->id, $sys_admins->id);
 			$msg->from = 0; // a system message
