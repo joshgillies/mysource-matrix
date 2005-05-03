@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.10 2005/05/02 02:31:59 arailean Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.11 2005/05/03 07:01:17 tbarrett Exp $
 *
 */
 
@@ -40,7 +40,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 * @author  David Heppell <dheppell@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -78,7 +78,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				$display_values['type_code'][] = $type;
 				$display_values['inherit'][] = $inherit;
 			}
-			asset_type_chooser($prefix.'_types', true, $display_values, null, false, true);
+			asset_type_chooser($prefix.'_types', true, $display_values, null, true, true);
 			return true;
 		} else {
 			// print the read-only version
