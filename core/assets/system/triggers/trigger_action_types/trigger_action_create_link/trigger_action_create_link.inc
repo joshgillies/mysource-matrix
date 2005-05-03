@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_create_link.inc,v 1.7 2005/04/20 04:20:36 gsherwood Exp $
+* $Id: trigger_action_create_link.inc,v 1.8 2005/05/03 00:16:04 rhoward Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -229,15 +229,15 @@ class Trigger_Action_Create_Link extends Trigger_Action
 
 		// make sure the assetid isn't blank
 		if (empty($request_data['assetid']['assetid'])) {
-			return false;
+			return 'Asset ID not specified';
 		}
 
 		if (!isset($request_data['is_major']) || !isset($is_major_list[$request_data['is_major']])) {
-			return false;
+			return 'Parent or Child link not specified';
 		}
 
 		if (empty($request_data['link_type']) || !isset($link_type_list[$request_data['link_type']])) {
-			return false;
+			return 'Link Type not specified';
 		}
 
 		$settings['assetid']   = $request_data['assetid']['assetid'];
@@ -249,7 +249,7 @@ class Trigger_Action_Create_Link extends Trigger_Action
 		$settings['is_dependant'] = array_get_index($request_data, 'is_dependant', 0);
 		$settings['is_exclusive'] = array_get_index($request_data, 'is_exclusive', 0);
 
-		return true;
+		return false;
 
 	}//end processInterface()
 
