@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.1 2005/04/15 00:37:32 lwright Exp $
+* $Id: lang_errors.xml,v 1.2 2005/05/03 00:27:29 ndvries Exp $
 *
 */
 
@@ -1416,7 +1416,7 @@ Full Node Contents %3$s</error>
 	<error code="CORE0124">URL "%1$s" contains a path "%2$s" which was deemed to be not valid.</error>
 	<error code="CORE0125">Unknown action or invalid input</error>
 	<error code="CORE0126">Events not specified. Trigger batching cannot proceed.</error>
-	<error code="CORE0127">FAILURE %s</error>
+	<error code="CORE0127">FAILURE: Trigger "%2$s" (%1$d), Event "%3$s" broadcast by "%5$s" (%4$s)</error>
 	<error code="CORE0128">Invalid asset ID selected. This condition will always fail.</error>
 	<error code="CORE0129">Invalid asset type selected. This condition will always fail.</error>
 	<error code="CORE0130">Action %1$s (%2$s) not saved. %3$s</error>
@@ -1519,5 +1519,8 @@ Full Node Contents :
 	<error code="CORE0215">You are unable to set sub menu's on the recursive menu type</error>
 
 	<error code="CORE0216">Format for type %s not found</error>
+	
+	<error code="CORE0217">Unable to create Trigger, incorrect format</error>
+	<error code="CORE0218">Loop limit (%1$s) exceeded for %2$s</error>
 
 </errors>
