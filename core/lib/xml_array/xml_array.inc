@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: xml_array.inc,v 1.13 2004/12/06 14:38:13 brobertson Exp $
+* $Id: xml_array.inc,v 1.14 2005/05/03 06:35:55 ndvries Exp $
 *
 */
 
@@ -46,7 +46,7 @@ require_once 'XML/Parser.php';
 * @author  Blair Robertson <blair@squiz.net>
 * @package MySource_Matrix
 * @subpackage lib
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 */
 class XML_Array extends XML_Parser
 {
@@ -88,14 +88,6 @@ class XML_Array extends XML_Parser
 	* @var Array(&Array())
 	*/
 	var $_path_ptrs = Array();
-
-	/**
-	* Stack used in parsing to determine type (simple/complex) of current element
-	*
-	* @var Array(char)
-	*/
-	var $_path_ptrs = Array();
-
 
 	/**
 	* Storage unit used in parsing
