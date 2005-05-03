@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_edit_fns.inc,v 1.47 2005/04/29 05:38:41 gsherwood Exp $
+* $Id: search_page_edit_fns.inc,v 1.48 2005/05/03 04:09:05 ndvries Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine_edit_fns.inc';
 *     Edit functions for search page
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.47 $
+* @version $Revision: 1.48 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -63,14 +63,22 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 		if (!empty($category)) $link_value .= '_'.$category;
 		$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, 'asset', false, $link_value);
 
-		if ($read_only) $write_access = false;
-		else $write_access = $asset->writeAccess('links');
+		if ($read_only) {
+			$write_access = false;
+		} else {
+			$write_access = $asset->writeAccess('links');
+		}
 
 		if (!$write_access) {
 			$root_asset = null;
-			if (!empty($root_link)) $root_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($root_link['minorid']);
-			if (!is_null($root_asset)) echo $root_asset->name . ' (Id: #' . $root_asset->id . ')';
-			else echo 'No root node has been selected';
+			if (!empty($root_link)) {
+				$root_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($root_link['minorid']);
+			}
+			if (!is_null($root_asset)) {
+				echo $root_asset->name . ' (Id: #' . $root_asset->id . ')';
+			} else {
+				echo 'No root node has been selected';
+			}
 		} else {
 			asset_finder($prefix.'_rootid', (!empty($root_link)) ? $root_link['minorid'] : '');
 		}
@@ -94,7 +102,9 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 	*/
 	function processRootAsset(&$asset, &$o, $prefix, $category='')
 	{
-		if (!isset($_POST[$prefix.'_rootid']['assetid'])) return false;
+		if (!isset($_POST[$prefix.'_rootid']['assetid'])) {
+			return false;
+		}
 		$new_root  = $_POST[$prefix.'_rootid']['assetid'];
 
 		// getting existing root link
@@ -103,7 +113,9 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 		$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', false, $link_value);
 
 		// dont process anything if the root node has not changed
-		if (!empty($root_link) && $root_link['minorid'] == $new_root) return false;
+		if (!empty($root_link) && $root_link['minorid'] == $new_root) {
+			return false;
+		}
 
 		$ok = true;
 
@@ -149,8 +161,11 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 	function paintStatus(&$asset, &$o, $prefix, $category='', $read_only=false)
 	{
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-		if ($read_only) $write_access = false;
-		else $write_access = $asset->writeAccess('links');
+		if ($read_only) {
+			$write_access = false;
+		} else {
+			$write_access = $asset->writeAccess('links');
+		}
 
 		if (empty($category)) {
 			$current = $asset->attr('search_status');
@@ -164,7 +179,9 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 			$statuses = get_constant_values('SQ_STATUS');
 
 			$options = Array();
-			foreach ($statuses as $constant => $value) $options[$value] = get_status_description($value);
+			foreach ($statuses as $constant => $value) {
+				$options[$value] = get_status_description($value);
+			}
 
 			combo_box($prefix.'_statuses', $options, true, $current);
 		} else {
@@ -172,7 +189,9 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 				echo 'No statuses are selected. Only LIVE assets will be searched.';
 			} else {
 				echo '<ul>';
-				foreach ($current as $status) echo '<li>'.get_status_description($status).'</li>';
+				foreach ($current as $status) {
+					echo '<li>'.get_status_description($status).'</li>';
+				}
 				echo '</ul>';
 			}
 		}
@@ -227,12 +246,12 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 		$fields = $asset->attr('fields');
 
 		$query_types = Array(
-							 'include_all'  => 'Include all',
-							 'exclude'      => 'Exclude',
-							 'asset_attrib' => 'Asset attribute',
-							 'asset_date'   => 'Asset date',
-							 'metadata'     => 'Metadata',
-							 );
+						'include_all'	=> 'Include all',
+						'exclude'		=> 'Exclude',
+						'asset_attrib'	=> 'Asset attribute',
+						'asset_date'	=> 'Asset date',
+						'metadata'		=> 'Metadata',
+					   );
 
 		$i = 0;
 
@@ -251,13 +270,18 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 			</tr>
 			<?php
 			foreach ($fields as $field_name => $field_data) {
-				if ($field_data['type'] != 'include_all' && $field_data['type'] != 'exclude') continue;
+				if ($field_data['type'] != 'include_all' && $field_data['type'] != 'exclude') {
+					continue;
+				}
 				?>
 				<tr>
 					<td class="sq-backend-data" style="padding: 4px;">
 						<?php
-							if ($write_access) text_box($prefix.'_fields['.$i.'][name]', $field_name);
-							else echo $field_name;
+							if ($write_access) {
+								text_box($prefix.'_fields['.$i.'][name]', $field_name);
+							} else {
+								echo $field_name;
+							}
 						?>
 					</td>
 					<td class="sq-backend-data"><?php echo $query_types[$field_data['type']] ?></td>
@@ -305,20 +329,27 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 				<tr>
 					<td class="sq-backend-data" style="padding: 4px;">
 						<?php
-							if ($write_access) text_box($prefix.'_fields['.$i.'][name]', $field_name);
-							else echo $field_name;
+							if ($write_access) {
+								text_box($prefix.'_fields['.$i.'][name]', $field_name);
+							} else {
+								echo $field_name;
+							}
 						?>
 					</td>
 					<td class="sq-backend-data">
 						<?php
-						if (!isset($field_data['params'])) $field_data['params'] = Array();
+						if (!isset($field_data['params'])) {
+							$field_data['params'] = Array();
+						}
 						$search_types = $asset->attr('types');
 						$search_type = array_get_index($field_data['params'], 'asset_type', '0');
 
 						if (!empty($search_types)) {
 							if ($write_access) {
 								$options = Array('' => '- type -');
-								foreach (array_keys($search_types) as $type) $options[$type] = $type;
+								foreach (array_keys($search_types) as $type) {
+									$options[$type] = $type;
+								}
 								combo_box($prefix.'_fields['.$i.'][params][asset_type]', $options, false, $search_type);
 							} else {
 								echo $search_type;
@@ -395,19 +426,24 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 				<tr>
 					<td class="sq-backend-data" style="padding: 4px;">
 						<?php
-							if ($write_access) text_box($prefix.'_fields['.$i.'][name]', $field_name);
-							else echo $field_name;
+							if ($write_access) {
+								text_box($prefix.'_fields['.$i.'][name]', $field_name);
+							} else {
+								echo $field_name;
+							}
 						?>
 					</td>
 					<td class="sq-backend-data">
 						<?php
-						if (!isset($field_data['params'])) $field_data['params'] = Array();
+						if (!isset($field_data['params'])) {
+							$field_data['params'] = Array();
+						}
 						$date_types = Array(
-											''          => '-- select date --',
-											'created'   => 'Created',
-											'updated'   => 'Updated',
-											'published' => 'Published',
-											);
+										''			=> '-- select date --',
+										'created'	=> 'Created',
+										'updated'	=> 'Updated',
+										'published'	=> 'Published',
+									  );
 
 						$date_type = array_get_index($field_data['params'], 'date_type', '');
 
@@ -461,13 +497,18 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 				<tr>
 					<td class="sq-backend-data" style="padding: 4px;">
 						<?php
-							if ($write_access) text_box($prefix.'_fields['.$i.'][name]', $field_name);
-							else echo $field_name;
+							if ($write_access) {
+								text_box($prefix.'_fields['.$i.'][name]', $field_name);
+							} else {
+								echo $field_name;
+							}
 						?>
 					</td>
 					<td class="sq-backend-data">
 						<?php
-						if (!isset($field_data['params'])) $field_data['params'] = Array();
+						if (!isset($field_data['params'])) {
+							$field_data['params'] = Array();
+						}
 						$metadata_field = array_get_index($field_data['params'], 'assetid', '0');
 
 						if ($write_access) {
@@ -475,8 +516,11 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 						} else {
 							if ($metadata_field > 0) {
 								$field_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($metadata_field);
-								if (!is_null($metadata_field)) echo $field_asset->name.' #'.$field_asset->id;
-								else echo 'No metadata field specified';
+								if (!is_null($metadata_field)) {
+									echo $field_asset->name.' #'.$field_asset->id;
+								} else {
+									echo 'No metadata field specified';
+								}
 							} else {
 								echo 'No metadata field specified';
 							}
@@ -672,8 +716,11 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 		}
 
 		$options = Array();
-		if ($write_access) $options[''] = '-- add new category --';
-		else $options[''] = '-- select a category --';
+		if ($write_access) {
+			$options[''] = '-- add new category --';
+		} else {
+			$options[''] = '-- select a category --';
+		}
 
 		foreach ($categories as $name => $data) {
 			if (empty($name)) continue;
@@ -753,7 +800,9 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 			$o->openSection('Category Specific Search Settings');
 				$o->openField('Root Asset');
 					$using_default = !isset($categories[$selected]['root_assetid']);
-					if ($using_default) echo 'Currently using default root node <b>';
+					if ($using_default) {
+						echo 'Currently using default root node <b>';
+					}
 					$category = ($using_default) ? '' : $selected;
 					$this->paintRootAsset($asset, $o, $prefix, $category, $using_default);
 					if ($using_default) echo '</b>';
@@ -770,7 +819,9 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 						check_box($prefix.'_default_search_status', '1', $using_default);
 						echo ' Use default<br />';
 					}
-					if ($using_default) echo 'Currently using default stauses of';
+					if ($using_default) {
+						echo 'Currently using default stauses of';
+					}
 					$category = ($using_default) ? '' : $selected;
 					$this->paintStatus($asset, $o, $prefix, $category, $using_default);
 				$o->closeField();
@@ -860,7 +911,9 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 							}
 						} else {
 							$using_default = true;
-							if (isset($categories[$category][$default])) unset($categories[$category][$default]);
+							if (isset($categories[$category][$default])) {
+								unset($categories[$category][$default]);
+							}
 							if ($default == 'root_assetid') {
 								$_POST[$prefix.'_rootid']['assetid'] = '';
 								$this->processRootAsset($asset, $o, $prefix, $category);
@@ -889,8 +942,12 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 						}
 					}
 
-					if (isset($categories[$category]) && empty($categories[$category])) unset($categories[$category]);
-					if (isset($categories[$category]['name']) && empty($categories[$category]['name'])) unset($categories[$category]);
+					if (isset($categories[$category]) && empty($categories[$category])) {
+						unset($categories[$category]);
+					}
+					if (isset($categories[$category]['name']) && empty($categories[$category]['name'])) {
+						unset($categories[$category]);
+					}
 
 				}//end if delete category
 
@@ -981,9 +1038,9 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 		$format_folder = &$asset->getFormatFolder();
 
 		$forms = Array(
-					   'Default Search'   => 'search_form',
-					   'Search In Search' => 'sis_form',
-					   );
+					'Default Search'	=> 'search_form',
+					'Search In Search'	=> 'sis_form',
+				 );
 
 		$bodycopies_visible = false;
 
@@ -1051,7 +1108,9 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 
 		// if none of the bodycopies are visible, the hide the folder as well
 		$folder_link_type = SQ_LINK_TYPE_3;
-		if ($bodycopies_visible) $folder_link_type = SQ_LINK_TYPE_2;
+		if ($bodycopies_visible) {
+			$folder_link_type = SQ_LINK_TYPE_2;
+		}
 
 		$folder_link = $asset->getFormatFolderLink();
 		if (!empty($folder_link['link_type']) && $folder_link['link_type'] != $folder_link_type) {
@@ -1085,9 +1144,14 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 
 		if (!$write_access) {
 			$root_asset = null;
-			if (!empty($root_link)) $root_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($root_link['minorid']);
-			if (!is_null($root_asset)) echo $root_asset->name . ' (Id: #' . $root_asset->id . ')';
-			else echo 'No thesaurus asset has been selected';
+			if (!empty($root_link)) {
+				$root_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($root_link['minorid']);
+			}
+			if (!is_null($root_asset)) {
+				echo $root_asset->name . ' (Id: #' . $root_asset->id . ')';
+			} else {
+				echo 'No thesaurus asset has been selected';
+			}
 		} else {
 			asset_finder($prefix.'_thesaurusid', (!empty($root_link)) ? $root_link['minorid'] : '', Array('thesaurus' => 'D'));
 		}
@@ -1109,7 +1173,9 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 	*/
 	function processThesaurusAsset(&$asset, &$o, $prefix)
 	{
-		if (!isset($_POST[$prefix.'_thesaurusid']['assetid'])) return false;
+		if (!isset($_POST[$prefix.'_thesaurusid']['assetid'])) {
+			return false;
+		}
 		$new_root  = $_POST[$prefix.'_thesaurusid']['assetid'];
 
 		// getting existing root link
@@ -1117,7 +1183,9 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 		$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', false, $link_value);
 
 		// dont process anything if the root node has not changed
-		if (!empty($root_link) && $root_link['minorid'] == $new_root) return false;
+		if (!empty($root_link) && $root_link['minorid'] == $new_root) {
+			return false;
+		}
 
 		$ok = true;
 

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.89 2005/04/29 06:52:58 arailean Exp $
+* $Id: search_page.inc,v 1.90 2005/05/03 04:09:05 ndvries Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.89 $
+* @version $Revision: 1.90 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -43,8 +43,9 @@ class Search_Page extends Listing_Engine
 	* @var array
 	*/
 	var $bodycopies = Array(
-						'initial'	=> 'Initial Search Page Layout',
-						'results'	=> 'Results Page Layout',
+						'initial'		=> 'Initial Search Page Layout',
+						'results'		=> 'Results Page Layout',
+						'no_results'	=> 'No Results Page Layout',
 					  );
 
 	/**
@@ -60,21 +61,24 @@ class Search_Page extends Listing_Engine
 	* @var array
 	*/
 	var $keywords = Array(
-						'initial'	=> Array(
-										'submit_button',
-										'results_per_page',
-									   ),
-						'results'	=> Array(
-										'result_list',
-										'result_count',
-										'current_result_page',
-										'total_result_pages',
-										'result_page_index',
-										'previous_result_page_link',
-										'next_result_page_link',
-										'initial_layout',
-										'category_list_linked',
-									   ),
+						'initial'		=> Array(
+											'submit_button',
+											'results_per_page',
+										   ),
+						'results'		=> Array(
+											'result_list',
+											'result_count',
+											'current_result_page',
+											'total_result_pages',
+											'result_page_index',
+											'previous_result_page_link',
+											'next_result_page_link',
+											'initial_layout',
+											'category_list_linked',
+										   ),
+						'no_results'	=> Array(
+											'initial_layout',
+										   ),
 					);
 
 
@@ -314,7 +318,11 @@ class Search_Page extends Listing_Engine
 	function printResultsBody()
 	{
 		$results = $this->processSearch();
-		echo $this->getBodycopyContents('results', $this->getResultsBodyReplacements($results));
+		if (empty($results)) {
+			echo $this->getBodycopyContents('no_results', $this->getResultsBodyReplacements($results));
+		} else {
+			echo $this->getBodycopyContents('results', $this->getResultsBodyReplacements($results));
+		}
 
 	}//end printResultsBody()
 
