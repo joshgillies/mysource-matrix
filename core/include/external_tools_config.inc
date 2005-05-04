@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: external_tools_config.inc,v 1.14 2005/04/15 00:37:28 lwright Exp $
+* $Id: external_tools_config.inc,v 1.15 2005/05/04 02:35:57 arailean Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    e.g. HTML Tidy, PDFtoHTML, Antiword, etc.
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix
 */
 class External_Tools_Config extends Config
@@ -46,12 +46,13 @@ class External_Tools_Config extends Config
 	* @var Array()
 	*/
 	var $config_vars = Array(
-						'SQ_TOOL_HTML_TIDY_PATH'	=> Array('editable' => 1, 'default' => '/usr/bin/tidy'),
-						'SQ_TOOL_HTML_TIDY_ENABLED'	=> Array('editable' => 1, 'default' => false),
-						'SQ_TOOL_PDFTOHTML_PATH'	=> Array('editable' => 1, 'default' => '/usr/bin/pdftohtml'),
-						'SQ_TOOL_PDFTOHTML_ENABLED'	=> Array('editable' => 1, 'default' => false),
-						'SQ_TOOL_ANTIWORD_PATH'		=> Array('editable' => 1, 'default' => '/usr/bin/antiword'),
-						'SQ_TOOL_ANTIWORD_ENABLED'	=> Array('editable' => 1, 'default' => false),
+						'SQ_TOOL_HTML_TIDY_PATH'		=> Array('editable' => 1, 'default' => '/usr/bin/tidy'),
+						'SQ_TOOL_HTML_TIDY_ENABLED'		=> Array('editable' => 1, 'default' => false),
+						'SQ_TOOL_PDFTOHTML_PATH'		=> Array('editable' => 1, 'default' => '/usr/bin/pdftohtml'),
+						'SQ_TOOL_PDFTOHTML_ENABLED'		=> Array('editable' => 1, 'default' => false),
+						'SQ_TOOL_ANTIWORD_PATH'			=> Array('editable' => 1, 'default' => '/usr/bin/antiword'),
+						'SQ_TOOL_ANTIWORD_MAPPING_PATH'	=> Array('editable' => 1, 'default' => '/usr/share/antiword'),
+						'SQ_TOOL_ANTIWORD_ENABLED'		=> Array('editable' => 1, 'default' => false),
 					   );
 
 
@@ -86,7 +87,7 @@ class External_Tools_Config extends Config
 
 			// if we dont have access, go away
 			if (!$is_admin) {
-				trigger_localised_error("SYS0267", E_USER_WARNING, $this->name);
+				trigger_localised_error('SYS0267', E_USER_WARNING, $this->name);
 				return false;
 			}
 		}
@@ -120,7 +121,9 @@ class External_Tools_Config extends Config
 	function writeAccess()
 	{
 		if (!parent::writeAccess()) return false;
-		if (!$GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS)) return true;
+		if (!$GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS)) {
+			return true;
+		}
 
 		// need to be root or a sys admin
 		return ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
@@ -219,6 +222,19 @@ class External_Tools_Config extends Config
 			} else if (!is_executable(SQ_TOOL_ANTIWORD_PATH)) {
 				?><br /><span class="sq-backend-warning">The path to Antiword is not executable</span><?php
 			}
+
+			$o->openField('Path to Antiword Mappings');
+			if ($write_access) {
+				text_box($class.'[SQ_TOOL_ANTIWORD_MAPPING_PATH]', SQ_TOOL_ANTIWORD_MAPPING_PATH, 30);
+			} else {
+				echo SQ_TOOL_ANTIWORD_MAPPING_PATH;
+			}
+
+			if (!is_dir(SQ_TOOL_ANTIWORD_MAPPING_PATH)) {
+				?><br /><span class="sq-backend-warning">The path to Antiword Mappings is not valid</span><?php
+			}
+
+
 
 		$o->closeSection();
 		if ($write_access) $o->commitButton('', true);
