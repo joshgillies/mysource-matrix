@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: pdf_file.inc,v 1.15 2005/05/04 00:38:04 arailean Exp $
+* $Id: pdf_file.inc,v 1.16 2005/05/04 00:39:16 arailean Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -150,7 +150,6 @@ class PDF_File extends File
 		$replace = Array(' ', '');
 
 		$output = strtolower(trim(preg_replace($search, $replace, $output)));
-		error_log($output);
 
 		// index attributes
 		$weightings = $this->getWeightings();
