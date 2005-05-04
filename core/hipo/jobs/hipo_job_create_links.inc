@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_links.inc,v 1.11 2005/04/15 00:37:27 lwright Exp $
+* $Id: hipo_job_create_links.inc,v 1.12 2005/05/04 01:00:58 ndvries Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -217,6 +217,8 @@ class HIPO_Job_Create_Links extends HIPO_Job
 			trigger_localised_error('HIPO0024', E_USER_WARNING);
 			return '';
 		}
+
+		$this->_running_vars['assets_children'] = Array();
 
 		return parent::initialise($source_code_name);
 
@@ -476,6 +478,21 @@ class HIPO_Job_Create_Links extends HIPO_Job
 			unset($new_parent);
 
 		} else if ($this->_running_vars['link_action'] == 'move') {
+
+			// if we are moving to the trash, we want to skip all the steps that ask us if we want
+			// to cascade permissions, metadata, and workflow. We also need to get all the children
+			// so the lookups can be updated later
+			$trash_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
+			if ($this->_running_vars['to_parent_assetid'] == $trash_folder->id) {
+				$this->skipStep(3);
+				$this->skipStep(4);
+				$this->skipStep(5);
+				$this->skipStep(6);
+
+				$children = &$GLOBALS['SQ_SYSTEM']->am->getChildren($assetid);
+				$this->_running_vars['assets_children'] = array_merge($this->_running_vars['assets_children'], array_keys($children));
+			}
+
 			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($value['linkid'], $value['parentid']);
 
 			$linkid = $GLOBALS['SQ_SYSTEM']->am->moveLink($value['linkid'], $this->_running_vars['to_parent_assetid'], $link['link_type'], $this->_running_vars['to_parent_pos']);
@@ -501,16 +518,6 @@ class HIPO_Job_Create_Links extends HIPO_Job
 			$this->_running_vars['to_parent_pos']++;
 
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-
-			// if we are moving to the trash, we want to skip all the steps that ask us if we want
-			// to cascade permissions, metadata, and workflow
-			$trash_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
-			if ($this->_running_vars['to_parent_assetid'] == $trash_folder->id) {
-				$this->skipStep(3);
-				$this->skipStep(4);
-				$this->skipStep(5);
-				$this->skipStep(6);
-			}
 		}
 
 		$this->_running_vars['done_assetids'][] = $assetid;
@@ -678,8 +685,13 @@ class HIPO_Job_Create_Links extends HIPO_Job
 		$assets = $this->_running_vars['assets'];
 
 		for (reset($assets); null !== ($assetid = key($assets)); next($assets)) {
-			$assetids[] = key($assets);
+			$assetids[] = $assetid;
 		}
+
+		if (!empty($this->_running_vars['assets_children'])) {
+			$assetids = array_merge($assetids, $this->_running_vars['assets_children']);
+		}
+
 		$running_vars['assetids'] = $assetids;
 
 	}//end updateLookups()

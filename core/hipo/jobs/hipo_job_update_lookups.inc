@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_update_lookups.inc,v 1.32 2005/04/15 00:37:27 lwright Exp $
+* $Id: hipo_job_update_lookups.inc,v 1.33 2005/05/04 01:00:58 ndvries Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -194,7 +194,6 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		foreach ($this->_running_vars['assetids'] as $assetid) {
-
 			// check if we are updating lookups for a shadow asset, or a bridge
 			$id_parts = explode(':', $assetid);
 			if (isset($id_parts[1])) {
@@ -226,7 +225,7 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 				$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
 				$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 
-				$todo_assets = $db->getCol($sql.$where);
+				$todo_assets = array_merge($todo_assets, $db->getCol($sql.$where));
 			}
 
 		}// end foreach
