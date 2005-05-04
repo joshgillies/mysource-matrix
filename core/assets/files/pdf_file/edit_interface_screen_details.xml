@@ -1,6 +1,3 @@
-<?xml version='1.0' encoding='UTF-8' ?>
-<?xml-stylesheet href="../../../packages/asset.xsl" type="text/xsl"?>
-
 <!--
 /**
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
@@ -21,25 +18,35 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.3 2005/05/04 00:38:04 arailean Exp $
+* $Id: edit_interface_screen_details.xml,v 1.1 2005/05/04 00:38:04 arailean Exp $
 *
 */
 -->
 
-<asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../packages/asset.xsd">
-	<package>__core__</package>
-	<type_code>pdf_file</type_code>
-	<version>0.2</version>
-	<name>PDF File</name>
-	<description>Specialised type of File asset for Portable Document Format (.pdf, a.k.a Adobe Acrobat) files.</description>
-	<instantiable>yes</instantiable>
-	<allowed_access>backend_user</allowed_access>
-	<parent_type>file</parent_type>
-	<requirements>
-		<requirement type="asset">
-			<code>file</code>
-			<version>0.1</version>
-		</requirement>
-	</requirements>
-	<flash_menu_path>Files</flash_menu_path>
-</asset_info>
+<contents>
+	<section name="Details" write_access="write:attributes" limbo_access="1">
+		<field attribute="name">
+			<text width="25" height="1" />
+		</field>
+		<field attribute="allow_unrestricted">
+			<boolean true_text="Yes" false_text="No" />
+		</field>
+		<field>
+			<function_call>
+				<paint_function   name="paintFileUpload"   />
+				<process_function name="processFileUpload" />
+			</function_call>
+		</field>
+		<field hidden="hidden" show_if="havePreUploadedFiles">
+			<function_call>
+				<paint_function   name="paintFileChooser"   />
+				<process_function name="processFileChooser" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Security Options" write_access="write:attributes" limbo_access="1">
+		<field attribute="password">
+			<password width="20" />
+		</field>
+	</section>
+</contents>

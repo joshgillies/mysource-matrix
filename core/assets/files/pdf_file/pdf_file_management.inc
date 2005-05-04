@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: pdf_file_management.inc,v 1.3 2005/01/20 13:07:34 brobertson Exp $
+* $Id: pdf_file_management.inc,v 1.4 2005/05/04 00:38:04 arailean Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -46,12 +46,21 @@ class PDF_File_Management extends Asset_Management
 	function PDF_File_Management(&$pm)
 	{
 		$this->Asset_Management($pm);
+		$this->vars = Array(
+						'password'	=> Array(
+										'added'			=> '0.2',
+										'type'			=> 'password',
+										'default'		=> '',
+										'description'	=> 'Password-protected PDFs cannot be indexed without the password',
+									   ),
+					  );
+
 		$this->components = Array(
-						'contents' => Array(
-							'description'		=> 'Contents (text format)',
-							'default_weighting' => '1',
-						),
-				);
+								'contents'	=> Array(
+												'description'		=> 'Contents (text format)',
+												'default_weighting'	=> '1',
+											   ),
+							);
 
 	}//end constructor
 

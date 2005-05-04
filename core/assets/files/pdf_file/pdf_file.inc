@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: pdf_file.inc,v 1.14 2005/05/03 07:09:56 arailean Exp $
+* $Id: pdf_file.inc,v 1.15 2005/05/04 00:38:04 arailean Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -117,8 +117,11 @@ class PDF_File extends File
 		$output = '';
 
 		if (SQ_TOOL_PDFTOHTML_ENABLED) {
+			$pwd = $this->attr('password');
+			$pwd = (empty($pwd))? '': $pwd = ' -opw '.$pwd.' ';
+
 			// Run a program that converts a PDF to HTML, set environment variable of bin_path
-			$cmd = 'DIR='.$this->data_path.' PDFTOHTMLBIN_DIR='.dirname(SQ_TOOL_PDFTOHTML_PATH).' '.SQ_TOOL_PDFTOHTML_PATH.' -nomerge -noframes -stdout '.$file;
+			$cmd = SQ_TOOL_PDFTOHTML_PATH." -nomerge -noframes -stdout $pwd $file";
 			$output = shell_exec($cmd);
 		}
 
@@ -147,6 +150,7 @@ class PDF_File extends File
 		$replace = Array(' ', '');
 
 		$output = strtolower(trim(preg_replace($search, $replace, $output)));
+		error_log($output);
 
 		// index attributes
 		$weightings = $this->getWeightings();
