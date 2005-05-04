@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thumbnail_edit_fns.inc,v 1.23 2005/02/08 12:45:29 brobertson Exp $
+* $Id: thumbnail_edit_fns.inc,v 1.24 2005/05/04 17:04:26 gnoel Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -55,7 +55,7 @@ class Thumbnail_Edit_Fns extends Image_Edit_Fns
 		File_Edit_Fns::paintFileUpload($asset, $o, $prefix);
 		if ($asset->writeAccess('attributes')) {
 			?><br/><span style="font-size: 10px;">You may only upload files of type <?php echo $this->_getExtensionString($asset->allowed_extensions)?><br/>
-			<span style="font-size: 10px;">Image size is restricted to a maximum of <?php echo $asset->max_width.' x '.$asset->max_height?> pixels</span><?php
+			<?php
 		}
 
 		return true;
