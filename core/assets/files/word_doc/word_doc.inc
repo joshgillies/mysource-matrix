@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: word_doc.inc,v 1.12 2005/04/15 00:37:25 lwright Exp $
+* $Id: word_doc.inc,v 1.13 2005/05/04 02:37:34 arailean Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -77,7 +77,7 @@ class Word_Doc extends File
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 		$ext = get_file_type($info['filename']);
 		if (!in_array($ext, $this->allowed_extensions)) {
-			trigger_localised_error("CORE0106", E_USER_WARNING);
+			trigger_localised_error('CORE0106', E_USER_WARNING);
 			return false;
 		}
 		return true;
@@ -109,30 +109,21 @@ class Word_Doc extends File
 		$file_info = $this->getExistingFile();
 		if (empty($file_info)) return $keydata;
 		$file = $file_info['path'];
-
-		$indexer_path = dirname(__FILE__).'/files';
-
-		$file = ereg_replace("\"","\\\"",$file);
-		$tmp_file = $this->data_path . '/doc_'.time();
-		copy($file,$tmp_file);
+		$file = ereg_replace('\"', '\\\"', $file);
 
 		$output = '';
 		if (SQ_TOOL_ANTIWORD_ENABLED) {
 			// Run a program that converts Word doc to text, set environment variable of bin_path
-			$cmd = 'HOME='.$indexer_path.' '.SQ_TOOL_ANTIWORD_PATH.' '.$tmp_file;
-			$output =`$cmd`;
+			$cmd = 'ANTIWORDHOME='.SQ_TOOL_ANTIWORD_MAPPING_PATH.' '.SQ_TOOL_ANTIWORD_PATH.' '.$file;
+			$output = shell_exec($cmd);
 		}
 
-		unlink($tmp_file);
-
-		if (!$output) {
-			return $keydata;
-		}
+		if (!$output) return $keydata;
 
 		// strip out the tags
 		$output = strip_tags($output);
 		// strip out the whitespace
-		$output = strtolower(trim(preg_replace("/[\s]+/", " ", $output)));
+		$output = strtolower(trim(preg_replace('/[\s]+/', ' ', $output)));
 
 		// index attributes
 		$weightings = $this->getWeightings();
