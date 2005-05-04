@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_searchbox.inc,v 1.19 2005/04/29 05:38:41 gsherwood Exp $
+* $Id: design_area_searchbox.inc,v 1.20 2005/05/04 01:00:01 rhoward Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -99,8 +99,7 @@ class Design_Area_Searchbox extends Design_Area
 
 			case 'box' :
 
-				$class = isset($args['class'])?'class="'.$args['class'].'"' :'';
-
+				$class = isset($args['class']) ? ' class="'.$args['class'].'"' : '';
 				echo '
 				<input type="hidden" name="mode" value="results" />
 				<?php
@@ -120,7 +119,7 @@ class Design_Area_Searchbox extends Design_Area
 					}
 
 					require_once SQ_LIB_PATH."/html_form/html_form.inc";
-					text_box($form_field_name, $field_value, $box_width, "", $hide_default, "'.$class.'");
+					text_box($form_field_name, $field_value, $box_width, "", $hide_default, \''.$class.'\');
 				?>
 				';
 			break;
@@ -135,10 +134,10 @@ class Design_Area_Searchbox extends Design_Area
 
 			case 'submit' :
 				if ($this->attr('submit_button')) {
-					$class = isset($args['class'])?'class="'.$args['class'].'"' :'';
+					$class = isset($args['class']) ? ' class="'.$args['class'].'"' : '';
 
 					$button_value = $this->attr('submit_button_text');
-					echo '<input type="submit" value ="'.$button_value.'"'.$class.' />';
+					echo '<input type="submit" value="'.$button_value.'"'.$class.' />';
 
 				} else {
 					$submit_image_assetid = $this->attr('submit_image_assetid');
