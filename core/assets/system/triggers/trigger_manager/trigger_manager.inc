@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager.inc,v 1.20 2005/05/02 07:33:48 rhoward Exp $
+* $Id: trigger_manager.inc,v 1.21 2005/05/04 04:36:07 rhoward Exp $
 *
 */
 
@@ -51,7 +51,7 @@ require_once 'hash.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -233,7 +233,7 @@ class Trigger_Manager extends Asset
 
 			// get settings
 			$trigger_settings = &$trigger['data']['settings'];
-			$blocking         = array_get_index($trigger['data']['settings'], 'blocking', false);
+			$is_blocking      = array_get_index($trigger['data']['settings'], 'blocking', false);
 
 			// prepare message data
 			$msg_reps = Array(
@@ -246,14 +246,14 @@ class Trigger_Manager extends Asset
 
 			switch ($status) {
 				case SQ_TRIG_RESULT_FAILURE:
-					trigger_localised_error('CORE0127', E_USER_WARNING, $trigger['id'], $trigger['name'], $event_name, $broadcaster->id, $broadcaster->name);
-
-					// if the trigger is set to block, then drop out of the
-					// loop to prevent the other triggers from running
-					// only allowing blocking triggers to affect the broadcast status
-					if ($blocking) {
+					if ($is_blocking) {
+						// if the trigger is set to block, then drop out of the
+						// loop to prevent the other triggers from running
+						// only allowing blocking triggers to affect the broadcast status
 						$broadcast_status = false;
 						break 2;
+					} else {
+						trigger_localised_error('CORE0127', E_USER_WARNING, $trigger['id'], $trigger['name'], $event_name, $broadcaster->id, $broadcaster->name);
 					}
 
 				break;
@@ -534,8 +534,14 @@ class Trigger_Manager extends Asset
 	{
 		$status = SQ_TRIG_RESULT_SUCCESS;
 
-		$conditions = $trigger_data['conditions'];
-		$actions    = $trigger_data['actions'];
+		$conditions  = $trigger_data['conditions'];
+		$actions     = $trigger_data['actions'];
+
+		if (isset($trigger_data['settings'])) {
+			$is_blocking = array_get_index($trigger_data['settings'], 'blocking', false);
+		} else {
+			$is_blocking = false;
+		}
 
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 
@@ -621,11 +627,15 @@ class Trigger_Manager extends Asset
 
 			if ($action_success === false) {
 				if ($not_required) {
-					trigger_localised_error('CORE0134', E_USER_NOTICE, $action['type']);
+					if (!$is_blocking) {
+						trigger_localised_error('CORE0134', E_USER_NOTICE, $action['type']);
+					}
 					continue;
 				} else {
 					$status = SQ_TRIG_RESULT_FAILURE;
-					trigger_localised_error('CORE0135', E_USER_NOTICE, $action['type']);
+					if (!$is_blocking) {
+						trigger_localised_error('CORE0135', E_USER_NOTICE, $action['type']);
+					}
 					break;
 				}
 			}
@@ -1146,10 +1156,18 @@ class Trigger_Manager extends Asset
 		$trigger_db['data'] = (isset($trigger_db['data']) && !empty($trigger_db['data'])) ? unserialize($trigger_db['data']) : '';
 
 		// set defaults if not present
-		if (!isset($trigger_db['data']['events'])) $trigger_db['data']['events'] = Array();
-		if (!isset($trigger_db['data']['conditions'])) $trigger_db['data']['conditions'] = Array();
-		if (!isset($trigger_db['data']['actions'])) $trigger_db['data']['actions'] = Array();
-		if (!isset($trigger_db['data']['settings'])) $trigger_db['data']['settings'] = Array();
+		if (!isset($trigger_db['data']['events'])) {
+			$trigger_db['data']['events'] = Array();
+		}
+		if (!isset($trigger_db['data']['conditions'])) {
+			$trigger_db['data']['conditions'] = Array();
+		}
+		if (!isset($trigger_db['data']['actions'])) {
+			$trigger_db['data']['actions'] = Array();
+		}
+		if (!isset($trigger_db['data']['settings'])) {
+			$trigger_db['data']['settings'] = Array();
+		}
 
 		return $trigger_db;
 
