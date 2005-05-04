@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: word_doc.inc,v 1.13 2005/05/04 02:37:34 arailean Exp $
+* $Id: word_doc.inc,v 1.14 2005/05/04 04:00:40 arailean Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -120,8 +120,6 @@ class Word_Doc extends File
 
 		if (!$output) return $keydata;
 
-		// strip out the tags
-		$output = strip_tags($output);
 		// strip out the whitespace
 		$output = strtolower(trim(preg_replace('/[\s]+/', ' ', $output)));
 
