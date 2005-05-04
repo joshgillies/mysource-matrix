@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.inc,v 1.39 2005/05/02 04:36:40 mmcintyre Exp $
+* $Id: install.inc,v 1.40 2005/05/04 04:46:52 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * Purpose
 * Functions used to install and upgrade the system
 *
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -799,7 +799,7 @@ function build_localised_screen($asset_type, $screen, $locale) {
 					case 'note':
 						// is a section note already set?
 						if (!isset($this_section->attributes['note'])) {
-							$this_section->insertChild(null, count($this_section->children) - 1, $xml_field->name, $xml_field->content);
+							$this_section->insertChild(null, count($this_section->children), $xml_field->name, $xml_field->content);
 						}
 					break;
 
@@ -1012,7 +1012,7 @@ function build_localised_static_screen($asset_type, $screen, $locale) {
 					case 'note':
 						// is a section note already set?
 						if (!isset($this_section->attributes['note'])) {
-							$this_section->insertChild(null, count($this_section->children) - 1, $xml_field->name, $xml_field->content);
+							$this_section->insertChild(null, count($this_section->children), $xml_field->name, $xml_field->content);
 						}
 					break;
 
