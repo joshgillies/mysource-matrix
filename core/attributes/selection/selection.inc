@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: selection.inc,v 1.32 2004/12/03 15:33:23 brobertson Exp $
+* $Id: selection.inc,v 1.32.2.1 2005/05/05 13:48:51 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -242,9 +242,7 @@ class Asset_Attribute_Selection extends Asset_Attribute
 		$options = $this->_params['options'];
 		if ($this->_params['allow_empty'] && !$this->_params['multiple']) {
 			if (empty($this->_edit_params['empty_text'])) $this->_edit_params['empty_text'] = '-- Leave Empty --';
-			$options = array_reverse($options);
-			$options[''] = $this->_edit_params['empty_text'];
-			$options = array_reverse($options);
+			$options = Array('' => $this->_edit_params['empty_text']) + $options;
 		}
 
 		if (!empty($this->_params['multiple']) && !is_Array($this->value)) {
