@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_attribute_value.inc,v 1.3 2005/04/20 04:20:36 gsherwood Exp $
+* $Id: trigger_action_set_attribute_value.inc,v 1.4 2005/05/05 05:56:07 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -136,13 +136,13 @@ class Trigger_Action_Set_Attribute_Value extends Trigger_Action
 			echo '<b>[asset type not selected]</b';
 		} else {
 			$attribute = array_get_index($settings, 'attribute', '');
-			$attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($selected_type, Array('name'));
+			$attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($selected_type);
 			if (empty($attrs)) {
 				echo '<b>[no attributes found for asset type]</b>';
 			} else {
 				if ($write_access) {
 					$attr_options = Array('' => '');
-					foreach ($attrs as $attr_name) {
+					foreach ($attrs as $attr_name => $attr_type) {
 						$attr_options[$attr_name] = $attr_name;
 					}
 					combo_box($prefix.'[attribute]', $attr_options, false, $attribute);
@@ -158,6 +158,13 @@ class Trigger_Action_Set_Attribute_Value extends Trigger_Action
 			text_area($prefix.'[value]', $value, 80, 5);
 		} else {
 			echo '<b>'.$value.'</b>';
+		}
+
+		
+		if (!empty($selected_type) && isset($attrs[$attribute])) {
+			if (in_array($attrs[$attribute], Array('serialise', 'parameter_map'))) {
+				echo '<br /><i>You have selected a serialised attribute.  The value you set it to must be a valid PHP expression, for example "Array(1, 2, 4)"</i>';
+			}
 		}
 
 		return ob_get_clean();
