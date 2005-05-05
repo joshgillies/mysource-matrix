@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_template_builder.inc,v 1.12 2005/04/29 05:40:32 gsherwood Exp $
+* $Id: page_template_builder.inc,v 1.13 2005/05/05 06:20:47 tbarrett Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -63,7 +63,7 @@ class Page_Template_Builder extends Page
 	function _createAdditional(&$link)
 	{
 		if (!parent::_createAdditional($link)) return false;
-		return $this->createBodycopy('Template Bodycopy', 'template');
+		return $this->createBodycopy('Template Bodycopy', 'template', '', null, true);
 
 	}//end _createAdditional()
 
@@ -94,7 +94,7 @@ class Page_Template_Builder extends Page
 	* @return boolean	true indicates success
 	* @access public
 	*/
-	function createBodycopy($name, $link_value, $bc_text='', $underneath=null)
+	function createBodycopy($name, $link_value, $bc_text='', $underneath=null, $is_dependant=false)
 	{
 		if ($underneath == null) $underneath =& $this;
 
@@ -103,7 +103,13 @@ class Page_Template_Builder extends Page
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
 		$bc_asset = new Bodycopy();
 
-		$copy_link = Array('asset' => &$underneath, 'link_type' => SQ_LINK_TYPE_2, 'value' => $link_value, 'sort_order' => 1);
+		$copy_link = Array(
+						'asset'			=> &$underneath, 
+						'link_type'		=> SQ_LINK_TYPE_2, 
+						'value'			=> $link_value, 
+						'sort_order'	=> 1,
+						'is_dependant'	=> $is_dependant
+					 );
 		$bc_asset->setAttrValue('name', $name);
 		$attributes = Array('content' => $bc_text);
 		if (!$bc_asset->create($copy_link, $attributes)) {
@@ -517,6 +523,31 @@ class Page_Template_Builder extends Page
 		return $bc_text;
 
 	}//end getTemplateResult()
+
+
+	/**
+	* Return the keywords for this asset type with their replacements for this asset instance
+	*
+	* This function is called in asset-listing situations like the asset listing, search page etc
+	*
+	* @param boolean $descriptions if TRUE descriptions will be included in the array
+	*
+	* @access public
+	* @return array
+	*/
+	function getAssetKeywords($descriptions=false)
+	{
+		$keywords = parent::getAssetKeywords($descriptions);
+		$keywords['template_bodycopy_id']['value'] = '';
+		if ($this->id) {
+			$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'template');
+			if (!empty($link)) {
+				$keywords['template_bodycopy_id']['value'] = $link['minorid'];
+			}
+		}
+		return $keywords;
+
+	}//end getAssetKeywords()
 
 
 }//end class
