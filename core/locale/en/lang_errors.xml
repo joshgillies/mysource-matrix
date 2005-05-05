@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.2 2005/05/03 00:27:29 ndvries Exp $
+* $Id: lang_errors.xml,v 1.3 2005/05/05 02:37:11 rhoward Exp $
 *
 */
 
@@ -1522,5 +1522,6 @@ Full Node Contents :
 	
 	<error code="CORE0217">Unable to create Trigger, incorrect format</error>
 	<error code="CORE0218">Loop limit (%1$s) exceeded for %2$s</error>
+	<error code="CORE0219">Cannot load event "%s"</error>
 
 </errors>

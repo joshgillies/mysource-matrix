@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager.inc,v 1.21 2005/05/04 04:36:07 rhoward Exp $
+* $Id: trigger_manager.inc,v 1.22 2005/05/05 02:37:11 rhoward Exp $
 *
 */
 
@@ -51,7 +51,7 @@ require_once 'hash.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -211,7 +211,10 @@ class Trigger_Manager extends Asset
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 
 		// include the event asset
-		if (!$this->_loadComponent($event_name)) return false;
+		if (!$this->_loadComponent($event_name)) {
+			trigger_localised_error('CORE0219', $event_name);
+			return false;
+		}
 
 		// calculate state, prepare state hash
 		$state = $this->_calculateState($event_name, $broadcaster, $parameters);
