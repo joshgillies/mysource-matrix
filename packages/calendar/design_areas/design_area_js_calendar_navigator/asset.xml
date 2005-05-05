@@ -14,7 +14,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.3 2005/04/29 05:39:19 gsherwood Exp $
+* $Id: asset.xml,v 1.4 2005/05/05 23:46:22 tbarrett Exp $
 *
 */
 -->
@@ -23,8 +23,8 @@
 	<package>calendar</package>
 	<type_code>design_area_js_calendar_navigator</type_code>
 	<version>0.1</version>
-	<name>JavaScript Menu Navigator</name>
-	<description>Allows for quickly jumping to one of the views of the calendar asset</description>
+	<name>Javascript Calendar Navigator</name>
+	<description>Allows for quick jumping to one of the views of a calendar page</description>
 	<instantiable>yes</instantiable>
 	<allowed_access>system</allowed_access>
 	<parent_type>design_area</parent_type>
