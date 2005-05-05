@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.69 2005/04/28 04:59:57 arailean Exp $
+* $Id: page_asset_listing.inc,v 1.70 2005/05/05 03:22:00 tbarrett Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.69 $
+* @version $Revision: 1.70 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -165,6 +165,7 @@ class Page_Asset_Listing extends Listing_Engine
 			// if there are no children available, just print the page bodycopy
 			if (empty($children)) {
 				$replacements['asset_count'] = $num_kids;
+				$replacements['asset_listing'] = '';
 				$format_bodycopy->setKeywordReplacements($replacements);
 				$format_bodycopy->printBody();
 				return;
@@ -177,7 +178,7 @@ class Page_Asset_Listing extends Listing_Engine
 			// get our page chunk here
 			$todo =& $this->getChunk($children, $replacements, $result_page, $num_per_page);
 			$num_assets_showing = count($todo);
-
+			
 			ob_start();
 				$this->printAssetList($todo);
 				$global_contents = ob_get_contents();
