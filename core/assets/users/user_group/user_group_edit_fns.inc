@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_group_edit_fns.inc,v 1.20 2005/04/15 00:37:27 lwright Exp $
+* $Id: user_group_edit_fns.inc,v 1.21 2005/05/05 05:24:41 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -98,8 +98,8 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 			}
 		} else {
 			check_box($prefix.'_unrestricted', '1', !$this->isRestricted($asset, $prefix));
-			echo 'Grant Unrestricted Access';
-			echo '<br /><br />Check this box to give this user group unrestricted access to all assets';
+			label('Grant Unrestricted Access', $prefix.'_unrestricted');
+			echo '<p>Tick this box to give this user group unrestricted access to all assets</p>';
 		}
 		
 		return $admin_access;

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_group.inc,v 1.14 2005/01/20 13:07:39 brobertson Exp $
+* $Id: user_group.inc,v 1.15 2005/05/05 05:24:41 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -49,6 +49,41 @@ class User_Group extends Folder
 		$this->Folder($assetid);
 
 	}//end constructor
+
+
+	/**
+	* Perform any additional processing required during the creation of this asset
+	*
+	* For example, creating other child assets should be performed in this method
+	*
+	* @param array	&$link	information used to create the initial link
+	*
+	* @access private
+	* @return boolean
+	*/
+	function _createAdditional(&$link)
+	{
+		// assign unrestricted access initially
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$sql = 'INSERT INTO sq_ast_edit_access
+			(
+				userid,
+				type_code,
+				screen,
+				section
+			)
+			VALUES
+			(
+				'.$db->quoteSmart($this->id).',
+				'.$db->quoteSmart('0').',
+				'.$db->quoteSmart('0').',
+				'.$db->quoteSmart('0').'
+			)';
+		$result = $db->query($sql);
+		assert_valid_db_result($result);
+		return true;
+
+	}//end _createAdditional()
 
 
 	/**
