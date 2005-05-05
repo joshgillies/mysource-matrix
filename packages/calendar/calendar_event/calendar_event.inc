@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.45 2005/04/29 05:39:18 gsherwood Exp $
+* $Id: calendar_event.inc,v 1.46 2005/05/05 23:45:40 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once dirname(__FILE__).'/../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.46 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -172,6 +172,8 @@ class Calendar_Event extends Asset
 		$keywords['event_name'] = $keywords['asset_attribute_name'];
 		unset($keywords['asset_attribute_name']);
 
+		$keywords['event_start_date'] = Array('value'=>date('jS M Y', iso8601_ts($this->attr('start_date'))));
+		$keywords['event_end_date'] = Array('value'=>date('jS M Y', iso8601_ts($this->attr('end_date'))));
 
 		$keywords['event_start_datetime'] = Array('value'=>$this->getFriendlyStart());
 		$keywords['event_end_datetime'] = Array('value'=>$this->getFriendlyEnd());
@@ -221,7 +223,10 @@ class Calendar_Event extends Asset
 	function _getDeleteLink()
 	{
 		if (true === ($msg = $GLOBALS['SQ_SYSTEM']->am->couldTrashAsset($this->id))) {
-			return '<a href="?SQ_CALENDAR_EVENT_ID='.$this->id.'&amp;SQ_CALENDAR_EVENT_ACTION=delete&amp;SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'].'" onclick="return confirm(\'Are you sure you want to delete this event altogether?\');">Delete</a>';
+			$res = '<a href="?SQ_CALENDAR_EVENT_ID='.$this->id.'&amp;SQ_CALENDAR_EVENT_ACTION=delete';
+			if (isset($_REQUEST['SQ_CALENDAR_DATE'])) $res .= '&amp;SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'];
+			$res .= '" onclick="return confirm(\'Are you sure you want to delete this event altogether?\');">Delete</a>';
+			return $res;
 		} else {
 			return '';
 		}
