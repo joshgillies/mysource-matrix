@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.306 2005/05/02 04:30:18 mmcintyre Exp $
+* $Id: asset_manager.inc,v 1.307 2005/05/05 04:19:28 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.306 $
+* @version $Revision: 1.307 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -1588,7 +1588,8 @@ class Asset_Manager extends MySource_Object
 	* @param int		$source_assetid	the id of the asset that started this locking process
 	* @param boolean	$force			attempt to forcibly acquire (if allowed)
 	* @param int|NULL	$expires		when the lock expires (timestamp or NULL)
-	*									If expires is set to NULL, the lock will be acquired indefinitely (ie. it will never expire).
+	*									If expires is null or zero, the lock will be acquired for the 
+	*									current time plus SQ_CONF_LOCK_LENGTH
 	*
 	* @return int		zero on failure, non-zero on success
 						(1 on success if all lock types requested had to be acquired,
@@ -1755,10 +1756,6 @@ class Asset_Manager extends MySource_Object
 
 	/**
 	* Updates the expiry date of the lock on this asset
-	*
-	* If the current lock is being held indefinitely (ie. expires = NULL), the lock
-	* expiry time will not be updated but the function will return true. You must release
-	* an indefinite lock before updating its expiry date.
 	*
 	* @param int		$assetid	the assetid of the asset that we want to release
 	* @param string		$lock_type	the type of the lock (eg 'contents', 'permissions', etc)
