@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_link.php,v 1.30 2005/01/20 13:32:41 brobertson Exp $
+* $Id: insert_link.php,v 1.31 2005/05/06 06:57:40 dmckee Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Insert Link Popup for the WYSIWYG
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix
 */
 
@@ -55,6 +55,7 @@ if (!isset($_GET['assetid']))     $_GET['assetid'] = 0;
 if (!isset($_GET['url']))         $_GET['url'] = 0;
 if (!isset($_GET['protocol']))    $_GET['protocol'] = '';
 if (!isset($_GET['status_text'])) $_GET['status_text'] = '';
+if (!isset($_GET['link_title']))  $_GET['link_title'] = '';
 if (!isset($_GET['target']))      $_GET['target'] = '';
 if (!isset($_GET['new_window']))  $_GET['new_window'] = 0;
 
@@ -116,6 +117,7 @@ if (!isset($_GET['new_window'])) {
 				  param["url"]         = form_element_value(f.url_protocol) + form_element_value(f.url_link) + (form_element_value(f.anchor) == '' ? '' : '#' + form_element_value(f.anchor));
 				}
 				param["status_text"] = form_element_value(f.status_text);
+				param["link_title"] = form_element_value(f.link_title);
 				param["target"]      = form_element_value(f.target);
 				param["new_window"]  = form_element_value(f.new_window);
 
@@ -300,6 +302,10 @@ if (!isset($_GET['new_window'])) {
 															<tr>
 																<td class="label">Status Bar Text:</td>
 																<td><?php text_box('status_text', $_GET['status_text'], 50); ?></td>
+															</tr>
+															<tr>
+																<td class="label">Title:</td>
+																<td><?php text_box('link_title', $_GET['link_title'], 50); ?></td>
 															</tr>
 														</table>
 													</fieldset>

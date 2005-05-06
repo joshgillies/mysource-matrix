@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_insert_link.inc,v 1.32 2005/01/19 16:46:23 brobertson Exp $
+* $Id: matrix_insert_link.inc,v 1.33 2005/05/06 06:57:40 dmckee Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 *     a link in the editable document using an asset from MySoure Matrix
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -108,6 +108,7 @@ class matrix_insert_link extends wysiwyg_plugin
 				currArgs["url"] = "http://";
 				currArgs["anchor"] = "";
 				currArgs["status_text"] = "";
+				currArgs["link_title"] = "";
 				currArgs["target"] = "";
 				currArgs["new_window"]  = 0;
 
@@ -188,6 +189,12 @@ class matrix_insert_link extends wysiwyg_plugin
 						}
 					}// end if
 
+					//Get the link title, if there is one
+					re = new RegExp('title="([^"]+)"', "gi");
+					results = re.exec(tag_html);
+					if (results != null) {
+						currArgs["link_title"] = rev_htmlspecialchars(results[1]).replace(/\\\'/gi, "\'");
+					}
 					// let's try and get the target if any
 					re = new RegExp('target="([^"]+)"', "gi");
 					results = re.exec(tag_html);
@@ -273,6 +280,9 @@ class matrix_insert_link extends wysiwyg_plugin
 						}
 						if (param["status_text"] != "") {
 							html += ' onMouseOver="javascript: window.status=\'' + htmlspecialchars(param["status_text"]).replace(/\'/gi, "\\'") + '\'; return true;" onMouseOut="javascript: window.status=\'\'; return true;"';
+						}
+						if (param["link_title"] != "") {
+							html += ' title="' + htmlspecialchars(param["target"]).replace(/\'/gi, "\\'") + '"';
 						}
 						if (param["onClick"] != null && param["onClick"] != "") {
 							html += ' onClick="' + param["onClick"] + '"';
