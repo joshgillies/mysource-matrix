@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.249.2.8 2005/04/01 18:18:14 brobertson Exp $
+* $Id: asset_manager.inc,v 1.249.2.9 2005/05/06 02:26:52 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -2440,7 +2440,7 @@ class Asset_Manager extends MySource_Object
 		$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 't');
 		$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 'l');
 		$sub_sql .= $sub_where.' LIMIT 1';
-		
+
 		$sql   = 'SELECT COUNT(*)
 				  FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l ON t.linkid = l.linkid';
 		$where = 'l.minorid = '.$db->quote($assetid).'
@@ -2448,7 +2448,7 @@ class Asset_Manager extends MySource_Object
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 
-		$result = $db->getOne($sql);
+		$result = $db->getOne($sql.$where);
 		assert_valid_db_result($result);
 
 		if ($exclusively) return ($result == 0);
@@ -2788,7 +2788,7 @@ class Asset_Manager extends MySource_Object
 
 			} else {
 				// we have existing tree entries, do a insert..select to create entries for them all
-				
+
 				$where = 'l.minorid = '.$db->quote($major->id);
 				// note that we dont prep this query for rollback because its getting run
 				// by the rollback query functions already
@@ -2804,7 +2804,7 @@ class Asset_Manager extends MySource_Object
 					return 0;
 				}
 			}//end if
-			
+
 			// update the parents to tell them that they are have one kid more
 			$sub_sql   = 'SELECT SUBSTRING(t.treeid FROM 1 FOR (CHARACTER_LENGTH(t.treeid) - '.SQ_CONF_ASSET_TREE_SIZE.'))
 						  FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t ';
@@ -3579,11 +3579,11 @@ class Asset_Manager extends MySource_Object
 	}//end couldTrashAsset()
 
 
-	/** 
+	/**
 	* Send the specified asset directly to the trash, where possible
 	*
 	* This deletes its links to all its current parents, and creates a link for it in the trash folder
-	* 
+	*
 	* @param int	$assetid	The asset to trash
 	*
 	* @return boolean	Whether the asset was successfully trashed
