@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.86 2005/05/03 04:30:37 rhoward Exp $
+* $Id: general.inc,v 1.87 2005/05/06 02:08:47 tbarrett Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.86 $
+* @version $Revision: 1.87 $
 * @package MySource_Matrix
 */
 
@@ -861,7 +861,7 @@ function translate($string)
 function trigger_localised_error($code, $error_level)
 {
 	$args = array_slice(func_get_args(),2);
-	if (!isset($GLOBALS['SQ_SYSTEM'])) {
+	if (!isset($GLOBALS['SQ_SYSTEM']) || !is_object($GLOBALS['SQ_SYSTEM']->lm)) {
 		trigger_error('Error occurred ['.$code.']', $error_level);
 		return false;
 	}
