@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.7 2005/04/29 05:40:31 gsherwood Exp $
+* $Id: edit_interface_screen_details.xml,v 1.8 2005/05/06 07:01:11 tbarrett Exp $
 *
 */
 -->
@@ -28,14 +28,8 @@
 	<section name="Asset Builder Settings" write_access="write:attributes">
 		<field>
 			<function_call>
-				<paint_function   name="paintCurrentAssetTypes"   />
-				<process_function name="processCurrentAssetTypes" />
-			</function_call>
-		</field>
-		<field read_access="write:contents">
-			<function_call>
-				<paint_function   name="paintAddCreateType"   />
-				<process_function name="processAddCreateType" />
+				<paint_function   name="paintAssetTypes"   />
+				<process_function name="processAssetTypes" />
 			</function_call>
 		</field>
 		<field>

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_edit_fns.inc,v 1.29 2005/04/29 05:40:31 gsherwood Exp $
+* $Id: page_asset_builder_edit_fns.inc,v 1.30 2005/05/06 07:01:11 tbarrett Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -80,58 +80,24 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintCurrentAssetTypes(&$asset, &$o, $prefix)
+	function paintAssetTypes(&$asset, &$o, $prefix)
 	{
-		$write_access = $asset->writeAccess('attributes');
-
-		// do a check to see if any of the bodycopies have been removed manually
 		$types = $asset->attr('create_type');
 		if (empty($types)) {
-			echo 'There are no Types Defined';
+			echo '<p style="color: red">No asset types have been chosen</p>';
 			return false;
 		}
-
-		?>
-		<table class="sq-backend-table">
-		<tr>
-			<td class="sq-backend-table-header">Asset Type</td>
-			<?php
-			if ($write_access) {
-				?>
-				<td class="sq-backend-table-header">Remove?</td>
-				<?php
+		
+		if ($asset->writeAccess('attributes')) {
+			asset_type_chooser($prefix.'_create_types', true, array_keys($types));
+		} else {
+			$type_infos = $GLOBALS['SQ_SYSTEM']->am->getAssetTypes(null, true);
+			foreach ($types as $type => $value) {
+				echo $type_infos[$type]['name'].'<br />';
 			}
-			?>
-		</tr>
-		<?php
-		foreach ($types as $type => $value) {
-			?>
-			<tr>
-				<td class="sq-backend-table-cell">
-					<?php
-					$info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type);
-					echo $info['name'];
-					?>
-				</td>
-				<?php
-				if ($write_access) {
-					?>
-					<td class="sq-backend-table-cell">
-						<?php
-						check_box($prefix.'_remove[]', $type, false);
-						?>
-					</td>
-					<?php
-				}
-				?>
-			</tr>
-			<?php
-		}//end foreach
-		?>
-		</table>
-		<?php
+		}
 
-	}//end paintCurrentAssetTypes()
+	}//end paintAssetTypes()
 
 
 	/**
@@ -144,96 +110,19 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function processCurrentAssetTypes(&$asset, &$o, $prefix)
+	function processAssetTypes(&$asset, &$o, $prefix)
 	{
-		$types = $asset->attr('create_type');
-
-		// we are looking to see if any types have been removed
-		if (isset($_POST[$prefix.'_remove'])) {
-			foreach ($_POST[$prefix.'_remove'] as $type) {
-				if (isset($types[$type])) unset($types[$type]);
+		if (isset($_POST[$prefix.'_create_types'])) {
+			$types = Array();
+			foreach ($_POST[$prefix.'_create_types'] as $type) {
+				if (!empty($type)) $types[$type] = 1;
 			}
-		}
-
-		$asset->setAttrValue('create_type', $types);
-
-		return true;
-
-	}//end processCurrentAssetTypes()
-
-
-	/**
-	* Paint section to add an asset type
-	*
-	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
-	*
-	* @return boolean
-	* @access public
-	*/
-	function paintAddCreateType(&$asset, &$o, $prefix)
-	{
-		if (!$asset->writeAccess('attributes')) {
-			if ($asset->attr('create_type') == '') {
-				echo 'No asset type selected';
-			} else {
-				$is_multiple = (count($asset->attr('create_type')) > 1);
-				if ($is_multiple) echo '<ul>';
-				foreach (array_keys($asset->attr('create_type')) as $create_type) {
-					$info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($create_type);
-					if ($is_multiple) echo '<li>';
-					echo $info['name'];
-					if ($is_multiple) echo '</li>';
-				}
-				if ($is_multiple) echo '</ul>';
-			}
-		} else {
-			$asset_types = $GLOBALS['SQ_SYSTEM']->am->getTypeList();
-			foreach ($asset_types as $type_code) {
-				$info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code);
-				if ($info['allowed_access'] != 'system' && $info['instantiable']) {
-					$options[$type_code] = $info['name'];
-				}
-			}
-
-			asort($options);
-			$options = array_reverse($options, true);
-			$options[''] = '-- select asset type --';
-			$options = array_reverse($options, true);
-			combo_box($prefix.'_new_type', $options, false, '');
-			echo '<br />&nbsp;<br />';
-
-		}
-
-	}//end paintAddCreateType()
-
-
-	/**
-	* Process the section to add a new format for an asset
-	*
-	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
-	*
-	* @return boolean
-	* @access public
-	*/
-	function processAddCreateType(&$asset, &$o, $prefix)
-	{
-		if (isset($_POST[$prefix.'_new_type'])) {
-			$type = trim($_POST[$prefix.'_new_type']);
-			if (empty($type)) return false;
-			$types = $asset->attr('create_type');
-			if (!isset($types[$type])) {
-				$types[$type] = true;
-				$asset->setAttrValue('create_type', $types);
-				return true;
-			}
+			$asset->setAttrValue('create_type', $types);
+			return true;
 		}
 		return false;
 
-	}//end processAddCreateType()
+	}//end processAssetTypes()
 
 
 	/**
