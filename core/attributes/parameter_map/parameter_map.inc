@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: parameter_map.inc,v 1.3 2004/12/06 14:38:11 brobertson Exp $
+* $Id: parameter_map.inc,v 1.4 2005/05/06 05:29:45 tbarrett Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once dirname(dirname(__FILE__)).'/serialise/serialise.inc';
 *   When requesting the runtime value for a parameter you give its code.
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -48,18 +48,22 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 	*
 	* @var Array
 	*/
-	var $_source_types = Array(	'GET'	=> 'GET',
-								'POST'	=> 'POST',
-								'ASSET'	=> 'Current Asset');
+	var $_source_types = Array(
+							'GET'	=> 'GET',
+							'POST'	=> 'POST',
+							'ASSET'	=> 'Current Asset'
+						 );
 
 	/**
 	* The options available under the ASSET source type
 	*
 	* @var Array
 	*/
-	var $_asset_attribute_options = Array(	'name'			=> 'Name',
-											'short_name'	=> 'Short Name',
-											'assetid'		=> 'Asset ID');
+	var $_asset_attribute_options = Array(
+										'name'			=> 'Name',
+										'short_name'	=> 'Short Name',
+										'assetid'		=> 'Asset ID'
+									);
 
 
 	/**
