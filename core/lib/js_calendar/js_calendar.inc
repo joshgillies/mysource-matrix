@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_calendar.inc,v 1.6 2005/02/11 10:25:24 gnoel Exp $
+* $Id: js_calendar.inc,v 1.7 2005/05/06 05:33:58 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *     An object to init and paint the JS calendar
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -42,15 +42,17 @@ class JS_Calendar
 	* @var array
 	*/
 	var $settings = Array(
-							'cssURL'      => null,
-							'imageURL'    => null,
-							'fadeit'      => true,
-							'scrollit'    => false,
-							'onDayClick'  => null,
-							'onWeekClick' => null,
-							'onYearClick' => null,
-							'height'      => 200,
-							'width'       => 200,
+							'cssURL'			=> null,
+							'imageURL'			=> null,
+							'fadeit'			=> true,
+							'scrollit'			=> false,
+							'onDayClick'		=> null,
+							'onWeekClick'		=> null,
+							'onYearClick'		=> null,
+							'height'			=> 200,
+							'width'				=> 200,
+							'day_name_length'	=> 2,
+							'week_start'		=> 1,
 
 						 );
 
@@ -98,8 +100,7 @@ class JS_Calendar
 			<style type="text/css">
 				@import url("<?php echo $css; ?>");
 			</style>
-			<script src="<?php echo sq_web_path('fudge'); ?>/js_calendar/js_calendar.js" language="Javascript" type="text/javascript"></script>
-			<span id="sq_js_calendar_span"></span>
+			<script src="<?php echo sq_web_path('fudge'); ?>/js_calendar/js_calendar.js" type="text/javascript"></script>
 			<!-- End init of JS Calendar -->
 			<?php
 			$GLOBALS['SQ_JS_CALENDAR_INIT'] = true;
@@ -128,7 +129,7 @@ class JS_Calendar
 	* @param string		$container_name		the id of the container (span, div, td etc) to hold the calendar,
 	*										leave empty to use the default container
 	* @param boolean	$popup				display this calendar in a popup or not
-	* @param boolean	$container_exists	if true, the container wont be created, 
+	* @param boolean	$container_exists	if true, the container wont be created,
 	*										it must already exist in the html
 	*										this parameter is only used if $container_name is specified
 	*
@@ -145,18 +146,30 @@ class JS_Calendar
 		}
 
 		if (empty($container_name)) {
-			$container_name = 'sq_js_calendar_span';
-			if (!$popup) {
-				$container_name = $prefix.'_js_calendar_span';
+			$container_name = $prefix.'_js_calendar_span';
+		}
+
+		$name_add_on = '';
+		if ($popup) {
+			if (array_get_index($GLOBALS, 'SQ_JS_CALENDAR_POPUP', false) === false) {
+				$GLOBALS['SQ_JS_CALENDAR_POPUP'] = $container_name;
+				?><span id="<?php echo $container_name; ?>"></span><?php
+			} else {
+				$container_name = $GLOBALS['SQ_JS_CALENDAR_POPUP'];
 			}
 		} else {
-			if (!$container_exists) {
-				?><span id="<?php echo $container_name; ?>"></span><?php
+			if (array_get_index($GLOBALS, $container_name, false) === false) {
+				$GLOBALS[$container_name] = 1;
+			} else {
+				$GLOBALS[$container_name]++;
 			}
+			$name_add_on = ($GLOBALS[$container_name] == 1)?'':'_'.$GLOBALS[$container_name];
+			?><span id="<?php echo $container_name.$name_add_on; ?>"></span><?php
 		}
 		?>
-		<script language="Javascript" type="text/javascript">
-			<?php echo $prefix; ?>_cal = new Calendar("<?php echo $prefix; ?>_cal", "<?php echo $container_name; ?>");
+		<script type="text/javascript">
+		//<![CDATA[
+			<?php echo $prefix; ?>_cal = new Calendar("<?php echo $prefix; ?>_cal", "<?php echo $container_name.$name_add_on; ?>");
 			<?php echo $prefix; ?>_cal.prefix = "<?php echo $prefix; ?>";
 			<?php
 			foreach ($this->settings as $name => $value) {
@@ -172,6 +185,7 @@ class JS_Calendar
 			}
 			?>
 			<?php echo $prefix; ?>_cal.draw();
+		//]]>
 		</script>
 		<?php
 
