@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_template_builder.inc,v 1.13 2005/05/05 06:20:47 tbarrett Exp $
+* $Id: page_template_builder.inc,v 1.14 2005/05/06 01:24:03 tbarrett Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -542,7 +542,7 @@ class Page_Template_Builder extends Page
 		if ($this->id) {
 			$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'template');
 			if (!empty($link)) {
-				$keywords['template_bodycopy_id']['value'] = $link['minorid'];
+				$keywords['template_bodycopy_id']['value'] = key($GLOBALS['SQ_SYSTEM']->am->getChildren($link['minorid'], 'bodycopy_container', false));
 			}
 		}
 		return $keywords;

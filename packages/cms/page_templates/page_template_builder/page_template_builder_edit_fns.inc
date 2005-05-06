@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_template_builder_edit_fns.inc,v 1.7 2005/04/29 05:40:32 gsherwood Exp $
+* $Id: page_template_builder_edit_fns.inc,v 1.8 2005/05/06 01:24:03 tbarrett Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -61,7 +61,11 @@ class Page_Template_Builder_Edit_Fns extends Page_Edit_Fns
 		$fields = $asset->getQuestionFields();
 		?>
 
-		<p>To define the template this asset uses to build bodycopies, you need to <b><a href="<?php echo $asset->getBackendHref('contents') ?>">edit the template bodycopy</a></b>.  Within that bodycopy you can define question fields using a syntax best described by the following examples:
+		<p>To define the template this asset uses to build bodycopies, you need to 
+		<?php if (SQ_IN_BACKEND) echo '<b><a href="'.$asset->getBackendHref('contents').'">'; ?>
+		edit the template bodycopy
+		<?php if (SQ_IN_BACKEND) echo '</a></b>'; ?>.
+		Within that bodycopy you can define question fields using a syntax best described by the following examples:
 		<table class="sq-backend-table">
 			<tr>
 				<td class="sq-backend-table-cell" style="font-size: 1em">

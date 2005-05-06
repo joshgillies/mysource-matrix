@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.28 2005/04/29 00:28:18 arailean Exp $
+* $Id: listing_engine.inc,v 1.29 2005/05/06 01:24:03 tbarrett Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
 *
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -551,7 +551,6 @@ class Listing_Engine extends Page
 
 		// remove non-live assets that the user doesnt have write access to
 		if (!empty($todo)) $this->filterAssetStatuses($todo);
-
 		if (empty($todo)) return;
 
 		// remove unwanted asset types
@@ -596,7 +595,6 @@ class Listing_Engine extends Page
 		// copied over from asset listing
 		// is this fine for what we need, or are we expanding this to include
 		// specific statuses (as in Search Folder)
-
 
 		// first check to see if this is a special user without restrictions
 		$user_restrictions = (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin());
