@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime_field.inc,v 1.29 2004/12/06 17:31:15 brobertson Exp $
+* $Id: datetime_field.inc,v 1.30 2005/05/06 06:29:14 tbarrett Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *     it uses: show, style, min, max, null, allow_circa, print_format
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package Fudge
 * @subpackage DateTime_Field
 */
@@ -152,7 +152,9 @@ class DateTime_Field
 	*/
 	function &getParam($code='')
 	{
-		if (isset($this->parameters[$code])) return $this->parameters[$code];
+		if (isset($this->parameters[$code])) {
+			return $this->parameters[$code];
+		}
 		return;
 
 	}//end getParam()
@@ -170,6 +172,26 @@ class DateTime_Field
 		$null = &$this->getParam('null');
 		if (!is_array($show)) $show = Array();
 		if (!is_array($null)) $null = Array();
+		?>
+
+		<script type="text/javascript">
+		//<![CDATA[
+			if (typeof adjustDate != "function") {
+				// function to enable + and - keys on a field
+				adjustDate = function(input, evt)
+				{
+					var key = evt.keyCode;
+					var value = parseInt(input.value * 1);
+					if (key == 38 || key == 40) {
+						value += (key == 40)?-1:1;
+					}
+					input.value = value;
+				}
+			}
+		//]]>
+		</script>
+
+		<?php
 		echo '<input type="hidden" name="'.$this->prefix.'show" value="'.implode('',$show).'" />';
 		$this->prefix .= 'value';
 		if ($this->getParam('allow_circa')) {
@@ -180,12 +202,16 @@ class DateTime_Field
 
 			if (in_array($t,$show)) {
 				$this->inputBox($t,$this->prefix,$u,in_array($t,$null));
-			} elseif ($t != 'a') {
+			} else if ($t != 'a') {
 				echo '<input type="hidden" name="'.$this->prefix.'['.$t.']" value="'.$u.'" />';
 			}
 			if ($t == 'y') echo ' ';
-			if ($t == 'h' && in_array('h',$show) && in_array('i',$show)) echo ':';
-			if ($t == 'i' && in_array('i',$show) && in_array('s',$show)) echo ':';
+			if ($t == 'h' && in_array('h',$show) && in_array('i',$show)) {
+				echo ':';
+			}
+			if ($t == 'i' && in_array('i',$show) && in_array('s',$show)) {
+				echo ':';
+			}
 		}
 
 	}//end printField()
@@ -220,49 +246,57 @@ class DateTime_Field
 
 		if ($allow_null && (!strlen($value) || $value == '--')) {
 			$value = '--';
-		} elseif ($u != 'a') {
+		} else if ($u != 'a') {
 			$value = (int) $value;
 		}
 
 		$increment = 1;
 
-		if (!empty($increments)) {
-			$increment = $increments[$u];
-		}
+		if (!empty($increments)) $increment = $increments[$u];
 
 		if (($u == 'a') || ($input_style[$u] == 's')) { // select box
-			if ($allow_null) $options = Array('--' => '--');
-			else            $options = Array();
-
+			if ($allow_null) {
+				$options = Array('--' => '--');
+			} else {
+				$options = Array();
+			}
 			switch ($u) {
 				case 'y':
-					for ($i = (int) $min; $i <= $max; $i += $increment) $options[$i] = $i;
+					for ($i = (int) $min; $i <= $max; $i += $increment) {
+						$options[$i] = $i;
+				}
 					break;
 				case 'm':
-					// more than 1 years' difference
+					// more than 1 years' difference between min and max value
 					if (($diff['y']*12) + $diff['m'] >= 12) {
 						$min = 1;
 						$max = 12;
 					// not more than 1 years' difference but rolls over a year boundary
 					// (eg. we have a range such as Aug 04..Jan 05)
-					} elseif ($diff['y'] == 1) {
+					} else if ($diff['y'] == 1) {
 						// take care of (Jan...$max)
-						for ($i = 1; $i <= $max; $i += $increment) $options[$i] = $this->shortMonth($i);
+						for ($i = 1; $i <= $max; $i += $increment) {
+							$options[$i] = $this->shortMonth($i);
+						}
 						// now make usual addition take care of ($min...Dec)
 						$max = 12;
 					}
-					for ($i = (int) $min; $i <= $max; $i += $increment) $options[$i] = $this->shortMonth($i);
+					for ($i = (int) $min; $i <= $max; $i += $increment) {
+						$options[$i] = $this->shortMonth($i);
+					}
 					break;
 				case 'd':
-					// more than 1 month difference
+					// more than 1 month difference between min and max value
 					if (($diff['y'] > 0) || ($diff['m'] > 1) || (($diff['m'] == 1) && ($diff['d'] == 0)) ) {
 						$min = 1;
 						$max = 31;
 					// not more than 1 day difference but rolls over a day boundary
 					// (eg. range such as 6d 21h to 7d 05h)
-					} elseif ($diff['m'] == 1) {
+					} else if ($diff['m'] == 1) {
 						// take care of (1...$max)
-						for ($i = 1; $i <= $max; $i += $increment) $options[$i] = $i;
+						for ($i = 1; $i <= $max; $i += $increment) {
+							$options[$i] = $i;
+						}
 						// now make usual addition take care of ($min...$end)
 						// argh, we need to work out how many days in the rolled-over month!
 						$mth = (int) $this->getUnit('m',$max_array);
@@ -270,52 +304,71 @@ class DateTime_Field
 						$lastday = gmmktime(0,0,0,$mth,0,$yr);	// get the last day of the minimum month
 						$max = (int)date('d', $lastday);
 					}
-					for ($i = (int) $min; $i <= $max; $i += $increment) $options[$i] = $i;
+					for ($i = (int) $min; $i <= $max; $i += $increment) {
+						$options[$i] = $i;
+					}
 					break;
 				case 'h':
-					// more than 1 day difference
+					// more than 1 day difference between min and max value
 					if (($diff['y'] > 0) || ($diff['m'] > 0) || ($diff['d'] > 1) || (($diff['d'] == 1) && ($diff['h'] == 0)) ) {
-						$min = 0;
-						$max = 23;
+						if (in_array('a', $this->getParam('show'))) {
+							$min = 1;
+							$max = 12;
+						} else {
+							$min = 0;
+							$max = 23;
+						}
 					// not more than 1 day difference but rolls over a day boundary
 					// (eg. range such as 6d 21h to 7d 05h)
-					} elseif ($diff['d'] == 1) {
+					} else if ($diff['d'] == 1) {
 						// take care of (00...$max)
-						for ($i = 0; $i <= $max; $i += $increment) $options[$i] = sprintf('%02d',$i);
+						for ($i = 0; $i <= $max; $i += $increment) {
+							$options[$i] = sprintf('%02d',$i);
+						}
 						// now make usual addition take care of ($min...23)
-						$max = 23;
+						$max = (in_array('a', $this->getParam('show'))) ? 12 : 23;
 					}
-				for ($i = (int) $min; $i <= $max; $i += $increment) $options[$i] = sprintf('%02d',$i);
+					for ($i = (int) $min; $i <= $max; $i += $increment) {
+						$options[$i] = sprintf('%02d',$i);
+					}
 					break;
 				case 'i':
-					// more than 1 hours' difference
+					// more than 1 hours' difference between min and max value
 					if (($diff['y'] > 0) || ($diff['m'] > 0) || ($diff['d'] > 0) || ($diff['h'] > 1) || (($diff['h'] == 1) && ($diff['i'] == 0))) {
 						$min = 0;
 						$max = 59;
 					// not more than 1 hours' difference but rolls over a hour boundary
 					// (eg. range such as 03:40 to 04:08)
-					} elseif ($diff['h'] == 1) {
+					} else if ($diff['h'] == 1) {
 						// take care of (00...$max)
-						for ($i = 0; $i <= $max; $i += $increment) $options[$i] = sprintf('%02d',$i);
+						for ($i = 0; $i <= $max; $i += $increment) {
+							$options[$i] = sprintf('%02d',$i);
+						}
 						// now make usual addition take care of ($min...59)
 						$max = 59;
 					}
-					for ($i = (int) $min; $i <= $max; $i += $increment) $options[$i] = sprintf('%02d',$i);
+					for ($i = (int) $min; $i <= $max; $i += $increment) {
+						$options[$i] = sprintf('%02d',$i);
+					}
 					break;
 				case 's':
-					// more than 1 minutes' difference
+					// more than 1 minutes' difference between min and max value
 					if (($diff['y'] > 0) || ($diff['m'] > 0) || ($diff['d'] > 0) || ($diff['h'] > 0) || ($diff['i'] > 1) || (($diff['i'] == 1) && ($diff['s'] == 0))) {
 						$min = 0;
 						$max = 59;
 					// not more than 1 minutes' difference but rolls over a minute boundary
 					// (eg. range such as 03:10:50 to 03:11:20)
-					} elseif ($diff['i'] == 1) {
+					} else if ($diff['i'] == 1) {
 						// take care of (00...$max)
-						for ($i = 0; $i <= $max; $i += $increment) $options[$i] = sprintf('%02d',$i);
+						for ($i = 0; $i <= $max; $i += $increment) {
+							$options[$i] = sprintf('%02d',$i);
+						}
 						// now make usual addition take care of ($min...59)
 						$max = 59;
 					}
-					for ($i = (int) $min; $i <= $max; $i += $increment) $options[$i] = sprintf('%02d',$i);
+					for ($i = (int) $min; $i <= $max; $i += $increment) {
+						$options[$i] = sprintf('%02d',$i);
+					}
 					break;
 				case 'a':
 					// more than 1 day difference, or less than 1 day but crossing a day boundary, or less than 1 day but crossing midday
@@ -340,6 +393,7 @@ class DateTime_Field
 			// minutes value should always be 2 digits
 			if ($u == 'i') $value = sprintf('%02d', $value);
 
+			$adjustExtra = 'onkeydown="adjustDate(this, event);'.$onchange.'" onfocus="this.select()"';
 			// merge onChange local values with those coming in from extras
 			if (eregi('onchange *="|\'', $extras[$u])) {
 				$extra = eregi_replace ("onchange *=(\"|')", 'onchange=\1'.$onchange, $extras[$u]);
@@ -366,7 +420,7 @@ class DateTime_Field
 	*/
 	function getUnit($unit, $value='')
 	{
-		if (!strlen($value)) {
+		if (empty($value)) {
 			$value = $this->value;
 			$use_am_pm = in_array('a', $this->getParam('show'));
 		} else {
@@ -447,7 +501,9 @@ class DateTime_Field
 	*/
 	function processField()
 	{
-		if (!isset($_REQUEST[$this->prefix.'value'])) return false;
+		if (!isset($_REQUEST[$this->prefix.'value'])) {
+			return false;
+		}
 		$input = $_REQUEST[$this->prefix.'value'];
 		$input = $this->unitsArrayToStr($input);
 		$validated_value = $this->validateValue($input);
@@ -470,12 +526,11 @@ class DateTime_Field
 		if (!is_array($value)) {
 			$value = trim($value);
 			$l = strlen($value);
-			$value = preg_replace("/^c(irc[a]?)?\.?[\s]*/i",'',$value);
+			$value = preg_replace('/^c(irc[a]?)?\.?[\s]*/i','',$value);
 			$c = false;
-			if (($new_l = strlen($value)) != $l) {
-				$c = true;
-			}
-			if (!preg_match("/^\-?[0-9\-]{4}-[0-9\-]{2}-[0-9\-]{2} ([0-9\-]{2}\:?){3}( [01]?)?$/",$value)) { // Correct format?
+			if (($new_l = strlen($value)) != $l) $c = true;
+			if (!preg_match("/^\-?[0-9\-]{4}-[0-9\-]{2}-[0-9\-]{2} ([0-9\-]{2}\:?){3}( [01]?)?$/",$value)) {
+				// Not "Correct" format
 				if (preg_match("/^\-?[0-9]{4}$/",$value)) { // Just a year?
 					$value .= '------ --:--:--';
 				} else if (preg_match("/^[0-9]+$/",$value)) { // Timestamp?
@@ -493,13 +548,17 @@ class DateTime_Field
 							$v['d'] = $matches[1]; $v['m'] = $matches[2];
 						}
 						$v['y'] = $matches[3];
-						if (strlen($v['y']) <= 2) $v['y'] += (($v['y']<20)?2000:1900);
+						if (strlen($v['y']) <= 2) {
+							$v['y'] += (($v['y']<20)?2000:1900);
+						}
 					} else if (preg_match("/\-?([0-9]{2,4})[\-\/]([0-9]{1,2})[\-\/]([0-9]{1,2})([^0-9].*|)$/",$value,$matches) && ($matches[0] == $value)) {
 						// Probably a ISO 8601 / ISO 9075 [SQL92/99] date ("yyyy-mm-dd")
 						$v['d'] = $matches[3];
 						$v['m'] = $matches[2];
 						$v['y'] = $matches[1];
-						if (strlen($v['y']) <= 2) $v['y'] += (($v['y']<20)?2000:1900);
+						if (strlen($v['y']) <= 2) {
+							$v['y'] += (($v['y']<20)?2000:1900);
+						}
 					} else if (preg_match("/([0-9]{1,2})[\-\/]([0-9]{1,2})([^0-9].*|)$/",$value,$matches)) {
 						// Probably dd/mm
 						if ($this->getParam('standard') == 'us') {
@@ -521,14 +580,17 @@ class DateTime_Field
 								$v['m'] = $this->longMonth($tmp,1);
 							}
 							// maybe the day?
-							if ($matches[1])      $v['d'] = $matches[1];
-							else if ($matches[16]) $v['d'] = $matches[16];
+							if ($matches[1]) {
+								$v['d'] = $matches[1];
+							} else if ($matches[16]) {
+								$v['d'] = $matches[16];
+							}
 						}
-						if (preg_match("/([0-9]{4})([^0-9].*|)$/",$value,$matches)) {
+						if (preg_match('/([0-9]{4})([^0-9].*|)$/',$value,$matches)) {
 							// four digit year?
 							$v['y'] = $matches[1];
 						}
-						if ($v['d'] == -1 && preg_match("/([0-9]{1,2})(st|nd|rd|th)/i",$value,$matches)) {
+						if ($v['d'] == -1 && preg_match('/([0-9]{1,2})(st|nd|rd|th)/i',$value,$matches)) {
 							// 1st, 2nd, 3rd, 4th etc
 							$v['d'] = $matches[1];
 						}
@@ -538,7 +600,7 @@ class DateTime_Field
 							$v['h'] = $matches[1];
 							$v['i'] = $matches[2];
 							$v['s'] = $matches[3];
-						} else if (preg_match("/([0-9]{1,2})[\:\.]([0-9]{1,2})([^0-9].*|)$/",$value,$matches)) {
+						} else if (preg_match('/([0-9]{1,2})[\:\.]([0-9]{1,2})([^0-9].*|)$/',$value,$matches)) {
 							if (in_array('s',$show) && !in_array('h',$show)) {
 								$v['i'] = $matches[1];
 								$v['s'] = $matches[2];
@@ -547,7 +609,7 @@ class DateTime_Field
 								$v['i'] = $matches[2];
 							}
 						}
-						if (preg_match("/([0-9]{1,2})([\s]*)(p\.?m\.?|a\.?m\.?)/i",$value,$matches)) {
+						if (preg_match('/([0-9]{1,2})([\s]*)(p\.?m\.?|a\.?m\.?)/i',$value,$matches)) {
 							if ($v['h'] == -1) $v['h'] = $matches[1];
 							if (strtolower($matches[3][0]) == 'p') {
 								if ($v['h'] <= 12) $v['h'] += 12;
@@ -571,8 +633,13 @@ class DateTime_Field
 		$value_str = $this->unitsArraytoStr($value);
 		if ($value_str != '---------- --:--:--') {
 			$value_substr = Array(
-								'y' =>  0, 'm' =>  5, 'd' =>  8,
-								'h' => 11, 'i' => 14, 's' => 17);
+								'y'	=> 0,
+								'm'	=> 5,
+								'd'	=> 8,
+								'h'	=> 11,
+								'i'	=> 14,
+								's'	=> 17,
+							);
 			foreach (array_keys($value_substr) as $value_part) {
 				$substr_length = ($value_part == 'y') ? 4 : 2;
 				if ($value[$value_part] == -1) {
@@ -660,7 +727,9 @@ class DateTime_Field
 			.(($v['h'] < 0 || !strlen($v['h']) || $v['h']{0} == '-') ?  '--'  : sprintf('%02d', $v['h'])).':'
 			.(($v['i'] < 0 || !strlen($v['i']) || $v['i']{0} == '-') ?  '--'  : sprintf('%02d', $v['i'])).':'
 			.(($v['s'] < 0 || !strlen($v['s']) || $v['s']{0} == '-') ?  '--'  : sprintf('%02d', $v['s']));
-		if ($this->getParam('allow_circa')) $r .= ' '.(isset($v['c']) && $v['c'] ? '1' : '0');
+		if ($this->getParam('allow_circa')) {
+			$r .= ' '.(isset($v['c']) && $v['c'] ? '1' : '0');
+		}
 		return $r;
 
 	}//end unitsArrayToStr()
@@ -676,7 +745,9 @@ class DateTime_Field
 	*/
 	function format($format=null)
 	{
-		if (is_null($format)) $format = $this->getParam('print_format');
+		if (is_null($format)) {
+			$format = $this->getParam('print_format');
+		}
 
 		// We need to strip certain elements out of the format if we don't have enough
 		// information about our datetime.
@@ -685,8 +756,11 @@ class DateTime_Field
 		$es = '';
 		foreach ($v = $this->strToUnitsArray($this->value) as $u => $n) {
 			if ($n < 0) {
-				if ($u == 'm' || $u == 'd') $$u = 1;
-				else $$u = 0;
+				if ($u == 'm' || $u == 'd') {
+					$$u = 1;
+				} else {
+					$$u = 0;
+				}
 				$es .= $dep[$u];
 			} else {
 				$$u = $n;
@@ -736,14 +810,14 @@ class DateTime_Field
 	function printMinField()
 	{
 		$p = Array(
-			'min'       => '0000-01-01 00:00:00',
-			'max'       => '9999-12-31 23:59:59',
-			'show'      => Array('y','m','d','h','i','s'),
-			'increment' => Array(),
-			'style'     => $this->getParam('style')
-		);
+				'min'		=> '0000-01-01 00:00:00',
+				'max'		=> '9999-12-31 23:59:59',
+				'show'		=> Array('y','m','d','h','i','s'),
+				'increment'	=> Array(),
+				'style'		=> $this->getParam('style'),
+			 );
 		$p['style']['y'] = 't';
-		$d = new DateTime_Field("{$this->prefix}_min",$this->getParam('min'),$p);
+		$d = new DateTime_Field($this->prefix.'_min', $this->getParam('min'), $p);
 		$d->printField();
 
 	}//end printMinField()
@@ -758,13 +832,13 @@ class DateTime_Field
 	function processMinField()
 	{
 		$p = Array(
-			'min'       => '0000-01-01 00:00:00',
-			'max'       => '9999-12-31 23:59:59',
-			'show'      => Array('y','m','d','h','i','s'),
-			'increment' => Array(),
-			'style'     => $this->getParam('style')
-		);
-		$d = new DateTime_Field("{$this->prefix}_min",$this->getParam('min'),$p);
+				'min'		=> '0000-01-01 00:00:00',
+				'max'		=> '9999-12-31 23:59:59',
+				'show'		=> Array('y','m','d','h','i','s'),
+				'increment'	=> Array(),
+				'style'		=> $this->getParam('style'),
+			 );
+		$d = new DateTime_Field($this->prefix.'_min',$this->getParam('min'),$p);
 		$d->processField();
 
 	}//end processMinField()
@@ -779,14 +853,14 @@ class DateTime_Field
 	function printMaxField()
 	{
 		$p = Array(
-			'min'       => '0000-01-01 00:00:00',
-			'max'       => '9999-12-31 23:59:59',
-			'show'      => Array('y','m','d','h','i','s'),
-			'increment' => Array(),
-			'style'     => $this->getParam('style')
-		);
+				'min'		=> '0000-01-01 00:00:00',
+				'max'		=> '9999-12-31 23:59:59',
+				'show'		=> Array('y','m','d','h','i','s'),
+				'increment'	=> Array(),
+				'style'		=> $this->getParam('style'),
+			 );
 		$p['style']['y'] = 't';
-		$d = new DateTime_Field("{$this->prefix}_max",$this->getParam('max'),$p);
+		$d = new DateTime_Field($this->prefix.'_max',$this->getParam('max'),$p);
 		$d->printField();
 
 	}//end printMaxField()
@@ -801,13 +875,13 @@ class DateTime_Field
 	function processMaxField()
 	{
 		$p = Array(
-			'min'       => '0000-01-01 00:00:00',
-			'max'       => '9999-12-31 23:59:59',
-			'show'      => Array('y','m','d','h','i','s'),
-			'increment' => Array(),
-			'style'     => $this->getParam('style')
-		);
-		$d = new DateTime_Field("{$this->prefix}_max",$this->getParam('max'),$p);
+				'min'		=> '0000-01-01 00:00:00',
+				'max'		=> '9999-12-31 23:59:59',
+				'show'		=> Array('y','m','d','h','i','s'),
+				'increment'	=> Array(),
+				'style'		=> $this->getParam('style'),
+			 );
+		$d = new DateTime_Field($this->prefix.'_max',$this->getParam('max'),$p);
 		$d->processField();
 
 	}//end processMaxField()
@@ -823,9 +897,7 @@ class DateTime_Field
 	*/
 	function printEditOptions($show=Array())
 	{
-		if (empty($show)) {
-			$show = Array('s','n','c','t'); // default set of fields to show
-		}
+		if (empty($show)) $show = Array('s','n','c','t'); // default set of fields to show
 
 		$us = Array('d'=>'Day','m'=>'Month','y'=>'Year','h'=>'Hour','i'=>'Min.','s'=>'Sec.');
 		$s = &$this->getParam('show');
@@ -840,7 +912,7 @@ class DateTime_Field
 				<?php
 					if (in_array('c', $show)) {
 						combo_box($this->prefix.'_allow_circa',Array(''=>'','1'=>'Allow "circa."'),$c,'class=smallprint');
-						echo "<br />";
+						echo '<br />';
 					}
 					if (in_array('t', $show)) {
 						combo_box($this->prefix.'_standard',Array('int'=>'Intl. (dd/mm/yyyy)','us'=>'US (mm/dd/yyyy)'),$t,'class=fineprint');
