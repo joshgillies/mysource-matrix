@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: password.inc,v 1.22 2005/05/06 02:39:06 ndvries Exp $
+* $Id: password.inc,v 1.23 2005/05/06 05:33:55 ndvries Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_ATTRIBUTES_PATH.'/text/text.inc';
 *    <password width="8" min_length="6" />
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -113,7 +113,9 @@ class Asset_Attribute_Password extends Asset_Attribute_Text
 	*/
 	function process($prefix)
 	{
-		if (!isset($_REQUEST[$prefix.'_one']) && !isset($_REQUEST[$prefix.'_two'])) return false;
+		if (!isset($_REQUEST[$prefix.'_one']) && !isset($_REQUEST[$prefix.'_two'])) {
+			return false;
+		}
 		$this->processed = false;
 
 		$one = $_REQUEST[$prefix.'_one'];

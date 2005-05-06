@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: password_rules_config.inc,v 1.1 2005/05/06 03:38:13 ndvries Exp $
+* $Id: password_rules_config.inc,v 1.2 2005/05/06 05:33:55 ndvries Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 class Password_Rules_Config extends Config
@@ -48,14 +48,13 @@ class Password_Rules_Config extends Config
 	* @var Array()
 	*/
 	var $config_vars = Array(
-						'SQ_PASSWD_RULE_LENGTH'					=> Array('editable' => 1, 'default' => 6),
-						'SQ_PASSWD_RULE_ALLOW_USER_INFO'		=> Array('editable' => 1, 'default' => 1),
-						'SQ_PASSWD_RULE_NUM_CAPS'				=> Array('editable' => 1, 'default' => -1),
-						'SQ_PASSWD_RULE_NUM_LOWER'				=> Array('editable' => 1, 'default' => -1),
-						'SQ_PASSWD_RULE_NUM_INT'				=> Array('editable' => 1, 'default' => -1),
-						'SQ_PASSWD_RULE_NUM_PUNC'				=> Array('editable' => 1, 'default' => -1),
-						'SQ_PASSWD_RULE_NUM_SPC'				=> Array('editable' => 1, 'default' => -1),
-
+						'SQ_PASSWD_RULE_LENGTH'				=> Array('editable' => 1, 'default' => 6),
+						'SQ_PASSWD_RULE_DISALLOW_USER_INFO'	=> Array('editable' => 1, 'default' => 1),
+						'SQ_PASSWD_RULE_NUM_CAPS'			=> Array('editable' => 1, 'default' => -1),
+						'SQ_PASSWD_RULE_NUM_LOWER'			=> Array('editable' => 1, 'default' => -1),
+						'SQ_PASSWD_RULE_NUM_INT'			=> Array('editable' => 1, 'default' => -1),
+						'SQ_PASSWD_RULE_NUM_PUNC'			=> Array('editable' => 1, 'default' => -1),
+						'SQ_PASSWD_RULE_NUM_SPC'			=> Array('editable' => 1, 'default' => -1),
 					   );
 
 
@@ -145,6 +144,7 @@ class Password_Rules_Config extends Config
 	* @return void
 	* @access public
 	* @see processBackend()
+	* @see User::validatePassword()
 	*/
 	function paintBackend(&$o)
 	{
@@ -167,31 +167,38 @@ class Password_Rules_Config extends Config
 				}
 			$o->closeField();
 
-			$o->openField('Allow User Info', '', 'Prevent users having their username or other user information as their password.');
+			$o->openField('Disallow User Info', '', 'If no, then prevent users having their username or other user information as their password.');
 				if ($write_access && $is_root) {
-					combo_box($class.'[SQ_PASSWD_RULE_ALLOW_USER_INFO]', Array('1' => 'Yes', '0' => 'No'), false, SQ_PASSWD_RULE_ALLOW_USER_INFO);
+					combo_box($class.'[SQ_PASSWD_RULE_DISALLOW_USER_INFO]', Array('0' => 'Yes', '1' => 'No'), false, SQ_PASSWD_RULE_DISALLOW_USER_INFO);
 				} else {
-					echo (SQ_PASSWD_RULE_ALLOW_USER_INFO) ? 'Yes' : 'No';
+					echo (SQ_PASSWD_RULE_DISALLOW_USER_INFO) ? 'No' : 'Yes';
 				}
 			$o->closeField();
 
-			$o->openField('Character Rules', '', 'Enforce the use of a certain type of character in passwords by either specifying the minimum number of times it must be used, or specifying "0" to disable its use.');
+			$o->openField('Character Rules', '', 'Enforce the use of a certain type of character in passwords by specifying the minimum number of times it must be used.<br />
+												  Disallowing a character type will prevent users from including it in their passwords.');
 
 				?>
 				<table class="sq-backend-table">
 				<tr>
+					<td style="width: 50px;" class="sq-backend-table-header">Active?</td>
 					<td style="width: 200px;" class="sq-backend-table-header">Character Type</td>
 					<td class="sq-backend-table-header">Minimum Number</td>
-					<?php
-						if ($write_access) {
-							?><td style="width: 50px;" class="sq-backend-table-header">Disable Checking?</td><?php
-						}
-					?>
+					<td style="width: 150px;" class="sq-backend-table-header">Disallow Character Type?</td>
 				</tr>
 				<?php
 				foreach (get_constant_values('SQ_PASSWD_RULE_NUM') as $password_rule => $value) {
 					?>
 					<tr>
+						<td class="sq-backend-table-cell">
+						<?php
+							if ($write_access) {
+								check_box($class.'_active'.'['.$password_rule.']', '1', ($value != 0 ? true : false));
+							} else {
+								?><img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $value != 0 ? 'tick' : 'cross'; ?>.gif" width="15" height="15" /><?php
+							}
+						?>
+						</td>
 						<td class="sq-backend-table-cell">
 							<?php
 							switch ($password_rule) {
@@ -218,7 +225,7 @@ class Password_Rules_Config extends Config
 						</td>
 						<td class="sq-backend-table-cell">
 							<?php
-							if ($value > -1) {
+							if ($value > 0) {
 								if ($write_access) {
 									int_text_box($class.'['.$password_rule.']', $value, false, 5);
 								} else {
@@ -229,13 +236,19 @@ class Password_Rules_Config extends Config
 							}
 							?>
 						</td>
-						<?php
-						if ($write_access) {
-							?><td class="sq-backend-table-cell"><?php
-							check_box($class.'_disable'.'['.$password_rule.']', '1', ($value > -1 ? false : true));
-							?></td><?php
-						}
-						?>
+						<td class="sq-backend-table-cell" style="text-align: center;">
+							<?php
+								// if disabled
+								if ($value == 0) {
+									echo '&nbsp;';
+								} else {
+									if ($write_access) {
+										check_box($class.'_disallow'.'['.$password_rule.']', '1', ($value == -1));
+									} else {
+										?><img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $value == -1 ? 'tick' : 'cross'; ?>.gif" width="15" height="15" /><?php
+									}
+								}
+							?>
 						</td>
 					</tr>
 					<?php
@@ -259,6 +272,7 @@ class Password_Rules_Config extends Config
 	* @return boolean
 	* @access public
 	* @see paintBackend()
+	* @see User::validatePassword()
 	*/
 	function processBackend(&$o)
 	{
@@ -268,20 +282,30 @@ class Password_Rules_Config extends Config
 		$const = get_constant_values('SQ_PASSWD_RULE_NUM');
 		foreach ($const as $password_rule => $value) {
 			// get the values from $_POST[password_rules_config(_enable)][password_rule]
-			eval('$check_box = isset($_POST'."['".$class.'_disable'."']"."['".$password_rule."']".');');
+			eval('$active_check_box = isset($_POST'."['".$class.'_active'."']"."['".$password_rule."']".');');
+			eval('$disallow_check_box = isset($_POST'."['".$class.'_disallow'."']"."['".$password_rule."']".');');
 			eval('$text_box  = (isset($_POST'."['".$class."']"."['".$password_rule."']".') ? $_POST'."['".$class."']"."['".$password_rule."']".' : false);');
-			if ($check_box) {
-				$_POST['password_rules_config'][$password_rule] = -1;
+
+			if ($disallow_check_box) {
+				if ($active_check_box) {
+					$_POST[$class][$password_rule] = -1;
+				} else {
+					$_POST[$class][$password_rule] = 0;
+				}
 			} else {
-				if ($text_box === false) {
-					// fool the config into thinking a textbox was passed
-					$_POST[$class][$password_rule] = 1;
+				if ($active_check_box) {
+					if ($text_box === false) {
+						$_POST[$class][$password_rule] = 1;
+					}
+				} else {
+					$_POST[$class][$password_rule] = 0;
 				}
 			}
 		}
 
 		return parent::processBackend($o);
-	}
+
+	}//end processBackend()
 
 
 }//end class

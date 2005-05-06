@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.86 2005/05/06 02:39:06 ndvries Exp $
+* $Id: user.inc,v 1.87 2005/05/06 05:33:55 ndvries Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once SQ_INCLUDE_PATH.'/password_rules_config.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.86 $
+* @version $Revision: 1.87 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -222,7 +222,6 @@ class User extends Asset
 	* Validates the passed password against a list of rules
 	*
 	* @param string			$passwd		the password to validate
-	* @param object User	&$user		the user the password is being assigned to
 	*
 	* @access public
 	* @return boolean
@@ -233,21 +232,21 @@ class User extends Asset
 
 		// errors for when a character type does not occur in the password
 		$not_occurring_error_map = Array(
-						'SQ_PASSWD_RULE_NUM_CAPS'		=> 'CORE0222',
-						'SQ_PASSWD_RULE_NUM_LOWER'		=> 'CORE0223',
-						'SQ_PASSWD_RULE_NUM_INT'		=> 'CORE0224',
-						'SQ_PASSWD_RULE_NUM_PUNC'		=> 'CORE0225',
-						'SQ_PASSWD_RULE_NUM_SPC'		=> 'CORE0226',
-					 );
+									'SQ_PASSWD_RULE_NUM_CAPS'	=> 'CORE0222',
+									'SQ_PASSWD_RULE_NUM_LOWER'	=> 'CORE0223',
+									'SQ_PASSWD_RULE_NUM_INT'	=> 'CORE0224',
+									'SQ_PASSWD_RULE_NUM_PUNC'	=> 'CORE0225',
+									'SQ_PASSWD_RULE_NUM_SPC'	=> 'CORE0226',
+								   );
 
 		// errors for when a character type incorrectly occurs in the password
 		$occurring_error_map = Array(
-						'SQ_PASSWD_RULE_NUM_CAPS'		=> 'CORE0227',
-						'SQ_PASSWD_RULE_NUM_LOWER'		=> 'CORE0228',
-						'SQ_PASSWD_RULE_NUM_INT'		=> 'CORE0229',
-						'SQ_PASSWD_RULE_NUM_PUNC'		=> 'CORE0230',
-						'SQ_PASSWD_RULE_NUM_SPC'		=> 'CORE0231',
-					 );
+								'SQ_PASSWD_RULE_NUM_CAPS'	=> 'CORE0227',
+								'SQ_PASSWD_RULE_NUM_LOWER'	=> 'CORE0228',
+								'SQ_PASSWD_RULE_NUM_INT'	=> 'CORE0229',
+								'SQ_PASSWD_RULE_NUM_PUNC'	=> 'CORE0230',
+								'SQ_PASSWD_RULE_NUM_SPC'	=> 'CORE0231',
+							   );
 
 		if (defined('SQ_PASSWD_RULE_LENGTH') && SQ_PASSWD_RULE_LENGTH > -1) {
 			if (strlen($passwd) < SQ_PASSWD_RULE_LENGTH) {
@@ -256,7 +255,7 @@ class User extends Asset
 			}
 		}
 
-		if (defined('SQ_PASSWD_RULE_ALLOW_USER_INFO') && SQ_PASSWD_RULE_ALLOW_USER_INFO == 0) {
+		if (defined('SQ_PASSWD_RULE_DISALLOW_USER_INFO') && SQ_PASSWD_RULE_DISALLOW_USER_INFO == 0) {
 			$components = Array('username', 'first_name', 'last_name', 'email');
 			$user_info_status = true;
 			foreach ($components as $component) {
@@ -266,7 +265,9 @@ class User extends Asset
 					$status = false;
 				}
 			}
-			if (!$user_info_status) trigger_localised_error('CORE0221', E_USER_WARNING);
+			if (!$user_info_status) {
+				trigger_localised_error('CORE0221', E_USER_WARNING);
+			}
 		}
 
 		$charlist = count_chars($passwd, 1);
@@ -332,7 +333,7 @@ class User extends Asset
 
 		return $status;
 
-	}// end validatePassword()
+	}//end validatePassword()
 
 
 	/**
