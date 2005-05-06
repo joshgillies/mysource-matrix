@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_create_asset.inc,v 1.1 2005/04/20 04:23:20 gsherwood Exp $
+* $Id: trigger_action_create_asset.inc,v 1.2 2005/05/06 03:35:57 gsherwood Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -77,12 +77,13 @@ class Trigger_Action_Create_Asset extends Trigger_Action
 		// check the optional settings, assign defaults
 		$is_dependant = array_get_index($settings, 'is_dependant', 0);
 		$is_exclusive = array_get_index($settings, 'is_exclusive', 0);
+		$value = array_get_index($settings, 'value', '');
 
 		// the new link
 		$link = Array(
 					'asset'			=> &$parent,
 					'link_type'		=> $settings['link_type'],
-					'value'			=> $settings['value'],
+					'value'			=> $value,
 					'sort_order'	=> null,
 					'is_dependant'	=> (bool) $is_dependant,
 					'is_exclusive'	=> (bool) $is_exclusive,
