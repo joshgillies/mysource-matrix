@@ -18,12 +18,14 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.85 2005/05/03 04:43:07 rhoward Exp $
+* $Id: user.inc,v 1.86 2005/05/06 02:39:06 ndvries Exp $
 *
 */
 
 
 require_once SQ_INCLUDE_PATH.'/asset.inc';
+require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+require_once SQ_INCLUDE_PATH.'/password_rules_config.inc';
 
 /**
 * User
@@ -36,7 +38,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.85 $
+* @version $Revision: 1.86 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -173,7 +175,13 @@ class User extends Asset
 	{
 		// if this is the password, encrypt it
 		if ($name == 'password') {
-			$value = crypt($value); // let salt be generated
+			$config = new Password_Rules_Config();
+			require_once $config->config_file;
+			if ($this->validatePassword($value)) {
+				$value = crypt($value); // let salt be generated
+			} else {
+				return false;
+			}
 
 		} else if ($name == 'username') {
 			if (!$this->_catchBlankSetUserName(trim($value))) {
@@ -208,6 +216,123 @@ class User extends Asset
 		return (crypt($entered_password,$password) == $password);
 
 	}//end comparePassword()
+
+
+	/**
+	* Validates the passed password against a list of rules
+	*
+	* @param string			$passwd		the password to validate
+	* @param object User	&$user		the user the password is being assigned to
+	*
+	* @access public
+	* @return boolean
+	*/
+	function validatePassword($passwd)
+	{
+		$status = true;
+
+		// errors for when a character type does not occur in the password
+		$not_occurring_error_map = Array(
+						'SQ_PASSWD_RULE_NUM_CAPS'		=> 'CORE0222',
+						'SQ_PASSWD_RULE_NUM_LOWER'		=> 'CORE0223',
+						'SQ_PASSWD_RULE_NUM_INT'		=> 'CORE0224',
+						'SQ_PASSWD_RULE_NUM_PUNC'		=> 'CORE0225',
+						'SQ_PASSWD_RULE_NUM_SPC'		=> 'CORE0226',
+					 );
+
+		// errors for when a character type incorrectly occurs in the password
+		$occurring_error_map = Array(
+						'SQ_PASSWD_RULE_NUM_CAPS'		=> 'CORE0227',
+						'SQ_PASSWD_RULE_NUM_LOWER'		=> 'CORE0228',
+						'SQ_PASSWD_RULE_NUM_INT'		=> 'CORE0229',
+						'SQ_PASSWD_RULE_NUM_PUNC'		=> 'CORE0230',
+						'SQ_PASSWD_RULE_NUM_SPC'		=> 'CORE0231',
+					 );
+
+		if (defined('SQ_PASSWD_RULE_LENGTH') && SQ_PASSWD_RULE_LENGTH > -1) {
+			if (strlen($passwd) < SQ_PASSWD_RULE_LENGTH) {
+				$status = false;
+				trigger_localised_error('CORE0220', E_USER_WARNING, strlen($passwd), SQ_PASSWD_RULE_LENGTH);
+			}
+		}
+
+		if (defined('SQ_PASSWD_RULE_ALLOW_USER_INFO') && SQ_PASSWD_RULE_ALLOW_USER_INFO == 0) {
+			$components = Array('username', 'first_name', 'last_name', 'email');
+			$user_info_status = true;
+			foreach ($components as $component) {
+				$attr = $this->attr($component);
+				if (!empty($attr) && preg_match('/.*'.$this->attr($component).'.*/i', $passwd)) {
+					$user_info_status = false;
+					$status = false;
+				}
+			}
+			if (!$user_info_status) trigger_localised_error('CORE0221', E_USER_WARNING);
+		}
+
+		$charlist = count_chars($passwd, 1);
+		$num_rules = get_constant_values('SQ_PASSWD_RULE_NUM_');
+
+		foreach ($num_rules as $rule => $value) {
+			eval('$'.$rule.'_counter = 0;');
+
+			if ($value > -1) {
+				foreach ($charlist as $char => $occurances) {
+					switch ($rule) {
+						case 'SQ_PASSWD_RULE_NUM_CAPS':
+							if (ctype_upper($char)) {
+								eval('$'.$rule.'_counter += $occurances;');
+							}
+							break;
+
+						case 'SQ_PASSWD_RULE_NUM_LOWER':
+							if (ctype_lower($char)) {
+								eval('$'.$rule.'_counter += $occurances;');
+							}
+							break;
+
+						case 'SQ_PASSWD_RULE_NUM_INT':
+							if (ctype_digit($char)) {
+								eval('$'.$rule.'_counter += $occurances;');
+							}
+							break;
+
+						case 'SQ_PASSWD_RULE_NUM_PUNC':
+							if (ctype_punct($char)) {
+								eval('$'.$rule.'_counter += $occurances;');
+							}
+							break;
+
+						case 'SQ_PASSWD_RULE_NUM_SPC':
+							if (ctype_space($char)) {
+								eval('$'.$rule.'_counter += $occurances;');
+							}
+							break;
+					}
+				}
+			}
+		}
+
+		foreach ($num_rules as $rule => $value) {
+			eval('$rule_enabled = ($value > -1);');
+			if ($rule_enabled) {
+				eval('$tmp_counter = $'.$rule.'_counter;');
+				if ($value == 0 && $tmp_counter > 0) {
+					$status = false;
+					if (isset($occurring_error_map[$rule])) {
+						trigger_localised_error($occurring_error_map[$rule], E_USER_WARNING);
+					}
+				} else if ($tmp_counter < $value) {
+					$status = false;
+					if (isset($not_occurring_error_map[$rule])) {
+						trigger_localised_error($not_occurring_error_map[$rule], E_USER_WARNING, $tmp_counter, $value);
+					}
+				}
+			}
+		}
+
+		return $status;
+
+	}// end validatePassword()
 
 
 	/**

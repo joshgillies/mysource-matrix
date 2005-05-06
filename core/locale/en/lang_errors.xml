@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.3 2005/05/05 02:37:11 rhoward Exp $
+* $Id: lang_errors.xml,v 1.4 2005/05/06 02:39:06 ndvries Exp $
 *
 */
 
@@ -655,7 +655,7 @@
 
 	<!-- SYSTEM -->
 
-	<error code="SYS0001">Password validation failed - please ensure your password is at least %s characters long</error><!-- core/attributes/password/password.inc:135: -->
+	<!--<error code="SYS0001">Password validation failed - please ensure your password is at least %s characters long</error>--><!-- core/attributes/password/password.inc:135: -->
 
 	<error code="SYS0002">%1$s files are not allowed for "%2$s"</error><!-- core/lib/html_form/html_form.inc:577: -->
 
@@ -695,7 +695,7 @@
 
 	<error code="SYS0023">The uploaded file "%s" was only partially uploaded.</error><!-- core/lib/html_form/html_form.inc:524: -->
 
-	<error code="SYS0024">URL "%1$s" contains a path "%2$s" which was deemed to be not valid.</error><!-- NOTE: QUESTIONABLE SEE ABOVE, CAME FROM THERE -->
+	<error code="SYS0024">URL "%1$s" contains a path "%2$s" which was deemed to be not valid.</error>
 
 	<error code="SYS0025">Unable to create file: %s</error><!-- core/lib/html_form/html_form.inc:620: -->
 
@@ -1519,9 +1519,22 @@ Full Node Contents :
 	<error code="CORE0215">You are unable to set sub menu's on the recursive menu type</error>
 
 	<error code="CORE0216">Format for type %s not found</error>
-	
+
 	<error code="CORE0217">Unable to create Trigger, incorrect format</error>
 	<error code="CORE0218">Loop limit (%1$s) exceeded for %2$s</error>
 	<error code="CORE0219">Cannot load event "%s"</error>
+
+	<error code="CORE0220">Password is only %1$s characters long, it needs to be at least %2$s characters</error>
+	<error code="CORE0221">Password must not contain any user information, eg. name, email</error>
+	<error code="CORE0222">Password contains only %1$s capital letters, must contain at least %2$s</error>
+	<error code="CORE0223">Password contains only %1$s lower-case letters, must contain at least %2$s</error>
+	<error code="CORE0224">Password contains only %1$s numeric characters, must contain at least %2$s</error>
+	<error code="CORE0225">Password contains only %1$s punctuation characters, must contain at least %2$s</error>
+	<error code="CORE0226">Password contains only %1$s spaces, must contain at least %2$s</error>
+	<error code="CORE0227">Password must not contain capital letters</error>
+	<error code="CORE0228">Password must not contain lower-case letters</error>
+	<error code="CORE0229">Password must not contain numeric characters</error>
+	<error code="CORE0230">Password must not contain punctuation characters</error>
+	<error code="CORE0231">Password must not contain spaces</error>
 
 </errors>

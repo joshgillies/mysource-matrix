@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config_edit_interface.inc,v 1.14 2005/04/27 00:14:43 lwright Exp $
+* $Id: system_config_edit_interface.inc,v 1.15 2005/05/06 02:39:06 ndvries Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *    Looks after the editing of the system config
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix
 */
 class System_Config_Edit_Interface extends MySource_Object
@@ -97,6 +97,7 @@ class System_Config_Edit_Interface extends MySource_Object
 							'squiz_server_config'	=> 'Squiz Server Configuration',
 							'hipo_config'			=> 'HIPO Configuration',
 							'external_tools_config'	=> 'External Tools Configuration',
+							'password_rules_config'	=> 'Password Rule Configuration',
 							'user_prefs'			=> 'Global Preferences',
 						  );
 
@@ -113,6 +114,7 @@ class System_Config_Edit_Interface extends MySource_Object
 			case 'squiz_server_config' :
 			case 'hipo_config' :
 			case 'external_tools_config' :
+			case 'password_rules_config' :
 
 				$config = null;
 
@@ -132,6 +134,10 @@ class System_Config_Edit_Interface extends MySource_Object
 					case 'external_tools_config' :
 						require_once SQ_INCLUDE_PATH.'/external_tools_config.inc';
 						$config = new External_Tools_Config();
+						break;
+					case 'password_rules_config' :
+						require_once SQ_INCLUDE_PATH.'/password_rules_config.inc';
+						$config = new Password_Rules_Config();
 						break;
 
 				}// end switch
@@ -310,11 +316,11 @@ class System_Config_Edit_Interface extends MySource_Object
 						'old_value'	=> var_export($values['old'], true),
 						'new_value'	=> var_export($values['new'], true),
 					);
-					$message = $ms->newMessage(Array(), 'prefs.system', $msg_reps);			
+					$message = $ms->newMessage(Array(), 'prefs.system', $msg_reps);
 					$ms->enqueueMessage($message);
 				}
 				$ms->closeQueue();
-				
+
 
 			}// end if
 

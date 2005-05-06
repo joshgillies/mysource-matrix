@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.inc,v 1.40 2005/05/04 04:46:52 lwright Exp $
+* $Id: install.inc,v 1.41 2005/05/06 02:39:07 ndvries Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * Purpose
 * Functions used to install and upgrade the system
 *
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -65,6 +65,11 @@ function regenerate_configs()
 	// Re-generate the Messaging Service Config to make sure that we get any new defines that may have been issued
 	require_once SQ_SYSTEM_ROOT.'/core/include/messaging_service_config.inc';
 	$ms_cfg = new Messaging_Service_Config();
+	if (!$ms_cfg->save(Array(), false)) return false;
+
+	// Re-generate the Password Rules Config to make sure that we get any new defines that may have been issued
+	require_once SQ_SYSTEM_ROOT.'/core/include/password_rules_config.inc';
+	$ms_cfg = new Password_Rules_Config();
 	if (!$ms_cfg->save(Array(), false)) return false;
 
 	return true;

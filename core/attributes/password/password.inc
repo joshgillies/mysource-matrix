@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: password.inc,v 1.21 2005/04/15 00:37:27 lwright Exp $
+* $Id: password.inc,v 1.22 2005/05/06 02:39:06 ndvries Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_ATTRIBUTES_PATH.'/text/text.inc';
 *    <password width="8" min_length="6" />
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -128,9 +128,6 @@ class Asset_Attribute_Password extends Asset_Attribute_Text
 			if ($this->setValue($one)) {
 				$this->processed = true;
 			} else {
-				if ($this->_edit_params['min_length']) {
-					trigger_localised_error('SYS0001', E_USER_WARNING, $this->_edit_params['min_length']);
-				}
 				$this->processed = false;
 			}
 		} else {
@@ -154,9 +151,6 @@ class Asset_Attribute_Password extends Asset_Attribute_Text
 		$value = trim($value);
 		$new_value = (string)$value;
 		if ($new_value != $value) return false;
-		if (isset($this->_edit_params['min_length']) && $this->_edit_params['min_length']) {
-			if (strlen($value) < $this->_edit_params['min_length']) return false;
-		}
 		return true;
 
 	}//end validateValue()
