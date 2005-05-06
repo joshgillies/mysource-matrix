@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: JsHttpConnector.js,v 1.5 2005/05/02 02:45:20 tbarrett Exp $
+* $Id: JsHttpConnector.js,v 1.6 2005/05/06 05:34:21 tbarrett Exp $
 *
 */
 
@@ -33,17 +33,19 @@ function _processJsHttpStateChange(id)
 	var thread = _allJsHttpConnectorThreads[id];
 	if (thread.requestObject.readyState == 4) {
 		// state is "loaded"
-		if (thread.requestObject.status == 200) {
-			// status is "OK"
-			//try {
-				thread.process(thread.requestObject.responseText, thread.requestObject.responseXML);
-			//} catch (e) {
-				//thread._handleReceiveError(e.message);
-			//}
-		 } else {
-			 thread._handleReceiveError(thread.requestObject.statusText, thread.requestObject.status);
-		 }
-		delete( _allJsHttpConnectorThreads["t"+thread.id]);
+		try {
+			if (thread.requestObject.status == 200) {
+				// status is "OK"
+				try {
+					thread.process(thread.requestObject.responseText, thread.requestObject.responseXML);
+					delete( _allJsHttpConnectorThreads["t"+thread.id]);
+				} catch (e) {
+					thread._handleReceiveError(e.message);
+				}
+			 } 
+		} catch (e) {
+			setTimeout('_processJsHttpStateChange("'+id+'")', 400);
+		}
 	}
 
 }//end _processJsHttpStateChange()
@@ -278,7 +280,7 @@ function JsHttpConnectorThread()
 	this._handleReceiveError = function(message, status)
 	{
 		var msg = "JSHTTPCONNECTOR RECEIVE ERROR: \n"+message;
-		if (typeof status != 'undefined') msg += "\n(HTTP Status = "+status;
+		if (typeof status != 'undefined') msg += "\n(HTTP Status = "+status+")";
 		alert(msg);
 
 	}//end _handleReceiveError()
