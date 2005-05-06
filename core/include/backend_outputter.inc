@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.104 2005/04/21 23:02:34 tbarrett Exp $
+* $Id: backend_outputter.inc,v 1.105 2005/05/06 05:27:36 tbarrett Exp $
 *
 */
 
@@ -42,7 +42,7 @@ define('SQ_BO_MSG_ERROR',   4);
 *    there will only ever be one instance of this object
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.104 $
+* @version $Revision: 1.105 $
 * @package MySource_Matrix
 */
 class Backend_Outputter
@@ -970,7 +970,7 @@ class Backend_Outputter
 			$this->addJsInclude(sq_web_path('lib').'/js/edit.js');
 			foreach ($this->_js_includes as $file) $this->_paintJsInclude($file);
 		?>
-			<script language="Javascript" type="text/javascript">
+			<script type="text/javascript">
 			<!--
 				var SQ_DOCUMENT_LOADED = false;
 
@@ -1091,7 +1091,7 @@ class Backend_Outputter
 				<table width="100%" cellpadding="3" cellspacing="0" border="0">
 					<tr>
 						<td class="sq-backend-nav-history" valign="middle">
-						<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $this->filesPath('images/icons/history.png');?>", "20", "20", "Navigation History");</script>
+						<script type="text/javascript">sq_print_icon("<?php echo $this->filesPath('images/icons/history.png');?>", "20", "20", "Navigation History");</script>
 						&nbsp;
 						<span style="color: #342939">Back to : </span>
 						<?php
@@ -1109,7 +1109,7 @@ class Backend_Outputter
 									continue;
 								}
 
-								?><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($nav_asset->type()); ?>", "16", "16", "<?php echo $nav_asset->short_name;?>");</script><?php
+								?><script type="text/javascript">sq_print_icon("<?php echo $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($nav_asset->type()); ?>", "16", "16", "<?php echo $nav_asset->short_name;?>");</script><?php
 
 								?><a href="<?php echo $nav_asset->getBackendHref($nav_details['screen']); ?>&sq_nav_goback=<?php echo $i; ?>" class="sq-backend-nav-history"><?php echo $nav_asset->short_name; ?></a><span style="font-size:8px;"><?php echo '['.($i + 1).']'; ?></span><?php
 
