@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_create_link.inc,v 1.8 2005/05/03 00:16:04 rhoward Exp $
+* $Id: trigger_action_create_link.inc,v 1.9 2005/05/06 03:34:27 gsherwood Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -78,6 +78,7 @@ class Trigger_Action_Create_Link extends Trigger_Action
 		// check the optional settings, assign defaults
 		$is_dependant = array_get_index($settings, 'is_dependant', 0);
 		$is_exclusive = array_get_index($settings, 'is_exclusive', 0);
+		$value = array_get_index($settings, 'value', '');
 
 		if (empty($state['asset'])) {
 			// grab the asset if assetid is given, but not the asset
@@ -105,7 +106,7 @@ class Trigger_Action_Create_Link extends Trigger_Action
 		$link_info = $am->getLinkByAsset($state['assetid'], $settings['assetid'], $settings['link_type'], null, $side_of_link, true);
 		if (empty($link_info)) {
 			// create a link
-			$linkid = $am->createAssetLink($major, $minor, $settings['link_type'], $settings['value'], null, $is_dependant, $is_exclusive);
+			$linkid = $am->createAssetLink($major, $minor, $settings['link_type'], $value, null, $is_dependant, $is_exclusive);
 			if (!$linkid) return false;
 
 			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
