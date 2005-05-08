@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_link.php,v 1.31 2005/05/06 06:57:40 dmckee Exp $
+* $Id: insert_link.php,v 1.32 2005/05/08 23:31:10 dmckee Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Insert Link Popup for the WYSIWYG
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix
 */
 
@@ -35,29 +35,35 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
 
 $url_protocol_options = Array(
-							''  => '',
-							'http://'  => 'http://',
-							'https://' => 'https://',
-							'mailto:'  => 'mailto:',
-							'ftp://'   => 'ftp://'
-							);
+							''			=> '',
+							'http://'	=> 'http://',
+							'https://'	=> 'https://',
+							'mailto:'	=> 'mailto:',
+							'ftp://'	=> 'ftp://',
+						);
 
 $new_window_bool_options = Array(
-								'toolbar'    => 'Show Tool Bar',
-								'menubar'    => 'Show Menu Bars',
-								'location'   => 'Show Location Bar',
-								'status'     => 'Show Status Bar',
-								'scrollbars' => 'Show Scroll Bars',
-								'resizable'  => 'Allow Resizing'
-								);
+							'toolbar'		=> 'Show Tool Bar',
+							'menubar'		=> 'Show Menu Bars',
+							'location'		=> 'Show Location Bar',
+							'status'		=> 'Show Status Bar',
+							'scrollbars'	=> 'Show Scroll Bars',
+							'resizable'		=> 'Allow Resizing',
+						   );
 
-if (!isset($_GET['assetid']))     $_GET['assetid'] = 0;
-if (!isset($_GET['url']))         $_GET['url'] = 0;
-if (!isset($_GET['protocol']))    $_GET['protocol'] = '';
-if (!isset($_GET['status_text'])) $_GET['status_text'] = '';
-if (!isset($_GET['link_title']))  $_GET['link_title'] = '';
-if (!isset($_GET['target']))      $_GET['target'] = '';
-if (!isset($_GET['new_window']))  $_GET['new_window'] = 0;
+if (!isset($_GET['assetid']))  $_GET['assetid'] = 0;
+if (!isset($_GET['url']))      $_GET['url'] = 0;
+if (!isset($_GET['protocol'])) $_GET['protocol'] = '';
+if (!isset($_GET['status_text'])) {
+	$_GET['status_text'] = '';
+}
+if (!isset($_GET['link_title'])) {
+	$_GET['link_title'] = '';
+}
+if (!isset($_GET['target']))     $_GET['target'] = '';
+if (!isset($_GET['new_window'])) {
+	$_GET['new_window'] = 0;
+}
 
 // If we have an anchor, it will have been stuck in the URL, so break it away
 if (strpos($_GET['url'], '#') !== false) {
@@ -344,9 +350,7 @@ if (!isset($_GET['new_window'])) {
 																						<?php echo $name?>
 																					</td>
 																			<?php
-																				if ($count % 2 == 0) {
-																					echo '</tr><tr>';
-																				}
+																				if ($count % 2 == 0) echo '</tr><tr>';
 																			}
 																		?>
 																		</tr>

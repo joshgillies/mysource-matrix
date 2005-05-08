@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_insert_link.inc,v 1.33 2005/05/06 06:57:40 dmckee Exp $
+* $Id: matrix_insert_link.inc,v 1.34 2005/05/08 23:31:10 dmckee Exp $
 *
 */
 
@@ -35,12 +35,13 @@ require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 *     a link in the editable document using an asset from MySoure Matrix
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
 class matrix_insert_link extends wysiwyg_plugin
 {
+
 
 	/**
 	* Constructor
@@ -253,7 +254,7 @@ class matrix_insert_link extends wysiwyg_plugin
 				if (this._inPopup == true) { in_popup = '1'; }
 
 				editor_<?php echo $this->wysiwyg->name?>._object = this;
-				var strPage = "<?php echo $this->get_popup_href('insert_link.php')?>?assetid=" + escape(currArgs["assetid"]) + "&url=" + escape(currArgs["url"]) + "&status_text=" + escape(currArgs["status_text"]) + "&target=" + escape(currArgs["target"]) +  "&new_window=" + escape(currArgs["new_window"]) + "&new_window_options=" + escape(var_serialise(currArgs["new_window_options"])) + "&editor_name=" + escape("<?php echo $this->wysiwyg->name; ?>") + "&in_popup=" + escape(in_popup);
+				var strPage = "<?php echo $this->get_popup_href('insert_link.php')?>?assetid=" + escape(currArgs["assetid"]) + "&url=" + escape(currArgs["url"]) + "&status_text=" + escape(currArgs["status_text"]) + "&link_title=" + escape(currArgs["link_title"])+ "&target=" + escape(currArgs["target"]) +  "&new_window=" + escape(currArgs["new_window"]) + "&new_window_options=" + escape(var_serialise(currArgs["new_window_options"])) + "&editor_name=" + escape("<?php echo $this->wysiwyg->name; ?>") + "&in_popup=" + escape(in_popup);
 
 				this._popupDialog("matrixInsertLink", strPage, 750, 440, true, function(param) {
 					if (param && param["url"] != "") {
@@ -282,7 +283,7 @@ class matrix_insert_link extends wysiwyg_plugin
 							html += ' onMouseOver="javascript: window.status=\'' + htmlspecialchars(param["status_text"]).replace(/\'/gi, "\\'") + '\'; return true;" onMouseOut="javascript: window.status=\'\'; return true;"';
 						}
 						if (param["link_title"] != "") {
-							html += ' title="' + htmlspecialchars(param["target"]).replace(/\'/gi, "\\'") + '"';
+							html += ' title="' + htmlspecialchars(param["link_title"]).replace(/\'/gi, "\\'") + '"';
 						}
 						if (param["onClick"] != null && param["onClick"] != "") {
 							html += ' onClick="' + param["onClick"] + '"';
