@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: password_rules_config.inc,v 1.2 2005/05/06 05:33:55 ndvries Exp $
+* $Id: password_rules_config.inc,v 1.3 2005/05/09 03:49:14 ndvries Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 */
 class Password_Rules_Config extends Config
@@ -55,6 +55,8 @@ class Password_Rules_Config extends Config
 						'SQ_PASSWD_RULE_NUM_INT'			=> Array('editable' => 1, 'default' => -1),
 						'SQ_PASSWD_RULE_NUM_PUNC'			=> Array('editable' => 1, 'default' => -1),
 						'SQ_PASSWD_RULE_NUM_SPC'			=> Array('editable' => 1, 'default' => -1),
+						'SQ_PASSWD_RULE_DISALLOWED'			=> Array('editable' => 0, 'default' => -1),
+						'SQ_PASSWD_RULE_DISABLED'			=> Array('editable' => 0, 'default' => 0),
 					   );
 
 
@@ -193,9 +195,9 @@ class Password_Rules_Config extends Config
 						<td class="sq-backend-table-cell">
 						<?php
 							if ($write_access) {
-								check_box($class.'_active'.'['.$password_rule.']', '1', ($value != 0 ? true : false));
+								check_box($class.'_active'.'['.$password_rule.']', '1', ($value != SQ_PASSWD_RULE_DISABLED ? true : false));
 							} else {
-								?><img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $value != 0 ? 'tick' : 'cross'; ?>.gif" width="15" height="15" /><?php
+								?><img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $value != SQ_PASSWD_RULE_DISABLED ? 'tick' : 'cross'; ?>.gif" width="15" height="15" /><?php
 							}
 						?>
 						</td>
@@ -225,7 +227,7 @@ class Password_Rules_Config extends Config
 						</td>
 						<td class="sq-backend-table-cell">
 							<?php
-							if ($value > 0) {
+							if ($value != SQ_PASSWD_RULE_DISABLED && $value != SQ_PASSWD_RULE_DISALLOWED) {
 								if ($write_access) {
 									int_text_box($class.'['.$password_rule.']', $value, false, 5);
 								} else {
@@ -239,13 +241,13 @@ class Password_Rules_Config extends Config
 						<td class="sq-backend-table-cell" style="text-align: center;">
 							<?php
 								// if disabled
-								if ($value == 0) {
+								if ($value == SQ_PASSWD_RULE_DISABLED) {
 									echo '&nbsp;';
 								} else {
 									if ($write_access) {
-										check_box($class.'_disallow'.'['.$password_rule.']', '1', ($value == -1));
+										check_box($class.'_disallow'.'['.$password_rule.']', '1', ($value == SQ_PASSWD_RULE_DISALLOWED));
 									} else {
-										?><img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $value == -1 ? 'tick' : 'cross'; ?>.gif" width="15" height="15" /><?php
+										?><img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $value == SQ_PASSWD_RULE_DISALLOWED ? 'tick' : 'cross'; ?>.gif" width="15" height="15" /><?php
 									}
 								}
 							?>
@@ -288,9 +290,9 @@ class Password_Rules_Config extends Config
 
 			if ($disallow_check_box) {
 				if ($active_check_box) {
-					$_POST[$class][$password_rule] = -1;
+					$_POST[$class][$password_rule] = SQ_PASSWD_RULE_DISALLOWED;
 				} else {
-					$_POST[$class][$password_rule] = 0;
+					$_POST[$class][$password_rule] = SQ_PASSWD_RULE_DISABLED;
 				}
 			} else {
 				if ($active_check_box) {
@@ -298,7 +300,7 @@ class Password_Rules_Config extends Config
 						$_POST[$class][$password_rule] = 1;
 					}
 				} else {
-					$_POST[$class][$password_rule] = 0;
+					$_POST[$class][$password_rule] = SQ_PASSWD_RULE_DISABLED;
 				}
 			}
 		}

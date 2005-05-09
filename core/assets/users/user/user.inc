@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.87 2005/05/06 05:33:55 ndvries Exp $
+* $Id: user.inc,v 1.88 2005/05/09 03:49:12 ndvries Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once SQ_INCLUDE_PATH.'/password_rules_config.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.87 $
+* @version $Revision: 1.88 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -275,8 +275,7 @@ class User extends Asset
 
 		foreach ($num_rules as $rule => $value) {
 			eval('$'.$rule.'_counter = 0;');
-
-			if ($value > -1) {
+			if ($value != SQ_PASSWD_RULE_DISABLED) {
 				foreach ($charlist as $char => $occurances) {
 					switch ($rule) {
 						case 'SQ_PASSWD_RULE_NUM_CAPS':
@@ -314,10 +313,9 @@ class User extends Asset
 		}
 
 		foreach ($num_rules as $rule => $value) {
-			eval('$rule_enabled = ($value > -1);');
-			if ($rule_enabled) {
+			if ($value != SQ_PASSWD_RULE_DISABLED) {
 				eval('$tmp_counter = $'.$rule.'_counter;');
-				if ($value == 0 && $tmp_counter > 0) {
+				if ($value == SQ_PASSWD_RULE_DISALLOWED && $tmp_counter > 0) {
 					$status = false;
 					if (isset($occurring_error_map[$rule])) {
 						trigger_localised_error($occurring_error_map[$rule], E_USER_WARNING);
