@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit_table.php,v 1.10 2005/02/09 05:42:46 gsherwood Exp $
+* $Id: edit_table.php,v 1.11 2005/05/09 05:45:26 dmckee Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Table Edit Popup for the WYSIWYG
 *
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix
 */
 
@@ -134,15 +134,214 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 						'<td id="test_td2_2" headers="test_td0_0 test_td1_0 ">&nbsp;</td>'+
 						'</tr>'+
 						'</table>';
+						
+		var bigtable = '<TABLE borderColor=#999999 cellSpacing=0 cellPadding=3 width="100%" border=1>'+
+'<TBODY>'+
+'<TR class=strat_map_table>'+
+'<TH width="76%">'+
+'<P align=justify>Summary</P></TH>'+
+'<TH width="8%">'+
+'<P align=center>Year</P></TH>'+
+'<TH width="9%">'+
+'<P align=center>Country</P></TH>'+
+'<TH width="7%">'+
+'<P align=center>File</P></TH></TR>'+
+'<TR>'+
+'<TD>'+
+'<DIV align=justify>'+
+'<P><STRONG>censored.</STRONG></P>'+
+'<P>censored.</P></DIV></TD>'+
+'<TD>'+
+'<DIV align=center>2002</DIV></TD>'+
+'<TD>'+
+'<DIV align=center>UK</DIV></TD>'+
+'<TD>'+
+'<P align=center><A href="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/firearms/documents/Shootings_Gangs_Violence_in_Manchester_Summary.pdf"><IMG alt="Executive Summary" src="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/images/icons/es_pdf_icon.jpg" border=0></A></P>'+
+'<P align=center><A href="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/firearms/documents/Shootings_Gangs_Violence_in_Manchester_(02).pdf"><IMG alt="PDF Document" src="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/images/icons/pdf_icon.jpg" border=0></A>&nbsp;</P></TD></TR>'+
+'<TR>'+
+'<TD>'+
+'<DIV align=justify>'+
+'<P><STRONG>censored</STRONG></P>'+
+'<P>censored.<BR></P></DIV></TD>'+
+'<TD>'+
+'<DIV align=center>2002</DIV></TD>'+
+'<TD>'+
+'<DIV align=center>USA</DIV></TD>'+
+'<TD>'+
+'<P align=center>&nbsp;<A href="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/firearms/documents/Crime_Gun_Interdiction_Strategies_Summary.pdf"><IMG alt="Executive Summary" src="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/images/icons/es_pdf_icon.jpg" border=0></A></P><A href="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/firearms/documents/Crime_Gun_Interdiction_Strategies_(02).pdf">'+
+'<P align=center><IMG alt="PDF Document" src="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/images/icons/pdf_icon.jpg" border=0></A></P></TD></TR>'+
+'<TR>'+
+'<TD><STRONG>censored.</STRONG>'+ 
+'<P>censored.<BR></P></TD>'+
+'<TD>'+
+'<DIV align=center>2002</DIV></TD>'+
+'<TD>'+
+'<DIV align=center>Australia</DIV></TD>'+
+'<TD>'+
+'<P align=center><A href="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/firearms/documents/Firearms_Theft_Summary.pdf"><IMG alt="Executive Summary" src="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/images/icons/es_pdf_icon.jpg" border=0></A></P><A href="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/firearms/documents/Firearms_Theft_(02).pdf">'+
+'<P align=center><IMG alt="PDF Document" src="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/images/icons/pdf_icon.jpg" border=0></P>'+
+'<P align=center></A>&nbsp;</P></TD></TR>'+
+'<TR>'+
+'<TD><STRONG>censored.</STRONG>'+ 
+'<P>censored.<BR></P></TD>'+
+'<TD>'+
+'<DIV align=center>2001</DIV></TD>'+
+'<TD>'+
+'<DIV align=center>Australia</DIV></TD>'+
+'<TD>'+
+'<P align=center><A href="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/firearms/documents/Firearms_and_Violent_Crime_Summary.pdf"><IMG alt="Executive Summary" src="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/images/icons/es_pdf_icon.jpg" border=0></A></P><A href="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/firearms/documents/Firearms_and_Violent_Crime_(01).pdf">'+
+'<P align=center><IMG alt="PDF Document" src="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/images/icons/pdf_icon.jpg" border=0></A></P></TD></TR>'+
+'<TR>'+
+'<TD><STRONG>censored.</STRONG>'+ 
+'<P>censored.<BR></P></TD>'+
+'<TD>'+
+'<DIV align=center>2001</DIV></TD>'+
+'<TD>'+
+'<DIV align=center>USA</DIV></TD>'+
+'<TD>'+
+'<P align=center><A href="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/firearms/documents/Boston_Gun_Projects_Operation_Ceasefire_Summary.pdf"><IMG alt="Executive Summary" src="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/images/icons/es_pdf_icon.jpg" border=0></A></P><A href="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/firearms/documents/Boston_Gun_Projects_Operation_Ceasefire_(01).pdf">'+
+'<P align=center><IMG alt="PDF Document" src="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/images/icons/pdf_icon.jpg" border=0></A></P></TD></TR>'+
+'<TR>'+
+'<TD><STRONG>censored.</STRONG>'+ 
+'<P>censored.<BR></P></TD>'+
+'<TD>'+
+'<DIV align=center>2001</DIV></TD>'+
+'<TD>'+
+'<DIV align=center>USA</DIV></TD>'+
+'<TD>'+
+'<P align=center><A href="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/firearms/documents/Gun_Use_By_Male_Juveniles_Summary.pdf"><IMG alt="Executive Summary" src="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/images/icons/es_pdf_icon.jpg" border=0></A></P><A href="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/firearms/documents/Gun_Use_by_Male_Juveniles_(01).pdf">'+
+'<P align=center><IMG alt="PDF Document" src="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/images/icons/pdf_icon.jpg" border=0></A></P></TD></TR>'+
+'<TR>'+
+'<TD><STRONG>censored.</STRONG>'+ 
+'<P>censored<BR></P></TD>'+
+'<TD>'+
+'<DIV align=center>2000</DIV></TD>'+
+'<TD>'+
+'<DIV align=center>USA</DIV></TD>'+
+'<TD>'+
+'<P align=center><A href="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/firearms/documents/Reducing_Illegal_Firearms_Trafficking_Summary.pdf"><IMG alt="Executive Summary" src="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/images/icons/es_pdf_icon.jpg" border=0></A></P><A href="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/firearms/documents/Reducing_Illegal_Firearms_Trafficking_(00).pdf">'+
+'<P align=center><IMG alt="PDF Document" src="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/images/icons/pdf_icon.jpg" border=0></A></P></TD></TR>'+
+'<TR>'+
+'<TD><STRONG>censored.</STRONG>'+ 
+'<P>censored<BR></P></TD>'+
+'<TD>'+
+'<DIV align=center>2000</DIV></TD>'+
+'<TD>'+
+'<DIV align=center>USA</DIV></TD>'+
+'<TD>'+
+'<P align=center><A href="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/firearms/documents/Fighting_Juvenile_Gun_Violence_Summary.pdf"><IMG alt="Executive Summary" src="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/images/icons/es_pdf_icon.jpg" border=0></A></P><A href="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/firearms/documents/Fighting_Juvenile_Gun_Violence_(00).pdf">'+
+'<P align=center><IMG alt="PDF Document" src="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/images/icons/pdf_icon.jpg" border=0></A></P></TD></TR>'+
+'<TR>'+
+'<TD><STRONG>censored.</STRONG>'+ 
+'<P>censored</P>'+
+'<UL>'+
+'<LI>censored'+ 
+'<LI>censored'+
+'<LI>censored'+
+'<LI>censored<BR></LI></UL></TD>'+
+'<TD>'+
+'<DIV align=center>2000</DIV></TD>'+
+'<TD>'+
+'<DIV align=center>Australia</DIV></TD>'+
+'<TD>'+
+'<P align=center><A href="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/firearms/documents/Crime-Safety-Firearms_Summary.pdf"><IMG alt="Executive Summary" src="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/images/icons/es_pdf_icon.jpg" border=0></A></P><A href="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/firearms/documents/Crime-Safety-Firearms_(00).pdf">'+
+'<P align=center><IMG alt="PDF Document" src="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/images/icons/pdf_icon.jpg" border=0></A></P></TD></TR>'+
+'<TR>'+
+'<TD><STRONG>censored.</STRONG>'+ 
+'<P>censored.<BR></P></TD>'+
+'<TD>'+
+'<DIV align=center>2000</DIV></TD>'+
+'<TD>'+
+'<DIV align=center>Australia</DIV></TD>'+
+'<TD>'+
+'<P align=center><A href="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/firearms/documents/International_Traffic_In_Firearms_Summary.pdf"><IMG alt="Executive Summary" src="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/images/icons/es_pdf_icon.jpg" border=0></A></P><A href="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/firearms/documents/International_Traffic_in_Firearms_(00).pdf">'+
+'<P align=center><IMG alt="PDF Document" src="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/images/icons/pdf_icon.jpg" border=0></A></P></TD></TR>'+
+'<TR>'+
+'<TD><STRONG>censored.</STRONG>'+ 
+'<P>censored.<BR></P></TD>'+
+'<TD>'+
+'<DIV align=center>2000</DIV></TD>'+
+'<TD>'+
+'<DIV align=center>Australia</DIV></TD>'+
+'<TD>'+
+'<P align=center><A href="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/firearms/documents/Firearms_Used_In_Homicide_Summary.pdf"><IMG alt="Executive Summary" src="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/images/icons/es_pdf_icon.jpg" border=0></A></P><A href="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/firearms/documents/Firearms_Used_In_Homicide_Summary.pdf">'+
+'<P align=center><IMG alt="PDF Document" src="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/images/icons/pdf_icon.jpg" border=0></A></P></TD></TR>'+
+'<TR>'+
+'<TD><STRONG>censored.</STRONG>'+ 
+'<P>censored.<BR></P></TD>'+
+'<TD>'+
+'<DIV align=center>1999</DIV></TD>'+
+'<TD>'+
+'<DIV align=center>USA</DIV></TD>'+
+'<TD>'+
+'<P align=center><A href="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/firearms/documents/Promising_Strategies_To_Reduce_Gun_Violence_Summary.pdf"><IMG alt="Executive Summary" src="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/images/icons/es_pdf_icon.jpg" border=0></A></P><A href="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/firearms/documents/Promising_Strategies_to_Reduce_Gun_Violence_(99).pdf">'+
+'<P align=center><IMG alt="PDF Document" src="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/images/icons/pdf_icon.jpg" border=0></A></P></TD></TR>'+
+'<TR>'+
+'<TD>'+
+'<P><STRONG>censored.</STRONG></P>'+
+'<P>censored</P>'+
+'<UL>'+
+'<LI>censored'+ 
+'<LI>censored'+ 
+'<LI>censored'+ 
+'<LI>censored </LI></UL>'+
+'<P>censored.<BR></P></TD>'+
+'<TD>'+
+'<DIV align=center>1999</DIV></TD>'+
+'<TD>'+
+'<DIV align=center>Australia</DIV></TD>'+
+'<TD>'+
+'<P align=center><A href="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/firearms/documents/Firearm_Use_In_Homicide_Summary.pdf"><IMG alt="Executive Summary" src="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/images/icons/es_pdf_icon.jpg" border=0></A><A href="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/firearms/documents/Firearms_Used_In_Homicide_Summary.pdf"></A></P><A href="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/firearms/documents/Firearm_Use_in_Homicide_(99).pdf">'+
+'<P align=center><IMG alt="PDF Document" src="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/images/icons/pdf_icon.jpg" border=0></P>'+
+'<P align=center></A>&nbsp;</P></TD></TR>'+
+'<TR>'+
+'<TD><STRONG>censored</STRONG>'+ 
+'<P>censored.<BR></P></TD>'+
+'<TD>'+
+'<DIV align=center>1999</DIV></TD>'+
+'<TD>'+
+'<DIV align=center>Australia</DIV></TD>'+
+'<TD>'+
+'<P align=center><A href="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/firearms/documents/Firearm_Homicides_NSW_Summary.pdf"><IMG alt="Executive Summary" src="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/images/icons/es_pdf_icon.jpg" border=0></A></P><A href="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/firearms/documents/Firearm_Homicides_NSW_(99).pdf">'+
+'<P align=center><IMG alt="PDF Document" src="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/images/icons/pdf_icon.jpg" border=0></A></P></TD></TR>'+
+'<TR>'+
+'<TD><STRONG>censored.</STRONG>'+ 
+'<P>censored<BR></P></TD>'+
+'<TD>'+
+'<DIV align=center>1999</DIV></TD>'+
+'<TD>'+
+'<DIV align=center>Australia</DIV></TD>'+
+'<TD>'+
+'<P align=center><A href="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/firearms/documents/International_Traffic_in_Small_Arms.pdf"><IMG alt="Executive Summary" src="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/images/icons/es_pdf_icon.jpg" border=0></A></P><A href="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/firearms/documents/International_Traffic_in_Small_Arms_(99).pdf">'+
+'<P align=center><IMG alt="PDF Document" src="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/images/icons/pdf_icon.jpg" border=0></A></P></TD></TR>'+
+'<TR>'+
+'<TD><STRONG>censored</STRONG>'+ 
+'<P>censored<BR></P></TD>'+
+'<TD>'+
+'<DIV align=center>1998</DIV></TD>'+
+'<TD>'+
+'<DIV align=center>USA</DIV></TD>'+
+'<TD>'+
+'<P align=center><A href="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/firearms/documents/Predicting_Criminal_Behavior_Summary.pdf"><IMG alt="Executive Summary" src="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/images/icons/es_pdf_icon.jpg" border=0></A></P><A href="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/firearms/documents/Predicting_Criminal_Behaviour_(98).pdf">'+
+'<P align=center><IMG alt="PDF Document" src="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/images/icons/pdf_icon.jpg" border=0></A></P></TD></TR>'+
+'<TR>'+
+'<TD><STRONG>censored</STRONG>'+ 
+'<P>censored<BR></P></TD>'+
+'<TD>'+
+'<DIV align=center>1997</DIV></TD>'+
+'<TD>'+
+'<DIV align=center>Australia</DIV></TD>'+
+'<TD>'+
+'<P align=center><A href="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/firearms/documents/Firearms_Homicide_in_Australia_Summary.pdf"><IMG alt="Executive Summary" src="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/images/icons/es_pdf_icon.jpg" border=0></A></P><A href="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/firearms/documents/Firearms_Homicide_in_Australia_(97).pdf">'+
+'<P align=center><IMG alt="PDF Document" src="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/images/icons/pdf_icon.jpg" border=0></A></P></TD></TR></TBODY></TABLE>';
 
 		var table;
 
 		function Init() {
 			__dlg_init("editTableProperties");
 			table = new TTable("table");
-			table.Import(window.dialogArguments);
+			table.Import(window.dialogArguments.table_structure);
 			window.focus();
-
 		};
 
 		function onOK() {

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: table_editing.inc,v 1.20 2005/03/09 22:47:41 dbaranovskiy Exp $
+* $Id: table_editing.inc,v 1.21 2005/05/09 05:45:26 dmckee Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,7 +38,9 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 * @package Fudge
 * @subpackage wysiwyg
 */
-class Table_Editing extends WYSIWYG_Plugin {
+class Table_Editing extends WYSIWYG_Plugin
+{
+
 
 	/**
 	* Constructor
@@ -82,6 +84,9 @@ class Table_Editing extends WYSIWYG_Plugin {
 		?>
 		<script type="text/javascript">
 		//<![CDATA[
+		//global for holding table data. Used to workaround 4096 byte limit
+		//IE imposes on dialogArguments.
+		var table_structure;
 			// helper function that clears the content in a table row
 			HTMLArea.prototype.clearRow = function(tr) {
 				var mozbr = HTMLArea.is_gecko ? "<br />" : "";
@@ -122,10 +127,10 @@ class Table_Editing extends WYSIWYG_Plugin {
 				} else if (HTMLArea.ie_gecko) {
 					this.focusEditor();
 				}
-
 				var sel = this._getSelection();
 				var range = this._createRange(sel);
-				this._popupDialog("insertTable", "<?php echo $this->get_popup_href('insert_table.html')?>", 340, 260, true, function(param) {
+				this._popupDialog
+				("insertTable", "<?php echo $this->get_popup_href('insert_table.html')?>", 340, 260, true, function(param) {
 					if (!param) { // user must have pressed Cancel
 						return false;
 					}
@@ -196,7 +201,7 @@ class Table_Editing extends WYSIWYG_Plugin {
 					div.appendChild(table.cloneNode(true));
 					var tablekeeper = div.innerHTML;
 				}
-
+				table_structure = tablekeeper;
 				strPage = "<?php echo $this->get_popup_href('edit_table.php')?>";
 				var width = 820;
 				var height = 570;
@@ -205,7 +210,6 @@ class Table_Editing extends WYSIWYG_Plugin {
 						// user must have pressed Cancel
 						return false;
 					}
-
 					var div = document.createElement("DIV");
 					div.innerHTML = params;
 					var table = div.getElementsByTagName("TABLE")[0];
@@ -222,7 +226,8 @@ class Table_Editing extends WYSIWYG_Plugin {
 					table.style.borderCollapse = "collapse";
 					table.style.borderCollapse = "separate";
 					table.style.borderCollapse = save_collapse;
-				}, tablekeeper);
+				}, window);
+				//above: window is passed, so that tableStructure can be accessed by the called dialog. avoids dialogArguments limit
 			};
 
 		//]]>
