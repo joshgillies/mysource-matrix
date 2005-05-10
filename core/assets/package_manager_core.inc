@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_core.inc,v 1.27 2005/04/15 00:37:24 lwright Exp $
+* $Id: package_manager_core.inc,v 1.28 2005/05/10 00:32:32 gsherwood Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/package_manager.inc';
 *    uses info gleened from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix
 */
 class Package_Manager_Core extends Package_Manager
@@ -343,6 +343,10 @@ class Package_Manager_Core extends Package_Manager
 	*/
 	function &createRootUser()
 	{
+		// turn off password validation
+		$current_run_level = $GLOBALS['SQ_SYSTEM']->getRunLevel();
+		$GLOBALS['SQ_SYSTEM']->setRunLevel($current_run_level - SQ_SECURITY_PASSWORD_VALIDATION);
+
 		$system_user_group = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_user_group');
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('root_user');
@@ -358,12 +362,13 @@ class Package_Manager_Core extends Package_Manager
 		$root_user->setAttrValue('email', $root_email);
 
 		if (!$root_user->create($user_link)) {
-			trigger_localised_error("CORE0001", E_USER_ERROR, "Root User");
+			trigger_localised_error('CORE0001', E_USER_ERROR, 'Root User');
 		}
 
 		pre_echo('Root User Asset Id : '.$root_user->id);
 
 		$GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('root_user', $root_user->id);
+		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 		return $root_user;
 
 	}//end createRootUser()
