@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.307 2005/05/05 04:19:28 tbarrett Exp $
+* $Id: asset_manager.inc,v 1.308 2005/05/10 15:26:43 gnoel Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.307 $
+* @version $Revision: 1.308 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -4928,45 +4928,53 @@ class Asset_Manager extends MySource_Object
 		if (empty($paths)) return Array();
 		$return_paths = Array();
 
+		// db_extras_bitand
+		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
+
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		// get all our nav children
-		$childids = Array();
-		$my_kids = $this->getLinks($major->id, SQ_SC_LINK_WEB_PATHS, '', null, 'major');
-		for ($j = 0; $j < count($my_kids); $j++) {
-			if ($my_kids[$j]['minorid'] == $ignore_assetid) continue;
-			$childids[] = $db->quote($my_kids[$j]['minorid']);
-		}
+		while (1) {
+			$paths_string = '';
+			foreach ($paths as $path) {
+				if (!empty($paths_string)) $paths_string .= ', ';
+				$paths_string .= $db->quote($path);
+			}
 
-		$child_paths = Array();
-
-		if (count($childids)) {
-			$sql = 'SELECT path
-					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_path';
-			$where = 'assetid IN ('.implode(',', $childids).')';
+			$sql = 'SELECT p.path
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_path p
+					INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
+					ON p.assetid = l.minorid ';
+			$where = 'WHERE l.majorid = ' . $major->id . ' ';
+			if ($ignore_assetid) {
+				$where .= 'AND l.minorid <> ' . $ignore_assetid . ' ';
+			}
+			$where .= 'AND p.path IN (' . $paths_string . ')
+					AND ' . db_extras_bitand($db, 'l.link_type', SQ_SC_LINK_WEB_PATHS) . ' > 0 ';
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
-			$child_paths = $db->getCol($sql.$where);
-			assert_valid_db_result($child_paths);
-		}
+			$used_paths = $db->getCol($sql . $where);
+			assert_valid_db_result($used_paths);
 
-		foreach ($paths as $path) {
-			if (in_array($path, $child_paths)) {
-				if ($return_alternatives) {
-					// find a good path to use
-					require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-					$new_path = $path;
-					while (in_array($new_path, $child_paths)) {
-						// increment the path using numerials
-						$new_path = increment_filename($new_path);
-					}
-					$path = $new_path;
-				}
-				$return_paths[] = $path;
-			} else if ($return_alternatives) {
-				$return_paths[] = $path;
+			if (!$return_alternatives) {
+				$return_paths = $used_paths;
+				break;
 			}
-		}
+
+			$un = array_diff($paths, $used_paths);
+			$return_paths = array_merge($return_paths, $un);
+
+			// None of the paths in $return_paths are already used
+			if (empty($used_paths)) break;
+
+			$paths = $used_paths;
+
+			// find a good path to use
+			// increment the path using numerials
+			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+			for ($i = count($paths) - 1; $i >= 0; $i--) {
+				$paths[$i] = increment_filename($paths[$i]);
+			}
+		};
 
 		return $return_paths;
 
