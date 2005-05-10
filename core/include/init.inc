@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: init.inc,v 1.80 2005/04/13 06:00:03 mmcintyre Exp $
+* $Id: init.inc,v 1.81 2005/05/10 00:30:48 gsherwood Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * The file that needs to be included to do anything
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.80 $
+* @version $Revision: 1.81 $
 * @package MySource_Matrix
 */
 
@@ -172,16 +172,17 @@ define('SQ_SC_STATUS_ALL',          511); // short cut for SQ_STATUS_*
 /*
 * RUN LEVEL SETTINGS - security systems that can be enabled and disabled
 */
-define('SQ_SECURITY_PERMISSIONS',      1); // enable permissions checking
-define('SQ_SECURITY_LOCKING',          2); // enable locking
-define('SQ_SECURITY_DATA_VALIDATION',  4); // enable data value validation
-define('SQ_SECURITY_LINK_INTEGRITY',   8); // enable link validation
-define('SQ_SECURITY_INTEGRITY',       16); // enable additional actions to ensure system/asset integrity
-define('SQ_SECURITY_TRIGGERS',        32); // enable triggering/event system
+define('SQ_SECURITY_PERMISSIONS',          1); // enable permissions checking
+define('SQ_SECURITY_LOCKING',              2); // enable locking
+define('SQ_SECURITY_DATA_VALIDATION',      4); // enable data value validation
+define('SQ_SECURITY_PASSWORD_VALIDATION',  8); // enable password rule checking
+define('SQ_SECURITY_LINK_INTEGRITY',      16); // enable link validation
+define('SQ_SECURITY_INTEGRITY',           32); // enable additional actions to ensure system/asset integrity
+define('SQ_SECURITY_TRIGGERS',            64); // enable triggering/event system
 
-define('SQ_RUN_LEVEL_OPEN',    0); // no security
-define('SQ_RUN_LEVEL_FORCED', 52); // DATA_VALIDATION, INTEGRITY and TRIGGERS
-define('SQ_RUN_LEVEL_SECURE', 63); // full security
+define('SQ_RUN_LEVEL_OPEN',     0); // no security
+define('SQ_RUN_LEVEL_FORCED', 108); // DATA_VALIDATION, PASSWORD_VALIDATION, INTEGRITY and TRIGGERS
+define('SQ_RUN_LEVEL_SECURE', 127); // full security
 
 
 // load assertion functions, for integrated testing
