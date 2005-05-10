@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.88 2005/05/09 03:49:12 ndvries Exp $
+* $Id: user.inc,v 1.89 2005/05/10 00:32:02 gsherwood Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once SQ_INCLUDE_PATH.'/password_rules_config.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.88 $
+* @version $Revision: 1.89 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -175,14 +175,14 @@ class User extends Asset
 	{
 		// if this is the password, encrypt it
 		if ($name == 'password') {
-			$config = new Password_Rules_Config();
-			require_once $config->config_file;
-			if ($this->validatePassword($value)) {
-				$value = crypt($value); // let salt be generated
-			} else {
-				return false;
+			if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PASSWORD_VALIDATION)) {
+				$config = new Password_Rules_Config();
+				require_once $config->config_file;
+				if (!$this->validatePassword($value)) {
+					return false;
+				}
 			}
-
+			$value = crypt($value); // let salt be generated
 		} else if ($name == 'username') {
 			if (!$this->_catchBlankSetUserName(trim($value))) {
 				trigger_localised_error('CORE0110', E_USER_WARNING);
