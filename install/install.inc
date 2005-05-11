@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.inc,v 1.42 2005/05/11 06:05:11 lwright Exp $
+* $Id: install.inc,v 1.43 2005/05/11 23:24:16 dheppell Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * Purpose
 * Functions used to install and upgrade the system
 *
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -1153,6 +1153,7 @@ function build_locale_string_file($locale)
 	$asset_dirs = Array(SQ_SYSTEM_ROOT.'/core');
 	$files_to_parse['core'] = find_string_language_files($asset_dirs, $locale);
 
+
 	// run through each installed package
 	foreach ($packages as $package) {
 		$package_name = $package['code_name'];
@@ -1425,6 +1426,8 @@ function extract_strings_from_xml($file, $root_element, $child_element, $key_att
 		}
 
 	}//end foreach string_node
+
+	return $extracted_strings;
 
 }//end extract_strings_from_xml()
 
