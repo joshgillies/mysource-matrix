@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.70.2.15 2005/05/02 02:44:56 gsherwood Exp $
+* $Id: form.inc,v 1.70.2.16 2005/05/11 06:48:55 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.70.2.15 $
+* @version $Revision: 1.70.2.16 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1487,7 +1487,7 @@ class Form extends Bridge
 
 		$bodycopies = Array();
 		foreach ($bodycopy_links as $link_info) {
-			if (isset($parents[$link_info['minorid']])) {
+			if (array_search($link_info['minorid'], $parents) !== false) {
 				$bodycopies[] = $link_info['value'];
 			}
 		}
