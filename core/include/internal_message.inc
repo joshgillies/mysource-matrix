@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: internal_message.inc,v 1.57 2005/05/02 01:15:28 lwright Exp $
+* $Id: internal_message.inc,v 1.58 2005/05/11 23:44:48 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    An internal message to be sent around the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.57 $
+* @version $Revision: 1.58 $
 * @package MySource_Matrix
 */
 class Internal_Message extends MySource_Object
@@ -411,8 +411,12 @@ class Internal_Message extends MySource_Object
 				}
 
 				$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
-				$user_locale = $user->attr('locale');
 				if (is_null($user)) continue;
+				$user_locale = $user->attr('locale');
+				if (empty($user_locale)) {
+					$user_locale = SQ_CONF_DEFAULT_BACKEND_LOCALE;
+				}
+
 				$subject = $lm->getInternalMessageSubject($this->type, $this->replacements, $user_locale);
 				$hdrs = Array(
 					'From'		=> $from_string,
