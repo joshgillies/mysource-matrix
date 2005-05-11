@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_comparison.inc,v 1.20.2.3 2005/05/02 02:44:57 gsherwood Exp $
+* $Id: form_question_rule_type_comparison.inc,v 1.20.2.4 2005/05/11 23:12:02 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.20.2.3 $
+* @version $Revision: 1.20.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -129,10 +129,34 @@ class Form_Question_Rule_Type_Comparison extends Form_Question_Rule
 		$value = array_get_index($rule_data, 'value', '');
 
 		if ($cq_id != 0) {
-			$comparison =& $GLOBALS['SQ_SYSTEM']->am->getAsset($cq_id);
-			$valid = eval('return \''.$answer.'\''.$operator.'\''.$comparison->getValue().'\';');
-		} else {	// sent just a value
-			$valid = eval('return \''.$answer.'\''.$operator.'\''.$value.'\';');
+			$comparison_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($cq_id);
+			$value = $comparison_asset->getValue();
+		}
+
+		switch ($operator) {
+			case '==':
+				$valid = ($answer == $value);
+			break;
+
+			case '!=':
+				$valid = ($answer != $value);
+			break;
+
+			case '>':
+				$valid = ($answer > $value);
+			break;
+
+			case '>=':
+				$valid = ($answer >= $value);
+			break;
+
+			case '<':
+				$valid = ($answer < $value);
+			break;
+
+			case '<=':
+				$valid = ($answer <= $value);
+			break;
 		}
 
 		return $valid;
