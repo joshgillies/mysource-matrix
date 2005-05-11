@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config_edit_interface.inc,v 1.16 2005/05/11 06:05:10 lwright Exp $
+* $Id: system_config_edit_interface.inc,v 1.17 2005/05/11 23:57:37 dheppell Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *    Looks after the editing of the system config
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix
 */
 class System_Config_Edit_Interface extends MySource_Object
@@ -98,6 +98,7 @@ class System_Config_Edit_Interface extends MySource_Object
 							'hipo_config'			=> translate('hipo_configuration'),
 							'external_tools_config'	=> translate('external_tools_configuration'),
 							'user_prefs'			=> translate('global_preferences'),
+							'password_rules_config'	=> translate('password_rules_configuration'),
 						  );
 
 		foreach ($config_screens as $screen_code => $screen_name) {
