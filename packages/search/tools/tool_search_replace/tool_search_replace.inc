@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_search_replace.inc,v 1.7 2005/04/29 05:38:41 gsherwood Exp $
+* $Id: tool_search_replace.inc,v 1.8 2005/05/11 02:36:52 dmckee Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 *
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -82,7 +82,9 @@ class Tool_Search_Replace extends Tool
 			$o->openField('Asset Status');
 				$statuses = get_constant_values('SQ_STATUS');
 				$options = Array();
-				foreach ($statuses as $constant => $value) $options[$value] = get_status_description($value);
+				foreach ($statuses as $constant => $value) {
+					$options[$value] = get_status_description($value);
+				}
 				combo_box($type_code.'_statuses', $options, true, '', 10);
 			$o->closeField();
 		$o->closeSection();
@@ -96,7 +98,7 @@ class Tool_Search_Replace extends Tool
 
 			$o->openField('System Wide');
 				check_box($type_code.'_root_folder');
-				echo 'Search entire system';
+				label('Search entire system', $type_code.'_root_folder');
 			$o->closeField();
 
 			$o->openField('', 'commit');
@@ -154,9 +156,7 @@ class Tool_Search_Replace extends Tool
 		//create search types array
 		$search_types = Array();
 		foreach ($_REQUEST[$type_code.'_search_types'] as $type) {
-			if (!empty($type)) {
-				$search_types[$type] = 1;
-			}
+			if (!empty($type)) $search_types[$type] = 1;
 		}
 
 		//work out our root node position
@@ -170,19 +170,19 @@ class Tool_Search_Replace extends Tool
 		$words = explode(' ', $words);
 
 		$search_details = Array(
-								'logic'           => 'AND',
-								'root_assetid'    => $root_assetid,
-								'sort_by'         => '',
-								'reverse_sort'    => '0',
-								'search_types'    => $search_types,
-								'search_statuses' => $_REQUEST[$type_code.'_statuses'],
-								'include_all'     => Array (
-														   'search_word' => Array (
-																				  'words'        => $words,
-																				  'search_logic' => 'AND',
-																				  ),
-														   ),
-								);
+							'logic'				=> 'AND',
+							'root_assetid'		=> $root_assetid,
+							'sort_by'			=> '',
+							'reverse_sort'		=> '0',
+							'search_types'		=> $search_types,
+							'search_statuses'	=> $_REQUEST[$type_code.'_statuses'],
+							'include_all'		=> Array(
+													'search_word'	=> Array(
+																		'words'			=> $words,
+																		'search_logic'	=> 'AND',
+																	   ),
+												   ),
+						  );
 
 		$search_results = $sm->processSearch($search_details, true);
 
@@ -203,10 +203,10 @@ class Tool_Search_Replace extends Tool
 		}
 
 		$vars = Array(
-					  'search_data'    => $formatted_results,
-					  'search_string'  => $_REQUEST[$type_code.'_search_string'],
-					  'replace_string' => $_REQUEST[$type_code.'_replace_string'],
-					  );
+					'search_data'		=> $formatted_results,
+					'search_string'		=> $_REQUEST[$type_code.'_search_string'],
+					'replace_string'	=> $_REQUEST[$type_code.'_replace_string'],
+				);
 
 		//redirect data to the HIPO
 		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
@@ -257,9 +257,9 @@ class Tool_Search_Replace extends Tool
 						break;
 
 					//attributes containing search string
-					//attributes come in 2 formats, __attribtue__ and attr:assetname:attribute$
+					//attributes come in 2 formats, __attribute__ and attr:assetname:attribute$
 					case preg_match('/__(.+)__/', $content_type, $matches) > 0:
-					case preg_match("/attr:.+:(.+)\$/", $content_type, $matches) > 0:
+					case preg_match('/attr:.+:(.+)$/', $content_type, $matches) > 0:
 						if (isset($asset->vars[$matches[1]])) {
 							$attribute = $asset->attr($matches[1]);
 
@@ -270,9 +270,11 @@ class Tool_Search_Replace extends Tool
 					break;
 
 					//metadata containing search string
-					case preg_match("/metadata/", $content_type) > 0:
+					case preg_match('/metadata/', $content_type) > 0:
 						//we've already set metadata for this asset
-						if (isset($formatted_results[$assetid]['metadata'])) break;
+						if (isset($formatted_results[$assetid]['metadata'])) {
+							break;
+						}
 
 						$metadata = $mm->getMetadata($assetid);
 

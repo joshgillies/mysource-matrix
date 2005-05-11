@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_tool_search_replace.inc,v 1.7 2005/04/29 05:38:41 gsherwood Exp $
+* $Id: hipo_job_tool_search_replace.inc,v 1.8 2005/05/11 02:36:52 dmckee Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to perform search and replace on asset attributes and metadata
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -39,122 +39,122 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 	* @var Array
 	*/
 	var $_steps = Array(
-						Array(
-							  'name'          => 'Confirmation',
-							  'function_call' => Array(
-												 	  'paint_function'   => 'paintConfirmation',
-													   'process_function' => 'processConfirmation',
-													   ),
-							  'running_mode'  => 'web',
-							  'skip_step'     => false,
-							  'auto_step'     => false,
-							  'allow_cancel'  => true,
-							  'percent_done'  => 0,
-							  'complete'      => false,
-							  'message'       => '',
-							  ),
-						Array(
-							  'name'         => 'Acquiring Locks',
-							  'hipo_job'     => Array(
-													  'init_details_function' => 'getLockAssetDetails',
-													  ),
-							  'running_mode' => 'server',
-							  'auto_step'    => true,
-							  'allow_cancel' => false,
-							  'percent_done' => 0,
-							  'complete'     => false,
-							  'message'      => '',
-							  ),
-						Array(
-							  'name'          => 'Replacing Asset Attributes',
-							  'function_call' => Array(
-													   'process_function' => 'processAttributes',
-													   ),
-							  'running_mode'  => 'server',
-							  'skip_step'     => false,
-							  'auto_step'     => true,
-							  'allow_cancel'  => true,
-							  'percent_done'  => 0,
-							  'complete'      => false,
-							  'message'       => '',
-							  ),
-						Array(
-							  'name'          => 'Replacing Asset Contents',
-							  'function_call' => Array(
-													   'process_function' => 'processContent',
-													   ),
-							  'running_mode'  => 'server',
-							  'skip_step'     => false,
-							  'auto_step'     => true,
-							  'allow_cancel'  => true,
-							  'percent_done'  => 0,
-							  'complete'      => false,
-							  'message'       => '',
-							  ),
-						Array(
-							  'name'          => 'Replacing Asset Metadata',
-							  'function_call' => Array(
-													   'process_function' => 'processMetadata',
-													   ),
-							  'running_mode'  => 'server',
-							  'skip_step'     => false,
-							  'auto_step'     => true,
-							  'allow_cancel'  => true,
-							  'percent_done'  => 0,
-							  'complete'      => false,
-							  'message'       => '',
-							  ),
-						Array(
-							  'name'          => 'Replacing Schema Values',
-							  'function_call' => Array(
-													   'process_function' => 'processSchemas',
-													   ),
-							  'running_mode'  => 'server',
-							  'skip_step'     => false,
-							  'auto_step'     => true,
-							  'allow_cancel'  => true,
-							  'percent_done'  => 0,
-							  'complete'      => false,
-							  'message'       => '',
-							  ),
-						Array(
-							  'name'          => 'Releasing Locks',
-							  'function_call' => Array(
-							  						 'process_function' => 'releaseLocks',
-													   ),
-							  'running_mode'  => 'server',
-							  'auto_step'     => true,
-							  'skip_step'     => false,
-							  'allow_cancel'  => false,
-							  'percent_done'  => 0,
-							  'complete'      => false,
-							  'message'       => '',
-							  ),
-						Array(
-							  'name'         => 'Re-Generating Metadata',
-							  'hipo_job'     => Array(
-													  'init_details_function' => 'getRegenerateMetadataDetails',
-													  ),
-							  'running_mode' => 'server',
-							  'auto_step'    => true,
-							  'allow_cancel' => false,
-							  'percent_done' => 0,
-							  'complete'     => false,
-							  'message'      => '',
-							  ),
-						Array(
-							  'name'         => 'Re-Indexing Assets',
-							  'hipo_job'     => Array(
-													  'init_details_function' => 'getReindexAssetDetails',
-													  ),
-							  'running_mode' => 'server',
-							  'auto_step'    => true,
-							  'allow_cancel' => false,
-							  'percent_done' => 0,
-							  'complete'     => false,
-							  'message'      => '',
-							  ),
-						);
+					Array(
+						'name'			=> 'Confirmation',
+						'function_call'	=> Array(
+											'paint_function'	=> 'paintConfirmation',
+											'process_function'	=> 'processConfirmation',
+										   ),
+						'running_mode'	=> 'web',
+						'skip_step'		=> false,
+						'auto_step'		=> false,
+						'allow_cancel'	=> true,
+						'percent_done'	=> 0,
+						'complete'		=> false,
+						'message'		=> '',
+					),
+					Array(
+						'name'			=> 'Acquiring Locks',
+						'hipo_job'		=> Array(
+											'init_details_function'	=> 'getLockAssetDetails',
+										   ),
+						'running_mode'	=> 'server',
+						'auto_step'		=> true,
+						'allow_cancel'	=> false,
+						'percent_done'	=> 0,
+						'complete'		=> false,
+						'message'		=> '',
+					),
+					Array(
+						'name'			=> 'Replacing Asset Attributes',
+						'function_call'	=> Array(
+											'process_function'	=> 'processAttributes',
+										   ),
+						'running_mode'	=> 'server',
+						'skip_step'		=> false,
+						'auto_step'		=> true,
+						'allow_cancel'	=> true,
+						'percent_done'	=> 0,
+						'complete'		=> false,
+						'message'		=> '',
+					),
+					Array(
+						'name'			=> 'Replacing Asset Contents',
+						'function_call'	=> Array(
+											'process_function'	=> 'processContent',
+										   ),
+						'running_mode'	=> 'server',
+						'skip_step'		=> false,
+						'auto_step'		=> true,
+						'allow_cancel'	=> true,
+						'percent_done'	=> 0,
+						'complete'		=> false,
+						'message'		=> '',
+					),
+					Array(
+						'name'			=> 'Replacing Asset Metadata',
+						'function_call'	=> Array(
+											'process_function'	=> 'processMetadata',
+										   ),
+						'running_mode'	=> 'server',
+						'skip_step'		=> false,
+						'auto_step'		=> true,
+						'allow_cancel'	=> true,
+						'percent_done'	=> 0,
+						'complete'		=> false,
+						'message'		=> '',
+					),
+					Array(
+						'name'			=> 'Replacing Schema Values',
+						'function_call'	=> Array(
+											'process_function'	=> 'processSchemas',
+										   ),
+						'running_mode'	=> 'server',
+						'skip_step'		=> false,
+						'auto_step'		=> true,
+						'allow_cancel'	=> true,
+						'percent_done'	=> 0,
+						'complete'		=> false,
+						'message'		=> '',
+					),
+					Array(
+						'name'			=> 'Releasing Locks',
+						'function_call'	=> Array(
+											'process_function'	=> 'releaseLocks',
+										   ),
+						'running_mode'	=> 'server',
+						'auto_step'		=> true,
+						'skip_step'		=> false,
+						'allow_cancel'	=> false,
+						'percent_done'	=> 0,
+						'complete'		=> false,
+						'message'		=> '',
+					),
+					Array(
+						'name'			=> 'Re-Generating Metadata',
+						'hipo_job'		=> Array(
+											'init_details_function'	=> 'getRegenerateMetadataDetails',
+										   ),
+						'running_mode'	=> 'server',
+						'auto_step'		=> true,
+						'allow_cancel'	=> false,
+						'percent_done'	=> 0,
+						'complete'		=> false,
+						'message'		=> '',
+					),
+					Array(
+						'name'			=> 'Re-Indexing Assets',
+						'hipo_job'		=> Array(
+											'init_details_function'	=> 'getReindexAssetDetails',
+										   ),
+						'running_mode'	=> 'server',
+						'auto_step'		=> true,
+						'allow_cancel'	=> false,
+						'percent_done'	=> 0,
+						'complete'		=> false,
+						'message'		=> '',
+					),
+				  );
 
 
 	/**
@@ -213,11 +213,11 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 		$options['auto_complete'] = true;
 
 		$running_vars = Array(
-							  'assetids'          => array_keys($this->_running_vars['search_data']),
-							  'lock_type'         => Array('all'),
-							  'forceably_acquire' => false,
-							  'dependants_only'   => true,
-							  );
+							'assetids'			=> array_keys($this->_running_vars['search_data']),
+							'lock_type'			=> Array('all'),
+							'forceably_acquire'	=> false,
+							'dependants_only'	=> true,
+						);
 
 	}//end getLockAssetDetails()
 
@@ -239,8 +239,8 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 		$options['auto_complete'] = true;
 
 		$running_vars = Array(
-							  'schemaids' => $this->_running_vars['schemaids'],
-							  );
+							'schemaids'	=> $this->_running_vars['schemaids'],
+						);
 
 	}//end getRegenerateMetadataDetails()
 
@@ -262,12 +262,12 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 		$options['auto_complete'] = true;
 
 		$running_vars = Array(
-							  'reindex_assets' => array_keys($this->_running_vars['search_data']),
-							  );
+							'reindex_assets'	=> array_keys($this->_running_vars['search_data']),
+						);
 
 		$hipo_vars = Array(
-						   'job_dir' => SQ_PACKAGES_PATH.'/search/tools/tool_reindex',
-						   );
+						'job_dir'	=> SQ_PACKAGES_PATH.'/search/tools/tool_reindex',
+					 );
 
 	}//end getReindexAssetDetails()
 
@@ -314,8 +314,53 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 		}
 
 		return true;
-
 	}//end releaseLocks()
+
+
+	/**
+	*
+	*
+	* @access public
+	* @return void
+	*/
+	function _getSearchCounts()
+	{
+		$search_count = Array();
+		$search_string = $this->_running_vars['search_string'];
+		foreach ($this->_running_vars['search_data'] as $assetid => $contents) {
+			$search_count[$assetid] = 0;
+			if (isset($contents['attributes'])) {
+				foreach ($contents['attributes'] as $index => $value) {
+					preg_match_all("/$search_string/i", $value, $matches);
+					$search_count[$assetid] += count($matches[0]);
+					unset($matches);
+				}
+			}
+			if (isset($contents['contents'])) {
+				foreach ($contents['contents'] as $index => $value) {
+					preg_match_all("/$search_string/i", $value, $matches);
+					$search_count[$assetid] += count($matches[0]);
+					unset($matches);
+				}
+			}
+			if (isset($contents['metadata'])) {
+				foreach ($contents['metadata'] as $index => $value) {
+					preg_match_all("/$search_string/i", $value['value'], $matches);
+					$search_count[$assetid] += count($matches[0]);
+					unset($matches);
+				}
+			}
+			if (isset($contents['schema'])) {
+				foreach ($contents['schema'] as $index => $value) {
+					preg_match_all("/$search_string/i", $value['value'], $matches);
+					$search_count[$assetid] += count($matches[0]);
+					unset($matches);
+				}
+			}
+		}
+		return $search_count;
+
+	}//end _getSearchCounts()
 
 
 	/**
@@ -331,166 +376,92 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 	*/
 	function paintConfirmation(&$step_data, &$o, $prefix)
 	{
-
-		//create search string count array
-		$search_count = Array();
-		$search_string = $this->_running_vars['search_string'];
-
-		foreach ($this->_running_vars['search_data'] as $assetid => $contents) {
-			$search_count[$assetid] = 0;
-			if (isset($contents['attributes'])) {
-				foreach ($contents['attributes'] as $index => $value) {
-					preg_match_all("/$search_string/i", $value, $matches);
-					$search_count[$assetid] += count($matches[0]);
-					unset($matches);
-				}
-			}
-			if (isset($contents['metadata'])) {
-				foreach ($contents['metadata'] as $index => $value) {
-					preg_match_all("/$search_string/i", $value['value'], $matches);
-					$search_count[$assetid] += count($matches[0]);
-					unset($matches);
-				}
-			}
-			if (isset($contents['contents'])) {
-				foreach ($contents['contents'] as $index => $value) {
-					preg_match_all("/$search_string/i", $value, $matches);
-					$search_count[$assetid] += count($matches[0]);
-					unset($matches);
-				}
-			}
-			if (isset($contents['schema'])) {
-				foreach ($contents['schema'] as $index => $value) {
-					preg_match_all("/$search_string/i", $value['value'], $matches);
-					$search_count[$assetid] += count($matches[0]);
-					unset($matches);
-				}
-			}
-		}
-
+		$search_count = $this->_getSearchCounts();
+		$this->_setupMatches();
+		$this->save();
 		$o->openSection('Search and Replace Confirmation');
 		$o->openField('', 'replace_selection');
 
 		?>
-		<script type="text/javascript"><!--
-		//<![CDATA[
-			var checkState = 0;
-			var expandState = 0;
+		<script type="text/javascript" src="<?php echo sq_web_path('data'); ?>/asset_types/tool_search_replace/js/search_and_replace.js"></script>
 
-			function setCheckboxes()
-			{
-				var tags = document.getElementsByTagName('input');
-				for (var i = 0; i < tags.length; i++) {
-					if(tags[i].type == 'checkbox')
-						tags[i].checked = (checkState) ? 0 : 1;
-				}
-				checkState = (checkState) ? 0 : 1;
-			}
-
-			function setDisplayState()
-			{
-				var tags = document.getElementsByTagName('td');
-				for (var i in tags) {
-					if(tags[i].id && tags[i].id.indexOf('collapse[') == 0) {
-						tags[i].style.display = (expandState) ? 'none': '';
-					}
-				}
-				expandState = (expandState) ? 0 : 1;
-			}
-		//]]> -->
-		</script>
 		<style type="text/css">
-			th.expander {
-				width: 20px; 
-				font-weight: bold; 
-				cursor: pointer; 
-				text-align: center
+			@import url(<?php echo sq_web_path('data'); ?>/asset_types/tool_search_replace/css/search_and_replace.css);
+			table.expandable thead th {
+				background-image: url(<?php echo sq_web_path('lib'); ?>/web/images/icons/expand_arrow.gif);
 			}
-			span.link {
-				text-decoration: underline;
-				cursor: pointer;
+			table thead th.match-checkbox, table thead th.all-asset-checkbox {
+				background-image: none;
 			}
 		</style>
 		<p style="text-align: center">
-			<span class="link" id="select all" name="select all" onclick="setCheckboxes();">Select/Deselect All</span> &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
-			<span class="link" id="expand all" name="expand all" onclick="setDisplayState();" >Expand/Collapse All</span>
+			<span class="link" id="select-deselect-link-top" onclick="setAllCheckboxes(this)">Select All</span> &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+			<span class="link" id="expand-collapse-link-top" onclick="toggleAllTbodyDisplays(this)" >Expand All</span>
 		</p>
+
+		<div id="confirmations-container">
 		<?php
 
+		$names = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($this->_running_vars['search_data']), '', false, 'name');
 		foreach ($this->_running_vars['search_data'] as $assetid => $value) {
-			$asset_info = &$GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid));
 			?>
-			<table class="sq-backend-table" style="margin-bottom: 10px">
-			<tr>
-				<th>
-					<input type="checkbox" style="margin: 0 5px 0 0" name="<?php echo 'replace['.$assetid.']'; ?>"  /><?php echo $asset_info[$assetid]['name'].' [#'.$assetid.']    '; ?> ( <?php echo $search_count[$assetid]; echo ($search_count[$assetid] == 1) ? ' match': ' matches'; ?> )
-				</th>
-				<th class="expander" onclick="elt = document.getElementById('<?php echo 'collapse['.$assetid; ?>]'); elt.style.display = ((elt.style.display == 'none') ? '' : 'none');">+</th>
-			</tr>
-			<tr>
-				<?php echo '<td id="collapse['.$assetid.']" style="display:none;" colspan="2">'; ?>
-				<table width="100%">
-				<?php
+			<table class="sq-backend-table expandable" style="margin-bottom: 10px">
+				<thead>
+					<tr>
+						<th onclick="toggleTBodyDisplay(this)">
+							<?php echo $names[$assetid]; ?> (ID #<?php echo $assetid; ?>)
+							- <?php echo $search_count[$assetid]; ?> matches
+						</th>
+						<th class="all-asset-checkbox">
+							<?php check_box($prefix.'_asset_'.$assetid.'_all', 1, false, 'toggleTBodyCheckboxes(this)'); ?>
+						</th>
+					</tr>
+				</thead>
+				<tbody style="display: none">
+					<tr>
+						<td colspan="2">
+						<?php
+						// ATTRIBUTES
+						if (!empty($value['attributes'])){
+							$this->_printAttributeMatches($assetid, $prefix, $value['attributes']);
+						}
 
-				if (!empty($value['attributes'])){
-					?><tr><td><h3>Asset Attributes</h3><?php
-					foreach ($value['attributes'] as $i => $v) {
-							echo '<p><b>Name:</b> '.$i.'<br />';
-							echo '<b>Value:</b> '.preg_replace("/($search_string)/i", '<span style="background: #ffff00;">\1</span>', $v).'</p>';
-					}
-					?></td></tr><?php
-				}
+						// METADATA
+						if (!empty($value['metadata'])) {
+							$this->_printMetadataMatches($assetid, $prefix, $value['metadata']);
+						}
 
-				if (!empty($value['metadata'])) {
-					?><tr><td><h3>Metadata</h3><?php
-					foreach ($value['metadata'] as $metadataid => $metadata_contents) {
-							echo '<p><b>Schema ID:</b> '.$metadataid.'<br />';
-							echo '<b>Field Name:</b> '.$metadata_contents['name'].'<br />';
-							echo '<b>Value:</b> '.preg_replace("/($search_string)/i", '<span style="background: #ffff00;">\1</span>', $metadata_contents['value']).'<br /></p>';
+						// CONTENTS
+						if (isset($value['contents'])) {
+							$this->_printContentMatches($assetid, $prefix, $value['contents']);
+						}
 
-					}
-					?></td></tr><?php
-				}
-
-				if (isset($value['contents'])) {
-					?><tr><td><h3>Contents</h3><?php
-					foreach ($value['contents'] as $content_id => $contents_value) {
-							echo '<p><b>Content Div Id:</b> '.$content_id.'<br />';
-							echo preg_replace("/($search_string)/i", '<span style="background: #ffff00;">\1</span>', $contents_value).'</p>';
-					}
-
-					?></td></tr><?php
-				}
-
-				if (isset($value['schema'])) {
-					?><tr><td><h3>Schema</h3><?php
-					foreach ($value['schema'] as $schemaid => $schema_contents) {
-							?>
-							<p><b>Schema ID:</b> <?php echo $schemaid; ?><br />
-							<b>Field Name:</b> <?php echo $schema_contents['name']; ?><br />
-							<?php
-							echo '<b>Value:</b> '.preg_replace("/($search_string)/i", '<span style="background: #ffff00;">\1</span>', $schema_contents['value']).'<br /></p>';
-					}
-				}
-
-				?>
-					</table>
-				</td>
-			</tr>
+						// SCHEMA
+						if (isset($value['schema'])) {
+							$this->_printSchemaMatches($assetid, $prefix, $value['schema']);
+						}
+						?>
+						</td>
+					</tr>
+				</tbody>
 			</table>
-		<?php
+			<?php
 
-		}
+		}//end foreach asset
+
 		?>
+		</div>
 		<p style="text-align: center">
-			<span class="link" id="select all" name="select all" onclick="setCheckboxes();">Select/Deselect All</span> &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
-			<span class="link" id="expand all" name="expand all" onclick="setDisplayState();" >Expand/Collapse All</span>
+			<span class="link" id="select-deselect-link-bottom" onclick="setAllCheckboxes(this)">Select All</span> &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+			<span class="link" id="expand-collapse-link-bottom" onclick="toggleAllTbodyDisplays(this)" >Expand All</span>
 		</p>
 		<?php
 
 		$o->addHiddenField('form_submitted', 1);
 		$o->closeField();
 		$o->closeSection();
+
+		return true;
 
 	}//end paintConfirmation()
 
@@ -506,60 +477,59 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 	*/
 	function processConfirmation(&$step_data, $prefix)
 	{
+		if (!isset($_REQUEST['form_submitted'])) {
+			// No submission yet, need to print form;
+			return true;
+		}
+		// Form has been submitted, now we can process it
+		$this->_updateSearchData($prefix);
+		$this->save();
+		if (empty($this->_running_vars['search_data'])) {
+			$this->skipStep(1);
+			$this->skipStep(2);
+			$this->skipStep(3);
+			$this->skipStep(4);
+			$this->skipStep(5);
+			$this->skipStep(6);
+			$this->skipStep(7);
+			$this->skipStep(8);
+		} else {
+			$this->_running_vars['attribute_replacements_total'] = 0;
+			$this->_running_vars['content_replacements_total'] = 0;
+			$this->_running_vars['metadata_replacements_total'] = 0;
+			$this->_running_vars['schema_replacements_total'] = 0;
 
-		if (isset($_REQUEST['form_submitted'])) {
-			if (!isset($_REQUEST['replace'])) {
-				$this->skipStep(1);
-				$this->skipStep(2);
-				$this->skipStep(3);
-				$this->skipStep(4);
-				$this->skipStep(5);
-				$this->skipStep(6);
-				$this->skipStep(7);
-				$this->skipStep(8);
+			foreach ($this->_running_vars['search_data'] as $assetid => $value) {
+				if (isset($value['attributes'])) {
+					$this->_running_vars['attribute_replacements'][$assetid] = $value['attributes'];
+					$this->_running_vars['attribute_replacements_total']++;
+				}
+				if (isset($value['contents'])) {
+					$this->_running_vars['content_replacements'][$assetid] = $value['contents'];
+					$this->_running_vars['content_replacements_total']++;
+				}
+				if (isset($value['metadata'])) {
+					$this->_running_vars['metadata_replacements'][$assetid] = $value['metadata'];
+					$this->_running_vars['metadata_replacements_total']++;
+				}
+				if (isset($value['schema'])) {
+					$this->_running_vars['schema_replacements'][$assetid] = $value['schema'];
+					$this->_running_vars['schema_replacements_total']++;
+					$this->_running_vars['schemaids'][] = $assetid;
+				}
 			}
-			else {
-				foreach ($this->_running_vars['search_data'] as $assetid => $values) {
-					if (!isset($_REQUEST['replace'][$assetid])) {
-						unset($this->_running_vars['search_data'][$assetid]);
-					}
-				}
-
-				$this->_running_vars['attribute_replacements_total'] = 0;
-				$this->_running_vars['content_replacements_total'] = 0;
-				$this->_running_vars['metadata_replacements_total'] = 0;
-				$this->_running_vars['schema_replacements_total'] = 0;
-
-				foreach ($this->_running_vars['search_data'] as $assetid => $value) {
-					if (isset($value['attributes'])) {
-						$this->_running_vars['attribute_replacements'][$assetid] = $value['attributes'];
-						$this->_running_vars['attribute_replacements_total']++;
-					}
-
-					if (isset($value['contents'])) {
-						$this->_running_vars['content_replacements'][$assetid] = $value['contents'];
-						$this->_running_vars['content_replacements_total']++;
-					}
-
-					if (isset($value['metadata'])) {
-						$this->_running_vars['metadata_replacements'][$assetid] = $value['metadata'];
-						$this->_running_vars['metadata_replacements_total']++;
-					}
-
-					if (isset($value['schema'])) {
-						$this->_running_vars['schema_replacements'][$assetid] = $value['schema'];
-						$this->_running_vars['schema_replacements_total']++;
-						$this->_running_vars['schemaids'][] = $assetid;
-					}
-				}
-
-				if ($this->_running_vars['attribute_replacements_total'] == 0) $this->skipStep(2);
-				if ($this->_running_vars['content_replacements_total'] == 0) $this->skipStep(3);
-				if ($this->_running_vars['metadata_replacements_total'] == 0) $this->skipStep(4);
-				if ($this->_running_vars['schema_replacements_total'] == 0) {
-					$this->skipStep(5);
-					$this->skipStep(7);
-				}
+			if ($this->_running_vars['attribute_replacements_total'] == 0) {
+				$this->skipStep(2);
+			}
+			if ($this->_running_vars['content_replacements_total'] == 0) {
+				$this->skipStep(3);
+			}
+			if ($this->_running_vars['metadata_replacements_total'] == 0) {
+				$this->skipStep(4);
+			}
+			if ($this->_running_vars['schema_replacements_total'] == 0) {
+				$this->skipStep(5);
+				$this->skipStep(7);
 			}
 			$step_data['percent_done'] = 100;
 			$step_data['complete'] = true;
@@ -570,101 +540,205 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 	}//end processConfirmation()
 
 
-	/**
-	* Proccess replacements in Attribute fields
+/**
+	* Print matches from an asset's attributes
 	*
-	* @param array		&$step_data	a reference to the step data for this step
-	* @param String		$prefix		a string for prefixing form variables
+	* @param array	$matches	The matches to print
 	*
-	* @return boolean
-	* @access public
+	* @access private
+	* @return void
 	*/
-	function processAttributes(&$step_data, $prefix)
+	function _printAttributeMatches($assetid, $prefix, &$attr_matches)
 	{
+		?>
+		<table class="sq-backend-table expandable component" border="1">
+			<thead>
+				<tr>
+					<th colspan="2" onclick="toggleTBodyDisplay(this)">
+						Asset Attributes
+					</th>
+					<th style="text-align: right" class="match-checkbox">
+						<?php check_box($prefix.'_asset_'.$assetid.'_attr_all', 1, false, 'toggleTBodyCheckboxes(this); updateParentCheckboxes(this);', 'class="component-checkbox"'); ?>
+					</th>
 
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
+				</tr>
+			</thead>
+			<tbody style="display: none">
+				<tr>
+					<th style="width: 30%">Attribute Name</th>
+					<th>Match</th>
+					<th class="match-checkbox">&nbsp;</th>
+				</tr>
+			<?php
+			foreach ($attr_matches as $attr_name => $attr_details) {
+				foreach ($attr_details['matches'] as $offset) {
+					$html_id = $prefix.'_asset_'.$assetid.'_attr_'.$attr_name.'_'.$offset;
+					?>
+					<tr>
+						<td><?php echo $attr_name; ?></th>
+						<td><label for="<?php echo $html_id; ?>"><?php $this->_printHighlightedMatch($this->_running_vars['search_string'], $attr_details['value'], $offset); ?></label></td>
+						<td class="match-checkbox"><?php check_box($html_id, 1, false, 'updateParentCheckboxes(this)'); ?></td>
+					</tr>
+					<?php
+				}
+			}
+			?>
+			</tbody>
+		</table>
+		<?php
 
-		$search_string = $this->_running_vars['search_string'];
-		$replace_string = $this->_running_vars['replace_string'];
-
-		$assetid = key($this->_running_vars['attribute_replacements']);
-
-		$asset = &$am->getAsset($assetid);
-
-		$step_data['message'] = 'Replacing  "'.$search_string.'" with "'.$replace_string.'" in  "'.$asset->name.'"';
-
-		foreach ($this->_running_vars['attribute_replacements'][$assetid] as $attrid => $data) {
-			$new_data = preg_replace('/'.$search_string.'/i', $replace_string, $data);
-			$asset->setAttrValue($attrid, $new_data);
-		}
-		$asset->saveAttributes();
-
-		$am->forgetAsset($asset);
-		unset($this->_running_vars['attribute_replacements'][$assetid]);
-
-		$this->_running_vars['done_assetids'][] = $assetid;
-
-		if (empty($this->_running_vars['attribute_replacements'])) {
-			unset($this->_running_vars['done_assetids']);
-			$step_data['percent_done'] = 100;
-			$step_data['complete']     = true;
-		} else {
-			$step_data['percent_done'] = (count($this->_running_vars['done_assetids']) / $this->_running_vars['attribute_replacements_total']) * 100;
-			$step_data['complete']     = false;
-		}
-
-		return true;
-
-	}//end processAttributes()
+	}//end _printAttributeMatches()
 
 
 	/**
-	* Process replacements in Metadata fields
+	* Print matches in an asset's metadata
 	*
-	* @param array		&$step_data	a reference to the step data for this step
-	* @param String		$prefix		a string for prefixing form variables
+	* @param array	$matches	The matches to print
 	*
-	* @return boolean
-	* @access public
+	* @access private
+	* @return void
 	*/
-	function processMetadata(&$step_data, $prefix)
+	function _printMetadataMatches($assetid, $prefix, &$meta_matches)
 	{
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
-		$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
+		?>
+		<table class="sq-backend-table expandable component" border="1">
+			<thead>
+				<tr>
+					<th colspan="3" onclick="toggleTBodyDisplay(this)">
+						Asset Metadata
+					</th>
+					<th class="match-checkbox" style="text-align: right">
+						<?php check_box($prefix.'_asset_'.$assetid.'_attr_all', 1, false, 'toggleTBodyCheckboxes(this); updateParentCheckboxes(this);', 'class="component-checkbox"'); ?>
+					</th>
+				</tr>
+			</thead>
+			<tbody style="display: none">
+				<tr>
+					<th>Field ID</th>
+					<th>Field Name</th>
+					<th>Match</th>
+					<th>&nbsp;</th>
+				</tr>
+			<?php
+			foreach ($meta_matches as $field_id => $field_details) {
+				foreach ($field_details['matches'] as $offset) {
+					$html_id = $prefix.'_asset_'.$assetid.'_metadata_'.$field_id.'_'.$offset;
+					?>
+					<tr>
+						<td><?php echo $field_id; ?></th>
+						<td><?php echo $field_details['name']; ?></td>
+						<td><label for="<?php echo $html_id; ?>"><?php $this->_printHighlightedMatch($this->_running_vars['search_string'], $field_details['value'], $offset); ?></label></td>
+						<td class="match-checkbox"><?php check_box($html_id, 1, false, 'updateParentCheckboxes(this)'); ?></td>
+					</tr>
+					<?php
+				}
+			}
+			?>
+			</tbody>
+		</table>
+		<?php
 
-		$search_string = $this->_running_vars['search_string'];
-		$replace_string = $this->_running_vars['replace_string'];
+	}//end _printMetadataMatches()
 
-		$assetid = key($this->_running_vars['metadata_replacements']);
 
-		$asset = $am->getAssetInfo(Array($assetid));
+	/**
+	* Print matches in a metadata schema
+	*
+	* @param array	$matches	The matches to print
+	*
+	* @access private
+	* @return void
+	*/
+	function _printSchemaMatches($assetid, $prefix, &$schema_matches)
+	{
+		?>
+		<table class="sq-backend-table expandable component" border="1">
+			<thead>
+				<tr>
+					<th colspan="3" onclick="toggleTBodyDisplay(this)">
+						Metadata Schema
+					</th>
+					<th class="match-checkbox" style="text-align: right">
+						<?php check_box($prefix.'_asset_'.$assetid.'_attr_all', 1, false, 'toggleTBodyCheckboxes(this); updateParentCheckboxes(this);', 'class="component-checkbox"'); ?>
+					</th>
+				</tr>
+			</thead>
+			<tbody style="display: none">
+				<tr>
+					<th>Field ID</th>
+					<th>Field Name</th>
+					<th>Match</th>
+					<th>&nbsp</th>
+				</tr>
+			<?php
+			foreach ($schema_matches as $field_id => $schema_details) {
+				foreach ($schema_details['matches'] as $offset) {
+					$html_id = $prefix.'_asset_'.$assetid.'_schemafield_'.$field_id.'_'.$offset;
+					?>
+					<tr>
+						<td><?php echo $field_id; ?></th>
+						<td><?php echo $schema_details['name']; ?></td>
+						<td><label for="<?php echo $html_id; ?>"><?php $this->_printHighlightedMatch($this->_running_vars['search_string'], $schema_details['value'], $offset); ?></label></td>
+						<td class="match-checkbox"><?php check_box($html_id, 1, false, 'updateParentCheckboxes(this)'); ?></td>
+					</tr>
+					<?php
+				}
+			}
+			?>
+			</tbody>
+		</table>
+		<?php
 
-		$step_data['message'] = 'Replacing  "'.$search_string.'" with "'.$replace_string.'" in  "'.$asset->name.'"';
+	}//end _printSchemaMatches()
 
-		$metadata = $mm->getMetadata($assetid);
-		foreach ($this->_running_vars['metadata_replacements'][$assetid] as $fieldid => $data) {
-			$new_data = preg_replace('/'.$search_string.'/i', $replace_string, $data['value']);
-			$metadata[$fieldid]['value'] = $new_data;
-		}
-		$mm->setMetadata($assetid, $metadata);
-		$mm->regenerateMetadata($assetid);
 
-		unset($this->_running_vars['metadata_replacements'][$assetid]);
+	/**
+	* Print matches from an asset's content
+	*
+	* @param array	$matches	The matches to print
+	*
+	* @access private
+	* @return void
+	*/
+	function _printContentMatches($assetid, $prefix, &$div_matches)
+	{
+		?>
+		<table class="sq-backend-table expandable component" border="1">
+			<thead>
+				<tr>
+					<th colspan="3" onclick="toggleTBodyDisplay(this)">
+						Asset Content
+					</th>
+					<th class="match-checkbox" style="text-align: right">
+						<?php check_box($prefix.'_asset_'.$assetid.'_content_all', 1, false, 'toggleTBodyCheckboxes(this); updateParentCheckboxes(this);', 'class="component-checkbox"'); ?>
+					</th>
+				</tr>
+			</thead>
+			<tbody style="display: none">
+				<tr>
+					<th>DIV ID</th>
+					<th>Match</th>
+					<th>&nbsp;</th>
+				</tr>
+			<?php
+			foreach ($div_matches as $div_id => $div_details) {
+				foreach ($div_details['matches'] as $offset) {
+					$html_id = $prefix.'_asset_'.$assetid.'_content_'.$div_id.'_'.$offset;
+					?>
+					<tr>
+						<td><?php echo $div_id; ?></th>
+						<td><label for="<?php echo $html_id; ?>"><?php $this->_printHighlightedMatch($this->_running_vars['search_string'], $div_details['value'], $offset); ?></label></td>
+						<td class="match-checkbox"><?php check_box($html_id, 1, false, 'updateParentCheckboxes(this)'); ?></td>
+					</tr>
+					<?php
+				}
+			}
+			?>
+			</tbody>
+		</table>
+		<?php
 
-		$this->_running_vars['done_assetids'][] = $assetid;
-
-		if (empty($this->_running_vars['metadata_replacements'])) {
-			unset($this->_running_vars['done_assetids']);
-			$step_data['percent_done'] = 100;
-			$step_data['complete']     = true;
-		} else {
-			$step_data['percent_done'] = (count($this->_running_vars['done_assetids']) / $this->_running_vars['metadata_replacements_total']) * 100;
-			$step_data['complete']     = false;
-		}
-
-		return true;
-
-	}//end processMetadata()
+	}//end _printContentMatches()
 
 
 	/**
@@ -679,7 +753,6 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 	function processContent(&$step_data, $prefix)
 	{
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
-
 		$search_string = $this->_running_vars['search_string'];
 		$replace_string = $this->_running_vars['replace_string'];
 		$assetid = key($this->_running_vars['content_replacements']);
@@ -688,9 +761,9 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 
 		$step_data['message'] = 'Replacing  "'.$search_string.'" with "'.$replace_string.'" in  "'.$asset->name.'"';
 
-		$asset_contents = $GLOBALS['SQ_SYSTEM']->am->getEditableContents($assetid);
+		$asset_contents = $this->_running_vars['search_data'][$assetid]['contents'];
 		foreach ($asset_contents as $contents_id => $contents_value) {
-			$new_data = preg_replace('/'.$search_string.'/i', $replace_string, $contents_value);
+			$new_data = $this->_replaceOccurrences($search_string, $replace_string, $contents_value['value'], $contents_value['matches']);
 			$am->setEditableContents($contents_id, $new_data);
 		}
 
@@ -737,7 +810,7 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 		$step_data['message'] = 'Replacing  "'.$search_string.'" with "'.$replace_string.'" in  "'.$asset->name.'"';
 
 		foreach ($this->_running_vars['schema_replacements'][$assetid] as $fieldid => $data) {
-			$new_data = preg_replace('/'.$search_string.'/i', $replace_string, $data['value']);
+			$new_data = $this->_replaceOccurrences($search_string, $replace_string, $data['value'], $data['matches']);
 			$field = &$am->getAsset($fieldid);
 			$value_component = Array();
 			$field->decodeValueString($new_data, $default_data, $value_component);
@@ -762,6 +835,425 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 		return true;
 
 	}//end processSchemas()
+
+
+	/**
+	* Proccess replacements in Attribute fields
+	*
+	* @param array		&$step_data	a reference to the step data for this step
+	* @param String		$prefix		a string for prefixing form variables
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processAttributes(&$step_data, $prefix)
+	{
+
+		$am = &$GLOBALS['SQ_SYSTEM']->am;
+
+		$search_string = $this->_running_vars['search_string'];
+		$replace_string = $this->_running_vars['replace_string'];
+
+		$assetid = key($this->_running_vars['attribute_replacements']);
+
+		$asset = &$am->getAsset($assetid);
+
+		$step_data['message'] = 'Replacing  "'.$search_string.'" with "'.$replace_string.'" in  "'.$asset->name.'"';
+
+		foreach ($this->_running_vars['attribute_replacements'][$assetid] as $attrid => $data) {
+			$new_data = $this->_replaceOccurrences($search_string, $replace_string, $data['value'], $data['matches']);
+			$asset->setAttrValue($attrid, $new_data);
+		}
+		$asset->saveAttributes();
+
+		$am->forgetAsset($asset);
+		unset($this->_running_vars['attribute_replacements'][$assetid]);
+
+		$this->_running_vars['done_assetids'][] = $assetid;
+
+		if (empty($this->_running_vars['attribute_replacements'])) {
+			unset($this->_running_vars['done_assetids']);
+			$step_data['percent_done'] = 100;
+			$step_data['complete']     = true;
+		} else {
+			$step_data['percent_done'] = (count($this->_running_vars['done_assetids']) / $this->_running_vars['attribute_replacements_total']) * 100;
+			$step_data['complete']     = false;
+		}
+
+		return true;
+	}//end processAttributes()
+
+
+	/**
+	* Process replacements in Metadata fields
+	*
+	* @param array		&$step_data	a reference to the step data for this step
+	* @param String		$prefix		a string for prefixing form variables
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processMetadata(&$step_data, $prefix)
+	{
+		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
+
+		$search_string = $this->_running_vars['search_string'];
+		$replace_string = $this->_running_vars['replace_string'];
+
+		$assetid = key($this->_running_vars['metadata_replacements']);
+
+		$asset = $am->getAssetInfo(Array($assetid));
+
+		$step_data['message'] = 'Replacing  "'.$search_string.'" with "'.$replace_string.'" in  "'.$asset->name.'"';
+
+		$metadata = $mm->getMetadata($assetid);
+		foreach ($this->_running_vars['metadata_replacements'][$assetid] as $fieldid => $data) {
+			$new_data = $this->_replaceOccurrences($search_string, $replace_string, $data['value'], $data['matches']);
+			$metadata[$fieldid]['value'] = $new_data;
+		}
+		$mm->setMetadata($assetid, $metadata);
+		$mm->regenerateMetadata($assetid);
+
+		unset($this->_running_vars['metadata_replacements'][$assetid]);
+
+		$this->_running_vars['done_assetids'][] = $assetid;
+
+		if (empty($this->_running_vars['metadata_replacements'])) {
+			unset($this->_running_vars['done_assetids']);
+			$step_data['percent_done'] = 100;
+			$step_data['complete']     = true;
+		} else {
+			$step_data['percent_done'] = (count($this->_running_vars['done_assetids']) / $this->_running_vars['metadata_replacements_total']) * 100;
+			$step_data['complete']     = false;
+		}
+
+		return true;
+
+	}//end processMetadata()
+
+
+	/**
+	* Get the indices at which needle occurs in haystack
+	*
+	* @param string	$needle			The string being looked for
+	* @param string	$haystack		The string being looked through
+	*
+	* @access public
+	* @return array(int)
+	*/
+	function _getOccurrences($needle, $haystack)
+	{
+		$occurrences = Array();
+		$offset = 0;
+		$needle = strtolower($needle);
+		$haystack = strtolower($haystack);
+		$result = strpos($haystack, $needle);
+		while (false !== $result) {
+			$occurrences[] = $result;
+			$offset = $result + strlen($needle);
+			$result = strpos($haystack, $needle, $offset);
+		}
+		return $occurrences;
+
+	}//end _getOccurrences()
+
+
+	/**
+	* Replace all instances of needle in the haystack that occur in offsets
+	*
+	* @param string		$needle		The string being looked for
+	* @param string		$new_needle	The string to insert
+	* @param string		$haystack	The string being looked through
+	* @param Array(int)	$offsets	Indices of instances you wish to replace
+	* @param bool		$case_match	Whether to match capitilisation of the needle in replace
+	*
+	* @access public
+	* @return string
+	*/
+	function _replaceOccurrences($needle, $new_needle, $haystack, $offsets, $case_match=false)
+	{
+		if (empty($offsets)) return $haystack;
+		$search_len = strlen($needle);
+		$result_str = '';
+		$last_offset = 0;
+		foreach ($offsets as $id => $offset) {
+			$rep_str = $new_needle;
+			if ($case_match) {
+				$rep_str = $this->_matchCapitals(substr($haystack, $offset, $search_len), $new_needle);
+			}
+			$result_str .= substr($haystack, $last_offset, $offset - $last_offset) . $new_needle;
+			$last_offset = $offset + $search_len;
+		}
+		$result_str .=  substr($haystack, $last_offset);
+		return $result_str;
+	}//end _replaceOccurrences()
+
+
+	/**
+	* Match capitalisation of first string in the second
+	*
+	* @param string	$teacher	The string to match
+	* @param string	$student	The string to capitalise
+	*
+	* @access public
+	* @return string
+	*/
+	function _matchCapitals($teacher, $student)
+	{
+		$ret_str = $student;
+		if (strtoupper($teacher) == $teacher) {
+			$ret_str = strtoupper($student);
+		} else if (strtoupper($teacher[0]) == $teacher[0]) {
+			$ret_str[0] = strtoupper($ret_str[0]);
+		} else if (strtolower($teacher[0]) == $teacher[0]) {
+			echo 'here';
+			$ret_str[0] = strtolower($ret_str[0]);
+		}
+		return $ret_str;
+	}//end _matchCapitals()
+
+
+	/** Fill a table with highlighted search terms.
+	*
+	* @param string	$needle		The string to match
+	* @param string	$haystack	The string to look in
+	*
+	* @access public
+	* @return void
+	*/
+	function _printRows($needle, $haystack)
+	{
+		$occ = $this->_getOccurrences($needle, $haystack);
+		foreach ($occ as $id => $offset) {
+			echo '<tr><td><INPUT type="checkbox"></INPUT></td><td>';
+			$this->_printHighlightedMatch($needle, $haystack, $offset);
+			echo '</td></tr>';
+		}
+	}//end _printRows()
+
+
+	/** Prints an example of $needle, in $haystack with highlighting
+	*
+	* @param string	$needle		The string to highlight for
+	* @param string	$haystack	The string to look in
+	* @param int	$offset		Where to find $needle
+	*
+	* @access public
+	* @return void
+	*/
+	function _printHighlightedMatch($needle, $haystack, $offset)
+	{
+		$back_limit = $this->_findBackBreak($haystack, $offset);
+		$forward_limit = $this->_findForwardbreak($haystack, $offset + strlen($needle));
+		echo htmlentities(ltrim(substr($haystack, $back_limit, $offset - $back_limit), '\n\r'));
+		echo '<span style="background:yellow">'.substr($haystack, $offset, strlen($needle)).'</span>';
+		echo htmlentities(rtrim(substr($haystack, $offset + strlen($needle), $forward_limit - ($offset + strlen($needle)))));
+	}//end _printHighlightedMatch()
+
+
+	/** Find a point in the string behind the current point to cutoff display at
+	*
+	* @param string	$haystack	The string to check
+	* @param int	$offset		Where to start
+	* @param int 	$limit		maximum number of characters
+	*
+	* @access public
+	* @return string
+	*/
+	function _findBackBreak($haystack, $offset, $limit=20)
+	{
+		$ret = $offset;
+		while ($ret > $offset - 200 && $ret > 0) {
+			if ($haystack[$ret] == '>') {
+				break;
+			} else if ($haystack[$ret] == '<'){
+				return $ret;
+			}
+			$ret--;
+		}
+		if ($ret == 0) return $ret;
+		$ret = $offset;
+		$oldspace = $ret - $limit;
+		while ($ret > $offset - $limit && $ret > 0) {
+			switch ($haystack[$ret]) {
+				case '\n':case '<':
+				return $ret ;
+				case ' ':case '.': case ';': case ')':
+					$oldspace = $ret;
+					break;
+
+			}
+			$ret--;
+	}
+	return $oldspace;
+	}//end _findBackBreak()
+
+
+	/** Find a point in the string to cutoff display at
+	*
+	* @param string	$haystack	The string to check
+	* @param int	$offset		Where to start
+	* @param int 	$limit		maximum number of characters
+	*
+	* @access public
+	* @return string
+	*/
+	function _findForwardBreak($haystack, $offset, $limit=55)
+	{
+		$end_tag = $offset;
+		while (($end_tag < $offset + 200) && ($end_tag < strlen($haystack))) {
+			if ($haystack[$end_tag] == '<') {
+				break;
+			} else if ($haystack[$end_tag] == '>'){
+				$end_tag++;
+				break;
+			}
+			$end_tag++;
+		}
+		$ret = $offset;
+		$oldspace = $offset + $limit;
+		while (($ret < $offset + $limit) && ($ret < strlen($haystack))) {
+			switch ($haystack[$ret]) {
+				case '\n':case '<br>':
+					return $ret + 1;
+					break;
+				case ' ':case '.': case ';': case ')':case '-':case ',':case '!':
+					$oldspace = $ret + 1;
+					break;
+			}
+			$ret++;
+		}
+		if ($end_tag > $oldspace) return $end_tag;
+		return $oldspace;
+	}//end _findForwardBreak()
+
+
+	/** insert search matches into _running_vars
+	*
+	* @access public
+	* @return void
+	*/
+	function _setupMatches()
+	{
+		foreach ($this->_running_vars['search_data'] as $assetid => $details) {
+			if (isset($details['attributes'])) {
+				foreach ($details['attributes'] as $attr_name => $attr_val) {
+					$this->_running_vars['search_data'][$assetid]['attributes'][$attr_name] = Array('value' => $attr_val);
+					$this->_running_vars['search_data'][$assetid]['attributes'][$attr_name]['matches'] = $this->_getOccurrences($this->_running_vars['search_string'], $attr_val);
+				}
+			}
+			if (isset($details['contents'])) {
+				foreach ($details['contents'] as $div_id => $div_cont) {
+					$this->_running_vars['search_data'][$assetid]['contents'][$div_id] = Array('value' => $div_cont);
+					$this->_running_vars['search_data'][$assetid]['contents'][$div_id]['matches'] = $this->_getOccurrences($this->_running_vars['search_string'], $div_cont);
+				}
+			}
+			if (isset($details['metadata'])) {
+				foreach ($details['metadata'] as $schema_id => $schema_details) {
+					$this->_running_vars['search_data'][$assetid]['metadata'][$schema_id]['matches'] = $this->_getOccurrences($this->_running_vars['search_string'], $schema_details['value']);
+				}
+			}
+			if (isset($details['schema'])) {
+				foreach ($details['schema'] as $schema_id => $schema_details) {
+					$this->_running_vars['search_data'][$assetid]['schema'][$schema_id]['matches'] = $this->_getOccurrences($this->_running_vars['search_string'], $schema_details['value']);
+				}
+			}
+		}
+	}//end _setupMatches()
+
+
+	/** unset any search matches that are unneeded
+	*
+	* @access public
+	* @return void
+	*/
+	function _updateSearchData($prefix)
+	{
+		foreach ($this->_running_vars['search_data'] as $assetid => $values) {
+			// attributes
+			if (!isset($_REQUEST[$prefix.'_asset_'.$assetid.'_all'])) {
+				if (isset($this->_running_vars['search_data'][$assetid]['attributes'])) {
+					if (!isset($_REQUEST[$prefix.'_asset_'.$assetid.'_attr_all'])) {
+						foreach ($this->_running_vars['search_data'][$assetid]['attributes'] as $attr_name => $attr_details) {
+							foreach ($attr_details['matches'] as $m) {
+								if (!isset($_REQUEST[$prefix.'_asset_'.$assetid.'_attr_'.$attr_name.'_'.$m])) {
+									$i = array_search($m, $this->_running_vars['search_data'][$assetid]['attributes'][$attr_name]['matches']);
+									unset($this->_running_vars['search_data'][$assetid]['attributes'][$attr_name]['matches'][$i]);
+								}
+							}
+							if (empty($this->_running_vars['search_data'][$assetid]['attributes'][$attr_name]['matches'])) {
+								unset($this->_running_vars['search_data'][$assetid]['attributes'][$attr_name]);
+							}
+						}
+						if (empty($this->_running_vars['search_data'][$assetid]['attributes'])) {
+							unset($this->_running_vars['search_data'][$assetid]['attributes']);
+						}
+					}
+				}
+				// contents
+				if (isset($this->_running_vars['search_data'][$assetid]['contents'])) {
+					if (!isset($_REQUEST[$prefix.'_asset_'.$assetid.'_content_all'])) {
+						foreach ($this->_running_vars['search_data'][$assetid]['contents'] as $div_id => $div_details) {
+							foreach ($div_details['matches'] as $m) {
+								if (!isset($_REQUEST[$prefix.'_asset_'.$assetid.'_content_'.$div_id.'_'.$m])) {
+									$i = array_search($m, $this->_running_vars['search_data'][$assetid]['contents'][$div_id]['matches']);
+									unset($this->_running_vars['search_data'][$assetid]['contents'][$div_id]['matches'][$i]);
+								}
+							}
+							if (empty($this->_running_vars['search_data'][$assetid]['contents'][$div_id]['matches'])) {
+								unset($this->_running_vars['search_data'][$assetid]['contents'][$div_id]);
+							}
+						}
+						if (empty($this->_running_vars['search_data'][$assetid]['contents'])) {
+							unset($this->_running_vars['search_data'][$assetid]['contents']);
+						}
+					}
+				}
+				// metadata
+				if (isset($this->_running_vars['search_data'][$assetid]['metadata'])) {
+					if (!isset($_REQUEST[$prefix.'_asset_'.$assetid.'_metadata_all'])) {
+						foreach ($this->_running_vars['search_data'][$assetid]['metadata'] as $field_id => $field_details) {
+							foreach ($field_details['matches'] as $m) {
+								if (!isset($_REQUEST[$prefix.'_asset_'.$assetid.'_metadata_'.$field_id.'_'.$m])) {
+									$i = array_search($m, $this->_running_vars['search_data'][$assetid]['metadata'][$field_id]['matches']);
+									unset($this->_running_vars['search_data'][$assetid]['metadata'][$field_id]['matches'][$i]);
+								}
+							}
+							if (empty($this->_running_vars['search_data'][$assetid]['metadata'][$field_id]['matches'])) {
+								unset($this->_running_vars['search_data'][$assetid]['metadata'][$field_id]);
+							}
+						}
+						if (empty($this->_running_vars['search_data'][$assetid]['metadata'])) {
+							unset($this->_running_vars['search_data'][$assetid]['metadata']);
+						}
+					}
+				}
+				// schema
+				if (isset($this->_running_vars['search_data'][$assetid]['schema'])) {
+					if (!isset($_REQUEST[$prefix.'_asset_'.$assetid.'_schema_all'])) {
+						foreach ($this->_running_vars['search_data'][$assetid]['schema'] as $field_id => $field_details) {
+							foreach ($field_details['matches'] as $m) {
+								if (!isset($_REQUEST[$prefix.'_asset_'.$assetid.'_schemafield_'.$field_id.'_'.$m])) {
+									$i = array_search($m, $this->_running_vars['search_data'][$assetid]['schema'][$field_id]['matches']);
+									unset($this->_running_vars['search_data'][$assetid]['schema'][$field_id]['matches'][$i]);
+								}
+							}
+							if (empty($this->_running_vars['search_data'][$assetid]['schema'][$field_id]['matches'])) {
+								unset($this->_running_vars['search_data'][$assetid]['schema'][$field_id]);
+							}
+						}
+						if (empty($this->_running_vars['search_data'][$assetid]['schema'])) {
+							unset($this->_running_vars['search_data'][$assetid]['schema']);
+						}
+					}
+				}
+			}
+			if (empty($this->_running_vars['search_data'][$assetid])) {
+				unset($this->_running_vars['search_data'][$assetid]);
+			}
+		}
+	}//end _updateSearchData()
 
 
 }//end class

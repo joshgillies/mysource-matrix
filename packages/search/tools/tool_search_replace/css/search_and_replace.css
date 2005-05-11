@@ -1,0 +1,50 @@
+/**
+* +--------------------------------------------------------------------+
+* | Squiz.net Commercial Module Licence                                |
+* +--------------------------------------------------------------------+
+* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
+* +--------------------------------------------------------------------+
+* | This source file is not open source or freely usable and may be    |
+* | used subject to, and only in accordance with, the Squiz Commercial |
+* | Module Licence.                                                    |
+* | Please refer to http://www.squiz.net/licence for more information. |
+* +--------------------------------------------------------------------+
+*
+* $Id: search_and_replace.css,v 1.1 2005/05/11 02:37:05 dmckee Exp $
+*
+*/
+
+span.link {
+	text-decoration: underline;
+	cursor: pointer;
+}
+table.component {
+	margin: 3px 8px;
+}
+table.component thead th {
+	padding: 2px 3px;
+	background-color: #dadada;
+	vertical-align: middle;
+}
+table .match-checkbox {
+	width: 33px;
+	text-align: left;
+	padding: 1px;
+}
+input.component-checkbox {
+	padding-right: 5px;
+}
+table thead th.all-asset-checkbox {
+	width: 10px;
+}
+table.expandable thead th {
+	cursor: pointer;
+	background-repeat: no-repeat;
+	background-position: 5px 50%;
+	padding-left: 25px;
+	vertical-align: middle;
+}
+table.component td label {
+	display: block;
+	width: 100%;
+}
