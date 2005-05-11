@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_search_replace.inc,v 1.8 2005/05/11 02:36:52 dmckee Exp $
+* $Id: tool_search_replace.inc,v 1.9 2005/05/11 04:16:46 tbarrett Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 *
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -152,6 +152,12 @@ class Tool_Search_Replace extends Tool
 		}
 
 		$sm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
+
+		if (strlen($_REQUEST[$type_code.'_search_string']) < $sm->attr('min_word_length')) {
+			trigger_localised_error('SCH0024', E_USER_NOTICE, $_REQUEST[$type_code.'_search_string'], $sm->attr('min_word_length'));
+			Tool_Search_Replace::paintTool($o, $type_code);
+			return;
+		}
 
 		//create search types array
 		$search_types = Array();
