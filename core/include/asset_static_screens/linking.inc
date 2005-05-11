@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: linking.inc,v 1.13 2005/04/15 00:37:28 lwright Exp $
+* $Id: linking.inc,v 1.14 2005/05/11 06:05:11 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Linking Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix
 */
 
@@ -57,9 +57,9 @@ function paintLinking(&$owner, &$o, &$ei, $allow_edit=true)
 	$prefix = $owner->getPrefix();
 
 	require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-	$o->openSection('Current Linking');
-	$o->openField('&nbsp;');
-	echo '<i>NOTE: <b>TYPE_1</b> links are displayed in both the frontend and backend navigation but <b>TYPE_2</b> links are only displayed in the backend navigation.</i><br/><br/>';
+	$o->openSection(translate('current_linking'));
+	$o->openField('');
+	echo '<i>'.translate('link_types_note').'</i><br/><br/>';
 
 	$db = &$GLOBALS['SQ_SYSTEM']->db;
 	$assetids = Array();
@@ -155,9 +155,9 @@ function paintLinking(&$owner, &$o, &$ei, $allow_edit=true)
 		?>
 		<table class="sq-backend-table">
 			<tr>
-				<td class="sq-backend-table-header" style="text-align: center; white-space: nowrap;">Link Id</td>
-				<td class="sq-backend-table-header" style="text-align: center;">Link Type</td>
-				<td class="sq-backend-table-header" width="100%">Lineage</td>
+				<td class="sq-backend-table-header" style="text-align: center; white-space: nowrap;"><?php echo translate('link_id'); ?></td>
+				<td class="sq-backend-table-header" style="text-align: center;"><?php echo translate('link_type'); ?></td>
+				<td class="sq-backend-table-header" width="100%"><?php echo translate('lineage'); ?></td>
 			</tr>
 			<?php foreach ($output_lineages as $null => $lineage_data) echo $lineage_data; ?>
 		</table>
@@ -171,23 +171,23 @@ function paintLinking(&$owner, &$o, &$ei, $allow_edit=true)
 
 	if (!empty($fl_jobs) || $write_access) {
 		$created = true;
-		$o->openSection('Future Linking');
+		$o->openSection(translate('future_linking'));
 			if (!empty($fl_jobs)) {
 				$o->openField('', 'new_line');
 					?>
 					<table class="sq-backend-table">
 						<tr>
 							<td class="sq-backend-table-header">
-								Action
+								<?php echo translate('action'); ?>
 							</td>
 							<td class="sq-backend-table-header">
-								When
+								<?php echo translate('when'); ?>
 							</td>
 							<?php
 							if ($write_access) {
 								$created = true;
 								?>
-								<td class="sq-backend-table-header" style="text-align: center;">Delete ?</td>
+								<td class="sq-backend-table-header" style="text-align: center;"><?php echo translate('delete_question'); ?></td>
 								<?php
 							}
 							?>
@@ -259,7 +259,7 @@ function processLinking(&$owner, &$o, &$ei)
 {
 	// if we dont have admin access, piss off
 	if ($owner->id && !$owner->writeAccess('')) {
-		$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to edit the links of <i>'.$owner->name.'</i>');
+		$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $owner->name));
 		exit();
 	}
 
@@ -301,7 +301,7 @@ function processLinking(&$owner, &$o, &$ei)
 					$GLOBALS['SQ_SYSTEM']->am->releaseLock($cron_mgr->id, 'links');
 
 				} else {
-					trigger_localised_error("SYS0232", E_USER_NOTICE);
+					trigger_localised_error('SYS0232', E_USER_NOTICE);
 				}
 
 			}// end if

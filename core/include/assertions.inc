@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: assertions.inc,v 1.13 2005/04/15 00:37:27 lwright Exp $
+* $Id: assertions.inc,v 1.14 2005/05/11 06:05:08 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix
 */
 
@@ -115,7 +115,7 @@ function assert_null($value, $msg='', $silent=false, $fatal=true)
 function assert_not_null($value, $msg='', $silent=false, $fatal=true)
 {
 	if (is_null($value)) {
-		if (empty($msg)) $msg = 'passed value was NULL';
+		if (empty($msg)) $msg = translate('passed_value_was_null');
 		trigger_exception($msg, $silent, $fatal);
 		return false;
 	}
@@ -138,7 +138,7 @@ function assert_not_null($value, $msg='', $silent=false, $fatal=true)
 function assert_empty($value, $msg='', $silent=false, $fatal=true)
 {
 	if (!empty($value)) {
-		if (empty($msg)) $msg = '['.gettype($value).'] "'.$value.'" was not EMPTY';
+		if (empty($msg)) $msg = translate('assert_not_empty', gettype($value), $value);
 		trigger_exception($msg, $silent, $fatal);
 		return false;
 	}
@@ -161,7 +161,7 @@ function assert_empty($value, $msg='', $silent=false, $fatal=true)
 function assert_not_empty($value, $msg='', $silent=false, $fatal=true)
 {
 	if (empty($value)) {
-		if (empty($msg)) $msg = '['.gettype($value).'] "'.$value.'" was EMPTY';
+		if (empty($msg)) $msg = translate('assert_empty', gettype($value), $value);
 		trigger_exception($msg, $silent, $fatal);
 		return false;
 	}
@@ -190,7 +190,7 @@ function assert_equals($test, $expected, $msg='', $silent=false, $fatal=true)
 {
 	if ($test != $expected) {
 		if (!empty($msg)) $msg .= ' -';
-		$msg .= ' expected ['.gettype($expected).'] "'.$expected.'" but got ['.gettype($test).'] "'.$test.'"';
+		$msg .= translate('assert_equals', gettype($expected), $expected, gettype($test), $test);
 		trigger_exception($msg, $silent, $fatal);
 		return false;
 	}
@@ -214,7 +214,7 @@ function assert_equals($test, $expected, $msg='', $silent=false, $fatal=true)
 function assert_not_equals($value1, $value2, $msg='', $silent=false, $fatal=true)
 {
 	if ($value1 == $value2) {
-		if (empty($msg)) $msg = 'expected not equal values but values were EQUAL';
+		if (empty($msg)) $msg = translate('assert_not_equal');
 		trigger_exception($msg, $silent, $fatal);
 		return false;
 	}
@@ -247,7 +247,7 @@ function assert_array_contains($test, $expected, $msg='', $silent=false, $fatal=
 	$diff = array_diff($expected, $test);
 	if (!empty($diff)) {
 		if (!empty($msg)) $msg .= ' -';
-		$msg .= ' expected "'.print_r($expected,true).'" but got "'.print_r($test,true).'"';
+		$msg .= translate('assert_contains', print_r($expected,true), print_r($test,true));
 		trigger_exception($msg, $silent, $fatal);
 		return false;
 	}
@@ -277,7 +277,7 @@ function assert_array_equals($test, $expected, $msg='', $silent=false, $fatal=tr
 {
 	if ($test != $expected) {
 		if (!empty($msg)) $msg .= ' -';
-		$msg .= ' expected "'.print_r($expected,true).'" but got "'.print_r($test,true).'"';
+		$msg .= translate('assert_contains', print_r($expected,true), print_r($test,true));
 		trigger_exception($msg, $silent, $fatal);
 		return false;
 	}
@@ -304,7 +304,7 @@ function assert_array_equals($test, $expected, $msg='', $silent=false, $fatal=tr
 function assert_isset($test, $msg='', $silent=false, $fatal=true)
 {
 	if (!isset($test)) {
-		if (empty($msg)) $msg = 'expected value was NOT SET';
+		if (empty($msg)) $msg = translate('assert_isset');
 		trigger_exception($msg, $silent, $fatal);
 		return false;
 	}
@@ -335,7 +335,7 @@ function assert_isset_array_index($test, $index, $msg='', $silent=false, $fatal=
 	assert_type($test, 'array');
 
 	if (!isset($test[$index])) {
-		if (empty($msg)) $msg = 'expected array index "'.$index.'" was NOT SET';
+		if (empty($msg)) $msg = translate('assert_isset_array', $index);
 		trigger_exception($msg, $silent, $fatal);
 		return false;
 	}
@@ -359,7 +359,7 @@ function assert_isset_array_index($test, $index, $msg='', $silent=false, $fatal=
 function assert_is_a($obj, $class, $msg='', $silent=false, $fatal=true)
 {
 	if (!is_a($obj, $class)) {
-		if (empty($msg)) $msg = 'passed object was not of type '.strtoupper($class);
+		if (empty($msg)) $msg = translate('assert_object', strtoupper($class));
 		trigger_exception($msg, $silent, $fatal);
 		return false;
 	}
@@ -384,7 +384,7 @@ function assert_is_a($obj, $class, $msg='', $silent=false, $fatal=true)
 function assert_type($obj, $type, $msg='', $silent=false, $fatal=true)
 {
 	if (strtolower(gettype($obj)) != strtolower($type)) {
-		if (empty($msg)) $msg = '['.gettype($obj).'] "'.$obj.'" was not of type '.strtoupper($type);
+		if (empty($msg)) $msg = translate('assert_type', gettype($obj), $obj, strtoupper($type));
 		trigger_exception($msg, $silent, $fatal);
 		return false;
 	}
@@ -450,7 +450,7 @@ function assert_valid_assetid($assetid, $msg='', $silent=false, $fatal=true)
 	}
 
 	if (!$valid) {
-		if (empty($msg)) $msg = '['.gettype($assetid).'] "'.$assetid.'" is not a valid asset ID';
+		if (empty($msg)) $msg = translate('assert_assetid', gettype($assetid), $assetid);
 		trigger_exception($msg, $silent, $fatal);
 		return false;
 	}
@@ -477,7 +477,7 @@ function trigger_exception($msg, $silent=false, $fatal=false)
 	$error_type = ($fatal) ? E_USER_ERROR : E_USER_WARNING;
 
 	if (!$silent) {
-		trigger_localised_error("SYS0270", $error_type, $msg, $line, $file);
+		trigger_localised_error('SYS0270', $error_type, $msg, $line, $file);
 	}
 
 	if ($fatal) exit();

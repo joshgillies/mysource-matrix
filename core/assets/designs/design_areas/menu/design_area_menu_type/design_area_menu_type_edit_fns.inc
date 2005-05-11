@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type_edit_fns.inc,v 1.40 2005/04/15 00:37:24 lwright Exp $
+* $Id: design_area_menu_type_edit_fns.inc,v 1.41 2005/05/11 06:04:50 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -76,7 +76,7 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 		// Now just make sure that current, hierarchy and normal entries all exist for the settings
 		for (reset($settings); NULL !== ($name = key($settings)); next($settings)) {
 			if (!isset($settings[$name]['normal'])) {
-				trigger_localised_error("CORE0172", E_USER_WARNING, $name, $asset->name);
+				trigger_localised_error('CORE0172', E_USER_WARNING, $name, $asset->name);
 				return false;
 			}
 
@@ -116,7 +116,7 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 
 						// if there is a name and it's not the the same type as the current design area
 						if (empty($sub_element['attributes']['design_area'])) {
-							trigger_localised_error("CORE0144", E_USER_WARNING);
+							trigger_localised_error('CORE0144', E_USER_WARNING);
 							return false;
 						}//end if
 
@@ -125,7 +125,7 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 						// first let's make sure that we are actually going to create a menu section type
 						$design_area_parent_types = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($design_area);
 						if (!in_array('design_area_menu_type', $design_area_parent_types)) {
-							trigger_localised_error("CORE0170", E_USER_WARNING, $asset->name);
+							trigger_localised_error('CORE0170', E_USER_WARNING, $asset->name);
 							return false;
 						}
 
@@ -391,16 +391,16 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 	{
 		$write_access = $asset->writeAccess('attributes');
 		$current_level = $asset->attr('level');
-		$special_levels = Array(''   => '-- custom --',
-								'-2' => 'Children',
-								'-1' => 'Current',
-								'0'  => 'Top',
-								'1'  => 'Sub',
+		$special_levels = Array(''   => '-- '.strtolower(translate('custom')).' --',
+								'-2' => translate('children'),
+								'-1' => translate('current'),
+								'0'  => translate('top'),
+								'1'  => translate('sub'),
 								);
 
 		if ($write_access) {
 			combo_box($prefix.'_special_level', $special_levels, false, $asset->attr('level'));
-			echo ' or ';
+			echo ' '.strtolower(translate('or')).' ';
 			text_box($prefix.'_level', (!isset($special_levels[$current_level])) ? $current_level : '');
 		} else {
 			if (isset($special_levels[$current_level])) echo $special_levels[$current_level];

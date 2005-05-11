@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_comparison.inc,v 1.24 2005/04/29 05:40:29 gsherwood Exp $
+* $Id: form_question_rule_type_comparison.inc,v 1.25 2005/05/11 06:07:31 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -43,12 +43,12 @@ class Form_Question_Rule_Type_Comparison extends Form_Question_Rule
 	function getOperators()
 	{
 		$operators = Array(
-						'=='	=> 'Must Be Equal to ',
-						'!='	=> 'Must Not Be Equal to ',
-						'>'		=> 'Must be Greater Than ',
-						'<'		=> 'Must be Less Than ',
-						'>='	=> 'Must be Greater Than or Equal To ',
-						'<='	=> 'Must be Less Than or Equal To ',
+						'=='	=> translate('cms_form_rule_comparison_=='),
+						'!='	=> translate('cms_form_rule_comparison_!='),
+						'>'		=> translate('cms_form_rule_comparison_>'),
+						'<'		=> translate('cms_form_rule_comparison_<'),
+						'>='	=> translate('cms_form_rule_comparison_>='),
+						'<='	=> translate('cms_form_rule_comparison_<='),
 					 );
 
 		return $operators;
@@ -156,17 +156,20 @@ class Form_Question_Rule_Type_Comparison extends Form_Question_Rule
 		$value = array_get_index($rule_data, 'value', '');
 
 		if (($value == '') && ($operator == '!=')) {
-			$error_str = 'Question "'.$q_asset->attr('name').'" is a required field; it must be filled in';
+			$error_str = translate('cms_form_rule_comparison_required', $q_asset->attr('name'));
 		} else {
 			$operator_list = $this->getOperators();
-			$error_str = 'The response to "'.$q_asset->attr('name').'" '.strtolower($operator_list[array_get_index($rule_data, 'operator', '==')]).' ';
+			$string_code = 'cms_form_rule_comparison_desc_'.$operator;
 
 			if ($cq_id != 0) {
+				$string_code .= '_q';
 				$comparison =& $GLOBALS['SQ_SYSTEM']->am->getAsset($cq_id);
-			$error_str .= 'the response to question "'.$comparison->attr('name').'"';
+				$value = $comparison->name;
 			} else {	// sent just a value
-				$error_str .= '"'.$value.'"';
+				$value = array_get_index($rule_data, 'value', '');
 			}
+
+			$error_str = translate($string_code, $q_asset->name, $value).' ('.translate('cms_form_'.($case_sensitive ? '' : 'not_').'case_sensitive').')';
 		}
 
 		return $error_str;

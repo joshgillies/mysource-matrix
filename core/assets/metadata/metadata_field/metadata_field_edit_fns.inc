@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_edit_fns.inc,v 1.33 2005/04/20 00:51:59 ndvries Exp $
+* $Id: metadata_field_edit_fns.inc,v 1.34 2005/05/11 06:04:52 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -64,11 +64,14 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintKeywordInstructions(&$asset, &$o, $prefix)
 	{
-		?>
-		<b>You can use keyword replacements in place of values for this metadata field.<br/>
-		These values can be used in the main <i>Default</i> value of the field as well as in the values of any <i>Value Components</i> the field has defined.<br/>For a complete list of available keyword replacements <a href="#" onClick="Javascript: var win = window.open('<?php echo sq_web_path('data')?>/asset_types/metadata_field/popups/keywords.html', 'keywords', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=580,height=520'); return false;">click here </a></b><?php
-
+		ob_start();
+			?><a href="#" onClick="Javascript: var win = window.open('<?php echo sq_web_path('data')?>/asset_types/metadata_field/popups/keywords.html', 'keywords', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=580,height=520'); return false;">click here </a></b><?php 
+			$replacements_link = ob_get_contents();
+		ob_end_clean();
+		$o->note(translate('metadata_keyword_replacements_usage'));
+		
 	}//end paintKeywordInstructions()
+	
 
 
 	/**
@@ -109,13 +112,13 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 		if ($write_access) {
 			text_box($prefix.'_new_vc', '', 30);
 		} else {
-			echo '<i>You do not have permission to create a new value component</i>';
+			echo '<i>'.translate('core_cannot_create_value_component').'</i>';
 		}
 		$o->closeField();
 
 		$current_vc = $asset->attr('value_components');
 		if (!empty($current_vc)) {
-			$o->openField('Current');
+			$o->openField(translate('current'));
 			$num_per_row = 3;
 			$num_done = 0;
 			?>
@@ -143,7 +146,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 						if ($write_access) {
 							echo '<br />';
 							check_box($prefix.'_vc_delete['.$vc_name.']');
-							echo ' Delete ?';
+							label(translate('delete_question'), $prefix.'_vc_delete['.$vc_name.']');
 						}
 						echo '</td>';
 
@@ -290,14 +293,14 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 		$weighting = $asset->attr('weighting');
 
 		if ($asset->writeAccess('attributes')) {
-			echo combo_box('weighting_include', Array('0' => 'Do not include in searches', '1' => 'Include in searches'), false, ($weighting >= 0)?'1':'0');
+			echo combo_box('weighting_include', Array('0' => translate('do_not_include_in_searches'), '1' => translate('include_in_searches')), false, ($weighting >= 0)?'1':'0');
 
 			if ($weighting >= 0) {
 				echo text_box('weight', $weighting, 5);
 			}
 
 		} else {
-			echo ($weighting >= 0) ? $weighting : 'Not included in searching.';
+			echo ($weighting >= 0) ? $weighting : translate('not_included_in_searches');
 
 		}
 

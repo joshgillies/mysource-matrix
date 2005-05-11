@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce_edit_fns.inc,v 1.6 2005/04/29 05:39:36 gsherwood Exp $
+* $Id: form_ecommerce_edit_fns.inc,v 1.7 2005/05/11 06:07:35 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -111,7 +111,7 @@ class Form_Ecommerce_Edit_Fns extends Form_Email_Edit_Fns
 			'				<select multiple id="'.$rule_list_name.'[]" name="'.$rule_list_name.'[]" style="visibility:hidden;position:absolute;left:0px;top:0px;"></select>'."\n".
 			'			</td>'."\n".
 			'			<td>'."\n".
-			'				<input type="submit" value="Edit Selection" />'."\n".
+			'				<input type="submit" value="'.translate('ecom_form_edit_selection').'" />'."\n".
 			'			</td>'."\n".
 			'		</tr>'."\n".
 			'	</table>'."\n".
@@ -145,20 +145,20 @@ class Form_Ecommerce_Edit_Fns extends Form_Email_Edit_Fns
 			$question = $am->getAsset($active_rule_id);
 			$edit_form = '<div>';
 			if ($question->isSelection()) {
-				$edit_form .= '<h3>Dollar Values for question &laquo;<strong style="color: #F33">'.$question->attr('name').'</strong>&raquo;</h3>';
+				$edit_form .= '<h3>'.translate('ecom_form_currency_for_question', $question->attr('name')).'</h3>';
 				$edit_form .= '<table class="sq-backend-table">';
 				$options = $question->getOptions();
 				foreach ($options as $key => $option_text) {
 					$rule_value = array_get_index($rule, $key, 0);
 					$edit_form .= '<tr>';
-					$edit_form .= '<td class="sq-backend-table-header" nowrap>'.$option_text.'</td>';
-					$edit_form .= '<td class="sq-backend-table-cell" width="100%" ><strong>$</strong><input type="text" name="'.$rule_fields_name.'['.$key.']" value="'.$rule_value.'" size="5" /></td>';
+					$edit_form .= '<td class="sq-backend-table-header" nowrap="nowrap">'.$option_text.'</td>';
+					$edit_form .= '<td class="sq-backend-table-cell" width="100%"><input type="text" name="'.$rule_fields_name.'['.$key.']" value="'.$rule_value.'" size="5" /></td>';
 					$edit_form .= '</tr>';
 				}
 				$edit_form .= '</table>';
 				$edit_form .= '<input type="hidden" name="'.$rule_edited_name.'" value="'.$active_rule_id.'" />';
 			} else {
-				$edit_form = "This field is numeric. The value supplied by the user will be used for calculation.";
+				$edit_form = translate('ecom_form_numeric_field');
 			}
 			$edit_form .= '</div>';
 
@@ -214,48 +214,48 @@ class Form_Ecommerce_Edit_Fns extends Form_Email_Edit_Fns
 		return true;
 
 	}//end processEcommerceQuestionLinks()
-	
+
 
 	 //temp draw-up just for future notice
 	 function paintExport(&$asset, &$o, $prefix)
 	 {
 		 if (!$asset->writeAccess('attributes')) return false;
 		 if (array_get_index($_POST, $prefix.'_export_switch', 0) == 1) $this->processExport($asset, $o, $prefix);
-		 
+
 		 //paint option goes here
 		 echo hidden_field($prefix.'_export_switch', '0');
-		 
-		 echo normal_button($prefix.'_export', 'Download File', 'this.form.'.$prefix.'_export_switch.value = 1; this.form.submit(); SQ_FORM_SUBMITTED = false; this.form.'.$prefix.'_export_switch.value = 0; return true;');
-		 
+
+		 echo normal_button($prefix.'_export', translate('download_file'), 'this.form.'.$prefix.'_export_switch.value = 1; this.form.submit(); SQ_FORM_SUBMITTED = false; this.form.'.$prefix.'_export_switch.value = 0; return true;');
+
 		 return true;
 
 	 }//end paintExport()
-	 
-	 
+
+
 	 function processExport(&$asset, &$o, $prefix)
 	 {
 		 //begin and populate order object
 		 header('Content-Type: application/xml');
-		 
+
 		 // defining the file as attachment forces most browsers to offer it for download
 		 header('Content-Disposition: attachment; filename=order-summary-'.$asset->id.'.xml;');
-		 
+
 		 echo '<orders>'."\n";
-		 
+
 		 //get each order
 		 $children_id = $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, 'order', false);
-		 
+
 		 foreach ($children_id as $child_id => $assettype) {
 			//retrieve asset with this id
 			echo "\t".'<order id="'.$child_id.'">'."\n";
-		 
+
 			//get this orders children
 			$order_lines = $GLOBALS['SQ_SYSTEM']->am->getChildren($child_id, 'order_line', false);
-		 
+
 			foreach ($order_lines as $line_id => $assettype) {
-			
+
 				$child =& $GLOBALS['SQ_SYSTEM']->am->getAsset($line_id);
-			
+
 				//extract name quantity price etc
 				?>
 		<order_line id="<?php echo $child_id ?>">
@@ -265,16 +265,16 @@ class Form_Ecommerce_Edit_Fns extends Form_Email_Edit_Fns
 		</order_line>
 					<?php
 			}
-		 
+
 			echo "\t".'</order>'."\n";
-		
+
 		 }
-		 
+
 		 echo '</orders>'."\n";
 		 exit(0);
-		 
+
 		 return true;
-		 
+
 	 }//end processExport()
 
 

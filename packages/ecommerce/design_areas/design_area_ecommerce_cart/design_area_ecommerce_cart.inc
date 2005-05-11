@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_ecommerce_cart.inc,v 1.2 2005/04/29 05:39:36 gsherwood Exp $
+* $Id: design_area_ecommerce_cart.inc,v 1.3 2005/05/11 06:07:35 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -43,19 +43,19 @@ class Design_Area_Ecommerce_Cart extends Design_Area
 	*/
 	function printArea(&$design)
 	{
-	
+
 		return parent::printArea($design);
 		/*
 		$cart_id = $this->attr('cart');
 		$form_id = $this->attr('ecom_form');
-		
+
 		echo '
 		<','?php';
 		if (!empty($cart_id)) {
 		?>
 			echo '<a href="'.$cart->getURL().'">';
 			echo $cart->count();
-			echo ($cart->count() == 1) ? ' item' : ' items';
+			echo ' '.($cart->count() == 1) ? translate('item') : translate('items');
 			echo '</a>';
 			<?php if ($this->attr('show_total')) { ?>
 			echo '<br/>';
@@ -63,19 +63,19 @@ class Design_Area_Ecommerce_Cart extends Design_Area
 			<?php
 			}
 		}
-		
+
 		// print the 'checkout' link if we have a linked ecom form
 		if (!empty($form_id)) {
 		?>
 			$ecom_form_url = $GLOBALS['SQ_SYSTEM']->am->getAssetURL(<?php echo $form_id ?>);
-			echo '<br/><a href="'.$ecom_form_url.'">checkout &gt;&gt;</a>';
+			echo '<br/><a href="'.$ecom_form_url.'">'.translate('ecom_cart_design_area_checkout').'</a>';
 		<?php
 		}
 		echo '
 		?','>';
 		*/
 		return true;
-			
+
 	}//end printArea()
 
 
@@ -104,13 +104,13 @@ class Design_Area_Ecommerce_Cart extends Design_Area
 				$url = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($cart_assetid);
 				echo $url;
 				break;
-				
+
 			case 'items' :
 				$cart_assetid = $this->attr('cart');
 				echo '<','?php';
 				?>
 				$cart =& $GLOBALS['SQ_SYSTEM']->am->getAsset(<?php echo $cart_assetid ?>);
-				echo ($cart->count() == 1) ? ' item' : ' items';
+				echo ' '.($cart->count() == 1) ? translate('item') : translate('items');
 				<?php
 				echo '?','>';
 				break;
@@ -124,7 +124,7 @@ class Design_Area_Ecommerce_Cart extends Design_Area
 				<?php
 				echo '?','>';
 				break;
-				
+
 			case 'total' :
 				$cart_assetid = $this->attr('cart');
 				echo '<','?php';
@@ -135,13 +135,13 @@ class Design_Area_Ecommerce_Cart extends Design_Area
 				echo '?','>';
 				break;
 
-				
+
 			default:
 				parent::printVar($var, $args);
 
 		}
 	}
-	
+
 }//end class
 
 ?>

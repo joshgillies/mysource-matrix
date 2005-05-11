@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_folder.inc,v 1.16 2005/04/29 05:38:40 gsherwood Exp $
+* $Id: search_folder.inc,v 1.17 2005/05/11 06:07:48 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -108,7 +108,7 @@ class Search_Folder extends Asset
 	*/
 	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=true, $side_of_link='major', $sort_by=null)
 	{
-		assert_equals($assetid, $this->id, 'The Search Folder can only get its own links');
+		assert_equals($assetid, $this->id, translate('sch_folder_only_own_links'));
 
 		if (!isset($this->_tmp['getLinks'])) {
 
@@ -185,6 +185,7 @@ class Search_Folder extends Asset
 	*
 	* @return array
 	* @access public
+	* @param bool	$short_name	whether
 	*/
 	function getAssetMapLinks()
 	{
@@ -263,7 +264,7 @@ class Search_Folder extends Asset
 	*/
 	function getParents($assetid, $type_code='', $strict_type_code=true)
 	{
-		assert_equals($assetid, $this->id, 'The Search Folder can only get its own links');
+		assert_equals($assetid, $this->id, translate('sch_folder_only_own_links'));
 		return Array();
 
 	}//end getParents()
@@ -288,7 +289,7 @@ class Search_Folder extends Asset
 	*/
 	function getChildren($assetid, $type_code='', $strict_type_code=true, $sort_by=null)
 	{
-		assert_equals($assetid, $this->id, 'The Search Folder can only get its own links');
+		assert_equals($assetid, $this->id, translate('sch_folder_only_own_links'));
 		return Array();
 
 	}//end getChildren()

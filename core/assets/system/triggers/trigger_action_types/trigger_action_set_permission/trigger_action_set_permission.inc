@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_permission.inc,v 1.4 2005/04/20 04:20:36 gsherwood Exp $
+* $Id: trigger_action_set_permission.inc,v 1.5 2005/05/11 06:05:03 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -97,6 +97,8 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 	*/
 	function getInterface($settings, $prefix, $write_access=false)
 	{
+		//due to "access for" being the only stable text in this interface
+		//we are not translating like the rest but just the text as it appears
 		ob_start();
 
 		// print the grant/deny selection
@@ -106,10 +108,13 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 			$selected_granted = $settings['granted'];
 		}
 		if ($write_access) {
-			combo_box($prefix.'[granted]', Array('1' => 'Grant', '0' => 'Deny'), false, $selected_granted);
+			combo_box($prefix.'[granted]', Array(
+											'1' => translate('grant'),
+											'0' => translate('deny'),
+										   ), false, $selected_granted);
 		} else {
 			echo '<b>';
-			echo ($selected_granted) ? 'Grant' : 'Deny';
+			echo ($selected_granted) ? translate('grant') : translate('deny');
 			echo '</b> ';
 		}
 
@@ -125,7 +130,7 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 		} else {
 			echo '<b>'.$permissions[$selected_permission].'</b>';
 		}
-		echo ' access for ';
+		echo ' '.translate('access_for').' ';
 
 		// print the asset finder
 		if (empty($settings['userid'])) {
@@ -134,14 +139,17 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 			$selected_userid = $settings['userid'];
 		}
 		if ($write_access) {
-			asset_finder($prefix.'[userid]', $selected_userid, Array('user' => 'D', 'user_group' => 'D'));
+			asset_finder($prefix.'[userid]', $selected_userid, Array(
+																'user' => 'D',
+																'user_group' => 'D'
+															   ));
 		} else {
 			$user = null;
 			if ($selected_userid > 0) {
 				$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($selected_userid);
 			}
 			if (is_null($user)) {
-				echo '<b>[No User Selected]</b>';
+				echo '<b>['.translate('trigger_no_user_selected').']</b>';
 			} else {
 				echo '<b>'.$user->name.'</b>';
 			}

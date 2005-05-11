@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_config.inc,v 1.27 2005/04/13 05:08:21 ndvries Exp $
+* $Id: hipo_config.inc,v 1.28 2005/05/11 06:05:07 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the hipo config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix
 */
 class HIPO_Config extends Config
@@ -190,26 +190,26 @@ class HIPO_Config extends Config
 		$write_access = $this->writeAccess();
 		$class = get_class($this);
 
-		$o->openSection('HIPO Server Configuration');
+		$o->openSection(translate('hipo_server_configuration'));
 
 			// writing out standard fields, which are not specific to any single job
-			$o->openField('Run on Squiz Server');
+			$o->openField(translate('run_on_squiz_server'));
 			if ($write_access) {
-				combo_box($class.'[SQ_HIPO_USE_SERVER]', Array('1' => 'Yes', '0' => 'No'), false, SQ_HIPO_USE_SERVER);
+				combo_box($class.'[SQ_HIPO_USE_SERVER]', Array('1' => translate('yes'), '0' => translate('no')), false, SQ_HIPO_USE_SERVER);
 			} else {
-				echo (SQ_HIPO_USE_SERVER) ? 'Yes' : 'No';
+				echo (SQ_HIPO_USE_SERVER) ? translate('yes') : translate('no');
 			}
 			$o->closeField();
 
 			// total threshold HIPO config entry
-			$o->openField('Freestyle threshold');
+			$o->openField(translate('hipo_freestyle_threashold'));
 			if ($write_access) {
 				text_box($class.'[SQ_HIPO_TOTAL_THRESHOLD]', SQ_HIPO_TOTAL_THRESHOLD, 5);
 				echo '&nbsp;';
 			} else {
 				echo SQ_HIPO_TOTAL_THRESHOLD;
 			}
-			echo '% of the sum of the queued jobs\' thresholds';
+			echo translate('hipo_threshold_note');
 			$o->closeField();
 
 			// looping through job class files and painting their backends

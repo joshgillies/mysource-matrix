@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: login_design.inc,v 1.12 2005/04/15 00:37:26 lwright Exp $
+* $Id: login_design.inc,v 1.13 2005/05/11 06:04:59 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -109,7 +109,7 @@ class Login_Design extends Design
 		$file_contents = file_to_string($source_dir.'/index.html');
 		if ($file_contents == '') {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			trigger_localised_error("CORE0094", E_USER_WARNING);
+			trigger_localised_error('CORE0094', E_USER_WARNING);
 			return false;
 		}
 
@@ -123,7 +123,7 @@ class Login_Design extends Design
 		$file_contents = str_replace(Array('<MySource', '</MySource'), Array('<'.$ef->tag_name, '</'.$ef->tag_name), $file_contents);
 		if (!string_to_file($file_contents, $parse_file)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			trigger_localised_error("CORE0095", E_USER_WARNING);
+			trigger_localised_error('CORE0095', E_USER_WARNING);
 			return false;
 		}
 
@@ -138,7 +138,7 @@ class Login_Design extends Design
 		if (!$file_exists) {
 			// attempt to add the file to the repository
 			if (!$fv->add($this->data_path_suffix, $parse_file, '', false)) {
-				trigger_localised_error("CORE0025", E_USER_WARNING);
+				trigger_localised_error('CORE0025', E_USER_WARNING);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
@@ -147,7 +147,7 @@ class Login_Design extends Design
 			$file_status = $fv->upToDate($parse_file);
 			if (FUDGE_FV_MODIFIED & $file_status) {
 				if (!$fv->commit($parse_file, '', false)) {
-					trigger_localised_error("CORE0033", E_USER_WARNING);
+					trigger_localised_error('CORE0033', E_USER_WARNING);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return false;
 				}
@@ -156,7 +156,7 @@ class Login_Design extends Design
 
 		// make sure we have the latest version of our file
 		if (!$fv->checkOut($this->data_path_suffix.'/parse.txt', $this->data_path)) {
-			trigger_localised_error("CORE0031", E_USER_WARNING);
+			trigger_localised_error('CORE0031', E_USER_WARNING);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
@@ -171,7 +171,7 @@ class Login_Design extends Design
 				$info['tmp_name'] = $source_dir.'/files/'.$file;
 				$info['non_uploaded_file'] = true;
 				if (!$ef->_processUploadedFile($this, $info)) {
-					trigger_localised_error("CORE0030", E_USER_WARNING, $file);
+					trigger_localised_error('CORE0030', E_USER_WARNING, $file);
 				}
 			}
 			closedir($handle);
@@ -193,14 +193,14 @@ class Login_Design extends Design
 
 		// make ourselves LIVE
 		if (!$this->processStatusChange(SQ_STATUS_LIVE)) {
-			trigger_localised_error("CORE0062", E_USER_WARNING);
+			trigger_localised_error('CORE0062', E_USER_WARNING);
 		}
 
 		// Give public user read permission - we have to do this differently though,
 		// because the system assets list won't have been saved yet
 		$public_userids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('public_user');
 		if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($this->id, $public_userids[0], SQ_PERMISSION_READ, '1')) {
-			trigger_localised_error("CORE0060", E_USER_WARNING);
+			trigger_localised_error('CORE0060', E_USER_WARNING);
 		}
 
 		$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'all');
@@ -213,10 +213,10 @@ class Login_Design extends Design
 				return false;
 			}
 			if (!$dep_asset->processStatusChange(SQ_STATUS_LIVE)) {
-				trigger_localised_error("CORE0061", E_USER_WARNING, $dep_asset->name, $dep_asset->id);
+				trigger_localised_error('CORE0061', E_USER_WARNING, $dep_asset->name, $dep_asset->id);
 			}
 			if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($dep_asset->id, $public_userids[0], SQ_PERMISSION_READ, '1')) {
-				trigger_localised_error("CORE0059", E_USER_WARNING, $dep_asset->name, $dep_asset->id);
+				trigger_localised_error('CORE0059', E_USER_WARNING, $dep_asset->name, $dep_asset->id);
 			}
 			$GLOBALS['SQ_SYSTEM']->am->releaseLock($dep_asset->id, 'permissions');
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($dep_asset);

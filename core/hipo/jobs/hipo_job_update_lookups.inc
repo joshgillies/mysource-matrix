@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_update_lookups.inc,v 1.33 2005/05/04 01:00:58 ndvries Exp $
+* $Id: hipo_job_update_lookups.inc,v 1.34 2005/05/11 06:05:08 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -92,14 +92,14 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 		$write_access = $this->writeAccess();
 
 		// metadata regeneration threshhold HIPO config entry
-		$o->openField('Lookups Updating Threshold');
+		$o->openField(translate('lookups_updating_threshold'));
 
 		if ($write_access) {
 			text_box($class.'[SQ_HIPO_LOOKUPS_THRESHOLD]', SQ_HIPO_LOOKUPS_THRESHOLD, 5);
 		} else {
 			echo SQ_HIPO_LOOKUPS_THRESHOLD;
 		}
-		echo ' assets';
+		echo ' '.translate('assets');
 
 		$o->closeField();
 
@@ -257,12 +257,12 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 
 			if (!is_null($asset)) {
 				if (!$asset->updateLookups()) return false;
-				$step_data['message'] = 'Updating Lookups for "'.$asset->name.'"';
+				$step_data['message'] = translate('hipo_updating_lookups', $asset->name);
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 				unset($asset);
 			} else {
-				$step_data['message'] = 'Skipping asset '.$assetid;
-				$this->_addError('Could not update lookups for asset #'.$assetid.', asset does not exist');
+				$step_data['message'] = translate('hipo_skipping_asset', $assetid);
+				$this->_addError(translate('hipo_cannot_update_lookups', $assetid));
 			}
 
 			// add this assetid to the done array so we dont do it again

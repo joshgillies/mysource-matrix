@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_whats_new.inc,v 1.17 2005/04/29 05:40:32 gsherwood Exp $
+* $Id: page_whats_new.inc,v 1.18 2005/05/11 06:07:33 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../page_templates/page_asset_listing/page_as
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -268,7 +268,7 @@ class Page_Whats_New extends Page_Asset_Listing
 				combo_box($prefix.'_date_range', $names, false, $selected);
 				echo '&nbsp;';
 				$extras = 'var select = document.getElementById("'.$prefix.'_date_range"); document.location.href="'.$url.'?'.$prefix.'_date_range=" + select.selectedIndex;';
-				normal_button($prefix.'_date_range_submit', 'Go', $extras);
+				normal_button($prefix.'_date_range_submit', translate('go'), $extras);
 
 				$replacements['date_range_list'] = ob_get_contents();
 			ob_end_clean();
@@ -317,8 +317,8 @@ class Page_Whats_New extends Page_Asset_Listing
 	function getContentsKeywords()
 	{
 		$keywords = parent::getContentsKeywords();
-		$keywords['date_range_list'] = 'Date Range List';
-		$keywords['date_range_list_linked'] = 'Date Range List Linked';
+		$keywords['date_range_list'] = translate('cms_whats_new_date_range_list');
+		$keywords['date_range_list_linked'] = translate('cms_whats_new_date_range_list_linked');
 
 		return $keywords;
 

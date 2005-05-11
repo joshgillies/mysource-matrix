@@ -1,0 +1,40 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Commercial Module Licence                                |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file is not open source or freely usable and may be    |
+* | used subject to, and only in accordance with, the Squiz Commercial |
+* | Module Licence.                                                    |
+* | Please refer to http://www.squiz.net/licence for more information. |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_strings.xml,v 1.1 2005/05/11 06:07:30 lwright Exp $
+*
+*
+* CMS Package Localised Strings File
+*/
+-->
+<strings>
+<string source="cms_form_view_submission_range">View submissions from %1$s to %2$s</string>
+<string source="cms_form_submissions_during_period">There are <![CDATA[<b>%s</b>]]> submission(s) during the time period specified above - most recent are displayed first</string>
+<string source="cms_form_no_logged_in_user">No logged in user</string>
+<string source="cms_form_download_csv">Comma Separated Values (CSV)</string>
+<string source="cms_form_download_csv_nhr">Comma Separated Values (CSV) - No Header Row</string>
+<string source="cms_form_download_xml">XML Format</string>
+<string source="cms_form_user_submitting">User Submitting Form</string>
+<string source="cms_form_no_selective_email_rules">There are no Selective Email rules yet set up for this form</string>
+<string source="cms_form_rule_no_parts"><![CDATA[<b>WARNING:</b>]]> This rule contains no parts</string>
+<string source="cms_form_staf">Send to a Friend</string>
+<string source="cms_form_recipient">Recipient</string>
+<string source="cms_form_receipt">Receipt</string>
+<string source="cms_form_unknown_email_type">Unknown Email Type</string>
+<string source="cms_form_no_email_address">No Email Address Specified</string>
+<string source="cms_form_select_question_before_part">You must select a question before you can select the type of rule part</string>
+<string source="cms_form_unlock_to_select_se_rule">Unlock the form to select an active Selective Email rule</string>
+<string source="cms_form_select_to_edit_se_rule">Select an active Selective Email rule to edit it</string>
+<string source="cms_form_se_rule_empty">This Selective Email rule is empty</string>
+<string source="cms_form_match_email_line">When %1$s rule parts are matched,<![CDATA[<br/>]]>send a %2$s to %3$s</string>
+</strings>

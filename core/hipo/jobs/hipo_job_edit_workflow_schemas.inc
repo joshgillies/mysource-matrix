@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_workflow_schemas.inc,v 1.28 2005/04/15 00:37:27 lwright Exp $
+* $Id: hipo_job_edit_workflow_schemas.inc,v 1.29 2005/05/11 06:05:07 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to edit workflow schemas
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -111,15 +111,15 @@ class HIPO_Job_Edit_Workflow_Schemas extends HIPO_Job
 		$write_access = $this->writeAccess();
 
 		// metadata regeneration threshhold HIPO config entry
-		$o->openField('Workflow Schemas Threshold');
+		$o->openField(translate('workflow_schemas_threshold'));
 
 		if ($write_access) {
 			text_box($class.'[SQ_HIPO_WORKFLOW_SCHEMAS_THRESHOLD]', SQ_HIPO_WORKFLOW_SCHEMAS_THRESHOLD, 5);
-			echo ' assets';
-			$o->note('Value will be divided by number of affected schemas');
+			echo ' '.translate('assets');
+			$o->note(translate('hipo_value_divided_by_schema'));
 		} else {
 			echo SQ_HIPO_WORKFLOW_SCHEMAS_THRESHOLD;
-			echo ' assets';
+			echo ' '.translate('assets');
 		}
 
 		$o->closeField();
@@ -274,9 +274,9 @@ class HIPO_Job_Edit_Workflow_Schemas extends HIPO_Job
 						// at all - either grant OR deny - for this asset
 						$schemas = $wfm->getSchemas($asset->id, $set_data['granted']);
 						if (isset($schemas[$set_data['schemaid']])) {
-							$new_access     = ($set_data['granted']) ? 'apply' : 'deny';
-							$current_access = ($schemas[$set_data['schemaid']]) ? 'applied' : 'denied';
-							$this->_addError('Could not '.$new_access.' schema "'.$schema_name.'" on "'.$asset->name.'" because this asset already has this schema '.$current_access.'. The current schema setting for "'.$asset->name.'" has been retained.', true);
+							$new_access     = ($set_data['granted']) ? translate('apply') : translate('deny');
+							$current_access = ($schemas[$set_data['schemaid']]) ? translate('applied') : translate('denied');
+							$this->_addError(translate('hipo_cannot_modify_schema', $new_access, $schema_name, $asset->name, $current_access), true);
 							continue;
 						}
 					} else {
@@ -285,9 +285,9 @@ class HIPO_Job_Edit_Workflow_Schemas extends HIPO_Job
 						if (!isset($schemas[$set_data['schemaid']])) {
 							continue;
 						} else if ($schemas[$set_data['schemaid']] != $set_data['previous_access']) {
-							$new_access     = ($set_data['previous_access']) ? 'revoke'  : 'apply';
-							$current_access = ($set_data['previous_access']) ? 'applied' : 'denied';
-							$this->_addError('Could not '.$new_access.' schema "'.$schema_name.'" on "'.$asset->name.'" because this asset already has this schema '.$current_access.'. The current schema setting for "'.$asset->name.'" has been retained.', true);
+							$new_access     = ($set_data['previous_access']) ? translate('revoke')  : translate('apply');
+							$current_access = ($set_data['previous_access']) ? translate('applied') : translate('denied');
+							$this->_addError(translate('hipo_cannot_modify_schema', $new_access, $schema_name, $asset->name, $current_access), true);
 							continue;
 						}
 					}
@@ -307,12 +307,12 @@ class HIPO_Job_Edit_Workflow_Schemas extends HIPO_Job
 					}
 				}
 
-				$step_data['message'] = 'Editing Workflow Schemas for "'.$asset->name.'"';
+				$step_data['message'] = translate('hipo_edit_workflow_schema', $asset->name);
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 				unset($asset);
 			} else {
-				$step_data['message'] = 'Skipping asset '.$assetid;
-				$this->_addError('Could not edit schemas for asset #'.$assetid.', asset does not exist');
+				$step_data['message'] = translate('hipo_skipping_asset', $assetid);
+				$this->_addError(translate('hipo_cannot_edit_schema', $assetid));
 			}
 
 			// add this assetid to the done array so we dont do it again
@@ -386,7 +386,7 @@ class HIPO_Job_Edit_Workflow_Schemas extends HIPO_Job
 
 		$asset_info = &$GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid));
 
-		$step_data['message'] = 'Releasing Lock on '.$asset_info[$assetid]['name'].' and its dependant assets';
+		$step_data['message'] = translate('hipo_release_locks', $asset_info[$assetid]['name']). translate('hipo_release_locks_dependents');
 
 		$GLOBALS['SQ_SYSTEM']->am->releaseLock($assetid, 'all');
 

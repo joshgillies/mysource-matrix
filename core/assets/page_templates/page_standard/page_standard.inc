@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_standard.inc,v 1.9 2005/04/15 00:37:26 lwright Exp $
+* $Id: page_standard.inc,v 1.10 2005/05/11 06:04:54 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -125,7 +125,7 @@ class Page_Standard extends Page
 		// the only reason why we would object to this link being
 		// deleted is if it is the bodycopy linked to us
 		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'major', '', '1', '1');
-		if ($bodycopy_link[0]['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) return 'You cant delete the link between the bodycopy and the standard page';
+		if ($bodycopy_link[0]['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) return translate('core_error_bodycopy_link_cannot_delete');
 
 		return parent::isDeletableLink($linkid);
 
@@ -161,7 +161,7 @@ class Page_Standard extends Page
 
 			$bodycopy = &$this->getBodycopy();
 			if (is_null($bodycopy)) {
-				trigger_localised_error("CORE0016", $this->name.'"', E_USER_ERROR);
+				trigger_localised_error('CORE0016', $this->name.'"', E_USER_ERROR);
 				return false;
 			}
 			$o->addFormActionGetVar('assetid', $bodycopy->id);

@@ -1,0 +1,31 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Commercial Module Licence                                |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file is not open source or freely usable and may be    |
+* | used subject to, and only in accordance with, the Squiz Commercial |
+* | Module Licence.                                                    |
+* | Please refer to http://www.squiz.net/licence for more information. |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_strings.xml,v 1.1 2005/05/11 06:07:31 lwright Exp $
+*
+*
+* CMS Package Localised Strings File
+*/
+-->
+<strings>
+<string source="cms_form_rule_contain_true">Must contain</string>
+<string source="cms_form_rule_contain_false">Must NOT contain</string>
+<string source="cms_form_rule_contain_desc_true_q">The response to "%1$s" must contain the response to question "%2$s"</string>
+<string source="cms_form_rule_contain_desc_false_q">The response to "%1$s" must NOT contain the response to question "%2$s"</string>
+<string source="cms_form_rule_contain_desc_true">The response to "%1$s" must contain "%2$s"</string>
+<string source="cms_form_rule_contain_desc_false">The response to "%1$s" must NOT contain "%2$s"</string>
+<string source="cms_form_rule_contain_edit_true_q">Response must contain the response to question "%s"</string>
+<string source="cms_form_rule_contain_edit_false_q">Response must NOT contain the response to question "%s"</string>
+<string source="cms_form_rule_contain_edit_true">Response must contain "%s"</string>
+<string source="cms_form_rule_contain_edit_false">Response must NOT contain "%s"</string>
+</strings>

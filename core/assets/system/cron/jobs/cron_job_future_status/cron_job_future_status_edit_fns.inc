@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_status_edit_fns.inc,v 1.11 2005/03/17 23:02:15 amiller Exp $
+* $Id: cron_job_future_status_edit_fns.inc,v 1.12 2005/05/11 06:04:57 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -64,14 +64,14 @@ class Cron_Job_Future_Status_Edit_Fns extends Cron_Job_Edit_Fns
 	*/
 	function paintInLineBackend(&$asset, &$o, $prefix, $when='', $form_extra_elements='')
 	{
-		echo 'Set Status to ';
+		echo translate('set_status_to');
 		$descs = $asset->_getAllStatiiDescs();
 		if ($asset->writeAccess('attributes')) {
 			combo_box($prefix.'_status', $descs, false, $asset->attr('status'), null, $form_extra_elements);
 		} else {
 			echo $descs[$asset->attr('status')];
 		}
-		echo ' at ';
+		echo ' '.strtolower(translate('at')).' ';
 		$this->_paintWhenBox($asset, $o, $prefix, $when, $form_extra_elements);
 		return true;
 

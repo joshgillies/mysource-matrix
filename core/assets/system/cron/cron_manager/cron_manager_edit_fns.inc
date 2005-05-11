@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager_edit_fns.inc,v 1.24 2005/04/20 02:04:10 rhoward Exp $
+* $Id: cron_manager_edit_fns.inc,v 1.25 2005/05/11 06:04:57 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -50,15 +50,15 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 
 		$this->static_screens = Array(
 									'details'		=> Array(
-														'name'			=> 'View Jobs',
+														'name'			=> translate('view_jobs'),
 														'force_unlock'	=> true,
 													   ),
 									'permissions'	=> Array(
-														'name'			=> 'Permissions',
+														'name'			=> translate('permissions'),
 														'force_unlock'	=> true,
 													   ),
 									'logs'			=> Array(
-														'name'			=> 'Logs',
+														'name'			=> translate('logs'),
 														'force_unlock'	=> true,
 													   ),
 								);
@@ -146,7 +146,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 		$jobs = &$asset->getJobs('cron_job', false);
 		if (empty($jobs)) {
 			$o->openField('');
-			echo 'No Jobs Registered';
+				$o->note(translate('cron_no_jobs_registered'));
 		} else {
 
 			$whens = Array(
@@ -175,13 +175,13 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 							When
 						</td>
 						<td class="sq-backend-table-header">
-							Details
+							<?php echo translate('details'); ?>
 						</td>
 					<?php
 						if ($asset->writeAccess('links')) {
 						?>
 						<td class="sq-backend-table-header" style="text-align: center;">
-							Delete ?
+							<?php echo translate('delete_question'); ?>
 						</td>
 						<?php
 						}//end if
@@ -198,7 +198,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 							<table border="0" cellspacing="0" cellpadding="0">
 								<tr>
 									<td class="sq-backend-table-cell" style="font-weight: bold; text-align: right;">
-										Name :&nbsp;
+										<?php echo translate('name'); ?> :&nbsp;
 									</td>
 									<td class="sq-backend-table-cell">
 										<?php echo $jobs[$i]->name; ?>
@@ -206,12 +206,12 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 								</tr>
 								<tr>
 									<td class="sq-backend-table-cell" style="font-weight: bold; text-align: right;">
-										Run As :&nbsp;
+										<?php echo translate('run_as'); ?> :&nbsp;
 									</td>
 									<td class="sq-backend-table-cell">
 										<?php
 											$user = &$jobs[$i]->getRunningUser();
-											echo $user->name.' (#'.$user->id.')';
+											echo translate('asset_format', $user->name, $user->id);
 										?>
 									</td>
 								</tr>
@@ -352,7 +352,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 		}//end if
 
 		$attr = &$asset->getAttribute('epoch');
-		echo '<br/>&nbsp;';
+		echo '<br />&nbsp;';
 		$o->note($attr->description);
 
 	}//end paintEpoch()
@@ -424,26 +424,24 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 					<table border="0">
 						<tr>
 							<td class="sq-backend-data">
-								This is only a potential warning brought about because the cron manager has attempted to
-								run <?php echo $asset->attr('warn_after_num_run_checks'); ?> times, but has not been able
-								to. Two potential reasons for this are :
+								<?php echo translate('cron_deadlock_warning_section_1', $asset->attr('warn_after_num_run_checks')); ?>
 								<ol class="sq-backend-data">
-									<li class="sq-backend-data">An existing cron manager instance is currently running an extremely long running job.</li>
-									<li class="sq-backend-data">Some thing has caused the cron manager to exit uncleanly when it was running and the lock wasn't able to be removed.</li>
+									<li class="sq-backend-data"><?php echo translate('cron_deadlock_warning_list_item_1'); ?></li>
+									<li class="sq-backend-data"><?php echo translate('cron_deadlock_warning_list_item_2'); ?></li>
 								</ol>
-								Check the cron error log (in <?php echo '"'.hide_system_root(SQ_LOG_PATH).'/'.$asset->error_log_file_name.SQ_CONF_LOG_EXTENSION.'"'; ?>) for any information
+								<?php echo translate('cron_deadlock_warning_check_error_log', hide_system_root(SQ_LOG_PATH).'/'.$asset->error_log_file_name.SQ_CONF_LOG_EXTENSION); ?>
+								<p class="sq-backend-data"><?php echo translate('cron_deadlock_warning_section_2'); ?></p>
 								<p class="sq-backend-data">
-								To remove the lock flag for the cron manager enter the 25 character string you see
-								below into the box supplied, then press the Commit button
-								</p>
-								<p class="sq-backend-data">
-								<b>ONLY REMOVE THE LOCK IF YOU KNOW FOR CERTAIN THAT THE CRON MANAGER IS NOT RUNNING</b>
+								<b><?php echo translate('cron_deadlock_warning_section_3'); ?></b>
 								</p>
 							</td>
 						</tr>
 						<tr>
 							<td valign="top" class="sq-backend-data">
-								<?php check_box($prefix.'_force_remove_lock'); ?> Force Removal of Lock
+								<?php 
+									check_box($prefix.'_force_remove_lock'); 
+									label(translate('cron_force_lock_removal'));
+								?>
 							</td>
 						</tr>
 						<tr>
@@ -454,15 +452,15 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 					</table>
 					<?php
 				} else {
-					echo 'You must acquire the lock in order resolve this issue';
+					echo translate('cron_deadlock_must_acquire_lock');
 				}
 			} else {
-				echo 'You must contact the root user to resolve this issue';
+				echo translate('cron_deadlock_warning_contact_root');
 			}//end if
 
 		// else everything is OK
 		} else {
-			$o->openField('Cron Manager appears to be fine.', 'new_line');
+			$o->openField(translate('cron_manager_appears_to_be_fine'), 'new_line');
 
 		}//end if run_check
 

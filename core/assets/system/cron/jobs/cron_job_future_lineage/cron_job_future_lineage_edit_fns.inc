@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_lineage_edit_fns.inc,v 1.14 2005/04/14 04:30:25 rhoward Exp $
+* $Id: cron_job_future_lineage_edit_fns.inc,v 1.15 2005/05/11 06:04:57 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -66,19 +66,19 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 		$major = &$asset->getAssetInLink('major');
 		$minor = &$asset->getAssetInLink('minor');
 
-		$o->openSection(($asset->id) ? $asset->name : 'New Future Linking');
-		$o->openField('Delete Link');
+		$o->openSection(($asset->id) ? $asset->name : translate('cron_new_future_linking'));
+		$o->openField(translate('delete_link'));
 		$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($minor->id, SQ_SC_LINK_SIGNIFICANT, '', true, 'minor');
 		$link_options = Array(0 => '');
 		foreach ($links as $link) {
 			$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['major_type_code']);
 			if (is_null($parent)) continue;
-			$link_options[$link['linkid']] = 'Link #'.$link['linkid'].' - Parent : '.$parent->name.' (#'.$parent->id.')';
+			$link_options[$link['linkid']] = translate('link').' #'.$link['linkid'].' - '.translate('parent').' : '.$parent->name.' (#'.$parent->id.')';
 		}
 		combo_box($prefix.'_delete_linkid', $link_options, false, $asset->attr('delete_linkid'));
 
 
-		$o->openField('New Link Type');
+		$o->openField(translate('new_link_type'));
 		$link_info = $asset->attr('link_info');
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 		$editable_link_types = Array(
@@ -89,21 +89,22 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 		combo_box($prefix.'_link_type', $editable_link_types, false, $link_type);
 
 
-		$o->openField('New Link Parent');
+		$o->openField(translate('new_link_parent'));
 		if ($asset->writeAccess('links')) {
 			asset_finder($prefix.'_major_assetid', ((is_null($major)) ? 0 : $major->id), Array(), 'sq_sidenav', false, 'null', Array('clear'));
 		} else {
 			if (is_null($major)) {
-				echo '<a href="'.$major->getBackendHref().'">'.$major->name.' (#'.$major->id.')</a>';
+				echo '<a href="'.$major->getBackendHref().'">'.translate('asset_format', $major->name, $major->id).'</a>';
 			} else {
-				echo 'Not Set';
+				echo translate('not_set');
 			}
 		}
+		$o->closeField();
 
-		$o->openField('At');
+		$o->openField(translate('at'));
 		$this->_paintWhenBox($asset, $o, $prefix);
 		$cron_mgr = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
-		$o->note('The Cron Manager runs every '.$cron_mgr->readableRefreshTime().'.<br>The next time that it will run will be '.$GLOBALS['SQ_SYSTEM']->datetime($cron_mgr->timeOfNextRun()));
+		$o->note(translate('cron_manager_next_run', $cron_mgr->readableRefreshTime(), $GLOBALS['SQ_SYSTEM']->datetime($cron_mgr->timeOfNextRun())));
 
 		$o->closeSection();
 

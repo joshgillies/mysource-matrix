@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_div_edit_fns.inc,v 1.21 2004/12/09 02:56:14 gsherwood Exp $
+* $Id: bodycopy_div_edit_fns.inc,v 1.22 2005/05/11 06:04:49 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy_container/bodycopy_contain
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -216,7 +216,7 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		if (!empty($link)) {
 			$content_type = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($content_type)) {
-				echo 'Content Type Asset Id : #'.$link['minorid'].' not found<br>Please contact your system administrator';
+				echo translate('content_type_not_found', $link['minorid']);
 			} else {
 				$content_edit = &$content_type->getEditFns();
 				$content_prefix = $asset->getPrefix().'_'.get_class($content_type).'_'.$link['linkid'];

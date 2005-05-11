@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section_edit_fns.inc,v 1.35 2005/04/29 05:40:30 gsherwood Exp $
+* $Id: form_section_edit_fns.inc,v 1.36 2005/05/11 06:07:32 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -67,7 +67,7 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 		<script language="JavaScript">
 			function sortOrderMoveDown(currentOrder) {
 			  if (!document.getElementById) {
-				  alert('Browser cannot support script - Get Element By ID is not defined');
+				  alert('<?php echo translate('cms_form_no_getelementbyid') ?>');
 				  return;
 			  }
 			  // move a question up a row
@@ -80,7 +80,7 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 			  if (!nextElement) return;
 
 			  if (!currentElement.innerHTML) {
-				  alert('Browser cannot support script - Inner HTML is not defined');
+				  alert('<?php echo translate('cms_form_no_innerhtml') ?>');
 				  return;
 			  }
 
@@ -114,7 +114,7 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 			function sortOrderMoveUp(currentOrder) {
 			  // move a question up a row
 			  if (!document.getElementById) {
-				  alert('Browser cannot support script - Get Element By ID is not defined');
+				  alert('<?php echo translate('cms_form_no_getelementbyid') ?>');
 				  return;
 			  }
 
@@ -126,7 +126,7 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 			  var prevElement = document.getElementById('<?php echo $prefix ?>_order_o' + (currentOrder - 1));
 
 			  if (!currentElement.innerHTML) {
-				  alert('Browser cannot support script - Inner HTML is not defined');
+				  alert('<?php echo translate('cms_form_no_innerhtml') ?>');
 				  return;
 			  }
 
@@ -158,15 +158,15 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 				<table class="sq-backend-table">
 					<tr>
 						<td class="sq-backend-table-header">
-							Question
+							<?php echo translate('question') ?>
 						</td>
 						<td class="sq-backend-table-header">
-							Type
+							<?php echo translate('type') ?>
 						</td>
 						<?php
 						if ($admin_access) {
-							?><td align="center" width="100" class="sq-backend-table-header" style="font-weight: bold;">Delete ?</td>
-							<td align="center" width="100" class="sq-backend-table-header" style="font-weight: bold;">Move</td>
+							?><td align="center" width="100" class="sq-backend-table-header" style="font-weight: bold;"><?php echo translate('delete_question') ?></td>
+							<td align="center" width="100" class="sq-backend-table-header" style="font-weight: bold;"><?php echo translate('move') ?></td>
 							<?php
 						}
 						?>

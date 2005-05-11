@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_edit_fns.inc,v 1.16 2005/05/03 04:43:07 rhoward Exp $
+* $Id: user_edit_fns.inc,v 1.17 2005/05/11 06:05:05 lwright Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -90,7 +90,7 @@ class User_Edit_Fns extends Asset_Edit_Fns
 		$groups = $this->_getLinkedGroups($asset);
 
 		if (empty($groups)) {
-			echo 'This user is not a member of any user groups; it cannot be restricted';
+			echo translate('user_cannot_be_restricted');
 			return false;
 		}
 
@@ -107,11 +107,17 @@ class User_Edit_Fns extends Asset_Edit_Fns
 
 			check_box($prefix.'_add_group');
 
-			echo 'Add a restriction to group ';
-			combo_box($prefix.'_group_list', $group_menu, false, '');
+			ob_start();
+				combo_box($prefix.'_group_list', $group_menu, false, '');
+				$group_list = ob_get_contents();
+			ob_end_clean();
 
-			echo ' of type ';
-			combo_box($prefix.'_restriction_list', $conditions, false, '');
+			ob_start();
+				combo_box($prefix.'_restriction_list', $conditions, false, '');
+				$restriction_list = ob_get_contents();
+			ob_end_clean();
+			
+			echo translate('add_group_restriction', $group_list, $restriction_list).' ';
 		}
 
 		// get a list of directly linked groups
@@ -128,7 +134,7 @@ class User_Edit_Fns extends Asset_Edit_Fns
 
 			$usergroup =& $GLOBALS['SQ_SYSTEM']->am->getAsset($group_assetid);
 
-			$o->openSection('Group Membership Conditions for "'.$usergroup->name.'" (Id: #'.$usergroup->id.')');
+			$o->openSection(translate('group_membership_restrictions', $usergroup->name, $usergroup->id));
 			$o->openField('');
 
 			//if user has restrictions related to this group
@@ -148,7 +154,7 @@ class User_Edit_Fns extends Asset_Edit_Fns
 					$edit_fns->paintEditInterface($condition,  $o, $condition_prefix, $value, $write_access);
 
 					if ($write_access) {
-						$o->openField('Delete ?');
+						$o->openField(translate('delete_question'));
 						check_box($condition_prefix.'[delete]', '1');
 						$o->closeField();
 					}
@@ -157,7 +163,7 @@ class User_Edit_Fns extends Asset_Edit_Fns
 				}
 
 			} else {
-				echo 'There are no membership conditions set for "'.$usergroup->name.'". This user is always a member of this group.';
+				echo translate('no_membership_conditions', $usergroup->name);
 			}
 
 		}//end foreach $groups
@@ -262,9 +268,9 @@ class User_Edit_Fns extends Asset_Edit_Fns
 				echo $standards_lists_locales[$current_locale];
 			} else if ($current_locale == '') {
 				// add system default to this message when it is determined
-				echo '<i>No locale is set for this user - system default "'.$standards_lists_locales[SQ_CONF_DEFAULT_BACKEND_LOCALE].'" used</i>';
+				echo translate('no_locale_set_for_user', $standards_lists_locales[SQ_CONF_DEFAULT_BACKEND_LOCALE]);
 			} else {
-				echo '<i>Unknown locale "'.$current_locale.'" set</i>';
+				echo translate('unknown_locale', $current_locale);
 			}
 		}
 

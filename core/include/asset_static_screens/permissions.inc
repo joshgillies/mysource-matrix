@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: permissions.inc,v 1.20 2005/04/15 00:37:28 lwright Exp $
+* $Id: permissions.inc,v 1.21 2005/05/11 06:05:11 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Permissions Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix
 */
 
@@ -50,19 +50,19 @@ function paintInlinePermissions(&$owner, &$o, &$ei)
 
 	if (empty($perms)) return false;
 
-	$o->openSection('Permissions');
+	$o->openSection(translate('permissions'));
 		$o->openField('&nbsp;');
 		?>
 			<table class="sq-backend-table">
 				<tr>
 					<td class="sq-backend-table-header">
-					  <?php echo 'User'; ?>
+					  <?php echo translate('user'); ?>
 					</td>
 					<td class="sq-backend-table-header">
-					  <?php echo 'Permission'; ?>
+					  <?php echo translate('permissions'); ?>
 					</td>
 					<td class="sq-backend-table-header" align="right">
-					  <?php echo 'Access'; ?>
+					  <?php echo translate('access'); ?>
 					</td>
 				</tr>
 		<?php
@@ -101,7 +101,7 @@ function paintInlinePermissions(&$owner, &$o, &$ei)
 							<?php echo $title.' Access'?>
 						</td>
 						<td class="sq-backend-table-cell" align="right">
-							<span style="color: <?php echo (($granted == '0') ? 'red' : 'green'); ?>; font-weight:bold;"><?php echo (($granted == '0') ? 'Denied' : 'Granted') ?></span>
+							<span style="color: <?php echo (($granted == '0') ? 'red' : 'green'); ?>; font-weight:bold;"><?php echo (($granted == '0') ? translate('denied') : translate('granted')) ?></span>
 						</td>
 					</tr>
 				<?php
@@ -158,11 +158,11 @@ function paintPermissions(&$owner, &$o, &$ei)
 				<table class="sq-backend-table">
 					<tr>
 						<td class="sq-backend-table-header">
-							<span style="color: <?php echo (($granted == '0') ? 'red' : 'green'); ?>"><?php echo (($granted == '0') ? 'Denied' : 'Granted') ?></span>
+							<span style="color: <?php echo (($granted == '0') ? 'red' : 'green'); ?>"><?php echo (($granted == '0') ? translate('denied') : translate('granted')) ?></span>
 						</td>
 						<?php
 						if ($admin_access) {
-							?><td align="center" width="100" class="sq-backend-table-header" style="font-weight: bold;">Delete ?</td><?php
+							?><td align="center" width="100" class="sq-backend-table-header" style="font-weight: bold;"><?php echo translate('delete_question'); ?></td><?php
 						}
 						?>
 					</tr>
@@ -184,7 +184,7 @@ function paintPermissions(&$owner, &$o, &$ei)
 						<td class="sq-backend-table-cell">
 							<?php
 							if (!$valid_user) {
-								echo ('<span class="sq-backend-warning"><b>Deleted user or user group</b> ['.$userid.']</span>');
+								echo ('<span class="sq-backend-warning"><b>'.translate('deleted_user_or_usergroup').'</b> ['.$userid.']</span>');
 							} else {
 								echo (($userid) ? $user->name.' ['.$user->type().' : '.$userid.']' : 'Public Access');
 							}
@@ -208,7 +208,7 @@ function paintPermissions(&$owner, &$o, &$ei)
 
 		} else {
 			$o->openRaw();
-				echo 'No '.strtolower($title).' access permissions have been set';
+			echo translate('no_access_permissions_set', strtolower($title));
 			$o->closeRaw();
 		}//end if
 
@@ -216,12 +216,12 @@ function paintPermissions(&$owner, &$o, &$ei)
 			$o->openField('New ?', 'new_line');
 				// if Public Access isn't set
 				if (!isset($direct['0'])) {
-					combo_box($prefix.'_permissions['.$perm.'][public_access][granted]', Array('' => '', '1' => 'Grant', '0' => 'Deny'), false, '');
-					echo ' Public Access<br/>';
+					combo_box($prefix.'_permissions['.$perm.'][public_access][granted]', Array('' => '', '1' => translate('grant'), '0' => translate('deny')), false, '');
+					echo ' '.translate('public_access').'<br/>';
 				}
 
-				combo_box($prefix.'_permissions['.$perm.'][new][granted]', Array('' => '', '1' => 'Grant', '0' => 'Deny'), false, '');
-				echo ' Specific Access ';
+				combo_box($prefix.'_permissions['.$perm.'][new][granted]', Array('' => '', '1' => translate('grant'), '0' => translate('deny')), false, '');
+				echo ' '.translate('specific_access').' ';
 				asset_finder($prefix.'_permissions['.$perm.'][new][userid]', 0, Array('user' => 'D', 'user_group' => 'D'));
 			$o->closeField();
 		}//end if
@@ -232,29 +232,23 @@ function paintPermissions(&$owner, &$o, &$ei)
 	if ($admin_access) {
 		$kiddies = $GLOBALS['SQ_SYSTEM']->am->getChildren($owner->id);
 		if (count($kiddies)) {
-			$o->openSection('Cascade Permission Changes?');
-				$o->openField('Note');
-					?>
-					If you choose to cascade the changes to permissions you make on "<?php echo $owner->name; ?>", the changes will also be made on all assets that fall under "<?php echo $owner->name; ?>" in the various hierarchies in which it exists. This will affect <?php echo count($kiddies); ?> other assets.
-					<?php
+			$o->openSection(translate('cascade_permission_changes'));
+				$o->openField(translate('note'));
+					$o->note(translate('cascade_permissions_note', $owner->name, count($kiddies)));
 				$o->closeField();
 				$o->openField('&nbsp;');
 					check_box($prefix.'_permissions[cascade_changes]', '1', true);
-					echo ' Yes, cascade permission changes';
+					label(translate('cascade_permissions'), $prefix.'_permissions[cascade_changes]');
 				$o->closeField();
 			$o->closeSection();
 
-			$o->openSection('Manually Cascade Permissions?');
-				$o->openField('Note');
-					?>
-					Manually cascading permissions will try to set the current permissions of "<?php echo $owner->name; ?>" on all assets that fall under "<?php echo $owner->name; ?>" in the various hierarchies in which it exists. This will affect <?php echo count($kiddies); ?> other assets.<br/>
-					<i>Any additional permissions set on affected assets will <b>not</b> be removed during a manual cascade. Any permissions set on affected assets that conflict with ones set on "<?php echo $owner->name; ?>" will also <b>not</b> be changed.</i><br/>
-					<b>NB. If you select to manually cascade, any permission changes you make will also cascade even if you do not select them to. Use the option on its own for more predicatable results.</b>
-					<?php
+			$o->openSection(translate('manually_cascade_permissions'));
+				$o->openField(translate('note'));
+					$o->note(translate('manually_cascade_permissions_note', $owner->name, count($kiddies)));
 				$o->closeField();
 				$o->openField('&nbsp;');
 					check_box($prefix.'_permissions[manual_cascade]');
-					echo ' Manually cascade permissions';
+					label(translate('manually_cascade_permissions_option'), $prefix.'_permissions[manual_cascade]');
 				$o->closeField();
 			$o->closeSection();
 		}
@@ -279,7 +273,7 @@ function processPermissions(&$owner, &$o, &$ei)
 {
 	// if we dont have admin access, go away
 	if ($owner->id && !$owner->adminAccess('')) {
-		$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to edit the permissions for <i>'.$owner->name.'</i>');
+		$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $owner->name));
 		exit();
 	}
 

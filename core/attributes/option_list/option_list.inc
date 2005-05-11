@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: option_list.inc,v 1.15 2005/04/07 02:48:35 lwright Exp $
+* $Id: option_list.inc,v 1.16 2005/05/11 06:05:07 lwright Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *    <option_list />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -89,6 +89,7 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 
 			}
 
+		//TODO: TRANSLATE: more js stuff here
 		?>
 
 		<script language="Javascript">

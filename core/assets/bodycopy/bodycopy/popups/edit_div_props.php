@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit_div_props.php,v 1.12 2005/01/20 13:07:31 brobertson Exp $
+* $Id: edit_div_props.php,v 1.13 2005/05/11 06:04:49 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -90,7 +90,7 @@ include(dirname(__FILE__)."/header.php");
 <div class="title">
 	<table border="0" cellspacing="0" cellpadding="0"  width="100%">
 		<tr>
-			<td class="title" align="left">DIV Properties</td>
+			<td class="title" align="left"><?php echo translate('div_properties'); ?></td>
 		</tr>
 	</table>
 </div>
@@ -104,29 +104,29 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 	<tr>
 		<td>
 		<fieldset>
-			<legend><b>Identification</b></legend>
+			<legend><b><?php echo translate('identification'); ?></b></legend>
 			<table style="width:100%">
 				<tr>
-					<td class="label">Name:</td>
+					<td class="label"><?php echo translate('name'); ?>:</td>
 					<td><input type="text" name="identifier" value="" size="15"></td>
 				</tr>
 			</table>
 		</fieldset>
 		<fieldset>
-			<legend><b>Style Information</b></legend>
+			<legend><b><?php echo translate('style_information'); ?></b></legend>
 			<table style="width:100%">
 				<tr>
-					<td class="bodycopy-popup-heading">Presentation:</td>
+					<td class="bodycopy-popup-heading"><?php echo translate('presentation'); ?>:</td>
 					<td>
 						<select name="layout_type">
-							<option value="div" >Block-level</option>
-							<option value="span">Inline</option>
-							<option value="none">Raw HTML</option>
+							<option value="div" ><?php echo translate('block-level'); ?></option>
+							<option value="span"><?php echo translate('inline'); ?></option>
+							<option value="none"><?php echo translate('raw_html'); ?></option>
 						</select>
 					</td>
 				</tr>
 				<tr>
-					<td class="label">Class:</td>
+					<td class="label"><?php echo translate('class'); ?>:</td>
 					<td><input type="text" name="css_class" value="" size="15"></td>
 				</tr>
 			</table>
@@ -136,10 +136,10 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 	<tr>
 		<td>
 			<fieldset>
-			<legend><b>Content Type</b></legend>
+			<legend><b><?php echo translate('content_type'); ?></b></legend>
 			<table style="width:100%">
 				<tr>
-					<td class="label">Content Type:</td>
+					<td class="label"><?php echo translate('content_type'); ?>:</td>
 					<td>
 					<select name="content_type">
 						<option value="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</option>
@@ -149,7 +149,7 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 					</td>
 				</tr>
 				<tr>
-					<td class="label">Disable Keywords:</td>
+					<td class="label"><?php echo translate('disable_keywords'); ?>:</td>
 					<td><input type="checkbox" name="disable_keywords" value="1"></td>
 				</tr>
 			</table>
@@ -159,10 +159,10 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 	<tr>
 		<td>
 			<fieldset>
-			<legend><b>Delete This Div</b></legend>
+			<legend><b><?php echo translate('delete_this_div'); ?></b></legend>
 			<table>
 				<tr>
-					<td class="label">Click Icon to Delete:</td>
+					<td class="label"><?php echo translate('click_icon_to_delete'); ?>:</td>
 					<td><a href="javascript: owner.bodycopy_delete_div(document.main_form.bodycopy_name.value, document.main_form.divid.value);" style="cursor: pointer;" ><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('data')?>/asset_types/bodycopy/images/icons/delete.png", "16", "16", "Delete this DIV");</script></a>
 					</td>
 				</tr>
@@ -173,9 +173,9 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 	<tr>
 		<td>
 		<div style="text-align: center;">
-		<button type="button" name="ok" onClick="javascript: popup_save(this.form)">OK</button>
+		<button type="button" name="ok" onClick="javascript: popup_save(this.form)"><?php echo translate('ok'); ?></button>
 		&nbsp;
-		<button type="button" name="cancel" onClick="javascript: popup_close();">Cancel</button>
+		<button type="button" name="cancel" onClick="javascript: popup_close();"><?php echo translate('cancel'); ?></button>
 		</div>
 		</td>
 	</tr>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css_customisation_edit_fns.inc,v 1.7 2005/04/15 00:37:25 lwright Exp $
+* $Id: design_css_customisation_edit_fns.inc,v 1.8 2005/05/11 06:04:51 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_css/design_css_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -68,7 +68,7 @@ class Design_Css_Customisation_Edit_Fns extends Design_Css_Edit_Fns
 		if (empty($customised_areas)) {
 			?> No Design Areas are customised yet. <?php
 		} else {
-			$this->_paintDesignAreaList($customised_areas, 'Remove Customisation ?', $prefix.'_remove_customisation', $asset->writeAccess('links'), true, true);
+			$this->_paintDesignAreaList($customised_areas, translate('core_remove_customisation_question'), $prefix.'_remove_customisation', $asset->writeAccess('links'), true, true);
 		}
 
 	}//end paintCustomisedDesignAreas()
@@ -129,7 +129,7 @@ class Design_Css_Customisation_Edit_Fns extends Design_Css_Edit_Fns
 		if (empty($uncustomised_areas)) {
 			?> All Design Areas have been customised. <?php
 		} else {
-			$this->_paintDesignAreaList($uncustomised_areas, 'Customise ?', $prefix.'_customise', $asset->writeAccess('links'));
+			$this->_paintDesignAreaList($uncustomised_areas, translate('core_customise_question'), $prefix.'_customise', $asset->writeAccess('links'));
 		}
 
 	}//end paintUnCustomisedDesignAreas()
@@ -294,8 +294,8 @@ class Design_Css_Customisation_Edit_Fns extends Design_Css_Edit_Fns
 		?>
 		<table cellspacing="2" cellpadding="2" border="0" width="100%">
 			<tr>
-				<td class="sq-backend-data" width="25%"><b>Type</b></td>
-				<td class="sq-backend-data" width="25%"><b>Design Area</b></td>
+				<td class="sq-backend-data" width="25%"><b><?php echo translate('type'); ?></b></td>
+				<td class="sq-backend-data" width="25%"><b><?php echo translate('core_design_area'); ?></b></td>
 			<?php if ($write_access) { ?>
 				<td class="sq-backend-data" width="25%" style="text-align: center;"><b><?php echo $check_box_col; ?></b></td>
 			<?php }// end if ?>
@@ -308,14 +308,14 @@ class Design_Css_Customisation_Edit_Fns extends Design_Css_Edit_Fns
 			$da = &$am->getAsset($link['minorid'], $link['minor_type_code']);
 
 			if ($da->attr('id_name') == '') {
-				trigger_localised_error("CORE0154", E_USER_NOTICE, $da->id);
+				trigger_localised_error('CORE0154', E_USER_NOTICE, $da->id);
 				foreach ($links as $link) {
 					if ($link['minorid'] == $da->id) {
 						if (!empty($link['value'])) {
 							$da->setAttrValue('id_name', $link['value']);
 							$da->saveAttributes();
 						} else {
-							trigger_localised_error("CORE0149", $da->id, E_USER_WARNING);
+							trigger_localised_error('CORE0149', E_USER_WARNING, $da->id);
 						}
 						break;
 					}

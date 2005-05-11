@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_trigger_batch_events.inc,v 1.7 2005/04/15 00:37:27 lwright Exp $
+* $Id: hipo_job_trigger_batch_events.inc,v 1.8 2005/05/11 06:05:08 lwright Exp $
 *
 */
 
@@ -37,7 +37,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -96,7 +96,7 @@ class HIPO_Job_Trigger_Batch_Events extends HIPO_Job
 		$write_access = $this->writeAccess();
 
 		// threshhold HIPO config entry
-		$o->openField('Trigger Execution Threshold');
+		$o->openField(translate('trigger_execution_threshold'));
 
 		if ($write_access) {
 			text_box($class.'[SQ_HIPO_TRIGGER_BATCH_EVENTS_THRESHOLD]', SQ_HIPO_TRIGGER_BATCH_EVENTS_THRESHOLD, 0);
@@ -230,7 +230,7 @@ class HIPO_Job_Trigger_Batch_Events extends HIPO_Job
 		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['current_assetid']);
 		$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent($current_event, $asset);
 
-		$step_data['message'] = 'Broadcasting Event '.$current_event.' from Asset #'.$this->_running_vars['current_assetid'];
+		$step_data['message'] = translate('hipo_broadcast_event', $current_event, $this->_running_vars['current_assetid']);
 		$step_data['percent_done'] += $this->_running_vars['step_value'];
 		$step_data['complete']     = false;
 

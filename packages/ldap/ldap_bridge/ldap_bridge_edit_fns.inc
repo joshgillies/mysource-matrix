@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge_edit_fns.inc,v 1.16 2005/04/29 05:38:57 gsherwood Exp $
+* $Id: ldap_bridge_edit_fns.inc,v 1.17 2005/05/11 06:07:42 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -95,9 +95,9 @@ class LDAP_Bridge_Edit_Fns extends Asset_Edit_Fns
 		$conn = @$asset->connectToLdap();
 		if (is_null($conn->ptr)) {
 			// the conncection failed
-			echo '<span style="color: red"><b>Unable to connect</b></span>';
+			echo '<span style="color: red"><b>'.translate('ldap_unable_to_connect').'</b></span>';
 		} else {
-			echo '<span style="color: green"><b>Connected</b></span>';
+			echo '<span style="color: green"><b>'.translate('ldap_connected').'</b></span>';
 		}
 
 
@@ -138,13 +138,13 @@ class LDAP_Bridge_Edit_Fns extends Asset_Edit_Fns
 		$write_access = $asset->writeAccess('attributes');
 
 		$current = $asset->attr('attributes');
-		$required = Array('uid'   => 'User ID',
-						  'cn'    => 'Common Name',
-						  'fn'    => 'First Name',
-						  'sn'    => 'Last Name',
-						  'email' => 'Email Address',
-						  'mo'    => 'Group Membership',
-						  'ou'    => 'Group Name',
+		$required = Array('uid'   => translate('ldap_user_id'),
+						  'cn'    => translate('ldap_common_name'),
+						  'fn'    => translate('ldap_first_name'),
+						  'sn'    => translate('ldap_last_name'),
+						  'email' => translate('ldap_email_address'),
+						  'mo'    => translate('ldap_group_membership'),
+						  'ou'    => translate('ldap_group_name'),
 						);
 
 		if ($write_access) require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -219,10 +219,10 @@ class LDAP_Bridge_Edit_Fns extends Asset_Edit_Fns
 		?>
 		<table class="sq-backend-table">
 			<tr>
-				<td class="sq-backend-table-header">LDAP Attribute Name</td>
-				<td class="sq-backend-table-header">Common Name</td>
-				<td class="sq-backend-table-header">Display ?</td>
-				<td class="sq-backend-table-header">Use for Sorting ?</td>
+				<td class="sq-backend-table-header"><?php echo translate('ldap_attribute_name'); ?></td>
+				<td class="sq-backend-table-header"><?php echo translate('ldap_common_name'); ?></td>
+				<td class="sq-backend-table-header"><?php echo translate('display_question'); ?></td>
+				<td class="sq-backend-table-header"><?php echo translate('ldap_use_for_sorting_question'); ?></td>
 			</tr>
 		<?php
 
@@ -252,7 +252,7 @@ class LDAP_Bridge_Edit_Fns extends Asset_Edit_Fns
 					if ($write_access) {
 						check_box($prefix.'_user_attribute_fields['.$field_name.'][show]', 1, $show);
 					} else {
-						echo ($show) ? 'Yes' : '';
+						echo ($show) ? translate('yes') : '';
 					}
 					?>
 				</td>
@@ -261,7 +261,7 @@ class LDAP_Bridge_Edit_Fns extends Asset_Edit_Fns
 					if ($write_access) {
 						radio_button($prefix.'_sort_by', $field_name, ($field_name == $sort_by));
 					} else {
-						echo ($sort_by == $field_name) ? 'Yes' : '';
+						echo ($sort_by == $field_name) ? translate('yes') : '';
 					}
 					?>
 				</td>

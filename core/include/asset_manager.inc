@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.308 2005/05/10 15:26:43 gnoel Exp $
+* $Id: asset_manager.inc,v 1.309 2005/05/11 06:05:10 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.308 $
+* @version $Revision: 1.309 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3474,31 +3474,31 @@ class Asset_Manager extends MySource_Object
 
 		// parent position type must be numeric
 		if (!is_numeric($to_parent_pos)) {
-			trigger_localised_error("SYS0227", E_USER_WARNING);
+			trigger_localised_error('SYS0227', E_USER_WARNING);
 			return 0;
 		}
 
 		$new_parent = &$this->getAsset($to_parentid, '', true);
 		if (is_null($new_parent)) {
-			trigger_localised_error("SYS0224", E_USER_WARNING, $to_parentid);
+			trigger_localised_error('SYS0224', E_USER_WARNING, $to_parentid);
 			return 0;
 		}
 
 		// cant link to the new parent if it is in the trash
 		if ($this->assetInTrash($new_parent->id, true)) {
-			trigger_localised_error("SYS0223", E_USER_WARNING, $new_parent->id);
+			trigger_localised_error('SYS0223', E_USER_WARNING, $new_parent->id);
 			return 0;
 		}
 
 		// if you dont have write access to this asset you cant delete any links
 		if (!$old_parent->writeAccess('')) {
-			trigger_localised_error("SYS0229", E_USER_WARNING, $old_parent->name);
+			trigger_localised_error('SYS0229', E_USER_WARNING, $old_parent->name);
 			return 0;
 		}
 
 		// if you dont have write access to the new parent asset you cant create any links
 		if (!$new_parent->writeAccess('')) {
-			trigger_localised_error("SYS0228", E_USER_WARNING, $new_parent->name);
+			trigger_localised_error('SYS0228', E_USER_WARNING, $new_parent->name);
 			return 0;
 		}
 

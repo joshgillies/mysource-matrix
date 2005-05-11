@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_edit_fns.inc,v 1.48 2005/05/03 04:09:05 ndvries Exp $
+* $Id: search_page_edit_fns.inc,v 1.49 2005/05/11 06:07:48 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine_edit_fns.inc';
 *     Edit functions for search page
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.48 $
+* @version $Revision: 1.49 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -77,7 +77,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 			if (!is_null($root_asset)) {
 				echo $root_asset->name . ' (Id: #' . $root_asset->id . ')';
 			} else {
-				echo 'No root node has been selected';
+				echo translate('sch_no_root_node_selected');
 			}
 		} else {
 			asset_finder($prefix.'_rootid', (!empty($root_link)) ? $root_link['minorid'] : '');
@@ -186,7 +186,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 			combo_box($prefix.'_statuses', $options, true, $current);
 		} else {
 			if (empty($current)) {
-				echo 'No statuses are selected. Only LIVE assets will be searched.';
+				echo translate('sch_page_no_status_selected');
 			} else {
 				echo '<ul>';
 				foreach ($current as $status) {
@@ -246,25 +246,25 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 		$fields = $asset->attr('fields');
 
 		$query_types = Array(
-						'include_all'	=> 'Include all',
-						'exclude'		=> 'Exclude',
-						'asset_attrib'	=> 'Asset attribute',
-						'asset_date'	=> 'Asset date',
-						'metadata'		=> 'Metadata',
+							 'include_all'  => ucfirst(translate('include_all')),
+							 'exclude'      => ucfirst(translate('exclude')),
+							 'asset_attrib' => ucfirst(translate('asset_attribute')),
+							 'asset_date'   => ucfirst(translate('asset_date')),
+							 'metadata'     => ucfirst(translate('metadata')),
 					   );
 
 		$i = 0;
 
-		$o->openSection('Standard Search Fields');
+		$o->openSection(translate('sch_page_standard_search_fields'));
 		$o->openField('');
 		?>
 		<table class="sq-backend-table">
 			<tr>
-				<td class="sq-backend-table-header" style="width: 200px;">Name</td>
-				<td class="sq-backend-table-header">Type</td>
+				<td class="sq-backend-table-header" style="width: 200px;"><?php echo translate('name') ?></td>
+				<td class="sq-backend-table-header"><?php echo translate('type') ?></td>
 				<?php
 				if ($write_access) {
-					?><td class="sq-backend-table-header" style="width: 200px;">Delete ?</td><?php
+					?><td class="sq-backend-table-header" style="width: 200px;"><?php echo translate('delete_question') ?></td><?php
 				}
 				?>
 			</tr>
@@ -307,18 +307,18 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 
 		$o->closeField();
 		$o->closeSection();
-		$o->openSection('Attribute Search Fields');
+		$o->openSection(translate('sch_page_attribute_search_fields'));
 		$o->openField('');
 
 		?>
 		<table class="sq-backend-table">
 			<tr>
-				<td class="sq-backend-table-header" style="width: 200px;">Name</td>
-				<td class="sq-backend-table-header">Asset Type</td>
-				<td class="sq-backend-table-header">Attribute</td>
+				<td class="sq-backend-table-header" style="width: 200px;"><?php echo ucfirst(translate('name')); ?></td>
+				<td class="sq-backend-table-header"><?php echo ucwords(translate('asset_type')); ?></td>
+				<td class="sq-backend-table-header"><?php echo ucfirst(translate('attribute')); ?></td>
 				<?php
 				if ($write_access) {
-					?><td class="sq-backend-table-header" style="width: 200px;">Delete ?</td><?php
+					?><td class="sq-backend-table-header" style="width: 200px;"><?php echo translate('delete_question'); ?></td><?php
 				}
 				?>
 			</tr>
@@ -371,7 +371,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 							$asset_type_attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($search_type, Array('attrid', 'name'));
 
 							if ($write_access) {
-								$type_attrs = Array('' => '- attribute -');
+								$type_attrs = Array('' => '-- '.translate('select_attribute').' --');
 								foreach ($asset_type_attrs as $attr_id => $attr_name) {
 									$type_attrs[$attr_id] = $attr_name;
 								}
@@ -405,17 +405,17 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 
 		$o->closeField();
 		$o->closeSection();
-		$o->openSection('Asset Date Search Fields');
+		$o->openSection(translate('sch_page_asset_date_search_fields'));
 		$o->openField('');
 
 		?>
 		<table class="sq-backend-table">
 			<tr>
-				<td class="sq-backend-table-header" style="width: 200px;">Name</td>
-				<td class="sq-backend-table-header">Date Type</td>
+				<td class="sq-backend-table-header" style="width: 200px;"><?php echo ucfirst(translate('name')); ?></td>
+				<td class="sq-backend-table-header"><?php echo ucwords(translate('date_type')) ?></td>
 				<?php
 				if ($write_access) {
-					?><td class="sq-backend-table-header" style="width: 200px;">Delete ?</td><?php
+					?><td class="sq-backend-table-header" style="width: 200px;"><?php echo translate('delete_question') ?></td><?php
 				}
 				?>
 			</tr>
@@ -439,10 +439,10 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 							$field_data['params'] = Array();
 						}
 						$date_types = Array(
-										''			=> '-- select date --',
-										'created'	=> 'Created',
-										'updated'	=> 'Updated',
-										'published'	=> 'Published',
+											''          => '-- '.translate('select_date').' --',
+											'created'   => translate('created'),
+											'updated'   => translate('updated'),
+											'published' => translate('published'),
 									  );
 
 						$date_type = array_get_index($field_data['params'], 'date_type', '');
@@ -476,17 +476,17 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 
 		$o->closeField();
 		$o->closeSection();
-		$o->openSection('Metadata Search Fields');
+		$o->openSection(translate('sch_page_metadata_search_fields'));
 		$o->openField('');
 
 		?>
 		<table class="sq-backend-table">
 			<tr>
-				<td class="sq-backend-table-header" style="width: 200px;">Name</td>
-				<td class="sq-backend-table-header">Metadata Field</td>
+				<td class="sq-backend-table-header" style="width: 200px;"><?php echo translate('name') ?></td>
+				<td class="sq-backend-table-header"><?php echo translate('metadata_field') ?></td>
 				<?php
 				if ($write_access) {
-					?><td class="sq-backend-table-header" style="width: 200px;">Delete ?</td><?php
+					?><td class="sq-backend-table-header" style="width: 200px;"><?php echo translate('delete_question') ?></td><?php
 				}
 				?>
 			</tr>
@@ -519,10 +519,10 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 								if (!is_null($metadata_field)) {
 									echo $field_asset->name.' #'.$field_asset->id;
 								} else {
-									echo 'No metadata field specified';
+									echo translate('sch_page_no_metadata_field_specified');
 								}
 							} else {
-								echo 'No metadata field specified';
+								echo translate('sch_page_no_metadata_field_specified');
 							}
 						}
 						?>
@@ -553,7 +553,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 		if ($asset->writeAccess('attributes')) {
 			$o->closeField();
 			$i++;
-			$o->openField('Add Field');
+			$o->openField(translate('add_field'));
 				echo 'Name: ';
 				text_box($prefix.'_fields['.$i.'][name]', '', 15);
 				echo ' Type: ';
@@ -717,9 +717,9 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 
 		$options = Array();
 		if ($write_access) {
-			$options[''] = '-- add new category --';
+			$options[''] = '-- '.translate('sch_page_add_new_category').'--';
 		} else {
-			$options[''] = '-- select a category --';
+			$options[''] = '-- '.translate('sch_page_select_category').' --';
 		}
 
 		foreach ($categories as $name => $data) {
@@ -728,10 +728,10 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 		}
 		combo_box($prefix.'_select_category', $options, false, $selected);
 		$o->addFormActionGetVar($prefix.'_category', $selected, true);
-		submit_button($prefix.'_go', 'Go');
+		submit_button($prefix.'_go', translate('go'));
 
 		if (isset($_REQUEST[$prefix.'_select_category']) && !empty($_REQUEST[$prefix.'_select_category'])) {
-			echo '<br/><br/><b>Currently customising '.$options[$_REQUEST[$prefix.'_select_category']].'</b>';
+			echo '<br/><br/><b>'.translate('sch_page_currently_customising', $options[$_REQUEST[$prefix.'_select_category']]).'</b>';
 		}
 
 		return false;
@@ -791,36 +791,39 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 			$o->closeField();
 
 			if ($write_access) {
-				$o->openField('Delete ?');
+				$o->openField(translate('delete_question'));
 					check_box($prefix.'_delete_category');
-					echo 'Delete this category';
+					echo translate('sch_page_delete_this_category');
 				$o->closeField();
 			}
 
-			$o->openSection('Category Specific Search Settings');
+			$o->openSection(translate('sch_page_category_specific_search_settings'));
 				$o->openField('Root Asset');
 					$using_default = !isset($categories[$selected]['root_assetid']);
 					if ($using_default) {
-						echo 'Currently using default root node <b>';
+						echo translate('sch_page_currently_using_default_root').' <b>';
 					}
+
 					$category = ($using_default) ? '' : $selected;
 					$this->paintRootAsset($asset, $o, $prefix, $category, $using_default);
-					if ($using_default) echo '</b>';
+					if ($using_default) {
+						echo '</b>';
+					}
 
 					if ($write_access) {
 						check_box($prefix.'_default_root_assetid', '1', $using_default);
-						echo ' Use default';
+						echo ' '.translate('use_default');
 					}
 				$o->closeField();
 
-				$o->openField('Search Statuses');
+				$o->openField(translate('sch_page_search_statuses'));
 					$using_default = !isset($categories[$selected]['search_status']);
 					if ($write_access) {
 						check_box($prefix.'_default_search_status', '1', $using_default);
-						echo ' Use default<br />';
+						echo ' '.translate('use_default').'<br />';
 					}
 					if ($using_default) {
-						echo 'Currently using default stauses of';
+						echo translate('sch_page_currently_using_default_status');
 					}
 					$category = ($using_default) ? '' : $selected;
 					$this->paintStatus($asset, $o, $prefix, $category, $using_default);
@@ -831,7 +834,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 			if ($write_access) {
 				text_box($prefix.'_category_name', '', 50);
 			} else {
-				echo 'Please select a search category above to customise';
+				echo translate('sch_page_select_category_to_customise');
 			}
 
 		}//end if !empty()
@@ -992,11 +995,11 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 		?>
 			<table>
 				<tr>
-					<td>Customise search form</td>
+					<td><?php echo translate('sch_page_customise_search_form') ?></td>
 					<td>
 						<?php
 							if (!$write_access) {
-								echo ($search_customised) ? 'Yes' : 'No';
+								echo ($search_customised) ? translate('yes') : translate('no');
 							} else {
 								check_box($prefix.'_search_form', 1, $search_customised);
 							}
@@ -1004,11 +1007,11 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 					</td>
 				</tr>
 				<tr>
-					<td>Customise search within search form</td>
+					<td><?php echo translate('sch_page_customise_sis_form') ?></td>
 					<td>
 						<?php
 							if (!$write_access) {
-								echo ($sis_customised) ? 'Yes' : 'No';
+								echo ($sis_customised) ? translate('yes') : translate('no');
 							} else {
 								check_box($prefix.'_sis_form', 1, $sis_customised);
 							}
@@ -1038,8 +1041,8 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 		$format_folder = &$asset->getFormatFolder();
 
 		$forms = Array(
-					'Default Search'	=> 'search_form',
-					'Search In Search'	=> 'sis_form',
+						translate('sch_page_default_search')	=> 'search_form',
+						translate('sch_page_sis')				=> 'sis_form',
 				 );
 
 		$bodycopies_visible = false;
@@ -1079,7 +1082,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 
 					if (!$bodycopy->create($copy_link)) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-						trigger_error('Could not create the '.$form_name.' bodycopy', E_USER_WARNING);
+						trigger_localised_error('SCH0014', E_USER_WARNING, $form_name);
 						return false;
 					}
 					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -1150,7 +1153,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 			if (!is_null($root_asset)) {
 				echo $root_asset->name . ' (Id: #' . $root_asset->id . ')';
 			} else {
-				echo 'No thesaurus asset has been selected';
+				echo translate('sch_page_no_thesaurus_asset_selected');
 			}
 		} else {
 			asset_finder($prefix.'_thesaurusid', (!empty($root_link)) ? $root_link['minorid'] : '', Array('thesaurus' => 'D'));
@@ -1225,7 +1228,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 	function _getSortByOptions(&$asset)
 	{
 		$options = parent::_getSortByOptions($asset);
-		$options[''] = 'Relevance';
+		$options[''] = translate('sch_page_relevance');
 		return $options;
 
 	}//end _getSortByOptions()

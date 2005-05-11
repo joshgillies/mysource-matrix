@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_acquire_locks.inc,v 1.11 2005/04/15 00:37:27 lwright Exp $
+* $Id: hipo_job_acquire_locks.inc,v 1.12 2005/05/11 06:05:07 lwright Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -95,14 +95,14 @@ class HIPO_Job_Acquire_Locks extends HIPO_Job
 		$write_access = $this->writeAccess();
 
 		// metadata regeneration threshhold HIPO config entry
-		$o->openField('Acquire Lock Threshold');
+		$o->openField(translate('acquire_lock_threshold'));
 
 		if ($write_access) {
 			text_box($class.'[SQ_HIPO_ACQUIRE_LOCK_THRESHOLD]', SQ_HIPO_ACQUIRE_LOCK_THRESHOLD, 5);
 		} else {
 			echo SQ_HIPO_ACQUIRE_LOCK_THRESHOLD;
 		}
-		echo ' assets';
+		echo ' '.translate('assets');
 
 		$o->closeField();
 
@@ -319,12 +319,12 @@ class HIPO_Job_Acquire_Locks extends HIPO_Job
 				foreach ($this->_running_vars['lock_types'][$parent_assetid] as $lock_type) {
 					$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, $lock_type, $parent_assetid, $this->_running_vars['forceably_acquire']);
 				}
-				$step_data['message'] = 'Acquiring Lock on "'.$asset->name.'"';
+				$step_data['message'] = translate('hipo_acquire_lock', $asset->name);
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 				unset($asset);
 			} else {
-				$step_data['message'] = 'Skipping asset '.$assetid;
-				$this->_addError('Could not Acquire Lock for asset #'.$assetid.', asset does not exist');
+				$step_data['message'] = translate('hipo_skipping_asset', $assetid);
+				$this->_addError(translate('hipo_asset_not_exist', $assetid));
 			}
 
 			// add this assetid to the done array so we dont do it again

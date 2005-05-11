@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_width.inc,v 1.6 2005/01/20 13:10:34 brobertson Exp $
+* $Id: html_width.inc,v 1.7 2005/05/11 06:05:06 lwright Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *    <html_width />
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -88,7 +88,7 @@ class Asset_Attribute_HTML_Width extends Asset_Attribute
 		$is_pct = (strpos($this->value, '%') !== false);
 
 		if ($read_only) {
-			echo (int) $this->value.($is_pct ? ' Percent' : ' Pixels');
+			echo (int) $this->value.($is_pct ? ' '.translate('percent') : ' '.translate('pixels'));
 			return;
 		}
 

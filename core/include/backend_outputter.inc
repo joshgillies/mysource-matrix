@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.105 2005/05/06 05:27:36 tbarrett Exp $
+* $Id: backend_outputter.inc,v 1.106 2005/05/11 06:05:10 lwright Exp $
 *
 */
 
@@ -42,7 +42,7 @@ define('SQ_BO_MSG_ERROR',   4);
 *    there will only ever be one instance of this object
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.105 $
+* @version $Revision: 1.106 $
 * @package MySource_Matrix
 */
 class Backend_Outputter
@@ -431,7 +431,7 @@ class Backend_Outputter
 	{
 		if (empty($url)) return;
 		if (in_array($name, $this->_static_screens)) {
-			trigger_localised_error("SYS0207", E_USER_ERROR, $name);
+			trigger_localised_error('SYS0207', E_USER_ERROR, $name);
 		}
 		$this->_static_screens[$url] = $name;
 
@@ -1093,7 +1093,7 @@ class Backend_Outputter
 						<td class="sq-backend-nav-history" valign="middle">
 						<script type="text/javascript">sq_print_icon("<?php echo $this->filesPath('images/icons/history.png');?>", "20", "20", "Navigation History");</script>
 						&nbsp;
-						<span style="color: #342939">Back to : </span>
+						<span style="color: #342939"><?php echo translate('back_to'); ?> : </span>
 						<?php
 							$nav_count = count($_SESSION['sq_nav_history']);
 							if ($nav_count < 5) $start = 0;
@@ -1389,7 +1389,7 @@ class Backend_Outputter
 			</tr>
 			<tr>
 				<td colspan="3">
-					<div class="sq-backend-section-note"><strong>Note: </strong><?php echo $str ?></div>
+					<div class="sq-backend-section-note"><strong><?php echo translate('note'); ?>: </strong><?php echo $str ?></div>
 		<?php
 
 	}//end _nbSectionNote()
@@ -1451,7 +1451,7 @@ class Backend_Outputter
 
 			combo_box('screen_menu', $this->_screens, false, $this->_current_screen, 1, 'id="screen_menu" onChange="javascript: self.location = form_element_value(this);"');
 			echo '&nbsp;';
-			normal_button('screen_menu_go', ' Go ', 'self.location = get_form_element_value("screen_menu");', 'id="screen_menu_go"');
+			normal_button('screen_menu_go', translate('go'), 'self.location = get_form_element_value("screen_menu");', 'id="screen_menu_go"');
 			echo '&nbsp;';
 		}
 

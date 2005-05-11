@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trash_folder.inc,v 1.57 2005/04/19 00:19:38 tbarrett Exp $
+* $Id: trash_folder.inc,v 1.58 2005/05/11 06:05:01 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.57 $
+* @version $Revision: 1.58 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -152,7 +152,7 @@ class Trash_Folder extends Folder
 	*/
 	function morph($new_type_code)
 	{
-		trigger_localised_error("CORE0091", E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
+		trigger_localised_error('CORE0091', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
 		return false;
 
 	}//end morph()
@@ -170,7 +170,7 @@ class Trash_Folder extends Folder
 	function setAttrValue($name, $value)
 	{
 		if ($name == 'name') {
-			trigger_localised_error("CORE0111", E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
+			trigger_localised_error('CORE0111', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
 			return false;
 		}
 
@@ -193,7 +193,7 @@ class Trash_Folder extends Folder
 	*/
 	function moveLinkPos($linkid, $sort_order=-1)
 	{
-		trigger_localised_error("CORE0019", E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
+		trigger_localised_error('CORE0019', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
 		return false;
 
 	}//end moveLinkPos()
@@ -212,7 +212,7 @@ class Trash_Folder extends Folder
 	function canCreateLink(&$minor, $link_type, $exclusive)
 	{
 		if (!$this->id) return false;
-		if (!is_a($minor, 'Asset')) return 'Minor is not an asset';
+		if (!is_a($minor, 'Asset')) return translate('minor_not_asset');
 		return true;
 
 	}//end canCreateLink()

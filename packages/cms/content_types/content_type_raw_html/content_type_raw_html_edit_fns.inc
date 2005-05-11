@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_raw_html_edit_fns.inc,v 1.8 2005/04/29 05:40:28 gsherwood Exp $
+* $Id: content_type_raw_html_edit_fns.inc,v 1.9 2005/05/11 06:07:30 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -83,7 +83,7 @@ class Content_Type_Raw_HTML_Edit_Fns extends Content_Type_Edit_Fns
 		?>
 		<script type="text/javascript" src="<?php echo sq_web_path('data'); ?>/asset_types/content_type_raw_html/js/raw_html_insert_keyword.js"></script>
 		<select id="<?php echo $prefix; ?>_keyword_inserter" onchange="insertKeyword('<?php echo $prefix; ?>')">
-			<option value="">-- Insert Keyword --</option>
+			<option value="">-- <?php echo translate('insert_keyword') ?> --</option>
 		<?php
 		foreach ($keywords as $keyword => $name) {
 			?>

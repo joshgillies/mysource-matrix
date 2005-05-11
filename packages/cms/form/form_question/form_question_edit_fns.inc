@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_edit_fns.inc,v 1.32 2005/04/29 05:40:29 gsherwood Exp $
+* $Id: form_question_edit_fns.inc,v 1.33 2005/05/11 06:07:30 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -66,7 +66,7 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 	{
 		if ($asset->getRuleCount() == 0) {
 			$o->openRaw();
-			echo 'No rules set for this question';
+			echo translate('cms_form_no_rules_set');
 			$o->closeRaw();
 			return false;
 		}
@@ -95,18 +95,18 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 			$edit_fns->paintRule($rule_asset, $o, $prefix.'_rule_'.$k, $rule, $write_access, $this);
 
 			if ($write_access) {
-				$o->openField('Custom Error Text');
+				$o->openField(translate('cms_form_custom_error_text'));
 				text_box($prefix.'_rule_'.$k.'[custom_text]', array_get_index($rule, 'custom_text', ''), 30);
 				$o->closeField();
 
-				$o->openField('Delete ?');
+				$o->openField(translate('delete_question'));
 				check_box($prefix.'_rule_'.$k.'[delete]');
 				$o->closeField();
 			} else {
-				$o->openField('Custom Error Text');
+				$o->openField(translate('cms_form_custom_error_text'));
 				$custom_text = array_get_index($rule, 'custom_text', '');
 				if (empty($custom_text)) {
-					?><i>No custom error text set - a default message will be displayed</i><?php
+					?><i><?php echo translate('cms_form_no_custom_error_text_set') ?></i><?php
 				} else {
 					echo $rule['custom_text'];
 				}
@@ -211,7 +211,7 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 		}
 
 		$desc = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_codes, 'description');
-		combo_box('rule', array_merge(Array(' ' => '------ Please Select ------'), $desc), false, '');
+		combo_box('rule', array_merge(Array(' ' => '------ '.translate('please_select').' ------'), $desc), false, '');
 
 		return true;
 

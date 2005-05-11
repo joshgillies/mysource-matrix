@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_file_size.inc,v 1.4 2005/04/29 05:40:29 gsherwood Exp $
+* $Id: form_question_rule_type_file_size.inc,v 1.5 2005/05/11 06:07:31 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 * @static
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -57,8 +57,8 @@ class Form_Question_Rule_Type_File_Size extends Form_Question_Rule
 	function getOperators()
 	{
 		$operators = Array(
-						'<='	=> 'Must be no larger than ',
-						'>='	=> 'Must be no smaller than ',
+						'<='	=> translate('cms_form_rule_file_size_<='),
+						'>='	=> translate('cms_form_rule_file_size_>='),
 					 );
 		return $operators;
 
@@ -126,18 +126,7 @@ class Form_Question_Rule_Type_File_Size extends Form_Question_Rule
 		$operator = array_get_index($rule_data, 'operator', '<=');
 		$comparison = array_get_index($rule_data, 'value', '').' '.array_get_index($rule_data, 'multiplier', '');
 
-		$error_str = 'The file uploaded at question "'.$q_asset->attr('name').'" must be ';
-
-		switch ($operator) {
-			case '>=':
-				$error_str .= 'no smaller than '.$comparison;
-			break;
-
-			case '<=':
-				$error_str .= 'no larger than '.$comparison;
-			break;
-
-		}//end switch
+		$error_str = translate('cms_form_rule_file_size_desc_'.$operator, $q_asset->attr('name'), $comparison);
 
 		return $error_str;
 

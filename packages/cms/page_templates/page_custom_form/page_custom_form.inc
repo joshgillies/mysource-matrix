@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_custom_form.inc,v 1.17 2005/04/29 05:40:31 gsherwood Exp $
+* $Id: page_custom_form.inc,v 1.18 2005/05/11 06:07:33 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -65,7 +65,7 @@ class Page_Custom_Form extends Page
 		$form = new Form_Email();
 		$copy_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 
-		$form->setAttrValue('name', 'Form Contents');
+		$form->setAttrValue('name', translate('cms_form_contents'));
 		return $form->create($copy_link);
 
 	}//end _createAdditional()

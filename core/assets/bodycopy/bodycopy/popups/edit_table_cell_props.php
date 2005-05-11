@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit_table_cell_props.php,v 1.5 2004/12/06 14:38:07 brobertson Exp $
+* $Id: edit_table_cell_props.php,v 1.6 2005/05/11 06:04:49 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -98,18 +98,18 @@ include(dirname(__FILE__)."/header.php");
 				<tr>
 					<td valign="top" width="50%">
 						<fieldset>
-						<legend><b>Layout</b></legend>
+						<legend><b><?php echo translate('layout'); ?></b></legend>
 						<table style="width:100%">
 							<tr>
-								<td class="label">Width:</td>
+								<td class="label"><?php echo translate('width'); ?>:</td>
 								<td><input type="text" name="width" value="" size="5"></td>
 							</tr>
 							<tr>
-								<td class="label">Height:</td>
+								<td class="label"><?php echo translate('height'); ?>:</td>
 								<td><input type="text" name="height" value="" size="5"></td>
 							</tr>
 							<tr>
-								<td class="label">Colspan:</td>
+								<td class="label"><?php echo translate('colspan'); ?>:</td>
 								<td><input type="text" name="colspan" value="" size="5"></td>
 							</tr>
 						</table>
@@ -118,27 +118,27 @@ include(dirname(__FILE__)."/header.php");
 					<td>&nbsp;</td>
 					<td valign="top" width="50%">
 						<fieldset>
-						<legend><b>Alignment</b></legend>
+						<legend><b><?php echo translate('alignment'); ?></b></legend>
 						<table style="width:100%">
 							<tr>
-								<td class="label">Horizontal:</td>
+								<td class="label"><?php echo translate('horizontal'); ?>:</td>
 								<td>
 								<select name="align">
-									<option value=""      >
-									<option value="left"  >Left
-									<option value="center">Centre
-									<option value="right" >Right
+									<option value="">
+									<option value="left"  ><?php echo translate('left'); ?>
+									<option value="center"><?php echo translate('centre'); ?>
+									<option value="right" ><?php echo translate('right');?>
 								</select>
 								</td>
 							</tr>
 							<tr>
-								<td class="label">Vertical:</td>
+								<td class="label"><?php echo translate('vertical'); ?>:</td>
 								<td>
 								<select name="valign">
-									<option value=""        >
-									<option value="middle"  >Middle
-									<option value="top"     >Top
-									<option value="bottom"  >Bottom
+									<option value="">
+									<option value="middle"  ><?php echo translate('middle'); ?>
+									<option value="top"     ><?php echo translate('top'); ?>
+									<option value="bottom"  ><?php echo translate('bottom'); ?>
 								</select>
 								</td>
 							</tr>
@@ -152,18 +152,18 @@ include(dirname(__FILE__)."/header.php");
 	<tr>
 		<td>
 			<fieldset>
-			<legend><b>Cell Styles / Colours</b></legend>
+			<legend><b><?php echo translate('cell_styles-colours'); ?></b></legend>
 			<table style="width:100%">
 				<tr>
-					<td class="label">Background Colour:</td>
+					<td class="label"><?php echo translate('background_colour'); ?>:</td>
 					<td><?php colour_box('bgcolor', '', true, '*',true, false, false);?></td>
 				</tr>
 				<tr>
-					<td class="label">No Text Wrap:</td>
+					<td class="label"><?php echo translate('no_text_wrap'); ?>:</td>
 					<td>
 					<select name="nowrap">
-						<option value="">Off
-						<option value="on">On
+						<option value=""><?php echo translate('off'); ?>
+						<option value="on"><?php echo translate('on'); ?>
 					</select>
 					</td>
 				</tr>
@@ -174,10 +174,10 @@ include(dirname(__FILE__)."/header.php");
 	<tr>
 		<td>
 			<fieldset>
-			<legend><b>Cell Type</b></legend>
+			<legend><b><?php echo translate('cell_type'); ?></b></legend>
 			<table style="width:100%">
 				<tr>
-					<td class="label">Cell Type:</td>
+					<td class="label"><?php echo translate('cell_type'); ?>:</td>
 					<td>
 					<select name="type">
 						<option value="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</option>
@@ -193,9 +193,9 @@ include(dirname(__FILE__)."/header.php");
 	<tr>
 		<td>
 			<div style="text-align: right;">
-			<button type="button" name="ok" onClick="javascript: save_props(this.form)">OK</button>
+			<button type="button" name="ok" onClick="javascript: save_props(this.form)"><?php echo translate('ok'); ?></button>
 			&nbsp;
-			<button type="button" name="cancel" onClick="javascript: popup_close();">Cancel</button>
+			<button type="button" name="cancel" onClick="javascript: popup_close();"><?php echo translate('cancel'); ?></button>
 			</div>
 		</td>
 	</tr>

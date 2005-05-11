@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: dependants.inc,v 1.4 2004/12/06 14:38:12 brobertson Exp $
+* $Id: dependants.inc,v 1.5 2005/05/11 06:05:11 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Dependants Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 */
 
@@ -45,7 +45,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 */
 function paintDependants(&$owner, &$o, &$ei)
 {
-	$o->openSection('Current Lock Status');
+	$o->openSection(translate('current_lock_status'));
 	$o->openField('&nbsp;');
 
 	$locks = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($owner->id, 'all');
@@ -55,9 +55,9 @@ function paintDependants(&$owner, &$o, &$ei)
 	}
 	$lock_message = '';
 	if (!empty($locks_acquired)) {
-		$lock_message = '<span style="color:red"><b>[LOCKED]</b></span> (Types : '.implode(', ', $locks_acquired).')';
+		$lock_message = translate('locked_types', '<span style="color:red"><b>[', ']</b></span> (', implode(', ', $locks_acquired).')');
 	} else {
-		$lock_message = '<span style="color:green"><b>[UNLOCKED]</b></span>';
+		$lock_message = '<span style="color:green"><b>['.translate('unlocked').']</b></span>';
 	}
 
 	?>
@@ -89,13 +89,13 @@ function paintDependants(&$owner, &$o, &$ei)
 		<tr>
 			<td class="sq-backend-data"><span style="color:red"><b>*</b></span></td>
 			<td class="sq-backend-data">
-				The status of the dependant asset is higher than the status of "<?php echo $owner->name; ?>"
+				<?php echo translate('status_dependance_higher', $owner->name); ?>
 			</td>
 		</tr>
 		<tr>
 			<td class="sq-backend-data"><span style="color:red"><b>**</b></span></td>
 			<td class="sq-backend-data">
-				The status of the dependant asset is lower than the status of "<?php echo $owner->name; ?>"
+				<?php echo translate('status_dependance_lower', $owner->name); ?>
 			</td>
 		</tr>
 	</table>
@@ -137,9 +137,9 @@ function _recursePaintDependants(&$owner, &$asset, &$o, $levels=1, $print_stalks
 		}
 		$lock_message = '';
 		if (!empty($locks_acquired)) {
-			$lock_message = '<span style="color:red"><b>[LOCKED]</b></span> (Types : '.implode(', ', $locks_acquired).')';
+			$lock_message = translate('locked_types', '<span style="color:red"><b>[', ']</b></span> (', implode(', ', $locks_acquired).')');
 		} else {
-			$lock_message = '<span style="color:green"><b>[UNLOCKED]</b></span>';
+			$lock_message = '<span style="color:green"><b>['.translate('unlocked').']</b></span>';
 		}
 
 		$status_message = '';

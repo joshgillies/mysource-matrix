@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_edit_fns.inc,v 1.9 2005/04/15 00:37:26 lwright Exp $
+* $Id: report_edit_fns.inc,v 1.10 2005/05/11 06:04:54 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *	Base Edit Interface for all reports
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -65,19 +65,14 @@ class Report_Edit_Fns extends Page_Edit_Fns
 	{
 		$report_path = $asset->data_path.'/report.xml';
 		if (!is_file($report_path)) {
-			echo 'This report has not yet been generated<br />';
+			$o->note(translate('report_not_generated'));
 		} else {
-			echo '<p>';
-			echo '    <b>This report has been generated</b><br />';
-			echo '    Date: '.$asset->attr('generated_date');
-			echo '    <br />';
-			echo '    User: '.$asset->attr('generated_user');
-			echo '</p>';
+			$o->note(translate('core_report_last_generated', $asset->attr('generated_date'), $asset->attr('generated_user')));
 		}
 
 		if ($asset->writeAccess('attributes')) {
 			check_box($prefix.'_regenerate');
-			echo '&nbsp;Generate the latest version of this report';
+			label(translate('core_generate_report'), $prefix.'_regenerate');
 			return true;
 		}
 		return false;
@@ -97,15 +92,15 @@ class Report_Edit_Fns extends Page_Edit_Fns
 	*/
 	function processRegenerate(&$asset, &$o, $prefix)
 	{
-		if (!isset($_POST[$prefix.'_regenerate']) || !$_POST[$prefix.'_regenerate']) return false;
+		if (!isset($_POST[$prefix.'_regenerate']) || !$_POST[$prefix.'_regenerate']) {
+			return false;
+		}
 
 		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$vars = Array('assetid' => $asset->id);
 		$hh->queueHipo('hipo_job_generate_report', $vars);
 
-		if (!$asset->writeAccess('links')) {
-			return false;
-		}
+		if (!$asset->writeAccess('links')) return false;
 
 		$user = $GLOBALS['SQ_SYSTEM']->user;
 		$asset->setAttrValue('generated_date', date("F j, Y, g:i a"));
@@ -135,7 +130,7 @@ class Report_Edit_Fns extends Page_Edit_Fns
 			$root_asset = null;
 			if (!empty($root_link)) $root_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($root_link['minorid']);
 			if (!is_null($root_asset)) echo $root_asset->name . ' (Id: #' . $root_asset->id . ')';
-			else echo 'No root node has been selected';
+			else echo translate('core_no_selectes_root_node');
 		} else {
 			asset_finder($prefix.'_rootid', (!empty($root_link)) ? $root_link['minorid'] : '');
 		}
@@ -180,7 +175,7 @@ class Report_Edit_Fns extends Page_Edit_Fns
 			if (!is_null($root)) {
 				if (!$asset->createLink($root, SQ_LINK_NOTICE, 'root')) {
 					$ok = false;
-					trigger_localised_error("CORE0029", E_USER_WARNING, $root->name);
+					trigger_localised_error('CORE0029', E_USER_WARNING, $root->name);
 				}
 			}
 		}
@@ -228,7 +223,7 @@ class Report_Edit_Fns extends Page_Edit_Fns
 	*/
 	function paintReport(&$asset, &$o, $prefix)
 	{
-		echo 'This report does not contain a visual component';
+		echo translate('core_no_visual_report');
 
 	}//end paintReport()
 
@@ -263,7 +258,7 @@ class Report_Edit_Fns extends Page_Edit_Fns
 	*/
 	function generateReport(&$job, &$step_data, $prefix)
 	{
-		trigger_localised_error("CORE0079", E_USER_WARNING);
+		trigger_localised_error('CORE0079', E_USER_WARNING);
 		$step_data['percent_done'] = 100;
 		$step_data['complete'] = true;
 		return true;

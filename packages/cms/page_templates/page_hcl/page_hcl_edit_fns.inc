@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_hcl_edit_fns.inc,v 1.10 2005/04/29 05:40:31 gsherwood Exp $
+* $Id: page_hcl_edit_fns.inc,v 1.11 2005/05/11 06:07:33 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 * Purpose
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -60,9 +60,14 @@ class Page_HCL_Edit_Fns extends Page_Edit_Fns
 
 		if (!$write_access) {
 			$root_asset = null;
-			if (!empty($root_link)) $root_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($root_link['minorid']);
-			if (!is_null($root_asset)) echo $root_asset->name . ' (Id: #' . $root_asset->id . ')';
-			else echo 'No root node has been selected';
+			if (!empty($root_link)) {
+				$root_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($root_link['minorid']);
+			}
+			if (!is_null($root_asset)) {
+				echo $root_asset->name . ' (Id: #' . $root_asset->id . ')';
+			} else {
+				echo translate('cms_no_root_node');
+			}
 		} else {
 			asset_finder($prefix.'_rootid', (!empty($root_link)) ? $root_link['minorid'] : '');
 		}
@@ -144,10 +149,10 @@ class Page_HCL_Edit_Fns extends Page_Edit_Fns
 			?>
 			<table class="sq-backend-table">
 				<tr>
-					<td class="sq-backend-table-header">Schema Name</td>
+					<td class="sq-backend-table-header"><?php echo translate('schema_name') ?></td>
 					<?php
 						if ($write_access) {
-							?><td class="sq-backend-table-header">Delete ?</td><?php
+							?><td class="sq-backend-table-header"><?php echo translate('delete_question'); ?></td><?php
 						}
 					?>
 				</tr>

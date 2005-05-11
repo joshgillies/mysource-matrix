@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_edit_fns.inc,v 1.57 2005/05/02 07:24:53 ndvries Exp $
+* $Id: file_edit_fns.inc,v 1.58 2005/05/11 06:04:51 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.57 $
+* @version $Revision: 1.58 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -102,7 +102,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 				}
 				$max_size = min($post_size, $mem_limit_size);
 			}
-			?><br/><span style="font-size: 10px;">You may only upload files no bigger than <?php echo strtoupper(easy_filesize($max_size)); ?></span><?php
+			?><br/><span style="font-size: 10px;"><?php echo translate('core_cannot_upload_file_larger_than', strtoupper(easy_filesize($max_size))); ?></span><?php
 		}
 		return true;
 
@@ -276,7 +276,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 		$options = $this->getPreuploadOptions($asset);
 		combo_box($prefix.'_server_file', Array(''=>'')+$options, false, Array());
 		echo '&nbsp;&nbsp;';
-		normal_button($prefix.'_simple_upload_button', 'Upload a new file', 'this.parentNode.parentNode.style.display=\'none\';			 document.getElementById(\''.$prefix.'_choose_server_file_button\').parentNode.parentNode.style.display=\'\'; document.getElementById(\''.$prefix.'_server_file\').value = \'\'');
+		normal_button($prefix.'_simple_upload_button', translate('core_upload_new_file_button'), 'this.parentNode.parentNode.style.display=\'none\';			 document.getElementById(\''.$prefix.'_choose_server_file_button\').parentNode.parentNode.style.display=\'\'; document.getElementById(\''.$prefix.'_server_file\').value = \'\'');
 		return true;
 
 	}//end paintFileChooser()
@@ -338,8 +338,8 @@ class File_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintPaths(&$asset, &$o, $prefix)
 	{
-		echo $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'), ' assets do not set the paths here.<br />';
-		echo 'The path is set by the filename on the <a href="', $asset->getBackendHref('details'), '">Details Screen</a>';
+		echo translate('core_asset_paths_not_set', $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name')).'<br />';
+		echo translate('core_path_set_by_filename', $asset->getBackendHref('details'));
 
 	}//end paintPaths()
 
@@ -405,9 +405,9 @@ class File_Edit_Fns extends Asset_Edit_Fns
 			require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 			?>
 			<div>
-				<b><a href="<?php echo current_url(true, true).'?a='.$asset->id?>&now=<?php echo time()?>" target="_blank">Current File</a></b><br/>
-				<b>Size:</b> <?php echo easy_filesize($existing['size'])?><br/>
-				<b>Updated:</b> <?php echo readable_datetime($existing['modified'])?>
+				<b><a href="<?php echo current_url(true, true).'?a='.$asset->id?>&now=<?php echo time()?>" target="_blank"><?php echo translate('core_current_file'); ?></a></b><br/>
+				<b><?php echo translate('size'); ?>':</b> <?php echo easy_filesize($existing['size'])?><br/>
+				<b><?php echo translate('updated'); ?>:</b> <?php echo readable_datetime($existing['modified'])?>
 			</div>
 			<?php
 		}

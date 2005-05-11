@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring_edit_fns.inc,v 1.20 2005/04/29 05:39:19 gsherwood Exp $
+* $Id: calendar_event_recurring_edit_fns.inc,v 1.21 2005/05/11 06:07:21 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once  dirname(__FILE__).'/../../calendar_event/calendar_event_edit_fns.i
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -76,37 +76,108 @@ class Calendar_Event_Recurring_Edit_Fns extends Calendar_Event_Edit_Fns
 				<td style="vertical-align: top; ">
 
 				  <div id="<?php echo $prefix; ?>DailyOptions" style="display: <?php echo (($freq{0} == 'D') ? 'block' : 'none') ?>">
-					<input type="radio" <?php echo ((($freq == 'DED') || !$freq) ? 'checked="checked" ' : '')?> name="<?php echo $prefix; ?>_frequency_type" id="<?php echo $prefix; ?>_frequency_type_DED" value="DED" />Every Day
-					<br /><input type="radio" <?php echo ((($freq != 'DED') && (substr($freq, 0, 3) == 'DED')) ? 'checked="checked" ' : '')?> name="<?php echo $prefix; ?>_frequency_type" id="<?php echo $prefix; ?>_frequency_type_DEDx" value="DEDx" />Every <input type="text" size="2" value="<?php echo trim(substr($freq, 3)); ?>" name="<?php echo $prefix; ?>_num_days" onkeypress="this.click();" onclick="checkBox('<?php echo $prefix?>_frequency_type_DEDx');" /> Days
-					<br /><input type="radio" <?php echo (((substr($freq, 0, 3) == 'DWD')) ? 'checked="checked" ' : '')?> name="<?php echo $prefix; ?>_frequency_type" id="<?php echo $prefix; ?>_frequency_type_DWD" value="DWD" />Every WeekDay
+					<input type="radio" <?php echo ((($freq == 'DED') || !$freq) ? 'checked="checked" ' : '')?> name="<?php echo $prefix; ?>_frequency_type" id="<?php echo $prefix; ?>_frequency_type_DED" value="DED" /><?php echo translate('cal_event_every_day'); ?>
+					<?php
+					// Every 'X' days textbox
+					ob_start(); ?>
+						<input type="text" size="2" value="<?php echo trim(substr($freq, 3)); ?>" name="<?php echo $prefix; ?>_num_days" onkeypress="this.click();" onclick="checkBox('<?php echo $prefix?>_frequency_type_DEDx');" />
+						<?php $x_days_tb = ob_get_contents();
+					ob_end_clean(); ?>
+					<br /><input type="radio" <?php echo ((($freq != 'DED') && (substr($freq, 0, 3) == 'DED')) ? 'checked="checked" ' : '')?> name="<?php echo $prefix; ?>_frequency_type" id="<?php echo $prefix; ?>_frequency_type_DEDx" value="DEDx" /><?php echo translate('cal_event_every_x_days', $x_days_tb); ?>
+					<br /><input type="radio" <?php echo (((substr($freq, 0, 3) == 'DWD')) ? 'checked="checked" ' : '')?> name="<?php echo $prefix; ?>_frequency_type" id="<?php echo $prefix; ?>_frequency_type_DWD" value="DWD" /><?php echo translate('cal_event_every_weekday'); ?>
 				  </div>
 
 				  <div id="<?php echo $prefix; ?>WeeklyOptions" style="display: <?php echo (($freq{0} == 'W') ? 'block' : 'none') ?>">
-					<input type="radio" <?php echo ((($freq == 'WEW') || !$freq) ? 'checked="checked" ' : '')?> name="<?php echo $prefix; ?>_frequency_type" id="<?php echo $prefix; ?>_frequency_type_WEW" value="WEW" />Every week on <a href="javascript: document.getElementById('<?php echo $prefix ?>_start_day').focus();" id="<?php echo $prefix ?>_week_day"></a>
-					<br /><input type="radio" <?php echo ((($freq != 'WEW') && (substr($freq,0,3) == 'WEW')) ? 'checked="checked" ' : '')?> name="<?php echo $prefix; ?>_frequency_type" id="<?php echo $prefix; ?>_frequency_type_WEWx" value="WEWx" />Every <input type="text" size="2" value="<?php echo substr($freq, 3); ?>" name="<?php echo $prefix ?>_num_weeks" onkeypress="this.click();" onclick="checkBox('<?php echo $prefix?>_frequency_type_WEWx');" /> weeks on <a id="<?php echo $prefix ?>_week_day_4" href="javascript: document.getElementById('<?php echo $prefix ?>_start_day').focus();"></a>
+				  <?php
+				  	// link to weekday on Week links
+				  	ob_start(); ?>
+						<a href="javascript: document.getElementById('<?php echo $prefix ?>_start_day').focus();" id="<?php echo $prefix ?>_week_day"></a>
+						<?php $week_link = ob_get_contents();
+					ob_end_clean();
+
+					// link to weekday on Every 'X' Weeks link
+					ob_start(); ?>
+						<a id="<?php echo $prefix ?>_week_day_4" href="javascript: document.getElementById('<?php echo $prefix ?>_start_day').focus();"></a>
+						<?php $x_weeks_link = ob_get_contents();
+					ob_end_clean();
+
+					// Every 'X' weeks textbox
+					ob_start(); ?>
+						<input type="text" size="2" value="<?php echo substr($freq, 3); ?>" name="<?php echo $prefix ?>_num_weeks" onkeypress="this.click();" onclick="checkBox('<?php echo $prefix?>_frequency_type_WEWx');" />
+						<?php $x_weeks_tb = ob_get_contents();
+					ob_end_clean(); ?>
+					<input type="radio" <?php echo ((($freq == 'WEW') || !$freq) ? 'checked="checked" ' : '')?> name="<?php echo $prefix; ?>_frequency_type" id="<?php echo $prefix; ?>_frequency_type_WEW" value="WEW" /><?php echo translate('cal_event_every_week', $week_link); ?>
+					<br /><input type="radio" <?php echo ((($freq != 'WEW') && (substr($freq,0,3) == 'WEW')) ? 'checked="checked" ' : '')?> name="<?php echo $prefix; ?>_frequency_type" id="<?php echo $prefix; ?>_frequency_type_WEWx" value="WEWx" /><?php echo translate('cal_event_every_week', $x_weeks_tb, $x_weeks_link); ?>
 				  </div>
 
+				  <?php
+				  	// Every 'X' months textbox
+				  	ob_start(); ?>
+						<input type="text" size="2" value="<?php echo substr($freq, 3); ?>" name="<?php echo $prefix ?>_num_months" onkeypress="this.click();" onclick="checkBox('<?php echo $prefix?>_frequency_type_Mx');" />
+						<?php $x_months_tb = ob_get_contents();
+					ob_end_clean(); ?>
 				  <table border="0" cellpadding="0" cellspacing="0" id="<?php echo $prefix; ?>MonthlyOptions" style="display: <?php echo (($freq{0} == 'M') ? 'block' : 'none') ?>"><tr>
 					<td style="width: 25ex; vertical-align: top">
-					  <input type="radio" <?php echo ((($freq{0}=='M') && (strlen($freq) == 3)) ? 'checked="checked" ' : ''); ?> name="<?php echo $prefix; ?>_frequency_type" id="<?php echo $prefix; ?>_frequency_type_M" value="M">Every Month
-					  <br /><input type="radio" <?php echo ((($freq{0}=='M') && (strlen($freq) != 3)) ? 'checked="checked" ' : ''); ?> name="<?php echo $prefix; ?>_frequency_type" id="<?php echo $prefix; ?>_frequency_type_Mx" value="Mx">Every <input type="text" size="2" value="<?php echo substr($freq, 3); ?>" name="<?php echo $prefix ?>_num_months" onkeypress="this.click();" onclick="checkBox('<?php echo $prefix?>_frequency_type_Mx');" /> months
+					  <input type="radio" <?php echo ((($freq{0}=='M') && (strlen($freq) == 3)) ? 'checked="checked" ' : ''); ?> name="<?php echo $prefix; ?>_frequency_type" id="<?php echo $prefix; ?>_frequency_type_M" value="M"><?php echo translate('cal_event_every_month'); ?>
+					  <br /><input type="radio" <?php echo ((($freq{0}=='M') && (strlen($freq) != 3)) ? 'checked="checked" ' : ''); ?> name="<?php echo $prefix; ?>_frequency_type" id="<?php echo $prefix; ?>_frequency_type_Mx" value="Mx"><?php echo translate('cal_event_every_x_months', $x_months_tb); ?>
 					</td>
+					<?php
+					// link to day number on Every 'X' Months on Day link
+					ob_start(); ?>
+						<a href="javascript: document.getElementById('<?php echo $prefix ?>_start_day').focus();" id="<?php echo $prefix; ?>_month_date_ord"></a>
+						<?php $mfn_month_link = ob_get_contents();
+					ob_end_clean(); ?>
 					<td style="width: 60ex">
-					  <input type="radio" <?php echo ((($freq{0} != 'M') || (substr($freq, 0, 3) == 'MFN')) ? 'checked="checked" ' : ''); ?> name="<?php echo $prefix; ?>_monthly_type" value="MFN" />On the <a href="javascript: document.getElementById('<?php echo $prefix ?>_start_day').focus();" id="<?php echo $prefix; ?>_month_date_ord"></a>&nbsp;day of the month <span id="<?php echo $prefix; ?>_month_date_warning" style="display: none">(when it exists)</span><br />
+					  <input type="radio" <?php echo ((($freq{0} != 'M') || (substr($freq, 0, 3) == 'MFN')) ? 'checked="checked" ' : ''); ?> name="<?php echo $prefix; ?>_monthly_type" value="MFN" /><?php echo translate('cal_event_month_on_day', $mfn_month_link) ?><span id="<?php echo $prefix; ?>_month_date_warning" style="display: none"><?php echo translate('cal_event_when_it_exists') ?></span><br />
 
-					  <input type="radio" <?php echo ((substr($freq, 0, 3) == 'MFW') ? 'checked="checked" ' : ''); ?>name="<?php echo $prefix; ?>_monthly_type" value="MFW" />On the <a href="javascript: document.getElementById('<?php echo $prefix ?>_start_day').focus();" id="<?php echo $prefix; ?>_month_week_ord"></a>&nbsp;<a href="javascript: document.getElementById('<?php echo $prefix ?>_start_day').focus();" id="<?php echo $prefix; ?>_week_day_2"></a>&nbsp;of the month <span id="<?php echo $prefix; ?>_month_week_warning" style="display: none">(when it exists)</span><br />
+					<?php
+					// link to day number on Every 'X' Months on Weekday link
+					ob_start(); ?>
+						<a href="javascript: document.getElementById('<?php echo $prefix ?>_start_day').focus();" id="<?php echo $prefix; ?>_month_week_ord"></a>
+						<?php $mfw_month_link = ob_get_contents();
+					ob_end_clean();
 
-					  <input type="radio" <?php echo ((substr($freq, 0, 3) == 'MRN') ? 'checked="checked" ' : ''); ?> name="<?php echo $prefix; ?>_monthly_type" value="MRN" />On the <a href="javascript: document.getElementById('<?php echo $prefix ?>_start_day').focus();" id="<?php echo $prefix; ?>_reverse_month_date_ord"></a><a href="javascript: document.getElementById('<?php echo $prefix ?>_start_day').focus();">last</a> day of the month <span id="<?php echo $prefix ?>_reverse_month_date_warning" style="display: none">(when it exists)</span><br />
+					// link to weekday on Every 'X' Months on Weekday link
+					ob_start(); ?>
+						<a href="javascript: document.getElementById('<?php echo $prefix ?>_start_day').focus();" id="<?php echo $prefix; ?>_week_day_2"></a>
+						<?php $mfw_day_link = ob_get_contents();
+					ob_end_clean(); ?>
+					  <input type="radio" <?php echo ((substr($freq, 0, 3) == 'MFW') ? 'checked="checked" ' : ''); ?>name="<?php echo $prefix; ?>_monthly_type" value="MFW" /><?php echo translate('cal_event_month_on_weekday', $mfw_month_link, $mfw_day_link) ?> <span id="<?php echo $prefix; ?>_month_week_warning" style="display: none"><?php echo translate('cal_event_when_it_exists') ?></span><br />
 
-					  <input type="radio" <?php echo ((substr($freq, 0, 3) == 'MRW') ? 'checked="checked" ' : ''); ?> name="<?php echo $prefix; ?>_monthly_type" value="MRW" />On the <a href="javascript: document.getElementById('<?php echo $prefix ?>_start_day').focus();" id="<?php echo $prefix; ?>_reverse_month_week_ord"></a><a href="javascript: document.getElementById('<?php echo $prefix ?>_start_day').focus();">last</a> <a href="javascript: document.getElementById('<?php echo $prefix ?>_start_day').focus();" id="<?php echo $prefix; ?>_week_day_3"></a>&nbsp;of the month <span id="<?php echo $prefix; ?>_reverse_month_week_warning" style="display: none">(when it exists)</span>
+					<?php
+					// link to day number on Every 'X' Months on Last Day link
+					ob_start(); ?>
+						<a href="javascript: document.getElementById('<?php echo $prefix ?>_start_day').focus();" id="<?php echo $prefix; ?>_reverse_month_date_ord"></a><a href="javascript: document.getElementById('<?php echo $prefix ?>_start_day').focus();"><?php echo translate('last') ?></a>
+						<?php $mrn_month_link = ob_get_contents();
+					ob_end_clean(); ?>
+					<input type="radio" <?php echo ((substr($freq, 0, 3) == 'MRN') ? 'checked="checked" ' : ''); ?> name="<?php echo $prefix; ?>_monthly_type" value="MRN" /><?php echo translate('cal_event_month_on_last_day', $mrn_month_link) ?> <span id="<?php echo $prefix ?>_reverse_month_date_warning" style="display: none"><?php echo translate('cal_event_when_it_exists') ?></span><br />
+
+					<?php
+					// link to day number on Every 'X' Months on Last Weekday link
+					ob_start(); ?>
+						<a href="javascript: document.getElementById('<?php echo $prefix ?>_start_day').focus();" id="<?php echo $prefix; ?>_reverse_month_week_ord"></a><a href="javascript: document.getElementById('<?php echo $prefix ?>_start_day').focus();"><?php echo translate('last') ?></a>
+						<?php $mrw_month_link = ob_get_contents();
+					ob_end_clean();
+
+					// link to weekday on Every 'X' Months on Weekday link
+					ob_start(); ?>
+						<a href="javascript: document.getElementById('<?php echo $prefix ?>_start_day').focus();" id="<?php echo $prefix; ?>_week_day_3"></a>
+						<?php $mrw_day_link = ob_get_contents();
+					ob_end_clean(); ?>
+					<input type="radio" <?php echo ((substr($freq, 0, 3) == 'MRW') ? 'checked="checked" ' : ''); ?> name="<?php echo $prefix; ?>_monthly_type" value="MRW" /><?php echo translate('cal_event_month_on_last_weekday', $mrw_month_link, $mrw_day_link) ?> <span id="<?php echo $prefix; ?>_reverse_month_week_warning" style="display: none"><?php echo translate('cal_event_when_it_exists') ?></span>
 					</td>
 				  </tr></table>
 				</td>
 			  </tr>
 			  <tr>
 				<td colspan="2">
-				  <input type="radio" name="<?php echo $prefix; ?>_stop_date_selected" value="0" <?php echo ($stopdate ? '' : 'checked="checked" '); ?> onkeypress="this.click();" onclick="disableDateField('<?php echo $prefix; ?>_stop')" />Until further notice
-				  <br /><input type="radio" <?php echo ($stopdate ? 'checked="checked" ' : ''); ?> name="<?php echo $prefix; ?>_stop_date_selected" value="1" onkeypress="this.click();" onclick="enableDateField('<?php echo $prefix; ?>_stop')" />Until <?php parent::printDateChooser($prefix.'_stop', $stopdate); ?>
+				  <?php
+				  	ob_start();
+					parent::printDateChooser($prefix.'_stop', $stopdate);
+					$date_chooser = ob_get_contents();
+					ob_end_clean(); ?>
+				  <input type="radio" name="<?php echo $prefix; ?>_stop_date_selected" value="0" <?php echo ($stopdate ? '' : 'checked="checked" '); ?> onkeypress="this.click();" onclick="disableDateField('<?php echo $prefix; ?>_stop')" /><?php echo ucfirst(translate('cal_event_recur_until_further_notice')); ?>
+				  <br /><input type="radio" <?php echo ($stopdate ? 'checked="checked" ' : ''); ?> name="<?php echo $prefix; ?>_stop_date_selected" value="1" onkeypress="this.click();" onclick="enableDateField('<?php echo $prefix; ?>_stop')" /><?php echo ucfirst(translate('cal_event_recur_until_date'), $date_chooser); ?>
 				</td>
 			  </tr>
 			</table>

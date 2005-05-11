@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: settings.inc,v 1.28 2005/04/15 00:37:29 lwright Exp $
+* $Id: settings.inc,v 1.29 2005/05/11 06:05:11 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Settings Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix
 */
 
@@ -55,7 +55,7 @@ function paintSettings(&$owner, &$o, &$ei)
 	$created = false;
 
 	if (empty($root->children)) {
-		$o->openSection('There are no settings for "'.$owner->name.'"');
+		$o->openSection(translate('no_asset_settings', $owner->name));
 		$o->closeSection();
 	}
 
@@ -76,7 +76,7 @@ function paintSettings(&$owner, &$o, &$ei)
 
 			switch (strtolower($field->attributes['code'])) {
 				case 'version_current_version' :
-					if ($field->children[0]->name != 'display_name') $display_name = 'Current Version';
+					if ($field->children[0]->name != 'display_name') $display_name = translate('current_version');
 					else $display_name = $field->children[0]->content;
 					$o->openField($display_name);
 					echo $owner->version;
@@ -87,7 +87,7 @@ function paintSettings(&$owner, &$o, &$ei)
 					if ($owner->adminAccess('all')) {
 						$created = true;
 
-						if ($field->children[0]->name != 'display_name') $display_name = 'Update Major Version ?';
+						if ($field->children[0]->name != 'display_name') $display_name = translate('update_major_version');
 						else $display_name = $field->children[0]->content;
 						$o->openField($display_name);
 						check_box($prefix.'_version_update_version');
@@ -127,7 +127,7 @@ function paintSettings(&$owner, &$o, &$ei)
 						$userid = $owner->published_userid;
 					}
 
-					if ($field->children[0]->name != 'display_name') $display_name = ucfirst($date_type).' Date';
+					if ($field->children[0]->name != 'display_name') $display_name = translate(ucfirst($date_type).'_date');
 					else $display_name = $field->children[0]->content;
 					$o->openField($display_name);
 
@@ -172,26 +172,26 @@ function paintSettings(&$owner, &$o, &$ei)
 								}
 							</script>
 						<?php
-						normal_button($prefix.'_set_time_'.$date_type, 'now', 'setCurrentTime(\''.$prefix.'_date_'.$date_type.'\');');
-						echo '&nbsp;<b>by</b>&nbsp;';
+						normal_button($prefix.'_set_time_'.$date_type, strtolower(translate('now')), 'setCurrentTime(\''.$prefix.'_date_'.$date_type.'\');');
+						echo '&nbsp;<b>'.strtolower(translate('by')).'</b>&nbsp;';
 						asset_finder($prefix.'_date_'.$date_type.'_userid', $userid, Array('user' => 'D'));
 
 					} else {
 						$print_note = false;
 						if ($date_field->isEmpty() && $date_type == 'published') {
-							echo 'This asset has never been published';
+							echo translate('never_published');
 						} else {
 							$info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($userid), 'user', false);
 							if (empty($info)) $info[$userid] = Array('name' => '&lt;unknown&gt;');
 
-							echo ucfirst($date_type).' by '.$info[$userid]['name'].' on '.date('d M Y h:i:s', strtotime($date_field->value));
+							echo ucfirst($date_type).' '.strtolower(translate('by')).' '.$info[$userid]['name'].' '.strtolower(translate('on')).' '.date('d M Y h:i:s', strtotime($date_field->value));
 						}
 					}
 
 				break;
 
 				case 'force_secure' :
-					if ($field->children[0]->name != 'display_name') $display_name = 'Force Secure';
+					if ($field->children[0]->name != 'display_name') $display_name = translate('force_secure');
 					else $display_name = $field->children[0]->content;
 					$o->openField($display_name);
 					$current_langs = $owner->getLanguages();
@@ -208,7 +208,7 @@ function paintSettings(&$owner, &$o, &$ei)
 
 
 				case 'intl_languages' :
-					if ($field->children[0]->name != 'display_name') $display_name = 'Languages';
+					if ($field->children[0]->name != 'display_name') $display_name = translate('languages');
 					else $display_name = $field->children[0]->content;
 					$o->openSection($display_name);
 
@@ -219,11 +219,11 @@ function paintSettings(&$owner, &$o, &$ei)
 						$standards_lists_languages = array_reverse($standards_lists_languages);
 						$standards_lists_languages[''] = '';
 						$standards_lists_languages = array_reverse($standards_lists_languages);
-						$o->openField('Add Language ?');
+						$o->openField(translate('add_language'));
 						combo_box($prefix.'_add_intl_language', $standards_lists_languages, false, '');
 					}
 
-					$o->openField('Current');
+					$o->openField(translate('current'));
 					$current_langs = $owner->getLanguages();
 					if (!empty($current_langs)) {
 						sort($current_langs);
@@ -233,7 +233,7 @@ function paintSettings(&$owner, &$o, &$ei)
 							?>
 							<tr>
 								<td class="sq-backend-table-header">&nbsp;</td>
-								<td class="sq-backend-table-header"><b>Delete ?</b></td>
+								<td class="sq-backend-table-header"><b><?php echo translate('delete_question'); ?></b></td>
 							</tr>
 							<?php } ?>
 						<?php
@@ -251,13 +251,13 @@ function paintSettings(&$owner, &$o, &$ei)
 						}
 						?></table><?php
 					} else {
-						echo '<i>No languages are currently set for "'.$owner->name.'"</i>';
+						echo translate('no_language_set', $owner->name);
 					}
 					$o->closeSection();
 				break;
 
 				case 'intl_character_set' :
-					if ($field->children[0]->name != 'display_name') $display_name = 'Character Set';
+					if ($field->children[0]->name != 'display_name') $display_name = translate('character_set');
 					else $display_name = $field->children[0]->content;
 					$o->openSection($display_name);
 					$o->openField('Current');
@@ -273,16 +273,16 @@ function paintSettings(&$owner, &$o, &$ei)
 						if (isset($standards_lists_character_sets[$owner->charset])) {
 							echo $standards_lists_character_sets[$owner->charset];
 						} else if ($owner->charset == '') {
-							echo '<i>No character set is currently set for "'.$owner->name.'"</i>';
+							echo translate('no_character_set', $owner->name);
 						} else {
-							echo '<i>Unkown character set "'.$owner->charset.'" is currently set for "'.$owner->name.'"</i>';
+							echo '<i>'.translate('no_charactet_set_set', $owner->charset, $owner->name).'</i>';
 						}
 					}
 					$o->closeSection();
 				break;
 
 				case 'morph_new_type' :
-					if ($field->children[0]->name != 'display_name') $display_name = 'New Type';
+					if ($field->children[0]->name != 'display_name') $display_name = translate('new_type');
 					else $display_name = $field->children[0]->content;
 					$o->openField($display_name);
 
@@ -290,7 +290,7 @@ function paintSettings(&$owner, &$o, &$ei)
 						$created = true;
 						if ($owner->status != SQ_STATUS_UNDER_CONSTRUCTION) {
 							// cant morph an asset if it is not under construction
-							echo '<i>An asset can only be morphed while Under Construction</i>';
+							echo translate('only_morph_under_construction');
 						} else {
 							$db = &$GLOBALS['SQ_SYSTEM']->db;
 							$am = &$GLOBALS['SQ_SYSTEM']->am;
@@ -314,7 +314,7 @@ function paintSettings(&$owner, &$o, &$ei)
 							assert_valid_db_result($result);
 
 							if (empty($result)) {
-								echo '<i>No types are available to morph this asset into</i>';
+								echo translate('no_types_to_morph');
 							} else {
 								$morph_types = Array('' => '');
 								foreach ($result as $type_code) {
@@ -326,7 +326,7 @@ function paintSettings(&$owner, &$o, &$ei)
 								?>
 								<table border="0">
 									<tr>
-										<td class="sq-backend-data">To change the type of this asset, enter the 15 character string you see below into the box supplied, then press the Commit button</td>
+										<td class="sq-backend-data"><?php echo translate('morph_confirmation'); ?></td>
 									</tr>
 									<tr>
 										<td valign="top"><?php security_key(15, 20, 2); ?></td>
@@ -336,7 +336,7 @@ function paintSettings(&$owner, &$o, &$ei)
 							}
 						}
 					} else {
-						echo '<i>You do not have access to morph this asset</i>';
+						echo translate('morph_no_access');
 					}
 				break;
 
@@ -344,8 +344,8 @@ function paintSettings(&$owner, &$o, &$ei)
 
 				case 'designs' :
 					$system_designs = Array(
-										'design::system::frontend'	=> 'The Design that is to be used when displaying this asset on the frontend',
-										'design::system::login'		=> 'The Design that is to be used whenever someone attempts to access this asset without permission',
+										'design::system::frontend'	=> translate('asset_frontend_design'),
+										'design::system::login'		=> translate('asset_design_user_no_permissions'),
 									  );
 					$our_designs = Array(
 									'design::system::frontend'	=> 0,
@@ -384,20 +384,20 @@ function paintSettings(&$owner, &$o, &$ei)
 						if ($new_user_design && !$owner->writeAccess('links')) continue;
 
 						if (!$new_user_design) {
-							$display_name = ucwords($design_type).' Defined - '.ucwords(str_replace('_', ' ', $design_code)).' Design';
+							$display_name = translate('config_display_name', ucwords($design_type), ucwords(str_replace('_', ' ', $design_code)));
 						} else {
-							$display_name = 'Create New User Defined Design';
+							$display_name = translate('create_new_user_defined_design');
 						}
 						$o->openSection($display_name);
 
 						if ($new_user_design) {
-							$o->openField('Design Code');
+							$o->openField(translate('design_code'));
 								text_box($prefix.'_designs['.$design_name.'][name]', '', 20, 30);
 							$o->closeField();
 						} else {
 							hidden_field($prefix.'_designs['.$design_name.'][name]', $design_name);
 							if ($design_type == 'user') {
-								$o->openField('Design Code');
+								$o->openField(translate('design_code'));
 									echo $design_code;
 								$o->closeField();
 							}
@@ -411,14 +411,14 @@ function paintSettings(&$owner, &$o, &$ei)
 								$effective_designs[$url] = $designs[$design_name];
 							}
 
-							$o->openField('Current');
+							$o->openField(translate('current'));
 
 							if (!empty($effective_designs)) {
 								?>
 								<table class="sq-backend-table">
 									<tr>
-										<td class="sq-backend-table-header">URL</td>
-										<td class="sq-backend-table-header">Effective Design</td>
+										<td class="sq-backend-table-header"><?php echo translate('url'); ?></td>
+										<td class="sq-backend-table-header"><?php echo translate('effective_design'); ?></td>
 									</tr>
 								<?php
 								foreach ($effective_designs as $url => $effective_designid) {
@@ -427,7 +427,7 @@ function paintSettings(&$owner, &$o, &$ei)
 									?>
 									<tr>
 										<td class="sq-backend-table-cell"><?php echo $url; ?></td>
-										<td class="sq-backend-table-cell"><?php echo $effective_design->name.' (Id : # '.$effective_design->id.')'; ?></td>
+										<td class="sq-backend-table-cell"><?php echo translate('asset_format', $effective_design->name, $effective_design->id); ?></td>
 									</tr>
 									<?php
 								}
@@ -435,13 +435,13 @@ function paintSettings(&$owner, &$o, &$ei)
 								</table>
 								<?php
 							} else {
-								echo 'There are no effective designs';
+								echo translate('no_effective_designs');
 							}
 
 							$o->closeField();
 						}// endif
 
-						$o->openField(($designid) ? 'Change ?' : 'New ?');
+						$o->openField(($designid) ? translate('change_question') : translate('new_question'));
 
 						if (!$owner->writeAccess('links')) {
 							$created = true;
@@ -450,7 +450,7 @@ function paintSettings(&$owner, &$o, &$ei)
 								echo 'None';
 							} else {
 								$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($designid, '', true);
-								echo $design->name.' (Id : #'.$design->id.')';
+								echo translate('asset_format', $design->name, $design->id);
 							}
 							echo '</i>';
 
@@ -511,7 +511,7 @@ function processSettings(&$owner, &$o, &$ei)
 	if ($owner->adminAccess('all')) {
 		if (isset($_POST[$prefix.'_version_update_version'])) {
 			if (!$owner->incrementVersion('major')) {
-				trigger_localised_error("SYS0184", E_USER_WARNING, $owner->name);
+				trigger_localised_error('SYS0184', E_USER_WARNING, $owner->name);
 			}
 		}
 	}
@@ -557,7 +557,7 @@ function processSettings(&$owner, &$o, &$ei)
 			if ($date_type == 'created') {
 				// make sure that the date that is specified is not null for the created date
 				if ($date_field->isEmpty()) {
-					trigger_localised_error("SYS0212", E_USER_WARNING);
+					trigger_localised_error('SYS0212', E_USER_WARNING);
 					continue;
 				}
 				$current_date   = $owner->created;
@@ -622,7 +622,7 @@ function processSettings(&$owner, &$o, &$ei)
 				// errors for morphing will get reported in the morph function
 				$owner->morph($_POST[$prefix.'_morph_new_type']);
 			} else {
-				trigger_localised_error("SYS0214", E_USER_WARNING);
+				trigger_localised_error('SYS0214', E_USER_WARNING);
 			}
 		}
 	}
@@ -645,7 +645,7 @@ function processSettings(&$owner, &$o, &$ei)
 				$design_name .= strtolower($design_data['name']);
 
 				if ($GLOBALS['SQ_SYSTEM']->am->getLink($owner->id, SQ_LINK_NOTICE, 'design', false, $design_name)) {
-					trigger_localised_error("SYS0134", E_USER_WARNING, $design_data['name']);
+					trigger_localised_error('SYS0134', E_USER_WARNING, $design_data['name']);
 					continue;
 				}// end if
 

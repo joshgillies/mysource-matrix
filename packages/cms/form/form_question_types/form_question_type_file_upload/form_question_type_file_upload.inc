@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_file_upload.inc,v 1.8 2005/04/29 05:40:30 gsherwood Exp $
+* $Id: form_question_type_file_upload.inc,v 1.9 2005/05/11 06:07:32 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -118,17 +118,17 @@ class Form_Question_Type_File_Upload extends Form_Question
 
 		// there was an error
 		if ($file === false) {
-			$form->failed_rules[] = 'There was an error uploading the file for File Upload question "'.$this->attr('name').'"';
+			$form->failed_rules[] = translate('cms_form_file_upload_error', $this->attr('name'));
 			return false;
 		}
 
 		// no file uploaded
 		if (is_array($file) && empty($file)) {
 			if ($this->attr('required')) {
-				$this->failed_rules[] = 'No file uploaded for required File Upload question "'.$this->attr('name').'"';
+				$this->failed_rules[] = translate('cms_form_file_upload_none_rule', $this->attr('name'));
 				return false;
 			} else {
-				$this->_tmp['summary'] = 'No file uploaded';
+				$this->_tmp['summary'] = translate('cms_form_file_upload_none');
 				return true;
 			}
 		}
@@ -136,7 +136,7 @@ class Form_Question_Type_File_Upload extends Form_Question
 		// no create location set!!
 		$create_loc = $this->attr('create_location');
 		if (empty($create_loc)) {
-			$this->failed_rules[] = 'No create location has been set for File Upload question "'.$this->attr('name').'"';
+			$this->failed_rules[] = translate('cms_form_file_upload_no_create_locs', $this->attr('name'));' "'.$this->attr('name').'"';
 			return false;
 		}
 
@@ -157,7 +157,7 @@ class Form_Question_Type_File_Upload extends Form_Question
 		if ($existing_file) {
 			switch ($this->attr('overwrite_rule')) {
 				case 'D':
-					$this->failed_rules[] = 'There was an error uploading the file for File Upload question "'.$this->attr('name').'" - file already exists in path';
+					$this->failed_rules[] = translate('cms_form_file_upload_already_exists', $this->attr('name'));
 					$ok = false;
 				break;
 
@@ -227,7 +227,7 @@ class Form_Question_Type_File_Upload extends Form_Question
 
 	function getSummary()
 	{
-		return array_get_index($this->_tmp, 'summary', 'No file uploaded');
+		return array_get_index($this->_tmp, 'summary', translate('cms_form_file_upload_none'));
 
 	}//end getSummary()
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_status.inc,v 1.34 2005/04/15 00:37:27 lwright Exp $
+* $Id: hipo_job_edit_status.inc,v 1.35 2005/05/11 06:05:07 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to change the status of an asset
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -64,7 +64,7 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 	/**
 	* Constructor
 	*
-	* @param string	$code_name		a unique codename the HIPO
+	* @param string	$code_name		a unique codename for the HIPO
 	*/
 	function HIPO_Job_Edit_Status($code_name='')
 	{
@@ -87,14 +87,14 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 		$write_access = $this->writeAccess();
 
 		// metadata regeneration threshhold HIPO config entry
-		$o->openField('Edit Status Threshold');
+		$o->openField(translate('edit_status_threshold'));
 
 		if ($write_access) {
 			text_box($class.'[SQ_HIPO_EDIT_STATUS_THRESHOLD]', SQ_HIPO_EDIT_STATUS_THRESHOLD, 5);
 		} else {
 			echo SQ_HIPO_EDIT_STATUS_THRESHOLD;
 		}
-		echo ' assets';
+		echo ' '.translate('assets');
 
 		$o->closeField();
 
@@ -301,12 +301,12 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 			if (!is_null($asset)) {
 				$new_status = $this->_running_vars['new_status'];
 				$asset->processStatusChange($new_status);
-				$step_data['message'] = 'Editing status of "'.$asset->name.'"';
+				$step_data['message'] = translate('hipo_edit_status', $asset->name);
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 				unset($asset);
 			} else {
-				$step_data['message'] = 'Skipping asset '.$assetid;
-				$this->_addError('Could not Edit Status for asset #'.$assetid.', asset does not exist');
+				$step_data['message'] = translate('hipo_skipping_asset', $assetid);
+				$this->_addError(translate('hipo_cannot_edit_status', $assetid));
 			}
 
 			// add this assetid to the done array so we dont do it again

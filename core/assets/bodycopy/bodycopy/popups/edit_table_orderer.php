@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit_table_orderer.php,v 1.4 2004/12/06 14:38:07 brobertson Exp $
+* $Id: edit_table_orderer.php,v 1.5 2005/05/11 06:04:49 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -95,7 +95,7 @@ include(dirname(__FILE__)."/header.php");
 <table width="100%" border="0">
 <form name="main_form">
 	<tr>
-		<td nowrap class="bodycopy-popup-heading">Reorderer</td>
+		<td nowrap class="bodycopy-popup-heading"><?php echo translate('reorderer'); ?></td>
 	</tr>
 	<tr>
 		<td><hr></td>

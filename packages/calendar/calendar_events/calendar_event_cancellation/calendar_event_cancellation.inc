@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_cancellation.inc,v 1.18 2005/04/29 05:39:18 gsherwood Exp $
+* $Id: calendar_event_cancellation.inc,v 1.19 2005/05/11 06:07:20 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once  dirname(__FILE__).'/../calendar_event_recurring/calendar_event_rec
 * which replaces the cancelled instance may be linked to it.
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -92,7 +92,7 @@ class Calendar_Event_Cancellation extends Calendar_Event
 	*/
 	function _getName($short_name=false)
 	{
-		return $short_name ? 'Cancelled '.date('d M Y', iso8601_ts($this->attr('start_date'))) : $this->attr('name');
+		return $short_name ? translate('cal_event_cancelled_date', date('d M Y', iso8601_ts($this->attr('start_date')))) : $this->attr('name');
 
 	}//end _getName()
 
@@ -140,7 +140,7 @@ class Calendar_Event_Cancellation extends Calendar_Event
 		}
 
 		// set our name based on the parent
-		$this->setAttrValue('name', 'Cancelled '.date('d M Y', iso8601_ts($this->attr('start_date'))).': '.  $parent->attr('name'));
+		$this->setAttrValue('name', translate('cal_event_cancelled_date', date('d M Y', iso8601_ts($this->attr('start_date')))).': '.$parent->attr('name'));
 
 		return true;
 
@@ -227,7 +227,7 @@ class Calendar_Event_Cancellation extends Calendar_Event
 				$parent_object = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parent_assetids[0]);
 
 				$res = '<form method="POST" action="?SQ_CALENDAR_VIEW=event&amp;SQ_CALENDAR_EVENT_ID='.$this->id.'&amp;SQ_CALENDAR_EVENT_ACTION=addreplacement2&amp;SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'].'"><table cellpadding="4" border="0">';
-				$res .= '<tr><td style="vertical-align: top">Start and End: </td><td>';
+				$res .= '<tr><td style="vertical-align: top">'.translate('cal_event_start_and_end').'</td><td>';
 				ob_start();
 					$edit_fns = $this->getEditFns();
 					$edit_fns->paintStartEndChooser($this, 'event');
@@ -235,10 +235,10 @@ class Calendar_Event_Cancellation extends Calendar_Event
 				ob_end_clean();
 				$res .= '</td></tr>';
 
-				$res .= '<tr><td style="vertical-align: top">Description: </td><td><textarea name="event_description">';
+				$res .= '<tr><td style="vertical-align: top">'.translate('description').': </td><td><textarea name="event_description">';
 				$res .= $parent_object->attr('description');
 				$res .= '</textarea></td></tr>';
-				$res .= '<tr><td colspan="2"><input type="submit" value="Add Replacement" />&nbsp;&nbsp;<input type="button" value="Cancel" onclick="document.location=\''.$_SERVER['PHP_SELF'].'?SQ_CALENDAR_EVENT_ID='.$parent_object->id.'&SQ_CALENDAR_VIEW=event&SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'].'\'" /></td></tr></table></form>';
+				$res .= '<tr><td colspan="2"><input type="submit" value="'.translate('cal_event_add_replacement').'"/>&nbsp;&nbsp;<input type="button" value="'.translate('cancel').'" onclick="document.location=\''.$_SERVER['PHP_SELF'].'?SQ_CALENDAR_EVENT_ID='.$parent_object->id.'&SQ_CALENDAR_VIEW=event&SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'].'\'" /></td></tr></table></form>';
 			break;
 
 			case 'addreplacement2':
@@ -261,7 +261,7 @@ class Calendar_Event_Cancellation extends Calendar_Event
 				}
 
 				$replacement_event = $this->addReplacement(sprintf('%04s-%02s-%02s %02s:%02s:--', $_REQUEST['event_start_year'], $_REQUEST['event_start_month'], $_REQUEST['event_start_day'],  $_REQUEST['event_start_hours'], $_REQUEST['event_start_minutes']),  sprintf('%04s-%02s-%02s %02s:%02s:--', $_REQUEST['event_end_year'], $_REQUEST['event_end_month'], $_REQUEST['event_end_day'],  $_REQUEST['event_end_hours'], $_REQUEST['event_end_minutes']),  $_REQUEST['event_description']);
-				$res = '<p>Replacement event added</p>';
+				$res = '<p>'.translate('cal_event_replacement_event_added').'</p>';
 			break;
 
 			default:
@@ -292,7 +292,7 @@ class Calendar_Event_Cancellation extends Calendar_Event
 				// get the parent recurring event asset
 				$recurring_event_ids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'calendar_event_recurring', false));
 				if (empty($recurring_event_ids)) {
-					trigger_error('Recurring Event Cancellations can only be created underneath recurring events', E_USER_ERROR);
+					trigger_localised_error('CAL0054', E_USER_ERROR);
 					return false;
 				}
 				$recurring_event = &$GLOBALS['SQ_SYSTEM']->am->getAsset($recurring_event_ids[0]);
@@ -320,11 +320,11 @@ class Calendar_Event_Cancellation extends Calendar_Event
 		?>
 		<table border="0" cellspacing="2" cellpadding="2">
 			<tr>
-				<td><b>Event Name</b></td>
+				<td><b><?php echo translate('cal_event_name') ?></b></td>
 				<td><?php echo $this->attr('name'); ?></td>
 			</tr>
 			<tr>
-				<td><b>Cancels</b></td>
+				<td><b><?php echo translate('cancels') ?></b></td>
 				<td><?php
 				// get the parent recurring event asset
 				if ($recurring_events = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'calendar_event_recurring', false)) {
@@ -334,15 +334,15 @@ class Calendar_Event_Cancellation extends Calendar_Event
 				}?></td>
 			</tr>
 			<tr>
-				<td><b>Start Date of cancelled instance</b></td>
+				<td><b><?php echo translate('cal_event_cancelled_start_date'); ?></b></td>
 				<td><?php echo $this->getFriendlyStart(); ?></td>
 			</tr>
 			<tr>
-				<td><b>End Date of cancelled instance</b></td>
+				<td><b><?php echo translate('cal_event_cancelled_end_date'); ?></b></td>
 				<td><?php echo $this->getFriendlyEnd(); ?></td>
 			</tr>
 			<tr>
-				<td><b>Reason for Cancellation</b></td>
+				<td><b><?php echo translate('cal_event_reason_for_cancellation'); ?></b></td>
 				<td><?php echo $this->attr('description'); ?></td>
 			</tr>
 		</table>

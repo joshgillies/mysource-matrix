@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_permissions.inc,v 1.47 2005/04/15 00:37:27 lwright Exp $
+* $Id: hipo_job_edit_permissions.inc,v 1.48 2005/05/11 06:05:07 lwright Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.47 $
+* @version $Revision: 1.48 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -127,15 +127,15 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 		$write_access = $this->writeAccess();
 
 		// metadata regeneration threshhold HIPO config entry
-		$o->openField('Permissions Threshold');
+		$o->openField(translate('permissions_threshold'));
 
 		if ($write_access) {
 			text_box($class.'[SQ_HIPO_PERMISSIONS_THRESHOLD]', SQ_HIPO_PERMISSIONS_THRESHOLD, 5);
-			echo ' assets';
-			$o->note('Value will be divided by number of affected permissions');
+			echo ' '.translate('assets');
+			$o->note(translate('hipo_value_divided_by_permission'));
 		} else {
 			echo SQ_HIPO_PERMISSIONS_THRESHOLD;
-			echo ' assets';
+			echo ' '.translate('assets');
 		}
 
 		$o->closeField();
@@ -295,9 +295,9 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 							// at all - either grant OR deny - for this user
 							$current = $GLOBALS['SQ_SYSTEM']->am->getPermission($asset->id, $perm, !(bool)$set_data['granted'], false, false, true);
 							if (isset($current[$set_data['userid']])) {
-								$new_access     = ($set_data['granted']) ? 'grant' : 'revoke';
-								$current_access = ($current[$set_data['userid']]) ? 'granted' : 'revoked';
-								$this->_addError('Could not '.$new_access.' '.$perm_name.' access for "'.$user_name.'" on "'.$asset->name.'" because this asset already has '.$current_access.' '.$perm_name.' access to "'.$user_name.'". The current permission for "'.$asset->name.'" has been retained.', true);
+								$new_access     = ($set_data['granted']) ? translate('grant') : translate('revoke');
+								$current_access = ($current[$set_data['userid']]) ? translate('granted') : translate('revoked');
+								$this->_addError(translate('hipo_cannot_modify_permission', $new_access, $perm_name, $user_name, $asset->name, $current_access), true);
 								continue;
 							}
 						} else {
@@ -306,9 +306,9 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 							if (!isset($current[$set_data['userid']])) {
 								continue;
 							} else if ($current[$set_data['userid']] != $set_data['previous_access']) {
-								$new_access     = ($set_data['previous_access']) ? 'grant'   : 'revoke';
-								$current_access = ($set_data['previous_access']) ? 'revoked' : 'granted';
-								$this->_addError('Could not '.$new_access.' '.$perm_name.' access for "'.$user_name.'" on "'.$asset->name.'" because this asset already has '.$current_access.' '.$perm_name.' access to "'.$user_name.'". The current permission for "'.$asset->name.'" has been retained.', true);
+								$new_access     = ($set_data['previous_access']) ? translate('grant') : translate('revoke');
+								$current_access = ($set_data['previous_access']) ? translate('revoked') : translate('granted');
+								$this->_addError(translate('hipo_cannot_modify_permission', $new_access, $perm_name, $user_name, $asset->name, $current_access), true);
 								continue;
 							}
 
@@ -330,12 +330,12 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 					}
 				}
 
-				$step_data['message'] = 'Editing Permissions for "'.$asset->name.'"';
+				$step_data['message'] = translate('hipo_edit_permission', $asset->name);
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 				unset($asset);
 			} else {
-				$step_data['message'] = 'Skipping asset '.$assetid;
-				$this->_addError('Could not edit permissions for asset #'.$assetid.', asset does not exist');
+				$step_data['message'] = translate('hipo_skipping_asset', $assetid);
+				$this->_addError(translate('hipo_skipping_permission', $assetid));
 			}
 
 			// add this assetid to the done array so we dont do it again
@@ -409,7 +409,7 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 
 		$asset_info = &$GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid));
 
-		$step_data['message'] = 'Releasing Lock on '.$asset_info[$assetid]['name'].' and its dependant assets';
+		$step_data['message'] = translate('hipo_release_locks', $asset_info[$assetid]['name']). translate('hipo_release_locks_dependents');
 
 		$GLOBALS['SQ_SYSTEM']->am->releaseLock($assetid, 'all');
 

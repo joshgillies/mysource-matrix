@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_list_edit_fns.inc,v 1.5 2005/04/29 05:38:41 gsherwood Exp $
+* $Id: search_list_edit_fns.inc,v 1.6 2005/05/11 06:07:48 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_listing/page_asset
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -65,7 +65,7 @@ class Search_List_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 				$search_page = &$GLOBALS['SQ_SYSTEM']->am->getAsset($search_page_link['minorid']);
 			}
 			if (!is_null($search_page)) echo $search_page->name . ' (Id: #' . $search_page->id . ')';
-			else echo 'No search page has been selected';
+			else echo translate('sch_no_search_page_specified');
 		} else {
 			asset_finder($prefix.'_search_page', (!empty($search_page_link)) ? $search_page_link['minorid'] : '', Array('search_page' => 'I'));
 		}
@@ -143,7 +143,7 @@ class Search_List_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 		}
 
 		if (is_null($search_page)) {
-			echo 'You must select a search page before a search field can be set';
+			echo translate('sch_list_page_before_field');
 			return false;
 		}
 
@@ -158,11 +158,11 @@ class Search_List_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 
 				switch ($field['type']) {
 					case 'asset_attrib' :
-						$field_description .= '(asset attribute)';
+						$field_description .= '('.strtolower(translate('asset_attribute')).')';
 						$field_name = 'attribute:'.$field_name.':'.$field['params']['asset_type'];
 					break;
 					case 'metadata' :
-						$field_description .= '(metadata)';
+						$field_description .= '('.strtolower(translate('metadata')).')';
 						$field_name = 'metadata:'.$field_name.':'.$field['params']['assetid'];
 					break;
 					default:
@@ -173,7 +173,7 @@ class Search_List_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 				$options[$field_name] = $field_description;
 			}
 
-			$options = array_merge(Array('' => 'None'), $options);
+			$options = array_merge(Array('' => translate('none')), $options);
 			combo_box($prefix.'_field_name', $options, false, $asset->attr('search_field'));
 			return true;
 		} else {
@@ -187,7 +187,7 @@ class Search_List_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	/**
 	* Process the interface for specifying the search field
 	*
-	* @param object		&$asset		the searchbox design area asset
+	* @param object		&$asset		the searchbox design area assetmetadata
 	* @param object		&$o			the backend outputter
 	* @param string		$prefix		the prefix for this field
 	*

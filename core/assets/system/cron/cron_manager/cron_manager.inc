@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager.inc,v 1.54 2005/05/03 04:25:28 rhoward Exp $
+* $Id: cron_manager.inc,v 1.55 2005/05/11 06:04:57 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.54 $
+* @version $Revision: 1.55 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -356,17 +356,17 @@ class Cron_Manager extends Asset
 		$refresh_time = (int) $this->attr('refresh_time');
 		if ($refresh_time >= 86400) {
 			$num = ($refresh_time / 86400);
-			return ($num > 1) ? $num.' days' : 'day';
+			return ($num > 1) ? $num.' '.translate('days') : translate('day');
 		}
 		if ($refresh_time >= 3600) {
 			$num = ($refresh_time / 3600);
-			return ($num > 1) ? $num.' hours' : 'hour';
+			return ($num > 1) ? $num.' '.translate('hours') : translate('hour');
 		}
 		if ($refresh_time >= 60) {
 			$num = ($refresh_time / 60);
-			return ($num > 1) ? $num.' minutes' : 'minute';
+			return ($num > 1) ? $num.' '.translate('minutes') : translate('minute');
 		}
-		return $refresh_time.' seconds';
+		return $refresh_time.' '.translate('seconds');
 
 	}//end readableRefreshTime()
 

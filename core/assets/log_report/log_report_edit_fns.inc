@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: log_report_edit_fns.inc,v 1.1 2005/04/13 04:44:59 rhoward Exp $
+* $Id: log_report_edit_fns.inc,v 1.2 2005/05/11 06:04:51 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report_edit_fns.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -53,14 +53,9 @@ class Log_Report_Edit_Fns extends Report_Edit_Fns
 	{
 		// $report_path = $asset->data_path.'/report.xml';
 		if (false) {//{!is_file($report_path)) {
-			echo 'This report has not yet been generated<br />';
+			$o->note(translate('report_not_generated'));
 		} else {
-			echo '<p>';
-			echo '    <b>This report has been generated</b><br />';
-			echo '    Date: '.$asset->attr('generated_date');
-			echo '    <br />';
-			echo '    User: '.$asset->attr('generated_user');
-			echo '</p>';
+			$o->note(translate('core_report_last_generated', $asset->attr('generated_date'), $asset->attr('generated_user')));
 		}
 
 		return false;

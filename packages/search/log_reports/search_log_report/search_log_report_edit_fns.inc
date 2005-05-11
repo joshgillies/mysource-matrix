@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_log_report_edit_fns.inc,v 1.4 2005/04/29 05:38:40 gsherwood Exp $
+* $Id: search_log_report_edit_fns.inc,v 1.5 2005/05/11 06:07:48 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *	A report that lists searches by month, week, or day, and by assetid
 *
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -585,7 +585,7 @@ class Search_Log_Report_Edit_Fns extends Log_Report_Edit_Fns
 
 			// put it all together
 			if ($id == 'total') {
-				$output_heading = '<b>All Search Pages<b>';
+				$output_heading = '<b>'.translate('sch_log_report_all_search_pages').'</b>';
 			} else {
 				if ($GLOBALS['SQ_SYSTEM']->am->assetExists($id)) {
 					$asset = &$GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($id), Array(), false, 'name');
@@ -600,21 +600,21 @@ class Search_Log_Report_Edit_Fns extends Log_Report_Edit_Fns
 
 			<table class="sq-backend-table">
 				<tr>
-					<td class="sq-backend-table-header" style="width: 200px">Popular Search Terms</td>
-					<td class="sq-backend-table-header">Total Searches</td>
-					<td class="sq-backend-table-header">Average Results</td>
-					<td class="sq-backend-table-header">Lowest</td>
-					<td class="sq-backend-table-header">Highest</td>
+					<td class="sq-backend-table-header" style="width: 200px">'.translate('sch_log_report_popular_search_terms').'</td>
+					<td class="sq-backend-table-header">'.translate('sch_log_report_total_searches').'</td>
+					<td class="sq-backend-table-header">'.translate('sch_log_report_average_results').'</td>
+					<td class="sq-backend-table-header">'.translate('lowest').'</td>
+					<td class="sq-backend-table-header">'.translate('highest').'</td>
 				</tr>
-				'.(!empty($output_index_popular) ? $output_index_popular : '<td class="sq-backend-table-cell" colspan="5">No Successful Searches</td>').'
+				'.(!empty($output_index_popular) ? $output_index_popular : '<td class="sq-backend-table-cell" colspan="5">'.translate('sch_log_report_no_successful_searches').'</td>').'
 			</table>
 
 			<table class="sq-backend-table">
 				<tr>
-					<td class="sq-backend-table-header" style="width: 200px">Failed Search Terms</td>
-					<td class="sq-backend-table-header">Total Failed Searches</td>
+					<td class="sq-backend-table-header" style="width: 200px">'.translate('sch_log_report_failed_search_terms').'</td>
+					<td class="sq-backend-table-header">'.translate('sch_log_report_total_failed_searches').'</td>
 				</tr>
-				'.(!empty($output_index_failed) ? $output_index_failed : '<td class="sq-backend-table-cell" colspan="2">No Failed Searches</td>').'
+				'.(!empty($output_index_failed) ? $output_index_failed : '<td class="sq-backend-table-cell" colspan="2">'.translate('sch_log_report_no_failed_searches').'</td>').'
 			</table>
 			<br />
 			';
@@ -673,7 +673,7 @@ class Search_Log_Report_Edit_Fns extends Log_Report_Edit_Fns
 
 		// remove term cache
 		if (!delete_directory($term_dir_path)) {
-			trigger_error('Rollover aborted, raw stats could not be cleared.');
+			trigger_localised_error('SCH0025', E_USER_WARNING);
 			return false;
 		}
 
@@ -681,7 +681,7 @@ class Search_Log_Report_Edit_Fns extends Log_Report_Edit_Fns
 		$from = $generated_dir_path.'/'.$logname.'.html';
 		$to   = $generated_dir_path.'/'.$logname.'.'.$formatted_date.'.html';
 		if (!rename($from, $to)) {
-			trigger_error('Rollover failed, generated report could not be moved.');
+			trigger_localised_error('SCH0024', E_USER_WARNING);
 			return false;
 		}
 
@@ -791,16 +791,16 @@ class Search_Log_Report_Edit_Fns extends Log_Report_Edit_Fns
 		}
 
 		if (!is_file($report_path)) {
-			echo 'This report has not been generated - it will be generated at the next log rotation';
+			echo translate('sch_log_report_generate_at_next_rotation');
 			return;
 		}
 
-		echo '<h3>Search Report</h3>';
+		echo '<h3>'.translate('sch_log_report_search_report').'</h3>';
 
 		// print the report selector
 		combo_box($prefix.'[generated_reports]', $generated_reports, false, $selected);
 		echo '&nbsp;';
-		submit_button($prefix.'[select_report]', 'Select Report');
+		submit_button($prefix.'[select_report]', translate('select_report'));
 		echo '<br /><br />';
 
 		include_once($report_path);
@@ -822,13 +822,13 @@ class Search_Log_Report_Edit_Fns extends Log_Report_Edit_Fns
 	{
 		$generated_date = $asset->attr('generated_date');
 		if (!empty($generated_date)) {
-			echo 'This report has not yet been generated<br />';
+			echo translate('report_not_generated').'<br />';
 		} else {
 			echo '<p>';
-			echo '    <b>This report has been generated</b><br />';
-			echo '    Date: '.$asset->attr('generated_date');
+			echo '    <b>'.translate('report_generated').'</b><br />';
+			echo '    '.translate('date').': '.$asset->attr('generated_date');
 			echo '    <br />';
-			echo '    User: '.$asset->attr('generated_user');
+			echo '    '.translate('user').': '.$asset->attr('generated_user');
 			echo '</p>';
 		}
 

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_found_in.inc,v 1.17 2005/04/29 05:40:29 gsherwood Exp $
+* $Id: form_question_rule_type_found_in.inc,v 1.18 2005/05/11 06:07:31 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -56,8 +56,8 @@ class Form_Question_Rule_Type_Found_In extends Form_Question_Rule
 	function getOperators()
 	{
 		return Array(
-				1	=> 'Must be found in...',
-				0	=> 'Must Not be found in...',
+				1	=> translate('cms_form_rule_found_in_true'),
+				0	=> translate('cms_form_rule_found_in_false'),
 			   );
 
 	}//end getOperators()
@@ -185,22 +185,18 @@ class Form_Question_Rule_Type_Found_In extends Form_Question_Rule
 		$value = array_get_index($rule_data, 'value', '');
 		$case_sensitive = array_get_index($rule_data, 'case_sensitive', 1);
 
-		$error_str = 'The response to "'.$q_asset->attr('name').'" must '.($operator == 0 ? 'not ' : '').' be found within ';
+		$string_code = 'cms_form_rule_found_in_desc_'.($operator ? 'true' : 'false');
 		$cq_id = array_get_index($rule_data, 'comparison_question_id', 0);
 
 		if ($cq_id != 0) {
+			$string_code .= '_q';
 			$comparison =& $GLOBALS['SQ_SYSTEM']->am->getAsset($cq_id);
-		$error_str .= 'the response to question "'.$comparison->attr('name').'"';
+			$value = $comparison->name;
 		} else {	// sent just a value
 			$value = array_get_index($rule_data, 'value', '');
-			$error_str .= '"'.$value.'"';
 		}
 
-		$error_str .= ' (';
-		if (!$case_sensitive) {
-			$error_str .= 'not ';
-		}
-		$error_str .= 'case sensitive)';
+		$error_str = translate($string_code, $q_asset->name, $value).' ('.translate('cms_form_'.($case_sensitive ? '' : 'not_').'case_sensitive').')';
 
 		return $error_str;
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: locale_manager.inc,v 1.7 2005/05/02 04:32:47 mmcintyre Exp $
+* $Id: locale_manager.inc,v 1.8 2005/05/11 06:05:10 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    number/date formats
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix
 */
 class Locale_Manager extends MySource_Object
@@ -208,7 +208,7 @@ class Locale_Manager extends MySource_Object
 			break;
 
 			default:
-				trigger_localised_error('CORE0193', E_USER_WARNING, $locale);
+				trigger_localised_error('SYS0193', E_USER_WARNING, $locale);
 				return false;
 			break;
 		}//end switch
@@ -237,11 +237,11 @@ class Locale_Manager extends MySource_Object
 		}
 
 		if (!isset($this->_strings[$locale])) {
-			return '';
+			return "Source string for $string_code not found"; //'localised string not found';
 		}
 
 		if (!isset($this->_strings[$locale][$string_code])) {
-			return '';
+			return "Source string for $string_code not found"; //'localised string not found';
 		}
 
 		return vsprintf($this->_strings[$locale][$string_code],$func_args);

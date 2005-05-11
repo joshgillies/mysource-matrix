@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.71 2005/05/09 04:56:16 tbarrett Exp $
+* $Id: page_asset_listing.inc,v 1.72 2005/05/11 06:07:32 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.71 $
+* @version $Revision: 1.72 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -93,7 +93,7 @@ class Page_Asset_Listing extends Listing_Engine
 	{
 		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'page_contents');
 		if ($bodycopy_link['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) {
-			return 'You cannot delete the link between the page contents and the asset listing page';
+			return translate('cms_cannot_delete_link', $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
 		}
 
 		return parent::isDeletableLink($linkid);
@@ -178,7 +178,7 @@ class Page_Asset_Listing extends Listing_Engine
 			// get our page chunk here
 			$todo =& $this->getChunk($children, $replacements, $result_page, $num_per_page);
 			$num_assets_showing = count($todo);
-			
+
 			ob_start();
 				$this->printAssetList($todo);
 				$global_contents = ob_get_contents();
@@ -407,16 +407,16 @@ class Page_Asset_Listing extends Listing_Engine
 		$keywords = parent::getContentsKeywords();
 
 		$keywords += Array(
-						'asset_listing'			=> 'Asset Listing',
-						'previous_page'			=> 'Previous Page Link',
-						'next_page'				=> 'Next Page Link',
-						'page_list'				=> 'Page List',
-						'page_number'			=> 'Page Number',
-						'asset_count'			=> 'Total Assets Listed',
-						'page_asset_count'		=> 'Total Assets Listed This Page',
-						'first_asset_position'	=> 'First Asset on Page\'s Position Number',
-						'last_asset_position'	=> 'Last Asset on Page\'s Position Number',
-						'root_nodes'			=> 'Root Nodes (Separated by Commas)',
+							'asset_listing'			=> translate('cms_listing_asset_listing'),
+							'previous_page'			=> translate('cms_listing_previous_page_link'),
+							'next_page'				=> translate('cms_listing_next_page_link'),
+							'page_list'				=> translate('cms_listing_page_list'),
+							'page_number'			=> translate('cms_listing_page_number'),
+							'asset_count'			=> translate('cms_listing_asset_count'),
+							'page_asset_count'		=> translate('cms_listing_page_asset_count'),
+							'first_asset_position'	=> translate('cms_listing_first_asset_position'),
+							'last_asset_position'	=> translate('cms_listing_last_asset_position'),
+							'root_nodes'			=> translate('cms_listing_delimited_root_nodes'),
 					 );
 
 		return $keywords;

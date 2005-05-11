@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_logical.inc,v 1.1 2005/04/06 21:40:00 gnoel Exp $
+* $Id: condition_logical.inc,v 1.2 2005/05/11 06:04:56 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition.inc';
 * of logical keywords.
 *
 * @author  Geoffroy Noel <gnoel@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -60,8 +60,8 @@ class Condition_Logical extends Condition
 	function getOptions()
 	{
 		$options = Array(
-					   '1' => 'True',
-					   '0' => 'False',
+					   '1' => translate('true'),
+					   '0' => translate('false'),
 					   );
 		
 		return $options;

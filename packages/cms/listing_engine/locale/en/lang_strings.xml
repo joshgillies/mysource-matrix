@@ -1,0 +1,58 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Commercial Module Licence                                |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file is not open source or freely usable and may be    |
+* | used subject to, and only in accordance with, the Squiz Commercial |
+* | Module Licence.                                                    |
+* | Please refer to http://www.squiz.net/licence for more information. |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_strings.xml,v 1.1 2005/05/11 06:07:32 lwright Exp $
+*
+*
+* CMS Package Localised Strings File
+*/
+-->
+<strings>
+<string source="cms_listing_no_positions_defined">There are no asset positions defined. All assets will be listed using the sorting settings.</string>
+<string source="cms_listing_new_asset_position">New Asset Position:</string>
+<string source="cms_listing_all_remaining">All remaining</string>
+<string source="cms_listing_customise_row">Customise row</string>
+<string source="cms_listing_column_all_remaining_rows">All remaining rows will have %s column(s)</string>
+<string source="cms_listing_column_page_note">Note: This asset has been configured to list %s' assets per page, so the highlighted cells will not be displayed</string>
+<string source="cms_listing_page_contents_desc">This format defines the layout of the page. Ensure you use the %%asset_listing%% keyword to include the list of assets on the page.</string>
+<string source="cms_listing_default_asset_format">Default Asset Format</string>
+<string source="cms_listing_default_asset_desc">This is the default format for all assets in the list if they do not have a customised format for their asset type or position.</string>
+<string source="cms_listing_type_format">%s Format</string>
+<string source="cms_listing_no_type_formats">There are no custom type formats defined</string>
+<string source="cms_listing_new_type_format">New Type Format:</string>
+<string source="cms_listing_position_number_format">Position %s Format</string>
+<string source="cms_listing_no_position_formats">There are no custom position formats defined</string>
+<string source="cms_listing_new_position_format">New Position Format:</string>
+<string source="cms_listing_random_selected_no_sort">Random list format is currently selected. Sorting is disabled.</string>
+<string source="cms_listing_no_types_no_sort">There are no types defined. No sorting can be applied.</string>
+<string source="cms_listing_sort_attribute">Sort Attribute</string>
+<string source="cms_listing_asset_attribute(s)">Asset Attribute(s)...</string>
+<string source="cms_listing_root_node_link_desc">The root node of the Asset Listing</string>
+<string source="cms_listing_cannot_delete_type_formats_link">You cannot delete the link between the type formats folder and the %s page</string>
+<string source="cms_listing_cannot_delete_position_formats_link">You cannot delete the link between the position formats folder and the %s page</string>
+<string source="cms_listing_asset_contents">Asset Contents</string>
+<string source="cms_listing_asset_name_linked">Asset Name Linked</string>
+<string source="cms_listing_asset_short_name_linked">Short Asset Name Linked</string>
+<string source="cms_listing_asset_position">Asset Position</string>
+<string source="cms_listing_default_sort_by_option">Default Sort By Option</string>
+<string source="cms_listing_no_sort_by_options">There are no sort by options</string>
+<string source="cms_listing_list_sort_order">List Sort Order</string>
+<string source="cms_listing_sort_option_name">Sort Option Name</string>
+<string source="cms_listing_no_attribute_sort_options">There are no sort by attribute options</string>
+<string source="cms_listing_sort_by_attribute">Sort By Attribute</string>
+<string source="cms_listing_no_field_sort_options">There are no sort by asset field options</string>
+<string source="cms_listing_sort_by_asset_field">Sort By Asset Field</string>
+<string source="cms_listing_new_sort_by_field">New Sort By Field</string>
+
+
+</strings>

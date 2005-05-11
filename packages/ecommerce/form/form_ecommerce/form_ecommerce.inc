@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce.inc,v 1.16 2005/04/29 05:39:36 gsherwood Exp $
+* $Id: form_ecommerce.inc,v 1.17 2005/05/11 06:07:35 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/orders/order/order.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -68,7 +68,7 @@ class Form_Ecommerce extends Form_Email
 		$this->Form_Email($assetid);
 
 	}//end constructor
-	
+
 	/**
 		* Returns an array of all the permitted link type, the type asset and
 	 * the cardinality
@@ -81,7 +81,7 @@ class Form_Ecommerce extends Form_Email
 		$order_links = parent::_getAllowedLinks();
 		$order_links[SQ_LINK_TYPE_3]['order'] = Array('card' => 'M');
 		return $order_links;
-		
+
 	}//end _getAllowedLinks()
 
 
@@ -240,7 +240,7 @@ class Form_Ecommerce extends Form_Email
 
 	}//end printForm()
 
-	
+
 	/**
 	* creates a new submission object
 	*
@@ -252,8 +252,8 @@ class Form_Ecommerce extends Form_Email
 		return ($order =& $this->createOrder());
 
 	}//end createSubmission()
-	
-	
+
+
 	/**
 	* Generates and prints final receipt after payment processing
 	*
@@ -302,28 +302,28 @@ class Form_Ecommerce extends Form_Email
 						<td colspan="2"><h2>Receipt</h2></td>
 					</tr>
 					<tr>
-						<td>Transaction Number:</td>
+						<td>'.translate('ecom_form_transaction_number:').'</td>
 						<td>'.$response['TRANSACTION'].'</td>
 					</tr>
 					<tr>
-						<td>Transaction Statis:</td>
+						<td>'.translate('ecom_form_transaction_status:').'</td>
 						<td>'.$response['STATUS'].'</td>
 					</tr>
 					<tr>
-						<td>Credit Card:</td>
+						<td>'.translate('ecom_form_credit_card:').'</td>
 						<td>'.$response['CARDNO'].'</td>
 					</tr>
 					<tr>
-						<td>Date:</td>
+						<td>'.translate('ecom_form_date:').'</td>
 						<td>'.$date.'</td>
 					</tr>
 				</table>
 			';
 
 		} else {
-			$header .= 'Transaction Number: '.$response['TRANSACTION']."\n";
-			$header .= 'Transaction Status: '.$response['STATUS']."\n";
-			$header .= "Date: $date\n";
+			$header .= translate('ecom_form_transaction_number:').' '.$response['TRANSACTION']."\n";
+			$header .= translate('ecom_form_transaction_status:').' '.$response['STATUS']."\n";
+			$header .= translate('ecom_form_date:').' '.$date."\n";
 		}
 
 		return $header;
@@ -386,7 +386,7 @@ class Form_Ecommerce extends Form_Email
 			$cancel_button  = $this->attr('cancel_button_name');
 
 			echo '<br /><input type="button" value="'.$confirm_button.'" onclick="document.location.href=\''.$gateway_asset_url.'\'" /><input type="button" value="'.$cancel_button.'" onclick="document.location.href=\''.$_SERVER['PHP_SELF'].'\'">';
-			
+
 			//if there is an ecommerce_cart, we want to produce an order
 			if (isset($_SESSION['sq_cart_contents'])) {
 				//create a new order and link to this asset
@@ -394,7 +394,7 @@ class Form_Ecommerce extends Form_Email
 			}
 
 		} else {
-			
+
 			//if there is an ecommerce_cart, we want to produce an order
 			if (isset($_SESSION['sq_cart_contents'])) {
 				//get the current order asset
@@ -404,7 +404,7 @@ class Form_Ecommerce extends Form_Email
 				$order->buildLinesFromCart($_SESSION['sq_cart_contents'], true);
 
 			}
-			
+
 			// if there's nothing to process, treat input as a normal form
 			unset($this->_tmp['order']);
 			$this->emailAndLog();
@@ -484,7 +484,7 @@ class Form_Ecommerce extends Form_Email
 			$order_row_fmt = '<tr class="sq_ecomTableItemRow"><td class="sq_ecomTableItemName">%s</td><td class="sq_ecomTableItemValue" align="right">%01.2f</td></tr>';
 			$total_row_fmt = '<tr class="sq_ecomTableTotalRow"><td class="sq_ecomTableTotalName" align="right">%s</td><td class="sq_ecomTableTotalValue" align="right">$%01.2f</td></tr>';
 		} else {
-			$receipt_fmt   = "RECEIPT:\n############################\n%s\n%s\n############################";
+			$receipt_fmt   = strtoupper(translate('ecom_form_receipt:'))."\n############################\n%s\n%s\n############################";
 			$order_row_fmt = "%s: %01.2f\n";
 			$total_row_fmt = "*** %s: $%01.2f ***\n";
 		}
@@ -494,7 +494,7 @@ class Form_Ecommerce extends Form_Email
 			$rows .= sprintf($order_row_fmt, $item['name'], $item['price']);
 		}
 
-		$total   = sprintf($total_row_fmt, 'Total:', $order['total']);
+		$total   = sprintf($total_row_fmt, translate('ecom_form_total:'), $order['total']);
 		$receipt = sprintf($receipt_fmt, $rows, $total);
 
 		return $receipt;
@@ -661,8 +661,8 @@ class Form_Ecommerce extends Form_Email
 		return true;
 
 	}//end runSelectiveEmails()
-	
-	
+
+
 }//end class
 
 ?>

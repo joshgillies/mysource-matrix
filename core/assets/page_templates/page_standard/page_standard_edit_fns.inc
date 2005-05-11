@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_standard_edit_fns.inc,v 1.5 2005/04/15 00:37:26 lwright Exp $
+* $Id: page_standard_edit_fns.inc,v 1.6 2005/05/11 06:04:54 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -66,7 +66,7 @@ class Page_Standard_Edit_Fns extends Page_Edit_Fns
 		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'major', null, '1', '1');
 		$bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link[0]['minorid'], 'bodycopy');
 		if (is_null($bodycopy)) {
-			trigger_localised_error("CORE0016", E_USER_ERROR, $asset->name);
+			trigger_localised_error('CORE0016', E_USER_ERROR, $asset->name);
 			return false;
 		}
 

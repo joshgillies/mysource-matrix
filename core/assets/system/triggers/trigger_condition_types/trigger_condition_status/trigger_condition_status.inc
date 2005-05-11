@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_status.inc,v 1.5 2005/04/28 05:22:07 rhoward Exp $
+* $Id: trigger_condition_status.inc,v 1.6 2005/05/11 06:05:05 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -111,13 +111,13 @@ class Trigger_Condition_Status extends Trigger_Condition
 			$form_element_extras = '';
 		}
 
-		// capture anything printed
+		// begin buffering basic options
 		ob_start();
+			combo_box($prefix.'[status]', $status_list, false, $selected_status, null, $form_element_extras);
+			$basic_part_1 = ob_get_contents();
+		ob_end_clean();
 
-		echo 'Asset has the current status of:';
-		combo_box($prefix.'[status]', $status_list, false, $selected_status, null, $form_element_extras);
-
-		return ob_get_clean();
+		return translate('trigger_has_status_basic', $basic_part_1);
 
 	}//end getInterface()
 
@@ -143,7 +143,7 @@ class Trigger_Condition_Status extends Trigger_Condition
 			$settings['status'] = $status;
 			return false;
 		} else {
-			return 'Selected status is invalid';
+			return translate('trigger_selected_status_invalid');
 		}
 
 	}//end processInterface()

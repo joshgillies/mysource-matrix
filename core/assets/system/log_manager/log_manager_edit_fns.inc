@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: log_manager_edit_fns.inc,v 1.6 2005/04/20 00:30:39 rhoward Exp $
+* $Id: log_manager_edit_fns.inc,v 1.7 2005/05/11 06:04:59 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard  <rhoward@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -53,7 +53,7 @@ class Log_Manager_Edit_Fns extends Asset_Edit_Fns
 		$this->static_screens = Array();
 
 		// enable just the details
-		$this->static_screens['details']['name']         ='Details';
+		$this->static_screens['details']['name']         =translate('details');
 		$this->static_screens['details']['force_unlock'] = false;
 		$this->static_screens['details']['lock_type']    = 'none';
 
@@ -76,7 +76,7 @@ class Log_Manager_Edit_Fns extends Asset_Edit_Fns
 		$o->openRaw();
 		$logs = $lm->getLogs();
 		if (empty($logs)) {
-			echo '<h2>No Logs Found</h2>';
+			echo '<h2>'.translate('no_logs_found').'</h2>';
 			return $write_access;
 		}
 
@@ -282,8 +282,8 @@ class Log_Manager_Edit_Fns extends Asset_Edit_Fns
 		</script>
 		<table class="sq-backend-table">
 			<tr>
-				<th style="width: 10%">Log Name</th>
-				<th style="width: 50%">Info</th>
+				<th style="width: 10%"><?php echo translate('log_name'); ?></th>
+				<th style="width: 50%"><?php echo translate('info'); ?></th>
 				<th>Action</th>
 			</tr>
 		<?php
@@ -304,9 +304,9 @@ class Log_Manager_Edit_Fns extends Asset_Edit_Fns
 			<tr>
 				<td><strong><?php echo $logname; ?></strong></td>
 				<td>
-					Modified: <strong><?php echo $last_modified; ?></strong>
+					<?php echo translate('modified'); ?>: <strong><?php echo $last_modified; ?></strong>
 					<br />
-					Rotated: <strong><?php echo $last_rotated; ?></strong>
+					<?php echo translate('rotated'); ?>: <strong><?php echo $last_rotated; ?></strong>
 				</td>
 				<td>
 					<input type="button" onclick="monitorLog('<?php echo $logname; ?>');" value="Monitor" />
@@ -319,36 +319,36 @@ class Log_Manager_Edit_Fns extends Asset_Edit_Fns
 		$o->closeRaw();
 		$o->closeSection();
 
-		$o->openSection('Log Monitor');
+		$o->openSection(translate('log_monitor'));
 			$o->openRaw('');
 				?>
 				<div id="sq-log-monitor-initial-message">
-					To monitor a log, click "Monitor" in the list of known logs (above).
+					<?php echo translate('moniter_logs_instructions'); ?>
 				</div>
 				<div id="sq-log-monitor-containter" style="display: none;">
 					<table class="sq-backend-table">
 						<tr>
 							<td>
-								Log: <strong id="sq-log-name"></strong>
+								<?php echo translate('log'); ?>: <strong id="sq-log-name"></strong>
 								&nbsp;&nbsp;&nbsp;
-								Loaded: <strong id="sq-log-last-refresh"></strong>
+								<?php echo translate('loaded'); ?>: <strong id="sq-log-last-refresh"></strong>
 								&nbsp;&nbsp;&nbsp;
-								Rows displayed: <strong id="sq-log-total-rows"></strong>
+								<?php echo translate('rows_displayed'); ?>: <strong id="sq-log-total-rows"></strong>
 
 							</td>
 							<td style="text-align: right">
-								Auto-Refresh: <strong id="sq-log-refresh-status">&nbsp;</strong>
+								<?php echo translate('auto-refresh'); ?>: <strong id="sq-log-refresh-status">&nbsp;</strong>
 								<input type="button" onclick="toggleLogRefreshStatus();" id="sq-log-refresh-enabler" value="" />
 								&nbsp;&nbsp;&nbsp;
-								Refresh Interval:
+								<?php echo translate('refresh_interval'); ?>:
 								<select name="sq-log-refresh-interval" id="sq-log-refresh-interval" onchange="setRefreshInterval(this.value)">
-									<option value="15">15 sec</option>
-									<option value="30" selected="selected">30 sec</option>
-									<option value="60">1 min</option>
-									<option value="300">5 min</option>
+									<option value="15">15 <?php echo translate('sec'); ?></option>
+									<option value="30" selected="selected">30 <?php echo translate('sec'); ?></option>
+									<option value="60">1 <?php echo translate('min'); ?></option>
+									<option value="300">5 <?php echo translate('min'); ?></option>
 								</select>
 								&nbsp;&nbsp;&nbsp;
-								<input type="button" onclick="forceRefresh();" id="sq-log-refresh-force" value="Refresh Now" />
+								<input type="button" onclick="forceRefresh();" id="sq-log-refresh-force" value="<?php echo translate('refresh_now'); ?>" />
 							</td>
 						</tr>
 					</table>

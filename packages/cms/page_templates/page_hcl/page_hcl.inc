@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_hcl.inc,v 1.8 2005/04/29 05:40:31 gsherwood Exp $
+* $Id: page_hcl.inc,v 1.9 2005/05/11 06:07:33 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once 'XML/Tree.php';
 * Purpose
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -88,7 +88,7 @@ class Page_HCL extends Page
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
 		switch (strtolower($link['value'])) {
 			case 'root' :
-				return 'The root node of the Harvest Control List';
+				return translate('cms_root_node_link_desc', translate('cms_hcl_asset_name'));
 			break;
 			default :
 				return parent::describeLink($linkid);

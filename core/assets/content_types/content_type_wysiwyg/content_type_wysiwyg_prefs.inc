@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_prefs.inc,v 1.6 2004/12/06 14:38:08 brobertson Exp $
+* $Id: content_type_wysiwyg_prefs.inc,v 1.7 2005/05/11 06:04:49 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/config/prefs.inc';
 *    Looks after the creation the WYSIWYG preferences
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 */
 class Content_Type_WYSIWYG_Prefs extends Prefs
@@ -83,25 +83,25 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
 
 		if (is_null($pref) || $pref == 'SQ_WYSIWYG_STYLE') {
-			if (is_null($pref)) $o->openField('WYSIWYG Style');
+			if (is_null($pref)) $o->openField(translate('wysiwyg_style'));
 				$wysiwyg_style = $this->pref_vars['SQ_WYSIWYG_STYLE']['default'];
 				?>
 				<table class="sq-backend-table" style="width: 350px;">
 					<tr>
-						<td class="sq-backend-table-header" nowrap="nowrap">Body Type</td>
+						<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('body_type'); ?></td>
 						<td class="sq-backend-table-cell" style="width: 100%;">
 						<?php
 						if ($have_lock && $is_admin) {
-							combo_box('prefs[SQ_WYSIWYG_STYLE][body_type]', Array('div' => 'DIV', 'iframe' => 'iFrame'), false, $wysiwyg_style['body_type']);
+							combo_box('prefs[SQ_WYSIWYG_STYLE][body_type]', Array('div' => translate('div'), 'iframe' => translate('iframe')), false, $wysiwyg_style['body_type']);
 						} else {
 							echo $wysiwyg_style['body_type'];
 						}
 						?>
-						<br /><i>In Mozilla, an iFrame will always be used. This setting only affects Internet Explorer.</i>
+						<br /><i><?php echo translate('mozilla_always_uses_iframe'); ?></i>
 						</td>
 					</tr>
 					<tr>
-						<td class="sq-backend-table-header" nowrap="nowrap">Width</td>
+						<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('width'); ?></td>
 						<td class="sq-backend-table-cell" style="width: 100%;">
 						<?php
 						if ($have_lock && $is_admin) {
@@ -113,7 +113,7 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 						</td>
 					</tr>
 					<tr>
-						<td class="sq-backend-table-header" nowrap="nowrap">Height</td>
+						<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('height'); ?></td>
 						<td class="sq-backend-table-cell" style="width: 100%;">
 						<?php
 						if ($have_lock && $is_admin) {
@@ -131,7 +131,7 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 
 
 		if (is_null($pref) || $pref == 'SQ_WYSIWYG_PLUGINS') {
-			if (is_null($pref)) $o->openField('WYSIWYG Plugins');
+			if (is_null($pref)) $o->openField(translate('wysiwyg_plugins'));
 				$plugins = explode('|', $this->pref_vars['SQ_WYSIWYG_PLUGINS']['default']);
 				$all = in_array('all', $plugins);
 
@@ -146,7 +146,7 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 					}
 				} else {
 					if ($all) {
-						echo 'All plugins are selected';
+						echo translate('all_plugins_selected');
 					} else {
 						echo '<ul>';
 						foreach ($plugins as $plugin_name) {
@@ -159,13 +159,13 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 		}
 
 		if ($GLOBALS['SQ_SYSTEM']->am->installed('thesaurus') && (is_null($pref) || $pref == 'SQ_THESAURUS')) {
-			if (is_null($pref)) $o->openField('Thesaurus');
+			if (is_null($pref)) $o->openField(translate('thesaurus'));
 			if ($have_lock && $is_admin) {
 				asset_finder('prefs[SQ_THESAURUS]', $this->pref_vars['SQ_THESAURUS']['default'], Array('thesaurus'=>'A'));
-				echo '<br /><i>The thesaurus asset used by the Matrix Expand Keywords plugin</i>';
+				echo '<br /><i>'.translate('thesaurus_used_by_matrix_expand_keywords_plugin').'</i>';
 			} else {
 				if (!$this->pref_vars['SQ_THESAURUS']['default']) {
-					echo '(none selected)';
+					echo '('.translate('none_selected').')';
 				} else {
 					$info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($this->pref_vars['SQ_THESAURUS']['default']));
 					$info = current($info);

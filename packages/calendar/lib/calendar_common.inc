@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.28 2005/04/29 05:39:19 gsherwood Exp $
+* $Id: calendar_common.inc,v 1.29 2005/05/11 06:07:21 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -1152,10 +1152,11 @@ function get_ms($value)
 
 
 /**
-*
+* Returns a QUOTED array of a type's descendants
 *
 * @param string $type_code
 *
+* @see    Asset_Manager::getTypeDescendants()
 * @return Array
 * @access public
 */

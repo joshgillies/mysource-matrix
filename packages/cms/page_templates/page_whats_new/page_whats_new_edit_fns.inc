@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_whats_new_edit_fns.inc,v 1.6 2005/04/29 05:40:32 gsherwood Exp $
+* $Id: page_whats_new_edit_fns.inc,v 1.7 2005/05/11 06:07:33 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once dirname(__FILE__).'/../../page_templates/page_asset_listing/page_as
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -59,11 +59,11 @@ class Page_Whats_New_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 		$ranges = $asset->attr('date_ranges');
 
 		if (empty($ranges)) {
-			echo 'There are no ranges';
+			echo translate('cms_whats_new_no_ranges');
 		} else {
 			foreach ($ranges as $id => $info) $options[$id] = $info['name'];
 			$options = array_reverse($options);
-			$options[] = '-- Please Select --';
+			$options[] = '-- '.translate('please_select').' --';
 			$options = array_reverse($options);
 
 			combo_box($prefix.'_range_id', $options, false, '', 0 , 'onchange="this.form.submit();"');
@@ -150,7 +150,7 @@ class Page_Whats_New_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 			// remove 1 from the index because of the please select option
 			$rangeid = $_POST[$prefix.'_range_id'] - 1;
 		} else {
-			echo 'Please select a date range to customise';
+			echo translate('cms_whats_new_select_range');
 			return false;
 		}
 
@@ -187,8 +187,8 @@ class Page_Whats_New_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 
 		// only add an option to remove this range if it has a name (it has been saved)
 		if ($asset->writeAccess('attributes') && trim($range_name) != '') {
-			$o->openField('Remove ?');
-					check_box($prefix.'_remove', false);
+			$o->openField(translate('remove_question'));
+				check_box($prefix.'_remove', false);
 			$o->closeField();
 		}
 

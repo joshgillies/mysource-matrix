@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: authentication_ldap.inc,v 1.4 2005/04/29 05:38:57 gsherwood Exp $
+* $Id: authentication_ldap.inc,v 1.5 2005/05/11 06:07:42 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -56,7 +56,14 @@ class Authentication_LDAP extends Authentication
 	*/
 	function _getAllowedLinks()
 	{
-		return Array(SQ_LINK_TYPE_1 => Array('ldap_bridge' => Array('card' => 'M', 'exclusive' => false)));
+		return Array(
+					SQ_LINK_TYPE_1	=> Array(
+											'ldap_bridge'	=> Array(
+																	'card'		=> 'M',
+																	'exclusive'	=> false,
+															   )
+									   )
+			   );
 
 	}//end _getAllowedLinks()
 

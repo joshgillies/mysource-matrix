@@ -18,13 +18,15 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: keyword_extraction.php,v 1.2 2004/12/06 14:38:09 brobertson Exp $
+* $Id: keyword_extraction.php,v 1.3 2005/05/11 06:04:52 lwright Exp $
 *
 */
 
 	require_once dirname(__FILE__).'/../../../../../core/include/init.inc';
 	require_once dirname(__FILE__).'/../../../../../core/lib/html_form/html_form.inc';
 	if (!isset($_GET['assetid'])) return false;
+
+
 
 	assert_valid_assetid($_GET['assetid']);
 	$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($_GET['assetid']);
@@ -61,19 +63,19 @@
 		//$backend = new Backend();
 		$o =& new Backend_Outputter();
 
-		$o->openSection('Keyword Extraction for \''.$asset->attr('name').'\' (#'.$asset->id.')');
-		$o->openField('&nbsp;');
+		$o->openSection(translate('keyword_extraction_for', translate('asset_format', $asset->attr('name'), $asset->id)));
+		$o->openField('');
 	?>
-				<p>These keywords have been extracted from the Search Manager's index for '<?php echo $asset->attr('name') ?>' (#<?php echo $asset->id ?>)  and are listed in descending order of importance according to the weightings set. They do not include index entries for metadata fields.</p>
-				<p>You may copy and paste the contents of the box below into a metadata field if you so wish.</p>
+				<p><?php echo translate('kewords_for_asset', translate('asset_format', $asset->attr('name'), $asset->id)); ?></p>
+				<p><?php echo translate('use_keywords_in_metadata_fields'); ?></p>
 
 		<p>
 		<fieldset>
-			<legend><b>Extracted Keywords</b></legend>
+			<legend><b><?php echo translate('extracted_keywords'); ?></b></legend>
 			<?php
 $sm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
 if (empty($sm)) {
-?>The search manager is not installed, therefore no keywords are available<?php
+	echo translate('keyword_list_not_available');
 } else {
 
 $keywords = $sm->extractKeywords($asset);
@@ -84,7 +86,7 @@ print implode(', ', $keywords);
 		</p>
 <?php
 $o->openField('', 'commit');
-normal_button('cancel', 'Close Window', 'window.close()');
+normal_button('cancel', translate('close_window'), 'window.close()');
 $o->closeSection();
 $o->paint();
 ?>

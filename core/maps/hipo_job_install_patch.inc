@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_install_patch.inc,v 1.12 2005/04/27 03:26:28 lwright Exp $
+* $Id: hipo_job_install_patch.inc,v 1.13 2005/05/11 06:05:11 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix
 * @subpackage MAPS
 */
@@ -203,7 +203,7 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 	function initialise($source_code_name=null)
 	{
 		if (!isset($this->_running_vars['patchid'])) {
-			trigger_error('Cannot initialise Install Patch HIPO, no patch ID specified', E_USER_WARNING);
+			trigger_localised_error('HIPO0060', E_USER_WARNING);
 			return '';
 		}
 
@@ -241,8 +241,8 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 	function paintPleaseWait(&$step_data, &$o, $prefix)
 	{
 
-		$o->openSection('Please Wait');
-			$o->openField('Please wait - '.strtolower($step_data['name']).'...');
+		$o->openSection(translate('please_wait'));
+			$o->openField(translate('please_wait').' - '.strtolower($step_data['name']).'...');
 			$o->closeField();
 		$o->closeSection();
 		return true;
@@ -288,35 +288,35 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 					</script>
 					<img style="float: left;" src="<?php echo $o->filesPath('/images/maps/install.png'); ?>" wdth="70" height="69" />
 					<span class="sq-backend-warning">
-					<b>Please ensure you have backed up your system before continuing. You must tick the box below to confirm and continue installation of the patch.</b><br /><br />
-					<?php check_box('maps_backup_confirm', '1', false, 'Javascript: setNextButtonStatus();'); ?> <b>Yes, I have backed up my system</b>
+					<b><?php echo translate('maps_hipo_ensure_backup'); ?></b><br /><br />
+					<?php check_box('maps_backup_confirm', '1', false, 'Javascript: setNextButtonStatus();'); ?> <b><?php echo translate('maps_hipo_backup_confirm'); ?></b>
 					</span>
 				<?php
 			$o->closeField();
 		$o->closeSection();
 
-		$o->openSection('Install Options');
+		$o->openSection(translate('install_options'));
 			$o->openField('');
 				?>
 				<table>
 					<tr>
 						<td class="sq-backend-field" align="center">&nbsp;</td>
-						<td class="sq-backend-field">Name</td>
-						<td class="sq-backend-field">Description</td>
-						<td class="sq-backend-field" align="center">Danger</td>
+						<td class="sq-backend-field"><?php translate('name'); ?></td>
+						<td class="sq-backend-field"><?php echo translate('description'); ?></td>
+						<td class="sq-backend-field" align="center"><?php echo translate('danger'); ?></td>
 					</tr>
 					<tr>
 						<td class="sq-backend-data" align="center" valign="top">
 							<?php check_box('maps_ignore_file_checks'); ?>
 						</td>
 						<td class="sq-backend-data" nowrap="nowrap" valign="top">
-							Ignore File Checks
+							<?php echo translate('maps_ignore_filechecks'); ?>
 						</td>
 						<td class="sq-backend-data" valign="top">
-							Ignore checking of local files in favour of directly replacing them with patched version
+							<?php echo translate('maps_ignore_local_filechecks'); ?>
 						</td>
 						<td class="sq-backend-data" valign="top" align="center">
-							<span style="color: #FF0000;"><b>High</b></span>
+							<span style="color: #FF0000;"><b><?php echo translate('high'); ?></b></span>
 						</td>
 					</tr>
 				</table>
@@ -330,28 +330,28 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 			$o->closeField();
 		$o->closeSection();
 
-		$o->openSection('Patch Details');
+		$o->openSection(translate('patch_details'));
 			$o->openField('Severity');
 				echo $patch_info['severity'];
 			$o->closeField();
 			$o->openField('');
-				echo '<b>File Updates:</b>&nbsp;';
+				echo '<b>'.translate('maps_file_updates').':</b>&nbsp;';
 				echo (
 						empty($patch_info['updated_files']) &&
 						empty($patch_info['new_files']) &&
 						empty($patch_info['deleted_files'])
-					  ) ? 'No' : 'Yes';
-				echo '&nbsp;&nbsp;<b>Database Changes:</b>&nbsp;';
-				echo (empty($patch_info['queries'])) ? 'No' : 'Yes';
-				echo '&nbsp;&nbsp;<b>Reversible:</b>&nbsp;';
-				echo ($patch_info['reversible']) ? 'Yes' : 'No';
+					  ) ? translate('no') : translate('yes');
+				echo '&nbsp;&nbsp;<b>'.translate('maps_database_changes').':</b>&nbsp;';
+				echo (empty($patch_info['queries'])) ? translate('no') : translate('yes');
+				echo '&nbsp;&nbsp;<b>'.translate('reversable').':</b>&nbsp;';
+				echo ($patch_info['reversible']) ? translate('yes') : translate('no');
 			$o->closeField();
-			$o->openField('Description');
+			$o->openField(translate('description'));
 				echo $patch_info['patch_description'];
 			$o->closeField();
 		$o->closeSection();
 
-		$o->openSection('Change Log');
+		$o->openSection(translate('change_log'));
 			$i = 1;
 			foreach ($patch_info['changelog'] as $change) {
 				$o->openField($i.'.');
@@ -681,7 +681,7 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 				}
 				// backup the existing file
 				if (!copy($from, $to)) {
-					trigger_error('Failed to backup file "'.$from.'" - upgrade aborted', E_USER_ERROR);
+					trigger_localised_error('MAPS0046', E_USER_ERROR, $from);
 					return false;
 				}
 			}
@@ -707,7 +707,7 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 			}
 
 			if (!copy($from, $to)) {
-				trigger_error('Failed to backup file "'.$from.'" - upgrade aborted', E_USER_ERROR);
+				trigger_localised_error('MAPS0046', E_USER_ERROR, $from);
 				return false;
 			}
 		}

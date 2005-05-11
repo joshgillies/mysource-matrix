@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: int.inc,v 1.26 2005/01/19 12:54:37 brobertson Exp $
+* $Id: int.inc,v 1.27 2005/05/11 06:05:07 lwright Exp $
 *
 */
 
@@ -37,7 +37,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *    <int width="10" />
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -95,7 +95,7 @@ class Asset_Attribute_Int extends Asset_Attribute
 		}
 
 		$allow_negative = array_get_index($this->_params, 'allow_negative', true);
-
+		//TODO: TRANSLATE: other js changes here
 		$javascript ='
 			onFocus="javascript: this.__sq_init_value = this.value;"
 			onKeyPress="javascript:

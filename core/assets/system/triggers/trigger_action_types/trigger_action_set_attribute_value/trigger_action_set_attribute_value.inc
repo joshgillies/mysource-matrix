@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_attribute_value.inc,v 1.4 2005/05/05 05:56:07 tbarrett Exp $
+* $Id: trigger_action_set_attribute_value.inc,v 1.5 2005/05/11 06:05:02 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -121,53 +121,63 @@ class Trigger_Action_Set_Attribute_Value extends Trigger_Action
 	*/
 	function getInterface($settings, $prefix, $write_access=false)
 	{
-		ob_start();
+		// begin buffering basic options
 
 		$selected_type = array_get_index($settings, 'asset_type', '');
-		echo 'Set the value of the ';
-		if ($write_access) {
-			asset_type_chooser($prefix.'[asset_type]', false, Array($selected_type), true);
-		} else {
-			echo '<b>'.$selected_type.'</b>';
-		}
-
-		echo ' attribute ';
-		if ($selected_type == '') {
-			echo '<b>[asset type not selected]</b';
-		} else {
-			$attribute = array_get_index($settings, 'attribute', '');
-			$attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($selected_type);
-			if (empty($attrs)) {
-				echo '<b>[no attributes found for asset type]</b>';
+		ob_start();
+			if ($write_access) {
+				asset_type_chooser($prefix.'[asset_type]', false, Array($selected_type), true);
 			} else {
-				if ($write_access) {
-					$attr_options = Array('' => '');
-					foreach ($attrs as $attr_name => $attr_type) {
-						$attr_options[$attr_name] = $attr_name;
-					}
-					combo_box($prefix.'[attribute]', $attr_options, false, $attribute);
+				echo '<b>'.$selected_type.'</b>';
+			}
+
+			$basic_part_1 = ob_get_contents();
+		ob_end_clean();
+
+		ob_start();
+			if ($selected_type == '') {
+				echo '<b>['.translate('asset_type_not_selected').']</b';
+			} else {
+				$attribute = array_get_index($settings, 'attribute', '');
+				$attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($selected_type, Array('name'));
+				if (empty($attrs)) {
+					echo '<b>['.translate('asset_type_no_attributes_found').']</b>';
 				} else {
-					echo '<b>'.$attribute.'</b>';
+					if ($write_access) {
+						$attr_options = Array('' => '');
+						foreach ($attrs as $attr_name) {
+							$attr_options[$attr_name] = $attr_name;
+						}
+						combo_box($prefix.'[attribute]', $attr_options, false, $attribute);
+					} else {
+						echo '<b>'.$attribute.'</b>';
+					}
 				}
 			}
-		}
 
-		echo ' to the value<br/>';
-		$value = array_get_index($settings, 'value', '');
-		if ($write_access) {
-			text_area($prefix.'[value]', $value, 80, 5);
-		} else {
-			echo '<b>'.$value.'</b>';
-		}
+			$basic_part_2 = ob_get_contents();
+		ob_end_clean();
 
-		
+		ob_start();
+			$value = array_get_index($settings, 'value', '');
+			if ($write_access) {
+				text_area($prefix.'[value]', $value, 80, 5);
+			} else {
+				echo '<b>'.$value.'</b>';
+			}
+
+			$basic_part_3 = ob_get_contents();
+		ob_end_clean();
+
+		$output = translate('trigger_set_attribute_value_basic', $basic_part_1, $basic_part_2, $basic_part_3);
+
 		if (!empty($selected_type) && isset($attrs[$attribute])) {
 			if (in_array($attrs[$attribute], Array('serialise', 'parameter_map'))) {
-				echo '<br /><i>You have selected a serialised attribute.  The value you set it to must be a valid PHP expression, for example "Array(1, 2, 4)"</i>';
+				$output .= '<br /><i>'.translate('trigger_set_attribute_value_serialise_note').'</i>';
 			}
 		}
 
-		return ob_get_clean();
+		return $output;
 
 	}//end getInterface()
 
@@ -186,7 +196,7 @@ class Trigger_Action_Set_Attribute_Value extends Trigger_Action
 	function processInterface(&$settings, $request_data)
 	{
 		$type_code = array_get_index($request_data, 'asset_type', false);
-		if (!$type_code) return 'Asset type not specified';
+		if (!$type_code) return translate('asset_type_not_specified');
 		$settings['asset_type'] = $type_code;
 
 		$settings['attribute'] = array_get_index($request_data, 'attribute', '');

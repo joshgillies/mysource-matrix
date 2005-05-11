@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.4 2005/05/06 02:39:06 ndvries Exp $
+* $Id: lang_errors.xml,v 1.5 2005/05/11 06:05:11 lwright Exp $
 *
 */
 
@@ -209,6 +209,8 @@
 
 	<error code="HIPO0059">Unknown Area Type : "%s"</error>
 		<!-- core/hipo/hipo_backend_outputter.inc:301: -->
+
+	<error code="HIPO0060">Unable to initialise Install Patch HIPO, no patch ID specified</error>
 
 	<!-- CRON MANAGER -->
 
@@ -1219,62 +1221,62 @@ This may be due to permissions for the current user "%6$s" (#%7$s)</error><!-- c
 
 	<error code="SYS0274">Unable to Construct "%s" - all Asset Management classes MUST inherit directly from the Asset_Management class</error><!-- core/include/asset_management.inc: -->
 
-	<error code="SYS0275">%1$s not found for Asset Type "%2$s"</error><!-- /home/dheppell/matrix_dev/install/install.inc:659: -->
+	<error code="SYS0275">%1$s not found for Asset Type "%2$s"</error><!-- /install/install.inc:659: -->
 
 	<error code="SYS0276">%1$s requires PHP Version %2$s. You may need to upgrade.
 Current version: %3$s</error>
-		<!-- /home/dheppell/matrix_dev/install/step_03.php:105: step_04.php:69-->
+		<!-- /install/step_03.php:105: step_04.php:69-->
 
-	<error code="SYS0277">AUTHENTICATION TYPE "%s" NOT CREATED</error><!-- /home/dheppell/matrix_dev/install/install.inc:478: -->
+	<error code="SYS0277">AUTHENTICATION TYPE "%s" NOT CREATED</error><!-- /install/install.inc:478: -->
 
-	<error code="SYS0278">Asset hierarchy would be corrupted, uninstall not committed</error><!-- /home/dheppell/matrix_dev/install/install.inc:145: -->
+	<error code="SYS0278">Asset hierarchy would be corrupted, uninstall not committed</error><!-- /install/install.inc:145: -->
 
-	<error code="SYS0279">Config Generation Failed</error><!-- /home/dheppell/matrix_dev/install/step_03.php:113: -->
+	<error code="SYS0279">Config Generation Failed</error><!-- /install/step_03.php:113: -->
 
-	<error code="SYS0280">Config Generation Failed</error><!-- /home/dheppell/matrix_dev/install/step_04.php:77: -->
+	<error code="SYS0280">Config Generation Failed</error><!-- /install/step_04.php:77: -->
 
-	<error code="SYS0281">Failed to install (due to dependancies) following assets: %s</error><!-- /home/dheppell/matrix_dev/install/step_03.php:143: -->
+	<error code="SYS0281">Failed to install (due to dependancies) following assets: %s</error><!-- /install/step_03.php:143: -->
 
 	<error code="SYS0282">One or more of the parents for the asset type '%1$s' no longer exists in the system. The system may be broken until you restore the necessary files of the parent asset type to their proper location
-'%2$s' depends on: %3$s</error><!-- /home/dheppell/matrix_dev/install/install.inc:138: -->
+'%2$s' depends on: %3$s</error><!-- /install/install.inc:138: -->
 
-	<error code="SYS0283">PACKAGE TABLE INSTALL FAILURE</error><!-- /home/dheppell/matrix_dev/install/install.inc:409: --><!-- Note: below error had html in it -->
+	<error code="SYS0283">PACKAGE TABLE INSTALL FAILURE</error><!-- /install/install.inc:409: --><!-- Note: below error had html in it -->
 
-	<error code="SYS0284">Path to the System Root required as query string variable called SYSTEM_ROOT</error><!-- /home/dheppell/matrix_dev/install/step_02.php:54: step_03.php:76: step_04.php:55:-->
+	<error code="SYS0284">Path to the System Root required as query string variable called SYSTEM_ROOT</error><!-- /install/step_02.php:54: step_03.php:76: step_04.php:55:-->
 
 	<error code="SYS0285">Requires System Root as the first argument
 </error>
-		<!-- /home/dheppell/matrix_dev/install/step_02.php:54: step_03.php:76: step_04.php:55:-->
+		<!-- /install/step_02.php:54: step_03.php:76: step_04.php:55:-->
 
 	<error code="SYS0286">SQL error while deleting asset type '%1$s': %2$s
-%3$s</error><!-- /home/dheppell/matrix_dev/install/install.inc:159, 171, 181 -->
+%3$s</error><!-- /install/install.inc:159, 171, 181 -->
 
 	<error code="SYS0287">SQL error while deleting package "%1$s": %2$s
-%3$s</error><!-- /home/dheppell/matrix_dev/install/install.inc:236: -->
+%3$s</error><!-- /install/install.inc:236: -->
 
-	<error code="SYS0288">Skipping translation for string source code "%s", translation appears to be empty</error><!-- /home/dheppell/matrix_dev/install/install.inc:1214: -->
+	<error code="SYS0288">Skipping translation for string source code "%s", translation appears to be empty</error><!-- /install/install.inc:1214: -->
 
-	<error code="SYS0289">TABLE INSTALL FAILURE</error><!-- /home/dheppell/matrix_dev/install/step_02.php:77: -->
+	<error code="SYS0289">TABLE INSTALL FAILURE</error><!-- /install/step_02.php:77: -->
 
 	<error code="SYS0290">Unable to Read File : %1$s
 %2$s
-%3$s</error><!-- /home/dheppell/matrix_dev/install/install.inc:728, 744, 926, 946, 1184 -->
+%3$s</error><!-- /install/install.inc:728, 744, 926, 946, 1184 -->
 
-	<error code="SYS0291">Unable to cache the asset types</error><!-- /home/dheppell/matrix_dev/install/install.inc:549: -->
+	<error code="SYS0291">Unable to cache the asset types</error><!-- /install/install.inc:549: -->
 
-	<error code="SYS0292">Unable to delete the asset map file for "%s"</error><!-- /home/dheppell/matrix_dev/install/install.inc:243: -->
+	<error code="SYS0292">Unable to delete the asset map file for "%s"</error><!-- /install/install.inc:243: -->
 
-	<error code="SYS0293">Unable to initialise File Versioning Repository</error><!-- /home/dheppell/matrix_dev/install/step_02.php:82: -->
+	<error code="SYS0293">Unable to initialise File Versioning Repository</error><!-- /install/step_02.php:82: -->
 
-	<error code="SYS0294">XML file "%1$s" does not appear to be a valid string source XML file - detected duplicate string source code "%2$s"</error><!-- /home/dheppell/matrix_dev/install/install.inc:1211: -->
+	<error code="SYS0294">XML file "%1$s" does not appear to be a valid string source XML file - detected duplicate string source code "%2$s"</error><!-- /install/install.inc:1211: -->
 
-	<error code="SYS0295">XML file "%1$s" does not appear to be a valid string source XML file - expecting "strings" as document element, found "%2$s"</error><!-- /home/dheppell/matrix_dev/install/install.inc:1189: -->
+	<error code="SYS0295">XML file "%1$s" does not appear to be a valid string source XML file - expecting "strings" as document element, found "%2$s"</error><!-- /install/install.inc:1189: -->
 
-	<error code="SYS0296">XML file "%1$s" does not appear to be a valid string source XML file - expecting node "string", found "%2$s"</error><!-- /home/dheppell/matrix_dev/install/install.inc:1195: -->
+	<error code="SYS0296">XML file "%1$s" does not appear to be a valid string source XML file - expecting node "string", found "%2$s"</error><!-- /install/install.inc:1195: -->
 
-	<error code="SYS0297">XML file "%1$s" does not appear to be a valid string source XML file - missing attribute "source" in string node</error><!-- /home/dheppell/matrix_dev/install/install.inc:1200: -->
+	<error code="SYS0297">XML file "%1$s" does not appear to be a valid string source XML file - missing attribute "source" in string node</error><!-- /install/install.inc:1200: -->
 
-	<error code="SYS0298">Static screen sections need a code for each field</error><!-- /home/dheppell/matrix_dev/install/install.inc:991: -->
+	<error code="SYS0298">Static screen sections need a code for each field</error><!-- /install/install.inc:991: -->
 
 	<error code="SYS0299">Failed clearing system version of asset "%s", could not create sytem directory</error>
 
@@ -1519,8 +1521,9 @@ Full Node Contents :
 	<error code="CORE0215">You are unable to set sub menu's on the recursive menu type</error>
 
 	<error code="CORE0216">Format for type %s not found</error>
+	<error code="CORE0217">Condition %1$s (%2$s) not saved: %3$s</error>
 
-	<error code="CORE0217">Unable to create Trigger, incorrect format</error>
+	<error code="CORE0232">Unable to create Trigger, incorrect format</error>
 	<error code="CORE0218">Loop limit (%1$s) exceeded for %2$s</error>
 	<error code="CORE0219">Cannot load event "%s"</error>
 

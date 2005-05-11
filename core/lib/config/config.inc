@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: config.inc,v 1.23 2005/04/27 00:14:43 lwright Exp $
+* $Id: config.inc,v 1.24 2005/05/11 06:05:11 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *    Looks after the creation of the config files that are in PHP code
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix
 */
 class Config extends MySource_Object
@@ -292,8 +292,8 @@ class Config extends MySource_Object
 		$lock = $this->getLockInfo();
 		$have_lock = (!empty($lock) && $GLOBALS['SQ_SYSTEM']->currentUserId() == $lock['userid']);
 
-		$o->openSection('Locking / Editing');
-		$o->openField('&nbsp;');
+		$o->openSection(translate('locking_/_editing'));
+		$o->openField('');
 		?>
 		<table border="0" cellspacing="3" cellpadding="1">
 			<tr>
@@ -311,11 +311,11 @@ class Config extends MySource_Object
 						require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 						$expires_in = easy_time_total(($lock['expires'] - $now), true);
 						if (!$expires_in) $expires_in = '1 second';
-						$expires_in = 'The lock is due to expire in '.$expires_in;
+						$expires_in = translate('due_to_expire', $expires_in);
 
 						?>
 						<p class="sq-backend-locked-by-<?php echo ($GLOBALS['SQ_SYSTEM']->currentUser($user)) ? 'user' : 'someone-else'; ?>">
-							<?php echo $this->name; ?> is currently locked for editing by user "<?php echo $user->name; ?>".<br/>
+							<?php echo translate('release_lock', translate('release_lock_button'), $this->name); ?><br/>
 							<?php echo $expires_in; ?>
 						</p>
 						<?php
@@ -323,7 +323,7 @@ class Config extends MySource_Object
 					} else {
 						?>
 						<p class="sq-backend-unlocked">
-							<?php echo $this->name; ?> is currently Unlocked.
+							<?php echo translate('acquire_lock', translate('acquire_lock_button'), $this->name); ?>
 						</p>
 						<?php
 					}
@@ -333,17 +333,17 @@ class Config extends MySource_Object
 					<?php
 					if (!empty($lock)) {
 						if ($have_lock) {
-							submit_button('sq_lock_release_manual', 'Release Lock', 'set_hidden_field("process_form", "0");');
+							submit_button('sq_lock_release_manual', translate('release_lock_button'), 'set_hidden_field("process_form", "0");');
 						}
 					} else if ($this->canAcquireLock()) {
-						submit_button('sq_lock_acquire', 'Lock', 'set_hidden_field("process_form", "0");');
+						submit_button('sq_lock_acquire', translate('acquire_lock_button'), 'set_hidden_field("process_form", "0");');
 					}
 					?>
 				</td>
 			</tr>
 		</table>
 		<?php
-
+		$o->closeField();
 		$o->closeSection();
 
 	}//end paintBackend()

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_prefs.inc,v 1.4 2005/05/02 07:24:53 ndvries Exp $
+* $Id: file_prefs.inc,v 1.5 2005/05/11 06:04:51 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/config/prefs.inc';
 *    Looks after the creation the WYSIWYG preferences
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 */
 class File_Prefs extends Prefs
@@ -94,14 +94,14 @@ class File_Prefs extends Prefs
 			}
 			$php_max_file_size = min($post_size, $mem_limit_size);
 
-			if (is_null($pref)) $o->openField('Max File Upload');
+			if (is_null($pref)) $o->openField(translate('max_file_upload'));
 
 			if ($have_lock && $is_admin) {
 				text_box('prefs[SQ_FILE_MAX_SIZE]', $this->pref_vars['SQ_FILE_MAX_SIZE']['default'], 10);
-				echo '<p>The maximum file size can be entered in shorthand notation: \'K\' for kilobytes, \'M\' for megabytes. The maximum file size allowed by PHP on this sytem is <b>'.strtoupper(easy_filesize($php_max_file_size)).'</b></p>';
+				echo $o->note(translate('warn_max_settable_file_size', '<b>'.strtoupper(easy_filesize($php_max_file_size)).'</b>'));
 			} else {
 				if (!$this->pref_vars['SQ_FILE_MAX_SIZE']['default']) {
-					echo 'You have not set a maximum file upload size. The current PHP limit of <b>'.strtoupper(easy_filesize($php_max_file_size)).'</b> will be applied to all file uploads.';
+					echo translate('warn_set_max_file_size', '<b>'.strtoupper(easy_filesize($php_max_file_size)).'</b>');
 				} else {
 					$max_file_size = strtolower($this->pref_vars['SQ_FILE_MAX_SIZE']['default']);
 					if (substr($max_file_size, -1) == 'k') {
@@ -111,7 +111,7 @@ class File_Prefs extends Prefs
 					}
 
 					if ($max_file_size > $php_max_file_size) {
-						echo 'The current setting of <b>'.strtoupper(easy_filesize($max_file_size)).'</b> is greater than than the PHP limit of <b>'.strtoupper(easy_filesize($php_max_file_size)).'</b>. The PHP limit will be applied to all file uploads.';
+						echo translate('file_size_above_limit', '<b>'.strtoupper(easy_filesize($max_file_size)).'</b>', '<b>'.strtoupper(easy_filesize($php_max_file_size)).'</b>');
 					} else {
 						echo strtoupper(easy_filesize($max_file_size));
 					}

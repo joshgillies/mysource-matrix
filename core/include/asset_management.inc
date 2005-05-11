@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_management.inc,v 1.66 2005/04/15 02:07:24 lwright Exp $
+* $Id: asset_management.inc,v 1.67 2005/05/11 06:05:10 lwright Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_LIB_PATH.'/xml_array/xml_array.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.66 $
+* @version $Revision: 1.67 $
 * @package MySource_Matrix
 */
 class Asset_Management extends MySource_Object
@@ -145,13 +145,13 @@ class Asset_Management extends MySource_Object
 		$asset_edit_fns_parent_type = preg_replace('/_edit_fns$/', '', get_parent_class($type_code.'_edit_fns'));
 
 		if ($asset_xml_parent_type != $asset_parent_type || $asset_xml_parent_type != $asset_edit_fns_parent_type) {
-			trigger_localised_error("SYS0254", E_USER_WARNING, $type_code, $type_code, $type_code);
+			trigger_localised_error('SYS0254', E_USER_WARNING, $type_code, $type_code, $type_code);
 			return false;
 		}
 
 		// if the parent asset type hasn't been installed, abort
 		if ($asset_xml_parent_type != 'asset' && !$this->_am->installed($asset_xml_parent_type)) {
-			trigger_localised_error("SYS0253", E_USER_WARNING, $type_code, $asset_xml_parent_type);
+			trigger_localised_error('SYS0253', E_USER_WARNING, $type_code, $asset_xml_parent_type);
 			return false;
 		}
 
@@ -181,7 +181,7 @@ class Asset_Management extends MySource_Object
 		}
 
 		if (!is_file($from_icon_path)) {
-			trigger_localised_error("CORE0068", E_USER_WARNING, $type_code);
+			trigger_localised_error('CORE0068', E_USER_WARNING, $type_code);
 		} else {
 			if (!copy_file($from_icon_path, $to_icon_path)) return false;
 		}
@@ -425,7 +425,7 @@ class Asset_Management extends MySource_Object
 				return false;
 			}
 			if (count($children)) {
-				trigger_localised_error("SYS0233", E_USER_WARNING, $name, $type_code, implode('","', $children));
+				trigger_localised_error('SYS0233', E_USER_WARNING, $name, $type_code, implode('","', $children));
 				return false;
 			}
 
@@ -514,12 +514,12 @@ class Asset_Management extends MySource_Object
 
 		// make sure this is a valid attribute type
 		if (!$this->_am->validAttributeType($attr_info['type'])) {
-			trigger_localised_error("SYS0096", E_USER_WARNING, $attr_info['type'], $this->getAssetType());
+			trigger_localised_error('SYS0096', E_USER_WARNING, $attr_info['type'], $this->getAssetType());
 			return false;
 		}//end if
 
 		if (!$this->_validateAttributeDefault($attr_info['default_val'], $attr_info['type'], $attr_info['parameters'])) {
-			trigger_localised_error("SYS0130", E_USER_WARNING, $name, $this->getAssetType());
+			trigger_localised_error('SYS0130', E_USER_WARNING, $name, $this->getAssetType());
 			return false;
 		}
 
@@ -681,7 +681,7 @@ class Asset_Management extends MySource_Object
 
 					$parameters = unserialize($parameters_value);
 					if (!$this->_validateAttributeDefault($default_value, $curr_attr['type'], $parameters)) {
-						trigger_localised_error("SYS0130", E_USER_WARNING, $name, $this->getAssetType());
+						trigger_localised_error('SYS0130', E_USER_WARNING, $name, $this->getAssetType());
 						return false;
 					}
 
@@ -744,7 +744,7 @@ class Asset_Management extends MySource_Object
 		}
 
 		if (!$this->_validateAttributeDefault($this->vars[$name]['default'], $this->vars[$name]['type'], (empty($this->vars[$name]['parameters']) ? Array() : $this->vars[$name]['parameters']))) {
-			trigger_localised_error("SYS0130", E_USER_WARNING, $name, $this->getAssetType());
+			trigger_localised_error('SYS0130', E_USER_WARNING, $name, $this->getAssetType());
 			return false;
 		}
 

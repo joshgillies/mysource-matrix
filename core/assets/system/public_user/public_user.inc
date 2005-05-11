@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: public_user.inc,v 1.3 2005/04/15 00:37:26 lwright Exp $
+* $Id: public_user.inc,v 1.4 2005/05/11 06:05:00 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/users/user/user.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -98,7 +98,7 @@ class Public_User extends User
 	function morph($new_type_code)
 	{
 		// trying to morph an unprivileged public user... why would you bother?
-		trigger_localised_error("CORE0091", E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
+		trigger_localised_error('CORE0091', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
 		return false;
 
 	}//end morph()
@@ -172,7 +172,7 @@ class Public_User extends User
 	function setAttrValue($name, $value)
 	{
 		if ($name == 'username') {
-			trigger_localised_error("CORE0113", E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
+			trigger_localised_error('CORE0113', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
 			return false;
 		}
 

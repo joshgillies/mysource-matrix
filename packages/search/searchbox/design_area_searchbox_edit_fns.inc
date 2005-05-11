@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_searchbox_edit_fns.inc,v 1.16 2005/04/29 05:38:41 gsherwood Exp $
+* $Id: design_area_searchbox_edit_fns.inc,v 1.17 2005/05/11 06:07:48 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 * @see Design_Area_Edit_Fns
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -65,7 +65,7 @@ class Design_Area_Searchbox_Edit_Fns extends Design_Area_Edit_Fns
 				$search_page_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($search_pageid);
 				echo $search_page_asset->name ." #" .$search_pageid;
 			} else {
-				echo 'No search page specified.';
+				echo translate('sch_no_search_page_specified');
 			}
 			return false;
 		}
@@ -118,7 +118,7 @@ class Design_Area_Searchbox_Edit_Fns extends Design_Area_Edit_Fns
 				$submit_image =& $GLOBALS['SQ_SYSTEM']->am->getAsset($submit_imageid);
 				echo $submit_image->name ." #". $submit_imageid;
 			} else {
-				echo 'No submit image specified.';
+				echo translate('sch_box_no_submit_image_specified');
 			}
 			return false;
 		}

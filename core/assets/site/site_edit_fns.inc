@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site_edit_fns.inc,v 1.46 2004/12/06 14:38:09 brobertson Exp $
+* $Id: site_edit_fns.inc,v 1.47 2005/05/11 06:04:55 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.46 $
+* @version $Revision: 1.47 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -259,7 +259,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 		if (!$asset->writeAccess('links')) {
 			echo '<i>';
 			if (!$selected) {
-				echo 'None';
+				echo translate('none');
 			} else {
 				$page = &$GLOBALS['SQ_SYSTEM']->am->getAsset($selected, '', true);
 				echo $page->name;

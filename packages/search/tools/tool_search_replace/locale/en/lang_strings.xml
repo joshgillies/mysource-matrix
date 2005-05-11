@@ -1,0 +1,33 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Commercial Module Licence                                |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file is not open source or freely usable and may be    |
+* | used subject to, and only in accordance with, the Squiz Commercial |
+* | Module Licence.                                                    |
+* | Please refer to http://www.squiz.net/licence for more information. |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_strings.xml,v 1.1 2005/05/11 06:07:49 lwright Exp $
+*
+*
+* Search Package Localised Strings File
+*/
+-->
+
+<strings>
+<string source="sch_tool_global_sr_releasing_locks">Releasing Locks on %s and its dependant assets</string>
+<string source="sch_tool_global_sr_confirmation">Search and Replace Confirmation</string>
+<string source="sch_tool_global_sr_select_deselect_all">Select/Deselect All</string>
+<string source="sch_tool_global_sr_expand_collapse_all">Expand/Collapse All</string>
+<string source="sch_tool_global_sr_select_all">Select All</string>
+<string source="sch_tool_global_sr_deselect_all">Deselect All</string>
+<string source="sch_tool_global_sr_expand_all">Expand All</string>
+<string source="sch_tool_global_sr_collapse_all">Collapse All</string>
+<string source="sch_tool_global_sr_file_match(es)">%s match(es)</string>
+<string source="sch_tool_global_sr_replacing_with_in">Replacing "%1$s" with "%2$s" in "%3$s"</string>
+<string source="sch_tool_global_sr_replace_string">Replace String</string>
+</strings>

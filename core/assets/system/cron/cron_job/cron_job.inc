@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job.inc,v 1.32 2005/04/27 00:14:43 lwright Exp $
+* $Id: cron_job.inc,v 1.33 2005/05/11 06:04:57 lwright Exp $
 *
 */
 
@@ -40,7 +40,7 @@ define('SQ_CRON_JOB_RETRY',			16);// cron job requests to be retried (only valid
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -338,13 +338,13 @@ class Cron_Job extends Asset
 	function whenTypeName($type)
 	{
 		switch ($type) {
-			case 'ET' : return 'Every Time';
-			case 'OO' : return 'One Off';
-			case 'HR' : return 'Hourly';
-			case 'DL' : return 'Daily';
-			case 'WK' : return 'Weekly';
-			case 'MT' : return 'Monthly';
-			case 'YR' : return 'Yearly';
+			case 'ET' : return translate('every_time');
+			case 'OO' : return translate('one_off');
+			case 'HR' : return translate('hourly');
+			case 'DL' : return translate('daily');
+			case 'WK' : return translate('weekly');
+			case 'MT' : return translate('monthly');
+			case 'YR' : return translate('yearly');
 			default :
 				trigger_localised_error('CRON0005', $type, E_USER_NOTICE);
 			return '';
@@ -364,13 +364,13 @@ class Cron_Job extends Asset
 	function whenWeekDayName($wday)
 	{
 		switch ((int) $wday) {
-			case 0 : return 'Sunday';
-			case 1 : return 'Monday';
-			case 2 : return 'Tuesday';
-			case 3 : return 'Wednesday';
-			case 4 : return 'Thursday';
-			case 5 : return 'Friday';
-			case 6 : return 'Saturday';
+			case 0 : return translate('sunday');
+			case 1 : return translate('monday');
+			case 2 : return translate('tuesday');
+			case 3 : return translate('wednesday');
+			case 4 : return translate('thursday');
+			case 5 : return translate('friday');
+			case 6 : return translate('saturday');
 			default :
 				trigger_localised_error('CRON0034', E_USER_NOTICE, $wday);
 				return '';
@@ -390,22 +390,22 @@ class Cron_Job extends Asset
 	function readableWhen($inc_type=true)
 	{
 		$when_arr = Cron_Job::getWhenArr($this->attr('when'));
-		$ret_val = ($inc_type) ? Cron_Job::whenTypeName($when_arr['type']).' at ' : '';
+		$ret_val = ($inc_type) ? Cron_Job::whenTypeName($when_arr['type']).' '.strtolower(translate('at')).' ' : '';
 		switch ($when_arr['type']) {
 			case 'OO' :
-				$ret_val .= $when_arr['hour'].':'.$when_arr['minute'].' on '.$when_arr['day'].'/'.$when_arr['month'].'/'.$when_arr['year'];
+				$ret_val .= translate('cron_run_other', $when_arr['hour'].':'.$when_arr['minute'], $when_arr['day'].'/'.$when_arr['month'].'/'.$when_arr['year']);
 				break;
 
 			case 'YR' :
-				$ret_val .= $when_arr['hour'].':'.$when_arr['minute'].' on '.$when_arr['day'].' '.date('M', mktime(0, 0, 0, (int) $when_arr['month'], 1, 2000));
+				$ret_val .= translate('cron_run_other', $when_arr['hour'].':'.$when_arr['minute'], $when_arr['day'].' '.date('M', mktime(0, 0, 0, (int) $when_arr['month'], 1, 2000)));
 				break;
 
 			case 'MT' :
-				$ret_val .= $when_arr['hour'].':'.$when_arr['minute'].' on the '.date('jS', mktime(0, 0, 0, 1, (int) $when_arr['day'], 2000));
+				$ret_val .= translate('cron_run_month' ,$when_arr['hour'].':'.$when_arr['minute'], date('jS', mktime(0, 0, 0, 1, (int) $when_arr['day'], 2000)));
 				break;
 
 			case 'WK' :
-				$ret_val .= $when_arr['hour'].':'.$when_arr['minute'].' on '.Cron_Job::whenWeekDayName($when_arr['day']).'\'s';
+				$ret_val .= translate('cron_run_other', $when_arr['hour'].':'.$when_arr['minute'], Cron_Job::whenWeekDayName($when_arr['day']).'\'s');
 				break;
 
 			case 'DL' :
@@ -413,11 +413,11 @@ class Cron_Job extends Asset
 				break;
 
 			case 'HR' :
-				$ret_val .= $when_arr['minute'].' minute past the hour';
+				$ret_val .= translate('cron_run_hourly', $when_arr['minute']);
 				break;
 
 			case 'ET' :
-				$ret_val = 'Every time the cron manager runs';
+				$ret_val = translate('cron_run_always');
 				break;
 
 		}//end switch

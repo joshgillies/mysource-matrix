@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_purge_trash.inc,v 1.25 2005/04/15 00:37:27 lwright Exp $
+* $Id: hipo_job_purge_trash.inc,v 1.26 2005/05/11 06:05:08 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -93,14 +93,14 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 		$write_access = $this->writeAccess();
 
 		// metadata regeneration threshhold HIPO config entry
-		$o->openField('Purge Trash Threshold');
+		$o->openField(translate('purge_trash_threshold'));
 
 		if ($write_access) {
 			text_box($class.'[SQ_HIPO_PURGE_TRASH_THRESHOLD]', SQ_HIPO_PURGE_TRASH_THRESHOLD, 5);
 		} else {
 			echo SQ_HIPO_PURGE_TRASH_THRESHOLD;
 		}
-		echo ' assets';
+		echo ' '.translate('assets');
 
 		$o->closeField();
 
@@ -218,13 +218,13 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 			$link_info = array_shift($this->_running_vars['todo_links']);
 
 			if (!$link_info['linkid']) {
-				$step_data['message'] = 'Skipping "'.$asset->name.'" as it has already been deleted';
+				$step_data['message'] = translate('hipo_skipping', $asset->name, translate('hipo_skipping_already_deleted'));
 			} else {
 				$assetid = $link_info['assetid'];
 
 				if (in_array($assetid, $this->_running_vars['deleted_assets'])) {
 					// asset was already deleted
-					$step_data['message'] = 'Skipping link #'.$link_info['linkid'].' as it has already been deleted';
+					$step_data['message'] = translate('hipo_skipping_link', $link_info['linkid'], translate('hipo_skipping_already_deleted'));
 				} else {
 
 					$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $link_info['type_code'], true);
@@ -300,7 +300,7 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 						// if the link we are deleting is also one of the outside
 						// links, then we leave this link alone
 						if (in_array($link_info['linkid'], $outside_links)) {
-							$step_data['message'] = 'Skipping link #'.$link_info['linkid'].' as it also exists outside of the trash';
+							$step_data['message'] = translate('hipo_skipping_link', $link_info['linkid'], translate('hipo_skipping_exists_outside_trash'));
 						} else {
 
 							// we need to check how many internal links
@@ -315,7 +315,7 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 								if (empty($link['majorid'])) {
 									// if the link does not exists it was probably deleted
 									// earlier, so we just skip this entry
-									$step_data['message'] = 'Skipping link #'.$link_info['linkid'].' as it has already been deleted';
+									$step_data['message'] = translate('hipo_skipping_link', $link_info['linkid'], translate('hipo_skipping_already_deleted'));
 								} else {
 									$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['major_type_code']);
 									if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'links') || !$GLOBALS['SQ_SYSTEM']->am->acquireLock($parent->id, 'links')) {
@@ -336,7 +336,7 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 									$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'links');
 									$GLOBALS['SQ_SYSTEM']->am->releaseLock($parent->id, 'links');
 
-									$step_data['message'] = 'Deleting link #'.$link_info['linkid'];
+									$step_data['message'] = translate('hipo_deleting_link', $link_info['linkid']);
 								}
 
 							} else {
@@ -365,7 +365,7 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 
 								$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->_running_vars['trash_id'], 'all');
 
-								$step_data['message'] = 'Deleting "'.$asset->name.'" [#'.$assetid.']';
+								$step_data['message'] = translate('hipo_deleting', $asset->name, $assetid);
 								$this->_running_vars['deleted_assets'][] = $assetid;
 								$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 							}

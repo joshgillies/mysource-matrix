@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: assetid.inc,v 1.7 2004/12/06 14:38:11 brobertson Exp $
+* $Id: assetid.inc,v 1.8 2005/05/11 06:05:06 lwright Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *    <assetid type_codes="user_group:I,backend_user:A,page:D" />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -96,10 +96,10 @@ class Asset_Attribute_Assetid extends Asset_Attribute
 	{
 		if ($read_only) {
 			if (!$this->value) {
-				echo 'No asset selected';
+				echo translate('no_asset_selected');
 			} else {
 				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->value);
-				if (is_null($asset)) echo 'Invalid assetid';
+				if (is_null($asset)) echo translate('invalid_assetid');
 				else echo $asset->name.' (#'.$asset->id.')';
 			}
 			return;
@@ -142,7 +142,7 @@ class Asset_Attribute_Assetid extends Asset_Attribute
 	function validateValue(&$value)
 	{
 		if ($value) {
-			$error_msg = 'Atempted to set value of attribute "'.$this->name.'" [#'.$this->id.'] to an invalid asset ID';
+			$error_msg = translate('fail_setting_assetid', $this->name, $this->id);
 			if (!assert_valid_assetid($value, $error_msg, true, false)) return false;
 			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($value);
 			if (is_null($asset)) return false;

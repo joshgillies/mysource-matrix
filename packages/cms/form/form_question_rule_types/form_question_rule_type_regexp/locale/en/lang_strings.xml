@@ -1,0 +1,29 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Commercial Module Licence                                |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file is not open source or freely usable and may be    |
+* | used subject to, and only in accordance with, the Squiz Commercial |
+* | Module Licence.                                                    |
+* | Please refer to http://www.squiz.net/licence for more information. |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_strings.xml,v 1.1 2005/05/11 06:07:31 lwright Exp $
+*
+*
+* CMS Package Localised Strings File
+*/
+-->
+<strings>
+<string source="cms_form_rule_regexp_edit_true">Response must match the regular expression %s</string>
+<string source="cms_form_rule_regexp_edit_false">Response must NOT match the regular expression %s</string>
+<string source="cms_form_rule_regexp_desc_true">The response to question "%1$s" must match the regular expression %2$s</string>
+<string source="cms_form_rule_regexp_desc_false">The response to question "%1$s" must NOT match the regular expression %2$s</string>
+<string source="cms_form_rule_regexp_error">The response to question "%s" is not in the correct format</string>
+<string source="cms_form_rule_regexp_true">Must Match the Regular Expression</string>
+<string source="cms_form_rule_regexp_false">Must NOT Match the Regular Expression</string>
+<string source="cms_form_rule_regexp_note">Enter a <![CDATA[<a href="http://www.php.net/pcre">Perl-compatible regular expression</a>]]> into the text box, without any delimiters.</string>
+</strings>

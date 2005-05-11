@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_country_edit_fns.inc,v 1.9 2005/04/29 05:40:29 gsherwood Exp $
+* $Id: form_question_type_country_edit_fns.inc,v 1.10 2005/05/11 06:07:32 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../form_question_type_select/form_question_type
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -71,7 +71,7 @@ class Form_Question_Type_Country_Edit_Fns extends Form_Question_Type_Select_Edit
 				}
 				echo implode('<br />', $sel_option_names);
 			} else {
-				echo 'All countries';
+				echo translate('cms_form_type_country_all');
 			}
 		} else {
 			combo_box($prefix.'_available', $options, true, $selected_options);

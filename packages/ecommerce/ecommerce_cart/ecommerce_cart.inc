@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart.inc,v 1.6 2005/04/29 05:39:36 gsherwood Exp $
+* $Id: ecommerce_cart.inc,v 1.7 2005/05/11 06:07:35 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -331,7 +331,7 @@ class Ecommerce_Cart extends Page
 					$this->update($product_assetid, (int)$new_quantity);
 				}
 			}
-			?><strong>Product quantities changed.</strong><?php
+			?><strong><?php echo translate('ecom_cart_quantities_changed'); ?></strong><?php
 		}
 
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -340,18 +340,18 @@ class Ecommerce_Cart extends Page
 		?>
 		<table width="50%">
 		<thead><tr>
-		<th>Product Name</th>
-		<th>Qty</th><?php
+		<th><<?php echo translate('ecom_cart_product_name'); ?></th>
+		<th><?php echo translate('qty'); ?></th><?php
 		if ($this->attr('show_price')) {
-			?><th>Price</th><?php
-			?><th>Subtotal</th><?php
+			?><th><?php echo translate('price');    ?></th><?php
+			?><th><?php echo translate('subtotal'); ?></th><?php
 		}
 		?></thead>
 		<?php if ($this->attr('show_price')) {
 			// the W3C recommendations say that TFOOT must come before TBODY
 			// for some reason, so here it is
 			?><tfoot><tr><?php
-			?><td style="text-align:right"><strong>Total</strong></td><?php
+			?><td style="text-align:right"><strong><?php echo translate('total'); ?></strong></td><?php
 			?><td style="text-align:right"><strong><?php echo $this->count(); ?></strong></td><?php
 			?><td colspan="2" style="text-align:right"><strong><?php echo '$'.number_format($this->total(),2); ?></strong></td><?php
 			?></tr>
@@ -359,7 +359,7 @@ class Ecommerce_Cart extends Page
 		}
 		?><tbody><?php
 		if (empty($cart)) {
-			?><tr><td colspan="<?php echo $this->attr('show_price') ? 4 : 2 ?>" style="text-align:center">There are no items in your cart</td></tr><?php
+			?><tr><td colspan="<?php echo $this->attr('show_price') ? 4 : 2 ?>" style="text-align:center"><?php echo translate('ecom_cart_no_items_in_cart'); ?></td></tr><?php
 		} else {
 			foreach($cart as $product_assetid => $details) {
 				?><tr><?php
@@ -377,7 +377,7 @@ class Ecommerce_Cart extends Page
 		</table>
 
 		<?php if (!empty($cart)) { ?>
-			<input type="submit" value="Update Quantity">
+			<input type="submit" value="<?php echo translate('ecom_cart_update_quantity'); ?>">
 			<?php
 			$form_id = $this->attr('ecom_form_id');
 			if (!empty($form_id)) {

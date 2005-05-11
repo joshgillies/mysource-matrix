@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.56 2005/04/15 00:37:28 lwright Exp $
+* $Id: system_config.inc,v 1.57 2005/05/11 06:05:10 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.56 $
+* @version $Revision: 1.57 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -81,6 +81,7 @@ class System_Config extends Config
 	* The keys are the bit elements and the values are the descriptions
 	* @var array
 	*/
+	//TODO: TRANSLATE: these need to be either moved somewhere else, or implement some sort of global code
 	var $debug_options = Array(
 							1	=> 'Show File and Line number in error messages',
 							2	=> 'Show Stack Trace in error messages',
@@ -305,37 +306,39 @@ class System_Config extends Config
 
 		$class = get_class($this);
 
-		$o->openSection('System Settings');
+		$o->openSection(translate('system_settings'));
 
-			$o->openField('System Name');
-			if ($write_access) {
-				text_box($class.'[SQ_CONF_SYSTEM_NAME]', SQ_CONF_SYSTEM_NAME, 30);
-			} else {
-				echo SQ_CONF_SYSTEM_NAME;
-			}
+			$o->openField(translate('system_name'));
+				if ($write_access) {
+					text_box($class.'[SQ_CONF_SYSTEM_NAME]', SQ_CONF_SYSTEM_NAME, 30);
+				} else {
+					echo SQ_CONF_SYSTEM_NAME;
+				}
+			$o->closeField();
 
-			$o->openField('System Owner');
+			$o->openField(translate('system_owner'));
 			if ($write_access) {
 				text_box($class.'[SQ_CONF_SYSTEM_OWNER]', SQ_CONF_SYSTEM_OWNER, 30);
 			} else {
 				echo SQ_CONF_SYSTEM_OWNER;
 			}
+			$o->closeField();
 
-			$o->openField('System Root URLs');
+			$o->openField(translate('system_root_urls'));
 			if ($write_access) {
 				text_area($class.'[SQ_CONF_SYSTEM_ROOT_URLS]', SQ_CONF_SYSTEM_ROOT_URLS, 80, 4);
 			} else {
 				echo nl2br(SQ_CONF_SYSTEM_ROOT_URLS);
 			}
 
-			$o->openField('System Backend Suffix');
+			$o->openField(translate('system_backend_suffix'));
 			if ($write_access) {
 				text_box($class.'[SQ_CONF_BACKEND_SUFFIX]', SQ_CONF_BACKEND_SUFFIX, 15);
 			} else {
 				echo nl2br(SQ_CONF_BACKEND_SUFFIX);
 			}
 
-			$o->openField('System Simple Edit Suffix');
+			$o->openField(translate('system_simple_edit_suffix'));
 			if ($write_access) {
 				text_box($class.'[SQ_CONF_LIMBO_SUFFIX]', SQ_CONF_LIMBO_SUFFIX, 15);
 			} else {
@@ -344,94 +347,108 @@ class System_Config extends Config
 
 		$o->closeSection();
 
-		$o->openSection('Rollback Settings');
+		$o->openSection(translate('rollback_settings'));
 
-			$o->openField('Rollback Enabled', '', 'Rollback must be enabled and disabled using the "rollback_management.php" script in the MySource "scripts" directory');
-			echo (SQ_CONF_ROLLBACK_ENABLED) ? 'Yes' : 'No';
-
-		$o->closeSection();
-
-		$o->openSection('Email Settings');
-
-			$o->openField('Default Email');
-			if ($write_access) {
-				text_box($class.'[SQ_CONF_DEFAULT_EMAIL]', SQ_CONF_DEFAULT_EMAIL, 50);
-			} else {
-				echo SQ_CONF_DEFAULT_EMAIL;
-			}
-
-			$o->openField('Tech Email');
-			if ($write_access) {
-				text_box($class.'[SQ_CONF_TECH_EMAIL]', SQ_CONF_TECH_EMAIL, 50);
-			} else {
-				echo SQ_CONF_TECH_EMAIL;
-			}
+			$o->openField(translate('rollback_enabled'));
+				echo (SQ_CONF_ROLLBACK_ENABLED) ? translate('yes') : translate('no');
+				$o->note(translate('must_enable_rollback'));
+			$o->closeField();
 
 		$o->closeSection();
 
-		$o->openSection('Login/Session Settings');
+		$o->openSection(translate('email_settings'));
 
-			$o->openField('Max Login Attempts', '', 'Zero (0) is unlimited attempts');
+			$o->openField(translate('default_email'));
+				if ($write_access) {
+					text_box($class.'[SQ_CONF_DEFAULT_EMAIL]', SQ_CONF_DEFAULT_EMAIL, 50);
+				} else {
+					echo SQ_CONF_DEFAULT_EMAIL;
+				}
+			$o->closeField();
+
+			$o->openField(translate('tech_email'));
+				if ($write_access) {
+					text_box($class.'[SQ_CONF_TECH_EMAIL]', SQ_CONF_TECH_EMAIL, 50);
+				} else {
+					echo SQ_CONF_TECH_EMAIL;
+				}
+			$o->closeField();
+
+		$o->closeSection();
+
+		$o->openSection(translate('login/session_settings'));
+
+			$o->openField(translate('max_login_attempts'));
 			if ($write_access && $is_root) {
 				text_box($class.'[SQ_CONF_MAX_LOGIN_ATTEMPTS]', SQ_CONF_MAX_LOGIN_ATTEMPTS, 5, 5);
 			} else {
 				echo SQ_CONF_MAX_LOGIN_ATTEMPTS;
 			}
 
-			$o->openField('Max Idle Time', '', 'In seconds - minimum 60 or zero (0) for unlimited idle time');
+			$o->note(translate('0_is_unlimited_attempts'));
 
-			if ($write_access && $is_root) {
-				text_box($class.'[SQ_CONF_MAX_IDLE_TIME]', SQ_CONF_MAX_IDLE_TIME, 10, 10);
-			} else {
-				echo SQ_CONF_MAX_IDLE_TIME;
-			}
+			$o->openField(translate('max_idle_time'));
 
-			$o->openField('Allow IP Change', '', 'Allow the IP of a user to fluctuate?');
-			if ($write_access && $is_root) {
-				combo_box($class.'[SQ_CONF_ALLOW_IP_CHANGE]', Array('1' => 'Yes', '0' => 'No'), false, SQ_CONF_ALLOW_IP_CHANGE);
-			} else {
-				echo (SQ_CONF_ALLOW_IP_CHANGE) ? 'Yes' : 'No';
-			}
+				if ($write_access && $is_root) {
+					text_box($class.'[SQ_CONF_MAX_IDLE_TIME]', SQ_CONF_MAX_IDLE_TIME, 10, 10);
+				} else {
+					echo SQ_CONF_MAX_IDLE_TIME;
+				}
+
+				$o->note(translate('0_for_unlimited_idle_time'));
+
+			$o->openField(translate('allow_ip_change'));
+				if ($write_access && $is_root) {
+					combo_box($class.'[SQ_CONF_ALLOW_IP_CHANGE]', Array('1' => translate('yes'), '0' => translate('no')), false, SQ_CONF_ALLOW_IP_CHANGE);
+				} else {
+					echo (SQ_CONF_ALLOW_IP_CHANGE) ? translate('yes'): translate('no');
+				}
+
+				$o->note(translate('allow_user_ip_to_fluctuate'));
 
 		$o->closeSection();
 
 
-		$o->openSection('Intervals');
+		$o->openSection(translate('intervals'));
 
-			$o->openField('Refresh Interval', '', 'How long (in seconds) between refreshes of the top (header) frame - this frame keeps the lock on long edits and checks for new mail - Min: 60');
-			if ($write_access) {
-				text_box($class.'[SQ_CONF_REFRESH_INTERVAL]', SQ_CONF_REFRESH_INTERVAL, 5, 5);
-			} else {
-				echo SQ_CONF_REFRESH_INTERVAL;
-			}
+			$o->openField(translate('refresh_interval'));
+				if ($write_access) {
+					text_box($class.'[SQ_CONF_REFRESH_INTERVAL]', SQ_CONF_REFRESH_INTERVAL, 5, 5);
+				} else {
+					echo SQ_CONF_REFRESH_INTERVAL;
+				}
 
-			$o->openField('Lock Length', '', 'The length of time after which a lock is considered to have expired. In seconds - Min: 60');
+				$o->note(translate('header_frame_mail_lock'));
+
+			$o->openField(translate('lock_length'));
 			if ($write_access) {
 				text_box($class.'[SQ_CONF_LOCK_LENGTH]', SQ_CONF_LOCK_LENGTH, 5, 5);
 			} else {
 				echo SQ_CONF_LOCK_LENGTH;
 			}
 
+			$o->closeField(translate('lock_length_time'));
+
 		$o->closeSection();
 
 
-		$o->openSection('Error/Debug Settings');
+		$o->openSection(translate('error/debug_settings'));
 
-			$o->openField('Log Errors');
+			$o->openField(translate('log_errors'));
 			if ($write_access && $is_root) {
-				combo_box($class.'[SQ_CONF_LOG_ERRORS]', Array('1' => 'Yes', '0' => 'No'), false, SQ_CONF_LOG_ERRORS);
+				combo_box($class.'[SQ_CONF_LOG_ERRORS]', Array('1' => translate('yes'), '0' => translate('no')), false, SQ_CONF_LOG_ERRORS);
 			} else {
-				echo (SQ_CONF_LOG_ERRORS) ? 'Yes' : 'No';
+				echo (SQ_CONF_LOG_ERRORS) ? translate('yes') : translate('no');
 			}
 
-			$o->openField('Hide Errors on the Frontend');
+			$o->openField(translate('hide_errors_on_the_frontend'));
 			if ($write_access && $is_root) {
-				combo_box($class.'[SQ_CONF_ERRORS_HIDE_FRONTEND]', Array('1' => 'Yes', '0' => 'No'), false, SQ_CONF_ERRORS_HIDE_FRONTEND);
+				combo_box($class.'[SQ_CONF_ERRORS_HIDE_FRONTEND]', Array('1' => translate('yes'), '0' => translate('no')), false, SQ_CONF_ERRORS_HIDE_FRONTEND);
 			} else {
-				echo (SQ_CONF_ERRORS_HIDE_FRONTEND) ? 'Yes' : 'No';
+				echo (SQ_CONF_ERRORS_HIDE_FRONTEND) ? translate('yes') : translate('no');
 			}
 
-			$o->openField('Debug Settings');
+			$o->openField(translate('debug_settings'));
 			if ($write_access && $is_root) {
 				?>
 				<script language="JavaScript" type="text/javascript">
@@ -471,9 +488,9 @@ class System_Config extends Config
 
 		$o->closeSection();
 
-		$o->openSection('Internationalisation Settings');
+		$o->openSection(translate('internationalisation_settings'));
 
-			$o->openField('Default Frontend Language');
+			$o->openField(translate('default_frontend_language'));
 			require SQ_FUDGE_PATH.'/standards_lists/languages.inc';
 			if ($write_access) {
 				combo_box($class.'[SQ_CONF_DEFAULT_FRONTEND_LANGUAGE]', $standards_lists_languages, false, SQ_CONF_DEFAULT_FRONTEND_LANGUAGE);
@@ -481,7 +498,7 @@ class System_Config extends Config
 				echo $standards_lists_languages[SQ_CONF_DEFAULT_FRONTEND_LANGUAGE];
 			}
 
-			$o->openField('Default Backend Locale');
+			$o->openField(translate('default_backend_locale'));
 			require SQ_FUDGE_PATH.'/standards_lists/locales.inc';
 			// default to English (Australia) in upgraded systems
 			$current_locale = !defined('SQ_CONF_DEFAULT_BACKEND_LOCALE') ? 'en_AU' : SQ_CONF_DEFAULT_BACKEND_LOCALE;
@@ -491,7 +508,7 @@ class System_Config extends Config
 				echo $standards_lists_locales[$current_locale];
 			}
 
-			$o->openField('Default Character Set');
+			$o->openField(translate('default_character_set'));
 			require SQ_FUDGE_PATH.'/standards_lists/character_sets.inc';
 			if ($write_access) {
 				combo_box($class.'[SQ_CONF_DEFAULT_CHARACTER_SET]', $standards_lists_character_sets, false, SQ_CONF_DEFAULT_CHARACTER_SET);
@@ -501,14 +518,16 @@ class System_Config extends Config
 
 		$o->closeSection();
 
-		$o->openSection('Editing Interface Settings');
+		$o->openSection(translate('editing_interface_settings'));
 
-			$o->openField('Commit Button Text', '', 'This setting renames the button used to commit edited information into the MySource Matrix system - default is \'Commit\'');
+			$o->openField(translate('commit_button_text'));
 			if ($write_access) {
 				text_box($class.'[SQ_CONF_COMMIT_BUTTON_TEXT]', !defined('SQ_CONF_COMMIT_BUTTON_TEXT') ? 'Commit' : SQ_CONF_COMMIT_BUTTON_TEXT, 30);
 			} else {
 				echo !defined('SQ_CONF_COMMIT_BUTTON_TEXT') ? 'Commit' : SQ_CONF_COMMIT_BUTTON_TEXT;
 			}
+			$o->note(translate('rename_commit_button'));
+			$o->closeField();
 
 		$o->closeSection();
 

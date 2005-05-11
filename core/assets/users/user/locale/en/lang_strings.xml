@@ -1,0 +1,34 @@
+<?xml version="1.0" ?>
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Open Source Licence                                      |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_strings.xml,v 1.1 2005/05/11 06:05:06 lwright Exp $
+* $Name: not supported by cvs2svn $
+*/
+-->
+
+<strings>
+	<string source="user_locale_not_set">No locale is set for this user - system default "%s" used</string>
+	<string source="user_unknown_locale">Unknown locale "%s" set</string>
+	<string source="user_no_membership_conditions">There are no membership conditions set for "%s". This user is always a member of this group.</string>
+	<string source="user_section_group_conditions">Group Membership Conditions for "%1$s" (Id: #%2$s)</string>
+	<string source="user_cannot_be_restricted">This user is not a member of any user groups; it cannot be restricted</string>
+	<string source="user_group_condition_list">Add a restriction to group %s of type %s</string>
+</strings>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_in_user_group.inc,v 1.1 2005/04/05 18:34:21 brobertson Exp $
+* $Id: condition_in_user_group.inc,v 1.2 2005/05/11 06:04:56 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -60,8 +60,8 @@ class Condition_In_User_Group extends Condition
 	function getOptions()
 	{
 		$options = Array(
-					   '1' => 'In User Group(s)',
-					   '0' => 'Not In User Group(s)',
+					   '1' => translate('condition_in_user_group'),
+					   '0' => translate('condition_not_in_user_group'),
 					   );
 		
 		return $options;

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: login.inc,v 1.14 2005/01/20 13:10:34 brobertson Exp $
+* $Id: login.inc,v 1.15 2005/05/11 06:05:10 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@
 * Purpose
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix
 */
 ?>
@@ -41,11 +41,11 @@
 		<form action="<?php echo $_SERVER['PHP_SELF']; ?>?SQ_ACTION=login&FORCE_BACKUP_LOGIN=1" name="login_prompt" method="post">
 			<input type="hidden" name="SQ_LOGIN_KEY" value="<?php echo $GLOBALS['SQ_SYSTEM']->generateLoginKey(); ?>" />
 			<p>
-				Username: 
+				<?php echo translate('username'); ?>:
 				<input type="text" name="SQ_LOGIN_USERNAME" value="" size="10" maxlength="64" onfocus="javascript: this.select();" />
 			</p>
 			<p>
-				Password: 
+				<?php echo translate('password'); ?>:
 				<input type="password" name="SQ_LOGIN_PASSWORD" value="" size="10" maxlength="64" onfocus="javascript: this.select();" />
 			</p>
 			<p>

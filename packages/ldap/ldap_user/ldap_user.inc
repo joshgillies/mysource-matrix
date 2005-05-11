@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_user.inc,v 1.10 2005/04/29 05:38:57 gsherwood Exp $
+* $Id: ldap_user.inc,v 1.11 2005/05/11 06:07:43 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/users/backend_user/backend_user.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -68,7 +68,7 @@ class Ldap_User extends Backend_User
 				if ($class == $key && isset($attrs[$value])) $this->name = $data[$attrs[$value]][0];
 			}
 		}
-		if (empty($this->name)) $this->name = 'Unkown LDAP User';
+		if (empty($this->name)) $this->name = translate('ldap_unknown_user');
 		$this->short_name = $this->name;
 		$this->status = $ldap->status;
 		$this->version = '0.1';

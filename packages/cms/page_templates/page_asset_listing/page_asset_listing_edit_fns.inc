@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing_edit_fns.inc,v 1.23 2005/04/15 00:37:46 lwright Exp $
+* $Id: page_asset_listing_edit_fns.inc,v 1.24 2005/05/11 06:07:32 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -81,9 +81,9 @@ class Page_Asset_Listing_Edit_Fns extends Listing_Engine_Edit_Fns
 			?>
 			<table class="sq-backend-table">
 				<tr>
-					<td class="sq-backend-table-header">ID</td>
-					<td class="sq-backend-table-header">Name</td>
-					<td class="sq-backend-table-header">Type</td>
+					<td class="sq-backend-table-header"><?php echo translate('id') ?></td>
+					<td class="sq-backend-table-header"><?php echo translate('name') ?></td>
+					<td class="sq-backend-table-header"><?php echo translate('type') ?></td>
 				</tr>
 			<?php
 			foreach ($infos as $assetid => $info) {

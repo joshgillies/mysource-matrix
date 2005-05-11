@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_schema_edit_fns.inc,v 1.35 2005/04/13 23:49:30 ndvries Exp $
+* $Id: metadata_schema_edit_fns.inc,v 1.36 2005/05/11 06:04:52 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -115,17 +115,13 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 	{
 		// need to have write access to make any changes
 		if ($asset->writeAccess('')) {
-			?>
-			<p class="sq-backend-data">
-				Check the box below to regenerate the metadata for all assets that have currently applied this schema
-			</p>
-			<?php
+			$o->note(translate('metadata_regenerate_for_currently_applied'));
 			check_box($prefix.'_regenerate');
-			echo '&nbsp;Regenerate metadata files';
+			label(translate('metadata_regenerate_files'));
 		} else {
-			echo 'Permission Denied to regenerate the metadata';
-
+			$o->note(translate('metadata_cannot_regenerate'));
 		}
+		
 		return true;
 
 	}//end paintRegenerate()
@@ -179,9 +175,9 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 
 			$o->openSection($section->name);
 				if ($write_access) {
-					$o->openField('Delete ?');
+					$o->openField(translate('delete_question'));
 						check_box($prefix.'_delete_sections['.$link_data['linkid'].']');
-						echo '&nbsp; Delete this section and all its fields?';
+						label(translate('delete_section-field_question'));
 					$o->closeField();
 				}
 				$edit_fns = $section->getEditFns();
@@ -370,14 +366,13 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 	{
 		// need to have write access to make any changes
 		if ($asset->writeAccess('')) {
-			?>
-			<p>You can use this section to define a namespace to be used for any Harvest Control List (HCL) page you have created using this metadata schema. If you are going to include this metadata schema on a HCL page, you <b>must</b> define an XML namespace, because HCL page must be a well-formed XML document.
-			</p>
-		<?php
+			$o->note(translate('metadata_hcl_explanation'));
+			
 			check_box($prefix.'_default_ns');
-			echo '&nbsp;<b>Use default XML namespace definitions:</b> If your schema has one of the standard names - \'<b>AGLS</b>\', \'<b>DC</b>\', \'<b>EDNA</b>\' - you can use a default namespace definition instead of entering the custom namespace and custom namespace URI into the fields below.';
+			label(translate('default_namespace_definitions'), $prefix.'_default_ns');
+			$o->note(translate('metadata_use_default_namespace_explanation'));
 		} else {
-			echo 'Permission Denied to change this property';
+			$o->note(translate('cannot_change_property'));
 
 		}
 		return true;
@@ -446,7 +441,7 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 			}
 
 		} else {
-			echo 'You don\'t have permission to change namespace';
+			$o->note(translate('cannot_change_namespace'));
 		}
 		return true;
 
@@ -502,7 +497,7 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 			}
 
 		} else {
-			echo 'You don\'t have permission to change namespace URI';
+			$o->note(translate('cannot_change_namespace_uri'));
 		}
 		return true;
 

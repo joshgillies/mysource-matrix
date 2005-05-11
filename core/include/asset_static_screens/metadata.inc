@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata.inc,v 1.13 2005/03/30 00:40:14 lwright Exp $
+* $Id: metadata.inc,v 1.14 2005/05/11 06:05:11 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * MetaData Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix
 */
 
@@ -91,7 +91,7 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=null)
 						if (!is_null($keywords) && isset($keywords['fields']['metadata_current'])) ob_start();
 
 						if (empty($schemas)) {
-							echo 'There are no metadata schemas applied to this asset.';
+							echo translate('no_metadata_schemas_applied');
 						} else if (file_exists($owner->data_path.'/metadata.php')) {
 							ob_start();
 								require($owner->data_path.'/metadata.php');
@@ -115,22 +115,31 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=null)
 
 					$o->openField('&nbsp;');
 						if (!is_null($keywords) && isset($keywords['fields']['metadata_instructions'])) ob_start();
-
-						?>
-						You can use keyword replacements in place of values for metadata fields on this page.<br/>
-						For a complete list of available keyword replacements <a href="#" onClick="Javascript: var win = window.open('<?php echo sq_web_path('data')?>/asset_types/metadata_field/popups/keywords.html', 'keywords', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=580,height=520'); return false;">click here</a>
-						<?php
+							//construct example keywords link
+							ob_start();
+								?><a href="#" onClick="Javascript: var win = window.open('<?php echo sq_web_path('data'); ?>/asset_types/metadata_field/popups/keywords.html', 'keywords', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=580,height=520'); return false;"><?php echo translate('click_here'); ?></a><?php
+								$replacements_link = ob_get_contents();
+							ob_end_clean();
+							
+							//$replacements_link = '<a href="#" onClick="Javascript: var win = window.open(\''.sq_web_path('data').'/asset_types/metadata_field/popups/keywords.html\', \'keywords\', \'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=580,height=520\'); return false;">'.translate('click_here').'</a>';
+							$o->note(translate('metadata_keyword_replacements_usage', $replacements_link ));
+						
 						$sm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager', true);
 						if (!empty($sm)) {
 						?>
 							<br/><br/>
-							If indexing is enabled in the Search Manager, you can generate a list of keywords from the index using
-							<a href="#" onClick="Javascript: var win = window.open('<?php echo sq_web_path('data')?>/asset_types/metadata_field/popups/keyword_extraction.php?assetid=<?php echo $owner->id ?>', 'keywords', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=580,height=320'); return false;">keyword extraction</a>.
-						<?php
+							<?php
+							ob_start();
+								?><a href="#" onClick="Javascript: var win = window.open('<?php echo sq_web_path('data'); ?>/asset_types/metadata_field/popups/keyword_extraction.php?assetid=<?php echo $owner->id; ?>', 'keywords', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=580,height=320'); return false;"><?php echo translate('keyword_extraction'); ?></a><?php
+								$replacements_link = ob_get_contents();
+							ob_end_clean();
+							//$replacements_link = '<a href="#" onClick="Javascript: var win = window.open(\''.sq_web_path('data').'/asset_types/metadata_field/popups/keyword_extraction.php?assetid='.$owner->id.'\', \'keywords\', \'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=580,height=320\'); return false;">'.translate('keyword_extraction').'</a>';
+							$o->note(translate('metadata_indexed_keywords', $replacements_link));
+							
 						}
 						?>
 						<br/><br/>
-						<span style="color:#FF0000"> * </span>denotes a required field
+						<span style="color:#FF0000"> * </span><?php echo translate('denotes_required_field'); ?>
 						<?php
 
 						// if there is a keyword replacement for this, add it to the replacements
@@ -154,7 +163,7 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=null)
 						$o->openField('&nbsp;');
 							if (!is_null($keywords) && isset($keywords['fields']['metadata_values'])) ob_start();
 
-							echo 'You must apply one or more schemas before entering metadata values.';
+							echo translate('must_apply_one_or_more_schemas');
 
 							// if there is a keyword replacement for this, add it to the replacements
 							if (!is_null($keywords) && isset($keywords['fields']['metadata_values'])) {

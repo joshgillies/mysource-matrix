@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.94 2005/04/29 05:40:28 gsherwood Exp $
+* $Id: form.inc,v 1.95 2005/05/11 06:07:30 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.94 $
+* @version $Revision: 1.95 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -835,7 +835,7 @@ class Form extends Asset
 					echo $this->generateJSCode();
 				?>
 					if (submission_errors.length > 0) {
-					var errors_list = "The following errors must be corrected before the form can be submitted:\n";
+					var errors_list = "<?php echo translate('cms_form_submission_errors'); ?>\n";
 					for(x in submission_errors) {
 						errors_list += submission_errors[x] + "\n";
 					}
@@ -887,14 +887,14 @@ class Form extends Asset
 
 		// if no title for the submit button is specified in the backend
 		// just use 'Submit'
-		$button_name = ($this->attr('submit_button')) ? $this->attr('submit_button') : 'Submit';
+		$button_name = ($this->attr('submit_button')) ? $this->attr('submit_button') : translate('submit');
 
 		ob_start();
 			submit_button($this->getPrefix().'_submit', $button_name);
 			$submit_button = ob_get_contents();
 		ob_end_clean();
 
-		$reset_button_name = ($this->attr('reset_button')) ? $this->attr('reset_button') : 'Clear Form';
+		$reset_button_name = ($this->attr('reset_button')) ? $this->attr('reset_button') : translate('clear_form');
 
 		ob_start();
 			reset_button($this->getPrefix().'_reset', $reset_button_name);
@@ -1513,35 +1513,35 @@ class Form extends Asset
 				foreach ($questions as $q_id => $question) {
 					$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
 					$q_name = $q_asset->attr('name');
-					$keywords['question_field_'.$this->id.'_q'.$q_id] = 'Field: '.ellipsisize($q_name,30);
+					$keywords['question_field_'.$this->id.'_q'.$q_id] = translate('cms_form_question_field', ellipsisize($q_name,30));
 				}
 
 				foreach ($sections as $section) {
-					$keywords['section_title_'.$section->id] = 'Section Title: '.$section->attr('name');
+					$keywords['section_title_'.$section->id] = translate('cms_form_section_title', $section->attr('name'));
 					$questions = &$section->getQuestions();
 					foreach ($questions as $q_id => $question) {
 						$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($section->id.':q'.$q_id);
 						$q_name = $q_asset->attr('name');
-						$keywords['question_field_'.$section->id.'_q'.$q_id] = 'Field: '.ellipsisize($section->attr('name'),20).': '.ellipsisize($q_name,30);
+						$keywords['question_field_'.$section->id.'_q'.$q_id] = translate('cms_form_section_field', ellipsisize($section->attr('name'),20).': '.ellipsisize($q_name,30));
 					}
 				}
 
 			} else if ($bodycopy == 'Thank You') {
-				$keywords['form_summary'] = 'Submission Summary';
+				$keywords['form_summary'] = translate('cms_form_submission_summary');
 
 				foreach ($questions as $q_id => $question) {
 					$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
 					$q_name = $q_asset->attr('name');
-					$keywords['response_'.$this->id.'_q'.$q_id] = 'Response: '.ellipsisize($q_name,30);
+					$keywords['response_'.$this->id.'_q'.$q_id] = translate('cms_form_question_response', ellipsisize($q_name,30));
 				}
 
 				foreach ($sections as $section) {
-					$keywords['section_title_'.$section->id] = 'Section Title: '.$section->attr('name');
+					$keywords['section_title_'.$section->id] = translate('cms_form_section_title', $section->attr('name'));
 					$questions = &$section->getQuestions();
 					foreach ($questions as $q_id => $question) {
 						$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($section->id.':q'.$q_id);
 						$q_name = $q_asset->attr('name');
-						$keywords['response_'.$section->id.'_q'.$q_id] = 'Response: '.ellipsisize($section->attr('name'),20).': '.ellipsisize($q_name,30);
+						$keywords['response_'.$section->id.'_q'.$q_id] = translate('cms_form_section_response', ellipsisize($section->attr('name'),20), ellipsisize($q_name,30));
 					}
 				}
 			}

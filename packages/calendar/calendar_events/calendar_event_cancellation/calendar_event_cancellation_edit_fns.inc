@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_cancellation_edit_fns.inc,v 1.10 2005/04/29 05:39:18 gsherwood Exp $
+* $Id: calendar_event_cancellation_edit_fns.inc,v 1.11 2005/05/11 06:07:20 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once  dirname(__FILE__).'/../../calendar_event/calendar_event_edit_fns.i
 *
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -62,7 +62,7 @@ class Calendar_Event_Cancellation_Edit_Fns extends Calendar_Event_Edit_Fns
 			if ($ts == -1) $ts = 0;
 			$this->printDateChooser($prefix.'_start', $ts);
 			?>
-			<br />This must be a date on which the recurring event occurs
+			<br /><?php translate('cal_event_cancel_must_be_date'); ?>
 			<?php
 		} else {
 			echo $asset->getFriendlyDatesAndTimes();
@@ -106,8 +106,11 @@ class Calendar_Event_Cancellation_Edit_Fns extends Calendar_Event_Edit_Fns
 				$modified_event_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($recurring_event_ids[0]);
 			}
 		}
-		if (!is_null($modified_event_asset)) echo $modified_event_asset->name.' (Id: #'.$modified_event_asset->id.')';
-		else echo 'No event has been selected for cancellation';
+		if (!is_null($modified_event_asset)) {
+			echo $modified_event_asset->name.' (Id: #'.$modified_event_asset->id.')';
+		} else {
+			echo translate('cal_event_cancel_no_event_selected');
+		}
 
 	}//end paintRecurringEventChooser()
 

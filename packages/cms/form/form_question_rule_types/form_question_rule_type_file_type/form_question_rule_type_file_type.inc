@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_file_type.inc,v 1.4 2005/04/29 05:40:29 gsherwood Exp $
+* $Id: form_question_rule_type_file_type.inc,v 1.5 2005/05/11 06:07:31 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -56,8 +56,8 @@ class Form_Question_Rule_Type_File_Type extends Form_Question_Rule
 	function getOperators()
 	{
 		return Array(
-				1	=> 'Must be one of these extensions...',
-				0	=> 'Must not be one of these extensions...',
+					1	=> translate('cms_form_rule_file_type_true'),
+					0	=> translate('cms_form_rule_file_type_false'),
 			   );
 
 	}//end getOperators()
@@ -173,7 +173,7 @@ class Form_Question_Rule_Type_File_Type extends Form_Question_Rule
 		$comparison = str_replace("\r", '', $comparison);
 		$comparison = str_replace("\n", ', ', $comparison);
 
-		$error_text = 'Uploaded file name "'.$q_asset->getValue().'" at question "'.$q_asset->attr('name').'" is invalid - extension must '.($operator ? '' : 'not ').'be one of "'.$comparison.'"';
+		return translate('cms_form_rule_file_type_error_'.($operator ? 'true' : 'false'), $q_asset->getValue(), $q_asset->attr('name'), $comparison);
 
 		return $error_text;
 
@@ -196,7 +196,7 @@ class Form_Question_Rule_Type_File_Type extends Form_Question_Rule
 
 		$operator_list = $this->getOperators();
 
-		return 'Uploaded file at "'.$q_asset->attr('name').'" '.strtolower($operator_list[array_get_index($rule_data, 'operator', 1)]).' '.$rule_data['value'];
+		return translate('cms_form_rule_file_type_desc_'.($operator ? 'true' : 'false'), $q_asset->attr('name'), $rule_data['value']);
 
 	}//end ruleDescription()
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager_edit_fns.inc,v 1.86 2005/04/21 06:02:05 tbarrett Exp $
+* $Id: asset_manager_edit_fns.inc,v 1.87 2005/05/11 06:05:10 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.86 $
+* @version $Revision: 1.87 $
 * @package MySource_Matrix
 */
 class Asset_Manager_Edit_Fns extends MySource_Object
@@ -236,9 +236,9 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 			// check that they entered the correct security key
 			if (!validate_security_key()) {
 				// the security key entered is wrong
-				$o->openSection('Security Key Incorrect');
+				$o->openSection(translate('security_key_incorrect'));
 				$o->openField('&nbsp;');
-				echo '<b><i>The security key entered was incorrect. The lock on "'.$asset->name.'" has not been forceably acquired. You may try again using the new security key displayed below.</i></b>';
+				echo '<b><i>'.translate('security_key_incorrect_message', $asset->name).'</i></b>';
 				$o->closeSection();
 			} else {
 				$o->addOnLoad('window.opener.parent.frames["sq_main"].set_hidden_field(\'sq_lock_acquire_by_force\', \'1\'); window.opener.parent.frames["sq_main"].set_hidden_field(\'sq_lock_acquire\', \'1\'); window.opener.parent.frames["sq_main"].set_hidden_field(\'sq_lock_type\', \''.addslashes($_GET['sq_lock_type']).'\'); window.opener.parent.frames["sq_main"].submit_form(); window.close();');

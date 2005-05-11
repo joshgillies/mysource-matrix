@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_schema_edit_fns.inc,v 1.19 2005/02/22 05:54:11 tbarrett Exp $
+* $Id: workflow_schema_edit_fns.inc,v 1.20 2005/05/11 06:05:06 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -69,7 +69,7 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 	function paintNewStep(&$asset, &$o, $prefix)
 	{
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
-		echo 'Create a new step called ';
+		echo translate('create_new_step_called').' ';
 		text_box($prefix.'_new_step', '', 20);
 		return true;
 
@@ -130,7 +130,7 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 				if ($write_access) {
 					$o->openField('Delete ?');
 						check_box($prefix.'_delete_steps['.$link_data['linkid'].']');
-						echo '&nbsp; Delete this step and all its conditions?';
+						label(translate('delete_step_and_conditions_question'), $prefix.'_delete_steps['.$link_data['linkid'].']');
 					$o->closeField();
 				}
 				$edit_fns = $step->getEditFns();

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager.inc,v 1.22 2005/05/05 02:37:11 rhoward Exp $
+* $Id: trigger_manager.inc,v 1.23 2005/05/11 06:05:05 lwright Exp $
 *
 */
 
@@ -51,7 +51,7 @@ require_once 'hash.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1112,7 +1112,7 @@ class Trigger_Manager extends Asset
 		if ($s) {
 			return $this->_saveTrigger($trigger);
 		} else {
-			trigger_localised_error('CORE0217', E_USER_WARNING);
+			trigger_localised_error('CORE0232', E_USER_WARNING);
 			return false;
 		}
 

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.26 2005/04/29 05:40:30 gsherwood Exp $
+* $Id: page_account_manager.inc,v 1.27 2005/05/11 06:07:32 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -98,11 +98,11 @@ class Page_Account_Manager extends Page_Asset_Builder
 			$save = false;
 			if (!isset($required_fields[$create_type])) $required_fields[$create_type] = Array();
 			if (!isset($required_fields[$create_type]['username'])) {
-				$required_fields[$create_type]['username'] = 'Username is required to send the validation email';
+				$required_fields[$create_type]['username'] = translate('cms_account_manager_username_required');
 				$save = true;
 			}
 			if (!isset($required_fields[$create_type]['email'])) {
-				$required_fields[$create_type]['email'] = 'Email is required to send the validation email';
+				$required_fields[$create_type]['email'] = translate('cms_account_manager_email_required');
 				$save = true;
 			}
 
@@ -160,8 +160,8 @@ class Page_Account_Manager extends Page_Asset_Builder
 			<script language="Javascript">
 				document.location = "<?php echo $redirect_url; ?>";
 			</script>
-			Click <a href="<?php echo $redirect_url; ?>">here</a> to edit your details.
 			<?php
+			echo translate('cms_account_manager_login_redirect_link', $redirect_url);
 		}
 
 	}//end printBody()
@@ -217,7 +217,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 					if ($check_screen_restrictions) if (isset($allowed_screens['0']['0'])) $check_screen_restrictions = false;
 
 					if ($check_screen_restrictions && !isset($allowed_screens[$default_screen])) {
-						$this->_replacements['edit_details_invite'] = '<p>You do not have access to edit your details.</p>';
+						$this->_replacements['edit_details_invite'] = '<p>'.translate('cms_account_manager_cannot_edit_details').'</p>';
 						$current_user->printBody();
 					} else {
 						$this->_replacements['edit_details_invite'] = $this->attr('edit_details_invite');
@@ -236,7 +236,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 			ob_start();
 				?>
 				<form name="account_manager_logout" method="POST" action="<?php echo current_url(true, true); ?>?SQ_ACTION=logout">
-					<?php echo submit_button('logout', 'Logout'); ?>
+					<?php echo submit_button('logout', translate('logout')); ?>
 				</form>
 				<?php
 				$this->_replacements['logout_form'] = ob_get_contents();

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_password.inc,v 1.16 2005/04/29 05:40:30 gsherwood Exp $
+* $Id: form_question_type_password.inc,v 1.17 2005/05/11 06:07:32 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -112,7 +112,7 @@ class Form_Question_Type_Password extends Form_Question
 		if (!$this->active_submission) return false;
 
 		if (!$this->answeredCorrectly()) {
-			$this->failed_rules[] = 'Password field "'.$this->attr('name').'" was entered differently on each try';
+			$this->failed_rules[] = translate('cms_form_password_entered_differently', $this->attr('name'));
 			return false;
 		}
 
@@ -120,11 +120,11 @@ class Form_Question_Type_Password extends Form_Question
 			$val = $_POST[$this->id.'_1'];
 
 			if (strlen($val) < $this->attr('min')) {
-				$this->failed_rules[] = 'Password field "'.$this->attr('name').'" must be no less than '.$this->attr('min').' characters';
+				$this->failed_rules[] = translate('cms_form_password_length_>=', $this->attr('name'), $this->attr('max'));
 				return false;
 			}
 			if (strlen($val) > $this->attr('max')) {
-				$this->failed_rules[] = 'Password field "'.$this->attr('name').'" must be no more than '.$this->attr('max').' characters';
+				$this->failed_rules[] = translate('cms_form_password_length_<=', $this->attr('name'), $this->attr('max'));
 				return false;
 			}
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_asset_type.inc,v 1.8 2005/04/28 05:22:07 rhoward Exp $
+* $Id: trigger_condition_asset_type.inc,v 1.9 2005/05/11 06:05:05 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -109,17 +109,19 @@ class Trigger_Condition_Asset_Type extends Trigger_Condition
 		$is_descendant = array_get_index($settings, 'descendants', false);
 
 		ob_start();
-		echo 'Asset is of type ';
-		if ($write_access) {
-			asset_type_chooser($prefix, false, Array('type_code' => $selected_type, 'inherit' => $is_descendant), null, false, true);
-		} else {
-			echo '<b>';
-			echo $selected_type;
-			if ($is_descendant) echo ' (or descendant types)';
-			echo '</b>';
-		}
+			if ($write_access) {
+				asset_type_chooser($prefix, false, Array('type_code' => $selected_type, 'inherit' => $is_descendant), null, false, true);
+			} else {
+				echo '<b>';
+				echo $selected_type;
+				if ($is_descendant) echo ' ('.translate('or_decendant_types').')';
+				echo '</b>';
+			}
 
-		return ob_get_clean();
+			$basic_part_1 = ob_get_contents();
+		ob_end_clean();
+
+		return translate('trigger_asset_type', $basic_part_1);
 
 	}//end getInterface()
 
@@ -138,12 +140,12 @@ class Trigger_Condition_Asset_Type extends Trigger_Condition
 	function processInterface(&$settings, $request_data)
 	{
 		if (empty($request_data)) {
-			return 'There was an error with input data';
+			return translate('trigger_input_data_error');
 		}
 
 		$asset_type = array_get_index($request_data, 'type_code', false);
 		if (!$asset_type) {
-			return 'Asset type code has not been supplied';
+			return translate('trigger_type_code_not_supplied');
 		}
 
 		// descendants is set to either '1' or not at all

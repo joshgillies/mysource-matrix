@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_user_agent_edit_fns.inc,v 1.3 2005/04/12 11:22:04 brobertson Exp $
+* $Id: condition_user_agent_edit_fns.inc,v 1.4 2005/05/11 06:04:56 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition_edit_f
 * @see Asset_Edit_Fns
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -64,19 +64,19 @@ class Condition_User_Agent_Edit_Fns extends Condition_Edit_Fns
 		$options = $asset->getOptions();
 		
 		if (!$write_access) {
-			$o->openField('Condition Details');
-			echo 'User agent '.strtolower($options[$restriction['match']]).' pattern "'.array_get_index($restriction['condition_data'], 'user_agent', '').'"';
+			$o->openField(translate('condition_details'));
+				$o->note(translate('condition_user_agent', strtolower($options[$restriction['match']]), array_get_index($restriction['condition_data'], 'user_agent', '')));
 			$o->closeField();
 		} else {
-			$o->openField('Match Condition');
-			combo_box($prefix.'[match]', $options, false, $restriction['match']);
+			$o->openField(translate('match_condition'));
+				combo_box($prefix.'[match]', $options, false, $restriction['match']);
 			$o->closeField();
 		
-			$o->openField('Compare to User Agent');
-			text_box($prefix.'[compare]', array_get_index($restriction['condition_data'], 'user_agent', ''), 30);
+			$o->openField(translate('compare_to_user_agent'));
+				text_box($prefix.'[compare]', array_get_index($restriction['condition_data'], 'user_agent', ''), 30);
 			$o->closeField();
 		}
-		$o->sectionNote('This condition matches using a regular expression. You can enter a simple string (eg. "MSIE") to match that in any part of the user agent. Or, you can use a more advanced pattern.');
+		$o->sectionNote(translate('condition_user_agent_is_regular_expression_enabled'));
 		return true;
 		
 	}//end paintEditInterface()

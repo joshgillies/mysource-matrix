@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_link_exists.inc,v 1.9 2005/04/29 01:03:07 rhoward Exp $
+* $Id: trigger_condition_link_exists.inc,v 1.10 2005/05/11 06:05:05 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -163,23 +163,23 @@ class Trigger_Condition_Link_Exists extends Trigger_Condition
 		$use_new_link       = array_get_index($settings, 'use_new_link', false);
 
 		$is_major_list = Array(
-							0	=> 'Parent',
-							1	=> 'Child',
+							0	=> translate('parent'),
+							1	=> translate('child'),
 						 );
 
-		$link_type_list = Array('' => '--- Any ---');
+		$link_type_list = Array('' => '--- '.translate('any').' ---');
 		$link_type_list = array_merge($link_type_list, get_link_type_names());
 
 		$dependant_options = Array(
-								''	=> '--- Any ---',
-								'1'	=> 'Yes',
-								'0'	=> 'No',
+								''	=> '--- '.translate('any').' ---',
+								'1'	=> translate('yes'),
+								'0'	=> translate('no'),
 							 );
 
 		$exclusive_options = Array(
-								''	=> '--- Any ---',
-								'1'	=> 'Yes',
-								'0'	=> 'No',
+								''	=> '--- '.translate('any').' ---',
+								'1'	=> translate('yes'),
+								'0'	=> translate('no'),
 							 );
 
 		if (!$write_access) {
@@ -188,65 +188,92 @@ class Trigger_Condition_Link_Exists extends Trigger_Condition
 			$form_element_extras = '';
 		}
 
+		// begin bufferning basic options
 		ob_start();
+			combo_box($prefix.'[is_major]', $is_major_list, false, $is_major, null, $form_element_extras);
+			$basic_part_1 = ob_get_contents();
+		ob_end_clean();
 
-		echo 'Has a ';
-		combo_box($prefix.'[is_major]', $is_major_list, false, $is_major, null, $form_element_extras);
-		?>
-		asset
-		<ul style="list-style-type: none; padding: 0;" >
-			<li>
-				<?php
-				radio_button($prefix.'[selector_type]', 'asset_type', $selector_type == 'asset_type', null, $form_element_extras);
-				echo 'of type: ';
+		ob_start();
+			radio_button($prefix.'[selector_type]', 'asset_type', $selector_type == 'asset_type', null, $form_element_extras);
+			$basic_part_2 = ob_get_contents();
+		ob_end_clean();
 
-				if ($write_access) {
-					asset_type_chooser($prefix.'[asset_type]', false, $asset_type);
-				} else {
-					if ($asset_type) {
-						echo $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset_type, 'name');
-					}
+		ob_start();
+			if ($write_access) {
+				asset_type_chooser($prefix.'[asset_type]', false, $asset_type);
+			} else {
+				if ($asset_type) {
+					echo $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset_type, 'name');
 				}
-				?>
-			</li>
-			<li>
-				<?php radio_button($prefix.'[selector_type]', 'asset_id', $selector_type == 'asset_id', null, $form_element_extras); ?>
-				with ID:
-				<?php
-				if ($write_access) {
-					asset_finder($prefix.'[asset_id]', $asset_id);
+			}
+
+			$basic_part_3 = ob_get_contents();
+		ob_end_clean();
+
+		ob_start();
+			radio_button($prefix.'[selector_type]', 'asset_id', $selector_type == 'asset_id', null, $form_element_extras);
+			$basic_part_4 = ob_get_contents();
+		ob_end_clean();
+
+		ob_start();
+			if ($write_access) {
+				asset_finder($prefix.'[asset_id]', $asset_id);
+			} else {
+				if ($asset_id) {
+					$asset_name = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($asset_id), Array(), true, 'name');
+					text_box($prefix.'[assetid]', $asset_name[$asset_id].' (#'.$asset_id.')', '', '', false, $form_element_extras);
 				} else {
-					if ($asset_id) {
-						$asset_name = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($asset_id), Array(), true, 'name');
-						text_box($prefix.'[assetid]', $asset_name[$asset_id].' (#'.$asset_id.')', '', '', false, $form_element_extras);
-					} else {
-						text_box($prefix.'[assetid]', '', '', '', false, $form_element_extras);
-					}
+					text_box($prefix.'[assetid]', '', '', '', false, $form_element_extras);
 				}
-				?>
-			</li>
-		</ul>
-		<br />
+			}
 
-		<?php check_box($prefix.'[use_new_link]', '1', $use_new_link, null, $form_element_extras, null, $form_element_extras); ?>
-		Match the newly-created link only (Applicable only to the event 'Link Created')
+			$basic_part_5 = ob_get_contents();
+		ob_end_clean();
 
-		<hr />
-		<h4>Optional items for Advanced users:</h4>
-		<ul style="list-style-type: none; padding: 0;">
-			<li>
-				Link Type: <?php combo_box($prefix.'[link_type]', $link_type_list, false, $selected_link_type, null, $form_element_extras); ?>
+		ob_start();
+			check_box($prefix.'[use_new_link]', '1', $use_new_link, null, $form_element_extras, null, $form_element_extras);
+			label(translate('match_newly_created_link_only'), $prefix.'[use_new_link]');
+			$basic_part_6 = ob_get_contents();
+		ob_end_clean();
+
+
+
+		// begin buffering advanced options
+		ob_start();
+			combo_box($prefix.'[link_type]', $link_type_list, false, $selected_link_type, null, $form_element_extras); ?>
 			</li>
-			<li>
-				Is Dependant? <?php combo_box($prefix.'[is_dependant]', $dependant_options, false, $is_dependant, null, $form_element_extras); ?>
+			<li><?php
+			$advanced_part_1 = ob_get_contents();
+		ob_end_clean();
+
+		ob_start();
+			combo_box($prefix.'[is_dependant]', $dependant_options, false, $is_dependant, null, $form_element_extras); ?>
 			</li>
-			<li>
-				Is Exclusive? <?php combo_box($prefix.'[is_exclusive]', $exclusive_options, false, $is_exclusive, null, $form_element_extras); ?>
+			<li><?php
+			$advanced_part_2 = ob_get_contents();
+		ob_end_clean();
+
+		ob_start();
+			combo_box($prefix.'[is_exclusive]', $exclusive_options, false, $is_exclusive, null, $form_element_extras); ?>
 			</li>
-		</ul>
-		Value: <?php text_box($prefix.'[value]', $value, 60, null, false, $form_element_extras); ?>
-		<?php
-		return ob_get_clean();
+		</ul><?php
+			$advanced_part_3 = ob_get_contents();
+		ob_end_clean();
+
+		ob_start();
+			text_box($prefix.'[value]', $value, 60, null, false, $form_element_extras);
+			$advanced_part_4 = ob_get_contents();
+		ob_end_clean();
+
+
+		$contents = translate('trigger_link_exists_basic', $basic_part_1, $basic_part_2, $basic_part_3, $basic_part_4, $basic_part_5, $basic_part_6).
+					'<hr />'.
+					'<b>'.translate('triggers_advanced_user_options').'</b><br />'.
+					'<ul style="list-style-type: none; padding: 0;"><li>'
+					.translate('trigger_link_exists_advanced', $advanced_part_1, $advanced_part_2, $advanced_part_3, $advanced_part_4);
+
+		return $contents;//ob_get_clean();
 
 	}//end getInterface()
 

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content_edit_fns.inc,v 1.28 2005/04/29 05:40:28 gsherwood Exp $
+* $Id: content_type_nest_content_edit_fns.inc,v 1.29 2005/05/11 06:07:30 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -66,13 +66,13 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 				?>
 				<table class="sq-backend-table">
 					<tr>
-						<td class="sq-backend-table-cell-alt"><b>Currently nesting the contents of "<i><?php echo $nested_asset->attr('name')?></i>"</b></td>
+						<td class="sq-backend-table-cell-alt"><b><?php echo translate('cms_ct_nest_content_currently_nesting', $nested_asset->attr('name')) ?></b></td>
 					</tr>
 					<tr>
 						<td class="sq-backend-table-cell"><?php asset_finder($prefix.'_nested_assetid', $nested_asset->id, Array('page' => 'D')); ?></td>
 					</tr>
 					<tr>
-						<td class="sq-backend-table-cell"><b><a href="<?php echo $asset_link; ?>" id="sq_preview_new_window" target="_blank">Click to preview in a new window</a></b></td>
+						<td class="sq-backend-table-cell"><b><a href="<?php echo $asset_link; ?>" id="sq_preview_new_window" target="_blank"><?php echo translate('cms_ct_nest_content_click_to_preview') ?></a></b></td>
 					</tr>
 				</table>
 				<?php
@@ -80,7 +80,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 				?>
 				<table class="sq-backend-table">
 					<tr>
-						<td class="sq-backend-table-cell-alt"><b>No page has been selected</b></td>
+						<td class="sq-backend-table-cell-alt"><b><?php echo translate('cms_ct_nest_content_no_page_selected'); ?></b></td>
 					</tr>
 					<tr>
 						<td class="sq-backend-table-cell"><?php asset_finder($prefix.'_nested_assetid', '', Array('page' => 'D')); ?></td>
@@ -123,7 +123,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 		// if we have already printed this asset, dont print again or we will end up in an endless loop
 		if (isset($GLOBALS['SQ_NEST_CONTENT_PAINTED'][$nested_asset->id])) {
 			unset($GLOBALS['SQ_NEST_CONTENT_PAINTED'][$nested_asset->id]);
-			echo '<span class="sq-backend-warning"><b>[ ** RECURSION WARNING ** ]<br/>You are nesting the content of this page inside itself</b></span>';
+			echo '<span class="sq-backend-warning"><b>[ ** '.translate('cms_ct_nest_content_recursion_warning').' ** ]<br/>'.translate('cms_ct_nest_content_recursion_body').'</b></span>';
 			return true;
 		}
 
@@ -140,7 +140,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 			if (empty($asset_link)) {
 				$asset_link = strip_url(current_url(false, true)).'/?a='.$nested_asset->id;
 			}
-			$asset_contents = '<strong>Nested Content - '.$nested_asset->name.' (Id : #'.$nested_asset->id.'):</strong> <a href="'.$asset_link.'" id="sq_preview_new_window" target="_blank">Click to preview</a>.';
+			$asset_contents = '<strong>'.translate('cms_ct_nest_content_nested_content', $nested_asset->name, $nested_asset->id).'</strong> <a href="'.$asset_link.'" id="sq_preview_new_window" target="_blank">'.translate('cms_ct_nest_content_click_to_preview').'</a>.';
 		} else {
 			// otherwise just get the asset to print itself for us
 			ob_start();
@@ -178,7 +178,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 			$nested_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset(<?php echo $nested_asset->id?>, '', true);
 			if ($nested_asset->id && $nested_asset->readAccess()) $nested_asset->printBody();
 		} else {
-			echo '<font color="red"><b>[ ** RECURSION WARNING ** ]<br/>You are nesting the content of this page inside itself</b></font>';
+			echo '<font color="red"><b>[ ** '.translate('cms_ct_nest_content_recursion_warning').' ** ]<br/>'.translate('cms_ct_nest_content_recursion_body').'</b></font>';
 		}
 
 		unset($GLOBALS['SQ_NEST_CONTENT_PAINTED'][<?php echo $nested_asset->id?>]);

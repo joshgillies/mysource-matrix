@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.29 2005/05/06 01:24:03 tbarrett Exp $
+* $Id: listing_engine.inc,v 1.30 2005/05/11 06:07:32 lwright Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
 *
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -102,7 +102,7 @@ class Listing_Engine extends Page
 		}
 		$asset = new Bodycopy();
 		$copy_link = Array('asset' => &$type_formats, 'value' => 'default_format' ,'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
-		$asset->setAttrValue('name', 'Default Format');
+		$asset->setAttrValue('name', translate('default_format'));
 
 		return $asset->create($copy_link);
 
@@ -174,7 +174,7 @@ class Listing_Engine extends Page
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
 		switch (strtolower($link['value'])) {
 			case 'root' :
-				return 'The root node of the Asset Listing';
+				return translate('cms_listing_root_node_link_desc');
 			break;
 			default :
 				return parent::describeLink($linkid);
@@ -196,12 +196,12 @@ class Listing_Engine extends Page
 	{
 		$folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', true, 'type_formats');
 		if ($folder_link['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) {
-			return 'You cannot delete the link between the type formats folder and the '.str_replace('_',' ', $this->type()).' page';
+			return translate('cms_listing_cannot_delete_type_formats_link', str_replace('_',' ', $this->type()));
 		}
 
 		$asset_folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', true, 'position_formats');
 		if ($asset_folder_link['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) {
-			return 'You cannot delete the link between the asset formats folder and the '.str_replace('_',' ', $this->type()).' page';
+			return translate('cms_listing_cannot_delete_position_formats_link', str_replace('_',' ', $this->type()));
 		}
 
 		return parent::isDeletableLink($linkid);
@@ -816,7 +816,7 @@ class Listing_Engine extends Page
 
 				// previous page link
 				$result_letter = ord(strtoupper($result_page));
-				$replacements['previous_page'] = 'Previous';
+				$replacements['previous_page'] = $this->attr('prev_page_text');
 				if ($result_letter > 65) {
 					for ($i = ($result_letter-1); $i >= 65; $i--) {
 						if (isset($todo[strtolower(chr($i))])) {
@@ -827,7 +827,7 @@ class Listing_Engine extends Page
 				}
 
 				// next page link
-				$replacements['next_page'] = 'Next';
+				$replacements['next_page'] = $this->attr('next_page_text');
 				if ($result_letter < 90) {
 					for ($i = ($result_letter+1); $i <= 90; $i++) {
 						if (isset($todo[strtolower(chr($i))])) {
@@ -1242,11 +1242,11 @@ class Listing_Engine extends Page
 					}
 				}
 
-				$keywords['asset_contents']          = 'Asset Contents';
-				$keywords['asset_name_linked']       = 'Asset Name Linked';
-				$keywords['asset_short_name_linked'] = 'Asset Short Name Linked';
-				$keywords['asset_position']          = 'Asset Position';
-				$keywords['root_nodes']              = 'Root Nodes (Separated by Commas)';
+				$keywords['asset_contents'] = translate('cms_listing_asset_contents');
+				$keywords['asset_name_linked'] = translate('cms_listing_asset_name_linked');
+				$keywords['asset_short_name_linked'] = translate('cms_listing_asset_short_name_linked');
+				$keywords['asset_position'] = translate('cms_listing_asset_position');
+				$keywords['root_nodes'] = translate('cms_listing_delimited_root_nodes');
 			}
 		}
 

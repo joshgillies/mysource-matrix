@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_create_image_variety.inc,v 1.6 2005/04/20 04:20:36 gsherwood Exp $
+* $Id: trigger_action_create_image_variety.inc,v 1.7 2005/05/11 06:05:02 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -136,8 +136,6 @@ class Trigger_Action_Create_Image_Variety extends Trigger_Action
 		$settings['width']     = array_get_index($settings, 'width', 0);
 		$settings['height']    = array_get_index($settings, 'height', 0);
 
-		// capture anything printed
-		ob_start();
 
 		if (!$write_access) {
 			$form_element_extras = 'disabled="disabled"';
@@ -145,22 +143,33 @@ class Trigger_Action_Create_Image_Variety extends Trigger_Action
 			$form_element_extras = '';
 		}
 
-		echo 'Create an Image Variety with the name: ';
-		text_box($prefix.'[name]', $settings['name'], '', '', false, $form_element_extras);
-		echo '<br />';
-		echo 'and constrain by:';
-		$options = Array(
-					'width'		=> 'Width',
-					'height'	=> 'Height',
-					'none'		=> 'Neither',
-				   );
-		combo_box($prefix.'[constrain]', $options, false, $settings['constrain'], 0, $form_element_extras);
-		echo 'and size it to: (width)';
-		int_text_box($prefix.'[width]', $settings['width'], false, '', '', false, $form_element_extras);
-		echo 'by (height) ';
-		int_text_box($prefix.'[height]', $settings['height'], false, '', '', false, $form_element_extras);
+		// begin buffering basic options
+		ob_start();
+			text_box($prefix.'[name]', $settings['name'], '', '', false, $form_element_extras);
+			$basic_part_1 = ob_get_contents();
+		ob_end_clean();
 
-		return ob_get_clean();
+		ob_start();
+			$options = Array(
+						'width'		=> 'Width',
+						'height'	=> 'Height',
+						'none'		=> 'Neither',
+					   );
+			combo_box($prefix.'[constrain]', $options, false, $settings['constrain'], 0, $form_element_extras);
+			$basic_part_2 = ob_get_contents();
+		ob_end_clean();
+
+		ob_start();
+			int_text_box($prefix.'[width]', $settings['width'], false, '', '', false, $form_element_extras);
+			$basic_part_3 = ob_get_contents();
+		ob_end_clean();
+
+		ob_start();
+			int_text_box($prefix.'[height]', $settings['height'], false, '', '', false, $form_element_extras);
+			$basic_part_4 = ob_get_contents();
+		ob_end_clean();
+
+		return translate('trigger_create_image_variety_basic', $basic_part_1, $basic_part_2, $basic_part_3, $basic_part_4);//ob_get_clean();
 
 	}//end getInterface()
 
@@ -179,16 +188,16 @@ class Trigger_Action_Create_Image_Variety extends Trigger_Action
 	function processInterface(&$settings, $request_data)
 	{
 		if (empty($request_data)) {
-			return 'Input Data is missing';
+			return translate('trigger_input_data_missing');
 		}
 
 		// check if the name, constrain, width and height are set
 		if (empty($request_data['name'])) {
-			return 'Variety name cannot be empty';
+			return translate('trigger_variety_name_cannot_be_empty');
 		}
 
 		if (!isset($request_data['constrain']) || !isset($request_data['width']) || !isset($request_data['height'])) {
-			return 'must have constrain, height and width set, even if one is zero';
+			return translate('trigger_require_constrain_width_height');
 		}
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('image_variety');
@@ -198,22 +207,22 @@ class Trigger_Action_Create_Image_Variety extends Trigger_Action
 
 		// name
 		if (!$variety->setAttrValue('name', $request_data['name'])) {
-			return 'Cannot set variety\'s "name" value';
+			return translate('trigger_cannot_set_variety_value', translate('name'));
 		}
 
 		// constrain
 		if (!$variety->setAttrValue('constrain', $request_data['constrain'])) {
-			return 'Cannot set variety\'s "constrain" value';
+			return translate('trigger_cannot_set_variety_value', translate('constrain'));
 		}
 
 		// width
 		if (!$variety->setAttrValue('width', $request_data['width'])) {
-			return 'Cannot set variety\'s "width" value';
+			return translate('trigger_cannot_set_variety_value', translate('width'));
 		}
 
 		// height
 		if (!$variety->setAttrValue('height', $request_data['height'])) {
-			return 'Cannot set variety\'s "height" value';
+			return translate('trigger_cannot_set_variety_value', translate('height'));
 		}
 
 		unset($variety);

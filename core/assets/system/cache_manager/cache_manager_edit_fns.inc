@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager_edit_fns.inc,v 1.2 2005/01/20 13:07:36 brobertson Exp $
+* $Id: cache_manager_edit_fns.inc,v 1.3 2005/05/11 06:04:56 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.2 $ - 1.0
+* @version $Revision: 1.3 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackag __core__
 */
@@ -86,7 +86,7 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 
 		?>
 		<select name="<?php echo $prefix; ?>_select_type" onchange="this.form.submit();">
-			<option value="">-- select asset type --</option>
+			<option value="">-- <?php echo translate('select_asset_type'); ?> --</option>
 			<?php
 			foreach ($options as $type_code => $name) {
 				$style = (isset($type_codes[$type_code])) ? ' style="background-color: #C8BDCB";' : '';
@@ -99,10 +99,10 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 		?></select><?php
 
 		$o->addFormActionGetVar($prefix.'_type', $selected, true);
-		submit_button($prefix.'_go', 'Go');
+		submit_button($prefix.'_go', translate('go'));
 
 		if (isset($_REQUEST[$prefix.'_select_type']) && !empty($_REQUEST[$prefix.'_select_type'])) {
-			echo '<br/><br/><b>Currently customising '.$options[$_REQUEST[$prefix.'_select_type']].'</b>';
+			echo '<br/><br/><b>'.translate('currently_customising', $options[$_REQUEST[$prefix.'_select_type']]).'</b>';
 		}
 
 		return false;
@@ -154,22 +154,22 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 			// field opened by asset_edit_interface
 				$using_default = !isset($type_codes[$selected]['enabled']);
 				if ($using_default) {
-					echo 'Using default value of '.(($asset->attr('enabled')) ? 'On' : 'Off').'<br/>';
+					echo translate('using_default_value_of',(($asset->attr('enabled')) ? translate('on') : translate('off'))).'<br/>';
 				} else {
 					$caching = ($type_codes[$selected]['enabled']) ? 1 : 0;
 					if ($write_access) {
-						combo_box($prefix.'_enabled', Array('1' => 'On', '0' => 'Off'), false, $caching);
+						combo_box($prefix.'_enabled', Array('1' => translate('on'), '0' => translate('off')), false, $caching);
 					} else {
-						echo ($type_codes[$selected]['enabled']) ? 'On' : 'Off';
+						echo ($type_codes[$selected]['enabled']) ? translate('on') : translate('off');
 					}
 				}
 				if ($write_access) {
 					check_box($prefix.'_default_enabled', '1', $using_default);
-					echo ' Use default';
+					echo ' '.translate('use_default');
 				}
 			$o->closeField();
 
-			$o->openField('Default Expiry', '', 'The length of time a cache entry is valid in seconds');
+			$o->openField(translate('default_expiry'), '', translate('valid_cache_length'));
 				$using_default = !isset($type_codes[$selected]['expiry']);
 				if ($using_default) {
 					echo 'Using default value of '.$asset->attr('expiry'). ' seconds<br/>';
@@ -182,12 +182,12 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 				}
 				if ($write_access) {
 					check_box($prefix.'_default_expiry', '1', $using_default);
-					echo ' Use default';
+					echo ' '.translate('use_default');
 				}
 			// field closed by asset_edit_interface
 
 		} else {
-			echo 'Please select a Asset Type above to customise';
+			echo translate('customise_asset_selection');
 			return false;
 
 		}//end if !empty()
@@ -256,21 +256,21 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 	function paintClearCache(&$asset, &$o, $prefix)
 	{
 		if (!$asset->writeAccess('attributes')) {
-			echo 'You do not have access to clear the cache';
+			echo translate('cannot_clear_cache');
 			return false;
 		}
 		asset_finder($prefix.'_clear_cache', '');
 
-		$o->openField('Level');
+		$o->openField(translate('level'));
 			$options = Array(
-				'single'     => 'This asset',
-				'dependants' => 'This asset and its dependants',
-				'children'   => 'This asset and its children',
+				'single'     => translate('this_asset'),
+				'dependants' => translate('this_asset_and_dependants'),
+				'children'   => translate('this_asset_and_children'),
 			);
 			combo_box($prefix.'_level', $options, '', false);
 		$o->closeField();
 
-		$o->openField('Asset Types');
+		$o->openField(translate('asset_types'));
 			$asset_types = $GLOBALS['SQ_SYSTEM']->am->getTypeList();
 			foreach ($asset_types as $type_code) {
 				$info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code);
@@ -281,7 +281,7 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 
 			asort($options);
 			$options = array_reverse($options, true);
-			$options[''] = '-- All Asset Types --';
+			$options[''] = '-- '.translate('all_asset_types').' --';
 			$options = array_reverse($options, true);
 			combo_box($prefix.'_type_codes', $options, true, '', 8);
 		$o->closeField();

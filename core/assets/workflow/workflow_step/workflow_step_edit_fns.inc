@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_step_edit_fns.inc,v 1.23 2005/02/24 05:24:08 dbaranovskiy Exp $
+* $Id: workflow_step_edit_fns.inc,v 1.24 2005/05/11 06:05:06 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -70,7 +70,7 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 		$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 
-		$o->openField('Step Logic');
+		$o->openField(translate('step_logic'));
 			$step_logic = $asset->attr('logic');
 			$step_logic_num = $asset->attr('logic_num');
 			if (!$step_logic_num) $step_logic_num = '';
@@ -82,7 +82,7 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 				combo_box($prefix.'_logic', $wfm->_valid_step_logic, false, $step_logic);
 				echo '&nbsp;';
 				text_box($prefix.'_logic_num', $step_logic_num, 4);
-				echo ' condition(s) must be met in this step';
+				echo ' '.translate('conditions_must_be_met_in_this_step');
 			}
 		$o->closeField();
 
@@ -93,11 +93,11 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 				<table class="sq-backend-table">
 					<tr>
 						<td class="sq-backend-table-header">&nbsp;</td>
-						<td class="sq-backend-table-header">Notify When Live</td>
-						<td class="sq-backend-table-header" width="270">Group Logic</td>
+						<td class="sq-backend-table-header"><?php echo translate('notify_when_live'); ?></td>
+						<td class="sq-backend-table-header" width="270"><?php echo translate('group_logic'); ?></td>
 						<?php
 						if ($write_access) {
-							?><td align="center" width="70" class="sq-backend-table-header"><b>Delete ?</b></td><?php
+							?><td align="center" width="70" class="sq-backend-table-header"><b><?php echo translate('delete_question'); ?></b></td><?php
 						}
 						?>
 					</tr>
@@ -120,14 +120,14 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 		}
 
 		if ($write_access) {
-			$o->openField('New Condition?');
+			$o->openField(translate('new_condition_question'));
 				asset_finder($prefix.'_new_condition', 0, Array('user' => 'D', 'user_group' => 'D'), 'sq_sidenav', false, 'null', Array('clear'));
 			$o->closeField();
 		}
-		$o->openField('Expiry Time');
-		$comparator_attr =& $asset->getAttribute('expiry_time');
-		$comparator_attr->paint($prefix.'_expiry_time', !$write_access);
-		echo '<p>If this step is not completed within this time a reminder message will be sent to the asset administrators. Leave at &#147;0&#148; to disable this feature.</p>';
+		$o->openField(translate('expiry_time'));
+			$comparator_attr =& $asset->getAttribute('expiry_time');
+			$comparator_attr->paint($prefix.'_expiry_time', !$write_access);
+			$o->note(translate('step_not_completed_in_time_explanation'));
 		$o->closeField();
 
 

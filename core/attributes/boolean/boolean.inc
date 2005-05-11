@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: boolean.inc,v 1.29 2005/03/09 11:15:38 brobertson Exp $
+* $Id: boolean.inc,v 1.30 2005/05/11 06:05:06 lwright Exp $
 *
 */
 
@@ -39,7 +39,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *    <boolean true_text="true" false_text="false" empty_text="maybe" />
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -62,8 +62,8 @@ class Asset_Attribute_Boolean extends Asset_Attribute
 		if (!isset($this->_params['allow_empty'])) $this->_params['allow_empty'] = true;
 
 		// set default edit parameters
-		$this->_edit_params['true_text']  = 'True';
-		$this->_edit_params['false_text'] = 'False';
+		$this->_edit_params['true_text']  = translate('true');
+		$this->_edit_params['false_text'] = translate('false');
 		$this->_edit_params['empty_text'] = '';
 
 	}//end constructor
@@ -102,7 +102,7 @@ class Asset_Attribute_Boolean extends Asset_Attribute
 		?>
 		<table class="sq-backend-table">
 			<tr>
-				<td class="sq-backend-section-heading" style="width: 100px;">True Text</td>
+				<td class="sq-backend-section-heading" style="width: 100px;"><?php echo translate('true_text'); ?></td>
 				<td class="sq-backend-table-cell">
 					<?php
 					if ($write_access) text_box($prefix.'_true', $this->_edit_params['true_text']);
@@ -111,7 +111,7 @@ class Asset_Attribute_Boolean extends Asset_Attribute
 				</td>
 			</tr>
 			<tr>
-				<td class="sq-backend-section-heading" style="width: 100px;">False Text</td>
+				<td class="sq-backend-section-heading" style="width: 100px;"><?php echo translate('false_text'); ?></td>
 				<td class="sq-backend-table-cell">
 					<?php
 					if ($write_access) text_box($prefix.'_false', $this->_edit_params['false_text']);
@@ -123,7 +123,7 @@ class Asset_Attribute_Boolean extends Asset_Attribute
 			if ($this->_params['allow_empty']) {
 				?>
 				<tr>
-					<td class="sq-backend-section-heading" style="width: 100px;">Empty Text</td>
+					<td class="sq-backend-section-heading" style="width: 100px;"><?php echo translate('empty_text'); ?></td>
 					<td class="sq-backend-table-cell">
 						<?php
 						if ($write_access) text_box($prefix.'_empty', $this->_edit_params['empty_text']);

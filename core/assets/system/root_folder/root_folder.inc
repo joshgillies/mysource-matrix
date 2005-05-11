@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: root_folder.inc,v 1.46 2005/04/15 00:37:26 lwright Exp $
+* $Id: root_folder.inc,v 1.47 2005/05/11 06:05:01 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.46 $
+* @version $Revision: 1.47 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -75,7 +75,7 @@ class Root_Folder extends Folder
 		if ($ret_val) {
 			if ($this->id != 1) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				trigger_localised_error("CORE0077", E_USER_ERROR);
+				trigger_localised_error('CORE0077', E_USER_ERROR);
 				return false;
 			}
 
@@ -84,7 +84,7 @@ class Root_Folder extends Folder
 
 			if ($linkid != 1) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				trigger_localised_error("CORE0078", E_USER_ERROR);
+				trigger_localised_error('CORE0078', E_USER_ERROR);
 				return false;
 			}
 
@@ -170,7 +170,7 @@ class Root_Folder extends Folder
 	*/
 	function _getName($short_name=false)
 	{
-		return ($short_name) ? '/' : 'Root Folder';
+		return ($short_name) ? '/' : translate('root_folder');
 
 	}//end _getName()
 
@@ -254,7 +254,7 @@ class Root_Folder extends Folder
 	function setAttrValue($name, $value)
 	{
 		if ($name == 'name' && empty($this->_tmp[__CLASS__.'_in_create'])) {
-			trigger_localised_error("CORE0112", E_USER_WARNING);
+			trigger_localised_error('CORE0112', E_USER_WARNING);
 			return false;
 		}
 

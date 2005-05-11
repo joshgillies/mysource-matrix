@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date_edit_fns.inc,v 1.19 2005/04/20 00:51:59 ndvries Exp $
+* $Id: metadata_field_date_edit_fns.inc,v 1.20 2005/05/11 06:04:52 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -62,9 +62,13 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 	*/
 	function paintDateFormatKeys(&$asset, &$o, $prefix)
 	{
-		?>
-		<b>You can use the following set of Date object keys in order to define your own date format for this field.<br/>For a complete list of available keyword replacements <a href="#" onClick="Javascript: var win = window.open('<?php echo sq_web_path('data')?>/asset_types/metadata_field_date/popups/keywords.html', 'keywords', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=640,height=520'); return false;">click here </a></b>
-		<?php
+		ob_start();
+			?><a href="#" onClick="Javascript: var win = window.open('<?php echo sq_web_path('data')?>/asset_types/metadata_field_date/popups/keywords.html', 'keywords', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=640,height=520'); return false;"><?php echo translate('click_here'); ?></a><?php
+			$replacements_link = ob_get_contents();
+			
+		ob_end_clean();
+		
+		$o->note(translate('metadata_date_object_keys', $replacements_link));
 
 	}//end paintDateFormatKeys()
 
@@ -205,13 +209,13 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 		$default = $asset->attr('default');
 
 		$select_options = Array(
-							''					=> '-- keywords --',
-							'%asset_created%'	=> 'Creation date',
-							'%asset_updated%'	=> 'Last updated date',
-							'%asset_published%'	=> 'Last published date',
+							''					=> '-- '.strtolower(translate('keywords')).' --',
+							'%asset_created%'	=> translate('creation_date'),
+							'%asset_updated%'	=> translate('last_updated_date'),
+							'%asset_published%'	=> translate('last_published_date'),
 						  );
 
-		echo 'Selected keyword replacement will be used instead of any entered default date values<br />';
+		$o->note(translate('metadata_use_selected_replacements'));
 
 		// displaying default value if any values were actually saved in the array
 		if ($write_access) {
@@ -220,7 +224,7 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 			if (strpos($default, '%') === 0) {
 				echo $default;
 			} else {
-				echo 'None selected';
+				echo translate('none_selected');
 			}
 		}
 
@@ -269,7 +273,7 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 	{
 		$field = $asset->_getDateTimeField($prefix);
 
-		$o->note('Setup table below only affects how the field looks to the metadata editor,<br />NOT how it is displayed in the META field of your web page.');
+		$o->note(translate('metadata_setup_table_explanation'));
 
 		if ($asset->writeAccess('attributes')) {
 			// custom definition for edit interface
@@ -337,10 +341,10 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 		}
 
 		$select_options = Array(
-							''					=> '-- keywords --',
-							'%asset_created%'	=> 'Creation date',
-							'%asset_updated%'	=> 'Last updated date',
-							'%asset_published%'	=> 'Last published date',
+							''					=> '-- '.strtolower(translate('keywords')).' --',
+							'%asset_created%'	=> translate('creation_date'),
+							'%asset_updated%'	=> translate('last_updated_date'),
+							'%asset_published%'	=> translate('last_published_date'),
 						  );
 
 		$o->openField($field_name);
@@ -351,10 +355,10 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 
 			if ($write_access && $asset->attr('editable')) {
 				$field->printField();
-				echo ' <b>-OR-</b> ';
+				echo ' <b>-'.strtoupper(translate('or')).'-</b> ';
 				combo_box($prefix.'_repkeys', $select_options, false, $value); // replacement keys
 			} else if ($uses_keyword && isset($select_options[$value])) {
-				echo '<i>Keyword Replacement: </i>', $select_options[$value];
+				echo '<i>'.translate('keyword_replacement').': </i>', $select_options[$value];
 			} else {
 				echo $field->format();
 			}

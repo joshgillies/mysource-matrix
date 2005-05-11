@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_create_asset.inc,v 1.2 2005/05/06 03:35:57 gsherwood Exp $
+* $Id: trigger_action_create_asset.inc,v 1.3 2005/05/11 06:05:01 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -136,71 +136,98 @@ class Trigger_Action_Create_Asset extends Trigger_Action
 			$parentid = 0;
 		}
 
-		ob_start();
-			echo 'Create a new asset of type ';
-			if ($write_access) {
-				asset_type_chooser($prefix.'[type_code]', false, Array($type_code), true);
-			} else {
-				echo '<b>'.$type_code.'</b>';
-			}
-
-			echo ' linked under ';
-			if ($write_access) {
-				asset_finder($prefix.'[parentid]', $parentid, Array('asset' => 'D'));
-			} else {
-				$parent = null;
-				if ($parentid > 0) {
-					$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parentid);
-				}
-				if (is_null($parent)) {
-					echo '<b>[no parent selected]</b>';
+			// begin buffering basic options
+			ob_start();
+				if ($write_access) {
+					asset_type_chooser($prefix.'[type_code]', false, Array($type_code), true);
 				} else {
-					echo '<b>'.$parent->name.' (#'.$parent->id.')</b>';
+					echo '<b>'.$type_code.'</b>';
 				}
-			}
+
+				$basic_part_1 = ob_get_contents();
+			ob_end_clean();
+
+
+			ob_start();
+				if ($write_access) {
+					asset_finder($prefix.'[parentid]', $parentid, Array('asset' => 'D'));
+				} else {
+					$parent = null;
+					if ($parentid > 0) {
+						$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parentid);
+					}
+					if (is_null($parent)) {
+						echo '<b>['.translate('no_parent_selected').']</b>';
+					} else {
+						echo '<b>'.translate('asset_format', $parent->name, $parent->id).'</b>';
+					}
+
+				}
+
+				$basic_part_2 = ob_get_contents();
+			ob_get_clean();
 
 			$link_type_list = get_link_type_names();
 			unset($link_type_list[SQ_LINK_NOTICE]);
-			echo '<br />using a ';
-			if ($write_access) {
-				combo_box($prefix.'[link_type]', $link_type_list, false, $link_type);
-			} else {
-				echo '<b>'.$link_type_list[$link_type].'</b>';
-			}
-			echo ' link.<br /><br />';
 
-			?>
-			<b>Optional items for Advanced users:</b><br />Use the link value 
-			<?php
-			if ($write_access) {
-				text_box($prefix.'[value]', $value, '', '');
-			} else {
-				if (empty($value)) $value = '[no value entered]';
-				echo '<b>'.$value.'</b>';
-			}
+			ob_start();
+				if ($write_access) {
+					combo_box($prefix.'[link_type]', $link_type_list, false, $link_type);
+				} else {
+					echo '<b>'.$link_type_list[$link_type].'</b>';
+				}
 
-			echo ' and link the asset ';
-			$is_dependant_list = Array(0 => 'non-dependantly', 1 => 'dependantly');
-			if ($write_access) {
-				combo_box($prefix.'[is_dependant]', $is_dependant_list, false, $is_dependant);
-			} else {
-				echo '<b>'.$is_dependant_list[$is_dependant].'</b>';
-			}
+				$basic_part_3 = ob_get_contents();
+			ob_end_clean();
 
-			echo ' and ';
-			$is_exclusive_list = Array(0 => 'non-exclusively', 1 => 'exclusively');
-			if ($write_access) {
-				combo_box($prefix.'[is_exclusive]', $is_exclusive_list, false, $is_exclusive);
-			} else {
-				echo '<b>'.$is_exclusive_list[$is_exclusive].'</b>';
-			}
+			// begin buffering advanced options
+			ob_start();
+				if ($write_access) {
+					text_box($prefix.'[value]', $value, '', '');
+				} else {
+					if (empty($value)) $value = '['.translate('no_value_entered').']';
+					echo '<b>'.$value.'</b>';
+				}
+				$advanced_part_1 = ob_get_contents();
+			ob_end_clean();
 
-			echo ' to the parent.<br /><br />';
-			?>
-			<span class="sq-backend-warning"><b>You can only create assets that do not have required attribute values</b></span>
-			<?php
+			ob_start();
+				$is_dependant_list = Array(
+										0 	=> translate('non_dependantly'),
+										1 	=> translate('dependantly'),
+									 );
+				if ($write_access) {
+					combo_box($prefix.'[is_dependant]', $is_dependant_list, false, $is_dependant);
+				} else {
+					echo '<b>'.$is_dependant_list[$is_dependant].'</b>';
+				}
 
-		return ob_get_clean();
+				$advanced_part_2 = ob_get_contents();
+			ob_end_clean();
+
+			ob_start();
+				$is_exclusive_list = Array(
+										0	=> translate('non_exclusively'),
+										1	=> translate('exclusively'),
+									 );
+				if ($write_access) {
+					combo_box($prefix.'[is_exclusive]', $is_exclusive_list, false, $is_exclusive);
+				} else {
+					echo '<b>'.$is_exclusive_list[$is_exclusive].'</b>';
+				}
+
+				$advanced_part_3 = ob_get_contents();
+			ob_end_clean();
+
+			//now patch together the output
+			$contents =	translate('trigger_new_asset_basic', $basic_part_1, $basic_part_2, $basic_part_3).
+						'<br /><br />'.
+						'<b>'.translate('triggers_advanced_user_options').'</b><br />'.
+						translate('trigger_new_asset_advanced', $advanced_part_1, $advanced_part_2, $advanced_part_3).
+						'<br /><br />'.
+						'<span class="sq-backend-warning"><b>'.translate('can_only_create_assets_without_required_fields').'</b></span>';
+
+		return $contents;//ob_get_clean();
 
 	}//end getInterface()
 
@@ -220,19 +247,19 @@ class Trigger_Action_Create_Asset extends Trigger_Action
 	{
 		// make sure the parentid isn't blank
 		if (empty($request_data['parentid']['assetid'])) {
-			return 'Parent to create under is missing';
+			return translate('parent_to_create_under_is_missing');
 		}
 
 		$link_type_list = get_link_type_names();
 		if (empty($request_data['link_type']) || !isset($link_type_list[$request_data['link_type']])) {
-			return 'Link type is missing';
+			return translate('link_type_missing');
 		}
 
 		$settings['parentid']  = $request_data['parentid']['assetid'];
 		$settings['link_type'] = $request_data['link_type'];
 
 		$type_code = array_get_index($request_data, 'type_code', false);
-		if (!$type_code) return 'Asset type not specified';
+		if (!$type_code) return translate('asset_type_not_specified');
 		$settings['type_code'] = $type_code;
 
 		// optional fields

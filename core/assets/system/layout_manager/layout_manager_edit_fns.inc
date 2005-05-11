@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: layout_manager_edit_fns.inc,v 1.5 2004/12/06 14:38:10 brobertson Exp $
+* $Id: layout_manager_edit_fns.inc,v 1.6 2005/05/11 06:04:58 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -69,14 +69,7 @@ class Layout_Manager_Edit_Fns extends Asset_Edit_Fns
 		if (!$asset->writeAccess('attributes')) return false;
 
 		$types = $GLOBALS['SQ_SYSTEM']->am->getTypeList();
-		$layouts = array_diff($types, array_keys($asset->attr('layouts')));
-		asort($layouts);
-
-		$uc_layouts = Array();
-		foreach ($layouts as $layout) {
-			$uc_layouts[$layout] = ucwords(str_replace('_',' ', $layout));
-		}
-		combo_box($prefix.'_layouts', $uc_layouts, true, '', 6);
+		asset_type_chooser($prefix.'_layouts', true, Array());
 
 		return true;
 
@@ -126,7 +119,7 @@ class Layout_Manager_Edit_Fns extends Asset_Edit_Fns
 
 		$layouts = $asset->attr('layouts');
 		if (empty($layouts)) {
-			echo 'There are no Layouts Defined <br />';
+			$o->note(translate('no_layouts_defined'));
 			return false;
 		}
 
@@ -138,21 +131,20 @@ class Layout_Manager_Edit_Fns extends Asset_Edit_Fns
 				$o->openField('');
 
 				check_box($prefix.'_remove_type_code['.$type_code.']');
-				?>Remove Customisations for <?php
-				echo $uc_type_code;
+				label(translate('remove_customisations_for', $uc_type_code), $prefix.'_remove_type_code['.$type_code.']');
 
 				$o->closeField();
 				$o->openField('');
 
 				if (empty($screens)) {
-					echo 'No Layouts defined for any of '.$uc_type_code.'\'s Screens <br />';
+					$o->note(translate('no_layouts_for_screens', $uc_type_code));
 				} else {
 					?>
 					<table class="sq-backend-table">
 						<tr>
-							<td class="sq-backend-table-header" width="33%">Asset Type</td>
-							<td class="sq-backend-table-header" width="33%">Choose Layout</td>
-							<td align="center" class="sq-backend-table-header" width="33%">Remove</td>
+							<td class="sq-backend-table-header" width="33%"><?php echo translate('asset_type'); ?></td>
+							<td class="sq-backend-table-header" width="33%"><?php echo translate('choose_layout'); ?></td>
+							<td align="center" class="sq-backend-table-header" width="33%"><?php echo translate('remove'); ?></td>
 						</tr>
 
 					<?php
@@ -181,7 +173,7 @@ class Layout_Manager_Edit_Fns extends Asset_Edit_Fns
 				<?php
 				}//end if
 				?>
-				<br />Add a layout for screen:
+				<br /><?php echo translate('add_layout'); ?>:
 				<?php
 				$ei = new Asset_Edit_Interface($type_code);
 

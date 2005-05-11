@@ -1,0 +1,26 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Commercial Module Licence                                |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file is not open source or freely usable and may be    |
+* | used subject to, and only in accordance with, the Squiz Commercial |
+* | Module Licence.                                                    |
+* | Please refer to http://www.squiz.net/licence for more information. |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_strings.xml,v 1.1 2005/05/11 06:07:32 lwright Exp $
+*
+*
+* CMS Package Localised Strings File
+*/
+-->
+<strings>
+<string source="cms_form_file_upload_none">No file uploaded</string>
+<string source="cms_form_file_upload_already_exists">There was an error uploading the file for File Upload question "%s" - file already exists in path</string>
+<string source="cms_form_file_upload_no_create_locs">No create location has been set for File Upload question "%s"</string>
+<string source="cms_form_file_upload_none_rule">No file uploaded for required File Upload question "%s"</string>
+<string source="cms_form_file_upload_error">There was an error uploading the file for File Upload question "%s"</string>
+</strings>

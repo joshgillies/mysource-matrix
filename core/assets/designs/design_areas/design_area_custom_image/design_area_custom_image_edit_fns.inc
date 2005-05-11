@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_custom_image_edit_fns.inc,v 1.15 2005/04/15 00:37:24 lwright Exp $
+* $Id: design_area_custom_image_edit_fns.inc,v 1.16 2005/05/11 06:04:49 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -53,12 +53,8 @@ class Design_Area_Custom_Image_Edit_Fns extends Design_Area_Edit_Fns
 	{
 		if (!$asset->writeAccess('attributes')) return false;
 		file_upload($prefix);
-		?>
-		<div style="font-size: 7pt">
-			<b>Note:</b> You may only upload files of type <?php echo $this->_getExtensionString($asset->allowed_extensions)?><br>
-			<b>Note:</b> Image size is restricted to a maximum of <?php echo $asset->attr('max_width').' x '.$asset->attr('max_height'); ?> pixels
-		</div>
-		<?php
+		$o->note(translate('core_only_upload_files_of_type', $this->_getExtensionString($asset->allowed_extensions)));
+		$o->note(translate('core_image_size_restricted', $asset->attr('max_width'), $asset->attr('max_height')));
 
 		return true;
 
@@ -85,7 +81,7 @@ class Design_Area_Custom_Image_Edit_Fns extends Design_Area_Edit_Fns
 		// check that the extension is allowed
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 		if (!in_array(get_file_type($info['name']) , $asset->allowed_extensions)) {
-			trigger_localised_error("CORE0190", E_USER_WARNING, $this->_getExtensionString($asset->allowed_extensions));
+			trigger_localised_error('CORE0190', E_USER_WARNING, $this->_getExtensionString($asset->allowed_extensions));
 			return false;
 		}
 
@@ -95,7 +91,7 @@ class Design_Area_Custom_Image_Edit_Fns extends Design_Area_Edit_Fns
 		$max_width  = (int) $asset->attr('max_width');
 		$max_height = (int) $asset->attr('max_height');
 		if (($max_width && $size[0] > $max_width) || ($max_height && $size[1] > $max_height)) {
-			trigger_localised_error("CORE0191", E_USER_WARNING, $asset->attr('max_width'), $asset->attr('max_height'));
+			trigger_localised_error('CORE0191', E_USER_WARNING, $asset->attr('max_width'), $asset->attr('max_height'));
 			return false;
 		}
 
@@ -107,14 +103,14 @@ class Design_Area_Custom_Image_Edit_Fns extends Design_Area_Edit_Fns
 		// delete existing uploaded file if it exists
 		if ($old_image && $old_image != $new_image && file_exists($asset->data_path_public.'/'.$old_image)) {
 			if (!unlink($asset->data_path_public.'/'.$old_image)) {
-				trigger_localised_error("CORE0163", E_USER_WARNING);
+				trigger_localised_error('CORE0163', E_USER_WARNING);
 				return false;
 			}
 		}
 
 		// copy over the new uploaded file
 		if (!move_uploaded_file($info['tmp_name'], $asset->data_path_public.'/'.$info['name'])) {
-			trigger_localised_error("CORE0166", E_USER_WARNING);
+			trigger_localised_error('CORE0166', E_USER_WARNING);
 			return false;
 		}
 

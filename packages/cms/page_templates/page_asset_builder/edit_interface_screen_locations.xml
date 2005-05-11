@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_locations.xml,v 1.9 2005/04/29 05:40:31 gsherwood Exp $
+* $Id: edit_interface_screen_locations.xml,v 1.10 2005/05/11 06:07:32 lwright Exp $
 *
 */
 -->
@@ -50,12 +50,6 @@
 		</field>
 	</section>
 	<section name="Additional Create Locations" write_access="write:attributes">
-		<field format="new_line">
-			<function_call>
-				<paint_function   name="paintAdditionalLocationsInfo"   />
-				<process_function name="processAdditionalLocationsInfo" />
-			</function_call>
-		</field>
 		<field attribute="parameter_map">
 			<parameter_map />
 		</field>

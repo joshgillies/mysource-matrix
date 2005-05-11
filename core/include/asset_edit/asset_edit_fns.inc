@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_fns.inc,v 1.45 2005/03/28 23:11:25 gsherwood Exp $
+* $Id: asset_edit_fns.inc,v 1.46 2005/05/11 06:05:11 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.46 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Fns extends MySource_Object
@@ -184,7 +184,7 @@ class Asset_Edit_Fns extends MySource_Object
 	{
 		$urls = $asset->getLookups();
 		if (empty($urls)) {
-			echo 'There are no URLs associated with this Asset';
+			echo translate('no_associated_urls');
 		} else {
 			usort($urls, create_function('$a, $b', 'return strcmp($a[\'url\'], $b[\'url\']);'));
 			foreach ($urls as $data) {
@@ -195,7 +195,7 @@ class Asset_Edit_Fns extends MySource_Object
 
 		if ($asset->force_secure) {
 			echo '<br>';
-			$o->note('Force Secure (see Settings screen) is set on this asset, so if you think that there should other URLs registered you may need to check that the site(s) that this asset is has allowed the https protocol');
+			$o->note(translate('force_secure_set_on_asset'));
 		}
 
 	}//end paintURLs()
@@ -223,13 +223,13 @@ class Asset_Edit_Fns extends MySource_Object
 				if ($weightingData['weight'] > 0) {
 					echo $weightingData['weight'];
 				} else {
-					echo "Not included in searching.";
+					echo translate('not_included_in_searching');
 				}
 				if ($default) {
-					echo '&nbsp;<b>[default]</b>';
+					echo '&nbsp;<b>['.strtolower(translate('default')).']</b>';
 				}
 			} else {
-				?><input type="checkbox" value="1" name="<?php echo $prefix; ?>weightings[<?php echo $component;?>][default]" <?php if ($default) echo 'checked';?>> default&nbsp;&nbsp;
+				?><input type="checkbox" value="1" name="<?php echo $prefix; ?>weightings[<?php echo $component;?>][default]" <?php if ($default) echo 'checked';?>> <?php echo translate('default'); ?>&nbsp;&nbsp;
 				<?php
 
 				if ($default) {

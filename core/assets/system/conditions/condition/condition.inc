@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition.inc,v 1.5 2005/04/06 21:34:17 gnoel Exp $
+* $Id: condition.inc,v 1.6 2005/05/11 06:04:56 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -60,8 +60,8 @@ class Condition extends Asset
 	function getOperators()
 	{
 		return Array(
-						'1' => 'Matches',
-						'0' => 'Does Not Match',
+						'1' => translate('matches'),
+						'0' => translate('does_not_match'),
 					);
 		
 	}//end getOperators()

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_links_edit_fns.inc,v 1.3 2005/04/29 05:40:32 gsherwood Exp $
+* $Id: report_links_edit_fns.inc,v 1.4 2005/05/11 06:07:33 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report_edit_fns.inc';
 *	Generate a report of links
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -92,12 +92,12 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 			$asset_type = $job->_running_vars['todo'][$assetid];
 			unset($job->_running_vars['todo'][$assetid]);
 			if ($asset_type == 'content_type_nest_content') {
-				$step_data['message'] = 'Skipping nest content cell '.$assetid;
+				$step_data['message'] = translate('cms_report_links_skipping_nest_content', $assetid);
 			} else {
 				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
 
 				if (!is_null($asset)) {
-					$step_data['message'] = 'Generating links report...';
+					$step_data['message'] = translate('cms_report_links_generating');
 
 					$content = '';
 					$wysiwyg_html = $asset->attr('html');
@@ -152,8 +152,8 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 					unset($asset);
 
 				} else {
-					$step_data['message'] = 'Skipping asset '.$assetid;
-					$job->_addError('Could not generate links report for assetd #'.$assetid.', asset does not exist');
+					$step_data['message'] = translate('cms_report_links_skipping_asset', $assetid);
+					$job->_addError(translate('cms_report_links_asset_not_exist', $assetid));
 				}
 
 			}//end if nest content cell
@@ -210,11 +210,11 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 
 		if (is_null($asset)) {
 			// the asset was invalid
-			$description = 'Link points to an invalid assetid';
+			$description = translate('cms_report_links_point_invalid_assetid');
 			$valid = '0';
 		} else if ($GLOBALS['SQ_SYSTEM']->am->assetInTrash($assetid, true)) {
 			// the asset is in the trash
-			$description = 'Link points to an asset that is in the trash';
+			$description = translate('cms_report_links_point_to_trash');
 			$valid = '0';
 		} else if (!empty($link[2])) {
 			$contents = $GLOBALS['SQ_SYSTEM']->am->getEditableContents($assetid);
@@ -227,7 +227,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 			}
 			if (!$anchorExists) {
 				$valid = '0';
-				$description = 'Link points to valid asset, but the anchor "'.$link[2].'" does not exist';
+				$description = translate('cms_report_links_anchor_not_exist', $link[2]);
 			} else {
 				$valid = '1';
 				$description = '';
@@ -258,13 +258,13 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 
 		$url_parts = @parse_url($url);
 		if (empty($url_parts['scheme'])) {
-			$description = 'The URL is missing a protocol';
+			$description = translate('cms_report_links_missing_protocol');
 			$valid = '0';
 		} else if (empty($url_parts['host'])) {
-			$description = 'The URL is missing a hostname';
+			$description = translate('cms_report_links_missing_hostname');
 			$valid = '0';
 		} else if ($url_parts['scheme'] != 'http') {
-			$description = 'The URL uses a protocol that cannot be tested';
+			$description = translate('cms_report_links_cannot_test_protocol');
 			$valid = '1';
 		} else {
 			if (empty($url_parts['path'])) $url_parts['path'] = '/';
@@ -275,7 +275,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 
 			$socket = @fsockopen($url_parts['host'], $url_parts['port'], $errno, $errstr, 15);
 			if (!$socket) {
-				$description = 'This URL does not appear to be valid';
+				$description = translate('cms_report_links_invalid_url');
 				$valid = '0';
 			} else {
 				fwrite ($socket, "HEAD ".$url_path." HTTP/1.0\r\nHost: ".$url_parts['host']."\r\n\r\n");
@@ -293,20 +293,27 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 					$description = '';
 					$valid = '1';
 				} else if (preg_match('|404 not found|i', $response)) {
-					$description = 'The URL was not found';
+					$description = translate('cms_report_links_404');
 					$valid = '0';
 				} else if (preg_match('|301 moved|i', $response)) {
-					$description = 'The URL has been permanently moved';
 					$valid = '1';
 					preg_match('|Location:\s*(.+)\r|i', $headers, $matches);
-					if (isset($matches[1])) $description .= ' to "'.$matches[1].'"';
+					if (isset($matches[1])) {
+						$description = translate('cms_report_links_301_with_new_link', $matches[1]);
+					} else {
+						$description = translate('cms_report_links_301');
+					}
 				} else if (preg_match('|302 moved|i', $response)) {
-					$description = 'The URL has been temporarily moved';
+					// should this
 					$valid = '1';
 					preg_match('|Location:\s*(.+)\r|i', $headers, $matches);
-					if (isset($matches[1])) $description .= ' to "'.$matches[1].'"';
+					if (isset($matches[1])) {
+						$description = translate('cms_report_links_302_with_new_link', $matches[1]);
+					} else {
+						$description = translate('cms_report_links_302');
+					}
 				} else {
-					$description = 'The URL returned response "'.$response.'"';
+					$description = translate('cms_report_links_unknown_response', $response);
 					$valid = '0';
 				}
 				fclose($socket);
@@ -330,7 +337,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 	{
 		require_once SQ_FUDGE_PATH.'/general/www.inc';
 		if (!valid_email($mailto)) {
-			$description = 'The email address does not appear to be valid';
+			$description = translate('cms_report_links_invalid_email');
 			$valid = '0';
 		} else {
 			$description = '';
@@ -360,7 +367,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 
 		$report_path = $asset->data_path.'/report.xml';
 		if (!is_file($report_path)) {
-			echo 'This report has not been generated';
+			echo translate('report_not_generated');
 			return;
 		}
 
@@ -409,8 +416,9 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 			}
 		}//end foreach
 
-
-		echo '<b>Note</b> The current links report is shown below. You can regenerate this report on the details screen.';
+		//TODO: this translation has a 'note' prefix that is supposed to look like
+		//      a field header... could this be set up as a field?
+		echo translate('cms_report_links_current');
 		$o->closeSection();
 
 
@@ -422,9 +430,9 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 					?>
 					<table class="sq-backend-table" style="border: 1px solid #DDDDDD;" border="0">
 						<tr>
-							<td colspan="3" class="sq-backend-table-header" style="width: 226px;">Found In</td>
-							<td colspan="2" class="sq-backend-table-header" style="width: 226px;">Linking To</td>
-							<td class="sq-backend-table-header">Comments</td>
+							<td colspan="3" class="sq-backend-table-header" style="width: 226px;"><?php echo translate('found_in') ?></td>
+							<td colspan="2" class="sq-backend-table-header" style="width: 226px;"><?php echo translate('linking_to') ?></td>
+							<td class="sq-backend-table-header"><?php echo translate('comments'); ?></td>
 						</tr>
 					<?php
 					foreach ($reported_links['internal'] as $assetid => $links) {
@@ -437,7 +445,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 							}
 							if (is_null($to)) {
 								$to_type = '';
-								$to_string = 'Unkown asset #'.$link['data'];
+								$to_string = translate('unknown_asset_id', $link['data']);
 								$to_bg = 'FFF';
 								$to_status = '';
 							} else {
@@ -450,7 +458,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 							?>
 							<tr>
 								<td class="sq-backend-table-cell" style="width: 10px; padding-right: 1px; text-align: right;">
-									<a href="<?php echo $from_info['backend_url']; ?>" title="Edit this asset">#<?php echo (int) $from_info['assetid']; ?></a>
+									<a href="<?php echo $from_info['backend_url']; ?>" title="<?php echo translate('edit_this_asset'); ?>">#<?php echo (int) $from_info['assetid']; ?></a>
 								</td>
 								<td class="sq-backend-table-cell" style="width: 16px; padding-right: 0px; padding-left: 0px;">
 									<?php
@@ -499,17 +507,17 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 		$o->closeSection();
 
 
-		$o->openSection('External Links');
+		$o->openSection(translate('external_links'));
 			$o->openField('');
 				if (empty($reported_links['external'])) {
-					echo 'No external links were found';
+					echo translate('cms_report_links_no_external_links');
 				} else {
 					?>
 					<table class="sq-backend-table">
 						<tr>
-							<td colspan="3" class="sq-backend-table-header" style="width: 226px;">Found In</td>
-							<td class="sq-backend-table-header" style="width: 226px;">URL</td>
-							<td class="sq-backend-table-header">Comments</td>
+							<td colspan="3" class="sq-backend-table-header" style="width: 226px;"><?php echo translate('found_in'); ?></td>
+							<td class="sq-backend-table-header" style="width: 226px;"><?php echo translate('url'); ?></td>
+							<td class="sq-backend-table-header"><?php echo translate('comments'); ?></td>
 						</tr>
 					<?php
 					foreach ($reported_links['external'] as $assetid => $links) {
@@ -520,7 +528,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 							?>
 							<tr>
 								<td class="sq-backend-table-cell" style="width: 10px; padding-right: 1px; text-align: right;">
-									<a href="<?php echo $from_info['backend_url']; ?>" title="Edit this asset">#<?php echo (int) $from_info['assetid']; ?></a>
+									<a href="<?php echo $from_info['backend_url']; ?>" title="<?php echo translate('edit_this_asset') ?>">#<?php echo (int) $from_info['assetid']; ?></a>
 								</td>
 								<td class="sq-backend-table-cell" style="width: 16px; padding-right: 0px; padding-left: 0px;">
 									<?php
@@ -558,17 +566,17 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 		$o->closeSection();
 
 
-		$o->openSection('Email Links');
+		$o->openSection(translate('cms_report_links_email_links'));
 			$o->openField('');
 				if (empty($reported_links['mailto'])) {
-					echo 'No email links were found';
+					echo translate('cms_report_links_no_email_links');
 				} else {
 					?>
 					<table class="sq-backend-table">
 						<tr>
-							<td colspan="3" class="sq-backend-table-header" style="width: 226px;">Found In</td>
-							<td class="sq-backend-table-header" style="width: 274px;">Email</td>
-							<td class="sq-backend-table-header">Comments</td>
+							<td colspan="3" class="sq-backend-table-header" style="width: 226px;"><?php echo translate('found_in'); ?></td>
+							<td class="sq-backend-table-header" style="width: 274px;"><?php echo translate('email'); ?></td>
+							<td class="sq-backend-table-header"><?php echo translate('comments'); ?></td>
 						</tr>
 					<?php
 					foreach ($reported_links['mailto'] as $assetid => $links) {
@@ -578,7 +586,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 							?>
 							<tr>
 								<td class="sq-backend-table-cell" style="width: 10px; padding-right: 1px; text-align: right;">
-									<a href="<?php echo $from_info['backend_url']; ?>" title="Edit this asset">#<?php echo (int) $from_info['assetid']; ?></a>
+									<a href="<?php echo $from_info['backend_url']; ?>" title="<?php echo translate('edit_this_asset'); ?>">#<?php echo (int) $from_info['assetid']; ?></a>
 								</td>
 								<td class="sq-backend-table-cell" style="width: 16px; padding-right: 0px; padding-left: 0px;">
 									<?php

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_edit_fns.inc,v 1.22 2005/04/20 02:04:09 rhoward Exp $
+* $Id: cron_job_edit_fns.inc,v 1.23 2005/05/11 06:04:57 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -48,11 +48,11 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 		$this->Asset_Edit_Fns();
 		$this->static_screens = Array(
 									'details'	=> Array(
-													'name'			=> 'View Jobs',
+													'name'			=> translate('view_jobs'),
 													'force_unlock'	=> true,
 												   ),
 									'logs'		=> Array(
-													'name'			=> 'Logs',
+													'name'			=> translate('logs'),
 													'force_unlock'	=> true,
 												   ),
 								);
@@ -77,7 +77,7 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 		if (is_null($cron_mgr)) return false;
 
 		if ((int) $cron_mgr->attr('refresh_time') <= 0) {
-			echo 'The Cron Manager refresh time is unknown';
+			echo translate('cron_manager_refresh_unknown');
 			return;
 		}
 
@@ -182,11 +182,11 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 				var TIME_UNITS = new Array();
 				<?php
 				$units = Array(
-							'Y'	=> 'year',
-							'n'	=> 'month',
-							'j'	=> 'day',
-							'G'	=> 'hour',
-							'i'	=> 'minute',
+							'Y'	=> translate('year'),
+							'n'	=> translate('month'),
+							'j'	=> translate('day'),
+							'G'	=> translate('hour'),
+							'i'	=> translate('minute'),
 						 );
 
 				foreach ($units as $php_unit => $js_unit) {
@@ -212,19 +212,17 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 				}
 			</script>
 			<?php
-			normal_button($prefix.'_set_now', 'next run', "setCurrentTime('$prefix');");
-			?>
-			&nbsp;or&nbsp;in&nbsp
-			<?php
+			normal_button($prefix.'_set_now', translate('next_run'), "setCurrentTime('$prefix');");
+			echo ' '.translate('or_in').' ';
 			text_box($prefix.'_duration', ($when_arr['duration'] <> '' ? $when_arr['duration'] : '-'), 2, '', true, $form_extra_elements)
 			?>
 			&nbsp;
 			<?php
 			$periods = Array(
-						'd'	=> 'days',
-						'w'	=> 'weeks',
-						'm'	=> 'months',
-						'y'	=> 'years',
+						'd'	=> translate('days'),
+						'w'	=> translate('weeks'),
+						'm'	=> translate('months'),
+						'y'	=> translate('years'),
 					   );
 
 			combo_box($prefix.'_period', $periods, false, ($when_arr['period'] <> '' ? $when_arr['period'] : '-'), null, $form_extra_elements);

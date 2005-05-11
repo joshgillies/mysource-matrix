@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_lookup_value.inc,v 1.2 2005/04/14 08:26:34 gnoel Exp $
+* $Id: paint_layout_lookup_value.inc,v 1.3 2005/05/11 06:04:54 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/lookup_value/lookup_value.inc';
 *
 *
 * @author	Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -110,11 +110,11 @@ class Paint_Layout_Lookup_Value extends Lookup_Value
 		foreach ($lookups as $url) {
 
 			$o->openSection($url);
-			$o->openField('Lineage');
+			$o->openField(translate('lineage'));
 			$lineage = $GLOBALS['SQ_SYSTEM']->am->getLineageFromURL(null, $url);
 			foreach ($lineage as $i => $asset) {
 				if ($i > 0) echo '&nbsp;&gt;&nbsp;';
-				echo $asset['short_name'], ' (#', $asset['assetid'], ')';
+				$o->note(translate('asset_format', $asset['short_name'], $asset['assetid']));
 			}
 			unset($lineage);
 			$o->closeField();
@@ -143,35 +143,35 @@ class Paint_Layout_Lookup_Value extends Lookup_Value
 				$new_user_layout = ($layout_type == 'user' && $layout_code == '' && empty($data['value']));
 
 				if ($new_user_layout) {
-					$display_name = 'Create New User Defined Layout';
+					$display_name = translate('create_user_defined_layout');
 				} else {
-					$display_name = ucwords($layout_type).' Defined - '.ucwords(str_replace('_', ' ', $layout_code)).' Layout';
+					$display_name = translate('defined_layout_display', ucwords($layout_type), ucwords(str_replace('_', ' ', $layout_code)));
 				}
 
 
 				$o->openSection($display_name);
 
 					if ($new_user_layout) {
-						$o->openField('Layout Code');
+						$o->openField(translate('layout_code'));
 							text_box($prefix.'['.$url.']['.$layout_name.'][name]', '', 20, 30);
 						$o->closeField();
 					} else {
 						if ($layout_type == 'user') {
-							$o->openField('Layout Code');
+							$o->openField(translate('layout_code'));
 								echo $layout_code;
 							$o->closeField();
 						}
 					}
 
-					$o->openField('Current');
+					$o->openField(translate('current'));
 						echo '<i>';
 						if ($data['value'] == '') {
-							echo 'None';
+							echo translate('none');
 						} else {
 							$layout = &$GLOBALS['SQ_SYSTEM']->am->getAsset($data['value'], '', true);
 							if (!is_null($layout)) {
 								echo $layout->name.' (Id : #'.$layout->id.')';
-								if ($data['inhd']) echo '<br><b>(Inherited)</b>';
+								if ($data['inhd']) echo '<br><b>('.translate('inherited').')</b>';
 							}
 						}
 						echo '</i>';
@@ -180,7 +180,7 @@ class Paint_Layout_Lookup_Value extends Lookup_Value
 					if ($wa) {
 						// if we have inherited this value, then we haven't set it ourselves have we ? :)
 						$layoutid = (empty($data['inhd'])) ? $data['value'] : 0;
-						$o->openField(($layoutid) ? 'Change ?' : 'New ?');
+						$o->openField(($layoutid) ? translate('change_question') : translate('new_question'));
 							$buttons = Array('clear');
 							if (!$new_user_layout) $buttons[] = 'reset';
 							asset_finder($prefix.'['.$url.']['.$layout_name.'][value]', $layoutid, Array('paint_layout_page' => 'D'), 'sq_sidenav', false, 'null', $buttons);
@@ -251,7 +251,7 @@ class Paint_Layout_Lookup_Value extends Lookup_Value
 		return true;
 
 	}//end processInterface()
-	
+
 
 }//end class
 

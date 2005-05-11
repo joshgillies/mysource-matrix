@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_modification_edit_fns.inc,v 1.10 2005/04/29 05:39:19 gsherwood Exp $
+* $Id: calendar_event_modification_edit_fns.inc,v 1.11 2005/05/11 06:07:21 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once  dirname(__FILE__).'/../../calendar_event/calendar_event_edit_fns.i
 *
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -105,7 +105,7 @@ class Calendar_Event_Modification_Edit_Fns extends Calendar_Event_Edit_Fns
 		if (!is_null($modified_event_asset)) {
 			echo $modified_event_asset->name.' (Id: #'.$modified_event_asset->id.')';
 		} else {
-			echo 'No event has been selected for modification';
+			echo translate('cal_event_modify_no_event_selected');
 		}
 
 	}//end paintRecurringEventChooser()

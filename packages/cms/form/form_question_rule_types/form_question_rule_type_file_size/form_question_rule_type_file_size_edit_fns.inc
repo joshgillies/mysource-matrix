@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_file_size_edit_fns.inc,v 1.5 2005/04/29 05:40:29 gsherwood Exp $
+* $Id: form_question_rule_type_file_size_edit_fns.inc,v 1.6 2005/05/11 06:07:31 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule_edi
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -49,10 +49,8 @@ class Form_Question_Rule_Type_File_Size_Edit_Fns extends Form_Question_Rule_Edit
 		$operator_list = $asset->getOperators();
 
 		if (!$write_access) {
-			$o->openField('Rule Details');
-			echo 'Uploaded file  '.strtolower($operator_list[array_get_index($rule_data, 'operator', '<=')]);
-
-			echo ' '.$rule_data['value'].' '.$rule_data['multiplier'];
+			$o->openField(translate('cms_form_rule_details'));
+			echo translate('cms_form_rule_file_size_edit_'.$operator, $rule_data['value'].' '.$rule_data['multiplier']);
 			$o->closeField();
 
 		} else {
@@ -70,18 +68,18 @@ class Form_Question_Rule_Type_File_Size_Edit_Fns extends Form_Question_Rule_Edit
 				}
 			}
 
-			$o->openField('Operator');
+			$o->openField(translate('operator'));
 			// list of operators
 			combo_box($prefix.'[operator]', $operator_list, false, array_get_index($rule_data, 'operator', '<='));
 			$o->closeField();
 
-			$o->openField('File Size');
+			$o->openField(translate('file_size'));
 			// give a text box to write the comparison value in
 			text_box($prefix.'[value]', array_get_index($rule_data, 'value', ''), 3);
 			combo_box($prefix.'[multiplier]', Array('' => 'bytes', 'KB' => 'KB', 'MB' => 'MB', 'GB' => 'GB'), false, array_get_index($rule_data, 'multiplier', ''));
 			$o->closeField();
 
-			$o->sectionNote('Please note that your PHP configuration specifies a maximum file upload size of <b>'.strtoupper(easy_filesize($this->_maxUploadSize())).'</b>. If you enter a larger value than this then be aware that the configuration setting will override it. Comparison values for the file size rule this can be entered in shorthand notation: \'K\' or \'KB\' for kilobytes, \'M\' or \'MB\' for megabytes. MySource Matrix regards each KB as 1024 bytes, each MB as 1024 KB.');
+			$o->sectionNote(translate('cms_form_rule_file_size_config_note', strtoupper(easy_filesize($this->_maxUploadSize()))));
 		}
 
 		return $write_access;

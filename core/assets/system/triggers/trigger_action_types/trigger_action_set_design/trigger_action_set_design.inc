@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_design.inc,v 1.8 2005/04/28 05:22:07 rhoward Exp $
+* $Id: trigger_action_set_design.inc,v 1.9 2005/05/11 06:05:02 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -164,25 +164,23 @@ class Trigger_Action_Set_Design extends Trigger_Action
 			$form_element_extras = '';
 		}
 
-		// capture anything printed
+		// begin buffering basic options
 		ob_start();
-
-		?>
-		Set the asset's design to:
-		<?php
-		if ($write_access) {
-			asset_finder($prefix.'[assetid]', $selected_assetid, Array('design' => 'D'));
-		} else {
-			if ($selected_assetid) {
-				$selected_assetname = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($selected_assetid), Array(), true, 'name');
-				text_box($prefix.'[assetid]', $selected_assetname[$selected_assetid].' (#'.$selected_assetid.')', '', '', false, $form_element_extras);
+			if ($write_access) {
+				asset_finder($prefix.'[assetid]', $selected_assetid, Array('design' => 'D'));
 			} else {
-				text_box($prefix.'[assetid]', '', '', '', false, $form_element_extras);
+				if ($selected_assetid) {
+					$selected_assetname = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($selected_assetid), Array(), true, 'name');
+					text_box($prefix.'[assetid]', $selected_assetname[$selected_assetid].' (#'.$selected_assetid.')', '', '', false, $form_element_extras);
+				} else {
+					text_box($prefix.'[assetid]', '', '', '', false, $form_element_extras);
+				}
 			}
-		}
 
+			$basic_part_1 = ob_get_contents();
+		ob_end_clean();
 
-		return ob_get_clean();
+		return translate('trigger_set_design_basic', $basic_part_1);
 
 	}//end getInterface()
 

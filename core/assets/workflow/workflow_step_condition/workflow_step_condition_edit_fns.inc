@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_step_condition_edit_fns.inc,v 1.15 2005/02/22 05:54:12 tbarrett Exp $
+* $Id: workflow_step_condition_edit_fns.inc,v 1.16 2005/05/11 06:05:06 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -78,12 +78,12 @@ class Workflow_Step_Condition_Edit_Fns extends Asset_Edit_Fns
 		if (is_null($user)) return false;
 
 		?>
-		<td class="sq-backend-table-cell"><?php echo '&nbsp;'.$user->name.' ['.$user->type()." : $user->id]";?></td>
+		<td class="sq-backend-table-cell"><?php echo translate('asset_format', $user->name, $user->type().' : '.$user->id); ?></td>
 		<td class="sq-backend-table-cell">
 			<?php
 			$notify = $asset->attr('notify');
 			if (!$write_access) {
-				echo ($notify) ? 'Yes' : 'No';
+				echo ($notify) ? translate('yes') : translate('no');
 			} else {
 				check_box($prefix.'_notify', '1', $notify);
 			}
@@ -107,8 +107,12 @@ class Workflow_Step_Condition_Edit_Fns extends Asset_Edit_Fns
 				} else {
 					combo_box($prefix.'_logic', $wfm->_valid_cond_logic, false, $cond_logic);
 					echo '&nbsp;';
-					text_box($prefix.'_logic_num', $cond_logic_num, 4);
-					echo ' member(s) must approve';
+					
+					ob_start();
+						text_box($prefix.'_logic_num', $cond_logic_num, 4);
+						$text_box = ob_get_contents();
+					ob_clean();
+					echo translate('members_must_approve', $text_box);
 				}
 			}
 			?>

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.61 2005/04/29 05:40:31 gsherwood Exp $
+* $Id: page_asset_builder.inc,v 1.62 2005/05/11 06:07:32 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.61 $
+* @version $Revision: 1.62 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -176,7 +176,7 @@ class Page_Asset_Builder extends Page
 		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'major', null, '1', '1');
 
 		if ($bodycopy_link[0]['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) {
-			return 'You cant delete the link between the bodycopy and the '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').' page';
+			return translate('cms_cannot_delete_link', $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
 		}
 
 		return parent::isDeletableLink($linkid);
@@ -329,13 +329,13 @@ class Page_Asset_Builder extends Page
 							$attribute->process($prefix.'_'.$attribute->id);
 							if (!$attribute->processed) {
 								if (empty($error_text)) {
-									$error_text = 'The value of '.$attribute->name.' is not valid';
+									$error_text = translate('cms_asset_builder_invalid_attr_value', $attribute->name);
 								}
 								trigger_error($error_text, E_USER_NOTICE);
 								$required_error = true;
 							} else if (empty($attribute->value)) {
 								if (empty($error_text)) {
-									$error_text = 'Please enter a value for '.$attribute->name;
+									$error_text = translate('cms_asset_builder_missing_attr', $attribute->name);
 								}
 								trigger_error($error_text, E_USER_NOTICE);
 								$required_error = true;
@@ -788,11 +788,11 @@ class Page_Asset_Builder extends Page
 
 			<table border="0">
 				<tr>
-					<td valign="top">Username</td>
+					<td valign="top"><?php echo translate('username'); ?></td>
 					<td valign="top"><?php echo text_box('SQ_LOGIN_USERNAME', (isset($_POST['SQ_LOGIN_USERNAME'])) ? $_POST['SQ_LOGIN_USERNAME'] : 'Enter your username here', 25, 0, (isset($_POST['SQ_LOGIN_USERNAME'])) ? false : true, 'title="Username"'); ?></td>
 				</tr>
 				<tr>
-					<td valign="top">Password</td>
+					<td valign="top"><?php echo translate('password'); ?></td>
 					<td valign="top"><?php echo password_box('SQ_LOGIN_PASSWORD', '', 25, 0, 'title="Password"'); ?></td>
 				</tr>
 				<tr>
@@ -959,7 +959,7 @@ class Page_Asset_Builder extends Page
 					break;
 
 					default:
-						echo '(UNDEFINED INPUT STYLE ' . $data['input_style'] . ')';
+						echo '('.translate('cms_asset_builder_undefined_input_style', $data['input_style']).')';
 					break;
 				}
 				$this->_replacements[$code_name.'_field'] = ob_get_contents();
@@ -1013,7 +1013,7 @@ class Page_Asset_Builder extends Page
 			// any children anyway provide a message to the user
 			if (empty($child_links)) {
 				ob_start();
-					echo 'This asset builder is incorrectly configured. There are no create locations available using the rules specified by the backend user.';
+					echo translate('cms_asset_builder_rules_no_locations');
 					$this->_replacements[$code_name.'_field'] = ob_get_contents();
 				ob_end_clean();
 				return;
@@ -1070,7 +1070,7 @@ class Page_Asset_Builder extends Page
 					break;
 
 					default:
-						echo '(UNDEFINED INPUT STYLE ' . $data['input_style'] . ')';
+						echo '('.translate('cms_asset_builder_undefined_input_style', $data['input_style']).')';
 					break;
 				}
 				echo '</pre>';
@@ -1231,12 +1231,12 @@ class Page_Asset_Builder extends Page
 		if (!isset($vars['keywords'])) return;
 
 		$keywords = $this->_available_keywords;
-		$keywords['created_assetid']			= 'Created Asset ID';
-		$keywords['created_asset_name']			= 'Created Asset Name';
-		$keywords['created_asset_short_name']	= 'Created Asset Short Name';
-		$keywords['created_asset_url']			= 'Created Asset URL';
-		$keywords['created_asset_edit']			= 'Created Asset Edit URL';
-		$keywords['created_asset_backend']		= 'Created Asset Backend URL';
+		$keywords['created_assetid']			= translate('cms_asset_builder_created_assetid');
+		$keywords['created_asset_name']			= translate('cms_asset_builder_created_asset_name');
+		$keywords['created_asset_short_name']	= translate('cms_asset_builder_created_asset_short_name');
+		$keywords['created_asset_url']			= translate('cms_asset_builder_created_asset_url');
+		$keywords['created_asset_edit']			= translate('cms_asset_builder_created_asset_edit');
+		$keywords['created_asset_backend']		= translate('cms_asset_builder_created_asset_backend');
 
 		$vars['keywords'] = array_merge($vars['keywords'], $keywords);
 		$vars['keywords'] = array_merge($vars['keywords'], $this->getSelectableLocationKeywords());
@@ -1256,7 +1256,7 @@ class Page_Asset_Builder extends Page
 		$keywords = Array();
 		foreach ($this->attr('create_location_optional') as $name => $data) {
 			$keyword_name = str_replace(' ', '_', strtolower($name)).'_field';
-			$keywords[$keyword_name] = $name.' Field';
+			$keywords[$keyword_name] = translate('cms_asset_builder_field_keyword', $name);
 		}
 		return $keywords;
 
@@ -1274,7 +1274,7 @@ class Page_Asset_Builder extends Page
 		$keywords = Array();
 		foreach ($this->attr('create_location_dynamic') as $name => $data) {
 			$keyword_name = str_replace(' ', '_', strtolower($name)).'_field';
-			$keywords[$keyword_name] = $name.' Field';
+			$keywords[$keyword_name] = translate('cms_asset_builder_field_keyword', $name);
 		}
 		return $keywords;
 

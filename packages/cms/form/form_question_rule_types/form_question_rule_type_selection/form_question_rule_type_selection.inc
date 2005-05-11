@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_selection.inc,v 1.7 2005/04/29 05:40:29 gsherwood Exp $
+* $Id: form_question_rule_type_selection.inc,v 1.8 2005/05/11 06:07:32 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -69,35 +69,13 @@ class Form_Question_Rule_Type_Selection extends Form_Question_Rule
 	function getOperators()
 	{
 		$operators = Array(
-						1	=> 'Option must be selected: ',
-						0	=> 'Option must not be selected: ',
+						1	=> translate('cms_form_rule_selection_true'),
+						0	=> translate('cms_form_rule_selection_false'),
 					 );
 
 		return $operators;
 
 	}//end getOperators()
-
-
-	/**
-	* Returns a list of operators for this rule type, for use with error messages
-	*
-	* This extra operator function is declared in this case so that we can easily create a legible rule
-	* using the public function then use this for the error messages.
-	*
-	* @access private
-	* @return array (mixed => string) an array of descriptions indexed by operator id (which can be
-	*                                 anything, generally string or (int)0|1 for a boolean value)
-	*/
-	function _getOperators()
-	{
-		$operators = Array(
-						1	=> 'must be selected',
-						0	=> 'must not be selected',
-					 );
-
-		return $operators;
-
-	}//end _getOperators()
 
 
 	/**
@@ -165,7 +143,7 @@ class Form_Question_Rule_Type_Selection extends Form_Question_Rule
 		$operator = array_get_index($rule_data, 'operator', 1);
 		$value = array_get_index($rule_data, 'value', '');
 
-		return 'Option "'.$q_asset->getSummary($value).'" must '.($operator ? '' : 'not ').'be selected at "'.$q_asset->attr('name').'"';
+		return translate('cms_form_rule_selection_desc_'.($operator ? 'true' : 'false'), $q_asset->getSummary($value), $q_asset->attr('name'));
 
 	}//end ruleDescription()
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_tree_location.inc,v 1.9 2005/04/28 05:22:07 rhoward Exp $
+* $Id: trigger_condition_tree_location.inc,v 1.10 2005/05/11 06:05:05 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -154,30 +154,33 @@ class Trigger_Condition_Tree_Location extends Trigger_Condition
 		$immed_child = array_get_index($settings, 'immed_child', '0');
 		$immed_child = ($immed_child == '0' ? false : true);
 
-		ob_start();
 
-		// create an asset_finder, and pre-select the asset that is saved in settings (if any)
-		echo 'Asset is under ';
-		if ($write_access) {
-			asset_finder($prefix.'[assetid]', $selected_assetid);
-			check_box($prefix.'[immed_child]', '1', $immed_child);
-			echo 'Immediate child only';
-		} else {
-			$tree_asset = null;
-			if ($selected_assetid > 0) {
-				$tree_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($selected_assetid);
-			}
-			if (is_null($tree_asset)) {
-				echo '<b>[no asset selected]</b>';
+		// begin buffering basic options
+		ob_start();
+			// create an asset_finder, and pre-select the asset that is saved in settings (if any)
+			if ($write_access) {
+				asset_finder($prefix.'[assetid]', $selected_assetid);
+				check_box($prefix.'[immed_child]', '1', $immed_child);
+				label(translate('immediate_child_only'), $prefix.'[immed_child]');
 			} else {
-				echo '<b>'.$tree_asset->name.' (#'.$tree_asset->id.')</b>';
-				if ($immed_child) {
-					echo '<b> as an immediate child only</b>';
+				$tree_asset = null;
+				if ($selected_assetid > 0) {
+					$tree_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($selected_assetid);
+				}
+				if (is_null($tree_asset)) {
+					echo '<b>['.translate('no_asset_selected').']</b>';
+				} else {
+					echo '<b>'.translate('asset_format', $tree_asset->name, $tree_asset->id).'</b>';
+					if ($immed_child) {
+						echo '<b> '.translate('as_an_immediate_child_only').'</b>';
+					}
 				}
 			}
-		}
 
-		return ob_get_clean();
+			$basic_part_1 = ob_get_contents();
+		ob_end_clean();
+
+		return translate('trigger_tree_location_basic', $basic_part_1);
 
 	}//end getInterface()
 
@@ -194,7 +197,7 @@ class Trigger_Condition_Tree_Location extends Trigger_Condition
 	function processInterface(&$settings, $request_data)
 	{
 		if (empty($request_data) || empty($request_data['assetid']['assetid'])) {
-			return 'No tree location selected';
+			return translate('triger_no_tree_location');
 		} else {
 			$assetid = $request_data['assetid']['assetid'];
 		}
@@ -210,7 +213,7 @@ class Trigger_Condition_Tree_Location extends Trigger_Condition
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 
 		if (!$am->assetExists($assetid)) {
-			return 'Selected asset does not exist';
+			return translate('selected_asset_does_not_exist');
 		};
 
 		$treeid = $am->getAssetTreeids($assetid);

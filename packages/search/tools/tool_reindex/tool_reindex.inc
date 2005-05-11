@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_reindex.inc,v 1.2 2005/04/29 05:38:41 gsherwood Exp $
+* $Id: tool_reindex.inc,v 1.3 2005/05/11 06:07:48 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 *
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -72,13 +72,13 @@ class Tool_Reindex extends Tool
 
 		$o->openField('System Wide');
 			check_box($type_code.'_reindexing_root_folder');
-			echo 'Reindex all assets in the system';
+			echo translate('sch_reindex_all_assets');
 		$o->closeField();
 
 		$o->openField('', 'commit');
 			echo '&nbsp;';
 			hidden_field('committed_tool_type_code', $type_code);
-			submit_button('tool_commit', 'Commit');
+			submit_button('tool_commit', SQ_CONF_COMMIT_BUTTON_TEXT);
 		$o->closeField();
 
 		$o->closeSection();

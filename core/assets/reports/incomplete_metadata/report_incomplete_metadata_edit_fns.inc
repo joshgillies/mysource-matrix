@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_incomplete_metadata_edit_fns.inc,v 1.7 2005/04/15 00:37:26 lwright Exp $
+* $Id: report_incomplete_metadata_edit_fns.inc,v 1.8 2005/05/11 06:04:55 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -75,20 +75,20 @@ class Report_Incomplete_Metadata_Edit_Fns extends Report_Edit_Fns
 
 			if (!is_dir($owner->data_path)) {
 				if (!create_directory($owner->data_path)) {
-					trigger_localised_error("CORE0198", E_USER_WARNING);
+					trigger_localised_error('CORE0198', E_USER_WARNING);
 					return false;
 				}
 			}
 			$temp_file = fopen($owner->data_path.'/report.tmp', 'w');
 			if ($temp_file === false) {
-				trigger_localised_error("CORE0201", E_USER_WARNING);
+				trigger_localised_error('CORE0201', E_USER_WARNING);
 				return false;
 			}
 			fwrite($temp_file, "<assets>\n");
 		} else {
 			$temp_file = fopen($owner->data_path.'/report.tmp', 'a');
 			if ($temp_file === false) {
-				trigger_localised_error("CORE0201", E_USER_WARNING);
+				trigger_localised_error('CORE0201', E_USER_WARNING);
 				return false;
 			}
 		}
@@ -101,7 +101,7 @@ class Report_Incomplete_Metadata_Edit_Fns extends Report_Edit_Fns
 			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
 
 			if (!is_null($asset)) {
-				$step_data['message'] = 'Checking metadata for '.$asset->name.' ...';
+				$step_data['message'] = translate('core_checking_for_metadata', $asset->name);
 
 				$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
 				$field_values = $mm->getMetadataFieldValues($asset->id);
@@ -123,8 +123,8 @@ class Report_Incomplete_Metadata_Edit_Fns extends Report_Edit_Fns
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 				unset($asset);
 			} else {
-				$step_data['message'] = 'Skipping asset '.$assetid;
-				$job->_addError('Could not generate incomplete metadata report for assetd #'.$assetid.', asset does not exist');
+				$step_data['message'] = translate('skipping_asset', $assetid);
+				$job->_addError(translate('core_cannot_generate_incomplete_metadata_report', $assetid));
 			}
 
 			// add this assetid to the done array so we dont do it again
@@ -139,11 +139,11 @@ class Report_Incomplete_Metadata_Edit_Fns extends Report_Edit_Fns
 			// move the temp file to become the real report XML file
 			fwrite($temp_file, "</assets>\n");
 			if (!copy($owner->data_path.'/report.tmp', $owner->data_path.'/report.xml')) {
-				trigger_localised_error("CORE0200", E_USER_WARNING);
+				trigger_localised_error('CORE0200', E_USER_WARNING);
 				return false;
 			}
 			if (!unlink($owner->data_path.'/report.tmp')) {
-				trigger_localised_error("CORE0199", E_USER_WARNING);
+				trigger_localised_error('CORE0199', E_USER_WARNING);
 			}
 		} else {
 			$total = count($job->_running_vars['todo']) + count($job->_running_vars['done']);
@@ -174,14 +174,14 @@ class Report_Incomplete_Metadata_Edit_Fns extends Report_Edit_Fns
 
 		$report_path = $asset->data_path.'/report.xml';
 		if (!is_file($report_path)) {
-			echo 'This report has not been generated';
+			echo translate('report_not_generated');
 			return;
 		}
 
 		$input = new XML_Tree($report_path);
 		$root  = &$input->getTreeFromFile();
 		if (PEAR::isError($root)) {
-			trigger_localised_error("CORE0092", E_USER_WARNING, $report_path, $root->getMessage(), $root->getUserInfo());
+			trigger_localised_error('CORE0092', E_USER_WARNING, $report_path, $root->getMessage(), $root->getUserInfo());
 			return;
 		}
 
@@ -197,18 +197,18 @@ class Report_Incomplete_Metadata_Edit_Fns extends Report_Edit_Fns
 		echo '<b>Note</b> The current incomplete metadata report is shown below. You can regenerate this report on the details screen.';
 		$o->closeSection();
 
-		$o->openSection('Missing Metadata Fields');
+		$o->openSection(translate('missing_metadata_fields'));
 			$o->openField('');
 				if (empty($missing_fields)) {
-					echo 'No missing metadata fields were found';
+					echo translate('core_no_missing_metadata_fields_found');
 					return;
 				}
 
 				?>
 				<table class="sq-backend-table">
 					<tr>
-						<td colspan="4" class="sq-backend-table-header" style="width: 226px;">Found In</td>
-						<td class="sq-backend-table-header">Empty Fields</td>
+						<td colspan="4" class="sq-backend-table-header" style="width: 226px;"><?php echo translate('core_no_missing_metadata_fields_found'); ?></td>
+						<td class="sq-backend-table-header"><?php echo translate('empty_fields'); ?></td>
 					</tr>
 				<?php
 				foreach ($missing_fields as $assetid => $fields) {

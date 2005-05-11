@@ -1,0 +1,32 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Commercial Module Licence                                |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file is not open source or freely usable and may be    |
+* | used subject to, and only in accordance with, the Squiz Commercial |
+* | Module Licence.                                                    |
+* | Please refer to http://www.squiz.net/licence for more information. |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_strings.xml,v 1.1 2005/05/11 06:07:48 lwright Exp $
+*
+*
+* Search Package Localised Strings File
+*/
+-->
+
+<strings>
+<string source="sch_log_report_all_search_pages">All Search Pages</string>
+<string source="sch_log_report_popular_search_terms">Popular Search Terms</string>
+<string source="sch_log_report_total_searches">Total Searches</string>
+<string source="sch_log_report_average_results">Average Results</string>
+<string source="sch_log_report_failed_search_terms">Failed Search Terms</string>
+<string source="sch_log_report_no_successful_searches">No Successful Searches</string>
+<string source="sch_log_report_no_failed_searches">No Failed Searches</string>
+<string source="sch_log_report_generate_at_next_rotation">This report has not been generated - it will be generated at the next log rotation</string>
+<string source="sch_log_report_search_report">Search Report</string>
+<string source="sch_log_report_total_failed_searches">Total Failed Searches</string>
+</strings>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_group_edit_fns.inc,v 1.21 2005/05/05 05:24:41 tbarrett Exp $
+* $Id: user_group_edit_fns.inc,v 1.22 2005/05/11 06:05:06 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -92,16 +92,16 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 
 		if (!$admin_access) {
 			if (!$this->isRestricted($asset, $prefix)) {
-				echo 'Unrestricted access has been granted. No security restrictions apply on this user group.';
+				echo $o->note(translate('user_group_unrestricted_access_granted'));
 			} else {
-				echo 'Unrestricted access has not been granted. Security restrictions do apply on this user group.';
+				echo $o->note(translate('user_group_unrestricted_access_denied'));
 			}
 		} else {
 			check_box($prefix.'_unrestricted', '1', !$this->isRestricted($asset, $prefix));
-			label('Grant Unrestricted Access', $prefix.'_unrestricted');
-			echo '<p>Tick this box to give this user group unrestricted access to all assets</p>';
+			label(translate('grant_unrestricted_access'), $prefix.'_unrestricted');
+			$o->note(translate('grant_unrestricted_access_note'));
 		}
-		
+
 		return $admin_access;
 
 	}//end paintUnrestricted()
@@ -120,10 +120,10 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 	function processUnrestricted(&$asset, &$o, $prefix)
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		
+
 		$unrestricted = !$this->isRestricted($asset, $prefix);
 		if (isset($_POST[$prefix.'_unrestricted']) && $_POST[$prefix.'_unrestricted'] && !$unrestricted) {
-			
+
 			$sql = 'INSERT INTO
 						sq_ast_edit_access
 						(
@@ -139,12 +139,12 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 							'.$db->quoteSmart('0').',
 							'.$db->quoteSmart('0').'
 						)';
-			
+
 			$result = $db->query($sql);
 			assert_valid_db_result($result);
-			
+
 		} else if (!isset($_POST[$prefix.'_unrestricted']) && $unrestricted) {
-			
+
 			$sql = 'DELETE FROM
 						sq_ast_edit_access
 					WHERE
@@ -152,7 +152,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 						AND	type_code	= '.$db->quote('0').'
 						AND	screen		= '.$db->quote('0').'
 						AND	section		= '.$db->quote('0');
-						
+
 			$result = $db->query($sql);
 			assert_valid_db_result($result);
 		}
@@ -201,20 +201,20 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 			if ($type_code == '0') continue;
 
 			$o->openSection($type_code);
-				$o->openField('&nbsp;');
+				$o->openField('');
 					?>
 					<table class="sq-backend-table">
 						<tr>
-							<td class="sq-backend-table-header" style="width: 75%;">Screen Name</td>
+							<td class="sq-backend-table-header" style="width: 75%;"><?php echo translate('screen_name'); ?></td>
 							<?php if ($admin_access) { ?>
-							<td class="sq-backend-table-header" style="width: 25%;">Remove?</td>
+							<td class="sq-backend-table-header" style="width: 25%;"><?php echo translate('remove_question'); ?></td>
 							<?php } ?>
 						</tr>
 					<?php
 					$granted_screens = Array();
 					foreach ($type_data as $screen_data) {
 						$granted_screens[] = $screen_data['screen'];
-						if ($screen_data['screen'] == '0') $screen_name = '<b>All Screens</b>';
+						if ($screen_data['screen'] == '0') $screen_name = '<b>'.translate('all_screens').'</b>';
 						else $screen_name = ucwords(str_replace('_', '', $screen_data['screen']));
 						?>
 						<tr>
@@ -229,7 +229,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 					}
 					?>
 					</table>
-					
+
 					<?php
 					if ($admin_access) {
 						if (!in_array('0', $granted_screens)) {
@@ -240,7 +240,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 							$ef = &$asset->getEditFns();
 
 							$screens = Array(' ' => ''); // first option is blank
-							$screens['0'] = '-- All Screens --'; // second option is 'All Screens'
+							$screens['0'] = '-- '.translate('all_screens').' --'; // second option is 'All Screens'
 							foreach (array_keys($ef->static_screens) as $screen) {
 								if (in_array($screen, $granted_screens)) continue;
 								$screens[$screen] = ucfirst($screen);
@@ -250,11 +250,11 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 								$screens[$screen] = ucfirst($screen);
 							}
 
-							echo '<br />Grant access for screen ';
+							echo '<br />'.translate('grant_screen_access').' ';
 							combo_box($prefix.'_add_type_screen['.$type_code.']', $screens, false, Array());
 						} else {
-							echo '<br />You have granted access to all screens so you cannot grant access to any more. Remove the <b>\'All Screens\'</b> option to futher customise this asset type.';
-							if (count($current[$type_code]) == 1) echo '<br />If you delete the <b>\'All Screens\'</b> option, the <b>\'Details\'</b> screen will be added as a default. You can choose to remove this later.';
+							echo '<br />'.translate('granted_unrestricted_acces_explanation');
+							if (count($current[$type_code]) == 1) echo '<br />'.translate('remove_all_screens_explanation');
 						}
 					}
 
@@ -272,8 +272,8 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 				$uc_types[$type] = ucwords(str_replace('_',' ', $type));
 			}
 
-			$o->openSection('Grant Access to New Type');
-				$o->openField('&nbsp;');
+			$o->openSection(translate('grant_access_to_new_type'));
+				$o->openField('');
 					combo_box($prefix.'_restrict_types', $uc_types, true, '', 6);
 				$o->closeField();
 			$o->closeSection();
@@ -306,7 +306,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 
 			foreach ($new_types as $type) {
 				if (isset($current[$type])) continue;
-				
+
 				$sql = 'INSERT INTO
 							sq_ast_edit_access
 							(
@@ -322,7 +322,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 								'.$db->quoteSmart('details').',
 								'.$db->quoteSmart('0').'
 							)';
-				
+
 				$result = $db->query($sql);
 				assert_valid_db_result($result);
 			}
@@ -356,14 +356,14 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 										'.$db->quoteSmart('details').',
 										'.$db->quoteSmart('0').'
 									)';
-						
+
 						$result = $db->query($sql);
 						assert_valid_db_result($result);
 					}
 					// note that we need to put quote around the doomed screen to ensure
 					// it is treated like a string and thus does not blow away all entries
 					// for the type code from the DB
-					
+
 					$sql = 'DELETE FROM
 								sq_ast_edit_access
 							WHERE
@@ -371,7 +371,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 								AND	type_code	= '.$db->quoteSmart($type_code).'
 								AND	screen		= '.$db->quoteSmart($doomed_screen).'
 								AND	section		= '.$db->quoteSmart('0');
-						
+
 					$result = $db->query($sql);
 					assert_valid_db_result($result);
 				}
@@ -384,10 +384,10 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 		///////////////////////////////
 		if (isset($_POST[$prefix.'_add_type_screen'])) {
 			$new_screens = $_POST[$prefix.'_add_type_screen'];
-			
+
 			foreach ($new_screens as $type_code => $new_screen) {
 				if (trim($new_screen) == '') continue;
-				
+
 				$sql = 'INSERT INTO
 							sq_ast_edit_access
 							(
@@ -403,7 +403,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 								'.$db->quoteSmart($new_screen).',
 								'.$db->quoteSmart('0').'
 							)';
-				
+
 				$result = $db->query($sql);
 				assert_valid_db_result($result);
 
@@ -411,7 +411,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 		}//end if
 
 		return true;
-		
+
 	}//end processTypeRestrictions()
 
 
@@ -448,20 +448,20 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 				foreach ($pref_vars as $var_name => $var_data) {
 					$o->openField($var_data['name']);
 						if (isset($custom_preferences[$type_code][$var_name])) {
-							echo '<p>This preference is currently customised. The global preference setting is currently being overridden for users in this user group.';
+							echo '<p>'.translate('preference_currently_customised');
 							if ($write_access) {
 								echo '<br />';
 								check_box($prefix.'_revert['.$type_code.']['.$var_name.']');
-								echo ' <b>Revert to global preference</b>';
+								echo ' <b>'.translate('revert_to_global_preferences').'</b>';
 							}
 							echo '</p>';
 							$prefs->paintBackend($o, $write_access, $var_name);
 						} else {
-							echo '<p>This preference is currently not customised. The global preference setting is currently being used for this user group.';
+							echo '<p>'.translate('preference_not_customised');
 							if ($write_access) {
 								echo '<br />';
 								check_box($prefix.'_customise['.$type_code.']['.$var_name.']');
-								echo ' <b>Customise this preference</b>';
+								echo ' <b>'.translate('customise_this_preference').'</b>';
 							}
 							echo '</p>';
 						}

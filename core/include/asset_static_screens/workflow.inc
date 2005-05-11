@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow.inc,v 1.22 2005/04/27 00:14:43 lwright Exp $
+* $Id: workflow.inc,v 1.23 2005/05/11 06:05:11 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once DIRNAME(__FILE__).'/details.inc';
 * Workflow Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix
 */
 
@@ -53,7 +53,7 @@ function paintInlineWorkflow(&$owner, &$o, &$ei)
 
 	if (empty($schemas)) return false;
 
-	$o->openSection('Workflow Schemas');
+	$o->openSection(translate('workflow_schemas'));
 
 	$direct = Array();
 	foreach ($schemas as $schemaid => $granted) {
@@ -66,10 +66,10 @@ function paintInlineWorkflow(&$owner, &$o, &$ei)
 		<table class="sq-backend-table">
 			<tr>
 				<td class="sq-backend-table-header">
-					Workflow Schema
+					<?php echo translate('workflow_schema'); ?>
 				</td>
 				<td class="sq-backend-table-header" align="right">
-					Access
+					<?php translate('access'); ?>
 				</td>
 			</tr>
 	<?php
@@ -89,7 +89,7 @@ function paintInlineWorkflow(&$owner, &$o, &$ei)
 					?>
 					</td>
 					<td class="sq-backend-table-cell" align="right">
-						<span style="color: <?php echo (($granted == '0') ? 'red' : 'green'); ?>; font-weight: bold;"><?php echo (($granted == '0') ? 'Denied' : 'Applied') ?></span>
+						<span style="color: <?php echo (($granted == '0') ? 'red' : 'green'); ?>; font-weight: bold;"><?php echo (($granted == '0') ? translate('denied') : translate('applied')) ?></span>
 					</td>
 				</tr>
 			<?php
@@ -170,15 +170,15 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 
 					if (!empty($running_schemas)) {
 
-						$o->openField('Change Status?');
+						$o->openField(translate('change_status'));
 							if (!is_null($keywords) && isset($keywords['fields']['workflow_status_change'])) ob_start();
 
 							$available_statii = _paintStatusChange($owner, $o, $prefix);
 							?><span class="sq-backend-fineprint"><?php
 							if (!empty($available_statii)) {
-								echo '<br/>Change the status to approve or reject the changes made to this asset';
+								echo '<br/>'.translate('change_to_approve_or_reject');
 							} else {
-								echo '<i>You cannot approve or reject changes at this time</i>';
+								echo translate('cannot_approve_or_reject');
 							}
 							?></span><?php
 
@@ -196,11 +196,11 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 
 					if (!empty($running_schemas)) {
 
-						$o->openField('Log Message');
+						$o->openField(translate('log_message'));
 							if (!is_null($keywords) && isset($keywords['fields']['workflow_log_message'])) ob_start();
 
 							text_area($prefix.'_workflow_new_log_message', '', 60, 6);
-							echo '<br/>You can enter a reason for your decision in the box above so that other approvers know why you have accepted or rejected the changes.';
+							echo '<br/>'.translate('workflow_enter_reason_for_decision');
 
 							// if there is a keyword replacement for this, add it to the replacements
 							if (!is_null($keywords) && isset($keywords['fields']['workflow_log_message'])) {
@@ -219,7 +219,7 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 						$o->openField('');
 							if (!is_null($keywords) && isset($keywords['fields']['workflow_status_commit'])) ob_start();
 
-							normal_button($prefix.'_workflow_status_update', 'Commit', 'submit_form()');
+							normal_button($prefix.'_workflow_status_update', translate('commit_button'), 'submit_form()');
 
 							// if there is a keyword replacement for this, add it to the replacements
 							if (!is_null($keywords) && isset($keywords['fields']['workflow_status_commit'])) {
@@ -233,7 +233,7 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 
 				case 'workflow_logs' :
 
-					$o->openField('Workflow Logs');
+					$o->openField(translate('workflow_logs'));
 						if (!is_null($keywords) && isset($keywords['fields']['workflow_logs'])) ob_start();
 
 						$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
@@ -246,15 +246,15 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 							?>
 							<table class="sq-backend-table">
 								<tr>
-									<td class="sq-backend-table-header" nowrap width="120">Log Time</td>
-									<td class="sq-backend-table-header" nowrap width="120">Logged By</td>
-									<td class="sq-backend-table-header" width="100%">Message</td>
+									<td class="sq-backend-table-header" nowrap width="120"><?php echo translate('log_time'); ?></td>
+									<td class="sq-backend-table-header" nowrap width="120"><?php echo translate('logged_by'); ?></td>
+									<td class="sq-backend-table-header" width="100%"><?php echo translate('message'); ?></td>
 								</tr>
 								<?php
 								if (!empty($user_logs)) {
 									?>
 									<tr>
-										<td class="sq-backend-table-header" colspan="3">Most recent user log messages</td>
+										<td class="sq-backend-table-header" colspan="3"><?php echo translate('most_recent_user_log_message'); ?></td>
 									</tr>
 									<?php
 									for ($log_num = 0; $log_num < 4; $log_num++) {
@@ -273,7 +273,7 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 								if (!empty($logs)) {
 									?>
 									<tr>
-										<td class="sq-backend-table-header" colspan="3">Most recent system workflow messages</td>
+										<td class="sq-backend-table-header" colspan="3"><?php echo translate('most_recent_system_workflow_message'); ?></td>
 									</tr>
 									<?php
 									for ($log_num = 0; $log_num < 4; $log_num++) {
@@ -291,7 +291,7 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 								?>
 								<tr>
 									<td class="sq-backend-table-header" colspan="3" align="middle">
-										<a class="sq-backend-table-header" href="<?php echo $owner->getBackendHref('logs'); ?>&sq_backend_log_type=asset.workflow">View all workflow logs</a>
+										<a class="sq-backend-table-header" href="<?php echo $owner->getBackendHref('logs'); ?>&sq_backend_log_type=asset.workflow"><?php echo translate('view_all_workflow_logs'); ?></a>
 									</td>
 								</tr>
 							</table>
@@ -321,18 +321,18 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 						foreach ($schema_workflows as $schemaid => $workflow) {
 							if (!in_array($schemaid, $running_schemas)) continue;
 
-							$schema_title = "Running Workflow - ".$workflow['schema_name'];
+							$schema_title = translate('running_workflow').' -'.$workflow['schema_name'];
 							if (isset($workflow['complete']) && $workflow['complete']) {
-								$schema_title .= ' <span style="color:#008800">[Completed]</span>';
+								$schema_title .= ' <span style="color:#008800">['.translate('completed').']</span>';
 							} else {
-								$schema_title .= ' <span style="color:#880000">[Not Completed]</span>';
+								$schema_title .= ' <span style="color:#880000">['.translate('not_completed').']</span>';
 							}
 							$o->openSection($schema_title);
 
-								$o->openField('Workflow Started');
+								$o->openField(translate('workflow_started'));
 									echo $GLOBALS['SQ_SYSTEM']->datetime($workflow['started']);
 								$o->closeField();
-								$o->openField('Time Running');
+								$o->openField(translate('time_running'));
 									require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 									echo easy_time_total(time() - $workflow['started'], true);
 								$o->closeField();
@@ -340,15 +340,15 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 								foreach ($workflow['steps'] as $stepid => $step_data) {
 									$section_title = "Step $stepid - ".$step_data['step_name'];
 									if (!$workflow['current_step'] || $workflow['current_step'] > $stepid) {
-										$section_title .= ' <span style="color:#008800">[Completed]</span>';
+										$section_title .= ' <span style="color:#008800">['.translate('completed').']</span>';
 									} else {
-										$section_title .= ' <span style="color:#880000">[Not Completed]</span>';
+										$section_title .= ' <span style="color:#880000">['.translate('not_completed').']</span>';
 									}
 
 									$o->openSection($section_title);
 
 										if ($step_data['started']) {
-											$o->openField('Step Duration');
+											$o->openField(translate('step_duration'));
 												echo $GLOBALS['SQ_SYSTEM']->datetime($step_data['started']);
 												echo ' - ';
 											if ($step_data['completed']) echo $GLOBALS['SQ_SYSTEM']->datetime($step_data['completed']);
@@ -363,7 +363,7 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 											echo '</i>)';
 										}
 
-										$o->openField('Step Logic');
+										$o->openField(translate('step_logic'));
 											if (isset($wfm->_valid_cond_logic[$step_data['logic']])) {
 												// a special type of logic statement
 												$step_logic = $step_data['logic'];
@@ -381,7 +381,7 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 											if ($step_logic_num) echo " $step_logic_num condition".(($step_logic_num > 1) ? 's' : '')." must be met</i>";
 										$o->closeField();
 
-										$o->openField('Conditions');
+										$o->openField(translate('conditions'));
 
 											$has_conds = false;
 											ob_start();
@@ -389,8 +389,8 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 											<table class="sq-backend-table">
 												<tr>
 													<td class="sq-backend-table-header">&nbsp;</td>
-													<td class="sq-backend-table-header" width="270"><b>Group Logic</b></td>
-													<td align="center" width="100" class="sq-backend-table-header"><b>Complete ?</b></td>
+													<td class="sq-backend-table-header" width="270"><b><?php echo translate('group_logic'); ?></b></td>
+													<td align="center" width="100" class="sq-backend-table-header"><b><?php echo translate('complete_question'); ?></b></td>
 												</tr>
 											<?php
 											foreach ($step_data['conditions'] as $pub => $cond_data) {
@@ -426,11 +426,11 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 													<td align="center" class="sq-backend-table-cell">
 													<?php
 														if (isset($cond_data['complete']) && $cond_data['complete']) {
-															echo '<span style="color:#008800"><b>Yes</b></span>';
+															echo '<span style="color:#008800"><b>'.translate('yes').'</b></span>';
 														} else {
 															// do some extra checking
 															if (is_a($asset, 'user')) {
-																echo ((isset($cond_data['published_by'][$asset->id])) ? '<span style="color:#008800"><b>Yes</b></span>' : '&nbsp;');
+																echo ((isset($cond_data['published_by'][$asset->id])) ? '<span style="color:#008800"><b>'.translate('yes').'</b></span>' : '&nbsp;');
 															} else {
 																if ($cond_logic_num) $user_count = $cond_logic_num;
 																else $user_count = count($GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, Array('user'), false));
@@ -453,7 +453,7 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 
 											if (!$has_conds) {
 												ob_end_clean();
-												echo 'None';
+												echo translate('none');
 											} else {
 												ob_end_flush();
 												?></table><?php
@@ -476,10 +476,10 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 						}// end foreach
 
 					} else {
-						$o->openField('Workflow Status');
+						$o->openField(translate('workflow_status'));
 							if (!is_null($keywords) && isset($keywords['fields']['workflow_report'])) ob_start();
 
-							echo 'Workflow is not currently running for this asset';
+							echo translate('workflow_not_running');
 
 							// if there is a keyword replacement for this, add it to the replacements
 							if (!is_null($keywords) && isset($keywords['fields']['workflow_report'])) {
@@ -501,11 +501,16 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 						if ($mm->allowsMetadata($owner->id)) {
 							$m_complete = $mm->requiredFieldsComplete($owner->id);
 							if (!$m_complete) {
-								$o->openField('<span class="sq-backend-warning"><b>Warning</b></span>');
+								$o->openField('<span class="sq-backend-warning"><b>'.strtolower(translate('warning')).'</b></span>');
 									if (!is_null($keywords) && isset($keywords['fields']['workflow_metadata_warning'])) ob_start();
 
 									?>
-									<p class="sq-backend-data"><span class="sq-backend-warning"><b>"<?php echo $owner->name; ?>" is currently in an approval process but some required metadata fields are not yet compelete. These fields must be completed before "<?php echo $owner->name; ?>" can become 'Approved' to go live.</b></span> These metadata fields can be completed by any editor or administrator of "<?php echo $owner->name; ?>" by going to the <a href="<?php echo $owner->getBackendHref('metadata'); ?>">Metadata screen</a>.</p>
+									<p class="sq-backend-data">
+										<span class="sq-backend-warning">
+											<b><?php echo translate('metadata_in_approval_requires_fields_completion', $owner->name); ?></b>
+										</span>
+										<?php echo translate('metadata_fields_only_completed_by_administrator', $owner->name, '<a href="'.$owner->getBackendHref('metadata').'">'.translate('metadata_screen').'</a>'); ?>
+									</p>
 									<?php
 
 									// if there is a keyword replacement for this, add it to the replacements
@@ -535,18 +540,18 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 						if (!is_null($keywords) && isset($keywords['fields']['workflow_schemas'])) ob_start();
 
 						if (empty($direct)) {
-							echo 'There are no workflow schemas applied to this asset';
+							echo translate('no_workflow_schemas');
 						} else {
 							foreach ($direct as $granted => $schemaids) {
 							?>
 								<table class="sq-backend-table">
 									<tr>
 										<td class="sq-backend-table-header">
-											<span style="color: <?php echo (($granted == '0') ? 'red' : 'green'); ?>"><?php echo (($granted == '0') ? 'Denied' : 'Applied') ?></span>
+											<span style="color: <?php echo (($granted == '0') ? 'red' : 'green'); ?>"><?php echo (($granted == '0') ? translate('denied') : translate('applied')) ?></span>
 										</td>
 										<?php
 										if ($admin_access) {
-											?><td align="center" width="100" class="sq-backend-table-header" style="font-weight: bold;">Delete ?</td><?php
+											?><td align="center" width="100" class="sq-backend-table-header" style="font-weight: bold;"><?php echo translate('delete_question'); ?></td><?php
 										}
 										?>
 									</tr>
@@ -600,8 +605,8 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 							if (!is_null($keywords) && isset($keywords['fields']['workflow_add_schemas'])) ob_start();
 
 							$o->openField('New ?', 'new_line');
-								combo_box($prefix.'_workflow[new][granted]', Array('' => '', '1' => 'Apply', '0' => 'Deny'), false, '');
-								echo ' Workflow schema ';
+								combo_box($prefix.'_workflow[new][granted]', Array('' => '', '1' => translate('apply'), '0' => translate('deny')), false, '');
+								echo ' '.translate('workflow_schema').' ';
 								asset_finder($prefix.'_workflow[new][schemaid]', 0, Array('workflow_schema' => 'D'), 'sq_sidenav', false, 'null', Array('clear'));
 							$o->closeField();
 
@@ -628,21 +633,21 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 						if ($admin_access && empty($running_schemas)) {
 							$kiddies = $GLOBALS['SQ_SYSTEM']->am->getChildren($owner->id);
 							if (count($kiddies)) {
-								echo 'These actions will affect '.count($kiddies).' other assets below "'.$owner->name.'"</br></br>';
+								echo translate('action_affects_assets_below_this', count($kiddies), $owner->name). '<br /><br />';
 
 								check_box($prefix.'_workflow[cascade_changes]', '1', true);
-								echo ' Cascade schema changes';
+								echo ' '. translate('cascade_schema_changes');
 								echo '<br/>';
 								check_box($prefix.'_workflow[manual_cascade]');
-								echo ' Manually cascade schemas';
+								echo ' '.translate('manually_cascade_schema');
 
 							} else {
-								echo 'There are no children to cascade workflow schemas to';
+								echo translate('no_children_to_cascade_workflow');
 							}
 						} else if ($admin_access) {
-							echo 'You cannot cascade workflow schemas while workflow is running';
+							echo translate('cannot_cascade_while_workflow_running');
 						} else {
-							echo 'You do not have access to cascade workflow schemas for this asset';
+							echo translate('no_access_to_cascade_workflow');
 						}
 
 						// if there is a keyword replacement for this, add it to the replacements
@@ -720,7 +725,7 @@ function processWorkflow(&$owner, &$o, &$ei)
 	// from here on in, if we dont have admin access - piss off
 	if ($owner->id && !$owner->adminAccess('')) {
 		if (!$updated) {
-			$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to edit the workflow schemas for <i>'.$owner->name.'</i>');
+			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $owner->name));
 			exit();
 		}
 		return $updated;
@@ -745,7 +750,7 @@ function processWorkflow(&$owner, &$o, &$ei)
 	// apply a schema
 	if (!empty($post_data['new']['schemaid']['assetid'])) {
 		if (!isset($post_data['new']['granted']) || $post_data['new']['granted'] == '') {
-			trigger_localised_error("SYS0268", E_USER_NOTICE, $post_data['new']['schemaid']['assetid']);
+			trigger_localised_error('SYS0268', E_USER_NOTICE, $post_data['new']['schemaid']['assetid']);
 		} else {
 			if ($cascade_changes) {
 				// cascading access of some kind, so queue it up for the HIPO

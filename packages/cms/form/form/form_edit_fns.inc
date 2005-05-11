@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_edit_fns.inc,v 1.51 2005/04/29 05:40:28 gsherwood Exp $
+* $Id: form_edit_fns.inc,v 1.52 2005/05/11 06:07:30 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.51 $
+* @version $Revision: 1.52 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -63,7 +63,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 		$sections = &$asset->getSections();
 
 		if (empty($sections)) {
-			echo 'This form does not contain any sections';
+			echo translate('cms_form_no_sections');
 			return false;
 		}
 
@@ -118,7 +118,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 		<script language="JavaScript">
 			function sortOrderMoveDown(currentOrder) {
 			  if (!document.getElementById) {
-				  alert('Browser cannot support script - Get Element By ID is not defined');
+				  alert('<?php echo translate('cms_form_no_getelementbyid'); ?>');
 				  return;
 			  }
 			  // move a question up a row
@@ -131,7 +131,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 			  if (!nextElement) return;
 
 			  if (!currentElement.innerHTML) {
-				  alert('Browser cannot support script - Inner HTML is not defined');
+				  alert('<?php echo translate('cms_form_no_innerhtml'); ?>');
 				  return;
 			  }
 
@@ -165,7 +165,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 			function sortOrderMoveUp(currentOrder) {
 			  // move a question up a row
 			  if (!document.getElementById) {
-				  alert('Browser cannot support script - Get Element By ID is not defined');
+				  alert('<?php echo translate('cms_form_no_getelementbyid'); ?>');
 				  return;
 			  }
 
@@ -177,7 +177,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 			  var prevElement = document.getElementById('<?php echo $prefix ?>_order_o' + (currentOrder - 1));
 
 			  if (!currentElement.innerHTML) {
-				  alert('Browser cannot support script - Inner HTML is not defined');
+				  alert('<?php echo translate('cms_form_no_innerhtml'); ?>');
 				  return;
 			  }
 
@@ -209,15 +209,15 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 				<table class="sq-backend-table">
 					<tr>
 						<td class="sq-backend-table-header">
-							Question
+							<?php echo translate('question'); ?>
 						</td>
 						<td class="sq-backend-table-header">
-							Type
+							<?php echo translate('type'); ?>
 						</td>
 						<?php
 						if ($admin_access) {
-							?><td align="center" width="100" class="sq-backend-table-header" style="font-weight: bold;">Delete ?</td>
-							<td align="center" width="100" class="sq-backend-table-header" style="font-weight: bold;">Move</td>
+							?><td align="center" width="100" class="sq-backend-table-header" style="font-weight: bold;"><?php echo translate('delete_question'); ?></td>
+							<td align="center" width="100" class="sq-backend-table-header" style="font-weight: bold;"><?php echo translate('move'); ?></td>
 							<?php
 						}
 						?>
@@ -336,19 +336,20 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 			$num_bodycopies = ($asset->attr('use_bodycopy_main') ? 1 : 0) + ($asset->attr('use_bodycopy_thank_you') ? 1 : 0);
 
 			if ($num_bodycopies == 2) {
-				?>Page Contents and Thank You bodycopies are both customised<br/><?php
+				echo translate('cms_form_both_customised');
 			} else if ($num_bodycopies == 0) {
-				?>No bodycopies are customised<br/><?php
+				echo translate('cms_form_none_customised');
 			} else if ($asset->attr('use_bodycopy_main')) {
-				?>Page Contents bodycopy is customised<br/><?php
+				echo translate('cms_form_page_contents_customised');
 			} else if ($asset->attr('use_bodycopy_thank_you')) {
-				?>Thank You bodycopy is customised<br/><?php
+				echo translate('cms_form_thank_you_customised');
 			}
+			?><br/><?php
 		} else {
 			check_box('use_bodycopy_main', '1', $asset->attr('use_bodycopy_main'));
-			echo 'Page Contents<br/>';
+			echo translate('cms_page_contents').'<br/>';
 			check_box('use_bodycopy_thank_you', '1', $asset->attr('use_bodycopy_thank_you'));
-			echo 'Thank You<br/>';
+			echo translate('cms_form_thank_you').'<br/>';
 			return true;
 		}
 
@@ -777,7 +778,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 	function paintSimpleFormatting(&$asset, &$o, $prefix)
 	{
 		?>
-		<p>These options apply only if you use the 'Form Contents' (<b>%form_contents%</b>) keyword in your Page Contents bodycopy, or you do not have a Page Contents bodycopy set.</p>
+		<p><?php echo translate('cms_form_simple_formatting_note') ?></p>
 
 		<?php
 		return true;
@@ -817,10 +818,9 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 	function paintComplexFormatting(&$asset, &$o, $prefix)
 	{
 		?>
-		<p>If you use complex formatting, you can position question fields and responses individually, rather than in a single block.<br/>
-		Click here for a <a href="#" onClick="javascript: var win = window.open('<?php echo sq_web_path('data')?>/asset_types/form/popups/page_contents_keywords.php?assetid=<?php echo $asset->id ?>', 'keywords', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=580,height=520')">list of keywords for the Page Contents bodycopy</a><br/>
-		Click here for a <a href="#" onClick="javascript: var win = window.open('<?php echo sq_web_path('data')?>/asset_types/form/popups/thank_you_keywords.php?assetid=<?php echo $asset->id ?>', 'keywords', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=580,height=520')">list of keywords for the Thank You bodycopy</a><br/></p>
-
+		<p><?php echo translate('cms_form_complex_formatting_note') ?><br/>
+		<?php echo translate('cms_form_page_contents_popup_link', sq_web_path('data').'/asset_types/form/popups/page_contents_keywords.php?assetid='.$asset->id, 580, 520) ?><br/>
+		<?php echo translate('cms_form_thank_you_popup_link', sq_web_path('data').'/asset_types/form/popups/thank_you_keywords.php?assetid='.$asset->id, 580, 520) ?><br/>
 		<?php
 		return true;
 

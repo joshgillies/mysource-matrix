@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_datetime_edit_fns.inc,v 1.12 2005/04/29 05:40:29 gsherwood Exp $
+* $Id: form_question_type_datetime_edit_fns.inc,v 1.13 2005/05/11 06:07:32 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question_edit_fns.inc'
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -69,16 +69,16 @@ class Form_Question_Type_Datetime_Edit_Fns extends Form_Question_Edit_Fns
 			<table class="sq-backend-table">
 			  <tr>
 			    <td width="16%" align="center" class="sq-backend-table-header">&nbsp;</td>
-				<td width="12%" align="center" class="sq-backend-table-header">Circa</td>
-				<td width="12%" align="center" class="sq-backend-table-header">Day</td>
-				<td width="12%" align="center" class="sq-backend-table-header">Month</td>
-				<td width="12%" align="center" class="sq-backend-table-header">Year</td>
-				<td width="12%" align="center" class="sq-backend-table-header">Hour</td>
-				<td width="12%" align="center" class="sq-backend-table-header">Minute</td>
-				<td width="12%" align="center" class="sq-backend-table-header">Second</td>
+				<td width="12%" align="center" class="sq-backend-table-header"><?php echo translate('circa'); ?></td>
+				<td width="12%" align="center" class="sq-backend-table-header"><?php echo translate('day'); ?></td>
+				<td width="12%" align="center" class="sq-backend-table-header"><?php echo translate('month'); ?></td>
+				<td width="12%" align="center" class="sq-backend-table-header"><?php echo translate('year'); ?></td>
+				<td width="12%" align="center" class="sq-backend-table-header"><?php echo translate('hour'); ?></td>
+				<td width="12%" align="center" class="sq-backend-table-header"><?php echo translate('minute'); ?></td>
+				<td width="12%" align="center" class="sq-backend-table-header"><?php echo translate('second'); ?></td>
 			  </tr>
 			  <tr>
-			    <td class="sq-backend-table-cell">Show?</td>
+			    <td class="sq-backend-table-cell"><?php echo translate('show_question') ?></td>
 			    <td align="center" class="sq-backend-table-cell"><?php if ($edit) 		{check_box($prefix.'_c', '1', $show_params['c']);} else {echo $show_params['c'] ? 'X' : '';} ?></td>
 				<td align="center" class="sq-backend-table-cell"><?php if ($edit) 		{check_box($prefix.'_d', '1', $show_params['d']);} else {echo $show_params['d'] ? 'X' : '';} ?></td>
 				<td align="center" class="sq-backend-table-cell"><?php if ($edit) 		{check_box($prefix.'_m', '1', $show_params['m']);} else {echo $show_params['m'] ? 'X' : '';} ?></td>
@@ -88,7 +88,7 @@ class Form_Question_Type_Datetime_Edit_Fns extends Form_Question_Edit_Fns
 				<td align="center" class="sq-backend-table-cell"><?php if ($edit) 		{check_box($prefix.'_s', '1', $show_params['s']);} else {echo $show_params['s'] ? 'X' : '';} ?></td>
 			  </tr>
 			  <tr>
-			    <td colspan="2" class="sq-backend-table-cell">Allow Blank?</td>
+			    <td colspan="2" class="sq-backend-table-cell"><?php echo translate('allow_blank_question'); ?></td>
 			    <td align="center" class="sq-backend-table-cell"><?php if ($edit) 		{check_box($prefix.'_d_null', '1', $null_params['d']);} else {echo $null_params['d'] ? 'X' : '';} ?></td>
 			    <td align="center" class="sq-backend-table-cell"><?php if ($edit) 		{check_box($prefix.'_m_null', '1', $null_params['m']);} else {echo $null_params['m'] ? 'X' : '';} ?></td>
 			    <td align="center" class="sq-backend-table-cell"><?php if ($edit) 		{check_box($prefix.'_y_null', '1', $null_params['y']);} else {echo $null_params['y'] ? 'X' : '';} ?></td>
@@ -97,7 +97,7 @@ class Form_Question_Type_Datetime_Edit_Fns extends Form_Question_Edit_Fns
 			    <td align="center" class="sq-backend-table-cell"><?php if ($edit) 		{check_box($prefix.'_s_null', '1', $null_params['s']);} else {echo $null_params['s'] ? 'X' : '';} ?></td>
 				</tr>
 			  <tr>
-			    <td colspan="2" class="sq-backend-table-cell">Display as Text Box?</td>
+			    <td colspan="2" class="sq-backend-table-cell"><?php echo translate('cms_form_datetime_text_box_question'); ?></td>
 			    <td align="center" class="sq-backend-table-cell"><?php if ($edit) 		{check_box($prefix.'_d_text', '1', $text_params['d']);} else {echo $text_params['d'] ? 'X' : '';} ?></td>
 			    <td align="center" class="sq-backend-table-cell"><?php if ($edit) 		{check_box($prefix.'_m_text', '1', $text_params['m']);} else {echo $text_params['m'] ? 'X' : '';} ?></td>
 			    <td align="center" class="sq-backend-table-cell"><?php if ($edit) 		{check_box($prefix.'_y_text', '1', $text_params['y']);} else {echo $text_params['y'] ? 'X' : '';} ?></td>

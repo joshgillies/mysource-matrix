@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_numeric.inc,v 1.15 2005/04/29 05:40:29 gsherwood Exp $
+* $Id: form_question_rule_type_numeric.inc,v 1.16 2005/05/11 06:07:31 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -58,8 +58,8 @@ class Form_Question_Rule_Type_Numeric extends Form_Question_Rule
 	function getOperators()
 	{
 		return Array(
-				1	=> 'Must Be Numeric',
-				0	=> 'Must Not Be Numeric',
+				1	=> translate('cms_form_rule_numeric_true'),
+				0	=> translate('cms_form_rule_numeric_false'),
 			   );
 
 	}//end getOperators()
@@ -154,7 +154,8 @@ class Form_Question_Rule_Type_Numeric extends Form_Question_Rule
 	*/
 	function ruleDescription(&$q_asset, $rule_data)
 	{
-		$error_str = 'The response to "'.$q_asset->attr('name').'" must '.($rule_data['operator'] == 0 ? 'not ' : '').' be a numeric value';
+		$operator = array_get_index($rule_data, 'operator', 1);
+		$error_str = translate('cms_form_rule_numeric_desc_'.($operator ? 'true' : 'false'), $q_asset->attr('name'));
 
 		return $error_str;
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.69 2005/04/15 00:37:26 lwright Exp $
+* $Id: site.inc,v 1.70 2005/05/11 06:04:55 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.69 $
+* @version $Revision: 1.70 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -207,9 +207,9 @@ class Site extends Folder
 				$clean_path = (empty($clean_paths)) ? '' : $clean_paths[0];
 				if ($path != $clean_path) {
 					if($clean_path != '') {
-						trigger_localised_error("CORE0080", $save_urls[$save_urlid]['url'], $path, $clean_path, E_USER_WARNING);
+						trigger_localised_error('CORE0080', $save_urls[$save_urlid]['url'], $path, $clean_path, E_USER_WARNING);
 					} else {
-						trigger_localised_error("CORE0124", $save_urls[$save_urlid]['url'], $path, E_USER_WARNING);
+						trigger_localised_error('CORE0124', $save_urls[$save_urlid]['url'], $path, E_USER_WARNING);
 					}
 
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -228,7 +228,7 @@ class Site extends Folder
 			}
 
 			if (!$found_root_url) {
-				trigger_localised_error("CORE0082", E_USER_WARNING, $save_urls[$save_urlid]['url']);
+				trigger_localised_error('CORE0082', E_USER_WARNING, $save_urls[$save_urlid]['url']);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
@@ -247,7 +247,7 @@ class Site extends Folder
 			if (!$found) {
 				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAssetFromURL(null, $save_urls[$save_urlid]['url'], true, true);
 				if (!is_null($asset)) {
-					trigger_localised_error("CORE0081", E_USER_WARNING, $save_urls[$save_urlid]['url'], $asset->name, $asset->id);
+					trigger_localised_error('CORE0081', E_USER_WARNING, $save_urls[$save_urlid]['url'], $asset->name, $asset->id);
 					continue;
 				}
 			}
@@ -470,10 +470,10 @@ class Site extends Folder
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
 		switch (strtolower($link['value'])) {
 			case 'index' :
-				return 'The index page for the site';
+				return translate('core_site_index_page');
 			break;
 			case 'not_found' :
-				return 'The not found page for the site';
+				return translate('core_site_not_found_page');
 			break;
 			default :
 				return parent::describeLink($linkid);
@@ -494,13 +494,13 @@ class Site extends Folder
 	{
 		// check that the user has read access to the site
 		if (!$this->readAccess()) {
-			$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to access <i>'.$this->name.'</i>');
+			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $this->name));
 			return;
 		}
 
 		$index_page = &$this->getSpecialPage('index');
 		if (is_null($index_page)) {
-			trigger_localised_error("CORE0065", E_USER_NOTICE, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'), $this->name, $this->id);
+			trigger_localised_error('CORE0065', E_USER_NOTICE, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'), $this->name, $this->id);
 			return;
 		}
 		$this->paintAsset($index_page);
@@ -526,7 +526,7 @@ class Site extends Folder
 
 		// check that the user has read access to the index page
 		if (!$asset->readAccess()) {
-			$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to access <i>'.$this->name.'</i>');
+			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $this->name));
 			return;
 		}
 
@@ -596,7 +596,7 @@ class Site extends Folder
 	{
 		$index_page = &$this->getSpecialPage('index');
 		if (is_null($index_page)) {
-			trigger_localised_error("CORE0065", E_USER_NOTICE, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'), $this->name, $this->id);
+			trigger_localised_error('CORE0065', E_USER_NOTICE, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'), $this->name, $this->id);
 			return;
 		}
 
@@ -625,7 +625,7 @@ class Site extends Folder
 			break;
 
 			default :
-				trigger_localised_error("CORE0075", $page);
+				trigger_localised_error('CORE0075', $page);
 				return Array();
 		}
 

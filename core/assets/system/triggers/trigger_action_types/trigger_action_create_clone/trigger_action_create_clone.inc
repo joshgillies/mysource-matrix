@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_create_clone.inc,v 1.10 2005/04/28 05:22:06 rhoward Exp $
+* $Id: trigger_action_create_clone.inc,v 1.11 2005/05/11 06:05:02 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -188,8 +188,8 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 			$form_element_extras = '';
 		}
 
+		// begin buffering basic options
 		ob_start();
-			echo 'Create a clone of the asset, and link it as child of:';
 			if ($write_access) {
 				asset_finder($prefix.'[assetid]', $selected_assetid);
 			} else {
@@ -200,25 +200,53 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 					text_box($prefix.'[assetid]', '', '', '', false, $form_element_extras);
 				}
 			}
-			echo ' using a ';
-			combo_box($prefix.'[link_type]', $link_type_list, false, $selected_link_type, null, $form_element_extras);
-			echo 'link.<br /><br />';
 
-			?>
-			<b>Optional items for Advanced users:</b><br />
-			Use this value as the link value:
-			<?php
+			$basic_part_1 = ob_get_contents();
+		ob_end_clean();
+
+		ob_start();
+			combo_box($prefix.'[link_type]', $link_type_list, false, $selected_link_type, null, $form_element_extras);
+			$basic_part_2 = ob_get_contents();
+		ob_end_clean();
+
+		// begin buffering advanced options
+		ob_start();
 			text_box($prefix.'[value]', $value, '', '', false, $form_element_extras);
-			echo ' and link the child';
-			$is_dependant_list = Array(0 => 'Non-dependantly', 1 => 'Dependantly');
+			$advanced_part_1 = ob_get_contents();
+		ob_end_clean();
+
+		ob_start();
+			$is_dependant_list = Array(
+									0	=> translate('non_dependantly'),
+									1	=> translate('dependantly'),
+								 );
 			combo_box($prefix.'[is_dependant]', $is_dependant_list, false, $is_dependant, null, $form_element_extras);
-			echo ' and ';
-			$is_exclusive_list = Array(0 => 'Non-exclusively', 1 => 'Exclusively');
+			$advanced_part_2 = ob_get_contents();
+		ob_end_clean();
+
+		ob_start();
+			$is_exclusive_list = Array(
+									0	=> translate('non_exclusively'),
+									1	=> translate('exclusivly'),
+								 );
 			combo_box($prefix.'[is_exclusive]', $is_exclusive_list, false, $is_exclusive, null, $form_element_extras);
-			echo ' to the parent.<br />';
+			$advanced_part_3 = ob_get_contents();
+		ob_end_clean();
+
+		ob_start();
 			check_box($prefix.'[disallow_duplicates]', '1', $disallow_duplicates, null, $form_element_extras);
-			echo ' Do not create if a clone with the same name and asset type already exists.';
-		return ob_get_clean();
+			label(translate('do_not_create_clone_if_same_name_exists'), $prefix.'[disallow_duplicates]');
+			$advanced_part_4 = ob_get_contents();
+		ob_end_clean();
+
+
+		//now patch together the output
+		$contents = translate('trigger_create_clone_basic', $basic_part_1, $basic_part_2).
+					'<br /><br />'.
+					'<b>'.translate('triggers_advanced_user_options').'</b><br />'.
+					translate('trigger_create_clone_advanced', $advanced_part_1, $advanced_part_2, $advanced_part_3, $advanced_part_4);
+
+		return $contents;//ob_get_clean();
 
 	}//end getInterface()
 
@@ -240,11 +268,11 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 
 		// make sure the assetid isn't blank
 		if (empty($request_data['assetid']['assetid'])) {
-			return 'Parent to clone under is missing';
+			return translate('trigger_clone_parent_missing');
 		}
 
 		if (empty($request_data['link_type']) || !isset($link_type_list[$request_data['link_type']])) {
-			return 'Link type is missing';
+			return translate('trigger_link_type_missing');
 		}
 
 		$settings['assetid']   = $request_data['assetid']['assetid'];

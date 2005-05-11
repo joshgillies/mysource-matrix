@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_regexp.inc,v 1.15 2005/04/29 05:40:29 gsherwood Exp $
+* $Id: form_question_rule_type_regexp.inc,v 1.16 2005/05/11 06:07:31 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -56,8 +56,8 @@ class Form_Question_Rule_Type_Regexp extends Form_Question_Rule
 	function getOperators()
 	{
 		return Array(
-				1	=> 'Must Match the Regular Expression',
-				0	=> 'Must Not Match the Regular Expression',
+				1	=> translate('cms_form_rule_regexp_true'),
+				0	=> translate('cms_form_rule_regexp_false'),
 			   );
 
 	}//end getOperators()
@@ -143,7 +143,7 @@ class Form_Question_Rule_Type_Regexp extends Form_Question_Rule
 	*/
 	function defaultError(&$q_asset, $rule_data)
 	{
-		$error_str = 'The response to "'.$q_asset->attr('name').'" is not in the correct format';
+		$error_str = translate('cms_form_rule_regexp_error', $q_asset->name);
 
 		return $error_str;
 
@@ -165,7 +165,7 @@ class Form_Question_Rule_Type_Regexp extends Form_Question_Rule
 		$value = array_get_index($rule_data, 'value', '');
 		$operator_list = $this->getOperators();
 
-		$error_str = 'The response to "'.$q_asset->attr('name').'" '.strtolower($operator_list[$operator]).' "'.$value."'";
+		$error_str = translate('cms_form_rule_regexp_desc_'.($operator ? 'true' : 'false'), $q_asset->attr('name'), $value);
 
 		return $error_str;
 

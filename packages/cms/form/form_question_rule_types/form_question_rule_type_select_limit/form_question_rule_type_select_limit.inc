@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_select_limit.inc,v 1.11 2005/04/29 05:40:29 gsherwood Exp $
+* $Id: form_question_rule_type_select_limit.inc,v 1.12 2005/05/11 06:07:31 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -205,35 +205,7 @@ class Form_Question_Rule_Type_Select_Limit extends Form_Question_Rule
 		$value = array_get_index($rule_data, 'value', '');
 
 		$selected_options = count($q_asset->getValue());
-
-		$error_str = 'You have selected '.$selected_options.' option'.($selected_options == 1 ? '' : 's').' at question "'.$q_asset->attr('name').'" - ';
-
-		switch ($operator) {
-			case '==':
-				$error_str .= ' you must select '.$value;
-			break;
-
-			case '!=':
-				$error_str .= ' you must not select this many';
-			break;
-
-			case '>':
-				$error_str .= ' you must select more than '.$value;
-			break;
-
-			case '>=':
-				$error_str .= ' you must select at least '.$value;
-			break;
-
-			case '<':
-				$error_str .= ' you must select less than '.$value;
-			break;
-
-			case '<=':
-				$error_str .= ' you must select no more than '.$value;
-			break;
-
-		}//end switch
+		$error_str = translate('cms_form_rule_select_limit_error_'.$operator, $selected_options, $value, $q_asset->attr('name'));
 
 		return $error_str;
 
@@ -254,36 +226,7 @@ class Form_Question_Rule_Type_Select_Limit extends Form_Question_Rule
 		$operator = array_get_index($rule_data, 'operator', '==');
 		$value = array_get_index($rule_data, 'value', '');
 
-		$selected_options = count($q_asset->getValue());
-
-		switch ($operator) {
-			case '==':
-				$error_str = 'Must select ';
-			break;
-
-			case '!=':
-				$error_str = 'Must not select ';
-			break;
-
-			case '>':
-				$error_str = 'Must select more than ';
-			break;
-
-			case '>=':
-				$error_str = 'Must select at least ';
-			break;
-
-			case '<':
-				$error_str = 'Must select less than ';
-			break;
-
-			case '<=':
-				$error_str = 'Must select no more than ';
-			break;
-
-		}//end switch
-
-		$error_str .= $value.' option'.($selected_options == 1 ? '' : 's').' at "'.$q_asset->attr('name').'" - ';
+		$error_str = translate('cms_form_rule_select_limit_desc_'.$operator, $value, $q_asset->attr('name'));
 
 		return $error_str;
 

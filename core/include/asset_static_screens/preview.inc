@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: preview.inc,v 1.7 2005/04/06 23:05:34 mmcintyre Exp $
+* $Id: preview.inc,v 1.8 2005/05/11 06:05:11 lwright Exp $
 */
 
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -27,7 +27,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Preview Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix
 */
 
@@ -141,8 +141,8 @@ function paintPreview(&$owner, &$o, &$ei)
 			<?php
 		$o->closeRaw();
 
-		$o->openSection('Preview Options');
-			$o->openField('URL');
+		$o->openSection(translate('preview_options'));
+			$o->openField(translate('url'));
 				if (count($preview_urls) > 1) {
 					combo_box('preview_url', $preview_urls, false, $primary_url);
 				} else {
@@ -150,7 +150,7 @@ function paintPreview(&$owner, &$o, &$ei)
 					hidden_field('preview_url', $primary_url);
 				}
 			$o->closeField();
-			$o->openField('Design');
+			$o->openField(translate('design'));
 				if (count($preview_designs) > 1) {
 					combo_box('preview_design', $preview_designs, false, '');
 				} else {
@@ -158,39 +158,36 @@ function paintPreview(&$owner, &$o, &$ei)
 					hidden_field('preview_design', '');
 				}
 			$o->closeField();
-			$o->openField('Use Cache');
-				check_box('use_cache');
-				echo '&nbsp;show the cached version of this asset';
+			$o->openField(translate('use_cache'));
+				check_box(translate('use_cache'));
+				echo translate('show_cached_asset');
 			$o->closeField();
 			$o->openRaw();
 				?>
-				<i>Press the Preview button after changing preview options.</i>
+				<i><?php echo translate('preview_change_options'); ?></i>
 				<?php
 				if ($contains_diff_domain && !$owner->effectiveUnrestricted()) {
-					?>
-					<div class="sq-backend-warning">
-						<br>
-						NOTE:<br>
-						You may need be presented with a Login screen if you choose a URL from a domain different to <b><?php echo $current_url['host']; ?></b>.<br>
-						Just enter your Username and Password to login as normal.
-					</div>
-					<?php
+					echo translate('different_domain_login', $current_url['host']);
 				}
 			$o->closeRaw();
 			$o->openRaw();
 				?>
 				<p style="text-align: right;">
-					<?php normal_button('preview_button', 'Preview', "set_preview_url()"); ?>
+					<?php normal_button('preview_button', translate('preview'), "set_preview_url()"); ?>
 				</p>
 				<?php
 			$o->closeRaw();
 		$o->closeSection();
 
-		$o->openSection('Preview');
+		$o->openSection(translate('preview'));
 			$o->openRaw('');
+				ob_start();
+					?><a href="<?php echo $primary_url; ?>" id="sq_preview_new_window" target="_blank"><?php echo translate('show_in_new_window'); ?></a><?php
+					$replacements_link = ob_get_contents();
+				ob_get_clean();
 				?>
 				<p class="sq-backend-field">
-					Currently previewing "<?php echo $owner->name; ?>" [<a href="<?php echo $primary_url; ?>" id="sq_preview_new_window" target="_blank">show in new window</a>]
+					<?php echo translate('currently_previewing', $owner->name, $replacements_link); ?>
 				</p>
 				<iframe id="sq_preview_frame" src="<?php echo $primary_url; ?>?no_cache=1" style="width: 100%; height: 400px; border: 1px solid #C3C3C3;"></iframe>
 				<?php
@@ -200,9 +197,9 @@ function paintPreview(&$owner, &$o, &$ei)
 	} else {
 
 		// there is no preview URL available for this asset
-		$o->openSection('No preview available');
+		$o->openSection(translate('no_preview_available'));
 			$o->openField('');
-				echo 'This asset cannot be previewed or does not have a URL assigned to it.';
+				echo translate('asset_cannot_preview');
 			$o->closeField();
 		$o->closeSection();
 

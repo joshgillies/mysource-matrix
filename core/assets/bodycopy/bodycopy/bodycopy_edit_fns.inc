@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_edit_fns.inc,v 1.28 2005/05/06 05:35:36 tbarrett Exp $
+* $Id: bodycopy_edit_fns.inc,v 1.29 2005/05/11 06:04:43 lwright Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -102,14 +102,10 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 				unset($design);
 
 			} else {
-				?>
-				<p class="sq-backend-notice"><b>NOTE:</b> This asset does not have a design applied to it for the URL currently being edited [<b><?php echo $GLOBALS['sq_preview_url']; ?></b>]. No style information is available to use for content editing.</p>
-				<?php
+				$o->note(translate('bodycopy_asset_has_no_design', $GLOBALS['sq_preview_url']));
 			}
 		} else {
-			?>
-			<p class="sq-backend-notice"><b>NOTE:</b> This asset does not have a preview URL or design applied to it in this context. No style information is available to use for content editing.</p>
-			<?php
+			$o->note(translate('bodycopy_asset_has_no_preview'));
 		}
 
 		// get all the containers linked to this bodycopy
@@ -382,7 +378,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 								<?php
 								if ($asset->status & SQ_SC_STATUS_SAFE_EDITING) {
 									?>
-									<td colspan="2"><span class="sq-backend-warning"><b>NOTE:</b> You cannot insert a new Div or Table while in Safe Edit mode</span></td>
+									<td colspan="2"><span class="sq-backend-warning"><?php echo translate('bodycopy_safe_edit_cannot_insert_new'); ?></span></td>
 									<?php
 								} else {
 									?>
@@ -393,7 +389,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 									</td>
 									<td class="sq-backend-data" valign="top">
 										<?php
-										echo '&nbsp;&nbsp;Create New ';
+										echo '&nbsp;&nbsp;'.translate('create_new').' ';
 										echo combo_box($prefix.'_insert_container_type_before_'.$i, $container_type_options, false, '');
 										?>
 									</td>
@@ -431,7 +427,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 							<?php
 							if ($asset->status & SQ_SC_STATUS_SAFE_EDITING) {
 								?>
-								<td colspan="2"><span class="sq-backend-warning"><b>NOTE:</b> You cannot insert a new Div or Table while in Safe Edit mode</span></td>
+								<td colspan="2"><span class="sq-backend-warning"><?php echo translate('bodycopy_safe_edit_cannot_insert_new'); ?></span></td>
 								<?php
 							} else {
 								?>
@@ -442,7 +438,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 								</td>
 								<td class="sq-backend-data" valign="top">
 									<?php
-									echo '&nbsp;&nbsp;Create New ';
+									echo '&nbsp;&nbsp;'.translate('create_new').' ';
 									echo combo_box($prefix.'_insert_container_type_after_'.$i, $container_type_options, false, '');
 									?>
 								</td>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job.inc,v 1.69 2005/04/20 00:51:59 ndvries Exp $
+* $Id: hipo_job.inc,v 1.70 2005/05/11 06:05:07 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_DATA_PATH.'/private/conf/hipo.inc';
 * Highly Intensive Processing Object (HIPO)
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.69 $
+* @version $Revision: 1.70 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -944,12 +944,12 @@ class HIPO_Job extends MySource_Object
 				$status_msg = $this->_steps[$step]['name'];
 			} else {
 				// this step doesnt exist - probably reached the end of the HIPO
-				$status_msg = ($this->complete())?'Complete':'Unknown Error Occured';
+				$status_msg = ($this->complete())? translate('completed'):translate('unknown_error_uccored');
 			}
 
 			$o->openSection($this->hipo_name);
 				$o->openField('&nbsp;');
-				HIPO_Job::paintProgressBar($this->_hipo_vars['percent_done'], $this->hipo_name.' HIPO Progress - '.$status_msg);
+				HIPO_Job::paintProgressBar($this->_hipo_vars['percent_done'], $this->hipo_name.' '.translate('hipo_progress').' - '.$status_msg);
 				$o->closeField();
 			$o->closeSection();
 		}
@@ -1372,9 +1372,9 @@ class HIPO_Job extends MySource_Object
 		<table border="0" cellspacing="1" cellpadding="1" bgcolor="#000000" width="95%">
 			<tr>
 				<td bgcolor="#412F49" align="center" width="100%">
-					<span style="color: #FFFFFF;"><b><?php echo $this->hipo_name;?> HIPO Error Report</b><br />
+					<span style="color: #FFFFFF;"><b><?php echo $this->hipo_name.' '.translate('hipo_error_report');?></b><br />
 						<span style="font-size: 80%;">
-						( HIPO job was <?php if (!$this->complete()) echo 'not '; ?>completed )
+						<?php echo translate('hipo_herder_completion', (!$this->complete()) ? translate('not'):''); ?>
 						</span>
 					</span>
 				</td>
@@ -1384,7 +1384,7 @@ class HIPO_Job extends MySource_Object
 					<table border="0" width="100%" cellspacing="2" cellpadding="1">
 					<?php
 						foreach ($this->_hipo_vars['errors'] as $error) {
-							$err_type = ($error['warning'])?'WARNING: ':'ERROR: ';
+							$err_type = ($error['warning'])?translate('warning').': ':translate('error').': ';
 							?>
 							<tr>
 								<td align="left" valign="top">
@@ -1393,7 +1393,7 @@ class HIPO_Job extends MySource_Object
 									</b>
 									<?php echo $error['message']; ?>
 									<br/>
-									<span class="sq-hipo-small">Reported <?php echo readable_datetime($error['time']);?></span>
+									<span class="sq-hipo-small"><?php echo translate('reported'); ?> <?php echo readable_datetime($error['time']);?></span>
 									<hr/>
 								</td>
 							</tr>
@@ -1405,7 +1405,7 @@ class HIPO_Job extends MySource_Object
 			</tr>
 			<tr>
 				<td bgcolor="#412F49" align="right">
-					<b><a style="color: #FFFFFF; text-decoration: none;" href="<?php echo $this->_options['on_complete_url']; ?>">Continue >>&nbsp;</a>
+					<b><a style="color: #FFFFFF; text-decoration: none;" href="<?php echo $this->_options['on_complete_url']; ?>"><?php echo translate('continue'); ?> >>&nbsp;</a>
 				</td>
 			</tr>
 		</table>

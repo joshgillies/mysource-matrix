@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_status.inc,v 1.9 2005/04/20 04:20:36 gsherwood Exp $
+* $Id: trigger_action_set_status.inc,v 1.10 2005/05/11 06:05:03 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -124,9 +124,12 @@ class Trigger_Action_Set_Status extends Trigger_Action
 		}
 
 		ob_start();
-			echo 'Set the Asset\'s status to: ';
 			combo_box($prefix.'[status]', $status_list, false, $selected_status, null, $form_element_extras);
-		return ob_get_clean();
+			$basic_part_1 = ob_get_contents();
+		ob_end_clean();
+
+
+		return translate('trigger_set_status', $basic_part_1);
 
 	}//end getInterface()
 

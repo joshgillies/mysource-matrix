@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_modification.inc,v 1.17 2005/04/29 05:39:19 gsherwood Exp $
+* $Id: calendar_event_modification.inc,v 1.18 2005/05/11 06:07:20 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once  dirname(__FILE__).'/../calendar_event_recurring/calendar_event_rec
 * of a recurring event have changed for a particular instance of that event.
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -178,7 +178,7 @@ class Calendar_Event_Modification extends Calendar_Event
 		?>
 		<table border="0" cellspacing="2" cellpadding="2">
 			<tr>
-				<td><b>Modification of </b></td>
+				<td><b><?php echo translate('cal_event_modification_of'); ?></b></td>
 				<td><?php
 				// get the parent recurring event asset
 				if ($recurring_events = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'calendar_event_recurring', false)) {
@@ -188,19 +188,19 @@ class Calendar_Event_Modification extends Calendar_Event
 				}?></td>
 			</tr>
 			<tr>
-				<td><b>Start Date of modified instance</b></td>
+				<td><b><?php echo translate('cal_event_modified_start_date'); ?></b></td>
 				<td><?php echo $this->getFriendlyStart(); ?></td>
 			</tr>
 			<tr>
-				<td><b>End Date of modified instance</b></td>
+				<td><b><?php echo translate('cal_event_modified_end_date'); ?></b></td>
 				<td><?php echo $this->getFriendlyEnd(); ?></td>
 			</tr>
 			<tr>
-				<td><b>Modified Name</b></td>
+				<td><b><?php echo translate('cal_event_modified_name'); ?></b></td>
 				<td><?php echo $this->attr('name'); ?></td>
 			</tr>
 			<tr>
-				<td><b>Modified Description</b></td>
+				<td><b><?php echo translate('cal_event_modified_description'); ?></b></td>
 				<td><?php echo $this->attr('description'); ?></td>
 			</tr>
 		</table>

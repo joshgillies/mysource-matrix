@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: email_format.inc,v 1.15 2005/04/29 01:51:23 lwright Exp $
+* $Id: email_format.inc,v 1.16 2005/05/11 06:05:06 lwright Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_ATTRIBUTES_PATH.'/wysiwyg/wysiwyg.inc';
 *    <email_format />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -100,7 +100,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 			</script>
 			<table border="0">
 				<tr>
-					<td align="right" valign="top"><b>To</b></td>
+					<td align="right" valign="top"><b><?php echo translate('to'); ?></b></td>
 					<td valign="top">
 						<?php
 						foreach ($current_value['to'] as $email) {
@@ -110,15 +110,15 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 					</td>
 				</tr>
 				<tr>
-					<td align="right" valign="top"><b>From</b></td>
+					<td align="right" valign="top"><b><?php echo translate('from'); ?></b></td>
 					<td valign="top"><?php echo htmlspecialchars($current_value['from']); ?></td>
 				</tr>
 				<tr>
-					<td align="right" valign="top"><b>Subject</b></td>
+					<td align="right" valign="top"><b><?php echo translate('subject'); ?></b></td>
 					<td valign="top"><?php echo $current_value['subject']; ?></td>
 				</tr>
 				<tr>
-					<td align="right" valign="top"><b>Body</b></td>
+					<td align="right" valign="top"><b><?php echo translate('body'); ?></b></td>
 					<td>
 						<table style="width:100%;">
 							<tr>
@@ -129,7 +129,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 												<a href="Javascript: emailFormatSwitchEditingMode('<?php echo $prefix; ?>');"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib')?>/web/images/icons/edit_mode.png", "16", "16", "[Toggle Editing Mode]");</script></a>
 											</td>
 											<td align="right" nowrap="nowrap">
-												<span id="<?php echo $prefix; ?>_format_mode">Text Email Version</span>
+												<span id="<?php echo $prefix; ?>_format_mode"><?php echo translate('text_email_version'); ?></span>
 											</td>
 										</tr>
 									</table>
@@ -294,15 +294,15 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 				</td>
 			</tr>
 			<tr>
-				<td align="right" valign="top"><b>From</b></td>
+				<td align="right" valign="top"><b><?php echo translate('from'); ?></b></td>
 				<td valign="top"><?php text_box($prefix.'_from', $current_value['from'], 50); ?></td>
 			</tr>
 			<tr>
-				<td align="right" valign="top"><b>Subject</b></td>
+				<td align="right" valign="top"><b><?php echo translate('subject'); ?></b></td>
 				<td valign="top"><?php text_box($prefix.'_subject', $current_value['subject'], 80); ?></td>
 			</tr>
 			<tr>
-				<td align="right" valign="top"><b>Body</b></td>
+				<td align="right" valign="top"><b><?php echo translate('body'); ?></b></td>
 				<td>
 					<table style="width:100%;">
 						<tr>
@@ -313,7 +313,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 											<a href="Javascript: emailFormatSwitchEditingMode('<?php echo $prefix; ?>');"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib')?>/web/images/icons/edit_mode.png", "16", "16", "");</script></a>
 										</td>
 										<td align="right" nowrap="nowrap">
-											<span id="<?php echo $prefix; ?>_format_mode">Text Email Version</span>
+											<span id="<?php echo $prefix; ?>_format_mode"><?php echo translate('text_email_version'); ?></span>
 										</td>
 									</tr>
 								</table>

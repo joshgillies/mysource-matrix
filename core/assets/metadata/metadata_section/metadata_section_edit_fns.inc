@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_section_edit_fns.inc,v 1.27 2005/04/20 00:51:59 ndvries Exp $
+* $Id: metadata_section_edit_fns.inc,v 1.28 2005/05/11 06:04:52 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -74,15 +74,15 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 			$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($assetids));
 			$asset_href = $GLOBALS['SQ_SYSTEM']->am->getAssetBackendHref($assetids);
 
-			$o->openField('Fields');
+			$o->openField(translate('fields'));
 				?>
 				<table class="sq-backend-table">
 					<tr>
-						<td class="sq-backend-table-header"><b>Field Name</b></td>
-						<td align="center" width="150" class="sq-backend-table-header"><b>Edit Field</b></td>
+						<td class="sq-backend-table-header"><b><?php echo translate('field_name'); ?></b></td>
+						<td align="center" width="150" class="sq-backend-table-header"><b><?php echo translate('edit_fields'); ?></b></td>
 						<?php
 						if ($write_access) {
-							?><td align="center" width="70" class="sq-backend-table-header"><b>Delete ?</b></td><?php
+							?><td align="center" width="70" class="sq-backend-table-header"><b><?php echo translate('delete_question'); ?></b></td><?php
 						}
 						?>
 					</tr>
@@ -94,7 +94,7 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 					?>
 					<tr>
 						<td align="left" class="sq-backend-table-cell"><?php echo $field->name;?></td>
-						<td align="center" class="sq-backend-table-cell">[ <a href="<?php echo $asset_href[$field->id];?>">Edit Metadata Field</a> ]</td>
+						<td align="center" class="sq-backend-table-cell">[ <a href="<?php echo $asset_href[$field->id];?>"><?php echo translate('metadata_edit_fields'); ?></a> ]</td>
 					<?php
 					if ($write_access) {
 						?><td align="center" class="sq-backend-table-cell"><?php
@@ -108,14 +108,14 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 		}
 
 		if ($write_access) {
-			$o->openField('New Field Name');
+			$o->openField(translate('new_field_name'));
 
 				require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 				text_box($prefix.'_new_field', '', 20);
 
 			$o->closeField();
 
-			$o->openField('New Field Type');
+			$o->openField(translate('new_field_type'));
 
 				// now getting available types list
 				$descendant_types = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('metadata_field');
@@ -204,8 +204,8 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 		if ($write_access) {
 			if (isset($asset->_tmp['painted_inline_value_interface'])) {
 				// this is the second time we have painted this interface
-				$o->openField('Please Note');
-					echo '<span class="sq-backend-warning"><b>The editing interface for this metadata section has already been shown above. The current metadata values are displayed below but cannot be edited. To edit these metadata values, please use the editing interface displayed above.</b></span>';
+				$o->openField(translate('please_note'));
+					echo '<span class="sq-backend-warning"><b>'.translate('metadata_use_editing_interface').'</b></span>';
 				$o->closeField();
 				$write_access = false;
 			} else {

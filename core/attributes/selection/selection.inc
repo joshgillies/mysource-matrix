@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: selection.inc,v 1.40 2005/05/05 13:46:01 brobertson Exp $
+* $Id: selection.inc,v 1.41 2005/05/11 06:05:07 lwright Exp $
 *
 */
 
@@ -40,7 +40,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *   <selection style="boxes" columns="1" extras="" />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -117,7 +117,7 @@ class Asset_Attribute_Selection extends Asset_Attribute
 		?>
 		<table class="sq-backend-table">
 			<tr>
-				<td class="sq-backend-section-heading" style="width: 100px;">Style</td>
+				<td class="sq-backend-section-heading" style="width: 100px;"><?php echo translate('style'); ?></td>
 				<td class="sq-backend-table-cell">
 					<?php
 					if ($write_access) combo_box($prefix.'_style', $searchStyles, false, $this->_edit_params['style']);
@@ -126,7 +126,7 @@ class Asset_Attribute_Selection extends Asset_Attribute
 				</td>
 			</tr>
 			<tr>
-				<td class="sq-backend-section-heading" style="width: 100px;">Height</td>
+				<td class="sq-backend-section-heading" style="width: 100px;"><?php echo translate('height'); ?></td>
 				<td class="sq-backend-table-cell">
 					<?php
 					if ($write_access) text_box($prefix.'_height', $this->_edit_params['height']);
@@ -135,7 +135,7 @@ class Asset_Attribute_Selection extends Asset_Attribute
 				</td>
 			</tr>
 			<tr>
-				<td class="sq-backend-section-heading" style="width: 100px;">Columns</td>
+				<td class="sq-backend-section-heading" style="width: 100px;"><?php echo translate('columns'); ?></td>
 				<td class="sq-backend-table-cell">
 					<?php
 					if ($write_access) text_box($prefix.'_columns', $this->_edit_params['columns']);
@@ -147,7 +147,7 @@ class Asset_Attribute_Selection extends Asset_Attribute
 			if ($this->_params['allow_empty']) {
 				?>
 				<tr>
-					<td class="sq-backend-section-heading" style="width: 100px;">Empty Text</td>
+					<td class="sq-backend-section-heading" style="width: 100px;"><?php echo translate('empty_text'); ?></td>
 					<td class="sq-backend-table-cell">
 						<?php
 						if ($write_access) text_box($prefix.'_empty', $this->_edit_params['empty_text']);

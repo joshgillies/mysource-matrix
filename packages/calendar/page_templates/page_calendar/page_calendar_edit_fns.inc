@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_edit_fns.inc,v 1.27 2005/04/29 05:39:19 gsherwood Exp $
+* $Id: page_calendar_edit_fns.inc,v 1.28 2005/05/11 06:07:21 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -62,8 +62,8 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 		?>
 		<table class="sq-backend-table">
 			<tr>
-				<td class="sq-backend-table-header">Location to draw events from</td>
-				<td class="sq-backend-table-header">CSS Class to apply to the events' display</td>
+				<td class="sq-backend-table-header"><?php echo translate('cal_page_event_location'); ?></td>
+				<td class="sq-backend-table-header"><?php echo translate('cal_page_event_css_class'); ?></td>
 			</tr>
 		<?php
 		$locations = $asset->attr('root_nodes');
@@ -153,14 +153,18 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	{
 		$write_access = $asset->writeAccess('attributes');
 		$current_views = $asset->attr('enabled_views');
-		$listing_entry_options = Array('title'=>'show title only', 'bodycopy'=>'use type format bodycopy');
+		$listing_entry_options = Array(
+										'title'		=> translate('cal_page_show_title_only'),
+										'bodycopy'	=> translate('cal_page_use_type_format_bodycopy'),
+								 );
+
 		$current_list_entry_types = $asset->attr('list_entry_types');
 		?><table class="sq-backend-table"><?php
 		foreach ($asset->view_options as $category => $options) {
 			?>
 			<tr>
 				<td class="sq-backend-table-cell">
-					<b><label for="<?php echo $prefix.'_enabled_views['.$category.']'; ?>"><?php echo ucwords($category); ?> View</label></b>
+					<b><label for="<?php echo $prefix.'_enabled_views['.$category.']'; ?>"><?php echo translate('cal_page_category_view', ucwords($category)); ?></label></b>
 				</td>
 				<td class="sq-backend-table-cell"><?php
 					if ($write_access) {
@@ -171,10 +175,14 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 				</td>
 				<td class="sq-backend-table-cell"><?php
 					if ($write_access && (strpos($current_views[$category], 'list') !== FALSE)) {
-						echo 'For each list entry, ';
+						ob_start();
 						combo_box($prefix.'_list_entry_types['.$category.']', $listing_entry_options, 0,  $current_list_entry_types[$category], 0);
+						$list_entry_cb = ob_get_contents();
+						ob_end_clean();
+						echo translate('cal_page_list_entry_cb', $list_entry_cb);
+
 					} else if (strpos($current_views[$category], 'list') !== FALSE) {
-						echo 'each entry shows  '.$listing_entry_options[$current_list_entry_types[$category]];
+						echo translate('cal_page_list_entry_unlocked', $listing_entry_options[$current_list_entry_types[$category]]);
 					} else {
 						echo '&nbsp;';
 					}?>
@@ -516,13 +524,11 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	function paintLookAndFeel(&$asset, &$o, $prefix)
 	{
 		?>
-		<p style="width: 80%; margin-left: 15ex">The Calendar Page has a default CSS file that controls the look and feel of the Calendar views.  A link to this CSS file is automatically
-		inserted into the head of the generated HTML document.</p>
+		<p style="width: 80%; margin-left: 15ex"><?php echo translate('cal_page_look_and_feel_1'); ?></p>
 
-		<p style="width: 80%; margin-left: 15ex">If you want to customise some or all of the style rules you can <a href="<?php echo sq_web_path('data')?>/asset_types/page_calendar/css/calendar_default.css">download the default CSS file</a> and modify it.  Put a link to your modified version in the parse file of
-		the design that applies to this page, <i>after</i> the "head" design area tag.</p>
+		<p style="width: 80%; margin-left: 15ex"><?php echo translate('cal_page_look_and_feel_2', sq_web_path('data').'/asset_types/page_calendar/css/calendar_default.css'); ?></p>
 
-		<p style="width: 80%; margin-left: 15ex"><b>Note:</b>For week and day view calendar tables to render correctly, your site design <i>must</i> put the browser in a mode that correctly implements the W3C box model, eg by specifying the xhtml strict doctype.</p>
+		<p style="width: 80%; margin-left: 15ex"><?php echo translate('cal_page_look_and_feel_3'); ?></p>
 		<?php
 
 	}//end paintLookAndFeel()
@@ -697,7 +703,7 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 		$title_formats = $asset->attr('view_title_formats');
 		if ($asset->writeAccess('attributes')) {
 			text_box($prefix.'_title_format_'.$view, $title_formats[$view]);
-			?><div class="sq-backend-smallprint">The date format to use in this view's title, expressed using the date format symbols from the <a target="_blank" href="http://au.php.net/manual/en/function.date.php">PHP date function</a><?php
+			?><div class="sq-backend-smallprint"><?php echo translate('cal_page_paint_title_format', 'http://au.php.net/manual/en/function.date.php'); ?><?php
 		} else {
 			echo $title_formats[$view].'  ("'.date($title_formats[$view], ((($view == 'week') && (date('D') != 'Mon')) ? strtotime('last Monday') : time())).'")';
 		}
@@ -749,8 +755,8 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 		?>
 		<table class="sq-backend-table">
 			<tr>
-				<td class="sq-backend-table-header">Event Source</td>
-				<td class="sq-backend-table-header">Show in Own Column?</td>
+				<td class="sq-backend-table-header"><?php echo translate('cal_page_event_source'); ?></td>
+				<td class="sq-backend-table-header"><?php echo translate('cal_page_show_in_own_column_question'); ?></td>
 			</tr>
 		<?php
 		foreach ($all_root_nodes as $id => $details) {

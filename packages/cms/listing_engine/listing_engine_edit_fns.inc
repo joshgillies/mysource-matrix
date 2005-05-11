@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.11 2005/05/03 07:01:17 tbarrett Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.12 2005/05/11 06:07:32 lwright Exp $
 *
 */
 
@@ -40,7 +40,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 * @author  David Heppell <dheppell@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -83,20 +83,20 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		} else {
 			// print the read-only version
 			if (empty($types)) {
-				echo '<p style="color: red">No asset types have been chosen</p>';
+				echo '<p class="sq-backend-warning">'.translate('cms_listing_no_asset_types_chosen').'</p>';
 			} else {
 				$type_names = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo(array_keys($types), 'name');
 				?>
 					<table class="sq-backend-table">
 						<tr>
-							<th>Type</th>
-							<th>Inherit?</th>
+							<th><?php echo translate('type') ?></th>
+							<th><?php echo translate('inherit_question') ?></th>
 						</tr>
 				<?php
 				$inherit_image_path = sq_web_path('lib').'/web/images/';
 				foreach ($types as $type => $inherit) {
 					$inherit_image = $inherit_image_path.($inherit ? 'tick' : 'cross').'.gif';
-					$inherit_alt = $inherit ? 'Yes' : 'No';
+					$inherit_alt = $inherit ? translate('yes') : translate('no');
 					?>
 						<tr>
 							<td><?php echo $type_names[$type]; ?></td>
@@ -183,11 +183,11 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 			?>
 			<table class="sq-backend-table">
 				<tr>
-					<td class="sq-backend-table-header">Position</td>
-					<td class="sq-backend-table-header">Asset</td>
+					<td class="sq-backend-table-header"><?php echo translate('position'); ?></td>
+					<td class="sq-backend-table-header"><?php echo translate('asset'); ?></td>
 					<?php
 					if ($write_access) {
-						?><td class="sq-backend-table-header">Delete?</td><?php
+						?><td class="sq-backend-table-header"><?php echo translate('delete_question'); ?></td><?php
 					}
 					?>
 				</tr>
@@ -203,7 +203,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 							} else {
 								$info = array_get_index($asset_info, $assetid, Array());
 								if (empty($info)) {
-									echo 'Unknown asset';
+									echo translate('unknown_asset');
 								} else {
 									echo $info['short_name'].' (#'.$assetid.')';
 								}
@@ -228,11 +228,11 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 			</table>
 			<?php
 		} else {
-			echo 'There are no asset positions defined. All assets will be listed using the sorting settings.';
+			echo translate('cms_listing_no_positions_defined');
 		}
 
 		if ($write_access) {
-			echo '<p><b>New Asset Position: </b>';
+			echo '<p><b>'.translate('cms_listing_new_asset_position').'</b> ';
 			text_box($prefix.'_new_asset_position_pos', '', 5);
 			echo ' ';
 			asset_finder($prefix.'_new_asset_position_asset', '', Array('asset' => 'D'));
@@ -301,12 +301,12 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		?>
 		<table class="sq-backend-table">
 			<tr>
-				<td class="sq-backend-table-header">Row</td>
-				<td class="sq-backend-table-header">Column(s)</td>
+				<td class="sq-backend-table-header"><?php echo translate('row'); ?></td>
+				<td class="sq-backend-table-header"><?php echo translate('column(s)'); ?></td>
 				<?php
 				if ($write_access) {
 					?>
-					<td class="sq-backend-table-header">Delete ?</td>
+					<td class="sq-backend-table-header"><?php echo translate('delete_question') ?></td>
 					<?php
 				}
 				?>
@@ -343,7 +343,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 			?>
 			<tr>
-				<td class="sq-backend-table-cell">All remaining</td>
+				<td class="sq-backend-table-cell"><?php echo translate('cms_listing_all_remaining'); ?></td>
 				<td class="sq-backend-table-cell">
 					<?php
 					if ($write_access) {
@@ -364,10 +364,10 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 		if ($write_access) {
 			$o->closeField();
-			$o->openField('Customise Row');
-				echo 'row ';
+			$o->openField(translate('cms_listing_customise_row'));
+				echo strtolower(translate('row')).' ';
 				text_box($prefix.'_new_row', '', 5);
-				echo ' columns ';
+				echo ' '.strtolower(translate('columns')).' ';
 				text_box($prefix.'_new_column', '', 5);
 			// field closed by asset_edit_interface
 		}
@@ -464,10 +464,10 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 			?>
 			<tr>
 				<td class="sq-backend-table-cell" style="text-align: center;" colspan="<?php echo $num_columns; ?>">
-					All remaining rows will have <?php echo $column_layout[0]; ?> column(s)
+					<?php echo translate('cms_listing_column_all_remaining_rows', $column_layout[0]); ?>
 					<?php
 					if ($num_per_page > 0 && $cell_num > $num_per_page) {
-						echo '<br /><b>Note: This asset has been configured to list '.$num_per_page.' assets per page, so the highlighted cells will not be displayed</b>';
+						echo '<br /><b>'.translate('cms_listing_column_page_note', $num_per_page).'</b>';
 					}
 					?>
 				</td>
@@ -510,8 +510,8 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		?>
 		<table class="sq-backend-table">
 			<tr>
-				<td class="sq-backend-table-header">Edit Format</td>
-				<td class="sq-backend-table-header">Note</td>
+				<td class="sq-backend-table-header"><?php echo translate('edit_format') ?></td>
+				<td class="sq-backend-table-header"><?php echo translate('note') ?></td>
 			</tr>
 			<?php
 			$link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'page_contents');
@@ -521,10 +521,10 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				?>
 				<tr>
 					<td class="sq-backend-table-cell">
-						<a href="<?php echo $href[$link['minorid']]; ?>">Page Contents Bodycopy</a>
+						<a href="<?php echo $href[$link['minorid']]; ?>"><?php echo translate('cms_page_contents_bodycopy') ?></a>
 					</td>
 					<td class="sq-backend-table-cell">
-						This format defines the layout of the page. Ensure you use the %asset_listing% keyword to include the list of assets on the page.
+						<?php echo translate('cms_listing_page_contents_desc') ?>
 					</td>
 				</tr>
 				<?php
@@ -538,10 +538,10 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				?>
 				<tr>
 					<td class="sq-backend-table-cell">
-						<a href="<?php echo $href[$link['minorid']]; ?>">Default Asset Format</a>
+						<a href="<?php echo $href[$link['minorid']]; ?>"><?php echo translate('cms_listing_default_asset_format'); ?></a>
 					</td>
 					<td class="sq-backend-table-cell">
-						This is the default format for all assets in the list if they do not have a customised format for their asset type or position.
+						<?php echo translate('cms_listing_default_asset_desc') ?>
 					</td>
 				</tr>
 				<?php
@@ -575,12 +575,12 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 			?>
 			<table class="sq-backend-table">
 				<tr>
-					<td class="sq-backend-table-header">Asset Type</td>
-					<td class="sq-backend-table-header">Edit Format</td>
+					<td class="sq-backend-table-header"><?php echo translate('asset_type') ?></td>
+					<td class="sq-backend-table-header"><?php echo translate('edit_format') ?></td>
 					<?php
 					if ($write_access) {
 						?>
-						<td class="sq-backend-table-header">Delete?</td>
+						<td class="sq-backend-table-header"><?php echo translate('delete_question') ?></td>
 						<?php
 					}
 					?>
@@ -601,7 +601,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 						</td>
 						<td class="sq-backend-table-cell">
 							<?php
-							echo '<a href="'.$href[$minorid].'">'.$type_name.' Format</a>';
+							echo '<a href="'.$href[$minorid].'">'.translate('cms_listing_type_format', $type_name).'</a>';
 							?>
 						</td>
 						<?php
@@ -622,7 +622,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 			</table>
 			<?php
 		} else {
-			echo 'There are no custom type formats defined';
+			echo translate('cms_listing_no_type_formats');
 		}//end if cutomised formats
 
 		if ($write_access) {
@@ -632,7 +632,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				$new_format_options[$type] = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type, 'name');
 			}
 			if (count($new_format_options) > 1) {
-				echo '<p><b>New Type Format: <b>';
+				echo '<p><b>'.translate('cms_listing_new_type_format').'</b> ';
 				combo_box($prefix.'_new_type', $new_format_options, false, '');
 				echo '</p>';
 			}
@@ -732,11 +732,11 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 			?>
 			<table class="sq-backend-table">
 				<tr>
-					<td class="sq-backend-table-header">Position</td>
-					<td class="sq-backend-table-header">Edit Format</td>
+					<td class="sq-backend-table-header"><?php echo translate('position') ?></td>
+					<td class="sq-backend-table-header"><?php echo translate('edit_format') ?></td>
 					<?php
 					if ($write_access) {
-						?><td class="sq-backend-table-header">Delete?</td><?php
+						?><td class="sq-backend-table-header"><?php echo translate('delete_question') ?></td><?php
 					}
 					?>
 				</tr>
@@ -754,7 +754,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 						</td>
 						<td class="sq-backend-table-cell">
 							<?php
-							echo '<a href="'.$href[$minorid].'">Position '.$position.' Format</a>';
+							echo '<a href="'.$href[$minorid].'">'.translate('cms_listing_position_number_format', $position).'</a>';
 							?>
 						</td>
 						<?php
@@ -775,11 +775,11 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 			</table>
 			<?php
 		} else {
-			echo 'There are no custom position formats defined';
+			echo translate('cms_listing_no_position_formats');
 		}
 
 		if ($write_access) {
-			echo '<p><b>New Position Format: </b>';
+			echo '<p><b>'.translate('cms_listing_new_position_format').'</b> ';
 			text_box($prefix.'_new_position', '', 5);
 			echo '</p>';
 		}
@@ -834,7 +834,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				$copy_link = Array('asset' => &$folder, 'value' => 'position_'.$new_position, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 
 				$bodycopy = new Bodycopy();
-				$bodycopy->setAttrValue('name', 'Position '.$new_position.' Format');
+				$bodycopy->setAttrValue('name', translate('cms_listing_position_number_format', $new_position));
 
 				if (!$bodycopy->create($copy_link)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -869,20 +869,20 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		$sort_by_list    = $asset->attr('sort_by');
 		$sort_by_options = $this->_getSortByOptions($asset);
 
-		$o->openField('New Sort By Field');
+		$o->openField(translate('cms_listing_new_sort_by_field'));
 
 			if ($asset->attr('group_by') == 'random') {
-				echo 'Random list format is currently selected. Sorting is disabled.';
+				echo translate('cms_listing_random_selected_no_sort');
 				return false;
 			} else {
 				$sort_by_options = $this->_getSortByOptions($asset);
-				$sort_by_options[''] = '-- Select --';
+				$sort_by_options[''] = '-- '.translate('select').' --';
 			}
 
 			if ($write_access) {
-				echo ' Name ';
+				echo ' '.translate('name').' ';
 				text_box($prefix.'_name', '');
-				echo ' Sort By ';
+				echo ' '.translate('sort_by').' ';
 				combo_box($prefix.'_sort_by', $sort_by_options, false, '');
 			}
 
@@ -894,7 +894,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				return $write_access;
 			}
 
-			$o->openSection('Sort By Asset Field');
+			$o->openSection(translate('cms_listing_sort_by_asset_field'));
 				$o->openField('');
 
 					$fields = Array();
@@ -910,10 +910,10 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 						?>
 						<table class="sq-backend-table">
 							<tr>
-								<td class="sq-backend-table-header" style="width: 200px;">Asset Field</td>
-								<td class="sq-backend-table-header">Display Name</td>
+								<td class="sq-backend-table-header" style="width: 200px;"><?php echo translate('asset_field'); ?></td>
+								<td class="sq-backend-table-header"><?php echo translate('display_name') ?></td>
 								<td class="sq-backend-table-header">&nbsp;</td>
-								<td class="sq-backend-table-header" style="width: 200px;">Remove?</td>
+								<td class="sq-backend-table-header" style="width: 200px;"><?php echo translate('remove_question'); ?></td>
 							</tr>
 						<?php
 
@@ -952,13 +952,13 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 						</table>
 					<?php
 					} else {
-						echo 'There are no sort by asset field options';
+						echo translate('cms_listing_no_field_sort_options');
 					}
 
 				$o->closeField();
 			$o->closeSection();
 
-			$o->openSection('Sort By Attribute');
+			$o->openSection(translate('cms_listing_sort_by_attribute'));
 				$o->openField('');
 
 					$attrs = Array();
@@ -973,10 +973,10 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 						?>
 						<table class="sq-backend-table">
 							<tr>
-								<td class="sq-backend-table-header" style="width: 200px;">Asset Type</td>
-								<td class="sq-backend-table-header">Display Name</td>
-								<td class="sq-backend-table-header">Attribute Name</td>
-								<td class="sq-backend-table-header" style="width: 200px;">Remove?</td>
+								<td class="sq-backend-table-header" style="width: 200px;"><?php echo translate('asset_type'); ?></td>
+								<td class="sq-backend-table-header"><?php echo translate('display_name') ?></td>
+								<td class="sq-backend-table-header"><?php echo translate('attribute_name'); ?></td>
+								<td class="sq-backend-table-header" style="width: 200px;"><?php echo translate('remove_question'); ?></td>
 								</tr>
 							<?php
 
@@ -1033,7 +1033,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 							</table>
 						<?php
 					} else {
-						echo 'There are no sort by attribute options';
+						echo translate('cms_listing_no_attribute_sort_options');
 					}
 
 				$o->closeField();
@@ -1160,10 +1160,10 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		$write_access = $asset->writeAccess('attributes');
 		$sort_by_list = $asset->attr('sort_by');
 
-		$o->openField('Default Sort By Option');
+		$o->openField(translate('cms_listing_default_sort_by_option'));
 
 			if (empty($sort_by_list)) {
-				echo 'There are no sort by options';
+				echo translate('cms_listing_no_sort_by_options');
 				return false;
 			}
 
@@ -1227,7 +1227,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 		if (empty($sort_by_list)) return false;
 
-		$o->openField('List Sort Order');
+		$o->openField(translate('cms_listing_list_sort_order'));
 
 			?>
 			<script language="JavaScript">
@@ -1292,10 +1292,10 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 			</script>
 			<table class="sq-backend-table" style="width: 50%">
 				<tr>
-					<td class="sq-backend-table-header">Sort Option Name</td>
+					<td class="sq-backend-table-header"><?php echo translate('cms_listing_sort_option_name'); ?></td>
 					<?php
 						if ($write_access) {
-							?><td class="sq-backend-table-header">Order</td><?php
+							?><td class="sq-backend-table-header"><?php echo translate('order'); ?></td><?php
 						}
 				?>
 				</tr>
@@ -1314,11 +1314,11 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 									<td class="sq-backend-table-cell">
 										<?php
 											if ($i != 0) {
-												?><a href="#" onclick="sortOrderMoveUp(<?php echo $id ?>); return false;"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/up_arrow.png' ?>", "16", "16", "Move Up");</script></a><?php
+												?><a href="#" onclick="sortOrderMoveUp(<?php echo $id ?>); return false;"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/up_arrow.png' ?>", "16", "16", "<?php echo translate('move_up'); ?>");</script></a><?php
 											}
 
 											if ($i != count($sort_by_list) - 1) {
-												?><a href="#" onclick="sortOrderMoveDown(<?php echo $id ?>); return false;"><img src="<?php echo sq_web_path('lib').'/web/images/icons/down_arrow.png' ?>" width="16" height="16" border="0"alt="Move Down" /></a><?php
+												?><a href="#" onclick="sortOrderMoveDown(<?php echo $id ?>); return false;"><img src="<?php echo sq_web_path('lib').'/web/images/icons/down_arrow.png' ?>" width="16" height="16" border="0"alt="<?php echo translate('move_down'); ?>" /></a><?php
 											}
 											?>
 									</td>
@@ -1447,22 +1447,21 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	{
 		if ($asset->attr('group_by') == 'letter') {
 			return Array(
-					''				=> '-- No Sorting --',
-					'name'			=> 'Name',
-					'short_name'	=> 'Short Name',
+						'' 				=> '-- '.translate('no_sorting').' --',
+						'name'			=> translate('name'),
+						'short_name'	=> translate('short_name'),
 				   );
-
 		} else {
 			return Array(
-					''				=> '-- No Sorting --',
-					'assetid'		=> 'Asset ID',
-					'version'		=> 'Version',
-					'name'			=> 'Name',
-					'short_name'	=> 'Short Name',
-					'created'		=> 'Created Date',
-					'updated'		=> 'Last Updated Date',
-					'published'		=> 'Last Published Date',
-					'asset_attrib'	=> 'Asset Attribute...',
+						'' 				=> '-- '.translate('no_sorting').' --',
+						'assetid'		=> translate('asset_id'),
+						'version'		=> translate('version'),
+						'name'			=> translate('name'),
+						'short_name'	=> translate('short_name'),
+						'created'		=> translate('created_date'),
+						'updated'		=> translate('last_updated_date'),
+						'published'		=> translate('last_published_date'),
+						'__attr__'		=> translate('cms_listing_asset_attribute(s)'),
 				   );
 		}
 

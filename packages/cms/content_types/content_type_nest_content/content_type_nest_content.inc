@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content.inc,v 1.20 2005/04/29 05:40:28 gsherwood Exp $
+* $Id: content_type_nest_content.inc,v 1.21 2005/05/11 06:07:29 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -86,7 +86,7 @@ class Content_Type_Nest_Content extends Content_Type
 	{
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
 		if ($link['value'] == 'nested_asset') {
-			return 'The asset being nested in a nest content cell';
+			return translate('cms_ct_nest_content_link_desc');
 		}
 
 	}//end describeLink()

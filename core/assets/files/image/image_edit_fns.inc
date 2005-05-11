@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_edit_fns.inc,v 1.36 2005/04/15 00:37:25 lwright Exp $
+* $Id: image_edit_fns.inc,v 1.37 2005/05/11 06:04:51 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -61,7 +61,7 @@ class Image_Edit_Fns extends File_Edit_Fns
 		if ((!$asset->id) && file_exists(SQ_FUDGE_PATH.'/image_editor/imagej.jar')) {
 			// we are in the create screen, so offer the editor too
 			echo '<p>';
-			normal_button($prefix.'_use_editor_button', 'Use Image Editor', 'this.parentNode.parentNode.parentNode.style.display=\'none\'; document.getElementById(\''.$prefix.'_hide_editor_button\').parentNode.parentNode.style.display=\'\';');
+			normal_button($prefix.'_use_editor_button', translate('core_use_image_editor_button'), 'this.parentNode.parentNode.parentNode.style.display=\'none\'; document.getElementById(\''.$prefix.'_hide_editor_button\').parentNode.parentNode.style.display=\'\';');
 			echo '</p>';
 		}
 
@@ -115,7 +115,7 @@ class Image_Edit_Fns extends File_Edit_Fns
 
 		if ($save_attrs) {
 			if (!$asset->saveAttributes()) {
-				trigger_localised_error("CORE0052", E_USER_WARNING);
+				trigger_localised_error('CORE0052', E_USER_WARNING);
 				return false;
 			}
 		}
@@ -141,7 +141,7 @@ class Image_Edit_Fns extends File_Edit_Fns
 	{
 		if (!$asset->id) {
 			// we are in the create screen, so we'll print
-			normal_button($prefix.'_hide_editor_button', 'Use Simple Upload', 'this.parentNode.parentNode.style.display=\'none\'; document.getElementById(\''.$prefix.'_use_editor_button\').parentNode.parentNode.parentNode.style.display=\'\';', 'style="margin-bottom: 5px"');
+			normal_button($prefix.'_hide_editor_button', translate('core_use_simple_upload_button'), 'this.parentNode.parentNode.style.display=\'none\'; document.getElementById(\''.$prefix.'_use_editor_button\').parentNode.parentNode.parentNode.style.display=\'\';', 'style="margin-bottom: 5px"');
 			echo '<br />';
 			$this->_paintApplet($asset, $o, $prefix);
 		}
@@ -259,7 +259,7 @@ class Image_Edit_Fns extends File_Edit_Fns
 				$o->openSection($variety->name);
 					$edit_fns->paintInlineInterface($variety, $o, $prefix.'_'.$variety->id);
 					if ($wa) {
-						$o->openField('Delete ?');
+						$o->openField(translate('delete_question'));
 							check_box($prefix.'_delete[]', $variety->id);
 						$o->closeField();
 					}
@@ -330,7 +330,7 @@ class Image_Edit_Fns extends File_Edit_Fns
 
 		$edit_fns = $variety->getEditFns();
 
-		$o->openSection('New Variety');
+		$o->openSection(translate('new_variety'));
 			$edit_fns->paintInlineInterface($variety, $o, $prefix.'_new');
 		$o->closeSection();
 
@@ -380,7 +380,7 @@ class Image_Edit_Fns extends File_Edit_Fns
 		parent::printExistingFileInfo($asset);
 		$existing = $asset->getExistingFile();
 		if (!empty($existing)) {
-			?><b>Dimensions:</b> <?php echo $existing['width'].' x '.$existing['height']?> pixels<br/><?php
+			echo translate('core_dimensions', $existing['width'], $existing['height'])?><br/><?php
 		}
 
 	}//end printExistingFileInfo()

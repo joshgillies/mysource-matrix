@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select_edit_fns.inc,v 1.14 2005/04/13 23:49:30 ndvries Exp $
+* $Id: metadata_field_select_edit_fns.inc,v 1.15 2005/05/11 06:04:52 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -164,11 +164,11 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 			?>
 			<table class="sq-backend-table">
 				<tr>
-					<td class="sq-backend-table-header">Option Key</td>
-					<td class="sq-backend-table-header">Option Value</td>
+					<td class="sq-backend-table-header"><?php echo translate('option_key'); ?></td>
+					<td class="sq-backend-table-header"><?php echo translate('option_value'); ?></td>
 					<?php
 					if ($write_access) {
-						?><td class="sq-backend-table-header">Delete ?</td><?php
+						?><td class="sq-backend-table-header"><?php echo translate('delete_question'); ?></td><?php
 					}
 					?>
 				</tr>
@@ -213,22 +213,22 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 			<?php
 
 		} else {
-			echo 'There are currently no select box options';
+			echo translate('no_select_box_options');
 		}//end if empty
 
 		// now adding two fields for new entry (key => value)
 		if ($write_access) {
-			$o->openField('New Option');
-				echo '<b>key</b> ';
+			$o->openField(translate('new_option'));
+				echo '<b>'.translate('key').'</b> ';
 				text_box($prefix.'_new_key','');
-				echo ' <b>value</b> ';
+				echo ' <b>'.translate('value').'</b> ';
 				text_box($prefix.'_new_val','');
 			$o->closeField();
 		}
 
 		if (!empty($select_options)) {
 			// displaying default value if any values were actually saved in the array
-			$o->openField('Default Value');
+			$o->openField(translate('default_value'));
 				$selection = $asset->getSelectionAttribute();
 				$selection->paint($prefix.'_default', !$write_access);
 			$o->closeField();

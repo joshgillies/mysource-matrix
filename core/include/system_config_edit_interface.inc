@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config_edit_interface.inc,v 1.15 2005/05/06 02:39:06 ndvries Exp $
+* $Id: system_config_edit_interface.inc,v 1.16 2005/05/11 06:05:10 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *    Looks after the editing of the system config
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix
 */
 class System_Config_Edit_Interface extends MySource_Object
@@ -62,13 +62,13 @@ class System_Config_Edit_Interface extends MySource_Object
 
 		// if we dont have access, piss off
 		if (!$is_admin) {
-			$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to access the <i>System Configuration</i>');
+			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $owner->name));
 			exit();
 		}
 
 		$o = &$backend->out;
 
-		$o->setHeading('System Configuration', '<script language="JavaScript" type="text/javascript">sq_print_icon("'.$o->filesPath('/images/icons/header/system_config.png').'", "20", "20", "System Configuration");</script>');
+		$o->setHeading(translate('system_configuration'), '<script language="JavaScript" type="text/javascript">sq_print_icon("'.$o->filesPath('/images/icons/header/system_config.png').'", "20", "20", "System Configuration");</script>');
 		$o->addHiddenField('config_posted', '1');
 
 
@@ -93,12 +93,11 @@ class System_Config_Edit_Interface extends MySource_Object
 		$current_location .= (strstr($current_location, '?')) ? '&' : '?';
 
 		$config_screens = Array(
-							'system_config'			=> 'System Configuration',
-							'squiz_server_config'	=> 'Squiz Server Configuration',
-							'hipo_config'			=> 'HIPO Configuration',
-							'external_tools_config'	=> 'External Tools Configuration',
-							'password_rules_config'	=> 'Password Rule Configuration',
-							'user_prefs'			=> 'Global Preferences',
+							'system_config'			=> translate('system_configuration'),
+							'squiz_server_config'	=> translate('squiz_server_configuration'),
+							'hipo_config'			=> translate('hipo_configuration'),
+							'external_tools_config'	=> translate('external_tools_configuration'),
+							'user_prefs'			=> translate('global_preferences'),
 						  );
 
 		foreach ($config_screens as $screen_code => $screen_name) {
@@ -162,7 +161,7 @@ class System_Config_Edit_Interface extends MySource_Object
 				return;
 
 			default :
-				trigger_localised_error("SYS0076", E_USER_WARNING, $active_screen);
+				trigger_localised_error('SYS0076', E_USER_WARNING, $active_screen);
 		}// end switch
 
 	}//end paint()
@@ -184,7 +183,7 @@ class System_Config_Edit_Interface extends MySource_Object
 
 		$is_admin = ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
 
-		$o->openSection('Locking / Editing');
+		$o->openSection(translate('locking_/_editing'));
 		$o->openField('&nbsp;');
 		?>
 		<table border="0" cellspacing="3" cellpadding="1">
@@ -204,11 +203,11 @@ class System_Config_Edit_Interface extends MySource_Object
 						require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 						$expires_in = easy_time_total(($lock['expires'] - $now), true);
 						if (!$expires_in) $expires_in = '1 second';
-						$expires_in = 'The lock is due to expire in '.$expires_in;
+						$expires_in = translate('due_to_expire', $expires_in);
 
 						?>
 						<p class="sq-backend-locked-by-<?php echo ($GLOBALS['SQ_SYSTEM']->currentUser($user)) ? 'user' : 'someone-else'; ?>">
-							The User Preferences screen is currently locked for editing by user "<?php echo $user->name; ?>".<br/>
+							<?php echo translate('release_lock', translate('release_lock_button'), translate('user_preferences')); ?><br/>
 							<?php echo $expires_in; ?>
 						</p>
 						<?php
@@ -216,7 +215,7 @@ class System_Config_Edit_Interface extends MySource_Object
 					} else {
 						?>
 						<p class="sq-backend-unlocked">
-							The User Preferences screen is currently Unlocked.
+							<?php echo translate('acquire_lock', translate('acquire_lock_button'), translate('user_preferences')); ?>
 						</p>
 						<?php
 					}
@@ -226,10 +225,10 @@ class System_Config_Edit_Interface extends MySource_Object
 					<?php
 					if (!empty($lock)) {
 						if ($have_lock) {
-							submit_button('sq_lock_release_manual', 'Release Lock', 'set_hidden_field("process_form", "0");');
+							submit_button('sq_lock_release_manual', translate('release_lock_button'), 'set_hidden_field("process_form", "0");');
 						}
 					} else {
-						submit_button('sq_lock_acquire', 'Lock', 'set_hidden_field("process_form", "0");');
+						submit_button('sq_lock_acquire', translate('acquire_lock_button'), 'set_hidden_field("process_form", "0");');
 					}
 					?>
 				</td>
@@ -242,7 +241,7 @@ class System_Config_Edit_Interface extends MySource_Object
 		include SQ_DATA_PATH.'/private/conf/preferences.inc';
 
 		foreach ($preferences as $type_code => $pref_vars) {
-			$o->openSection($GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code, 'name').' Preferences');
+			$o->openSection($GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code, 'name').' '.translate('preferences'));
 				$path = SQ_SYSTEM_ROOT.'/'.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code, 'dir').'/'.$type_code.'_prefs.inc';
 				require_once $path;
 				$pref_name = $type_code.'_Prefs';

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_expired_workflow.inc,v 1.11 2005/05/03 04:25:28 rhoward Exp $
+* $Id: cron_job_expired_workflow.inc,v 1.12 2005/05/11 06:04:57 lwright Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *	Note that this is a singleton asset - when the asset type is installed it creates a single
 *	instance of itself under the cron manager, which should remain there always.
 *
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -104,7 +104,7 @@ class Cron_Job_Expired_WorkFlow extends Cron_Job
 	*/
 	function _getName($short_name=false)
 	{
-		return 'Expired Workflow Cron Job';
+		return translate('cron_job_expired_workflow');
 
 	}//end _getName()
 

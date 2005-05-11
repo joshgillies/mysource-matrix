@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_table.inc,v 1.9 2005/04/29 05:40:30 gsherwood Exp $
+* $Id: form_question_type_tickbox_table.inc,v 1.10 2005/05/11 06:07:32 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -157,8 +157,8 @@ class Form_Question_Type_Tickbox_Table extends Form_Question
 								'	<tr>'.
 								'		<td class="sq-backend-table-header">';
 				if (empty($question_contents) || empty($question_contents[0])) {
-					$to_output .= '<div align="center">This question has not been properly defined.';
-					if ($type == 'passive') $to_output .= ' It will be incorrectly displayed on the front end.';
+					$to_output .= '<div align="center">'.translate('cms_form_tickbox_table_not_properly_defined');
+					if ($type == 'passive') $to_output .= ' '.translate('cms_form_tickbox_table_incorrectly_displayed');
 					$to_output .= '</div>';
 				} else {
 					$header = array_shift($question_contents);

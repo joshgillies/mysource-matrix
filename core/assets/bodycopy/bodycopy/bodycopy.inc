@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy.inc,v 1.20 2005/04/15 00:37:24 lwright Exp $
+* $Id: bodycopy.inc,v 1.21 2005/05/11 06:04:43 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -102,13 +102,13 @@ class Bodycopy extends Asset
 
 		// save the contents of the bodycopy
 		if (!string_to_file($output, $this->data_path.'/.sq_system/.content_file.php')) {
-			trigger_localised_error("CORE0047", E_USER_WARNING, $this->name);
+			trigger_localised_error('CORE0047', E_USER_WARNING, $this->name);
 			return false;
 		}
 
 		// save the links we currently use (./?a=xx)
 		if (!string_to_file(serialize($replace_assetids), $this->data_path.'/.sq_system/.notice_links')) {
-			trigger_localised_error("CORE0048", E_USER_WARNING, $this->name);
+			trigger_localised_error('CORE0048', E_USER_WARNING, $this->name);
 			return false;
 		}
 
@@ -155,7 +155,7 @@ class Bodycopy extends Asset
 
 		$name = trim($this->attr('name'));
 		if ($name == '') {
-			trigger_localised_error("CORE0083", E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
+			trigger_localised_error('CORE0083', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
 			return false;
 		}
 

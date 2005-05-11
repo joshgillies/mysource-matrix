@@ -1,0 +1,40 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Commercial Module Licence                                |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file is not open source or freely usable and may be    |
+* | used subject to, and only in accordance with, the Squiz Commercial |
+* | Module Licence.                                                    |
+* | Please refer to http://www.squiz.net/licence for more information. |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_strings.xml,v 1.1 2005/05/11 06:07:30 lwright Exp $
+*
+*
+* CMS Package Localised Strings File
+*/
+-->
+<strings>
+<string source="cms_form_no_sections">This form does not contain any sections</string>
+<string source="cms_form_no_innerhtml">Browser cannot support script - Inner HTML is not defined</string>
+<string source="cms_form_no_getelementbyid">Browser cannot support script - Get Element By ID is not defined</string>
+<string source="cms_form_thank_you">Thank You</string>
+<string source="cms_form_both_customised">Page Contents and Thank You bodycopies are both customised</string>
+<string source="cms_form_page_contents_customised">Page Contents bodycopy is customised</string>
+<string source="cms_form_none_customised">No bodycopies are customised</string>
+<string source="cms_form_thank_you_customised">Thank You bodycopy is customised</string>
+<string source="cms_form_simple_formatting_note">These options apply only if you use the 'Form Contents' <![CDATA[(<b>%%form_contents%%</b>)]]> keyword in your Page Contents bodycopy, or you do not have a Page Contents bodycopy set.</string>
+<string source="cms_form_complex_formatting_note">If you use complex formatting, you can position question fields and responses individually, rather than in a single block.</string>
+<string source="cms_form_page_contents_popup_link"><![CDATA[Click here for a <a href="#" onClick="javascript: var win = window.open('%1$s', 'keywords', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=%2$s,height=%3$s')">list of keywords for the Page Contents bodycopy</a>]]></string>
+<string source="cms_form_thank_you_popup_link"><![CDATA[Click here for a <a href="#" onClick="javascript: var win = window.open('%1$s', 'keywords', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=%2$s,height=%3$s')">list of keywords for the Thank You bodycopy</a>]]></string>
+<string source="cms_form_submission_errors">The following errors must be corrected before the form can be submitted:</string>
+<string source="cms_form_submission_summary">Submission Summary</string>
+<string source="cms_form_question_response">Response: %s</string>
+<string source="cms_form_section_response">Response: %1$s: %2$s</string>
+<string source="cms_form_section_title">Section Title: %s</string>
+<string source="cms_form_question_field">Field: %s</string>
+<string source="cms_form_section_field">Field: %1$s: %2$s</string>
+</strings>

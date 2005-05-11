@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager_edit_fns.inc,v 1.19 2005/05/02 07:33:48 rhoward Exp $
+* $Id: trigger_manager_edit_fns.inc,v 1.20 2005/05/11 06:05:05 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard  <rhoward@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -53,7 +53,7 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 		$this->static_screens = Array();
 
 		// enable just the details
-		$this->static_screens['details']['name'] ='Details';
+		$this->static_screens['details']['name'] = translate('details');
 		$this->static_screens['details']['force_unlock'] = false;
 
 	}//end constructor
@@ -89,13 +89,13 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 		// determine which subscreen to display
 		switch ($screen) {
 			case 'edit':
-				$o->sectionNote('This subscreen is for editing a single trigger. A trigger consists of descriptive information and a set of events, conditions and actions. Use the sections below to change settings of this trigger. In order to speed trigger execution, MySource Matrix tries to make some pre-calculations. There is an overhead to determining whether a trigger needs to be run. Upon loading, the conditions are checked and if all pass, the actions are executed. It can be rewarding to put the fastest conditions first. As a rule of the thumb any condition that works on a whole range of values, like "anything that extends this asset type" will be relatively slow and should not be placed first. On the other hand system conditions that work on exact values of asset type (not inheritance), status and tree location should be placed first.');
+				$o->sectionNote(translate('trigger_single_subscreen_explanation'));
 				$this->_paintSubScreenEdit($tm, $o, $prefix.'[edit]', $write_access);
 			break;
 
 			case 'list':
 			default:
-				$o->sectionNote('This subscreen allows you to add new trigger or select an existing one to edit');
+				$o->sectionNote(translate('trigger_subscreen_add_or_edit'));
 				$this->_paintSubScreenList($tm, $o, $prefix, $write_access);
 			break;
 		}
@@ -309,23 +309,23 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 		<?php
 		$o->closeSection();
 
-		$o->openSection('Trigger Info');
+		$o->openSection(translate('trigger_info'));
 
-		$o->openField('ID:');
+		$o->openField(translate('id').':');
 			echo(array_get_index($trigger, 'id', 'N/A'));
 			hidden_field($prefix.'[id]', array_get_index($trigger, 'id', ''));
 		$o->closeField();
 
-		$o->openField('Status:');
+		$o->openField(translate('status').':');
 			$active_status = array_get_index($trigger, 'active', SQ_TRIG_STATUS_DEFAULT);
 			if ($write_access) {
-				check_box($prefix.'[info][active]', '1', $active_status, '', 'id="info_active"');
-				label('Active?', 'info_active');
+				check_box($prefix.'[info][active]','1', $active_status);
+				label(translate('active_question'), $prefix.'[info][active]');
 			} else {
 				if (SQ_TRIG_STATUS_ACTIVE == $active_status) {
-					echo 'Active';
+					echo translate('active');
 				} else {
-					echo 'Inactive';
+					echo translate('inactive');
 				}
 			}
 		$o->closeField();
@@ -349,7 +349,7 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 		$o->closeField();
 
 
-		$o->openField('Name:');
+		$o->openField(translate('name').':');
 			$name = array_get_index($trigger, 'name', '');
 			if ($write_access) {
 				text_box($prefix.'[info][name]', $name, 40);
@@ -358,7 +358,7 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 			}
 		$o->closeField();
 
-		$o->openField('Description:');
+		$o->openField(translate('description').':');
 			$description = array_get_index($trigger, 'description', '');
 			if ($write_access) {
 				text_area($prefix.'[info][description]', $description, 40, 5);
@@ -379,10 +379,10 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 		$action_type_list    = $tm->_getActionList();
 
 		$o->closeSection();
-		$o->openSection('Events');
+		$o->openSection(translate('events'));
 		$o->openField('');
 		if ($write_access) {
-			$o->sectionNote('This is a list of all the events installed in this system. Select the ones you want this trigger to respond to. If you do not specify any events, the trigger will be fired when ANY event is fired, which can negatively affect the speed of the system.');
+			$o->sectionNote(translate('trigger_events_list'));
 		}
 
 		// paint a tickbox list of all the events in the system
@@ -406,15 +406,15 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 		}
 
 		if (!$write_access && !$events_selected) {
-			echo '<strong>No Events Were Selected</strong>';
+			echo '<strong>'.translate('no_event_selected').'</strong>';
 		}
 
 
 		$o->closeSection();
-		$o->openSection('Conditions');
+		$o->openSection(translate('conditions'));
 		$o->openField('');
 		if ($write_access) {
-			$o->sectionNote("Here you specify the conditions that must be satisfied before the actions are allowed to perform. Note that order is important. New conditions are added to the bottom of the list with default settings. If you add a condition, but do not change it's settings it will automatically fail. Some condition types can only be used once in a trigger.");
+			$o->sectionNote(translate('trigger_conditions_explanation'));
 		}
 		?>
 		<div class="sq-backend-triggers-component-block-wrapper">
@@ -491,7 +491,7 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 			<div class="sq-backend-triggers-new-component-selector">
 				Add new Condition type:
 					<?php
-					$select_list = Array(' '=>' ---- Select to Add ---- ');
+					$select_list = Array(' '=>' ---- '.translate('select_to_add').'  ---- ');
 					$removed = false;
 					foreach ($condition_type_list as $type => $name) {
 						if (!$multiple_status[$type] && $type_instance_count[$type] != 0) {
@@ -503,14 +503,14 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 
 					combo_box($prefix.'[new_condition]', $select_list, false, ' ');
 					if ($removed) {
-						echo ' <span class="sq-backend-warning">Some conditions can only be added once.</span>';
+						echo ' <span class="sq-backend-warning">'.translate('some_conditions_can_only_be_added_once').'</span>';
 					}
 					?>
 			</div>
 			<?php
 			} else {
 
-				if ($i < 0) echo 'No Conditions Specified';
+				if ($i < 0) echo translate('no_conditions_specified');
 
 			}
 			?>
@@ -519,10 +519,10 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 		<?php
 		// actions are handled the same way as conditions
 		$o->closeSection();
-		$o->openSection('Actions');
+		$o->openSection(translate('actions'));
 		$o->openField('');
 		if ($write_access) {
-			$o->sectionNote("Actions are performed in the order they are specified. If one action fails, the trigger will fail. Unless 'Ignore Permissions' is selected, the action is run as a user that caused the trigger to be executed (currently logged in user). This means that some actions might fail if they user doesn't have appropriate access privileges. To make sure that the actions are performed regardles of user's access rights, select 'Ignore Permissions'. Actions can be marked as 'Not Required' which means that if that action fails for some reason, the trigger will not fail. If an action fails and it is required, then the system will try to undo all the previous actions in this trigger.");
+			$o->sectionNote(translate('trigger_actions_explanation'));
 		}
 
 		?>
@@ -578,10 +578,10 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 						}
 
 						check_box($ignore_permissions_prefix, 1, $ignore_permissions, null, $extras);
-						echo 'Ignore Permissions';
+						label(translate('ignore_permissions'), $ignore_permissions_prefix);
 
 						check_box($not_required_prefix, 1, $not_required, null, $extras);
-						echo 'NOT required';
+						label(translate('not_required'), $not_required_prefix);
 						?>
 					</div>
 					<div class="sq-backend-triggers-component-body">
@@ -600,7 +600,7 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 				<div class="sq-backend-triggers-new-component-selector">
 					Add new Action type:
 					<select name="<?php echo $prefix; ?>[new_action]" >
-						<option value="" > ---- Select to Add ---- </option>
+						<option value="" > ---- <?php echo translate('select_to_add'); ?> ---- </option>
 						<?php
 						foreach ($action_type_list as $a_type => $a_name) {
 							echo '<option value="'.$a_type.'" >'.$a_name.'</option>';
@@ -611,7 +611,7 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 				<?php
 			} else {
 
-				if ($i < 0) echo 'No Actions Specified';
+				if ($i < 0) echo translate('no_action_specified');
 
 			}
 			?>
@@ -622,10 +622,10 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 		$o->closeSection();
 
 		if ($write_access) {
-			$o->openSection('Other');
+			$o->openSection(translate('other'));
 			$o->openField('');
 				check_box($prefix.'[finish]');
-				echo 'Finish Editing (save and return to the trigger list)';
+				label(translate('trigger_finish_editing'), $prefix.'[finish]');
 			$o->closeSection();
 		}
 
@@ -865,13 +865,14 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 			}
 
 			if (false !== $error) {
-				trigger_error("Condition $i ($type) not saved: $error", E_USER_NOTICE);
+				trigger_localised_error('CORE0217', E_USER_NOTICE, $i, $type, $error);
 			}
 
 			$processed_components[] = Array(
 										'type'	=> $type,
 										'data'	=> $settings,
 									  );
+
 			$i++;
 		}
 
@@ -953,14 +954,15 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 
 
 		if ($write_access) {
-			$o->openSection('Add New Trigger');
-			$o->openField('New Trigger Name: ');
-			text_box($prefix.'[add_name]', '');
-			echo '<br />To add a new trigger, enter the name in this box and submit the form';
+			$o->openSection(translate('add_new_trigger'));
+				$o->openField(translate('new_trigger_name'));
+					text_box($prefix.'[add_name]', '');
+					$o->note(translate('trigger_add_new'));
+				$o->closeField();
 			$o->closeSection();
 		}
 
-		$o->openSection('Trigger List');
+		$o->openSection(translate('trigger_list'));
 		$o->openField('');
 		?>
 		<script type="text/javascript">
@@ -990,12 +992,12 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 		</script>
 		<table class="sq-backend-table">
 			<tr>
-				<td width="50" class="sq-backend-table-header" style="font-weight: bold;">ID</td>
-				<td class="sq-backend-table-header" style="font-weight: bold;">Name</td>
-				<td class="sq-backend-table-header" style="font-weight: bold;">Description</td>
-				<td width="50" class="sq-backend-table-header" style="font-weight: bold;">Status</td>
+				<td width="50" class="sq-backend-table-header" style="font-weight: bold;"><?php echo translate('id'); ?></td>
+				<td class="sq-backend-table-header" style="font-weight: bold;"><?php echo translate('name'); ?></td>
+				<td class="sq-backend-table-header" style="font-weight: bold;"><?php echo translate('description'); ?></td>
+				<td width="50" class="sq-backend-table-header" style="font-weight: bold;"><?php echo translate('status'); ?></td>
 				<?php if ($write_access) { ?>
-				<td width="50" class="sq-backend-table-header" style="font-weight: bold;">Delete?</td>
+				<td width="50" class="sq-backend-table-header" style="font-weight: bold;"><?php echo translate('delete_question'); ?></td>
 				<?php } ?>
 			</tr>
 
@@ -1005,7 +1007,7 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 
 		foreach ($list as $trigger) {
 			$trigger_url = $screen_url.'&'.$prefix.'[edit_id]='.$trigger['id'];
-			$active_text = $trigger['active']?'<strong>Active</strong>':'<span style="color: red">Inactive</strike>';
+			$active_text = $trigger['active']?'<strong>'.translate('active').'</strong>':'<span style="color: red">'.translate('inactive').'</span>';
 			?>
 			<tr>
 				<td class="sq-backend-table-cell"><?php echo $trigger['id']; ?></td>
@@ -1042,14 +1044,14 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 	{
 		$write_access = $tm->writeAccess('attributes');
 		if ($write_access) {
-			$o->openField('Target Node');
+			$o->openField(translate('target_node'));
 			asset_finder($prefix.'[target_node]', array_get_index($this->_tmp, 'target_id'));
 
-			$o->openField('Children');
+			$o->openField(translate('children'));
 			check_box($prefix.'[include_children]', 'yes', array_get_index($this->_tmp, 'include_children', true));
-			echo 'Include Children?';
+			label(translate('include_children_question'), $prefix.'[include_children]');
 
-			$o->openField('Events');
+			$o->openField(translate('events'));
 			$event_type_list = $tm->_getEventList();
 			$events = array_get_index($this->_tmp, 'selected_events');
 			// paint a tickbox list of all the events in the system
@@ -1061,8 +1063,8 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 					$checked = false;
 				}
 				check_box($event_prefix.'['.$e_type.']', $e_type, $checked);
-				echo $e_name;
-				echo '<br />';
+				label($e_name, $event_prefix.'['.$e_type.']');
+				?><br /> <?php
 			}
 			return true;
 		} else {

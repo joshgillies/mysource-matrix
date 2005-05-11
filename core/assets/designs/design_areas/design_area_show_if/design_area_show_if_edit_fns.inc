@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_show_if_edit_fns.inc,v 1.6 2005/04/15 00:37:24 lwright Exp $
+* $Id: design_area_show_if_edit_fns.inc,v 1.7 2005/05/11 06:04:49 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -77,7 +77,7 @@ class Design_Area_Show_If_Edit_Fns extends Design_Area_Edit_Fns
 		// Check if the provided condition exists on the system
 		$condition = $asset->attr('condition');
 		if (!$GLOBALS['SQ_SYSTEM']->am->installed('condition_'.$condition)) {
-			trigger_localised_error("CORE0148", E_USER_WARNING, $condition, $asset->name);
+			trigger_localised_error('CORE0148', E_USER_WARNING, $condition, $asset->name);
 			return false;
 		}
 
@@ -92,7 +92,7 @@ class Design_Area_Show_If_Edit_Fns extends Design_Area_Edit_Fns
 							return false;
 						}
 					} else {
-						trigger_localised_error("CORE0214", E_USER_WARNING, $asset->name);
+						trigger_localised_error('CORE0214', E_USER_WARNING, $asset->name);
 						return false;
 					}
 
@@ -108,7 +108,7 @@ class Design_Area_Show_If_Edit_Fns extends Design_Area_Edit_Fns
 							return false;
 						}
 					} else {
-						trigger_localised_error("CORE0147", E_USER_WARNING, $asset->name);
+						trigger_localised_error('CORE0147', E_USER_WARNING, $asset->name);
 						return false;
 					}
 
@@ -123,7 +123,7 @@ class Design_Area_Show_If_Edit_Fns extends Design_Area_Edit_Fns
 		}//end foreach
 
 		if (!$then_element && !$else_element) {
-			trigger_localised_error("CORE0169", E_USER_WARNING, $asset->name);
+			trigger_localised_error('CORE0169', E_USER_WARNING, $asset->name);
 			return false;
 		}
 

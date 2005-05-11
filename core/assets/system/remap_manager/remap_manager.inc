@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager.inc,v 1.20 2005/04/15 00:37:26 lwright Exp $
+* $Id: remap_manager.inc,v 1.21 2005/05/11 06:05:00 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -151,7 +151,7 @@ class Remap_Manager extends Asset
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
 		switch (strtolower($link['value'])) {
 			case '404' :
-				return 'The page where 404 requests are remapped to';
+				return translate('404_remap_description');
 			break;
 			default :
 				return parent::describeLink($linkid);
@@ -193,7 +193,7 @@ class Remap_Manager extends Asset
 		assert_valid_db_result($count);
 
 		if ((int)$count > 0) {
-			trigger_localised_error("CORE0024", E_USER_WARNING, $old_url);
+			trigger_localised_error('CORE0024', E_USER_WARNING, $old_url);
 			return -1;
 		}
 
@@ -256,7 +256,7 @@ class Remap_Manager extends Asset
 			if ($url_data['http']) {
 				$retval = @$this->addRemapURL('http://'.$url_data['url'], $new_url, $expires);
 				if ($retval === 0) {
-					trigger_localised_error("CORE0039", E_USER_WARNING, $assetid, $new_url);
+					trigger_localised_error('CORE0039', E_USER_WARNING, $assetid, $new_url);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return false;
 				}
@@ -264,7 +264,7 @@ class Remap_Manager extends Asset
 			if ($url_data['https']) {
 				$retval = @$this->addRemapURL('https://'.$url_data['url'], $new_url, $expires);
 				if ($retval === 0) {
-					trigger_localised_error("CORE0039", E_USER_WARNING, $assetid, $new_url);
+					trigger_localised_error('CORE0039', E_USER_WARNING, $assetid, $new_url);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return false;
 				}
@@ -314,7 +314,7 @@ class Remap_Manager extends Asset
 			?>
 			<html>
 				<head>
-					<title>Redirecting you to <?php echo $remap_url; ?></title>
+					<title><?php echo translate('redirecting_you_to', $remap_url); ?></title>
 					<script language="javascript" type="text/javascript" src="<?php echo sq_web_path('lib');?>/js/general.js"></script>
 				</head>
 				<body onLoad="Javascript: sq_redirect('<?php echo $remap_url; ?>');"></body>

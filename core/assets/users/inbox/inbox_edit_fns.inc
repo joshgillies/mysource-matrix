@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: inbox_edit_fns.inc,v 1.49 2005/05/02 04:56:13 gsherwood Exp $
+* $Id: inbox_edit_fns.inc,v 1.50 2005/05/11 06:05:05 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dmitry Baranovskiy <dbaranovskiy@squiz.net>
-* @version $Revision: 1.49 $
+* @version $Revision: 1.50 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -47,7 +47,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns {
 	function Inbox_Edit_Fns() {
 		$this->Asset_Edit_Fns();
 
-		$this->static_screens = Array ('details' => Array ('name' => 'Inbox', 'use_tab' => true, 'force_unlock' => false, 'lock_type' => 'mail',),);
+		$this->static_screens = Array ('details' => Array ('name' => translate('inbox'), 'use_tab' => true, 'force_unlock' => false, 'lock_type' => 'mail',),);
 
 	} //end constructor
 
@@ -75,26 +75,26 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns {
 
 			<table border="0" cellspacing="2" cellpadding="2" width="100%">
 				<tr>
-					<td valign="top">To:</td>
+					<td valign="top"><?php echo translate('to'); ?>:</td>
 					<td>
 						<?php multiple_asset_finder($prefix.'_To', Array(), Array('user' => 'D')); ?>
 					</td>
 				</tr>
 				<tr>
-					<td valign="top">Subject:</td>
+					<td valign="top"><?php echo translate('subject'); ?>:</td>
 					<td>
 						<input type="text" id="<?php echo $prefix; ?>_Subject" name="<?php echo $prefix; ?>_Subject" style="width:300px" />
 					</td>
 				</tr>
 				<tr>
-					<td valign="top">Priority:</td>
+					<td valign="top"><?php echo translate('priority'); ?>:</td>
 					<td>
 						<select id="<?php echo $prefix; ?>_Priority" name="<?php echo $prefix; ?>_Priority" style="float:left; width: 100px;">
-							<option value="1">Highest</option>
-							<option value="2">High</option>
-							<option value="3" selected="selected">Normal</option>
-							<option value="4">Low</option>
-							<option value="5">Lowest</option>
+							<option value="1"><?php echo translate('highest'); ?></option>
+							<option value="2"><?php echo translate('high'); ?></option>
+							<option value="3" selected="selected"><?php echo translate('standard'); ?></option>
+							<option value="4"><?php echo translate('low'); ?></option>
+							<option value="5"><?php echo translate('lowest'); ?></option>
 						</select>
 					</td>
 				</tr>
@@ -108,7 +108,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns {
 
 		} else {
 ?>
-			<div style="text-align: center">Please lock the Inbox to send messages</div>
+			<div style="text-align: center"><?php echo translate('inbox_lock'); ?></div>
 			<?php
 
 		}
@@ -201,9 +201,9 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns {
 			<div id="inbox_container">
 			<table border="0" cellspacing="0" cellpadding="1" width="100%" id="inbox_table">
 			<tr>
-				<td class="sq-backend-table-header">TO</td>
-				<td class="sq-backend-table-header">SUBJECT</td>
-				<td class="sq-backend-table-header">SENT</td>
+				<td class="sq-backend-table-header"><?php echo strtoupper(translate('to')); ?></td>
+				<td class="sq-backend-table-header"><?php echo strtoupper(translate('subject')); ?></td>
+				<td class="sq-backend-table-header"><?php echo strtoupper(translate('sent')); ?></td>
 				<?php
 
 		if ($write_access) {
@@ -211,7 +211,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns {
 					<td class="sq-backend-table-header">
 						<?php check_box($prefix.'_delete_all', '1', false, 'changeAllDelStatuses(this.checked)'); ?>
 						<img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" alt="" id="trashIcon" class="trash" onclick="changeAllStatuses()" />
-						DELETE
+						<?php echo strtoupper(translate('delete')); ?>
 					</td>
 					<?php
 
@@ -335,9 +335,9 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns {
 ?>
 			<table border="0" cellspacing="0" cellpadding="1" id="inbox_table">
 			<tr>
-				<td class="sq-backend-table-header">FROM</td>
-				<td class="sq-backend-table-header">SUBJECT</td>
-				<td class="sq-backend-table-header">SENT</td>
+				<td class="sq-backend-table-header"><?php echo strtoupper(translate('from')); ?></td>
+				<td class="sq-backend-table-header"><?php echo strtoupper(translate('subject')); ?></td>
+				<td class="sq-backend-table-header"><?php echo strtoupper(translate('sent')); ?></td>
 				<td class="sq-backend-table-header">
 					<?php
 
@@ -348,7 +348,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns {
 
 			}
 ?>
-					&nbsp;READ
+					&nbsp;<?php echo strtoupper(translate('read')); ?>
 				</td>
 				<?php
 
@@ -357,7 +357,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns {
 					<td class="sq-backend-table-header">
 						<?php check_box($prefix.'_delete_all', '1', false, 'changeAllDelStatuses(this.checked)'); ?>
 						<img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" alt="" id="trashIcon" class="trash" />
-						DELETE
+						<?php echo strtoupper(translate('delete')); ?>
 					</td>
 					<?php
 
@@ -509,7 +509,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns {
 				// delete messages
 				if (in_array($data['msgid'], $delete) && $data['status'] != SQ_MSG_DELETED) {
 					if (!$message->updateStatus(SQ_MSG_DELETED)) {
-						trigger_localised_error("CORE0063", E_USER_WARNING, $data['msgid']);
+						trigger_localised_error('CORE0063', E_USER_WARNING, $data['msgid']);
 					}
 				}
 			}
@@ -553,7 +553,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns {
 		<?php
 
 		if (empty ($messages)) {
-			echo '<div style="text-align: center">Your trash is empty.</div>';
+			?><div style="text-align: center"><?php echo translate('inbox_trash_empty'); ?></div><?php
 			return false;
 		} else {
 ?>
@@ -561,20 +561,20 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns {
 
 			<table border="0" cellspacing="0" cellpadding="1" id="inbox_table">
 			<tr>
-				<td class="sq-backend-table-header">FROM</td>
-				<td class="sq-backend-table-header">SUBJECT</td>
-				<td class="sq-backend-table-header">SENT</td>
+				<td class="sq-backend-table-header"><?php echo strtoupper(translate('from')); ?></td>
+				<td class="sq-backend-table-header"><?php echo strtoupper(translate('subject')); ?></td>
+				<td class="sq-backend-table-header"><?php echo strtoupper(translate('sent')); ?></td>
 				<?php
 
 			if ($write_access) {
 ?>
 					<td class="sq-backend-table-header">
 						<?php check_box($prefix.'_select_all_recover', '1', false, "check_all(document.main_form, '{$prefix}_recover', this.checked);"); ?>
-						RECOVER
+						<?php echo strtoupper(translate('recover')); ?>
 					</td>
 					<td class="sq-backend-table-header">
 						<?php check_box($prefix.'_select_all_purge', '1', false, "check_all(document.main_form, '{$prefix}_purge', this.checked);"); ?>
-						PURGE
+						<?php echo strtoupper(translate('purge')); ?>
 					</td>
 					<?php
 
@@ -676,7 +676,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns {
 				// recover messages to inbox
 				$message = $ms->getMessageById($messageid);
 				if (!$message->updateStatus(SQ_MSG_READ)) {
-					trigger_localised_error("CORE0064", E_USER_WARNING, $messageid);
+					trigger_localised_error('CORE0064', E_USER_WARNING, $messageid);
 				}
 			}
 		}
@@ -686,7 +686,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns {
 				// delete messsage FOREVER
 				$message = $ms->getMessageById($messageid);
 				if (!$message->delete()) {
-					trigger_localised_error("CORE0063", E_USER_WARNING, $data['msgid']);
+					trigger_localised_error('CORE0063', E_USER_WARNING, $data['msgid']);
 				}
 			}
 		}

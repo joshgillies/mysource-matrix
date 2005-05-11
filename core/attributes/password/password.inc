@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: password.inc,v 1.23 2005/05/06 05:33:55 ndvries Exp $
+* $Id: password.inc,v 1.24 2005/05/11 06:05:07 lwright Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_ATTRIBUTES_PATH.'/text/text.inc';
 *    <password width="8" min_length="6" />
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -88,7 +88,7 @@ class Asset_Attribute_Password extends Asset_Attribute_Text
 	function paint($prefix, $read_only=false)
 	{
 		if ($read_only) {
-			echo '<i>Password not shown</i>';
+			echo translate('password_not_shown');
 			return;
 		}
 

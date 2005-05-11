@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_raw_html_prefs.inc,v 1.5 2005/04/29 05:40:28 gsherwood Exp $
+* $Id: content_type_raw_html_prefs.inc,v 1.6 2005/05/11 06:07:30 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/config/prefs.inc';
 *    Looks after the creation the Raw HTML preferences
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 */
 class Content_Type_Raw_HTML_Prefs extends Prefs
@@ -67,12 +67,12 @@ class Content_Type_Raw_HTML_Prefs extends Prefs
 		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
 
 		if (is_null($pref) || $pref == 'SQ_RAW_HTML_SIZE') {
-			if (is_null($pref)) $o->openField('Raw HTML Editor Size');
+			if (is_null($pref)) $o->openField(translate('cms_ct_raw_html_pref_editor_size'));
 				$html_size = $this->pref_vars['SQ_RAW_HTML_SIZE']['default'];
 				?>
 				<table class="sq-backend-table" style="width: 350px;">
 					<tr>
-						<td class="sq-backend-table-header" nowrap="nowrap">Width</td>
+						<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('width') ?></td>
 						<td class="sq-backend-table-cell" style="width: 100%;">
 						<?php
 						if ($have_lock && $is_admin) {
@@ -84,7 +84,7 @@ class Content_Type_Raw_HTML_Prefs extends Prefs
 						</td>
 					</tr>
 					<tr>
-						<td class="sq-backend-table-header" nowrap="nowrap">Height</td>
+						<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('height') ?></td>
 						<td class="sq-backend-table-cell" style="width: 100%;">
 						<?php
 						if ($have_lock && $is_admin) {

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_herder.inc,v 1.65 2005/04/27 00:14:43 lwright Exp $
+* $Id: hipo_herder.inc,v 1.66 2005/05/11 06:05:07 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) Herder (Manager ;P)
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.65 $
+* @version $Revision: 1.66 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -791,7 +791,7 @@ class HIPO_Herder extends MySource_Object
 
 		// lets tell the user if the asset is locked for editing
 		// or if they can lock it to edit it
-		$o->openSection('Locking / Editing');
+		$o->openSection(translate('locking_/_editing'));
 		$o->openField('&nbsp;');
 
 		?>
@@ -815,7 +815,7 @@ class HIPO_Herder extends MySource_Object
 
 						?>
 						<p class="sq-backend-locked-by-<?php echo ($GLOBALS['SQ_SYSTEM']->currentUser($user)) ? 'user' : 'someone-else'; ?>">
-							The HIPO Herder is currently locked for editing by user "<?php echo $user->name; ?>".<br>
+							<?php echo translate('release_lock', translate('release_lock_button'), $user->name); ?><br>
 							<?php echo $expires_in; ?>
 						</p>
 						<?php
@@ -823,7 +823,7 @@ class HIPO_Herder extends MySource_Object
 					} else {
 						?>
 						<p class="sq-backend-unlocked">
-							The HIPO Herder is currently Unlocked.
+							<?php echo translate('acquire_lock', translate('acquire_lock_button'), translate('hipo_herder')); ?>
 						</p>
 						<?php
 					}
@@ -833,10 +833,10 @@ class HIPO_Herder extends MySource_Object
 					<?php
 					if (!empty($lock)) {
 						if ($have_lock) {
-							submit_button('sq_lock_release_manual', 'Release Lock', 'set_hidden_field("process_form", "0");');
+							submit_button('sq_lock_release_manual', translate('release_lock_button'), 'set_hidden_field("process_form", "0");');
 						}
 					} else {
-						submit_button('sq_lock_acquire', 'Lock', 'set_hidden_field("process_form", "0");');
+						submit_button('sq_lock_acquire', translate('acquire_lock_button'), 'set_hidden_field("process_form", "0");');
 					}
 					?>
 				</td>
@@ -846,7 +846,7 @@ class HIPO_Herder extends MySource_Object
 
 		$o->closeSection();
 
-		$o->openSection('Current HIPO Jobs');
+		$o->openSection(translate('current_hipo_jobs'));
 			$o->openField('', 'new_line');
 
 			$source_jobs = Array();
@@ -873,21 +873,21 @@ class HIPO_Herder extends MySource_Object
 			}
 
 			if (empty($source_jobs[''])) {
-				echo 'There are currently no HIPO Jobs on the system';
+				echo translate('hipo_currently_no_jobs');
 
 			} else {
 				?>
 				<table class="sq-backend-table">
 					<tr>
-						<td class="sq-backend-table-header">Source Job Code Name</td>
-						<td class="sq-backend-table-header">Code Name</td>
-						<td class="sq-backend-table-header">Owner</td>
-						<td class="sq-backend-table-header">Last Updated</td>
-						<td class="sq-backend-table-header" style="text-align: center;">Percent Complete</td>
+						<td class="sq-backend-table-header"><?php echo translate('source_job_code_name'); ?></td>
+						<td class="sq-backend-table-header"><?php echo translate('code_name'); ?></td>
+						<td class="sq-backend-table-header"><?php echo translate('owner'); ?></td>
+						<td class="sq-backend-table-header"><?php echo translate('hipo_last_updated'); ?></td>
+						<td class="sq-backend-table-header" style="text-align: center;"><?php echo translate('percent_complete'); ?></td>
 				<?php
 					if ($have_lock) {
 				?>
-						<td class="sq-backend-table-header" style="text-align: center;">Delete ?</td>
+						<td class="sq-backend-table-header" style="text-align: center;"><?php echo translate('delete_question'); ?></td>
 				<?php
 					} // end if have lock
 				?>

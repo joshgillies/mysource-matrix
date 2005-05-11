@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_in_user_group_edit_fns.inc,v 1.1 2005/04/05 18:34:21 brobertson Exp $
+* $Id: condition_in_user_group_edit_fns.inc,v 1.2 2005/05/11 06:04:56 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition_edit_f
 * @see Asset_Edit_Fns
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -63,15 +63,16 @@ class Condition_In_User_Group_Edit_Fns extends Condition_Edit_Fns
 		$options = $asset->getOptions();
 		
 		if (!$write_access) {
-			$o->openField('Condition Details');
-			echo 'User is '.strtolower($options[$restriction['match']]);
+			$o->openField(translate('condition_details'));
+				$o->note(translate('condition_user_is', strtolower($options[$restriction['match']])));
 			$o->closeField();
 		} else {
-			$o->openField('Match Condition');
-			combo_box($prefix.'[match]', $options, false, $restriction['match']);
+			$o->openField(translate('match_condition'));
+				combo_box($prefix.'[match]', $options, false, $restriction['match']);
 			$o->closeField();
-			$o->openField('User Groups');
-			multiple_asset_finder($prefix.'[groupids]', array_get_index($restriction['condition_data'], 'groupids', Array()), Array('user_group' => 'D'));
+			
+			$o->openField(translate('user_groups'));
+				multiple_asset_finder($prefix.'[groupids]', array_get_index($restriction['condition_data'], 'groupids', Array()), Array('user_group' => 'D'));
 			$o->closeField();
 		}
 		return true;

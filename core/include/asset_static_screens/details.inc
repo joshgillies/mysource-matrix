@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: details.inc,v 1.15 2005/04/15 00:37:28 lwright Exp $
+* $Id: details.inc,v 1.16 2005/05/11 06:05:11 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Details Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix
 */
 
@@ -79,7 +79,7 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=null)
 
 				case 'status_current' :
 
-					if ($field->children[0]->name != 'display_name') $display_name = 'Current';
+					if ($field->children[0]->name != 'display_name') $display_name = translate('current');
 					else $display_name = $field->children[0]->content;
 					$o->openField($display_name);
 					if (!is_null($keywords) && isset($keywords['fields']['status_current'])) ob_start();
@@ -99,7 +99,7 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=null)
 					$statii = $owner->getAvailableStatii();
 					if (empty($statii)) break;
 
-					if ($field->children[0]->name != 'display_name') $display_name = 'Change ?';
+					if ($field->children[0]->name != 'display_name') $display_name = translate('change_question');
 					else $display_name = $field->children[0]->content;
 					$o->openField($display_name);
 						if (!is_null($keywords) && isset($keywords['fields']['status_change'])) ob_start();
@@ -109,7 +109,7 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=null)
 						$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 						$running_schemas = $wfm->getSchemas($owner->id, true, true);
 						if (!empty($running_schemas)) {
-							?><i>This asset is currently in workflow. Approval or rejection of the changes must be done on the <a href="<?php echo $owner->getBackendHref('workflow'); ?>">asset workflow screen</a></i><?php
+							$o->note(translate('asset_currently_in_workflow', $owner->getBackendHref('workflow')));
 						} else {
 							$available_statii = _paintStatusChange($owner, $o, $prefix);
 							if (!empty($available_statii)) $print_commit_button = true;
@@ -130,15 +130,15 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=null)
 					$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_status');
 					$fs_jobs = &Cron_Job_Future_Status::getActiveJobs($owner);
 					if (!empty($fs_jobs)) {
-						$o->openField('Scheduled Future Status Changes', 'new_line');
+						$o->openField(translate('scheduled_future_status_change'), 'new_line');
 
 						if (!is_null($keywords) && isset($keywords['fields']['status_future_status'])) ob_start();
 						?>
 						<table class="sq-backend-table">
 							<tr>
-								<td class="sq-backend-table-header">Status</td>
-								<td class="sq-backend-table-header">When</td>
-								<td align="center" class="sq-backend-table-header">Delete ?</td>
+								<td class="sq-backend-table-header"><?php echo translate('status'); ?></td>
+								<td class="sq-backend-table-header"><?php echo translate('when'); ?></td>
+								<td align="center" class="sq-backend-table-header"><?php echo translate('delete_question'); ?></td>
 							</tr>
 							<?php
 							for ($i = 0; $i < count($fs_jobs); $i++) {
@@ -174,7 +174,7 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=null)
 					}//end if
 
 					if ($owner->writeAccess()) {
-						$o->openField('Add New Future Status', 'new_line');
+						$o->openField(translate('add_new_future_status'), 'new_line');
 							$cron_epoc = (int)$cron_mgr->attr('epoch');
 							$cron_refresh = (int)$cron_mgr->attr('refresh_time');
 							if ($cron_epoc > 0 && $cron_refresh > 0) {
@@ -186,11 +186,8 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=null)
 								if (!is_null($keywords) && isset($keywords['fields']['status_future_status'])) ob_start();
 								$edit_fns->paintInLineBackend($fs, $o, $prefix.'_new_fs');
 
-								?>
-								<p>
-									The Cron Manager runs every <b><?php echo $cron_mgr->readableRefreshTime(); ?></b>. It will next run on the <b><?php echo readable_datetime($cron_mgr->timeOfNextRun()); ?></b>
-								</p>
-								<?php
+								$o->note(translate('cron_manager_next_run', $cron_mgr->readableRefreshTime(), readable_datetime($cron_mgr->timeOfNextRun())));
+								
 								if (!is_null($keywords) && isset($keywords['fields']['status_future_status'])) {
 									// check to see if we added anything to the keyword replacements above
 									if (!isset($ei->_tmp['layout_keyword_replacements'][$keywords['fields']['status_future_status']])) {
@@ -202,7 +199,7 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=null)
 								}
 								$print_commit_button = true;
 							} else {
-								echo 'The Cron Manager has not been configured. No future statuses can be set for this asset.';
+								echo translate('cron_manager_not_configured');
 							}
 						$o->closeField();
 					}
@@ -215,7 +212,7 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=null)
 
 					if ($owner->writeAccess('links')) {
 
-						if ($field->children[0]->name != 'display_name') $display_name = 'Change ?';
+						if ($field->children[0]->name != 'display_name') $display_name = translate('change_question');
 						else $display_name = $field->children[0]->content;
 
 						$o->openField($display_name);
@@ -236,7 +233,7 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=null)
 
 				case 'thumbnail_current' :
 
-					if ($field->children[0]->name != 'display_name') $display_name = 'Current';
+					if ($field->children[0]->name != 'display_name') $display_name = translate('current');
 					else $display_name = $field->children[0]->content;
 
 					$o->openField($display_name);
@@ -249,7 +246,7 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=null)
 							$edit_fns->printExistingFileInfo($thumbnail);
 
 						} else {
-							echo 'No thumbnail attached';
+							echo translate('no_thumbnail_attatched');
 						}
 
 						if (!is_null($keywords) && isset($keywords['fields']['thumbnail_current'])) {
@@ -303,7 +300,7 @@ function _paintStatusChange(&$owner, &$o, $prefix)
 		combo_box($prefix.'_change_status', $statii, false, 0);
 		echo '&nbsp;';
 		check_box($prefix.'_change_status_all_children');
-		echo ' Cascade Status Change';
+		echo translate('cascade_status_change');
 	}
 
 	return $statii;

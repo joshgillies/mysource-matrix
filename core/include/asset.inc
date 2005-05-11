@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.392 2005/05/02 07:26:34 rhoward Exp $
+* $Id: asset.inc,v 1.393 2005/05/11 06:05:08 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.392 $
+* @version $Revision: 1.393 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3266,7 +3266,7 @@ class Asset extends MySource_Object
 	function printFrontend()
 	{
 		if (!$this->readAccess()) {
-			$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to access <i>'.$this->name.'</i>');
+			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $this->name));
 			return;
 		}
 

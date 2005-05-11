@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety_edit_fns.inc,v 1.9 2005/04/15 00:37:25 lwright Exp $
+* $Id: image_variety_edit_fns.inc,v 1.10 2005/05/11 06:04:51 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -50,7 +50,7 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 		// override static screens - only display details because the others don't apply
 		$this->static_screens = Array(
 									'details' => Array(
-													'name'			=> 'Details',
+													'name'			=> translate('details'),
 													'force_unlock'	=> false,
 													'lock_type'		=> 'none',
 												),
@@ -84,7 +84,7 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 		$sel_edit_params  = new XML_Tree_Node('selection', '', Array('style' => 'box', 'columns' => '3', 'extras' => ''));
 
 		if ($asset->name == '') {
-			$o->openField('Name');
+			$o->openField(translate('name'));
 				$text_edit_params = new XML_Tree_Node('text', '', Array('width' => 15));
 				$attr = &$asset->getAttribute('name');
 				$attr->setEditParams($text_edit_params);
@@ -93,7 +93,7 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 			$o->closeField();
 		}
 
-		$o->openField('Variety Type');
+		$o->openField(translate('variety_type'));
 			$js_prefix = preg_replace('/[^a-z0-9_]/', '_', $prefix);
 		?>
 			<script type="text/javascript">
@@ -121,7 +121,7 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 			unset($attr);
 		$o->closeField();
 
-		$o->openField('Constrain by', '', '', ($variety_type != 'resize'), $prefix.'_field_constrain');
+		$o->openField(translate('constrain_by'), '', '', ($variety_type != 'resize'), $prefix.'_field_constrain');
 			$sel_edit_params->attributes['extras'] = 'onclick="javascript: '.$js_prefix.'_update_visible_fields();"';
 			$attr = &$asset->getAttribute('constrain');
 			$attr->setEditParams($sel_edit_params);
@@ -129,30 +129,30 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 			unset($attr);
 		$o->closeField();
 
-		$o->openField('Width', '', '', ($variety_type != 'resize' || $constrain == 'height'), $prefix.'_field_width');
+		$o->openField(translate('width'), '', '', ($variety_type != 'resize' || $constrain == 'height'), $prefix.'_field_width');
 			$attr = &$asset->getAttribute('width');
 			$attr->setEditParams($int_edit_params);
 			$attr->paint($prefix.'_'.$attr->name, !$wa);
 			unset($attr);
 		$o->closeField();
 
-		$o->openField('Height', '', '', ($variety_type != 'resize' || $constrain == 'width'), $prefix.'_field_height');
+		$o->openField(translate('height'), '', '', ($variety_type != 'resize' || $constrain == 'width'), $prefix.'_field_height');
 			$attr = &$asset->getAttribute('height');
 			$attr->setEditParams($int_edit_params);
 			$attr->paint($prefix.'_'.$attr->name, !$wa);
 			unset($attr);
 		$o->closeField();
 
-		$o->openField('Upload', '', '', ($variety_type != 'upload'), $prefix.'_field_upload');
+		$o->openField(translate('upload'), '', '', ($variety_type != 'upload'), $prefix.'_field_upload');
 			if ($wa) {
 				file_upload($prefix.'_upload_file');
 			}
 		$o->closeField();
 
 		if ($asset->id) {
-			$o->openField('Current Variety');
+			$o->openField(translate('current_variety'));
 				?>
-					<a href="<?php echo current_url(true, true).'?a='.$asset->id?>&now=<?php echo time()?>" target="_blank">Click to open in a new window</a>
+					<a href="<?php echo current_url(true, true).'?a='.$asset->id?>&now=<?php echo time()?>" target="_blank"><?php echo translate('core_click_to_open_in_new_window'); ?></a>
 				<?php
 			$o->closeField();
 		}
@@ -238,7 +238,7 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 		$upload_ext = get_file_type($info['name']);
 
 		if ($img_ext != $upload_ext) {
-			trigger_localised_error("CORE0003", E_USER_WARNING);
+			trigger_localised_error('CORE0003', E_USER_WARNING);
 			return false;
 		}
 
@@ -256,7 +256,7 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 			$up_to_date = $fv->upToDate($d_new_file);
 			if ($up_to_date & FUDGE_FV_OLD_VERSION) {
 				if (!$fv->checkOut($asset->data_path_suffix.'/'.$d_new_filename, $asset->data_path)) {
-					trigger_localised_error("CORE0103", E_USER_WARNING);
+					trigger_localised_error('CORE0103', E_USER_WARNING);
 					return false;
 				}
 			}
@@ -267,17 +267,17 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 		if (is_uploaded_file($info['tmp_name'])) {
 			// a normal uploaded file
 			if (!move_uploaded_file($info['tmp_name'], $d_new_file)) {
-				trigger_localised_error("CORE0038", E_USER_WARNING ,$info['tmp_name'], $d_new_file);
+				trigger_localised_error('CORE0038', E_USER_WARNING ,$info['tmp_name'], $d_new_file);
 				return false;
 			}
 		} else if (isset($info['non_uploaded_file']) && $info['non_uploaded_file'] === true) {
 			// we have special permission to move a non-uploaded file
 			if (!copy($info['tmp_name'], $d_new_file)) {
-				trigger_localised_error("CORE0036", E_USER_WARNING, $info['tmp_name'], $d_new_file);
+				trigger_localised_error('CORE0036',E_USER_WARNING, $info['tmp_name'], $d_new_file);
 				return false;
 			}
 		} else {
-			trigger_localised_error("CORE0067", E_USER_ERROR);
+			trigger_localised_error('CORE0067', E_USER_ERROR);
 			return false;
 		}
 
@@ -288,7 +288,7 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 			if (!$fv->add($asset->data_path_suffix, $d_new_file, '', false)) return false;
 
 			if (!$fv->checkOut($asset->data_path_suffix.'/'.$d_new_filename, $asset->data_path)) {
-				trigger_localised_error("CORE103", E_USER_WARNING);
+				trigger_localised_error('CORE103', E_USER_WARNING);
 				return false;
 			}
 

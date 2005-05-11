@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: history.inc,v 1.9 2005/04/06 23:05:34 mmcintyre Exp $
+* $Id: history.inc,v 1.10 2005/05/11 06:05:11 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * History Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix
 */
 
@@ -63,11 +63,11 @@ function paintHistory(&$owner, &$o, &$ei)
 	$result = $db->getAll($sql);
 	assert_valid_db_result($result);
 
-	$o->openSection('Version History');
+	$o->openSection(translate('version_history'));
 		$o->openRaw();
 
 			if (SQ_ROLLBACK_VIEW) {
-				?><p class="sq-backend-data"><b><i>The highlighted row in the version history is the current version of "<?php echo $owner->name; ?>" being viewed in rollback mode</i></b></p>
+				?><p class="sq-backend-data"><b><i><?php echo translate('history_viewed_row', $owner->name); ?></i></b></p>
 				<?php
 			}
 
@@ -76,13 +76,13 @@ function paintHistory(&$owner, &$o, &$ei)
 			?>
 			<table class="sq-backend-table">
 				<tr>
-					<td class="sq-backend-table-header">Version Duration</td>
-					<td class="sq-backend-table-header">Time Since Version</td>
-					<td class="sq-backend-table-header" align="center">Version</td>
+					<td class="sq-backend-table-header"><?php echo translate('version_duration'); ?></td>
+					<td class="sq-backend-table-header"><?php echo translate('time_since_version'); ?></td>
+					<td class="sq-backend-table-header" align="center"><?php echo translate('version'); ?></td>
 					<?php
 					if ($write_access) {
 						?>
-						<td class="sq-backend-table-header" align="center">View</td>
+						<td class="sq-backend-table-header" align="center"><?php echo translate('view'); ?></td>
 						<?php
 					}
 					?>
@@ -104,8 +104,8 @@ function paintHistory(&$owner, &$o, &$ei)
 					}
 
 					if (empty($to)) {
-						$to = 'present';
-						$ago = 'Most Recent';
+						$to = translate('present');
+						$ago = translate('most_recent');
 						$show_view_btn = false;
 					} else {
 						require_once SQ_FUDGE_PATH.'/general/datetime.inc';
@@ -127,7 +127,7 @@ function paintHistory(&$owner, &$o, &$ei)
 							<td class="<?php echo $class; ?>" align="center">
 								<?php
 								if ($show_view_btn) {
-									echo submit_button($prefix.'_rollback_mode', ' View ', 'this.form.'.$prefix.'_rollback_version.value = \''.$data['version'].'\'');
+									echo submit_button($prefix.'_rollback_mode', translate('view'), 'this.form.'.$prefix.'_rollback_version.value = \''.$data['version'].'\'');
 								} else {
 									echo '&nbsp;';
 								}

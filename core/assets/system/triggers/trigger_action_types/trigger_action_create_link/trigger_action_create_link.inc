@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_create_link.inc,v 1.9 2005/05/06 03:34:27 gsherwood Exp $
+* $Id: trigger_action_create_link.inc,v 1.10 2005/05/11 06:05:02 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -167,46 +167,65 @@ class Trigger_Action_Create_Link extends Trigger_Action
 			$form_element_extras = '';
 		}
 
+		// begin buffering basic options
+
 		ob_start();
+			combo_box($prefix.'[is_major]', $is_major_list, false, $is_major, null, $form_element_extras);
+			$basic_part_1 = ob_get_contents();
+		ob_end_clean();
 
-		echo 'Link as the ';
-		combo_box($prefix.'[is_major]', $is_major_list, false, $is_major, null, $form_element_extras);
-		echo ' of the asset: ';
-		if ($write_access) {
-			asset_finder($prefix.'[assetid]', $selected_assetid);
-		} else {
-			if ($selected_assetid) {
-				$selected_assetname = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($selected_assetid), Array(), true, 'name');
-				text_box($prefix.'[assetid]', $selected_assetname[$selected_assetid].' (#'.$selected_assetid.')', '', '', false, $form_element_extras);
+		ob_start();
+			if ($write_access) {
+				asset_finder($prefix.'[assetid]', $selected_assetid);
 			} else {
-				text_box($prefix.'[assetid]', '', '', '', false, $form_element_extras);
+				if ($selected_assetid) {
+					$selected_assetname = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($selected_assetid), Array(), true, 'name');
+					text_box($prefix.'[assetid]', $selected_assetname[$selected_assetid].' (#'.$selected_assetid.')', '', '', false, $form_element_extras);
+				} else {
+					text_box($prefix.'[assetid]', '', '', '', false, $form_element_extras);
+				}
 			}
-		}
-		echo ' using a ';
-		combo_box($prefix.'[link_type]', $link_type_list, false, $selected_link_type, null, $form_element_extras);
-		echo ' link.<br /><br />';
 
-		?>
-		<b>Optional items for Advanced users:</b><br />
-		Use this value as the link value:
-		<?php
-		text_box($prefix.'[value]', $value, '', '', false, $form_element_extras);
-		echo ' and link the child ';
+			$basic_part_2 = ob_get_contents();
+		ob_end_clean();
 
-		$is_dependant_list = Array(
-								0	=> 'Non-dependantly',
-								1	=> 'Dependantly',
-							 );
-		combo_box($prefix.'[is_dependant]', $is_dependant_list, false, $is_dependant, null, $form_element_extras);
-		echo ' and ';
-		$is_exclusive_list = Array(
-								0	=> 'Non-exclusively',
-								1	=> 'Exclusively',
-							 );
-		combo_box($prefix.'[is_exclusive]', $is_exclusive_list, false, $is_exclusive, null, $form_element_extras);
-		echo ' to the parent.';
+		ob_start();
+			combo_box($prefix.'[link_type]', $link_type_list, false, $selected_link_type, null, $form_element_extras);
+			$basic_part_3 = ob_get_contents();
+		ob_end_clean();
 
-		return ob_get_clean();
+
+		// begin buffering advanced options
+		ob_start();
+			text_box($prefix.'[value]', $value, '', '', false, $form_element_extras);
+			$advanced_part_1 = ob_get_contents();
+		ob_end_clean();
+
+		ob_start();
+			$is_dependant_list = Array(
+									0	=> translate('non_dependantly'),
+									1	=> translate('dependantly'),
+								 );
+			combo_box($prefix.'[is_dependant]', $is_dependant_list, false, $is_dependant, null, $form_element_extras);
+			$advanced_part_2 = ob_get_contents();
+		ob_end_clean();
+
+		ob_start();
+			$is_exclusive_list = Array(
+									0	=> translate('non_exclusively'),
+									1	=> translate('exclusively'),
+								 );
+			combo_box($prefix.'[is_exclusive]', $is_exclusive_list, false, $is_exclusive, null, $form_element_extras);
+			$advanced_part_3 = ob_get_contents();
+		ob_end_clean();
+
+
+		$contents = translate('trigger_create_link_basic', $basic_part_1, $basic_part_2, $basic_part_3).
+					'<br /><br />'.
+					'<b>'.translate('triggers_advanced_user_options').'</b><br />'.
+					translate('trigger_create_link_advanced', $advanced_part_1, $advanced_part_2, $advanced_part_3);
+
+		return $contents; //ob_get_clean();
 
 	}//end getInterface()
 

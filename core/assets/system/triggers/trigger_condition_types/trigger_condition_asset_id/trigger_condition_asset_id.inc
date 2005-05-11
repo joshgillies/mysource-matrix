@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_asset_id.inc,v 1.5 2005/04/28 05:22:07 rhoward Exp $
+* $Id: trigger_condition_asset_id.inc,v 1.6 2005/05/11 06:05:03 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -103,20 +103,23 @@ class Trigger_Condition_Asset_ID extends Trigger_Condition
 			$form_element_extras = '';
 		}
 
+		// begin buffering basic options
 		ob_start();
-		echo 'Asset ID is ';
-		if ($write_access) {
-			asset_finder($prefix.'[assetid]', $selected_assetid);
-		} else {
-			if ($selected_assetid) {
-				$selected_assetname = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($selected_assetid), Array(), true, 'name');
-				text_box($prefix.'[assetid]', $selected_assetname[$selected_assetid].' (#'.$selected_assetid.')', '', '', false, $form_element_extras);
+			if ($write_access) {
+				asset_finder($prefix.'[assetid]', $selected_assetid);
 			} else {
-				text_box($prefix.'[assetid]', '', '', '', false, $form_element_extras);
+				if ($selected_assetid) {
+					$selected_assetname = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($selected_assetid), Array(), true, 'name');
+					text_box($prefix.'[assetid]', $selected_assetname[$selected_assetid].' (#'.$selected_assetid.')', '', '', false, $form_element_extras);
+				} else {
+					text_box($prefix.'[assetid]', '', '', '', false, $form_element_extras);
+				}
 			}
-		}
 
-		return ob_get_clean();
+			$basic_part_1 = ob_get_contents();
+		ob_end_clean();
+
+		return translate('trigger_asset_id', $basic_part_1);
 
 	}//end getInterface()
 

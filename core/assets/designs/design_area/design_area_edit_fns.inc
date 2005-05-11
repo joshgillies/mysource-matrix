@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_edit_fns.inc,v 1.46 2005/04/15 00:37:24 lwright Exp $
+* $Id: design_area_edit_fns.inc,v 1.47 2005/05/11 06:04:49 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.46 $
+* @version $Revision: 1.47 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -191,7 +191,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 							$die_str .= ' '.$name.'="'.$value.'"';
 						}
 
-						trigger_localised_error("CORE0213", E_USER_WARNING, $this->tag_name, $die_str);
+						trigger_localised_error('CORE0213', E_USER_WARNING, $this->tag_name, $die_str);
 						return null;
 
 					}// end if

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site_network_edit_fns.inc,v 1.2 2005/04/15 00:37:26 lwright Exp $
+* $Id: site_network_edit_fns.inc,v 1.3 2005/05/11 06:04:55 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -73,9 +73,9 @@ class Site_Network_Edit_Fns extends Folder_Edit_Fns
 			if (!empty($site_link)) $site_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($site_link['minorid']);
 			if (!is_null($site_asset)) {
 				echo $asset->getPrimaryURL();
-				echo '<br/ ><i>from site "'.$site_asset->name.'" [#'.$site_asset->id.']</i>';
+				echo '<br/ ><i>'.translate('core_from_site', translate('asset_format', $site_asset->name, $site_asset->id)).'</i>';
 			} else {
-				echo 'No primary URL has been set';
+				echo translate('core_primary_url_not_set');
 			}
 		} else {
 			asset_finder($prefix.'_primary_site', (!empty($site_link)) ? $site_link['minorid'] : '', Array('site' => 'D'));
@@ -109,7 +109,7 @@ class Site_Network_Edit_Fns extends Folder_Edit_Fns
 		// make sure this new primary site is in our network
 		$network_link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($asset->id, $new_site, SQ_SC_LINK_SIGNIFICANT);
 		if (empty($network_link)) {
-			trigger_localised_error("CORE0122", E_USER_WARNING);
+			trigger_localised_error('CORE0122', E_USER_WARNING);
 			return false;
 		}
 
@@ -124,7 +124,7 @@ class Site_Network_Edit_Fns extends Folder_Edit_Fns
 			if (!is_null($site)) {
 				if (!$asset->createLink($site, SQ_LINK_NOTICE, 'primary_site')) {
 					$ok = false;
-					trigger_localised_error("CORE0028", E_USER_WARNING, $site->name, $site->id);
+					trigger_localised_error('CORE0028', E_USER_WARNING, $site->name, $site->id);
 				}
 			}
 		}

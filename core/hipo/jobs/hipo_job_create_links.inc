@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_links.inc,v 1.12 2005/05/04 01:00:58 ndvries Exp $
+* $Id: hipo_job_create_links.inc,v 1.13 2005/05/11 06:05:07 lwright Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -248,7 +248,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 
 		if ($this->_running_vars['link_action'] == 'create') {
 			// we are creating a new link
-			$o->openSection('New Link Confirmation');
+			$o->openSection(translate('new_link_confirmation'));
 				if (!empty($this->_tmp['message'])) {
 					$o->openField('<span style="color: #FF0000;">Error</span>');
 						echo $this->_tmp['message'];
@@ -256,26 +256,26 @@ class HIPO_Job_Create_Links extends HIPO_Job
 				}
 
 				$o->openField('&nbsp;');
-						echo '<p>Please confirm that you are creating new link(s) for the following asset(s) under "'.$new_parent->name.'":</p>';
+						echo '<p>'.translate('hipo_confirm_new_links', $new_parent->name).'</p>';
 						echo '<ul>';
 						for (reset($assets); null !== ($assetid = key($assets)); next($assets)) {
 							$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 							$current = current($assets);
 							$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current['parentid']);
-							echo '<li>"'.$asset->name.'" from under "'.$parent->name.'".</li>';
+							echo '<li>"'.translate('hipo_from_under', $asset->name, $parent->name).'</li>';
 						}
 						echo '</ul>';
-						echo '<p>Press the <b>Next</b> button below to confirm or the <b>Cancel</b> button to abort.</p>';
+						echo '<p>'.translate('hipo_confirm_abort').'</p>';
 				$o->closeField();
 			$o->closeSection();
 
 		} else if ($this->_running_vars['link_action'] == 'move') {
 
 			// we are moving an asset
-			$o->openSection('Move Confirmation');
+			$o->openSection(translate('hipo_move_confirmation'));
 
 				if (!empty($this->_tmp['message'])) {
-					$o->openField('<span style="color: #FF0000;">Error</span>');
+					$o->openField('<span style="color: #FF0000;">'.translate('error').'</span>');
 						echo $this->_tmp['message'];
 					$o->closeField();
 				}
@@ -286,7 +286,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 				// and print them here to avoid confusion
 				if (!empty($reordered_assets)) {
 					$o->openField('&nbsp;');
-							echo '<p>The following asset(s) have already been re-ordered under "'.$new_parent->name.'". They do not need to be moved again:</p>';
+							echo '<p>'.translate('hipo_assets_not_require_move', $new_parent->name).'</p>';
 							echo '<ul>';
 							for (reset($reordered_assets); null !== ($assetid = key($reordered_assets)); next($reordered_assets)) {
 								$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
@@ -298,22 +298,22 @@ class HIPO_Job_Create_Links extends HIPO_Job
 
 				$o->openField('&nbsp;');
 					if ($new_parent->id == $trash_folder->id) {
-						echo '<p>Please confirm that you are moving '.count($assets).' asset(s) to the trash.</p>';
+						?><p><?php echo translate('hipo_confirm_move_trash', count($assets)); ?></p><?php
 					} else {
-						echo '<p>Please confirm that you are moving the following asset(s) to under "'.$new_parent->name.'":</p>';
+						echo '<p>'.translate('hipo_confirm_move_under', $new_parent->name).'</p>';
 						echo '<ul>';
 						for (reset($assets); null !== ($assetid = key($assets)); next($assets)) {
 							$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 							$current = current($assets);
 							$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current['parentid']);
-							echo '<li>"'.$asset->name.'" from under "'.$parent->name.'".</li>';
+							echo '<li>"'.translate('hipo_from_under', $asset->name, $parent->name).'</li>';
 						}
 					}
 					echo '</ul>';
-					echo '<p>Press the <b>Next</b> button below to confirm or the <b>Cancel</b> button to abort.</p>';
+					echo '<p>'.translate('hipo_confirm_abort').'</p>';
 
 					if ($new_parent->id == $trash_folder->id) {
-						echo '<p>When these asset(s) are moved to the trash, any URLs that they currently have will be broken. Use the asset finder below to select another asset to remap the URL to (Eg. a "Page not found" asset). If you do not want to remap the URLs, just leave the field empty.</p>';
+						?><p><?php echo translate('hipo_trash_warn_break_urls'); ?></p><?php
 						asset_finder($prefix.'_remap_new_url', null, Array(), 'sq_sidenav', true);
 					}
 				$o->closeField();
@@ -346,9 +346,9 @@ class HIPO_Job_Create_Links extends HIPO_Job
 
 							if (!empty($links)) {
 								if (!$trash_section_painted) {
-									$o->openSection('Warning - Moving To Trash');
+									$o->openSection(translate('warning_-_moving_to_trash'));
 										$o->openField('&nbsp;');
-											?><p>Moving these assets to the trash is going to affect other assets in the system. A list of the affected assets is shown below along with a description of their purpose.</p><?php
+											?><p><?php echo translate('hipo_warning_trashing_affects_other_assets'); ?></p><?php
 											$trash_section_painted = true;
 								}
 
@@ -513,7 +513,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 				return false;
 			}
 			$new_parent_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($this->_running_vars['to_parent_assetid']));
-			$step_data['message'] = 'Moving "'.$asset->name.'" to "'.$new_parent_info[$this->_running_vars['to_parent_assetid']]['name'].'".';
+			$step_data['message'] = translate('hipo_move', $asset->name, $new_parent_info[$this->_running_vars['to_parent_assetid']]['name']);
 
 			$this->_running_vars['to_parent_pos']++;
 
@@ -570,12 +570,12 @@ class HIPO_Job_Create_Links extends HIPO_Job
 			return false;
 		}
 
-		$o->openSection('Note');
+		$o->openSection(translate('note'));
 			$o->openField('&nbsp;');
 				$o->addHiddenField('link_completed', '0');
 
 				if (count($this->_running_vars['assets']) > 0) {
-					echo '<p><b>The following asset(s) have been successfully linked under "'.$parent->name.'":</b></p>';
+					echo '<p><b>'.translate('hipo_asset_link_successful', $parent->name).'</b></p>';
 					echo '<ul>';
 					for (reset($assets); null !== ($assetid = key($assets)); next($assets)) {
 						$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid,));
@@ -586,11 +586,9 @@ class HIPO_Job_Create_Links extends HIPO_Job
 
 				?>
 
-				<p>The permissions, workflow schemas, and metadata schemas of "<?php echo $parent->name; ?>" are shown below.</p>
-
-				<p>To cascade the permissions, workflow schemas, and/or metadata schemas of "<?php echo $parent->name; ?>" to the newly linked asset(s) and their children, check the appropriate boxes below and press the <b><i>Next</i></b> button.</p>
-
-				<p>If you do not wish to cascade any permissions or schemas, press the <b><i>Next</i></b> button without checking any boxes.</p>
+				<p><?php echo translate('hipo_permission_workflow_metadata_display', $parent->name); ?></p>
+				<p><?php echo translate('hipo_permission_workflow_metadata_cascade_select', $parent->name); ?></p>
+				<p><?php echo translate('hipo_permission_workflow_metadata_cascade_none'); ?></p>
 				<?php
 				$ei = &$parent->getEI();
 
@@ -607,11 +605,11 @@ class HIPO_Job_Create_Links extends HIPO_Job
 			$o->closeField();
 		$o->closeSection();
 
-		$o->openSection('Cascade');
+		$o->openSection(translate('cascade'));
 			$o->openField('', 'cascade');
-				echo ($pe) ? 'Permissions'.check_box('cascade[]', 'cascade_pe').'<br />' : '';
-				echo ($ms) ? 'Metadata Schemas'.check_box('cascade[]', 'cascade_ms').'<br />' : '';
-				echo ($wf) ? 'Workflow'.check_box('cascade[]', 'cascade_wf').'<br />' : '';
+				echo ($pe) ? translate('permissions').' '.check_box('cascade[]', 'cascade_pe').'<br />' : '';
+				echo ($ms) ? translate('metadata_schemas').' '.check_box('cascade[]', 'cascade_ms').'<br />' : '';
+				echo ($wf) ? translate('workflow').' '.check_box('cascade[]', 'cascade_wf').'<br />' : '';
 			$o->closeField();
 		$o->closeSection();
 

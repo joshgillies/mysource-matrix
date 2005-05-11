@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_site_map.inc,v 1.19 2005/04/29 05:40:31 gsherwood Exp $
+* $Id: page_site_map.inc,v 1.20 2005/05/11 06:07:33 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -90,7 +90,7 @@ class Page_Site_Map extends Page
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
 		switch (strtolower($link['value'])) {
 			case 'root' :
-				return 'The root node of the Site Map';
+				return translate('cms_root_node_link_desc', translate('cms_site_map_asset_name'));;
 			break;
 			default :
 				return parent::describeLink($linkid);

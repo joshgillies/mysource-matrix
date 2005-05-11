@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_write_access.inc,v 1.6 2005/02/22 22:03:02 lwright Exp $
+* $Id: condition_write_access.inc,v 1.7 2005/05/11 06:04:57 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition.inc';
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -62,8 +62,8 @@ class Condition_Write_Access extends Condition
 	function getOptions()
 	{
 		$options = Array(
-					   '1' => 'Has Write Access',
-					   '0' => 'Does Not Have Write Access',
+					   '1' => translate('condition_has_write_access'),
+					   '0' => translate('condition_not_write_access'),
 					   );
 		
 		return $options;

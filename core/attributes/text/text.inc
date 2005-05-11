@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.31 2005/01/20 13:10:34 brobertson Exp $
+* $Id: text.inc,v 1.32 2005/05/11 06:05:07 lwright Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *    <text width="40" height="4" />
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -75,7 +75,7 @@ class Asset_Attribute_Text extends Asset_Attribute
 		?>
 		<table class="sq-backend-table">
 			<tr>
-				<td class="sq-backend-section-heading" style="width: 100px;">Width</td>
+				<td class="sq-backend-section-heading" style="width: 100px;"><?php echo translate('width'); ?></td>
 				<td class="sq-backend-table-cell">
 					<?php
 					if ($write_access) text_box($prefix.'_'.$this->name.'_width', $this->_edit_params['width']);
@@ -84,7 +84,7 @@ class Asset_Attribute_Text extends Asset_Attribute
 				</td>
 			</tr>
 			<tr>
-				<td class="sq-backend-section-heading" style="width: 100px;">Height</td>
+				<td class="sq-backend-section-heading" style="width: 100px;"><?php echo translate('height'); ?></td>
 				<td class="sq-backend-table-cell">
 					<?php
 					if ($write_access) text_box($prefix.'_'.$this->name.'_height', $this->_edit_params['height']);

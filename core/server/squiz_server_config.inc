@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: squiz_server_config.inc,v 1.12 2005/04/13 23:49:30 ndvries Exp $
+* $Id: squiz_server_config.inc,v 1.13 2005/05/11 06:05:11 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the squiz server config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix
 */
 class Squiz_Server_Config extends Config
@@ -118,31 +118,31 @@ class Squiz_Server_Config extends Config
 		$write_access = $this->writeAccess();
 		$class = get_class($this);
 
-		$o->openSection('Squiz Server Configuration');
+		$o->openSection(translate('squiz_server_configuration'));
 
-			$o->openField('System Root');
+			$o->openField(translate('system_root'));
 			if ($write_access) {
 				text_box($class.'[SQ_SERVER_SYSTEM_ROOT]', SQ_SERVER_SYSTEM_ROOT, 60);
 			} else {
 				echo SQ_SERVER_SYSTEM_ROOT;
 			}
-			$o->note('This is the path to the local Squiz Server\'s base directory');
+			$o->note(translate('squiz_server_path'));
 
-			$o->openField('System ID');
+			$o->openField(translate('system_id'));
 			if ($write_access) {
 				text_box($class.'[SQ_SERVER_SYSTEMID]', SQ_SERVER_SYSTEMID, 30);
 			} else {
 				echo SQ_SERVER_SYSTEMID;
 			}
 
-			$o->openField('Domain');
+			$o->openField(translate('domain'));
 			if ($write_access) {
 				text_box($class.'[SQ_SERVER_DOMAIN]', SQ_SERVER_DOMAIN, 30);
 			} else {
 				echo SQ_SERVER_DOMAIN;
 			}
 
-			$o->openField('Port');
+			$o->openField(translate('port'));
 			if ($write_access) {
 				text_box($class.'[SQ_SERVER_PORT]', SQ_SERVER_PORT, 10);
 			} else {

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_found_in_edit_fns.inc,v 1.12 2005/04/29 05:40:29 gsherwood Exp $
+* $Id: form_question_rule_type_found_in_edit_fns.inc,v 1.13 2005/05/11 06:07:31 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule_edi
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -49,40 +49,40 @@ class Form_Question_Rule_Type_Found_In_Edit_Fns extends Form_Question_Rule_Edit_
 		$operator_list = $asset->getOperators();
 
 		if (!$write_access) {
-			$o->openField('Rule Details');
-			echo 'Response '.strtolower($operator_list[array_get_index($rule_data, 'operator', 1)]);
-
+			$o->openField(translate('cms_form_rule_details'));
 			if (($cq_id = array_get_index($rule_data, 'comparison_question_id', 0)) != 0) {
 				$q_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($cq_id);
-				echo ' the response to "'.$q_asset->attr('name').'" (Id: #'.$cq_id.')';
+				$value = $q_asset->name;
 			} else {
-				echo ' "'.array_get_index($rule_data, 'value', '').'"';
+				$value = array_get_index($rule_data, 'value', '');
 			}
+
+			echo translate('cms_form_rule_found_in_edit_'.(array_get_index($rule_data, 'operator', 1) ? 'true' : 'false').($cq_id ? '_q' : ''), $value);
 			$o->closeField();
 
 		} else {
 
-			$o->openField('Operator');
+			$o->openField(translate('operator'));
 			// list of operators
 			combo_box($prefix.'[operator]', $operator_list, false, array_get_index($rule_data, 'operator', 1));
 			$o->closeField();
 
-			$o->openField('Static Value');
+			$o->openField(translate('cms_form_rule_static_value'));
 			// give a text box to write the comparison value in
 			text_box($prefix.'[value]', array_get_index($rule_data, 'value', ''), 30);
 			$o->closeField();
 
-			$o->openField('OR Value of Question');
+			$o->openField(translate('cms_form_rule_or_value_of_question'));
 			// give a text box to write the comparison value in
 			asset_finder($prefix.'[asset]', array_get_index($rule_data, 'comparison_question_id', '0'), Array('form_question' => 'D'));
 			$o->closeField();
 
-			$o->openField('Case Sensitive ?');
+			$o->openField(translate('cms_form_case_sensitive_question'));
 			// give a text box to write the comparison value in
 			check_box($prefix.'[case]', 1, array_get_index($rule_data, 'case_sensitive', 1));
 			$o->closeField();
 
-			$o->sectionNote('Enter either a static value to compare responses against, or select another question from this form to compare with that question\'s response. The selection of a question takes precedence over a static value.');
+			$o->sectionNote(translate('cms_form_rule_static_or_question_note'));
 		}
 
 		return $write_access;

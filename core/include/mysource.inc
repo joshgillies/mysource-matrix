@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.103 2005/05/02 07:26:50 ndvries Exp $
+* $Id: mysource.inc,v 1.104 2005/05/11 06:05:10 lwright Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.103 $
+* @version $Revision: 1.104 $
 * @package MySource_Matrix
 */
 class MySource
@@ -1366,7 +1366,7 @@ class MySource
 		require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 		$then = strtotime($_SESSION['sq_rollback_view']['rollback_time']);
 		$time_string = readable_datetime($then).' ('.easy_time_total(time() - $then, true).' ago)';
-		$warning_message = 'The system is as it appeared on '.$time_string.'.<br/>While viewing in rollback mode you cannot make any changes to the system.';
+		$warning_message = translate('rollback_mode_warning_message', $time_string);
 		$exit_url = $_SERVER['PHP_SELF'].'?SQ_ACTION=rollback_view_stop';
 
 		?>
@@ -1386,11 +1386,11 @@ class MySource
 				<td bgcolor="#FFE5E8">
 					<table border="0" cellspacing="2" cellpadding="2" width="100%">
 						<tr>
-							<td class="sq-rollback-warning" align="right">Exit Rollback View <a href="#" onClick="Javascript: window.top.location='<?php echo $exit_url; ?>'; return false" target="top" class="sq-rollback-warning" style="cursor: pointer;"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/delete.png'; ?>", "16", "16", "Exit Rollback View");</script></a></u>
+							<td class="sq-rollback-warning" align="right"><?php echo translate('exit_rollback_view'); ?> <a href="#" onClick="Javascript: window.top.location='<?php echo $exit_url; ?>'; return false" target="top" class="sq-rollback-warning" style="cursor: pointer;"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/delete.png'; ?>", "16", "16", "Exit Rollback View");</script></a></u>
 							</td>
 						</tr>
 						<tr>
-							<td class="sq-rollback-warning" align="center"><u>You are currently viewing the system in rollback mode</u>
+							<td class="sq-rollback-warning" align="center"><u><?php echo translate('in_rollback_mode'); ?></u>
 							</td>
 						</tr>
 						<tr>

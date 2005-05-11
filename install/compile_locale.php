@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: compile_locale.php,v 1.2 2005/04/28 05:33:27 lwright Exp $
+* $Id: compile_locale.php,v 1.3 2005/05/11 06:05:11 lwright Exp $
 *
 */
 
@@ -29,13 +29,15 @@
 * Compiles languages on the system
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 * @subpackage install
 */
 ini_set('memory_limit', -1);
 error_reporting(E_ALL);
 $SYSTEM_ROOT = '';
+$exs = Array();
+
 
 // from cmd line
 $cli = true;
@@ -347,6 +349,10 @@ if (!in_array($locale, array_keys($locale_list))
 }
 
 $GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+
+foreach($exs as $str) {
+	print "$str\n";
+}
 
 
 /**

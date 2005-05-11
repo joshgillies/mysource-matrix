@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_clone_assets.inc,v 1.12 2005/04/15 00:37:27 lwright Exp $
+* $Id: hipo_job_clone_assets.inc,v 1.13 2005/05/11 06:05:07 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -156,14 +156,14 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 		$write_access = $this->writeAccess();
 
 		// metadata regeneration threshhold HIPO config entry
-		$o->openField('Clone Asset Threshold');
+		$o->openField(translate('clone_asset_threshold'));
 
 		if ($write_access) {
 				text_box($class.'[SQ_DUPE_ASSET_THRESHOLD]',SQ_DUPE_ASSET_THRESHOLD, 5);
 		} else {
 				echo SQ_DUPE_ASSET_THRESHOLD;
 		}
-		echo ' assets';
+		echo ' '. translate('assets');
 
 		$o->closeField();
 
@@ -314,7 +314,7 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 
 		$asset_info = &$GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid));
 
-		$step_data['message'] = 'Releasing Locks on '.$asset_info[$assetid]['name'].' and its dependant assets';
+		$step_data['message'] = translate('hipo_release_locks', $asset_info[$assetid]['name']).translate('hipo_release_locks_dependents');
 
 		$GLOBALS['SQ_SYSTEM']->am->releaseLock($assetid, 'all');
 
@@ -351,10 +351,10 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 	{
 		$to_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['to_parent_assetid']);
 
-		$o->openSection('Cloning Confirmation');
-			$o->openField('Confirm');
+		$o->openSection(translate('cloning_confirmation'));
+			$o->openField(translate('confirm'));
 				?>
-				<p>Please confirm that you are cloning the following asset(s) to under "<?php echo $to_parent->name; ?>":</p>
+				<p><?php echo translate('hipo_cloning_confirm', $to_parent->name); ?></p>
 				<ul>
 					<?php
 					$assets = $this->_running_vars['assets'];
@@ -364,7 +364,7 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 					}
 					?>
 				</ul>
-				</p><p>Press the <b>Next</b> button below to confirm or the <b>Cancel</b> button to abort.</p>
+				</p><p><?php echo translate('hipo_confirm_abort');?></p>
 				<?php
 			$o->closeField();
 		$o->closeSection();

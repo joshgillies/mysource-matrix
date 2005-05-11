@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit_table_row_props.php,v 1.4 2004/12/06 14:38:07 brobertson Exp $
+* $Id: edit_table_row_props.php,v 1.5 2005/05/11 06:04:49 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -59,21 +59,21 @@ include(dirname(__FILE__)."/header.php");
 	}
 </script>
 
-<div class="title">Table Row Properties</div>
+<div class="title"><?php echo translate('table_row_properties'); ?></div>
 
 <form name="main_form">
 <table width="100%" border="0" class="bodycopy-popup-table">
 	<tr>
 		<td>
 			<fieldset>
-			<legend>Properties</legend>
+			<legend><?php echo translate('properties'); ?></legend>
 			<table border="0" cellpadding="0" cellspacing="4">
 				<tr>
-					<td class="label">Height :</td>
+					<td class="label"><?php echo translate('height'); ?>:</td>
 					<td><input type="text" name="height" value="" size="5"></td>
 				</tr>
 				<tr>
-					<td class="label">Background Colour :</td>
+					<td class="label"><?php echo translate('background_colour'); ?>:</td>
 					<td><?php colour_box('bgcolor', '', true, '*',true, false, false);?></td>
 				</tr>
 			</table>
@@ -83,9 +83,9 @@ include(dirname(__FILE__)."/header.php");
 	<tr>
 		<td>
 			<div style="text-align: right;">
-			<button type="button" name="ok" onClick="javascript: save_props(this.form)">OK</button>
+			<button type="button" name="ok" onClick="javascript: save_props(this.form)"><?php echo translate('ok'); ?></button>
 			&nbsp;
-			<button type="button" name="cancel" onClick="javascript: popup_close();">Cancel</button>
+			<button type="button" name="cancel" onClick="javascript: popup_close();"><?php echo translate('cancel'); ?></button>
 			</div>
 		</td>
 	</tr>

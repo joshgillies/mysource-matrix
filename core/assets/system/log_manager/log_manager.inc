@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: log_manager.inc,v 1.14 2005/04/20 00:30:38 rhoward Exp $
+* $Id: log_manager.inc,v 1.15 2005/05/11 06:04:59 lwright Exp $
 */
 
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -601,7 +601,7 @@ class Log_Manager extends Asset
 		$content = '';
 
 		if (empty($action)) {
-			echo 'No action supplied';
+			echo translate('no_action_supplied');
 			return true;
 
 		} else if ($action == 'monitor' && !empty($logname)) {
@@ -609,7 +609,7 @@ class Log_Manager extends Asset
 			$filename = SQ_LOG_PATH.'/'.$logname.SQ_CONF_LOG_EXTENSION;
 
 			if (!is_readable($filename)) {
-				echo 'File is not readable';
+				echo translate('file_not_readable');
 				return true;
 			}
 
@@ -619,7 +619,7 @@ class Log_Manager extends Asset
 			} else {
 				$handle = fopen($filename, 'r');
 				if (!$handle) {
-					echo 'Cannot open file';
+					echo translate('cannot_open_file');
 					return;
 				}
 
@@ -647,12 +647,12 @@ class Log_Manager extends Asset
 			$content = '
 				<table class="sq-backend-table">
 					<tr>
-						<th style="width: 150px">Meta Data</th>
-						<th>Message</th>
+						<th style="width: 150px">'.translate('metadata').'</th>
+						<th>'.translate('message').'</th>
 					</tr>';
 
 			if (empty($lines)) {
-				$content .= 'Empty';
+				$content .= translate('empty');
 			} else {
 				foreach ($lines as $line) {
 					if (empty($line)) continue;
@@ -666,16 +666,16 @@ class Log_Manager extends Asset
 						<tr>
 							<td style="background-color: '.$error_type_colour.'; color: white">
 								'.$log_date.'<br />
-								User:&nbsp;<strong>'.$d_line['user'].'</strong>&nbsp;('.$d_line['userid'].')<br />
-								Level:&nbsp;<strong>'.$error_type_name.'</strong><br />
+								'.translate('user').':&nbsp;<strong>'.$d_line['user'].'</strong>&nbsp;('.$d_line['userid'].')<br />
+								'.translate('level').':&nbsp;<strong>'.$error_type_name.'</strong><br />
 							</td>
-							<td><span style="font-family: monospace;">'.$d_line['data'].'<span></td>
+							<td><span style="font-family: monospace;">'.$d_line['data'].'</span></td>
 						</tr>';
 					} else {
 						$content .= '
 						<tr class="alt">
 							<td style="color: red; background-color: #eef; text-align: right;">
-								<strong>Raw Entry:</strong>
+								<strong>'.translate('raw_entry').':</strong>
 							</td>
 							<td><span style="font-family: monospace;">'.$line.'<span></td>
 						</tr>';
@@ -694,7 +694,7 @@ class Log_Manager extends Asset
 		?>
 		<html>
 				<head>
-					<title>Log Monitor</title>
+					<title><?php echo translate('log_monitor'); ?></title>
 					<link rel="stylesheet" type="text/css" href="<?php echo sq_web_path('lib');?>/web/css/edit.css" />
 					<script type="text/javascript">
 						//<![CDATA[

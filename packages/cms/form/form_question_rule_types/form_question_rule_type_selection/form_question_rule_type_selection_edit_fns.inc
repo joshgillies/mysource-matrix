@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_selection_edit_fns.inc,v 1.4 2005/04/29 05:40:29 gsherwood Exp $
+* $Id: form_question_rule_type_selection_edit_fns.inc,v 1.5 2005/05/11 06:07:32 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule_edi
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -50,19 +50,19 @@ class Form_Question_Rule_Type_Selection_Edit_Fns extends Form_Question_Rule_Edit
 		$options = $q_asset->getOptions();
 
 		if (!$write_access) {
-			$o->openField('Rule Details');
-			echo 'Option "'.$rule_data['value'].'" '.strtolower($operator_list[array_get_index($rule_data, 'operator', 1)]);
+			$o->openField(translate('cms_form_rule_details'));
+			echo translate('cms_form_rule_selection_edit_'.(array_get_index($rule_data, 'operator', 1) ? 'true' : 'false'),  $q_asset->getSummary($rule_data['value']));
 
 			$o->closeField();
 
 		} else {
 
-			$o->openField('Operator');
+			$o->openField(translate('operator'));
 			// list of operators
 			combo_box($prefix.'[operator]', $operator_list, false, array_get_index($rule_data, 'operator', 1));
 			$o->closeField();
 
-			$o->openField('Option');
+			$o->openField(translate('option'));
 			// give a text box to write the comparison value in
 			combo_box($prefix.'[value]', $options, false, array_get_index($rule_data, 'value', ''));
 			$o->closeField();

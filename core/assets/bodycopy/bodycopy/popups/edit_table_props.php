@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit_table_props.php,v 1.8 2005/01/20 13:07:31 brobertson Exp $
+* $Id: edit_table_props.php,v 1.9 2005/05/11 06:04:49 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -96,10 +96,10 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 	<tr>
 		<td>
 		<fieldset>
-			<legend><b>Identification</b></legend>
+			<legend><b><?php echo translate('identification'); ?></b></legend>
 			<table style="width:100%">
 				<tr>
-					<td class="label">Name:</td>
+					<td class="label"><?php echo translate('name'); ?>:</td>
 					<td><input type="text" name="identifier" value="" size="15"></td>
 				</tr>
 			</table>
@@ -112,24 +112,24 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 				<tr>
 					<td valign="top" width="50%">
 						<fieldset>
-						<legend><b>Layout</b></legend>
+						<legend><b><?php echo translate('layout'); ?></b></legend>
 						<table style="width:100%">
 							<tr>
-								<td class="label">Width:</td>
+								<td class="label"><?php echo translate('width'); ?>:</td>
 								<td><input type="text" name="width" value="" size="5"></td>
 							</tr>
 							<tr>
-								<td class="label">Height:</td>
+								<td class="label"><?php echo translate('height'); ?>:</td>
 								<td><input type="text" name="height" value="" size="5"></td>
 							</tr>
 							<tr>
-								<td class="label">Alignment:</td>
+								<td class="label"><?php echo translate('alignment'); ?>:</td>
 								<td>
 								<select name="align">
-									<option value=""      >
-									<option value="left"  >Left
-									<option value="center">Centre
-									<option value="right" >Right
+									<option value="">
+									<option value="left"  ><?php echo translate('left'); ?>
+									<option value="center"><?php echo translate('centre'); ?>
+									<option value="right" ><?php echo translate('right'); ?>
 								</select>
 								</td>
 							</tr>
@@ -139,10 +139,10 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 					<td>&nbsp;</td>
 					<td valign="top" width="50%">
 						<fieldset>
-						<legend><b>Spacing and Padding</b></legend>
+						<legend><b><?php echo translate('spacing_and_padding'); ?></b></legend>
 						<table style="width:100%">
 							<tr>
-								<td class="label">Spacing:</td>
+								<td class="label"><?php echo translate('spacing'); ?>:</td>
 								<td>
 								<select name="cellspacing">
 									<option value="" >
@@ -161,7 +161,7 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 								</td>
 							</tr>
 							<tr>
-								<td class="label">Padding:</td>
+								<td class="label"><?php echo translate('padding'); ?>:</td>
 								<td>
 								<select name="cellpadding">
 									<option value="" >
@@ -189,10 +189,10 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 	<tr>
 		<td width="100%">
 			<fieldset>
-			<legend><b>Table Styles / Colours</b></legend>
+			<legend><b><?php echo translate('table_styles-colours'); ?></b></legend>
 				<table>
 					<tr>
-						<td class="label">Background Colour:</td>
+						<td class="label"><?php echo translate('background_colour'); ?>:</td>
 						<td><?php colour_box('bgcolor', '', true, '*',true, false, false);?></td>
 					</tr>
 					<!-- <tr>
@@ -200,7 +200,7 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 						<td><input type="text" name="background" value="" size="5"></td>
 					</tr> -->
 					<tr>
-						<td class="label" valign="top">Border:</td>
+						<td class="label" valign="top"><?php echo translate('border'); ?>:</td>
 						<td valign="top">
 						<select name="border">
 							<option value="" >
@@ -225,10 +225,10 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 	<tr>
 		<td width="100%">
 			<fieldset>
-			<legend><b>Keywords</b></legend>
+			<legend><b><?php echo translate('keywords'); ?></b></legend>
 				<table>
 					<tr>
-						<td class="label">Disable Keywords:</td>
+						<td class="label"><?php echo translate('disable_keywords'); ?>:</td>
 						<td><input type="checkbox" name="disable_keywords" value="1"></td>
 					</tr>
 				</table>
@@ -238,10 +238,10 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 	<tr>
 		<td>
 			<fieldset>
-			<legend><b>Delete This Table</b></legend>
+			<legend><b><?php echo translate('delete_this_table'); ?></b></legend>
 			<table>
 				<tr>
-					<td class="label">Click Icon to Delete:</td>
+					<td class="label"><?php echo translate('click_to_delete'); ?>:</td>
 					<td>
 						<a href="javascript: owner.bodycopy_delete_table(document.main_form.bodycopy_name.value, document.main_form.tableid.value);" style="cursor: pointer;"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('data')?>/asset_types/bodycopy/images/icons/delete.png", "16", "16", "Delete this table");</script></a>
 					</td>
@@ -253,9 +253,9 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 	<tr>
 		<td>
 		<div style="text-align: right;">
-		<button type="button" name="ok" onClick="javascript: popup_save(this.form)">OK</button>
+		<button type="button" name="ok" onClick="javascript: popup_save(this.form)"><?php echo translate('ok'); ?></button>
 		&nbsp;
-		<button type="button" name="cancel" onClick="javascript: popup_close();">Cancel</button>
+		<button type="button" name="cancel" onClick="javascript: popup_close();"><?php echo translate('cancel'); ?></button>
 		</div>
 		</td>
 	</tr>

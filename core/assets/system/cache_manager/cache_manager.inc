@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.7 2005/04/06 23:05:34 mmcintyre Exp $
+* $Id: cache_manager.inc,v 1.8 2005/05/11 06:04:56 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once 'Cache.php';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -148,7 +148,7 @@ class Cache_Manager extends Asset
 		if (SQ_ROLLBACK_VIEW) return '';
 		if (isset($_REQUEST['no_cache']) && $_REQUEST['no_cache']) return '';
 
-		assert_is_a($asset, 'asset', 'Cannot load cache of non asset object');
+		assert_is_a($asset, 'asset', translate('cannot_load_cache_of_non_asset'));
 		if (!$this->cacheEnabled($asset->type())) return '';
 
 		$suffix = $this->_getCacheKey($asset, $key);
@@ -180,7 +180,7 @@ class Cache_Manager extends Asset
 		if (SQ_ROLLBACK_VIEW) return false;
 		if (isset($_REQUEST['no_cache']) && $_REQUEST['no_cache']) return false;
 
-		assert_is_a($asset, 'asset', 'Cannot save cache of non asset object');
+		assert_is_a($asset, 'asset', translate('cannot_save_cache_of_non_asset'));
 		if (!$this->cacheEnabled($asset->type())) return false;
 
 		$suffix = $this->_getCacheKey($asset, $key);

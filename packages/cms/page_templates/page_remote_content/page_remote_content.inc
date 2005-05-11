@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.19 2005/04/29 05:40:31 gsherwood Exp $
+* $Id: page_remote_content.inc,v 1.20 2005/05/11 06:07:33 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once 'HTTP/Client/CookieManager.php';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -152,7 +152,7 @@ class Page_Remote_Content extends Page
 			}
 
 		} else if ($binary && !$allow_binary){
-			$result = '[Binary Data]';
+			$result = '['.translate('cms_remote_content_binary_data').']';
 
 		} else {
 			// textual content is ready for output

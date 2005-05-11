@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_table_cell.inc,v 1.12 2004/12/09 02:56:14 gsherwood Exp $
+* $Id: bodycopy_table_cell.inc,v 1.13 2005/05/11 06:04:49 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -210,7 +210,7 @@ class BodyCopy_Table_Cell extends MySource_Object
 		echo ">\n";
 
 		if (is_null($content_type)) {
-			echo 'Content Type Asset Id : #'.$link['minorid'].' not found<br>Please contact your system administrator';
+			echo translate('content_type_not_found', $link['minorid']);
 		} else {
 			$content_edit = &$content_type->getEditFns();
 			if (!empty($prefix)) {

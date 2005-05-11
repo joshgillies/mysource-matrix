@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_email_edit_fns.inc,v 1.12 2005/04/29 05:40:29 gsherwood Exp $
+* $Id: form_question_rule_type_email_edit_fns.inc,v 1.13 2005/05/11 06:07:31 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule_edi
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -48,18 +48,18 @@ class Form_Question_Rule_Type_Email_Edit_Fns extends Form_Question_Rule_Edit_Fns
 		$operator_list = $asset->getOperators();
 
 		if (!$write_access) {
-			$o->openField('Rule Details');
-			echo 'Response '.strtolower($operator_list[array_get_index($rule_data, 'operator', 1)]);
+			$o->openField(translate('cms_form_rule_details'));
+			echo translate('cms_form_rule_email_'.array_get_index($rule_data, 'operator', 1) ? 'true' : 'false');
 			$o->closeField();
 
 		} else {
 
-			$o->openField('Condition');
+			$o->openField(translate('condition'));
 			// list of operators
 			combo_box($prefix.'[operator]', $operator_list, false, array_get_index($rule_data, 'operator', '1'));
 			$o->closeField();
 
-			$o->sectionNote('This rule requires only the condition to be satisfied to be set.');
+			$o->sectionNote(translate('cms_form_rule_boolean_note'));
 		}
 
 		return $write_access;

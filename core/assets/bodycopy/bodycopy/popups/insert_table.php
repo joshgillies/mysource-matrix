@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_table.php,v 1.6 2005/01/20 13:07:31 brobertson Exp $
+* $Id: insert_table.php,v 1.7 2005/05/11 06:04:49 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -67,7 +67,7 @@ include(dirname(__FILE__)."/header.php");
 
 </script>
 
-<div class="title" style="text-align: right;">Insert Table</div>
+<div class="title" style="text-align: right;"><?php echo translate('bodycopy_insert_table'); ?></div>
 
 <form name="main_form">
 <input type="hidden" name="bodycopy_name" value="">
@@ -79,18 +79,18 @@ include(dirname(__FILE__)."/header.php");
 				<tr>
 					<td valign="top" width="50%">
 						<fieldset>
-						<legend><b>Layout</b></legend>
+						<legend><b><?php echo translate('layout'); ?></b></legend>
 						<table style="width:100%">
 							<tr>
-								<td class="label">Columns:</td>
+								<td class="label"><?php echo translate('columns'); ?>:</td>
 								<td><input type="text" name="cols" value="1" size="3" onChange="javascript: set_pos_int(this, 1);"></td>
 							</tr>
 							<tr>
-								<td class="label">Rows:</td>
+								<td class="label"><?php echo translate('rows'); ?>:</td>
 								<td><input type="text" name="rows" value="1" size="3" onChange="javascript: set_pos_int(this, 1);"></td>
 							</tr>
 							<tr>
-								<td class="label">Width:</td>
+								<td class="label"><?php echo translate('width'); ?>:</td>
 								<td><input type="text" name="width" value="" size="5"></td>
 							</tr>
 						</table>
@@ -103,10 +103,10 @@ include(dirname(__FILE__)."/header.php");
 	<tr>
 		<td width="100%">
 			<fieldset>
-			<legend><b>Table Styles / Colours</b></legend>
+			<legend><b><?php echo translate('table_styles-colours'); ?></b></legend>
 				<table width="100%">
 					<tr>
-						<td class="label">Background Colour:</td>
+						<td class="label"><?php echo translate('background_colour'); ?>:</td>
 						<td><?php colour_box('bgcolor', '', true, '*',true, false, false);?></td>
 					</tr>
 				</table>
@@ -116,9 +116,9 @@ include(dirname(__FILE__)."/header.php");
 	<tr>
 		<td>
 		<div style="text-align: right;">
-		<button type="button" name="ok" onClick="javascript: popup_save(this.form)">OK</button>
+		<button type="button" name="ok" onClick="javascript: popup_save(this.form)"><?php echo translate('ok'); ?></button>
 		&nbsp;
-		<button type="button" name="cancel" onClick="javascript: popup_close();">Cancel</button>
+		<button type="button" name="cancel" onClick="javascript: popup_close();"><?php echo translate('cancel'); ?></button>
 		</div>
 		</td>
 	</tr>

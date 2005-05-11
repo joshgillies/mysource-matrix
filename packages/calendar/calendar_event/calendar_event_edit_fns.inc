@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_edit_fns.inc,v 1.34 2005/04/29 05:39:18 gsherwood Exp $
+* $Id: calendar_event_edit_fns.inc,v 1.35 2005/05/11 06:07:17 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -67,7 +67,7 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 		<!-- start -->
 		<table border="0" cellpadding="0" cellspacing="0" style="margin-bottom: 1ex">
 			<tr>
-				<td class="sq-backend-data" style="vertical-align: bottom; white-space: nowrap">&nbsp;Occurs on&nbsp;
+				<td class="sq-backend-data" style="vertical-align: bottom; white-space: nowrap">&nbsp;<?php echo translate('cal_event_occurs_on') ?>&nbsp;
 					<?php $this->printDateChooser($prefix.'_start', isset($_REQUEST['SQ_CALENDAR_DATE']) ? strtotime($_REQUEST['SQ_CALENDAR_DATE']) : ($asset->getStartDate() ? iso8601_ts($asset->attr('start_date')) : 0), $attributes+Array('onkeypress'=>'processKeyEvent(this)', 'onfocus'=>'currentField=this', 'onblur'=>'currentField=null; oldField=this; setTimeout(\'processStartDateBlur(oldField, \\\''.$prefix.'\\\')\', 10);')); ?>
 				</td>
 				<td class="sq-backend-data" style="white-space: nowrap">
@@ -84,18 +84,18 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 				</td>
 				<!-- duration -->
 				<td class="sq-backend-data" style="white-space: nowrap">
-					<input type="radio" value="duration" id="<?php echo $prefix; ?>_duration_enabled" name="<?php echo $prefix; ?>_end_type" <?php if (!$asset->id) echo 'checked="checked"'; ?> <?php echo $end_disabled_code; ?> /> for
+					<input type="radio" value="duration" id="<?php echo $prefix; ?>_duration_enabled" name="<?php echo $prefix; ?>_end_type" <?php if (!$asset->id) echo 'checked="checked"'; ?> <?php echo $end_disabled_code; ?> /> <?php echo strtolower(translate('for')); ?>
 				</td>
 				<td colspan="2" class="sq-backend-data" style="white-space: nowrap">
 					<?php text_box($prefix.'_duration', (isset($_REQUEST['SQ_CALENDAR_DURATION']) ? strtok($_REQUEST['SQ_CALENDAR_DURATION'], '_') : ''), 2, 0, 0, 'onclick="checkBox(\''.$prefix.'_duration_enabled\'); checkBox(\''.$prefix.'_start_time_enabled\'); enableTimeField(\''.$prefix.'_start\');"  onblur="updateDurationValues(\''.$prefix.'\')" '.$end_disabled_code);
-					combo_box($prefix.'_duration_units', Array('i' => 'Minutes', 'h' => 'Hours', 'd' => 'Days'), false, Array('i'), 0,  'onclick="checkBox(\''.$prefix.'_duration_enabled\'); checkBox(\''.$prefix.'_start_time_enabled\'); enableTimeField(\''.$prefix.'_start\');" onblur="updateDurationValues(\''.$prefix.'\')" '.$end_disabled_code); ?>
+					combo_box($prefix.'_duration_units', Array('i' => translate('minutes'), 'h' => translate('hours'), 'd' => translate('days')), false, Array('i'), 0,  'onclick="checkBox(\''.$prefix.'_duration_enabled\'); checkBox(\''.$prefix.'_start_time_enabled\'); enableTimeField(\''.$prefix.'_start\');" onblur="updateDurationValues(\''.$prefix.'\')" '.$end_disabled_code); ?>
 				</td>
 			</tr>
 			<tr>
 				<td>&nbsp;</td>
 				<!-- end date -->
 				<td class="sq-backend-data" style="white-space: nowrap">
-					<input type="radio"  <?php if ($asset->id) echo 'checked="checked"'; ?> value="date" id="<?php echo $prefix; ?>_end_date_enabled" name="<?php echo $prefix; ?>_end_type" <?php echo $end_disabled_code; ?>  /> until &nbsp;
+					<input type="radio"  <?php if ($asset->id) echo 'checked="checked"'; ?> value="date" id="<?php echo $prefix; ?>_end_date_enabled" name="<?php echo $prefix; ?>_end_type" <?php echo $end_disabled_code; ?>  /> <?php echo strtolower(translate('until')); ?> &nbsp;
 				</td>
 				<td class="sq-backend-data" style="white-space: nowrap">
 					<?php $this->printDateChooser($prefix.'_end', $occurrence_end_ts ? $occurrence_end_ts : ($asset->getEndDate() ? iso8601_ts($asset->attr('end_date')) : false), $attributes+Array('onclick'=>'checkBox(\''.$prefix.'_end_date_enabled\');', 'onkeypress'=>'processKeyEvent(this)', 'onfocus'=>'currentField=this', 'onblur'=>'currentField=null; oldField=this; setTimeout(\'processEndDateBlur(oldField, \\\''.$prefix.'\\\')\', 10);')+$end_disabled_array); ?>

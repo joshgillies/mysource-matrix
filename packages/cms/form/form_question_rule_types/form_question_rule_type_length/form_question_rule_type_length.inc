@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_length.inc,v 1.9 2005/04/29 05:40:29 gsherwood Exp $
+* $Id: form_question_rule_type_length.inc,v 1.10 2005/05/11 06:07:31 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -43,43 +43,17 @@ class Form_Question_Rule_Type_Length extends Form_Question_Rule
 	function getOperators()
 	{
 		$operators = Array(
-						'=='	=> 'Must be this many characters in length...',
-						'!='	=> 'Must not be this many characters in length...',
-						'>'		=> 'Length must be greater than this many characters...',
-						'<'		=> 'Length must be less than this many characters...',
-						'>='	=> 'Length must be at least this many characters...',
-						'<='	=> 'Length must be no more than this many characters...',
+						'=='	=> translate('cms_form_rule_length_=='),
+						'!='	=> translate('cms_form_rule_length_!='),
+						'>'		=> translate('cms_form_rule_length_>'),
+						'<'		=> translate('cms_form_rule_length_<'),
+						'>='	=> translate('cms_form_rule_length_>='),
+						'<='	=> translate('cms_form_rule_length_<='),
 					 );
 
 		return $operators;
 
 	}//end getOperators()
-
-
-	/**
-	* Returns a list of operators for this rule type, for use with error messages
-	*
-	* This extra operator function is declared in this case so that we can easily create a legible rule
-	* using the public function then use this for the error messages.
-	*
-	* @access private
-	* @return array (mixed => string) an array of descriptions indexed by operator id (which can be
-	*                                 anything, generally string or (int)0|1 for a boolean value)
-	*/
-	function _getOperators()
-	{
-		$operators = Array(
-						'=='	=> 'Must Be ',
-						'!='	=> 'Must Not Be ',
-						'>'		=> 'Must be Greater Than ',
-						'<'		=> 'Must be Less Than ',
-						'>='	=> 'Must be No Less Than ',
-						'<='	=> 'Must be No More Than ',
-					 );
-
-		return $operators;
-
-	}//end _getOperators()
 
 
 	/**
@@ -157,10 +131,10 @@ class Form_Question_Rule_Type_Length extends Form_Question_Rule
 	function ruleDescription(&$q_asset, $rule_data)
 	{
 		$operator_list = $this->_getOperators();
-		$error_str = 'The length of the response to "'.$q_asset->attr('name').'" '.strtolower($operator_list[array_get_index($rule_data, 'operator', '==')]).' ';
+		$operator = array_get_index($rule_data, 'operator', '==');
 
 		$value = array_get_index($rule_data, 'value', '');
-		$error_str .= $value.' character'.($value == 1 ? '' : 's');
+		$error_str = translate('cms_form_rule_length_desc_'.$operator, $q_asset->attr('name'), $value);
 
 		return $error_str;
 

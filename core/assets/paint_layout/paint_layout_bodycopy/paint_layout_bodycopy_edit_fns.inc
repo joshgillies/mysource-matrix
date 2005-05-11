@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_bodycopy_edit_fns.inc,v 1.3 2005/04/15 00:37:26 lwright Exp $
+* $Id: paint_layout_bodycopy_edit_fns.inc,v 1.4 2005/05/11 06:04:54 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy_edit_fns.inc';
 *
 *
 * @author Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -123,7 +123,7 @@ class Paint_Layout_Bodycopy_Edit_Fns extends Bodycopy_Edit_Fns
 					case SQ_KEYWORD_CONDITION_ELSE :
 						$current_scope = end($stack);
 						if (end($stack) != $test_keyword) {
-							trigger_localised_error("CORE0202", E_USER_WARNING, $keyword, SQ_KEYWORD_CONDITION_ELSE.'_'.$current_scope, SQ_KEYWORD_CONDITION_END.'_'.$current_scope, SQ_KEYWORD_CONDITION_BEGIN.'_'.$test_keyword);
+							trigger_localised_error('CORE0202', E_USER_WARNING, $keyword, SQ_KEYWORD_CONDITION_ELSE.'_'.$current_scope, SQ_KEYWORD_CONDITION_END.'_'.$current_scope, SQ_KEYWORD_CONDITION_BEGIN.'_'.$test_keyword);
 							$validated = false;
 							break 2; //exit out of loop
 						}
@@ -131,7 +131,7 @@ class Paint_Layout_Bodycopy_Edit_Fns extends Bodycopy_Edit_Fns
 					case SQ_KEYWORD_CONDITION_END :
 						$current_scope = array_pop($stack);
 						if ($current_scope != $test_keyword) {
-							trigger_localised_error("CORE0202", E_USER_WARNING, $keyword, SQ_KEYWORD_CONDITION_ELSE.'_'.$current_scope, SQ_KEYWORD_CONDITION_END.'_'.$current_scope, SQ_KEYWORD_CONDITION_BEGIN.'_'.$test_keyword);
+							trigger_localised_error('CORE0202', E_USER_WARNING, $keyword, SQ_KEYWORD_CONDITION_ELSE.'_'.$current_scope, SQ_KEYWORD_CONDITION_END.'_'.$current_scope, SQ_KEYWORD_CONDITION_BEGIN.'_'.$test_keyword);
 							$validated = false;
 							break 2; //exit out of loop
 						}

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.124 2005/04/15 00:37:28 lwright Exp $
+* $Id: backend.inc,v 1.125 2005/05/11 06:05:10 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.124 $
+* @version $Revision: 1.125 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -110,7 +110,7 @@ class Backend extends MySource_Object
 			}
 			// lets ask the asset itself if we are allowed access to its backend (no dirty thoughts)
 			if (!$printing_asset->backendAccess()) {
-				$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to access the backend for <i>'.$printing_asset->name.'</i>');
+				$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $printing_asset->name));
 				return;
 			}
 		} else {
@@ -125,7 +125,7 @@ class Backend extends MySource_Object
 		if (isset($_REQUEST['a'])) {
 			$frontend_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($_REQUEST['a']);
 			if (is_null($frontend_asset)) {
-				trigger_lcoalised_error("SYS0195", E_USER_WARNING, $_REQUEST['a']);
+				trigger_lcoalised_error('SYS0195', E_USER_WARNING, $_REQUEST['a']);
 				return;
 			}
 			$frontend_asset->printFrontend();
@@ -175,7 +175,7 @@ class Backend extends MySource_Object
 				break;
 
 				default:
-					trigger_localised_error("SYS0097", E_USER_ERROR, $_REQUEST['SQ_BACKEND_PAGE']);
+					trigger_localised_error('SYS0097', E_USER_ERROR, $_REQUEST['SQ_BACKEND_PAGE']);
 
 			}//end switch
 
@@ -275,7 +275,7 @@ class Backend extends MySource_Object
 		$popups_blocked = (!isset($_SESSION['sq_popups_blocked']) || $_SESSION['sq_popups_blocked']);
 		$dhtml_messages = Array();
 
-		$asset_search_default = 'Enter asset ID or URL';
+		$asset_search_default = translate('asset_search_default');
 
 		$this->out->openRaw();
 		?>
@@ -354,11 +354,11 @@ class Backend extends MySource_Object
 						<table class="sq-backend-search-failed-table">
 							<tr>
 								<td rowspan="2" valign="middle" class="sq-backend-search-failed-cell"><img src="'.$this->out->filesPath('/images/icons/info.png').'" width="16" height="16" alt="" border="0" /></td>
-								<td class="sq-backend-search-failed-heading" nowrap="nowrap">Search Failed</td>
+								<td class="sq-backend-search-failed-heading" nowrap="nowrap">'.translate('search_failed').'</td>
 								<td class="sq-backend-search-failed-body" align="right">[<a class="sq-backend-search-failed-body" href="#" onClick="Javascript: parent.frames[\'sq_header\'].cancelMsgDiv(); return false;">x</a>]</td>
 							</tr>
 							<tr>
-								<td class="sq-backend-search-failed-body" colspan="2">Search for "'.addslashes($_POST['asset_search']).'" found nothing. Try Again.</td>
+								<td class="sq-backend-search-failed-body" colspan="2">'.translate('failed_searching_for', addslashes($_POST['asset_search'])).'</td>
 							</tr>
 						</table>
 						';
@@ -392,11 +392,11 @@ class Backend extends MySource_Object
 					<table class="sq-backend-popups-blocked-table">
 						<tr>
 							<td rowspan="2" valign="middle" class="sq-backend-popups-blocked-cell"><img src="'.$this->out->filesPath('/images/icons/stop.png').'" width="31" height="33" border="0" alt="" /></td>
-							<td class="sq-backend-popups-blocked-heading" nowrap="nowrap">Popups are Blocked</td>
+							<td class="sq-backend-popups-blocked-heading" nowrap="nowrap">'.translate('popups_blocked').'</td>
 							<td class="sq-backend-popups-blocked-body" align="right">[<a class="sq-backend-popups-blocked-body" href="#" onClick="Javascript: parent.frames[\'sq_header\'].cancelMsgDiv(); return false;">x</a>]</td>
 						</tr>
 						<tr>
-							<td class="sq-backend-popups-blocked-body" colspan="2">MySource Matrix requires popup blocking to be disabled for certain functions to work correctly.</td>
+							<td class="sq-backend-popups-blocked-body" colspan="2">'.translate('disable_popup_blocking').'</td>
 						</tr>
 					</table>
 					';
@@ -418,11 +418,11 @@ class Backend extends MySource_Object
 				<table class="sq-backend-new-message-table">
 					<tr>
 						<td rowspan="2" valign="middle" class="sq-backend-new-message-cell"><img src="'.$this->out->filesPath('/images/icons/mail.png').'" width="31" height="33" border="0" alt="" /></td>
-						<td class="sq-backend-new-message-heading" nowrap="nowrap">New Messages</td>
+						<td class="sq-backend-new-message-heading" nowrap="nowrap">'.translate('new_messages').'</td>
 						<td class="sq-backend-new-message-heading" align="right">[<a class="sq-backend-new-message-body" href="#" onClick="Javascript: parent.frames[\'sq_header\'].cancelMsgDiv(); return false;">x</a>]</td>
 					</tr>
 					<tr>
-						<td class="sq-backend-new-message-body" colspan="2" nowrap="nowrap">'.$GLOBALS['SQ_SYSTEM']->user->name.' has '.count($messages).' new message'.((count($messages) > 1) ? 's' : '').'</td>
+						<td class="sq-backend-new-message-body" colspan="2" nowrap="nowrap">'.translate('new_messages_count', $GLOBALS['SQ_SYSTEM']->user->name, count($messages)).'</td>
 					</tr>
 				</table>
 				';
@@ -576,7 +576,7 @@ class Backend extends MySource_Object
 				<td nowrap class="sq-backend-header-item" valign="middle">
 					<img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="5" height="1" />
 					<a class="sq-backend-header-item" style="text-decoration: none;" href="#" onclick="Javascript: reloadHeader(); return false;">
-					Logged in as: <b><?php echo $GLOBALS['SQ_SYSTEM']->user->name; ?> - <?php echo date('d M Y g:i a', $now); ?></a></b>
+					<?php echo translate('logged_in', $GLOBALS['SQ_SYSTEM']->user->name, date('d M Y g:i a', $now)); ?></a>
 				</td>
 				<td nowrap class="sq-backend-header-item" valign="middle" align="right">
 					<table cellpadding="0" border="0" cellspacing="0">
@@ -584,7 +584,7 @@ class Backend extends MySource_Object
 							<td nowrap valign="middle">
 							<?php
 								if (!SQ_IN_LIMBO) {
-									echo '<span class="sq-backend-header-item">Quick Search</span>';
+									echo '<span class="sq-backend-header-item">'.translate('quick_search').'</span>';
 									text_box('asset_search', (!empty($_POST['asset_search'])) ? $_POST['asset_search'] : $asset_search_default, 20, 0, empty($_POST['asset_search']), 'class="sq-backend-header-search-box"');
 								} else {
 									echo '&nbsp;';
@@ -599,7 +599,7 @@ class Backend extends MySource_Object
 							$options[] = Array(
 											'url'		=> $this->getBackendUrl('main').'&backend_section=config',
 											'target'	=> 'sq_main',
-											'title'		=> 'System Configuration',
+											'title'		=> translate('system_configuration'),
 											'icon'		=> 'system_config.png',
 										 );
 						}
@@ -608,7 +608,7 @@ class Backend extends MySource_Object
 							$options[] = Array(
 											'url'		=> $this->getBackendUrl('main').'&backend_section=maps',
 											'target'	=> 'sq_main',
-											'title'		=> 'Automated Patching System',
+											'title'		=> translate('automated_packaging_system'),
 											'icon'		=> 'maps.png',
 										 );
 						}
@@ -616,28 +616,28 @@ class Backend extends MySource_Object
 						$options[] = Array(
 										'url'		=> $this->getBackendUrl('main').'&backend_section=tools',
 										'target'	=> 'sq_main',
-										'title'		=> 'Tools',
+										'title'		=> translate('tools'),
 										'icon'		=> 'whereami.png',
 									 );
 
 						$options[] = Array(
 										'url'		=> $this->getBackendUrl('main').'&backend_section=hipo_herder',
 										'target'	=> 'sq_main',
-										'title'		=> 'HIPO Herder',
+										'title'		=> translate('hipo_herder'),
 										'icon'		=> 'hipo_herder.png',
 									 );
 
 						$options[] = Array(
 										'url'		=> $this->getBackendUrl('main').'&backend_section=am',
 										'target'	=> 'sq_main',
-										'title'		=> 'Asset Tree',
+										'title'		=> translate('asset_tree'),
 										'icon'		=> 'asset_tree.png',
 									 );
 
 						$options[] = Array(
 										'url'		=> $_SERVER['PHP_SELF'].'?SQ_ACTION=logout',
 										'target'	=> '_top',
-										'title'		=> 'Logout',
+										'title'		=> translate('logout'),
 										'icon'		=> 'logout.png',
 									 );
 
@@ -812,11 +812,11 @@ class Backend extends MySource_Object
 
 							<td class="sidenav-tab-start-active" id="asset_map_tab_start"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="6" height="17" /></td>
 							<td class="sidenav-tab-icon-active" id="asset_map_tab_icon"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/tree.png", "14", "14", "");</script></td>
-							<td class="sidenav-tab-active" id="asset_map_tab"><a href="#" onClick="Javascript: switchSideNav('asset_map'); return false;">Asset Map</a></td>
+							<td class="sidenav-tab-active" id="asset_map_tab"><a href="#" onClick="Javascript: switchSideNav('asset_map'); return false;"><?php echo translate('asset_map'); ?></a></td>
 
 							<td class="sidenav-tab-start" id="my_space_tab_start"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="6" height="17" /></td>
 							<td class="sidenav-tab-icon" id="my_space_tab_icon"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/myspace.png", "14", "14", "");</script></td>
-							<td class="sidenav-tab" id="my_space_tab"><a href="#" onClick="Javascript: switchSideNav('my_space'); return false;">My Space</a></td>
+							<td class="sidenav-tab" id="my_space_tab"><a href="#" onClick="Javascript: switchSideNav('my_space'); return false;"><?php echo translate('my_space'); ?></a></td>
 						</tr>
 					</table>
 				</td>
@@ -864,11 +864,11 @@ class Backend extends MySource_Object
 					<tr>
 						<td valign="top"><a href="<?php echo $_SERVER['PHP_SELF'].$inbox_url; ?>" target="sq_main"><img src="<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/inbox_icon.png" align="left" border="0" /></a></td>
 						<td width="100%">
-							<p><a href="<?php echo $_SERVER['PHP_SELF'].$inbox_url; ?>" target="sq_main"><span class="myspace-section-header">My Inbox</span><br />You have <b><?php echo count($unread_messages); ?></b> unread and <b><?php echo count($messages); ?></b> total new message(s)</a></p>
-							<p><a href="<?php echo $_SERVER['PHP_SELF'].$inbox_url; ?>" target="sq_main"><span class="myspace-section-header">Inbox Actions</span><br />
-							<a href="<?php echo $_SERVER['PHP_SELF'].$inbox_url; ?>" target="sq_main">+ View your inbox</a><br />
-							<a href="<?php echo $_SERVER['PHP_SELF'].$new_message_url; ?>" target="sq_main">+ Send a new message</a><br />
-							<a href="<?php echo $_SERVER['PHP_SELF'].$sent_url; ?>" target="sq_main">+ View sent messages</a></p>
+							<p><a href="<?php echo $_SERVER['PHP_SELF'].$inbox_url; ?>" target="sq_main"><span class="myspace-section-header"><?php echo translate('my_inbox'); ?></span><br /><?php echo translate('inbox_new_messages', count($unread_messages), count($messages)); ?></a></p>
+							<p><a href="<?php echo $_SERVER['PHP_SELF'].$inbox_url; ?>" target="sq_main"><span class="myspace-section-header"><?php echo translate('inbox_actions'); ?></span><br />
+							<a href="<?php echo $_SERVER['PHP_SELF'].$inbox_url; ?>" target="sq_main">+ <?php echo translate('inbox_view'); ?></a><br />
+							<a href="<?php echo $_SERVER['PHP_SELF'].$new_message_url; ?>" target="sq_main">+ <?php echo translate('inbox_send'); ?></a><br />
+							<a href="<?php echo $_SERVER['PHP_SELF'].$sent_url; ?>" target="sq_main">+ <?php echo translate('inbox_view_sent'); ?></a></p>
 						</td>
 					</tr>
 				</table>
@@ -880,7 +880,7 @@ class Backend extends MySource_Object
 				<tr>
 					<td valign="top"><a href="<?php echo $_SERVER['PHP_SELF'].$details_url; ?>" target="sq_main"><img src="<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/mydetails_icon.png" align="left" border="0" /></a></td>
 					<td width="100%">
-						<span class="myspace-section-header"><a href="<?php echo $_SERVER['PHP_SELF'].$details_url; ?>" target="sq_main">My Details</span><br />Edit the details of your account</a>
+						<span class="myspace-section-header"><a href="<?php echo $_SERVER['PHP_SELF'].$details_url; ?>" target="sq_main"><?php echo translate('my_details'); ?></span><br /><?php echo translate('details_edit'); ?></a>
 					</td>
 				</tr>
 			</table>
@@ -1003,7 +1003,7 @@ class Backend extends MySource_Object
 			break;
 
 			default :
-				trigger_localised_error("SYS0098", E_USER_ERROR, $_REQUEST['backend_section']);
+				trigger_localised_error('SYS0098', E_USER_ERROR, $_REQUEST['backend_section']);
 
 		}//end switch
 

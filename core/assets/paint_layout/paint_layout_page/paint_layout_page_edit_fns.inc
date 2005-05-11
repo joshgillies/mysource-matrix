@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_page_edit_fns.inc,v 1.3 2005/04/15 00:37:26 lwright Exp $
+* $Id: paint_layout_page_edit_fns.inc,v 1.4 2005/05/11 06:04:54 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/paint_layout/paint_layout_page/paint_layout_
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -74,12 +74,12 @@ class Paint_Layout_Page_Edit_Fns extends Page_Standard_Edit_Fns
 		?>
 		<table class="sq-backend-table">
 			<tr>
-				<td class="sq-backend-table-header">Asset Type</td>
-				<td class="sq-backend-table-header">Inherit Types</td>
+				<td class="sq-backend-table-header"><?php echo translate('asset_type'); ?></td>
+				<td class="sq-backend-table-header"><?php echo translate('inherit_types'); ?></td>
 				<?php
 				if ($write_access) {
 					?>
-					<td class="sq-backend-table-header">Remove?</td>
+					<td class="sq-backend-table-header"><?php echo translate('remove_question'); ?></td>
 					<?php
 				}
 				?>
@@ -98,7 +98,7 @@ class Paint_Layout_Page_Edit_Fns extends Page_Standard_Edit_Fns
 						if ($write_access) {
 							check_box($prefix.'_inherit_types[]', $type, $inherit);
 						} else {
-							echo ($inherit) ? 'Yes' : 'No';
+							echo ($inherit) ? translate('yes') : translate('no');
 						}
 						?>
 					</td>
@@ -150,7 +150,7 @@ class Paint_Layout_Page_Edit_Fns extends Page_Standard_Edit_Fns
 					// we also want to send the bodycopy to the trash
 					$link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, SQ_PAINT_LAYOUT_FORMAT_ASSET_TYPE, true, $type);
 					if (empty($link)) {
-						trigger_localised_error("CORE0216", E_USER_WARNING);
+						trigger_localised_error('CORE0216', E_USER_WARNING);
 					} else {
 						// back up in your trash with the resurection
 						$folder->deleteLink($link['linkid']);

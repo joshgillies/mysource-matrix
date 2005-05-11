@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_admin_access_edit_fns.inc,v 1.4 2005/02/22 22:03:02 lwright Exp $
+* $Id: condition_admin_access_edit_fns.inc,v 1.5 2005/05/11 06:04:56 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition_edit_f
 * @see Asset_Edit_Fns
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -63,11 +63,11 @@ class Condition_Admin_Access_Edit_Fns extends Condition_Edit_Fns
 		$options = $asset->getOptions();
 		
 		if (!$write_access) {
-			$o->openField('Condition Details');
+			$o->openField(translate('condition_details'));
 			echo 'User '.strtolower($options[$restriction['match']]);
 			$o->closeField();
 		} else {
-			$o->openField('Match Condition');
+			$o->openField(translate('match_condition'));
 			combo_box($prefix.'[match]', $options, false, $restriction['match']);
 			$o->closeField();
 		}

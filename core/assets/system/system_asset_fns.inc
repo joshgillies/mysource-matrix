@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_asset_fns.inc,v 1.8 2005/04/15 00:37:26 lwright Exp $
+* $Id: system_asset_fns.inc,v 1.9 2005/05/11 06:04:55 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * but this is not to be
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -55,7 +55,7 @@ function system_asset_fns_create_pre_check(&$asset)
 	assert_valid_db_result($exists);
 
 	if ($exists) {
-		trigger_localised_error("CORE0085", E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'));
+		trigger_localised_error('CORE0085', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'));
 		return false;
 	}
 

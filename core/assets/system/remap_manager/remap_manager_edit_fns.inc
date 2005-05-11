@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager_edit_fns.inc,v 1.14 2005/04/15 00:37:26 lwright Exp $
+* $Id: remap_manager_edit_fns.inc,v 1.15 2005/05/11 06:05:01 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -85,22 +85,24 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 		assert_valid_db_result($remap_urls);
 
 		if (empty($remap_urls)) {
-			echo 'There are no URL remappings in the system';
+			echo translate('no_url_remappings');
 			return false;
 		}
 
 		?>
 		<table class="sq-backend-table">
 			<tr>
-				<td class="sq-backend-table-header">URL</td>
-				<td class="sq-backend-table-header">Remap URL</td>
-				<td class="sq-backend-table-header">Expires</td>
+				<td class="sq-backend-table-header"><?php echo translate('url'); ?></td>
+				<td class="sq-backend-table-header"><?php echo translate('remap_url'); ?></td>
+				<td class="sq-backend-table-header"><?php echo translate('expires'); ?></td>
 				<?php
 					if ($write_access) {
 						?>
 						<td class="sq-backend-table-header">
-							<?php check_box($prefix.'_select_all', '1', false, "check_all(document.main_form, '{$prefix}_delete_remap', this.checked);"); ?>
-							Delete ?
+							<?php 
+							check_box($prefix.'_select_all', '1', false, "check_all(document.main_form, '{$prefix}_delete_remap', this.checked);"); 
+							label(translate('delete_question'), $prefix.'_select_all');	
+							?>
 						</td>
 						<?php
 					}
@@ -109,7 +111,7 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 			<?php
 				foreach ($remap_urls as $url_info) {
 					if (empty($url_info['expires'])) {
-						$expires = 'Never';
+						$expires = translate('never');
 					} else {
 						$expires = $GLOBALS['SQ_SYSTEM']->datetime(iso8601_ts($url_info['expires']));
 					}
@@ -123,7 +125,7 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 						list($protocol, $url) = explode('://', $url_info['url']);
 						$url_asset = &$GLOBALS['SQ_SYSTEM']->am->getAssetFromURL($protocol, $url, true, true);
 						if (!is_null($url_asset)) {
-							$warning .= 'This URL is currently in use by '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($url_asset->type(), 'name').' "'.$url_asset->name.'" [#'.$url_asset->id.']. This remap is not currently being used. ';
+							$warning .= translate('url_currently_in_use', $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($url_asset->type(), 'name'), translate('asset_format', $url_asset->name, $url_asset->id));
 						}
 					}
 				?>
@@ -204,33 +206,28 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintAddRemapURLs(&$asset, &$o, $prefix)
 	{
-		?>
-		The <i>Old URL</i> is the URL that you want remapped. The <i>New URL</i> is the URL that a user will be redirected to when they visit the <i>Old URL</i>.
-		<?php
+		$o->note(translate('url_remap_explanation'));
 		$o->closeField();
 
-		$o->openField('Old URL');
+		$o->openField(translate('old_url'));
 			text_box($prefix.'_add_remap_old_url', '', 50);
 		$o->closeField();
 
-		$o->openField('New URL');
+		$o->openField(translate('new_url'));
 			text_box($prefix.'_add_remap_new_url', '', 50);
 		$o->closeField();
 
-		$o->openField('Expires');
+		$o->openField(translate('expires'));
 			text_box($prefix.'_add_remap_expires_days', '', 5);
-			echo '&nbsp;days<br/><br/>';
+			label(translate('days'), $prefix.'_add_remap_expires_days');
 		$o->closeField();
 
-		$o->openField('CSV Upload');
+		$o->openField(translate('csv_upload'));
 			file_upload($prefix.'_add_remap_csv');
-			?>
-			<br/>
-			You can also upload a CSV file of remap URLs to add to the system. The format for each line must be:</br>
-			<b>oldURL, newURL, expiry date (yyyy-mm-dd hh:mm:ss)</b><br/><br/>
-			<i><b>Example 1:</b></i> http://www.mysite.com/page_1, http://www.mysite.com/home, 2003-17-12 10:27:00<br/>
-			<i><b>Example 2 (no expiry date):</b></i> http://www.mysite.com/page_1, http://www.mysite.com/home,<br/>
-			<?php
+			
+			//csv upload instructions
+			$o->note(translate('csv_upload_instructions'));
+			$o->note(translate('csv_upload_instructions_example_1').'<br />'.translate('csv_upload_instructions_example_2'));
 		$o->closeField();
 
 	}//end paintAddRemapURLs()
@@ -312,9 +309,15 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 
 		if (!$write_access) {
 			$asset_404 = null;
-			if (!empty($link_to_404)) $asset_404 = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link_to_404['minorid']);
-			if (!is_null($asset_404)) echo $asset_404->name . ' (Id: #' . $asset_404->id . ')';
-			else echo 'No root node has been selected';
+			if (!empty($link_to_404)) {
+				$asset_404 = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link_to_404['minorid']);
+			}
+			
+			if (!is_null($asset_404)) {
+				echo translate('asset_format', $asset_404->name, $asset_404->id);
+			} else {
+				echo translate('core_no_selectes_root_node');
+			}
 		} else {
 			asset_finder($prefix.'_404asset', (!empty($link_to_404)) ? $link_to_404['minorid'] : '');
 		}

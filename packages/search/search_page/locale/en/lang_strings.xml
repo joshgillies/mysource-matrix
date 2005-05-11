@@ -1,0 +1,55 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Commercial Module Licence                                |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file is not open source or freely usable and may be    |
+* | used subject to, and only in accordance with, the Squiz Commercial |
+* | Module Licence.                                                    |
+* | Please refer to http://www.squiz.net/licence for more information. |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_strings.xml,v 1.1 2005/05/11 06:07:48 lwright Exp $
+*
+*
+* Search Package Localised Strings File
+*/
+-->
+
+<strings>
+<string source="sch_page_no_status_selected">No statuses are selected. Only LIVE assets will be searched.</string>
+<string source="sch_page_standard_search_fields">Standard Search Fields</string>
+<string source="sch_page_metadata_search_fields">Metadata Search Fields</string>
+<string source="sch_page_no_metadata_field_specified">No metadata field specified</string>
+<string source="sch_page_attribute_search_fields">Attribute Search Fields</string>
+<string source="sch_page_asset_date_search_fields">Asset Date Search Fields</string>
+<string source="sch_page_select_category">Select a Category</string>
+<string source="sch_page_add_new_category">Add New Category</string>
+<string source="sch_page_currently_customising">Currently customising %s</string>
+<string source="sch_page_delete_this_category">Delete this category</string>
+<string source="sch_page_category_specific_search_settings">Category Specific Search Settings</string>
+<string source="sch_page_currently_using_default_root">Using default root node</string>
+<string source="sch_page_search_statuses">Search Statuses</string>
+<string source="sch_page_currently_using_default_status">Currently using default stauses of</string>
+<string source="sch_page_select_category_to_customise">Please select a search category above to customise</string>
+<string source="sch_page_customise_search_form">Customise search form</string>
+<string source="sch_page_customise_sis_form">Customise search within search form</string>
+<string source="sch_page_default_search">Default Search</string>
+<string source="sch_page_sis">Search in Search</string>
+<string source="sch_page_no_thesaurus_asset_selected">No thesaurus asset has been selected</string>
+<string source="sch_page_relevance">Relevance</string>
+<string source="sch_page_cannot_delete_bodycopies">You can't delete the link between the search page and its bodycopies</string>
+<string source="sch_page_root_node_link_desc">The root asset from where searches are conducted from</string>
+<string source="sch_page_date_range_prior_to">Prior to %s</string>
+<string source="sch_page_date_range_onwards">%s onwards</string>
+<string source="sch_page_format_logic_and">all of the words</string>
+<string source="sch_page_format_logic_or">any of the words</string>
+<string source="sch_page_keyword_search_field">Search Field (%s)</string>
+<string source="sch_page_keyword_search_form">Search Form</string>
+<string source="sch_page_keyword_sis_form">Search in Search Form</string>
+<string source="sch_page_keyword_sis_button">Search in Search Button</string>
+<string source="sch_page_keyword_result_number">Result Number</string>
+<string source="sch_page_keyword_search_score">Search Score</string>
+</strings>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: logs.inc,v 1.12 2005/04/27 00:14:43 lwright Exp $
+* $Id: logs.inc,v 1.13 2005/05/11 06:05:11 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Logs Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix
 */
 
@@ -59,15 +59,15 @@ function paintLogs(&$owner, &$o, &$ei)
 
 	$active_log_type = (isset($_REQUEST['sq_backend_log_type'])) ? $_REQUEST['sq_backend_log_type'] : $log_types[0];
 	$o->addFormActionGetVar('sq_backend_log_type', $active_log_type);
-	$o->openSection('Logged Messages');
+	$o->openSection(translate('logged_messages'));
 		$o->openRaw();
 			$type_options = Array();
 			foreach ($log_types as $type) $type_options[$type] = ucwords(str_replace(Array('.', '_'), ' ', $type));
 
-			echo '<b>Log Type</b>&nbsp;';
+			echo '<b>'.translate('log_type').'</b>&nbsp;';
 			combo_box('sq_backend_log_type', $type_options, false, $active_log_type);
 			echo '&nbsp;';
-			normal_button($prefix.'_go', 'View', 'submit_form()');
+			normal_button($prefix.'_go', translate('view'), 'submit_form()');
 		$o->closeRaw();
 
 		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
@@ -109,7 +109,7 @@ function paintLogs(&$owner, &$o, &$ei)
 
 		if (empty($logs)) {
 			$o->openRaw();
-				echo '<b>There are no logged messages of this type for "'.$owner->name.'"</b>';
+				echo '<b>'.translate('no_logged_messages', $owner->name).'</b>';
 			$o->closeRaw();
 		} else {
 			$o->openRaw();
@@ -117,9 +117,9 @@ function paintLogs(&$owner, &$o, &$ei)
 				?>
 				<table class="sq-backend-table">
 					<tr>
-						<td class="sq-backend-table-header" nowrap width="120">Log Time</td>
-						<td class="sq-backend-table-header" nowrap width="120">Logged By</td>
-						<td class="sq-backend-table-header" width="100%">Message</td>
+						<td class="sq-backend-table-header" nowrap width="120"><?php echo translate('log_time'); ?></td>
+						<td class="sq-backend-table-header" nowrap width="120"><?php echo translate('logged_by'); ?></td>
+						<td class="sq-backend-table-header" width="100%"><?php echo translate('message'); ?></td>
 					</tr>
 					<?php
 					$num_printed  = 0;
@@ -155,15 +155,15 @@ function paintLogs(&$owner, &$o, &$ei)
 							?><span style="color: #84848F"><?php
 						}
 						?>
-						&lt;&lt; Previous Page
-						<?php
+						&lt;&lt; <?php echo translate('previous_page');
+
 						if ($start_printing_at > 0) {
 							echo '</a>';
 						} else {
 							echo '</span>';
 						}
 						?>
-						&nbsp;<b>Page <?php echo round(($start_printing_at + $num_per_page) / $num_per_page); ?> of <?php echo round(($num_logs / $num_per_page) + 0.5); ?></b>&nbsp;
+						&nbsp;<b><?php echo translate('page_number', round(($start_printing_at + $num_per_page) / $num_per_page), round(($num_logs / $num_per_page) + 0.5)); ?></b>&nbsp;
 
 						<?php
 						if (($start_printing_at + $num_per_page) < $num_logs) {
@@ -171,8 +171,8 @@ function paintLogs(&$owner, &$o, &$ei)
 						} else {
 							?><span style="color: #84848F"><?php
 						}
-						?>
-						Next Page &gt;&gt;
+
+						echo translate('next_page'); ?> &gt;&gt;
 						<?php
 						if (($start_printing_at + $num_per_page) < $num_logs) {
 							echo '</a>';

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_attribute.inc,v 1.34 2005/04/15 00:37:27 lwright Exp $
+* $Id: asset_attribute.inc,v 1.35 2005/05/11 06:05:09 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix
 */
 class Asset_Attribute extends MySource_Object
@@ -190,7 +190,7 @@ class Asset_Attribute extends MySource_Object
 	*/
 	function paint($prefix, $read_only=false)
 	{
-		echo 'Interface for '.ucwords(str_replace('_', ' ', $this->type())).' Not Done<br />';
+		echo translate('interface_not_created', ucwords(str_replace('_', ' ', $this->type())));
 
 	}//end paint()
 
@@ -288,7 +288,7 @@ class Asset_Attribute extends MySource_Object
 	function setEditParams(&$node)
 	{
 		if (strtolower($node->name) != strtolower($this->type())) {
-			trigger_localised_error("SYS0300", E_USER_WARNING, $node->name, $this->type(), '<pre>'.htmlspecialchars($node->get()).'</pre>');
+			trigger_localised_error('SYS0300', E_USER_WARNING, $node->name, $this->type(), '<pre>'.htmlspecialchars($node->get()).'</pre>');
 			return false;
 		}
 		return true;
@@ -313,7 +313,7 @@ class Asset_Attribute extends MySource_Object
 			$this->_edit_params[$field] = $value;
 			return true;
 		} else {
-			trigger_localised_error("SYS0258", $field, $this->type());
+			trigger_localised_error('SYS0258', $field, $this->type());
 			return false;
 		}
 

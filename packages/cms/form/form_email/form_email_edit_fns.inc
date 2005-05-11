@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.49 2005/04/29 05:40:28 gsherwood Exp $
+* $Id: form_email_edit_fns.inc,v 1.50 2005/05/11 06:07:30 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.49 $
+* @version $Revision: 1.50 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -87,10 +87,18 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$from = new Datetime_Field($prefix.'_from', $from_value, $parameters);
 		$to = new Datetime_Field($prefix.'_to', $to_value, $parameters);
 
-		echo 'View submissions from: ';
-		$from->printField();
-		echo ' to ';
-		$to->printField();
+		// grab the fields for printing as a substitution
+		ob_start();
+			$from->printField();
+			$from_field = ob_get_contents();
+		ob_end_clean();
+
+		ob_start();
+			$to->printField();
+			$to_field = ob_get_contents();
+		ob_end_clean();
+
+		echo translate('cms_form_view_submission_range', $from_field, $to_field);
 
 		$o->closeField();
 
@@ -110,16 +118,16 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		<table class="sq-backend-table">
 		<tr>
 			<td class="sq-backend-table-header">
-				Asset ID
+				<?php echo translate('asset_id') ?>
 			</td>
 			<td colspan="2" class="sq-backend-table-header">
-				Submission Time
+				<?php echo translate('submission_time') ?>
 			</td>
 			<td colspan="2" class="sq-backend-table-header">
-				User
+				<?php echo translate('user') ?>
 			</td>
 			<td class="sq-backend-table-header">
-				Expand ?
+				<?php echo translate('expand_question') ?>
 			</td>
 		</tr>
 		<?php
@@ -130,7 +138,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 		uasort($assetid_info, create_function('$a, $b', 'return $a[\'created\'] < $b[\'created\'];'));
 
-		?><p><i>There are <b><?php echo count($assetids) ?></b> submissions during the time period specified above - most recent are displayed first</i></p><?php
+		?><p><i><?php echo translate('cms_form_submissions_during_period', count($assetids)) ?></i></p><?php
 
 		foreach ($assetid_info as $assetid => $asset_info) {
 				if (($asset_info['created'] >= $from_value) && ($asset_info['created'] <= $to_value)) {
@@ -162,7 +170,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 						}
 
 						if (!$valid_user) {
-							?><i>No logged in user</i><?php
+							?><i><?php echo translate('cms_form_no_logged_in_user'); ?></i><?php
 						}
 						?>
 					</td>
@@ -200,42 +208,6 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 					}
 
 					?></tr><?php
-	/*
-					$kids =& $root->children;
-
-					for (reset($kids); null !== ($k = key($kids)); next($kids)) {
-						$this_child =& $kids[$k];
-						if ($this_child->name == 'section') {
-						?>
-						<tr>
-							<td class="sq-backend-table-cell">&nbsp;</td>
-							<td class="sq-backend-table-cell-alt" colspan="5">
-								<b>Section: <?php echo $this_child->getAttribute('name') ?></b>
-							</td>
-						</tr>
-						<tr>
-						<?php
-
-							$i = 0;
-							foreach ($sub_asset->getSummary() as $element) {
-								$i++;
-								if (($i % 2 == 1)) {
-									?><td class="sq-backend-table-cell">&nbsp;</td><?php
-								}
-								?>
-								<td class="sq-backend-table-cell">
-									<i><?php echo $element['name'] ?>:</i>
-								</td>
-								<td class="sq-backend-table-cell">
-									<?php echo $element['content'] ?>
-									</td>
-								<?php
-								if (($i < count($elements)) && ($i % 2 == 0)) {
-									?></tr><tr><?php
-								}
-							}
-							?></tr>
-					*/
 				}
 			}
 		}
@@ -302,13 +274,13 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 		$o->closeField();
 
-		$o->openField('Format');
+		$o->openField(translate('format'));
 
 		$options = Array(
-					''			=> '------- Please Select -------',
-					'csv'		=> 'Comma Separated Values (CSV)',
-					'csv_nhr'	=> 'Comma Separated Values (CSV) - No Header Row',
-					'xml'		=> 'XML Format',
+					''			=> '------- '.translate('please_select').' -------',
+					'csv'		=> translate('cms_form_download_csv'),
+					'csv_nhr'	=> translate('cms_form_download_csv_nhr'),
+					'xml'		=> translate('cms_form_download_xml'),
 				   );
 
 		echo combo_box($prefix.'_export_format', $options, false, '');
@@ -325,9 +297,9 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		// - set export switch to 0 = "OFF" so Commit doesn't try to save a file either
 		// - return true for the event as per JS standard
 
-		$o->openField('Download');
+		$o->openField(translate('download'));
 
-		echo normal_button($prefix.'_export', 'Download File', 'this.form.'.$prefix.'_export_switch.value = 1; this.form.submit(); SQ_FORM_SUBMITTED = false; this.form.'.$prefix.'_export_switch.value = 0; return true;');
+		echo normal_button($prefix.'_export', translate('download_file'), 'this.form.'.$prefix.'_export_switch.value = 1; this.form.submit(); SQ_FORM_SUBMITTED = false; this.form.'.$prefix.'_export_switch.value = 0; return true;');
 
 		return true;
 
@@ -403,7 +375,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$to_ts   = mktime(23,59,59,$to_value[1],$to_value[2],$to_value[0]);
 
 		$logs = Array();
-		$headers = Array('__time__' => 'Submission Time', '__user__' => 'User Submitting Form');
+		$headers = Array('__time__' => translate('submission_time'), '__user__' => translate('cms_form_user_submitting'));
 
 		$assetids = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, 'form_submission'));
 		$assetid_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($assetids);
@@ -477,7 +449,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$to_ts   = mktime(23,59,59,$to_value[1],$to_value[2],$to_value[0]);
 
 		$logs = Array();
-		$headers = Array('__time__' => 'Submission Time', '__user__' => 'User Submitting Form');
+		$headers = Array('__time__' => translate('submission_time'), '__user__' => translate('cms_form_user_submitting'));
 
 		echo '<submissions>';
 
@@ -750,7 +722,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$all_se = $asset->attr('selective_emails');
 
 		if (empty($all_se)) {
-			echo 'There are no Selective Email rules yet set up for this form';
+			echo translate('cms_form_no_selective_email_rules');
 			return false;
 		}
 
@@ -759,15 +731,15 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 			<tr>
 				<?php
 				if ($admin_access) {
-					?><td align="center" width="30" class="sq-backend-table-header" style="font-weight: bold;">Edit</td><?php
+					?><td align="center" width="30" class="sq-backend-table-header" style="font-weight: bold;"><?php echo translate('edit') ?></td><?php
 				}
 				?><td class="sq-backend-table-header">
-					Rule
+					<?php echo translate('rule') ?>
 				</td>
-				<td align="center" width="50" class="sq-backend-table-header" style="font-weight: bold;">Valid ?</td>
+				<td align="center" width="50" class="sq-backend-table-header" style="font-weight: bold;"><?php echo translate('valid_question') ?></td>
 				<?php
 				if ($admin_access) {
-					?><td align="center" width="70" class="sq-backend-table-header" style="font-weight: bold;">Delete ?</td>
+					?><td align="center" width="70" class="sq-backend-table-header" style="font-weight: bold;"><?php echo translate('delete_question') ?></td>
 				<?php
 				}
 				?>
@@ -790,7 +762,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 					<?php
 					if (empty($info['rules'])) {
 						?>
-						<span><b>WARNING:</b> This rule contains no parts</span><br/>
+						<span><?php echo translate('cms_form_rule_no_parts') ?></span><br/>
 						<?php
 						$valid = false;
 					} else {
@@ -824,20 +796,20 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 					echo 'Send a <b>';
 					if ($info['send'] == 'staf') {
-						echo 'Send To A Friend';
+						echo translate('cms_form_staf');
 					} else if ($info['send'] == 'recipient') {
-						echo 'Recipient';
+						echo translate('cms_form_recipient');
 					} else if ($info['send'] == 'receipt') {
-						echo 'Receipt';
+						echo translate('cms_form_receipt');
 					} else {
-						echo 'Unknown E-mail Type';
+						echo translate('cms_form_unknown_email_type');
 						$valid = false;
 					}
 
 					echo '</b> email to <b>';
 					if (empty($info['address'])) {
 						$valid = false;
-						echo 'No Email Address Specified';
+						echo translate('cms_form_no_email_address');
 					} else {
 						echo $info['address'];
 					}
@@ -958,7 +930,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		}
 
 		if (!isset($_POST[$prefix.'_se_new_qid']['assetid'])) {
-			echo 'You must select a question before you can select the type of rule part';
+			echo translate('cms_form_select_question_before_part');
 			return false;
 		} else {
 			$active_question = &$GLOBALS['SQ_SYSTEM']->am->getAsset($_POST[$prefix.'_se_new_qid']['assetid']);
@@ -973,7 +945,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 			}
 
 			$desc = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_codes, 'description');
-			combo_box($prefix.'_new_rule', array_merge(Array(' ' => '------ Please Select ------'), $desc), false, '');
+			combo_box($prefix.'_new_rule', array_merge(Array(' ' => '------ '.translate('please_select').' ------'), $desc), false, '');
 
 			return true;
 		}
@@ -1046,14 +1018,14 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	{
 		if (!$asset->writeAccess('attributes')) {
 			$o->openField('Note');
-			echo 'Unlock the form to select an active Selective Email rule';
+			echo translate('cms_form_unlock_to_select_se_rule');
 			$o->closeField();
 			return false;
 		}
 
 		if (!isset($_REQUEST[$prefix.'_se_active_ruleid'])) {
 			$o->openField('Note');
-			echo 'Select an active Selective Email rule to edit it';
+			echo translate('cms_form_select_to_edit_se_rule');
 			$o->closeField();
 			return false;
 		}
@@ -1069,7 +1041,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 		if (empty($rules)) {
 			$o->openField('Note');
-			echo 'This Selective Email rule is empty';
+			echo translate('cms_form_se_rule_empty');
 			$o->closeField();
 			return false;
 		}
@@ -1089,16 +1061,16 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 			$o->openSection($descs[$type_code]);
 
-			$o->openField('Applies To');
-			$q_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($rule['assetid']);
-			echo $q_asset->attr('name').' (Id: #'.$q_asset->id.')';
+			$o->openField(translate('applies_to'));
+				$q_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($rule['assetid']);
+				echo translate('asset_format', $q_asset->attr('name'), $q_asset->id);
 			$o->closeField();
 
 			$edit_fns->paintRule($rule_asset, $o, $prefix.'_rule_'.$k, $rule, $write_access, $q_asset);
 
 			if ($write_access) {
 				$o->openField('Delete ?');
-				check_box($prefix.'_rule_'.$k.'[delete]');
+					check_box($prefix.'_rule_'.$k.'[delete]');
 				$o->closeField();
 			}
 
@@ -1182,12 +1154,24 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$ruleid = $_REQUEST[$prefix.'_se_active_ruleid'];
 		$all_se = $asset->attr('selective_emails');
 
-		echo 'When ';
-		combo_box($prefix.'_require', Array('all' => 'ALL', 'any' => 'ANY'), false, Array($all_se[$ruleid]['require']));
-		echo ' rule parts are matched,<br/>send a ';
-		combo_box($prefix.'_send', Array('recipient' => 'Recipient E-mail', 'receipt' => 'Receipt', 'staf' => 'Send To A Friend E-mail'), false, Array($all_se[$ruleid]['send']));
-		echo ' to ';
-		text_box($prefix.'_address', $all_se[$ruleid]['address'], 30, 255);
+		// we are displaying these as substitutions into the next translation
+		ob_start();
+			combo_box($prefix.'_require', Array('all' => 'ALL', 'any' => 'ANY'), false, Array($all_se[$ruleid]['require']));
+			$require_box = ob_get_contents();
+		ob_end_clean();
+
+		ob_start();
+			combo_box($prefix.'_send', Array('recipient' => 'Recipient E-mail', 'receipt' => 'Receipt', 'staf' => 'Send To A Friend E-mail'), false, Array($all_se[$ruleid]['send']));
+			$email_type_box = ob_get_contents();
+		ob_end_clean();
+
+		ob_start();
+			text_box($prefix.'_address', $all_se[$ruleid]['address'], 30, 255);
+			$address_box = ob_get_contents();
+		ob_end_clean();
+
+		echo translate('cms_form_match_email_line', $require_box, $email_type_box, $address_box);
+
 
 		return true;
 

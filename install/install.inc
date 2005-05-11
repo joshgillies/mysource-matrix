@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.inc,v 1.41 2005/05/06 02:39:07 ndvries Exp $
+* $Id: install.inc,v 1.42 2005/05/11 06:05:11 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * Purpose
 * Functions used to install and upgrade the system
 *
-* @version $Revision: 1.41 $
+* @version $Revision: 1.42 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -1388,7 +1388,7 @@ function &extract_child_nodes_from_xml($file, $root_element, $child_element, $ke
 
 	return $root->children;
 
-}//end extract_strings_from_xml()
+}//end extract_child_nodes_from_xml()
 
 
 /**
@@ -1425,8 +1425,6 @@ function extract_strings_from_xml($file, $root_element, $child_element, $key_att
 		}
 
 	}//end foreach string_node
-
-	return $extracted_strings;
 
 }//end extract_strings_from_xml()
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: tools.inc,v 1.3 2005/03/17 22:50:31 dheppell Exp $
+* $Id: tools.inc,v 1.4 2005/05/11 06:05:11 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@
 *
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 */
 class Tools extends MySource_Object
@@ -46,7 +46,7 @@ class Tools extends MySource_Object
     function paintBackend(&$backend)
 	{
 		$o = &$backend->out;
-		$o->setHeading('System Tools', '<script language="JavaScript" type="text/javascript">sq_print_icon("'.$o->filesPath('/images/icons/header/whereami.png').'", "20", "20", "HIPO Icon");</script>');
+		$o->setHeading(translate('system_tools'), '<script language="JavaScript" type="text/javascript">sq_print_icon("'.$o->filesPath('/images/icons/header/whereami.png').'", "20", "20", "HIPO Icon");</script>');
 
 		// the user has pressed commit for a specific tool
 		if (isset($_REQUEST['committed_tool_type_code'])) {
@@ -61,16 +61,16 @@ class Tools extends MySource_Object
 		}
 
 		// At this point, the user just wants to view a list of the available tools
-		$o->openSection('System Tools');
-		$o->openField('&nbsp;');
+		$o->openSection(translate('system_tools'));
+		$o->openField('');
 			$tools = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('tool');
 
 			if (count($tools) > 0) {
 				?>
 				<table class="sq-backend-table">
 					<tr>
-						<th>Name</th>
-						<th>Description</th>
+						<th><?php echo translate('name'); ?></th>
+						<th><?php echo translate('description'); ?></th>
 					</tr>
 				<?php
 				foreach ($tools as $tool) {
@@ -78,7 +78,7 @@ class Tools extends MySource_Object
 					$backend_url = $backend->getBackendUrl('main');
 					?>
 					<tr>
-						<td class="sq-backend-table-cell"><a href="<?php echo $backend_url; ?>&backend_section=tools&tool_type_code=<?php echo $tool_info['type_code']; ?>"><?php echo $tool_info['name']; ?></a></td>
+						<td class="sq-backend-table-cell"><a href="<?php echo $backend_url; ?>&backend_section=tools&tool_type_code=<?php echo $tool; ?>"><?php echo $tool_info['name']; ?></a></td>
 						<td class="sq-backend-table-cell"><?php echo $tool_info['description']; ?></td>
 					</tr>
 					<?php
@@ -88,7 +88,7 @@ class Tools extends MySource_Object
 				<?php
 			}
 			else {
-				echo 'There are no tools installed in your system.';
+				echo translate('tools_none_installed');
 			}
 		$o->closeField();
 		$o->closeSection();

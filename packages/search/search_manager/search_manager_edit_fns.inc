@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_edit_fns.inc,v 1.10 2005/04/29 05:38:41 gsherwood Exp $
+* $Id: search_manager_edit_fns.inc,v 1.11 2005/05/11 06:07:48 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.10 $ - 1.0
+* @version $Revision: 1.11 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -96,19 +96,21 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 					if (!$wa) {
 						echo $data['weight'];
 					} else {
-
 						if ($data['weight'] == 0) {
 							$disabled = '1';
 						} else {
 							$disabled = '0';
 						}
+
+						// don't get confused here, a value of 1 means it's DISABLED
+						// rather than enabled, and therefore not included in searches
 						combo_box($prefix. "disable[$typeCode][$component]", Array(
-																				   '1' => 'Do not include in searches',
-																				   '0' => 'Include in searches',
+																				   '1' => translate('sch_manager_do_not_include'),
+																				   '0' => translate('sch_manager_include'),
 																				   ), false, $disabled);
 
 						if (!$disabled) {
-							echo "&nbsp;Weight: ";
+							echo '&nbsp;'.ucfirst(translate('weight')).': ';
 							text_box ($prefix. "weights[$typeCode][$component]", $data['weight'], 3);
 						} else {
 							$o->addHiddenField($prefix. "weights[$typeCode][$component]", 1);
@@ -168,11 +170,11 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 	{
 		if ($asset->writeAccess('attributes')) {
 			asset_finder($prefix.'_reindexing_root_assetid', '');
-			echo '&nbsp;&nbsp;&nbsp;<b>OR</b>';
+			echo '&nbsp;&nbsp;&nbsp;<b>'.strtoupper(translate('or')).'</b>';
 			$o->closeField();
-			$o->openField('System Wide');
+			$o->openField(translate('sch_system_wide'));
 			check_box($prefix.'_reindexing_root_folder');
-			echo 'Reindex all assets in the system';
+			echo translate('sch_reindex_all_assets');
 			return true;
 		}
 		return false;

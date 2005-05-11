@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.90 2005/05/03 04:09:05 ndvries Exp $
+* $Id: search_page.inc,v 1.91 2005/05/11 06:07:48 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.90 $
+* @version $Revision: 1.91 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -179,7 +179,7 @@ class Search_Page extends Listing_Engine
 		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
 
 		if ($bodycopy_link['minor_type_code'] == 'bodycopy' && in_array($bodycopy_link['value'], $this->bodycopies) && !$GLOBALS['SQ_PURGING_TRASH']) {
-			return 'You can\'t delete the link between the search page and its bodycopies';
+			return translate('sch_page_cannot_delete_bodycopies');
 		}
 
 		return parent::isDeletableLink($linkid);
@@ -218,7 +218,7 @@ class Search_Page extends Listing_Engine
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
 		switch (strtolower($link['value'])) {
 			case 'root' :
-				return 'The root asset from where searches are conducted from';
+				return translate('sch_page_root_node_link_desc');
 			break;
 			default :
 				return parent::describeLink($linkid);
@@ -441,19 +441,14 @@ class Search_Page extends Listing_Engine
 
 		if (empty($from_string) && empty($to_string)) {
 			return;
-		}
-
-		if (empty($from_string)) {
-			echo 'prior to ';
-		} else {
+		} else if (empty($from_string)) {
+			echo translate('sch_page_date_range_prior_to', $to_string);
+		} else if (empty($to_string)) {
+			echo translate('sch_page_date_range_onwards', $from_string);
+		} else if ($from_string == $to_string) {
 			echo $from_string;
-		}
-
-		if (empty($to_string)) {
-			echo ' onwards';
 		} else {
-			if (!empty($from_string)) echo ' - ';
-			echo $to_string;
+			echo $from_string.' - '.$to_string;
 		}
 
 	}//end _printDateRangeDescription()
@@ -490,7 +485,7 @@ class Search_Page extends Listing_Engine
 		?>
 		<table border="0" cellspacing="0" cellpadding="0">
 			<tr>
-				<td align="right">From:</td>
+				<td align="right"><?php echo ucfirst(translate('from')) ?>:</td>
 				<td>
 					<?php
 					if ($read_only && $current_value['from'] != '---------- --:--:--') {
@@ -522,7 +517,7 @@ class Search_Page extends Listing_Engine
 				?>
 			</tr>
 			<tr>
-				<td align="right">To:</td>
+				<td align="right"><?php echo ucfirst(translate('to')) ?>:</td>
 				<td>
 					<?php
 					if ($read_only && $current_value['to'] != '---------- --:--:--') {
@@ -1058,7 +1053,7 @@ class Search_Page extends Listing_Engine
 		foreach ($keywords as $keyword) {
 			if (ereg('(.+)_query_logic$', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
 				$current_logic = array_get_index($_REQUEST, $keyword, 'AND');
-				$options = Array('AND' => 'all of the words', 'OR' => 'any of the words');
+				$options = Array('AND' => translate('sch_page_format_logic_and'), 'OR' => translate('sch_page_format_logic_or'));
 				ob_start();
 					combo_box($keyword, $options, false, $current_logic);
 					$replacements[$keyword] = ob_get_contents();
@@ -1215,18 +1210,18 @@ class Search_Page extends Listing_Engine
 
 				case 'previous_result_page_link':
 					if ($current_result_page < 1) {
-						$replacement = 'Previous';
+						$replacement = translate('previous');
 						break;
 					}
-					$replacement = '<a href="'.$this->getURL().'?mode='.$mode.'&current_result_page='.($current_result_page - 1).'&results_per_page='.$results_per_page.$queries.'">Previous</a>';
+					$replacement = '<a href="'.$this->getURL().'?mode='.$mode.'&current_result_page='.($current_result_page - 1).'&results_per_page='.$results_per_page.$queries.'">'.translate('previous').'</a>';
 				break;
 
 				case 'next_result_page_link':
 					if ($current_result_page >= $total_pages - 1) {
-						$replacement = 'Next';
+						$replacement = translate('next');
 						break;
 					}
-					$replacement = '<a href="'.$this->getURL().'?mode='.$mode.'&current_result_page='.($current_result_page + 1).'&results_per_page='.$results_per_page.$queries.'">Next</a>';
+					$replacement = '<a href="'.$this->getURL().'?mode='.$mode.'&current_result_page='.($current_result_page + 1).'&results_per_page='.$results_per_page.$queries.'">'.translate('next').'</a>';
 				break;
 
 				case 'initial_layout':
@@ -1239,7 +1234,7 @@ class Search_Page extends Listing_Engine
 					if (ereg('(.+)_query_logic$', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
 
 						$current_logic = array_get_index($_REQUEST, $keyword, 'AND');
-						$options = Array('AND' => 'all of the words', 'OR' => 'any of the words');
+						$options = Array('AND' => translate('sch_page_format_logic_and'), 'OR' => translate('sch_page_format_logic_or'));
 						ob_start();
 							combo_box($keyword, $options, false, $current_logic);
 							$replacement = ob_get_contents();
@@ -1358,7 +1353,7 @@ class Search_Page extends Listing_Engine
 													'1'	=> $search_styles[$attribute->id]['true_text'],
 												   );
 									} else {
-										$options = Array('0' => 'False', '1' => 'True');
+										$options = Array('0' => translate('false'), '1' => translate('true'));
 									}
 									$not_selected_text = array_get_index($search_styles[$attribute->id], 'empty_text');
 								}
@@ -1375,7 +1370,7 @@ class Search_Page extends Listing_Engine
 								$base_url .= '&'.$query_key.'=';
 
 								if ($not_selected_text == '') {
-									$not_selected_text = 'No Selection';
+									$not_selected_text = translate('no_selection');
 								}
 								ob_start();
 									?>
@@ -1556,6 +1551,7 @@ class Search_Page extends Listing_Engine
 				if (!is_null($attribute) && $attribute->type() == 'boolean') {
 					// we need to convert the value into a word representation,
 					// since indexing service will not operate just 0 or 1
+					// do not localise this!!
 					if ($value == '0') {
 						$value = 'false';
 					} else if ($value == '1') {
@@ -1985,7 +1981,7 @@ class Search_Page extends Listing_Engine
 				// work out the query replacements
 				$fields = $this->attr('fields');
 				foreach ($fields as $field => $field_data) {
-					$keywords[$field.'_query'] = 'Search Field ('.$field.')';
+					$keywords[$field.'_query'] = translate('sch_page_keyword_search_field', $field);
 				}
 			}
 
@@ -1995,18 +1991,19 @@ class Search_Page extends Listing_Engine
 
 			// customised forms
 			if ($search_customised) {
-				$keywords['search_form'] = 'Search Form';
+				$keywords['search_form'] = translate('sch_page_keyword_search_form');
 			}
+
 			if ($sis_customised) {
-				$keywords['search_form'] = 'Search Form';
-				$keywords['search_in_search_form'] = 'Search in Search Form';
-				$keywords['search_in_search_button'] = 'Search in Search Button';
+				$keywords['search_form'] = translate('sch_page_keyword_search_form');
+				$keywords['search_in_search_form'] = translate('sch_page_keyword_sis_form');
+				$keywords['search_in_search_button'] = translate('sch_page_keyword_sis_button');
 			}
 		}
 
 		foreach ($type_formats as $type_format) {
-			$keywords['result_number'] = 'Result Number';
-			$keywords['score'] = 'Search Score';
+			$keywords['result_number'] = translate('sch_page_keyword_result_number');
+			$keywords['score'] = translate('sch_page_keyword_search_score');
 		}
 
 		$vars['keywords'] = array_merge($vars['keywords'], $keywords);

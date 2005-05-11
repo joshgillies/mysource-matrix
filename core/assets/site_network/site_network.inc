@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site_network.inc,v 1.3 2005/04/15 00:37:26 lwright Exp $
+* $Id: site_network.inc,v 1.4 2005/05/11 06:04:55 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -107,7 +107,7 @@ class Site_Network extends Folder
 		if (is_a($minor, 'site')) {
 			// site assets can only be in a single site network
 			$network_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($minor->id, SQ_SC_LINK_ALL, 'site_network', false, 'minor');
-			if (!empty($network_link)) return 'Sites can only be linked under one Site Network';
+			if (!empty($network_link)) return translate('core_one_network_for_site');
 		}
 
 		return true;
@@ -196,12 +196,12 @@ class Site_Network extends Folder
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 		if (!file_exists($session_file)) {
-			trigger_localised_error("CORE0072", E_USER_WARNING, $session_file);
+			trigger_localised_error('CORE0072', E_USER_WARNING, $session_file);
 			return false;
 		}
 
 		if (!is_array($session_contents)) {
-			trigger_localised_error("CORE0004", E_USER_WARNING, gettype($session_contents));
+			trigger_localised_error('CORE0004', E_USER_WARNING, gettype($session_contents));
 			return false;
 		}
 
@@ -211,7 +211,7 @@ class Site_Network extends Folder
 		}
 
 		if (!string_to_file($session_str, $session_file)) {
-			trigger_localised_error("CORE0021", E_USER_WARNING, $session_file);
+			trigger_localised_error('CORE0021', E_USER_WARNING, $session_file);
 			return false;
 		}
 		return true;
@@ -237,7 +237,7 @@ class Site_Network extends Folder
 
 		if (!is_array($pri_sess)) {
 			// something is definately wrong
-			trigger_localised_error("CORE0071", E_USER_ERROR);
+			trigger_localised_error('CORE0071', E_USER_ERROR);
 			return false;
 		}
 
@@ -270,7 +270,7 @@ class Site_Network extends Folder
 
 		// *** JEDI MIND TRICK *** you did not see us doing this... move along
 		if (!$this->serialiseSessionFile(SQ_CACHE_PATH.'/sess_'.$pri_sessionid, $pri_sess)) {
-			trigger_localised_error("CORE0020", E_USER_ERROR);
+			trigger_localised_error('CORE0020', E_USER_ERROR);
 			return false;
 		}
 		return true;

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime.inc,v 1.25 2004/12/06 14:38:11 brobertson Exp $
+* $Id: datetime.inc,v 1.26 2005/05/11 06:05:06 lwright Exp $
 *
 */
 
@@ -46,7 +46,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *    </datetime>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -216,13 +216,13 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 				echo $field->format();
 				return;
 			}
-			$start_text = 'Select Single Period';
+			$start_text = translate('select_single_period');
 		} else {
 			if ($read_only) {
 				echo $period_num.' '.$this->_period_options[$period_type].' '.$this->_age_options[$period_age];
 				return;
 			}
-			$start_text = 'Select Date Period';
+			$start_text = translate('select_date_period_config');
 		}
 
 		if ($this->_edit_params['allow_period']) {
@@ -233,7 +233,7 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 					[
 					<a class="sq-backend-legend" href="#"
 					style="text-decoration: none;"
-					onclick="Javascript: sq_toggle_double_div('<?php echo $prefix; ?>_date_field', '<?php echo $prefix; ?>_period_field', '<?php echo $prefix; ?>_selecta', 'Select Single Date', 'Select Date Period'); set_hidden_field('<?php echo $prefix; ?>_setting_single_date', document.getElementById('<?php echo $prefix; ?>_date_field').style.display == 'block'); return false;">change</a>
+					onclick="Javascript: sq_toggle_double_div('<?php echo $prefix; ?>_date_field', '<?php echo $prefix; ?>_period_field', '<?php echo $prefix; ?>_selecta', 'Select Single Date', 'Select Date Period'); set_hidden_field('<?php echo $prefix; ?>_setting_single_date', document.getElementById('<?php echo $prefix; ?>_date_field').style.display == 'block'); return false;"><?php echo strtolower(translate('change')); ?></a>
 					]
 				</legend>
 				<div id="<?php echo $prefix; ?>_date_field" style="display: <?php echo ($using_single_date) ? 'block' : 'none'; ?>;">
@@ -249,7 +249,7 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 							$calendar->paint($prefix, $prefix.'_cal_picker', true);
 						}
 					?>
-					<br /><br /><i>Select a single date using the boxes above</i>
+					<br /><br /><i><?php echo translate('select_single_date'); ?></i>
 				</div>
 				<div id="<?php echo $prefix; ?>_period_field" style="display: <?php echo ($using_single_date) ? 'none' : 'block'; ?>;">
 					<?php
@@ -259,7 +259,7 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 					echo '&nbsp;';
 					combo_box($prefix.'_period_age', $this->_age_options, false, $period_age);
 					?>
-					<br /><br /><i>Enter a period using the boxes above. eg. 3 days</i>
+					<br /><br /><i><?php echo translate('select_date_period'); ?></i>
 				</div>
 			</fieldset>
 			<?php

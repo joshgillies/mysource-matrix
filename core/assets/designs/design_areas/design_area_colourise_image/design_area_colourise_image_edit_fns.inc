@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_colourise_image_edit_fns.inc,v 1.17 2005/04/15 00:37:24 lwright Exp $
+* $Id: design_area_colourise_image_edit_fns.inc,v 1.18 2005/05/11 06:04:49 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -73,14 +73,14 @@ class Design_Area_Colourise_Image_Edit_Fns extends Design_Area_Edit_Fns
 
 		$image_asset = $design->getAssociatedFile($asset->attr('image'));
 		if (is_null($image_asset)) {
-			trigger_localised_error("CORE0184", E_USER_WARNING, $asset->attr('id_name'), $asset->attr('image'));
+			trigger_localised_error('CORE0184', E_USER_WARNING, $asset->attr('id_name'), $asset->attr('image'));
 			return '';
 		}
 
 		$source = $image_asset->data_path.'/'.$image_asset->attr('name');
 		// check the source file exists
 		if (!file_exists($source)) {
-			trigger_localised_error("CORE0183", E_USER_WARNING, $asset->attr('id_name'), $source);
+			trigger_localised_error('CORE0183', E_USER_WARNING, $asset->attr('id_name'), $source);
 			return '';
 		}
 
@@ -88,7 +88,7 @@ class Design_Area_Colourise_Image_Edit_Fns extends Design_Area_Edit_Fns
 		$dest = $asset->data_path_public.'/colourised_'.$design->id.'_'.$asset->attr('image');
 
 		if (!create_directory($asset->data_path_public)) {
-			trigger_localised_error("CORE0185", E_USER_WARNING, $asset->attr('id_name'), $asset->data_path_public);
+			trigger_localised_error('CORE0185', E_USER_WARNING, $asset->attr('id_name'), $asset->data_path_public);
 			return '';
 		}
 
@@ -123,7 +123,7 @@ class Design_Area_Colourise_Image_Edit_Fns extends Design_Area_Edit_Fns
 			break;
 
 			default :
-				trigger_localised_error("CORE0182", E_USER_WARNING, $asset->attr('id_name'), $this->get_val('type'));
+				trigger_localised_error('CORE0182', E_USER_WARNING, $asset->attr('id_name'), $this->get_val('type'));
 
 		}//end switch
 

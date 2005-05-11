@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_backend_outputter.inc,v 1.12 2005/04/15 00:37:27 lwright Exp $
+* $Id: hipo_backend_outputter.inc,v 1.13 2005/05/11 06:05:07 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_SYSTEM_ROOT.'/core/include/backend_outputter.inc';
 *    suite hipo jobs
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix
 */
 class Hipo_Backend_Outputter extends Backend_Outputter
@@ -93,7 +93,7 @@ class Hipo_Backend_Outputter extends Backend_Outputter
 		?>
 		<html>
 			<head>
-				<title>HIPO Processing</title>
+				<title><?php echo translate('hipo_processing'); ?></title>
 				<?php
 
 				$this->addCssInclude($this->filesPath('css/edit.css'));

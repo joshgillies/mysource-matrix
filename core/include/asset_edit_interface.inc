@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.256 2005/05/02 04:31:08 mmcintyre Exp $
+* $Id: asset_edit_interface.inc,v 1.257 2005/05/11 06:05:10 lwright Exp $
 *
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.256 $
+* @version $Revision: 1.257 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -94,7 +94,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 		// check that the edit functions have a details tab or else
 		// we cant even create assets of this type let alone edit them
-		assert_isset($this->_edit_fns->static_screens['details'], "Asset Edit Functions for '$type_code' do not define a 'details' tab");
+		assert_isset($this->_edit_fns->static_screens['details'], translate('no_details_screen_defined', $type_code));
 
 		$this->_dirs = Array($asset_dir);
 		$parent_type = $type_info['parent_type'];
@@ -113,7 +113,7 @@ class Asset_Edit_Interface extends MySource_Object
 		$input = new XML_Tree($file);
 		$root  = &$input->getTreeFromFile();
 		if (PEAR::isError($root)) {
-			trigger_localised_error("SYS0230", E_USER_WARNING, $file, $root->getMessage(), $root->getUserInfo());
+			trigger_localised_error('SYS0230', E_USER_WARNING, $file, $root->getMessage(), $root->getUserInfo());
 			return;
 		}
 
@@ -163,7 +163,7 @@ class Asset_Edit_Interface extends MySource_Object
 	{
 		// if we dont have read access, go away
 		if ($owner->id && !$owner->readAccess()) {
-			$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to access <i>'.$owner->name.'</i>');
+			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $owner->name));
 			exit();
 		}
 
@@ -207,13 +207,14 @@ class Asset_Edit_Interface extends MySource_Object
 
 		if ($check_screen_restrictions && !isset($allowed_screens[$active_screen])) {
 			// this user is not allowed to view the current screen
-			$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to access the <i>'.$active_screen.'</i> screen of "'.$owner->name.'"');
+			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $owner->name));
+			minibam($check_screen_restrictions, 'first');
 			exit();
 		}
 
 		if (!isset($this->_edit_fns->static_screens[$active_screen]) && empty($this->_screens[$active_screen])) {
 			// we cant find this screen, so we will use the details screen as a backup
-			trigger_localised_error("SYS0076", E_USER_WARNING, $active_screen);
+			trigger_localised_error('SYS0076', E_USER_WARNING, $active_screen);
 			$active_screen = 'details';
 		}
 
@@ -300,22 +301,22 @@ class Asset_Edit_Interface extends MySource_Object
 				if (strtolower($screen_lock_type) != 'none') {
 					// lets tell the user if the asset is locked for editing
 					// or if they can lock it to edit it
-					$o->openSection('Locking / Editing');
+					$o->openSection(translate('locking_editing'));
 					$o->openRaw();
 						?>
 						<p style="margin-top: 5px; margin-bottom: 2px"><?php
 							if (!$have_all_locks) {
 								if ($need_force_locks) {
 									if ($can_force_locks) {
-										echo '<div class="sq-backend-locked-by-someone-else">You can forceably acquire this lock, which will remove the lock from "'.$user->name.'" and give the lock to yourself.<br>Any changes currently being made by "'.$user->name.'" will be lost if this lock is forceably acquired.</div>';
+										echo '<div class="sq-backend-locked-by-someone-else">'.translate('forceably_acquire_lock', $user->name).'</div>';
 									}
 								} else if ($full_write_access && $acquire_lock_access) {
-									echo 'Press the <span class="sq-backend-button-fake">Acquire Lock</span> button to lock "'.$owner->name.'" for editing. ';
+									echo translate('acquire_lock', translate('acquire_lock_button'), $owner->name);
 								}
 							}
-							if ($have_any_locks) echo 'Press the <span class="sq-backend-button-fake">Release Lock(s)</span> button to release the locks you hold on "'.$owner->name.'". ';
+							if ($have_any_locks) echo translate('release_lock', translate('release_lock_button'), $owner->name);
 							?>
-							<b><a href="#" onClick="Javascript: sq_toggle_lock_info();" id="sq_lock_info_toggle">Show Lock Details</a></b><br />
+							<b><a href="#" onClick="Javascript: sq_toggle_lock_info();" id="sq_lock_info_toggle"><?php echo translate('show_lock_details'); ?></a></b><br />
 						</p>
 
 						<div id="sq_lock_info" style="display: none;">
@@ -325,7 +326,7 @@ class Asset_Edit_Interface extends MySource_Object
 									<img src="<?php echo $o->filesPath('/images/blank.gif');?>" width="20" height="1" border="0" alt="" />
 								</td>
 								<td class="sq-backend-table-header" align="left" nowrap>
-									&nbsp;Lock Type
+									&nbsp;<?php echo translate('lock_type'); ?>
 								</td>
 								<td class="sq-backend-table-header" width="100%">
 									&nbsp;
@@ -350,9 +351,9 @@ class Asset_Edit_Interface extends MySource_Object
 												if (empty($lock)) {
 
 													if ($full_write_access && $acquire_lock_access) {
-														echo 'Currently not held.';
+														echo translate('currently_not_held');
 													} else {
-														echo 'You do not have access to edit "'.$owner->name.'".';
+														echo translate('no_access_to_edit', $owner->name);
 													}
 
 												} else {
@@ -364,19 +365,16 @@ class Asset_Edit_Interface extends MySource_Object
 													else $now = time();
 
 													if (is_null($lock['expires'])) {
-														$expires_in = 'The lock is being held indefinitely and will not expire. The lock must be released manually or be forceably acquired by a System Administrator.';
+														$expires_in = translate('lock_held_indefinitely');
 													} else {
 														require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 														$expires_in = easy_time_total(($lock['expires'] - $now), true);
-														if (!$expires_in) $expires_in = '1 second';
-														$expires_in = 'The lock is due to expire in '.$expires_in;
+														if (!$expires_in) $expires_in = '1 '.translate('second');
+														$expires_in = translate('due_to_expire', $expires_in);
 													}
 
-													?>
-													Held by user "<?php echo $user->name; ?>" at "<?php echo $editing->name; ?>".
-													<?php echo $expires_in; ?>
-													<?php
-
+													echo translate('lock_held_by', $user->name, $editing->name);
+													echo $expires_in;
 												}//end if
 												?>
 											</td>
@@ -404,18 +402,18 @@ class Asset_Edit_Interface extends MySource_Object
 
 									hidden_field('sq_lock_acquire_by_force', '0');
 									hidden_field('sq_lock_acquire', '0');
-									normal_button('sq_forceably_acquire_lock', 'Acquire Lock(s)', "window.open('$popup_url', 'sq_forceably_acquire_lock_popup', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=500,height=300');");
+									normal_button('sq_forceably_acquire_lock', translate('acquire_lock_button'), "window.open('$popup_url', 'sq_forceably_acquire_lock_popup', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=500,height=300');");
 									echo '&nbsp;';
 								}
 							} else if ($full_write_access && $acquire_lock_access) {
 								hidden_field('sq_lock_acquire_by_force', '0');
-								submit_button('sq_lock_acquire', 'Acquire Lock', '', 'accesskey="a"');
+								submit_button('sq_lock_acquire', translate('acquire_lock_button'), '', 'accesskey="a"');
 								echo '&nbsp;';
 							}//end if
 						}
 
 						if ($have_any_locks) {
-							submit_button('sq_lock_release_manual', 'Release Lock(s)', '', 'accesskey="r"');
+							submit_button('sq_lock_release_manual', translate('release_lock_button'), '', 'accesskey="r"');
 							echo '&nbsp;';
 						}
 
@@ -631,7 +629,7 @@ class Asset_Edit_Interface extends MySource_Object
 			$page_heading = 'Create new '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->_type_code, 'name');
 		}
 		$page_heading .= '&nbsp;&nbsp;|&nbsp;&nbsp;'.$active_screen_name;
-		if (!$creating) $page_heading .= '&nbsp;&nbsp;<a class="sq_asset_info_toggle" href="#" onclick="Javascript: sq_toggle_asset_info();"><span id="sq_asset_info_toggle">[ more info ]</span></a>';
+		if (!$creating) $page_heading .= '&nbsp;&nbsp;<a class="sq_asset_info_toggle" href="#" onclick="Javascript: sq_toggle_asset_info();"><span id="sq_asset_info_toggle">[ '.translate('more_info').' ]</span></a>';
 
 		$o->setHeading($page_heading, '<script language="JavaScript" type="text/javascript">sq_print_icon("'.$GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($this->_type_code).'", "16", "16", "");</script>');
 
@@ -639,7 +637,7 @@ class Asset_Edit_Interface extends MySource_Object
 		if ($closest_parentid != $owner->id) {
 			$closest_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($closest_parentid);
 			if (!is_null($closest_parent)) {
-				$sub_heading = 'Currently editing '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($closest_parent->type(), 'name').' "'.$closest_parent->name.'"<br/>';
+				$sub_heading = translate('currently_editing', $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($closest_parent->type(), 'name'), $closest_parent->name).'<br/>';
 			}
 		}
 
@@ -657,10 +655,16 @@ class Asset_Edit_Interface extends MySource_Object
 										<script language="JavaScript" type="text/javascript">sq_print_icon("'.sq_web_path('lib').'/web/images/icons/info.png", "16", "16", "");</script>
 									</td>
 									<td class="sq-backend-asset-info" nowrap="nowrap">
-									Created by '.$created_by_name.' on '.readable_datetime($owner->created).'<br/>
-									Last updated by '.$updated_by_name.' on '.readable_datetime($owner->updated).'<br/>'.
-									((!is_null($owner->published)) ? 'Last published by '.$published_by_name.' on '.readable_datetime($owner->published) : 'This asset has never been published').'
-									</td>
+									'.translate('created_by', $created_by_name, readable_datetime($owner->created)).'<br/>
+									'.translate('last_updated', $updated_by_name, readable_datetime($owner->updated)).'<br/>';
+
+			if(!is_null($owner->published)){
+				 $sub_heading .= translate('last_published', $published_by_name, readable_datetime($owner->published));
+			} else {
+				$sub_heading .= translate('never_published');
+			}
+
+			$sub_heading .=	'		</td>
 								</tr>
 							</table>
 							<div>';
@@ -723,7 +727,7 @@ class Asset_Edit_Interface extends MySource_Object
 		if ($owner->id && !$owner->readAccess()) {
 			$o->openField('');
 			?>
-				<span class="error">You do not have permission to access <i><?php echo $owner->name; ?></i>
+				<span class="error"><?php echo translate('cannot_access_asset', $owner->name); ?></span>
 			<?php
 			$o->closeField();
 			return false;
@@ -759,7 +763,7 @@ class Asset_Edit_Interface extends MySource_Object
 		if ($check_screen_restrictions && !isset($allowed_screens[$active_screen])) {
 			$o->openField('');
 			?>
-				<span class="error">You do not have permission to access the <i><?php echo $active_screen; ?></i> screen of <i><?php echo $owner->name; ?></i>
+				<span class="error"><?php echo translate('cannot_access_inline_asset_screen', $active_screen, $owner->name); ?></span>
 			<?php
 			$o->closeField();
 			return false;
@@ -767,7 +771,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 		if (!isset($this->_edit_fns->static_screens[$active_screen]) && empty($this->_screens[$active_screen])) {
 			// we cant find this screen, so we will use the details screen as a backup
-			trigger_localised_error("SYS0076", E_USER_WARNING, $active_screen);
+			trigger_localised_error('SYS0076', E_USER_WARNING, $active_screen);
 			$active_screen = 'details';
 		}
 
@@ -880,7 +884,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 				if (empty($paint_node->attributes['name']) || !method_exists($this->_edit_fns, $paint_node->attributes['name'])) {
 					$o->openField('');
-					echo 'Function not found for painting section "', $section->attributes['name'], '"';
+					echo translate('section_not_found', $section->attributes['name']);
 					$o->closeField();
 				} else {
 
@@ -920,7 +924,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 									default:
 										if (!is_null($attr_tag)) {
-											trigger_localised_error("SYS0194", E_USER_WARNING);
+											trigger_localised_error('SYS0194', E_USER_WARNING);
 										} else {
 											$attr_tag =& $sub_field;
 										}
@@ -928,10 +932,6 @@ class Asset_Edit_Interface extends MySource_Object
 								}//end switch
 
 							}
-							/*if ($field->children[0]->name != 'display_name') {
-								trigger_error('Display Name for "'.$field->attributes['attribute'].'" not found', E_USER_WARNING);
-								continue;
-							}*/
 
 							// if we are in limbo and this field is not to be printed in limbo - dont print it
 							if (SQ_IN_LIMBO && (isset($field->attributes['limbo_access']) && (int)$field->attributes['limbo_access'] == 0)) continue;
@@ -966,7 +966,7 @@ class Asset_Edit_Interface extends MySource_Object
 								$o->openField($display_name, $field->attributes['format'], '', isset($field->attributes['hidden']));
 
 								if (empty($paint_node->attributes['name']) || !method_exists($this->_edit_fns, $paint_node->attributes['name'])) {
-									echo 'Function "'.$paint_node->attributes['name'].'" not found for painting';
+									$o->note(translate('specific_painting_function_not_found', $paint_node->attributes['name']));
 								} else {
 									if ($this->_edit_fns->{$paint_node->attributes['name']}($owner, $o, $prefix)) {
 										$print_commit_button = true;
@@ -988,7 +988,7 @@ class Asset_Edit_Interface extends MySource_Object
 						break;
 
 						default:
-							trigger_localised_error("SYS0140", E_USER_WARNING, $field->name);
+							trigger_localised_error('SYS0140', E_USER_WARNING, $field->name);
 							continue;
 
 					}
@@ -1311,7 +1311,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 				if (empty($paint_node->attributes['name']) || !method_exists($this->_edit_fns, $paint_node->attributes['name'])) {
 					$o->openField('');
-					echo 'Function not found for painting section "', $section->attributes['name'], '"';
+					echo translate('section_not_found', $section->attributes['name']);
 					$o->closeField();
 				} else {
 					if ($this->_edit_fns->{$paint_node->attributes['name']}($owner, $o, $prefix)) {
@@ -1327,7 +1327,7 @@ class Asset_Edit_Interface extends MySource_Object
 					$field = &$section->children[$j];
 
 					if ($field->name != 'field') {
-						trigger_localised_error("SYS0141", E_USER_WARNING, $field->name);
+						trigger_localised_error('SYS0141', E_USER_WARNING, $field->name);
 						continue;
 					}
 
@@ -1348,7 +1348,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 							default:
 								if (!is_null($attr_tag)) {
-									trigger_localised_error("SYS0194", E_USER_WARNING);
+									trigger_localised_error('SYS0194', E_USER_WARNING);
 								} else {
 									$attr_tag =& $sub_field;
 								}
@@ -1425,7 +1425,7 @@ class Asset_Edit_Interface extends MySource_Object
 						$o->openField($display_name, $field->attributes['format'], '', isset($field->attributes['hidden']));
 
 						if (empty($paint_node->attributes['name']) || !method_exists($this->_edit_fns, $paint_node->attributes['name'])) {
-							echo 'Function not found for painting';
+							echo translate('painting_funtion_not_found');
 						} else {
 							if ($get_field) ob_start();
 
@@ -1551,7 +1551,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 					if (!isset($allowed_screens['0']['0']) && !isset($allowed_screens[$active_screen])) {
 						// this user is not allowed to view the current screen
-						$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to access the <i>'.$active_screen.'</i> screen of "'.$owner->name.'"');
+						$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $owner->name));
 						exit();
 					}
 				}
@@ -1598,7 +1598,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 				// must be a normal screen
 				if (empty($this->_screens[$active_screen])) {
-					trigger_localised_error("SYS0076", E_USR_WARNING, $active_screen);
+					trigger_localised_error('SYS0076', E_USR_WARNING, $active_screen);
 					return false;
 				}
 
@@ -1743,7 +1743,7 @@ class Asset_Edit_Interface extends MySource_Object
 				if (!$edit_fns->$show_if_fn($owner, $prefix)) return 0;
 			} else {
 				// if show if function doesn't exist, spew, then continue as normal
-				trigger_localised_error("SYS0136", E_USER_WARNING, $show_if_fn, $node->name);
+				trigger_localised_error('SYS0136', E_USER_WARNING, $show_if_fn, $node->name);
 				return 0;
 			}
 		}
@@ -1884,7 +1884,7 @@ class Asset_Edit_Interface extends MySource_Object
 			}
 		}
 		if (!$file) {
-			trigger_localised_error("SYS0065", E_USER_WARNING, $file_name, $this->_type_code);
+			trigger_localised_error('SYS0065', E_USER_WARNING, $file_name, $this->_type_code);
 			return false;
 		}
 
@@ -1975,7 +1975,7 @@ class Asset_Edit_Interface extends MySource_Object
 			if (!empty($root) && !empty($root->children)) {
 				$lang_file = $this->findLanguageFile($screen_name);
 				if (empty($lang_file)) {
-					trigger_localised_error("SYS0197", E_USER_WARNING, $screen_name);
+					trigger_localised_error('SYS0197', E_USER_WARNING, $screen_name);
 					$root = null;
 					return $root;
 				} else {

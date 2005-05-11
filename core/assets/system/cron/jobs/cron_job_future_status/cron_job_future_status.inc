@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_status.inc,v 1.25 2005/04/20 02:04:10 rhoward Exp $
+* $Id: cron_job_future_status.inc,v 1.26 2005/05/11 06:04:57 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -66,11 +66,11 @@ class Cron_Job_Future_Status extends Cron_Job
 	{
 		$asset = &$this->getAssetToUpdate();
 		if (is_null($asset)) {
-			return 'Asset-less Future Status Cron Job';
+			return translate('cron_job_asset_less_futire_status');
 		} else if ($short_name) {
-			return 'FS for "'.$asset->short_name.'" (#'.$asset->id.')';
+			return translate('cron_fl_for', translate('asset_format', $asset->short_name, $asset->id));
 		} else {
-			return 'Future Status for "'.$asset->name.'" (#'.$asset->id.')';
+			return translate('cron_future_status_for', translate('asset_format', $asset->name, $asset->id));
 		}
 
 	}//end _getName()
@@ -275,7 +275,7 @@ class Cron_Job_Future_Status extends Cron_Job
 			$status_errors = $hh->freestyleHipo('hipo_job_edit_status', $vars);
 			if (empty($status_errors)) {
 				// all OK, and we can be removed because we have done our one off task
-				$msg = 'Altered Status of "'.$asset->name.'" (#'.$asset->id.') from "'.$this->statusName($old_status).'" to "'.$this->statusName($asset->status).'"';
+				$msg = translate('cron_altered_asset_status', translate('asset_format', $asset->name, $asset->id), $this->statusName($old_status), $this->statusName($asset->status));
 				return SQ_CRON_JOB_COMPLETED | SQ_CRON_JOB_REMOVE;
 			} else {
 				// process failed

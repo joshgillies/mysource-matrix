@@ -11,17 +11,21 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_tool_search_replace.inc,v 1.8 2005/05/11 02:36:52 dmckee Exp $
+* $Id: hipo_job_tool_search_replace.inc,v 1.9 2005/05/11 06:07:48 lwright Exp $
 *
 */
 
 require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 
 /**
-* Highly Intensive Processing Object (HIPO) to perform search and replace on asset attributes and metadata
+* HIPO_Job_Tool_Search_Replace
+*
+* Purpose
+*    Highly Intensive Processing Object (HIPO) to perform search and
+*    replace on asset attributes and metadata
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -165,6 +169,7 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 	function HIPO_Job_Tool_Search_Replace($code_name='')
 	{
 		$this->_hipo_vars['job_dir'] = SQ_PACKAGES_PATH.'/packages/search/tools/tool_search_replace';
+		$GLOBALS['SQ_SYSTEM']->lm->includeAssetStrings('tool_search_replace');
 		$this->HIPO_Job($code_name);
 
 	}//end constructor
@@ -298,7 +303,7 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 
 		$asset_info = &$GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid));
 
-		$step_data['message'] = 'Releasing Locks on '.$asset_info[$assetid]['name'].' and its dependant assets';
+		$step_data['message'] = translate('sch_tool_global_sr_releasing_locks', $asset_info[$assetid]['name']);
 
 		$GLOBALS['SQ_SYSTEM']->am->releaseLock($assetid, 'all');
 
@@ -379,7 +384,8 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 		$search_count = $this->_getSearchCounts();
 		$this->_setupMatches();
 		$this->save();
-		$o->openSection('Search and Replace Confirmation');
+		minibam($this->_running_vars['search_data'], 'after save');
+		$o->openSection(translate('sch_tool_global_sr_confirmation'));
 		$o->openField('', 'replace_selection');
 
 		?>
@@ -395,8 +401,8 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 			}
 		</style>
 		<p style="text-align: center">
-			<span class="link" id="select-deselect-link-top" onclick="setAllCheckboxes(this)">Select All</span> &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
-			<span class="link" id="expand-collapse-link-top" onclick="toggleAllTbodyDisplays(this)" >Expand All</span>
+			<span class="link" id="select-deselect-link-top" onclick="setAllCheckboxes(this)"><?php echo translate('sch_tool_global_sr_select_all'); ?></span> &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+			<span class="link" id="expand-collapse-link-top" onclick="toggleAllTbodyDisplays(this)" ><?php echo translate('sch_tool_global_sr_expand_all'); ?></span>
 		</p>
 
 		<div id="confirmations-container">
@@ -404,13 +410,14 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 
 		$names = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($this->_running_vars['search_data']), '', false, 'name');
 		foreach ($this->_running_vars['search_data'] as $assetid => $value) {
+			bam($assetid);
 			?>
 			<table class="sq-backend-table expandable" style="margin-bottom: 10px">
 				<thead>
 					<tr>
 						<th onclick="toggleTBodyDisplay(this)">
-							<?php echo $names[$assetid]; ?> (ID #<?php echo $assetid; ?>)
-							- <?php echo $search_count[$assetid]; ?> matches
+							<?php echo translate('asset_format', $names[$assetid], $assetid); ?>
+							- <?php echo translate('sch_tool_global_sr_file_match(es)', $search_count[$assetid]); ?>
 						</th>
 						<th class="all-asset-checkbox">
 							<?php check_box($prefix.'_asset_'.$assetid.'_all', 1, false, 'toggleTBodyCheckboxes(this)'); ?>
@@ -452,8 +459,8 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 		?>
 		</div>
 		<p style="text-align: center">
-			<span class="link" id="select-deselect-link-bottom" onclick="setAllCheckboxes(this)">Select All</span> &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
-			<span class="link" id="expand-collapse-link-bottom" onclick="toggleAllTbodyDisplays(this)" >Expand All</span>
+			<span class="link" id="select-deselect-link-bottom" onclick="setAllCheckboxes(this)"><?php echo translate('sch_tool_global_sr_select_all'); ?></span> &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+			<span class="link" id="expand-collapse-link-bottom" onclick="toggleAllTbodyDisplays(this)" ><?php echo translate('sch_tool_global_sr_expand_all'); ?></span>
 		</p>
 		<?php
 
@@ -467,7 +474,7 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 
 
 	/**
-	* Does nothing
+	* Processes the confirmation/match selection step of the HIPO
 	*
 	* @param array		&$step_data	a reference to the step data for this step
 	* @param String		$prefix		a string for prefixing form variables
@@ -540,7 +547,7 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 	}//end processConfirmation()
 
 
-/**
+	/**
 	* Print matches from an asset's attributes
 	*
 	* @param array	$matches	The matches to print
@@ -555,7 +562,7 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 			<thead>
 				<tr>
 					<th colspan="2" onclick="toggleTBodyDisplay(this)">
-						Asset Attributes
+						<?php echo translate('asset_attributes'); ?>
 					</th>
 					<th style="text-align: right" class="match-checkbox">
 						<?php check_box($prefix.'_asset_'.$assetid.'_attr_all', 1, false, 'toggleTBodyCheckboxes(this); updateParentCheckboxes(this);', 'class="component-checkbox"'); ?>
@@ -565,8 +572,8 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 			</thead>
 			<tbody style="display: none">
 				<tr>
-					<th style="width: 30%">Attribute Name</th>
-					<th>Match</th>
+					<th style="width: 30%"><?php echo translate('attribute_name'); ?></th>
+					<th><?php echo translate('match'); ?></th>
 					<th class="match-checkbox">&nbsp;</th>
 				</tr>
 			<?php
@@ -605,7 +612,7 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 			<thead>
 				<tr>
 					<th colspan="3" onclick="toggleTBodyDisplay(this)">
-						Asset Metadata
+						<?php echo translate('asset_metadata'); ?>
 					</th>
 					<th class="match-checkbox" style="text-align: right">
 						<?php check_box($prefix.'_asset_'.$assetid.'_attr_all', 1, false, 'toggleTBodyCheckboxes(this); updateParentCheckboxes(this);', 'class="component-checkbox"'); ?>
@@ -614,9 +621,9 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 			</thead>
 			<tbody style="display: none">
 				<tr>
-					<th>Field ID</th>
-					<th>Field Name</th>
-					<th>Match</th>
+					<th><?php echo translate('field_id'); ?></th>
+					<th><?php echo translate('field_name'); ?></th>
+					<th><?php echo translate('match'); ?></th>
 					<th>&nbsp;</th>
 				</tr>
 			<?php
@@ -656,7 +663,7 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 			<thead>
 				<tr>
 					<th colspan="3" onclick="toggleTBodyDisplay(this)">
-						Metadata Schema
+						<?php echo translate('metadata_schema'); ?>
 					</th>
 					<th class="match-checkbox" style="text-align: right">
 						<?php check_box($prefix.'_asset_'.$assetid.'_attr_all', 1, false, 'toggleTBodyCheckboxes(this); updateParentCheckboxes(this);', 'class="component-checkbox"'); ?>
@@ -665,9 +672,9 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 			</thead>
 			<tbody style="display: none">
 				<tr>
-					<th>Field ID</th>
-					<th>Field Name</th>
-					<th>Match</th>
+					<th><?php echo translate('field_id'); ?></th>
+					<th><?php echo translate('field_name'); ?></th>
+					<th><?php echo translate('match'); ?></th>
 					<th>&nbsp</th>
 				</tr>
 			<?php
@@ -707,7 +714,7 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 			<thead>
 				<tr>
 					<th colspan="3" onclick="toggleTBodyDisplay(this)">
-						Asset Content
+						<?php echo translate('asset_content'); ?>
 					</th>
 					<th class="match-checkbox" style="text-align: right">
 						<?php check_box($prefix.'_asset_'.$assetid.'_content_all', 1, false, 'toggleTBodyCheckboxes(this); updateParentCheckboxes(this);', 'class="component-checkbox"'); ?>
@@ -716,8 +723,8 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 			</thead>
 			<tbody style="display: none">
 				<tr>
-					<th>DIV ID</th>
-					<th>Match</th>
+					<th><?php echo translate('div_id'); ?></th>
+					<th><?php echo translate('match'); ?></th>
 					<th>&nbsp;</th>
 				</tr>
 			<?php
@@ -759,7 +766,7 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 
 		$asset = $am->getAssetInfo(Array($assetid));
 
-		$step_data['message'] = 'Replacing  "'.$search_string.'" with "'.$replace_string.'" in  "'.$asset->name.'"';
+		$step_data['message'] = translate('sch_tool_global_sr_replacing_with_in', $search_string, $replace_string, $asset->name);
 
 		$asset_contents = $this->_running_vars['search_data'][$assetid]['contents'];
 		foreach ($asset_contents as $contents_id => $contents_value) {
@@ -807,7 +814,7 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 
 		$asset = $am->getAssetInfo(Array($assetid));
 
-		$step_data['message'] = 'Replacing  "'.$search_string.'" with "'.$replace_string.'" in  "'.$asset->name.'"';
+		$step_data['message'] = translate('sch_tool_global_sr_replacing_with_in', $search_string, $replace_string, $asset->name);
 
 		foreach ($this->_running_vars['schema_replacements'][$assetid] as $fieldid => $data) {
 			$new_data = $this->_replaceOccurrences($search_string, $replace_string, $data['value'], $data['matches']);
@@ -858,7 +865,7 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 
 		$asset = &$am->getAsset($assetid);
 
-		$step_data['message'] = 'Replacing  "'.$search_string.'" with "'.$replace_string.'" in  "'.$asset->name.'"';
+		$step_data['message'] = translate('sch_tool_global_sr_replacing_with_in', $search_string, $replace_string, $asset->name);
 
 		foreach ($this->_running_vars['attribute_replacements'][$assetid] as $attrid => $data) {
 			$new_data = $this->_replaceOccurrences($search_string, $replace_string, $data['value'], $data['matches']);
@@ -905,7 +912,7 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 
 		$asset = $am->getAssetInfo(Array($assetid));
 
-		$step_data['message'] = 'Replacing  "'.$search_string.'" with "'.$replace_string.'" in  "'.$asset->name.'"';
+		$step_data['message'] = translate('sch_tool_global_sr_replacing_with_in', $search_string, $replace_string, $asset->name);
 
 		$metadata = $mm->getMetadata($assetid);
 		foreach ($this->_running_vars['metadata_replacements'][$assetid] as $fieldid => $data) {
@@ -1026,7 +1033,7 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 	{
 		$occ = $this->_getOccurrences($needle, $haystack);
 		foreach ($occ as $id => $offset) {
-			echo '<tr><td><INPUT type="checkbox"></INPUT></td><td>';
+			echo '<tr><td><input type="checkbox" /></td><td>';
 			$this->_printHighlightedMatch($needle, $haystack, $offset);
 			echo '</td></tr>';
 		}

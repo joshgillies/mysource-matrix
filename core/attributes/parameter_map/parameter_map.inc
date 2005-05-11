@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: parameter_map.inc,v 1.4 2005/05/06 05:29:45 tbarrett Exp $
+* $Id: parameter_map.inc,v 1.5 2005/05/11 06:05:07 lwright Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once dirname(dirname(__FILE__)).'/serialise/serialise.inc';
 *   When requesting the runtime value for a parameter you give its code.
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -119,8 +119,8 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 		?>
 		<table border="0" cellpadding="0" cellspacing="0" class="sq-backend-table">
 			<tr>
-				<td class="sq-backend-table-header">Parameter</td>
-				<td class="sq-backend-table-header">Source</td>
+				<td class="sq-backend-table-header"><?php echo translate('parameter'); ?></td>
+				<td class="sq-backend-table-header"><?php echo translate('source'); ?></td>
 			</tr>
 		<?php
 
@@ -179,7 +179,7 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 		combo_box($prefix.'[attribute]', $this->_asset_attribute_options, false, Array($component), 0, 'style="width: 25ex; '.(($source_type != 'ASSET') ? 'display: none' : '').'"');
 		if ($source_type != null) {
 			check_box($prefix.'[delete]');
-			echo '<label for="'.$prefix.'[delete]">Delete</label>';
+			echo '<label for="'.$prefix.'[delete]">'.translate('delete').'</label>';
 		}
 		echo '<br />';
 

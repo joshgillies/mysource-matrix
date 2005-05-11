@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: product_price.inc,v 1.5 2005/04/29 05:39:37 gsherwood Exp $
+* $Id: product_price.inc,v 1.6 2005/05/11 06:07:39 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     Provides an extensible method for representing the price in a Product
 *
 * @author  Blair Robertson
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -97,20 +97,20 @@ class Product_Price extends MySource_Object
 	{
 		switch($var) {
 			case 'name' :
-				$o->openField('Name');
+				$o->openField(translate('name'));
 					if ($wa) text_box($prefix.'_name', $this->name, 15);
 					else echo $this->name;
 				$o->closeField();
 				break;
 			case 'value' :
-				$o->openField('Value');
+				$o->openField(translate('value'));
 					if ($wa) text_box($prefix.'_value', ($this->value == -1) ? '' : $this->value, 10);
 					else echo ($this->value == -1) ? '&nbsp;' : $this->value;
 					$o->note('Zero = Free<br>Blank = Value Not Known');
 				$o->closeField();
 				break;
 			case 'tax_inclusive' :
-				$o->openField('Includes Tax');
+				$o->openField(translate('ecom_product_price_includes_tax'));
 					$options = Array(0 => 'No', 1 => 'Yes');
 					if ($wa) combo_box($prefix.'_tax_inclusive', $options, false, (int) $this->tax_inclusive);
 					else echo $options[(int) $this->tax_inclusive];

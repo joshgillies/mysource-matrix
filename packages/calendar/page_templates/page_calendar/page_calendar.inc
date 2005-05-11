@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.156 2005/04/29 05:39:19 gsherwood Exp $
+* $Id: page_calendar.inc,v 1.157 2005/05/11 06:07:21 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.156 $
+* @version $Revision: 1.157 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -129,7 +129,6 @@ class Page_Calendar extends Page_Asset_Listing
 	{
 		// note our event types and that they're all customised
 		$this->setAttrValue('types', Array('calendar_event_single'=>1, 'calendar_event_recurring'=>1));
-		//$this->setAttrValue('customised', Array('calendar_event_single', 'calendar_event_recurring'));
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$linkid = Page::create($link);
@@ -435,12 +434,12 @@ class Page_Calendar extends Page_Asset_Listing
 	function getContentsKeywords()
 	{
 		$keywords = Array(
-						'calendar_contents'	=> 'Calendar Contents',
-						'calendar_title'	=> 'Calendar Title',
-						'up_link'			=> 'Up Link',
-						'prev_link'			=> 'Previous Link',
-						'next_link'			=> 'Next Link',
-						'current_user'		=> 'Name of	current	user',
+						'calendar_contents'	=> translate('cal_page_calendar_contents'),
+						'calendar_title'	=> translate('cal_page_calendar_title'),
+						'up_link'			=> translate('cal_page_up_link'),
+						'prev_link'			=> translate('cal_page_previous_link'),
+						'next_link'			=> translate('cal_page_next_link'),
+						'current_user'		=> translate('cal_page_current_user'),
 					);
 
 		return $keywords;
@@ -460,7 +459,7 @@ class Page_Calendar extends Page_Asset_Listing
 	function getCalendarTitle()
 	{
 		$title_formats = $this->attr('view_title_formats');
-		$title_formats['edit'] = 'Edit Event';
+		$title_formats['edit'] = translate('cal_page_edit_event');
 		$view = $_REQUEST['SQ_CALENDAR_VIEW'];
 		if (($view == 'event') || ($view == 'edit')) {
 			// _validateRequest already made sure we have a valid event id
@@ -882,11 +881,11 @@ class Page_Calendar extends Page_Asset_Listing
 					$column_names[$id] = $info['name'];
 				}
 				if (in_array('*', $this->attr('columnise_day_view_by_root_node'))) {
-					$column_names['*'] = ($this->attr('other_column_name') == '') ? 'Other' : $this->attr('other_column_name');
+					$column_names['*'] = ($this->attr('other_column_name') == '') ? translate('other') : $this->attr('other_column_name');
 				}
 				$events = $this->getDayEventsByRootNodeAndTime($date);
 			} else {
-				$column_names['*'] = ($this->attr('other_column_name') == '') ? 'Events' : $this->attr('other_column_name');
+				$column_names['*'] = ($this->attr('other_column_name') == '') ? translate('events') : $this->attr('other_column_name');
 				$events = Array('*' => $this->getDayEventsByTime($date));
 			}
 			$enabled_views = $this->attr('enabled_views');
@@ -974,7 +973,7 @@ class Page_Calendar extends Page_Asset_Listing
 		$ei = &$event->getEI();
 		$ei->printEditInterface('screen_details', $event, $o);
 		$o->closeRaw();
-		$o->commitButton('Update Event');
+		$o->commitButton(translate('cal_page_update_event'));
 		ob_start();
 			$o->_paintHeader();
 			$o->paint();
@@ -1077,13 +1076,13 @@ class Page_Calendar extends Page_Asset_Listing
 			}
 			?>
 		</style>
-		<table id="<?php echo $table_id; ?>" border="0" cellspacing="0" cellpadding="0" summary="Events in this <?php echo $table_id ?>" style="width: <?php echo ($width * count($events)) + 65; ?>px">
+		<table id="<?php echo $table_id; ?>" border="0" cellspacing="0" cellpadding="0" summary="<?php echo translate('cal_page_events_in_this_'.$table_id); ?>" style="width: <?php echo ($width * count($events)) + 65; ?>px">
 		<?php
 
 		// PRINT HEADER ROW
 		?>
 		<tr>
-			<th>Time</th>
+			<th><?php echo translate('time'); ?></th>
 		<?php
 		foreach ($column_names as $id => $name) {
 			?>
@@ -1128,7 +1127,7 @@ class Page_Calendar extends Page_Asset_Listing
 					$cursor_code = $show_event_links ? ' cursor: pointer; cursor: hand' : '';
 					$current_mouse_up_down_code = $mousedown_code.' '.$mouseup_code;
 					if (!empty($mousedown_code) && (($event['type_code'] == 'calendar_event_recurring') || (isset($event['expanded'])))) {
-						$current_mouse_up_down_code = 'onmousedown="statusBarMsg(\'Recurring, multi-day and trimmed events cannot be dragged\')" onmouseup="statusBarMsg(\'\');"';
+						$current_mouse_up_down_code = 'onmousedown="statusBarMsg(\''.translate('cal_page_recurring_cannot_drag').'\')" onmouseup="statusBarMsg(\'\');"';
 					}
 					$current_mouse_over_out_code = '';
 					if (isset($event['description']) && !empty($event['description'])) {
@@ -1280,7 +1279,7 @@ class Page_Calendar extends Page_Asset_Listing
 			$onclick_code = $show_event_links ? 'onclick="sq_cal_redirect(\''.$event_href.'\')"' : '';
 			$current_mouse_up_down_code = $mousedown_code.' '.$mouseup_code;
 			if (!empty($mousedown_code) && (($details['type_code'] == 'calendar_event_recurring') || (isset($details['expanded'])))) {
-				$current_mouse_up_down_code = 'onmousedown="statusBarMsg(\'Recurring, multi-day and trimmed events cannot be dragged\')" onmouseup="statusBarMsg(\'\');"';
+				$current_mouse_up_down_code = 'onmousedown="statusBarMsg(\''.translate('cal_page_recurring_cannot_drag').'\')" onmouseup="statusBarMsg(\'\');"';
 			}
 			$current_mouse_over_out_code = '';
 			if (isset($details['description']) && !empty($details['description'])) {
@@ -1470,13 +1469,13 @@ class Page_Calendar extends Page_Asset_Listing
 
 						// can't drag in or out of the 'other' column
 						if (Boolean(old_time == 'allday') != Boolean(new_time == 'allday')) {
-							statusBarMsg('Events cannot be dragged in or out of the "all day" row');
+							statusBarMsg('<?php echo translate('cal_page_all_day_cannot_drag') ?>');
 							return false;
 						}
 
 						// can't drag in or out of the 'all day' row
 						if (Boolean(old_loc == '*') != Boolean(new_loc == '*')) {
-							statusBarMsg('Events cannot be dragged in or out of the "other" column');
+							statusBarMsg('<?php echo translate('cal_page_other_cannot_drag') ?>');
 							return false;
 						}
 						toggleFlashing(movingElt.id);

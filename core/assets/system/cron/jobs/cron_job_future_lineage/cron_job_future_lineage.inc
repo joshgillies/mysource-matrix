@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_lineage.inc,v 1.17 2005/04/20 02:04:10 rhoward Exp $
+* $Id: cron_job_future_lineage.inc,v 1.18 2005/05/11 06:04:57 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -99,11 +99,11 @@ class Cron_Job_Future_Lineage extends Cron_Job
 	{
 		$minor = &$this->getAssetInLink('minor');
 		if (is_null($minor)) {
-			return 'Asset-less Future Linking Cron Job';
+			return translate('cron_job_asset-less_future_linking');
 		} else if ($short_name) {
-			return 'FL for "'.$minor->short_name.'" (#'.$minor->id.')';
+			return translate('cron_fl_for', translate('asset_format', $minor->short_name, $minor->id));
 		} else {
-			return 'Future Linking for "'.$minor->name.'" (#'.$minor->id.')';
+			return translate('cron_future_linking_for', translate('asset_format', $minor->name, $minor->id));
 		}//end if
 
 	}//end _getName()
@@ -240,17 +240,18 @@ class Cron_Job_Future_Lineage extends Cron_Job
 	function readableDescription()
 	{
 		$minor = &$this->getAssetInLink('minor');
-		if (is_null($minor)) return 'No Minor Asset Found';
+		if (is_null($minor)) return translate('no_minor_asset_found');
 
 		$str = '';
 
 		if ($this->attr('delete_linkid')) {
-			$str .= 'Deleting Link Id #'.$this->attr('delete_linkid');
+			$str .= translate('deleting_link_id', $this->attr('delete_linkid'));
 			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($this->attr('delete_linkid'));
+			
 			if (!empty($link)) {
 				$old_major = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['major_type_code']);
 				if (!is_null($old_major)) {
-					$str .= ' - '.$minor->name.' (#'.$minor->id.') from under '.$old_major->name.' (#'.$old_major->id.')';
+					$str = ' - '.translate('asset_from_under_asset', translate('asset_format', $minor->name, $minor->id), translate('asset_format', $old_major->name, $old_major->id));
 				}
 			}
 		}
@@ -262,7 +263,7 @@ class Cron_Job_Future_Lineage extends Cron_Job
 		}
 
 		if (!is_null($new_major)) {
-			$str .= 'Creating new link for '.$minor->name.' (#'.$minor->id.') under '.$new_major->name.' (#'.$new_major->id.')';
+			$str .= translate('create_new_link_for', translate('asset_format', $minor->name, $minor->id), translate('asset_format', $new_major->name, $new_major->id));
 		}
 
 		return $str;

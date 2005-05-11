@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: maps.inc,v 1.16 2005/04/15 00:37:33 lwright Exp $
+* $Id: maps.inc,v 1.17 2005/05/11 06:05:11 lwright Exp $
 *
 */
 
@@ -36,7 +36,7 @@ define('SQ_MAPS_INSTALLED'  , 'I');
 *    Looks aftet the automated patching of the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix
 * @subpackage MAPS
 */
@@ -67,13 +67,13 @@ class Maps extends MySource_Object
 	{
 		// if we dont have access, get lost
 		if (!$GLOBALS['SQ_SYSTEM']->userRoot()) {
-			$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to access the <i>Automated Patching System</i>');
+			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', translate('automated_patching_system')));
 			exit();
 		}
 
 		$o = &$backend->out;
 
-		$o->setHeading('Automated Patching System', '<script language="JavaScript" type="text/javascript">sq_print_icon("'.$o->filesPath('/images/icons/header/maps.png').'", "20", "20", "Automated Patching System");</script>');
+		$o->setHeading(translate('automated_patching_system'), '<script language="JavaScript" type="text/javascript">sq_print_icon("'.$o->filesPath('/images/icons/header/maps.png').'", "20", "20", "Automated Patching System");</script>');
 		$o->addHiddenField('form_posted', '1');
 
 
@@ -98,8 +98,8 @@ class Maps extends MySource_Object
 		$current_location .= (strstr($current_location, '?')) ? '&' : '?';
 
 		$maps_screens = Array(
-								'patches'	=> 'Patching',
-								'locks'		=> 'Active Locks',
+								'patches'	=> translate('patching'),
+								'locks'		=> translate('active_locks'),
 							);
 
 		foreach ($maps_screens as $screen_code => $screen_name) {
@@ -146,10 +146,10 @@ class Maps extends MySource_Object
 		$db_patches = $db->getAssoc($sql);
 		if (DB::isError($db_patches)) {
 			$o->openSection();
-				$o->openField('WARNING');
+				$o->openField(translate('warning'));
 					?>
 					<span class="sq-backend-warning">
-						<b>The MySource Automated Patching System does not appear to be installed properly.</b>
+						<b><?php echo translate('maps_not_installed'); ?></b>
 					</span>
 					<?php
 				$o->closeField();
@@ -204,20 +204,18 @@ class Maps extends MySource_Object
 
 
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
-		$o->openSection('Upload Patch File');
-			$o->openField('Upload Patch');
+		$o->openSection(translate('upload_patch_file'));
+			$o->openField(translate('upload_patch'));
 				file_upload('maps_upload_patch');
 			$o->closeField();
-			$o->openField('Note');
-				?>
-				Uploading a valid patch file here will not install the patch immediatly. It will be installed into your <i>download patches</i> directory and appear in the <b>Patches Available To Install</b> list below.
-				<?php
+			$o->openField(translate('note'));
+				echo translate('maps_patch_to_download_directory');
 			$o->closeField();
 		$o->closeSection();
 
 
 
-		$o->openSection('Patches Available To Install');
+		$o->openSection(translate('patches_available_to_install'));
 			$o->openField('');
 				?>
 				<table>
@@ -226,7 +224,7 @@ class Maps extends MySource_Object
 						<td width="100%">
 							<?php
 							if (empty($new_patches)) {
-								echo 'There are no patches available to be installed';
+								echo translate('maps_no_patches_available');
 							} else {
 								?>
 								<script language="javascript" type="text/javascript">
@@ -247,10 +245,10 @@ class Maps extends MySource_Object
 								</script>
 								<table class="sq-backend-table">
 									<tr>
-										<td class="sq-backend-table-header">Description</td>
-										<td class="sq-backend-table-header" width="120">Released</td>
-										<td class="sq-backend-table-header" width="50" align="center">Install</td>
-										<td class="sq-backend-table-header" width="50" align="center">Delete</td>
+										<td class="sq-backend-table-header"><?php echo translate('description'); ?></td>
+										<td class="sq-backend-table-header" width="120"><?php echo translate('released'); ?></td>
+										<td class="sq-backend-table-header" width="50" align="center"><?php echo translate('install'); ?></td>
+										<td class="sq-backend-table-header" width="50" align="center"><?php echo translate('delete'); ?></td>
 									</tr>
 									<?php
 									foreach ($new_patches as $patchid => $patch_info) {
@@ -282,7 +280,7 @@ class Maps extends MySource_Object
 		$o->closeSection();
 
 
-		$o->openSection('Installed Patches');
+		$o->openSection(translate('installed_patches'));
 			$o->openField('');
 				?>
 				<table>
@@ -291,7 +289,7 @@ class Maps extends MySource_Object
 						<td width="100%">
 							<?php
 							if (empty($installed_patches)) {
-								echo 'There are no patches currently installed';
+								echo translate('maps_no_patches_installed');
 							} else {
 								?>
 								<script language="javascript" type="text/javascript">
@@ -316,10 +314,10 @@ class Maps extends MySource_Object
 								</script>
 								<table class="sq-backend-table">
 									<tr>
-										<td class="sq-backend-table-header">Description</td>
-										<td class="sq-backend-table-header" width="120">Install Date</td>
-										<td class="sq-backend-table-header" width="50" align="center">Uninstall</td>
-										<td class="sq-backend-table-header" width="50" align="center">Delete</td>
+										<td class="sq-backend-table-header"><?php echo translate('description'); ?></td>
+										<td class="sq-backend-table-header" width="120"><?php echo translate('maps_install_date'); ?></td>
+										<td class="sq-backend-table-header" width="50" align="center"><?php echo translate('uninstall'); ?></td>
+										<td class="sq-backend-table-header" width="50" align="center"><?php echo translate('delete'); ?></td>
 									</tr>
 									<?php
 									foreach ($installed_patches as $patchid => $patch_info) {
@@ -332,7 +330,7 @@ class Maps extends MySource_Object
 											<td class="sq-backend-table-cell" nowrap="nowrap" align="center">
 												<?php
 													if ($patch_info['reversible']) check_box('maps_uninstall_patch['.$patchid.']');
-													else echo 'No';
+													else echo translate('no');
 												?>
 											</td>
 											<td class="sq-backend-table-cell" nowrap="nowrap" align="center">
@@ -464,8 +462,8 @@ class Maps extends MySource_Object
 
 
 		if (empty($db_locks)) {
-			$o->openSection('Active Locks');
-				$o->openField('There are no active locks in the system');
+			$o->openSection(translate('active_locks'));
+				$o->openField(translate('no_active_locks'));
 				$o->closeField();
 			$o->openSection();
 			return true;
@@ -492,15 +490,15 @@ class Maps extends MySource_Object
 
 		require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 
-		$o->openSection('Active Locks');
+		$o->openSection(translate('active_locks'));
 			$o->openField('');
 				?>
 				<table class="sq-backend-table">
 					<tr>
-						<td class="sq-backend-table-header">User</td>
-						<td class="sq-backend-table-header">Lock Type</td>
-						<td class="sq-backend-table-header">Held At</td>
-						<td class="sq-backend-table-header">Expires</td>
+						<td class="sq-backend-table-header"><?php echo translate('user'); ?></td>
+						<td class="sq-backend-table-header"><?php echo translate('lock_type'); ?></td>
+						<td class="sq-backend-table-header"><?php echo translate('maps_held_at'); ?></td>
+						<td class="sq-backend-table-header"><?php echo translate('expires'); ?></td>
 					</tr>
 				<?php
 				foreach ($active_locks as $userid => $locks) {
@@ -553,7 +551,7 @@ class Maps extends MySource_Object
 									<?php
 									$expires_in = easy_time_total((strtotime($expires) - time()), true);
 									if (!$expires_in) $expires_in = '1 second';
-									echo 'The lock is due to expire in '.$expires_in;
+									echo translate('due_to_expire_in', $expires_in);
 									?>
 								</td>
 							</tr>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_regenerate_metadata.inc,v 1.21 2005/04/15 00:37:27 lwright Exp $
+* $Id: hipo_job_regenerate_metadata.inc,v 1.22 2005/05/11 06:05:08 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    schemaid	-	the ID of the schema that has been updated
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -115,14 +115,14 @@ class HIPO_Job_Regenerate_Metadata extends HIPO_Job
 		$write_access = $this->writeAccess();
 
 		// metadata regeneration threshhold HIPO config entry
-		$o->openField('Metadata Regeneration Threshold');
+		$o->openField(translate('metadata_regeneration_threshold'));
 
 		if ($write_access) {
 			text_box($class.'[SQ_HIPO_REGENERATE_METADATA_THRESHOLD]', SQ_HIPO_REGENERATE_METADATA_THRESHOLD, 5);
 		} else {
 			echo SQ_HIPO_REGENERATE_METADATA_THRESHOLD;
 		}
-		echo ' assets';
+		echo ' '.translate('assets');
 
 		$o->closeField();
 
@@ -247,12 +247,12 @@ class HIPO_Job_Regenerate_Metadata extends HIPO_Job
 
 			if (!is_null($asset)) {
 				if (!$mm->regenerateMetadata($asset->id)) return false;
-				$step_data['message'] = 'Generating metadata file for "'.$asset->name.'"';
+				$step_data['message'] = translate('hipo_generate_metadata', $asset->name);
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 				unset($asset);
 			} else {
-				$step_data['message'] = 'Skipping asset '.$assetid;
-				$this->_addError('Could not regenerate metatdata file for asset #'.$assetid.', asset does not exist');
+				$step_data['message'] = translate('hipo_skipping_asset', $assetid);
+				$this->_addError(translate('hipo_cannot_regenerate_metadata', $assetid));
 			}
 
 			// add this assetid to the done array so we dont do it again
@@ -323,7 +323,7 @@ class HIPO_Job_Regenerate_Metadata extends HIPO_Job
 
 			if (!is_null($asset)) {
 				$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'metadata');
-				$step_data['message'] = 'Releasing Locks on "'.$asset->name.'"';
+				$step_data['message'] = translate('hipo_release_locks', $asset->name);
 			}
 
 			$this->_running_vars['done_assetids'][] = $assetid;

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: lookup_value.inc,v 1.2 2005/04/15 00:37:25 lwright Exp $
+* $Id: lookup_value.inc,v 1.3 2005/05/11 06:04:52 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author	Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -45,7 +45,7 @@ class Lookup_Value extends Asset
 	*/
 	function lookupValueName()
 	{
-		return 'Default Layout Name';
+		return translate('core_default_layout_name');
 
 	}//end lookupValueName()
 
@@ -59,7 +59,7 @@ class Lookup_Value extends Asset
 	*/
 	function namePrefix()
 	{
-		trigger_localised_error("CORE0123", E_USER_ERROR, __CLASS__, __FUNCTION__);
+		trigger_localised_error('CORE0123', E_USER_ERROR, __CLASS__, __FUNCTION__);
 
 	}//end namePrefix()
 
@@ -104,22 +104,22 @@ class Lookup_Value extends Asset
 			foreach ($lookup_values[$url] as $value_name => $data) {
 				$o->openSection(($value_name == '') ? 'New' : $value_name);
 
-					$o->openField('Current');
+					$o->openField(translate('current'));
 						echo '<i>';
 						if ($data['value'] == '') {
-							echo 'None';
+							echo translate('none');
 						} else {
 							echo $data['value'];
-							echo '<br><b>Inherited ? </b>', $data['inhd'];
+							echo '<br><b>'.translate('inherited_question').' </b>', $data['inhd'];
 						}
 						echo '</i>';
 					$o->closeField();
 
 					if ($wa) {
-						$o->openField(($data['value'] == '') ? 'Change ?' : 'New ?');
-							echo 'Value Name: ';
+						$o->openField(($data['value'] == '') ? translate('change_question') : translate('new_question'));
+							echo ''.translate('core_value_name').': ';
 							text_box($prefix.'['.$url.']['.$i.'][value_name]', $value_name, 50);
-							echo '<br>Value: ';
+							echo '<br>'.translate('value').': ';
 							text_box($prefix.'['.$url.']['.$i.'][value]', $data['value'], 50);
 						$o->closeField();
 					}

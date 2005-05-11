@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_uninstall_patch.inc,v 1.12 2005/04/27 03:26:28 lwright Exp $
+* $Id: hipo_job_uninstall_patch.inc,v 1.13 2005/05/11 06:05:11 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix
 * @subpackage MAPS
 */
@@ -241,8 +241,8 @@ class HIPO_Job_Uninstall_Patch extends HIPO_Job
 	function paintPleaseWait(&$step_data, &$o, $prefix)
 	{
 
-		$o->openSection('Please Wait');
-			$o->openField('Please wait - '.strtolower($step_data['name']).'...');
+		$o->openSection(translate('please_wait'));
+			$o->openField(translate('please_wait').' - '.strtolower($step_data['name']).'...');
 			$o->closeField();
 		$o->closeSection();
 		return true;
@@ -270,7 +270,7 @@ class HIPO_Job_Uninstall_Patch extends HIPO_Job
 
 		$patch_info = $this->_getPatchDetails($this->_running_vars['patchid']);
 
-		$o->openSection('Important Notice');
+		$o->openSection(translate('important_notice'));
 			$o->openField('');
 				?>
 					<script language="Javascript">
@@ -288,35 +288,35 @@ class HIPO_Job_Uninstall_Patch extends HIPO_Job
 					</script>
 					<img style="float: left;" src="<?php echo $o->filesPath('/images/maps/uninstall.png'); ?>" wdth="70" height="69" />
 					<span class="sq-backend-warning">
-					<b>Please ensure you have backed up your system before continuing. You must tick the box below to confirm and continue installation of the patch.</b><br /><br />
-					<?php check_box('maps_backup_confirm', '1', false, 'Javascript: setNextButtonStatus();'); ?> <b>Yes, I have backed up my system</b>
+					<b><?php echo translate('maps_hipo_ensure_backup'); ?></b><br /><br />
+					<?php check_box('maps_backup_confirm', '1', false, 'Javascript: setNextButtonStatus();'); ?> <b><?php echo translate('maps_hipo_backup_confirm'); ?>/b>
 					</span>
 				<?php
 			$o->closeField();
 		$o->closeSection();
 
-		$o->openSection('Uninstall Options');
+		$o->openSection(translate('uninstall_options'));
 			$o->openField('');
 				?>
 				<table>
 					<tr>
 						<td class="sq-backend-field" align="center">&nbsp;</td>
-						<td class="sq-backend-field">Name</td>
-						<td class="sq-backend-field">Description</td>
-						<td class="sq-backend-field" align="center">Danger</td>
+						<td class="sq-backend-field"><?php echo translate('name'); ?></td>
+						<td class="sq-backend-field"><?php echo translate('description'); ?></td>
+						<td class="sq-backend-field" align="center"><?php echo translate('danger'); ?></td>
 					</tr>
 					<tr>
 						<td class="sq-backend-data" align="center" valign="top">
 							<?php check_box('maps_ignore_file_checks'); ?>
 						</td>
 						<td class="sq-backend-data" nowrap="nowrap" valign="top">
-							Ignore File Checks
+							<?php echo translate('maps_ignore_filechecks'); ?>
 						</td>
 						<td class="sq-backend-data" valign="top">
-							Ignore checking of local files in favour of directly replacing them with patched version
+							<?php echo translate('maps_ignore_local_filechecks'); ?>
 						</td>
 						<td class="sq-backend-data" valign="top" align="center">
-							<span style="color: #FF0000;"><b>High</b></span>
+							<span style="color: #FF0000;"><b><?php echo translate('high'); ?></b></span>
 						</td>
 					</tr>
 				</table>
@@ -324,37 +324,37 @@ class HIPO_Job_Uninstall_Patch extends HIPO_Job
 			$o->closeField();
 		$o->closeSection();
 
-		$o->openSection('Please Note');
+		$o->openSection(translate('please_note'));
 			$o->openField('');
-				echo 'The details of the patch you have selected to uninstall are shown below.<br />Please confirm that you wish to uninstall this patch.';
+				echo translate('maps_confirm_uninstall_patch');
 			$o->closeField();
-			$o->openField('NB');
+			$o->openField(translate('nb'));
 				echo '<b>'.$patch_info['reverse_description'].'</b>';
 			$o->closeField();
 		$o->closeSection();
 
-		$o->openSection('Details of Original Patch');
-			$o->openField('Severity');
+		$o->openSection(translate('details_of_original_patch'));
+			$o->openField(translate('severity'));
 				echo $patch_info['severity'];
 			$o->closeField();
 			$o->openField('');
-				echo '<b>File Updates:</b>&nbsp;';
+				echo '<b>'.translate('maps_file_updates').':</b>&nbsp;';
 				echo (
 						empty($patch_info['updated_files']) &&
 						empty($patch_info['new_files']) &&
 						empty($patch_info['deleted_files'])
-					  ) ? 'No' : 'Yes';
-				echo '&nbsp;&nbsp;<b>Database Changes:</b>&nbsp;';
-				echo (empty($patch_info['queries'])) ? 'No' : 'Yes';
-				echo '&nbsp;&nbsp;<b>Reversible:</b>&nbsp;';
-				echo ($patch_info['reversible']) ? 'Yes' : 'No';
+					  ) ? translate('no'): translate('yes');
+				echo '&nbsp;&nbsp;<b>'.translate('maps_database_changes').':</b>&nbsp;';
+				echo (empty($patch_info['queries'])) ? translate('no'): translate('yes');
+				echo '&nbsp;&nbsp;<b>'.translate('maps_reversible').':</b>&nbsp;';
+				echo ($patch_info['reversible']) ? translate('yes') : translate('no');
 			$o->closeField();
-			$o->openField('Description');
+			$o->openField(translate('description'));
 				echo $patch_info['patch_description'];
 			$o->closeField();
 		$o->closeSection();
 
-		$o->openSection('Change Log of Original Patch');
+		$o->openSection(translate('change_log_of_original_patch'));
 			$i = 1;
 			foreach ($patch_info['changelog'] as $change) {
 				$o->openField($i.'.');

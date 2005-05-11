@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_site_map_edit_fns.inc,v 1.13 2005/04/29 05:40:31 gsherwood Exp $
+* $Id: page_site_map_edit_fns.inc,v 1.14 2005/05/11 06:07:33 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -63,9 +63,14 @@ class Page_Site_Map_Edit_Fns extends Page_Edit_Fns
 
 		if (!$write_access) {
 			$root_asset = null;
-			if (!empty($root_link)) $root_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($root_link['minorid']);
-			if (!is_null($root_asset)) echo $root_asset->name . ' (Id: #' . $root_asset->id . ')';
-			else echo 'No root node has been selected';
+			if (!empty($root_link)) {
+				$root_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($root_link['minorid']);
+			}
+			if (!is_null($root_asset)) {
+				echo $root_asset->name . ' (Id: #' . $root_asset->id . ')';
+			} else {
+				echo translate('cms_no_root_node');
+			}
 		} else {
 			asset_finder($prefix.'_rootid', (!empty($root_link)) ? $root_link['minorid'] : '');
 		}
@@ -140,16 +145,16 @@ class Page_Site_Map_Edit_Fns extends Page_Edit_Fns
 		$curr_list = $asset->attr('exclude_list');
 
 		if (empty($curr_list)) {
-			echo '<b>No assets are currently excluded</b>';
+			echo '<b>'.translate('cms_no_assets_excluded').'</b>';
 		} else {
 			$curr_list_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($curr_list));
 			?>
 			<table class="sq-backend-table">
 				<tr>
-					<td class="sq-backend-table-header" width="100%">Asset Name</td>
+					<td class="sq-backend-table-header" width="100%"><?php echo translate('asset_name'); ?></td>
 					<?php
 					if ($write_access) {
-						?><td class="sq-backend-table-header" width="80">Remove?</td><?php
+						?><td class="sq-backend-table-header" width="80"><?php echo translate('remove_question'); ?></td><?php
 					}
 					?>
 				</tr>

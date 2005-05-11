@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.4 2005/05/11 04:16:46 tbarrett Exp $
+* $Id: lang_errors.xml,v 1.5 2005/05/11 06:07:48 lwright Exp $
 *
 */
 
@@ -92,6 +92,12 @@
 
 	<error code="SCH0023">Search Page Upgrade [to 0.10] FAILED - Couldn't create new bodycopy</error>
 
-	<error code="SCH0024">The search term "%1$s" is too short - only words longer than %2$s characters are indexed by the search system</error>
+	<error code="SCH0024">Rollover failed, generated report could not be moved</error>
+		<!-- packages/search/log_reports/search_log_report/search_log_report_edit_fns.inc(691) -->
+
+	<error code="SCH0025">Rollover aborted, raw stats could not be cleared</error>
+		<!-- packages/search/log_reports/search_log_report/search_log_report_edit_fns.inc(683) -->
+
+	<error code="SCH0026">The search term "%1$s" is too short - only words longer than %2$s characters are indexed by the search system</error>
 
 </errors>
