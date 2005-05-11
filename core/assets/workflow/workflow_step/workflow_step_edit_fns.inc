@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_step_edit_fns.inc,v 1.24 2005/05/11 06:05:06 lwright Exp $
+* $Id: workflow_step_edit_fns.inc,v 1.25 2005/05/11 06:28:19 dmckee Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -77,7 +77,9 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 
 			if (!$write_access) {
 				echo '<i>'.$wfm->_valid_step_logic[$step_logic];
-				if ($step_logic_num) echo " $step_logic_num condition".(($step_logic_num > 1) ? 's' : '')." must be met</i>";
+				if ($step_logic_num) {
+					echo " $step_logic_num condition".(($step_logic_num > 1) ? 's' : '')." must be met</i>";
+				}
 			} else {
 				combo_box($prefix.'_logic', $wfm->_valid_step_logic, false, $step_logic);
 				echo '&nbsp;';
@@ -107,7 +109,9 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 					if (is_null($condition)) continue;
 					$edit_fns = $condition->getEditFns();
 					echo '<tr>';
-					if (!$edit_fns->paintStepCondition($condition, $o)) return false;
+					if (!$edit_fns->paintStepCondition($condition, $o)) {
+						return false;
+					}
 					if ($write_access) {
 						?><td align="center" class="sq-backend-table-cell"><?php
 						check_box($prefix.'_delete_conditions['.$link_data['linkid'].']')
@@ -148,7 +152,9 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 	function processStep(&$asset, &$o)
 	{
 		// need to have write access to make any changes
-		if (!$asset->writeAccess('attributes') || !$asset->writeAccess('links')) return false;
+		if (!$asset->writeAccess('attributes') || !$asset->writeAccess('links')) {
+			return false;
+		}
 
 		$prefix = $asset->getPrefix();
 		$updated = false;
@@ -162,7 +168,13 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 			$step_logic = trim($_POST[$prefix.'_logic']);
 		}
 		if (isset($_POST[$prefix.'_logic_num']) && $step_logic != 'all') {
-			$step_logic_num = (int) trim($_POST[$prefix.'_logic_num']);
+			// Added condition to ensure a number is entered, and is greater than 0
+			if (is_numeric(trim($_POST[$prefix.'_logic_num']))) {
+				$step_logic_num = (int) trim($_POST[$prefix.'_logic_num']);
+			} else {
+				$step_logic_num = 1;
+			}
+			if ($step_logic_num <= 0) $step_logic_num = 1;
 		}
 		if (!$asset->setAttrValue('logic', $step_logic)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -192,7 +204,9 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 				$condition = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid']);
 				if (is_null($condition)) continue;
 				$edit_fns = $condition->getEditFns();
-				if ($edit_fns->processStepCondition($condition, $o)) $updated = true;
+				if ($edit_fns->processStepCondition($condition, $o)) {
+					$updated = true;
+				}
 			}
 		}
 
@@ -252,7 +266,9 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 			$condition = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid']);
 			if (is_null($condition)) continue;
 			$edit_fns = $condition->getEditFns();
-			if (!$edit_fns->generateWorkflowArray($condition, $workflow_array['conditions'])) return false;
+			if (!$edit_fns->generateWorkflowArray($condition, $workflow_array['conditions'])) {
+				return false;
+			}
 			$i++;
 		}
 		return true;
