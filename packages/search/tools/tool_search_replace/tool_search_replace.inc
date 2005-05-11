@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_search_replace.inc,v 1.9 2005/05/11 04:16:46 tbarrett Exp $
+* $Id: tool_search_replace.inc,v 1.10 2005/05/11 06:07:49 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 *
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -63,23 +63,23 @@ class Tool_Search_Replace extends Tool
 		ob_start();
 
 		//user input of search and replace strings
-		$o->openSection('Search Terms');
-			$o->openField('Search String');
+		$o->openSection(translate('sch_search_terms'));
+			$o->openField(translate('sch_search_string'));
 				text_box($type_code.'_search_string', '', 40);
 			$o->closeField();
 
-			$o->openField('Replace String');
+			$o->openField(translate('sch_tool_global_sr_replace_string'));
 				text_box($type_code.'_replace_string', '', 40);
 			$o->closeField();
 		$o->closeSection();
 
 		//allow restrictions based on asset type and asset status
-		$o->openSection('Search Restrictions');
-			$o->openField('Asset Types');
+		$o->openSection(translate('sch_search_restrictions'));
+			$o->openField(translate('asset_types'));
 				asset_type_chooser($type_code.'_search_types', true, Array());
 			$o->closeField();
 
-			$o->openField('Asset Status');
+			$o->openField(translate('asset_status'));
 				$statuses = get_constant_values('SQ_STATUS');
 				$options = Array();
 				foreach ($statuses as $constant => $value) {
@@ -90,21 +90,21 @@ class Tool_Search_Replace extends Tool
 		$o->closeSection();
 
 		//limit the search to certain parts (or all) of the system
-		$o->openSection('Search Location');
-			$o->openField('Root Node');
+		$o->openSection(translate('sch_search_location'));
+			$o->openField(translate('root_node'));
 				asset_finder($type_code.'_root_assetid', '');
-				echo '&nbsp;&nbsp;&nbsp;<b>OR</b>';
+				echo '&nbsp;&nbsp;&nbsp;<b>'.strtoupper(translate('or')).'</b>';
 			$o->closeField();
 
-			$o->openField('System Wide');
+			$o->openField(translate('sch_system_wide'));
 				check_box($type_code.'_root_folder');
-				label('Search entire system', $type_code.'_root_folder');
+				label(translate('sch_search_entire_system'), $type_code.'_root_folder');
 			$o->closeField();
 
 			$o->openField('', 'commit');
 				echo '&nbsp;';
 				hidden_field('committed_tool_type_code', $type_code);
-				submit_button('tool_commit', 'Commit');
+				submit_button('tool_commit', SQ_CONF_COMMIT_BUTTON_TEXT);
 			$o->closeField();
 		$o->closeSection();
 
@@ -154,7 +154,7 @@ class Tool_Search_Replace extends Tool
 		$sm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
 
 		if (strlen($_REQUEST[$type_code.'_search_string']) < $sm->attr('min_word_length')) {
-			trigger_localised_error('SCH0024', E_USER_NOTICE, $_REQUEST[$type_code.'_search_string'], $sm->attr('min_word_length'));
+			trigger_localised_error('SCH0026', E_USER_NOTICE, $_REQUEST[$type_code.'_search_string'], $sm->attr('min_word_length'));
 			Tool_Search_Replace::paintTool($o, $type_code);
 			return;
 		}
