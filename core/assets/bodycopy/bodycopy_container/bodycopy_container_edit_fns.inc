@@ -18,14 +18,14 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_edit_fns.inc,v 1.29 2005/04/15 00:37:24 lwright Exp $
+* $Id: bodycopy_container_edit_fns.inc,v 1.30 2005/05/12 06:24:17 tbarrett Exp $
 *
 */
 
 require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
 require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-
+require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy_edit_fns.inc';
 
 /**
 * Bodycopy_Container_Edit_Fns
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -456,15 +456,15 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 		<input type="hidden" name="bodycopy_name"   value="">
 		<input type="hidden" name="bodycopy_data"   value="">
 
-		<script language="JavaScript" src="<?php echo sq_web_path('fudge').'/var_serialise/var_serialise.js'?>"	></script>
-		<script language="JavaScript" src="<?php echo sq_web_path('lib').'/js/detect.js';?>"					></script>
-		<script language="JavaScript" src="<?php echo sq_web_path('lib').'/js/layer_handler.js';?>"				></script>
-		<script language="JavaScript" src="<?php echo sq_web_path('lib').'/js/general.js';?>"					></script>
-		<script language="JavaScript" src="<?php echo sq_web_path('lib').'/js/debug.js';?>"						></script>
-		<script language="JavaScript" src="<?php echo sq_web_path('lib').'/js/tooltip.js';?>"					></script>
-		<script language="JavaScript" src="<?php echo sq_web_path('lib').'/html_form/html_form.js';?>"			></script>
+		<script type="text/javascript"src="<?php echo sq_web_path('fudge').'/var_serialise/var_serialise.js'?>"	></script>
+		<script type="text/javascript"src="<?php echo sq_web_path('lib').'/js/detect.js';?>"					></script>
+		<script type="text/javascript"src="<?php echo sq_web_path('lib').'/js/layer_handler.js';?>"				></script>
+		<script type="text/javascript"src="<?php echo sq_web_path('lib').'/js/general.js';?>"					></script>
+		<script type="text/javascript"src="<?php echo sq_web_path('lib').'/js/debug.js';?>"						></script>
+		<script type="text/javascript"src="<?php echo sq_web_path('lib').'/js/tooltip.js';?>"					></script>
+		<script type="text/javascript"src="<?php echo sq_web_path('lib').'/html_form/html_form.js';?>"			></script>
 
-		<script language="JavaScript" type="text/javascript">
+		<script type="text/javascript">
 			// this is an array of data that each element (divs, tables, rows, and cells)
 			// can place data for use in editing
 			var bodycopy_current_data = new Object();

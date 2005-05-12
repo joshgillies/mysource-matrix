@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_edit_fns.js,v 1.1 2005/05/12 05:34:15 dmckee Exp $
+* $Id: bodycopy_edit_fns.js,v 1.2 2005/05/12 06:24:10 tbarrett Exp $
 *
 */
 	
@@ -144,7 +144,7 @@
 	var BODYCOPY_AVAILABLE_CONTENT_TYPES = null;
 	function get_bodycopy_available_content_types() {
 		if (BODYCOPY_AVAILABLE_CONTENT_TYPES == null) {
-			BODYCOPY_AVAILABLE_CONTENT_TYPES = bodycopy_types;
+			BODYCOPY_AVAILABLE_CONTENT_TYPES = var_unserialise(bodycopy_types);
 		}
 		return BODYCOPY_AVAILABLE_CONTENT_TYPES;
 	}

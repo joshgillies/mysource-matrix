@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit_div_props.php,v 1.13 2005/05/11 06:04:49 lwright Exp $
+* $Id: edit_div_props.php,v 1.14 2005/05/12 06:24:17 tbarrett Exp $
 *
 */
 
@@ -29,7 +29,7 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -39,8 +39,8 @@ header("Expires: ". gmdate("D, d M Y H:i:s",time()-3600) . " GMT");
 
 include(dirname(__FILE__)."/header.php");
 ?>
-<script type="text/javascript" language="javascript" src="<?php echo sq_web_path('lib')?>/js/general.js"></script>
-<script language="JavaScript" type="text/javascript">
+<script type="text/javascript" src="<?php echo sq_web_path('lib')?>/js/general.js"></script>
+<script type="text/javascript">
 
 	function popup_init() {
 
@@ -94,7 +94,7 @@ include(dirname(__FILE__)."/header.php");
 		</tr>
 	</table>
 </div>
-<script language="JavaScript">
+<script type="text/javascript">
 if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementById('sq_edit_div_props_delete').innerHTML = '&nbsp;'; }
 </script>
 <form name="main_form">
@@ -163,7 +163,10 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 			<table>
 				<tr>
 					<td class="label"><?php echo translate('click_icon_to_delete'); ?>:</td>
-					<td><a href="javascript: owner.bodycopy_delete_div(document.main_form.bodycopy_name.value, document.main_form.divid.value);" style="cursor: pointer;" ><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('data')?>/asset_types/bodycopy/images/icons/delete.png", "16", "16", "Delete this DIV");</script></a>
+					<td>
+						<?php 
+						sq_print_icon(sq_web_path('data').'/asset_types/bodycopy/images/icons/delete.png', 16, 16, 'Delete this Div', 'Delete this Div', 'onclick="owner.bodycopy_delete_div(document.main_form.bodycopy_name.value, document.main_form.divid.value);" style="cursor: pointer;"');
+						?>
 					</td>
 				</tr>
 			</table>

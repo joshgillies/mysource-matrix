@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_edit_fns.inc,v 1.15 2005/01/17 18:10:55 brobertson Exp $
+* $Id: content_type_wysiwyg_edit_fns.inc,v 1.16 2005/05/12 06:24:17 tbarrett Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -191,7 +191,7 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 	*/
 	function paintBackendIcons(&$asset, $prefix)
 	{
-		print_bodycopy_icon("Javascript: switchEditingMode('".$prefix."_contents_div','".$prefix."_wysiwyg_div', editor_".$prefix.");", 'Edit Contents', 'Switch between preview and edit mode', 'edit_mode', '[Edit Contents]');
+		Bodycopy_Edit_Fns::printBodycopyIcon("switchEditingMode('".$prefix."_contents_div','".$prefix."_wysiwyg_div', editor_".$prefix.");", 'Edit Contents', 'Switch between preview and edit mode', 'edit_mode', '[Edit Contents]');
 
 	}//end paintBackendIcons()
 

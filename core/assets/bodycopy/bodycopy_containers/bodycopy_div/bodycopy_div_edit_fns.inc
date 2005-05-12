@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_div_edit_fns.inc,v 1.22 2005/05/11 06:04:49 lwright Exp $
+* $Id: bodycopy_div_edit_fns.inc,v 1.23 2005/05/12 06:24:17 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy_container/bodycopy_contain
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -271,14 +271,13 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 
 		// require library functions needed for drawing the bodycopy divs
 		$type_info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo('bodycopy');
-		require_once SQ_SYSTEM_ROOT.'/'.$type_info['dir'].'/files/bodycopy_general.inc';
 
 		?>
 		<table<?php echo $attribute_list?> style="width:100%;">
 			<tr>
 				<td align="left" background="" id="<?php echo $prefix.'_div_'.$asset->id;?>" width="4%" style="border: 1px dashed #C0C0C0;">
 				<?php
-				print_bodycopy_icon("Javascript: bodycopy_edit_div_properties('$prefix', $asset->id, ".(($asset->status & SQ_SC_STATUS_SAFE_EDITING) ? 'false' : 'true').");", 'Edit '.$asset->attr('name').'\'s Properties', (($popup_attribute_list) ? 'Current Properties :<br>'.$popup_attribute_list : ''), 'table_properties', '[Edit Properties]');
+				Bodycopy_Edit_Fns::printBodycopyIcon("bodycopy_edit_div_properties('$prefix', $asset->id, ".(($asset->status & SQ_SC_STATUS_SAFE_EDITING) ? 'false' : 'true').");", 'Edit '.$asset->attr('name').'\'s Properties', (($popup_attribute_list) ? 'Current Properties :<br>'.$popup_attribute_list : ''), 'table_properties', '[Edit Properties]');
 
 				if (!is_null($content_type)) {
 					$content_edit = &$content_type->getEditFns();

@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy.inc,v 1.21 2005/05/11 06:04:43 lwright Exp $
+* $Id: bodycopy.inc,v 1.22 2005/05/12 06:24:01 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -249,7 +249,9 @@ class Bodycopy extends Asset
 	*/
 	function paintBackend(&$o)
 	{
-		if (!isset($_REQUEST['asset_ei_screen'])) return parent::paintBackend($o);
+		if (!isset($_REQUEST['asset_ei_screen'])) {
+			return parent::paintBackend($o);
+		}
 		switch ($_REQUEST['asset_ei_screen']) {
 			case 'show_popup' :
 				require_once(dirname(__FILE__).'/popups/'.trim($_REQUEST['popup_file']));
@@ -270,7 +272,9 @@ class Bodycopy extends Asset
 	*/
 	function printFrontend()
 	{
-		if (!isset($_REQUEST['asset_ei_screen'])) return parent::printFrontend($o);
+		if (!isset($_REQUEST['asset_ei_screen'])) {
+			return parent::printFrontend($o);
+		}
 		switch ($_REQUEST['asset_ei_screen']) {
 			case 'show_popup' :
 				require_once(dirname(__FILE__).'/popups/'.trim($_REQUEST['popup_file']));
@@ -301,7 +305,9 @@ class Bodycopy extends Asset
 
 				foreach ($notice_links as $assetid) {
 					$href = $GLOBALS['SQ_SYSTEM']->am->getAssetHref($assetid);
-					if ($href == '') $href = "Javascript: alert('This link does not exist');";
+					if ($href == '') {
+						$href = "Javascript: alert('This link does not exist');";
+					}
 					$sq_asset_url_list[$assetid] = $href;
 				}
 
@@ -378,9 +384,7 @@ class Bodycopy extends Asset
 		$containers = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy_container', false);
 		foreach ($containers as $container_data) {
 			$container = &$am->getAsset($container_data['minorid'], $container_data['minor_type_code']);
-			if (!$container->isEmpty()) {
-				return false;
-			}
+			if (!$container->isEmpty()) return false;
 		}
 		return true;
 

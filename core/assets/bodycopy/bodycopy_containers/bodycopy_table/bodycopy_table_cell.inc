@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_table_cell.inc,v 1.13 2005/05/11 06:04:49 lwright Exp $
+* $Id: bodycopy_table_cell.inc,v 1.14 2005/05/12 06:24:17 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -262,7 +262,7 @@ class BodyCopy_Table_Cell extends MySource_Object
 
 		// print out the edit buttons
 
-		print_bodycopy_icon("Javascript: bodycopy_edit_table_cell_properties('$prefix', $tableid, $rowid, $cellid);", 'Edit Cell '.($cellid + 1).' - '.($rowid+1).'\'s Properties', (($attribute_list) ? 'Current Properties :<br>'.$attribute_list : ''), 'cell_properties', '[Edit Cell Properties]');
+		Bodycopy_Edit_Fns::printBodycopyIcon("bodycopy_edit_table_cell_properties('$prefix', $tableid, $rowid, $cellid);", 'Edit Cell '.($cellid + 1).' - '.($rowid+1).'\'s Properties', (($attribute_list) ? 'Current Properties :<br>'.$attribute_list : ''), 'cell_properties', '[Edit Cell Properties]');
 
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($this->attributes['linkid'], $table->id);
 		if (!empty($link)) {

@@ -18,54 +18,13 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_general.inc,v 1.8 2005/01/20 13:07:31 brobertson Exp $
+* $Id: bodycopy_general.inc,v 1.9 2005/05/12 06:24:05 tbarrett Exp $
 *
 */
 
 require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 
-/**
-* bodycopy_general.inc
-*
-* Contains a library of functions used by bodycopy assets
-*
-* @author mnyeholt
-* @version $version$ - 1.0
-* @package MySource_Matrix
-* @subpackage Core
-*/
 
-
-/**
-* Print a bodycopy style icon
-*
-* @param string $href		The HREF that this icons points to
-* @param string $heading	The heading for the tooltip
-* @param string $desc		The main body of the tooltip
-* @param string $icon		The filename of the icon to display (must be a GIF file)
-* @param string $extra		Any extras you want to put at the end of the IMG tag
-* @param string $width		The width of the icon
-* @param string $height		The height of the icon
-*
-* @access  public
-* @return void
-*/
-function print_bodycopy_icon($href, $heading, $desc, $icon, $alt='', $extra='', $width='16', $height='16')
-{
-	$path = sq_web_path('data');
-
-	$href = str_replace('"', '\"', $href);
-
-	$tag = "
-	<a href=\"$href\">
-	<script language=\"JavaScript\" type=\"text/javascript\">
-		sq_print_icon('$path/asset_types/bodycopy/images/icons/$icon.png', '$width', '$height', '');
-	</script>
-	</a>";
-
-	echo make_tooltip($tag, $desc, $heading);
-
-}//end print_bodycopy_icon()
 
 
 ?>

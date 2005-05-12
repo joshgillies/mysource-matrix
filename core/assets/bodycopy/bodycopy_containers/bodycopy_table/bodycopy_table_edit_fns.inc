@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_table_edit_fns.inc,v 1.17 2005/04/01 07:04:50 ndvries Exp $
+* $Id: bodycopy_table_edit_fns.inc,v 1.18 2005/05/12 06:24:17 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy_container/bodycopy_contain
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -351,7 +351,6 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 
 		// require library functions needed for drawing the bodycopy
 		$type_info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo('bodycopy');
-		require_once SQ_SYSTEM_ROOT.'/'.$type_info['dir'].'/files/bodycopy_general.inc';
 
 		?>
 		<table<?php echo $attribute_list?> background="<?php echo $bgimage?>" border="0" cellpadding="0" cellspacing="0" style="width:100%;">
@@ -458,7 +457,7 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 
 					}
 				}
-				print_bodycopy_icon("Javascript: bodycopy_edit_table_properties('$prefix', $asset->id, ".(($asset->status & SQ_SC_STATUS_SAFE_EDITING) ? 'false' : 'true').");", 'Edit '.$asset->attr('name').'\'s Properties', (($popup_attribute_list) ? 'Current Properties :<br>'.$popup_attribute_list : ''), 'table_properties');
+				Bodycopy_Edit_Fns::printBodycopyIcon("bodycopy_edit_table_properties('$prefix', $asset->id, ".(($asset->status & SQ_SC_STATUS_SAFE_EDITING) ? 'false' : 'true').");", 'Edit '.$asset->attr('name').'\'s Properties', (($popup_attribute_list) ? 'Current Properties :<br>'.$popup_attribute_list : ''), 'table_properties');
 
 			} else {
 				echo '&nbsp;';
@@ -476,22 +475,22 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 
 		if ($i==0) {
 			if (($x+$i) == 0 && $multiCol && $colReorder) {
-				print_bodycopy_icon("Javascript: bodycopy_edit_table_col_order('$prefix', $asset->id);", 'Reorder '.$asset->attr('name').'\'s Columns ?', '', 'reorder', '[Redorder Columns]');
+				Bodycopy_Edit_Fns::printBodycopyIcon("bodycopy_edit_table_col_order('$prefix', $asset->id);", 'Reorder '.$asset->attr('name').'\'s Columns ?', '', 'reorder', '[Redorder Columns]');
 
 			}
 
 			// if there's more than one row, and we're on the first row, let the col be deleted.
 			if ($multiCol) {
-				print_bodycopy_icon("Javascript: bodycopy_delete_table_col('$prefix', $asset->id, $x);", 'Delete Column '.($x + 1).' ?', '', 'delete', '[Delete Column]');
+				Bodycopy_Edit_Fns::printBodycopyIcon("bodycopy_delete_table_col('$prefix', $asset->id, $x);", 'Delete Column '.($x + 1).' ?', '', 'delete', '[Delete Column]');
 			}
 
-			print_bodycopy_icon("Javascript: bodycopy_insert_table_col('$prefix', $asset->id, $x, false);", 'Insert New Column on Right', '', 'add', '[Add Column >>]');
+			Bodycopy_Edit_Fns::printBodycopyIcon("bodycopy_insert_table_col('$prefix', $asset->id, $x, false);", 'Insert New Column on Right', '', 'add', '[Add Column >>]');
 		}
 
 		?> </span> <?php
 
 		if ($i==0) {
-			print_bodycopy_icon("Javascript: bodycopy_insert_table_col('$prefix', $asset->id, $x, true);", 'Insert New Column on Left', '', 'add', '[<< Add Column]');
+			Bodycopy_Edit_Fns::printBodycopyIcon("bodycopy_insert_table_col('$prefix', $asset->id, $x, true);", 'Insert New Column on Left', '', 'add', '[<< Add Column]');
 		}
 		$cell->paintCell($asset, $prefix, $asset->id, $i, $x);
 
@@ -505,19 +504,19 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 			<td style="width: 20px;border-right: 1px dashed #C0C0C0;" id="<?php echo $prefix.'_row_'.$asset->id.'_'.$i?>"  nowrap="nowrap">
 			<?php
 			if ($i == 0 && $multiRow) {
-				print_bodycopy_icon("Javascript: bodycopy_edit_table_row_order('$prefix', $asset->id);", 'Reorder '.$asset->attr('name').'\'s Rows ?', '', 'reorder', '[Reorder Rows]');
+				Bodycopy_Edit_Fns::printBodycopyIcon("bodycopy_edit_table_row_order('$prefix', $asset->id);", 'Reorder '.$asset->attr('name').'\'s Rows ?', '', 'reorder', '[Reorder Rows]');
 			}
 			echo '<br/>';
-			print_bodycopy_icon("Javascript: bodycopy_insert_table_row('$prefix', $asset->id,$i, true);", 'Insert a New Row Above', '', 'add', '[^ Add Row]');
+			Bodycopy_Edit_Fns::printBodycopyIcon("bodycopy_insert_table_row('$prefix', $asset->id,$i, true);", 'Insert a New Row Above', '', 'add', '[^ Add Row]');
 
 			echo '<br/>';
-			print_bodycopy_icon("Javascript: bodycopy_edit_table_row_properties('$prefix', $asset->id,$i);", 'Edit Row '.($i + 1).'\'s Properties', (($attribute_list) ? 'Current Properties :<br>'.$attribute_list : ''), 'row_properties', '[Edit Row Properties]');
+			Bodycopy_Edit_Fns::printBodycopyIcon("bodycopy_edit_table_row_properties('$prefix', $asset->id,$i);", 'Edit Row '.($i + 1).'\'s Properties', (($attribute_list) ? 'Current Properties :<br>'.$attribute_list : ''), 'row_properties', '[Edit Row Properties]');
 			if ($multiRow) {
 				echo '<br/>';
-				print_bodycopy_icon("Javascript: bodycopy_delete_table_row('$prefix', $asset->id, $i);", 'Delete Row '.($i + 1).' ?', '', 'delete', '[Delete Row]');
+				Bodycopy_Edit_Fns::printBodycopyIcon("bodycopy_delete_table_row('$prefix', $asset->id, $i);", 'Delete Row '.($i + 1).' ?', '', 'delete', '[Delete Row]');
 			}
 			echo '<br/>';
-			print_bodycopy_icon("Javascript: bodycopy_insert_table_row('$prefix', $asset->id, $i, false);", 'Insert a New Row Below', '', 'add', '[v Add Row]');
+			Bodycopy_Edit_Fns::printBodycopyIcon("bodycopy_insert_table_row('$prefix', $asset->id, $i, false);", 'Insert a New Row Below', '', 'add', '[v Add Row]');
 			?>
 		</td>
 		<?php

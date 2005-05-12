@@ -2,7 +2,6 @@
 /**
 * +--------------------------------------------------------------------+
 * | Squiz.net Open Source Licence                                      |
-
 * +--------------------------------------------------------------------+
 * | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
 * +--------------------------------------------------------------------+
@@ -19,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_edit_fns.inc,v 1.29 2005/05/11 06:04:43 lwright Exp $
+* $Id: bodycopy_edit_fns.inc,v 1.30 2005/05/12 06:24:01 tbarrett Exp $
 *
 */
 
@@ -35,12 +34,13 @@ require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 {
+
 
 	/**
 	* Constructor
@@ -79,7 +79,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 			$url = preg_replace('|^http[s]?://|', '', $url);
 
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
-			$sql = 'SELECT value 
+			$sql = 'SELECT value
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value ';
 			$where = '    url = '.$db->quote($url).'
 					  AND name LIKE '.$db->quote('design::%');
@@ -130,13 +130,26 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		// all available content types
 		$content_types = Array();
 		$types = $am->getAssetTypeHierarchy('content_type');
-		foreach ($types as $type => $type_data) $content_types[$type] = Array('name' => $type_data['name']);
+		foreach ($types as $type => $type_data) {
+			$content_types[$type] = Array('name' => $type_data['name']);
+		}
 
 		?>
 		<input type="hidden" name="bodycopy_action" value="">
 		<input type="hidden" name="bodycopy_name"   value="">
 		<input type="hidden" name="bodycopy_data"   value="">
 
+		<script type="text/javascript">
+			//php vars
+			var backendHref = "<?php echo $asset->getBackendHref('show_popup');?>";
+			var init_layer_width = <?php echo $init_layer_width?>;
+			var init_layer_height = <?php echo $init_layer_height?>;
+			var bodycopy_types = '<?php echo var_serialise($content_types, true)?>';
+			var _prefix = "<?php echo $prefix; ?>";
+			var asset_id = "<?php echo $asset->id; ?>";
+		</script>
+
+		<script type="text/javascript" src="<?php echo sq_web_path('data').'/asset_types/bodycopy/js/bodycopy_edit_fns.js'?>"></script>
 		<script type="text/javascript" src="<?php echo sq_web_path('fudge').'/var_serialise/var_serialise.js'?>"	></script>
 		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/js/detect.js';?>"></script>
 		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/js/layer_handler.js';?>"></script>
@@ -144,168 +157,6 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/js/debug.js';?>"></script>
 		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/js/tooltip.js';?>"></script>
 		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/html_form/html_form.js';?>"></script>
-
-		<script type="text/javascript">
-			// this is an array of data that each element (divs, tables, rows, and cells)
-			// can place data for use in editing
-			var bodycopy_current_data = new Object();
-			var bodycopy_saved        = new Object();
-
-			// this is an object that gets set everytime something is getting edited
-			// (as apposed to inserted or deleted) so that the pop-ups can get the info once
-			// they have loaded themselves
-			var bodycopy_current_edit = new Object();
-			bodycopy_current_edit["data"] = null;
-			bodycopy_current_edit["bodycopy_name"] = null;
-
-			var bodycopy_initialised = false;	// true once init() has been run
-			var bodycopy_popup = null;			// pointer to the popup Layer_Handler Object
-			var bodycopy_popup_visible = false;	// boolean indicating whether the popup is visisble ( not access directly )
-			var bodycopy_nested_doc = null;		// pointer to the Netscape Layer or the IE Iframe
-
-			// initialise the popup
-			function bodycopy_init() {
-				bodycopy_popup   = new Layer_Handler("bodycopyPopupDiv", 0,<?php echo $init_layer_width?>,<?php echo $init_layer_height?>,0);
-				set_bodycopy_nested_doc();
-				bodycopy_hide_popup();
-				bodycopy_initialised = true;
-				bodycopy_otheronload();
-			}
-
-			var bodycopy_otheronload = (window.onload) ? window.onload :  new Function;
-			window.onload = bodycopy_init;
-
-			// generic function used everywhere to send the form
-			function bodycopy_submit(bodycopy_action, bodycopy_name, bodycopy_data) {
-				var form = document.main_form;
-
-				form.bodycopy_action.value = bodycopy_action;
-				form.bodycopy_name.value   = bodycopy_name;
-
-				// pack up the passed object
-				form.bodycopy_data.value = var_serialise(bodycopy_data);
-
-				// need to call the onsubmit event explicitly or it will
-				// not get called when we do a form.submit()
-				form.onsubmit();
-				form.submit();
-			}//end bodycopy_submit()
-
-			function set_bodycopy_nested_doc() {
-				if (is_ie4up) {
-					bodycopy_nested_doc = bodycopyFrame;
-				} else if (is_dom) {
-					bodycopy_nested_doc = document.getElementById("bodycopyFrame");
-				} else {
-					bodycopy_nested_doc = bodycopy_popup.layer;
-				}//end if
-			}
-
-			function get_bodycopy_popup_visibilty() {
-				return bodycopy_popup_visible;
-			}
-
-			function bodycopy_show_popup(file, width, height) {
-				if (!bodycopy_initialised) {
-					if (confirm('You were too quick off the mark, the page is not loaded yet. Do you want to reload the page?')) {
-						document.edit.action.value='';
-						document.edit.submit()
-					}
-					return;
-				}
-
-				var w = (width  != null) ? width  : 500;
-				var h = (height != null) ? height : 400;
-				var border = 15;
-				var top_offset = 20;
-
-				var page_w = (is_nav4 || is_gecko) ? w - 17 : w;
-				var page_h = (is_nav4 || is_gecko) ? h - 17 : h;
-
-				file  = '<?php echo $asset->getBackendHref('show_popup');?>' + '&popup_file=' + file;
-				file += '&page_width=' + page_w;
-				file += '&page_height=' + page_h;
-				file += '&body_extra=';
-				file += '&browser=' + ((is_dom) ? "dom" : ((is_ie4up) ? "ie" : "ns"));
-				file += '&assetid=<?php echo $asset->id; ?>';
-
-				bodycopy_popup.w = w;
-				bodycopy_popup.h = h;
-				bodycopy_popup.clip(null, w, h, null);
-				bodycopy_popup_visible = true;
-
-				if (is_ie4up) {
-					// %!%#, frameElement is IE 5.5 only
-					bodycopy_nested_doc.width  = w - border;
-					bodycopy_nested_doc.height = h - border;
-					bodycopy_nested_doc.location = file;
-				} else if (is_dom) {
-					bodycopy_nested_doc.width  = w - border;
-					bodycopy_nested_doc.height = h - border;
-					bodycopy_nested_doc.src = file;
-				} else {
-					bodycopy_nested_doc.clip.right     = w - border;
-					bodycopy_nested_doc.clip.width     = w - border;
-					bodycopy_nested_doc.clip.height    = h - border;
-					bodycopy_nested_doc.clip.bottom    = h - border;
-					bodycopy_nested_doc.load(file, w - 5);
-				}
-
-				// how far down the page we want to display this popup
-				var scroll_top  = ((is_ie4up) ? document.body.scrollTop  : self.pageYOffset);
-				bodycopy_popup.move(null, scroll_top + top_offset);
-				bodycopy_popup.show();
-			}//end bodycopy_show_popup()
-
-			function bodycopy_hide_popup() {
-				if (!bodycopy_initialised) { return; }
-				bodycopy_show_popup("blank.php");
-				bodycopy_popup_visible = false;
-				bodycopy_popup.hide();
-			}//end bodycopy_hide_popup()
-
-			// get the available cell types
-			var BODYCOPY_AVAILABLE_CONTENT_TYPES = null;
-			function get_bodycopy_available_content_types() {
-				if (BODYCOPY_AVAILABLE_CONTENT_TYPES == null) {
-					BODYCOPY_AVAILABLE_CONTENT_TYPES = var_unserialise('<?php echo var_serialise($content_types, true)?>');
-				}
-				return BODYCOPY_AVAILABLE_CONTENT_TYPES;
-			}
-
-			function bodycopy_data_exists(args) {
-				var str = 'bodycopy_saved';
-				for (var i = 0; i < args.length; i++) {
-					switch (typeof(args[i])) {
-						case "number" :
-							str += '[' + args[i] + ']';
-						break;
-						default :
-							str += '["' + args[i] + '"]';
-					}
-					eval('var exists = (' + str + ') ? true : false;');
-					if (!exists) return false;
-				}
-				return true;
-			}
-
-			function bodycopy_chgColor(id, colour) {
-				if (is_dom) {
-					var chgcell
-					if (!colour) { colour = '559AE7'; }
-					chgcell = "document.getElementById('"+ id + "').style.backgroundColor = '#"+ colour +"'";
-					eval(chgcell);
-				}
-			}
-
-			function bodycopy_insert_container(bodycopy_name, containerid, before) {
-				var form = document.main_form;
-				var container_type = form_element_value(form.<?php echo $prefix; ?>_insert_container_type);
-				eval('bodycopy_insert_' + container_type + '("' + bodycopy_name + '", ' + containerid + ', ' + before + ');');
-			}
-
-			bodycopy_current_data["<?php echo $prefix?>"] = new Object();
-		</script>
 
 		<?php
 		// print JS functions for each of the container types we have installed
@@ -384,7 +235,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 									?>
 									<td>
 										<?php
-										print_bodycopy_icon("Javascript: document.main_form.{$prefix}_insert_container_type.value = document.main_form.{$prefix}_insert_container_type_before_{$i}.value; bodycopy_insert_container('$prefix', $i, true)", 'Insert Container', 'Select the type of container you want to create before clicking here', 'create_container', '[Insert]');
+											Bodycopy_Edit_Fns::printBodycopyIcon("document.main_form.{$prefix}_insert_container_type.value = document.main_form.{$prefix}_insert_container_type_before_{$i}.value; bodycopy_insert_container('$prefix', $i, true)", 'Insert Container', 'Select the type of container you want to create before clicking here', 'create_container', '[Insert]');
 										?>
 									</td>
 									<td class="sq-backend-data" valign="top">
@@ -433,7 +284,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 								?>
 								<td>
 									<?php
-									print_bodycopy_icon("Javascript: document.main_form.{$prefix}_insert_container_type.value = document.main_form.{$prefix}_insert_container_type_after_{$i}.value; bodycopy_insert_container('$prefix', $i, false)", 'Insert Container', 'Select the type of container you want to create before clicking here', 'create_container', '[Insert]');
+									Bodycopy_Edit_Fns::printBodycopyIcon("document.main_form.{$prefix}_insert_container_type.value = document.main_form.{$prefix}_insert_container_type_after_{$i}.value; bodycopy_insert_container('$prefix', $i, false)", 'Insert Container', 'Select the type of container you want to create before clicking here', 'create_container', '[Insert]');
 									?>
 								</td>
 								<td class="sq-backend-data" valign="top">
@@ -489,7 +340,9 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 			$bc_data   = (empty($_POST['bodycopy_data']))   ? Array() : $_POST['bodycopy_data'];
 			$bc_saved  = (empty($_POST['bodycopy_saved']))  ? Array() : $_POST['bodycopy_saved'];
 
-			if (empty($bc_data) && empty($bc_saved)) return false;
+			if (empty($bc_data) && empty($bc_saved)) {
+				return false;
+			}
 
 			// if there is some bodycopy data, deserialise it into the arrays
 			// so that everything else can use it
@@ -526,11 +379,15 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 			if ($bc_name == $prefix) {
 				switch ($bc_action) {
 					case 'insert_container' :
-						if ($this->insertContainer($asset, $bc_data['container_type'], $bc_data['containerid'], $bc_data)) $updated = true;
+						if ($this->insertContainer($asset, $bc_data['container_type'], $bc_data['containerid'], $bc_data)) {
+							$updated = true;
+						}
 					break;
 
 					case 'delete_container' :
-						if ($this->deleteContainer($asset, $bc_data['containerid'])) $updated = true;
+						if ($this->deleteContainer($asset, $bc_data['containerid'])) {
+							$updated = true;
+						}
 					break;
 				}//end switch
 			}
@@ -561,8 +418,11 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		$containerid = intval($containerid);
 
 		// if the containerid is greater than the number of containers we have, set it to the last one
-		if ($containerid > $num_containers - 1) $containerid = $num_containers - 1;
-		else if ($containerid < 0) $divid = 0;
+		if ($containerid > $num_containers - 1) {
+			$containerid = $num_containers - 1;
+		} else if ($containerid < 0) {
+			$divid = 0;
+		}
 
 		// if they want to insert after the passed containerid what
 		// they really mean is to insert before the next containerid
@@ -614,6 +474,33 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		return false;
 
 	}//end deleteContainer()
+
+
+	/**
+	* Print an icon for a bodycopy action
+	*
+	* @param string $onclick	JS to execute when the icon is clicked
+	* @param string $heading	The heading for the tooltip
+	* @param string $desc		The main body of the tooltip
+	* @param string $icon		The filename base of the icon to display (must be a PNG)
+	* @param string $extra		Any extra HTML you want to put in the IMG tag
+	* @param string $width		The width of the icon
+	* @param string $height		The height of the icon
+	*
+	* @access  public
+	* @return void
+	*/
+	function printBodycopyIcon($onclick, $heading, $desc, $icon, $alt='', $extra='', $width='16', $height='16')
+	{
+		$path = sq_web_path('data').'/asset_types/bodycopy/images/icons/'.$icon.'.png';
+		$extra .= ' onmouseover="if (bodycopy_initialised) tooltip.show(this, \''.addslashes(htmlentities($desc)).'\', \''.addslashes(htmlentities($heading)).'\')"';
+		$extra .= ' onmouseout="if (bodycopy_initialised) tooltip.hide()"';
+		$extra .= ' onclick="'.$onclick.'"';
+		$extra .= ' style="cursor:pointer;"';
+		sq_print_icon($path, $width, $height, $alt, '', $extra);
+
+	}//end printBodycopyIcon()
+
 
 }//end class
 
