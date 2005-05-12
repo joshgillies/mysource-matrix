@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_file_size_edit_fns.inc,v 1.6 2005/05/11 06:07:31 lwright Exp $
+* $Id: form_question_rule_type_file_size_edit_fns.inc,v 1.7 2005/05/12 00:54:41 rhoward Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule_edi
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -47,27 +47,19 @@ class Form_Question_Rule_Type_File_Size_Edit_Fns extends Form_Question_Rule_Edit
 	function paintRule(&$asset, &$o, $prefix, $rule_data, $write_access)
 	{
 		$operator_list = $asset->getOperators();
+		$multiplier_map = Array(
+							''		=> 'bytes',
+							'KB'	=> 'KB',
+							'MB'	=> 'MB',
+							'GB'	=> 'GB',
+						  );
 
 		if (!$write_access) {
 			$o->openField(translate('cms_form_rule_details'));
-			echo translate('cms_form_rule_file_size_edit_'.$operator, $rule_data['value'].' '.$rule_data['multiplier']);
+			echo translate('cms_form_rule_file_size_edit_'.array_get_index($rule_data, 'operator', '<='), array_get_index($rule_data, 'value', '0').' '.$multiplier_map[array_get_index($rule_data, 'multiplier', '')]);
 			$o->closeField();
 
 		} else {
-			if (!isset($rule_data['multiplier'])) {
-				$comparison = strtolower($rule_data['value']);
-				if ((substr($comparison,-2) == 'kb') || (substr($comparison,-1) == 'k')) {
-					$rule_data['multiplier'] = 'KB';
-					$rule_data['value'] = (float)$rule_data['value'];
-				} else if ((substr($comparison,-2) == 'mb') || (substr($comparison,-1) == 'm')) {
-					$rule_data['multiplier'] = 'MB';
-					$rule_data['value'] = (float)$rule_data['value'];
-				} else if ((substr($comparison,-2) == 'gb') || (substr($comparison,-1) == 'g')) {
-					$rule_data['multiplier'] = 'GB';
-					$rule_data['value'] = (float)$rule_data['value'];
-				}
-			}
-
 			$o->openField(translate('operator'));
 			// list of operators
 			combo_box($prefix.'[operator]', $operator_list, false, array_get_index($rule_data, 'operator', '<='));
@@ -75,8 +67,8 @@ class Form_Question_Rule_Type_File_Size_Edit_Fns extends Form_Question_Rule_Edit
 
 			$o->openField(translate('file_size'));
 			// give a text box to write the comparison value in
-			text_box($prefix.'[value]', array_get_index($rule_data, 'value', ''), 3);
-			combo_box($prefix.'[multiplier]', Array('' => 'bytes', 'KB' => 'KB', 'MB' => 'MB', 'GB' => 'GB'), false, array_get_index($rule_data, 'multiplier', ''));
+			int_text_box($prefix.'[value]', array_get_index($rule_data, 'value', ''), false, 3);
+			combo_box($prefix.'[multiplier]', $multiplier_map, false, array_get_index($rule_data, 'multiplier', ''));
 			$o->closeField();
 
 			$o->sectionNote(translate('cms_form_rule_file_size_config_note', strtoupper(easy_filesize($this->_maxUploadSize()))));
@@ -96,6 +88,7 @@ class Form_Question_Rule_Type_File_Size_Edit_Fns extends Form_Question_Rule_Edit
 	function processRule(&$asset, &$o, $prefix, &$rule_data)
 	{
 		if (!isset($_POST[$prefix])) {
+			bam('Die, no POST');
 			return false;
 		}
 
