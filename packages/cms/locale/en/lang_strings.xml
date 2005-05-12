@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.3 2005/05/11 06:07:32 lwright Exp $
+* $Id: lang_strings.xml,v 1.4 2005/05/12 05:12:03 rhoward Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -63,6 +63,7 @@
 <string source="created_date">Created Date</string>
 <string source="last_updated_date">Last Updated Date</string>
 <string source="last_published_date">Last Published Date</string>
+<string source="type_code">Type Code</string>
 <string source="default_format">Default Format</string>
 <string source="report_not_generated">This report has not been generated</string>
 <string source="linking_to">Linking To</string>
