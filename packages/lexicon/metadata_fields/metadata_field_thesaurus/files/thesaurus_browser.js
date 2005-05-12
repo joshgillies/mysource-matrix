@@ -10,8 +10,8 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus_browser.js,v 1.1.2.1 2005/05/02 00:35:50 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: thesaurus_browser.js,v 1.1.2.2 2005/05/12 00:20:00 tbarrett Exp $
+*
 */
 
 var Browser = null;
@@ -77,6 +77,8 @@ ThesaurusBrowser = function (	divname,
 */
 	this.open = function(e)
 		{
+			var existingY = window.scrollY ? window.scrollY : (document.body.scrollTop ? document.body.scrollTop : document.documentElement.scrollTop);
+			var targetY = existingY + e.clientY - 50;
 			var date = new Date();
 			date = date.getTime();
 			this.div.style.visibility = "hidden";
@@ -122,7 +124,7 @@ ThesaurusBrowser = function (	divname,
 			document.body.style.overflow = "hidden";
 			this.fade = 0;
 			this.fadein();
-			window.scrollTo(scrollX + e.clientX + 350, scrollY + e.clientY + 250);
+			window.scrollTo(0, targetY);
 
 		}//end open()
 
@@ -434,3 +436,4 @@ ThesaurusBrowser = function (	divname,
 		this.div = document.getElementById(this.divname);
 		this.frame = document.getElementById(this.framename);
 }
+
