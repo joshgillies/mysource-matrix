@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: MatrixTreeNode.java,v 1.1 2005/02/18 05:24:30 mmcintyre Exp $
+* $Id: MatrixTreeNode.java,v 1.2 2005/05/12 00:23:46 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -43,6 +43,12 @@ public class MatrixTreeNode extends DefaultMutableTreeNode
 		
 	/* The linkid that this node represents */
 	private final String linkid;
+	
+	/**
+	 * The type of link to the parent
+	 * @see MatrixConstants
+	 */
+	private int linkType;
 
 	/* The URL including paths to this node */
 	private String url;
@@ -55,9 +61,10 @@ public class MatrixTreeNode extends DefaultMutableTreeNode
 	 * @param asset the asset that represents this node
 	 * @param linkid the linkid of this node
 	 */
-	public MatrixTreeNode(Asset asset, String linkid, String url, String webPath) {
+	public MatrixTreeNode(Asset asset, String linkid, int linkType, String url, String webPath) {
 		setUserObject(asset);
 		this.linkid = linkid;
+		this.linkType = linkType;
 		this.url = url;
 		this.webPath = webPath;
 	}
@@ -75,6 +82,14 @@ public class MatrixTreeNode extends DefaultMutableTreeNode
 		return (Asset) getUserObject();
 	}
 
+	public int getLinkType() {
+		return linkType;
+	}
+	
+	public void setLinkType(int linkType) {
+		this.linkType = linkType;
+	}
+	
 	/**
 	 * Returns the linkid to the parent asset of this node
 	 *
