@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.309 2005/05/11 06:05:10 lwright Exp $
+* $Id: asset_manager.inc,v 1.310 2005/05/12 00:30:52 gsherwood Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.309 $
+* @version $Revision: 1.310 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -4933,7 +4933,7 @@ class Asset_Manager extends MySource_Object
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		while (1) {
+		while (!empty($paths)) {
 			$paths_string = '';
 			foreach ($paths as $path) {
 				if (!empty($paths_string)) $paths_string .= ', ';
@@ -4944,37 +4944,33 @@ class Asset_Manager extends MySource_Object
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_path p
 					INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
 					ON p.assetid = l.minorid ';
-			$where = 'WHERE l.majorid = ' . $major->id . ' ';
+			$where = 'WHERE l.majorid = '.$major->id.' ';
 			if ($ignore_assetid) {
-				$where .= 'AND l.minorid <> ' . $ignore_assetid . ' ';
+				$where .= 'AND l.minorid <> '.$ignore_assetid.' ';
 			}
-			$where .= 'AND p.path IN (' . $paths_string . ')
-					AND ' . db_extras_bitand($db, 'l.link_type', SQ_SC_LINK_WEB_PATHS) . ' > 0 ';
+			$where .= 'AND p.path IN ('.$paths_string.')
+					AND '.db_extras_bitand($db, 'l.link_type', SQ_SC_LINK_WEB_PATHS).' > 0 ';
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
-			$used_paths = $db->getCol($sql . $where);
+			$used_paths = $db->getCol($sql.$where);
 			assert_valid_db_result($used_paths);
 
-			if (!$return_alternatives) {
-				$return_paths = $used_paths;
-				break;
-			}
+			// if we do not need to get alternate we paths, just return
+			// the ones that are currently in use
+			if (!$return_alternatives) return $used_paths;
 
-			$un = array_diff($paths, $used_paths);
-			$return_paths = array_merge($return_paths, $un);
+			$unused_paths = array_diff($paths, $used_paths);
+			$return_paths = array_merge($return_paths, $unused_paths);
 
-			// None of the paths in $return_paths are already used
-			if (empty($used_paths)) break;
-
-			$paths = $used_paths;
-
-			// find a good path to use
-			// increment the path using numerials
+			// we now update the paths we are looking for to be the ones we know
+			// are currently in use, except we will increment the paths using
+			// numerials and check thse new valids to see if they are in use
 			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+			$paths = $used_paths;
 			for ($i = count($paths) - 1; $i >= 0; $i--) {
 				$paths[$i] = increment_filename($paths[$i]);
 			}
-		};
+		}
 
 		return $return_paths;
 
