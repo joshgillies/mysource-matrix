@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.46 2005/05/05 23:45:40 tbarrett Exp $
+* $Id: calendar_event.inc,v 1.47 2005/05/12 04:59:18 amiller Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once dirname(__FILE__).'/../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.46 $
+* @version $Revision: 1.47 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -183,6 +183,9 @@ class Calendar_Event extends Asset
 
 		$keywords['event_start_time_24h'] = Array('value'=>date('H:i', iso8601_ts($this->attr('start_date'))));
 		$keywords['event_end_time_24h'] = Array('value'=>date('H:i', iso8601_ts($this->attr('end_date'))));
+		
+		$keywords['event_start_time_iso8601'] = Array('value'=>date('Ymd\THis', iso8601_ts($this->attr('start_date'))));
+		$keywords['event_end_time_iso8601'] = Array('value'=>date('Ymd\THis', iso8601_ts($this->attr('end_date'))));
 
 		$keywords['event_datetime_summary'] = Array('value'=>$this->getFriendlyDatesAndTimes());
 
@@ -203,6 +206,9 @@ class Calendar_Event extends Asset
 
 			$keywords['event_start_time_24h']['description'] = 'Start time (24 hour)';
 			$keywords['event_end_time_24h']['description'] = 'End time (24 hour)';
+			
+			$keywords['event_start_time_iso8601']['description'] = 'Start time (ISO8601)';
+			$keywords['event_end_time_iso8601']['description'] = 'End time (ISO8601)';
 
 			$keywords['event_datetime_summary']['description'] = 'Friendly description of event dates and times';
 			$keywords['event_duration']['description'] = 'Duration of the Event';
