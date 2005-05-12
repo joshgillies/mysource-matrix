@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: password_rules_config.inc,v 1.3 2005/05/09 03:49:14 ndvries Exp $
+* $Id: password_rules_config.inc,v 1.4 2005/05/12 00:08:51 ndvries Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 */
 class Password_Rules_Config extends Config
@@ -50,11 +50,11 @@ class Password_Rules_Config extends Config
 	var $config_vars = Array(
 						'SQ_PASSWD_RULE_LENGTH'				=> Array('editable' => 1, 'default' => 6),
 						'SQ_PASSWD_RULE_DISALLOW_USER_INFO'	=> Array('editable' => 1, 'default' => 1),
-						'SQ_PASSWD_RULE_NUM_CAPS'			=> Array('editable' => 1, 'default' => -1),
-						'SQ_PASSWD_RULE_NUM_LOWER'			=> Array('editable' => 1, 'default' => -1),
-						'SQ_PASSWD_RULE_NUM_INT'			=> Array('editable' => 1, 'default' => -1),
-						'SQ_PASSWD_RULE_NUM_PUNC'			=> Array('editable' => 1, 'default' => -1),
-						'SQ_PASSWD_RULE_NUM_SPC'			=> Array('editable' => 1, 'default' => -1),
+						'SQ_PASSWD_RULE_NUM_CAPS'			=> Array('editable' => 1, 'default' => 0),
+						'SQ_PASSWD_RULE_NUM_LOWER'			=> Array('editable' => 1, 'default' => 0),
+						'SQ_PASSWD_RULE_NUM_INT'			=> Array('editable' => 1, 'default' => 0),
+						'SQ_PASSWD_RULE_NUM_PUNC'			=> Array('editable' => 1, 'default' => 0),
+						'SQ_PASSWD_RULE_NUM_SPC'			=> Array('editable' => 1, 'default' => 0),
 						'SQ_PASSWD_RULE_DISALLOWED'			=> Array('editable' => 0, 'default' => -1),
 						'SQ_PASSWD_RULE_DISABLED'			=> Array('editable' => 0, 'default' => 0),
 					   );
