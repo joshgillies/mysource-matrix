@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_edit_fns.inc,v 1.44.2.4 2005/05/02 02:44:56 gsherwood Exp $
+* $Id: form_edit_fns.inc,v 1.44.2.5 2005/05/12 00:22:28 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.44.2.4 $
+* @version $Revision: 1.44.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -611,12 +611,6 @@ class Form_Edit_Fns extends  Bridge_Edit_Fns
 
 		for (reset($sections); null !== ($k = key($sections)); next($sections)) {
 			$section =& $sections[$k];
-				// if there is a section index, add it to the ouput
-			if ($asset->attr('section_index')) {
-				$output .= '<'.'?php echo $this->getSectionIndex('.$i++.')."<BR />"; ?'.'>';
-			}
-			// tell the section what its quesiton index is
-			$section->question_index = $asset->attr('question_index');
 
 			// let the section know what its column widths are
 			$section->question_col_width = $asset->attr('question_col_width');
