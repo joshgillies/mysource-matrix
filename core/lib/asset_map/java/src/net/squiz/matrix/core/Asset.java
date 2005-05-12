@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: Asset.java,v 1.2 2005/03/06 22:45:31 mmcintyre Exp $
+* $Id: Asset.java,v 1.3 2005/05/12 06:55:05 ndvries Exp $
 *
 */
 
@@ -79,7 +79,7 @@ public class Asset implements MatrixConstants, Serializable {
 		// we need to tell the new node what its link type is
 		setLinkType(assetElement, linkid);
 	}
-	
+
 	public String toString() {
 		return name + " [" + id + "]";
 	}
@@ -147,7 +147,7 @@ public class Asset implements MatrixConstants, Serializable {
 	public int getNumKids() {
 		return numKids;
 	}
-	
+
 	public void update(Element assetElement) {
 		processAssetXML(assetElement, false);
 	}
@@ -218,10 +218,10 @@ public class Asset implements MatrixConstants, Serializable {
 	public Iterator getTreeNodes() {
 		return nodes.iterator();
 	}
-	
+
 	/**
 	 * Returns the tree nodes with the specified linkid. If is possible for an
-	 * asset to have more than one linkid. This will occur when it has the same 
+	 * asset to have more than one linkid. This will occur when it has the same
 	 * parent, but a different treeid in the tree.
 	 * @param linkid the linkid of the wanted nodes
 	 * @return the tree nodes with the specified linkid
@@ -249,14 +249,26 @@ public class Asset implements MatrixConstants, Serializable {
 
 	public void propagateNode(Asset childAsset, String linkid, int linkType, int index) {
 		Iterator nodeIterator = getTreeNodes();
-	
 		while (nodeIterator.hasNext()) {
 			MatrixTreeNode node = (MatrixTreeNode) nodeIterator.next();
+
+			// We need a way of checking if the shadow asset already exists, because all the
+			// linkids are the same. So loop over all the children of the parent and check
+			// if the names are the same. Unfortunately this is the only check...
+
+			Enumeration children = node.children();
+			boolean childExists = false;
+			while (children.hasMoreElements()) {
+				MatrixTreeNode fellowChild = (MatrixTreeNode) children.nextElement();
+				if (fellowChild.getAsset().getName() == childAsset.getName())
+					childExists = true;
+			}
+
 			MatrixTreeNode child = node.getChildWithLinkid(linkid);
-			
-			if (child == null) {
+
+			if (child == null || (AssetManager.isShadowAsset(childAsset) && !childExists)) {
 				childAsset.createNode(linkid, linkType, node, index);
-			} else {
+			} else if (!AssetManager.isShadowAsset(childAsset)) {
 				if (node.getIndex(child) != index) {
 					MatrixTreeModelBus.moveNode(child, node, index);
 				}
@@ -385,13 +397,13 @@ public class Asset implements MatrixConstants, Serializable {
 			this.type       = AssetManager.getAssetType(typeCode);
 		} else {
 			boolean refresh = false;
-			
+
 			// TODO: Change this back to what it was
 			boolean linkTypeChanged = setLinkType(linkType, linkid);
-			
+
 			if (linkTypeChanged)
 				Log.log("Link Type changed for asset "  + id, Asset.class);
-			
+
 			// the following properties require that an event
 			// is fired to notify that the nodes of this asset
 			// have visually changed
@@ -440,7 +452,7 @@ public class Asset implements MatrixConstants, Serializable {
 			webPath
 		);
 		nodes.add(node);
-		
+
 		return node;
 	}
 
@@ -504,7 +516,6 @@ public class Asset implements MatrixConstants, Serializable {
 		while (nodeIterator.hasNext()) {
 			MatrixTreeNode node = (MatrixTreeNode) nodeIterator.next();
 			MatrixTreeModelBus.nodeChanged(node);
-			System.out.println("nodes changed");
 		}
 	}
 
@@ -559,11 +570,11 @@ public class Asset implements MatrixConstants, Serializable {
 		status = newStatus;
 		return true;
 	}
-	
+
 	protected int getLinkType(Element assetElement) {
 		return Integer.parseInt(assetElement.getAttribute("link_type"));
 	}
-	
+
 	private boolean setLinkType(Element assetElement, String linkid) {
 		return setLinkType(getLinkType(assetElement), linkid);
 	}
