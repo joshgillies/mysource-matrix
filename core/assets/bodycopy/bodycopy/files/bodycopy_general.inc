@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_general.inc,v 1.7 2004/09/15 08:10:34 brobertson Exp $
+* $Id: bodycopy_general.inc,v 1.7.6.1 2005/05/12 06:57:30 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -50,20 +50,14 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 * @access  public
 * @return void
 */
-function print_bodycopy_icon($href, $heading, $desc, $icon, $alt='', $extra='', $width='16', $height='16')
+function print_bodycopy_icon($onclick, $heading, $desc, $icon, $alt='', $extra='', $width='16', $height='16')
 {
-	$path = sq_web_path('data');
-
-	$href = str_replace('"', '\"', $href);
-
-	$tag = "
-	<a href=\"$href\">
-	<script language=\"JavaScript\" type=\"text/javascript\">
-		sq_print_icon('$path/asset_types/bodycopy/images/icons/$icon.png', '$width', '$height', '');
-	</script>
-	</a>";
-
-	echo make_tooltip($tag, $desc, $heading);
+		$path = sq_web_path('data').'/asset_types/bodycopy/images/icons/'.$icon.'.png';
+		$extra .= ' onmouseover="if (bodycopy_initialised) tooltip.show(this, \''.addslashes(htmlentities($desc)).'\', \''.addslashes(htmlentities($heading)).'\')"';
+		$extra .= ' onmouseout="if (bodycopy_initialised) tooltip.hide()"';
+		$extra .= ' onclick="'.$onclick.'"';
+		$extra .= ' style="cursor:pointer;"';
+		sq_print_icon($path, $width, $height, $alt, '', $extra);
 
 }//end print_bodycopy_icon()
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.62 2004/12/01 05:24:54 gsherwood Exp $
+* $Id: general.inc,v 1.62.2.1 2005/05/12 06:57:30 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -595,4 +595,40 @@ function array_get_index($array, $index, $default=null)
 }//end array_get_index()
 
 
+/**
+* Print an icon with variable transparency in a manner that works cross-browser
+*
+* This is done by actually printing an image tag for a blank image, and setting various background
+* CSS attributes to render the icon in several browsers
+*
+* @param string	$path	The absolute path of the image to print
+* @param string	$width	The width of the image being printed
+* @param string	$height	The height of the image being printed
+* @param string	$alt	Alt text for the image being printed
+* @param string $title	Title of the image being printed
+* @param string $extras	Extra HTML to put in the image tag
+*
+* @access public
+* @return void
+*/
+function sq_print_icon($path, $width, $height, $alt='', $title=null, $extras='') 
+{
+	if (is_null($title) && !empty($alt)) $title = $alt;
+	if (is_null($title)) $title = '';
+	$style = 'background:url('.$path.'); background: expression(\'none\'); filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src=\''.$path.'\', sizingMethod=\'crop\'); width: '.$width.'px; height: '.$height.'px;';
+	$style_pos = strpos($extras, 'style="');
+	if (false !== $style_pos) {
+		$extras = substr($extras, 0, $style_pos + strlen('style="')).$style.substr($extras,$style_pos + strlen('style="'));
+	} else {
+		$extras = 'style="'.$style."\"\n\t     ".$extras;
+	}
+	?>
+
+	<img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" 
+	     alt="<?php echo $alt; ?>" 
+	     title="<?php echo $title; ?>"
+	     <?php echo $extras; ?> />
+	<?php
+
+} //end sq_print_icon()
 ?>
