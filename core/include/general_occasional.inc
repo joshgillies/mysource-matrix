@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general_occasional.inc,v 1.49 2005/04/27 00:14:43 lwright Exp $
+* $Id: general_occasional.inc,v 1.50 2005/05/12 06:27:36 tbarrett Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.49 $
+* @version $Revision: 1.50 $
 * @package MySource_Matrix
 */
 
@@ -395,23 +395,5 @@ function merge_preferences($prefs1, $prefs2)
 	return $merged_prefs;
 
 }//end merge_preferences()
-
-
-/**
-* Add a tooltip to a piece of code
-*
-* Given a tag or a piece of text, wraps it with a span
-*
-* @access public
-* @return string
-*/
-function make_tooltip($tag, $text, $title='')
-{
-	$text  = str_replace(Array("\n", "\r"), '', nl2br(addslashes(htmlspecialchars($text))));
-	$title = str_replace(Array("\n", "\r"), '', nl2br(addslashes(htmlspecialchars($title))));
-	return '<span onmouseover="javascript: tooltip.show(this, \''.$text.'\', \''.$title.'\');" onmouseout="javascript: tooltip.hide();">'.$tag.'</span>';
-
-}//end make_tooltip()
-
 
 ?>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.87 2005/05/06 02:08:47 tbarrett Exp $
+* $Id: general.inc,v 1.88 2005/05/12 06:27:36 tbarrett Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.87 $
+* @version $Revision: 1.88 $
 * @package MySource_Matrix
 */
 
@@ -65,16 +65,20 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 		$num_errors++;
 
 		// Strip out the file path begining
-		$err_file = hide_system_root($err_file);
+		$bt = debug_backtrace();
+		$real_bt_index = 0;
+		while ((false !== strpos(array_get_index($bt[$real_bt_index], 'class'), 'locale_manager')) || (false !== strpos(array_get_index($bt[$real_bt_index], 'file'), 'locale_manager')) || ($bt[$real_bt_index]['function'] == 'sq_error_handler')) {
+			$real_bt_index++;
+		}
+		$err_file = hide_system_root($bt[$real_bt_index]['file']);
+		$err_line = $bt[$real_bt_index]['line'];
 		$err_msg  = hide_system_root($err_msg);
 
 		// if this is a serious error, do a backtrace
 		$bt_str = '';
 		if ($terminate || (($err_no & ~E_USER_NOTICE) && (SQ_CONF_DEBUG & 2))) {
 			require_once SQ_FUDGE_PATH.'/dev/dev.inc';
-			$bt = debug_backtrace();
 			$bt_str = hide_system_root(array_contents($bt, 3));
-			unset($bt);
 		}
 
 		$err_name  = get_error_name($err_no);
@@ -869,5 +873,42 @@ function trigger_localised_error($code, $error_level)
 
 }//end trigger_localised_error()
 
+
+/**
+* Print an icon with variable transparency in a manner that works cross-browser
+*
+* This is done by actually printing an image tag for a blank image, and setting various background
+* CSS attributes to render the icon in several browsers
+*
+* @param string	$path	The absolute path of the image to print
+* @param string	$width	The width of the image being printed
+* @param string	$height	The height of the image being printed
+* @param string	$alt	Alt text for the image being printed
+* @param string $title	Title of the image being printed
+* @param string $extras	Extra HTML to put in the image tag
+*
+* @access public
+* @return void
+*/
+function sq_print_icon($path, $width, $height, $alt='', $title=null, $extras='') 
+{
+	if (is_null($title) && !empty($alt)) $title = $alt;
+	if (is_null($title)) $title = '';
+	$style = 'background:url('.$path.'); background: expression(\'none\'); filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src=\''.$path.'\', sizingMethod=\'crop\'); width: '.$width.'px; height: '.$height.'px;';
+	$style_pos = strpos($extras, 'style="');
+	if (false !== $style_pos) {
+		$extras = substr($extras, 0, $style_pos + strlen('style="')).$style.substr($extras,$style_pos + strlen('style="'));
+	} else {
+		$extras = 'style="'.$style."\"\n\t     ".$extras;
+	}
+	?>
+
+	<img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" 
+	     alt="<?php echo $alt; ?>" 
+	     title="<?php echo $title; ?>"
+	     <?php echo $extras; ?> />
+	<?php
+
+} //end sq_print_icon()
 
 ?>
