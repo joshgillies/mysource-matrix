@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.393 2005/05/11 06:05:08 lwright Exp $
+* $Id: asset.inc,v 1.394 2005/05/12 06:59:16 amiller Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.393 $
+* @version $Revision: 1.394 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -2788,6 +2788,8 @@ class Asset extends MySource_Object
 								'asset_updated_iso8601',
 								'asset_created_rfc2822',
 								'asset_updated_rfc2822',
+								'asset_created_ical',
+								'asset_updated_ical',
 								'asset_created_by_name',
 								'asset_updated_by_name',
 								'asset_published',
@@ -2795,12 +2797,14 @@ class Asset extends MySource_Object
 								'asset_published_readable',
 								'asset_published_iso8601',
 								'asset_published_rfc2822',
+								'asset_published_ical',
 								'asset_published_by_name',
 								'asset_status_changed',
 								'asset_status_changed_short',
 								'asset_status_changed_readable',
 								'asset_status_changed_iso8601',
 								'asset_status_changed_rfc2822',
+								'asset_status_changed_ical',								
 								'asset_status_changed_by_name',
 								'asset_url',
 								'asset_href',
@@ -2839,9 +2843,18 @@ class Asset extends MySource_Object
 			$keywords['asset_created_short']['description']         = 'The date when the asset was created (yyyy-mm-dd)';
 			$keywords['asset_updated_short']['description']         = 'The date when the asset was last updated (yyyy-mm-dd)';
 			$keywords['asset_published_short']['description']       = 'The date when the asset was last published (yyyy-mm-dd)';
-			$keywords['asset_status_updated_short']['description']       = 'The date when the asset\'s status was last changed (yyyy-mm-dd)';
+			$keywords['asset_status_updated_short']['description']  = 'The date when the asset\'s status was last changed (yyyy-mm-dd)';
 			$keywords['asset_created_readable']['description']      = 'The date when the asset was created (dd m yyyy h:mm[am pm])';
 			$keywords['asset_updated_readable']['description']      = 'The date when the asset was last updated (dd m yyyy h:mm[am pm])';
+			$keywords['asset_created_iso8601']['description']      = 'The date when the asset was created (ISO8601 format)';
+			$keywords['asset_updated_iso8601']['description']      = 'The date when the asset was last updated (ISO8601 format)';
+			$keywords['asset_published_iso8601']['description']      = 'The date when the asset was last published (ISO8601 format)';
+			$keywords['asset_created_rfc2822']['description']      = 'The date when the asset was created (RFC2822 format)';
+			$keywords['asset_updated_rfc2822']['description']      = 'The date when the asset was last updated (RFC2822 format)';
+			$keywords['asset_published_rfc2822']['description']      = 'The date when the asset was last published (RFC2822 format)';
+			$keywords['asset_created_ical']['description']      = 'The date when the asset was created (iCalendar format)';
+			$keywords['asset_updated_ical']['description']      = 'The date when the asset was last updated (iCalendar format)';
+			$keywords['asset_published_ical']['description']      = 'The date when the asset was last published (iCalendar format)';
 			$keywords['asset_published_readable']['description']    = 'The date when the asset was last published (dd m yyyy h:mm[am pm])';
 			$keywords['asset_status_changed_readable']['description'] = 'The date when the asset\'s status was last changed (dd m yyyy h:mm[am pm])';
 			$keywords['asset_created_by_name']['description']       = 'The name of the user who created this asset';

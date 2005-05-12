@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.79 2005/04/15 00:37:28 lwright Exp $
+* $Id: metadata_manager.inc,v 1.80 2005/05/12 06:59:23 amiller Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.79 $
+* @version $Revision: 1.80 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -910,6 +910,12 @@ class Metadata_Manager extends MySource_Object
 					echo '$metadata_replacements['.var_export($keyword, 1).'] = date(\'r\', $metadata_asset->'.substr($keyword, strlen('asset_'), strlen($keyword) - strlen('_rfc2822') - strlen('asset_')).');'."\n";
 				break;
 
+				case 'asset_created_ical' :
+				case 'asset_updated_ical' :
+				case 'asset_status_changed_ical' :
+					echo '$metadata_replacements['.var_export($keyword, 1).'] = date(\'Ymd\\THis\', $metadata_asset->'.substr($keyword, strlen('asset_'), strlen($keyword) - strlen('_ical') - strlen('asset_')).');'."\n";
+				break;
+
 
 				case 'asset_created_by_name' :
 				case 'asset_updated_by_name' :
@@ -960,6 +966,10 @@ class Metadata_Manager extends MySource_Object
 
 				case 'asset_published_iso8601' :
 					echo '$metadata_replacements['.var_export($keyword, 1).'] = (is_null($metadata_asset->published)) ? \'Never\' : date(\'Y-m-d\\TH:i:s\', $metadata_asset->published);'."\n";
+				break;
+
+				case 'asset_published_ical' :
+					echo '$metadata_replacements['.var_export($keyword, 1).'] = (is_null($metadata_asset->published)) ? \'Never\' : date(\'Ymd\\THis\', $metadata_asset->published);'."\n";
 				break;
 
 				case 'asset_published_rfc2822' :
