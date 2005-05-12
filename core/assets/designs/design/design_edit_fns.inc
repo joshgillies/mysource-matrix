@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.87 2005/05/11 06:04:49 lwright Exp $
+* $Id: design_edit_fns.inc,v 1.88 2005/05/12 06:14:31 amiller Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.87 $
+* @version $Revision: 1.88 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -623,11 +623,13 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			// get the contents, removing any close then open tags that happen right next to each other
 			// (more for code neatness than anything :)
 			$str = str_replace('?'.'><'.'?php', '', ob_get_contents());
+			
 		}
 		ob_end_clean();
 		if (!$str) return false;
 		$str = $pre_str."\n".$str;
-
+		$str = preg_replace('|\?>([\s]+)?<\?php|', '', $str);
+		
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 		create_directory($asset->data_path);
 		$file = $asset->data_path.'/design_file.php';
