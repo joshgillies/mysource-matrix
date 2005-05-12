@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: inbox_edit_fns.inc,v 1.50 2005/05/11 06:05:05 lwright Exp $
+* $Id: inbox_edit_fns.inc,v 1.51 2005/05/12 01:03:58 tbarrett Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dmitry Baranovskiy <dbaranovskiy@squiz.net>
-* @version $Revision: 1.50 $
+* @version $Revision: 1.51 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -377,7 +377,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns {
 				// work out the sender icon
 				$sender_img = $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($data['type_code']);
 				$body = str_replace("\n", '<br />', $data['body']);
-				$body = str_replace("\"", '&quot;', $body);
+				$body = str_replace('"', '\"', $body);
 ?>
 				<script type="text/javascript">
 				//<![CDATA[
@@ -451,8 +451,8 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns {
 	* @access private
 	*/
 	function _processReadStatus(& $asset, $prefix) {
-		$msgs = (isset ($_POST[$prefix.'_messages'])) ? array_keys($_POST[$prefix.'_messages']) : Array ();
-		$read = (isset ($_POST[$prefix.'_mark_as_read'])) ? array_keys($_POST[$prefix.'_mark_as_read']) : Array ();
+		$msgs = (isset ($_REQUEST[$prefix.'_messages'])) ? array_keys($_REQUEST[$prefix.'_messages']) : Array ();
+		$read = (isset ($_REQUEST[$prefix.'_mark_as_read'])) ? array_keys($_REQUEST[$prefix.'_mark_as_read']) : Array ();
 
 		$user = & $asset->_getUser();
 

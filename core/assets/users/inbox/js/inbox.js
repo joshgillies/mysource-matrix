@@ -59,7 +59,7 @@ function changeStatus(msgid, readordel, tag)
 	post += prefix + "_messages[" + msgid + "]=on";
 
 	var form = document.getElementById("main_form");
-	JsHttpConnector.loadXMLDoc(form.action, post, form.method);
+	JsHttpConnector.submitRequest(form.action+"&"+post);
 	refreshAllStatus();
 }
 
