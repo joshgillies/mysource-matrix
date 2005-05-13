@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.105 2005/05/13 00:03:03 ndvries Exp $
+* $Id: mysource.inc,v 1.106 2005/05/13 01:51:57 ndvries Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.105 $
+* @version $Revision: 1.106 $
 * @package MySource_Matrix
 */
 class MySource
@@ -344,7 +344,7 @@ class MySource
 				$asset = &$this->am->getAssetFromURL(current_protocol(), null, true, true);
 			}
 
-			if (is_null($asset) || !$asset->effectiveUnrestricted()) {
+			if (!is_null($asset) && !$asset->effectiveUnrestricted() && $require_password_change) {
 				$page_name = is_null($asset) ? 'this page' : '"'.$asset->name.'"';
 				$this->paintPasswordChange('Change Password', 'You need to change your password before you can access '.$page_name);
 				exit();
