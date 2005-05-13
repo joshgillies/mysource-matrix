@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.5 2005/05/11 06:05:11 lwright Exp $
+* $Id: lang_errors.xml,v 1.6 2005/05/13 00:00:54 ndvries Exp $
 *
 */
 
@@ -1288,6 +1288,8 @@ Full Node Contents %3$s</error>
 	<error code="SYS0302">Unable to Delete link: %s</error>
 
 	<error code="SYS0303">Unable to link: %s</error>
+
+	<error code="SYS0304">Unable to set the status of user "%s" to live</error>
 
 	<!-- CORE ASSETS -->
 
