@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.38.2.7 2005/05/13 09:46:09 brobertson Exp $
+* $Id: form_email_edit_fns.inc,v 1.38.2.8 2005/05/13 11:01:18 brobertson Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.38.2.7 $
+* @version $Revision: 1.38.2.8 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -104,8 +104,6 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$from_ts = mktime(0,0,0,$from_value[1],$from_value[2],$from_value[0]);
 		$to_ts   = mktime(23,59,59,$to_value[1],$to_value[2],$to_value[0]);
 
-		$log_path = $asset->data_path.'/submission_logs';
-		if (!file_exists($log_path.'/')) return;
 		?>
 		<table class="sq-backend-table">
 		<tr>
