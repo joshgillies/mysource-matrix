@@ -17,10 +17,10 @@
  * | licence.                                                           |
  * +--------------------------------------------------------------------+
  *
- * $Id: MatrixTree.java,v 1.4 2005/02/21 04:45:18 mmcintyre Exp $
+ * $Id: MatrixTree.java,v 1.5 2005/05/13 02:26:11 ndvries Exp $
  * $Name: not supported by cvs2svn $
  */
- 
+
  /*
   * :tabSize=4:indentSize=4:noTabs=false:
   * :folding=explicit:collapseFolds=1:
@@ -32,6 +32,7 @@ import net.squiz.cuetree.*;
 import net.squiz.matrix.core.*;
 import net.squiz.matrix.ui.*;
 import net.squiz.matrix.assetmap.*;
+import net.squiz.matrix.debug.*;
 
 import javax.swing.tree.*;
 import javax.swing.event.*;
@@ -65,15 +66,15 @@ public class MatrixTree extends CueTree
 	private DragSource dragSource = null;
 	private boolean isInAssetFinderMode = false;
 	private static final int AUTOSCROLL_MARGIN = 12;
-	
+
 	public static final Color ASSET_FINDER_BG_COLOR = new Color(0xE9D4F4);
 
-	//MM: this is a dirty hack to get the menu to show up before
+	//TODO: (MM) this is a dirty hack to get the menu to show up before
 	// the cue tree knows anything about it
 	private String multipleMoveType = null;
-	
+
 	//{{{ Public Methods
-	
+
 	/**
 	 * Returns a MatrixTree with some sample data.
 	 */
@@ -89,7 +90,6 @@ public class MatrixTree extends CueTree
 	public MatrixTree(TreeModel model) {
 		super(model);
 
-		// create a selection tool that will handle multiple selections
 		selTool = new SelectionTool(this);
 
 		menuHandler = getMenuHandler();
@@ -129,6 +129,7 @@ public class MatrixTree extends CueTree
 		setAutoscrolls(true);
 		addMouseMotionListener(mmListener);
 		ToolTipManager.sharedInstance().registerComponent(this);
+		setKeyboardActions();
 	}
 
 	/**
@@ -208,7 +209,7 @@ public class MatrixTree extends CueTree
 	public void removeNodeDoubleClickedListener(NodeDoubleClickedListener cl) {
 		listenerList.remove(NodeDoubleClickedListener.class, cl);
 	}
-	
+
 	/**
 	 * Returns the nodes in the current selection.
 	 * @return the nodes in the current selection, or null if there are
@@ -280,6 +281,7 @@ public class MatrixTree extends CueTree
 
 	/**
 	 * Starts asset finder mode
+	 * @see stopAssetFinderMode()
 	 */
 	public void startAssetFinderMode() {
 		isInAssetFinderMode = true;
@@ -288,6 +290,7 @@ public class MatrixTree extends CueTree
 
 	/**
 	 * Stops asset finder move
+	 * @see startAssetFinderMode()
 	 */
 	public void stopAssetFinderMode() {
 		isInAssetFinderMode = false;
@@ -346,24 +349,31 @@ public class MatrixTree extends CueTree
 			MatrixStatusBar.setStatus("Requesting...");
 			Runnable runner = new Runnable() {
 				public void run() {
-					AssetManager.refreshAsset(node);
-					removeLoadingNode(node);
-					String childStr = (node.getChildCount() == 1) ? "Child" : "Children";
-					MatrixStatusBar.setStatusAndClear("Loaded " +
-						node.getChildCount() + " " + childStr, 1000);
+					try {
+						AssetManager.refreshAsset(node);
+						removeLoadingNode(node);
+						String childStr = (node.getChildCount() == 1) ? "Child" : "Children";
+						MatrixStatusBar.setStatusAndClear("Loaded " +
+							node.getChildCount() + " " + childStr, 1000);
+					} catch (IOException ioe) {
+						MatrixStatusBar.setStatusAndClear("Failed!", 1000);
+						String message = "Could not load child assets: " + ioe.getMessage();
+						GUIUtilities.error(MatrixTree.this, message, "Error");
+						Log.log(message, MatrixTree.class, ioe);
+					}
 				}
 			};
 			SwingUtilities.invokeLater(runner);
 		}
 	}
-	
+
 	public void treeWillCollapse(TreeExpansionEvent evt) {}
 	public void moveGestureRecognized(CueEvent evt) {}
 	public void addGestureRecognized(CueEvent evt) {}
 	public void multipleMoveGestureRecognized(CueEvent evt) {}
 	public void multipleAddGestureRecognized(CueEvent evt) {}
 	public void multipleAddGestureCompleted(CueEvent evt) {}
-	
+
 	/**
 	 * CueListener event that is fired when the request for a move operation is
 	 * completed.
@@ -376,7 +386,7 @@ public class MatrixTree extends CueTree
 		for (int i = 0; i < sourcePaths.length; i++) {
 			sourceNodes[i] = (MatrixTreeNode) sourcePaths[i].getLastPathComponent();
 		}
-		
+
 		JPopupMenu newLinkMenu = getNewLinkMenu(
 			sourceNodes,
 			(MatrixTreeNode) evt.getParentPath().getLastPathComponent(),
@@ -407,7 +417,7 @@ public class MatrixTree extends CueTree
 	 * @see CueListener#requestForMoveCompleted(CueEvent)
 	 */
 	public void multipleMoveGestureCompleted(CueEvent evt) {
-		
+
 		if (multipleMoveType != null) {
 			TreePath[] sourcePaths = evt.getSourcePaths();
 			MatrixTreeNode[] sourceNodes = new MatrixTreeNode[sourcePaths.length];
@@ -431,7 +441,7 @@ public class MatrixTree extends CueTree
 		setRootVisible(true);
 		((DefaultTreeModel) getModel()).setRoot(node);
 	}
-	
+
 	/**
 	 * Fires an event for a create link operation to all the NewLinkListeners.
 	 * @param type the type link that will be created
@@ -467,7 +477,7 @@ public class MatrixTree extends CueTree
 	 * @param parent the parent where the new asset will be created
 	 * @param index the index where the new asset will be created
 	 */
-	 // MM: this is overkill. I cant see when someone else wants to listen
+	 //TODO MM: this is overkill. I cant see when someone else wants to listen
 	 // to new assets. When the asset is added, the model will be updated anyway
 	 // you can listen to that if you want
 
@@ -527,12 +537,16 @@ public class MatrixTree extends CueTree
 		}
 		g2.drawImage(dblBuffer, null, 0, 0);
 		super.paintComponent(g);
+
+		if (dropHandler == null)
+			return;
+
 		if (selTool.isDragging())
 			selTool.paintSelectionTool(g2);
 		else if (dropHandler.isDropping())
 			dropHandler.paintDropImage(g2);
 	}
-	
+
 	/**
 	 * Returns the drag image for the specified TreePaths
 	 * @param paths the tree paths for the wanted drag image
@@ -543,11 +557,20 @@ public class MatrixTree extends CueTree
 	public Image getDragImage(TreePath[] paths) {
 		return (paths.length == 1) ? getGhostedNode(paths[0]) : getGhostedNode(paths);
 	}
-	
+
+	/**
+	 * Returns whether the tree is in finder mode
+	 * @return TRUE if in finder mode
+	 * @return FALSE otherwise
+	 */
+	public boolean isInAssetFinderMode() {
+		return isInAssetFinderMode;
+	}
+
 	//}}}
-	
+
 	//{{{ Protected Methods
-	
+
 	/**
 	 * Returns the menu handler that handles menus.
 	 * @return the menu handler
@@ -579,7 +602,7 @@ public class MatrixTree extends CueTree
 	protected DropHandler getDropHandler() {
 		return new DropHandler();
 	}
-	
+
 	/**
 	 * Returns thr Cue Gesture Handler to handle cue lines
 	 * @return the CueGestureHandler
@@ -587,7 +610,7 @@ public class MatrixTree extends CueTree
 	protected CueGestureHandler getCueGestureHandler() {
 		return new MatrixCueGestureHandler();
 	}
-	
+
 	/**
 	 * Returns a drag image for the specifed paths. If there is multiple
 	 * paths, the drag image will reflect the path traversal offsets in the
@@ -604,7 +627,7 @@ public class MatrixTree extends CueTree
 
 		return ghostedImage;
 	}
-	
+
 	/**
 	 * Returns TRUE if the specified node can be moved
 	 * @param object node the node to be moved
@@ -638,13 +661,11 @@ public class MatrixTree extends CueTree
 	 * Sets the keyboard actions for the tree to trigger ui components
 	 */
 	protected void setKeyboardActions() {
-		super.setKeyboardActions();
 		Action deleteAction = new AbstractAction() {
 			public void actionPerformed(ActionEvent evt) {
 				MatrixTreeNode[] nodes = getSelectionNodes();
 				// if there are no nodes currently selected, issue a beep
 				if (nodes == null) {
-					getToolkit().beep();
 					return;
 				}
 				DeleteDialog deleteDialog = DeleteDialog.getDeleteDialog(nodes);
@@ -681,9 +702,9 @@ public class MatrixTree extends CueTree
 		getInputMap().put(KeyStroke.getKeyStroke("control C"), "create selection");
 		getActionMap().put("create selection", createSelectionAction);
 	}
-	
+
 	//}}}
-	
+
 	//{{{ Private Methods
 
 	/**
@@ -814,12 +835,12 @@ public class MatrixTree extends CueTree
 		gc.setColor(getBackground());
 		gc.fillRect(0, 0, w, h);
 	}
-	
+
 
 	//}}}
-	
+
 	//{{{ Inner Classes
-	
+
 	/**
 	 * Handles double click events that are fired from this tree
 	 * @author Nathan De Vries <ndevries@squiz.net>
@@ -837,17 +858,9 @@ public class MatrixTree extends CueTree
 			if (getToggleClickCount() != 2) {
 				final Point point = evt.getPoint();
 				final MatrixTreeNode node = (MatrixTreeNode) treePath.getLastPathComponent();
-			
+
 				if (!node.getAsset().childrenLoaded()) {
-					MatrixStatusBar.setStatus("Requesting...");
-					SwingWorker worker = new SwingWorker() {
-						public Object construct() {
-							AssetManager.refreshAsset(node);
-							fireNodeDoubleClicked(treePath, point);
-							MatrixStatusBar.setStatusAndClear("Success!", 1000);
-							return null;
-						}
-					};
+					AssetRefreshWorker worker = new AssetRefreshWorker(node, true);
 					worker.start();
 				} else {
 					fireNodeDoubleClicked(treePath, point);
@@ -855,7 +868,7 @@ public class MatrixTree extends CueTree
 			}
 		}
 	}//end class DoubleClickHandler
-	
+
 	/**
 	 * Class that handles the menus through right clicking. If there is
 	 * a multiple selection and a right click occurs, a seperate method is
@@ -888,7 +901,7 @@ public class MatrixTree extends CueTree
 			// right click menus
 			if (inCueMode)
 				return;
-			
+
 			JPopupMenu menu = null;
 
 			// if the click occured where there was no node, get a menu
@@ -914,6 +927,7 @@ public class MatrixTree extends CueTree
 		 * @return the popup menu for a click in void space
 		 */
 		protected JPopupMenu getMenuForVoidSpace() {
+			if (isInAssetFinderMode) return null;
 			return MatrixMenus.getPopupAddMenu(addMenuListener);
 		}
 
@@ -964,14 +978,18 @@ public class MatrixTree extends CueTree
 
 			JPopupMenu menu = null;
 			final MatrixTreeNode node = getSelectionNode();
-			
+
 			// if the node is not accessible, we don't want the users
 			// to be able bring up an menu for it
 			if (!node.getAsset().isAccessible())
 				return null;
-			
+
 			if (isInAssetFinderMode) {
-				menu = MatrixMenus.getUseMeMenu(node);
+				if (MatrixTreeBus.typeIsRestricted(node.getAsset().getType())) {
+					menu = MatrixMenus.getUseMeMenu(node);
+				} else {
+					return null;
+				}
 			} else {
 				menu = MatrixMenus.getPopupScreenMenu(node);
 				menu.addSeparator();
@@ -983,8 +1001,8 @@ public class MatrixTree extends CueTree
 					for (int i = 0; i < items.length; i++)
 						menu.add(items[i]);
 				}
-				
-				// when we click on a node and choose add, we want to go 
+
+				// when we click on a node and choose add, we want to go
 				// straight into add mode in matrix with the node clicked on
 				// as the parent of the new node
 				ActionListener explicitAddListener = new ActionListener() {
@@ -996,9 +1014,9 @@ public class MatrixTree extends CueTree
 						);
 					}
 				};
-				
+
 				JMenu addMenu = MatrixMenus.getAddMenu(explicitAddListener);
-				addMenu.setName("New Child");
+				addMenu.setText("New Child");
 				menu.add(addMenu);
 			}
 
@@ -1010,6 +1028,8 @@ public class MatrixTree extends CueTree
 		 * @return the popup menu for a multiple selection.
 		 */
 		protected JPopupMenu getMenuForMultipleSelection() {
+			if (isInAssetFinderMode) return null;
+
 			JPopupMenu menu = new JPopupMenu();
 			final JMenuItem moveItem = new JMenuItem("Move");
 			final JMenuItem newLinkItem = new JMenuItem("New Link");
@@ -1030,7 +1050,7 @@ public class MatrixTree extends CueTree
 			moveItem.addActionListener(multiplelistener);
 			newLinkItem.addActionListener(multiplelistener);
 			cloneItem.addActionListener(multiplelistener);
-			
+
 			menu.add(moveItem);
 			menu.add(newLinkItem);
 			menu.add(cloneItem);
@@ -1046,14 +1066,16 @@ public class MatrixTree extends CueTree
 		protected JMenuItem[] getAncillaryMenuItems() {
 			JMenuItem[] items = new JMenuItem[2];
 			final JMenuItem teleportItem = new JMenuItem("Teleport");
-			final JMenuItem refreshItem = new JMenuItem("Refresh");
+			final JMenuItem refreshItem  = new JMenuItem("Refresh");
 
 			ActionListener extrasListener = new ActionListener() {
 				public void actionPerformed(ActionEvent evt) {
 					if (evt.getSource().equals(teleportItem)) {
 						teleportToRoot(getSelectionNode());
 					} else if (evt.getSource().equals(refreshItem)) {
-						AssetManager.refreshAsset(getSelectionNode().getAsset());
+						String [] assetids = new String[] { getSelectionNode().getAsset().getId() };
+						AssetRefreshWorker worker = new AssetRefreshWorker(assetids, true);
+						worker.start();
 					}
 				}
 			};
@@ -1177,8 +1199,11 @@ public class MatrixTree extends CueTree
 		 * @param dte the DropTargetEvent
 		 */
 		public void dragExit(DropTargetEvent dte) {
+			if (dragHandler == null) return;
+
 			isDropping = false;
 			dragImage = null;
+
 			if (!dragHandler.isDragImageSupported())
 				repaint();
 		}
@@ -1189,6 +1214,8 @@ public class MatrixTree extends CueTree
 		 * @param dtde the DropTargetDragEvent
 		 */
 		public void dragOver(DropTargetDragEvent dtde) {
+			if (dragHandler == null) return;
+
 			if (lastMousePt != null && lastMousePt.equals(dtde.getLocation()))
 				return;
 			if (initMousePt == null) {
@@ -1206,6 +1233,8 @@ public class MatrixTree extends CueTree
 		 * @param dtde the DropTargetDropEvent
 		 */
 		public void drop(DropTargetDropEvent dtde) {
+			if (dragHandler == null) return;
+
 			Transferable transfer = dtde.getTransferable();
 			java.util.List paths = null;
 			try {
@@ -1235,7 +1264,7 @@ public class MatrixTree extends CueTree
 			DragImageExchange.completeExchange();
 			isDropping = false;
 			lastMousePt = null;
-			
+
 			if (!dragHandler.isDragImageSupported())
 				repaint();
 			startCueMode((TreePath[]) paths.toArray(new TreePath[paths.size()]));
@@ -1251,6 +1280,8 @@ public class MatrixTree extends CueTree
 		 * @param g2d the graphics to paint the drag image to
 		 */
 		protected void paintDropImage(Graphics2D g2d) {
+			if (dragHandler == null) return;
+
 			if (dragImage == null || dragHandler.isDragImageSupported())
 				return;
 
@@ -1269,13 +1300,13 @@ public class MatrixTree extends CueTree
 	}//end class DropHandler
 
 	/**
-	 * The MatrixCueGestureHandler overrides CueTree.CueGestureHandler to 
+	 * The MatrixCueGestureHandler overrides CueTree.CueGestureHandler to
 	 * filter out children of nodes that are already appart of the move
 	 * operation, as these nodes will get moved along with their parents.
 	 * @author Marc McIntyre <mmcintyre@squiz.net>
 	 */
 	protected class MatrixCueGestureHandler extends CueGestureHandler {
-		
+
 		/**
 		 * Filters out nodes that are in a multiple move operation. Nodes will
 		 * be removed if their parent already exists in the move operation.
@@ -1287,7 +1318,7 @@ public class MatrixTree extends CueTree
 			// the move operation, as these nodes will be moved anyway
 			java.util.List realSourcePaths = new ArrayList();
 			boolean chuck = false;
-			
+
 			for (int i = 0; i < sourcePaths.length; i++) {
 				chuck = false;
 				for (int j = 0; j < sourcePaths.length; j++) {
@@ -1302,7 +1333,7 @@ public class MatrixTree extends CueTree
 			return (TreePath[]) realSourcePaths.toArray(new TreePath[realSourcePaths.size()]);
 		}
 	}//end MatrixCueGestureHandler
-	
+
 	/**
 	 * MatrixTreeUI modifys the BasicTreeUI so that it is more suitable to
 	 * drag operations that may occur in the MatrixTree.
@@ -1378,35 +1409,5 @@ public class MatrixTree extends CueTree
 			}
 		}//end class MatrixMouseListener
 	}//end class MatrixTreeUI
-
-	//}}}
-	
-	//{{{ Main (Testing)
-	
-	public static void main(String[] args) {
-
-		Matrix.setProperty("url.iconurl", "__lib/web/images/icons");
-		Matrix.setProperty("url.typecodeurl", "__data/asset_types");
-		Matrix.setProperty("url.notaccessibleicon", "asset_map/not_accessible.png");
-		Matrix.setProperty("url.assetmapiconurl", "__lib/web/images/icons/asset_map");
-		Matrix.setProperty("url.baseurl", "http://beta.squiz.net/marc/");
-		Matrix.setProperty("url.execurl", "http://beta.squiz.net/marc/?SQ_ACTION=asset_map_request");
-
-		AssetManager.init();
-		BasicView view1 = new BasicView();
-		UndockedView uview1 = new UndockedView(view1, 0);
-
-		BasicView view2 = new BasicView();
-		UndockedView uview2 = new UndockedView(view2, 1);
-
-		uview1.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-		uview2.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-
-		uview1.setSize(300, 600);
-		uview2.setSize(300, 600);
-
-		uview1.setVisible(true);
-		uview2.setVisible(true);
-	}
 
 }//end class MatrixTree

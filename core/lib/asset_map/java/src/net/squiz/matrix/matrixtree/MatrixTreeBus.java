@@ -24,7 +24,7 @@ public class MatrixTreeBus {
 	private static MatrixTreeCellRenderer cellRenderer = new MatrixTreeCellRenderer();
 	private static MatrixTreeComm comm = new MatrixTreeComm();
 	private static String[] restrictedTypes = new String[0];
-	
+
 	// cannot instantiate
 	private MatrixTreeBus() {}
 
@@ -49,7 +49,7 @@ public class MatrixTreeBus {
 			lastCollapsedTree = (MatrixTree) evt.getSource();
 		}
 	}
-	
+
 	public static void startAssetFinderMode(String[] assetTypes) {
 		restrictedTypes = assetTypes;
 		Iterator iterator = trees.iterator();
@@ -59,7 +59,7 @@ public class MatrixTreeBus {
 			tree.repaint();
 		}
 	}
-	
+
 	public static void stopAssetFinderMode() {
 		restrictedTypes = new String[0];
 		Iterator iterator = trees.iterator();
@@ -77,7 +77,7 @@ public class MatrixTreeBus {
 		DefaultTreeModel model = new DefaultTreeModel(root);
 		MatrixTree tree = new MatrixTree(model);
 		trees.add(tree);
-		
+
 		MatrixTreeModelBus.addToBus(model);
 		tree.setCellRenderer(new MatrixTreeCellRenderer());
 		tree.addTreeWillExpandListener(teHandler);
@@ -91,7 +91,7 @@ public class MatrixTreeBus {
 
 		return tree;
 	}
-	
+
 	public static boolean typeIsRestricted(AssetType type) {
 		if (restrictedTypes.length == 0)
 			return true;

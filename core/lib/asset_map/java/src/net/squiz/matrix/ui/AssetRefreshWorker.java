@@ -17,7 +17,7 @@
  * | licence.                                                           |
  * +--------------------------------------------------------------------+
  *
- * $Id: AssetRefreshWorker.java,v 1.1 2005/03/06 23:02:24 mmcintyre Exp $
+ * $Id: AssetRefreshWorker.java,v 1.2 2005/05/13 02:26:38 ndvries Exp $
  *
  */
 
@@ -49,7 +49,7 @@ public class AssetRefreshWorker extends SwingWorker {
 	private String[] assetids;
 	private MatrixTreeNode node;
 	private boolean throwVisibleError = false;
-	
+
 	/**
 	 * Refreshes all known assets.
 	 * @param throwVisibleError if TRUE an dialog error is thrown if one occurs
@@ -58,7 +58,7 @@ public class AssetRefreshWorker extends SwingWorker {
 		assetids = AssetManager.getAllRefreshableAssetids();
 		this.throwVisibleError = throwVisibleError;
 	}
-	
+
 	/**
 	 * Refreshes the specified assets.
 	 * @param assetids the assetids to refresh
@@ -68,7 +68,7 @@ public class AssetRefreshWorker extends SwingWorker {
 		this.assetids          = assetids;
 		this.throwVisibleError = throwVisibleError;
 	}
-	
+
 	/**
 	 * Refreshes the specified node and its children.
 	 * @param node the node to refresh
@@ -79,7 +79,7 @@ public class AssetRefreshWorker extends SwingWorker {
 		this.assetids          = new String[] { node.getAsset().getId() };
 		this.throwVisibleError = throwVisibleError;
 	}
-	
+
 	/**
 	 * Constructs the worker and returns the object to be used by get(). No
 	 * GUI updates should be executed in the method. GUI updates should occur
@@ -97,7 +97,7 @@ public class AssetRefreshWorker extends SwingWorker {
 			return ioe;
 		}
 	}
-	
+
 	/**
 	 * Called from the EventDispachThread once construct has completed.
 	 * @see construct()
@@ -105,12 +105,12 @@ public class AssetRefreshWorker extends SwingWorker {
 	 */
 	public void finished() {
 		Object get = get();
-		
+
 		// success!
 		if (get instanceof Element) {
 			Element element = (Element) get;
 			AssetManager.refreshAssets(element);
-			
+
 			MatrixStatusBar.setStatusAndClear(
 				getStatusBarSuccessMessage(),
 				getStatusClearTime()
@@ -129,7 +129,7 @@ public class AssetRefreshWorker extends SwingWorker {
 			Log.log(message, AssetRefreshWorker.class, ioe);
 		}
 	}
-	
+
 	/**
 	 * Starts the worker.
 	 * @see SwingWorker.start()
@@ -138,51 +138,51 @@ public class AssetRefreshWorker extends SwingWorker {
 		MatrixStatusBar.setStatus(getStatusBarWaitMessage());
 		super.start();
 	}
-	
+
 	/**
 	 * Returns the message used when in the status bar when an error occurs.
 	 * By default the error is 'Failed!'
 	 * @return the error message
 	 */
 	protected String getStatusBarFailMessage() { return "Failed!"; }
-	
+
 	/**
 	 * Returns the message used when in the status bar when no error occurs.
 	 * By default the message is 'Success!'
 	 * @return the success message
 	 */
 	protected String getStatusBarSuccessMessage() { return "Success!"; }
-	
+
 	/**
 	 * Returns the message used while waiting for construct() to return
 	 * By default the message is 'Requesting...'
 	 * @return the waiting message
 	 */
 	protected String getStatusBarWaitMessage() { return "Requesting..."; }
-	
+
 	/**
 	 * Returns the message used in the dialog error popup
 	 * By default the error is 'Error While Requesting' followed by the error
 	 * @return the error message
 	 */
 	protected String getErrorMessage() { return "Error While Requesting"; }
-	
+
 	/**
 	 * Returns the message used in the dialog title when an error occurs
 	 * By default the error is 'Error Refreshing Assets'
 	 * @return the error message
 	 */
 	protected String getErrorTitle() { return  "Error Refreshing Assets"; }
-	
+
 	/**
 	 * Returns the message used logging an error message.
 	 * By default this method calls getErrorMessage()
 	 * @return the error message
 	 */
 	protected String getLogMessage() { return getErrorMessage(); }
-	
+
 	/**
-	 * Returns the duration in milliseconds that the status bar waits before 
+	 * Returns the duration in milliseconds that the status bar waits before
 	 * clearing the success or error message. By default this is set to 1000 ms.
 	 * @return the duration to wait before clearing the message
 	 */

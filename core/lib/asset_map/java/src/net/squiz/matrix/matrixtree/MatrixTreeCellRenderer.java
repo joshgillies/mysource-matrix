@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: MatrixTreeCellRenderer.java,v 1.1 2005/02/18 05:24:30 mmcintyre Exp $
+* $Id: MatrixTreeCellRenderer.java,v 1.2 2005/05/13 02:26:11 ndvries Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -79,9 +79,9 @@ public class MatrixTreeCellRenderer extends JLabel implements TreeCellRenderer, 
 			this.asset = asset;
 			this.selected = selected;
 
-			setText(asset.getName() + " ");
+			setText(getNodeDisplayText(node));
 			setFont(PLAIN_FONT_10);
-			
+
 			if (!(node instanceof LoadingNode)) {
 				setToolTipText(asset.getType().getName()  + " [" + asset.getId() + "]");
 
@@ -90,7 +90,7 @@ public class MatrixTreeCellRenderer extends JLabel implements TreeCellRenderer, 
 							asset.getType().getTypeCode(), Matrix.getProperty("parameter.url.notaccessibleicon"));
 					setIcon(icon);
 					setDisabledIcon(icon.getDisabledIcon());
-				} else if (asset.isType2Link()) {
+				} else if (node.getLinkType() == LINK_TYPE_2) {
 					CompoundIcon icon = (CompoundIcon) GUIUtilities.getCompoundIconForTypeCode(
 							asset.getType().getTypeCode(), Matrix.getProperty("parameter.url.type2icon"));
 					setIcon(icon);
@@ -100,7 +100,7 @@ public class MatrixTreeCellRenderer extends JLabel implements TreeCellRenderer, 
 					if (asset.getType() != null)
 						setIcon(asset.getType().getIcon());
 				}
-	
+
 				if (!MatrixTreeBus.typeIsRestricted(asset.getType())) {
 					setEnabled(false);
 				} else {
@@ -116,6 +116,10 @@ public class MatrixTreeCellRenderer extends JLabel implements TreeCellRenderer, 
 		}
 
 		return this;
+	}
+
+	protected String getNodeDisplayText(MatrixTreeNode node) {
+		return node.getAsset().getName() + " ";
 	}
 
 	/**
