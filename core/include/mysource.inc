@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.104 2005/05/11 06:05:10 lwright Exp $
+* $Id: mysource.inc,v 1.105 2005/05/13 00:03:03 ndvries Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.104 $
+* @version $Revision: 1.105 $
 * @package MySource_Matrix
 */
 class MySource
@@ -315,7 +315,16 @@ class MySource
 	*/
 	function start()
 	{
+		// if the user is Up For Review, prompt the user to change password
+		$require_password_change = ($this->user && !is_a($this->user, 'public_user') && $this->user->status == SQ_STATUS_LIVE_APPROVAL);
+
 		if (SQ_IN_BACKEND || SQ_IN_LIMBO) {
+
+			if ($require_password_change) {
+				$this->paintPasswordChange('Change Password', 'You need to change your password before you can access the backend');
+				exit();
+			}
+
 			if ($this->user && !is_a($this->user, 'public_user')) {
 				require_once SQ_INCLUDE_PATH.'/backend.inc';
 				$backend = new Backend();
@@ -333,6 +342,12 @@ class MySource
 				$asset = &$this->am->getAsset($_REQUEST['a']);
 			} else {
 				$asset = &$this->am->getAssetFromURL(current_protocol(), null, true, true);
+			}
+
+			if (is_null($asset) || !$asset->effectiveUnrestricted()) {
+				$page_name = is_null($asset) ? 'this page' : '"'.$asset->name.'"';
+				$this->paintPasswordChange('Change Password', 'You need to change your password before you can access '.$page_name);
+				exit();
 			}
 
 			if (is_null($asset)) {
@@ -463,6 +478,55 @@ class MySource
 
 
 	/**
+	* Paints the password change form, based upon which url we are currently at
+	*
+	* @param string	$heading	a heading to print on the form
+	* @param string	$msg		a msg to print with the form
+	*
+	* @access public
+	*/
+	function paintPasswordChange($heading, $msg)
+	{
+		$db = &$this->db;
+
+		$GLOBALS['SQ_PASSWORD_CHANGE_FORM'] = Array('paint' => 'password_change', 'heading' => $heading, 'msg' => $msg);
+
+		if (empty($_GET['FORCE_BACKUP_PASSWORD_CHANGE'])) {
+
+			$current_asset = &$this->am->getAssetFromURL(null, null, true, true);
+			// if we can't find a current asset, use the root folder
+			if (is_null($current_asset)) {
+				$current_asset = &$this->am->getSystemAsset('root_folder');
+				if (is_null($current_asset)) {
+					trigger_localised_error('SYS0248', E_USER_ERROR);
+				}
+			}
+
+			$design_info = $this->am->getDesignFromURL(strip_url(current_url(false, true)), 'design::system::password_change');
+
+			// we have found the design to use
+			if ($design_info) {
+				$design = &$this->am->getAsset($design_info['designid'], $design_info['type_code']);
+			} else {
+				// OK, use the system password change form
+				$design = &$this->am->getSystemAsset('password_change_design');
+			}
+
+			if (!is_null($design)) {
+				$design->paint($current_asset);
+				return;
+			}
+
+		}//end if
+
+		// we can't find a design, resort to our backup
+		if ($this->_msgs) echo implode('<br />', $this->_msgs);
+		require_once SQ_INCLUDE_PATH.'/password_change.inc';
+
+	}//end paintPasswordChange()
+
+
+	/**
 	* Processes any global actions that need to be taken care of
 	*
 	* @access private
@@ -470,6 +534,63 @@ class MySource
 	function _processGlobalActions()
 	{
 		switch ($_REQUEST['SQ_ACTION']) {
+			case 'password_change' :
+				$password_old     = array_get_index($_POST, 'SQ_PASSWORD_CHANGE_OLD');
+				$password_new     = array_get_index($_POST, 'SQ_PASSWORD_CHANGE_NEW');
+				$password_confirm = array_get_index($_POST, 'SQ_PASSWORD_CHANGE_CONFIRM');
+
+				if (is_null($password_old)) return;
+				if (is_null($password_new)) return;
+				if (is_null($password_confirm)) return;
+
+				if (!$this->user->comparePassword($password_old)) {
+					$this->addMessage('Your old password is incorrect');
+					return;
+				}
+
+				if ($password_old == $password_new) {
+					$this->addMessage('The new password must be different from your old one');
+					return;
+				}
+
+				if ($password_new != $password_confirm) {
+					$this->addMessage('The new and confirmed passwords do not match');
+					return;
+				}
+
+				include_once SQ_ATTRIBUTES_PATH.'/password/password.inc';
+				if (!Asset_Attribute_Password::validateValue($password_new)) {
+					$this->addMessage('Bad password values');
+					return;
+				}
+
+				if ($this->user && !is_a($this->user, 'public_user')) {
+					// logged in, and the password is correct. change the password
+					if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS)) {
+						$run_level_changed = true;
+						$GLOBALS['SQ_SYSTEM']->setRunLevel($GLOBALS['SQ_SYSTEM']->getRunLevel() - SQ_SECURITY_PERMISSIONS);
+					} else {
+						$run_level_changed = false;
+					}
+
+					$result = $this->user->setAttrValue('password', $password_new);
+					$result = $result && $this->user->saveAttributes();
+
+					if ($run_level_changed) {
+						$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+					}
+
+					if ($result && $this->user->status != SQ_STATUS_LIVE) {
+						$available_statuses = $this->user->getAvailableStatii();
+						if (!isset($available_statuses[SQ_STATUS_LIVE]) || !$this->user->processStatusChange(SQ_STATUS_LIVE)) {
+							trigger_localised_error('SYS0304', E_USER_ERROR);
+							return;
+						}
+					}
+				}
+
+				break;
+
 			case 'login' :
 				$login_username = array_get_index($_POST, 'SQ_LOGIN_USERNAME');
 				$login_password = array_get_index($_POST, 'SQ_LOGIN_PASSWORD');
