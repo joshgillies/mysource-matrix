@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_edit_fns.js,v 1.2 2005/05/12 06:24:10 tbarrett Exp $
+* $Id: bodycopy_edit_fns.js,v 1.3 2005/05/13 06:56:37 dmckee Exp $
 *
 */
 	
@@ -181,9 +181,9 @@
 	}
 
 	function bodycopy_insert_container(bodycopy_name, containerid, before) {
-				var form = document.main_form;
+				var form = document.main_form;-+
 				var container_type;
-				eval('container_type=form_element_value(form.' + _prefix + '_insert_container_type;');
+				eval('container_type=form_element_value(form.' + _prefix + '_insert_container_type);');
 				eval('bodycopy_insert_' + container_type + '("' + bodycopy_name + '", ' + containerid + ', ' + before + ');');
 			}
 
