@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.50 2005/05/11 06:07:30 lwright Exp $
+* $Id: form_email_edit_fns.inc,v 1.51 2005/05/13 11:07:34 brobertson Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.50 $
+* @version $Revision: 1.51 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -112,8 +112,6 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$from_ts = mktime(0,0,0,$from_value[1],$from_value[2],$from_value[0]);
 		$to_ts   = mktime(23,59,59,$to_value[1],$to_value[2],$to_value[0]);
 
-		$log_path = $asset->data_path.'/submission_logs';
-		if (!file_exists($log_path.'/')) return;
 		?>
 		<table class="sq-backend-table">
 		<tr>
@@ -377,14 +375,14 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$logs = Array();
 		$headers = Array('__time__' => translate('submission_time'), '__user__' => translate('cms_form_user_submitting'));
 
-		$assetids = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, 'form_submission'));
-		$assetid_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($assetids);
+		$assetids = $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, 'form_submission');
+		$assetid_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($assetids));
 
-		foreach ($assetids as $assetid) {
+		foreach ($assetids as $assetid => $type_code) {
 			$create_time = strtotime($assetid_info[$assetid]['created']);
 
 			if (($create_time >= $from_ts) && ($create_time <= $to_ts)) {
-				$sub_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$sub_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
 				if (!$sub_asset->attr('complete')) continue;
 				$summary = $sub_asset->getSummary();
 
@@ -453,14 +451,14 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 		echo '<submissions>';
 
-		$assetids = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, 'form_submission'));
-		$assetid_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($assetids);
+		$assetids = $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, 'form_submission');
+		$assetid_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($assetids));
 
-		foreach ($assetids as $assetid) {
+		foreach ($assetids as $assetid => $type_code) {
 			$create_time = strtotime($assetid_info[$assetid]['created']);
 
 			if (($create_time >= $from_ts) && ($create_time <= $to_ts)) {
-				$sub_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$sub_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
 				if (!$sub_asset->attr('complete')) continue;
 				if (trim($sub_asset->attr('xml')) == '') continue;
 				echo $sub_asset->attr('xml');
