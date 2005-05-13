@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: CueTree.java,v 1.2 2005/04/06 02:10:01 ndvries Exp $
+* $Id: CueTree.java,v 1.3 2005/05/13 02:14:58 ndvries Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -517,13 +517,16 @@ public class CueTree extends JTree {
 	 *
 	 * @param path the treepath that the fireAddStarted event will use
 	 * as the sourcePath
+	 * @param initPoint where the add gesture initiated
 	 */
-	public void initiateAddMode(TreePath[] paths) {
+	public void initiateAddMode(TreePath[] paths, Point initPoint) {
 		if (inCueMode)
 			return;
 		requestMode = ADD_REQUEST_MODE;
-		fireAddGestureRecognized(paths, null, -1, new Point(0, 0));
+		fireAddGestureRecognized(paths, null, -1, initPoint);
 		startCueMode(paths);
+		// initially draw a line where the add gesture originated
+		drawCueLine(getClosestPathForLocation(initPoint.x, initPoint.y), initPoint.y, true);
 	}
 
 	/**
@@ -885,6 +888,21 @@ public class CueTree extends JTree {
 		 */
 		public void mouseDragged(MouseEvent evt) {}
 
+		public void mouseReleased(MouseEvent evt) {
+			if (SwingUtilities.isRightMouseButton(evt)) {
+				if (inCueMode) {
+					TreePath path = getClosestPathForLocation(evt.getX(), evt.getY() - cueLineOffset);
+
+					// if we are showing the ghosted node, paint it onto
+					// the location where the mouse currently is before we
+					// paint the cue line
+					if (showsGhostedNode)
+						paintGhostedNode(evt.getX() + 5, evt.getY() - 5, path);
+					drawCueLine(path, evt.getY(), true);
+				}
+			}
+		}
+
 		/**
 		 * Event Listener method that is called when the mouse is pressed
 		 * @param evt the mouse event
@@ -892,8 +910,19 @@ public class CueTree extends JTree {
 		public void mousePressed(MouseEvent evt) {
 
 			// TODO: (MM) need to make use of GUIUtilities.isRightMouseButton
-			if (SwingUtilities.isRightMouseButton(evt))
+			if (SwingUtilities.isRightMouseButton(evt)) {
+				if (inCueMode) {
+					TreePath path = getClosestPathForLocation(evt.getX(), evt.getY() - cueLineOffset);
+
+					// if we are showing the ghosted node, paint it onto
+					// the location where the mouse currently is before we
+					// paint the cue line
+					if (showsGhostedNode)
+						paintGhostedNode(evt.getX() + 5, evt.getY() - 5, path);
+					drawCueLine(path, evt.getY(), true);
+				}
 				return;
+			}
 
 			// Use this listener stub in favour of mouseClicked() or mouseReleased()
 			// as there is an instance where if a particluar node is expanded, and

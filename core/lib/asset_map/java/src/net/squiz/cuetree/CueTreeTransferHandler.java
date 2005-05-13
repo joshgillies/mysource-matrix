@@ -1,3 +1,25 @@
+/**
+* +--------------------------------------------------------------------+
+* | Squiz.net Open Source Licence                                      |
+* +--------------------------------------------------------------------+
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +--------------------------------------------------------------------+
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +--------------------------------------------------------------------+
+*
+* $Id: CueTreeTransferHandler.java,v 1.2 2005/05/13 02:14:58 ndvries Exp $
+* $Name: not supported by cvs2svn $
+*/
 
 package net.squiz.cuetree;
 
@@ -14,7 +36,6 @@ public class CueTreeTransferHandler extends TransferHandler {
 
 	public boolean canImport(JComponent comp, DataFlavor[] transferFlavors) {
 
-		System.out.println("right here mother ficker");
 		for (int i = 0; i < transferFlavors.length; i++) {
 			if (transferFlavors[i].equals(DataFlavor.javaFileListFlavor)) {
 				System.out.println("was a file");

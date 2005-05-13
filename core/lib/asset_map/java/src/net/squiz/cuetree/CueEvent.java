@@ -1,3 +1,25 @@
+/**
+* +--------------------------------------------------------------------+
+* | Squiz.net Open Source Licence                                      |
+* +--------------------------------------------------------------------+
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +--------------------------------------------------------------------+
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +--------------------------------------------------------------------+
+*
+* $Id: CueEvent.java,v 1.2 2005/05/13 02:14:58 ndvries Exp $
+* $Name: not supported by cvs2svn $
+*/
 
 package net.squiz.cuetree;
 
@@ -6,7 +28,7 @@ import javax.swing.tree.TreePath;
 import java.awt.Point;
 
 /**
- * CueEvent is used to notify interested parties that the 
+ * CueEvent is used to notify interested parties that the
  * cue has started or completed a request for a move or add for
  * a tree node.
  *
@@ -48,11 +70,11 @@ public class CueEvent extends EventObject {
 	public TreePath[] getSourcePaths() {
 		return sourcePaths;
 	}
-	
+
 	public TreePath getSourcePath() {
 		return sourcePaths[0];
 	}
-	
+
 	/**
 	 * Returns the index where the event occured
 	 * @return the index where the event occured
@@ -60,7 +82,7 @@ public class CueEvent extends EventObject {
 	public int getIndex() {
 		return index;
 	}
-	
+
 	/**
 	 * Returns the source path where the event occured
 	 * @return the source path where the event occured
@@ -68,7 +90,7 @@ public class CueEvent extends EventObject {
 	public TreePath getParentPath() {
 		return parentPath;
 	}
-	
+
 	/**
 	 * Returns the point where the event occured
 	 * @return the point where the event occured
@@ -76,7 +98,7 @@ public class CueEvent extends EventObject {
 	public Point getPoint() {
 		return point;
 	}
-	
+
 	/**
 	 * Returns the x co-ordinate where the event occured
 	 * @return the x co-ordinate where the event occured
@@ -84,7 +106,7 @@ public class CueEvent extends EventObject {
 	public int getX() {
 		return point.x;
 	}
-	
+
 	/**
 	 * Returns the y co-ordinate where the event occured
 	 * @return the y co-ordinate where the event occured
