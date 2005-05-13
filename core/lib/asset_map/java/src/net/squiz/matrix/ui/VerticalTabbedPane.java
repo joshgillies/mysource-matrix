@@ -33,6 +33,10 @@ public class VerticalTabbedPane extends JTabbedPane {
 	public VerticalTabbedPane(int tabPlacement) {
 		super(tabPlacement);
 		tabsVertical = (tabPlacement == LEFT || tabPlacement == RIGHT);
+
+		// NdV: Quick hack to solve the color issue in J2SE 1.5
+		UIManager.put("TabbedPane.selected", new Color(0x462F51));
+
 		setUI(new VerticalTabbedPaneUI(tabsVertical));
 		// MM: need to do this outside of this class to keep it generic
 	/*	addChangeListener(	new ChangeListener() {
