@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.88 2005/05/12 06:14:31 amiller Exp $
+* $Id: design_edit_fns.inc,v 1.89 2005/05/13 00:00:01 ndvries Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.88 $
+* @version $Revision: 1.89 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -99,7 +99,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		if (is_file($parse_file)) {
 			$new_version = true;
 			if (!unlink($parse_file)) {
-				trigger_localised_error("CORE0164", E_USER_WARNING);
+				trigger_localised_error('CORE0164', E_USER_WARNING);
 				return false;
 			}
 		}
@@ -116,20 +116,20 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 				$file_status = $fv->upToDate($parse_file);
 				if (FUDGE_FV_MODIFIED & $file_status) {
 					if (!$fv->commit($parse_file, '', false)) {
-						trigger_localised_error("CORE0160", E_USER_WARNING);
+						trigger_localised_error('CORE0160', E_USER_WARNING);
 					}
 				}
 			} else {
 				// attempt to add the parse file to the repository
 				if (!$fv->add($asset->data_path_suffix, $parse_file, '', false)) {
-					trigger_localised_error("CORE1057", E_USER_WARNING);
+					trigger_localised_error('CORE1057', E_USER_WARNING);
 				}
 			}
 		}//end if file uploaded
 
 		// make sure we have the latest version of our file
 		if (!$fv->checkOut($asset->data_path_suffix.'/parse.txt', $asset->data_path)) {
-			trigger_localised_error("CORE0158", E_USER_WARNING);
+			trigger_localised_error('CORE0158', E_USER_WARNING);
 			return false;
 		}
 
@@ -221,7 +221,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		$str = file_to_string($parse_file);
 
 		if ($asset->writeAccess('parsing')) {
-			text_area($prefix.'_new_parse_file', str_replace("\t", "    ", $str), 0, 0, 0, 'style="font-family: monospace; white-space: pre; width: 99%; height: 480px"');
+			text_area($prefix.'_new_parse_file', str_replace("\t", '    ', $str), 0, 0, 0, 'style="font-family: monospace; white-space: pre; width: 99%; height: 480px"');
 			return true;
 		} else {
 			echo '<pre>', htmlspecialchars($str), '</pre>';
@@ -286,7 +286,9 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 				return false;
 			}
 
-			if ($changes) return $this->parseAndProcessFile($asset);
+			if ($changes) {
+				return $this->parseAndProcessFile($asset);
+			}
 		}
 
 		return false;
@@ -369,7 +371,9 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		$id_names = Array();
 		// let's check to see if all the design areas have unique names
 		foreach ($contents as $index => $element) {
-			if ($element['_type'] != 'TAG' || $element['operation'] != 'area') continue;
+			if ($element['_type'] != 'TAG' || $element['operation'] != 'area') {
+				continue;
+			}
 
 			// if there is a name and it's not the the same type as the current design area
 			if (empty($element['attributes']['id_name']) || empty($element['attributes']['design_area'])) {
@@ -401,7 +405,9 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			// let's remove any design area links that we aren't going to be using any more
 			$existing_da_links = $asset->getDesignAreaLink();
 			$existing_id_names = Array();
-			foreach ($existing_da_links as $link) $existing_id_names[$link['value']] = $link['linkid'];
+			foreach ($existing_da_links as $link) {
+				$existing_id_names[$link['value']] = $link['linkid'];
+			}
 
 			$removed_id_names = array_diff(array_keys($existing_id_names), array_keys($GLOBALS['SQ_PROCESSED_DESIGN_AREAS']));
 
@@ -461,10 +467,14 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		// Now that we have set all the design areas up we can get on with the processing of the contents array
 		$remove_indexes = Array();
 		foreach ($contents as $index => $element) {
-			if ($element['_type'] != 'TAG' || $element['operation'] != 'area') continue;
+			if ($element['_type'] != 'TAG' || $element['operation'] != 'area') {
+				continue;
+			}
 
 			// if there isn't any print var, default to 'yes'
-			if (!isset($element['attributes']['print'])) $element['attributes']['print'] = 'yes';
+			if (!isset($element['attributes']['print'])) {
+				$element['attributes']['print'] = 'yes';
+			}
 
 			$edit_fns = $design_areas[$element['attributes']['id_name']]->getEditFns();
 			if (!$edit_fns->_processContents($design_areas[$element['attributes']['id_name']], $element['contents'])) {
@@ -484,11 +494,11 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 				case '1'    :
 					// Now what we do is morph it so that this element is now a print tag
 					$contents[$index] = Array(
-												'_type' => 'TAG',
-												'attributes'  => Array ('id_name' => $element['attributes']['id_name']),
-												'operation' => 'print',
-												'self_terminating' => 1
-											);
+											'_type'				=> 'TAG',
+											'attributes'		=> Array ('id_name' => $element['attributes']['id_name']),
+											'operation'			=> 'print',
+											'self_terminating'	=> 1,
+										);
 					break;
 				// otherwise we just remove it as there is nothing for us to do with it anymore
 				default :
@@ -544,13 +554,15 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			for (reset($da_var_refs); null !== ($id_name = key($da_var_refs)); next($da_var_refs)) {
 				$var_da = &$asset->getDesignArea($id_name);
 				if (is_null($var_da)) continue;
-				if (!isset($var_ref_values[$id_name])) $var_ref_values[$id_name] = Array();
+				if (!isset($var_ref_values[$id_name])) {
+					$var_ref_values[$id_name] = Array();
+				}
 				foreach ($da_var_refs[$id_name] as $var) {
 					// does this var want the whole design area ?
 					if ($var === '') {
 						$da_refs[] = $id_name;
 					// else just a normal var (make sure we don't have it already)
-					} elseif (!isset($var_ref_values[$id_name][$var])) {
+					} else if (!isset($var_ref_values[$id_name][$var])) {
 						$var_ref_values[$id_name][$var] = $var_da->attr($var);
 
 					}//end if
@@ -721,10 +733,14 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 					// tar ball end up in a single directory, so we have to fuck about with the extracting a bit
 					$extract_list = Array();
 					foreach ($contents as $entry) {
-						if ($entry['typeflag'] != '0' && $entry['typeflag'] != '') continue;
+						if ($entry['typeflag'] != '0' && $entry['typeflag'] != '') {
+							continue;
+						}
 
 						$k = dirname($entry['filename']);
-						if (!isset($extract_list[$k])) $extract_list[$k] = Array();
+						if (!isset($extract_list[$k])) {
+							$extract_list[$k] = Array();
+						}
 						$extract_list[$k][] = $entry['filename'];
 
 					}//end foreach
@@ -748,7 +764,9 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 								$temp_path = $files_dir.'/'.$filename;
 								$temp_info = Array('name' => $filename, 'tmp_name' => $temp_path);
 								$temp_info['non_uploaded_file'] = true;
-								if ($this->_processUploadedFile($asset, $temp_info)) $changes = true;
+								if ($this->_processUploadedFile($asset, $temp_info)) {
+									$changes = true;
+								}
 							}
 						}
 
@@ -761,7 +779,9 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			// just create the file asset
 			} else {
 
-				if ($this->_processUploadedFile($asset, $info)) $changes = true;
+				if ($this->_processUploadedFile($asset, $info)) {
+					$changes = true;
+				}
 
 			}//end if tar archive
 
@@ -785,7 +805,9 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	{
 		$existing_ids = Array();
 		$existing = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'file', false);
-		foreach ($existing as $link) $existing_ids[$link['minorid']] = $link['linkid'];
+		foreach ($existing as $link) {
+			$existing_ids[$link['minorid']] = $link['linkid'];
+		}
 		$existing_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($existing_ids));
 
 		$existing_fileid = 0;
@@ -815,10 +837,14 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			$lock_status = $GLOBALS['SQ_SYSTEM']->am->acquireLock($new_file->id, 'attributes');
 			$edit_fns = $new_file->getEditFns();
 			if ($edit_fns->processFileUpload($new_file, $o, $new_file->getPrefix(), $info)) {
-				if ($lock_status === 1) $GLOBALS['SQ_SYSTEM']->am->releaseLock($new_file->id, 'attributes');
+				if ($lock_status === 1) {
+					$GLOBALS['SQ_SYSTEM']->am->releaseLock($new_file->id, 'attributes');
+				}
 				return true;
 			}
-			if ($lock_status === 1) $GLOBALS['SQ_SYSTEM']->am->releaseLock($new_file->id, 'attributes');
+			if ($lock_status === 1) {
+				$GLOBALS['SQ_SYSTEM']->am->releaseLock($new_file->id, 'attributes');
+			}
 		}
 
 		return false;
@@ -984,6 +1010,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		}
 
 	}//end paintCurrentCustomisations()
+
 
 }//end class
 

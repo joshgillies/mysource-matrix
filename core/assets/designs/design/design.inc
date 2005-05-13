@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.88 2005/04/15 00:37:24 lwright Exp $
+* $Id: design.inc,v 1.89 2005/05/13 00:00:01 ndvries Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.88 $
+* @version $Revision: 1.89 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -130,7 +130,7 @@ class Design extends Design_Area
 	*/
 	function moveLinkPos($linkid, $sort_order=-1)
 	{
-		trigger_localised_error("CORE0168", E_USER_WARNING);
+		trigger_localised_error('CORE0168', E_USER_WARNING);
 		return false;
 
 	}//end moveLinkPos()
@@ -148,7 +148,9 @@ class Design extends Design_Area
 	{
 		if (!parent::_linksUpdated()) return false;
 		if (isset($this->_tmp['design_areas'])) {
-			foreach (array_keys($this->_tmp['design_areas']) as $id_name) unset($this->_tmp['design_areas'][$id_name]);
+			foreach (array_keys($this->_tmp['design_areas']) as $id_name) {
+				unset($this->_tmp['design_areas'][$id_name]);
+			}
 		}
 		return true;
 
@@ -227,16 +229,22 @@ class Design extends Design_Area
 
 				$file_link_ids = Array();
 				$file_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($customisation->id, SQ_LINK_TYPE_2, 'file', false);
-				foreach ($file_links as $link) $file_link_ids[] = $link['minorid'];
+				foreach ($file_links as $link) {
+					$file_link_ids[] = $link['minorid'];
+				}
 				$file_link_info = $am->getAssetInfo(array_unique($file_link_ids));
 
 				// is there already a direct file with the same name
 				$insert_link = true;
-				foreach ($file_link_info as $info) if ($info['name'] == $minor->name) $insert_link = false;
+				foreach ($file_link_info as $info) {
+					if ($info['name'] == $minor->name) {
+						$insert_link = false;
+					}
+				}
 
 				if ($insert_link) {
 					if (!$customisation->createLink($minor, SQ_LINK_TYPE_3, '', null, 1)) {
-						trigger_localised_error("CORE0162", E_USER_WARNING);
+						trigger_localised_error('CORE0162', E_USER_WARNING);
 						$am->forgetAsset($customisation);
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						return false;
@@ -268,7 +276,7 @@ class Design extends Design_Area
 		// first, we should try and find the link
 		$delete_link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid, $this->id);
 		if (empty($delete_link)) {
-			trigger_localised_error("CORE0155", E_USER_WARNING, $linkid);
+			trigger_localised_error('CORE0155', E_USER_WARNING, $linkid);
 			return false;
 		}
 
@@ -292,7 +300,7 @@ class Design extends Design_Area
 					if ($link['minorid'] == $delete_link['minorid']) {
 						// found the link to delete
 						if (!$customisation->deleteLink($link['linkid'])) {
-							trigger_localised_error("CORE1065", E_USER_WARNING);
+							trigger_localised_error('CORE1065', E_USER_WARNING);
 							$am->forgetAsset($customisation);
 							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 							return false;
@@ -328,7 +336,9 @@ class Design extends Design_Area
 	{
 		$file_link_ids = Array();
 		$file_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3, 'file', false);
-		foreach ($file_links as $link) $file_link_ids[] = $link['minorid'];
+		foreach ($file_links as $link) {
+			$file_link_ids[] = $link['minorid'];
+		}
 		$file_link_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_unique($file_link_ids));
 
 		foreach ($file_link_info as $assetid => $file_info) {
@@ -354,7 +364,9 @@ class Design extends Design_Area
 		// first get all files which end with .css
 		$file_link_ids = Array();
 		$file_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3, 'file', false);
-		foreach ($file_links as $link) $file_link_ids[] = $link['minorid'];
+		foreach ($file_links as $link) {
+			$file_link_ids[] = $link['minorid'];
+		}
 		$file_link_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_unique($file_link_ids));
 
 		$return_values = Array();
@@ -388,7 +400,9 @@ class Design extends Design_Area
 			$all_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_3, 'design_area', false);
 			$return_links = Array();
 			foreach ($all_links as $link) {
-				if ($link['minor_type_code'] != 'design_css') $return_links[] = $link;
+				if ($link['minor_type_code'] != 'design_css') {
+					$return_links[] = $link;
+				}
 			}
 			return $return_links;
 		}
@@ -407,7 +421,9 @@ class Design extends Design_Area
 	function &getDesignArea($id_name)
 	{
 		if (empty($this->_tmp['design_areas'][$id_name])) {
-			if (!isset($this->_tmp['design_areas'])) $this->_tmp['design_areas'] = Array();
+			if (!isset($this->_tmp['design_areas'])) {
+				$this->_tmp['design_areas'] = Array();
+			}
 			$link = $this->getDesignAreaLink($id_name);
 
 			if (empty($link)) {
@@ -455,7 +471,9 @@ class Design extends Design_Area
 					// (they will be regenerated during the update process anyway)
 					if (isset($this->_tmp['generate_design']) && $this->_tmp['generate_design']) {
 						$this->generateDesignFile(!$this->_tmp['update_customisations']);
-						if ($this->_tmp['update_customisations']) $this->_updateCustomisations();
+						if ($this->_tmp['update_customisations']) {
+							$this->_updateCustomisations();
+						}
 					}
 
 					return true;
@@ -487,7 +505,9 @@ class Design extends Design_Area
 			if (is_null($customisation)) continue;
 			if ($acquired = $GLOBALS['SQ_SYSTEM']->am->acquireLock($customisation->id, 'all')) {
 				$customisation->updateFromParent($this);
-				if ($acquired != 2) $GLOBALS['SQ_SYSTEM']->am->releaseLock($customisation->id, 'all');
+				if ($acquired != 2) {
+					$GLOBALS['SQ_SYSTEM']->am->releaseLock($customisation->id, 'all');
+				}
 			}
 		}// end foreach
 
@@ -569,10 +589,15 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 				$aqs = (!empty($args['append_query_string']) && in_array($args['append_query_string'], Array('yes', 'true', '1')));
 				$sqs = (!empty($args['start_query_string']) && in_array($args['start_query_string'], Array('yes', 'true', '1')));
 
-				if ($aqs) $res_exp .= '.((!empty($_SERVER[\'QUERY_STRING\'])) ? \'?\'.$_SERVER[\'QUERY_STRING\'] : \'\')';
+				if ($aqs) {
+					$res_exp .= '.((!empty($_SERVER[\'QUERY_STRING\'])) ? \'?\'.$_SERVER[\'QUERY_STRING\'] : \'\')';
+				}
 				if ($sqs) {
-					if (!$aqs) $res_exp .= '.\'?\'';
-					else $res_exp .= '.((!empty($_SERVER[\'QUERY_STRING\'])) ? \'&\' : \'?\');';
+					if (!$aqs) {
+						$res_exp .= '.\'?\'';
+					} else {
+						$res_exp .= '.((!empty($_SERVER[\'QUERY_STRING\'])) ? \'&\' : \'?\');';
+					}
 				}
 				echo '<', '?php echo '.$res_exp.'; ?', '>';
 			break;
@@ -629,10 +654,15 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 					}
 				}
 				$additional = '';
-				if ($aqs) $additional .= 'echo ((!empty($_SERVER[\'QUERY_STRING\'])) ? \'?\'.$_SERVER[\'QUERY_STRING\'] : \'\');'."\n";
+				if ($aqs) {
+					$additional .= 'echo ((!empty($_SERVER[\'QUERY_STRING\'])) ? \'?\'.$_SERVER[\'QUERY_STRING\'] : \'\');'."\n";
+				}
 				if ($sqs) {
-					if (!$aqs) $additional .= 'echo \'?\';';
-					else $additional .= 'echo ((!empty($_SERVER[\'QUERY_STRING\'])) ? \'&\' : \'?\');';
+					if (!$aqs) {
+						$additional .= 'echo \'?\';';
+					} else {
+						$additional .= 'echo ((!empty($_SERVER[\'QUERY_STRING\'])) ? \'&\' : \'?\');';
+					}
 					$additional .= "\n";
 				}
 				echo '<', '?php echo ', $this->_escapeVar('$ASSET->'.$link_fn.'()', $args), ";\n", $additional, ' ?', '>';
@@ -711,7 +741,9 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 		// generate an array of all the URLs we are going to need for the files in this design
 		$file_link_ids = Array();
 		$file_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'file', false);
-		foreach ($file_links as $link) $file_link_ids[] = $link['minorid'];
+		foreach ($file_links as $link) {
+			$file_link_ids[] = $link['minorid'];
+		}
 
 		$file_link_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_unique($file_link_ids));
 		$file_link_urls = $GLOBALS['SQ_SYSTEM']->am->getAssetURL(array_unique($file_link_ids));
@@ -719,7 +751,9 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 		$system_root_url = sq_web_path('root_url');
 		foreach ($file_link_info as $minorid => $file_info) {
 			$file_url = $file_link_urls[$minorid];
-			if ($file_url == '') $file_url = $system_root_url.'/?a='.$minorid;
+			if ($file_url == '') {
+				$file_url = $system_root_url.'/?a='.$minorid;
+			}
 			$FILE_URLS[$file_info['name']] = $file_url;
 		}
 

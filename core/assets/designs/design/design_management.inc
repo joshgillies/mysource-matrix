@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_management.inc,v 1.13 2004/12/06 14:38:08 brobertson Exp $
+* $Id: design_management.inc,v 1.14 2005/05/13 00:00:01 ndvries Exp $
 *
 */
 
@@ -31,12 +31,13 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Design_Management extends Asset_Management
 {
+
 
 	/**
 	* Constructor
@@ -47,12 +48,13 @@ class Design_Management extends Asset_Management
 		$this->Asset_Management($pm);
 
 		$this->vars['id_name'] = Array(
-									'added'   => '0.0.1',
-									'type'    => 'text',
-									'default' => ''
-									);
+									'added'		=> '0.0.1',
+									'type'		=> 'text',
+									'default'	=> '',
+								 );
 
 	}//end constructor
+
 
 }//end class
 ?>
