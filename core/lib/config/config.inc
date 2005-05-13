@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: config.inc,v 1.24 2005/05/11 06:05:11 lwright Exp $
+* $Id: config.inc,v 1.25 2005/05/13 06:08:58 rhoward Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *    Looks after the creation of the config files that are in PHP code
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix
 */
 class Config extends MySource_Object
@@ -135,12 +135,19 @@ class Config extends MySource_Object
 
 		}// endif
 
-		if (SQ_PHP_CLI) echo "----------------------------------\n".($str)."----------------------------------\n";
+		if (SQ_PHP_CLI) {
+			echo "----------------------------------\n".($str)."----------------------------------\n";
+		}
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 		// make sure the directory exists
-		if (!create_directory(dirname($this->config_file))) return false;
+		if (!create_directory(dirname($this->config_file))) {
+			return false;
+		}
+
 		// and save the file
-		if (!string_to_file($str, $this->config_file)) return false;
+		if (!string_to_file($str, $this->config_file)) {
+			return false;
+		}
 
 		// Check if a message should be sent.
 		if ($changed_vars && $send_message) {
@@ -152,7 +159,7 @@ class Config extends MySource_Object
 				$msg_reps = Array(
 								'setting'	=> $var_name,
 								'old_value'	=> var_export($values['old'], true),
-								'new_value' => var_export($values['new'], true),
+								'new_value'	=> var_export($values['new'], true),
 							);
 				$message = $ms->newMessage(Array(), 'config.'.get_class($this), $msg_reps);
 				$ms->enqueueMessage($message);
@@ -189,9 +196,7 @@ class Config extends MySource_Object
 
 		echo ");\n";
 
-		if (!defined($var_name)){
-			define($var_name, $value);
-		}
+		if (!defined($var_name)) define($var_name, $value);
 
 		return true;
 
@@ -207,7 +212,9 @@ class Config extends MySource_Object
 	*/
 	function acquireLock()
 	{
-		if (!$this->canAcquireLock()) return 'You are not allowed to acquire the lock on '.$this->name;
+		if (!$this->canAcquireLock()) {
+			return 'You are not allowed to acquire the lock on '.$this->name;
+		}
 		return $GLOBALS['SQ_SYSTEM']->acquireLock(get_class($this));
 
 	}//end acquireLock()
@@ -264,10 +271,14 @@ class Config extends MySource_Object
 	function writeAccess()
 	{
 		if (!isset($GLOBALS['SQ_SYSTEM'])) return true;
-		if (!$GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS)) return true;
+		if (!$GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS)) {
+			return true;
+		}
 
 		$lock_info = $this->getLockInfo();
-		if (!empty($lock_info) && $lock_info['userid'] == $GLOBALS['SQ_SYSTEM']->currentUserId()) return true;
+		if (!empty($lock_info) && $lock_info['userid'] == $GLOBALS['SQ_SYSTEM']->currentUserId()) {
+			return true;
+		}
 		return false;
 
 	}//end writeAccess()
@@ -292,59 +303,63 @@ class Config extends MySource_Object
 		$lock = $this->getLockInfo();
 		$have_lock = (!empty($lock) && $GLOBALS['SQ_SYSTEM']->currentUserId() == $lock['userid']);
 
-		$o->openSection(translate('locking_/_editing'));
-		$o->openField('');
-		?>
-		<table border="0" cellspacing="3" cellpadding="1">
-			<tr>
-				<td valign="top" width="30">
-					<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib'); ?>/web/images/icons/<?php echo ((empty($lock)) ? 'un' : ''); ?>locked.png", "16", "16", "");</script>
-				</td>
-				<td valign="top">
-					<?php
-					if (!empty($lock)) {
-						// this asset is currently locked
-						// so display message to the user
-						$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
-						$now = time();
+		if (!empty($lock) || $this->canAcquireLock()) {
 
-						require_once SQ_FUDGE_PATH.'/general/datetime.inc';
-						$expires_in = easy_time_total(($lock['expires'] - $now), true);
-						if (!$expires_in) $expires_in = '1 second';
-						$expires_in = translate('due_to_expire', $expires_in);
-
-						?>
-						<p class="sq-backend-locked-by-<?php echo ($GLOBALS['SQ_SYSTEM']->currentUser($user)) ? 'user' : 'someone-else'; ?>">
-							<?php echo translate('release_lock', translate('release_lock_button'), $this->name); ?><br/>
-							<?php echo $expires_in; ?>
-						</p>
+			$o->openSection(translate('locking_/_editing'));
+			$o->openField('');
+			?>
+			<table border="0" cellspacing="3" cellpadding="1">
+				<tr>
+					<td valign="top" width="30">
+						<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib'); ?>/web/images/icons/<?php echo ((empty($lock)) ? 'un' : ''); ?>locked.png", "16", "16", "");</script>
+					</td>
+					<td valign="top">
 						<?php
+						if (!empty($lock)) {
+							// this asset is currently locked
+							// so display message to the user
+							$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
+							$now = time();
 
-					} else {
-						?>
-						<p class="sq-backend-unlocked">
-							<?php echo translate('acquire_lock', translate('acquire_lock_button'), $this->name); ?>
-						</p>
-						<?php
-					}
-					?>
-				</td>
-				<td valign="top">
-					<?php
-					if (!empty($lock)) {
-						if ($have_lock) {
-							submit_button('sq_lock_release_manual', translate('release_lock_button'), 'set_hidden_field("process_form", "0");');
+							require_once SQ_FUDGE_PATH.'/general/datetime.inc';
+							$expires_in = easy_time_total(($lock['expires'] - $now), true);
+							if (!$expires_in) $expires_in = '1 second';
+							$expires_in = translate('due_to_expire', $expires_in);
+
+							?>
+							<p class="sq-backend-locked-by-<?php echo ($GLOBALS['SQ_SYSTEM']->currentUser($user)) ? 'user' : 'someone-else'; ?>">
+								<?php echo translate('release_lock', translate('release_lock_button'), $this->name); ?><br/>
+								<?php echo $expires_in; ?>
+							</p>
+							<?php
+
+						} else {
+							?>
+							<p class="sq-backend-unlocked">
+								<?php echo translate('acquire_lock', translate('acquire_lock_button'), $this->name); ?>
+							</p>
+							<?php
 						}
-					} else if ($this->canAcquireLock()) {
-						submit_button('sq_lock_acquire', translate('acquire_lock_button'), 'set_hidden_field("process_form", "0");');
-					}
-					?>
-				</td>
-			</tr>
-		</table>
-		<?php
-		$o->closeField();
-		$o->closeSection();
+						?>
+					</td>
+					<td valign="top">
+						<?php
+						if (!empty($lock)) {
+							if ($have_lock) {
+								submit_button('sq_lock_release_manual', translate('release_lock_button'), 'set_hidden_field("process_form", "0");');
+							}
+						} else if ($this->canAcquireLock()) {
+							submit_button('sq_lock_acquire', translate('acquire_lock_button'), 'set_hidden_field("process_form", "0");');
+						}
+						?>
+					</td>
+				</tr>
+			</table>
+			<?php
+			$o->closeField();
+			$o->closeSection();
+
+		}//end if (!empty($lock) || $this->canAcquireLock())
 
 	}//end paintBackend()
 
@@ -379,9 +394,7 @@ class Config extends MySource_Object
 
 		// if the save was successful, we need to redirect because the constants
 		// that are already defined cannot be redefined in this script execution
-		if ($saved) {
-			$o->setRedirect($o->getCurrentLocation());
-		}
+		if ($saved) $o->setRedirect($o->getCurrentLocation());
 
 		return $saved;
 
