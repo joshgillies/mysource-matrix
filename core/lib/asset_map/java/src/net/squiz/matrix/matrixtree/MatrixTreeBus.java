@@ -92,6 +92,24 @@ public class MatrixTreeBus {
 		return tree;
 	}
 
+	/**
+	 * Constructs a simplified FinderTree with the specified root node and returns it.
+	 */
+	public static FinderTree createFinderTree(MatrixTreeNode root) {
+		DefaultTreeModel model = new DefaultTreeModel(root);
+		FinderTree tree = new FinderTree(model);
+		trees.add(tree);
+
+		MatrixTreeModelBus.addToBus(model);
+
+		tree.setCellRenderer(new MatrixTreeCellRenderer());
+		tree.setRootVisible(false);
+		tree.setShowsRootHandles(true);
+		tree.setMoveEnabled(false);
+
+		return tree;
+	}
+
 	public static boolean typeIsRestricted(AssetType type) {
 		if (restrictedTypes.length == 0)
 			return true;
