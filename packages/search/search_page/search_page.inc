@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.91 2005/05/11 06:07:48 lwright Exp $
+* $Id: search_page.inc,v 1.92 2005/05/13 05:11:34 arailean Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.91 $
+* @version $Revision: 1.92 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -91,6 +91,7 @@ class Search_Page extends Listing_Engine
 	function Search_Page($assetid=0)
 	{
 		$this->_ser_attrs = true;
+		$this->requires_form = true;
 		$this->Listing_Engine($assetid);
 
 	}//end constructor

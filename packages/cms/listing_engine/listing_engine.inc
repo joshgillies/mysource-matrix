@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.30 2005/05/11 06:07:32 lwright Exp $
+* $Id: listing_engine.inc,v 1.31 2005/05/13 05:11:33 arailean Exp $
 *
 */
 
@@ -42,13 +42,26 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
 *
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
 class Listing_Engine extends Page
 {
 
+
+	/**
+	* Determines whether the output of this asset should be inside the form
+	*
+	* @var boolean
+	*/
+	var $requires_form = false;
+
+	/**
+	* Provides a list of keywords and their names
+	*
+	* @var array
+	*/
 	var $contents_keywords = Array(
 								'sort_by'		=> 'Sort By',
 								'sort_order'	=> 'Sort Order',
@@ -298,11 +311,16 @@ class Listing_Engine extends Page
 		foreach ($used_fields as $key) {
 			$keys_to_remove[$key] = null;
 		}
-		?>
-			<form name="listing_form" method="get" action="<?php echo replace_query_string_vars($keys_to_remove); ?>">
-			<?php echo $contents; ?>
-			</form>
-		<?php
+
+		if (!empty($used_fields) || $this->requires_form) {
+			?>
+				<form name="listing_form" method="get" action="<?php echo replace_query_string_vars($keys_to_remove); ?>">
+				<?php echo $contents; ?>
+				</form>
+			<?php
+		} else {
+			echo $contents;
+		}
 
 	}//end printBody()
 
