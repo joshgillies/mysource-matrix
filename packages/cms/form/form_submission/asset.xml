@@ -14,7 +14,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.13 2005/04/29 05:40:30 gsherwood Exp $
+* $Id: asset.xml,v 1.14 2005/05/13 11:13:12 brobertson Exp $
 *
 */
 -->
@@ -22,7 +22,7 @@
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../asset.xsd">
 	<package>cms</package>
 	<type_code>form_submission</type_code>
-	<version>0.3</version>
+	<version>0.3.1</version>
 	<name>Form Submission</name>
 	<description>Form Submission for the form template</description>
 	<instantiable>yes</instantiable>
