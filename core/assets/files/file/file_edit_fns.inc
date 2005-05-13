@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_edit_fns.inc,v 1.58 2005/05/11 06:04:51 lwright Exp $
+* $Id: file_edit_fns.inc,v 1.59 2005/05/13 01:49:17 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.58 $
+* @version $Revision: 1.59 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -288,14 +288,17 @@ class File_Edit_Fns extends Asset_Edit_Fns
 	* @param object File				&$asset	the file asset
 	* @param object Backend_Outputter	&$o		the backend outputter
 	* @param string						$prefix	prefix for form elements
+	* @param boolean					$create	True if this is being called from createAdditional and should run
+	*											even though the asset is not yet created
 	* @access public
 	* @return boolean	true if a file was processed
 	*/
-	function processFileChooser(&$asset, &$o, $prefix)
+	function processFileChooser(&$asset, &$o, $prefix, $create=false)
 	{
-		// don't try to do anything if the asset is not yet created -
-		// this function will get called again by File::create()
-		if (!$asset->id) return true;
+		// Unless explicitly told otherwise, don't do anything if the asset is not yet completely created
+		if (!$create && (empty($asset->id) || array_get_index($asset->_tmp, '__creating__'))) {
+			return true;
+		}
 
 		if ($asset->writeAccess('attributes') && isset($_POST[$prefix.'_server_file']) && (!empty($_POST[$prefix.'_server_file']))) {
 			$info = $this->getChosenFileInfo($prefix);
