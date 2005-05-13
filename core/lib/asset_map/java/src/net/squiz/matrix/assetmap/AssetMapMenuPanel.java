@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: AssetMapMenuPanel.java,v 1.3 2005/03/06 22:38:47 mmcintyre Exp $
+* $Id: AssetMapMenuPanel.java,v 1.4 2005/05/13 06:15:08 ndvries Exp $
 *
 */
 
@@ -51,7 +51,7 @@ public class AssetMapMenuPanel extends JPanel {
 
 	public static final Color BG_COLOUR = new Color(0xF5F5F5);
 	public static final int ICON_GAP = 1;
-	
+
 	/**
 	 * Constructs an AssetMapMenuPanel and adds the tools to it.
 	 * @return the new AssetMapMenuPanel
@@ -59,19 +59,19 @@ public class AssetMapMenuPanel extends JPanel {
 	public AssetMapMenuPanel(MatrixTree tree, InspectorGadget inspector) {
 		this.tree = tree;
 		this.inspector = inspector;
-	
+
 		setLayout(new BorderLayout());
-	
+
 		JPanel leftPanel  = new JPanel(new FlowLayout(FlowLayout.LEADING));
 		JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.TRAILING));
-		
+
 		rightPanel.add(createRefreshAssetsButton());
 		rightPanel.add(createRestoreRootButton());
 		rightPanel.add(createCollapseAllButton());
 		rightPanel.add(createPaintStatusesButton());
-		
+
 		leftPanel.add(createAddMenuButton());
-	
+
 		add(leftPanel, BorderLayout.WEST);
 		add(rightPanel, BorderLayout.EAST);
 
@@ -79,26 +79,26 @@ public class AssetMapMenuPanel extends JPanel {
 		rightPanel.setBackground(BG_COLOUR);
 		setBackground(BG_COLOUR);
 	}
-	
+
 	public Dimension getPreferredSize() {
 		return new Dimension(300, 25);
 	}
-	
+
 	public Dimension getMinimumSize() {
 		return new Dimension(300, 25);
 	}
-	
+
 	public Dimension getMaximumSize() {
 		return new Dimension(300, 25);
 	}
-	
+
 	/**
 	 * Creates a button and applies the
 	 * adds the actionListener to it. The button
 	 * will have the supplied icon name from the lib/web
 	 * directory of the matrix install, and will display
 	 * the supplied tooltip when hovered over.
-	 * 
+	 *
 	 * @param iconName the name of the icon including the extension
 	 * @param listener the ActionListener to add
 	 * @param toolTipText the tooltip text to display
@@ -107,25 +107,25 @@ public class AssetMapMenuPanel extends JPanel {
 	 */
 	private JButton createButton(
 			String iconName,
-			ActionListener listener, 
+			ActionListener listener,
 			String toolTipText) {
-		
+
 		Icon icon = GUIUtilities.getAssetMapIcon(iconName + "_off.png");
 		Icon pressedIcon = GUIUtilities.getAssetMapIcon(iconName + "_on.png");
-		
+
 		JButton button = new JButton(icon);
 		button.setBackground(BG_COLOUR);
 		button.setBorderPainted(false);
-		
+
 		button.setPreferredSize(new Dimension(icon.getIconWidth(), icon.getIconHeight()));
-		
+
 		button.setPressedIcon(pressedIcon);
 		button.addActionListener(listener);
-		button.setToolTipText(toolTipText);                 
-		
+		button.setToolTipText(toolTipText);
+
 		return button;
 	}
-	
+
 	/**
 	 * Creates the refresh button.
 	 * This button refreshes all assets
@@ -133,7 +133,7 @@ public class AssetMapMenuPanel extends JPanel {
 	 * @return the refresh button.
 	 */
 	private JButton createRefreshAssetsButton() {
-		
+
 		ActionListener refreshListener = new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				AssetRefreshWorker worker = new AssetRefreshWorker(true);
@@ -141,14 +141,14 @@ public class AssetMapMenuPanel extends JPanel {
 			}
 		};
 		String toolTip = "Refreshes All Assets";
-		JButton refreshButton 
+		JButton refreshButton
 			= createButton("refresh", refreshListener, toolTip);
 
 		return refreshButton;
 	}
 
 	/**
-	 * Creates a button to restore the root node 
+	 * Creates a button to restore the root node
 	 * back to the Root Folder (#assetid 1)
 	 * @return the restore button
 	 */
@@ -160,14 +160,14 @@ public class AssetMapMenuPanel extends JPanel {
 				((DefaultTreeModel) tree.getModel()).setRoot(AssetManager.getRootFolderNode());
 			}
 		};
-		
+
 		String toolTip = "Restore the root Folder";
-		JButton restoreButton 
+		JButton restoreButton
 			= createButton("teleport", restoreListener, toolTip);
-		
+
 		return restoreButton;
 	}
-	
+
 	/**
 	 * Creates the collapse button. Any assets
 	 * that are exapanded will be collapsed when this
@@ -175,33 +175,32 @@ public class AssetMapMenuPanel extends JPanel {
 	 * @return the collapse button
 	 */
 	private JButton createCollapseAllButton() {
-	
+
 		ActionListener collapseListener = new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				((DefaultTreeModel) tree.getModel()).reload();
 				tree.repaint();
 			}
 		};
-		
+
 		String toolTip = "Collapse all";
-		JButton collapseButton 
+		JButton collapseButton
 			= createButton("collapse", collapseListener, toolTip);
-		
+
 		return collapseButton;
 	}
-	
+
 	/**
 	 * Creates a button to display the status colours.
 	 * All assets will have their background colour changed
 	 * to display the status colour of the status that the
 	 * assets are currently in.
-	 * @return the paint status button 
+	 * @return the paint status button
 	 */
 	private JButton createPaintStatusesButton() {
-		
+
 		ActionListener statusListener = new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
-				JButton button = (JButton) evt.getSource();
 				((MatrixTreeCellRenderer) tree.getCellRenderer()).flipSelection();
 				((InspectorCellRenderer) inspector.getCellRenderer(0, 0)).flipSelection();
 				tree.repaint();
@@ -210,28 +209,28 @@ public class AssetMapMenuPanel extends JPanel {
 		};
 
 		String toolTip = "Show Status colours";
-		JButton paintStatusButton 
+		JButton paintStatusButton
 			= createButton("status", statusListener, toolTip);
-		
+
 		return paintStatusButton;
 	}
-	
+
 	/**
 	 * Creates the button for the add menu.
 	 * @return the button for the add menu
 	 */
 	private ButtonMenu createAddMenuButton() {
-		
+
 		Icon icon = GUIUtilities.getAssetMapIcon("add_off.png");
 		Icon pressedIcon = GUIUtilities.getAssetMapIcon("add_on.png");
-		
+
 		final ButtonMenu button = new ButtonMenu(icon, pressedIcon);
-		
+
 		// we need to do this because the asset map may not have made a request
 		// to matrix yet, so the add menu elements might not yet be known
 		ActionListener bListener = new ActionListener() {
 			private JPopupMenu addMenu;
-			
+
 			public void actionPerformed(ActionEvent evt) {
 				if (addMenu == null) {
 					ActionListener listener = MatrixMenus.getMatrixTreeAddMenuListener(tree);
@@ -240,15 +239,15 @@ public class AssetMapMenuPanel extends JPanel {
 				}
 			}
 		};
-		
+
 		button.addActionListener(bListener);
 		button.setPressedIcon(pressedIcon);
 		button.setBackground(BG_COLOUR);
 		button.setBorderPainted(false);
-		
+
 		button.setPreferredSize(new Dimension(icon.getIconWidth(), icon.getIconHeight()));
 		button.setToolTipText("Add New Asset");
-		
+
 		return button;
 	}
 }
