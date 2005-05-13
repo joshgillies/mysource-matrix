@@ -432,6 +432,20 @@ public class ImageJ extends javax.swing.JApplet implements ActionListener,
 	{
 		return getAssetName() + getFileType();
 	}
+
+	public void setFilename(String path)
+	{
+		String baseName = new File(path).getName();
+		if (-1 != baseName.toLowerCase().indexOf(".gif")) {
+			setCurrentType(".gif");
+		} else {
+			setCurrentType(".jpg");
+		}
+		if (-1 != baseName.lastIndexOf(".")) {
+			baseName = baseName.substring(0, baseName.lastIndexOf("."));
+		}
+		assetNameField.setText(baseName);
+	}
 	
 	public boolean isFocusable() 
 	{

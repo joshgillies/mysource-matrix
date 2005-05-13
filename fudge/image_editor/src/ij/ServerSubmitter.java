@@ -450,7 +450,7 @@ class ServerSubmitProgressDialog extends JFrame
 		setSize(400, 80);
 		validate();
 		Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
-		setLocation((screen.width /	2) - 200, (screen.height / 2) -	40;
+		setLocation((screen.width /	2) - 200, (screen.height / 2) -	40);
 		setVisible(true);
 		toFront();
 		repaint();

@@ -124,6 +124,7 @@ public class Opener {
 
 		if (imp != null) {
 			imp.show();
+			IJ.getInstance().setFilename(path);
 			return true;
 		} else {
 			String msg = "File is not in a valid format, or it was not found.";
