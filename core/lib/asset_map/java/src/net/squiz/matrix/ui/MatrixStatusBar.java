@@ -17,7 +17,7 @@
  * | licence.                                                           |
  * +--------------------------------------------------------------------+
  *
- * $Id: MatrixStatusBar.java,v 1.2 2005/02/28 01:05:18 mmcintyre Exp $
+ * $Id: MatrixStatusBar.java,v 1.3 2005/05/13 06:16:06 ndvries Exp $
  * $Name: not supported by cvs2svn $
  */
 
@@ -40,38 +40,25 @@ public class MatrixStatusBar {
 
 	private static java.util.List elements = new ArrayList();
 	private static MatrixStatusBarElement[] elementsArr;
-	
+
 	/* the text that was last set globally */
 	private static String statusText = "";
-	
-	/* Private singleton used for creating new instances of MatrixStatusBarElement */
-	private static MatrixStatusBar INSTANCE = new MatrixStatusBar();
-	
+
 	// cannot instantiate
 	private MatrixStatusBar() {}
-	
-	/**
-	 * Returns a new instance of a MatrixStatusBarElement. We need thsi method
-	 * so we can create new instances from a statix context
-	 * @return a new MatrixStatusBarElement
-	 * @see createStatusBar
-	 */
-	private MatrixStatusBarElement getNewElement() {
-		return new MatrixStatusBarElement(statusText);
-	}
-	
+
 	/**
 	 * Returns a new JPanel that will be updated with matrix status information
 	 * @return JPanel the status bar
 	 */
 	public static MatrixStatusBarElement createStatusBar() {
-		MatrixStatusBarElement element = INSTANCE.getNewElement();
+		MatrixStatusBarElement element = new MatrixStatusBarElement(statusText);
 		synchronized(elements) {
 			elements.add(element);
 		}
 		return element;
 	}
-	
+
 	/**
 	 * Returns the elements from the element collection in array form. The
 	 * elements are cached, and the cache is updated whenever an element is added
@@ -88,7 +75,7 @@ public class MatrixStatusBar {
 			return elementsArr;
 		}
 	}
-	
+
 	/**
 	 * Sets the global status for the status bars.
 	 * @param status the status to set globally
@@ -97,10 +84,8 @@ public class MatrixStatusBar {
 	public static void setStatus(String status) {
 		statusText = status;
 		MatrixStatusBarElement[] elements = getElements();
-		
-		for (int i = 0; i < elements.length; i++) {
+		for (int i = 0; i < elements.length; i++)
 			elements[i].setStatus(status);
-		}
 	}
 
 	/**
@@ -110,7 +95,7 @@ public class MatrixStatusBar {
 	public static void clearStatus() {
 		setStatus("");
 	}
-	
+
 	/**
 	 * Returns the status that was set in the last global <code>setStatus</code>
 	 * method invocation.
@@ -120,7 +105,7 @@ public class MatrixStatusBar {
 	public static String getStatus() {
 		return statusText;
 	}
-	
+
 	/**
 	 * Sets the status and the clears it after waiting for the specified time
 	 * in milliseconds.
@@ -143,32 +128,34 @@ public class MatrixStatusBar {
 		t.setRepeats(false);
 		t.start();
 	}
-	
+
 	/**
 	 * An individual status bar element. The status bar consists of a spinner
 	 * to indicate that an operation is progress, and a JLabel to display status
 	 * information.
 	 * @author Marc McIntyre <mmcintyre@squiz.net>
 	 */
-	public class MatrixStatusBarElement extends JPanel implements MatrixConstants, MouseListener {
+	private static class MatrixStatusBarElement extends JPanel
+		implements MatrixConstants, MouseListener {
+
 		private JLabel label;
 		private Spinner spinner;
 		private javax.swing.Timer clearTimer;
-		
+
 		// only MatrixStatusBar should be able to create individual elements
 		private MatrixStatusBarElement(String status) {
 			setLayout(new FlowLayout(FlowLayout.LEFT));
-			
+
 			spinner  = new Spinner();
 			label    = new JLabel(statusText);
-			
+
 			label.setFont(PLAIN_FONT_10);
-			
+
 			add(spinner);
 			add(label);
-			
+
 			setBackground(UIManager.getColor("StatusBar.background"));
-			
+
 			// create an action and a timer to clear the status
 			// which will also stop the spinner
 			ActionListener listener = new ActionListener() {
@@ -180,28 +167,28 @@ public class MatrixStatusBar {
 			clearTimer.setRepeats(false);
 			addMouseListener(this);
 		}
-		
+
 		/**
 		 * Sets the status of this individual StatusBarElement
 		 * @param status the status to set for this element
 		 * @see MatrixStatusBar.setStatus(String)
 		 */
-		public void setStatus(String status) {
+		private void setStatus(String status) {
 			if (status.equals("") && spinner.isStarted())
 				spinner.stop();
 			else if ((!status.equals("")) && !spinner.isStarted())
 				spinner.start();
 			label.setText(status);
 		}
-		
+
 		/**
 		 * Clears the status for this individual status bar element
 		 * @see MatrixStatusBar.clearStatus()
 		 */
-		public void clearStatus() {
+		private void clearStatus() {
 			setStatus("");
 		}
-		
+
 		/**
 		 * Sets the status and the clears it after waiting for the specified time
 		 * in milliseconds.
@@ -210,35 +197,36 @@ public class MatrixStatusBar {
 		 * globally
 		 * @see MatrixStatusBar.setStatusAndClear(String, int)
 		 */
-		public void setStatusAndClear(String status, int time) {
+		private void setStatusAndClear(String status, int time) {
 			setStatus(status);
 			clearTimer.setDelay(time);
 			clearTimer.start();
 		}
-		
+
 		/**
 		 * Returns the status of this individual status bar element
 		 * @return the status of this individual status bar element
 		 * @see MatrixStatusBar.getStatus()
 		 */
-		public String getStatus() {
+		private String getStatus() {
 			return label.getText();
 		}
-		
+
 		public void mouseEntered(MouseEvent evt) {}
 		public void mouseExited(MouseEvent evt) {}
 		public void mousePressed(MouseEvent evt) {}
 		public void mouseReleased(MouseEvent evt) {}
-		
+
 		public void mouseClicked(MouseEvent evt) {
 			if (evt.getClickCount() != 2)
 				return;
-			Runtime rt = Runtime.getRuntime();
+			/*Runtime rt = Runtime.getRuntime();
 			long preFree = rt.freeMemory();
 			rt.gc();
 			long postFree = rt.freeMemory();
 			long freed = (postFree - preFree) / 1000;
-			GUIUtilities.error(freed + "Kb Released", "Memory Released");
+			GUIUtilities.error(freed + "Kb Released", "Memory Released");*/
+			net.squiz.matrix.debug.Log.openLogs();
 		}
 	}
 }
