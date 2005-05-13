@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce_edit_fns.inc,v 1.7 2005/05/11 06:07:35 lwright Exp $
+* $Id: form_ecommerce_edit_fns.inc,v 1.8 2005/05/13 05:01:13 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -234,6 +234,8 @@ class Form_Ecommerce_Edit_Fns extends Form_Email_Edit_Fns
 
 	 function processExport(&$asset, &$o, $prefix)
 	 {
+		 if (!$_POST[$prefix.'_export_switch']) return true;
+
 		 //begin and populate order object
 		 header('Content-Type: application/xml');
 
