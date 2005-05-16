@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_insert_link.inc,v 1.34 2005/05/08 23:31:10 dmckee Exp $
+* $Id: matrix_insert_link.inc,v 1.35 2005/05/16 06:36:36 lwright Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 *     a link in the editable document using an asset from MySoure Matrix
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -53,8 +53,8 @@ class matrix_insert_link extends wysiwyg_plugin
 	function matrix_insert_link(&$wysiwyg)
 	{
 		wysiwyg_plugin::wysiwyg_plugin($wysiwyg);
-		$this->_add_button('matrixcreatelink','MatrixCreateLink','Insert Link','false','32');
-		$this->_add_button('matrixunlink','Unlink','Remove Link','false','33');
+		$this->_add_button('matrixcreatelink','MatrixCreateLink', translate('insert_link'),'false','32');
+		$this->_add_button('matrixunlink','Unlink', translate('remove_link'),'false','33');
 
 	}//end constructor
 
@@ -130,7 +130,7 @@ class matrix_insert_link extends wysiwyg_plugin
 						text_range = true;
 						editor.selectNodeContents(control_range(0));
 					} else {
-						alert("You need to select this object as though it was text, rather than just clicking on it.");
+						alert(js_translate('object_requires_selection'));
 						sel.empty();
 						return;
 					}
@@ -242,7 +242,7 @@ class matrix_insert_link extends wysiwyg_plugin
 						// we don't want more than one paragraph because these can start or end from half-way through
 						// a para, which would fuck up the formatting when we go to re-insert the text with the href
 						if (para_html.indexOf("<p") != para_html.lastIndexOf("<p")) {
-							alert("Please select only one paragraph to link at a time otherwise bad things happen.");
+							alert(js_translate('select_one_paragraph_at_a_time'));
 							return;
 						}
 

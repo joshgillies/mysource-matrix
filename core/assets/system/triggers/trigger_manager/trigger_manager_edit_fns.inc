@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager_edit_fns.inc,v 1.20 2005/05/11 06:05:05 lwright Exp $
+* $Id: trigger_manager_edit_fns.inc,v 1.21 2005/05/16 06:36:31 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard  <rhoward@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -215,7 +215,7 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 			* Deletes a div, with a confirmation box
 			*/
 			function deleteDiv(div) {
-				if(confirm("Deleting a component cannot be undone.\nAre you sure you want to proceed?")) {
+				if(confirm(js_translate('confirm_delete_component'))) {
 					div.parentNode.removeChild(div);
 				}
 			}
@@ -330,7 +330,7 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 			}
 		$o->closeField();
 
-		$o->openField('Blocking:');
+		$o->openField(translate('blocking').':');
 			if (isset($trigger['data']['settings'])) {
 				$blocking = array_get_index($trigger['data']['settings'], 'blocking', false);
 			} else {
@@ -338,12 +338,12 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 			}
 			if ($write_access) {
 				check_box($prefix.'[info][blocking]', '1', $blocking, '', 'id="info_blocking"');
-				label('Blocks other triggers from firing on failure?', 'info_blocking');
+				label(translate('block_other_triggers_on_failure'), 'info_blocking');
 			} else {
 				if ($blocking) {
-					echo 'Yes';
+					echo translate('yes');
 				} else {
-					echo 'No';
+					echo translate('no');
 				}
 			}
 		$o->closeField();
@@ -463,7 +463,7 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 						if ($write_access) {
 						?>
 							<input type="checkbox" name="<?php echo $delete_prefix; ?>" >
-							Delete
+							<?php echo label(translate('delete'), $delete_prefix); ?>
 								&nbsp;&nbsp;&nbsp;&nbsp;
 							<a href="#" onclick="moveUp(this.parentNode.parentNode.parentNode); conditionOrdererObject.moveUp(<?php echo $i; ?>); return false;"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/up_arrow.png' ?>", "16", "16", "Move Up");</script></a>
 							<a href="#" onclick="moveDown(this.parentNode.parentNode.parentNode); conditionOrdererObject.moveDown(<?php echo $i; ?>); return false;"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/down_arrow.png' ?>", "16", "16", "Move Down");</script></a>
@@ -489,7 +489,7 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 			<input type="hidden" id="conditionOrderer" name="<?php echo $condition_order_prefix; ?>" />
 			<!-- Adding a New Condition -->
 			<div class="sq-backend-triggers-new-component-selector">
-				Add new Condition type:
+				<?php echo translate('add_new_condition_type'); ?>:
 					<?php
 					$select_list = Array(' '=>' ---- '.translate('select_to_add').'  ---- ');
 					$removed = false;
@@ -558,7 +558,7 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 							<?php
 							if ($write_access) {
 								?>
-								<input type="checkbox" name="<?php echo $delete_prefix; ?>">Delete
+								<input type="checkbox" name="<?php echo $delete_prefix; ?>"><?php echo label(translate('delete')); ?>
 								&nbsp;&nbsp;&nbsp;&nbsp;
 								<a href="#" onclick="moveUp(this.parentNode.parentNode.parentNode); actionOrdererObject.moveUp(<?php echo $i; ?>); return false;"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/up_arrow.png' ?>", "16", "16", "Move Up");</script></a>
 								<a href="#" onclick="moveDown(this.parentNode.parentNode.parentNode); actionOrdererObject.moveDown(<?php echo $i; ?>); return false;"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/down_arrow.png' ?>", "16", "16", "Move Down");</script></a>
@@ -598,7 +598,7 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 				<input type="hidden" id="actionOrderer" name="<?php echo $action_order_prefix; ?>" />
 				<!-- Add a New Action -->
 				<div class="sq-backend-triggers-new-component-selector">
-					Add new Action type:
+					<?php echo translate('add_new_action_type'); ?>:
 					<select name="<?php echo $prefix; ?>[new_action]" >
 						<option value="" > ---- <?php echo translate('select_to_add'); ?> ---- </option>
 						<?php
@@ -974,7 +974,7 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 				var result = true;
 
 				if (deleteCheckedCount > 0) {
-					result = confirm ("Are you sure you want to delete the selected triggers?\n\nItems to delete: "+deleteCheckedCount);
+					result = confirm (js_translate('confirm_delete_trigger', deleteCheckedCount));
 				}
 
 				return result;

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit_table.php,v 1.11 2005/05/09 05:45:26 dmckee Exp $
+* $Id: edit_table.php,v 1.12 2005/05/16 06:36:36 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Table Edit Popup for the WYSIWYG
 *
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix
 */
 
@@ -134,7 +134,7 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 						'<td id="test_td2_2" headers="test_td0_0 test_td1_0 ">&nbsp;</td>'+
 						'</tr>'+
 						'</table>';
-						
+
 		var bigtable = '<TABLE borderColor=#999999 cellSpacing=0 cellPadding=3 width="100%" border=1>'+
 '<TBODY>'+
 '<TR class=strat_map_table>'+
@@ -171,7 +171,7 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 '<P align=center>&nbsp;<A href="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/firearms/documents/Crime_Gun_Interdiction_Strategies_Summary.pdf"><IMG alt="Executive Summary" src="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/images/icons/es_pdf_icon.jpg" border=0></A></P><A href="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/firearms/documents/Crime_Gun_Interdiction_Strategies_(02).pdf">'+
 '<P align=center><IMG alt="PDF Document" src="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/images/icons/pdf_icon.jpg" border=0></A></P></TD></TR>'+
 '<TR>'+
-'<TD><STRONG>censored.</STRONG>'+ 
+'<TD><STRONG>censored.</STRONG>'+
 '<P>censored.<BR></P></TD>'+
 '<TD>'+
 '<DIV align=center>2002</DIV></TD>'+
@@ -182,7 +182,7 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 '<P align=center><IMG alt="PDF Document" src="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/images/icons/pdf_icon.jpg" border=0></P>'+
 '<P align=center></A>&nbsp;</P></TD></TR>'+
 '<TR>'+
-'<TD><STRONG>censored.</STRONG>'+ 
+'<TD><STRONG>censored.</STRONG>'+
 '<P>censored.<BR></P></TD>'+
 '<TD>'+
 '<DIV align=center>2001</DIV></TD>'+
@@ -192,7 +192,7 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 '<P align=center><A href="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/firearms/documents/Firearms_and_Violent_Crime_Summary.pdf"><IMG alt="Executive Summary" src="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/images/icons/es_pdf_icon.jpg" border=0></A></P><A href="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/firearms/documents/Firearms_and_Violent_Crime_(01).pdf">'+
 '<P align=center><IMG alt="PDF Document" src="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/images/icons/pdf_icon.jpg" border=0></A></P></TD></TR>'+
 '<TR>'+
-'<TD><STRONG>censored.</STRONG>'+ 
+'<TD><STRONG>censored.</STRONG>'+
 '<P>censored.<BR></P></TD>'+
 '<TD>'+
 '<DIV align=center>2001</DIV></TD>'+
@@ -202,7 +202,7 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 '<P align=center><A href="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/firearms/documents/Boston_Gun_Projects_Operation_Ceasefire_Summary.pdf"><IMG alt="Executive Summary" src="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/images/icons/es_pdf_icon.jpg" border=0></A></P><A href="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/firearms/documents/Boston_Gun_Projects_Operation_Ceasefire_(01).pdf">'+
 '<P align=center><IMG alt="PDF Document" src="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/images/icons/pdf_icon.jpg" border=0></A></P></TD></TR>'+
 '<TR>'+
-'<TD><STRONG>censored.</STRONG>'+ 
+'<TD><STRONG>censored.</STRONG>'+
 '<P>censored.<BR></P></TD>'+
 '<TD>'+
 '<DIV align=center>2001</DIV></TD>'+
@@ -212,7 +212,7 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 '<P align=center><A href="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/firearms/documents/Gun_Use_By_Male_Juveniles_Summary.pdf"><IMG alt="Executive Summary" src="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/images/icons/es_pdf_icon.jpg" border=0></A></P><A href="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/firearms/documents/Gun_Use_by_Male_Juveniles_(01).pdf">'+
 '<P align=center><IMG alt="PDF Document" src="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/images/icons/pdf_icon.jpg" border=0></A></P></TD></TR>'+
 '<TR>'+
-'<TD><STRONG>censored.</STRONG>'+ 
+'<TD><STRONG>censored.</STRONG>'+
 '<P>censored<BR></P></TD>'+
 '<TD>'+
 '<DIV align=center>2000</DIV></TD>'+
@@ -222,7 +222,7 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 '<P align=center><A href="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/firearms/documents/Reducing_Illegal_Firearms_Trafficking_Summary.pdf"><IMG alt="Executive Summary" src="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/images/icons/es_pdf_icon.jpg" border=0></A></P><A href="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/firearms/documents/Reducing_Illegal_Firearms_Trafficking_(00).pdf">'+
 '<P align=center><IMG alt="PDF Document" src="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/images/icons/pdf_icon.jpg" border=0></A></P></TD></TR>'+
 '<TR>'+
-'<TD><STRONG>censored.</STRONG>'+ 
+'<TD><STRONG>censored.</STRONG>'+
 '<P>censored<BR></P></TD>'+
 '<TD>'+
 '<DIV align=center>2000</DIV></TD>'+
@@ -232,10 +232,10 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 '<P align=center><A href="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/firearms/documents/Fighting_Juvenile_Gun_Violence_Summary.pdf"><IMG alt="Executive Summary" src="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/images/icons/es_pdf_icon.jpg" border=0></A></P><A href="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/firearms/documents/Fighting_Juvenile_Gun_Violence_(00).pdf">'+
 '<P align=center><IMG alt="PDF Document" src="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/images/icons/pdf_icon.jpg" border=0></A></P></TD></TR>'+
 '<TR>'+
-'<TD><STRONG>censored.</STRONG>'+ 
+'<TD><STRONG>censored.</STRONG>'+
 '<P>censored</P>'+
 '<UL>'+
-'<LI>censored'+ 
+'<LI>censored'+
 '<LI>censored'+
 '<LI>censored'+
 '<LI>censored<BR></LI></UL></TD>'+
@@ -247,7 +247,7 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 '<P align=center><A href="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/firearms/documents/Crime-Safety-Firearms_Summary.pdf"><IMG alt="Executive Summary" src="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/images/icons/es_pdf_icon.jpg" border=0></A></P><A href="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/firearms/documents/Crime-Safety-Firearms_(00).pdf">'+
 '<P align=center><IMG alt="PDF Document" src="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/images/icons/pdf_icon.jpg" border=0></A></P></TD></TR>'+
 '<TR>'+
-'<TD><STRONG>censored.</STRONG>'+ 
+'<TD><STRONG>censored.</STRONG>'+
 '<P>censored.<BR></P></TD>'+
 '<TD>'+
 '<DIV align=center>2000</DIV></TD>'+
@@ -257,7 +257,7 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 '<P align=center><A href="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/firearms/documents/International_Traffic_In_Firearms_Summary.pdf"><IMG alt="Executive Summary" src="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/images/icons/es_pdf_icon.jpg" border=0></A></P><A href="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/firearms/documents/International_Traffic_in_Firearms_(00).pdf">'+
 '<P align=center><IMG alt="PDF Document" src="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/images/icons/pdf_icon.jpg" border=0></A></P></TD></TR>'+
 '<TR>'+
-'<TD><STRONG>censored.</STRONG>'+ 
+'<TD><STRONG>censored.</STRONG>'+
 '<P>censored.<BR></P></TD>'+
 '<TD>'+
 '<DIV align=center>2000</DIV></TD>'+
@@ -267,7 +267,7 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 '<P align=center><A href="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/firearms/documents/Firearms_Used_In_Homicide_Summary.pdf"><IMG alt="Executive Summary" src="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/images/icons/es_pdf_icon.jpg" border=0></A></P><A href="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/firearms/documents/Firearms_Used_In_Homicide_Summary.pdf">'+
 '<P align=center><IMG alt="PDF Document" src="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/images/icons/pdf_icon.jpg" border=0></A></P></TD></TR>'+
 '<TR>'+
-'<TD><STRONG>censored.</STRONG>'+ 
+'<TD><STRONG>censored.</STRONG>'+
 '<P>censored.<BR></P></TD>'+
 '<TD>'+
 '<DIV align=center>1999</DIV></TD>'+
@@ -281,9 +281,9 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 '<P><STRONG>censored.</STRONG></P>'+
 '<P>censored</P>'+
 '<UL>'+
-'<LI>censored'+ 
-'<LI>censored'+ 
-'<LI>censored'+ 
+'<LI>censored'+
+'<LI>censored'+
+'<LI>censored'+
 '<LI>censored </LI></UL>'+
 '<P>censored.<BR></P></TD>'+
 '<TD>'+
@@ -295,7 +295,7 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 '<P align=center><IMG alt="PDF Document" src="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/images/icons/pdf_icon.jpg" border=0></P>'+
 '<P align=center></A>&nbsp;</P></TD></TR>'+
 '<TR>'+
-'<TD><STRONG>censored</STRONG>'+ 
+'<TD><STRONG>censored</STRONG>'+
 '<P>censored.<BR></P></TD>'+
 '<TD>'+
 '<DIV align=center>1999</DIV></TD>'+
@@ -305,7 +305,7 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 '<P align=center><A href="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/firearms/documents/Firearm_Homicides_NSW_Summary.pdf"><IMG alt="Executive Summary" src="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/images/icons/es_pdf_icon.jpg" border=0></A></P><A href="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/firearms/documents/Firearm_Homicides_NSW_(99).pdf">'+
 '<P align=center><IMG alt="PDF Document" src="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/images/icons/pdf_icon.jpg" border=0></A></P></TD></TR>'+
 '<TR>'+
-'<TD><STRONG>censored.</STRONG>'+ 
+'<TD><STRONG>censored.</STRONG>'+
 '<P>censored<BR></P></TD>'+
 '<TD>'+
 '<DIV align=center>1999</DIV></TD>'+
@@ -315,7 +315,7 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 '<P align=center><A href="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/firearms/documents/International_Traffic_in_Small_Arms.pdf"><IMG alt="Executive Summary" src="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/images/icons/es_pdf_icon.jpg" border=0></A></P><A href="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/firearms/documents/International_Traffic_in_Small_Arms_(99).pdf">'+
 '<P align=center><IMG alt="PDF Document" src="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/images/icons/pdf_icon.jpg" border=0></A></P></TD></TR>'+
 '<TR>'+
-'<TD><STRONG>censored</STRONG>'+ 
+'<TD><STRONG>censored</STRONG>'+
 '<P>censored<BR></P></TD>'+
 '<TD>'+
 '<DIV align=center>1998</DIV></TD>'+
@@ -325,7 +325,7 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 '<P align=center><A href="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/firearms/documents/Predicting_Criminal_Behavior_Summary.pdf"><IMG alt="Executive Summary" src="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/images/icons/es_pdf_icon.jpg" border=0></A></P><A href="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/firearms/documents/Predicting_Criminal_Behaviour_(98).pdf">'+
 '<P align=center><IMG alt="PDF Document" src="http://intranettst.police.nsw.gov.au/organisational_units/operations_command/operations_support_command/crime_management_faculty/strategy_maps/images/icons/pdf_icon.jpg" border=0></A></P></TD></TR>'+
 '<TR>'+
-'<TD><STRONG>censored</STRONG>'+ 
+'<TD><STRONG>censored</STRONG>'+
 '<P>censored<BR></P></TD>'+
 '<TD>'+
 '<DIV align=center>1997</DIV></TD>'+
@@ -377,14 +377,14 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 	</div>
 	<div id="panels">
 	<fieldset id="global_panel">
-		<legend>Selectors</legend>
+		<legend><?php echo translate('selectors'); ?></legend>
 		<div>
 			<img alt="" src="images/mc.gif" onclick="table.selector = 'cell'" />
 			<img alt="" src="images/mr.gif" onclick="table.selector = 'row'" />
 		</div>
 	</fieldset>
 	<fieldset id="cell_panel">
-		<legend>Cell</legend>
+		<legend><?php echo translate('cell'); ?></legend>
 		<div>
 			<img id="addcolspan" title="Add ColSpan" alt="Add ColSpan" src="images/thr.gif" onclick="table.addColSpan();"/>
 			<img id="delcolspan" alt="Delete ColSpan" title="Delete ColSpan" src="images/thl.gif" onclick="table.delColSpan();"/>
@@ -393,21 +393,21 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 			<img alt="divider" src="images/div.gif" />
 			<img id="THead" alt="Head Cell" title="Head Cell" src="images/th.gif" onclick="table.th();" />
 		</div>
-		<label for="abbr">Abbr</label>
+		<label for="abbr"><?php echo translate('abbr'); ?></label>
 		<input id="abbr" name="abbr" onkeyup="table.setAbbr(this.value)" /><br />
-		<label for="axis">Axis</label>
+		<label for="axis"><?php echo translate('axis'); ?></label>
 		<input id="axis" name="axis"  onkeyup="table.setAxis(this.value)"/><br />
-		<label for="scope">Scope</label>
+		<label for="scope"><?php echo translate('scope'); ?></label>
 		<select id="scope" name="scope" onchange="table.setScope(this.value)">
-			<option value="">empty</option>
-			<option value="row">row</option>
-			<option value="col">col</option>
+			<option value=""><?php echo strtolower(translate('empty')); ?></option>
+			<option value="row"><?php echo strtolower(translate('row')); ?></option>
+			<option value="col"><?php echo strtolower(translate('col')); ?></option>
 		</select><br />
-		<label for="headings">Headings</label>
-		<button id="headings" name="headings" onclick="table.toggleHeaders();">Click to select</button>
+		<label for="headings"><?php echo translate('headings'); ?></label>
+		<button id="headings" name="headings" onclick="table.toggleHeaders();"><?php echo translate('click_to_select'); ?></button>
 	</fieldset>
 	<fieldset id="align_panel">
-		<legend>Align</legend>
+		<legend><?php echo translate('align'); ?></legend>
 		<img id="aleft" title="Align Left" alt="Align Left" src="images/al.gif" onclick="table.setAlign('left')"/>
 		<img id="acenter" title="Align Center" alt="Align Center" src="images/ac.gif" onclick="table.setAlign('center')"/>
 		<img id="aright" title="Align Right" alt="Align Right" src="images/ar.gif" onclick="table.setAlign('right')"/><br />
@@ -416,24 +416,24 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 		<img id="abottom" title="Align Bottom" alt="Align Bottom" src="images/ab.gif" onclick="table.setVAlign('bottom')"/>
 	</fieldset>
 	<fieldset id="table_panel">
-		<legend>Table</legend>
+		<legend><?php echo translate('table'); ?></legend>
 		<div>
 			<img alt="Add Row" title="Add Row" src="images/addrow.gif" onclick="table.addrow();"/>
 			<img alt="Delete Row" title="Delete Row" src="images/delrow.gif" onclick="table.delrow();"/>
 			<img alt="Add Column" title="Add Column" src="images/addcol.gif" onclick="table.addcol();"/>
 			<img alt="Delete Column" title="Delete Column" src="images/delcol.gif" onclick="table.delcol();"/>
 		</div>
-		<label for="tid">ID</label>
+		<label for="tid"><?php echo translate('id'); ?></label>
 		<input id="tid" name="tid" onkeyup="table.setID(this.value)" /><br />
-		<label for="caption">Caption</label>
+		<label for="caption"><?php echo translate('caption'); ?></label>
 		<input id="caption" name="caption" onkeyup="table.setCaption(this.value)"/><br />
-		<label for="cellspacing">Cell Spacing</label>
+		<label for="cellspacing"><?php echo translate('cell_spacing'); ?></label>
 		<input id="cellspacing" name="cellspacing" onkeyup="table.setCellSpacing(parseInt(this.value))" value="2"/><br />
-		<label for="cellpadding">Cell Padding</label>
+		<label for="cellpadding"><?php echo translate('cell_padding'); ?></label>
 		<input id="cellpadding" name="cellpadding" onkeyup="table.setCellPadding(parseInt(this.value))" value="2"/><br />
-		<label for="summary">Summary</label>
+		<label for="summary"><?php echo translate('summary'); ?></label>
 		<textarea id="summary" cols="10" rows="3" onkeyup="table.setSummary(this.value)"></textarea>
-		<label for="width">Width</label>
+		<label for="width"><?php echo translate('width'); ?></label>
 		<input id="width" name="width" onkeyup="table.setWidth(parseInt(document.getElementById('width').value) + document.getElementById('widthtype').value)" style="width:100px" value="100" />
 		<select id="widthtype" name="widthtype" style="width:50px" onchange="table.setWidth(parseInt(document.getElementById('width').value) + document.getElementById('widthtype').value)">
 			<option value="px">px</option>
@@ -442,29 +442,29 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 			<option value="em">em</option>
 			<option value="ex">ex</option>
 		</select><br />
-		<label for="frame">Frame</label>
+		<label for="frame"><?php echo translate('frame'); ?></label>
 		<select id="frame" name="frame" onchange="table.setFrame(this.value)">
-			<option value="">empty</option>
-			<option value="void">No Sides</option>
-			<option value="above">The top side only</option>
-			<option value="below">The bottom side only</option>
-			<option value="hsides">The top and bottom sides only</option>
-			<option value="vsides">The right and left sides only</option>
-			<option value="lhs">The left-hand side only</option>
-			<option value="rhs">The right-hand side only</option>
-			<option value="box">All four sides</option>
+			<option value=""><?php echo strtolower(translate('empty')); ?></option>
+			<option value="void"><?php echo translate('no_sides'); ?></option>
+			<option value="above"><?php echo translate('the_top_side_only'); ?></option>
+			<option value="below"><?php echo translate('the_bottom_side_only'); ?></option>
+			<option value="hsides"><?php echo translate('the_top_and_bottom_sides_only'); ?></option>
+			<option value="vsides"><?php echo translate('the_right_and_left_sides_only'); ?></option>
+			<option value="lhs"><?php echo translate('the_left-hand_side_only'); ?></option>
+			<option value="rhs"><?php echo translate('the_right-hand_side_only'); ?></option>
+			<option value="box"><?php echo translate('all_four_sides'); ?></option>
 		</select><br />
-		<label for="rules">Rules</label>
+		<label for="rules"><?php echo translate('rules'); ?></label>
 		<select id="rules" name="rules" onchange="table.setRules(this.value)">
-			<option value="">empty</option>
-			<option value="none">No rules</option>
-			<option value="rows">Rules will appear between rows only</option>
-			<option value="cols">Rules will appear between columns only</option>
-			<option value="all">Rules will appear between all rows and columns</option>
+			<option value=""><?php echo strtolower(translate('empty')); ?></option>
+			<option value="none"><?php echo translate('no_rules'); ?></option>
+			<option value="rows"><?php echo translate('rules_will_appear_between_rows_only'); ?></option>
+			<option value="cols"><?php echo translate('rules_will_appear_between_columns_only'); ?></option>
+			<option value="all"><?php echo translate('rules_will_appear_between_all_rows_and_columns'); ?></option>
 		</select><br />
 	</fieldset>
 	<fieldset id="color_panel">
-		<legend>Colour</legend>
+		<legend><?php echo translate('colour'); ?></legend>
 		<div style="width:40px;height:40px;position:relative;" id="bgborder" onclick="table.toggleBgBorder();">
 			<div id="border" style="width:30px;height:30px;position:absolute;left:10px;top:10px;border:inset 1px;background:url(images/empty.gif)">
 				<div style="width:19px;height:19px;position:absolute;left:5px;top:5px;border:outset 1px;background:#FFF;font-size:5px"></div>
@@ -498,10 +498,10 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 		<table border="0" cellpadding="0" cellspacing="0" style="width:100%;height:100%">
 			<tr>
 				<td>
-					<button accesskey="s" type="button" style="width:60px;height:30px" onclick="onOK()">Ok</button>
+					<button accesskey="s" type="button" style="width:60px;height:30px" onclick="onOK()"><?php echo translate('ok'); ?></button>
 				</td>
 				<td align="right">
-					<button type="button" style="width:60px;height:30px" onclick="onCancel()">Cancel</button>
+					<button type="button" style="width:60px;height:30px" onclick="onCancel()"><?php echo translate('cancel'); ?></button>
 				</td>
 			</tr>
 		</table>

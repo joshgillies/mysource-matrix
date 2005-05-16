@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_tool_reindex.inc,v 1.6 2005/05/11 06:07:48 lwright Exp $
+* $Id: hipo_job_tool_reindex.inc,v 1.7 2005/05/16 06:36:49 lwright Exp $
 *
 */
 
@@ -22,37 +22,12 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Manager
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
 class HIPO_Job_Tool_ReIndex extends HIPO_Job
 {
-
-	/**
-	* The name of this HIPO job (should not be modified by code)
-	* @var string
-	*/
-	var $hipo_name = 'Re-index Assets';
-
-	/**
-	* Array of steps to perform in this HIPO
-	* @var Array
-	*/
-	var $_steps = Array(
-					    Array(
-							  'name'          => 'Reindexing Assets',
-							  'function_call' => Array(
-													   'process_function' => 'processReIndex',
-												       ),
-							  'running_mode'  => 'server',
-							  'auto_step'     => true,
-							  'percent_done'  => 0,
-							  'complete'      => false,
-							  'message'       => '',
-							  'allow_cancel'  => true,
-							  ),
-					    );
 
 
 	/**
@@ -88,6 +63,46 @@ class HIPO_Job_Tool_ReIndex extends HIPO_Job
 		}
 
 	}//end getCodeName()
+
+
+	/**
+	* Returns the (localised) HIPO name
+	*
+	* @return string
+	* @access public
+	*/
+	function getHipoName()
+	{
+		return translate('sch_hipo_name_reindex_assets');
+
+	}//end getHipoName()
+
+
+	/**
+	* Returns the steps in this hipo, possibly with localised step names
+	* and messages
+	*
+	* @return string
+	* @access public
+	*/
+	function getInitialStepData()
+	{
+		return Array(
+					Array(
+						'name'          => translate('sch_hipo_reindexing_assets'),
+						'function_call' => Array(
+												'process_function' => 'processReIndex',
+										   ),
+						'running_mode'  => 'server',
+						'auto_step'     => true,
+						'percent_done'  => 0,
+						'complete'      => false,
+						'message'       => '',
+						'allow_cancel'  => true,
+					),
+			   );
+
+	}//end getInitialStepData()
 
 
 	/**

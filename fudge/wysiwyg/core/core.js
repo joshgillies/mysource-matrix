@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: core.js,v 1.19 2005/01/20 13:32:41 brobertson Exp $
+* $Id: core.js,v 1.20 2005/05/16 06:36:35 lwright Exp $
 *
 */
 
@@ -50,7 +50,7 @@ HTMLArea.prototype._createStatusBar = function() {
 	span.className = "htmlarea-statusBarTree";
 	this._statusBarTree = span;
 	this._statusBar.appendChild(span);
-	
+
 	if (!this.config.statusBar) {
 		// disable it...
 		this._statusBar.style.display = "none";
@@ -92,7 +92,7 @@ HTMLArea.prototype.generate = function () {
 	// the HTML content into the original textarea.
 	eval ('var otherOnUnload_' + this._uniqueID + '= (window.onunload) ? window.onunload :  new Function;');
 	eval ('window.onunload = function() { editor._textArea.value = editor.getHTML(); otherOnUnload_' + this._uniqueID + '(); };');
-	
+
 	// appends the toolbar
 	this._htmlArea.appendChild(this._toolbar);
 
@@ -124,7 +124,7 @@ HTMLArea.prototype.generate = function () {
 				setTimeout(function () { editor._initIframe(); }, 10);
 				return false;
 			} else {
-				alert("ERROR: IFRAME can't be initialized.");
+				alert(js_translate('unable_to_initialise_iframe'));
 			}
 		}
 		if (HTMLArea.is_gecko) {
@@ -147,7 +147,7 @@ HTMLArea.prototype.generate = function () {
 		editor._docContent = doc.body;
 
 		if (HTMLArea.is_ie) {
-			// enable editable mode for IE.  For some reason this doesn't 
+			// enable editable mode for IE.  For some reason this doesn't
 			// work if done in the same place as for Gecko (above).
 			doc.body.contentEditable = true;
 		}
@@ -221,7 +221,7 @@ HTMLArea.prototype.setMode = function(mode, noFocus) {
 			}
 		break;
 		default:
-			alert("Mode <" + mode + "> not defined!");
+			alert(js_translate('undefined_mode', '<' + mode + '>'));
 		return false;
 	}
 	this._editMode = mode;
@@ -240,7 +240,7 @@ HTMLArea.prototype.focusEditor = function() {
 };
 
 
-/** 
+/**
  * Returns a node after which we can insert other nodes, in the current
  * selection.  The selection is removed.  It splits a text node, if needed.
  */
@@ -326,7 +326,7 @@ HTMLArea.prototype.setHTML = function(html) {
 			}
 		break;
 		default:
-			alert("Mode <" + mode + "> not defined!");
+			alert(js_translate('undefined_mode', '<' + mode + '>'));
 	}
 	return false;
 };
@@ -370,7 +370,7 @@ HTMLArea.prototype._resizeIframe = function(ev) {
 
 	var textarea = document.createElement("textarea");
 	document.body.appendChild(textarea);
-	
+
 	// grab the attributes that determine size
 	textarea.style.width = this._textArea.style.width;
 	textarea.style.height = this._textArea.style.height;

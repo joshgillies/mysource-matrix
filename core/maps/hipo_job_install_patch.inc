@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_install_patch.inc,v 1.13 2005/05/11 06:05:11 lwright Exp $
+* $Id: hipo_job_install_patch.inc,v 1.14 2005/05/16 06:36:32 lwright Exp $
 *
 */
 
@@ -34,137 +34,12 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix
 * @subpackage MAPS
 */
 class HIPO_Job_Install_Patch extends HIPO_Job
 {
-
-	/**
-	* The name of this HIPO job (should not be modified by code)
-	* @var string
-	*/
-	var $hipo_name = 'Install Patch';
-
-	/**
-	* Array of steps to perform in this HIPO
-	* @var Array
-	*/
-	var $_steps = Array(
-					Array(
-						'name'			=> 'Confirmation',
-						'function_call'		=> Array(
-												'paint_function'   => 'paintConfirmation',
-												'process_function' => 'processConfirmation',
-												),
-						'running_mode'	=> 'web',
-						'auto_step'		=> false,
-						'skip_step'		=> false,
-						'percent_done'	=> 0,
-						'complete'		=> false,
-						'message'		=> '',
-						'allow_cancel'  => true,
-					),
-					Array(
-						'name'			=> 'Checking Versions',
-						'function_call'		=> Array(
-												'paint_function'   => 'paintPleaseWait',
-												'process_function' => 'processCheckVersions',
-												),
-						'running_mode'	=> 'server',
-						'auto_step'		=> true,
-						'skip_step'		=> false,
-						'percent_done'	=> 0,
-						'complete'		=> false,
-						'message'		=> '',
-						'allow_cancel'     => true,
-					),
-					Array(
-						'name'			=> 'Checking File Updates',
-						'function_call'		=> Array(
-												'paint_function'   => 'paintPleaseWait',
-												'process_function' => 'processCheckFiles',
-												),
-						'running_mode'	=> 'server',
-						'auto_step'		=> true,
-						'skip_step'		=> false,
-						'percent_done'	=> 0,
-						'complete'		=> false,
-						'message'		=> '',
-						'allow_cancel'  => false,
-					),
-					Array(
-						'name'			=> 'Backing Up Modified Files',
-						'function_call'		=> Array(
-												'paint_function'   => 'paintPleaseWait',
-												'process_function' => 'processBackupFiles',
-												),
-						'running_mode'	=> 'server',
-						'auto_step'		=> true,
-						'skip_step'		=> false,
-						'percent_done'	=> 0,
-						'complete'		=> false,
-						'message'		=> '',
-						'allow_cancel'  => false,
-					),
-					Array(
-						'name'			=> 'Updating Database',
-						'function_call'		=> Array(
-												'paint_function'   => 'paintPleaseWait',
-												'process_function' => 'processDatabaseUpdates',
-												),
-						'running_mode'	=> 'server',
-						'auto_step'		=> true,
-						'skip_step'		=> false,
-						'percent_done'	=> 0,
-						'complete'		=> false,
-						'message'		=> '',
-						'allow_cancel'  => false,
-					),
-					Array(
-						'name'			=> 'Installing File Updates',
-						'function_call'		=> Array(
-												'paint_function'   => 'paintPleaseWait',
-												'process_function' => 'processInstallFiles',
-												),
-						'running_mode'	=> 'server',
-						'auto_step'		=> true,
-						'skip_step'		=> false,
-						'percent_done'	=> 0,
-						'complete'		=> false,
-						'message'		=> '',
-						'allow_cancel'  => false,
-					),
-					Array(
-						'name'			=> 'Running Installation Script',
-						'function_call'		=> Array(
-												'paint_function'   => 'paintPleaseWait',
-												'process_function' => 'processInstallScript',
-												),
-						'running_mode'	=> 'web',
-						'auto_step'		=> true,
-						'skip_step'		=> false,
-						'percent_done'	=> 0,
-						'complete'		=> false,
-						'message'		=> '',
-						'allow_cancel'  => false,
-					),
-					Array(
-						'name'			=> 'Cleaning Up',
-						'function_call'		=> Array(
-												'paint_function'   => 'paintPleaseWait',
-												'process_function' => 'processCleanUp',
-												),
-						'running_mode'	=> 'server',
-						'auto_step'		=> true,
-						'skip_step'		=> false,
-						'percent_done'	=> 0,
-						'complete'		=> false,
-						'message'		=> '',
-						'allow_cancel'  => false,
-					),
-				);
 
 
 	/**
@@ -190,6 +65,146 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 		return parent::getCodeName().$this->_running_vars['patchid'];
 
 	}//end getCodeName()
+
+
+	/**
+	* Returns the (localised) HIPO name
+	*
+	* @return string
+	* @access public
+	*/
+	function getHipoName()
+	{
+		return translate('hipo_name_install_patch');
+
+	}//end getHipoName()
+
+
+	/**
+	* Returns the steps in this hipo, possibly with localised step names
+	* and messages
+	*
+	* @return string
+	* @access public
+	*/
+	function getInitialStepData()
+	{
+		return Array(
+					Array(
+						'name'			=> translate('hipo_confirmation'),
+						'function_call'	=> Array(
+												'paint_function'   => 'paintConfirmation',
+												'process_function' => 'processConfirmation',
+										   ),
+						'running_mode'	=> 'web',
+						'auto_step'		=> false,
+						'skip_step'		=> false,
+						'percent_done'	=> 0,
+						'complete'		=> false,
+						'message'		=> '',
+						'allow_cancel'  => true,
+					),
+					Array(
+						'name'			=> translate('hipo_checking_versions'),
+						'function_call'	=> Array(
+												'paint_function'   => 'paintPleaseWait',
+												'process_function' => 'processCheckVersions',
+										   ),
+						'running_mode'	=> 'server',
+						'auto_step'		=> true,
+						'skip_step'		=> false,
+						'percent_done'	=> 0,
+						'complete'		=> false,
+						'message'		=> '',
+						'allow_cancel'     => true,
+					),
+					Array(
+						'name'			=> translate('hipo_checking_file_updates'),
+						'function_call'	=> Array(
+												'paint_function'   => 'paintPleaseWait',
+												'process_function' => 'processCheckFiles',
+										   ),
+						'running_mode'	=> 'server',
+						'auto_step'		=> true,
+						'skip_step'		=> false,
+						'percent_done'	=> 0,
+						'complete'		=> false,
+						'message'		=> '',
+						'allow_cancel'  => false,
+					),
+					Array(
+						'name'			=> translate('hipo_backing_up_modified_files'),
+						'function_call'	=> Array(
+												'paint_function'   => 'paintPleaseWait',
+												'process_function' => 'processBackupFiles',
+										   ),
+						'running_mode'	=> 'server',
+						'auto_step'		=> true,
+						'skip_step'		=> false,
+						'percent_done'	=> 0,
+						'complete'		=> false,
+						'message'		=> '',
+						'allow_cancel'  => false,
+					),
+					Array(
+						'name'			=> translate('hipo_updating_database'),
+						'function_call'	=> Array(
+												'paint_function'   => 'paintPleaseWait',
+												'process_function' => 'processDatabaseUpdates',
+										   ),
+						'running_mode'	=> 'server',
+						'auto_step'		=> true,
+						'skip_step'		=> false,
+						'percent_done'	=> 0,
+						'complete'		=> false,
+						'message'		=> '',
+						'allow_cancel'  => false,
+					),
+					Array(
+						'name'			=> translate('hipo_installing_file_updates'),
+						'function_call'	=> Array(
+												'paint_function'   => 'paintPleaseWait',
+												'process_function' => 'processInstallFiles',
+										   ),
+						'running_mode'	=> 'server',
+						'auto_step'		=> true,
+						'skip_step'		=> false,
+						'percent_done'	=> 0,
+						'complete'		=> false,
+						'message'		=> '',
+						'allow_cancel'  => false,
+					),
+					Array(
+						'name'			=> translate('hipo_running_installation_script'),
+						'function_call'	=> Array(
+												'paint_function'   => 'paintPleaseWait',
+												'process_function' => 'processInstallScript',
+										   ),
+						'running_mode'	=> 'web',
+						'auto_step'		=> true,
+						'skip_step'		=> false,
+						'percent_done'	=> 0,
+						'complete'		=> false,
+						'message'		=> '',
+						'allow_cancel'  => false,
+					),
+					Array(
+						'name'			=> translate('hipo_cleaning_up'),
+						'function_call'	=> Array(
+												'paint_function'   => 'paintPleaseWait',
+												'process_function' => 'processCleanUp',
+										   ),
+						'running_mode'	=> 'server',
+						'auto_step'		=> true,
+						'skip_step'		=> false,
+						'percent_done'	=> 0,
+						'complete'		=> false,
+						'message'		=> '',
+						'allow_cancel'  => false,
+					),
+			   );
+
+	}//end getInitialStepData()
 
 
 	/**

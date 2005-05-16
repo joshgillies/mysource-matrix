@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_trigger_batch_events.inc,v 1.8 2005/05/11 06:05:08 lwright Exp $
+* $Id: hipo_job_trigger_batch_events.inc,v 1.9 2005/05/16 06:36:32 lwright Exp $
 *
 */
 
@@ -37,37 +37,12 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
 class HIPO_Job_Trigger_Batch_Events extends HIPO_Job
 {
-
-	/**
-	* The name of this HIPO job (should not be modified by code)
-	* @var string
-	*/
-	var $hipo_name = 'Trigger Batch Events';
-
-	/**
-	* Array of steps to perform in this HIPO
-	* @var Array
-	*/
-	var $_steps = Array(
-					Array(
-						'name'			=> 'Processing Assets',
-						'function_call'	=> Array(
-											'process_function'	=> 'processAssets',
-										   ),
-						'running_mode'	=> 'server',
-						'auto_step'		=> true,
-						'allow_cancel'	=> true,
-						'percent_done'	=> 0,
-						'complete'		=> false,
-						'message'		=> '',
-					),
-				  );
 
 
 	/**
@@ -139,6 +114,46 @@ class HIPO_Job_Trigger_Batch_Events extends HIPO_Job
 		return parent::getCodeName().'-u'.$GLOBALS['SQ_SYSTEM']->currentUserId().'-a'.$this->_running_vars['codename_target'].'-'.$this->_running_vars['codename_propagate'];
 
 	}//end getCodeName()
+
+
+	/**
+	* Returns the (localised) HIPO name
+	*
+	* @return string
+	* @access public
+	*/
+	function getHipoName()
+	{
+		return translate('hipo_name_trigger_batch_events');
+
+	}//end getHipoName()
+
+
+	/**
+	* Returns the steps in this hipo, possibly with localised step names
+	* and messages
+	*
+	* @return string
+	* @access public
+	*/
+	function getInitialStepData()
+	{
+		return Array(
+					Array(
+						'name'			=> translate('hipo_processing_assets'),
+						'function_call'	=> Array(
+												'process_function'	=> 'processAssets',
+										   ),
+						'running_mode'	=> 'server',
+						'auto_step'		=> true,
+						'allow_cancel'	=> true,
+						'percent_done'	=> 0,
+						'complete'		=> false,
+						'message'		=> '',
+					),
+			   );
+
+	}//end getInitialStepData()
 
 
 	/**

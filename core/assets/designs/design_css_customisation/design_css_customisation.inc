@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css_customisation.inc,v 1.6 2005/04/15 00:37:24 lwright Exp $
+* $Id: design_css_customisation.inc,v 1.7 2005/05/16 06:36:31 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_css/design_css.inc';
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -355,7 +355,7 @@ class Design_Css_Customisation extends Design_Css
 
 		foreach ($file_link_info as $minorid => $file_info) {
 			$file_url = $file_link_urls[$minorid];
-			if ($file_url == '') $file_url = "Javascript: alert('No URL found for &quot;".$file_info['name']."&quot;; Design &quot;".$this->attr('id_name')."&quot; might not be linked under a site with a URL');";
+			if ($file_url == '') $file_url = "Javascript: alert(js_translate('no_url_found', '".addslashes($file_info['name'])."', '".addslashes($this->attr('id_name'))."'));";
 			$FILE_URLS[$file_info['name']] = $file_url;
 		}
 

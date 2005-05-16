@@ -18,10 +18,10 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_edit_fns.js,v 1.4 2005/05/15 23:12:07 dmckee Exp $
+* $Id: bodycopy_edit_fns.js,v 1.5 2005/05/16 06:36:31 lwright Exp $
 *
 */
-	
+
 	// this is an array of data that each element (divs, tables, rows, and cells)
 	// can place data for use in editing
 	var bodycopy_current_data = new Object();
@@ -83,7 +83,7 @@
 
 	function bodycopy_show_popup(file, width, height) {
 		if (!bodycopy_initialised) {
-			if (confirm('You were too quick off the mark, the page is not loaded yet. Do you want to reload the page?')) {
+			if (confirm(js_translate('page_not_loaded_yet'))) {
 				document.edit.action.value='';
 				document.edit.submit()
 			}

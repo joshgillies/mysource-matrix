@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_table.php,v 1.7 2005/05/11 06:04:49 lwright Exp $
+* $Id: insert_table.php,v 1.8 2005/05/16 06:36:31 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -57,7 +57,7 @@ include(dirname(__FILE__)."/header.php");
 
 		var num = parseInt(owner.form_element_value(field));
 		if (isNaN(num) || num < 0) {
-			alert("Please enter a positive number\n");
+			alert(js_translate('enter_positive_number'));
 			field.value = input_default;
 			field.focus();
 		} else {

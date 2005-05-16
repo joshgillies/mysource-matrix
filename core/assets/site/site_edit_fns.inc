@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site_edit_fns.inc,v 1.47 2005/05/11 06:04:55 lwright Exp $
+* $Id: site_edit_fns.inc,v 1.48 2005/05/16 06:36:31 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.47 $
+* @version $Revision: 1.48 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -119,7 +119,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 						// if nothing is checked, confirm deletion
 						if (!found) {
 							// if they don't want to delete, abort submit
-							if (!confirm('You need to select at least one protocol, otherwise the url will be deleted.\nDo you want to delete "' + url + '" ?')) {
+							if (!confirm(js_translate('must_select_at_least_one_protocol', url))) {
 								return false;
 							}
 						}

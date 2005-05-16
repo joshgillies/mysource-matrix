@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_customisation.inc,v 1.33 2005/04/15 00:37:25 lwright Exp $
+* $Id: design_customisation.inc,v 1.34 2005/05/16 06:36:31 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -384,7 +384,7 @@ class Design_Customisation extends Design
 
 		foreach ($file_link_info as $minorid => $file_info) {
 			$file_url = $file_link_urls[$minorid];
-			if ($file_url == '') $file_url = "Javascript: alert('No URL found for &quot;".$file_info['name']."&quot;; Design &quot;".$this->attr('id_name')."&quot; might not be linked under a site with a URL');";
+			if ($file_url == '') $file_url = "Javascript: alert(js_translate('no_url_found', '".addslashes($file_info['name'])."', '".addslashes($this->attr('id_name'))."'));";
 			$FILE_URLS[$file_info['name']] = $file_url;
 		}
 
@@ -398,7 +398,7 @@ class Design_Customisation extends Design
 
 		foreach ($css_link_info as $minorid => $css_info) {
 			$css_url = $css_link_urls[$minorid];
-			if ($css_url == '') $css_url = "Javascript: alert('No URL found for &quot;".$file_info['name']."&quot;; Design &quot;".$this->attr('id_name')."&quot; might not be linked under a site with a URL');";
+			if ($css_url == '') $css_url = "Javascript: alert(js_translate('no_url_found', '".addslashes($file_info['name'])."', '".addslashes($this->attr('id_name'))."'));";
 			$CSS_URLS[$css_info['name']] = $css_url;
 		}
 

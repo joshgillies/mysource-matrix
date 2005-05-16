@@ -2,7 +2,7 @@
 * Copyright (c) 2002 - interactivetools.com, inc.
 * Portions Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: spell_checker.js,v 1.6 2005/01/20 13:32:41 brobertson Exp $
+* $Id: spell_checker.js,v 1.7 2005/05/16 06:36:36 lwright Exp $
 *
 */
 
@@ -35,7 +35,7 @@ function makeCleanDoc(leaveFixed) {
 * changes the current dictionary to another one
 */
 function recheckClicked() {
-	document.getElementById("status").innerHTML = "Please wait: changing dictionary to" + ': "' + document.getElementById("f_dictionary").value + '".';
+	document.getElementById("status").innerHTML = js_translate('changing_dictionary', document.getElementById("f_dictionary").value);
 	var field = document.getElementById("f_content");
 	field.value = makeCleanDoc(true);
 	field.form.submit();
@@ -75,7 +75,7 @@ function replaceClicked() {
 	} while ((index != start) && wrongWords[index].__msh_fixed);
 	if (index == start) {
 		index = 0;
-		alert("Spelling checking is complete");
+		alert(js_translate('spellcheck_complete'));
 	}
 	wrongWords[index].onclick();
 	return false;
@@ -90,12 +90,12 @@ function replaceAllClicked() {
 	var ok = true;
 	var spans = allWords[currentElement.__msh_origWord];
 	if (spans.length == 0) {
-		alert("An impossible condition just happened.  Call FBI.  ;-)");
+		alert(js_translate('impossible_condition_occured'));
 	} else if (spans.length == 1) {
 		replaceClicked();
 		return false;
 	}
-	
+
 	if (ok) {
 		for (var i in spans) {
 			if (spans[i] != currentElement) {
@@ -136,7 +136,7 @@ function initDocument() {
 	modified = false;
 	frame = document.getElementById("i_framecontent");
 	var field = document.getElementById("f_content");
-	
+
 	var html = parent_object.getHTML();
 	html = parent_object.make_absolute_urls(html);
 	field.value = html;
@@ -195,13 +195,12 @@ function wordClicked() {
 	document.getElementById("b_ignall").disabled = (a.length <= 1);
 	var txt;
 	if (a.length == 1) {
-		txt = a.length + " occurrence";
+		txt = a.length + ' ' + js_translate('occurrence');
 	} else {
-		txt = a.length + " occurrences";
+		txt = a.length + ' ' + js_translate('occurrences');
 	}
-	
-	document.getElementById("status").innerHTML = "&nbsp;Found " + txt +
-		' for word "<b>' + currentElement.__msh_origWord + '</b>"';
+
+	document.getElementById("status").innerHTML = '&nbsp;' + js_translate('found_occurrences_of_word', txt, '<b>' + currentElement.__msh_origWord + '</b>');
 	var select = document.getElementById("v_suggestions");
 	for (var i = select.length; --i >= 0;) {
 		select.remove(i);
@@ -257,7 +256,7 @@ function finishedSpellChecking() {
 	wrongWords = null;
 	allWords = {};
 
-	document.getElementById("status").innerHTML = "&nbsp;Spell Checker ";
+	document.getElementById("status").innerHTML = '&nbsp;'+ js_translate('spell_checker') + ' ';
 	var doc = frame.contentWindow.document;
 	var spans = doc.getElementsByTagName("span");
 	var sps = [];
@@ -273,7 +272,7 @@ function finishedSpellChecking() {
 			el.__msh_id = id++;
 			var txt = (el.__msh_origWord = el.firstChild.data);
 			el.__msh_fixed = false;
-			
+
 			if (typeof allWords[txt] == "undefined") {
 				allWords[txt] = [el];
 			} else {
@@ -285,15 +284,15 @@ function finishedSpellChecking() {
 	wrongWords = sps;
 	if (sps.length == 0) {
 		if (!modified) {
-			alert('No spelling errors were found');
+			alert(js_translate('no_spelling_errors'));
 		} else {
-			alert('No Errors');
+			alert(js_translate('no_errors'));
 		}
 		return false;
 	}
 
 	(currentElement = sps[0]).onclick();
-	
+
 	var as = doc.getElementsByTagName("a");
 	for (var i = as.length; --i >= 0;) {
 		var a = as[i];

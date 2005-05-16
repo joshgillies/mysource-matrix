@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.js,v 1.36 2005/04/01 04:22:59 tbarrett Exp $
+* $Id: html_form.js,v 1.37 2005/05/16 06:36:32 lwright Exp $
 *
 */
 
@@ -410,7 +410,7 @@ function move_combo_selection(element, move_up)
 		break;
 
 		default:
-			alert('Element "' + element.name + '" is not a combo box');
+			alert(js_translate('element_not_combo_box', element.name ));
 
 	}// end switch
 
@@ -442,14 +442,14 @@ function check_date(date_name, show_time)
 		if (day == 29) {
 			// if not leap year
 			if (((year % 4) != 0) || ( ((year % 100) == 0) && ((year % 400) != 0))) {
-				alert (year + " is not a leap year, there is no " + day + "th of Feburary.");
+				alert (js_translate('not_leap_year', year, day ));
 				highlight_combo_element(day_box, 1);
 				day_box.focus();
 				return 0;
 			}
 
 		} else if (day > 29) {
-			alert ("There is no " + day + "th of Feburary.");
+			alert (js_translate('day_not_in_feburary', day));
 			highlight_combo_element(day_box, 1);
 			day_box.focus();
 			return 0;
@@ -457,7 +457,7 @@ function check_date(date_name, show_time)
 	}// end if
 
 	if ((month == 4 || month == 6 || month == 9 || month == 11) && day == 31) {
-		alert ("There is no 31st of " + get_combo_text(month_box) + ".");
+		alert (js_translate('no_31st_of_month', get_combo_text(month_box)));
 		highlight_combo_element(day_box, 1);
 		day_box.focus();
 		return 0;
@@ -667,7 +667,7 @@ function prependClearButton(elt, inherit)
 {
 	newButton = document.createElement('input');
 	newButton.type = 'button';
-	newButton.value = 'Clear';
+	newButton.value = js_tranlsate('clear');
 	if (inherit) {
 		newButton.onclick = new Function("resetLastSelect(this); clearLastCheckbox(this);");
 	} else {

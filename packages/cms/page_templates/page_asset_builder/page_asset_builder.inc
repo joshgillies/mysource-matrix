@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.62 2005/05/11 06:07:32 lwright Exp $
+* $Id: page_asset_builder.inc,v 1.63 2005/05/16 06:36:41 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.62 $
+* @version $Revision: 1.63 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -55,29 +55,6 @@ class Page_Asset_Builder extends Page
 	* @var array
 	*/
 	var $_replacements = Array();
-
-	/**
-	* An array of keywords that this asset makes available for use along with a default replacements
-	* @var array(keyword => name)
-	*/
-	var $_available_keywords = Array(
-								'login_invite'	=> 'Login Invite',
-								'login_form'	=> 'Login Form',
-								'login_error'	=> 'Login Error Message',
-								'create_invite'	=> 'Create Asset Invite',
-								'create_form'	=> 'Create Asset Form',
-								'create_error'	=> 'Create Asset Error Message',
-							   );
-
-	/**
-	* An array of bodycopies that need to be created
-	* @var Array()
-	*/
-	var $_bodycopies = Array(
-						'Not Logged In'	=> 'not_logged_in',
-						'Created'		=> 'created',
-						'Logged In'		=> 'logged_in',
-					   );
 
 	/**
 	* The default state the system should be in if the user is logged in
@@ -118,7 +95,7 @@ class Page_Asset_Builder extends Page
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
 		$copy_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1, 'value' => '');
 
-		foreach ($this->_bodycopies as $name => $value) {
+		foreach ($this->_getBodycopies() as $value => $name) {
 			$bodycopy = new Bodycopy();
 			$bodycopy->setAttrValue('name', $name);
 			$copy_link['value'] = $value;
@@ -193,7 +170,7 @@ class Page_Asset_Builder extends Page
 	function _getAllowedLinks()
 	{
 		$page_links = parent::_getAllowedLinks();
-		$page_links[SQ_LINK_TYPE_2]['bodycopy'] = Array('card' => count($this->_bodycopies), 'exclusive' => true);
+		$page_links[SQ_LINK_TYPE_2]['bodycopy'] = Array('card' => count($this->_getBodycopies()), 'exclusive' => true);
 		return $page_links;
 
 	}//end _getAllowedLinks()
@@ -1230,13 +1207,22 @@ class Page_Asset_Builder extends Page
 	{
 		if (!isset($vars['keywords'])) return;
 
-		$keywords = $this->_available_keywords;
+		$keywords = Array(
+						'login_invite'            => translate('cms_asset_builder_keyword_login_invite'),
+						'login_form'              => translate('cms_asset_builder_keyword_login_form'),
+						'create_error'            => translate('cms_asset_builder_keyword_login_error'),
+						'create_invite'           => translate('cms_asset_builder_keyword_create_invite'),
+						'create_form'             => translate('cms_asset_builder_keyword_create_form'),
+						'create_error'            => translate('cms_asset_builder_keyword_create_error'),
+					);
+
 		$keywords['created_assetid']			= translate('cms_asset_builder_created_assetid');
 		$keywords['created_asset_name']			= translate('cms_asset_builder_created_asset_name');
 		$keywords['created_asset_short_name']	= translate('cms_asset_builder_created_asset_short_name');
 		$keywords['created_asset_url']			= translate('cms_asset_builder_created_asset_url');
 		$keywords['created_asset_edit']			= translate('cms_asset_builder_created_asset_edit');
 		$keywords['created_asset_backend']		= translate('cms_asset_builder_created_asset_backend');
+
 
 		$vars['keywords'] = array_merge($vars['keywords'], $keywords);
 		$vars['keywords'] = array_merge($vars['keywords'], $this->getSelectableLocationKeywords());
@@ -1280,6 +1266,22 @@ class Page_Asset_Builder extends Page
 
 	}//end getDynamicLocationKeywords()
 
+
+	/**
+	* Return an array of bodycopies that need to be created
+
+	* @return Array
+	* @access private
+	*/
+	function _getBodycopies()
+	{
+		return Array(
+					'created'		=> translate('created'),
+					'logged_in'		=> translate('logged_in'),
+					'not_logged_in'	=> translate('not_logged_in'),
+			   );
+
+	}//end _getBodycopies()
 
 }//end class
 ?>

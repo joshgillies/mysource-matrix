@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime.inc,v 1.26 2005/05/11 06:05:06 lwright Exp $
+* $Id: datetime.inc,v 1.27 2005/05/16 06:36:31 lwright Exp $
 *
 */
 
@@ -46,32 +46,12 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *    </datetime>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
 class Asset_Attribute_DateTime extends Asset_Attribute
 {
-
-	/**
-	* Valid period type options for the datetime field
-	* @var array
-	*/
-	var $_period_options = Array( 'i' => 'minutes',
-								  'h' => 'hours',
-								  'd' => 'days',
-								  'w' => 'weeks',
-								  'm' => 'months',
-								  'y' => 'years',
-								);
-
-	/**
-	* Valid period age options for the datetime field
-	* @var array
-	*/
-	var $_age_options = Array( '-' => 'in the past',
-							   '+' => 'in the future',
-							);
 
 
 	/**
@@ -169,6 +149,9 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 		$period_type = 'd';
 		$period_age = '-';
 
+		$period_options = $this->_getPeriodOptions();
+		$age_options = $this->_getAgeOptions();
+
 		if ($using_single_date) {
 			$date_field_value = $this->value;
 
@@ -199,11 +182,11 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 
 		} else {
 			$matches = Array();
-			preg_match('|([\-\+])([0-9]+)(['.implode('', array_keys($this->_period_options)).'])|', $this->value, $matches);
+			preg_match('|([\-\+])([0-9]+)(['.implode('', array_keys($period_options)).'])|', $this->value, $matches);
 			if (isset($matches[1])) $period_age  = $matches[1];
 			if (isset($matches[2])) $period_num  = $matches[2];
 			if (isset($matches[3])) $period_type = $matches[3];
-			$date_field_value = date('Y-m-d h:i:s', strtotime($period_age.$period_num.' '.$this->_period_options[$period_type]));
+			$date_field_value = date('Y-m-d h:i:s', strtotime($period_age.$period_num.' '.$period_options[$period_type]));
 		}
 
 		if (!empty($this->_params['print_format'])) {
@@ -219,7 +202,7 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 			$start_text = translate('select_single_period');
 		} else {
 			if ($read_only) {
-				echo $period_num.' '.$this->_period_options[$period_type].' '.$this->_age_options[$period_age];
+				echo $period_num.' '.$period_options[$period_type].' '.$age_options[$period_age];
 				return;
 			}
 			$start_text = translate('select_date_period_config');
@@ -255,9 +238,9 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 					<?php
 					text_box($prefix.'period_num', $period_num, 3);
 					echo '&nbsp;';
-					combo_box($prefix.'_period_type', $this->_period_options, false, $period_type);
+					combo_box($prefix.'_period_type', $period_options, false, $period_type);
 					echo '&nbsp;';
-					combo_box($prefix.'_period_age', $this->_age_options, false, $period_age);
+					combo_box($prefix.'_period_age', $age_options, false, $period_age);
 					?>
 					<br /><br /><i><?php echo translate('select_date_period'); ?></i>
 				</div>
@@ -314,8 +297,11 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 			$period_type = (isset($_REQUEST[$prefix.'_period_type'])) ? $_REQUEST[$prefix.'_period_type'] : 'd';
 			$period_age = (isset($_REQUEST[$prefix.'_period_age'])) ? $_REQUEST[$prefix.'_period_age'] : '-';
 
-			if (!isset($this->_period_options[$period_type])) $period_type = 'd';
-			if (!isset($this->_age_options[$period_age])) $period_age = '-';
+			$period_options = $this->_getPeriodOptions();
+			$age_options = $this->_getAgeOptions();
+
+			if (!isset($period_options[$period_type])) $period_type = 'd';
+			if (!isset($age_options[$period_age])) $period_age = '-';
 
 			$value = $period_age.$period_num.$period_type;
 			if ($this->value != $value && $this->setValue($value)) {
@@ -342,11 +328,14 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 			$date_field_value = $this->value;
 		} else {
 			$matches = Array();
-			preg_match('|([\-\+])([0-9]+)(['.implode('', array_keys($this->_period_options)).'])|', $this->value, $matches);
+			$period_options = $this->_getPeriodOptions();
+			$age_options = $this->_getAgeOptions();
+
+			preg_match('|([\-\+])([0-9]+)(['.implode('', array_keys($period_options)).'])|', $this->value, $matches);
 			if (isset($matches[1])) $period_age  = $matches[1];
 			if (isset($matches[2])) $period_num  = $matches[2];
 			if (isset($matches[3])) $period_type = $matches[3];
-			$date_field_value = date('Y-m-d h:i:s', strtotime($period_age.$period_num.' '.$this->_period_options[$period_type]));
+			$date_field_value = date('Y-m-d h:i:s', strtotime($period_age.$period_num.' '.$period_options[$period_type]));
 		}
 
 		$field = new Datetime_Field('blah', $date_field_value, $this->_edit_params);
@@ -379,11 +368,14 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 			return $this->value;
 		} else {
 			$matches = Array();
-			preg_match('|([\-\+])([0-9]+)(['.implode('', array_keys($this->_period_options)).'])|', $this->value, $matches);
+			$period_options = $this->_getPeriodOptions();
+			$age_options = $this->_getAgeOptions();
+
+			preg_match('|([\-\+])([0-9]+)(['.implode('', array_keys($period_options)).'])|', $this->value, $matches);
 			if (isset($matches[1])) $period_age  = $matches[1];
 			if (isset($matches[2])) $period_num  = $matches[2];
 			if (isset($matches[3])) $period_type = $matches[3];
-			return date('Y-m-d H:i:s', strtotime($period_age.$period_num.' '.$this->_period_options[$period_type]));
+			return date('Y-m-d H:i:s', strtotime($period_age.$period_num.' '.$period_options[$period_type]));
 		}
 
 	}//end getISO8601()
@@ -411,7 +403,7 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 			$field = new Datetime_Field('blah', $ref, $this->_edit_params);
 			$value = $field->validateValue($value);
 		} else {
-			if (!preg_match('|[\-\+][0-9]+['.implode('', array_keys($this->_period_options)).']|', $value)) {
+			if (!preg_match('|[\-\+][0-9]+['.implode('', array_keys($this->_getPeriodOptions())).']|', $value)) {
 				$value = '-1d';
 			}
 		}
@@ -434,6 +426,42 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 		return Array($this->value => 1);
 
 	}//end getKeyData()
+
+
+	/**
+	* Return valid period type options for the datetime field
+	*
+	* @return Array
+	* @access private
+	*/
+	function _getPeriodOptions()
+	{
+		return Array(
+					'i'	=> translate('minutes'),
+					'h'	=> translate('hours'),
+					'd'	=> translate('days'),
+					'w'	=> translate('weeks'),
+					'm'	=> translate('months'),
+					'y'	=> translate('years'),
+			   );
+
+	}//end _getPeriodOptions()
+
+
+	/**
+	* Return valid period age options for the datetime field
+	*
+	* @return Array
+	* @access private
+	*/
+	function _getAgeOptions()
+	{
+		return Array(
+					'-' => 'in the past',
+					'+' => 'in the future',
+			   );
+
+	}//end _getAgeOptions()
 
 
 }//end class

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_import_thesaurus_xml.inc,v 1.6 2005/04/29 05:39:49 gsherwood Exp $
+* $Id: hipo_job_import_thesaurus_xml.inc,v 1.7 2005/05/16 06:36:46 lwright Exp $
 *
 */
 
@@ -24,130 +24,12 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    thesaurus_id	-	the ID of the thesaurus that is being added to
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
 class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 {
-
-	/**
-	* The name of this HIPO job (should not be modified by code)
-	* @var string
-	*/
-	var $hipo_name = 'Import Thesaurus XML';
-
-	/**
-	* Array of steps to perform in this HIPO
-	* @var Array
-	*/
-	var $_steps = Array(
-		Array(
-			'name'             => 'Starting up process',
-			'function_call'    => Array(
-				'process_function' => 'processStart',
-			),
-			'running_mode'     => 'server',
-			'auto_step'        => true,
-			'allow_cancel'	   => false,
-			'percent_done'     => 0,
-			'complete'         => false,
-			'message'          => 'Setting up the environment',
-		),
-
-		Array(
-			'name'			   => 'Acquiring Permission Locks',
-			'hipo_job'		   => Array(
-				'init_details_function' => 'getLockAssetDetails',
-			),
-			'running_mode'	   => 'server',
-			'auto_step'		   => true,
-			'allow_cancel'	   => true,
-			'percent_done'	   => 0,
-			'complete'		   => false,
-			'message'		   => '',
-		),
-
-		Array(
-			'name'             => 'Parsing XML file',
-			'function_call'    => Array(
-				'process_function' => 'processParseXML',
-			),
-			'running_mode'     => 'server',
-			'skip_step'        => false,
-			'auto_step'        => true,
-			'allow_cancel'	   => false,
-			'percent_done'     => 5,
-			'complete'         => false,
-			'message'          => '',
-		),
-
-		Array(
-			'name'             => 'Erasing Thesaurus Contents',
-			'function_call'    => Array(
-				'process_function' => 'processEraseContents',
-			),
-			'running_mode'     => 'server',
-			'auto_step'        => false,
-			'allow_cancel'	   => true,
-			'percent_done'     => 1,
-			'complete'         => false,
-			'message'          => 'Please confirm that you want to erase the existing thesaurus. Your XML file looks valid and is ready to be imported, its contents will replace the existing thesaurus data.',
-		),
-
-		Array(
-			'name'             => 'Adding Relations to the Database',
-			'function_call'    => Array(
-				'process_function' => 'processAddRelations',
-			),
-			'running_mode'     => 'server',
-			'auto_step'        => true,
-			'allow_cancel'	   => false,
-			'percent_done'     => 25,
-			'complete'         => false,
-			'message'          => '',
-		),
-
-		Array(
-			'name'             => 'Adding Entities to the Database',
-			'function_call'    => Array(
-				'process_function' => 'processAddEntities',
-			),
-			'running_mode'     => 'server',
-			'auto_step'        => true,
-			'allow_cancel'	   => false,
-			'percent_done'     => 60,
-			'complete'         => false,
-			'message'          => '',
-		),
-
-		Array(
-			'name'             => 'Linking Entities Together',
-			'function_call'    => Array(
-				'process_function' => 'processLinkEntities',
-			),
-			'running_mode'     => 'server',
-			'auto_step'        => true,
-			'allow_cancel'	   => false,
-			'percent_done'     => 95,
-			'complete'         => false,
-			'message'          => '',
-		),
-
-		Array(
-			'name'             => 'Finalizing Import',
-			'function_call'    => Array(
-				'process_function' => 'processFinish',
-			),
-			'running_mode'     => 'server',
-			'auto_step'        => true,
-			'allow_cancel'	   => false,
-			'percent_done'     => 0,
-			'complete'         => false,
-			'message'          => 'Cleaning up and moving out',
-		),
-
-	);
 
 
 	/**
@@ -174,6 +56,139 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 		return parent::getCodeName().'-'.$this->_running_vars['thesaurus_id'];
 
 	}//end getCodeName()
+
+
+	/**
+	* Returns the (localised) HIPO name
+	*
+	* @return string
+	* @access public
+	*/
+	function getHipoName()
+	{
+		return translate('lexicon_hipo_name_import_thesaurus_xml');
+
+	}//end getHipoName()
+
+
+	/**
+	* Returns the steps in this hipo, possibly with localised step names
+	* and messages
+	*
+	* @return string
+	* @access public
+	*/
+	function getInitialStepData()
+	{
+		return Array(
+					Array(
+						'name'             => translate('lexicon_hipo_starting_process'),
+						'function_call'    => Array(
+							'process_function' => 'processStart',
+						),
+						'running_mode'     => 'server',
+						'auto_step'        => true,
+						'allow_cancel'	   => false,
+						'percent_done'     => 0,
+						'complete'         => false,
+						'message'          => translate('lexicon_hipo_setting_up_env'),
+					),
+
+					Array(
+						'name'			   => translate('lexicon_hipo_acquiring_locks'),
+						'hipo_job'		   => Array(
+							'init_details_function' => 'getLockAssetDetails',
+						),
+						'running_mode'	   => 'server',
+						'auto_step'		   => true,
+						'allow_cancel'	   => true,
+						'percent_done'	   => 0,
+						'complete'		   => false,
+						'message'		   => '',
+					),
+
+					Array(
+						'name'             => translate('lexicon_hipo_parsing_xml'),
+						'function_call'    => Array(
+							'process_function' => 'processParseXML',
+						),
+						'running_mode'     => 'server',
+						'skip_step'        => false,
+						'auto_step'        => true,
+						'allow_cancel'	   => false,
+						'percent_done'     => 0,
+						'complete'         => false,
+						'message'          => '',
+					),
+
+					Array(
+						'name'             => translate('lexicon_hipo_erasing_thesaurus'),
+						'function_call'    => Array(
+													'paint_function' => 'paintEraseContents',
+													'process_function' => 'processEraseContents',
+											  ),
+						'running_mode'     => 'server',
+						'auto_step'        => false,
+						'allow_cancel'	   => true,
+						'percent_done'     => 0,
+						'complete'         => false,
+						'message'          => '',
+					),
+
+					Array(
+						'name'             => translate('lexicon_hipo_adding_relations'),
+						'function_call'    => Array(
+							'process_function' => 'processAddRelations',
+						),
+						'running_mode'     => 'server',
+						'auto_step'        => true,
+						'allow_cancel'	   => false,
+						'percent_done'     => 0,
+						'complete'         => false,
+						'message'          => '',
+					),
+
+					Array(
+						'name'             => translate('lexicon_hipo_adding_entities'),
+						'function_call'    => Array(
+							'process_function' => 'processAddEntities',
+						),
+						'running_mode'     => 'server',
+						'auto_step'        => true,
+						'allow_cancel'	   => false,
+						'percent_done'     => 0,
+						'complete'         => false,
+						'message'          => '',
+					),
+
+					Array(
+						'name'             => translate('lexicon_hipo_linking_entities'),
+						'function_call'    => Array(
+							'process_function' => 'processLinkEntities',
+						),
+						'running_mode'     => 'server',
+						'auto_step'        => true,
+						'allow_cancel'	   => false,
+						'percent_done'     => 0,
+						'complete'         => false,
+						'message'          => '',
+					),
+
+					Array(
+						'name'             => translate('lexicon_hipo_finalising_import'),
+						'function_call'    => Array(
+							'process_function' => 'processFinish',
+						),
+						'running_mode'     => 'server',
+						'auto_step'        => true,
+						'allow_cancel'	   => false,
+						'percent_done'     => 0,
+						'complete'         => false,
+						'message'          => translate('lexicon_hipo_cleaning_up'),
+					),
+			   );
+
+	}//end getInitialStepData()
 
 
 	/**
@@ -219,6 +234,30 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 		return true;
 
 	}//end processStart()
+
+
+	/**
+	* Paints the interface for the 'Erase Thesaurus Contents' step
+	*
+	* @param array $step_data    step data
+	* @param string $prefix      unique prefix
+	*
+	* @access public
+	* @return boolean
+	*/
+	function paintEraseContents(&$step_data, &$o, $prefix)
+	{
+		$o->openSection(translate('lexicon_hipo_erasing_thesaurus'));
+		$o->openField('');
+
+		echo translate('lexicon_hipo_confirm_erase');
+
+		$o->closeField();
+		$o->closeSection();
+
+		return true;
+
+	}//end paintEraseContents()
 
 
 	/**

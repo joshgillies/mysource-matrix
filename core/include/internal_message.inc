@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: internal_message.inc,v 1.58 2005/05/11 23:44:48 lwright Exp $
+* $Id: internal_message.inc,v 1.59 2005/05/16 06:36:32 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    An internal message to be sent around the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.58 $
+* @version $Revision: 1.59 $
 * @package MySource_Matrix
 */
 class Internal_Message extends MySource_Object
@@ -550,15 +550,15 @@ class Internal_Message extends MySource_Object
 			<body bgcolor="#FFFFFF">
 				<table border="0" cellspacing="1" cellpadding="2" width="100%" height="100%">
 					<tr>
-						<td valign="top" class="sq-message-item"><b>SUBJECT:</b></td>
+						<td valign="top" class="sq-message-item"><b><?php strtoupper(translate('subject')) ?>:</b></td>
 						<td valign="top" class="sq-message-item" width="100%"><?php echo $info['subject']; ?></td>
 					</tr>
 					<tr>
-						<td valign="top" class="sq-message-item"><b>FROM:</b></td>
+						<td valign="top" class="sq-message-item"><b><?php strtoupper(translate('from')) ?>:</b></td>
 						<td valign="top" class="sq-message-item" width="100%"><?php echo $info['from_name'] ?></td>
 					</tr>
 					<tr>
-						<td valign="top" class="sq-message-item"><b>DATE:</b></td>
+						<td valign="top" class="sq-message-item"><b><?php strtoupper(translate('date')) ?>:</b></td>
 						<td valign="top" class="sq-message-item" width="100%"><?php echo readable_datetime($info['sent']); ?></td>
 					</tr>
 					<tr height="100%">

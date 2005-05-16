@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_generate_report.inc,v 1.8 2005/04/15 00:37:27 lwright Exp $
+* $Id: hipo_job_generate_report.inc,v 1.9 2005/05/16 06:36:31 lwright Exp $
 *
 */
 
@@ -33,37 +33,12 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
 class HIPO_Job_Generate_Report extends HIPO_Job
 {
-
-	/**
-	* The name of this HIPO job (should not be modified by code)
-	* @var string
-	*/
-	var $hipo_name = 'Generate Report';
-
-	/**
-	* Array of steps to perform in this HIPO
-	* @var Array
-	*/
-	var $_steps = Array(
-					Array(
-						'name'			=> 'Generating Report',
-						'function_call'	=> Array(
-											'process_function'	=> 'processReport',
-										   ),
-						'running_mode'	=> 'server',
-						'auto_step'		=> true,
-						'allow_cancel'	=> true,
-						'percent_done'	=> 0,
-						'complete'		=> false,
-						'message'		=> '',
-					),
-				  );
 
 
 	/**
@@ -94,6 +69,46 @@ class HIPO_Job_Generate_Report extends HIPO_Job
 		return parent::getCodeName().'-'.$this->_running_vars['assetid'];
 
 	}//end getCodeName()
+
+
+	/**
+	* Returns the (localised) HIPO name
+	*
+	* @return string
+	* @access public
+	*/
+	function getHipoName()
+	{
+		return translate('hipo_name_generate_report');
+
+	}//end getHipoName()
+
+
+	/**
+	* Returns the steps in this hipo, possibly with localised step names
+	* and messages
+	*
+	* @return string
+	* @access public
+	*/
+	function getInitialStepData()
+	{
+		return Array(
+					Array(
+						'name'			=> translate('hipo_generating_report'),
+						'function_call'	=> Array(
+												'process_function'	=> 'processReport',
+										   ),
+						'running_mode'	=> 'server',
+						'auto_step'		=> true,
+						'allow_cancel'	=> true,
+						'percent_done'	=> 0,
+						'complete'		=> false,
+						'message'		=> '',
+					),
+			   );
+
+	}//end getInitialStepData()
 
 
 	/**

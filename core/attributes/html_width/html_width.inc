@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_width.inc,v 1.7 2005/05/11 06:05:06 lwright Exp $
+* $Id: html_width.inc,v 1.8 2005/05/16 06:36:31 lwright Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *    <html_width />
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -93,7 +93,7 @@ class Asset_Attribute_HTML_Width extends Asset_Attribute
 		}
 
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
-		text_box($prefix, (int) $this->value, 4, 0, false, 'onFocus="javascript: this.__sq_init_value = this.value;" onChange="javascript: if (isNaN(parseInt(this.value))) { this.value = this.__sq_init_value; alert(\'This is an integer field.\\nUnable to accept non-digit characters in this field.\'); } else { this.value = parseInt(this.value); } "');
+		text_box($prefix, (int) $this->value, 4, 0, false, 'onFocus="javascript: this.__sq_init_value = this.value;" onChange="javascript: if (isNaN(parseInt(this.value))) { this.value = this.__sq_init_value; alert(js_translate(\'cannot_accept_non_digit_characters\')); } else { this.value = parseInt(this.value); } "');
 		combo_box($prefix.'_pct', Array(0 => 'Pixels', 1 => 'Percent'), false, $is_pct, 0, $extras='', $maxlength=0);
 
 	}//end paint()

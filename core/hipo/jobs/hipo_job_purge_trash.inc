@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_purge_trash.inc,v 1.26 2005/05/11 06:05:08 lwright Exp $
+* $Id: hipo_job_purge_trash.inc,v 1.27 2005/05/16 06:36:31 lwright Exp $
 *
 */
 
@@ -33,37 +33,12 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
 class HIPO_Job_Purge_Trash extends HIPO_Job
 {
-
-	/**
-	* The name of this HIPO job (should not be modified by code)
-	* @var string
-	*/
-	var $hipo_name = 'Purge Trash';
-
-	/**
-	* Array of steps to perform in this HIPO
-	* @var Array
-	*/
-	var $_steps = Array(
-					Array(
-						'name'			=> 'Purging Trash',
-						'function_call'	=> Array(
-											'process_function'	=> 'processTrash',
-										   ),
-						'running_mode'	=> 'server',
-						'auto_step'		=> true,
-						'allow_cancel'	=> true,
-						'percent_done'	=> 0,
-						'complete'		=> false,
-						'message'		=> '',
-					),
-				  );
 
 
 	/**
@@ -120,6 +95,46 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 			   );
 
 	}//end getConfigVars()
+
+
+	/**
+	* Returns the (localised) HIPO name
+	*
+	* @return string
+	* @access public
+	*/
+	function getHipoName()
+	{
+		return translate('hipo_name_purge_trash');
+
+	}//end getHipoName()
+
+
+	/**
+	* Returns the steps in this hipo, possibly with localised step names
+	* and messages
+	*
+	* @return string
+	* @access public
+	*/
+	function getInitialStepData()
+	{
+		return Array(
+					Array(
+						'name'			=> translate('hipo_purging_trash'),
+						'function_call'	=> Array(
+												'process_function'	=> 'processTrash',
+										   ),
+						'running_mode'	=> 'server',
+						'auto_step'		=> true,
+						'allow_cancel'	=> true,
+						'percent_done'	=> 0,
+						'complete'		=> false,
+						'message'		=> '',
+					),
+			   );
+
+	}//end getInitialStepData()
 
 
 	/**

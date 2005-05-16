@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.14 2005/05/16 01:11:02 rhoward Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.15 2005/05/16 06:36:41 lwright Exp $
 *
 */
 
@@ -40,7 +40,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 * @author  David Heppell <dheppell@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1233,7 +1233,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 			<script language="JavaScript">
 				function sortOrderMoveDown(currentOrder) {
 					if (!document.getElementById) {
-						alert('Browser cannot support script - Get Element By ID is not defined');
+						alert(js_translate('brower_does_not_support_getelementbyid'));
 						return;
 					}
 
@@ -1244,7 +1244,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 					if (!nextElement) return;
 
 					if (!currentElement.innerHTML) {
-						alert('Browser cannot support script - Inner HTML is not defined');
+						alert(js_translate('brower_does_not_support_innerhtml'));
 						return;
 					}
 
@@ -1263,7 +1263,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 				function sortOrderMoveUp(currentOrder) {
 					if (!document.getElementById) {
-						alert('Browser cannot support script - Get Element By ID is not defined');
+						alert(js_translate('brower_does_not_support_getelementbyid'));
 						return;
 					}
 
@@ -1273,7 +1273,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 					var prevElement    = document.getElementById('<?php echo $prefix ?>_sort_order_' + (currentOrder - 1));
 
 					if (!currentElement.innerHTML) {
-						alert('Browser cannot support script - Inner HTML is not defined');
+						alert(js_translate('brower_does_not_support_innerhtml'));
 						return;
 					}
 

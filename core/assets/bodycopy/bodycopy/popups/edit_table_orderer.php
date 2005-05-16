@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit_table_orderer.php,v 1.5 2005/05/11 06:04:49 lwright Exp $
+* $Id: edit_table_orderer.php,v 1.6 2005/05/16 06:36:31 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -81,7 +81,7 @@ include(dirname(__FILE__)."/header.php");
 			break;
 
 			default :
-				alert('ORDER TYPE : "' + order_type + '" unknown');
+				alert(js_translate('order_type_unknown', order_type));
 
 		}//end switch
 

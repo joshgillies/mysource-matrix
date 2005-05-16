@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_clone_assets.inc,v 1.13 2005/05/11 06:05:07 lwright Exp $
+* $Id: hipo_job_clone_assets.inc,v 1.14 2005/05/16 06:36:31 lwright Exp $
 *
 */
 
@@ -30,104 +30,12 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
 class HIPO_Job_Clone_Assets extends HIPO_Job
 {
-
-	/**
-	* The name of this HIPO job (should not be modified by code)
-	* @var string
-	*/
-	var $hipo_name = 'Clone Assets';
-
-	/**
-	* Array of steps to perform in this HIPO
-	* @var Array
-	*/
-	var $_steps = Array(
-					Array(
-						'name'			=> 'Clone Options',
-						'function_call'	=> Array(
-											'paint_function'	=> 'paintCloneOptions',
-											'process_function'	=> 'processCloneOptions',
-										   ),
-						'running_mode'	=> 'web',
-						'skip_step'		=> false,
-						'auto_step'		=> false,
-						'allow_cancel'	=> true,
-						'percent_done'	=> 0,
-						'complete'		=> false,
-						'message'		=> '',
-					),
-					Array(
-						'name'			=> 'Acquiring Locks',
-						'hipo_job'		=> Array(
-											'init_details_function'	=> 'getLockAssetDetails',
-										   ),
-						'running_mode'	=> 'server',
-						'auto_step'		=> true,
-						'allow_cancel'	=> false,
-						'percent_done'	=> 0,
-						'complete'		=> false,
-						'message'		=> '',
-					),
-					Array(
-						'name'			=> 'Cloning Assets',
-						'function_call'	=> Array(
-											'process_function'	=> 'processCloneAssets',
-										   ),
-						'running_mode'	=> 'server',
-						'skip_step'		=> false,
-						'auto_step'		=> true,
-						'allow_cancel'	=> true,
-						'percent_done'	=> 0,
-						'complete'		=> false,
-						'message'		=> '',
-					),
-					Array(
-						'name'			=> 'Remapping Assets',
-						'function_call'	=> Array(
-											'process_function'	=> 'processRemap',
-										   ),
-						'running_mode'	=> 'server',
-						'skip_step'		=> false,
-						'auto_step'		=> true,
-						'allow_cancel'	=> false,
-						'percent_done'	=> 0,
-						'complete'		=> false,
-						'message'		=> '',
-					),
-					Array(
-						'name'			=> 'Releasing Locks',
-						'function_call'	=> Array(
-											'process_function'	=> 'releaseLocks',
-										   ),
-						'running_mode'	=> 'server',
-						'auto_step'		=> true,
-						'skip_step'		=> false,
-						'allow_cancel'	=> false,
-						'percent_done'	=> 0,
-						'complete'		=> false,
-						'message'		=> '',
-					),
-					Array(
-						'name'			=> 'Refreshing Asset Map',
-						'function_call'	=> Array(
-											'paint_function'	=> 'paintRefresh',
-											'process_function'	=> 'processRefresh',
-										   ),
-						'running_mode'	=> 'web',
-						'auto_step'		=> true,
-						'skip_step'		=> false,
-						'allow_cancel'	=> false,
-						'percent_done'	=> 0,
-						'complete'		=> false,
-						'message'		=> '',
-					),
-				  );
 
 
 	/**
@@ -201,6 +109,113 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 		return parent::getCodeName().'-'.md5(implode('-',array_keys($this->_running_vars['assets'])));
 
 	}//end getCodeName()
+
+
+	/**
+	* Returns the (localised) HIPO name
+	*
+	* @return string
+	* @access public
+	*/
+	function getHipoName()
+	{
+		return translate('hipo_name_clone_assets');
+
+	}//end getHipoName()
+
+
+	/**
+	* Returns the steps in this hipo, possibly with localised step names
+	* and messages
+	*
+	* @return string
+	* @access public
+	*/
+	function getInitialStepData()
+	{
+		return Array(
+					Array(
+						'name'			=> translate('hipo_clone_options'),
+						'function_call'	=> Array(
+												'paint_function'	=> 'paintCloneOptions',
+												'process_function'	=> 'processCloneOptions',
+										   ),
+						'running_mode'	=> 'web',
+						'skip_step'		=> false,
+						'auto_step'		=> false,
+						'allow_cancel'	=> true,
+						'percent_done'	=> 0,
+						'complete'		=> false,
+						'message'		=> '',
+					),
+					Array(
+						'name'			=> translate('hipo_acquiring_locks'),
+						'hipo_job'		=> Array(
+												'init_details_function'	=> 'getLockAssetDetails',
+										   ),
+						'running_mode'	=> 'server',
+						'auto_step'		=> true,
+						'allow_cancel'	=> false,
+						'percent_done'	=> 0,
+						'complete'		=> false,
+						'message'		=> '',
+					),
+					Array(
+						'name'			=> translate('hipo_cloning_assets'),
+						'function_call'	=> Array(
+												'process_function'	=> 'processCloneAssets',
+										   ),
+						'running_mode'	=> 'server',
+						'skip_step'		=> false,
+						'auto_step'		=> true,
+						'allow_cancel'	=> true,
+						'percent_done'	=> 0,
+						'complete'		=> false,
+						'message'		=> '',
+					),
+					Array(
+						'name'			=> translate('hipo_remapping_assets'),
+						'function_call'	=> Array(
+												'process_function'	=> 'processRemap',
+										   ),
+						'running_mode'	=> 'server',
+						'skip_step'		=> false,
+						'auto_step'		=> true,
+						'allow_cancel'	=> false,
+						'percent_done'	=> 0,
+						'complete'		=> false,
+						'message'		=> '',
+					),
+					Array(
+						'name'			=> translate('hipo_releasing_locks'),
+						'function_call'	=> Array(
+												'process_function'	=> 'releaseLocks',
+										   ),
+						'running_mode'	=> 'server',
+						'auto_step'		=> true,
+						'skip_step'		=> false,
+						'allow_cancel'	=> false,
+						'percent_done'	=> 0,
+						'complete'		=> false,
+						'message'		=> '',
+					),
+					Array(
+						'name'			=> translate('hipo_refreshing_asset_map'),
+						'function_call'	=> Array(
+												'paint_function'	=> 'paintRefresh',
+												'process_function'	=> 'processRefresh',
+										   ),
+						'running_mode'	=> 'web',
+						'auto_step'		=> true,
+						'skip_step'		=> false,
+						'allow_cancel'	=> false,
+						'percent_done'	=> 0,
+						'complete'		=> false,
+						'message'		=> '',
+					),
+			   );
+
+	}//end getInitialStepData()
 
 
 	/**

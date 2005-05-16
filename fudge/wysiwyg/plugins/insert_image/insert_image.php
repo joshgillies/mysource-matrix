@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_image.php,v 1.8 2005/01/20 13:32:41 brobertson Exp $
+* $Id: insert_image.php,v 1.9 2005/05/16 06:36:35 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -84,7 +84,7 @@
 			};
 
 			function onPreview() {
-				alert("FIXME: preview needs rewritten:\n  show the image inside this window instead of opening a new one.");
+				alert(js_translate('preview_needs_rewritten'));
 				var f_url = document.getElementById("f_url");
 				var url = f_url.value;
 				if (!url) {
@@ -161,15 +161,15 @@
 	</head>
 
 	<body onload="Init()">
-		<div class="title">Insert Image</div>
+		<div class="title"><?php echo translate('insert_image'); ?></div>
 		<form action="" method="get">
 			<table border="0" width="100%" style="padding: 0px; margin: 0px">
 				<tbody>
 					<tr>
-						<td style="width: 7em; text-align: right">Image URL:</td>
+						<td style="width: 7em; text-align: right"><?php echo translate('image_url'); ?>:</td>
 						<td>
 							<input type="text" name="url" id="f_url" style="width:75%" title="Enter the image URL here" value="<?php echo $_REQUEST['f_url']?>" />
-							<button name="preview" onclick="return onPreview();" title="Preview the image in a new window">Preview</button>
+							<button name="preview" onclick="return onPreview();" title="Preview the image in a new window"><?php echo translate('preview'); ?></button>
 						</td>
 					</tr>
 					<tr>
@@ -182,11 +182,11 @@
 			<p />
 
 			<fieldset style="float: left; margin-left: 5px;">
-				<legend>Layout</legend>
+				<legend><?php echo translate('layout'); ?></legend>
 
 				<div class="space"></div>
 
-				<div class="fl">Alignment:</div>
+				<div class="fl"><?php echo translate('alignment'); ?>:</div>
 				<select size="1" name="align" id="f_align" title="Positioning of this image">
 					<?php
 					if (!isset($_REQUEST['f_align'])) $_REQUEST['f_align'] = 'baseline';
@@ -209,7 +209,7 @@
 
 				<p />
 
-				<div class="fl">Border thickness:</div>
+				<div class="fl"><?php echo translate('border_thickness'); ?>:</div>
 				<input type="text" name="border" id="f_border" size="5"
 				title="Leave empty for no border" value="<?php echo $_REQUEST['f_border']?>" />
 
@@ -217,16 +217,16 @@
 			</fieldset>
 
 			<fieldset style="float:right; margin-right: 5px;">
-				<legend>Spacing</legend>
+				<legend><?php echo translate('spacing'); ?></legend>
 
 				<div class="space"></div>
 
-				<div class="fr">Horizontal:</div>
+				<div class="fr"><?php echo translate('horizontal'); ?>:</div>
 				<input type="text" name="horiz" id="f_horiz" size="5" title="Horizontal padding" value="<?php echo $_REQUEST['f_horiz']?>" />
 
 				<p />
 
-				<div class="fr">Vertical:</div>
+				<div class="fr"><?php echo translate('vertical'); ?>:</div>
 				<input type="text" name="vert" id="f_vert" size="5" title="Vertical padding" value="<?php echo $_REQUEST['f_vert']?>" />
 
 				<div class="space"></div>
@@ -234,8 +234,8 @@
 
 			<div style="margin-top: 85px; text-align: right;">
 			<hr />
-			<button type="button" name="ok" onclick="return onOK();">OK</button>
-			<button type="button" name="cancel" onclick="return onCancel();">Cancel</button>
+			<button type="button" name="ok" onclick="return onOK();"><?php echo translate('ok'); ?></button>
+			<button type="button" name="cancel" onclick="return onCancel();"><?php echo translate('cancel'); ?></button>
 			</div>
 		</form>
 	</body>

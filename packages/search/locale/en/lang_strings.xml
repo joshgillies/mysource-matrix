@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.1 2005/05/11 06:07:48 lwright Exp $
+* $Id: lang_strings.xml,v 1.2 2005/05/16 06:36:49 lwright Exp $
 *
 *
 * Search Package Localised Strings File
@@ -19,20 +19,29 @@
 -->
 
 <strings>
-<string source="sch_reindexing_asset">Reindexing %s</string>
-<string source="sch_reindex_all_assets">Reindex all assets in the system</string>
-<string source="sch_search_entire_system">Search entire system</string>
-<string source="sch_no_search_page_specified">No search page specified</string>
-<string source="sch_no_root_node_selected">No root node has been selected</string>
-<string source="sch_searched_asset_types">Searched Asset Types</string>
-<string source="sch_no_asset_types_selected">No asset types are selected</string>
-<string source="sch_select_asset_type">Select Asset Type</string>
-<string source="sch_add_new_type">Add New Type</string>
+	<string source="sch_reindexing_asset">Reindexing %s</string>
+	<string source="sch_reindex_all_assets">Reindex all assets in the system</string>
+	<string source="sch_search_entire_system">Search entire system</string>
+	<string source="sch_no_search_page_specified">No search page specified</string>
+	<string source="sch_no_root_node_selected">No root node has been selected</string>
+	<string source="sch_searched_asset_types">Searched Asset Types</string>
+	<string source="sch_no_asset_types_selected">No asset types are selected</string>
+	<string source="sch_select_asset_type">Select Asset Type</string>
+	<string source="sch_add_new_type">Add New Type</string>
 
-<string source="sch_search_terms">Search Terms</string>
-<string source="sch_search_string">Search String</string>
-<string source="sch_search_restrictions">Search Restrictions</string>
-<string source="sch_search_location">Search Location</string>
-<string source="sch_system_wide">System Wide</string>
+	<string source="sch_search_terms">Search Terms</string>
+	<string source="sch_search_string">Search String</string>
+	<string source="sch_search_restrictions">Search Restrictions</string>
+	<string source="sch_search_location">Search Location</string>
+	<string source="sch_system_wide">System Wide</string>
 
+	<!-- SEARCH HIPO STRINGS -->
+	<string source="sch_hipo_name_global_sr">Global Search and Replace</string>
+	<string source="sch_hipo_name_reindex_assets">Re-index Assets</string>
+	<string source="sch_hipo_regenerating_metadata">Regenerating Metadata</string>
+	<string source="sch_hipo_reindexing_assets">Reindexing Assets</string>
+	<string source="sch_hipo_replacing_asset_attributes">Replacing Asset Attributes</string>
+	<string source="sch_hipo_replacing_asset_contents">Replacing Asset Contents</string>
+	<string source="sch_hipo_replacing_asset_metadata">Replacing Asset Metadata</string>
+	<string source="sch_hipo_replacing_schema_values">Replacing Schema Values</string>
 </strings>

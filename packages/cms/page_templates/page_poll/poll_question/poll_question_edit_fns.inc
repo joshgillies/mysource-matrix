@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: poll_question_edit_fns.inc,v 1.3 2005/04/29 05:40:31 gsherwood Exp $
+* $Id: poll_question_edit_fns.inc,v 1.4 2005/05/16 06:36:41 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -67,7 +67,7 @@ class Poll_Question_Edit_Fns extends Asset_Edit_Fns
 		<script language="JavaScript">
 			function sortOrderMoveDown(currentOrder) {
 			  if (!document.getElementById) {
-				  alert('Browser cannot support script - Get Element By ID is not defined');
+				  alert(js_translate('brower_does_not_support_getelementbyid'));
 				  return;
 			  }
 
@@ -102,7 +102,7 @@ class Poll_Question_Edit_Fns extends Asset_Edit_Fns
 
 			function sortOrderMoveUp(currentOrder) {
 			  if (!document.getElementById) {
-				  alert('Browser cannot support script - Get Element By ID is not defined');
+				  alert(js_translate('brower_does_not_support_getelementbyid'));
 				  return;
 			  }
 

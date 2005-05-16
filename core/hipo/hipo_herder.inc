@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_herder.inc,v 1.66 2005/05/11 06:05:07 lwright Exp $
+* $Id: hipo_herder.inc,v 1.67 2005/05/16 06:36:31 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) Herder (Manager ;P)
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.66 $
+* @version $Revision: 1.67 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -275,7 +275,7 @@ class HIPO_Herder extends MySource_Object
 				$delay = ($source_job->getRunningMode() == 'server');
 				$onload = 'document.'.$form_name.'.submit();';
 			}
-			$status_msg = $source_job->hipo_name.' HIPO '.(($source_job->complete()) ? 'Complete' : 'Progress');
+			$status_msg = $source_job->complete() ? translate('hipo_complete', $source_job->getHipoName()) : translate('hipo_progress', $source_job->getHipoName());
 		}
 
 		$o = &$this->getBackendOutputter();
@@ -292,7 +292,7 @@ class HIPO_Herder extends MySource_Object
 				if (ON_LOAD_TIME_OUT != null) {
 					clearTimeout(ON_LOAD_TIME_OUT);
 				}
-				if (confirm("Are you sure you want to cancel?")) {
+				if (confirm(js_translate('confirm_cancel'))) {
 					document.<?php echo $form_name; ?>.cancel_hipo.value = "1";
 					document.<?php echo $form_name; ?>.submit();
 				} else {
@@ -300,7 +300,7 @@ class HIPO_Herder extends MySource_Object
 					if (!is_null($source_job) && $source_job->getRunningMode() == 'server') {
 						?>next_page();<?php
 					} else {
-						?>alert('This action cannot be performed');<?php
+						?>alert(js_translate('action_cannot_be_performed'));<?php
 					}
 					?>
 				}
@@ -371,10 +371,10 @@ class HIPO_Herder extends MySource_Object
 					// if the source job is null it means that an abort finally finished
 					// (we couldn't get here otherwise) so print that and get out of here
 					if (is_null($source_job)) {
-						echo 'Abort Complete';
+						echo translate('hipo_abort_complete');
 						$button_text = 'OK';
 					} else {
-						echo 'Aborting...';
+						echo translate('hipo_aborting');
 						$button_text = 'Next >>';
 					}
 

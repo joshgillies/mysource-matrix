@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.1 2005/05/11 06:05:06 lwright Exp $
+* $Id: lang_strings.xml,v 1.2 2005/05/16 06:36:31 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -30,5 +30,5 @@
 	<string source="user_no_membership_conditions">There are no membership conditions set for "%s". This user is always a member of this group.</string>
 	<string source="user_section_group_conditions">Group Membership Conditions for "%1$s" (Id: #%2$s)</string>
 	<string source="user_cannot_be_restricted">This user is not a member of any user groups; it cannot be restricted</string>
-	<string source="user_group_condition_list">Add a restriction to group %s of type %s</string>
+	<string source="user_group_condition_list">Add a restriction to group %1$s of type %2$s</string>
 </strings>

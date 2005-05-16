@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: duration.inc,v 1.2 2005/03/14 01:24:54 tbarrett Exp $
+* $Id: duration.inc,v 1.3 2005/05/16 06:36:31 lwright Exp $
 *
 */
 
@@ -37,7 +37,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
 * @author	Tom Barrett			<tbarrett@squiz.net>
 *
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -45,7 +45,12 @@ class Asset_Attribute_Duration extends Asset_Attribute
 {
 
 
-	var $units = Array('days' => 86400, 'hours' => 3600, 'minutes' => 60, 'seconds' => 1);
+	var $units = Array(
+						'days'		=> 86400,
+						'hours'		=> 3600,
+						'minutes'	=> 60,
+						'seconds'	=> 1,
+				 );
 
 
 	/**

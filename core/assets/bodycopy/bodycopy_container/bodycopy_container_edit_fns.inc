@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_edit_fns.inc,v 1.30 2005/05/12 06:24:17 tbarrett Exp $
+* $Id: bodycopy_container_edit_fns.inc,v 1.31 2005/05/16 06:36:31 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -526,7 +526,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 
 			function bodycopy_show_popup(file, width, height) {
 				if (!bodycopy_initialised) {
-					if (confirm('You were too quick off the mark, the page is not loaded yet. Do you want to reload the page?')) {
+					if (confirm(js_translate('page_not_loaded_yet'))) {
 						document.edit.action.value='';
 						document.edit.submit()
 					}

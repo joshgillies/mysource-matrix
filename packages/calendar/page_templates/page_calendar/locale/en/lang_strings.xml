@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.1 2005/05/11 06:07:21 lwright Exp $
+* $Id: lang_strings.xml,v 1.2 2005/05/16 06:36:39 lwright Exp $
 *
 *
 * Calendar Package Localised Strings File
@@ -19,31 +19,39 @@
 -->
 
 <strings>
-<string source="cal_page_event_location">Location to draw events from</string>
-<string source="cal_page_event_css_class">CSS Class to apply to the events' display</string>
-<string source="cal_page_show_title_only">Show Title Only</string>
-<string source="cal_page_use_type_format_bodycopy">Use Type Format Bodycopy</string>
-<string source="cal_page_category_view">%s View</string>
-<string source="cal_page_list_entry_cb">For each list entry, %s</string>
-<string source="cal_page_list_entry_unlocked">Each entry shows %s</string>
-<string source="cal_page_look_and_feel_1">The Calendar Page has a default CSS file that controls the look and feel of the Calendar views.  A link to this CSS file is automatically inserted into the head of the generated HTML document.</string>
-<string source="cal_page_look_and_feel_2">If you want to customise some or all of the style rules you can <![CDATA[<a href="%s">download the default CSS file</a>]]> and modify it.  Put a link to your modified version in the parse file of the design that applies to this page, <![CDATA[<i>after</i>]]> the "head" design area tag.</string>
-<string source="cal_page_look_and_feel_3"><![CDATA[<b>Note:</b>]]> For week and day view calendar tables to render correctly, your site design <![CDATA[<i>must</i>]]> put the browser in a mode that correctly implements the W3C box model, eg. by specifying the XHTML Strict doctype.</string>
-<string source="cal_page_paint_title_format">The date format to use in this view's title, expressed using the date format symbols from the <![CDATA[<a target="_blank" href="%s">PHP date function</a>]]></string>
-<string source="cal_page_event_source">Event Source</string>
-<string source="cal_page_show_in_own_column_question">Show in Own Column ?</string>
-<string source="cal_page_calendar_contents">Calendar Contents</string>
-<string source="cal_page_calendar_title">Calendar Title</string>
-<string source="cal_page_up_link">Up Link</string>
-<string source="cal_page_prev_link">Previous Link</string>
-<string source="cal_page_next_link">Next Link</string>
-<string source="cal_page_current_user">Name of Current User</string>
-<string source="cal_page_edit_event">Edit Event</string>
-<string source="cal_page_update_event">Update Event</string>
-<string source="cal_page_events_in_this_week">Events this week</string>
-<string source="cal_page_events_in_this_day">Events today</string>
-<string source="cal_page_recurring_cannot_drag">Recurring, multi-day and trimmed events cannot be dragged</string>
-<string source="cal_page_all_day_cannot_drag">Events cannot be dragged in or out of the "all day" row</string>
-<string source="cal_page_other_cannot_drag">Events cannot be dragged in or out of the "other" column</string>
+	<string source="cal_page_event_location">Location to draw events from</string>
+	<string source="cal_page_event_css_class">CSS Class to apply to the events' display</string>
+	<string source="cal_page_show_title_only">Show Title Only</string>
+	<string source="cal_page_use_type_format_bodycopy">Use Type Format Bodycopy</string>
+	<string source="cal_page_category_view">%s View</string>
+	<string source="cal_page_list_entry_cb">For each list entry, %s</string>
+	<string source="cal_page_list_entry_unlocked">Each entry shows %s</string>
+	<string source="cal_page_look_and_feel_1">The Calendar Page has a default CSS file that controls the look and feel of the Calendar views.  A link to this CSS file is automatically inserted into the head of the generated HTML document.</string>
+	<string source="cal_page_look_and_feel_2">If you want to customise some or all of the style rules you can <![CDATA[<a href="%s">download the default CSS file</a>]]> and modify it.  Put a link to your modified version in the parse file of the design that applies to this page, <![CDATA[<i>after</i>]]> the "head" design area tag.</string>
+	<string source="cal_page_look_and_feel_3"><![CDATA[<b>Note:</b>]]> For week and day view calendar tables to render correctly, your site design <![CDATA[<i>must</i>]]> put the browser in a mode that correctly implements the W3C box model, eg. by specifying the XHTML Strict doctype.</string>
+	<string source="cal_page_paint_title_format">The date format to use in this view's title, expressed using the date format symbols from the <![CDATA[<a target="_blank" href="%s">PHP date function</a>]]></string>
+	<string source="cal_page_event_source">Event Source</string>
+	<string source="cal_page_show_in_own_column_question">Show in Own Column ?</string>
+	<string source="cal_page_calendar_contents">Calendar Contents</string>
+	<string source="cal_page_calendar_title">Calendar Title</string>
+	<string source="cal_page_up_link">Up Link</string>
+	<string source="cal_page_prev_link">Previous Link</string>
+	<string source="cal_page_next_link">Next Link</string>
+	<string source="cal_page_current_user">Name of Current User</string>
+	<string source="cal_page_edit_event">Edit Event</string>
+	<string source="cal_page_update_event">Update Event</string>
+	<string source="cal_page_events_in_this_week">Events this week</string>
+	<string source="cal_page_events_in_this_day">Events today</string>
+	<string source="cal_page_recurring_cannot_drag">Recurring, multi-day and trimmed events cannot be dragged</string>
+	<string source="cal_page_all_day_cannot_drag">Events cannot be dragged in or out of the "all day" row</string>
+	<string source="cal_page_other_cannot_drag">Events cannot be dragged in or out of the "other" column</string>
+	<string source="cal_calendar_contents">Calendar Contents</string>
+	<string source="cal_calendar_title">Calendar Title</string>
+	<string source="cal_list_without_headings">List Without Headings</string>
+	<string source="cal_list_with_day_headings">List With Day Headings</string>
+	<string source="cal_list_with_month_headings">List With Month Headings</string>
+	<string source="cal_calendar_format">Calendar Format</string>
+	<string source="cal_single_event_display">Single Event Display</string>
+	<string source="cal_no_display">(none)</string>
 </strings>
 

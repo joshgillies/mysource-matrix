@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_image.php,v 1.27 2005/04/21 00:23:54 gsherwood Exp $
+* $Id: insert_image.php,v 1.28 2005/05/16 06:36:36 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Insert Image Popup for the WYSIWYG
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix
 */
 
@@ -93,7 +93,7 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 
 			function populateImageInfo(responseText) {
 				var imageInfo = var_unserialise(responseText);
-				
+
 				// generate the alt text from the file name if they have not set it
 				// for the image asset
 				if (imageInfo['alt'] == '') {
@@ -108,7 +108,7 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 				document.getElementById("f_width").value  = imageInfo['width'];
 				document.getElementById("f_height").value = imageInfo['height'];
 			};
-		
+
 			function setImageInfo() {
 				// put a random no in the url to overcome any caching
 				var url = '<?php echo sq_web_path('root_url').'/'.SQ_CONF_BACKEND_SUFFIX; ?>/?SQ_BACKEND_PAGE=main&backend_section=am&am_section=edit_asset&assetid=' + escape(document.getElementById("f_imageid[assetid]").value) + '&asset_ei_screen=image_info&ignore_frames=1&t=' + Math.random() * 1000;
@@ -190,7 +190,7 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 
 	<body onload="Init();" onUnload="asset_finder_onunload();">
 
-		<div class="title">Insert Image</div>
+		<div class="title"><?php echo translate('insert_image'); ?></div>
 		<form action="" method="get" name="main_form">
 			<table width="100%">
 				<tr>
@@ -206,16 +206,16 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 							<tr>
 								<td valign="top" width="100%">
 									<fieldset>
-									<legend><b>General</b></legend>
+									<legend><b><?php echo translate('general'); ?></b></legend>
 										<table style="width:100%">
 											<tr>
-												<td class="label" nowrap="nowrap">Image URL:</td>
+												<td class="label" nowrap="nowrap"><?php echo translate('image_url'); ?>:</td>
 												<td>
 													<?php asset_finder('f_imageid', $_GET['f_imageid'], Array('image' => 'D', 'image_variety' => 'D'), '', false, 'setImageInfo'); ?>
 												</td>
 											</tr>
 											<tr>
-												<td class="label" nowrap="nowrap">Alternate text:</td>
+												<td class="label" nowrap="nowrap"><?php echo translate('alternate_text'); ?>:</td>
 												<td>
 													<input type="text" name="alt" id="f_alt" style="width:100%" title="For browsers that don't support images" value="<?php echo $_REQUEST['f_alt']?>" />
 												</td>
@@ -227,24 +227,24 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 							<tr>
 								<td valign="top" width="50%">
 									<fieldset>
-										<legend>Layout</legend>
+										<legend><?php echo translate('layout'); ?></legend>
 										<table style="width:100%">
 											<tr>
-												<td class="label" width="30%">Alignment:</td>
+												<td class="label" width="30%"><?php echo translate('alignment'); ?>:</td>
 												<td>
-													<select size="1" name="align" id="f_align" title="Positioning of this image">
+													<select size="1" name="align" id="f_align" title="<?php echo translate('positioning_of_this_image'); ?>">
 														<?php
 														if (!isset($_REQUEST['f_align'])) $_REQUEST['f_align'] = 'baseline';
 														$options_array = Array(	'' => 'Not set',
-																				'left' => 'Left',
-																				'right' => 'Right',
-																				'texttop' => 'Texttop',
-																				'absmiddle' => 'Absmiddle',
-																				'baseline' => 'Baseline',
-																				'absbottom' => 'Absbottom',
-																				'bottom' => 'Bottom',
-																				'middle' => 'Middle',
-																				'top' => 'Top'
+																				'left' => translate('left'),
+																				'right' => translate('right'),
+																				'texttop' => translate('texttop'),
+																				'absmiddle' => translate('absmiddle'),
+																				'baseline' => translate('baseline'),
+																				'absbottom' => translate('absbottom'),
+																				'bottom' => translate('bottom'),
+																				'middle' => translate('middle'),
+																				'top' => translate('top'),
 																			  );
 														foreach ($options_array as $value => $text) {
 															?><option value="<?php echo $value?>" <?php echo ($_REQUEST['f_align'] == $value) ? 'selected="1"' : ''?>><?php echo $text?></option><?php
@@ -254,19 +254,19 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 												</td>
 											</tr>
 											<tr>
-												<td class="label">Border thickness:</td>
+												<td class="label"><?php echo translate('border_thickness'); ?>:</td>
 												<td>
 													<input type="text" name="border" id="f_border" size="5" title="Leave empty for no border" value="<?php echo $_REQUEST['f_border']?>" />
 												</td>
 											</tr>
 											<tr>
-												<td class="label">Horizontal:</td>
+												<td class="label"><?php echo translate('horizontal'); ?>:</td>
 												<td>
 													<input type="text" name="horiz" id="f_horiz" size="5" title="Horizontal padding" value="<?php echo $_REQUEST['f_horiz']?>" />
 												</td>
 											</tr>
 											<tr>
-												<td class="label">Vertical:</td>
+												<td class="label"><?php echo translate('vertical'); ?>:</td>
 												<td>
 													<input type="text" name="vert" id="f_vert" size="5" title="Vertical padding" value="<?php echo $_REQUEST['f_vert']?>" />
 												</td>
@@ -278,16 +278,16 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 							<tr>
 								<td valign="top" width="50%">
 									<fieldset>
-										<legend>Size</legend>
+										<legend><?php echo translate('size'); ?></legend>
 										<table style="width:100%">
 											<tr>
-												<td class="label" width="30%">Width:</td>
+												<td class="label" width="30%"><?php echo translate('width'); ?>:</td>
 												<td>
 													<input type="text" name="width" id="f_width" size="5" title="Width" value="<?php echo $_REQUEST['f_width']?>" />
 												</td>
 											</tr>
 											<tr>
-												<td class="label">Height:</td>
+												<td class="label"><?php echo translate('height'); ?>:</td>
 												<td>
 													<input type="text" name="height" id="f_height" size="5" title="Height" value="<?php echo $_REQUEST['f_height']?>" />
 												</td>
@@ -303,8 +303,8 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 
 			<div style="margin-top: 5px; text-align: right;">
 				<hr />
-				<button type="button" name="ok" onclick="return onOK();">OK</button>
-				<button type="button" name="cancel" onclick="return onCancel();">Cancel</button>
+				<button type="button" name="ok" onclick="return onOK();"><?php echo translate('ok'); ?></button>
+				<button type="button" name="cancel" onclick="return onCancel();"><?php echo translate('cancel'); ?></button>
 			</div>
 		</form>
 	</body>

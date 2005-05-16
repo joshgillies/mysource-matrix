@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: spell_checker_popup.php,v 1.6 2005/01/20 13:32:41 brobertson Exp $
+* $Id: spell_checker_popup.php,v 1.7 2005/05/16 06:36:36 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Spell Checker Popup for the WYSIWYG
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 */
 
@@ -61,6 +61,34 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 		<title>Spell Checker</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		<script type="text/javascript" src="../../core/popup.js"></script>
+		<?php
+			//add required js translation files
+			list($lang, $country, $variant) = $GLOBALS['SQ_SYSTEM']->lm->getLocaleParts($GLOBALS['SQ_SYSTEM']->lm->getCurrentLocale());
+
+			$include_list[] = sq_web_path('lib').'/js/general.js';
+			$include_list[] = sq_web_path('lib').'/js/translation.js';
+
+			if (file_exists(SQ_DATA_PATH.'/public/system/core/js_strings.'.$lang.'.js')) {
+				$include_list[] = sq_web_path('data').'/system/core/js_strings.'.$lang.'.js';
+			}
+
+			if (!empty($country)) {
+				if (file_exists(SQ_DATA_PATH.'/public/system/core/js_strings.'.$lang.'_'.$country.'.js')) {
+					$include_list[] = sq_web_path('data').'/system/core/js_strings.'.$lang.'_'.$country.'.js';
+				}
+
+				if (!empty($variant)) {
+					if (file_exists(SQ_DATA_PATH.'/public/system/core/js_strings.'.$lang.'_'.$country.'@'.$variant.'.js')) {
+						$include_list[] = sq_web_path('data').'/system/core/js_strings.'.$lang.'_'.$country.'@'.$variant.'.js';
+					}
+				}
+			}
+
+
+			foreach($include_list as $link) {
+				?><script type="text/javascript" src="<?php echo $link; ?>"</script><?php
+			}
+		?>
 
 		<script type="text/javascript">
 			var parent_object = opener.editor_<?php echo $_REQUEST['editor_name']?>._object;
@@ -90,72 +118,72 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 		</script>
 
 		<script type="text/javascript" src="<?php echo $_SERVER['PHP_SELF'].'/../../'.$plugin->get_popup_href('spell_checker.js', 'spell_checker')?>"></script>
-		
+
 		<style type="text/css">
 			html, body {
 				font-family: Verdana, Arial, Helvetica, san-serif;
 				font-size: xx-small;
-				font-weight: normal;  
-				text-decoration: none; 
+				font-weight: normal;
+				text-decoration: none;
 				background-color: #402F48;
-				color: #FFFFFF; 
+				color: #FFFFFF;
 				margin: 1px 1px;
 			}
 
-			a:link, a:visited { 
-				color: #FFFFFF; text-decoration: none; 
+			a:link, a:visited {
+				color: #FFFFFF; text-decoration: none;
 			}
 
-			a:hover { 
-				color: #B7A9BD; text-decoration: underline; 
+			a:hover {
+				color: #B7A9BD; text-decoration: underline;
 			}
 
-			table { 
+			table {
 				background-color: #402F48; color: ButtonText;
-				font-family: tahoma,verdana,sans-serif; font-size: 11px; 
+				font-family: tahoma,verdana,sans-serif; font-size: 11px;
 			}
 
-			iframe { 
+			iframe {
 				background-color:#402F48;
 				color: #FFFFFF;
-				font-family: tahoma,verdana,sans-serif; font-size: 11px; 
+				font-family: tahoma,verdana,sans-serif; font-size: 11px;
 			}
 
-			.controls .sectitle { 
+			.controls .sectitle {
 				color: #FFFFFF;
-				font-weight: bold; padding: 2px 4px; 
+				font-weight: bold; padding: 2px 4px;
 				margin:0px auto;
 				text-align:left;
 
 			}
 
 			.controls .secbody {
-				margin-bottom: 0px; 
+				margin-bottom: 0px;
 			}
 
-			button, select { 
+			button, select {
 				font-family: tahoma,verdana,sans-serif; font-size: 11px;
 			}
 
-			button { 
-				width: 6em; padding: 0px; 
+			button {
+				width: 6em; padding: 0px;
 			}
 
-			input, select { 
-				font-family: fixed,"andale mono",monospace; 
+			input, select {
+				font-family: fixed,"andale mono",monospace;
 			}
 
 
 			#v_currentWord {
-				color: #A7A1AA; font-weight: bold; font-size: 120%; 
+				color: #A7A1AA; font-weight: bold; font-size: 120%;
 			}
 
-			#statusbar { 
-				padding: 0px 0px 0px 5px; 
+			#statusbar {
+				padding: 0px 0px 0px 5px;
 			}
 
-			#status { 
-				font-weight: bold; 
+			#status {
+				font-weight: bold;
 			}
 
 			.button2{
@@ -189,11 +217,11 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 			}
 
 			.major_table {
-				height: 100%; 
-				width: 100%; 
+				height: 100%;
+				width: 100%;
 				border: solid 2px;
 				border-color: #7D7582;
-				padding: 0px 0px 0px 0px; 
+				padding: 0px 0px 0px 0px;
 			}
 
 			.status {
@@ -214,14 +242,14 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 					<table width="100%" cellpadding="0" cellspacing="0">
 						<tr>
 							<td class="status_div">
-								<span id="status" class="status">&nbsp;Please Wait...</span>
+								<span id="status" class="status">&nbsp;<?php echo translate('please_wait'); ?>...</span>
 							</td>
 							<td class="status_div">
 								<!-- hiding the dictionary chooser for now -->
 								<span style="float: right; display: none">
-									<span class="status">Dictionary</span>
+									<span class="status"><?php echo translate('dictionary'); ?></span>
 									<select id="v_dictionaries" style="width: 10em"></select>
-									<button class="button2" id="b_recheck">Re-check</button>
+									<button class="button2" id="b_recheck"><?php echo translate('re-check'); ?></button>
 								</span>
 							</td>
 						</tr>
@@ -230,25 +258,25 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 			</tr>
 			<tr>
 				<td valign="top" class="controls" nowrap>
-					<div class="sectitle">Original word</div>
-					<div class="secbody" id="v_currentWord" style="text-align: center">Please Wait...</div>
-					<div class="sectitle">Replace with</div>
+					<div class="sectitle"><?php echo translate('original_word'); ?></div>
+					<div class="secbody" id="v_currentWord" style="text-align: center"><?php echo translate('please_wait'); ?>...</div>
+					<div class="sectitle"><?php echo translate('replace_with'); ?></div>
 					<div class="secbody">
 						<input type="text" id="v_replacement" style="width: 94%; margin-left: 3%; align: center" /><br />
 						<div style="text-align: center; margin-top: 2px;" nowrap>
-							<button class="button" id="b_replace">Replace</button>
-							<button class="button" id="b_replall">Replace all</button><br />
-							<button class="button" id="b_ignore">Ignore</button>
-							<button class="button" id="b_ignall">Ignore all</button>
+							<button class="button" id="b_replace"><?php echo translate('replace'); ?></button>
+							<button class="button" id="b_replall"><?php echo translate('replace_all'); ?></button><br />
+							<button class="button" id="b_ignore"><?php echo translate('ignore'); ?></button>
+							<button class="button" id="b_ignall"><?php echo translate('ignore_all'); ?></button>
 						</div>
 					</div>
-					<div class="sectitle">Suggestions</div>
+					<div class="sectitle"><?php echo translate('suggestions'); ?></div>
 					<div class="secbody">
 						<select size="11" style="width: 94%; margin-left: 3%;" id="v_suggestions"></select>
 					</div>
 					<div valign="top" class="secbody" align="center" nowrap>
-						&nbsp;<button class="button" id="b_ok" onclick="return onOK();">OK</button>
-						<button class="button" id="b_cancel" onclick="return onCancel();">Cancel</button>
+						&nbsp;<button class="button" id="b_ok" onclick="return onOK();"><?php echo translate('ok'); ?></button>
+						<button class="button" id="b_cancel" onclick="return onCancel();"><?php echo translate('cancel'); ?></button>
 					</div>
 				</td>
 				<td width="100%">

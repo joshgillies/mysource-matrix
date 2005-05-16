@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.157 2005/05/11 06:07:21 lwright Exp $
+* $Id: page_calendar.inc,v 1.158 2005/05/16 06:36:39 lwright Exp $
 *
 */
 
@@ -31,46 +31,12 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.157 $
+* @version $Revision: 1.158 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
 class Page_Calendar extends Page_Asset_Listing
 {
-
-	/**
-	* All the view options available
-	* @var array
-	*/
-	var $view_options = Array(
-							'year'	=> Array(
-										''						=> '(none)',
-										'list_without_headings'	=> 'List without Headings',
-										'list_with_headings'	=> 'List with Month Headings',
-										'calendar_format'		=> 'Calendar Format',
-									   ),
-							'month'	=> Array(
-										''						=> '(none)',
-										'list_without_headings'	=> 'List without Headings',
-										'list_with_headings'	=> 'List with Day Headings',
-										'calendar_format'		=> 'Calendar Format',
-									   ),
-							'week'	=> Array(
-										''						=> '(none)',
-										'list_without_headings'	=> 'List without Headings',
-										'list_with_headings'	=> 'List with Day Headings',
-										'calendar_format'		=> 'Calendar Format',
-									   ),
-							'day'	=> Array(
-										''						=> '(none)',
-										'list_without_headings'	=> 'List without Headings',
-										'calendar_format'		=> 'Calendar Format',
-									   ),
-							'event'	=> Array(
-										''				=> '(none)',
-										'single_event'	=> 'Single Event Display',
-									   ),
-						);
 
 
 	/**
@@ -92,15 +58,6 @@ class Page_Calendar extends Page_Asset_Listing
 	* @var array
 	*/
 	var $month_names_short = Array(1=>'Jan', 2=>'Feb', 3=>'Mar', 4=>'Apr', 5=>'May', 6=>'June', 7=>'July', 8=>'Aug', 9=>'Sept', 10=>'Oct', 11=>'Nov', 12=>'Dec');
-
-	/**
-	* An array of keywords that this asset makes available for use along with a default replacement
-	* @var Array(keyword => name)
-	*/
-	var $_available_keywords = Array(
-								'calendar_contents'	=> 'Calendar Contents',
-								'calendar_title'	=> 'Calendar Title',
-							   );
 
 
 	/**
@@ -1480,8 +1437,7 @@ class Page_Calendar extends Page_Asset_Listing
 						}
 						toggleFlashing(movingElt.id);
 						var locationName = (new_loc != '') ? columnNames[String(new_loc)] + ' on ' : '';
-						if (!confirm('Move this event to ' + locationName + new_date
-							+ ((new_time != 'allday') ? (' at ' + new_time) : '') + '?')) {
+						if (!confirm(js_translate('confirm_move_event_to',  + locationName + new_date + ((new_time != 'allday') ? (' <?php echo strtolower(translate('at')); ?> ' + new_time) : '')))) {
 							toggleFlashing(movingElt.id);
 							return false;
 						} else {
@@ -2336,6 +2292,69 @@ class Page_Calendar extends Page_Asset_Listing
 
 	}//end printAssetList()
 
+
+	/**
+	* Add valid keywords for this asset to an array of keywords when asked
+	*
+	* @param &object Asset	&$broadcaster	the asset that triggered the event
+	* @param Array			$vars			the vars that get submitted by the broadcaster
+	*										we add keywords to the $vars['keywords'] array
+	*
+	* @return boolean
+	* @access private
+	*/
+	function onRequestKeywords(&$broadcaster, $vars=Array())
+	{
+		if (!isset($vars['keywords'])) return;
+		$keywords = Array(
+						'calendar_contents'	=> translate('cal_calendar_contents'),
+						'calendar_title'	=> translate('cal_calendar_title'),
+					);
+
+		$vars['keywords'] = array_merge($vars['keywords'], $keywords);
+
+	}//end onRequestKeywords()
+
+
+	/**
+	* Returns an array listing all the view options available
+
+	* @return Array
+	* @access private
+	*/
+	function getViewOptions()
+	{
+		return Array(
+					'year'	=> Array(
+									''						=> translate('cal_no_display'),
+									'list_without_headings'	=> translate('cal_list_without_headings'),
+									'list_with_headings'	=> translate('cal_list_with_month_headings'),
+									'calendar_format'		=> translate('cal_calendar_format'),
+							   ),
+					'month'	=> Array(
+									''						=> translate('cal_no_display'),
+									'list_without_headings'	=> translate('cal_list_without_headings'),
+									'list_with_headings'	=> translate('cal_list_with_day_headings'),
+									'calendar_format'		=> translate('cal_calendar_format'),
+							   ),
+					'week'	=> Array(
+									''						=> translate('cal_no_display'),
+									'list_without_headings'	=> translate('cal_list_without_headings'),
+									'list_with_headings'	=> translate('cal_list_with_day_headings'),
+									'calendar_format'		=> translate('cal_calendar_format'),
+							   ),
+					'day'	=> Array(
+									''						=> translate('cal_no_display'),
+									'list_without_headings'	=> translate('cal_list_without_headings'),
+									'calendar_format'		=> translate('cal_calendar_format'),
+							   ),
+					'event'	=> Array(
+									''				=> translate('cal_no_display'),
+									'single_event'	=> translate('cal_single_event_display'),
+							   ),
+			   );
+
+	}//end getViewOptions()
 
 }//end class
 ?>

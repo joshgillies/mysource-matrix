@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_backend_outputter.inc,v 1.13 2005/05/11 06:05:07 lwright Exp $
+* $Id: hipo_backend_outputter.inc,v 1.14 2005/05/16 06:36:31 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_SYSTEM_ROOT.'/core/include/backend_outputter.inc';
 *    suite hipo jobs
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix
 */
 class Hipo_Backend_Outputter extends Backend_Outputter
@@ -102,10 +102,33 @@ class Hipo_Backend_Outputter extends Backend_Outputter
 					$this->_paintCssInclude($file);
 				}
 
+				$this->addJsInclude(sq_web_path('lib').'/js/translation.js');
+
+				// add translation stuff
+				list($lang, $country, $variant) = $GLOBALS['SQ_SYSTEM']->lm->getLocaleParts($GLOBALS['SQ_SYSTEM']->lm->getCurrentLocale());
+
+				if (file_exists(SQ_DATA_PATH.'/public/system/core/js_strings.'.$lang.'.js')) {
+					$this->addJsInclude(sq_web_path('data').'/system/core/js_strings.'.$lang.'.js');
+				}
+
+				if (!empty($country)) {
+					if (file_exists(SQ_DATA_PATH.'/public/system/core/js_strings.'.$lang.'_'.$country.'.js')) {
+						$this->addJsInclude(sq_web_path('data').'/system/core/js_strings.'.$lang.'_'.$country.'.js');
+					}
+
+					if (!empty($variant)) {
+						if (file_exists(SQ_DATA_PATH.'/public/system/core/js_strings.'.$lang.'_'.$country.'@'.$variant.'.js')) {
+							$this->addJsInclude(sq_web_path('data').'/system/core/js_strings.'.$lang.'_'.$country.'@'.$variant.'.js');
+						}
+					}
+				}
+
+				// end add translation stuff, now add everything else
 				$this->addJsInclude(sq_web_path('lib').'/html_form/html_form.js');
 				$this->addJsInclude(sq_web_path('lib').'/js/general.js');
 				$this->addJsInclude(sq_web_path('lib').'/js/debug.js');
 				$this->addJsInclude(sq_web_path('lib').'/js/edit.js');
+
 				foreach ($this->_js_includes as $file) {
 					$this->_paintJsInclude($file);
 				}

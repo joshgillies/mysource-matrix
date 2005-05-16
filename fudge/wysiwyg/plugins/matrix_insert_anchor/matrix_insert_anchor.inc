@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_insert_anchor.inc,v 1.7 2004/12/06 23:18:30 dbaranovskiy Exp $
+* $Id: matrix_insert_anchor.inc,v 1.8 2005/05/16 06:36:36 lwright Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 *     an anchor in the editable document
 *
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -52,7 +52,7 @@ class matrix_insert_anchor extends wysiwyg_plugin
 	function matrix_insert_anchor(&$wysiwyg)
 	{
 		wysiwyg_plugin::wysiwyg_plugin($wysiwyg);
-		$this->_add_button('matrixcreateanchor','MatrixCreateAnchor','Insert Anchor','false','30');
+		$this->_add_button('matrixcreateanchor','MatrixCreateAnchor',translate('insert_anchor'),'false','30');
 
 	}//end constructor
 
@@ -94,7 +94,7 @@ class matrix_insert_anchor extends wysiwyg_plugin
 						text_range = true;
 						editor.selectNodeContents(control_range(0));
 					} else {
-						alert("You need to select this object as though it was text, rather than just clicking on it.");
+						alert(js_translate('object_requires_selection'));
 						sel.empty();
 						return;
 					}

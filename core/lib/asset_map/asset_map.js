@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.js,v 1.12 2005/02/18 05:30:32 mmcintyre Exp $
+* $Id: asset_map.js,v 1.13 2005/05/16 06:36:32 lwright Exp $
 *
 */
 
@@ -36,7 +36,7 @@ function init_asset_map()
 	if (matches = navigator.userAgent.match(/MSIE ([0-9.]+)/)) {
 
 		if (matches[1] < '6.0') {
-			alert('You need to use Internet Explorer 6.0 or above for the communication between the Asset Map and the Javascript');
+			alert(js_translate('ie6_or_above_required'));
 		}
 
 	} else {
@@ -47,16 +47,16 @@ function init_asset_map()
 
 		if ((matches = navigator.userAgent.match(firebird_re)) || (matches = navigator.userAgent.match(safari_re)) || (matches = navigator.userAgent.match(moz_re))) {
 			if (matches[1] == 'Firebird' && matches[2] < '0.6.1') {
-				alert('You need to use Firebird 0.6.1 or above for the communication between the Asset Map and the Javascript');
+				alert(js_translate('firebird0.6.1_or_above_required'));
 			} else if (matches[1] == 'Safari' && parseFloat(matches[2]) < 125.1) {
 				// Safari 1.2.1 reports as build number '125.1'
-				alert('You need to use Safari 1.2.1 (build 125.1) or above for the communication between the Asset Map and the Javascript');
+				alert(tjs_translate('safari121_or_above_required'));
 			} else if (matches[1] == 'Mozilla' && matches[2] < '1.4') {
-				alert('You need to use Mozilla 1.4 or above for the communication between the Asset Map and the Javascript');
+				alert(js_translate('mozilla14_or_above_required'));
 			}
 		// we don't know about this browser, ah well may as well give it a go ...
 		} else {
-			alert('You are using an untested browser there is no guarantee that the communication between the Asset Map and the Javascript will be successful');
+			alert(js_translate('using_untested_browser'));
 		}
 
 	}//end if
@@ -125,7 +125,7 @@ function reload_asset(assetid)
 */
 function jsToJavaCall(asset_mapObj, type, command, params)
 {
-	
+
 	var params_str = '';
 	for (var i = 0; i < params.length; i++) {
 		params_str += params[i];
@@ -175,7 +175,7 @@ function asset_finder_change_btn_press(name, safe_name, type_codes, done_fn)
 	ASSET_FINDER_DONE_FUNCTION = done_fn;
 
 	if (ASSET_FINDER_FIELD_NAME != null && ASSET_FINDER_FIELD_NAME != name) {
-		alert('The asset finder is currently in use');
+		alert(js_translate('asset_finder_in_use'));
 		return;
 	}
 
@@ -186,12 +186,12 @@ function asset_finder_change_btn_press(name, safe_name, type_codes, done_fn)
 
 		asset_finder_start('asset_finder_done', type_codes);
 
-		ASSET_FINDER_OBJ.set_button_value(ASSET_FINDER_FIELD_SAFE_NAME + '_change_btn', 'Cancel');
+		ASSET_FINDER_OBJ.set_button_value(ASSET_FINDER_FIELD_SAFE_NAME + '_change_btn', js_translate('cancel'));
 
 	// else we must be cancelling the asset finder
 	} else {
 		asset_finder_cancel();
-		ASSET_FINDER_OBJ.set_button_value(ASSET_FINDER_FIELD_SAFE_NAME + '_change_btn', 'Change');
+		ASSET_FINDER_OBJ.set_button_value(ASSET_FINDER_FIELD_SAFE_NAME + '_change_btn', js_translate('change'));
 		ASSET_FINDER_FIELD_NAME = null;
 		ASSET_FINDER_FIELD_SAFE_NAME = null;
 	}
@@ -224,7 +224,7 @@ function asset_finder_done(params, label, url)
 
 	}
 
-	ASSET_FINDER_OBJ.set_button_value(ASSET_FINDER_FIELD_SAFE_NAME + '_change_btn', 'Change');
+	ASSET_FINDER_OBJ.set_button_value(ASSET_FINDER_FIELD_SAFE_NAME + '_change_btn', js_translate('change'));
 	ASSET_FINDER_FIELD_NAME = null;
 	ASSET_FINDER_FIELD_SAFE_NAME = null;
 	if (ASSET_FINDER_DONE_FUNCTION !== null) ASSET_FINDER_DONE_FUNCTION();

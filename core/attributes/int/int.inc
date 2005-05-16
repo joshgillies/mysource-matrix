@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: int.inc,v 1.27 2005/05/11 06:05:07 lwright Exp $
+* $Id: int.inc,v 1.28 2005/05/16 06:36:31 lwright Exp $
 *
 */
 
@@ -37,7 +37,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *    <int width="10" />
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -106,14 +106,14 @@ class Asset_Attribute_Int extends Asset_Attribute
 
 			if (isNaN(my_value)) {
 				this.value = this.__sq_init_value;
-				alert(\'This is an integer field.\\nUnable to accept non-digit characters in this field.\');
+				alert(js_translate(\'cannot_accept_non_digit_characters\'));
 				this.value = sq_backup;
 			';
 
 		if (!$allow_negative) {
 			$javascript .= '
 			} else if (my_value < 0) {
-				alert(\'This field has to be non-negative.\');
+				alert(js_translate(\'cannot_be_negative\'));
 				this.value = sq_backup;
 			';
 

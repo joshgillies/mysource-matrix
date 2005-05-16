@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: utility.js,v 1.19 2005/01/20 13:32:41 brobertson Exp $
+* $Id: utility.js,v 1.20 2005/05/16 06:36:35 lwright Exp $
 *
 */
 
@@ -49,13 +49,11 @@ HTMLArea._object = null;
 HTMLArea.checkSupportedBrowser = function() {
 	if (HTMLArea.is_gecko) {
 		if (navigator.productSub < 20021201) {
-			alert("You need at least Mozilla-1.3 Alpha.\n" +
-				  "Sorry, your Gecko is not supported.");
+			alert(js_translate('mozilla13_alpha_not_supported'));
 			return false;
 		}
 		if (navigator.productSub < 20030210) {
-			alert("Mozilla < 1.3 Beta is not supported!\n" +
-				  "I'll try, though, but it might not work.");
+			alert(js_translate('mozilla13_beta_not_supported'));
 		}
 	}
 	return HTMLArea.is_gecko || HTMLArea.is_ie;

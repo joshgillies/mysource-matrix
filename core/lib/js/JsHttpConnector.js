@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: JsHttpConnector.js,v 1.6 2005/05/06 05:34:21 tbarrett Exp $
+* $Id: JsHttpConnector.js,v 1.7 2005/05/16 06:36:32 lwright Exp $
 *
 */
 
@@ -42,7 +42,7 @@ function _processJsHttpStateChange(id)
 				} catch (e) {
 					thread._handleReceiveError(e.message);
 				}
-			 } 
+			 }
 		} catch (e) {
 			setTimeout('_processJsHttpStateChange("'+id+'")', 400);
 		}
@@ -150,7 +150,7 @@ function JsHttpConnectorThread()
 	// register this object with the global list
 	_allJsHttpConnectorThreads["t"+this.id] = this;
 
-	
+
 	/**
 	* Submit a form
 	*
@@ -164,7 +164,7 @@ function JsHttpConnectorThread()
 	{
 		var form = document.getElementById(formid);
 		if (null === form) {
-			this._handleTransmitError('Could not find form with ID '+formid+' to submit');
+			this._handleTransmitError(js_translate('submission_form_not_found', formid));
 			return;
 		}
 		var post = "";
@@ -262,7 +262,7 @@ function JsHttpConnectorThread()
 	*/
 	this._handleTransmitError = function(message)
 	{
-		alert("JSHTTPCONNECTOR TRANSMIT ERROR: \n"+message);
+		alert(js_translate('jshttpconnector_transmit_error', message));
 
 	}//end _handleTransmitError()
 
@@ -279,8 +279,8 @@ function JsHttpConnectorThread()
 	*/
 	this._handleReceiveError = function(message, status)
 	{
-		var msg = "JSHTTPCONNECTOR RECEIVE ERROR: \n"+message;
-		if (typeof status != 'undefined') msg += "\n(HTTP Status = "+status+")";
+		var msg = js_translate('jshttpconnector_transmit_error', message);
+		if (typeof status != 'undefined') msg += js_translate('jshttpconnector_status', status);
 		alert(msg);
 
 	}//end _handleReceiveError()

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: maps.inc,v 1.17 2005/05/11 06:05:11 lwright Exp $
+* $Id: maps.inc,v 1.18 2005/05/16 06:36:32 lwright Exp $
 *
 */
 
@@ -36,7 +36,7 @@ define('SQ_MAPS_INSTALLED'  , 'I');
 *    Looks aftet the automated patching of the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix
 * @subpackage MAPS
 */
@@ -236,9 +236,8 @@ class Maps extends MySource_Object
 									*/
 									function confirm_uploaded_patch_delete(box)
 									{
-										var warning='This will delete all files associated with this patch.';
 
-										var res = confirm(warning);
+										var res = confirm(js_translate('warn_delete_all_files_associated_to_patch'));
 
 										box.checked = res;
 									}

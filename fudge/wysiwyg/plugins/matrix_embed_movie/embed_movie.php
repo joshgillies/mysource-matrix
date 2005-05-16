@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: embed_movie.php,v 1.16 2005/01/20 13:32:41 brobertson Exp $
+* $Id: embed_movie.php,v 1.17 2005/05/16 06:36:36 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Embed Movie Popup for the WYSIWYG
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix
 */
 
@@ -63,7 +63,7 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 					var el = document.getElementById(id);
 					param[id] = el.value;
 				}
-				// Because the id of the f_image field has array references in it, 
+				// Because the id of the f_image field has array references in it,
 				// we can't get use getElementById, so do this...
 				param["f_fileid"] = document.main_form.elements["f_fileid[assetid]"].value;
 
@@ -77,13 +77,13 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 					}
 				}
 				__dlg_close("matrixEmbedMovie", param);
-	
+
 				return false;
 			};
 
 			function onCancel() {
 				__dlg_close("matrixEmbedMovie", null);
-	
+
 				return false;
 			};
 		</script>
@@ -115,7 +115,7 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 			}
 
 			/* fieldset styles */
-			fieldset { 
+			fieldset {
 				padding: 0px 10px 5px 5px;
 				border-color: #725B7D;
 			}
@@ -158,9 +158,9 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 	</head>
 
 	<body onload="Javascript: Init();" onUnload="Javascript: asset_finder_onunload();">
-		
-		<div class="title">Embed Movie</div>
-		
+
+		<div class="title"><?php echo translate('embed_movie'); ?></div>
+
 		<form action="" method="get" name="main_form">
 			<table width="100%">
 				<tr>
@@ -176,10 +176,10 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 							<tr>
 								<td valign="top" width="100%">
 									<fieldset>
-										<legend><b>General</b></legend>
+										<legend><b><?php echo translate('general'); ?></b></legend>
 										<table style="width:100%">
 											<tr>
-												<td class="label">Movie URL:</td>
+												<td class="label"><?php echo translate('movie_url'); ?>:</td>
 												<td>
 													<?php asset_finder('f_fileid', $_GET['f_fileid'], Array('file' => 'I'), ''); ?>
 												</td>
@@ -191,28 +191,28 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 							<tr>
 								<td valign="top" width="50%">
 									<fieldset>
-										<legend>Controls</legend>
+										<legend><?php echo translate('controls'); ?></legend>
 										<table style="width:100%">
 											<tr>
-												<td class="label" colspan="2"><b>wmv, asf & asx only</b></td>
+												<td class="label" colspan="2"><b><?php echo translate('wmv-asf-asx_only'); ?></b></td>
 											</tr>
 											<tr>
-												<td class="label">Auto Start:</td>
+												<td class="label"><?php echo translate('auto_start'); ?>:</td>
 												<td width="50%">
 													<input type="checkbox" name="auto_start" id="f_auto_start" value="1" <?php echo ($_REQUEST['f_auto_start'] == '1') ? 'checked' : ''?> />
 												</td>
 											</tr>
 											<tr>
-												<td class="label">Loop:</td>
+												<td class="label"><?php echo translate('loop'); ?>:</td>
 												<td>
 													<input type="checkbox" name="embed_loop" id="f_embed_loop" value="1" <?php echo ($_REQUEST['f_embed_loop'] == '1') ? 'checked' : ''?> />
 												</td>
 											</tr>
 											<tr>
-												<td class="label" colspan="2"><b>mov, wmv, asf & asx only</b></td>
+												<td class="label" colspan="2"><b><?php echo translate('mov-wmv-asf-asx_only'); ?></b></td>
 											</tr>
 											<tr>
-												<td class="label">Show Controls:</td>
+												<td class="label"><?php echo translate('show_controls'); ?>:</td>
 												<td>
 													<input type="checkbox" name="show_controls" id="f_show_controls" value="1" <?php echo ($_REQUEST['f_show_controls'] == '1') ? 'checked' : ''?> />
 												</td>
@@ -224,16 +224,16 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 							<tr>
 								<td valign="top" width="50%">
 									<fieldset>
-										<legend>Size</legend>
+										<legend><?php echo translate('size'); ?></legend>
 										<table style="width:100%">
 											<tr>
-												<td class="label" width="50%">Width:</td>
+												<td class="label" width="50%"><?php echo translate('width'); ?>:</td>
 												<td>
 													<input type="text" name="width" id="f_width" size="5" title="Width" value="<?php echo $_REQUEST['f_width']?>" />
 												</td>
 											</tr>
 											<tr>
-												<td class="label">Height:</td>
+												<td class="label"><?php echo translate('height'); ?>:</td>
 												<td>
 													<input type="text" name="height" id="f_height" size="5" title="Height" value="<?php echo $_REQUEST['f_height']?>" />
 												</td>
@@ -249,8 +249,8 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 
 			<div style="margin-top: 5px; text-align: right;">
 			<hr />
-			<button type="button" name="ok" onclick="return onOK();">OK</button>
-			<button type="button" name="cancel" onclick="return onCancel();">Cancel</button>
+			<button type="button" name="ok" onclick="return onOK();"><?php echo translate('ok'); ?></button>
+			<button type="button" name="cancel" onclick="return onCancel();"><?php echo translate('cancel'); ?></button>
 			</div>
 		</form>
 	</body>

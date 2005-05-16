@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_edit_fns.inc,v 1.31 2005/05/11 06:07:32 lwright Exp $
+* $Id: page_asset_builder_edit_fns.inc,v 1.32 2005/05/16 06:36:41 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -394,7 +394,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 
 							<td style="width: 4%; text-align: right">
 							<?php if ($write_access) { ?>
-								<input type="hidden" name="<?php echo $prefix.'_'.$code_name.'_delete' ?>" id="<?php echo $prefix.'_'.$code_name.'_delete' ?>" value="0"  class="sq-form-field" /><input type="button" value="Delete Set" onclick="if (confirm('Are you sure you want to delete this set of selectable create locations?')) { document.getElementById('<?php echo $prefix.'_'.$code_name.'_delete' ?>').value=1; form.submit(); }" />
+								<input type="hidden" name="<?php echo $prefix.'_'.$code_name.'_delete' ?>" id="<?php echo $prefix.'_'.$code_name.'_delete' ?>" value="0"  class="sq-form-field" /><input type="button" value="Delete Set" onclick="if (confirm(js_translate('confirm_delete_selectable_locations'))) { document.getElementById('<?php echo $prefix.'_'.$code_name.'_delete' ?>').value=1; form.submit(); }" />
 							<?php } ?>
 							</td>
 						</tr>
@@ -632,7 +632,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 					</ul>
 					<?php if ($write_access) { ?>
 						<input type="hidden" name="<?php echo $prefix.'_rules['.$create_type.']['.$i.'][delete]'; ?>" id="<?php echo $prefix.'_rules_'.$create_type.'_'.$i.'_delete'; ?>" value="0" />
-						<input style="display: inline; float: right; clear: none; margin: 0px; " type="button" onclick="if (confirm('Are you sure you want to delete this rule?')) { document.getElementById('<?php echo $prefix.'_rules_'.$create_type.'_'.$i.'_delete'; ?>').value=1; form.submit(); }" value="<?php echo translate('delete_rule'); ?>" />
+						<input style="display: inline; float: right; clear: none; margin: 0px; " type="button" onclick="if (confirm(js_translate('confirm_delete_rule'))) { document.getElementById('<?php echo $prefix.'_rules_'.$create_type.'_'.$i.'_delete'; ?>').value=1; form.submit(); }" value="<?php echo translate('delete_rule'); ?>" />
 					<?php } ?>
 					</td></tr>
 					</table>
@@ -1089,7 +1089,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 
 							<td style="width: 4%; text-align: right">
 							<?php if ($write_access) { ?>
-								<input type="hidden" name="<?php echo $prefix.'_'.$code_name.'_delete' ?>" id="<?php echo $prefix.'_'.$code_name.'_delete' ?>" value="0"  class="sq-form-field" /><input type="button" value="Delete Set" onclick="if (confirm('Are you sure you want to delete this set of dynamic create locations?')) { document.getElementById('<?php echo $prefix.'_'.$code_name.'_delete' ?>').value=1; form.submit(); }" />
+								<input type="hidden" name="<?php echo $prefix.'_'.$code_name.'_delete' ?>" id="<?php echo $prefix.'_'.$code_name.'_delete' ?>" value="0"  class="sq-form-field" /><input type="button" value="Delete Set" onclick="if (confirm(js_translate('Are you sure you want to delete this set of dynamic create locations?'))) { document.getElementById('<?php echo $prefix.'_'.$code_name.'_delete' ?>').value=1; form.submit(); }" />
 							<?php } ?>
 							</td>
 						</tr>

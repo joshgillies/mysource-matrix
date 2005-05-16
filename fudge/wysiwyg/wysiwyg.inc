@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.43 2005/05/06 06:59:27 dmckee Exp $
+* $Id: wysiwyg.inc,v 1.44 2005/05/16 06:36:35 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@
 *     to do this.
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.44 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -431,7 +431,7 @@ class wysiwyg
 						if (el) {
 							container.appendChild(el);
 						} else {
-							alert("FIXME: Unknown toolbar item: " + txt);
+							alert(js_translate('unknown_toolbar_item', txt));
 						}
 						return el;
 					};
@@ -714,7 +714,7 @@ class wysiwyg
 					switch (txt) {
 <?php $this->print_plugin_combo_selected()?>
 						default:
-							alert("FIXME: combo box " + txt + " not implemented");
+							alert(js_translate('combo_box_not_implemented', txt));
 						break;
 					}
 				};
@@ -768,7 +768,7 @@ HTMLArea.prototype.containsText = function(node) {
 	if (node.nodeType == 1 && HTMLArea.prototype.inArray(node.nodeName.toLowerCase(), this.inline_tags)) return true;
 	else if (node.nodeType == 3 && node.nodeValue != '') return true;
 	else return null;
-	
+
 };
 
 // Inserts a node down into a node, on the left side of the tree under target
@@ -780,15 +780,15 @@ HTMLArea.prototype.insertDeepLeft = function(target, toInsert) {
 	//falling.insertBefore(toInsert, refNode);
 	digger.innerHTML = toInsert;
 };
-				
+
 				HTMLArea.prototype.isElem = function(node,type) {
 					return node.nodeName.toLowerCase() == type.toLowerCase();
 				};
-				
+
 				//bunch of tags to compare when examining nodes
 				HTMLArea.prototype.inline_tags = ['a', 'abbr', 'acronym', 'b', 'bdo', 'big', 'cite', 'code', 'dfn', 'em', 'font', 'i', 'kbd', 'label', 'q', 's', 'samp', 'select', 'small', 'span', 'strike', 'strong', 'sub', 'sup', 'textarea', 'tt', 'u', 'var'];
-				
-				
+
+
 				// A generic event handler for things that happen in the IFRAME's document.
 				// This function also handles key bindings.
 
@@ -803,11 +803,11 @@ HTMLArea.prototype.insertDeepLeft = function(target, toInsert) {
 							var sel = this._iframe.contentWindow.getSelection();
 
 							// Set the start and end points such that they're going /forward/ through the document
-							var leftRange = this._doc.createRange();			
+							var leftRange = this._doc.createRange();
 							var rightRange = this._doc.createRange();
 							leftRange.setStart(sel.anchorNode,sel.anchorOffset);
 							rightRange.setStart(sel.focusNode,sel.focusOffset);
-							leftRange.collapse(true);					
+							leftRange.collapse(true);
 							rightRange.collapse(true);
 
 							var direct = leftRange.compareBoundaryPoints(leftRange.START_TO_END,rightRange);
@@ -861,24 +861,24 @@ HTMLArea.prototype.insertDeepLeft = function(target, toInsert) {
 							}
 
 							// Split the data into left and right paragraphs
-							
+
 							//For Left paragraph
 							leftRange.setStartBefore(choppingStart);
 							leftRange.setEnd(startNode,startOffset);
-							leftParagraph.appendChild(leftRange.cloneContents());		
+							leftParagraph.appendChild(leftRange.cloneContents());
 
 							//For Right Paragraph
 							rightRange.setEndAfter(choppingEnd);
 							rightRange.setStart(endNode,endOffset);
-							rightParagraph.appendChild(rightRange.cloneContents());		
+							rightParagraph.appendChild(rightRange.cloneContents());
 
-							// containsData is true if there is data in the paragraph, 
+							// containsData is true if there is data in the paragraph,
 							//if false, insert a non-breaking space
 							var containsData = false;
 							containsData = this.traverseChildrenNodes(leftParagraph, this.containsText);
 							if ( containsData != true ) this.insertDeepLeft(leftParagraph, '&nbsp;');
 
-							// containsData is true if there is data in the paragraph, 
+							// containsData is true if there is data in the paragraph,
 							//if false, insert a non-breaking space
 							containsData = false;
 							containsData = this.traverseChildrenNodes(rightParagraph, this.containsText);
@@ -899,7 +899,7 @@ HTMLArea.prototype.insertDeepLeft = function(target, toInsert) {
 							} else {
 								fullRange.setEnd(rightRange.endContainer, rightRange.endOffset);
 							}
-							
+
 							//remove data from range and insert new paragraphs
 							fullRange.deleteContents();
 							fullRange.insertNode(rightParagraph);
@@ -977,7 +977,7 @@ HTMLArea.prototype.insertDeepLeft = function(target, toInsert) {
 							}
 						break;
 						default:
-							alert("Mode <" + this._editMode + "> not defined!");
+							alert(js_translate('undefined_mode', '<' + this._editMode + '>'));
 							return false;
 					}
 					// let any plugins modify the returned HTML if they want to

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_acronym.php,v 1.4 2005/01/20 13:32:41 brobertson Exp $
+* $Id: insert_acronym.php,v 1.5 2005/05/16 06:36:36 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Insert Acronym Popup for the WYSIWYG
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 */
 
@@ -58,14 +58,14 @@ if (!isset($_GET['title']))		  $_GET['title'] = "";
 			};
 
 			function onOK() {
-				// pass data back to the calling window 
+				// pass data back to the calling window
 				var fields = ["title"];
 				var param = new Object();
 				var f = document.main_form;
 
 				param["title"] = form_element_value(f.title);
 				param["acronym"]  = form_element_value(f.acronym);
-				
+
 				__dlg_close("matrixInsertAcronym", param);
 				return false;
 			};
@@ -90,7 +90,7 @@ if (!isset($_GET['title']))		  $_GET['title'] = "";
 			table {
 				font: 11px Tahoma,Verdana,sans-serif;
 			}
-			
+
 			/* main popup title */
 			.title {
 				background: #402F48;
@@ -104,7 +104,7 @@ if (!isset($_GET['title']))		  $_GET['title'] = "";
 			}
 
 			/* fieldset styles */
-			fieldset { 
+			fieldset {
 				padding: 0px 10px 5px 5px;
 				border-color: #725B7D;
 			}
@@ -147,13 +147,13 @@ if (!isset($_GET['title']))		  $_GET['title'] = "";
 	</head>
 
 	<body onload="Javascript: Init();">
-		<div class="title">Insert Acronym</div>
+		<div class="title"><?php echo translate('insert_acronym'); ?></div>
 		<form action="" method="get" name="main_form">
 			<table width="100%">
 				<tr>
 					<td valign="top" width="100%">
 						<fieldset>
-						<legend><b>General</b></legend>
+						<legend><b><?php echo translate('general'); ?></b></legend>
 						<table style="width:100%">
 							<tr>
 								<td class="label">Acronym:</td>
@@ -173,8 +173,8 @@ if (!isset($_GET['title']))		  $_GET['title'] = "";
 
 			<div style="margin-top: 5px; margin-right: 5px; text-align: right;">
 				<hr />
-				<button type="button" name="ok" onclick="return onOK();">OK</button>
-				<button type="button" name="cancel" onclick="return onCancel();">Cancel</button>
+				<button type="button" name="ok" onclick="return onOK();"><?php echo translate('ok'); ?></button>
+				<button type="button" name="cancel" onclick="return onCancel();"><?php echo translate('cancel'); ?></button>
 			</div>
 		</form>
 	</body>

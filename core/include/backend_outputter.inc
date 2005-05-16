@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.107 2005/05/12 06:27:36 tbarrett Exp $
+* $Id: backend_outputter.inc,v 1.108 2005/05/16 06:36:32 lwright Exp $
 *
 */
 
@@ -42,7 +42,7 @@ define('SQ_BO_MSG_ERROR',   4);
 *    there will only ever be one instance of this object
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.107 $
+* @version $Revision: 1.108 $
 * @package MySource_Matrix
 */
 class Backend_Outputter
@@ -964,11 +964,36 @@ class Backend_Outputter
 			$this->addCssInclude($this->filesPath('css/edit.css'));
 			foreach ($this->_css_includes as $file) $this->_paintCssInclude($file);
 
+			$this->addJsInclude(sq_web_path('lib').'/js/translation.js');
+
+			// add translation stuff
+			list($lang, $country, $variant) = $GLOBALS['SQ_SYSTEM']->lm->getLocaleParts($GLOBALS['SQ_SYSTEM']->lm->getCurrentLocale());
+
+			if (file_exists(SQ_DATA_PATH.'/public/system/core/js_strings.'.$lang.'.js')) {
+				$this->addJsInclude(sq_web_path('data').'/system/core/js_strings.'.$lang.'.js');
+			}
+
+			if (!empty($country)) {
+				if (file_exists(SQ_DATA_PATH.'/public/system/core/js_strings.'.$lang.'_'.$country.'.js')) {
+					$this->addJsInclude(sq_web_path('data').'/system/core/js_strings.'.$lang.'_'.$country.'.js');
+				}
+
+				if (!empty($variant)) {
+					if (file_exists(SQ_DATA_PATH.'/public/system/core/js_strings.'.$lang.'_'.$country.'@'.$variant.'.js')) {
+						$this->addJsInclude(sq_web_path('data').'/system/core/js_strings.'.$lang.'_'.$country.'@'.$variant.'.js');
+					}
+				}
+			}
+
+			// end add translation stuff, now add life the universe and everything [JS at least]
 			$this->addJsInclude(sq_web_path('lib').'/html_form/html_form.js');
 			$this->addJsInclude(sq_web_path('lib').'/js/general.js');
 			$this->addJsInclude(sq_web_path('lib').'/js/debug.js');
 			$this->addJsInclude(sq_web_path('lib').'/js/edit.js');
-			foreach ($this->_js_includes as $file) $this->_paintJsInclude($file);
+
+			foreach ($this->_js_includes as $file) {
+				$this->_paintJsInclude($file);
+			}
 		?>
 			<script type="text/javascript">
 			<!--
@@ -1020,7 +1045,7 @@ class Backend_Outputter
 				var SQ_FORM_SUBMITTED = false;
 				function form_on_submit() {
 					if (SQ_FORM_SUBMITTED) {
-						alert('The form has already been submitted, please wait ...');
+						alert(js_translate('form_already_submitted'));
 						return;
 					}
 

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.96 2005/05/16 01:43:00 ndvries Exp $
+* $Id: form.inc,v 1.97 2005/05/16 06:36:40 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.96 $
+* @version $Revision: 1.97 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -42,23 +42,19 @@ class Form extends Asset
 	*/
 	var $active_submission = Array();
 
+
 	/**
 	* the active section object
 	* @var object
 	*/
 	var $active_section = null;
 
+
 	/**
 	* the current submission's errors
 	* @var object
 	*/
 	var $submission_errors = null;
-
-	/**
-	* available bodycopy keywords
-	* @var Array()
-	*/
-	var $_available_keywords = Array('form_contents', 'form_errors', 'submit_button', 'reset_button');
 
 
 	/**
@@ -862,10 +858,14 @@ class Form extends Asset
 	/**
 	* Prints the form to screen
 	*
+	* @param Array	$replacements	a list of additional replacements that
+	*								subclasses can use to insert additional
+	*								keywords
+	*
 	* @access public
 	* @return void
 	*/
-	function printForm()
+	function printForm($replacements=Array())
 	{
 		ob_start();
 			$this->includeContentFile('Standard');
@@ -905,7 +905,6 @@ class Form extends Asset
 		if ($this->attr('use_bodycopy_main') && $bodycopy && !$bodycopy->isEmpty()) {
 			$questions = $this->getQuestions();
 			$sections = &$this->getSections();
-			$replacements = Array();
 
 			foreach ($questions as $q_id => $question) {
 				$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
@@ -1499,16 +1498,10 @@ class Form extends Asset
 
 		foreach ($bodycopies as $bodycopy) {
 			if ($bodycopy == 'Page Contents') {
-				// work out the query replacements
-				foreach ($this->_available_keywords as $keyword) {
-					$name = ucwords(str_replace('_', ' ', $keyword));
-					$type = 'inline';
-					if (array_search($keyword, Array('form_contents', 'form_errors')) !== 	false) {
-						$type = 'block';
-					}
-					$default = $name;
-					$keywords[$keyword] = $name;
-				}
+				$keywords['form_contents'] = translate('cms_form_contents');
+				$keywords['form_errors']   = translate('cms_form_errors');
+				$keywords['submit_button'] = translate('cms_form_submit_button');
+				$keywords['reset_button']  = translate('cms_form_reset_button');
 
 				foreach ($questions as $q_id => $question) {
 					$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
@@ -1549,7 +1542,6 @@ class Form extends Asset
 
 		}
 
-		$this->_available_keywords = array_keys($keywords);
 		$vars['keywords'] = array_merge($vars['keywords'], $keywords);
 
 	}//end onRequestKeywords()

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.48 2005/05/12 05:26:51 amiller Exp $
+* $Id: calendar_event.inc,v 1.49 2005/05/16 06:36:39 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once dirname(__FILE__).'/../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.48 $
+* @version $Revision: 1.49 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -231,7 +231,7 @@ class Calendar_Event extends Asset
 		if (true === ($msg = $GLOBALS['SQ_SYSTEM']->am->couldTrashAsset($this->id))) {
 			$res = '<a href="?SQ_CALENDAR_EVENT_ID='.$this->id.'&amp;SQ_CALENDAR_EVENT_ACTION=delete';
 			if (isset($_REQUEST['SQ_CALENDAR_DATE'])) $res .= '&amp;SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'];
-			$res .= '" onclick="return confirm(\'Are you sure you want to delete this event altogether?\');">Delete</a>';
+			$res .= '" onclick="return confirm(js_translate(\'confirm_delete_event\'));">'.translate('delete').'</a>';
 			return $res;
 		} else {
 			return '';

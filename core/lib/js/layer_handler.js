@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: layer_handler.js,v 1.5 2005/01/20 13:10:35 brobertson Exp $
+* $Id: layer_handler.js,v 1.6 2005/05/16 06:36:32 lwright Exp $
 *
 */
 
@@ -37,7 +37,7 @@
 function Layer_Handler(div_id, top, right, bottom, left) {
 
 	if (is_major < 4) {
-		alert('Unable to use layers on you page, sorry');
+		alert(js_translate('unable_to_use_layers'));
 		return;
 	}
 
@@ -122,12 +122,12 @@ function Layer_Handler(div_id, top, right, bottom, left) {
 	}// end move()
 
 	 ////////////////////////////////
-	// Make the layer visible 
+	// Make the layer visible
 	function show() {
 		this.style.visibility = (is_nav4)? "show" : "visible";
 	}
 	 ////////////////////////////////
-	// Make the layer invisible 
+	// Make the layer invisible
 	function hide() {
 		this.style.visibility = (is_nav4)? "hide" : "hidden";
 	}
@@ -162,7 +162,7 @@ function Layer_Handler(div_id, top, right, bottom, left) {
 		if (bottom != null) clip_values["bottom"] = bottom;
 		if (left   != null) clip_values["left"]   = left;
 
-		
+
 		if (is_dom || is_ie) {
 			this.style.clip = "rect("
 							+ clip_values["top"]    + "px "

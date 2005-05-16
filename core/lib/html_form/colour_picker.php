@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: colour_picker.php,v 1.7 2005/01/20 13:10:35 brobertson Exp $
+* $Id: colour_picker.php,v 1.8 2005/05/16 06:36:32 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Pop-Up for the colour picker
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix
 */
 
@@ -59,9 +59,9 @@
 
 			function Set(string) { // select color
 				var color = ValidateColor(string);
-				if (color == null) { 
+				if (color == null) {
 					// invalid color
-					alert("Invalid color code: " + string); 
+					alert(js_translate('invalid_colour_code', string));
 				} else {
 					// valid color
 					View(color); // show selected color

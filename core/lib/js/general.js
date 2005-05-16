@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.js,v 1.12 2005/05/15 23:18:07 lwright Exp $
+* $Id: general.js,v 1.13 2005/05/16 06:36:32 lwright Exp $
 *
 */
 
@@ -271,3 +271,61 @@ function sq_redirect(url) {
 	window.location = url;
 
 }//end sq_redirect()
+
+
+/**
+* Simple sprintf implementation
+*
+* allows for string value replacements and string re-use in the form of
+* %s for a single or non order important replacement
+* %2(some digit)s for order important replacements i.e. %1s %2s %1s
+* uses php type statements (includes the $)
+* currently does not allow no string replacements i.e. %d
+*
+* @return string
+*/
+function sprintf() {
+	var txt = arguments[0];
+	var c = 1; //offset source string
+	var pattern = /%\d*\$*s/;
+
+	while(c < arguments.length) {
+		//below line extracts the current ordered match so we know what argument
+		//we are using, the $ needs to be escaped again in order to work.
+		replace = new RegExp(((txt.match(pattern)).toString()).replace(/\$/, '\\\$'), "g");
+
+		txt = txt.replace(replace, arguments[(replace.toString()).match(/\d/)]);
+		c++;
+	}
+	return (txt);
+
+}//end sprintf()
+
+
+/**
+* Simple vsprintf implementation
+*
+* allows for string value replacements and string re-use in the form of
+* %s for a single or non order important replacement
+* %2(some digit)s for order important replacements i.e. %1s %2s %1s
+* uses php type statements (includes the $)
+* currently does not allow no string replacements i.e. %d
+*
+* @return string
+*/
+function vsprintf() {
+	var txt = arguments[0];
+	var c = 0;
+	var pattern = /%\d*\$*s/;
+
+	while(c < arguments[1].length) {
+		//below line extracts the current ordered match so we know what argument
+		//we are using, the $ needs to be escaped again in order to work.
+		replace = new RegExp(((txt.match(pattern)).toString()).replace(/\$/, '\\\$'), "g");
+
+		txt = txt.replace(replace, arguments[1][(replace.toString()).match(/\d/) - 1]);
+		c++;
+	}
+	return (txt);
+
+}//end vsprintf()

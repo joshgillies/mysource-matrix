@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job.inc,v 1.70 2005/05/11 06:05:07 lwright Exp $
+* $Id: hipo_job.inc,v 1.71 2005/05/16 06:36:31 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_DATA_PATH.'/private/conf/hipo.inc';
 * Highly Intensive Processing Object (HIPO)
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.70 $
+* @version $Revision: 1.71 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -64,6 +64,8 @@ class HIPO_Job extends MySource_Object
 	/**
 	* The name of this HIPO job (should not be modified by code)
 	* @var string
+	* @deprecated 	in favour of getHipoName(); please translate() the HIPO name
+	* 				inside that, unless no translation is required
 	*/
 	var $hipo_name = '';
 
@@ -123,6 +125,13 @@ class HIPO_Job extends MySource_Object
 
 	/**
 	* Zero Indexed Array of steps to perform in this HIPO
+	*
+	* Initialising the step data here is DEPRECATED as a result of translation,
+	* please use getInitialStepData() and translate() all required strings. The
+	* variable itself is NOT deprecated, however - still use as previously.
+	*
+	* If no translation is required then you can still initialise stuff here.
+	*
 	* Form :
 	* <pre>
 	* Array(
@@ -180,6 +189,42 @@ class HIPO_Job extends MySource_Object
 		return strtolower(get_class($this));
 
 	}//end getCodeName()
+
+
+	/**
+	* Returns the (localised) HIPO name
+	*
+	* This will return the hipo_name variable for backward compatibility reasons.
+	* Please override this with a translate()'d call with the string code
+	* containing the HIPO name.
+	*
+	* @return string
+	* @access public
+	*/
+	function getHipoName()
+	{
+		return $this->hipo_name;
+
+	}//end getHipoName()
+
+
+	/**
+	* Returns the steps in this hipo, possibly with localised step names
+	* and messages
+	*
+	* This will return the steps member variable for backward compatibilty
+	* purposes. Please override this with the proper step data, which should be
+	* the same as the old steps variable but with all appropriate fields
+	* translate()'d.
+	*
+	* @return string
+	* @access public
+	*/
+	function getInitialStepData()
+	{
+		return $this->_steps;
+
+	}//end getInitialStepData()
 
 
 	/**
@@ -403,23 +448,29 @@ class HIPO_Job extends MySource_Object
 			$source_initialise_mode = $source_job->getInitialiseMode();
 		}
 
-		for ($i = 0; $i < count($this->_steps); $i++) {
+		// get the initial set of steps
+		$init_steps = $this->getInitialStepData();
+
+		for ($i = 0; $i < count($init_steps); $i++) {
 			// if we are starting from a server script but this job needs the web to run,
 			// then we are fucked, so get out of here
-			if ($source_initialise_mode == 'server' && $this->_steps[$i]['running_mode'] == 'web') {
+			if ($source_initialise_mode == 'server' && $init_steps[$i]['running_mode'] == 'web') {
 				trigger_localised_error('HIPO0043', E_USER_WARNING);
 				return '';
 			// if we aren't using the server and we are in a web script
 			// make sure that all the steps are changed accordingly
 			} else if ($this->_current_mode == 'web' && !SQ_HIPO_USE_SERVER) {
-				$this->_steps[$i]['running_mode'] = 'web';
+				$init_steps[$i]['running_mode'] = 'web';
 
-			} else if ($this->_steps[$i]['running_mode'] == 'server' && empty($this->_steps[$i]['auto_step'])) {
+			} else if ($init_steps[$i]['running_mode'] == 'server' && empty($init_steps[$i]['auto_step'])) {
 				trigger_localised_error('HIPO0042', E_USER_WARNING);
-				$this->_steps[$i]['auto_step'] = true;
+				$init_steps[$i]['auto_step'] = true;
 
 			}// end if
 		}// end for
+
+		// set the step member variable now that it's all translated and converted
+		$this->_steps = $init_steps;
 
 		$steps     = serialize($this->_steps);
 		$vars      = serialize($this->_running_vars);
@@ -944,12 +995,12 @@ class HIPO_Job extends MySource_Object
 				$status_msg = $this->_steps[$step]['name'];
 			} else {
 				// this step doesnt exist - probably reached the end of the HIPO
-				$status_msg = ($this->complete())? translate('completed'):translate('unknown_error_uccored');
+				$status_msg = ($this->complete())? translate('completed'):translate('unknown_error_occurred');
 			}
 
-			$o->openSection($this->hipo_name);
+			$o->openSection($this->getHipoName());
 				$o->openField('&nbsp;');
-				HIPO_Job::paintProgressBar($this->_hipo_vars['percent_done'], $this->hipo_name.' '.translate('hipo_progress').' - '.$status_msg);
+				HIPO_Job::paintProgressBar($this->_hipo_vars['percent_done'], translate('hipo_progress', $this->getHipoName()).' - '.$status_msg);
 				$o->closeField();
 			$o->closeSection();
 		}
@@ -1372,7 +1423,7 @@ class HIPO_Job extends MySource_Object
 		<table border="0" cellspacing="1" cellpadding="1" bgcolor="#000000" width="95%">
 			<tr>
 				<td bgcolor="#412F49" align="center" width="100%">
-					<span style="color: #FFFFFF;"><b><?php echo $this->hipo_name.' '.translate('hipo_error_report');?></b><br />
+					<span style="color: #FFFFFF;"><b><?php echo translate('hipo_error_report', $this->getHipoName());?></b><br />
 						<span style="font-size: 80%;">
 						<?php echo translate('hipo_herder_completion', (!$this->complete()) ? translate('not'):''); ?>
 						</span>

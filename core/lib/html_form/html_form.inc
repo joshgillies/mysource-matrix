@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.83 2005/05/11 06:05:11 lwright Exp $
+* $Id: html_form.inc,v 1.84 2005/05/16 06:36:32 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.83 $
+* @version $Revision: 1.84 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -270,7 +270,7 @@ function text_area($name, $contents, $cols=0, $rows=0, $max=0, $extras='')
 	echo	'<textarea name="', htmlspecialchars($name), '" ',
 			(($cols)  ? 'cols="'.$cols.'" ' : ''),
 			(($rows)  ? 'rows="'.$rows.'" ' : ''),
-			(($max)   ? 'onkeypress="if (this.value.length > '.$max.') { this.value = this.value.substr(0,'.$max.'); alert(\'This field can contain no more than '.$max.' characters.\'); this.focus()}" ' : ''),
+			(($max)   ? 'onkeypress="if (this.value.length > '.$max.') { this.value = this.value.substr(0,'.$max.'); alert(js_translate("max_characters_warning", "'.$max.'")); this.focus()}" ' : ''),
 			$extras,
 			'>',
 			htmlspecialchars($contents),
@@ -853,7 +853,13 @@ function security_key($key_len, $box_len, $zoom=1, $img_on_newline=false, $bg='F
 			<td valign="top"><img id="sq_security_key" src="<?php echo $img_url; ?>" border="0" /></td>
 		</tr>
 		<tr>
-			<td class="sq-backend-data" colspan="<?php echo (($img_on_newline) ? '1' : '2'); ?>"><i>Can't read the security key? <a href="#" onclick="var img = document.getElementById('sq_security_key'); img.src = '<?php echo $img_url; ?>&regen_key=1'; return false;">Click here to get a new key</a>.</i></td>
+		<?php
+			ob_start();
+				?><a href="#" onclick="var img = document.getElementById('sq_security_key'); img.src = '<?php echo $img_url; ?>&regen_key=1'; return false;"><?php echo translate('security_key_link'); ?></a><?php
+				$replacements_link = ob_get_contents();
+			ob_end_clean()
+		?>
+			<td class="sq-backend-data" colspan="<?php echo (($img_on_newline) ? '1' : '2'); ?>"><i><?php echo translate('security_key_question', $replacements_link); ?></i></td>
 		</tr>
 	</table>
 	<?php

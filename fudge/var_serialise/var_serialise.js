@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: var_serialise.js,v 1.7 2005/01/20 13:33:47 brobertson Exp $
+* $Id: var_serialise.js,v 1.8 2005/05/16 06:36:35 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@
 *     </script>
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package Fudge
 * @subpackage var_serialise
 */
@@ -61,14 +61,14 @@ for(var i = 0; i < VAR_SERIALISE_STRING_ESCAPE_FROM_LIST.length; i++) {
 	VAR_SERIALISE_STRING_ESCAPE_TO_LIST_REG_EXP[i] = new RegExp(VAR_SERIALISE_STRING_ESCAPE_TO_LIST[i], 'g');
 }
 
- // this is a dummy fn to get the copy of the value then pass that copy by 
+ // this is a dummy fn to get the copy of the value then pass that copy by
 // reference to _var_serialise() fn that may alter the var with escaping
-function var_serialise(value) 
+function var_serialise(value)
 {
 	return _var_serialise(value, '');
 }//end var_serialise()
 
-function _var_serialise(value, indent) 
+function _var_serialise(value, indent)
 {
 	var str = "";
 	var type = gettype(value).toLowerCase();
@@ -78,7 +78,7 @@ function _var_serialise(value, indent)
 		case "string"  :
 
 			if (VAR_SERIALISE_STRING_ESCAPE_CHAR_REG_EXP.test(value)) {
-				alert('Your data contained the escape character (ASCII Code ' + VAR_SERIALISE_STRING_ESCAPE_CHAR.charCodeAt(0) + '), this has been removed');
+				alert(js_translate('data_contains_escape_character', VAR_SERIALISE_STRING_ESCAPE_CHAR.charCodeAt(0)));
 				value = value.replace(VAR_SERIALISE_STRING_ESCAPE_CHAR_REG_EXP, '');
 			}
 
@@ -109,7 +109,7 @@ function _var_serialise(value, indent)
 				if (sub_str == false) return false;
 
 				if (VAR_SERIALISE_STRING_ESCAPE_CHAR_REG_EXP.test(k)) {
-					alert('Your data contained the escape character (ASCII Code ' + VAR_SERIALISE_STRING_ESCAPE_CHAR.charCodeAt(0) + '), this has been removed');
+					alert(js_translate('data_contains_escape_character', VAR_SERIALISE_STRING_ESCAPE_CHAR.charCodeAt(0)));
 					k = k.replace(VAR_SERIALISE_STRING_ESCAPE_CHAR_REG_EXP, '');
 				}
 
@@ -124,15 +124,15 @@ function _var_serialise(value, indent)
 			break;
 
 		default :
-			alert('Unable to serialise a var of type "' + type + '"');
+			alert(js_translate('unable_to_serialise', type));
 			return false;
 	}//end switch
-	
+
 	return str;
 
 }//end _var_serialise()
 
-function gettype(value) 
+function gettype(value)
 {
 
 	if (value == null) return 'NULL';
@@ -142,9 +142,9 @@ function gettype(value)
 		case "number" :
 			var str_value = value.toString();
 			//this is an double
-			if (str_value.indexOf(".") >= 0) { 
+			if (str_value.indexOf(".") >= 0) {
 				type = "double";
-			// else it's an integer 
+			// else it's an integer
 			} else {
 				type = "integer";
 			}
@@ -159,10 +159,10 @@ function gettype(value)
 
 }// end gettype()
 
- // this is a dummy fn to get the copy of the var then pass that copy by 
+ // this is a dummy fn to get the copy of the var then pass that copy by
 // reference to _var_unserialise() fn that may alter the var with escaping
 var VAR_UNSERIALISE_I = 0;
-function var_unserialise(str) 
+function var_unserialise(str)
 {
 	var lines_str = str.replace(/\r\n/g, '\n');
 	lines_str = lines_str.replace(/\r/g, '\n');
@@ -178,7 +178,7 @@ function var_unserialise(str)
 
  // the fn that actually does the unserialising
 // returns an arrey with the value and the name of the variable
-function _var_unserialise(lines, indent) 
+function _var_unserialise(lines, indent)
 {
 
 	var str = lines[VAR_UNSERIALISE_I];
@@ -241,7 +241,7 @@ function settype(value, type) {
 		case "integer" :
 			val = parseInt(value);
 			break;
-		
+
 		case "double" :
 			val = parseFloat(value);
 			break;
@@ -262,7 +262,7 @@ function settype(value, type) {
 			val = null;
 			break;
 
-		default : 
+		default :
 			val = value;
 	}//end switch
 

@@ -18,10 +18,10 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg_plugin.inc,v 1.15 2004/12/06 14:39:53 brobertson Exp $
+* $Id: wysiwyg_plugin.inc,v 1.16 2005/05/16 06:36:35 lwright Exp $
 *
 */
-
+require_once dirname(__FILE__).'/../../core/include/init.inc';
 
 /**
 * WYSIWYG Plugin
@@ -32,7 +32,7 @@
 *     of wysiwyg.inc
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package Fudge
 * @subpackage wysiwyg
 */

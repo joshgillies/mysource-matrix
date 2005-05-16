@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager_edit_fns.inc,v 1.87 2005/05/11 06:05:10 lwright Exp $
+* $Id: asset_manager_edit_fns.inc,v 1.88 2005/05/16 06:36:32 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.87 $
+* @version $Revision: 1.88 $
 * @package MySource_Matrix
 */
 class Asset_Manager_Edit_Fns extends MySource_Object
@@ -265,24 +265,19 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 			}
 		}
 		if (!$got_locks) {
-			$o->addOnLoad('alert("No locks are held on \\"'.addslashes($asset->name).'\\""); window.close();');
+			$o->addOnLoad('alert(js_translate("no_lock_held", "'.addslashes($asset->name).'")); window.close();');
 			return;
 		}
 
-		$o->openSection('Forceably Acquire');
-		$o->openField('&nbsp;');
-		?>
-			You are about to forceably acquire the following locks on "<?php echo $asset->name; ?>"<br>
-			<b>Any changes being made to "<?php echo $asset->name; ?>" or any other asset in the locking chain (<i>see full list below</i>) will be lost.</b>
-		<?php
-
-		$o->openField('&nbsp;');
+		$o->openSection(translate('forceably_acquire'));
+			$o->openField('');
+				$o->note(translate('forceably_acquire_lock_can_cause_losses', $asset->name));
+			$o->openField('');
 		?>
 		<table border="0">
 			<tr>
 				<td>
-					To acquire the lock, enter the 8 character string you see below into the box supplied,
-					then press the Commit button
+					<?php echo translate('enter_eight_character_security_string'); ?>
 				</td>
 			</tr>
 			<tr>
@@ -292,13 +287,13 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 		<table class="sq-backend-table" style="width: auto;">
 			<tr>
 				<td class="sq-backend-table-header">
-					Lock Type
+					<?php echo translate('lock_type'); ?>
 				</td>
 				<td class="sq-backend-table-header">
 					&nbsp;
 				</td>
 				<td class="sq-backend-table-header">
-					Other Assets in Chain
+					<?php echo translate('other_assets_in_chain'); ?>
 				</td>
 			</tr>
 		<?php
@@ -324,12 +319,12 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 					else $now = time();
 
 					if (is_null($lock['expires'])) {
-						$expires_in = 'The lock is being held indefinitely and will not expire. The lock must be released manually or be forceably acquired by a System Administrator.';
+						$expires_in = translate('lock_held_indefinitely');
 					} else {
 						require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 						$expires_in = easy_time_total(($lock['expires'] - $now), true);
-						if (!$expires_in) $expires_in = '1 second';
-						$expires_in = 'The lock is due to expire in '.$expires_in;
+						if (!$expires_in) $expires_in = '1 '.translate('second');
+						$expires_in = translate('due_to_expire', $expires_in);
 					}
 
 					?>
@@ -347,7 +342,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 						foreach ($lock['chained_assets'] as $chained_info) {
 							$chained_asset = &$this->am->getAsset($chained_info['assetid']);
 							if (is_null($chained_asset)) {
-								trigger_localised_error("SYS0086", E_USER_WARNING, $chained_assetid);
+								trigger_localised_error('SYS0086', E_USER_WARNING, $chained_assetid);
 								continue;
 							}
 							echo '<li class="sq-backend-data">'.$chained_asset->name.'</li>';
@@ -366,9 +361,9 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 		$o->closeSection();
 
 		$o->openField('', 'commit');
-		normal_button('cancel', 'Cancel', 'window.close()');
+		normal_button('cancel', translate('cancel'), 'window.close()');
 		echo '&nbsp;';
-		submit_button('commit', 'Commit');
+		submit_button('commit', translate('commit_button'));
 
 	}//end _forceablyAcquireLock()
 
@@ -387,7 +382,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 		$o->addHiddenField('am_action');
 		$o->addHiddenField('am_new_type_code');
 
-		$o->openSection('Asset Types');
+		$o->openSection(translate('asset_types'));
 		$o->openField('', 'new_line');
 
 

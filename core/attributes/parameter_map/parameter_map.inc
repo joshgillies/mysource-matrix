@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: parameter_map.inc,v 1.5 2005/05/11 06:05:07 lwright Exp $
+* $Id: parameter_map.inc,v 1.6 2005/05/16 06:36:31 lwright Exp $
 *
 */
 
@@ -36,34 +36,12 @@ require_once dirname(dirname(__FILE__)).'/serialise/serialise.inc';
 *   When requesting the runtime value for a parameter you give its code.
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
 class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 {
-
-	/**
-	* The data sources available to get values from
-	*
-	* @var Array
-	*/
-	var $_source_types = Array(
-							'GET'	=> 'GET',
-							'POST'	=> 'POST',
-							'ASSET'	=> 'Current Asset'
-						 );
-
-	/**
-	* The options available under the ASSET source type
-	*
-	* @var Array
-	*/
-	var $_asset_attribute_options = Array(
-										'name'			=> 'Name',
-										'short_name'	=> 'Short Name',
-										'assetid'		=> 'Asset ID'
-									);
 
 
 	/**
@@ -96,11 +74,10 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 		if (!$read_only) {
 			?>
 			<script language="JavaScript">
-			<!--
+			//<![CDATA[
 			function updateFieldChooser(dataSource)
 			{
 			  if (dataSource.options[dataSource.selectedIndex].value != 'ASSET') {
-				//alert(dataSource.name.substr(0, dataSource.name.lastIndexOf('['))+'[attribute]');
 				var selectElts = document.getElementsByName(dataSource.name.substr(0, dataSource.name.lastIndexOf('['))+'[attribute]');
 				selectElts[0].style.display = 'none';
 				var inputElts = document.getElementsByName(dataSource.name.substr(0, dataSource.name.lastIndexOf('['))+'[index]');
@@ -112,7 +89,7 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 				inputElts[0].style.display = 'none';
 			  }
 			}
-			//-->
+			//]]>
 			</script>
 			<?php
 		}
@@ -134,7 +111,8 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 							if (!$read_only) {
 								$this->_printSourceChooser($prefix.'['.$parameter.']['.$index.']', $details['source'], ($details['source'] != 'ASSET') ? $details['index'] : $details['attribute']);
 							} else {
-								echo $this->_source_types[$details['source']];
+								$source_types = $this->_getSourceTypes();
+								echo $source_types[$details['source']];
 								if ($details['source'] == 'ASSET') echo ' '.$details['attribute'];
 								else echo '['.$details['index'].']';
 								echo '<br />';
@@ -173,10 +151,10 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 	*/
 	function _printSourceChooser($prefix, $source_type=null, $component=null)
 	{
-		combo_box($prefix.'[source]', $this->_source_types, false, Array($source_type), 0, 'onchange="updateFieldChooser(this)" onkeyup="updateFieldChooser(this)"');
+		combo_box($prefix.'[source]', $this->getSourceTypes(), false, Array($source_type), 0, 'onchange="updateFieldChooser(this)" onkeyup="updateFieldChooser(this)"');
 		echo '&nbsp;';
 		text_box($prefix.'[index]', (($source_type == 'ASSET') ? '' : $component), '', '', false, 'style="width: 25ex; '.(($source_type == 'ASSET') ? 'display: none' : '').'"');
-		combo_box($prefix.'[attribute]', $this->_asset_attribute_options, false, Array($component), 0, 'style="width: 25ex; '.(($source_type != 'ASSET') ? 'display: none' : '').'"');
+		combo_box($prefix.'[attribute]', $this->_getAssetAttributeOptions(), false, Array($component), 0, 'style="width: 25ex; '.(($source_type != 'ASSET') ? 'display: none' : '').'"');
 		if ($source_type != null) {
 			check_box($prefix.'[delete]');
 			echo '<label for="'.$prefix.'[delete]">'.translate('delete').'</label>';
@@ -286,6 +264,40 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 		return null;
 
 	}//end getParameterValue()
+
+
+	/**
+	* Get the list of source types - the list of sources to draw from
+	*
+	* @return Array
+	* @access private
+	*/
+	function _getSourceTypes()
+	{
+		return Array(
+					'GET'	=> 'GET',
+					'POST'	=> 'POST',
+					'ASSET'	=> translate('current_asset')
+			   );
+
+	}//end _getSourceTypes()
+
+
+	/**
+	* Return the list of options available under the ASSET source type
+	*
+	* @return Array
+	* @access private
+	*/
+	function _getAssetAttributeOptions()
+	{
+		return Array(
+					'name'			=> translate('name'),
+					'short_name'	=> translate('short_name'),
+					'assetid'		=> translate('asset_id'),
+			   );
+
+	}//end _getAssetAttributeOptions()
 
 
 }//end class

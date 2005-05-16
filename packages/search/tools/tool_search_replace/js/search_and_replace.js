@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_and_replace.js,v 1.1 2005/05/11 02:37:08 dmckee Exp $
+* $Id: search_and_replace.js,v 1.2 2005/05/16 06:36:50 lwright Exp $
 *
 */
 
@@ -37,10 +37,10 @@ function updateGlobalLinks()
 {
 	var container = document.getElementById('confirmations-container');
 	var allTbodies = container.getElementsByTagName('TBODY');
-	var text = 'Collapse All';
+	var text = js_translate('collapse_all');
 	for (var i=0; i < allTbodies.length; i++) {
 		if (allTbodies[i].style.display == 'none') {
-			text = 'Expand All';
+			text = js_translate('expand_all');
 			break;
 		}
 	}
@@ -52,11 +52,11 @@ function toggleAllTbodyDisplays(link)
 {
 	var container = document.getElementById('confirmations-container');
 	var allTbodies = container.getElementsByTagName('TBODY');
-	var display = (link.innerHTML == 'Collapse All') ? 'none' : '';
+	var display = (link.innerHTML == js_translate('collapse_all')) ? 'none' : '';
 	for (var i=0; i < allTbodies.length; i++) {
 		allTbodies[i].style.display = display;
 	}
-	text = (link.innerHTML == 'Collapse All') ? 'Expand All' : 'Collapse All';
+	text = (link.innerHTML == js_translate('collapse_all')) ? js_translate('expand_all') : js_translate('collapse_all');
 	document.getElementById('expand-collapse-link-top').innerHTML = text;
 	document.getElementById('expand-collapse-link-bottom').innerHTML = text;
 }
@@ -125,13 +125,13 @@ function setAllCheckboxes(link)
 {
 	var container = document.getElementById('confirmations-container');
 	var allInputs = container.getElementsByTagName('INPUT');
-	var checkState = (link.innerHTML == 'Select All') ? true : false;
+	var checkState = (link.innerHTML == js_translate('select_all')) ? true : false;
 	for (var i=0; i < allInputs.length; i++) {
 		if (allInputs[i].type.toLowerCase() == 'checkbox') {
 			allInputs[i].checked = checkState;
 		}
 	}
-	text = (link.innerHTML == 'Select All') ? 'Deselect All' : 'Select All';
+	text = (link.innerHTML == 'Select All') ? js_translate('deselect_all') : js_translate('select_all');
 	document.getElementById('select-deselect-link-top').innerHTML = text;
 	document.getElementById('select-deselect-link-bottom').innerHTML = text;
 }

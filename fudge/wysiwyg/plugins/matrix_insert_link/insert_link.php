@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_link.php,v 1.32 2005/05/08 23:31:10 dmckee Exp $
+* $Id: insert_link.php,v 1.33 2005/05/16 06:36:36 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Insert Link Popup for the WYSIWYG
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix
 */
 
@@ -145,7 +145,7 @@ if (!isset($_GET['new_window'])) {
 
 			function setUrl(protocol, link) {
 				var f = document.main_form;
-				
+
 				if (protocol != null) highlight_combo_value(f.url_protocol, protocol);
 				if (link     != null) {
 					f.url_link.value = link;
@@ -212,7 +212,7 @@ if (!isset($_GET['new_window'])) {
 			}
 
 			/* fieldset styles */
-			fieldset { 
+			fieldset {
 				padding: 0px 10px 5px 5px;
 				border-color: #725B7D;
 			}
@@ -274,20 +274,20 @@ if (!isset($_GET['new_window'])) {
 											<tr>
 												<td valign="top" width="100%">
 													<fieldset>
-													<legend><b>General</b></legend>
+													<legend><b><?php echo translate('general'); ?></b></legend>
 													<table style="width:100%">
 														<tr>
-															<td class="label">Protocol:</td>
+															<td class="label"><?php echo translate('protocol'); ?>:</td>
 															<td><?php  combo_box('url_protocol', $url_protocol_options, $_GET['protocol'], 'style="font-family: courier new; font-size: 11px;"'); ?></td>
-															<td class="label">Link:</td>
+															<td class="label"><?php echo translate('link'); ?>:</td>
 															<td><?php text_box('url_link', $_GET['url'], 40, 0)?></td>
 														</tr>
 														<tr>
-															<td class="label">Select Asset:</td>
+															<td class="label"><?php echo translate('select_asset'); ?>:</td>
 															<td colspan="3"><?php asset_finder('assetid', $_GET['assetid'], Array(), '', false, 'setUrl'); ?></td>
 														</tr>
 														<tr>
-															<td class="label">Anchor Name:</td>
+															<td class="label"><?php echo translate('anchor_name'); ?>:</td>
 															<td colspan="3"><?php text_box('anchor', $_GET['anchor'], 40, 0) ?></td>
 														</tr>
 													</table>
@@ -303,14 +303,14 @@ if (!isset($_GET['new_window'])) {
 											<tr>
 												<td valign="top" width="100%">
 													<fieldset>
-														<legend>Options</legend>
+														<legend><?php echo translate('options'); ?></legend>
 														<table style="width:100%">
 															<tr>
-																<td class="label">Status Bar Text:</td>
+																<td class="label"><?php echo translate('status_bar_text'); ?>:</td>
 																<td><?php text_box('status_text', $_GET['status_text'], 50); ?></td>
 															</tr>
 															<tr>
-																<td class="label">Title:</td>
+																<td class="label"><?php echo translate('title'); ?>:</td>
 																<td><?php text_box('link_title', $_GET['link_title'], 50); ?></td>
 															</tr>
 														</table>
@@ -326,15 +326,15 @@ if (!isset($_GET['new_window'])) {
 											<tr>
 												<td valign="top" width="100%">
 													<fieldset>
-														<legend>New Window Options</legend>
+														<legend><?php echo translate('new_window_options'); ?></legend>
 														<table style="width:100%">
 															<tr>
-																<td class="label" valign="top">Target:</td>
+																<td class="label" valign="top"><?php echo translate('target'); ?>:</td>
 																<td><?php text_box('target', $_GET['target']); ?></td>
 															</tr>
 															<tr>
-																<td class="label" rowspan="2" valign="top">New Window:</td>
-																<td><?php combo_box('new_window', Array('0' => 'No', '1' => 'Yes', '2' => 'Advanced'), false, $_GET['new_window'], 1, 'onChange="javascript: enable_new_window(this.form, form_element_value(this));"'); ?></td>
+																<td class="label" rowspan="2" valign="top"><?php echo translate('new_window'); ?>:</td>
+																<td><?php combo_box('new_window', Array('0' => translate('no'), '1' => translate('yes'), '2' => translate('advanced')), false, $_GET['new_window'], 1, 'onChange="javascript: enable_new_window(this.form, form_element_value(this));"'); ?></td>
 															</tr>
 															<tr>
 																<td>
@@ -344,7 +344,7 @@ if (!isset($_GET['new_window'])) {
 																			$count = 0;
 																			foreach ($new_window_bool_options as $var => $name) {
 																				$count++;
-																			?> 
+																			?>
 																					<td width="33%">
 																						<input type="checkbox" value="1" name="<?php echo $var?>" <?php echo ($_GET['new_window_options'][$var]) ? 'checked' : '';?>>
 																						<?php echo $name?>
@@ -356,7 +356,7 @@ if (!isset($_GET['new_window'])) {
 																		</tr>
 																		<tr>
 																			<td colspan="3">
-																				Size : <input type="text" value="<?php echo $_GET['new_window_options']['width']?>" size="3" name="width"> (w) x <input type="text" value="<?php echo $_GET['new_window_options']['height']?>" size="3" name="height"> (h)
+																				<?php echo translate('size'); ?> : <input type="text" value="<?php echo $_GET['new_window_options']['width']?>" size="3" name="width"> (w) x <input type="text" value="<?php echo $_GET['new_window_options']['height']?>" size="3" name="height"> (h)
 																			</td>
 																		</tr>
 																	</table>
@@ -373,8 +373,8 @@ if (!isset($_GET['new_window'])) {
 
 						<div style="margin-top: 5px; text-align: right;">
 						<hr />
-						<button type="button" name="ok" onclick="return onOK();">OK</button>
-						<button type="button" name="cancel" onclick="return onCancel();">Cancel</button>
+						<button type="button" name="ok" onclick="return onOK();"><?php echo translate('ok'); ?></button>
+						<button type="button" name="cancel" onclick="return onCancel();"><?php echo translate('cancel'); ?></button>
 						</div>
 					</td>
 				<tr>

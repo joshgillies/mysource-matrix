@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.125 2005/05/11 06:05:10 lwright Exp $
+* $Id: backend.inc,v 1.126 2005/05/16 06:36:32 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.125 $
+* @version $Revision: 1.126 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -366,7 +366,7 @@ class Backend extends MySource_Object
 
 				} else {
 					$this->out->addOnLoad('
-						alert("Search for \"'.addslashes($_POST['asset_search']).'\" found nothing. Try Again");
+						alert(js_translate("search_found_nothing","'.addslashes($_POST['asset_search']).'"));
 					');
 				}// end if
 
@@ -576,7 +576,7 @@ class Backend extends MySource_Object
 				<td nowrap class="sq-backend-header-item" valign="middle">
 					<img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="5" height="1" />
 					<a class="sq-backend-header-item" style="text-decoration: none;" href="#" onclick="Javascript: reloadHeader(); return false;">
-					<?php echo translate('logged_in', $GLOBALS['SQ_SYSTEM']->user->name, date('d M Y g:i a', $now)); ?></a>
+					<?php echo translate('logged_in_as', $GLOBALS['SQ_SYSTEM']->user->name, date('d M Y g:i a', $now)); ?></a>
 				</td>
 				<td nowrap class="sq-backend-header-item" valign="middle" align="right">
 					<table cellpadding="0" border="0" cellspacing="0">
@@ -691,6 +691,33 @@ class Backend extends MySource_Object
 	function _printSideNav()
 	{
 		$this->out->openRaw();
+
+		//add required js translation files
+			list($lang, $country, $variant) = $GLOBALS['SQ_SYSTEM']->lm->getLocaleParts($GLOBALS['SQ_SYSTEM']->lm->getCurrentLocale());
+
+			$include_list[] = sq_web_path('lib').'/js/general.js';
+			$include_list[] = sq_web_path('lib').'/js/translation.js';
+
+			if (file_exists(SQ_DATA_PATH.'/public/system/core/js_strings.'.$lang.'.js')) {
+				$include_list[] = sq_web_path('data').'/system/core/js_strings.'.$lang.'.js';
+			}
+
+			if (!empty($country)) {
+				if (file_exists(SQ_DATA_PATH.'/public/system/core/js_strings.'.$lang.'_'.$country.'.js')) {
+					$include_list[] = sq_web_path('data').'/system/core/js_strings.'.$lang.'_'.$country.'.js';
+				}
+
+				if (!empty($variant)) {
+					if (file_exists(SQ_DATA_PATH.'/public/system/core/js_strings.'.$lang.'_'.$country.'@'.$variant.'.js')) {
+						$include_list[] = sq_web_path('data').'/system/core/js_strings.'.$lang.'_'.$country.'@'.$variant.'.js';
+					}
+				}
+			}
+
+
+			foreach($include_list as $link) {
+				?><script type="text/javascript" src="<?php echo $link; ?>"</script><?php
+			}
 
 		?>
 		<style>

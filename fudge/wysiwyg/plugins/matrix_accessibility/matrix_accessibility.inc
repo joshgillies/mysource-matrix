@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_accessibility.inc,v 1.6 2004/12/06 14:39:54 brobertson Exp $
+* $Id: matrix_accessibility.inc,v 1.7 2005/05/16 06:36:36 lwright Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 *     Triple-A level accessibility tags (e.g. abbr and acronym)
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -94,7 +94,7 @@ class matrix_accessibility extends wysiwyg_plugin
 						text_range = true;
 						editor.selectNodeContents(control_range(0));
 					} else {
-						alert("You need to select this object as though it was text, rather than just clicking on it.");
+						alert(js_translate('object_requires_selection'));
 						sel.empty();
 						return;
 					}
@@ -151,7 +151,7 @@ class matrix_accessibility extends wysiwyg_plugin
 						// we don't want more than one paragraph because these can start or end from half-way through
 						// a para, which would fuck up the formatting when we go to re-insert the text with the href
 						if (para_html.indexOf("<p") != para_html.lastIndexOf("<p")) {
-							alert("Please select only one paragraph to link at a time otherwise bad things happen.");
+							alert(js_translate('select_one_paragraph_at_a_time'));
 							return;
 						}
 
@@ -206,7 +206,7 @@ class matrix_accessibility extends wysiwyg_plugin
 						text_range = true;
 						editor.selectNodeContents(control_range(0));
 					} else {
-						alert("You need to select this object as though it was text, rather than just clicking on it.");
+						alert(js_translate('object_requires_selection'));
 						sel.empty();
 						return;
 					}

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.27 2005/05/11 06:07:32 lwright Exp $
+* $Id: page_account_manager.inc,v 1.28 2005/05/16 06:36:41 lwright Exp $
 *
 */
 
@@ -27,40 +27,12 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
 class Page_Account_Manager extends Page_Asset_Builder
 {
-
-	/**
-	* An array of keywords that this asset makes available for use along with a default replacement
-	* @var array(keyword => name)
-	*/
-	var $_available_keywords = Array(
-								'login_invite'            => 'Login Invite',
-								'login_form'              => 'Login Form',
-								'login_error'             => 'Login Error Message',
-								'create_invite'           => 'Create Account Invite',
-								'create_form'             => 'Create Account Form',
-								'create_error'            => 'Create Error Message',
-								'edit_details_invite'     => 'Edit Details Invite',
-								'edit_details_form'       => 'Edit Details Form',
-								'edit_details_success'    => 'Edit Details Success Message',
-								'edit_details_lock_error' => 'Lock Error Message',
-								'logout_form'             => 'Logout Form',
-								);
-
-	/**
-	* An array of bodycopies that need to be created
-	* @var array
-	*/
-	var $_bodycopies = Array( 'Not Logged In'    => 'not_logged_in',
-							  'Created Not Live' => 'create_no_login',
-							  'Created Live'     => 'create_login',
-							  'Logged In'        => 'logged_in',
-							 );
 
 
 	/**
@@ -539,10 +511,42 @@ class Page_Account_Manager extends Page_Asset_Builder
 	function onRequestKeywords(&$broadcaster, $vars=Array())
 	{
 		if (!isset($vars['keywords'])) return;
-		$vars['keywords'] = array_merge($vars['keywords'], $this->_available_keywords);
+		$keywords = Array(
+						'login_invite'            => translate('cms_asset_builder_keyword_login_invite'),
+						'login_form'              => translate('cms_asset_builder_keyword_login_form'),
+						'create_error'            => translate('cms_asset_builder_keyword_login_error'),
+						'create_invite'           => translate('cms_account_manager_keyword_create_invite'),
+						'create_form'             => translate('cms_account_manager_keyword_create_form'),
+						'create_error'            => translate('cms_account_manager_keyword_create_error'),
+						'edit_details_invite'     => translate('cms_account_manager_keyword_edit_details_invite'),
+						'edit_details_form'       => translate('cms_account_manager_keyword_edit_details_form'),
+						'edit_details_success'    => translate('cms_account_manager_keyword_edit_details_success'),
+						'edit_details_lock_error' => translate('cms_account_manager_keyword_edit_details_lock_error'),
+						'logout_form'             => translate('cms_asset_builder_keyword_logout_form'),
+					);
+
+		$vars['keywords'] = array_merge($vars['keywords'], $keywords);
 		$vars['keywords'] = array_merge($vars['keywords'], $this->getSelectableLocationKeywords());
 
 	}//end onRequestKeywords()
+
+
+	/**
+	* Return an array of bodycopies that need to be created
+
+	* @return Array
+	* @access private
+	*/
+	function _getBodycopies()
+	{
+		return Array(
+					'create_login'		=> translate('cms_account_manager_created_live'),
+					'create_no_login'	=> translate('cms_account_manager_created_not_live'),
+					'logged_in'			=> translate('logged_in'),
+					'not_logged_in'		=> translate('not_logged_in'),
+			   );
+
+	}//end _getBodycopies()
 
 
 }//end class

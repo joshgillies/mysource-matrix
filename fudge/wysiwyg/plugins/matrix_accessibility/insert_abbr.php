@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_abbr.php,v 1.5 2005/01/20 13:32:41 brobertson Exp $
+* $Id: insert_abbr.php,v 1.6 2005/05/16 06:36:35 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Insert Abbreviation Popup for the WYSIWYG
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 */
 
@@ -60,14 +60,14 @@ if (!isset($_GET['title']))		  $_GET['title'] = "";
 			};
 
 			function onOK() {
-				// pass data back to the calling window 
+				// pass data back to the calling window
 				var fields = ["title"];
 				var param = new Object();
 				var f = document.main_form;
 
 				param["title"] = form_element_value(f.title);
 				param["abbr"]  = form_element_value(f.abbr);
-				
+
 				__dlg_close("matrixInsertAbbr", param);
 				return false;
 			};
@@ -76,15 +76,15 @@ if (!isset($_GET['title']))		  $_GET['title'] = "";
 				__dlg_close("matrixInsertAbbr", null);
 				return false;
 			};
-			
+
 			function buildForm() {
 				if (can_insert) {
 					document.write('<tr>');
-					document.write('<td class="label">Abbreviation:</td>');
+					document.write('<td class="label"><?php echo translate('abbreviation'); ?>:</td>');
 					document.write('<td colspan="3"><?php text_box('abbr', trim($_GET['abbr']), 40, 0);?></td>');
 					document.write('</tr>');
 					document.write('<tr>');
-					document.write('    <td class="label">Definition:</td>');
+					document.write('    <td class="label"><?php echo translate('definition'); ?>:</td>');
 					document.write('    <td colspan="3"><?php text_box('title', trim($_GET['title']), 40, 0);?></td>');
 					document.write('</tr>');
 				} else {
@@ -94,7 +94,7 @@ if (!isset($_GET['title']))		  $_GET['title'] = "";
 					document.write('</tr>');
 				}
 			};
-			
+
 		</script>
 
 		<style type="text/css">
@@ -124,7 +124,7 @@ if (!isset($_GET['title']))		  $_GET['title'] = "";
 			}
 
 			/* fieldset styles */
-			fieldset { 
+			fieldset {
 				padding: 0px 10px 5px 5px;
 				border-color: #725B7D;
 			}
@@ -167,31 +167,31 @@ if (!isset($_GET['title']))		  $_GET['title'] = "";
 	</head>
 
 	<body onload="Javascript: Init();">
-		<div class="title">Insert Abbreviation</div>
+		<div class="title"><?php echo translate('insert_abbreviation'); ?></div>
 		<form action="" method="get" name="main_form">
 			<table width="100%" >
 				<tr>
 					<td valign="top" width="100%">
 						<fieldset>
-						<legend><b>General</b></legend>
+						<legend><b><?php echo translate('general'); ?></b></legend>
 						<table style="width:100%">
-							<script type="text/javascript"> 
-								buildForm(); 
+							<script type="text/javascript">
+								buildForm();
 							</script>
 						</table>
 						</fieldset>
 					</td>
 				</tr>
-			</table> 
-	
+			</table>
+
 			<div style="margin-top: 5px; margin-right: 5px; text-align: right;">
 				<hr />
 				<script type="text/javascript" language="javascript">
 				if (can_insert) {
-					document.write('<button type="button" name="ok" onclick="return onOK();">OK</button>');
+					document.write('<button type="button" name="ok" onclick="return onOK();"><?php echo translate('ok'); ?></button>');
 				};
 				</script>
-				<button type="button" name="cancel" onclick="return onCancel();">Cancel</button>
+				<button type="button" name="cancel" onclick="return onCancel();"><?php echo translate('cancel'); ?></button>
 			</div>
 		</form>
 	</body>

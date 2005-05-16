@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: limbo_outputter.inc,v 1.19 2005/04/21 07:36:37 tbarrett Exp $
+* $Id: limbo_outputter.inc,v 1.20 2005/05/16 06:36:32 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/backend_outputter.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix
 */
 class Limbo_Outputter extends Backend_Outputter
@@ -217,7 +217,7 @@ class Limbo_Outputter extends Backend_Outputter
 
 			var SQ_DOCUMENT_LOADED = false;
 
-			function page_on_load() 
+			function page_on_load()
 			{
 				<?php
 				foreach ($this->_on_load_calls as $call) {
@@ -232,10 +232,10 @@ class Limbo_Outputter extends Backend_Outputter
 
 			var SQ_FORM_SUBMITTED = false;
 
-			function form_on_submit() 
+			function form_on_submit()
 			{
 				if (SQ_FORM_SUBMITTED) {
-					alert('The form has already been submitted, please wait ...');
+					alert(js_translate('form_already_submitted'));
 					return;
 				}
 

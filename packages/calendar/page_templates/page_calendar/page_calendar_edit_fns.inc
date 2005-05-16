@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_edit_fns.inc,v 1.28 2005/05/11 06:07:21 lwright Exp $
+* $Id: page_calendar_edit_fns.inc,v 1.29 2005/05/16 06:36:39 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -160,7 +160,8 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 
 		$current_list_entry_types = $asset->attr('list_entry_types');
 		?><table class="sq-backend-table"><?php
-		foreach ($asset->view_options as $category => $options) {
+		$view_options = $asset->getViewOptions();
+		foreach ($view_options as $category => $options) {
 			?>
 			<tr>
 				<td class="sq-backend-table-cell">
@@ -170,7 +171,7 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 					if ($write_access) {
 						combo_box($prefix.'_enabled_views['.$category.']', $options, 0,  $current_views[$category], 0, 'style="width: 25ex"');
 					} else {
-						echo $asset->view_options[$category][$current_views[$category]];
+						echo $view_options[$category][$current_views[$category]];
 					}?>
 				</td>
 				<td class="sq-backend-table-cell"><?php
@@ -208,7 +209,7 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	function processViewsChooser(&$asset, &$o, $prefix)
 	{
 		$list_entry_types = $asset->attr('list_entry_types');
-		$unwanted_elts = array_diff(array_keys($_POST[$prefix.'_enabled_views']), array_keys($asset->view_options));
+		$unwanted_elts = array_diff(array_keys($_POST[$prefix.'_enabled_views']), array_keys($asset->getViewOptions()));
 		if (empty($unwanted_elts)) {
 			$asset->setAttrValue('enabled_views', $_POST[$prefix.'_enabled_views']);
 			$initial_view = $asset->attr('initial_view');
@@ -248,7 +249,7 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	{
 		$selected_view = $asset->attr('initial_view');
 		if ($asset->writeAccess('attributes')) {
-			$view_options = $asset->view_options;
+			$view_options = $asset->getViewOptions();
 			$enabled_views = $asset->attr('enabled_views');
 			foreach ($enabled_views as $name => $status) {
 				if (empty($status)) unset($view_options[$name]);

@@ -18,7 +18,7 @@
 	<string source="asset_types">Asset Types</string>
 	<string source="asset_type">Asset Type</string>
 	<string source="inherit_types">Inherit Types</string>
-	<string source="at">At</string>
+	<string source="at" js="1">At</string>
 	<string source="attribute_search_fields">Attribute Search Fields</string>
 	<string source="csv_upload">CSV Upload</string>
 	<string source="cascade_options">Cascade Options</string>
@@ -247,23 +247,18 @@
 	<string source="asset_from_under_asset">%1$s from under %2$s</string>
 	<string source="cron_altered_asset_status">Altered status of %1$s from %2$s to %3$s</string>
 
-
-
-
-
-
-
-
 	<string source="scheduled_future_status_change">Scheduled Future Status Changes</string>
 	<string source="locking_editing">Locking / Editing</string>
 	<string source="forcibly_acquire_lock">You can forceably acquire this lock, which will remove the lock from "%1$s" and give the lock to yourself.&lt;br /&gt;Any changes currently being made by "%1$s" will be lost if this lock is forceably acquired.</string>
 	<string source="acquire_lock">Press the &lt;span class="sq-backend-button-fake"&gt;%1$s&lt;/span&gt; button to lock "%2$s" for editing.</string>
 	<string source="release_lock">Press the &lt;span class="sq-backend-button-fake"&gt;%1$s&lt;/span&gt; button to release the locks you hold on "%2$s"</string>
-	<string source="show_lock_details">Show Lock Details</string>
 	<string source="lock_type">Lock Type</string>
+	<string source="other_assets_in_chain">Other Assets in Chain</string>
+	<string source="forceably_acquire_lock_can_cause_losses">You are about to forceably acquire the following locks on "%1$s"&lt;br&gt;&lt;b&gt;Any changes being made to "%2$s" or any other asset in the locking chain (&lt;i&gt;see full list below&lt;/i&gt;) will be lost.&lt;/b&gt;</string>
 	<string source="currently_not_held">Currently not held</string>
 	<string source="no_access_to_edit">You do not have access to edit "%s"</string>
 	<string source="due_to_expire">The lock is due to expire in %s</string>
+	<string source="enter_eight_character_security_string">To acquire the lock, enter the 8 character string you see below into the box supplied, then press the Commit button</string>
 	<string source="lock_held_indefinitely">The lock is being held indefinitely and will not expire. The lock must be released manually or be forceably acquired by a System Administrator.</string>
 	<string source="lock_held_by">Held by user "%1$s" at "%2$s"</string>
 	<string source="acquire_lock_button">Acquire Lock(s)</string>
@@ -272,10 +267,10 @@
 	<string source="last_updated">Last updated by %1$s on %2$s</string>
 	<string source="last_published">Last published by %1$s on %2$s</string>
 	<string source="never_published">This asset has never been published</string>
-	<string source="more_info">more info</string>
 	<string source="disable_popup_blocking">MySource Matrix requires popup blocking to be disabled for certain functions to work correctly.</string>
 	<string source="popups_blocked">Popups are Blocked</string>
-	<string source="logged_in">Logged in as: &lt;b&gt;%1$s - %2$s&lt;/b&gt;</string>
+	<string source="logged_in_as">Logged in as: &lt;b&gt;%1$s - %2$s&lt;/b&gt;</string>
+	<string source="logged_in">Logged in</string>
 	<string source="asset_search_default">Enter asset ID or URL</string>
 	<string source="quick_search">Quick Search</string>
 	<string source="cascade_status_change">Cascade Status Change</string>
@@ -474,11 +469,12 @@
 
 	<string source="leave_empty">Leave Empty</string>
 
-	<string source="unknown_error_uccored">Unknown Error Occured</string>
-	<string source="hipo_progress">HIPO Progress</string>
+	<string source="unknown_error_occurred">Unknown Error Occured</string>
+	<string source="hipo_progress">%s HIPO Progress</string>
+	<string source="hipo_complete">%s HIPO Complete</string>
 	<string source="reported">Reported</string>
 	<string source="continue">Continue</string>
-	<string source="hipo_error_report">HIPO Error Report</string>
+	<string source="hipo_error_report">%s HIPO Error Report</string>
 	<string source="hipo_herder_completion">( HIPO job was %s completed )</string>
 	<string source="hipo_currently_no_jobs">There are currently no HIPO Jobs on the system</string>
 	<string source="source_job_code_name">Source Job Code Name</string>
@@ -514,7 +510,7 @@
 	<string source="hipo_value_divided_by_schema">Value will be divided by number of affected schemas</string>
 	<string source="hipo_value_divided_by_permission">Value will be divided by number of affected permissions</string>
 	<string source="hipo_cannot_modify_schema">Could not %1$s schema "%2$s" on "%3$S" because this asset already has this schema %4$s. The current schema setting for "%3$s" has been retained</string>
-	<string source="hipo_cannot_modify_permission">'Could not %1$s $2$s access for "%3$s" on "%4$s" because this asset already has %5$s $2$s access to ""%3$s". The current permission for "%4$s" has been retained.'</string>
+	<string source="hipo_cannot_modify_permission">'Could not %1$s $2$s access for "%3$s" on "%4$s" because this asset already has %5$s %2$s access to ""%3$s". The current permission for "%4$s" has been retained.'</string>
 	<string source="hipo_editing_metadata_schema">Editing Metadata Schemas for "%s"</string>
 	<string source="hipo_skipping_metadata_schema">Skipping "%s" as it does not require metadata</string>
 	<string source="hipo_skipping_permission">Could not edit permissions for asset #%s, asset does not exist</string>
@@ -531,9 +527,11 @@
 	<string source="hipo_cannot_regenerate_metadata">Could not regenerate metatdata file for asset #%s, asset does not exist</string>
 	<string source="hipo_generate_metadata">Generating metadata file for "%s"</string>
 	<string source="hipo_broadcast_event">Broadcasting Event %1$s from Asset #%2$s</string>
-	<string source="hipo_updating_lookups">Updating Lookups for "%s"</string>
+	<string source="hipo_updating_lookups_for">Updating Lookups for "%s"</string>
 	<string source="hipo_cannot_update_lookups">Could not update lookups for asset #%s, asset does not exist</string>
 	<string source="hipo_edit_permission">Editing Permissions for "%s"</string>
+	<string source="hipo_aborting">Aborting...</string>
+	<string source="hipo_abort_complete">Abort Complete</string>
 
 	<string source="inbox_lock">Please lock the Inbox to send messages</string>
 	<string source="inbox_trash_empty">Your trash is empty.</string>
@@ -740,6 +738,8 @@
 	<string source="notify_when_live">Notify When Live</string>
 	<string source="step_not_completed_in_time_explanation">If this step is not completed within this time a reminder message will be sent to the asset administrators. Leave at &#147;0&#148; to disable this feature.</string>
 	<string source="members_must_approve">$s member(s) must approve</string>
+	<string source="security_key_question">Can't read the security key?</string>
+	<string source="security_key_link">Click here to get a new key</string>
 
 
 
@@ -870,7 +870,7 @@
 	<string source="off">Off</string>
 	<string source="true">True</string>
 	<string source="false">False</string>
-	<string source="change">Change</string>
+	<string source="change" js="1">Change</string>
 	<string source="delete">Delete</string>
 	<string source="style">Style</string>
 	<string source="height">Height</string>
@@ -902,7 +902,6 @@
 	<string source="rows">Rows</string>
 	<string source="columns">Columns</string>
 	<string source="ok">Ok</string>
-	<string source="cancel">Cancel</string>
 	<string source="custom">Custom</string>
 	<string source="sub">Sub</string>
 	<string source="or">Or</string>
@@ -934,7 +933,7 @@
 	<string source="preferences">Preferences</string>
 	<string source="now">Now</string>
 	<string source="by">By</string>
-	<string source="clear">Clear</string>
+	<string source="clear" js="1">Clear</string>
 	<string source="reset">Reset</string>
 	<string source="more">More</string>
 	<string source="inherit">Inherit</string>
@@ -1166,5 +1165,251 @@
 	<string source="select_date">Select Date</string>
 	<string source="sort_by">Sort By</string>
 	<string source="starts_with">Starts With</string>
+	<string source="not_logged_in">	Not Logged In</string>
+
+	<string source="insert_container">Insert Container</string>
+	<string source="select_container_type">Select the type of container you want to create before clicking here</string>
+	<string source="insert">Insert</string>
+
+	<string source="insert_new_column_on_right">Insert New Column on Right</string>
+	<string source="insert_new_column_on_left">Insert New Column on Left</string>
+	<string source="delete_column_question">Delete Column %s ?</string>
+	<string source="add_column">Add Column</string>
+	<string source="delete_column">Delete Column</string>
+	<string source="reorder_columns">Redorder Columns</string>
+	<string source="reoder_columns_question">Reorder %s's Columns ?</string>
+	<string source="edit_properties">Edit %s's Properties</string>
+	<string source="current_properties">Current Properties</string>
+
+	<string source="insert_new_row_below">Insert a New Row Below</string>
+	<string source="insert_new_row_above">Insert a New Row Above</string>
+	<string source="delete_row_question">Delete row %s ?</string>
+	<string source="delete_row">Delete Row</string>
+	<string source="add_row">Add Row</string>
+	<string source="edit_row_question">Edit row %s Properties</string>
+	<string source="edit_row">Edit Row Properties</string>
+	<string source="reorder_rows_question">Reorder %s's Rows ?</string>
+	<string source="reorder_rows">Reorder Rows</string>
+
+	<string source="insert_image">Insert Image</string>
+	<string source="image_url">Image URL</string>
+	<string source="border_thickness">Border thickness</string>
+	<string source="selectors">Selectors</string>
+	<string source="cell">Cell</string>
+	<string source="abbr">Abbr</string>
+	<string source="axis">Axis</string>
+	<string source="scope">Scope</string>
+	<string source="col">Col</string>
+	<string source="headings">Headings</string>
+	<string source="click_to_select">Click to select</string>
+	<string source="align">Align</string>
+	<string source="table">Table</string>
+	<string source="caption">Caption</string>
+	<string source="cell_spacing">Cell Spacing</string>
+	<string source="cell_padding">Cell Padding</string>
+	<string source="summary">Summary</string>
+	<string source="frame">Frame</string>
+	<string source="no_sides">No Sides</string>
+	<string source="the_top_side_only">The top side only</string>
+	<string source="the_bottom_side_only">The bottom side only</string>
+	<string source="the_top_and_bottom_sides_only">The top and bottom sides only</string>
+	<string source="the_right_and_left_sides_only">The right and left sides only</string>
+	<string source="the_left-hand_side_only">The left-hand side only</string>
+	<string source="the_right-hand_side_only">The right-hand side only</string>
+	<string source="all_four_sides">All four sides</string>
+	<string source="rules">Rules</string>
+	<string source="no_rules">No rules</string>
+	<string source="rules_will_appear_between_rows_only">Rules will appear between rows only</string>
+	<string source="rules_will_appear_between_columns_only">Rules will appear between columns only</string>
+	<string source="rules_will_appear_between_all_rows_and_columns">Rules will appear between all rows and columns</string>
+	<string source="colour">Colour</string>
+	<string source="blocking">Blocking</string>
+	<string source="block_other_triggers_on_failure">Blocks other triggers from firing on failure?</string>
+	<string source="add_new_condition_type">Add new Condition type</string>
+	<string source="add_new_action_type">Add new Action type</string>
+	<string source="general">General</string>
+	<string source="protocol">Protocol</string>
+	<string source="select_asset">Select Asset"</string>
+	<string source="anchor_name">Anchor Name</string>
+	<string source="status_bar_text">Status Bar Text</string>
+	<string source="title">Title</string>
+	<string source="new_window_options">New Window Options</string>
+	<string source="target">Target</string>
+	<string source="new_window">New Window</string>
+	<string source="options">Options</string>
+	<string source="advanced">Advanced</string>
+	<string source="abbreviation">Abbreviation</string>
+	<string source="definition">Definition</string>
+	<string source="insert_abbreviation">Insert Abbreviation</string>
+	<string source="insert_acronym">Insert Acronym</string>
+	<string source="alternate_text">Alternate text</string>
+	<string source="positioning_of_this_image">Positioning of this image</string>
+	<string source="texttop">Texttop</string>
+	<string source="baseline">Baseline</string>
+	<string source="absmiddle">Absmiddle</string>
+	<string source="absbottom">Absbottom</string>
+	<string source="embed_movie">Embed Movie</string>
+	<string source="movie_url">Movie URL</string>
+	<string source="controls">Controls</string>
+	<string source="auto_start">Auto Start</string>
+	<string source="loop">Loop</string>
+	<string source="show_controls">Show Controls</string>
+	<string source="wmv-asf-asx_only">wmv, asf and asx only</string>
+	<string source="mov-wmv-asf-asx_only">mov, wmv, asf and asx only</string>
+	<string source="dictionary">Dictionary</string>
+	<string source="re-check">Re-check</string>
+	<string source="original_word">Original word</string>
+	<string source="replace">Replace</string>
+	<string source="replace_all">Replace all</string>
+	<string source="replace_with">Replace with</string>
+	<string source="ignore">Ignore</string>
+	<string source="ignore_all">Ignore all</string>
+	<string source="suggestions">Suggestions</string>
+
+
+
+
+
+
+	<!-- strings for javascript -->
+	<string source="submission_form_not_found" js="1">Could not find form with ID %s to submit</string>
+	<string source="jshttpconnector_transmit_error" js="1">JSHTTPCONNECTOR TRANSMIT ERROR: \n %s</string>
+	<string source="jshttpconnector_receive_error" js="1">JSHTTPCONNECTOR RECEIVE ERROR: \n %s</string>
+	<string source="jshttpconnector_status">\n(HTTP Status = %s)</string>
+	<string source="unable_to_use_layers" js="1">Unable to use layers on you page, sorry</string>
+	<string source="element_not_combo_box" js="1">Element "%s" is not a combo box</string>
+	<string source="not_leap_year" js="1">%1$s is not a leap year, there is no %2$sth of Feburary.</string>
+	<string source="day_not_in_feburary" js="1">There is no %sth of Feburary</string>
+	<string source="no_31st_of_month" js="1">There is no 31st of %s.</string>
+
+	<string source="ie6_or_above_required" js="1">You need to use Internet Explorer 6.0 or above for the communication between the Asset Map and the Javascript</string>
+	<string source="firebird061_or_above_required" js="1">You need to use Firebird/Firefox 0.6.1 or above for the communication between the Asset Map and the Javascript</string>
+	<string source="safari121_or_above_required" js="1">You need to use Safari 1.2.1 (build 125.1) or above for the communication between the Asset Map and the Javascript</string>
+	<string source="mozilla14_or_above_required" js="1">You need to use Mozilla 1.4 or above for the communication between the Asset Map and the Javascript</string>
+	<string source="using_untested_browser" js="1">You are using an untested browser there is no guarantee that the communication between the Asset Map and the Javascript will be successful</string>
+	<string source="asset_finder_in_use" js="1">The asset finder is currently in use</string>
+	<string source="data_contains_escape_character" js="1">Your data contained the escape character (ASCII Code %s), this has been removed</string>
+	<string source="unable_to_serialise" js="1">Unable to serialise a var of type "%s"</string>
+	<string source="unable_to_initialise_iframe" js="1">ERROR: IFRAME can't be initialized.</string>
+	<string source="undefined_mode" js="1">Mode %s not defined!</string>
+	<string source="mozilla13_alpha_not_supported" js="1">You need at least Mozilla-1.3 Alpha.\n Sorry, your Gecko is not supported.</string>
+	<string source="mozilla13_beta_not_supported" js="1">Mozilla 1.3 Beta or before is not supported!\n I'll try, though, but it might not work.</string>
+	<string source="changing_dictionary" js="1">Please wait: changing dictionary to: "%s".</string>
+	<string source="spellcheck_complete" js="1">Spelling checking is complete</string>
+	<string source="impossible_condition_occured" js="1">An impossible condition just happened.  Call FBI.  ;-)</string>
+	<string source="occurrence" js="1">occurrence</string>
+	<string source="occurrencea" js="1">occurrences</string>
+	<string source="found_occurrences_of_word" js="1">Found %1$s for word "%2$s"</string>
+	<string source="spell_checker" js="1">Spell Checker</string>
+	<string source="no_spelling_errors" js="1">No spelling errors were found</string>
+	<string source="no_errors" js="1">No Errors</string>
+	<string source="lin_not_exists" js="1">This link does not exist</string>
+	<string source="page_not_loaded_yet" js="1">You were too quick off the mark, the page is not loaded yet. Do you want to reload the page?</string>
+	<string source="no_url_found" js="1">No URL found for "%1$s"; Design "%2$s" might not be linked under a site with a URL</string>
+	<string source="cannot_accept_non_digit_characters" js="1">This is an numerical field.\nUnable to accept non-digit characters in this field.</string>
+	<string source="cannot_be_negative" js="1">This field has to be non-negative.</string>
+	<string source="collapse_all" js="1">Collapse All</string>
+	<string source="expand_all" js="1">Expand All</string>
+	<string source="select_all" js="1">Select All</string>
+	<string source="deselect_all" js="1">Deselect All</string>
+	<string source="action_cannot_be_performed" js="1">This action cannot be performed</string>
+	<string source="no_lock_held" js="1">No locks are held on "%s"</string>
+	<string source="search_found_nothing" js="1">Search for "%s" found nothing. Try Again</string>
+	<string source="form_already_submitted" js="1">The form has already been submitted, please wait ...</string>
+	<string source="max_characters_warning" js="1">This field can contain no more than %s characters.</string>
+	<string source="object_requires_selection" js="1">You need to select this object as though it was text, rather than just clicking on it.</string>
+	<string source="insert_anchor" js="1">Insert Anchor</string>
+	<string source="insert_link" js="1">Insert Link</string>
+	<string source="remove_link" js="1">Remove Link</string>
+	<string source="select_one_paragraph_at_a_time" js="1">Please select only one paragraph to link at a time otherwise bad things happen.</string>
+	<string source="unknown_toolbar_item" js="1">FIXME: Unknown toolbar item: %s</string>
+	<string source="combo_box_not_implemented" js="1">FIXME: combo box "%s" not implemented</string>
+	<string source="brower_does_not_support_getelementbyid" js="1">Browser cannot support script - Get Element By ID is not defined</string>
+	<string source="brower_does_not_support_innerhtml" js="1">Browser cannot support script - Inner HTML is not defined</string>
+	<string source="order_type_unknown" js="1">ORDER TYPE : "%s" unknown</string>
+	<string source="enter_positive_number" js="1">Please enter a positive number</string>
+	<string source="invalid_colour_code" js="1">Invalid color code: %s</string>
+	<string source="preview_needs_rewritten" js="1">"FIXME: preview needs rewritten:\n  show the image inside this window instead of opening a new one.</string>
+	<string source="must_select_at_least_one_protocol" js="1">You need to select at least one protocol, otherwise the url will be deleted.\nDo you want to delete "%s" ?</string>
+	<string source="confirm_purge_trash" js="1">Are you sure you want to purge all assets currently in the trash?</string>
+	<string source="confirm_delete_component" js="1">Deleting a component cannot be undone.\nAre you sure you want to proceed?</string>
+	<string source="confirm_delete_trigger" js="1">Are you sure you want to delete the selected triggers?\n\nItems to delete: %s</string>
+	<string source="confirm_cancel" js="1">Are you sure you want to cancel?</string>
+	<string source="warn_delete_all_files_associated_to_patch" js="1">This will delete all files associated with this patch.</string>
+	<string source="confirm_delete_event" js="1">Are you sure you want to delete this event altogether?</string>
+	<string source="confirm_move_event_to" js="1">Move this event to %s</string>
+	<string source="more_info" js="1">More Info</string>
+	<string source="less_info" js="1">Less Info</string>
+	<string source="hide_lock_details" js="1">Hide Lock Details</string>
+	<string source="show_lock_details" js="1">Show Lock Details</string>
+
+	<!-- CORE HIPO STRINGS -->
+	<string source="hipo_acquiring_locks">Acquiring Locks</string>
+	<string source="hipo_acquiring_metadata_locks">Acquiring Metadata Locks</string>
+	<string source="hipo_acquiring_permission_locks">Acquiring Permission Locks</string>
+	<string source="hipo_acquiring_workflow_locks">Acquiring Workflow Locks</string>
+	<string source="hipo_backing_up_modified_files">Backing Up Modified Files</string>
+	<string source="hipo_cascading_metadata">Cascading Metadata</string>
+	<string source="hipo_cascading_options">Cascading Options</string>
+	<string source="hipo_cascading_permissions">Cascading Permissions</string>
+	<string source="hipo_cascading_workflow">Cascading Workflow</string>
+	<string source="hipo_checking_asset_types">Checking Asset Types</string>
+	<string source="hipo_checking_file_updates">Checking File Updates</string>
+	<string source="hipo_checking_versions">Checking Versions</string>
+	<string source="hipo_cleaning_up">Cleaning Up</string>
+	<string source="hipo_clearing_cache">Clearing Cache</string>
+	<string source="hipo_clone_options">Clone Options</string>
+	<string source="hipo_cloning_assets">Cloning Assets</string>
+	<string source="hipo_confirmation">Confirmation</string>
+	<string source="hipo_creating_links">Creating Links</string>
+	<string source="hipo_editing_status">Editing Status</string>
+	<string source="hipo_generating_metadata_files">Generating Metadata Files</string>
+	<string source="hipo_generating_report">Generating Report</string>
+	<string source="hipo_installing_file_updates">Installing File Updates</string>
+	<string source="hipo_name_acquire_locks">Acquire Locks</string>
+	<string source="hipo_name_clear_cache">Clear Cache</string>
+	<string source="hipo_name_clone_assets">Clone Assets</string>
+	<string source="hipo_name_create_links">Create Links</string>
+	<string source="hipo_name_edit_metadata_schemas">Edit Metadata Schemas</string>
+	<string source="hipo_name_edit_permissions">Edit Permissions</string>
+	<string source="hipo_name_edit_status">Edit Status</string>
+	<string source="hipo_name_edit_workflow_schemas">Edit Workflow Schemas</string>
+	<string source="hipo_name_generate_report">Generate Report</string>
+	<string source="hipo_name_install_patch">Install Patch</string>
+	<string source="hipo_name_purge_trash">Purge Trash</string>
+	<string source="hipo_name_regenerate_metadata">Regenerate Metadata</string>
+	<string source="hipo_name_trigger_batch_events">Trigger Batch Events</string>
+	<string source="hipo_name_uninstall_patch">Uninstall Patch</string>
+	<string source="hipo_name_update_lookups">Update Lookups</string>
+	<string source="hipo_processing_assets">Processing Assets</string>
+	<string source="hipo_purging_trash">Purging Trash</string>
+	<string source="hipo_refreshing_asset_map">Refreshing Asset Map</string>
+	<string source="hipo_releasing_locks">Releasing Locks</string>
+	<string source="hipo_releasing_metadata_locks">Releasing Metadata Locks</string>
+	<string source="hipo_releasing_permission_locks">Releasing Permission Locks</string>
+	<string source="hipo_releasing_workflow_locks">Releasing Workflow Locks</string>
+	<string source="hipo_remapping_assets">Remapping Assets</string>
+	<string source="hipo_reversing_file_updates">Reversing File Updates</string>
+	<string source="hipo_running_installation_script">Running Installation Script</string>
+	<string source="hipo_updating_database">Updating Database</string>
+	<string source="hipo_updating_lookups">Updating Lookups</string>
+	<string source="hipo_updating_metadata_schemas">Updating Metadata Schemas</string>
+	<string source="hipo_updating_permissions">Updating Permissions</string>
+	<string source="hipo_updating_workflow_schemas">Updating Workflow Schemas</string>
+
+	<!-- JAVA STRINGS -->
+	<string source="tree_one" java="1">Tree One</string>
+	<string source="tree_two" java="1">Tree Two</string>
+	<string source="new_child" java="1">New Child</string>
+	<string source="refresh" java="1">Refresh</string>
+	<string source="teleport" java="1">Teleport</string>
+	<string source="refreshes_all_assets" java="1">Refreshes All Assets</string>
+	<string source="restore_root_folder" java="1">Restore the Root Folder</string>
+	<string source="show_status_colours" java="1">Show Status Colours</string>
+	<string source="use_me" java="1">Use Me</string>
+	<string source="cancel" js="1" java="1">Cancel</string>
+	<string source="new_link_here" java="1">New Link here</string>
+	<string source="move_here" java="1">Move here</string>
+	<string source="clone_here" java="1">Clone here</string>
 
 </strings>

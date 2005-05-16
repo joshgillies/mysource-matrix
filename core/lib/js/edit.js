@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.js,v 1.25 2005/02/20 23:47:05 tbarrett Exp $
+* $Id: edit.js,v 1.26 2005/05/16 06:36:32 lwright Exp $
 *
 */
 
@@ -115,10 +115,10 @@ function sq_toggle_asset_info() {
 	var infoToggle = document.getElementById('sq_asset_info_toggle');
 	if (assetInfo.style.display == 'none') {
 		assetInfo.style.display = 'block';
-		infoToggle.innerHTML = '[ less info ]';
+		infoToggle.innerHTML = '[ '+ js_translate('less_info') +' ]';
 	} else {
 		assetInfo.style.display = 'none';
-		infoToggle.innerHTML = '[ more info ]';
+		infoToggle.innerHTML = '[ '+ js_translate('more_info') +' ]';
 	}
 }//end sq_toggle_asset_info()
 

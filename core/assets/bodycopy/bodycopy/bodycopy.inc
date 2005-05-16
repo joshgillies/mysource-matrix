@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy.inc,v 1.22 2005/05/12 06:24:01 tbarrett Exp $
+* $Id: bodycopy.inc,v 1.23 2005/05/16 06:36:31 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -306,7 +306,7 @@ class Bodycopy extends Asset
 				foreach ($notice_links as $assetid) {
 					$href = $GLOBALS['SQ_SYSTEM']->am->getAssetHref($assetid);
 					if ($href == '') {
-						$href = "Javascript: alert('This link does not exist');";
+						$href = "Javascript: alert('js_translate('link_not_exists')');";
 					}
 					$sq_asset_url_list[$assetid] = $href;
 				}
