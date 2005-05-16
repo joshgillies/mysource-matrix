@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.95 2005/05/11 06:07:30 lwright Exp $
+* $Id: form.inc,v 1.96 2005/05/16 01:43:00 ndvries Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.95 $
+* @version $Revision: 1.96 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -195,7 +195,7 @@ class Form extends Asset
 				$sort_by = 'sort_order';
 			}
 
-			uasort($links, create_function('$a,$b','return $a["'.$sort_by.'"] < $b["'.$sort_by.'"];'));
+			uasort($links, create_function('$a,$b','return $a["'.$sort_by.'"] > $b["'.$sort_by.'"];'));
 
 			$this->_tmp['getLinks'][$assetid][$side_of_link] = $links;
 
