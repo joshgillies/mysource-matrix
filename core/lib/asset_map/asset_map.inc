@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.180 2005/04/18 06:00:35 lwright Exp $
+* $Id: asset_map.inc,v 1.181 2005/05/16 06:55:17 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.180 $
+* @version $Revision: 1.181 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -63,10 +63,10 @@ class Asset_Map
 		$backend->out->addJsInclude(sq_web_path('lib').'/asset_map/asset_map.js');
 
 		?>
-		<script language="JavaScript" type="text/javascript">
-		<!--
+		<script type="text/javascript"><!--
+		//<![CDATA[
 			init_asset_map();
-		//-->
+		//]]> -->
 		</script>
 
 		<table style="height: 100%; width: 100%;">
@@ -132,9 +132,9 @@ class Asset_Map
 		// we want to use current_url()
 		require_once SQ_INCLUDE_PATH."/general.inc";
 		?>
-		<script language="javascript" type="text/javascript" src="<?php echo sq_web_path('lib').'/js/detect.js' ?>"></script>
-		<script language="javascript" type="text/javascript" src="<?php echo sq_web_path('fudge').'/var_serialise/var_serialise.js' ?>"></script>
-		<script language="javascript" type="text/javascript" src="<?php echo sq_web_path('lib').'/asset_map/asset_map.js';?>"></script>
+		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/js/detect.js' ?>"></script>
+		<script type="text/javascript" src="<?php echo sq_web_path('fudge').'/var_serialise/var_serialise.js' ?>"></script>
+		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/asset_map/asset_map.js';?>"></script>
 
 		<?php
 		ob_start();
@@ -174,8 +174,10 @@ class Asset_Map
 			$height = "' + (document.body.offsetHeight - 70) + '";
 			$applet_tag = str_replace("\n", ' ', $applet_tag);
 			?>
-			<script language="javascript">
+			<script type="text/javascript"><!--
+			//<![CDATA[
 				document.write('<?php echo str_replace('%applet_height%', $height, $applet_tag); ?>');
+			//]]> -->
 			</script>
 			<?php
 		} else {
