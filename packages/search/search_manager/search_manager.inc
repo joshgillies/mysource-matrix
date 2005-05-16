@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.31.2.3 2005/05/01 23:33:07 gsherwood Exp $
+* $Id: search_manager.inc,v 1.31.2.4 2005/05/16 05:16:01 dmckee Exp $
 * $Name: not supported by cvs2svn $
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.31.2.3 $
+* @version $Revision: 1.31.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -58,7 +58,9 @@ class Search_Manager extends Asset
 	function create(&$link)
 	{
 		require_once SQ_CORE_PACKAGE_PATH.'/system/system_asset_fns.inc';
-		if (!system_asset_fns_create_pre_check($this)) return false;
+		if (!system_asset_fns_create_pre_check($this)) {
+			return false;
+		}
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		if ($linkid = parent::create($link)) {
@@ -67,8 +69,11 @@ class Search_Manager extends Asset
 			}
 		}
 
-		if ($linkid) $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		else $GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+		if ($linkid) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		} else {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+		}
 
 		return $linkid;
 
@@ -140,7 +145,9 @@ class Search_Manager extends Asset
 		// get dependent parents - but put broadcaster first
 		$changed_assetids = Array($broadcaster->id);
 		$inform_parents = array_get_index($vars, 'inform_parents', true);
-		if ($inform_parents) $changed_assetids += $am->getDependantParents($broadcaster->id);
+		if ($inform_parents) {
+			$changed_assetids += $am->getDependantParents($broadcaster->id);
+		}
 
 		// for each of parents+current asset, refresh key data for specified component
 		foreach ($changed_assetids as $assetid) {
@@ -191,7 +198,9 @@ class Search_Manager extends Asset
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'DELETE FROM '.SQ_TABLE_PREFIX.'sch_idx
 				WHERE assetid = '.$db->quote($assetid);
-		if (!is_null($component)) $sql .= ' AND component = '.$db->quote($component);
+		if (!is_null($component)) {
+			$sql .= ' AND component = '.$db->quote($component);
+		}
 
 		$result = $db->query($sql);
 		if (DB::isError($result)) {
@@ -396,9 +405,9 @@ class Search_Manager extends Asset
 		foreach ($results as $result) {
 			$weightings[$result['component']] =
 				Array(
-					'default'     => ($result['def'] == 't') ? 1 : 0,
-					'weight'      => $result['weight'],
-					'description' => $result['description'],
+					'default'		=> ($result['def'] == 't') ? 1 : 0,
+					'weight'		=> $result['weight'],
+					'description'	=> $result['description'],
 				);
 		}
 
@@ -457,7 +466,6 @@ class Search_Manager extends Asset
 		$keydata = Array();
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
 		$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
-
 		// sections can be shared between schemas and we only want to index them once
 		// so keep a list of all the sections we have indexed so we can skip repeats
 		$done_sectionids = Array();
@@ -476,23 +484,25 @@ class Search_Manager extends Asset
 
 				$fieldids = $am->getChildren($sectionid, 'metadata_field', false);
 				foreach ($fieldids as $fieldid => $field_type) {
-
 					$field =& $am->getAsset($fieldid, $field_type);
-
 					if (isset($metadata['sections'][$section->name]['fields'][$field->name]['value'])) {
 						$value = $metadata['sections'][$section->name]['fields'][$field->name]['value'];
 					} else {
 						$value = $field->attr('default');
 					}
-
 					$force_processing = 1; // will tell the function to process values in any case
 
 					// check field_type to define the indexing way
 					if ($field_type == 'metadata_field_date') {
-
-						$mydate = date('Y-m-d H:i:s', $value);
+						//if there is a keyword, replace it and avoid the default date problem
+						if (strpos($value, '%') !== false) {
+							$keywords = retrieve_keywords_replacements($value);
+							$replacements = $mm->generateKeywordReplacements($asset, $keywords, false);
+							$mydate = replace_keywords($value, $replacements);
+						} else {
+							$mydate = date('Y-m-d H:i:s', $value);
+						}
 						$asset->buildKeyData($keydata, $mydate, 'datetime', 'metadata:'. $field->id, $field->attr('weighting') * 1, $force_processing);
-
 					} else {
 						switch ($field_type) {
 							case 'metadata_field_select':
@@ -615,9 +625,15 @@ class Search_Manager extends Asset
 		 //  CONSTRUCT CACHING KEY  //
 		/////////////////////////////
 		$search_cache_key = $search_info['root_assetid'];
-		if (isset($search_info['search_statuses'])) $search_cache_key .= implode(':', $search_info['search_statuses']);
-		if (isset($search_info['search_types']))    $search_cache_key .= implode(':', $search_info['search_types']);
-		if (isset($search_info['sort_by']))         $search_cache_key .= $search_info['sort_by'];
+		if (isset($search_info['search_statuses'])) {
+			$search_cache_key .= implode(':', $search_info['search_statuses']);
+		}
+		if (isset($search_info['search_types'])) {
+			$search_cache_key .= implode(':', $search_info['search_types']);
+		}
+		if (isset($search_info['sort_by'])) {
+			$search_cache_key .= $search_info['sort_by'];
+		}
 
 		// we need the cache manager to cache the results of queries
 		$cm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
@@ -629,7 +645,9 @@ class Search_Manager extends Asset
 		$start_sql_array = $this->constructBaseSearchQuery($search_info);
 		$start_sql = implode(' ', $start_sql_array);
 		$group_by =  'GROUP BY ai.assetid';
-		if (isset($search_info['sort_by']) && $search_info['sort_by']) $group_by .= ', sort_by';
+		if (isset($search_info['sort_by']) && $search_info['sort_by']) {
+			$group_by .= ', sort_by';
+		}
 
 
 		  ///////////////////////////////
@@ -640,7 +658,7 @@ class Search_Manager extends Asset
 			foreach ($search_info['asset_attrib'] as $attr_name => $attr_info) {
 
 				if ($attr_info['params']['asset_type'] == '') continue;
-				$attribute = $GLOBALS['SQ_SYSTEM']->am->getAttribute($attr_info['params']['attrid']);
+				$attribute =& $GLOBALS['SQ_SYSTEM']->am->getAttribute($attr_info['params']['attrid']);
 				if (is_null($attribute)) continue;
 
 				$field_asset_scores = null;
@@ -651,8 +669,12 @@ class Search_Manager extends Asset
 						$to   = array_get_index($attr_info['words'], 'to', '---------- --:--:--');
 
 						$where = '';
-						if ($from != '---------- --:--:--') $where .= ' AND ai.value >= '.$db->quote($from);
-						if ($to != '---------- --:--:--') $where .= ' AND ai.value <= '.$db->quote($to);
+						if ($from != '---------- --:--:--') {
+							$where .= ' AND ai.value >= '.$db->quote($from);
+						}
+						if ($to != '---------- --:--:--') {
+							$where .= ' AND ai.value <= '.$db->quote($to);
+						}
 						if (empty($where)) continue;
 						if (empty($where)) continue;
 
@@ -676,7 +698,9 @@ class Search_Manager extends Asset
 
 					default :
 						$field_search_logic = array_get_index($attr_info, 'search_logic', 'AND');
-						if ($field_search_logic != 'AND' && $field_search_logic != 'OR') $field_search_logic = 'AND';
+						if ($field_search_logic != 'AND' && $field_search_logic != 'OR') {
+							$field_search_logic = 'AND';
+						}
 
 						foreach ($attr_info['words'] as $word) {
 							$result = $cm->loadFromCache($this, $search_cache_key.'asset_attrib'.$word);
@@ -702,8 +726,11 @@ class Search_Manager extends Asset
 					break;
 				}//end switch attribute type
 
-				if (is_null($total_asset_scores)) $total_asset_scores = $field_asset_scores;
-				else $total_asset_scores = $this->combineAssetScores($total_asset_scores, $field_asset_scores, $search_info['logic']);
+				if (is_null($total_asset_scores)) {
+					$total_asset_scores = $field_asset_scores;
+				} else {
+					$total_asset_scores = $this->combineAssetScores($total_asset_scores, $field_asset_scores, $search_info['logic']);
+				}
 			}
 		}
 
