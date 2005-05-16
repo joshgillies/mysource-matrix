@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: authentication_default.inc,v 1.7 2005/04/27 00:14:43 lwright Exp $
+* $Id: authentication_default.inc,v 1.8 2005/05/16 06:59:51 tbarrett Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/authentication/authentication/authent
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -156,6 +156,43 @@ class Authentication_Default extends Authentication
 		}
 
 	}//end _registerInvalidLogin()
+
+
+	/**
+	* If this authentication has a user matching the username in $_SERVER['REMOTE_USER'], return that user
+	*
+	* @access public
+	* @return Object | null
+	*/
+	function &authenticateHttpUser()
+	{
+		if (!isset($_SERVER['REMOTE_USER'])) return;
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$sql   = 'SELECT a.assetid, a.type_code
+				  FROM '.SQ_TABLE_RUNNING_PREFIX.'ast a, sq_ast_attr at, '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_uniq_val auv';
+		$where = 'a.type_code IN (
+								SELECT type_code
+								FROM sq_ast_typ_inhd
+								WHERE inhd_type_code = '.$db->quote('user').'
+								)
+				  AND at.name           = '.$db->quote('username').'
+				  AND auv.assetid       = a.assetid
+				  AND at.attrid         = auv.owning_attrid
+				  AND auv.custom_val    = '.$db->quote($_SERVER['REMOTE_USER']);
+	
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'av');
+		$result = $db->getRow($sql.$where);
+		assert_valid_db_result($result);
+
+		$user = null;
+		if ($result['assetid']) {
+			$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($result['assetid']);
+		}
+		return $user;
+
+	}//end authenticateHttpUser()
 
 
 }//end class

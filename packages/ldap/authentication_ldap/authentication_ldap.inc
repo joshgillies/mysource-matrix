@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: authentication_ldap.inc,v 1.5 2005/05/11 06:07:42 lwright Exp $
+* $Id: authentication_ldap.inc,v 1.6 2005/05/16 07:01:44 tbarrett Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -166,6 +166,47 @@ class Authentication_LDAP extends Authentication
 	}//end _registerInvalidLogin()
 
 
-}//end class
+	/**
+	* If this authentication has a user matching the username in $_SERVER['REMOTE_USER'], return that user
+	*
+	* @access public
+	* @return Object | null
+	*/
+	function &authenticateHttpUser()
+	{
+		$user = null;
+		$bridges = $GLOBALS['SQ_SYSTEM']->am->getChildren($this->id, 'ldap_bridge', true);
+		error_log(print_r($bridges, true));
+		foreach ($bridges as $bridgeid => $type_code) {
+			$bridge = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bridgeid);
+			if (is_null($bridge)) continue;
+			error_log("Looking for ".$_SERVER['REMOTE_USER']." in  bridge ".$bridge->name);
 
+			// Search for users matching the HTTP username
+			$ldap = $bridge->connectToLdap();
+			$attrs = $bridge->attr('attributes');
+			$result = $ldap->search($bridge->attr('root_dn'),'('.$attrs['uid'].'='.$_SERVER['REMOTE_USER'].')');
+			if (!$result) {
+				error_log("No results");
+				continue;
+			}
+
+			$entry = $ldap->getEntries($result);
+			if (!$entry || ($entry['count'] == 0)) {
+				error_log("No entries");
+				continue;
+			}
+			if (isset($entry[0])) {
+				$entry = $entry[0];
+				$GLOBALS['SQ_SYSTEM']->am->includeAsset('ldap_user');
+				$user = new LDAP_User($bridge->id, $entry);
+				break;
+			}
+		}
+		return $user;
+
+	}//end authenticateHttpUser()
+	
+
+}//end class
 ?>
