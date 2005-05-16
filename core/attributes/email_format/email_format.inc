@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: email_format.inc,v 1.11.2.3 2005/04/29 01:51:38 lwright Exp $
+* $Id: email_format.inc,v 1.11.2.4 2005/05/16 06:50:31 dmckee Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -82,7 +82,6 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 					var textDiv = document.getElementById(editor_name + "_text_format");
 					var htmlDiv = document.getElementById(editor_name + "_html_format");
 					var formatSpan = document.getElementById(editor_name + "_format_mode");
-
 					if (htmlDiv.style.display == "none") {
 
 						htmlDiv.style.display = "";
@@ -246,7 +245,6 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 				var textDiv = document.getElementById(editor_name + "_text_body_div");
 				var htmlDiv = document.getElementById(editor_name + "_html_body_div");
 				var formatSpan = document.getElementById(editor_name + "_format_mode");
-
 				if (htmlDiv.style.display == "none") {
 					var setDesignMode = true;
 
@@ -265,7 +263,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 					// if we are using an iframe for this editor, we set its designMode property if we need to
 					if (editor._iframe) {
 						editor._iframe.style.width = editor.config.width;
-						if (setDesignMode && HTMLArea.is_gecko) { editor._iframe.contentWindow.document.designMode = "on"; }
+						editor._iframe.contentWindow.document.designMode = "on";
 						editor._iframe.style.height = editor.config.height;
 					}
 
