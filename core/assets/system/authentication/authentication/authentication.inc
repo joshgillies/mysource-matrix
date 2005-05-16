@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: authentication.inc,v 1.6 2005/05/11 06:04:55 lwright Exp $
+* $Id: authentication.inc,v 1.7 2005/05/16 06:59:10 tbarrett Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -55,9 +55,9 @@ class Authentication extends Asset
 
 
 	/**
-	* Morph's this asset to either one of it's parent type or one of it's children types
+	* Morphs this asset to either one of its parent type or one of its children types
 	*
-	* Only succeeds if $type_code asset's is allowed to link to all children that this asset has
+	* Only succeeds if $type_code assets are allowed to link to all children that this asset has
 	*
 	* @param string	$new_type_code	the new type_code to attempt to cast this asset to
 	*
@@ -111,6 +111,40 @@ class Authentication extends Asset
 		return $this->attr('name');
 
 	}//end _getName()
+
+
+	/**
+	* Attempts to find a user that matches the passed username and password
+	*
+	* If the wrong password is supllied, the user account will be locked after
+	* a system defined number of incorrect login attempts
+	*
+	* @param string	$username	the user name to search for
+	* @param string	$password	the password to match
+	*
+	* @return object User | NULL
+	* @access public
+	*/
+	function &authenticateUser($username, $password)
+	{
+		$null = null;
+		return $null;
+
+	}//end authenticateUser()
+
+
+	/**
+	* If this authentication has a user matching the username in $_SERVER['REMOTE_USER'], return that user
+	*
+	* @access public
+	* @return Object | Null
+	*/
+	function &authenticateHttpUser()
+	{
+		$null = null;
+		return $null;
+
+	}//end authenticateHttpUser()
 
 
 }//end class
