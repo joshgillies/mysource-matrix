@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.20 2005/05/11 06:07:33 lwright Exp $
+* $Id: page_remote_content.inc,v 1.21 2005/05/16 04:47:06 rhoward Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once 'HTTP/Client/CookieManager.php';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -250,7 +250,7 @@ class Page_Remote_Content extends Page
 	*/
 	function _process()
 	{
-		$remote_url = $this->attr('remote_url');
+		$remote_url = trim($this->attr('remote_url'));
 
 		$fetch_url	= array_get_index($_REQUEST, 'sq_remote_page_url');
 		$action		= array_get_index($_REQUEST, 'sq_remote_page_action');
@@ -284,10 +284,10 @@ class Page_Remote_Content extends Page
 
 		// parameters for HTTP_Request. See Package for description.
 		$request_parameters = Array(
-									'timeout'        => $this->attr('timeout'),
-									'allowRedirects' => $this->attr('allow_redirect'),
-									'maxRedirects'   => 10,
-									);
+								'timeout'			=> $this->attr('timeout'),
+								'allowRedirects'	=> $this->attr('allow_redirect'),
+								'maxRedirects'		=> 10,
+							  );
 
 		// set HTTP authentication
 		$user = $this->attr('username');
@@ -324,7 +324,7 @@ class Page_Remote_Content extends Page
 		$_SESSION['SQ_REMOTE_COOKIE_MANAGER'] = serialize($Cookie_Manager);
 
 		// check if there was an error of type 4xx or 5xx in the HTTP response
-		$is_error = preg_match("/^[45].*?/", $HTTP_Request->getResponseCode());
+		$is_error = preg_match('/^[45].*?/', $HTTP_Request->getResponseCode());
 
 		// exit on error, checking for object because if it is true, than it is
 		// a PEAR error object
@@ -370,13 +370,8 @@ class Page_Remote_Content extends Page
 	*/
 	function _imageButtonReplace($input_string, $default_button_name='Submit Button')
 	{
-		$alt_pattern = <<<REGEX
-/(?:alt\s*=['" ]([^'"><]+)['" ])/i
-REGEX;
-
-		$type_pattern =<<<REGEX
-/(type\s*=['" ][^'"><]+['" ])/i
-REGEX;
+		$alt_pattern  = '/(?:alt\s*=[\'" ]([^\'"><]+)[\'" ])/i';
+		$type_pattern = '/(type\s*=[\'" ][^\'"><]+[\'" ])/i';
 
 		if (preg_match($alt_pattern, $input_string, $matches)) {
 			$button_name = ucfirst($matches[1]);
@@ -406,10 +401,7 @@ REGEX;
 	*/
 	function _imageStrip($image_string, $default_image_name='Image')
 	{
-
-		$alt_pattern = <<<REGEX
-/(?:alt\s*=['" ]([^'"><]+)['" ])/i
-REGEX;
+		$alt_pattern = '/(?:alt\s*=[\'" ]([^\'"><]+)[\'" ])/i';
 
 		if (preg_match($alt_pattern, $image_string, $matches)) {
 			$image_name = ucfirst($matches[1]);
@@ -437,7 +429,9 @@ REGEX;
 	*/
 	function _transformContent($content, $fetch_url, $replacement_url)
 	{
-		if (!$content || !$fetch_url || !$replacement_url) return false;
+		if (!$content || !$fetch_url || !$replacement_url) {
+			return false;
+		}
 
 		// get all info about the remote URL
 		$parsed_fetch_url = parse_url($fetch_url);
@@ -446,9 +440,7 @@ REGEX;
 		if ($this->attr('strip_images')) {
 
 			// replace HTML images with their ALT tags
-			$image_pattern = <<<REGEX
-/(<(?:img)[^>]*?>)/i
-REGEX;
+			$image_pattern = '/(<(?:img)[^>]*?>)/i';
 
 			$content = preg_replace_callback(
 				$image_pattern,
@@ -460,29 +452,23 @@ REGEX;
 			);
 
 			// remove HTML background images
-			$background_image_pattern = <<<REGEX
-/(background\s*=\s*['\"]?\s*[^'\" <>]+['\"]?)/i
-REGEX;
-			$content = preg_replace($background_image_pattern, "", $content);
+			$background_image_pattern = '/(background\s*=\s*[\'\"]?\s*[^\'\" <>]+[\'\"]?)/i';
+			$content = preg_replace($background_image_pattern, '', $content);
 
 			// strip CSS backgrounds
-			$css_background_image_pattern = <<<REGEX
-/(background.*?)(url\(.*?\))/i
-REGEX;
-			$content = preg_replace($css_background_image_pattern, "\$1", $content);
+			$css_background_image_pattern = '/(background.*?)(url\(.*?\))/i';
+			$content = preg_replace($css_background_image_pattern, '\$1', $content);
 
 			// change Form Image buttons with regular buttons
-			$image_button_patterns =<<<REGEX
-/(<(?:input)[^>]*type=["' ]image["' ][^>]*?>)/i
-REGEX;
+			$image_button_patterns = '/(<(?:input)[^>]*type=["\' ]image["\' ][^>]*?>)/i';
 
 			$content = preg_replace_callback(
 				$image_button_patterns,
 				create_function(
 					'$matches',
 					'return Page_Remote_Content::_imageButtonReplace($matches[0]);'
-				 ),
-				 $content
+				),
+				$content
 			);
 
 		}
@@ -494,14 +480,10 @@ REGEX;
 		$matches      = Array();
 
 		// scripts and linked CSS or JavaScript
-		$script_patterns[] = <<<REGEX
-/(<(?:script|link)\s+.*?(?:src|href)\s*=\s*['"]*)\s*([^'" \>]+)(['"> ]?[^<]*\>)/i
-REGEX;
+		$script_patterns[] = '/(<(?:script|link)\s+.*?(?:src|href)\s*=\s*[\'"]*)\s*([^\'" \>]+)([\'"> ]?[^<]*\>)/i';
 
 		// CSS url definitions for scripts
-		$script_patterns[] = <<<REGEX
-/(@import\s+url\s*\(['"]?\s*)([^'" ]+)(['"]?\s*\))/i
-REGEX;
+		$script_patterns[] = '/(@import\s+url\s*\([\'"]?\s*)([^\'" ]+)([\'"]?\s*\))/i';
 
 		// find whatever matches the above patterns
 		foreach ($script_patterns as $pattern) {
@@ -544,9 +526,7 @@ REGEX;
 		$matches      = Array();
 
 		// objects
-		$embed_pattern = <<<REGEX
-/(<(?:embed)\s+.*?(?:src)\s*=\s*['"]*)\s*([^'" >]+)(['"> ]?[^<]*>)/i
-REGEX;
+		$embed_pattern = '/(<(?:embed)\s+.*?(?:src)\s*=\s*[\'"]*)\s*([^\'" >]+)([\'"> ]?[^<]*>)/i';
 
 		// find whatever matches the above patterns
 		preg_match_all($embed_pattern, $content, $matches, PREG_SET_ORDER);
@@ -584,9 +564,7 @@ REGEX;
 		$matches      = Array();
 
 		// object parameters (flash)
-		$param_pattern = <<<REGEX
-/(<(?:param)\s+.*?(?:value)\s*=\s*['"]*)\s*([^'" >]+)(['"> ]?[^<]*>)/i
-REGEX;
+		$param_pattern = '/(<(?:param)\s+.*?(?:value)\s*=\s*[\'"]*)\s*([^\'" >]+)([\'"> ]?[^<]*>)/i';
 
 		preg_match_all($param_pattern, $content, $matches, PREG_SET_ORDER);
 
@@ -598,15 +576,13 @@ REGEX;
 			$postfix	= $data[3];
 
 			// find the name of the subject
-			$pattern = <<<REGEX
-/name\s*=\s*['"]*\s*([^'" >]+)['"> ]+/i
-REGEX;
+			$pattern = '/name\s*=\s*[\'"]*\s*([^\'" >]+)[\'"> ]+/i';
 
 			preg_match($pattern, $subject, $name_matches);
 			$param_name = $name_matches['1'];
-			if ($param_name != 'movie') { // only look at parameter whose name is movie (for flash)
-				continue;
-			}
+
+			// only look at parameter whose name is movie (for flash)
+			if ($param_name != 'movie') continue;
 
 			$full_url = $this->_makeFullURL($parsed_fetch_url, $url);
 
@@ -635,21 +611,13 @@ REGEX;
 		$matches      = Array();
 
 		// prepare the image patterns
-		$image_patterns[] = <<<REGEX
-/(<(?:img)\s+.*?(?:src)\s*=\s*['"]*)\s*([^'" <>]+)(['"> ]?[^<>]*\>)/i
-REGEX;
+		$image_patterns[] = '/(<(?:img)\s+.*?(?:src)\s*=\s*[\'"]*)\s*([^\'" <>]+)([\'"> ]?[^<>]*\>)/i';
 
-		$image_patterns[] = <<<REGEX
-/(background\s*=\s*['"]?)\s*([^'"<> ]+)(['" ]?[^<]*>)/i
-REGEX;
+		$image_patterns[] = '/(background\s*=\s*[\'"]?)\s*([^\'"<> ]+)([\'" ]?[^<]*>)/i';
 
-		$image_patterns[] = <<<REGEX
-/((?:background.*?)url\s*\(['"]?\s*)([^'"; ]+)(['"]?\s*\))/i
-REGEX;
+		$image_patterns[] = '/((?:background.*?)url\s*\([\'"]?\s*)([^\'"; ]+)([\'"]?\s*\))/i';
 
-		$image_patterns[] = <<<REGEX
-/(<(?:input)\s+.*?(?:src)\s*=\s*['"]+)\s*([^'" >]+)(['"> ]?[^<>]*\>)/i
-REGEX;
+		$image_patterns[] = '/(<(?:input)\s+.*?(?:src)\s*=\s*[\'"]+)\s*([^\'" >]+)([\'"> ]?[^<>]*\>)/i';
 
 		// find whatever matches the above patterns
 		foreach ($image_patterns as $pattern) {
@@ -692,16 +660,12 @@ REGEX;
 
 		// PATTERNS for urls that might need to be rewritten to point back to remote content
 		// links and frames except mailto and javascript
-		$patterns[] = <<<REGEX
-/(<(?:(?:a(?:rea)?[^>]*?href)|(?:i?frame[^>]*?src))\s*=\s*['"]?)\s*((?:(?![\#]|mailto|javascript))[^'"> ]+)(['"> ]?[^<]*>)/i
-REGEX;
+		$patterns[] = '/(<(?:(?:a(?:rea)?[^>]*?href)|(?:i?frame[^>]*?src))\s*=\s*[\'"]?)\s*((?:(?![\#]|mailto|javascript))[^\'"> ]+)([\'"> ]?[^<]*>)/i';
 
 		// this pattern is a special case. we don't generally look at JavaScript
-		// because that is a whole new territory.
+		// because that is a whole new territory
 		// this one was added for compatibility with MySource v2 ecom module
-		$patterns[] = <<<REGEX
-/(<input[^>]*?onclick\s*=\s*['"]location=')\s*([^'"> ]+)(['"> ]?[^<]*>)/i
-REGEX;
+		$patterns[] = '/(<input[^>]*?onclick\s*=\s*[\'"]location=\')\s*([^\'"> ]+)([\'"> ]?[^<]*>)/i';
 
 		// find whatever matches the above patterns
 		foreach ($patterns as $pattern) {
@@ -746,10 +710,8 @@ REGEX;
 		$matches 	= Array();
 		$patterns 	= Array();
 
-// forms. note this captures even those actions that are empty
-		$patterns[] = <<<REGEX
-/(<(?:form[^>]*?action)\s*=\s*['\"]?)\s*([^'\"> ]*)(['\"\> ]?[^<]*\>)/i
-REGEX;
+		// forms. note this captures even those actions that are empty
+		$patterns[] = '/(<(?:form[^>]*?action)\s*=\s*[\'\"]?)\s*([^\'\"> ]*)([\'\"\> ]?[^<]*\>)/i';
 
 		// find whatever matches the above patterns
 		foreach ($patterns as $pattern) {
@@ -840,14 +802,12 @@ REGEX;
 			$final_path = $url;
 		} else {
 			// convert '././foo.ext' into 'foo.ext'
-			$url = preg_replace("|^(?:\.\/)+(\w.*)$|","\${1}",$url);
-			$url = preg_replace("|(\/+)|",'/',$url);
+			$url = preg_replace('|^(?:\.\/)+(\w.*)$|', '\${1}', $url);
+			$url = preg_replace('|(\/+)|', '/', $url);
 			$path = array_get_index($parsed_fetch_url,'path','/');
 			if (substr($path,-1) != '/'){
 				$path = dirname($path);
-				if (strlen($path) > 1) {
-					$path .= '/';
-				}
+				if (strlen($path) > 1) $path .= '/';
 			}
 
 			$final_path = $path.$url;
@@ -896,9 +856,7 @@ REGEX;
 		foreach ($path_components as $component) {
 			switch ($component) {
 				case '..':
-					if (!empty($stack)) {
-						array_pop($stack);
-					}
+					if (!empty($stack)) array_pop($stack);
 				break;
 
 				case '.':
