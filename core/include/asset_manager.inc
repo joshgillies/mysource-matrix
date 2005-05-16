@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.310 2005/05/12 00:30:52 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.311 2005/05/16 09:00:19 gnoel Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.310 $
+* @version $Revision: 1.311 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2929,15 +2929,6 @@ class Asset_Manager extends MySource_Object
 
 		$row = $db->getRow($sql);
 		assert_valid_db_result($row);
-
-		$sql = 'SELECT
-			*
-		FROM
-			sq_ast_lnk';
-
-		$result = $db->getAll($sql);
-		assert_valid_db_result($result);
-
 
 		$max = ($row['count'] > 0) ? (int) $row['max'] + 1 : 0;
 		if (is_null($sort_order) || (int) $sort_order > (int) $max || (int) $sort_order < 0) $sort_order = (int) $max;
