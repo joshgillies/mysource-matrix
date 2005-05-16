@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.13 2005/05/12 05:12:03 rhoward Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.14 2005/05/16 01:11:02 rhoward Exp $
 *
 */
 
@@ -40,7 +40,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 * @author  David Heppell <dheppell@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1447,22 +1447,22 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	{
 		if ($asset->attr('group_by') == 'letter') {
 			return Array(
-						'' 				=> '-- '.translate('no_sorting').' --',
-						'name'			=> translate('name'),
-						'short_name'	=> translate('short_name'),
+					''				=> '-- '.translate('no_sorting').' --',
+					'name'			=> translate('name'),
+					'short_name'	=> translate('short_name'),
 				   );
 		} else {
 			return Array(
-						'' 				=> '-- '.translate('no_sorting').' --',
-						'assetid'		=> translate('asset_id'),
-						'version'		=> translate('version'),
-						'name'			=> translate('name'),
-						'short_name'	=> translate('short_name'),
-						'created'		=> translate('created_date'),
-						'updated'		=> translate('last_updated_date'),
-						'published'		=> translate('last_published_date'),
-						'type_code'		=> translate('type_code'),
-						'__attr__'		=> translate('cms_listing_asset_attribute(s)'),
+					''				=> '-- '.translate('no_sorting').' --',
+					'assetid'		=> translate('asset_id'),
+					'version'		=> translate('version'),
+					'name'			=> translate('name'),
+					'short_name'	=> translate('short_name'),
+					'created'		=> translate('created_date'),
+					'updated'		=> translate('last_updated_date'),
+					'published'		=> translate('last_published_date'),
+					'type_code'		=> translate('type_code'),
+					'__attr__'		=> translate('cms_listing_asset_attribute(s)'),
 				   );
 		}
 

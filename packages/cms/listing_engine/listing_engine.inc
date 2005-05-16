@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.31 2005/05/13 05:11:33 arailean Exp $
+* $Id: listing_engine.inc,v 1.32 2005/05/16 01:11:02 rhoward Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
 *
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1193,8 +1193,11 @@ class Listing_Engine extends Page
 			}
 		}
 
-		$keywords['page_href'] = $this->getHref();
+		$keywords['page_href']      = $this->getHref();
 		$keywords['asset_position'] = (array_get_index($_REQUEST, 'result_page', 1) - 1) * $this->attr('num_per_page') + $list_position;
+
+		// kept for backwards compatibility
+		$keywords['result_no']      = &$keywords['asset_position'];
 
 		$keywords['root_nodes'] = implode(',', $this->getRootNodes());
 
