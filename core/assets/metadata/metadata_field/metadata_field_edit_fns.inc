@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_edit_fns.inc,v 1.34 2005/05/11 06:04:52 lwright Exp $
+* $Id: metadata_field_edit_fns.inc,v 1.35 2005/05/16 06:16:36 rhoward Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -65,13 +65,13 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 	function paintKeywordInstructions(&$asset, &$o, $prefix)
 	{
 		ob_start();
-			?><a href="#" onClick="Javascript: var win = window.open('<?php echo sq_web_path('data')?>/asset_types/metadata_field/popups/keywords.html', 'keywords', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=580,height=520'); return false;">click here </a></b><?php 
+			?><a href="#" onClick="Javascript: var win = window.open('<?php echo sq_web_path('data')?>/asset_types/metadata_field/popups/keywords.html', 'keywords', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=580,height=520'); return false;">click here </a></b><?php
 			$replacements_link = ob_get_contents();
 		ob_end_clean();
-		$o->note(translate('metadata_keyword_replacements_usage'));
-		
+		$o->note(translate('metadata_keyword_replacements_usage', $replacements_link));
+
 	}//end paintKeywordInstructions()
-	
+
 
 
 	/**
