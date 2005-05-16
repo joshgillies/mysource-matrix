@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.inc,v 1.45 2005/05/16 04:53:48 lwright Exp $
+* $Id: install.inc,v 1.46 2005/05/16 23:18:49 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * Purpose
 * Functions used to install and upgrade the system
 *
-* @version $Revision: 1.45 $
+* @version $Revision: 1.46 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -1535,8 +1535,10 @@ function extract_internal_messages($file)
 			return Array();
 		} else if (empty($translation)) {
 			trigger_error('Skipping translation for code "'.$source_code.'" as the translation appears to be empty', E_USER_NOTICE);
-		} else if (preg_match_all('|%s|', $translation, $matches) > 1) {
-			trigger_error('Skipping translation for code "'.$source_code.'"; it has multiple occurrences of unpositioned "%s" - use positioned replacements (eg. "%1$s") when you have more than one', E_USER_WARNING);
+		} else if (preg_match_all('|%s|', $translation['subject'], $matches) > 1) {
+			trigger_error('Skipping translation for code "'.$source_code.'"; it has multiple occurrences of unpositioned "%s" in subject - use positioned replacements (eg. "%1$s") when you have more than one', E_USER_WARNING);
+		} else if (preg_match_all('|%s|', $translation['body'], $matches) > 1) {
+			trigger_error('Skipping translation for code "'.$source_code.'"; it has multiple occurrences of unpositioned "%s" in body - use positioned replacements (eg. "%1$s") when you have more than one', E_USER_WARNING);
 		} else {
 			// replace \n with a new line, but not \\n
 			$extracted_messages[$source_code]['subject'] = str_replace('\n', "\n", $translation['subject']);
