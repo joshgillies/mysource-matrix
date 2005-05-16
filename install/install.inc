@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.inc,v 1.43 2005/05/11 23:24:16 dheppell Exp $
+* $Id: install.inc,v 1.44 2005/05/16 03:58:11 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * Purpose
 * Functions used to install and upgrade the system
 *
-* @version $Revision: 1.43 $
+* @version $Revision: 1.44 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -1176,20 +1176,29 @@ function build_locale_string_file($locale)
 	}
 
 	$strings = Array();
+	$js_strings = Array();
+	$java_strings = Array();
 
 	foreach ($files_to_parse['core'] as $file) {
-		$strings = array_merge(array_get_index($strings, 'core', Array()), extract_strings_from_xml($file, 'strings', 'string', 'source'));
+		// grab the strings
+		list($ex_strings, $ex_js_strings, $ex_java_strings) = extract_strings_from_xml($file, 'strings', 'string', 'source');
+		$strings = array_merge($strings, $ex_strings);
+		$js_strings = array_merge($js_strings, $ex_js_strings);
+		$java_strings = array_merge($java_strings, $ex_java_strings);
+	}
 
-		if (!empty($strings)) {
-			create_directory(SQ_DATA_PATH.'/private/system/core');
-			string_to_file(serialize($strings), SQ_DATA_PATH.'/private/system/core/strings.'.$locale);
-		}
+	if (!empty($strings)) {
+		create_directory(SQ_DATA_PATH.'/private/system/core');
+		string_to_file(serialize($strings), SQ_DATA_PATH.'/private/system/core/strings.'.$locale);
 	}
 
 	foreach ($files_to_parse['packages'] as $package_name => $files) {
 		$strings = Array();
 		foreach ($files as $file) {
-			$strings = array_merge($strings, extract_strings_from_xml($file, 'strings', 'string', 'source'));
+			list($ex_strings, $ex_js_strings, $ex_java_strings) = extract_strings_from_xml($file, 'strings', 'string', 'source');
+			$strings = array_merge($strings, $ex_strings);
+			$js_strings = array_merge($js_strings, $ex_js_strings);
+			$java_strings = array_merge($java_strings, $ex_java_strings);
 		}
 
 		if ($package_name == '__core__') {
@@ -1206,7 +1215,10 @@ function build_locale_string_file($locale)
 	foreach ($files_to_parse['assets'] as $type_code => $files) {
 		$strings = Array();
 		foreach ($files as $file) {
-			$strings = array_merge($strings, extract_strings_from_xml($file, 'strings', 'string', 'source'));
+			list($ex_strings, $ex_js_strings, $ex_java_strings) = extract_strings_from_xml($file, 'strings', 'string', 'source');
+			$strings = array_merge($strings, $ex_strings);
+			$js_strings = array_merge($js_strings, $ex_js_strings);
+			$java_strings = array_merge($java_strings, $ex_java_strings);
 		}
 
 		$asset_dir = $asset_types[$type_code]['dir'];
@@ -1214,6 +1226,44 @@ function build_locale_string_file($locale)
 			create_directory(SQ_DATA_PATH.'/private/asset_types/'.$type_code);
 			string_to_file(serialize($strings), SQ_DATA_PATH.'/private/asset_types/'.$type_code.'/strings.'.$locale);
 		}
+	}
+
+	// only one JavaScript and one Java file will be kept, in Core
+	if (!empty($js_strings)) {
+		create_directory(SQ_DATA_PATH.'/public/system/core');
+
+		$js_file = 'SQ_CURRENT_LOCALE = "'.$locale.'";'."\n".
+					'translated_strings["'.$locale.'"] = new Array();'."\n";
+
+		foreach($js_strings as $string_code => $string) {
+			$js_file .= 'translated_strings["'.$locale.'"]["'.$string_code.'"] = "'.str_replace('"', '\\"', $string).'";'."\n";
+		}
+
+		string_to_file($js_file, SQ_DATA_PATH.'/public/system/core/js_strings.'.$locale.'.js');
+	}
+
+	// Similar for Java file, BUT to take advantage of i18n stuff in Java, we
+	// need to change the replacements to Java 'MessageFormat' format
+	// eg. '%1$s' => '{0}', '%2$s' => '{1}', etc.
+	if (!empty($java_strings)) {
+		create_directory(SQ_DATA_PATH.'/private/system/core');
+
+		$java_file = '';
+		foreach($java_strings as $string_code => $string) {
+			// replace single parameters with {0}
+			$string = preg_replace('|%s|', '{0}', $string);
+
+			// iterate through the string until there's no more replacements
+			while(preg_match('|%(\d*)\\$s|', $string, $match, PREG_OFFSET_CAPTURE)) {
+				// build the Java-style argument and shove it into the string
+				$new_arg = '{'.((int)$match[1][0]-1).'}';
+				$string = substr_replace($string, $new_arg, $match[0][1], strlen($match[1][0]) + 3);
+			}
+
+			$java_file .= $string_code.' = '.$string."\n";
+		}
+
+		string_to_file($java_file, SQ_DATA_PATH.'/private/system/core/java_strings_'.$locale.'.properties');
 	}
 
 }//end build_locale_string_file()
@@ -1398,6 +1448,8 @@ function &extract_child_nodes_from_xml($file, $root_element, $child_element, $ke
 function extract_strings_from_xml($file, $root_element, $child_element, $key_attribute)
 {
 	$extracted_strings = Array();
+	$js_strings = Array();
+	$java_strings = Array();
 
 	$children = extract_child_nodes_from_xml($file, $root_element, $child_element, $key_attribute);
 
@@ -1418,16 +1470,23 @@ function extract_strings_from_xml($file, $root_element, $child_element, $key_att
 		// have it already been set in this file?
 		if (isset($extracted_strings[$source_code])) {
 			trigger_error('XML file "'.$file.'" does not appear to be valid - detected duplicate code "'.$source_code.'"', E_USER_WARNING);
-			return Array();
+			return Array(Array(), Array(), Array());
 		} else if (empty($translation)) {
 			trigger_error('Skipping translation for code "'.$source_code.'" as the translation appears to be empty', E_USER_NOTICE);
 		} else {
 			$extracted_strings[$source_code] = $translation;
+
+			if(isset($string_node->attributes['js']) && ($string_node->attributes['js'] == 1)) {
+				$js_strings[$source_code] =& $extracted_strings[$source_code];
+			}
+			if(isset($string_node->attributes['java']) && ($string_node->attributes['java'] == 1)) {
+				$java_strings[$source_code] =& $extracted_strings[$source_code];
+			}
 		}
 
 	}//end foreach string_node
 
-	return $extracted_strings;
+	return Array($extracted_strings, $js_strings, $java_strings);
 
 }//end extract_strings_from_xml()
 
