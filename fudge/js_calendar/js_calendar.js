@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_calendar.js,v 1.8 2005/03/03 02:11:58 tbarrett Exp $
+* $Id: js_calendar.js,v 1.9 2005/05/16 02:18:20 ndvries Exp $
 *
 */
 
@@ -148,7 +148,7 @@ function c_show(e)
 	}
 
 	if (this.fadeit) {
-		this.fade = 0;
+		this.fade = 100;
 		this.fadeOn();
 	} else
 	if (this.scrollit) {
@@ -172,7 +172,7 @@ function c_hide()
 	this.popup = true;
 	var div = document.getElementById(this.divname);
 	if (this.fadeit) {
-		this.fade = 96;
+		this.fade = 0;
 		this.fadeOff();
 	} else
 	if (this.scrollit) {
