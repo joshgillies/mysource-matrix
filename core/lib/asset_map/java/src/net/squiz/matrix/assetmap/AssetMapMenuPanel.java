@@ -17,14 +17,13 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: AssetMapMenuPanel.java,v 1.4 2005/05/13 06:15:08 ndvries Exp $
+* $Id: AssetMapMenuPanel.java,v 1.5 2005/05/16 23:35:27 ndvries Exp $
 *
 */
 
 package net.squiz.matrix.assetmap;
 
 import net.squiz.matrix.matrixtree.*;
-import net.squiz.matrix.inspector.*;
 import net.squiz.matrix.debug.*;
 import net.squiz.matrix.core.*;
 import net.squiz.matrix.ui.*;
@@ -46,7 +45,6 @@ public class AssetMapMenuPanel extends JPanel {
 
 	private JMenuBar menuBar;
 	private MatrixTree tree;
-	private InspectorGadget inspector;
 	private JToolBar toolBar;
 
 	public static final Color BG_COLOUR = new Color(0xF5F5F5);
@@ -56,9 +54,8 @@ public class AssetMapMenuPanel extends JPanel {
 	 * Constructs an AssetMapMenuPanel and adds the tools to it.
 	 * @return the new AssetMapMenuPanel
 	 */
-	public AssetMapMenuPanel(MatrixTree tree, InspectorGadget inspector) {
+	public AssetMapMenuPanel(MatrixTree tree) {
 		this.tree = tree;
-		this.inspector = inspector;
 
 		setLayout(new BorderLayout());
 
@@ -202,9 +199,7 @@ public class AssetMapMenuPanel extends JPanel {
 		ActionListener statusListener = new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
 				((MatrixTreeCellRenderer) tree.getCellRenderer()).flipSelection();
-				((InspectorCellRenderer) inspector.getCellRenderer(0, 0)).flipSelection();
 				tree.repaint();
-				inspector.repaint();
 			}
 		};
 
