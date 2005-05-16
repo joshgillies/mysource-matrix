@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.3 2005/04/29 05:40:30 gsherwood Exp $
+* $Id: lang_screen_details.xml,v 1.4 2005/05/16 00:31:21 ndvries Exp $
 *
 */
 -->
@@ -41,8 +41,8 @@
 			<note>Successfully created File assets will be placed underneath the specified folder</note>
 		</field>
 		<field attribute="extra">
-			<display_name>Extra</display_name>
-			<note />
+			<display_name>Extras</display_name>
+			<note>Provides a means of specifying CSS classes, javascript onClick functions or other INPUT tag attributes, eg class="yourCssClass"</note>
 		</field>
 	</section>
 	<section name="Simple Validation Rules">
