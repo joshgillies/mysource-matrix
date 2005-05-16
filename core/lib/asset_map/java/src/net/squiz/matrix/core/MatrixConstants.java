@@ -26,7 +26,7 @@ public interface MatrixConstants {
 	public static final int EDITING_APPROVED = 256;
 
 	/** The Acrhived colour */
-	public static final Color ARCHIVED_COLOUR = new Color(0x655240);
+	public static final Color ARCHIVED_COLOUR = new Color(0xC2B0A0);
 	/** The Under Construction colour */
 	public static final Color UNDER_CONSTRUCTION_COLOUR = new Color(0xAACCDD);
 	/** The Pending Approval colour */
@@ -45,18 +45,18 @@ public interface MatrixConstants {
 	public static final Color EDITING_APPROVED_COLOUR = new Color(0xFF9A00);
 	/** A colour that will be used if the status colour is unknown */
 	public static final Color UNKNOWN_STATUS_COLOUR = Color.white;
-	
+
 	/** plain font 10pt */
 	public static final Font PLAIN_FONT_10 = new Font("plain_font_10", Font.PLAIN, 10);
-	
-	
+
+
 	//{{{ LINK TYPES
-	
+
 	public static final int LINK_TYPE_1 = 1;
-	
+
 	public static final int LINK_TYPE_2 = 2;
-	
+
 	public static final int LINK_TYPE_3 = 3;
-	
+
 
 }

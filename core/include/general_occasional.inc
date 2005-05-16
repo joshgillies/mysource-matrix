@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general_occasional.inc,v 1.50 2005/05/12 06:27:36 tbarrett Exp $
+* $Id: general_occasional.inc,v 1.51 2005/05/16 04:32:51 ndvries Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.50 $
+* @version $Revision: 1.51 $
 * @package MySource_Matrix
 */
 
@@ -199,7 +199,7 @@ function get_status_colour($status)
 {
 	switch ($status) {
 		case SQ_STATUS_ARCHIVED :
-			$colour = '655240';
+			$colour = 'C2B0A0';
 		break;
 		case SQ_STATUS_UNDER_CONSTRUCTION :
 			$colour = 'AACCDD';
