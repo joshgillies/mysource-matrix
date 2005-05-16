@@ -1,62 +1,65 @@
-// Funky mouse-following popup code based on the script from http://javascriptkit.com
+/**
+* +--------------------------------------------------------------------+
+* | Squiz.net Commercial Module Licence                                |
+* +--------------------------------------------------------------------+
+* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
+* +--------------------------------------------------------------------+
+* | This source file is not open source or freely usable and may be    |
+* | used subject to, and only in accordance with, the Squiz Commercial |
+* | Module Licence.                                                    |
+* | Please refer to http://www.squiz.net/licence for more information. |
+* +--------------------------------------------------------------------+
+*
+* $Id: popup.js,v 1.3 2005/05/16 06:40:15 tbarrett Exp $
+*
+*/
 
-var offsetfrommouse=[12,4] //image x,y offsets from cursor position in pixels. Enter 0,0 for no offset
-var popupObj = null;
+// Funky mouse-following popup code derived from the script from http://javascriptkit.com
 
-function getTrailObj()
-{
-	if (popupObj == null) return null;
-	if (document.getElementById)
-	  return document.getElementById(popupObj).style
-	else if (document.all)
-	  exec('return document.all.'+popupObj+'.style');
-}
+var offsetfrommouse= { x:13, y:13 } //image x,y offsets from cursor position in pixels. Enter 0,0 for no offset
+var popupId = null;
 
 function stopTrailingPopup()
 {
-	if ((typeof movingElt == 'undefined') || (movingElt == null)) {
-		document.onmousemove=null;
-		if ((o = getTrailObj()) != null) o.display='none';
+	document.onmousemove=null;
+	if (null !== popupId) {
+		document.getElementById(popupId).style.display = 'none';
 	}
-}
+
+}//end stopTrailingPopup()
 
 function startTrailingPopup(name)
 {
-	if ((typeof movingElt == 'undefined') || (movingElt == null)) {
-		popupObj = name;
-		document.onmousemove = followMouse;
+	popupId = name;
+	var movingElt = document.getElementById(popupId);
+	movingElt.style.display = 'block';
+	var scrollingParent = movingElt.parentNode;
+	while ((scrollingParent.tagName != 'BODY') && (scrollingParent.style.overflow != 'auto') && (scrollingParent.parentNode)) {
+		scrollingParent = scrollingParent.parentNode;
 	}
-}
+	movingElt.parentNode.removeChild(movingElt);
+	scrollingParent.appendChild(movingElt);
+	document.onmousemove = followMouse;
+
+}//end startTrailingPopup()
 
 function truebody()
 {
 	return (!window.opera && document.compatMode && document.compatMode!="BackCompat")? document.documentElement : document.body
-}
+
+}//end truebody()
 
 function followMouse(e)
 {
-	if (!(document.getElementById || document.all)) return false;
-	var xcoord=offsetfrommouse[0];
-	var ycoord=offsetfrommouse[1];
-	if (typeof e != "undefined")
-	{
-		xcoord+=e.pageX;
-		ycoord+=e.pageY;
+	if (!e) var e = window.event;
+	var movingElt = document.getElementById(popupId);
+	var mousepos = null;
+	if (e.pageX || e.pageY) {
+		mousepos = { x:e.pageX, y:e.pageY };
+	} else if (e.clientX || e.clientY) {
+		mousepos = { x : e.clientX + truebody().scrollLeft, y : e.clientY + truebody().scrollTop };
 	}
-	else if (typeof window.event !="undefined")
-	{
-		xcoord+=truebody().scrollLeft+event.clientX;
-		ycoord+=truebody().scrollTop+event.clientY;
-	}
-	var docwidth = document.all ? truebody().scrollLeft + truebody().clientWidth : pageXOffset + window.innerWidth-15;
-	var docheight = document.all ? Math.max(truebody().scrollHeight, truebody().clientHeight) : Math.max(document.body.offsetHeight, window.innerHeight);
-	trailObj = getTrailObj();
-	if (((trailObj.width != 0) && ((xcoord + trailObj.width + 3) > docwidth)) || ((trailObj.height != 0) && ((ycoord + trailObj.height) > docheight))) {
-		trailObj.display="none"
-	} else {
-		trailObj.display="block"
-	}
-	trailObj.left=xcoord+"px"
-	trailObj.top=ycoord+"px"
-}
+	movingElt.style.left = (offsetfrommouse.x + mousepos.x) + "px";
+	movingElt.style.top = (offsetfrommouse.y + mousepos.y) + "px";
 
+}//end followMouse()
