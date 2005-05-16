@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.14.2.3 2005/05/02 02:44:58 gsherwood Exp $
+* $Id: page_remote_content.inc,v 1.14.2.4 2005/05/16 04:55:26 rhoward Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once 'HTTP/Client/CookieManager.php';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.14.2.3 $
+* @version $Revision: 1.14.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -237,7 +237,7 @@ class Page_Remote_Content extends Page
 	*/
 	function _process()
 	{
-		$remote_url = $this->attr('remote_url');
+		$remote_url = trim($this->attr('remote_url'));
 
 		$fetch_url	= array_get_index($_REQUEST, 'sq_remote_page_url');
 		$action		= array_get_index($_REQUEST, 'sq_remote_page_action');
