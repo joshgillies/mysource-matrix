@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: email_format.inc,v 1.16 2005/05/11 06:05:06 lwright Exp $
+* $Id: email_format.inc,v 1.17 2005/05/16 06:55:26 dmckee Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_ATTRIBUTES_PATH.'/wysiwyg/wysiwyg.inc';
 *    <email_format />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -266,7 +266,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 					// if we are using an iframe for this editor, we set its designMode property if we need to
 					if (editor._iframe) {
 						editor._iframe.style.width = editor.config.width;
-						if (setDesignMode && HTMLArea.is_gecko) { editor._iframe.contentWindow.document.designMode = "on"; }
+						editor._iframe.contentWindow.document.designMode = "on";
 						editor._iframe.style.height = editor.config.height;
 					}
 
