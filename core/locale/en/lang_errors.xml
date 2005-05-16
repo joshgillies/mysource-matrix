@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.6 2005/05/13 00:00:54 ndvries Exp $
+* $Id: lang_errors.xml,v 1.7 2005/05/16 23:15:03 lwright Exp $
 *
 */
 
@@ -1507,7 +1507,7 @@ Either matching \%%3$s\% does not exist or it is not in the same scope</error>
 	<error code="CORE0204">Unable to create a %s with a blank name</error>
 	<error code="CORE0205">Unable to paint asset "%1$s" (#%2$s) the structure of this Paint Layout failed to validate</error>
 
-	<error code="CORE0206">Value component "%s" already exists for field "%s"</error>
+	<error code="CORE0206">Value component "%1%s" already exists for field "%1$s"</error>
 	<error code="CORE0207">Value components are can not allowed to contain only all numeric characters is the first character is zero</error>
 	<error code="CORE0208">Failed saving asset "%s" to cache, could not create restricted system directory</error>
 	<error code="CORE0209">Failed saving asset "%s" to cache, could not write object data file</error>
