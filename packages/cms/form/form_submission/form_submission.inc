@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_submission.inc,v 1.22 2005/04/29 05:40:30 gsherwood Exp $
+* $Id: form_submission.inc,v 1.23 2005/05/17 01:35:20 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -322,6 +322,30 @@ class Form_Submission extends Asset
 		return $val;
 
 	}//end saveAttributes()
+
+
+	/**
+	* Increments the version number of the asset based on the part of the version passed in
+	*
+	* This will override incrementVersion() so the parents of form submissions
+	* never get version increases linked to stuff that form submissions do. This
+	* is for speed purposes, and generally cuts out half the number of queries
+	* required to create a new submission
+	*
+	* @param string		$number			the part of the version to update (major|minor|micro)
+	* @param boolean	$update_parents	should we go through an update all our dependant parents as well ?
+	*									NOTE: this is passed to incrementVersion to let it know that the parents
+	*									should have their versions updated as well.
+	*
+	*
+	* @return boolean
+	* @access public
+	*/
+	function incrementVersion($number='micro', $update_parents=true)
+	{
+		return parent::incrementVersion($number, false);
+
+	}//end incrementVersion()
 
 
 }//end class
