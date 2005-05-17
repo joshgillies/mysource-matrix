@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_tool_search_replace.inc,v 1.10 2005/05/16 06:36:50 lwright Exp $
+* $Id: hipo_job_tool_search_replace.inc,v 1.11 2005/05/17 00:21:21 dheppell Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    replace on asset attributes and metadata
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -728,7 +728,7 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 			<thead>
 				<tr>
 					<th colspan="3" onclick="toggleTBodyDisplay(this)">
-						<?php echo translate('asset_content'); ?>
+						<?php echo translate('asset_contents'); ?>
 					</th>
 					<th class="match-checkbox" style="text-align: right">
 						<?php check_box($prefix.'_asset_'.$assetid.'_content_all', 1, false, 'toggleTBodyCheckboxes(this); updateParentCheckboxes(this);', 'class="component-checkbox"'); ?>

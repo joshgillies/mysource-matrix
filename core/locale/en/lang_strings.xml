@@ -940,6 +940,7 @@
 	<string source="move">Move</string>
 	<string source="question">Question</string>
 	<string source="action">Action</string>
+	<string source="match">Match</string>
 
 	<!-- priority level strings -->
 
@@ -1265,6 +1266,8 @@
 	<string source="ignore">Ignore</string>
 	<string source="ignore_all">Ignore all</string>
 	<string source="suggestions">Suggestions</string>
+	<string source="div_id">Div ID</string>
+	<string source="field_id">Field ID</string>
 
 
 
