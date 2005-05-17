@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.inc,v 1.47 2005/05/16 23:36:25 lwright Exp $
+* $Id: install.inc,v 1.48 2005/05/17 01:51:57 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * Purpose
 * Functions used to install and upgrade the system
 *
-* @version $Revision: 1.47 $
+* @version $Revision: 1.48 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -1321,7 +1321,7 @@ function build_locale_error_file($locale)
 	foreach ($files_to_parse['packages'] as $package_name => $files) {
 		$strings = Array();
 		foreach ($files as $file) {
-			$strings = array_merge($strings, extract_strings_from_xml($file, 'errors', 'error', 'code'));
+			$strings = array_merge($strings, extract_errors_from_xml($file, 'errors', 'error', 'code'));
 		}
 
 		if ($package_name == '__core__') {
@@ -1492,6 +1492,48 @@ function extract_strings_from_xml($file, $root_element, $child_element, $key_att
 	return Array($extracted_strings, $js_strings, $java_strings);
 
 }//end extract_strings_from_xml()
+
+
+/**
+ *
+ */
+function extract_errors_from_xml($file, $root_element, $child_element, $key_attribute)
+{
+	$extracted_strings = Array();
+
+	$children = extract_child_nodes_from_xml($file, $root_element, $child_element, $key_attribute);
+
+	foreach ($children as $string_node) {
+		if ($string_node->name != $child_element) {
+			trigger_error('XML file "'.$file.'" does not appear to be valid - expecting node "'.$child_element.'", found "'.$string_node->name.'"', E_USER_WARNING);
+			return Array();
+		}
+
+		if (!isset($string_node->attributes[$key_attribute])) {
+			trigger_error('XML file "'.$file.'" does not appear to be valid - missing attribute "'.$key_attribute.'" in string node', E_USER_WARNING);
+			return Array();
+		}
+
+		$source_code = $string_node->attributes[$key_attribute];
+		$translation = $string_node->content;
+
+		// have it already been set in this file?
+		if (isset($extracted_strings[$source_code])) {
+			trigger_error('XML file "'.$file.'" does not appear to be valid - detected duplicate code "'.$source_code.'"', E_USER_WARNING);
+			return Array(Array(), Array(), Array());
+		} else if (empty($translation)) {
+			trigger_error('Skipping translation for code "'.$source_code.'" as the translation appears to be empty', E_USER_NOTICE);
+		} else if (preg_match_all('|%s|', $translation, $matches) > 1) {
+			trigger_error('Skipping translation for code "'.$source_code.'"; it has multiple occurrences of unpositioned "%s" - use positioned replacements (eg. "%1$s") when you have more than one', E_USER_WARNING);
+		} else {
+			$extracted_strings[$source_code] = $translation;
+		}
+
+	}//end foreach string_node
+
+	return $extracted_strings;
+
+}//end extract_errors_from_xml()
 
 
 /**
