@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.inc,v 1.48 2005/05/17 01:51:57 lwright Exp $
+* $Id: install.inc,v 1.49 2005/05/17 01:56:01 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * Purpose
 * Functions used to install and upgrade the system
 *
-* @version $Revision: 1.48 $
+* @version $Revision: 1.49 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -1310,12 +1310,12 @@ function build_locale_error_file($locale)
 	$strings = Array();
 
 	foreach ($files_to_parse['core'] as $file) {
-		$strings = array_merge(array_get_index($strings, 'core', Array()), extract_strings_from_xml($file, 'errors', 'error', 'code'));
+		$strings = array_merge(array_get_index($strings, 'core', Array()), extract_errors_from_xml($file, 'errors', 'error', 'code'));
+	}
 
-		if (!empty($strings)) {
-			create_directory(SQ_DATA_PATH.'/private/system/core');
-			string_to_file(serialize($strings), SQ_DATA_PATH.'/private/system/core/errors.'.$locale);
-		}
+	if (!empty($strings)) {
+		create_directory(SQ_DATA_PATH.'/private/system/core');
+		string_to_file(serialize($strings), SQ_DATA_PATH.'/private/system/core/errors.'.$locale);
 	}
 
 	foreach ($files_to_parse['packages'] as $package_name => $files) {
