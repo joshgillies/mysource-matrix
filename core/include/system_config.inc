@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.57 2005/05/11 06:05:10 lwright Exp $
+* $Id: system_config.inc,v 1.58 2005/05/17 00:31:34 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.57 $
+* @version $Revision: 1.58 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -69,6 +69,7 @@ class System_Config extends Config
 						'SQ_CONF_DEFAULT_BACKEND_LOCALE'	=> Array('editable' => 1, 'default' => 'en_AU'),
 						'SQ_CONF_DEFAULT_CHARACTER_SET'		=> Array('editable' => 1, 'default' => 'iso-8859-1'),
 						'SQ_CONF_ALLOW_IP_CHANGE'			=> Array('editable' => 1, 'default' => '0'),
+						'SQ_CONF_ALLOW_HTTP_LOGIN'			=> Array('editable' => 1, 'default' => '0'),
 						'SQ_CONF_COMMIT_BUTTON_TEXT'		=> Array('editable' => 1, 'default' => 'Commit'),
 						'SQ_CONF_LOG_EXTENSION'				=> Array('editable' => 0, 'default' => '.log'),
 						'SQ_CONF_LOG_FILE_SYSTEM'			=> Array('editable' => 0, 'default' => 'system'),

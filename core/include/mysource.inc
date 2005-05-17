@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.108 2005/05/16 07:05:00 tbarrett Exp $
+* $Id: mysource.inc,v 1.109 2005/05/17 00:31:33 tbarrett Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.108 $
+* @version $Revision: 1.109 $
 * @package MySource_Matrix
 */
 class MySource
@@ -269,7 +269,6 @@ class MySource
 				$timed_out = (time() >= ((int) $_SESSION['user_last_access'] + SQ_CONF_MAX_IDLE_TIME));
 			}
 			if (!empty($_SESSION['userid']) && !$timed_out) {
-
 				// check to see if we are allowing fluctuating ip addresses
 				if (SQ_CONF_ALLOW_IP_CHANGE || ($_SESSION['remote_addr'] == $_SERVER['REMOTE_ADDR'])) {
 					// we mute errors trying to get the user because we will handle this gracefully later
@@ -278,6 +277,14 @@ class MySource
 			}
 
 			if (is_null($this->user)) {
+				// see if we can log in an http-authenticated user
+				if (defined('SQ_CONF_ALLOW_HTTP_LOGIN') && SQ_CONF_ALLOW_HTTP_LOGIN) {
+					$this->loginHttpAuthenticatedUser();
+				}
+			}
+
+			if (is_null($this->user)) {
+				// log in the public user
 				$this->user = &$this->getPublicUser();
 				$_SESSION['user_is_root']      = false;
 				$_SESSION['user_is_sys_admin'] = false;
@@ -304,6 +311,8 @@ class MySource
 		if (!empty($_REQUEST['SQ_ACTION'])) {
 			$this->_processGlobalActions();
 		}
+		//bam(array_get_index($_SERVER, 'REMOTE_USER'));
+
 
 	}//end init()
 
@@ -596,16 +605,17 @@ class MySource
 				$login_password = array_get_index($_POST, 'SQ_LOGIN_PASSWORD');
 				$login_key      = array_get_index($_POST, 'SQ_LOGIN_KEY');
 
-				// if this person is already logged in, don't bother trying again because
-				// we will only be giving them an incorrect login key error
 				if (is_null($login_username) || is_null($login_password)) {
 					return;
 				}
 
+				// if this person is already logged in, don't bother trying again because
+				// we will only be giving them an incorrect login key error
 				if (!is_null($this->user) && $login_username == $this->user->attr('username')) {
 					return;
 				}
-
+				
+				//bam("Login key is $login_key and this loginkey is ".$this->loginKey());
 				if (!is_null($login_key) && $this->loginKey() == $login_key) {
 
 					// get a list of all the installed authentication systems
@@ -621,42 +631,15 @@ class MySource
 					foreach ($auth_systems as $systemid) {
 						$system = &$this->am->getAsset($systemid);
 						if (is_null($system)) continue;
-
 						$user = &$system->authenticateUser($login_username, $login_password);
-						if (!is_null($user)) break;
-					}
-
-					if (!is_null($user)) {
-						if ($this->setCurrentUser($user)) {
-							$_SESSION['userid']         = $user->id;
-							$_SESSION['user_type_code'] = $user->type();
-							$_SESSION['remote_addr']    = $_SERVER['REMOTE_ADDR'];
-
-							// log a message so we know someone has logged in
-							$ms = &$this->getMessagingService();
-							$msg_reps = Array(
-											'user_name'	=> $user->name,
-										);
-							$log = $ms->newMessage(Array(), 'system.security.login', $msg_reps);
-							$log->parameters['remote_addr'] = $_SERVER['REMOTE_ADDR'];
-							$log->parameters['sessionid'] = session_id();
-							$log->send();
-
-							// generate a new login key so that when they try and login next
-							// they have to re-enter the details
-							$this->generateLoginKey(true);
-
-							$_SESSION['user_is_root']      = $this->_user_is_root;
-							$_SESSION['user_is_sys_admin'] = $this->_user_is_sys_admin;
-							$_SESSION['user_is_public']    = $this->_user_is_public;
-							$_SESSION['user_last_access']  = time();
-							return;
-						}
+						if (!is_null($user)) return $this->loginUser($user);
 					}
 
 					$this->addMessage('User not found');
 
 				} else {
+					bam($_SESSION);
+
 					// incorrect login key
 					$this->addMessage('Login Key incorrect');
 				}
@@ -692,7 +675,7 @@ class MySource
 				require_once SQ_FUDGE_PATH.'/general/general.inc';
 				$vars =& $_SESSION['SQ_SYSTEM_SECURITY_KEY'];
 
-				// are we regenerating the secturity key?
+				// are we regenerating the security key?
 				if (isset($_GET['regen_key']) && $_GET['regen_key'] == 1) {
 					$vars['key'] = generate_security_key(strlen($vars['key']));
 				}
@@ -931,8 +914,84 @@ class MySource
 
 
 	/**
-	* Set's the current user of the system to this user,
-	* SHOULD BE USED WITH CAUTION
+	* Log in the specified user, setting the session etc as appropriate
+	*
+	* SHOULD BE USED WITH CAUTION - the assumption is that this user has already been authenticated
+	*
+	* @param Object	$user	The user to log in
+	*
+	* @access public
+	* @return void
+	*/
+	function loginUser(&$user)
+	{
+		if (is_null($user)) return false;
+
+		if (!$this->setCurrentUser($user)) return false;
+
+		$_SESSION['userid']         = $user->id;
+		$_SESSION['user_type_code'] = $user->type();
+		$_SESSION['remote_addr']    = $_SERVER['REMOTE_ADDR'];
+
+		// log a message so we know someone has logged in
+		$ms = &$this->getMessagingService();
+		$msg_reps = Array(
+						'user_name'	=> $user->name,
+					);
+		$log = $ms->newMessage(Array(), 'system.security.login', $msg_reps);
+		$log->parameters['remote_addr'] = $_SERVER['REMOTE_ADDR'];
+		$log->parameters['sessionid'] = session_id();
+		$log->send();
+
+		// generate a new login key so that when they try and login next
+		// they have to re-enter the details
+		$this->generateLoginKey(true);
+
+		$_SESSION['user_is_root']      = $this->_user_is_root;
+		$_SESSION['user_is_sys_admin'] = $this->_user_is_sys_admin;
+		$_SESSION['user_is_public']    = $this->_user_is_public;
+		$_SESSION['user_last_access']  = time();
+
+		return true;
+
+	}//end loginUser()
+
+
+	/**
+	* Try to login a user who has already been HTTP-authenticated by some external mechanism
+	*
+	* @access public
+	* @return void
+	*/
+	function loginHttpAuthenticatedUser()
+	{
+		if (array_get_index($_REQUEST, 'SQ_ACTION')) return;
+		if (!array_get_index($_SERVER, 'REMOTE_USER')) return;
+
+		// get a list of all the installed authentication systems
+		$auth_folder = &$this->am->getSystemAsset('authentication_folder');
+		if (is_null($auth_folder)) {
+			trigger_localised_error('SYS0249', E_USER_ERROR);
+			return;
+		}
+		$auth_systems = $auth_folder->getAuthSystems();
+
+		// try each auth system in order to see if we can load a user asset
+		$user = null;
+		foreach ($auth_systems as $systemid) {
+			$system = &$this->am->getAsset($systemid);
+			if (is_null($system)) continue;
+			$user = &$system->authenticateHttpUser();
+			if (!is_null($user)) return $this->loginUser($user);
+		}
+
+	}//end loginHttpAuthenticatedUser()
+
+
+	/**
+	* Sets the current user of the system to be the specified user
+	*
+	* SHOULD BE USED WITH CAUTION - no authentication is done inside here
 	*
 	* @param object User	$user	the user to check
 	*
@@ -967,7 +1026,7 @@ class MySource
 
 
 	/**
-	* Reset's the current user to the previously assigned user
+	* Reset the current user to the previously assigned user
 	*
 	* SHOULD BE USED WITH CAUTION
 	*
@@ -1003,10 +1062,11 @@ class MySource
 
 
 	/**
-	* Returns a boolean if the passed user is the logged in user
+	* Returns true if the passed user is the logged in user
 	*
 	* @param object User	$user	the user to check
 	*
+	* @return boolean
 	* @access public
 	*/
 	function currentUser($user)
@@ -1017,9 +1077,10 @@ class MySource
 
 
 	/**
-	* Returns the userid of the current user, or zero if none present (ie frontend)
+	* Returns the userid of the current user, or zero if none present
 	*
 	* @access public
+	* @return int|string	Current user's ID
 	*/
 	function currentUserId()
 	{
@@ -1507,7 +1568,7 @@ class MySource
 				<td bgcolor="#FFE5E8">
 					<table border="0" cellspacing="2" cellpadding="2" width="100%">
 						<tr>
-							<td class="sq-rollback-warning" align="right"><?php echo translate('exit_rollback_view'); ?> <a href="#" onClick="Javascript: window.top.location='<?php echo $exit_url; ?>'; return false" target="top" class="sq-rollback-warning" style="cursor: pointer;"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/delete.png'; ?>", "16", "16", "Exit Rollback View");</script></a></u>
+							<td class="sq-rollback-warning" align="right"><?php echo translate('exit_rollback_view'); ?> <a href="#" onClick="Javascript: window.top.location='<?php echo $exit_url; ?>'; return false" target="top" class="sq-rollback-warning" style="cursor: pointer;"><script type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/delete.png'; ?>", "16", "16", "Exit Rollback View");</script></a></u>
 							</td>
 						</tr>
 						<tr>
