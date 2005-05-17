@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager_edit_fns.inc,v 1.13 2005/04/29 05:40:30 gsherwood Exp $
+* $Id: page_account_manager_edit_fns.inc,v 1.14 2005/05/17 23:15:35 dheppell Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -64,7 +64,7 @@ class Page_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 	function paintAddCreateType(&$asset, &$o, $prefix)
 	{
 		if (!$asset->writeAccess('attributes')) {
-			parent::paintAddCreateType($asset, $o, $prefix);
+			echo translate('no_asset_type_selected');
 		} else {
 			$user_types = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('user');
 
