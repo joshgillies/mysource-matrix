@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.5 2005/04/29 05:39:49 gsherwood Exp $
+* $Id: edit_interface_screen_details.xml,v 1.6 2005/05/17 01:28:39 arailean Exp $
 *
 */
 -->
@@ -42,6 +42,10 @@
 	</section>
 
 	<section name="Options" write_access="write:attributes">
+		<field attribute="max_terms">
+			<int width="5" />
+		</field>
+
 		<field attribute="editable">
 			<boolean true_text="Yes" false_text="No" />
 		</field>

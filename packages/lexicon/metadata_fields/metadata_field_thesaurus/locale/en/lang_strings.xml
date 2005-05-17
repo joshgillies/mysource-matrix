@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.2 2005/04/29 05:39:49 gsherwood Exp $
+* $Id: lang_strings.xml,v 1.3 2005/05/17 01:28:40 arailean Exp $
 *
 */
 
@@ -19,7 +19,8 @@ LDAP Localised String File
 -->
 
 <strings>
-<string source="lexicon_term_not_found">Term not found in thesaurus</string>
-<string source="lexicon_entity_description">Description: %s</string>
-<string source="lexicon_linked_thesaurus_inactive">Linked thesaurus is <![CDATA[<strong>INACTIVE</strong>]]>. This value cannot be set.</string>
+	<string source="lexicon_term_not_found">Term not found in thesaurus</string>
+	<string source="lexicon_entity_description">Description: %s</string>
+	<string source="lexicon_linked_thesaurus_inactive">Linked thesaurus is <![CDATA[<strong>INACTIVE</strong>]]>. This value cannot be set.</string>
+	<string source="lexicon_term_duplicate_removed">Duplicate terms were removed</string>
 </strings>

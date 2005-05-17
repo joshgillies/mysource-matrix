@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_thesaurus_edit_fns.inc,v 1.5 2005/04/29 05:39:49 gsherwood Exp $
+* $Id: metadata_field_thesaurus_edit_fns.inc,v 1.6 2005/05/17 01:28:39 arailean Exp $
 *
 */
 
@@ -25,12 +25,14 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/metadata/metadata_field/metadata_field
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Dmitry Baranovskiy <dbaranovskiy@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage lexicon
 */
 class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 {
+
+
 	/**
 	* Paint the interface for filling in metadata values
 	*
@@ -61,7 +63,9 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 		$datapath = sq_web_path('data').'/asset_types/metadata_field_thesaurus/files';
 
 		$field_name = $asset->name;
-		if ($asset->attr('required')) $field_name .= ' <span style="color: #FF0000">*</span>';
+		if ($asset->attr('required')) {
+			$field_name .= ' <span style="color: #FF0000">*</span>';
+		}
 
 		$communicator_url = $asset->getCommunicatorUrl();
 		$o->openField($field_name);
@@ -70,20 +74,62 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 		if (!$asset->isThesaurusActive()) {
 			echo '<span style="color: #FF0000">'.translate('lexicon_linked_thesaurus_inactive').'</span>';
 		} else {
-			if ($write_access) {
-				$text_box_extra = ($asset->attr('allow_manual'))?'':'readonly="readonly"';
-
-				text_box($prefix.'_value', $value, 30, '', false, $text_box_extra);
-				echo '<input type="button" style="width:20px; height:20px; background: url('.$datapath.'/images/thesaurus_button.gif); border: none" onclick="'.$prefix.'_browser.open(event)" />';
+			$max_terms = $asset->attr('max_terms');
+			if ($write_access && $max_terms > 0) {
+				$th = $asset->getThesaurusRef();
 				echo '<script type="text/javascript" src="'.$datapath.'/thesaurus_browser.js"></script>';
-				echo '<script type="text/javascript">';
-				echo '	var '.$prefix.'_browser = new ThesaurusBrowser("'.$prefix.'_BrowserContainer", "'.$prefix.'_BrowserFrame", "'.$datapath.'/", "'.$datapath.'/images/", "'.$prefix.'_browser", "'.$prefix.'_Helper", "'.$communicator_url.'", "'.$prefix.'_value", "'.$prefix.'");';
-				echo '</script>';
+				$text_box_extra = ($asset->attr('allow_manual'))?'':'readonly="readonly"';
+				if (!is_array($value)) $value = explode(',', $value);
 
+				if (!is_array($value)) $value = Array($value);
+
+				if (count($value) < $max_terms) {
+					$value = array_pad($value, $max_terms, '');
+				}
+				echo '<table class="sq-backend-table">';
+				echo '<tr><th>Value Input</th><th>Category Path</th></tr>';
+				for ($i=0; $i < $max_terms; $i++) {
+
+					$this_value = array_shift($value);
+					$browser_prefix = $prefix.'_'.$i;
+
+					echo '<tr '.(($i%2)?'class="alt"':'').'>';
+					echo '<td>';
+					text_box($browser_prefix.'_value', $this_value, 30, '', false, $text_box_extra);
+					echo '
+						<input type="button" value="Browse Thesaurus" onclick="'.$browser_prefix.'_browser.open(event)" />
+						<input type="button" value="Clear" onclick="document.getElementById(\''.$browser_prefix.'_value\').value=\'\';" />
+						<script type="text/javascript">
+							var '.$browser_prefix.'_browser = new ThesaurusBrowser("'.$browser_prefix.'_BrowserContainer", "'.$browser_prefix.'_BrowserFrame", "'.$datapath.'/", "'.$datapath.'/images/", "'.$browser_prefix.'_browser", "'.$browser_prefix.'_Helper", "'.$communicator_url.'", "'.$browser_prefix.'_value", "'.$prefix.'");
+						</script>
+						</td>';
+					echo '<td>';
+					if (!empty($this_value)) {
+						$entity = $th->getEntityByName($this_value);
+						if (!empty($entity)) {
+
+							$all_lineages = $th->getCategoryLineage($entity['id']);
+
+							if (empty($all_lineages)) continue;
+
+							foreach ($all_lineages as $lineage) {
+								echo '<div>';
+								foreach ($lineage as $element) {
+									echo ' / ';
+									echo $element['name'];
+								}
+								echo '</div>';
+							}
+						}
+					}
+					echo '</td>';
+					echo '</tr>';
+				}
+				echo '</table>';
 			} else {
 				echo $value;
 			}
-			echo '<span style="color: #FF0000">'.array_get_index($asset->_tmp, 'error', '').'</span>';
+			echo '<div style="color: #FF0000">'.array_get_index($asset->_tmp, 'error', '').'</div>';
 		}
 		$o->closeField();
 
@@ -104,29 +150,40 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 	function processInlineValueInterface(&$asset, &$new_value_str)
 	{
 		$prefix = $asset->getPrefix();
-		if ($asset->attr('editable')) {
-			if (!$asset->attr('force_thesaurus')) {
-				$value = trim(array_get_index($_POST, $prefix.'_value', ''));
-			} else {
-				// thesaurus has to be active for successful operation
-				if (!$asset->isThesaurusActive()) {
-					return false;
-				}
+		$max_terms = $asset->attr('max_terms');
 
-				if (isset($_POST[$prefix.'_value'])) {
-					$value = trim(array_get_index($_POST, $prefix.'_value', ''));
+		$value = Array();
+		for ($i=0; $i < $max_terms; $i++) {
+			$browser_prefix = $prefix.'_'.$i;
+			$one_value = trim(array_get_index($_REQUEST, $browser_prefix.'_value', ''));
+			if (empty($one_value)) continue;
+
+			if ($asset->attr('editable')) {
+				if ($asset->attr('force_thesaurus')) {
+					// thesaurus has to be active for successful operation
+					if (!$asset->isThesaurusActive()) return false;
+
 					$th = $asset->getThesaurusRef();
-					$term = $th->getEntityByName($value);
-					if (empty($term) && !empty($value)) {
+					$term = $th->getEntityByName($one_value);
+					if (empty($term)) {
 						$asset->_tmp['error'] = translate('lexicon_term_not_found');
 						return false;
 					}
-					$value = $term['name'];
+					$one_value = $term['name'];
 				}
 			}
+
+			$value[] = $one_value;
+
 		}
 
-		$new_value_str = Metadata_Field::encodeValueString(trim($value), Array());
+		$old_count = count($value);
+		$value = array_unique($value);
+		if ($old_count != count($value)) {
+			$asset->_tmp['error'] = translate('lexicon_term_duplicate_removed');
+		}
+		$value = implode(',', $value);
+		$new_value_str = Metadata_Field::encodeValueString($value, Array());
 
 		return true;
 

@@ -10,7 +10,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus_browser.js,v 1.4 2005/05/12 00:14:49 tbarrett Exp $
+* $Id: thesaurus_browser.js,v 1.5 2005/05/17 01:28:39 arailean Exp $
 *
 */
 
@@ -65,7 +65,10 @@ ThesaurusBrowser = function (	divname,
 	this.fade			= 0;
 	this.fadeTimer		= null;
 	this.searchable		= true;
+	this.infoIsOpen		= false;
 
+	this.browserWidth   = 300;
+	this.browserHeight  = 200;
 
 /**
 * opens browser window
@@ -78,23 +81,29 @@ ThesaurusBrowser = function (	divname,
 	this.open = function(e)
 		{
 			var existingY = window.scrollY ? window.scrollY : (document.body.scrollTop ? document.body.scrollTop : document.documentElement.scrollTop);
-			var targetY = existingY + e.clientY - 50;
+
 			var date = new Date();
 			date = date.getTime();
 			this.div.style.visibility = "hidden";
 			this.div.style.position = "absolute";
-			this.div.style.left = e.clientX + "px";
-			var scrollX = "";
-			var scrollY = "";
+			
 			if (navigator.userAgent.indexOf("Safari")==-1) {
-				eval("scrollX = document.body.scrollLeft;");
-				eval("scrollY = document.body.scrollTop;");
+				this.coordX = e.clientX;
+				this.coordY = e.clientY;
+			} else {
+				this.coordX = e.clientX - 305;// - (top.innerWidth - self.innerWidth);
+				this.coordY = top.innerHeight - e.clientY;
 			}
-			this.panelX = scrollX + e.clientX + 300 - 150;
-			this.panelXtemp = this.panelX;
-			this.panelY = scrollY + e.clientY + 20;
-			this.div.style.left = scrollX + e.clientX + "px";
-			this.div.style.top  = scrollY + e.clientY + "px";
+
+			var existingY = window.scrollY ? window.scrollY : (document.body.scrollTop ? document.body.scrollTop : document.documentElement.scrollTop);
+			var targetY = existingY + this.coordY - 50;
+
+			this.panelX = this.coordX + this.browserWidth;
+			this.panelY = this.coordY + 25;
+
+			this.div.style.left = this.coordX + "px";
+			this.div.style.top  = this.coordY + "px";
+			
 			Browser = this;
 			this.frame.src = this.framepath + "browser.html?time=" + date;
 
@@ -191,12 +200,11 @@ ThesaurusBrowser = function (	divname,
 */
 	this.close = function()
 		{
-			document.getElementById(this.imgArrow).src = this.imagespath + "arrowr.gif";
 			document.getElementById(this.info_title).innerHTML = "";
 			document.getElementById(this.info_description).innerHTML = "";
+			this.infoClose();
+
 			this.div.style.visibility = "hidden";
-			document.getElementById(this.infoContainer).style.visibility	= "hidden";
-			document.getElementById(this.infoContainer).style.display		= "none";
 			document.getElementById(this.blanket).style.visibility			= "hidden";
 			document.body.style.overflow = "";
 			document.getElementById(this.blanket).style.height				= 50 + "px";
@@ -215,18 +223,16 @@ ThesaurusBrowser = function (	divname,
 */
 	this.infoOpen = function()
 		{
-			clearTimeout(this.panelTimer);
-			if (this.panelXtemp - this.panelX >= 150) {
-				document.getElementById(this.imgArrow).src = this.imagespath + "arrowl.gif";
+			if (this.infoIsOpen) {
 				return;
 			}
-			this.panelXtemp += 5;
 			var panel = document.getElementById(this.infoContainer);
-			panel.style.top			= this.panelY + "px";
-			panel.style.left		= this.panelXtemp + "px";
+			panel.style.left		= this.panelX+"px";
+			panel.style.top			= this.panelY+"px";
 			panel.style.display		= "block";
 			panel.style.visibility	= "visible";
-			this.panelTimer = setTimeout(this.varname + ".infoOpen()", 1);
+			document.getElementById(this.imgArrow).src = this.imagespath + "info_off.png";
+			this.infoIsOpen = true;
 
 		}//end infoOpen
 
@@ -239,18 +245,15 @@ ThesaurusBrowser = function (	divname,
 */
 	this.infoClose = function()
 		{
-			clearTimeout(this.panelTimer);
-			if (this.panelXtemp <= this.panelX) {
-				document.getElementById(this.imgArrow).src = this.imagespath + "arrowr.gif";
-				document.getElementById(this.infoContainer).style.visibility	= "hidden";
-				document.getElementById(this.infoContainer).style.display		= "none";
+			if (!this.infoIsOpen) {
 				return;
 			}
-			this.panelXtemp -= 5;
-			var panel = document.getElementById(this.infoContainer);
-			panel.style.top		= this.panelY + "px";
-			panel.style.left	= this.panelXtemp + "px";
-			this.panelTimer = setTimeout(this.varname + ".infoClose()", 1);
+
+			document.getElementById(this.imgArrow).src = this.imagespath + "info_on.png";
+			document.getElementById(this.infoContainer).style.visibility	= "hidden";
+			document.getElementById(this.infoContainer).style.display		= "none";
+			
+			this.infoIsOpen = false;
 
 		}//end infoClose
 
@@ -263,8 +266,9 @@ ThesaurusBrowser = function (	divname,
 */
 	this.togglePanel = function()
 		{
-			if (this.panelXtemp > this.panelX) this.infoClose();
-			else {
+			if (this.infoIsOpen) {
+				this.infoClose();
+			} else {
 				this.infoOpen();
 				this.loadEntityInfo(this.lastentity);
 			}
@@ -337,7 +341,8 @@ ThesaurusBrowser = function (	divname,
 	this.loadEntityInfo = function(entityid)
 		{
 			if (entityid == "") return;
-			if (this.panelXtemp > this.panelX) {
+			
+			if (this.infoIsOpen) {
 				document.getElementById(this.helperframe).src =
 					this.helperpath + "&" +
 					this.prefix + "_entity_name=" + entityid + "&" +
@@ -389,44 +394,20 @@ ThesaurusBrowser = function (	divname,
 	this.print = function()
 		{
 			var out = "";
-			out += '<table cellpadding="0" cellspacing="0" border="0" style="display:none;visibility:hidden;position:absolute;z-index:10001" id="' + this.infoContainer + '">';
-			out += '	<tr>';
-			out += '		<td style="background:url(' + this.imagespath + 'lts.png);background: expression(\'none\');filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src=\'' + this.imagespath + 'lts.png\', sizingMethod=\'scale\')"><img alt="" src="' + this.imagespath + '1x1.gif" style="height:20px;width:20px;" /></td>';
-			out += '		<td style="background:url(' + this.imagespath + 'ts.png);background: expression(\'none\');filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src=\'' + this.imagespath + 'ts.png\', sizingMethod=\'scale\')"></td>';
-			out += '		<td style="background:url(' + this.imagespath + 'rts2.png);background: expression(\'none\');filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src=\'' + this.imagespath + 'rts2.png\', sizingMethod=\'scale\')"><img alt="" src="' + this.imagespath + '1x1.gif" style="height:20px;width:20px;" /></td>';
-			out += '	</tr>';
-			out += '	<tr>';
-			out += '		<td style="background:url(' + this.imagespath + 'ls.png);background: expression(\'none\');filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src=\'' + this.imagespath + 'ls.png\', sizingMethod=\'scale\')"><img alt="" src="' + this.imagespath + '1x1.gif" style="width:20px;" /></td>';
-			out += '		<td style="background: #FFFFFF"><div style="overflow:auto;padding-left: 20px;height:150px;width:150px;"><h3 id="' + this.info_title + '"></h3><p id="' + this.info_description + '"></p></div></td>';
-			out += '		<td style="background:url(' + this.imagespath + 'rs.png);background: expression(\'none\');filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src=\'' + this.imagespath + 'rs.png\', sizingMethod=\'scale\')"><img alt="" src="' + this.imagespath + '1x1.gif" style="width:20px;" /></td>';
-			out += '	</tr>';
-			out += '	<tr>';
-			out += '		<td style="background:url(' + this.imagespath + 'lbs.png);background: expression(\'none\');filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src=\'' + this.imagespath + 'lbs.png\', sizingMethod=\'scale\')"><img alt="" src="' + this.imagespath + '1x1.gif" style="height:20px;width:20px;" /></td>';
-			out += '		<td style="background:url(' + this.imagespath + 'bs.png);background: expression(\'none\');filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src=\'' + this.imagespath + 'bs.png\', sizingMethod=\'scale\')"></td>';
-			out += '		<td style="background:url(' + this.imagespath + 'rbs.png);background: expression(\'none\');filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src=\'' + this.imagespath + 'rbs.png\', sizingMethod=\'scale\')"><img alt="" src="' + this.imagespath + '1x1.gif" style="height:20px;width:20px;" /></td>';
-			out += '	</tr>';
-			out += '</table>';
 
-			out += '<table cellpadding="0" cellspacing="0" border="0" style="display:none;visibility:hidden;position:absolute;;z-index:10002" id="' + this.divname + '">';
-			out += '	<tr>';
-			out += '		<td style="background:url(' + this.imagespath + 'lts.png);background: expression(\'none\');filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src=\'' + this.imagespath + 'lts.png\', sizingMethod=\'scale\')"><img alt="" src="' + this.imagespath + '1x1.gif" style="height:20px;width:20px;" /></td>';
-			out += '		<td style="background:url(' + this.imagespath + 'ts.png);background: expression(\'none\');filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src=\'' + this.imagespath + 'ts.png\', sizingMethod=\'scale\')"></td>';
-			out += '		<td onclick="' + this.varname + '.close();" style="background:url(' + this.imagespath + 'rts.png);background: expression(\'none\');filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src=\'' + this.imagespath + 'rts.png\', sizingMethod=\'scale\')"><img alt="" src="' + this.imagespath + '1x1.gif" style="height:20px;width:20px;" /></td>';
-			out += '	</tr>';
-			out += '	<tr>';
-			out += '		<td style="background:url(' + this.imagespath + 'ls.png);background: expression(\'none\');filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src=\'' + this.imagespath + 'ls.png\', sizingMethod=\'scale\')"></td>';
-			out += '		<td><iframe frameborder="0" id="' + this.framename + '" name="' + this.framename + '" marginheight="0" marginwidth="0" width="300" height="200"></iframe></td>';
-			out += '		<td style="background:url(' + this.imagespath + 'rs.png);background: expression(\'none\');filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src=\'' + this.imagespath + 'rs.png\', sizingMethod=\'scale\');cursor:pointer;" onclick="' + this.varname + '.togglePanel()"><img id="' + this.imgArrow + '" alt="" src="' + this.imagespath + 'arrowr.gif" /></td>';
-			out += '	</tr>';
-			out += '	<tr>';
-			out += '		<td style="background:url(' + this.imagespath + 'lbs.png);background: expression(\'none\');filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src=\'' + this.imagespath + 'lbs.png\', sizingMethod=\'scale\')"><img alt="" src="' + this.imagespath + '1x1.gif" style="height:20px;width:20px;" /></td>';
-			out += '		<td style="background:url(' + this.imagespath + 'bs.png);background: expression(\'none\');filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src=\'' + this.imagespath + 'bs.png\', sizingMethod=\'scale\')"></td>';
-			out += '		<td style="background:url(' + this.imagespath + 'rbs.png);background: expression(\'none\');filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src=\'' + this.imagespath + 'rbs.png\', sizingMethod=\'scale\')"><img alt="" src="' + this.imagespath + '1x1.gif" style="height:20px;width:20px;" /></td>';
-			out += '	</tr>';
-			out += '</table>';
+			out +='<div style="display:none;visibility:hidden;position:absolute;z-index:10001; padding:0;margin:0;background-color:white;border:solid 1px black;float:right" id="' + this.infoContainer + '">';
+			out +='<div style="overflow:auto;padding: 1em;height:150px;width:150px;"><h3 id="' + this.info_title + '"></h3><p id="' + this.info_description + '"></p></div>';
+			out +='</div>';
+
+			out +='<div style="display:none;visibility:hidden;position:absolute;;z-index:10002;border:solid 2px #666;background-color:white;" id="' + this.divname + '">';
+			out +='<div style="background-color:#aaa; padding:1px;">';
+			out +='<img style="left:0px;" src="' + this.imagespath + 'cross.png" onclick="' + this.varname + '.close();" />';
+			out +='<img style="right:0px;position:absolute;" id="' + this.imgArrow + '" alt="" src="' + this.imagespath + 'info_on.png"  onclick="' + this.varname + '.togglePanel()" />';
+			out +='</div>';
+			out +='<iframe frameborder="0" id="' + this.framename + '" name="' + this.framename + '" marginheight="0" marginwidth="0" width="300" height="200"></iframe>';
+			out +='</div>';
 
 			out += '<iframe id="' + this.helperframe + '" name="' + this.helperframe + '" style="visibility:hidden;position:absolute;top:-1000px; left:-1000px;width:10px;height:10px"></iframe>';
-//			out += '<iframe id="' + this.helperframe + '" name="' + this.helperframe + '" style="visibility:visible;position:absolute;top:100px; left:100px;width:500px;height:300px"></iframe>';  // leave this line for debugging purposes
 			out += '<iframe id="' + this.blanket + '" style="visibility:hidden;filter:alpha(opacity=50);-moz-opacity:0.5;opacity:0.5;position:absolute;top:0px; left:0px;width:100px;height:100px;z-index:10000;background:#FFFFFF" frameborder="0" marginheight="0" marginwidth="0" src="about:blank"></iframe>';
 			document.write(out);
 
