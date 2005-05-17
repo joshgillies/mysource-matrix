@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: log_manager.inc,v 1.15 2005/05/11 06:04:59 lwright Exp $
+* $Id: log_manager.inc,v 1.16 2005/05/17 05:56:11 arailean Exp $
 */
 
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -658,6 +658,10 @@ class Log_Manager extends Asset
 					if (empty($line)) continue;
 					$d_line = $this->_decodeLine($line);
 					if ($d_line !== false) {
+						$message = $d_line['data'];
+						if (is_array($message)){
+							$message = '<pre>'.print_r($message, true).'</pre>';
+						}
 						$error_type_name   = get_error_name($d_line['level']);
 						$error_type_colour = get_error_colour($d_line['level']);
 						$log_date = date('G:i:s - d M',$d_line['date']);
@@ -669,7 +673,7 @@ class Log_Manager extends Asset
 								'.translate('user').':&nbsp;<strong>'.$d_line['user'].'</strong>&nbsp;('.$d_line['userid'].')<br />
 								'.translate('level').':&nbsp;<strong>'.$error_type_name.'</strong><br />
 							</td>
-							<td><span style="font-family: monospace;">'.$d_line['data'].'</span></td>
+							<td><span style="font-family: monospace;">'.$message.'</span></td>
 						</tr>';
 					} else {
 						$content .= '
