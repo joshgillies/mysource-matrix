@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_edit_fns.inc,v 1.35 2005/05/11 06:07:17 lwright Exp $
+* $Id: calendar_event_edit_fns.inc,v 1.36 2005/05/17 02:28:28 tbarrett Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -58,8 +58,24 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 	function paintStartEndChooser(&$asset, $prefix, $attributes=Array())
 	{
 		$occurrence_end_ts = (isset($_REQUEST['SQ_CALENDAR_DATE']) && ($asset->getEndDate())) ? strtotime($_REQUEST['SQ_CALENDAR_DATE'].' '.($asset->getEndTime() ? $asset->getEndTime() : '12:00:00 GMT')) : false;
-		$end_disabled_code = (($asset->id && ($asset->getEndTime() || $asset->getEndDate())) || (isset($_REQUEST['SQ_CALENDAR_DURATION']))) ? '' : 'disabled="disabled"';
+		$end_disabled_code = (($asset->getEndTime() || $asset->getEndDate()) || (isset($_REQUEST['SQ_CALENDAR_DURATION']))) ? '' : 'disabled="disabled"';
 		$end_disabled_array = $end_disabled_code ? Array('disabled'=>'disabled') : Array();
+		$duration = '';
+		$duration_units = 'i';
+		if ($d = ($asset->getDuration() / 60)) {
+			$duration = $d;
+		}
+		if (isset($_REQUEST['SQ_CALENDAR_DURATION'])) {
+			list($duration, $duration_units) = explode('_', $_REQUEST['SQ_CALENDAR_DURATION']);
+		}
+		if ($duration > 60) {
+			$duration = $duration / 60;
+			$duration_units = 'h';
+			if ($duration > 24) {
+				$duration = $duration / 24;
+				$duration_units = 'd';
+			}
+		}
 
 		?>
 		<script type="text/javascript" src="<?php echo sq_web_path('data').'/asset_types/calendar_event/js/date_chooser.js'?>"></script>
@@ -87,8 +103,8 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 					<input type="radio" value="duration" id="<?php echo $prefix; ?>_duration_enabled" name="<?php echo $prefix; ?>_end_type" <?php if (!$asset->id) echo 'checked="checked"'; ?> <?php echo $end_disabled_code; ?> /> <?php echo strtolower(translate('for')); ?>
 				</td>
 				<td colspan="2" class="sq-backend-data" style="white-space: nowrap">
-					<?php text_box($prefix.'_duration', (isset($_REQUEST['SQ_CALENDAR_DURATION']) ? strtok($_REQUEST['SQ_CALENDAR_DURATION'], '_') : ''), 2, 0, 0, 'onclick="checkBox(\''.$prefix.'_duration_enabled\'); checkBox(\''.$prefix.'_start_time_enabled\'); enableTimeField(\''.$prefix.'_start\');"  onblur="updateDurationValues(\''.$prefix.'\')" '.$end_disabled_code);
-					combo_box($prefix.'_duration_units', Array('i' => translate('minutes'), 'h' => translate('hours'), 'd' => translate('days')), false, Array('i'), 0,  'onclick="checkBox(\''.$prefix.'_duration_enabled\'); checkBox(\''.$prefix.'_start_time_enabled\'); enableTimeField(\''.$prefix.'_start\');" onblur="updateDurationValues(\''.$prefix.'\')" '.$end_disabled_code); ?>
+					<?php text_box($prefix.'_duration', $duration, 2, 0, 0, 'onclick="checkBox(\''.$prefix.'_duration_enabled\'); checkBox(\''.$prefix.'_start_time_enabled\'); enableTimeField(\''.$prefix.'_start\');"  onblur="updateDurationValues(\''.$prefix.'\')" '.$end_disabled_code);
+					combo_box($prefix.'_duration_units', Array('i' => translate('minutes'), 'h' => translate('hours'), 'd' => translate('days')), false, $duration_units, 0,  'onclick="checkBox(\''.$prefix.'_duration_enabled\'); checkBox(\''.$prefix.'_start_time_enabled\'); enableTimeField(\''.$prefix.'_start\');" onblur="updateDurationValues(\''.$prefix.'\')" '.$end_disabled_code); ?>
 				</td>
 			</tr>
 			<tr>
