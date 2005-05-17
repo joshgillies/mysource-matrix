@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_nest_content_edit_fns.inc,v 1.9 2004/12/03 15:29:22 brobertson Exp $
+* $Id: design_area_nest_content_edit_fns.inc,v 1.9.2.1 2005/05/17 02:07:44 dmckee Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -58,7 +58,6 @@ class Design_Area_Nest_Content_Edit_Fns extends Design_Area_Edit_Fns
 				foreach ($type_codes as $type_code) $type_code_restrictions[$type_code] = 'D';
 			}
 			asset_finder($prefix.'_assetid', $asset->_getNestAssetInfo('minorid'), $type_code_restrictions);
-
 		} elseif ($asset->_getNestAssetInfo('minorid')) {
 			$link_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($asset->_getNestAssetInfo('minorid'));
 			if (!is_null($link_asset)) echo $link_asset->name, '(Id: #', $link_asset->id, ')';
@@ -87,7 +86,7 @@ class Design_Area_Nest_Content_Edit_Fns extends Design_Area_Edit_Fns
 		if ($asset->_getNestAssetInfo('minorid') == $_POST[$prefix.'_assetid']['assetid']) return false;
 
 		$assetid = (int) $_POST[$prefix.'_assetid']['assetid'];
-
+		
 		// open the transaction
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
@@ -111,10 +110,9 @@ class Design_Area_Nest_Content_Edit_Fns extends Design_Area_Edit_Fns
 				return false;
 			}
 		}
-
 		// If we get this far, then it's all OK
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-
+		$asset->linksUpdated();
 		return true;
 
 	}//end processAssetid()
