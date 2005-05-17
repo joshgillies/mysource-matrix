@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.29 2005/05/02 04:19:19 gsherwood Exp $
+* $Id: ldap_bridge.inc,v 1.30 2005/05/17 06:29:57 gsherwood Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -449,16 +449,8 @@ class LDAP_Bridge extends Asset
 				$ou_groups[array_shift($matches[1])] = $reg_string;
 			}
 
-
 			foreach ($mo_groups as $group_name) {
-				switch ($this->attr('system_type')) {
-					case 'openldap' :
-						$result = $ldap->search($this->attr('root_dn'),'(&(|(objectClass=organizationalUnit)(objectClass=groupOfNames))('.$attrs['ou'].'='.$group_name.'))');
-					break;
-					case 'activedirectory' :
-						$result = $ldap->search($group_name, '(objectClass=*)');
-					break;
-				}
+				$result = $ldap->search($group_name, '(objectClass=*)');
 				$group_data = $ldap->getEntries($result);
 				if ($group_data['count'] > 0) $parents[$this->id.':'.$group_data[0]['dn']] = 'ldap_user_group';
 			}
