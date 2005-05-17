@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_update_lookups.inc,v 1.35 2005/05/16 06:36:32 lwright Exp $
+* $Id: hipo_job_update_lookups.inc,v 1.36 2005/05/17 06:58:42 ndvries Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -137,18 +137,18 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 	function getInitialStepData()
 	{
 		return Array(
-					Array(
-						'name'			=> translate('hipo_updating_lookups'),
-						'function_call'	=> Array(
-												'process_function'	=> 'processLookups',
-										   ),
-						'running_mode'	=> 'server',
-						'auto_step'		=> true,
-						'allow_cancel'	=> true,
-						'percent_done'	=> 0,
-						'complete'		=> false,
-						'message'		=> '',
-					),
+				Array(
+					'name'			=> translate('hipo_updating_lookups'),
+					'function_call'	=> Array(
+										'process_function'	=> 'processLookups',
+									   ),
+					'running_mode'	=> 'server',
+					'auto_step'		=> true,
+					'allow_cancel'	=> true,
+					'percent_done'	=> 0,
+					'complete'		=> false,
+					'message'		=> '',
+				),
 			   );
 
 	}//end getInitialStepData()
@@ -240,12 +240,13 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 				$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
 				$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 
-				$todo_assets = array_merge($todo_assets, $db->getCol($sql.$where));
+				$new_assets = $db->getCol($sql.$where);
+				assert_valid_db_result($new_assets);
+
+				$todo_assets = array_merge($todo_assets, $new_assets);
 			}
 
 		}// end foreach
-
-		assert_valid_db_result($todo_assets);
 
 		$this->_running_vars['todo_assetids'] = array_unique($todo_assets);
 		$this->_running_vars['done_assetids'] = Array();

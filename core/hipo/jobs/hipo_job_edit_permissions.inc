@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_permissions.inc,v 1.49 2005/05/16 06:36:31 lwright Exp $
+* $Id: hipo_job_edit_permissions.inc,v 1.50 2005/05/17 06:58:42 ndvries Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.49 $
+* @version $Revision: 1.50 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -145,42 +145,42 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 	function getInitialStepData()
 	{
 		return Array(
-					Array(
-						'name'			=> translate('hipo_acquiring_permission_locks'),
-						'hipo_job'		=> Array(
-												'init_details_function'	=> 'getLockAssetDetails',
-										   ),
-						'running_mode'	=> 'server',
-						'auto_step'		=> true,
-						'allow_cancel'	=> true,
-						'percent_done'	=> 0,
-						'complete'		=> false,
-						'message'		=> '',
-					),
-					Array(
-						'name'			=> translate('hipo_updating_permissions'),
-						'function_call'	=> Array(
-												'process_function'	=> 'processPermissions',
-										   ),
-						'running_mode'	=> 'server',
-						'auto_step'		=> true,
-						'allow_cancel'	=> true,
-						'percent_done'	=> 0,
-						'complete'		=> false,
-						'message'		=> '',
-					),
-					Array(
-						'name'			=> translate('hipo_releasing_permission_locks'),
-						'function_call'	=> Array(
-												'process_function'	=> 'releaseLocks',
-										   ),
-						'running_mode'	=> 'server',
-						'auto_step'		=> true,
-						'allow_cancel'	=> false,
-						'percent_done'	=> 0,
-						'complete'		=> false,
-						'message'		=> '',
-					),
+				Array(
+					'name'			=> translate('hipo_acquiring_permission_locks'),
+					'hipo_job'		=> Array(
+										'init_details_function'	=> 'getLockAssetDetails',
+									   ),
+					'running_mode'	=> 'server',
+					'auto_step'		=> true,
+					'allow_cancel'	=> true,
+					'percent_done'	=> 0,
+					'complete'		=> false,
+					'message'		=> '',
+				),
+				Array(
+					'name'			=> translate('hipo_updating_permissions'),
+					'function_call'	=> Array(
+										'process_function'	=> 'processPermissions',
+									   ),
+					'running_mode'	=> 'server',
+					'auto_step'		=> true,
+					'allow_cancel'	=> true,
+					'percent_done'	=> 0,
+					'complete'		=> false,
+					'message'		=> '',
+				),
+				Array(
+					'name'			=> translate('hipo_releasing_permission_locks'),
+					'function_call'	=> Array(
+										'process_function'	=> 'releaseLocks',
+									   ),
+					'running_mode'	=> 'server',
+					'auto_step'		=> true,
+					'allow_cancel'	=> false,
+					'percent_done'	=> 0,
+					'complete'		=> false,
+					'message'		=> '',
+				),
 			   );
 
 	}//end getInitialStepData()

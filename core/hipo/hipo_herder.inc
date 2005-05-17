@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_herder.inc,v 1.67 2005/05/16 06:36:31 lwright Exp $
+* $Id: hipo_herder.inc,v 1.68 2005/05/17 06:58:42 ndvries Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) Herder (Manager ;P)
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.67 $
+* @version $Revision: 1.68 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -551,7 +551,7 @@ class HIPO_Herder extends MySource_Object
 				exit();
 			default:
 				trigger_localised_error('HIPO0056', E_USER_NOTICE, $signo);
-				break;
+			break;
 		}// end switch
 
 	}//end serverSigHandler()

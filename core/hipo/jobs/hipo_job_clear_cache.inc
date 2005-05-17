@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_clear_cache.inc,v 1.10 2005/05/16 06:36:31 lwright Exp $
+* $Id: hipo_job_clear_cache.inc,v 1.11 2005/05/17 06:58:42 ndvries Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -89,18 +89,18 @@ class HIPO_Job_Clear_Cache extends HIPO_Job
 	function getInitialStepData()
 	{
 		return Array(
-					Array(
-						'name'			=> translate('hipo_clearing_cache'),
-						'function_call'	=> Array(
-												'process_function'	=> 'processClearCache',
-										   ),
-						'running_mode'	=> 'server',
-						'auto_step'		=> true,
-						'allow_cancel'	=> true,
-						'percent_done'	=> 0,
-						'complete'		=> false,
-						'message'		=> '',
-					),
+				Array(
+					'name'			=> translate('hipo_clearing_cache'),
+					'function_call'	=> Array(
+										'process_function'	=> 'processClearCache',
+									   ),
+					'running_mode'	=> 'server',
+					'auto_step'		=> true,
+					'allow_cancel'	=> true,
+					'percent_done'	=> 0,
+					'complete'		=> false,
+					'message'		=> '',
+				),
 			   );
 
 	}//end getInitialStepData()

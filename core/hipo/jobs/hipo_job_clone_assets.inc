@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_clone_assets.inc,v 1.14 2005/05/16 06:36:31 lwright Exp $
+* $Id: hipo_job_clone_assets.inc,v 1.15 2005/05/17 06:58:42 ndvries Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -134,85 +134,85 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 	function getInitialStepData()
 	{
 		return Array(
-					Array(
-						'name'			=> translate('hipo_clone_options'),
-						'function_call'	=> Array(
-												'paint_function'	=> 'paintCloneOptions',
-												'process_function'	=> 'processCloneOptions',
-										   ),
-						'running_mode'	=> 'web',
-						'skip_step'		=> false,
-						'auto_step'		=> false,
-						'allow_cancel'	=> true,
-						'percent_done'	=> 0,
-						'complete'		=> false,
-						'message'		=> '',
-					),
-					Array(
-						'name'			=> translate('hipo_acquiring_locks'),
-						'hipo_job'		=> Array(
-												'init_details_function'	=> 'getLockAssetDetails',
-										   ),
-						'running_mode'	=> 'server',
-						'auto_step'		=> true,
-						'allow_cancel'	=> false,
-						'percent_done'	=> 0,
-						'complete'		=> false,
-						'message'		=> '',
-					),
-					Array(
-						'name'			=> translate('hipo_cloning_assets'),
-						'function_call'	=> Array(
-												'process_function'	=> 'processCloneAssets',
-										   ),
-						'running_mode'	=> 'server',
-						'skip_step'		=> false,
-						'auto_step'		=> true,
-						'allow_cancel'	=> true,
-						'percent_done'	=> 0,
-						'complete'		=> false,
-						'message'		=> '',
-					),
-					Array(
-						'name'			=> translate('hipo_remapping_assets'),
-						'function_call'	=> Array(
-												'process_function'	=> 'processRemap',
-										   ),
-						'running_mode'	=> 'server',
-						'skip_step'		=> false,
-						'auto_step'		=> true,
-						'allow_cancel'	=> false,
-						'percent_done'	=> 0,
-						'complete'		=> false,
-						'message'		=> '',
-					),
-					Array(
-						'name'			=> translate('hipo_releasing_locks'),
-						'function_call'	=> Array(
-												'process_function'	=> 'releaseLocks',
-										   ),
-						'running_mode'	=> 'server',
-						'auto_step'		=> true,
-						'skip_step'		=> false,
-						'allow_cancel'	=> false,
-						'percent_done'	=> 0,
-						'complete'		=> false,
-						'message'		=> '',
-					),
-					Array(
-						'name'			=> translate('hipo_refreshing_asset_map'),
-						'function_call'	=> Array(
-												'paint_function'	=> 'paintRefresh',
-												'process_function'	=> 'processRefresh',
-										   ),
-						'running_mode'	=> 'web',
-						'auto_step'		=> true,
-						'skip_step'		=> false,
-						'allow_cancel'	=> false,
-						'percent_done'	=> 0,
-						'complete'		=> false,
-						'message'		=> '',
-					),
+				Array(
+					'name'			=> translate('hipo_clone_options'),
+					'function_call'	=> Array(
+										'paint_function'	=> 'paintCloneOptions',
+										'process_function'	=> 'processCloneOptions',
+									   ),
+					'running_mode'	=> 'web',
+					'skip_step'		=> false,
+					'auto_step'		=> false,
+					'allow_cancel'	=> true,
+					'percent_done'	=> 0,
+					'complete'		=> false,
+					'message'		=> '',
+				),
+				Array(
+					'name'			=> translate('hipo_acquiring_locks'),
+					'hipo_job'		=> Array(
+										'init_details_function'	=> 'getLockAssetDetails',
+									   ),
+					'running_mode'	=> 'server',
+					'auto_step'		=> true,
+					'allow_cancel'	=> false,
+					'percent_done'	=> 0,
+					'complete'		=> false,
+					'message'		=> '',
+				),
+				Array(
+					'name'			=> translate('hipo_cloning_assets'),
+					'function_call'	=> Array(
+										'process_function'	=> 'processCloneAssets',
+									   ),
+					'running_mode'	=> 'server',
+					'skip_step'		=> false,
+					'auto_step'		=> true,
+					'allow_cancel'	=> true,
+					'percent_done'	=> 0,
+					'complete'		=> false,
+					'message'		=> '',
+				),
+				Array(
+					'name'			=> translate('hipo_remapping_assets'),
+					'function_call'	=> Array(
+										'process_function'	=> 'processRemap',
+									   ),
+					'running_mode'	=> 'server',
+					'skip_step'		=> false,
+					'auto_step'		=> true,
+					'allow_cancel'	=> false,
+					'percent_done'	=> 0,
+					'complete'		=> false,
+					'message'		=> '',
+				),
+				Array(
+					'name'			=> translate('hipo_releasing_locks'),
+					'function_call'	=> Array(
+										'process_function'	=> 'releaseLocks',
+									   ),
+					'running_mode'	=> 'server',
+					'auto_step'		=> true,
+					'skip_step'		=> false,
+					'allow_cancel'	=> false,
+					'percent_done'	=> 0,
+					'complete'		=> false,
+					'message'		=> '',
+				),
+				Array(
+					'name'			=> translate('hipo_refreshing_asset_map'),
+					'function_call'	=> Array(
+										'paint_function'	=> 'paintRefresh',
+										'process_function'	=> 'processRefresh',
+									   ),
+					'running_mode'	=> 'web',
+					'auto_step'		=> true,
+					'skip_step'		=> false,
+					'allow_cancel'	=> false,
+					'percent_done'	=> 0,
+					'complete'		=> false,
+					'message'		=> '',
+				),
 			   );
 
 	}//end getInitialStepData()

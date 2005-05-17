@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job.inc,v 1.71 2005/05/16 06:36:31 lwright Exp $
+* $Id: hipo_job.inc,v 1.72 2005/05/17 06:58:42 ndvries Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_DATA_PATH.'/private/conf/hipo.inc';
 * Highly Intensive Processing Object (HIPO)
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.71 $
+* @version $Revision: 1.72 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -1113,11 +1113,11 @@ class HIPO_Job extends MySource_Object
 								switch ($ack['result']) {
 									case 'ack' :
 										$ret_val = true;
-										break;
+									break;
 
 									case 'error' :
 										trigger_localised_error('HIPO0054', E_USER_WARNING, $ack['msg']);
-										break;
+									break;
 
 									default :
 										trigger_localised_error('HIPO0053', E_USER_WARNING, print_r($ack, true));
@@ -1358,11 +1358,11 @@ class HIPO_Job extends MySource_Object
 						switch ($ack['result']) {
 							case 'ack' :
 								$ret_val = true;
-								break;
+							break;
 
 							case 'error' :
 								trigger_localised_error('HIPO0048', E_USER_WARNING, $ack['msg']);
-								break;
+							break;
 
 							default :
 								trigger_localised_error('HIPO0047', E_USER_WARNING, print_r($ack, true));

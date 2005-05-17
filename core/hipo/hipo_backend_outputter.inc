@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_backend_outputter.inc,v 1.14 2005/05/16 06:36:31 lwright Exp $
+* $Id: hipo_backend_outputter.inc,v 1.15 2005/05/17 06:58:42 ndvries Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_SYSTEM_ROOT.'/core/include/backend_outputter.inc';
 *    suite hipo jobs
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix
 */
 class Hipo_Backend_Outputter extends Backend_Outputter
@@ -254,8 +254,7 @@ class Hipo_Backend_Outputter extends Backend_Outputter
 								</td>
 							</tr>
 						<?php
-
-						break;
+					break;
 
 					case 'field' :
 						$field = &$section['areas'][$j];
@@ -323,8 +322,7 @@ class Hipo_Backend_Outputter extends Backend_Outputter
 								</tr>
 							<?php
 						}//end switch
-
-						break;
+					break;
 
 					default :
 						trigger_localised_error('HIPO0059', E_USER_ERROR, $section['areas'][$j]['area_type']);

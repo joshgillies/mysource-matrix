@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_links.inc,v 1.14 2005/05/16 06:36:31 lwright Exp $
+* $Id: hipo_job_create_links.inc,v 1.15 2005/05/17 06:58:42 ndvries Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -98,113 +98,113 @@ class HIPO_Job_Create_Links extends HIPO_Job
 	function getInitialStepData()
 	{
 		return Array(
-					Array(
-						'name'			=> translate('hipo_confirmation'),
-						'function_call'	=> Array(
-												'paint_function'	=> 'paintConfirmation',
-												'process_function'	=> 'processConfirmation',
-										   ),
-						'running_mode'	=> 'web',
-						'auto_step'		=> false,
-						'skip_step'		=> false,
-						'allow_cancel'	=> true,
-						'percent_done'	=> 0,
-						'complete'		=> false,
-						'message'		=> '',
-					),
-					Array(
-						'name'			=> translate('hipo_creating_links'),
-						'function_call'	=> Array(
-												'process_function'	=> 'processCreateLinks',
-										   ),
-						'running_mode'	=> 'server',
-						'auto_step'		=> true,
-						'skip_step'		=> false,
-						'allow_cancel'	=> true,
-						'percent_done'	=> 0,
-						'complete'		=> false,
-						'message'		=> '',
-					),
-					Array(
-						'name'			=> translate('hipo_updating_lookups'),
-						'hipo_job'		=> Array(
-												'init_details_function'	=> 'updateLookups',
-										   ),
-						'running_mode'	=> 'server',
-						'auto_step'		=> true,
-						'skip_step'		=> false,
-						'allow_cancel'	=> true,
-						'percent_done'	=> 0,
-						'complete'		=> false,
-						'message'		=> '',
-					),
-					Array(
-						'name'			=> translate('hipo_cascading_options'),
-						'function_call'	=> Array(
-												'paint_function'	=> 'paintInterface',
-												'process_function'	=> 'processInterface',
-										   ),
-						'running_mode'	=> 'web',
-						'auto_step'		=> false,
-						'skip_step'		=> false,
-						'allow_cancel'	=> false,
-						'percent_done'	=> 0,
-						'complete'		=> false,
-						'message'		=> '',
-					),
-					Array(
-						'name'			=> translate('hipo_cascading_permissions'),
-						'hipo_job'		=> Array(
-												'init_details_function'	=> 'cascadePermissions',
-										   ),
-						'running_mode'	=> 'server',
-						'auto_step'		=> true,
-						'skip_step'		=> false,
-						'allow_cancel'	=> false,
-						'percent_done'	=> 0,
-						'complete'		=> false,
-						'message'		=> '',
-					),
-					Array(
-						'name'			=> translate('hipo_cascading_metadata'),
-						'hipo_job'		=> Array(
-												'init_details_function'	=> 'cascadeMetadata',
-										   ),
-						'running_mode'	=> 'server',
-						'auto_step'		=> true,
-						'skip_step'		=> false,
-						'allow_cancel'	=> false,
-						'percent_done'	=> 0,
-						'complete'		=> false,
-						'message'		=> '',
-					),
-					Array(
-						'name'			=> translate('hipo_cascading_workflow'),
-						'hipo_job'		=> Array(
-												'init_details_function'	=> 'cascadeWorkflow',
-										   ),
-						'running_mode'	=> 'server',
-						'auto_step'		=> true,
-						'skip_step'		=> false,
-						'allow_cancel'	=> false,
-						'percent_done'	=> 0,
-						'complete'		=> false,
-						'message'		=> '',
-					),
-					Array(
-						'name'			=> translate('hipo_refreshing_asset_map'),
-						'function_call'	=> Array(
-												'paint_function'	=> 'paintRefresh',
-												'process_function'	=> 'processRefresh',
-										   ),
-						'running_mode'	=> 'web',
-						'auto_step'		=> true,
-						'skip_step'		=> false,
-						'allow_cancel'	=> false,
-						'percent_done'	=> 0,
-						'complete'		=> false,
-						'message'		=> '',
-					),
+				Array(
+					'name'			=> translate('hipo_confirmation'),
+					'function_call'	=> Array(
+										'paint_function'	=> 'paintConfirmation',
+										'process_function'	=> 'processConfirmation',
+									   ),
+					'running_mode'	=> 'web',
+					'auto_step'		=> false,
+					'skip_step'		=> false,
+					'allow_cancel'	=> true,
+					'percent_done'	=> 0,
+					'complete'		=> false,
+					'message'		=> '',
+				),
+				Array(
+					'name'			=> translate('hipo_creating_links'),
+					'function_call'	=> Array(
+										'process_function'	=> 'processCreateLinks',
+									   ),
+					'running_mode'	=> 'server',
+					'auto_step'		=> true,
+					'skip_step'		=> false,
+					'allow_cancel'	=> true,
+					'percent_done'	=> 0,
+					'complete'		=> false,
+					'message'		=> '',
+				),
+				Array(
+					'name'			=> translate('hipo_updating_lookups'),
+					'hipo_job'		=> Array(
+										'init_details_function'	=> 'updateLookups',
+									   ),
+					'running_mode'	=> 'server',
+					'auto_step'		=> true,
+					'skip_step'		=> false,
+					'allow_cancel'	=> true,
+					'percent_done'	=> 0,
+					'complete'		=> false,
+					'message'		=> '',
+				),
+				Array(
+					'name'			=> translate('hipo_cascading_options'),
+					'function_call'	=> Array(
+										'paint_function'	=> 'paintInterface',
+										'process_function'	=> 'processInterface',
+									   ),
+					'running_mode'	=> 'web',
+					'auto_step'		=> false,
+					'skip_step'		=> false,
+					'allow_cancel'	=> false,
+					'percent_done'	=> 0,
+					'complete'		=> false,
+					'message'		=> '',
+				),
+				Array(
+					'name'			=> translate('hipo_cascading_permissions'),
+					'hipo_job'		=> Array(
+										'init_details_function'	=> 'cascadePermissions',
+									   ),
+					'running_mode'	=> 'server',
+					'auto_step'		=> true,
+					'skip_step'		=> false,
+					'allow_cancel'	=> false,
+					'percent_done'	=> 0,
+					'complete'		=> false,
+					'message'		=> '',
+				),
+				Array(
+					'name'			=> translate('hipo_cascading_metadata'),
+					'hipo_job'		=> Array(
+										'init_details_function'	=> 'cascadeMetadata',
+									   ),
+					'running_mode'	=> 'server',
+					'auto_step'		=> true,
+					'skip_step'		=> false,
+					'allow_cancel'	=> false,
+					'percent_done'	=> 0,
+					'complete'		=> false,
+					'message'		=> '',
+				),
+				Array(
+					'name'			=> translate('hipo_cascading_workflow'),
+					'hipo_job'		=> Array(
+										'init_details_function'	=> 'cascadeWorkflow',
+									   ),
+					'running_mode'	=> 'server',
+					'auto_step'		=> true,
+					'skip_step'		=> false,
+					'allow_cancel'	=> false,
+					'percent_done'	=> 0,
+					'complete'		=> false,
+					'message'		=> '',
+				),
+				Array(
+					'name'			=> translate('hipo_refreshing_asset_map'),
+					'function_call'	=> Array(
+										'paint_function'	=> 'paintRefresh',
+										'process_function'	=> 'processRefresh',
+									   ),
+					'running_mode'	=> 'web',
+					'auto_step'		=> true,
+					'skip_step'		=> false,
+					'allow_cancel'	=> false,
+					'percent_done'	=> 0,
+					'complete'		=> false,
+					'message'		=> '',
+				),
 			   );
 
 	}//end getInitialStepData()
