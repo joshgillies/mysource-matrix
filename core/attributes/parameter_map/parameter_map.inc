@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: parameter_map.inc,v 1.6 2005/05/16 06:36:31 lwright Exp $
+* $Id: parameter_map.inc,v 1.7 2005/05/17 05:50:57 arailean Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once dirname(dirname(__FILE__)).'/serialise/serialise.inc';
 *   When requesting the runtime value for a parameter you give its code.
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -151,7 +151,7 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 	*/
 	function _printSourceChooser($prefix, $source_type=null, $component=null)
 	{
-		combo_box($prefix.'[source]', $this->getSourceTypes(), false, Array($source_type), 0, 'onchange="updateFieldChooser(this)" onkeyup="updateFieldChooser(this)"');
+		combo_box($prefix.'[source]', $this->_getSourceTypes(), false, Array($source_type), 0, 'onchange="updateFieldChooser(this)" onkeyup="updateFieldChooser(this)"');
 		echo '&nbsp;';
 		text_box($prefix.'[index]', (($source_type == 'ASSET') ? '' : $component), '', '', false, 'style="width: 25ex; '.(($source_type == 'ASSET') ? 'display: none' : '').'"');
 		combo_box($prefix.'[attribute]', $this->_getAssetAttributeOptions(), false, Array($component), 0, 'style="width: 25ex; '.(($source_type != 'ASSET') ? 'display: none' : '').'"');
