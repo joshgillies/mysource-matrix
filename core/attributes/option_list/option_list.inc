@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: option_list.inc,v 1.16 2005/05/11 06:05:07 lwright Exp $
+* $Id: option_list.inc,v 1.17 2005/05/17 03:47:06 lwright Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *    <option_list />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -195,7 +195,7 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 			// make sure the emails are valid
 			foreach ($to as $option) {
 				$option = trim($option);
-				if (empty($option)) continue;
+				if ($option === '') continue;
 				$value[] = $option;
 			}
 		}
