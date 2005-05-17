@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.52 2005/04/29 06:46:33 arailean Exp $
+* $Id: search_manager.inc,v 1.53 2005/05/17 10:24:14 gnoel Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.52 $
+* @version $Revision: 1.53 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -278,6 +278,8 @@ class Search_Manager extends Asset
 
 		$result = $db->executeMultiple($st, $param_data);
 		assert_valid_db_result($result);
+
+		$db->freePrepared($st);
 
 		return true;
 

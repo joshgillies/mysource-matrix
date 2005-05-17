@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: internal_message.inc,v 1.59 2005/05/16 06:36:32 lwright Exp $
+* $Id: internal_message.inc,v 1.60 2005/05/17 10:22:49 gnoel Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    An internal message to be sent around the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.59 $
+* @version $Revision: 1.60 $
 * @package MySource_Matrix
 */
 class Internal_Message extends MySource_Object
@@ -476,6 +476,8 @@ class Internal_Message extends MySource_Object
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		}//end if sending message via email
+		
+		$db->freePrepared($prepared);
 
 		return true;
 
