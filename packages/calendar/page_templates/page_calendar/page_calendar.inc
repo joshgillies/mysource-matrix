@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.158 2005/05/16 06:36:39 lwright Exp $
+* $Id: page_calendar.inc,v 1.159 2005/05/17 02:27:25 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.158 $
+* @version $Revision: 1.159 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -1371,7 +1371,7 @@ class Page_Calendar extends Page_Asset_Listing
 			  function addEvent(date, time, node) {
 				  if (formSubmitted) return;
 				  loc = "<?php echo $GLOBALS['SQ_SYSTEM']->am->getAssetHref($ab_id); ?>?SQ_CALENDAR_DATE="+date;
-				  if (time != '*') loc += '&SQ_CALENDAR_TIME='+time+'&SQ_CALENDAR_DURATION=<?php echo (int)$this->attr('day_partition_time');?>_min';
+				  if (time != '*') loc += '&SQ_CALENDAR_TIME='+time+'&SQ_CALENDAR_DURATION=<?php echo (int)$this->attr('day_partition_time');?>_i';
 				  if (typeof node != 'undefined') loc += '&SQ_CALENDAR_LOCATION='+node;
 				  document.location = loc;
 			  }
