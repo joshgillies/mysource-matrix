@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.90 2005/05/11 06:05:05 lwright Exp $
+* $Id: user.inc,v 1.91 2005/05/17 05:57:50 gsherwood Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once SQ_INCLUDE_PATH.'/password_rules_config.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.90 $
+* @version $Revision: 1.91 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -496,7 +496,7 @@ class User extends Asset
 		foreach ($groupids as $key => $value) {
 			// if we pass the conditions, let us belong to this group
 			if ($this->_belongsToGroup($key)) {
-				array_push($groups, intval($key));
+				array_push($groups, $key);
 			}
 		}
 
