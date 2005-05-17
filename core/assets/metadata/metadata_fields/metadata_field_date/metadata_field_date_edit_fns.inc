@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date_edit_fns.inc,v 1.20 2005/05/11 06:04:52 lwright Exp $
+* $Id: metadata_field_date_edit_fns.inc,v 1.21 2005/05/17 07:01:44 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -65,9 +65,9 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 		ob_start();
 			?><a href="#" onClick="Javascript: var win = window.open('<?php echo sq_web_path('data')?>/asset_types/metadata_field_date/popups/keywords.html', 'keywords', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=640,height=520'); return false;"><?php echo translate('click_here'); ?></a><?php
 			$replacements_link = ob_get_contents();
-			
+
 		ob_end_clean();
-		
+
 		$o->note(translate('metadata_date_object_keys', $replacements_link));
 
 	}//end paintDateFormatKeys()
@@ -456,7 +456,7 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 			$key = substr($original, 0, -1);
 
 			// prepare date format for merging - we will replace all spaces with underscores
-			$format = str_replace(' ', '-', $asset->attr('format'));
+			$format = str_replace(' ', '~', $asset->attr('format'));
 
 			// merge the values with '_', add closing % sign and proceed...
 			$key = $key.'_'.$format;

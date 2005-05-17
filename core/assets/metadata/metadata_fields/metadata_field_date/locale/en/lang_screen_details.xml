@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.1 2005/03/30 00:39:48 lwright Exp $
+* $Id: lang_screen_details.xml,v 1.2 2005/05/17 07:01:44 lwright Exp $
 *
 */
 -->
@@ -71,7 +71,7 @@
 		</field>
 		<field attribute="format">
 			<display_name>Format</display_name>
-			<note></note>
+			<note>Note that you cannot use a tilde ('~') to separate date fields</note>
 		</field>
 		<field attribute="scheme">
 			<display_name>Scheme</display_name>

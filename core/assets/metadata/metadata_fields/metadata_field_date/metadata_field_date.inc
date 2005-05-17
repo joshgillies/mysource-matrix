@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date.inc,v 1.6 2005/04/13 01:58:37 ndvries Exp $
+* $Id: metadata_field_date.inc,v 1.7 2005/05/17 07:01:44 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field.inc';
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -82,7 +82,7 @@ class Metadata_Field_Date extends Metadata_Field
 			$key = substr($value, 1, -1);
 
 			// prepare date format for merging - we will replace all spaces with underscores
-			$format = str_replace(' ', '-', $this->attr('format'));
+			$format = str_replace(' ', '~', $this->attr('format'));
 
 			// merge the values with '_', add closing % sign and proceed...
 			$keyword = $key.'_'.$format;
