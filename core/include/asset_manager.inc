@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.311 2005/05/16 09:00:19 gnoel Exp $
+* $Id: asset_manager.inc,v 1.312 2005/05/17 07:03:51 dheppell Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.311 $
+* @version $Revision: 1.312 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -120,7 +120,7 @@ class Asset_Manager extends MySource_Object
 		$asset_types = Array();
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$sql = 'SELECT type_code, version, name, instantiable, allowed_access, parent_type, dir, customisation, description
+		$sql = 'SELECT type_code, version, name, instantiable, allowed_access, parent_type, dir, customisation, description, lvl
 				FROM sq_ast_typ';
 
 		$where = '';
@@ -156,14 +156,14 @@ class Asset_Manager extends MySource_Object
 	function refreshAssetType($type_code)
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$sql = 'SELECT type_code, version, name, instantiable, allowed_access, parent_type, dir, customisation, description
+		$sql = 'SELECT type_code, version, name, instantiable, allowed_access, parent_type, dir, customisation, description, lvl
 				FROM sq_ast_typ
 				WHERE type_code = '.$db->quote($type_code);
 		$result = $db->getRow($sql);
 		assert_valid_db_result($result);
 
 		if (empty($result)) {
-			trigger_localised_error("SYS0085", E_USER_WARNING, $type_code);
+			trigger_localised_error('SYS0085', E_USER_WARNING, $type_code);
 			return;
 		} else {
 			$this->_asset_types[$result['type_code']] = $result;
@@ -772,7 +772,7 @@ class Asset_Manager extends MySource_Object
 				$real_assetid = $id_parts[0];
 				$asset = &$this->getAsset($real_assetid, '', $mute_errors);
 				if (!method_exists($asset, 'getAsset')) {
-					trigger_localised_error("SYS0203", E_USER_WARNING, $asset->name);
+					trigger_localised_error('SYS0203', E_USER_WARNING, $asset->name);
 					return $null;
 				}
 				$this->_assets[$assetid]['object'] = &$asset->getAsset($id_parts[1]);
@@ -786,7 +786,7 @@ class Asset_Manager extends MySource_Object
 					assert_valid_db_result($type_code);
 					if (empty($type_code)) {
 						if (!$mute_errors) {
-							trigger_localised_error("SYS0087", E_USER_WARNING, $assetid);
+							trigger_localised_error('SYS0087', E_USER_WARNING, $assetid);
 						}
 
 						return $this->_assets[$assetid]['object'];
@@ -795,7 +795,7 @@ class Asset_Manager extends MySource_Object
 
 				if (!isset($this->_asset_types[$type_code])) {
 					if (!$mute_errors) {
-						trigger_localised_error("SYS0091", E_USER_WARNING, $type_code);
+						trigger_localised_error('SYS0091', E_USER_WARNING, $type_code);
 					}
 
 				} else {
@@ -905,7 +905,7 @@ class Asset_Manager extends MySource_Object
 	function getSystemAssetid($name)
 	{
 		if (!is_string($name)) {
-			trigger_localised_error("SYS0190", E_USER_WARNING);
+			trigger_localised_error('SYS0190', E_USER_WARNING);
 			return false;
 		}
 
@@ -916,7 +916,7 @@ class Asset_Manager extends MySource_Object
 		if (isset($this->_system_assetids[$name])) {
 			return $this->_system_assetids[$name];
 		} else {
-			trigger_localised_error("SYS0209", E_USER_WARNING, $name);
+			trigger_localised_error('SYS0209', E_USER_WARNING, $name);
 			return false;
 		}
 
@@ -1083,7 +1083,7 @@ class Asset_Manager extends MySource_Object
 
 			// field not found
 			if (!in_array($field, $this->_tmp['sq_tables']['ast']['columns'])) {
-				trigger_localised_error("SYS0185", E_USER_WARNING, $field);
+				trigger_localised_error('SYS0185', E_USER_WARNING, $field);
 				return Array();
 			}
 		}
@@ -1317,7 +1317,7 @@ class Asset_Manager extends MySource_Object
 			$lock = $this->getLockInfo($source->id, 'all');
 			foreach ($lock as $lock_type => $lock_info) {
 				if (empty($lock_info)) {
-					trigger_localised_error("SYS0266", E_USER_WARNING, $source->id, $lock_type);
+					trigger_localised_error('SYS0266', E_USER_WARNING, $source->id, $lock_type);
 					return $null;
 				}
 			}
@@ -1492,7 +1492,7 @@ class Asset_Manager extends MySource_Object
 
 		// make sure this type of asset can be cloned
 		if (!$source->canClone()) {
-			trigger_localised_error("SYS0070", E_USER_WARNING, $source->type());
+			trigger_localised_error('SYS0070', E_USER_WARNING, $source->type());
 			return $null;
 		}
 
@@ -1588,7 +1588,7 @@ class Asset_Manager extends MySource_Object
 	* @param int		$source_assetid	the id of the asset that started this locking process
 	* @param boolean	$force			attempt to forcibly acquire (if allowed)
 	* @param int|NULL	$expires		when the lock expires (timestamp or NULL)
-	*									If expires is null or zero, the lock will be acquired for the 
+	*									If expires is null or zero, the lock will be acquired for the
 	*									current time plus SQ_CONF_LOCK_LENGTH
 	*
 	* @return int		zero on failure, non-zero on success
@@ -1600,7 +1600,7 @@ class Asset_Manager extends MySource_Object
 	{
 		// type-check lock type BEFORE we get asset, otherwise we're just wasting time allocating it
 		if (empty($lock_type) || !is_string($lock_type)) {
-			trigger_localised_error("SYS0074", E_USER_WARNING, $assetid);
+			trigger_localised_error('SYS0074', E_USER_WARNING, $assetid);
 			return false;
 		}
 
@@ -1681,7 +1681,7 @@ class Asset_Manager extends MySource_Object
 			// is this asset already locked
 			if (!empty($lock)) {
 				$user = &$this->getAsset($lock['userid']);
-				trigger_localised_error("SYS0101", E_USER_NOTICE, $lock_type, $asset->name, $user->name);
+				trigger_localised_error('SYS0101', E_USER_NOTICE, $lock_type, $asset->name, $user->name);
 				$success = false;
 				break;
 			}
@@ -1689,7 +1689,7 @@ class Asset_Manager extends MySource_Object
 			$lockid = 'asset.'.$assetid.'.'.$lock_type;
 			$source_lockid = ($source_assetid) ? 'asset.'.$source_assetid.'.'.$lock_type : '';
 			if (true !== ($err_msg = $GLOBALS['SQ_SYSTEM']->acquireLock($lockid, $source_lockid, $expires))) {
-				trigger_localised_error("SYS0100", E_USER_NOTICE, $lock_type, $asset->name, $err_msg);
+				trigger_localised_error('SYS0100', E_USER_NOTICE, $lock_type, $asset->name, $err_msg);
 				$success = false;
 				break;
 			}
@@ -1716,7 +1716,7 @@ class Asset_Manager extends MySource_Object
 	{
 		// type-check lock type BEFORE we get asset, otherwise we're just wasting time allocating it
 		if (empty($lock_type) || !is_string($lock_type)) {
-			trigger_localised_error("SYS0075", E_USER_WARNING, $assetid);
+			trigger_localised_error('SYS0075', E_USER_WARNING, $assetid);
 			return false;
 		}
 
@@ -1736,13 +1736,13 @@ class Asset_Manager extends MySource_Object
 			// is this asset already locked by someone else and we can't forceably acquire it, piss off
 			if ((int) $lock['userid'] != $GLOBALS['SQ_SYSTEM']->currentUserid() && !$can_force) {
 				$user = &$this->getAsset($lock['userid']);
-				trigger_localised_error("SYS0264", E_USER_WARNING, $lock_type, $asset->name, $user->name);
+				trigger_localised_error('SYS0264', E_USER_WARNING, $lock_type, $asset->name, $user->name);
 				$success = false;
 				continue;
 			}
 
 			if (true !== ($err_msg = $GLOBALS['SQ_SYSTEM']->releaseLock('asset.'.$assetid.'.'.$lock_type))) {
-				trigger_localised_error("SYS0109", E_USER_NOTICE, $lock_type, $asset->name, $err_msg);
+				trigger_localised_error('SYS0109', E_USER_NOTICE, $lock_type, $asset->name, $err_msg);
 				$success = false;
 				continue;
 			}
@@ -1776,7 +1776,7 @@ class Asset_Manager extends MySource_Object
 		foreach (array_keys($current_locks) as $lock_type) {
 
 			if (true !== ($err_msg = $GLOBALS['SQ_SYSTEM']->updateLock('asset.'.$assetid.'.'.$lock_type, $expires))) {
-				trigger_localised_error("SYS0122", E_USER_NOTICE, $assetid, $err_msg);
+				trigger_localised_error('SYS0122', E_USER_NOTICE, $assetid, $err_msg);
 				$success = false;
 				break;
 			}
@@ -2028,7 +2028,7 @@ class Asset_Manager extends MySource_Object
 		assert_false($side_of_link != 'major' && $side_of_link != 'minor', 'Unknown Side of Link "'.$side_of_link.'"');
 
 		if (!$other_assetid || is_object($other_assetid)) {
-			trigger_localised_error("SYS0108", E_USER_WARNING);
+			trigger_localised_error('SYS0108', E_USER_WARNING);
 			return Array();
 		}
 
@@ -2382,13 +2382,13 @@ class Asset_Manager extends MySource_Object
 			$asset = &$this->getAsset($real_assetid);
 			if (!is_null($asset)) {
 				if (!method_exists($asset, 'getChildren')) {
-					trigger_localised_error("SYS0204", E_USER_WARNING, $asset->name);
+					trigger_localised_error('SYS0204', E_USER_WARNING, $asset->name);
 				} else {
 					$children = $asset->getChildren($id_parts[1], $type_code, $strict_type_code, $sort_by);
 				}
 				$this->forgetAsset($asset);
 			} else {
-				trigger_localised_error("SYS0206", E_USER_WARNING, $real_assetid);
+				trigger_localised_error('SYS0206', E_USER_WARNING, $real_assetid);
 			}
 			return $children;
 		}
@@ -2833,7 +2833,7 @@ class Asset_Manager extends MySource_Object
 		$original_link_type = $link_type;
 		$link_type = (int) $link_type;
 		if ($link_type != $original_link_type) {
-			trigger_localised_error("SYS0241", E_USER_WARNING);
+			trigger_localised_error('SYS0241', E_USER_WARNING);
 			return 0;
 		}
 
@@ -2856,7 +2856,7 @@ class Asset_Manager extends MySource_Object
 				$trash = &$this->getSystemAsset('trash_folder');
 				if ($trash->id == $major->id) return $current_links[$i]['linkid'];
 
-				trigger_localised_error("SYS0192", E_USER_WARNING);
+				trigger_localised_error('SYS0192', E_USER_WARNING);
 				return $current_links[$i]['linkid'];
 			}
 		}//end for
@@ -2864,7 +2864,7 @@ class Asset_Manager extends MySource_Object
 		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LINK_INTEGRITY)) {
 			// check if we are allowed to link to these type of assets
 			if (($err_msg = $major->canCreateLink($minor, $link_type, $exclusive)) !== true) {
-				trigger_localised_error("SYS0301", E_USER_WARNING, $err_msg);
+				trigger_localised_error('SYS0301', E_USER_WARNING, $err_msg);
 				return 0;
 			}
 		}
@@ -2875,7 +2875,7 @@ class Asset_Manager extends MySource_Object
 			$lock_info = @$this->getLockInfo($major->id, 'links');
 			$parent_was_locked = !empty($lock_info);
 			if (!$this->acquireLock($major->id, 'links')) {
-				trigger_localised_error("CORE0012", $major->name, E_USER_WARNING);
+				trigger_localised_error('CORE0012', $major->name, E_USER_WARNING);
 				return 0;
 			}
 		}
@@ -2910,7 +2910,7 @@ class Asset_Manager extends MySource_Object
 			assert_valid_db_result($moving_under);
 
 			if ($moving_under) {
-				trigger_localised_error("CORE0114", E_USER_WARNING, $minor->name, $minor->id, $major->name, $major->id);
+				trigger_localised_error('CORE0114', E_USER_WARNING, $minor->name, $minor->id, $major->name, $major->id);
 				return 0;
 			}
 
@@ -3007,7 +3007,7 @@ class Asset_Manager extends MySource_Object
 			// if we aren't linked anywhere we can't be linked to, sorry
 			// NOTE: exception to rule is root folder
 			if ((string) $existing_treeid == '-' && get_class($major) != 'root_folder') {
-				trigger_localised_error("SYS0240", E_USER_WARNING, $major->name, $major->id);
+				trigger_localised_error('SYS0240', E_USER_WARNING, $major->name, $major->id);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return 0;
 			}
@@ -3441,25 +3441,25 @@ class Asset_Manager extends MySource_Object
 		// first, we should try and find the link
 		$link = $this->getLinkById($linkid);
 		if (empty($link)) {
-			trigger_localised_error("SYS1038", E_USER_WARNING, $linkid);
+			trigger_localised_error('SYS1038', E_USER_WARNING, $linkid);
 			return 0;
 		}
 
 		$old_parent = &$this->getAsset($link['majorid'], $link['major_type_code']);
 		if (is_null($old_parent)) {
-			trigger_localised_error("SYS0226", E_USER_WARNING, $link['majorid']);
+			trigger_localised_error('SYS0226', E_USER_WARNING, $link['majorid']);
 			return 0;
 		}
 
 		// now check that the new parent exists
 		if (!is_int($to_parentid) && !is_string($to_parentid)) {
-			trigger_localised_error("SYS0225", E_USER_WARNING);
+			trigger_localised_error('SYS0225', E_USER_WARNING);
 			return 0;
 		}
 
 		// link type must be numeric (ie. an int, or a numeric string)
 		if (!is_numeric($link_type)) {
-			trigger_localised_error("SYS0221", E_USER_WARNING);
+			trigger_localised_error('SYS0221', E_USER_WARNING);
 			return 0;
 		}
 
@@ -3496,7 +3496,7 @@ class Asset_Manager extends MySource_Object
 		// this is the asset we are moving
 		$minor = &$this->getAsset($link['minorid'], $link['minor_type_code']);
 		if (!$minor->id) {
-			trigger_localised_error("SYS0222", E_USER_WARNING, $link['minorid']);
+			trigger_localised_error('SYS0222', E_USER_WARNING, $link['minorid']);
 			return 0;
 		}
 
@@ -3560,7 +3560,7 @@ class Asset_Manager extends MySource_Object
 		// First, we should try and find the link
 		$link = $this->getLinkById($linkid);
 		if (empty($link)) {
-			trigger_localised_error("SYS0139", E_USER_WARNING, $linkid);
+			trigger_localised_error('SYS0139', E_USER_WARNING, $linkid);
 			return false;
 		}
 
@@ -3590,14 +3590,14 @@ class Asset_Manager extends MySource_Object
 			$current_is_sig = (bool) ((int) $link['link_type'] & SQ_SC_LINK_SIGNIFICANT);
 			$new_is_sig     = (bool) ($link_type & SQ_SC_LINK_SIGNIFICANT);
 			if ($current_is_sig !== $new_is_sig) {
-				trigger_localised_error("SYS0256", E_USER_WARNING, $linkid);
+				trigger_localised_error('SYS0256', E_USER_WARNING, $linkid);
 				$ms->abortLog();
 				return false;
 			}
 
 			if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LINK_INTEGRITY)) {
 				if (($err_msg = $this->canLinkToType($major, $minor->type(), $link_type)) !== true) {
-					trigger_localised_error("SYS0255", E_USER_WARNING, $linkid, $err_msg);
+					trigger_localised_error('SYS0255', E_USER_WARNING, $linkid, $err_msg);
 					$ms->abortLog();
 					return false;
 				}
@@ -3609,7 +3609,7 @@ class Asset_Manager extends MySource_Object
 				$paths     = $minor->getWebPaths();
 				$bad_paths = $this->webPathsInUse($major, $paths, $minor->id);
 				if (!empty($bad_paths)) {
-					trigger_localised_error("SYS0121", U_USER_WARNING, $linkid, implode('", "', $bad_paths), $major->name);
+					trigger_localised_error('SYS0121', U_USER_WARNING, $linkid, implode('", "', $bad_paths), $major->name);
 					$ms->abortLog();
 					return false;
 				}
@@ -3794,7 +3794,7 @@ class Asset_Manager extends MySource_Object
 		// first, we should try and find the link
 		$link = $this->getLinkById($linkid);
 		if (empty($link)) {
-			trigger_localised_error("SYS0137", E_USER_WARNING, $linkid);
+			trigger_localised_error('SYS0137', E_USER_WARNING, $linkid);
 			return false;
 		}
 
@@ -3810,7 +3810,7 @@ class Asset_Manager extends MySource_Object
 			$lock_info = @$this->getLockInfo($major->id, 'links');
 			$parent_was_locked = !empty($lock_info);
 			if (!$this->acquireLock($major->id, 'links')) {
-				trigger_localised_error("SYS0126", E_USER_WARNING, $major->name);
+				trigger_localised_error('SYS0126', E_USER_WARNING, $major->name);
 				return 0;
 			}
 		}
@@ -3818,7 +3818,7 @@ class Asset_Manager extends MySource_Object
 		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LINK_INTEGRITY)) {
 			// check if we are allowed to delete this link
 			if (($err_msg = $major->canDeleteLink($linkid)) !== true) {
-				trigger_localised_error("SYS0302", E_USER_WARNING, $err_msg);
+				trigger_localised_error('SYS0302', E_USER_WARNING, $err_msg);
 				return false;
 			}
 		}
@@ -4060,13 +4060,13 @@ class Asset_Manager extends MySource_Object
 			if ($this->acquireLock($link_details['majorid'], 'links')) {
 				$locked[] = $link_details['majorid'];
 			} else {
-				trigger_localised_error("SYS0119", E_USER_WARNING, $assetid, $link_details['majorid']);
+				trigger_localised_error('SYS0119', E_USER_WARNING, $assetid, $link_details['majorid']);
 				foreach ($locked as $aid) {
 					$this->releaseLock($aid, 'links');
 				}
 			}
 			if (true !== ($msg = $asset->canDeleteLink($link_details['linkid']))) {
-				trigger_localised_error("SYS0120", E_USER_WARNING, $assetid, $link_details['majorid'], $msg);
+				trigger_localised_error('SYS0120', E_USER_WARNING, $assetid, $link_details['majorid'], $msg);
 				foreach ($locked as $aid) {
 					$this->releaseLock($aid, 'links');
 				}
@@ -4077,7 +4077,7 @@ class Asset_Manager extends MySource_Object
 		foreach ($parent_links as $link_details) {
 			// deleteAssetLink will create the trash link when no other links remain
 			if (!$this->deleteAssetLink($link_details['linkid'])) {
-				trigger_localised_error("SYS0152", $link_details['linkid']);
+				trigger_localised_error('SYS0152', $link_details['linkid']);
 				foreach ($locked as $aid) {
 					$this->releaseLock($aid, 'links');
 				}
@@ -4121,7 +4121,7 @@ class Asset_Manager extends MySource_Object
 		if (!is_null($granted)) $granted = (bool) $granted;
 
 		if (($and_greater || $expand_groups) && $all_info) {
-			trigger_localised_error("SYS0273", E_USER_NOTICE, __CLASS__, __FUNCTION__);
+			trigger_localised_error('SYS0273', E_USER_NOTICE, __CLASS__, __FUNCTION__);
 			$all_info = false;
 		}
 
@@ -4207,7 +4207,7 @@ class Asset_Manager extends MySource_Object
 		$asset = &$this->getAsset($assetid);
 		if (is_null($asset)) return false;
 		if (!$asset->adminAccess('permissions')) {
-			trigger_localised_error("SYS0111", E_USER_WARNING, $asset->name);
+			trigger_localised_error('SYS0111', E_USER_WARNING, $asset->name);
 			return false;
 		}
 
@@ -4220,10 +4220,10 @@ class Asset_Manager extends MySource_Object
 			// check that the passed userid is a user or user_group
 			$user = &$this->getAsset($userid, '', true);
 			if (!$user->id) {
-				trigger_localised_error("SYS0112", E_USER_WARNING);
+				trigger_localised_error('SYS0112', E_USER_WARNING);
 				return false;
 			} else if (!is_a($user, 'user') && !is_a($user, 'user_group')) {
-				trigger_localised_error("SYS0113", E_USER_WARNING, $user->type());
+				trigger_localised_error('SYS0113', E_USER_WARNING, $user->type());
 				return false;
 			}
 			$user_name = $user->name;
@@ -4240,7 +4240,7 @@ class Asset_Manager extends MySource_Object
 			$new_access     = ($granted) ? 'grant'   : 'revoke';
 			$current_access = ($granted) ? 'revoked' : 'granted';
 
-			trigger_localised_error("SYS0123", E_USER_WARNING, $new_access, $perm_name, $user_name, $asset->name, $current_access);
+			trigger_localised_error('SYS0123', E_USER_WARNING, $new_access, $perm_name, $user_name, $asset->name, $current_access);
 			return false;
 		}
 
@@ -4312,7 +4312,7 @@ class Asset_Manager extends MySource_Object
 		$asset = &$this->getAsset($assetid);
 		if (is_null($asset)) return false;
 		if (!$asset->adminAccess('permissions')) {
-			trigger_localised_error("SYS0104", E_USER_WARNING, $asset->name);
+			trigger_localised_error('SYS0104', E_USER_WARNING, $asset->name);
 			return false;
 		}
 
@@ -4400,7 +4400,7 @@ class Asset_Manager extends MySource_Object
 	{
 		if (is_null($url)) $url = current_url(false, true);
 		if (!is_string($url)) {
-			trigger_localised_error("SYS0189", E_USER_WARNING);
+			trigger_localised_error('SYS0189', E_USER_WARNING);
 			$null = null;
 			return $null;
 		}
@@ -4446,7 +4446,7 @@ class Asset_Manager extends MySource_Object
 		// URL not found
 		if (empty($row)) {
 			$fancy_url = (($protocol) ? $protocol.'://' : '').$url;
-			if (!$mute_errors) trigger_localised_error("SYS0245", E_USER_WARNING, $fancy_url);
+			if (!$mute_errors) trigger_localised_error('SYS0245', E_USER_WARNING, $fancy_url);
 			$null = null; // 'cause we are meant to return by reference
 			return $null;
 
@@ -4515,7 +4515,7 @@ class Asset_Manager extends MySource_Object
 		$root_url = $this->getRootURL($url);
 		if (empty($root_url)) {
 			$fancy_url = (($protocol) ? $protocol.'://' : '').$url;
-			trigger_localised_error("SYS0247", E_USER_WARNING, $fancy_url);
+			trigger_localised_error('SYS0247', E_USER_WARNING, $fancy_url);
 			return Array();
 		}
 
@@ -4560,7 +4560,7 @@ class Asset_Manager extends MySource_Object
 			$real_assetid = $id_parts[0];
 			$asset = &$this->getAsset($real_assetid);
 			if (!method_exists($asset, 'getLineageFromURL')) {
-				trigger_localised_error("SYS0205", E_USER_WARNING, $asset->name);
+				trigger_localised_error('SYS0205', E_USER_WARNING, $asset->name);
 				return Array();
 			}
 			$bridge_lineage = $asset->getLineageFromURL($id_parts[1], $protocol, $url);
@@ -4571,7 +4571,7 @@ class Asset_Manager extends MySource_Object
 
 			// no urls found or we only found some of the parents, but not the passed url
 			$fancy_url = (($protocol) ? $protocol.'://' : '').$url;
-			trigger_localised_error("SYS0246", E_USER_WARNING, $fancy_url);
+			trigger_localised_error('SYS0246', E_USER_WARNING, $fancy_url);
 			return Array();
 
 		} else {
