@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_declared_vars_edit_fns.inc,v 1.19 2004/12/03 15:29:22 brobertson Exp $
+* $Id: design_area_declared_vars_edit_fns.inc,v 1.19.2.1 2005/05/17 06:04:08 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -39,6 +39,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 class Design_Area_Declared_Vars_Edit_Fns extends Design_Area_Edit_Fns
 {
 
+
 	/**
 	* Loops through the contents array and creates the necessary objects
 	*
@@ -48,10 +49,11 @@ class Design_Area_Declared_Vars_Edit_Fns extends Design_Area_Edit_Fns
 	* @return boolean
 	* @access private
 	*/
-	function _processContents(&$asset, $contents) 
+	function _processContents(&$asset, $contents)
 	{
 		$vars = Array();
 		$declared_vars = Array();
+
 		// firstly let's check to see if all the design areas have unique names
 		foreach ($contents as $index => $element) {
 			if ($element['_type'] != 'TAG' || $element['operation'] != 'declare') continue;
@@ -75,7 +77,7 @@ class Design_Area_Declared_Vars_Edit_Fns extends Design_Area_Edit_Fns
 				trigger_error('Declared Variable "'.$name.'" in "'.$asset->attr('id_name').'" is specified as unknown in Attribute Type "'.$element['attributes']['type'].'"', E_USER_WARNING);
 				return false;
 			}// end if
-			
+
 			// check that the value is valid
 			require_once(SQ_ATTRIBUTES_PATH.'/'.$element['attributes']['type'].'/'.$element['attributes']['type'].'.inc');
 			$class = 'Asset_Attribute_'.$element['attributes']['type'];
@@ -97,7 +99,7 @@ class Design_Area_Declared_Vars_Edit_Fns extends Design_Area_Edit_Fns
 		return $asset->setAttrValue('declared_vars', $declared_vars);
 
 		// NOTE: we deliberately don't set the 'contents' as is done in other design areas
-	
+
 	}//end _processContents()
 
 
@@ -119,9 +121,11 @@ class Design_Area_Declared_Vars_Edit_Fns extends Design_Area_Edit_Fns
 		}// end foreach
 
 		return $text;
-	}// end createParseString()
-	
+	}//end createParseString()
+
+
 	/**
+	* Paint declared variables
 	*
 	* @param object Asset				$asset	the asset whose interface we are painting
 	* @param object	Backend_Outputter	$o		the outputter class
@@ -130,13 +134,13 @@ class Design_Area_Declared_Vars_Edit_Fns extends Design_Area_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintDecVars(&$asset, &$o, $prefix) 
+	function paintDecVars(&$asset, &$o, $prefix)
 	{
 		$attrs = $asset->getDeclaredVarAttributes();
 		foreach ($attrs as $name => $attr) {
 			$o->openField($name);
 			if ($asset->writeAccess('attributes')) {
-				$attr->paint($prefix);
+				$attr->paint($prefix.'_'.$name);
 			} else {
 				echo $attr->value;
 			}
@@ -144,9 +148,11 @@ class Design_Area_Declared_Vars_Edit_Fns extends Design_Area_Edit_Fns
 
 		}// end foreach
 
-	}// end paintSpecialisation()
+	}//end paintDecVars()
+
 
 	/**
+	* Process declared variables
 	*
 	* @param object Asset				$asset	the asset to which we belong
 	* @param object	Backend_Outputter	$o		the outputter class
@@ -155,13 +161,13 @@ class Design_Area_Declared_Vars_Edit_Fns extends Design_Area_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function processDecVars(&$asset, &$o, $prefix) 
+	function processDecVars(&$asset, &$o, $prefix)
 	{
 		$save = false;
 		$attrs = $asset->getDeclaredVarAttributes();
 		$declared_vars = $asset->attr('declared_vars');
 		foreach ($attrs as $name => $attr) {
-			$attr->process($prefix);
+			$attr->process($prefix.'_'.$name);
 			if ($attr->processed) {
 				$declared_vars[$name]['value'] = $attr->value;
 				$save = true;
@@ -176,7 +182,7 @@ class Design_Area_Declared_Vars_Edit_Fns extends Design_Area_Edit_Fns
 			return false;
 		}
 
-	}// end processDecVars()
+	}//end processDecVars()
 
 
 }//end class
