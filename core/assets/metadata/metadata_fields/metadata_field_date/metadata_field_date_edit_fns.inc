@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date_edit_fns.inc,v 1.13 2004/12/03 15:29:23 brobertson Exp $
+* $Id: metadata_field_date_edit_fns.inc,v 1.13.2.1 2005/05/17 07:06:42 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -270,7 +270,7 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 							'%asset_created%'   => 'Creation date',
 							'%asset_updated%'   => 'Last updated date',
 							'%asset_published%' => 'Last published date',
-							
+
 		);
 
 		echo "Selected keyword replacement will be used instead of any entered default date values<br />";
@@ -324,7 +324,7 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 	function paintEpochSetup(&$asset, &$o, $prefix)
 	{
 		$field = $this->_getEpochDateTimeField($asset, $prefix);
-		
+
 		echo "Setup table below only affects how the field looks to the metadata editor,<br /> NOT how it is displayed in the META field of your web page.";
 
 		if ($asset->writeAccess('attributes')) {
@@ -385,7 +385,7 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 							'%asset_created%'   => 'Creation date',
 							'%asset_updated%'   => 'Last updated date',
 							'%asset_published%' => 'Last published date',
-							
+
 		);
 
 		$o->openField($field_name);
@@ -510,7 +510,7 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 			$key = substr($original, 0, strlen($original) - 1);
 
 			// prepare date format for merging - we will replace all spaces with underscores
-			$format = str_replace(' ', '-', $asset->attr('format'));
+			$format = str_replace(' ', '~', $asset->attr('format'));
 
 			// merge the values with '_', add closing % sign and proceed...
 			$key = $key.'_'.$format;
@@ -548,7 +548,7 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 
 		if (isset($values['value'])) $default = $values['value'];
 		else $default = $field->attr('default');
-		
+
 		$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
 
 		if (strpos($default, '%') === false) {
@@ -556,12 +556,12 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 			$field_value = $datetime_field->format();
 
 		} else {
-		
+
 			// strip off the last % sign from the end of $key string
 			$key = substr($default, 1, strlen($default) - 2);
 
 			// prepare date format for merging - we will replace all spaces with underscores
-			$format = str_replace(' ', '-', $field->attr('format'));
+			$format = str_replace(' ', '~', $field->attr('format'));
 
 			// merge the values with '_', add closing % sign and proceed...
 			$keyword = $key.'_'.$format;

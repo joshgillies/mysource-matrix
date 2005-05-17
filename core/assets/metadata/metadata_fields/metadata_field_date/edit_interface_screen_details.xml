@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.5 2004/07/07 04:08:42 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.5.6.1 2005/05/17 07:06:42 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -72,7 +72,7 @@
 		</field>
 		<field attribute="format">
 			<display_name>Format</display_name>
-			<note></note>
+			<note>Note that you cannot use a tilde (~) to separate values</note>
 			<text width="15" height="1" />
 		</field>
 		<field attribute="scheme">
