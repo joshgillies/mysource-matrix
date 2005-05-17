@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_comparison.inc,v 1.26 2005/05/11 23:12:50 lwright Exp $
+* $Id: form_question_rule_type_comparison.inc,v 1.27 2005/05/17 00:15:28 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -193,7 +193,7 @@ class Form_Question_Rule_Type_Comparison extends Form_Question_Rule
 				$value = array_get_index($rule_data, 'value', '');
 			}
 
-			$error_str = translate($string_code, $q_asset->name, $value).' ('.translate('cms_form_'.($case_sensitive ? '' : 'not_').'case_sensitive').')';
+			$error_str = translate($string_code, $q_asset->name, $value);
 		}
 
 		return $error_str;
