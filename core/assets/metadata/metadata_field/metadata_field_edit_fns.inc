@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_edit_fns.inc,v 1.35 2005/05/16 06:16:36 rhoward Exp $
+* $Id: metadata_field_edit_fns.inc,v 1.36 2005/05/17 07:05:04 ndvries Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -71,7 +71,6 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 		$o->note(translate('metadata_keyword_replacements_usage', $replacements_link));
 
 	}//end paintKeywordInstructions()
-
 
 
 	/**
