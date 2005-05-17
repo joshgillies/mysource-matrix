@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.394 2005/05/12 06:59:16 amiller Exp $
+* $Id: asset.inc,v 1.395 2005/05/17 10:21:10 gnoel Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.394 $
+* @version $Revision: 1.395 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -2540,6 +2540,9 @@ class Asset extends MySource_Object
 				assert_valid_db_result($result);
 
 			}//end foreach
+			
+			$db->freePrepared($prepared);
+			$db->freePrepared($prepared_uniq);
 
 		}//end updating existing custom attribute values
 
@@ -2567,6 +2570,9 @@ class Asset extends MySource_Object
 				assert_valid_db_result($result);
 
 			}//end foreach
+
+			$db->freePrepared($prepared);
+			$db->freePrepared($prepared_uniq);
 
 		}//end new custom attribute values
 
