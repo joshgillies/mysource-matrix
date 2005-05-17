@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.80 2005/05/12 06:59:23 amiller Exp $
+* $Id: metadata_manager.inc,v 1.81 2005/05/17 07:00:37 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.80 $
+* @version $Revision: 1.81 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -1052,7 +1052,7 @@ class Metadata_Manager extends MySource_Object
 						} else {
 							list ($format, $offset) = explode('_', $extras);
 						}
-						$format = str_replace('-', ' ', $format);
+						$format = str_replace('~', ' ', $format);
 
 						switch ($key) {
 							case 'created':
