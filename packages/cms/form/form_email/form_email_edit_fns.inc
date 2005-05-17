@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.38.2.8 2005/05/13 11:01:18 brobertson Exp $
+* $Id: form_email_edit_fns.inc,v 1.38.2.9 2005/05/17 15:40:29 mkeehan Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.38.2.8 $
+* @version $Revision: 1.38.2.9 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -304,13 +304,18 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 		$options = Array(
 					''			=> '------- Please Select -------',
-					'csv'		=> 'Comma Separated Values (CSV)',
-					'csv_nhr'	=> 'Comma Separated Values (CSV) - No Header Row',
+					'csv'		=> 'Character Delimited List',
+					'csv_nhr'	=> 'Character Delimited List - No Header Row',
 					'xml'		=> 'XML Format',
 				   );
 
 		echo combo_box($prefix.'_export_format', $options, false, '');
 		echo hidden_field($prefix.'_export_switch', '0');
+
+		$delimiter_text = isset($_POST[$prefix.'_delimiter']) ? $_POST[$prefix.'_delimiter'] : ',';   	 
+        echo ' &nbsp; Delimiter &nbsp;'; 	 
+        echo text_box($prefix.'_delimiter',$delimiter_text,1,1,true); 	 
+        echo ' </p>';
 
 		$o->closeField();
 
@@ -348,14 +353,19 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	function processExport(&$asset, &$o, $prefix)
 	{
 		if (!$_POST[$prefix.'_export_switch']) return true;
+
+		$export_delimiter = isset($_POST[$prefix.'_delimiter']) ? $_POST[$prefix.'_delimiter'] : '';
+
 		$export_type = isset($_POST[$prefix.'_export_format']) ? $_POST[$prefix.'_export_format'] : '';
+
 		switch ($export_type) {
+
 			case 'csv':
-				$this->processExportCSV($asset, $o, $prefix);
+				$this->processExportCSV($asset, $o, $prefix, true, $export_delimiter);
 			break;
 
 			case 'csv_nhr':
-				$this->processExportCSV($asset, $o, $prefix, false);
+				$this->processExportCSV($asset, $o, $prefix, false, $export_delimiter);
 			break;
 
 			case 'xml':
@@ -382,11 +392,12 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function processExportCSV(&$asset, &$o, $prefix, $header_row=true)
+	function processExportCSV(&$asset, &$o, $prefix, $header_row=true, $delimiter=',')
 	{
 		require_once SQ_FUDGE_PATH.'/csv/csv.inc';
 		$csv = new CSV();
 		$csv->setFilename('submission_log.csv');
+		$csv->setDeliminator($delimiter);
 
 		// get the from and to values
 		$from_value = isset($_POST[$prefix.'_export_fromvalue']) ? ts_iso8601(mktime(0,0,0,$_POST[$prefix.'_export_fromvalue']['m'],$_POST[$prefix.'_export_fromvalue']['d'],$_POST[$prefix.'_export_fromvalue']['y'])) : '---------- --:--:--';
