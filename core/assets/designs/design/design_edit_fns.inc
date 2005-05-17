@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.77.2.2 2005/04/14 00:18:11 ndvries Exp $
+* $Id: design_edit_fns.inc,v 1.77.2.3 2005/05/17 23:24:24 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -814,7 +814,11 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	*/
 	function paintNewCustomisation(&$asset, &$o, $prefix)
 	{
-		if (!$asset->writeAccess('links')) return false;
+		if (!$asset->writeAccess('all')) {
+			echo 'You must acquire all locks on this '.str_replace('_', ' ', $asset->type()).' to be able to create a new customisation';
+			return false;
+		}
+
 		check_box($prefix.'_new_customisation');
 		text_box($prefix.'_new_customisation_name', $asset->name.' - Customisation', 40);
 		return true;
