@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_nest_content.inc,v 1.16 2005/04/15 00:37:24 lwright Exp $
+* $Id: design_area_nest_content.inc,v 1.17 2005/05/17 02:46:22 dmckee Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -118,9 +118,9 @@ class Design_Area_Nest_Content extends Design_Area
 	* @return boolean
 	* @access private
 	*/
-	function _linksUpdated()
+	function linksUpdated()
 	{
-		if (!parent::_linksUpdated()) return false;
+		if (!parent::linksUpdated()) return false;
 		unset($this->_tmp['nest_assetid']);
 		return true;
 
