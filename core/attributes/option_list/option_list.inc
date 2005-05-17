@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: option_list.inc,v 1.11.2.2 2005/04/14 01:31:10 lwright Exp $
+* $Id: option_list.inc,v 1.11.2.3 2005/05/17 03:47:22 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -196,7 +196,7 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 			// make sure the emails are valid
 			foreach ($to as $option) {
 				$option = trim($option);
-				if (empty($option)) continue;
+				if ($option === '') continue;
 				$value[] = $option;
 			}
 		}
