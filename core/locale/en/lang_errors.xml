@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.7 2005/05/16 23:15:03 lwright Exp $
+* $Id: lang_errors.xml,v 1.8 2005/05/17 05:22:58 lwright Exp $
 *
 */
 
@@ -1516,7 +1516,7 @@ Either matching \%%3$s\% does not exist or it is not in the same scope</error>
 	<error code="CORE0212">XML Tree Node type "%1$s" not compatible with attribute type "%2$s"
 Full Node Contents :
 %3$s</error>
-	<error code="CORE0213">There is a missing &lt;%1$s&gt;  tag for this tag: &lt;%2$s&gt;</error>
+	<error code="CORE0213">There is a missing &amp;lt;/%1$s&amp;gt; tag for this tag:<![CDATA[<br/>]]>&amp;lt;%2$s&amp;gt;</error>
 
 	<error code="CORE0214">Cannot have more than one mysource_then section in "%s" design area</error>
 
