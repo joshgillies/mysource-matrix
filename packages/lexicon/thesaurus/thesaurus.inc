@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.12 2005/04/29 05:39:50 gsherwood Exp $
+* $Id: thesaurus.inc,v 1.13 2005/05/17 01:18:38 arailean Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Dmitry Baranovskiy <dbaranovskiy@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage lexicon
 */
@@ -149,9 +149,7 @@ class Thesaurus extends Asset
 	{
 		$builtin_relations = $this->attr('builtin_relations');
 
-		if (!$this->attr('active')) {
-			return false;
-		}
+		if (!$this->attr('active')) return false;
 
 		return array_get_index($builtin_relations, $rel_name, false);
 
@@ -177,9 +175,7 @@ class Thesaurus extends Asset
 		$result = Array();
 		$rel_id = $this->isRelationEnabled($this->REL_ABBREVIATION);
 
-		if ($rel_id === false) {
-			return $result;
-		}
+		if ($rel_id === false) return $result;
 
 		$abbrev_entities = $this->getEntitiesInRelation($rel_id);
 		foreach ($abbrev_entities as $entity_pair) {
@@ -206,9 +202,7 @@ class Thesaurus extends Asset
 	{
 		$rel_id = $this->isRelationEnabled($this->REL_CATEGORY);
 
-		if ($rel_id === false) {
-			return Array();
-		}
+		if ($rel_id === false) return Array();
 
 		$relation_settings = $this->attr('relation_settings');
 
@@ -230,9 +224,7 @@ class Thesaurus extends Asset
 	{
 		$rel_id = $this->isRelationEnabled($this->REL_CATEGORY);
 
-		if ($rel_id === false) {
-			return Array();
-		}
+		if ($rel_id === false) return Array();
 
 		$subcategories = $this->getChildEntitiesInRelation($rel_id, $entity_id);
 
@@ -252,13 +244,138 @@ class Thesaurus extends Asset
 	{
 		$rel_id = $this->isRelationEnabled($this->REL_CATEGORY);
 
-		if ($rel_id === false) {
-			return 0;
-		}
+		if ($rel_id === false) return 0;
 
 		return (bool) $this->countChildEntitiesInRelation($rel_id, $entity_id);
 
 	}//end isCategory()
+
+
+	/**
+	* Get Category Lineage
+	*
+	* Returns all possible paths to the top categories from the given entity
+	*
+	* @param int	$entity_id	The id of entity in question
+	*
+	* @return Array	Array of lineage arrays, where each element in a lineage array is an entity.
+	* @access public
+	*/
+	function getCategoryLineage($entity_id)
+	{
+		$lineage = Array();
+		$rel_id = $this->isRelationEnabled($this->REL_CATEGORY);
+
+		if ($rel_id === false) return $lineage;
+
+		$lineage = $this->getEntityLineageByRelation($entity_id, $rel_id);
+
+		return $lineage;
+
+	}//end getCategoryLineage()
+
+
+	/**
+	* Gets the lineage for a particular enity in a particular relation
+	*
+	* Traverses the thesaurus up the tree until there is no more parents in given relation.
+	* In graph theory terms, we are trying to find all paths from a node where the path consists of all the
+	* nodes attached by directed links of a particular type and in particular direction. This is a directed grapth.
+	*
+	* @param int	$entity_id		entity id
+	* @param int	$relation_id	relation id
+	*
+	* @return Array					Array of lineage arrays, where each element in a lineage array is an entity.
+	* @access public
+	*/
+	function getEntityLineageByRelation($entity_id, $relation_id)
+	{
+		if (empty($relation_id) || empty($entity_id)) {
+			return Array();
+		}
+
+		$known_entities[$entity_id] = $this->getEntityById($entity_id);;
+		$entity_parents = Array();
+		$entities_to_process[$entity_id] = $entity_id;
+
+		// first, let's build the list of all the entities that we'll need
+		do {
+			$current_entity_id = array_pop($entities_to_process);
+
+			if (is_null(array_get_index($entity_parents, $current_entity_id))) {
+				$parent_entities = $this->getParentEntitiesInRelation($relation_id, $current_entity_id);
+				$parent_ids = Array();
+				foreach ($parent_entities as $parent) {
+					$parent_id = $parent['id'];
+					if ($parent_id == $current_entity_id) {
+						// avoid loops. this is a freak case: entity linked to itself
+						continue;
+					}
+
+					if (!isset($known_entities[$parent_id])) {
+						$entities_to_process[$parent_id] = $parent_id;
+						$known_entities[$parent_id] = $parent;
+					}
+
+					$parent_ids[$parent_id] = $parent_id;
+				}
+				$entity_parents[$current_entity_id] = $parent_ids;
+			}
+		} while (!empty($entities_to_process));
+
+
+		// at this stage we should have the list of all entities that we need
+		// let's create the lineage arrays
+		$full_lineage = Array();
+		$current_lineage = Array();
+		$current_level_parents = Array();
+
+		// initialise for the first round
+		$current_level = $entity_id;
+		$level_stack[$entity_id] = $known_entities[$entity_id];
+		$level_parents = Array();
+
+		// this loop is where we go up and down the lineage graph to create a flat representation
+		while (!empty($level_stack)) {
+			// initialise the current level
+			// current level is the index of the last element on the level stack
+			end($level_stack);
+			$current_level = key($level_stack);
+
+			if (!isset($level_parents[$current_level])) {
+				if (empty($entity_parents[$current_level])){
+					$full_lineage[] = array_reverse($level_stack, true);
+				} else {
+					$level_parents[$current_level] = $entity_parents[$current_level];
+				}
+			}
+
+			if (empty($level_parents[$current_level])) {
+				// this level is finished
+				array_pop($level_stack);
+
+			} else {
+				// determine and setup the next level
+				$next_level = null;
+				do {
+					// here we try to avoid loops
+					// next level is not valid if it is already in the stack
+					$next_level = array_pop($level_parents[$current_level]);
+					if (isset($level_stack[$next_level])) {
+						$next_level = null;
+					}
+				} while (is_null($next_level) && !empty($level_parents[$current_level]));
+
+				if (!is_null($next_level)) {
+					// push next level onto the stack
+					$level_stack[$next_level] =& $known_entities[$next_level];
+				}
+			}
+		}
+
+		return $full_lineage;
+
+	}//end getEntityLineageByRelation()
 
 
 //--        CORE THESAURUS RELATIONAL ENGINE        --//
@@ -325,9 +442,7 @@ class Thesaurus extends Asset
 	*/
 	function searchEntities($guess='')
 	{
-		if (empty($guess)) {
-			return Array();
-		}
+		if (empty($guess)) return Array();
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
@@ -358,9 +473,7 @@ class Thesaurus extends Asset
 	*/
 	function getEntityById($entity_id=false)
 	{
-		if (!$entity_id) {
-			return false;
-		}
+		if (!$entity_id) return false;
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
@@ -390,9 +503,7 @@ class Thesaurus extends Asset
 	*/
 	function getEntityByName($name='')
 	{
-		if (empty($name)) {
-			return false;
-		}
+		if (empty($name)) return false;
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
@@ -423,9 +534,7 @@ class Thesaurus extends Asset
 	function getChildEntitiesInRelation($relation_id=null, $parent_id=null)
 	{
 
-		if (!isset($relation_id)) {
-			return null;
-		}
+		if (!isset($relation_id)) return null;
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
@@ -473,9 +582,7 @@ class Thesaurus extends Asset
 	function countChildEntitiesInRelation($relation_id=null, $parent_id=snull)
 	{
 
-		if (!isset($relation_id)) {
-			return null;
-		}
+		if (!isset($relation_id)) return null;
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
@@ -516,9 +623,7 @@ class Thesaurus extends Asset
 	function getParentEntitiesInRelation($relation_id=null, $child_id=null)
 	{
 
-		if (!isset($relation_id)) {
-			return null;
-		}
+		if (!isset($relation_id)) return null;
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
@@ -547,7 +652,7 @@ class Thesaurus extends Asset
 			$sql .= ' AND er.cld_ent_id = '.$db->quoteSmart($child_id);
 		}
 
-		$result = $db->getAll($sql, $data);
+		$result = $db->getAll($sql);
 
 		assert_valid_db_result($result);
 		return $result;
@@ -565,9 +670,7 @@ class Thesaurus extends Asset
 	function getParentRelationsForEntity($child_entity_id=null)
 	{
 
-		if (!isset($child_entity_id)) {
-			return null;
-		}
+		if (!isset($child_entity_id)) return null;
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
@@ -589,7 +692,7 @@ class Thesaurus extends Asset
 					er.reln_id    = r.id
 		';
 
-		$result = $db->getAll($sql, $data);
+		$result = $db->getAll($sql);
 
 		assert_valid_db_result($result);
 		return $result;
@@ -609,9 +712,7 @@ class Thesaurus extends Asset
 	function countParentRelationsForEntity($child_entity_id=null)
 	{
 
-		if (!isset($child_entity_id)) {
-			return null;
-		}
+		if (!isset($child_entity_id)) return null;
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
@@ -645,9 +746,7 @@ class Thesaurus extends Asset
 	function countChildRelationsForEntity($parent_entity_id=null)
 	{
 
-		if (!isset($parent_entity_id)) {
-			return null;
-		}
+		if (!isset($parent_entity_id))return null;
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
@@ -681,9 +780,7 @@ class Thesaurus extends Asset
 	function getChildRelationsForEntity($parent_entity_id=null)
 	{
 
-		if (!isset($parent_entity_id)) {
-			return null;
-		}
+		if (!isset($parent_entity_id)) return null;
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
@@ -777,9 +874,7 @@ class Thesaurus extends Asset
 	function getRelationById($id=null)
 	{
 
-		if (!isset($id)) {
-			return null;
-		}
+		if (!isset($id)) return null;
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
@@ -811,9 +906,7 @@ class Thesaurus extends Asset
 	function getRelationByName($name=null)
 	{
 
-		if (!isset($name)) {
-			return null;
-		}
+		if (!isset($name)) return null;
 
 		$relations = $this->attr('relations');
 		$rel_id = array_get_index($relations, $name);
@@ -864,9 +957,7 @@ class Thesaurus extends Asset
 	function getEntitiesInRelation($relation_id=null)
 	{
 
-		if (!isset($relation_id)) {
-			return null;
-		}
+		if (!isset($relation_id)) return null;
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
@@ -931,9 +1022,7 @@ class Thesaurus extends Asset
 	function addEntity($name, $description='')
 	{
 
-		if (!isset($name)) {
-			return $this->BAD_ID;
-		}
+		if (!isset($name)) return $this->BAD_ID;
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
@@ -964,9 +1053,7 @@ class Thesaurus extends Asset
 	function addRelation($name)
 	{
 
-		if (!isset($name)) {
-			return $this->BAD_ID;
-		}
+		if (!isset($name)) return $this->BAD_ID;
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
@@ -1075,9 +1162,7 @@ class Thesaurus extends Asset
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		if (!isset($relation_id)) {
-			return Array();
-		}
+		if (!isset($relation_id)) return Array();
 
 		$sql ='
 			SELECT
