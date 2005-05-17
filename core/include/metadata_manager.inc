@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.54.2.2 2005/04/05 05:58:57 ndvries Exp $
+* $Id: metadata_manager.inc,v 1.54.2.3 2005/05/17 07:06:22 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -882,7 +882,7 @@ class Metadata_Manager extends MySource_Object
 						} else {
 							list ($format, $offset) = explode('_', $extras);
 						}
-						$format = str_replace('-', ' ', $format);
+						$format = str_replace('~', ' ', $format);
 
 						switch ($key) {
 							case 'created':
