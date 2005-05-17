@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_declared_vars_edit_fns.inc,v 1.21 2005/04/15 00:37:24 lwright Exp $
+* $Id: design_area_declared_vars_edit_fns.inc,v 1.22 2005/05/17 06:03:36 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -122,7 +122,9 @@ class Design_Area_Declared_Vars_Edit_Fns extends Design_Area_Edit_Fns
 
 	}//end createParseString()
 
+
 	/**
+	* Paint declared variables
 	*
 	* @param object Asset				$asset	the asset whose interface we are painting
 	* @param object	Backend_Outputter	$o		the outputter class
@@ -137,18 +139,19 @@ class Design_Area_Declared_Vars_Edit_Fns extends Design_Area_Edit_Fns
 		foreach ($attrs as $name => $attr) {
 			$o->openField($name);
 			if ($asset->writeAccess('attributes')) {
-				$attr->paint($prefix);
+				$attr->paint($prefix.'_'.$name);
 			} else {
 				echo $attr->value;
 			}
 			if ($asset->vars['declared_vars']['value'][$name]['description']) $o->note($asset->vars['declared_vars']['value'][$name]['description']);
 
-		}//end foreach
+		}// end foreach
 
-	}//end paintDecVars()
+	}// end paintDecVars()
 
 
 	/**
+	* Process declared variables
 	*
 	* @param object Asset				$asset	the asset to which we belong
 	* @param object	Backend_Outputter	$o		the outputter class
@@ -163,7 +166,7 @@ class Design_Area_Declared_Vars_Edit_Fns extends Design_Area_Edit_Fns
 		$attrs = $asset->getDeclaredVarAttributes();
 		$declared_vars = $asset->attr('declared_vars');
 		foreach ($attrs as $name => $attr) {
-			$attr->process($prefix);
+			$attr->process($prefix.'_'.$name);
 			if ($attr->processed) {
 				$declared_vars[$name]['value'] = $attr->value;
 				$save = true;
@@ -178,7 +181,7 @@ class Design_Area_Declared_Vars_Edit_Fns extends Design_Area_Edit_Fns
 			return false;
 		}
 
-	}//end processDecVars()
+	}// end processDecVars()
 
 
 }//end class
