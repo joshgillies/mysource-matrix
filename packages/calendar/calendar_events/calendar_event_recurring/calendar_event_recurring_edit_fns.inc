@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring_edit_fns.inc,v 1.22 2005/05/12 06:42:34 tbarrett Exp $
+* $Id: calendar_event_recurring_edit_fns.inc,v 1.23 2005/05/17 02:50:14 tbarrett Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once  dirname(__FILE__).'/../../calendar_event/calendar_event_edit_fns.i
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -65,7 +65,7 @@ class Calendar_Event_Recurring_Edit_Fns extends Calendar_Event_Edit_Fns
 		if ($asset->writeAccess('attributes')) {
 			?>
 		<script type="text/javascript" src="<?php echo sq_web_path('data').'/asset_types/calendar_event_recurring/js/frequency_chooser.js'?>"></script>
-		<table border="0" cellpadding="0" cellspacing="0" width="100%">
+		<table border="0" cellpadding="0" cellspacing="0" width="100%" style="white-space: nowrap">
 			<tr style="height: 11ex">
 				<td style="width: 12ex; vertical-align: top">
 					<input type="radio" <?php echo ((($freq{0} == 'D') || !$freq)? 'checked="checked" ' : '') ?> name="<?php echo $prefix; ?>_frequency" value="daily" onkeypress="this.click();" onclick="showFreqOptions('<?php echo $prefix; ?>', 'Daily'); checkBox('<?php echo $prefix?>_frequency_type_DED');" />Daily<br />
@@ -107,7 +107,7 @@ class Calendar_Event_Recurring_Edit_Fns extends Calendar_Event_Edit_Fns
 						<?php $x_weeks_tb = ob_get_contents();
 					ob_end_clean(); ?>
 					<input type="radio" <?php echo ((($freq == 'WEW') || !$freq) ? 'checked="checked" ' : '')?> name="<?php echo $prefix; ?>_frequency_type" id="<?php echo $prefix; ?>_frequency_type_WEW" value="WEW" /><?php echo translate('cal_event_every_week', $week_link); ?>
-					<br /><input type="radio" <?php echo ((($freq != 'WEW') && (substr($freq,0,3) == 'WEW')) ? 'checked="checked" ' : '')?> name="<?php echo $prefix; ?>_frequency_type" id="<?php echo $prefix; ?>_frequency_type_WEWx" value="WEWx" /><?php echo translate('cal_event_every_week', $x_weeks_tb, $x_weeks_link); ?>
+					<br /><input type="radio" <?php echo ((($freq != 'WEW') && (substr($freq,0,3) == 'WEW')) ? 'checked="checked" ' : '')?> name="<?php echo $prefix; ?>_frequency_type" id="<?php echo $prefix; ?>_frequency_type_WEWx" value="WEWx" /><?php echo translate('cal_event_every_x_weeks', $x_weeks_tb, $x_weeks_link); ?>
 				  </div>
 
 				  <?php
