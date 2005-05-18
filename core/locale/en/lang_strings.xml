@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.8 2005/05/18 01:24:54 lwright Exp $
+* $Id: lang_strings.xml,v 1.9 2005/05/18 02:19:14 dheppell Exp $
 *
 */
 
@@ -1296,6 +1296,8 @@
 	<string source="suggestions">Suggestions</string>
 	<string source="div_id">Div ID</string>
 	<string source="field_id">Field ID</string>
+	<string source="monitor">Monitor</string>
+
 
 
 
@@ -1307,7 +1309,7 @@
 	<string source="jshttpconnector_transmit_error" js="1">JSHTTPCONNECTOR TRANSMIT ERROR: \n %s</string>
 	<string source="jshttpconnector_receive_error" js="1">JSHTTPCONNECTOR RECEIVE ERROR: \n %s</string>
 	<string source="jshttpconnector_status">\n(HTTP Status = %s)</string>
-	<string source="unable_to_use_layers" js="1">Unable to use layers on you page, sorry</string>
+	<string source="unable_to_use_layers" js="1">Unable to use layers on your page, sorry</string>
 	<string source="element_not_combo_box" js="1">Element "%s" is not a combo box</string>
 	<string source="not_leap_year" js="1">%1$s is not a leap year, there is no %2$sth of Feburary.</string>
 	<string source="day_not_in_feburary" js="1">There is no %sth of Feburary</string>
@@ -1373,6 +1375,8 @@
 	<string source="less_info" js="1">Less Info</string>
 	<string source="hide_lock_details" js="1">Hide Lock Details</string>
 	<string source="show_lock_details" js="1">Show Lock Details</string>
+	<string source="enable" js="1">Enable</string>
+	<string source="disable" js="1">Disable</string>
 
 	<!-- CORE HIPO STRINGS -->
 	<string source="hipo_acquiring_locks">Acquiring Locks</string>

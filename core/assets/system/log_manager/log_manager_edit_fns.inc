@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: log_manager_edit_fns.inc,v 1.7 2005/05/11 06:04:59 lwright Exp $
+* $Id: log_manager_edit_fns.inc,v 1.8 2005/05/18 02:19:14 dheppell Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard  <rhoward@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -234,7 +234,7 @@ class Log_Manager_Edit_Fns extends Asset_Edit_Fns
 				refresher = setInterval(loadLog, refresh_interval);
 
 				setIdValue('sq-log-refresh-status', 'ON');
-				document.getElementById('sq-log-refresh-enabler').value='Disable';
+				document.getElementById('sq-log-refresh-enabler').value=js_translate('disable');
 
 				log_refresh = true;
 
@@ -254,7 +254,7 @@ class Log_Manager_Edit_Fns extends Asset_Edit_Fns
 				}
 
 				setIdValue('sq-log-refresh-status', 'OFF');
-				document.getElementById('sq-log-refresh-enabler').value='Enable';
+				document.getElementById('sq-log-refresh-enabler').value=js_translate('enable');
 
 				log_refresh = false;
 
@@ -295,7 +295,7 @@ class Log_Manager_Edit_Fns extends Asset_Edit_Fns
 
 			$last_rotated = array_get_index($rotation, 'last_timestamp');
 			if (empty($last_rotated)){
-				$last_rotated = 'Never';
+				$last_rotated = translate('never');
 			} else {
 				$last_rotated = date('G:i:s - M d', $last_rotated);
 			}
@@ -309,7 +309,7 @@ class Log_Manager_Edit_Fns extends Asset_Edit_Fns
 					<?php echo translate('rotated'); ?>: <strong><?php echo $last_rotated; ?></strong>
 				</td>
 				<td>
-					<input type="button" onclick="monitorLog('<?php echo $logname; ?>');" value="Monitor" />
+					<input type="button" onclick="monitorLog('<?php echo $logname; ?>');" value="<?php echo translate('monitor'); ?>" />
 				</td>
 			</tr>
 			<?php
