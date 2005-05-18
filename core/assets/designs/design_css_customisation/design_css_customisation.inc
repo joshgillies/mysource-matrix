@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css_customisation.inc,v 1.7 2005/05/16 06:36:31 lwright Exp $
+* $Id: design_css_customisation.inc,v 1.8 2005/05/18 04:05:45 dmckee Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_css/design_css.inc';
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -175,15 +175,15 @@ class Design_Css_Customisation extends Design_Css
 	* @return boolean
 	* @access private
 	*/
-	function _linksUpdated()
+	function linksUpdated()
 	{
-		if (!parent::_linksUpdated()) return false;
+		if (!parent::linksUpdated()) return false;
 		unset($this->_tmp['parent_design']);
 		unset($this->_tmp['customised_areas']);
 		unset($this->_tmp['uncustomised_areas']);
 		return true;
 
-	}//end _linksUpdated()
+	}//end linksUpdated()
 
 
 	/**

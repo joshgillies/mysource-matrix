@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.89 2005/05/13 00:00:01 ndvries Exp $
+* $Id: design.inc,v 1.90 2005/05/18 04:05:45 dmckee Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.89 $
+* @version $Revision: 1.90 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -144,9 +144,9 @@ class Design extends Design_Area
 	* @return boolean
 	* @access private
 	*/
-	function _linksUpdated()
+	function linksUpdated()
 	{
-		if (!parent::_linksUpdated()) return false;
+		if (!parent::linksUpdated()) return false;
 		if (isset($this->_tmp['design_areas'])) {
 			foreach (array_keys($this->_tmp['design_areas']) as $id_name) {
 				unset($this->_tmp['design_areas'][$id_name]);
@@ -154,7 +154,7 @@ class Design extends Design_Area
 		}
 		return true;
 
-	}//end _linksUpdated()
+	}//end linksUpdated()
 
 
 	/**
