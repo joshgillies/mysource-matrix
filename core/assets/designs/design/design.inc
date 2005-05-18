@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.76.2.2 2005/04/13 06:22:51 ndvries Exp $
+* $Id: design.inc,v 1.76.2.3 2005/05/18 03:58:38 dmckee Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -136,15 +136,15 @@ class Design extends Design_Area
 	* @return boolean
 	* @access private
 	*/
-	function _linksUpdated()
+	function linksUpdated()
 	{
-		if (!parent::_linksUpdated()) return false;
+		if (!parent::linksUpdated()) return false;
 		if (isset($this->_tmp['design_areas'])) {
 			foreach (array_keys($this->_tmp['design_areas']) as $id_name) unset($this->_tmp['design_areas'][$id_name]);
 		}
 		return true;
 
-	}//end _linksUpdated()
+	}//end linksUpdated()
 
 
 	/**

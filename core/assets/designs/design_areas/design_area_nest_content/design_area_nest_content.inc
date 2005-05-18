@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_nest_content.inc,v 1.14.2.1 2005/05/17 02:07:44 dmckee Exp $
+* $Id: design_area_nest_content.inc,v 1.14.2.2 2005/05/18 03:58:38 dmckee Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -124,7 +124,7 @@ class Design_Area_Nest_Content extends Design_Area
 		unset($this->_tmp['nest_assetid']);
 		return true;
 
-	}//end _linksUpdated()
+	}//end linksUpdated()
 
 
 	/*

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type.inc,v 1.56.2.1 2005/04/13 06:22:51 ndvries Exp $
+* $Id: design_area_menu_type.inc,v 1.56.2.2 2005/05/18 03:58:38 dmckee Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -221,8 +221,10 @@ class Design_Area_Menu_Type extends Design_Area
 	*/
 	function getSubMenuLink()
 	{
+		error_log('get sub menu link called');
 		if (!isset($this->_tmp['sub_menu_link'])) {
 			$this->_tmp['sub_menu_link'] = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, 'design_area_menu_type', false, 'sub_menu');
+			error_log('_tmp[submenulink] is not set'.__LINE__.' : '.__FILE__);
 		}
 		return $this->_tmp['sub_menu_link'];
 
@@ -239,9 +241,11 @@ class Design_Area_Menu_Type extends Design_Area
 	{
 		$link = $this->getSubMenuLink();
 		if (empty($link)) {
+			error_log('Empty Link: '.__LINE__.' : '.__FILE__);
 			$null = null;
 			return $null;
 		} else {
+			error_log('Links found: '.__LINE__.' : '.__FILE__);
 			return $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code'], true);
 		}
 
@@ -277,14 +281,15 @@ class Design_Area_Menu_Type extends Design_Area
 	* @return boolean
 	* @access private
 	*/
-	function _linksUpdated()
+	function linksUpdated()
 	{
-		if (!parent::_linksUpdated()) return false;
+		if (!parent::linksUpdated()) return false;
+		error_log('unsetting');
 		unset($this->_tmp['sub_menu_link']);
 		unset($this->_tmp['parent_menu_link']);
 		return true;
 
-	}//end _linksUpdated()
+	}//end linksUpdated()
 
 
 	/**

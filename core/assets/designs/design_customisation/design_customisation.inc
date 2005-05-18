@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_customisation.inc,v 1.30 2004/12/03 15:29:22 brobertson Exp $
+* $Id: design_customisation.inc,v 1.30.2.1 2005/05/18 03:58:39 dmckee Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -204,15 +204,15 @@ class Design_Customisation extends Design
 	* @return boolean
 	* @access private
 	*/
-	function _linksUpdated()
+	function linksUpdated()
 	{
-		if (!parent::_linksUpdated()) return false;
+		if (!parent::linksUpdated()) return false;
 		unset($this->_tmp['parent_design']);
 		unset($this->_tmp['customised_areas']);
 		unset($this->_tmp['uncustomised_areas']);
 		return true;
 
-	}//end _linksUpdated()
+	}//end linksUpdated()
 
 
 	/**

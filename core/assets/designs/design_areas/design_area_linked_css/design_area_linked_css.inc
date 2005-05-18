@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_linked_css.inc,v 1.6 2004/12/03 15:29:22 brobertson Exp $
+* $Id: design_area_linked_css.inc,v 1.6.2.1 2005/05/18 03:58:38 dmckee Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -118,13 +118,13 @@ class Design_Area_Linked_Css extends Design_Area
 	* @return boolean
 	* @access private
 	*/
-	function _linksUpdated()
+	function linksUpdated()
 	{
-		if (!parent::_linksUpdated()) return false;
+		if (!parent::linksUpdated()) return false;
 		unset($this->_tmp['css_assetid']);
 		return true;
 
-	}//end _linksUpdated()
+	}//end linksUpdated()
 
 
 	/*

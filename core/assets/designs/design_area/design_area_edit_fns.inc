@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_edit_fns.inc,v 1.43 2004/12/03 15:29:22 brobertson Exp $
+* $Id: design_area_edit_fns.inc,v 1.43.2.1 2005/05/18 03:58:38 dmckee Exp $
 * $Name: not supported by cvs2svn $
 */
 
