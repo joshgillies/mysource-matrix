@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: compile_locale.php,v 1.4 2005/05/18 23:24:07 lwright Exp $
+* $Id: compile_locale.php,v 1.5 2005/05/18 23:38:29 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@
 * Compiles languages on the system
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -82,7 +82,6 @@ if ($cli) {
 if (empty($locale_list)) {
 	echo "\nWARNING: You did not specify a --locale parameter. This is okay but be aware that all locales will be compiled, which may take a while if you have multiple locales on your system\n\n";
 	sleep(2);
-	//trigger_error('You need to specify one or more languages using the --locale parameter', E_USER_ERROR);
 }
 
 // dont set SQ_INSTALL flag before this include because we want
