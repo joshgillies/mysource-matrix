@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_tool_search_replace.inc,v 1.12 2005/05/18 01:24:07 dheppell Exp $
+* $Id: hipo_job_tool_search_replace.inc,v 1.13 2005/05/18 02:21:33 dmckee Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    replace on asset attributes and metadata
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -776,14 +776,14 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 		$search_string = $this->_running_vars['search_string'];
 		$replace_string = $this->_running_vars['replace_string'];
 		$assetid = key($this->_running_vars['content_replacements']);
-
+		$match_case = $this->_running_vars['match_case'];
 		$asset = $am->getAssetInfo(Array($assetid));
 
 		$step_data['message'] = translate('sch_tool_global_sr_replacing_with_in', $search_string, $replace_string, $asset->name);
 
 		$asset_contents = $this->_running_vars['search_data'][$assetid]['contents'];
 		foreach ($asset_contents as $contents_id => $contents_value) {
-			$new_data = $this->_replaceOccurrences($search_string, $replace_string, $contents_value['value'], $contents_value['matches']);
+			$new_data = $this->_replaceOccurrences($search_string, $replace_string, $contents_value['value'], $contents_value['matches'], $match_case);
 			$am->setEditableContents($contents_id, $new_data);
 		}
 
@@ -822,15 +822,14 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 
 		$search_string = $this->_running_vars['search_string'];
 		$replace_string = $this->_running_vars['replace_string'];
-
 		$assetid = key($this->_running_vars['schema_replacements']);
-
+		$match_case = $this->_running_vars['match_case'];
 		$asset = $am->getAssetInfo(Array($assetid));
 
 		$step_data['message'] = translate('sch_tool_global_sr_replacing_with_in', $search_string, $replace_string, $asset->name);
 
 		foreach ($this->_running_vars['schema_replacements'][$assetid] as $fieldid => $data) {
-			$new_data = $this->_replaceOccurrences($search_string, $replace_string, $data['value'], $data['matches']);
+			$new_data = $this->_replaceOccurrences($search_string, $replace_string, $data['value'], $data['matches'], $match_case);
 			$field = &$am->getAsset($fieldid);
 			$value_component = Array();
 			$field->decodeValueString($new_data, $default_data, $value_component);
@@ -873,7 +872,7 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 
 		$search_string = $this->_running_vars['search_string'];
 		$replace_string = $this->_running_vars['replace_string'];
-
+		$match_case = $this->_running_vars['match_case'];
 		$assetid = key($this->_running_vars['attribute_replacements']);
 
 		$asset = &$am->getAsset($assetid);
@@ -881,7 +880,7 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 		$step_data['message'] = translate('sch_tool_global_sr_replacing_with_in', $search_string, $replace_string, $asset->name);
 
 		foreach ($this->_running_vars['attribute_replacements'][$assetid] as $attrid => $data) {
-			$new_data = $this->_replaceOccurrences($search_string, $replace_string, $data['value'], $data['matches']);
+			$new_data = $this->_replaceOccurrences($search_string, $replace_string, $data['value'], $data['matches'], $match_case);
 			$asset->setAttrValue($attrid, $new_data);
 		}
 		$asset->saveAttributes();
@@ -920,7 +919,7 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 
 		$search_string = $this->_running_vars['search_string'];
 		$replace_string = $this->_running_vars['replace_string'];
-
+		$match_case = $this->_running_vars['match_case'];
 		$assetid = key($this->_running_vars['metadata_replacements']);
 
 		$asset = $am->getAssetInfo(Array($assetid));
@@ -929,7 +928,7 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 
 		$metadata = $mm->getMetadata($assetid);
 		foreach ($this->_running_vars['metadata_replacements'][$assetid] as $fieldid => $data) {
-			$new_data = $this->_replaceOccurrences($search_string, $replace_string, $data['value'], $data['matches']);
+			$new_data = $this->_replaceOccurrences($search_string, $replace_string, $data['value'], $data['matches'], $match_case);
 			$metadata[$fieldid]['value'] = $new_data;
 		}
 		$mm->setMetadata($assetid, $metadata);
@@ -1002,7 +1001,7 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 			if ($case_match) {
 				$rep_str = $this->_matchCapitals(substr($haystack, $offset, $search_len), $new_needle);
 			}
-			$result_str .= substr($haystack, $last_offset, $offset - $last_offset) . $new_needle;
+			$result_str .= substr($haystack, $last_offset, $offset - $last_offset) . $rep_str;
 			$last_offset = $offset + $search_len;
 		}
 		$result_str .=  substr($haystack, $last_offset);
@@ -1027,7 +1026,6 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 		} else if (strtoupper($teacher[0]) == $teacher[0]) {
 			$ret_str[0] = strtoupper($ret_str[0]);
 		} else if (strtolower($teacher[0]) == $teacher[0]) {
-			echo 'here';
 			$ret_str[0] = strtolower($ret_str[0]);
 		}
 		return $ret_str;

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.1 2005/05/11 06:07:49 lwright Exp $
+* $Id: lang_strings.xml,v 1.2 2005/05/18 02:21:33 dmckee Exp $
 *
 *
 * Search Package Localised Strings File
@@ -30,4 +30,5 @@
 <string source="sch_tool_global_sr_file_match(es)">%s match(es)</string>
 <string source="sch_tool_global_sr_replacing_with_in">Replacing "%1$s" with "%2$s" in "%3$s"</string>
 <string source="sch_tool_global_sr_replace_string">Replace String</string>
+<string source="sch_tool_global_sr_match_case">Match Case of Target String</string>
 </strings>

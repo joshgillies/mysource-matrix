@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_search_replace.inc,v 1.10 2005/05/11 06:07:49 lwright Exp $
+* $Id: tool_search_replace.inc,v 1.11 2005/05/18 02:21:33 dmckee Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 *
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -70,6 +70,10 @@ class Tool_Search_Replace extends Tool
 
 			$o->openField(translate('sch_tool_global_sr_replace_string'));
 				text_box($type_code.'_replace_string', '', 40);
+			$o->closeField();
+			$o->openField('');
+				check_box($type_code.'_match_case');
+				label(translate('sch_tool_global_sr_match_case'), $type_code.'_match_case');
 			$o->closeField();
 		$o->closeSection();
 
@@ -212,7 +216,9 @@ class Tool_Search_Replace extends Tool
 					'search_data'		=> $formatted_results,
 					'search_string'		=> $_REQUEST[$type_code.'_search_string'],
 					'replace_string'	=> $_REQUEST[$type_code.'_replace_string'],
+					'match_case'		=> isset($_REQUEST[$type_code.'_match_case']),
 				);
+
 
 		//redirect data to the HIPO
 		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
