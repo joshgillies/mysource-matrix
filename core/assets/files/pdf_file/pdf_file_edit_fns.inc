@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: pdf_file_edit_fns.inc,v 1.6 2005/05/18 05:19:28 arailean Exp $
+* $Id: pdf_file_edit_fns.inc,v 1.7 2005/05/18 05:22:05 arailean Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -86,7 +86,8 @@ class PDF_File_Edit_Fns extends File_Edit_Fns
 	{
 		parent::paintFileUpload($asset, $o, $prefix);
 		if ($asset->writeAccess('attributes')) {
-			?><br/><?php $o->note(translate('core_only_upload_files_of_type', $this->_getExtensionString($asset->allowed_extensions)));
+			echo '<br />';
+			$o->note(translate('core_only_upload_files_of_type', $this->_getExtensionString($asset->allowed_extensions)));
 		}
 		return true;
 
