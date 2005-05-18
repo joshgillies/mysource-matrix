@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.js,v 1.26 2005/05/16 06:36:32 lwright Exp $
+* $Id: edit.js,v 1.27 2005/05/18 04:48:05 dheppell Exp $
 *
 */
 
@@ -101,10 +101,10 @@ function sq_toggle_lock_info() {
 	var lockToggle = document.getElementById('sq_lock_info_toggle');
 	if (lockInfo.style.display == 'none') {
 		lockInfo.style.display = 'block';
-		lockToggle.innerHTML = 'Hide Lock Details';
+		lockToggle.innerHTML = js_translate('hide_lock_details');
 	} else {
 		lockInfo.style.display = 'none';
-		lockToggle.innerHTML = 'Show Lock Details';
+		lockToggle.innerHTML = js_translate('show_lock_details');
 	}
 }//end sq_toggle_lock_info()
 
