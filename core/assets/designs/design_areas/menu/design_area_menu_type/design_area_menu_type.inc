@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type.inc,v 1.56.2.2 2005/05/18 03:58:38 dmckee Exp $
+* $Id: design_area_menu_type.inc,v 1.56.2.3 2005/05/18 04:08:03 dmckee Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -284,7 +284,6 @@ class Design_Area_Menu_Type extends Design_Area
 	function linksUpdated()
 	{
 		if (!parent::linksUpdated()) return false;
-		error_log('unsetting');
 		unset($this->_tmp['sub_menu_link']);
 		unset($this->_tmp['parent_menu_link']);
 		return true;
