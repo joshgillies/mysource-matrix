@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_access_history_edit_fns.inc,v 1.1 2005/05/09 05:12:04 arailean Exp $
+* $Id: design_area_access_history_edit_fns.inc,v 1.2 2005/05/18 05:18:05 arailean Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *	Print the last N assets viewed
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -317,25 +317,6 @@ class Design_Area_Access_History_Edit_Fns extends Design_Area_Edit_Fns
 
 		echo '</tr>';
 
-		if ($write_access) {
-			// new type selector
-			echo '<tr class="alt"><td>';
-			echo combo_box($prefix.'[new][type_code]', $print_types, false, '');
-			echo '</td>';
-
-			// request types for new asset type
-			$new_radio_prefix = $prefix.'[new][require_query]';
-			$selected = true;
-			foreach ($this->_request_types as $req_type => $name) {
-				echo '<td>';
-				radio_button($new_radio_prefix, $req_type, $selected);
-				echo '</td>';
-				$selected = false;
-			}
-			if ($action_column) echo '<td>&nbsp;</td>';
-			echo '</tr>';
-		}
-
 		// now print the types that were specified previously
 		$even = false;
 		foreach ($asset_types as $type => $query_req) {
@@ -365,6 +346,25 @@ class Design_Area_Access_History_Edit_Fns extends Design_Area_Edit_Fns
 				echo '</td>';
 			}
 
+			echo '</tr>';
+		}
+
+		if ($write_access) {
+			// new type selector
+			echo '<tr class="alt"><td>';
+			echo combo_box($prefix.'[new][type_code]', $print_types, false, '');
+			echo '</td>';
+
+			// request types for new asset type
+			$new_radio_prefix = $prefix.'[new][require_query]';
+			$selected = true;
+			foreach ($this->_request_types as $req_type => $name) {
+				echo '<td>';
+				radio_button($new_radio_prefix, $req_type, $selected);
+				echo '</td>';
+				$selected = false;
+			}
+			if ($action_column) echo '<td>&nbsp;</td>';
 			echo '</tr>';
 		}
 
