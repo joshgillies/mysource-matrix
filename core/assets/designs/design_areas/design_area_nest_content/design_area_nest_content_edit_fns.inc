@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_nest_content_edit_fns.inc,v 1.9.2.1 2005/05/17 02:07:44 dmckee Exp $
+* $Id: design_area_nest_content_edit_fns.inc,v 1.9.2.2 2005/05/18 03:51:41 dmckee Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -112,7 +112,6 @@ class Design_Area_Nest_Content_Edit_Fns extends Design_Area_Edit_Fns
 		}
 		// If we get this far, then it's all OK
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		$asset->linksUpdated();
 		return true;
 
 	}//end processAssetid()
