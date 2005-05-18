@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: compile_locale.php,v 1.3 2005/05/11 06:05:11 lwright Exp $
+* $Id: compile_locale.php,v 1.4 2005/05/18 23:24:07 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@
 * Compiles languages on the system
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -80,7 +80,9 @@ if ($cli) {
 }
 
 if (empty($locale_list)) {
-	trigger_error('You need to specify one or more languages using the --locale parameter', E_USER_ERROR);
+	echo "\nWARNING: You did not specify a --locale parameter. This is okay but be aware that all locales will be compiled, which may take a while if you have multiple locales on your system\n\n";
+	sleep(2);
+	//trigger_error('You need to specify one or more languages using the --locale parameter', E_USER_ERROR);
 }
 
 // dont set SQ_INSTALL flag before this include because we want
@@ -191,9 +193,9 @@ foreach ($asset_types as $asset_type) {
 				}
 
 				if (preg_match('|lang\_((static_)?screen\_.*)\.xml|', $entry, $matches)) {
-					if (!in_array($locale_name, array_keys($locale_list))
+					if (!empty($locale_list) && (!in_array($locale_name, array_keys($locale_list))
 						|| (!in_array('all', $locale_list[$locale_name])
-						&& !in_array('screens', $locale_list[$locale_name]))) {
+						&& !in_array('screens', $locale_list[$locale_name])))) {
 						continue;
 					}
 
@@ -314,9 +316,9 @@ foreach ($asset_types as $asset_type) {
 
 // compile the strings for each locale where a lang_strings.xml exists
 foreach ($string_locales as $locale) {
-	if (!in_array($locale, array_keys($locale_list))
+	if (!empty($locale_list) && (!in_array($locale, array_keys($locale_list))
 		|| (!in_array('all', $locale_list[$locale])
-		&& !in_array('strings', $locale_list[$locale]))) {
+		&& !in_array('strings', $locale_list[$locale])))) {
 		continue;
 	}
 
@@ -326,9 +328,9 @@ foreach ($string_locales as $locale) {
 
 // then, compile errors for each locale (using lang_errors.xml)
 foreach ($error_locales as $locale) {
-	if (!in_array($locale, array_keys($locale_list))
+	if (!empty($locale_list) && (!in_array($locale, array_keys($locale_list))
 		|| (!in_array('all', $locale_list[$locale])
-		&& !in_array('errors', $locale_list[$locale]))) {
+		&& !in_array('errors', $locale_list[$locale])))) {
 		continue;
 	}
 
@@ -338,9 +340,9 @@ foreach ($error_locales as $locale) {
 
 // finally, compile internal messages for each locale (using lang_messages.xml)
 foreach ($message_locales as $locale) {
-if (!in_array($locale, array_keys($locale_list))
+if (!empty($locale_list) && (!in_array($locale, array_keys($locale_list))
 		|| (!in_array('all', $locale_list[$locale])
-		&& !in_array('messages', $locale_list[$locale]))) {
+		&& !in_array('messages', $locale_list[$locale])))) {
 		continue;
 	}
 
