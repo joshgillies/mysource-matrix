@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_datetime.inc,v 1.21 2005/05/18 04:51:17 tbarrett Exp $
+* $Id: form_question_type_datetime.inc,v 1.22 2005/05/18 23:44:38 tbarrett Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -69,9 +69,7 @@ class Form_Question_Type_Datetime extends Form_Question
 	*/
 	function getValue()
 	{
-		if (!$this->active_submission) {
-			return null;
-		}
+		if (!$this->active_submission) return null;
 
 		if (isset($this->active_submission[$this->id])) {
 			return $this->active_submission[$this->id];
@@ -103,9 +101,13 @@ class Form_Question_Type_Datetime extends Form_Question
 		$parameters['null'] = Array();
 		$parameters['style'] = Array();
 		$parameters['min'] = $this->attr('minimum');
-		if ($parameters['min'] == '---------- --:--:--') $parameters['min'] = '1900-01-01 00:00:00';
+		if ($parameters['min'] == '---------- --:--:--') {
+			$parameters['min'] = '1900-01-01 00:00:00';
+		}
 		$parameters['max'] = $this->attr('maximum');
-		if ($parameters['max'] == '---------- --:--:--') $parameters['max'] = '2099-12-31 23:59:59';
+		if ($parameters['max'] == '---------- --:--:--') {
+			$parameters['max'] = '2099-12-31 23:59:59';
+		}
 
 		$show_params = $this->attr('show');
 		$text_params = $this->attr('text');
@@ -177,30 +179,18 @@ class Form_Question_Type_Datetime extends Form_Question
 
 
 	/**
-	* process this question
-	*
-	* @param &object $submission the current submission object
+	* Look at user-specified and internal rules to see if this question currently has a valid value
 	*
 	* @access public
 	* @return boolean
 	*/
-	function evaluate($answer=null)
+	function hasValidValue()
 	{
-		if (isset($_POST[$this->id.'value'])) {
-			// we need to create a variable for these value to pass by reference
-			$value = '';
-			$parameters = Array();
-			$dt_field = new Datetime_Field($this->id, $value, $parameters);
-			$dt_field->processField();
-			$val = $_POST[$this->id.'value'];
-			$value = sprintf('%04s-%02s-%02s %02s:%02s:%02s', $val['y'], $val['m'], $val['d'], $val['h'], $val['i'], $val['s']).(!isset($val['c']) ? '' : (' '.($val['c'] ? '1' : '0')));
+		$answer = $this->getValue();
+		if (!is_iso8601($answer)) return false;
+		return parent::hasValidValue();
 
-			$ok = parent::evaluate($value);
-		}
-
-		return $ok;
-
-	}//end evaluate()
+	}//end hasValidValue()
 
 
 	/**
@@ -215,9 +205,7 @@ class Form_Question_Type_Datetime extends Form_Question
 	{
 		$allow_circa = false;
 		$show_params = $this->attr('show');
-		if ($show_params['c']) {
-			$allow_circa = true;
-		}
+		if ($show_params['c']) $allow_circa = true;
 
 		if ($allow_circa) {
 			list($date, $time, $circa) = explode(' ', $answer);
@@ -276,11 +264,10 @@ class Form_Question_Type_Datetime extends Form_Question
 		}
 
 		// break apart the date into correct portions
-		list($val['h'], $val['i'], $val['s']) = sscanf($time, '%02s-%02s-%02s');
+		list($val['h'], $val['i'], $val['s']) = sscanf($time, '%02s:%02s:%02s');
 
 		// do similar with the time string
 		$show_time_str = (($val['h'] == '--') ? '' : 'h').(($val['i'] == '--') ? '' : 'i').(($val['s'] == '--') ? '' : 's');
-
 		switch ($show_time_str) {
 			case 'his':
 				$show_time = $time;
@@ -311,7 +298,7 @@ class Form_Question_Type_Datetime extends Form_Question
 			break;
 
 			default:
-				$show_date = '';
+				$show_time = '';
 			break;
 
 		}
@@ -338,9 +325,7 @@ class Form_Question_Type_Datetime extends Form_Question
 		$allow_circa = false;
 
 		$show_params = $this->attr('show');
-		if ($show_params['c']) {
-			$allow_circa = true;
-		}
+		if ($show_params['c']) $allow_circa = true;
 
 		if ($allow_circa) {
 			list($date, $time, $circa) = explode(' ', $answer);

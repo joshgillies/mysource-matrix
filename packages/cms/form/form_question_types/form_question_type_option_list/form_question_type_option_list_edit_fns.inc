@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_option_list_edit_fns.inc,v 1.5 2005/04/29 05:40:30 gsherwood Exp $
+* $Id: form_question_type_option_list_edit_fns.inc,v 1.6 2005/05/18 23:44:39 tbarrett Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../form_question_type_tickbox_list/form_questio
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -68,7 +68,7 @@ class Form_Question_Type_Option_List_Edit_Fns extends Form_Question_Type_Tickbox
 			if (!trim($option)) continue;
 
 			echo '<tr><td>';
-			$val  = explode(":", $option);
+			$val  = explode(':', $option);
 			$name = $prefix.'default[]';
 
 			$title = (count($val) > 1) ? $val[1] : $val[0];

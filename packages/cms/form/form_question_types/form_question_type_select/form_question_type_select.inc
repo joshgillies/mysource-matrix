@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_select.inc,v 1.31 2005/05/18 04:51:17 tbarrett Exp $
+* $Id: form_question_type_select.inc,v 1.32 2005/05/18 23:44:39 tbarrett Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -104,9 +104,7 @@ class Form_Question_Type_Select extends Form_Question
 		$options = split("\r\n", $this->attr('options'));
 		// remove empty options
 		foreach (array_keys($options) as $k) {
-			if ($options[$k] == "") {
-				unset($options[$k]);
-			}
+			if ($options[$k] == '') unset($options[$k]);
 		}
 
 		return $options;
@@ -150,9 +148,7 @@ class Form_Question_Type_Select extends Form_Question
 		ob_start();
 
 		echo '<select_q id="'.addslashes($this->id).'"  name="'.htmlspecialchars($this->attr('name')).'">';
-		if (!is_array($answer)) {
-			$answer = Array($answer);
-		}
+		if (!is_array($answer)) $answer = Array($answer);
 
 		foreach ($answer as $a) {
 			echo '<option value="'.$a.'">'.htmlspecialchars($this->getAnswerByOffset($a)).'</option>';

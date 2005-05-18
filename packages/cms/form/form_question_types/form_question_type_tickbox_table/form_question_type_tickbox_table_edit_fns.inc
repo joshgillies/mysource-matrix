@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_table_edit_fns.inc,v 1.7 2005/04/29 05:40:30 gsherwood Exp $
+* $Id: form_question_type_tickbox_table_edit_fns.inc,v 1.8 2005/05/18 23:44:39 tbarrett Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question_edit_fns.inc'
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -87,7 +87,9 @@ class Form_Question_Type_Tickbox_Table_Edit_Fns extends Form_Question_Edit_Fns
 
 		$table = array_get_index($_REQUEST, $safe_prefix, false);
 
-		if (!$table || empty($table)) return false;
+		if (!$table || empty($table)) {
+			return false;
+		}
 
 		// the last table row is an artifact, remove it
 		array_pop($table);

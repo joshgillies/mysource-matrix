@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_file_upload.inc,v 1.10 2005/05/18 04:51:17 tbarrett Exp $
+* $Id: form_question_type_file_upload.inc,v 1.11 2005/05/18 23:44:38 tbarrett Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -86,9 +86,7 @@ class Form_Question_Type_File_Upload extends Form_Question
 
 	function getValue()
 	{
-		if (!$this->active_submission) {
-			return null;
-		}
+		if (!$this->active_submission) return null;
 
 		if (isset($this->active_submission[$this->id])) {
 			return $this->active_submission[$this->id];
@@ -99,14 +97,12 @@ class Form_Question_Type_File_Upload extends Form_Question
 
 
 	/**
-	* process this question
-	*
-	* @param &object $submission the current submission object
+	* Look at user-specified and internal rules to see if this question currently has a valid value
 	*
 	* @access public
 	* @return boolean
 	*/
-	function evaluate()
+	function hasValidValue()
 	{
 		$missing = false;
 		$form =& $this->getMySection();
@@ -138,9 +134,7 @@ class Form_Question_Type_File_Upload extends Form_Question
 		}
 
 		$this->active_submission[$this->id] = $file['name'];
-		if (!parent::evaluate()) {
-			return false;
-		}
+		if (!parent::hasValidValue()) return false;
 
 		$create_loc_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($create_loc);
 
@@ -172,9 +166,7 @@ class Form_Question_Type_File_Upload extends Form_Question
 			}
 		}
 
-		if (!$ok) {
-			return false;
-		}
+		if (!$ok) return false;
 
 		if ($existing_file) {
 			$file_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($existing_file);
@@ -183,10 +175,14 @@ class Form_Question_Type_File_Upload extends Form_Question
 			$edit_fns = $file_asset->getEditFns();
 
 			if (!$edit_fns->processFileUpload($file_asset, $o, $file_asset->getPrefix(), $file)) {
-				if ($lock_status === 1) $GLOBALS['SQ_SYSTEM']->am->releaseLock($file_asset->id, 'attributes');
+				if ($lock_status === 1) {
+					$GLOBALS['SQ_SYSTEM']->am->releaseLock($file_asset->id, 'attributes');
+				}
 				return false;
 			}
-			if ($lock_status === 1) $GLOBALS['SQ_SYSTEM']->am->releaseLock($file_asset->id, 'attributes');
+			if ($lock_status === 1) {
+				$GLOBALS['SQ_SYSTEM']->am->releaseLock($file_asset->id, 'attributes');
+			}
 
 		} else {
 
@@ -204,7 +200,7 @@ class Form_Question_Type_File_Upload extends Form_Question
 
 		return true;
 
-	}//end evaluate()
+	}//end hasValidValue()
 
 
 	/**

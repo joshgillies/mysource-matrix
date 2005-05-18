@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_email_address.inc,v 1.15 2005/04/29 05:40:29 gsherwood Exp $
+* $Id: form_question_type_email_address.inc,v 1.16 2005/05/18 23:44:38 tbarrett Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -64,37 +64,24 @@ class Form_Question_Type_Email_Address extends Form_Question_Type_Text
 
 
 	/**
-	* process this question
-	*
-	* @param &object $submission the current submission object
+	* Look at user-specified and internal rules to see if this question currently has a valid value
 	*
 	* @access public
 	* @return boolean
 	*/
-	function evaluate()
+	function hasValidValue()
 	{
-		if (!$this->active_submission) return false;
-		$form =& $this->getMySection();
+		$value = $this->getValue();
+		if (empty($value)) return true;
 
-		if (isset($_POST[$this->id])) {
-			$val = $_POST[$this->id];
-
-			// borrow a 'valid email address' rule, but only if the question is not blank
-			if (!empty($val)) {
-				$req_rule = Array('rule_code' => 'email', 'operator' => '1');
-				array_push($this->vars['rules']['value'], $req_rule);
-			}
-
-			$ok = parent::evaluate();
-
-			if (!empty($val)) {
-				array_pop($this->vars['rules']['value']);
-			}
-		}
-
+		// Since we know the answer is not empty, borrow a 'valid email address' rule
+		$req_rule = Array('rule_code' => 'email', 'operator' => '1');
+		array_push($this->vars['rules']['value'], $req_rule);
+		$ok = parent::hasValidValue();
+		array_pop($this->vars['rules']['value']);
 		return $ok;
 
-	}//end evaluate()
+	}//end hasValidValue()
 
 
 	/**

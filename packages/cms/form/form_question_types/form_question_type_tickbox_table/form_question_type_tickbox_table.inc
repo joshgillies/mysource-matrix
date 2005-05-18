@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_table.inc,v 1.11 2005/05/18 04:51:17 tbarrett Exp $
+* $Id: form_question_type_tickbox_table.inc,v 1.12 2005/05/18 23:44:39 tbarrett Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -100,7 +100,7 @@ class Form_Question_Type_Tickbox_Table extends Form_Question
 		{
 			// plaintext part for e-mail sending and submission confirmation
 			case 'plaintext':
-				if (empty($question_contents )) return "";
+				if (empty($question_contents )) return '';
 				$header = array_shift($question_contents);
 				$title  = array_shift($header);
 				$output = Array();
@@ -155,7 +155,9 @@ class Form_Question_Type_Tickbox_Table extends Form_Question
 								'		<td class="sq-backend-table-header">';
 				if (empty($question_contents) || empty($question_contents[0])) {
 					$to_output .= '<div align="center">'.translate('cms_form_tickbox_table_not_properly_defined');
-					if ($type == 'passive') $to_output .= ' '.translate('cms_form_tickbox_table_incorrectly_displayed');
+					if ($type == 'passive') {
+						$to_output .= ' '.translate('cms_form_tickbox_table_incorrectly_displayed');
+					}
 					$to_output .= '</div>';
 				} else {
 					$header = array_shift($question_contents);
@@ -199,24 +201,19 @@ class Form_Question_Type_Tickbox_Table extends Form_Question
 
 
 	/**
-	* process this question in the form
+	* Look at user-specified and internal rules to see if this question currently has a valid value
 	*
 	* @access public
 	* @return boolean
 	*/
-	function evaluate()
+	function hasValidValue()
 	{
-		$prefix = $this->getSafePrefix();
-
-		$submission = array_get_index($_REQUEST, $prefix, false);
-		$this->_tmp['submission'] = $submission;
-
 		if ($this->attr('required')) {
 			$req_rule = Array('rule_code' => 'select_limit', 'operator' => '>=', 'value' => '1');
 			array_push($this->vars['rules']['value'], $req_rule);
 		}
 
-		$ok = parent::evaluate();
+		$ok = parent::hasValidValue();
 
 		if ($this->attr('required')) {
 			array_pop($this->vars['rules']['value']);
@@ -224,7 +221,7 @@ class Form_Question_Type_Tickbox_Table extends Form_Question
 
 		return $ok;
 
-	}//end evaluate()
+	}//end hasValidValue()
 
 
 	/**

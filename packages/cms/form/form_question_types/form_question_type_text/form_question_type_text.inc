@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_text.inc,v 1.31 2005/05/18 04:51:17 tbarrett Exp $
+* $Id: form_question_type_text.inc,v 1.32 2005/05/18 23:44:39 tbarrett Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -96,23 +96,19 @@ class Form_Question_Type_Text extends Form_Question
 
 
 	/**
-	* process this question
-	*
-	* @param &object $submission the current submission object
+	* Look at user-specified and internal rules to see if this question currently has a valid value
 	*
 	* @access public
 	* @return boolean
 	*/
-	function evaluate($answer=null)
+	function hasValidValue()
 	{
-		$missing = false;
-
 		if ($this->attr('required')) {
 			$req_rule = Array('rule_code' => 'comparison', 'operator' => '!=', 'value' => '');
 			array_push($this->vars['rules']['value'], $req_rule);
 		}
 
-		$ok = parent::evaluate();
+		$ok = parent::hasValidValue();
 
 		if ($this->attr('required')) {
 			array_pop($this->vars['rules']['value']);
@@ -120,7 +116,7 @@ class Form_Question_Type_Text extends Form_Question
 
 		return $ok;
 
-	}//end evaluate()
+	}//end hasValidValue()
 
 
 	/**

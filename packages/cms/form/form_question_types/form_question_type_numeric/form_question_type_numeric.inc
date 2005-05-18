@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_numeric.inc,v 1.10 2005/04/29 05:40:30 gsherwood Exp $
+* $Id: form_question_type_numeric.inc,v 1.11 2005/05/18 23:44:39 tbarrett Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -64,12 +64,12 @@ class Form_Question_Type_Numeric extends Form_Question_Type_Text
 
 
 	/**
-	* process this question
+	* Look at user-specified and internal rules to see if this question currently has a valid value
 	*
 	* @access public
 	* @return boolean
 	*/
-	function evaluate($answer=null)
+	function hasValidValue()
 	{
 		$val = $this->getValue();
 
@@ -84,7 +84,7 @@ class Form_Question_Type_Numeric extends Form_Question_Type_Text
 			}
 		}
 
-		$ok = parent::evaluate();
+		$ok = parent::hasValidValue();
 
 		if (!empty($val)) {
 			if ($this->attr('is_int')) {						// Remove Force Integer
@@ -95,7 +95,7 @@ class Form_Question_Type_Numeric extends Form_Question_Type_Text
 
 		return $ok;
 
-	}//end evaluate()
+	}//end hasValidValue()
 
 
 	/**

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_list.inc,v 1.35 2005/05/18 04:51:17 tbarrett Exp $
+* $Id: form_question_type_tickbox_list.inc,v 1.36 2005/05/18 23:44:39 tbarrett Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -87,17 +87,19 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 	function listBox($options, $multiple=false, $hor=false, $extras='')
 	{
 		$type  = ($multiple) ? 'checkbox' : 'radio';
-		if (!stristr($extras, 'class=')) $extras .= ' class="sq-form-field"';
+		if (!stristr($extras, 'class=')) {
+			$extras .= ' class="sq-form-field"';
+		}
 		$name  = $this->id;
 
 		$html  = '';
-		$html .= "<table>";
-		$html .= ($hor) ? "<tr>" : '';
+		$html .= '<table>';
+		$html .= ($hor) ? '<tr>' : '';
 
 		$defaults = $this->getValue();
 		if (!is_array($defaults)) $defaults = Array($defaults);
 		foreach ($options as $key => $value) {
-			$html .= ($hor) ? "<td nowrap=\"nowrap\">" : "<tr><td>";
+			$html .= ($hor) ? '<td nowrap="nowrap">' : '<tr><td>';
 			$html .= '<input type="'.$type.'" ';
 			$html .= 'name="'.$this->id.(($multiple) ? '[]' : '').'" ';
 			$html .= 'id="'.$this->id.'_'.$key.'"';
@@ -109,10 +111,10 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 
 			$html .= $extras.' />';
 			$html .= '&nbsp;<label for="'.$this->id.'_'.$key.'">'.$value.'</label>';
-			$html .= ($hor) ? "</td>" : "</td></tr>";
+			$html .= ($hor) ? '</td>' : '</td></tr>';
 		}
 
-		$html .= ($hor) ? "</tr>" : '';
+		$html .= ($hor) ? '</tr>' : '';
 		$html .= '</table>';
 
 		return $html;
@@ -131,9 +133,7 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 		$options = split("\r\n", $this->attr('options'));
 		// remove empty options
 		foreach (array_keys($options) as $k) {
-			if ($options[$k] == "") {
-				unset($options[$k]);
-			}
+			if ($options[$k] == '') unset($options[$k]);
 		}
 
 		return $options;
@@ -142,16 +142,14 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 
 
 	/**
-	* process this question in the form
+	* Look at user-specified and internal rules to see if this question currently has a valid value
 	*
 	* @access public
 	* @return boolean
 	*/
-	function evaluate()
+	function hasValidValue()
 	{
-		$form =& $this->getMySection();
-
-		$val = isset($_POST[$this->id]) ? $_POST[$this->id] : '';
+		$val = $this->getValue();
 
 		if (is_array($val)) {
 			$value = implode(', ', $this->getAnswerByOffset($val));
@@ -164,7 +162,7 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 			array_push($this->vars['rules']['value'], $req_rule);
 		}
 
-		$ok = parent::evaluate();
+		$ok = parent::hasValidValue();
 
 		if ($this->attr('required')) {
 			array_pop($this->vars['rules']['value']);
@@ -172,7 +170,7 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 
 		return $ok;
 
-	}//end evaluate()
+	}//end hasValidValue()
 
 
 	/**
@@ -299,9 +297,7 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 		ob_start();
 
 		echo '<select_q id="'.addslashes($this->id).'"  name="'.htmlspecialchars($this->attr('name')).'">';
-		if (!is_array($answer)) {
-			$answer = Array($answer);
-		}
+		if (!is_array($answer)) $answer = Array($answer);
 
 		foreach ($answer as $a) {
 			echo '<option value="'.$a.'">'.htmlspecialchars($this->getAnswerByOffset($a)).'</option>';

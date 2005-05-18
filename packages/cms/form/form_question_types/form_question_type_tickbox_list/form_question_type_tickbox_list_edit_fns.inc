@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_list_edit_fns.inc,v 1.11 2005/04/29 05:40:30 gsherwood Exp $
+* $Id: form_question_type_tickbox_list_edit_fns.inc,v 1.12 2005/05/18 23:44:39 tbarrett Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question_edit_fns.inc'
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -69,7 +69,7 @@ class Form_Question_Type_Tickbox_List_Edit_Fns extends Form_Question_Edit_Fns
 			if (!trim($option)) continue;
 
 			echo '<tr><td>';
-			$val  = explode(":", $option);
+			$val  = explode(':', $option);
 			$type = ($multiple) ? 'check_box' : 'radio_button';
 			$name = $prefix.'default[]';
 

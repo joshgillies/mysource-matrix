@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_password.inc,v 1.18 2005/05/18 04:51:17 tbarrett Exp $
+* $Id: form_question_type_password.inc,v 1.19 2005/05/18 23:44:39 tbarrett Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -97,60 +97,48 @@ class Form_Question_Type_Password extends Form_Question
 
 
 	/**
-	* process this question
-	*
-	* @param &object $submission the current submission object
+	* Look at user-specified and internal rules to see if this question currently has a valid value
 	*
 	* @access public
 	* @return boolean
 	*/
-	function evaluate()
+	function hasValidValue()
 	{
-		if (!$this->active_submission) return false;
-
-		if (!$this->answeredCorrectly()) {
+		$val = $this->getValue();
+		if ($this->attr('verify') && ($val != $this->_tmp['verify_value'])) {
 			$this->failed_rules[] = translate('cms_form_password_entered_differently', $this->attr('name'));
 			return false;
 		}
-
-		if (isset($_POST[$this->id.'_1'])) {
-			$val = $_POST[$this->id.'_1'];
-
-			if (strlen($val) < $this->attr('min')) {
-				$this->failed_rules[] = translate('cms_form_password_length_>=', $this->attr('name'), $this->attr('max'));
-				return false;
-			}
-			if (strlen($val) > $this->attr('max')) {
-				$this->failed_rules[] = translate('cms_form_password_length_<=', $this->attr('name'), $this->attr('max'));
-				return false;
-			}
-
-			return parent::evaluate($val);
+		if (strlen($val) < $this->attr('min')) {
+			$this->failed_rules[] = translate('cms_form_password_length_>=', $this->attr('name'), $this->attr('min'));
+			return false;
 		}
+		if (strlen($val) > $this->attr('max')) {
+			$this->failed_rules[] = translate('cms_form_password_length_<=', $this->attr('name'), $this->attr('max'));
+			return false;
+		}
+		return parent::hasValidValue();
 
-	}//end evaluate()
+	}//end hasValidValue()
 
 
 	/**
-	* returns TRUE if this question has been answered correctly
+	* Populates the question response from the form data
 	*
-	* @access public
 	* @return boolean
+	* @access public
 	*/
-	function answeredCorrectly()
+	function populate()
 	{
-		if (!isset($_POST[$this->id.'_1'])) return false;
-		$val1 = $_POST[$this->id.'_1'];
-		if (strlen($val1) > $this->attr('max') || strlen($val1) < $this->attr('min')) return false;
-
-		if ($this->attr('verify')) {
-			if (!isset($_POST[$this->id.'_2'])) return false;
-			$val2 = $_POST[$this->id.'_2'];
-			if ($val1 != $val2) return false;
+		if (isset($_POST[$this->id.'_1'])) {
+			$this->active_submission[$this->id] = $_POST[$this->id.'_1'];
+			if ($this->attr('verify')) {
+				$this->_tmp['verify_value'] = $_POST[$this->id.'_2'];
+			}
 		}
 		return true;
 
-	}//end answeredCorrectly()
+	}//end populate()
 
 
 	/**
@@ -176,6 +164,21 @@ class Form_Question_Type_Password extends Form_Question
 		return $contents;
 
 	}//end getXML()
+
+
+	/**
+	* returns the answer for this question for the summary, generally overidden by children
+	*
+	* @param $answer the answer of the question
+	*
+	* @access public
+	* @return string
+	*/
+	function getSummary($answer)
+	{
+		return '';
+
+	}//end getSummary()
 
 
 }//end class
