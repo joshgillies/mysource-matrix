@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question.inc,v 1.53 2005/05/11 06:07:30 lwright Exp $
+* $Id: form_question.inc,v 1.54 2005/05/18 04:51:56 tbarrett Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.53 $
+* @version $Revision: 1.54 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -60,7 +60,7 @@ class Form_Question extends Asset
 
 
 	/**
-	* the current submission id
+	* the current submission data
 	* @var object
 	*/
 	var $active_submission = null;
@@ -373,7 +373,7 @@ class Form_Question extends Asset
 	/**
 	* @abstract
 	*/
-	function getAnswer($content_file=true, $value='')
+	function getAnswer($content_file=true)
 	{
 		return true;
 
@@ -821,6 +821,18 @@ class Form_Question extends Asset
 		return true;
 
 	}//end populate()
+
+
+	/**
+	* 
+	*
+	* @access public
+	* @return void
+	*/
+	function setValue($value)
+	{
+		$this->active_submission[$this->id] = $value;
+	}
 
 
 }//end class
