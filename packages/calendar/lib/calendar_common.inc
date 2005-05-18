@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.29 2005/05/11 06:07:21 lwright Exp $
+* $Id: calendar_common.inc,v 1.30 2005/05/18 01:53:34 tbarrett Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -597,7 +597,7 @@ function expand_single_event(&$result_list, &$event, $assetid, $first_day, $last
 
 			$end_time = mktime(12, 0, 0, $event['end_date_mon'], $event['end_date_mday'], $event['end_date_year']);
 
-			if (($first_day <= $event_start_date) && ($event_start_dts <= $day_start_dts)) {
+			if (($first_day <= $event_start_date) && ($event_start_dts < $day_end_dts)) {
 				// insert first day
 				$result_list[$assetid.':'.$i] = Array();
 				for (reset($event); null !== ($k = key($event)); next($event)) {
