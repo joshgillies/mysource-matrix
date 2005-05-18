@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.257 2005/05/11 06:05:10 lwright Exp $
+* $Id: asset_edit_interface.inc,v 1.258 2005/05/18 17:20:13 gnoel Exp $
 *
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.257 $
+* @version $Revision: 1.258 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -1598,7 +1598,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 				// must be a normal screen
 				if (empty($this->_screens[$active_screen])) {
-					trigger_localised_error('SYS0076', E_USR_WARNING, $active_screen);
+					trigger_localised_error('SYS0076', E_USER_WARNING, $active_screen);
 					return false;
 				}
 
