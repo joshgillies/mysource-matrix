@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.12.2.7 2005/05/02 00:31:23 gsherwood Exp $
+* $Id: calendar_common.inc,v 1.12.2.8 2005/05/18 01:53:18 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -23,7 +23,7 @@
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.12.2.7 $
+* @version $Revision: 1.12.2.8 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -519,12 +519,13 @@ function build_case_statement($col_name, &$trees)
 * 'assetid:instance' where instance is a 0-based index of how many times an instance
 * the event has occurred previously.
 *
+* @param array	$events			assetid => details
 * @param string	$first_day		The first day we want to display (YYYY-MM-DD)
 * @param string	$last_day		The last day we want to display (YYYY-MM-DD)
 * @param string	$day_start_time	Earliest time of day we will display (HH:mm)
 * @param string	$day_end_time	Latest time of day we will display (HH:mm)
 *
-* @return array
+* @return array		'assetid:instanceNum' => details
 * @access public
 */
 function &expand_event_list(&$events, $first_day, $last_day, $day_start_time='00:00', $day_end_time='23:59')
@@ -586,7 +587,7 @@ function expand_single_event(&$result_list, &$event, $assetid, $first_day, $last
 
 			$end_time = mktime(12, 0, 0, $event['end_date_mon'], $event['end_date_mday'], $event['end_date_year']);
 
-			if (($first_day <= $event_start_date) && ($event_start_dts <= $day_start_dts)) {
+			if (($first_day <= $event_start_date) && ($event_start_dts < $day_end_dts)) {
 				// insert first day
 				$result_list[$assetid.':'.$i] = Array();
 				for (reset($event); null !== ($k = key($event)); next($event)) {
@@ -685,7 +686,7 @@ function expand_single_event(&$result_list, &$event, $assetid, $first_day, $last
 				// the time is too early or late in the day to be shown
 				return;
 			}
-		}		
+		}
 		$start_time = mktime(12, 0, 0,  $event['start_date_mon'], $event['start_date_mday'], $event['start_date_year']);
 		$result_list[$assetid.':'.$i] = Array();
 		for (reset($event); null !== ($k = key($event)); next($event)) {
@@ -879,9 +880,9 @@ function expand_recurring_event(&$result_list, &$event, $assetid, $first_day, $l
 				// fully-specified but falls within a single day
 				$start_time = mktime(12, 0, 0, $event['start_date_mon'], $event['start_date_mday'], $event['start_date_year'])+$difference*86400;
 				$start_date = date('Y-m-d', $start_time);
-				if (($start_date >= $first_day) && ($start_date <= $last_day) && 
-						(is_null($event_start_dts) || 
-						 (($event_start_dts >= $day_start_dts) && ($event_start_dts < $day_end_dts)) || 
+				if (($start_date >= $first_day) && ($start_date <= $last_day) &&
+						(is_null($event_start_dts) ||
+						 (($event_start_dts >= $day_start_dts) && ($event_start_dts < $day_end_dts)) ||
 						 (($event_end_dts <= $day_end_dts) && ($event_end_dts > $day_start_dts)) ||
 						 (($event_start_dts < $day_start_dts) && ($event_end_dts > $day_end_dts))
 						)
@@ -913,7 +914,7 @@ function expand_recurring_event(&$result_list, &$event, $assetid, $first_day, $l
 			// end date not specified, so it's either just a date or a point in time
 			$start_time = mktime(12, 0, 0,  $event['start_date_mon'], $event['start_date_mday'], $event['start_date_year'])+$difference*86400;
 			$start_date = date('Y-m-d', $start_time);
-			
+
 			if (($start_date >= $first_day) && ($start_date <= $last_day)) {
 				$result_list[$assetid.':'.$i] = Array();
 				for (reset($event); null !== ($k = key($event)); next($event)) {
@@ -934,8 +935,8 @@ function expand_recurring_event(&$result_list, &$event, $assetid, $first_day, $l
 				} else {
 					$event[$assetid.':'.$i]['start_date_ts'] = strtotime($start_date);
 					$event[$assetid.':'.$i]['end_date_ts'] = strtotime($start_date);
-				}				
-				
+				}
+
 				$i++;
 			}
 
@@ -1045,7 +1046,7 @@ function get_date_components($iso, $prefix='')
 			if (is_null($this_date['hours']) && (!is_null($this_date['minutes']) || !is_null($this_date['seconds']))) {
 				// hours null in the middle of the time - no valid time
 				$this_date['ts'] = null;
-			} elseif (is_null($this_date['minutes']) && !is_null($this_date['seconds']))  {
+			} else if (is_null($this_date['minutes']) && !is_null($this_date['seconds']))  {
 				// minutes null in the middle of the time - no valid time
 				$this_date['ts'] = null;
 			} else {
@@ -1098,13 +1099,13 @@ function get_date_components($iso, $prefix='')
 
 /**
 * Get the daystamp value for the supplied date
-* 
+*
 * @param int|string	$value	The date to convert, either a timestamp or ISO-format date
 *
 * @return int	The day-stamp
 * @access public
 */
-function get_ds($value) 
+function get_ds($value)
 {
 	if (is_numeric($value)) {
 		// timestamp
@@ -1120,13 +1121,13 @@ function get_ds($value)
 
 /**
 * Get the monthstamp value for the supplied date
-* 
+*
 * @param int|string	$value	The date to convert, either a timestamp or ISO-format date
 *
 * @return int	The monthstamp
 * @access public
 */
-function get_ms($value) 
+function get_ms($value)
 {
 	if (is_numeric($value)) {
 		// convert timestamp to ISO
