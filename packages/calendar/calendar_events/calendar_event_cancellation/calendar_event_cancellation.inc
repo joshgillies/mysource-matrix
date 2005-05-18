@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_cancellation.inc,v 1.20 2005/05/18 05:12:37 tbarrett Exp $
+* $Id: calendar_event_cancellation.inc,v 1.21 2005/05/18 05:14:00 tbarrett Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once  dirname(__FILE__).'/../calendar_event_recurring/calendar_event_rec
 * which replaces the cancelled instance may be linked to it.
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -138,7 +138,6 @@ class Calendar_Event_Cancellation extends Calendar_Event
 		if ($duration = $parent->getDuration()) {
 			$this->setAttrValue('end_date', date('Y-m-d', iso8601_ts($sd) + $duration).substr($parent->attr('end_date'), 10));
 		}
-		bam("Setting name based on parent name ".$parent->attr('name'));
 		// set our name based on the parent
 		$this->setAttrValue('name', translate('cal_event_cancelled_date', date('d M Y', iso8601_ts($this->attr('start_date')))).': '.$parent->attr('name'));
 
