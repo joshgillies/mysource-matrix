@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_modification.inc,v 1.12.6.2 2005/05/02 00:31:22 gsherwood Exp $
+* $Id: calendar_event_modification.inc,v 1.12.6.3 2005/05/18 05:19:25 tbarrett Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once  dirname(__FILE__).'/../calendar_event_recurring/calendar_event_rec
 * of a recurring event have changed for a particular instance of that event.
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.12.6.2 $
+* @version $Revision: 1.12.6.3 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -127,7 +127,7 @@ class Calendar_Event_Modification extends Calendar_Event
 		$sd = $this->getStartDate();
 		$st = $parent->getStartTime();
 		if ($st) {
-			$this->setAttrValue('start_date', $sd.' '.$st);
+			$this->setAttrValue('start_date', $sd.' '.$st.':00');
 		}
 		if ($duration = $parent->getDuration()) {
 			$this->setAttrValue('end_date', date('Y-m-d', iso8601_ts($this->attr('start_date')) + $duration).substr($parent->attr('end_date'), 10));
