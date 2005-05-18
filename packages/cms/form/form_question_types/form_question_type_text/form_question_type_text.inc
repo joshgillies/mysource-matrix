@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_text.inc,v 1.30 2005/04/29 05:40:30 gsherwood Exp $
+* $Id: form_question_type_text.inc,v 1.31 2005/05/18 04:51:17 tbarrett Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -63,13 +63,10 @@ class Form_Question_Type_Text extends Form_Question
 	/**
 	* generates the html for this question to display it in the frontend
 	*
-	* @param boolean	$content_file	if TRUE, this function will generate content for the content file
-	* @param string		$value			current value of the question
-	*
 	* @access public
 	* @return string
 	*/
-	function getAnswer($content_file=true, $value='')
+	function getAnswer()
 	{
 		$height = ($this->attr('height')) ? $this->attr('height') : 1;
 		$width  = $this->attr('width');
@@ -78,7 +75,6 @@ class Form_Question_Type_Text extends Form_Question
 		$name   = $this->id;
 
 		$value = $this->getValue();
-//		$value  = ($value == "") ? $this->attr('default') : $value;
 
 		$value  = htmlspecialchars($value);
 

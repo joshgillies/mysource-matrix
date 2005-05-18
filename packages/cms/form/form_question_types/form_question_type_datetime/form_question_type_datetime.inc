@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_datetime.inc,v 1.20 2005/04/29 05:40:29 gsherwood Exp $
+* $Id: form_question_type_datetime.inc,v 1.21 2005/05/18 04:51:17 tbarrett Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -85,15 +85,10 @@ class Form_Question_Type_Datetime extends Form_Question
 	/**
 	* generates the html for this question to display it in the frontend
 	*
-	* @param boolean	$content_file	if TRUE, this function will generate content for the content file
-	* @param string		$value			current value of the question
-	* @param string		$suffix			the suffix to append to the name
-	* @param boolean	$parameters		if TRUE a default set of parameters will be used for the datetime field
-	*
 	* @access public
 	* @return string
 	*/
-	function getAnswer($content_file=true, $value='', $suffix='', $default=false)
+	function getAnswer()
 	{
 		$extras = $this->attr('extra');
 		$name   = $this->id;
@@ -101,34 +96,30 @@ class Form_Question_Type_Datetime extends Form_Question
 		$html = '';
 		$value = $this->getValue();
 
-		if ($default) {
-			$parameters = $this->getDefaultParameters();
-		} else {
-			$elements = Array('day' => 'd', 'month' => 'm', 'year' => 'y', 'hour' => 'h', 'min' => 'i', 'sec' => 's');
+		$elements = Array('day' => 'd', 'month' => 'm', 'year' => 'y', 'hour' => 'h', 'min' => 'i', 'sec' => 's');
 
-			$parameters = Array();
-			$parameters['show'] = Array();
-			$parameters['null'] = Array();
-			$parameters['style'] = Array();
-			$parameters['min'] = $this->attr('minimum');
-			if ($parameters['min'] == '---------- --:--:--') $parameters['min'] = '1900-01-01 00:00:00';
-			$parameters['max'] = $this->attr('maximum');
-			if ($parameters['max'] == '---------- --:--:--') $parameters['max'] = '2099-12-31 23:59:59';
+		$parameters = Array();
+		$parameters['show'] = Array();
+		$parameters['null'] = Array();
+		$parameters['style'] = Array();
+		$parameters['min'] = $this->attr('minimum');
+		if ($parameters['min'] == '---------- --:--:--') $parameters['min'] = '1900-01-01 00:00:00';
+		$parameters['max'] = $this->attr('maximum');
+		if ($parameters['max'] == '---------- --:--:--') $parameters['max'] = '2099-12-31 23:59:59';
 
-			$show_params = $this->attr('show');
-			$text_params = $this->attr('text');
-			$null_params = $this->attr('null');
+		$show_params = $this->attr('show');
+		$text_params = $this->attr('text');
+		$null_params = $this->attr('null');
 
-			$parameters['allow_circa'] = $show_params['c'];
+		$parameters['allow_circa'] = $show_params['c'];
 
-			foreach ($elements as $attr => $t) {
-				$parameters['style'][$t] = ($text_params[$t] ? 't' : 's');
-				if ($show_params[$t]) $parameters['show'][] = $t;
-				if ($null_params[$t]) $parameters['null'][$t] = 1;
-			}
+		foreach ($elements as $attr => $t) {
+			$parameters['style'][$t] = ($text_params[$t] ? 't' : 's');
+			if ($show_params[$t]) $parameters['show'][] = $t;
+			if ($null_params[$t]) $parameters['null'][$t] = 1;
 		}
 
-		$dt_field = new Datetime_Field($this->id.$suffix, $value, $parameters);
+		$dt_field = new Datetime_Field($this->id, $value, $parameters);
 
 		ob_start();
 		$dt_field->printField();

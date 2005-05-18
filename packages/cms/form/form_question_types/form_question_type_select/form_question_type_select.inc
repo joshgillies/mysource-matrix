@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_select.inc,v 1.30 2005/04/29 05:40:30 gsherwood Exp $
+* $Id: form_question_type_select.inc,v 1.31 2005/05/18 04:51:17 tbarrett Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -78,20 +78,13 @@ class Form_Question_Type_Select extends Form_Question
 	/**
 	* generates the html for this question to display it in the frontend or backend
 	*
-	* @param boolean		$content_file	if this is for the content file or not
-	* @param integer|Array	$value			the selected values of this question
-	*
 	* @access public
 	* @return string
 	*/
-	function getAnswer($content_file=true, $value='', $suffix='')
+	function getAnswer()
 	{
-		if (!$suffix) $suffix = '';
-		// generate some php for the value, which can be used for both
-		// auto-answer and returning to saved forms
-
 		ob_start();
-		combo_box($this->id.$suffix, $this->getOptions(), $this->attr('multiple'), $this->getValue(), $this->attr('height'), '');
+		combo_box($this->id, $this->getOptions(), $this->attr('multiple'), $this->getValue(), $this->attr('height'), '');
 		$html = ob_get_contents();
 		ob_end_clean();
 

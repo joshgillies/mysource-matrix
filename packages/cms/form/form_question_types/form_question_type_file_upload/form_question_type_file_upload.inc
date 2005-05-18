@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_file_upload.inc,v 1.9 2005/05/11 06:07:32 lwright Exp $
+* $Id: form_question_type_file_upload.inc,v 1.10 2005/05/18 04:51:17 tbarrett Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -63,13 +63,10 @@ class Form_Question_Type_File_Upload extends Form_Question
 	/**
 	* generates the html for this question to display it in the frontend
 	*
-	* @param boolean	$content_file	if TRUE, this function will generate content for the content file
-	* @param string		$value			current value of the question
-	*
 	* @access public
 	* @return string
 	*/
-	function getAnswer($content_file=true, $value='')
+	function getAnswer()
 	{
 		$extras = $this->attr('extra');
 		$name   = $this->id;

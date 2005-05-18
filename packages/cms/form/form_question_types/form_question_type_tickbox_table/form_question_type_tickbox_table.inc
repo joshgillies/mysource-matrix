@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_table.inc,v 1.10 2005/05/11 06:07:32 lwright Exp $
+* $Id: form_question_type_tickbox_table.inc,v 1.11 2005/05/18 04:51:17 tbarrett Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -51,13 +51,10 @@ class Form_Question_Type_Tickbox_Table extends Form_Question
 	/**
 	* generates the html for this question to display it in the frontend
 	*
-	* @param boolean	$content_file	if TRUE, this function will generate content for the content file
-	* @param string		$value			current value of the question
-	*
 	* @access public
 	* @return string
 	*/
-	function getAnswer($content_file=true, $value='')
+	function getAnswer()
 	{
 		return $this->_getOutput('active');
 
