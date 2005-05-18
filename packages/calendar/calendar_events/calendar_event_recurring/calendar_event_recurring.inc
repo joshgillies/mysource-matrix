@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.57 2005/05/11 06:07:21 lwright Exp $
+* $Id: calendar_event_recurring.inc,v 1.58 2005/05/18 04:59:59 tbarrett Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.57 $
+* @version $Revision: 1.58 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -454,10 +454,11 @@ class Calendar_Event_Recurring extends Calendar_Event
 
 			// every week (or x weeks)
 			case 'WEW':
+				$dow = date('l', iso8601_ts($this->attr('start_date')));
 				if ($interval) {
-					$res = translate('cal_event_every_x_weeks', $interval);
+					$res = translate('cal_event_every_x_weeks', $interva, $dow);
 				} else {
-					$res = translate('cal_event_every_x_weeks');
+					$res = translate('cal_event_every_week', $dow);
 				}
 			break;
 
