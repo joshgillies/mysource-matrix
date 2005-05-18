@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.109 2005/05/17 00:31:33 tbarrett Exp $
+* $Id: mysource.inc,v 1.110 2005/05/18 09:37:59 brobertson Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.109 $
+* @version $Revision: 1.110 $
 * @package MySource_Matrix
 */
 class MySource
@@ -311,8 +311,6 @@ class MySource
 		if (!empty($_REQUEST['SQ_ACTION'])) {
 			$this->_processGlobalActions();
 		}
-		//bam(array_get_index($_SERVER, 'REMOTE_USER'));
-
 
 	}//end init()
 
@@ -615,7 +613,6 @@ class MySource
 					return;
 				}
 				
-				//bam("Login key is $login_key and this loginkey is ".$this->loginKey());
 				if (!is_null($login_key) && $this->loginKey() == $login_key) {
 
 					// get a list of all the installed authentication systems
@@ -638,7 +635,6 @@ class MySource
 					$this->addMessage('User not found');
 
 				} else {
-					bam($_SESSION);
 
 					// incorrect login key
 					$this->addMessage('Login Key incorrect');
