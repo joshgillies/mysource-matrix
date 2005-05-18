@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_modification.inc,v 1.18 2005/05/11 06:07:20 lwright Exp $
+* $Id: calendar_event_modification.inc,v 1.19 2005/05/18 05:12:37 tbarrett Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once  dirname(__FILE__).'/../calendar_event_recurring/calendar_event_rec
 * of a recurring event have changed for a particular instance of that event.
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -108,7 +108,7 @@ class Calendar_Event_Modification extends Calendar_Event
 	{
 		// check that it has an occurrence on the date specified
 		if (!$parent->hasOccurrenceOnDate($this->getStartDate())) {
-			trigger_localised_error('CAL0051', E_USER_ERROR, $this->getStartDate());
+			trigger_localised_error('CAL0051', E_USER_WARNING, $this->getStartDate());
 			return false;
 		}
 
@@ -116,7 +116,7 @@ class Calendar_Event_Modification extends Calendar_Event
 		$sd = $this->getStartDate();
 		$st = $parent->getStartTime();
 		if ($st) {
-			$this->setAttrValue('start_date', $sd.' '.$st);
+			$this->setAttrValue('start_date', $sd.' '.$st.':00');
 		}
 		if ($duration = $parent->getDuration()) {
 			$this->setAttrValue('end_date', date('Y-m-d', iso8601_ts($this->attr('start_date')) + $duration).substr($parent->attr('end_date'), 10));
