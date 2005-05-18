@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_tool_search_replace.inc,v 1.11 2005/05/17 00:21:21 dheppell Exp $
+* $Id: hipo_job_tool_search_replace.inc,v 1.12 2005/05/18 01:24:07 dheppell Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    replace on asset attributes and metadata
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -424,7 +424,6 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 
 		$names = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($this->_running_vars['search_data']), '', false, 'name');
 		foreach ($this->_running_vars['search_data'] as $assetid => $value) {
-			bam($assetid);
 			?>
 			<table class="sq-backend-table expandable" style="margin-bottom: 10px">
 				<thead>
