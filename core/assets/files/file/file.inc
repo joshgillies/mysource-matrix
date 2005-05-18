@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.92 2005/05/13 01:49:17 tbarrett Exp $
+* $Id: file.inc,v 1.93 2005/05/18 01:26:55 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.92 $
+* @version $Revision: 1.93 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -647,8 +647,8 @@ class File extends Asset
 		$keywords['asset_file_size_readable'] = Array('value' => easy_filesize($existing['size']));
 
 		if ($descriptions) {
-			$keywords['asset_file_size_in_bytes']['description'] = 'File size (in bytes)';
-			$keywords['asset_file_size_readable']['description'] = 'Asset size (in human-friendly format)';
+			$keywords['asset_file_size_in_bytes']['description'] = translate('core_file_keyword_size_in_bytes');
+			$keywords['asset_file_size_readable']['description'] = translate('core_file_keyword_size_readable');
 		}
 
 		return $keywords;
