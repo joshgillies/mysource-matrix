@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: locale_manager.inc,v 1.8 2005/05/11 06:05:10 lwright Exp $
+* $Id: locale_manager.inc,v 1.9 2005/05/19 23:50:20 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    number/date formats
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix
 */
 class Locale_Manager extends MySource_Object
@@ -216,6 +216,40 @@ class Locale_Manager extends MySource_Object
 		return $locale_parts;
 
 	}//end getLocaleParts()
+
+
+	/**
+	* Splits up the locale passed into language, country, and variant and return
+	* an array consisting of all possible partial locales
+	*
+	* This will return an array of between one and three elements, depending on
+	* what parts of the locale are in there. For example, if locale = 'fr_FR@euro',
+	* this will return ['fr', 'fr_FR', 'fr_FR@euro']
+	*
+	* @param string	$locale		the locale that we are going to split
+	* @param string $lang_sep	language seperator character
+	* @param string $var_sep	variant seperator character
+	*
+	* @return Array
+	* @return public
+	*/
+	function getCumulativeLocaleParts($locale, $lang_sep='_', $var_sep='@') {
+		$locale_parts = $this->getLocaleParts($locale);
+
+		$cum_locale_parts = Array();
+		$cum_locale_parts[] = $locale_parts[0];
+
+		if (count($cum_locale_parts) >= 2) {
+			$cum_locale_parts[] = $cum_locale_parts[0].$lang_sep.$locale_parts[1];
+
+			if (count($cum_locale_parts) >= 3) {
+				$cum_locale_parts[] = $cum_locale_parts[1].$var_sep.$locale_parts[2];
+			}
+		}
+
+		return $cum_locale_parts;
+
+	}//end getCumulativeLocaleParts()
 
 
 	/**
