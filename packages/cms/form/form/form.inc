@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.97 2005/05/16 06:36:40 lwright Exp $
+* $Id: form.inc,v 1.98 2005/05/19 00:19:22 tbarrett Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.97 $
+* @version $Revision: 1.98 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1102,8 +1102,6 @@ class Form extends Asset
 	/**
 	* processes the form (non-wizard)
 	*
-	* @param &object $submission the submisssion object
-	*
 	* @access public
 	* @return boolean
 	*/
@@ -1122,7 +1120,7 @@ class Form extends Asset
 		foreach (array_keys($questions) as $key) {
 			$question = &$GLOBALS['SQ_SYSTEM']->am->getAsset($key);
 			$question->active_submission =& $this->active_submission;
-			if (!$question->evaluate()) {
+			if (!$question->hasValidValue()) {
 				$this->submission_errors = array_merge($this->submission_errors, $question->failed_rules);
 				$ok = false;
 			}
