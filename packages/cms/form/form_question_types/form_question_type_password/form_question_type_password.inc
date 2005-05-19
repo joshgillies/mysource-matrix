@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_password.inc,v 1.19 2005/05/18 23:44:39 tbarrett Exp $
+* $Id: form_question_type_password.inc,v 1.20 2005/05/19 00:20:26 tbarrett Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -179,6 +179,23 @@ class Form_Question_Type_Password extends Form_Question
 		return '';
 
 	}//end getSummary()
+
+
+	/**
+	* Set the value of this question
+	*
+	* @access public
+	* @return void
+	*/
+	function setValue($value)
+	{
+		$this->active_submission[$this->id] = $value;
+		if ($this->attr('verify')) {
+			$this->_tmp['verify_value'] = $value;
+		}
+
+	}//end setValue()
+
 
 
 }//end class
