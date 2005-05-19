@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.8 2005/05/17 05:22:58 lwright Exp $
+* $Id: lang_errors.xml,v 1.9 2005/05/19 09:05:30 gnoel Exp $
 *
 */
 
@@ -1290,6 +1290,10 @@ Full Node Contents %3$s</error>
 	<error code="SYS0303">Unable to link: %s</error>
 
 	<error code="SYS0304">Unable to set the status of user "%s" to live</error>
+
+	<error code="SYS0305">Remember an asset which is already in the cache (#%1$s)</error>
+
+	<error code="SYS0306">The asset being removed from the cache is still in use (#%1$s)</error>
 
 	<!-- CORE ASSETS -->
 
