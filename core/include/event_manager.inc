@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: event_manager.inc,v 1.18 2005/04/15 00:37:28 lwright Exp $
+* $Id: event_manager.inc,v 1.19 2005/05/19 17:24:21 gnoel Exp $
 *
 */
 
@@ -36,9 +36,6 @@
 *
 *    2) Runtime Events - Events that are defined and registered at runtime. These are events that are not limited to assets,
 *       and do not require to define any information about their broadcaster (anyone can listen for this event).
-*       Runtime events are polled to ensure that if a event is broadcasted before the listener has registered to
-*       listen for the event, it can be notified about it regardless. The listener can choose not to receive a call
-*       for polled events.
 *
 * Example for static events (in the management class of that asset):
 *
@@ -64,7 +61,7 @@
 * </PRE>
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix
 */
 class Event_Manager extends MySource_Object
@@ -81,12 +78,6 @@ class Event_Manager extends MySource_Object
 	* The listener objects
 	*/
 	var $_runtime_listener_objects = Array();
-
-	/**
-	* @var Array(mixed)
-	* Events that are pending broadcast (runtime)
-	*/
-	var $_polling_broadcast_events = Array();
 
 
 	/**
@@ -121,12 +112,6 @@ class Event_Manager extends MySource_Object
 			$event_name = trim($event_name);
 			if (empty($event_name)) continue;
 
-			// if there are some events polling for this listener, and it has not explicity denied polling events,
-			// then broadcast to this listener
-
-			if (isset($this->_polling_broadcast_events[$event_name]) && $broadcast_polling_events) {
-				$this->_broadcastPollingEvent($listener, $event_name);
-			}
 			if (!in_array($event_name, $this->_runtime_event_listeners)) {
 				$this->_runtime_event_listeners[$event_name] = Array();
 			}
@@ -137,34 +122,6 @@ class Event_Manager extends MySource_Object
 		return true;
 
 	}//end addEventListener()
-
-
-	/**
-	* Broadcast an event that has been polling
-	*
-	* All broadcasts of events are polling at one stage, but this function will only get called if an event listener is added
-	* after the original broadcast of the event.
-	*
-	* @param &object mixed	$listener			the object listening to the event
-	* @param string			$event_name			the name of the event to broadcast
-	*
-	* @access private
-	* @return boolean
-	*/
-	function _broadcastPollingEvent(&$listener, $event_name)
-	{
-		if (!isset($this->_polling_broadcast_events[$event_name])) return false;
-		$function_name = 'on'.$event_name;
-
-		$events =& $this->_polling_broadcast_events[$event_name];
-		for (reset($events); null !== ($k = key($events)); next($events)) {
-			$event_info =& $this->_polling_broadcast_events[$event_name][$k];
-			if (!method_exists($listener, $function_name)) continue;
-			$listener->$function_name($event_info['broadcaster'], $event_info['vars']);
-		}
-		return true;
-
-	}//end _broadcastPollingEvent()
 
 
 	/**
@@ -179,21 +136,6 @@ class Event_Manager extends MySource_Object
 	*/
 	function _broadcastRuntimeEvents(&$broadcaster, $event_name, $vars=Array())
 	{
-		// if there are no events registered for this broadcast, or someone else other than those currently registered for
-		// this event wants to here it but is not currently registered, then it is possible that
-		// there is a runtime instantiation issue (broadcaster got instanciated before the listener had a chance)
-		// to register for an event, so poll this event.
-
-		// we have to use the class name instead of type_code, because not all broadcasters are assets
-		if (!isset($this->_polling_broadcast_events[$event_name][get_class($broadcaster)])) {
-			if (!isset($this->_polling_broadcast_events[$event_name])) {
-				$this->_polling_broadcast_events[$event_name] = Array();
-			}
-			$event_info = Array();
-			$event_info['vars'] = $vars;
-			$event_info['broadcaster'] =& $broadcaster;
-			$this->_polling_broadcast_events[$event_name][] = $event_info;
-		}
 		if (!isset($this->_runtime_event_listeners[$event_name])) return false;
 
 		$event_name = trim($event_name);
@@ -321,7 +263,7 @@ class Event_Manager extends MySource_Object
 			$function = 'on'.$event_name;
 
 			if (!method_exists($listener, $function)) {
-				trigger_localised_error("SYS0127", E_USER_WARNING, $function, $listener->type(), $asset->id);
+				trigger_localised_error('SYS0127', E_USER_WARNING, $function, $listener->type(), $asset->id);
 				return false;
 			}
 			$listener->$function($broadcaster, $vars);
@@ -501,7 +443,7 @@ class Event_Manager extends MySource_Object
 			if (!isset($info['options']['value'])) $info['options']['value'] = '';
 
 			if (!is_array($info['options'])) {
-				trigger_localised_error("SYS0143", E_USER_WARNING, $listener_type_code, gettype($info['options']));
+				trigger_localised_error('SYS0143', E_USER_WARNING, $listener_type_code, gettype($info['options']));
 				return false;
 			}
 
