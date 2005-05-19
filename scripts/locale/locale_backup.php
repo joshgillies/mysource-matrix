@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: locale_backup.php,v 1.1 2005/05/19 00:41:02 lwright Exp $
+* $Id: locale_backup.php,v 1.2 2005/05/19 01:11:05 lwright Exp $
 *
 */
 
@@ -53,7 +53,7 @@
 *				omitted, defaults to [SYSTEM ROOT]/data/temp/locale_backup.
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -319,17 +319,6 @@ foreach ($asset_types as $asset_type) {
 	}
 
 }
-
-	bam('S T R I N G * F I L E S');
-	bam($string_locales);
-	bam('E R R O R * F I L E S');
-	bam($error_locales);
-	bam('I N T E R N A L * M E S S A G E S');
-	bam($message_locales);
-	//bam('E D I T * I N T E R F A C E S');
-	//bam($all_screens);
-	bam('L O C A L I S E D * S C R E E N S');
-	bam($screens);
 
 
 // compile string locales...
