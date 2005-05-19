@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.314 2005/05/19 11:09:48 gnoel Exp $
+* $Id: asset_manager.inc,v 1.315 2005/05/19 15:00:41 gnoel Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.314 $
+* @version $Revision: 1.315 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -85,8 +85,8 @@ class Asset_Manager extends MySource_Object
 		$this->_loadAssetTypes();
 
 		require_once SQ_INCLUDE_PATH.'/asset_cache.inc';		
-		$this->_asset_cache = new Asset_Cache();
-		$this->_asset_cache->setSizeRules(SQ_CONF_ASSET_CACHE_SIZE);
+		$this->_asset_cache = new Asset_Cache();		
+		$this->_asset_cache->setSizeRules((php_sapi_name() == 'cli') ? SQ_CONF_ASSET_CACHE_SIZE_CLI : SQ_CONF_ASSET_CACHE_SIZE_WEB);
 		
 	}//end constructor
 

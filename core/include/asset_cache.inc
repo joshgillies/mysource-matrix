@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-*$Id: asset_cache.inc,v 1.2 2005/05/19 11:41:21 gnoel Exp $
+*$Id: asset_cache.inc,v 1.3 2005/05/19 15:00:41 gnoel Exp $
 *
 */
 
@@ -44,7 +44,7 @@ define('SQ_ASSET_CACHE_DEBUG', 0);
 * limits. They can also be manually removed by calling remove().
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 */
 class Asset_Cache extends MySource_Object
@@ -98,13 +98,14 @@ class Asset_Cache extends MySource_Object
 	* Sets the size rules
 	*
 	* @param int $size			maximum allowed number of items
-	* @param int $all_items		if true, the rule applies to all the assets in
-	* the cache, otherwise it applies only to the released assets.
+	* 							if-1,items will never be automatically removed from the cache
+	* @param int $all_items		if true, the rule applies to all the assets in the cache, 
+	*							otherwise it applies only to the released assets.
 	*
 	* @return void
 	* @access public
 	*/
-	function setSizeRules($size=10, $all_items=false)
+	function setSizeRules($size=-1, $all_items=false)
 	{
 		$this->_size_rules['max'] = $size;
 		$this->_size_rules['all_items'] = $all_items;
@@ -118,9 +119,9 @@ class Asset_Cache extends MySource_Object
 	*
 	* @param object $item	the item to add
 	* @param string $itemid	the item id
-	* 				(if	 -1, the id is determined by $item->id)
+	* 						(if	-1, the id is determined by $item->id)
 	*
-	* @return boolean 	false if the item is already in the cache
+	* @return boolean 		false if the item is already in the cache
 	* @access public
 	*/
 	function add(&$item, $itemid=-1)
@@ -224,6 +225,9 @@ class Asset_Cache extends MySource_Object
 	*/
 	function _applySizeRules()
 	{
+		// size -1 disable automatic remove
+		if ($this->_size_rules['max'] == -1) return;
+		
 		if (count($this->_items_released) && $this->getSize(true)) {
 			$current_size = $this->getSize(!$this->_size_rules['all_items']);
 
@@ -279,10 +283,8 @@ class Asset_Cache extends MySource_Object
 	/**
 	* Returns the number of items in the cache.
 	*
-	* @param boolean $released	if true only returns the number of released
-	* items
-	* 							if false returns the total number of
-	* items
+	* @param boolean $released	if true only returns the number of released items
+	* 							if false returns the total number of items
 	*
 	* @return int
 	* @access public
@@ -295,8 +297,8 @@ class Asset_Cache extends MySource_Object
 
 
 	/**
-	* Returns a information string about all the assets in the cache which Ref
-	* Count > 0
+	* Returns a information string about all the assets 
+	* in the cache which Ref Count > 0
 	*
 	* @return string
 	* @access public
