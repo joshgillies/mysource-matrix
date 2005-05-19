@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: locale_backup.php,v 1.2 2005/05/19 01:11:05 lwright Exp $
+* $Id: locale_backup.php,v 1.3 2005/05/19 06:20:28 lwright Exp $
 *
 */
 
@@ -53,7 +53,7 @@
 *				omitted, defaults to [SYSTEM ROOT]/data/temp/locale_backup.
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -177,8 +177,6 @@ array_unshift($asset_types, Array(
 								  'dir'       => 'core',
 								  'name'      => 'Global Strings',
 								  ));
-
-bam($asset_types);
 
 $locale_names = array_keys($locale_list);
 foreach($locale_names as $locale) {
@@ -327,11 +325,13 @@ foreach($string_locales as $locale => $loc_files) {
 		!in_array('all', array_get_index($locale_list, $locale, Array()))) {
 		continue;
 	}
-	$string_file = '<files locale="'.$locale.'">'."\n";
+	$string_file = '<?xml version="1.0" ?>'."\n";
+	$string_file .= '<files locale="'.$locale.'">'."\n";
 
 	foreach($loc_files as $loc_file) {
 		$string_file .= '<file source="'.substr(str_replace(SQ_SYSTEM_ROOT, '', $loc_file),1).'">'."\n";
-		$string_file .= preg_replace('|\<\!--(.*)--\>|Us', '', file_get_contents($loc_file.'/'.str_replace('_', '/', str_replace('@', '/', $locale)).'/lang_strings.xml'))."\n";
+		$string_file .= str_replace('<?xml version="1.0" ?>', '',
+							file_get_contents($loc_file.'/'.str_replace('_', '/', str_replace('@', '/', $locale)).'/lang_strings.xml')."\n");
 		$string_file .= '</file>'."\n";
 	}
 
@@ -348,11 +348,15 @@ foreach($error_locales as $locale => $loc_files) {
 		!in_array('all', array_get_index($locale_list, $locale, Array()))) {
 		continue;
 	}
-	$error_file = '<files locale="'.$locale.'">'."\n";
+	$error_file = '<?xml version="1.0" ?>'."\n";
+	$error_file .= '<files locale="'.$locale.'">'."\n";
 
 	foreach($loc_files as $loc_file) {
 		$error_file .= '<file source="'.substr(str_replace(SQ_SYSTEM_ROOT, '', $loc_file),1).'">'."\n";
-		$error_file .= preg_replace("|\n+|s", "\n", preg_replace('|\<\!--(.*)--\>|Us', '', file_get_contents($loc_file.'/'.str_replace('_', '/', str_replace('@', '/', $locale)).'/lang_errors.xml'))."\n");
+		$error_file .= str_replace('<?xml version="1.0" ?>', '',
+							file_get_contents($loc_file.'/'.str_replace('_', '/', str_replace('@', '/', $locale)).'/lang_errors.xml')."\n");
+
+		//$error_file .= process_errors_file($loc_file.'/'.str_replace('_', '/', str_replace('@', '/', $locale)).'/lang_errors.xml');
 		$error_file .= '</file>'."\n";
 	}
 
@@ -369,11 +373,13 @@ foreach($message_locales as $locale => $loc_files) {
 		!in_array('all', array_get_index($locale_list, $locale, Array()))) {
 		continue;
 	}
-	$message_file = '<files locale="'.$locale.'">'."\n";
+	$message_file = '<?xml version="1.0" ?>'."\n";
+	$message_file .= '<files locale="'.$locale.'">'."\n";
 
 	foreach($loc_files as $loc_file) {
 		$message_file .= '<file source="'.substr(str_replace(SQ_SYSTEM_ROOT, '', $loc_file),1).'">'."\n";
-		$message_file .= preg_replace("|\n+|s", "\n", preg_replace('|\<\!--(.*)--\>|Us', '', file_get_contents($loc_file.'/'.str_replace('_', '/', str_replace('@', '/', $locale)).'/lang_messages.xml'))."\n");
+		$message_file .= str_replace('<?xml version="1.0" ?>', '',
+							file_get_contents($loc_file.'/'.str_replace('_', '/', str_replace('@', '/', $locale)).'/lang_messages.xml')."\n");
 		$message_file .= '</file>'."\n";
 	}
 
@@ -389,11 +395,16 @@ foreach($screens as $locale => $loc_files) {
 		!in_array('all', array_get_index($locale_list, $locale, Array()))) {
 		continue;
 	}
-	$message_file = '<files locale="'.$locale.'">'."\n";
+	$message_file = '<?xml version="1.0" ?>'."\n";
+	$message_file .= '<files locale="'.$locale.'">'."\n";
 
 	foreach($loc_files as $loc_file) {
-		$message_file .= '<file source="'.substr(str_replace(SQ_SYSTEM_ROOT, '', $loc_file),1).'">'."\n";
-		$message_file .= preg_replace("|\n+|s", "\n", preg_replace('|\<\!--(.*)--\>|Us', '', file_get_contents($loc_file))."\n");
+		$folder = substr($loc_file, 0, strpos($loc_file, '/locale/'));
+		$file_name = substr($loc_file, strrpos($loc_file, '/') + 1);
+
+		$message_file .= '<file source="'.substr(str_replace(SQ_SYSTEM_ROOT, '', $folder),1).'" name="'.$file_name.'">'."\n";
+		$message_file .= str_replace('<?xml version="1.0" ?>', '',
+							file_get_contents($loc_file)."\n");
 		$message_file .= '</file>'."\n";
 	}
 
@@ -451,5 +462,4 @@ function get_console_list($options)
 	return $list;
 
 }//end get_console_list()
-
 ?>
