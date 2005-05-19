@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: locale_backup.php,v 1.3 2005/05/19 06:20:28 lwright Exp $
+* $Id: locale_backup.php,v 1.4 2005/05/19 06:22:06 lwright Exp $
 *
 */
 
@@ -53,7 +53,7 @@
 *				omitted, defaults to [SYSTEM ROOT]/data/temp/locale_backup.
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -329,7 +329,7 @@ foreach($string_locales as $locale => $loc_files) {
 	$string_file .= '<files locale="'.$locale.'">'."\n";
 
 	foreach($loc_files as $loc_file) {
-		$string_file .= '<file source="'.substr(str_replace(SQ_SYSTEM_ROOT, '', $loc_file),1).'">'."\n";
+		$string_file .= '<file source="'.substr(str_replace(SQ_SYSTEM_ROOT, '', $loc_file),1).'"  name="lang_strings.xml">'."\n";
 		$string_file .= str_replace('<?xml version="1.0" ?>', '',
 							file_get_contents($loc_file.'/'.str_replace('_', '/', str_replace('@', '/', $locale)).'/lang_strings.xml')."\n");
 		$string_file .= '</file>'."\n";
@@ -352,7 +352,7 @@ foreach($error_locales as $locale => $loc_files) {
 	$error_file .= '<files locale="'.$locale.'">'."\n";
 
 	foreach($loc_files as $loc_file) {
-		$error_file .= '<file source="'.substr(str_replace(SQ_SYSTEM_ROOT, '', $loc_file),1).'">'."\n";
+		$error_file .= '<file source="'.substr(str_replace(SQ_SYSTEM_ROOT, '', $loc_file),1).'" name="lang_errors.xml">'."\n";
 		$error_file .= str_replace('<?xml version="1.0" ?>', '',
 							file_get_contents($loc_file.'/'.str_replace('_', '/', str_replace('@', '/', $locale)).'/lang_errors.xml')."\n");
 
@@ -377,7 +377,7 @@ foreach($message_locales as $locale => $loc_files) {
 	$message_file .= '<files locale="'.$locale.'">'."\n";
 
 	foreach($loc_files as $loc_file) {
-		$message_file .= '<file source="'.substr(str_replace(SQ_SYSTEM_ROOT, '', $loc_file),1).'">'."\n";
+		$message_file .= '<file source="'.substr(str_replace(SQ_SYSTEM_ROOT, '', $loc_file),1).'" name="lang_messages.xml">'."\n";
 		$message_file .= str_replace('<?xml version="1.0" ?>', '',
 							file_get_contents($loc_file.'/'.str_replace('_', '/', str_replace('@', '/', $locale)).'/lang_messages.xml')."\n");
 		$message_file .= '</file>'."\n";
