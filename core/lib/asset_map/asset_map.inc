@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.181 2005/05/16 06:55:17 tbarrett Exp $
+* $Id: asset_map.inc,v 1.182 2005/05/19 23:52:52 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.181 $
+* @version $Revision: 1.182 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -328,6 +328,19 @@ class Asset_Map
 				echo "</asset_types>\n";
 				echo $current_user_xml;
 				echo $assets_xml;
+				echo "<translations>\n";
+				echo "<![CDATA[\n";
+					$current_locale = $GLOBALS['SQ_SYSTEM']->lm->getCurrentLocale();
+					$locales = $GLOBALS['SQ_SYSTEM']->lm->getCumulativeLocaleParts($current_locale);
+					foreach($locales as $locale) {
+						$file_name = SQ_DATA_PATH.'/private/system/core/java_strings_'.$locale.'.properties';
+						if (file_exists($file_name)) {
+							echo file_get_contents($file_name)."\n\n";
+						}
+					}
+
+				echo "]]>\n";
+				echo "</translations>\n";
 			echo "</initialisation>\n";
 			$out = ob_get_contents();
 		ob_end_clean();
