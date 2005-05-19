@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.59 2005/05/19 10:04:53 gnoel Exp $
+* $Id: system_config.inc,v 1.60 2005/05/19 11:08:38 gnoel Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.59 $
+* @version $Revision: 1.60 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -51,6 +51,7 @@ class System_Config extends Config
 						'SQ_CONF_LIMBO_SUFFIX'				=> Array('editable' => 1, 'default' => '_edit'),
 						'SQ_CONF_ASSET_TREE_BASE'			=> Array('editable' => 0, 'default' => 64),
 						'SQ_CONF_ASSET_TREE_SIZE'			=> Array('editable' => 0, 'default' =>  4),
+						'SQ_CONF_ASSET_CACHE_SIZE'			=> Array('editable' => 0, 'default' =>  10),
 						'SQ_CONF_ROLLBACK_ENABLED'			=> Array('editable' => 0, 'default' => '0'),
 						'SQ_CONF_DEBUG'						=> Array('editable' => 1, 'default' => 0),
 						'SQ_CONF_SYSTEM_NAME'				=> Array('editable' => 1, 'default' => 'The System'),
