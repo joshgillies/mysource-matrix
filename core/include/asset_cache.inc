@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-*$Id: asset_cache.inc,v 1.1 2005/05/19 09:14:18 gnoel Exp $
+*$Id: asset_cache.inc,v 1.2 2005/05/19 11:41:21 gnoel Exp $
 *
 */
 
@@ -44,7 +44,7 @@ define('SQ_ASSET_CACHE_DEBUG', 0);
 * limits. They can also be manually removed by calling remove().
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 class Asset_Cache extends MySource_Object
@@ -331,8 +331,9 @@ class Asset_Cache extends MySource_Object
 	/**
 	* Add information in the cache about the caller class
 	*
-	* @param	string	$itemid
-	* @param	int		$rc_diff
+	* @param	string	$itemid		id of the item which RC has changed
+	* @param	int		$rc_diff	difference in the reference count
+	*  								(eg. +1, -1)
 	*
 	* @return void
 	* @access private
