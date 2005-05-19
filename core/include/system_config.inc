@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.58 2005/05/17 00:31:34 tbarrett Exp $
+* $Id: system_config.inc,v 1.59 2005/05/19 10:04:53 gnoel Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.58 $
+* @version $Revision: 1.59 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -86,6 +86,7 @@ class System_Config extends Config
 	var $debug_options = Array(
 							1	=> 'Show File and Line number in error messages',
 							2	=> 'Show Stack Trace in error messages',
+							4	=> 'Show additional information about memory and performance', 							
 						 );
 
 
