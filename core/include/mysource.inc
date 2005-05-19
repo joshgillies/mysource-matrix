@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.110 2005/05/18 09:37:59 brobertson Exp $
+* $Id: mysource.inc,v 1.111 2005/05/19 09:52:26 gnoel Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.110 $
+* @version $Revision: 1.111 $
 * @package MySource_Matrix
 */
 class MySource
@@ -403,6 +403,11 @@ class MySource
 			$asset->printFrontend();
 
 		}//end if backend/limbo
+
+		if (SQ_CONF_DEBUG & 4) {
+			// report all the assets with a reference count > 0
+			log_write($this->am->getForgottenItemsReport(), 'asset_cache', E_USER_NOTICE, false);  
+		}
 
 		$this->db->disconnect();
 
