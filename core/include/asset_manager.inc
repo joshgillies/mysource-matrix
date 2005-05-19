@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.313 2005/05/19 09:40:47 gnoel Exp $
+* $Id: asset_manager.inc,v 1.314 2005/05/19 11:09:48 gnoel Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.313 $
+* @version $Revision: 1.314 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -56,7 +56,7 @@ class Asset_Manager extends MySource_Object
 	* If its size exceeds the limit, assets without any reference count left
 	* will be removed from it.
 	*
-	* @var Array(Asset)
+	* @var object Asset_Cache
 	*/
 	var $_asset_cache;
 
@@ -86,6 +86,7 @@ class Asset_Manager extends MySource_Object
 
 		require_once SQ_INCLUDE_PATH.'/asset_cache.inc';		
 		$this->_asset_cache = new Asset_Cache();
+		$this->_asset_cache->setSizeRules(SQ_CONF_ASSET_CACHE_SIZE);
 		
 	}//end constructor
 
@@ -3621,7 +3622,7 @@ class Asset_Manager extends MySource_Object
 				$paths     = $minor->getWebPaths();
 				$bad_paths = $this->webPathsInUse($major, $paths, $minor->id);
 				if (!empty($bad_paths)) {
-					trigger_localised_error('SYS0121', U_USER_WARNING, $linkid, implode('", "', $bad_paths), $major->name);
+					trigger_localised_error('SYS0121', E_USER_WARNING, $linkid, implode('", "', $bad_paths), $major->name);
 					$ms->abortLog();
 					return false;
 				}
