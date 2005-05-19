@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: init.inc,v 1.81 2005/05/10 00:30:48 gsherwood Exp $
+* $Id: init.inc,v 1.82 2005/05/19 10:21:08 brobertson Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * The file that needs to be included to do anything
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.81 $
+* @version $Revision: 1.82 $
 * @package MySource_Matrix
 */
 
@@ -202,6 +202,7 @@ if (get_magic_quotes_gpc()) {
 	stripslashes_array($_POST, true);
 	stripslashes_array($_COOKIE, true);
 	stripslashes_array($_REQUEST, true);
+	$_SERVER['QUERY_STRING'] = stripslashes($_SERVER['QUERY_STRING']);
 }
 
 

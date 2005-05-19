@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.89 2005/05/12 07:08:55 tbarrett Exp $
+* $Id: general.inc,v 1.90 2005/05/19 10:21:07 brobertson Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.89 $
+* @version $Revision: 1.90 $
 * @package MySource_Matrix
 */
 
@@ -521,9 +521,7 @@ function strip_url($url, $strip_protocol=false)
 function replace_query_string_vars($replacements, $base_url=null, $query_string=null)
 {
 	if (is_null($base_url)) $base_url = current_url();
-	if (is_null($query_string)) {
-		$query_string = get_magic_quotes_gpc() ? stripslashes($_SERVER['QUERY_STRING']) : $_SERVER['QUERY_STRING'];
-	}
+	if (is_null($query_string)) $query_string = $_SERVER['QUERY_STRING'];
 
 	$url = $base_url.'?'.$query_string;
 
