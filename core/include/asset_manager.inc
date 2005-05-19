@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.312 2005/05/17 07:03:51 dheppell Exp $
+* $Id: asset_manager.inc,v 1.313 2005/05/19 09:40:47 gnoel Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.312 $
+* @version $Revision: 1.313 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -50,6 +50,15 @@ class Asset_Manager extends MySource_Object
 	* @var Array(Asset)
 	*/
 	var $_assets = Array();
+
+	/**
+	* This array holds the references to all the assets that have been loaded
+	* If its size exceeds the limit, assets without any reference count left
+	* will be removed from it.
+	*
+	* @var Array(Asset)
+	*/
+	var $_asset_cache;
 
 	/**
 	* This array holds the list of system assets in the format Array(name -> id,...)
@@ -75,6 +84,9 @@ class Asset_Manager extends MySource_Object
 		$this->MySource_Object();
 		$this->_loadAssetTypes();
 
+		require_once SQ_INCLUDE_PATH.'/asset_cache.inc';		
+		$this->_asset_cache = new Asset_Cache();
+		
 	}//end constructor
 
 
@@ -758,11 +770,9 @@ class Asset_Manager extends MySource_Object
 	{
 		assert_valid_assetid($assetid);
 
-		if (!isset($this->_assets[$assetid]) || !is_object($this->_assets[$assetid]['object'])) {
-
-			$this->_assets[$assetid] = Array();
-			$this->_assets[$assetid]['object'] = null;
-			$this->_assets[$assetid]['count']  = 0;
+		$asset = &$this->_asset_cache->get($assetid);
+		
+		if (empty($asset)) {
 
 			// check if we are getting links for a shadow asset, and palm the request off to the
 			// handler of the shadow asset if we are
@@ -773,9 +783,10 @@ class Asset_Manager extends MySource_Object
 				$asset = &$this->getAsset($real_assetid, '', $mute_errors);
 				if (!method_exists($asset, 'getAsset')) {
 					trigger_localised_error('SYS0203', E_USER_WARNING, $asset->name);
-					return $null;
+					//return $null;
+				} else {
+					$asset = &$asset->getAsset($id_parts[1]);
 				}
-				$this->_assets[$assetid]['object'] = &$asset->getAsset($id_parts[1]);
 
 			} else {
 
@@ -784,32 +795,33 @@ class Asset_Manager extends MySource_Object
 					$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 					$type_code = $GLOBALS['SQ_SYSTEM']->db->getOne('SELECT type_code FROM '.SQ_TABLE_RUNNING_PREFIX.'ast '.$where);
 					assert_valid_db_result($type_code);
-					if (empty($type_code)) {
-						if (!$mute_errors) {
-							trigger_localised_error('SYS0087', E_USER_WARNING, $assetid);
-						}
-
-						return $this->_assets[$assetid]['object'];
-					}
 				}
 
-				if (!isset($this->_asset_types[$type_code])) {
+				if (empty($type_code)) {
 					if (!$mute_errors) {
-						trigger_localised_error('SYS0091', E_USER_WARNING, $type_code);
-					}
-
+						trigger_localised_error('SYS0087', E_USER_WARNING, $assetid);
+					}					
 				} else {
-					$this->includeAsset($type_code);
-					$this->_assets[$assetid]['object'] = @new $type_code($assetid);
-					if (empty($this->_assets[$assetid]['object']->id)) $this->_assets[$assetid]['object'] = null;
+					if (!isset($this->_asset_types[$type_code])) {
+						if (!$mute_errors) {
+							trigger_localised_error('SYS0091', E_USER_WARNING, $type_code);
+						}	
+					} else {
+						$this->includeAsset($type_code);
+						$asset = @new $type_code($assetid);
+						if (empty($asset->id)) $asset = null;
+					}
 				}
-
+				
 			}//end if
+			
+			if (isset($asset)) {
+				$this->_asset_cache->add($asset);
+			}
 
 		}//end if
-
-		$this->_assets[$assetid]['count']++;
-		return $this->_assets[$assetid]['object'];
+		
+		return $asset;
 
 	}//end getAsset()
 
@@ -858,10 +870,10 @@ class Asset_Manager extends MySource_Object
 	{
 		// wrong class or no id, cya
 		if (!is_object($obj) || !is_a($obj, 'asset') || !$obj->id) return;
-
-		if (isset($this->_assets[$obj->id])) unset($this->_assets[$obj->id]);
-		$this->_assets[$obj->id]['object'] = &$obj;
-		$this->_assets[$obj->id]['count']  = 1;
+		
+		if (!$this->_asset_cache->add($obj)) {
+			trigger_localised_error('SYS0305', E_USER_ERROR, $obj->id);
+		}
 
 	}//end rememberAsset()
 
@@ -883,11 +895,11 @@ class Asset_Manager extends MySource_Object
 	{
 		// wrong class or no id, cya
 		if (!is_object($obj) || !is_a($obj, 'asset') || !$obj->id) return;
-		if (isset($this->_assets[$obj->id])) {
-			if ($this->_assets[$obj->id]['count'] > 1 && !$force_clean) {
-				$this->_assets[$obj->id]['count']--;
-			} else {
-				unset($this->_assets[$obj->id]);
+		
+		$this->_asset_cache->release($obj->id);
+		if ($force_clean) {
+			if (!$this->_asset_cache->remove($obj->id)) {
+				trigger_localised_error('SYS0306', E_USER_WARNING, $obj->id);
 			}
 		}
 
@@ -5329,6 +5341,20 @@ class Asset_Manager extends MySource_Object
 			   );
 
 	}//end generateGetParentsQuery()
+
+
+	/**
+	* Returns a information string about all the assets in the cache which Ref
+	* Count > 0
+	*
+	* @return string
+	* @access public
+	*/
+	function getForgottenItemsReport()
+	{
+		return $this->_asset_cache->getForgottenItemsReport();
+		
+	}//end getForgottenItemsReport()
 
 
 }//end class
