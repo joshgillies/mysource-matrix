@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question.inc,v 1.54 2005/05/18 04:51:56 tbarrett Exp $
+* $Id: form_question.inc,v 1.55 2005/05/19 00:18:11 tbarrett Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.54 $
+* @version $Revision: 1.55 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -762,19 +762,14 @@ class Form_Question extends Asset
 
 
 	/**
-	* Evaluates the question to check if any rules are broken
-	*
-	* @param string	$answer	the answer to check with (use current value if
-	*						omitted)
+	* Look at user-specified and internal rules to see if this question currently has a valid value
 	*
 	* @return boolean	true if all rules pass
 	* @access public
 	*/
-	function evaluate($answer=null)
+	function hasValidValue()
 	{
-		if (is_null($answer)) {
-			$answer = $this->getValue();
-		}
+		$answer = $this->getValue();
 
 		$rules = &$this->getRules();
 		$ok = true;						// We start as being all OK
@@ -801,7 +796,7 @@ class Form_Question extends Asset
 
 		return $ok;
 
-	}//end evaluate()
+	}//end hasValidValue()
 
 
 	/**
@@ -824,7 +819,7 @@ class Form_Question extends Asset
 
 
 	/**
-	* 
+	* Set the value of this question
 	*
 	* @access public
 	* @return void
@@ -832,7 +827,8 @@ class Form_Question extends Asset
 	function setValue($value)
 	{
 		$this->active_submission[$this->id] = $value;
-	}
+
+	}//end setValue()
 
 
 }//end class
