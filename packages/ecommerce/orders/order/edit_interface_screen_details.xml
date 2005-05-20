@@ -11,28 +11,18 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.3 2005/04/29 05:39:36 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: edit_interface_screen_details.xml,v 1.4 2005/05/20 05:45:52 tbarrett Exp $
+*
 */
 -->
 
 <contents>
-
-	<section name="Details" write_access="write:attributes" limbo_access="1">
-		<field attribute="name">
-			<text width="35" height="1" />
-		</field>
-		<field attribute="short_name">
-			<text width="35" height="1" />
-		</field>
-	</section>
-	<section name="tmp report" write_access="write:attributes">
-		<field attribute="name">
+	<section name="Answers to Global Questions" write_access="write:attributes">
+		<field format="new_line">
 			<function_call>
-				<paint_funtion name="paintExport" />
-				<process_function name="" />
+				<paint_function name="paintSubmissionDetails" />
+				<process_function name="processSubmissionDetails" />
 			</function_call>
 		</field>
 	</section>
-
 </contents>
