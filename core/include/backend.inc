@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.127 2005/05/20 00:48:29 lwright Exp $
+* $Id: backend.inc,v 1.128 2005/05/20 09:13:14 gnoel Exp $
 *
 */
 
@@ -32,7 +32,7 @@
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.127 $
+* @version $Revision: 1.128 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -105,7 +105,7 @@ class Backend extends MySource_Object
 			$printing_assetid = (SQ_IN_LIMBO) ? $_REQUEST['limbo_assetid'] : $_REQUEST['assetid'];
 			$printing_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($printing_assetid);
 			if (is_null($printing_asset)) {
-				trigger_lcoalised_error("SYS0195", E_USER_WARNING, $printing_assetid);
+				trigger_localised_error("SYS0195", E_USER_WARNING, $printing_assetid);
 				return;
 			}
 			// lets ask the asset itself if we are allowed access to its backend (no dirty thoughts)
@@ -125,7 +125,7 @@ class Backend extends MySource_Object
 		if (isset($_REQUEST['a'])) {
 			$frontend_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($_REQUEST['a']);
 			if (is_null($frontend_asset)) {
-				trigger_lcoalised_error('SYS0195', E_USER_WARNING, $_REQUEST['a']);
+				trigger_localised_error('SYS0195', E_USER_WARNING, $_REQUEST['a']);
 				return;
 			}
 			$frontend_asset->printFrontend();
