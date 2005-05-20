@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_permissions.inc,v 1.50 2005/05/17 06:58:42 ndvries Exp $
+* $Id: hipo_job_edit_permissions.inc,v 1.51 2005/05/20 06:35:59 tbarrett Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.50 $
+* @version $Revision: 1.51 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -250,7 +250,7 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 				return '';
 			}
 
-			if (isset($this->_running_vars['dependants_only'])) {
+			if (array_get_index($this->_running_vars, 'dependants_only')) {
 				$child_assets += $GLOBALS['SQ_SYSTEM']->am->getDependantChildren($assetid);
 			} else {
 				$child_assets += $GLOBALS['SQ_SYSTEM']->am->getChildren($assetid);
@@ -392,7 +392,7 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 							'assetids'			=> array_keys($this->_running_vars['assets']),
 							'lock_type'			=> Array('permissions'),
 							'forceably_acquire'	=> false,
-							'dependants_only'	=> false,
+							'dependants_only'	=> isset($this->_running_vars['dependants_only']),
 						);
 
 	}//end getLockAssetDetails()
