@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_acronym.php,v 1.5 2005/05/16 06:36:36 lwright Exp $
+* $Id: insert_acronym.php,v 1.6 2005/05/20 04:33:46 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Insert Acronym Popup for the WYSIWYG
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 */
 
@@ -42,9 +42,27 @@ if (!isset($_GET['title']))		  $_GET['title'] = "";
 	<head>
 		<title>Insert Acronym</title>
 
+		<?php
+		//add required js translation files, as we are using asset finder
+		$include_list = Array(sq_web_path('lib').'/js/translation.js');
+
+		$locales = $GLOBALS['SQ_SYSTEM']->lm->getCumulativeLocaleParts($GLOBALS['SQ_SYSTEM']->lm->getCurrentLocale());
+
+		foreach($locales as $locale) {
+			if (file_exists(SQ_DATA_PATH.'/public/system/core/js_strings.'.$locale.'.js')) {
+				$include_list[] = sq_web_path('data').'/system/core/js_strings.'.$locale.'.js';
+			}
+		}
+
+		foreach($include_list as $link) {
+			?><script type="text/javascript" src="<?php echo $link; ?>"></script>
+		<?php
+		}
+		?>
 		<script type="text/javascript" src="../../core/popup.js"></script>
 		<script type="text/javascript" src="<?php echo sq_web_path('fudge').'/var_serialise/var_serialise.js' ?>"></script>
 		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/html_form/html_form.js' ?>"></script>
+		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/js/general.js' ?>"></script>
 
 		<script type="text/javascript">
 

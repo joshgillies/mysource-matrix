@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: embed_movie.php,v 1.17 2005/05/16 06:36:36 lwright Exp $
+* $Id: embed_movie.php,v 1.18 2005/05/20 04:33:46 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Embed Movie Popup for the WYSIWYG
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix
 */
 
@@ -41,10 +41,28 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 	<head>
 		<title>Embed Movie</title>
 
+		<?php
+		//add required js translation files, as we are using asset finder
+		$include_list = Array(sq_web_path('lib').'/js/translation.js');
+
+		$locales = $GLOBALS['SQ_SYSTEM']->lm->getCumulativeLocaleParts($GLOBALS['SQ_SYSTEM']->lm->getCurrentLocale());
+
+		foreach($locales as $locale) {
+			if (file_exists(SQ_DATA_PATH.'/public/system/core/js_strings.'.$locale.'.js')) {
+				$include_list[] = sq_web_path('data').'/system/core/js_strings.'.$locale.'.js';
+			}
+		}
+
+		foreach($include_list as $link) {
+			?><script type="text/javascript" src="<?php echo $link; ?>"></script>
+		<?php
+		}
+		?>
 		<script type="text/javascript" src="../../core/popup.js"></script>
 		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/asset_map/javaExternalCall.js' ?>"></script>
 		<script type="text/javascript" src="<?php echo sq_web_path('fudge').'/var_serialise/var_serialise.js' ?>"></script>
 		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/html_form/html_form.js' ?>"></script>
+		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/js/general.js' ?>"></script>
 
 		<script type="text/javascript">
 

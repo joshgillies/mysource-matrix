@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_anchor.php,v 1.4 2005/01/20 13:32:41 brobertson Exp $
+* $Id: insert_anchor.php,v 1.5 2005/05/20 04:33:46 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Insert Anchor Popup for the WYSIWYG
 *
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 */
 
@@ -42,9 +42,27 @@ if (!isset($_GET['name']))		  $_GET['name'] = "";
 	<head>
 		<title>Insert Anchor</title>
 
+		<?php
+		//add required js translation files, as we are using asset finder
+		$include_list = Array(sq_web_path('lib').'/js/translation.js');
+
+		$locales = $GLOBALS['SQ_SYSTEM']->lm->getCumulativeLocaleParts($GLOBALS['SQ_SYSTEM']->lm->getCurrentLocale());
+
+		foreach($locales as $locale) {
+			if (file_exists(SQ_DATA_PATH.'/public/system/core/js_strings.'.$locale.'.js')) {
+				$include_list[] = sq_web_path('data').'/system/core/js_strings.'.$locale.'.js';
+			}
+		}
+
+		foreach($include_list as $link) {
+			?><script type="text/javascript" src="<?php echo $link; ?>"></script>
+		<?php
+		}
+		?>
 		<script type="text/javascript" src="../../core/popup.js"></script>
 		<script type="text/javascript" src="<?php echo sq_web_path('fudge').'/var_serialise/var_serialise.js' ?>"></script>
 		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/html_form/html_form.js' ?>"></script>
+		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/js/general.js' ?>"></script>
 
 		<script type="text/javascript">
 
@@ -64,7 +82,7 @@ if (!isset($_GET['name']))		  $_GET['name'] = "";
 				var f = document.main_form;
 
 				param["name"]        = form_element_value(f.name);
-				
+
 				__dlg_close("matrixInsertAnchor", param);
 				return false;
 			};
@@ -103,7 +121,7 @@ if (!isset($_GET['name']))		  $_GET['name'] = "";
 			}
 
 			/* fieldset styles */
-			fieldset { 
+			fieldset {
 				padding: 0px 10px 5px 5px;
 				border-color: #725B7D;
 			}
@@ -164,7 +182,7 @@ if (!isset($_GET['name']))		  $_GET['name'] = "";
 					</td>
 				</tr>
 			</table>
-	
+
 			<div style="margin-top: 5px; margin-right: 5px; text-align: right;">
 			<hr />
 			<button type="button" name="ok" onclick="return onOK();">OK</button>
