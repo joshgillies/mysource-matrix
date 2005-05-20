@@ -27,7 +27,7 @@ public class SelectionDialog extends MatrixDialog implements MatrixConstants {
 
 		Border border = new CompoundBorder(
 			new EmptyBorder(12, 12, 12, 12),
-			new TitledBorder("Current Selection")
+			new TitledBorder(Matrix.translate("asset_map_dialog_title_current_selection"))
 		);
 		Border border2 = new CompoundBorder(
 			border,
@@ -37,7 +37,7 @@ public class SelectionDialog extends MatrixDialog implements MatrixConstants {
 		contentPane.add(getSelectionPanel());
 
 		// create a menu for removing nodes
-		JMenuItem removeItem = new JMenuItem("Remove");
+		JMenuItem removeItem = new JMenuItem(Matrix.translate("asset_map_menu_remove"));
 		removeItem.addActionListener(new removeSelectionNodesAction());
 		removeMenu = new JPopupMenu();
 		removeMenu.add(removeItem);
@@ -64,7 +64,7 @@ public class SelectionDialog extends MatrixDialog implements MatrixConstants {
 	}
 
 	/*
-	 * We have this method because we want to update the model every 
+	 * We have this method because we want to update the model every
 	 * time except when we create the tree.
 	 */
 	private void setNodes(MatrixTreeNode[] nodes, boolean updateModel) {
@@ -105,7 +105,7 @@ public class SelectionDialog extends MatrixDialog implements MatrixConstants {
 	 */
 	private JPanel getSelectionPanel() {
 		MatrixTreeNode[] nodes = Selection.getNodes();
-		
+
 		if (nodes != null) {
 			parentNode = new DefaultMutableTreeNode();
 			setNodes(nodes, false);
@@ -113,18 +113,18 @@ public class SelectionDialog extends MatrixDialog implements MatrixConstants {
 			selectionTree.setRootVisible(false);
 		}
 		selectionTree.setCellRenderer(MatrixTreeBus.getCellRenderer());
-		
+
 		JScrollPane treePane = new JScrollPane(selectionTree);
-		JButton removeAllBtn = new JButton("Remove All");
-		JButton removeSelectionBtn = new JButton("Remove Selection");
-		
+		JButton removeAllBtn = new JButton(Matrix.translate("asset_map_button_remove_all"));
+		JButton removeSelectionBtn = new JButton(Matrix.translate("asset_map_button_remove_selection"));
+
 		removeAllBtn.addActionListener(new removeAllNodesAction());
 		removeSelectionBtn.addActionListener(new removeSelectionNodesAction());
-		
+
 		GridBagLayout gb = new GridBagLayout();
 		GridBagConstraints c = new GridBagConstraints();
 		JPanel selectionPanel = new JPanel(gb);
-		
+
 		// add the selection panel so that it is maximum width and height
 		c.fill = GridBagConstraints.BOTH;
 		c.gridwidth = GridBagConstraints.REMAINDER;
@@ -132,7 +132,7 @@ public class SelectionDialog extends MatrixDialog implements MatrixConstants {
 		c.weighty = 1.0;
 		gb.setConstraints(treePane, c);
 		selectionPanel.add(treePane);
-		
+
 		// add the buttons so they are maximum width and minimum height
 		c.weightx = 0.0;
 		c.weighty = 0.0;
@@ -140,12 +140,12 @@ public class SelectionDialog extends MatrixDialog implements MatrixConstants {
 		selectionPanel.add(removeAllBtn);
 		gb.setConstraints(removeSelectionBtn, c);
 		selectionPanel.add(removeSelectionBtn);
-		
+
 		return selectionPanel;
 	}
-	
+
 	// inner classes
-	
+
 	/**
 	 * An ActionListener to remove nodes from the selection tree
 	 */
@@ -154,7 +154,7 @@ public class SelectionDialog extends MatrixDialog implements MatrixConstants {
 			TreePath[] paths = selectionTree.getSelectionPaths();
 			if (paths == null)
 				return;
-			
+
 			for (int i = 0; i < paths.length; i++) {
 				MatrixTreeNode node = (MatrixTreeNode) paths[i].getLastPathComponent();
 				((DefaultTreeModel) selectionTree.getModel()).removeNodeFromParent(node);
@@ -227,7 +227,7 @@ public class SelectionDialog extends MatrixDialog implements MatrixConstants {
 					return removeMenu;
 				return null;
 			}
-			
+
 			/**
 			 * No ancillery items are used for the selection tree
 			 * @return null as no items are used

@@ -17,7 +17,7 @@
  * | licence.                                                           |
  * +--------------------------------------------------------------------+
  *
- * $Id: MatrixTree.java,v 1.6 2005/05/16 05:20:09 ndvries Exp $
+ * $Id: MatrixTree.java,v 1.7 2005/05/20 00:08:35 ndvries Exp $
  * $Name: not supported by cvs2svn $
  */
 
@@ -346,19 +346,27 @@ public class MatrixTree extends CueTree
 				node.getAsset().propagateChildren(node);
 		} else {
 			insertLoadingNode(node);
-			MatrixStatusBar.setStatus("Requesting...");
+			MatrixStatusBar.setStatus(Matrix.translate("asset_map_status_bar_requesting"));
 			Runnable runner = new Runnable() {
 				public void run() {
 					try {
 						AssetManager.refreshAsset(node);
 						removeLoadingNode(node);
-						String childStr = (node.getChildCount() == 1) ? "Child" : "Children";
-						MatrixStatusBar.setStatusAndClear("Loaded " +
-							node.getChildCount() + " " + childStr, 1000);
+						if (node.getChildCount() == 1) {
+							MatrixStatusBar.setStatusAndClear(Matrix.translate("asset_map_status_bar_loaded_child"), 1000);
+						} else {
+							Object[] transArgs = {
+								new Integer(node.getChildCount())
+							};
+							MatrixStatusBar.setStatusAndClear(Matrix.translate("asset_map_status_bar_loaded_children", transArgs), 1000);
+						}
 					} catch (IOException ioe) {
-						MatrixStatusBar.setStatusAndClear("Failed!", 1000);
-						String message = "Could not load child assets: " + ioe.getMessage();
-						GUIUtilities.error(MatrixTree.this, message, "Error");
+						MatrixStatusBar.setStatusAndClear(Matrix.translate("asset_map_status_bar_requesting"), 1000);
+						Object[] transArgs = {
+							ioe.getMessage()
+						};
+						String message = Matrix.translate("asset_map_error_loading_children", transArgs);
+						GUIUtilities.error(MatrixTree.this, message, Matrix.translate("asset_map_dialog_title_error"));
 						Log.log(message, MatrixTree.class, ioe);
 					}
 				}
@@ -774,10 +782,10 @@ public class MatrixTree extends CueTree
 		final int index) {
 			JPopupMenu newLinkMenu = new JPopupMenu();
 
-			final JMenuItem moveMenuItem    = new JMenuItem("Move here");
-			final JMenuItem newLinkMenuItem = new JMenuItem("New Link here");
-			final JMenuItem cloneMenuItem   = new JMenuItem("Clone here");
-			final JMenuItem cancelMenuItem  = new JMenuItem("Cancel");
+			final JMenuItem moveMenuItem    = new JMenuItem(Matrix.translate("asset_map_menu_move_here"));
+			final JMenuItem newLinkMenuItem = new JMenuItem(Matrix.translate("asset_map_menu_link_here"));
+			final JMenuItem cloneMenuItem   = new JMenuItem(Matrix.translate("asset_map_menu_clone_here"));
+			final JMenuItem cancelMenuItem  = new JMenuItem(Matrix.translate("asset_map_menu_cancel"));
 
 			ActionListener listener = new ActionListener() {
 				public void actionPerformed(ActionEvent evt) {
@@ -817,8 +825,8 @@ public class MatrixTree extends CueTree
 		final int index) {
 			JPopupMenu createMenu = new JPopupMenu();
 
-			final JMenuItem createItem = new JMenuItem("Create Here");
-			final JMenuItem cancelItem = new JMenuItem("Cancel");
+			final JMenuItem createItem = new JMenuItem(Matrix.translate("asset_map_menu_create_here"));
+			final JMenuItem cancelItem = new JMenuItem(Matrix.translate("asset_map_menu_cancel"));
 
 			ActionListener listener = new ActionListener() {
 				public void actionPerformed(ActionEvent evt) {
@@ -1024,7 +1032,7 @@ public class MatrixTree extends CueTree
 				};
 
 				JMenu addMenu = MatrixMenus.getAddMenu(explicitAddListener);
-				addMenu.setText("New Child");
+				addMenu.setText(Matrix.translate("asset_map_menu_new_child"));
 				menu.add(addMenu);
 			}
 
@@ -1039,9 +1047,9 @@ public class MatrixTree extends CueTree
 			if (isInAssetFinderMode) return null;
 
 			JPopupMenu menu = new JPopupMenu();
-			final JMenuItem moveItem = new JMenuItem("Move");
-			final JMenuItem newLinkItem = new JMenuItem("New Link");
-			final JMenuItem cloneItem = new JMenuItem("Clone");
+			final JMenuItem moveItem = new JMenuItem(Matrix.translate("asset_map_menu_move"));
+			final JMenuItem newLinkItem = new JMenuItem(Matrix.translate("asset_map_menu_link"));
+			final JMenuItem cloneItem = new JMenuItem(Matrix.translate("asset_map_menu_clone"));
 
 			ActionListener multiplelistener = new ActionListener() {
 				public void actionPerformed(ActionEvent evt) {
@@ -1073,8 +1081,8 @@ public class MatrixTree extends CueTree
 		 */
 		protected JMenuItem[] getAncillaryMenuItems() {
 			JMenuItem[] items = new JMenuItem[2];
-			final JMenuItem teleportItem = new JMenuItem("Teleport");
-			final JMenuItem refreshItem  = new JMenuItem("Refresh");
+			final JMenuItem teleportItem = new JMenuItem(Matrix.translate("asset_map_menu_teleport"));
+			final JMenuItem refreshItem  = new JMenuItem(Matrix.translate("asset_map_menu_refresh"));
 
 			ActionListener extrasListener = new ActionListener() {
 				public void actionPerformed(ActionEvent evt) {
@@ -1259,8 +1267,7 @@ public class MatrixTree extends CueTree
 				TreePath path = (TreePath) iterator.next();
 				MatrixTreeNode node = (MatrixTreeNode) path.getLastPathComponent();
 				if (!canMoveNode(node)) {
-					GUIUtilities.error("Cannot move nodes: the selection contains shadow" +
-						" assets", "Cannot move nodes");
+					GUIUtilities.error(Matrix.translate("asset_map_error_move_shadow_nodes"), Matrix.translate("asset_map_dialog_title_error"));
 					dtde.rejectDrop();
 					isDropping = false;
 					if (!dragHandler.isDragImageSupported())

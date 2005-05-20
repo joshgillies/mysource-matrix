@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: MatrixMenus.java,v 1.3 2005/05/13 02:33:38 ndvries Exp $
+* $Id: MatrixMenus.java,v 1.4 2005/05/20 00:08:35 ndvries Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -158,8 +158,11 @@ public class MatrixMenus implements MatrixConstants {
 				try {
 					AssetMap.getURL(screenUrl);
 				} catch (MalformedURLException mue) {
-					String message = "Could not get the screen url " + mue.getMessage();
-					GUIUtilities.error(message, "Error");
+					Object[] transArgs = {
+						mue.getMessage()
+					};
+					String message = Matrix.translate("asset_map_error_screen_url", transArgs);
+					GUIUtilities.error(message, Matrix.translate("asset_map_dialog_title_error"));
 					Log.log(message, MatrixMenus.class, mue);
 				}
 			}
@@ -216,7 +219,7 @@ public class MatrixMenus implements MatrixConstants {
 			}
 		};
 
-		JMenuItem item = new JMenuItem("Use Me");
+		JMenuItem item = new JMenuItem(Matrix.translate("asset_map_menu_useme"));
 		item.addActionListener(useMeListener);
 		menu.add(item);
 
@@ -277,7 +280,7 @@ public class MatrixMenus implements MatrixConstants {
 	//	if (menu != null)
 	//		return menu;
 
-		addMenu = new JMenu("Add New");
+		addMenu = new JMenu(Matrix.translate("asset_map_menu_add_new"));
 		addMenu.addMenuListener(loader);
 		Iterator it = AssetManager.getAssetTypes();
 

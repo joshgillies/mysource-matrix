@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: AssetMapMenuPanel.java,v 1.5 2005/05/16 23:35:27 ndvries Exp $
+* $Id: AssetMapMenuPanel.java,v 1.6 2005/05/20 00:08:35 ndvries Exp $
 *
 */
 
@@ -137,9 +137,8 @@ public class AssetMapMenuPanel extends JPanel {
 				worker.start();
 			}
 		};
-		String toolTip = "Refreshes All Assets";
 		JButton refreshButton
-			= createButton("refresh", refreshListener, toolTip);
+			= createButton("refresh", refreshListener, Matrix.translate("asset_map_tooltip_refresh_all"));
 
 		return refreshButton;
 	}
@@ -157,10 +156,8 @@ public class AssetMapMenuPanel extends JPanel {
 				((DefaultTreeModel) tree.getModel()).setRoot(AssetManager.getRootFolderNode());
 			}
 		};
-
-		String toolTip = "Restore the root Folder";
 		JButton restoreButton
-			= createButton("teleport", restoreListener, toolTip);
+			= createButton("teleport", restoreListener, Matrix.translate("asset_map_tooltip_restore_root"));
 
 		return restoreButton;
 	}
@@ -179,10 +176,8 @@ public class AssetMapMenuPanel extends JPanel {
 				tree.repaint();
 			}
 		};
-
-		String toolTip = "Collapse all";
 		JButton collapseButton
-			= createButton("collapse", collapseListener, toolTip);
+			= createButton("collapse", collapseListener, Matrix.translate("asset_map_tooltip_collapse_all"));
 
 		return collapseButton;
 	}
@@ -202,10 +197,8 @@ public class AssetMapMenuPanel extends JPanel {
 				tree.repaint();
 			}
 		};
-
-		String toolTip = "Show Status colours";
 		JButton paintStatusButton
-			= createButton("status", statusListener, toolTip);
+			= createButton("status", statusListener, Matrix.translate("asset_map_tooltip_toggle_status"));
 
 		return paintStatusButton;
 	}
@@ -241,7 +234,7 @@ public class AssetMapMenuPanel extends JPanel {
 		button.setBorderPainted(false);
 
 		button.setPreferredSize(new Dimension(icon.getIconWidth(), icon.getIconHeight()));
-		button.setToolTipText("Add New Asset");
+		button.setToolTipText(Matrix.translate("asset_map_tooltip_add_asset"));
 
 		return button;
 	}

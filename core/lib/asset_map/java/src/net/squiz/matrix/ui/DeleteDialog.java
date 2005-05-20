@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: DeleteDialog.java,v 1.3 2005/05/13 02:26:38 ndvries Exp $
+* $Id: DeleteDialog.java,v 1.4 2005/05/20 00:08:35 ndvries Exp $
 *
 */
 
@@ -59,18 +59,21 @@ public class DeleteDialog 	extends 	MatrixDialog
 
 		JLabel label;
 		// MM: what if nodes.length == 0 ? or nodes == null ?
-		if (nodes.length == 1)
-			label = new JLabel("Are you sure you want move the asset \"" +
-								nodes[0].getAsset().getName() +
-								"\" to the Trash?");
-		else
-			label = new JLabel("Are you sure you want move " +
-								nodes.length +
-								" assets to the Trash?");
+		if (nodes.length == 1) {
+			Object[] transArgs = {
+				new String(nodes[0].getAsset().getName())
+			};
+			label = new JLabel(Matrix.translate("asset_map_confirm_move_child", transArgs));
+		} else {
+			Object[] transArgs = {
+				new Integer(nodes.length)
+			};
+			label = new JLabel(Matrix.translate("asset_map_confirm_move_children", transArgs));
+		}
 		contentPane.add( BorderLayout.CENTER, label);
 
-		deleteBtn = new JButton( "Delete..." );
-		cancelBtn = new JButton( "Cancel" );
+		deleteBtn = new JButton(Matrix.translate("asset_map_button_delete"));
+		cancelBtn = new JButton(Matrix.translate("asset_map_button_cancel"));
 
 		ActionListener btnListener = new ButtonActionListener();
 		deleteBtn.addActionListener(btnListener);
@@ -121,7 +124,7 @@ public class DeleteDialog 	extends 	MatrixDialog
 					trashNode = (MatrixTreeNode) nodes.next();
 				}
 				MatrixTreeComm.createLink(NewLinkEvent.LINK_TYPE_MOVE, DeleteDialog.this.nodes, trashNode, 0);
-			
+
 			}
 
 			//TODO: (MM): need to call super.dispose(), maybe rename dispose() to disposeDialog()

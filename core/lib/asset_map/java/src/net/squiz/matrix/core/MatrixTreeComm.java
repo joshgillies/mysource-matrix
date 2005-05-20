@@ -17,7 +17,7 @@
  * | licence.                                                           |
  * +--------------------------------------------------------------------+
  *
- * $Id: MatrixTreeComm.java,v 1.3 2005/03/07 01:12:22 mmcintyre Exp $
+ * $Id: MatrixTreeComm.java,v 1.4 2005/05/20 00:08:35 ndvries Exp $
  * $Name: not supported by cvs2svn $
  */
 
@@ -42,9 +42,9 @@ import java.net.MalformedURLException;
  * @author Marc McIntyre <mmcintyre@squiz.net>
  */
 public class MatrixTreeComm implements NewLinkListener, NewAssetListener {
-	
+
 	// {{{ Public Methods
-			
+
 	/**
 	 * EventListener method that is called when a request for a new link
 	 * operation should be performed in the matrix system.
@@ -58,7 +58,7 @@ public class MatrixTreeComm implements NewLinkListener, NewAssetListener {
 			evt.getIndex()
 		);
 	}
-	
+
 	/**
 	 * Event listener method that is fired when a request for a new asset to
 	 * be created in the matrix system occurs.
@@ -69,26 +69,27 @@ public class MatrixTreeComm implements NewLinkListener, NewAssetListener {
 		MatrixTreeNode parent = evt.getParentNode();
 		int index             = evt.getIndex();
 		String parentAssetid  = MatrixToolkit.rawUrlEncode(parent.getAsset().getId(), true);
-		
-		
+
+
 		String xml = "<command action=\"get url\" cmd=\"add\" " +
-					 "parent_assetid=\"" + parentAssetid + 
-					 "\" pos=\"" + index + "\" type_code=\"" + 
+					 "parent_assetid=\"" + parentAssetid +
+					 "\" pos=\"" + index + "\" type_code=\"" +
 					 typeCode + "\" />";
 
 		Document response = null;
-		MatrixStatusBar.setStatus("Requesting...");
+		MatrixStatusBar.setStatus(Matrix.translate("asset_map_status_bar_requesting"));
 
 		try {
 			response = Matrix.doRequest(xml);
 		} catch (IOException ioe) {
-			GUIUtilities.error("Request to Matrix failed: " + ioe.getMessage(), "Error");
-			MatrixStatusBar.setStatusAndClear("Request Failed!", 1000);
+			Object[] transArgs = { ioe.getMessage() };
+			GUIUtilities.error(Matrix.translate("asset_map_error_request_failed", transArgs), Matrix.translate("asset_map_dialog_title_error"));
+			MatrixStatusBar.setStatusAndClear(Matrix.translate("asset_map_error_request_failed"), 1000);
 			Log.log("Request for new Asset failed", MatrixTreeComm.class, ioe);
 			return;
 		}
 
-		MatrixStatusBar.setStatusAndClear("Success!", 1000);
+		MatrixStatusBar.setStatusAndClear(Matrix.translate("asset_map_status_bar_success"), 1000);
 		NodeList children = response.getDocumentElement().getChildNodes();
 		String url = null;
 		for (int i = 0; i < children.getLength(); i++) {
@@ -105,9 +106,9 @@ public class MatrixTreeComm implements NewLinkListener, NewAssetListener {
 			Log.log("Could not load new asset interface in right pane", MatrixTreeComm.class, mue);
 		}
 	}
-	
+
 	/**
-	 * Creates a link in the matrix system and updates the new parent where 
+	 * Creates a link in the matrix system and updates the new parent where
 	 * appropriate. The new parent will only updated if nodes have been moved
 	 * on the same branch. The updating of the GUI is swing thread safe.
 	 * @param linkType the type of link to create
@@ -123,7 +124,7 @@ public class MatrixTreeComm implements NewLinkListener, NewAssetListener {
 			final MatrixTreeNode[] children,
 			final MatrixTreeNode parent,
 			final int index) {
-				
+
 		final String[] assetids = new String[] { parent.getAsset().getId() };
 		AssetRefreshWorker worker = new AssetRefreshWorker(assetids, true) {
 			public Object construct() {
@@ -138,7 +139,7 @@ public class MatrixTreeComm implements NewLinkListener, NewAssetListener {
 						String parentid = parent.getAsset().getId();
 						return AssetManager.makeRefreshRequest(assetids);
 					}
-					
+
 				} catch (IOException ioe) {
 					return ioe;
 				}
@@ -149,23 +150,23 @@ public class MatrixTreeComm implements NewLinkListener, NewAssetListener {
 				if (get() != null)
 					super.finished();
 				else
-					MatrixStatusBar.setStatusAndClear("Success!", 1000);
+					MatrixStatusBar.setStatusAndClear(Matrix.translate("asset_map_status_bar_success"), 1000);
 			}
 		};
 		worker.start();
 	}
-	
+
 	// }}}
 	// {{{ Private Methods
-	
+
 	/**
 	 * Generates the xml required to perform a link operation in the matrix system.
 	 * the resulting xml is in the format:
 	 * <pre>
-	 *   <command action="link_type", to_parent_assetid="" to_parent_pos=""> 
-	 *      <asset assetid="" linkid="" parentid="" /> 
-	 *      <asset assetid="" linkid="" parentid="" /> 
-	 *      <asset... /> 
+	 *   <command action="link_type", to_parent_assetid="" to_parent_pos="">
+	 *      <asset assetid="" linkid="" parentid="" />
+	 *      <asset assetid="" linkid="" parentid="" />
+	 *      <asset... />
 	 *   </command>
 	 * </pre>
 	 *
@@ -183,7 +184,7 @@ public class MatrixTreeComm implements NewLinkListener, NewAssetListener {
 			xml.append("<command action=\"").append(linkType).append("\"");
 			xml.append(" to_parent_assetid=\"").append(toParentId).append("\"");
 			xml.append(" to_parent_pos=\"").append(index).append("\">");
-			
+
 			for (int i = 0; i < children.length; i++) {
 				String assetid  = MatrixToolkit.rawUrlEncode(children[i].getAsset().getId(), true);
 				String linkid   = children[i].getLinkid();
@@ -199,14 +200,14 @@ public class MatrixTreeComm implements NewLinkListener, NewAssetListener {
 
 		return xml.toString();
 	}
-	
+
 	/**
 	 * Creates a link in the mysource matrix system.
 	 * @param linkType the type of link to create in the matrix system
 	 * @param children the children affected by the create link
 	 * @param parent the parent where the link will be created
 	 * @param index the index in the parent where the link will be created
-	 * @return Returns Boolean.TRUE if the parent requires refreshing, 
+	 * @return Returns Boolean.TRUE if the parent requires refreshing,
 	 * Boolean.FALSE otherwise
 	 */
 	private static Boolean doLinkRequest(
@@ -214,7 +215,7 @@ public class MatrixTreeComm implements NewLinkListener, NewAssetListener {
 			MatrixTreeNode[] children,
 			MatrixTreeNode parent,
 			int index) throws IOException {
-		
+
 		// Cue tree defined a move to an unexpaned folder as index -1
 		// so convert this to 0 for matrix
 		if (index == -1)
@@ -224,10 +225,10 @@ public class MatrixTreeComm implements NewLinkListener, NewAssetListener {
 		String xml          = generateCreateLinkXML(linkType, toParentId, children, index);
 		Document response   = Matrix.doRequest(xml);
 		NodeList childNodes = response.getDocumentElement().getChildNodes();
-		
+
 		String url = null;
 		Boolean refresh = Boolean.FALSE;
-		
+
 		for (int i = 0; i < childNodes.getLength(); i++) {
 			if (!(childNodes.item(i) instanceof Element))
 				continue;
@@ -242,8 +243,8 @@ public class MatrixTreeComm implements NewLinkListener, NewAssetListener {
 		// if there was a url, we need to start a hipo to move the nodes
 		// there were not on the same branch
 		if (url != null)
-			AssetMap.openWindow(url, "Create Link Hipo");
-		
+			AssetMap.openWindow(url, "");
+
 		return refresh;
 	}
 }

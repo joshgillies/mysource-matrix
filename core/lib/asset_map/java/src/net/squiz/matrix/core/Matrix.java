@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: Matrix.java,v 1.1 2005/02/18 05:20:07 mmcintyre Exp $
+* $Id: Matrix.java,v 1.2 2005/05/20 00:08:35 ndvries Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,6 +30,7 @@ import org.xml.sax.SAXException;
 import java.io.*;
 import java.security.*;
 import java.util.*;
+import java.text.MessageFormat;
 
 /**
  * An interface to the Matrix system.
@@ -50,10 +51,46 @@ import java.util.*;
 public class Matrix {
 
 	private static Properties properties = new Properties();
-	
+	private static Properties translations = new Properties();
+
 	// cannot instantiate
 	private Matrix() {}
-	
+
+	/**
+	 * Returns the translation with the specfied key
+	 * @param key the key of the wanted translation
+	 */
+	public static final String translate(String key) {
+		if (!translations.containsKey(key))
+			System.out.println("Translation " + key + " not found");
+		return translations.getProperty(key, key);
+	}
+
+	/**
+	 * Returns the translation with the specfied key
+	 * @param key the key of the wanted translation
+	 * @param arguments the variable values to be formatted into the translation
+	 */
+	public static final String translate(String key, Object[] arguments) {
+		if (!translations.containsKey(key))
+			System.out.println("Translation " + key + " not found");
+		String rawTranslation = translations.getProperty(key, key);
+		return MessageFormat.format(rawTranslation, arguments);
+	}
+
+	/**
+	 * Sets the translation with the specifed key to the specified value
+	 * @param key the key of the translation to set
+	 * @param value the value of the translation
+	 */
+	public static final void setTranslationFile(String propertiesFile) {
+		try {
+			translations.load(new ByteArrayInputStream(propertiesFile.getBytes()));
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+		}
+	}
+
 	/**
 	 * Returns the property with the specfied key
 	 * @param key the key of the wanted property
@@ -61,7 +98,7 @@ public class Matrix {
 	public static final String getProperty(String key) {
 		return properties.getProperty(key);
 	}
-	
+
 	/**
 	 * Returns the property with the specfied key or the default value
 	 * if no property is found with that specified key
@@ -71,7 +108,7 @@ public class Matrix {
 	public static final String getProperty(String key, String defaultValue) {
 		return properties.getProperty(key, defaultValue);
 	}
-	
+
 	/**
 	 * Sets the property with the specifed key to the specified value
 	 * @param key the key of the property to set
@@ -80,7 +117,7 @@ public class Matrix {
 	public static final void setProperty(String key, String value) {
 		properties.setProperty(key, value);
 	}
-	
+
 	/**
 	 * Performs an XML request to <code>asset_map.inc</code>.
 	 * @param request The String of the XML request
@@ -94,13 +131,13 @@ public class Matrix {
 		try {
 			String basePath = getProperty("parameter.url.baseurl");
 			String execPath = basePath + getProperty("parameter.backendsuffix")
-			+ "/?SQ_ACTION=asset_map_request&SESSION_ID=" 
+			+ "/?SQ_ACTION=asset_map_request&SESSION_ID="
 			+ getProperty("parameter.sessionid") + "&SESSION_KEY=" + getProperty("parameter.sessionkey");
 			execURL = new URL(execPath);
 		} catch (MalformedURLException mue) {
 			mue.printStackTrace();
 		}
-		
+
 		try {
 			conn = execURL.openConnection();
 			conn.setUseCaches(false);

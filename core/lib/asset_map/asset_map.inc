@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.182 2005/05/19 23:52:52 lwright Exp $
+* $Id: asset_map.inc,v 1.183 2005/05/20 00:08:34 ndvries Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.182 $
+* @version $Revision: 1.183 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -255,6 +255,9 @@ class Asset_Map
 		}
 
 		switch ($root->attributes['action']) {
+			case 'get translations' :
+				$this->_getTranslations($input);
+			break;
 			case 'initialise' :
 				$this->_doInitialise($input);
 			break;
@@ -280,6 +283,37 @@ class Asset_Map
 		}//end switch
 
 	}//end process()
+
+
+	/**
+	* Grab the translations from the pre-generated .properties file and send it to the
+	* java applet
+	*
+	* @param object XML_Tree $input	the request info from the Java
+	* @access private
+	*/
+	function _getTranslations(&$input)
+	{
+		$current_locale = $GLOBALS['SQ_SYSTEM']->lm->getCurrentLocale();
+
+		header("Content-Type: text/xml");
+		ob_start();
+			echo "<translations locale=\"".$current_locale."\">\n";
+				echo "<![CDATA[\n";
+					$locales = $GLOBALS['SQ_SYSTEM']->lm->getCumulativeLocaleParts($current_locale);
+					foreach($locales as $locale) {
+						$file_name = SQ_DATA_PATH.'/private/system/core/java_strings_'.$locale.'.properties';
+						if (file_exists($file_name)) {
+							echo file_get_contents($file_name)."\n\n";
+						}
+					}
+				echo "]]>";
+			echo "</translations>\n";
+			$out = ob_get_contents();
+		ob_end_clean();
+
+		echo $out;
+	}
 
 
 	/**
@@ -328,19 +362,6 @@ class Asset_Map
 				echo "</asset_types>\n";
 				echo $current_user_xml;
 				echo $assets_xml;
-				echo "<translations>\n";
-				echo "<![CDATA[\n";
-					$current_locale = $GLOBALS['SQ_SYSTEM']->lm->getCurrentLocale();
-					$locales = $GLOBALS['SQ_SYSTEM']->lm->getCumulativeLocaleParts($current_locale);
-					foreach($locales as $locale) {
-						$file_name = SQ_DATA_PATH.'/private/system/core/java_strings_'.$locale.'.properties';
-						if (file_exists($file_name)) {
-							echo file_get_contents($file_name)."\n\n";
-						}
-					}
-
-				echo "]]>\n";
-				echo "</translations>\n";
 			echo "</initialisation>\n";
 			$out = ob_get_contents();
 		ob_end_clean();

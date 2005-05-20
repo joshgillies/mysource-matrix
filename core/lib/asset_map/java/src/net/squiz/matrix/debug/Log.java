@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: Log.java,v 1.2 2005/05/13 02:22:23 ndvries Exp $
+* $Id: Log.java,v 1.3 2005/05/20 00:08:35 ndvries Exp $
 *
 */
 
@@ -33,47 +33,47 @@ import java.awt.*;
 import java.text.DateFormat;
 
 public class Log {
-	
+
 	private static Vector messages = new Vector();
-	
+
 	// cannot instantiate
 	private Log() {}
-	
+
 	public static void log(String message, Class originator) {
 		messages.add(new Message(message, originator));
 	}
-	
+
 	public static void log(String message, Class originator, Throwable t) {
 		messages.add(new Message(message, originator, t));
 	}
-	
+
 	public static class Message {
 		private String message;
 		private Class cls;
 		private Throwable t;
 		private Date date;
-		
+
 		public Message(String message, Class cls) {
 			this.message = message;
 			this.cls = cls;
 			date = new Date();
 		}
-		
+
 		public Message(String message, Class cls, Throwable t) {
 			this.message = message;
 			this.cls = cls;
 			this.t = t;
 			date = new Date();
 		}
-		
+
 		public String toString() {
 			return  cls + " - " + message;
 		}
-		
+
 		public String getCls() {
 			return cls.getName();
 		}
-		
+
 		public String getMessage() {
 			return message;
 		}
@@ -81,25 +81,25 @@ public class Log {
 		public Throwable getThrowable() {
 			return t;
 		}
-		
+
 		public Date getDate() {
 			return date;
 		}
 	}
-	
+
 	private static String getThrowableStackTrace(Throwable t) {
 		if (t == null)
 			return "";
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		PrintWriter pw = new PrintWriter(bos, true);
 		t.printStackTrace(pw);
-		
+
 		return bos.toString();
 	}
-	
+
 	private static String getMessagesAsText() {
 		Iterator iterator = messages.iterator();
-		
+
 		String str = "";
 		while (iterator.hasNext()) {
 			Message message = (Message) iterator.next();
@@ -111,48 +111,54 @@ public class Log {
 		}
 		return str;
 	}
-	
+
 	public static void openLogs() {
 		final JFrame frame = new JFrame();
 		JPanel buttonPanel = new JPanel();
 		frame.getContentPane().setLayout(new BorderLayout());
 		buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
-		
+
 		ActionListener exportListener = new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
 				JTextPane textPane = new JTextPane();
 				textPane.setEditable(false);
 				textPane.setText(getMessagesAsText());
-				
+
 				JFrame frame = new JFrame();
 				frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 				frame.getContentPane().add(new JScrollPane(textPane));
 				frame.setSize(600, 400);
-				
+
 				GUIUtilities.showInScreenCenter(frame);
 			}
 		};
-		
+
 		ActionListener closeListener = new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
 				frame.dispose();
 			}
 		};
-		
-		JButton exportButton = new JButton("Export");
-		JButton closeButton  = new JButton("Close");
+
+		JButton exportButton = new JButton(Matrix.translate("asset_map_button_export"));
+		JButton closeButton  = new JButton(Matrix.translate("asset_map_button_close"));
 		exportButton.addActionListener(exportListener);
 		closeButton.addActionListener(closeListener);
-		
+
 		buttonPanel.add(exportButton);
 		buttonPanel.add(closeButton);
-		
+
 		final Message[] messagesArr = (Message[]) messages.toArray(new Message[messages.size()]);
-		
+
 		TableModel dataModel = new AbstractTableModel() {
-			
-			private String [] columns = { "id", "Date", "Class", "Message", "Exception" };
-			
+
+			private String [] columns = {
+				Matrix.translate("asset_map_log_column_id"),
+				Matrix.translate("asset_map_log_column_date"),
+				Matrix.translate("asset_map_log_column_class"),
+				Matrix.translate("asset_map_log_column_message"),
+				Matrix.translate("asset_map_log_column_exception"),
+			};
+
 			public int getColumnCount() {
 				return columns.length;
 			}
@@ -175,7 +181,7 @@ public class Log {
 				}
 				return null;
 			}
-			
+
 			public String getColumnName(int columnIndex) {
 				return columns[columnIndex];
 			}
@@ -185,7 +191,7 @@ public class Log {
 		frame.getContentPane().add(new JScrollPane(table), BorderLayout.CENTER);
 		frame.getContentPane().add(buttonPanel, BorderLayout.SOUTH);
 		frame.setSize(400, 300);
-		
+
 		GUIUtilities.showInScreenCenter(frame);
 	}
 }

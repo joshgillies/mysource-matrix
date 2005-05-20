@@ -17,7 +17,7 @@
  * | licence.                                                           |
  * +--------------------------------------------------------------------+
  *
- * $Id: AssetRefreshWorker.java,v 1.2 2005/05/13 02:26:38 ndvries Exp $
+ * $Id: AssetRefreshWorker.java,v 1.3 2005/05/20 00:08:35 ndvries Exp $
  *
  */
 
@@ -144,35 +144,35 @@ public class AssetRefreshWorker extends SwingWorker {
 	 * By default the error is 'Failed!'
 	 * @return the error message
 	 */
-	protected String getStatusBarFailMessage() { return "Failed!"; }
+	protected String getStatusBarFailMessage() { return Matrix.translate("asset_map_status_bar_failed"); }
 
 	/**
 	 * Returns the message used when in the status bar when no error occurs.
 	 * By default the message is 'Success!'
 	 * @return the success message
 	 */
-	protected String getStatusBarSuccessMessage() { return "Success!"; }
+	protected String getStatusBarSuccessMessage() { return Matrix.translate("asset_map_status_bar_success"); }
 
 	/**
 	 * Returns the message used while waiting for construct() to return
 	 * By default the message is 'Requesting...'
 	 * @return the waiting message
 	 */
-	protected String getStatusBarWaitMessage() { return "Requesting..."; }
+	protected String getStatusBarWaitMessage() { return Matrix.translate("asset_map_status_bar_requesting"); }
 
 	/**
 	 * Returns the message used in the dialog error popup
 	 * By default the error is 'Error While Requesting' followed by the error
 	 * @return the error message
 	 */
-	protected String getErrorMessage() { return "Error While Requesting"; }
+	protected String getErrorMessage() { return Matrix.translate("asset_map_status_bar_error_requesting"); }
 
 	/**
 	 * Returns the message used in the dialog title when an error occurs
 	 * By default the error is 'Error Refreshing Assets'
 	 * @return the error message
 	 */
-	protected String getErrorTitle() { return  "Error Refreshing Assets"; }
+	protected String getErrorTitle() { return Matrix.translate("asset_map_status_bar_error_refreshing"); }
 
 	/**
 	 * Returns the message used logging an error message.

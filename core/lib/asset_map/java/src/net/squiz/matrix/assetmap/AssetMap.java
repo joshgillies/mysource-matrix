@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: AssetMap.java,v 1.12 2005/03/06 22:13:26 mmcintyre Exp $
+* $Id: AssetMap.java,v 1.13 2005/05/20 00:08:35 ndvries Exp $
 *
 */
 
@@ -38,6 +38,8 @@ import javax.swing.plaf.metal.*;
 import javax.swing.border.*;
 import net.squiz.matrix.debug.*;
 import java.io.IOException;
+import org.w3c.dom.*;
+import java.security.AccessControlException;
 
 /**
  * The main applet class
@@ -52,7 +54,7 @@ public class AssetMap extends JApplet implements InitialisationListener {
 	public static AssetMap applet;
 	private javax.swing.Timer timer;
 	public static final int POLLING_TIME = 2000;
-	
+
 	/**
 	 * Constructs the Asset Map
 	 */
@@ -93,7 +95,7 @@ public class AssetMap extends JApplet implements InitialisationListener {
 
 	public void initialisationComplete(InitialisationEvent evt) {}
 
-	
+
 	/**
 	 * Initialises the asset map.
 	 * @see start()
@@ -102,6 +104,7 @@ public class AssetMap extends JApplet implements InitialisationListener {
 	public void init() {
 		window = JSObject.getWindow(this);
 		loadParameters();
+		loadTranslations();
 		getContentPane().add(createApplet());
 	}
 
@@ -118,7 +121,7 @@ public class AssetMap extends JApplet implements InitialisationListener {
 		initAssetMap();
 		startPolling();
 	}
-	
+
 	/**
 	 * Initialises the asset map by making a request to the matrix system for
 	 * the current assets and asset types in the system.
@@ -126,7 +129,7 @@ public class AssetMap extends JApplet implements InitialisationListener {
 	protected void initAssetMap() {
 		// get a swing worker to call init in AssetManager
 		// when it returns set the root node to all trees
-		MatrixStatusBar.setStatus("Initialising...");
+		MatrixStatusBar.setStatus(Matrix.translate("asset_map_status_bar_init"));
 		SwingWorker worker = new SwingWorker() {
 			public Object construct() {
 				MatrixTreeNode root = null;
@@ -137,26 +140,26 @@ public class AssetMap extends JApplet implements InitialisationListener {
 				}
 				return root;
 			}
-			
+
 			public void finished() {
 				Object get = get();
 				// success
 				if (get instanceof MatrixTreeNode) {
 					MatrixTreeModelBus.setRoot((MatrixTreeNode) get());
-					MatrixStatusBar.setStatusAndClear("Success!", 1000);
+					MatrixStatusBar.setStatusAndClear(Matrix.translate("asset_map_status_bar_success"), 1000);
 				// error
 				} else if (get instanceof IOException) {
 					IOException ioe = (IOException) get;
 					GUIUtilities.error(
-						AssetMap.this, ioe.getMessage(), "Initilisation Failed!");
-					MatrixStatusBar.setStatusAndClear("Initilisation Failed!", 1000);
+						AssetMap.this, ioe.getMessage(), Matrix.translate("asset_map_dialog_title_init_failed"));
+					MatrixStatusBar.setStatusAndClear(Matrix.translate("asset_map_status_bar_init_failed"), 1000);
 					Log.log("Could not initialise the asset map", AssetMap.class, ioe);
 				}
 			}
 		};
 		worker.start();
 	}
-	
+
 	/**
 	 * Starts the polling operation to refresh assets that Matrix deems stale.
 	 * The polling operation is polled at POLLING_TIME intervals. When javascript
@@ -179,7 +182,7 @@ public class AssetMap extends JApplet implements InitialisationListener {
 					AssetRefreshWorker worker = new AssetRefreshWorker(assetids, false) {
 						// return a custom message for the wait message
 						protected String getStatusBarWaitMessage() {
-							return "Auto Refreshing...";
+							return Matrix.translate("asset_map_status_bar_auto_refresh");
 						}
 					};
 					worker.start();
@@ -191,7 +194,7 @@ public class AssetMap extends JApplet implements InitialisationListener {
 		timer = new javax.swing.Timer(POLLING_TIME, taskPerformer);
 		timer.start();
 	}
-	
+
 	/**
 	 * Load the parameters from the applet tag and add them to
 	 * our property set. Parameters are stored in the Matrix property set
@@ -209,6 +212,45 @@ public class AssetMap extends JApplet implements InitialisationListener {
 
 		for (int i = 0; i < params.length; i++)
 			Matrix.setProperty(params[i], getParameter(params[i]));
+	}
+
+	/**
+	 * Request the translations strings for use in the asset map and pass them
+	 * off to a Matrix ResourceBundle.
+	 */
+	public void loadTranslations() {
+		Document response = null;
+
+		try {
+			response = Matrix.doRequest("<command action=\"get translations\" />");
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+		}
+
+		Element rootElement = response.getDocumentElement();
+
+		// Set the Java VM locale to the Matrix locale if available
+		String currentLocale = rootElement.getAttribute("locale");
+		Locale availLocales[] = Locale.getAvailableLocales();
+		for (int j = 0; j < availLocales.length; j++) {
+			if (availLocales[j].toString().equals(currentLocale)) {
+				try {
+					Locale.setDefault(availLocales[j]);
+				} catch (AccessControlException ace) {
+					Log.log("Error setting locale, invalid permisions", AssetMap.class, ace);
+				}
+			}
+		}
+
+		// Grab the .properties file from the XML CDATA
+		NodeList children = rootElement.getChildNodes();
+		for (int i = 0; i < children.getLength(); i++) {
+			if (!(children.item(i) instanceof CDATASection))
+				continue;
+
+			CDATASection cdata = (CDATASection) children.item(i);
+			Matrix.setTranslationFile(cdata.getData());
+		}
 	}
 
 	/**
@@ -232,8 +274,8 @@ public class AssetMap extends JApplet implements InitialisationListener {
 		view1 = new BasicView();
 		view2 = new BasicView();
 
-		pane.addView("Tree One", view1);
-		pane.addView("Tree Two", view2);
+		pane.addView(Matrix.translate("asset_map_tree1_name"), view1);
+		pane.addView(Matrix.translate("asset_map_tree2_name"), view2);
 
 		return pane;
 	}
