@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.126 2005/05/16 06:36:32 lwright Exp $
+* $Id: backend.inc,v 1.127 2005/05/20 00:48:29 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.126 $
+* @version $Revision: 1.127 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -716,7 +716,7 @@ class Backend extends MySource_Object
 
 
 			foreach($include_list as $link) {
-				?><script type="text/javascript" src="<?php echo $link; ?>"</script><?php
+				?><script type="text/javascript" src="<?php echo $link; ?>"></script><?php
 			}
 
 		?>
