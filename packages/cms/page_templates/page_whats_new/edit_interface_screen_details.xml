@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.12 2005/04/29 05:40:32 gsherwood Exp $
+* $Id: edit_interface_screen_details.xml,v 1.13 2005/05/20 00:27:04 arailean Exp $
 *
 */
 -->
@@ -54,7 +54,7 @@
 			</datetime>
 		</field>
 	</section>
-	<section name="List` Settings" write_access="write:content">
+	<section name="List Settings" write_access="write:content">
 		<field>
 			<function_call>
 				<paint_function   name="paintRootNode"  />
