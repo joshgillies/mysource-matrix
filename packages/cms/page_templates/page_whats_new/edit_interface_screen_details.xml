@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.13 2005/05/20 00:27:04 arailean Exp $
+* $Id: edit_interface_screen_details.xml,v 1.14 2005/05/20 01:46:26 lwright Exp $
 *
 */
 -->
@@ -62,7 +62,7 @@
 			</function_call>
 		</field>
 		<field attribute="subs_only">
-			<boolean true_text="Yes" false_text="No" />
+			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="direction">
 			<selection style="list" />

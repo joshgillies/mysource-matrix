@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.12 2005/03/30 00:39:45 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.13 2005/05/20 01:46:14 lwright Exp $
 *
 */
 -->
@@ -29,7 +29,7 @@
 			<text width="25" height="1" />
 		</field>
 		<field attribute="allow_unrestricted">
-			<boolean true_text="Yes" false_text="No" />
+			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field>
 			<function_call>

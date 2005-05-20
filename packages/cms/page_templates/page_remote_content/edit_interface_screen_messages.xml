@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_messages.xml,v 1.4 2005/04/29 05:40:31 gsherwood Exp $
+* $Id: edit_interface_screen_messages.xml,v 1.5 2005/05/20 01:46:26 lwright Exp $
 *
 */
 -->
@@ -19,8 +19,8 @@
 <contents>
 	<section name="Unavailable Content" write_access="write:attributes">
 		<field attribute="display_error">
-			<boolean true_text="Yes" false_text="No" />
-		</field>		
+			<boolean true_text="yes" false_text="no" />
+		</field>
 		<field attribute="error_message">
 			<wysiwyg style="div" width="100%" height="100" />
 		</field>

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.28 2005/04/29 05:39:19 gsherwood Exp $
+* $Id: edit_interface_screen_details.xml,v 1.29 2005/05/20 01:46:24 lwright Exp $
 *
 */
 -->
@@ -33,7 +33,7 @@
 			</function_call>
 		</field>
 		<field attribute="personalised">
-			<boolean true_text="Yes" false_text="No" />
+			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>
 	<section name="Overall Settings" write_access="write:attributes">
@@ -59,10 +59,10 @@
 			<text />
 		</field>
 		<field attribute="week_starts_on">
-			<selection /> 
+			<selection />
 		</field>
 		<field attribute="enable_description_popups">
-			<boolean true_text="Enabled" false_text="Disabled" />
+			<boolean true_text="enabled" false_text="disabled" />
 		</field>
 	</section>
 
@@ -89,7 +89,7 @@
 			<int width="6" />
 		</field>
 		<field attribute="month_links_to_week">
-			<boolean true_text="Enabled" false_text="Disabled" />
+			<boolean true_text="enabled" false_text="disabled" />
 		</field>
 	</section>
 
@@ -125,7 +125,7 @@
 			</function_call>
 		</field>
 		<field attribute="day_partition_time">
-			<selection /> 
+			<selection />
 		</field>
 		<field attribute="day_partition_height">
 			<int width="6" />
@@ -137,7 +137,7 @@
 			<assetid type_codes="page_asset_builder:D,page_appointment_builder:I" />
 		</field>
 		<field attribute="enable_event_dragging">
-			<boolean true_text="Enabled" false_text="Disabled" />
+			<boolean true_text="enabled" false_text="disabled" />
 		</field>
 	</section>
 

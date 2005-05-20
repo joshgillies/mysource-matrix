@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.13 2005/04/29 05:40:31 gsherwood Exp $
+* $Id: edit_interface_screen_details.xml,v 1.14 2005/05/20 01:46:26 lwright Exp $
 *
 */
 -->
@@ -39,16 +39,16 @@
 			<int width="3" />
 		</field>
 		<field attribute="stalks">
-			<boolean true_text="Yes" false_text="No" />
+			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="top_level">
-			<boolean true_text="Yes" false_text="No" />
+			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="icons">
-			<boolean true_text="Yes" false_text="No" />
+			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="show_type_2">
-			<boolean true_text="Yes" false_text="No" />
+			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field>
 			<function_call>

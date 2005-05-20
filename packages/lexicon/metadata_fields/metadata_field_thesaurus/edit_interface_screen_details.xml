@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.6 2005/05/17 01:28:39 arailean Exp $
+* $Id: edit_interface_screen_details.xml,v 1.7 2005/05/20 01:46:35 lwright Exp $
 *
 */
 -->
@@ -34,10 +34,10 @@
 			<assetid type_codes="thesaurus:D" />
 		</field>
 		<field attribute="allow_manual">
-			<boolean true_text="Yes" false_text="No" />
+			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="force_thesaurus">
-			<boolean true_text="Yes" false_text="No" />
+			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>
 
@@ -47,10 +47,10 @@
 		</field>
 
 		<field attribute="editable">
-			<boolean true_text="Yes" false_text="No" />
+			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="required">
-			<boolean true_text="Yes" false_text="No" />
+			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="frontend">
 			<selection style="list" />

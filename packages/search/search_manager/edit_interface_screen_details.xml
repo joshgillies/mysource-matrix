@@ -11,14 +11,14 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.7 2005/04/29 05:38:41 gsherwood Exp $
+* $Id: edit_interface_screen_details.xml,v 1.8 2005/05/20 01:46:39 lwright Exp $
 *
 */
 -->
 <contents>
 	<section name="Indexing Manager" write_access="write:attributes">
 		<field attribute="indexing">
-			<boolean true_text="On" false_text="Off" />
+			<boolean true_text="on" false_text="off" />
 		</field>
 	</section>
 	<section name="Re-index Assets" read_access="write:attributes" write_access="write:attributes">

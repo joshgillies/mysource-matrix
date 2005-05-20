@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.4 2005/03/30 00:39:42 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.5 2005/05/20 01:46:13 lwright Exp $
 *
 */
 -->
@@ -39,7 +39,7 @@
 			</function_call>
 		</field>
 		<field attribute="self_link">
-			<boolean true_text="Yes" false_text="No" />
+			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>
 </contents>

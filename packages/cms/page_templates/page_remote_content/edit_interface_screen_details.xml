@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.11 2005/04/29 05:40:31 gsherwood Exp $
+* $Id: edit_interface_screen_details.xml,v 1.12 2005/05/20 01:46:26 lwright Exp $
 *
 */
 -->
@@ -30,10 +30,10 @@
 			<text width="80" height="1" />
 		</field>
 		<field attribute="load_links">
-			<boolean true_text="Yes" false_text="No" />
+			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="only_local_links">
-			<boolean true_text="Yes" false_text="No" />
+			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>
 	<section name="Content Filtering" write_access="write:attributes">
@@ -44,21 +44,21 @@
 			<text width="35" height="1" />
 		</field>
 		<field attribute="include_tags">
-			<boolean true_text="Yes" false_text="No" />
+			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="strip_images">
-			<boolean true_text="Yes" false_text="No" />
+			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>
 	<section name="Content Tunneling" write_access="write:attributes">
 		<field attribute="tunnel_images">
-			<boolean true_text="Yes" false_text="No" />
+			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="tunnel_media">
-			<boolean true_text="Yes" false_text="No" />
+			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="tunnel_scripts">
-			<boolean true_text="Yes" false_text="No" />
+			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>
 	<section name="Connection Settings" write_access="write:attributes">
@@ -66,7 +66,7 @@
 			<int width="5" />
 		</field>
 		<field attribute="allow_redirect">
-			<boolean true_text="Yes" false_text="No" />
+			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>
 	<section name="HTTP Authentication" write_access="write:attributes">

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.10 2005/05/19 23:09:59 lwright Exp $
+* $Id: lang_strings.xml,v 1.11 2005/05/20 01:46:18 lwright Exp $
 *
 */
 
@@ -1377,6 +1377,11 @@
 	<string source="show_lock_details" js="1">Show Lock Details</string>
 	<string source="enable" js="1">Enable</string>
 	<string source="disable" js="1">Disable</string>
+
+	<string source="enabled">Enabled</string>
+	<string source="disabled">Disabled</string>
+	<string source="required">Required</string>
+	<string source="optional">Optional</string>
 
 	<!-- CORE HIPO STRINGS -->
 	<string source="hipo_acquiring_locks">Acquiring Locks</string>

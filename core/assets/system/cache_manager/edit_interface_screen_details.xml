@@ -18,14 +18,14 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.4 2005/03/30 00:39:54 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.5 2005/05/20 01:46:18 lwright Exp $
 *
 */
 -->
 <contents>
 	<section name="Cache Options" write_access="write:attributes">
 		<field attribute="enabled">
-			<boolean true_text="On" false_text="Off" />
+			<boolean true_text="on" false_text="off" />
 		</field>
 		<field attribute="num_cache_dirs">
 			<int width="5" />
@@ -36,13 +36,13 @@
 	</section>
 	<section name="Cache Levels" write_access="write:attributes">
 		<field attribute="public_caching">
-			<boolean true_text="On" false_text="Off" />
+			<boolean true_text="on" false_text="off" />
 		</field>
 		<field attribute="permission_caching">
-			<boolean true_text="On" false_text="Off" />
+			<boolean true_text="on" false_text="off" />
 		</field>
 		<field attribute="group_caching">
-			<boolean true_text="On" false_text="Off" />
+			<boolean true_text="on" false_text="off" />
 		</field>
 	</section>
 </contents>

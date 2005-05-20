@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.5 2005/04/29 05:39:36 gsherwood Exp $
+* $Id: edit_interface_screen_details.xml,v 1.6 2005/05/20 01:46:32 lwright Exp $
 *
 */
 -->
@@ -30,7 +30,7 @@
 	</section>
 	<section name="Display Details" write_access="write:attributes" limbo_access="1">
 		<field attribute="show_price">
-			<boolean true_text="Yes" false_text="No" />
+			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="checkout_text">
 			<text width="35" height="1" />

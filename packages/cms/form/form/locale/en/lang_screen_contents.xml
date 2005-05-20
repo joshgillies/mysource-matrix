@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_contents.xml,v 1.2 2005/04/29 05:40:28 gsherwood Exp $
+* $Id: lang_screen_contents.xml,v 1.3 2005/05/20 01:46:25 lwright Exp $
 *
 */
 -->
@@ -77,8 +77,8 @@
 	</section>
 	<section name="Validation">
 		<field attribute="use_client_side">
-			<display_name>Validation Method</display_name>
-			<note>Note that server-side validation will always be used if a browser does not support it on the client side</note>
+			<display_name>Client-Side Validation</display_name>
+			<note>Server-side validation is always used to trap invalid input, after the form is submitted. Turn on client-side validation to provide an extra layer of validation that is executed at the browser level, before the form is submitted. Note that most but not all browsers support client-side validation</note>
 		</field>
 	</section>
 	<section name="Simple Formatting">

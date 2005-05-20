@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.6 2005/04/29 05:39:37 gsherwood Exp $
+* $Id: edit_interface_screen_details.xml,v 1.7 2005/05/20 01:46:32 lwright Exp $
 *
 */
 -->
@@ -32,7 +32,7 @@
 	</section>
 	<section name="Testing Mode" write_access="write:attributes">
 		<field attribute="test_mode">
-			<boolean true_text="ON" false_text="OFF" />
+			<boolean true_text="on" false_text="off" />
 		</field>
 	</section>
 	<section name="Message" write_access="write:attributes">

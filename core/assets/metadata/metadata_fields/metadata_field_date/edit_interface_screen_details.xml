@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.8 2005/03/30 00:39:47 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.9 2005/05/20 01:46:15 lwright Exp $
 *
 */
 -->
@@ -70,10 +70,10 @@
 	</section>
 	<section name="Options" write_access="write:attributes">
 		<field attribute="editable">
-			<boolean true_text="Yes" false_text="No" />
+			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="required">
-			<boolean true_text="Yes" false_text="No" />
+			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="frontend">
 			<selection style="list" />

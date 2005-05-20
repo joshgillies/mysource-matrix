@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_status.xml,v 1.10 2005/03/30 00:39:55 lwright Exp $
+* $Id: edit_interface_screen_status.xml,v 1.11 2005/05/20 01:46:18 lwright Exp $
 *
 */
 -->
@@ -26,7 +26,7 @@
 <contents>
 	<section name="Running Status">
 		<field attribute="running" write_access="none">
-			<boolean true_text="Yes" false_text="No" />
+			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field write_access="none">
 			<function_call>

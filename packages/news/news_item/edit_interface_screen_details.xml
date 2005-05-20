@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.7 2005/05/02 04:42:15 gsherwood Exp $
+* $Id: edit_interface_screen_details.xml,v 1.8 2005/05/20 01:46:36 lwright Exp $
 *
 */
 -->
@@ -38,19 +38,19 @@
 	</section>
 	<section name="Display" write_access="write:attributes" limbo_access="1">
 		<field attribute="show_headline">
-			<boolean true_text="Yes" false_text="No" />
+			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="show_summary">
-			<boolean true_text="Yes" false_text="No" />
+			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="show_body">
-			<boolean true_text="Yes" false_text="No" />
+			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="show_contact_name">
-			<boolean true_text="Yes" false_text="No" />
+			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="show_contact_phone">
-			<boolean true_text="Yes" false_text="No" />
+			<boolean true_text="yes" false_text="no" />
 		</field>
     </section>
 	<section name="Link" write_access="write:link_url" limbo_access="1">

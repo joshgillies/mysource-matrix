@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.8 2005/04/29 05:40:30 gsherwood Exp $
+* $Id: edit_interface_screen_details.xml,v 1.9 2005/05/20 01:46:26 lwright Exp $
 *
 */
 -->
@@ -45,7 +45,7 @@
 			<text width="5" height="1" />
 		</field>
 		<field attribute="multiple">
-			<boolean true_text="Yes" false_text="No" />
+			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="extra">
 			<text width="20" height="1" />

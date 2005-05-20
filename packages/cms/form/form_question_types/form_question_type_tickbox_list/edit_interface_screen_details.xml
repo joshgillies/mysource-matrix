@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.9 2005/04/29 05:40:30 gsherwood Exp $
+* $Id: edit_interface_screen_details.xml,v 1.10 2005/05/20 01:46:26 lwright Exp $
 *
 */
 -->
@@ -42,7 +42,7 @@
 			</function_call>
 		</field>
 		<field attribute="horizontal">
-			<boolean true_text="Horizontal" false_text="Vertical" />
+			<boolean true_text="horizontal" false_text="vertical" />
 		</field>
 		<field attribute="extra">
 			<text width="20" height="1" />
@@ -50,7 +50,7 @@
 	</section>
 	<section name="Simple Validation Rules" write_access="write:attributes">
 	    <field attribute="required">
-			<boolean true_text="Required" false_text="Optional" />
+			<boolean true_text="required" false_text="optional" />
 		</field>
 	</section>
 	<section name="Complex Validation Rules" write_access="write:attributes">
