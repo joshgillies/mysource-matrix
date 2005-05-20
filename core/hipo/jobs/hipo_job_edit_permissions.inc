@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_permissions.inc,v 1.32.2.1 2005/04/04 04:31:03 ndvries Exp $
+* $Id: hipo_job_edit_permissions.inc,v 1.32.2.2 2005/05/20 06:43:32 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -235,7 +235,7 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 
 		$child_assets = Array();
 
-		if (isset($this->_running_vars['dependants_only'])) {
+		if (array_get_index($this->_running_vars, 'dependants_only')) {
 			$child_assets = $GLOBALS['SQ_SYSTEM']->am->getDependantChildren($asset->id);
 		} else {
 			$child_assets = $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id);
@@ -372,9 +372,10 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 
 		$options['auto_complete'] = true;
 
-		$running_vars['assetid']         = $this->_running_vars['assetid'];
-		$running_vars['lock_type']       = 'permissions';
-		$running_vars['dependants_only'] = false;
+		$running_vars['assetid']			= $this->_running_vars['assetid'];
+		$running_vars['lock_type']			= 'permissions';
+		$running_vars['dependants_only']	= isset($this->_running_vars['dependants_only']);
+		$running_vars['forceably_acquire']	= false;
 
 	}//end getLockAssetDetails()
 
