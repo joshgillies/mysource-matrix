@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.53 2005/05/17 10:24:14 gnoel Exp $
+* $Id: search_manager.inc,v 1.54 2005/05/20 02:26:17 arailean Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.53 $
+* @version $Revision: 1.54 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -575,7 +575,7 @@ class Search_Manager extends Asset
 	*
 	* @param array	$search_info	an array of search settings in the form
 	* <PRE>
-	* Array('root_assetid'    => asset ID to search under,
+	* Array('root_assetid'    => asset ID|Array(asset IDs) - asset IDs to search under,
 	*       'logic'           => 'OR'|'AND',
 	*       'search_statuses' => Array( ..statues to search.. ),
 	*       'search_types'    => Array( ..asset types to search.. ),
@@ -610,7 +610,8 @@ class Search_Manager extends Asset
 		  /////////////////////////////
 		 //  CONSTRUCT CACHING KEY  //
 		/////////////////////////////
-		$search_cache_key = $search_info['root_assetid'];
+
+		$search_cache_key = is_array($search_info['root_assetid'])?implode(',',$search_info['root_assetid']):$search_info['root_assetid'];
 		if (isset($search_info['search_statuses'])) {
 			$search_cache_key .= implode(':', $search_info['search_statuses']);
 		}
@@ -998,7 +999,18 @@ class Search_Manager extends Asset
 			$search_sql .= 'a.assetid = ap.assetid AND ';
 		}
 
-		$search_sql .= ' al1.majorid = '.$db->quote($search_info['root_assetid']).'
+		if (!is_array($search_info['root_assetid'])){
+			$search_info['root_assetid'] = Array($search_info['root_assetid']);
+		}
+
+		$roots = Array();
+		foreach ($search_info['root_assetid'] as $root_id) {
+			$roots[] = $db->quote($root_id);
+		}
+
+		$roots = implode(',', $roots);
+
+		$search_sql .= ' al1.majorid IN ('.$roots.')
 						 AND al1.linkid  = alt1.linkid
 						 AND alt2.treeid LIKE (alt1.treeid || '.$db->quote('%').')
 						 AND alt2.linkid = al2.linkid
@@ -1262,8 +1274,19 @@ class Search_Manager extends Asset
 			$sql['where'] .= 'a.assetid = ap.assetid AND ';
 		}
 
+		if (!is_array($search_info['root_assetid'])){
+			$search_info['root_assetid'] = Array($search_info['root_assetid']);
+		}
+
+		$roots = Array();
+		foreach ($search_info['root_assetid'] as $root_id) {
+			$roots[] = $db->quote($root_id);
+		}
+
+		$roots = implode(',', $roots);
+
 		$sql['where'] .= '  a.assetid = ai.assetid
-							AND al1.majorid = '.$db->quote($search_info['root_assetid']).'
+							AND al1.majorid IN ('.$roots.')
 							AND al1.linkid  = alt1.linkid
 							AND alt2.treeid LIKE (alt1.treeid || '.$db->quote('%').')
 							AND alt2.linkid = al2.linkid
