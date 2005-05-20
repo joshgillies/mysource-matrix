@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.98 2005/05/19 00:19:22 tbarrett Exp $
+* $Id: form.inc,v 1.99 2005/05/20 05:27:25 tbarrett Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.98 $
+* @version $Revision: 1.99 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -37,10 +37,10 @@ class Form extends Asset
 
 
 	/**
-	* the active submission array
+	* the current answers to the form questions
 	* @var object Form_Submission
 	*/
-	var $active_submission = Array();
+	var $current_answers = Array();
 
 
 	/**
@@ -109,7 +109,9 @@ class Form extends Asset
 		if (empty($shadowid)) return $asset;
 
 		// if the shadow id is numeric then we want a REAL asset (ie. a section)
-		if (is_numeric($shadowid)) return $GLOBALS['SQ_SYSTEM']->am->getAsset($shadowid);
+		if (is_numeric($shadowid)) {
+			return $GLOBALS['SQ_SYSTEM']->am->getAsset($shadowid);
+		}
 
 		if ($shadowid{0} == 'q') {	// Questions will be preceded with a 'q'
 
@@ -170,7 +172,9 @@ class Form extends Asset
 			$entries = $this->getQuestions();
 
 			$i = 0;
-			foreach ($links as $link) $i = max($i, $link['sort_order']);
+			foreach ($links as $link) {
+				$i = max($i, $link['sort_order']);
+			}
 
 			foreach ($entries as $questionid => $data) {
 
@@ -187,9 +191,7 @@ class Form extends Asset
 						   );
 			}
 
-			if (is_null($sort_by)) {
-				$sort_by = 'sort_order';
-			}
+			if (is_null($sort_by)) $sort_by = 'sort_order';
 
 			uasort($links, create_function('$a,$b','return $a["'.$sort_by.'"] > $b["'.$sort_by.'"];'));
 
@@ -270,8 +272,11 @@ class Form extends Asset
 		if (!is_numeric($assetid)) return Array();
 
 		if (!is_array($type_code)) {
-			if (empty($type_code)) $type_code = Array();
-			else $type_code = Array($type_code);
+			if (empty($type_code)) {
+				$type_code = Array();
+			} else {
+				$type_code = Array($type_code);
+			}
 		}
 
 		$children = Array();
@@ -346,11 +351,17 @@ class Form extends Asset
 	function getParents($assetid, $type_code='', $strict_type_code=true)
 	{
 		// there are no links away from the shadow asset (ie:questions)
-		if (!is_numeric($assetid)) return Array($this->id => $this->type());
+		if (!is_numeric($assetid)) {
+			return Array($this->id => $this->type());
+		}
 
 		$parents = Array();
-		if (!is_array($type_code)) $type_code = Array($type_code);
-		if (!in_array('form_section', $type_code) && !in_array('form', $type_code)) return Array();
+		if (!is_array($type_code)) {
+			$type_code = Array($type_code);
+		}
+		if (!in_array('form_section', $type_code) && !in_array('form', $type_code)) {
+			return Array();
+		}
 
 		if (!isset($this->_tmp['getParents'][$assetid])) {
 			// this is so we get the sections as we go
@@ -395,9 +406,7 @@ class Form extends Asset
 	function _updated($update_parents=true)
 	{
 		if (!parent::_updated($update_parents)) return false;
-		if (SQ_IN_BACKEND) {
-			return $this->fileRegeneration();
-		}
+		if (SQ_IN_BACKEND) return $this->fileRegeneration();
 		return true;
 
 	}//end _updated()
@@ -415,9 +424,7 @@ class Form extends Asset
 	*/
 	function canCreateLink(&$minor, $link_type, $exclusive)
 	{
-		if (is_a($minor, 'form_submission')) {
-			return true;
-		}
+		if (is_a($minor, 'form_submission')) return true;
 
 		return parent::canCreateLink($minor, $link_type, $exclusive);
 
@@ -909,7 +916,7 @@ class Form extends Asset
 			foreach ($questions as $q_id => $question) {
 				$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
 				$q_name = $q_asset->attr('name');
-				$replacements['question_field_'.$this->id.'_q'.$q_id] = $q_asset->getAnswer();
+				$replacements['question_field_'.$this->id.'_q'.$q_id] = $q_asset->getHtmlField();
 			}
 
 			foreach ($sections as $section) {
@@ -918,7 +925,7 @@ class Form extends Asset
 				foreach ($questions as $q_id => $question) {
 					$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($section->id.':q'.$q_id);
 					$q_name = $section->attr('name').': '.$q_asset->attr('name');
-					$replacements['question_field_'.$section->id.'_q'.$q_id] = $q_asset->getAnswer();
+					$replacements['question_field_'.$section->id.'_q'.$q_id] = $q_asset->getHtmlField();
 				}
 			}
 
@@ -1100,7 +1107,7 @@ class Form extends Asset
 
 
 	/**
-	* processes the form (non-wizard)
+	* processes the form
 	*
 	* @access public
 	* @return boolean
@@ -1110,16 +1117,9 @@ class Form extends Asset
 		$ok = true;
 		$this->submission_errors = Array();
 
-		$questions = $this->getAllQuestionAssets();
-		foreach (array_keys($questions) as $key) {
-			$question = &$GLOBALS['SQ_SYSTEM']->am->getAsset($key);
-			$question->active_submission =& $this->active_submission;
+		$questions =& $this->getAllQuestionAssets();
+		for (reset($questions); $question =& $questions[key($questions)]; next($questions)) {
 			$question->populate();
-		}
-
-		foreach (array_keys($questions) as $key) {
-			$question = &$GLOBALS['SQ_SYSTEM']->am->getAsset($key);
-			$question->active_submission =& $this->active_submission;
 			if (!$question->hasValidValue()) {
 				$this->submission_errors = array_merge($this->submission_errors, $question->failed_rules);
 				$ok = false;
@@ -1127,15 +1127,17 @@ class Form extends Asset
 		}
 
 		if ($ok) {
-			// if the active submission does not yet exist, create it
+			// save question values
+			for (reset($questions); $question =& $questions[key($questions)]; next($questions)) {
+				$question->saveValue();
+			}
+
+			// create the submission asset
 			if ($this->attr('log_submissions')) {
 				$submission_asset = &$this->createSubmission();
-				foreach (array_keys($questions) as $key) {
-					$question = &$GLOBALS['SQ_SYSTEM']->am->getAsset($key);
-					$question->active_submission =& $this->active_submission;
-					$submission_asset->setAnswer($key, $question->getValue());
-					$submission_asset->setSummary($key, $question->attr('name'), $question->getSummary($question->getValue()));
-					$submission_asset->setProcessed($key);
+				for (reset($questions); $question =& $questions[key($questions)]; next($questions)) {
+					$submission_asset->setAnswer(key($questions), $question->getValue());
+					$submission_asset->setSummary(key($questions), $question->attr('name'), $question->getSummary());
 				}
 				$submission_asset->setAttrValue('complete', true);
 				$submission_asset->setAttrValue('xml', $this->getXML());
@@ -1146,29 +1148,6 @@ class Form extends Asset
 		return $ok;
 
 	}//end processForm()
-
-
-	/**
-	* gets a section to process itself
-	*
-	* @param integer $order the section order to process
-	*
-	* @access public
-	* @return boolean
-	*/
-	function processSection($order)
-	{
-		// get the section to process itself
-		$posted_section = &$this->getSectionByOrder($order);
-
-		if (!is_null($this->active_submission)) {
-			// let this section know what the current submission and errors arrays are
-			$posted_section->active_submission =& $this->active_submission;
-		}
-
-		return $posted_section->processForm();
-
-	}//end processSection()
 
 
 	/**
@@ -1191,39 +1170,33 @@ class Form extends Asset
 
 			if ($this->attr('show_results')) {
 
-				$questions = $this->getQuestions();
-				$sections = &$this->getSections();
+				$questions =& $this->getQuestionAssets();
+				$sections =& $this->getSections();
 				$replacements = Array();
 
-				foreach ($questions as $q_id => $question) {
-					$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
+				for (reset($questions); $q_asset =& $questions[key($questions)]; next($questions)) {
 					$q_name = $q_asset->attr('name');
-					$replacements['response_'.$q_asset->id] = $q_asset->getSummary($q_asset->getValue());
+					$replacements['response_'.str_replace(':', '_', $q_asset->id)] = $q_asset->getSummary();
 				}
 
-				foreach ($sections as $section) {
+				for (reset($sections); $section =& $sections[key($sections)]; next($sections)) {
 					$replacements['section_title_'.$section->id] = $section->attr('name');
-					$questions = &$section->getQuestions();
-					foreach ($questions as $q_id => $question) {
-						$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($section->id.':q'.$q_id);
+					$questions = &$section->getQuestionAssets();
+					for (reset($questions); $q_asset =& $questions[key($questions)]; next($questions)) {
 						$q_name = $section->attr('name').': '.$q_asset->attr('name');
-						$replacements['response_'.$q_asset->id] = $q_asset->getSummary($q_asset->getValue());
+						$replacements['response_'.str_replace(':', '_', $q_asset->id)] = $q_asset->getSummary();
 					}
 				}
-
-
 
 				$tyb->setKeywordReplacements($replacements + Array('form_summary' => &$summary_info));
 			}
 
 			$tyb->printBody();
 
-		} else {			// no bodycopy
-
+		} else {
+			// no bodycopy
 			// print the results if we need to
-			if ($this->attr('show_results')) {
-				echo $summary_info;
-			}
+			if ($this->attr('show_results')) echo $summary_info;
 
 		}
 
@@ -1333,7 +1306,7 @@ class Form extends Asset
 				echo ($html) ? '<tr><td><li>' : '';
 				echo $question->attr('name');
 				echo ($html) ? ': </li></td><td>' : ' : ';
-				echo $question->getSummary($question->getValue());
+				echo $question->getSummary();
 				echo ($html) ? '</td></tr>' : "\n";
 			}
 
@@ -1343,9 +1316,9 @@ class Form extends Asset
 		$sections = &$this->getSections();
 		for (reset($sections); null !== ($k = key($sections)); next($sections)) {
 			$section =& $sections[$k];
-			$section->active_submission =& $this->active_submission;
+			$section->current_answers =& $this->current_answers;
 			echo ($html) ? '<tr><td colspan="2">' : "\n";
-			echo $section->attr('name');
+			echo '<strong>'.$section->attr('name').'</strong>';
 			echo ($html) ? '</td></tr>' : "\n\n";
 
 			$sort_order = $section->attr('sort_order');
@@ -1358,7 +1331,7 @@ class Form extends Asset
 					echo ($html) ? '<tr><td><li>' : '';
 					echo $question->attr('name');
 					echo ($html) ? ': </li></td><td>' : ' : ';
-					echo $question->getSummary($question->getValue());
+					echo $question->getSummary();
 					echo ($html) ? '</td></tr>' : "\n";
 				}
 
@@ -1418,7 +1391,7 @@ class Form extends Asset
 		foreach (array_keys($questions) as $key) {
 			$question = &$GLOBALS['SQ_SYSTEM']->am->getAsset($key);
 			$q_code = $question->generateJSCode();
-			$code .= $q_code . (empty($q_code) ? "" : "\n");
+			$code .= $q_code . (empty($q_code) ? '' : "\n");
 		}
 
 		return $code;
@@ -1513,7 +1486,7 @@ class Form extends Asset
 					foreach ($questions as $q_id => $question) {
 						$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($section->id.':q'.$q_id);
 						$q_name = $q_asset->attr('name');
-						$keywords['question_field_'.$section->id.'_q'.$q_id] = translate('cms_form_section_field', ellipsisize($section->attr('name'),20).': '.ellipsisize($q_name,30));
+						$keywords['question_field_'.$section->id.'_q'.$q_id] = translate('cms_form_section_field', ellipsisize($section->attr('name'),20), ellipsisize($q_name,30));
 					}
 				}
 

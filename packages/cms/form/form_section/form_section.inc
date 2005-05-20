@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section.inc,v 1.38 2005/04/29 05:40:30 gsherwood Exp $
+* $Id: form_section.inc,v 1.39 2005/05/20 05:27:37 tbarrett Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -54,7 +54,7 @@ class Form_Section extends Asset
 	* the active submission array
 	* @var Array
 	*/
-	var $active_submission = null;
+	var $current_answers = Array();
 
 
 	/**
@@ -620,25 +620,6 @@ class Form_Section extends Asset
 		return count($questions);
 
 	}//end getQuestionCount()
-
-
-	/**
-	* gets each of this section's question to process the saubmitted values for them
-	*
-	* @access public
-	* @return boolean
-	*/
-	function processForm()
-	{
-		$questions = $this->getQuestions();
-		for (reset($questions); null !== ($k = key($questions)); next($questions)) {
-			$question = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$k);
-			$question->active_submission =& $this->active_submission;
-			$question->processForm();
-		}
-		return true;
-
-	}//end processForm()
 
 
 	/**

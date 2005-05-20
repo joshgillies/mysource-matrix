@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_file_upload.inc,v 1.11 2005/05/18 23:44:38 tbarrett Exp $
+* $Id: form_question_type_file_upload.inc,v 1.12 2005/05/20 05:27:37 tbarrett Exp $
 *
 */
 
@@ -25,13 +25,12 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
 class Form_Question_Type_File_Upload extends Form_Question
 {
-
 
 	/**
 	* Constructor
@@ -66,7 +65,7 @@ class Form_Question_Type_File_Upload extends Form_Question
 	* @access public
 	* @return string
 	*/
-	function getAnswer()
+	function getHtmlField()
 	{
 		$extras = $this->attr('extra');
 		$name   = $this->id;
@@ -76,23 +75,19 @@ class Form_Question_Type_File_Upload extends Form_Question
 		$html = ob_get_contents();
 		ob_end_clean();
 
-		// calling text_box will convert the open and close php tags into their html counter-parts
-		// so we need to convert them back to proper php tags
-
 		return html_entity_decode($html);
 
-	}//end getAnswer()
+	}//end getHtmlField()
 
 
 	function getValue()
 	{
-		if (!$this->active_submission) return null;
-
-		if (isset($this->active_submission[$this->id])) {
-			return $this->active_submission[$this->id];
-		} else {
+		if (is_null($this->value)) {
 			return '';
+		} else {
+			return $this->value;
 		}
+
 	}//end getValue()
 
 
@@ -104,103 +99,62 @@ class Form_Question_Type_File_Upload extends Form_Question
 	*/
 	function hasValidValue()
 	{
-		$missing = false;
-		$form =& $this->getMySection();
-
-		$file = get_file_upload_info($this->id);
-
-		// there was an error
-		if ($file === false) {
-			$form->failed_rules[] = translate('cms_form_file_upload_error', $this->attr('name'));
-			return false;
-		}
-
-		// no file uploaded
-		if (is_array($file) && empty($file)) {
-			if ($this->attr('required')) {
-				$this->failed_rules[] = translate('cms_form_file_upload_none_rule', $this->attr('name'));
-				return false;
-			} else {
-				$this->_tmp['summary'] = translate('cms_form_file_upload_none');
-				return true;
-			}
-		}
-
-		// no create location set!!
 		$create_loc = $this->attr('create_location');
 		if (empty($create_loc)) {
+			// no create location set
 			$this->failed_rules[] = translate('cms_form_file_upload_no_create_locs', $this->attr('name'));' "'.$this->attr('name').'"';
 			return false;
 		}
 
-		$this->active_submission[$this->id] = $file['name'];
-		if (!parent::hasValidValue()) return false;
-
-		$create_loc_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($create_loc);
-
-		$GLOBALS['SQ_SYSTEM']->am->includeAsset('file');
-
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
-		$existing_file = $db->getOne('select a.assetid from '.SQ_TABLE_RUNNING_PREFIX.'ast a join '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l on a.assetid = l.minorid where l.majorid = '.$db->quoteSmart($create_loc).' and a.name = '.$db->quoteSmart($file['name']));
-		assert_valid_db_result($existing_file);
+		if ($this->_tmp['file_info'] === false) {
+			// there was an upload error
+			$this->failed_rules[] = translate('cms_form_file_upload_error', $this->attr('name'));
+			return false;
+		}
 
 		$ok = true;
-		if ($existing_file) {
-			switch ($this->attr('overwrite_rule')) {
-				case 'D':
-					$this->failed_rules[] = translate('cms_form_file_upload_already_exists', $this->attr('name'));
-					$ok = false;
-				break;
 
-				case 'O':				// overwrite - just leave as is
-				break;
+		if (is_array($this->_tmp['file_info']) && empty($this->_tmp['file_info']) && $this->attr('is_required')) {
+			// no file uploaded to required field
+			$this->failed_rules[] = translate('cms_form_file_upload_none_rule', $this->attr('name'));
+			$ok = false;
+		}
 
-				case 'R':
-					include_once SQ_FUDGE_PATH.'/general/file_system.inc';
-					while ($existing_file) {
-						$file['name'] = increment_filename($file['name']);
-						$existing_file = $db->getOne('select a.assetid from '.SQ_TABLE_RUNNING_PREFIX.'ast a join '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l on a.assetid = l.minorid where l.majorid = '.$db->quoteSmart($create_loc).' and a.name = '.$db->quoteSmart($file['name']));
-						assert_valid_db_result($existing_file);
-					}
-				break;
+		if ($this->attr('overwrite_rule') == 'D') {
+			// we want to throw an error if a file with this name already exists, so see if one does
+			$db =& $GLOBALS['SQ_SYSTEM']->db;
+			$existing_file = $db->getOne('select a.assetid from '.SQ_TABLE_RUNNING_PREFIX.'ast a join '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l on a.assetid = l.minorid where l.majorid = '.$db->quoteSmart($create_loc).' and a.name = '.$db->quoteSmart($this->getValue()));
+			assert_valid_db_result($existing_file);
+			if ($existing_file) {
+				// file already exists so throw the error
+				$ok = false;
+				$this->failed_rules[] = translate('cms_form_file_upload_already_exists', $this->attr('name'));
 			}
 		}
 
-		if (!$ok) return false;
-
-		if ($existing_file) {
-			$file_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($existing_file);
-
-			$lock_status = $GLOBALS['SQ_SYSTEM']->am->acquireLock($file_asset->id, 'attributes');
-			$edit_fns = $file_asset->getEditFns();
-
-			if (!$edit_fns->processFileUpload($file_asset, $o, $file_asset->getPrefix(), $file)) {
-				if ($lock_status === 1) {
-					$GLOBALS['SQ_SYSTEM']->am->releaseLock($file_asset->id, 'attributes');
-				}
-				return false;
-			}
-			if ($lock_status === 1) {
-				$GLOBALS['SQ_SYSTEM']->am->releaseLock($file_asset->id, 'attributes');
-			}
-
-		} else {
-
-			$file_asset = new File();
-
-			$file_asset->_tmp['uploading_file'] = true;
-			$file_asset->setAttrValue('name', $file['name']);
-			$link = Array('asset' => &$create_loc_asset, 'link_type' => SQ_LINK_TYPE_2);
-
-			if (!$file_asset->create($link, $file)) return false;
-
+		if ($ok) {
+			return parent::hasValidValue();
 		}
-
-		$this->_tmp['summary'] = $file['name'].', type '.$file['type'].', '.easy_filesize($file['size']);
-
-		return true;
+		return false;
 
 	}//end hasValidValue()
+
+
+	/**
+	* Look at user-specified and internal rules to see if this question currently has a valid value
+	*
+	* @access public
+	* @return void
+	*/
+	function populate()
+	{
+		$this->_tmp['file_info'] = get_file_upload_info($this->id);
+		$this->setValue(array_get_index($this->_tmp['file_info'], 'name', translate('cms_form_file_upload_none')));
+		if (isset($this->_tmp['file_info']['name'])) {
+			$this->_tmp['summary'] = $this->_tmp['file_info']['name'].', type '.$this->_tmp['file_info']['type'].', '.easy_filesize($this->_tmp['file_info']['size']);
+		}
+
+	}//end populate()
 
 
 	/**
@@ -220,9 +174,113 @@ class Form_Question_Type_File_Upload extends Form_Question
 
 	function getSummary()
 	{
-		return array_get_index($this->_tmp, 'summary', translate('cms_form_file_upload_none'));
+		if (!isset($this->_tmp['summary'])) {
+			$db =& $GLOBALS['SQ_SYSTEM']->db;
+			$existing_file = $db->getOne('select a.assetid from '.SQ_TABLE_RUNNING_PREFIX.'ast a join '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l on a.assetid = l.minorid where l.majorid = '.$db->quoteSmart($this->attr('create_location')).' and a.name = '.$db->quoteSmart($this->getValue()));
+			assert_valid_db_result($existing_file);
+			if (!is_null($existing_file)) {
+				$existing_file_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($existing_file);
+				$info = $existing_file_asset->getExistingFile();
+				$this->_tmp['summary'] = $this->getValue().', '.easy_filesize($info['size']);
+			} else {
+				$this->_tmp['summary'] = translate('cms_form_file_upload_none');
+			}
+		}
+		return $this->_tmp['summary'];
 
 	}//end getSummary()
+
+
+	/**
+	* Returns whether questions of this type can be edited once the form has been initially submitted
+	*
+	* @access public
+	* @return boolean
+	*/
+	function isEditable()
+	{
+		return false;
+
+	}//end isEditable()
+
+
+	/**
+	* Do any work necessary to make this value "stick", eg create an asset
+	*
+	* This gets called once we know the whole form is valid and we want to save all the values.
+	*
+	* @access public
+	* @return void
+	*/
+	function saveValue()
+	{
+		$create_loc = $this->attr('create_location');
+		$create_loc_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($create_loc);
+		if (is_null($create_loc_asset)) {
+			// we shouldn't get to this point if there is no create loc
+			return;
+		}
+
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('file');
+
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$existing_file = $db->getOne('select a.assetid from '.SQ_TABLE_RUNNING_PREFIX.'ast a join '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l on a.assetid = l.minorid where l.majorid = '.$db->quoteSmart($create_loc).' and a.name = '.$db->quoteSmart($this->getValue()));
+		assert_valid_db_result($existing_file);
+
+		$ok = true;
+		if ($existing_file) {
+			switch ($this->attr('overwrite_rule')) {
+				case 'D':
+					// error was already thrown and we shouldn't even be here
+					return;
+				break;
+
+				case 'O':				
+					// want overwrite so just leave filename as is
+				break;
+
+				case 'R':
+					// find a new name to rename the file to
+					include_once SQ_FUDGE_PATH.'/general/file_system.inc';
+					while ($existing_file) {
+						$file['name'] = increment_filename($file['name']);
+						$existing_file = $db->getOne('select a.assetid from '.SQ_TABLE_RUNNING_PREFIX.'ast a join '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l on a.assetid = l.minorid where l.majorid = '.$db->quoteSmart($create_loc).' and a.name = '.$db->quoteSmart($file['name']));
+						assert_valid_db_result($existing_file);
+					}
+				break;
+			}
+		}
+
+		if ($existing_file) {
+
+			// update the existing file asset
+			$file_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($existing_file);
+			$lock_status = $GLOBALS['SQ_SYSTEM']->am->acquireLock($file_asset->id, 'attributes');
+			$edit_fns = $file_asset->getEditFns();
+			if (!$edit_fns->processFileUpload($file_asset, $o, $file_asset->getPrefix(), $this->_tmp['file_info'])) {
+				if ($lock_status === 1) {
+					$GLOBALS['SQ_SYSTEM']->am->releaseLock($file_asset->id, 'attributes');
+				}
+				return false;
+			}
+			if ($lock_status === 1) {
+				$GLOBALS['SQ_SYSTEM']->am->releaseLock($file_asset->id, 'attributes');
+			}
+
+		} else {
+
+			// create a new file asset
+			$file_asset = new File();
+			$file_asset->_tmp['uploading_file'] = true;
+			$file_asset->setAttrValue('name', $this->getValue());
+			$link = Array('asset' => &$create_loc_asset, 'link_type' => SQ_LINK_TYPE_2);
+			if (!$file_asset->create($link, $this->_tmp['file_info'])) return false;
+
+		}
+
+		return true;
+
+	}//end saveValue()
 
 
 }//end class

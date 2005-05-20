@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_file_upload_management.inc,v 1.6 2005/04/29 05:40:30 gsherwood Exp $
+* $Id: form_question_type_file_upload_management.inc,v 1.7 2005/05/20 05:27:37 tbarrett Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -52,6 +52,7 @@ class Form_Question_Type_File_Upload_Management extends Asset_Management
 												'parameters'	=> Array(
 																	'allow_empty'	=> false,
 																   ),
+												'description'	=> 'DEPRECATED AS OF v0.3',
 											   ),
 						'overwrite_rule'	=> Array(
 												'added'			=> '0.0.1',

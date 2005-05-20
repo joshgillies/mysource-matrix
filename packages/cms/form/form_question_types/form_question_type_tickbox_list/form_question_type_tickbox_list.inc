@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_list.inc,v 1.36 2005/05/18 23:44:39 tbarrett Exp $
+* $Id: form_question_type_tickbox_list.inc,v 1.37 2005/05/20 05:27:37 tbarrett Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -66,11 +66,11 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 	* @access public
 	* @return string
 	*/
-	function getAnswer()
+	function getHtmlField()
 	{
 		return $this->listBox($this->getOptions(), true, $this->attr('horizontal'), $this->attr('extra'));
 
-	}//end getAnswer()
+	}//end getHtmlField()
 
 
 	/**
@@ -157,14 +157,14 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 			$value = $this->getAnswerByOffset($val);
 		}
 
-		if ($this->attr('required')) {
+		if ($this->attr('is_required')) {
 			$req_rule = Array('rule_code' => 'select_limit', 'operator' => '>=', 'value' => '1');
 			array_push($this->vars['rules']['value'], $req_rule);
 		}
 
 		$ok = parent::hasValidValue();
 
-		if ($this->attr('required')) {
+		if ($this->attr('is_required')) {
 			array_pop($this->vars['rules']['value']);
 		}
 
@@ -184,14 +184,14 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 	*/
 	function generateJSCode()
 	{
-		if ($this->attr('required')) {
+		if ($this->attr('is_required')) {
 			$req_rule = Array('rule_code' => 'select_limit', 'operator' => '>=', 'value' => '1');
 			array_push($this->vars['rules']['value'], $req_rule);
 		}
 
 		$code = parent::generateJSCode();
 
-		if ($this->attr('required')) {
+		if ($this->attr('is_required')) {
 			array_pop($this->vars['rules']['value']);
 		}
 
@@ -218,13 +218,16 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 	/**
 	* returns a summary for this question
 	*
-	* @param string $answer the answer to get the summary of
+	* @param string	$answer	The answer the print the summary for (optional)
 	*
 	* @access public
 	* @return mixed
 	*/
-	function getSummary($answer)
+	function getSummary($answer=null)
 	{
+		if (is_null($answer)) {
+			$answer = $this->getValue();
+		}
 		if (is_array($answer)) {
 			$ans_str = Array();
 			foreach ($answer as $a) {
@@ -247,21 +250,17 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 	*/
 	function isSelected($value)
 	{
-		if (isset($this->active_submission)) {
-			$values = $this->active_submission->getAnswer($this->id);
-			if (isset($values)) {
-				if (is_array($values)) {
-					return in_array($value, $values);
-				} else {
-					return ($value == $values && !empty($values));
-				}
+		$values = $this->getValue();
+		if (!is_null($values)) {
+			if (is_array($values)) {
+				return in_array($value, $values);
+			} else {
+				return ($value == $values && !empty($values));
 			}
 		} else {
 			$defaults = $this->attr('default');
-			if (in_array($value, $defaults)) return true;
+			return (in_array($value, $defaults));
 		}
-
-		return false;
 
 	}//end isSelected()
 

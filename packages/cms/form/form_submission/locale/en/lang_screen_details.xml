@@ -11,16 +11,20 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.3 2005/05/13 11:14:49 brobertson Exp $
+* $Id: lang_screen_details.xml,v 1.4 2005/05/20 05:27:37 tbarrett Exp $
 *
 */
 -->
 
 <contents>
-	<section name="Details">
-	    <field attribute="id">
-			<display_name>Id</display_name>
-			<note>Defines the name of the form submission</note>
+	<section name="Answers to Global Questions">
+		<field>
+			<display_name></display_name>
+			<note></note>
+			<function_call>
+				<paint_function name="paintSubmissionDetails" />
+				<process_function name="processSubmissionDetails" />
+			</function_call>
 		</field>
 	</section>
 </contents>

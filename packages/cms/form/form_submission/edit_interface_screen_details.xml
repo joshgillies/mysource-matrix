@@ -11,15 +11,18 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.11 2005/05/13 11:14:49 brobertson Exp $
+* $Id: edit_interface_screen_details.xml,v 1.12 2005/05/20 05:27:37 tbarrett Exp $
 *
 */
 -->
 
 <contents>
-	<section name="Details" write_access="none">
-	    <field attribute="id">
-			<text width="12" height="1" />
+	<section name="Answers to Global Questions" write_access="write:attributes">
+		<field format="new_line">
+			<function_call>
+				<paint_function name="paintSubmissionDetails" />
+				<process_function name="processSubmissionDetails" />
+			</function_call>
 		</field>
 	</section>
 </contents>

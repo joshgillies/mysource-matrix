@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section_edit_fns.inc,v 1.37 2005/05/19 00:19:39 tbarrett Exp $
+* $Id: form_section_edit_fns.inc,v 1.38 2005/05/20 05:27:37 tbarrett Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -283,7 +283,7 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 		$question_types = $am->getTypeDescendants('form_question');
-		$questions = Array();
+		$questions = Array('' => '-- Choose Type --');
 
 		foreach ($question_types as $question) {
 			$q = str_replace('form_question_type', '', $question);
@@ -295,12 +295,8 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 		combo_box('question_type', $questions, false, '');
 		echo '&nbsp;';
 
-		// create a dropdown box with some numbers for the number of questions to add
-		// start at zero, so if the (l)user presses commit without selecting anything
-		// it doesn't add a question
-
 		$num = Array();
-		for ($i = 0; $i <= 10; $i++) {
+		for ($i = 1; $i <= 10; $i++) {
 			$num[$i] = $i;
 		}
 		combo_box('num_questions', $num, false, '');
@@ -330,7 +326,6 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 		$curr_question_count = $asset->getQuestionCount() + 1;
-
 
 		if ($type && $number) {
 
@@ -416,7 +411,7 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 			$output .= '</td><td';
 			$output .= ($asset->attr('answer_col_width')) ? ' width="'.$asset->attr('answer_col_width').'">' : '>';
 			$output .= '<'.'?php $q =$GLOBALS["SQ_SYSTEM"]->am->getAsset("'.$assetid.'");
-			echo $q->getAnswer(); ?'.'>'."\n";
+			echo $q->getHtmlField(); ?'.'>'."\n";
 			$output .= '</td></tr>';
 		}
 		$output .= '</table>';

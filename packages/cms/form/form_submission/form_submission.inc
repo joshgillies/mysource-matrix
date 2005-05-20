@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_submission.inc,v 1.23 2005/05/17 01:35:20 lwright Exp $
+* $Id: form_submission.inc,v 1.24 2005/05/20 05:27:37 tbarrett Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -45,17 +45,6 @@ class Form_Submission extends Asset
 		return $this->Asset($assetid);
 
 	}//end constructor
-
-
-	function create(&$link)
-	{
-		if (!($linkid = parent::create($link))) {
-			return 0;
-		}
-
-		return $linkid;
-
-	}//end create()
 
 
 	/**
@@ -133,7 +122,9 @@ class Form_Submission extends Asset
 	function setError($error)
 	{
 		$a = $this->attr('attributes');
-		if (!isset($a['is_error']) || !$a['is_error']) $a['is_error'] = true;
+		if (!isset($a['is_error']) || !$a['is_error']) {
+			$a['is_error'] = true;
+		}
 		if (!isset($a['errors'])) $a['errors'] = Array();
 		$a['errors'][] = $error;
 
@@ -224,13 +215,6 @@ class Form_Submission extends Asset
 
 		if (empty($a['summary'])) $a['summary'] = Array();
 
-		/*if (!isset($a['summary'][$section_id])) {
-			$a['summary'][$section_id] = Array(
-				'section_name'	=> $section_name,
-				'questions'		=> Array(),
-			);
-		}*/
-
 		$a['summary'][$question_id]['answer']  = $value;
 		$a['summary'][$question_id]['name']    = $name;
 
@@ -254,53 +238,13 @@ class Form_Submission extends Asset
 		$a = $this->attr('attributes');
 		if (!$a) return false;
 
-		if (is_null($q_id)) return $a['summary'];
-		else return $a['summary'][$q_id][$value];
+		if (is_null($q_id)) {
+			return $a['summary'];
+		} else {
+			return $a['summary'][$q_id][$value];
+		}
 
 	}//end getSummary()
-
-
-	/**
-	* sets a question to signify that it has been processed
-	*
-	* @param integer $question_id the question id to set
-	*
-	* @access public
-	* @return boolean
-	*/
-	function setProcessed($question_id)
-	{
-		$a = $this->attr('attributes');
-		if (!isset($a['processed']))  $a['processed'] = Array();
-
-		$a['processed'][$question_id] = true;
-
-		if (!$this->setAttrValue('attributes', $a)) {
-			return false;
-		}
-
-		return true;
-
-	}//end setProcessed()
-
-
-	/**
-	* returns TRUE if a question has been processed
-	*
-	* @param integer $question_id the question id to check
-	*
-	* @access public
-	* @return boolean
-	*/
-	function isProcessed($question_id)
-	{
-		$a = $this->attr('attributes');
-		if (isset($a['processed'][$question_id]) && $a['processed'][$question_id]) {
-			return true;
-		}
-		return false;
-
-	}//end isProcessed()
 
 
 	/**

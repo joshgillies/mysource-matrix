@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_edit_fns.inc,v 1.33 2005/05/11 06:07:30 lwright Exp $
+* $Id: form_question_edit_fns.inc,v 1.34 2005/05/20 05:27:31 tbarrett Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -133,13 +133,9 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function processRules(&$asset, &$o, $prefix)
 	{
-		if ($asset->getRuleCount() == 0) {
-			return false;
-		}
+		if ($asset->getRuleCount() == 0) return false;
 
-		if (!$asset->writeAccess('attributes')) {
-			return false;
-		}
+		if (!$asset->writeAccess('attributes')) return false;
 
 		$rule_codes = $asset->getAllowedRules();
 		$type_codes = Array();
@@ -155,9 +151,7 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 		// delete rules first
 		foreach (array_keys($rules) as $k) {
 			$rule_prefix = $prefix.'_rule_'.$k;
-			if (!isset($_POST[$rule_prefix])) {
-				continue;
-			}
+			if (!isset($_POST[$rule_prefix])) continue;
 			if (array_get_index($_POST[$rule_prefix], 'delete', 0)) {
 				unset($rules[$k]);
 			}

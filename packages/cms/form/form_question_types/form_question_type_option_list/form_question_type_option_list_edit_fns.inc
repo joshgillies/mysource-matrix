@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_option_list_edit_fns.inc,v 1.6 2005/05/18 23:44:39 tbarrett Exp $
+* $Id: form_question_type_option_list_edit_fns.inc,v 1.7 2005/05/20 05:27:37 tbarrett Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../form_question_type_tickbox_list/form_questio
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -63,6 +63,7 @@ class Form_Question_Type_Option_List_Edit_Fns extends Form_Question_Type_Tickbox
 		echo "<table cellpadding=\"0\" cellspacing=\"0\">\n";
 
 		$defaults = $asset->attr('default');
+		if (empty($defaults)) $defaults = Array(reset($options));
 
 		foreach ($options as $ref => $option) {
 			if (!trim($option)) continue;

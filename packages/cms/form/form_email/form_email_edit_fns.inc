@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.51 2005/05/13 11:07:34 brobertson Exp $
+* $Id: form_email_edit_fns.inc,v 1.52 2005/05/20 05:27:29 tbarrett Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.51 $
+* @version $Revision: 1.52 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -112,51 +112,59 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$from_ts = mktime(0,0,0,$from_value[1],$from_value[2],$from_value[0]);
 		$to_ts   = mktime(23,59,59,$to_value[1],$to_value[2],$to_value[0]);
 
-		?>
-		<table class="sq-backend-table">
-		<tr>
-			<td class="sq-backend-table-header">
-				<?php echo translate('asset_id') ?>
-			</td>
-			<td colspan="2" class="sq-backend-table-header">
-				<?php echo translate('submission_time') ?>
-			</td>
-			<td colspan="2" class="sq-backend-table-header">
-				<?php echo translate('user') ?>
-			</td>
-			<td class="sq-backend-table-header">
-				<?php echo translate('expand_question') ?>
-			</td>
-		</tr>
-		<?php
-
-		// search in the sub-logs directory for files that fit in the date range
+		// find all the form submission assets
 		$assetids = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, 'form_submission'));
 		$assetid_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($assetids);
-
 		uasort($assetid_info, create_function('$a, $b', 'return $a[\'created\'] < $b[\'created\'];'));
-
-		?><p><i><?php echo translate('cms_form_submissions_during_period', count($assetids)) ?></i></p><?php
-
+		?>
+		<p><i><?php echo translate('cms_form_submissions_during_period', count($assetids)) ?></i></p>
+		<style type="text/css">
+			td.form-sub {
+				padding-top: 0px;
+			}
+			.form-sub table.sq-backend-table {
+				border-top: 0px;
+				margin: 0 8px 8px 8px;
+			}
+			.form-sub table.sq-backend-table th {
+				font-weight: normal;
+				text-decoration: italic;
+			}
+		</style>
+		<table class="sq-backend-table">
+		<tr>
+			<th>
+				<?php echo translate('asset_id') ?>
+			</th>
+			<th colspan="2">
+				<?php echo translate('submission_time') ?>
+			</th>
+			<th colspan="2">
+				<?php echo translate('user') ?>
+			</th>
+			<th>
+				<?php echo translate('expand_question') ?>
+			</th>
+			<th>&nbsp;</th>
+		</tr>
+		<?php
 		foreach ($assetid_info as $assetid => $asset_info) {
-				if (($asset_info['created'] >= $from_value) && ($asset_info['created'] <= $to_value)) {
-					// time is good, load me up
-					$sub_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-					$sub_user = $asset_info['created_userid'];
-					$sub_time = $asset_info['created'];
-
-					$sub_expanded = array_search($assetid, $expand_list) !== false;
-
-					$num_subs++;
-
-					?><tr>
-					<td class="sq-backend-table-cell-alt">
+			if (($asset_info['created'] >= $from_value) && ($asset_info['created'] <= $to_value)) {
+				// time is good, load me up
+				$sub_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$sub_user = $asset_info['created_userid'];
+				$sub_time = $asset_info['created'];
+				$sub_expanded = array_search($assetid, $expand_list) !== false;
+				$num_subs++;
+				?>
+				<tr class="alt">
+					<td>
 						<?php echo $assetid ?>
 					</td>
-					<td class="sq-backend-table-cell-alt" colspan="2">
+					<td colspan="2">
 						<?php echo $sub_time ?>
 					</td>
-					<td class="sq-backend-table-cell-alt" colspan="2">
+					<td colspan="2">
 						<?php
 						$valid_user = false;
 						if (!empty($sub_user)) {
@@ -166,50 +174,55 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 								$valid_user = true;
 							}
 						}
-
 						if (!$valid_user) {
 							?><i><?php echo translate('cms_form_no_logged_in_user'); ?></i><?php
 						}
 						?>
 					</td>
-					<td class="sq-backend-table-cell-alt">
+					<td>
 						<input type="checkbox" name="<?php echo $prefix ?>_viewsub[<?php echo $assetid ?>]" value="1" <?php if ($sub_expanded) echo ' checked="checked"' ?>>
 					</td>
+					<td><a href="<?php echo $sub_asset->getBackendHref(); ?>">edit</a></td>
 				</tr>
 				<?php
-					// display only if expanded
-					if ($sub_expanded) { ?>
+				// display only if expanded
+				if ($sub_expanded) { 
+					?>
 					<tr>
+						<td colspan="7" class="form-sub">
+							<table class="sq-backend-table">
+								<tr>
+									<?php
+									$i = 0;
+									$elements =& $sub_asset->getSummary();
+									if (count($elements) % 2 != 0) {
+										$elements[] = Array('name' => '', 'answer' => '');
+									}
+									foreach ($elements as $element) {
+										$i++;
+										?>
+										<th><?php echo $element['name'] ?>:</th>
+										<td><?php echo $element['answer'] ?></td>
+										<?php
+										if (($i < count($elements)) && ($i % 2 == 0)) { 
+											?>
+								</tr>
+								<tr>
+											<?php
+										}
+									}//end foreach elemnent
+									?>
+								</tr>
+							</table>
+						</td>
+					</tr>
 					<?php
-
-					$i = 0;
-					$elements =& $sub_asset->getSummary();
-					if (!empty($elements)) {
-						foreach ($elements as $element) {
-							$i++;
-
-							if ($i % 2 == 1) { ?>
-								<td class="sq-backend-table-cell">&nbsp;</td>
-							<?php }
-							?>
-							<td class="sq-backend-table-cell">
-								<i><?php echo $element['name'] ?>:</i>
-							</td>
-							<td class="sq-backend-table-cell">
-								<?php echo $element['answer'] ?>
-							</td>
-							<?php
-							if (($i < count($elements)) && ($i % 2 == 0)) { ?>
-								</tr><tr>
-						<?php }
-						}	//end-if sub_expanded
-					}
-
-					?></tr><?php
-				}
-			}
-		}
-	?></table><?php
+				}//end if expanded
+			}//end if time matches
+		}//end foreach submission
+		?>
+		</table>
+		<?php
 
 	}//end paintSubmissions()
 

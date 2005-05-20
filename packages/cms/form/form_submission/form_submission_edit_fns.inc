@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_submission_edit_fns.inc,v 1.10 2005/04/29 05:40:30 gsherwood Exp $
+* $Id: form_submission_edit_fns.inc,v 1.11 2005/05/20 05:27:37 tbarrett Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -42,6 +42,158 @@ class Form_Submission_Edit_Fns extends Asset_Edit_Fns
 		$this->Asset_Edit_Fns();
 
 	}//end constructor
+
+
+	/**
+	* Paint interface to edit form submission answers
+	*
+	* @param object	Asset				&$asset		asset being edited
+	* @param object Backend_Outputter	&$o			backend outputter
+	* @param string						$prefix		prefix for html elements
+	*
+	* @access public
+	* @return void
+	*/
+	function paintSubmissionDetails(&$asset, &$o, $prefix)
+	{
+		if (!empty($this->_tmp['question_errors'])) {
+			?>
+			<div style="color: red">
+			<strong>Errors during processing - form submission not updated:</strong>
+			<ul>
+				<?php
+				foreach ($this->_tmp['question_errors'] as $msg) {
+					?>
+					<li><?php echo $msg; ?></li>
+					<?php
+				}
+				?>
+			</ul>
+			</div>
+			<?php
+		}
+
+		$wa = $asset->writeAccess('attributes');
+
+		$answers = $asset->attr('attributes');
+		reset($answers['answers']);
+		$form_id = key($GLOBALS['SQ_SYSTEM']->am->getParents(key($answers['answers']), 'form', false));
+		$sections = $GLOBALS['SQ_SYSTEM']->am->getChildren($form_id, 'form_section', false);
+		$section_names = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($sections), 'form_section', false, 'name');
+		foreach ($sections as $section_id => $type) {
+			$section_questions[$section_id] = Array();
+		}
+		$section_questions[$form_id] = Array();
+		foreach ($answers['answers'] as $q_id => $details) {
+			$section_id = strtok($q_id, ':');
+			$details['printed'] = false;
+			$section_questions[$section_id][$q_id] = $details;
+		}
+		$form =& $GLOBALS['SQ_SYSTEM']->am->getAsset($form_id);
+		foreach ($form->attr('sort_order') as $q_id) {
+			$q =& $GLOBALS['SQ_SYSTEM']->am->getAsset($q_id);
+			if (isset($section_questions[$form_id][$q_id])) {
+				$q->setValue($section_questions[$form_id][$q_id]['answer']);
+			}
+			$note = $q->isEditable() ? $q->getVal('note') : '<i>(Questions of this type cannot be edited)</i>';
+			$o->openField($q->getVal('title'), '', $note);
+			echo ($q->isEditable() && $wa) ? $q->getHtmlField() : $q->getSummary().'&nbsp;';
+			$section_questions[$form_id][$q_id]['printed'] = true;
+			$o->closeField();
+		}
+		foreach ($section_questions[$form_id] as $q_id => $q_details) {
+			if (!$q_details['printed']) {
+				$note = '<i>(This question has been deleted from the form and cannot be edited)</i>';
+				$o->openField($answers['summary'][$q_id]['name'], '', $note);
+				echo $q_details['answer'];
+				$o->closeField();
+			}
+		}
+		$o->closeSection();
+		unset($section_questions[$form_id]);
+		foreach ($section_questions as $section_id => $section_qs) {
+			$section =& $GLOBALS['SQ_SYSTEM']->am->getAsset($section_id);
+			$o->openSection('Answers for Section &quot;'.$section->name.'&quot;');
+			foreach ($section->attr('sort_order') as $q_id) {
+				$q =& $GLOBALS['SQ_SYSTEM']->am->getAsset($q_id);
+				if (isset($section_questions[$section_id][$q_id])) {
+					$q->setValue($section_questions[$section_id][$q_id]['answer']);
+				}
+				$note = $q->isEditable() ? $q->getVal('note') : '<i>(Questions of this type cannot be edited)</i>';
+				$o->openField($q->getVal('title'), '', $note);
+				echo ($q->isEditable() && $wa) ? $q->getHtmlField() : $q->getSummary().'&nbsp;';
+				$section_questions[$section_id][$q_id]['printed'] = true;
+				$o->closeField();
+			}
+			foreach ($section_questions[$section_id] as $q_id => $q_details) {
+				if (!$q_details['printed']) {
+					$note = '<i>(This question has been deleted from the form and cannot be edited)</i>';
+					$o->openField($answers['summary'][$q_id]['name'], '', $note);
+					echo $q_details['answer'];
+					$o->closeField();
+				}
+			}
+			$o->closeSection();
+		}
+
+	}//end paintSubmissionDetails()
+
+
+	/**
+	* Process submitted submission details
+	*
+	* @param object	Asset				&$asset		asset being edited
+	* @param object Backend_Outputter	&$o			backend outputter
+	* @param string						$prefix		prefix for html elements
+	*
+	* @access public
+	* @return void
+	*/
+	function processSubmissionDetails(&$asset, &$o, $prefix)
+	{
+		$attributes = $asset->attr('attributes');
+		$form_id = key($GLOBALS['SQ_SYSTEM']->am->getParents(key($attributes['answers']), 'form', false));
+		$form =& $GLOBALS['SQ_SYSTEM']->am->getAsset($form_id);
+		$this->_tmp['question_errors'] = Array();
+		$unanswered_questions =& $form->getAllQuestionAssets();
+		foreach ($attributes['answers'] as $q_id => $details) {
+			$question_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($q_id);
+			if (!is_null($question_asset)) {
+				if (!$question_asset->isEditable()) continue;
+				$question_asset->populate();
+				if (($question_asset->getValue() != $details['answer']) && (!$question_asset->hasValidValue())) {
+					$this->_tmp['question_errors'] = array_merge($this->_tmp['question_errors'], $question_asset->failed_rules);
+				} else {
+					$attributes['answers'][$q_id]['answer'] = $question_asset->getValue();
+					$attributes['summary'][$q_id]['answer'] = $question_asset->getSummary();
+					$attributes['summary'][$q_id]['name'] = $question_asset->getVal('title');
+				}
+				unset($unanswered_questions[$q_id]);
+			}
+			$section_id = strtok($q_id, ':');
+			$details['printed'] = false;
+			$section_questions[$section_id][$q_id] = $details;
+		}
+
+		for (reset($unanswered_questions); $q =& current($unanswered_questions); next($unanswered_questions)) {
+			if (!$q->isEditable()) continue;
+			$q->setAttrValue('is_required', false); // temporarily
+			$q->populate();
+			if (!$q->hasValidValue()) {
+				$this->_tmp['question_errors'] = array_merge($this->_tmp['question_errors'], $q->failed_rules);
+			} else {
+				$attributes['answers'][$q->id]['answer'] = $q->getValue();
+				$attributes['summary'][$q->id]['answer'] = $q->getSummary();
+				$attributes['summary'][$q->id]['name'] = $q->getVal('title');
+			}
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($q); // make sure that attr change doesn't stick
+		}
+		if (empty($this->_tmp['question_errors'])) {
+			$asset->setAttrValue('attributes', $attributes);
+			return true;
+		}
+
+	}//end processSubmissionDetails()
 
 
 }//end class

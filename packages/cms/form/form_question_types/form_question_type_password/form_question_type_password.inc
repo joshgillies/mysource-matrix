@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_password.inc,v 1.20 2005/05/19 00:20:26 tbarrett Exp $
+* $Id: form_question_type_password.inc,v 1.21 2005/05/20 05:27:37 tbarrett Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -66,7 +66,7 @@ class Form_Question_Type_Password extends Form_Question
 	* @access public
 	* @return string
 	*/
-	function getAnswer()
+	function getHtmlField()
 	{
 		$width  = $this->attr('width');
 		$max    = $this->attr('max');
@@ -74,10 +74,7 @@ class Form_Question_Type_Password extends Form_Question
 		$name   = $this->id.'_1';
 		$name2   = $this->id.'_2';
 
-
-		// generate some php for the value, which can be used for both
-		// auto-answer and returning to saved forms
-		$value = '';
+		$value = $this->attr('default');
 
 		ob_start();
 		password_box($name, $value, $width, $max, $extras);
@@ -93,7 +90,7 @@ class Form_Question_Type_Password extends Form_Question
 
 		return html_entity_decode($html);
 
-	}//end getAnswer()
+	}//end getHtmlField()
 
 
 	/**
@@ -107,14 +104,14 @@ class Form_Question_Type_Password extends Form_Question
 		$val = $this->getValue();
 		if ($this->attr('verify') && ($val != $this->_tmp['verify_value'])) {
 			$this->failed_rules[] = translate('cms_form_password_entered_differently', $this->attr('name'));
-			return false;
 		}
 		if (strlen($val) < $this->attr('min')) {
 			$this->failed_rules[] = translate('cms_form_password_length_>=', $this->attr('name'), $this->attr('min'));
-			return false;
 		}
 		if (strlen($val) > $this->attr('max')) {
 			$this->failed_rules[] = translate('cms_form_password_length_<=', $this->attr('name'), $this->attr('max'));
+		}
+		if (!empty($this->failed_rules)) {
 			return false;
 		}
 		return parent::hasValidValue();
@@ -131,7 +128,7 @@ class Form_Question_Type_Password extends Form_Question
 	function populate()
 	{
 		if (isset($_POST[$this->id.'_1'])) {
-			$this->active_submission[$this->id] = $_POST[$this->id.'_1'];
+			$this->setValue($_POST[$this->id.'_1']);
 			if ($this->attr('verify')) {
 				$this->_tmp['verify_value'] = $_POST[$this->id.'_2'];
 			}
@@ -169,12 +166,10 @@ class Form_Question_Type_Password extends Form_Question
 	/**
 	* returns the answer for this question for the summary, generally overidden by children
 	*
-	* @param $answer the answer of the question
-	*
 	* @access public
 	* @return string
 	*/
-	function getSummary($answer)
+	function getSummary()
 	{
 		return '';
 
@@ -189,13 +184,25 @@ class Form_Question_Type_Password extends Form_Question
 	*/
 	function setValue($value)
 	{
-		$this->active_submission[$this->id] = $value;
+		$this->value = $value;
 		if ($this->attr('verify')) {
 			$this->_tmp['verify_value'] = $value;
 		}
 
 	}//end setValue()
 
+
+	/**
+	* Returns whether questions of this type can be edited once the form has been initially submitted
+	*
+	* @access public
+	* @return boolean
+	*/
+	function isEditable()
+	{
+		return false;
+
+	}//end isEditable()
 
 
 }//end class

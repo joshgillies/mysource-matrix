@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_option_list.inc,v 1.10 2005/04/29 05:40:30 gsherwood Exp $
+* $Id: form_question_type_option_list.inc,v 1.11 2005/05/20 05:27:37 tbarrett Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../form_question_type_tickbox_list/form_questio
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -53,7 +53,7 @@ class Form_Question_Type_Option_List extends Form_Question_Type_Tickbox_List
 	* @access public
 	* @return string
 	*/
-	function getAnswer()
+	function getHtmlField()
 	{
 		// generate some php for the value, which can be used for both
 		// auto-answer and returning to saved forms
@@ -61,7 +61,7 @@ class Form_Question_Type_Option_List extends Form_Question_Type_Tickbox_List
 		$html = $this->listBox($this->getOptions(), false, $this->attr('horizontal'), $this->attr('extra'));
 		return $html;
 
-	}//end getAnswer()
+	}//end getHtmlField()
 
 
 	/**

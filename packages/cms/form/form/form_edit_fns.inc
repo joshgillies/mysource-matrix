@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_edit_fns.inc,v 1.54 2005/05/19 00:19:22 tbarrett Exp $
+* $Id: form_edit_fns.inc,v 1.55 2005/05/20 05:27:25 tbarrett Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.54 $
+* @version $Revision: 1.55 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -59,7 +59,9 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 	function paintSectionLinks(&$asset, &$o, $prefix)
 	{
 		// get the sections linked to this asset
-		if (isset($asset->tmp['section_links'])) unset($asset->tmp['section_links']);
+		if (isset($asset->tmp['section_links'])) {
+			unset($asset->tmp['section_links']);
+		}
 		$sections = &$asset->getSections();
 
 		if (empty($sections)) {
@@ -404,7 +406,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 		$question_types = $am->getTypeDescendants('form_question');
-		$questions = Array();
+		$questions = Array('' => '-- Choose Type --');
 
 		foreach ($question_types as $question) {
 			$q = str_replace('form_question_type', '', $question);
@@ -417,11 +419,8 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 		echo '&nbsp;';
 
 		// create a dropdown box with some numbers for the number of questions to add
-		// start at zero, so if the (l)user presses commit without selecting anything
-		// it doesn't add a question
-
 		$num = Array();
-		for ($i = 0; $i <= 10; $i++) {
+		for ($i = 1; $i <= 10; $i++) {
 			$num[$i] = $i;
 		}
 		combo_box('num_questions', $num, false, '');
@@ -458,9 +457,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 
 			// create some questions
 			for ($i = 0; $i < $number; $i++) {
-				if (!$asset->attachQuestion($type)) {
-					return false;
-				}
+				if (!$asset->attachQuestion($type)) return false;
 				$curr_question_count++;
 			}//end for
 		}//end if
@@ -483,10 +480,6 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 	function paintAddSections(&$asset, &$o, $prefix)
 	{
 		if (!$asset->writeAccess('links')) return false;
-
-		// create a dropdown box with some numbers for the number of sections to add
-		// start at zero, so if the (l)user presses commit without selecting anything
-		// it doesn't add a section
 
 		$option_list = new Asset_Attribute_Option_List();
 		$option_list->paint($prefix.'_sections');
@@ -617,8 +610,8 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 			$section->question_col_width = $asset->attr('question_col_width');
 			$section->answer_col_width = $asset->attr('answer_col_width');
 
-			// let the section know what the current submission object is
-			$section->active_submission =& $asset->active_submission;
+			// let the section know what the current answers are
+			$section->current_answers =& $asset->current_answers;
 
 			$output .= '<'.'?php $active_form =& $this; ?'.'>';
 			// get the section to regen
@@ -707,7 +700,9 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 				// for that keyword
 
 				if ($question = &$asset->getQuestionByOrder($asset, $s, $q)) {
-					$question->active_submission =& $asset->active_submission;
+					if (!empty($this->current_answers)) {
+						$question->setValue($this->current_answers[$question->id]);
+					}
 					$replacement = $question->getVal($t);
 				} else {
 					$replacement = '';
@@ -749,7 +744,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 			$output .= '</td><td';
 			$output .= ($asset->attr('answer_col_width')) ? ' width="'.$asset->attr('answer_col_width').'">' : '>';
 			$output .= '<'.'?php $q =$GLOBALS["SQ_SYSTEM"]->am->getAsset("'.$assetid.'");
-			echo $q->getAnswer(); ?'.'>'."\n";
+			echo $q->getHtmlField(); ?'.'>'."\n";
 			$output .= '</td></tr>';
 		}
 		$output .= '</table>';

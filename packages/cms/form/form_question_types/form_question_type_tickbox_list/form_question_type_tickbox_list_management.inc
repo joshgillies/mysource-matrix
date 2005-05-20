@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_list_management.inc,v 1.15 2005/04/29 05:40:30 gsherwood Exp $
+* $Id: form_question_type_tickbox_list_management.inc,v 1.16 2005/05/20 05:27:37 tbarrett Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -70,6 +70,7 @@ class Form_Question_Type_Tickbox_List_Management extends Asset_Management
 											'parameters'	=> Array(
 																'allow_empty'	=> false,
 															   ),
+											'description'	=> 'DEPRECATED AS OF v0.3',
 										   ),
 					  );
 	}//end constructor

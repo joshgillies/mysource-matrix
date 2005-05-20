@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_text.inc,v 1.32 2005/05/18 23:44:39 tbarrett Exp $
+* $Id: form_question_type_text.inc,v 1.33 2005/05/20 05:27:37 tbarrett Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -66,7 +66,7 @@ class Form_Question_Type_Text extends Form_Question
 	* @access public
 	* @return string
 	*/
-	function getAnswer()
+	function getHtmlField()
 	{
 		$height = ($this->attr('height')) ? $this->attr('height') : 1;
 		$width  = $this->attr('width');
@@ -92,7 +92,7 @@ class Form_Question_Type_Text extends Form_Question
 
 		return html_entity_decode($html);
 
-	}//end getAnswer()
+	}//end getHtmlField()
 
 
 	/**
@@ -103,14 +103,14 @@ class Form_Question_Type_Text extends Form_Question
 	*/
 	function hasValidValue()
 	{
-		if ($this->attr('required')) {
+		if ($this->attr('is_required')) {
 			$req_rule = Array('rule_code' => 'comparison', 'operator' => '!=', 'value' => '');
 			array_push($this->vars['rules']['value'], $req_rule);
 		}
 
 		$ok = parent::hasValidValue();
 
-		if ($this->attr('required')) {
+		if ($this->attr('is_required')) {
 			array_pop($this->vars['rules']['value']);
 		}
 
@@ -130,14 +130,14 @@ class Form_Question_Type_Text extends Form_Question
 	*/
 	function generateJSCode()
 	{
-		if ($this->attr('required')) {
+		if ($this->attr('is_required')) {
 			$req_rule = Array('rule_code' => 'comparison', 'operator' => '!=', 'value' => '');
 			array_push($this->vars['rules']['value'], $req_rule);
 		}
 
 		$code = parent::generateJSCode();
 
-		if ($this->attr('required')) {
+		if ($this->attr('is_required')) {
 			array_pop($this->vars['rules']['value']);
 		}
 

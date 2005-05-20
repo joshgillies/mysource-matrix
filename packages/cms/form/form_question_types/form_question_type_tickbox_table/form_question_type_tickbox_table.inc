@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_table.inc,v 1.12 2005/05/18 23:44:39 tbarrett Exp $
+* $Id: form_question_type_tickbox_table.inc,v 1.13 2005/05/20 05:27:37 tbarrett Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -54,22 +54,20 @@ class Form_Question_Type_Tickbox_Table extends Form_Question
 	* @access public
 	* @return string
 	*/
-	function getAnswer()
+	function getHtmlField()
 	{
 		return $this->_getOutput('active');
 
-	}//end getAnswer()
+	}//end getHtmlField()
 
 
 	/**
 	* returns a summary for this question
 	*
-	* @param string $answer the answer to get the summary of
-	*
 	* @access public
 	* @return mixed
 	*/
-	function getSummary($answer)
+	function getSummary()
 	{
 		return $this->_getOutput('plaintext');
 
@@ -208,14 +206,14 @@ class Form_Question_Type_Tickbox_Table extends Form_Question
 	*/
 	function hasValidValue()
 	{
-		if ($this->attr('required')) {
+		if ($this->attr('is_required')) {
 			$req_rule = Array('rule_code' => 'select_limit', 'operator' => '>=', 'value' => '1');
 			array_push($this->vars['rules']['value'], $req_rule);
 		}
 
 		$ok = parent::hasValidValue();
 
-		if ($this->attr('required')) {
+		if ($this->attr('is_required')) {
 			array_pop($this->vars['rules']['value']);
 		}
 
@@ -313,19 +311,14 @@ class Form_Question_Type_Tickbox_Table extends Form_Question
 	*/
 	function isSelected($option_code)
 	{
-		$result = false;
+		$value = $this->getValue();
+		if (empty($value)) return false;
 
-		$submission = $this->active_submission->isProcessed($this->id) ? $this->active_submission->getAnswer($this->id) : false;
+		// decipher the option id
+		list($line,$option) = explode('_', $option_code);
 
-		if ($submission) {
-			// decipher the option id
-			list($line,$option) = explode('_', $option_code);
-
-			// check if the option was submitted
-			$result = !empty($submission[$line][$option]);
-		}
-
-		return $result;
+		// check if the option was submitted
+		return !empty($value[$line][$option]);
 
 	}//end isSelected()
 
@@ -394,8 +387,9 @@ class Form_Question_Type_Tickbox_Table extends Form_Question
 	function populate()
 	{
 		$prefix = str_replace(':', '_', $this->getPrefix());
-		$this->active_submission[$this->id] = array_get_index($_POST, $prefix, Array());
+		$this->setValue(array_get_index($_POST, $prefix, Array()));
 		return true;
+
 	}//end populate()
 
 

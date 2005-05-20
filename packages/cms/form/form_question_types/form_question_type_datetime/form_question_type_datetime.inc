@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_datetime.inc,v 1.22 2005/05/18 23:44:38 tbarrett Exp $
+* $Id: form_question_type_datetime.inc,v 1.23 2005/05/20 05:27:37 tbarrett Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -62,31 +62,12 @@ class Form_Question_Type_Datetime extends Form_Question
 
 
 	/**
-	* returns the current value of the question, or the default value if no current value exists
-	*
-	* @access public
-	* @return mixed type depends on the subclass of question
-	*/
-	function getValue()
-	{
-		if (!$this->active_submission) return null;
-
-		if (isset($this->active_submission[$this->id])) {
-			return $this->active_submission[$this->id];
-		} else {
-			return $this->attr('default');
-		}
-
-	}//end getValue()
-
-
-	/**
 	* generates the html for this question to display it in the frontend
 	*
 	* @access public
 	* @return string
 	*/
-	function getAnswer()
+	function getHtmlField()
 	{
 		$extras = $this->attr('extra');
 		$name   = $this->id;
@@ -131,7 +112,7 @@ class Form_Question_Type_Datetime extends Form_Question
 		// so we need to convert them back to proper php tags
 		return html_entity_decode($html);
 
-	}//end getAnswer()
+	}//end getHtmlField()
 
 
 	/**
@@ -196,21 +177,19 @@ class Form_Question_Type_Datetime extends Form_Question
 	/**
 	* returns the answer for this question for the summary, generally overriden by children
 	*
-	* @param $answer the answer of the question
-	*
 	* @access public
 	* @return string
 	*/
-	function getSummary($answer)
+	function getSummary()
 	{
 		$allow_circa = false;
 		$show_params = $this->attr('show');
 		if ($show_params['c']) $allow_circa = true;
 
 		if ($allow_circa) {
-			list($date, $time, $circa) = explode(' ', $answer);
+			list($date, $time, $circa) = explode(' ', $this->getValue());
 		} else {
-			list($date, $time) = explode(' ', $answer);
+			list($date, $time) = explode(' ', $this->getValue());
 			$circa = 0;
 		}
 
@@ -407,7 +386,7 @@ class Form_Question_Type_Datetime extends Form_Question
 			$val .= str_pad($_POST[$this->id.'value']['s'], 2, '0', STR_PAD_LEFT);
 		}
 
-		$this->active_submission[$this->id] = $val;
+		$this->setValue($val);
 
 		return true;
 

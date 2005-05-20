@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_select.inc,v 1.32 2005/05/18 23:44:39 tbarrett Exp $
+* $Id: form_question_type_select.inc,v 1.33 2005/05/20 05:27:37 tbarrett Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -81,7 +81,7 @@ class Form_Question_Type_Select extends Form_Question
 	* @access public
 	* @return string
 	*/
-	function getAnswer()
+	function getHtmlField()
 	{
 		ob_start();
 		combo_box($this->id, $this->getOptions(), $this->attr('multiple'), $this->getValue(), $this->attr('height'), '');
@@ -90,7 +90,7 @@ class Form_Question_Type_Select extends Form_Question
 
 		return html_entity_decode($html);
 
-	}//end getAnswer()
+	}//end getHtmlField()
 
 
 	/**
@@ -115,13 +115,16 @@ class Form_Question_Type_Select extends Form_Question
 	/**
 	* returns a summary for this question
 	*
-	* @param string $answer the answer to get the summary of
+	* @param string	$answer	The answer the print the summary for (optional)
 	*
 	* @access public
 	* @return mixed
 	*/
-	function getSummary($answer)
+	function getSummary($answer=null)
 	{
+		if (is_null($answer)) {
+			$answer = $this->getValue();
+		}
 		if (is_array($answer)) {
 			$ans_str = Array();
 			foreach ($answer as $a) {
@@ -173,18 +176,7 @@ class Form_Question_Type_Select extends Form_Question
 	*/
 	function isSelected($option)
 	{
-		if (isset($this->active_submission)) {
-			$submission = $this->active_submission->getAnswer($this->id);
-			if (isset($submission)) {
-				if (is_array($submission)) {
-					return in_array($option,$submission);
-				} else {
-					return ($option == $submission);
-				}
-			}
-		}
-
-		return false;
+		return in_array($option, $this->getValue());
 
 	}//end isSelected()
 

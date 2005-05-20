@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_submission_management.inc,v 1.13 2005/05/13 11:13:12 brobertson Exp $
+* $Id: form_submission_management.inc,v 1.14 2005/05/20 05:27:37 tbarrett Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -47,14 +47,16 @@ class Form_Submission_Management extends Asset_Management
 											'default'	=> '',
 										   ),
 						'attributes'	=> Array(
-											'added'		=> '0.0.1',
-											'type'		=> 'serialise',
-											'default'	=> Array(),
+											'added'			=> '0.0.1',
+											'type'			=> 'serialise',
+											'default'		=> Array(),
+											'description'	=> 'array with keys "answers" and "summary"',
 										   ),
 						'complete'		=> Array(
-											'added'		=> '0.2',
-											'type'		=> 'boolean',
-											'default'	=> false,
+											'added'			=> '0.2',
+											'type'			=> 'boolean',
+											'default'		=> false,
+											'description'	=> 'A historical artifact; always true',
 										   ),
 						'xml'			=> Array(
 											'added'		=> '0.2',

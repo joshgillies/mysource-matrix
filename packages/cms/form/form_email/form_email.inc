@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email.inc,v 1.39 2005/04/29 05:40:28 gsherwood Exp $
+* $Id: form_email.inc,v 1.40 2005/05/20 05:27:29 tbarrett Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -225,7 +225,7 @@ class Form_Email extends Form
 		foreach ($questions as $q_id => $question) {
 			$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
 			$q_name = $q_asset->attr('name');
-			$reps['response_'.$this->id.'_q'.$q_id] = $q_asset->getSummary($q_asset->getValue());
+			$reps['response_'.$this->id.'_q'.$q_id] = $q_asset->getSummary();
 		}
 
 		foreach ($sections as $section) {
@@ -234,7 +234,7 @@ class Form_Email extends Form
 			foreach ($questions as $q_id => $question) {
 				$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($section->id.':q'.$q_id);
 				$q_name = $section->attr('name').': '.$q_asset->attr('name');
-				$reps['response_'.$section->id.'_q'.$q_id] = $q_asset->getSummary($q_asset->getValue());
+				$reps['response_'.$section->id.'_q'.$q_id] = $q_asset->getSummary();
 			}
 		}
 
@@ -305,7 +305,7 @@ class Form_Email extends Form
 		foreach ($questions as $q_id => $question) {
 			$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
 			$q_name = $q_asset->attr('name');
-			$reps['response_'.$this->id.'_q'.$q_id] = $q_asset->getSummary($q_asset->getValue());
+			$reps['response_'.$this->id.'_q'.$q_id] = $q_asset->getSummary();
 		}
 
 		foreach ($sections as $section) {
@@ -314,7 +314,7 @@ class Form_Email extends Form
 			foreach ($questions as $q_id => $question) {
 				$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($section->id.':q'.$q_id);
 				$q_name = $section->attr('name').': '.$q_asset->attr('name');
-				$reps['response_'.$section->id.'_q'.$q_id] = $q_asset->getSummary($q_asset->getValue());
+				$reps['response_'.$section->id.'_q'.$q_id] = $q_asset->getSummary();
 			}
 		}
 
@@ -382,7 +382,7 @@ class Form_Email extends Form
 		foreach ($questions as $q_id => $question) {
 			$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
 			$q_name = $q_asset->attr('name');
-			$reps['response_'.$this->id.'_q'.$q_id] = $q_asset->getSummary($q_asset->getValue());
+			$reps['response_'.$this->id.'_q'.$q_id] = $q_asset->getSummary();
 		}
 
 		foreach ($sections as $section) {
@@ -391,7 +391,7 @@ class Form_Email extends Form
 			foreach ($questions as $q_id => $question) {
 				$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($section->id.':q'.$q_id);
 				$q_name = $section->attr('name').': '.$q_asset->attr('name');
-				$reps['response_'.$section->id.'_q'.$q_id] = $q_asset->getSummary($q_asset->getValue());
+				$reps['response_'.$section->id.'_q'.$q_id] = $q_asset->getSummary();
 			}
 		}
 
@@ -533,7 +533,7 @@ class Form_Email extends Form
 		foreach ($questions as $q_id => $question) {
 			$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
 			$q_name = $q_asset->attr('name');
-			$reps['response_'.$this->id.'_q'.$q_id] = $q_asset->getSummary($q_asset->getValue());
+			$reps['response_'.$this->id.'_q'.$q_id] = $q_asset->getSummary();
 		}
 
 		foreach ($sections as $section) {
@@ -542,7 +542,7 @@ class Form_Email extends Form
 			foreach ($questions as $q_id => $question) {
 				$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($section->id.':q'.$q_id);
 				$q_name = $section->attr('name').': '.$q_asset->attr('name');
-				$reps['response_'.$section->id.'_q'.$q_id] = $q_asset->getSummary($q_asset->getValue());
+				$reps['response_'.$section->id.'_q'.$q_id] = $q_asset->getSummary();
 			}
 		}
 
