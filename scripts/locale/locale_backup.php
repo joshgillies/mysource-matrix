@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: locale_backup.php,v 1.5 2005/05/20 05:39:13 lwright Exp $
+* $Id: locale_backup.php,v 1.6 2005/05/20 06:49:38 lwright Exp $
 *
 */
 
@@ -53,7 +53,7 @@
 *				omitted, defaults to [SYSTEM ROOT]/data/temp/locale_backup.
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -180,24 +180,13 @@ array_unshift($asset_types, Array(
 
 $locale_names = array_keys($locale_list);
 foreach($locale_names as $locale) {
-	list($country,$lang,$variant) = $GLOBALS['SQ_SYSTEM']->lm->getLocaleParts($locale);
-	if (!in_array($country, $locale_names)) {
-		$locale_list[$country] = $locale_list[$locale];
-	}
-
-	if (!empty($lang)) {
-		if (!in_array($country.'_'.$lang, $locale_names)) {
-			$locale_list[$country.'_'.$lang] = $locale_list[$locale];
-		}
-
-		if (!empty($variant)) {
-			if (!in_array($country.'_'.$lang.'@'.$variant, $locale_names)) {
-			$locale_list[$country.'_'.$lang.'@'.$variant] = $locale_list[$locale];
-		}
+	$locale_parts = $GLOBALS['SQ_SYSTEM']->lm->getCumulativeLocaleParts($locale);
+	foreach($locale_parts as $locale_part) {
+		if (!in_array($locale_part, $locale_names)) {
+			$locale_list[$locale_part] = $locale_list[$locale];
 		}
 	}
 }
-
 
 foreach ($asset_types as $asset_type) {
 
@@ -229,10 +218,16 @@ foreach ($asset_types as $asset_type) {
 				if (($entry == '..') || ($entry == '.') || ($entry == 'CVS')) continue;
 
 				if (is_dir($dir_read.'/'.$entry)) {
-					$dirs_to_read[] = $dir_read.'/'.$entry;
+					if (!in_array($dir_read.'/'.$entry, $dirs_to_read)) {
+						$dirs_to_read[] = $dir_read.'/'.$entry;
+					}
 				}
 
+				// get the locale parts
+				$locale_parts = $GLOBALS['SQ_SYSTEM']->lm->getCumulativeLocaleParts($locale_name);
+
 				if (preg_match('|lang\_((static_)?screen\_.*)\.xml|', $entry, $matches)) {
+					// screen files
 					if (!empty($locale_list) && (!in_array($locale_name, array_keys($locale_list))
 						|| (!in_array('all', $locale_list[$locale_name])
 						&& !in_array('screens', $locale_list[$locale_name])))) {
@@ -246,54 +241,26 @@ foreach ($asset_types as $asset_type) {
 					$screens[$locale_name][] = $dir_read.'/lang_'.$matches[1].'.xml';
 
 				} else if (preg_match('|lang\_strings\.xml|', $entry, $matches)) {
-					list($country,$lang,$variant) = $GLOBALS['SQ_SYSTEM']->lm->getLocaleParts($locale_name);
-					if (!in_array($country, $string_locales)) {
-						$string_locales[$country][] = $base_path;
-					}
-
-					if (!empty($lang)) {
-						if (!in_array($country.'_'.$lang, $string_locales)) {
-							$string_locales[$country.'_'.$lang][] = $base_path;
-						}
-
-						if (!empty($variant)) {
-							if (!in_array($country.'_'.$lang.'@'.$variant, $string_locales)) {
-								$string_locales[$country.'_'.$lang.'@'.$variant][] = $base_path;
-							}
+					// string files
+					foreach($locale_parts as $locale_part) {
+						if (!in_array($locale_part, $string_locales)) {
+							$string_locales[$locale_part][] = $base_path;
 						}
 					}
+
 				} else if (preg_match('|lang\_errors\.xml|', $entry, $matches)) {
-					list($country,$lang,$variant) = $GLOBALS['SQ_SYSTEM']->lm->getLocaleParts($locale_name);
-					if (!in_array($country, $error_locales)) {
-						$error_locales[$country][] = $base_path;
-					}
-
-					if (!empty($lang)) {
-						if (!in_array($country.'_'.$lang, $error_locales)) {
-							$error_locales[$country.'_'.$lang][] = $base_path;
-						}
-
-						if (!empty($variant)) {
-							if (!in_array($country.'_'.$lang.'@'.$variant, $error_locales)) {
-								$error_locales[$country.'_'.$lang.'@'.$variant][] = $base_path;
-							}
+					// error files
+					foreach($locale_parts as $locale_part) {
+						if (!in_array($locale_part, $error_locales)) {
+							$error_locales[$locale_part][] = $base_path;
 						}
 					}
+
 				} else if (preg_match('|lang\_messages\.xml|', $entry, $matches)) {
-					list($country,$lang,$variant) = $GLOBALS['SQ_SYSTEM']->lm->getLocaleParts($locale_name);
-					if (!in_array($country, $message_locales)) {
-						$message_locales[$country][] = $base_path;
-					}
-
-					if (!empty($lang)) {
-						if (!in_array($country.'_'.$lang, $message_locales)) {
-							$message_locales[$country.'_'.$lang][] = $base_path;
-						}
-
-						if (!empty($variant)) {
-							if (!in_array($country.'_'.$lang.'@'.$variant, $message_locales)) {
-								$message_locales[$country.'_'.$lang.'@'.$variant][] = $base_path;
-							}
+					// internal message files
+					foreach($locale_parts as $locale_part) {
+						if (!in_array($locale_part, $message_locales)) {
+							$message_locales[$locale_part][] = $base_path;
 						}
 					}
 				}
@@ -321,6 +288,7 @@ foreach ($asset_types as $asset_type) {
 
 // compile string locales...
 foreach($string_locales as $locale => $loc_files) {
+	$loc_files = array_unique($loc_files);
 	if (!empty($locale_list) && !in_array('strings', array_get_index($locale_list, $locale, Array())) &&
 		!in_array('all', array_get_index($locale_list, $locale, Array()))) {
 		continue;
@@ -343,7 +311,9 @@ foreach($string_locales as $locale => $loc_files) {
 
 
 // compile error locales...
+$error_locales = array_unique($error_locales);
 foreach($error_locales as $locale => $loc_files) {
+	$loc_files = array_unique($loc_files);
 	if (!empty($locale_list) && !in_array('errors', array_get_index($locale_list, $locale, Array())) &&
 		!in_array('all', array_get_index($locale_list, $locale, Array()))) {
 		continue;
@@ -369,6 +339,7 @@ foreach($error_locales as $locale => $loc_files) {
 
 // compile internal message locales...
 foreach($message_locales as $locale => $loc_files) {
+	$loc_files = array_unique($loc_files);
 	if (!empty($locale_list) && !in_array('messages', array_get_index($locale_list, $locale, Array())) &&
 		!in_array('all', array_get_index($locale_list, $locale, Array()))) {
 		continue;
@@ -391,6 +362,7 @@ foreach($message_locales as $locale => $loc_files) {
 
 // finally, localised screens...
 foreach($screens as $locale => $loc_files) {
+	$loc_files = array_unique($loc_files);
 	if (!empty($locale_list) && !in_array('screens', array_get_index($locale_list, $locale, Array())) &&
 		!in_array('all', array_get_index($locale_list, $locale, Array()))) {
 		continue;
