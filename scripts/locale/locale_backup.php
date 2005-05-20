@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: locale_backup.php,v 1.4 2005/05/19 06:22:06 lwright Exp $
+* $Id: locale_backup.php,v 1.5 2005/05/20 05:39:13 lwright Exp $
 *
 */
 
@@ -53,7 +53,7 @@
 *				omitted, defaults to [SYSTEM ROOT]/data/temp/locale_backup.
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -399,7 +399,7 @@ foreach($screens as $locale => $loc_files) {
 	$message_file .= '<files locale="'.$locale.'">'."\n";
 
 	foreach($loc_files as $loc_file) {
-		$folder = substr($loc_file, 0, strpos($loc_file, '/locale/'));
+		$folder = substr($loc_file, 0, strpos($loc_file, '/locale/') + strlen('/locale'));
 		$file_name = substr($loc_file, strrpos($loc_file, '/') + 1);
 
 		$message_file .= '<file source="'.substr(str_replace(SQ_SYSTEM_ROOT, '', $folder),1).'" name="'.$file_name.'">'."\n";
