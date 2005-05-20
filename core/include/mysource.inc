@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.111 2005/05/19 09:52:26 gnoel Exp $
+* $Id: mysource.inc,v 1.112 2005/05/20 06:33:22 tbarrett Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.111 $
+* @version $Revision: 1.112 $
 * @package MySource_Matrix
 */
 class MySource
@@ -322,6 +322,8 @@ class MySource
 	*/
 	function start()
 	{
+//		bam(unserialize($GLOBALS['SQ_SYSTEM']->db->getOne('select custom_val from sq_ast_attr_val where attrid=467')));
+//		exit();
 		// if the user is Up For Review, prompt the user to change password
 		$require_password_change = ($this->user && !is_a($this->user, 'public_user') && $this->user->status == SQ_STATUS_LIVE_APPROVAL);
 

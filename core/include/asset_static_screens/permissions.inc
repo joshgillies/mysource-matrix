@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: permissions.inc,v 1.21 2005/05/11 06:05:11 lwright Exp $
+* $Id: permissions.inc,v 1.22 2005/05/20 06:33:22 tbarrett Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Permissions Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix
 */
 
@@ -277,7 +277,7 @@ function processPermissions(&$owner, &$o, &$ei)
 		exit();
 	}
 
-	// if we dont have admin access, dont process anything
+	// if we dont have the permissions lock, dont process anything
 	if (!$owner->adminAccess('permissions')) return false;
 
 	$permission_vars = Array();
@@ -350,7 +350,10 @@ function processPermissions(&$owner, &$o, &$ei)
 
 	if (!empty($permission_vars)) {
 		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
-		$vars = Array('assets' => Array($owner->id => Array('type_code' => $owner->type())), 'permission_changes' => $permission_vars);
+		$vars = Array(
+					'assets'				=> Array($owner->id => Array('type_code' => $owner->type())), 
+					'permission_changes'	=> $permission_vars
+				);
 		if (!$cascade_changes) $vars['dependants_only'] = 1;
 		$hh->queueHipo('hipo_job_edit_permissions', $vars);
 	}

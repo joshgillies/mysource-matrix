@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.315 2005/05/19 15:00:41 gnoel Exp $
+* $Id: asset_manager.inc,v 1.316 2005/05/20 06:33:22 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.315 $
+* @version $Revision: 1.316 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2373,7 +2373,8 @@ class Asset_Manager extends MySource_Object
 	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
 	*											or $type_code and any of it's sub-classes
 	* @param string			$sort_by			a field in the asset table you would like the results
-	*											sorted by (eg. name, short_name etc)
+	*											sorted by (eg. name, short_name etc) or null to sort by
+	*											link sort order
 	* @param int			$access				SQ_PERMISSION_READ|SQ_PERMISSION_WRITE|SQ_PERMISSION_ADMIN
 	*											Specify that links should be returned for assets the user has read,
 	*											write, or admin access for. Leave NULL to ignore permissions.
@@ -2423,13 +2424,11 @@ class Asset_Manager extends MySource_Object
 		$result = $GLOBALS['SQ_SYSTEM']->db->getAssoc(implode(' ', $query));
 		assert_valid_db_result($result);
 
-		if (!is_null($sort_by)) {
-			$children = Array();
-			foreach ($result as $assetid => $asset_info) $children[$assetid] = $asset_info['type_code'];
-			return $children;
-		} else {
-			return $result;
+		$children = Array();
+		foreach ($result as $assetid => $asset_info) {
+			$children[$assetid] = $asset_info['type_code'];
 		}
+		return $children;
 
 	}//end getChildren()
 
@@ -5142,7 +5141,8 @@ class Asset_Manager extends MySource_Object
 	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
 	*											or $type_code and any of it's sub-classes
 	* @param string			$sort_by			a field in the asset table you would like the results
-	*											sorted by (eg. name, short_name etc)
+	*											sorted by (eg. name, short_name etc).  If null, results
+	*											will be ordered by link sort order
 	* @param int			$access				SQ_PERMISSION_READ|SQ_PERMISSION_WRITE|SQ_PERMISSION_ADMIN
 	*											Specify that links should be returned for assets the user has read,
 	*											write, or admin access for. Leave NULL to ignore permissions.
@@ -5233,11 +5233,13 @@ class Asset_Manager extends MySource_Object
 			}
 		}//end if
 
-		// order by a field if required
-		$order_by = '';
+		// order by specified field, or link order by default
 		if (!is_null($sort_by)) {
 			$order_by = 'ORDER BY a.'.$sort_by;
 			$select .= ', a.'.$sort_by.' AS sort_value';
+		} else {
+			$order_by = 'ORDER BY l.sort_order';
+			$select .= ', l.sort_order AS sort_value';
 		}
 
 		return Array(
