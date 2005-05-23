@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.15 2005/05/16 06:36:41 lwright Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.16 2005/05/23 06:01:19 tbarrett Exp $
 *
 */
 
@@ -40,7 +40,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 * @author  David Heppell <dheppell@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1462,7 +1462,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 					'updated'		=> translate('last_updated_date'),
 					'published'		=> translate('last_published_date'),
 					'type_code'		=> translate('type_code'),
-					'__attr__'		=> translate('cms_listing_asset_attribute(s)'),
+					'asset_attrib'		=> translate('cms_listing_asset_attribute(s)'),
 				   );
 		}
 
