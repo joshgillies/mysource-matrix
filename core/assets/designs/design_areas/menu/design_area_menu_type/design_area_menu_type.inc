@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type.inc,v 1.64 2005/05/18 04:05:45 dmckee Exp $
+* $Id: design_area_menu_type.inc,v 1.65 2005/05/23 05:58:19 dmckee Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.64 $
+* @version $Revision: 1.65 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -75,7 +75,7 @@ class Design_Area_Menu_Type extends Design_Area
 			// where setting type is either 'normal', 'heirarchy' or 'current'
 			$split = explode('.', $name);
 			if (count($split) != 3) {
-				trigger_localised_error("CORE0173", E_USER_WARNING, $name);
+				trigger_localised_error('CORE0173', E_USER_WARNING, $name);
 				return false;
 			}
 			switch ($split[2]) {
@@ -84,14 +84,16 @@ class Design_Area_Menu_Type extends Design_Area
 				case 'current'   :
 					$new_value = $this->vars['settings']['value'];
 					if (!is_array($new_value)) $new_value = Array();
-					if (!isset($new_value[$split[1]])) $new_value[$split[1]] = Array();
+					if (!isset($new_value[$split[1]])) {
+						$new_value[$split[1]] = Array();
+					}
 					$new_value[$split[1]][$split[2]] = $value;
 					$name  = 'settings';
 					$value = $new_value;
 				break;
 
 				default :
-					trigger_localised_error("CORE0174", E_USER_WARNING, $split[2]);
+					trigger_localised_error('CORE0174', E_USER_WARNING, $split[2]);
 					return false;
 			}// end switch
 
@@ -162,7 +164,9 @@ class Design_Area_Menu_Type extends Design_Area
 		if (!is_null($sub_menu)) {
 			$sub_var_refs = $sub_menu->getVarReferences();
 			for (reset($sub_var_refs); null !== ($id_name = key($sub_var_refs)); next($sub_var_refs)) {
-				if (!isset($var_refs[$id_name])) $var_refs[$id_name] = Array();
+				if (!isset($var_refs[$id_name])) {
+					$var_refs[$id_name] = Array();
+				}
 				foreach ($sub_var_refs[$id_name] as $var) {
 					if (in_array($var, $var_refs[$id_name])) continue;
 					$var_refs[$id_name][] = $var;
@@ -192,7 +196,9 @@ class Design_Area_Menu_Type extends Design_Area
 				// The name is in the form 'settings.[var_name].[setting type]'
 				$split = explode('.', $var_name);
 				if (count($split) == 3) {
-					if (!isset($settings[$split[1]])) $settings[$split[1]] = Array();
+					if (!isset($settings[$split[1]])) {
+						$settings[$split[1]] = Array();
+					}
 					$settings[$split[1]][$split[2]] = $var_ref_values[$info['id_name']][$info['var']];
 					$settings_changed = true;
 				}// end if

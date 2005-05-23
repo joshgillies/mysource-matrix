@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type_edit_fns.inc,v 1.42 2005/05/18 04:05:45 dmckee Exp $
+* $Id: design_area_menu_type_edit_fns.inc,v 1.43 2005/05/23 05:58:19 dmckee Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -71,7 +71,9 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 	function _processContents(&$asset, &$contents)
 	{
 		$asset->setAttrValue('settings', Array());
-		if (!$this->_setVariables($asset, $contents)) return false;
+		if (!$this->_setVariables($asset, $contents)) {
+			return false;
+		}
 		$settings = $asset->attr('settings');
 		// Now just make sure that current, hierarchy and normal entries all exist for the settings
 		for (reset($settings); NULL !== ($name = key($settings)); next($settings)) {
@@ -90,7 +92,9 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 
 		}// end foreach
 
-		if (!$asset->setAttrValue('settings', $settings)) return false;
+		if (!$asset->setAttrValue('settings', $settings)) {
+			return false;
+		}
 
 		$sub_menu_processed = false;
 		$asset_index	= -1;
@@ -99,16 +103,19 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 		// see if our asset element has any sub's in it
 		foreach ($contents as $index => $element) {
 			if ($element['_type'] != 'TAG') continue;
-
 			switch ($element['operation']) {
 				case 'asset' :
 					$asset_index = $index;
 
 					// if there is nothing to do get out of here :)
-					if ($element['self_terminating'] || empty($element['contents'])) break;
+					if ($element['self_terminating'] || empty($element['contents'])) {
+						break;
+					}
 
 					foreach ($element['contents'] as $sub_element_index => $sub_element) {
-						if ($sub_element['_type'] != 'TAG' || $sub_element['operation'] != 'sub') continue;
+						if ($sub_element['_type'] != 'TAG' || $sub_element['operation'] != 'sub') {
+							continue;
+						}
 
 						$sub_index = $sub_element_index;
 
@@ -129,7 +136,9 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 							return false;
 						}
 
-						if (!$this->_processSubMenu($asset, $sub_element['contents'], $design_area)) return false;
+						if (!$this->_processSubMenu($asset, $sub_element['contents'], $design_area)) {
+							return false;
+						}
 						$sub_menu_processed = true;
 
 						break;
@@ -147,13 +156,9 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 
 		// OK, so we have a working sub menu, add it in
 		if ($sub_menu_processed && $asset_index >= 0 && $sub_index >= 0) {
-			// Now what we do is morph it so that this element doesn't contain all the un-necessary contents stuff
-			$contents[$asset_index]['contents'][$sub_index] = Array(
-														'_type' => 'TAG',
-														'attributes'  => Array (),
-														'operation' => 'sub',
-														'self_terminating' => 1
-													);
+			//Sub menu contents used to be cleared here, which was causing probs with customisations.
+			//This remains empty for the moment, but any alterations to sub-menu attributes should
+			//be done here.
 		// otherwise remove any reference to it
 		} else {
 			$link = $asset->getSubMenuLink();
@@ -176,11 +181,11 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 
 			// Now what we do is morph it so that this element doesn't contain all the un-necessary contents stuff
 			$contents[$asset_index] = Array(
-											'_type' => 'TAG',
-											'attributes'  => Array (),
-											'operation' => 'asset',
-											'self_terminating' => 1
-										);
+										'_type'				=> 'TAG',
+										'attributes'		=> Array (),
+										'operation'			=> 'asset',
+										'self_terminating'	=> 1,
+									  );
 
 		}// end if
 
@@ -202,6 +207,7 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 		}// end if
 
 		$GLOBALS['SQ_PROCESSED_DESIGN_AREAS'][$asset->attr('id_name')] = true;
+
 		return $asset->setAttrValue('contents', $contents);
 
 	}//end _processContents()
@@ -237,20 +243,28 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 			$sub->setAttrValue('id_name', $asset->attr('id_name').'__sub_menu');
 			if (!$sub->create($sub_link)) return false;
 
-			if (!$GLOBALS['SQ_SYSTEM']->am->createAssetLink($asset, $sub, SQ_LINK_NOTICE, 'sub_menu')) return false;
+			if (!$GLOBALS['SQ_SYSTEM']->am->createAssetLink($asset, $sub, SQ_LINK_NOTICE, 'sub_menu')) {
+				return false;
+			}
 		}
 
 		// if the current sub is a different type of menu type then morph it to the correct one
 		if ($design_area != $sub->type()) {
 			// first up
-			if (!$sub->morph('design_area_menu_type')) return false;
+			if (!$sub->morph('design_area_menu_type')) {
+				return false;
+			}
 			// then down
 			if (!$sub->morph($design_area)) return false;
-			if (!$sub->setAttrValue('id_name', $asset->attr('id_name').'__sub_menu')) return false;
+			if (!$sub->setAttrValue('id_name', $asset->attr('id_name').'__sub_menu')) {
+				return false;
+			}
 		}
 
 		$edit_fns = $sub->getEditFns();
-		if (!$edit_fns->_processContents($sub, $contents) && $sub->saveAttributes()) return false;
+		if (!$edit_fns->_processContents($sub, $contents) && $sub->saveAttributes()) {
+			return false;
+		}
 		return true;
 
 	}//end _processSubMenu()
@@ -274,7 +288,9 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 
 				if ($divider_contents = $asset->attr('divider_contents')) {
 					ob_start();
-					if (!$this->_outputContents($divider_contents, $asset, $design)) return false;
+					if (!$this->_outputContents($divider_contents, $asset, $design)) {
+						return false;
+					}
 					$divider = ob_get_contents();
 					ob_end_clean();
 				} else {
@@ -329,7 +345,9 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 				?', '>';
 				if ($asset_contents = $asset->attr('asset_contents')) {
 					$asset->_tmp['outputting_asset_section'] = true;
-					if (!$this->_outputContents($asset_contents, $asset, $design)) return false;
+					if (!$this->_outputContents($asset_contents, $asset, $design)) {
+						return false;
+					}
 					unset($asset->_tmp['outputting_asset_section']);
 				}
 
@@ -390,20 +408,24 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 	{
 		$write_access = $asset->writeAccess('attributes');
 		$current_level = $asset->attr('level');
-		$special_levels = Array(''   => '-- '.strtolower(translate('custom')).' --',
-								'-2' => translate('children'),
-								'-1' => translate('current'),
-								'0'  => translate('top'),
-								'1'  => translate('sub'),
-								);
+		$special_levels = Array(
+							''		=> '-- '.strtolower(translate('custom')).' --',
+							'-2'	=> translate('children'),
+							'-1'	=> translate('current'),
+							'0'		=> translate('top'),
+							'1'		=> translate('sub'),
+						  );
 
 		if ($write_access) {
 			combo_box($prefix.'_special_level', $special_levels, false, $asset->attr('level'));
 			echo ' '.strtolower(translate('or')).' ';
 			text_box($prefix.'_level', (!isset($special_levels[$current_level])) ? $current_level : '');
 		} else {
-			if (isset($special_levels[$current_level])) echo $special_levels[$current_level];
-			else echo $current_level;
+			if (isset($special_levels[$current_level])) {
+				echo $special_levels[$current_level];
+			} else {
+				echo $current_level;
+			}
 		}
 
 		return $write_access;
