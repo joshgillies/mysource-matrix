@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_submission_edit_fns.inc,v 1.11 2005/05/20 05:27:37 tbarrett Exp $
+* $Id: form_submission_edit_fns.inc,v 1.12 2005/05/23 06:33:27 tbarrett Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -78,10 +78,10 @@ class Form_Submission_Edit_Fns extends Asset_Edit_Fns
 		$answers = $asset->attr('attributes');
 		reset($answers['answers']);
 		$form_id = key($GLOBALS['SQ_SYSTEM']->am->getParents(key($answers['answers']), 'form', false));
-		$sections = $GLOBALS['SQ_SYSTEM']->am->getChildren($form_id, 'form_section', false);
-		$section_names = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($sections), 'form_section', false, 'name');
-		foreach ($sections as $section_id => $type) {
-			$section_questions[$section_id] = Array();
+		$form =& $GLOBALS['SQ_SYSTEM']->am->getAsset($form_id);
+		$sections =& $form->getSections();
+		for (reset($sections); $section =& current($sections); next($sections)) {
+			$section_questions[$section->id] = Array();
 		}
 		$section_questions[$form_id] = Array();
 		foreach ($answers['answers'] as $q_id => $details) {
@@ -89,7 +89,6 @@ class Form_Submission_Edit_Fns extends Asset_Edit_Fns
 			$details['printed'] = false;
 			$section_questions[$section_id][$q_id] = $details;
 		}
-		$form =& $GLOBALS['SQ_SYSTEM']->am->getAsset($form_id);
 		foreach ($form->attr('sort_order') as $q_id) {
 			$q =& $GLOBALS['SQ_SYSTEM']->am->getAsset($q_id);
 			if (isset($section_questions[$form_id][$q_id])) {
