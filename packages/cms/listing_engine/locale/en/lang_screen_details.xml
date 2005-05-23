@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.4 2005/05/23 04:48:09 lwright Exp $
+* $Id: lang_screen_details.xml,v 1.5 2005/05/23 04:51:09 lwright Exp $
 *
 */
 -->
@@ -71,12 +71,6 @@
 				<paint_function   name="paintAssetPositions"   />
 				<process_function name="processAssetPositions" />
 			</function_call>
-		</field>
-	</section>
-	<section name="Dynamic Parameters">
-		<field attribute="parameter_map">
-			<display_name />
-			<note />
 		</field>
 	</section>
 	<section name="Submit Button">
