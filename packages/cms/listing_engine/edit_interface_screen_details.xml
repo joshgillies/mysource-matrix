@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.5 2005/05/20 01:46:26 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.6 2005/05/23 04:48:09 lwright Exp $
 *
 */
 -->
@@ -33,12 +33,6 @@
 		</field>
 	</section>
 	<section name="List Settings" write_access="write:content">
-		<field>
-			<function_call>
-				<paint_function   name="paintRootNode"  />
-				<process_function name="processRootNode" />
-			</function_call>
-		</field>
 		<field attribute="subs_only">
 			<boolean true_text="yes" false_text="no" />
 		</field>
