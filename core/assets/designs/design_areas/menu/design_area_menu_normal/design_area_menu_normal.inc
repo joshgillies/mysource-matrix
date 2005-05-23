@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_normal.inc,v 1.13 2004/01/30 04:43:57 gsherwood Exp $
+* $Id: design_area_menu_normal.inc,v 1.13.6.1 2005/05/23 06:42:55 dmckee Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,6 +38,8 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_areas/menu/design_area_menu_t
 */
 class Design_Area_Menu_Normal extends Design_Area_Menu_Type
 {
+
+
 	/**
 	* Outputs the way for this menu type to get their information and place it in the
 	* $GLOBALS['MENU_DATA'] array
@@ -80,6 +82,7 @@ class Design_Area_Menu_Normal extends Design_Area_Menu_Type
 		}// end if
 
 	}//end printDataCollection()
+
 
 }//end class
 ?>

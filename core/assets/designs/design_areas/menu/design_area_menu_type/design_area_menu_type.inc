@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type.inc,v 1.56.2.3 2005/05/18 04:08:03 dmckee Exp $
+* $Id: design_area_menu_type.inc,v 1.56.2.4 2005/05/23 06:42:55 dmckee Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -48,11 +48,12 @@ class Design_Area_Menu_Type extends Design_Area
 	*/
 	function _getAllowedLinks()
 	{
-		return Array(SQ_LINK_TYPE_1 => Array(),
-					 SQ_LINK_TYPE_2 => Array(),
-					 SQ_LINK_TYPE_3 => Array(),
-					 SQ_LINK_NOTICE => Array('design_area_menu_type' => Array('card' => 'M', 'exclusive' => false))
-					);
+		return Array(
+				SQ_LINK_TYPE_1	=> Array(),
+				SQ_LINK_TYPE_2	=> Array(),
+				SQ_LINK_TYPE_3	=> Array(),
+				SQ_LINK_NOTICE	=> Array('design_area_menu_type' => Array('card' => 'M', 'exclusive' => false)),
+			   );
 
 	}//end _getAllowedLinks()
 
@@ -83,7 +84,9 @@ class Design_Area_Menu_Type extends Design_Area
 				case 'current'   :
 					$new_value = $this->vars['settings']['value'];
 					if (!is_array($new_value)) $new_value = Array();
-					if (!isset($new_value[$split[1]])) $new_value[$split[1]] = Array();
+					if (!isset($new_value[$split[1]])) {
+						$new_value[$split[1]] = Array();
+					}
 					$new_value[$split[1]][$split[2]] = $value;
 					$name  = 'settings';
 					$value = $new_value;
@@ -161,7 +164,9 @@ class Design_Area_Menu_Type extends Design_Area
 		if (!is_null($sub_menu)) {
 			$sub_var_refs = $sub_menu->getVarReferences();
 			for (reset($sub_var_refs); null !== ($id_name = key($sub_var_refs)); next($sub_var_refs)) {
-				if (!isset($var_refs[$id_name])) $var_refs[$id_name] = Array();
+				if (!isset($var_refs[$id_name])) {
+					$var_refs[$id_name] = Array();
+				}
 				foreach ($sub_var_refs[$id_name] as $var) {
 					if (in_array($var, $var_refs[$id_name])) continue;
 					$var_refs[$id_name][] = $var;
@@ -191,7 +196,9 @@ class Design_Area_Menu_Type extends Design_Area
 				// The name is in the form 'settings.[var_name].[setting type]'
 				$split = explode('.', $var_name);
 				if (count($split) == 3) {
-					if (!isset($settings[$split[1]])) $settings[$split[1]] = Array();
+					if (!isset($settings[$split[1]])) {
+						$settings[$split[1]] = Array();
+					}
 					$settings[$split[1]][$split[2]] = $var_ref_values[$info['id_name']][$info['var']];
 					$settings_changed = true;
 				}// end if
