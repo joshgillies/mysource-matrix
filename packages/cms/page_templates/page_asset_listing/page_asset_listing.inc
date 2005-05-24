@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.72 2005/05/11 06:07:32 lwright Exp $
+* $Id: page_asset_listing.inc,v 1.73 2005/05/24 00:13:48 arailean Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.72 $
+* @version $Revision: 1.73 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -407,16 +407,16 @@ class Page_Asset_Listing extends Listing_Engine
 		$keywords = parent::getContentsKeywords();
 
 		$keywords += Array(
-							'asset_listing'			=> translate('cms_listing_asset_listing'),
-							'previous_page'			=> translate('cms_listing_previous_page_link'),
-							'next_page'				=> translate('cms_listing_next_page_link'),
-							'page_list'				=> translate('cms_listing_page_list'),
-							'page_number'			=> translate('cms_listing_page_number'),
-							'asset_count'			=> translate('cms_listing_asset_count'),
-							'page_asset_count'		=> translate('cms_listing_page_asset_count'),
-							'first_asset_position'	=> translate('cms_listing_first_asset_position'),
-							'last_asset_position'	=> translate('cms_listing_last_asset_position'),
-							'root_nodes'			=> translate('cms_listing_delimited_root_nodes'),
+						'asset_listing'			=> translate('cms_listing_asset_listing'),
+						'previous_page'			=> translate('cms_listing_previous_page_link'),
+						'next_page'				=> translate('cms_listing_next_page_link'),
+						'page_list'				=> translate('cms_listing_page_list'),
+						'page_number'			=> translate('cms_listing_page_number'),
+						'asset_count'			=> translate('cms_listing_asset_count'),
+						'page_asset_count'		=> translate('cms_listing_page_asset_count'),
+						'first_asset_position'	=> translate('cms_listing_first_asset_position'),
+						'last_asset_position'	=> translate('cms_listing_last_asset_position'),
+						'root_nodes'			=> translate('cms_listing_delimited_root_nodes'),
 					 );
 
 		return $keywords;
@@ -435,35 +435,6 @@ class Page_Asset_Listing extends Listing_Engine
 		if (!isset($this->_tmp['root_asset_ids'])) {
 			$root_asset_ids = parent::getRootNodes();
 
-			$parameter_map = &$this->getAttribute('parameter_map');
-			$dynamic_root_str = $parameter_map->getParameterValue('root_node');
-
-			// check if we have a dynamic parameter -- if so, let's do some security checks
-			if (!is_null($dynamic_root_str)) {
-				$dynamic_root_nodes = Array();
-				foreach (explode(',', $dynamic_root_str) as $dynamic_root) {
-					$dynamic_parents = $GLOBALS['SQ_SYSTEM']->am->getParents($dynamic_root);
-
-					// first, check to see if the dynamic parameter specified is already one of the root nodes
-					// if so, just use that single root node
-					if (in_array($dynamic_root, $root_asset_ids)) {
-						$dynamic_root_nodes[] = $dynamic_root;
-					} else {
-						// otherwise, check to see if the dynamic parameter specified is a child of one of the root
-						// nodes. If so, use the dynamic parameter as the root node; otherwise return an error.
-						$matching_root_ids = array_intersect(array_keys($dynamic_parents), $root_asset_ids);
-						if (empty($matching_root_ids)) {
-							trigger_localised_error('CMS0020', E_USER_WARNING, $dynamic_root);
-						} else {
-							$dynamic_root_nodes[] = $dynamic_root;
-						}
-					}
-				}
-
-				if (!empty($dynamic_root_nodes)) {
-					$root_asset_ids = $dynamic_root_nodes;
-				}
-			}
 			if (empty($root_asset_ids)) {
 				$root_asset_ids[] = $this->id;
 			}
