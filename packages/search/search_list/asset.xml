@@ -14,7 +14,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.4 2005/04/29 05:38:41 gsherwood Exp $
+* $Id: asset.xml,v 1.5 2005/05/24 00:17:36 arailean Exp $
 *
 */
 -->
@@ -22,7 +22,7 @@
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../asset.xsd">
 	<package>search</package>
 	<type_code>search_list</type_code>
-	<version>0.2</version>
+	<version>0.3</version>
 	<name>Search List</name>
 	<description>Lists search terms in an asset listing style and performs a search when the term is clicked</description>
 	<instantiable>yes</instantiable>
@@ -31,7 +31,7 @@
 	<requirements>
 		<requirement type="asset">
 			<code>page_asset_listing</code>
-			<version>0.3</version>
+			<version>0.10</version>
 		</requirement>
 		<requirement type="asset">
 			<code>search_page</code>

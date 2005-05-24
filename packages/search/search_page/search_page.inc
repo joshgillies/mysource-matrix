@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.92 2005/05/13 05:11:34 arailean Exp $
+* $Id: search_page.inc,v 1.93 2005/05/24 00:17:36 arailean Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.92 $
+* @version $Revision: 1.93 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1779,10 +1779,20 @@ class Search_Page extends Listing_Engine
 		$search_info['logic'] = $this->attr('logic');
 		$search_info['assetid'] = $this->id;
 
-		$link_value = 'root';
-		if (!empty($category)) $link_value .= '_'.$category;
-		$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', false, $link_value);
-		$search_info['root_assetid'] = empty($root_link) ? 0 : $root_link['minorid'];
+		$root_id = null;
+		// first, see if a category has been supplied
+		if (!empty($category)) {
+			$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', false, 'root_'.$category);
+			$root_id = array_get_index($root_link, 'minorid');
+		}
+
+		if (is_null($root_id)) {
+			$root_id = $this->getRootNodes();
+			// if no root nodes were specified, we search everything
+			if (empty($root_id)) $root_id = 0;
+		}
+
+		$search_info['root_assetid'] = $root_id;
 
 		$search_info['sort_by'] = $this->getSortInfo();
 		$search_info['sort_descending'] = $this->isDescending();
