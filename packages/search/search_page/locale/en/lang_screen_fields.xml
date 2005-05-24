@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_fields.xml,v 1.3 2005/04/29 05:38:41 gsherwood Exp $
+* $Id: lang_screen_fields.xml,v 1.4 2005/05/24 05:30:51 arailean Exp $
 *
 */
 -->
@@ -28,11 +28,15 @@
 	</section>
 	<section name="Logical Grouping">
 		<field attribute="logic">
-			<display_name>Use AND / OR grouping</display_name> 
+			<display_name>Use AND / OR grouping</display_name>
 			<note>Search logic does not apply to <b>Exclude</b> field types.</note>
 		</field>
 	</section>
 	<section name="Field Configuration">
+		<field attribute="allow_empty_search">
+			<display_name>Allow Empty Searches?</display_name>
+			<note>When enabled, an empty search will act as a wildcard and return everything possible.</note>
+		</field>
 		<field>
 			<display_name />
 			<note></note>

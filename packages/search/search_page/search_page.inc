@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.93 2005/05/24 00:17:36 arailean Exp $
+* $Id: search_page.inc,v 1.94 2005/05/24 05:30:51 arailean Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.93 $
+* @version $Revision: 1.94 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1543,6 +1543,8 @@ class Search_Page extends Listing_Engine
 		// get the basic search settings based on the current category (if any)
 		$search_info = $this->populateBaseSearchInfo($category);
 
+		$query_fileds_exist = false;
+
 		foreach ($queries as $field_name => $value) {
 
 			if (empty($value)) continue;
@@ -1595,6 +1597,8 @@ class Search_Page extends Listing_Engine
 			}
 			$search_info[$field_type][$field_name]['search_logic'] = $search_logic;
 
+			$query_fileds_exist = true;
+
 		}//end foreach fields
 
 		// spell-check suggestions
@@ -1644,8 +1648,13 @@ class Search_Page extends Listing_Engine
 			}
 		}
 
-		return $sm->processSearch($search_info);
-
+		if ($query_fileds_exist) {
+			return $sm->processSearch($search_info);
+		} else if ($this->attr('allow_empty_search')) {
+			return $sm->processBasicSearch($search_info);
+		} else {
+			return Array();
+		}
 	}//end processSearch()
 
 

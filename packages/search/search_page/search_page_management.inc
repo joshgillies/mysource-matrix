@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_management.inc,v 1.39 2005/05/03 23:13:22 rhoward Exp $
+* $Id: search_page_management.inc,v 1.40 2005/05/24 05:30:51 arailean Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -110,6 +110,14 @@ class Search_Page_Management extends Asset_Management
 																	   ),
 												   ),
 							   );
+
+		$this->vars['allow_empty_search'] = Array(
+												'added'			=> '0.12',
+												'type'			=> 'boolean',
+												'default'		=> false,
+												'description'	=> 'If true, empty search query will search for everything',
+												'parameters'	=> Array('allow_empty' => false),
+											);
 
 	}//end constructor
 
