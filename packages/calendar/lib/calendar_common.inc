@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.12.2.8 2005/05/18 01:53:18 tbarrett Exp $
+* $Id: calendar_common.inc,v 1.12.2.9 2005/05/24 06:01:21 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -23,7 +23,7 @@
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.12.2.8 $
+* @version $Revision: 1.12.2.9 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -1163,3 +1163,15 @@ function quoted_descendants($type_code)
 
 }//end quoted_descendants()
 
+
+/**
+* Return true if $a starts before $b
+*
+* @access public
+* @return void
+*/
+function compare_start_dates($a, $b)
+{
+	return ($a['start_date_ts'] > $b['start_date_ts']);
+
+}//end compare_start_dates()
