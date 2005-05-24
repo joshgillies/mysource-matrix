@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.68.2.2 2004/12/09 04:52:38 tbarrett Exp $
+* $Id: html_form.inc,v 1.68.2.3 2005/05/24 04:42:28 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -48,7 +48,7 @@ function submit_button($name, $value, $on_click='', $extras='')
 	// Make sure that they don't use 'submit' as the form field, because it clashes
 	// with the submit() fn that the form has
 	if ($name == 'submit') trigger_error('Rename your Submit button, so as not use "submit"', E_USER_ERROR);
-	if ($on_click) $extras .= ' onclick="javascript: '.htmlspecialchars($on_click).' "';
+	if ($on_click) $extras .= ' onclick="'.htmlspecialchars($on_click).' "';
 	if (!stristr($extras, 'class=')) $extras .= ' class="sq-form-field"';
 	echo '<input type="submit" name="', htmlspecialchars($name), '" id="', htmlspecialchars($name), '" value="', htmlspecialchars($value), '" ', $extras, ' />';
 
@@ -71,7 +71,7 @@ function reset_button($name, $value, $on_click='', $extras='')
 	// Make sure that they don't use 'reset' as the form field, because it clashes
 	// with the reset() fn that the form has
 	if ($name == 'reset') trigger_error('Rename your Reset button, so as not use "reset"', E_USER_ERROR);
-	if ($on_click) $extras .= ' onclick="javascript: '.htmlspecialchars($on_click).' "';
+	if ($on_click) $extras .= ' onclick="'.htmlspecialchars($on_click).' "';
 	if (!stristr($extras, 'class=')) $extras .= ' class="sq-form-field"';
 	echo '<input type="reset" name="', htmlspecialchars($name), '" id="', htmlspecialchars($name), '" value="', htmlspecialchars($value), '" ', $extras, ' />';
 
@@ -91,7 +91,7 @@ function reset_button($name, $value, $on_click='', $extras='')
 */
 function normal_button($name, $value, $on_click='', $extras='')
 {
-	if ($on_click) $extras .= ' onclick="javascript: '.htmlspecialchars($on_click).' "';
+	if ($on_click) $extras .= ' onclick="'.htmlspecialchars($on_click).' "';
 	if (!stristr($extras, 'class=')) $extras .= ' class="sq-form-field"';
 	echo '<input type="button" name="', htmlspecialchars($name), '" id="', htmlspecialchars($name), '" value="', htmlspecialchars($value), '" ', $extras, ' />';
 
@@ -140,7 +140,7 @@ function text_box($name, $value, $size='', $max='', $hide_value=false, $extras='
 			'value="', htmlspecialchars($value), '" ',
 			(($size)   ? 'size="'.$size.'" '     : ''),
 			(($max)    ? 'maxlength="'.$max.'" ' : ''),
-			(($hide_value) ? 'onfocus="Javascript: if (this.value == \''.htmlspecialchars($value).'\') { this.value = \'\'; }" onblur="Javascript: if (this.value == \'\') { this.value=\''.htmlspecialchars($value).'\'; }" ' : ''),
+			(($hide_value) ? 'onfocus="if (this.value == \''.htmlspecialchars($value).'\') { this.value = \'\'; }" onblur="if (this.value == \'\') { this.value=\''.htmlspecialchars($value).'\'; }" ' : ''),
 			$extras,
 			' />';
 
@@ -222,7 +222,7 @@ function text_area($name, $contents, $cols=0, $rows=0, $max=0, $extras='')
 */
 function radio_button($name, $value='1', $checked=false, $on_click='', $extras='')
 {
-	if ($on_click) $extras .= ' onclick="javascript: '.htmlspecialchars($on_click).' "';
+	if ($on_click) $extras .= ' onclick="'.htmlspecialchars($on_click).' "';
 	if (!stristr($extras, 'class=')) $extras .= ' class="sq-form-field"';
 	echo	'<input type="radio" ',
 			'name="', htmlspecialchars($name), '" ',
@@ -248,7 +248,7 @@ function radio_button($name, $value='1', $checked=false, $on_click='', $extras='
 */
 function check_box($name, $value='1', $checked=false, $on_click='', $extras='')
 {
-	if ($on_click) $extras .= ' onclick="javascript: '.htmlspecialchars($on_click).' "';
+	if ($on_click) $extras .= ' onclick="'.htmlspecialchars($on_click).' "';
 	if (!stristr($extras, 'class=')) $extras .= ' class="sq-form-field"';
 	echo	'<input type="checkbox" ',
 			'name="', htmlspecialchars($name), '" ',
@@ -338,8 +338,8 @@ function colour_box($name, $default='000000', $allow_blanks=false, $button_text=
 	static $initialised = false;
 	if (!$initialised) {
 		?>
-		<script language="JavaScript" src="<?php echo sq_web_path('lib')?>/html_form/colour_picker.js"></script>
-		<script language="JavaScript" type="text/javascript">var colour_change_image_dir='<?php echo sq_web_path('lib');?>/web/images/'</script>
+		<script type="text/javascript" src="<?php echo sq_web_path('lib')?>/html_form/colour_picker.js"></script>
+		<script type="text/javascript">var colour_change_image_dir='<?php echo sq_web_path('lib');?>/web/images/'</script>
 		<?php
 		$initialised = true;
 	}
@@ -352,7 +352,7 @@ function colour_box($name, $default='000000', $allow_blanks=false, $button_text=
 
 	if ($show_text_box) {
 		$extras  = ' id="colour_box_'.$name.'" style="font-family: courier;"'
-				 . ' onchange="javascript: this.value = check_colour(this.value, '.(($allow_blanks) ? 'true' : 'false').');"';
+				 . ' onchange="this.value = check_colour(this.value, '.(($allow_blanks) ? 'true' : 'false').');"';
 
 		if ($show_current_colour) $extras .= ' show_colour_change(\''.addslashes($name).'\');';
 		text_box($name, $default, 7, 6, false, $extras);
@@ -395,7 +395,7 @@ function date_box($name, $default_timestamp=null, $show_time=true, $extras='')
 	$end_year   = max($default['year'], $start_year) + 10;
 
 
-	$extras .= ' onchange="javascript: check_date(\''.$name.'\', '.(($show_time) ? 'true':'false').');"';
+	$extras .= ' onchange="check_date(\''.$name.'\', '.(($show_time) ? 'true':'false').');"';
 	hidden_field($name, $default_timestamp);
 
 	$days = Array();
@@ -693,12 +693,12 @@ function asset_finder($name, $assetid=0, $type_codes=Array(), $map_frame='sq_sid
 	hidden_field($name.'[url]', '');
 	// call the js function to set where the finder frame is
 	?>
-		<script language="javascript" type="text/javascript">
+		<script type="text/javascript">
 			<?php echo $map_frame; ?>.set_finder(<?php echo $finder_frame; ?>);
 		</script>
 	<?php
 
-	text_box($safe_name.'_label', $label, 30, 0, false, 'readonly="readonly" class="sq-form-asset-finder" onfocus="javascript: this.tmp = this.value;" onblur="javascript: this.value = this.tmp;"');
+	text_box($safe_name.'_label', $label, 30, 0, false, 'readonly="readonly" class="sq-form-asset-finder" onfocus="this.tmp = this.value;" onblur="this.value = this.tmp;"');
 
 	if (!SQ_IN_LIMBO) {
 		normal_button($safe_name.'_change_btn', 'Change', $map_frame.'.asset_finder_change_btn_press(\''.$name.'\', \''.$safe_name.'\', \''.addslashes($type_codes).'\', '.$done_fn.');');
@@ -815,7 +815,7 @@ function security_key($key_len, $box_len, $zoom=1, $img_on_newline=false, $bg='F
 			<td valign="top"><img id="sq_security_key" src="<?php echo $img_url; ?>" border="0" /></td>
 		</tr>
 		<tr>
-			<td class="sq-backend-data" colspan="<?php echo (($img_on_newline) ? '1' : '2'); ?>"><i>Can't read the security key? <a href="#" onclick="Javascript: var img = document.getElementById('sq_security_key'); img.src = '<?php echo $img_url; ?>&regen_key=1'; return false;">Click here to get a new key</a>.</i></td>
+			<td class="sq-backend-data" colspan="<?php echo (($img_on_newline) ? '1' : '2'); ?>"><i>Can't read the security key? <a href="#" onclick="var img = document.getElementById('sq_security_key'); img.src = '<?php echo $img_url; ?>&regen_key=1'; return false;">Click here to get a new key</a>.</i></td>
 		</tr>
 	</table>
 	<?php
