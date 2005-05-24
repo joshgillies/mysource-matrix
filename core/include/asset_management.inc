@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_management.inc,v 1.67 2005/05/11 06:05:10 lwright Exp $
+* $Id: asset_management.inc,v 1.68 2005/05/24 00:07:33 arailean Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_LIB_PATH.'/xml_array/xml_array.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.67 $
+* @version $Revision: 1.68 $
 * @package MySource_Matrix
 */
 class Asset_Management extends MySource_Object
@@ -98,7 +98,7 @@ class Asset_Management extends MySource_Object
 	{
 
 		if (get_parent_class($this) != __CLASS__) {
-			trigger_localised_error("SYS0274", E_USER_ERROR, get_class($this));
+			trigger_localised_error('SYS0274', E_USER_ERROR, get_class($this));
 		}
 
 
@@ -157,10 +157,13 @@ class Asset_Management extends MySource_Object
 
 		// if the asset manager knows about it it is installed, so upgrade...
 		if ($this->_am->installed($type_code)) {
-			if (!$this->_upgrade($this->_am->getTypeInfo($type_code, 'version'))) return false;
+			if (!$this->_upgrade($this->_am->getTypeInfo($type_code, 'version'))) {
+				return false;
+			}
 		} else {
 			if (!$this->_install()) return false;
 		}
+
 		if (!$this->_updateFiles()) return false;
 
 		// save a copy of an icon we can use to represent this asset
@@ -183,7 +186,9 @@ class Asset_Management extends MySource_Object
 		if (!is_file($from_icon_path)) {
 			trigger_localised_error('CORE0068', E_USER_WARNING, $type_code);
 		} else {
-			if (!copy_file($from_icon_path, $to_icon_path)) return false;
+			if (!copy_file($from_icon_path, $to_icon_path)) {
+				return false;
+			}
 		}
 
 		return true;
@@ -312,12 +317,13 @@ class Asset_Management extends MySource_Object
 		$current_vars = $this->_db->getCol($sql);
 
 		$all_vars = $this->_getAllVars();
-		for (reset($all_vars); null !== ($k = key($all_vars)); next($all_vars)) {
-			$name = $all_vars[$k];
 
+		foreach ($all_vars as $name) {
 			// if we already have this attribute installed, then let's update it
 			if (in_array($name, $current_vars)) {
-				if (!$this->_updateAttribute($name, $current_version)) return false;
+				if (!$this->_updateAttribute($name, $current_version)) {
+					return false;
+				}
 			} else {
 				if (!$this->_addAttribute($name)) return false;
 			}
@@ -348,7 +354,7 @@ class Asset_Management extends MySource_Object
 
 		$parent_vars = $this->_db->getCol($sql);
 		assert_valid_db_result($parent_vars);
-		
+
 		// array_values() to get proper indexed array
 		$vars = array_values(array_unique(array_merge($parent_vars, array_keys($this->vars))));
 		return $vars;
@@ -413,26 +419,48 @@ class Asset_Management extends MySource_Object
 		// if none of our parent types have an attribute with this name
 		if (empty($parent_info['count'])) {
 
-			// Check Children to see if any of them have an attribute with this name
-			$sql = 'SELECT a.type_code
+			// check children to see if any of them have an attribute with this name
+			$sql = 'SELECT a.type_code, a.type, a.attrid
 					FROM sq_ast_typ_inhd i, sq_ast_attr a
 					WHERE i.inhd_type_code = '.$this->_db->quote($type_code).'
 					  AND i.type_code <> '.$this->_db->quote($type_code).'
 					  AND i.type_code = a.type_code
 					  AND a.name = '.$this->_db->quote($name);
-			$children = $this->_db->getCol($sql);
+			$children = $this->_db->getAll($sql);
 			if (!assert_valid_db_result($children, '', false, false)) {
 				return false;
 			}
-			if (count($children)) {
-				trigger_localised_error('SYS0233', E_USER_WARNING, $name, $type_code, implode('","', $children));
-				return false;
+
+			// if  children have this attribute, we'll try to change the owner type code to us
+			if (!empty($children)) {
+				echo '*** Attribute "'.$name.'" is being moved from child types:'."\n";
+				foreach ($children as $child) {
+					// if attribute types don't match - cannot upgrade - fail
+					if ($child['type'] != $this->vars[$name]['type']) {
+						trigger_localised_error('SYS0233', E_USER_WARNING, $name, $type_code, implode('","', $children));
+						return false;
+					}
+
+					echo '* '.$child['type_code']."\n";
+					$temp_attr_ids[] = $this->_db->quoteSmart($child['attrid']);
+				}
+
+				// now, let's mark the attribute as being owned by this asset type
+				$sql = 'UPDATE sq_ast_attr
+						SET owning_type_code = '.$this->_db->quoteSmart($type_code).'
+						WHERE attrid IN ('.implode(',',$temp_attr_ids).')';
+
+				$result = $this->_db->query($sql);
+				assert_valid_db_result($result);
+
+				echo '*** Done'."\n\n";
+
 			}
 
 			$attr_info['owning_type_code']       = $type_code;
 			$attr_info['type']                   = $this->vars[$name]['type'];
 			$attr_info['default_type_code']      = $type_code;
-			$attr_info['default_val']          = $this->vars[$name]['default'];
+			$attr_info['default_val']            = $this->vars[$name]['default'];
 			$attr_info['uniq']                   = empty($this->vars[$name]['uniq']) ? 0 : 1;
 			$attr_info['parameters_type_code']   = $type_code;
 
@@ -575,7 +603,7 @@ class Asset_Management extends MySource_Object
 
 		assert_valid_db_result($attributeid);
 		if (is_null($attributeid)) {
-			trigger_localised_error("SYS0050", E_USER_WARNING, $typecode, $name);
+			trigger_localised_error('SYS0050', E_USER_WARNING, $typecode, $name);
 			return false;
 		}
 
@@ -590,7 +618,9 @@ class Asset_Management extends MySource_Object
 		assert_valid_db_result($result);
 
 		// get rid of it in our array
-		if (isset($this->vars[$name])) unset($this->vars[$name]);
+		if (isset($this->vars[$name])) {
+			unset($this->vars[$name]);
+		}
 
 		return true;
 
@@ -629,7 +659,9 @@ class Asset_Management extends MySource_Object
 
 			// if this asset type owns this var, we can change it how ever we want
 			if ($curr_attr['owning_type_code'] == $type_code) {
-				if (!$this->_updateOwnedAttribute($name, $curr_attr)) return false;
+				if (!$this->_updateOwnedAttribute($name, $curr_attr)) {
+					return false;
+				}
 
 			// if we have set the params or default value in the vars
 			} else {
@@ -639,14 +671,26 @@ class Asset_Management extends MySource_Object
 				$parents = $this->_pm->getTypeAncestors($type_code);
 				$parent = array_shift($parents);
 
-				$sql = 'SELECT parameters_type_code, parameters_val, default_type_code, default_val
+				$sql = 'SELECT owning_type_code, parameters_type_code, parameters_val, default_type_code, default_val
 						FROM sq_ast_attr
-						WHERE type_code = '.$this->_db->quote($parent).'
-						  AND name = '.$this->_db->quote($name);
+						WHERE type_code = '.$this->_db->quoteSmart($parent).'
+						  AND name = '.$this->_db->quoteSmart($name);
 
 				$parent_attr = $this->_db->getRow($sql);
 				if (!assert_valid_db_result($parent_attr, '', false, false)) {
 					return false;
+				}
+
+				if (empty($parent_attr) || ($parent_attr['owning_type_code'] != $curr_attr['owning_type_code'])) {
+					echo '* Fixing invalid owner definition of attribute "'.$name.'"'."\n";
+					$sql = 'UPDATE sq_ast_attr
+							SET owning_type_code = type_code
+							WHERE type_code = '.$this->_db->quoteSmart($type_code).' AND name = '.$this->_db->quoteSmart($name);
+
+					$result = $this->_db->query($sql);
+					if (!assert_valid_db_result($result, '', false, false)) {
+						return false;
+					}
 				}
 
 				//// PARAMETERS ////
@@ -668,7 +712,9 @@ class Asset_Management extends MySource_Object
 				}
 
 				if ($parameters_type_code != $curr_attr['parameters_type_code'] || $parameters_value != $curr_attr['parameters_val']) {
-					if (!$this->_updateCustomAttribute($curr_attr['attrid'], $name, 'parameters', $curr_attr['parameters_type_code'], $parameters_type_code, $parameters_value)) return false;
+					if (!$this->_updateCustomAttribute($curr_attr['attrid'], $name, 'parameters', $curr_attr['parameters_type_code'], $parameters_type_code, $parameters_value)) {
+						return false;
+					}
 				}
 
 
@@ -697,7 +743,9 @@ class Asset_Management extends MySource_Object
 				}
 
 				if ($default_type_code != $curr_attr['default_type_code'] || $default_value != $curr_attr['default_val']) {
-					if (!$this->_updateCustomAttribute($curr_attr['attrid'], $name, 'default', $curr_attr['default_type_code'], $default_type_code, $default_value)) return false;
+					if (!$this->_updateCustomAttribute($curr_attr['attrid'], $name, 'default', $curr_attr['default_type_code'], $default_type_code, $default_value)) {
+						return false;
+					}
 				}
 
 			} // end if
@@ -724,7 +772,7 @@ class Asset_Management extends MySource_Object
 
 		// make sure this is a valid attribute type
 		if (!$this->_am->validAttributeType($this->vars[$name]['type'])) {
-			trigger_localised_error("SYS0096", E_USER_WARNING, $this->vars[$name]['type'], $this->getAssetType());
+			trigger_localised_error('SYS0096', E_USER_WARNING, $this->vars[$name]['type'], $this->getAssetType());
 			return false;
 		}//end if
 
@@ -833,7 +881,9 @@ class Asset_Management extends MySource_Object
 		require_once SQ_ATTRIBUTES_PATH.'/'.$attr_type.'/'.$attr_type.'.inc';
 		$class = 'Asset_Attribute_'.$attr_type;
 		$attr = new $class();
-		foreach ($parameters as $k => $v) $attr->_params[$k] = $v;
+		foreach ($parameters as $k => $v) {
+			$attr->_params[$k] = $v;
+		}
 		return $attr->validateValue($default);
 
 	}//end _validateAttributeDefault()
@@ -902,8 +952,12 @@ class Asset_Management extends MySource_Object
 											'default_weighting'	=> isset($data['default_weighting']) ? $data['default_weighting'] : '1',
 										  );
 			} else {
-				if (isset($data['description'])) $components[$component]['description'] = $data['description'];
-				if (isset($data['default_weighting'])) $components[$component]['default_weighting'] = $data['default_weighting'];
+				if (isset($data['description'])) {
+					$components[$component]['description'] = $data['description'];
+				}
+				if (isset($data['default_weighting'])) {
+					$components[$component]['default_weighting'] = $data['default_weighting'];
+				}
 			}
 		}
 
@@ -926,7 +980,9 @@ class Asset_Management extends MySource_Object
 	{
 		// OK, now because this can be called without the need to have an instance of the class
 		// we need to store our tmp stuff in a global array
-		if (!isset($GLOBALS['SQ_ASSET_MANAGEMENT_ASSET_INFO'])) $GLOBALS['SQ_ASSET_MANAGEMENT_ASSET_INFO'] = Array();
+		if (!isset($GLOBALS['SQ_ASSET_MANAGEMENT_ASSET_INFO'])) {
+			$GLOBALS['SQ_ASSET_MANAGEMENT_ASSET_INFO'] = Array();
+		}
 
 		if (!isset($GLOBALS['SQ_ASSET_MANAGEMENT_ASSET_INFO'][$file])) {
 
