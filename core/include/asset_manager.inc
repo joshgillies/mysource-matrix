@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.317 2005/05/23 06:09:15 tbarrett Exp $
+* $Id: asset_manager.inc,v 1.318 2005/05/24 06:01:52 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.317 $
+* @version $Revision: 1.318 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -84,10 +84,10 @@ class Asset_Manager extends MySource_Object
 		$this->MySource_Object();
 		$this->_loadAssetTypes();
 
-		require_once SQ_INCLUDE_PATH.'/asset_cache.inc';		
-		$this->_asset_cache = new Asset_Cache();		
+		require_once SQ_INCLUDE_PATH.'/asset_cache.inc';
+		$this->_asset_cache = new Asset_Cache();
 		$this->_asset_cache->setSizeRules((php_sapi_name() == 'cli') ? SQ_CONF_ASSET_CACHE_SIZE_CLI : SQ_CONF_ASSET_CACHE_SIZE_WEB);
-		
+
 	}//end constructor
 
 
@@ -772,7 +772,7 @@ class Asset_Manager extends MySource_Object
 		assert_valid_assetid($assetid);
 
 		$asset = &$this->_asset_cache->get($assetid);
-		
+
 		if (empty($asset)) {
 
 			// check if we are getting links for a shadow asset, and palm the request off to the
@@ -801,27 +801,27 @@ class Asset_Manager extends MySource_Object
 				if (empty($type_code)) {
 					if (!$mute_errors) {
 						trigger_localised_error('SYS0087', E_USER_WARNING, $assetid);
-					}					
+					}
 				} else {
 					if (!isset($this->_asset_types[$type_code])) {
 						if (!$mute_errors) {
 							trigger_localised_error('SYS0091', E_USER_WARNING, $type_code);
-						}	
+						}
 					} else {
 						$this->includeAsset($type_code);
 						$asset = @new $type_code($assetid);
 						if (empty($asset->id)) $asset = null;
 					}
 				}
-				
+
 			}//end if
-			
+
 			if (isset($asset)) {
 				$this->_asset_cache->add($asset);
 			}
 
 		}//end if
-		
+
 		return $asset;
 
 	}//end getAsset()
@@ -871,7 +871,7 @@ class Asset_Manager extends MySource_Object
 	{
 		// wrong class or no id, cya
 		if (!is_object($obj) || !is_a($obj, 'asset') || !$obj->id) return;
-		
+
 		if (!$this->_asset_cache->add($obj)) {
 			trigger_localised_error('SYS0305', E_USER_ERROR, $obj->id);
 		}
@@ -896,7 +896,7 @@ class Asset_Manager extends MySource_Object
 	{
 		// wrong class or no id, cya
 		if (!is_object($obj) || !is_a($obj, 'asset') || !$obj->id) return;
-		
+
 		$this->_asset_cache->release($obj->id);
 		if ($force_clean) {
 			if (!$this->_asset_cache->remove($obj->id)) {
@@ -3229,6 +3229,65 @@ class Asset_Manager extends MySource_Object
 				$result = $db->query($sql);
 				assert_valid_db_result($result);
 
+			} else {
+				$new_treeid = ($existing_treeid == '-' ? '' : $existing_treeid).$free_childid;
+
+				// no link to our children; we need to (re-)create the tree, obviously... darn it
+				// so grab the links we need (significant ones only)
+				$top_links = $this->getLinks($minor->id, SQ_SC_LINK_SIGNIFICANT);
+				$links = Array();
+
+				// reorder them so that it's indexed by their prospective treeid
+				$child_index = 0;
+				foreach($top_links as $link) {
+					$treeid = $new_treeid.asset_link_treeid_convert($child_index,true);
+					$links[$treeid] = $link;
+					$child_index++;
+				}
+
+				// now search for child links and give them treeids
+				for(reset($links); null !== ($k = key($links)); next($links)) {
+					$link =& $links[$k];
+
+					$child_links = $this->getLinks($link['minorid'], SQ_SC_LINK_SIGNIFICANT);
+					$child_index = 0;
+					foreach($child_links as $child_link) {
+						$treeid = $k.asset_link_treeid_convert($child_index,true);
+						$links[$treeid] = $child_link;
+						$child_index++;
+					}
+					$link['num_kids'] = count($child_links);
+				}
+
+				foreach($links as $treeid => $link) {
+					// remove any 'zero linkid' entries
+					$sql = 'DELETE FROM
+								sq_ast_lnk_tree
+							WHERE
+								treeid = '.$db->quoteSmart($treeid);
+
+					$result = $db->query($sql);
+					assert_valid_db_result($result);
+
+					// now insert the tree entry
+					$sql = 'INSERT INTO
+							sq_ast_lnk_tree
+							(
+								treeid,
+								linkid,
+								num_kids
+							)
+							VALUES
+							(
+								'.$db->quoteSmart($treeid).',
+								'.$db->quoteSmart($link['linkid']).',
+								'.$db->quoteSmart($link['num_kids']).'
+							)';
+
+					$result = $db->query($sql);
+					assert_valid_db_result($result);
+				}
+
 			}//end if
 
 		}//end if significant link
@@ -5354,7 +5413,7 @@ class Asset_Manager extends MySource_Object
 	function getForgottenItemsReport()
 	{
 		return $this->_asset_cache->getForgottenItemsReport();
-		
+
 	}//end getForgottenItemsReport()
 
 
