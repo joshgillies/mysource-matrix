@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_management.inc,v 1.68 2005/05/24 00:07:33 arailean Exp $
+* $Id: asset_management.inc,v 1.69 2005/05/24 04:49:24 arailean Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_LIB_PATH.'/xml_array/xml_array.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.68 $
+* @version $Revision: 1.69 $
 * @package MySource_Matrix
 */
 class Asset_Management extends MySource_Object
@@ -681,16 +681,22 @@ class Asset_Management extends MySource_Object
 					return false;
 				}
 
-				if (empty($parent_attr) || ($parent_attr['owning_type_code'] != $curr_attr['owning_type_code'])) {
+				// fix owning type code if:
+				// - there is a parent with this attribute and our owning_type_code is not the same as theirs
+				// - there is NO parent with this attribute and our owning_type_code is not the same as OUR type_code
+				$owning_type_code = array_get_index($parent_attr, 'owning_type_code', $type_code);
+				if ($owning_type_code != $curr_attr['owning_type_code']) {
 					echo '* Fixing invalid owner definition of attribute "'.$name.'"'."\n";
+
 					$sql = 'UPDATE sq_ast_attr
-							SET owning_type_code = type_code
+							SET owning_type_code = '.$this->_db->quoteSmart($owning_type_code).'
 							WHERE type_code = '.$this->_db->quoteSmart($type_code).' AND name = '.$this->_db->quoteSmart($name);
 
 					$result = $this->_db->query($sql);
 					if (!assert_valid_db_result($result, '', false, false)) {
 						return false;
 					}
+
 				}
 
 				//// PARAMETERS ////
