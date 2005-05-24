@@ -10,7 +10,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus_browser.js,v 1.5 2005/05/17 01:28:39 arailean Exp $
+* $Id: thesaurus_browser.js,v 1.6 2005/05/24 00:07:26 tbarrett Exp $
 *
 */
 
@@ -79,20 +79,24 @@ ThesaurusBrowser = function (	divname,
 * @access public
 */
 	this.open = function(e)
-		{
-			var existingY = window.scrollY ? window.scrollY : (document.body.scrollTop ? document.body.scrollTop : document.documentElement.scrollTop);
-
+	{
 			var date = new Date();
 			date = date.getTime();
 			this.div.style.visibility = "hidden";
 			this.div.style.position = "absolute";
 			
-			if (navigator.userAgent.indexOf("Safari")==-1) {
-				this.coordX = e.clientX;
-				this.coordY = e.clientY;
-			} else {
+			if (navigator.userAgent.indexOf("Safari") != -1) {
+				// safari
 				this.coordX = e.clientX - 305;// - (top.innerWidth - self.innerWidth);
 				this.coordY = top.innerHeight - e.clientY;
+			} else {
+				if (e.pageX || e.pageY) {
+					this.coordX = e.pageX;
+					this.coordY = e.pageY;
+				} else if (e.clientX || e.clientY) {
+					this.coordX = e.clientX + document.body.scrollLeft;
+					this.coordY = e.clientY + document.body.scrollTop;
+				}
 			}
 
 			var existingY = window.scrollY ? window.scrollY : (document.body.scrollTop ? document.body.scrollTop : document.documentElement.scrollTop);
