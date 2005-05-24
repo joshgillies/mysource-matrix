@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.125.2.11 2005/05/24 04:54:14 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.125.2.12 2005/05/24 06:18:52 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.125.2.11 $
+* @version $Revision: 1.125.2.12 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -500,6 +500,8 @@ class Page_Calendar extends Page_Asset_Listing
 		if ($format == 'list_without_headings') {
 			$list_entry_types = $this->attr('list_entry_types');
 			$events = $this->getYearEvents($year);
+			uasort($events, 'compare_start_dates');
+
 			if ($list_entry_types['year'] == 'title') {
 				echo $this->_getTitleList($events, $enabled_views['event']);
 			} else {
@@ -511,6 +513,7 @@ class Page_Calendar extends Page_Asset_Listing
 			$list_entry_types = $this->attr('list_entry_types');
 			$events = $this->getYearEventsByMonth($year);
 			foreach ($this->month_names_full as $month_num => $month_name) {
+				uasort($events[$month_num], 'compare_start_dates');
 				echo '<h3>';
 				if ($enabled_views['month']) echo '<a href="'.$this->getHref().'?SQ_CALENDAR_VIEW=month&amp;SQ_CALENDAR_DATE='.$year.'-'.sprintf('%02d', $month_num).'-01">';
 				echo $month_name;
@@ -625,6 +628,7 @@ class Page_Calendar extends Page_Asset_Listing
 		if ($format == 'list_without_headings') {
 			$list_entry_types = $this->attr('list_entry_types');
 			$events = $this->getMonthEvents($year, $month);
+			uasort($events, 'compare_start_dates');
 			if ($list_entry_types['month'] == 'title') {
 				echo $this->_getTitleList($events, $enabled_views['event']);
 			} else {
@@ -642,6 +646,7 @@ class Page_Calendar extends Page_Asset_Listing
 				echo date('l jS', strtotime("$year-$month-$current_day"));
 				if ($drill_down_view) echo '</a>';
 				echo '</h3>';
+				uasort($events[$current_day], 'compare_start_dates');
 				if ($list_entry_types['month'] == 'title') {
 					echo $this->_getTitleList($events[$current_day], $enabled_views['event']);
 				} else {
@@ -797,6 +802,7 @@ class Page_Calendar extends Page_Asset_Listing
 		if ($format == 'list_without_headings') {
 			$list_entry_types = $this->attr('list_entry_types');
 			$events = $this->getWeekEvents($date);
+			uasort($events, 'compare_start_dates');
 			if ($list_entry_types['week'] == 'title') {
 				echo $this->_getTitleList($events, $enabled_views['event']);
 			} else {
@@ -856,6 +862,7 @@ class Page_Calendar extends Page_Asset_Listing
 			$list_entry_types = $this->attr('list_entry_types');
 			$enabled_views = $this->attr('enabled_views');
 			$events = $this->getDayEvents($date);
+			uasort($events, 'compare_start_dates');
 			if ($list_entry_types['day'] == 'title') {
 				echo $this->_getTitleList($events, $enabled_views['event']);
 			} else {
@@ -1727,10 +1734,6 @@ class Page_Calendar extends Page_Asset_Listing
 		assert_valid_db_result($recurring_events);
 
 		$res = $single_events + $recurring_events;
-
-		$start_date_comparator = create_function('$a, $b', 'return ($a[\'start_date_ts\'] > $b[\'start_date_ts\']);');
-		uasort($res, $start_date_comparator);
-
 		return $res;
 
 	}//end getYearEvents()
@@ -1762,8 +1765,6 @@ class Page_Calendar extends Page_Asset_Listing
 		}
 		foreach ($res as $date => $events) {
 			process_exceptions($res[$date]);
-			$start_date_comparator = create_function('$a, $b', 'return ($a[\'start_date_ts\'] > $b[\'start_date_ts\']);');
-			uasort($res[$date], $start_date_comparator);
 		}
 
 		return $res;
@@ -1855,8 +1856,7 @@ class Page_Calendar extends Page_Asset_Listing
 			$descriptions = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('description', 'calendar_event', array_keys($res));
 			foreach ($descriptions as $assetid => $description) $res[$assetid]['description'] = $description;
 		}
-		$start_date_comparator = create_function('$a, $b', 'return ($a[\'start_date_ts\'] > $b[\'start_date_ts\']);');
-		uasort($res, $start_date_comparator);
+		uasort($res, 'compare_start_dates');
 		return $res;
 
 	}//end getMonthEvents()
