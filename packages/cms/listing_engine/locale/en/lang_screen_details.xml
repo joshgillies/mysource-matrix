@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.5 2005/05/23 04:51:09 lwright Exp $
+* $Id: lang_screen_details.xml,v 1.6 2005/05/24 00:16:19 arailean Exp $
 *
 */
 -->
@@ -35,6 +35,14 @@
 		</field>
 	</section>
 	<section name="List Settings">
+		<field>
+			<display_name>Root Nodes</display_name>
+			<note>Leave blank to list the sub assets/children of this asset listing page</note>
+			<function_call>
+				<paint_function   name="paintRootNode"  />
+				<process_function name="processRootNode" />
+			</function_call>
+		</field>
 		<field attribute="subs_only">
 			<display_name>Direct Links Only</display_name>
 			<note>If set to 'Yes', only directly linked assets of the root node will be printed (direct parents or children). Otherwise, all assets above or below the root node will be printed.</note>
@@ -71,6 +79,12 @@
 				<paint_function   name="paintAssetPositions"   />
 				<process_function name="processAssetPositions" />
 			</function_call>
+		</field>
+	</section>
+	<section name="Dynamic Parameters">
+		<field attribute="parameter_map">
+			<display_name />
+			<note />
 		</field>
 	</section>
 	<section name="Submit Button">

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_management.inc,v 1.20 2005/05/13 02:26:54 rhoward Exp $
+* $Id: listing_engine_management.inc,v 1.21 2005/05/24 00:16:19 arailean Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -193,8 +193,19 @@ class Listing_Engine_Management extends Asset_Management
 											'default'		=> ' > ',
 											'description'	=> 'Seperator to use when printing the lineage to a search result asset.',
 										   );
-
-	}//end constructor
+//*
+		$this->vars['parameter_map'] = Array(
+										'added'			=> '0.4',
+										'type'			=> 'parameter_map',
+										'default'		=> Array(),
+										'parameters'	=> Array(
+															'parameters'	=> Array(
+																				'root_node'	=> 'Replacement Root node for the listing (must be a child of the static root node)',
+																			   ),
+														   ),
+									   );
+//*/
+	   }//end constructor
 
 
 	/**

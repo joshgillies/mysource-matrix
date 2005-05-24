@@ -14,7 +14,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.5 2005/04/29 05:40:32 gsherwood Exp $
+* $Id: asset.xml,v 1.6 2005/05/24 00:16:19 arailean Exp $
 *
 */
 -->
@@ -22,7 +22,7 @@
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../asset.xsd">
 	<package>cms</package>
 	<type_code>page_whats_new</type_code>
-	<version>0.3</version>
+	<version>0.4</version>
 	<name>Whats New</name>
 	<description>Lists assets by date</description>
 	<instantiable>yes</instantiable>
@@ -31,7 +31,7 @@
 	<requirements>
 		<requirement type="asset">
 			<code>page_asset_listing</code>
-			<version>0.3</version>
+			<version>0.10</version>
 		</requirement>
 	</requirements>
 	<flash_menu_path>Pages</flash_menu_path>

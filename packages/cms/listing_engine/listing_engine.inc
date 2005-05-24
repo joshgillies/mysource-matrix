@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.32 2005/05/16 01:11:02 rhoward Exp $
+* $Id: listing_engine.inc,v 1.33 2005/05/24 00:16:19 arailean Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
 *
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1330,11 +1330,39 @@ class Listing_Engine extends Page
 				$root_asset_ids[] = (int)$root_link['minorid'];
 			}
 
+			$parameter_map = &$this->getAttribute('parameter_map');
+			$dynamic_root_str = $parameter_map->getParameterValue('root_node');
+			// check if we have a dynamic parameter -- if so, let's do some security checks
+			if (!empty($dynamic_root_str)) {
+				$dynamic_root_nodes = Array();
+				foreach (explode(',', $dynamic_root_str) as $dynamic_root) {
+					$dynamic_parents = $GLOBALS['SQ_SYSTEM']->am->getParents($dynamic_root);
+
+					// first, check to see if the dynamic parameter specified is already one of the root nodes
+					// if so, just use that single root node
+					if (in_array($dynamic_root, $root_asset_ids)) {
+						$dynamic_root_nodes[] = $dynamic_root;
+					} else {
+						// otherwise, check to see if the dynamic parameter specified is a child of one of the root
+						// nodes. If so, use the dynamic parameter as the root node; otherwise return an error.
+						$matching_root_ids = array_intersect(array_keys($dynamic_parents), $root_asset_ids);
+						if (empty($matching_root_ids)) {
+							trigger_localised_error('CMS0020', E_USER_WARNING, $dynamic_root);
+						} else {
+							$dynamic_root_nodes[] = $dynamic_root;
+						}
+					}
+				}
+
+				if (!empty($dynamic_root_nodes)) {
+					$root_asset_ids = $dynamic_root_nodes;
+				}
+			}
+
 			$this->_tmp['root_asset_ids'] = $root_asset_ids;
 		}
 
 		return $this->_tmp['root_asset_ids'];
-
 
 	}//end getRootNodes()
 
