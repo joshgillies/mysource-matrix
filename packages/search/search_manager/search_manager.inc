@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.54 2005/05/20 02:26:17 arailean Exp $
+* $Id: search_manager.inc,v 1.55 2005/05/24 04:11:59 arailean Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.54 $
+* @version $Revision: 1.55 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -968,7 +968,7 @@ class Search_Manager extends Asset
 	/**
 	* Processes a basic search request without search terms
 	*
-	* Accepts the same input array as processSearch but does use any search terms
+	* Accepts the same input array as processSearch but does not use any search terms
 	*
 	* @param array	$search_info	an array of search settings
 	*
