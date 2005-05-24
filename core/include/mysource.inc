@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.112 2005/05/20 06:33:22 tbarrett Exp $
+* $Id: mysource.inc,v 1.113 2005/05/24 00:34:52 arailean Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.112 $
+* @version $Revision: 1.113 $
 * @package MySource_Matrix
 */
 class MySource
@@ -322,8 +322,7 @@ class MySource
 	*/
 	function start()
 	{
-//		bam(unserialize($GLOBALS['SQ_SYSTEM']->db->getOne('select custom_val from sq_ast_attr_val where attrid=467')));
-//		exit();
+
 		// if the user is Up For Review, prompt the user to change password
 		$require_password_change = ($this->user && !is_a($this->user, 'public_user') && $this->user->status == SQ_STATUS_LIVE_APPROVAL);
 
@@ -408,7 +407,7 @@ class MySource
 
 		if (SQ_CONF_DEBUG & 4) {
 			// report all the assets with a reference count > 0
-			log_write($this->am->getForgottenItemsReport(), 'asset_cache', E_USER_NOTICE, false);  
+			log_write($this->am->getForgottenItemsReport(), 'asset_cache', E_USER_NOTICE, false);
 		}
 
 		$this->db->disconnect();
@@ -619,7 +618,7 @@ class MySource
 				if (!is_null($this->user) && $login_username == $this->user->attr('username')) {
 					return;
 				}
-				
+
 				if (!is_null($login_key) && $this->loginKey() == $login_key) {
 
 					// get a list of all the installed authentication systems
