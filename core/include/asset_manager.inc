@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.318 2005/05/24 06:01:52 lwright Exp $
+* $Id: asset_manager.inc,v 1.319 2005/05/24 07:09:09 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.318 $
+* @version $Revision: 1.319 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3241,8 +3241,10 @@ class Asset_Manager extends MySource_Object
 				$child_index = 0;
 				foreach($top_links as $link) {
 					$treeid = $new_treeid.asset_link_treeid_convert($child_index,true);
-					$links[$treeid] = $link;
-					$child_index++;
+					if ($link['linkid'] != 0) {
+						$links[$treeid] = $link;
+						$child_index++;
+					}
 				}
 
 				// now search for child links and give them treeids
@@ -3253,13 +3255,15 @@ class Asset_Manager extends MySource_Object
 					$child_index = 0;
 					foreach($child_links as $child_link) {
 						$treeid = $k.asset_link_treeid_convert($child_index,true);
-						$links[$treeid] = $child_link;
-						$child_index++;
+						if ($child_link['linkid'] != 0) {
+							$links[$treeid] = $child_link;
+							$child_index++;
+						}
 					}
 					$link['num_kids'] = count($child_links);
 				}
 
-				foreach($links as $treeid => $link) {
+				foreach($links as $treeid => $this_link) {
 					// remove any 'zero linkid' entries
 					$sql = 'DELETE FROM
 								sq_ast_lnk_tree
@@ -3280,8 +3284,8 @@ class Asset_Manager extends MySource_Object
 							VALUES
 							(
 								'.$db->quoteSmart($treeid).',
-								'.$db->quoteSmart($link['linkid']).',
-								'.$db->quoteSmart($link['num_kids']).'
+								'.$db->quoteSmart($this_link['linkid']).',
+								'.$db->quoteSmart($this_link['num_kids']).'
 							)';
 
 					$result = $db->query($sql);
