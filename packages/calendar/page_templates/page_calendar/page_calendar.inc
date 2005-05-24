@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.159 2005/05/17 02:27:25 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.160 2005/05/24 06:40:33 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.159 $
+* @version $Revision: 1.160 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -469,6 +469,7 @@ class Page_Calendar extends Page_Asset_Listing
 		if ($format == 'list_without_headings') {
 			$list_entry_types = $this->attr('list_entry_types');
 			$events = $this->getYearEvents($year);
+			uasort($events, 'compare_start_dates');
 			if ($list_entry_types['year'] == 'title') {
 				echo $this->_getTitleList($events, $enabled_views['event']);
 			} else {
@@ -478,7 +479,10 @@ class Page_Calendar extends Page_Asset_Listing
 		} else if ($format == 'list_with_headings') {
 			$list_entry_types = $this->attr('list_entry_types');
 			$events = $this->getYearEventsByMonth($year);
+	
 			foreach ($this->month_names_full as $month_num => $month_name) {
+
+				uasort($events[$month_num], 'compare_start_dates');
 				echo '<h3>';
 				if ($enabled_views['month']) {
 					echo '<a href="'.$this->getHref().'?SQ_CALENDAR_VIEW=month&amp;SQ_CALENDAR_DATE='.$year.'-'.sprintf('%02d', $month_num).'-01">';
@@ -594,6 +598,7 @@ class Page_Calendar extends Page_Asset_Listing
 		if ($format == 'list_without_headings') {
 			$list_entry_types = $this->attr('list_entry_types');
 			$events = $this->getMonthEvents($year, $month);
+			uasort($events, 'compare_start_dates');
 			if ($list_entry_types['month'] == 'title') {
 				echo $this->_getTitleList($events, $enabled_views['event']);
 			} else {
@@ -605,6 +610,7 @@ class Page_Calendar extends Page_Asset_Listing
 			$events = $this->getMonthEventsByDay($year, $month);
 			$month_length = days_in_month($month, $year);
 			for ($current_day = 1; $current_day <= $month_length; $current_day++) {
+				uasort($events[$current_day], 'compare_start_dates');
 				echo '<h3>';
 				if ($drill_down_view) {
 					echo '<a href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$drill_down_view.'&amp;SQ_CALENDAR_DATE='.$year.'-'.$month.'-'.sprintf('%02d', $current_day).'">';
@@ -761,6 +767,7 @@ class Page_Calendar extends Page_Asset_Listing
 		if ($format == 'list_without_headings') {
 			$list_entry_types = $this->attr('list_entry_types');
 			$events = $this->getWeekEvents($date);
+			uasort($events, 'compare_start_dates');
 			if ($list_entry_types['week'] == 'title') {
 				echo $this->_getTitleList($events, $enabled_views['event']);
 			} else {
@@ -771,6 +778,7 @@ class Page_Calendar extends Page_Asset_Listing
 			$list_entry_types = $this->attr('list_entry_types');
 			$events = $this->getWeekEventsByDay($date);
 			foreach ($events as $day_date => $day_events) {
+				uasort($events[$day_date], 'compare_start_dates');
 				echo '<h3>'.(($enabled_views['day']) ? '<a href="'.$this->getHref().'?SQ_CALENDAR_VIEW=day&amp;SQ_CALENDAR_DATE='.$day_date.'"">' : '');
 				echo date('l jS', strtotime($day_date));
 				echo (($enabled_views['day']) ? '</a>' : '').'</h3>';
@@ -1708,7 +1716,7 @@ class Page_Calendar extends Page_Asset_Listing
 
 		foreach ($events as $id => $details) {
 			if ($details['start_date_year'] == $year) {
-				$res[$details['start_date_mon']][$id] = $details;
+				$res[$details['start_date_mon']][strtok($id, ':')] = $details; // use strtok because we only want to see one instance per month
 			}
 		}
 		foreach ($res as $date => $events) {
@@ -1810,8 +1818,6 @@ class Page_Calendar extends Page_Asset_Listing
 				$res[$assetid]['description'] = $description;
 			}
 		}
-		$start_date_comparator = create_function('$a, $b', 'return ($a[\'start_date_ts\'] > $b[\'start_date_ts\']);');
-		uasort($res, $start_date_comparator);
 		return $res;
 
 	}//end getMonthEvents()
@@ -2077,7 +2083,6 @@ class Page_Calendar extends Page_Asset_Listing
 		process_exceptions($res);
 
 		$compare_start_ts = create_function('$a, $b', 'if ($a[\'start_date_ts\'] < $b[\'start_date_ts\']) return -1; else return 1;');
-		uasort($res, $compare_start_ts);
 
 		return $res;
 
