@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.125.2.10 2005/05/02 00:31:23 gsherwood Exp $
+* $Id: page_calendar.inc,v 1.125.2.11 2005/05/24 04:54:14 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.125.2.10 $
+* @version $Revision: 1.125.2.11 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -1727,6 +1727,10 @@ class Page_Calendar extends Page_Asset_Listing
 		assert_valid_db_result($recurring_events);
 
 		$res = $single_events + $recurring_events;
+
+		$start_date_comparator = create_function('$a, $b', 'return ($a[\'start_date_ts\'] > $b[\'start_date_ts\']);');
+		uasort($res, $start_date_comparator);
+
 		return $res;
 
 	}//end getYearEvents()
@@ -1756,7 +1760,11 @@ class Page_Calendar extends Page_Asset_Listing
 				$res[$details['start_date_mon']][$id] = $details;
 			}
 		}
-		foreach ($res as $date => $events) process_exceptions($res[$date]);
+		foreach ($res as $date => $events) {
+			process_exceptions($res[$date]);
+			$start_date_comparator = create_function('$a, $b', 'return ($a[\'start_date_ts\'] > $b[\'start_date_ts\']);');
+			uasort($res[$date], $start_date_comparator);
+		}
 
 		return $res;
 
