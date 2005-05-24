@@ -10,7 +10,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus_browser.js,v 1.6 2005/05/24 00:07:26 tbarrett Exp $
+* $Id: thesaurus_browser.js,v 1.7 2005/05/24 05:38:32 tbarrett Exp $
 *
 */
 
@@ -99,8 +99,7 @@ ThesaurusBrowser = function (	divname,
 				}
 			}
 
-			var existingY = window.scrollY ? window.scrollY : (document.body.scrollTop ? document.body.scrollTop : document.documentElement.scrollTop);
-			var targetY = existingY + this.coordY - 50;
+			var targetY = this.coordY - 100;
 
 			this.panelX = this.coordX + this.browserWidth;
 			this.panelY = this.coordY + 25;
