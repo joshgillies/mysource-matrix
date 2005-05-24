@@ -18,19 +18,19 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: recreate_link_tree.php,v 1.10 2005/02/23 05:49:03 gsherwood Exp $
+* $Id: recreate_link_tree.php,v 1.11 2005/05/24 07:08:27 lwright Exp $
 *
 */
 
 /**
 * Use this script to (re)create the link tree.
-* The main use of this script is recreate the treeids when the 
+* The main use of this script is recreate the treeids when the
 * SQ_CONF_ASSET_TREE_BASE or SQ_CONF_ASSET_TREE_SIZE config options change
 *
-* 
+*
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix
 */
 
@@ -39,57 +39,103 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 
 $db = &$GLOBALS['SQ_SYSTEM']->db;
 
-$sql = 'TRUNCATE sq_asset_link_tree';
+$sql = 'TRUNCATE sq_ast_lnk_tree';
 $result = $db->query($sql);
-if (DB::isError($result)) {
-	pre_echo($result);
-	exit();
-}
+assert_valid_db_result($result);
 
-$sql = 'SELECT linkid, majorid, minorid
-		FROM sq_asset_link';
-
-$all = $db->getAll($sql);
-if (DB::isError($all)) {
-	pre_echo($all);
-	exit();
-}
-
-$index = Array();
-foreach ($all as $data) {
-	$majorid = $data['majorid'];
-	unset($data['majorid']);
-	if (!isset($index[$majorid])) $index[$majorid] = Array();
-	$index[$majorid][] = $data;
-}
-
-
-function recurse_tree_create($majorid, $path)
+function recurse_tree_create($majorid)
 {
-	global $index, $db;
-	static $e = 0;
-	$e++;
-	#if ($e > 100) return; // cheap recursion check
-	foreach ($index[$majorid] as $i => $data) {
-		#printf("e : % 3d, i : % 3d, Majorid : % 3d, Minorid : % 3d, Linkid : % 3d\n", $e, $i, $majorid, $data['minorid'], $data['linkid']);
-		$kid_path = $path.asset_link_treeid_convert($i, 1);
-		$sql =	'INSERT INTO sq_asset_link_tree '.
-				'(treeid, linkid) '.
-				'VALUES '.
-				'('.$db->quote($kid_path).', '.$db->quote($data['linkid']).');';
-		echo $sql."\n";
-		$result = $db->query($sql);
-		if (DB::isError($result)) {
-			pre_echo($result);
-			exit();
+	$db =& $GLOBALS['SQ_SYSTEM']->db;
+
+	// no link to our children; we need to (re-)create the tree, obviously... darn it
+	// so grab the links we need (significant ones only)
+	$top_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($majorid, SQ_SC_LINK_SIGNIFICANT);
+	$links = Array();
+
+	// reorder them so that it's indexed by their prospective treeid
+	$child_index = 0;
+	foreach($top_links as $link) {
+		$treeid = asset_link_treeid_convert($child_index,true);
+		if ($link['linkid'] != 0) {
+			$links[$treeid] = $link;
+			$child_index++;
 		}
-		if (!empty($index[$data['minorid']])) recurse_tree_create($data['minorid'], $kid_path);
 	}
-	$e--;
+
+	// now search for child links and give them treeids
+	for(reset($links); null !== ($k = key($links)); next($links)) {
+		$link =& $links[$k];
+
+		$child_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($link['minorid'], SQ_SC_LINK_SIGNIFICANT);
+		bam($k);
+		bam($child_links);
+		$child_index = 0;
+		foreach($child_links as $child_link) {
+			$treeid = $k.asset_link_treeid_convert($child_index,true);
+			if ($child_link['linkid'] != 0) {
+				$links[$treeid] = $child_link;
+				$child_index++;
+			}
+		}
+		$link['num_kids'] = count($child_links);
+	}
+
+	bam($links);
+
+	// adding root folder?
+	if ($majorid == 1) {
+		$sql = 'INSERT INTO
+					sq_ast_lnk_tree
+					(
+						treeid,
+						linkid,
+						num_kids
+					)
+					VALUES
+					(
+						'.$db->quoteSmart('-').',
+						'.$db->quoteSmart(1).',
+						'.$db->quoteSmart(count($top_links)).'
+					)';
+
+		$result = $db->query($sql);
+		assert_valid_db_result($result);
+		echo 'Added treeid - for linkid 1'."\n";
+	}
+
+	foreach($links as $treeid => $this_link) {
+		// remove any 'zero linkid' entries
+		$sql = 'DELETE FROM
+					sq_ast_lnk_tree
+				WHERE
+					treeid = '.$db->quoteSmart($treeid);
+
+		$result = $db->query($sql);
+		assert_valid_db_result($result);
+
+		// now insert the tree entry
+		$sql = 'INSERT INTO
+				sq_ast_lnk_tree
+				(
+					treeid,
+					linkid,
+					num_kids
+				)
+				VALUES
+				(
+					'.$db->quoteSmart($treeid).',
+					'.$db->quoteSmart($this_link['linkid']).',
+					'.$db->quoteSmart($this_link['num_kids']).'
+				)';
+
+		$result = $db->query($sql);
+		echo 'Added treeid '.$treeid.' for linkid '.$this_link['linkid']."\n";
+		assert_valid_db_result($result);
+	}
 
 }//end recurse_tree_create()
 
 
-recurse_tree_create(1, '');
+recurse_tree_create(1);
 
 ?>
