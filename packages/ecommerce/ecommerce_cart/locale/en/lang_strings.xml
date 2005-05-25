@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.1 2005/05/11 06:07:35 lwright Exp $
+* $Id: lang_strings.xml,v 1.2 2005/05/25 05:07:46 lwright Exp $
 *
 *
 * Ecommerce Package Localised Strings File
@@ -21,7 +21,10 @@
 <strings>
 <string source="ecom_cart_quantities_changed">Product quantities changed.</string>
 <string source="ecom_cart_product_name">Product Name</string>
-<string source="ecom_cart_no_items_in_cart">There are no items in your cart</string>
 <string source="ecom_cart_update_quantity">Update Quantity</string>
+<string source="ecom_cart_keyword_cart_updated">Product Quantities Updated Message</string>
+<string source="ecom_cart_keyword_product_count">Product Item Count</string>
+<string source="ecom_cart_keyword_total_value">Cart Total Value</string>
+<string source="ecom_cart_keyword_checkout_cart_button">Checkout Button</string>
 </strings>
 

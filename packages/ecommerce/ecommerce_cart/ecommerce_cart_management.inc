@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart_management.inc,v 1.5 2005/05/25 04:33:18 lwright Exp $
+* $Id: ecommerce_cart_management.inc,v 1.6 2005/05/25 05:07:46 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -81,6 +81,33 @@ class Ecommerce_Cart_Management extends Asset_Management
 							);
 
 	}//end constructor
+
+
+	/**
+	* Return an array with information about the events that this page is listening for
+	*
+	* @access public
+	* @return boolean
+	*/
+	function getEventList()
+	{
+		return Array(
+				Array(
+					'event_name'					=> 'requestKeywords',
+					'broadcast_type_code'			=> 'content_type',
+					'broadcast_strict_type_code'	=> false,
+					'options'						=> Array(
+														'side_of_link'	=> 'major',
+														'indirect'		=> true,
+														'is_exclusive'	=> null,
+														'is_dependant'	=> 1,
+														'value'			=> '',
+														'link_type'		=> SQ_LINK_TYPE_2 | SQ_LINK_TYPE_1,
+													   ),
+				),
+			   );
+
+	}//end getEventList()
 
 
 }//end class

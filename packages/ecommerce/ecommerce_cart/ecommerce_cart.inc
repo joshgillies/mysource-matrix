@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart.inc,v 1.8 2005/05/25 04:33:18 lwright Exp $
+* $Id: ecommerce_cart.inc,v 1.9 2005/05/25 05:07:46 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -494,8 +494,8 @@ class Ecommerce_Cart extends Listing_Engine
 		// get our page chunk here
 
 		if (empty($children)) {
-			$replacements['checkout_cart'] = '';
-			$replacements['cart_updated'] = $this->attr('no_items_text');
+			$replacements['checkout_cart_button'] = '';
+			$replacements['asset_listing'] = $this->attr('no_items_text');
 			$replacements['next_page'] = '';
 			$replacements['previous_page'] = '';
 			$replacements['total_pages'] = 1;
@@ -537,7 +537,7 @@ class Ecommerce_Cart extends Listing_Engine
 		hidden_field($field_name, $value);
 
 		//line below see above
-		$replacements['checkout_cart'] = $checkout_cart_button;
+		$replacements['checkout_cart_button'] = $checkout_cart_button;
 		$replacements['asset_listing'] = $global_contents;
 		$replacements['asset_count'] = $num_kids;
 		$replacements['product_count'] = $this->count();
@@ -584,80 +584,78 @@ class Ecommerce_Cart extends Listing_Engine
 
 
 	/**
-	* Paints the asset to the page
+	* Add valid keywords for this asset to an array of keywords when asked
 	*
-	* @return void
-	* @access public
+	* @param &object Asset	$asset	the asset that triggered the event
+	* @param Array			$vars	the vars that get submitted by the broadcaster
+	*								we add keywords to the $vars['keywords'] array
+	*
+	* @return boolean
+	* @access private
 	*/
-	/*function printBody()
+	function onRequestKeywords(&$broadcaster, $vars=Array())
 	{
-		?><div align="center"><form action="<?php echo $this->getURL() ?>" method="post"><?php
+		bam($broadcaster->id);
 
-		if (!is_null(array_get_index($_POST,'update_quantity',null))) {
-			foreach($_POST['update_quantity'] as $product_assetid => $new_quantity) {
-				if (is_numeric($new_quantity)) {
-					$this->update($product_assetid, (int)$new_quantity);
-				}
-			}
-			?><strong><?php echo translate('ecom_cart_quantities_changed'); ?></strong><?php
-		}
+		if (!isset($vars['keywords'])) return;
+		if (!is_a($broadcaster, 'content_type')) return;
 
-		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
+		$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id, 'bodycopy', true);
 
-		$cart = $this->get();
-		?>
-		<table width="50%">
-		<thead><tr>
-		<th><<?php echo translate('ecom_cart_product_name'); ?></th>
-		<th><?php echo translate('qty'); ?></th><?php
-		if ($this->attr('show_price')) {
-			?><th><?php echo translate('price');    ?></th><?php
-			?><th><?php echo translate('subtotal'); ?></th><?php
-		}
-		?></thead>
-		<?php if ($this->attr('show_price')) {
-			// the W3C recommendations say that TFOOT must come before TBODY
-			// for some reason, so here it is
-			?><tfoot><tr><?php
-			?><td style="text-align:right"><strong><?php echo translate('total'); ?></strong></td><?php
-			?><td style="text-align:right"><strong><?php echo $this->count(); ?></strong></td><?php
-			?><td colspan="2" style="text-align:right"><strong><?php echo '$'.number_format($this->total(),2); ?></strong></td><?php
-			?></tr>
-			</tfoot><?php
-		}
-		?><tbody><?php
-		if (empty($cart)) {
-			?><tr><td colspan="<?php echo $this->attr('show_price') ? 4 : 2 ?>" style="text-align:center"><?php echo translate('ecom_cart_no_items_in_cart'); ?></td></tr><?php
-		} else {
-			foreach($cart as $product_assetid => $details) {
-				?><tr><?php
-				$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($product_assetid));
-				?><td><a href="<?php echo $GLOBALS['SQ_SYSTEM']->am->getAssetURL($product_assetid) ?>"><?php echo $asset_info[$product_assetid]['name'] ?></a></td><?php
-				?><td style="text-align:right"><?php text_box('update_quantity['.$product_assetid.']', $details['quantity'], 3) ?></td><?php
-				if ($this->attr('show_price')) {
-					?><td style="text-align:right"><?php echo '$'.number_format($details['price'],2) ?></td><?php
-					?><td style="text-align:right"><?php echo '$'.number_format($details['quantity'] * $details['price'],2) ?></td><?php
-				}
-				?></tr><?php
+		// the broadcaster could be our page contents bodycopy, in which case
+		// we want to supply our own keyword replacements
+		$page_contents_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'page_contents');
+		if (!empty($page_contents_link)) {
+			if (isset($parents[$page_contents_link['minorid']])) {
+				$vars['keywords'] += $this->getContentsKeywords();
+				return;
 			}
 		}
-		?></tbody>
-		</table>
 
-		<?php if (!empty($cart)) { ?>
-			<input type="submit" value="<?php echo translate('ecom_cart_update_quantity'); ?>">
-			<?php
-			$form_id = $this->attr('ecom_form_id');
-			if (!empty($form_id)) {
-				$ecom_form_url = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($form_id); ?>
-			<input type="button" onclick="location.href = '<?php echo addslashes($ecom_form_url); ?>'" value="<?php echo $this->attr('checkout_text'); ?>">
-			<?php } ?>
-		<?php } ?>
-		</form></div>
-		<?php
+		// if it's not the page contents bodycopy, it's something that we've
+		// inherited from the listing engine, so pass it on
+		parent::onRequestKeywords($broadcaster, $vars);
 
-	}*///end printBody()
+	}//end onRequestKeywords()
 
+
+	/**
+	* Return the available keywords in the Page Contents Bodycopy for this asset
+	*
+	* The return value is in the form:
+	* <pre>
+	* Array(
+	*     'keyword' => 'name',
+	* )
+	* </pre>
+	*
+	* @access public
+	* @return array(string => string)
+	*/
+	function getContentsKeywords()
+	{
+		$keywords = parent::getContentsKeywords();
+		$GLOBALS['SQ_SYSTEM']->lm->includeAssetStrings('page_asset_listing');
+
+		$keywords += Array(
+						'cart_updated'			=> translate('ecom_cart_keyword_cart_updated'),
+						'product_count'			=> translate('ecom_cart_keyword_product_count'),
+						'total_value'			=> translate('ecom_cart_keyword_total_value'),
+						'checkout_cart_button'	=> translate('ecom_cart_keyword_checkout_cart_button'),
+						'asset_listing'			=> translate('cms_listing_asset_listing'),
+						'previous_page'			=> translate('cms_listing_previous_page_link'),
+						'next_page'				=> translate('cms_listing_next_page_link'),
+						'page_list'				=> translate('cms_listing_page_list'),
+						'page_number'			=> translate('cms_listing_page_number'),
+						'asset_count'			=> translate('cms_listing_asset_count'),
+						'page_asset_count'		=> translate('cms_listing_page_asset_count'),
+						'first_asset_position'	=> translate('cms_listing_first_asset_position'),
+						'last_asset_position'	=> translate('cms_listing_last_asset_position'),
+					 );
+
+		return $keywords;
+
+	}//end getContentsKeywords()
 
 
 }//end class
