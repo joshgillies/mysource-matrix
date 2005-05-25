@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.69 2005/04/27 00:14:43 lwright Exp $
+* $Id: workflow_manager.inc,v 1.70 2005/05/25 05:48:09 dheppell Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.69 $
+* @version $Revision: 1.70 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -1173,6 +1173,9 @@ class Workflow_Manager extends MySource_Object
 
 			// complete any missing internal message fields that have not been supplied
 			if (empty($msg->replacements)) {
+				$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserId());
+				$asset_type = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name');
+				
 				$msg_reps = Array(
 								'user_name'		=> $user->name,
 								'type_code'		=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'),
