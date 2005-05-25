@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing_management.inc,v 1.27 2005/05/24 00:16:19 arailean Exp $
+* $Id: page_asset_listing_management.inc,v 1.28 2005/05/25 04:26:55 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -46,18 +46,6 @@ class Page_Asset_Listing_Management extends Asset_Management
 	function Page_Asset_Listing_Management(&$pm)
 	{
 		$this->Asset_Management($pm);
-
-		$this->vars['prev_page_text'] = Array(
-											'added'		=> '0.1',
-											'type'		=> 'text',
-											'default'	=> 'Previous',
-										);
-
-		$this->vars['next_page_text'] = Array(
-											'added'		=> '0.1',
-											'type'		=> 'text',
-											'default'	=> 'Next',
-										);
 
 	}//end constructor
 
