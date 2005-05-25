@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart.inc,v 1.9 2005/05/25 05:07:46 lwright Exp $
+* $Id: ecommerce_cart.inc,v 1.10 2005/05/25 05:11:29 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -595,8 +595,6 @@ class Ecommerce_Cart extends Listing_Engine
 	*/
 	function onRequestKeywords(&$broadcaster, $vars=Array())
 	{
-		bam($broadcaster->id);
-
 		if (!isset($vars['keywords'])) return;
 		if (!is_a($broadcaster, 'content_type')) return;
 
