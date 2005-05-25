@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.33 2005/05/24 00:16:19 arailean Exp $
+* $Id: listing_engine.inc,v 1.34 2005/05/25 04:25:28 lwright Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
 *
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -321,7 +321,7 @@ class Listing_Engine extends Page
 		} else {
 			echo $contents;
 		}
-
+		
 	}//end printBody()
 
 
@@ -1437,7 +1437,7 @@ class Listing_Engine extends Page
 		$field_name = $prefix.'_submit_button';
 		$this->registerFormField($field_name);
 
-		$button_text = 'Submit';
+		$button_text = $this->attr('submit_button_text');
 
 		ob_start();
 			submit_button($field_name, $button_text);
