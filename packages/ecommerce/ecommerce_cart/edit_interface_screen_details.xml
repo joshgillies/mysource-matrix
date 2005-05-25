@@ -11,29 +11,57 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.6 2005/05/20 01:46:32 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.7 2005/05/25 04:33:18 lwright Exp $
 *
 */
 -->
-
 <contents>
-	<section name="Details" write_access="write:attributes" limbo_access="1">
+	<section name="Details" write_access="write:attributes">
 		<field attribute="name">
 			<text width="35" height="1" />
 		</field>
 		<field attribute="short_name">
-			<text width="35" height="1" />
+			<text width="25" height="1" />
 		</field>
+	</section>
+	<section name="Cart Settings" write_access="write:attributes">
 		<field attribute="ecom_form_id">
 			<assetid type_codes="page_custom_form_ecommerce:D" />
 		</field>
+		<field>
+			<function_call>
+				<paint_function   name="paintAssetTypes"   />
+				<process_function name="processAssetTypes" />
+			</function_call>
+		</field>
 	</section>
-	<section name="Display Details" write_access="write:attributes" limbo_access="1">
-		<field attribute="show_price">
-			<boolean true_text="yes" false_text="no" />
+	<section name="List Settings" write_access="write:content">
+		<field attribute="group_by">
+			<selection style="list" />
+		</field>
+		<field attribute="num_per_page">
+			<int width="5" />
+		</field>
+	</section>
+	<section name="List Position Settings" write_access="write:attributes">
+		<field>
+			<function_call>
+				<paint_function   name="paintAssetPositions"   />
+				<process_function name="processAssetPositions" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Submit Button" write_access="write:attributes">
+		<field attribute="submit_button_text">
+			<text width="25" height="1" />
 		</field>
 		<field attribute="checkout_text">
-			<text width="35" height="1" />
+			<text width="25" height="1" />
+		</field>
+	</section>
+	<section name="Messages" write_access="write:attributes">
+		<field attribute="no_items_text">
+			<text width="25" height="1" />
 		</field>
 	</section>
 </contents>

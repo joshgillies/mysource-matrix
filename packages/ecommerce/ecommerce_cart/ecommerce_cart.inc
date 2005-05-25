@@ -11,12 +11,12 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart.inc,v 1.7 2005/05/11 06:07:35 lwright Exp $
+* $Id: ecommerce_cart.inc,v 1.8 2005/05/25 04:33:18 lwright Exp $
 *
 */
 
 
-require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
+require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 
 /**
 * Ecommerce_Cart
@@ -26,11 +26,11 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
-class Ecommerce_Cart extends Page
+class Ecommerce_Cart extends Listing_Engine
 {
 
 
@@ -44,10 +44,81 @@ class Ecommerce_Cart extends Page
 	*/
 	function Ecommerce_Cart($assetid=0)
 	{
-		$this->Page($assetid);
+		$this->Listing_Engine($assetid);
 
 	}//end constructor
 
+
+	/**
+	* Perform any additional processing required during the creation of this asset
+	*
+	* Creates the page contents bodycopy
+	*
+	* @param array	&$link	information used to create the initial link
+	*
+	* @access private
+	* @return boolean
+	*/
+	function _createAdditional(&$link)
+	{
+		if (!parent::_createAdditional($link)) return false;
+
+		// add a bodycopy to this page when creating
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
+
+		$asset = new Bodycopy();
+		$copy_link = Array('asset' => &$this, 'value' => 'page_contents' ,'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
+		$asset->setAttrValue('name', 'Page Contents');
+
+		return $asset->create($copy_link);
+
+	}//end _createAdditional()
+
+
+	/**
+	* Get the list of asset that should be printed
+	*
+	* This is defined as an abstract method of sorts; it's up to the kids to
+	* override this
+	* The return array is in the form Array(assetid => type_code) unless
+	* we are grouping by letter, in which case the return array is
+	* <pre>
+	* Array(assetid => Array(
+	*						'type_code' => type_code,
+	*						'first_letter' => first_letter,
+	*						);
+	*		);
+	* </pre>
+	*
+	* @return array
+	* @access protected
+	*/
+	function getAssetList()
+	{
+		if (!isset($_SESSION['sq_cart_contents'])) {
+			return Array();
+		}
+
+		$cart_contents = $_SESSION['sq_cart_contents'];
+		$asset_list = '';
+
+		$group_by = $this->attr('group_by');
+
+		foreach($cart_contents as $product_assetid => $product_info) {
+			$product_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($product_assetid);
+			if ($group_by == 'letter') {
+				$asset_list[$product_assetid] = Array(
+													'type_code'		=> $product_asset->type(),
+													'first_letter'	=> substr($product_asset->attr('name'),0,1),
+												);
+			} else {
+				$asset_list[$product_assetid] = $product_asset->type();
+			}
+		}
+
+		return $asset_list;
+
+	}//end getAssetList()
 
 	/**
 	* Returns an array of all the permitted link type, the type asset and
@@ -61,6 +132,7 @@ class Ecommerce_Cart extends Page
 		$page_links = parent::_getAllowedLinks();
 		$page_links[SQ_LINK_TYPE_1]['folder'] = Array('card' => 'M');
 		$page_links[SQ_LINK_TYPE_1]['product'] = Array('card' => 'M');
+		$page_links[SQ_LINK_TYPE_2]['bodycopy'] = Array('card' => '1');
 		return $page_links;
 
 	}//end _getAllowedLinks()
@@ -288,7 +360,9 @@ class Ecommerce_Cart extends Page
 		$cart =& $this->get();
 		$total = 0.0;
 		foreach($cart as $product_assetid => $details) {
-			$total += $details['quantity'] * $details['price'];
+			if ($details['price'] != -1) {		// -1 = value not known
+				$total += $details['quantity'] * $details['price'];
+			}
 		}
 
 		return $total;
@@ -316,12 +390,206 @@ class Ecommerce_Cart extends Page
 
 
 	/**
+	 * Constructs the carts contents
+	 *
+	 * @return void
+	 * @access public
+	 */
+	function printContents()
+	{
+		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'page_contents');
+		if (empty($bodycopy_link)) return false;
+
+		$format_bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
+		if (is_null($format_bodycopy)) return false;
+
+		require_once SQ_FUDGE_PATH.'/general/text.inc';
+		$keywords = $format_bodycopy->getKeywords();
+		$replacements = Array();
+
+
+		if (!in_array('asset_listing', $keywords)) {
+			// there is no asset listing keyword in the contents, so we dont
+			// need to do all the extra processing for the listing
+			$format_bodycopy->printBody();
+			return;
+		}
+
+		//the children here will refer to the contents of this cart
+		$children = $this->getAssetList();
+		//we dont want to count position formats without a value
+		//just increment the count if were adding it tot he cart
+		$num_kids = count($children);
+		$this->filterAssetList($children);
+
+		//register a form to allow updating cart contents
+		$this->registerFormField('cart_'.$this->id);
+
+		foreach ($keywords as $word) {
+			$replacements[$word] = $this->getKeywordReplacement($word);
+		}
+
+		//update the cart contents for any updated quantities
+		if (!is_null(array_get_index($_REQUEST,'update_quantity',null))) {
+			//see if we are updating an individual item or everything
+			if(isset($_REQUEST['update_button'])) {
+				reset($_REQUEST['update_button']);
+				$update_productid = key($_REQUEST['update_button']);
+
+				if ($update_productid == 'all') {
+					// updating (potentially) all the items
+					foreach($_REQUEST['update_quantity'] as $product_assetid => $new_quantity) {
+						if (is_numeric($new_quantity)) {
+							// it's quite possible now with position formats that
+							// an asset in the cart might not have any quantity,
+							// so we now check whether we have to update or add
+							if (isset($_SESSION['sq_cart_contents'][$product_assetid])) {
+								$this->update($product_assetid, (int)$new_quantity);
+								if ($new_quantity == 0) {
+									$num_kids--;
+								}
+							} else {
+								$product_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($product_assetid);
+								$this->add($product_assetid, $product_asset->attr('price'), (int)$new_quantity);
+								if ($new_quantity > 0) {
+									$num_kids++;
+								}
+							}
+						}
+					}
+
+				} else {
+					// updating only one of the items
+					$new_quantity = array_get_index($_REQUEST['update_quantity'], $update_productid, null);
+					if (is_numeric($new_quantity)) {
+						// adding or updating?
+						if (isset($_SESSION['sq_cart_contents'][$update_productid])) {
+								$this->update($update_productid, (int)$new_quantity);
+								if ($new_quantity == 0) {
+									$num_kids--;
+								}
+							} else {
+								$product_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($update_productid);
+								$this->add($update_productid, $product_asset->attr('price'), (int)$new_quantity);
+								if ($new_quantity > 0) {
+									$num_kids++;
+								}
+							}
+					}
+				}
+			}
+
+			ob_start();
+				?><strong><?php echo translate('ecom_cart_quantities_changed'); ?></strong><?php
+				$replacements['cart_updated'] = ob_get_contents();
+			ob_end_clean();
+		} else {
+			$replacements['cart_updated'] = '';
+		}
+
+		$num_per_page = $this->attr('num_per_page');
+		$result_page = (isset($_REQUEST['result_page'])) ? (int)$_REQUEST['result_page'] : 1;
+		if ($result_page <= 0) $result_page = 1;
+
+		// get our page chunk here
+
+		if (empty($children)) {
+			$replacements['checkout_cart'] = '';
+			$replacements['cart_updated'] = $this->attr('no_items_text');
+			$replacements['next_page'] = '';
+			$replacements['previous_page'] = '';
+			$replacements['total_pages'] = 1;
+
+			// page list is one page
+			$replacements['page_list'] = '1';
+			$global_contents = '';
+			$num_assets_showing = 0;
+			$num_kids = 0;
+		} else {
+			$todo =& $this->getChunk($children, $replacements, $result_page, $num_per_page);
+			$num_assets_showing = count($todo);
+
+			ob_start();
+				$this->printAssetList($todo);
+				$global_contents = ob_get_contents();
+			ob_end_clean();
+		}
+
+		// if we have any blank keywords, replace them with nothing
+		$global_contents = preg_replace('|%[^%\W]+%|', '', $global_contents);
+
+		//Cart must pass on to some sort of ecommerce form
+		$form_id = $this->attr('ecom_form_id');
+		if (!empty($form_id)) {
+			$ecom_form_url = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($form_id);
+			ob_start();
+				?><input type="button" onclick="location.href = '<?php echo addslashes($GLOBALS['SQ_SYSTEM']->am->getAssetURL($form_id)); ?>'" value="<?php echo $this->attr('checkout_text'); ?>"><?php
+				$checkout_cart_button = ob_get_contents();
+			ob_end_clean();
+		} else {
+			$checkout_cart_button = '';
+		}
+
+		$field_name = 'result_page';
+		$this->registerFormField($field_name);
+
+		$value = array_get_index($_REQUEST, 'result_page', 1);
+		hidden_field($field_name, $value);
+
+		//line below see above
+		$replacements['checkout_cart'] = $checkout_cart_button;
+		$replacements['asset_listing'] = $global_contents;
+		$replacements['asset_count'] = $num_kids;
+		$replacements['product_count'] = $this->count();
+		$replacements['total_value'] = $this->total();
+		$replacements['page_asset_count'] = $num_assets_showing;
+		$replacements['page_number'] = $result_page;
+		$replacements['first_asset_position'] = $num_per_page * ($result_page - 1) + 1;
+		$replacements['last_asset_position'] = min($num_kids, $num_per_page * $result_page);
+		$replacements['root_nodes'] = implode(',', $this->getRootNodes());
+
+		// print the contents of page - replacing the global keywords
+		$format_bodycopy->setKeywordReplacements($replacements);
+
+		ob_start();
+			$format_bodycopy->printBody();
+		ob_end_flush();
+
+		// clean up after ourselves
+		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($bodycopy);
+
+	}//end printContents()
+
+
+	/**
+	* Build a custom submit button for the ecom form since nested
+	* forms are illegal html
+	*
+	* @return string
+	* @access public
+	*/
+	function getSubmitButtonReplacement()
+	{
+		$prefix = $this->getPrefix();
+		$field_name = 'update_button[all]';
+		$this->registerFormField($field_name);
+
+		$button_text = $this->attr('submit_button_text');
+
+		ob_start();
+			submit_button($field_name, $button_text);
+		return ob_get_clean();
+
+	}//end getSubmitButtonReplacement()
+
+
+	/**
 	* Paints the asset to the page
 	*
 	* @return void
 	* @access public
 	*/
-	function printBody()
+	/*function printBody()
 	{
 		?><div align="center"><form action="<?php echo $this->getURL() ?>" method="post"><?php
 
@@ -388,7 +656,8 @@ class Ecommerce_Cart extends Page
 		</form></div>
 		<?php
 
-	}//end printBody()
+	}*///end printBody()
+
 
 
 }//end class

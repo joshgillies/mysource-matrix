@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart_management.inc,v 1.4 2005/04/29 05:39:36 gsherwood Exp $
+* $Id: ecommerce_cart_management.inc,v 1.5 2005/05/25 04:33:18 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -54,9 +54,8 @@ class Ecommerce_Cart_Management extends Asset_Management
 							'ecom_form_id' => Array(
 												'added'       => '0.0.1',
 												'type'        => 'assetid',
-												'default'     => 0,
-												'description' => 'The assetid of the ecommerce form that we are connected with',			
-												),					
+												'description' => 'The assetid of the ecommerce form that we are connected with',
+												),
 							'show_price' => Array(
 												'added'       => '0.0.1',
 												'type'        => 'boolean',
@@ -65,14 +64,20 @@ class Ecommerce_Cart_Management extends Asset_Management
 												'parameters'  => Array(
 													'allow_empty' => false,
 												),
-												'update_fn'   => '',							 
+												'update_fn'   => '',
 							 					),
 							'checkout_text' => Array(
-												'added'       => '0.0.1',
-												'type'        => 'text',  'default'   => 'Proceed to Checkout',
-												'description' => 'The text on the "checkout" button',
-												'update_fn'   => '',
-												),
+												'added'			=> '0.0.1',
+												'type'			=> 'text',
+												'default'		=> 'Proceed to Checkout',
+												'description'	=> 'The text on the "checkout" button',
+											   ),
+							'no_items_text' => Array(
+												'added'			=> '0.2',
+												'type'			=> 'text',
+												'default'		=> 'There are currently no items in your cart',
+												'description'	=> 'The text that displays instead of the asset listing, when you have no items in your cart',
+											   ),
 							);
 
 	}//end constructor
