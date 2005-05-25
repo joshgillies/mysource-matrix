@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.85 2005/05/20 04:07:36 tbarrett Exp $
+* $Id: html_form.inc,v 1.86 2005/05/25 04:31:38 dheppell Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.85 $
+* @version $Revision: 1.86 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -925,16 +925,31 @@ function var_to_hidden_field($var, $name='')
 * @param boolean	$instatiable			Do we want instantiable or non-instantiable assets? (null means both)
 * @param boolean	$system_accessible		Do we want to include assets that only have system access?
 * @param boolean	$show_inherit_checkbox	Do we want to show a checkbox for inheriting from a type?
+* @param Array $specified_type 			Limit the listing to specified types and their decendants
 *
 * @access public
 * @return void
 */
-function asset_type_chooser($name, $multiple=false, $defaults=Array(), $instantiable=null, $system_accessible=false, $show_inherit_checkbox=false)
+function asset_type_chooser($name, $multiple=false, $defaults=Array(), $instantiable=null, $system_accessible=false, $show_inherit_checkbox=false, $specified_types=Array())
 {
-	$types = $GLOBALS['SQ_SYSTEM']->am->getAssetTypes($instantiable, !$system_accessible);
-	foreach ($types as $code => $details) {
-		$types[$code] = $details['name'];
+	//if we specified types for the listing, build a list with these
+	if(!empty($specified_types)) {
+		
+		foreach($specified_types as $specified_type) {
+			$new_types = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($specified_type, true);
+			
+			foreach($new_types as $new_type) {
+				$types[$new_type] = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($new_type, 'name');
+			}
+		}
+	} else {
+		$types = $GLOBALS['SQ_SYSTEM']->am->getAssetTypes($instantiable, !$system_accessible);
+		
+		foreach ($types as $code => $details) {
+			$types[$code] = $details['name'];
+		}
 	}
+	
 	asort($types);
 	$types = Array('' => '') + $types;
 	if ($multiple) {
