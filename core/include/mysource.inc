@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.115 2005/05/26 03:22:48 dmckee Exp $
+* $Id: mysource.inc,v 1.116 2005/05/26 04:42:15 dmckee Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.115 $
+* @version $Revision: 1.116 $
 * @package MySource_Matrix
 */
 class MySource
@@ -295,7 +295,7 @@ class MySource
 			$this->_user_is_root      = $_SESSION['user_is_root'];
 			$this->_user_is_sys_admin = $_SESSION['user_is_sys_admin'];
 			$this->_user_is_public    = $_SESSION['user_is_public'];
-			
+
 			// if we are using the 'a' querystring arg, remove any trailing exclamation marks
 			// that are used as termination characters in different kinds of content
 			if (isset($_REQUEST['a'])) {
@@ -311,6 +311,7 @@ class MySource
 		if (!empty($_REQUEST['SQ_ACTION'])) {
 			$this->_processGlobalActions();
 		}
+
 	}//end init()
 
 
