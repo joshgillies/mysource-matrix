@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime.inc,v 1.36 2005/03/16 16:18:08 brobertson Exp $
+* $Id: datetime.inc,v 1.37 2005/05/26 03:47:22 gsherwood Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *     General function for manipulating dates and times
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package Fudge
 * @subpackage General
 */
@@ -83,11 +83,13 @@ function easy_datetime($then='')
 *
 * @param string		$secs			the number of seconds that have passed
 * @param boolean	$full_format	print full hours, minutes, seconds text
+* @param boolean	$return_array	return the values as an array of data instead of a string
+* @param array		$units			an array of time units to display or return (d, h, m, s)
 *
-* @return string
+* @return string | array
 * @access public
 */
-function easy_time_total($secs=0, $full_format=false, $return_array=false)
+function easy_time_total($secs=0, $full_format=false, $return_array=false, $units=Array('d', 'h', 'm', 's'))
 {
 	if ($secs < 0) {
 		$suffix = ' ago';
@@ -131,6 +133,12 @@ function easy_time_total($secs=0, $full_format=false, $return_array=false)
 	$num_seconds = $secs;
 
 	$str = '';
+
+	// remove the values we dont want to show
+	if (!in_array('d', $units)) $num_days = 0;
+	if (!in_array('h', $units)) $num_hours = 0;
+	if (!in_array('m', $units)) $num_minutes = 0;
+	if (!in_array('s', $units)) $num_seconds = 0;
 
 	// if they want the full string version
 	if ($full_format) {
