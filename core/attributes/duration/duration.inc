@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: duration.inc,v 1.3 2005/05/16 06:36:31 lwright Exp $
+* $Id: duration.inc,v 1.4 2005/05/26 02:57:41 dmckee Exp $
 *
 */
 
@@ -37,7 +37,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
 * @author	Tom Barrett			<tbarrett@squiz.net>
 *
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -46,10 +46,10 @@ class Asset_Attribute_Duration extends Asset_Attribute
 
 
 	var $units = Array(
-						'days'		=> 86400,
-						'hours'		=> 3600,
-						'minutes'	=> 60,
-						'seconds'	=> 1,
+					'days'		=> 86400,
+					'hours'		=> 3600,
+					'minutes'	=> 60,
+					'seconds'	=> 1,
 				 );
 
 
@@ -89,6 +89,29 @@ class Asset_Attribute_Duration extends Asset_Attribute
 
 
 	/**
+	* Returns an array of the current units and their actual values
+	*
+	* @return Array
+	* @access public
+	*/
+	function getUnitValues()
+	{
+		$unit_values = Array();
+		$biggest_units	= array_get_index($this->_edit_params, 'biggest_units', $this->units['days']);
+		$smallest_units	= array_get_index($this->_edit_params, 'smallest_units', $this->units['minutes']);
+		$remaining_value = $this->value;
+		foreach ($this->units as $current_name => $current_units) {
+			if ($current_units >= $smallest_units && $current_units <= $biggest_units) {
+				$current_value = (int) ($remaining_value / $current_units);
+				$unit_values[$current_name] = $current_value;
+				$remaining_value -= $current_value * $current_units;
+			}
+		}
+		return $unit_values;
+	}//end getUnitValues()
+
+
+	/**
 	* Prints the interface for filling in a value
 	*
 	* @param string		$prefix		prefix for the form element
@@ -101,24 +124,61 @@ class Asset_Attribute_Duration extends Asset_Attribute
 		$biggest_units	= array_get_index($this->_edit_params, 'biggest_units', $this->units['days']);
 		$smallest_units	= array_get_index($this->_edit_params, 'smallest_units', $this->units['minutes']);
 
+		//moves smallest unit to the lowest unit above the smallest unit that has a value
+		if ($read_only) {
+			$all_values = array_reverse($this->getUnitValues(), true);
+			$set = false;
+			foreach ($all_values as $unit_name => $value) {
+				if ($set) $smallest_units = $this->units[$unit_name];
+				if ($this->units[$unit_name] == $smallest_units){
+					if ($value == 0) {
+						$set = true;
+					} else {
+						break;
+					}
+				}
+			}
+		}
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 		$remaining_value = $this->value;
+		$last_value = 0;
+		$printed_any = false;
 		foreach ($this->units as $current_name => $current_units) {
 			if ($current_units >= $smallest_units && $current_units <= $biggest_units) {
 				$current_value = (int) ($remaining_value / $current_units);
 				$remaining_value -= $current_value * $current_units;
+
+				//modified below to only print duration units that have a value other than 0 when read-only is set
 				if ($smallest_units != $biggest_units) {
-					if ($current_units == $smallest_units) {
-						echo ' and ';
-					} elseif ($current_units != $biggest_units) {
-						echo ', ';
+					if (!$read_only) {
+						if ($current_units == $smallest_units) {
+							echo ' and ';
+						} else if ($current_units != $biggest_units) {
+							echo ', ';
+						}
+					} else {
+						if ($current_value != 0) {
+							if ($current_units == $smallest_units && $printed_any) {
+								echo ' and ';
+							} else if ($current_units != $biggest_units && $printed_any) {
+								echo ', ';
+							}
+						}
 					}
 				}
 				if ($read_only) {
-					echo ' '.$current_value.' '.$current_name;
+					if ($current_value != 0) {
+						if ($current_value == 1) {
+							// If singular, strip the plural 's' off the name
+							$current_name = substr($current_name, 0, -1);
+						}
+						echo ' '.$current_value.' '.$current_name;
+						$printed_any = true;
+					}
 				} else {
 					text_box($prefix.'_'.$current_name, $current_value, 2, 0, false, ' onkeypress="return checkDurationValue(this, event)" onblur="updateDurationValues(this)" style="width:4ex"');
 					echo '<label for="'.$prefix.'_'.$current_name.'"> '.$current_name.'</label>';
+					$printed_any = true;
 				}
 			}
 		}
@@ -138,7 +198,9 @@ class Asset_Attribute_Duration extends Asset_Attribute
 		$biggest_units	= array_get_index($this->_edit_params, 'biggest_units', $this->units['days']);
 		$smallest_units	= array_get_index($this->_edit_params, 'smallest_units', $this->units['minutes']);
 
-		if (!isset($_REQUEST[$prefix.'_'.array_search($biggest_units, $this->units)])) return false;
+		if (!isset($_REQUEST[$prefix.'_'.array_search($biggest_units, $this->units)])) {
+			return false;
+		}
 
 		$res = 0;
 		foreach ($this->units as $name => $number) {
@@ -168,9 +230,7 @@ class Asset_Attribute_Duration extends Asset_Attribute
 		$value = trim($value);
 
 
-		if ($value < 0) {
-			$value = $this->_default_value;
-		}
+		if ($value < 0) $value = $this->_default_value;
 
 		$new_value = (int)$value;
 
