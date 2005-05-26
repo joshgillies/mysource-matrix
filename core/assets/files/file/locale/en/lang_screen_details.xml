@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.1 2005/03/30 00:39:43 lwright Exp $
+* $Id: lang_screen_details.xml,v 1.2 2005/05/26 04:35:08 ndvries Exp $
 *
 */
 -->
@@ -28,6 +28,10 @@
 		<field attribute="name">
 			<display_name>File Name</display_name>
 			<note />
+		</field>
+		<field attribute="title">
+			<display_name>Title</display_name>
+			<note>%description%</note>
 		</field>
 		<field attribute="allow_unrestricted">
 			<display_name>Allow Unrestricted Access</display_name>

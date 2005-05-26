@@ -18,18 +18,18 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.13 2005/05/20 01:46:14 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.14 2005/05/26 04:35:09 ndvries Exp $
 *
 */
 -->
 
 <contents>
 	<section name="Details" write_access="write:attributes">
-		<field attribute="name">
+		<field attribute="title">
 			<text width="25" height="1" />
 		</field>
-		<field attribute="allow_unrestricted">
-			<boolean true_text="yes" false_text="no" />
+		<field attribute="name">
+			<text width="25" height="1" />
 		</field>
 		<field>
 			<function_call>
@@ -37,10 +37,10 @@
 				<process_function name="processFileUpload" />
 			</function_call>
 		</field>
-		<field attribute="alt">
-			<text width="40" height="1" />
+		<field attribute="allow_unrestricted">
+			<boolean true_text="yes" false_text="no" />
 		</field>
-		<field attribute="title">
+		<field attribute="alt">
 			<text width="40" height="1" />
 		</field>
 		<field attribute="caption">

@@ -18,13 +18,16 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_create.xml,v 1.5 2005/04/11 02:40:51 ndvries Exp $
+* $Id: edit_interface_create.xml,v 1.6 2005/05/26 04:35:08 ndvries Exp $
 *
 */
 -->
 
 <contents screen="details">
 	<section name="Details">
+		<field attribute="title">
+			<text width="25" height="1" />
+		</field>
 		<field>
 			<display_name>Upload File</display_name>
 			<function_call>
@@ -47,9 +50,6 @@
 			</function_call>
 		</field>
 		<field attribute="alt">
-			<text width="40" height="1" />
-		</field>
-		<field attribute="title">
 			<text width="40" height="1" />
 		</field>
 		<field attribute="caption">

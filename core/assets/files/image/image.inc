@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.36 2005/04/21 00:24:15 gsherwood Exp $
+* $Id: image.inc,v 1.37 2005/05/26 04:35:08 ndvries Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -74,12 +74,9 @@ class Image extends File
 	{
 		if (!$this->id) return true;
 
-		// if there are no values for the alt or title use the filename
+		// if there are no values for the alt attribute use the filename
 		if (isset($this->_tmp['vars_set']['alt']) && trim($this->attr('alt')) == '') {
 			$this->setAttrValue('alt', $this->attr('name'));
-		}//end if
-		if (isset($this->_tmp['vars_set']['title']) && trim($this->attr('title')) == '') {
-			$this->setAttrValue('title', $this->attr('name'));
 		}//end if
 
 		return parent::saveAttributes($dont_run_updated);
@@ -102,7 +99,6 @@ class Image extends File
 	{
 		switch($name) {
 			case 'alt'   :
-			case 'title' :
 				$value = htmlspecialchars($value);
 			break;
 		}

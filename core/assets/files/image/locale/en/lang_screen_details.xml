@@ -18,37 +18,13 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.1 2005/03/30 00:39:44 lwright Exp $
+* $Id: lang_screen_details.xml,v 1.2 2005/05/26 04:35:09 ndvries Exp $
 *
 */
 -->
 
 <contents>
 	<section name="Details">
-		<field attribute="name">
-			<display_name>File Name</display_name>
-			<note />
-		</field>
-		<field attribute="allow_unrestricted">
-			<display_name>Allow Unrestricted Access</display_name>
-			<note>Set to Yes to allow this file to be be served by the web server if it is Live and publically readable.</note>
-		</field>
-		<field>
-			<display_name>Upload File</display_name>
-			<note />
-			<function_call>
-				<paint_function		name="paintFileUpload" />
-				<process_function	name="processFileUpload" />
-			</function_call>
-		</field>
-		<field>
-			<display_name>Choose Pre-Uploaded File</display_name>
-			<note />
-			<function_call>
-				<paint_function   name="paintFileChooser"   />
-				<process_function name="processFileChooser" />
-			</function_call>
-		</field>
 		<field>
 			<display_name></display_name>
 			<note></note>
@@ -59,10 +35,6 @@
 		</field>
 		<field attribute="alt">
 			<display_name>Alt</display_name>
-			<note>%description%</note>
-		</field>
-		<field attribute="title">
-			<display_name>Title</display_name>
 			<note>%description%</note>
 		</field>
 		<field attribute="caption">

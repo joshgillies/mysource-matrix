@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_management.inc,v 1.12 2005/02/03 18:52:10 brobertson Exp $
+* $Id: image_management.inc,v 1.13 2005/05/26 04:35:08 ndvries Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -52,12 +52,6 @@ class Image_Management extends Asset_Management
 								'type'			=> 'text',
 								'default'		=> '',
 								'description'	=> 'The text to be used in the Alt attribute of the IMG tag',
-							),
-							'title' => Array(
-								'added'			=> '0.2',
-								'type'			=> 'text',
-								'default'		=> '',
-								'description'	=> 'The text to be used in the Title attribute of the IMG tag',
 							),
 							'caption' => Array(
 								'added'			=> '0.2',
@@ -94,7 +88,6 @@ class Image_Management extends Asset_Management
 								'default'   => 1,
 							),
 					);
-
 
 
 	}//end constructor

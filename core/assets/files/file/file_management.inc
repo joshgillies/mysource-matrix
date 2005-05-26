@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_management.inc,v 1.11 2005/05/02 07:24:53 ndvries Exp $
+* $Id: file_management.inc,v 1.12 2005/05/26 04:35:08 ndvries Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -62,6 +62,12 @@ class File_Management extends Asset_Management
 													'description'	=> 'Allows the use of the __data URL if true',
 													'parameters'	=> Array('allow_empty' => false),
 													'update_fn'		=> '',
+												   ),
+						'title'					=> Array(
+													'added'			=> '0.3',
+													'type'			=> 'text',
+													'default'		=> '',
+													'description'	=> 'Friendly name for the file',
 												   ),
 					  );
 

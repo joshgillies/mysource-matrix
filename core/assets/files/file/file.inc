@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.93 2005/05/18 01:26:55 lwright Exp $
+* $Id: file.inc,v 1.94 2005/05/26 04:35:08 ndvries Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.93 $
+* @version $Revision: 1.94 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -700,6 +700,11 @@ class File extends Asset
 	{
 		if (!$this->id) return true;
 
+		// if there are no values for the title attribute use the filename
+		if (trim($this->attr('title')) == '') {
+			$this->setAttrValue('title', $this->attr('name'));
+		}//end if
+
 		if (isset($this->_tmp['vars_set']['name'])) {
 
 			$uploading_file = !empty($this->_tmp['uploading_file']);
@@ -824,6 +829,8 @@ class File extends Asset
 				$value = $old_filename;
 				return false;
 			}
+		} else if ($name == 'title') {
+			$value = htmlspecialchars($value);
 		}
 
 		return parent::setAttrValue($name, $value);
@@ -985,7 +992,7 @@ class File extends Asset
 	*/
 	function _getName($short_name=false)
 	{
-		return $this->attr('name');
+		return (($short_name) ? $this->attr('title') : $this->attr('name'));
 
 	}//end _getName()
 
