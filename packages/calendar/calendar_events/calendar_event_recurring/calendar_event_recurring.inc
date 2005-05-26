@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.60 2005/05/26 03:30:28 amiller Exp $
+* $Id: calendar_event_recurring.inc,v 1.61 2005/05/26 06:37:20 amiller Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.60 $
+* @version $Revision: 1.61 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -656,7 +656,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 			foreach ($cancellations as $cancelled_event) {
 				$event = &$GLOBALS['SQ_SYSTEM']->am->getAsset($cancelled_event['minorid'], $cancelled_event['minor_type_code']);
 				if ($event->readAccess()) {
-					$exception_string .= date('Ymd\THis', iso8601_ts($cancelled_event['value'])).',';
+					$exception_string .= date('Ymd\THis', iso8601_ts($event->attr('start_date'))).',';
 				}
 			}
 			if (substr($exception_string, -1) == ',') {
