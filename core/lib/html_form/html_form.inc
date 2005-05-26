@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.86 2005/05/25 04:31:38 dheppell Exp $
+* $Id: html_form.inc,v 1.87 2005/05/26 07:04:53 tbarrett Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.86 $
+* @version $Revision: 1.87 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -728,18 +728,16 @@ function asset_finder($name, $assetid=0, $type_codes=Array(), $map_frame='sq_sid
 	hidden_field($name.'[assetid]', $assetid);
 	hidden_field($name.'[url]', '');
 	// call the js function to set where the finder frame is
-	?>
-		<script type="text/javascript">
-			<?php echo $map_frame; ?>.set_finder(<?php echo $finder_frame; ?>);
-		</script>
-	<?php
-
 	text_box($safe_name.'_label', $label, 30, 0, false, 'readonly="readonly" class="sq-form-asset-finder" onfocus="this.tmp = this.value;" onblur="this.value = this.tmp;"');
 
-	// don't display the buttons when in limbo
-	if (!SQ_IN_LIMBO) {
+	// only print the buttons if in the backend (where there's an asset map frame available)
+	if (SQ_IN_BACKEND) {
+		?>
+			<script type="text/javascript">
+				<?php echo $map_frame; ?>.set_finder(<?php echo $finder_frame; ?>);
+			</script>
+		<?php
 		normal_button($safe_name.'_change_btn', translate('change'), $map_frame.'.asset_finder_change_btn_press(\''.$name.'\', \''.$safe_name.'\', \''.addslashes($type_codes).'\', '.$done_fn.');');
-
 		if (in_array('clear', $buttons)) {
 			normal_button($safe_name.'_clear_btn', translate('clear'), $map_frame.'.asset_finder_clear_btn_press(\''.$name.'\', \''.$safe_name.'\');');
 		}
@@ -778,21 +776,24 @@ function multiple_asset_finder($name, $assetids=Array(), $type_codes=Array(), $m
 		asset_finder($name.'['.$index.']', $assetid, $type_codes, $map_frame, $new_window, $done_fn);
 		echo '<br />';
 	}
-	$index = count($assetids);
-	asset_finder($name.'['.$index.']', 0, $type_codes, $map_frame, $new_window, $done_fn, Array('clear'));
-	$index++;
 
-	if (!empty($map_frame)) {
-		$map_frame_exp = trim('parent.frames["'.$map_frame.'"]', '.');
-	} else {
-		$map_frame_exp = 'top';
+	if (SQ_IN_BACKEND) {
+		$index = count($assetids);
+		asset_finder($name.'['.$index.']', 0, $type_codes, $map_frame, $new_window, $done_fn, Array('clear'));
+		$index++;
+
+		if (!empty($map_frame)) {
+			$map_frame_exp = trim('parent.frames["'.$map_frame.'"]', '.');
+		} else {
+			$map_frame_exp = 'top';
+		}
+
+		$safe_name = 'sq_asset_finder_'.preg_replace('/[^A-Za-z0-9]/', '_', $name);
+		$type_codes_string = get_type_codes_string($type_codes);
+		echo '<input type="button" value="'.translate('more').'..." onclick="addNewAssetFinder(this, \''.$name.'\', \''.$safe_name.'\', \''.addslashes($type_codes_string).'\', \''.htmlentities($map_frame_exp).'\', '.$done_fn.', '.(in_array('clear', $buttons) ? 'true' : 'false').')" />';
+		echo '<br />';
+		echo '</div>';
 	}
-
-	$safe_name = 'sq_asset_finder_'.preg_replace('/[^A-Za-z0-9]/', '_', $name);
-	$type_codes_string = get_type_codes_string($type_codes);
-	echo '<input type="button" value="'.translate('more').'..." onclick="addNewAssetFinder(this, \''.$name.'\', \''.$safe_name.'\', \''.addslashes($type_codes_string).'\', \''.htmlentities($map_frame_exp).'\', '.$done_fn.', '.(in_array('clear', $buttons) ? 'true' : 'false').')" />';
-	echo '<br />';
-	echo '</div>';
 
 }//end multiple_asset_finder()
 
