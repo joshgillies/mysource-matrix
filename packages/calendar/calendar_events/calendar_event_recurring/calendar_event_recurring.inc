@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.59 2005/05/26 02:24:35 amiller Exp $
+* $Id: calendar_event_recurring.inc,v 1.60 2005/05/26 03:30:28 amiller Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.59 $
+* @version $Revision: 1.60 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -642,6 +642,33 @@ class Calendar_Event_Recurring extends Calendar_Event
 
 
 	/**
+	* Checks for cancellations and creates the iCalendar exception string for each one
+	*
+	* @return string
+	* @access public
+	*/
+	function getiCalExceptions($id=null)
+	{
+		$exception_string = '';
+		if ($this->id <> 0) {
+			$cancellations = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_ALL, Array('calendar_event_cancellation'), false, 'major');
+
+			foreach ($cancellations as $cancelled_event) {
+				$event = &$GLOBALS['SQ_SYSTEM']->am->getAsset($cancelled_event['minorid'], $cancelled_event['minor_type_code']);
+				if ($event->readAccess()) {
+					$exception_string .= date('Ymd\THis', iso8601_ts($cancelled_event['value'])).',';
+				}
+			}
+			if (substr($exception_string, -1) == ',') {
+				$exception_string = substr($exception_string, 0, -1);
+			}
+		}
+		return $exception_string;
+
+	}//end getiCalExceptions()
+
+
+	/**
 	* Called by the design to print the body of this asset
 	*
 	* @return void
@@ -724,6 +751,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 		$keywords = parent::getAssetKeywords($descriptions);
 		$keywords['event_frequency'] = Array('value'=> $this->getFriendlyFrequency());
 		$keywords['event_ical_freqency'] = Array('value' => $this->getiCalFrequency());
+		$keywords['event_ical_exceptions'] = Array('value' => $this->getiCalExceptions());
 		unset($keywords['asset_attribute_frequency']);
 		$write_access = $this->writeAccess('');
 
@@ -755,6 +783,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 		if ($descriptions) {
 			$keywords['event_frequency']['description']         = translate('cal_event_keyword_event_frequency');
 			$keywords['event_ical_frequency']['description']    = translate('cal_event_keyword_event_ical_frequency');
+			$keywords['event_ical_exceptions']['description']	= translate('cal_event_keyword_event_ical_exceptions');
 			$keywords['cancel_link']['description']             = translate('cal_event_keyword_cancel_link');
 			$keywords['modify_link']['description']             = translate('cal_event_keyword_modify_link');
 			$keywords['instance_start_datetime']['description'] = translate('cal_event_keyword_instance_start_datetime');

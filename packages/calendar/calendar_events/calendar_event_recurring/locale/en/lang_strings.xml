@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.2 2005/05/26 02:24:51 amiller Exp $
+* $Id: lang_strings.xml,v 1.3 2005/05/26 03:30:36 amiller Exp $
 *
 *
 * Calendar Package Localised Strings File
@@ -45,6 +45,7 @@
 <string source="cal_event_recur_modified_notice">This event has been modified for today: please see <![CDATA[<a href="%1$s">event %2$s</a>]]></string>
 <string source="cal_event_keyword_event_frequency">The frequency with which this event recurs</string>
 <string source="cal_event_keyword_event_ical_frequency">The frequency with which this event recurs in iCalendar format</string>
+<string source="cal_event_keyword_event_ical_exceptions">The exceptions for this recurring event in iCalendar format</string>
 <string source="cal_event_keyword_cancel_link">Link to cancel this instance of the event</string>
 <string source="cal_event_keyword_modify_link">Link to modify this instance of the event</string>
 <string source="cal_event_keyword_instance_start_datetime">Start date/time of this instance of the event</string>
