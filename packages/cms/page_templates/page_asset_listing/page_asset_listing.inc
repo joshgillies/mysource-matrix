@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.73 2005/05/24 00:13:48 arailean Exp $
+* $Id: page_asset_listing.inc,v 1.74 2005/05/26 04:22:05 arailean Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.73 $
+* @version $Revision: 1.74 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -194,7 +194,6 @@ class Page_Asset_Listing extends Listing_Engine
 			$replacements['page_number'] = $result_page;
 			$replacements['first_asset_position'] = $num_per_page * ($result_page - 1) + 1;
 			$replacements['last_asset_position'] = min($num_kids, $num_per_page * $result_page);
-			$replacements['root_nodes'] = implode(',', $this->getRootNodes());
 
 			// print the contents of page - replacing the global keywords
 			$format_bodycopy->setKeywordReplacements($replacements);
@@ -416,7 +415,6 @@ class Page_Asset_Listing extends Listing_Engine
 						'page_asset_count'		=> translate('cms_listing_page_asset_count'),
 						'first_asset_position'	=> translate('cms_listing_first_asset_position'),
 						'last_asset_position'	=> translate('cms_listing_last_asset_position'),
-						'root_nodes'			=> translate('cms_listing_delimited_root_nodes'),
 					 );
 
 		return $keywords;
