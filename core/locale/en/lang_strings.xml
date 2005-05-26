@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.11 2005/05/20 01:46:18 lwright Exp $
+* $Id: lang_strings.xml,v 1.12 2005/05/26 00:41:21 lwright Exp $
 *
 */
 
@@ -73,6 +73,7 @@
 	<string source="current_lock_status">Current Lock Status</string>
 	<string source="current_variety">Current Variety</string>
 	<string source="current">Current</string>
+	<string source="current_asset">Current Asset</string>
 	<string source="change_question">Change ?</string>
 	<string source="custom_error_text">Custom Error Text</string>
 	<string source="customise_row">Customise Row</string>
