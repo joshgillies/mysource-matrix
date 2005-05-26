@@ -11,13 +11,14 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.58 2005/05/18 04:59:59 tbarrett Exp $
+* $Id: calendar_event_recurring.inc,v 1.59 2005/05/26 02:24:35 amiller Exp $
 *
 */
 
 require_once  dirname(__FILE__).'/../../calendar_event/calendar_event.inc';
 require_once  dirname(__FILE__).'/../../lib/calendar_common.inc';
 require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
+require_once SQ_FUDGE_PATH.'/general/general.inc';
 require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 
 /**
@@ -27,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.58 $
+* @version $Revision: 1.59 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -88,7 +89,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 		if (is_null($after)) $after = date('Y-m-d');
 
 		// if we are calling statically make sure that we have all our arguments
-		if ((!(isset($this) && is_a($this, "Calendar_Event_Recurring"))) && (func_num_args() < 5)) {
+		if ((!(isset($this) && is_a($this, 'Calendar_Event_Recurring'))) && (func_num_args() < 5)) {
 			trigger_localised_error('CAL0030', E_USER_ERROR);
 		}
 
@@ -134,11 +135,12 @@ class Calendar_Event_Recurring extends Calendar_Event
 			case 'MFN':
 				if (($month_diff % $interval) != 0) {
 					increment_month($res_month, $res_year, ($interval - ($month_diff % $interval)));
-				} elseif ($res_day > $start_day) {
+				} else if ($res_day > $start_day) {
 					increment_month($res_month, $res_year, $interval);
 				}
-				while ($start_day > days_in_month($res_month, $res_year))
+				while ($start_day > days_in_month($res_month, $res_year)) {
 					increment_month($res_month, $res_year, $interval);
+				}
 				$result = sprintf('%04d-%02d-%02d',$res_year,$res_month,$start_day);
 			break;
 
@@ -151,10 +153,10 @@ class Calendar_Event_Recurring extends Calendar_Event
 				if (($month_diff % $interval) != 0) {
 					// go to the next valid month
 					increment_month($res_month, $res_year, $interval - ($month_diff % $interval));
-				} elseif ((int)($after_day / 7) > $target_week_of_month) {
+				} else if ((int)($after_day / 7) > $target_week_of_month) {
 					// we're in a valid month, but too late in it, so go to next valid month
 					increment_month($res_month, $res_year, $interval);
-				} elseif ((int)($after_day / 7) == $target_week_of_month) {
+				} else if ((int)($after_day / 7) == $target_week_of_month) {
 					$res_day = max($res_day, $after_day);
 				}
 
@@ -182,7 +184,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 
 				if (($month_diff % $interval) != 0) {
 					increment_month($res_month, $res_year, $interval - ($month_diff % $interval));
-				} elseif ((days_in_month($res_month, $res_year) - $after_day) < $target_days_from_end) {
+				} else if ((days_in_month($res_month, $res_year) - $after_day) < $target_days_from_end) {
 					increment_month($res_month, $res_year, $interval);
 				}
 
@@ -204,10 +206,10 @@ class Calendar_Event_Recurring extends Calendar_Event
 				if (($month_diff % $interval) != 0) {
 					// go to the next valid month
 					increment_month($res_month, $res_year, $interval - ($month_diff % $interval));
-				} elseif ((int)((days_in_month($after_month, $after_year) - $after_day) / 7) < $target_weeks_from_end) {
+				} else if ((int)((days_in_month($after_month, $after_year) - $after_day) / 7) < $target_weeks_from_end) {
 					// we're too far into this month, so go to the next valid month
 					increment_month($res_month, $res_year, $interval);
-				} elseif ((int)((days_in_month($after_month, $after_year) - $after_day) / 7) == $target_weeks_from_end) {
+				} else if ((int)((days_in_month($after_month, $after_year) - $after_day) / 7) == $target_weeks_from_end) {
 					// we're in the right week so start from 'now', not the begining of the week,
 					//$min_day = $start_day;
 				}
@@ -277,11 +279,15 @@ class Calendar_Event_Recurring extends Calendar_Event
 			$stop = $this->attr('stop_date');
 		}
 		if (is_null($date)) $date = date('Y-m-d');
-		if (strpos($stop, '----------') !== false) $stop = null;
+		if (strpos($stop, '----------') !== false) {
+			$stop = null;
+		}
 
 		// dispose of trivial cases
 		if ($start > $date) return false;
-		if ((!is_null($stop)) && ($stop < $date)) return false;
+		if ((!is_null($stop)) && ($stop < $date)) {
+			return false;
+		}
 
 		// get components and get into it
 		$date_components = get_date_components($date);
@@ -418,12 +424,122 @@ class Calendar_Event_Recurring extends Calendar_Event
 			$res['start'] = $this->getFirstOccurrenceAfter($first_occur);
 		}
 		$res['end'] = add_days_to_iso($res['start'], $this->getDuration() / -86400);
-		if ($this->getStartTime()) $res['start'] .= ' '.$this->getStartTime();
-		if ($this->getEndTime()) $res['end'] .= ' '.$this->getEndTime();
+		if ($this->getStartTime()) {
+			$res['start'] .= ' '.$this->getStartTime();
+		}
+		if ($this->getEndTime()) {
+			$res['end'] .= ' '.$this->getEndTime();
+		}
 
 		return $res;
 
 	}//end getInstanceDates()
+
+
+	/**
+	* Returns this event's frequency in iCal Recurring Rule format
+	*
+	* @return string
+	* @access public
+	*/
+	function getiCalFrequency()
+	{
+		$freq_type = substr($this->attr('frequency'), 0, 3);
+		$interval = substr($this->attr('frequency'), 3);
+		$rule = '';
+		switch ($freq_type) {
+			//every day (or x days)
+			case 'DED':
+				if ($interval) {
+					$rule .= 'FREQ=DAILY;INTERVAL='.$interval;
+				} else {
+					$rule .= 'FREQ=DAILY;INTERVAL=1';
+				}
+			break;
+
+			// every weekday
+			case 'DWD':
+				if ($interval) {
+					$rule .= 'FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR;INTERVAL='.$interval;
+				} else {
+					$rule .= 'FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR;INTERVAL=1';
+				}
+			break;
+
+			// every week (or x weeks)
+			case 'WEW':
+				if ($interval) {
+					$rule .= 'FREQ=WEEKLY;INTERVAL='.$interval;
+				} else {
+					$rule .= 'FREQ=WEEKLY;INTERVAL=1';
+				}
+
+			break;
+
+			// every month (or x months) on the yth day of the month
+			case 'MFN':
+				$day = (int)substr($this->attr('start_date'), 8, 2);
+				if ($interval) {
+					$rule .= 'FREQ=MONTHLY;INTERVAL='.$interval;
+				} else {
+					$rule .= 'FREQ=MONTHLY;INTERVAL=1';
+				}
+			break;
+
+			// every month (or x months) on the yth weekday of the month
+			case 'MFW':
+				$day = (int)substr($this->attr('start_date'), 8, 2);
+				$counter = (int)(($day-1) / 7) + 1;
+				$day_of_week = strtoupper(substr(date('l', iso8601_ts($this->attr('start_date'))), 0, 2));
+
+				if ($interval) {
+					$rule .= 'FREQ=MONTHLY;BYDAY='.$counter.$day_of_week.';INTERVAL='.$interval;
+				} else {
+					$rule .= 'FREQ=MONTHLY;BYDAY='.$counter.$day_of_week.';INTERVAL=1';
+				}
+			break;
+
+			// every month (or x months) on the yth LAST day of the month
+			case 'MRN':
+				$day = (int)substr($this->attr('start_date'), 8, 2);
+				$month = (int)substr($this->attr('start_date'), 5, 2);
+				$year = (int)substr($this->attr('start_date'), 0, 4);
+				$month_length = date('j', strtotime('yesterday', iso8601_ts($year.'-'.($month+1).'-01')));
+				$day_of_month = (int) $month_length - $day + 1;
+
+				if ($interval) {
+					$rule .= 'FREQ=MONTHLY;INTERVAL='.$interval.';BYMONTHDAY=-'.$day_of_month;
+				} else {
+					$rule .= 'FREQ=MONTHLY;BYMONTHDAY=-'.$day_of_month;
+				}
+			break;
+
+			// every month (or x months) on the yth LAST weekday of the month
+			case 'MRW':
+				$day = (int)substr($this->attr('start_date'), 8, 2);
+				$day_of_week = strtoupper(substr(date('l', iso8601_ts($this->attr('start_date'))), 0, 2));
+				$month = (int)substr($this->attr('start_date'), 5, 2);
+				$year = (int)substr($this->attr('start_date'), 0, 4);
+				$month_length = date('j', strtotime('yesterday', iso8601_ts($year.'-'.($month+1).'-01')));
+				$day_of_month = (int)((($month_length - $day + 1) / 7) + 1);
+
+				if ($interval) {
+					$rule .= 'FREQ=MONTHLY;INTERVAL='.$interval.';BYDAY=-'.$day_of_month.$day_of_week;
+				} else {
+					$rule .= 'FREQ=MONTHLY;INTERVAL=1;BYDAY=-'.$day_of_month.$day_of_week;
+				}
+			break;
+
+		}// end switch
+
+		// recurs until
+		$stop_date_attr =& $this->getAttribute('stop_date');
+		if ($stop_date_attr) {
+			$rule .= ';UNTIL='.date('Ymd\THis', iso8601_ts($stop_date_attr->value));
+		}
+		return $rule;
+
+	}//end getiCalFrequency()
 
 
 	/**
@@ -456,7 +572,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 			case 'WEW':
 				$dow = date('l', iso8601_ts($this->attr('start_date')));
 				if ($interval) {
-					$res = translate('cal_event_every_x_weeks', $interva, $dow);
+					$res = translate('cal_event_every_x_weeks', $interval, $dow);
 				} else {
 					$res = translate('cal_event_every_week', $dow);
 				}
@@ -515,7 +631,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 				$res = translate('cal_event_unknown_frequency', $this->attr('frequency'));
 		}
 
-		$stop_date_attr = $this->getAttribute('stop_date');
+		$stop_date_attr =& $this->getAttribute('stop_date');
 		if (($stop_timestamp = $stop_date_attr->getTimestamp()) == -1) {
 			return $res.', '.translate('cal_event_recur_until_further_notice');
 		} else {
@@ -607,6 +723,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 	{
 		$keywords = parent::getAssetKeywords($descriptions);
 		$keywords['event_frequency'] = Array('value'=> $this->getFriendlyFrequency());
+		$keywords['event_ical_freqency'] = Array('value' => $this->getiCalFrequency());
 		unset($keywords['asset_attribute_frequency']);
 		$write_access = $this->writeAccess('');
 
@@ -637,6 +754,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 
 		if ($descriptions) {
 			$keywords['event_frequency']['description']         = translate('cal_event_keyword_event_frequency');
+			$keywords['event_ical_frequency']['description']    = translate('cal_event_keyword_event_ical_frequency');
 			$keywords['cancel_link']['description']             = translate('cal_event_keyword_cancel_link');
 			$keywords['modify_link']['description']             = translate('cal_event_keyword_modify_link');
 			$keywords['instance_start_datetime']['description'] = translate('cal_event_keyword_instance_start_datetime');
@@ -712,6 +830,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 		}
 
 	}//end _getModifyLink()
+
 
 	/**
 	* Process the specified action on this event, and return whatever html the action wants to show
@@ -819,7 +938,6 @@ class Calendar_Event_Recurring extends Calendar_Event
 		return $res;
 
 	}//end processEventAction()
-
 
 
 	/**
