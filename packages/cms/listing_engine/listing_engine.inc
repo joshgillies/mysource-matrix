@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.34 2005/05/25 04:25:28 lwright Exp $
+* $Id: listing_engine.inc,v 1.35 2005/05/26 04:19:05 arailean Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
 *
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -62,17 +62,20 @@ class Listing_Engine extends Page
 	*
 	* @var array
 	*/
-	var $contents_keywords = Array(
-								'sort_by'		=> 'Sort By',
-								'sort_order'	=> 'Sort Order',
-								'submit_button'	=> 'Submit Button',
-							 );
+	var $contents_keywords = Array();
 
 
 	function Listing_Engine($assetid=0)
 	{
 		$this->_ser_attrs = true;
 		$this->Page($assetid);
+
+		$this->contents_keywords = Array(
+									'sort_by'		=> translate('cms_listing_keyword_sort_by'),
+									'sort_order'	=> translate('cms_listing_keyword_sort_order'),
+									'submit_button'	=> translate('cms_listing_keyword_submit_button'),
+									'root_nodes'	=> translate('cms_listing_keyword_root_nodes'),
+								   );
 
 	}//end constructor
 
@@ -321,7 +324,7 @@ class Listing_Engine extends Page
 		} else {
 			echo $contents;
 		}
-		
+
 	}//end printBody()
 
 
@@ -382,19 +385,17 @@ class Listing_Engine extends Page
 	*/
 	function getKeywordReplacement($keyword)
 	{
+		if (empty($keyword)) return '';
+
 		$replacement = "%$keyword%";
-		switch ($keyword) {
-			case 'sort_by':
-				$replacement = $this->getSortByReplacement();
-			break;
-
-			case 'sort_order':
-				$replacement = $this->getSortOrderReplacement();
-			break;
-
-			case 'submit_button':
-				$replacement = $this->getSubmitButtonReplacement();
-			break;
+		if (isset($this->contents_keywords[$keyword])) {
+			$tmp_keyword = strtr($keyword, '_', ' ');
+			$tmp_keyword = ucfirst($tmp_keyword);
+			$tmp_keyword = preg_replace('/\s+/', '', $tmp_keyword);
+			$func_name = 'get'.$tmp_keyword.'KeywordReplacement';
+			if (method_exists($this, $func_name)) {
+				$replacement = $this->$func_name();
+			}
 		}
 
 		return $replacement;
@@ -1267,12 +1268,11 @@ class Listing_Engine extends Page
 				$keywords['asset_name_linked'] = translate('cms_listing_asset_name_linked');
 				$keywords['asset_short_name_linked'] = translate('cms_listing_asset_short_name_linked');
 				$keywords['asset_position'] = translate('cms_listing_asset_position');
-				$keywords['root_nodes'] = translate('cms_listing_delimited_root_nodes');
+				$keywords['root_nodes'] = translate('cms_listing_keyword_root_nodes');
 			}
 		}
 
 		$vars['keywords'] = array_merge($vars['keywords'], $keywords);
-
 
 	}//end onRequestKeywords()
 
@@ -1331,11 +1331,20 @@ class Listing_Engine extends Page
 			}
 
 			$parameter_map = &$this->getAttribute('parameter_map');
-			$dynamic_root_str = $parameter_map->getParameterValue('root_node');
+			$raw_dynamic_root_nodes = $parameter_map->getParameterValue('root_node');
+
 			// check if we have a dynamic parameter -- if so, let's do some security checks
-			if (!empty($dynamic_root_str)) {
+			if (!empty($raw_dynamic_root_nodes)) {
 				$dynamic_root_nodes = Array();
-				foreach (explode(',', $dynamic_root_str) as $dynamic_root) {
+				// note that dynamic roots can be supplied as an array of asset ids or
+				// as a comma delimited string of asset ids
+				if (!is_array($raw_dynamic_root_nodes)) {
+					$raw_dynamic_root_nodes = explode(',', $raw_dynamic_root_nodes);
+				}
+
+				foreach ($raw_dynamic_root_nodes as $dynamic_root) {
+					if (!strlen($dynamic_root)) continue;
+
 					$dynamic_parents = $GLOBALS['SQ_SYSTEM']->am->getParents($dynamic_root);
 
 					// first, check to see if the dynamic parameter specified is already one of the root nodes
@@ -1358,13 +1367,15 @@ class Listing_Engine extends Page
 					$root_asset_ids = $dynamic_root_nodes;
 				}
 			}
-
 			$this->_tmp['root_asset_ids'] = $root_asset_ids;
 		}
 
 		return $this->_tmp['root_asset_ids'];
 
 	}//end getRootNodes()
+
+
+	// Keyword Replacement Handlers
 
 
 	/**
@@ -1375,7 +1386,7 @@ class Listing_Engine extends Page
 	* @return string
 	* @access public
 	*/
-	function getSortByReplacement()
+	function getSortByKeywordReplacement()
 	{
 		$prefix = $this->getPrefix();
 		$field_name = $prefix.'_sort_by';
@@ -1398,7 +1409,7 @@ class Listing_Engine extends Page
 			combo_box($field_name, $options, false, $sort_by);
 		return ob_get_clean();
 
-	}//end getSortByReplacement()
+	}//end getSortByKeywordReplacement()
 
 
 	/**
@@ -1407,7 +1418,7 @@ class Listing_Engine extends Page
 	* @return string
 	* @access public
 	*/
-	function getSortOrderReplacement()
+	function getSortOrderKeywordReplacement()
 	{
 		$prefix = $this->getPrefix();
 		$field_name = $prefix.'_sort_direction';
@@ -1422,7 +1433,7 @@ class Listing_Engine extends Page
 			combo_box($field_name, $options, false, (int)$this->isDescending());
 		return ob_get_clean();
 
-	}//end getSortOrderReplacement()
+	}//end getSortOrderKeywordReplacement()
 
 
 	/**
@@ -1431,7 +1442,7 @@ class Listing_Engine extends Page
 	* @return string
 	* @access public
 	*/
-	function getSubmitButtonReplacement()
+	function getSubmitButtonKeywordReplacement()
 	{
 		$prefix = $this->getPrefix();
 		$field_name = $prefix.'_submit_button';
@@ -1443,7 +1454,21 @@ class Listing_Engine extends Page
 			submit_button($field_name, $button_text);
 		return ob_get_clean();
 
-	}//end getSubmitButtonReplacement()
+	}//end getSubmitButtonKeywordReplacement()
+
+
+	/**
+	* Get the replacement for "root_nodes" keyword
+	*
+	* @return string
+	* @access public
+	*/
+	function getRootNodesKeywordReplacement()
+	{
+		$root_nodes = $this->getRootNodes();
+		return implode(',', $root_nodes);
+
+	}//end getRootNodesKeywordReplacement()
 
 
 	/**
