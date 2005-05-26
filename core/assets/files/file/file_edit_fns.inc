@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_edit_fns.inc,v 1.59 2005/05/13 01:49:17 tbarrett Exp $
+* $Id: file_edit_fns.inc,v 1.60 2005/05/26 05:21:00 ndvries Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.59 $
+* @version $Revision: 1.60 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -327,24 +327,6 @@ class File_Edit_Fns extends Asset_Edit_Fns
 		return !empty($preuploads);
 
 	}//end havePreUploadedFiles()
-
-
-	/**
-	* Paint the interface for the asset paths
-	*
-	* @param object Asset				$owner	the asset whose interface we are painting
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
-	*
-	* @return boolean
-	* @access public
-	*/
-	function paintPaths(&$asset, &$o, $prefix)
-	{
-		echo translate('core_asset_paths_not_set', $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name')).'<br />';
-		echo translate('core_path_set_by_filename', $asset->getBackendHref('details'));
-
-	}//end paintPaths()
 
 
 //--        HELPERS        --//
