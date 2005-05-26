@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: password_rules_config.inc,v 1.5 2005/05/26 03:17:23 dmckee Exp $
+* $Id: password_rules_config.inc,v 1.6 2005/05/26 04:43:46 dmckee Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 */
 class Password_Rules_Config extends Config
@@ -158,11 +158,9 @@ class Password_Rules_Config extends Config
 
 		$class = get_class($this);
 
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
-
 		$o->openSection('Manage Password Rules');
 
-			
+
 			$o->openField('Minimum Length', '', 'Specifiy a minimum password length');
 				if ($write_access && $is_root) {
 					text_box($class.'[SQ_PASSWD_RULE_LENGTH]', SQ_PASSWD_RULE_LENGTH, 5);
