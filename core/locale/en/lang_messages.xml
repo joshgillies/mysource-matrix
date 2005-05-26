@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_messages.xml,v 1.3 2005/05/19 05:10:39 lwright Exp $
+* $Id: lang_messages.xml,v 1.4 2005/05/26 01:27:16 dmckee Exp $
 *
 * Core Internal Messages File
 */
@@ -240,7 +240,7 @@ Trigger "%trigger_name%" (#%triggerid%), Event: "%event%" broadcast by Asset: "%
 		<subject>Asset Made Live</subject>
 		<body>%type_code% "%asset_name%" has gone live from "%status%".\n\n
 
-You can view the asset <![CDATA[<SQ_MSG_LINK href="%asset_url%">here</SQ_MSG_LINK>]]>.</body>
+You can view the asset <![CDATA[<a href="%asset_url%">here</a>]]>.</body>
 	</message><!-- type-code, name, old-status, asset-url -->
 	<message type="asset.workflow.announce.approve">
 		<subject>Asset Changes Approved</subject>
