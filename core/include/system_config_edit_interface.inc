@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config_edit_interface.inc,v 1.17 2005/05/11 23:57:37 dheppell Exp $
+* $Id: system_config_edit_interface.inc,v 1.18 2005/05/26 03:17:23 dmckee Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *    Looks after the editing of the system config
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix
 */
 class System_Config_Edit_Interface extends MySource_Object
@@ -99,6 +99,7 @@ class System_Config_Edit_Interface extends MySource_Object
 							'external_tools_config'	=> translate('external_tools_configuration'),
 							'user_prefs'			=> translate('global_preferences'),
 							'password_rules_config'	=> translate('password_rules_configuration'),
+							'session_rules_config'	=> translate('session_rules_configuration'),
 						  );
 
 		foreach ($config_screens as $screen_code => $screen_name) {
@@ -115,6 +116,7 @@ class System_Config_Edit_Interface extends MySource_Object
 			case 'hipo_config' :
 			case 'external_tools_config' :
 			case 'password_rules_config' :
+			case 'session_rules_config' :
 
 				$config = null;
 
@@ -138,6 +140,10 @@ class System_Config_Edit_Interface extends MySource_Object
 					case 'password_rules_config' :
 						require_once SQ_INCLUDE_PATH.'/password_rules_config.inc';
 						$config = new Password_Rules_Config();
+						break;
+					case 'session_rules_config' :
+						require_once SQ_INCLUDE_PATH.'/session_rules_config.inc';
+						$config = new Session_Rules_Config();
 						break;
 
 				}// end switch
@@ -303,6 +309,7 @@ class System_Config_Edit_Interface extends MySource_Object
 
 			// output the new preference file
 			$str = '<'.'?php $preferences = '.var_export($new_preferences, true).'; ?'.'>';
+			bam($str);
 			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 			if (!string_to_file($str, SQ_DATA_PATH.'/private/conf/preferences.inc')) return false;
 

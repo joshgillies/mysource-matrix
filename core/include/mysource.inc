@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.113 2005/05/24 00:34:52 arailean Exp $
+* $Id: mysource.inc,v 1.114 2005/05/26 03:17:23 dmckee Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.113 $
+* @version $Revision: 1.114 $
 * @package MySource_Matrix
 */
 class MySource
@@ -295,7 +295,24 @@ class MySource
 			$this->_user_is_root      = $_SESSION['user_is_root'];
 			$this->_user_is_sys_admin = $_SESSION['user_is_sys_admin'];
 			$this->_user_is_public    = $_SESSION['user_is_public'];
-
+			
+			//change session expiry date depending on what level of user is logged in.
+			$new_expiry_date = 0;
+			if ($this->_user_is_root) {
+				header('Set-Cookie:SQ_SYSTEM_SESSION=root;path='.$path.';domain='.$domain.'expires=');
+			} else if ($this->_user_is_sys_admin) {
+				header('Set-Cookie:SQ_SYSTEM_SESSION=sysadmin;path=/dmckee_dev;domain=beta.squiz.net');
+			} else {
+				
+			}
+			header('Set-Cookie:SQ_SYSTEM_SESSION=public;path='.$path.';domain='.$domain.'expires='.$new_expiry_date);
+			
+			//check created date. If it's older than the session age limit set for this user type, clear session
+			if (!isset($_SESSION['session_created'])) {
+			} else {
+				
+			}
+			
 			// if we are using the 'a' querystring arg, remove any trailing exclamation marks
 			// that are used as termination characters in different kinds of content
 			if (isset($_REQUEST['a'])) {
@@ -311,7 +328,6 @@ class MySource
 		if (!empty($_REQUEST['SQ_ACTION'])) {
 			$this->_processGlobalActions();
 		}
-
 	}//end init()
 
 
