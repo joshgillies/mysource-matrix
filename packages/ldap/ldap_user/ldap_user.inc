@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_user.inc,v 1.11 2005/05/11 06:07:43 lwright Exp $
+* $Id: ldap_user.inc,v 1.12 2005/05/27 05:28:55 tbarrett Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/users/backend_user/backend_user.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -80,9 +80,7 @@ class Ldap_User extends Backend_User
 		}
 
 		// set the data paths
-		$this->data_path = $ldap->data_path.'/'.$data['dn'];
-		$this->data_path_suffix = $ldap->data_path_suffix.'/'.$data['dn'];
-		$this->data_path_public = $ldap->data_path_public.'/'.$data['dn'];
+		$this->_loadDataPaths();
 
 		// set variable values
 		$this->vars['dn']['value'] = $data['dn'];
