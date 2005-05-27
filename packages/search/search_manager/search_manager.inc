@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.55 2005/05/24 04:11:59 arailean Exp $
+* $Id: search_manager.inc,v 1.56 2005/05/27 06:39:25 rhoward Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.55 $
+* @version $Revision: 1.56 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -304,13 +304,16 @@ class Search_Manager extends Asset
 	}//end isWordIndexable()
 
 
+//--        WEIGHTING        --//
+
+
 	/**
 	* Sets the default component weighting for a particular asset type
 	*
 	* This does NOT create any new rows in defaults
 	*
 	* @param string		$type_code	the type of asset
-	* @param string		$component	the component being wieghted
+	* @param string		$component	the component being weighted
 	* @param int		$weighting	the new weighting of the component
 	*
 	* @return void

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_management.inc,v 1.11 2005/04/29 05:38:41 gsherwood Exp $
+* $Id: search_manager_management.inc,v 1.12 2005/05/27 06:39:25 rhoward Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.11 $ - 0.1
+* @version $Revision: 1.12 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -39,34 +39,39 @@ class Search_Manager_Management extends Asset_Management
 	{
 		$this->Asset_Management($pm);
 		$this->vars = Array(
-							'indexing'        => Array(
-													   'added'       => '0.1',
-													   'type'        => 'boolean',
-													   'default'     => false,
-													   'description' => 'Turns indexing on or off',
-													   'parameters'  => Array(
-																			  'allow_empty' => false,
-																			  ),
-													   ),
-							'min_word_length' => Array(
-													   'added'      => '0.1',
-													   'type'       => 'int',
-													   'default'    => '4',
-													   'parameters' => Array(
-																			 'allow_negative' => false,
-																			 ),
-													   ),
-							'noise_word_list' => Array(
-													   'added'   => '0.1',
-													   'type'    => 'serialise',
-													   'default' => Array('a','the','it','this'),
-													   ),
-							'white_word_list' => Array(
-													   'added'   => '0.1',
-													   'type'    => 'serialise',
-													   'default' => Array(),
-													   ),
-							);
+						'indexing'			=> Array(
+												'added'			=> '0.1',
+												'type'			=> 'boolean',
+												'default'		=> false,
+												'description'	=> 'Turns indexing on or off',
+												'parameters'	=> Array(
+																	'allow_empty' => false,
+																   ),
+											   ),
+						'min_word_length'	=> Array(
+												'added'			=> '0.1',
+												'type'			=> 'int',
+												'default'		=> '4',
+												'parameters'	=> Array(
+																	'allow_negative' => false,
+																   ),
+											   ),
+						'noise_word_list'	=> Array(
+												'added'		=> '0.1',
+												'type'		=> 'serialise',
+												'default'	=> Array(
+																'a',
+																'the',
+																'it',
+																'this'
+															   ),
+											   ),
+						'white_word_list'	=> Array(
+												'added'		=> '0.1',
+												'type'		=> 'serialise',
+												'default'	=> Array(),
+											   ),
+						);
 
 	}//end constructor
 
@@ -80,31 +85,32 @@ class Search_Manager_Management extends Asset_Management
 	function getEventList()
 	{
 		return Array(
-					 Array(
-						   'event_name'                 => 'assetDeleted',
-						   'broadcast_type_code'        => 'global',
-						   'broadcast_strict_type_code' => true,
-						   'options'	                => Array(
-																 'global' => true,
-																 ),
-						   ),
-					 Array(
-						   'event_name'                 => 'requestReindex',
-						   'broadcast_type_code'        => 'global',
-						   'broadcast_strict_type_code' => true,
-						   'options'	                => Array(
-																 'global' => true,
-																 ),
-						   ),
-					 Array(
-						   'event_name'                 => 'indexMetadata',
-						   'broadcast_type_code'        => 'global',
-						   'broadcast_strict_type_code' => true,
-						   'options'	                => Array(
-															     'global' => true,
-																 ),
-						   ),
-					 );
+				Array(
+					'event_name'					=> 'assetDeleted',
+					'broadcast_type_code'			=> 'global',
+					'broadcast_strict_type_code'	=> true,
+					'options'						=> Array(
+														'global'	=> true,
+													   ),
+				),
+				Array(
+					'event_name'					=> 'requestReindex',
+					'broadcast_type_code'			=> 'global',
+					'broadcast_strict_type_code'	=> true,
+					'options'						=> Array(
+														'global'	=> true,
+													   ),
+				),
+				Array(
+					'event_name'					=> 'indexMetadata',
+					'broadcast_type_code'			=> 'global',
+					'broadcast_strict_type_code'	=> true,
+					'options'						=> Array(
+														'global' => true,
+													   ),
+				),
+			   );
+
 	}//end getEventList()
 
 
