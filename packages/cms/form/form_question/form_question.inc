@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question.inc,v 1.56 2005/05/20 05:27:31 tbarrett Exp $
+* $Id: form_question.inc,v 1.57 2005/05/27 05:30:07 dmckee Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
 * @authro  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.56 $
+* @version $Revision: 1.57 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -106,9 +106,7 @@ class Form_Question extends Asset
 		$this->_questionid = $data['questionid'];
 
 		// set the data paths
-		$this->data_path = $form->data_path.'/'.$data['questionid'];
-		$this->data_path_suffix = $form->data_path_suffix.'/'.$data['questionid'];
-		$this->data_path_public = $form->data_path_public.'/'.$data['questionid'];
+		$this->_loadDataPaths();
 
 		$asset_attributes = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes(get_class($this), Array('name', 'type','default_val','attrid'));
 
