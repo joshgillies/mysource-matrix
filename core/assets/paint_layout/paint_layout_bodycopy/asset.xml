@@ -22,7 +22,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.1 2005/04/06 22:03:23 gnoel Exp $
+* $Id: asset.xml,v 1.2 2005/05/27 07:31:31 rhoward Exp $
 *
 */
 -->
@@ -36,6 +36,11 @@
 	<instantiable>yes</instantiable>
 	<allowed_access>system</allowed_access>
 	<parent_type>bodycopy</parent_type>
-	<requirements />
+	<requirements>
+		<requirement type="asset">
+			<code>bodycopy</code>
+			<version>0.2</version>
+		</requirement>
+	</requirements>
 	<flash_menu_path/>
 </asset_info>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: event_manager.inc,v 1.19 2005/05/19 17:24:21 gnoel Exp $
+* $Id: event_manager.inc,v 1.20 2005/05/27 07:32:38 rhoward Exp $
 *
 */
 
@@ -61,7 +61,7 @@
 * </PRE>
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix
 */
 class Event_Manager extends MySource_Object
@@ -180,13 +180,11 @@ class Event_Manager extends MySource_Object
 		// check the runtime events first
 		$this->_broadcastRuntimeEvents($broadcaster, $event_name, $vars);
 
-		// no point continuing if this object does not inherit from asset
-		if (!is_a($broadcaster, 'asset')) return true;
-		if (!$broadcaster->id) return;
-
 		// create a temp entry for the event listeners (runtime wide as event_manager is cached)
 		if (!isset($this->_tmp['event_listeners'])) {
-			if (!file_exists(SQ_DATA_PATH.'/private/events/event_listeners.inc')) return false;
+			if (!file_exists(SQ_DATA_PATH.'/private/events/event_listeners.inc')) {
+				return false;
+			}
 
 			require_once SQ_DATA_PATH.'/private/events/event_listeners.inc';
 			if (!isset($cached_event_listeners_array)) return false;
@@ -194,15 +192,18 @@ class Event_Manager extends MySource_Object
 		}
 
 		// if we don't have an entry for this event, then g.t.f.o
-		if (!isset($this->_tmp['event_listeners']['global'][$event_name]) && !isset($this->_tmp['event_listeners'][$broadcaster->type()][$event_name])) return false;
+		if (!isset($this->_tmp['event_listeners']['global'][$event_name]) && !isset($this->_tmp['event_listeners'][get_class($broadcaster)][$event_name])) {
+			return false;
+		}
+
 		$listeners = Array();
 		$listener_codes = Array();
 
 		if (isset($this->_tmp['event_listeners']['global'][$event_name])) {
 			$listener_codes += $this->_tmp['event_listeners']['global'][$event_name];
 		}
-		if (isset($this->_tmp['event_listeners'][$broadcaster->type()][$event_name])) {
-			$listener_codes += $this->_tmp['event_listeners'][$broadcaster->type()][$event_name];
+		if (isset($this->_tmp['event_listeners'][get_class($broadcaster)][$event_name])) {
+			$listener_codes += $this->_tmp['event_listeners'][get_class($broadcaster)][$event_name];
 		}
 
 		foreach ($listener_codes as $listener_type_code => $options) {
@@ -226,6 +227,10 @@ class Event_Manager extends MySource_Object
 
 			} else if ($options['indirect']) {
 
+				// no point continuing if this object does not inherit from asset
+				if (!is_a($broadcaster, 'asset')) return true;
+				if (!$broadcaster->id) return;
+
 				if ($options['is_dependant'] || $options['is_exclusive'] || $options['type_code']) {
 					$assetids = $this->_getDiscreteAssets($broadcaster->id, $listener_type_code, $side_of_link, $options);
 				} else {
@@ -241,11 +246,13 @@ class Event_Manager extends MySource_Object
 				}
 
 			} else {
+
 				$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($broadcaster->id, $options['link_type'], $listener_type_code, true, $options['side_of_link'], $options['value'], $options['is_dependant'], $options['is_exclusive']);
 				if (empty($links)) return false;
 
 				$assetids = Array();
 				foreach ($links as $link) $assetids[] = $link[$side_of_link.'id'];
+
 			}// end if
 
 			foreach ($assetids as $assetid) {
@@ -261,7 +268,6 @@ class Event_Manager extends MySource_Object
 		for (reset($listeners); null !== ($key = key($listeners)); next($listeners)) {
 			$listener =& $listeners[$key];
 			$function = 'on'.$event_name;
-
 			if (!method_exists($listener, $function)) {
 				trigger_localised_error('SYS0127', E_USER_WARNING, $function, $listener->type(), $asset->id);
 				return false;
@@ -427,11 +433,12 @@ class Event_Manager extends MySource_Object
 	*/
 	function installStaticEvents($listeners=Array(), $listener_type_code='', $recursive_call=false)
 	{
-		if (!is_array($listeners)|| empty($listeners)) return false;
+		if (!is_array($listeners)|| empty($listeners)) {
+			return false;
+		}
 		if (!isset($this->_tmp['event_listeners'])) $this->_tmp['event_listeners'] = Array();
 
-		foreach ($listeners as $info) {
-
+		foreach ($listeners as $index => $info) {
 			if (!isset($this->_tmp['event_listeners'][$info['broadcast_type_code']])) {
 				$this->_tmp['event_listeners'][$info['broadcast_type_code']] = Array();
 			}
@@ -453,11 +460,14 @@ class Event_Manager extends MySource_Object
 			// entries for these in the array
 
 			if (!$info['broadcast_strict_type_code'] && !$recursive_call) {
-				$type_codes = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($info['broadcast_type_code']);
-				if (empty($type_codes)) continue;
-				foreach ($type_codes as $type_code) {
-					$info['broadcast_type_code'] = $type_code;
-					$this->installStaticEvents(Array($info), $listener_type_code, true);
+				// only broadcast if the listener is installed, fail silently
+				if ($GLOBALS['SQ_SYSTEM']->am->installed($info['broadcast_type_code'])) {
+					$type_codes = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($info['broadcast_type_code']);
+					if (empty($type_codes)) continue;
+					foreach ($type_codes as $type_code) {
+						$info['broadcast_type_code'] = $type_code;
+						$this->installStaticEvents(Array($info), $listener_type_code, true);
+					}
 				}
 			}
 		}

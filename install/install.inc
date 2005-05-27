@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.inc,v 1.49 2005/05/17 01:56:01 lwright Exp $
+* $Id: install.inc,v 1.50 2005/05/27 07:32:42 rhoward Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * Purpose
 * Functions used to install and upgrade the system
 *
-* @version $Revision: 1.49 $
+* @version $Revision: 1.50 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -55,7 +55,9 @@ function regenerate_configs()
 	// Re-generate the Server Config to make sure that we get any new defines that may have been issued
 	require_once SQ_SYSTEM_ROOT.'/core/server/squiz_server_config.inc';
 	$squiz_server_cfg = new Squiz_Server_Config();
-	if (!$squiz_server_cfg->save(Array(), false)) return false;
+	if (!$squiz_server_cfg->save(Array(), false)) {
+		return false;
+	}
 
 	// Re-generate the HIPO Config to make sure that we get any new defines that may have been issued
 	require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_config.inc';
@@ -280,9 +282,7 @@ function install_core($package_list=Array())
 		} else {
 			$assets = $package_list['core'];
 			// If it wasn't an array at the core index, just make it empty
-			if (!is_array($assets)) {
-				$assets = Array();
-			}
+			if (!is_array($assets)) $assets = Array();
 		}
 	}
 	require_once SQ_CORE_PACKAGE_PATH.'/package_manager_core.inc';
@@ -296,9 +296,7 @@ function install_core($package_list=Array())
 	$message = $ms->newMessage(Array(), 'install.package.'.($result ? 'success' : 'fail'), $msg_reps);
 	$message->send();
 
-	if (!$result) {
-		exit(1);
-	}
+	if (!$result) exit(1);
 
 	$result = $pm->installSystemAssets();
 
@@ -337,7 +335,9 @@ function get_package_list()
 	$d = dir(SQ_PACKAGES_PATH);
 
 	while (false !== ($entry = $d->read())) {
-		if ($entry == '.' || $entry == '..') continue;
+		if ($entry == '.' || $entry == '..') {
+			continue;
+		}
 		// if this is a directory, process it
 		if ($entry != 'CVS' && is_dir(SQ_PACKAGES_PATH.'/'.$entry)) {
 			$packages[] = $entry;
@@ -373,6 +373,7 @@ function install_packages($package_assets=Array())
 	// Do we only install named packages?
 	$limit_packages = count($package_assets);
 	$packages = get_package_list();
+
 	foreach ($packages as $package) {
 		$assets = Array();
 		if ($limit_packages) {
@@ -382,9 +383,7 @@ function install_packages($package_assets=Array())
 			}
 			$assets = $package_assets[$package];
 			// If it wasn't an array at the core index, just quit.
-			if (!is_array($assets)) {
-				$assets = Array();
-			}
+			if (!is_array($assets)) $assets = Array();
 		}
 
 		$result = install_package($package, $assets);
@@ -426,7 +425,7 @@ function install_package($package, $package_assets=Array())
 		return $result;
 	}
 
-	$message_body = strtoupper($package)." PACKAGE ".(($result) ? "DONE SUCCESSFULLY" : "FAILED");
+	$message_body = strtoupper($package).' PACKAGE '.(($result) ? 'DONE SUCCESSFULLY' : 'FAILED');
 	$msg_reps = Array(
 					'package'	=> $package,
 				);
@@ -440,7 +439,7 @@ function install_package($package, $package_assets=Array())
 						'package'		=> $package,
 						'num_assets'	=> $result,
 					);
-		$message_body = strtoupper($package)." SYSTEM ASSET CREATION ".(($result == -1) ? "FAILED" : (": ".$result." NEW ASSETS CREATED"));
+		$message_body = strtoupper($package).' SYSTEM ASSET CREATION '.(($result == -1) ? 'FAILED' : (': '.$result.' NEW ASSETS CREATED'));
 		$message = $ms->newMessage(Array(), 'install.system_assets.'.($result ? 'success' : 'fail'), $msg_reps);
 		$message->send();
 	}
@@ -490,12 +489,20 @@ function install_authentication_types()
 	$auth_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('authentication_folder');
 	$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($auth_folder->id, SQ_LINK_TYPE_1, 'authentication', false);
 	$installed_auth_types = Array();
-	foreach ($links as $link_data) $installed_auth_types[] = $link_data['minor_type_code'];
+	foreach ($links as $link_data) {
+		$installed_auth_types[] = $link_data['minor_type_code'];
+	}
 
 	// install all systems that are not currently installed
-	$folder_link = Array('asset' => &$auth_folder, 'link_type' => SQ_LINK_TYPE_1, 'is_exclusive' => 1);
+	$folder_link = Array(
+					'asset'			=> &$auth_folder,
+					'link_type'		=> SQ_LINK_TYPE_1,
+					'is_exclusive'	=> 1,
+				   );
 	foreach ($auth_types as $type_code) {
-		if (in_array($type_code, $installed_auth_types)) continue;
+		if (in_array($type_code, $installed_auth_types)) {
+			continue;
+		}
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
 		$auth = new $type_code();
 
@@ -530,7 +537,9 @@ function generate_global_preferences()
 	$packages = $GLOBALS['SQ_SYSTEM']->getInstalledPackages();
 
 	$preferences = Array();
-	if (is_file(SQ_DATA_PATH.'/private/conf/preferences.inc')) include SQ_DATA_PATH.'/private/conf/preferences.inc';
+	if (is_file(SQ_DATA_PATH.'/private/conf/preferences.inc')) {
+		include SQ_DATA_PATH.'/private/conf/preferences.inc';
+	}
 
 	foreach ($packages as $package) {
 		// slight change for the core package
@@ -547,7 +556,9 @@ function generate_global_preferences()
 		unset($pm);
 	}
 	$str = '<'.'?php $preferences = '.var_export($preferences, true).'; ?'.'>';
-	if (!string_to_file($str, SQ_DATA_PATH.'/private/conf/preferences.inc')) return false;
+	if (!string_to_file($str, SQ_DATA_PATH.'/private/conf/preferences.inc')) {
+		return false;
+	}
 
 	$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 	$message = $ms->newMessage(Array(), 'install.prefs', Array());
@@ -570,7 +581,7 @@ function cache_asset_types()
 
 	$output = '<'.'?php'."\n".' $asset_types = ';
 	$output .= var_export($asset_types, true);
-	$output .= "\n?".">";
+	$output .= "\n?".'>';
 
 	if (!string_to_file($output, SQ_DATA_PATH.'/private/db/asset_types.inc')) {
 		trigger_error('Could not cache the asset types', E_USER_ERROR);
@@ -589,23 +600,9 @@ function cache_asset_types()
 */
 function install_event_listeners()
 {
-	// we need to install any event listeners here, now that we have installed all the asset types.
+	// we need to install any event listeners here, now that we have installed all the asset types
 	$packages = $GLOBALS['SQ_SYSTEM']->getInstalledPackages();
 
-	foreach ($packages as $package) {
-		// slight change for the core package
-		if ($package['code_name'] == '__core__') {
-			require_once SQ_CORE_PACKAGE_PATH.'/package_manager_core.inc';
-			$class = 'package_manager_core';
-		} else {
-			require_once SQ_PACKAGES_PATH.'/'.$package['code_name'].'/package_manager_'.$package['code_name'].'.inc';
-			$class = 'package_manager_'.$package['code_name'];
-		}
-
-		$pm = new $class();
-		$pm->installEventListeners();
-		unset($pm);
-	}
 	$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
 	$em->writeStaticEventsCacheFile();
 
@@ -631,7 +628,9 @@ function format_deferred_packages($packages)
 	$out = '';
 	foreach ($packages as $package => $types) {
 		$out .= "\n".$package.":\n";
-		foreach ($types as $type) $out .= "\t".$type."\n";
+		foreach ($types as $type) {
+			$out .= "\t".$type."\n";
+		}
 	}
 
 	return $out;
@@ -721,7 +720,7 @@ function find_edit_interface_language_files($asset_type, $file_name, $locale)
 		}
 	}
 
-	for($i = 0; $i < count($lang_dirs); $i++) {
+	for ($i = 0; $i < count($lang_dirs); $i++) {
 		for ($j = 0; $j < count($asset_dirs); $j++) {
 			if (file_exists($asset_dirs[$j].'/locale/'.$lang_dirs[$i].'/'.$file_name)) {
 				$files[] = $asset_dirs[$j].'/locale/'.$lang_dirs[$i].'/'.$file_name;
@@ -742,7 +741,8 @@ function find_edit_interface_language_files($asset_type, $file_name, $locale)
 *
 * @return object XML_Tree_Node
 */
-function build_localised_screen($asset_type, $screen, $locale) {
+function build_localised_screen($asset_type, $screen, $locale)
+{
 	//print '  - Building '.$screen.'.'.$locale."\n";
 
 	$ei_file = find_edit_interface_file($asset_type, $screen);
@@ -772,10 +772,10 @@ function build_localised_screen($asset_type, $screen, $locale) {
 		}
 
 		// work through all the sections
-		for($sec_index = 0; $sec_index < count($lang_root->children); $sec_index++) {
+		for ($sec_index = 0; $sec_index < count($lang_root->children); $sec_index++) {
 			$xml_section =& $lang_root->children[$sec_index];
 
-			for($i = 0; $i < count($to_cache->children); $i++) {
+			for ($i = 0; $i < count($to_cache->children); $i++) {
 				$this_section =& $to_cache->children[$i];
 
 				if ($this_section->attributes['name'] ==
@@ -785,12 +785,10 @@ function build_localised_screen($asset_type, $screen, $locale) {
 			}
 
 			// not found
-			if ($i >= count($to_cache->children)) {
-				continue;
-			}
+			if ($i >= count($to_cache->children)) continue;
 
 			// now work through all the fields
-			for($field_index = 0; $field_index < count($xml_section->children); $field_index++) {
+			for ($field_index = 0; $field_index < count($xml_section->children); $field_index++) {
 				$xml_field =& $xml_section->children[$field_index];
 
 				switch ($xml_field->name) {
@@ -817,7 +815,7 @@ function build_localised_screen($asset_type, $screen, $locale) {
 						if (empty($xml_field->attributes['attribute'])) {
 
 							// first, look for the function call tag in the language file
-							for($sub_index = 0; $sub_index < count($xml_field->children); $sub_index++) {
+							for ($sub_index = 0; $sub_index < count($xml_field->children); $sub_index++) {
 								if ($xml_field->children[$sub_index]->name == 'function_call') {
 									$xml_paint_field =& $xml_field->children[$sub_index]->children[0];
 									break;
@@ -825,7 +823,7 @@ function build_localised_screen($asset_type, $screen, $locale) {
 							}
 
 							// now, look to see if any of the structure fields match
-							for($i = 0; $i < count($this_section->children); $i++) {
+							for ($i = 0; $i < count($this_section->children); $i++) {
 								$this_field =& $this_section->children[$i];
 								$paint_field =& $this_field->children[0]->children[0];
 
@@ -835,9 +833,7 @@ function build_localised_screen($asset_type, $screen, $locale) {
 							}
 
 							// not found
-							if ($i >= count($this_section->children)) {
-								continue;
-							}
+							if ($i >= count($this_section->children)) continue;
 
 							// check to see whether we already have a display
 							// name or note, because we don't want to double
@@ -845,20 +841,18 @@ function build_localised_screen($asset_type, $screen, $locale) {
 							$has_display_name = false;
 							$has_note = false;
 
-							for($sub_field_index = 0; $sub_field_index < count($this_field->children); $sub_field_index++) {
+							for ($sub_field_index = 0; $sub_field_index < count($this_field->children); $sub_field_index++) {
 								$sub_name = $this_field->children[$sub_field_index]->name;
 								if ($sub_name == 'display_name') {
 									$has_display_name = true;
 								}
 
-								if ($sub_name == 'note') {
-									$has_note = true;
-								}
+								if ($sub_name == 'note') $has_note = true;
 							}
 
-							for($sub_index = 0; $sub_index < count($xml_field->children); $sub_index++) {
+							for ($sub_index = 0; $sub_index < count($xml_field->children); $sub_index++) {
 								$xml_sub_field = $xml_field->children[$sub_index];
-								switch($xml_sub_field->name) {
+								switch ($xml_sub_field->name) {
 									case 'display_name':
 										$this_field->insertChild(null, 0, $xml_sub_field->name, $xml_sub_field->content);
 									break;
@@ -875,7 +869,7 @@ function build_localised_screen($asset_type, $screen, $locale) {
 
 							$attr_name = $xml_field->attributes['attribute'];
 
-							for($i = 0; $i < count($this_section->children); $i++) {
+							for ($i = 0; $i < count($this_section->children); $i++) {
 								$this_field =& $this_section->children[$i];
 								if (array_get_index($this_field->attributes, 'attribute', '') == $attr_name) {
 									break;
@@ -883,9 +877,7 @@ function build_localised_screen($asset_type, $screen, $locale) {
 							}
 
 							// not found
-							if ($i >= count($this_section->children)) {
-								continue;
-							}
+							if ($i >= count($this_section->children)) continue;
 
 							// check to see whether we already have a display
 							// name or note, because we don't want to double
@@ -893,20 +885,18 @@ function build_localised_screen($asset_type, $screen, $locale) {
 							$has_display_name = false;
 							$has_note = false;
 
-							for($sub_field_index = 0; $sub_field_index < count($this_field->children); $sub_field_index++) {
+							for ($sub_field_index = 0; $sub_field_index < count($this_field->children); $sub_field_index++) {
 								$sub_name = $this_field->children[$sub_field_index]->name;
 								if ($sub_name == 'display_name') {
 									$has_display_name = true;
 								}
 
-								if ($sub_name == 'note') {
-									$has_note = true;
-								}
+								if ($sub_name == 'note') $has_note = true;
 							}
 
-							for($sub_index = 0; $sub_index < count($xml_field->children); $sub_index++) {
+							for ($sub_index = 0; $sub_index < count($xml_field->children); $sub_index++) {
 								$xml_sub_field = $xml_field->children[$sub_index];
-								switch($xml_sub_field->name) {
+								switch ($xml_sub_field->name) {
 									case 'display_name':
 										if (!$has_display_name) {
 											$this_field->insertChild(null, 0, $xml_sub_field->name, $xml_sub_field->content);
@@ -948,7 +938,8 @@ function build_localised_screen($asset_type, $screen, $locale) {
 *
 * @return object XML_Tree_Node
 */
-function build_localised_static_screen($asset_type, $screen, $locale) {
+function build_localised_static_screen($asset_type, $screen, $locale)
+{
 	//print '  - Building '.$screen.'.'.$locale."\n";
 
 	$ei_file = find_edit_interface_file($asset_type, $screen);
@@ -985,10 +976,10 @@ function build_localised_static_screen($asset_type, $screen, $locale) {
 		}
 
 		// work through all the sections
-		for($sec_index = 0; $sec_index < count($lang_root->children); $sec_index++) {
+		for ($sec_index = 0; $sec_index < count($lang_root->children); $sec_index++) {
 			$xml_section =& $lang_root->children[$sec_index];
 
-			for($i = 0; $i < count($to_cache->children); $i++) {
+			for ($i = 0; $i < count($to_cache->children); $i++) {
 				$this_section =& $to_cache->children[$i];
 
 				if ($this_section->attributes['name'] ==
@@ -998,12 +989,10 @@ function build_localised_static_screen($asset_type, $screen, $locale) {
 			}
 
 			// not found
-			if ($i >= count($to_cache->children)) {
-				continue;
-			}
+			if ($i >= count($to_cache->children)) continue;
 
 			// now work through all the fields
-			for($field_index = 0; $field_index < count($xml_section->children); $field_index++) {
+			for ($field_index = 0; $field_index < count($xml_section->children); $field_index++) {
 				$xml_field =& $xml_section->children[$field_index];
 
 				switch ($xml_field->name) {
@@ -1033,7 +1022,7 @@ function build_localised_static_screen($asset_type, $screen, $locale) {
 
 							$code_name = $xml_field->attributes['code'];
 
-							for($i = 0; $i < count($this_section->children); $i++) {
+							for ($i = 0; $i < count($this_section->children); $i++) {
 								$this_field =& $this_section->children[$i];
 								if (array_get_index($this_field->attributes, 'code', '') == $code_name) {
 									break;
@@ -1041,9 +1030,7 @@ function build_localised_static_screen($asset_type, $screen, $locale) {
 							}
 
 							// not found
-							if ($i >= count($this_section->children)) {
-								continue;
-							}
+							if ($i >= count($this_section->children)) continue;
 
 							// check to see whether we already have a display
 							// name or note, because we don't want to double
@@ -1051,20 +1038,18 @@ function build_localised_static_screen($asset_type, $screen, $locale) {
 							$has_display_name = false;
 							$has_note = false;
 
-							for($sub_field_index = 0; $sub_field_index < count($this_field->children); $sub_field_index++) {
+							for ($sub_field_index = 0; $sub_field_index < count($this_field->children); $sub_field_index++) {
 								$sub_name = $this_field->children[$sub_field_index]->name;
 								if ($sub_name == 'display_name') {
 									$has_display_name = true;
 								}
 
-								if ($sub_name == 'note') {
-									$has_note = true;
-								}
+								if ($sub_name == 'note') $has_note = true;
 							}
 
-							for($sub_index = 0; $sub_index < count($xml_field->children); $sub_index++) {
+							for ($sub_index = 0; $sub_index < count($xml_field->children); $sub_index++) {
 								$xml_sub_field = $xml_field->children[$sub_index];
-								switch($xml_sub_field->name) {
+								switch ($xml_sub_field->name) {
 									case 'display_name':
 										if (!$has_display_name) {
 											$this_field->insertChild(null, 0, $xml_sub_field->name, $xml_sub_field->content);
@@ -1115,7 +1100,7 @@ function find_string_language_files($asset_dirs, $locale, $file='strings')
 		}
 	}
 
-	for($i = 0; $i < count($lang_dirs); $i++) {
+	for ($i = 0; $i < count($lang_dirs); $i++) {
 		for ($j = 0; $j < count($asset_dirs); $j++) {
 			if (file_exists($asset_dirs[$j].'/locale/'.$lang_dirs[$i].'/'.$file_name)) {
 				$files[] = $asset_dirs[$j].'/locale/'.$lang_dirs[$i].'/'.$file_name;
@@ -1235,7 +1220,7 @@ function build_locale_string_file($locale)
 		$js_file = 'SQ_CURRENT_LOCALE = "'.$locale.'";'."\n".
 					'translated_strings["'.$locale.'"] = new Array();'."\n";
 
-		foreach($js_strings as $string_code => $string) {
+		foreach ($js_strings as $string_code => $string) {
 			$js_file .= 'translated_strings["'.$locale.'"]["'.$string_code.'"] = "'.str_replace('"', '\\"', $string).'";'."\n";
 		}
 
@@ -1249,12 +1234,12 @@ function build_locale_string_file($locale)
 		create_directory(SQ_DATA_PATH.'/private/system/core');
 
 		$java_file = '';
-		foreach($java_strings as $string_code => $string) {
+		foreach ($java_strings as $string_code => $string) {
 			// replace single parameters with {0}
 			$string = preg_replace('|%s|', '{0}', $string);
 
 			// iterate through the string until there's no more replacements
-			while(preg_match('|%(\d*)\\$s|', $string, $match, PREG_OFFSET_CAPTURE)) {
+			while (preg_match('|%(\d*)\\$s|', $string, $match, PREG_OFFSET_CAPTURE)) {
 				// build the Java-style argument and shove it into the string
 				$new_arg = '{'.((int)$match[1][0]-1).'}';
 				$string = substr_replace($string, $new_arg, $match[0][1], strlen($match[1][0]) + 3);
@@ -1479,10 +1464,10 @@ function extract_strings_from_xml($file, $root_element, $child_element, $key_att
 
 			$extracted_strings[$source_code] = $translation;
 
-			if(isset($string_node->attributes['js']) && ($string_node->attributes['js'] == 1)) {
+			if (isset($string_node->attributes['js']) && ($string_node->attributes['js'] == 1)) {
 				$js_strings[$source_code] =& $extracted_strings[$source_code];
 			}
-			if(isset($string_node->attributes['java']) && ($string_node->attributes['java'] == 1)) {
+			if (isset($string_node->attributes['java']) && ($string_node->attributes['java'] == 1)) {
 				$java_strings[$source_code] =& $extracted_strings[$source_code];
 			}
 		}
@@ -1588,4 +1573,6 @@ function extract_internal_messages($file)
 	return $extracted_messages;
 
 }//end extract_internal_messages()
+
+
 ?>

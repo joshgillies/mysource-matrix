@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager.inc,v 1.68 2005/04/15 00:37:28 lwright Exp $
+* $Id: package_manager.inc,v 1.69 2005/05/27 07:32:38 rhoward Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
 *    packages and their assets, uses info gleened from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.68 $
+* @version $Revision: 1.69 $
 * @package MySource_Matrix
 */
 class Package_Manager extends MySource_Object
@@ -93,12 +93,12 @@ class Package_Manager extends MySource_Object
 		$this->MySource_Object();
 
 		if (!isset($this->_full_path) || !is_dir($this->_full_path)) {
-			trigger_localised_error("SYS0238", E_USER_ERROR, get_class($this));
+			trigger_localised_error('SYS0238', E_USER_ERROR, get_class($this));
 		}
 
 		// make sure that this package is in our system rootm, otherwise the base path won't work
 		if (substr($this->_full_path, 0, strlen(SQ_SYSTEM_ROOT)) != SQ_SYSTEM_ROOT) {
-			trigger_localised_error("SYS0239", E_USER_ERROR, get_class($this));
+			trigger_localised_error('SYS0239', E_USER_ERROR, get_class($this));
 		}
 
 		// OK, if this is the "core" package then we just need to fiddle with the path
@@ -112,7 +112,7 @@ class Package_Manager extends MySource_Object
 			}
 			$xml->close();
 			if ($this->getPackageName() != $info['code_name']['value']) {
-				trigger_localised_error("SYS0211", E_USER_ERROR, $this->_full_path, $this->getPackageName());
+				trigger_localised_error('SYS0211', E_USER_ERROR, $this->_full_path, $this->getPackageName());
 			}
 			$this->name			= $info['name']['value'];
 			$this->version		= $info['version']['value'];
@@ -121,7 +121,7 @@ class Package_Manager extends MySource_Object
 			$this->_loadPackageAssets();
 
 		} else {
-			trigger_localised_error("SYS0199", E_USER_ERROR, $this->getPackageName());
+			trigger_localised_error('SYS0199', E_USER_ERROR, $this->getPackageName());
 		}
 
 	}//end constructor
@@ -161,7 +161,9 @@ class Package_Manager extends MySource_Object
 			if (!empty($update_assets) && !in_array($type_code, $update_assets)) {
 				continue;
 			}
-			if (!isset($install_reqs[$type_code])) $install_reqs[$type_code] = Array();
+			if (!isset($install_reqs[$type_code])) {
+				$install_reqs[$type_code] = Array();
+			}
 
 			// make sure all requirements are met
 			$file = SQ_SYSTEM_ROOT.'/'.$this->assets[$type_code]['dir'].'/asset.xml';
@@ -205,6 +207,8 @@ class Package_Manager extends MySource_Object
 	*/
 	function updatePackageDetails($update_assets=Array())
 	{
+		$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
+
 		// If there were some type codes that failed the requirements, save
 		// them in the deferred array so that they don't get installed later
 		// on in the process.
@@ -259,9 +263,7 @@ class Package_Manager extends MySource_Object
 				// then don't try installing it just yet, but install
 				// all other types as they may be vital to the dependency
 				// resolution.
-				if (in_array($type_code, $deferred)) {
-					continue;
-				}
+				if (in_array($type_code, $deferred)) continue;
 
 				echo "$k => $type_code \n";
 
@@ -277,15 +279,34 @@ class Package_Manager extends MySource_Object
 					if (!$management->update()) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						return false;
+					} else {
+						// generate the temporary list of event listeners
+						$events = $management->getEventList();
+						if (!is_array($events)) {
+							trigger_localised_error('SYS0142', E_USER_WARNING, $type_code, gettype($events));
+							return false;
+						}
+						if (!empty($events)) {
+							// register the event to be installed later
+							$em->installStaticEvents($events, $type_code);
+						}
 					}
 
 				} else {
-					trigger_localised_error("SYS0083", E_USER_WARNING, $type_code, $file);
+					trigger_localised_error('SYS0083', E_USER_WARNING, $type_code, $file);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return false;
 				}
 
+				// fire assetInstall event to signal asset installation or update
+				// sends the type_code of the installed asset
+				$em->broadcastEvent($this, 'assetInstall', Array('type_code' => $type_code));
+
 			}//end for
+
+			// fire PackageInstall event to signal package installation or update
+			// sends a list of all the assets in the installed package
+			$em->broadcastEvent($this, 'packageInstall', $install_order);
 
 			// Commit the transaction if we got this far
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -294,7 +315,7 @@ class Package_Manager extends MySource_Object
 
 		// create the xml summarys of screens info for the asset map
 		if (!$this->_createAssetMapScreensXML($deferred)) {
-			trigger_localised_error("SYS0242", E_USER_WARNING);
+			trigger_localised_error('SYS0242', E_USER_WARNING);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
@@ -334,9 +355,11 @@ class Package_Manager extends MySource_Object
 		$package = $this->getPackageName();
 		$d = dir($full_path);
 		while (false !== ($entry = $d->read())) {
-			if ($entry == '.' || $entry == '..') continue;
+			if ($entry == '.' || $entry == '..') {
+				continue;
+			}
 
-			// if this is a directory, recursivly search it
+			// if this is a directory, recursively search it
 			if (is_dir($full_path.'/'.$entry)) {
 				$this->_recurseLoadPackageAssets($assets, $full_path.'/'.$entry, $base_path.'/'.$entry);
 
@@ -344,12 +367,10 @@ class Package_Manager extends MySource_Object
 			} else if ($entry == 'asset.xml') {
 
 				$info = Asset_Management::getAssetInfo($full_path.'/asset.xml');
-				if (empty($info)) {
-					continue;
-				}
+				if (empty($info)) continue;
 
 				if ($package != $info['package']) {
-					trigger_localised_error("SYS0210", E_USER_ERROR, $full_path, $package, $info['package']);
+					trigger_localised_error('SYS0210', E_USER_ERROR, $full_path, $package, $info['package']);
 				}
 
 				$info['dir'] = $base_path;
@@ -416,7 +437,7 @@ class Package_Manager extends MySource_Object
 				// if this type is not inheriting from a type that is yet to be dealt with, then
 				// the type is in heriting from something that doesn't exist
 				} else if (!in_array($parent, $asset_types)) {
-					trigger_localised_error("SYS0080", E_USER_WARNING, $type_code, $parent);
+					trigger_localised_error('SYS0080', E_USER_WARNING, $type_code, $parent);
 					$remove = true;
 				}
 				// else we do nothing with the asset_type
@@ -430,7 +451,7 @@ class Package_Manager extends MySource_Object
 			}//end for
 
 			if ($last_count == count($asset_types)) {
-				trigger_localised_error("SYS0216", E_USER_WARNING, $this->getPackageName(), implode(', ', $asset_types));
+				trigger_localised_error('SYS0216', E_USER_WARNING, $this->getPackageName(), implode(', ', $asset_types));
 				return Array();
 			}
 
@@ -534,16 +555,16 @@ class Package_Manager extends MySource_Object
 
 			$ok = false;
 			switch ($req['@type']) {
-				case 'package' :
+				case 'package':
 					$installed_version = $GLOBALS['SQ_SYSTEM']->db->getOne('SELECT version FROM sq_pkg WHERE code_name = '.$GLOBALS['SQ_SYSTEM']->db->quote($req['code']['value']));
 					assert_valid_db_result($installed_version);
 
 					if ($installed_version) {
 						$ok = version_compare($installed_version, $req['version']['value'], '>=');
 					}
-					break;
+				break;
 
-				case 'asset' :
+				case 'asset':
 					if ($GLOBALS['SQ_SYSTEM']->am->installed($req['code']['value'])) {
 						$ok = version_compare($GLOBALS['SQ_SYSTEM']->am->getTypeInfo($req['code']['value'], 'version'), $req['version']['value'], '>=');
 					}
@@ -551,18 +572,18 @@ class Package_Manager extends MySource_Object
 					if (!$ok && isset($this->assets[$req['code']['value']])) {
 						$ok = version_compare($this->assets[$req['code']['value']]['version'], $req['version']['value'], '>=');
 					}
-					break;
+				break;
 
-				case 'system' :
+				case 'system':
 					switch ($req['code']['value']) {
 						case 'System' :
 							$ok = version_compare(SQ_SYSTEM_VERSION, $req['version']['value'], '>=');
-							break;
+						break;
 						case 'PHP' :
 							$ok = version_compare(PHP_VERSION, $req['version']['value'], '>=');
-							break;
+						break;
 					}
-					break;
+				break;
 
 			}//end switch
 
@@ -604,7 +625,7 @@ class Package_Manager extends MySource_Object
 	function getTypeAncestors($type_code)
 	{
 		if (!isset($this->assets[$type_code])) {
-			trigger_localised_error("SYS0082", E_USER_ERROR, $type_code, $this->getPackageName());
+			trigger_localised_error('SYS0082', E_USER_ERROR, $type_code, $this->getPackageName());
 			return Array();
 		}
 
@@ -618,7 +639,9 @@ class Package_Manager extends MySource_Object
 		// if we are inheriting from something else then go find it from the installed list
 		if (!isset($this->assets[$type_code])) {
 			$new_arr = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($type_code);
-			foreach ($new_arr as $type_code) $arr[] = $type_code;
+			foreach ($new_arr as $type_code) {
+				$arr[] = $type_code;
+			}
 
 		} else {
 			$arr[] = 'asset';
@@ -642,44 +665,13 @@ class Package_Manager extends MySource_Object
 	function getTypeInfo($type_code, $field='')
 	{
 		if (!isset($this->assets[$type_code])) {
-			trigger_localised_error("SYS0082", E_USER_ERROR, $type_code, $this->getPackageName());
+			trigger_localised_error('SYS0082', E_USER_ERROR, $type_code, $this->getPackageName());
 			return ($field) ? null : Array();
 		}
 
 		return ($field) ? $this->assets[$type_code][$field] : $this->assets[$type_code];
 
 	}//end getTypeInfo()
-
-
-	/**
-	* Iterate through the asset management class and install any events
-	*
-	* @return boolean
-	* @access public
-	*/
-	function installEventListeners()
-	{
-		$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
-
-		foreach (array_keys($this->assets) as $type_code) {
-			$file = SQ_SYSTEM_ROOT.'/'.$this->assets[$type_code]['dir'].'/'.$type_code.'_management.inc';
-			require_once $file;
-			$class = $type_code.'_management';
-
-			// make sure the class exists
-			if (class_exists($class)) {
-				$management = new $class($this);
-				$events = $management->getEventList();
-				if (!is_array($events)) {
-					trigger_localised_error("SYS0142", E_USER_WARNING, $type_code, gettype($events));
-					return false;
-				}
-				if (empty($events)) continue;
-				$em->installStaticEvents($events, $type_code);
-			}
-		}//end foreach
-
-	}//end installEventListeners()
 
 
 	/**
@@ -703,10 +695,14 @@ class Package_Manager extends MySource_Object
 					$preferences[$type_code] = $prefs->pref_vars;
 				} else {
 					foreach ($preferences[$type_code] as $var => $data) {
-						if (!isset($prefs->pref_vars[$var])) unset($preferences[$type_code][$var]);
+						if (!isset($prefs->pref_vars[$var])) {
+							unset($preferences[$type_code][$var]);
+						}
 					}
 					foreach ($prefs->pref_vars as $var => $data) {
-						if (!isset($preferences[$type_code][$var])) $preferences[$type_code][$var] = $data;
+						if (!isset($preferences[$type_code][$var])) {
+							$preferences[$type_code][$var] = $data;
+						}
 					}
 				}
 			}

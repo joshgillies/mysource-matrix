@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_03.php,v 1.61 2005/04/06 23:15:18 mmcintyre Exp $
+* $Id: step_03.php,v 1.62 2005/05/27 07:32:42 rhoward Exp $
 *
 */
 
@@ -43,7 +43,7 @@
 * would update all the asset types for core and cms only
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.61 $
+* @version $Revision: 1.62 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -116,42 +116,23 @@ if (!regenerate_configs()) {
 }
 
 // check if the $packageList variable has been defined at all
-if (!isset($package_list)) {
-	$package_list = Array();
-}
+if (!isset($package_list)) $package_list = Array();
 
 uninstall_asset_types();
 uninstall_packages();
 
-// This has been changed so that the asset install is only done when search
-// manager is being installed for the first time (to initialise the weightings
-// of assets that are already installed - reconfigures do not need the second
-// pass once Search Manager is installed, as it picks default weightings up
-// automatically
-$run_install = true;
-
-while ($run_install) {
-	$search_installed = $GLOBALS['SQ_SYSTEM']->am->installed('search_manager');
-
-	install_core($package_list);
-	$deferred = install_packages($package_list);
-	// if there were deferred packages, try to reinstall them.
+install_core($package_list);
+$deferred = install_packages($package_list);
+// if there were deferred packages, try to reinstall them.
+if (is_array($deferred)) {
+	// try and install the deferred packages again in a loop until the result
+	// package is the same as the install package, at which point we know
+	// the dependency has failed.
+	$deferred = install_deferred($deferred);
 	if (is_array($deferred)) {
-		// try and install the deferred packages again in a loop until the result
-		// package is the same as the install package, at which point we know
-		// the dependency has failed.
-		$deferred = install_deferred($deferred);
-		if (is_array($deferred)) {
-			trigger_error('The following assets could not be installed due to dependency failures (see previous warnings for details): '."\n".format_deferred_packages($deferred), E_USER_ERROR);
-		}
+		trigger_error('The following assets could not be installed due to dependency failures (see previous warnings for details): '."\n".format_deferred_packages($deferred), E_USER_ERROR);
 	}
-
-	if (!$search_installed && $GLOBALS['SQ_SYSTEM']->am->installed('search_manager')) {
-		bam('Search manager was installed for the first time'."\n".'Need to restart asset install to initialise search weightings...');
-	} else {
-		$run_install = false;
-	}
-}//end while install should keep running
+}
 
 install_authentication_types();
 generate_global_preferences();
@@ -161,6 +142,7 @@ cache_asset_types();
 $GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
 $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
 
 /**
 * Gets a list of supplied package options from the command line arguments given
@@ -178,7 +160,9 @@ function get_console_list($options)
 
 	foreach ($options as $option) {
 		// if nothing set, skip this entry
-		if (!isset($option[0]) || !isset($option[1])) continue;
+		if (!isset($option[0]) || !isset($option[1])) {
+			continue;
+		}
 
 		if ($option[0] != '--package') continue;
 
