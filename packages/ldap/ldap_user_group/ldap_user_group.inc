@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_user_group.inc,v 1.8 2005/04/29 05:38:58 gsherwood Exp $
+* $Id: ldap_user_group.inc,v 1.9 2005/05/27 05:25:03 tbarrett Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/users/user_group/user_group.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -78,9 +78,7 @@ class Ldap_User_Group extends User_Group
 		}
 
 		// set the data paths
-		$this->data_path = $ldap->data_path.'/'.$data['dn'];
-		$this->data_path_suffix = $ldap->data_path_suffix.'/'.$data['dn'];
-		$this->data_path_public = $ldap->data_path_public.'/'.$data['dn'];
+		$this->_loadDataPaths();
 
 	}//end constructor
 
