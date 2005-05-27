@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.20 2005/04/07 06:59:13 mmcintyre Exp $
+* $Id: tables.xml,v 1.21 2005/05/27 04:04:50 rhoward Exp $
 *
 */
 -->
@@ -1204,7 +1204,6 @@
 				<primary_key>
 					<column name="type_code" />
 					<column name="component" />
-					<column name="weight" />
 				</primary_key>
 			</keys>
 			<indexes>
