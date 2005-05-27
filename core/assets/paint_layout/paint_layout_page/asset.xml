@@ -21,7 +21,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.1 2005/04/06 22:10:23 gnoel Exp $
+* $Id: asset.xml,v 1.2 2005/05/27 03:59:02 rhoward Exp $
 *
 */
 -->
@@ -38,6 +38,10 @@
 	<requirements>
 		<requirement type="asset">
 			<code>page_standard</code>
+			<version>0.1</version>
+		</requirement>
+		<requirement type="asset">
+			<code>content_type</code>
 			<version>0.1</version>
 		</requirement>
 	</requirements>
