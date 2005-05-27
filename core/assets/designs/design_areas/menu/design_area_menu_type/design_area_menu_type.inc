@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type.inc,v 1.65 2005/05/23 05:58:19 dmckee Exp $
+* $Id: design_area_menu_type.inc,v 1.66 2005/05/27 02:12:46 dheppell Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.65 $
+* @version $Revision: 1.66 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -404,6 +404,9 @@ class Design_Area_Menu_Type extends Design_Area
 					} else {
 						$userids = array_keys($GLOBALS[\'SQ_SYSTEM\']->am->getParents($GLOBALS[\'SQ_SYSTEM\']->user->id, \'user_group\', false));
 						array_push($userids, 0, $GLOBALS[\'SQ_SYSTEM\']->user->id);
+						//add the public user here, or any backend users wont be able to see the menu
+						$public_user = $GLOBALS["SQ_SYSTEM"]->am->getSystemAsset("public_user");
+						array_push($userids, $public_user->id);
 						for (reset($userids); null !== ($i = key($userids)); next($userids)) $userids[$i] = $db->quote($userids[$i]);
 						$USERIDS_COND = \'AND p.userid  IN (\'.implode(\',\', $userids).\')\';
 					}
