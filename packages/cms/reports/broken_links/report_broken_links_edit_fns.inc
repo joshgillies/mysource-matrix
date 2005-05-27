@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_broken_links_edit_fns.inc,v 1.8.2.3 2005/05/02 02:44:58 gsherwood Exp $
+* $Id: report_broken_links_edit_fns.inc,v 1.8.2.4 2005/05/27 04:23:35 dmckee Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.8.2.3 $
+* @version $Revision: 1.8.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -246,8 +246,8 @@ class Report_Broken_Links_Edit_Fns extends Report_Edit_Fns
 
 			$socket = @fsockopen($url_parts['host'], $url_parts['port'], $errno, $errstr, 15);
 			if (!$socket) {
-				$description = 'This URL does not appear to be valid';
-				$valid = '0';
+				$description = 'This URL cannot be tested';
+				$valid = '1';
 			} else {
 				fwrite ($socket, "HEAD ".$url_path." HTTP/1.0\r\nHost: ".$url_parts['host']."\r\n\r\n");
 				$response = fgets($socket, 128);
