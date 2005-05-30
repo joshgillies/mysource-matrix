@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.66.2.3 2005/05/01 23:33:07 gsherwood Exp $
+* $Id: search_page.inc,v 1.66.2.4 2005/05/30 02:19:25 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.66.2.3 $ - 1.0
+* @version $Revision: 1.66.2.4 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -102,8 +102,8 @@ class Search_Page extends Page
 		$this->Page($assetid);
 
 	}//end constructor
-	
-	
+
+
 	/**
 	* Perform any additional processing required during the creation of this asset
 	*
@@ -258,7 +258,7 @@ class Search_Page extends Page
 	{
 		if (isset($_REQUEST['search_button'])) $_REQUEST['mode'] = 'results';
 		$mode = array_get_index($_REQUEST, 'mode', '');
-		
+
 		if (empty($mode)) {
 			// we dont know what button was pressed, so see if we have any query vars
 			// that show evidence that a search has been performed without submitting
@@ -288,6 +288,7 @@ class Search_Page extends Page
 
 		?>
 		<form name="search_form" method="get" action="<?php echo replace_query_string_vars(Array()); ?>">
+			<input type="hidden" name="mode" value="" />
 			<input type="hidden" name="current_result_page" value="<?php echo $current_result_page; ?>" />
 			<input type="hidden" name="results_per_page" value="<?php echo $results_per_page; ?>" />
 			<?php
@@ -1476,7 +1477,7 @@ class Search_Page extends Page
 
 		// get the basic search settings based on the current category (if any)
 		$search_info = $this->populateBaseSearchInfo($category);
-		
+
 		foreach ($queries as $field_name => $value) {
 
 			if (empty($value)) continue;
@@ -1525,8 +1526,8 @@ class Search_Page extends Page
 		return $sm->processSearch($search_info);
 
 	}//end processSearch()
-	
-	
+
+
 	/**
 	* Get an array of all search terms that have been submitted
 	*
