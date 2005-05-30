@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.94 2005/05/24 05:30:51 arailean Exp $
+* $Id: search_page.inc,v 1.95 2005/05/30 04:01:28 arailean Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.94 $
+* @version $Revision: 1.95 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -294,6 +294,7 @@ class Search_Page extends Listing_Engine
 			<input type="hidden" name="current_result_page" value="<?php echo $current_result_page; ?>" />
 			<input type="hidden" name="results_per_page" value="<?php echo $results_per_page; ?>" />
 			<input type="hidden" name="submitted_search_category" value="<?php echo $submitted_category; ?>" />
+			<input type="hidden" name="mode" value="" />
 			<?php
 			switch ($mode) {
 				case 'results':
