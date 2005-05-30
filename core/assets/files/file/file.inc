@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.94 2005/05/26 04:35:08 ndvries Exp $
+* $Id: file.inc,v 1.95 2005/05/30 06:21:41 ndvries Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.94 $
+* @version $Revision: 1.95 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -144,6 +144,14 @@ class File extends Asset
 
 		$this->saveAttributes();
 		$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'attributes');
+
+		// set an initial web path
+		$initial_path = strtolower($this->attr('name'));
+		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+		$valid_paths = make_valid_web_paths(Array($initial_path));
+		$good_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($link['asset'], $valid_paths, $this->id, true);
+		$ret_val = ($this->saveWebPaths($good_paths) && $ret_val);
+
 		return $ret_val;
 
 	}//end _createAdditional()
@@ -433,7 +441,7 @@ class File extends Asset
 
 		// if we should be storing our file in the public
 		// data directory for all the world to see
-		if ($this->effectiveUnrestricted()) {
+		if ($this->effectiveUnrestricted() && $this->attr('allow_unrestricted')) {
 			// make sure our data directory exists
 			if (!create_directory($this->data_path_public)) {
 				trigger_localised_error('CORE0049', E_USER_WARNING, $this->name);
@@ -714,58 +722,28 @@ class File extends Asset
 				$old_filename = $this->_tmp['vars_set']['name']['old_value'];
 				$new_filename = $this->attr('name');
 
-				if (is_file($this->data_path.'/'.$old_filename)) {
-					$data_path = $this->data_path;
-				} else {
-					$data_path = $this->data_path_public;
-				}
-
 				// try and set the new filename - return false if it fails
 				if (!parent::saveAttributes($dont_run_updated)) {
 					return false;
 				}
 
-				// the name has changed so we need to save the web paths
-				if (!$this->saveWebPaths(Array($new_filename))) {
-					trigger_localised_error('CORE0056', E_USER_WARNING);
-					parent::setAttrValue('name', $old_filename);
-					return false;
+				if (is_file($this->data_path.'/'.$old_filename)) {
+					if (!$this->renameFile($this->data_path, $old_filename, $new_filename)) {
+						parent::setAttrValue('name', $old_filename);
+						return false;
+					}
 				}
 
-				//// FILE VERSIONING ////
-
-				$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
-
-				// copy the file instead of a direct rename because removing the
-				// file from the repository will also remove it from the file system
-				if (!copy($data_path.'/'.$old_filename, $data_path.'/'.$new_filename)) {
-					trigger_localised_error('CORE0026', E_USER_WARNING);
-					parent::setAttrValue('name', $old_filename);
-					return false;
+				if ($this->effectiveUnrestricted()) {
+					if (is_file($this->data_path_public.'/'.$old_filename)) {
+						unlink($this->data_path_public.'/'.$old_filename);
+						$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
+						$fv->checkOut($this->data_path_suffix.'/'.$new_filename, $this->data_path_public);
+					}
 				}
 
-				// we are renaming the file, so we need to remove the old name from
-				// the repository and add the new one in
-				$result = $fv->remove($data_path.'/'.$old_filename, '', false);
-				if ($result != FUDGE_FV_OK && $result != FUDGE_FV_NOT_CHECKED_OUT) {
-					trigger_localised_error('CORE0042', E_USER_WARNING);
-					parent::setAttrValue('name', $old_filename);
-					return false;
-				}
-
-				// attempt to add a new version of the file to the repository
-				if (!$fv->add($this->data_path_suffix, $this->data_path.'/'.$new_filename, '', false)) {
-					trigger_localised_error('CORE0026', E_USER_WARNING);
-					parent::setAttrValue('name', $old_filename);
-					return false;
-				}
-
-				// make sure we have the latest version of our file
-				if (!$fv->checkOut($this->data_path_suffix.'/'.$new_filename, $this->data_path)) {
-					trigger_localised_error('CORE0032', E_USER_WARNING);
-					parent::setAttrValue('name', $old_filename);
-					return false;
-				}
+				// update the lookups so that the __data path gets rewritten if applicable
+				$this->updateLookups();
 
 				return true;
 
@@ -785,6 +763,42 @@ class File extends Asset
 		return parent::saveAttributes($dont_run_updated);
 
 	}//end saveAttributes()
+
+
+	function renameFile($data_path, $old_filename, $new_filename)
+	{
+
+		$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
+
+		// copy the file instead of a direct rename because removing the
+		// file from the repository will also remove it from the file system
+		if (!copy($data_path.'/'.$old_filename, $data_path.'/'.$new_filename)) {
+			trigger_localised_error('CORE0026', E_USER_WARNING);
+			return false;
+		}
+
+		// we are renaming the file, so we need to remove the old name from
+		// the repository and add the new one in
+		$result = $fv->remove($data_path.'/'.$old_filename, '', false);
+		if ($result != FUDGE_FV_OK && $result != FUDGE_FV_NOT_CHECKED_OUT) {
+			trigger_localised_error('CORE0042', E_USER_WARNING);
+			return false;
+		}
+
+		// attempt to add a new version of the file to the repository
+		if (!$fv->add($this->data_path_suffix, $data_path.'/'.$new_filename, '', false)) {
+			trigger_localised_error('CORE0026', E_USER_WARNING);
+			return false;
+		}
+
+		// make sure we have the latest version of our file
+		if (!$fv->checkOut($this->data_path_suffix.'/'.$new_filename, $data_path)) {
+			trigger_localised_error('CORE0032', E_USER_WARNING);
+			return false;
+		}
+
+		return true;
+	}//end renameFile()
 
 
 	/**
