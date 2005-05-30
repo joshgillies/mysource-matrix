@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_declared_vars.inc,v 1.12 2004/12/03 15:29:22 brobertson Exp $
+* $Id: design_area_declared_vars.inc,v 1.12.2.1 2005/05/30 03:06:54 dmckee Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -39,6 +39,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 class Design_Area_Declared_Vars extends Design_Area
 {
 
+
 	/**
 	* Easy way to get the value of an attribute
 	*
@@ -47,14 +48,14 @@ class Design_Area_Declared_Vars extends Design_Area
 	* @return mixed
 	* @access public
 	*/
-	function attr($name) 
+	function attr($name)
 	{
 		if (empty($this->vars['declared_vars']['value'][$name])) {
 			return parent::attr($name);
-		} else { 
+		} else {
 			return $this->vars['declared_vars']['value'][$name]['value'];
 		}
-	}//end attr();
+	}//end attr()
 
 
 	/**
@@ -65,7 +66,7 @@ class Design_Area_Declared_Vars extends Design_Area
 	* @return boolean
 	* @access public
 	*/
-	function printArea(&$design) 
+	function printArea(&$design)
 	{
 		return true;
 	}//end printArea()
@@ -77,7 +78,7 @@ class Design_Area_Declared_Vars extends Design_Area
 	* @return Array(object Asset_Attribute)
 	* @access public
 	*/
-	function getDeclaredVarAttributes() 
+	function getDeclaredVarAttributes()
 	{
 		$attrs = Array();
 		foreach ($this->vars['declared_vars']['value'] as $name => $data) {
@@ -94,8 +95,26 @@ class Design_Area_Declared_Vars extends Design_Area
 		}
 
 		return $attrs;
-		
-	}//end getDeclaresVarAttributes()
+
+	}//end getDeclaredVarAttributes()
+
+
+	/**
+	* Merges any new declared vars from the parent design
+	*
+	* @param  Array() $parent_attrs
+	* @access public
+	*/
+	function mergeParentDeclaredVars($parent_attrs)
+	{
+		$current_attrs = $this->attr('declared_vars');
+		foreach ($parent_attrs as $id => $value) {
+			if (isset($current_attrs[$id])) {
+				$parent_attrs[$id] = $current_attrs[$id];
+			}
+		}
+		$this->setAttrValue('declared_vars', $parent_attrs);
+	}//end mergeParentDeclaredVars()
 
 
 }//end class
