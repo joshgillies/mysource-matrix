@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: authentication_default.inc,v 1.8 2005/05/16 06:59:51 tbarrett Exp $
+* $Id: authentication_default.inc,v 1.9 2005/05/30 05:19:59 rhoward Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/authentication/authentication/authent
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -81,7 +81,7 @@ class Authentication_Default extends Authentication
 				  AND auv.assetid       = a.assetid
 				  AND at.attrid         = auv.owning_attrid
 				  AND auv.custom_val    = '.$db->quote($username);
-	
+
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'av');
 
@@ -130,12 +130,27 @@ class Authentication_Default extends Authentication
 				// pretend to be the root user so we can lock the account
 				$root_user = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 				if ($GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
-					$success = false;
+					$success          = false;
+					$changed_runlevel = false;
+
+					// turn off status integrity checking
+					if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_STATUS_INTEGRITY)) {
+						// FIXME: TESTME
+						$changed_runlevel = true;
+						$GLOBALS['SQ_SYSTEM']->setRunLevel($GLOBALS['SQ_SYSTEM']->getRunLevel() - SQ_SECURITY_STATUS_INTEGRITY);
+					}
+
+					// lock the user
 					if ($user->processStatusChange(SQ_STATUS_UNDER_CONSTRUCTION)) {
 						$GLOBALS['SQ_SYSTEM']->addMessage('User "'.$username.'" locked');
 						$success = true;
 					}
 					$GLOBALS['SQ_SYSTEM']->restoreCurrentUser();
+
+					// restore the runlevel if we have to
+					if ($changed_runlevel) {
+						$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+					}
 
 					// log a message so we know someone has had their account locked
 					// we need to do this here because before we restore the current user
@@ -180,7 +195,7 @@ class Authentication_Default extends Authentication
 				  AND auv.assetid       = a.assetid
 				  AND at.attrid         = auv.owning_attrid
 				  AND auv.custom_val    = '.$db->quote($_SERVER['REMOTE_USER']);
-	
+
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'av');
 		$result = $db->getRow($sql.$where);

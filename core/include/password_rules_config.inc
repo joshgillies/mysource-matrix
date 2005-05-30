@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: password_rules_config.inc,v 1.6 2005/05/26 04:43:46 dmckee Exp $
+* $Id: password_rules_config.inc,v 1.7 2005/05/30 05:20:01 rhoward Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 */
 class Password_Rules_Config extends Config
@@ -169,7 +169,7 @@ class Password_Rules_Config extends Config
 				}
 			$o->closeField();
 
-			$o->openField('Disallow User Info', '', 'If no, then prevent users having their username or other user information as their password.');
+			$o->openField('Disallow User Info', '', 'If yes, then prevent users having their username or other user information as their password.');
 				if ($write_access && $is_root) {
 					combo_box($class.'[SQ_PASSWD_RULE_DISALLOW_USER_INFO]', Array('0' => 'Yes', '1' => 'No'), false, SQ_PASSWD_RULE_DISALLOW_USER_INFO);
 				} else {

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: init.inc,v 1.83 2005/05/20 00:35:11 lwright Exp $
+* $Id: init.inc,v 1.84 2005/05/30 05:20:01 rhoward Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * The file that needs to be included to do anything
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.83 $
+* @version $Revision: 1.84 $
 * @package MySource_Matrix
 */
 
@@ -178,11 +178,12 @@ define('SQ_SECURITY_DATA_VALIDATION',      4); // enable data value validation
 define('SQ_SECURITY_PASSWORD_VALIDATION',  8); // enable password rule checking
 define('SQ_SECURITY_LINK_INTEGRITY',      16); // enable link validation
 define('SQ_SECURITY_INTEGRITY',           32); // enable additional actions to ensure system/asset integrity
-define('SQ_SECURITY_TRIGGERS',            64); // enable triggering/event system
+define('SQ_SECURITY_STATUS_INTEGRITY',    64); // enable status change checking
+define('SQ_SECURITY_TRIGGERS',           128); // enable triggering/event system
 
 define('SQ_RUN_LEVEL_OPEN',     0); // no security
-define('SQ_RUN_LEVEL_FORCED', 108); // DATA_VALIDATION, PASSWORD_VALIDATION, INTEGRITY and TRIGGERS
-define('SQ_RUN_LEVEL_SECURE', 127); // full security
+define('SQ_RUN_LEVEL_FORCED', 236); // DATA_VALIDATION, PASSWORD_VALIDATION, INTEGRITY, STATUS_INTEGRITY and TRIGGERS
+define('SQ_RUN_LEVEL_SECURE', 255); // full security
 
 
 // load assertion functions, for integrated testing

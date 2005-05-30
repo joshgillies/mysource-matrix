@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status.inc,v 1.14 2005/04/15 00:37:29 lwright Exp $
+* $Id: asset_status.inc,v 1.15 2005/05/30 05:20:02 rhoward Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Provide a generic framework for status objects
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix
 */
 class Asset_Status extends MySource_Object
@@ -107,22 +107,29 @@ class Asset_Status extends MySource_Object
 		// if the new status is the same as our status, we can handle this
 		if ($new_status == $this->status_tag) return true;
 
-		// make sure we can actually set this status
-		$valid_statii = $this->getAvailableStatii();
-		if (!isset($valid_statii[$new_status])) {
-			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+		// do we need to check if the new status is valid?
+		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_STATUS_INTEGRITY)) {
 
-			$code = strtolower((string)get_bit_names('SQ_STATUS_', $new_status));
-			$status_code = 'asset_status_'.$code;
-			require_once SQ_INCLUDE_PATH.'/asset_status/'.$status_code.'.inc';
-			eval('$desc = '.$status_code.'::getDescription();');
+			// make sure we can actually set this status
+			$valid_statii = $this->getAvailableStatii();
+			if (!isset($valid_statii[$new_status])) {
+				require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 
-			trigger_localised_error('SYS0250', E_USER_WARNING, $desc, $this->owner->name, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type()), $this->owner->id, $this->getDescription(), $GLOBALS['SQ_SYSTEM']->user->name, $GLOBALS['SQ_SYSTEM']->user->id);
+				$code = strtolower((string)get_bit_names('SQ_STATUS_', $new_status));
+				$status_code = 'asset_status_'.$code;
+				require_once SQ_INCLUDE_PATH.'/asset_status/'.$status_code.'.inc';
+				eval('$desc = '.$status_code.'::getDescription();');
 
-			return false;
-		} else {
-			return true;
+				//bam($this->owner);
+				//bam( $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type()));
+				//exit();
+				trigger_localised_error('SYS0250', E_USER_WARNING, $desc, $this->owner->name, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name'), $this->owner->id, $this->getDescription(), $GLOBALS['SQ_SYSTEM']->user->name, $GLOBALS['SQ_SYSTEM']->user->id);
+
+				return false;
+			}
 		}
+
+		return true;
 
 	}//end processStatusChange()
 
