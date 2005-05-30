@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.231.2.5 2004/12/30 02:46:29 tbarrett Exp $
+* $Id: asset_edit_interface.inc,v 1.231.2.6 2005/05/30 06:08:08 ndvries Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.231.2.5 $
+* @version $Revision: 1.231.2.6 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -697,7 +697,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 	}//end paint()
 
-	
+
 	/**
 	* Print the edit interface from the supplied XML file
 	*
@@ -710,7 +710,7 @@ class Asset_Edit_Interface extends MySource_Object
 	* @return boolean	Whether a submittable interface has been printed
 	* @access public
 	*/
-	function printEditInterface($file, &$owner, &$o, $creating=false, $create_sections=Array()) 
+	function printEditInterface($file, &$owner, &$o, $creating=false, $create_sections=Array())
 	{
 		$print_commit_button = false;
 		$input = new XML_Tree($file);
@@ -1211,12 +1211,12 @@ class Asset_Edit_Interface extends MySource_Object
 
 					} else if ($field->children[2]->name == 'function_call') {
 
-						if (!isset($field->attributes['keyword'])) continue;
-
-						// find out what we need to get in this loop
-						if (isset($layout_keywords['screens'][$screen]['fields'][$field->attributes['keyword']])) {
-							$get_field = true;
-							$field_keyword = $layout_keywords['screens'][$screen]['fields'][$field->attributes['keyword']];
+						if (isset($field->attributes['keyword'])) {
+							// find out what we need to get in this loop
+							if (isset($layout_keywords['screens'][$screen]['fields'][$field->attributes['keyword']])) {
+								$get_field = true;
+								$field_keyword = $layout_keywords['screens'][$screen]['fields'][$field->attributes['keyword']];
+							}
 						}
 
 						$paint_node = &$field->children[2]->children[0];
