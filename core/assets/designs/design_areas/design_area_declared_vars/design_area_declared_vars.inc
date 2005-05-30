@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_declared_vars.inc,v 1.14 2005/04/15 00:37:24 lwright Exp $
+* $Id: design_area_declared_vars.inc,v 1.15 2005/05/30 03:25:52 dmckee Exp $
 *
 */
 
@@ -32,12 +32,13 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Design_Area_Declared_Vars extends Design_Area
 {
+
 
 	/**
 	* Easy way to get the value of an attribute
@@ -86,7 +87,7 @@ class Design_Area_Declared_Vars extends Design_Area
 			require_once SQ_ATTRIBUTES_PATH.'/'.$type.'/'.$type.'.inc';
 			$attr_class = 'Asset_Attribute_'.$type;
 			if (!class_exists($attr_class)) {
-				trigger_localised_error("CORE0416", E_USER_WARNING, $type, $name);
+				trigger_localised_error('CORE0416', E_USER_WARNING, $type, $name);
 				continue;
 			}
 			$attrs[$name] = new $attr_class(0, $data['value']);
@@ -96,6 +97,24 @@ class Design_Area_Declared_Vars extends Design_Area
 		return $attrs;
 
 	}//end getDeclaredVarAttributes()
+
+
+	/**
+	* Merges any new declared vars from the parent design
+	*
+	* @param  Array() $parent_attrs
+	* @access public
+	*/
+	function mergeParentDeclaredVars($parent_attrs)
+	{
+		$current_attrs = $this->attr('declared_vars');
+		foreach ($parent_attrs as $id => $value) {
+			if (isset($current_attrs[$id])) {
+				$parent_attrs[$id] = $current_attrs[$id];
+			}
+		}
+		$this->setAttrValue('declared_vars', $parent_attrs);
+	}//end mergeParentDeclaredVars()
 
 
 }//end class
