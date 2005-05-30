@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_declared_vars_edit_fns.inc,v 1.22 2005/05/17 06:03:36 lwright Exp $
+* $Id: design_area_declared_vars_edit_fns.inc,v 1.23 2005/05/30 04:49:20 dmckee Exp $
 *
 */
 
@@ -32,12 +32,13 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Design_Area_Declared_Vars_Edit_Fns extends Design_Area_Edit_Fns
 {
+
 
 	/**
 	* Loops through the contents array and creates the necessary objects
@@ -54,25 +55,31 @@ class Design_Area_Declared_Vars_Edit_Fns extends Design_Area_Edit_Fns
 		$declared_vars = Array();
 		// firstly let's check to see if all the design areas have unique names
 		foreach ($contents as $index => $element) {
-			if ($element['_type'] != 'TAG' || $element['operation'] != 'declare') continue;
+			if ($element['_type'] != 'TAG' || $element['operation'] != 'declare') {
+				continue;
+			}
 
 			// if there is a name and it's not the the same type as the current design area
 			if (empty($element['attributes']['name']) || empty($element['attributes']['type'])) {
-				trigger_localised_error("CORE0141", E_USER_WARNING);
+				trigger_localised_error('CORE0141', E_USER_WARNING);
 				continue;
 			}//end if
 
-			if (!isset($element['attributes']['value']))		$element['attributes']['value'] = '';
-			if (!isset($element['attributes']['description']))	$element['attributes']['description'] = '';
+			if (!isset($element['attributes']['value'])) {
+				$element['attributes']['value'] = '';
+			}
+			if (!isset($element['attributes']['description'])) {
+				$element['attributes']['description'] = '';
+			}
 
 			$name = preg_replace('/[^a-z0-9_]/i', '_', $element['attributes']['name']);
 			if ($name != $element['attributes']['name']) {
-				trigger_localised_error("CORE0150", E_USER_WARNING, $element['attributes']['name'], $asset->attr('id_name'), $name);
+				trigger_localised_error('CORE0150', E_USER_WARNING, $element['attributes']['name'], $asset->attr('id_name'), $name);
 			}
 
 			// make sure this is a valid attribute type
 			if (!$GLOBALS['SQ_SYSTEM']->am->validAttributeType($element['attributes']['type'])) {
-				trigger_localised_error("CORE0152", E_USER_WARNING, $name, $asset->attr('id_name'), $element['attributes']['type']);
+				trigger_localised_error('CORE0152', E_USER_WARNING, $name, $asset->attr('id_name'), $element['attributes']['type']);
 				return false;
 			}//end if
 
@@ -81,15 +88,15 @@ class Design_Area_Declared_Vars_Edit_Fns extends Design_Area_Edit_Fns
 			$class = 'Asset_Attribute_'.$element['attributes']['type'];
 			$attr = new $class();
 			if (!$attr->validateValue($element['attributes']['value'])) {
-				trigger_localised_error("CORE0151", E_USER_WARNING, $name, $asset->attr('id_name'), $element['attributes']['value'], $element['attributes']['type']);
+				trigger_localised_error('CORE0151', E_USER_WARNING, $name, $asset->attr('id_name'), $element['attributes']['value'], $element['attributes']['type']);
 				return false;
 			}//end if
 
 			$declared_vars[$name] = Array(
-											'type'        => $element['attributes']['type'],
-											'value'       => $element['attributes']['value'],
-											'description' => $element['attributes']['description'],
-											);
+										'type'			=> $element['attributes']['type'],
+										'value'			=> $element['attributes']['value'],
+										'description'	=> $element['attributes']['description'],
+									);
 		}//end foreach
 
 		// now make sure we save our changes
@@ -114,7 +121,9 @@ class Design_Area_Declared_Vars_Edit_Fns extends Design_Area_Edit_Fns
 		$text = '';
 		foreach ($asset->vars['declared_vars']['value'] as $name => $data) {
 			$text .= '<'.$this->tag_name.'_DECLARE name="'.htmlentities($name).'"';
-			foreach ($data as $k => $v) $text .= ' '.$k.'="'.htmlentities($v).'"';
+			foreach ($data as $k => $v) {
+				$text .= ' '.$k.'="'.htmlentities($v).'"';
+			}
 			$text .= " />\n";
 		}//end foreach
 
@@ -143,11 +152,13 @@ class Design_Area_Declared_Vars_Edit_Fns extends Design_Area_Edit_Fns
 			} else {
 				echo $attr->value;
 			}
-			if ($asset->vars['declared_vars']['value'][$name]['description']) $o->note($asset->vars['declared_vars']['value'][$name]['description']);
+			if ($asset->vars['declared_vars']['value'][$name]['description']) {
+				$o->note($asset->vars['declared_vars']['value'][$name]['description']);
+			}
 
 		}// end foreach
 
-	}// end paintDecVars()
+	}//end paintDecVars()
 
 
 	/**
@@ -181,7 +192,7 @@ class Design_Area_Declared_Vars_Edit_Fns extends Design_Area_Edit_Fns
 			return false;
 		}
 
-	}// end processDecVars()
+	}//end processDecVars()
 
 
 }//end class
