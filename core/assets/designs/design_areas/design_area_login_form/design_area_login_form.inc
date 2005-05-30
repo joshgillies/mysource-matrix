@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_login_form.inc,v 1.16 2005/04/15 00:37:24 lwright Exp $
+* $Id: design_area_login_form.inc,v 1.17 2005/05/30 01:01:06 rhoward Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -143,7 +143,7 @@ class Design_Area_Login_Form extends Design_Area
 				require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 				$extras = 'onfocus="javascript: this.select();"';
 				foreach ($args As $k => $v) {
-					if ($k = 'size') continue;
+					if ($k == 'size') continue;
 					$extras .= ' '.$k.'="'.htmlspecialchars($v).'"';
 				}
 				echo '<input type="hidden" name="SQ_LOGIN_KEY"      value="<', '?php echo $GLOBALS[\'SQ_SYSTEM\']->generateLoginKey(); ?', '>" />
@@ -171,7 +171,7 @@ class Design_Area_Login_Form extends Design_Area
 				require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 				$extras = 'onfocus="javascript: this.select();"';
 				foreach ($args As $k => $v) {
-					if ($k = 'size') continue;
+					if ($k == 'size') continue;
 					$extras .= ' '.$k.'="'.htmlspecialchars($v).'"';
 				}
 				password_box('SQ_LOGIN_PASSWORD', '', empty($args['size']) ? 10 : $args['size'], 0, $extras);
