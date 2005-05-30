@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.258 2005/05/18 17:20:13 gnoel Exp $
+* $Id: asset_edit_interface.inc,v 1.259 2005/05/30 00:33:34 ndvries Exp $
 *
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.258 $
+* @version $Revision: 1.259 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -208,7 +208,6 @@ class Asset_Edit_Interface extends MySource_Object
 		if ($check_screen_restrictions && !isset($allowed_screens[$active_screen])) {
 			// this user is not allowed to view the current screen
 			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $owner->name));
-			minibam($check_screen_restrictions, 'first');
 			exit();
 		}
 
