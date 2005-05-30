@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_management.inc,v 1.56.2.1 2004/12/15 23:56:31 gsherwood Exp $
+* $Id: asset_management.inc,v 1.56.2.2 2005/05/30 00:01:29 rhoward Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -884,35 +884,67 @@ class Asset_Management extends MySource_Object
 	{
 		$type_code = $this->getAssetType();
 
-		// clear all weightings for this type_code
-		$sql = 'DELETE FROM '. SQ_TABLE_PREFIX.'sch_idx_wgt_dflt
-				WHERE type_code = '.$this->_db->quote($type_code);
+		// clear the weightings for any assets that aren't installed
+		$sql = 'DELETE FROM sq_sch_idx_wgt_dflt
+				WHERE type_code != '.$this->_db->quoteSmart('asset').'
+				AND type_code NOT IN (
+					SELECT type_code
+					FROM sq_ast_typ
+				)';
 
 		$result = $this->_db->query($sql);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+		if (!assert_valid_db_result($result, '', false, false)) {
 			return false;
 		}
 
-		$component_weightings = $this->_getAllComponents();
-		foreach ($component_weightings as $component => $weighting) {
-			if (strlen($component) == 0) continue;
 
-			$sql = 'INSERT INTO '.SQ_TABLE_PREFIX.'sch_idx_wgt_dflt
+		$components = $this->_getAllComponents();
+		if (empty($components)) {
+			// nothing to do
+			return true;
+		}
+
+		$db_components = Array();
+		foreach ($components as $component => $weighting) {
+			$db_components[] = 'component = '.$this->_db->quoteSmart($component);
+		}
+
+		// check if this asset already has a weighting, and if so, what components
+		$sql = 'SELECT component
+				FROM sq_sch_idx_wgt_dflt
+				WHERE type_code = '.$this->_db->quoteSmart($type_code).'
+				AND ('.implode(' OR ', $db_components).')';
+		$result = $this->_db->getAll($sql);
+		if (!assert_valid_db_result($result, '', false, false)) {
+			return false;
+		}
+
+		// determine the components we need to set the default values for
+		$needed_components = $components;
+		foreach ($result as $row) {
+			if (isset($row['component']) && isset($needed_components[$row['component']])) {
+				unset($needed_components[$row['component']]);
+			}
+		}
+
+		// loop through the needed components and set the default values
+		foreach ($needed_components as $component => $weighting) {
+			if (empty($component)) continue;
+
+			$sql = 'INSERT INTO sq_sch_idx_wgt_dflt
 					(type_code, component, description, weight)
 					VALUES ('.$this->_db->quote($type_code).', '.$this->_db->quote($component).',
 					'.$this->_db->quote($weighting['description']).','.$this->_db->quote($weighting['default_weighting']).')';
 
 			$result = $this->_db->query($sql);
-			if (DB::isError($result)) {
-				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			if (!assert_valid_db_result($result, '', false, false)) {
 				return false;
 			}
-		}// end foreach
+		}
 
 		return true;
 
-	} // end _setComponentWeightings()
+	}//end _setComponentWeightings()
 
 
 	/**
