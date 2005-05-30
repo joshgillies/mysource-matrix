@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: layout_manager_edit_fns.inc,v 1.6 2005/05/11 06:04:58 lwright Exp $
+* $Id: layout_manager_edit_fns.inc,v 1.7 2005/05/30 00:36:26 ndvries Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -93,7 +93,7 @@ class Layout_Manager_Edit_Fns extends Asset_Edit_Fns
 			foreach ($_POST[$prefix.'_layouts'] as $type_code) {
 				// this should never happen
 				if (in_array($type_code, $asset->attr('layouts'))) return false;
-				$layouts[$type_code] = Array();
+				if (!empty($type_code)) $layouts[$type_code] = Array();
 			}
 			$asset->setAttrValue('layouts', $layouts);
 			$asset->saveAttributes();
@@ -124,7 +124,7 @@ class Layout_Manager_Edit_Fns extends Asset_Edit_Fns
 		}
 
 		// print the current type_codes that we have defined in the manager
-		foreach ($asset->attr('layouts') as $type_code => $screens) {
+		foreach ($layouts as $type_code => $screens) {
 
 			$uc_type_code = ucwords(str_replace('_', ' ', $type_code));
 			$o->openSection($uc_type_code);
