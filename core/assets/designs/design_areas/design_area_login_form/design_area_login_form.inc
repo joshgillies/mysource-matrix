@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_login_form.inc,v 1.12 2004/12/03 15:29:22 brobertson Exp $
+* $Id: design_area_login_form.inc,v 1.12.2.1 2005/05/30 00:59:33 rhoward Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -136,7 +136,7 @@ class Design_Area_Login_Form extends Design_Area
 				require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 				$extras = 'onFocus="javascript: this.select();"';
 				foreach ($args As $k => $v) {
-					if ($k = 'size') continue;
+					if ($k == 'size') continue;
 					$extras .= ' '.$k.'="'.htmlspecialchars($v).'"';
 				}
 				text_box('SQ_LOGIN_USERNAME', '', empty($args['size']) ? 10 : $args['size'], 0, false, $extras);
@@ -158,7 +158,7 @@ class Design_Area_Login_Form extends Design_Area
 				require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 				$extras = 'onFocus="javascript: this.select();"';
 				foreach ($args As $k => $v) {
-					if ($k = 'size') continue;
+					if ($k == 'size') continue;
 					$extras .= ' '.$k.'="'.htmlspecialchars($v).'"';
 				}
 				password_box('SQ_LOGIN_PASSWORD', '', empty($args['size']) ? 10 : $args['size'], 0, $extras);
