@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.35 2005/05/26 04:19:05 arailean Exp $
+* $Id: listing_engine.inc,v 1.36 2005/05/31 05:25:20 arailean Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
 *
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -648,7 +648,7 @@ class Listing_Engine extends Page
 	/**
 	* Remove and/or update the todo list based on the types of the assets in it
 	*
-	* If an entry in the list is a child of a wanted asset type, its type code is change
+	* If an entry in the list is a child of a wanted asset type, its type code is changed
 	* to the wanted parent type.  If an entry is not a wanted type or a child thereof,
 	* it is removed.  Otherwise it's left alone.
 	*
@@ -661,34 +661,68 @@ class Listing_Engine extends Page
 	*/
 	function filterAssetTypes(&$todo)
 	{
-		$wanted_types = $this->attr('types');
-		if (empty($wanted_types)) {
+		$allowed_types = $this->getAllowedAssetTypeMap();
+		if (empty($allowed_types)) {
 			$todo = Array();
 			return;
 		}
 
 		foreach ($todo as $assetid => $type_code) {
-
-			if (!isset($wanted_types[$type_code])) {
-				$new_type_code = null;
-				foreach ($wanted_types as $wt => $inherit) {
-					if (!$inherit) continue;
-					if (trim($wt) == '') continue;
-					$desc = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($wt);
-					if (in_array($type_code, $desc)) $new_type_code = $wt;
-				}
-
-				if (is_null($new_type_code) || !isset($wanted_types[$new_type_code])) {
-					// this type is not required in the results
-					unset($todo[$assetid]);
-				} else {
-					$todo[$assetid] = $new_type_code;
-				}
+			if (!isset($allowed_types[$type_code])) {
+				unset($todo[$assetid]);
+			} else {
+				$todo[$assetid] = $allowed_types[$type_code];
 			}
-
-		}//end for all todo list entries
+		}
 
 	}//end filterAssetTypes()
+
+
+	/**
+	* Get the mapping from assets type to the parent type that is handling presentation
+	*
+	* Returns the map in array format, with allowed asset type as an index
+	* with the parent asset being one of the elements of $this->attr('types');
+	* Because presentation (type format) is defined only for each of $this->attr('types'),
+	* this helps determine the handler of the presentation for a particular type
+	* Also, if a particular asset type is defined as the index, that type is allowed to be displayed
+	*
+	* Handler Asset Type can be the same as Asset Type. Resulting array is in following format:
+	* Array['Asset Type'] = 'Handler Asset Type'
+	* where Handler Asset Types are unique
+	*
+	* @return array
+	* @access public
+	*/
+	function getAllowedAssetTypeMap()
+	{
+		if (isset($this->_tmp['allowed_asset_map'])) {
+			return $this->_tmp['allowed_asset_map'];
+		}
+
+		$wanted_types = $this->attr('types');
+		if (empty($wanted_types)) return Array();
+
+		$allowed_asset_map = Array();
+		foreach ($wanted_types as $allowed_parent_type => $inherit) {
+			if (trim($allowed_parent_type) == '') {
+				continue;
+			} else if (!$inherit) {
+				$allowed_asset_map[$allowed_parent_type] = $allowed_parent_type;
+			} else {
+				$descendants = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($allowed_parent_type);
+				foreach ($descendants as $allowed_type) {
+					if (!isset($allowed_asset_map[$allowed_type])){
+						$allowed_asset_map[$allowed_type] = $allowed_parent_type;
+					}
+				}
+			}
+		}
+
+		$this->_tmp['allowed_asset_map'] = $allowed_asset_map;
+		return $allowed_asset_map;
+
+	}//end getAllowedAssetTypeMap()
 
 
 	/**
@@ -704,51 +738,57 @@ class Listing_Engine extends Page
 	function adjustAssetPositions(&$todo)
 	{
 		$asset_positions = $this->attr('asset_positions');
+		if (empty($asset_positions)) return;
 
-		if (!empty($asset_positions)) {
-			$adjusted_assetids = array_values($asset_positions);
-			$adjusted_type_codes = Array();
+		// replace the original todo list because we are going to build another one
+		$all_assets = $todo;
+		$adjusted_positions = Array();
+		$allowed_asset_map = $this->getAllowedAssetTypeMap();
 
-			// replace the original todo list because we are going to build another one
-			$original_todo = $todo;
-			$todo = Array();
+		// re-adjustment depends on the fact the asset_positions is oredered by position
+		// note: list length can only be extended by placing items inside it, not at the end
+		// this means that if the list has N elements, you cannot customize position N+1,
+		// unless you first insert something into the middle of the list, which will make it N+1 long
+		$maximum_possible_position = count($all_assets);
+		foreach ($asset_positions as $position => $asset_data) {
+			$id = $asset_data['id'];
+			if ($position > $maximum_possible_position) {
+				// if this position does not fit, neither will anything else
+				break;
+			}
 
-			reset($original_todo);
-			$key = key($original_todo);
+			if (!isset($all_assets[$id])) {
+				// inserting a new asset
+				$maximum_possible_position++;
+				$type = $asset_data['type'];
+				$all_assets[$id] = array_get_index($allowed_asset_map, $type, $type);
+			} else {
+				// rearranging existing list
+				unset($todo[$id]);
+			}
 
-			for ($i = 1; $i <= count($original_todo) + count($asset_positions); $i++) {
-				if (!empty($asset_positions[$i])) {
-					// this position in the list is to be filled by a specific asset
+			$adjusted_positions[$position] = $id;
+		}
 
-					// we get the type code either from the $adjusted_type_code array
-					// set in the ELSE statement below, or we leave it empty to be
-					// filled in when it is found
-					$assetid = $asset_positions[$i];
-					$todo[$assetid] = array_get_index($adjusted_type_codes, $assetid, '');
-				} else {
-					// skip any entries that are being moved to specific list positions
-					while (in_array($key, $adjusted_assetids)) {
-						if (isset($todo[$key])) {
-							// we have already inserted this asset into its position
-							// so just set its type code correctly
-							$todo[$key] = $original_todo[$key];
-						} else {
-							// we have not yet inserted this asset into its position
-							// so keep a record of the type code that can be used when
-							// it is inserted
-							$adjusted_type_codes[$key] = $original_todo[$key];
-						}
-						unset($original_todo[$key]);
-						$key = key($original_todo);
-						if ($key === null) break(2);
-					}
-					$todo[$key] = $original_todo[$key];
-					next($original_todo);
-					$key = key($original_todo);
-					if ($key === null) break;
-				}
-			}//end for
-		}//end if we have specific asset positions
+		// check if adjustment is still required
+		if (empty($adjusted_positions)) return;
+
+		$originally_ordered_ids = array_keys($todo);
+		$todo = Array();
+
+		$current_position = 1;
+		do {
+			if (isset($adjusted_positions[$current_position])) {
+				$current_id = $adjusted_positions[$current_position];
+				unset($adjusted_positions[$current_position]);
+			} else {
+				$current_id = array_shift($originally_ordered_ids);
+			}
+
+			$todo[$current_id] = array_get_index($all_assets, $current_id);
+
+			$current_position++;
+		} while (!empty($originally_ordered_ids) || isset($adjusted_positions[$current_position]));
 
 	}//end adjustAssetPositions()
 
@@ -966,6 +1006,7 @@ class Listing_Engine extends Page
 	*/
 	function _printAssetList($todo)
 	{
+		$allowed_types = $this->getAllowedAssetTypeMap();
 		$column_layout = $this->attr('column_layout');
 		$using_columns = (count($column_layout) > 1 || $column_layout['0'] > 1);
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.17 2005/05/24 00:16:19 arailean Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.18 2005/05/31 05:25:20 arailean Exp $
 *
 */
 
@@ -40,7 +40,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 * @author  David Heppell <dheppell@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -178,7 +178,11 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		if (!empty($asset_positions)) {
 			ksort($asset_positions, SORT_NUMERIC);
 			if (!$write_access) {
-				$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_values($asset_positions));
+				$asset_ids = Array();
+				foreach ($asset_positions as $asset_data) {
+					$asset_ids[] = $asset_data['id'];
+				}
+				$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($asset_ids);
 			}
 			?>
 			<table class="sq-backend-table">
@@ -192,7 +196,8 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 					?>
 				</tr>
 				<?php
-				foreach ($asset_positions as $position => $assetid) {
+				foreach ($asset_positions as $position => $asset_data) {
+						$assetid = $asset_data['id'];
 					?>
 					<tr>
 						<td class="sq-backend-table-cell"><?php echo $position; ?></td>
@@ -258,6 +263,21 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	{
 		$asset_positions = Array();
 
+		// first, update the existing positions
+		$current_asset_positions = array_get_index($_POST, $prefix.'_asset_position', Array());
+		foreach ($current_asset_positions as $position => $data) {
+			if ($data['assetid']) {
+				$asset_positions[$position] = $data['assetid'];
+			}
+		}
+
+		// and delete, the unneded ones
+		$delete_asset_position = array_get_index($_POST, $prefix.'_delete_asset_position', Array());
+		foreach ($delete_asset_position as $position => $on) {
+			unset($asset_positions[$position]);
+		}
+
+		// now, process new asset
 		$new_position_pos = (int) array_get_index($_POST, $prefix.'_new_asset_position_pos', 0);
 		if ($new_position_pos > 0) {
 			$new_position_data = array_get_index($_POST, $prefix.'_new_asset_position_asset', Array());
@@ -266,17 +286,11 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 			}
 		}
 
-		$current_asset_positions = array_get_index($_POST, $prefix.'_asset_position', Array());
-		foreach ($current_asset_positions as $position => $data) {
-			if ($data['assetid']) {
-				$asset_positions[$position] = $data['assetid'];
-			}
+		$asset_types = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_values($asset_positions), 'asset', false, 'type_code');
+		foreach ($asset_positions as $position=>$id) {
+			$asset_positions[$position] = Array('id'=>$id, 'type'=>$asset_types[$id]);
 		}
-
-		$delete_asset_position = array_get_index($_POST, $prefix.'_delete_asset_position', Array());
-		foreach ($delete_asset_position as $position => $on) {
-			unset($asset_positions[$position]);
-		}
+		ksort($asset_positions, SORT_NUMERIC);
 
 		return $asset->setAttrValue('asset_positions', $asset_positions);
 
@@ -1558,7 +1572,9 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		foreach ($new_root_nodes as $index => $node) {
 			// first test to see if the node already exists -- if so, ignore it
 			foreach ($root_links as $root_link) {
-				if ($root_link['minorid'] == $node['assetid']) continue 2;
+				if ($root_link['minorid'] == $node['assetid']) {
+					continue 2;
+				}
 			}
 			// otherwise, create the appropriate notice link
 			if ($node['assetid'] != 0) {

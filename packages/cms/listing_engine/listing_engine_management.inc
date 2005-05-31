@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_management.inc,v 1.22 2005/05/25 04:26:55 lwright Exp $
+* $Id: listing_engine_management.inc,v 1.23 2005/05/31 05:25:20 arailean Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -301,7 +301,7 @@ class Listing_Engine_Management extends Asset_Management
 
 			$fields_to_delete = Array('sort_by_attr');
 
-			bam('UPGRADING LISTING ENGINE - FROM VERSION '.$current_version);
+			bam('UPGRADING LISTING ENGINE - FROM VERSION '.$current_version.' TO VERSION 0.3');
 			// move reverse sort into sort_direction
 			// move sort by to sort by list
 			// move sort_by attr to sort by list
@@ -398,6 +398,38 @@ class Listing_Engine_Management extends Asset_Management
 			}
 
 		}//end if version 0.3
+
+		if (version_compare($current_version, '0.6', '<')) {
+			bam('UPGRADING LISTING ENGINE - FROM VERSION '.$current_version.' TO VERSION 0.6');
+
+			$children = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), false);
+			foreach ($children as $assetid) {
+				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+
+				$asset_positions = $asset->attr('asset_positions');
+				if (empty($asset_positions)) continue;
+
+				foreach ($asset_positions as $position => $asset_data) {
+					if (is_array($asset_data)) {
+						// no upgrade necessary
+						continue 2;
+					}
+				}
+
+				$asset_types = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_values($asset_positions), 'asset', false, 'type_code');
+				foreach ($asset_positions as $position => $id) {
+					$asset_positions[$position] = Array('id'=>$id, 'type'=>$asset_types[$id]);
+				}
+				ksort($asset_positions, SORT_NUMERIC);
+
+				echo 'Upgrading asset: '.$asset->name().' ('.$assetid.')'."\n";
+
+				if (!$asset->setAttrValue('asset_positions', $asset_positions)) {
+					trigger_localised_error('CMS0039', E_USER_WARNING, '0.6');
+					return false;
+				}
+			}
+		}//end if version < 0.6
 
 		return parent::_upgrade($current_version);
 
