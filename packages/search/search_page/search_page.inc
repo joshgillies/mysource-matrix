@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.95 2005/05/30 04:01:28 arailean Exp $
+* $Id: search_page.inc,v 1.96 2005/05/31 05:17:05 arailean Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.95 $
+* @version $Revision: 1.96 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1139,8 +1139,6 @@ class Search_Page extends Listing_Engine
 		$results_per_page    = array_get_index($_REQUEST, 'results_per_page', $this->attr('num_per_page'));
 		$this->_tmp['start_element'] = $current_result_page * $results_per_page;
 
-		$total_pages = ceil(count($results) / $results_per_page);
-
 		$queries = '';
 		foreach (explode('&', $_SERVER['QUERY_STRING']) as $query_string) {
 			list($query_name, $query_value) = explode('=', $query_string);
@@ -1161,6 +1159,8 @@ class Search_Page extends Listing_Engine
 		$asset_info = $this->sortAssetList($asset_info, $sort_info);
 
 		$this->filterAssetList($asset_info);
+		$total_pages = ceil(count($asset_info) / $results_per_page);
+
 		if (!is_array($asset_info)) $asset_info = Array();
 		$this->_tmp['asset_info'] = $asset_info;
 
@@ -1171,11 +1171,9 @@ class Search_Page extends Listing_Engine
 			switch ($keyword) {
 				case 'result_list':
 					$result_list = Array();
-					$sub_resultids = array_slice(array_keys($results), $current_result_page * $results_per_page, $results_per_page);
-					foreach ($asset_info as $resultid => $score) {
-						if (in_array($resultid, $sub_resultids)) {
-							$result_list[$resultid] = $results[$resultid];
-						}
+					$sub_resultids = array_slice(array_keys($asset_info), $current_result_page * $results_per_page, $results_per_page);
+					foreach ($sub_resultids as $resultid) {
+						$result_list[$resultid] = $asset_info[$resultid];
 					}
 
 					// print the asset list from the listing engine
@@ -1186,7 +1184,7 @@ class Search_Page extends Listing_Engine
 				break;
 
 				case 'result_count':
-					$replacement = count($results);
+					$replacement = count($asset_info);
 				break;
 
 				case 'current_result_page':
@@ -1400,7 +1398,6 @@ class Search_Page extends Listing_Engine
 						}//end if category links
 
 					} else {
-
 						$replacement = $this->getGeneralReplacement($keyword);
 					}
 				break;
