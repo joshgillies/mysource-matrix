@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.42.2.1 2004/12/22 21:38:52 gsherwood Exp $
+* $Id: page_asset_listing.inc,v 1.42.2.2 2005/05/31 06:33:13 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.42.2.1 $
+* @version $Revision: 1.42.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -414,23 +414,22 @@ class Page_Asset_Listing extends Page
 				case 'random' :
 					// random does things differently, as there is no pagination. But this is a good place
 					// to grab the random asset
-					if ($this->attr('num_per_page') <= 1) {
+					$count = count($children);
+					$num_per_page = $this->attr('num_per_page');
+					if ($count == 1) {
+						$todo = $children;
+					} else if ($num_per_page <= 1) {
 						// grab a single asset to display
 						$todo = Array();
 						$random_asset = array_rand($children);
 						$todo[$random_asset] = $children[$random_asset];
-					} else if ($this->attr('num_per_page') > count($children)) {
-						// if you try to use array_rand with a value higher than the number of elements
-						// in the array, it returns nothing. So, we check for that and return only the
-						// maximum number of children available
-						$random_assets = array_rand($children, count($children));
-						foreach ($random_assets as $value) $todo[$value] = $children[$value];
 					} else {
 						// this will return a subset of the children, as defined by the num_per_page
-						// attribute. This occurs when the number is less than the total number of
-						// children available.
-						$random_assets = array_rand($children, $this->attr('num_per_page'));
-						foreach ($random_assets as $value) $todo[$value] = $children[$value];
+						// attribute.
+						$random_assets = array_rand($children, min($num_per_page, $count));
+						foreach ($random_assets as $value) {
+							$todo[$value] = $children[$value];
+						}
 					}
 				break;
 			}//end switch
@@ -445,7 +444,7 @@ class Page_Asset_Listing extends Page
 
 			// the global replacement to print the asset listing
 			$replacements['asset_listing'] = $global_contents;
-			
+
 			$other_replacements = $this->getKeywordReplacements();
 			$replacements = array_merge($replacements, $other_replacements);
 
@@ -997,7 +996,7 @@ class Page_Asset_Listing extends Page
 							'previous_page' => 'Previous Page Link',
 							'next_page'     => 'Next Page Link',
 							'page_list'     => 'Page List',
-		
+
 						);
 
 		return $keywords;
