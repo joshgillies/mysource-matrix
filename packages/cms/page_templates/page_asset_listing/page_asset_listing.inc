@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.74 2005/05/26 04:22:05 arailean Exp $
+* $Id: page_asset_listing.inc,v 1.75 2005/05/31 05:19:48 arailean Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.74 $
+* @version $Revision: 1.75 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -155,8 +155,8 @@ class Page_Asset_Listing extends Listing_Engine
 			}
 
 			$children = $this->getAssetList();
-			$num_kids = count($children);
 			$this->filterAssetList($children);
+			$num_kids = count($children);
 
 			foreach ($keywords as $word) {
 				$replacements[$word] = $this->getKeywordReplacement($word);
