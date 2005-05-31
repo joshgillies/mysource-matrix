@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_static_screen_workflow.xml,v 1.2 2004/11/04 01:06:10 gsherwood Exp $
+* $Id: edit_interface_static_screen_workflow.xml,v 1.2.2.1 2005/05/31 01:14:50 rhoward Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -60,7 +60,7 @@
 			<note />
 		</field>
 	</section>
-	<section name="Cascade Options" read_access="admin:workflow">
+	<section name="Cascade Options" read_access="admin:workflow" show_if="isWorkflowComplete">
 		<field code="workflow_cascade_options">
 			<display_name />
 			<note />

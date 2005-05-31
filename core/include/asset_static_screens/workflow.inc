@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow.inc,v 1.11.2.2 2004/12/30 02:47:55 tbarrett Exp $
+* $Id: workflow.inc,v 1.11.2.3 2005/05/31 01:14:52 rhoward Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -245,7 +245,7 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 						$user_logs = $ms->getLogs('asset.workflow.userlog', Array('assetid' => $owner->id));
 						usort($logs, Array('Messaging_Service', 'sortMessages'));
 						usort($user_logs, Array('Messaging_Service', 'sortMessages'));
-						
+
 						if (!empty($user_logs) || !empty($logs)) {
 							?>
 							<table class="sq-backend-table">
@@ -273,7 +273,7 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 										<?php
 									}
 								}//end if there are user workflow logs
-								
+
 								if (!empty($logs)) {
 									?>
 									<tr>
@@ -549,7 +549,7 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 											<span style="color: <?php echo (($granted == '0') ? 'red' : 'green'); ?>"><?php echo (($granted == '0') ? 'Denied' : 'Applied') ?></span>
 										</td>
 										<?php
-										if ($admin_access) {
+										if ($admin_access && $GLOBALS['SQ_SYSTEM']->wm->isWorkflowComplete($owner->id)) {
 											?><td align="center" width="100" class="sq-backend-table-header" style="font-weight: bold;">Delete ?</td><?php
 										}
 										?>
@@ -568,7 +568,7 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 										?>
 										</td>
 										<?php
-										if ($admin_access) {
+										if ($admin_access && $GLOBALS['SQ_SYSTEM']->wm->isWorkflowComplete($owner->id)) {
 											?><td align="center" width="100" class="sq-backend-table-cell"><?php
 											check_box($prefix.'_workflow[delete]['.$schemaid.']');
 											?></td><?php
@@ -803,7 +803,6 @@ function processWorkflow(&$owner, &$o, &$ei)
 	return true;
 
 }//end processWorkflow()
-
 
 
 ?>

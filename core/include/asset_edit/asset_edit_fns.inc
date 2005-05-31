@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_fns.inc,v 1.39 2004/12/03 15:33:23 brobertson Exp $
+* $Id: asset_edit_fns.inc,v 1.39.2.1 2005/05/31 01:14:50 rhoward Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -191,7 +191,7 @@ class Asset_Edit_Fns extends MySource_Object
 
 	/**
 	* Paint the interface for setting weights
-	* 
+	*
 	* @param object Asset				&$owner	the asset whose interface we are painting
 	* @param object	Backend_Outputter	&$o		the outputter class
 	* @param string						$prefix	prefix for the form element
@@ -239,10 +239,10 @@ class Asset_Edit_Fns extends MySource_Object
 			$o->closeField();
 		}
 		return true;
-		
+
 	}//end paintWeights()
-	
-	
+
+
 	/**
 	* Process the weights posted in paintWeights
 	*
@@ -267,7 +267,7 @@ class Asset_Edit_Fns extends MySource_Object
 					$weighting = max("1", $weighting);
 				} else {
 					$weighting = '0';
-				}	
+				}
 			}
 			if (!isset($weightings[$component]['default']))
 				$weightings[$component]['default'] = '0';
@@ -276,10 +276,24 @@ class Asset_Edit_Fns extends MySource_Object
 		$owner->saveComponentWeightings($weightings);
 		$owner->informChanges();
 		return true;
-		
+
 	}//end processWeights()
-	
-	
+
+
+	/**
+	* Starts workflow by writing out all workflow arrays to the workflow table for the passed assetID
+	*
+	* @param int	$assetid	the ID of the asset to check workflow completness for
+	*
+	* @return boolean
+	* @access public
+	*/
+	function isWorkflowComplete(&$asset)
+	{
+		return $GLOBALS['SQ_SYSTEM']->wm->isWorkflowComplete($asset->id);
+
+	}//end isWorkflowComplete()
+
 }//end class
 
 ?>
