@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_fns.inc,v 1.46 2005/05/11 06:05:11 lwright Exp $
+* $Id: asset_edit_fns.inc,v 1.47 2005/05/31 06:50:40 rhoward Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.46 $
+* @version $Revision: 1.47 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Fns extends MySource_Object
@@ -134,8 +134,11 @@ class Asset_Edit_Fns extends MySource_Object
 		$paths = $asset->getWebPaths();
 
 		foreach ($paths as $path) {
-			if ($wa) text_box($prefix.'_paths[]', $path, 25);
-			else echo $path;
+			if ($wa) {
+				text_box($prefix.'_paths[]', $path, 25);
+			} else {
+				echo $path;
+			}
 			echo '<br/>';
 		}
 
@@ -159,7 +162,9 @@ class Asset_Edit_Fns extends MySource_Object
 	function processPaths(&$asset, &$o, $prefix)
 	{
 		if (!isset($_POST[$prefix.'_paths'])) return false;
-		if (!$asset->saveWebPaths(array_values($_POST[$prefix.'_paths']))) return false;
+		if (!$asset->saveWebPaths(array_values($_POST[$prefix.'_paths']))) {
+			return false;
+		}
 
 		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$vars = Array('assetids' => Array($asset->id));
@@ -188,8 +193,12 @@ class Asset_Edit_Fns extends MySource_Object
 		} else {
 			usort($urls, create_function('$a, $b', 'return strcmp($a[\'url\'], $b[\'url\']);'));
 			foreach ($urls as $data) {
-				if ($data['http'])  echo 'http://'.$data['url'], '<br/>';
-				if ($data['https']) echo 'https://'.$data['url'], '<br/>';
+				if ($data['http']) {
+					echo 'http://'.$data['url'], '<br/>';
+				}
+				if ($data['https']) {
+					echo 'https://'.$data['url'], '<br/>';
+				}
 			}
 		}
 
@@ -233,14 +242,14 @@ class Asset_Edit_Fns extends MySource_Object
 				<?php
 
 				if ($default) {
-					echo "&nbsp;&nbsp;Weight: ";
+					echo '&nbsp;&nbsp;Weight: ';
 					echo $weightingData['weight'];
 					$o->addHiddenField($prefix. "weightings[$component][weight]", $weightingData['weight']);
 					$o->addHiddenField($prefix. "include[$component][weight]", ($weightingData['weight'] > 0)?'1':'0');
 				} else {
-					combo_box($prefix. "include[$component]", Array("0" => "Do not include in searches", "1" => "Include in searches"), false, ($weightingData['weight'] > 0)?'1':'0');
+					combo_box($prefix. "include[$component]", Array('0' => 'Do not include in searches', '1' => 'Include in searches'), false, ($weightingData['weight'] > 0)?'1':'0');
 					if ($weightingData['weight'] > 0) {
-						echo "&nbsp;&nbsp;Weight: ";
+						echo '&nbsp;&nbsp;Weight: ';
 						text_box($prefix. "weightings[$component][weight]", $weightingData['weight'], 3);
 					} else {
 						$o->addHiddenField($prefix. "weightings[$component][weight]", $weightingData['weight']);
@@ -276,13 +285,14 @@ class Asset_Edit_Fns extends MySource_Object
 			$weighting =& $weightings[$component]['weight'];
 			if (isset($included[$component])) {
 				if ($included[$component]) {
-					$weighting = max("1", $weighting);
+					$weighting = max('1', $weighting);
 				} else {
 					$weighting = '0';
 				}
 			}
-			if (!isset($weightings[$component]['default']))
+			if (!isset($weightings[$component]['default'])) {
 				$weightings[$component]['default'] = '0';
+			}
 		}
 
 		$owner->saveComponentWeightings($weightings);
@@ -290,6 +300,21 @@ class Asset_Edit_Fns extends MySource_Object
 		return true;
 
 	}//end processWeights()
+
+
+	/**
+	* Starts workflow by writing out all workflow arrays to the workflow table for the passed assetID
+	*
+	* @param int    $assetid        the ID of the asset to check workflow completness for
+	*
+	* @return boolean
+	* @access public
+	*/
+	function isWorkflowComplete(&$asset)
+	{
+		return $GLOBALS['SQ_SYSTEM']->wm->isWorkflowComplete($asset->id);
+
+	}//end isWorkflowComplete()
 
 
 }//end class

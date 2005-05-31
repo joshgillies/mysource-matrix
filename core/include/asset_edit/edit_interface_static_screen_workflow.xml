@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_static_screen_workflow.xml,v 1.4 2005/03/30 00:40:13 lwright Exp $
+* $Id: edit_interface_static_screen_workflow.xml,v 1.5 2005/05/31 06:50:40 rhoward Exp $
 *
 */
 -->
@@ -36,7 +36,7 @@
 		<field code="workflow_schemas" />
 		<field code="workflow_add_schemas" />
 	</section>
-	<section name="Cascade Options" read_access="admin:workflow">
+	<section name="Cascade Options" read_access="admin:workflow" show_if="isWorkflowComplete">
 		<field code="workflow_cascade_options" />
 	</section>
 </contents>

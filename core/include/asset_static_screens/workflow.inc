@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow.inc,v 1.23 2005/05/11 06:05:11 lwright Exp $
+* $Id: workflow.inc,v 1.24 2005/05/31 06:50:43 rhoward Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once DIRNAME(__FILE__).'/details.inc';
 * Workflow Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix
 */
 
@@ -57,7 +57,9 @@ function paintInlineWorkflow(&$owner, &$o, &$ei)
 
 	$direct = Array();
 	foreach ($schemas as $schemaid => $granted) {
-		if (!isset($direct[$granted])) $direct[$granted] = Array();
+		if (!isset($direct[$granted])) {
+			$direct[$granted] = Array();
+		}
 		$direct[$granted][] = $schemaid;
 	}
 	ksort($direct);
@@ -79,7 +81,9 @@ function paintInlineWorkflow(&$owner, &$o, &$ei)
 			foreach ($schemaids as $schemaid) {
 				if ($schemaid) {
 					$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
-					if (!$schema->id || !is_a($schema, 'workflow_schema')) continue;
+					if (!$schema->id || !is_a($schema, 'workflow_schema')) {
+						continue;
+					}
 				}
 			?>
 				<tr>
@@ -128,9 +132,7 @@ function paintInlineWorkflow(&$owner, &$o, &$ei)
 function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 {
 	$root = &$ei->findScreen('static_screen_workflow');
-	if (is_null($root)) {
-		return false;
-	}
+	if (is_null($root)) return false;
 
 	$prefix = $owner->getPrefix();
 	$print_commit_button = false;
@@ -147,17 +149,25 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 		// only do this if we are not painting a layout
 		if (is_null($keywords)) {
 			// if we are in limbo and this section is not to be printed in limbo - dont print it
-			if (SQ_IN_LIMBO && (!isset($section->attributes['limbo_access']) || (int)$section->attributes['limbo_access'] == 0)) continue;
+			if (SQ_IN_LIMBO && (!isset($section->attributes['limbo_access']) || (int)$section->attributes['limbo_access'] == 0)) {
+				continue;
+			}
 		}
 
 		$section_access = $ei->_getAccess($owner, $section, $prefix);
-		if (!($section_access & SQ_EI_READ)) continue;
+		if (!($section_access & SQ_EI_READ)) {
+			continue;
+		}
 
-		if (!is_null($keywords) && isset($keywords['sections'][strtolower($section->attributes['name'])])) ob_start();
+		if (!is_null($keywords) && isset($keywords['sections'][strtolower($section->attributes['name'])])) {
+			ob_start();
+		}
 
 		$o->openSection(array_get_index($section->attributes, 'display_name', $section->attributes['name']));
 
-		if (!($num_fields = count($section->children))) continue;
+		if (!($num_fields = count($section->children))) {
+			continue;
+		}
 
 		for ($j = 0; $j < $num_fields; $j++) {
 			$field = &$section->children[$j];
@@ -171,8 +181,9 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 					if (!empty($running_schemas)) {
 
 						$o->openField(translate('change_status'));
-							if (!is_null($keywords) && isset($keywords['fields']['workflow_status_change'])) ob_start();
-
+							if (!is_null($keywords) && isset($keywords['fields']['workflow_status_change'])) {
+								ob_start();
+							}
 							$available_statii = _paintStatusChange($owner, $o, $prefix);
 							?><span class="sq-backend-fineprint"><?php
 							if (!empty($available_statii)) {
@@ -197,7 +208,9 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 					if (!empty($running_schemas)) {
 
 						$o->openField(translate('log_message'));
-							if (!is_null($keywords) && isset($keywords['fields']['workflow_log_message'])) ob_start();
+							if (!is_null($keywords) && isset($keywords['fields']['workflow_log_message'])) {
+								ob_start();
+							}
 
 							text_area($prefix.'_workflow_new_log_message', '', 60, 6);
 							echo '<br/>'.translate('workflow_enter_reason_for_decision');
@@ -217,7 +230,9 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 					if (!empty($running_schemas)) {
 
 						$o->openField('');
-							if (!is_null($keywords) && isset($keywords['fields']['workflow_status_commit'])) ob_start();
+							if (!is_null($keywords) && isset($keywords['fields']['workflow_status_commit'])) {
+								ob_start();
+							}
 
 							normal_button($prefix.'_workflow_status_update', translate('commit_button'), 'submit_form()');
 
@@ -234,7 +249,9 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 				case 'workflow_logs' :
 
 					$o->openField(translate('workflow_logs'));
-						if (!is_null($keywords) && isset($keywords['fields']['workflow_logs'])) ob_start();
+						if (!is_null($keywords) && isset($keywords['fields']['workflow_logs'])) {
+							ob_start();
+						}
 
 						$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 						$logs = $ms->getLogs('asset.workflow', Array('assetid' => $owner->id));
@@ -315,7 +332,9 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 					if (!empty($running_schemas)) {
 
 						$o->closeSection();
-						if (!is_null($keywords) && isset($keywords['fields']['workflow_report'])) ob_start();
+						if (!is_null($keywords) && isset($keywords['fields']['workflow_report'])) {
+							ob_start();
+						}
 
 						$schema_workflows = $wfm->getSchemaWorkflows($owner->id);
 						foreach ($schema_workflows as $schemaid => $workflow) {
@@ -351,16 +370,19 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 											$o->openField(translate('step_duration'));
 												echo $GLOBALS['SQ_SYSTEM']->datetime($step_data['started']);
 												echo ' - ';
-											if ($step_data['completed']) echo $GLOBALS['SQ_SYSTEM']->datetime($step_data['completed']);
-											else echo '??';
-											echo ' (<i>';
-											require_once SQ_FUDGE_PATH.'/general/datetime.inc';
-											if ($step_data['completed']) {
-												echo easy_time_total($step_data['completed'] - $step_data['started'], true);
-											} else {
-												echo easy_time_total(time() - $step_data['started'], true);
-											}
-											echo '</i>)';
+												if ($step_data['completed']) {
+													echo $GLOBALS['SQ_SYSTEM']->datetime($step_data['completed']);
+												} else {
+													echo '??';
+												}
+												echo ' (<i>';
+												require_once SQ_FUDGE_PATH.'/general/datetime.inc';
+												if ($step_data['completed']) {
+													echo easy_time_total($step_data['completed'] - $step_data['started'], true);
+												} else {
+													echo easy_time_total(time() - $step_data['started'], true);
+												}
+												echo '</i>)';
 										}
 
 										$o->openField(translate('step_logic'));
@@ -378,7 +400,9 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 											}
 
 											echo '<i>'.$wfm->_valid_step_logic[$step_logic];
-											if ($step_logic_num) echo " $step_logic_num condition".(($step_logic_num > 1) ? 's' : '')." must be met</i>";
+											if ($step_logic_num) {
+												echo " $step_logic_num condition".(($step_logic_num > 1) ? 's' : '').' must be met</i>';
+											}
 										$o->closeField();
 
 										$o->openField(translate('conditions'));
@@ -418,7 +442,9 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 													echo '&nbsp;';
 												} else {
 													echo '<i>'.$wfm->_valid_cond_logic[$cond_logic];
-													if ($cond_logic_num) echo " $cond_logic_num group member".(($cond_logic_num > 1) ? 's' : '')." must approve</i>";
+													if ($cond_logic_num) {
+														echo " $cond_logic_num group member".(($cond_logic_num > 1) ? 's' : '').' must approve</i>';
+													}
 												}
 
 												?></td>
@@ -432,12 +458,18 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 															if (is_a($asset, 'user')) {
 																echo ((isset($cond_data['published_by'][$asset->id])) ? '<span style="color:#008800"><b>'.translate('yes').'</b></span>' : '&nbsp;');
 															} else {
-																if ($cond_logic_num) $user_count = $cond_logic_num;
-																else $user_count = count($GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, Array('user'), false));
+																if ($cond_logic_num) {
+																	$user_count = $cond_logic_num;
+																} else {
+																	$user_count = count($GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, Array('user'), false));
+																}
 
 																echo '<span style="color:#';
-																if (count($cond_data['published_by']) >= $user_count) echo '008800';
-																else echo '880000';
+																if (count($cond_data['published_by']) >= $user_count) {
+																	echo '008800';
+																} else {
+																	echo '880000';
+																}
 																echo '"><b>';
 																echo count($cond_data['published_by']).' of '.$user_count;
 																echo '</b></span>';
@@ -477,7 +509,9 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 
 					} else {
 						$o->openField(translate('workflow_status'));
-							if (!is_null($keywords) && isset($keywords['fields']['workflow_report'])) ob_start();
+							if (!is_null($keywords) && isset($keywords['fields']['workflow_report'])) {
+								ob_start();
+							}
 
 							echo translate('workflow_not_running');
 
@@ -502,7 +536,9 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 							$m_complete = $mm->requiredFieldsComplete($owner->id);
 							if (!$m_complete) {
 								$o->openField('<span class="sq-backend-warning"><b>'.strtolower(translate('warning')).'</b></span>');
-									if (!is_null($keywords) && isset($keywords['fields']['workflow_metadata_warning'])) ob_start();
+									if (!is_null($keywords) && isset($keywords['fields']['workflow_metadata_warning'])) {
+										ob_start();
+									}
 
 									?>
 									<p class="sq-backend-data">
@@ -531,13 +567,17 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 
 					$direct = Array();
 					foreach ($schemas as $schemaid => $granted) {
-						if (!isset($direct[$granted])) $direct[$granted] = Array();
+						if (!isset($direct[$granted])) {
+							$direct[$granted] = Array();
+						}
 						$direct[$granted][] = $schemaid;
 					}
 					ksort($direct);
 
 					$o->openField('');
-						if (!is_null($keywords) && isset($keywords['fields']['workflow_schemas'])) ob_start();
+						if (!is_null($keywords) && isset($keywords['fields']['workflow_schemas'])) {
+							ob_start();
+						}
 
 						if (empty($direct)) {
 							echo translate('no_workflow_schemas');
@@ -550,7 +590,7 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 											<span style="color: <?php echo (($granted == '0') ? 'red' : 'green'); ?>"><?php echo (($granted == '0') ? translate('denied') : translate('applied')) ?></span>
 										</td>
 										<?php
-										if ($admin_access) {
+										if ($admin_access && $GLOBALS['SQ_SYSTEM']->wm->isWorkflowComplete($owner->id)) {
 											?><td align="center" width="100" class="sq-backend-table-header" style="font-weight: bold;"><?php echo translate('delete_question'); ?></td><?php
 										}
 										?>
@@ -559,7 +599,9 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 								foreach ($schemaids as $schemaid) {
 									if ($schemaid) {
 										$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
-										if (!$schema->id || !is_a($schema, 'workflow_schema')) continue;
+										if (!$schema->id || !is_a($schema, 'workflow_schema')) {
+											continue;
+										}
 									}
 								?>
 									<tr>
@@ -569,7 +611,7 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 										?>
 										</td>
 										<?php
-										if ($admin_access) {
+										if ($admin_access && $GLOBALS['SQ_SYSTEM']->wm->isWorkflowComplete($owner->id)) {
 											?><td align="center" width="100" class="sq-backend-table-cell"><?php
 											check_box($prefix.'_workflow[delete]['.$schemaid.']');
 											?></td><?php
@@ -602,7 +644,9 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 
 					if ($admin_access && empty($running_schemas)) {
 						$o->openField('');
-							if (!is_null($keywords) && isset($keywords['fields']['workflow_add_schemas'])) ob_start();
+							if (!is_null($keywords) && isset($keywords['fields']['workflow_add_schemas'])) {
+								ob_start();
+							}
 
 							$o->openField('New ?', 'new_line');
 								combo_box($prefix.'_workflow[new][granted]', Array('' => '', '1' => translate('apply'), '0' => translate('deny')), false, '');
@@ -610,7 +654,9 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 								asset_finder($prefix.'_workflow[new][schemaid]', 0, Array('workflow_schema' => 'D'), 'sq_sidenav', false, 'null', Array('clear'));
 							$o->closeField();
 
-							if (is_null($keywords) || isset($keywords['fields']['workflow_add_schemas'])) $print_commit_button = true;
+							if (is_null($keywords) || isset($keywords['fields']['workflow_add_schemas'])) {
+								$print_commit_button = true;
+							}
 
 							// if there is a keyword replacement for this, add it to the replacements
 							if (!is_null($keywords) && isset($keywords['fields']['workflow_add_schemas'])) {
@@ -628,7 +674,9 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 				case 'workflow_cascade_options' :
 
 					$o->openField('');
-						if (!is_null($keywords) && isset($keywords['fields']['workflow_cascade_options'])) ob_start();
+						if (!is_null($keywords) && isset($keywords['fields']['workflow_cascade_options'])) {
+							ob_start();
+						}
 
 						if ($admin_access && empty($running_schemas)) {
 							$kiddies = $GLOBALS['SQ_SYSTEM']->am->getChildren($owner->id);
@@ -734,7 +782,9 @@ function processWorkflow(&$owner, &$o, &$ei)
 	// if we dont have admin access, dont process anything
 	if (!$owner->adminAccess('workflow')) return $updated;
 
-	if (!isset($_POST[$prefix.'_workflow'])) return $updated;
+	if (!isset($_POST[$prefix.'_workflow'])) {
+		return $updated;
+	}
 
 	$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 
@@ -761,7 +811,9 @@ function processWorkflow(&$owner, &$o, &$ei)
 								 );
 			} else {
 				// lets do this ourselves
-				if (!$wfm->setSchema($owner->id, (int)$post_data['new']['schemaid']['assetid'], (int)$post_data['new']['granted'])) return $updated;
+				if (!$wfm->setSchema($owner->id, (int)$post_data['new']['schemaid']['assetid'], (int)$post_data['new']['granted'])) {
+					return $updated;
+				}
 			}
 		}
 	}
@@ -779,7 +831,9 @@ function processWorkflow(&$owner, &$o, &$ei)
 									'previous_access'	=> $current_access,
 								 );
 			} else {
-				if (!$wfm->deleteSchema($owner->id, $schemaid)) return $updated;
+				if (!$wfm->deleteSchema($owner->id, $schemaid)) {
+					return $updated;
+				}
 			}
 		}
 	}
