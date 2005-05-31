@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_edit_fns.inc,v 1.32 2005/05/16 06:36:41 lwright Exp $
+* $Id: page_asset_builder_edit_fns.inc,v 1.33 2005/05/31 01:09:29 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1052,7 +1052,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 			</tr>
 			<tr>
 				<td class="sq-backend-table-cell" >
-					<?php echo translated('rules') ?>:
+					<?php echo translate('rules') ?>:
 				</td>
 				<td class="sq-backend-table-cell">
 					<table border="0" cellpadding="0" cellspacing="0" style="width: 100%">
