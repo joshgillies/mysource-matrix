@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type_edit_fns.inc,v 1.43 2005/05/23 05:58:19 dmckee Exp $
+* $Id: design_area_menu_type_edit_fns.inc,v 1.44 2005/05/31 02:35:43 dmckee Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.44 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -172,14 +172,16 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 
 			// if there is no contents, then see if there is a default
 			if (empty($contents[$asset_index]['contents'])) {
+				error_log('default asset contents');
 				$contents[$asset_index]['contents'] = $this->_getDefaultContents($asset, 'asset');
 			}
 
 			if (!$asset->setAttrValue('asset_contents', $contents[$asset_index]['contents'])) {
+				error_log('asset contents cant be set');
 				return false;
 			}
 
-			// Now what we do is morph it so that this element doesn't contain all the un-necessary contents stuff
+			//Now what we do is morph it so that this element doesn't contain all the un-necessary contents stuff
 			$contents[$asset_index] = Array(
 										'_type'				=> 'TAG',
 										'attributes'		=> Array (),
@@ -208,7 +210,9 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 
 		$GLOBALS['SQ_PROCESSED_DESIGN_AREAS'][$asset->attr('id_name')] = true;
 
-		return $asset->setAttrValue('contents', $contents);
+		$asset->setAttrValue('contents', $contents);
+		$asset->saveAttributes();
+		return true;
 
 	}//end _processContents()
 
@@ -229,6 +233,7 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 	{
 		// let's see if we already have a sub menu
 		$sub = &$asset->getSubMenu();
+		error_log('sub menu id:  '.$sub->id);
 		// nup ? create one now
 		if (is_null($sub)) {
 			// get the parent
@@ -241,6 +246,7 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 			$sub = new $design_area();
 			$sub_link = Array('asset' => &$design, 'link_type' => SQ_LINK_TYPE_3, 'value' => $asset->attr('id_name').'__sub_menu', 'is_dependant' => 1);
 			$sub->setAttrValue('id_name', $asset->attr('id_name').'__sub_menu');
+			$sub->setAttrValue('contents', $contents);
 			if (!$sub->create($sub_link)) return false;
 
 			if (!$GLOBALS['SQ_SYSTEM']->am->createAssetLink($asset, $sub, SQ_LINK_NOTICE, 'sub_menu')) {
@@ -260,11 +266,12 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 				return false;
 			}
 		}
-
 		$edit_fns = $sub->getEditFns();
 		if (!$edit_fns->_processContents($sub, $contents) && $sub->saveAttributes()) {
 			return false;
 		}
+		error_log(print_r($sub->attr('contents'), true));
+		$asset->saveAttributes();
 		return true;
 
 	}//end _processSubMenu()
@@ -285,7 +292,6 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 	{
 		switch ($element['operation']) {
 			case 'asset' :
-
 				if ($divider_contents = $asset->attr('divider_contents')) {
 					ob_start();
 					if (!$this->_outputContents($divider_contents, $asset, $design)) {
@@ -384,7 +390,6 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 
 				$sub = &$asset->getSubMenu();
 				if (is_null($sub)) return true;
-
 				return $sub->printArea($design);
 
 			default :
