@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_management.inc,v 1.12 2005/05/26 04:35:08 ndvries Exp $
+* $Id: file_management.inc,v 1.13 2005/05/31 04:56:22 ndvries Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -73,6 +73,25 @@ class File_Management extends Asset_Management
 
 	}//end constructor
 
+
+	function _upgrade($current_version)
+	{
+		if (version_compare($current_version, '0.4', '<')) {
+			bam('UPGRADING FILE ASSETS - FROM VERSION '.$current_version);
+			$children = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), false);
+			foreach ($children as $assetid) {
+				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$attr = $asset->attr('title');
+				if (empty($attr)) {
+					$asset->setAttrValue('title', $asset->attr('name'));
+					$asset->saveAttributes();
+				}
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset, true);
+			}
+		}//end if version 0.4
+
+		return parent::_upgrade($current_version);
+	}
 
 }//end class
 ?>
