@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_login_form.inc,v 1.17 2005/05/30 01:01:06 rhoward Exp $
+* $Id: design_area_login_form.inc,v 1.18 2005/05/31 00:23:45 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -141,7 +141,7 @@ class Design_Area_Login_Form extends Design_Area
 
 			case 'username_box' :
 				require_once SQ_LIB_PATH.'/html_form/html_form.inc';
-				$extras = 'onfocus="javascript: this.select();"';
+				$extras = 'onfocus="this.select();"';
 				foreach ($args As $k => $v) {
 					if ($k == 'size') continue;
 					$extras .= ' '.$k.'="'.htmlspecialchars($v).'"';
