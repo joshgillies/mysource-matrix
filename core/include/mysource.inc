@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.117 2005/05/31 00:45:46 tbarrett Exp $
+* $Id: mysource.inc,v 1.118 2005/05/31 03:49:14 tbarrett Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.117 $
+* @version $Revision: 1.118 $
 * @package MySource_Matrix
 */
 class MySource
@@ -507,7 +507,7 @@ class MySource
 	*/
 	function _setupUser()
 	{
-		if (!SQ_CONF_ALLOW_IP_CHANGE && ($_SESSION['remote_addr'] != $_SERVER['REMOTE_ADDR'])) {
+		if (!SQ_CONF_ALLOW_IP_CHANGE && isset($_SESSION['remote_addr']) && ($_SESSION['remote_addr'] != $_SERVER['REMOTE_ADDR'])) {
 			// IP address has changed and we don't allow that
 			$this->_loginPublicUser();
 			return;
@@ -847,7 +847,9 @@ class MySource
 
 		$_SESSION['userid']         = $user->id;
 		$_SESSION['user_type_code'] = $user->type();
-		$_SESSION['remote_addr']    = $_SERVER['REMOTE_ADDR'];
+		if (!$this->_user_is_public) {
+			$_SESSION['remote_addr']    = $_SERVER['REMOTE_ADDR'];
+		}
 
 		// log a message so we know someone has logged in
 		$this->_logSecurityMsg('system.security.login');
