@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.125.2.12 2005/05/24 06:18:52 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.125.2.13 2005/05/31 02:29:19 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.125.2.12 $
+* @version $Revision: 1.125.2.13 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -474,7 +474,7 @@ class Page_Calendar extends Page_Asset_Listing
 	{
 		$cal_view = $_REQUEST['SQ_CALENDAR_VIEW'];
 		$formats = $this->attr('enabled_views');
-		$format = $formats[$cal_view];
+		$format = array_get_index($formats, $cal_view, '');
 		$res = $this->_getGeneralScript();
 		if (strpos($format, 'list') === false) $res .= '<div id="calendarTable">';
 		$func = 'get'.ucfirst($cal_view).'View';
