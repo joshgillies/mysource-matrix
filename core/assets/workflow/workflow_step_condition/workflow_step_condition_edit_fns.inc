@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_step_condition_edit_fns.inc,v 1.16 2005/05/11 06:05:06 lwright Exp $
+* $Id: workflow_step_condition_edit_fns.inc,v 1.17 2005/05/31 06:50:20 rhoward Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -107,11 +107,11 @@ class Workflow_Step_Condition_Edit_Fns extends Asset_Edit_Fns
 				} else {
 					combo_box($prefix.'_logic', $wfm->_valid_cond_logic, false, $cond_logic);
 					echo '&nbsp;';
-					
+
 					ob_start();
 						text_box($prefix.'_logic_num', $cond_logic_num, 4);
 						$text_box = ob_get_contents();
-					ob_clean();
+					ob_end_clean();
 					echo translate('members_must_approve', $text_box);
 				}
 			}
