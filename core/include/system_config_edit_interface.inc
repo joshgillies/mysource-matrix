@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config_edit_interface.inc,v 1.19 2005/05/26 04:35:35 gsherwood Exp $
+* $Id: system_config_edit_interface.inc,v 1.20 2005/05/31 00:45:46 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *    Looks after the editing of the system config
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix
 */
 class System_Config_Edit_Interface extends MySource_Object
@@ -115,6 +115,7 @@ class System_Config_Edit_Interface extends MySource_Object
 			case 'hipo_config' :
 			case 'external_tools_config' :
 			case 'password_rules_config' :
+			case 'session_rules_config' :
 
 				$config = null;
 
@@ -138,6 +139,10 @@ class System_Config_Edit_Interface extends MySource_Object
 					case 'password_rules_config' :
 						require_once SQ_INCLUDE_PATH.'/password_rules_config.inc';
 						$config = new Password_Rules_Config();
+						break;
+					case 'session_rules_config' :
+						require_once SQ_INCLUDE_PATH.'/session_rules_config.inc';
+						$config = new Session_Rules_Config();
 						break;
 
 				}// end switch
@@ -190,7 +195,7 @@ class System_Config_Edit_Interface extends MySource_Object
 		<table border="0" cellspacing="3" cellpadding="1">
 			<tr>
 				<td valign="top" width="30">
-					<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib'); ?>/web/images/icons/<?php echo ((empty($lock)) ? 'un' : ''); ?>locked.png", "16", "16", "");</script>
+					<?php sq_print_icon(sq_web_path('lib').'/web/images/icons/'. ((empty($lock)) ? 'un' : '').'locked.png', 16, 16); ?>
 				</td>
 				<td valign="top">
 					<?php
@@ -226,10 +231,10 @@ class System_Config_Edit_Interface extends MySource_Object
 					<?php
 					if (!empty($lock)) {
 						if ($have_lock) {
-							submit_button('sq_lock_release_manual', translate('release_lock_button'), 'set_hidden_field("process_form", "0");');
+							submit_button('sq_lock_release_manual', translate('release_lock_button'), 'set_hidden_field("process_form", "0");', 'accesskey="r"');
 						}
 					} else {
-						submit_button('sq_lock_acquire', translate('acquire_lock_button'), 'set_hidden_field("process_form", "0");');
+						submit_button('sq_lock_acquire', translate('acquire_lock_button'), 'set_hidden_field("process_form", "0");', 'accesskey="a"');
 					}
 					?>
 				</td>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.61 2005/05/19 15:00:41 gnoel Exp $
+* $Id: system_config.inc,v 1.62 2005/05/31 00:45:46 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.61 $
+* @version $Revision: 1.62 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -61,7 +61,6 @@ class System_Config extends Config
 						'SQ_CONF_DEFAULT_EMAIL'				=> Array('editable' => 1, 'default' => ''),
 						'SQ_CONF_TECH_EMAIL'				=> Array('editable' => 1, 'default' => ''),
 						'SQ_CONF_MAX_LOGIN_ATTEMPTS'		=> Array('editable' => 1, 'default' => 3),
-						'SQ_CONF_MAX_IDLE_TIME'				=> Array('editable' => 1, 'default' => 6000),
 						'SQ_CONF_REFRESH_INTERVAL'			=> Array('editable' => 1, 'default' => 120),
 						'SQ_CONF_LOCK_LENGTH'				=> Array('editable' => 1, 'default' => 600),
 						'SQ_CONF_LOG_FILE'					=> Array('editable' => 1, 'default' => ''),
@@ -77,6 +76,8 @@ class System_Config extends Config
 						'SQ_CONF_LOG_FILE_SYSTEM'			=> Array('editable' => 0, 'default' => 'system'),
 						'SQ_CONF_LOG_FILE_ERROR'			=> Array('editable' => 0, 'default' => 'error'),
 						'SQ_CONF_LOG_ERRORS'				=> Array('editable' => 1, 'default' => true),
+						'SQ_CONF_SESSION_GC_MAXLIFETIME'	=> Array('editable' => 1, 'default'	=> 604800),
+						'SQ_CONF_EDITING_TIME'				=> Array('editable'	=> 0, 'default' => 3600),
 					   );
 
 	/**
@@ -138,7 +139,6 @@ class System_Config extends Config
 				// now just make sure they aren't trying to set anything that they shouldn't
 				if (!$is_root) {
 					unset($vars['SQ_CONF_MAX_LOGIN_ATTEMPTS']);
-					unset($vars['SQ_CONF_MAX_IDLE_TIME']);
 					unset($vars['SQ_CONF_LOG_ERRORS']);
 					unset($vars['SQ_CONF_ERRORS_HIDE_FRONTEND']);
 					unset($vars['SQ_CONF_BACKEND_SUFFIX']);
@@ -149,9 +149,6 @@ class System_Config extends Config
 				// now do some validation
 				if (isset($vars['SQ_CONF_SYSTEM_ROOT_URLS'])) {
 					$vars['SQ_CONF_SYSTEM_ROOT_URLS'] = str_replace("\r", '', $vars['SQ_CONF_SYSTEM_ROOT_URLS']);
-				}
-				if (isset($vars['SQ_CONF_MAX_IDLE_TIME']) && $vars['SQ_CONF_MAX_IDLE_TIME'] != '0') {
-					$vars['SQ_CONF_MAX_IDLE_TIME'] = max(60, (int) $vars['SQ_CONF_MAX_IDLE_TIME']);
 				}
 				foreach (Array('SQ_CONF_REFRESH_INTERVAL', 'SQ_CONF_LOCK_LENGTH') as $var_name) {
 					if (isset($vars[$var_name])) {
@@ -246,6 +243,12 @@ class System_Config extends Config
 				return parent::_paintConfigVar($var_name, trim($value), $var_export);
 			break;
 
+
+			case 'SQ_CONF_SESSION_GC_MAXLIFETIME' :
+				if (!parent::_paintConfigVar($var_name, $value, $var_export)) return false;
+				echo "ini_set('session.gc_maxlifetime', $value);\n";
+				return true;
+			break;
 
 			default :
 				return parent::_paintConfigVar($var_name, $value, $var_export);
@@ -390,16 +393,6 @@ class System_Config extends Config
 			}
 
 			$o->note(translate('0_is_unlimited_attempts'));
-
-			$o->openField(translate('max_idle_time'));
-
-				if ($write_access && $is_root) {
-					text_box($class.'[SQ_CONF_MAX_IDLE_TIME]', SQ_CONF_MAX_IDLE_TIME, 10, 10);
-				} else {
-					echo SQ_CONF_MAX_IDLE_TIME;
-				}
-
-				$o->note(translate('0_for_unlimited_idle_time'));
 
 			$o->openField(translate('allow_ip_change'));
 				if ($write_access && $is_root) {

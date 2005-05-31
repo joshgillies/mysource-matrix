@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: prefs.inc,v 1.3 2005/01/20 13:10:35 brobertson Exp $
+* $Id: prefs.inc,v 1.4 2005/05/31 00:45:47 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *    Looks after the creation and editing of the user preference files
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 */
 class Prefs extends MySource_Object
@@ -114,12 +114,16 @@ class Prefs extends MySource_Object
 
 
 	/**
-	* Merges two preference arrays for a content type
+	* Merges two group-defined preference arrays for a content type
+	*
+	* Note that this function is only called if there is a conflict between two groups' preferences.
+	* If there is a conflict between a group's prefs and the global prefs, the group automatically wins and
+	* this function is not called.
 	*
 	* @param array	$prefs1	array of preferences to merge
 	* @param array	$prefs2	array of preferences to merge
 	*
-	* @return array
+	* @return array	Prefs for this asset type, prefs_var => prefs_details
 	* @access public
 	*/
 	function mergePrefs($prefs1, $prefs2)

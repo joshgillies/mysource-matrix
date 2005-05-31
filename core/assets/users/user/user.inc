@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.91 2005/05/17 05:57:50 gsherwood Exp $
+* $Id: user.inc,v 1.92 2005/05/31 00:45:39 tbarrett Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once SQ_INCLUDE_PATH.'/password_rules_config.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.91 $
+* @version $Revision: 1.92 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -462,30 +462,33 @@ class User extends Asset
 
 
 	/**
-	* Gets an array of groups that this user is in
+	* Get all the groups that this user is in, regardless of group security restrictions
 	*
 	* The result is stored in the session for faster access
 	*
-	* @return array
+	* @return array(int) assetids of matching groups
 	* @access public
 	*/
 	function getGroups()
 	{
-		if (!isset($_SESSION['sq_user_groups'])) {
-			$_SESSION['sq_user_groups'] = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->currentUserId(), Array('user', 'user_group'), false));
+		error_log("Getting groups for user $this->name, session id ".session_id());
+		if (!isset($_SESSION['sq_user_groups'][$this->id])) {
+			// we store userid as key in this array to make sure we have the right user,
+			// but to avoid invalidity we clear any other userids out
+			$_SESSION['sq_user_groups'] = Array($this->id => $GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->currentUserId(), Array('user', 'user_group'), false));
+			error_log("Added to session");
+		} else {
+			error_log("Got from sessino");
 		}
-		return $_SESSION['sq_user_groups'];
+		return $_SESSION['sq_user_groups'][$this->id];
 
 	}//end getGroups()
 
 
 	/**
-	* Gets an array of groups that satisfy user conditions
+	* Gets all the groups that this user is in and for which this user satisfies the security restrictions
 	*
-	* Returns an array of all the Groups where we have met the
-	* User Conditions associated with this Group for this User
-	*
-	* @return array $groups array of group asset ids
+	* @return array(int) assetids of matching groups
 	* @access public
 	*/
 	function getUserGroups()

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general_occasional.inc,v 1.53 2005/05/24 07:11:14 lwright Exp $
+* $Id: general_occasional.inc,v 1.54 2005/05/31 00:45:46 tbarrett Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.53 $
+* @version $Revision: 1.54 $
 * @package MySource_Matrix
 */
 
@@ -360,40 +360,5 @@ function make_valid_web_paths($paths)
 
 }//end make_valid_web_paths()
 
-
-/**
-* Merges two user preference arrays
-*
-* @param array	$prefs1	array of preferences to merge
-* @param array	$prefs2	array of preferences to merge
-*
-* @return array
-* @access public
-*/
-function merge_preferences($prefs1, $prefs2)
-{
-	$merged_prefs = Array();
-
-	$type_codes = array_unique(array_merge(array_keys($prefs1), array_keys($prefs2)));
-	foreach ($type_codes as $type_code) {
-		if (isset($prefs1[$type_code]) && !isset($prefs2[$type_code])) {
-			// this is only set in prefs1
-			$merged_prefs[$type_code] = $prefs1[$type_code];
-		} else if (isset($prefs2[$type_code]) && !isset($prefs1[$type_code])) {
-			// this is only set in prefs2
-			$merged_prefs[$type_code] = $prefs2[$type_code];
-		} else {
-			// this is set in both prefs
-			require_once SQ_SYSTEM_ROOT.'/'.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code, 'dir').'/'.$type_code.'_prefs.inc';
-			$pref_name = $type_code.'_Prefs';
-			$pref = new $pref_name();
-			$merged = $pref->mergePrefs($prefs1[$type_code], $prefs2[$type_code]);
-			$merged_prefs[$type_code] = $merged;
-		}
-	}
-
-	return $merged_prefs;
-
-}//end merge_preferences()
 
 ?>

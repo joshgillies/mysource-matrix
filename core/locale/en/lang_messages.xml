@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_messages.xml,v 1.4 2005/05/26 01:27:16 dmckee Exp $
+* $Id: lang_messages.xml,v 1.5 2005/05/31 00:45:50 tbarrett Exp $
 *
 * Core Internal Messages File
 */
@@ -53,8 +53,8 @@
 		<body>The value of attribute "%attr_name%" for asset "%asset_name%" has been changed from "%old_value%" to "%new_value%"</body><!-- attribute, name, (old_value, new_value) -->
 	</message>
 	<message type="asset.locking.forced">
-		<subject>Asset Lock Forceably Acquired</subject>
-		<body>User "%user_name%" has forceably acquired the lock on %type_code% "%asset_name%", formerly held by user "%old_user_name%"</body><!-- user-name, type-code, name, old-user-name -->
+		<subject>Asset Lock Forcibly Acquired</subject>
+		<body>User "%user_name%" has forcibly acquired the lock on %type_code% "%asset_name%", formerly held by user "%old_user_name%"</body><!-- user-name, type-code, name, old-user-name -->
 	</message>
 	<message type="asset.linking.create">
 		<subject>Asset Link Created</subject>
@@ -100,9 +100,17 @@
 		<subject>User Logged In</subject>
 		<body>User "%user_name%" logged in</body><!-- user-name -->
 	</message>
-	<message type="system.security.logout">
+	<message type="system.security.logout.manual">
 		<subject>User Logged Out</subject>
-		<body>User "%user_name%" logged out</body><!-- user-name -->
+		<body>User "%user_name%" logged themselves out</body><!-- user-name -->
+	</message>
+	<message type="system.security.logout.idle">
+		<subject>User Automatically Logged Out</subject>
+		<body>User "%user_name%" was logged out since they were inactive for %timeout% seconds</body><!-- user-name -->
+	</message>
+	<message type="system.security.logout.staleauth">
+		<subject>User Automatically Logged Out</subject>
+		<body>User "%user_name%" was logged out since they hadn't authenticated for %timeout% seconds</body><!-- user-name -->
 	</message>
 	<message type="system.security.alert">
 		<subject>Security Alert</subject>

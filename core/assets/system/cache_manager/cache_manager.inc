@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.9 2005/05/12 02:10:19 tbarrett Exp $
+* $Id: cache_manager.inc,v 1.10 2005/05/31 00:45:35 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once 'Cache.php';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -226,7 +226,7 @@ class Cache_Manager extends Asset
 				if ($this->attr('permission_caching')) {
 					$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-					$groups = $current_user->getGroups();
+					$groups = array_keys($current_user->getGroups());
 					$userids = Array($db->quote($current_user->id));
 					foreach ($groups as $groupid) $userids[] = $db->quote($groupid);
 
@@ -255,7 +255,7 @@ class Cache_Manager extends Asset
 			} else {
 				// if group level caching is on - check the groups the user is in if they are logged in
 				if ($this->attr('group_caching')) {
-					$groups = $current_user->getGroups();
+					$groups = array_keys($current_user->getGroups());
 					sort($groups);
 					$cache_key = implode('|', $groups);
 				}

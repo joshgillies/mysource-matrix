@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.116 2005/05/26 04:42:15 dmckee Exp $
+* $Id: mysource.inc,v 1.117 2005/05/31 00:45:46 tbarrett Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.116 $
+* @version $Revision: 1.117 $
 * @package MySource_Matrix
 */
 class MySource
@@ -208,28 +208,29 @@ class MySource
 
 		$this->lm->setCurrentLocale(SQ_CONF_DEFAULT_BACKEND_LOCALE);
 
-		// running from the command line or installer? don't use cookies for session
 		if (!SQ_PHP_CLI && $GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS)) {
+			// we are accessing from the web, and the security subsystem is enabled in this run level,
+			// so we use cookies for security
+
 			$domain = strip_url(sq_web_path('root_url'), true);
 			$pos = strpos($domain, '/');
 			$path = '/';
-
 			if ($pos !== false) {
 				$path = substr($domain, $pos);
 				$domain = substr($domain, 0, $pos);
 			}
 
 			session_set_cookie_params(0, $path, $domain);
-
 			session_name('SQ_SYSTEM_SESSION');
 			session_save_path(SQ_SYSTEM_ROOT.'/cache');
+			ini_set('session.gc_maxlifetime', SQ_CONF_SESSION_GC_MAXLIFETIME);
 
 			$session_set = false;
 			if (isset($_GET['SESSION_KEY']) && isset($_GET['SESSION_ID'])) {
+				// asset map or someone has sent session key through the GET
 				session_id($_GET['SESSION_ID']);
 				$session_set = true;
 			}
-
 			session_start();
 
 			// check to see if the session key is the same as that used to login
@@ -240,7 +241,6 @@ class MySource
 				$log->parameters['sessionid'] = session_id();
 				$log->parameters['userid'] = $_SESSION['userid'];
 				$log->send();
-
 				exit();
 			}
 
@@ -259,42 +259,10 @@ class MySource
 				define('SQ_TABLE_RUNNING_PREFIX', SQ_TABLE_PREFIX);
 			}
 
-			// If there is a userid in the session then someone is logged in,
-			// but make sure that the person is coming from the same machine as they logged in on
-			// so get a reference to them
-			$this->user = null;
-
-			$timed_out = false;
-			if (SQ_CONF_MAX_IDLE_TIME > 0 && !empty($_SESSION['user_last_access'])) {
-				$timed_out = (time() >= ((int) $_SESSION['user_last_access'] + SQ_CONF_MAX_IDLE_TIME));
-			}
-			if (!empty($_SESSION['userid']) && !$timed_out) {
-				// check to see if we are allowing fluctuating ip addresses
-				if (SQ_CONF_ALLOW_IP_CHANGE || ($_SESSION['remote_addr'] == $_SERVER['REMOTE_ADDR'])) {
-					// we mute errors trying to get the user because we will handle this gracefully later
-					$this->user = &$this->am->getAsset($_SESSION['userid'], $_SESSION['user_type_code'], true);
-				}
-			}
-
-			if (is_null($this->user)) {
-				// see if we can log in an http-authenticated user
-				if (defined('SQ_CONF_ALLOW_HTTP_LOGIN') && SQ_CONF_ALLOW_HTTP_LOGIN) {
-					$this->loginHttpAuthenticatedUser();
-				}
-			}
-
-			if (is_null($this->user)) {
-				// log in the public user
-				$this->user = &$this->getPublicUser();
-				$_SESSION['user_is_root']      = false;
-				$_SESSION['user_is_sys_admin'] = false;
-				$_SESSION['user_is_public']    = true;
-			}
-
+			$this->_setupUser();
+			$this->_updateSessionCookie();
 			$_SESSION['user_last_access'] = time();
-			$this->_user_is_root      = $_SESSION['user_is_root'];
-			$this->_user_is_sys_admin = $_SESSION['user_is_sys_admin'];
-			$this->_user_is_public    = $_SESSION['user_is_public'];
+
 
 			// if we are using the 'a' querystring arg, remove any trailing exclamation marks
 			// that are used as termination characters in different kinds of content
@@ -303,8 +271,11 @@ class MySource
 			}
 
 		} else {
+
+			// we are either in CLI mode or the run level doesn't enable permissions
 			define('SQ_ROLLBACK_VIEW',        '0');
 			define('SQ_TABLE_RUNNING_PREFIX', SQ_TABLE_PREFIX);
+
 		}//end if
 
 		// process any global actions we have
@@ -322,7 +293,6 @@ class MySource
 	*/
 	function start()
 	{
-
 		// if the user is Up For Review, prompt the user to change password
 		$require_password_change = ($this->user && !is_a($this->user, 'public_user') && $this->user->status == SQ_STATUS_LIVE_APPROVAL);
 
@@ -415,6 +385,9 @@ class MySource
 	}//end start()
 
 
+//--        LOGGING USERS IN, OUT AND ABOUT        --//
+
+
 	/**
 	* Paints the login form, based upon which url we are currently at
 	*
@@ -426,8 +399,19 @@ class MySource
 	function paintLogin($heading, $msg)
 	{
 		$db = &$this->db;
-
 		header('HTTP/1.0 403 Forbidden');
+
+		if (array_get_index($_REQUEST, 'SQ_BACKEND_PAGE') == 'header') {
+			// we don't want to print a login box in the top frame, so reload the parent frame
+			$redirect_location = replace_query_string_vars(Array('SQ_BACKEND_PAGE' => null));
+			?>
+			<script type="text/javascript">
+				window.parent.document.location = '<?php echo $redirect_location; ?>';
+			</script>
+			<?php
+			return;
+		}
+
 		$GLOBALS['SQ_LOGIN_FORM'] = Array('paint' => 'login', 'heading' => $heading, 'msg' => $msg);
 
 		if (empty($_GET['FORCE_BACKUP_LOGIN'])) {
@@ -464,30 +448,6 @@ class MySource
 		require_once SQ_INCLUDE_PATH.'/login.inc';
 
 	}//end paintLogin()
-
-
-	/**
-	* Returns a unique session key
-	*
-	* the key can be used to strengthen the sending of the
-	* session id as a $_GET variable
-	*
-	* @return string
-	* @access public
-	*/
-	function getUniqueSessionKey()
-	{
-		$key =  $_SESSION['userid'].
-				$_SESSION['user_type_code'].
-				$_SESSION['SQ_LOGIN_KEY'];
-
-		if (!SQ_CONF_ALLOW_IP_CHANGE) {
-			$key .= $_SESSION['remote_addr'];
-		}
-
-		return md5($key);
-
-	}//end getUniqueSessionKey()
 
 
 	/**
@@ -537,6 +497,93 @@ class MySource
 		require_once SQ_INCLUDE_PATH.'/password_change.inc';
 
 	}//end paintPasswordChange()
+
+
+	/**
+	* Set up the current user, reading from the session and checking that conditions are satisfied
+	*
+	* @access public
+	* @return void
+	*/
+	function _setupUser()
+	{
+		if (!SQ_CONF_ALLOW_IP_CHANGE && ($_SESSION['remote_addr'] != $_SERVER['REMOTE_ADDR'])) {
+			// IP address has changed and we don't allow that
+			$this->_loginPublicUser();
+			return;
+		}
+
+		$this->user = null;
+		if (array_get_index($_SESSION, 'userid')) {
+			// try to log in the user whose ID is in the session
+			$this->user = &$this->am->getAsset($_SESSION['userid'], $_SESSION['user_type_code'], true);
+		}
+		if (is_null($this->user)) {
+			// see if we can log in an http-authenticated user
+			if (defined('SQ_CONF_ALLOW_HTTP_LOGIN') && SQ_CONF_ALLOW_HTTP_LOGIN) {
+				$this->_loginHttpAuthenticatedUser();
+			}
+		}
+		if (is_null($this->user)) {
+			// must be the public user
+			$this->_loginPublicUser();
+		}
+
+		// Right, now we have a user of some sort; let's check their session preferences
+		$security_actions = Array('login', 'logout', 'password_change', 'hipo', 'asset_map_request');
+		$has_security_action = in_array(array_get_index($_REQUEST, 'SQ_ACTION'), $security_actions);
+		if (array_get_index($_SESSION, 'user_last_access') && !$has_security_action) {
+
+			$session_prefs = $this->getUserPrefs('user', 'SQ_USER_SESSION_PREFS', true);
+
+			// See if it's been too long since their last MatrixActivity(R)
+			if (!empty($session_prefs['timeout'])) {
+				if (time() - $_SESSION['user_last_access'] > $session_prefs['timeout']) {
+					$this->_logSecurityMsg('system.security.logout.idle', Array('timeout' => $session_prefs['timeout']));
+					$this->_clearSession();
+					$this->_loginPublicUser(true);
+					$this->generateLoginKey(true);
+					return;
+				}
+			}
+
+			// See if it's been too long since their last authentication (or beginning of public user's session).
+			// To avoid demanding authentication at an inconvenient time (eg when the user is submitting a big form),
+			// the timeout is rounded to a number of days.  If the timeout was yesterday then we demand authentication
+			// straight away.  If the timeout is today then we only ask for authentication if the user has been inactive
+			// for a certain time (Which probably means they are not editing).
+			if (array_get_index($_SESSION, 'user_last_authentication')) {
+				if (!empty($session_prefs['max_length'])) {
+					$session_expiry_ts = $_SESSION['user_last_authentication'] + $session_prefs['max_length'];
+					$today_start_ts = strtotime('00:00:01 today');
+					$tomorrow_start_ts = strtotime('00:00:01 tomorrow');
+					if ($session_expiry_ts < $today_start_ts) {
+						// it expired yesterday so clear the session / force a login right now
+						$this->_logSecurityMsg('system.security.logout.staleauth', Array('timeout' => $session_prefs['max_length']));
+						$this->_clearSession();
+						$this->_loginPublicUser(true);
+						$this->generateLoginKey(true);
+					} else if ($session_expiry_ts < $tomorrow_start_ts) {
+						// it's meant to expire today...
+						if (time() - $_SESSION['user_last_access'] > SQ_CONF_EDITING_TIME) {
+							// because they haven't done anything for a while we assume it's safe to log them out
+							// and ask for re-authentication
+							$this->_logSecurityMsg('system.security.logout.staleauth', Array('timeout' => $session_prefs['max_length']));
+							$this->_clearSession();
+							$this->_loginPublicUser(true);
+							$this->generateLoginKey(true);
+							return;
+						}
+					}
+				}
+			}
+		}
+
+		$this->_user_is_root      = $_SESSION['user_is_root'];
+		$this->_user_is_sys_admin = $_SESSION['user_is_sys_admin'];
+		$this->_user_is_public    = $_SESSION['user_is_public'];
+
+	}//end _setupUser()
 
 
 	/**
@@ -602,7 +649,7 @@ class MySource
 					}
 				}
 
-				break;
+			break;
 
 			case 'login' :
 				$login_username = array_get_index($_POST, 'SQ_LOGIN_USERNAME');
@@ -650,27 +697,11 @@ class MySource
 				// login fails we make sure that we're logged out
 			case 'logout' :
 				if ($this->user && !is_a($this->user, 'public_user')) {
-					// log a message so we know someone has logged out
-					$ms = &$this->getMessagingService();
-					$msg_reps = Array(
-									'user_name'	=> $this->user->name,
-								);
-					$log = $ms->newMessage(Array(), 'system.security.logout', $msg_reps);
-					$log->parameters['remote_addr'] = $_SERVER['REMOTE_ADDR'];
-					$log->parameters['sessionid'] = session_id();
-					$log->send();
+					$this->_logSecurityMsg('system.security.logout.manual');
 				}
-
-				$_SESSION['userid']				= 0;
-				$_SESSION['user_type_code']		= '';
-				$_SESSION['user_is_root']		= false;
-				$this->_user_is_root			= false;
-				$_SESSION['user_is_sys_admin']	= false;
-				$this->_user_is_sys_admin		= false;
-				$_SESSION['user_is_public']		= true;
-				$this->_user_is_public			= true;
-				$this->user = &$this->getPublicUser();
-				unset($_SESSION['user_last_access']);
+				$this->_clearSession();
+				$this->_loginPublicUser(true);
+				$this->generateLoginKey(true);
 			break;
 
 			case 'send_security_key' :
@@ -749,170 +780,53 @@ class MySource
 
 
 	/**
-	* Generates a new login key and returns it
-	*
-	* @param boolean 	$force_new_key 	if true the key will regenerated even if
-	* 					there is already a value save in the session
+	* Log in the public user
 	*
 	* @access public
+	* @return void
 	*/
-	function generateLoginKey($force_new_key=false)
+	function _loginPublicUser($force=false)
 	{
-		require_once SQ_FUDGE_PATH.'/general/general.inc';
-
-		if ($force_new_key || empty($_SESSION['SQ_LOGIN_KEY'])) {
-			$_SESSION['SQ_LOGIN_KEY'] = random_password(20);
+		if ($force || empty($this->user) || !$this->_user_is_public) {
+			// log in the public user
+			$this->user = &$this->getPublicUser();
+			$_SESSION['user_is_root']      = false;
+			$_SESSION['user_is_sys_admin'] = false;
+			$_SESSION['user_is_public']    = true;
 		}
 
-		return $_SESSION['SQ_LOGIN_KEY'];
-
-	}//end generateLoginKey()
+	}//end _loginPublicUser()
 
 
 	/**
-	* Returns the current login key
+	* Try to login a user who has already been HTTP-authenticated by some external mechanism
 	*
 	* @access public
+	* @return void
 	*/
-	function loginKey()
+	function _loginHttpAuthenticatedUser()
 	{
-		return (isset($_SESSION['SQ_LOGIN_KEY'])) ? $_SESSION['SQ_LOGIN_KEY'] : '';
+		if (array_get_index($_REQUEST, 'SQ_ACTION')) return;
+		if (!array_get_index($_SERVER, 'REMOTE_USER')) return;
 
-	}//end loginKey()
+		// get a list of all the installed authentication systems
+		$auth_folder = &$this->am->getSystemAsset('authentication_folder');
+		if (is_null($auth_folder)) {
+			trigger_localised_error('SYS0249', E_USER_ERROR);
+			return;
+		}
+		$auth_systems = $auth_folder->getAuthSystems();
 
-
-	/**
-	* Get user preferences (user specific config settings) for the current user
-	*
-	* @param string	$asset_type	limit results to preferences defined by this asset type (leave NULL to get all prefs)
-	* @param string	$pref		limit result to a particular preference var (leave NULL for all prefs forthe asset type)
-	*
-	* @return mixed array | string | false if no file exists
-	* @access public
-	*/
-	function getUserPrefs($asset_type=null, $pref=null, $value_only=true)
-	{
-		$pref_1 = null;
-		$pref_2 = null;
-
-		// get all the groups that the current user is in and check them for
-		// customised preferences before using the global preferences
-		$groups = $this->am->getParents($this->user->id, 'user_group', false);
-		if (!empty($groups)) {
-			$included_global = false;
-			foreach ($groups as $groupid => $type_code) {
-				$user_group = &$this->am->getAsset($groupid, $type_code);
-				if (is_null($user_group)) continue;
-				$file_path = $user_group->data_path.'/.preferences.inc';
-
-				if (is_file($file_path)) {
-					include $file_path;
-					if (empty($preferences)) {
-						if ($included_global) continue;
-						include SQ_DATA_PATH.'/private/conf/preferences.inc';
-						$included_global = true;
-					}
-				} else {
-					if ($included_global) continue;
-					if (is_file(SQ_DATA_PATH.'/private/conf/preferences.inc')) {
-						include SQ_DATA_PATH.'/private/conf/preferences.inc';
-						$included_global = true;
-					} else {
-						return false;
-					}
-				}
-
-				if (is_null($pref_1)) {
-					$pref_1 = $preferences;
-				} else {
-					$pref_2 = $preferences;
-				}
-
-				if (!is_null($pref_2)) {
-					// merge the preference files
-					require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-					$pref_1 = merge_preferences($pref_1, $pref_2);
-					$pref_2 = null;
-				}
-			}
-			// If we haven't included the global preferences yet, but the pref_1 array
-			// HASN'T got the preference set (ie the group defined preference doesn't
-			// know anything about what preference we want), include and merge
-			// the global preferences here as a last ditch attempt to get the pref
-			if (!$included_global && !isset($pref_1[$pref])) {
-				include SQ_DATA_PATH.'/private/conf/preferences.inc';
-				$included_global = true;
-				// merge the preference files
-				require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-				$pref_1 = merge_preferences($pref_1, $preferences);
-			}
-		} else {
-			if (is_file(SQ_DATA_PATH.'/private/conf/preferences.inc')) {
-				include SQ_DATA_PATH.'/private/conf/preferences.inc';
-				$pref_1 = $preferences;
-			} else {
-				return false;
-			}
+		// try each auth system in order to see if we can load a user asset
+		$user = null;
+		foreach ($auth_systems as $systemid) {
+			$system = &$this->am->getAsset($systemid);
+			if (is_null($system)) continue;
+			$user = &$system->authenticateHttpUser();
+			if (!is_null($user)) return $this->loginUser($user);
 		}
 
-		$prefs = $pref_1;
-		if (is_null($asset_type)) return $prefs;
-
-		if (!isset($prefs[$asset_type])) {
-			trigger_localised_error('SYS0215', E_USER_WARNING, $asset_type);
-			return Array();
-		}
-		$prefs = $prefs[$asset_type];
-
-		if (is_null($pref)) return $prefs;
-
-		if (!isset($prefs[$pref])) {
-			// try the global preferences before throwing an error
-			include SQ_DATA_PATH.'/private/conf/preferences.inc';
-			if (!isset($preferences[$asset_type][$pref])) {
-				trigger_localised_error('SYS0259', E_USER_WARNING, $pref, $asset_type);
-				return Array();
-			} else {
-				$prefs = $preferences[$asset_type];
-			}
-		}
-		$prefs = $prefs[$pref];
-
-		if (!$value_only) {
-			return $prefs;
-		} else {
-			return $prefs['default'];
-		}
-
-	}//end getUserPrefs()
-
-
-	/**
-	* Broadcast a trigger event
-	*
-	* @param string         $event_name     a valid trigger event name
-	* @param object Asset   &$broadcaster   an asset that broadcast the event
-	* @param array          $parameters     an array of parameters that trigger conditions are expected to understand
-	*
-	* @access public
-	* @return boolean
-	*/
-	function broadcastTriggerEvent($event_name, &$broadcaster, $parameters=null)
-	{
-		if (!$GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_TRIGGERS)) {
-			return true;
-		}
-		$tm = &$this->getTriggerManager();
-		if (!is_null($tm)) {
-			return $tm->broadcastEvent($event_name, $broadcaster, $parameters);
-		} else {
-			return true;
-		}
-
-	}//end broadcastTriggerEvent()
-
-
-//--        CURRENT USER        --//
+	}//end _loginHttpAuthenticatedUser()
 
 
 	/**
@@ -936,14 +850,7 @@ class MySource
 		$_SESSION['remote_addr']    = $_SERVER['REMOTE_ADDR'];
 
 		// log a message so we know someone has logged in
-		$ms = &$this->getMessagingService();
-		$msg_reps = Array(
-						'user_name'	=> $user->name,
-					);
-		$log = $ms->newMessage(Array(), 'system.security.login', $msg_reps);
-		$log->parameters['remote_addr'] = $_SERVER['REMOTE_ADDR'];
-		$log->parameters['sessionid'] = session_id();
-		$log->send();
+		$this->_logSecurityMsg('system.security.login');
 
 		// generate a new login key so that when they try and login next
 		// they have to re-enter the details
@@ -953,6 +860,7 @@ class MySource
 		$_SESSION['user_is_sys_admin'] = $this->_user_is_sys_admin;
 		$_SESSION['user_is_public']    = $this->_user_is_public;
 		$_SESSION['user_last_access']  = time();
+		$_SESSION['user_last_authentication'] = time();
 
 		return true;
 
@@ -960,42 +868,12 @@ class MySource
 
 
 	/**
-	* Try to login a user who has already been HTTP-authenticated by some external mechanism
-	*
-	* @access public
-	* @return void
-	*/
-	function loginHttpAuthenticatedUser()
-	{
-		if (array_get_index($_REQUEST, 'SQ_ACTION')) return;
-		if (!array_get_index($_SERVER, 'REMOTE_USER')) return;
-
-		// get a list of all the installed authentication systems
-		$auth_folder = &$this->am->getSystemAsset('authentication_folder');
-		if (is_null($auth_folder)) {
-			trigger_localised_error('SYS0249', E_USER_ERROR);
-			return;
-		}
-		$auth_systems = $auth_folder->getAuthSystems();
-
-		// try each auth system in order to see if we can load a user asset
-		$user = null;
-		foreach ($auth_systems as $systemid) {
-			$system = &$this->am->getAsset($systemid);
-			if (is_null($system)) continue;
-			$user = &$system->authenticateHttpUser();
-			if (!is_null($user)) return $this->loginUser($user);
-		}
-
-	}//end loginHttpAuthenticatedUser()
-
-
-	/**
 	* Sets the current user of the system to be the specified user
 	*
 	* SHOULD BE USED WITH CAUTION - no authentication is done inside here
+	* This is generally to be used by scripts etc - the session is not updated with the new user's details
 	*
-	* @param object User	$user	the user to check
+	* @param object User	$user	the user to make current
 	*
 	* @access public
 	* @return boolean true on success
@@ -1016,11 +894,10 @@ class MySource
 			}
 			array_push($this->_tmp['current_user_cache'], Array($this->user->id, $this->user->type()));
 		}
-
 		$this->user = &$user;
-		$this->_user_is_root      = $this->userRoot($user);
+		$this->_user_is_root = $this->userRoot($user);
 		$this->_user_is_sys_admin = $this->userSystemAdmin($user);
-		$this->_user_is_public    = $this->userPublic($user);
+		$this->_user_is_public = $this->userPublic($user);
 
 		return true;
 
@@ -1061,6 +938,142 @@ class MySource
 		return true;
 
 	}//end restoreCurrentUser()
+
+
+	/**
+	* Returns a unique session key
+	*
+	* the key can be used to strengthen the sending of the
+	* session id as a $_GET variable
+	*
+	* @return string
+	* @access public
+	*/
+	function getUniqueSessionKey()
+	{
+		$key =  $_SESSION['userid'].
+				$_SESSION['user_type_code'].
+				$_SESSION['SQ_LOGIN_KEY'];
+
+		if (!SQ_CONF_ALLOW_IP_CHANGE) {
+			$key .= $_SESSION['remote_addr'];
+		}
+
+		return md5($key);
+
+	}//end getUniqueSessionKey()
+
+
+	/**
+	* Generates a new login key and returns it
+	*
+	* @param boolean 	$force_new_key 	if true the key will regenerated even if
+	* 					there is already a value save in the session
+	*
+	* @access public
+	*/
+	function generateLoginKey($force_new_key=false)
+	{
+		require_once SQ_FUDGE_PATH.'/general/general.inc';
+
+		if ($force_new_key || empty($_SESSION['SQ_LOGIN_KEY'])) {
+			$_SESSION['SQ_LOGIN_KEY'] = random_password(20);
+		}
+
+		return $_SESSION['SQ_LOGIN_KEY'];
+
+	}//end generateLoginKey()
+
+
+	/**
+	* Returns the current login key
+	*
+	* @access public
+	*/
+	function loginKey()
+	{
+		return (isset($_SESSION['SQ_LOGIN_KEY'])) ? $_SESSION['SQ_LOGIN_KEY'] : '';
+
+	}//end loginKey()
+
+
+	/**
+	* Update the session cookie with the appropriate expiry time given the kind of user we are
+	*
+	* Note: this function must be called before any other cookies are set or it will clear their set-cookie headers
+	*
+	* @access public
+	* @return void
+	*/
+	function _updateSessionCookie()
+	{
+		$session_id = session_id();
+		if (empty($session_id)) return false;
+
+		$session_prefs = $this->getUserPrefs('user', 'SQ_USER_SESSION_PREFS', true);
+		$time_to_live = $session_prefs['persist']; // 1 or 0
+		if (!empty($time_to_live)) {
+			$time_to_live = $session_prefs['timeout'] + 3600; // cookie should last 1 extra day
+			if (empty($time_to_live)) {
+				// there is no max inactive time but we do want to persist across browser sessions...
+				$time_to_live = 60 * 60 * 24 * 365; // give them a a year
+			}
+		}
+		$session_params = session_get_cookie_params();
+		$session_name = session_name();
+		$header = "Set-Cookie: $session_name=$session_id; ";
+		if (!empty($time_to_live)) {
+			$header .= 'expires='.substr(date('r', time()+$time_to_live-((int)substr(date('O'), 0, 3)*60*60)), 0, -5) . ' GMT';
+		}
+		if (!empty($session_params['path'])) {
+			$header .= "path=$session_params[path]; ";
+		}
+		if (!empty($session_params['domain'])) {
+			$header .= "domain=$session_params[domain]";
+		}
+		header($header);
+
+	}//end _updateSessionCookie()
+
+
+	/**
+	* Clear the user's session of all data
+	*
+	* @access public
+	* @return void
+	*/
+	function _clearSession()
+	{
+		foreach (array_keys($_SESSION) as $key) {
+			unset($_SESSION[$key]);
+		}
+
+	}//end _clearSession()
+
+
+	/**
+	* Log a message to do with system security (logging in / out)
+	*
+	* @param string	$code					The message code for the message
+	* @param array	$extra_replacemements	Extra keyword replacements to use in the message (user_name is already there)
+	*
+	* @access public
+	* @return void
+	*/
+	function _logSecurityMsg($code, $extra_replacements=Array())
+	{
+		if ($this->userPublic()) return;
+		$ms = &$this->getMessagingService();
+		$msg_reps = Array('user_name' => $this->user->name) + $extra_replacements;
+		$log = $ms->newMessage(Array(), $code, $msg_reps);
+		$log->parameters['remote_addr'] = $_SERVER['REMOTE_ADDR'];
+		$log->parameters['sessionid'] = session_id();
+		$log->send();
+
+	}//end _logSecurityMsg()
+
+
+//--        INFO ABOUT CURRENT USER        --//
 
 
 	/**
@@ -1168,6 +1181,74 @@ class MySource
 		return false;
 
 	}//end userPublic()
+
+
+	/**
+	* Get user preferences (user specific config settings) for the current user
+	*
+	* @param string		$asset_type		Asset type whose preferences we want (leave NULL to get all prefs)
+	* @param string		$pref			Name of the preference var we want (leave NULL for all prefs for the asset type)
+	* @param boolean	$value_only		If true, returns the value of the pref only, rather than all its details
+	*
+	* @return mixed array | string | false if no file exists
+	* @access public
+	*/
+	function getUserPrefs($asset_type=null, $pref=null, $value_only=true)
+	{
+		static $user_prefs = Array(); // per-script-execution cache
+		if (!isset($user_prefs[$this->user->id])) {
+			$groups = $this->user->getGroups();
+			include SQ_DATA_PATH.'/private/conf/preferences.inc';
+			$global_prefs = $preferences;
+			$final_prefs = Array();
+			foreach ($groups as $groupid => $group_type_code) {
+				$file_path = SQ_DATA_PATH.'/private/'.asset_data_path_suffix($group_type_code, $groupid).'/.preferences.inc';
+				if (!is_file($file_path)) continue;
+				include $file_path;
+				foreach ($preferences as $type => $type_prefs) {
+					if (!isset($final_prefs[$type])) {
+						$final_prefs[$type] = $type_prefs;
+					} else {
+						$conflicting_prefs = array_intersect(array_keys($type_prefs), array_keys($final_prefs[$type]));
+						if (empty($conflicting_prefs)) {
+							$final_prefs[$type] += $type_prefs;
+						} else {
+							// a particular preference within this type has been defined twice, so we need the prefs
+							// class to decide which value applies
+							require_once SQ_SYSTEM_ROOT.'/'.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code, 'dir').'/'.$type_code.'_prefs.inc'; // can this be more efficient?
+							eval('$final_prefs[$type] = '.$type_code.'_Prefs::mergePrefs($type_prefs, $final_prefs[$type]);');
+						}
+					}
+					if ($value_only) {
+						foreach ($final_prefs[$type] as $pref_name => $pref_details) {
+							$final_prefs[$type][$pref_name] = $pref_details['default'];
+						}
+					}
+				}
+			}
+
+			// now final_prefs contains all the group prefs; pad it out with remaining global prefs
+			foreach ($global_prefs as $type => $type_prefs) {
+				foreach ($type_prefs as $pref_name => $pref_details) {
+					if (!isset($final_prefs[$type][$pref_name])) {
+						$final_prefs[$type][$pref_name] = $value_only ? $pref_details['default'] : $pref_details;
+					}
+				}
+			}
+
+			$user_prefs[$this->user->id] = $final_prefs;
+		}
+		if (is_null($asset_type)) {
+			return $user_prefs[$this->user->id];
+		} else {
+			if (is_null($pref)) {
+				return $user_prefs[$this->user->id][$asset_type];
+			} else {
+				return $user_prefs[$this->user->id][$asset_type][$pref];
+			}
+		}
+
+	}//end getUserPrefs()
 
 
 //--        GET MANAGERS        --//
@@ -1432,7 +1513,7 @@ class MySource
 		switch ($conn) {
 			case 'db':
 				$dns = SQ_CONF_DB_DSN;
-				break;
+			break;
 
 			case 'db2':
 				// the second database connection is only valid if we are running from the command-line
@@ -1445,7 +1526,7 @@ class MySource
 					// we dont want to do any of the remaining work so just return
 					return;
 				}
-				break;
+			break;
 
 			default:
 				trigger_localised_error('SYS0129', E_USER_WARNING, $conn);
@@ -1927,6 +2008,33 @@ class MySource
 	}//end getInstalledPackages()
 
 
-}//end class
+//--        TRIGGERS        --//
 
+
+	/**
+	* Broadcast a trigger event
+	*
+	* @param string         $event_name     a valid trigger event name
+	* @param object Asset   &$broadcaster   an asset that broadcast the event
+	* @param array          $parameters     an array of parameters that trigger conditions are expected to understand
+	*
+	* @access public
+	* @return boolean
+	*/
+	function broadcastTriggerEvent($event_name, &$broadcaster, $parameters=null)
+	{
+		if (!$GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_TRIGGERS)) {
+			return true;
+		}
+		$tm = &$this->getTriggerManager();
+		if (!is_null($tm)) {
+			return $tm->broadcastEvent($event_name, $broadcaster, $parameters);
+		} else {
+			return true;
+		}
+
+	}//end broadcastTriggerEvent()
+
+
+}//end class
 ?>

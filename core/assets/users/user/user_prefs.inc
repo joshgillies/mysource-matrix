@@ -1,0 +1,252 @@
+<?php
+/**
+* +--------------------------------------------------------------------+
+* | Squiz.net Commercial Module Licence                                |
+* +--------------------------------------------------------------------+
+* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
+* +--------------------------------------------------------------------+
+* | This source file is not open source or freely usable and may be    |
+* | used subject to, and only in accordance with, the Squiz Commercial |
+* | Module Licence.                                                    |
+* | Please refer to http://www.squiz.net/licence for more information. |
+* +--------------------------------------------------------------------+
+*
+* $Id: user_prefs.inc,v 1.1 2005/05/31 00:45:39 tbarrett Exp $
+*
+*/
+
+
+require_once SQ_LIB_PATH.'/config/prefs.inc';
+require_once SQ_ATTRIBUTES_PATH.'/duration/duration.inc';
+
+/**
+* User_Prefs
+*
+* Purpose
+*
+*    Looks after the session expiry prefences for user groups
+*
+* @author  Darren McKee <dmckee@squiz.net>
+* @version $Revision: 1.1 $
+* @package MySource_Matrix
+*/
+class User_Prefs extends Prefs
+{
+
+	var $pref_vars = Array (
+						'SQ_USER_SESSION_PREFS'	=> Array(
+													'name'			=> 'Session Expiry Rules',
+													'description'	=> 'This preference allows you to change the session settings for this user group',
+													'default'		=> Array('persist' => '0', 'timeout' => '0', 'max_length' => '0'),
+													'protected'		=> false,
+												   ),
+					 );
+
+
+	/**
+	* Constructor
+	*
+	*/
+	function User_Prefs($pref_file='')
+	{
+		$this->Prefs($pref_file);
+
+	}//end constructor
+
+
+	/**
+	* Paints the backend interface to edit session preferences
+	*
+	* @param object Backend_Outputter	&$o			reference to the backend outputter
+	* @param boolean					$have_lock	do we have the lock to edit these preferences or not
+	* @param string						$pref		a particular preference to paint
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintBackend(&$o, $have_lock, $pref=null)
+	{
+		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
+		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
+
+		if (is_null($pref) || $pref == 'SQ_USER_SESSION_PREFS') {
+			if (is_null($pref)) {
+				$o->openField(translate('user_prefs_session_settings_header'));
+			}
+			$session_settings = $this->pref_vars['SQ_USER_SESSION_PREFS']['default'];
+			?>
+			<style type="text/css">
+				ul#user-prefs {
+					list-style-type: none;
+					padding-left: 8px;
+					margin: 2px 0px;
+				}
+				ul#user-prefs li {
+					white-space: nowrap;
+					margin-left: 8px;
+					height: 22px;
+				}
+				div.sq-backend-table-cell {
+					width: auto;
+					margin: 3px;
+				}
+			</style>
+			<div class="sq-backend-table sq-backend-table-cell">
+				<?php echo translate('end_user_session'); ?>...
+				<ul id="user-prefs">
+					<li>
+						<?php
+						if ($have_lock && $is_admin) {
+							check_box('prefs[SQ_USER_SESSION_PREFS][persist]', '0', ($session_settings['persist'] == 0), '', 'id="prefs_SQ_USER_SESSION_PREFS_persist"');
+							label(translate('session_persist'), 'prefs_SQ_USER_SESSION_PREFS_persist');
+						} else {
+							echo '<img src="'.sq_web_path('lib').'/web/images/'.(empty($session_settings['persist']) ? 'tick' : 'cross').'.gif" />';
+							echo translate('session_persist');
+						}
+						?>
+					</li>
+					<li id="timeout">
+						<?php
+						$dur = new Asset_Attribute_Duration(0, $session_settings['timeout']);
+						if ($have_lock && $is_admin) {
+							check_box('prefs[SQ_USER_SESSION_PREFS][timeout_enabled]', '1', ($session_settings['timeout'] != 0), 'toggleInputs(this.parentNode)', 'id="prefs_SQ_USER_SESSION_PREFS_timeout_enabled"');
+							label(translate('session_timeout'), 'prefs_SQ_USER_SESSION_PREFS_timeout_enabled');
+							echo ' ';
+						} else {
+							echo '<img src="'.sq_web_path('lib').'/web/images/'.(!empty($session_settings['timeout']) ? 'tick' : 'cross').'.gif" />';
+							echo translate('session_timeout');
+						}
+						$dur->paint('prefs_dur_timeout_', !$have_lock);
+						?>
+					</li>
+					<li id="max_length">
+						<?php 
+						$dur = new Asset_Attribute_Duration(0, $session_settings['max_length']);
+						if ($have_lock && $is_admin) {
+							check_box('prefs[SQ_USER_SESSION_PREFS][max_length_enabled]', '1', ($session_settings['max_length'] != 0), 'toggleInputs(this.parentNode)', 'id="prefs_SQ_USER_SESSION_PREFS_max_length_enabled"');
+							label(translate('session_max_length'), 'prefs_SQ_USER_SESSION_PREFS_max_length_enabled');
+							echo ' ';
+						} else {
+							echo '<img src="'.sq_web_path('lib').'/web/images/'.(!empty($session_settings['max_length']) ? 'tick' : 'cross').'.gif" />';
+							echo translate('session_max_length');
+						}
+						$dur->paint('prefs_dur_max_length_', !$have_lock); ?>
+					</li>
+				</ul>
+				<?php echo '*'.translate('session_timeout_explanation'); ?>
+			</div>
+			<?php
+			if ($have_lock && $is_admin) {
+				?>
+				<script type="text/javascript">
+					function toggleInputs(elt) {
+						var inputs = elt.getElementsByTagName('INPUT');
+						for (var i=0; i < inputs.length; i++) {
+							if (inputs[i].type.toLowerCase() == 'text') {
+								inputs[i].disabled = !inputs[i].disabled;
+							}
+						}
+					}
+					<?php
+					// disable fields initially if appropriate
+					foreach (Array('timeout', 'max_length') as $field) {
+						if (empty($session_settings[$field])) {
+							?>
+							toggleInputs(document.getElementById('<?php echo $field; ?>'));
+							<?php
+						}
+					}
+					?>
+				</script>
+				<?php
+			}
+			if (is_null($pref)) $o->closeField();
+		}
+		return true;
+
+	}//end paintBackend()
+
+
+	/**
+	* Processes the backend interface to edit session preferences
+	*
+	* @param object Backend_Outputter	&$o			reference to the backend outputter
+	* @param boolean					$have_lock	do we have the lock to edit these preferences or not
+	* @param string						$pref		a particular preference to process
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processBackend($o, $have_lock, $pref=null)
+	{
+		if (!($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin())) {
+			return false;
+		}
+		$new_prefs = Array('persist' => 0, 'timeout' => 0, 'max_length' => 0);
+		if (is_null($pref) || $pref == 'SQ_USER_SESSION_PREFS') {
+			$new_prefs['persist'] = !isset($_POST['prefs']['SQ_USER_SESSION_PREFS']['persist']);
+			if (isset($_POST['prefs']['SQ_USER_SESSION_PREFS']['timeout_enabled'])) {
+				$timeout_dur = new Asset_Attribute_Duration();
+				$timeout_dur->process('prefs_dur_timeout_');
+				$new_prefs['timeout'] = $timeout_dur->value;
+			}
+			if (isset($_POST['prefs']['SQ_USER_SESSION_PREFS']['max_length_enabled'])) {
+				$max_length_dur = new Asset_Attribute_Duration();
+				$max_length_dur->process('prefs_dur_max_length_');
+				$new_prefs['max_length'] = $max_length_dur->value;
+			}
+			$this->pref_vars['SQ_USER_SESSION_PREFS']['default'] = $new_prefs;
+		}
+		$gc_min = max($new_prefs['timeout'], $new_prefs['max_length']);
+		if ($gc_min > SQ_CONF_SESSION_GC_MAXLIFETIME) {
+			// update the main conf
+			include_once(SQ_INCLUDE_PATH.'/system_config.inc');
+			$system_conf = new System_Config();
+			if (!$system_conf->canAcquireLock()) {
+				trigger_localised_error('CORE0233', E_USER_NOTICE);
+				return false;
+			}
+			$system_conf->acquireLock();
+			$system_conf->save(Array('SQ_CONF_SESSION_GC_MAXLIFETIME' => $gc_min + 86400), false, false);
+			$system_conf->releaseLock();
+		}
+		return true;
+
+	}//end processBackend()
+
+
+	/**
+	* Merges two group-defined preference arrays for a content type
+	*
+	* Note that this function is only called if there is a conflict between two groups' preferences.
+	* If there is a conflict between a group's prefs and the global prefs, the group automatically wins and
+	* this function is not called.
+	*
+	* @param array	$prefs1	array of preferences to merge
+	* @param array	$prefs2	array of preferences to merge
+	*
+	* @return array	Prefs for this asset type, prefs_var => prefs_details
+	* @access public
+	*/
+	function mergePrefs($prefs1, $prefs2)
+	{
+		// Follow the princple that the most-open option (the one with the check disabled, 
+		// or with the longest timeout) wins.
+		$session_settings_1 = $prefs1['SQ_USER_SESSION_PREFS']['default'];
+		$session_settings_2 = $prefs2['SQ_USER_SESSION_PREFS']['default'];
+		$merged['persist'] = max($session_settings_1['persist'], $session_settings_2['persist']);
+		foreach (Array('timeout', 'max_length') as $pref_comp) {
+			if (0 == min($session_settings_1[$pref_comp], $session_settings_2[$pref_comp])) {
+				$merged[$pref_comp] = 0;
+			} else {
+				$merged[$pref_comp] = max($session_settings_1[$pref_comp], $session_settings_2[$pref_comp]);
+			}
+		}
+		$res['SQ_USER_SESSION_PREFS']['default'] = $merged;
+		return $res;
+
+	}//end mergePrefs()
+
+}//end class
+
+?>

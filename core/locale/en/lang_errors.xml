@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.9 2005/05/19 09:05:30 gnoel Exp $
+* $Id: lang_errors.xml,v 1.10 2005/05/31 00:45:50 tbarrett Exp $
 *
 */
 
@@ -1528,8 +1528,6 @@ Full Node Contents :
 
 	<error code="CORE0216">Format for type %s not found</error>
 	<error code="CORE0217">Condition %1$s (%2$s) not saved: %3$s</error>
-
-	<error code="CORE0232">Unable to create Trigger, incorrect format</error>
 	<error code="CORE0218">Loop limit (%1$s) exceeded for %2$s</error>
 	<error code="CORE0219">Cannot load event "%s"</error>
 
@@ -1545,5 +1543,7 @@ Full Node Contents :
 	<error code="CORE0229">Password must not contain numeric characters</error>
 	<error code="CORE0230">Password must not contain punctuation characters</error>
 	<error code="CORE0231">Password must not contain spaces</error>
+	<error code="CORE0232">Unable to create Trigger, incorrect format</error>
+	<error code="CORE0233">This operation requires the System Configuration lock to be acquired, but another user has that lock.  Please try again later.</error>
 
 </errors>

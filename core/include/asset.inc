@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.396 2005/05/20 00:35:11 lwright Exp $
+* $Id: asset.inc,v 1.397 2005/05/31 00:45:46 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.396 $
+* @version $Revision: 1.397 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -674,7 +674,7 @@ class Asset extends MySource_Object
 	*/
 	function _loadDataPaths()
 	{
-		$this->data_path_suffix = 'assets/'.$this->type().'/'.$this->id;
+		$this->data_path_suffix = asset_data_path_suffix($this->type(), $this->id);
 		$this->data_path = SQ_DATA_PATH.'/private/'.$this->data_path_suffix;
 		$this->data_path_public = SQ_DATA_PATH.'/public/'.$this->data_path_suffix;
 		if ($this->useSystemVersion()) {

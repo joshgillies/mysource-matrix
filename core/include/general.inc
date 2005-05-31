@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.90 2005/05/19 10:21:07 brobertson Exp $
+* $Id: general.inc,v 1.91 2005/05/31 00:45:46 tbarrett Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.90 $
+* @version $Revision: 1.91 $
 * @package MySource_Matrix
 */
 
@@ -66,13 +66,15 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 
 		// Strip out the file path begining
 		$bt = debug_backtrace();
-		$real_bt_index = 0;
-		while ((false !== strpos(array_get_index($bt[$real_bt_index], 'class'), 'locale_manager')) || (false !== strpos(array_get_index($bt[$real_bt_index], 'file'), 'locale_manager')) || ($bt[$real_bt_index]['function'] == 'sq_error_handler')) {
-			$real_bt_index++;
+		if (count($bt) > 1) {
+			$real_bt_index = 0;
+			while (($real_bt_index < count($bt)-1) && ((false !== strpos(array_get_index($bt[$real_bt_index], 'class'), 'locale_manager')) || (false !== strpos(array_get_index($bt[$real_bt_index], 'file'), 'locale_manager')) || ($bt[$real_bt_index]['function'] == 'sq_error_handler'))) {
+				$real_bt_index++;
+			}
+			$err_file = hide_system_root($bt[$real_bt_index]['file']);
+			$err_line = $bt[$real_bt_index]['line'];
+			$err_msg  = hide_system_root($err_msg);
 		}
-		$err_file = hide_system_root($bt[$real_bt_index]['file']);
-		$err_line = $bt[$real_bt_index]['line'];
-		$err_msg  = hide_system_root($err_msg);
 
 		// if this is a serious error, do a backtrace
 		$bt_str = '';
@@ -398,6 +400,19 @@ function sq_web_path($path='base')
 	return $paths[$path];
 
 }//end sq_web_path()
+
+
+/**
+* Get the data path suffix for an asset
+*
+* @access public
+* @return string
+*/
+function asset_data_path_suffix($type_code, $assetid)
+{
+	return 'assets/'.$type_code.'/'.$assetid;
+
+}//end asset_data_path_suffix()
 
 
 /**

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: config.inc,v 1.25 2005/05/13 06:08:58 rhoward Exp $
+* $Id: config.inc,v 1.26 2005/05/31 00:45:47 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *    Looks after the creation of the config files that are in PHP code
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix
 */
 class Config extends MySource_Object
@@ -346,10 +346,10 @@ class Config extends MySource_Object
 						<?php
 						if (!empty($lock)) {
 							if ($have_lock) {
-								submit_button('sq_lock_release_manual', translate('release_lock_button'), 'set_hidden_field("process_form", "0");');
+								submit_button('sq_lock_release_manual', translate('release_lock_button'), 'set_hidden_field("process_form", "0");', 'accesskey="r"');
 							}
 						} else if ($this->canAcquireLock()) {
-							submit_button('sq_lock_acquire', translate('acquire_lock_button'), 'set_hidden_field("process_form", "0");');
+							submit_button('sq_lock_acquire', translate('acquire_lock_button'), 'set_hidden_field("process_form", "0");', 'accesskey="a"');
 						}
 						?>
 					</td>

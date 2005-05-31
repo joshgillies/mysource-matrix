@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.2 2005/05/16 06:36:31 lwright Exp $
+* $Id: lang_strings.xml,v 1.3 2005/05/31 00:45:42 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -30,5 +30,10 @@
 	<string source="user_no_membership_conditions">There are no membership conditions set for "%s". This user is always a member of this group.</string>
 	<string source="user_section_group_conditions">Group Membership Conditions for "%1$s" (Id: #%2$s)</string>
 	<string source="user_cannot_be_restricted">This user is not a member of any user groups; it cannot be restricted</string>
-	<string source="user_group_condition_list">Add a restriction to group %1$s of type %2$s</string>
+	<string source="session_persist">When the user closes the browser</string>
+	<string source="session_timeout">When the time since their last Matrix-Activity* is longer than</string>
+	<string source="session_max_length">When the time since their last login is longer than</string>
+	<string source="session_timeout_explanation">Matrix-Activity refers to either accessing a page on the frontend, or having the backend interface open</string>
+	<string source="user_prefs_session_settings_header">Session Expiry Rules</string>
+	<string source="end_user_session">End the user's session</string>
 </strings>
