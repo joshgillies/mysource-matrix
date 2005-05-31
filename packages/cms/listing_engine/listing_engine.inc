@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.36 2005/05/31 05:25:20 arailean Exp $
+* $Id: listing_engine.inc,v 1.37 2005/05/31 06:49:16 arailean Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
 *
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -921,32 +921,25 @@ class Listing_Engine extends Page
 			case 'random' :
 				// random does things differently, as there is no pagination. But this is a good place
 				// to grab the random asset
-				if ($this->attr('num_per_page') <= 1) {
+				$count = count($children);
+				$num_per_page = $this->attr('num_per_page');
+				$todo = Array();
+
+				if ($count == 1) {
+					$todo = $children;
+				} else if ($num_per_page <= 1) {
 					// grab a single asset to display
-					$todo = Array();
 					$random_asset = array_rand($children);
 					$todo[$random_asset] = $children[$random_asset];
-				} else if ($this->attr('num_per_page') > count($children)) {
-					// if you try to use array_rand with a value higher than the number of elements
-					// in the array, it returns nothing. So, we check for that and return only the
-					// maximum number of children available
-					$random_assets = array_rand($children, count($children));
-					if (count($children) == 1) {
-						$random_assets = Array($random_assets);
-					}
-
-					foreach ($random_assets as $value) {
-						$todo[$value] = $children[$value];
-					}
 				} else {
 					// this will return a subset of the children, as defined by the num_per_page
-					// attribute. This occurs when the number is less than the total number of
-					// children available.
-					$random_assets = array_rand($children, $this->attr('num_per_page'));
+					// attribute.
+					$random_assets = array_rand($children, min($num_per_page, $count));
 					foreach ($random_assets as $value) {
 						$todo[$value] = $children[$value];
 					}
 				}
+
 			break;
 		}//end switch
 
