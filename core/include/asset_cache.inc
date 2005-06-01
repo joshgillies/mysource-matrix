@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-*$Id: asset_cache.inc,v 1.3 2005/05/19 15:00:41 gnoel Exp $
+*$Id: asset_cache.inc,v 1.4 2005/06/01 13:13:27 gnoel Exp $
 *
 */
 
@@ -44,7 +44,7 @@ define('SQ_ASSET_CACHE_DEBUG', 0);
 * limits. They can also be manually removed by calling remove().
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 */
 class Asset_Cache extends MySource_Object
@@ -99,7 +99,7 @@ class Asset_Cache extends MySource_Object
 	*
 	* @param int $size			maximum allowed number of items
 	* 							if-1,items will never be automatically removed from the cache
-	* @param int $all_items		if true, the rule applies to all the assets in the cache, 
+	* @param int $all_items		if true, the rule applies to all the assets in the cache,
 	*							otherwise it applies only to the released assets.
 	*
 	* @return void
@@ -227,7 +227,7 @@ class Asset_Cache extends MySource_Object
 	{
 		// size -1 disable automatic remove
 		if ($this->_size_rules['max'] == -1) return;
-		
+
 		if (count($this->_items_released) && $this->getSize(true)) {
 			$current_size = $this->getSize(!$this->_size_rules['all_items']);
 
@@ -246,13 +246,16 @@ class Asset_Cache extends MySource_Object
 	* The item must have a RC = 0
 	*
 	* @param string $itemid	id of the item to remove
+	* @param boolean $force	if true, the asset is removed even if its RC is > 0,
+	*						this option shouldn't be used, it is there to remain
+	*						compatible with the old code.
 	*
 	* @return boolean	false if the item is not in the cache or RC > 0
 	* @access public
 	*/
-	function remove($itemid)
+	function remove($itemid, $force=false)
 	{
-		if ($this->_items[$itemid]['reference_count'] != 0) {
+		if (!$force && ($this->_items[$itemid]['reference_count'] != 0)) {
 			return false;
 		}
 
@@ -297,7 +300,7 @@ class Asset_Cache extends MySource_Object
 
 
 	/**
-	* Returns a information string about all the assets 
+	* Returns a information string about all the assets
 	* in the cache which Ref Count > 0
 	*
 	* @return string

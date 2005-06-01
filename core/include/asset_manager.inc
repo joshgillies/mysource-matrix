@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.319 2005/05/24 07:09:09 lwright Exp $
+* $Id: asset_manager.inc,v 1.320 2005/06/01 13:13:27 gnoel Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.319 $
+* @version $Revision: 1.320 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -899,7 +899,7 @@ class Asset_Manager extends MySource_Object
 
 		$this->_asset_cache->release($obj->id);
 		if ($force_clean) {
-			if (!$this->_asset_cache->remove($obj->id)) {
+			if (!$this->_asset_cache->remove($obj->id, true)) {
 				trigger_localised_error('SYS0306', E_USER_WARNING, $obj->id);
 			}
 		}
