@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit_div_props.php,v 1.11 2004/11/26 04:24:44 arailean Exp $
+* $Id: edit_div_props.php,v 1.11.2.1 2005/06/01 06:12:27 rhoward Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -29,7 +29,7 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.11.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -39,8 +39,8 @@ header("Expires: ". gmdate("D, d M Y H:i:s",time()-3600) . " GMT");
 
 include(dirname(__FILE__)."/header.php");
 ?>
-<script type="text/javascript" language="javascript" src="<?php echo sq_web_path('lib')?>/js/general.js"></script>
-<script language="JavaScript" type="text/javascript">
+<script type="text/javascript" src="<?php echo sq_web_path('lib')?>/js/general.js"></script>
+<script type="text/javascript">
 
 	function popup_init() {
 
@@ -60,6 +60,11 @@ include(dirname(__FILE__)."/header.php");
 			f.content_type.options[i] = null;
 		}
 		var i = 0;
+
+		// add default "Leave Unchanged" value to the top
+		f.content_type.options[i] = new Option("-- Leave Unchanged --", "");
+		i++;
+
 		for(var key in available_types) {
 			if (available_types[key] == null) continue;
 			if(available_types[key]["name"] != null) {
@@ -68,9 +73,11 @@ include(dirname(__FILE__)."/header.php");
 			}
 		}
 
-		if (typeof data["content_type"] == 'undefined' && typeof available_types['content_type_wysiwyg'] != 'undefined')
-			data["content_type"] = 'content_type_wysiwyg';
-		owner.highlight_combo_value(f.content_type, data["content_type"]);
+		if (typeof data["content_type"] == 'undefined' && typeof available_types['content_type_wysiwyg'] != 'undefined') {
+			data["content_type"] = 'content_type_raw_html';
+		}
+
+		owner.highlight_combo_value(f.content_type, "");
 		f.disable_keywords.checked = (data["disable_keywords"] == "1");
 
 	}// end popup_init()
@@ -181,5 +188,4 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 	</tr>
 </table>
 </form>
-
 <?php include(dirname(__FILE__)."/footer.php"); ?>
