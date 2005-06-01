@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.96 2005/05/31 05:17:05 arailean Exp $
+* $Id: search_page.inc,v 1.97 2005/06/01 05:24:50 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.96 $
+* @version $Revision: 1.97 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1138,18 +1138,14 @@ class Search_Page extends Listing_Engine
 		$current_result_page = array_get_index($_REQUEST, 'current_result_page', '0');
 		$results_per_page    = array_get_index($_REQUEST, 'results_per_page', $this->attr('num_per_page'));
 		$this->_tmp['start_element'] = $current_result_page * $results_per_page;
-
 		$queries = '';
-		foreach (explode('&', $_SERVER['QUERY_STRING']) as $query_string) {
-			list($query_name, $query_value) = explode('=', $query_string);
+		foreach ($_GET as $query_name => $query_value) {
 
 			// skip some get vars that will be added later by the keyword replacements
-			if (in_array($query_name, Array('mode', 'current_result_page', 'results_per_page'))) {
-				continue;
+			if (!in_array($query_name, Array('mode', 'current_result_page', 'results_per_page'))) {
+				$queries .= '&'.$query_name.'='.$query_value;
 			}
 
-			// construct the new query string
-			$queries .= '&'.$query_string;
 		}
 
 		// if we are to use the listing engine stuff then we need to change
