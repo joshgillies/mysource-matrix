@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.75.2.1 2005/02/11 05:43:19 gsherwood Exp $
+* $Id: file.inc,v 1.75.2.2 2005/06/01 05:55:26 ndvries Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -69,7 +69,7 @@ class File extends Asset
 	*                       );
 	*                       or alternately
 	*                       Array('all');
-	* 
+	*
 	* @return boolean
 	* @access public
 	* @see asset::cloneComponents()
@@ -86,7 +86,7 @@ class File extends Asset
 		}
 
 		return parent::cloneComponents($clone, $components);
-	
+
 	}//end cloneComponents()
 
 
@@ -104,7 +104,7 @@ class File extends Asset
 
 	}//end lockTypes()
 
-	
+
 	/**
 	* Saves a copy of this asset at this point in time
 	* This copy gets used when the asset is live and the user does not have write access
@@ -249,7 +249,7 @@ class File extends Asset
 
 		// update manually
 		unset($this->_tmp['IGNORE_UPDATE']);
-		if (!$this->_updated()) { 
+		if (!$this->_updated()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
@@ -563,7 +563,7 @@ class File extends Asset
 		if (!isset($existing['size'])) $existing['size'] = '0';
 		$keywords['asset_file_size_in_bytes'] = Array('value' => $existing['size']);
 		$keywords['asset_file_size_readable'] = Array('value' => easy_filesize($existing['size']));
-		
+
 		if ($descriptions) {
 			$keywords['asset_file_size_in_bytes']['description'] = 'File size (in bytes)';
 			$keywords['asset_file_size_readable']['description'] = 'Asset size (in human-friendly format)';
@@ -572,8 +572,8 @@ class File extends Asset
 		return $keywords;
 
 	}//end getAssetKeywords()
-	
-	
+
+
 	/**
 	* Processes a backend submission from this asset, returns true if all OK
 	*
@@ -639,63 +639,83 @@ class File extends Asset
 				$old_filename = $this->_tmp['vars_set']['name']['old_value'];
 				$new_filename = $this->attr('name');
 
-				if (is_file($this->data_path.'/'.$old_filename)) $data_path = $this->data_path;
-				else $data_path = $this->data_path_public;
-
 				// try and set the new filename - return false if it fails
-				if (!parent::saveAttributes($dont_run_updated)) return false;
-
-				// the name has changed so we need to save the web paths
-				if (!$this->saveWebPaths(Array($new_filename))) {
-					trigger_error('Failed updating web path. Path already exists?', E_USER_WARNING);
-					parent::setAttrValue('name', $old_filename);
+				if (!parent::saveAttributes($dont_run_updated)) {
 					return false;
 				}
 
-				//// FILE VERSIONING ////
+				if (is_file($this->data_path.'/'.$old_filename)) {
+					if (!$this->saveWebPaths(Array($new_filename))) {
+						trigger_error('Failed updating web path. Path already exists?', E_USER_WARNING);
+						parent::setAttrValue('name', $old_filename);
+						parent::saveAttributes($dont_run_updated);
+						return false;
+					}
 
-				$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
+					if (!$this->renameFile($this->data_path, $old_filename, $new_filename)) {
+						parent::setAttrValue('name', $old_filename);
+						parent::saveAttributes($dont_run_updated);
+						return false;
+					}
 
-				// copy the file instead of a direct rename because removing the
-				// file from the repository will also remove it from the file system
-				if (!copy($data_path.'/'.$old_filename, $data_path.'/'.$new_filename)) {
-					trigger_error('Failed renaming file, try again.', E_USER_WARNING);
-					parent::setAttrValue('name', $old_filename);
-					return false;
-				}
-
-				// we are renaming the file, so we need to remove the old name from
-				// the repository and add the new one in
-				$result = $fv->remove($data_path.'/'.$old_filename, '', false);
-				if ($result != FUDGE_FV_OK && $result != FUDGE_FV_NOT_CHECKED_OUT) {
-					trigger_error('Failed removing file from repository', E_USER_WARNING);
-					parent::setAttrValue('name', $old_filename);
-					return false;
-				}
-
-				// attempt to add a new version of the file to the repository
-				if (!$fv->add($this->data_path_suffix, $this->data_path.'/'.$new_filename, '', false)) {
-					trigger_error('Failed adding file version', E_USER_WARNING);
-					parent::setAttrValue('name', $old_filename);
-					return false;
-				}
-
-				// make sure we have the latest version of our file
-				if (!$fv->checkOut($this->data_path_suffix.'/'.$new_filename, $this->data_path)) {
-					trigger_error('Failed checking out latest version of file', E_USER_WARNING);
-					parent::setAttrValue('name', $old_filename);
-					return false;
+					if ($this->effectiveUnrestricted()) {
+						if (is_file($this->data_path_public.'/'.$old_filename)) {
+							unlink($this->data_path_public.'/'.$old_filename);
+							$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
+							$fv->checkOut($this->data_path_suffix.'/'.$new_filename, $this->data_path_public);
+						}
+					}
 				}
 
 				return true;
 
 			}//end if not uploading a file
-
 		}//end if we are changing the filename
 
 		return parent::saveAttributes($dont_run_updated);
 
 	}//end saveAttributes()
+
+
+	/**
+	* Rename a file in file versioning (copy, create new FV entry and then delete old FV entry)
+	*
+	* @return boolean
+	* @access private
+	*/
+	function renameFile($data_path, $old_filename, $new_filename)
+	{
+		$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
+
+		// copy the file instead of a direct rename because removing the
+		// file from the repository will also remove it from the file system
+		if (!copy($data_path.'/'.$old_filename, $data_path.'/'.$new_filename)) {
+			trigger_error('Failed renaming file, try again.', E_USER_WARNING);
+			return false;
+		}
+
+		// we are renaming the file, so we need to remove the old name from
+		// the repository and add the new one in
+		$result = $fv->remove($data_path.'/'.$old_filename, '', false);
+		if ($result != FUDGE_FV_OK && $result != FUDGE_FV_NOT_CHECKED_OUT) {
+			trigger_error('Failed removing file from repository', E_USER_WARNING);
+			return false;
+		}
+
+		// attempt to add a new version of the file to the repository
+		if (!$fv->add($this->data_path_suffix, $data_path.'/'.$new_filename, '', false)) {
+			trigger_error('Failed adding file version', E_USER_WARNING);
+			return false;
+		}
+
+		// make sure we have the latest version of our file
+		if (!$fv->checkOut($this->data_path_suffix.'/'.$new_filename, $data_path)) {
+			trigger_error('Failed checking out latest version of file', E_USER_WARNING);
+			return false;
+		}
+
+		return true;
+	}//end renameFile()
 
 
 	/**
