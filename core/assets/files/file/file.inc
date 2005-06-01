@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.95 2005/05/30 06:21:41 ndvries Exp $
+* $Id: file.inc,v 1.96 2005/06/01 06:01:38 ndvries Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.95 $
+* @version $Revision: 1.96 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -728,8 +728,9 @@ class File extends Asset
 				}
 
 				if (is_file($this->data_path.'/'.$old_filename)) {
-					if (!$this->renameFile($this->data_path, $old_filename, $new_filename)) {
+					if (!$this->_renameFile($this->data_path, $old_filename, $new_filename)) {
 						parent::setAttrValue('name', $old_filename);
+						parent::saveAttributes($dont_run_updated);
 						return false;
 					}
 				}
@@ -765,7 +766,13 @@ class File extends Asset
 	}//end saveAttributes()
 
 
-	function renameFile($data_path, $old_filename, $new_filename)
+	/**
+	* Rename a file in file versioning (copy, create new FV entry and then delete old FV entry)
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _renameFile($data_path, $old_filename, $new_filename)
 	{
 
 		$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
@@ -798,7 +805,8 @@ class File extends Asset
 		}
 
 		return true;
-	}//end renameFile()
+
+	}//end _renameFile()
 
 
 	/**
