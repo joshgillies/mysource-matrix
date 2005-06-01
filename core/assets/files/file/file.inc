@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.75.2.2 2005/06/01 05:55:26 ndvries Exp $
+* $Id: file.inc,v 1.75.2.3 2005/06/01 05:59:43 ndvries Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -652,7 +652,7 @@ class File extends Asset
 						return false;
 					}
 
-					if (!$this->renameFile($this->data_path, $old_filename, $new_filename)) {
+					if (!$this->_renameFile($this->data_path, $old_filename, $new_filename)) {
 						parent::setAttrValue('name', $old_filename);
 						parent::saveAttributes($dont_run_updated);
 						return false;
@@ -683,7 +683,7 @@ class File extends Asset
 	* @return boolean
 	* @access private
 	*/
-	function renameFile($data_path, $old_filename, $new_filename)
+	function _renameFile($data_path, $old_filename, $new_filename)
 	{
 		$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
 
