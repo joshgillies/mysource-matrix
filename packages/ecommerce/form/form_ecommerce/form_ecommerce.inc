@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce.inc,v 1.9.2.4 2005/06/01 01:22:03 arailean Exp $
+* $Id: form_ecommerce.inc,v 1.9.2.5 2005/06/01 04:35:44 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.9.2.4 $
+* @version $Revision: 1.9.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -455,7 +455,7 @@ class Form_Ecommerce extends Form_Email
 					// if it is not a question with options, we get the submission directly
 					// we assume that it is a numeric question
 					$ecom_item['name']  = $question_title;
-					$ecom_item['price'] = $this->active_submission->getAnswer($id);
+					$ecom_item['price'] = $this->active_submission[$id];
 
 					$ecom_items[] = $ecom_item;
 					$total += $ecom_item['price'];
@@ -488,6 +488,7 @@ class Form_Ecommerce extends Form_Email
 	{
 		$filename = $this->_getOrderFileName();
 		$order_contents = serialize($this->_tmp['order']);
+
 		return string_to_file($order_contents, $filename);
 
 	}//end _saveOrder()
