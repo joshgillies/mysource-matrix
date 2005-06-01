@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce.inc,v 1.9.2.3 2005/05/01 23:41:47 gsherwood Exp $
+* $Id: form_ecommerce.inc,v 1.9.2.4 2005/06/01 01:22:03 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.9.2.3 $
+* @version $Revision: 1.9.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -314,7 +314,6 @@ class Form_Ecommerce extends Form_Email
 		parent::mailReceipt();
 		parent::sendToFriends();
 		parent::runSelectiveEmails();
-		parent::logSubmission();
 
 	}//end emailAndLog()
 
