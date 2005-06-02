@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.66.2.4 2005/05/30 02:19:25 arailean Exp $
+* $Id: search_page.inc,v 1.66.2.5 2005/06/02 01:44:57 rhoward Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.66.2.4 $ - 1.0
+* @version $Revision: 1.66.2.5 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1128,7 +1128,11 @@ class Search_Page extends Page
 		$current_result_page = array_get_index($_REQUEST, 'current_result_page', '0');
 		$results_per_page    = array_get_index($_REQUEST, 'results_per_page', $this->attr('results_per_page'));
 
-		$total_pages = ceil(count($results) / $results_per_page);
+		if ($results_per_page > 0) {
+			$total_pages = ceil(count($results) / $results_per_page);
+		} else {
+			$total_pages = 0;
+		}
 
 		$queries = '';
 		foreach (explode('&', $_SERVER['QUERY_STRING']) as $query_string) {
@@ -1148,7 +1152,13 @@ class Search_Page extends Page
 			switch ($keyword) {
 				case 'result_list':
 					$replacement = '';
-					$sub_resultids = array_slice(array_keys($results), $current_result_page * $results_per_page, $results_per_page);
+
+					// if results_per_page is set to zero, return an unpaginated list
+					if ($results_per_page > 0) {
+						$sub_resultids = array_slice(array_keys($results), $current_result_page * $results_per_page, $results_per_page);
+					} else {
+						$sub_resultids = array_keys($results);
+					}
 					$result_num = $current_result_page * $results_per_page;
 
 					$cm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
