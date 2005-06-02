@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.321 2005/06/02 07:10:48 ndvries Exp $
+* $Id: asset_manager.inc,v 1.322 2005/06/02 07:12:22 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.321 $
+* @version $Revision: 1.322 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -579,6 +579,7 @@ class Asset_Manager extends MySource_Object
 	*/
 	function getTypeAncestors($type_code, $include_asset=true)
 	{
+		if ($type_code == 'asset') return Array();
 		assert_isset_array_index($this->_asset_types, $type_code, 'Asset Type "'.$type_code.'" is not installed on the system');
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
