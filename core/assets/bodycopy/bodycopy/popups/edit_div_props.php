@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit_div_props.php,v 1.15 2005/06/02 00:18:02 rhoward Exp $
+* $Id: edit_div_props.php,v 1.16 2005/06/02 07:01:11 rhoward Exp $
 *
 */
 
@@ -29,7 +29,7 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -62,7 +62,7 @@ include(dirname(__FILE__).'/header.php');
 		var i = 0;
 
 		// add default "Leave Unchanged" value to the top
-		f.content_type.options[i] = new Option(<?php echo translate('content_type_no_change'); ?>, "");
+		f.content_type.options[i] = new Option('<?=translate('content_type_no_change')?>', "");
 		i++;
 
 		for(var key in available_types) {
@@ -75,7 +75,7 @@ include(dirname(__FILE__).'/header.php');
 
 		if (typeof data["content_type"] == 'undefined' && typeof available_types['content_type_wysiwyg'] != 'undefined')
 			data["content_type"] = 'content_type_wysiwyg';
-		owner.highlight_combo_value(f.content_type, data["content_type"]);
+		owner.highlight_combo_value(f.content_type, '');
 		f.disable_keywords.checked = (data["disable_keywords"] == "1");
 
 	}// end popup_init()
