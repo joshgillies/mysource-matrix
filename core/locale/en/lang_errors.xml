@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.10 2005/05/31 00:45:50 tbarrett Exp $
+* $Id: lang_errors.xml,v 1.11 2005/06/02 05:35:26 lwright Exp $
 *
 */
 
@@ -1294,6 +1294,8 @@ Full Node Contents %3$s</error>
 	<error code="SYS0305">Remember an asset which is already in the cache (#%1$s)</error>
 
 	<error code="SYS0306">The asset being removed from the cache is still in use (#%1$s)</error>
+
+	<error code="SYS0307">Asset #%1$s does not have the schema for field #%2$s applied</error>
 
 	<!-- CORE ASSETS -->
 
