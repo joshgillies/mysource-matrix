@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.320 2005/06/01 13:13:27 gnoel Exp $
+* $Id: asset_manager.inc,v 1.321 2005/06/02 07:10:48 ndvries Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.320 $
+* @version $Revision: 1.321 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -109,7 +109,9 @@ class Asset_Manager extends MySource_Object
 		} else {
 			// if the table columns have not been cached, the database
 			// install has not been completed, so we cant get the types from the DB
-			if (!is_file(SQ_DATA_PATH.'/private/db/table_columns.inc')) return;
+			if (!is_file(SQ_DATA_PATH.'/private/db/table_columns.inc')) {
+				return;
+			}
 
 			// load the asset types from the DB, which will also cache
 			// them to the asset_types.inc file
@@ -378,8 +380,7 @@ class Asset_Manager extends MySource_Object
 						at.type_code IN (';
 			$first = true;
 			foreach ($type_codes as $type_code) {
-				if (!$first)
-					$sql .= ", ";
+				if (!$first) $sql .= ', ';
 
 				$first = false;
 
@@ -404,7 +405,7 @@ class Asset_Manager extends MySource_Object
 							sq_ast_typ at JOIN sq_sch_idx_wgt_dflt dw
 								ON at.type_code = dw.type_code
 						WHERE
-							at.type_code = '. $db->quote($type_code);
+							at.type_code = '.$db->quote($type_code);
 
 				$results = $db->getAll($sql);
 				assert_valid_db_result($results);
@@ -452,7 +453,9 @@ class Asset_Manager extends MySource_Object
 		$offspring = Array();
 		foreach ($type_codes as $type_code) {
 			$parent = $this->_asset_types[$type_code]['parent_type'];
-			if (!isset($offspring[$parent])) $offspring[$parent] = Array();
+			if (!isset($offspring[$parent])) {
+				$offspring[$parent] = Array();
+			}
 			$offspring[$parent][] = $type_code;
 		}
 
@@ -507,7 +510,9 @@ class Asset_Manager extends MySource_Object
 
 			$type_code_cond = '';
 			if (is_array($type_code)) {
-				for ($i = 0; $i < count($type_code); $i++) $type_code[$i] = $db->quote($type_code[$i]);
+				for ($i = 0; $i < count($type_code); $i++) {
+					$type_code[$i] = $db->quote($type_code[$i]);
+				}
 				$type_code_cond = 'IN ('.implode(', ', $type_code).')';
 			} else {
 				$type_code_cond = '= '.$db->quote($type_code);
@@ -667,7 +672,9 @@ class Asset_Manager extends MySource_Object
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		for ($i = 0; $i < count($attrids); $i++) $attrids[$i] = $db->quote($attrids[$i]);
+		for ($i = 0; $i < count($attrids); $i++) {
+			$attrids[$i] = $db->quote($attrids[$i]);
+		}
 		$where = 'a.attrid IN ('.implode(', ', $attrids).')';
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 
@@ -709,7 +716,9 @@ class Asset_Manager extends MySource_Object
 
 			include_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 			$this->_attributes[$attrid]['object'] = Asset_Attribute::loadAttribute($attrid);
-			if (empty($this->_attributes[$attrid]['object']->id)) $this->_attributes[$attrid]['object'] = null;
+			if (empty($this->_attributes[$attrid]['object']->id)) {
+				$this->_attributes[$attrid]['object'] = null;
+			}
 
 		}
 
@@ -816,9 +825,7 @@ class Asset_Manager extends MySource_Object
 
 			}//end if
 
-			if (isset($asset)) {
-				$this->_asset_cache->add($asset);
-			}
+			if (isset($asset)) $this->_asset_cache->add($asset);
 
 		}//end if
 
@@ -870,7 +877,9 @@ class Asset_Manager extends MySource_Object
 	function rememberAsset(&$obj)
 	{
 		// wrong class or no id, cya
-		if (!is_object($obj) || !is_a($obj, 'asset') || !$obj->id) return;
+		if (!is_object($obj) || !is_a($obj, 'asset') || !$obj->id) {
+			return;
+		}
 
 		if (!$this->_asset_cache->add($obj)) {
 			trigger_localised_error('SYS0305', E_USER_ERROR, $obj->id);
@@ -895,7 +904,9 @@ class Asset_Manager extends MySource_Object
 	function forgetAsset(&$obj, $force_clean=false)
 	{
 		// wrong class or no id, cya
-		if (!is_object($obj) || !is_a($obj, 'asset') || !$obj->id) return;
+		if (!is_object($obj) || !is_a($obj, 'asset') || !$obj->id) {
+			return;
+		}
 
 		$this->_asset_cache->release($obj->id);
 		if ($force_clean) {
@@ -1051,13 +1062,19 @@ class Asset_Manager extends MySource_Object
 		// check if we are trying to purge a system asset
 		require SQ_DATA_PATH.'/private/conf/system_assets.inc';
 		$system_asset_ids = array_values($system_assets);
-		if (in_array($asset->id, $system_asset_ids)) return false;
+		if (in_array($asset->id, $system_asset_ids)) {
+			return false;
+		}
 
 		// if we get to here, it is not one of the
 		// system assets, but it may be dependantly linked to one
 		// so lets check for that
 		$parents = $this->getDependantParents($asset->id);
-		foreach ($parents as $parentid) if (in_array($parentid, $system_asset_ids)) return false;
+		foreach ($parents as $parentid) {
+			if (in_array($parentid, $system_asset_ids)) {
+				return false;
+			}
+		}
 
 		return true;
 
@@ -1139,7 +1156,7 @@ class Asset_Manager extends MySource_Object
 		}
 
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
-		$sql = 'SELECT assetid, '.((empty($field)) ? $col_string : $field) .'
+		$sql = 'SELECT assetid, '.((empty($field)) ? $col_string : $field).'
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast a
 				'.$where.'
 				ORDER BY a.assetid';
@@ -1221,7 +1238,9 @@ class Asset_Manager extends MySource_Object
 				WHERE ';
 
 		// if asset type is set to 'asset' then skip owning type code checks
-		if ($asset_type != 'asset') $sql .= 'at.owning_type_code='.$db->quote($asset_type).' AND ';
+		if ($asset_type != 'asset') {
+			$sql .= 'at.owning_type_code='.$db->quote($asset_type).' AND ';
+		}
 
 		$sql .= 'at.name='.$db->quote($attr_name).' AND v.assetid IN ('.implode(', ', $assetids).')';
 
@@ -1246,7 +1265,9 @@ class Asset_Manager extends MySource_Object
 	*/
 	function getEditableContents($assetid)
 	{
-		if (!$assetid || !$this->assetExists($assetid)) return false;
+		if (!$assetid || !$this->assetExists($assetid)) {
+			return false;
+		}
 
 		$children = $this->getDependantChildren($assetid);
 		$contents = Array();
@@ -1397,10 +1418,16 @@ class Asset_Manager extends MySource_Object
 
 		if (!empty($link)) {
 			// create the initial link
-			if (!isset($link['value']))         $link['value']         = '';
-			if (!isset($link['sort_order']))    $link['sort_order']    = -1;
-			if (!isset($link['is_dependant']))  $link['is_dependant']  = 0;
-			if (!isset($link['is_exclusive']))  $link['is_exclusive']  = 0;
+			if (!isset($link['value'])) $link['value'] = '';
+			if (!isset($link['sort_order'])) {
+				$link['sort_order'] = -1;
+			}
+			if (!isset($link['is_dependant'])) {
+				$link['is_dependant'] = 0;
+			}
+			if (!isset($link['is_exclusive'])) {
+				$link['is_exclusive'] = 0;
+			}
 
 			if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LOCKING)) {
 				// OK what we are going to do is make sure that the new parents lock is
@@ -1661,7 +1688,9 @@ class Asset_Manager extends MySource_Object
 				$user = &$this->getAsset($lock['userid']);
 
 				$locked_assetids = Array((int) $assetid);
-				foreach ($lock['chained_assets'] as $row) $locked_assetids[] = $row['assetid'];
+				foreach ($lock['chained_assets'] as $row) {
+					$locked_assetids[] = $row['assetid'];
+				}
 
 				foreach ($locked_assetids as $locked_assetid) {
 					$locked_asset = &$this->getAsset($locked_assetid);
@@ -1669,11 +1698,11 @@ class Asset_Manager extends MySource_Object
 					// create a new message object and populate it, before adding to
 					// the message queue in the internal messaging system to sending later
 					$msg_reps = Array(
-								'user_name'		=> $GLOBALS['SQ_SYSTEM']->user->name,
-								'type_code'		=> $this->getTypeInfo($locked_asset->type(), 'name'),
-								'asset_name'	=> $locked_asset->name,
-								'old_user_name'	=> $user->name,
-							);
+									'user_name'		=> $GLOBALS['SQ_SYSTEM']->user->name,
+									'type_code'		=> $this->getTypeInfo($locked_asset->type(), 'name'),
+									'asset_name'	=> $locked_asset->name,
+									'old_user_name'	=> $user->name,
+								);
 					$log = $ms->newMessage(Array(), 'asset.locking.forced', $msg_reps);
 					$log->parameters['assetid'] = $locked_asset->id;
 					$log->parameters['former_userid'] = $user->id;
@@ -1796,8 +1825,11 @@ class Asset_Manager extends MySource_Object
 
 		}//end foreach
 
-		if ($success) $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		else $GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+		if ($success) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		} else {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+		}
 
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return $success;
@@ -1839,8 +1871,11 @@ class Asset_Manager extends MySource_Object
 		}//end foreach
 
 
-		if (!$force_array && count($locks) == 1) return reset($locks);
-		else return $locks;
+		if (!$force_array && count($locks) == 1) {
+			return reset($locks);
+		} else {
+			return $locks;
+		}
 
 	}//end getLockInfo()
 
@@ -1864,7 +1899,9 @@ class Asset_Manager extends MySource_Object
 		}
 
 		if ($lock_type != 'all') {
-			if (!isset($this->_tmp['lock_types'][$assetid][$lock_type])) return Array();
+			if (!isset($this->_tmp['lock_types'][$assetid][$lock_type])) {
+				return Array();
+			}
 			$bits = bit_elements($this->_tmp['lock_types'][$assetid][$lock_type]);
 			$lock_types = Array();
 			foreach ($bits as $bit) {
@@ -1925,13 +1962,18 @@ class Asset_Manager extends MySource_Object
 				';
 		$where = 'l.'.$side_of_link.'id = '.$db->quote($assetid).'
 				  AND l.link_type = '.$db->quote($link_type);
-		if (!is_null($exclusive)) $where .= ' AND l.is_exclusive = '.$db->quote(($exclusive) ? '1' : '0');
+
+		if (!is_null($exclusive)) {
+		  $where .= ' AND l.is_exclusive = '.$db->quote(($exclusive) ? '1' : '0');
+		}
 
 		if ($type_code) {
 
 			$type_code_cond = '';
 			if (is_array($type_code)) {
-				for (reset($type_code); null !== ($i = key($type_code)); next($type_code)) $type_code[$i] = $db->quote($type_code[$i]);
+				for (reset($type_code); null !== ($i = key($type_code)); next($type_code)) {
+					$type_code[$i] = $db->quote($type_code[$i]);
+				}
 				$type_code_cond = 'IN ('.implode(', ', $type_code).')';
 			} else {
 				$type_code_cond = '= '.$db->quote($type_code);
@@ -1948,7 +1990,9 @@ class Asset_Manager extends MySource_Object
 			}
 		}
 
-		if (!is_null($value)) $where .= '  AND l.value = '.$db->quote($value);
+		if (!is_null($value)) {
+			$where .= '  AND l.value = '.$db->quote($value);
+		}
 
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
@@ -2059,10 +2103,18 @@ class Asset_Manager extends MySource_Object
 
 
 
-		if (!is_null($link_types)) $where .= ' AND '.db_extras_bitand($db, 'l.link_type', $link_types).' > 0 ';
-		if (!is_null($value))      $where .= ' AND l.value = '.$db->quote($value);
-		if (!is_null($dependant))  $where .= ' AND l.is_dependant = '.$db->quote(($dependant) ? '1' : '0');
-		if (!is_null($exclusive))  $where .= ' AND l.is_exclusive = '.$db->quote(($exclusive) ? '1' : '0');
+		if (!is_null($link_types)) {
+		  $where .= ' AND '.db_extras_bitand($db, 'l.link_type', $link_types).' > 0 ';
+		}
+		if (!is_null($value)) {
+			$where .= ' AND l.value = '.$db->quote($value);
+		}
+		if (!is_null($dependant)) {
+			$where .= ' AND l.is_dependant = '.$db->quote(($dependant) ? '1' : '0');
+		}
+		if (!is_null($exclusive)) {
+			$where .= ' AND l.is_exclusive = '.$db->quote(($exclusive) ? '1' : '0');
+		}
 
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
@@ -2073,8 +2125,11 @@ class Asset_Manager extends MySource_Object
 		$result = $db->getAll($sql);
 		assert_valid_db_result($result);
 
-		if (!$force_array && count($result) == 1) return $result[0];
-		else return $result;
+		if (!$force_array && count($result) == 1) {
+			return $result[0];
+		} else {
+			return $result;
+		}
 
 	}//end getLinkByAsset()
 
@@ -2189,7 +2244,9 @@ class Asset_Manager extends MySource_Object
 					  AND t.treeid > '.$db->quote($treeid);
 
 			// only do a link comparison if they have specified a link type
-			if ($link_type != 0) $where .=  ' AND '.db_extras_bitand($db, 'l.link_type', $link_type).' > 0';
+			if ($link_type != 0) {
+				$where .=  ' AND '.db_extras_bitand($db, 'l.link_type', $link_type).' > 0';
+			}
 
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
@@ -2249,7 +2306,9 @@ class Asset_Manager extends MySource_Object
 		$assetids = Array();
 		$asset_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_ALL, '', true, 'minor');
 
-		foreach ($asset_links as $link) $assetids[$link['majorid']] = Array();
+		foreach ($asset_links as $link) {
+			$assetids[$link['majorid']] = Array();
+		}
 
 		if (empty($assetids)) {
 			$result = Array();
@@ -2279,7 +2338,9 @@ class Asset_Manager extends MySource_Object
 
 		}
 
-		foreach ($asset_links as $link_data) $link_info[$link_data['majorid']][] = $link_data;
+		foreach ($asset_links as $link_data) {
+			$link_info[$link_data['majorid']][] = $link_data;
+		}
 
 		$link_lineages = Array();
 		foreach (array_values($result) as $link_tree) {
@@ -2299,7 +2360,9 @@ class Asset_Manager extends MySource_Object
 					$asset_lineage[] = $tree_data['name'];
 				}
 				$asset_lineage[] = $parent_data['name'];
-				if (isset($output_lineages[$asset_lineage]) && !$can_edit) continue;
+				if (isset($output_lineages[$asset_lineage]) && !$can_edit) {
+					continue;
+				}
 
 				$link_lineages[$linkid] = Array(
 											'linkid'	=> $linkid,
@@ -2353,7 +2416,9 @@ class Asset_Manager extends MySource_Object
 		assert_valid_db_result($result);
 
 		$parents = Array();
-		foreach ($result as $assetid => $asset_info) $parents[$assetid] = $asset_info['type_code'];
+		foreach ($result as $assetid => $asset_info) {
+			$parents[$assetid] = $asset_info['type_code'];
+		}
 		return $parents;
 
 	}//end getParents()
@@ -2425,7 +2490,9 @@ class Asset_Manager extends MySource_Object
 
 		if (!is_null($sort_by)) {
 			$children = Array();
-			foreach ($result as $assetid => $asset_info) $children[$assetid] = $asset_info['type_code'];
+			foreach ($result as $assetid => $asset_info) {
+				$children[$assetid] = $asset_info['type_code'];
+			}
 			return $children;
 		} else {
 			return $result;
@@ -2593,7 +2660,9 @@ class Asset_Manager extends MySource_Object
 			} else {
 				$userids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', false));
 				array_push($userids, 0, (int) $GLOBALS['SQ_SYSTEM']->user->id);
-				for (reset($userids); null !== ($i = key($userids)); next($userids)) $userids[$i] = $db->quote($userids[$i]);
+				for (reset($userids); null !== ($i = key($userids)); next($userids)) {
+					$userids[$i] = $db->quote($userids[$i]);
+				}
 				$USERIDS_COND = 'AND p.userid  IN ('.implode(',', $userids).')';
 			}
 
@@ -2623,7 +2692,7 @@ class Asset_Manager extends MySource_Object
 			$where  = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'p');
 		}
 		$where  = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'pt');
-		$where .= ' '.$USERIDS_COND .'
+		$where .= ' '.$USERIDS_COND.'
 				   ORDER BY l.majorid, l.sort_order';
 
 		$result = $db->query($sql.$where);
@@ -2648,7 +2717,9 @@ class Asset_Manager extends MySource_Object
 				if (!$read_access) continue;
 			}
 			$assetids[] = (int) $row['assetid'];
-			if (!isset($tree_data[$row['majorid']])) $tree_data[$row['majorid']] = Array();
+			if (!isset($tree_data[$row['majorid']])) {
+				$tree_data[$row['majorid']] = Array();
+			}
 			$tree_data[$row['majorid']][$row['assetid']] = $row;
 
 		}
@@ -2677,7 +2748,9 @@ class Asset_Manager extends MySource_Object
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 		assert_valid_assetid($assetid);
 
-		if (empty($link_type)) $link_type = SQ_SC_LINK_SIGNIFICANT;
+		if (empty($link_type)) {
+			$link_type = SQ_SC_LINK_SIGNIFICANT;
+		}
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = 'SELECT t.treeid
@@ -2740,8 +2813,11 @@ class Asset_Manager extends MySource_Object
 		$result = $db->getOne($sql.$where);
 		assert_valid_db_result($result);
 
-		if ($exclusively) return ($result == 0);
-		else return ($result > 0);
+		if ($exclusively) {
+			return ($result == 0);
+		} else {
+			return ($result > 0);
+		}
 
 	}//end assetInTrash()
 
@@ -2788,7 +2864,9 @@ class Asset_Manager extends MySource_Object
 
 			$type_code_cond = '';
 			if (is_array($type_code)) {
-				for ($i = 0; $i < count($type_code); $i++) $type_code[$i] = $db->quote($type_code[$i]);
+				for ($i = 0; $i < count($type_code); $i++) {
+					$type_code[$i] = $db->quote($type_code[$i]);
+				}
 				$type_code_cond = 'IN ('.implode(', ', $type_code).')';
 			} else {
 				$type_code_cond = '= '.$db->quote($type_code);
@@ -2841,7 +2919,9 @@ class Asset_Manager extends MySource_Object
 	{
 		if (!$major->id) return 0;
 		assert_is_a($minor, 'asset');
-		if (!is_null($sort_order)) $sort_order = (int) $sort_order;
+		if (!is_null($sort_order)) {
+			$sort_order = (int) $sort_order;
+		}
 
 		$original_link_type = $link_type;
 		$link_type = (int) $link_type;
@@ -2867,7 +2947,9 @@ class Asset_Manager extends MySource_Object
 				// if we are trashing the asset and it is already in the trash, just
 				// pretend that we created the link
 				$trash = &$this->getSystemAsset('trash_folder');
-				if ($trash->id == $major->id) return $current_links[$i]['linkid'];
+				if ($trash->id == $major->id) {
+					return $current_links[$i]['linkid'];
+				}
 
 				trigger_localised_error('SYS0192', E_USER_WARNING);
 				return $current_links[$i]['linkid'];
@@ -2944,7 +3026,9 @@ class Asset_Manager extends MySource_Object
 		assert_valid_db_result($row);
 
 		$max = ($row['count'] > 0) ? (int) $row['max'] + 1 : 0;
-		if (is_null($sort_order) || (int) $sort_order > (int) $max || (int) $sort_order < 0) $sort_order = (int) $max;
+		if (is_null($sort_order) || (int) $sort_order > (int) $max || (int) $sort_order < 0) {
+			$sort_order = (int) $max;
+		}
 
 		// sequences are cool, see the PEAR::DB docs for more info
 		$linkid = $db->nextId('sq_ast_lnk');
@@ -3239,7 +3323,7 @@ class Asset_Manager extends MySource_Object
 
 				// reorder them so that it's indexed by their prospective treeid
 				$child_index = 0;
-				foreach($top_links as $link) {
+				foreach ($top_links as $link) {
 					$treeid = $new_treeid.asset_link_treeid_convert($child_index,true);
 					if ($link['linkid'] != 0) {
 						$links[$treeid] = $link;
@@ -3248,12 +3332,12 @@ class Asset_Manager extends MySource_Object
 				}
 
 				// now search for child links and give them treeids
-				for(reset($links); null !== ($k = key($links)); next($links)) {
+				for (reset($links); null !== ($k = key($links)); next($links)) {
 					$link =& $links[$k];
 
 					$child_links = $this->getLinks($link['minorid'], SQ_SC_LINK_SIGNIFICANT);
 					$child_index = 0;
-					foreach($child_links as $child_link) {
+					foreach ($child_links as $child_link) {
 						$treeid = $k.asset_link_treeid_convert($child_index,true);
 						if ($child_link['linkid'] != 0) {
 							$links[$treeid] = $child_link;
@@ -3263,7 +3347,7 @@ class Asset_Manager extends MySource_Object
 					$link['num_kids'] = count($child_links);
 				}
 
-				foreach($links as $treeid => $this_link) {
+				foreach ($links as $treeid => $this_link) {
 					// remove any 'zero linkid' entries
 					$sql = 'DELETE FROM
 								sq_ast_lnk_tree
@@ -3404,12 +3488,16 @@ class Asset_Manager extends MySource_Object
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk ';
 			$where = 'minorid = '.$db->quote($minor->id).'
 						AND '.db_extras_bitand($db, 'link_type', SQ_SC_LINK_SIGNIFICANT).' > 0';
-			if (!$exclusive) $where .= ' AND is_exclusive = '.$db->quote('1');
+			if (!$exclusive) {
+				$where .= ' AND is_exclusive = '.$db->quote('1');
+			}
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 			$sql .= $where;
 
 			$current_majorid = $db->getOne($sql);
-			if (!assert_valid_db_result($current_majorid, '', true, false)) return 'Database Error';
+			if (!assert_valid_db_result($current_majorid, '', true, false)) {
+				return 'Database Error';
+			}
 
 			if ($current_majorid) {
 				$current_major = &$this->getAsset($current_majorid);
@@ -3740,7 +3828,9 @@ class Asset_Manager extends MySource_Object
 			assert_valid_db_result($row);
 
 			$max = ($row['count'] > 0) ? (int) $row['max'] : 0;
-			if ($sort_order > $max || $sort_order < 0) $sort_order = $max;
+			if ($sort_order > $max || $sort_order < 0) {
+				$sort_order = $max;
+			}
 
 			$set_clauses['sort_order'] = $db->quoteSmart($sort_order);
 
@@ -4201,8 +4291,12 @@ class Asset_Manager extends MySource_Object
 			$all_info = false;
 		}
 
-		if (!isset($this->_tmp['permission_cache'])) $this->_tmp['permission_cache'] = Array();
-		if (!isset($this->_tmp['permission_cache'][$assetid])) $this->_tmp['permission_cache'][$assetid] = Array();
+		if (!isset($this->_tmp['permission_cache'])) {
+			$this->_tmp['permission_cache'] = Array();
+		}
+		if (!isset($this->_tmp['permission_cache'][$assetid])) {
+			$this->_tmp['permission_cache'][$assetid] = Array();
+		}
 
 		// return cached version if we can
 		$storage_name =(($and_greater) ? 'effective_' : '').'permission_'.$permission;
@@ -4258,8 +4352,11 @@ class Asset_Manager extends MySource_Object
 
 		}//end foreach
 
-		if ($all_info) return $ret_val;
-		else return array_unique($ret_val);
+		if ($all_info) {
+			return $ret_val;
+		} else {
+			return array_unique($ret_val);
+		}
 
 	}//end getPermission()
 
@@ -4289,7 +4386,9 @@ class Asset_Manager extends MySource_Object
 
 		// check if this permission is already set
 		$current = $this->getPermission($assetid, $permission, $granted, false);
-		if (in_array($userid, array_values($current))) return true;
+		if (in_array($userid, array_values($current))) {
+			return true;
+		}
 
 		// if we dont have an userid, we are granting public access
 		if (!empty($userid)) {
@@ -4351,7 +4450,9 @@ class Asset_Manager extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		// clear the permission cache
-		if (isset($this->_tmp['permission_cache'][$assetid])) unset($this->_tmp['permission_cache'][$assetid]);
+		if (isset($this->_tmp['permission_cache'][$assetid])) {
+			unset($this->_tmp['permission_cache'][$assetid]);
+		}
 
 		// log the action
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
@@ -4433,7 +4534,9 @@ class Asset_Manager extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		// clear the permission cache
-		if (isset($this->_tmp['permission_cache'][$assetid])) unset($this->_tmp['permission_cache'][$assetid]);
+		if (isset($this->_tmp['permission_cache'][$assetid])) {
+			unset($this->_tmp['permission_cache'][$assetid]);
+		}
 
 		// log the action
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
@@ -4484,7 +4587,9 @@ class Asset_Manager extends MySource_Object
 		// remove any trailing slashes and double slashes
 		$url = strip_url($url);
 
-		if (!is_null($protocol) && $protocol != 'https') $protocol = 'http';
+		if (!is_null($protocol) && $protocol != 'https') {
+			$protocol = 'http';
+		}
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
@@ -4522,7 +4627,9 @@ class Asset_Manager extends MySource_Object
 		// URL not found
 		if (empty($row)) {
 			$fancy_url = (($protocol) ? $protocol.'://' : '').$url;
-			if (!$mute_errors) trigger_localised_error('SYS0245', E_USER_WARNING, $fancy_url);
+			if (!$mute_errors) {
+				trigger_localised_error('SYS0245', E_USER_WARNING, $fancy_url);
+			}
 			$null = null; // 'cause we are meant to return by reference
 			return $null;
 
@@ -4556,7 +4663,7 @@ class Asset_Manager extends MySource_Object
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 		$sql = 'SELECT urlid, assetid, url, http, https
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_url
-				'.$where. '
+				'.$where.'
 				ORDER BY url DESC';
 		$sql = $db->modifyLimitQuery($sql, 0, 1);
 		$result = $db->getRow($sql);
@@ -4583,7 +4690,9 @@ class Asset_Manager extends MySource_Object
 		// remove any trailing slashes and double slashes
 		$url = strip_url($url);
 
-		if (!is_null($protocol) && $protocol != 'https') $protocol = 'http';
+		if (!is_null($protocol) && $protocol != 'https') {
+			$protocol = 'http';
+		}
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
@@ -4656,9 +4765,7 @@ class Asset_Manager extends MySource_Object
 			// we will manually add in the index page to the index
 			if (count($result) == 1) {
 				$site = &$this->getAsset($result[0]['assetid'], $result[0]['type_code']);
-				if (is_null($site)) {
-					return Array();
-				}
+				if (is_null($site)) return Array();
 				$index_page = $site->getSpecialPage('index');
 				if (!is_null($index_page)) {
 					$paths = $index_page->getWebPaths();
@@ -4755,7 +4862,9 @@ class Asset_Manager extends MySource_Object
 	*/
 	function getAssetURL($assetids, $base_url=null, $ignore_rollback=false)
 	{
-		if (!isset($this->_tmp['urls'])) $this->_tmp['urls'] = Array();
+		if (!isset($this->_tmp['urls'])) {
+			$this->_tmp['urls'] = Array();
+		}
 
 		$return_array = true;
 		$in_assetid = 0;
@@ -4783,16 +4892,22 @@ class Asset_Manager extends MySource_Object
 			}
 		}
 
-		if (is_null($base_url)) $base_url = current_url(false, true);
+		if (is_null($base_url)) {
+			$base_url = current_url(false, true);
+		}
 
 		$matches = Array();
-		if (!preg_match('/^(([a-z]+):\/\/)?(.*)$/', strip_url($base_url), $matches)) return ($return_array) ? Array() : '';
+		if (!preg_match('/^(([a-z]+):\/\/)?(.*)$/', strip_url($base_url), $matches)) {
+			return ($return_array) ? Array() : '';
+		}
 		$protocol = ($matches[2] == '') ? current_protocol() : (($matches[2] == 'https') ? 'https' : 'http');
 		$base_url = $matches[3];
 
 		// work out if any of these are cached
 		foreach ($assetids as $assetid) {
-			if (!isset($this->_tmp['urls'][$assetid])) $this->_tmp['urls'][$assetid] = Array();
+			if (!isset($this->_tmp['urls'][$assetid])) {
+				$this->_tmp['urls'][$assetid] = Array();
+			}
 
 			if (isset($this->_tmp['urls'][$assetid][$base_url])) {
 				// use the cached version
@@ -4902,7 +5017,9 @@ class Asset_Manager extends MySource_Object
 
 		// work out if any of these are cached
 		foreach ($assetids as $assetid) {
-			if (!isset($this->_tmp['hrefs'][$assetid])) $this->_tmp['hrefs'][$assetid] = Array();
+			if (!isset($this->_tmp['hrefs'][$assetid])) {
+				$this->_tmp['hrefs'][$assetid] = Array();
+			}
 
 			if (isset($this->_tmp['hrefs'][$assetid][$base_url])) {
 				// use the cached version
@@ -4955,7 +5072,9 @@ class Asset_Manager extends MySource_Object
 			} else {
 				$href = sq_web_path('admin').'/?SQ_BACKEND_PAGE=main&backend_section=am&am_section=edit_asset&assetid='.$assetid.'&asset_ei_screen='.$screen;
 			}
-			if (!$current_url_complete && strpos($href, './') === 0) $href = substr($href, 2);
+			if (!$current_url_complete && strpos($href, './') === 0) {
+				$href = substr($href, 2);
+			}
 			$return_hrefs[$assetid] = $href;
 		}
 		return $return_hrefs;
@@ -5118,9 +5237,15 @@ class Asset_Manager extends MySource_Object
 		$where  = 'l.'.$other_side.'id = a.assetid
 				   AND l.'.$side_of_link.'id = '.$db->quote($assetid).'
 				   AND '.db_extras_bitand($db, 'l.link_type', $db->quote($link_types)).' > 0 ';
-		if (!is_null($value))		$where .= ' AND l.value     = '.$db->quote($value);
-		if (!is_null($dependant))	$where .= ' AND l.is_dependant = '.$db->quote(($dependant) ? '1' : '0');
-		if (!is_null($exclusive))	$where .= ' AND l.is_exclusive = '.$db->quote(($exclusive) ? '1' : '0');
+		if (!is_null($value)) {
+		   $where .= ' AND l.value     = '.$db->quote($value);
+		}
+		if (!is_null($dependant)) {
+			$where .= ' AND l.is_dependant = '.$db->quote(($dependant) ? '1' : '0');
+		}
+		if (!is_null($exclusive)) {
+			$where .= ' AND l.is_exclusive = '.$db->quote(($exclusive) ? '1' : '0');
+		}
 
 		$group_by = '';
 		if (!is_null($access)) {
@@ -5144,7 +5269,9 @@ class Asset_Manager extends MySource_Object
 
 			$type_code_cond = '';
 			if (is_array($type_code)) {
-				for (reset($type_code); null !== ($i = key($type_code)); next($type_code)) $type_code[$i] = $db->quote($type_code[$i]);
+				for (reset($type_code); null !== ($i = key($type_code)); next($type_code)) {
+					$type_code[$i] = $db->quote($type_code[$i]);
+				}
 				$type_code_cond = 'IN ('.implode(', ', $type_code).')';
 			} else {
 				$type_code_cond = '= '.$db->quote($type_code);
@@ -5172,9 +5299,7 @@ class Asset_Manager extends MySource_Object
 			$order_by = 'ORDER BY a.'.$sort_by;
 			if ($sort_by != 'type_code') {
 				$select .= ', a.'.$sort_by.' AS sort_value';
-				if (!empty($group_by)) {
-					$group_by .= ', a.'.$sort_by;
-				}
+				if (!empty($group_by)) $group_by .= ', a.'.$sort_by;
 			}
 		}
 
@@ -5224,7 +5349,9 @@ class Asset_Manager extends MySource_Object
 			$select = 'SELECT a.assetid'.(($inc_type_code) ? ', a.type_code' : '');
 			$from   = 'FROM '.SQ_TABLE_RUNNING_PREFIX.'ast a';
 			$where  = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('', 'a');
-			if (!empty($where) && (!empty($type_code) || !is_null($access))) $where .= ' AND ';
+			if (!empty($where) && (!empty($type_code) || !is_null($access))) {
+				$where .= ' AND ';
+			}
 
 		} else {
 			// OK, normal asset, let's find a reference to them in the tree and go from there
@@ -5251,7 +5378,9 @@ class Asset_Manager extends MySource_Object
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 
-			if (!empty($type_code) || !is_null($access)) $where .= ' AND ';
+			if (!empty($type_code) || !is_null($access)) {
+				$where .= ' AND ';
+			}
 
 		}//end if assetid == 1
 
@@ -5279,7 +5408,9 @@ class Asset_Manager extends MySource_Object
 
 			$type_code_cond = '';
 			if (is_array($type_code)) {
-				for (reset($type_code); null !== ($i = key($type_code)); next($type_code)) $type_code[$i] = $db->quote($type_code[$i]);
+				for (reset($type_code); null !== ($i = key($type_code)); next($type_code)) {
+					$type_code[$i] = $db->quote($type_code[$i]);
+				}
 				$type_code_cond = 'IN ('.implode(', ', $type_code).')';
 			} else {
 				$type_code_cond = '= '.$db->quote($type_code);
@@ -5355,7 +5486,9 @@ class Asset_Manager extends MySource_Object
 		if (!empty($type_code)) {
 			$type_code_cond = '';
 			if (is_array($type_code)) {
-				for (reset($type_code); null !== ($i = key($type_code)); next($type_code)) $type_code[$i] = $db->quote($type_code[$i]);
+				for (reset($type_code); null !== ($i = key($type_code)); next($type_code)) {
+					$type_code[$i] = $db->quote($type_code[$i]);
+				}
 				$type_code_cond = 'IN ('.implode(', ', $type_code).')';
 			} else {
 				$type_code_cond = '= '.$db->quote($type_code);

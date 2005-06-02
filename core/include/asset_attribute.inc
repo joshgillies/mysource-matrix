@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_attribute.inc,v 1.35 2005/05/11 06:05:09 lwright Exp $
+* $Id: asset_attribute.inc,v 1.36 2005/06/02 07:10:48 ndvries Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix
 */
 class Asset_Attribute extends MySource_Object
@@ -119,7 +119,7 @@ class Asset_Attribute extends MySource_Object
 
 			// make sure the asset we are loading is of the same type as our class
 			if ($type != $this->type()) {
-				trigger_localised_error("SYS0095", E_USER_WARNING, $attributeid, $this->type());
+				trigger_localised_error('SYS0095', E_USER_WARNING, $attributeid, $this->type());
 				$this->id = null;
 				return;
 			}
@@ -133,7 +133,9 @@ class Asset_Attribute extends MySource_Object
 
 		// now just make sure some default values are set
 		foreach ($default_params as $name => $default) {
-			if (!isset($this->_params[$name])) $this->_params[$name] = $default;
+			if (!isset($this->_params[$name])) {
+				$this->_params[$name] = $default;
+			}
 		}
 
 	}//end constructor
@@ -148,7 +150,9 @@ class Asset_Attribute extends MySource_Object
 	*/
 	function loadAttribute($attributeid=0, $value=null, $default_params=Array())
 	{
-		if ($attributeid == 0) return new Asset_Attribute(0, $value, $default_params);;
+		if ($attributeid == 0) {
+			return new Asset_Attribute(0, $value, $default_params);;
+		}
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 

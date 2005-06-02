@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: assertions.inc,v 1.14 2005/05/11 06:05:08 lwright Exp $
+* $Id: assertions.inc,v 1.15 2005/06/02 07:10:48 ndvries Exp $
 *
 */
 
@@ -27,7 +27,7 @@
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix
 */
 
@@ -46,7 +46,9 @@
 function assert_true($value, $msg='', $silent=false, $fatal=true)
 {
 	if ($value !== true) {
-		if (empty($msg)) $msg = '['.gettype($value).'] "'.$value.'" was not TRUE';
+		if (empty($msg)) {
+			$msg = '['.gettype($value).'] "'.$value.'" was not TRUE';
+		}
 		trigger_exception($msg, $silent, $fatal);
 		return false;
 	}
@@ -69,7 +71,9 @@ function assert_true($value, $msg='', $silent=false, $fatal=true)
 function assert_false($value, $msg='', $silent=false, $fatal=true)
 {
 	if ($value !== false) {
-		if (empty($msg)) $msg = '['.gettype($value).'] "'.$value.'" was not FALSE';
+		if (empty($msg)) {
+			$msg = '['.gettype($value).'] "'.$value.'" was not FALSE';
+		}
 		trigger_exception($msg, $silent, $fatal);
 		return false;
 	}
@@ -92,7 +96,9 @@ function assert_false($value, $msg='', $silent=false, $fatal=true)
 function assert_null($value, $msg='', $silent=false, $fatal=true)
 {
 	if (!is_null($value)) {
-		if (empty($msg)) $msg = '['.gettype($value).'] "'.$value.'" was not NULL';
+		if (empty($msg)) {
+			$msg = '['.gettype($value).'] "'.$value.'" was not NULL';
+		}
 		trigger_exception($msg, $silent, $fatal);
 		return false;
 	}
@@ -115,7 +121,9 @@ function assert_null($value, $msg='', $silent=false, $fatal=true)
 function assert_not_null($value, $msg='', $silent=false, $fatal=true)
 {
 	if (is_null($value)) {
-		if (empty($msg)) $msg = translate('passed_value_was_null');
+		if (empty($msg)) {
+			$msg = translate('passed_value_was_null');
+		}
 		trigger_exception($msg, $silent, $fatal);
 		return false;
 	}
@@ -138,7 +146,9 @@ function assert_not_null($value, $msg='', $silent=false, $fatal=true)
 function assert_empty($value, $msg='', $silent=false, $fatal=true)
 {
 	if (!empty($value)) {
-		if (empty($msg)) $msg = translate('assert_not_empty', gettype($value), $value);
+		if (empty($msg)) {
+			$msg = translate('assert_not_empty', gettype($value), $value);
+		}
 		trigger_exception($msg, $silent, $fatal);
 		return false;
 	}
@@ -161,7 +171,9 @@ function assert_empty($value, $msg='', $silent=false, $fatal=true)
 function assert_not_empty($value, $msg='', $silent=false, $fatal=true)
 {
 	if (empty($value)) {
-		if (empty($msg)) $msg = translate('assert_empty', gettype($value), $value);
+		if (empty($msg)) {
+			$msg = translate('assert_empty', gettype($value), $value);
+		}
 		trigger_exception($msg, $silent, $fatal);
 		return false;
 	}
@@ -335,7 +347,9 @@ function assert_isset_array_index($test, $index, $msg='', $silent=false, $fatal=
 	assert_type($test, 'array');
 
 	if (!isset($test[$index])) {
-		if (empty($msg)) $msg = translate('assert_isset_array', $index);
+		if (empty($msg)) {
+			$msg = translate('assert_isset_array', $index);
+		}
 		trigger_exception($msg, $silent, $fatal);
 		return false;
 	}
@@ -359,7 +373,9 @@ function assert_isset_array_index($test, $index, $msg='', $silent=false, $fatal=
 function assert_is_a($obj, $class, $msg='', $silent=false, $fatal=true)
 {
 	if (!is_a($obj, $class)) {
-		if (empty($msg)) $msg = translate('assert_object', strtoupper($class));
+		if (empty($msg)) {
+			$msg = translate('assert_object', strtoupper($class));
+		}
 		trigger_exception($msg, $silent, $fatal);
 		return false;
 	}
@@ -384,7 +400,9 @@ function assert_is_a($obj, $class, $msg='', $silent=false, $fatal=true)
 function assert_type($obj, $type, $msg='', $silent=false, $fatal=true)
 {
 	if (strtolower(gettype($obj)) != strtolower($type)) {
-		if (empty($msg)) $msg = translate('assert_type', gettype($obj), $obj, strtoupper($type));
+		if (empty($msg)) {
+			$msg = translate('assert_type', gettype($obj), $obj, strtoupper($type));
+		}
 		trigger_exception($msg, $silent, $fatal);
 		return false;
 	}
@@ -407,7 +425,9 @@ function assert_type($obj, $type, $msg='', $silent=false, $fatal=true)
 function assert_valid_db_result($result, $msg='', $silent=false, $fatal=true)
 {
 	if (DB::isError($result)) {
-		if (empty($msg)) $msg = $result->getMessage().'<br/>'.$result->getUserInfo();
+		if (empty($msg)) {
+			$msg = $result->getMessage().'<br/>'.$result->getUserInfo();
+		}
 		trigger_exception($msg, $silent, $fatal);
 		return false;
 	}
@@ -444,13 +464,17 @@ function assert_valid_assetid($assetid, $msg='', $silent=false, $fatal=true)
 				$valid = ($int_assetid > 0);
 			} else {
 				// assetid is a string - so it must be a shadow asset
-				if (preg_match('|^[0-9]+:.*$|', $assetid)) $valid = true;
+				if (preg_match('|^[0-9]+:.*$|', $assetid)) {
+					$valid = true;
+				}
 			}
 		}
 	}
 
 	if (!$valid) {
-		if (empty($msg)) $msg = translate('assert_assetid', gettype($assetid), $assetid);
+		if (empty($msg)) {
+			$msg = translate('assert_assetid', gettype($assetid), $assetid);
+		}
 		trigger_exception($msg, $silent, $fatal);
 		return false;
 	}

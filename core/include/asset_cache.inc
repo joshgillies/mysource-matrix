@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-*$Id: asset_cache.inc,v 1.4 2005/06/01 13:13:27 gnoel Exp $
+*$Id: asset_cache.inc,v 1.5 2005/06/02 07:10:48 ndvries Exp $
 *
 */
 
@@ -44,7 +44,7 @@ define('SQ_ASSET_CACHE_DEBUG', 0);
 * limits. They can also be manually removed by calling remove().
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 */
 class Asset_Cache extends MySource_Object
@@ -317,14 +317,14 @@ class Asset_Cache extends MySource_Object
 		$item_count = 0;
 		foreach ($this->_items as $itemid => $item_info) {
 			if ($item_info['reference_count'] > 0) {
-				echo 'Asset #' . $itemid . '  (' . get_class($item_info['item']) . ')  RC=' . $item_info['reference_count'] . "\n";
+				echo 'Asset #'.$itemid.'  ('.get_class($item_info['item']).')  RC='.$item_info['reference_count']."\n";
 				if (isset($item_info['callers'])) {
 					print_r ($item_info['callers']);
 				}
 				$item_count++;
 			}
 		}
-		echo $item_count . " items \n";
+		echo $item_count." items \n";
 
 		$ret = ob_get_clean();
 
@@ -358,7 +358,7 @@ class Asset_Cache extends MySource_Object
 		}
 		if ($caller_idx < count($bt)) {
 			$caller = (isset($bt[$caller_idx]['class'])) ? $bt[$caller_idx]['class'] : '';
-			$caller .= ':' . $bt[$caller_idx]['file'];
+			$caller .= ':'.$bt[$caller_idx]['file'];
 		}
 
 		// 2. add info to the cache
