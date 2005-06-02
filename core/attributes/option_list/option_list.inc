@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: option_list.inc,v 1.17 2005/05/17 03:47:06 lwright Exp $
+* $Id: option_list.inc,v 1.18 2005/06/02 07:15:31 arailean Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *    <option_list />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -70,7 +70,9 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 		$prefix = str_replace(':','_',$prefix); // handle shadow assets
 
 		$current_value = explode("\r\n", $this->value);
-		if (!is_array($current_value))             $current_value = Array();
+		if (!is_array($current_value)) {
+			$current_value = Array();
+		}
 
 		if ($read_only) {
 			echo implode('<br />', $current_value);
@@ -183,14 +185,14 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 	{
 		$prefix = str_replace(':','_',$prefix);	// handle shadow assets
 
-		if (!isset($_REQUEST[$prefix.'_options'])) {
-			return false;
-		}
-
 		$value = Array();
 
-		$to = Array();
+		$new = trim(array_get_index($_REQUEST, $prefix.'_new_options',''));
+		if (!empty($new)) $value[] = $new;
+
+
 		if (isset($_REQUEST[$prefix.'_options'])) {
+			$to = Array();
 			$to = explode("\r\n", trim($_REQUEST[$prefix.'_options']));
 			// make sure the emails are valid
 			foreach ($to as $option) {
@@ -199,6 +201,8 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 				$value[] = $option;
 			}
 		}
+
+		if (empty($value)) return false;
 
 		$this->processed = $this->setValue(implode("\r\n",$value));
 
