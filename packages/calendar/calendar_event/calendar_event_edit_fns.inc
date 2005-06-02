@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_edit_fns.inc,v 1.36 2005/05/17 02:28:28 tbarrett Exp $
+* $Id: calendar_event_edit_fns.inc,v 1.37 2005/06/02 23:10:53 tbarrett Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -246,7 +246,12 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 						$end_ts = $start_ts + ((int)$_REQUEST[$prefix.'_duration'] * 60 * 60);
 					break;
 					case 'd':
-						$end_ts = $start_ts + ((int)$_REQUEST[$prefix.'_duration'] * 60 * 60 * 24);
+						if (isset($_REQUEST[$prefix.'_start_time_enabled'])) {
+							$end_ts = $start_ts + ((int)$_REQUEST[$prefix.'_duration'] * 60 * 60 * 24);
+						} else {
+							// if no start time, the duration is the number of days covered
+							$end_ts = $start_ts + (((int)$_REQUEST[$prefix.'_duration'] - 1) * 60 * 60 * 24);
+						}
 					break;
 				}
 				$end_date_value = ts_iso8601($end_ts);
