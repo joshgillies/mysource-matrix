@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_edit_fns.inc,v 1.44.2.5 2005/05/12 00:22:28 lwright Exp $
+* $Id: form_edit_fns.inc,v 1.44.2.6 2005/06/02 23:16:13 arailean Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.44.2.5 $
+* @version $Revision: 1.44.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -507,15 +507,14 @@ class Form_Edit_Fns extends  Bridge_Edit_Fns
 	*/
 	function processAddSections(&$asset, &$o, $prefix)
 	{
-		if (!isset($_POST[$prefix.'_sections_options'])) {
-			return false;
-		}
-
-		$section_text = $_POST[$prefix.'_sections_options'];
-
 		$sections = Array();
+
+		$new = trim(array_get_index($_REQUEST, $prefix.'_sections_new_options',''));
+		if (!empty($new)) $sections[] = $new;
+
+		$section_text = trim(array_get_index($_POST, $prefix.'_sections_options', ''));
 		if (!empty($section_text)) {
-			$section_names = explode("\r\n", trim($section_text));
+			$section_names = explode("\r\n", $section_text);
 			// make sure the section names are not empty
 			foreach ($section_names as $option) {
 				$option = trim($option);
@@ -523,6 +522,8 @@ class Form_Edit_Fns extends  Bridge_Edit_Fns
 				$sections[] = $option;
 			}
 		}
+
+		if (empty($sections)) return false;
 
 		// now that we have the section names, display them in the order entered
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
