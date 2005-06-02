@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_permission.inc,v 1.5 2005/05/11 06:05:03 lwright Exp $
+* $Id: trigger_action_set_permission.inc,v 1.6 2005/06/02 05:03:25 rhoward Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -109,8 +109,8 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 		}
 		if ($write_access) {
 			combo_box($prefix.'[granted]', Array(
-											'1' => translate('grant'),
-											'0' => translate('deny'),
+											'1'	=> translate('grant'),
+											'0'	=> translate('deny'),
 										   ), false, $selected_granted);
 		} else {
 			echo '<b>';
@@ -139,10 +139,16 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 			$selected_userid = $settings['userid'];
 		}
 		if ($write_access) {
-			asset_finder($prefix.'[userid]', $selected_userid, Array(
-																'user' => 'D',
-																'user_group' => 'D'
-															   ));
+
+			asset_finder(
+				$prefix.'[userid]',
+				$selected_userid,
+				Array(
+					'user'			=> 'D',
+					'user_group'	=> 'D',
+				)
+			);
+
 		} else {
 			$user = null;
 			if ($selected_userid > 0) {

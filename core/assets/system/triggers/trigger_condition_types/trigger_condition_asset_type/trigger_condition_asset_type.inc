@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_asset_type.inc,v 1.9 2005/05/11 06:05:05 lwright Exp $
+* $Id: trigger_condition_asset_type.inc,v 1.10 2005/06/02 05:03:25 rhoward Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -114,7 +114,9 @@ class Trigger_Condition_Asset_Type extends Trigger_Condition
 			} else {
 				echo '<b>';
 				echo $selected_type;
-				if ($is_descendant) echo ' ('.translate('or_decendant_types').')';
+				if ($is_descendant) {
+					echo ' ('.translate('or_decendant_types').')';
+				}
 				echo '</b>';
 			}
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_attribute_value.inc,v 1.5 2005/05/11 06:05:02 lwright Exp $
+* $Id: trigger_action_set_attribute_value.inc,v 1.6 2005/06/02 05:03:25 rhoward Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -196,7 +196,9 @@ class Trigger_Action_Set_Attribute_Value extends Trigger_Action
 	function processInterface(&$settings, $request_data)
 	{
 		$type_code = array_get_index($request_data, 'asset_type', false);
-		if (!$type_code) return translate('asset_type_not_specified');
+		if (!$type_code) {
+			return translate('asset_type_not_specified');
+		}
 		$settings['asset_type'] = $type_code;
 
 		$settings['attribute'] = array_get_index($request_data, 'attribute', '');

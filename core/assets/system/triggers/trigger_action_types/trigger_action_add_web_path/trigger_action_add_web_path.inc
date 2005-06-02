@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_add_web_path.inc,v 1.3 2005/05/11 06:05:01 lwright Exp $
+* $Id: trigger_action_add_web_path.inc,v 1.4 2005/06/02 05:03:25 rhoward Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -143,7 +143,9 @@ class Trigger_Action_Add_Web_Path extends Trigger_Action
 	{
 		$web_path = array_get_index($request_data, 'path', '');
 		$web_path = trim($web_path);
-		if ($web_path == '') return translate('web_path_not_specified');
+		if ($web_path == '') {
+			return translate('web_path_not_specified');
+		}
 		$settings['path'] = $web_path;
 
 		return false;

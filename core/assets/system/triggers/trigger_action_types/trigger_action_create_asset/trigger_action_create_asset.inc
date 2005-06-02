@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_create_asset.inc,v 1.3 2005/05/11 06:05:01 lwright Exp $
+* $Id: trigger_action_create_asset.inc,v 1.4 2005/06/02 05:03:25 rhoward Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -185,7 +185,9 @@ class Trigger_Action_Create_Asset extends Trigger_Action
 				if ($write_access) {
 					text_box($prefix.'[value]', $value, '', '');
 				} else {
-					if (empty($value)) $value = '['.translate('no_value_entered').']';
+					if (empty($value)) {
+						$value = '['.translate('no_value_entered').']';
+					}
 					echo '<b>'.$value.'</b>';
 				}
 				$advanced_part_1 = ob_get_contents();
@@ -193,8 +195,8 @@ class Trigger_Action_Create_Asset extends Trigger_Action
 
 			ob_start();
 				$is_dependant_list = Array(
-										0 	=> translate('non_dependantly'),
-										1 	=> translate('dependantly'),
+										0	=> translate('non_dependantly'),
+										1	=> translate('dependantly'),
 									 );
 				if ($write_access) {
 					combo_box($prefix.'[is_dependant]', $is_dependant_list, false, $is_dependant);
@@ -259,7 +261,9 @@ class Trigger_Action_Create_Asset extends Trigger_Action
 		$settings['link_type'] = $request_data['link_type'];
 
 		$type_code = array_get_index($request_data, 'type_code', false);
-		if (!$type_code) return translate('asset_type_not_specified');
+		if (!$type_code) {
+			return translate('asset_type_not_specified');
+		}
 		$settings['type_code'] = $type_code;
 
 		// optional fields
