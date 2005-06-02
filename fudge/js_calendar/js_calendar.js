@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_calendar.js,v 1.9 2005/05/16 02:18:20 ndvries Exp $
+* $Id: js_calendar.js,v 1.10 2005/06/02 05:20:15 tbarrett Exp $
 *
 */
 
@@ -106,16 +106,28 @@ function c_show(e)
 	div.style.visibility = "hidden";
 	div.style.position = "absolute";
 
-	div.style.left = e.clientX + "px";
-	var scrollX = "";
-	var scrollY = "";
-	if (navigator.userAgent.indexOf("Safari")==-1) {
-		eval("scrollX = document.body.scrollLeft;");
-		eval("scrollY = document.body.scrollTop;");
+	var coordX = 0;
+	var coordY = 0;
+	if (navigator.userAgent.indexOf("Safari") != -1) {
+		// safari
+		coordX = e.clientX - 305;// - (top.innerWidth - self.innerWidth);
+		coordY = top.innerHeight - e.clientY;
+	} else {
+		if (e.pageX || e.pageY) {
+			coordX = e.pageX;
+			coordY = e.pageY;
+		} else if (e.clientX || e.clientY) {
+			coordX = e.clientX + document.body.scrollLeft;
+			coordY = e.clientY + document.body.scrollTop;
+		}
 	}
-	div.style.left = scrollX + e.clientX + "px";
-	div.style.top  = scrollY + e.clientY + "px";
 
+	// move the div to the top level of the document tree so that other absolutely-positioned
+	// elements don't affect its position, then move it to the correct co-ordinates
+	div.parentNode.removeChild(div);
+	document.body.appendChild(div);
+	div.style.left = (coordX + 6) + "px";
+	div.style.top  = (coordY + 6) + "px";
 
 	div.innerHTML = this.output();
 	if (document.getElementById('ie_'+this.divname+'_iframe') == null && document.body.insertAdjacentHTML) {
