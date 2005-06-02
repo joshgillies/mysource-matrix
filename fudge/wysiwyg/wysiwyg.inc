@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.44 2005/05/16 06:36:35 lwright Exp $
+* $Id: wysiwyg.inc,v 1.45 2005/06/02 00:53:09 tbarrett Exp $
 *
 */
 
@@ -33,7 +33,7 @@
 *     to do this.
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.45 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -795,7 +795,7 @@ HTMLArea.prototype.insertDeepLeft = function(target, toInsert) {
 				HTMLArea.prototype._editorEvent = function(ev) {
 					var editor = this;
 					// Make enter without shift add <p> tags in Moz as well as IE
-					if (ev.type == "keypress") {
+					if (ev.type == "keypress" && !HTMLArea.is_ie) {
 						var keyCode = ev.keyCode;
 						if (keyCode == 13 && !ev.shiftKey && this._iframe.contentWindow.getSelection) {
 
