@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit_div_props.php,v 1.14 2005/05/12 06:24:17 tbarrett Exp $
+* $Id: edit_div_props.php,v 1.15 2005/06/02 00:18:02 rhoward Exp $
 *
 */
 
@@ -29,15 +29,15 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
-header("Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0");
-header("Pragma: no-cache");
-header("Expires: ". gmdate("D, d M Y H:i:s",time()-3600) . " GMT");
+header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
+header('Pragma: no-cache');
+header('Expires: '. gmdate('D, d M Y H:i:s',time()-3600) . ' GMT');
 
-include(dirname(__FILE__)."/header.php");
+include(dirname(__FILE__).'/header.php');
 ?>
 <script type="text/javascript" src="<?php echo sq_web_path('lib')?>/js/general.js"></script>
 <script type="text/javascript">
@@ -60,6 +60,11 @@ include(dirname(__FILE__)."/header.php");
 			f.content_type.options[i] = null;
 		}
 		var i = 0;
+
+		// add default "Leave Unchanged" value to the top
+		f.content_type.options[i] = new Option(<?php echo translate('content_type_no_change'); ?>, "");
+		i++;
+
 		for(var key in available_types) {
 			if (available_types[key] == null) continue;
 			if(available_types[key]["name"] != null) {
@@ -164,7 +169,7 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 				<tr>
 					<td class="label"><?php echo translate('click_icon_to_delete'); ?>:</td>
 					<td>
-						<?php 
+						<?php
 						sq_print_icon(sq_web_path('data').'/asset_types/bodycopy/images/icons/delete.png', 16, 16, 'Delete this Div', 'Delete this Div', 'onclick="owner.bodycopy_delete_div(document.main_form.bodycopy_name.value, document.main_form.divid.value);" style="cursor: pointer;"');
 						?>
 					</td>
@@ -185,4 +190,4 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 </table>
 </form>
 
-<?php include(dirname(__FILE__)."/footer.php"); ?>
+<?php include(dirname(__FILE__).'/footer.php'); ?>
