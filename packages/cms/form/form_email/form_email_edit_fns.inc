@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.52 2005/05/20 05:27:29 tbarrett Exp $
+* $Id: form_email_edit_fns.inc,v 1.53 2005/06/02 23:09:17 tbarrett Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.52 $
+* @version $Revision: 1.53 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -113,7 +113,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$to_ts   = mktime(23,59,59,$to_value[1],$to_value[2],$to_value[0]);
 
 		// find all the form submission assets
-		$assetids = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, 'form_submission'));
+		$assetids = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, 'form_submission', false));
 		$assetid_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($assetids);
 		uasort($assetid_info, create_function('$a, $b', 'return $a[\'created\'] < $b[\'created\'];'));
 		?>
