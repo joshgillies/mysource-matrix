@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.37 2005/05/31 06:49:16 arailean Exp $
+* $Id: listing_engine.inc,v 1.38 2005/06/02 02:24:08 tbarrett Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
 *
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -710,7 +710,7 @@ class Listing_Engine extends Page
 			} else if (!$inherit) {
 				$allowed_asset_map[$allowed_parent_type] = $allowed_parent_type;
 			} else {
-				$descendants = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($allowed_parent_type);
+				$descendants = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($allowed_parent_type, true);
 				foreach ($descendants as $allowed_type) {
 					if (!isset($allowed_asset_map[$allowed_type])){
 						$allowed_asset_map[$allowed_type] = $allowed_parent_type;
