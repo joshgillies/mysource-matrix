@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date_edit_fns.inc,v 1.21 2005/05/17 07:01:44 lwright Exp $
+* $Id: metadata_field_date_edit_fns.inc,v 1.22 2005/06/02 06:06:25 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -118,12 +118,17 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 			$default = $res[$temp_val];
 		}
 
+		if (empty($default)) $default = null;
 		$field = $asset->_getDateTimeField($prefix, $default);
 
 		if ($asset->writeAccess('attributes')) {
 			$field->printField();
 		} else {
-			echo $field->format();
+			if ($uses_keyword) {
+				?><em><?php echo translate('metadata_field_date_keyword_in_use'); ?></em><?php
+			} else {
+				echo $field->format();
+			}
 		}
 
 	}//end paintDefaultDateTime()
@@ -215,18 +220,18 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 							'%asset_published%'	=> translate('last_published_date'),
 						  );
 
-		$o->note(translate('metadata_use_selected_replacements'));
-
 		// displaying default value if any values were actually saved in the array
 		if ($write_access) {
 			combo_box($prefix.'_repkeys', $select_options, false, $default);
 		} else {
 			if (strpos($default, '%') === 0) {
-				echo $default;
+				echo $select_options[$default];
 			} else {
 				echo translate('none_selected');
 			}
 		}
+
+		$o->note(translate('metadata_use_selected_replacements'));
 
 		return true;
 
@@ -273,8 +278,6 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 	{
 		$field = $asset->_getDateTimeField($prefix);
 
-		$o->note(translate('metadata_setup_table_explanation'));
-
 		if ($asset->writeAccess('attributes')) {
 			// custom definition for edit interface
 			$arr = Array('s', 'n', 'c');
@@ -282,6 +285,8 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 		} else {
 			echo $field->format();
 		}
+
+		$o->note(translate('metadata_setup_table_explanation'));
 
 	}//end paintSetupParams()
 
@@ -326,14 +331,16 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 	{
 		$prefix = $asset->getPrefix();
 
+		$is_default = false;
+
 		if (is_null($value_str)) {
-			$value = $asset->attr('default');
-			$value_components = $asset->attr('value_components');
-		} else {
-			$value='';
-			$value_components = $asset->attr('value_components');
-			Metadata_Field::decodeValueString($value_str, $value, $value_components);
+			$value_str = $asset->getDefaultValue();
+			$is_default = true;
 		}
+
+		$value = '';
+		$value_components = $asset->attr('value_components');
+		Metadata_Field::decodeValueString($value_str, $value, $value_components);
 
 		$field_name = $asset->name;
 		if ($asset->attr('required')) {
@@ -351,16 +358,30 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 
 			// checking if the value is a keyword replacement
 			$uses_keyword = (substr($value, 0, 1) == '%');
+			if (empty($value)) $value = null;
 			$field = $asset->_getDateTimeField($prefix, $value);
 
 			if ($write_access && $asset->attr('editable')) {
 				$field->printField();
 				echo ' <b>-'.strtoupper(translate('or')).'-</b> ';
+
 				combo_box($prefix.'_repkeys', $select_options, false, $value); // replacement keys
+				echo '<b>-'.strtoupper(translate('or')).'-</b>';
+				check_box($prefix.'_default', '1', $is_default);
+				echo ' '.strtolower(translate('use_default'));
+				if ($is_default) {
+					echo ' <em style="color: #666">(currently set)</em>';
+				}
 			} else if ($uses_keyword && isset($select_options[$value])) {
 				echo '<i>'.translate('keyword_replacement').': </i>', $select_options[$value];
+				if ($is_default) {
+					echo ' <em style="color: #666">(default)</em>';
+				}
 			} else {
 				echo $field->format();
+				if ($is_default) {
+					echo ' <em style="color: #666">(default)</em>';
+				}
 			}
 
 		$o->closeField();
@@ -387,20 +408,27 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 		$prefix = $asset->getPrefix();
 
 		$value = array_get_index($_POST, $prefix.'_repkeys', '');
+		$use_default = array_get_index($_POST, $prefix.'_default', '');
 
-		// if we aren't using keywords...get the date that was set
-		if ($value == '') {
-			$field = $asset->_getDateTimeField($prefix);
-			if ($field->processField()) {
-				$value = $field->value;
-			} else {
-				// field could not be processed
-				trigger_localised_error('CORE0203', E_USER_WARNING, $asset->name);
-				return false;
+		if ($use_default) {
+			$new_value_str = null;
+		} else {
+			// if we aren't using keywords...get the date that was set
+			if ($value == '') {
+				$field = $asset->_getDateTimeField($prefix);
+				if ($field->processField()) {
+					$value = $field->value;
+				} else {
+					// field could not be processed
+					trigger_localised_error('CORE0203', E_USER_WARNING, $asset->name);
+					return false;
+				}
 			}
 		}
 
-		$new_value_str = Metadata_Field::encodeValueString(trim($value), Array());
+		if (!is_null($new_value_str)) {
+			$new_value_str = Metadata_Field::encodeValueString(trim($value), Array());
+		}
 
 		return true;
 
@@ -427,21 +455,23 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 		// if we aren't printing this on the frontend then don't print anything
 		if ($frontend_option == 'hide') return true;
 
+		$is_default = false;
 
 		if (is_null($value_str)) {
-			$value = $asset->attr('default');
-			$value_components = $asset->attr('value_components');
-		} else {
-			$value='';
-			$value_components = $asset->attr('value_components');
-			Metadata_Field::decodeValueString($value_str, $value, $value_components);
+			$value_str = $asset->getDefaultValue();
+			$is_default = true;
 		}
+
+		$value = '';
+		$value_components = $asset->attr('value_components');
+		Metadata_Field::decodeValueString($value_str, $value, $value_components);
 
 		$original = $value;
 
 		// we create a new array here to pass to our parent so we dont muck up the
 		// referenced timestamp values
 		if (substr($value, 0, 1) != '%') {
+			if (empty($value)) $value = null;
 			$field = $asset->_getDateTimeField('', $value);
 			$value = $field->format();
 		}

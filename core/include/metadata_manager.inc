@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.81 2005/05/17 07:00:37 lwright Exp $
+* $Id: metadata_manager.inc,v 1.82 2005/06/02 06:06:39 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.81 $
+* @version $Revision: 1.82 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -427,25 +427,40 @@ class Metadata_Manager extends MySource_Object
 	*/
 	function getSchemaDefaultValues($schemaid)
 	{
+		static $cached_field_names = Array();
+
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
+
 		$schema = &$am->getAsset($schemaid);
 		if (is_null($schema)) {
 			trigger_localised_error("SYS0040", E_USER_WARNING, $schemaid);
 			return Array();
 		}
 
-		$fields = $this->getMetadataFields(Array($schema->id));
+		$fields = $this->getMetadataFields(Array($schemaid));
+
 		$default_values = Array();
+		$field_names = Array();
+		$fields_to_check = Array();
+
+		foreach($fields as $fieldid => $type_code) {
+			if (isset($cached_field_names[$fieldid])) {
+				$field_names[$fieldid] = $cached_field_names[$fieldid];
+			} else {
+				$fields_to_check[] = $fieldid;
+			}
+		}
+		$new_field_names = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($fields_to_check, 'metadata_field', false, 'name');
+		$field_names += $new_field_names;
+
 		foreach ($fields as $fieldid => $type_code) {
-			$field = &$am->getAsset($fieldid, $type_code);
-			if (is_null($field)) {
-				trigger_localised_error("SYS0041", E_USER_WARNING, $schemaid);
-				continue;
+			if (!isset($cached_field_names[$fieldid])) {
+				$cached_field_names[$fieldid] = $field_names[$fieldid];
 			}
 
-			$default_values[$field->id] = Array(
-											'name'	=> $field->name,
-											'value'	=> $field->getDefaultValue(),
+			$default_values[$fieldid] = Array(
+											'name'	=> $field_names[$fieldid],
+											'value'	=> $this->getMetadataFieldDefaultValue($fieldid),
 										  );
 		}
 
@@ -469,6 +484,8 @@ class Metadata_Manager extends MySource_Object
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
+
+		$db->show_queries = true;
 
 		// the array of field values we are going to return
 		$field_values = Array();
@@ -512,6 +529,9 @@ class Metadata_Manager extends MySource_Object
 			assert_valid_db_result($fields);
 
 			foreach ($fields as $fieldid => $type_code) {
+				$sql = 'SELECT
+							COALESCE()
+						';
 				$field = &$am->getAsset($fieldid, $type_code);
 				if (is_null($field)) {
 					trigger_localised_error("SYS0041", E_USER_WARNING, $schemaid);
@@ -1138,6 +1158,194 @@ class Metadata_Manager extends MySource_Object
 		return true;
 
 	}//end purgeMetadata()
+
+
+	/**
+	* Get the value of an asset's metadata field based on that field's asset ID
+	*
+	* @param string		$assetid		The ID of the asset that we want the
+	*									metadata value of
+	* @param string		$field_assetid	The field that we wish to check
+	* @param boolean	$mute_errors	Set true to mute errors that occur when
+	*									the asset (specified in $assetid) does
+	*									not have a schema applied to it
+	*/
+	function getMetadataValueByAssetid($assetid, $field_assetid, $mute_errors=false)
+	{
+		// is this actually a metadata field or what?!
+		if (!$this->isMetadataFieldAssetid($field_assetid)) {
+			if (!$mute_errors) {
+				trigger_error('Asset #'.$field_assetid.' is not a metadata field', E_USER_WARNING);
+			}
+			return null;
+		}
+
+		// get the parent schema of this metadata field
+		$schemaid = $GLOBALS['SQ_SYSTEM']->am->getParents($field_assetid, 'metadata_schema');
+
+		// get the schemas that apply to this asset
+		$schemas = $this->getSchemas($assetid, true);
+
+		if (array_intersect($schemas, array_keys($schemaid)) == Array()) {
+			if (!$mute_errors) {
+				// SYS0307: Asset #<assetid> does not have the schema for field #<field assetid> applied
+				trigger_localised_error('SYS0307', E_USER_WARNING, $assetid, $field_assetid);
+			}
+			return null;
+		}
+
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+
+		$sql = 'SELECT
+					value
+				FROM
+					'.SQ_TABLE_RUNNING_PREFIX.'ast_metadata_value mdv';
+		$where = 'mdv.assetid	= '.$db->quoteSmart($assetid).'
+					AND	mdv.fieldid	= '.$db->quoteSmart($field_assetid);
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'mdv');
+
+		$value = $db->getOne($sql.$where);
+
+		if (is_null($value)) {
+			// not set - need the default value
+			return $this->getMetadataFieldDefaultValue($field_assetid);
+		} else {
+			return $value;
+		}
+
+	}//end getMetadataValueByAssetid()
+
+
+	/**
+	* Returns whether the asset ID being passed into this function is some kind
+	* of metadata field asset
+	*
+	* @param string	$field_assetid	the ID of the metadata field asset
+	*
+	* @return boolean
+	* @access public
+	*/
+	function isMetadataFieldAssetid($field_assetid)
+	{
+		static $cached_tests = Array();
+
+		if (!isset($cached_tests[$field_assetid])) {
+			$db =& $GLOBALS['SQ_SYSTEM']->db;
+
+			$sql = 'SELECT
+						COUNT(*)
+					FROM
+						'.SQ_TABLE_RUNNING_PREFIX.'ast_typ_inhd ati
+							JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON ati.type_code = a.type_code';
+			$where = 'a.assetid = '.$db->quoteSmart($field_assetid).'
+						AND	ati.inhd_type_code	= '.$db->quoteSmart('metadata_field');
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ati');
+
+			$count = $db->getOne($sql.$where);
+			assert_valid_db_result($count);
+			$cached_tests[$field_assetid] = ($count > 0);
+		}
+
+		return $cached_tests[$field_assetid];
+
+	}//end isMetadataFieldAssetid()
+
+
+	/**
+	* Returns whether the asset ID being passed into this function is some kind
+	* of metadata field asset
+	*
+	* @param string	$field_assetid	the ID of the metadata field asset
+	*
+	* @return boolean
+	* @access public
+	*/
+	function getMetadataFieldDefaultValue($field_assetid)
+	{
+		static $cached_defaults = Array();
+		if (!in_array($field_assetid, array_keys($cached_defaults))) {
+			if (!$this->isMetadataFieldAssetid($field_assetid)) {
+				trigger_error('Asset #'.$field_assetid.' is not a metadata field', E_USER_WARNING);
+			}
+
+			$db =& $GLOBALS['SQ_SYSTEM']->db;
+
+			$sql = 'SELECT
+						default_val
+					FROM
+						'.SQ_TABLE_RUNNING_PREFIX.'ast_metadata_dflt_val mdv';
+			$where = 'mdv.assetid = '.$db->quoteSmart($field_assetid);
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'mdv');
+
+			// if not found, getOne() will return null
+			$default_val = $db->getOne($sql.$where);
+			assert_valid_db_result($default_val);
+			$cached_defaults[$field_assetid] = $default_val;
+		}
+
+		return $cached_defaults[$field_assetid];
+
+	}//end getMetadataFieldDefaultValue()
+
+
+	/**
+	* Sets the default value of a certain metadata field asset (as identified
+	* by assetid)
+	*
+	* @param string	$field_assetid	the ID of the metadata field asset
+	* @param string	$value			the value to be stored
+	*
+	* @return boolean
+	* @access public
+	*/
+	function setMetadataFieldDefaultValue($field_assetid, $value)
+	{
+		// is this actually a metadata field or what?!
+		if (!$this->isMetadataFieldAssetid($field_assetid)) {
+			trigger_error('Asset #'.$field_assetid.' is not a metadata field', E_USER_WARNING);
+		}
+
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+
+		$sql = 'SELECT
+					default_val
+				FROM
+					'.SQ_TABLE_RUNNING_PREFIX.'ast_metadata_dflt_val mdv';
+		$where = 'mdv.assetid = '.$db->quoteSmart($field_assetid);
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'mdv');
+
+		$row = $db->getRow($sql.$where);
+		assert_valid_db_result($row);
+
+		// does the default value exist yet, then?
+		if (is_null($row)) {
+			$sql = 'INSERT INTO
+						sq_ast_metadata_dflt_val
+						(
+							assetid,
+							default_val
+						)
+					VALUES
+						(
+							'.$db->quoteSmart($field_assetid).',
+							'.$db->quoteSmart($value).'
+						)';
+		} else {
+			$sql = 'UPDATE
+						sq_ast_metadata_dflt_val
+					SET
+						default_val = '.$db->quoteSmart($value).'
+					WHERE
+						assetid = '.$db->quoteSmart($field_assetid);
+		}
+
+		$value = $db->query($sql);
+		assert_valid_db_result($value);
+
+		return true;
+
+	}//end setMetadataFieldDefaultValue()
 
 
 }//end class

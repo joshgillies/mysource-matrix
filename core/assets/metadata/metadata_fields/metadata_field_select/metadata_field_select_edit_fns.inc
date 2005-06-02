@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select_edit_fns.inc,v 1.15 2005/05/11 06:04:52 lwright Exp $
+* $Id: metadata_field_select_edit_fns.inc,v 1.16 2005/06/02 06:06:28 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -69,14 +69,16 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 		$prefix = $asset->getPrefix();
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 
+		$is_default = false;
+
 		if (is_null($value_str)) {
-			$value = $asset->attr('default');
-			$value_components = $asset->attr('value_components');
-		} else {
-			$value='';
-			$value_components = $asset->attr('value_components');
-			Metadata_Field::decodeValueString($value_str, $value, $value_components);
+			$value_str = $asset->getDefaultValue();
+			$is_default = true;
 		}
+
+		$value = '';
+		$value_components = $asset->attr('value_components');
+		Metadata_Field::decodeValueString($value_str, $value, $value_components);
 
 		$field_name = $asset->name;
 		if ($asset->attr('required')) {
@@ -111,6 +113,19 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 				}
 			}
 
+			if ($write_access) {
+				echo ' '.strtolower(translate('or')).' ';
+				check_box($prefix.'_default', '1', $is_default);
+				echo ' '.strtolower(translate('use_default'));
+				if ($is_default) {
+					echo ' <em style="color: #666">(currently set)</em>';
+				}
+			} else {
+				if ($is_default) {
+					echo ' <em style="color: #666">(default)</em>';
+				}
+			}
+
 		$o->closeField();
 
 		return true;
@@ -135,10 +150,15 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 		$prefix = $asset->getPrefix();
 
 		$value = array_get_index($_POST, $prefix.'_value', '');
+		$use_default = array_get_index($_POST, $prefix.'_default', '');
 
-		if (is_array($value)) $value = implode('; ', $value);
+		if ($use_default) {
+			$new_value_str = null;
+		} else {
+			if (is_array($value)) $value = implode('; ', $value);
 
-		$new_value_str = Metadata_Field::encodeValueString(trim($value), Array());
+			$new_value_str = Metadata_Field::encodeValueString(trim($value), Array());
+		}
 
 		return true;
 

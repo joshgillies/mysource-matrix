@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_section_edit_fns.inc,v 1.28 2005/05/11 06:04:52 lwright Exp $
+* $Id: metadata_section_edit_fns.inc,v 1.29 2005/06/02 06:06:33 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -249,8 +249,16 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 			}
 			$edit_fns = $field->getEditFns();
 			$new_values[$field->id] = Array('name' => $field->name, 'value' => '');
-			if (!$edit_fns->processInlineValueInterface($field, $new_values[$field->id]['value'])) {
+			$new_value = '';
+			if (!$edit_fns->processInlineValueInterface($field, $new_value)) {
 				return false;
+			}
+
+			// if the new value is NOT null, add it to the set of new values
+			if (!is_null($new_value)) {
+				$new_values[$field->id]['value'] = $new_value;
+			} else {
+				unset($new_values[$field->id]);
 			}
 		}
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_text_edit_fns.inc,v 1.8 2005/04/20 00:51:59 ndvries Exp $
+* $Id: metadata_field_text_edit_fns.inc,v 1.9 2005/06/02 06:06:30 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -69,14 +69,16 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 		$prefix = $asset->getPrefix();
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 
+		$is_default = false;
+
 		if (is_null($value_str)) {
-			$value = $asset->attr('default');
-			$value_components = $asset->attr('value_components');
-		} else {
-			$value='';
-			$value_components = $asset->attr('value_components');
-			Metadata_Field::decodeValueString($value_str, $value, $value_components);
+			$value_str = $asset->getDefaultValue();
+			$is_default = true;
 		}
+
+		$value = '';
+		$value_components = $asset->attr('value_components');
+		Metadata_Field::decodeValueString($value_str, $value, $value_components);
 
 		$field_name = $asset->name;
 		if ($asset->attr('required')) {
@@ -92,8 +94,17 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 					} else {
 						text_box($prefix.'_value', $value, 30);
 					}
+					echo ' '.strtolower(translate('or')).' ';
+					check_box($prefix.'_default', '1', $is_default);
+					echo ' '.strtolower(translate('use_default'));
+					if ($is_default) {
+						echo ' <em style="color: #666">(currently set)</em>';
+					}
 				} else {
 					echo $value;
+					if ($is_default) {
+						echo ' <em style="color: #666">(default)</em>';
+					}
 				}
 
 				// now print value components
@@ -184,14 +195,19 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 
 		$value = array_get_index($_POST, $prefix.'_value', '');
 		$value_components = $asset->attr('value_components');
+		$use_default = array_get_index($_POST, $prefix.'_default', '');
 
-		for (reset($value_components); null !== ($vc_name = key($value_components)); next($value_components)) {
-			if (isset($_POST[$prefix.'_vc_value'][$vc_name])) {
-				$value_components[$vc_name] = str_replace(Array('\n', '\r'), Array(' ', ''), trim($_POST[$prefix.'_vc_value'][$vc_name]));
+		if ($use_default) {
+			$new_value_str = null;
+		} else {
+			for (reset($value_components); null !== ($vc_name = key($value_components)); next($value_components)) {
+				if (isset($_POST[$prefix.'_vc_value'][$vc_name])) {
+					$value_components[$vc_name] = str_replace(Array('\n', '\r'), Array(' ', ''), trim($_POST[$prefix.'_vc_value'][$vc_name]));
+				}
 			}
-		}
 
-		$new_value_str = Metadata_Field::encodeValueString(trim($value), $value_components);
+			$new_value_str = Metadata_Field::encodeValueString(trim($value), $value_components);
+		}
 
 		return true;
 

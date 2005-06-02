@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field.inc,v 1.15 2005/04/20 00:51:59 ndvries Exp $
+* $Id: metadata_field.inc,v 1.16 2005/06/02 06:06:22 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -122,7 +122,8 @@ class Metadata_Field extends Asset
 	*/
 	function getDefaultValue()
 	{
-		return Metadata_Field::encodeValueString($this->attr('default'), $this->attr('value_components'));
+		$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+		return $mm->getMetadataFieldDefaultValue($this->id);//Metadata_Field::encodeValueString($this->attr('default'), $this->attr('value_components'));
 
 	}//end getDefaultValue()
 
@@ -149,8 +150,9 @@ class Metadata_Field extends Asset
 			return $value;
 		}
 
+		// get the default value
 		if (is_null($value_str)) {
-			$value_str = Metadata_Field::encodeValueString($this->attr('default'), $this->attr('value_components'));
+			$value_str = $this->getDefaultValue();
 		}
 
 		$used_keywords = retrieve_keywords_replacements($value_str, '.');
@@ -278,6 +280,43 @@ class Metadata_Field extends Asset
 		}// end foreach
 
 	}//end decodeValueString()
+
+
+	/**
+	* Save attributes set with setAttrValue to the database
+	*
+	* Overridden in Metadata fields so that the default value can be saved
+	*
+	* @param boolean	$dont_run_updated	if true this->_updated() won't be run
+	*										(THIS IS ONLY EVER CALLED FROM Asset::create())
+	*
+	* @return boolean
+	* @access public
+	* @see setAttrValue()
+	*/
+	function saveAttributes($dont_run_updated=false)
+	{
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		$default_val = $this->encodeValueString($this->attr('default'), $this->attr('value_components'));
+
+		$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+
+		if (!$mm->setMetadataFieldDefaultValue($this->id, $default_val)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		if(!parent::saveAttributes($dont_run_updated)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
+		return true;
+
+	}//end saveAttributes()
 
 
 }//end class

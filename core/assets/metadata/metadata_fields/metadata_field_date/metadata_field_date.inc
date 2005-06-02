@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date.inc,v 1.7 2005/05/17 07:01:44 lwright Exp $
+* $Id: metadata_field_date.inc,v 1.8 2005/06/02 06:06:25 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field.inc';
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -117,24 +117,6 @@ class Metadata_Field_Date extends Metadata_Field
 	*/
 	function _getDateTimeField($prefix, $value=null)
 	{
-		// only if we are printing the default value
-		if (is_null($value)) {
-			$value = $this->attr('default');
-			if (!empty($value) && $value{0} == '%') {
-				$value = ts_iso8601(time());
-			}
-		}
-
-		$date = getdate(iso8601_ts($value));
-		$value_arr = Array(
-						'y'	=> $date['year'],
-						'm'	=> $date['mon'],
-						'd'	=> $date['mday'],
-						'h'	=> $date['hours'],
-						'i'	=> $date['minutes'],
-						's'	=> $date['seconds'],
-					 );
-
 		// parameters
 		$parameters = $this->attr('setup_params');
 		if (empty($parameters)) {
@@ -156,6 +138,26 @@ class Metadata_Field_Date extends Metadata_Field
 						  );
 		}
 		$parameters['print_format'] = $this->attr('format');
+
+		// only if we are printing the default value
+		if (is_null($value)) {
+			$value = $this->attr('default');
+			if (!empty($value) && $value{0} == '%') {
+				$value = ts_iso8601(time());
+			} else {
+				$value = $parameters['min'];
+			}
+		}
+
+		$date = getdate(iso8601_ts($value));
+		$value_arr = Array(
+						'y'	=> $date['year'],
+						'm'	=> $date['mon'],
+						'd'	=> $date['mday'],
+						'h'	=> $date['hours'],
+						'i'	=> $date['minutes'],
+						's'	=> $date['seconds'],
+					 );
 
 		$value = '';
 		$field = new DateTime_Field($prefix.'_datetime', $value, $parameters);

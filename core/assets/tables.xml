@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.21 2005/05/27 04:04:50 rhoward Exp $
+* $Id: tables.xml,v 1.22 2005/06/02 06:06:11 lwright Exp $
 *
 */
 -->
@@ -921,6 +921,30 @@
 				<primary_key>
 					<column name="assetid"  />
 					<column name="fieldid" />
+				</primary_key>
+			</keys>
+			<indexes />
+		</table>
+		<table name="ast_metadata_dflt_val" require_rollback="1">
+			<columns>
+				<column name="assetid" allow_null="0">
+					<type>VARCHAR(15)</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="default_val" allow_null="0">
+					<type>TEXT</type>
+					<type_variations>
+						<oci8>CLOB</oci8>
+					</type_variations>
+					<default>''</default>
+					<description />
+				</column>
+			</columns>
+			<keys>
+				<primary_key>
+					<column name="assetid" />
 				</primary_key>
 			</keys>
 			<indexes />
