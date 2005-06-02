@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_prefs.inc,v 1.8 2005/06/02 02:33:28 tbarrett Exp $
+* $Id: content_type_wysiwyg_prefs.inc,v 1.9 2005/06/02 02:34:46 tbarrett Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/config/prefs.inc';
 *    Looks after the creation the WYSIWYG preferences
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix
 */
 class Content_Type_WYSIWYG_Prefs extends Prefs
@@ -168,7 +168,7 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 					echo '('.translate('none_selected').')';
 				} else {
 					$name = reset($GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($this->pref_vars['SQ_THESAURUS']['default']), 'thesaurus', true, 'name'));
-					echo $info['name'].' (#'.$this->pref_vars['SQ_THESAURUS']['default'].')';
+					echo $name.' (#'.$this->pref_vars['SQ_THESAURUS']['default'].')';
 				}
 			}
 		}
