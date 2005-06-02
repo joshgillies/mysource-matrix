@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.13 2005/05/17 01:18:38 arailean Exp $
+* $Id: thesaurus.inc,v 1.14 2005/06/02 01:39:41 tbarrett Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Dmitry Baranovskiy <dbaranovskiy@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage lexicon
 */
@@ -988,10 +988,12 @@ class Thesaurus extends Asset
 					e2.thes_id = er.thes_id
 
 		';
-
-		$db->setFetchMode(DB_FETCHMODE_ASSOC);
+error_log($sql);
+		$db->setFetchMode(DB_FETCHMODE_ORDERED);
 		$result = $db->getAll($sql);
+error_log(print_r($result, true));
 		assert_valid_db_result($result);
+		$db->setFetchMode(DB_FETCHMODE_ASSOC);
 
 		// assemble an array of entity tuples ((entity, entity),...)
 		$relations = Array();
