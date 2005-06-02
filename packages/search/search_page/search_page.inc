@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.97 2005/06/01 05:24:50 tbarrett Exp $
+* $Id: search_page.inc,v 1.98 2005/06/02 23:07:13 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.97 $
+* @version $Revision: 1.98 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1703,6 +1703,11 @@ class Search_Page extends Listing_Engine
 				break;
 
 				case 'metadata' :
+					if (empty($field['params']['assetid'])) {
+						trigger_localised_error('SCH0027', $field_name);
+						$queries[$field_name] = '';
+						break;
+					}
 					$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($field['params']['assetid']);
 					if (!is_null($asset)) {
 						$params = $asset->vars;
