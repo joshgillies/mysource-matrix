@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: email_format.inc,v 1.17 2005/05/16 06:55:26 dmckee Exp $
+* $Id: email_format.inc,v 1.18 2005/06/02 06:09:05 arailean Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_ATTRIBUTES_PATH.'/wysiwyg/wysiwyg.inc';
 *    <email_format />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -349,6 +349,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 	{
 		if (!isset($_REQUEST[$prefix.'_to']) &&
 			!isset($_REQUEST[$prefix.'_from']) &&
+			!isset($_REQUEST[$prefix.'_new_to']) &&
 			!isset($_REQUEST[$prefix.'_subject']) &&
 			!isset($_REQUEST[$prefix.'_text_body'])) {
 			return false;
@@ -370,6 +371,11 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 				if (empty($email)) continue;
 				$value['to'][] = $email;
 			}
+		}
+
+		$new_to = trim(array_get_index($_REQUEST, $prefix.'_new_to', ''));
+		if(!empty($new_to)){
+			$value['to'][] = $new_to;
 		}
 
 		$value['from']    = (isset($_REQUEST[$prefix.'_from'])) ? $_REQUEST[$prefix.'_from'] : '';
