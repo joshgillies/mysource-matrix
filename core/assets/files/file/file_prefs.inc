@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_prefs.inc,v 1.5 2005/05/11 06:04:51 lwright Exp $
+* $Id: file_prefs.inc,v 1.6 2005/06/02 04:41:54 ndvries Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/config/prefs.inc';
 *    Looks after the creation the WYSIWYG preferences
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 */
 class File_Prefs extends Prefs
@@ -94,7 +94,9 @@ class File_Prefs extends Prefs
 			}
 			$php_max_file_size = min($post_size, $mem_limit_size);
 
-			if (is_null($pref)) $o->openField(translate('max_file_upload'));
+			if (is_null($pref)) {
+				$o->openField(translate('max_file_upload'));
+			}
 
 			if ($have_lock && $is_admin) {
 				text_box('prefs[SQ_FILE_MAX_SIZE]', $this->pref_vars['SQ_FILE_MAX_SIZE']['default'], 10);

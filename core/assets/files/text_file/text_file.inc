@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: text_file.inc,v 1.1 2005/03/11 20:10:17 brobertson Exp $
+* $Id: text_file.inc,v 1.2 2005/06/02 04:42:06 ndvries Exp $
 *
 */
 
@@ -28,12 +28,13 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file.inc';
 * Text_File
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Text_File extends File
 {
+
 
 	/**
 	* Constructor

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: text_file_edit_fns.inc,v 1.1 2005/03/11 20:10:17 brobertson Exp $
+* $Id: text_file_edit_fns.inc,v 1.2 2005/06/02 04:42:06 ndvries Exp $
 *
 */
 
@@ -29,12 +29,13 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file_edit_fns.inc';
 * Text_File_Edit_Fns
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Text_File_Edit_Fns extends File_Edit_Fns
 {
+
 
 	/**
 	* Paint the interface for editing the parse file
@@ -102,8 +103,11 @@ class Text_File_Edit_Fns extends File_Edit_Fns
 							'name'				=> $asset->name,
 							'tmp_name'			=> $asset->data_path.'/'.$asset->name.'.new',
 							'non_uploaded_file'	=> true,
-						);
-			if (!string_to_file($str, $file_info['tmp_name'])) return false;
+						 );
+
+			 if (!string_to_file($str, $file_info['tmp_name'])) {
+				 return false;
+			 }
 
 			$ret_val = $this->processFileUpload($asset, $o, $prefix, $file_info);
 			unlink($file_info['tmp_name']);

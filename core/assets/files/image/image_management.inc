@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_management.inc,v 1.13 2005/05/26 04:35:08 ndvries Exp $
+* $Id: image_management.inc,v 1.14 2005/06/02 04:42:00 ndvries Exp $
 *
 */
 
@@ -31,12 +31,13 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Image_Management extends Asset_Management
 {
+
 
 	/**
 	* Constructor
@@ -47,47 +48,47 @@ class Image_Management extends Asset_Management
 		$this->Asset_Management($pm);
 
 		$this->vars = Array(
-							'alt' => Array(
-								'added'			=> '0.2',
-								'type'			=> 'text',
-								'default'		=> '',
-								'description'	=> 'The text to be used in the Alt attribute of the IMG tag',
-							),
-							'caption' => Array(
-								'added'			=> '0.2',
-								'type'			=> 'text',
-								'default'		=> '',
-								'description'	=> 'Some text to be associated with the image and can be accessed and printed out separately if required',
-							),
-							'width' => Array(
-								'added'			=> '0.2',
-								'type'			=> 'int',
-								'default'		=> 0,
-								'description'	=> 'Width of the image (generated from the image file)',
-							),
-							'height' => Array(
-								'added'			=> '0.2',
-								'type'			=> 'int',
-								'default'		=> 0,
-								'description'	=> 'Height of the image (generated from the image file)',
-							),
-							'size' => Array(
-								'added'			=> '0.2',
-								'type'			=> 'int',
-								'default'		=> 0,
-								'description'	=> 'Size (in bytes) of the image (generated from the image file)',
-							),
-							'varieties' => Array(
-								'added'     => '0.3',
-								'type'      => 'serialise',
-								'default'   => Array(),
-							),
-							'variety_count' => Array(
-								'added'     => '0.3',
-								'type'      => 'int',
-								'default'   => 1,
-							),
-					);
+						'alt'			=> Array(
+											'added'			=> '0.2',
+											'type'			=> 'text',
+											'default'		=> '',
+											'description'	=> 'The text to be used in the Alt attribute of the IMG tag',
+										   ),
+						'caption'		=> Array(
+											'added'			=> '0.2',
+											'type'			=> 'text',
+											'default'		=> '',
+											'description'	=> 'Some text to be associated with the image and can be accessed and printed out separately if required',
+										   ),
+						'width'			=> Array(
+											'added'			=> '0.2',
+											'type'			=> 'int',
+											'default'		=> 0,
+											'description'	=> 'Width of the image (generated from the image file)',
+										   ),
+						'height'		=> Array(
+											'added'			=> '0.2',
+											'type'			=> 'int',
+											'default'		=> 0,
+											'description'	=> 'Height of the image (generated from the image file)',
+										   ),
+						'size'			=> Array(
+											'added'			=> '0.2',
+											'type'			=> 'int',
+											'default'		=> 0,
+											'description'	=> 'Size (in bytes) of the image (generated from the image file)',
+										   ),
+						'varieties'		=> Array(
+											'added'		=> '0.3',
+											'type'		=> 'serialise',
+											'default'	=> Array(),
+										   ),
+						'variety_count'	=> Array(
+											'added'		=> '0.3',
+											'type'		=> 'int',
+											'default'	=> 1,
+										   ),
+					  );
 
 
 	}//end constructor
@@ -144,7 +145,6 @@ class Image_Management extends Asset_Management
 		return true;
 
 	}//end _upgrade()
-
 
 
 }//end class

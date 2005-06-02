@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety_edit_fns.inc,v 1.10 2005/05/11 06:04:51 lwright Exp $
+* $Id: image_variety_edit_fns.inc,v 1.11 2005/06/02 04:42:02 ndvries Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -49,11 +49,11 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 		$this->Asset_Edit_Fns();
 		// override static screens - only display details because the others don't apply
 		$this->static_screens = Array(
-									'details' => Array(
+									'details'	=> Array(
 													'name'			=> translate('details'),
 													'force_unlock'	=> false,
 													'lock_type'		=> 'none',
-												),
+												   ),
 								);
 
 	}//end constructor
@@ -74,7 +74,9 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 		require_once 'XML/Tree/Node.php';
 		$wa = $asset->writeAccess('attributes');
 
-		if (!$asset->id && !$wa) return false;
+		if (!$asset->id && !$wa) {
+			return false;
+		}
 
 		$variety_type = $asset->attr('variety_type');
 		$constrain    = $asset->attr('constrain');
@@ -144,9 +146,7 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 		$o->closeField();
 
 		$o->openField(translate('upload'), '', '', ($variety_type != 'upload'), $prefix.'_field_upload');
-			if ($wa) {
-				file_upload($prefix.'_upload_file');
-			}
+			if ($wa) file_upload($prefix.'_upload_file');
 		$o->closeField();
 
 		if ($asset->id) {
@@ -159,7 +159,7 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 
 		return true;
 
-	}//end paintInlineValueInterface();
+	}//end paintInlineInterface()
 
 
 	/**
@@ -179,9 +179,11 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 		$changes_made = false;
 
 		$vars = Array('variety_type', 'constrain', 'width', 'height');
-		if ($asset->attr('name') == '') array_unshift($vars, 'name');
+		if ($asset->attr('name') == '') {
+			array_unshift($vars, 'name');
+		}
 
-		foreach($vars as $attr_name) {
+		foreach ($vars as $attr_name) {
 			$attr = &$asset->getAttribute($attr_name);
 			$attr->process($prefix.'_'.$attr->name);
 			if ($attr->processed && $asset->setAttrValue($attr->name, $attr->value)) {
@@ -196,10 +198,13 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 			}
 		}
 
-		if (!$changes_made) return false;
-		else return $asset->saveAttributes();
+		if (!$changes_made) {
+			return false;
+		} else {
+			return $asset->saveAttributes();
+		}
 
-	}//end processInlineValueInterface();
+	}//end processInlineInterface()
 
 
 	/**
@@ -225,11 +230,15 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 		if ($asset->attr('name') == '') return false;
 
 		// return on failed or no upload
-		if ($info === false || empty($info)) return false;
+		if ($info === false || empty($info)) {
+			return false;
+		}
 
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 		$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
-		if (!is_dir($asset->data_path) && !create_directory($asset->data_path)) return false;
+		if (!is_dir($asset->data_path) && !create_directory($asset->data_path)) {
+			return false;
+		}
 
 		$image = &$GLOBALS['SQ_SYSTEM']->am->getAsset($asset->_imageid);
 		if (is_null($image)) return false;
@@ -285,24 +294,28 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 
 		// file not in repository
 		if ($up_to_date & FUDGE_FV_NOT_CHECKED_OUT) {
-			if (!$fv->add($asset->data_path_suffix, $d_new_file, '', false)) return false;
+			if (!$fv->add($asset->data_path_suffix, $d_new_file, '', false)) {
+				return false;
+			}
 
 			if (!$fv->checkOut($asset->data_path_suffix.'/'.$d_new_filename, $asset->data_path)) {
 				trigger_localised_error('CORE103', E_USER_WARNING);
 				return false;
 			}
 
-		} elseif ($up_to_date & FUDGE_FV_MODIFIED) {
+		} else if ($up_to_date & FUDGE_FV_MODIFIED) {
 			if (!$fv->commit($d_new_file, '', false)) return false;
 
 		}
 
 		// if the filename has changed then we need to update the look ups
-		if (!$asset->setAttrValue('filename', $d_new_filename)) return false;
+		if (!$asset->setAttrValue('filename', $d_new_filename)) {
+			return false;
+		}
 
 		return true;
 
-	}// end processUploadedFile()
+	}//end processUploadedFile()
 
 
 }//end class

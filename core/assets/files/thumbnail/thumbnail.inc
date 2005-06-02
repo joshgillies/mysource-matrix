@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thumbnail.inc,v 1.19 2005/05/04 17:04:26 gnoel Exp $
+* $Id: thumbnail.inc,v 1.20 2005/06/02 04:42:07 ndvries Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -82,27 +82,27 @@ class Thumbnail extends Image
 		return true;
 
 	}//end validFile()
-	
-	
+
+
 	/**
 	* Returns true if the image is not bigger than the allowed dimension
 	*
 	* @param array	$info	an array of information about the uploaded file
-	*  
+	*
 	* @return boolean
 	* @access private
 	*/
-	function _checkImageSize($info) 
+	function _checkImageSize($info)
 	{
 		$size = @getimagesize($info['filename']);
 		if (!empty($size) && ($size[0] > $this->max_width || $size[1] > $this->max_height)) {
-			trigger_localised_error("CORE0108", E_USER_WARNING, $this->max_width, $this->max_height);
+			trigger_localised_error('CORE0108', E_USER_WARNING, $this->max_width, $this->max_height);
 			return false;
 		}
-		
+
 		return true;
-		
-	}//_checkImageSize()
+
+	}//end _checkImageSize()
 
 
 }//end class

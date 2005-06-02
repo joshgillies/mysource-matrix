@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: word_doc_management.inc,v 1.3 2005/01/20 13:07:34 brobertson Exp $
+* $Id: word_doc_management.inc,v 1.4 2005/06/02 04:42:08 ndvries Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -47,11 +47,11 @@ class Word_Doc_Management extends Asset_Management
 	{
 		$this->Asset_Management($pm);
 		$this->components = Array(
-						'contents' => Array(
-							'description'		=> 'Contents (text format)',
-							'default_weighting' => '1',
-						),
-				);
+								'contents'	=> Array(
+												'description'		=> 'Contents (text format)',
+												'default_weighting'	=> '1',
+											   ),
+							);
 
 	}//end constructor
 

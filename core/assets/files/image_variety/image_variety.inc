@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety.inc,v 1.17 2005/04/15 00:37:25 lwright Exp $
+* $Id: image_variety.inc,v 1.18 2005/06/02 04:42:02 ndvries Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -50,6 +50,7 @@ class Image_Variety extends Asset
 	* @var int
 	*/
 	var $_varietyid = 0;
+
 
 	/**
 	* Constructor
@@ -78,7 +79,7 @@ class Image_Variety extends Asset
 
 		$this->id = $assetid;
 
-		foreach($data as $attr_name => $attr_value) {
+		foreach ($data as $attr_name => $attr_value) {
 			if (!isset($this->vars[$attr_name])) continue;
 			$this->vars[$attr_name]['value'] = ($this->vars[$attr_name]['type'] == 'serialise') ? unserialize($attr_value) : $attr_value;
 		}
@@ -108,29 +109,29 @@ class Image_Variety extends Asset
 		switch ($name) {
 			case 'name' :
 				if (trim($this->attr('name')) != '') {
-					trigger_localised_error("CORE0116", E_USER_WARNING);
+					trigger_localised_error('CORE0116', E_USER_WARNING);
 					return false;
-				} elseif (trim($value) == '') {
-					trigger_localised_error("CORE0120", E_USER_WARNING);
+				} else if (trim($value) == '') {
+					trigger_localised_error('CORE0120', E_USER_WARNING);
 				} else {
 					// make sure the name is valid for a web path
 					require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 					list($value) = make_valid_web_paths(Array(trim($value)));
 				}
-				break;
+			break;
 
 			case 'width' :
 			case 'height' :
 				if ((int) $value < 0) {
-					trigger_localised_error("CORE0101", E_USER_WARNING, $name, $this->name, $this->id);
+					trigger_localised_error('CORE0101', E_USER_WARNING, $name, $this->name, $this->id);
 					return false;
 				}
 
 				if ((int) $value == 0 && ($this->attr('constrain') == 'none' || $this->attr('constrain') == $name)) {
-					trigger_localised_error("CORE0102", E_USER_WARNING, $name, $this->name, $this->id);
+					trigger_localised_error('CORE0102', E_USER_WARNING, $name, $this->name, $this->id);
 					return false;
 				}
-				break;
+			break;
 
 		}// end switch
 
@@ -160,13 +161,13 @@ class Image_Variety extends Asset
 		if (empty($this->_tmp['vars_set'])) return true;
 
 		if (!$GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] && !$this->writeAccess('attributes')) {
-			trigger_localised_error("CORE0121", E_USER_WARNING, $this->name, $this->id);
+			trigger_localised_error('CORE0121', E_USER_WARNING, $this->name, $this->id);
 			return false;
 		}
 
 		if ($this->attr('variety_type') == 'resize' && $this->attr('constrain') != 'none') {
 			if ((int) $this->attr($this->attr('constrain')) == 0) {
-				trigger_localised_error("CORE0096", E_USER_WARNING, $this->name, $this->id, $this->attr('constrain'));
+				trigger_localised_error('CORE0096', E_USER_WARNING, $this->name, $this->id, $this->attr('constrain'));
 				return false;
 			}
 		}
@@ -246,7 +247,9 @@ class Image_Variety extends Asset
 			require_once SQ_FUDGE_PATH.'/image/image_manip.inc';
 			$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
 
-			if (!is_dir($this->data_path) && !create_directory($this->data_path)) return false;
+			if (!is_dir($this->data_path) && !create_directory($this->data_path)) {
+				return false;
+			}
 
 			$source_image_info = $image->getExistingFile();
 			if (empty($source_image_info)) return true;
@@ -263,27 +266,27 @@ class Image_Variety extends Asset
 			$d_height       = (int) $this->attr('height');
 
 			// if either are blank calc the other to scale
-			switch($this->attr('constrain')) {
+			switch ($this->attr('constrain')) {
 				case 'width' :
 					if ($d_width <= 0) {
-						trigger_localised_error("CORE0007", E_USER_WARNING);
+						trigger_localised_error('CORE0007', E_USER_WARNING);
 						return false;
 					}
 
 					$d_height = round((int) $source_image_info['height'] * ($d_width / (int) $source_image_info['width']));
-					break;
+				break;
 
 				case 'height' :
 					if ($d_height <= 0) {
-						trigger_localised_error("CORE0006", E_USER_WARNING);
+						trigger_localised_error('CORE0006', E_USER_WARNING);
 						return false;
 					}
 					$d_width  = round((int) $source_image_info['width']  * ($d_height / (int) $source_image_info['height']));
-					break;
+				break;
 			}
 
 			if ($d_width <= 0 || $d_height <= 0) {
-				trigger_localised_error("CORE0005", E_USER_WARNING);
+				trigger_localised_error('CORE0005', E_USER_WARNING);
 				return false;
 			}
 
@@ -296,43 +299,51 @@ class Image_Variety extends Asset
 				$up_to_date = $fv->upToDate($d_new_file);
 				if ($up_to_date & FUDGE_FV_OLD_VERSION) {
 					if (!$fv->checkOut($this->data_path_suffix.'/'.$d_new_filename, $this->data_path)) {
-						trigger_localised_error("COR0103", E_USER_WARNING);
+						trigger_localised_error('COR0103', E_USER_WARNING);
 						return false;
 					}
 				}
 
 			}// endif
 
-			if (!Image_Manip::resize($s_file, $d_new_file, $d_width, $d_height)) return false;
+			if (!Image_Manip::resize($s_file, $d_new_file, $d_width, $d_height)) {
+				return false;
+			}
 
 			$up_to_date = $fv->upToDate($d_new_file);
 
 			// file not in repository
 			if ($up_to_date & FUDGE_FV_NOT_CHECKED_OUT) {
-				if (!$fv->add($this->data_path_suffix, $d_new_file, '', false)) return false;
-
-				if (!$fv->checkOut($this->data_path_suffix.'/'.$d_new_filename, $this->data_path)) {
-					trigger_localised_error("COR0103", E_USER_WARNING);
+				if (!$fv->add($this->data_path_suffix, $d_new_file, '', false)) {
 					return false;
 				}
 
-			} elseif ($up_to_date & FUDGE_FV_MODIFIED) {
+				if (!$fv->checkOut($this->data_path_suffix.'/'.$d_new_filename, $this->data_path)) {
+					trigger_localised_error('COR0103', E_USER_WARNING);
+					return false;
+				}
+
+			} else if ($up_to_date & FUDGE_FV_MODIFIED) {
 				if (!$fv->commit($d_new_file, '', false)) return false;
 
 			}
 
 			// if the filename has changed then we need to upadte the look ups
 			if ($d_old_filename != $d_new_filename) {
-				if (!$this->setAttrValue('filename', $d_new_filename)) return false;
+				if (!$this->setAttrValue('filename', $d_new_filename)) {
+					return false;
+				}
 			}
 
 		}//end if
 
-		if (!$this->updateLookups($image->usePublicPath())) return false;
+		if (!$this->updateLookups($image->usePublicPath())) {
+			return false;
+		}
 
 		return true;
 
-	}// end updateImage()
+	}//end updateImage()
 
 
 	/**
@@ -369,7 +380,7 @@ class Image_Variety extends Asset
 
 		} else {
 			if (!($fv->remove($d_file, '', false) & FUDGE_FV_OK)) {
-				trigger_localised_error("CORE0041", E_USER_WARNING, $d_filename);
+				trigger_localised_error('CORE0041', E_USER_WARNING, $d_filename);
 				return false;
 			}
 
@@ -378,7 +389,7 @@ class Image_Variety extends Asset
 		return true;
 
 
-	}// end deleteImage()
+	}//end deleteImage()
 
 
 	/**
@@ -403,12 +414,14 @@ class Image_Variety extends Asset
 		// data directory for all the world to see
 		if ($public) {
 			// make sure our data directory exists
-			if (!create_directory($this->data_path_public)) return false;
+			if (!create_directory($this->data_path_public)) {
+				return false;
+			}
 
 			// if there is no current file or if the current file is out of date, check out a fresh copy
 			if ($fv->upToDate($unrestricted) & (FUDGE_FV_NOT_CHECKED_OUT | FUDGE_FV_OLD_VERSION)) {
 				if (!$fv->checkOut($this->data_path_suffix.'/'.$filename, $this->data_path_public)) {
-					trigger_localised_error("COR0103", E_USER_WARNING);
+					trigger_localised_error('COR0103', E_USER_WARNING);
 					return false;
 				}
 			}
@@ -416,7 +429,7 @@ class Image_Variety extends Asset
 			// need to make sure our file is in the NOT in the public data directory
 			if (is_file($unrestricted)) {
 				if (!$fv->clearOut($unrestricted) & FUDGE_FV_OK) {
-					trigger_localised_error("COR0104", E_USER_WARNING);
+					trigger_localised_error('COR0104', E_USER_WARNING);
 					return false;
 				}
 			}
@@ -439,9 +452,7 @@ class Image_Variety extends Asset
 	function updateLookups($public)
 	{
 		// if we aren't meant to be having the public paths, let our parent run as normal
-		if (!$public) {
-			return parent::updateLookups();
-		}
+		if (!$public) return parent::updateLookups();
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -513,8 +524,12 @@ class Image_Variety extends Asset
 				if (empty($root_url)) continue;
 
 				if (isset($save_urls[$root_url])) {
-					if (empty($save_urls[$root_url]['http']))  $save_urls[$root_url]['http']  = $data['http'];
-					if (empty($save_urls[$root_url]['https'])) $save_urls[$root_url]['https'] = $data['https'];
+					if (empty($save_urls[$root_url]['http']))  {
+						$save_urls[$root_url]['http']  = $data['http'];
+					}
+					if (empty($save_urls[$root_url]['https'])) {
+						$save_urls[$root_url]['https'] = $data['https'];
+					}
 				} else {
 					$save_urls[$root_url] = Array('http' => $data['http'], 'https' => $data['https']);
 				}
@@ -586,8 +601,11 @@ class Image_Variety extends Asset
 	function getWebPaths()
 	{
 		$filename = $this->attr('filename');
-		if ($filename) return Array($filename);
-		else return Array();
+		if ($filename)  {
+			return Array($filename);
+		} else {
+			return Array();
+		}
 
 	}//end getWebPaths()
 
@@ -601,7 +619,9 @@ class Image_Variety extends Asset
 	*/
 	function paintBackend(&$o)
 	{
-		if (!isset($_REQUEST['asset_ei_screen'])) return parent::paintBackend($o);
+		if (!isset($_REQUEST['asset_ei_screen'])) {
+			return parent::paintBackend($o);
+		}
 		switch ($_REQUEST['asset_ei_screen']) {
 			case 'image_info' :
 				$image = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
@@ -656,11 +676,11 @@ class Image_Variety extends Asset
 
 			header('Cache-Control:');
 			header('Pragma: cache');
-			header('Expires: '. gmdate('D, d M Y H:i:s', (time() + 86400)) . ' GMT');
-			header('Content-Type: ' . $type);
+			header('Expires: '.gmdate('D, d M Y H:i:s', (time() + 86400)).' GMT');
+			header('Content-Type: '.$type);
 
 			header('Content-Disposition: inline; filename='.$filename.';');
-			header('Last-Modified: ' . gmdate('D, d M Y H:i:s', filemtime($file)) . ' GMT');
+			header('Last-Modified: '.gmdate('D, d M Y H:i:s', filemtime($file)).' GMT');
 			header('Content-Length: '.filesize($file));
 			readfile($file);
 

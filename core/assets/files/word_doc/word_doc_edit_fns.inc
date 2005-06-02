@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: word_doc_edit_fns.inc,v 1.4 2004/12/06 14:38:09 brobertson Exp $
+* $Id: word_doc_edit_fns.inc,v 1.5 2005/06/02 04:42:08 ndvries Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -51,7 +51,9 @@ class Word_Doc_Edit_Fns extends File_Edit_Fns
 	*/
 	function _getExtensionString($extensions, $glue='and')
 	{
-		if (empty($extensions) || !is_array($extensions)) return '';
+		if (empty($extensions) || !is_array($extensions)) {
+			return '';
+		}
 
 		$count = count($extensions);
 		$retval = '';
@@ -106,7 +108,9 @@ class Word_Doc_Edit_Fns extends File_Edit_Fns
 	*/
 	function processFileUpload(&$asset, &$o, $prefix, $info=Array())
 	{
-		if (!parent::processFileUpload($asset, $o, $prefix, $info)) return false;
+		if (!parent::processFileUpload($asset, $o, $prefix, $info)) {
+			return false;
+		}
 
 		// so the keywords can be built if the search manager is there
 		$asset->informChanges();

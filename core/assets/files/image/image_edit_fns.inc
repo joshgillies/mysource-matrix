@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_edit_fns.inc,v 1.37 2005/05/11 06:04:51 lwright Exp $
+* $Id: image_edit_fns.inc,v 1.38 2005/06/02 04:42:00 ndvries Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -91,7 +91,9 @@ class Image_Edit_Fns extends File_Edit_Fns
 	*/
 	function processFileUpload(&$asset, &$o, $prefix, $info=Array())
 	{
-		if (!parent::processFileUpload($asset, $o, $prefix, $info)) return false;
+		if (!parent::processFileUpload($asset, $o, $prefix, $info)) {
+			return false;
+		}
 
 		// assetid will not be set if we are creating
 		if (!$asset->id) return true;
@@ -101,15 +103,21 @@ class Image_Edit_Fns extends File_Edit_Fns
 		if (!empty($info)) {
 			if ((int) $info['width'] != (int) $asset->attr('width')) {
 				$save_attrs = true;
-				if (!$asset->setAttrValue('width', $info['width'])) return false;
+				if (!$asset->setAttrValue('width', $info['width'])) {
+					return false;
+				}
 			}
 			if ((int) $info['height'] != (int) $asset->attr('height')) {
 				$save_attrs = true;
-				if (!$asset->setAttrValue('height', $info['height'])) return false;
+				if (!$asset->setAttrValue('height', $info['height'])) {
+					return false;
+				}
 			}
 			if ((int) $info['size'] != (int) $asset->attr('size')) {
 				$save_attrs = true;
-				if (!$asset->setAttrValue('size', $info['size'])) return false;
+				if (!$asset->setAttrValue('size', $info['size'])) {
+					return false;
+				}
 			}
 		}//end if
 
@@ -124,7 +132,7 @@ class Image_Edit_Fns extends File_Edit_Fns
 
 		return true;
 
-	}// end processFileUpload()
+	}//end processFileUpload()
 
 
 	/**
@@ -251,7 +259,7 @@ class Image_Edit_Fns extends File_Edit_Fns
 
 		$varieties = $asset->attr('varieties');
 		if (!empty($varieties)) {
-			foreach($varieties['data'] as $varid => $data)  {
+			foreach ($varieties['data'] as $varid => $data)  {
 				$variety = &$asset->getAsset($varid);
 				if (is_null($variety)) continue;
 				$edit_fns = $variety->getEditFns();
@@ -290,19 +298,23 @@ class Image_Edit_Fns extends File_Edit_Fns
 		$changes_made = false;
 
 		if (!empty($_POST[$prefix.'_delete']) && is_array($_POST[$prefix.'_delete'])) {
-			foreach($_POST[$prefix.'_delete'] as $assetid)  {
+			foreach ($_POST[$prefix.'_delete'] as $assetid)  {
 				list(, $varid) = explode(':', $assetid, 2);
-				if ($asset->deleteVariety($assetid)) $changes_made = true;
+				if ($asset->deleteVariety($assetid)) {
+					$changes_made = true;
+				}
 			}// end foreach
 		}// end if
 
 		$varieties = $asset->attr('varieties');
 		if (!empty($varieties)) {
-			foreach($varieties['data'] as $varid => $data)  {
+			foreach ($varieties['data'] as $varid => $data)  {
 				$variety = &$asset->getAsset($varid);
 				if (is_null($variety)) continue;
 				$edit_fns = $variety->getEditFns();
-				if ($edit_fns->processInlineInterface($variety, $o, $prefix.'_'.$variety->id)) $changes_made = true;
+				if ($edit_fns->processInlineInterface($variety, $o, $prefix.'_'.$variety->id)) {
+					$changes_made = true;
+				}
 			}// end foreach
 		}// end if
 
@@ -357,7 +369,9 @@ class Image_Edit_Fns extends File_Edit_Fns
 		$variety = new Image_Variety($asset->id.':v0');
 
 		$edit_fns = $variety->getEditFns();
-		if (!$edit_fns->processInlineInterface($variety, $o, $prefix.'_new')) return false;
+		if (!$edit_fns->processInlineInterface($variety, $o, $prefix.'_new')) {
+			return false;
+		}
 
 		return (bool) $asset->saveVariety($variety);
 
@@ -444,7 +458,9 @@ class Image_Edit_Fns extends File_Edit_Fns
 	*/
 	function _getExtensionString($extensions, $glue='and')
 	{
-		if (empty($extensions) || !is_array($extensions)) return '';
+		if (empty($extensions) || !is_array($extensions)) {
+			return '';
+		}
 
 		$count = count($extensions);
 		$retval = '';
@@ -480,9 +496,13 @@ class Image_Edit_Fns extends File_Edit_Fns
 	*/
 	function _paintApplet(&$asset, &$o, $prefix)
 	{
-		if (!file_exists(SQ_FUDGE_PATH.'/image_editor/imagej.jar')) return false;
+		if (!file_exists(SQ_FUDGE_PATH.'/image_editor/imagej.jar')) {
+			return false;
+		}
 		$open_url = $asset->getURL();
-		if (empty($open_url)) $open_url = current_url(true, true).'?a='.$asset->id;
+		if (empty($open_url)) {
+			$open_url = current_url(true, true).'?a='.$asset->id;
+		}
 		$open_url .= ((strpos($open_url, '?') === false) ? '?' : '&').'t='.time();
 		?>
 
@@ -548,7 +568,7 @@ class Image_Edit_Fns extends File_Edit_Fns
 	{
 		$varieties = $asset->attr('varieties');
 		if (!empty($varieties)) {
-			foreach($varieties['data'] as $varid => $data)  {
+			foreach ($varieties['data'] as $varid => $data)  {
 				$variety = &$asset->getAsset($varid);
 				if (is_null($variety)) continue;
 				$variety->updateImage();

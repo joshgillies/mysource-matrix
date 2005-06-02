@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_clone_assets.inc,v 1.15 2005/05/17 06:58:42 ndvries Exp $
+* $Id: hipo_job_clone_assets.inc,v 1.16 2005/06/02 04:41:25 ndvries Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -71,7 +71,7 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 		} else {
 				echo SQ_DUPE_ASSET_THRESHOLD;
 		}
-		echo ' '. translate('assets');
+		echo ' '.translate('assets');
 
 		$o->closeField();
 

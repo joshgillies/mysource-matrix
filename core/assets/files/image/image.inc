@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.37 2005/05/26 04:35:08 ndvries Exp $
+* $Id: image.inc,v 1.38 2005/06/02 04:42:00 ndvries Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -97,8 +97,8 @@ class Image extends File
 	*/
 	function setAttrValue($name, $value)
 	{
-		switch($name) {
-			case 'alt'   :
+		switch ($name) {
+			case 'alt':
 				$value = htmlspecialchars($value);
 			break;
 		}
@@ -125,7 +125,7 @@ class Image extends File
 		$ext = get_file_type($info['filename']);
 		if (!in_array($ext, $this->allowed_extensions)) {
 			$edit_fns = $this->getEditFns();
-			trigger_localised_error("CORE0107", E_USER_WARNING, $edit_fns->_getExtensionString($this->allowed_extensions, 'or'), strtoupper($ext));
+			trigger_localised_error('CORE0107', E_USER_WARNING, $edit_fns->_getExtensionString($this->allowed_extensions, 'or'), strtoupper($ext));
 			return false;
 		}
 		return true;
@@ -209,7 +209,7 @@ class Image extends File
 
 		$varieties = $this->attr('varieties');
 		if (!empty($varieties)) {
-			foreach($varieties['lookups'] as $varietyid) {
+			foreach ($varieties['lookups'] as $varietyid) {
 				$variety = &$this->getAsset($varietyid);
 				if (is_null($variety)) continue;
 				$keywords['image_v_'.$variety->name] = Array('value' => $variety->printImageTag($this->attr('alt'), $this->attr('title'), true));
@@ -237,7 +237,10 @@ class Image extends File
 	*/
 	function paintBackend(&$o)
 	{
-		if (!isset($_REQUEST['asset_ei_screen'])) return parent::paintBackend($o);
+		if (!isset($_REQUEST['asset_ei_screen'])) {
+			return parent::paintBackend($o);
+		}
+
 		switch ($_REQUEST['asset_ei_screen']) {
 			case 'image_info' :
 				include_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
@@ -276,7 +279,7 @@ class Image extends File
 	function saveVariety($variety, $recreate_image=true, $save_attrs=true)
 	{
 		if (!$this->writeAccess('attributes')) {
-			trigger_localised_error("CORE0069", E_USER_WARNING, $this->name, $this->id);
+			trigger_localised_error('CORE0069', E_USER_WARNING, $this->name, $this->id);
 			return false;
 
 		}
@@ -284,7 +287,7 @@ class Image extends File
 		// use attr() instead of just ->name because if the variety hasn't been created yet it won't have a name
 		$name = $variety->attr('name');
 		if (trim($name) == '') {
-			trigger_localised_error("CORE0100", E_USER_WARNING);
+			trigger_localised_error('CORE0100', E_USER_WARNING);
 			return false;
 
 		}
@@ -295,19 +298,19 @@ class Image extends File
 		if ($variety->id) {
 			list($assetid, $varietyid) = explode(':', $variety->id, 2);
 			if ($assetid != $this->id) {
-				trigger_localised_error("CORE0099", E_USER_WARNING);
+				trigger_localised_error('CORE0099', E_USER_WARNING);
 				return false;
 
 			}
 
 			if (isset($varieties['data'][$varietyid])) {
 				if ($varieties['data'][$varietyid]['name'] != $name) {
-					trigger_localised_error("CORE0097", E_USER_WARNING, $varietyid);
+					trigger_localised_error('CORE0097', E_USER_WARNING, $varietyid);
 					return false;
 
 				}
 			} else {
-				trigger_localised_error("CORE0098", E_USER_WARNING, $varietyid, $this->name, $this->id);
+				trigger_localised_error('CORE0098', E_USER_WARNING, $varietyid, $this->name, $this->id);
 				return false;
 
 			}
@@ -318,23 +321,30 @@ class Image extends File
 				$varietyid = $varieties['lookups'][$name];
 			} else {
 				$varietyid = 'v'.$this->attr('variety_count');
-				if (!isset($varieties['lookups'])) $varieties['lookups'] = Array();
+				if (!isset($varieties['lookups'])) {
+					$varieties['lookups'] = Array();
+				}
 				$varieties['lookups'][$name] = $varietyid;
 
-				if (!$this->setAttrValue('variety_count', $this->attr('variety_count') + 1)) return false;
+				if (!$this->setAttrValue('variety_count', $this->attr('variety_count') + 1)) {
+					return false;
+				}
 
 			}
 
 		}//end if
 
-		if (!isset($varieties['data'])) $varieties['data'] = Array();
+		if (!isset($varieties['data'])) {
+			$varieties['data'] = Array();
+		}
 		$varieties['data'][$varietyid] = Array();
-		foreach($variety->vars as $attr_name => $attr_data) {
+		foreach ($variety->vars as $attr_name => $attr_data) {
 			$varieties['data'][$varietyid][$attr_name] = $attr_data['value'];
 		}
 
-		if (!$this->setAttrValue('varieties', $varieties)) return false;
-
+		if (!$this->setAttrValue('varieties', $varieties)) {
+			return false;
+		}
 
 		$variety = &$this->getAsset($varietyid);
 		if (is_null($variety)) return false;
@@ -351,10 +361,12 @@ class Image extends File
 			}
 
 			// Now get the variables again because updateImage() can update stuff
-			foreach($variety->vars as $attr_name => $attr_data) {
+			foreach ($variety->vars as $attr_name => $attr_data) {
 				$varieties['data'][$varietyid][$attr_name] = $attr_data['value'];
 			}
-			if (!$this->setAttrValue('varieties', $varieties)) return false;
+			if (!$this->setAttrValue('varieties', $varieties)) {
+				return false;
+			}
 		}
 
 		if ($save_attrs && !$this->saveAttributes()) {
@@ -379,14 +391,14 @@ class Image extends File
 	function deleteVariety($varietyid)
 	{
 		if (!$this->writeAccess('attributes')) {
-			trigger_localised_error("CORE0070", E_USER_WARNING, $this->name, $this->id);
+			trigger_localised_error('CORE0070', E_USER_WARNING, $this->name, $this->id);
 			return false;
 		}
 
 		if (strpos($varietyid, ':') !== false) {
 			list($assetid, $varietyid) = explode(':', $varietyid, 2);
 			if ($assetid != $this->id) {
-				trigger_localised_error("CORE088", E_USER_WARNING);
+				trigger_localised_error('CORE088', E_USER_WARNING);
 				return false;
 			}
 		}
@@ -405,14 +417,16 @@ class Image extends File
 		$varieties = $this->attr('varieties');
 
 		if (!isset($varieties['data'][$varietyid])) {
-			trigger_localised_error("CORE87", $varietyid, E_USER_WARNING);
+			trigger_localised_error('CORE87', $varietyid, E_USER_WARNING);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
 
 		unset($varieties['data'][$varietyid]);
 		$lookup_name = array_search($varietyid, $varieties['lookups']);
-		if ($lookup_name !== false) unset($varieties['lookups'][$lookup_name]);
+		if ($lookup_name !== false) {
+			unset($varieties['lookups'][$lookup_name]);
+		}
 
 		if (!$this->setAttrValue('varieties', $varieties) || !$this->saveAttributes()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -443,12 +457,13 @@ class Image extends File
 	{
 		$varieties = $this->attr('varieties');
 		if (!empty($varieties)) {
-			foreach($varieties['lookups'] as $varietyid) {
+			foreach ($varieties['lookups'] as $varietyid) {
 				$variety = &$this->getAsset($varietyid);
 				if (is_null($variety)) continue;
 
-				if (!$variety->checkFileState($this->effectiveUnrestricted())) return false;
-
+				if (!$variety->checkFileState($this->effectiveUnrestricted())) {
+					return false;
+				}
 			}
 		}
 
@@ -478,7 +493,7 @@ class Image extends File
 
 		$varieties = $this->attr('varieties');
 		if (!empty($varieties)) {
-			foreach($varieties['lookups'] as $varietyid) {
+			foreach ($varieties['lookups'] as $varietyid) {
 				$variety = &$this->getAsset($varietyid);
 				if (is_null($variety)) continue;
 
@@ -524,7 +539,7 @@ class Image extends File
 			$varieties = $this->attr('varieties');
 
 			if (!isset($varieties['data'][$shadowid])) {
-				trigger_localised_error("CORE0073", E_USER_WARNING, $this->id, $shadowid);
+				trigger_localised_error('CORE0073', E_USER_WARNING, $this->id, $shadowid);
 				return $asset;
 			}
 
@@ -570,13 +585,17 @@ class Image extends File
 			$ret_type_code = ($side_of_link == 'major') ? 'image_variety' : $this->type();
 			if ($strict_type_code) {
 				if (is_array($type_code)) {
-					if (!in_array($ret_type_code, $type_code)) return Array();
+					if (!in_array($ret_type_code, $type_code)) {
+						return Array();
+					}
 				} else {
 					if ($ret_type_code != $type_code) return Array();
 				}
 			} else {
 				$descendants = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($type_code, true);
-				if (!in_array($ret_type_code, $descendants)) return Array();
+				if (!in_array($ret_type_code, $descendants)) {
+					return Array();
+				}
 			}
 
 		}//end if type_code
@@ -592,20 +611,21 @@ class Image extends File
 				if ($this->id == $assetid) {
 					if ($side_of_link == 'minor') {
 						// should never happen...but anyway
-						trigger_localised_error("CORE0089", E_USER_ERROR);
+						trigger_localised_error('CORE0089', E_USER_ERROR);
 
 					} else {
 						$i = 0;
 						foreach ($varieties['data'] as $varid => $data) {
-							$links[] = Array('linkid'			=> 0,
-											 'minorid'			=> $this->id.':'.$varid,
-											 'minor_type_code'	=> 'image_variety',
-											 'value'			=> '',
-											 'link_type'		=> SQ_LINK_TYPE_2,
-											 'is_dependant'		=> true,
-											 'is_exclusive'		=> true,
-											 'sort_order'		=> $i,
-											);
+							$links[] = Array(
+										'linkid'			=> 0,
+										'minorid'			=> $this->id.':'.$varid,
+										'minor_type_code'	=> 'image_variety',
+										'value'				=> '',
+										'link_type'			=> SQ_LINK_TYPE_2,
+										'is_dependant'		=> true,
+										'is_exclusive'		=> true,
+										'sort_order'		=> $i,
+									   );
 							$i++;
 						}// end foreach
 
@@ -619,19 +639,20 @@ class Image extends File
 					// if we are looking up the tree all we can see is this image asset
 					if ($side_of_link == 'minor') {
 						if (!isset($varieties['data'][$assetid])) {
-							trigger_localised_error("CORE0074", E_USER_WARNING, $assetid, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'), $this->id);
+							trigger_localised_error('CORE0074', E_USER_WARNING, $assetid, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'), $this->id);
 							return Array();
 
 						} else {
-							$links[] = Array('linkid'			=> 0,
-											 'majorid'			=> $this->id,
-											 'major_type_code'	=> $this->type(),
-											 'value'			=> '',
-											 'link_type'		=> SQ_LINK_TYPE_2,
-											 'is_dependant'		=> true,
-											 'is_exclusive'		=> true,
-											 'sort_order'		=> array_search($assetid, array_keys($varieties['data'])),
-											);
+							$links[] = Array(
+										'linkid'			=> 0,
+										'majorid'			=> $this->id,
+										'major_type_code'	=> $this->type(),
+										'value'				=> '',
+										'link_type'			=> SQ_LINK_TYPE_2,
+										'is_dependant'		=> true,
+										'is_exclusive'		=> true,
+										'sort_order'		=> array_search($assetid, array_keys($varieties['data'])),
+									   );
 						}//endif
 
 					// because the varieties are only ever going to be one level down
@@ -647,7 +668,7 @@ class Image extends File
 					uasort($links, create_function('$a,$b', 'return $a["'.$sort_by.'"] < $b["'.$sort_by.'"];'));
 				}
 
-			} // end if
+			}// end if
 
 			$this->_tmp['getLinks'][$assetid][$side_of_link] = $links;
 
@@ -686,13 +707,17 @@ class Image extends File
 			$ret_type_code = 'image_variety';
 			if ($strict_type_code) {
 				if (is_array($type_code)) {
-					if (!in_array($ret_type_code, $type_code)) return Array();
+					if (!in_array($ret_type_code, $type_code)) {
+						return Array();
+					}
 				} else {
 					if ($ret_type_code != $type_code) return Array();
 				}
 			} else {
 				$descendants = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($type_code, true);
-				if (!in_array($ret_type_code, $descendants)) return Array();
+				if (!in_array($ret_type_code, $descendants)) {
+					return Array();
+				}
 			}
 
 		}//end if type_code
@@ -730,7 +755,7 @@ class Image extends File
 	{
 		if ($assetid == $this->id || (string) $assetid{0} != 'v') {
 			// should never happen...but anyway
-			trigger_localised_error("CORE0090", E_USER_ERROR);
+			trigger_localised_error('CORE0090', E_USER_ERROR);
 		}
 
 		$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, $type_code, $strict_type_code);
@@ -741,13 +766,17 @@ class Image extends File
 			$ret_type_code = $this->type();
 			if ($strict_type_code) {
 				if (is_array($type_code)) {
-					if (!in_array($ret_type_code, $type_code)) return $parents;
+					if (!in_array($ret_type_code, $type_code)) {
+						return $parents;
+					}
 				} else {
 					if ($ret_type_code != $type_code) return $parents;
 				}
 			} else {
 				$descendants = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($type_code, true);
-				if (!in_array($ret_type_code, $descendants)) return $parents;
+				if (!in_array($ret_type_code, $descendants)) {
+					return $parents;
+				}
 			}
 
 		}//end if type_code

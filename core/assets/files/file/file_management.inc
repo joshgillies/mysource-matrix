@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_management.inc,v 1.13 2005/05/31 04:56:22 ndvries Exp $
+* $Id: file_management.inc,v 1.14 2005/06/02 04:41:54 ndvries Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -91,7 +91,9 @@ class File_Management extends Asset_Management
 		}//end if version 0.4
 
 		return parent::_upgrade($current_version);
-	}
+
+	}//end _upgrade()
+
 
 }//end class
 ?>

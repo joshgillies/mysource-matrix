@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.96 2005/06/01 06:01:38 ndvries Exp $
+* $Id: file.inc,v 1.97 2005/06/02 04:41:54 ndvries Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.96 $
+* @version $Revision: 1.97 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -915,10 +915,10 @@ class File extends Asset
 			$type = (empty($standards_lists_mime_types[$ext])) ? 'text/plain' : $standards_lists_mime_types[$ext];
 			header('Cache-Control:');
 			header('Pragma: cache');
-			header('Expires: '. gmdate('D, d M Y H:i:s', (time() + 86400)) . ' GMT');
-			header('Content-Type: ' . $type);
+			header('Expires: '.gmdate('D, d M Y H:i:s', (time() + 86400)).' GMT');
+			header('Content-Type: '.$type);
 			header('Content-Disposition: inline; filename='.$existing['filename'].';');
-			header('Last-Modified: ' . gmdate('D, d M Y H:i:s',$existing['modified']) . ' GMT');
+			header('Last-Modified: '.gmdate('D, d M Y H:i:s',$existing['modified']).' GMT');
 			header('Content-Length: '.$existing['size']);
 			readfile($existing['path']);
 		}

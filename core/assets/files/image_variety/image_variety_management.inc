@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety_management.inc,v 1.5 2005/02/11 17:15:52 brobertson Exp $
+* $Id: image_variety_management.inc,v 1.6 2005/06/02 04:42:02 ndvries Exp $
 *
 */
 
@@ -31,12 +31,13 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Image_Variety_Management extends Asset_Management
 {
+
 
 	/**
 	* Constructor
@@ -47,58 +48,60 @@ class Image_Variety_Management extends Asset_Management
 		$this->Asset_Management($pm);
 
 		$this->vars = Array(
-							'name' => Array(
-								'added'		=> '0.0.1',
-								'type'		=> 'text',
-								'default'	=> '',
-							),
-							'filename' => Array(
-								'added'			=> '0.0.1',
-								'type'			=> 'text',
-								'default'		=> '',
-								'description'	=> 'Holds the current filename, because when the filename changes we need to know what the old extension was.',
-							),
-							'variety_type' => Array(
-								'added'			=> '0.0.1',
-								'type'			=> 'selection',
-								'default'		=> 'resize',
-								'parameters'    => Array(
-									'options' => Array(
-											'resize'	=> 'Resize Current Image',
-											'upload'	=> 'Upload Alternate Image',
-									),
-									'multiple' => false,
-									'allow_empty' => false,
-								),
-								'description'	=> '',
-							),
-							'constrain' => Array(
-								'added'			=> '0.0.1',
-								'type'			=> 'selection',
-								'default'		=> 'width',
-								'parameters'	=> Array(
-									'options' => Array(
-											'width'		=> 'Width',
-											'height'	=> 'Height',
-											'none'		=> 'Neither',
-									),
-									'multiple' => false,
-									'allow_empty' => false,
-								),
-								'description' => '',
-							),
-							'width' => Array(
-								'added'		=> '0.0.1',
-								'type'		=> 'int',
-								'default'	=> 0,
-							),
-							'height' => Array(
-								'added'		=> '0.0.1',
-								'type'		=> 'int',
-								'default'	=> 0,
-							),
-						);
+						'name'			=> Array(
+											'added'		=> '0.0.1',
+											'type'		=> 'text',
+											'default'	=> '',
+										   ),
+						'filename'		=> Array(
+											'added'			=> '0.0.1',
+											'type'			=> 'text',
+											'default'		=> '',
+											'description'	=> 'Holds the current filename, because when the filename changes we need to know what the old extension was.',
+										   ),
+						'variety_type'	=> Array(
+											'added'			=> '0.0.1',
+											'type'			=> 'selection',
+											'default'		=> 'resize',
+											'parameters'	=> Array(
+																'options'		=> Array(
+																					'resize'	=> 'Resize Current Image',
+																					'upload'	=> 'Upload Alternate Image',
+																				   ),
+																'multiple'		=> false,
+																'allow_empty'	=> false,
+															   ),
+											'description'	=> '',
+										   ),
+						'constrain'		=> Array(
+											'added'			=> '0.0.1',
+											'type'			=> 'selection',
+											'default'		=> 'width',
+											'parameters'	=> Array(
+																'options'		=> Array(
+																					'width'		=> 'Width',
+																					'height'	=> 'Height',
+																					'none'		=> 'Neither',
+																				   ),
+																'multiple'		=> false,
+																'allow_empty'	=> false,
+															   ),
+											'description'	=> '',
+										   ),
+						'width'			=> Array(
+											'added'		=> '0.0.1',
+											'type'		=> 'int',
+											'default'	=> 0,
+										   ),
+						'height'		=> Array(
+											'added'		=> '0.0.1',
+											'type'		=> 'int',
+											'default'	=> 0,
+										   ),
+					  );
+
 	}//end constructor
+
 
 }//end class
 ?>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thumbnail_management.inc,v 1.8 2005/01/20 13:07:34 brobertson Exp $
+* $Id: thumbnail_management.inc,v 1.9 2005/06/02 04:42:07 ndvries Exp $
 *
 */
 
@@ -31,12 +31,13 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Thumbnail_Management extends Asset_Management
 {
+
 
 	/**
 	* Constructor
@@ -46,6 +47,7 @@ class Thumbnail_Management extends Asset_Management
 	{
 		$this->Asset_Management($pm);
 	}//end constructor
+
 
 }//end class
 ?>
