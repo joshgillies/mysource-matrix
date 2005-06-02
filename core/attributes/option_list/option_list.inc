@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: option_list.inc,v 1.11.2.3 2005/05/17 03:47:22 lwright Exp $
+* $Id: option_list.inc,v 1.11.2.4 2005/06/02 23:07:41 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -184,14 +184,13 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 	{
 		$prefix = str_replace(':','_',$prefix);	// handle shadow assets
 
-		if (!isset($_REQUEST[$prefix.'_options'])) {
-			return false;
-		}
-
 		$value = Array();
 
-		$to = Array();
+		$new = trim(array_get_index($_REQUEST, $prefix.'_new_options',''));
+		if (!empty($new)) $value[] = $new;
+
 		if (isset($_REQUEST[$prefix.'_options'])) {
+			$to = Array();
 			$to = explode("\r\n", trim($_REQUEST[$prefix.'_options']));
 			// make sure the emails are valid
 			foreach ($to as $option) {
@@ -200,6 +199,8 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 				$value[] = $option;
 			}
 		}
+
+		if (empty($value)) return false;
 
 		$this->processed = $this->setValue(implode("\r\n",$value));
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: email_format.inc,v 1.11.2.4 2005/05/16 06:50:31 dmckee Exp $
+* $Id: email_format.inc,v 1.11.2.5 2005/06/02 23:07:41 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -346,6 +346,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 	{
 		if (!isset($_REQUEST[$prefix.'_to']) &&
 			!isset($_REQUEST[$prefix.'_from']) &&
+			!isset($_REQUEST[$prefix.'_new_to']) &&
 			!isset($_REQUEST[$prefix.'_subject']) &&
 			!isset($_REQUEST[$prefix.'_text_body'])) {
 			return false;
@@ -367,6 +368,11 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 				if (empty($email)) continue;
 				$value['to'][] = $email;
 			}
+		}
+
+		$new_to = trim(array_get_index($_REQUEST, $prefix.'_new_to', ''));
+		if(!empty($new_to)){
+			$value['to'][] = $new_to;
 		}
 
 		$value['from']    = (isset($_REQUEST[$prefix.'_from'])) ? $_REQUEST[$prefix.'_from'] : '';
