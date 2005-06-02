@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select_edit_fns.inc,v 1.16 2005/06/02 06:06:28 lwright Exp $
+* $Id: metadata_field_select_edit_fns.inc,v 1.17 2005/06/02 06:37:31 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -118,11 +118,11 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 				check_box($prefix.'_default', '1', $is_default);
 				echo ' '.strtolower(translate('use_default'));
 				if ($is_default) {
-					echo ' <em style="color: #666">(currently set)</em>';
+					echo ' <em style="color: #666">('.translate('metadata_field_default_currently_set').')</em>';
 				}
 			} else {
 				if ($is_default) {
-					echo ' <em style="color: #666">(default)</em>';
+					echo ' <em style="color: #666">('.strtolower(translate('default')).')</em>';
 				}
 			}
 

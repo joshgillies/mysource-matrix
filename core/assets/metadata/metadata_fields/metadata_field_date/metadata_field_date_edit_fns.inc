@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date_edit_fns.inc,v 1.22 2005/06/02 06:06:25 lwright Exp $
+* $Id: metadata_field_date_edit_fns.inc,v 1.23 2005/06/02 06:37:30 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -370,17 +370,17 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 				check_box($prefix.'_default', '1', $is_default);
 				echo ' '.strtolower(translate('use_default'));
 				if ($is_default) {
-					echo ' <em style="color: #666">(currently set)</em>';
+					echo ' <em style="color: #666">('.translate('metadata_field_default_currently_set').')</em>';
 				}
 			} else if ($uses_keyword && isset($select_options[$value])) {
 				echo '<i>'.translate('keyword_replacement').': </i>', $select_options[$value];
 				if ($is_default) {
-					echo ' <em style="color: #666">(default)</em>';
+					echo ' <em style="color: #666">('.strtolower(translate('default')).')</em>';
 				}
 			} else {
 				echo $field->format();
 				if ($is_default) {
-					echo ' <em style="color: #666">(default)</em>';
+					echo ' <em style="color: #666">('.strtolower(translate('default')).')</em>';
 				}
 			}
 
