@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.82 2005/06/02 06:06:39 lwright Exp $
+* $Id: metadata_manager.inc,v 1.83 2005/06/02 06:51:44 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.82 $
+* @version $Revision: 1.83 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -1175,7 +1175,7 @@ class Metadata_Manager extends MySource_Object
 		// is this actually a metadata field or what?!
 		if (!$this->isMetadataFieldAssetid($field_assetid)) {
 			if (!$mute_errors) {
-				trigger_error('Asset #'.$field_assetid.' is not a metadata field', E_USER_WARNING);
+				trigger_localised_error('SYS0308', E_USER_WARNING, $field_assetid);
 			}
 			return null;
 		}
@@ -1266,7 +1266,7 @@ class Metadata_Manager extends MySource_Object
 		static $cached_defaults = Array();
 		if (!in_array($field_assetid, array_keys($cached_defaults))) {
 			if (!$this->isMetadataFieldAssetid($field_assetid)) {
-				trigger_error('Asset #'.$field_assetid.' is not a metadata field', E_USER_WARNING);
+				trigger_localised_error('SYS0308', E_USER_WARNING, $field_assetid);
 			}
 
 			$db =& $GLOBALS['SQ_SYSTEM']->db;
@@ -1303,7 +1303,7 @@ class Metadata_Manager extends MySource_Object
 	{
 		// is this actually a metadata field or what?!
 		if (!$this->isMetadataFieldAssetid($field_assetid)) {
-			trigger_error('Asset #'.$field_assetid.' is not a metadata field', E_USER_WARNING);
+			trigger_localised_error('SYS0308', E_USER_WARNING, $field_assetid);
 		}
 
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
