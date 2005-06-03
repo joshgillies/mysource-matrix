@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy.inc,v 1.24 2005/05/29 23:52:28 dmckee Exp $
+* $Id: bodycopy.inc,v 1.25 2005/06/03 01:30:31 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -275,14 +275,14 @@ class Bodycopy extends Asset
 	function printFrontend()
 	{
 		if (!isset($_REQUEST['asset_ei_screen'])) {
-			return parent::printFrontend($o);
+			return parent::printFrontend();
 		}
 		switch ($_REQUEST['asset_ei_screen']) {
 			case 'show_popup' :
 				require_once(dirname(__FILE__).'/popups/'.trim($_REQUEST['popup_file']));
 				exit();
 			default :
-				return parent::printFrontend($o);
+				return parent::printFrontend();
 
 		}//end switch
 

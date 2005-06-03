@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit_div_props.php,v 1.17 2005/06/02 23:30:17 rhoward Exp $
+* $Id: edit_div_props.php,v 1.18 2005/06/03 01:30:31 tbarrett Exp $
 *
 */
 
@@ -29,7 +29,7 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -64,7 +64,6 @@ include(dirname(__FILE__).'/header.php');
 		// add default "Leave Unchanged" value to the top
 		f.content_type.options[i] = new Option('<?php echo translate('content_type_no_change'); ?>', "");
 		i++;
-
 		for(var key in available_types) {
 			if (available_types[key] == null) continue;
 			if(available_types[key]["name"] != null) {
