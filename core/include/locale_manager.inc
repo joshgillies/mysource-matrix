@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: locale_manager.inc,v 1.9 2005/05/19 23:50:20 lwright Exp $
+* $Id: locale_manager.inc,v 1.10 2005/06/03 12:33:00 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    number/date formats
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix
 */
 class Locale_Manager extends MySource_Object
@@ -559,6 +559,9 @@ class Locale_Manager extends MySource_Object
 			$error_msg = vsprintf($this->_errors[$locale][$code], $func_args).' ['.$code.']';
 		} else {
 			$error_msg = 'Error text not found for this code and locale ['.$code.']';
+			if (!empty($func_args)) {
+				$error_msg .= "\n".var_export($func_args, 1);
+			}
 		}
 
 		return $error_msg;
