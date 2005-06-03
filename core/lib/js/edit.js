@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.js,v 1.27 2005/05/18 04:48:05 dheppell Exp $
+* $Id: edit.js,v 1.28 2005/06/03 06:09:59 tbarrett Exp $
 *
 */
 
@@ -255,3 +255,65 @@ function textboxReplaceSelect(input, text)
 	input.focus();
 
 }//end textboxReplaceSelect()
+
+
+// Functions for option list attribute
+
+var expandListFn = new Function('expandOptionList(this)');
+var deleteRowFn = new Function('deleteOptionListRow(this); return false;');
+
+function expandOptionList(input) 
+{
+	// abort if we are not the last input in the lit
+	var nextInput = input.nextSibling;
+	while (nextInput !== null) {
+		if (nextInput.tagName == 'INPUT') {
+			return;
+		}
+		nextInput = nextInput.nextSibling;
+	}
+
+	// abort if we and the second-last input are both empty
+	if (input.value == '') {
+		var lastInput = input.previousSibling;
+		while (lastInput !== null) {
+			if (lastInput.tagName == 'INPUT') {
+				if (lastInput.value == '') {
+					return;
+				}
+				break;
+			}
+			lastInput = lastInput.previousSibling;
+		}
+	}
+
+	// add the extra field
+	var newInput = input.cloneNode(true);
+	newInput.onfocus = expandListFn;
+	newInput.value = '';
+	input.parentNode.appendChild(newInput);
+	var delButton = input.nextSibling;
+	while (delButton.tagName != 'BUTTON') {
+		delButton = delButton.nextSibling;
+	}
+	delButton = delButton.cloneNode(true);
+	delButton.onclick = deleteRowFn;
+	input.parentNode.appendChild(delButton);
+	input.parentNode.appendChild(document.createElement('BR'));
+}
+
+function deleteOptionListRow(button) 
+{
+	var input = button.previousSibling;
+	while (input.tagName != 'INPUT') {
+		input = input.previousSibling;
+	}
+	if (input.value == '') return;
+	var brTag = button.nextSibling;
+	while (brTag.tagName != 'BR') {
+		brTag = brTag.nextSibling;
+	}
+	button.parentNode.removeChild(input);
+	button.parentNode.removeChild(brTag);
+	button.parentNode.removeChild(button);
+}

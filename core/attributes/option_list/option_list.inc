@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: option_list.inc,v 1.18 2005/06/02 07:15:31 arailean Exp $
+* $Id: option_list.inc,v 1.19 2005/06/03 06:09:43 tbarrett Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *    <option_list />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -68,108 +68,36 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 	function paint($prefix, $read_only=false)
 	{
 		$prefix = str_replace(':','_',$prefix); // handle shadow assets
-
-		$current_value = explode("\r\n", $this->value);
-		if (!is_array($current_value)) {
-			$current_value = Array();
-		}
-
-		if ($read_only) {
-			echo implode('<br />', $current_value);
-		} else {
-			$current_to_string = '';
-			$current_to = '';
-			$i = 0;
-
-			if (!empty($this->value)) {
-
-				foreach ($current_value as $option) {
-					$current_to_string .= '<div id="'.$prefix.'_'.$i.'">[ <a href="#" onclick="Javascript: optionListRemoveOption('.$i.', \''.$prefix.'\', \'options\'); return false;">del</a> ] <span id="'.$prefix.'_content_'.$i.'">'.htmlspecialchars($option).'</span></div>';
-					$current_to .= $option."\r\n";
-					$i++;
-				}
-
-			}
-
-		//TODO: TRANSLATE: more js stuff here
+		$value = explode("\r\n", $this->value)
 		?>
-
-		<script language="Javascript">
-			// need to define 'next index' stuff as an array in case there is more than one option
-			// list/email format attribute on the screen
-			if (typeof next_index == 'undefined') {
-				next_index = new Array();
+		<div id="option-list-<?php echo $prefix; ?>">
+			<?php
+			foreach ($value as $v) {
+				?>
+				<input type="text" tabindex="1"  name="<?php echo $prefix; ?>_options[]" value="<?php echo $v; ?>" /><button type="button" tabindex="2" class="delete-button">&nbsp;</button><br />
+				<?php
 			}
-			next_index['<?php echo $prefix ?>'] = <?php echo $i ?>;
-
-			function optionListAddOption(box_name, type) {
-				var value = document.getElementById(box_name + "_" + type);
-				var box = document.getElementById(box_name + "_new_" + type);
-				var div = document.getElementById(box_name + "_current_" + type);
-
-				if (box.value == "") return;
-
-				div.innerHTML += '<div id="' + box_name + '_' + next_index[box_name].toString() + '">[ <a href="#" onclick="Javascript: optionListRemoveOption(' + next_index[box_name].toString() + ', \'' + box_name + '\', \'' + type + '\'); return false;">del</a> ] <span id="' + box_name + '_content_' + next_index[box_name].toString() + '">' + box.value.replace('<', '&lt;').replace('>', '&gt;') + '</span></div>';
-				value.value   += box.value + "\r\n";
-
-				next_index[box_name]++;
-
-				box.value = "";
-				box.focus();
-
-			}//end optionListAddOption()
-
-
-			function optionListRemoveOption(index, box_name, type) {
-				var div = document.getElementById(box_name + "_current_" + type);
-				var value = document.getElementById(box_name + "_" + type);
-
-				arrIndex = 0;
-				option_array = new Array();
-
-				// get the first div in the list
-				divX = div.firstChild;
-
-				while(divX != null) {
-					// already hidden?
-					if (divX.style.display != 'none') {
-						this_option = divX.firstChild.nextSibling.nextSibling.nextSibling.innerHTML;
-
-						// this is the one we want
-						if (divX.id == (box_name + "_" + index)) {
-							divX.style.display = 'none';
-						} else {
-							option_array[arrIndex] = this_option.replace('&lt;', '<').replace('&gt;', '>');
-						}
-						arrIndex++;
-					}
-					divX = divX.nextSibling;
-				}
-
-				var new_value_content = '';
-
-				for (var i = 0; i < option_array.length; i++) {
-					var option = option_array[i];
-					if (typeof option != 'undefined') {
-						re = new RegExp("\\\[.*\\\] (.*)", "g");
-						this_option = option.replace(re, "\$1");
-
-						new_value_content += this_option + "\r\n";
-					}
-				}
-
-				value.value = new_value_content;
-
-
-			}//end optionListRemoveOption()
-
+			for ($i =0; $i < 2; $i++) {
+				?>
+				<input type="text" tabindex="1"  name="<?php echo $prefix; ?>_options[]" /><button type="button" tabindex="2" class="delete-button">&nbsp;</button><br />
+				<?php
+			}
+			?>
+		</div>
+		<script type="text/javascript" src="<?php echo sq_web_path('lib'); ?>/js/edit.js"></script>
+		<script type="text/javascript">
+			// attach the event handlers
+			var optionList = document.getElementById('option-list-<?php echo $prefix; ?>');
+			var	inputs = optionList.getElementsByTagName('INPUT');
+			for (var j=0; j < inputs.length; j++) {
+				inputs[j].onfocus = expandListFn;
+			}
+			var buttons = optionList.getElementsByTagName('BUTTON');
+			for (var j=0; j < buttons.length; j++) {
+				buttons[j].onclick = deleteRowFn;
+			}
 		</script>
-			<?php text_box($prefix.'_new_options', '', 30); ?>
-			[ <a href="#" onclick="optionListAddOption('<?php echo $prefix ?>', 'options'); return false;">add</a> ]<br/>
-			<div id="<?php echo $prefix; ?>_current_options"><?php echo $current_to_string; ?></div>
-			<span style="display:none"><?php text_area($prefix.'_options', $current_to, 30, 5); ?></span>
 		<?php
-		}
 
 	}//end paint()
 
@@ -184,26 +112,10 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 	function process($prefix)
 	{
 		$prefix = str_replace(':','_',$prefix);	// handle shadow assets
-
-		$value = Array();
-
-		$new = trim(array_get_index($_REQUEST, $prefix.'_new_options',''));
-		if (!empty($new)) $value[] = $new;
-
-
-		if (isset($_REQUEST[$prefix.'_options'])) {
-			$to = Array();
-			$to = explode("\r\n", trim($_REQUEST[$prefix.'_options']));
-			// make sure the emails are valid
-			foreach ($to as $option) {
-				$option = trim($option);
-				if ($option === '') continue;
-				$value[] = $option;
-			}
+		$value = $_REQUEST[$prefix.'_options'];
+		foreach ($value as $i => $v) {
+			if ($v == '') unset($value[$i]);
 		}
-
-		if (empty($value)) return false;
-
 		$this->processed = $this->setValue(implode("\r\n",$value));
 
 	}//end process()

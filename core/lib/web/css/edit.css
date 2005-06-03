@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.css,v 1.49 2005/05/30 01:28:30 tbarrett Exp $
+* $Id: edit.css,v 1.50 2005/06/03 06:09:59 tbarrett Exp $
 *
 */
 
@@ -415,4 +415,15 @@ td.sq-backend-lock-table-cell-alt {
 .sq-backend-search-failed-body {
 	color:				#342939;
 	font-weight:		none;
+}
+
+.delete-button {
+	background-image: url(../images/icons/delete.png);
+	background-position: 50% 50%;
+	background-repeat: norepeat;
+	width: 16px;
+	height: 16px;
+	background-color: transparent;
+	border: 0px;
+	cursor: pointer;
 }
