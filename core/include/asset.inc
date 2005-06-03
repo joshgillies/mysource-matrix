@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.397 2005/05/31 00:45:46 tbarrett Exp $
+* $Id: asset.inc,v 1.398 2005/06/03 07:06:40 ndvries Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.397 $
+* @version $Revision: 1.398 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -2540,7 +2540,7 @@ class Asset extends MySource_Object
 				assert_valid_db_result($result);
 
 			}//end foreach
-			
+
 			$db->freePrepared($prepared);
 			$db->freePrepared($prepared_uniq);
 
@@ -4161,6 +4161,8 @@ class Asset extends MySource_Object
 	*/
 	function informChanges($inform_parents=true)
 	{
+		if (!$this->id) return true;
+
 		$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
 		$em->broadcastEvent($this, 'requestReindex', Array('inform_parents' => (bool)$inform_parents));
 
