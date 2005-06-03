@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.1 2005/05/11 06:07:31 lwright Exp $
+* $Id: lang_strings.xml,v 1.2 2005/06/03 06:11:21 tbarrett Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -25,7 +25,7 @@
 <string source="cms_form_rule_file_type_edit_true">Uploaded file must match one of the following extensions: %s</string>
 <string source="cms_form_rule_file_type_edit_false">Uploaded file must NOT match one of the following extensions: %s</string>
 <string source="cms_form_rule_file_type_ext_list">Extension List</string>
-<string source="cms_form_rule_file_type_note">Enter a list of extensions to include or exclude, clicking 'Add' after each one. To remove an extension, click the 'Del' link next to the particular extension. Do not include the full stop as part of the extension.</string>
+<string source="cms_form_rule_file_type_note">Enter a list of extensions to include or exclude - the list will expand as necessary.  To remove an extension, click the delete button next to it. Do not include the full stop as part of the extension.</string>
 <string source="cms_form_rule_file_type_error_true">Name of uploaded file "%1$s" at question "%2$s" is invalid - extension must match one of the following: %3$s</string>
 <string source="cms_form_rule_file_type_error_false">Name of uploaded file "%1$s" at question "%2$s" is invalid - extension must NOT match one of the following: %3$s</string>
 </strings>
