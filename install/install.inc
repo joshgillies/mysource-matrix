@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.inc,v 1.50 2005/05/27 07:32:42 rhoward Exp $
+* $Id: install.inc,v 1.51 2005/06/06 06:38:47 tbarrett Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * Purpose
 * Functions used to install and upgrade the system
 *
-* @version $Revision: 1.50 $
+* @version $Revision: 1.51 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -813,7 +813,6 @@ function build_localised_screen($asset_type, $screen, $locale)
 						// a function call
 
 						if (empty($xml_field->attributes['attribute'])) {
-
 							// first, look for the function call tag in the language file
 							for ($sub_index = 0; $sub_index < count($xml_field->children); $sub_index++) {
 								if ($xml_field->children[$sub_index]->name == 'function_call') {
@@ -826,7 +825,7 @@ function build_localised_screen($asset_type, $screen, $locale)
 							for ($i = 0; $i < count($this_section->children); $i++) {
 								$this_field =& $this_section->children[$i];
 								$paint_field =& $this_field->children[0]->children[0];
-
+								if ($paint_field->name != 'paint_function') continue;
 								if ($paint_field->attributes['name'] == $xml_paint_field->attributes['name']) {
 									break;
 								}
