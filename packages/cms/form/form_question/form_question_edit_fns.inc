@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_edit_fns.inc,v 1.34 2005/05/20 05:27:31 tbarrett Exp $
+* $Id: form_question_edit_fns.inc,v 1.35 2005/06/06 05:29:00 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -160,6 +160,7 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 		// modify what's left
 		for (reset($rules); null !== ($k = key($rules)); next($rules)) {
 			$rule = &$rules[$k];
+			$rule_prefix = $prefix.'_rule_'.$k;
 			// let the rule paint itself here!!
 			$type_code = 'form_question_rule_type_'.$rule['rule_code'];
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
