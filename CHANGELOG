@@ -1,5 +1,269 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.5.0 Beta
+
+Featured Changes
+----------------------
+
+Session Timeouts
+
+	A new feature has been added to allow user sessions within MySource Matrix to be maintained for a customisable period of time (eg. 7 days).
+	A user is able to keep their session information (including login details and shopping basket contents) for a period of time without having to have their web browser open for the entire period. They could
+	log into MySource Matrix, edit some content, come back in 3 days and still be logged in.
+
+	The 3 different types of session timeout options that can be set are:
+	- whether a user's session should expire when they close their browser
+	- whether a user's session should expire when they've been inactive for a certain period of time
+	- whether a user's session should expire if they haven't authenticated for a certain period of time
+
+	The feature has been added as a global/group preference rather than a system wide configuration setting, so you can choose to customise session timeout options per user group if you require, or use the global preference for all users.
+
+Oracle Support
+
+	A number of additional changes have been made to the MySource Matrix database schema and source code to allow MySource Matrix to run on an
+	Oracle database. MySource Matrix can be installed and run on Oracle 9i but has not undergone thorough testing. Oracle support should be
+	considered preliminary but one development team will be doing all new development on an Oracle database instead of PostgreSQL.
+
+Paint Layouts
+
+	A new concept called Paint Layouts has been added to MySource Matrix. Paint layouts are like designs for your content. You can crate a paint
+	layout and customise how individual types of assets should look. For example, a news asset might be printed a certain way by default, but a
+	paint layout could be created so you can define your own way it is printed. Keywords are used to place attributes and metadata values of the asset on the screen.
+
+Log Manager
+
+	A new log manager system asset has been created to help manage the rotation of system log files. Future plans for development will allow
+	users to use the log manager to configure custom log rotation schedules as well as view existing system logs from the administration interface.
+	More details of the new log management system will come shortly due to changes in search logging that are currently in development.
+
+Backend Translation
+
+	The MySource Matrix backend is now multi-language capable, meaning all string and error messages can be translated into languages other than English
+	Currently, the backend interface is only available in English, but support for other languages is planned.
+
+Asset Map Changes
+
+	Many changes have been made to the asset map to improve usability for larger systems and to fix some of the bugs that existed. The main new features are multiple tree support, undockable view and multiple move/clone/link operations.
+
+Triggers
+
+	A triggering system has been added to MySource Matrix to help users complete repetitive task and to enforce system wide business rules. For
+	example, you can configure a trigger in the system so that when Image assets are created under your site, they are automatically resized to 3 size variations, and added to the Media Folder.
+
+	Once installed, make sure you enable triggers on the Details screen of the Trigger Manager if you want to use them.
+
+Complete Changelog
+----------------------
+
+Core
+
++ Added image varieties which allow for the creation of auto-size assets and thumbnail management
++ Added a preview screen to each asset which allows for the asset to be previewed using all its urls
++ Added a public user which allows better permission settings for non-logged in users on the frontend and backend
++ Urls are now sorted on the web path screen to make finding urls easier
++ Changes to bodycopy to allow for the insertion of shadow assets as hyperlinks and images
++ Interface changes to the permission screen to better indicate when no permissions are set
++ User Groups now have a web path so user groups can be visible on the frontend
++ Images now have alt text, title text, an image caption, image width, image height and image size attributes
++ New "Allow Unrestricted Access" option for files so files can be restricted to use the MySource Matrix url rather than the __data url
++ Added web folders for designs, users and media to make designs, user and media assets web accessible
++ Raw HTML content types now has a plugin allowing you to select from a list of available keywords and have the keyword inserted for you
++ Users now have web paths meaning their details screen can now be edited from the simple editing interface without the account manager
++ Internal messages can now be sent to other users from their inbox
++ A new report to allow a list of assets who's status has not changed for a defined period of time
++ Report assets now have the ability to show the assets under them in the asset map
++ Added the ability for MySource Matrix sessions to be continued over domains using a site network asset
++ Added batching of triggers to execute trigger actions on a large number of assets
++ Added group restrictions based on IP ranges and show_if style conditions
++ Workflow steps can now have an expiry date set, so that if the step has not been completed after the allocated period of time the administrators of the asset are notified via internal message and email.
++ Assets can now be deleted in the asset map using the delete key
++ My Space tab in the Asset Map now has the ability to go straight to a user's inbox, sent messages, and to send a new message
++ A new global print var, content_type, has been added to designs to allow you to set the content-type of the output
++ Rss feeds can now be created using the content_type print var in combination with a listing asset
++ New tools section in the top right corner of the administration interface
++ Added global search and replace tool to allow the searching and replacing of text in assets
++ New text file asset that allows the user to edit its contents
++ A new trigger action to set the future status of an asset
++ A new trigger action to grant or deny permission for an asset
++ The Broken Links Report has now been renamed to Links Report
++ New cron job to rotate log files, and regenerate reports that read the log files
++ A new trigger action to change an asset's attributes
++ A new trigger action to set the web path of an asset
++ A new trigger action to create an asset
++ A new trigger event to allow a trigger to be fired when the status of an asset has changed
+- The thumbnail size restriction has been removed
++ Group security restrictions now default to allow unrestricted screen access
++ PDF File assets now have a password field where you can enter the password to unlock the PDF
++ A new configuration screen has been added that allows users to define their own password rules
++ Triggers now have a new blocking option to block the execution of failed triggers
++ A feature has been added to allow system administrators to enforce a mandatory password change period for users
++ A new design area has been developed to store and display the last few assets that a user views while accessing the frontend of a site
++ New keyword date formats have been created to allow dates to be printed in iCal format
++ The global search and replace tool has now been improved to allow individual matched terms to be selected for replacement
++ The thesaurus metadata field has been changed to allow an editor to select multiple terms for the field using the thesaurus browser
++ The metadata storage system has been improved to allow for faster retrieval of metadata values
++ The Java asset map now supports version 1.5
+* Fixed bug: Sub menus in a design disappear when changes to the design are made.
+* Fixed bug: Design customisations cannot be deleted from the trash properly
+* Fixed bug #196: Uncustomising then recustomising design area in design customisation causes lock error
+* Fixed bug #209: Unable to Purge Trash with Design Customisations inside
+* Fixed bug #273: Linked CSS Design Area - Changing css asset
+* Fixed bug #274: Deleting a design or css customisation from it's parent
+* Fixed bug #327: Archive Status Colour makes name almost unreadable
+* Fixed bug #278: Asset map behaves inconsistently when an asset is visible with two link types
+* Fixed bug #352: Some people can't login using Firefox
+* Fixed bug #360: Adding an image without a URL causes the Insert Image script to freeze
+* Fixed bug #395: Problem declaring multiple vars in a single MySource AREA
+* Fixed bug #406: Permissions should always cascade to dependant assets
+* Fixed bug #420: Caching of nested content URLs breaks
+* Fixed bug #432: Disappearing thumbnails on divs
+* Fixed bug #457: Design area menu_stalks is not XHTML Strict compliant
+* Fixed bug #476: Image assets can't be cloned
+* Fixed bug #477: Permission Cascading in Designs
+* Fixed bug #488: Laying out the layout manager causes 0 is not valid asset error
+* Fixed bug #491: asset_manager::assetInTrash(exclusive=true) returns incorrect result
+* Fixed bug #492: Bookmarks show in Broken link report
+* Fixed bug #493: Permission check is ignoring the groups extending "User Group"
+* Fixed bug #498: DIV properties content type should default to current type
+* Fixed bug #501: Login_Form design area input boxes not using classes
+* Fixed bug #506: login_form design area not XHTML strict compatible
+* Fixed bug #507: Cant set max idle time to 0
+* Fixed bug #509: Two Login boxes on a page means you can't login using the first one
+* Fixed bug #511: IMG tag created by custom image design area is not XHTML compliant
+* Fixed bug #513: Parenthesis in design urls and import() statements break URL
+* Fixed bug #515: System adds Searchable Asset Type and can't remove using Remove
+* Fixed bug #517: Table editor javascript error
+* Fixed bug #518: Invisible tables in WYSIWYG table editor
+* Fixed bug #519: Keyword %asset_lineage% should use short_name of asset
+* Fixed bug #526: Customisation cannot be created in some case
+* Fixed bug #527: Possible undeclared variable in design_edit_fns
+* Fixed bug #528: Design/Media/Users folders can't get Designs applied
+* Fixed bug #529: User groups don't have a Web Paths screen
+* Fixed bug #530: Settings screen doesn't work on User Group assets
+* Fixed bug #532: Force <p> and <br> tags in the editor
+* Fixed bug #534: Problems with declared_vars design area
+* Fixed bug #537: Default Value Not Displaying in Chosen Date Format
+* Fixed bug #540: Customised design areas not always updated
+* Fixed bug #542: Sort order problem with newly created assets
+* Fixed bug #543: Editing interface referencing wrong file
+* Fixed bug #545: Checkbox list has default selection
+* Fixed bug #546: read messages in inbox will not delete
+* Fixed bug #548: Missing table error during install
+* Fixed bug #550: Cannot bump major version on some assets
+* Fixed bug #554: Cron manager bails without clearing error jobs
+* Fixed bug #556: No Table Row Delete Button
+* Fixed bug #557: Setting the character set does nothing
+* Fixed bug #551: CSS comments stop WYSIWYG styles from being shown
+* Fixed bug #552: Image transparency not preserved when resizing
+* Fixed bug #568: Asset names contain unencoded HTML characters
+* Fixed bug #572: Sysadmins getting locked out with 0 max login attempts
+* Fixed bug #574: Nested Redirect assets will still redirect if viewed in the backend
+* Fixed bug #577: Infinite loop with insert_image.php
+* Fixed bug #578: Hitting enter twice produces a mispositioned line
+* Fixed bug #586: Completed time not shown on the last step of a workflow
+* Fixed bug #599: Metadata Date Incorrect When Keyword Chosen
+* Fixed bug #600: Trigger manager - query too long
+* Fixed bug #603: Table content disappears in table editor window when editing large tables
+* Fixed bug #604: Inconsistent treatment of new-linking/cloning vs. moving assets for trashed assets
+* Fixed bug #605: Missing metadata default value (not confirmed)
+* Fixed bug #608: Created assets remain in memory
+* Fixed bug #611: Error adding CSS file to design (not confirmed)
+* Fixed bug #616: Relevance weights reset during step_03
+* Fixed bug #617: Design loses Text File in Safe Edit (not confirmed)
+* Fixed bug #618: Heading styles shortcut keys not working in WYSIWYG (not confirmed)
+* Fixed bug #619: Workflow reminder messages have broken links
+* Fixed bug #620: Thesaurus browser popup appears almost off the screen
+* Fixed bug #633: No metadata field is displayed if 'Only if filled' option is set
+* Fixed bug #635: Hipo Jobs with large number of assets fail when processed in one group
+* Fixed bug #636: Workflow schemas can be removed during workflow
+* Fixed bug #639: Event manager - memory
+* Fixed bug #643: Option list attribute ignores typed values if you dont click "add"
+* Fixed bug #644: Insert Link box's asset finder is broken in DEV
+* Fixed bug #645: Selecting to NOT cascade permissions causes lock cascades
+* Fixed bug #649: Problem moving assets with children; treeids for kids not re-created
+* Fixed bug #650: multiple declared vars type="boolean" error
+* Fixed bug #653: Simple edit has JavaScript error
+* Fixed bug #656: workflow_manager - undefined variables
+* Fixed bug #658: Standard Page Content Div won't release lock with parent
+
+CMS
+
++ Asset listings can now have assets listed at a user defined hard set position in the list
++ added two keywords for for use in listing assets to print the thumbnails url and caption
++ Added position formats to define the format of asset at a particular position in the list
++ The asset listing can now list assets above the root node as well as below.
++ Listing assets can now list non-live assets
++ All listing assets now extend the same set of listing functionality
++ All listing assets can now sort their lists by the value of an asset attribute
++ Added new keywords in the asset listing to link multiple asset listings together
++ Custom Form Sections can now be named during creation
++ Form submissions are now printed on screen in order of their submission time
++ Form rules Value Begins With, Value Ends With, Value Contains, Value Found In and Regular Expression now have a case sensitive option
++ New create location for an asset builder to allow for a user to choose a location to create the asset from the frontend
++ Listing assets can now display a sort by option on the frontend
++ Form submissions now have a details screen where you can edit the answers to questions that still exist in the form that created the submission
+* Fixed bug #206: Custom Form - questions being shown on the asset map in reverse sort order
+* Fixed bug #441: Submitting Details screen of Asset Listing wipes customised asset type formats
+* Fixed bug #471: Custom form displays date when only time is set to display
+* Fixed bug #475: Asset Listing - Positional Formats not being printed
+* Fixed bug #480: Client Side validation errors if Selection Limit rule is applied to Tickbox List
+* Fixed bug #484: Custom form select list won't allow "0"
+* Fixed bug #495: Asset listing uses default format when it should use a customised one
+* Fixed bug #496: Asset listing does not replace %asset_contents% keyword
+* Fixed bug #516: Remote Content cannot be nested
+* Fixed bug #523: Remote binary content fails
+* Fixed bug #524: asset_name for custom forms displays as "Form Contents"
+* Fixed bug #562: Email format does not replace keywords in 'To' field
+* Fixed bug #587: Custom form, switching html/plain text email breaks wysiwyg
+* Fixed bug #594: Using an asset builder to create a calendar event returns error
+* Fixed bug #602: Email receipts not sent if a blank email address is entered
+* Fixed bug #609: Asset listing root nodes default (not confirmed)
+* Fixed bug #610: %asset_listing% keyword is left unreplaced when there are no assets to list
+* Fixed bug #615: keyword select dropdown missing from Customised List Position Formats (not confirmed)
+* Fixed bug #621: Comparison form rule breaks when apostrophe in response
+* Fixed bug #622: Adding questions on a fresh install gives attribute not found errors
+* Fixed bug #624: Asset Listing inserts form tags when no dynamic keywords are used
+* Fixed bug #629: When exporting form logs the frontend errors
+* Fixed bug #648: Can't select an attribute to sort by in asset listing
+* Fixed bug #659: Listing Engine - Position not respected
+* Fixed bug #669: Asset Builder WYSIWYG Keywords missing
+* Fixed bug #670: Asset Builder using undefined function translated()
+
+
+LDAP
+
++ The LDAP bridge can noe explicitly set the LDAP protocol to use
++ LDAP user groups are now visible on the frontend
+* Fixed bug #561: LDAP fails to get groups based on the DN
+
+Calendar
+
++ Calendar page now allows further restriction of the events displayed using the personalised attribute
+* Fixed bug #415: Recurring Event Cancellation\Modification does not work
+* Fixed bug #627: Mouseover description popups for calendar events in wrong position
+* Fixed bug #631: Recurring Event Cancellation asset asks for name and wont create
+* Fixed bug #634: Multi-day events don't always show up on the first day
+* Fixed bug #637: Error when creating calendar event modification
+* Fixed bug #651: Yearly events listing is not in chronological order
+
+Installer
+
+* Fixed bug #549: Installer allows mysql being selected
+
+Search
+
++ Searches performed using a search page are now logged to file
++ The search box can now display a list of categories from the selected search page
++ The indexing system has been improved to better index PDF and Word documents
++ The search page now has a new bodycopy to let you define the screen displayed if no results were found for a search
++ The search page can now accept dynamic root nodes to use as search nodes on the query string
++ The search page now has an option to allow it to conduct empty searches
+
+Ecommerce
+
+* Ecommerce engine now has advanced listing capabilities similar to those of the asset listing
+
+
 VERSION 3.1.0 RC2
 
 Featured Changes
@@ -7,15 +271,15 @@ Featured Changes
 
 Cache Manager
 	MySource Matrix RC2 introduces basic content caching support to improve the performance of high-load sites. Caching is turned off by default on new and existing systems. Caching can be enabled on the details screen of the cache manager.
-	
+
 	Caching is currently supported for standard pages, asset listings, site maps, and search pages. The contents of the page is cached depending on the groups the visitor exists in (if any). In the case of search results, the results of each search term are cached by the Search Manager and the look of each search results is cached by the Search Page. Search results can continue to be sorted dynamically while still maintaining the speed improvements provided by the caching system.
-	
+
 	Note that the cache for an asset is not automatically cleared each time it is changed, so some changes may not appear until the next time the cache is refreshed automatically by MySource Matrix. This time period is configurable.
 
 
 Rollback Management
 	Rollback management is now handled by the rollback_management.php script in the MySource Matrix scripts directory (MYSOURCE_ROT/scripts/rollback_management.php). This script allows you to enable and disable rollback within MySource Matrix, as well as clean out any old rollback entries that you no longer want to keep. For example, you can purge all rollback entries older than 2 weeks. Usage of the script can be viewed by running the script without any arguments (php scripts/rollback_management.php). The script can only be run from the command line.
-	
+
 	When enabling and disabling rollback, the flag MYSOURCE_ROOT/data/private/conf/main.inc configuration file must be changed manually to rollback on or off:
 		define('SQ_CONF_ROLLBACK_ENABLED', '1'); <-- Rollback is enabled
 		define('SQ_CONF_ROLLBACK_ENABLED', '0'); <-- Rollback is disabled
@@ -23,9 +287,9 @@ Rollback Management
 
 Added OS X Support
 	MySource Matrix RC2 introduces support for OS X using Mozilla based browsers.
-	
+
 	Mozilla, Mozilla Firefox, and Camino browsers on Mac OS X run version 1.3.1 of the Java Runtime Environment (JRE) by default rather than Java 1.4.x which is required by MySource Matrix. This is the case even if a Java 1.4 version is installed on the system. In order to run Java 1.4 on a Mozilla based browser you will require the Java Embedding Plugin (JEP). To install, download the plugin from http://javaplugin.sf.net/ and follow the instructions.
-	
+
 	The MySource Matrix WYSIWYG editor is not supported in Safari, so a Mozilla based browser must be used for content editing on OS X.
 
 	More information can be found at our forums: http://forums.matrix.squiz.net/index.php?showtopic=17
@@ -34,7 +298,7 @@ Added OS X Support
 Workflow Notification
 	Users and groups within workflow schemas can now be notified when an asset goes live after the workflow has been completed. To configure MySource Matrix to email these notifications, a manual change has to be made to a configuration file for existing systems. New systems will already have this change.
 	Edit the file MYSOURCE_ROOT/data/private/conf/messaging_service.inc and append asset.status.notify to the SQ_MS_SEND_MAIL_WHITE_LIST array. Make sure this setting is on a new line.
-	
+
 	For example:
 		For an array that looks like this:
 			define('SQ_MS_SEND_MAIL_WHITE_LIST', 'asset.locking.forced
@@ -42,7 +306,7 @@ Workflow Notification
 			hipo.*
 			asset.workflow.invitation
 			asset.workflow.announce');
-		
+
 		Change the array to look like this:
 			define('SQ_MS_SEND_MAIL_WHITE_LIST', 'asset.locking.forced
 			config.*
@@ -66,7 +330,7 @@ Custom CSS for Designs
 
 	If you set the tag_type option to 'import_tag', the following output will be generated:
 		@import url(/link/to/file.css);
-		
+
 	Note: CSS Customisations are still in development and should not be used on a production site.
 
 
@@ -140,7 +404,7 @@ Core
 * Fixed bug #74: layout asset has incorrect allow_access flag set, so it does not appear in the asset map add menu
 * Fixed bug #79: uninstalling asset types fails if the asset type is moved
 * Fixed bug #80: install generates errors when using PEAR:XML_Parser v1.1.0+
-* Fixed bug #81: formatting of time related metadata keywords do not match descriptions 
+* Fixed bug #81: formatting of time related metadata keywords do not match descriptions
 * Fixed bug #86: files end up without URLs when system root URLs configuration option contains trailing newline characters
 * Fixed bug #87: column and row options are the wrong way around in the insert table WYSIWYG popup
 * Fixed bug #92: min and max values for date fields are not correctly compared
