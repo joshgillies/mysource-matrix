@@ -1,5 +1,73 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.4.3
+
+Complete Changelog
+----------------------
+
+Core
+
+* Fixed bug #520: Tooltips stops editing contents in bodycopy table columns
+* Fixed bug #521: Tooltips stop editing in bodycopy if you hover too early
+* Fixed bug #598: Step Logic "at least" 0 condition(s) must be met in this step
+* Fixed bug #603: Table content disappears in table editor window when editing large tables
+* Fixed bug #619: Workflow reminder messages have broken links
+* Fixed bug #620: Thesaurus browser popup appears almost off the screen
+* Fixed bug #395: Problem declaring multiple vars in a single MySource AREA
+* Fixed bug #480: Client Side validation errors if Selection Limit rule is applied to Tickbox List
+* Fixed bug #526: Customisation cannot be created in some case
+* Fixed bug #537: Default Value Not Displaying in Chosen Date Format
+* Fixed bug #540: Customised design areas not always updated
+* Fixed bug #599: Metadata Date Incorrect When Keyword Chosen
+* Fixed bug #641: Unquoted statement in hipo_herder.inc
+* Fixed bug #645: Selecting to NOT cascade permissions causes lock cascades
+* Fixed bug #650: multiple declared vars type="boolean" error
+* Fixed bug #653: Simple edit has JavaScript error
+* Fixed bug #220: Acquiring lock on settings screen for a Backend user crashes browser
+* Fixed bug #273: Linked CSS Design Area - Changing css asset
+* Fixed bug #498: DIV properties content type should default to current type
+* Fixed bug #501: Login_Form design area input boxes not using classes
+* Fixed bug #534: Problems with declared_vars design area
+* Fixed bug #616: Relevance weights reset during step_03
+* Fixed bug #618: Heading styles shortcut keys not working in WYSIWYG
+* Fixed bug #635: Hipo Jobs with large number of assets fail when processed in one group
+* Fixed bug #636: Workflow schemas can be removed during workflow
+* Fixed bug #643: Option list attribute ignores typed values if you dont click "add"
+* Fixed bug #658: Standard Page Content Div won't release lock with parent
+* Fixed bug #663: Image File Asset - Front End Editing Layout Anomaly
+* Fixed bug #393: _path_ptrs declared twice in xml_array
+* Fixed bug #601: "URL not found" error should send a 404 HTTP response
+* Fixed bug #612: Asset in trash check has broken SQL
+
+CMS
+
+* Fixed bug #621: Comparison form rule breaks when apostrophe in response
+* Fixed bug #622: Adding questions on a fresh install gives attribute not found errors
+* Fixed bug #484: Custom form select list won't allow "0"
+* Fixed bug #580: Form container for "test fr" (Id: #1683) could not print frontend
+* Fixed bug #587: Custom form, switching html/plain text email breaks wysiwyg
+* Fixed bug #206: Custom Form - questions being shown on the asset map in reverse sort order
+* Fixed bug #661: What's new asset returns error with less than three assets
+* Fixed bug #672: "Divide by Zero" error if search page has "Assets per Page" set to zero
+
+Calendar
+
+* Fixed bug #627: Mouseover description popups for calendar events in wrong position
+* Fixed bug #631: Recurring Event Cancellation asset asks for name and wont create
+* Fixed bug #634: Multi-day events don't always show up on the first day
+* Fixed bug #637: Error when creating calendar event modification
+* Fixed bug #651: Yearly events listing is not in chronological order
+
+Search
+
+* Fixed bug #647: Search input onfocus/onblur
+* Fixed bug #662: Search within search returns no results
+
+Ecommerce
+
+* Fixed bug #664: Ecommerce forms cant be created
+
+
 
 VERSION 3.4.2
 
@@ -99,9 +167,9 @@ Featured Changes
 New Global Web Folders
 
 	Design linking changes introduced in 3.3.1 beta have meant have resulted in existing site designs requiring their own Site asset to be created to ensure all the images and files attached to the design still have a URL that can be used to access them. This required a new Site asset to be created and for administrators to move all the site designs under this Site.
-	
+
 	To make this process easier, there is a now a Design Folder asset that can be used to store site designs. The Design Folder sets a default URL when created, so any designs linked under it will be web accessible by default. URLs for the Design Folder can also be modified as required, like a normal site asset.
-	
+
 	In addition, two other web folders have been added. There is a User Folder in which to store users and user groups, and a Media Folder in which to store files and images. Like the Design Folder, all assets linked under these two folders will be web accessible by default.
 
 Default Web Paths for Users
@@ -152,10 +220,10 @@ Featured Changes
 New User Agent Condition For Show If Design Area
 
 	There is a new condition for Show_If design areas called User_Agent. The user agent condition allow you to conditionally display content based on the type of browser or operating system that a site visitor is viewing the site with. The condition makes use of the user agent string provided by the web browser. Note that the user agent string can be modified on some browsers and so is not guaranteed to always accurately reflect the browser or operating system the site visitor is using.
-	
+
 	One use of this new condition is to set the design for a site based on the browser type. The following example uses the new condition to set a low bandwidth design for Blackberry PDA users. It redirects Blackberry users, setting the design for the duration of their session.
-	
-	<MySource_AREA id_name="test_blackberry" design_area="show_if"> 
+
+	<MySource_AREA id_name="test_blackberry" design_area="show_if">
 	   <MySource_SET name="condition" value="user_agent" />
 	   <MySource_SET name="condition_user_agent" value="blackberry" />
 	   <MySource_THEN>
@@ -271,9 +339,9 @@ New Request Vars Design Area
 Menu Design Area Changes
 
 	The menu design area has a new option to customise linking within high accessibility menus. The new self_link option determines if the current asset should include a link to itself in the menu or if it should only display its name or short name. To use the self_link option, the new asset_name_linked and asset_short_name linked print vars must also be used.
-	
+
 	Consider the following example where the menu prints all pages but the current page has no <a> tags around it.
-	
+
 	<MySource_AREA id_name="menu" design_area="menu_normal">
 	  <MySource_SET name="self_links" value="false" />
 	  <MySource_ASSET>
