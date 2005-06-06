@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xsd,v 1.10 2005/01/20 13:24:24 brobertson Exp $
+* $Id: asset.xsd,v 1.11 2005/06/06 00:39:42 arailean Exp $
 *
 */
 -->
@@ -80,14 +80,9 @@
 		</xsd:sequence>
 	</xsd:complexType>
 
-	<xsd:complexType name="TEST">
-		<xsd:simpleContent>
-			<xsd:restriction base="xsd:string">
-				<!-- attribute definition - sex -->
-				<xsd:attribute name="sex" type="xsd:string" />
-			</xsd:restriction>
-		</xsd:simpleContent>
-	</xsd:complexType>
+	<xsd:simpleType name="dtype_flash_menu_path">
+		<xsd:restriction base="xsd:string" minOccurs="0" maxOccurs="1" />
+	</xsd:simpleType>
 
 	<xsd:complexType name="dtype_asset_info">
 		<xsd:sequence>
@@ -100,6 +95,7 @@
 			<xsd:element name="allowed_access"  type="dtype_allowed_access"/>
 			<xsd:element name="parent_type"     type="dtype_type_code"/>
 			<xsd:element name="requirements"    type="dtype_requirements"/>
+			<xsd:element name="flash_menu_path" type="dtype_flash_menu_path"/>
 		</xsd:sequence>
 	</xsd:complexType>
 
