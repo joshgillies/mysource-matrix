@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.322 2005/06/02 07:12:22 tbarrett Exp $
+* $Id: asset_manager.inc,v 1.323 2005/06/07 06:12:23 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.322 $
+* @version $Revision: 1.323 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -1234,21 +1234,28 @@ class Asset_Manager extends MySource_Object
 	{
 		if (empty($assetids)) return Array();
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$sql = 'SELECT v.assetid, COALESCE(v.custom_val, at.default_val) as val
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_val v JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_attr at ON at.attrid=v.attrid
-				WHERE ';
 
-		// if asset type is set to 'asset' then skip owning type code checks
+		$sql = 'SELECT attrid, default_val FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_attr WHERE name = '.$db->quote($attr_name);
 		if ($asset_type != 'asset') {
-			$sql .= 'at.owning_type_code='.$db->quote($asset_type).' AND ';
+			$sql .= ' AND owning_type_code='.$db->quote($asset_type);
 		}
-
-		$sql .= 'at.name='.$db->quote($attr_name).' AND v.assetid IN ('.implode(', ', $assetids).')';
-
 		$result = $db->getAssoc($sql);
 		assert_valid_db_result($result);
+		list($attrid, $default_val) = each($result);
+		
+		$sql = 'SELECT assetid, custom_val 
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_val 
+				WHERE attrid = '.$db->quote($attrid).' AND assetid IN ('.implode(', ', $assetids).')';
+		$custom_vals = $db->getAssoc($sql);
+		assert_valid_db_result($custom_vals);
 
-		return $result;
+		foreach ($assetids as $assetid) {
+			if (!isset($custom_vals[$assetid])) {
+				$custom_vals[$assetid] = $default_val;
+			}
+		}
+
+		return $custom_vals;
 
 	}//end getAttributeValuesByName()
 
