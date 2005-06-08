@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.323 2005/06/07 06:12:23 tbarrett Exp $
+* $Id: asset_manager.inc,v 1.324 2005/06/08 04:44:58 rhoward Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.323 $
+* @version $Revision: 1.324 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -1242,7 +1242,7 @@ class Asset_Manager extends MySource_Object
 		$result = $db->getAssoc($sql);
 		assert_valid_db_result($result);
 		list($attrid, $default_val) = each($result);
-		
+
 		$sql = 'SELECT assetid, custom_val 
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_val 
 				WHERE attrid = '.$db->quote($attrid).' AND assetid IN ('.implode(', ', $assetids).')';
@@ -4216,6 +4216,7 @@ class Asset_Manager extends MySource_Object
 	* Send the specified asset directly to the trash, where possible
 	*
 	* This deletes its links to all its current parents, and creates a link for it in the trash folder
+	* Warning: Will delete the last link to the asset if it is already in the trash
 	*
 	* @param int	$assetid	the asset to trash
 	*
