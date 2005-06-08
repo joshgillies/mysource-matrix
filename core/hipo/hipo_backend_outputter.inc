@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_backend_outputter.inc,v 1.15 2005/05/17 06:58:42 ndvries Exp $
+* $Id: hipo_backend_outputter.inc,v 1.16 2005/06/08 01:58:40 tbarrett Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_SYSTEM_ROOT.'/core/include/backend_outputter.inc';
 *    suite hipo jobs
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix
 */
 class Hipo_Backend_Outputter extends Backend_Outputter
@@ -102,38 +102,23 @@ class Hipo_Backend_Outputter extends Backend_Outputter
 					$this->_paintCssInclude($file);
 				}
 
-				$this->addJsInclude(sq_web_path('lib').'/js/translation.js');
-
-				// add translation stuff
-				list($lang, $country, $variant) = $GLOBALS['SQ_SYSTEM']->lm->getLocaleParts($GLOBALS['SQ_SYSTEM']->lm->getCurrentLocale());
-
-				if (file_exists(SQ_DATA_PATH.'/public/system/core/js_strings.'.$lang.'.js')) {
-					$this->addJsInclude(sq_web_path('data').'/system/core/js_strings.'.$lang.'.js');
+				// add JS translation files
+				foreach ($GLOBALS['SQ_SYSTEM']->lm->getJavascriptIncludes() as $js_include) {
+					$this->addJsInclude($js_include);
 				}
 
-				if (!empty($country)) {
-					if (file_exists(SQ_DATA_PATH.'/public/system/core/js_strings.'.$lang.'_'.$country.'.js')) {
-						$this->addJsInclude(sq_web_path('data').'/system/core/js_strings.'.$lang.'_'.$country.'.js');
-					}
-
-					if (!empty($variant)) {
-						if (file_exists(SQ_DATA_PATH.'/public/system/core/js_strings.'.$lang.'_'.$country.'@'.$variant.'.js')) {
-							$this->addJsInclude(sq_web_path('data').'/system/core/js_strings.'.$lang.'_'.$country.'@'.$variant.'.js');
-						}
-					}
-				}
-
-				// end add translation stuff, now add everything else
+				// add general Js includes
 				$this->addJsInclude(sq_web_path('lib').'/html_form/html_form.js');
 				$this->addJsInclude(sq_web_path('lib').'/js/general.js');
 				$this->addJsInclude(sq_web_path('lib').'/js/debug.js');
 				$this->addJsInclude(sq_web_path('lib').'/js/edit.js');
 
+				// print them all out
 				foreach ($this->_js_includes as $file) {
 					$this->_paintJsInclude($file);
 				}
 				?>
-				<script language="Javascript" type="text/javascript">
+				<script type="text/javascript">
 				<!--
 					var ON_LOAD_TIME_OUT = null;
 					function page_on_load() {
