@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.38 2005/06/02 04:42:00 ndvries Exp $
+* $Id: image.inc,v 1.39 2005/06/08 23:33:15 dmckee Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -786,6 +786,17 @@ class Image extends File
 		return $parents;
 
 	}//end getParents()
+
+
+	/**
+	* Prints the body of the asset
+	*
+	* @return void
+	* @access public
+	*/
+	function printBody() {
+		$this->printImageTag();
+	}
 
 
 }//end class
