@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.18 2005/06/06 04:02:39 lwright Exp $
+* $Id: lang_strings.xml,v 1.18.2.1 2005/06/08 01:49:21 rhoward Exp $
 *
 */
 
@@ -1263,7 +1263,7 @@
 	<string source="add_new_action_type">Add new Action type</string>
 	<string source="general">General</string>
 	<string source="protocol">Protocol</string>
-	<string source="select_asset">Select Asset"</string>
+	<string source="select_asset">Select Asset</string>
 	<string source="anchor_name">Anchor Name</string>
 	<string source="status_bar_text">Status Bar Text</string>
 	<string source="title">Title</string>
