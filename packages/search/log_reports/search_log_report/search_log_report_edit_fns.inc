@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_log_report_edit_fns.inc,v 1.5 2005/05/11 06:07:48 lwright Exp $
+* $Id: search_log_report_edit_fns.inc,v 1.6 2005/06/08 04:42:42 rhoward Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *	A report that lists searches by month, week, or day, and by assetid
 *
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -95,14 +95,14 @@ class Search_Log_Report_Edit_Fns extends Log_Report_Edit_Fns
 							if (date('Ymd', $meta['date']) > date('Ymd', $job_vars['previous_date'])) {
 								$rollover = true;
 							}
-							break;
+						break;
 
 						case 'monthly':
 							// if the month of the current line is greater than the month of previous line, rollover
 							if (date('Ym', $meta['date']) > date('Ym', $job_vars['previous_date'])) {
 								$rollover = true;
 							}
-							break;
+						break;
 
 						case 'weekly':
 						default:
@@ -111,7 +111,7 @@ class Search_Log_Report_Edit_Fns extends Log_Report_Edit_Fns
 							if (date('Ymd', $meta['date']) >= date('Ymd', $next_week_start_time)) {
 								$rollover = true;
 							}
-							break;
+						break;
 					}
 
 					if ($rollover) {
@@ -638,7 +638,7 @@ class Search_Log_Report_Edit_Fns extends Log_Report_Edit_Fns
 
 		$result = string_to_file($report_output, $generated_dir_path.'/'.$logname.'.html');
 		if ($result) {
-			$meta['report']->setAttrValue('generated_date', date("F j, Y, g:i a"));
+			$meta['report']->setAttrValue('generated_date', date('F j, Y, g:i a'));
 			$meta['report']->setAttrValue('generated_user', $GLOBALS['SQ_SYSTEM']->user->name.' (#'.$GLOBALS['SQ_SYSTEM']->user->id.')');
 
 			$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
