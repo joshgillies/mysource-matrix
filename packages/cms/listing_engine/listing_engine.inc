@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.38 2005/06/02 02:24:08 tbarrett Exp $
+* $Id: listing_engine.inc,v 1.39 2005/06/08 06:17:39 tbarrett Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
 *
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -497,7 +497,7 @@ class Listing_Engine extends Page
 						$sort_numeric = false;
 					}
 
-					$attr_info = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName($sort_by_attr, 'asset', $rem_assetids);
+					$attr_info = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName($sort_by_attr, $sort_by_type_code, $rem_assetids);
 					foreach ($rem_assetids as $assetid) {
 						if (isset($attr_info[$assetid])) {
 							$sort_assets[$assetid] = strtolower($attr_info[$assetid]);
