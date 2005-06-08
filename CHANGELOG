@@ -32,9 +32,8 @@ Paint Layouts
 
 Log Manager
 
-	A new log manager system asset has been created to help manage the rotation of system log files. Future plans for development will allow
-	users to use the log manager to configure custom log rotation schedules as well as view existing system logs from the administration interface.
-	More details of the new log management system will come shortly due to changes in search logging that are currently in development.
+	A new log manager system asset has been created to help manage the rotation of system log files. The Log Manager also allows
+	users to configure custom log rotation schedules as well as view existing system logs from the administration interface.
 
 Backend Translation
 
@@ -49,8 +48,6 @@ Triggers
 
 	A triggering system has been added to MySource Matrix to help users complete repetitive task and to enforce system wide business rules. For
 	example, you can configure a trigger in the system so that when Image assets are created under your site, they are automatically resized to 3 size variations, and added to the Media Folder.
-
-	Once installed, make sure you enable triggers on the Details screen of the Trigger Manager if you want to use them.
 
 Complete Changelog
 ----------------------
