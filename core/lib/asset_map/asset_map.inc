@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.163.2.1 2005/03/16 11:47:33 brobertson Exp $
+* $Id: asset_map.inc,v 1.163.2.2 2005/06/08 01:21:06 rhoward Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.163.2.1 $
+* @version $Revision: 1.163.2.2 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -118,6 +118,9 @@ class Asset_Map
 			case 'simple':
 				$classname = 'AssetMap';
 				$jarname = 'assetmap';
+				if (!defined('SQ_PAINTED_SIMPLE_ASSET_MAP')) {
+					define('SQ_PAINTED_SIMPLE_ASSET_MAP', true);
+				}
 			break;
 			case 'complex':
 				$classname = 'ComplexAssetMap';

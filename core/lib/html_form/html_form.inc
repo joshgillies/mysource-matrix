@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.68.2.4 2005/05/27 01:37:16 tbarrett Exp $
+* $Id: html_form.inc,v 1.68.2.5 2005/06/08 01:21:08 rhoward Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -693,7 +693,7 @@ function asset_finder($name, $assetid=0, $type_codes=Array(), $map_frame='sq_sid
 	hidden_field($name.'[url]', '');
 	text_box($safe_name.'_label', $label, 30, 0, false, 'readonly="readonly" class="sq-form-asset-finder" onfocus="this.tmp = this.value;" onblur="this.value = this.tmp;"');
 
-	if (SQ_IN_BACKEND) {
+	if (SQ_IN_BACKEND || SQ_PAINTED_SIMPLE_ASSET_MAP) {
 		normal_button($safe_name.'_change_btn', 'Change', $map_frame.'.asset_finder_change_btn_press(\''.$name.'\', \''.$safe_name.'\', \''.addslashes($type_codes).'\', '.$done_fn.');');
 	
 		if (in_Array('clear', $buttons)) {
