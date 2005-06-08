@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.89 2005/06/07 06:56:42 rhoward Exp $
+* $Id: html_form.inc,v 1.90 2005/06/08 02:02:57 rhoward Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.89 $
+* @version $Revision: 1.90 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -731,7 +731,7 @@ function asset_finder($name, $assetid=0, $type_codes=Array(), $map_frame='sq_sid
 	text_box($safe_name.'_label', $label, 30, 0, false, 'readonly="readonly" class="sq-form-asset-finder" onfocus="this.tmp = this.value;" onblur="this.value = this.tmp;"');
 
 	// only print the buttons if in the backend (where there's an asset map frame available)
-	if (SQ_IN_BACKEND || SQ_PAINTED_SIMPLE_ASSET_MAP) {
+	if (SQ_IN_BACKEND || defined('SQ_PAINTED_SIMPLE_ASSET_MAP')) {
 		?>
 			<script type="text/javascript">
 				<?php echo $map_frame; ?>.set_finder(<?php echo $finder_frame; ?>);
