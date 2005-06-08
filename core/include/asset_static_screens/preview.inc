@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: preview.inc,v 1.8 2005/05/11 06:05:11 lwright Exp $
+* $Id: preview.inc,v 1.9 2005/06/08 00:34:53 dmckee Exp $
 */
 
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -27,7 +27,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Preview Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix
 */
 
@@ -131,6 +131,7 @@ function paintPreview(&$owner, &$o, &$ei)
 							previewURL += '&';
 						}
 						previewURL += 'SQ_DESIGN_NAME=' + document.getElementById('preview_design').value;
+						alert(previewURL);
 					}
 					document.getElementById('sq_preview_frame').src = previewURL;
 					document.getElementById('sq_preview_new_window').href = previewURL;
@@ -159,7 +160,7 @@ function paintPreview(&$owner, &$o, &$ei)
 				}
 			$o->closeField();
 			$o->openField(translate('use_cache'));
-				check_box(translate('use_cache'));
+				check_box('use_cache');
 				echo translate('show_cached_asset');
 			$o->closeField();
 			$o->openRaw();
