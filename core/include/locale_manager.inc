@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: locale_manager.inc,v 1.10 2005/06/03 12:33:00 brobertson Exp $
+* $Id: locale_manager.inc,v 1.11 2005/06/08 01:57:28 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    number/date formats
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix
 */
 class Locale_Manager extends MySource_Object
@@ -100,11 +100,7 @@ class Locale_Manager extends MySource_Object
 	*/
 	function getCurrentLocale()
 	{
-		// no locale is current
-		if (count($this->locale_stack) <= 0) {
-			return false;
-		}
-
+		if (count($this->locale_stack) <= 0) return false; // no locale is current
 		return $this->locale_stack[0];
 
 	}//end getCurrentLocale()
@@ -121,7 +117,9 @@ class Locale_Manager extends MySource_Object
 	*/
 	function getLocaleName($locale_code=null)
 	{
-		if (is_null($locale_code)) $locale_code = $this->getCurrentLocale();
+		if (is_null($locale_code)) {
+			$locale_code = $this->getCurrentLocale();
+		}
 		require SQ_FUDGE_PATH.'/standards_lists/locales.inc';
 		return array_get_index($standards_lists_locales, $locale_code, 'Unknown');
 
@@ -159,11 +157,7 @@ class Locale_Manager extends MySource_Object
 	*/
 	function restoreCurrentLocale()
 	{
-		// stack would underflow if we tried to shift this out
-		if (count($this->locale_stack) <= 0) {
-			return false;
-		}
-
+		if (count($this->locale_stack) <= 0) return false; // stack would underflow if we tried to shift this out
 		array_shift($this->locale_stack);
 		return true;
 
@@ -233,7 +227,8 @@ class Locale_Manager extends MySource_Object
 	* @return Array
 	* @return public
 	*/
-	function getCumulativeLocaleParts($locale, $lang_sep='_', $var_sep='@') {
+	function getCumulativeLocaleParts($locale, $lang_sep='_', $var_sep='@')
+	{
 		$locale_parts = $this->getLocaleParts($locale);
 
 		$cum_locale_parts = Array();
@@ -635,6 +630,35 @@ class Locale_Manager extends MySource_Object
 		return $body;
 
 	}//end getInternalMessageBody()
+
+
+	/**
+	*
+	*
+	* @access public
+	* @return void
+	*/
+	function getJavascriptIncludes()
+	{
+		$res = Array(sq_web_path('lib').'/js/translation.js'); // we always need this one
+		list($lang, $country, $variant) = $this->getLocaleParts($GLOBALS['SQ_SYSTEM']->lm->getCurrentLocale());
+		if (file_exists(SQ_DATA_PATH.'/public/system/core/js_strings.'.$lang.'.js')) {
+			$res[] = sq_web_path('data').'/system/core/js_strings.'.$lang.'.js';
+		}
+		if (!empty($country)) {
+			if (file_exists(SQ_DATA_PATH.'/public/system/core/js_strings.'.$lang.'_'.$country.'.js')) {
+				$res[] = sq_web_path('data').'/system/core/js_strings.'.$lang.'_'.$country.'.js';
+			}
+
+			if (!empty($variant)) {
+				if (file_exists(SQ_DATA_PATH.'/public/system/core/js_strings.'.$lang.'_'.$country.'@'.$variant.'.js')) {
+					$res[] = sq_web_path('data').'/system/core/js_strings.'.$lang.'_'.$country.'@'.$variant.'.js';
+				}
+			}
+		}
+		return $res;
+
+	}//end getJavascriptIncludes()
 
 
 }//end class

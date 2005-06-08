@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.128 2005/05/20 09:13:14 gnoel Exp $
+* $Id: backend.inc,v 1.129 2005/06/08 01:57:28 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.128 $
+* @version $Revision: 1.129 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -691,36 +691,13 @@ class Backend extends MySource_Object
 	function _printSideNav()
 	{
 		$this->out->openRaw();
-
-		//add required js translation files
-			list($lang, $country, $variant) = $GLOBALS['SQ_SYSTEM']->lm->getLocaleParts($GLOBALS['SQ_SYSTEM']->lm->getCurrentLocale());
-
-			$include_list[] = sq_web_path('lib').'/js/general.js';
-			$include_list[] = sq_web_path('lib').'/js/translation.js';
-
-			if (file_exists(SQ_DATA_PATH.'/public/system/core/js_strings.'.$lang.'.js')) {
-				$include_list[] = sq_web_path('data').'/system/core/js_strings.'.$lang.'.js';
-			}
-
-			if (!empty($country)) {
-				if (file_exists(SQ_DATA_PATH.'/public/system/core/js_strings.'.$lang.'_'.$country.'.js')) {
-					$include_list[] = sq_web_path('data').'/system/core/js_strings.'.$lang.'_'.$country.'.js';
-				}
-
-				if (!empty($variant)) {
-					if (file_exists(SQ_DATA_PATH.'/public/system/core/js_strings.'.$lang.'_'.$country.'@'.$variant.'.js')) {
-						$include_list[] = sq_web_path('data').'/system/core/js_strings.'.$lang.'_'.$country.'@'.$variant.'.js';
-					}
-				}
-			}
-
-
-			foreach($include_list as $link) {
-				?><script type="text/javascript" src="<?php echo $link; ?>"></script><?php
-			}
-
+		$include_list = $GLOBALS['SQ_SYSTEM']->lm->getJavascriptIncludes();
+		$include_list[] = sq_web_path('lib').'/js/general.js';
+		foreach($include_list as $link) {
+			echo '<script type="text/javascript" src="'.$link.'"></script>'."\n";
+		}
 		?>
-		<style>
+		<style type="text/css">
 			body {
 				background:	#342939;
 				height: 100%;
