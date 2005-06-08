@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.160 2005/05/24 06:40:33 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.161 2005/06/08 01:59:33 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.160 $
+* @version $Revision: 1.161 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -1325,7 +1325,11 @@ class Page_Calendar extends Page_Asset_Listing
 	*/
 	function _getGeneralScript()
 	{
-		return '
+		$res = '<script type="text/javascript" src="'.sq_web_path('lib').'/js/general.js"></script>';
+		foreach ($GLOBALS['SQ_SYSTEM']->lm->getJavascriptIncludes() as $js_include) {
+			$res .= '<script type="text/javascript" src="'.$js_include.'"></script>';
+		}
+		$res .= '
 
 		<!-- GENERAL CALENDAR PAGE JAVASCRIPT, ALWAYS PRESENT -->
 			<script type="text/javascript">
@@ -1357,6 +1361,7 @@ class Page_Calendar extends Page_Asset_Listing
 		<!-- /GENERAL CALENDAR PAGE JAVASCRIPT, ALWAYS PRESENT -->
 
 		';
+		return $res;
 
 	}//end _getGeneralScript()
 
@@ -1406,9 +1411,8 @@ class Page_Calendar extends Page_Asset_Listing
 
 		<!-- DRAG AND DROP SUPPORT -->
 			<script type="text/javascript" src="<?php echo sq_web_path('data'); ?>/asset_types/page_calendar/js/drag_n_drop.js"></script>
-			<script type="text/javascript">
-			<!--
-
+			<script type="text/javascript"><!--
+			//<![CDATA[
 					destinationTableId = '<?php echo $table_id; ?>';
 					columnNames = new Array(<?php echo count($columns); ?>);
 					<?php
@@ -1444,8 +1448,21 @@ class Page_Calendar extends Page_Asset_Listing
 							return false;
 						}
 						toggleFlashing(movingElt.id);
-						var locationName = (new_loc != '') ? columnNames[String(new_loc)] + ' on ' : '';
-						if (!confirm(js_translate('confirm_move_event_to',  + locationName + new_date + ((new_time != 'allday') ? (' <?php echo strtolower(translate('at')); ?> ' + new_time) : '')))) {
+						if ((new_loc == '') ||{
+							if (new_time == 'allday') {
+								var msg = js_translate('confirm_move_event_to_date', new_date);
+							} else {
+								var msg = js_translate('confirm_move_event_to_datetime', new_date, new_time);
+							}
+						} else {
+							var location_name = columnNames[String(new_loc)];
+							if (new_time == 'allday') {
+								var msg = js_translate('confirm_move_event_to_place_date', location_name, new_date);
+							} else {
+								var msg = js_translate('confirm_move_event_to_place_datetime', location_name, new_date, new_time);
+							}
+						}
+						if (!confirm(msg)) {
 							toggleFlashing(movingElt.id);
 							return false;
 						} else {
@@ -1472,7 +1489,7 @@ class Page_Calendar extends Page_Asset_Listing
 					}
 
 					document.onselectstart=new Function ("return false")
-			//-->
+			//]]> -->
 			</script>
 
 			<form method="GET" id="dragForm" action="<?php echo $_SERVER['PHP_SELF']; ?>">
