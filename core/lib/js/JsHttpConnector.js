@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: JsHttpConnector.js,v 1.7 2005/05/16 06:36:32 lwright Exp $
+* $Id: JsHttpConnector.js,v 1.8 2005/06/08 02:05:45 tbarrett Exp $
 *
 */
 
@@ -44,7 +44,7 @@ function _processJsHttpStateChange(id)
 				}
 			 }
 		} catch (e) {
-			setTimeout('_processJsHttpStateChange("'+id+'")', 400);
+			//setTimeout('_processJsHttpStateChange("'+id+'")', 400);
 		}
 	}
 
