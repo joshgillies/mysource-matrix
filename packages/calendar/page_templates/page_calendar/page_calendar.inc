@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.161 2005/06/08 01:59:33 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.162 2005/06/09 22:47:42 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.161 $
+* @version $Revision: 1.162 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -1448,7 +1448,7 @@ class Page_Calendar extends Page_Asset_Listing
 							return false;
 						}
 						toggleFlashing(movingElt.id);
-						if ((new_loc == '') ||{
+						if (new_loc == '') {
 							if (new_time == 'allday') {
 								var msg = js_translate('confirm_move_event_to_date', new_date);
 							} else {
