@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.16 2005/01/20 13:10:34 brobertson Exp $
+* $Id: wysiwyg.inc,v 1.17 2005/06/09 02:41:31 dmckee Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/wysiwyg/wysiwyg.inc';
 *    <wysiwyg style="div" width="100%" height="300" />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -196,7 +196,7 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 		if (!(SQ_IN_BACKEND || SQ_IN_LIMBO)) echo '<script type="text/javascript" src="'.sq_web_path('lib').'/js/edit.js"></script>';
 
 		?>
-		<div style="border: 1px dashed #C0C0C0;">
+		<div style="border: 1px dashed #C0C0C0;" id="<?php echo $prefix.'_switch_option_div'; ?>">
 			<div style="width: 16px; height: 16px; background: url(<?php echo sq_web_path('lib')?>/web/images/icons/edit_mode.png);background: expression('none');filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='<?php echo sq_web_path('lib')?>/web/images/icons/edit_mode.png', sizingMethod='scale'); font-size:10px; cursor:pointer;"
 				onclick="switchEditingMode('<?php echo $prefix; ?>_contents_div','<?php echo $prefix; ?>_wysiwyg_div', editor_<?php echo $prefix; ?>);"></div>
 		</div>
