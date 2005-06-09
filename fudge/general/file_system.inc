@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_system.inc,v 1.28 2004/12/03 15:43:04 brobertson Exp $
+* $Id: file_system.inc,v 1.28.2.1 2005/06/09 01:25:32 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -122,6 +122,9 @@ function string_to_file($string, $filename)
 	// if the file being renamed to exists, have to delete it because winnt doesn't overwrite on
 	// rename
 	if ((strtolower(PHP_OS) == 'winnt') || (strtolower(PHP_OS) == 'win32')) {
+		// make sure we're using the latest info
+		clearstatcache();
+
 		if (file_exists($filename)) {
 			unlink($filename);
 		}
