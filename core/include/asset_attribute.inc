@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_attribute.inc,v 1.36 2005/06/02 07:10:48 ndvries Exp $
+* $Id: asset_attribute.inc,v 1.37 2005/06/09 00:55:37 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix
 */
 class Asset_Attribute extends MySource_Object
@@ -317,7 +317,7 @@ class Asset_Attribute extends MySource_Object
 			$this->_edit_params[$field] = $value;
 			return true;
 		} else {
-			trigger_localised_error('SYS0258', $field, $this->type());
+			trigger_localised_error('SYS0258', E_USER_NOTICE, $field, $this->type());
 			return false;
 		}
 
