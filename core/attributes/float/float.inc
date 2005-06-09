@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: float.inc,v 1.20 2005/05/16 06:36:31 lwright Exp $
+* $Id: float.inc,v 1.21 2005/06/09 00:56:07 tbarrett Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *    <float width="40" />
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -53,6 +53,8 @@ class Asset_Attribute_Float extends Asset_Attribute
 	function Asset_Attribute_Float($attributeid=0, $value=null)
 	{
 		$this->Asset_Attribute($attributeid, (float) $value, Array('decimal_places' => '2'));
+		// set default edit parameters
+		$this->_edit_params['width'] = 5;
 
 	}//end constructor
 
