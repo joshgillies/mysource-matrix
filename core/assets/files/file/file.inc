@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.75.2.3 2005/06/01 05:59:43 ndvries Exp $
+* $Id: file.inc,v 1.75.2.4 2005/06/09 06:47:12 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -495,7 +495,7 @@ class File extends Asset
 				foreach ($root_urls as $tmp_url) {
 					if (substr($data['url'], 0, strlen($tmp_url)) == $tmp_url) {
 						$root_url = $tmp_url;
-						continue;
+						break;
 					}
 				}
 
