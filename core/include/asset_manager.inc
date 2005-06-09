@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.324 2005/06/08 04:44:58 rhoward Exp $
+* $Id: asset_manager.inc,v 1.325 2005/06/09 23:36:51 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.324 $
+* @version $Revision: 1.325 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -1235,27 +1235,35 @@ class Asset_Manager extends MySource_Object
 		if (empty($assetids)) return Array();
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$sql = 'SELECT attrid, default_val FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_attr WHERE name = '.$db->quote($attr_name);
+		// First get the default values
+		$sql = 'SELECT a.assetid, at.default_val 
+				FROM sq_ast a, sq_ast_attr at 
+				WHERE a.type_code = at.type_code 
+					AND at.name = '.$db->quote($attr_name).'
+					AND a.assetid IN ('.implode(', ', $assetids).')';
 		if ($asset_type != 'asset') {
 			$sql .= ' AND owning_type_code='.$db->quote($asset_type);
 		}
-		$result = $db->getAssoc($sql);
-		assert_valid_db_result($result);
-		list($attrid, $default_val) = each($result);
+		$res = $db->getAssoc($sql);
+		assert_valid_db_result($res);
 
+		// Now get customised values where applicable
+		$sub_sql = 'SELECT attrid FROM sq_ast_attr WHERE name = '.$db->quote($attr_name);
+		if ($asset_type != 'asset') {
+			$sub_sql .= ' AND owning_type_code = '.$db->quote($asset_type);
+		}
 		$sql = 'SELECT assetid, custom_val 
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_val 
-				WHERE attrid = '.$db->quote($attrid).' AND assetid IN ('.implode(', ', $assetids).')';
+				WHERE attrid IN ('.$sub_sql.')
+					AND assetid IN ('.implode(', ', $assetids).')';
 		$custom_vals = $db->getAssoc($sql);
 		assert_valid_db_result($custom_vals);
 
-		foreach ($assetids as $assetid) {
-			if (!isset($custom_vals[$assetid])) {
-				$custom_vals[$assetid] = $default_val;
-			}
+		// Combine the two
+		foreach ($custom_vals as $assetid => $val) {
+			$res[$assetid] = $val;
 		}
-
-		return $custom_vals;
+		return $res;
 
 	}//end getAttributeValuesByName()
 
