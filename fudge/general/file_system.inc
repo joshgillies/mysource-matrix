@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_system.inc,v 1.32 2005/04/28 00:51:28 ndvries Exp $
+* $Id: file_system.inc,v 1.32.2.1 2005/06/09 01:25:45 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *     Generic functions for the file system
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.32.2.1 $
 * @package Fudge
 * @subpackage General
 */
@@ -122,6 +122,9 @@ function string_to_file($string, $filename)
 	// if the file being renamed to exists, have to delete it because winnt doesn't overwrite on
 	// rename
 	if ((strtolower(PHP_OS) == 'winnt') || (strtolower(PHP_OS) == 'win32')) {
+		// make sure we're using the latest info
+		clearstatcache();
+
 		if (file_exists($filename)) {
 			unlink($filename);
 		}
