@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.97 2005/06/02 04:41:54 ndvries Exp $
+* $Id: file.inc,v 1.97.2.1 2005/06/09 06:52:15 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.97 $
+* @version $Revision: 1.97.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -571,7 +571,7 @@ class File extends Asset
 				foreach ($root_urls as $tmp_url) {
 					if (substr($data['url'], 0, strlen($tmp_url)) == $tmp_url) {
 						$root_url = $tmp_url;
-						continue;
+						break;
 					}
 				}
 
