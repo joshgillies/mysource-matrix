@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.21 2005/05/16 04:47:06 rhoward Exp $
+* $Id: page_remote_content.inc,v 1.21.2.1 2005/06/09 00:26:41 arailean Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once 'HTTP/Client/CookieManager.php';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.21.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -215,17 +215,17 @@ class Page_Remote_Content extends Page
 		// otherwise the page is good as it is, no scanning necessary
 		if (isset($start_tag) || isset($end_tag)) {
 			if ($this->attr('include_tags')) {
-				$pattern = "/($start_tag.*?$end_tag)/Us";
+				$pattern = "/($start_tag(?:.*)?$end_tag)/Us";
 			} else {
-				$pattern = "/$start_tag(.*?)$end_tag/Us";
+				$pattern = "/$start_tag(.*)?$end_tag/Us";
 			}
 
 			// note that we can find more than one section identified by the tags
 			// all the sections joined together
 			preg_match_all($pattern, $response_body, $matches);
-			if (count($matches[0])) {
+			if (count($matches[1])) {
 				$response_body = '';
-				foreach ($matches[0] as $match) {
+				foreach ($matches[1] as $match) {
 					$response_body .= $match;
 				}
 			}
