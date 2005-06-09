@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section_edit_fns.inc,v 1.30.2.3 2005/05/02 02:44:58 gsherwood Exp $
+* $Id: form_section_edit_fns.inc,v 1.30.2.4 2005/06/09 05:58:32 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.30.2.3 $
+* @version $Revision: 1.30.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -411,12 +411,12 @@ class Form_Section_Edit_Fns extends Bridge_Edit_Fns
 			$output .= ($asset->attr('question_col_width')) ? ' width="'.$asset->attr('question_col_width').'">' : '>';
 			$output .= $q->getVal('title');
 			if ($q->getVal('note')) {
-				$output .= '<br><span style="font-size:'.($asset->attr('note_size') ? $asset->attr('note_size') : '80%').'">'.$q->getVal('note').'</span>';
+				$output .= '<br /><span style="font-size: <'.'?php echo $form_asset->attr("note_size") ?'.'>">'.$q->getVal('note').'</span>';
 			}
 			$output .= '</td><td';
 			$output .= ($asset->attr('answer_col_width')) ? ' width="'.$asset->attr('answer_col_width').'">' : '>';
-			$output .= '<'.'?php $q =$GLOBALS["SQ_SYSTEM"]->am->getAsset("'.$assetid.'");
-			$answer = ""; echo $q->getAnswer(true,$answer); ?'.'>'."\n";
+			$output .= '<'.'?php $q =& $GLOBALS["SQ_SYSTEM"]->am->getAsset("'.$assetid.'");
+			echo $q->getHtmlField(); ?'.'>'."\n";
 			$output .= '</td></tr>';
 		}
 		$output .= '</table>';
