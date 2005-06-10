@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_list.inc,v 1.30.2.3 2005/05/02 02:44:57 gsherwood Exp $
+* $Id: form_question_type_tickbox_list.inc,v 1.30.2.4 2005/06/10 04:04:19 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.30.2.3 $
+* @version $Revision: 1.30.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -231,6 +231,9 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 	*/
 	function getSummary($answer)
 	{
+		if (is_null($answer)) {
+			$answer = $this->getValue();
+		}
 		if (is_array($answer)) {
 			$ans_str = Array();
 			foreach ($answer as $a) {
@@ -253,18 +256,16 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 	*/
 	function isSelected($value)
 	{
-		if (isset($this->active_submission)) {
-			$values = $this->active_submission->getAnswer($this->id);
-			if (isset($values)) {
-				if (is_array($values)) {
-					return in_array($value, $values);
-				} else {
-					return ($value == $values && !empty($values));
-				}
+		$values = $this->getValue();
+		if (!is_null($values)) {
+			if (is_array($values)) {
+				return in_array($value, $values);
+			} else {
+				return ($value == $values && !empty($values));
 			}
 		} else {
 			$defaults = $this->attr('default');
-			if (in_array($value, $defaults)) return true;
+			return (in_array($value, $defaults));
 		}
 
 		return false;

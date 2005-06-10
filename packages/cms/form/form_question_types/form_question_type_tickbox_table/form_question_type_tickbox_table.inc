@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_table.inc,v 1.6.2.2 2005/05/02 02:44:58 gsherwood Exp $
+* $Id: form_question_type_tickbox_table.inc,v 1.6.2.3 2005/06/10 04:04:19 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.6.2.2 $
+* @version $Revision: 1.6.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -319,19 +319,14 @@ class Form_Question_Type_Tickbox_Table extends Form_Question
 	*/
 	function isSelected($option_code)
 	{
-		$result = false;
+		$value = $this->getValue();
+		if (empty($value)) return false;
 
-		$submission = $this->active_submission->isProcessed($this->id) ? $this->active_submission->getAnswer($this->id) : false;
+		// decipher the option id
+		list($line,$option) = explode('_', $option_code);
 
-		if ($submission) {
-			// decipher the option id
-			list($line,$option) = explode('_', $option_code);
-
-			// check if the option was submitted
-			$result = !empty($submission[$line][$option]);
-		}
-
-		return $result;
+		// check if the option was submitted
+		return !empty($value[$line][$option]);
 
 	}//end isSelected()
 

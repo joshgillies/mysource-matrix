@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_select.inc,v 1.26.2.3 2005/05/02 02:44:57 gsherwood Exp $
+* $Id: form_question_type_select.inc,v 1.26.2.4 2005/06/10 04:04:19 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.26.2.3 $
+* @version $Revision: 1.26.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -184,18 +184,7 @@ class Form_Question_Type_Select extends Form_Question
 	*/
 	function isSelected($option)
 	{
-		if (isset($this->active_submission)) {
-			$submission = $this->active_submission->getAnswer($this->id);
-			if (isset($submission)) {
-				if (is_array($submission)) {
-					return in_array($option,$submission);
-				} else {
-					return ($option == $submission);
-				}
-			}
-		}
-
-		return false;
+		return in_array($option, $this->getValue());
 
 	}//end isSelected()
 
