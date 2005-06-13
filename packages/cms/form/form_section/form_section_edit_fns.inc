@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section_edit_fns.inc,v 1.30.2.4 2005/06/09 05:58:32 lwright Exp $
+* $Id: form_section_edit_fns.inc,v 1.30.2.5 2005/06/13 23:22:35 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.30.2.4 $
+* @version $Revision: 1.30.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -415,8 +415,8 @@ class Form_Section_Edit_Fns extends Bridge_Edit_Fns
 			}
 			$output .= '</td><td';
 			$output .= ($asset->attr('answer_col_width')) ? ' width="'.$asset->attr('answer_col_width').'">' : '>';
-			$output .= '<'.'?php $q =& $GLOBALS["SQ_SYSTEM"]->am->getAsset("'.$assetid.'");
-			echo $q->getHtmlField(); ?'.'>'."\n";
+			$output .= '<'.'?php $q =$GLOBALS["SQ_SYSTEM"]->am->getAsset("'.$assetid.'");
+			$answer = ""; echo $q->getAnswer(true,$answer); ?'.'>'."\n";
 			$output .= '</td></tr>';
 		}
 		$output .= '</table>';
