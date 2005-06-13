@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.99 2005/06/13 23:36:03 lwright Exp $
+* $Id: file.inc,v 1.100 2005/06/13 23:38:23 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.99 $
+* @version $Revision: 1.100 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -557,7 +557,6 @@ class File extends Asset
 		// and take the system root urls that are closest to these site urls and tack on __data/... bit
 		$save_urls = Array();
 		$root_urls = explode("\n", trim(SQ_CONF_SYSTEM_ROOT_URLS));
-		minibam($root_urls,'Root URLS');
 
 		$site_parents = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'site', false);
 		foreach ($site_parents as $assetid => $type_code) {
