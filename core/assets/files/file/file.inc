@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.75.2.4 2005/06/09 06:47:12 lwright Exp $
+* $Id: file.inc,v 1.75.2.5 2005/06/13 23:37:24 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -490,22 +490,27 @@ class File extends Asset
 
 			foreach ($urls as $urlid => $data) {
 
-				$root_url = '';
+				$matching_roots = Array();
 
 				foreach ($root_urls as $tmp_url) {
 					if (substr($data['url'], 0, strlen($tmp_url)) == $tmp_url) {
-						$root_url = $tmp_url;
-						break;
+						$matching_roots[] = $tmp_url;
 					}
 				}
 
-				if (empty($root_url)) continue;
+				if (empty($matching_roots)) continue;
 
-				if (isset($save_urls[$root_url])) {
-					if (empty($save_urls[$root_url]['http']))  $save_urls[$root_url]['http']  = $data['http'];
-					if (empty($save_urls[$root_url]['https'])) $save_urls[$root_url]['https'] = $data['https'];
-				} else {
-					$save_urls[$root_url] = Array('http' => $data['http'], 'https' => $data['https']);
+				foreach($matching_roots as $root_url) {
+					if (isset($save_urls[$root_url])) {
+						if (empty($save_urls[$root_url]['http'])) {
+							$save_urls[$root_url]['http']  = $data['http'];
+						}
+						if (empty($save_urls[$root_url]['https'])) {
+							$save_urls[$root_url]['https'] = $data['https'];
+						}
+					} else {
+						$save_urls[$root_url] = Array('http' => $data['http'], 'https' => $data['https']);
+					}
 				}
 
 			}// end foreach
