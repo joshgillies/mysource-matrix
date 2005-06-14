@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.325 2005/06/09 23:36:51 tbarrett Exp $
+* $Id: asset_manager.inc,v 1.326 2005/06/14 02:21:08 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.325 $
+* @version $Revision: 1.326 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -1963,7 +1963,7 @@ class Asset_Manager extends MySource_Object
 	* @return array
 	* @access public
 	*/
-	function getLink($assetid, $link_type, $type_code='', $strict_type_code=true, $value=null, $side_of_link='major', $exclusive=null)
+	function getLink($assetid, $link_type=null, $type_code='', $strict_type_code=true, $value=null, $side_of_link='major', $exclusive=null)
 	{
 		assert_valid_assetid($assetid);
 		assert_false($side_of_link != 'major' && $side_of_link != 'minor', 'Unknown Side of Link "'.$side_of_link.'"');
@@ -1976,8 +1976,12 @@ class Asset_Manager extends MySource_Object
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
 						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON l.'.$other_side.'id  = a.assetid
 				';
-		$where = 'l.'.$side_of_link.'id = '.$db->quote($assetid).'
+		$where = 'l.'.$side_of_link.'id = '.$db->quote($assetid);
+		
+		if (!is_null($link_type)) {
+			$where .= '
 				  AND l.link_type = '.$db->quote($link_type);
+		}
 
 		if (!is_null($exclusive)) {
 		  $where .= ' AND l.is_exclusive = '.$db->quote(($exclusive) ? '1' : '0');
