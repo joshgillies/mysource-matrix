@@ -18,7 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: login.inc,v 1.17 2005/06/14 01:09:32 cboudjnah Exp $
+*
+* $Id: login.inc,v 1.18 2005/06/14 01:16:21 cboudjnah Exp $
 *
 */
 
@@ -29,7 +30,7 @@
 * Purpose
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix
 */
 ?>
