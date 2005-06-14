@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.1 2005/05/11 06:07:30 lwright Exp $
+* $Id: lang_strings.xml,v 1.1.2.1 2005/06/14 06:52:58 lwright Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -19,7 +19,9 @@
 -->
 <strings>
 <string source="cms_form_view_submission_range">View submissions from %1$s to %2$s</string>
-<string source="cms_form_submissions_during_period">There are <![CDATA[<b>%s</b>]]> submission(s) during the time period specified above - most recent are displayed first</string>
+<string source="cms_form_view_submission_per_page">and display %s submissions at a time</string>
+<string source="cms_form_no_submissions_during_period">There are no submissions during the time period specified above</string>
+<string source="cms_form_submissions_during_period">Displaying submissions <![CDATA[<b>%1$s</b>]]> to <![CDATA[<b>%2$s</b>]]>, out of <![CDATA[<b>%3$s</b>]]> total submissions</string>
 <string source="cms_form_no_logged_in_user">No logged in user</string>
 <string source="cms_form_download_csv">Comma Separated Values (CSV)</string>
 <string source="cms_form_download_csv_nhr">Comma Separated Values (CSV) - No Header Row</string>
@@ -36,5 +38,13 @@
 <string source="cms_form_unlock_to_select_se_rule">Unlock the form to select an active Selective Email rule</string>
 <string source="cms_form_select_to_edit_se_rule">Select an active Selective Email rule to edit it</string>
 <string source="cms_form_se_rule_empty">This Selective Email rule is empty</string>
+<string source="cms_form_se_rule_deleted_questions"><![CDATA[<b>WARNING:</b>]]> This Selective Email rule is invalid because it refers to deleted questions</string>
+<string source="cms_form_deleted_question_cannot_edit">The question that this rule part applied to (Id: #%s) has been deleted; you cannot edit this rule part. It is recommended that you delete it</string>
 <string source="cms_form_match_email_line">When %1$s rule parts are matched,<![CDATA[<br/>]]>send a %2$s to %3$s</string>
+<string source="cms_form_submissions_go_to_next">Go to the next page of submissions</string>
+<string source="cms_form_submissions_go_to_previous">Go to the previous page of submissions</string>
+<string source="cms_form_submissions_go_to_last">Go to the last page of submissions</string>
+<string source="cms_form_submissions_go_to_first">Go to the first page of submissions</string>
+<string source="cms_form_cannot_go_further_back">This is the first page; you cannot go any further back</string>
+<string source="cms_form_cannot_go_further_forward">This is the last page; you cannot go any further forward</string>
 </strings>
