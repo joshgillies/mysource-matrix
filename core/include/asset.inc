@@ -19,7 +19,8 @@
 * +--------------------------------------------------------------------+
 *
 *
-* $Id: asset.inc,v 1.401 2005/06/14 00:55:55 cboudjnah Exp $
+*
+* $Id: asset.inc,v 1.402 2005/06/14 00:57:16 cboudjnah Exp $
 *
 */
 
@@ -31,7 +32,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.401 $
+* @version $Revision: 1.402 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
