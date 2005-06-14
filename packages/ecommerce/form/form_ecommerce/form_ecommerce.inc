@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce.inc,v 1.9.2.5 2005/06/01 04:35:44 arailean Exp $
+* $Id: form_ecommerce.inc,v 1.9.2.6 2005/06/14 07:08:51 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.9.2.5 $
+* @version $Revision: 1.9.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -173,6 +173,9 @@ class Form_Ecommerce extends Form_Email
 					// e-commerce transaction: e-mailing, logging and display
 					$this->_processReceipt();
 
+					// re-populate the active submissions
+					$this->repopulate();
+					$this->emailAndLog();
 					$this->finishForm();
 					return true;
 
@@ -187,11 +190,9 @@ class Form_Ecommerce extends Form_Email
 					if (!$this->processForm()) {
 						break; // re-display the form
 					} else {
-
 						// this function handles the business logic for preparing the order,
 						// displaying the confirmation and calling the gateway
 						$this->_processOrder();
-
 						$this->finishForm();
 						return true;
 					}
@@ -241,8 +242,6 @@ class Form_Ecommerce extends Form_Email
 		$this->_deleteOrderFile($response['REFERENCE']);
 
 		$this->active_submission = $order['submission'];
-
-		$this->emailAndLog();
 
 	}//end _processReceipt()
 
