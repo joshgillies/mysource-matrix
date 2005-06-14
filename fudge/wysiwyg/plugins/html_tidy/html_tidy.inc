@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_tidy.inc,v 1.30 2004/11/15 03:49:28 dbaranovskiy Exp $
+* $Id: html_tidy.inc,v 1.30.2.1 2005/06/14 23:01:31 dmckee Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -126,7 +126,7 @@ class HTML_Tidy extends Wysiwyg_Plugin {
 			// is_executable doesn't exist on windows pre 5.0.0
 			if (function_exists('is_executable')) {
 				if (is_executable($path_to_tidy)) {
-					$command = "/bin/echo ".escapeshellarg($html)." | $path_to_tidy -iq --show-body-only y --show-errors 0 --show-warnings 0 --wrap 0 -asxml --word-2000 1 --force-output 1";
+					$command = "/bin/echo ".escapeshellarg($html)." | $path_to_tidy -iq --show-body-only y --show-errors 0 --show-warnings 0 --wrap 0 -asxml --quote-marks 1 --word-2000 1 --force-output 1";
 
 					// add any inline tags that other plugins may use (possibly for encapsulating plugin specific data)
 					// so HTMLTidy doesnt strip them out
