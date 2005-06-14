@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.50 2005/06/14 02:36:07 tbarrett Exp $
+* $Id: calendar_event.inc,v 1.51 2005/06/14 05:39:58 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once dirname(__FILE__).'/../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.50 $
+* @version $Revision: 1.51 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -194,7 +194,7 @@ class Calendar_Event extends Asset
 		if (empty($total_time)) $total_time = 'N/A';
 
 		$keywords['event_duration'] = Array('value'=>$total_time);
-		$keywords['edit_link'] = Array('value'=>($this->writeAccess('') ? '<a href="'.replace_query_string_vars(Array('SQ_CALENDAR_VIEW'=>'edit', 'SQ_CALENDAR_EVENT_ID'=>$this->id)).'">'.translate('edit_link_text').'</a>' : ''));
+		$keywords['edit_link'] = Array('value'=>($this->writeAccess('') ? '<a href="'.replace_query_string_vars(Array('SQ_CALENDAR_VIEW'=>'edit', 'SQ_CALENDAR_EVENT_ID'=>$this->id)).'">'.translate('cal_event_edit_link_text').'</a>' : ''));
 		$keywords['delete_link'] = Array('value'=>$this->_getDeleteLink());
 
 		if ($descriptions) {
