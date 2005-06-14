@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.63 2005/05/27 00:14:04 amiller Exp $
+* $Id: calendar_event_recurring.inc,v 1.64 2005/06/14 02:36:07 tbarrett Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.63 $
+* @version $Revision: 1.64 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -749,6 +749,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 	function getAssetKeywords($descriptions=false)
 	{
 		$keywords = parent::getAssetKeywords($descriptions);
+		$keywords['edit_link']['value'] = str_replace(translate('cal_event_edit_link_text'), translate('cal_event_recurring_edit_link_text'), $keywords['edit_link']['value']);
 		$keywords['event_frequency'] = Array('value'=> $this->getFriendlyFrequency());
 		$keywords['event_ical_freqency'] = Array('value' => $this->getiCalFrequency());
 		$keywords['event_ical_exceptions'] = Array('value' => $this->getiCalExceptions());

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_cancellation.inc,v 1.21 2005/05/18 05:14:00 tbarrett Exp $
+* $Id: calendar_event_cancellation.inc,v 1.22 2005/06/14 02:36:07 tbarrett Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once  dirname(__FILE__).'/../calendar_event_recurring/calendar_event_rec
 * which replaces the cancelled instance may be linked to it.
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -162,11 +162,15 @@ class Calendar_Event_Cancellation extends Calendar_Event
 			trigger_localised_error('CAL0056', E_USER_WARNING);
 			return false;
 		}
-		$GLOBALS['SQ_SYSTEM']->am->includeAsset('calendar_event_single');
 		if ($existing_link = $this->getReplacementLink()) {
 			$replacement_event = &$GLOBALS['SQ_SYSTEM']->am->getAsset($existing_link['minorid']);
 		} else {
-			$replacement_event = new Calendar_Event_Single();
+			// create a replacement event 
+			$parent_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, null, '', true, null, 'minor');
+			$parent_info = reset($GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($parent_link['majorid'])));
+			$new_type_code = str_replace('recurring', 'single', $parent_info['type_code']);
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset($new_type_code);
+			$replacement_event = new $new_type_code();
 		}
 		$replacement_event->setAttrValue('start_date', $start_date);
 		$replacement_event->setAttrValue('end_date', $end_date);

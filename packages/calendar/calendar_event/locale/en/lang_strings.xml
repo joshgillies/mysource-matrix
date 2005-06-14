@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.1 2005/05/11 06:07:20 lwright Exp $
+* $Id: lang_strings.xml,v 1.2 2005/06/14 02:36:07 tbarrett Exp $
 *
 *
 * Calendar Package Localised Strings File
@@ -20,5 +20,6 @@
 
 <strings>
 <string source="cal_event_occurs_on">Occurs on</string>
+<string source="cal_event_edit_link_text">Edit</string>
 </strings>
 

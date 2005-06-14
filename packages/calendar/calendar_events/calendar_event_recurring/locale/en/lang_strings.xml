@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.3 2005/05/26 03:30:36 amiller Exp $
+* $Id: lang_strings.xml,v 1.4 2005/06/14 02:36:07 tbarrett Exp $
 *
 *
 * Calendar Package Localised Strings File
@@ -56,7 +56,8 @@
 <string source="cal_event_modify_link_default">(modify link)</string>
 <string source="cal_event_cancel_this_instance">Cancel this instance</string>
 <string source="cal_event_cancel_this_instance_confirm">Are you sure you want to cancel this instance?</string>
-<string source="cal_event_modify_this_instance">Modify this instance</string>
+<string source="cal_event_modify_this_instance">Edit this instance</string>
+<string source="cal_event_recurring_edit_link_text">Edit Recurring Event</string>
 <string source="cal_event_add_cancellation">Add Cancellation</string>
 <string source="cal_event_cancel_rep_invite_message_1">The recurring event <![CDATA[<i>%1$s</i>]]> has been cancelled on %2$s only.</string>
 <string source="cal_event_cancel_rep_invite_message_2">Would you like to create a replacement for the cancelled event?</string>

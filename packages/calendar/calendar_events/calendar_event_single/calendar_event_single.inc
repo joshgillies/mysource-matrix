@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_single.inc,v 1.13 2005/05/11 06:07:21 lwright Exp $
+* $Id: calendar_event_single.inc,v 1.14 2005/06/14 02:36:07 tbarrett Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once  dirname(__FILE__).'/../../calendar_event/calendar_event.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -58,21 +58,17 @@ class Calendar_Event_Single extends Calendar_Event
 	*/
 	function _preCreateCheck(&$link)
 	{
-		if (!parent::_preCreateCheck($link)) return false;
-
-		$parent = &$link['asset'];
-		if ($parent->type() == 'calendar_event_cancellation') {
-			if (!$this->attr('name')) {
-				$this->setAttrValue('name', str_replace('Cancelled', 'Rescheduled from ', $parent->attr('name')));
+		if (is_a($link['asset'], 'calendar_event_cancellation')) {
+			$replacee_link = $GLOBALS['SQ_SYSTEM']->am->getLink($link['asset']->id, null, '', true, null, 'minor');
+			$replacee =& $GLOBALS['SQ_SYSTEM']->am->getAsset($replacee_link['majorid']);
+			if (substr($this->attr('start_date'), 0, 10) == substr($link['asset']->attr('start_date'), 0, 10)) {
+				$this->setAttrValue('name', 'Modified: '.$replacee->name);
 			} else {
-				$good_words = array_intersect(explode(' ', strtolower($this->attr('name'))), Array('changed', 'moved', 'rescheduled'));
-				if (empty($good_words)) {
-					$this->setAttrValue('name', 'Rescheduled: '.$this->attr('name'));
-				}
+				$this->setAttrValue('name', 'Rescheduled from '.date('jS M Y', iso8601_ts($link['asset']->attr('start_date'))).': '.$replacee->name);
 			}
 		}
 
-		return true;
+		return parent::_preCreateCheck($link);
 
 	}//end _preCreateCheck()
 
@@ -89,7 +85,7 @@ class Calendar_Event_Single extends Calendar_Event
 		?>
 		<table border="0" cellspacing="2" cellpadding="2">
 			<tr>
-				<td><b><?php echo translate('cal_event_name'); ?></b></td>
+				<td><b><?php echo translate('name'); ?></b></td>
 				<td><?php echo $this->attr('name'); ?></td>
 			</tr>
 			<?php
