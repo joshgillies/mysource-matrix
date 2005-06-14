@@ -18,7 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.400 2005/06/14 00:54:55 cboudjnah Exp $
+*
+* $Id: asset.inc,v 1.401 2005/06/14 00:55:55 cboudjnah Exp $
 *
 */
 
@@ -30,7 +31,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.400 $
+* @version $Revision: 1.401 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
