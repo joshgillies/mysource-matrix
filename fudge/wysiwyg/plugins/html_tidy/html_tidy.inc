@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_tidy.inc,v 1.31 2004/12/06 14:39:54 brobertson Exp $
+* $Id: html_tidy.inc,v 1.31.2.1 2005/06/14 23:00:42 dmckee Exp $
 *
 */
 
@@ -37,7 +37,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author	Greg Sherwood		<greg@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.31.2.1 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -127,7 +127,7 @@ class HTML_Tidy extends Wysiwyg_Plugin
 			// is_executable doesn't exist on windows pre 5.0.0
 			if (function_exists('is_executable')) {
 				if (is_executable($path_to_tidy)) {
-					$command = "/bin/echo ".escapeshellarg($html)." | $path_to_tidy -iq --show-body-only y --show-errors 0 --show-warnings 0 --wrap 0 -asxml --word-2000 1 --force-output 1";
+					$command = "/bin/echo ".escapeshellarg($html)." | $path_to_tidy -iq --show-body-only y --show-errors 0 --show-warnings 0 --wrap 0 -asxml --quote-marks 1 --word-2000 1 --force-output 1";
 
 					// add any inline tags that other plugins may use (possibly for encapsulating plugin specific data)
 					// so HTMLTidy doesnt strip them out
