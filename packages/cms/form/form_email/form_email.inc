@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email.inc,v 1.40 2005/05/20 05:27:29 tbarrett Exp $
+* $Id: form_email.inc,v 1.41 2005/06/14 06:18:21 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -459,6 +459,14 @@ class Form_Email extends Form
 				for (reset($rule_parts); null !== ($rule_key = key($rule_parts)); next($rule_parts)) {
 					$rule =& $rule_parts[$rule_key];
 					$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($rule['assetid']);
+
+					// if this rule is broken due to a deleted question, the rule
+					// will automatically fail
+					if (!$q_asset) {
+						$passed = false;
+						break;
+					}
+
 					$answer = $q_asset->getValue();
 
 					$type_code = 'form_question_rule_type_' . $rule['name'];
