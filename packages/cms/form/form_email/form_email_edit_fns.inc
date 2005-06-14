@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.38.2.9 2005/05/17 15:40:29 mkeehan Exp $
+* $Id: form_email_edit_fns.inc,v 1.38.2.10 2005/06/14 06:16:41 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.38.2.9 $
+* @version $Revision: 1.38.2.10 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -87,10 +87,31 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$from = new Datetime_Field($prefix.'_from', $from_value, $parameters);
 		$to = new Datetime_Field($prefix.'_to', $to_value, $parameters);
 
-		echo 'View submissions from: ';
-		$from->printField();
-		echo ' to ';
-		$to->printField();
+		// grab the number of assets per page, defaulting to 50 at a time
+		$num_per_page = array_get_index($_REQUEST, $prefix.'_per_page', 50);
+		$submission_offset = array_get_index($_REQUEST, $prefix.'_submission_offset', 0);
+
+		if ($num_per_page < 1) {
+			$num_per_page = 50;
+		}
+
+		// grab the fields for printing as a substitution
+		ob_start();
+			$from->printField();
+			$from_field = ob_get_contents();
+		ob_end_clean();
+
+		ob_start();
+			$to->printField();
+			$to_field = ob_get_contents();
+		ob_end_clean();
+
+		ob_start();
+			text_box($prefix.'_per_page', $num_per_page, 3);
+			$page_field = ob_get_contents();
+		ob_end_clean();
+
+		?>View submissions from <?php echo $from_field ?> to <?php echo $to_field ?> and display <?php echo $page_field ?> submissions at a time<?php
 
 		$o->closeField();
 
@@ -104,140 +125,214 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$from_ts = mktime(0,0,0,$from_value[1],$from_value[2],$from_value[0]);
 		$to_ts   = mktime(23,59,59,$to_value[1],$to_value[2],$to_value[0]);
 
-		?>
-		<table class="sq-backend-table">
-		<tr>
-			<td class="sq-backend-table-header">
-				Asset ID
-			</td>
-			<td colspan="2" class="sq-backend-table-header">
-				Submission Time
-			</td>
-			<td colspan="2" class="sq-backend-table-header">
-				User
-			</td>
-			<td class="sq-backend-table-header">
-				Expand ?
-			</td>
-		</tr>
-		<?php
+		// find all the form submission assets
+		$assetids = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, 'form_submission', false));
 
-		// search in the sub-logs directory for files that fit in the date range
-		$assetids = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, 'form_submission'));
-		$assetid_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($assetids);
+		$where = 'a.assetid IN ('.implode(', ', $assetids).')
+					AND a.created BETWEEN '.$GLOBALS['SQ_SYSTEM']->db->quoteSmart($from_value).' AND '.$GLOBALS['SQ_SYSTEM']->db->quoteSmart($to_value);
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
+		$sql = 'SELECT * FROM '.SQ_TABLE_RUNNING_PREFIX.'ast a '.$where.' ORDER BY a.created DESC';
+		$assetid_info = $GLOBALS['SQ_SYSTEM']->db->getAssoc($sql);
 
-		uasort($assetid_info, create_function('$a, $b', 'return $a[\'created\'] < $b[\'created\'];'));
+		// grab the number of assets
+		$asset_count = count($assetid_info);
+		$num_pages = ceil($asset_count / $num_per_page);
 
-		?><p><i>There are <b><?php echo count($assetids) ?></b> submissions during the time period specified above - most recent are displayed first</i></p><?php
+		if (($submission_offset % $num_per_page) != 0) {
+			$submission_offset = $submission_offset - ($submission_offset % $num_per_page);
+		}
 
-		foreach ($assetid_info as $assetid => $asset_info) {
+		if ($submission_offset < 0) {
+			$submission_offset = 0;
+		}
+
+		if ($submission_offset >= $asset_count) {
+			$submission_offset = ($num_pages - 1) * $num_per_page;
+		}
+
+
+		if ($asset_count == 0) {
+			?><p><i>There are no submissions during the time period specified above</i></p><?php
+		} else {
+			?>
+
+			<style type="text/css">
+				td.sq-form-sub {
+					padding-top: 0px;
+				}
+				.sq-form-sub table.sq-backend-table {
+					border-top: 0px;
+					margin: 0 8px 8px 8px;
+				}
+				.sq-form-sub table.sq-backend-table th {
+					font-weight: normal;
+					text-decoration: italic;
+				}
+				table.sq-backend-table tr td.sq-form-sub-header {
+					background-color: #666;
+					color: #fff;
+					font-size: 11px;
+				}
+			</style>
+			<table class="sq-backend-table">
+			<tr>
+			<td class="sq-form-sub-header" colspan="2"><b><?php
+				hidden_field($prefix.'_submission_offset', $submission_offset);
+				if ($submission_offset > 0) {
+					?><a title="Go to the first page of submissions" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_submission_offset', '0'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+				} else {
+					?><span title="This is the first page; you cannot go any further back" style="color: #333"><?php
+				}
+				?>
+				&lt;&lt;
+				<?php
+				if ($submission_offset > 0) {
+					?></a><?php
+				} else {
+					?></span><?php
+				}
+				?> &nbsp; &nbsp; <?php
+				if ($submission_offset > 0) {
+					?><a title="Go to the previous page of submissions" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_submission_offset', '<?php echo $submission_offset - $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+				} else {
+					?><span title="This is the first page; you cannot go any further back" style="color: #333"><?php
+				}
+				?>
+				&lt;
+				<?php
+				if ($submission_offset > 0) {
+					?></a><?php
+				} else {
+					?></span><?php
+				}
+				?>
+				&nbsp; &nbsp; Page <?php echo round(($submission_offset + $num_per_page) / $num_per_page) ?> of <?php echo ceil($asset_count / $num_per_page); ?> &nbsp; &nbsp;
+				<?php
+				if (($submission_offset + $num_per_page) < $asset_count) {
+					?><a title="Go to the next page of submissions" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_submission_offset', '<?php echo $submission_offset + $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+				} else {
+					?><span title="This is the last page; you cannot go any further forward" style="color: #333"><?php
+				}
+				?>
+				&gt;
+				<?php
+				if (($submission_offset + $num_per_page) < $asset_count) {
+					?></a><?php
+				} else {
+					?></span><?php
+				}
+				?> &nbsp; &nbsp; <?php
+				if (($submission_offset + $num_per_page) < $asset_count) {
+					?><a title="Go to the last page of submissions" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_submission_offset', '<?php echo ($num_pages - 1) * $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+				} else {
+					?><span title="This is the last page; you cannot go any further forward" style="color: #333"><?php
+				}
+				?>
+				&gt;&gt;
+				<?php
+				if (($submission_offset + $num_per_page) < $asset_count) {
+					?></a><?php
+				} else {
+					?></span><?php
+				}
+				?></b>
+			</td>
+			<td class="sq-form-sub-header" colspan="2" align="right">Displaying submissions <b><?php echo $submission_offset + 1 ?></b> to <b><?php echo min($asset_count, $submission_offset + $num_per_page) ?></b>, out of <b><?php echo $asset_count ?></b> total submissions
+			</td>
+			</tr>
+			<tr>
+				<th>
+					Asset ID
+				</th>
+				<th>
+					Submission Time
+				</th>
+				<th>
+					User
+				</th>
+				<th>
+					Expand ?
+				</th>
+			</tr>
+			<?php
+			foreach ($assetid_info as $assetid => $asset_info) {
 				if (($asset_info['created'] >= $from_value) && ($asset_info['created'] <= $to_value)) {
-					// time is good, load me up
 					$sub_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 					$sub_user = $asset_info['created_userid'];
-					$sub_time = $asset_info['created'];
-
+					$sub_time = date('d M Y H:i:s', strtotime($asset_info['created']));
 					$sub_expanded = array_search($assetid, $expand_list) !== false;
-
 					$num_subs++;
-
-					?><tr>
-					<td class="sq-backend-table-cell-alt">
-						<?php echo $assetid ?>
-					</td>
-					<td class="sq-backend-table-cell-alt" colspan="2">
-						<?php echo $sub_time ?>
-					</td>
-					<td class="sq-backend-table-cell-alt" colspan="2">
-						<?php
-						$valid_user = false;
-						if (!empty($sub_user)) {
-							$sub_user_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($sub_user);
-							if (!empty($sub_user_asset)) {
-								echo $sub_user_asset->name . ' (Id: #'.$sub_user.')';
-								$valid_user = true;
-							}
-						}
-
-						if (!$valid_user) {
-							?><i>No logged in user</i><?php
-						}
-						?>
-					</td>
-					<td class="sq-backend-table-cell-alt">
-						<input type="checkbox" name="<?php echo $prefix ?>_viewsub[<?php echo $assetid ?>]" value="1" <?php if ($sub_expanded) echo ' checked="checked"' ?>>
-					</td>
-				</tr>
-				<?php
-					// display only if expanded
-					if ($sub_expanded) { ?>
-					<tr>
-					<?php
-
-					$i = 0;
-					$elements =& $sub_asset->getSummary();
-					if (!empty($elements)) {
-						foreach ($elements as $element) {
-							$i++;
-
-							if ($i % 2 == 1) { ?>
-								<td class="sq-backend-table-cell">&nbsp;</td>
-							<?php }
-							?>
-							<td class="sq-backend-table-cell">
-								<i><?php echo $element['name'] ?>:</i>
-							</td>
-							<td class="sq-backend-table-cell">
-								<?php echo $element['answer'] ?>
-							</td>
+					if ($num_subs <= $submission_offset) continue;
+					if ($num_subs > $submission_offset + $num_per_page) break;
+					?>
+					<tr<?php
+						echo ($sub_expanded) ? ' class="alt"' : '';
+					?>>
+						<td>
+							<?php echo $assetid ?>
+						</td>
+						<td>
+							<?php echo $sub_time ?>
+						</td>
+						<td>
 							<?php
-							if (($i < count($elements)) && ($i % 2 == 0)) { ?>
-								</tr><tr>
-						<?php }
-						}	//end-if sub_expanded
-					}
-
-					?></tr><?php
-	/*
-					$kids =& $root->children;
-
-					for (reset($kids); null !== ($k = key($kids)); next($kids)) {
-						$this_child =& $kids[$k];
-						if ($this_child->name == 'section') {
+							$valid_user = false;
+							if (!empty($sub_user)) {
+								$sub_user_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($sub_user);
+								if (!empty($sub_user_asset)) {
+									echo $sub_user_asset->name . ' (Id: #'.$sub_user.')';
+									$valid_user = true;
+								}
+							}
+							if (!$valid_user) {
+								?><i>No logged in user</i><?php
+							}
+							?>
+						</td>
+						<td>
+							<input type="checkbox" name="<?php echo $prefix ?>_viewsub[<?php echo $assetid ?>]" value="1" <?php if ($sub_expanded) echo ' checked="checked"' ?>>
+						</td>
+					</tr>
+					<?php
+					// display only if expanded
+					if ($sub_expanded) {
 						?>
 						<tr>
-							<td class="sq-backend-table-cell">&nbsp;</td>
-							<td class="sq-backend-table-cell-alt" colspan="5">
-								<b>Section: <?php echo $this_child->getAttribute('name') ?></b>
+							<td colspan="5" class="sq-form-sub">
+								<table class="sq-backend-table">
+									<tr>
+										<?php
+										$i = 0;
+										$elements =& $sub_asset->getSummary();
+										if (count($elements) % 2 != 0) {
+											$elements[] = Array('name' => '', 'answer' => '');
+										}
+										foreach ($elements as $element) {
+											$i++;
+											?>
+											<th><?php echo $element['name'] ?>:</th>
+											<td><?php echo $element['answer'] ?></td>
+											<?php
+											if (($i < count($elements)) && ($i % 2 == 0)) {
+												?>
+									</tr>
+									<tr>
+												<?php
+											}
+										}//end foreach elemnent
+										?>
+									</tr>
+								</table>
 							</td>
 						</tr>
-						<tr>
 						<?php
-
-							$i = 0;
-							foreach ($sub_asset->getSummary() as $element) {
-								$i++;
-								if (($i % 2 == 1)) {
-									?><td class="sq-backend-table-cell">&nbsp;</td><?php
-								}
-								?>
-								<td class="sq-backend-table-cell">
-									<i><?php echo $element['name'] ?>:</i>
-								</td>
-								<td class="sq-backend-table-cell">
-									<?php echo $element['content'] ?>
-									</td>
-								<?php
-								if (($i < count($elements)) && ($i % 2 == 0)) {
-									?></tr><tr><?php
-								}
-							}
-							?></tr>
-					*/
-				}
-			}
+					}//end if expanded
+				}//end if time matches
+			}//end foreach submission
+			?>
+			</table>
+		<?php
 		}
-	?></table><?php
 
 	}//end paintSubmissions()
 
@@ -312,10 +407,9 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		echo combo_box($prefix.'_export_format', $options, false, '');
 		echo hidden_field($prefix.'_export_switch', '0');
 
-		$delimiter_text = isset($_POST[$prefix.'_delimiter']) ? $_POST[$prefix.'_delimiter'] : ',';   	 
-        echo ' &nbsp; Delimiter &nbsp;'; 	 
-        echo text_box($prefix.'_delimiter',$delimiter_text,1,1,true); 	 
-        echo ' </p>';
+		$delimiter_text = isset($_POST[$prefix.'_delimiter']) ? $_POST[$prefix.'_delimiter'] : ',';
+        echo ' &nbsp; Delimiter &nbsp;';
+        echo text_box($prefix.'_delimiter',$delimiter_text,1,1,true);
 
 		$o->closeField();
 
@@ -415,7 +509,10 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$headers = Array('__time__' => 'Submission Time', '__user__' => 'User Submitting Form');
 
 		$assetids = $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, 'form_submission');
-		$assetid_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($assetids));
+		$assetid_info = Array();
+		for ($i = 0; $i < count($assetids); $i += 500) {
+			$assetid_info = array_merge($assetid_info, $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys(array_slice($assetids, $i, 500))));
+		}
 
 		foreach ($assetids as $assetid => $type_code) {
 			$create_time = strtotime($assetid_info[$assetid]['created']);
@@ -491,7 +588,10 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		echo '<submissions>';
 
 		$assetids = $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, 'form_submission');
-		$assetid_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($assetids));
+		$assetid_info = Array();
+		for ($i = 0; $i < count($assetids); $i += 500) {
+			$assetid_info = array_merge($assetid_info, $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys(array_slice($assetids, $i, 500))));
+		}
 
 		foreach ($assetids as $assetid => $type_code) {
 			$create_time = strtotime($assetid_info[$assetid]['created']);
@@ -803,7 +903,9 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 						<?php
 						$valid = false;
 					} else {
-						$rules =& $info['rules'];
+						$rule_logic = ($info['require'] == 'all') ? 'AND' : 'OR';
+						$descriptions = Array();
+						$deleted_q = false;
 
 						$i = 0;
 						for (reset($rules); null !== ($rule_key = key($rules)); next($rules)) {
@@ -811,23 +913,26 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 							$type_code = 'form_question_rule_type_'.$rule['name'];
 							$q_asset =& $am->getAsset($rule['assetid']);
 
-							$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
-							$rule_asset = new $type_code();
-							$description = $rule_asset->ruleDescription($q_asset, $rule);
-
-							// if this is not our first rule part, put in AND or OR as the case may be
-							if ($i > 0) {
-								if ($info['require'] == 'all') {
-									echo '<b>AND</b> ';
-								} else {
-									echo '<b>OR</b> ';
-								}
+							// deleted question = invalid rule!
+							if (!$q_asset) {
+								$deleted_q = true;
+								$valid = false;
+								break;
 							}
 
+							$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
+							$rule_asset = new $type_code();
+							$descriptions[] = $rule_asset->ruleDescription($q_asset, $rule);
+
 							$i++;
-							echo $description;
-							echo '<br />';
 						}//end for
+
+						if ($deleted_q) {
+							?><b>WARNING:</b> This Selective Email rule is invalid because it refers to deleted questions<?php
+						} else {
+							echo implode('<br/><b>'.$rule_logic.'</b>', $descriptions);
+						}
+						echo '<br/>';
 
 					}//end if rules not empty
 
@@ -1099,8 +1204,12 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 			$o->openSection($descs[$type_code]);
 
 			$o->openField('Applies To');
-			$q_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($rule['assetid']);
-			echo $q_asset->attr('name').' (Id: #'.$q_asset->id.')';
+				$q_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($rule['assetid']);
+				if ($q_asset) {
+					echo $q_asset->attr('name').' (Id: #'.$q_asset->id.')';
+				} else {
+					?><i class="sq-backend-warning">The question that this rule part applied to (Id: #<?php echo $rule['assetid'] ?>) has been deleted; you cannot edit this rule. It is recommended that you delete it</i><?php
+				}
 			$o->closeField();
 
 			$edit_fns->paintRule($rule_asset, $o, $prefix.'_rule_'.$k, $rule, $write_access, $q_asset);
