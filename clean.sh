@@ -1,4 +1,5 @@
 #!/bin/sh
+#
 #/**
 #* +--------------------------------------------------------------------+
 #* | Squiz.net Open Source Licence                                      |
@@ -18,7 +19,7 @@
 #* | licence.                                                           |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: clean.sh,v 1.20 2005/04/28 11:00:05 brobertson Exp $
+#* $Id: clean.sh,v 1.21 2005/06/14 22:51:59 cboudjnah Exp $
 #*/
 
 # Creates a clean system by removing data and cache directories 
