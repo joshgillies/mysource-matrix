@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.18 2005/05/31 05:25:20 arailean Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.19 2005/06/15 01:26:39 dheppell Exp $
 *
 */
 
@@ -40,7 +40,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 * @author  David Heppell <dheppell@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -175,73 +175,78 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		$write_access = $asset->writeAccess('attributes');
 		$asset_positions = $asset->attr('asset_positions');
 
-		if (!empty($asset_positions)) {
-			ksort($asset_positions, SORT_NUMERIC);
-			if (!$write_access) {
-				$asset_ids = Array();
-				foreach ($asset_positions as $asset_data) {
-					$asset_ids[] = $asset_data['id'];
-				}
-				$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($asset_ids);
-			}
-			?>
-			<table class="sq-backend-table">
-				<tr>
-					<td class="sq-backend-table-header"><?php echo translate('position'); ?></td>
-					<td class="sq-backend-table-header"><?php echo translate('asset'); ?></td>
-					<?php
-					if ($write_access) {
-						?><td class="sq-backend-table-header"><?php echo translate('delete_question'); ?></td><?php
+		//if were using custom grouping, this option is useless
+		if ($asset->attr('group_by') == 'grouped') {
+			$o->note(translate('cms_listing_cannot_use_asset_postitions_with_groups'));
+		} else {
+			if (!empty($asset_positions)) {
+				ksort($asset_positions, SORT_NUMERIC);
+				if (!$write_access) {
+					$asset_ids = Array();
+					foreach ($asset_positions as $asset_data) {
+						$asset_ids[] = $asset_data['id'];
 					}
-					?>
-				</tr>
-				<?php
-				foreach ($asset_positions as $position => $asset_data) {
-						$assetid = $asset_data['id'];
-					?>
+					$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($asset_ids);
+				}
+				?>
+				<table class="sq-backend-table">
 					<tr>
-						<td class="sq-backend-table-cell"><?php echo $position; ?></td>
-						<td class="sq-backend-table-cell">
-							<?php
-							if ($write_access) {
-								asset_finder($prefix.'_asset_position['.$position.']', $assetid, Array('asset' => 'D'));
-							} else {
-								$info = array_get_index($asset_info, $assetid, Array());
-								if (empty($info)) {
-									echo translate('unknown_asset');
-								} else {
-									echo $info['short_name'].' (#'.$assetid.')';
-								}
-							}
-							?>
-						</td>
+						<td class="sq-backend-table-header"><?php echo translate('position'); ?></td>
+						<td class="sq-backend-table-header"><?php echo translate('asset'); ?></td>
 						<?php
 						if ($write_access) {
-							?>
-							<td class="sq-backend-table-cell">
-								<?php
-								check_box($prefix.'_delete_asset_position['.$position.']');
-								?>
-							</td>
-							<?php
+							?><td class="sq-backend-table-header"><?php echo translate('delete_question'); ?></td><?php
 						}
 						?>
 					</tr>
 					<?php
-				}//end foreach
-				?>
-			</table>
-			<?php
-		} else {
-			echo translate('cms_listing_no_positions_defined');
-		}
+					foreach ($asset_positions as $position => $asset_data) {
+							$assetid = $asset_data['id'];
+						?>
+						<tr>
+							<td class="sq-backend-table-cell"><?php echo $position; ?></td>
+							<td class="sq-backend-table-cell">
+								<?php
+								if ($write_access) {
+									asset_finder($prefix.'_asset_position['.$position.']', $assetid, Array('asset' => 'D'));
+								} else {
+									$info = array_get_index($asset_info, $assetid, Array());
+									if (empty($info)) {
+										echo translate('unknown_asset');
+									} else {
+										echo $info['short_name'].' (#'.$assetid.')';
+									}
+								}
+								?>
+							</td>
+							<?php
+							if ($write_access) {
+								?>
+								<td class="sq-backend-table-cell">
+									<?php
+									check_box($prefix.'_delete_asset_position['.$position.']');
+									?>
+								</td>
+								<?php
+							}
+							?>
+						</tr>
+						<?php
+					}//end foreach
+					?>
+				</table>
+				<?php
+			} else {
+				echo translate('cms_listing_no_positions_defined');
+			}
 
-		if ($write_access) {
-			echo '<p><b>'.translate('cms_listing_new_asset_position').'</b> ';
-			text_box($prefix.'_new_asset_position_pos', '', 5);
-			echo ' ';
-			asset_finder($prefix.'_new_asset_position_asset', '', Array('asset' => 'D'));
-			echo '</p>';
+			if ($write_access) {
+				echo '<p><b>'.translate('cms_listing_new_asset_position').'</b> ';
+				text_box($prefix.'_new_asset_position_pos', '', 5);
+				echo ' ';
+				asset_finder($prefix.'_new_asset_position_asset', '', Array('asset' => 'D'));
+				echo '</p>';
+			}
 		}
 
 		return $write_access;
@@ -300,7 +305,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Paints the interface for setting the number of columns to display per row
 	*
-	* @param object	Listing_Engine		&$rootid	asset being painted
+	* @param object	Listing_Engine		&$asset	asset being painted
 	* @param object Backend_Outputter	&$o			backend outputter
 	* @param string						$prefix		prefix for form elements
 	*
@@ -394,7 +399,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Processes the interface for setting the number of columns to display per row
 	*
-	* @param object	Listing_Engine		&$rootid	asset being painted
+	* @param object	Listing_Engine		&$asset	asset being painted
 	* @param object Backend_Outputter	&$o			backend outputter
 	* @param string						$prefix		prefix for form elements
 	*
@@ -435,7 +440,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Paints the interface for previewing the column layout
 	*
-	* @param object	Listing_Engine		&$rootid	asset being painted
+	* @param object	Listing_Engine		&$asset	asset being painted
 	* @param object Backend_Outputter	&$o			backend outputter
 	* @param string						$prefix		prefix for form elements
 	*
@@ -495,7 +500,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Processes the interface for previewing the column layout
 	*
-	* @param object	Listing_Engine		&$rootid	asset being painted
+	* @param object	Listing_Engine		&$asset	asset being painted
 	* @param object Backend_Outputter	&$o			backend outputter
 	* @param string						$prefix		prefix for form elements
 	*
@@ -567,6 +572,42 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		return false;
 
 	}//end paintDefaultFormatLinks()
+
+
+	/**
+	* Paint the interface for Group Formats
+	*
+	* @param object Asset	                 &$asset  the asset whose interface we are painting
+	* @param object	Backend_Outputter    &$o      the outputter class
+	* @param string                       $prefix  prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	 */
+	function paintGroupFormatLinks(&$asset, &$o, $prefix)
+	{
+		//first lets get the bodycopies we want
+		$formats = $asset->getFormats('group_formats');
+
+		?>
+		<table class="sq-backend-table">
+			<tr>
+				<td class="sq-backend-table-header"><?php echo translate('edit_format'); ?></td>
+			</tr>
+			<?php
+			foreach (array_keys($formats) as $assetid) {
+				$format = reset($GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid)));
+				$link = $GLOBALS['SQ_SYSTEM']->am->getAssetBackendHref(Array($assetid => 'contents'))
+				?>
+				<tr>
+					<td class="sq-backend-table-cell"><a href="<?php echo $link[$assetid] ?>"><?php echo $format['name']; ?></a></td>
+				</tr>
+			<?php
+			}
+			?>
+			</table>
+		<?php
+	}//end paintGroupFormatLinks()
 
 
 	/**
@@ -1486,7 +1527,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Paints the root node selection box
 	*
-	* @param object	Asset_Listing		&$rootid	asset being painted
+	* @param object Listing_Engine		&$asset	asset being painted
 	* @param object Backend_Outputter	&$o			backend outputter
 	* @param string						$prefix		prefix for the html doc element name
 	*
@@ -1536,7 +1577,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Processes the value input from root node selection box
 	*
-	* @param object	Asset_Listing		&$rootid	asset being painted
+	* @param object Listing_Engine		&$asset	asset being painted
 	* @param object Backend_Outputter	&$o			backend outputter
 	* @param string						$prefix		prefix for the html doc element name
 	*
@@ -1596,6 +1637,454 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		}
 
 	}//end processRootNode()
+
+
+	/**
+	* Paint the Group By field
+	*
+	* @param object Listing_Engine		&$asset	asset being painted
+	* @param object Backend_Outputter	&$o			backend outputter
+	* @param string						$prefix		prefix for the html doc element name
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintGroupBy(&$asset, &$o, $prefix)
+	{
+		$asset->reindexGroupFormats();
+
+		$write_access = $asset->writeAccess('attributes');
+		$group_by = $asset->attr('asset_grouping');
+		$commit_button = false;
+
+		foreach ($group_by as $level => $group_by_option) {
+
+			switch ($group_by_option['group_type']) {
+				case 'parent_asset':
+					$option_name = 'cms_listing_parent_asset';
+				break;
+
+				case 'metadata':
+					$option_name = 'asset_metadata';
+				break;
+
+				case 'attribute':
+					$option_name = 'asset_attribute';
+				break;
+
+				default:
+					$option_name = '';
+				break;
+			}
+
+			$o->openSection('Group Level '.($level+1).': '.translate($option_name));
+
+				switch ($group_by_option['group_type']) {
+					case 'parent_asset':
+						$commit_button |= $this->paintGroupByParentAsset($asset, $o, $prefix.'['.$level.']', $group_by_option);
+					break;
+
+					case 'metadata':
+						$commit_button |= $this->paintGroupByMetadata($asset, $o, $prefix.'['.$level.']', $group_by_option);
+					break;
+
+					case 'attribute':
+						// this is reserved for future use, no implementation yet
+					break;
+				}
+
+				// common options - sort order, start group on a new page, delete
+				$o->openField(translate('cms_listing_sort_order'));
+
+					$options = Array(
+								'asc'	=> translate('cms_listing_ascending_order'),
+								'desc'	=> translate('cms_listing_descending_order'),
+							   );
+
+					if ($write_access) {
+						combo_box($prefix.'['.$level.'][sort_order]', $options, false, array_get_index($group_by_option, 'sort_order', 'asc'));
+					} else {
+						echo $options[array_get_index($group_by_option, 'sort_order', 'asc')];
+					}
+
+				$o->closeField();
+
+
+				// only display Delete option if we have write access
+				if ($write_access) {
+
+					$o->openField(translate('delete_question'));
+
+						check_box($prefix.'['.$level.'][delete]', '1', array_get_index($group_by_option, 'new_page', false));
+						label(translate('cms_listing_delete_group_format'), $prefix.'['.$level.'][delete]');
+
+					$o->closeField();
+
+					//link to group format bodycopy
+					$o->openField('');
+						$link = $GLOBALS['SQ_SYSTEM']->am->getAssetBackendHref(Array($group_by_option['format_assetid'] => 'contents'));
+						?><a href="<?php echo $link[$group_by_option['format_assetid']]; ?>"><?php echo translate('cms_listing_edit_group_format'); ?></a><?php
+					$o->closeField();
+
+				}
+
+			$o->closeSection();
+		}
+
+		return $commit_button;
+
+	}//end paintGroupBy()
+
+
+	/**
+	* Process the Group By field
+	*
+	* @param object Listing_Engine		&$asset	asset being painted
+	* @param object Backend_Outputter	&$o			backend outputter
+	* @param string						$prefix		prefix for the html doc element name
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processGroupBy(&$asset, &$o, $prefix)
+	{
+		if (!$asset->writeAccess('attributes')) return false;
+
+		$group_by_details = $asset->attr('asset_grouping');
+		$posted_options = array_get_index($_POST, $prefix, Array());
+		$folder = &$asset->getFolder('group_formats');
+
+		// go through and process deletions of groups
+		foreach ($posted_options as $key => $posted_option) {
+			if (is_array($posted_option) && (array_get_index($posted_option, 'delete', 0) == 1)) {
+				$format_assetid = $group_by_details[$key]['format_assetid'];
+				$current_link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($folder->id, $format_assetid);
+
+				if (empty($current_link)) {
+					trigger_error('Group format does not seem to exist for group level '.($key+1), E_USER_WARNING);
+				} else {
+					if (!$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($current_link['linkid'])) {
+						trigger_error('Could not delete link between group level '.($key+1).' and group formats folder', E_USER_WARNING);
+					}
+				}
+
+				unset($group_by_details[$key]);
+			}
+		}
+
+		foreach ($group_by_details as $group_by_key => $group_by_option) {
+			switch ($group_by_option['group_type']) {
+				case 'parent_asset':
+					$this->processGroupByParentAsset($asset, $o, $prefix, $group_by_key,  $group_by_details[$group_by_key]);
+				break;
+
+				case 'metadata':
+					$this->processGroupByMetadata($asset, $o, $prefix, $group_by_key, $group_by_details[$group_by_key]);
+				break;
+
+				case 'attribute':
+					// this is reserved for future use, no implementation yet
+				break;
+			}
+		}
+
+		// merge the array with nothing, to re-order the keys of the array back
+		// to a numerical order
+		$group_by_details = array_merge($group_by_details, Array());
+		$asset->reindexGroupFormats();
+
+		// process new stuff here
+		$asset->setAttrValue('asset_grouping', $group_by_details);
+		return $asset->saveAttributes();
+
+	}//end processGroupBy()
+
+
+	/**
+	* Paint 'Group By Metadata' Option
+	*
+	* @param object Listing_Engine		&$asset			asset being painted
+	* @param object Backend_Outputter	&$o					backend outputter
+	* @param string						$prefix				prefix for the html doc element name
+	* @param Array						$group_by_option	the 'group by' array element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintGroupByMetadata(&$asset, &$o, $prefix, $group_by_option)
+	{
+		$write_access = $asset->writeAccess('attributes');
+
+		$o->openField(translate('metadata_field'));
+			$field_assetid = array_get_index($group_by_option, 'metadata_field', 0);
+
+			if ($write_access) {
+				asset_finder($prefix.'[metadata_field]', $field_assetid, Array('metadata_field' => 'D'));
+			} else {
+				if ($field_assetid) {
+					$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($field_assetid);
+					echo $asset->name.' (Id: #'.$asset->id.')';
+				}
+			}
+
+			$o->note(translate('cms_listing_group_metadata_field_note'));
+		$o->closeField();
+
+		return $write_access;
+
+	}//end paintGroupByMetadata()
+
+
+	/**
+	* Paint 'Group By Metadata' Option
+	*
+	* @param object Listing_Engine		&$asset			asset being painted
+	* @param object Backend_Outputter	&$o					backend outputter
+	* @param string						$prefix				prefix for the html doc element name
+	* @param Array						$group_by_option	the 'group by' array element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processGroupByMetadata(&$asset, &$o, $prefix, $key, &$group_by_option)
+	{
+		$posted_option = array_get_index($_POST[$prefix], $key, null);
+		if (!is_array($posted_option)) return false;
+
+		if (isset($posted_option['metadata_field'])) {
+			$group_by_option['metadata_field'] = $posted_option['metadata_field']['assetid'];
+		}
+		$group_by_option['sort_order'] = $posted_option['sort_order'];
+
+		return true;
+
+	}//end processGroupByMetadata()
+
+
+	/**
+	* Paint 'Group By Parent Asset' Option
+	*
+	* @param object Listing_Engine		&$asset			asset being painted
+	* @param object Backend_Outputter	&$o					backend outputter
+	* @param string						$prefix				prefix for the html doc element name
+	* @param Array						$group_by_option	the 'group by' array element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintGroupByParentAsset(&$asset, &$o, $prefix, $group_by_option)
+	{
+		$write_access = $asset->writeAccess('attributes');
+
+		$o->openField(translate('cms_listing_restrict_types'));
+
+			if ($write_access) {
+				asset_type_chooser($prefix.'[restrict_types]', true, array_get_index($group_by_option, 'restrict_types', Array()), null, false, true);
+			} else {
+				if (empty($group_by_option['restrict_types']['type_code'])) {
+					echo '<i>'.translate('cms_listing_no_types_selected').'</i>';
+				} else {
+					?><ul><?php
+					$type_names = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($group_by_option['restrict_types']['type_code'], 'name');
+
+					foreach ($group_by_option['restrict_types']['type_code'] as $key => $type_code) {
+						?><li><?php echo $type_names[$type_code];
+						if ($group_by_option['restrict_types']['inherit'][$key]) {
+							echo ' (inherits child types)';
+						}?></li><?php
+					}
+					?></ul><?php
+				}
+			}
+
+			$o->note(translate('cms_listing_group_asset_restriction_note'));
+		$o->closeField();
+
+		$o->openField(translate('sort_by'));
+
+			// for now we will only sort by the original set of options (not
+			// attributes - it would clutter the page for one)
+			$sort_by_options = $this->_getSortByOptions($asset);
+			$sort_by_options[''] = '-- '.translate('select').' --';
+			unset($sort_by_options['asset_attrib']);
+
+			$current_option = array_get_index($group_by_option, 'sort_by', '');
+
+			if ($write_access) {
+				combo_box($prefix.'[sort_by]', $sort_by_options, false, $current_option);
+			} else {
+
+				if (empty($current_option)) {
+					echo '<i>'.'No sorting applied'.'</i>';
+				} else {
+					echo $sort_by_options[$current_option];
+				}
+			}
+
+		$o->closeField();
+
+		return $write_access;
+
+	}//end paintGroupByParentAsset()
+
+
+	/**
+	* Paint 'Group By Parent Asset' Option
+	*
+	* @param object Listing_Engine		&$asset			asset being painted
+	* @param object Backend_Outputter	&$o					backend outputter
+	* @param string						$prefix				prefix for the html doc element name
+	* @param Array						$group_by_option	the 'group by' array element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processGroupByParentAsset(&$asset, &$o, $prefix, $key, &$group_by_option)
+	{
+		$posted_option = array_get_index($_POST[$prefix], $key, null);
+		if (!is_array($posted_option)) return false;
+
+		if (isset($posted_option['restrict_types'])) {
+			$group_by_option['restrict_types'] = $posted_option['restrict_types'];
+
+			// the asset type chooser is prone to giving blank asset types if
+			// 'more' fields are left blank, so strip them out right here
+			foreach ($group_by_option['restrict_types']['type_code'] as $key => $type_code) {
+				if (empty($type_code)) {
+					unset($group_by_option['restrict_types']['type_code'][$key]);
+					unset($group_by_option['restrict_types']['inherit'][$key]);
+				}
+			}
+
+			$group_by_option['sort_by']		= $posted_option['sort_by'];
+			$group_by_option['sort_order']	= $posted_option['sort_order'];
+		}
+
+		return true;
+
+	}//end processGroupByParentAsset()
+
+
+	/**
+	* Paint a place to add a new 'Group By' field
+	*
+	* @param object Listing_Engine		&$asset		asset being painted
+	* @param object Backend_Outputter	&$o			backend outputter
+	* @param string						$prefix		prefix for the html doc element name
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintNewGroupBy(&$asset, &$o, $prefix)
+	{
+		if ($asset->writeAccess('attributes')) {
+			$group_by = $asset->attr('asset_grouping');
+
+			check_box($prefix.'[new]');
+			?> Add a new group level&nbsp;<?php
+			$options = Array(0 => 'at the top level');
+			for ($i = 1; $i <= count($group_by); $i++) {
+				$options[$i] = 'after group level '.$i;
+			}
+			combo_box($prefix.'[new_after]', $options, false, count($group_by));
+
+			?> of type <?php
+			$options = Array(
+						''				=> '-- '.translate('select').' --',
+						'parent_asset'	=> translate('cms_listing_parent_asset'),
+						'metadata'		=> translate('asset_metadata'),
+					   );
+
+			combo_box($prefix.'[new_type]', $options, false, '');
+
+		}
+
+		return $asset->writeAccess('attributes');
+
+	}//end paintNewGroupBy()
+
+
+	/**
+	* Process the 'new Group By field' field
+	*
+	* @param object Listing_Engine    &$asset    asset being painted
+	* @param object Backend_Outputter &$o        backend outputter
+	* @param string                   $prefix    prefix for the html doc element name
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processNewGroupBy(&$asset, &$o, $prefix)
+	{
+		
+		if ($asset->writeAccess('attributes') && $asset->saveAttributes()) {
+
+			if (isset($_POST[$prefix]['new'])) {
+
+				$new_type = array_get_index($_POST[$prefix], 'new_type', null);
+				$new_position = array_get_index($_POST[$prefix], 'new_after', null);
+
+				if (!is_null($new_type) && !is_null($new_position)) {
+
+					// need to work out where the correct position is, taking
+					// into account group deletions
+
+					$posted_options = array_get_index($_POST, $prefix, Array());
+					$pos_adjust = 0;
+					$group_by_options = $asset->attr('asset_grouping');
+
+					foreach ($group_by_options as $key => $group_by_option) {
+						if (isset($posted_options[$key]['delete'])) {
+							// if the deleted item's position is above where the
+							// new group is going to be placed
+							if ((int)$key <= $new_position)$pos_adjust++;
+						}
+					}
+
+					// $new_position now holds the correct position for inserting
+					// the new group
+					$new_position -= $pos_adjust;
+
+					// create a new group format bodycopy
+					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+					$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
+					$folder = &$asset->getFolder('group_formats');
+
+					$copy_link = Array('asset' => &$folder, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1, 'sort_order' => $new_position);
+
+					$bodycopy = new Bodycopy();
+					$bodycopy->setAttrValue('name', 'Group Level '.($new_position+1).' Format');
+					$group_listing_data = Array('content' => '%group_listing%');
+
+					if (!$bodycopy->create($copy_link, $group_listing_data)) {
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						return false;
+					}
+					
+
+					// update the grouping list
+					$new_group = Array(Array('group_type' => $new_type, 'format_assetid' => $bodycopy->id));
+					array_splice($group_by_options, $new_position, 0, $new_group);
+					$asset->setAttrValue('asset_grouping', $group_by_options);
+
+					// adjust the other group formats so their names are correct
+					$asset->reindexGroupFormats();
+					if (!$asset->saveAttributes()) {
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						return false;
+					}
+
+					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+					return true;
+				}
+
+			}
+
+		}
+
+		return false;
+
+	}//end processNewGroupBy()
 
 
 }//end class

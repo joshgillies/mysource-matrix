@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.39 2005/06/08 06:17:39 tbarrett Exp $
+* $Id: listing_engine.inc,v 1.40 2005/06/15 01:26:39 dheppell Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
 *
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -101,6 +101,7 @@ class Listing_Engine extends Page
 		$sub_assets= Array(
 						'type_formats'		=> 'folder',
 						'position_formats'	=> 'folder',
+						'group_formats'		=> 'folder',
 					 );
 
 		$type_formats = null;
@@ -432,8 +433,9 @@ class Listing_Engine extends Page
 	* Sort the list of assets
 	*
 	* @param array			$asset_list 	an array of assets to be sorted
-	* @param string			$sort_info		sorting information as provided by @see getSortInfo
+	* @param string			$sort_info		sorting information as provided by getSortInfo()
 	*
+	* @see    Listing_Engine::getSortInfo()
 	* @return array
 	*/
 	function sortAssetList($asset_list, $sort_info)
@@ -518,6 +520,7 @@ class Listing_Engine extends Page
 
 		} else {
 			$sort_field = $sort_params['field'];
+
 			$sort_assets = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($assetids, null, true, $sort_field);
 			for (reset($sort_assets); null !== ($assetid = key($sort_assets)); next($sort_assets)) {
 				$sort_assets[$assetid] = strtolower($sort_assets[$assetid]);
@@ -576,6 +579,7 @@ class Listing_Engine extends Page
 		switch ($group_by) {
 			case 'number' :
 			case 'random' :
+			case 'grouped' :
 				$this->filterAssetTypes($todo);
 				$this->adjustAssetPositions($todo);
 			break;
@@ -809,6 +813,7 @@ class Listing_Engine extends Page
 		// grouping by number shows a certain number of results per page (eg. 10 assets per page)
 		// grouping by letter makes this template an A-Z listing of assets
 		// grouping by 'random' means that we grab X random assets
+		//grouping by custom groups means we will follow the user defined group structure
 		if (is_null($group_by)) {
 			$group_by = $this->attr('group_by');
 		}
@@ -857,6 +862,7 @@ class Listing_Engine extends Page
 
 				unset($chunks);
 			break;
+
 
 			case 'letter' :
 				foreach ($children as $childid => $data) {
@@ -941,11 +947,115 @@ class Listing_Engine extends Page
 				}
 
 			break;
+
+			case 'grouped' :
+				//we need to do an element count so we can work out the page
+				//stuff
+				$total_assets = $this->_arrayCountRecursive($children, count($this->attr('asset_grouping')));
+				$count = $num_per_page * $result_page;
+
+				//if were showing all, make our count equal to all
+				if ($count == 0) {
+					$num_per_page = $total_assets;
+					$count = $total_assets;
+				}
+
+				//get a chunk of the size were after, $todo will have the contents
+				//after the function call
+				$todo = Array();
+
+				// chunk it hard, baby
+				$this->_groupChunk($children, $todo, $count, $num_per_page, count($this->attr('asset_grouping')));
+
+				if ($num_per_page == 0) {
+					$num_per_page = count($todo);
+					$num_pages = 1;
+				} else {
+					$chunks = array_chunk($todo, $num_per_page, true);
+					$num_pages = ceil($total_assets / $num_per_page);
+					//we want the last chunk
+					$todo = end($chunks);
+				}
+
+				// if the result page is too high, set to last page
+				$result_page = min($result_page, ceil($total_assets / $num_per_page));
+
+				// previous page link
+				if ($result_page <= 1) {
+					$replacements['previous_page'] = $this->attr('prev_page_text');
+				} else {
+					$replacements['previous_page'] = '<a href="'.replace_query_string_vars(Array('result_page' => $result_page-1)).'">'.$this->attr('prev_page_text').'</a>';
+				}
+
+				// next page link
+				if ($result_page >= $num_pages) {
+					$replacements['next_page'] = $this->attr('next_page_text');
+				} else {
+					$replacements['next_page'] = '<a href="'.replace_query_string_vars(Array('result_page' => $result_page+1)).'">'.$this->attr('next_page_text').'</a>';
+				}
+
+				$replacements['current_page'] = (int)$result_page;
+				$replacements['total_pages'] = $num_pages;
+
+				// list of pages and links to them
+				$page_list = '';
+				for ($i = 1; $i <= $num_pages; $i++) {
+					if ($i == $result_page) {
+						$page_list .= " $i ";
+					} else {
+						$page_list .= ' <a href="'.replace_query_string_vars(Array('result_page' => $i)).'">'.$i.'</a> ';
+					}
+				}
+				$replacements['page_list'] = $page_list;
+
+			break;
+
 		}//end switch
 
 		return $todo;
 
 	}//end getChunk()
+
+
+	/**
+	* returns a specified chunk of elements
+	*
+	* will traverse a multidimensional array and return a chunk equal to the
+	* size the user specifies, works for single and multi dimensional arrays
+	*
+	* @param array  &$todo           pointer to the array we want to traverse
+	* @param array  &$chunk          pointer to array we want to fill
+	* @param int    $remainingCount  how many assets in we want our chunk
+	*                                including the chunk we want
+	* @param mixed  $num_per_page    the number of assets we want returned
+	*
+	*
+	*/
+	 function _groupChunk(&$todo, &$chunk, &$remaining_count, $num_per_page, $group_limit=null)
+	 {
+	 	$pointer =& reset($todo);
+
+	 	//keep calling this for each group until we get to the actual assets
+		if (($group_limit > 0) || is_null($group_limit)) {
+	 		foreach ($todo as $index => $child) {
+	 			if ($remaining_count >= 0) {
+	 				$this->_groupChunk($todo[$index], $chunk[$index], $remaining_count, $num_per_page, ($group_limit == null ? null : $group_limit - 1));
+	 			}
+
+	 			if (empty($chunk[$index])) unset($chunk[$index]);
+	 		}
+	 		return;
+	 	}
+
+		foreach ($todo as $index => $value) {
+			if (($remaining_count > 0) && ($remaining_count <= $num_per_page)) {
+				$chunk[$index] = $value;
+			}
+
+			$remaining_count--;
+	 	}
+
+	 }//end _groupChunk()
 
 
 	/**
@@ -978,9 +1088,75 @@ class Listing_Engine extends Page
 			$this->_tmp['position_formats'][$position] = $link_data['minorid'];
 		}
 
-		$this->_printAssetList($todo);
+		$this->_printGroups($todo, $this->attr('asset_grouping'));
 
 	}//end printAssetList()
+
+
+	/**
+	* Prints groups and their asset listings
+	*
+	* Treats each group as an asset listing to display, if we're not working
+	* with groups then it will just skip and call _printAssetList as if
+	* nothing happened
+	*
+	* @param Array &$todo         Our list of groups/assets to print
+	* @param Array $group_info    Current group information we are working with
+	*
+	* @access private
+	* @return void
+	*/
+	function _printGroups(&$todo, $group_info)
+	{
+		$pointer = reset($todo);
+		if (!empty($group_info)) {
+			//get the group bodycopy relative to this level
+			$remaining_groups = array_shift($group_info);
+			$format_bodycopy =& $GLOBALS['SQ_SYSTEM']->am->getAsset($remaining_groups['format_assetid']);
+
+			foreach ($todo as $group_level => $value) {
+					//lets buffer whatever contents we need
+					ob_start();
+						$this->_printGroups($todo[$group_level], $group_info);
+						$group_contents = ob_get_contents();
+					ob_end_clean();
+
+					switch ($remaining_groups['group_type']) {
+
+						case 'parent_asset':
+							// we need to get info from the parent asset
+							$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($group_level));
+							$group_name = $asset_info[$group_level]['name'];
+						break;
+
+						case 'metadata':
+							// the metadata field value will have been the index
+							$group_name = $group_level;
+						break;
+
+						case 'attribute':
+							// oh noes, implementation reserved!
+						break;
+
+						default:
+							// there is no spoon .....
+						break;
+					}
+
+					// populate replacements
+					$replacements['group_listing'] = $group_contents;
+					$replacements['group_name']    = $group_name;
+
+					$format_bodycopy->setKeywordReplacements($replacements);
+					$format_bodycopy->printBody();
+			}//end foreach $todo
+
+		} else {
+			// otherwise we're up to the asset list, we can do the normal
+			// listing stuff here
+			$this->_printAssetList($todo);
+		}
+	}//end _printGroups()
 
 
 	/**
@@ -1001,6 +1177,7 @@ class Listing_Engine extends Page
 	{
 		$allowed_types = $this->getAllowedAssetTypeMap();
 		$column_layout = $this->attr('column_layout');
+		$using_groups = $this->attr('group_by') == 'grouped';
 		$using_columns = (count($column_layout) > 1 || $column_layout['0'] > 1);
 
 		$list_position = 1;
@@ -1044,7 +1221,11 @@ class Listing_Engine extends Page
 			echo '</table>';
 		} else {
 			foreach ($todo as $assetid => $type_code) {
-				$this->_printAsset($assetid, $type_code, $list_position);
+				if ($using_groups) {
+					$this->_printAsset($assetid, $type_code['type_code'], array_get_index($type_code, 'position_number', 0));
+				} else {
+					$this->_printAsset($assetid, $type_code, $list_position);
+				}
 				$list_position++;
 			}
 		}
@@ -1257,52 +1438,62 @@ class Listing_Engine extends Page
 		$vars['keywords'] = isset($vars['keywords'])?$vars['keywords']:Array();
 
 		$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id, 'bodycopy', true);
+		$parent_folders = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id, 'folder', true);
 
 		// if we're being handled here (instead of one of our extensions),
 		// it must be from one of our format bodycopies, or something else altogether,
 		// so we'll try to find out which of the format types it is.
-		$folder = &$this->getFolder();
-		if (is_null($folder)) {
-			$keywords = $this->getContentsKeywords();
+		$group_folder = &$this->getFolder('group_formats');
+
+		if (in_array($group_folder->id, array_keys($parent_folders))) {
+			$keywords = Array(
+							'group_listing'	=> 'Group Asset Listing',
+							'group_name'	=> 'Group Name',
+						);
 		} else {
-
-			$type_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($folder->id, SQ_LINK_TYPE_2, 'bodycopy');
-
-			$type_codes = Array();
-			foreach ($type_links as $link_info) {
-				if (isset($parents[$link_info['minorid']])) {
-					$type_codes[] = $link_info['value'];
-				}
-			}
-
-			$keywords = Array();
-			if (empty($type_codes)) {
+			$folder = &$this->getFolder();
+			if (is_null($folder)) {
 				$keywords = $this->getContentsKeywords();
-
 			} else {
-				foreach ($type_codes as $type_code) {
-					if ($type_code == 'default_format') {
-						// special case for the default format where we dont
-						// have to do as much processing
-						$type_keywords = Asset::getAssetKeywords(false);
-					} else {
-						$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
-						$dummy_asset = new $type_code();
-						$type_keywords = $dummy_asset->getAssetKeywords(false);
-						unset($dummy_asset);
-					}
 
-					foreach ($type_keywords as $keyword => $info) {
-						$name = ucwords(str_replace('_', ' ', $keyword));
-						$keywords[$keyword] = $name;
+				$type_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($folder->id, SQ_LINK_TYPE_2, 'bodycopy');
+
+				$type_codes = Array();
+				foreach ($type_links as $link_info) {
+					if (isset($parents[$link_info['minorid']])) {
+						$type_codes[] = $link_info['value'];
 					}
 				}
 
-				$keywords['asset_contents'] = translate('cms_listing_asset_contents');
-				$keywords['asset_name_linked'] = translate('cms_listing_asset_name_linked');
-				$keywords['asset_short_name_linked'] = translate('cms_listing_asset_short_name_linked');
-				$keywords['asset_position'] = translate('cms_listing_asset_position');
-				$keywords['root_nodes'] = translate('cms_listing_keyword_root_nodes');
+				$keywords = Array();
+				if (empty($type_codes)) {
+					$keywords = $this->getContentsKeywords();
+
+				} else {
+					foreach ($type_codes as $type_code) {
+						if ($type_code == 'default_format') {
+							// special case for the default format where we dont
+							// have to do as much processing
+							$type_keywords = Asset::getAssetKeywords(false);
+						} else {
+							$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
+							$dummy_asset = new $type_code();
+							$type_keywords = $dummy_asset->getAssetKeywords(false);
+							unset($dummy_asset);
+						}
+
+						foreach ($type_keywords as $keyword => $info) {
+							$name = ucwords(str_replace('_', ' ', $keyword));
+							$keywords[$keyword] = $name;
+						}
+					}
+
+					$keywords['asset_contents'] = translate('cms_listing_asset_contents');
+					$keywords['asset_name_linked'] = translate('cms_listing_asset_name_linked');
+					$keywords['asset_short_name_linked'] = translate('cms_listing_asset_short_name_linked');
+					$keywords['asset_position'] = translate('cms_listing_asset_position');
+					$keywords['root_nodes'] = translate('cms_listing_keyword_root_nodes');
+				}
 			}
 		}
 
@@ -1621,6 +1812,264 @@ class Listing_Engine extends Page
 		return array_get_index($sort_by_list, $sort_by, Array());
 
 	}//end getSortInfo()
+
+
+	/**
+	* Recursive function to build multi level grouping
+	*
+	* Will construct an array in the following form:
+	* if it is a  group its index will be group name (assetid or string)
+	* and its contents an array
+	* if its an asset in a group its index will be an assetid and its contents
+	* will be a typecode
+	* The last paramater &$results will hold the contents at the end of the
+	* recursive calling instead of working off a return basis
+	*
+	* @param array	$group_levels    remaining group levels to iterate
+	* @param array	$assetids        asset ids that we are working with in this
+	*                                 iteration
+	* @param array	&$results        Reference to the array/section of array we are
+	*               	                 working on
+	*
+	* @access public
+	* @return void	but returns a modified array in &$results
+	*/
+	function groupAssetsRecursively($group_levels, $assetids, &$results)
+	{
+		//we need assets, so if none given, let's bail
+		if (empty($assetids)) return;
+
+		//by the end the array should be populated as needed,
+		//so if weve been called recursivly we can empty the old
+		//contents here since we want to group them further
+		$results = Array();
+
+		//point us at the first element
+		$group_type =& reset($group_levels);
+
+		//loop through the assets we have, and dump them in the groups
+		//they belong to
+		foreach ($assetids as $assetid => $typecode){
+			switch ($group_type['group_type']) {
+				case 'parent_asset':
+					$is_sort_assetid = '';
+					$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($assetid, SQ_SC_LINK_BACKEND_NAV, '', true, 'minor');
+
+					//remember we can have more than one direct parent
+					foreach ($links as $link) {
+						if (!isset($results[$link['majorid']])) {
+							$results[$is_sort_assetid.$link['majorid']] = Array();
+						}
+
+						$results[$is_sort_assetid.$link['majorid']][$assetid] = Array('type_code' => $typecode);
+					}
+
+				break;
+
+				case 'metadata':
+					$metadata_field = $group_type['metadata_field'];
+
+					// get the metadata manager if we haven't already
+					if (!isset($mm)) {
+						$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+					}
+
+					$value = $mm->getMetadataValueByAssetid($assetid, $metadata_field, true);
+
+					//we cant have a null index, but we can have an empty string
+					if (is_null($value)) {
+						if (!isset($results[''])) $results[''] = Array();
+						$results[''][$assetid] = $typecode;
+					} else {
+						if (!isset($results[$value])) {
+							$results[$value] = Array();
+						}
+						$results[$value][$assetid] = $typecode;
+					}
+				break;
+
+				case 'attribute':
+					// implementation reserved
+				break;
+			}
+		}//end foreach $assetids
+
+		//we're done with this group level, so lets discard it
+		array_shift($group_levels);
+
+		//if their are group levels remaining, we want to call
+		//this function again for each of the groups we have made
+		if (count($group_levels) > 0 ) {
+			foreach ($results as $index => $group) {
+				$this->groupAssetsRecursively($group_levels, $group, $results[$index]);
+			}
+		} else {
+			//were at the end, we can do sort stuff here
+			$position_formats = $this->_getPositionFormats();
+			$results = $this->sortAssetList($results, $this->getSortInfo());
+			for (reset($results); null !== ($index = key($results)); next($results)) {
+				$list_position = 1;
+				for (reset($results[$index]); null !== ($k = key($results[$index])); next($results[$index])) {
+					if (isset($position_formats[$list_position])) {
+						$results[$index][$k]['position_number'] = $list_position;
+					}
+					$list_position++;
+				}
+			}
+		}
+
+	}//end groupAssetsRecursively()
+
+
+	/**
+	* Recursive function to sort the group keys
+	*
+	* @param array	$group_levels	remaining group levels to iterate
+	* @param array	$assetids		asset ids that we are working with in this
+	*								iteration
+	* @param array	&$results		reference to the array/section of array we are
+	*								working on
+	*
+	* @access public
+	* @return void	but returns a modified array (in sort order only, contents
+	*				themselves are unaffected) in &$results
+	*/
+	function sortGroups($group_levels, $assetids, &$results)
+	{
+		//we need assets, so if none given, let's bail
+		if (empty($assetids)) return;
+
+		//point us at the first element
+		$group_type =& reset($group_levels);
+
+		// sort the groups
+		switch ($group_type['group_type']) {
+			case 'parent_asset':
+				// find the info on the assets that are being used, sort by them,
+				// then re-order the results based upon them
+				$group_order = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($results), 'asset', false, array_get_index($group_type, 'sort_by', 'assetid'));
+
+				if (array_get_index($group_type, 'sort_order', 'asc') == 'asc') {
+					asort($group_order);
+				} else {
+					arsort($group_order);
+				}
+
+				$group_results = Array();
+				foreach (array_keys($group_order) as $assetid) {
+					$group_results[$assetid] =& $results[$assetid];
+				}
+				$results = $group_results;
+
+			break;
+
+			case 'metadata':
+				// metadata groups are sorted just on the key's value, because
+				// the key IS the value
+				if (array_get_index($group_type, 'sort_order', 'asc') == 'asc') {
+					ksort($results);
+				} else {
+					krsort($results);
+				}
+			break;
+
+			case 'attribute':
+				// implementation reserved
+			break;
+		}
+
+		//we're done with this group level, so lets discard it
+		array_shift($group_levels);
+
+		//if their are group levels remaining, we want to call
+		//this function again for each of the groups we have made
+		if (count($group_levels) > 0 ) {
+			foreach ($results as $index => $group) {
+				$this->sortGroups($group_levels, $group, $results[$index]);
+			}
+		}
+
+	}//end sortGroups()
+
+
+	/**
+	* Reindexes the group format bodycopies so any gaps are closed and bodycopy
+	* names are referring to their correct group numbers
+	*
+	* @return boolean
+	* @access public
+	*/
+	function reindexGroupFormats()
+	{
+		// if we have no group formats, it's not worth our timee
+		$group_folder =& $this->getFolder('group_formats');
+		$groups = $this->attr('asset_grouping');
+		if (empty($groups)) return true;
+		
+
+		// set forced run level because we want to change the names of these
+		// formats whether we have permission or not
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+
+		$i = 1;
+		foreach ($groups as $group) {
+			// update the group format
+			$format_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($group['format_assetid']);
+			if ($format_asset) {
+				$format_asset->setAttrValue('name', 'Group Level '.$i.' Format');
+				$format_asset->saveAttributes();
+			}
+
+			$i++;
+		}
+
+		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		return true;
+
+	}//end reindexGroupFormats()
+
+
+	function _arrayCountRecursive(&$array, $limit=null)
+	{
+		$count = 0;
+
+		for (reset($array); null !== ($k = key($array)); next($array)) {
+			$el =& $array[$k];
+			if (is_array($el) && (is_null($limit) || ($limit > 0))) {
+				$count += $this->_arrayCountRecursive($el, (is_null($limit) ? null : $limit - 1));
+			} else {
+				$count++;
+			}
+		}
+
+		return $count;
+	}//end _arrayCountRecursive()
+
+
+	/**
+	* Return a list of position formats
+	*
+	* @return Array
+	* @access private
+	*/
+	function _getPositionFormats()
+	{
+		if (!isset($this->_tmp['position_formats'])) {
+			$this->_tmp['position_formats'] = Array();
+
+			$position_folder = &$this->getFolder('position_formats');
+			$format_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($position_folder->id, SQ_LINK_TYPE_2, 'bodycopy', true);
+			foreach ($format_links as $link_data) {
+				$position = substr($link_data['value'], 9);
+				$this->_tmp['position_formats'][$position] = $link_data['minorid'];
+			}
+		}
+
+		return $this->_tmp['position_formats'];
+
+	}//end _getPositionFormats()
 
 
 }//end class
