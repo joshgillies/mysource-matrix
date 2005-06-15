@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.73 2005/06/15 04:12:43 dmckee Exp $
+* $Id: workflow_manager.inc,v 1.74 2005/06/15 04:33:48 dmckee Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.73 $
+* @version $Revision: 1.74 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -792,7 +792,7 @@ class Workflow_Manager extends MySource_Object
 					$msg_reps = Array(
 									'user_name'		=> $user->name,
 									'type_code'		=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'),
-									'asset_name'	=> $asset_name,
+									'asset_name'	=> $asset->name,
 									'old_step'		=> (int)$steps_before[$schemaid],
 									'new_step'		=> (int)$step,
 									'workflow_url'	=> current_url().$asset->getBackendHref('workflow'),
@@ -1071,6 +1071,7 @@ class Workflow_Manager extends MySource_Object
 								'asset_name'	=> $asset->name,
 								'workflow_url'	=> current_url().$asset->getBackendHref('workflow'),
 							);
+				$asset_edt_fns = $asset->getEditFns();
 				if (isset($asset_edt_fns->static_screens['preview'])) {
 					$msg_reps['preview_url'] = current_url().$asset->getBackendHref('preview');
 				} else {
@@ -1181,6 +1182,7 @@ class Workflow_Manager extends MySource_Object
 								'asset_name'	=> $asset->name,
 								'workflow_url'	=> current_url().$asset->getBackendHref('workflow'),
 							);
+				$asset_edt_fns = $asset->getEditFns();
 				if (isset($asset_edt_fns->static_screens['preview'])) {
 					$msg_reps['preview_url'] = current_url().$asset->getBackendHref('preview');
 				} else {
