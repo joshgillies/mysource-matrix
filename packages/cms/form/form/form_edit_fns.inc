@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_edit_fns.inc,v 1.58 2005/06/15 00:05:10 dmckee Exp $
+* $Id: form_edit_fns.inc,v 1.59 2005/06/15 00:50:59 dmckee Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.58 $
+* @version $Revision: 1.59 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -526,25 +526,20 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 			$section_count = $asset->getSectionCount() + 1;
 
 			$am->includeAsset('form_section');
-			$section = new Form_Section();
+			$section[$i] = new Form_Section();
 			$copy_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 0, 'is_exclusive' => 0);
 
-			$section->setAttrValue('name', $section_name);
+			$section[$i]->setAttrValue('name', $section_name);
 
-			if (!$section->create($copy_link)) {
+			if (!$section[$i]->create($copy_link)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
 
-			// need to null out the section otherwise when we show it it will show the name
-			// of the last section we added
-			$section = null;
-
 			// regen the content file
-			$asset->_updated();
 
 		}//end for
-
+		if (count($sections) > 0) $asset->_updated();
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 

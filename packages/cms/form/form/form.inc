@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.100 2005/06/01 00:21:24 ndvries Exp $
+* $Id: form.inc,v 1.101 2005/06/15 00:50:58 dmckee Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.100 $
+* @version $Revision: 1.101 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -759,7 +759,6 @@ class Form extends Asset
 		$query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($this->id, SQ_LINK_TYPE_2, 'form_section', true, 'major', '', '0', '0');
 		if (empty($query)) return Array();
 		$query['select'] .= ', l.majorid';		// we need the major id too
-
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$result = $db->getAll(implode(' ', $query));
 		assert_valid_db_result($result);
