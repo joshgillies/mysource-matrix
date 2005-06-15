@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart_edit_fns.inc,v 1.5 2005/05/25 04:33:18 lwright Exp $
+* $Id: ecommerce_cart_edit_fns.inc,v 1.6 2005/06/15 05:55:06 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine_edit_fns.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -44,7 +44,7 @@ class Ecommerce_Cart_Edit_Fns extends Listing_Engine_Edit_Fns
 		$this->Listing_Engine_Edit_Fns();
 
 	}//end Ecommerce_Cart_Edit_Fns()
-	
+
 	/**
 	* Paint the interface for choosing which asset types to list
 	*
@@ -70,7 +70,7 @@ class Ecommerce_Cart_Edit_Fns extends Listing_Engine_Edit_Fns
 		} else {
 			// print the read-only version
 			if (empty($types)) {
-				echo '<p class="sq-backend-warning">'.translate('cms_listing_no_asset_types_chosen').'</p>';
+				echo '<p class="sq-backend-warning">'.translate('cms_listing_no_types_selected').'</p>';
 			} else {
 				$type_names = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo(array_keys($types), 'name');
 				?>
