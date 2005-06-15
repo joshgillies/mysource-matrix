@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select.inc,v 1.7 2005/04/13 23:49:30 ndvries Exp $
+* $Id: metadata_field_select.inc,v 1.8 2005/06/15 21:23:39 gnoel Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field.inc';
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -80,6 +80,49 @@ class Metadata_Field_Select extends Metadata_Field
 		return $selection;
 
 	}//end getSelectionAttribute()
+
+
+	/**
+	* Generate an array of current values for the passed metadata field names
+	*
+	* @param object Asset			&$asset		the asset whose field values we are getting
+	* @param string					$value_str	the current value for this field in the asset (NOT $asset)
+	*											NULL means that there is no current value set
+	*
+	* @access public
+	* @return string	the metadata value for the passed asset
+	*/
+	function getMetadataValue(&$asset, $value_str)
+	{
+		return parent::getMetadataValue($asset, $this->getValueFromKey($value_str));
+
+	}//end getMetadataValue()
+
+
+	/**
+	 * Returns the option value corresponding to the given option key
+	 * If no corresponding value is found, the option_key is returned
+	 *
+	 * @param string $option_key	an option key
+	 *
+	 * @return string
+	 * @access public
+	 */
+	function getValueFromKey($option_key)
+	{
+		$ret = $option_key;
+
+		if (isset($option_key) && $this->attr('visible_part') == 'value') {
+			// returns the Value instead of the Key
+			$options = $this->attr('select_options');
+			if (isset($options[$option_key])) {
+				$ret = $options[$option_key];
+			}
+		}
+
+		return $ret;
+
+	}//end getValueFromKey()
 
 
 }//end class

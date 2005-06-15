@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select_edit_fns.inc,v 1.17 2005/06/02 06:37:31 lwright Exp $
+* $Id: metadata_field_select_edit_fns.inc,v 1.18 2005/06/15 21:23:39 gnoel Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -350,6 +350,27 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 		return $asset->setAttrValue('edit_params', $edit_params);
 
 	}//end processEditParams()
+
+
+	/**
+	* Output the complete metadata tag for this field
+	*
+	* @param object Metadata_Field	&$asset		the asset whose interface we are painting
+	* @param string					$value_str	the current value for this field in the asset (NOT $asset)
+	*											NULL means that there is no current value set
+	* @param array					&$tag_value	the metadata tag value
+	* @param array					&$keywords	an array we can put keywords in that need replacing
+	*
+	* @return boolean
+	* @access public
+	*/
+	function generateMetadata(&$asset, $value_str, &$tag_value, &$keywords)
+	{
+		$value_str = $asset->getValueFromKey($value_str);
+
+		return parent::generateMetadata($asset, $value_str, $tag_value, $keywords);
+
+	}//end generateMetadata()
 
 
 }//end class

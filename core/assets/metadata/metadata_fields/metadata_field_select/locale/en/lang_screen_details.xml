@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.1 2005/03/30 00:39:48 lwright Exp $
+* $Id: lang_screen_details.xml,v 1.2 2005/06/15 21:23:39 gnoel Exp $
 *
 */
 -->
@@ -81,6 +81,10 @@
 			<display_name>Show On Frontend</display_name>
 			<note>&lt;b&gt;Always:&lt;/b&gt; this metadata field will always be printed on the frontend.&lt;br&gt;&lt;b&gt;Only If Filled:&lt;/b&gt; this metadata field will only be printed on the frontend if data is entered in that field for that asset.&lt;br&gt;&lt;b&gt;Never:&lt;/b&gt; this metadata field will not be printed on the frontend.</note>
 		</field>
+		<field attribute="visible_part">
+			<display_name>Frontend Part</display_name>
+			<note>%description%</note>
+		</field>			
 		<field>
 			<display_name>Relevance Weighting</display_name>
 			<note />
