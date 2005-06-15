@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_declared_vars.inc,v 1.15 2005/05/30 03:25:52 dmckee Exp $
+* $Id: design_area_declared_vars.inc,v 1.16 2005/06/15 06:52:10 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -87,7 +87,7 @@ class Design_Area_Declared_Vars extends Design_Area
 			require_once SQ_ATTRIBUTES_PATH.'/'.$type.'/'.$type.'.inc';
 			$attr_class = 'Asset_Attribute_'.$type;
 			if (!class_exists($attr_class)) {
-				trigger_localised_error('CORE0416', E_USER_WARNING, $type, $name);
+				trigger_localised_error('CORE0146', E_USER_WARNING, $type, $name);
 				continue;
 			}
 			$attrs[$name] = new $attr_class(0, $data['value']);
