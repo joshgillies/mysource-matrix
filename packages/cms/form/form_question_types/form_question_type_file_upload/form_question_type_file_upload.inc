@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_file_upload.inc,v 1.12 2005/05/20 05:27:37 tbarrett Exp $
+* $Id: form_question_type_file_upload.inc,v 1.12.2.1 2005/06/15 04:05:56 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.12.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -235,7 +235,7 @@ class Form_Question_Type_File_Upload extends Form_Question
 					return;
 				break;
 
-				case 'O':				
+				case 'O':
 					// want overwrite so just leave filename as is
 				break;
 
@@ -272,9 +272,19 @@ class Form_Question_Type_File_Upload extends Form_Question
 			// create a new file asset
 			$file_asset = new File();
 			$file_asset->_tmp['uploading_file'] = true;
+
+			// set the run level to ensure the file is correctly saved without
+			// the hassle of having to deal with permission errors
+			$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+
 			$file_asset->setAttrValue('name', $this->getValue());
 			$link = Array('asset' => &$create_loc_asset, 'link_type' => SQ_LINK_TYPE_2);
-			if (!$file_asset->create($link, $this->_tmp['file_info'])) return false;
+			if (!$file_asset->create($link, $this->_tmp['file_info'])) {
+				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+				return false;
+			}
+
+			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
 		}
 
