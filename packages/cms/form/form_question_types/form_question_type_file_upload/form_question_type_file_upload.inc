@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_file_upload.inc,v 1.4.2.4 2005/05/02 02:44:57 gsherwood Exp $
+* $Id: form_question_type_file_upload.inc,v 1.4.2.5 2005/06/15 04:03:58 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.4.2.4 $
+* @version $Revision: 1.4.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -196,10 +196,18 @@ class Form_Question_Type_File_Upload extends Form_Question
 			$file_asset = new File();
 
 			$file_asset->_tmp['uploading_file'] = true;
-			$file_asset->setAttrValue('name', $file['name']);
 			$link = Array('asset' => &$create_loc_asset, 'link_type' => SQ_LINK_TYPE_2);
 
-			if (!$file_asset->create($link, $file)) return false;
+			// set SQ_INSTALL flag to ensure the file is correctly saved without
+			// the hassle of having to deal with permission errors
+			$GLOBALS['SQ_INSTALL'] = true;
+
+			if (!$file_asset->create($link, $file)) {
+				$GLOBALS['SQ_INSTALL'] = false;
+				return false;
+			}
+
+			$GLOBALS['SQ_INSTALL'] = false;
 
 		}
 
