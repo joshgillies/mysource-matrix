@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.101 2005/06/15 00:50:58 dmckee Exp $
+* $Id: form.inc,v 1.102 2005/06/15 03:40:35 arailean Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.101 $
+* @version $Revision: 1.102 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1124,6 +1124,7 @@ class Form extends Asset
 				$this->submission_errors = array_merge($this->submission_errors, $question->failed_rules);
 				$ok = false;
 			}
+			$this->current_answers[$question->id] = $question->getValue();
 		}
 
 		if ($ok) {
@@ -1148,6 +1149,25 @@ class Form extends Asset
 		return $ok;
 
 	}//end processForm()
+
+
+	/**
+	* re-populates the active submissions of its members
+	*
+	* @access public
+	* @return void
+	*/
+	function repopulate()
+	{
+		if (empty($this->current_answers)) return;
+
+		$questions = $this->getAllQuestionAssets();
+		foreach (array_keys($questions) as $key) {
+			$question = &$GLOBALS['SQ_SYSTEM']->am->getAsset($key);
+			$question->setValue($this->current_answers[$question->id]);
+		}
+
+	}//end repopulate()
 
 
 	/**
