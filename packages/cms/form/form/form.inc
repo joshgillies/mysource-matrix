@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.100 2005/06/01 00:21:24 ndvries Exp $
+* $Id: form.inc,v 1.100.2.1 2005/06/15 04:03:01 arailean Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.100 $
+* @version $Revision: 1.100.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -161,7 +161,9 @@ class Form extends Asset
 		if (!is_numeric($assetid)) return Array();
 
 		// only TYPE_2 links are ever returned
-		if (!($link_types & SQ_LINK_TYPE_2)) return Array();
+		if (!($link_types & SQ_LINK_TYPE_2)) {
+			return Array();
+		}
 
 		if (!isset($this->_tmp['getLinks'][$assetid][$side_of_link])) {
 
@@ -570,7 +572,7 @@ class Form extends Asset
 		} else {
 			$new_index = max(array_keys($sort_order))+1;
 		}
-		$sort_order[$new_index] = $this->id . ':q' . $new_key;
+		$sort_order[$new_index] = $this->id.':q'.$new_key;
 		$this->setAttrValue('sort_order', $sort_order);
 
 		if (!$this->saveAttributes()) {
@@ -579,7 +581,7 @@ class Form extends Asset
 		}
 
 		// acquire the lock on the new question
-		$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id . ':q' . $new_key, 'all', $this->id, true);
+		$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id.':q'.$new_key, 'all', $this->id, true);
 		$GLOBALS['SQ_SYSTEM']->am->updateLock($this->id, 'all');
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -759,7 +761,6 @@ class Form extends Asset
 		$query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($this->id, SQ_LINK_TYPE_2, 'form_section', true, 'major', '', '0', '0');
 		if (empty($query)) return Array();
 		$query['select'] .= ', l.majorid';		// we need the major id too
-
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$result = $db->getAll(implode(' ', $query));
 		assert_valid_db_result($result);
@@ -1125,6 +1126,7 @@ class Form extends Asset
 				$this->submission_errors = array_merge($this->submission_errors, $question->failed_rules);
 				$ok = false;
 			}
+			$this->current_answers[$question->id] = $question->getValue();
 		}
 
 		if ($ok) {
@@ -1149,6 +1151,25 @@ class Form extends Asset
 		return $ok;
 
 	}//end processForm()
+
+
+	/**
+	* re-populates the active submissions of its members
+	*
+	* @access public
+	* @return void
+	*/
+	function repopulate()
+	{
+		if (empty($this->current_answers)) return;
+
+		$questions = $this->getAllQuestionAssets();
+		foreach (array_keys($questions) as $key) {
+			$question = &$GLOBALS['SQ_SYSTEM']->am->getAsset($key);
+			$question->setValue($this->current_answers[$question->id]);
+		}
+
+	}//end repopulate()
 
 
 	/**
@@ -1392,7 +1413,7 @@ class Form extends Asset
 		foreach (array_keys($questions) as $key) {
 			$question = &$GLOBALS['SQ_SYSTEM']->am->getAsset($key);
 			$q_code = $question->generateJSCode();
-			$code .= $q_code . (empty($q_code) ? '' : "\n");
+			$code .= $q_code.(empty($q_code) ? '' : "\n");
 		}
 
 		return $code;
