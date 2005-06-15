@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_edit_fns.inc,v 1.56.2.1 2005/06/09 06:01:40 lwright Exp $
+* $Id: form_edit_fns.inc,v 1.56.2.2 2005/06/15 00:05:38 dmckee Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.56.2.1 $
+* @version $Revision: 1.56.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -506,11 +506,10 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 		$new = trim(array_get_index($_REQUEST, $prefix.'_sections_new_options',''));
 		if (!empty($new)) $sections[] = $new;
 
-		$section_text = trim(array_get_index($_POST, $prefix.'_sections_options', ''));
+		$section_text = array_get_index($_POST, $prefix.'_sections_options', '');
 		if (!empty($section_text)) {
-			$section_names = explode("\r\n", $section_text);
 			// make sure the section names are not empty
-			foreach ($section_names as $option) {
+			foreach ($section_text as $option) {
 				$option = trim($option);
 				if (empty($option)) continue;
 				$sections[] = $option;
