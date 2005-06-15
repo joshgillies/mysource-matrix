@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question.inc,v 1.41.2.6 2005/05/02 02:44:57 gsherwood Exp $
+* $Id: form_question.inc,v 1.41.2.7 2005/06/15 05:22:32 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.41.2.6 $
+* @version $Revision: 1.41.2.7 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -165,10 +165,6 @@ class Form_Question extends Asset
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		// open a queue for all messages we are going to be logging
-		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-		$ms->openLog();
-
 		// prepare for the save
 		$saved_vars = $this->vars;
 
@@ -207,14 +203,12 @@ class Form_Question extends Asset
 
 		if (!$form->saveAttributes()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$ms->abortLog();
 			return false;
 		}
 
 		// tell, the asset it has updated
 		if (!$dont_run_updated && !$this->_updated()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$ms->abortLog();
 			return false;
 		}
 
@@ -222,7 +216,6 @@ class Form_Question extends Asset
 
 		// If we get this far, then it's all OK
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		$ms->closeLog();
 		$this->informChanges();
 
 		$GLOBALS['SQ_SYSTEM']->am->updateLock($this->_formid, 'attributes');
