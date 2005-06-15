@@ -18,15 +18,18 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: remove_assets_of_type.php,v 1.1 2005/06/15 01:08:14 tbarrett Exp $
+* $Id: remove_assets_of_type.php,v 1.2 2005/06/15 01:14:59 tbarrett Exp $
 *
 */
 
 /**
-* 
+* Remove all assets of the specified type in the matrix system
 *
-* @author  
-* @version $Revision: 1.1 $
+* Note this script is not at all asset-inheritance-aware: it will only remove
+* assets of exactly the type you specify
+*
+* @author  Tom Barrett <tbarrett@squiz.net>
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -80,8 +83,4 @@ if (!empty($assets_of_type)) {
 	assert_valid_db_result($res);
 
 }
-
-
-
-
 ?>

@@ -18,15 +18,18 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: remove_asset_type.php,v 1.1 2005/06/15 01:08:14 tbarrett Exp $
+* $Id: remove_asset_type.php,v 1.2 2005/06/15 01:14:59 tbarrett Exp $
 *
 */
 
 /**
-* Go through all WYSIWYG content types and re-run HTML Tidy
+* Remove all assets of the specified type and then remove any record of the asset type itself
 *
-* @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.1 $
+* Note this script is not at all asset-inheritance-aware: it will only remove
+* assets of exactly the type you specify
+*
+* @author  Tom Barrett <tbarrett@squiz.net>
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -72,26 +75,17 @@ if (!empty($assets_of_type)) {
 	$asset_ids_set = '('.implode(', ', $assets_of_type).')';
 	$res =& $db->query('DELETE FROM sq_ast_attr_val WHERE assetid in '.$asset_ids_set);
 	assert_valid_db_result($res);
-	bam($res);
 	$res =& $db->query('DELETE FROM sq_ast_lnk WHERE minorid in '.$asset_ids_set);
 	assert_valid_db_result($res);
-	bam($res);
 	$res =& $db->query('DELETE FROM sq_ast WHERE type_code = '.$db->quote($DELETING_ASSET_TYPE));
 	assert_valid_db_result($res);
-	bam($res);
-
 }
 $res =& $db->query('DELETE FROM sq_ast_attr WHERE type_code ='.$db->quote($DELETING_ASSET_TYPE).' OR owning_type_code = '.$db->quote($DELETING_ASSET_TYPE));
 assert_valid_db_result($res);
-bam($res);
 $res =& $db->query('DELETE FROM sq_ast_typ WHERE type_code = '.$db->quote($DELETING_ASSET_TYPE));
 assert_valid_db_result($res);
-bam($res);
 $res =& $db->query('DELETE FROM sq_ast_typ_inhd WHERE type_code = '.$db->quote($DELETING_ASSET_TYPE));
 assert_valid_db_result($res);
-bam($res);
 assert_true(unlink(dirname(dirname(__FILE__)).'/data/private/db/asset_types.inc'), 'failed removing asset_types.inc');
-
-
-
+echo "\nDone\n";
 ?>
