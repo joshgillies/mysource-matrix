@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.19 2005/06/15 01:26:39 dheppell Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.20 2005/06/15 05:30:51 dheppell Exp $
 *
 */
 
@@ -40,7 +40,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 * @author  David Heppell <dheppell@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2016,8 +2016,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	*/
 	function processNewGroupBy(&$asset, &$o, $prefix)
 	{
-		
-		if ($asset->writeAccess('attributes') && $asset->saveAttributes()) {
+		if ($asset->writeAccess('attributes')) {
 
 			if (isset($_POST[$prefix]['new'])) {
 
@@ -2050,6 +2049,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 					$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
 					$folder = &$asset->getFolder('group_formats');
 
+
 					$copy_link = Array('asset' => &$folder, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1, 'sort_order' => $new_position);
 
 					$bodycopy = new Bodycopy();
@@ -2060,7 +2060,11 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						return false;
 					}
-					
+
+					//if we lost the lock while creating the bodycopy
+					if (!$asset->writeAccess('attributes')) {
+						$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'attributes');
+					}
 
 					// update the grouping list
 					$new_group = Array(Array('group_type' => $new_type, 'format_assetid' => $bodycopy->id));
@@ -2073,6 +2077,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						return false;
 					}
+
 
 					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 					return true;
