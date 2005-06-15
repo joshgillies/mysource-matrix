@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.71.2.1 2005/06/10 06:51:01 lwright Exp $
+* $Id: workflow_manager.inc,v 1.71.2.2 2005/06/15 04:10:35 dmckee Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.71.2.1 $
+* @version $Revision: 1.71.2.2 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -492,16 +492,16 @@ class Workflow_Manager extends MySource_Object
 			$msg->type    = 'asset.status.notify';
 			$msg_reps     = Array(
 								'type_code'		=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'),
-								'asset_name'	=> $asset_name,
+								'asset_name'	=> $asset->name,
 								'status'		=> get_status_description($old_status),
 							);
 
 			// create a link to the preview screen, or to the details screen if preview doesn't exist
 			$asset_edt_fns = $asset->getEditFns();
 			if (isset($asset_edt_fns->static_screens['preview'])) {
-				$msg_reps['asset_url'] = current_url().$this->owner->getBackendHref('preview');
+				$msg_reps['asset_url'] = current_url().$asset->getBackendHref('preview');
 			} else {
-				$msg_reps['asset_url'] = current_url().$this->owner->getBackendHref('details');
+				$msg_reps['asset_url'] = current_url().$asset->getBackendHref('details');
 			}
 
 			$msg->parameters['assetid'] = $asset->id;
