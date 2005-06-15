@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.102 2005/06/15 03:40:35 arailean Exp $
+* $Id: form.inc,v 1.103 2005/06/15 03:43:04 arailean Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.102 $
+* @version $Revision: 1.103 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -161,7 +161,9 @@ class Form extends Asset
 		if (!is_numeric($assetid)) return Array();
 
 		// only TYPE_2 links are ever returned
-		if (!($link_types & SQ_LINK_TYPE_2)) return Array();
+		if (!($link_types & SQ_LINK_TYPE_2)) {
+			return Array();
+		}
 
 		if (!isset($this->_tmp['getLinks'][$assetid][$side_of_link])) {
 
@@ -570,7 +572,7 @@ class Form extends Asset
 		} else {
 			$new_index = max(array_keys($sort_order))+1;
 		}
-		$sort_order[$new_index] = $this->id . ':q' . $new_key;
+		$sort_order[$new_index] = $this->id.':q'.$new_key;
 		$this->setAttrValue('sort_order', $sort_order);
 
 		if (!$this->saveAttributes()) {
@@ -579,7 +581,7 @@ class Form extends Asset
 		}
 
 		// acquire the lock on the new question
-		$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id . ':q' . $new_key, 'all', $this->id, true);
+		$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id.':q'.$new_key, 'all', $this->id, true);
 		$GLOBALS['SQ_SYSTEM']->am->updateLock($this->id, 'all');
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -1411,7 +1413,7 @@ class Form extends Asset
 		foreach (array_keys($questions) as $key) {
 			$question = &$GLOBALS['SQ_SYSTEM']->am->getAsset($key);
 			$q_code = $question->generateJSCode();
-			$code .= $q_code . (empty($q_code) ? '' : "\n");
+			$code .= $q_code.(empty($q_code) ? '' : "\n");
 		}
 
 		return $code;
