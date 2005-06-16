@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.326 2005/06/14 02:21:08 tbarrett Exp $
+* $Id: asset_manager.inc,v 1.327 2005/06/16 05:46:16 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.326 $
+* @version $Revision: 1.327 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -1236,9 +1236,9 @@ class Asset_Manager extends MySource_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		// First get the default values
-		$sql = 'SELECT a.assetid, at.default_val 
-				FROM sq_ast a, sq_ast_attr at 
-				WHERE a.type_code = at.type_code 
+		$sql = 'SELECT a.assetid, at.default_val
+				FROM sq_ast a, sq_ast_attr at
+				WHERE a.type_code = at.type_code
 					AND at.name = '.$db->quote($attr_name).'
 					AND a.assetid IN ('.implode(', ', $assetids).')';
 		if ($asset_type != 'asset') {
@@ -1252,8 +1252,8 @@ class Asset_Manager extends MySource_Object
 		if ($asset_type != 'asset') {
 			$sub_sql .= ' AND owning_type_code = '.$db->quote($asset_type);
 		}
-		$sql = 'SELECT assetid, custom_val 
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_val 
+		$sql = 'SELECT assetid, custom_val
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_val
 				WHERE attrid IN ('.$sub_sql.')
 					AND assetid IN ('.implode(', ', $assetids).')';
 		$custom_vals = $db->getAssoc($sql);
@@ -1977,7 +1977,7 @@ class Asset_Manager extends MySource_Object
 						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON l.'.$other_side.'id  = a.assetid
 				';
 		$where = 'l.'.$side_of_link.'id = '.$db->quote($assetid);
-		
+
 		if (!is_null($link_type)) {
 			$where .= '
 				  AND l.link_type = '.$db->quote($link_type);
