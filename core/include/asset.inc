@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.338.2.9 2005/06/16 00:50:42 lwright Exp $
+* $Id: asset.inc,v 1.338.2.10 2005/06/16 06:54:51 dmckee Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.338.2.9 $
+* @version $Revision: 1.338.2.10 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -2900,7 +2900,9 @@ class Asset extends MySource_Object
 					if (empty($publishers)) {
 						// nobody can publish - great
 						// better let admins take a punt
-						return $this->_checkPermissionAccess(SQ_PERMISSION_ADMIN, $assetids);
+						if ($this->_checkPermissionAccess(SQ_PERMISSION_ADMIN, $assetids)) {
+							return true;
+						}
 					}
 				}
 			}
