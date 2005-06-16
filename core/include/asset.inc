@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.398 2005/06/03 07:06:40 ndvries Exp $
+* $Id: asset.inc,v 1.398.2.1 2005/06/16 05:29:23 dmckee Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.398 $
+* @version $Revision: 1.398.2.1 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3151,7 +3151,6 @@ class Asset extends MySource_Object
 		if ($perm == SQ_PERMISSION_READ) {
 			trigger_localised_error('SYS0172', E_USER_ERROR, __CLASS__, __FUNCTION__);
 		}
-
 		if ($lock_type == '') {
 			return $this->_checkPermissionAccess($perm, $assetids);
 
@@ -3232,7 +3231,9 @@ class Asset extends MySource_Object
 					if (empty($publishers)) {
 						// nobody can publish - great
 						// better let admins take a punt
-						return $this->_checkPermissionAccess(SQ_PERMISSION_ADMIN, $assetids);
+						if ($this->_checkPermissionAccess(SQ_PERMISSION_ADMIN, $assetids)) {
+							return true;
+						}
 					}
 				}
 			}
