@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_management.inc,v 1.23 2005/05/31 05:25:20 arailean Exp $
+* $Id: listing_engine_management.inc,v 1.23.2.1 2005/06/15 23:59:59 dheppell Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.23.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -164,6 +164,7 @@ class Listing_Engine_Management extends Asset_Management
 														'options'		=> Array(
 																			'number'	=> 'Standard',
 																			'letter'	=> 'A-Z listing',
+																			'grouped'	=> 'Custom Grouping',
 																			'random'	=> 'Random',
 																		   ),
 													   ),
@@ -193,6 +194,7 @@ class Listing_Engine_Management extends Asset_Management
 											'default'		=> ' > ',
 											'description'	=> 'Seperator to use when printing the lineage to a search result asset.',
 										   );
+
 		$this->vars['prev_page_text'] = Array(
 											'added'		=> '0.1',
 											'type'		=> 'text',
@@ -215,7 +217,40 @@ class Listing_Engine_Management extends Asset_Management
 																			   ),
 														   ),
 									   );
+
+		$this->vars['asset_grouping'] = Array(
+											'added'		=> '0.5',
+											'type'		=> 'serialise',
+											'default'	=> Array(),
+										);
 	}//end constructor
+
+
+	/**
+	* Return an array with information about the events that this page is listening for
+	*
+	* @access public
+	* @return boolean
+	*/
+	function getEventList()
+	{
+		return Array(
+				Array(
+					'event_name'					=> 'requestKeywords',
+					'broadcast_type_code'			=> 'content_type',
+					'broadcast_strict_type_code'	=> false,
+					'options'						=> Array(
+														'side_of_link'	=> 'major',
+														'indirect'		=> true,
+														'is_exclusive'	=> null,
+														'is_dependant'	=> 1,
+														'value'			=> '',
+														'link_type'		=> SQ_LINK_TYPE_2 | SQ_LINK_TYPE_1,
+													   ),
+				),
+			   );
+
+	}//end getEventList()
 
 
 	/**
@@ -422,8 +457,8 @@ class Listing_Engine_Management extends Asset_Management
 				}
 				ksort($asset_positions, SORT_NUMERIC);
 
-				echo 'Upgrading asset: '.$asset->name().' ('.$assetid.')'."\n";
-
+				echo 'Upgrading asset: '.$asset->name.' ('.$assetid.')'."\n";
+														 
 				if (!$asset->setAttrValue('asset_positions', $asset_positions)) {
 					trigger_localised_error('CMS0039', E_USER_WARNING, '0.6');
 					return false;

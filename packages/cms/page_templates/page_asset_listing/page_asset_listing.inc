@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.75 2005/05/31 05:19:48 arailean Exp $
+* $Id: page_asset_listing.inc,v 1.75.2.1 2005/06/16 00:00:00 dheppell Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.75 $
+* @version $Revision: 1.75.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -155,8 +155,15 @@ class Page_Asset_Listing extends Listing_Engine
 			}
 
 			$children = $this->getAssetList();
+
 			$this->filterAssetList($children);
 			$num_kids = count($children);
+
+			//the list is sorted and positions set, now we can split to groups
+			if ($this->attr('group_by') == 'grouped') {
+				$this->groupAssetsRecursively($this->attr('asset_grouping'), $children, $children);
+				$this->sortGroups($this->attr('asset_grouping'), $children, $children);
+			}
 
 			foreach ($keywords as $word) {
 				$replacements[$word] = $this->getKeywordReplacement($word);
@@ -175,8 +182,10 @@ class Page_Asset_Listing extends Listing_Engine
 			$result_page = (isset($_REQUEST['result_page'])) ? (int)$_REQUEST['result_page'] : 1;
 			if ($result_page <= 0) $result_page = 1;
 
+
 			// get our page chunk here
 			$todo =& $this->getChunk($children, $replacements, $result_page, $num_per_page);
+
 			$num_assets_showing = count($todo);
 
 			ob_start();
@@ -189,11 +198,29 @@ class Page_Asset_Listing extends Listing_Engine
 
 			// the global replacement to print the asset listing
 			$replacements['asset_listing'] = $global_contents;
-			$replacements['asset_count'] = $num_kids;
+			if ($this->attr('group_by') != 'grouped') {
+				$replacements['asset_count'] = $num_kids;
+			} else {
+				$total_assets = $this->_arrayCountRecursive($children, count($this->attr('asset_grouping')));
+				$replacements['asset_count'] = $total_assets;
+				$replacements['unique_asset_count'] = $num_kids;
+			}
+
+			// if the result page is too high, set to last page
+			if($num_per_page == 0) {
+				$result_page = 1;
+			} else {
+				$result_page = min($result_page, ceil($replacements['asset_count'] / $num_per_page));
+			}
+
 			$replacements['page_asset_count'] = $num_assets_showing;
 			$replacements['page_number'] = $result_page;
 			$replacements['first_asset_position'] = $num_per_page * ($result_page - 1) + 1;
-			$replacements['last_asset_position'] = min($num_kids, $num_per_page * $result_page);
+			if ($num_per_page == 0) {
+				$replacements['last_asset_position'] = $replacements['asset_count'];
+			} else {
+				$replacements['last_asset_position'] = min($replacements['asset_count'], $num_per_page * $result_page);
+			}
 
 			// print the contents of page - replacing the global keywords
 			$format_bodycopy->setKeywordReplacements($replacements);
@@ -295,6 +322,7 @@ class Page_Asset_Listing extends Listing_Engine
 
 				case 'random' :
 				case 'number' :
+				case 'grouped' :
 					foreach ($root_asset_ids as $root_asset_id) {
 						$new_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($root_asset_id, SQ_SC_LINK_BACKEND_NAV, array_keys($wanted_types), false, $side_of_link, null, null, null, null, SQ_PERMISSION_READ);
 						$links = array_merge($links, $new_links);
@@ -330,6 +358,7 @@ class Page_Asset_Listing extends Listing_Engine
 
 				case 'number' :
 				case 'random' :
+				case 'grouped' :
 					if ($this->attr('direction') == 'down') {
 						foreach ($root_asset_ids as $root_asset_id) {
 							$assets_to_list = $assets_to_list + $GLOBALS['SQ_SYSTEM']->am->getChildren($root_asset_id, array_keys($wanted_types), false, null, SQ_PERMISSION_READ);
@@ -348,6 +377,7 @@ class Page_Asset_Listing extends Listing_Engine
 		if ($group_by == 'number') {
 			$assets_to_list = $this->sortAssetList($assets_to_list, $sort_info);
 		}
+
 
 		return $assets_to_list;
 
@@ -413,6 +443,7 @@ class Page_Asset_Listing extends Listing_Engine
 						'page_number'			=> translate('cms_listing_page_number'),
 						'asset_count'			=> translate('cms_listing_asset_count'),
 						'page_asset_count'		=> translate('cms_listing_page_asset_count'),
+						'total_pages'			=> translate('cms_listing_total_pages'),
 						'first_asset_position'	=> translate('cms_listing_first_asset_position'),
 						'last_asset_position'	=> translate('cms_listing_last_asset_position'),
 					 );

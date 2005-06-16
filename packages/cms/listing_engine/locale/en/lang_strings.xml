@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.2 2005/05/26 04:19:05 arailean Exp $
+* $Id: lang_strings.xml,v 1.2.2.1 2005/06/16 00:00:00 dheppell Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -57,5 +57,18 @@
 <string source="cms_listing_keyword_submit_button">Submit Button</string>
 <string source="cms_listing_keyword_sort_by">Root Nodes (separated by commas)</string>
 <string source="cms_listing_keyword_sort_order">Sort Order</string>
+<string source="cms_listing_parent_asset">Parent Asset</string>
+<string source="cms_listing_sort_order">Sort Order</string>
+<string source="cms_listing_new_page_question">New Page ?</string>
+<string source="cms_listing_ascending_order">Ascending Order</string>
+<string source="cms_listing_descending_order">Descending Order</string>
+<string source="cms_listing_start_group_on_new_page">Start each new grouped value on a new page</string>
+<string source="cms_listing_delete_group_format">Delete this grouping and its group format</string>
+<string source="cms_listing_restrict_types">Restrict Types</string>
+<string source="cms_listing_no_types_selected">No types have been selected</string>
+<string source="cms_listing_group_asset_restriction_note">If no asset types are chosen, no asset type restriction will be enforced, and all parents will be included by default</string>
+<string source="cms_listing_group_metadata_field_note">If the metadata schema that contains this field is not applied to an asset, it will be omitted from the asset listing</string>
+<string source="cms_listing_no_sorting_applied">No sorting applied</string>
+<string source="cms_listing_cannot_use_asset_postitions_with_groups">Custom Grouping is currently selected. Asset positions are not used for Custom Grouping</string>
 
 </strings>

@@ -18,39 +18,23 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_formats.xml,v 1.3.2.1 2005/06/15 23:59:59 dheppell Exp $
-* $Name: not supported by cvs2svn $
+* $Id: edit_interface_screen_grouping.xml,v 1.2.2.2 2005/06/15 23:59:59 dheppell Exp $
+*
 */
 -->
 
 <contents>
-	<section name="Default Formats">
-		<field>
-			<function_call>
-				<paint_function   name="paintDefaultFormatLinks"   />
-			</function_call>
-		</field>
+	<section name="Asset Grouping" write_access="write:attributes">
+		<function_call>
+			<paint_function   name="paintGroupBy" />
+			<process_function name="processGroupBy" />
+		</function_call>
 	</section>
-	<section name="Group Formats">
+	<section name="Add New Group" read_access="write:attributes" write_access="write:attributes">
 		<field>
 			<function_call>
-				<paint_function name="paintGroupFormatLinks" />
-			</function_call>
-		</field>
-	</section>
-	<section name="Customised Asset Type Formats" write_access="write:links">
-		<field>
-			<function_call>
-				<paint_function   name="paintTypeFormats"   />
-				<process_function name="processTypeFormats" />
-			</function_call>
-		</field>
-	</section>
-	<section name="Customised List Position Formats" write_access="write:links">
-		<field>
-			<function_call>
-				<paint_function   name="paintPositionFormats"   />
-				<process_function name="processPositionFormats" />
+				<paint_function   name="paintNewGroupBy" />
+				<process_function name="processNewGroupBy" />
 			</function_call>
 		</field>
 	</section>

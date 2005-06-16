@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_formats.xml,v 1.1 2005/03/30 00:41:12 lwright Exp $
+* $Id: lang_screen_formats.xml,v 1.1.2.1 2005/06/16 00:00:00 dheppell Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -30,6 +30,13 @@
 			<note></note>
 			<function_call>
 				<paint_function   name="paintDefaultFormatLinks"   />
+			</function_call>
+		</field>
+	</section>
+	<section name="Group Formats">
+		<field>
+			<function_call>
+				<paint_function name="paintGroupFormatLinks" />
 			</function_call>
 		</field>
 	</section>
