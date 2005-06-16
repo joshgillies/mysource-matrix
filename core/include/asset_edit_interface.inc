@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.260 2005/05/30 05:54:27 ndvries Exp $
+* $Id: asset_edit_interface.inc,v 1.261 2005/06/16 05:47:09 lwright Exp $
 *
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.260 $
+* @version $Revision: 1.261 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -356,7 +356,7 @@ class Asset_Edit_Interface extends MySource_Object
 												if (empty($lock)) {
 
 													if ($full_write_access && $acquire_lock_access) {
-														echo translate('currently_not_held');
+														echo translate('currently_not_held').'.';
 													} else {
 														echo translate('no_access_to_edit', $owner->name);
 													}
@@ -383,7 +383,7 @@ class Asset_Edit_Interface extends MySource_Object
 														$expires_in = translate('due_to_expire', $expires_in);
 													}
 
-													echo translate('lock_held_by', $user->name, $editing->name);
+													echo translate('lock_held_by', $user->name, $editing->name).'. ';
 													echo $expires_in;
 												}//end if
 												?>
