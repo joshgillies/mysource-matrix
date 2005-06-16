@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.398.2.1 2005/06/16 05:29:23 dmckee Exp $
+* $Id: asset.inc,v 1.398.2.2 2005/06/16 05:44:29 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.398.2.1 $
+* @version $Revision: 1.398.2.2 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3292,7 +3292,10 @@ class Asset extends MySource_Object
 
 		if ($this->charset) {
 			header("Content-type: text/html; charset=$this->charset");
+		} else {
+			header("Content-type: text/html; charset=".SQ_CONF_DEFAULT_CHARACTER_SET);
 		}
+
 		if ($this->languages) {
 			header("Content-language: $this->languages");
 		}

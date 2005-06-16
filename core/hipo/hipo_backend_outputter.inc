@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_backend_outputter.inc,v 1.15 2005/05/17 06:58:42 ndvries Exp $
+* $Id: hipo_backend_outputter.inc,v 1.15.2.1 2005/06/16 05:44:29 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_SYSTEM_ROOT.'/core/include/backend_outputter.inc';
 *    suite hipo jobs
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.15.2.1 $
 * @package MySource_Matrix
 */
 class Hipo_Backend_Outputter extends Backend_Outputter
@@ -86,8 +86,7 @@ class Hipo_Backend_Outputter extends Backend_Outputter
 			if ($this->_charset) {
 				header("Content-type: text/html; charset=$this->_charset");
 			} else {
-				$default_charset = 'iso-8859-1';
-				header("Content-type: text/html; charset=$default_charset");
+				header("Content-type: text/html; charset=".SQ_CONF_DEFAULT_CHARACTER_SET);
 			}
 		}
 		?>

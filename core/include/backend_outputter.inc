@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.108 2005/05/16 06:36:32 lwright Exp $
+* $Id: backend_outputter.inc,v 1.108.2.1 2005/06/16 05:44:29 lwright Exp $
 *
 */
 
@@ -42,7 +42,7 @@ define('SQ_BO_MSG_ERROR',   4);
 *    there will only ever be one instance of this object
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.108 $
+* @version $Revision: 1.108.2.1 $
 * @package MySource_Matrix
 */
 class Backend_Outputter
@@ -951,8 +951,7 @@ class Backend_Outputter
 			if ($this->_charset) {
 				header("Content-type: text/html; charset=$this->_charset");
 			} else {
-				$default_charset = 'iso-8859-1';
-				header("Content-type: text/html; charset=$default_charset");
+				header("Content-type: text/html; charset=".SQ_CONF_DEFAULT_CHARACTER_SET);
 			}
 		}
 		?>
