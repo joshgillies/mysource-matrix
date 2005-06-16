@@ -19,7 +19,7 @@
 * +--------------------------------------------------------------------+
 *
 *
-* $Id: asset.inc,v 1.417 2005/06/16 05:47:29 lwright Exp $
+* $Id: asset.inc,v 1.418 2005/06/16 06:53:34 dmckee Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.417 $
+* @version $Revision: 1.418 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3233,7 +3233,9 @@ class Asset extends MySource_Object
 					if (empty($publishers)) {
 						// nobody can publish - great
 						// better let admins take a punt
-						return $this->_checkPermissionAccess(SQ_PERMISSION_ADMIN, $assetids);
+						if ($this->_checkPermissionAccess(SQ_PERMISSION_ADMIN, $assetids)) {
+							return true;
+						}
 					}
 				}
 			}
