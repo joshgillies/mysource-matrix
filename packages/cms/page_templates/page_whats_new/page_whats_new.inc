@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_whats_new.inc,v 1.18 2005/05/11 06:07:33 lwright Exp $
+* $Id: page_whats_new.inc,v 1.18.2.1 2005/06/16 01:13:30 dheppell Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../page_templates/page_asset_listing/page_as
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.18.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -202,7 +202,7 @@ class Page_Whats_New extends Page_Asset_Listing
 		}//end if subs_only
 
 		if ($group_by == 'number') {
-			$assets_to_list = $this->sortAssetList($children, $sort_info);
+			$children = $this->sortAssetList($children, $sort_info);
 		}
 
 		// clean up after ourselves
