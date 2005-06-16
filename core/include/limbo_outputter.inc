@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: limbo_outputter.inc,v 1.20 2005/05/16 06:36:32 lwright Exp $
+* $Id: limbo_outputter.inc,v 1.21 2005/06/16 05:47:29 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/backend_outputter.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix
 */
 class Limbo_Outputter extends Backend_Outputter
@@ -122,7 +122,7 @@ class Limbo_Outputter extends Backend_Outputter
 			if ($this->_charset) {
 				header("Content-type: text/html; charset=$this->_charset");
 			} else {
-				$default_charset = 'iso-8859-1';
+				$default_charset = SQ_CONF_DEFAULT_CHARACTER_SET;
 				header("Content-type: text/html; charset=$default_charset");
 			}
 		}

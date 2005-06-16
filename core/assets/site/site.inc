@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.70 2005/05/11 06:04:55 lwright Exp $
+* $Id: site.inc,v 1.71 2005/06/16 05:47:29 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.70 $
+* @version $Revision: 1.71 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -530,7 +530,12 @@ class Site extends Folder
 			return;
 		}
 
-		if ($asset->charset)   header("Content-type: text/html; charset=$this->charset");
+		if ($asset->charset) {
+			header("Content-type: text/html; charset=$this->charset");
+		} else {
+			header("Content-type: text/html; charset=".SQ_CONF_DEFAULT_CHARACTER_SET);
+		}
+
 		if ($asset->languages) header("Content-language: $this->languages");
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;

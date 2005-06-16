@@ -19,7 +19,7 @@
 * +--------------------------------------------------------------------+
 *
 *
-* $Id: asset.inc,v 1.416 2005/06/14 01:17:15 cboudjnah Exp $
+* $Id: asset.inc,v 1.417 2005/06/16 05:47:29 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.416 $
+* @version $Revision: 1.417 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3292,6 +3292,8 @@ class Asset extends MySource_Object
 
 		if ($this->charset) {
 			header("Content-type: text/html; charset=$this->charset");
+		} else {
+			header("Content-type: text/html; charset=".SQ_CONF_DEFAULT_CHARACTER_SET);
 		}
 		if ($this->languages) {
 			header("Content-language: $this->languages");
