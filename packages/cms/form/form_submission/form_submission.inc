@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_submission.inc,v 1.17.2.3 2005/05/02 02:44:58 gsherwood Exp $
+* $Id: form_submission.inc,v 1.17.2.4 2005/06/16 00:20:25 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.17.2.3 $
+* @version $Revision: 1.17.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -315,9 +315,12 @@ class Form_Submission extends Asset
 	*/
 	function saveAttributes($dont_run_updated=false)
 	{
+		$old_sq_install = isset($GLOBALS['SQ_INSTALL']);
 		$GLOBALS['SQ_INSTALL'] = true;
+
 		$val = parent::saveAttributes($dont_run_updated);
-		unset($GLOBALS['SQ_INSTALL']);
+
+		if (!$old_sq_install) unset($GLOBALS['SQ_INSTALL']);
 
 		return $val;
 
