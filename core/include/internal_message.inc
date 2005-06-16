@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: internal_message.inc,v 1.60 2005/05/17 10:22:49 gnoel Exp $
+* $Id: internal_message.inc,v 1.61 2005/06/16 02:54:47 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    An internal message to be sent around the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.60 $
+* @version $Revision: 1.61 $
 * @package MySource_Matrix
 */
 class Internal_Message extends MySource_Object
@@ -304,7 +304,9 @@ class Internal_Message extends MySource_Object
 					$from_email = SQ_CONF_DEFAULT_EMAIL;
 				}
 			}
-			if (empty($from_string)) $from_string = '"'.SQ_SYSTEM_SHORT_NAME.' System" <'.$from_email.'>';
+			if (empty($from_string)) {
+				$from_string = '"'.SQ_SYSTEM_SHORT_NAME.' System" <'.$from_email.'>';
+			}
 		}
 
 
@@ -347,7 +349,7 @@ class Internal_Message extends MySource_Object
 		  ///////////////////////////
 		 // SEND MESSAGE TO USERS //
 		///////////////////////////
-		if ($send_mail) {
+		if ($send_mail || (0 == strpos($this->type, 'inbox'))) {
 
 			require_once 'Mail.php';
 			require_once 'Mail/mime.php';
@@ -362,9 +364,11 @@ class Internal_Message extends MySource_Object
 
 			// send each user a message - via email and into their internal message inbox
 			foreach ($send_to as $userid) {
+
 				if (!$userid) {
-					// if the userid is empty, we are sending a message to the system
+					// The userid is empty, which means we are sending a message to the system
 					// so we send to the default email and tech email
+
 					$default = SQ_CONF_DEFAULT_EMAIL;
 					$tech = SQ_CONF_TECH_EMAIL;
 					$to_email = '';
@@ -373,9 +377,9 @@ class Internal_Message extends MySource_Object
 
 					$subject = $lm->getInternalMessageSubject($this->type, $this->replacements, $user_locale);
 					$hdrs = Array(
-						'From'		=> $from_string,
-						'Subject'	=> $subject,
-					);
+								'From'		=> $from_string,
+								'Subject'	=> $subject,
+							);
 
 					if (!empty($default)) $to_email .= $default;
 					if (!empty($tech)) {
@@ -392,92 +396,68 @@ class Internal_Message extends MySource_Object
 					$html_body = $this->formatEmail($log_body, $owner, 'html');
 
 					$ms->queueEmail($this->from, 0, $subject, $log_body);
-					if (!$ms->sending_queue) {
-						$ms->sendQueuedEmails();
+					if (!$ms->sending_queue) $ms->sendQueuedEmails();
+
+				} else {
+					// we are sending a message to user(s)
+
+					// prepare the message content
+					$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
+					if (is_null($user)) continue;
+					$user_locale = $user->attr('locale');
+					if (empty($user_locale)) {
+						$user_locale = SQ_CONF_DEFAULT_BACKEND_LOCALE;
 					}
-					/*
-					$mime->setTXTBody(strip_tags($text_body));
-					$mime->setHTMLBody($html_body);
+					$subject = $lm->getInternalMessageSubject($this->type, $this->replacements, $user_locale);
+					$hdrs = Array(
+								'From'		=> $from_string,
+								'Subject'	=> $subject,
+							);
+					$body = $this->formatBody($user);
+					$log_body = preg_replace('|<SQ_MSG_LINK ([^>]*?)>(.*?)</SQ_MSG_LINK>|', '<a \\1>\\2</a>', $body);
 
-					// get() must be called before headers()
-					$body = $mime->get();
-					$hdrs = $mime->headers($hdrs);
+					// log the internal message to the DB
+					$messageid = $db->nextId('sq_internal_msg');
+					assert_valid_db_result($messageid);
+					$values = Array(
+								$messageid,
+								$userid,
+								$this->from,
+								$subject,
+								$log_body,
+								$this->type,
+								$this->priority,
+								$this->status,
+								$this->sent,
+								'YYYY-MM-DD HH24:MI:SS', // for the todate prepare statement
+								$param_string,
+							  );
+					$result = $db->execute($prepared, $values);
+					assert_valid_db_result($result);
 
-					if (!empty($to_email)) {
-						$mail->send($to_email, $hdrs, $body);
-					}*/
+					if ($send_mail) {
+						// send an email as well
+						require_once SQ_FUDGE_PATH.'/general/www.inc';
+						$to_email = trim($user->attr('email'));
 
-					continue;
+						// get the body with a header and a footer attached
+						$log_body = preg_replace('|<SQ_MSG_LINK ([^>]*?)>(.*?)</SQ_MSG_LINK>|', '<a \\1>\\2</a>', $body);
+						$text_body = $this->formatEmail($log_body, $user, 'text');
+						$html_body = $this->formatEmail($log_body, $user, 'html');
+
+						$ms->queueEmail($this->from, $userid, $subject, $log_body);
+						if (!$ms->sending_queue) $ms->sendQueuedEmails();
+					}
 				}
 
-				$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
-				if (is_null($user)) continue;
-				$user_locale = $user->attr('locale');
-				if (empty($user_locale)) {
-					$user_locale = SQ_CONF_DEFAULT_BACKEND_LOCALE;
-				}
-
-				$subject = $lm->getInternalMessageSubject($this->type, $this->replacements, $user_locale);
-				$hdrs = Array(
-					'From'		=> $from_string,
-					'Subject'	=> $subject,
-				);
-
-				$body = $this->formatBody($user);
-				$log_body = preg_replace('|<SQ_MSG_LINK[^>]*?href="([^"]+)"[^>]*?>(.*?)</SQ_MSG_LINK>|', '<a href="#" onClick="self.parent.location=\'\\1\'; return false;">\\2</a>', $body);
-
-				// log the internal message
-				$messageid = $db->nextId('sq_internal_msg');
-				assert_valid_db_result($messageid);
-
-				$values = Array(
-							$messageid,
-							$userid,
-							$this->from,
-							$subject,
-							$log_body,
-							$this->type,
-							$this->priority,
-							$this->status,
-							$this->sent,
-							'YYYY-MM-DD HH24:MI:SS', // for the todate prepare statement
-							$param_string,
-						  );
-				$result = $db->execute($prepared, $values);
-				assert_valid_db_result($result);
-
-				// now send an email as well
-				require_once SQ_FUDGE_PATH.'/general/www.inc';
-				$to_email = trim($user->attr('email'));
-
-				// get the body with a header and a footer attached
-				$log_body = preg_replace('|<SQ_MSG_LINK ([^>]*?)>(.*?)</SQ_MSG_LINK>|', '<a \\1>\\2</a>', $body);
-				$text_body = $this->formatEmail($log_body, $user, 'text');
-				$html_body = $this->formatEmail($log_body, $user, 'html');
-
-				$ms->queueEmail($this->from, $userid, $subject, $log_body);
-				if (!$ms->sending_queue) {
-					$ms->sendQueuedEmails();
-				}
-/*
-				$mime->setTXTBody(strip_tags($text_body));
-				$mime->setHTMLBody($html_body);
-
-				// get() must be called before headers()
-				$body = $mime->get();
-				$hdrs = $mime->headers($hdrs);
-
-				if (!empty($to_email) && valid_email($to_email)) {
-					$msg = $mail->send($to_email, $hdrs, $body);
-				}
-*/
 			}//end foreach
 
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		}//end if sending message via email
-		
-		$db->freePrepared($prepared);
+
+		$free_res = $db->freePrepared($prepared);
+		assert_valid_db_result($free_res);
 
 		return true;
 
@@ -504,8 +484,10 @@ class Internal_Message extends MySource_Object
 			$header = $user.','.$term.$term;
 		}
 		// replace separator line for multiple-bodied message with a h-rule
-		if ($type == 'html') $body = str_replace("\n\n".str_repeat('-', 50)."\n\n",'<hr />',$body);
-		if ($type == 'html') $body = nl2br($body);	// give it newlines
+		if ($type == 'html') {
+			$body = str_replace("\n\n".str_repeat('-', 50)."\n\n",'<hr />',$body);
+			$body = nl2br($body);	// give it newlines
+		}
 
 		$line = ($type == 'text') ? str_repeat('-', 20).$term : '<hr />';
 
@@ -585,8 +567,10 @@ class Internal_Message extends MySource_Object
 	function formatBody(&$user)
 	{
 		$lm =& $GLOBALS['SQ_SYSTEM']->lm;
-		if (!is_a($user, 'user')) return $lm->getInternalMessageBody($this->type, $this->replacements, SQ_CONF_DEFAULT_BACKEND_LOCALE);
-		require_once SQ_FUDGE_PATH."/general/text.inc";
+		if (!is_a($user, 'user')) {
+			return $lm->getInternalMessageBody($this->type, $this->replacements, SQ_CONF_DEFAULT_BACKEND_LOCALE);
+		}
+		require_once SQ_FUDGE_PATH.'/general/text.inc';
 
 		$replacements = Array();
 		$replacements['user_name'] = $user->name;
@@ -622,17 +606,17 @@ class Internal_Message extends MySource_Object
 						switch ($type[1]) {
 							case 'linking' :
 								if (!isset($this->parameters['majorid'])) {
-									trigger_localised_error("SYS0168", E_USER_WARNING, $this->type);
+									trigger_localised_error('SYS0168', E_USER_WARNING, $this->type);
 								} else if (!isset($this->parameters['minorid'])) {
-									trigger_localised_error("SYS0168", E_USER_WARNING, $this->type);
+									trigger_localised_error('SYS0168', E_USER_WARNING, $this->type);
 								} else {
 									$major = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->parameters['majorid']);
 									if (is_null($major)) {
-										trigger_localised_error("SYS0167", E_USER_WARNING, $this->parameters['majorid'], $this->type);
+										trigger_localised_error('SYS0167', E_USER_WARNING, $this->parameters['majorid'], $this->type);
 									}
 									$minor = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->parameters['minorid']);
 									if (is_null($minor)) {
-										trigger_localised_error("SYS0167", E_USER_WARNING, $this->parameters['minorid'], $this->type);
+										trigger_localised_error('SYS0167', E_USER_WARNING, $this->parameters['minorid'], $this->type);
 									}
 								}
 							break(2);
@@ -647,12 +631,12 @@ class Internal_Message extends MySource_Object
 
 					if (!isset($this->parameters['assetid'])) {
 						// cant send an asset message if we dont know which asset is affected
-						trigger_localised_error("SYS0168", E_USER_WARNING, $this->type);
+						trigger_localised_error('SYS0168', E_USER_WARNING, $this->type);
 					} else {
 						$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->parameters['assetid']);
 						if (is_null($asset)) {
 							// cant send an asset message if we dont know which asset is affected
-							trigger_localised_error("SYS0167", E_USER_WARNING, $this->parameters['assetid'], $this->type);
+							trigger_localised_error('SYS0167', E_USER_WARNING, $this->parameters['assetid'], $this->type);
 						}
 
 						$this->to += $GLOBALS['SQ_SYSTEM']->am->getPermission($asset->id, SQ_PERMISSION_ADMIN, true, false);

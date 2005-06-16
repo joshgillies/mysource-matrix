@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: messaging_service.inc,v 1.39 2005/04/27 01:22:20 lwright Exp $
+* $Id: messaging_service.inc,v 1.40 2005/06/16 02:54:47 tbarrett Exp $
 *
 */
 
@@ -44,7 +44,7 @@ define('SQ_MSG_PRIORITY_VERY_HIGH' , 5);
 *    Facilitate the sending and management of internal messages
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package MySource_Matrix
 */
 class Messaging_Service extends MySource_Object
@@ -405,7 +405,6 @@ class Messaging_Service extends MySource_Object
 		if (!is_null($to))   $where .= ' AND m.sent <= '.$db->quote(ts_iso8601($to));
 
 		$sql .= ' '.$where.' ORDER BY m.sent DESC';
-
 		$result = $db->getAll($sql);
 		assert_valid_db_result($result);
 
