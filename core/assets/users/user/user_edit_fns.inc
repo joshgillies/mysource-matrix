@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_edit_fns.inc,v 1.17 2005/05/11 06:05:05 lwright Exp $
+* $Id: user_edit_fns.inc,v 1.17.2.1 2005/06/16 23:15:20 lwright Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.17.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -116,7 +116,7 @@ class User_Edit_Fns extends Asset_Edit_Fns
 				combo_box($prefix.'_restriction_list', $conditions, false, '');
 				$restriction_list = ob_get_contents();
 			ob_end_clean();
-			
+
 			echo translate('add_group_restriction', $group_list, $restriction_list).' ';
 		}
 
@@ -233,10 +233,7 @@ class User_Edit_Fns extends Asset_Edit_Fns
 		}
 
 
-		$asset->setAttrValue('restrictions', $restrictions);
-		$asset->saveAttributes();
-
-		return false;
+		return $asset->setAttrValue('restrictions', $restrictions);
 
 	}//end processUserConditions()
 
