@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: settings.inc,v 1.29 2005/05/11 06:05:11 lwright Exp $
+* $Id: settings.inc,v 1.30 2005/06/17 01:24:11 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Settings Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix
 */
 
@@ -395,7 +395,9 @@ function paintSettings(&$owner, &$o, &$ei)
 								text_box($prefix.'_designs['.$design_name.'][name]', '', 20, 30);
 							$o->closeField();
 						} else {
+							$o->openRaw();
 							hidden_field($prefix.'_designs['.$design_name.'][name]', $design_name);
+							$o->closeRaw();
 							if ($design_type == 'user') {
 								$o->openField(translate('design_code'));
 									echo $design_code;
