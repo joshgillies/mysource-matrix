@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.38 2005/06/02 04:42:00 ndvries Exp $
+* $Id: image.inc,v 1.38.2.1 2005/06/17 04:44:53 ykasim Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.38.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -576,7 +576,9 @@ class Image extends File
 	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=true, $side_of_link='major', $sort_by=null)
 	{
 		// only TYPE_2 links are ever returned
-		if (!($link_types & SQ_LINK_TYPE_2)) return Array();
+		if (!($link_types & SQ_LINK_TYPE_2)) {
+			return Array();
+		}
 
 		// we can check the type codes outside the loop because they are only ever going to be a single type
 		if ($type_code) {
@@ -619,6 +621,7 @@ class Image extends File
 							$links[] = Array(
 										'linkid'			=> 0,
 										'minorid'			=> $this->id.':'.$varid,
+										'majorid'			=> $this->id,
 										'minor_type_code'	=> 'image_variety',
 										'value'				=> '',
 										'link_type'			=> SQ_LINK_TYPE_2,
