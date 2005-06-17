@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.121 2005/06/17 03:10:34 tbarrett Exp $
+* $Id: mysource.inc,v 1.122 2005/06/17 06:42:28 tbarrett Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.121 $
+* @version $Revision: 1.122 $
 * @package MySource_Matrix
 */
 class MySource
@@ -541,7 +541,7 @@ class MySource
 				if (time() - $_SESSION['user_last_access'] > $session_prefs['timeout']) {
 					$this->_logSecurityMsg('system.security.logout.idle', Array('timeout' => $session_prefs['timeout']));
 					$this->_clearSession();
-					$this->_loginPublicUser(true);
+					$this->_loginPublicUser();
 					$this->generateLoginKey(true);
 					return;
 				}
@@ -561,7 +561,7 @@ class MySource
 						// it expired yesterday so clear the session / force a login right now
 						$this->_logSecurityMsg('system.security.logout.staleauth', Array('timeout' => $session_prefs['max_length']));
 						$this->_clearSession();
-						$this->_loginPublicUser(true);
+						$this->_loginPublicUser();
 						$this->generateLoginKey(true);
 					} else if ($session_expiry_ts < $tomorrow_start_ts) {
 						// it's meant to expire today...
@@ -570,7 +570,7 @@ class MySource
 							// and ask for re-authentication
 							$this->_logSecurityMsg('system.security.logout.staleauth', Array('timeout' => $session_prefs['max_length']));
 							$this->_clearSession();
-							$this->_loginPublicUser(true);
+							$this->_loginPublicUser();
 							$this->generateLoginKey(true);
 							return;
 						}
@@ -700,7 +700,7 @@ class MySource
 					$this->_logSecurityMsg('system.security.logout.manual');
 				}
 				$this->_clearSession();
-				$this->_loginPublicUser(true);
+				$this->_loginPublicUser();
 				$this->generateLoginKey(true);
 			break;
 
@@ -785,10 +785,9 @@ class MySource
 	* @access public
 	* @return void
 	*/
-	function _loginPublicUser($force=false)
+	function _loginPublicUser()
 	{
-		if ($force || empty($this->user) || !$this->_user_is_public) {
-			// log in the public user
+		if (empty($this->user) || !is_a($this->user, 'public_user')) {
 			$this->user = &$this->getPublicUser();
 			$_SESSION['user_is_root']      = $this->_user_is_root      = false;
 			$_SESSION['user_is_sys_admin'] = $this->_user_is_sys_admin = false;
