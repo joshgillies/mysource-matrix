@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit_table.php,v 1.14 2005/06/17 04:45:09 dmckee Exp $
+* $Id: edit_table.php,v 1.15 2005/06/17 05:11:11 dmckee Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Table Edit Popup for the WYSIWYG
 *
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix
 */
 
@@ -144,6 +144,7 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 			table.Import(window.dialogArguments.table_structure);
 			window.focus();
 			init_finished = true;
+
 		};
 
 		function onOK() {
@@ -167,13 +168,16 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 			return false;
 
 		};
-		
+
+		//Called to avoid the mouse move event being called prematurely
 		function onMove(event) {
 			if (init_finished == true) {
 				table.mouse.Move(event);
 			}
 			return false;
+
 		};
+
 		//]]>
 	</script>
 </head>
