@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.120 2005/06/15 02:14:57 tbarrett Exp $
+* $Id: mysource.inc,v 1.121 2005/06/17 03:10:34 tbarrett Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.120 $
+* @version $Revision: 1.121 $
 * @package MySource_Matrix
 */
 class MySource
@@ -790,9 +790,9 @@ class MySource
 		if ($force || empty($this->user) || !$this->_user_is_public) {
 			// log in the public user
 			$this->user = &$this->getPublicUser();
-			$_SESSION['user_is_root']      = false;
-			$_SESSION['user_is_sys_admin'] = false;
-			$_SESSION['user_is_public']    = true;
+			$_SESSION['user_is_root']      = $this->_user_is_root      = false;
+			$_SESSION['user_is_sys_admin'] = $this->_user_is_sys_admin = false;
+			$_SESSION['user_is_public']    = $this->_user_is_public    = true;
 		}
 
 	}//end _loginPublicUser()
@@ -1025,7 +1025,7 @@ class MySource
 		$session_name = session_name();
 		$header = "Set-Cookie: $session_name=$session_id; ";
 		if (!empty($time_to_live)) {
-			$header .= 'expires='.substr(date('r', time()+$time_to_live-((int)substr(date('O'), 0, 3)*60*60)), 0, -5) . ' GMT';
+			$header .= 'expires='.substr(date('r', time()+$time_to_live-((int)substr(date('O'), 0, 3)*60*60)), 0, -5).' GMT';
 		}
 		if (!empty($session_params['path'])) {
 			$header .= "path=$session_params[path]; ";
