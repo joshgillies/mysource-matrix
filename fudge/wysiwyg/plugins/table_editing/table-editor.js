@@ -247,6 +247,7 @@ TTable = function(name, rows, cols)
 	this.semired	= document.getElementById("semired").src;
 	this.empty		= document.getElementById("empty").src;
 
+	this.selected	= false;
 
 	if (typeof rows != "undefined") {
 		for (r = 0;r<rows;r++) {
@@ -476,6 +477,7 @@ TTable = function(name, rows, cols)
 
 	this.select = function(td)
 	{
+		this.selected = true;
 		var id = td.id;
 		rr = id.substring(2, id.indexOf("_"))*1;
 		cc = id.substring(id.indexOf("_") + 1)*1;
@@ -535,6 +537,7 @@ TTable = function(name, rows, cols)
 
 	this.showHeaders = function()
 	{
+		if (this.selected == false) return false;
 		for (i=0;i<this.matrix[this.r].cells[this.c].headers.length;i++) {
 			document.getElementById("td" + this.matrix[this.r].cells[this.c].headers[i].r + "_" + this.matrix[this.r].cells[this.c].headers[i].c).style.background = "url(" + this.semired + ")";
 		}
