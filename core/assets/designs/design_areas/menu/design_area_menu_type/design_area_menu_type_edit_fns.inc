@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type_edit_fns.inc,v 1.44 2005/05/31 02:35:43 dmckee Exp $
+* $Id: design_area_menu_type_edit_fns.inc,v 1.45 2005/06/17 06:35:27 dmckee Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.45 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -172,12 +172,10 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 
 			// if there is no contents, then see if there is a default
 			if (empty($contents[$asset_index]['contents'])) {
-				error_log('default asset contents');
 				$contents[$asset_index]['contents'] = $this->_getDefaultContents($asset, 'asset');
 			}
 
 			if (!$asset->setAttrValue('asset_contents', $contents[$asset_index]['contents'])) {
-				error_log('asset contents cant be set');
 				return false;
 			}
 
@@ -233,7 +231,6 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 	{
 		// let's see if we already have a sub menu
 		$sub = &$asset->getSubMenu();
-		error_log('sub menu id:  '.$sub->id);
 		// nup ? create one now
 		if (is_null($sub)) {
 			// get the parent
@@ -270,7 +267,6 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 		if (!$edit_fns->_processContents($sub, $contents) && $sub->saveAttributes()) {
 			return false;
 		}
-		error_log(print_r($sub->attr('contents'), true));
 		$asset->saveAttributes();
 		return true;
 
