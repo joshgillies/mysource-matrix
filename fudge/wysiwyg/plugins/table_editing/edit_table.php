@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit_table.php,v 1.13 2005/06/17 04:35:43 dmckee Exp $
+* $Id: edit_table.php,v 1.14 2005/06/17 04:45:09 dmckee Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Table Edit Popup for the WYSIWYG
 *
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix
 */
 
@@ -173,7 +173,7 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 				table.mouse.Move(event);
 			}
 			return false;
-		}
+		};
 		//]]>
 	</script>
 </head>
