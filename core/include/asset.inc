@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.338.2.10 2005/06/16 06:54:51 dmckee Exp $
+* $Id: asset.inc,v 1.338.2.11 2005/06/17 05:31:00 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.338.2.10 $
+* @version $Revision: 1.338.2.11 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -287,7 +287,7 @@ class Asset extends MySource_Object
 		// NOW normally this would require admin access but this is a very special case
 		$this->_tmp[__CLASS__.'_in_create_cascading'] = true;
 
-		if (!isset($GLOBALS['SQ_INSTALL'])) {
+		if (empty($GLOBALS['SQ_INSTALL'])) {
 			if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'permissions')) {
 				return $this->_abortCreate();
 			}
@@ -309,7 +309,7 @@ class Asset extends MySource_Object
 		$message->send();
 
 		// set the attribute values that have been stored temporarily
-		if (!isset($GLOBALS['SQ_INSTALL'])) {
+		if (empty($GLOBALS['SQ_INSTALL'])) {
 			if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'attributes')) {
 				return $this->_abortCreate();
 			}
@@ -319,7 +319,7 @@ class Asset extends MySource_Object
 			return $this->_abortCreate();
 		}
 
-		if (!isset($GLOBALS['SQ_INSTALL'])) {
+		if (empty($GLOBALS['SQ_INSTALL'])) {
 			$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'attributes');
 		}
 
@@ -332,7 +332,7 @@ class Asset extends MySource_Object
 			if (!isset($link['is_dependant']))  $link['is_dependant']  = 0;
 			if (!isset($link['is_exclusive']))  $link['is_exclusive']  = 0;
 
-			if (!isset($GLOBALS['SQ_INSTALL'])) {
+			if (empty($GLOBALS['SQ_INSTALL'])) {
 				$lock_info = @$GLOBALS['SQ_SYSTEM']->am->getLockInfo($link['asset']->id, 'links');
 				$parent_was_locked = !empty($lock_info);
 				if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($link['asset']->id, 'links')) {
@@ -365,7 +365,7 @@ class Asset extends MySource_Object
 			}
 			unset($this->_tmp[__CLASS__.'_in_create_cascading']);
 
-			if (!isset($GLOBALS['SQ_INSTALL'])) {
+			if (empty($GLOBALS['SQ_INSTALL'])) {
 				if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'permissions')) {
 					return $this->_abortCreate();
 				}

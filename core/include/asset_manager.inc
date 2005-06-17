@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.249.2.10 2005/06/16 00:50:42 lwright Exp $
+* $Id: asset_manager.inc,v 1.249.2.11 2005/06/17 05:31:00 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1086,7 +1086,7 @@ class Asset_Manager extends MySource_Object
 		$null = null; // needed because we return by reference
 		if (!$source->id) return $null;
 
-		if (!isset($GLOBALS['SQ_INSTALL'])) {
+		if (empty($GLOBALS['SQ_INSTALL'])) {
 			$lock = $this->getLockInfo($source->id, 'all');
 			foreach ($lock as $lock_type => $lock_info) {
 				if (empty($lock_info)) {
@@ -1130,7 +1130,7 @@ class Asset_Manager extends MySource_Object
 			return $null;
 		}
 
-		if (!isset($GLOBALS['SQ_INSTALL'])) {
+		if (empty($GLOBALS['SQ_INSTALL'])) {
 			// Lock the new clone in the same chain as we are locked
 			if (!$this->acquireLock($clone->id, 'all', $source->id)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -1145,7 +1145,7 @@ class Asset_Manager extends MySource_Object
 			if (!isset($link['is_dependant']))  $link['is_dependant']  = 0;
 			if (!isset($link['is_exclusive']))  $link['is_exclusive']  = 0;
 
-			if (!isset($GLOBALS['SQ_INSTALL'])) {
+			if (empty($GLOBALS['SQ_INSTALL'])) {
 				// OK what we are going to do is make sure that the new parents lock is
 				// in the same chain as our current lock
 				$parent_lock = $this->getLockInfo($link['asset']->id, 'links');
@@ -2598,7 +2598,7 @@ class Asset_Manager extends MySource_Object
 			return 0;
 		}
 
-		if (!isset($GLOBALS['SQ_INSTALL'])) {
+		if (empty($GLOBALS['SQ_INSTALL'])) {
 			// to create a link we need to lock the new parent, but we need to make sure
 			// we dont unlock it if it was already locked
 			$lock_info = @$this->getLockInfo($major->id, 'links');
@@ -2885,7 +2885,7 @@ class Asset_Manager extends MySource_Object
 			return 0;
 		}
 
-		if (!isset($GLOBALS['SQ_INSTALL'])) {
+		if (empty($GLOBALS['SQ_INSTALL'])) {
 			// release locks depending on if the parent was locked before the link
 			if (!$parent_was_locked) {
 				if (!$this->releaseLock($major->id, 'links')) {
@@ -3086,7 +3086,7 @@ class Asset_Manager extends MySource_Object
 			return false;
 		}
 
-		if (!isset($GLOBALS['SQ_INSTALL'])) {
+		if (empty($GLOBALS['SQ_INSTALL'])) {
 			// to delete a link we need to lock the old parent, but we need to make sure
 			// we dont unlock it if it was already locked
 			$lock_info = @$this->getLockInfo($major->id, 'links');
@@ -3227,7 +3227,7 @@ class Asset_Manager extends MySource_Object
 			return false;
 		}
 
-		if (!isset($GLOBALS['SQ_INSTALL'])) {
+		if (empty($GLOBALS['SQ_INSTALL'])) {
 			// release locks depending on if the parent was locked before the link
 			if (!$parent_was_locked) {
 				if (!$this->releaseLock($major->id, 'links')) {
