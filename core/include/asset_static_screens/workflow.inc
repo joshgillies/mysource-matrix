@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow.inc,v 1.24 2005/05/31 06:50:43 rhoward Exp $
+* $Id: workflow.inc,v 1.25 2005/06/17 01:27:06 dmckee Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once DIRNAME(__FILE__).'/details.inc';
 * Workflow Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix
 */
 
@@ -142,6 +142,12 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 	$running_schemas = $wfm->getSchemas($owner->id, true, true);
 	$admin_access = $owner->adminAccess('workflow');
 
+	//we only want to paint messages and commit buttons if the user can publish, so we must
+	//use workflow manager to see who these users are.
+	$publishers = $wfm->whoCanPublish($owner->id);
+	$current_userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
+	$can_publish = in_array($current_userid, $publishers);
+
 	for ($i = 0; $i < count($root->children); $i++) {
 
 		$section = &$root->children[$i];
@@ -177,7 +183,8 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 				///// WORKFLOW APPROVAL/REJECTION ////
 
 				case 'workflow_status_change' :
-
+					//shouldn't be able to changes status, so don't show anything
+					if ((!$can_publish) && (!$admin_access)) continue;
 					if (!empty($running_schemas)) {
 
 						$o->openField(translate('change_status'));
@@ -204,7 +211,8 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 				break;
 
 				case 'workflow_log_message' :
-
+					//shouldn't be able to changes status, so don't show anything
+					if ((!$can_publish) && (!$admin_access)) continue;
 					if (!empty($running_schemas)) {
 
 						$o->openField(translate('log_message'));
@@ -226,7 +234,8 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 				break;
 
 				case 'workflow_status_commit' :
-
+					//shouldn't be able to changes status, so don't show anything
+					if ((!$can_publish) && (!$admin_access)) continue;
 					if (!empty($running_schemas)) {
 
 						$o->openField('');
