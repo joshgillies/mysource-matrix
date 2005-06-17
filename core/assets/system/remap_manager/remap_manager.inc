@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager.inc,v 1.21 2005/05/11 06:05:00 lwright Exp $
+* $Id: remap_manager.inc,v 1.21.2.1 2005/06/17 04:07:53 ndvries Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.21.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -184,15 +184,19 @@ class Remap_Manager extends Asset
 
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
-		$sql = 'SELECT COUNT(*)
+		$sql = 'SELECT remap_url
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_remap';
 		$where = 'url = '.$db->quote($old_url);
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
-		$count = $db->getOne($sql.$where);
-		assert_valid_db_result($count);
+		$remap_urls = $db->getCol($sql.$where);
+		assert_valid_db_result($remap_urls);
 
-		if ((int)$count > 0) {
+		if (in_array($new_url, $remap_urls)) {
+			return 1;
+		}
+
+		if (count($remap_urls) > 0) {
 			trigger_localised_error('CORE0024', E_USER_WARNING, $old_url);
 			return -1;
 		}
