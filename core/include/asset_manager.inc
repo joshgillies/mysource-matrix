@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.327 2005/06/16 05:46:16 lwright Exp $
+* $Id: asset_manager.inc,v 1.328 2005/06/17 06:53:58 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.327 $
+* @version $Revision: 1.328 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2950,6 +2950,14 @@ class Asset_Manager extends MySource_Object
 			return 0;
 		}
 
+		// can't link to the new parent if it is only in the trash
+		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LINK_VALIDATION)) {
+			if ($this->assetInTrash($major->id, true)) {
+				trigger_localised_error('SYS0223', E_USER_WARNING, $major->id);
+				return 0;
+			}
+		}
+
 		// prepare the link - do the minor first because the major gets the final say in linking
 		$minor->prepareLink($major, 'minor', $link_type, $value, $sort_order, $dependant, $exclusive);
 		$major->prepareLink($minor, 'major', $link_type, $value, $sort_order, $dependant, $exclusive);
@@ -3656,12 +3664,6 @@ class Asset_Manager extends MySource_Object
 		$new_parent = &$this->getAsset($to_parentid, '', true);
 		if (is_null($new_parent)) {
 			trigger_localised_error('SYS0224', E_USER_WARNING, $to_parentid);
-			return 0;
-		}
-
-		// cant link to the new parent if it is in the trash
-		if ($this->assetInTrash($new_parent->id, true)) {
-			trigger_localised_error('SYS0223', E_USER_WARNING, $new_parent->id);
 			return 0;
 		}
 

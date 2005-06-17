@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.12 2005/06/02 06:51:44 lwright Exp $
+* $Id: lang_errors.xml,v 1.13 2005/06/17 06:54:01 lwright Exp $
 *
 */
 
@@ -1108,7 +1108,7 @@ The install order for these assets could not be established	%2$s</error><!-- cor
 
 	<error code="SYS0222">Unable to Move Asset, minor (Asset #%s) not found</error><!-- core/include/asset_manager.inc: -->
 
-	<error code="SYS0223">Unable to Move Asset, new parent (Asset #%s) is in the trash</error><!-- core/include/asset_manager.inc: -->
+	<error code="SYS0223">Unable to create link, new parent (Asset #%s) is in the trash</error><!-- core/include/asset_manager.inc: -->
 
 	<error code="SYS0224">Unable to Move Asset, new parent (Asset #%s) not found</error><!-- core/include/asset_manager.inc: -->
 
