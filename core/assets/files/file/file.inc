@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.75.2.5 2005/06/13 23:37:24 lwright Exp $
+* $Id: file.inc,v 1.75.2.6 2005/06/20 06:23:37 ndvries Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -216,6 +216,10 @@ class File extends Asset
 					trigger_error('Cannot morph "'.$this->name.'" to type "'.$new_type_code.'", currently uploaded file "'.$existing['filename'].'" is not a valid '.$new_type_code.' file (see above error)', E_USER_WARNING);
 					return false;
 				}
+
+				$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
+				$fv->changeFvTypeCode($existing['path'], $new_type_code);
+
 			}
 			unset($tmp);
 		}

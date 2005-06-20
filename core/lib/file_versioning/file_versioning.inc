@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_versioning.inc,v 1.5 2004/12/03 15:33:23 brobertson Exp $
+* $Id: file_versioning.inc,v 1.5.2.1 2005/06/20 06:23:46 ndvries Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -162,7 +162,7 @@ class File_Versioning
 	*/
 	function _getFileInfoAtVersion($fileid, $version=null)
 	{
-		$sql = 'SELECT f.fileid, f.path, f.filename, 
+		$sql = 'SELECT f.fileid, f.path, f.filename,
 						h.version, h.from_date, h.to_date, h.file_size, h.md5, h.sha1, h.removal, h.extra_info
 				FROM '.SQ_TABLE_PREFIX.'file_vers_file f INNER JOIN '.SQ_TABLE_PREFIX.'file_vers_history h ON f.fileid = h.fileid
 				WHERE f.fileid = '.$this->_db->quote($fileid).'
@@ -517,7 +517,7 @@ class File_Versioning
 				('.$this->_db->quote($fileid).', '.$this->_db->quote($version).',
 				'.$this->_db->quote($this->_tsIso8601($now)).', NULL,
 				'.$this->_db->quote($file_size).', '.$this->_db->quote($md5).',
-				'.$this->_db->quote($sha1).', '.$this->_db->quote($removal).', 
+				'.$this->_db->quote($sha1).', '.$this->_db->quote($removal).',
 				'.$this->_db->quote($extra_info).')';
 		$result = $this->_db->query($sql);
 		if (DB::isError($result)) {
@@ -540,7 +540,7 @@ class File_Versioning
 				return 0;
 			}// end if copy
 
-		}// endif 
+		}// endif
 
 		return $version;
 
@@ -651,7 +651,7 @@ class File_Versioning
 				trigger_error('File "'.$rep_file.'" does not have an available version for "'.$nice_date.'"', E_USER_NOTICE);
 				$this->_releaseFile($info['fileid']);
 				return false;
-			} 
+			}
 
 		// else make sure the set version is valid
 		} else {
@@ -891,7 +891,7 @@ class File_Versioning
 			return FUDGE_FV_ERROR;
 		}
 
-		// if the version that this file is checked out as is not the current version then 
+		// if the version that this file is checked out as is not the current version then
 		// they are not allowed to commit this file
 		if ($curr_ver_info['version'] != $file_ver_info['version']) {
 			trigger_error('Unable to commit "'.$info['path'].'/'.$info['filename'].'", it is checked out as version #'.$file_ver_info['version'].', and needs to be updated to the latest version (#'.$curr_ver_info['version'].'), before committing can occur', E_USER_NOTICE);
@@ -1009,7 +1009,7 @@ class File_Versioning
 			return FUDGE_FV_ERROR;
 		}
 
-		// if the version that this file is checked out as is not the current version then 
+		// if the version that this file is checked out as is not the current version then
 		// they are not allowed to remove this file
 		if ($curr_ver_info['version'] != $file_ver_info['version']) {
 			trigger_error('Unable to remove "'.$info['path'].'/'.$info['filename'].'", it is checked out as version #'.$file_ver_info['version'].', and needs to be updated to the latest version (#'.$curr_ver_info['version'].'), before removal can occur', E_USER_NOTICE);
@@ -1094,6 +1094,46 @@ class File_Versioning
 		return ($file_removed) ? FUDGE_FV_OK : FUDGE_FV_ERROR;
 
 	}// end clearOut()
+
+
+	/**
+	* When an asset is morphed, the type code which is still residual in the file repository
+	* directory structure and database needs to be changed over.
+	*
+	* @param string	$real_file		the checked out filename (ie the path to it on the filesystem)
+	* @param string	$new_type_code	the type code the file has changed to (usually after a morph)
+	*
+	* @access public
+	*/
+	function changeFvTypeCode($real_file, $new_type_code)
+	{
+		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+
+		$info = $this->_getFileInfoFromRealFile($real_file);
+
+		if (!is_array($info)) {
+			if ($info == FUDGE_FV_ERROR) {
+				trigger_error('Error occured getting file information, unable to run '.__FUNCTION__.'()', E_USER_WARNING);
+			}
+			return $info;
+		}
+
+		$old_path = $info['path'];
+		$new_path = preg_replace('%/[^/]*/%', '/'.$new_type_code.'/', $old_path);
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$sql = 'UPDATE sq_file_vers_file
+				set path = '.$db->quote($new_path).'
+				WHERE path = '.$db->quote($old_path);
+		$result = $db->query($sql);
+
+		$new_dir = $this->_dir.'/assets/'.$new_type_code;
+
+		if (!is_dir($new_dir)) create_directory($new_dir);
+
+		return rename($this->_dir.'/'.$old_path, $this->_dir.'/'.$new_path);
+
+	}//end changeFvTypeCode()
 
 
 }// end class
