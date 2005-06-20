@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.97.2.2 2005/06/13 23:36:43 lwright Exp $
+* $Id: file.inc,v 1.97.2.3 2005/06/20 06:24:40 ndvries Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.97.2.2 $
+* @version $Revision: 1.97.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -319,6 +319,10 @@ class File extends Asset
 					trigger_localised_error('CORE0008', E_USER_WARNING, $this->name, $new_type_code, $existing['filename'], $new_type_code);
 					return false;
 				}
+
+				$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
+				$fv->changeFvTypeCode($existing['path'], $new_type_code);
+
 			}
 			unset($tmp);
 		}
@@ -576,7 +580,7 @@ class File extends Asset
 
 				if (empty($matching_roots)) continue;
 
-				foreach($matching_roots as $root_url) {
+				foreach ($matching_roots as $root_url) {
 					if (isset($save_urls[$root_url])) {
 						if (empty($save_urls[$root_url]['http'])) {
 							$save_urls[$root_url]['http']  = $data['http'];
