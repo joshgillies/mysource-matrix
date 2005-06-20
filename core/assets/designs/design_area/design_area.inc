@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area.inc,v 1.36.2.1 2005/04/01 00:37:47 amiller Exp $
+* $Id: design_area.inc,v 1.36.2.2 2005/06/20 23:20:21 dmckee Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -183,7 +183,9 @@ class Design_Area extends Asset
 	{
 		$var_refs = Array();
 		foreach ($this->vars['var_references']['value'] as $var_name => $info) {
-			if (!isset($var_refs[$info['id_name']])) $var_refs[$info['id_name']] = Array();
+			if (!isset($var_refs[$info['id_name']])) {
+				$var_refs[$info['id_name']] = Array();
+			}
 			$var_refs[$info['id_name']][] = $info['var'];
 		}// end foreach
 
@@ -201,7 +203,9 @@ class Design_Area extends Asset
 	*/
 	function setVarReferenceValues($var_ref_values)
 	{
-		if (!isset($this->_tmp['var_reference_values'])) $this->_tmp['var_reference_values'] = Array();
+		if (!isset($this->_tmp['var_reference_values'])) {
+			$this->_tmp['var_reference_values'] = Array();
+		}
 		foreach ($this->vars['var_references']['value'] as $var_name => $info) {
 			if (isset($var_ref_values[$info['id_name']][$info['var']])) {
 				$this->_tmp['var_reference_values'][$var_name] = $var_ref_values[$info['id_name']][$info['var']];
