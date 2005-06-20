@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_ecommerce_cart.inc,v 1.3 2005/05/11 06:07:35 lwright Exp $
+* $Id: design_area_ecommerce_cart.inc,v 1.4 2005/06/20 05:33:48 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,52 +31,6 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 */
 class Design_Area_Ecommerce_Cart extends Design_Area
 {
-
-
-	/*
-	* Outputs either the straight HTML or PHP code that is needed for this design area to be represented
-	*
-	* @param object Design	$design the design for which we are currently printing
-	*
-	* @return boolean
-	* @access public
-	*/
-	function printArea(&$design)
-	{
-
-		return parent::printArea($design);
-		/*
-		$cart_id = $this->attr('cart');
-		$form_id = $this->attr('ecom_form');
-
-		echo '
-		<','?php';
-		if (!empty($cart_id)) {
-		?>
-			echo '<a href="'.$cart->getURL().'">';
-			echo $cart->count();
-			echo ' '.($cart->count() == 1) ? translate('item') : translate('items');
-			echo '</a>';
-			<?php if ($this->attr('show_total')) { ?>
-			echo '<br/>';
-			echo '$'.number_format($cart->total(),2);
-			<?php
-			}
-		}
-
-		// print the 'checkout' link if we have a linked ecom form
-		if (!empty($form_id)) {
-		?>
-			$ecom_form_url = $GLOBALS['SQ_SYSTEM']->am->getAssetURL(<?php echo $form_id ?>);
-			echo '<br/><a href="'.$ecom_form_url.'">'.translate('ecom_cart_design_area_checkout').'</a>';
-		<?php
-		}
-		echo '
-		?','>';
-		*/
-		return true;
-
-	}//end printArea()
 
 
 	/*
@@ -140,7 +94,9 @@ class Design_Area_Ecommerce_Cart extends Design_Area
 				parent::printVar($var, $args);
 
 		}
-	}
+
+	}//end printVar()
+
 
 }//end class
 
