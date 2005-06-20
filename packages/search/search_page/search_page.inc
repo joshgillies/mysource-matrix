@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.66.2.5 2005/06/02 01:44:57 rhoward Exp $
+* $Id: search_page.inc,v 1.66.2.6 2005/06/20 07:04:20 pgannavarapu Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.66.2.5 $ - 1.0
+* @version $Revision: 1.66.2.6 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -41,11 +41,11 @@ class Search_Page extends Page
 	* An array of bodycopies and their names that are attached underneath this page asset
 	* @var array
 	*/
-	var $bodycopies = Array (
-							'initial'			=> 'Initial Search Page Layout',
-							'results'			=> 'Results Page Layout',
-							'result_element'	=> 'Result Element Layout',
-							);
+	var $bodycopies = Array(
+						'initial'			=> 'Initial Search Page Layout',
+						'results'			=> 'Results Page Layout',
+						'result_element'	=> 'Result Element Layout',
+					  );
 
 	/**
 	* An array of default parameters
@@ -60,34 +60,34 @@ class Search_Page extends Page
 	* @var array
 	*/
 	var $keywords = Array(
-						'initial' => Array(
-											'submit_button',
-											'results_per_page',
-											),
-						'results' => Array(
-											'result_list',
-											'result_count',
-											'current_result_page',
-											'total_result_pages',
-											'result_page_index',
-											'previous_result_page_link',
-											'next_result_page_link',
-											'initial_layout',
-											'category_list_linked',
-											),
-						'result_element' => Array(
-											'score',
-											'result_number',
-											'asset_id',
-											'asset_name',
-											'asset_name_linked',
-											'asset_short_name',
-											'asset_short_name_linked',
-											'asset_url',
-											'asset_lineage',
-											'asset_lineage_linked',
-											),
-						);
+						'initial'			=> Array(
+												'submit_button',
+												'results_per_page',
+											   ),
+						'results'			=> Array(
+												'result_list',
+												'result_count',
+												'current_result_page',
+												'total_result_pages',
+												'result_page_index',
+												'previous_result_page_link',
+												'next_result_page_link',
+												'initial_layout',
+												'category_list_linked',
+											   ),
+						'result_element'	=> Array(
+												'score',
+												'result_number',
+												'asset_id',
+												'asset_name',
+												'asset_name_linked',
+												'asset_short_name',
+												'asset_short_name_linked',
+												'asset_url',
+												'asset_lineage',
+												'asset_lineage_linked',
+											   ),
+					);
 
 
 	/**
@@ -123,12 +123,12 @@ class Search_Page extends Page
 
 		foreach ($this->bodycopies as $value => $name) {
 			$copy_link = Array(
-				'asset'        => &$this,
-				'link_type'    => SQ_LINK_TYPE_2,
-				'is_dependant' => 1,
-				'is_exclusive' => 1,
-				'value'        => $value
-			);
+							'asset'			=> &$this,
+							'link_type'		=> SQ_LINK_TYPE_2,
+							'is_dependant'	=> 1,
+							'is_exclusive'	=> 1,
+							'value'			=> $value,
+						 );
 
 			$bodycopy = new Bodycopy();
 			$bodycopy->setAttrValue('name', $name);
@@ -186,7 +186,7 @@ class Search_Page extends Page
 		// deleted is if it is the bodycopy linked to us
 		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
 
-		if ($bodycopy_link['minor_type_code'] == 'bodycopy' && !$GLOBALS['SQ_PURGING_TRASH']) return 'You can\'t delete the link between the search page and its bodycopies';
+		if ($bodycopy_link['minor_type_code'] == 'bodycopy' && !$GLOBALS['SQ_PURGING_TRASH'])  {return 'You can\'t delete the link between the search page and its bodycopies';}
 
 		return parent::isDeletableLink($linkid);
 
@@ -256,7 +256,7 @@ class Search_Page extends Page
 	*/
 	function printBody()
 	{
-		if (isset($_REQUEST['search_button'])) $_REQUEST['mode'] = 'results';
+		if (isset($_REQUEST['search_button'])) { $_REQUEST['mode'] = 'results';}
 		$mode = array_get_index($_REQUEST, 'mode', '');
 
 		if (empty($mode)) {
@@ -277,8 +277,10 @@ class Search_Page extends Page
 		if (!isset($_SESSION['SQ_LAST_SEARCH'][$this->id])) {
 			$_SESSION['SQ_LAST_SEARCH'][$this->id] = Array();
 		} else {
-			if ($mode != 'sis') $_SESSION['SQ_LAST_SEARCH'][$this->id] = Array();
+				if ($mode != 'sis'){ $_SESSION['SQ_LAST_SEARCH'][$this->id] = Array();}
 		}
+
+		//bam("Mode is $mode");
 
 		// get the corresponding bodycopy attached to us
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
@@ -387,18 +389,18 @@ class Search_Page extends Page
 	function _getDateField($field_name)
 	{
 		$parameters = Array(
-			'min'			=> '0000-01-01 00:00:00',
-			'max'			=> '9999-12-31 23:59:59',
-			'allow_circa'	=> '0',
-			'print_format'	=> '',
-			'show'			=> Array('y', 'm', 'd'),
-			'null'			=> Array('y', 'm', 'd'),
-			'style'			=> Array(
-									'y' => 't',
-									'm' => 's',
-									'd' => 's',
-								),
-						);
+						'min'			=> '0000-01-01 00:00:00',
+						'max'			=> '9999-12-31 23:59:59',
+						'allow_circa'	=> '0',
+						'print_format'	=> '',
+						'show'			=> Array('y', 'm', 'd'),
+						'null'			=> Array('y', 'm', 'd'),
+						'style'			=> Array(
+											'y'	=> 't',
+											'm'	=> 's',
+											'd'	=> 's',
+										   ),
+					  );
 
 		$value = '---------- --:--:--';
 		$field = new DateTime_Field($field_name, $value, $parameters, true);
@@ -417,8 +419,8 @@ class Search_Page extends Page
 	*/
 	function _printDateRangeDescription($current_value)
 	{
-		if (!isset($current_value['from'])) $current_value['from'] = '---------- --:--:--';
-		if (!isset($current_value['to']))   $current_value['to']   = '---------- --:--:--';
+		if (!isset($current_value['from'])){ $current_value['from'] = '---------- --:--:--';}
+		if (!isset($current_value['to'])) {  $current_value['to']   = '---------- --:--:--';}
 
 		$from_string = '';
 		if ($current_value['from'] != '---------- --:--:--') {
@@ -432,10 +434,10 @@ class Search_Page extends Page
 			$to_string = date('j M Y', $to);
 		}
 
-		if (empty($from_string) && empty($to_string)) return;
+		if (empty($from_string) && empty($to_string))  {return;}
 
-		if (empty($from_string)) echo 'prior to ';
-		else echo $from_string;
+		if (empty($from_string)){ echo 'prior to ';}
+		else { echo $from_string;}
 
 		if (empty($to_string)) {
 			echo ' onwards';
@@ -459,8 +461,8 @@ class Search_Page extends Page
 	*/
 	function _printDateRange($field_name, $current_value=Array(), $read_only=false)
 	{
-		if (!isset($current_value['from'])) $current_value['from'] = '---------- --:--:--';
-		if (!isset($current_value['to']))   $current_value['to']   = '---------- --:--:--';
+		if (!isset($current_value['from'])){ $current_value['from'] = '---------- --:--:--';}
+		if (!isset($current_value['to']))  { $current_value['to']   = '---------- --:--:--';}
 
 		if ($this->attr('use_picker')) {
 			require_once SQ_LIB_PATH.'/js_calendar/js_calendar.inc';
@@ -555,10 +557,10 @@ class Search_Page extends Page
 		$result = Array();
 
 		$field = $this->_getDateField($field_name.'_from');
-		if ($field->processField()) $result['from'] = $field->value;
+		if ($field->processField()){ $result['from'] = $field->value;}
 
 		$field = $this->_getDateField($field_name.'_to');
-		if ($field->processField())	$result['to'] = $field->value;
+		if ($field->processField()) { $result['to'] = $field->value;}
 
 		return $result;
 
@@ -707,7 +709,7 @@ class Search_Page extends Page
 									if (!empty($query)) {
 										echo '<div class="search_current_options">';
 										foreach ($query as $option) {
-											if (!isset($selection->_params['options'][$option])) continue;
+											if (!isset($selection->_params['options'][$option])){ continue;}
 											echo $selection->_params['options'][$option].'<br />';
 											unset($selection->_params['options'][$option]);
 										}
@@ -754,7 +756,7 @@ class Search_Page extends Page
 									if (!empty($query)) {
 										echo '<div class="search_current_options">';
 										foreach ($query as $option) {
-											if (!isset($attribute->_params['options'][$option])) continue;
+											if (!isset($attribute->_params['options'][$option])) { continue;}
 											echo $attribute->_params['options'][$option].'<br />';
 											unset($attribute->_params['options'][$option]);
 										}
@@ -908,13 +910,13 @@ class Search_Page extends Page
 				$mode = array_get_index($_REQUEST, 'mode', 'initial');
 				if ($mode == 'initial') {
 					$replacement  = '<input type="submit" name="search_button"
-						value="'. $this->attr('submit_button_text').'" />';
+						value="'.$this->attr('submit_button_text').'" />';
 				} else {
 					$replacement  = '<input type="submit" onclick="
 						document.search_form.current_result_page.value=\'0\';
 						document.search_form.mode.value = \'results\';
 						return true;
-					" value="'. $this->attr('submit_button_text').'" />';
+					" value="'.$this->attr('submit_button_text').'" />';
 				}
 			break;
 
@@ -923,10 +925,11 @@ class Search_Page extends Page
 					document.search_form.current_result_page.value=\'0\';
 					document.search_form.mode.value = \'sis\';
 					return true;
-				" value="'. $this->attr('sis_button_text').'" />';
+				" value="'.$this->attr('sis_button_text').'" />';
 			break;
 
 			case 'search_form':
+
 				$bodycopy_link = $this->getFormatBodycopyLink('search_form');
 
 				if (!empty($bodycopy_link) && $bodycopy_link['link_type'] == SQ_LINK_TYPE_2) {
@@ -953,7 +956,7 @@ class Search_Page extends Page
 				$categories = $this->attr('categories');
 				if (!empty($categories)) {
 					$options = Array('' => $this->attr('no_category_text'));
-					foreach ($categories as $key => $data) $options[$key] = $data['name'];
+					foreach ($categories as $key => $data){ $options[$key] = $data['name'];}
 					ob_start();
 						combo_box('search_category', $options, false, $category);
 						$replacement = ob_get_contents();
@@ -965,7 +968,7 @@ class Search_Page extends Page
 
 			case 'sort_by' :
 				$sort_by = (isset($_REQUEST['sort_by'])) ? $_REQUEST['sort_by'] : $this->attr('sort_by');
-				$sort_attr = $this->getAttribute('sort_by');
+				$sort_attr = &$this->getAttribute('sort_by');
 				ob_start();
 					combo_box('sort_by', $sort_attr->_params['options'], false, $sort_by);
 					$replacement = ob_get_contents();
@@ -1139,7 +1142,7 @@ class Search_Page extends Page
 			list($query_name, $query_value) = explode('=', $query_string);
 
 			// skip some get vars that will be added later by the keyword replacements
-			if (in_array($query_name, Array('mode', 'current_result_page', 'results_per_page'))) continue;
+			if (in_array($query_name, Array('mode', 'current_result_page', 'results_per_page'))) { continue;}
 
 			// construct the new query string
 			$queries .= '&'.$query_string;
@@ -1177,9 +1180,10 @@ class Search_Page extends Page
 							$cm->saveToCache($this, $assetid, $element_contents);
 						}
 
-						$element_replacements = Array('score'         => $results[$assetid],
-													  'result_number' => $result_num
-													  );
+						$element_replacements = Array(
+													'score'			=> $results[$assetid],
+													'result_number'	=> $result_num,
+												);
 						$replacement .= replace_keywords($element_contents, $element_replacements);
 					}
 				break;
@@ -1202,9 +1206,9 @@ class Search_Page extends Page
 						if ($replacement != '') $replacement .= ' ';
 
 						if ($i == $current_result_page) {
-							$replacement .= "<b>".($i + 1)."</b>";
+							$replacement .= '<b>'.($i + 1).'</b>';
 						} else {
-							$replacement .= '<a href="'.$this->getURL().'?mode='.$mode.'&current_result_page='.$i.'&results_per_page='.$results_per_page.$queries.'">'.($i + 1)."</a>";
+							$replacement .= '<a href="'.$this->getURL().'?mode='.$mode.'&current_result_page='.$i.'&results_per_page='.$results_per_page.$queries.'">'.($i + 1).'</a>';
 						}
 					}
 				break;
@@ -1256,7 +1260,7 @@ class Search_Page extends Page
 							$categories = $this->attr('categories');
 							if (!empty($categories)) {
 								$current_category = array_get_index($_REQUEST, 'search_category', '');
-								if (!empty($current_category) && !isset($categories[$current_category])) $current_category = '';
+								if (!empty($current_category) && !isset($categories[$current_category])) { $current_category = '';}
 
 								$base_url = $_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING'];
 								$base_url = preg_replace('|([&?])mode=([^&]+)|', '\\1mode='.$mode, $base_url);
@@ -1303,7 +1307,7 @@ class Search_Page extends Page
 								$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 								$params = $asset->vars;
 								// metadata dropdown selection
-								if (isset($params['select_options'])) $options = $params['select_options']['value'];
+								if (isset($params['select_options'])) { $options = $params['select_options']['value'];}
 
 							} else if ($fields[$query_var]['type'] == 'asset_attrib') {
 
@@ -1313,13 +1317,14 @@ class Search_Page extends Page
 								$attribute = &$GLOBALS['SQ_SYSTEM']->am->getAttribute($fields[$query_var]['params']['attrid']);
 
 								if ($attribute->type() == 'selection') {
-									if (empty($attribute->_params['multiple'])) $options = $attribute->_params['options'];
+									if (empty($attribute->_params['multiple'])) { $options = $attribute->_params['options'];}
 									$not_selected_text = array_get_index($search_styles[$attribute->id], 'empty_text');
 								} else if ($attribute->type() == 'boolean') {
 									if (isset($search_styles[$attribute->id])) {
-										$options = Array('0' => $search_styles[$attribute->id]['false_text'],
-														 '1' => $search_styles[$attribute->id]['true_text']
-														 );
+										$options = Array(
+													'0'	=> $search_styles[$attribute->id]['false_text'],
+													'1'	=> $search_styles[$attribute->id]['true_text'],
+												   );
 									} else {
 										$options = Array('0' => 'False', '1' => 'True');
 									}
@@ -1337,7 +1342,7 @@ class Search_Page extends Page
 								$base_url = preg_replace('|&current_result_page=([^&]+)?|', '&current_result_page=0', $base_url);
 								$base_url .= '&'.$query_key.'=';
 
-								if ($not_selected_text == '') $not_selected_text = 'No Selection';
+								if ($not_selected_text == '') { $not_selected_text = 'No Selection';}
 								ob_start();
 									?>
 									<div id="search_<?php echo $query_var; ?>_query_list">
@@ -1398,18 +1403,18 @@ class Search_Page extends Page
 
 		$metadata_keywords = Array();
 		foreach ($keywords as $key) {
-			if (substr($key, 0, 15) == 'asset_metadata_') $metadata_keywords[$key] = substr($key, 15);
+			if (substr($key, 0, 15) == 'asset_metadata_') { $metadata_keywords[$key] = substr($key, 15);}
 		}
 		if (!empty($metadata_keywords)) {
 			$metadata_values = $mm->getMetadataFieldValues($assetid, array_values($metadata_keywords));
 			foreach ($metadata_keywords as $key => $field) {
-				if (isset($metadata_values[$field])) $replaces[$key] = $metadata_values[$field];
+				if (isset($metadata_values[$field]))  {$replaces[$key] = $metadata_values[$field];}
 			}
 		}
 
 		$asset_keywords = $asset->getAssetKeywords();
 		foreach ($asset_keywords as $key => $data) {
-			if (in_array($key, $keywords)) $replaces[$key] = $data['value'];
+			if (in_array($key, $keywords)){$replaces[$key] = $data['value'];}
 		}
 
 		foreach ($keywords as $keyword) {
@@ -1432,21 +1437,24 @@ class Search_Page extends Page
 					$replacement = '';
 					$first = true;
 					$found_root = false;
-					$parent_asset_ids = $am->getParents($asset->id);
-
+					$nurl = $asset->getUrl();
+					$unrl = strip_url($nurl);
+					$nurl = stristr($nurl,'/');
+					$nurl = substr($nurl,2);
+					$parent_asset_ids = $am->getLineageFromURL(null,$nurl);
 					// searching for the root asset
 					$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', false, 'root');
 					$root_assetid = empty($root_link) ? 0 : $root_link['minorid'];
-
-					foreach ($parent_asset_ids as $parent_asset_id) {
-						if ($parent_asset_id == $root_assetid) $found_root = true;
+					foreach ($parent_asset_ids as $sample) {
+						$parent_asset_id=$sample['assetid'];
+						if ($parent_asset_id == $root_assetid){ $found_root = true;}
 						if (!$found_root) continue;
-						if (!$first) $replacement .= $this->attr('lineage_seperator');
+						if (!$first){ $replacement .= $this->attr('lineage_seperator');}
 						$first = false;
 						$ancestor_asset = &$am->getAsset($parent_asset_id);
-						if ($keyword == 'asset_lineage_linked') $replacement .= '<a href="'.$ancestor_asset->getUrl().'">';
+						if ($keyword == 'asset_lineage_linked') { $replacement .= '<a href="'.$ancestor_asset->getUrl().'">';}
 						$replacement .= $ancestor_asset->short_name;
-						if ($keyword == 'asset_lineage_linked') $replacement .= '</a>';
+						if ($keyword == 'asset_lineage_linked') { $replacement .= '</a>';}
 						$am->forgetAsset($ancestor_asset);
 					}
 				break;
@@ -1478,7 +1486,7 @@ class Search_Page extends Page
 		// search category
 		$category = (isset($_REQUEST['search_category'])) ? $_REQUEST['search_category'] : '';
 		$categories = $this->attr('categories');
-		if (!empty($category) && !isset($categories[$category])) $category = '';
+		if (!empty($category) && !isset($categories[$category])){ $category = '';}
 
 		// save the search terms into the session so that we can use them for
 		// search within search results
@@ -1497,8 +1505,8 @@ class Search_Page extends Page
 				if (!is_null($attribute) && $attribute->type() == 'boolean') {
 					// we need to convert the value into a word representation,
 					// since indexing service will not operate just 0 or 1
-					if ($value == '0') $value = 'false';
-					else if ($value == '1') $value = 'true';
+					if ($value == '0'){ $value = 'false';}
+					else if ($value == '1') { $value = 'true';}
 				}
 			}
 
@@ -1514,8 +1522,8 @@ class Search_Page extends Page
 					$dot_pos = strpos($words[$i], '.');
 					if ($at_pos === false && $dot_pos === false) {
 						// preserve the wildcard symbols - i.e. don't quote them
-						if (ereg('^[A-z%_0-9]+$', $words[$i])) $words[$i] = addslashes($words[$i]);
-						else unset($words[$i]);
+						if (ereg('^[A-z%_0-9]+$', $words[$i])) { $words[$i] = addslashes($words[$i]);}
+						else { unset($words[$i]);}
 					}
 				}
 			} else {
@@ -1528,7 +1536,7 @@ class Search_Page extends Page
 
 			// add in the search logic for the field
 			$search_logic = strtoupper(array_get_index($_REQUEST, $field_name.'_query_logic', 'AND'));
-			if ($search_logic != 'AND' && $search_logic != 'OR') $search_logic = 'AND';
+			if ($search_logic != 'AND' && $search_logic != 'OR') { $search_logic = 'AND';}
 			$search_info[$field_type][$field_name]['search_logic'] = $search_logic;
 
 		}//end foreach fields
@@ -1549,7 +1557,7 @@ class Search_Page extends Page
 	*/
 	function _getSearchedQueries()
 	{
-		if (isset($this->_tmp['searched_queries'])) return $this->_tmp['searched_queries'];
+		if (isset($this->_tmp['searched_queries'])) { return $this->_tmp['searched_queries'];}
 
 		$fields = $this->attr('fields');
 		$mode = array_get_index($_REQUEST, 'mode', 'results');
@@ -1626,8 +1634,8 @@ class Search_Page extends Page
 						$last_search[$field_name] .= ' '.$value;
 					} else if (isset($value['from']) || isset($value['to'])) {
 						// this is a date field
-						if (isset($value['from'])) $last_search[$field_name]['from'] = $value['from'];
-						if (isset($value['to']))   $last_search[$field_name]['to']   = $value['to'];
+						if (isset($value['from'])){ $last_search[$field_name]['from'] = $value['from'];}
+						if (isset($value['to']))  { $last_search[$field_name]['to']   = $value['to'];}
 					} else {
 						$last_search[$field_name] = array_merge($value, $last_search[$field_name]);
 					}
@@ -1767,7 +1775,7 @@ class Search_Page extends Page
 	function onRequestKeywords(&$broadcaster, $vars=Array())
 	{
 		if (!isset($vars['keywords'])) return;
-		if (!is_a($broadcaster, 'content_type_wysiwyg')) return;
+		if (!is_a($broadcaster, 'content_type_wysiwyg')) { return;}
 
 		// lets work out which bodycopy the WYSIWYG cell that wants our keywords
 		// is in so we can return the correct keywords for the screen
