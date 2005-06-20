@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_management.inc,v 1.12 2005/05/27 06:39:25 rhoward Exp $
+* $Id: search_manager_management.inc,v 1.13 2005/06/20 04:38:26 dheppell Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.12 $ - 0.1
+* @version $Revision: 1.13 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -45,7 +45,7 @@ class Search_Manager_Management extends Asset_Management
 												'default'		=> false,
 												'description'	=> 'Turns indexing on or off',
 												'parameters'	=> Array(
-																	'allow_empty' => false,
+																	'allow_empty'	=> false,
 																   ),
 											   ),
 						'min_word_length'	=> Array(
@@ -53,7 +53,7 @@ class Search_Manager_Management extends Asset_Management
 												'type'			=> 'int',
 												'default'		=> '4',
 												'parameters'	=> Array(
-																	'allow_negative' => false,
+																	'allow_negative'	=> false,
 																   ),
 											   ),
 						'noise_word_list'	=> Array(
@@ -63,7 +63,7 @@ class Search_Manager_Management extends Asset_Management
 																'a',
 																'the',
 																'it',
-																'this'
+																'this',
 															   ),
 											   ),
 						'white_word_list'	=> Array(
@@ -71,7 +71,7 @@ class Search_Manager_Management extends Asset_Management
 												'type'		=> 'serialise',
 												'default'	=> Array(),
 											   ),
-						);
+					  );
 
 	}//end constructor
 
@@ -106,7 +106,7 @@ class Search_Manager_Management extends Asset_Management
 					'broadcast_type_code'			=> 'global',
 					'broadcast_strict_type_code'	=> true,
 					'options'						=> Array(
-														'global' => true,
+														'global'	=> true,
 													   ),
 				),
 			   );

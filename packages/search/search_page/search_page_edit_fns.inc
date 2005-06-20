@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_edit_fns.inc,v 1.49 2005/05/11 06:07:48 lwright Exp $
+* $Id: search_page_edit_fns.inc,v 1.50 2005/06/20 04:38:26 dheppell Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine_edit_fns.inc';
 *     Edit functions for search page
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.49 $
+* @version $Revision: 1.50 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -246,11 +246,11 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 		$fields = $asset->attr('fields');
 
 		$query_types = Array(
-							 'include_all'  => ucfirst(translate('include_all')),
-							 'exclude'      => ucfirst(translate('exclude')),
-							 'asset_attrib' => ucfirst(translate('asset_attribute')),
-							 'asset_date'   => ucfirst(translate('asset_date')),
-							 'metadata'     => ucfirst(translate('metadata')),
+						'include_all'	=> ucfirst(translate('include_all')),
+						'exclude'		=> ucfirst(translate('exclude')),
+						'asset_attrib'	=> ucfirst(translate('asset_attribute')),
+						'asset_date'	=> ucfirst(translate('asset_date')),
+						'metadata'		=> ucfirst(translate('metadata')),
 					   );
 
 		$i = 0;
@@ -439,10 +439,10 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 							$field_data['params'] = Array();
 						}
 						$date_types = Array(
-											''          => '-- '.translate('select_date').' --',
-											'created'   => translate('created'),
-											'updated'   => translate('updated'),
-											'published' => translate('published'),
+										''			=> '-- '.translate('select_date').' --',
+										'created'	=> translate('created'),
+										'updated'	=> translate('updated'),
+										'published'	=> translate('published'),
 									  );
 
 						$date_type = array_get_index($field_data['params'], 'date_type', '');
@@ -806,9 +806,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 
 					$category = ($using_default) ? '' : $selected;
 					$this->paintRootAsset($asset, $o, $prefix, $category, $using_default);
-					if ($using_default) {
-						echo '</b>';
-					}
+					if ($using_default) echo '</b>';
 
 					if ($write_access) {
 						check_box($prefix.'_default_root_assetid', '1', $using_default);
@@ -1041,8 +1039,8 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 		$format_folder = &$asset->getFormatFolder();
 
 		$forms = Array(
-						translate('sch_page_default_search')	=> 'search_form',
-						translate('sch_page_sis')				=> 'sis_form',
+					translate('sch_page_default_search')	=> 'search_form',
+					translate('sch_page_sis')				=> 'sis_form',
 				 );
 
 		$bodycopies_visible = false;

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_list.inc,v 1.8 2005/04/29 05:38:41 gsherwood Exp $
+* $Id: search_list.inc,v 1.9 2005/06/20 04:38:26 dheppell Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_listing/page_asset
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -203,9 +203,9 @@ class Search_List extends Page_Asset_Listing
 	{
 		$format = $this->attr('default_format');
 		$keywords = Array(
-						  'search_term'           => '<a href="'.$this->_tmp['search_url'].$word.'">'.$word.'</a>',
-						  'number_of_occurrences' => $this->_tmp['search_terms'][$word]['num_values'],
-						  );
+						'search_term'			=> '<a href="'.$this->_tmp['search_url'].$word.'">'.$word.'</a>',
+						'number_of_occurrences'	=> $this->_tmp['search_terms'][$word]['num_values'],
+					);
 
 		echo replace_keywords($format, $keywords);
 

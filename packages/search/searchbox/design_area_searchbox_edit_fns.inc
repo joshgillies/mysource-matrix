@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_searchbox_edit_fns.inc,v 1.17 2005/05/11 06:07:48 lwright Exp $
+* $Id: design_area_searchbox_edit_fns.inc,v 1.18 2005/06/20 04:38:26 dheppell Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 * @see Design_Area_Edit_Fns
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -63,7 +63,7 @@ class Design_Area_Searchbox_Edit_Fns extends Design_Area_Edit_Fns
 			$search_pageid = $asset->attr('search_page_assetid');
 			if ($search_pageid > 0) {
 				$search_page_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($search_pageid);
-				echo $search_page_asset->name ." #" .$search_pageid;
+				echo $search_page_asset->name .' #' .$search_pageid;
 			} else {
 				echo translate('sch_no_search_page_specified');
 			}
@@ -116,7 +116,7 @@ class Design_Area_Searchbox_Edit_Fns extends Design_Area_Edit_Fns
 			$submit_imageid = $asset->attr('submit_image_assetid');
 			if ($submit_imageid > 0) {
 				$submit_image =& $GLOBALS['SQ_SYSTEM']->am->getAsset($submit_imageid);
-				echo $submit_image->name ." #". $submit_imageid;
+				echo $submit_image->name .' #'. $submit_imageid;
 			} else {
 				echo translate('sch_box_no_submit_image_specified');
 			}
@@ -138,7 +138,9 @@ class Design_Area_Searchbox_Edit_Fns extends Design_Area_Edit_Fns
 	*/
 	function processBackendSubmitImage(&$asset, &$o, $prefix)
 	{
-		if (!isset($_POST[$prefix.'_submit_image']['assetid'])) return false;
+		if (!isset($_POST[$prefix.'_submit_image']['assetid'])) {
+			return false;
+		}
 
 		if ($_POST[$prefix.'_submit_image']['assetid'] > 0) {
 			return $asset->setAttrValue('submit_image_assetid', $_POST[$prefix.'_submit_image']['assetid']);
@@ -171,7 +173,7 @@ class Design_Area_Searchbox_Edit_Fns extends Design_Area_Edit_Fns
 			$options = Array();
 			foreach ($fields as $field_name => $field) {
 				$field_description = $fields[$field_name];
-				$field_description = $field_name." ";
+				$field_description = $field_name.' ';
 				switch ($field['type']) {
 					case 'include_all':		$field_description .= '(include all)';		break;
 					case 'asset_attrib':	$field_description .= '(asset attribute)';	break;
@@ -207,7 +209,9 @@ class Design_Area_Searchbox_Edit_Fns extends Design_Area_Edit_Fns
 	*/
 	function processSearchFieldName(&$asset, &$o, $prefix)
 	{
-		if (!isset($_POST[$prefix.'_field_name'])) return false;
+		if (!isset($_POST[$prefix.'_field_name'])) {
+			return false;
+		}
 
 		return $asset->setAttrValue('field_name', $_POST[$prefix.'_field_name']);
 

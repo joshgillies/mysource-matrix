@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_edit_fns.inc,v 1.11 2005/05/11 06:07:48 lwright Exp $
+* $Id: search_manager_edit_fns.inc,v 1.12 2005/06/20 04:38:26 dheppell Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.11 $ - 1.0
+* @version $Revision: 1.12 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -83,11 +83,14 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 
 		foreach ($typeHierarchy as $typeCode => $assetType) {
 			$weightings = $am->getTypeDefaultWeightings($typeCode);
+
 			// filter out the dead ones
 			foreach ($weightings as $component => $data) {
-				if ($data['weight'] < 0)
+				if ($data['weight'] < 0) {
 					unset($weightings[$component]);
+				}
 			}
+
 			if (!empty($weightings)) {
 				$o->openSection($assetType['name']);
 				foreach ($weightings as $component => $data) {
@@ -105,9 +108,9 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 						// don't get confused here, a value of 1 means it's DISABLED
 						// rather than enabled, and therefore not included in searches
 						combo_box($prefix. "disable[$typeCode][$component]", Array(
-																				   '1' => translate('sch_manager_do_not_include'),
-																				   '0' => translate('sch_manager_include'),
-																				   ), false, $disabled);
+																				'1'	=> translate('sch_manager_do_not_include'),
+																				'0'	=> translate('sch_manager_include'),
+																			 ), false, $disabled);
 
 						if (!$disabled) {
 							echo '&nbsp;'.ucfirst(translate('weight')).': ';
@@ -146,9 +149,11 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 
 		foreach ($weights as $typeCode => $weightData) {
 			foreach ($weightData as $component => $weighting) {
-				if ($disabled[$typeCode][$component] || $weighting < 0)
+				if ($disabled[$typeCode][$component] || $weighting < 0) {
 					$weighting = 0;
-					$asset->setComponentDefaultWeighting($typeCode, $component, $weighting);
+				}
+
+				$asset->setComponentDefaultWeighting($typeCode, $component, $weighting);
 			}
 		}
 		return true;

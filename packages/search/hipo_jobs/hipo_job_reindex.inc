@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_reindex.inc,v 1.14 2005/05/16 06:36:49 lwright Exp $
+* $Id: hipo_job_reindex.inc,v 1.15 2005/06/20 04:38:26 dheppell Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    schemaid	-	the ID of the schema that has been updated
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -85,18 +85,18 @@ class HIPO_Job_ReIndex extends HIPO_Job
 	function getInitialStepData()
 	{
 		return Array(
-					Array(
-						'name'          => translate('sch_hipo_reindexing_assets'),
-						'function_call' => Array(
-												'process_function' => 'processReIndex',
-										   ),
-						'running_mode'  => 'server',
-						'auto_step'     => true,
-						'percent_done'  => 0,
-						'complete'      => false,
-						'message'       => '',
-						'allow_cancel'  => true,
-					),
+				Array(
+					'name'			=> translate('sch_hipo_reindexing_assets'),
+					'function_call'	=> Array(
+										'process_function'	=> 'processReIndex',
+									   ),
+					'running_mode'	=> 'server',
+					'auto_step'		=> true,
+					'percent_done'	=> 0,
+					'complete'		=> false,
+					'message'		=> '',
+					'allow_cancel'	=> true,
+				),
 			   );
 
 	}//end getInitialStepData()
@@ -111,7 +111,9 @@ class HIPO_Job_ReIndex extends HIPO_Job
 	function freestyle()
 	{
 		while (!empty($this->_running_vars['todo_assetids'])) {
-			if (!$this->processReIndex($this->_steps[0], get_class($this))) return false;
+			if (!$this->processReIndex($this->_steps[0], get_class($this))) {
+				return false;
+			}
 		}
 		return true;
 

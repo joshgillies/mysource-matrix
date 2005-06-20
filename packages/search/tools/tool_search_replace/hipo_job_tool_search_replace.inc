@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_tool_search_replace.inc,v 1.13 2005/05/18 02:21:33 dmckee Exp $
+* $Id: hipo_job_tool_search_replace.inc,v 1.14 2005/06/20 04:38:26 dheppell Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    replace on asset attributes and metadata
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -83,121 +83,121 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 	function getInitialStepData()
 	{
 		return Array(
-					Array(
-						'name'			=> translate('hipo_confirmation'),
-						'function_call'	=> Array(
-												'paint_function'	=> 'paintConfirmation',
-												'process_function'	=> 'processConfirmation',
-										   ),
-						'running_mode'	=> 'web',
-						'skip_step'		=> false,
-						'auto_step'		=> false,
-						'allow_cancel'	=> true,
-						'percent_done'	=> 0,
-						'complete'		=> false,
-						'message'		=> '',
-					),
-					Array(
-						'name'			=> translate('hipo_acquiring_locks'),
-						'hipo_job'		=> Array(
-												'init_details_function'	=> 'getLockAssetDetails',
-										   ),
-						'running_mode'	=> 'server',
-						'auto_step'		=> true,
-						'allow_cancel'	=> false,
-						'percent_done'	=> 0,
-						'complete'		=> false,
-						'message'		=> '',
-					),
-					Array(
-						'name'			=> translate('sch_hipo_replacing_asset_attributes'),
-						'function_call'	=> Array(
-												'process_function'	=> 'processAttributes',
-										   ),
-						'running_mode'	=> 'server',
-						'skip_step'		=> false,
-						'auto_step'		=> true,
-						'allow_cancel'	=> true,
-						'percent_done'	=> 0,
-						'complete'		=> false,
-						'message'		=> '',
-					),
-					Array(
-						'name'			=> translate('sch_hipo_replacing_asset_contents'),
-						'function_call'	=> Array(
-												'process_function'	=> 'processContent',
-										   ),
-						'running_mode'	=> 'server',
-						'skip_step'		=> false,
-						'auto_step'		=> true,
-						'allow_cancel'	=> true,
-						'percent_done'	=> 0,
-						'complete'		=> false,
-						'message'		=> '',
-					),
-					Array(
-						'name'			=> translate('sch_hipo_replacing_asset_metadata'),
-						'function_call'	=> Array(
-												'process_function'	=> 'processMetadata',
-										   ),
-						'running_mode'	=> 'server',
-						'skip_step'		=> false,
-						'auto_step'		=> true,
-						'allow_cancel'	=> true,
-						'percent_done'	=> 0,
-						'complete'		=> false,
-						'message'		=> '',
-					),
-					Array(
-						'name'			=> translate('sch_hipo_replacing_schema_values'),
-						'function_call'	=> Array(
-												'process_function'	=> 'processSchemas',
-										   ),
-						'running_mode'	=> 'server',
-						'skip_step'		=> false,
-						'auto_step'		=> true,
-						'allow_cancel'	=> true,
-						'percent_done'	=> 0,
-						'complete'		=> false,
-						'message'		=> '',
-					),
-					Array(
-						'name'			=> translate('hipo_releasing_locks'),
-						'function_call'	=> Array(
-												'process_function'	=> 'releaseLocks',
-										   ),
-						'running_mode'	=> 'server',
-						'auto_step'		=> true,
-						'skip_step'		=> false,
-						'allow_cancel'	=> false,
-						'percent_done'	=> 0,
-						'complete'		=> false,
-						'message'		=> '',
-					),
-					Array(
-						'name'			=> translate('sch_hipo_regenerating_metadata'),
-						'hipo_job'		=> Array(
-												'init_details_function'	=> 'getRegenerateMetadataDetails',
-										   ),
-						'running_mode'	=> 'server',
-						'auto_step'		=> true,
-						'allow_cancel'	=> false,
-						'percent_done'	=> 0,
-						'complete'		=> false,
-						'message'		=> '',
-					),
-					Array(
-						'name'			=> translate('sch_hipo_reindexing_assets'),
-						'hipo_job'		=> Array(
-												'init_details_function'	=> 'getReindexAssetDetails',
-										   ),
-						'running_mode'	=> 'server',
-						'auto_step'		=> true,
-						'allow_cancel'	=> false,
-						'percent_done'	=> 0,
-						'complete'		=> false,
-						'message'		=> '',
-					),
+				Array(
+					'name'			=> translate('hipo_confirmation'),
+					'function_call'	=> Array(
+										'paint_function'	=> 'paintConfirmation',
+										'process_function'	=> 'processConfirmation',
+									   ),
+					'running_mode'	=> 'web',
+					'skip_step'		=> false,
+					'auto_step'		=> false,
+					'allow_cancel'	=> true,
+					'percent_done'	=> 0,
+					'complete'		=> false,
+					'message'		=> '',
+				),
+				Array(
+					'name'			=> translate('hipo_acquiring_locks'),
+					'hipo_job'		=> Array(
+										'init_details_function'	=> 'getLockAssetDetails',
+									   ),
+					'running_mode'	=> 'server',
+					'auto_step'		=> true,
+					'allow_cancel'	=> false,
+					'percent_done'	=> 0,
+					'complete'		=> false,
+					'message'		=> '',
+				),
+				Array(
+					'name'			=> translate('sch_hipo_replacing_asset_attributes'),
+					'function_call'	=> Array(
+										'process_function'	=> 'processAttributes',
+									   ),
+					'running_mode'	=> 'server',
+					'skip_step'		=> false,
+					'auto_step'		=> true,
+					'allow_cancel'	=> true,
+					'percent_done'	=> 0,
+					'complete'		=> false,
+					'message'		=> '',
+				),
+				Array(
+					'name'			=> translate('sch_hipo_replacing_asset_contents'),
+					'function_call'	=> Array(
+										'process_function'	=> 'processContent',
+									   ),
+					'running_mode'	=> 'server',
+					'skip_step'		=> false,
+					'auto_step'		=> true,
+					'allow_cancel'	=> true,
+					'percent_done'	=> 0,
+					'complete'		=> false,
+					'message'		=> '',
+				),
+				Array(
+					'name'			=> translate('sch_hipo_replacing_asset_metadata'),
+					'function_call'	=> Array(
+										'process_function'	=> 'processMetadata',
+									   ),
+					'running_mode'	=> 'server',
+					'skip_step'		=> false,
+					'auto_step'		=> true,
+					'allow_cancel'	=> true,
+					'percent_done'	=> 0,
+					'complete'		=> false,
+					'message'		=> '',
+				),
+				Array(
+					'name'			=> translate('sch_hipo_replacing_schema_values'),
+					'function_call'	=> Array(
+										'process_function'	=> 'processSchemas',
+									   ),
+					'running_mode'	=> 'server',
+					'skip_step'		=> false,
+					'auto_step'		=> true,
+					'allow_cancel'	=> true,
+					'percent_done'	=> 0,
+					'complete'		=> false,
+					'message'		=> '',
+				),
+				Array(
+					'name'			=> translate('hipo_releasing_locks'),
+					'function_call'	=> Array(
+										'process_function'	=> 'releaseLocks',
+									   ),
+					'running_mode'	=> 'server',
+					'auto_step'		=> true,
+					'skip_step'		=> false,
+					'allow_cancel'	=> false,
+					'percent_done'	=> 0,
+					'complete'		=> false,
+					'message'		=> '',
+				),
+				Array(
+					'name'			=> translate('sch_hipo_regenerating_metadata'),
+					'hipo_job'		=> Array(
+										'init_details_function'	=> 'getRegenerateMetadataDetails',
+									   ),
+					'running_mode'	=> 'server',
+					'auto_step'		=> true,
+					'allow_cancel'	=> false,
+					'percent_done'	=> 0,
+					'complete'		=> false,
+					'message'		=> '',
+				),
+				Array(
+					'name'			=> translate('sch_hipo_reindexing_assets'),
+					'hipo_job'		=> Array(
+										'init_details_function'	=> 'getReindexAssetDetails',
+									   ),
+					'running_mode'	=> 'server',
+					'auto_step'		=> true,
+					'allow_cancel'	=> false,
+					'percent_done'	=> 0,
+					'complete'		=> false,
+					'message'		=> '',
+				),
 			   );
 
 	}//end getInitialStepData()

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_list_edit_fns.inc,v 1.6 2005/05/11 06:07:48 lwright Exp $
+* $Id: search_list_edit_fns.inc,v 1.7 2005/06/20 04:38:26 dheppell Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_listing/page_asset
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -64,8 +64,13 @@ class Search_List_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 			if (!empty($search_page_link)) {
 				$search_page = &$GLOBALS['SQ_SYSTEM']->am->getAsset($search_page_link['minorid']);
 			}
-			if (!is_null($search_page)) echo $search_page->name . ' (Id: #' . $search_page->id . ')';
-			else echo translate('sch_no_search_page_specified');
+
+			if (!is_null($search_page)) {
+				echo $search_page->name . ' (Id: #' . $search_page->id . ')';
+			} else {
+				echo translate('sch_no_search_page_specified');
+			}
+
 		} else {
 			asset_finder($prefix.'_search_page', (!empty($search_page_link)) ? $search_page_link['minorid'] : '', Array('search_page' => 'I'));
 		}
@@ -87,14 +92,19 @@ class Search_List_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	*/
 	function processSearchPage(&$asset, &$o, $prefix)
 	{
-		if (!isset($_POST[$prefix.'_search_page']['assetid'])) return false;
+		if (!isset($_POST[$prefix.'_search_page']['assetid'])) {
+			return false;
+		}
+
 		$new_search_page  = $_POST[$prefix.'_search_page']['assetid'];
 
 		// getting existing search page
 		$search_page_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', false, 'search_page');
 
 		// dont process anything if the search page has not changed
-		if (!empty($search_page_link) && $search_page_link['minorid'] == $new_search_page) return false;
+		if (!empty($search_page_link) && $search_page_link['minorid'] == $new_search_page) {
+			return false;
+		}
 
 		$ok = true;
 
@@ -196,7 +206,10 @@ class Search_List_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	*/
 	function processSearchField(&$asset, &$o, $prefix)
 	{
-		if (!isset($_POST[$prefix.'_field_name'])) return false;
+		if (!isset($_POST[$prefix.'_field_name'])) {
+			return false;
+		}
+
 		return $asset->setAttrValue('search_field', $_POST[$prefix.'_field_name']);
 
 	}//end processSearchField()
