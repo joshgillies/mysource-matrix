@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_management.inc,v 1.11 2004/09/08 01:25:14 gsherwood Exp $
+* $Id: design_area_management.inc,v 1.11.6.1 2005/06/20 07:03:55 dmckee Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,6 +38,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 class Design_Area_Management extends Asset_Management
 {
 
+
 	/**
 	* Constructor
 	*
@@ -46,34 +47,36 @@ class Design_Area_Management extends Asset_Management
 	{
 		$this->Asset_Management($pm);
 
-		$this->vars = Array('id_name' => Array(
-								'added'     => '0.0.1',
-								'type'      => 'text',
-								'default'   => ''
-								),
-							'contents' => Array(
-								'added'     => '0.0.1',
-								'type'      => 'serialise',
-								'default'   => Array(),
-								'description' => 'Holds the processed contents array'
-								),
-							'var_references' => Array(
-								'added'     => '0.0.1',
-								'type'      => 'serialise',
-								'default'   => Array(),
-								'description' => 'Holds the names for all variables that are "references" to values in other'
-								),
-							'specialised' => Array(
-								'added'      => '0.0.1',
-								'type'       => 'boolean',
-								'default'    => false,
-								'parameters' => Array(
-														'allow_empty' => false
-													),
-								)
-							);
+		$this->vars = Array(
+						'id_name'			=> Array(
+												'added'		=> '0.0.1',
+												'type'		=> 'text',
+												'default'	=> '',
+											   ),
+						'contents'			=> Array(
+												'added'			=> '0.0.1',
+												'type'			=> 'serialise',
+												'default'		=> Array(),
+												'description'	=> 'Holds the processed contents array',
+											   ),
+						'var_references'	=> Array(
+												'added'			=> '0.0.1',
+												'type'			=> 'serialise',
+												'default'		=> Array(),
+												'description'	=> 'Holds the names for all variables that are "references" to values in other',
+											   ),
+						'specialised'		=> Array(
+												'added'			=> '0.0.1',
+												'type'			=> 'boolean',
+												'default'		=> false,
+												'parameters'	=> Array(
+																	'allow_empty'	=> false,
+																   ),
+											   ),
+					  );
 
 	}//end constructor
+
 
 }//end class
 ?>
