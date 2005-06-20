@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_folder_edit_fns.inc,v 1.14 2005/05/11 06:07:48 lwright Exp $
+* $Id: search_folder_edit_fns.inc,v 1.15 2005/06/20 04:06:32 dheppell Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -41,27 +41,27 @@ class Search_Folder_Edit_Fns extends Asset_Edit_Fns
 		$this->Asset_Edit_Fns();
 
 		$this->static_screens = Array(
-									  'details'     => Array(
-															 'name'         => 'Details',
-															 'force_unlock' => false,
-															 'lock_type'    => 'attributes',
-															 ),
-									  'permissions' => Array(
-															 'name'         => 'Permissions',
-															 'force_unlock' => true,
-															 'lock_type'    => 'permissions',
-															 ),
-									  'linking'     => Array(
-															 'name'         => 'Linking',
-															 'force_unlock' => true,
-															 'lock_type'    => 'links',
-															 ),
-									  'history'     => Array(
-															 'name'         => 'History',
-															 'force_unlock' => true,
-															 'lock_type'    => 'none',
-															 ),
-									  );
+									'details'		=> Array(
+														'name'			=> 'Details',
+														'force_unlock'	=> false,
+														'lock_type'		=> 'attributes',
+													   ),
+									'permissions'	=> Array(
+														'name'			=> 'Permissions',
+														'force_unlock'	=> true,
+														'lock_type'		=> 'permissions',
+													   ),
+									'linking'		=> Array(
+														'name'			=> 'Linking',
+														'force_unlock'	=> true,
+														'lock_type'		=> 'links',
+													   ),
+									'history'		=> Array(
+														'name'			=> 'History',
+														'force_unlock'	=> true,
+														'lock_type'		=> 'none',
+													   ),
+								);
 
 	}//end constructor
 
@@ -87,7 +87,10 @@ class Search_Folder_Edit_Fns extends Asset_Edit_Fns
 			asset_finder($prefix.'_rootid', $current);
 		} else {
 			$root_asset = null;
-			if (!empty($current)) $root_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current);
+			if (!empty($current)) {
+				$root_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current);
+			}
+
 			if (!is_null($root_asset)) {
 				echo $root_asset->name . ' (Id: #' . $root_asset->id . ')';
 			} else {
@@ -267,7 +270,9 @@ class Search_Folder_Edit_Fns extends Asset_Edit_Fns
 			$statuses = get_constant_values('SQ_STATUS');
 
 			$options = Array();
-			foreach ($statuses as $constant => $value) $options[$value] = get_status_description($value);
+			foreach ($statuses as $constant => $value) {
+				$options[$value] = get_status_description($value);
+			}
 
 			combo_box($prefix.'_statuses', $options, true, $current);
 		} else {
@@ -275,7 +280,9 @@ class Search_Folder_Edit_Fns extends Asset_Edit_Fns
 				echo translate('sch_folder_no_status_selected');
 			} else {
 				echo '<ul>';
-				foreach ($current as $status) echo '<li>'.get_status_description($status).'</li>';
+				foreach ($current as $status) {
+					echo '<li>'.get_status_description($status).'</li>';
+				}
 				echo '</ul>';
 			}
 		}
@@ -504,7 +511,6 @@ class Search_Folder_Edit_Fns extends Asset_Edit_Fns
 		return $asset->setAttrValue('settings', $settings);
 
 	}//end processAssetTypes()
-
 
 
 }//end class

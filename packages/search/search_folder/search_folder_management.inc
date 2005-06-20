@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_folder_management.inc,v 1.10 2005/04/29 05:38:40 gsherwood Exp $
+* $Id: search_folder_management.inc,v 1.11 2005/06/20 04:06:32 dheppell Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -41,17 +41,17 @@ class Search_Folder_Management extends Asset_Management
 		$this->Asset_Management($pm);
 
 		$this->vars = Array(
-						    'name'     => Array(
-												'added'   => '0.2',
-												'type'    => 'text',
-												'default' => '',
-												),
-							'settings' => Array(
-												'added'   => '0.1',
-												'type'    => 'serialise',
-												'default' => Array(),
-												),
-							);
+						'name'		=> Array(
+										'added'		=> '0.2',
+										'type'		=> 'text',
+										'default'	=> '',
+									   ),
+						'settings'	=> Array(
+										'added'		=> '0.1',
+										'type'		=> 'serialise',
+										'default'	=> Array(),
+									   ),
+					  );
 	}//end constructor
 
 
