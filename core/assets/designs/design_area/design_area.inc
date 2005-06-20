@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area.inc,v 1.40 2005/04/15 00:37:24 lwright Exp $
+* $Id: design_area.inc,v 1.41 2005/06/20 23:20:13 dmckee Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -70,7 +70,7 @@ class Design_Area extends Asset
 
 		$id_name = trim($this->attr('id_name'));
 		if ($id_name == '') {
-			trigger_localised_error("CORE0187", E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
+			trigger_localised_error('CORE0187', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
 			return false;
 		}
 
@@ -186,10 +186,11 @@ class Design_Area extends Asset
 	{
 		$var_refs = Array();
 		foreach ($this->vars['var_references']['value'] as $var_name => $info) {
-			if (!isset($var_refs[$info['id_name']])) $var_refs[$info['id_name']] = Array();
+			if (!isset($var_refs[$info['id_name']])) {
+				$var_refs[$info['id_name']] = Array();
+			}
 			$var_refs[$info['id_name']][] = $info['var'];
 		}//end foreach
-
 		return $var_refs;
 
 	}//end getVarReferences()
@@ -204,13 +205,14 @@ class Design_Area extends Asset
 	*/
 	function setVarReferenceValues($var_ref_values)
 	{
-		if (!isset($this->_tmp['var_reference_values'])) $this->_tmp['var_reference_values'] = Array();
+		if (!isset($this->_tmp['var_reference_values'])) {
+			$this->_tmp['var_reference_values'] = Array();
+		}
 		foreach ($this->vars['var_references']['value'] as $var_name => $info) {
 			if (isset($var_ref_values[$info['id_name']][$info['var']])) {
 				$this->_tmp['var_reference_values'][$var_name] = $var_ref_values[$info['id_name']][$info['var']];
 			}
 		}//end foreach
-
 	}//end setVarReferenceValues()
 
 
