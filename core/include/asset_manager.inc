@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.328 2005/06/17 06:53:58 lwright Exp $
+* $Id: asset_manager.inc,v 1.329 2005/06/20 01:19:16 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.328 $
+* @version $Revision: 1.329 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2951,7 +2951,7 @@ class Asset_Manager extends MySource_Object
 		}
 
 		// can't link to the new parent if it is only in the trash
-		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LINK_VALIDATION)) {
+		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LINK_INTEGRITY)) {
 			if ($this->assetInTrash($major->id, true)) {
 				trigger_localised_error('SYS0223', E_USER_WARNING, $major->id);
 				return 0;
