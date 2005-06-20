@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_versioning.inc,v 1.8 2005/04/15 00:37:32 lwright Exp $
+* $Id: file_versioning.inc,v 1.9 2005/06/20 06:26:32 ndvries Exp $
 *
 */
 
@@ -39,7 +39,7 @@ define('FUDGE_FV_OLD_VERSION',      64);
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package Fudge
 * @subpackage File_Versioning
 */
@@ -174,7 +174,9 @@ class File_Versioning
 			$result['fileid']    = (int) $result['fileid'];
 			$result['version']   = (int) $result['version'];
 			$result['from_date'] = $this->_iso8601Ts($result['from_date']);
-			if (!empty($result['to_date'])) $result['to_date'] = $this->_iso8601Ts($result['to_date']);
+			if (!empty($result['to_date'])) {
+				$result['to_date'] = $this->_iso8601Ts($result['to_date']);
+			}
 			$result['file_size'] = (int) $result['file_size'];
 		}
 		return $result;
@@ -198,7 +200,9 @@ class File_Versioning
 		if (!is_dir($ffv_dir)) return FUDGE_FV_NOT_CHECKED_OUT;
 
 		$ffv_file = $ffv_dir.'/'.basename($real_file);
-		if (!is_file($ffv_file)) return FUDGE_FV_NOT_CHECKED_OUT;
+		if (!is_file($ffv_file)) {
+			return FUDGE_FV_NOT_CHECKED_OUT;
+		}
 
 		$ffv = parse_ini_file($ffv_file);
 		if (!is_array($ffv)) {
@@ -370,7 +374,7 @@ class File_Versioning
 			return false;
 
 		// if there is no current file, check that this new file's path isn't already is use
-		} elseif (empty($current_info)) {
+		} else if (empty($current_info)) {
 			// Basically this query finds if there are any parents or children that are currently using this
 			// any parts of this new path as either a directory or file
 
@@ -515,9 +519,7 @@ class File_Versioning
 			}//end if
 
 			$rep_file = $rep_dir.'/'.basename($real_file).',ffv'.$version;
-			if (!copy($real_file, $rep_file)) {
-				return 0;
-			}//end if copy
+			if (!copy($real_file, $rep_file)) return 0;
 
 		}//endif
 
@@ -547,14 +549,16 @@ class File_Versioning
 			$ffv_lines = Array(
 							'dir="'.$this->_dir.'"',
 							'fileid="'.$fileid.'"',
-							'version="'.$version.'"'
-						);
+							'version="'.$version.'"',
+						 );
 
 			$ffv_file = $ffv_dir.'/'.basename($real_file);
 			// move any existing ffv file to a backup tmp file
 			if (!file_exists($ffv_file) || rename($ffv_file, $ffv_file.'.bup')) {
 				if (string_to_file(implode("\n", $ffv_lines)."\n", $ffv_file)) {
-					if (file_exists($ffv_file.'.bup')) unlink($ffv_file.'.bup');
+					if (file_exists($ffv_file.'.bup')) {
+						unlink($ffv_file.'.bup');
+					}
 					return true;
 				}
 
@@ -1053,12 +1057,55 @@ class File_Versioning
 		}
 
 		// remove the FFV and real files
-		if (!unlink(dirname($real_file).'/.FFV/'.basename($real_file))) return FUDGE_FV_ERROR;
+		if (!unlink(dirname($real_file).'/.FFV/'.basename($real_file))) {
+			return FUDGE_FV_ERROR;
+		}
+
 		$file_removed = unlink($real_file);
 		clearstatcache(); // just in case :)
 		return ($file_removed) ? FUDGE_FV_OK : FUDGE_FV_ERROR;
 
 	}//end clearOut()
+
+
+	/**
+	* When an asset is morphed, the type code which is still residual in the file repository
+	* directory structure and database needs to be changed over.
+	*
+	* @param string	$real_file		the checked out filename (ie the path to it on the filesystem)
+	* @param string	$new_type_code	the type code the file has changed to (usually after a morph)
+	*
+	* @access public
+	*/
+	function changeFvTypeCode($real_file, $new_type_code)
+	{
+		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+
+		$info = $this->_getFileInfoFromRealFile($real_file);
+
+		if (!is_array($info)) {
+			if ($info == FUDGE_FV_ERROR) {
+				trigger_error('Error occured getting file information, unable to run '.__FUNCTION__.'()', E_USER_WARNING);
+			}
+			return $info;
+		}
+
+		$old_path = $info['path'];
+		$new_path = preg_replace('%/[^/]*/%', '/'.$new_type_code.'/', $old_path);
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$sql = 'UPDATE sq_file_vers_file
+				set path = '.$db->quote($new_path).'
+				WHERE path = '.$db->quote($old_path);
+		$result = $db->query($sql);
+
+		$new_dir = $this->_dir.'/assets/'.$new_type_code;
+
+		if (!is_dir($new_dir)) create_directory($new_dir);
+
+		return rename($this->_dir.'/'.$old_path, $this->_dir.'/'.$new_path);
+
+	}//end changeFvTypeCode()
 
 
 }//end class
