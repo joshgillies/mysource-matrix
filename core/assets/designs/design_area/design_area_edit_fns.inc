@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_edit_fns.inc,v 1.47 2005/05/11 06:04:49 lwright Exp $
+* $Id: design_area_edit_fns.inc,v 1.47.2.1 2005/06/20 06:57:06 dmckee Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.47 $
+* @version $Revision: 1.47.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -113,7 +113,9 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 		$cur_pos    = 0;
 		$nest_level = 0;
 		$contents = $this->_parseStringContents($file_contents, $cur_pos, $nest_level);
-		if (!is_null($contents)) $this->_parserCleanupContents($contents);
+		if (!is_null($contents)) {
+			$this->_parserCleanupContents($contents);
+		}
 
 		return $contents;
 
@@ -143,9 +145,10 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 
 		while ($next_tag = $this->_tagToParse($file_contents, $cur_pos)) {
 			// append the string before this current pos to the array
-			$parsed[]  =  Array('_type' => 'HTML',
-								'contents' => substr($file_contents, $start_pos, $cur_pos - $start_pos)
-								);
+			$parsed[]  =  Array(
+							'_type'		=> 'HTML',
+							'contents'	=> substr($file_contents, $start_pos, $cur_pos - $start_pos),
+						  );
 
 			if ($next_tag == 'terminate') {
 				// if this instance is nested then we have found our parents end tag
@@ -212,9 +215,9 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 		if (!$is_nested) {
 			// so append the rest of the html code to the array
 			$parsed[] = Array(
-							'_type' => 'HTML',
-							'contents' => substr ($file_contents, $cur_pos),
-							);
+							'_type'		=> 'HTML',
+							'contents'	=> substr ($file_contents, $cur_pos),
+						);
 
 		}//end if
 
@@ -326,7 +329,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 						$current_value = '';
 
 					// if its whitespace then they fucked up so discard this name
-					} elseif ($this->_isWhitespace($file_contents{$cur_pos})) {
+					} else if ($this->_isWhitespace($file_contents{$cur_pos})) {
 						$currently_getting = '';
 						$current_name = '';
 					// must be a character, append to name
@@ -477,44 +480,48 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	{
 		// process the set operations of the element
 		$remove_indexes = Array();
+		// Holds all attributes that have been set in the parse file for this design area
+		$set_attrs = Array();
 		$var_references = Array();
 		foreach ($contents as $index => $element) {
 
-			if ($element['_type'] != 'TAG' || $element['operation'] != 'set') continue;
+			if ($element['_type'] != 'TAG' || $element['operation'] != 'set') {
+				continue;
+			}
 
 			// Is this a reference to another variable ?
 			if (!empty($element['attributes']['id_name']) && !empty($element['attributes']['var'])) {
 
 				// just set this so we remember what is happening when it comes to painting
 				$var_references[$element['attributes']['name']] = Array(
-																		'id_name' => $element['attributes']['id_name'],
-																		'var'     => $element['attributes']['var']
-																		);
+																	'id_name'	=> $element['attributes']['id_name'],
+																	'var'		=> $element['attributes']['var'],
+																  );
 
 			// Do we want a whole design areas value ?
-			} elseif (!empty($element['attributes']['id_name'])) {
+			} else if (!empty($element['attributes']['id_name'])) {
 
 				// just set this so we remember what is happening when it comes to painting
 				$var_references[$element['attributes']['name']] = Array(
-																		'id_name' => $element['attributes']['id_name'],
-																		'var'     => ''
-																		);
+																	'id_name'	=> $element['attributes']['id_name'],
+																	'var'		=> '',
+																  );
 
 			// we must be a normal value, so set it
-			} elseif (isset($element['attributes']['value'])) {
+			} else if (isset($element['attributes']['value'])) {
 				// if this holds an image, then remove any image roots before saving
 				if (stristr($element['attributes']['name'], 'image')) {
 					$element['attributes']['value'] = $this->_removeFileRoot($element['attributes']['value']);
 				}
 
 				if (!$asset->setAttrValue($element['attributes']['name'], $element['attributes']['value'])) {
-					trigger_localised_error("CORE0189", E_USER_WARNING, $element['attributes']['name'], $asset->attr('id_name'));
+					trigger_localised_error('CORE0189', E_USER_WARNING, $element['attributes']['name'], $asset->attr('id_name'));
 					return false;
 				}
-
+				$set_attrs[] = $element['attributes']['name'];
 			// else something is amiss and we don't know what we can do, so barf in their direction
 			} else {
-				trigger_localised_error("CORE0188", E_USER_WARNING, $element['attributes']['name'], $asset->attr('id_name'));
+				trigger_localised_error('CORE0188', E_USER_WARNING, $element['attributes']['name'], $asset->attr('id_name'));
 
 
 			}// endif
@@ -523,13 +530,37 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 
 		}//end foreach
 
-		if (!$asset->setAttrValue('var_references', $var_references)) return false;
+		if (!$asset->setAttrValue('var_references', $var_references)) {
+			return false;
+		}
 
 		// Now remove the elems
 		// reverse the order so we don't throw the numbers out of whack by removing one from the start
 		rsort($remove_indexes, SORT_NUMERIC);
 		foreach ($remove_indexes as $i) {
 			array_splice($contents, $i, 1);
+		}
+
+		// Now we need to ensure that any attributes that weren't set in the parse file
+		// are returned to their default values
+
+		// Design Area attributes that shouldn't be reset
+		$not_setable_attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes('design_area', Array('name'));
+
+		// add any attributes that shouldn't be set to default here
+		$additional_attrs = Array('asset_contents', 'divider_contents', 'type_codes');
+		$current_asset_attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($asset->type(), Array('name'));
+
+		// Now compute the remaining attributes, by subtracting all that shouldn't be deleted
+		// and all that are set in the parse file
+		$set_to_default = array_diff($current_asset_attrs, $not_setable_attrs, $set_attrs, $additional_attrs);
+
+		// Now iterate through each variable that is setable and doesn't exist in the design file,
+		// find and retrieve its attribute and set its current value to the default
+		foreach ($set_to_default as $i => $attr_name) {
+			$attr_to_set =& $GLOBALS['SQ_SYSTEM']->am->getAttribute($asset->vars[$attr_name]['attrid']);
+			$asset->setAttrValue($attr_name, $attr_to_set->_default_value);
+			$attr_to_set = null;
 		}
 
 		return true;
@@ -625,7 +656,9 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 			if ($element['_type'] == 'HTML') {
 				echo $element['contents'];
 			} else {
-				if (!$this->_outputElement($element, $asset, $design)) return false;
+				if (!$this->_outputElement($element, $asset, $design)) {
+					return false;
+				}
 			}// end if
 
 		}// end foreach
@@ -653,8 +686,10 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 				// if there isn't a id_name we are using the current asset
 				if (empty($element['attributes']['id_name']) && empty($element['attributes']['var'])) {
 					$attr_str = '';
-					foreach ($element['attributes'] as $k => $v) $attr_str .= $k.'="'.$v.'"';
-					trigger_localised_error("CORE0171", E_USER_WARNING, $attr_str);
+					foreach ($element['attributes'] as $k => $v) {
+						$attr_str .= $k.'="'.$v.'"';
+					}
+					trigger_localised_error('CORE0171', E_USER_WARNING, $attr_str);
 					return false;
 				}
 
@@ -663,14 +698,14 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 					$id_obj = &$asset;
 
 				// this is the global design var ?
-				} elseif ($element['attributes']['id_name'] == '__global__') {
+				} else if ($element['attributes']['id_name'] == '__global__') {
 					$id_obj = &$design;
 
 				// otherwise we have to find the design area
 				} else {
 					$id_obj = &$design->getDesignArea($element['attributes']['id_name']);
 					if (is_null($id_obj)) {
-						trigger_localised_error("CORE0153", E_USER_WARNING, $element['attributes']['id_name']);
+						trigger_localised_error('CORE0153', E_USER_WARNING, $element['attributes']['id_name']);
 						return false;
 					}
 				}
@@ -691,7 +726,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 				return true;
 
 			default :
-				trigger_localised_error("CORE0175", E_USER_WARNING, $element['operation']);
+				trigger_localised_error('CORE0175', E_USER_WARNING, $element['operation']);
 				return false;
 
 		}// end switch
@@ -728,12 +763,14 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 			switch ($data['_type']) {
 				case 'HTML' :
 					$text .= $data['contents'];
-					break;
+				break;
 				case 'TAG' :
 					$text .= '<'.$this->tag_name.'_'.strtoupper($data['operation']);
-					foreach ($data['attributes'] as $k => $v) $text .= ' '.$k.'="'.htmlentities($v).'"';
+					foreach ($data['attributes'] as $k => $v) {
+						$text .= ' '.$k.'="'.htmlentities($v).'"';
+					}
 					$text .= ' />';
-					break;
+				break;
 			}// end switch
 		}// end foreach
 
@@ -798,7 +835,9 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	function processSpecialisation(&$asset, &$o, $prefix)
 	{
 		// if nothing changed then do nothing
-		if ($_POST[$prefix.'_specialisation_orig'] == $_POST[$prefix.'_specialisation']) return false;
+		if ($_POST[$prefix.'_specialisation_orig'] == $_POST[$prefix.'_specialisation']) {
+			return false;
+		}
 
 		#pre_echo($_POST[$prefix.'_specialisation']);
 		$contents = $this->_parseString($_POST[$prefix.'_specialisation']);
