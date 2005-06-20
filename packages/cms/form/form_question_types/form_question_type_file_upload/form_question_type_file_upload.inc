@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_file_upload.inc,v 1.4.2.5 2005/06/15 04:03:58 lwright Exp $
+* $Id: form_question_type_file_upload.inc,v 1.4.2.6 2005/06/20 02:17:53 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.4.2.5 $
+* @version $Revision: 1.4.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -202,8 +202,16 @@ class Form_Question_Type_File_Upload extends Form_Question
 			// the hassle of having to deal with permission errors
 			$GLOBALS['SQ_INSTALL'] = true;
 
+			$file_asset->setAttrValue('name', $file['name']);
 			if (!$file_asset->create($link, $file)) {
 				$GLOBALS['SQ_INSTALL'] = false;
+				return false;
+			}
+
+			// File::create() will create the asset but won't attach the uploaded
+			// file - we need to do this manually, and here we go
+			$edit_fns = $file_asset->getEditFns();
+			if (!$edit_fns->processFileUpload($file_asset, $o, $file_asset->getPrefix(), $file)) {
 				return false;
 			}
 
