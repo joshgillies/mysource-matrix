@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: selection.inc,v 1.42 2005/05/23 05:13:20 tbarrett Exp $
+* $Id: selection.inc,v 1.42.2.1 2005/06/21 04:25:47 dmckee Exp $
 *
 */
 
@@ -47,7 +47,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *   <selection style="boxes" columns="1" extras="" />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.42.2.1 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -381,7 +381,7 @@ class Asset_Attribute_Selection extends Asset_Attribute
 							<td>&nbsp;
 								<?php 
 								check_box($prefix.'['.$i.']', $key, (is_array($value) && in_array($key, $value)), '', $extras);
-								label($value, $id);
+								label($val, $id);
 								?>
 							</td>
 							<?php
