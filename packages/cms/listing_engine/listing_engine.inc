@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.40 2005/06/15 01:26:39 dheppell Exp $
+* $Id: listing_engine.inc,v 1.41 2005/06/21 00:26:15 lwright Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
 *
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2005,7 +2005,7 @@ class Listing_Engine extends Page
 		$group_folder =& $this->getFolder('group_formats');
 		$groups = $this->attr('asset_grouping');
 		if (empty($groups)) return true;
-		
+
 
 		// set forced run level because we want to change the names of these
 		// formats whether we have permission or not

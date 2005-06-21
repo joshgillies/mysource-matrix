@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_management.inc,v 1.25 2005/06/15 01:26:39 dheppell Exp $
+* $Id: listing_engine_management.inc,v 1.26 2005/06/21 00:26:15 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -458,13 +458,67 @@ class Listing_Engine_Management extends Asset_Management
 				ksort($asset_positions, SORT_NUMERIC);
 
 				echo 'Upgrading asset: '.$asset->name.' ('.$assetid.')'."\n";
-														 
+
 				if (!$asset->setAttrValue('asset_positions', $asset_positions)) {
 					trigger_localised_error('CMS0039', E_USER_WARNING, '0.6');
 					return false;
 				}
 			}
 		}//end if version < 0.6
+
+
+		// Version 0.7: Add 'Group Formats' Folder
+		if (version_compare($current_version, '0.7', '<')) {
+			bam('UPGRADING LISTING ENGINE - FROM VERSION '.$current_version.' TO VERSION 0.7');
+
+			$upgraded_count = 0;
+
+			$children = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), false);
+			foreach ($children as $assetid) {
+				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+
+				// if we have the group folder already, skip this asset
+				if ($GLOBALS['SQ_SYSTEM']->am->getLinks($assetid, SQ_LINK_TYPE_2, 'folder', true, 'major', 'group_formats')) {
+					continue;
+				}
+
+				// Get the lock on it
+				if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'links')) {
+					trigger_error('Asset Builder Upgrade Failed - Unable to Acquire Lock on "'.$asset->name.'" (#'.$asset->id.')', E_USER_WARNING);
+					return false;
+				}
+
+				// Group Format
+				$group_formats = new Folder();
+				$copy_link = Array(
+									'asset'			=> &$asset,
+									'value'			=> 'group_formats',
+									'link_type'		=> SQ_LINK_TYPE_2,
+									'is_dependant'	=> 1,
+									'is_exclusive'	=> 1,
+									'sort_order'	=> 2,
+							 );
+
+				$group_formats->setAttrValue('name', 'Group Formats');
+				if (!$group_formats->create($copy_link)) return false;
+
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($group_formats);
+				unset($group_formats);
+
+				echo 'Upgrading asset: '.$asset->name.' ('.$assetid.')'."\n";
+
+				if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'links')) {
+					trigger_error('Asset Builder Upgrade Failed - Unable to Release Lock on "'.$asset->name.'" (#'.$asset->id.')', E_USER_WARNING);
+					return false;
+				}
+
+				$upgraded_count++;
+
+			}//end foreach Listing Engine asset
+
+			bam('Upgraded '.$upgraded_count.' Listing Engine-based assets to version 0.7');
+
+		}//end if version < 0.7
 
 		return parent::_upgrade($current_version);
 
