@@ -18,7 +18,7 @@
 #* | licence.                                                           |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: backup.sh,v 1.14 2005/06/21 05:17:20 cboudjnah Exp $
+#* $Id: backup.sh,v 1.15 2005/06/21 05:18:34 cboudjnah Exp $
 #* $Name: not supported by cvs2svn $
 #*/
 #
@@ -141,6 +141,7 @@ case "${DB_PHPTYPE}" in
 		else
 			ssh ${remote} "exp ${args}"
 			scp ${remote}:${remotefile} .
+			ssh ${remote} "rm -f ${remotefile}"
 		fi
 
 	;;
