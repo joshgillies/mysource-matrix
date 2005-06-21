@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_manip.inc,v 1.3 2005/04/06 01:42:13 ndvries Exp $
+* $Id: image_manip.inc,v 1.3.2.1 2005/06/21 01:48:07 arailean Exp $
 *
 */
 
@@ -31,12 +31,13 @@ require_once dirname(__FILE__).'/../general/file_system.inc';
 * Image manipulation functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.3.2.1 $
 * @package Fudge
 * @subpackage Image
 */
 class Image_Manip
 {
+
 
 	/**
 	* Takes a link to an image file with an (assumed) greyscale palette
@@ -64,10 +65,10 @@ class Image_Manip
 		$ca_array = Colour::htmlToRgb($colour_a);
 		$cb_array = Colour::htmlToRgb($colour_b);
 		$diff = Array(
-			'r' => ($cb_array['r'] - $ca_array['r']),
-			'g' => ($cb_array['g'] - $ca_array['g']),
-			'b' => ($cb_array['b'] - $ca_array['b'])
-		);
+					'r'	=> ($cb_array['r'] - $ca_array['r']),
+					'g'	=> ($cb_array['g'] - $ca_array['g']),
+					'b'	=> ($cb_array['b'] - $ca_array['b']),
+				);
 
 		// Get the number of colours in a palette
 		$palette_size = imageColorsTotal($image);
@@ -197,21 +198,30 @@ class Image_Manip
 	{
 		switch (get_file_type($input)) {
 			case 'gif' :
-				if ($image = imageCreateFromGif ($input)) return $image;
-				else trigger_error('Unable to open GIF : '.$input);
-				break;
+				if ($image = imageCreateFromGif ($input)) {
+					return $image;
+				} else {
+					trigger_error('Unable to open GIF : '.$input);
+				}
+			break;
 			case 'png' :
-				if ($image = imageCreateFromPNG($input)) return $image;
-				else trigger_error('Unable to open PNG : '.$input);
-				break;
+				if ($image = imageCreateFromPNG($input)) {
+					return $image;
+				} else {
+					trigger_error('Unable to open PNG : '.$input);
+				}
+			break;
 			case 'jpg' :
 			case 'jpeg':
-				if ($image = imageCreateFromJPEG($input)) return $image;
-				else trigger_error('Unable to open JPEG : '.$input);
-				break;
+				if ($image = imageCreateFromJPEG($input)) {
+					return $image;
+				} else {
+					trigger_error('Unable to open JPEG : '.$input);
+				}
+			break;
 			default:
 				trigger_error('Unable to open unknown image type : '.$input);
-				break;
+			break;
 		}
 		return false;
 
@@ -235,23 +245,29 @@ class Image_Manip
 		switch (get_file_type($output)) {
 			case 'gif' :
 				if (imageGif($image, $output)) return true;
-				break;
+			break;
+
 			case 'png' :
 				if (imagePNG($image, $output)) return true;
-				break;
+			break;
+
 			case 'jpg' :
 			case 'jpeg':
-				if (imageJPEG($image, $output, $jpeg_quality)) return true;
-				break;
+				if (imageJPEG($image, $output, $jpeg_quality)) {
+					return true;
+				}
+			break;
+
 			default:
-				trigger_error('Unable to write unknown image type : '.$input, E_USER_WARNING);
-				break;
+				trigger_error('Unable to write unknown image type : '.$output, E_USER_WARNING);
+			break;
 		}
 
 		trigger_error('Unable to output image : '.$output, E_USER_WARNING);
 		return false;
 
 	}//end toFile()
+
 
 }//end class
 ?>
