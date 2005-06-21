@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.20 2005/06/08 01:59:55 tbarrett Exp $
+* $Id: lang_strings.xml,v 1.21 2005/06/21 00:35:24 ndvries Exp $
 *
 */
 
@@ -1518,5 +1518,11 @@
 	<string source="asset_map_button_remove_selection" java="1">Remove Selection</string>
 	<string source="asset_map_button_export" java="1">Export</string>
 	<string source="asset_map_button_close" java="1">Close</string>
+
+	<string source="non_existant_page" js="1">The URL you have entered points to a non-existant page</string>
+	<string source="valid_page" js="1">Valid URL</string>
+	<string source="unknown_state" js="1">Unknown State</string>
+	<string source="testing" js="1">Testing...</string>
+
 
 </strings>
