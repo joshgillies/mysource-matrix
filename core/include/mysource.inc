@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.122 2005/06/17 06:42:28 tbarrett Exp $
+* $Id: mysource.inc,v 1.123 2005/06/21 04:03:51 ndvries Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.122 $
+* @version $Revision: 1.123 $
 * @package MySource_Matrix
 */
 class MySource
@@ -1196,6 +1196,10 @@ class MySource
 	*/
 	function getUserPrefs($asset_type=null, $pref=null, $value_only=true)
 	{
+		if (!is_file(SQ_DATA_PATH.'/private/conf/preferences.inc')) {
+			return false;
+		}
+
 		static $user_prefs = Array(); // per-script-execution cache
 		if (empty($this->user->id)) {
 			include SQ_DATA_PATH.'/private/conf/preferences.inc';

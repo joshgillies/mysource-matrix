@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.101 2005/06/20 06:26:34 ndvries Exp $
+* $Id: file.inc,v 1.102 2005/06/21 04:03:47 ndvries Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.101 $
+* @version $Revision: 1.102 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -876,7 +876,13 @@ class File extends Asset
 	{
 		// check the file size to ensure we are not violating any restrictions
 		$size = filesize($info['path']);
-		$max_size = strtolower($GLOBALS['SQ_SYSTEM']->getUserPrefs('file', 'SQ_FILE_MAX_SIZE'));
+
+		$sq_file_max_size = $GLOBALS['SQ_SYSTEM']->getUserPrefs('file', 'SQ_FILE_MAX_SIZE');
+		if (empty($sq_file_max_size)) {
+			return true;
+		}
+
+		$max_size = strtolower($sq_file_max_size);
 		if (!$max_size) return true;
 
 		if (substr($max_size, -1) == 'k') {
