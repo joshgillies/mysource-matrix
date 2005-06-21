@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.261 2005/06/16 05:47:09 lwright Exp $
+* $Id: asset_edit_interface.inc,v 1.262 2005/06/21 01:40:01 dmckee Exp $
 *
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.261 $
+* @version $Revision: 1.262 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -909,7 +909,9 @@ class Asset_Edit_Interface extends MySource_Object
 			}
 
 			$section_access = $this->_getAccess($owner, $section, $prefix);
-			if (!($section_access & SQ_EI_READ)) continue;
+			if (!($section_access & SQ_EI_READ)) {
+				continue;
+			}
 
 			// if a translated display name has been specified, use it
 			if (isset($section->attributes['display_name'])) {
@@ -985,7 +987,9 @@ class Asset_Edit_Interface extends MySource_Object
 							}
 
 							$field_access = $this->_getAccess($owner, $field, $prefix, $section_access);
-							if (!($field_access & SQ_EI_READ)) continue;
+							if (!($field_access & SQ_EI_READ)) {
+								continue;
+							}
 							if (!isset($field->attributes['format'])) {
 								$field->attributes['format'] = '';
 							}
@@ -1204,6 +1208,8 @@ class Asset_Edit_Interface extends MySource_Object
 						$print_commit_button = true;
 					}
 				}
+				// Don't process the next bit (See bug #717)
+				continue;
 			}//end if
 
 			// its not a static screen, so get the xml file and parse it for
@@ -1385,7 +1391,9 @@ class Asset_Edit_Interface extends MySource_Object
 			}
 
 			$section_access = $this->_getAccess($owner, $section, $prefix);
-			if (!($section_access & SQ_EI_READ)) continue;
+			if (!($section_access & SQ_EI_READ)) {
+				continue;
+			}
 
 			// if we are getting this section, start buffering output
 			if ($get_section) ob_start();
@@ -1452,7 +1460,9 @@ class Asset_Edit_Interface extends MySource_Object
 					}*/
 
 					$field_access = $this->_getAccess($owner, $field, $prefix, $section_access);
-					if (!($field_access & SQ_EI_READ)) continue;
+					if (!($field_access & SQ_EI_READ)) {
+						continue;
+					}
 
 					if (!isset($field->attributes['format'])) {
 						$field->attributes['format'] = '';
@@ -1729,7 +1739,9 @@ class Asset_Edit_Interface extends MySource_Object
 					}
 
 					$section_access = $this->_getAccess($owner, $section, $prefix);
-					if (!($section_access & SQ_EI_READ)) continue;
+					if (!($section_access & SQ_EI_READ)) {
+						continue;
+					}
 
 					// if this is section only has function call, then process accordingly
 					if ($section->children[0]->name == 'function_call') {
@@ -1765,7 +1777,9 @@ class Asset_Edit_Interface extends MySource_Object
 							$last_child = count($field->children)-1;
 
 							$field_access = $this->_getAccess($owner, $field, $prefix, $section_access);
-							if (!($field_access & SQ_EI_WRITE)) continue;
+							if (!($field_access & SQ_EI_WRITE)) {
+								continue;
+							}
 
 							if (!empty($field->attributes['attribute'])) {
 								// if this ain't a field, or if we are printing the create interface and this field is not included in that, ignore it
