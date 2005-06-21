@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.102 2005/06/21 04:03:47 ndvries Exp $
+* $Id: file.inc,v 1.103 2005/06/21 23:39:14 ndvries Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.102 $
+* @version $Revision: 1.103 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -282,8 +282,7 @@ class File extends Asset
 
 		// check out the latest version of the file into the private data directory
 		$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
-		$existing = $this->getExistingFile();
-		if (!$fv->checkOut($this->data_path_suffix.'/'.$existing['filename'], $this->data_path)) {
+		if (!$fv->checkOut($this->data_path_suffix.'/'.$this->name, $this->data_path)) {
 			trigger_localised_error('CORE0044', E_USER_WARNING, $this->name);
 			return false;
 		}
@@ -878,9 +877,7 @@ class File extends Asset
 		$size = filesize($info['path']);
 
 		$sq_file_max_size = $GLOBALS['SQ_SYSTEM']->getUserPrefs('file', 'SQ_FILE_MAX_SIZE');
-		if (empty($sq_file_max_size)) {
-			return true;
-		}
+		if (empty($sq_file_max_size)) return true;
 
 		$max_size = strtolower($sq_file_max_size);
 		if (!$max_size) return true;
