@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.75.2.6 2005/06/20 06:23:37 ndvries Exp $
+* $Id: file.inc,v 1.75.2.7 2005/06/21 23:39:46 ndvries Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -179,8 +179,7 @@ class File extends Asset
 
 		// check out the latest version of the file into the private data directory
 		$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
-		$existing = $this->_getExistingFile();
-		if (!$fv->checkOut($this->data_path_suffix.'/'.$existing['filename'], $this->data_path)) {
+		if (!$fv->checkOut($this->data_path_suffix.'/'.$this->name, $this->data_path)) {
 			trigger_error('Failed reverting file "'.$this->name.'" to system version, could not check-out latest version of file', E_USER_WARNING);
 			return false;
 		}
