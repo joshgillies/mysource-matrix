@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select_edit_fns.inc,v 1.18 2005/06/15 21:23:39 gnoel Exp $
+* $Id: metadata_field_select_edit_fns.inc,v 1.19 2005/06/21 07:12:33 dmckee Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -97,9 +97,11 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 					$value = explode('; ', $value);
 				}
 			}
-
+			//If we're OK to edit, get our selection attribute, and paint it
 			if ($write_access && $asset->attr('editable')) {
-				combo_box($prefix.'_value', $select_options, $asset->attr('multiple'), $value);
+				$selection = $asset->getSelectionAttribute();
+				$selection->value = $value;
+				$selection->paint($prefix, !$write_access);
 			} else {
 				if ((is_array($value) && empty($value)) || (is_string($value) && $value == '')) {
 					echo '&nbsp;';
@@ -146,19 +148,21 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 	{
 		// nothing for us to do
 		if (!$asset->attr('editable')) return true;
-
 		$prefix = $asset->getPrefix();
 
-		$value = array_get_index($_POST, $prefix.'_value', '');
 		$use_default = array_get_index($_POST, $prefix.'_default', '');
 
 		if ($use_default) {
 			$new_value_str = null;
-		} else {
-			if (is_array($value)) $value = implode('; ', $value);
-
-			$new_value_str = Metadata_Field::encodeValueString(trim($value), Array());
+			return true;
 		}
+
+		//Default is not checked, so process ur select attribute
+		$selection = $asset->getSelectionAttribute();
+		$selection->process($prefix);
+		//Get the string into proper form for the metadata field function
+		$value = str_replace('|', '; ', $selection->value);
+		$new_value_str = Metadata_Field::encodeValueString(trim($value), Array());
 
 		return true;
 
@@ -179,7 +183,6 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 	{
 		$write_access = $asset->writeAccess('attributes');
 		$select_options = $asset->attr('select_options');
-
 		if (!empty($select_options)) {
 			?>
 			<table class="sq-backend-table">
@@ -250,6 +253,7 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 			// displaying default value if any values were actually saved in the array
 			$o->openField(translate('default_value'));
 				$selection = $asset->getSelectionAttribute();
+				if ($selection->_params['multiple']) echo 'multiple';
 				$selection->paint($prefix.'_default', !$write_access);
 			$o->closeField();
 		}
@@ -273,7 +277,6 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 	{
 		// need to have write access to make any changes
 		if (!$asset->writeAccess('attributes')) return false;
-
 		$select_options = Array();
 		if (isset($_POST[$prefix.'_options'])) {
 			$option_changes = $_POST[$prefix.'_options'];
