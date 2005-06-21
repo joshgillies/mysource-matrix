@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: config.inc,v 1.26 2005/05/31 00:45:47 tbarrett Exp $
+* $Id: config.inc,v 1.26.2.1 2005/06/21 04:58:29 ndvries Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *    Looks after the creation of the config files that are in PHP code
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.26.2.1 $
 * @package MySource_Matrix
 */
 class Config extends MySource_Object
@@ -174,10 +174,9 @@ class Config extends MySource_Object
 
 
 	/**
-	* Paints the code to define a constant and defines the constant
+	* Paints the code to define a constant
 	*
 	* This allows extra things to be added for special cases, and extra checks to be made if necessary on the value
-	* Defines the constant if it hasn't been defined yet
 	*
 	* @param string		$name		the config var name
 	* @param mixed		$value		the value that the config var has
@@ -195,8 +194,6 @@ class Config extends MySource_Object
 		}
 
 		echo ");\n";
-
-		if (!defined($var_name)) define($var_name, $value);
 
 		return true;
 
