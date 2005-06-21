@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.70.2.17 2005/06/14 07:07:35 arailean Exp $
+* $Id: form.inc,v 1.70.2.18 2005/06/21 05:03:34 arailean Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.70.2.17 $
+* @version $Revision: 1.70.2.18 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1158,6 +1158,8 @@ class Form extends Bridge
 	*/
 	function repopulate()
 	{
+		if (empty($this->active_submission)) return;
+
 		$questions = $this->getAllQuestionAssets();
 		foreach (array_keys($questions) as $key) {
 			$question = &$GLOBALS['SQ_SYSTEM']->am->getAsset($key);
