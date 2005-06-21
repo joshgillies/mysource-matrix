@@ -18,7 +18,8 @@
 #* | licence.                                                           |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: backup.sh,v 1.13 2005/06/21 05:12:09 cboudjnah Exp $
+#* $Id: backup.sh,v 1.14 2005/06/21 05:17:20 cboudjnah Exp $
+#* $Name: not supported by cvs2svn $
 #*/
 #
 #	When using with argument --remotedb=user@host it connect by ssh and
@@ -30,7 +31,6 @@
 # Creates a backup
 
 SYSTEM_ROOT=`dirname $0`;
-SYSTEM_ROOT=$PWD;
 
 if [ ! -f ${SYSTEM_ROOT}/data/private/conf/main.inc ]; then
 	echo "This isn't being run from the system root folder. Aborting."
