@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.33.2.3 2005/04/20 05:37:12 tbarrett Exp $
+* $Id: wysiwyg.inc,v 1.33.2.4 2005/06/21 02:54:33 dmckee Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -731,6 +731,63 @@ class wysiwyg
 					this.focusEditor();
 				};
 
+	//bunch of tags to compare when examining nodes
+	HTMLArea.prototype.inline_tags = ['a', 'abbr', 'acronym', 'b', 'bdo', 'big', 'cite', 'code', 'dfn', 'em', 'font', 'i', 'kbd', 'label', 'q', 's', 'samp', 'select', 'small', 'span', 'strike', 'strong', 'sub', 'sup', 'textarea', 'tt', 'u', 'var'];
+
+				// Finds the first parent element of a given node whose display is probably not inline
+HTMLArea.prototype.parentBlock = function(node) {
+
+	while ( node.parentNode && ( node.nodeType != 1 || this.inArray( node.tagName.toLowerCase(), this.inline_tags ) ) ) node = node.parentNode;
+	return node;
+};
+
+// Returns true if a given value is in an array, false otherwise
+HTMLArea.prototype.inArray = function(val, arr) {
+
+	for (var i=0; i < arr.length; i++)
+		if (val == arr[i]) return true;
+	return false;
+};
+
+// Internal function for recursively itterating over a all nodes in a fragment
+// If a callback function returns a non-null value, that is returned and the crawl is therefore broken
+HTMLArea.prototype.traverseChildrenNodes = function(me, callback) {
+
+	if ( me.firstChild ) {
+		var myChild = me.firstChild;
+		var retVal;
+		while (myChild) {
+			if ( (retVal=callback(myChild)) != null ) return retVal;
+			if ( (retVal=this.traverseChildrenNodes(myChild, callback)) != null ) return retVal;
+			myChild = myChild.nextSibling;
+		}
+	}
+};
+
+// Callback function to be performed on each node in the hierarchy
+// Sets flag to true if we find actual text or an element that's not usually displayed inline
+HTMLArea.prototype.containsText = function(node) {
+
+	if (node.nodeType == 1 && HTMLArea.prototype.inArray(node.nodeName.toLowerCase(), this.inline_tags)) return true;
+	else if (node.nodeType == 3 && node.nodeValue != '') return true;
+	else return null;
+
+};
+
+// Inserts a node down into a node, on the left side of the tree under target
+HTMLArea.prototype.insertDeepLeft = function(target, toInsert) {
+
+	var digger = target;
+	while ( digger.firstChild && digger.firstChild.nodeType == 1 ) digger = digger.firstChild;
+	var refNode = digger.firstChild ? digger.firstChild : null;
+	//falling.insertBefore(toInsert, refNode);
+	digger.innerHTML = toInsert;
+};
+
+				HTMLArea.prototype.isElem = function(node,type) {
+					return node.nodeName.toLowerCase() == type.toLowerCase();
+				};
+
 				// A generic event handler for things that happen in the IFRAME's document.
 				// This function also handles key bindings.
 				HTMLArea.prototype._editorEvent = function(ev) {
@@ -739,39 +796,130 @@ class wysiwyg
 					// Make enter without shift add <p> tags in Moz as well as IE
 					if (ev.type == "keypress") {
 						var keyCode = ev.keyCode;
-						if (keyCode == 13 && !ev.shiftKey && !HTMLArea.is_ie) {
-							// get the stuff to put in the <p>
-							var range = this._createTextRange(this._getSelection());
-							var lastElt = range.commonAncestorContainer;
-							if (lastElt.tagName != 'BODY') {
-								var firstElt = lastElt;
-								while ((firstElt.previousSibling != null) && ((firstElt.previousSibling.tagName == 'BR') || (firstElt.previousSibling.nodeType == 3))) {
-									// keep going while our previous sibling is a <br> or a text node
-									firstElt = firstElt.previousSibling;
-								}
+						if (keyCode == 13 && !ev.shiftKey && this._iframe.contentWindow.getSelection) {
+							// Get the selection and solid references to what we're dealing with chopping
+							var sel = this._iframe.contentWindow.getSelection();
 
-								// insert the <p> into the document tree
-								var para = document.createElement('P');
-								var parent = firstElt.parentNode;
-								parent.insertBefore(para, firstElt);
-								var movingElt = firstElt;
-								var nextMovingElt = movingElt;
-								while (nextMovingElt != lastElt) {
-									nextMovingElt = movingElt.nextSibling;
-									parent.removeChild(movingElt);
-									para.appendChild(movingElt);
-									movingElt = nextMovingElt;
-								}
-								parent.removeChild(lastElt);
-								para.appendChild(lastElt);
+							// Set the start and end points such that they're going /forward/ through the document
+							var leftRange = this._doc.createRange();
+							var rightRange = this._doc.createRange();
+							leftRange.setStart(sel.anchorNode,sel.anchorOffset);
+							rightRange.setStart(sel.focusNode,sel.focusOffset);
+							leftRange.collapse(true);
+							rightRange.collapse(true);
 
-								// get rid of extraneous <br>s
-								while (para.nextSibling && (para.nextSibling.tagName == 'BR')) {
-									parent.removeChild(para.nextSibling);
+							var direct = leftRange.compareBoundaryPoints(leftRange.START_TO_END,rightRange);
+
+							var startNode = (direct<0) ? sel.anchorNode : sel.focusNode;
+							var startOffset = (direct<0) ? sel.anchorOffset : sel.focusOffset;
+							var endNode = (direct<0) ? sel.focusNode : sel.anchorNode;
+							var endOffset = (direct<0) ? sel.focusOffset : sel.anchorOffset;
+
+							// Find the parent blocks of nodes at either end, and get paragraph attributes
+							var startBlock = this.parentBlock(startNode);
+							var endBlock = this.parentBlock(endNode);
+							var leftParagraphAttributes = new Array();
+							var rightParagraphAttributes = new Array();
+
+							// Inside a list Item, let the browser handle it.
+							if ( this.isElem(startBlock,'li') || this.isElem(endBlock,'li') ) return;
+
+							if ( this.isElem(startBlock,'p') ) {
+								for ( var i=0; i < startBlock.attributes.length; i++ ) {
+									leftParagraphAttributes[ startBlock.attributes[i].nodeName ] = startBlock.attributes[i].nodeValue;
 								}
 							}
-						}
+							if ( this.isElem(endBlock,'p') ) {
+								for ( var i=0; i < endBlock.attributes.length; i++ ) {
+									rightParagraphAttributes[ endBlock.attributes[i].nodeName ] = endBlock.attributes[i].nodeValue;
+								}
+							}
+							var choppingStart = startNode;
+							var choppingEnd = endNode;
+
+							while ( ( choppingStart.previousSibling && !this.isElem(choppingStart.previousSibling,'p') ) || ( choppingStart.parentNode && choppingStart.parentNode != startBlock && choppingStart.parentNode.nodeType != 9 ) )
+								choppingStart = choppingStart.previousSibling ? choppingStart.previousSibling : choppingStart.parentNode;
+
+							while ( ( choppingEnd.nextSibling && !this.isElem(choppingEnd.nextSibling,'p') ) || ( choppingEnd.parentNode && choppingEnd.parentNode != endBlock && choppingEnd.parentNode.nodeType != 9 ) )
+								choppingEnd = choppingEnd.nextSibling ? choppingEnd.nextSibling : choppingEnd.parentNode;
+
+							// Set up new paragraphs
+							var leftParagraph = this._doc.createElement('p');
+							var rightParagraph = this._doc.createElement('p');
+
+							for ( var attrName in leftParagraphAttributes ) {
+								var thisAttr = this._doc.createAttribute(attrName);
+								thisAttr.value = leftParagraphAttributes[attrName];
+								leftParagraph.setAttributeNode(thisAttr);
+							}
+							for ( var attrName in rightParagraphAttributes ) {
+								var thisAttr = this._doc.createAttribute(attrName);
+								thisAttr.value = rightParagraphAttributes[attrName];
+								rightParagraph.setAttributeNode(thisAttr);
+							}
+
+							// Split the data into left and right paragraphs
+
+							//For Left paragraph
+							leftRange.setStartBefore(choppingStart);
+							leftRange.setEnd(startNode,startOffset);
+							leftParagraph.appendChild(leftRange.cloneContents());
+
+							//For Right Paragraph
+							rightRange.setEndAfter(choppingEnd);
+							rightRange.setStart(endNode,endOffset);
+							rightParagraph.appendChild(rightRange.cloneContents());
+
+							// containsData is true if there is data in the paragraph,
+							//if false, insert a non-breaking space
+							var containsData = false;
+							containsData = this.traverseChildrenNodes(leftParagraph, this.containsText);
+							if ( containsData != true ) this.insertDeepLeft(leftParagraph, '&nbsp;');
+
+							// containsData is true if there is data in the paragraph,
+							//if false, insert a non-breaking space
+							containsData = false;
+							containsData = this.traverseChildrenNodes(rightParagraph, this.containsText);
+							if ( containsData != true ) this.insertDeepLeft(rightParagraph, '&nbsp;');
+
+							// Get the range of everything to be replaced
+							var fullRange = this._doc.createRange();
+							//if no previous sibling, and parent is a paragraph, set start of range before parent, so it will be removed.
+							//otherwise set to original start range
+							if ( !choppingStart.previousSibling && this.isElem(choppingStart.parentNode,'p') ) {
+								fullRange.setStartBefore(choppingStart.parentNode);
+							} else {
+								fullRange.setStart(leftRange.startContainer, leftRange.startOffset);
+							}
+
+							if ( !choppingEnd.nextSibling && this.isElem(choppingEnd.parentNode,'p') ) {
+								fullRange.setEndAfter(choppingEnd.parentNode);
+							} else {
+								fullRange.setEnd(rightRange.endContainer, rightRange.endOffset);
+							}
+
+							//remove data from range and insert new paragraphs
+							fullRange.deleteContents();
+							fullRange.insertNode(rightParagraph);
+							fullRange.insertNode(leftParagraph);
+
+							if ( rightParagraph.firstChild ) {
+								while ( this.inArray(rightParagraph.firstChild && rightParagraph.firstChild.nodeName.toLowerCase(), this.inline_tags) ) rightParagraph = rightParagraph.firstChild;
+									if ( rightParagraph.firstChild && rightParagraph.firstChild.nodeType == 3 ) rightParagraph = rightParagraph.firstChild;	// and text, if they've got it
+
+							// Set the selection to the start of the new paragraph (right)
+								var cursorRange = this._doc.createRange();
+								cursorRange.setStart(rightParagraph,0);
+								cursorRange.collapse(true);
+								sel = this._iframe.contentWindow.getSelection();
+								sel.removeAllRanges();
+								sel.addRange(cursorRange);
+							}
+
+				// Stop event to prevent no IE browsers adding the <br>
+					HTMLArea._stopEvent(ev);
 					}
+				}
 
 <?php $this->print_plugin_event_handlers()?>
 					var keyEvent = (HTMLArea.is_ie && ev.type == "keydown") || (ev.type == "keypress");
