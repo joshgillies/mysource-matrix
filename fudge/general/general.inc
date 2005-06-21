@@ -1,5 +1,6 @@
 <?php
 /**
+*
 * +--------------------------------------------------------------------+
 * | Squiz.net Open Source Licence                                      |
 * +--------------------------------------------------------------------+
@@ -18,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.27 2004/12/07 05:12:52 lwright Exp $
+* $Id: general.inc,v 1.28 2005/06/21 03:18:52 cboudjnah Exp $
 *
 */
 
@@ -30,7 +31,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package Fudge
 * @subpackage General
 */
