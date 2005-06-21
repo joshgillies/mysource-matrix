@@ -18,8 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-*
-* $Id: asset.inc,v 1.418 2005/06/16 06:53:34 dmckee Exp $
+* $Id: asset.inc,v 1.419 2005/06/21 03:46:39 arailean Exp $
 *
 */
 
@@ -31,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.418 $
+* @version $Revision: 1.419 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -256,6 +255,13 @@ class Asset extends MySource_Object
 			}
 		}
 
+		// disable the triggering system. we do not want to broadcast any nested events, only our own
+		$trigger_level_changed = false;
+		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_TRIGGERS)) {
+			$GLOBALS['SQ_SYSTEM']->setRunLevel($GLOBALS['SQ_SYSTEM']->getRunLevel() - SQ_SECURITY_TRIGGERS);
+			$trigger_level_changed = true;
+		}
+
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
 		// let the system know that we are creating this asset so we dont
@@ -409,7 +415,6 @@ class Asset extends MySource_Object
 					return $this->_abortCreate();
 				}
 			}
-
 			$linkid = $link['asset']->createLink($this, $link['link_type'], $link['value'], $link['sort_order'], $link['is_dependant'], $link['is_exclusive']);
 
 			// get the link so we can find out if it was dependant (cant rely on the info passed in
@@ -461,13 +466,16 @@ class Asset extends MySource_Object
 
 		}//end if creating link
 
+		// re-enable the triggers, if they were disabled here
+		if ($trigger_level_changed) {
+			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+		}
 
 		// before firing the "Before Asset Created" event, turn off locking checks
+		$modified_runlevel = false;
 		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LOCKING)) {
 			$GLOBALS['SQ_SYSTEM']->setRunLevel($GLOBALS['SQ_SYSTEM']->getRunLevel() - SQ_SECURITY_LOCKING);
 			$modified_runlevel = true;
-		} else {
-			$modified_runlevel = false;
 		}
 
 		// fire the event, abort if the event fails
@@ -493,7 +501,6 @@ class Asset extends MySource_Object
 
 		// fire the 'Asset Created' event
 		$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_asset_created', $this);
-
 		$ms->closeLog();
 
 		if (!empty($link)) {
@@ -3152,7 +3159,6 @@ class Asset extends MySource_Object
 		if ($perm == SQ_PERMISSION_READ) {
 			trigger_localised_error('SYS0172', E_USER_ERROR, __CLASS__, __FUNCTION__);
 		}
-
 		if ($lock_type == '') {
 			return $this->_checkPermissionAccess($perm, $assetids);
 
@@ -3177,7 +3183,9 @@ class Asset extends MySource_Object
 			}
 
 			// if the asset is archived no editing allowed
-			if ($this->status & SQ_STATUS_ARCHIVED) return false;
+			if ($this->status & SQ_STATUS_ARCHIVED) {
+				return false;
+			}
 
 			// otherwise they can edit if they have permission access
 			return $this->_checkPermissionAccess($perm);
@@ -3293,12 +3301,13 @@ class Asset extends MySource_Object
 		}
 
 		if ($this->charset) {
-			header("Content-type: text/html; charset=$this->charset");
+			header('Content-type: text/html; charset='.$this->charset);
 		} else {
-			header("Content-type: text/html; charset=".SQ_CONF_DEFAULT_CHARACTER_SET);
+			header('Content-type: text/html; charset='.SQ_CONF_DEFAULT_CHARACTER_SET);
 		}
+
 		if ($this->languages) {
-			header("Content-language: $this->languages");
+			header('Content-language: '.$this->languages);
 		}
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
