@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.42 2005/06/21 01:04:35 lwright Exp $
+* $Id: listing_engine.inc,v 1.43 2005/06/21 01:11:03 lwright Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
 *
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1983,7 +1983,7 @@ class Listing_Engine extends Page
 
 		//if their are group levels remaining, we want to call
 		//this function again for each of the groups we have made
-		if (count($group_levels) > 0 ) {
+		if (count($group_levels) > 0) {
 			foreach ($results as $index => $group) {
 				$this->sortGroups($group_levels, $group, $results[$index]);
 			}
