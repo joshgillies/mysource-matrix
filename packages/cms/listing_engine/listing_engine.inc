@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.41 2005/06/21 00:26:15 lwright Exp $
+* $Id: listing_engine.inc,v 1.42 2005/06/21 01:04:35 lwright Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
 *
-* @version $Revision: 1.41 $
+* @version $Revision: 1.42 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2045,6 +2045,7 @@ class Listing_Engine extends Page
 		}
 
 		return $count;
+
 	}//end _arrayCountRecursive()
 
 
