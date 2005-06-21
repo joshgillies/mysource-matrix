@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.1.2.1 2005/06/20 13:22:48 gnoel Exp $
+* $Id: lang_screen_details.xml,v 1.1.2.2 2005/06/21 07:11:55 dmckee Exp $
 *
 */
 -->
@@ -84,7 +84,7 @@
 		<field attribute="visible_part">
 			<display_name>Frontend Part</display_name>
 			<note>%description%</note>
-		</field>			
+		</field>
 		<field>
 			<display_name>Relevance Weighting</display_name>
 			<note />

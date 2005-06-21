@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.8.2.1 2005/06/20 13:22:48 gnoel Exp $
+* $Id: edit_interface_screen_details.xml,v 1.8.2.2 2005/06/21 07:11:55 dmckee Exp $
 *
 */
 -->
@@ -70,7 +70,7 @@
 		</field>
 		<field attribute="visible_part">
 			<selection style="boxes" columns="1" extras="" />
-		</field>			
+		</field>
 		<field>
 			<function_call>
 				<paint_function		name="paintWeighting" />

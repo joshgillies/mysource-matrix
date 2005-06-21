@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select_edit_fns.inc,v 1.17.2.1 2005/06/20 13:22:48 gnoel Exp $
+* $Id: metadata_field_select_edit_fns.inc,v 1.17.2.2 2005/06/21 07:11:55 dmckee Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.17.2.1 $
+* @version $Revision: 1.17.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -90,16 +90,18 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 			$select_options = $asset->attr('select_options');
 
 			if ($asset->attr('multiple')) {
-				// if there is no value we need a blank array...not and array with one elemenr (a blank string)
+				// if there is no value we need a blank array...not and array with one element (a blank string)
 				if ($value == '') {
 					$value = Array();
 				} else {
 					$value = explode('; ', $value);
 				}
 			}
-
+			//If we're OK to edit, get our selection attribute, and paint it
 			if ($write_access && $asset->attr('editable')) {
-				combo_box($prefix.'_value', $select_options, $asset->attr('multiple'), $value);
+				$selection = $asset->getSelectionAttribute();
+				$selection->value = $value;
+				$selection->paint($prefix, !$write_access);
 			} else {
 				if ((is_array($value) && empty($value)) || (is_string($value) && $value == '')) {
 					echo '&nbsp;';
@@ -146,19 +148,21 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 	{
 		// nothing for us to do
 		if (!$asset->attr('editable')) return true;
-
 		$prefix = $asset->getPrefix();
 
-		$value = array_get_index($_POST, $prefix.'_value', '');
 		$use_default = array_get_index($_POST, $prefix.'_default', '');
 
 		if ($use_default) {
 			$new_value_str = null;
-		} else {
-			if (is_array($value)) $value = implode('; ', $value);
-
-			$new_value_str = Metadata_Field::encodeValueString(trim($value), Array());
+			return true;
 		}
+
+		//Default is not checked, so process ur select attribute
+		$selection = $asset->getSelectionAttribute();
+		$selection->process($prefix);
+		//Get the string into proper form for the metadata field function
+		$value = str_replace('|', '; ', $selection->value);
+		$new_value_str = Metadata_Field::encodeValueString(trim($value), Array());
 
 		return true;
 
