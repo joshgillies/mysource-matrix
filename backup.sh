@@ -18,17 +18,28 @@
 #* | licence.                                                           |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: backup.sh,v 1.12 2005/05/06 01:15:14 cboudjnah Exp $
-#* $Name: not supported by cvs2svn $
+#* $Id: backup.sh,v 1.13 2005/06/21 05:12:09 cboudjnah Exp $
 #*/
+#
+#	When using with argument --remotedb=user@host it connect by ssh and
+#	dump the database there.
+#
+#	TODO: Make --remotedb= works with pgsql
+#
 
 # Creates a backup
 
-SYSTEM_ROOT=`dirname ${0}`;
+SYSTEM_ROOT=`dirname $0`;
+SYSTEM_ROOT=$PWD;
 
 if [ ! -f ${SYSTEM_ROOT}/data/private/conf/main.inc ]; then
 	echo "This isn't being run from the system root folder. Aborting."
 	exit 1
+fi
+
+if [[ $1 == --remotedb=* ]];then
+	remote=${1##*=}
+	shift
 fi
 
 if [ ! -z $1 ]; then
@@ -82,6 +93,7 @@ eval `echo "${php_code}" | php`
 set | grep "^DB_"
 
 dumpfile=${SYSTEM_ROOT}/matrix-`date +%Y-%m-%d_%H-%M`.dump
+[[ -n $remote ]] && remotefile="/tmp/matrix-`date +%Y-%m-%d_%H-%M`.dump"
 
 case "${DB_PHPTYPE}" in 
 	"pgsql")
@@ -105,6 +117,32 @@ case "${DB_PHPTYPE}" in
 			echo "Aborting."
 			exit 5
 		fi
+	;;
+	"oci8")
+		args="";
+		if [ "${DB_USERNAME}" != "" ]; then
+			args="${args} ${DB_USERNAME}";
+		fi
+		if [ "${DB_PASSWORD}" != "" ]; then
+			args="${args}/${DB_PASSWORD}";
+		fi
+		if [ "${DB_HOSTSPEC}" != "" ]; then
+			sid=${DB_HOSTSPEC#*SID=}
+			sid=${sid%%)*}
+			args="${args}@${sid}";
+		fi
+		if [[ -z $remote ]];then
+			args="$args file=${dumpfile}"
+		else
+			args="$args file=${remotefile}"
+		fi
+		if [[ -z $remote ]];then
+			exp ${args}
+		else
+			ssh ${remote} "exp ${args}"
+			scp ${remote}:${remotefile} .
+		fi
+
 	;;
 
 	*)
