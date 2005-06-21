@@ -18,7 +18,7 @@
 #* | licence.                                                           |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: backup.sh,v 1.15 2005/06/21 05:18:34 cboudjnah Exp $
+#* $Id: backup.sh,v 1.16 2005/06/21 05:27:20 cboudjnah Exp $
 #* $Name: not supported by cvs2svn $
 #*/
 #
@@ -111,7 +111,13 @@ case "${DB_PHPTYPE}" in
 		if [ "${DB_PORT}" != "" ]; then
 			args="${args} -p ${DB_PORT}";
 		fi
-		pg_dump ${args} "${DB_DATABASE}"  > ${dumpfile}
+		if [[ -z $remote ]];then
+			pg_dump ${args} "${DB_DATABASE}"  > ${dumpfile}
+		else
+			ssh ${remote} "pg_dump ${args} > ${remotefile}"
+			scp ${remote}:${remotefile} ${dumpfile}
+			[[ $? == 0 ]] && ssh ${remote} "rm -f ${remotefile}"
+		fi
 		if [ $? -gt 0 ]; then
 			echo "Unable to create dumpfile ${dumpfile}."
 			echo "Aborting."
@@ -140,10 +146,14 @@ case "${DB_PHPTYPE}" in
 			exp ${args}
 		else
 			ssh ${remote} "exp ${args}"
-			scp ${remote}:${remotefile} .
-			ssh ${remote} "rm -f ${remotefile}"
+			scp ${remote}:${remotefile} ${dumpfile}
+			[[ $? == 0 ]] && ssh ${remote} "rm -f ${remotefile}"
 		fi
-
+		if [ $? -gt 0 ]; then
+			echo "Unable to create dumpfile ${dumpfile}."
+			echo "Aborting."
+			exit 5
+		fi
 	;;
 
 	*)
