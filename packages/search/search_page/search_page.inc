@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.98 2005/06/02 23:07:13 tbarrett Exp $
+* $Id: search_page.inc,v 1.98.2.1 2005/06/21 04:46:23 dheppell Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.98 $
+* @version $Revision: 1.98.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -198,7 +198,7 @@ class Search_Page extends Listing_Engine
 	{
 		$page_links = parent::_getAllowedLinks();
 		$page_links[SQ_LINK_TYPE_2]['bodycopy'] = Array('card' => 'M', 'exclusive' => true);
-		$page_links[SQ_LINK_TYPE_2]['folder']   = Array('card' => 3, 'exclusive' => false);
+		$page_links[SQ_LINK_TYPE_2]['folder']   = Array('card' => 4, 'exclusive' => false);
 		$page_links[SQ_LINK_TYPE_3]['folder']   = Array('card' => 1, 'exclusive' => false);
 		$page_links[SQ_LINK_NOTICE]['asset']    = Array('card' => 'M', 'exclusive' => false);
 		return $page_links;
