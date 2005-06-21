@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.38.2.1 2005/06/15 23:59:59 dheppell Exp $
+* $Id: listing_engine.inc,v 1.38.2.2 2005/06/21 01:57:13 dheppell Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
 *
-* @version $Revision: 1.38.2.1 $
+* @version $Revision: 1.38.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -615,10 +615,6 @@ class Listing_Engine extends Page
 	*/
 	function filterAssetStatuses(&$todo)
 	{
-		// copied over from asset listing
-		// is this fine for what we need, or are we expanding this to include
-		// specific statuses (as in Search Folder)
-
 		// first check to see if this is a special user without restrictions
 		$user_restrictions = (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin());
 		if (!$user_restrictions) return;
@@ -638,6 +634,9 @@ class Listing_Engine extends Page
 		assert_valid_db_result($non_live_assets);
 
 		foreach ($non_live_assets as $assetid) {
+			//we get the type code from a different place for letters
+			$type_code = ($this->attr('group_by') == 'letter') ? $todo[$assetid]['type_code'] : $todo[$assetid];
+
 			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $todo[$assetid]);
 			if (!$asset->writeAccess()) unset($todo[$assetid]);
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
