@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.45 2005/06/02 00:53:09 tbarrett Exp $
+* $Id: wysiwyg.inc,v 1.46 2005/06/21 02:57:35 dmckee Exp $
 *
 */
 
@@ -33,7 +33,7 @@
 *     to do this.
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.46 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -731,6 +731,9 @@ class wysiwyg
 					this.focusEditor();
 				};
 
+//bunch of tags to compare when examining nodes
+HTMLArea.prototype.inline_tags = ['a', 'abbr', 'acronym', 'b', 'bdo', 'big', 'cite', 'code', 'dfn', 'em', 'font', 'i', 'kbd', 'label', 'q', 's', 'samp', 'select', 'small', 'span', 'strike', 'strong', 'sub', 'sup', 'textarea', 'tt', 'u', 'var'];
+
 // Finds the first parent element of a given node whose display is probably not inline
 HTMLArea.prototype.parentBlock = function(node) {
 
@@ -784,9 +787,6 @@ HTMLArea.prototype.insertDeepLeft = function(target, toInsert) {
 				HTMLArea.prototype.isElem = function(node,type) {
 					return node.nodeName.toLowerCase() == type.toLowerCase();
 				};
-
-				//bunch of tags to compare when examining nodes
-				HTMLArea.prototype.inline_tags = ['a', 'abbr', 'acronym', 'b', 'bdo', 'big', 'cite', 'code', 'dfn', 'em', 'font', 'i', 'kbd', 'label', 'q', 's', 'samp', 'select', 'small', 'span', 'strike', 'strong', 'sub', 'sup', 'textarea', 'tt', 'u', 'var'];
 
 
 				// A generic event handler for things that happen in the IFRAME's document.
