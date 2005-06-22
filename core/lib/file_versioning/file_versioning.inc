@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_versioning.inc,v 1.8.2.1 2005/06/20 06:24:43 ndvries Exp $
+* $Id: file_versioning.inc,v 1.8.2.2 2005/06/22 04:30:20 ndvries Exp $
 *
 */
 
@@ -39,7 +39,7 @@ define('FUDGE_FV_OLD_VERSION',      64);
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.8.2.1 $
+* @version $Revision: 1.8.2.2 $
 * @package Fudge
 * @subpackage File_Versioning
 */
@@ -463,7 +463,7 @@ class File_Versioning
 	* @access private
 	* @see add() update()
 	*/
-	function _updateFile($fileid, $rep_path, $real_file, $extra_info)
+	function _updateFile($fileid, $rep_path, $real_file, $extra_info='')
 	{
 		$sql = 'SELECT COALESCE(MAX(version), 0) + 1
 				FROM sq_file_vers_history

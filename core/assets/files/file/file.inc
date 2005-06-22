@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.97.2.5 2005/06/21 23:39:30 ndvries Exp $
+* $Id: file.inc,v 1.97.2.6 2005/06/22 04:29:08 ndvries Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.97.2.5 $
+* @version $Revision: 1.97.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -250,6 +250,15 @@ class File extends Asset
 			return false;
 		}
 
+		// store the current version of the file
+		$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
+		$file_info = $fv->_checkOutCheck($this->data_path_suffix.'/'.$this->name);
+		$latest_version = $file_info['version'];
+		if (!string_to_file($latest_version, $this->data_path.'/.sq_system/sq_system_version_no')) {
+			trigger_localised_error('CORE0051', E_USER_WARNING, $this->name);
+			return false;
+		}
+
 		return true;
 
 	}//end saveSystemVersion()
@@ -274,18 +283,27 @@ class File extends Asset
 
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
+		$file_version = null;
+		if (is_file($this->data_path.'/sq_system_version_no')) {
+			$file_version = file_to_string($this->data_path.'/sq_system_version_no');
+		}
+
 		// clear the private data directory to get rid of the new uploaded file we had there
 		if (!clear_directory($this->data_path)) {
 			trigger_localised_error('CORE0045', E_USER_WARNING, $this->name);
 			return false;
 		}
 
-		// check out the latest version of the file into the private data directory
+		// check out the old version of the file into the private data directory
 		$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
-		if (!$fv->checkOut($this->data_path_suffix.'/'.$this->name, $this->data_path)) {
+		$rep_path = $this->data_path_suffix.'/'.$this->name;
+		if (!$fv->checkOut($rep_path, $this->data_path, $file_version)) {
 			trigger_localised_error('CORE0044', E_USER_WARNING, $this->name);
 			return false;
 		}
+
+		$file_info = $fv->_checkOutCheck($rep_path);
+		$fv->_updateFile($file_info['fileid'], $rep_path, $this->data_path.'/'.$this->name);
 
 		return true;
 
@@ -321,7 +339,6 @@ class File extends Asset
 
 				$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
 				$fv->changeFvTypeCode($existing['path'], $new_type_code);
-
 			}
 			unset($tmp);
 		}
