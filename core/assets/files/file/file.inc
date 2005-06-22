@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.97.2.6 2005/06/22 04:29:08 ndvries Exp $
+* $Id: file.inc,v 1.97.2.7 2005/06/22 06:44:48 ndvries Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.97.2.6 $
+* @version $Revision: 1.97.2.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -302,8 +302,15 @@ class File extends Asset
 			return false;
 		}
 
+		// create a new versioning entry for the old version
 		$file_info = $fv->_checkOutCheck($rep_path);
-		$fv->_updateFile($file_info['fileid'], $rep_path, $this->data_path.'/'.$this->name);
+		$fv->_updateFile($file_info['fileid'], $this->data_path_suffix, $this->data_path.'/'.$this->name);
+
+		// check out the new version
+		if (!$fv->checkOut($rep_path, $this->data_path)) {
+			trigger_localised_error('CORE0044', E_USER_WARNING, $this->name);
+			return false;
+		}
 
 		return true;
 
