@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit_table.php,v 1.12.2.3 2005/06/22 05:13:40 dmckee Exp $
+* $Id: edit_table.php,v 1.12.2.4 2005/06/22 05:42:37 dmckee Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Table Edit Popup for the WYSIWYG
 *
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.12.2.3 $
+* @version $Revision: 1.12.2.4 $
 * @package MySource_Matrix
 */
 
@@ -180,7 +180,7 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 	<script type="text/javascript" src="table-editor.js"></script>
 </head>
 <body onload="Init();">
-	<div id="table_container" onmousemove="onMove(event)" onmouseout="table.mouse.Out()"></div>
+	<div id="table_container" onmousemove="onMove(event)" onmouseout="if(init_finished) table.mouse.Out();"></div>
 	<div id="mouse_pointers">
 		<img alt="" src="images/mousec.gif" id="mcell" style="position:absolute;display:none" />
 		<img alt="" src="images/mouser.gif" id="mrow" style="position:absolute;display:none" />
