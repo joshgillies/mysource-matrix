@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.31 2005/05/24 06:25:32 tbarrett Exp $
+* $Id: calendar_common.inc,v 1.32 2005/06/22 05:43:16 tbarrett Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -107,6 +107,9 @@ function build_recurring_event_query_base(&$trees, $view, $iso, $length=null)
 	list($year,$month,$day) = sscanf(substr($iso,0,10), '%4d-%2d-%2d');
 	if (!$month) $month = 12;
 	if (!$day) $day = 1;
+	if (($view == 'period') && ($length == 0)) {
+		$view = 'day';
+	}
 
 	$now = get_date_components(sprintf('%04d-%02d-%02d', $year, $month, $day));
 	$wdom_list = weekday_dates_in_month($now['wday'], $month, $year);
@@ -326,7 +329,7 @@ function build_recurring_event_query_base(&$trees, $view, $iso, $length=null)
 
 			if (($length > 2) || !in_array($now['wday'], Array(0, 6)) || !in_array($last_date_components['wday'], Array(0, 6))) $sql_freqs[] = '(frequency = '.$db->quote('DWD').')';
 
-			$sql_freqs[] = '((frequency = '.$db->quote('WEW').') AND (((period * 7) <= '.$length.') OR (FLOOR(('.$now['ds'].' - start_date_ds) / (period * 7)) < FLOOR(('.$last_date_components['ds'].' - start_date_ds) / (period * 7))) OR (FLOOR(('.$now['ds'].' - end_date_ds) / (period * 7)) < FLOOR(('.$last_date_components['ds'].' - end_date_ds) / (period * 7)))))';
+			$sql_freqs[] = '((frequency = '.$db->quote('WEW').') AND (((period * 7) <= '.$length.') OR (FLOOR(('.($now['ds']-1).' - start_date_ds) / (period * 7)) < FLOOR(('.$last_date_components['ds'].' - start_date_ds) / (period * 7))) OR (FLOOR(('.($now['ds']-1).' - end_date_ds) / (period * 7)) < FLOOR(('.$last_date_components['ds'].' - end_date_ds) / (period * 7)))))';
 
 			$monthly_conditions = Array();
 
@@ -365,10 +368,10 @@ function build_recurring_event_query_base(&$trees, $view, $iso, $length=null)
 					if ($last_date_components['wdom'] - $now['wdom'] != 1) {
 						// we have intervening weeks
 						// we want to know if any event started or ended in the intervening weeks
-						$mfw_conditions[] = '((frequency = '.$db->quote('MFW').') AND ((start_date_wdom BETWEEN '.($now['wdom'] + 1).' AND '.($last_date_components['wdom'] - 1).') OR (end_date_wdom BETWEEN ' .($now['wdom'] + 1).' AND '.($last_date_components['wdom'] - 1).'))';
+						$mfw_conditions[] = '((frequency = '.$db->quote('MFW').') AND ((start_date_wdom BETWEEN '.($now['wdom'] + 1).' AND '.($last_date_components['wdom'] - 1).') OR (end_date_wdom BETWEEN ' .($now['wdom'] + 1).' AND '.($last_date_components['wdom'] - 1).')))';
 					}
 				}
-				$monthly_conditions[] = '((frequency = '.$db->quote('MFW').") AND (\n                    ".implode("\n                    OR ", $mfw_conditions)."\n\n     ))";
+				$monthly_conditions[] = '((frequency = '.$db->quote('MFW').") AND (".implode(" OR ", $mfw_conditions)."\n\n     ))";
 
 				// get MRW events
 				$mrw_conditions = Array();
@@ -399,10 +402,29 @@ function build_recurring_event_query_base(&$trees, $view, $iso, $length=null)
 						$mrw_conditions[] = '((start_date_rwdom BETWEEN '.($now['rwdom'] - 1).' AND '.($last_date_components['rwdom'] + 1).') OR (end_date_rwdom BETWEEN ' .($now['rwdom'] - 1).' AND '.($last_date_components['rwdom'] + 1).'))';
 					}
 				}
-				$monthly_conditions[] = '((frequency = '.$db->quote('MRW').") AND ( \n                    ".implode("\n                    OR", $mrw_conditions)."\n     ))";
+				$monthly_conditions[] = '((frequency = '.$db->quote('MRW').") AND (".implode(" OR ", $mrw_conditions).'))';
 
 				// get month events that cover the whole of our month
-				$sql_freqs[] = '((frequency LIKE '.$db->quote('M%').") AND (\n   ((end_date_ms IS NOT NULL) AND (end_date_ms - start_date_ms >= 3) AND ((".$now['ms']." - start_date_ms) % period) BETWEEN 1 AND (end_date_ms - start_date_ms - 1))\n   OR (\n\n((((".$now['ms'].' - start_date_ms) % period = 0) OR (('.$now['ms']." - end_date_ms) % period = 0)) AND (\n    ".implode("\n    OR ", $monthly_conditions)." \n))\n\n   )\n)))";
+				$sql_freqs[] = '(
+								/* begin month options */
+									(frequency LIKE '.$db->quote('M%').') 
+									AND (
+											(
+												(end_date_ms IS NOT NULL) 
+												AND (end_date_ms - start_date_ms >= 3) 
+												AND (('.$now['ms'].' - start_date_ms) % period) 
+														BETWEEN 1 AND (end_date_ms - start_date_ms - 1)
+											) OR (
+												(
+													(('.$now['ms'].' - start_date_ms) % period = 0) 
+														OR (('.$now['ms'].' - end_date_ms) % period = 0)
+												) AND (
+														'.implode("\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t OR ", $monthly_conditions).' 
+												)
+											)
+									)
+								/* end month options */
+								)';
 
 			} else {
 				// start and end are in different months
@@ -442,7 +464,7 @@ function build_recurring_event_query_base(&$trees, $view, $iso, $length=null)
 		break;
 
 	}//end switch on $view
-	$sql .= '('.implode("\n\n\nOR\n\n\n ", $sql_freqs).')';
+	$sql .= "(/* begin sql freqs */\n\n".implode("\n\n\nOR\n\n\n ", $sql_freqs)."\n/* end sql freqs */\n)\n\n";
 
 	// stop date
 	$sql .= ' AND ('.$last_day.' >= start_date_ds)';
