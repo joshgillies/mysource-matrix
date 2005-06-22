@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field.inc,v 1.17 2005/06/02 06:37:30 lwright Exp $
+* $Id: metadata_field.inc,v 1.17.2.1 2005/06/22 04:22:51 dmckee Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.17.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -307,7 +307,7 @@ class Metadata_Field extends Asset
 			return false;
 		}
 
-		if(!parent::saveAttributes($dont_run_updated)) {
+		if (!parent::saveAttributes($dont_run_updated)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
