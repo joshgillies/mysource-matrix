@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit_table.php,v 1.7.2.3 2005/06/17 05:37:20 dmckee Exp $
+* $Id: edit_table.php,v 1.7.2.4 2005/06/22 05:09:42 dmckee Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Table Edit Popup for the WYSIWYG
 *
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.7.2.3 $
+* @version $Revision: 1.7.2.4 $
 * @package MySource_Matrix
 */
 
@@ -115,10 +115,9 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 	</style>
 	<script type="text/javascript" src="../../core/popup.js"></script>
 	<script type="text/javascript" src="../../core/dialog.js"></script>
-	<script type="text/javascript" src="table-editor.js"></script>
 	<script type="text/javascript">
 	//<![CDATA[
-
+		var init_finished = false;
 		var testtable = '<table id="test2" border="1" cellpadding="0" cellspacing="1" style="width:400px;background:#CCC;background-color:#CCC; background-image:url(images/i.gif)" summary="test2" onclick="if (this.id=\'test4\') {alert(\'s\');}">' +
 						'<caption>Caption</caption>'+
 						'<tr>'+
@@ -136,7 +135,6 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 						'</table>';
 
 		var table;
-		var init_finished = false;
 
 		function Init() {
 			__dlg_init("editTableProperties");
@@ -171,15 +169,16 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 
 		//Called to avoid the mouse move event being called prematurely
 		function onMove(event) {
-			if (init_finished == true) {
-				table.mouse.Move(event);
-			}
+			if (init_finished == false) return false;
+
+			table.mouse.Move(event);
+
 			return false;
 
 		};
-
 		//]]>
 	</script>
+	<script type="text/javascript" src="table-editor.js"></script>
 </head>
 <body onload="Init();">
 	<div id="table_container" onmousemove="table.mouse.Move(event)" onmouseout="table.mouse.Out()"></div>
