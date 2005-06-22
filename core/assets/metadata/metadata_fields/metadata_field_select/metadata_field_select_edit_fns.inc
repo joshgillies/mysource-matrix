@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select_edit_fns.inc,v 1.17.2.2 2005/06/21 07:11:55 dmckee Exp $
+* $Id: metadata_field_select_edit_fns.inc,v 1.17.2.3 2005/06/22 23:55:53 dmckee Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.17.2.2 $
+* @version $Revision: 1.17.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -89,8 +89,21 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 
 			$select_options = $asset->attr('select_options');
 
+			?>
+				<script type="text/javascript">
+					//Function to handle change in a selection box. Use onchange event,
+					//passing the prefix of the selection attribute, and it will uncheck
+					//the default checkbox on change.
+					function selectionChanged(prefix) {
+						document.getElementById(prefix + '_default').checked = false;
+						return false;
+					}
+
+				</script>
+			<?php
+
 			if ($asset->attr('multiple')) {
-				// if there is no value we need a blank array...not and array with one element (a blank string)
+				// if there is no value we need a blank array...not an array with one element (a blank string)
 				if ($value == '') {
 					$value = Array();
 				} else {
@@ -101,6 +114,7 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 			if ($write_access && $asset->attr('editable')) {
 				$selection = $asset->getSelectionAttribute();
 				$selection->value = $value;
+				$selection->_edit_params['extras'] = 'onChange="selectionChanged(\''.$prefix.'\')"';
 				$selection->paint($prefix, !$write_access);
 			} else {
 				if ((is_array($value) && empty($value)) || (is_string($value) && $value == '')) {
