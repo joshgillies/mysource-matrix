@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select_edit_fns.inc,v 1.10 2004/11/07 22:48:30 gsherwood Exp $
+* $Id: metadata_field_select_edit_fns.inc,v 1.10.2.1 2005/06/22 02:31:20 dmckee Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -68,26 +68,61 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 		$prefix = $asset->getPrefix();
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 
-		$field_name = $asset->name;
-		if ($asset->attr('required')) $field_name .= ' <span style="color: #FF0000">*</span>';
+		$is_default = false;
 
+		if (!isset($values['value'])) {
+			$default = $asset->getSelectionAttribute();
+			$values['value'] = str_replace('|', '; ', $default->value);
+			$is_default = true;
+		}
+		$value = '';
+		$value_components = $asset->attr('value_components');
+		$field_name = $asset->name;
+		if ($asset->attr('required')) {
+			$field_name .= ' <span style="color: #FF0000">*</span>';
+		}
 		$o->openField($field_name);
-			if (isset($values['value'])) $default = $values['value'];
-			else $default = $asset->attr('default');
 
 			$select_options = $asset->attr('select_options');
 
-			if ($asset->attr('multiple')) $default = explode('; ', $default);
-			if ($write_access && $asset->attr('editable')) {
-				combo_box($prefix.'_value', $select_options, $asset->attr('multiple'), $default);
-			} else {
-				if (empty($default)) {
-					echo '';
+			if ($asset->attr('multiple')) {
+				// if there is no value we need a blank array...not an array with one element (a blank string)
+				if (!isset($values['value'])) {
+					$value = Array();
 				} else {
-					if (!is_array($default)) $default = Array($default);
-					$default_string = '';
-					foreach ($default as $option) $default_string .= $select_options[$option].'; ';
-					echo trim($default_string, '; ');
+					$value = explode('; ', $values['value']);
+				}
+			} else if (isset($values['value'])) {
+				$value = $values['value'];
+			}
+			//If we're OK to edit, get our selection attribute, and paint it
+			if ($write_access && $asset->attr('editable')) {
+				$selection = $asset->getSelectionAttribute();
+				$selection->value = $value;
+				$selection->paint($prefix, !$write_access);
+			} else {
+				if ((is_array($value) && empty($value)) || (is_string($value) && $value == '')) {
+					echo '&nbsp;';
+				} else {
+					if (!is_array($value)) $value = Array($value);
+					$value_output = '';
+					foreach ($value as $option) {
+						$value_output .= $select_options[$option].'; ';
+					}
+					echo trim($value_output, '; ');
+				}
+			}
+
+			if ($write_access) {
+				echo ' or ';
+				check_box($prefix.'_default', '1', $is_default);
+				echo ' use default';
+				if ($is_default) {
+					echo ' <em style="color: #666">(currently set)</em>';
+				}
+			} else {
+				if ($is_default) {
+					echo ' <em style="color: #666">(default)</em>';
 				}
 			}
 		$o->closeField();
@@ -108,15 +143,23 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 	*/
 	function processInlineValueInterface(&$asset, &$new_values)
 	{
+		// nothing for us to do
+		if (!$asset->attr('editable')) return true;
 		$prefix = $asset->getPrefix();
 
-		$default = $asset->attr('default');
-		if ($asset->attr('editable')) {
-			$value = array_get_index($_POST, $prefix.'_value', '');
-			if (is_array($value)) $value = implode('; ', $value);
-			$new_values[$asset->name]['value'] = trim($value);
+		$use_default = array_get_index($_POST, $prefix.'_default', '');
+
+		if ($use_default) {
+			$new_values[$asset->name]['value'] = null;
+			return true;
 		}
 
+		//Default is not checked, so process ur select attribute
+		$selection = $asset->getSelectionAttribute();
+		$selection->process($prefix);
+		//Get the string into proper form for the metadata field function
+		$value = str_replace('|', '; ', $selection->value);
+		$new_values[$asset->name]['value'] = $value;
 		return true;
 
 	}//end processInlineValueInterface()
@@ -203,7 +246,7 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 				text_box($prefix.'_new_val','');
 			$o->closeField();
 		}
-		
+
 		if (!empty($select_options)) {
 			// displaying default value if any values were actually saved in the array
 			$o->openField('Default Value');
@@ -231,7 +274,7 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 	{
 		// need to have write access to make any changes
 		if (!$asset->writeAccess('attributes')) return false;
-		
+
 		$select_options = Array();
 		if (isset($_POST[$prefix.'_options'])) {
 			$option_changes = $_POST[$prefix.'_options'];
@@ -247,7 +290,7 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 			$new_select_val  = trim($_POST[$prefix.'_new_val']);
 			$select_options[$new_select_key] = $new_select_val;
 		}
-			
+
 		// updating asset attribute value
 		$asset->setAttrValue('select_options', $select_options);
 
@@ -255,18 +298,22 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 		$new_default = '';
 		if (!empty($select_options) && isset($_POST[$prefix.'_default'])) {
 			$new_default = $_POST[$prefix.'_default'];
-			if (is_array($new_default)) $new_default = implode('; ', $new_default);
+			if (is_array($new_default)) {
+				$new_default = implode('; ', $new_default);
+			}
 		}
 		if (!$asset->attr('multiple')) {
-			if (!isset($select_options[$new_default])) $new_default = '';
+			if (!isset($select_options[$new_default])) {
+				$new_default = '';
+			}
 		}
 		$asset->setAttrValue('default', $new_default);
 
 		return true;
 
 	}//end processSelection()
-	
-	
+
+
 	/**
 	* Paint the interface for setting selection edit params
 	*
