@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select.inc,v 1.7.2.1 2005/06/20 13:22:48 gnoel Exp $
+* $Id: metadata_field_select.inc,v 1.7.2.2 2005/06/22 01:34:32 dmckee Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field.inc';
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.7.2.1 $
+* @version $Revision: 1.7.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -94,7 +94,7 @@ class Metadata_Field_Select extends Metadata_Field
 	*/
 	function getMetadataValue(&$asset, $value_str)
 	{
-		return parent::getMetadataValue($asset, $this->getValueFromKey($value_str));
+		return str_replace('\\;', ';', parent::getMetadataValue($asset, $this->getValueFromKey($value_str)));
 
 	}//end getMetadataValue()
 
