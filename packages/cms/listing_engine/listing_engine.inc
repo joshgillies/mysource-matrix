@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.44 2005/06/21 01:55:16 dheppell Exp $
+* $Id: listing_engine.inc,v 1.45 2005/06/22 01:33:03 arailean Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
 *
-* @version $Revision: 1.44 $
+* @version $Revision: 1.45 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -70,12 +70,10 @@ class Listing_Engine extends Page
 		$this->_ser_attrs = true;
 		$this->Page($assetid);
 
-		$this->contents_keywords = Array(
-									'sort_by'		=> translate('cms_listing_keyword_sort_by'),
-									'sort_order'	=> translate('cms_listing_keyword_sort_order'),
-									'submit_button'	=> translate('cms_listing_keyword_submit_button'),
-									'root_nodes'	=> translate('cms_listing_keyword_root_nodes'),
-								   );
+		$this->contents_keywords['sort_by']		= translate('cms_listing_keyword_sort_by');
+		$this->contents_keywords['sort_order']		= translate('cms_listing_keyword_sort_order');
+		$this->contents_keywords['submit_button']	= translate('cms_listing_keyword_submit_button');
+		$this->contents_keywords['root_nodes']		= translate('cms_listing_keyword_root_nodes');
 
 	}//end constructor
 
@@ -389,14 +387,12 @@ class Listing_Engine extends Page
 		if (empty($keyword)) return '';
 
 		$replacement = "%$keyword%";
-		if (isset($this->contents_keywords[$keyword])) {
-			$tmp_keyword = strtr($keyword, '_', ' ');
-			$tmp_keyword = ucfirst($tmp_keyword);
-			$tmp_keyword = preg_replace('/\s+/', '', $tmp_keyword);
-			$func_name = 'get'.$tmp_keyword.'KeywordReplacement';
-			if (method_exists($this, $func_name)) {
-				$replacement = $this->$func_name();
-			}
+		$tmp_keyword = strtr($keyword, '_', ' ');
+		$tmp_keyword = ucwords($tmp_keyword);
+		$tmp_keyword = preg_replace('/\s+/', '', $tmp_keyword);
+		$func_name = 'get'.$tmp_keyword.'KeywordReplacement';
+		if (method_exists($this, $func_name)) {
+			$replacement = $this->$func_name();
 		}
 
 		return $replacement;
@@ -1032,19 +1028,19 @@ class Listing_Engine extends Page
 	*/
 	 function _groupChunk(&$todo, &$chunk, &$remaining_count, $num_per_page, $group_limit=null)
 	 {
-	 	$pointer =& reset($todo);
+		$pointer =& reset($todo);
 
-	 	//keep calling this for each group until we get to the actual assets
+		//keep calling this for each group until we get to the actual assets
 		if (($group_limit > 0) || is_null($group_limit)) {
-	 		foreach ($todo as $index => $child) {
-	 			if ($remaining_count >= 0) {
-	 				$this->_groupChunk($todo[$index], $chunk[$index], $remaining_count, $num_per_page, ($group_limit == null ? null : $group_limit - 1));
-	 			}
+			foreach ($todo as $index => $child) {
+				if ($remaining_count >= 0) {
+					$this->_groupChunk($todo[$index], $chunk[$index], $remaining_count, $num_per_page, ($group_limit == null ? null : $group_limit - 1));
+				}
 
-	 			if (empty($chunk[$index])) unset($chunk[$index]);
-	 		}
-	 		return;
-	 	}
+				if (empty($chunk[$index])) unset($chunk[$index]);
+			}
+			return;
+		}
 
 		foreach ($todo as $index => $value) {
 			if (($remaining_count > 0) && ($remaining_count <= $num_per_page)) {
@@ -1052,7 +1048,7 @@ class Listing_Engine extends Page
 			}
 
 			$remaining_count--;
-	 	}
+		}
 
 	 }//end _groupChunk()
 
