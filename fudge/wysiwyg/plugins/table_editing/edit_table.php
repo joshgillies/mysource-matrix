@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit_table.php,v 1.15 2005/06/17 05:11:11 dmckee Exp $
+* $Id: edit_table.php,v 1.16 2005/06/22 05:13:48 dmckee Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Table Edit Popup for the WYSIWYG
 *
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix
 */
 
@@ -115,7 +115,6 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 	</style>
 	<script type="text/javascript" src="../../core/popup.js"></script>
 	<script type="text/javascript" src="../../core/dialog.js"></script>
-	<script type="text/javascript" src="table-editor.js"></script>
 	<script type="text/javascript">
 	//<![CDATA[
 
@@ -171,15 +170,15 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 
 		//Called to avoid the mouse move event being called prematurely
 		function onMove(event) {
-			if (init_finished == true) {
-				table.mouse.Move(event);
-			}
+			if (init_finished == false) return false;
+			table.mouse.Move(event);
 			return false;
 
 		};
 
 		//]]>
 	</script>
+	<script type="text/javascript" src="table-editor.js"></script>
 </head>
 <body onload="Init();">
 	<div id="table_container" onmousemove="onMove(event)" onmouseout="table.mouse.Out()"></div>
