@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area.inc,v 1.41 2005/06/20 23:20:13 dmckee Exp $
+* $Id: design_area.inc,v 1.42 2005/06/22 06:40:52 mmcintyre Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.41 $
+* @version $Revision: 1.42 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -126,7 +126,11 @@ class Design_Area extends Asset
 	*/
 	function _getName($short_name=false)
 	{
-		return $this->attr('id_name');
+		$name = $this->attr('id_name');
+		// if the attribute is empty, let the parent take care of setting the name
+		if ($name == '') $name = parent::_getName($short_name);
+
+		return $name;
 
 	}//end _getName()
 
