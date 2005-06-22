@@ -19,7 +19,7 @@
 #* | licence.                                                           |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: clean.sh,v 1.21 2005/06/14 22:51:59 cboudjnah Exp $
+#* $Id: clean.sh,v 1.22 2005/06/22 06:47:54 dheppell Exp $
 #*/
 
 # Creates a clean system by removing data and cache directories 
@@ -86,6 +86,8 @@ php -d output_buffering=0 "${SYSTEM_ROOT}/install/step_02.php" "${SYSTEM_ROOT}"
 if [ "$?" == "0" ]; then
 	php -d output_buffering=0 "${SYSTEM_ROOT}/install/step_03.php" "${SYSTEM_ROOT}"
 fi
+
+php -d output_buffering=0 "${SYSTEM_ROOT}/install/compile_locale.php" "${SYSTEM_ROOT}" "--locale=en"
 
 chmod 775 cache
 find data -type d -exec chmod 2775 {} \; 2> /dev/null
