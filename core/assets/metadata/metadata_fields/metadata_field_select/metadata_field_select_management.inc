@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select_management.inc,v 1.3 2004/09/15 07:06:31 gsherwood Exp $
+* $Id: metadata_field_select_management.inc,v 1.3.6.1 2005/06/22 04:00:01 dmckee Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,6 +38,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 class Metadata_Field_Select_Management extends Asset_Management
 {
 
+
 	/**
 	* Constructor
 	*
@@ -45,32 +46,33 @@ class Metadata_Field_Select_Management extends Asset_Management
 	function Metadata_Field_Select_Management(&$pm)
 	{
 		$this->Asset_Management($pm);
-		
+
 		// additional attrs., that were not defined in parent
 		$this->vars = Array(
-							'select_options'	=> Array(
-													'added'   => '0.1',
-													'type'    => 'serialise',
-													'default' => Array()
-													),
-							'multiple'			=> Array(
-													'added'      => '0.2',
-													'type'       => 'boolean',
-													'default'    => false,
-													'parameters' => Array(
-															'allow_empty' => false,
-															)
-													),
-							'edit_params'		=> Array(
-													'added'      => '0.2',
-													'type'       => 'serialise',
-													'default'    => Array(),
-													),
-							);
+						'select_options'	=> Array(
+												'added'		=> '0.1',
+												'type'		=> 'serialise',
+												'default'	=> Array(),
+											   ),
+						'multiple'			=> Array(
+												'added'			=> '0.2',
+												'type'			=> 'boolean',
+												'default'		=> false,
+												'parameters'	=> Array(
+																	'allow_empty'	=> false,
+																   ),
+											   ),
+						'edit_params'		=> Array(
+												'added'		=> '0.2',
+												'type'		=> 'serialise',
+												'default'	=> Array(),
+											   ),
+					  );
 
 	}//end constructor
 
 
 }//end class
+
 
 ?>

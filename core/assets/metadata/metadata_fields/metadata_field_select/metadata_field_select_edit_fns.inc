@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select_edit_fns.inc,v 1.10.2.1 2005/06/22 02:31:20 dmckee Exp $
+* $Id: metadata_field_select_edit_fns.inc,v 1.10.2.2 2005/06/22 04:00:01 dmckee Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -107,6 +107,7 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 					if (!is_array($value)) $value = Array($value);
 					$value_output = '';
 					foreach ($value as $option) {
+						if (!isset($select_options[$option])) continue;
 						$value_output .= $select_options[$option].'; ';
 					}
 					echo trim($value_output, '; ');

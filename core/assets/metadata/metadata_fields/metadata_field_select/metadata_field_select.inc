@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select.inc,v 1.4 2004/10/19 01:04:00 mmcintyre Exp $
+* $Id: metadata_field_select.inc,v 1.4.2.1 2005/06/22 04:00:01 dmckee Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,6 +38,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field.inc';
 */
 class Metadata_Field_Select extends Metadata_Field
 {
+
 
 	/**
 	* Constructor
@@ -64,12 +65,16 @@ class Metadata_Field_Select extends Metadata_Field
 
 		$selection = new Asset_Attribute_Selection();
 		$edit_params = $this->attr('edit_params');
-		if (!empty($edit_params)) $selection->_edit_params = $edit_params;
+		if (!empty($edit_params)) {
+			$selection->_edit_params = $edit_params;
+		}
 		$selection->_params['options'] = $this->attr('select_options');
 		$selection->_params['multiple'] = $this->attr('multiple');
-		
+
 		$default = $this->attr('default');
-		if ($this->attr('multiple')) $default = explode('; ', $default);
+		if ($this->attr('multiple')) {
+			$default = explode('; ', $default);
+		}
 		$selection->setValue($default);
 
 		return $selection;
