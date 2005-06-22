@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select_edit_fns.inc,v 1.20 2005/06/22 23:51:43 dmckee Exp $
+* $Id: metadata_field_select_edit_fns.inc,v 1.21 2005/06/22 23:55:19 dmckee Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -103,7 +103,7 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 			<?php
 
 			if ($asset->attr('multiple')) {
-				// if there is no value we need a blank array...not and array with one elemenr (a blank string)
+				// if there is no value we need a blank array...not an array with one element (a blank string)
 				if ($value == '') {
 					$value = Array();
 				} else {
@@ -267,7 +267,6 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 			// displaying default value if any values were actually saved in the array
 			$o->openField(translate('default_value'));
 				$selection = $asset->getSelectionAttribute();
-				if ($selection->_params['multiple']) echo 'multiple';
 				$selection->paint($prefix.'_default', !$write_access);
 			$o->closeField();
 		}
