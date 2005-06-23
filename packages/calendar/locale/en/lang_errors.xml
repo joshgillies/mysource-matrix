@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.2 2005/04/29 05:39:19 gsherwood Exp $
+* $Id: lang_errors.xml,v 1.3 2005/06/23 23:51:52 tbarrett Exp $
 *
 */
 
@@ -195,4 +195,9 @@
 
 	<error code="CAL0058">Recurring Event Cancellations can only be created underneath recurring events</error>
 		<!-- calendar/calendar_events/calendar_event_cancellation/calendar_event_cancellation.inc:302: -->
+
+	<error code="CAL0059">Type formats folder not found for Rolling Calendar Page #%s</error>
+
+	<error code="CAL0060">Page Contents Bodycopy not found for Rolling Calendar Page #%s</error>
+
 </errors>
