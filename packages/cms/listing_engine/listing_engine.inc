@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.38.2.3 2005/06/22 05:04:48 arailean Exp $
+* $Id: listing_engine.inc,v 1.38.2.4 2005/06/23 23:58:25 dheppell Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
 *
-* @version $Revision: 1.38.2.3 $
+* @version $Revision: 1.38.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1831,8 +1831,10 @@ class Listing_Engine extends Page
 	*/
 	function groupAssetsRecursively($group_levels, $assetids, &$results)
 	{
-		//we need assets, so if none given, let's bail
-		if (empty($assetids)) return;
+		//we need assetsand groups, so if none given, let's bail
+		if (empty($assetids) || empty($group_levels)) {
+			 return;
+		}
 
 		//by the end the array should be populated as needed,
 		//so if weve been called recursivly we can empty the old
