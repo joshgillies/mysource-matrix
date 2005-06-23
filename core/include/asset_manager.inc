@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.329 2005/06/20 01:19:16 lwright Exp $
+* $Id: asset_manager.inc,v 1.330 2005/06/23 05:28:06 mmcintyre Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.329 $
+* @version $Revision: 1.330 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -299,10 +299,14 @@ class Asset_Manager extends MySource_Object
 			}
 
 			// if they have not specified any fields, then we want to select *
-			if ($field == '') $field = '*';
+			if ($field == '') {
+				$field = 'type_code, version, name, description, instantiable, allowed_access, parent_type, lvl, dir, customisation';
+			} else {
+				$field = 'type_code, '.$field;
+			}
 
 			$sql = 'SELECT
-						type_code, '.$field.'
+						'.$field.'
 					FROM
 						sq_ast_typ
 					WHERE
@@ -5261,7 +5265,7 @@ class Asset_Manager extends MySource_Object
 				   AND l.'.$side_of_link.'id = '.$db->quote($assetid).'
 				   AND '.db_extras_bitand($db, 'l.link_type', $db->quote($link_types)).' > 0 ';
 		if (!is_null($value)) {
-		   $where .= ' AND l.value     = '.$db->quote($value);
+			$where .= ' AND (l.value IS NULL OR l.value = '.$db->quote($value).')';
 		}
 		if (!is_null($dependant)) {
 			$where .= ' AND l.is_dependant = '.$db->quote(($dependant) ? '1' : '0');
