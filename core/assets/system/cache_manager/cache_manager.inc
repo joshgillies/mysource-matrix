@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.4 2004/11/25 10:41:58 brobertson Exp $
+* $Id: cache_manager.inc,v 1.4.2.1 2005/06/23 14:24:59 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,7 +31,7 @@ require_once 'Cache.php';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.4 $ - 0.1
+* @version $Revision: 1.4.2.1 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -155,9 +155,11 @@ class Cache_Manager extends Asset
 		if (empty($suffix)) return '';
 		$assetid_code = md5($asset->id);
 		$cacheid_code = $this->cache->generateID($asset->id.$key.$suffix);
+		$url_code = $this->cache->generateID(current_url());
+		$final_key = $assetid_code.':'.$cacheid_code.':'.$url_code;
 
 		$group = $this->getAssetHash($assetid_code).$this->getAssetHash($cacheid_code);
-		$contents = $this->cache->get($assetid_code.':'.$cacheid_code, $group);
+		$contents = $this->cache->get($final_key, $group);
 
 		return ($contents) ? $contents : '';
 
@@ -187,11 +189,13 @@ class Cache_Manager extends Asset
 		if (empty($suffix)) return false;
 		$assetid_code = md5($asset->id);
 		$cacheid_code = $this->cache->generateID($asset->id.$key.$suffix);
+		$url_code = $this->cache->generateID(current_url());
+		$final_key = $assetid_code.':'.$cacheid_code.':'.$url_code;
 
 		$group = $this->getAssetHash($assetid_code).$this->getAssetHash($cacheid_code);
 		$expiry = time() + $this->getExpiry($asset->type());
 
-		return $this->cache->save($assetid_code.':'.$cacheid_code, $contents, $expiry, $group);
+		return $this->cache->save($final_key, $contents, $expiry, $group);
 
 	}//end saveToCache()
 	
