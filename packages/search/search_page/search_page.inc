@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.99 2005/06/21 04:45:13 dheppell Exp $
+* $Id: search_page.inc,v 1.100 2005/06/23 03:28:20 dheppell Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.99 $
+* @version $Revision: 1.100 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1154,11 +1154,14 @@ class Search_Page extends Listing_Engine
 		$sort_info  = $this->getSortInfo();
 		$asset_info = $this->sortAssetList($asset_info, $sort_info);
 
+		
 		$this->filterAssetList($asset_info);
-		$total_pages = ceil(count($asset_info) / $results_per_page);
-
+		
 		if (!is_array($asset_info)) $asset_info = Array();
 		$this->_tmp['asset_info'] = $asset_info;
+		
+		$this->groupAssetsRecursively($this->attr('asset_grouping'), $asset_info, $asset_info);
+		$total_pages = ceil(count($asset_info) / $results_per_page);
 
 
 		foreach ($keywords as $keyword) {
@@ -1174,13 +1177,13 @@ class Search_Page extends Listing_Engine
 
 					// print the asset list from the listing engine
 					ob_start();
-					$this->printAssetList($result_list);
+					$this->printAssetList($asset_info);
 					$replacement = ob_get_contents();
 					ob_end_clean();
 				break;
 
 				case 'result_count':
-					$replacement = count($asset_info);
+					$replacement = $this->_arrayCountRecursive($asset_info);
 				break;
 
 				case 'current_result_page':
@@ -1920,19 +1923,23 @@ class Search_Page extends Listing_Engine
 		$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 		$element_contents = $cm->loadFromCache($this, $assetid);
 		if (empty($element_contents)) {
+
 			ob_start();
 			parent::_printAsset($assetid, $this->_tmp['asset_info'][$assetid], $list_position);
 			$element_contents = ob_get_contents();
 			ob_end_clean();
 			$cm->saveToCache($this, $assetid, $element_contents);
 		}
+		
+		$score = (isset($score['type_code'])) ? $score['type_code']: $score;
 
 		$element_replacements = Array(
-									'score'			=> $score,
+									'score'			=> $score['type_code'],
 									'result_number'	=> $this->_tmp['start_element'] + $list_position,
 								);
-
+		
 		$element_contents = replace_keywords($element_contents, $element_replacements);
+		
 
 		echo $element_contents;
 
