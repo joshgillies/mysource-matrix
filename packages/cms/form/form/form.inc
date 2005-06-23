@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.103 2005/06/15 03:43:04 arailean Exp $
+* $Id: form.inc,v 1.104 2005/06/23 22:39:58 skim Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.103 $
+* @version $Revision: 1.104 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1325,9 +1325,9 @@ class Form extends Asset
 			// check to see whether this belongs to us (if it isn't then perhaps a section took care)
 			if ($this->id == strtok($assetid, ':')) {
 				$question = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-				echo ($html) ? '<tr><td><li>' : '';
+				echo ($html) ? '<tr><td><ul><li>' : '';
 				echo $question->attr('name');
-				echo ($html) ? ': </li></td><td>' : ' : ';
+				echo ($html) ? ': </li></ul></td><td>' : ' : ';
 				echo $question->getSummary();
 				echo ($html) ? '</td></tr>' : "\n";
 			}
@@ -1350,9 +1350,9 @@ class Form extends Asset
 				// check to see whether this belongs to the section
 				if ($section->id == strtok($assetid, ':')) {
 					$question = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-					echo ($html) ? '<tr><td><li>' : '';
+					echo ($html) ? '<tr><td><ul><li>' : '';
 					echo $question->attr('name');
-					echo ($html) ? ': </li></td><td>' : ' : ';
+					echo ($html) ? ': </li></ul></td><td>' : ' : ';
 					echo $question->getSummary();
 					echo ($html) ? '</td></tr>' : "\n";
 				}
