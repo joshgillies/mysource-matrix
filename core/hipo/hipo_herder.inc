@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_herder.inc,v 1.68 2005/05/17 06:58:42 ndvries Exp $
+* $Id: hipo_herder.inc,v 1.69 2005/06/23 22:57:22 gsherwood Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) Herder (Manager ;P)
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.68 $
+* @version $Revision: 1.69 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -707,6 +707,7 @@ class HIPO_Herder extends MySource_Object
 		require_once $job_dir.'/'.$job_type.'.inc';
 		$init_hipo = new $job_type();
 		$init_hipo->setRunningVars($vars);
+		$init_hipo->_steps = $init_hipo->getInitialStepData();
 
 		// prepare() check the integrity of the the running vars
 		if (!$init_hipo->prepare()) return false;
