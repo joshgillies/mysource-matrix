@@ -25,11 +25,12 @@ public class BasicView extends JPanel implements View {
 		JScrollPane scrollPane = new JScrollPane(constructTree());
 		scrollPane.setBorder(BorderFactory.createEmptyBorder());
 
+		StatusKey statusKey = new StatusKey();
+
 		splitPane.setTopComponent(scrollPane);
-		splitPane.setBottomComponent(new StatusKey());
-		splitPane.setResizeWeight(.66D);
+		splitPane.setBottomComponent(statusKey);
 		splitPane.setDividerLocation(Integer.MAX_VALUE);
-		splitPane.setLastDividerLocation((int)(AssetMap.getApplet().getHeight() * 0.55));
+		splitPane.setLastDividerLocation((int)(AssetMap.getApplet().getHeight() - statusKey.getHeight()));
 		splitPane.setOneTouchExpandable(true);
 
 		setLayout(new BorderLayout());
