@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.32 2005/06/22 05:43:16 tbarrett Exp $
+* $Id: calendar_common.inc,v 1.33 2005/06/23 22:36:43 tbarrett Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -39,15 +39,21 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 * @return string	the common part of the SQL query
 * @access public
 */
-function build_single_event_query_base(&$trees)
+function build_single_event_query_base(&$trees, $group_by_root_node=false, $event_type_code='calendar_event_single', $include_exceptions=true)
 {
 	$db =& $GLOBALS['SQ_SYSTEM']->db;
 
-	$type_codes = quoted_descendants('calendar_event_single');
-	$type_codes = array_merge($type_codes, quoted_descendants('calendar_event_cancellation'));
-	$type_codes = array_merge($type_codes, quoted_descendants('calendar_event_modification'));
+	$type_codes = quoted_descendants($event_type_code);
+	if ($include_exceptions) {
+		$type_codes = array_merge($type_codes, quoted_descendants('calendar_event_cancellation'));
+		$type_codes = array_merge($type_codes, quoted_descendants('calendar_event_modification'));
+	}
 
-	$sql = 'SELECT a.assetid, a.type_code, a.name, t.treeid, ('.build_case_statement('t.treeid',$trees).') as root_node, cd.*';
+	if ($group_by_root_node) {
+		$sql = 'SELECT ('.build_case_statement('t.treeid',$trees).'), a.assetid, a.type_code, a.name, t.treeid as root_node, cd.*'."\n";
+	} else {
+		$sql = 'SELECT a.assetid, a.type_code, a.name, t.treeid, ('.build_case_statement('t.treeid',$trees).') as root_node, cd.*'."\n";
+	}
 	if (!$GLOBALS['SQ_SYSTEM']->userSystemAdmin() && !$GLOBALS['SQ_SYSTEM']->userRoot()) {
 		$sql .= ', p.granted as access';
 	}
@@ -102,7 +108,7 @@ function build_join_statements()
 * @return string
 * @access public
 */
-function build_recurring_event_query_base(&$trees, $view, $iso, $length=null)
+function build_recurring_event_query_base(&$trees, $view, $iso, $length=null, $group_by_root_node=false, $event_type='calendar_event_recurring')
 {
 	list($year,$month,$day) = sscanf(substr($iso,0,10), '%4d-%2d-%2d');
 	if (!$month) $month = 12;
@@ -116,10 +122,13 @@ function build_recurring_event_query_base(&$trees, $view, $iso, $length=null)
 
 	$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-	$type_codes = quoted_descendants('calendar_event_recurring');
+	$type_codes = quoted_descendants($event_type);
 
-	$sql =
-	'SELECT a.assetid, a.type_code, a.name, t.treeid, ('.build_case_statement('t.treeid',$trees).') as root_node, cd.*';
+	if ($group_by_root_node) {
+		$sql = 'SELECT ('.build_case_statement('t.treeid',$trees).'), a.assetid, a.type_code, a.name, t.treeid as root_node, cd.*'."\n";
+	} else {
+		$sql = 'SELECT a.assetid, a.type_code, a.name, t.treeid, ('.build_case_statement('t.treeid',$trees).') as root_node, cd.*'."\n";
+	}
 	if (!$GLOBALS['SQ_SYSTEM']->userSystemAdmin() && !$GLOBALS['SQ_SYSTEM']->userRoot()) {
 		$sql .= ', p.granted as access';
 	}
