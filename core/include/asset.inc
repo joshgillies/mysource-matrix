@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.419 2005/06/21 03:46:39 arailean Exp $
+* $Id: asset.inc,v 1.420 2005/06/23 23:33:51 gsherwood Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.419 $
+* @version $Revision: 1.420 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -2633,13 +2633,13 @@ class Asset extends MySource_Object
 			return false;
 		}
 
+		if ($this->vars[$name]['type'] == 'serialise') {
+			$value = unserialize($value);
+		}
+
 		// if the value being set is the same as the current value - dont do anything
 		if ($this->vars[$name]['value'] == $value) {
 			return true;
-		}
-
-		if ($this->vars[$name]['type'] == 'serialise') {
-			$value = unserialize($value);
 		}
 
 		// if this is a uniq attribute then let's make sure that this isn't already set
