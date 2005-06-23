@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.51 2005/06/14 05:39:58 tbarrett Exp $
+* $Id: calendar_event.inc,v 1.52 2005/06/23 06:56:40 pgannavarapu Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once dirname(__FILE__).'/../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.51 $
+* @version $Revision: 1.52 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -89,7 +89,14 @@ class Calendar_Event extends Asset
 	function _createAdditional(&$link)
 	{
 		if (!parent::_createAdditional($link)) return false;
-		return $this->cacheCalendarData(false);
+		$result = $this->cacheCalendarData(false);
+		// set an initial web path
+		$initial_path = strtolower($this->attr('name'));
+		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+		$valid_paths = make_valid_web_paths(Array($initial_path));
+		$good_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($link['asset'], $valid_paths, $this->id, true);
+		$result_paths = $this->saveWebPaths($good_paths);
+		return ($result && $result_paths);
 
 	}//end _createAdditional()
 
@@ -183,7 +190,7 @@ class Calendar_Event extends Asset
 
 		$keywords['event_start_time_24h'] = Array('value'=>date('H:i', iso8601_ts($this->attr('start_date'))));
 		$keywords['event_end_time_24h'] = Array('value'=>date('H:i', iso8601_ts($this->attr('end_date'))));
-		
+
 		$keywords['event_start_time_ical'] = Array('value'=>date('Ymd\THis', iso8601_ts($this->attr('start_date'))));
 		$keywords['event_end_time_ical'] = Array('value'=>date('Ymd\THis', iso8601_ts($this->attr('end_date'))));
 
@@ -206,7 +213,7 @@ class Calendar_Event extends Asset
 
 			$keywords['event_start_time_24h']['description'] = 'Start time (24 hour)';
 			$keywords['event_end_time_24h']['description'] = 'End time (24 hour)';
-			
+
 			$keywords['event_start_time_ical']['description'] = 'Start time (iCalendar)';
 			$keywords['event_end_time_ical']['description'] = 'End time (iCalendar)';
 
@@ -230,7 +237,9 @@ class Calendar_Event extends Asset
 	{
 		if (true === ($msg = $GLOBALS['SQ_SYSTEM']->am->couldTrashAsset($this->id))) {
 			$res = '<a href="?SQ_CALENDAR_EVENT_ID='.$this->id.'&amp;SQ_CALENDAR_EVENT_ACTION=delete';
-			if (isset($_REQUEST['SQ_CALENDAR_DATE'])) $res .= '&amp;SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'];
+			if (isset($_REQUEST['SQ_CALENDAR_DATE'])) {
+				$res .= '&amp;SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'];
+			}
 			$res .= '" onclick="return confirm(js_translate(\'confirm_delete_event\'));">'.translate('delete').'</a>';
 			return $res;
 		} else {
@@ -511,7 +520,7 @@ class Calendar_Event extends Asset
 	{
 		if ($this->getEndTime() !== false) {
 			return readable_datetime(iso8601_ts($this->attr('end_date')));
-		} else if  (iso8601_ts($this->attr('end_date')) == -1) {
+		} else if (iso8601_ts($this->attr('end_date')) == -1) {
 			return '';
 		} else {
 			return date('jS M Y', iso8601_ts($this->attr('end_date')));
@@ -546,7 +555,7 @@ class Calendar_Event extends Asset
 			// start and end dates are the same
 			if (!$this->getStartTime()) {
 				// no start time, so must be an all day event
-				return $this->getFriendlyStart() . ' (all day)';
+				return $this->getFriendlyStart().' (all day)';
 			} else if (($this->getStartTime() == $this->getEndTime())) {
 				// show start date and time only
 				return $this->getFriendlyStart();
@@ -634,7 +643,7 @@ class Calendar_Event extends Asset
 					return '';
 				}
 				$duration = $this->getDuration();
-				if (!isset($_REQUEST['SQ_CALENDAR_TIME']) || empty($_REQUEST['SQ_CALENDAR_TIME'])) $_REQUEST['SQ_CALENDAR_TIME'] = '--:--';
+				if (!isset($_REQUEST['SQ_CALENDAR_TIME']) || empty($_REQUEST['SQ_CALENDAR_TIME'])) { $_REQUEST['SQ_CALENDAR_TIME'] = '--:--';}
 				$this->setAttrValue('start_date', $_REQUEST['SQ_CALENDAR_DATE'].' '.$_REQUEST['SQ_CALENDAR_TIME'].':--');
 				$current_end_date = $this->getEndDate();
 				if ($current_end_date) {
