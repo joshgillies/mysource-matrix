@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status.inc,v 1.15 2005/05/30 05:20:02 rhoward Exp $
+* $Id: asset_status.inc,v 1.16 2005/06/23 03:42:17 rhoward Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Provide a generic framework for status objects
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix
 */
 class Asset_Status extends MySource_Object
@@ -120,9 +120,6 @@ class Asset_Status extends MySource_Object
 				require_once SQ_INCLUDE_PATH.'/asset_status/'.$status_code.'.inc';
 				eval('$desc = '.$status_code.'::getDescription();');
 
-				//bam($this->owner);
-				//bam( $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type()));
-				//exit();
 				trigger_localised_error('SYS0250', E_USER_WARNING, $desc, $this->owner->name, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name'), $this->owner->id, $this->getDescription(), $GLOBALS['SQ_SYSTEM']->user->name, $GLOBALS['SQ_SYSTEM']->user->id);
 
 				return false;
