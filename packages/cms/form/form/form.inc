@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.100.2.2 2005/06/23 22:38:33 skim Exp $
+* $Id: form.inc,v 1.100.2.3 2005/06/23 22:40:13 skim Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.100.2.2 $
+* @version $Revision: 1.100.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1352,7 +1352,7 @@ class Form extends Asset
 					$question = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 					echo ($html) ? '<tr><td><ul><li>' : '';
 					echo $question->attr('name');
-					echo ($html) ? ': </li></ul><2/td><td>' : ' : ';
+					echo ($html) ? ': </li></ul></td><td>' : ' : ';
 					echo $question->getSummary();
 					echo ($html) ? '</td></tr>' : "\n";
 				}
