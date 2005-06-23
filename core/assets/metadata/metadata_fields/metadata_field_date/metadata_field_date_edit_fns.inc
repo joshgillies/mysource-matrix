@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date_edit_fns.inc,v 1.23 2005/06/02 06:37:30 lwright Exp $
+* $Id: metadata_field_date_edit_fns.inc,v 1.23.2.1 2005/06/23 00:48:21 dmckee Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.23.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -356,11 +356,31 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 
 		$o->openField($field_name);
 
+			?>
+				<script type="text/javascript">
+					//Function to handle change in a dare box. Use onchange event,
+					//passing the prefix of the current attribute, and it will uncheck
+					//the default checkbox on change.
+					function dateSelectionChanged(prefix) {
+						document.getElementById(prefix + '_default').checked = false;
+						return false;
+					}
+
+				</script>
+			<?php
 			// checking if the value is a keyword replacement
 			$uses_keyword = (substr($value, 0, 1) == '%');
 			if (empty($value)) $value = null;
 			$field = $asset->_getDateTimeField($prefix, $value);
-
+			$field->parameters['extras'] = Array(
+											'd'	=> 'onchange="dateSelectionChanged(\''.$prefix.'\')"',
+											'm'	=> 'onchange="dateSelectionChanged(\''.$prefix.'\')"',
+											'y'	=> 'onchange="dateSelectionChanged(\''.$prefix.'\')"',
+											'h'	=> 'onchange="dateSelectionChanged(\''.$prefix.'\')"',
+											'm'	=> 'onchange="dateSelectionChanged(\''.$prefix.'\')"',
+											's'	=> 'onchange="dateSelectionChanged(\''.$prefix.'\')"',
+											'i'	=> 'onchange="dateSelectionChanged(\''.$prefix.'\')"',
+										   );
 			if ($write_access && $asset->attr('editable')) {
 				$field->printField();
 				echo ' <b>-'.strtoupper(translate('or')).'-</b> ';
