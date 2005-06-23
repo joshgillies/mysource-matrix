@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_calendar.inc,v 1.7 2005/05/06 05:33:58 tbarrett Exp $
+* $Id: js_calendar.inc,v 1.8 2005/06/23 06:26:34 pgannavarapu Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *     An object to init and paint the JS calendar
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -42,19 +42,18 @@ class JS_Calendar
 	* @var array
 	*/
 	var $settings = Array(
-							'cssURL'			=> null,
-							'imageURL'			=> null,
-							'fadeit'			=> true,
-							'scrollit'			=> false,
-							'onDayClick'		=> null,
-							'onWeekClick'		=> null,
-							'onYearClick'		=> null,
-							'height'			=> 200,
-							'width'				=> 200,
-							'day_name_length'	=> 2,
-							'week_start'		=> 1,
-
-						 );
+						'cssURL'			=> null,
+						'imageURL'			=> null,
+						'fadeit'			=> true,
+						'scrollit'			=> false,
+						'onDayClick'		=> null,
+						'onWeekClick'		=> null,
+						'onYearClick'		=> null,
+						'height'			=> 200,
+						'width'				=> 200,
+						'day_name_length'	=> 2,
+						'week_start'		=> 1,
+					);
 
 
 	/**
@@ -62,7 +61,6 @@ class JS_Calendar
 	*/
 	function JS_Calendar()
 	{
-
 	}//end constructor
 
 
@@ -166,14 +164,21 @@ class JS_Calendar
 			$name_add_on = ($GLOBALS[$container_name] == 1)?'':'_'.$GLOBALS[$container_name];
 			?><span id="<?php echo $container_name.$name_add_on; ?>"></span><?php
 		}
+		if (!isset($this->settings['currentDate'])) {
+			$this->settings['currentDate'] = date('Y-m-d');
+		}
+
+		list($year, $month, $day) = explode('-', $this->settings['currentDate']);
 		?>
 		<script type="text/javascript">
 		//<![CDATA[
-			<?php echo $prefix; ?>_cal = new Calendar("<?php echo $prefix; ?>_cal", "<?php echo $container_name.$name_add_on; ?>");
+			<?php echo $prefix; ?>_cal = new Calendar("<?php echo $prefix; ?>_cal", "<?php echo $container_name.$name_add_on; ?>", "<?php echo $this->settings['width'];?>","<?php echo $this->settings['height'];?>","<?php echo $year;?>","<?php echo $month;?>","<?php echo $day;?>");
 			<?php echo $prefix; ?>_cal.prefix = "<?php echo $prefix; ?>";
 			<?php
 			foreach ($this->settings as $name => $value) {
-				if (is_null($value) || $name == 'cssURL') continue;
+				if (is_null($value) || $name == 'cssURL'){
+					continue;
+				}
 
 				if (is_bool($value)) {
 					$value = ($value) ? 'true' : 'false';
