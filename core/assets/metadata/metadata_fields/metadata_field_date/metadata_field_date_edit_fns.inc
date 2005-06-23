@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date_edit_fns.inc,v 1.24 2005/06/23 00:45:50 dmckee Exp $
+* $Id: metadata_field_date_edit_fns.inc,v 1.25 2005/06/23 01:01:13 dmckee Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -386,7 +386,7 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 				$field->printField();
 				echo ' <b>-'.strtoupper(translate('or')).'-</b> ';
 
-				combo_box($prefix.'_repkeys', $select_options, false, $value); // replacement keys
+				combo_box($prefix.'_repkeys', $select_options, false, $value, 0, 'onchange="dateSelectionChanged(\''.$prefix.'\')"'); // replacement keys
 				echo '<b>-'.strtoupper(translate('or')).'-</b>';
 				check_box($prefix.'_default', '1', $is_default);
 				echo ' '.strtolower(translate('use_default'));
