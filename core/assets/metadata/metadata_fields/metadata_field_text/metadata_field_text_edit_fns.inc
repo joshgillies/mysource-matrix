@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_text_edit_fns.inc,v 1.10.2.1 2005/06/23 00:52:13 dmckee Exp $
+* $Id: metadata_field_text_edit_fns.inc,v 1.10.2.2 2005/06/23 00:55:36 dmckee Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.10.2.1 $
+* @version $Revision: 1.10.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -105,7 +105,7 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 					if ($asset->attr('multi_line')) {
 						text_area($prefix.'_value', $value, 45, 7);
 					} else {
-						text_box($prefix.'_value', $value, 30, '', false, 'onChange="textChanged(this.value)"');
+						text_box($prefix.'_value', $value, 30, '', false, 'onkeydown="textChanged(this.value)"');
 					}
 					echo ' '.strtolower(translate('or')).' ';
 					check_box($prefix.'_default', '1', $is_default);
