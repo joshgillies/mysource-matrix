@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.45 2005/06/22 01:33:03 arailean Exp $
+* $Id: listing_engine.inc,v 1.46 2005/06/23 23:15:49 dheppell Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
 *
-* @version $Revision: 1.45 $
+* @version $Revision: 1.46 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1083,6 +1083,7 @@ class Listing_Engine extends Page
 			$this->_tmp['position_formats'][$position] = $link_data['minorid'];
 		}
 
+
 		$this->_printGroups($todo, $this->attr('asset_grouping'));
 
 	}//end printAssetList()
@@ -1831,8 +1832,10 @@ class Listing_Engine extends Page
 	*/
 	function groupAssetsRecursively($group_levels, $assetids, &$results)
 	{
-		//we need assets, so if none given, let's bail
-		if (empty($assetids)) return;
+		//we need assets and groups, so if none given, let's bail
+		if (empty($assetids) || empty($group_levels)) {
+			return;
+		}
 
 		//by the end the array should be populated as needed,
 		//so if weve been called recursivly we can empty the old
