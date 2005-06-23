@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_cancellation.inc,v 1.22 2005/06/14 02:36:07 tbarrett Exp $
+* $Id: calendar_event_cancellation.inc,v 1.23 2005/06/23 23:36:33 tbarrett Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once  dirname(__FILE__).'/../calendar_event_recurring/calendar_event_rec
 * which replaces the cancelled instance may be linked to it.
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -186,8 +186,12 @@ class Calendar_Event_Cancellation extends Calendar_Event
 			$replacement_event->saveAttributes();
 			$GLOBALS['SQ_SYSTEM']->am->releaseLock($replacement_event->id, 'attributes');
 		}
-		$replacement_event->processStatusChange($this->status);
-		return $replacement_event;
+		if ($replacement_event->id) {
+			$replacement_event->processStatusChange($this->status);
+			return $replacement_event;
+		} else {
+			return false;
+		}
 
 	}//end addReplacement()
 
@@ -264,7 +268,9 @@ class Calendar_Event_Cancellation extends Calendar_Event
 				}
 
 				$replacement_event = $this->addReplacement(sprintf('%04s-%02s-%02s %02s:%02s:--', $_REQUEST['event_start_year'], $_REQUEST['event_start_month'], $_REQUEST['event_start_day'],  $_REQUEST['event_start_hours'], $_REQUEST['event_start_minutes']),  sprintf('%04s-%02s-%02s %02s:%02s:--', $_REQUEST['event_end_year'], $_REQUEST['event_end_month'], $_REQUEST['event_end_day'],  $_REQUEST['event_end_hours'], $_REQUEST['event_end_minutes']),  $_REQUEST['event_description']);
-				$res = '<p>'.translate('cal_event_replacement_event_added').'</p>';
+				if ($replacement_event) {
+					$res = '<p>'.translate('cal_event_replacement_event_added').'</p>';
+				}
 			break;
 
 			default:
