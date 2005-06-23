@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: import.inc,v 1.1 2005/05/31 01:27:50 gsherwood Exp $
+* $Id: import.inc,v 1.2 2005/06/23 22:58:34 gsherwood Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * Importing functions, reads an XML file and imports an asset strucutre
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -232,24 +232,28 @@ function get_import_action_input_value($action, $attribute, $outputs=Array())
 		$value = $action[$attribute];
 	}
 
-	if (substr($value, 0, 9) == 'output://') {
-		$value = substr($value, 9);
-		list($action_id, $output) = explode('.', $value, 2);
-
+	$matches = Array();
+	preg_match_all('|\[\[output://([^\]]+)\]\]|', $value, $matches);
+	foreach ($matches[0] as $key => $match) {
+		list($action_id, $output) = explode('.', $matches[1][$key], 2);
 		if (!isset($outputs[$action_id])) {
 			trigger_error('Failed getting '.$attribute.' for '.$action['action_type'].' action "'.$action['action_id'].'" - attribute references action "'.$action_id.'" that has not yet been run', E_USER_ERROR);
 		}
-
 		if (!isset($outputs[$action_id][$output])) {
 			trigger_error('Failed getting '.$attribute.' for '.$action['action_type'].' action "'.$action['action_id'].'" - attribute references action output "'.$output.'" that was not genereted by action "'.$action_id.'"', E_USER_ERROR);
 		}
-		$value = $outputs[$action_id][$output];
-	} else if (substr($value, 0, 9) == 'system://') {
-		$system_asset = substr($value, 9);
-		$value = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid($system_asset);
-		if (!$value) {
+		$value = str_replace($match, $outputs[$action_id][$output], $value);
+	}
+
+	$matches = Array();
+	preg_match_all('|\[\[system://([^\]]+)\]\]|', $value, $matches);
+	foreach ($matches[0] as $key => $match) {
+		$system_asset = substr($match, 11, -2);
+		$assetid = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid($system_asset);
+		if (!$assetid) {
 			trigger_error('Failed getting system asset "'.$system_asset.'"', E_USER_ERROR);
 		}
+		$value = str_replace($match, $assetid, $value);
 	}
 
 	return $value;
