@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.124 2005/06/23 00:21:41 gsherwood Exp $
+* $Id: mysource.inc,v 1.125 2005/06/23 22:53:44 tbarrett Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.124 $
+* @version $Revision: 1.125 $
 * @package MySource_Matrix
 */
 class MySource
@@ -1555,7 +1555,7 @@ class MySource
 		if (empty($this->_db_conns[$conn])) {
 			$this->_db_conns[$conn] = DB::connect(SQ_CONF_DB_DSN);
 			if (DB::isError($this->_db_conns[$conn])) {
-				header('Status: 500 Internal Server Error');
+				header('HTTP/1.0 500 Internal Server Error');
 				trigger_error($this->_db_conns[$conn]->message, E_USER_ERROR);
 			}
 
