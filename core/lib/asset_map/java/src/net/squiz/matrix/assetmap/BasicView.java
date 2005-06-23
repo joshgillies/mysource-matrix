@@ -19,12 +19,25 @@ public class BasicView extends JPanel implements View {
 	}
 
 	private void construct() {
+		JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+		splitPane.setUI(new MatrixSplitPaneUI());
+
 		JScrollPane scrollPane = new JScrollPane(constructTree());
+		scrollPane.setBorder(BorderFactory.createEmptyBorder());
+
+		StatusKey statusKey = new StatusKey();
+
+		splitPane.setTopComponent(scrollPane);
+		splitPane.setBottomComponent(statusKey);
+		splitPane.setDividerLocation(Integer.MAX_VALUE);
+		splitPane.setLastDividerLocation((int)(AssetMap.getApplet().getHeight() - statusKey.getHeight()));
+		splitPane.setOneTouchExpandable(true);
 
 		setLayout(new BorderLayout());
 		add(new AssetMapMenuPanel(tree), BorderLayout.NORTH);
 		add(MatrixStatusBar.createStatusBar(), BorderLayout.SOUTH);
-		add(scrollPane);
+		add(splitPane);
+
 	}
 
 	protected MatrixTree constructTree() {
