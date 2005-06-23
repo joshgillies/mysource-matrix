@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status.inc,v 1.16 2005/06/23 03:42:17 rhoward Exp $
+* $Id: asset_status.inc,v 1.17 2005/06/23 23:00:46 gsherwood Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Provide a generic framework for status objects
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix
 */
 class Asset_Status extends MySource_Object
@@ -102,7 +102,10 @@ class Asset_Status extends MySource_Object
 	function processStatusChange($new_status)
 	{
 		// we need write access to do any changes
-		if (!$this->owner->readAccess()) return false;
+		if (!$this->owner->readAccess()) {
+			trigger_localised_error('SYS0309', E_USER_WARNING, $this->owner->name, $this->owner->id);
+			return false;
+		}
 
 		// if the new status is the same as our status, we can handle this
 		if ($new_status == $this->status_tag) return true;

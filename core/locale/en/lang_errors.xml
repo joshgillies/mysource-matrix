@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.13 2005/06/17 06:54:01 lwright Exp $
+* $Id: lang_errors.xml,v 1.14 2005/06/23 23:01:09 gsherwood Exp $
 *
 */
 
@@ -1298,6 +1298,8 @@ Full Node Contents %3$s</error>
 	<error code="SYS0307">Asset #%1$s does not have the schema for field #%2$s applied</error>
 
 	<error code="SYS0308">Asset #%s is not a metadata field</error>
+	
+	<error code="SYS0309">You do not have permission to change the status of "%1$s" (#%2$s)</error>
 
 	<!-- CORE ASSETS -->
 
