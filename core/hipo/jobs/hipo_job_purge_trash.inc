@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_purge_trash.inc,v 1.28 2005/05/17 06:58:42 ndvries Exp $
+* $Id: hipo_job_purge_trash.inc,v 1.29 2005/06/23 01:01:20 mmcintyre Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -196,7 +196,8 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 		$where = 'l.minorid = '.$db->quote($trash->id);
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
-		$sql .= $where.' LIMIT 1';
+		$sql .= $where;
+		$sql = $db->modifyLimitQuery($sql, 0, 1);
 
 		$treeid = $db->getOne($sql);
 		if (!assert_valid_db_result($treeid)) return false;
@@ -253,9 +254,9 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 								 '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t2 ON l2.linkid = t2.linkid,
 								 '.SQ_TABLE_RUNNING_PREFIX.'ast a
 							WHERE l1.minorid = '.$db->quote($asset->id).'
-							  AND SUBSTRING(t1.treeid FROM 1 FOR CHAR_LENGTH(t2.treeid)) = t2.treeid
+							  AND SUBSTR(t1.treeid, 1, LENGTH(t2.treeid)) = t2.treeid
 							  AND a.assetid=l2.minorid
-							  AND t2.treeid <> \'\'
+							  AND t2.treeid <> \'-\'
 							ORDER BY t2.treeid DESC';
 
 					$other_links = $db->getAll($sql);
