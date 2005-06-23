@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_live.inc,v 1.26 2005/04/27 00:14:43 lwright Exp $
+* $Id: asset_status_live.inc,v 1.27 2005/06/23 22:59:49 gsherwood Exp $
 *
 */
 
@@ -37,7 +37,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *    LIVE -> UNDER_CONSTRUCTION if the user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix
 */
 class Asset_Status_Live extends Asset_Status
@@ -184,7 +184,7 @@ class Asset_Status_Live extends Asset_Status
 			case SQ_STATUS_EDITING :
 				// we are safe editing
 				if (!$this->owner->saveSystemVersion()) {
-					trigger_localised_error("SYS0208", E_USER_WARNING);
+					trigger_localised_error('SYS0208', E_USER_WARNING);
 					return false;
 				}
 			break;
