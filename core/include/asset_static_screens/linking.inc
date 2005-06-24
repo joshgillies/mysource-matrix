@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: linking.inc,v 1.14 2005/05/11 06:05:11 lwright Exp $
+* $Id: linking.inc,v 1.15 2005/06/24 05:37:18 ndvries Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Linking Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix
 */
 
@@ -69,7 +69,9 @@ function paintLinking(&$owner, &$o, &$ei, $allow_edit=true)
 							SQ_LINK_TYPE_2	=> link_type_name(SQ_LINK_TYPE_2),
 						   );
 
-	foreach ($asset_links as $link) $assetids[$link['majorid']] = Array();
+	foreach ($asset_links as $link) {
+		$assetids[$link['majorid']] = Array();
+	}
 
 	if (empty($assetids)) {
 		$result = Array();
@@ -97,7 +99,9 @@ function paintLinking(&$owner, &$o, &$ei, $allow_edit=true)
 		assert_valid_db_result($result);
 	}
 
-	foreach ($asset_links as $link_data) $link_info[$link_data['majorid']][] = $link_data;
+	foreach ($asset_links as $link_data) {
+		$link_info[$link_data['majorid']][] = $link_data;
+	}
 
 	$output_lineages = Array();
 	$editing_linkids = Array();
@@ -122,7 +126,9 @@ function paintLinking(&$owner, &$o, &$ei, $allow_edit=true)
 				$asset_lineage .= $tree_data['name'].' &gt; ';
 			}
 			$asset_lineage .= '<b>'.$parent_data['name'].'</b>';
-			if (isset($output_lineages[$asset_lineage]) && !$can_edit) continue;
+			if (isset($output_lineages[$asset_lineage]) && !$can_edit) {
+				continue;
+			}
 
 			ob_start();
 				?>
@@ -159,7 +165,11 @@ function paintLinking(&$owner, &$o, &$ei, $allow_edit=true)
 				<td class="sq-backend-table-header" style="text-align: center;"><?php echo translate('link_type'); ?></td>
 				<td class="sq-backend-table-header" width="100%"><?php echo translate('lineage'); ?></td>
 			</tr>
-			<?php foreach ($output_lineages as $null => $lineage_data) echo $lineage_data; ?>
+			<?php
+				foreach ($output_lineages as $null => $lineage_data) {
+					echo $lineage_data;
+				}
+			?>
 		</table>
 		<?php
 	}
@@ -273,10 +283,14 @@ function processLinking(&$owner, &$o, &$ei)
 	$asset_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($owner->id, SQ_SC_LINK_ALL, '', true, 'minor');
 
 	foreach ($asset_links as $link) {
-		if (!isset($_POST[$prefix.'_link_type'][$link['linkid']])) continue;
+		if (!isset($_POST[$prefix.'_link_type'][$link['linkid']])) {
+			continue;
+		}
 		$new_type = $_POST[$prefix.'_link_type'][$link['linkid']];
 		if ($link['link_type'] == $new_type) continue;
-		if (!$GLOBALS['SQ_SYSTEM']->am->updateLink($link['linkid'], $new_type)) continue;
+		if (!$GLOBALS['SQ_SYSTEM']->am->updateLink($link['linkid'], $new_type)) {
+			continue;
+		}
 		$done_something = true;
 	}
 

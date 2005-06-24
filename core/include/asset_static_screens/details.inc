@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: details.inc,v 1.17 2005/06/24 01:11:42 dheppell Exp $
+* $Id: details.inc,v 1.18 2005/06/24 05:37:18 ndvries Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Details Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix
 */
 
@@ -47,9 +47,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 function paintDetails(&$owner, &$o, &$ei, $keywords=null)
 {
 	$root = &$ei->findScreen('static_screen_details');
-	if (is_null($root)) {
-		return false;
-	}
+	if (is_null($root)) return false;
 
 	$prefix = $owner->getPrefix();
 	$print_commit_button = false;
@@ -61,14 +59,20 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=null)
 		// only do this if we are not painting a layout
 		if (is_null($keywords)) {
 			// if we are in limbo and this section is not to be printed in limbo - dont print it
-			if (SQ_IN_LIMBO && (!isset($section->attributes['limbo_access']) || (int)$section->attributes['limbo_access'] == 0)) continue;
+			if (SQ_IN_LIMBO && (!isset($section->attributes['limbo_access']) || (int)$section->attributes['limbo_access'] == 0)) {
+				continue;
+			}
 		}
 
-		if (!is_null($keywords) && isset($keywords['sections'][strtolower($section->attributes['name'])])) ob_start();
+		if (!is_null($keywords) && isset($keywords['sections'][strtolower($section->attributes['name'])])) {
+			ob_start();
+		}
 
 		$o->openSection(array_get_index($section->attributes, 'display_name', $section->attributes['name']));
 
-		if (!($num_fields = count($section->children))) continue;
+		if (!($num_fields = count($section->children))) {
+			continue;
+		}
 
 		for ($j = 0; $j < $num_fields; $j++) {
 			$field = &$section->children[$j];
@@ -79,10 +83,15 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=null)
 
 				case 'status_current' :
 
-					if ($field->children[0]->name != 'display_name') $display_name = translate('current');
-					else $display_name = $field->children[0]->content;
+					if ($field->children[0]->name != 'display_name') {
+						$display_name = translate('current');
+					} else {
+						$display_name = $field->children[0]->content;
+					}
 					$o->openField($display_name);
-					if (!is_null($keywords) && isset($keywords['fields']['status_current'])) ob_start();
+					if (!is_null($keywords) && isset($keywords['fields']['status_current'])) {
+						ob_start();
+					}
 					echo '<i>'.$owner->getStatusDescription().'</i>';
 
 					// if there is a keyword replacement for this, add it to the replacements
@@ -99,10 +108,15 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=null)
 					$statii = $owner->getAvailableStatii();
 					if (empty($statii)) break;
 
-					if ($field->children[0]->name != 'display_name') $display_name = translate('change_question');
-					else $display_name = $field->children[0]->content;
+					if ($field->children[0]->name != 'display_name') {
+						$display_name = translate('change_question');
+					} else {
+						$display_name = $field->children[0]->content;
+					}
 					$o->openField($display_name);
-						if (!is_null($keywords) && isset($keywords['fields']['status_change'])) ob_start();
+						if (!is_null($keywords) && isset($keywords['fields']['status_change'])) {
+							ob_start();
+						}
 
 						// if this asset is in workflow we do not let the change the status here
 						// because they need to go off to the workflow screen
@@ -112,7 +126,9 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=null)
 							$o->note(translate('asset_currently_in_workflow', $owner->getBackendHref('workflow')));
 						} else {
 							$available_statii = _paintStatusChange($owner, $o, $prefix);
-							if (!empty($available_statii)) $print_commit_button = true;
+							if (!empty($available_statii)) {
+								$print_commit_button = true;
+							}
 						}
 						if (!is_null($keywords) && isset($keywords['fields']['status_change'])) {
 							$ei->_tmp['layout_keyword_replacements'][$keywords['fields']['status_change']] = ob_get_contents();
@@ -132,7 +148,9 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=null)
 					if (!empty($fs_jobs)) {
 						$o->openField(translate('scheduled_future_status_change'), 'new_line');
 
-						if (!is_null($keywords) && isset($keywords['fields']['status_future_status'])) ob_start();
+						if (!is_null($keywords) && isset($keywords['fields']['status_future_status'])) {
+							ob_start();
+						}
 						?>
 						<table class="sq-backend-table">
 							<tr>
@@ -183,11 +201,13 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=null)
 								$fs = new Cron_Job_Future_Status();
 								$edit_fns = $fs->getEditFns();
 
-								if (!is_null($keywords) && isset($keywords['fields']['status_future_status'])) ob_start();
+								if (!is_null($keywords) && isset($keywords['fields']['status_future_status'])) {
+									ob_start();
+								}
 								$edit_fns->paintInLineBackend($fs, $o, $prefix.'_new_fs');
 
 								$o->note(translate('cron_manager_next_run', $cron_mgr->readableRefreshTime(), readable_datetime($cron_mgr->timeOfNextRun())));
-								
+
 								if (!is_null($keywords) && isset($keywords['fields']['status_future_status'])) {
 									// check to see if we added anything to the keyword replacements above
 									if (!isset($ei->_tmp['layout_keyword_replacements'][$keywords['fields']['status_future_status']])) {
@@ -212,11 +232,16 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=null)
 
 					if ($owner->writeAccess('links')) {
 
-						if ($field->children[0]->name != 'display_name') $display_name = translate('change_question');
-						else $display_name = $field->children[0]->content;
+						if ($field->children[0]->name != 'display_name') {
+							$display_name = translate('change_question');
+						} else {
+							$display_name = $field->children[0]->content;
+						}
 
 						$o->openField($display_name);
-							if (!is_null($keywords) && isset($keywords['fields']['thumbnail_change'])) ob_start();
+							if (!is_null($keywords) && isset($keywords['fields']['thumbnail_change'])) {
+								ob_start();
+							}
 
 							$link = $GLOBALS['SQ_SYSTEM']->am->getLink($owner->id, SQ_LINK_NOTICE, 'thumbnail', true, 'thumbnail');
 							if (empty($link)) $link['minorid'] = 0;
@@ -233,11 +258,16 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=null)
 
 				case 'thumbnail_current' :
 
-					if ($field->children[0]->name != 'display_name') $display_name = translate('current');
-					else $display_name = $field->children[0]->content;
+					if ($field->children[0]->name != 'display_name') {
+						$display_name = translate('current');
+					} else {
+						$display_name = $field->children[0]->content;
+					}
 
 					$o->openField($display_name);
-						if (!is_null($keywords) && isset($keywords['fields']['thumbnail_current'])) ob_start();
+						if (!is_null($keywords) && isset($keywords['fields']['thumbnail_current'])) {
+							ob_start();
+						}
 
 						$link = $GLOBALS['SQ_SYSTEM']->am->getLink($owner->id, SQ_LINK_NOTICE, 'thumbnail', true, 'thumbnail');
 						if (!empty($link)) {
@@ -352,7 +382,9 @@ function processDetails(&$owner, &$o, &$ei)
 	// process a status change on this screen if workflow is NOT running
 	$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 	$running_schemas = $wfm->getSchemas($owner->id, true, true);
-	if (empty($running_schemas)) _processStatusChange($owner, $o, $prefix);
+	if (empty($running_schemas)) {
+		_processStatusChange($owner, $o, $prefix);
+	}
 
 	///// FUTURE STATUS CHANGES ////
 
@@ -376,7 +408,7 @@ function processDetails(&$owner, &$o, &$ei)
 					$GLOBALS['SQ_SYSTEM']->am->releaseLock($cron_mgr->id, 'links');
 
 				} else {
-					trigger_localised_error("SYS0232", E_USER_NOTICE);
+					trigger_localised_error('SYS0232', E_USER_NOTICE);
 
 				}// end if
 
@@ -420,7 +452,9 @@ function processDetails(&$owner, &$o, &$ei)
 		$thumb_link = $GLOBALS['SQ_SYSTEM']->am->getLink($owner->id, SQ_LINK_NOTICE, 'thumbnail', true, 'thumbnail');
 
 		// dont process anything if the thumbnail has not changed
-		if (!empty($thumb_link) && $thumb_link['minorid'] == $thumbnail) return false;
+		if (!empty($thumb_link) && $thumb_link['minorid'] == $thumbnail) {
+			return false;
+		}
 
 		$ok = true;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -433,7 +467,7 @@ function processDetails(&$owner, &$o, &$ei)
 			if (!is_null($thumb)) {
 				if (!$owner->createLink($thumb, SQ_LINK_NOTICE, 'thumbnail')) {
 					$ok = false;
-					trigger_localised_error("SYS0145", E_USER_WARNING, $thumb->name, $thumb->id);
+					trigger_localised_error('SYS0145', E_USER_WARNING, $thumb->name, $thumb->id);
 				}
 			}
 		}

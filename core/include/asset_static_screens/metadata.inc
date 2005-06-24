@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata.inc,v 1.15 2005/06/02 05:47:39 lwright Exp $
+* $Id: metadata.inc,v 1.16 2005/06/24 05:37:18 ndvries Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * MetaData Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix
 */
 
@@ -46,9 +46,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 function paintMetadata(&$owner, &$o, &$ei, $keywords=null)
 {
 	$root = &$ei->findScreen('static_screen_metadata');
-	if (is_null($root)) {
-		return false;
-	}
+	if (is_null($root)) return false;
 
 	$prefix = $owner->getPrefix();
 	$print_commit_button = false;
@@ -63,17 +61,23 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=null)
 		// only do this if we are not painting a layout
 		if (is_null($keywords)) {
 			// if we are in limbo and this section is not to be printed in limbo - dont print it
-			if (SQ_IN_LIMBO && (!isset($section->attributes['limbo_access']) || (int)$section->attributes['limbo_access'] == 0)) continue;
+			if (SQ_IN_LIMBO && (!isset($section->attributes['limbo_access']) || (int)$section->attributes['limbo_access'] == 0)) {
+				continue;
+			}
 		}
 
 		$section_access = $ei->_getAccess($owner, $section, $prefix);
 		if (!($section_access & SQ_EI_READ)) continue;
 
-		if (!is_null($keywords) && isset($keywords['sections'][strtolower($section->attributes['name'])])) ob_start();
+		if (!is_null($keywords) && isset($keywords['sections'][strtolower($section->attributes['name'])])) {
+			ob_start();
+		}
 
 		$o->openSection(array_get_index($section->attributes, 'display_name', $section->attributes['name']));
 
-		if (!($num_fields = count($section->children))) continue;
+		if (!($num_fields = count($section->children))) {
+			continue;
+		}
 
 		for ($j = 0; $j < $num_fields; $j++) {
 			$field = &$section->children[$j];
@@ -88,7 +92,9 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=null)
 				case 'metadata_current' :
 
 					$o->openField('');
-						if (!is_null($keywords) && isset($keywords['fields']['metadata_current'])) ob_start();
+						if (!is_null($keywords) && isset($keywords['fields']['metadata_current'])) {
+							ob_start();
+						}
 
 						if (empty($schemas)) {
 							echo translate('no_metadata_schemas_applied');
@@ -116,15 +122,18 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=null)
 					$instructions = Array();
 
 					$o->openField('&nbsp;');
-						if (!is_null($keywords) && isset($keywords['fields']['metadata_instructions'])) ob_start();
-							//construct example keywords link
+						if (!is_null($keywords) && isset($keywords['fields']['metadata_instructions'])) {
 							ob_start();
-								?><a href="#" onClick="Javascript: var win = window.open('<?php echo sq_web_path('data'); ?>/asset_types/metadata_field/popups/keywords.html', 'keywords', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=580,height=520'); return false;"><?php echo translate('click_here'); ?></a><?php
-								$replacements_link = ob_get_contents();
-							ob_end_clean();
+						}
 
-							//$replacements_link = '<a href="#" onClick="Javascript: var win = window.open(\''.sq_web_path('data').'/asset_types/metadata_field/popups/keywords.html\', \'keywords\', \'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=580,height=520\'); return false;">'.translate('click_here').'</a>';
-							$instructions[] = translate('metadata_keyword_replacements_usage', $replacements_link);
+						//construct example keywords link
+						ob_start();
+							?><a href="#" onClick="Javascript: var win = window.open('<?php echo sq_web_path('data'); ?>/asset_types/metadata_field/popups/keywords.html', 'keywords', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=580,height=520'); return false;"><?php echo translate('click_here'); ?></a><?php
+							$replacements_link = ob_get_contents();
+						ob_end_clean();
+
+						//$replacements_link = '<a href="#" onClick="Javascript: var win = window.open(\''.sq_web_path('data').'/asset_types/metadata_field/popups/keywords.html\', \'keywords\', \'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=580,height=520\'); return false;">'.translate('click_here').'</a>';
+						$instructions[] = translate('metadata_keyword_replacements_usage', $replacements_link);
 
 						$sm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager', true);
 						if (!empty($sm)) {
@@ -169,7 +178,9 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=null)
 
 					if (empty($schemas)) {
 						$o->openField('&nbsp;');
-							if (!is_null($keywords) && isset($keywords['fields']['metadata_values'])) ob_start();
+							if (!is_null($keywords) && isset($keywords['fields']['metadata_values'])) {
+								ob_start();
+							}
 
 							echo translate('must_apply_one_or_more_schemas');
 
@@ -184,7 +195,9 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=null)
 						$write_access = $owner->writeAccess('metadata');
 						$print_commit_button = $write_access;
 
-						if (!is_null($keywords) && isset($keywords['fields']['metadata_values'])) ob_start();
+						if (!is_null($keywords) && isset($keywords['fields']['metadata_values'])) {
+							ob_start();
+						}
 
 						$values = $mm->getMetadata($owner->id);
 						foreach ($schemas as $schemaid) {
@@ -252,7 +265,9 @@ function processMetadata(&$owner, &$o, $ei)
 			$edit_fns->processInlineValueInterface($schema, $new_values);
 		}
 
-		if (!$mm->setMetadata($owner->id, $new_values)) return false;
+		if (!$mm->setMetadata($owner->id, $new_values)) {
+			return false;
+		}
 	}
 	return $mm->generateContentFile($owner->id);
 

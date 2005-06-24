@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: dependants.inc,v 1.5 2005/05/11 06:05:11 lwright Exp $
+* $Id: dependants.inc,v 1.6 2005/06/24 05:37:18 ndvries Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Dependants Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 */
 
@@ -51,7 +51,9 @@ function paintDependants(&$owner, &$o, &$ei)
 	$locks = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($owner->id, 'all');
 	$locks_acquired = Array();
 	foreach ($locks as $lock_type => $lock) {
-		if (!empty($lock)) $locks_acquired[] = ucwords(str_replace('_', ' ', $lock_type));
+		if (!empty($lock)) {
+			$locks_acquired[] = ucwords(str_replace('_', ' ', $lock_type));
+		}
 	}
 	$lock_message = '';
 	if (!empty($locks_acquired)) {
@@ -133,7 +135,9 @@ function _recursePaintDependants(&$owner, &$asset, &$o, $levels=1, $print_stalks
 		$locks = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($dep_asset->id, 'all');
 		$locks_acquired = Array();
 		foreach ($locks as $lock_type => $lock) {
-			if (!empty($lock)) $locks_acquired[] = ucwords(str_replace('_', ' ', $lock_type));
+			if (!empty($lock)) {
+				$locks_acquired[] = ucwords(str_replace('_', ' ', $lock_type));
+			}
 		}
 		$lock_message = '';
 		if (!empty($locks_acquired)) {

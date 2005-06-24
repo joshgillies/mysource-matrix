@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_fns.inc,v 1.47 2005/05/31 06:50:40 rhoward Exp $
+* $Id: asset_edit_fns.inc,v 1.48 2005/06/24 05:37:17 ndvries Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.47 $
+* @version $Revision: 1.48 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Fns extends MySource_Object
@@ -244,15 +244,15 @@ class Asset_Edit_Fns extends MySource_Object
 				if ($default) {
 					echo '&nbsp;&nbsp;Weight: ';
 					echo $weightingData['weight'];
-					$o->addHiddenField($prefix. "weightings[$component][weight]", $weightingData['weight']);
-					$o->addHiddenField($prefix. "include[$component][weight]", ($weightingData['weight'] > 0)?'1':'0');
+					$o->addHiddenField($prefix."weightings[$component][weight]", $weightingData['weight']);
+					$o->addHiddenField($prefix."include[$component][weight]", ($weightingData['weight'] > 0)?'1':'0');
 				} else {
-					combo_box($prefix. "include[$component]", Array('0' => 'Do not include in searches', '1' => 'Include in searches'), false, ($weightingData['weight'] > 0)?'1':'0');
+					combo_box($prefix."include[$component]", Array('0' => 'Do not include in searches', '1' => 'Include in searches'), false, ($weightingData['weight'] > 0)?'1':'0');
 					if ($weightingData['weight'] > 0) {
 						echo '&nbsp;&nbsp;Weight: ';
-						text_box($prefix. "weightings[$component][weight]", $weightingData['weight'], 3);
+						text_box($prefix."weightings[$component][weight]", $weightingData['weight'], 3);
 					} else {
-						$o->addHiddenField($prefix. "weightings[$component][weight]", $weightingData['weight']);
+						$o->addHiddenField($prefix."weightings[$component][weight]", $weightingData['weight']);
 					}
 				}
 			}
