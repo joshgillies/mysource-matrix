@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.56 2005/05/27 06:39:25 rhoward Exp $
+* $Id: search_manager.inc,v 1.56.2.1 2005/06/24 06:04:40 ykasim Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.56 $
+* @version $Revision: 1.56.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -478,7 +478,7 @@ class Search_Manager extends Asset
 				$value = $field->attr('default');
 			}
 
-			$force_processing = 1; // will tell the function to process values in any case
+			$force_processing = 0; // will tell the function to process values in any case
 
 			// check field_type to define the indexing way
 			if ($field_type == 'metadata_field_date') {
