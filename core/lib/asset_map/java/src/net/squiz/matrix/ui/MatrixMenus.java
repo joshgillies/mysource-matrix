@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: MatrixMenus.java,v 1.4 2005/05/20 00:08:35 ndvries Exp $
+* $Id: MatrixMenus.java,v 1.5 2005/06/24 00:44:32 ndvries Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -44,6 +44,7 @@ public class MatrixMenus implements MatrixConstants {
 
 	private static JMenu addMenu;
 	private static ImageLoader loader = new ImageLoader();
+	public static final String DEFAULT_ASSET_ICON = "default_asset.png";
 
 	// cannot instantiate
 	private MatrixMenus() {}
@@ -471,17 +472,19 @@ public class MatrixMenus implements MatrixConstants {
 						loadImages(elements[i]);
 					} else {
 						final JMenuItem nextItem = (JMenuItem) elements[i];
-						//TODO: (MM) get a loading icon and display it first
-						// while the other icon loads. check that it isn't already
-						// loaded first before using a SwingWorker
-				//		SwingWorker worker = new SwingWorker() {
-				//			public Object construct() {
-								Icon icon = type.getIcon();
-								nextItem.setIcon(icon);
-				//				return null;
-				//			}
-				//		};
-				//		worker.start();
+						// Use an initial loadingIcon and fetch the actual icon
+						// in a thread
+						if (!type.isIconLoaded()) {
+							nextItem.setIcon(GUIUtilities.getAssetMapIcon(DEFAULT_ASSET_ICON));
+							SwingWorker worker = new SwingWorker() {
+								public Object construct() {
+									Icon icon = type.getIcon();
+									nextItem.setIcon(icon);
+									return null;
+								}
+							};
+							worker.start();
+						}
 					}
 				}//end if
 			}//end for

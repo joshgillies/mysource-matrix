@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: AssetType.java,v 1.1 2005/02/18 05:20:07 mmcintyre Exp $
+* $Id: AssetType.java,v 1.2 2005/06/24 00:44:32 ndvries Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -122,6 +122,14 @@ public class AssetType implements Serializable {
 	}
 
 	/**
+	 * Returns whether the icon is loaded for this asset type
+	 * @return TRUE if the icon is already loaded
+	 */
+	public boolean isIconLoaded() {
+		return GUIUtilities.isIconLoaded(getTypeCode());
+	}
+
+	/**
 	 * Returns the type code of this asset type
 	 * @return the type code of this asset type
 	 */
@@ -155,7 +163,7 @@ public class AssetType implements Serializable {
 	public AssetType getParentType() {
 		return parentType;
 	}
-	
+
 	public boolean isAncestor(AssetType parentType) {
 		AssetType child = this;
 		while (child != null) {
@@ -165,7 +173,7 @@ public class AssetType implements Serializable {
 		}
 		return false;
 	}
-	
+
 	public boolean isAncestor(String assetType) {
 		return isAncestor(AssetManager.getAssetType(assetType));
 	}
@@ -185,7 +193,7 @@ public class AssetType implements Serializable {
 	public int hashCode() {
 		return typeCode.hashCode();
 	}
-	
+
 	public String toString() {
 		return typeCode;
 	}

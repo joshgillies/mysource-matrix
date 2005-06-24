@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: AssetMap.java,v 1.13 2005/05/20 00:08:35 ndvries Exp $
+* $Id: AssetMap.java,v 1.14 2005/06/24 00:44:32 ndvries Exp $
 *
 */
 
@@ -135,6 +135,7 @@ public class AssetMap extends JApplet implements InitialisationListener {
 				MatrixTreeNode root = null;
 				try {
 					root = AssetManager.init();
+					GUIUtilities.getAssetMapIcon(MatrixMenus.DEFAULT_ASSET_ICON);
 				} catch (IOException ioe) {
 					return ioe;
 				}
