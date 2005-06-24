@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: password_rules_config.inc,v 1.7 2005/05/30 05:20:01 rhoward Exp $
+* $Id: password_rules_config.inc,v 1.8 2005/06/24 05:12:01 ndvries Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix
 */
 class Password_Rules_Config extends Config
@@ -206,19 +206,19 @@ class Password_Rules_Config extends Config
 							switch ($password_rule) {
 								case 'SQ_PASSWD_RULE_NUM_CAPS':
 									echo 'Capital letters';
-									break;
+								break;
 								case 'SQ_PASSWD_RULE_NUM_LOWER':
 									echo 'Lower case letters';
-									break;
+								break;
 								case 'SQ_PASSWD_RULE_NUM_INT':
 									echo 'Numbers';
-									break;
+								break;
 								case 'SQ_PASSWD_RULE_NUM_PUNC':
 									echo 'Punctuation';
-									break;
+								break;
 								case 'SQ_PASSWD_RULE_NUM_SPC':
 									echo 'Spaces';
-									break;
+								break;
 
 								default:
 									continue;

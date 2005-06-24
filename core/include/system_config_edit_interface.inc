@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config_edit_interface.inc,v 1.20 2005/05/31 00:45:46 tbarrett Exp $
+* $Id: system_config_edit_interface.inc,v 1.21 2005/06/24 05:12:01 ndvries Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *    Looks after the editing of the system config
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix
 */
 class System_Config_Edit_Interface extends MySource_Object
@@ -123,27 +123,27 @@ class System_Config_Edit_Interface extends MySource_Object
 					case 'system_config' :
 						require_once SQ_INCLUDE_PATH.'/system_config.inc';
 						$config = new System_Config();
-						break;
+					break;
 					case 'squiz_server_config' :
 						require_once SQ_SYSTEM_ROOT.'/core/server/squiz_server_config.inc';
 						$config = new Squiz_Server_Config();
-						break;
+					break;
 					case 'hipo_config' :
 						require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_config.inc';
 						$config = new HIPO_Config();
-						break;
+					break;
 					case 'external_tools_config' :
 						require_once SQ_INCLUDE_PATH.'/external_tools_config.inc';
 						$config = new External_Tools_Config();
-						break;
+					break;
 					case 'password_rules_config' :
 						require_once SQ_INCLUDE_PATH.'/password_rules_config.inc';
 						$config = new Password_Rules_Config();
-						break;
+					break;
 					case 'session_rules_config' :
 						require_once SQ_INCLUDE_PATH.'/session_rules_config.inc';
 						$config = new Session_Rules_Config();
-						break;
+					break;
 
 				}// end switch
 				if (!empty($_POST['config_posted'])) {
@@ -195,7 +195,7 @@ class System_Config_Edit_Interface extends MySource_Object
 		<table border="0" cellspacing="3" cellpadding="1">
 			<tr>
 				<td valign="top" width="30">
-					<?php sq_print_icon(sq_web_path('lib').'/web/images/icons/'. ((empty($lock)) ? 'un' : '').'locked.png', 16, 16); ?>
+					<?php sq_print_icon(sq_web_path('lib').'/web/images/icons/'.((empty($lock)) ? 'un' : '').'locked.png', 16, 16); ?>
 				</td>
 				<td valign="top">
 					<?php
@@ -309,18 +309,20 @@ class System_Config_Edit_Interface extends MySource_Object
 			// output the new preference file
 			$str = '<'.'?php $preferences = '.var_export($new_preferences, true).'; ?'.'>';
 			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-			if (!string_to_file($str, SQ_DATA_PATH.'/private/conf/preferences.inc')) return false;
+			if (!string_to_file($str, SQ_DATA_PATH.'/private/conf/preferences.inc')) {
+				return false;
+			}
 
 			if ($changed_vars) {
 				$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 				$ms->openQueue();
 				foreach ($changed_vars as $var_name => $values) {
 					$msg_reps = Array(
-						'type_code'	=> ucwords(str_replace('_', ' ', $values['type_code'])),
-						'setting'	=> $var_name,
-						'old_value'	=> var_export($values['old'], true),
-						'new_value'	=> var_export($values['new'], true),
-					);
+									'type_code'	=> ucwords(str_replace('_', ' ', $values['type_code'])),
+									'setting'	=> $var_name,
+									'old_value'	=> var_export($values['old'], true),
+									'new_value'	=> var_export($values['new'], true),
+								);
 					$message = $ms->newMessage(Array(), 'prefs.system', $msg_reps);
 					$ms->enqueueMessage($message);
 				}
@@ -350,4 +352,3 @@ class System_Config_Edit_Interface extends MySource_Object
 }//end class
 
 ?>
-

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: event_manager.inc,v 1.20 2005/05/27 07:32:38 rhoward Exp $
+* $Id: event_manager.inc,v 1.21 2005/06/24 05:12:01 ndvries Exp $
 *
 */
 
@@ -61,7 +61,7 @@
 * </PRE>
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix
 */
 class Event_Manager extends MySource_Object
@@ -136,16 +136,22 @@ class Event_Manager extends MySource_Object
 	*/
 	function _broadcastRuntimeEvents(&$broadcaster, $event_name, $vars=Array())
 	{
-		if (!isset($this->_runtime_event_listeners[$event_name])) return false;
+		if (!isset($this->_runtime_event_listeners[$event_name])) {
+			return false;
+		}
 
 		$event_name = trim($event_name);
 		$function_name = 'on'.$event_name;
 
 		foreach (array_keys($this->_runtime_event_listeners[$event_name]) as $index) {
-			if (!isset($this->_runtime_listener_objects[$index])) continue;
+			if (!isset($this->_runtime_listener_objects[$index])) {
+				continue;
+			}
 			$listener =& $this->_runtime_listener_objects[$index];
 			if (is_null($listener)) continue;
-			if (!method_exists($listener, $function_name)) continue;
+			if (!method_exists($listener, $function_name)) {
+				continue;
+			}
 			$listener->$function_name($broadcaster, $vars);
 		}
 
@@ -187,7 +193,9 @@ class Event_Manager extends MySource_Object
 			}
 
 			require_once SQ_DATA_PATH.'/private/events/event_listeners.inc';
-			if (!isset($cached_event_listeners_array)) return false;
+			if (!isset($cached_event_listeners_array)) {
+				return false;
+			}
 			$this->_tmp['event_listeners'] = $cached_event_listeners_array;
 		}
 
@@ -251,7 +259,9 @@ class Event_Manager extends MySource_Object
 				if (empty($links)) return false;
 
 				$assetids = Array();
-				foreach ($links as $link) $assetids[] = $link[$side_of_link.'id'];
+				foreach ($links as $link) {
+					$assetids[] = $link[$side_of_link.'id'];
+				}
 
 			}// end if
 
@@ -296,7 +306,9 @@ class Event_Manager extends MySource_Object
 	*/
 	function _getDiscreteAssets($assetid='', $type_code='', $side_of_link='minor', $info=Array())
 	{
-		if (empty($assetid) || empty($type_code)) return Array();
+		if (empty($assetid) || empty($type_code)) {
+			return Array();
+		}
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
@@ -319,7 +331,9 @@ class Event_Manager extends MySource_Object
 		if (empty($result)) return Array();
 
 		$treeid_string = '';
-		foreach ($result as $treeid) $treeid_string .= 't2.treeid LIKE '.$db->quote($treeid).' OR ';
+		foreach ($result as $treeid) {
+			$treeid_string .= 't2.treeid LIKE '.$db->quote($treeid).' OR ';
+		}
 		$treeid_string = substr($treeid_string, 0, -4);
 
 
@@ -369,10 +383,18 @@ class Event_Manager extends MySource_Object
 					}
 
 					$valid_assetid = true;
-					if ($valid_assetid && $info['value'] && $info['value'] != $test_info['value'])    $valid_assetid = false;
-					if ($valid_assetid && !$test_info['is_dependant'] && $info['is_dependant'])       $valid_assetid = false;
-					if ($valid_assetid && !$test_info['is_exclusive'] && $info['is_exclusive'])       $valid_assetid = false;
-					if ($valid_assetid &&  $test_info['link_type'] &  $info['link_type'] <= 0)        $valid_assetid = false;
+					if ($valid_assetid && $info['value'] && $info['value'] != $test_info['value']) {
+						$valid_assetid = false;
+					}
+					if ($valid_assetid && !$test_info['is_dependant'] && $info['is_dependant']) {
+						$valid_assetid = false;
+					}
+					if ($valid_assetid && !$test_info['is_exclusive'] && $info['is_exclusive']) {
+						$valid_assetid = false;
+					}
+					if ($valid_assetid &&  $test_info['link_type'] &  $info['link_type'] <= 0) {
+						$valid_assetid = false;
+					}
 
 					if ($start_treeid && $valid_assetid) {
 						$assetids[] = $result[$i]['assetid'];
@@ -404,13 +426,17 @@ class Event_Manager extends MySource_Object
 	*/
 	function writeStaticEventsCacheFile()
 	{
-		if (!isset($this->_tmp['event_listeners']) || empty($this->_tmp['event_listeners'])) return false;
+		if (!isset($this->_tmp['event_listeners']) || empty($this->_tmp['event_listeners'])) {
+			return false;
+		}
 
 		$output = '<'.'?php'."\n".' $cached_event_listeners_array = ';
 		$output .= var_export($this->_tmp['event_listeners'], true);
-		$output .= "\n?".">";
+		$output .= "\n?".'>';
 
-		if (!string_to_file($output, SQ_DATA_PATH.'/private/events/event_listeners.inc')) return false;
+		if (!string_to_file($output, SQ_DATA_PATH.'/private/events/event_listeners.inc')) {
+			return false;
+		}
 		unset($this->_tmp['event_listeners']);
 
 		return true;
@@ -436,7 +462,9 @@ class Event_Manager extends MySource_Object
 		if (!is_array($listeners)|| empty($listeners)) {
 			return false;
 		}
-		if (!isset($this->_tmp['event_listeners'])) $this->_tmp['event_listeners'] = Array();
+		if (!isset($this->_tmp['event_listeners'])) {
+			$this->_tmp['event_listeners'] = Array();
+		}
 
 		foreach ($listeners as $index => $info) {
 			if (!isset($this->_tmp['event_listeners'][$info['broadcast_type_code']])) {
@@ -447,7 +475,9 @@ class Event_Manager extends MySource_Object
 			}
 
 			// if they have been lazy, do some cleanup
-			if (!isset($info['options']['value'])) $info['options']['value'] = '';
+			if (!isset($info['options']['value'])) {
+				$info['options']['value'] = '';
+			}
 
 			if (!is_array($info['options'])) {
 				trigger_localised_error('SYS0143', E_USER_WARNING, $listener_type_code, gettype($info['options']));

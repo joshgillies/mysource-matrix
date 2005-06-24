@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: limbo_outputter.inc,v 1.21 2005/06/16 05:47:29 lwright Exp $
+* $Id: limbo_outputter.inc,v 1.22 2005/06/24 05:12:01 ndvries Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/backend_outputter.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix
 */
 class Limbo_Outputter extends Backend_Outputter
@@ -428,7 +428,7 @@ class Limbo_Outputter extends Backend_Outputter
 							</tr>
 						<?php
 
-						break;
+					break;
 
 					case 'field' :
 						$field = &$section['areas'][$j];
@@ -497,7 +497,7 @@ class Limbo_Outputter extends Backend_Outputter
 							<?php
 						}//end switch
 
-						break;
+					break;
 
 					default :
 						trigger_localised_error('SYS0257', E_USER_ERROR, $section['areas'][$j]['area_type']);

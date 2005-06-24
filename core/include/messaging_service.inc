@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: messaging_service.inc,v 1.40 2005/06/16 02:54:47 tbarrett Exp $
+* $Id: messaging_service.inc,v 1.41 2005/06/24 05:12:01 ndvries Exp $
 *
 */
 
@@ -44,7 +44,7 @@ define('SQ_MSG_PRIORITY_VERY_HIGH' , 5);
 *    Facilitate the sending and management of internal messages
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package MySource_Matrix
 */
 class Messaging_Service extends MySource_Object
@@ -363,8 +363,9 @@ class Messaging_Service extends MySource_Object
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		if (!is_null($get_user_name) && $get_user_name != 'name')
+		if (!is_null($get_user_name) && $get_user_name != 'name') {
 			$get_user_name = 'short_name';
+		}
 
 		$sql = 'SELECT m.msgid, m.userto, m.userfrom, m.subject, m.body, m.sent, m.priority, m.status, m.type, m.parameters';
 		if (is_string($get_user_name)) {
@@ -387,13 +388,19 @@ class Messaging_Service extends MySource_Object
 			$where = 'WHERE '.$where;
 		}
 
-		if (!is_null($type)) $where .= ' AND m.type = '.$db->quote($type);
+		if (!is_null($type)) {
+			$where .= ' AND m.type = '.$db->quote($type);
+		}
 		if (!empty($statii)) {
-			for ($i = 0; $i < count($statii); $i++) $statii[$i] = $db->quote($statii[$i]);
+			for ($i = 0; $i < count($statii); $i++) {
+				$statii[$i] = $db->quote($statii[$i]);
+			}
 			$where .= ' AND m.status IN ('.implode(', ', $statii).')';
 		}
 		if (!empty($messageids)) {
-			for ($i = 0; $i < count($messageids); $i++) $messageids[$i] = $db->quote($messageids[$i]);
+			for ($i = 0; $i < count($messageids); $i++) {
+				$messageids[$i] = $db->quote($messageids[$i]);
+			}
 			$where .= ' AND m.msgid IN ('.implode(', ', $messageids).')';
 		}
 		if (!empty($parameters)) {
@@ -401,8 +408,12 @@ class Messaging_Service extends MySource_Object
 				$where .= ' AND m.parameters LIKE '.$db->quote('%'.$param_key.':'.$param_value.';%');
 			}
 		}
-		if (!is_null($from)) $where .= ' AND m.sent >= '.$db->quote(ts_iso8601($from));
-		if (!is_null($to))   $where .= ' AND m.sent <= '.$db->quote(ts_iso8601($to));
+		if (!is_null($from)) {
+			$where .= ' AND m.sent >= '.$db->quote(ts_iso8601($from));
+		}
+		if (!is_null($to)) {
+			$where .= ' AND m.sent <= '.$db->quote(ts_iso8601($to));
+		}
 
 		$sql .= ' '.$where.' ORDER BY m.sent DESC';
 		$result = $db->getAll($sql);
@@ -630,8 +641,12 @@ class Messaging_Service extends MySource_Object
 			$header = $user.','.$term.$term;
 		}
 		// replace separator line for multiple-bodied message with a h-rule
-		if ($type == 'html') $body = str_replace("\n\n".str_repeat('-', 50)."\n\n",'<hr />',$body);
-		if ($type == 'html') $body = nl2br($body);	// give it newlines
+		if ($type == 'html') {
+			$body = str_replace("\n\n".str_repeat('-', 50)."\n\n",'<hr />',$body);
+		}
+
+		// give it newlines
+		if ($type == 'html') $body = nl2br($body);
 
 		$line = ($type == 'text') ? str_repeat('-', 20).$term : '<hr />';
 

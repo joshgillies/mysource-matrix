@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.62 2005/05/31 00:45:46 tbarrett Exp $
+* $Id: system_config.inc,v 1.63 2005/06/24 05:12:01 ndvries Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.62 $
+* @version $Revision: 1.63 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -89,7 +89,7 @@ class System_Config extends Config
 	var $debug_options = Array(
 							1	=> 'Show File and Line number in error messages',
 							2	=> 'Show Stack Trace in error messages',
-							4	=> 'Show additional information about memory and performance', 							
+							4	=> 'Show additional information about memory and performance',
 						 );
 
 
@@ -126,7 +126,7 @@ class System_Config extends Config
 
 				// if we dont have access, go away
 				if (!$is_admin) {
-					trigger_localised_error("SYS0267", E_USER_WARNING, $this->name);
+					trigger_localised_error('SYS0267', E_USER_WARNING, $this->name);
 					return false;
 				}
 			} else {
@@ -181,9 +181,13 @@ class System_Config extends Config
 			case 'SQ_CONF_PEAR_PATH' :
 				// if this looks like a plain value and it starts with the system root, then put the system root constant in
 				if ($var_export && substr($value, 0, strlen(SQ_SYSTEM_ROOT)) == SQ_SYSTEM_ROOT) {
-					if (!parent::_paintConfigVar($var_name, 'SQ_SYSTEM_ROOT.'.var_export(substr($value, strlen(SQ_SYSTEM_ROOT)), true), false)) return false;
+					if (!parent::_paintConfigVar($var_name, 'SQ_SYSTEM_ROOT.'.var_export(substr($value, strlen(SQ_SYSTEM_ROOT)), true), false)) {
+						return false;
+					}
 				} else {
-					if (!parent::_paintConfigVar($var_name, $value, $var_export)) return false;
+					if (!parent::_paintConfigVar($var_name, $value, $var_export)) {
+						return false;
+					}
 				}
 				if ($value) {
 					$sep = (substr(PHP_OS, 0, 3) == 'WIN') ? ';' : ':';
@@ -200,12 +204,13 @@ class System_Config extends Config
 
 
 			case 'SQ_CONF_LOG_ERRORS' :
-				if (!parent::_paintConfigVar($var_name, $value, $var_export)) return false;
+				if (!parent::_paintConfigVar($var_name, $value, $var_export)) {
+					return false;
+				}
 				// NOTE: if they don't want to log errors we will leave
 				//       them with whatever their PHP settings are
-				if ($value) {
-					echo "ini_set('log_errors', '1');\n";
-				}
+				if ($value) echo "ini_set('log_errors', '1');\n";
+
 				return true;
 			break;
 
@@ -239,13 +244,17 @@ class System_Config extends Config
 			case 'SQ_CONF_SYSTEM_ROOT_URLS' :
 				$lines = explode("\n", $value);
 				$value = '';
-				foreach ($lines as $line) if (trim($line) != '') $value .= trim($line)."\n";
+				foreach ($lines as $line) {
+					if (trim($line) != '') $value .= trim($line)."\n";
+				}
 				return parent::_paintConfigVar($var_name, trim($value), $var_export);
 			break;
 
 
 			case 'SQ_CONF_SESSION_GC_MAXLIFETIME' :
-				if (!parent::_paintConfigVar($var_name, $value, $var_export)) return false;
+				if (!parent::_paintConfigVar($var_name, $value, $var_export)) {
+					return false;
+				}
 				echo "ini_set('session.gc_maxlifetime', $value);\n";
 				return true;
 			break;
@@ -283,7 +292,9 @@ class System_Config extends Config
 	{
 		if (!parent::writeAccess()) return false;
 		if (!isset($GLOBALS['SQ_SYSTEM'])) return true;
-		if (!$GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS)) return true;
+		if (!$GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS)) {
+			return true;
+		}
 
 		// need to be root or a sys admin
 		return ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());

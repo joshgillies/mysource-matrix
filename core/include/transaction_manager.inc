@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: transaction_manager.inc,v 1.17 2005/04/15 00:37:28 lwright Exp $
+* $Id: transaction_manager.inc,v 1.18 2005/06/24 05:12:01 ndvries Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *    Also to handle nested transaction calls
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix
 */
 class Transaction_Manager extends MySource_Object
@@ -126,12 +126,12 @@ class Transaction_Manager extends MySource_Object
 		}
 
 		if (empty($this->_levels[$db_name])) {
-			trigger_localised_error("SYS0219", E_USER_WARNING);
+			trigger_localised_error('SYS0219', E_USER_WARNING);
 			return false;
 		}
 
 		if (!empty($this->_rollback[$db_name])) {
-			trigger_localised_error("SYS0220", E_USER_WARNING);
+			trigger_localised_error('SYS0220', E_USER_WARNING);
 			$this->rollback($db_name);
 			return false;
 		}
@@ -159,7 +159,7 @@ class Transaction_Manager extends MySource_Object
 	function rollback($db_name)
 	{
 		if (empty($this->_levels[$db_name])) {
-			trigger_localised_error("SYS0231", E_USER_WARNING);
+			trigger_localised_error('SYS0231', E_USER_WARNING);
 			return false;
 		}
 

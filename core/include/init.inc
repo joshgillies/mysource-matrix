@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: init.inc,v 1.84 2005/05/30 05:20:01 rhoward Exp $
+* $Id: init.inc,v 1.85 2005/06/24 05:12:01 ndvries Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * The file that needs to be included to do anything
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.84 $
+* @version $Revision: 1.85 $
 * @package MySource_Matrix
 */
 
@@ -112,7 +112,9 @@ if (SQ_IN_BACKEND && substr($_SERVER['PHP_SELF'], -1) != '/') {
 
 // the current output type for the system, can be changed during run-time (eg to XML)
 // main use is so that the error_reporter doesn't barf in HTML to something expecting XML
-if (!isset($GLOBALS['SQ_OUTPUT_TYPE'])) $GLOBALS['SQ_OUTPUT_TYPE'] = (SQ_PHP_CLI) ? 'text' : 'html';
+if (!isset($GLOBALS['SQ_OUTPUT_TYPE'])) {
+	$GLOBALS['SQ_OUTPUT_TYPE'] = (SQ_PHP_CLI) ? 'text' : 'html';
+}
 
 
 // we are not purging the trash
