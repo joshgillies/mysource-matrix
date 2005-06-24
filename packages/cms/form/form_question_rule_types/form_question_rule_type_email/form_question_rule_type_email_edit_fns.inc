@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_email_edit_fns.inc,v 1.13 2005/05/11 06:07:31 lwright Exp $
+* $Id: form_question_rule_type_email_edit_fns.inc,v 1.14 2005/06/24 01:16:59 skim Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule_edi
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -75,9 +75,7 @@ class Form_Question_Rule_Type_Email_Edit_Fns extends Form_Question_Rule_Edit_Fns
 	*/
 	function processRule(&$asset, &$o, $prefix, &$rule_data)
 	{
-		if (!isset($_POST[$prefix])) {
-			return false;
-		}
+		if (!isset($_POST[$prefix])) return false;
 
 		$operator = array_get_index($_POST[$prefix], 'operator', '1');
 		$rule_data['operator'] = $operator;
