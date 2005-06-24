@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.119.2.2 2005/06/21 04:41:20 ndvries Exp $
+* $Id: mysource.inc,v 1.119.2.3 2005/06/24 06:45:25 tbarrett Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.119.2.2 $
+* @version $Revision: 1.119.2.3 $
 * @package MySource_Matrix
 */
 class MySource
@@ -1544,7 +1544,10 @@ class MySource
 
 		if (empty($this->_db_conns[$conn])) {
 			$this->_db_conns[$conn] = DB::connect(SQ_CONF_DB_DSN);
-			assert_valid_db_result($this->_db_conns[$conn]);
+			if (DB::isError($this->_db_conns[$conn])) {
+				header('HTTP/1.0 500 Internal Server Error');
+				trigger_error($this->_db_conns[$conn]->message, E_USER_ERROR);
+			}
 
 			// make sure all results are assoc arrays
 			$this->_db_conns[$conn]->setFetchMode(DB_FETCHMODE_ASSOC);
