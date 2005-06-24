@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_email.inc,v 1.18 2005/06/24 01:16:59 skim Exp $
+* $Id: form_question_rule_type_email.inc,v 1.19 2005/06/24 04:01:49 skim Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -82,7 +82,7 @@ class Form_Question_Rule_Type_Email extends Form_Question_Rule
 
 		$operator = array_get_index($rule_data, 'operator', 1);
 
-		$regex_code = '/^[A-Za-z0-9](([_\.\-\']?[A-Za-z0-9]+)*)@([0-9a-zA-Z]([0-9A-Za-z-]*)+\.)+[a-zA-Z]{2,4}$/';
+		$regex_code = '/^[A-Za-z0-9](([_\.\-\']?[A-Za-z0-9]+)*)@([0-9a-zA-Z]([0-9A-Za-z-]*)+\.)+[a-zA-Z]{2,}$/';
 
 		ob_start();			// buffer this please
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: www.inc,v 1.13 2005/06/24 01:20:50 skim Exp $
+* $Id: www.inc,v 1.14 2005/06/24 04:01:50 skim Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *     Any Functions for dealing with the web, it's paths etc
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package Fudge
 * @subpackage General
 */
@@ -102,7 +102,7 @@ function relative_href($from,$to)
 */
 function valid_email($e)
 {
-	return preg_match("|^[A-Za-z0-9](([_\.\-\']?[A-Za-z0-9]+)*)@([0-9a-zA-Z]([0-9A-Za-z-]*)+\.)+[a-zA-Z]{2,4}$|",$e);
+	return preg_match("|^[A-Za-z0-9](([_\.\-\']?[A-Za-z0-9]+)*)@([0-9a-zA-Z]([0-9A-Za-z-]*)+\.)+[a-zA-Z]{2,}$|",$e);
 }//end valid_email()
 
 
