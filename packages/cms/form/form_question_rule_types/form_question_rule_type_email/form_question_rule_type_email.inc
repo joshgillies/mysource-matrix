@@ -11,13 +11,13 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_email.inc,v 1.17 2005/05/11 06:07:31 lwright Exp $
+* $Id: form_question_rule_type_email.inc,v 1.17.2.1 2005/06/24 04:07:24 skim Exp $
 *
 */
 
 
 require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc';
-require_once SQ_FUDGE_PATH .'/general/www.inc';
+require_once SQ_FUDGE_PATH.'/general/www.inc';
 
 /**
 * Form_Question_Rule_Type_Email
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH .'/general/www.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.17.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -82,7 +82,7 @@ class Form_Question_Rule_Type_Email extends Form_Question_Rule
 		$operator = array_get_index($rule_data, 'operator', 1);
 
 		// regex code - same as valid_email() in fudge/general/www.inc
-		$regex_code = '/^[_\.0-9a-zA-Z-]+@([0-9a-zA-Z]([0-9A-Za-z-]*)+\.)+[a-zA-Z]{2,4}$/';
+		$regex_code = '/^[A-Za-z0-9](([_\.\-\']?[A-Za-z0-9]+)*)@([0-9a-zA-Z]([0-9A-Za-z-]*)+\.)+[a-zA-Z]{2,}$/';
 
 		ob_start();			// buffer this please
 

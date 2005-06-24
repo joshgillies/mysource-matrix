@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: www.inc,v 1.12 2005/01/20 13:33:36 brobertson Exp $
+* $Id: www.inc,v 1.12.2.1 2005/06/24 04:07:25 skim Exp $
 *
 */
 
@@ -30,10 +30,11 @@
 *     Any Functions for dealing with the web, it's paths etc
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.12.2.1 $
 * @package Fudge
 * @subpackage General
 */
+
 
 /**
 * Takes a two URLs and returns the relative HREF required to get
@@ -51,8 +52,8 @@ function relative_href($from,$to)
 	$to_bits   = preg_split('/\\/+/', trim($to));
 
 	// Ensure the first element is the protocol
-	if (!preg_match('/^[A-Za-z]+:$/', $from_bits[0])) array_unshift($from_bits, 'http:');
-	if (!preg_match('/^[A-Za-z]+:$/', $to_bits[0]  )) array_unshift($to_bits,   'http:');
+	if (!preg_match('/^[A-Za-z]+:$/', $from_bits[0])) { array_unshift($from_bits, 'http:'); }
+	if (!preg_match('/^[A-Za-z]+:$/', $to_bits[0]  )) { array_unshift($to_bits,   'http:'); }
 	// Different protocols or domains? ABSOLUTE HREF!
 	if (strtolower($from_bits[0]) != strtolower($to_bits[0]) || strtolower($from_bits[1]) != strtolower($to_bits[1])) {
 		$to_bits[0] .= '/';
@@ -81,8 +82,8 @@ function relative_href($from,$to)
 	}
 
 	// if they wanted a trailing slash make sure there is one, else remove it
-	if (substr($to, -1) == '/')	$href = preg_replace('/\\/+$/', '/', $href);
-	else						$href = preg_replace('/\\/$/', '', $href);
+	if (substr($to, -1) == '/') { $href = preg_replace('/\\/+$/', '/', $href); }
+	else { $href = preg_replace('/\\/$/', '', $href); }
 
 	// No remove any bit where we go back a directory then forward again to the
 	// same last common directory
@@ -101,7 +102,7 @@ function relative_href($from,$to)
 */
 function valid_email($e)
 {
-	return preg_match("|^[_\.0-9a-zA-Z-]+@([0-9a-zA-Z]([0-9A-Za-z-]*)+\.)+[a-zA-Z]{2,4}$|",$e);
+	return preg_match("|^[A-Za-z0-9](([_\.\-\']?[A-Za-z0-9]+)*)@([0-9a-zA-Z]([0-9A-Za-z-]*)+\.)+[a-zA-Z]{2,}$|",$e);
 
 }//end valid_email()
 
@@ -178,5 +179,6 @@ function undo_htmlspecialchars($string)
 	return $string;
 
 }//end undo_htmlspecialchars()
+
 
 ?>
