@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container.inc,v 1.26 2005/04/27 00:14:40 lwright Exp $
+* $Id: bodycopy_container.inc,v 1.27 2005/06/24 01:11:42 dheppell Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -180,17 +180,18 @@ class Bodycopy_Container extends Asset
 	/**
 	* Processes the changes required when a new status is set
 	*
-	* @param int	$new_status		the new status to set for this asset
+	* @param int         $new_status		the new status to set for this asset
+	* @param boolean     $update_parent     Specify if we want to update the parent as well
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processStatusChange($new_status)
+	function processStatusChange($new_status, $update_parent=true)
 	{
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$old_status = $this->status;
-		if (!parent::processStatusChange($new_status)) {
+		if (!parent::processStatusChange($new_status, $update_parent)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}

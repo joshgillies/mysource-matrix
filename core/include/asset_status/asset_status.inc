@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status.inc,v 1.17 2005/06/23 23:00:46 gsherwood Exp $
+* $Id: asset_status.inc,v 1.18 2005/06/24 01:11:42 dheppell Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Provide a generic framework for status objects
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix
 */
 class Asset_Status extends MySource_Object
@@ -94,12 +94,13 @@ class Asset_Status extends MySource_Object
 	* Processes the changes required when a new status is set
 	* Does not change the status of the owner asset or this object
 	*
-	* @param int	$new_status	the new status to set for this asset
+	* @param int         $new_status        the new status to set for this asset
+	* @param boolean     $update_parent     Specify if we want to update the parent as well
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processStatusChange($new_status)
+	function processStatusChange($new_status, $update_parent=true)
 	{
 		// we need write access to do any changes
 		if (!$this->owner->readAccess()) {

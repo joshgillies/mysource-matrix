@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.420 2005/06/23 23:33:51 gsherwood Exp $
+* $Id: asset.inc,v 1.421 2005/06/24 01:11:42 dheppell Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.420 $
+* @version $Revision: 1.421 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -1276,6 +1276,7 @@ class Asset extends MySource_Object
 				$value = 0;
 			}
 		}
+		
 
 		$new_version = implode('.', $version_parts);
 
@@ -1907,12 +1908,13 @@ class Asset extends MySource_Object
 	/**
 	* Processes the changes required when a new status is set
 	*
-	* @param int	$new_status	the new status to set for this asset
+	* @param int        $new_status        the new status to set for this asset
+	*@param boolean     $update_parent     Specify if we want to update the parent as well
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processStatusChange($new_status)
+	function processStatusChange($new_status, $update_parents=true)
 	{
 		$old_status = $this->status;
 
@@ -1980,12 +1982,14 @@ class Asset extends MySource_Object
 
 			$this->status = $new_status;
 			unset($this->_tmp['status_object']);
+			
+			
 
-			$this->_updated();
+			$this->_updated($update_parents);
 
 			// if we have just made this asset live, we update its minor version
 			if ($new_status == SQ_STATUS_LIVE) {
-				if (!$this->incrementVersion('minor')) {
+				if (!$this->incrementVersion('minor', false)) {
 					trigger_localised_error('SYS0271', E_USER_WARNING, $this->name);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return false;

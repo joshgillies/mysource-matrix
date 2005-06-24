@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_status.inc,v 1.37 2005/05/17 06:58:42 ndvries Exp $
+* $Id: hipo_job_edit_status.inc,v 1.38 2005/06/24 01:11:42 dheppell Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to change the status of an asset
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -210,6 +210,7 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 		$this->_running_vars['messages']     = Array();
 
 		unset($asset);
+		
 
 		return parent::prepare();
 
@@ -315,7 +316,8 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 
 			if (!is_null($asset)) {
 				$new_status = $this->_running_vars['new_status'];
-				$asset->processStatusChange($new_status);
+				
+				$asset->processStatusChange($new_status, false);
 				$step_data['message'] = translate('hipo_edit_status', $asset->name);
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 				unset($asset);

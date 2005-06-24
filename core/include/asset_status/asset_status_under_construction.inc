@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_under_construction.inc,v 1.32 2005/04/27 00:14:43 lwright Exp $
+* $Id: asset_status_under_construction.inc,v 1.33 2005/06/24 01:11:42 dheppell Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *                                           the workflow and all required metadata is complete
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix
 */
 class Asset_Status_Under_Construction extends Asset_Status
@@ -137,14 +137,15 @@ class Asset_Status_Under_Construction extends Asset_Status
 	* Processes the changes required when a new status is set
 	* Does not change the status of the owner asset or this object
 	*
-	* @param int	$new_status	the new status to set for this asset
+	* @param int         $new_status        the new status to set for this asset
+	* @param boolean     $update_parent     Specify if we want to update the parent as well
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processStatusChange($new_status)
+	function processStatusChange($new_status, $update_parent=true)
 	{
-		if (!parent::processStatusChange($new_status)) return false;
+		if (!parent::processStatusChange($new_status, $update_parent)) return false;
 
 		// so we know we can set the status but we need to
 		// do some workflow stuff if we are changing to PENDING APPROVAL

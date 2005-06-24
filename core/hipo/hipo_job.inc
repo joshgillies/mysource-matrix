@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job.inc,v 1.72 2005/05/17 06:58:42 ndvries Exp $
+* $Id: hipo_job.inc,v 1.73 2005/06/24 01:11:42 dheppell Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_DATA_PATH.'/private/conf/hipo.inc';
 * Highly Intensive Processing Object (HIPO)
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.72 $
+* @version $Revision: 1.73 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -1562,7 +1562,7 @@ class HIPO_Job extends MySource_Object
 			if (ini_get('log_errors')) {
 				log_error($text_msg, $err_no, $err_file, $err_line);
 			}
-
+			
 			$msg = $text_msg;
 			if (SQ_CONF_DEBUG & 1) {
 				$text_msg .= ' ('.$err_file.':'.$err_line.')';

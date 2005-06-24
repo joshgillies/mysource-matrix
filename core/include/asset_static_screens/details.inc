@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: details.inc,v 1.16 2005/05/11 06:05:11 lwright Exp $
+* $Id: details.inc,v 1.17 2005/06/24 01:11:42 dheppell Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Details Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix
 */
 
@@ -353,7 +353,6 @@ function processDetails(&$owner, &$o, &$ei)
 	$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 	$running_schemas = $wfm->getSchemas($owner->id, true, true);
 	if (empty($running_schemas)) _processStatusChange($owner, $o, $prefix);
-
 
 	///// FUTURE STATUS CHANGES ////
 

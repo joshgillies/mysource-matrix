@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_live.inc,v 1.27 2005/06/23 22:59:49 gsherwood Exp $
+* $Id: asset_status_live.inc,v 1.28 2005/06/24 01:11:42 dheppell Exp $
 *
 */
 
@@ -37,7 +37,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *    LIVE -> UNDER_CONSTRUCTION if the user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix
 */
 class Asset_Status_Live extends Asset_Status
@@ -111,14 +111,15 @@ class Asset_Status_Live extends Asset_Status
 	* Processes the changes required when a new status is set
 	* Does not change the status of the owner asset or this object
 	*
-	* @param int	$new_status	the new status to set for this asset
+	* @param int         $new_status        the new status to set for this asset
+	* @param boolean     $update_parent     Specify if we want to update the parent as well
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processStatusChange($new_status)
+	function processStatusChange($new_status, $update_parent=true)
 	{
-		if (!parent::processStatusChange($new_status)) return false;
+		if (!parent::processStatusChange($new_status, $update_parent)) return false;
 
 		switch ($new_status) {
 			case SQ_STATUS_LIVE_APPROVAL :
