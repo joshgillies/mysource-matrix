@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: GUIUtilities.java,v 1.2 2005/03/06 22:54:02 mmcintyre Exp $
+* $Id: GUIUtilities.java,v 1.2.2.1 2005/06/24 00:45:48 ndvries Exp $
 *
 */
 
@@ -37,7 +37,7 @@ public class GUIUtilities {
 	 */
 	private static Map icons = new HashMap();
 	private static JPopupMenu addMenu;
-	
+
 	// cannot instantiate
 	private GUIUtilities() {}
 
@@ -56,7 +56,7 @@ public class GUIUtilities {
 			JOptionPane.ERROR_MESSAGE
 		);
 	}
-	
+
 	/**
 	 * Displays an error with the specified message and title
 	 * the message will be displayed in the center of the screen (l&f dependant)
@@ -114,8 +114,20 @@ public class GUIUtilities {
 	 * @return the Icon
 	 */
 	public static Icon getIconForTypeCode(String typeCode) {
-		return getIcon(Matrix.getProperty("parameter.url.typecodeurl") 
+		return getIcon(Matrix.getProperty("parameter.url.typecodeurl")
 			+ "/" + typeCode + "/" + "icon.png");
+	}
+
+	/**
+	 * Returns whether the icon is loaded for this asset type
+	 * @return TRUE if the icon is already loaded
+	 */
+	public static boolean isIconLoaded(String typeCode) {
+		if (icons.containsKey(Matrix.getProperty("parameter.url.typecodeurl") + "/" + typeCode + "/" + "icon.png")) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	/***
@@ -146,7 +158,7 @@ public class GUIUtilities {
 		}
 		return (Icon) icons.get(key);
 	}
-	
+
 	/**
 	 * Set the location of a Component to the center of the screen
 	 * and makes it visible.
@@ -159,7 +171,7 @@ public class GUIUtilities {
 		comp.setLocation(x, y);
 		comp.setVisible(true);
 	}
-	
+
 	/**
 	 * Returns TRUE if the right mouse button is clicked. Use this in favour of
 	 * SwingUtilities.isRightMouseButton() as it detects Mac apple key and mouse click
