@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: table_editing.inc,v 1.21 2005/05/09 05:45:26 dmckee Exp $
+* $Id: table_editing.inc,v 1.22 2005/06/24 02:37:17 dmckee Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -214,8 +214,13 @@ class Table_Editing extends WYSIWYG_Plugin
 					div.innerHTML = params;
 					var table = div.getElementsByTagName("TABLE")[0];
 					var old_table = editor.getClosest("table");
-					//old_table = table;
-					old_table.parentNode.replaceChild(table, old_table);
+					//Have to modify the table in the editor depending on what browser we are using
+					//replaceChild caused problems when saving a table in IE
+					if (HTMLArea.is_ie) {
+						old_table.outerHTML = table.outerHTML;
+					} else {
+						old_table.parentNode.replaceChild(table, old_table);
+					}
 
 					// various workarounds to refresh the table display (Gecko,
 					// what's going on?! do not disappoint me!)
