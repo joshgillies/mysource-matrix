@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: MatrixMenus.java,v 1.4.2.1 2005/06/24 00:45:48 ndvries Exp $
+* $Id: MatrixMenus.java,v 1.4.2.2 2005/06/24 06:26:54 ndvries Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -482,6 +482,8 @@ public class MatrixMenus implements MatrixConstants {
 								}
 							};
 							worker.start();
+						} else {
+							nextItem.setIcon(type.getIcon());
 						}
 					}
 				}//end if
