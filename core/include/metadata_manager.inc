@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.83 2005/06/02 06:51:44 lwright Exp $
+* $Id: metadata_manager.inc,v 1.84 2005/06/24 01:53:26 ndvries Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.83 $
+* @version $Revision: 1.84 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -158,23 +158,23 @@ class Metadata_Manager extends MySource_Object
 	{
 		$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
 		if (is_null($schema)) {
-			trigger_localised_error("SYS0047", E_USER_WARNING, $schemaid);
+			trigger_localised_error('SYS0047', E_USER_WARNING, $schemaid);
 			return false;
 		}
 
 		if (!is_a($schema, 'metadata_schema')) {
-			trigger_localised_error("SYS0045", E_USER_WARNING, $schema->name, $schemaid);
+			trigger_localised_error('SYS0045', E_USER_WARNING, $schema->name, $schemaid);
 			return false;
 		}
 
 		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
-			trigger_localised_error("SYS0046", E_USER_WARNING, $assetid);
+			trigger_localised_error('SYS0046', E_USER_WARNING, $assetid);
 			return false;
 		}
 
 		if (!$asset->adminAccess('metadata')) {
-			trigger_localised_error("SYS0031", E_USER_WARNING, $asset->name);
+			trigger_localised_error('SYS0031', E_USER_WARNING, $asset->name);
 			return false;
 		}
 
@@ -191,7 +191,7 @@ class Metadata_Manager extends MySource_Object
 				$new_access     = ($granted) ? 'apply'  : 'deny';
 				$current_access = ($granted) ? 'denied' : 'applied';
 
-				trigger_localised_error("SYS0032", E_USER_WARNING, $new_access, $schema->name, $asset->name, $current_access);
+				trigger_localised_error('SYS0032', E_USER_WARNING, $new_access, $schema->name, $asset->name, $current_access);
 				return false;
 			}
 		}
@@ -242,12 +242,12 @@ class Metadata_Manager extends MySource_Object
 	{
 		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
-			trigger_localised_error("SYS0036", E_USER_WARNING, $assetid);
+			trigger_localised_error('SYS0036', E_USER_WARNING, $assetid);
 			return false;
 		}
 
 		if (!$asset->adminAccess('metadata')) {
-			trigger_localised_error("SYS0029", E_USER_WARNING, $asset->name);
+			trigger_localised_error('SYS0029', E_USER_WARNING, $asset->name);
 			return false;
 		}
 
@@ -362,7 +362,7 @@ class Metadata_Manager extends MySource_Object
 	{
 		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
-			trigger_localised_error("SYS0043", E_USER_WARNING, $assetid);
+			trigger_localised_error('SYS0043', E_USER_WARNING, $assetid);
 			return false;
 		}
 
@@ -393,7 +393,7 @@ class Metadata_Manager extends MySource_Object
 		foreach ($schemas as $schemaid) {
 			$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
 			if (is_null($schema)) {
-				trigger_localised_error("SYS0044", E_USER_WARNING, $schemaid);
+				trigger_localised_error('SYS0044', E_USER_WARNING, $schemaid);
 				return false;
 			}
 			$where .= '
@@ -433,7 +433,7 @@ class Metadata_Manager extends MySource_Object
 
 		$schema = &$am->getAsset($schemaid);
 		if (is_null($schema)) {
-			trigger_localised_error("SYS0040", E_USER_WARNING, $schemaid);
+			trigger_localised_error('SYS0040', E_USER_WARNING, $schemaid);
 			return Array();
 		}
 
@@ -443,7 +443,7 @@ class Metadata_Manager extends MySource_Object
 		$field_names = Array();
 		$fields_to_check = Array();
 
-		foreach($fields as $fieldid => $type_code) {
+		foreach ($fields as $fieldid => $type_code) {
 			if (isset($cached_field_names[$fieldid])) {
 				$field_names[$fieldid] = $cached_field_names[$fieldid];
 			} else {
@@ -461,7 +461,7 @@ class Metadata_Manager extends MySource_Object
 			$default_values[$fieldid] = Array(
 											'name'	=> $field_names[$fieldid],
 											'value'	=> $this->getMetadataFieldDefaultValue($fieldid),
-										  );
+										);
 		}
 
 		return $default_values;
@@ -492,7 +492,7 @@ class Metadata_Manager extends MySource_Object
 
 		$asset = &$am->getAsset($assetid);
 		if (is_null($asset)) {
-			trigger_localised_error("SYS0038", E_USER_WARNING, $assetid);
+			trigger_localised_error('SYS0038', E_USER_WARNING, $assetid);
 			return $field_values;
 		}
 
@@ -505,12 +505,12 @@ class Metadata_Manager extends MySource_Object
 		foreach ($schemas as $schemaid) {
 			$schema = &$am->getAsset($schemaid);
 			if (is_null($schema)) {
-				trigger_localised_error("SYS0039", E_USER_WARNING, $schemaid);
+				trigger_localised_error('SYS0039', E_USER_WARNING, $schemaid);
 				return $field_values;
 			}
 
 			if (!is_a($schema, 'metadata_schema')) {
-				trigger_localised_error("SYS0037", E_USER_WARNING, $schema->name, $schemaid);
+				trigger_localised_error('SYS0037', E_USER_WARNING, $schema->name, $schemaid);
 				return $field_values;
 			}
 
@@ -534,7 +534,7 @@ class Metadata_Manager extends MySource_Object
 						';
 				$field = &$am->getAsset($fieldid, $type_code);
 				if (is_null($field)) {
-					trigger_localised_error("SYS0041", E_USER_WARNING, $schemaid);
+					trigger_localised_error('SYS0041', E_USER_WARNING, $schemaid);
 					continue;
 				}
 
@@ -564,12 +564,12 @@ class Metadata_Manager extends MySource_Object
 
 		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
-			trigger_localised_error("SYS0043", E_USER_WARNING. $assetid);
+			trigger_localised_error('SYS0043', E_USER_WARNING, $assetid);
 			return false;
 		}
 
 		if (!$asset->writeAccess('metadata')) {
-			trigger_localised_error("SYS0030", E_USER_WARNING, $asset->name);
+			trigger_localised_error('SYS0030', E_USER_WARNING, $asset->name);
 			return false;
 		}
 
@@ -706,7 +706,7 @@ class Metadata_Manager extends MySource_Object
 	{
 		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
-			trigger_localised_error("SYS0034", E_USER_WARNING, $assetid);
+			trigger_localised_error('SYS0034', E_USER_WARNING, $assetid);
 			return false;
 		}
 
@@ -727,12 +727,12 @@ class Metadata_Manager extends MySource_Object
 		foreach ($schemas as $schemaid) {
 			$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
 			if (is_null($schema)) {
-				trigger_localised_error("SYS0035", E_USER_WARNING, $schemaid);
+				trigger_localised_error('SYS0035', E_USER_WARNING, $schemaid);
 				return false;
 			}
 
 			if (!is_a($schema, 'metadata_schema')) {
-				trigger_localised_error("SYS0033", E_USER_WARNING, $schema->name, $schemaid);
+				trigger_localised_error('SYS0033', E_USER_WARNING, $schema->name, $schemaid);
 				return false;
 			}
 
@@ -889,13 +889,13 @@ class Metadata_Manager extends MySource_Object
 					switch ($keyword) {
 						case 'asset_thumbnail' :
 							echo '$metadata_replacements['.var_export($keyword, 1).'] = (is_null($thumbnail)) ? \'\' : $thumbnail->printImageTag(\'\', \'\', true);'."\n";
-							break;
+						break;
 						case 'asset_thumbnail_url' :
 							echo '$metadata_replacements['.var_export($keyword, 1).'] = (is_null($thumbnail)) ? \'\' : $thumbnail->getURL();'."\n";
-							break;
+						break;
 						case 'asset_thumbnail_caption' :
 							echo '$metadata_replacements['.var_export($keyword, 1).'] = (is_null($thumbnail)) ? \'\' : $thumbnail->attr(\'caption\');'."\n";
-							break;
+						break;
 					}
 
 				break;
@@ -1205,6 +1205,7 @@ class Metadata_Manager extends MySource_Object
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'mdv');
 
 		$value = $db->getOne($sql.$where);
+		assert_valid_db_result($value);
 
 		if (is_null($value)) {
 			// not set - need the default value

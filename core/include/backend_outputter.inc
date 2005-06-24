@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.110 2005/06/16 05:47:29 lwright Exp $
+* $Id: backend_outputter.inc,v 1.111 2005/06/24 01:53:26 ndvries Exp $
 *
 */
 
@@ -42,7 +42,7 @@ define('SQ_BO_MSG_ERROR',   4);
 *    there will only ever be one instance of this object
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.110 $
+* @version $Revision: 1.111 $
 * @package MySource_Matrix
 */
 class Backend_Outputter
@@ -211,7 +211,9 @@ class Backend_Outputter
 			$link_extras .= '&'.rawurlencode($name).'='.rawurlencode($value);
 		}
 		$link_extras = trim($link_extras, ' &');
-		if (!empty($link_extras)) $link .= ((strstr($link, '?')) ? '&' : '?').$link_extras;
+		if (!empty($link_extras)) {
+			$link .= ((strstr($link, '?')) ? '&' : '?').$link_extras;
+		}
 
 		$this->_redirect = trim($link);
 		$this->_redirect_target = trim($target);
@@ -254,7 +256,9 @@ class Backend_Outputter
 			$this->_action = $new_action;
 		}
 
-		if ($persistant) $this->_persistant_get_vars[$name] = $value;
+		if ($persistant) {
+			$this->_persistant_get_vars[$name] = $value;
+		}
 
 	}//end addFormActionGetVar()
 
@@ -397,7 +401,7 @@ class Backend_Outputter
 	{
 		if (empty($url)) return;
 		if (in_array($name, $this->_screens)) {
-			trigger_localised_error("SYS0202", E_USER_ERROR, $name);
+			trigger_localised_error('SYS0202', E_USER_ERROR, $name);
 		}
 		$this->_screens[$url] = $name;
 
@@ -531,7 +535,9 @@ class Backend_Outputter
 	*/
 	function closeSection()
 	{
-		if (!is_null($this->_current_field)) $this->closeField();
+		if (!is_null($this->_current_field)) {
+			$this->closeField();
+		}
 
 		if ($this->_buffering) {
 			$this->_closeSection();
@@ -567,7 +573,9 @@ class Backend_Outputter
 		if ($this->_is_open_field) $this->closeField();
 
 		if ($this->_buffering) {
-			if (!is_null($this->_current_field)) $this->closeField();
+			if (!is_null($this->_current_field)) {
+				$this->closeField();
+			}
 			if ($this->_raw_opened) $this->closeRaw();
 
 			$this->_section_count++;
@@ -706,7 +714,9 @@ class Backend_Outputter
 	function openField($name, $format='', $note='', $hidden=false, $id_name='')
 	{
 		if ($this->_buffering) {
-			if (!is_null($this->_current_field)) $this->closeField();
+			if (!is_null($this->_current_field)) {
+				$this->closeField();
+			}
 			if (empty($this->_section_stack)) $this->openSection();
 			if (!trim($name)) $name = '&nbsp;';
 
@@ -884,7 +894,9 @@ class Backend_Outputter
 	*/
 	function filesPath($file='')
 	{
-		if ($file && substr($file, 0, 1) != '/') $file = '/'.$file;
+		if ($file && substr($file, 0, 1) != '/') {
+			$file = '/'.$file;
+		}
 		return $this->_files_path.$file;
 
 	}//end filesPath()
@@ -900,7 +912,9 @@ class Backend_Outputter
 	{
 		if ($this->_raw_opened) $this->closeRaw();
 		// close all sections
-		while (!empty($this->_section_stack)) $this->closeSection();
+		while (!empty($this->_section_stack)) {
+			$this->closeSection();
+		}
 
 		if ($this->_redirect) {
 			// save the messages so they come through on the next page
@@ -949,9 +963,9 @@ class Backend_Outputter
 	{
 		if (!headers_sent()) {
 			if ($this->_charset) {
-				header("Content-type: text/html; charset=$this->_charset");
+				header('Content-type: text/html; charset='.$this->_charset);
 			} else {
-				header("Content-type: text/html; charset=".SQ_CONF_DEFAULT_CHARACTER_SET);
+				header('Content-type: text/html; charset='.SQ_CONF_DEFAULT_CHARACTER_SET);
 			}
 		}
 		?>
@@ -961,7 +975,9 @@ class Backend_Outputter
 			<?php
 
 			$this->addCssInclude($this->filesPath('css/edit.css'));
-			foreach ($this->_css_includes as $file) $this->_paintCssInclude($file);
+			foreach ($this->_css_includes as $file) {
+				$this->_paintCssInclude($file);
+			}
 
 			// first add the js translation files
 			foreach ($GLOBALS['SQ_SYSTEM']->lm->getJavascriptIncludes() as $js_include) {
@@ -996,8 +1012,8 @@ class Backend_Outputter
 						$msgs = new XML_Tree();
 						$msgs_root = &$msgs->addRoot('messages');
 						foreach ($this->_messages as $data) {
-							$msg_body = "<p>".htmlentities(nl2br($data['msg'])). "</p>";
-							$msg_body .= "<font color=\"#333333\">".$GLOBALS['SQ_SYSTEM']->datetime()."<font>";
+							$msg_body = '<p>'.htmlentities(nl2br($data['msg'])).'</p>';
+							$msg_body .= '<font color="#333333">'.$GLOBALS['SQ_SYSTEM']->datetime().'<font>';
 							$msgs_root->addChild('message', $msg_body, Array('type' => get_bit_names('SQ_BO_MSG_', $data['type'])));
 						}
 						?>
@@ -1064,7 +1080,9 @@ class Backend_Outputter
 		<form action="<?php echo $this->_action.$this->_anchor;?>" id="main_form" name="main_form" method="post" enctype="multipart/form-data" onSubmit="javascript: return form_on_submit();">
 	<?php
 		hidden_field('process_form', '1');
-		foreach ($this->_hidden_fields as $name => $value) hidden_field($name, $value);
+		foreach ($this->_hidden_fields as $name => $value) {
+			hidden_field($name, $value);
+		}
 
 		if ($this->_heading || count($this->_screens) || count($this->_static_screens)) {
 			?>
@@ -1083,7 +1101,11 @@ class Backend_Outputter
 					?>
 					<td class="sq-backend-main-heading" style="vertical-align: top; white-space: nowrap;">
 						<?php echo $this->_heading; ?>
-						<?php if ($this->_sub_heading) echo '</br><span class="sq-backend-sub-heading">'.$this->_sub_heading.'</span>'; ?>
+						<?php
+							if ($this->_sub_heading) {
+								echo '</br><span class="sq-backend-sub-heading">'.$this->_sub_heading.'</span>';
+							}
+						?>
 					</td>
 					<td class="sq-backend-main-heading" style="vertical-align: top; text-align: right;" width="100%">
 						<div id="sq_screen_menu_filler" style="display: none"></div>
@@ -1107,8 +1129,11 @@ class Backend_Outputter
 						<span style="color: #342939"><?php echo translate('back_to'); ?> : </span>
 						<?php
 							$nav_count = count($_SESSION['sq_nav_history']);
-							if ($nav_count < 5) $start = 0;
-							else $start = $nav_count - 5;
+							if ($nav_count < 5) {
+								$start = 0;
+							} else {
+								$start = $nav_count - 5;
+							}
 
 							for ($i = $start; $i < $nav_count; $i++) {
 								if (!isset($_SESSION['sq_nav_history'][$i])) continue;
@@ -1219,8 +1244,7 @@ class Backend_Outputter
 								</td>
 							</tr>
 						<?php
-
-						break;
+					break;
 
 					case 'field' :
 						$field = &$section['areas'][$j];
@@ -1286,10 +1310,10 @@ class Backend_Outputter
 							<?php
 						}//end switch
 
-						break;
+					break;
 
 					default :
-						trigger_localised_error("SYS0257", E_USER_ERROR, $section['areas'][$j]['area_type']);
+						trigger_localised_error('SYS0257', E_USER_ERROR, $section['areas'][$j]['area_type']);
 
 				}//end switch area type
 

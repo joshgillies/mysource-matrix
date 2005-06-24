@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.91 2005/05/31 00:45:46 tbarrett Exp $
+* $Id: general.inc,v 1.92 2005/06/24 01:53:26 ndvries Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.91 $
+* @version $Revision: 1.92 $
 * @package MySource_Matrix
 */
 
@@ -113,7 +113,7 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 				header('Content-Type: text/xml');
 				$output->dump();
 				exit(); // we need to always exit for XML otherwise we are likely to end up with XML parse errors at the other end
-				break;
+			break;
 
 			case 'text' :
 				// if they haven't put tags in the err msg assume it to be plain text
@@ -149,7 +149,7 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 				// Uncomment below for debugging from cmdline
 				#error_log($str."\n".$bt_str."\n".str_repeat("=+", 50)."\n", 3, SQ_DATA_PATH.'/private/logs/back_traces.log');
 
-				break;
+			break;
 
 			case 'html' :
 			default :
@@ -288,13 +288,26 @@ function get_error_name($error_code)
 	if (empty($error_code)) return $name;
 
 	switch ($error_code) {
-		case E_USER_ERROR   : $name = SQ_SYSTEM_SHORT_NAME.' Error';    break;
-		case E_USER_WARNING : $name = SQ_SYSTEM_SHORT_NAME.' Warning';  break;
-		case E_USER_NOTICE  : $name = SQ_SYSTEM_SHORT_NAME.' Notice';   break;
-		case E_ERROR        : $name = 'PHP Error';                      break;
-		case E_WARNING      : $name = 'PHP Warning';                    break;
-		case E_NOTICE       : $name = 'PHP Notice';                     break;
-		default             : $name = 'Unknown Error Type - '.$error_code;
+		case E_USER_ERROR :
+			$name = SQ_SYSTEM_SHORT_NAME.' Error';
+		break;
+		case E_USER_WARNING :
+			$name = SQ_SYSTEM_SHORT_NAME.' Warning';
+		break;
+		case E_USER_NOTICE :
+			$name = SQ_SYSTEM_SHORT_NAME.' Notice';
+		break;
+		case E_ERROR :
+			$name = 'PHP Error';
+		break;
+		case E_WARNING :
+			$name = 'PHP Warning';
+		break;
+		case E_NOTICE :
+			$name = 'PHP Notice';
+		break;
+		default :
+			$name = 'Unknown Error Type - '.$error_code;
 	}
 
 	return $name;
@@ -315,13 +328,27 @@ function get_error_colour($error_code)
 	$colour = '';
 
 	switch ($error_code) {
-		case E_USER_ERROR   : $colour = '#993333'; break;
-		case E_USER_WARNING : $colour = '#DBA53B'; break;
-		case E_USER_NOTICE  : $colour = '#17AA92'; break;
-		case E_ERROR        : $colour = '#0066CC'; break;
-		case E_WARNING      : $colour = '#0066CC'; break;
-		case E_NOTICE       : $colour = '#0066CC'; break;
-		default             : $colour = '#FF0000'; break;
+		case E_USER_ERROR :
+			$colour = '#993333';
+		break;
+		case E_USER_WARNING :
+			$colour = '#DBA53B';
+		break;
+		case E_USER_NOTICE :
+			$colour = '#17AA92';
+		break;
+		case E_ERROR :
+			$colour = '#0066CC';
+		break;
+		case E_WARNING :
+			$colour = '#0066CC';
+		break;
+		case E_NOTICE :
+			$colour = '#0066CC';
+		break;
+		default :
+			$colour = '#FF0000';
+		break;
 	}//end switch
 
 	return $colour;
@@ -536,7 +563,9 @@ function strip_url($url, $strip_protocol=false)
 function replace_query_string_vars($replacements, $base_url=null, $query_string=null)
 {
 	if (is_null($base_url)) $base_url = current_url();
-	if (is_null($query_string)) $query_string = $_SERVER['QUERY_STRING'];
+	if (is_null($query_string)) {
+		$query_string = $_SERVER['QUERY_STRING'];
+	}
 
 	$url = $base_url.'?'.$query_string;
 
@@ -903,9 +932,11 @@ function trigger_localised_error($code, $error_level)
 * @access public
 * @return void
 */
-function sq_print_icon($path, $width, $height, $alt='', $title=null, $extras='') 
+function sq_print_icon($path, $width, $height, $alt='', $title=null, $extras='')
 {
-	if (is_null($title) && !empty($alt)) $title = $alt;
+	if (is_null($title) && !empty($alt)) {
+		$title = $alt;
+	}
 	if (is_null($title)) $title = '';
 	$style = 'background:url('.$path.'); background: expression(\'none\'); filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src=\''.$path.'\', sizingMethod=\'crop\'); width: '.$width.'px; height: '.$height.'px;';
 	$style_pos = strpos($extras, 'style="');
@@ -916,12 +947,13 @@ function sq_print_icon($path, $width, $height, $alt='', $title=null, $extras='')
 	}
 	?>
 
-	<img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" 
-	     alt="<?php echo $alt; ?>" 
+	<img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif"
+	     alt="<?php echo $alt; ?>"
 	     title="<?php echo $title; ?>"
 	     <?php echo $extras; ?> />
 	<?php
 
-} //end sq_print_icon()
+}//end sq_print_icon()
+
 
 ?>

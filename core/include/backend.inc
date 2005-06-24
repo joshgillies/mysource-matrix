@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.129 2005/06/08 01:57:28 tbarrett Exp $
+* $Id: backend.inc,v 1.130 2005/06/24 01:53:26 ndvries Exp $
 *
 */
 
@@ -32,7 +32,7 @@
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.129 $
+* @version $Revision: 1.130 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -99,13 +99,15 @@ class Backend extends MySource_Object
 
 		// now we should have an assetid - if we dont there is really nothing we can do
 		// unless someone has been kind enough to give us a URL like ?a=xx
-		if (!isset($_REQUEST['assetid']) && isset($_REQUEST['a'])) $_REQUEST['assetid'] = $_REQUEST['a'];
+		if (!isset($_REQUEST['assetid']) && isset($_REQUEST['a'])) {
+			$_REQUEST['assetid'] = $_REQUEST['a'];
+		}
 
 		if (isset($_REQUEST['assetid'])) {
 			$printing_assetid = (SQ_IN_LIMBO) ? $_REQUEST['limbo_assetid'] : $_REQUEST['assetid'];
 			$printing_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($printing_assetid);
 			if (is_null($printing_asset)) {
-				trigger_localised_error("SYS0195", E_USER_WARNING, $printing_assetid);
+				trigger_localised_error('SYS0195', E_USER_WARNING, $printing_assetid);
 				return;
 			}
 			// lets ask the asset itself if we are allowed access to its backend (no dirty thoughts)
@@ -271,7 +273,9 @@ class Backend extends MySource_Object
 	*/
 	function _printHeader()
 	{
-		if (isset($_GET['sq_popups_blocked'])) $_SESSION['sq_popups_blocked'] = (int) $_GET['sq_popups_blocked'];
+		if (isset($_GET['sq_popups_blocked'])) {
+			$_SESSION['sq_popups_blocked'] = (int) $_GET['sq_popups_blocked'];
+		}
 		$popups_blocked = (!isset($_SESSION['sq_popups_blocked']) || $_SESSION['sq_popups_blocked']);
 		$dhtml_messages = Array();
 
@@ -693,7 +697,7 @@ class Backend extends MySource_Object
 		$this->out->openRaw();
 		$include_list = $GLOBALS['SQ_SYSTEM']->lm->getJavascriptIncludes();
 		$include_list[] = sq_web_path('lib').'/js/general.js';
-		foreach($include_list as $link) {
+		foreach ($include_list as $link) {
 			echo '<script type="text/javascript" src="'.$link.'"></script>'."\n";
 		}
 		?>
@@ -959,8 +963,12 @@ class Backend extends MySource_Object
 	*/
 	function _printMain()
 	{
-		if (empty($_REQUEST['backend_section'])) $_REQUEST['backend_section'] = 'am';
-		if (empty($_REQUEST['assetid']))         $_REQUEST['assetid'] = '';
+		if (empty($_REQUEST['backend_section'])) {
+			$_REQUEST['backend_section'] = 'am';
+		}
+		if (empty($_REQUEST['assetid'])) {
+			$_REQUEST['assetid'] = '';
+		}
 
 		$this->out->addFormActionGetVar('backend_section', $_REQUEST['backend_section']);
 

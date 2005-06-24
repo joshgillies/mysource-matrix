@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager_edit_fns.inc,v 1.88 2005/05/16 06:36:32 lwright Exp $
+* $Id: asset_manager_edit_fns.inc,v 1.89 2005/06/24 01:53:26 ndvries Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.88 $
+* @version $Revision: 1.89 $
 * @package MySource_Matrix
 */
 class Asset_Manager_Edit_Fns extends MySource_Object
@@ -75,9 +75,13 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 		$o = &$this->backend->out;
 
 		if (!isset($_REQUEST['am_section'])) {
-			if (isset($_GET['sq_from_frontend'])) $_REQUEST['am_section'] = 'edit_asset';
-			else if (SQ_IN_LIMBO) $_REQUEST['am_section'] = 'limbo';
-			else $_REQUEST['am_section'] = '';
+			if (isset($_GET['sq_from_frontend'])) {
+				$_REQUEST['am_section'] = 'edit_asset';
+			} else if (SQ_IN_LIMBO) {
+				$_REQUEST['am_section'] = 'limbo';
+			} else {
+				$_REQUEST['am_section'] = '';
+			}
 		}
 
 		$o->addFormActionGetVar('am_section', $_REQUEST['am_section']);
@@ -89,13 +93,13 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 
 				$parent = &$this->am->getAsset($_REQUEST['parent_assetid']);
 				if (is_null($parent)) {
-					trigger_localised_error("SYS0200", E_USER_WARNING, $_REQUEST['parent_assetid']);
+					trigger_localised_error('SYS0200', E_USER_WARNING, $_REQUEST['parent_assetid']);
 					break;
 				}
 
 				// make sure that we are allowed to link this type to the parent
 				if (($err_msg = $GLOBALS['SQ_SYSTEM']->am->canLinkToType($parent, $_REQUEST['type_code'], $_REQUEST['link_type'])) !== true) {
-					trigger_localised_error("SYS0303", E_USER_WARNING, $err_msg);
+					trigger_localised_error('SYS0303', E_USER_WARNING, $err_msg);
 					break;
 				}
 
@@ -140,7 +144,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 
 				$asset = &$this->am->getAsset($_REQUEST['assetid']);
 				if (is_null($asset)) {
-					trigger_localised_error("SYS0195", E_USER_WARNING, $_REQUEST['assetid']);
+					trigger_localised_error('SYS0195', E_USER_WARNING, $_REQUEST['assetid']);
 					return;
 				}
 				if (SQ_IN_LIMBO) {
@@ -182,12 +186,12 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 						if (!empty($_POST['sq_lock_release']) && !empty($_POST['sq_lock_type'])) {
 							// committing changes and releasing the lock
 							if (!$this->am->releaseLock($asset->id, $_POST['sq_lock_type'])) {
-								trigger_localised_error("SYS0182", E_USER_WARNING, $_POST['sq_lock_type'], $asset->name);
+								trigger_localised_error('SYS0182', E_USER_WARNING, $_POST['sq_lock_type'], $asset->name);
 							}
 						} else {
 							// not releasing the lock, so re-acquire
 							if (!$this->am->updateLock($asset->id, $_POST['sq_lock_type'])) {
-								trigger_localised_error("SYS0181", E_USER_WARNING, $_POST['sq_lock_type'], $asset->name);
+								trigger_localised_error('SYS0181', E_USER_WARNING, $_POST['sq_lock_type'], $asset->name);
 							}
 						}
 					}//end if
@@ -199,8 +203,11 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 					if (!empty($url)) $o->setRedirect($url);
 				}
 
-				if (SQ_IN_LIMBO) $limbo_asset->printFrontend();
-				else $asset->paintBackend($this->backend->out);
+				if (SQ_IN_LIMBO) {
+					$limbo_asset->printFrontend();
+				} else {
+					$asset->paintBackend($this->backend->out);
+				}
 
 			break;
 
@@ -229,7 +236,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 			// they have confirmed their intention to forceably acquire the lock on this asset
 			$asset = &$this->am->getAsset($_GET['assetid']);
 			if (is_null($asset)) {
-				trigger_localised_error("SYS0086", E_USER_WARNING, $_GET['assetid']);
+				trigger_localised_error('SYS0086', E_USER_WARNING, $_GET['assetid']);
 				return;
 			}
 
@@ -252,7 +259,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 		$o->addFormActionGetVar('ignore_frames', '1');
 		$asset = &$this->am->getAsset($_GET['assetid']);
 		if (is_null($asset)) {
-			trigger_localised_error("SYS0086", E_USER_WARNING, $_GET['assetid']);
+			trigger_localised_error('SYS0086', E_USER_WARNING, $_GET['assetid']);
 			return;
 		}
 
@@ -301,7 +308,9 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 		foreach ($locks as $lock_type => $lock) {
 			if (empty($lock)) continue;
 			// if this lock is held the current user, we aren't really forcing this one
-			if ($lock['userid'] == $GLOBALS['SQ_SYSTEM']->currentUserId()) continue;
+			if ($lock['userid'] == $GLOBALS['SQ_SYSTEM']->currentUserId()) {
+				continue;
+			}
 		?>
 			<tr>
 				<td class="sq-backend-table-cell">
@@ -315,15 +324,20 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 					$user    = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
 					$editing = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['source_assetid']);
 
-					if (SQ_ROLLBACK_VIEW) $now = strtotime($_SESSION['sq_rollback_view']['rollback_time']);
-					else $now = time();
+					if (SQ_ROLLBACK_VIEW) {
+						$now = strtotime($_SESSION['sq_rollback_view']['rollback_time']);
+					} else {
+						$now = time();
+					}
 
 					if (is_null($lock['expires'])) {
 						$expires_in = translate('lock_held_indefinitely');
 					} else {
 						require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 						$expires_in = easy_time_total(($lock['expires'] - $now), true);
-						if (!$expires_in) $expires_in = '1 '.translate('second');
+						if (!$expires_in) {
+							$expires_in = '1 '.translate('second');
+						}
 						$expires_in = translate('due_to_expire', $expires_in);
 					}
 
@@ -389,7 +403,9 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 		$offspring = Array();
 		for (reset($this->am->_asset_types); null !== ($type_code = key($this->am->_asset_types)); next($this->am->_asset_types)) {
 			$parent = $this->am->_asset_types[$type_code]['parent_type'];
-			if (!isset($offspring[$parent])) $offspring[$parent] = Array();
+			if (!isset($offspring[$parent])) {
+				$offspring[$parent] = Array();
+			}
 			$offspring[$parent][] = $type_code;
 		}//end for
 
