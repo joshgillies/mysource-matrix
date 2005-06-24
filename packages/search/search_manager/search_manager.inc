@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.31.2.5 2005/06/24 05:58:01 arailean Exp $
+* $Id: search_manager.inc,v 1.31.2.6 2005/06/24 06:26:41 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.31.2.5 $
+* @version $Revision: 1.31.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -703,6 +703,8 @@ class Search_Manager extends Asset
 						}
 
 						foreach ($attr_info['words'] as $word) {
+							if (!$this->isWordIndexable($word)) continue;
+
 							$result = $cm->loadFromCache($this, $search_cache_key.'asset_attrib'.$word);
 							if (empty($result)) {
 								$sql = $start_sql.'
@@ -788,6 +790,8 @@ class Search_Manager extends Asset
 
 				$field_asset_scores = null;
 				foreach ($attr_info['words'] as $word) {
+					if (!$this->isWordIndexable($word)) continue;
+
 					$result = $cm->loadFromCache($this, $search_cache_key.'include_all'.$word);
 					if (empty($result)) {
 						$sql = $start_sql.'
