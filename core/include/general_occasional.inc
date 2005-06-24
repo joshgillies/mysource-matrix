@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general_occasional.inc,v 1.54.2.1 2005/06/09 00:16:41 mmcintyre Exp $
+* $Id: general_occasional.inc,v 1.54.2.2 2005/06/24 06:53:59 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.54.2.1 $
+* @version $Revision: 1.54.2.2 $
 * @package MySource_Matrix
 */
 
@@ -269,16 +269,11 @@ function get_status_names()
 function asset_link_treeid_convert($value, $encode)
 {
 	// these characters are chosen so as not to clash with any SQL control symbols - ie . * ^ \ [ ] { } ( ) < > ? & $ _
-	static $digits = Array(
-						0	=> '0',  1	=> '1',  2	=> '2',  3	=> '3',  4	=> '4',  5	=> '5',  6	=> '6',  7	=> '7',
-						8	=> '8',  9	=> '9', 10	=> '=',	11	=> 'A', 12	=> 'B', 13	=> 'C', 14	=> 'D', 15	=> 'E',
-						16	=> 'F', 17	=> 'G', 18	=> 'H', 19	=> 'I', 20	=> 'J', 21	=> 'K', 22	=> 'L', 23	=> 'M',
-						24	=> 'N', 25	=> 'O', 26	=> 'P', 27	=> 'Q', 28	=> 'R', 29	=> 'S', 30	=> 'T', 31	=> 'U',
-						32	=> 'V', 33	=> 'W', 34	=> 'X', 35	=> 'Y', 36	=> 'Z', 37	=> 'a', 38	=> 'b', 39	=> 'c',
-						40	=> 'd', 41	=> 'e', 42	=> 'f', 43	=> 'g', 44	=> 'h', 45	=> 'i', 46	=> 'j', 47	=> 'k',
-						48	=> 'l', 49	=> 'm', 50	=> 'n', 51	=> 'o', 52	=> 'p', 53	=> 'q', 54	=> 'r', 55	=> 's',
-						56	=> 't', 57	=> 'u', 58	=> 'v', 59	=> 'w', 60	=> 'x', 61	=> 'y', 62	=> 'z', 63	=> '~',
-					 );
+	static $digits = Array();
+
+	if (empty($digits)) {
+		include SQ_DATA_PATH.'/private/db/treeid_order.inc';
+	}
 
 	// encode value ?
 	if ($encode) {

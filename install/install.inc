@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.inc,v 1.51 2005/06/06 06:38:47 tbarrett Exp $
+* $Id: install.inc,v 1.51.2.1 2005/06/24 06:54:00 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * Purpose
 * Functions used to install and upgrade the system
 *
-* @version $Revision: 1.51 $
+* @version $Revision: 1.51.2.1 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -1572,6 +1572,67 @@ function extract_internal_messages($file)
 	return $extracted_messages;
 
 }//end extract_internal_messages()
+
+
+/**
+* Run during Step 2 to determine the sort order of the treeid characters and
+* cache them
+*
+* This is meant to fix problems that used to occur when the characters were in
+* ASCII order - the number of possible collating orders makes this unreliable
+* when the collating order is anything other than 'C' or 'POSIX' (in PostgreSQL).
+*.
+* As the collating order of a system cannot be changed once the DB is initialised
+* (in PostgreSQL anyway), this should not change unless a system gets transplanted
+* to another (DB) server, in which case Step 2 should be run again.
+*
+* @return void
+* @access public
+*/
+function cache_treeid_collating_order()
+{
+	// the characters we are going to use - they do not necessarily have to
+	// be in ASCII order or keyed at this point
+	$digits = Array(
+				'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+				'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J',
+				'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
+				'U', 'V', 'W', 'X', 'Y', 'Z', '=', 'a', 'b', 'c',
+				'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
+				'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w',
+				'x', 'y', 'z', '~',
+			  );
+
+	// start a transaction because we will inevitably throw all this away
+	$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+	// add the characters into a single-column temporary table
+	$db =& $GLOBALS['SQ_SYSTEM']->db;
+	$sql = 'CREATE TABLE sq_tmp_collating_order (ch char(1));';
+	$db->query($sql);
+
+	foreach($digits as $digit) {
+		$sql = 'INSERT INTO sq_tmp_collating_order (ch) VALUES ('.$db->quoteSmart($digit).');';
+		$db->query($sql);
+	}
+
+	// now read back the table in sorted order
+	$sql = 'SELECT ch FROM sq_tmp_collating_order ORDER BY ch ASC;';
+	$sorted_digits = $db->getCol($sql);
+
+	$sql = 'DROP TABLE sq_tmp_collating_order;';
+
+	// we're done, rollback just to be sure
+	$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+
+	// now cache it away
+	$str = '<'."?php\n".'$digits = '.var_export($sorted_digits,true).'; ?'.">\n";
+
+	string_to_file($str, SQ_DATA_PATH.'/private/db/treeid_order.inc');
+
+	bam('LINK TREE CHARACTER ORDER CACHED');
+
+}//end cache_treeid_collating_order()
 
 
 ?>
