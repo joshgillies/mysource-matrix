@@ -1,0 +1,57 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Open Source Licence                                      |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_screen_details.xml~,v 1.1 2005/06/26 23:40:28 pgannavarapu Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="Details">
+		<field attribute="name">
+			<display_name>Name</display_name>
+			<note />
+		</field>
+		<field attribute="short_name">
+			<display_name>Short Name</display_name>
+			<note />
+		</field>
+		<field attribute="start_date">
+			<display_name>Find all events Starting on Date</display_name>
+			<note>The display will start from this date</note>
+		</field>
+		<field attribute="end_date">
+			<display_name>Find all events ending on the Date</display_name>
+			<note>The display will end on this date</note>
+		</field>
+		<field attribute="days_per_page">
+			<display_name>Days to show in each page</display_name>
+			<note>The display will include this number of days in each page</note>
+		</field>
+		<field attribute="day_heading_format">
+			<display_name>Day Heading Format</display_name>
+			<note>Day headings will display the date in this format.  (Symbols are from the PHP date function)</note>
+		</field>
+		<field attribute="day_heading_tag">
+			<display_name>Day Heading Tag</display_name>
+			<note />
+		</field>
+	</section>
+</contents>

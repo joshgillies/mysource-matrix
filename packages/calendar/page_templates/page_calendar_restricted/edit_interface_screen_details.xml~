@@ -1,0 +1,52 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Open Source Licence                                      |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: edit_interface_screen_details.xml~,v 1.1 2005/06/26 23:40:28 pgannavarapu Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="Details" write_access="write:attributes" limbo_access="1">
+		<field attribute="name">
+			<text width="35" height="1" />
+		</field>
+		<field attribute="short_name">
+			<text width="25" height="1" />
+		</field>
+		<field attribute="start_date">
+			<datetime min="1970-01-01" max="2030-12-31" allow_circa="1" allow_period="1" use_picker="1">
+			</datetime>
+		</field>
+		<field attribute="end_date">
+			<datetime min="1970-01-01" max="2030-12-31" allow_circa="1" allow_period="1" use_picker="1">
+			</datetime>
+		</field>
+		<field attribute="days_per_page">
+			<int width="2" />
+		</field>
+		<field attribute="day_heading_format">
+			<text width="20" height="1" />
+		</field>
+		<field attribute="day_heading_tag">
+			<selection />
+		</field>
+	</section>
+</contents>
