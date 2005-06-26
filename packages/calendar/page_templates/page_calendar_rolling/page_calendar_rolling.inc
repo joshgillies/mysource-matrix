@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_rolling.inc,v 1.1 2005/06/23 23:51:53 tbarrett Exp $
+* $Id: page_calendar_rolling.inc,v 1.2 2005/06/26 23:26:39 tbarrett Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -68,6 +68,8 @@ class Page_Calendar_Rolling extends Page
 	*/
 	function _createAdditional(&$link)
 	{
+		if (!parent::_createAdditional($link)) return false;
+
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
 		$link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 
@@ -181,11 +183,11 @@ class Page_Calendar_Rolling extends Page
 			}
 		}
 		if (is_null($tf_folder_id)) {
-			trigger_error('TYPE FORMATS FOLDER NOT FOUND', E_USER_WARNING); // TRANSLATE
+			trigger_localised_error('CAL0059', E_USER_WARNING, $this->id);
 			return;
 		}
 		if (is_null($pb_bodycopy_id)) {
-			trigger_error('PAGE CONTENTS BODYCOPY NOT FOUND', E_USER_WARNING); // TRANSLATE
+			trigger_localised_error('CAL0060', E_USER_WARNING, $this->id);
 			return;
 		}
 
@@ -303,13 +305,15 @@ class Page_Calendar_Rolling extends Page
 	* @access public
 	* @return array (date => array (assetid => array ( details )))
 	*/
-	function getEvents()
+	function getEvents($start_date=null, $end_date=null)
 	{
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
-		$now_ts = time();
-		$start_date = date('Y-m-d', $now_ts - ($this->attr('days_past') * 60 * 60 * 24));
-		$end_date = date('Y-m-d', $now_ts + ($this->attr('days_future') * 60 * 60 * 24));
-		$length = $this->attr('days_past') + $this->attr('days_future');
+		if (is_null($start_date)) {
+			$now_ts = time();
+			$start_date = date('Y-m-d', $now_ts - ($this->attr('days_past') * 60 * 60 * 24));
+			$end_date = date('Y-m-d', $now_ts + ($this->attr('days_future') * 60 * 60 * 24));
+		}
+		$length = (iso8601_ts($end_date) - iso8601_ts($start_date)) / (60 * 60 * 24);
 
 		// build sql to restrict the tree locations
 		$root_nodes = $this->attr('root_nodes');
