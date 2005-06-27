@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_restricted_management.inc,v 1.1 2005/06/26 23:40:28 pgannavarapu Exp $
+* $Id: page_calendar_restricted_management.inc,v 1.2 2005/06/27 02:54:49 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -70,6 +70,14 @@ class Page_Calendar_Restricted_Management extends Asset_Management
 											'type'			=> 'int',
 											'default'		=> 1,
 											'parameters'	=> Array('allow_negative' => false),
+										   ),
+						'next_text'		=> Array(
+											'type'		=> 'text',
+											'default'	=> 'Next %n% Days >>',
+										   ),
+						'prev_text'		=> Array(
+											'type'		=> 'text',
+											'default'	=> '<< Previous %n% days',
 										   ),
 					  );
 

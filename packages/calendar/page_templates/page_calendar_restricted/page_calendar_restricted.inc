@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_restricted.inc,v 1.1 2005/06/26 23:40:28 pgannavarapu Exp $
+* $Id: page_calendar_restricted.inc,v 1.2 2005/06/27 02:54:49 tbarrett Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/page_templates/page_calendar_rolling/pa
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -58,26 +58,114 @@ class Page_Calendar_Restricted extends Page_Calendar_Rolling
 
 
 	/**
+	* Add valid keywords for this asset to an array of keywords when asked
+	*
+	* @param &object Asset	$asset	the asset that triggered the event
+	* @param Array			$vars	the vars that get submitted by the broadcaster
+	*								we add keywords to the $vars['keywords'] array
+	*
+	* @return boolean
+	* @access private
+	*/
+	function onRequestKeywords(&$broadcaster, $vars=Array())
+	{
+		if (!isset($vars['keywords'])) {
+			$vars['keywords'] = Array();
+		}
+		$tf_folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', true, '', 'major', true);
+		$tf_folder_id = $tf_folder_link['minorid'];
+		$broadcaster_parents = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id);
+		if (isset($broadcaster_parents[$this->id]) && !isset($broadcaster_parents[$tf_folder_id])) {
+			// it's the contents BC
+			$vars['keywords']['event_list'] = 'List of Events';
+			$vars['keywords']['next_link'] = 'Link to the next page of events';
+			$vars['keywords']['prev_link'] = 'Link to the previous page of events';
+			return true;
+		}
+		return parent::onRequestKeywords($broadcaster, $vars);
+
+	}//end onRequestKeywords()
+
+
+	/**
+	* Get the keyword replacements to use in the page contents bodycopy
+	*
+	* @access protected
+	* @return array		keyword => replacement
+	*/
+	function _getPageContentsReplacements()
+	{
+		$res = parent::_getPageContentsReplacements();
+		list($current_start_date, $current_last_date) = $this->_getDisplayDates();
+		$first_valid_date = substr($this->attr('start_date'), 0, 10);
+		$last_valid_date = substr($this->attr('end_date'), 0, 10);
+		$last_normal_start = date('Y-m-d', strtotime(substr($this->attr('end_date'), 0, 10).' -'.($this->attr('days_per_page')-1).' days'));
+
+		$res['next_link'] = '';
+		if ($current_last_date < $last_valid_date) {
+			$next_date = date('Y-m-d', strtotime($current_start_date.' +'.($this->attr('days_per_page')).' days'));
+			$num_days_next = $this->attr('days_per_page');
+			if ($next_date > $last_normal_start) {
+				$num_days_next = days_between_isos($last_valid_date, $next_date) + 1;
+			}
+			$url = replace_query_string_vars(Array('show_date' => $next_date));
+			$text = str_replace('%n%', $num_days_next, $this->attr('next_text'));
+			$res['next_link'] = '<a href="'.$url.'">'.$text.'</a>';
+		}
+
+		$res['prev_link'] = '';
+		if ($current_start_date > $first_valid_date) {
+			$last_date = date('Y-m-d', strtotime($current_start_date.' -'.$this->attr('days_per_page').' days'));
+			$num_days_next = $this->attr('days_per_page');
+			if ($last_date < $first_valid_date) {
+				$last_date = $first_valid_date;
+				$num_days_next = days_between_isos($current_start_date, $last_date) + 1;
+			}
+			$url = replace_query_string_vars(Array('show_date' => $last_date));
+			$text = str_replace('%n%', $num_days_next, $this->attr('prev_text'));
+			$res['prev_link'] = '<a href="'.$url.'">'.$text.'</a>';
+		}
+
+		return $res;
+
+	}//end _getPageContentsReplacements()
+
+
+	/**
 	* Get the events that should be displayed in this calendar page
 	*
 	* @access public
 	* @return array (date => array (assetid => array ( details )))
 	*/
-	function getEvents()
+	function _getEvents()
+	{
+		list($first_date, $last_date) = $this->_getDisplayDates();
+		return parent::_getEvents($first_date, $last_date);
+
+	}//end _getEvents()
+
+
+	/**
+	* Get the first and last dates to display on this page in its current state
+	*
+	* @access private
+	* @return array		(first_date, last_date)
+	*/
+	function _getDisplayDates()
 	{
 		$start_date = substr($this->attr('start_date'), 0, 10);
 		$end_date = substr($this->attr('end_date'), 0, 10);
 		$length = $this->attr('days_per_page');
-		$display_date = date('Y-m-d');
-		if ($display_date < $start_date){
+		$display_date = array_get_index($_REQUEST, 'show_date', date('Y-m-d'));
+		if ($display_date < $start_date) {
 			$display_date = $start_date;
 		}
-		if ($display_date > date('Y-m-d', strtotime($end_date.' -'.($length-1).' days'))) {
-			$display_date = date('Y-m-d', strtotime($end_date.' -'.($length-1).' days'));
-		}
-		return parent::getEvents($display_date,date('Y-m-d', strtotime($display_date.' +'.($length-1).' days')));
+		$last_date = date('Y-m-d', strtotime($display_date.' +'.($length-1).' days'));
+		if ($last_date > $end_date) $last_date = $end_date;
+		return Array($display_date, $last_date);
 
-	}//end getEvents()
+	}//end _getDisplayDates()
+
 
 }//end class
 ?>
