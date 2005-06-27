@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.1 2005/06/26 23:40:28 pgannavarapu Exp $
+* $Id: lang_screen_details.xml,v 1.2 2005/06/27 00:39:31 tbarrett Exp $
 *
 */
 -->
@@ -60,6 +60,14 @@
 		<field attribute="day_heading_tag">
 			<display_name>Day Heading Tag</display_name>
 			<note />
+		</field>
+		<field attribute="next_text">
+			<display_name>Next Page Link Text</display_name>
+			<note>The text used in the link that the user clicks to view the next page of events.  The keyword %n% can be used to place the days-per-page value in this text</note>
+		</field>
+		<field attribute="prev_text">
+			<display_name>Prev Page Link Text</display_name>
+			<note>The text used in the link that the user clicks to view the previous page of events.  The keyword %n% can be used to place the days-per-page value in this text</note>
 		</field>
 	</section>
 </contents>
