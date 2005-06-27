@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_edit_fns.inc,v 1.18 2005/06/16 23:15:05 lwright Exp $
+* $Id: user_edit_fns.inc,v 1.19 2005/06/27 00:07:19 ndvries Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -51,8 +51,6 @@ class User_Edit_Fns extends Asset_Edit_Fns
 	function User_Edit_Fns()
 	{
 		$this->Asset_Edit_Fns();
-
-		$this->static_screens['details']['lock_type'] = 'attributes';
 
 	}//end constructor
 
