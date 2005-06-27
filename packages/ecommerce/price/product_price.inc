@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: product_price.inc,v 1.6 2005/05/11 06:07:39 lwright Exp $
+* $Id: product_price.inc,v 1.7 2005/06/27 05:34:28 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     Provides an extensible method for representing the price in a Product
 *
 * @author  Blair Robertson
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -135,7 +135,7 @@ class Product_Price extends MySource_Object
 		$changes = false;
 
 		foreach(Array('name', 'value', 'tax_inclusive') as $var) {
-			if ($this->_processBackendField($o, $prefix, $field_name)) $changes = true;
+			if ($this->_processBackendField($o, $prefix, $var)) $changes = true;
 		}// end foreach
 
 		return $changes;
