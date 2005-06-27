@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.100 2005/06/23 03:28:20 dheppell Exp $
+* $Id: search_page.inc,v 1.101 2005/06/27 23:26:16 pgannavarapu Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.100 $
+* @version $Revision: 1.101 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -933,13 +933,13 @@ class Search_Page extends Listing_Engine
 				$mode = array_get_index($_REQUEST, 'mode', 'initial');
 				if ($mode == 'initial') {
 					$replacement  = '<input type="submit" name="'.$field_name.'"
-						value="'. $this->attr('submit_button_text').'" />';
+						value="'.$this->attr('submit_button_text').'" />';
 				} else {
 					$replacement  = '<input type="submit" name="'.$field_name.'" onclick="
 						document.listing_form.current_result_page.value=\'0\';
 						if (typeof document.listing_form.mode != \'undefined\') document.listing_form.mode.value = \'results\';
 						return true;
-					" value="'. $this->attr('submit_button_text').'" />';
+					" value="'.$this->attr('submit_button_text').'" />';
 				}
 			break;
 
@@ -948,7 +948,7 @@ class Search_Page extends Listing_Engine
 					document.listing_form.current_result_page.value=\'0\';
 					document.listing_form.mode.value = \'sis\';
 					return true;
-				" value="'. $this->attr('sis_button_text').'" />';
+				" value="'.$this->attr('sis_button_text').'" />';
 			break;
 
 			case 'search_form':
@@ -1473,12 +1473,14 @@ class Search_Page extends Listing_Engine
 					$replacement = '';
 					$first = true;
 					$found_root = false;
-					$parent_asset_ids = array_keys($am->getParents($asset->id));
-
+					$nurl = $asset->getUrl();
+					$unrl = strip_url($nurl);
+					$nurl = stristr($nurl,'/');
+					$nurl = substr($nurl,2);
+					$parent_asset_ids = $am->getLineageFromURL(null,$nurl);
 					// searching for the root asset
 					$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', false, 'root');
 					$root_assetid = empty($root_link) ? 0 : $root_link['minorid'];
-
 					foreach ($parent_asset_ids as $parent_asset_id) {
 						if ($parent_asset_id == $root_assetid) {
 							$found_root = true;
