@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_text_edit_fns.inc,v 1.12 2005/06/23 00:56:03 dmckee Exp $
+* $Id: metadata_field_text_edit_fns.inc,v 1.13 2005/06/27 02:57:24 dmckee Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -86,26 +86,12 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 		}
 
 		$o->openField($field_name);
-
 			if ($asset->attr('editable')) {
-				?>
-					<script type="text/javascript">
-
-						function textChanged(text) {
-							if (text != "") {
-								document.getElementById('<?php echo $prefix; ?>_default').checked = false;
-							} else {
-								document.getElementById('<?php echo $prefix; ?>_default').checked = true;
-							}
-						}
-
-					</script>
-				<?php
 				if ($write_access) {
 					if ($asset->attr('multi_line')) {
-						text_area($prefix.'_value', $value, 45, 7);
+						text_area($prefix.'_value', $value, 45, 7, 0, 'onkeydown="document.getElementById(\''.$prefix.'_default\').checked = false;"');
 					} else {
-						text_box($prefix.'_value', $value, 30, '', false, 'onkeydown="textChanged(this.value)"');
+						text_box($prefix.'_value', $value, 30, '', false, 'onkeydown="document.getElementById(\''.$prefix.'_default\').checked = false;"');
 					}
 					echo ' '.strtolower(translate('or')).' ';
 					check_box($prefix.'_default', '1', $is_default);
