@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.4 2005/06/14 02:36:07 tbarrett Exp $
+* $Id: lang_strings.xml,v 1.5 2005/06/27 05:44:15 tbarrett Exp $
 *
 *
 * Calendar Package Localised Strings File
@@ -23,6 +23,7 @@
 <string source="cal_event_every_x_days">Every %s days</string>
 <string source="cal_event_every_day">Every day</string>
 <string source="cal_event_every_weekday">Every weekday</string>
+<string source="cal_event_every_weekend">Every weekend day</string>
 <string source="cal_event_every_x_weeks">Every %1$s weeks on %2$s</string>
 <string source="cal_event_every_week">Every week on %s</string>
 <string source="cal_event_every_x_months">Every %s months</string>

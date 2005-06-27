@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.64 2005/06/14 02:36:07 tbarrett Exp $
+* $Id: calendar_event_recurring.inc,v 1.65 2005/06/27 05:44:14 tbarrett Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.64 $
+* @version $Revision: 1.65 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -122,6 +122,14 @@ class Calendar_Event_Recurring extends Calendar_Event
 				$periods_so_far = ceil(days_between_isos($after, $start) / $interval);
 				$result = add_days_to_iso($start, $interval * $periods_so_far);
 				while (in_array(date('D', iso8601_ts($result)), Array('Sat', 'Sun'))) {
+					$result = add_days_to_iso($result, 1);
+				}
+			break;
+
+			case 'DWE':
+				$periods_so_far = ceil(days_between_isos($after, $start) / $interval);
+				$result = add_days_to_iso($start, $interval * $periods_so_far);
+				while (!in_array(date('D', iso8601_ts($result)), Array('Sat', 'Sun'))) {
 					$result = add_days_to_iso($result, 1);
 				}
 			break;
@@ -312,6 +320,11 @@ class Calendar_Event_Recurring extends Calendar_Event
 				return !in_array($date_components['wday'], Array(0, 6));
 			break;
 
+			case 'DWE':
+				// definitely occurs if this is a weekend day
+				return in_array($date_components['wday'], Array(0, 6));
+			break;
+
 			case 'WEW':
 				// occurs if start_date and date are the same day of the week
 				return ($date_components['wday'] == $start_components['wday']);
@@ -466,6 +479,15 @@ class Calendar_Event_Recurring extends Calendar_Event
 				}
 			break;
 
+			// every weekday
+			case 'DWE':
+				if ($interval) {
+					$rule .= 'FREQ=WEEKLY;BYDAY=SA,SU;INTERVAL='.$interval;
+				} else {
+					$rule .= 'FREQ=WEEKLY;BYDAY=SA,SU;INTERVAL=1';
+				}
+			break;
+
 			// every week (or x weeks)
 			case 'WEW':
 				if ($interval) {
@@ -566,6 +588,11 @@ class Calendar_Event_Recurring extends Calendar_Event
 			// every weekday
 			case 'DWD':
 				$res = translate('cal_event_every_weekday');
+			break;
+
+			// every weekend day
+			case 'DWE':
+				$res = translate('cal_event_every_weekend');
 			break;
 
 			// every week (or x weeks)

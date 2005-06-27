@@ -7,12 +7,11 @@ var monthLengths = Array(0,31,28,31,30,31,30,31,31,30,31,30,31);
 var suffixes = Array('th','st','nd','rd','th','th','th','th','th','th');
 
 
-function setSpanContents(eltId, text) {
+function setSpanContents(eltId, text) 
+{
 	elt = document.getElementById(eltId);
-	while (elt.childNodes.length > 0)
-		elt.removeChild(elt.firstChild);
-	elt.appendChild(document.createTextNode(text));
-	
+	elt.innerHTML = text;	
+
 }//end setSpanContents()
 
 
@@ -67,10 +66,17 @@ function updateValues(prefix) {
 	setSpanContents(prefix + '_week_day_3', weekDays[d.getDay()]);
 	setSpanContents(prefix + '_week_day_4', weekDays[d.getDay()]);
 
-	if ((d.getDay() == 0) || (d.getDay() == 6))
-		document.getElementById(prefix + '_frequency_type_DWD').disabled = 1;
-	else
-		document.getElementById(prefix + '_frequency_type_DWD').disabled = 0;
+	var dwd_button = document.getElementById(prefix + '_frequency_type_DWD');
+	var dwe_button = document.getElementById(prefix + '_frequency_type_DWE');
+	if ((d.getDay() == 0) || (d.getDay() == 6)) {
+		dwd_button.disabled = 1;
+		dwe_button.disabled = 0;
+		if (dwd_button.checked) dwe_button.checked = 1;
+	} else {
+		dwd_button.disabled = 0;
+		dwe_button.disabled = 1;
+		if (dwe_button.checked) dwd_button.checked = 1;
+	}
 
 	setSpanContents(prefix + '_month_date_ord', ordinalSuffix(d.getDate()));
 	if (d.getDate() > 28)

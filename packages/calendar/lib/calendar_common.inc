@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.33 2005/06/23 22:36:43 tbarrett Exp $
+* $Id: calendar_common.inc,v 1.34 2005/06/27 05:44:29 tbarrett Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -168,6 +168,8 @@ function build_recurring_event_query_base(&$trees, $view, $iso, $length=null, $g
 
 			if (($now['wday'] != 0) && ($now['wday'] != 6)) {
 				$sql_freqs[] = 'frequency = '.$db->quote('DWD');
+			} else {
+				$sql_freqs[] = 'frequency = '.$db->quote('DWE');
 			}
 
 			$sql_freqs[] = '(frequency = '.$db->quote('DED').' AND mod(('.$db->quote($now['ds']).' - start_date_ds), period) BETWEEN 0 AND COALESCE(end_date_ds - start_date_ds,0))';
@@ -233,6 +235,7 @@ function build_recurring_event_query_base(&$trees, $view, $iso, $length=null, $g
 			$last_day = $now['ds'] + 6;
 
 			$sql_freqs[] = 'frequency = '.$db->quote('DWD');
+			$sql_freqs[] = 'frequency = '.$db->quote('DWE');
 
 			// note: the slightly redundant "*1.0" is so Postgres interprets it as a
 			// double instead of an int, blowing away our attempts to use floor()
@@ -298,6 +301,7 @@ function build_recurring_event_query_base(&$trees, $view, $iso, $length=null, $g
 			$last_day = $now['ds'] + days_in_month($month,$year) - 1;
 
 			$sql_freqs[] = '(frequency = '.$db->quote('DWD').')';
+			$sql_freqs[] = '(frequency = '.$db->quote('DWE').')';
 
 			$sql_freqs[] = '(frequency = '.$db->quote('DED').' AND (FLOOR(('.$db->quote($now['ds']-1).' - start_date_ds)/period) < FLOOR(('.$db->quote($last_day).' - start_date_ds)/period)))';
 
@@ -316,6 +320,7 @@ function build_recurring_event_query_base(&$trees, $view, $iso, $length=null, $g
 			$last_day = $now['ds']+364+is_leap_year($year);
 
 			$sql_freqs[] = 'frequency = '.$db->quote('DWD');
+			$sql_freqs[] = 'frequency = '.$db->quote('DWE');
 
 			$sql_freqs[] = '(frequency = '.$db->quote('DED').' AND (FLOOR(('.$db->quote($now['ds']-1). ' - start_date_ds)/period) < FLOOR(('.$db->quote($last_day).' - start_date_ds)/period)))';
 
@@ -336,7 +341,14 @@ function build_recurring_event_query_base(&$trees, $view, $iso, $length=null, $g
 
 			$sql_freqs[] = '((frequency = '.$db->quote('DED').') AND ((period <= '.$length.') OR (FLOOR(('.$now['ds'].' - start_date_ds) / period) < FLOOR(('.$last_date_components['ds'].' - start_date_ds) / period)) OR (floor(('.$now['ds'].' - end_date_ds) / period) < FLOOR(('.$last_date_components['ds'].' - end_date_ds) / period))))';
 
-			if (($length > 2) || !in_array($now['wday'], Array(0, 6)) || !in_array($last_date_components['wday'], Array(0, 6))) $sql_freqs[] = '(frequency = '.$db->quote('DWD').')';
+			if (($length > 2) || !in_array($now['wday'], Array(0, 6)) || !in_array($last_date_components['wday'], Array(0, 6))) {
+				// the period includes a weekday
+				$sql_freqs[] = '(frequency = '.$db->quote('DWD').')';
+			}
+			if (($length > 5) || in_array($now['wday'], Array(0, 6)) || in_array($last_date_components['wday'], Array(0, 6)) || ($last_date_components['wday'] < $now['wday'])) {
+				// the period includes a weekend day
+				$sql_freqs[] = '(frequency = '.$db->quote('DWE').')';
+			}
 
 			$sql_freqs[] = '((frequency = '.$db->quote('WEW').') AND (((period * 7) <= '.$length.') OR (FLOOR(('.($now['ds']-1).' - start_date_ds) / (period * 7)) < FLOOR(('.$last_date_components['ds'].' - start_date_ds) / (period * 7))) OR (FLOOR(('.($now['ds']-1).' - end_date_ds) / (period * 7)) < FLOOR(('.$last_date_components['ds'].' - end_date_ds) / (period * 7)))))';
 
