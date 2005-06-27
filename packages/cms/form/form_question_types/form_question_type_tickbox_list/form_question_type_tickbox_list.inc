@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_list.inc,v 1.37 2005/05/20 05:27:37 tbarrett Exp $
+* $Id: form_question_type_tickbox_list.inc,v 1.38 2005/06/27 06:59:26 tbarrett Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -92,30 +92,40 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 		}
 		$name  = $this->id;
 
-		$html  = '';
-		$html .= '<table>';
-		$html .= ($hor) ? '<tr>' : '';
-
+		$html  = '
+			<style type="text/css">
+				ul.tickboxes {
+					list-style-type:	none;
+					margin-left:		0px;
+					padding-left:		0px;
+				}
+				ul.horizontal-tickboxes li {
+					display:			inline;
+					margin-right:		15px;
+				}
+			</style>
+		';
+		$html .= '<ul class="tickboxes'.($hor ? ' horizontal-tickboxes' : '').'">';
 		$defaults = $this->getValue();
 		if (!is_array($defaults)) $defaults = Array($defaults);
 		foreach ($options as $key => $value) {
-			$html .= ($hor) ? '<td nowrap="nowrap">' : '<tr><td>';
+			$html .= '<li>';
+
 			$html .= '<input type="'.$type.'" ';
 			$html .= 'name="'.$this->id.(($multiple) ? '[]' : '').'" ';
 			$html .= 'id="'.$this->id.'_'.$key.'"';
 			$html .= 'value="'.htmlspecialchars($key).'"';
-
 			if (in_array($key, $defaults)) {
 				$html .= ' checked="checked"';
 			}
-
 			$html .= $extras.' />';
+
 			$html .= '&nbsp;<label for="'.$this->id.'_'.$key.'">'.$value.'</label>';
-			$html .= ($hor) ? '</td>' : '</td></tr>';
+
+			$html .= '</li>';
 		}
 
-		$html .= ($hor) ? '</tr>' : '';
-		$html .= '</table>';
+		$html .= '</ul>';
 
 		return $html;
 
