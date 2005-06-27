@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.6 2005/03/30 00:39:42 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.6.2.1 2005/06/27 01:31:05 mnyeholt Exp $
 *
 */
 -->
@@ -41,6 +41,11 @@
 				<paint_function   name="paintParseFile"   />
 				<process_function name="processParseFile" />
 			</function_call>
+		</field>
+	</section>
+	<section name="Cache CSS File" write_access="write:attributes">
+		<field attribute="cache_css">
+			<boolean true_text="on" false_text="off"/>
 		</field>
 	</section>
 	<section name="Associated Files" write_access="write:parsing" read_access="write:">

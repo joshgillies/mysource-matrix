@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css.inc,v 1.9 2005/04/15 00:37:24 lwright Exp $
+* $Id: design_css.inc,v 1.9.2.1 2005/06/27 01:31:05 mnyeholt Exp $
 *
 */
 
@@ -34,12 +34,13 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design.inc';
 * in standard Designs
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.9.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Design_Css extends Design
 {
+
 
 	/**
 	* Constructor
@@ -50,7 +51,9 @@ class Design_Css extends Design
 	function Design_Css($assetid=0)
 	{
 		$this->Design($assetid);
-
+		// We store a temp var that indicates whether the cache has been updated
+		// on this request
+		$this->_tmp['updated_cache'] = false;
 	}//end constructor
 
 
@@ -80,7 +83,9 @@ class Design_Css extends Design
 		$new_name = preg_replace('/[^a-zA-Z0-9\-$_@.!*~(),]/', '',  $new_name);
 
 		// ensure a virtual .css file extension
-		if (substr($new_name, -4) != '.css') $new_name = $new_name.'.css';
+		if (substr($new_name, -4) != '.css') {
+			$new_name = $new_name.'.css';
+		}
 
 		$this->setAttrValue('id_name', $new_name);
 
@@ -98,12 +103,30 @@ class Design_Css extends Design
 	*/
 	function _getAllowedLinks()
 	{
-		return Array(SQ_LINK_TYPE_1 => Array(),
-					 SQ_LINK_TYPE_2 => Array('design_css_customisation' => Array('card' => 'M', 'exclusive' => false),
-											 'file'                 	=> Array('card' => 'M', 'exclusive' => false)),
-					 SQ_LINK_TYPE_3 => Array('design_area'          	=> Array('card' => 'M', 'exclusive' => false)),
-					 SQ_LINK_NOTICE => Array()
-					);
+		return Array(
+				SQ_LINK_TYPE_1	=> Array(),
+				SQ_LINK_TYPE_2	=> Array(
+									'design_css_customisation'	=> Array(
+																	'card'		=> 'M',
+																	'exclusive'	=> false,
+																   ),
+									'file'						=> Array(
+																	'card'		=> 'M',
+																	'exclusive'	=> false,
+																   ),
+								   ),
+				SQ_LINK_TYPE_3	=> Array(
+									'design_area'	=> Array(
+														'card'		=> 'M',
+														'exclusive'	=> false,
+													   ),
+									'file'			=> Array(
+														'card'		=> 'M',
+														'exclusive'	=> false,
+													   ),
+								   ),
+				SQ_LINK_NOTICE	=> Array(),
+			   );
 
 	}//end _getAllowedLinks()
 
@@ -147,16 +170,22 @@ class Design_Css extends Design
 
 				$file_link_ids = Array();
 				$file_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($customisation->id, SQ_LINK_TYPE_2, 'file', false);
-				foreach ($file_links as $link) $file_link_ids[] = $link['minorid'];
+				foreach ($file_links as $link) {
+					$file_link_ids[] = $link['minorid'];
+				}
 				$file_link_info = $am->getAssetInfo(array_unique($file_link_ids));
 
 				// is there already a direct file with the same name
 				$insert_link = true;
-				foreach ($file_link_info as $info) if ($info['name'] == $minor->name) $insert_link = false;
+				foreach ($file_link_info as $info) {
+					if ($info['name'] == $minor->name) {
+						$insert_link = false;
+					}
+				}
 
 				if ($insert_link) {
 					if (!$customisation->createLink($minor, SQ_LINK_TYPE_3, '', null, 1)) {
-						trigger_localised_error("CORE0162", E_USER_WARNING);
+						trigger_localised_error('CORE0162', E_USER_WARNING);
 						$am->forgetAsset($customisation);
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						return false;
@@ -188,7 +217,7 @@ class Design_Css extends Design
 		// first, we should try and find the link
 		$delete_link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid, $this->id);
 		if (empty($delete_link)) {
-			trigger_localised_error("CORE0155", E_USER_WARNING, $linkid);
+			trigger_localised_error('CORE0155', E_USER_WARNING, $linkid);
 			return false;
 		}
 
@@ -212,7 +241,7 @@ class Design_Css extends Design
 					if ($link['minorid'] == $delete_link['minorid']) {
 						// found the link to delete
 						if (!$customisation->deleteLink($link['linkid'])) {
-							trigger_localised_error("CORE0165", E_USER_WARNING);
+							trigger_localised_error('CORE0165', E_USER_WARNING);
 							$am->forgetAsset($customisation);
 							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 							return false;
@@ -253,7 +282,7 @@ class Design_Css extends Design
 		// first, we should try and find the link
 		$delete_link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid, $this->id);
 		if (empty($delete_link)) {
-			trigger_localised_error("CORE0155", E_USER_WARNING, $linkid);
+			trigger_localised_error('CORE0155', E_USER_WARNING, $linkid);
 			return false;
 		}
 
@@ -344,10 +373,153 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 	*/
 	function processBackend(&$o, &$link)
 	{
-		$this->_tmp['generate_design'] = false;
-		return parent::processBackend($o, $link);
+		$cache = $this->attr('cache_css');
+		if (!parent::processBackend($o, $link)) return false;
+
+		// Okay, if after processing everything in the backend, and the
+		// status of the cache_css attribute has gone from false to true,
+		// we've gotta update the static cache to reflect that this has changed.
+		if (!$cache && $this->attr('cache_css') && !$this->_tmp['updated_cache']) {
+			$this->generateStaticFile();
+			$am = &$GLOBALS['SQ_SYSTEM']->am;
+			$customisation_links = $am->getLinks($this->id, SQ_LINK_TYPE_2, 'design_css_customisation', true, 'major', 'customisation');
+
+			foreach ($customisation_links as $link) {
+				$customisation = &$am->getAsset($link['minorid'], $link['minor_type_code']);
+				if (is_null($customisation)) continue;
+				$customisation->generateStaticFile();
+			}// end foreach
+		}
+		return true;
 
 	}//end processBackend()
+
+
+	/**
+	* (Re)Generates the design file
+	*
+	* @param bool	$do_customisations	Generate design files for any customisations
+	*
+	* @return void
+	* @access public
+	*/
+	function generateDesignFile($do_customisations=true)
+	{
+		$edit_fns = $this->getEditFns();
+		$edit_fns->createDesignFile($this);
+
+		$do_customisations = true;
+		if ($do_customisations) {
+			$customisation_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'design_css_customisation', true, 'major', 'customisation');
+			$am = &$GLOBALS['SQ_SYSTEM']->am;
+
+			foreach ($customisation_links as $link) {
+				$customisation = &$am->getAsset($link['minorid'], $link['minor_type_code']);
+				if (is_null($customisation)) continue;
+				$customisation->generateDesignFile(true);
+			}// end foreach
+		}// end if
+
+		if ($this->attr('cache_css')) {
+			$this->generateStaticFile();
+		}
+	}//end generateDesignFile()
+
+
+	/**
+	* Creates / updates the static file for this css design
+	* @return boolean
+	* @access public
+	*/
+	function generateStaticFile()
+	{
+		// See if the cache file asset already exists.
+		/* @var $am Asset_Manager */
+		$am = &$GLOBALS['SQ_SYSTEM']->am;
+
+		// Generate the CSS static file. Note that we've turned error_reporting off for this
+		// because design_file.php does a whole bunch of define()ing that can cause problems
+		$old_level = error_reporting();
+		error_reporting(0);
+		ob_start();
+			$this->paint($this);
+			$file_contents = ob_get_contents();
+		ob_end_clean();
+		error_reporting($old_level);
+
+		$cache_link = &$am->getLink($this->id, SQ_LINK_TYPE_3, 'file', 'false', 'css_cache');
+		if (empty($cache_link)) {
+			$cache_asset = $this->createCache();
+		} else {
+			$cache_asset = &$am->getAsset($cache_link['minorid']);
+		}
+
+		if ($cache_asset == null) return false;
+
+		/* @var $cache_asset File */
+		$existing = $cache_asset->getExistingFile();
+		string_to_file($file_contents, $existing['path']);
+
+		/* @var $fv File_Versioning */
+		$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
+		$file_status = $fv->upToDate($cache_asset->data_path.'/'.$cache_asset->_getName());
+		if (FUDGE_FV_MODIFIED & $file_status) {
+			if (!$fv->commit($cache_asset->data_path.'/'.$cache_asset->_getName())) {
+				trigger_localised_error('CORE0034', E_USER_WARNING);
+				return false;
+			}
+		}
+		$this->_tmp['updated_cache'] = true;
+		return $cache_asset->_updated();
+
+	}//end generateStaticFile()
+
+
+	/**
+	* Gets the static cache file asset id of this CSS asset
+	* @return string
+	*/
+	function getStaticCacheId()
+	{
+		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		$cache_link = $am->getLink($this->id, SQ_LINK_TYPE_3, 'file', 'false', 'css_cache');
+		if (empty($cache_link) || !$this->attr('cache_css')) {
+			return 0;
+		}
+		return $cache_link['minorid'];
+	}//end getStaticCacheId()
+
+
+	/**
+	* Creates the cache file asset that this CSS asset will display in the cache
+	* @param string $initial_contents The initial contents of the cache file
+	* @return array The link that represents this cache.
+	*/
+	function &createCache()
+	{
+		$null = null;
+		if (!touch($this->data_path.$this->_getName().'.css')) {
+			return $null;
+		}
+
+		$tmp_file = $this->data_path.$this->_getName().'.css';
+		$filename = $this->_getName().'.css';
+		$import_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_3, 'value' => 'css_cache', 'sort_order' => 1, 'is_dependant' => 1);
+		$temp_info = Array('name' => $filename, 'tmp_name' => $tmp_file, 'non_uploaded_file' => true);
+
+		require_once SQ_CORE_PACKAGE_PATH.'/files/file/file.inc';
+		$new_file = new File();
+		$new_file->_tmp['uploading_file'] = true;
+		$new_file->setAttrValue('name', $filename);
+
+		if (!$new_file->create($import_link, $temp_info)) {
+			trigger_localised_error('CORE0058', E_USER_WARNING, $filename);
+			return $null;
+		}
+
+		return $new_file;
+
+	}//end createCache()
 
 
 	/**
@@ -387,7 +559,9 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 		$file_link_ids = Array();
 		$file_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3, 'file', false);
 
-		foreach ($file_links as $link) $file_link_ids[] = $link['minorid'];
+		foreach ($file_links as $link) {
+			$file_link_ids[] = $link['minorid'];
+		}
 
 		$file_link_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_unique($file_link_ids));
 		$file_link_urls = $GLOBALS['SQ_SYSTEM']->am->getAssetURL(array_unique($file_link_ids));
@@ -395,7 +569,9 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 		$system_root_url = sq_web_path('root_url');
 		foreach ($file_link_info as $minorid => $file_info) {
 			$file_url = $file_link_urls[$minorid];
-			if ($file_url == '') $file_url = $system_root_url.'/?a='.$minorid;
+			if ($file_url == '') {
+				$file_url = $system_root_url.'/?a='.$minorid;
+			}
 			$FILE_URLS[$file_info['name']] = $file_url;
 		}
 
@@ -418,6 +594,7 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 		require_once $file_path;
 
 	}//end paint()
+
 
 }//end class
 
