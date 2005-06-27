@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_linked_css.inc,v 1.9 2005/05/18 04:05:45 dmckee Exp $
+* $Id: design_area_linked_css.inc,v 1.9.2.1 2005/06/27 01:25:02 mnyeholt Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 * Allows you to link to a CSS file or customisation from a standard design
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.9.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -53,10 +53,12 @@ class Design_Area_Linked_Css extends Design_Area
 	{
 		// if they are trying to set the type_codes, split the string
 		if ($name == 'type_codes') {
-			if (!is_array($value)) $value = preg_split('/[ ,]+/', (string) $value);
+			if (!is_array($value)) {
+				$value = preg_split('/[ ,]+/', (string) $value);
+			}
 			foreach ($value as $type_code) {
 				if (!$GLOBALS['SQ_SYSTEM']->am->installed($type_code)) {
-					trigger_localised_error("CORE0145", E_USER_WARNING, $type_code);
+					trigger_localised_error('CORE0145', E_USER_WARNING, $type_code);
 					return false;
 				}
 			}
@@ -82,11 +84,17 @@ class Design_Area_Linked_Css extends Design_Area
 	function _getAllowedLinks()
 	{
 
-		return Array(SQ_LINK_TYPE_1 => Array(),
-					 SQ_LINK_TYPE_2 => Array(),
-					 SQ_LINK_TYPE_3 => Array(),
-					 SQ_LINK_NOTICE => Array('asset' => Array('card' => 1, 'exclusive' => false))
-					);
+		return Array(
+				SQ_LINK_TYPE_1	=> Array(),
+				SQ_LINK_TYPE_2	=> Array(),
+				SQ_LINK_TYPE_3	=> Array(),
+				SQ_LINK_NOTICE	=> Array(
+									'asset'	=> Array(
+												'card'		=> 1,
+												'exclusive'	=> false,
+											   ),
+								   ),
+			   );
 
 	}//end _getAllowedLinks()
 
@@ -142,6 +150,15 @@ class Design_Area_Linked_Css extends Design_Area
 		// return true because it just means that they haven't set anything yet
 		if (empty($assetid)) return true;
 
+		// Okay, go ahead and get this linked css asset.
+		$linked_css = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		if ($linked_css == null) return true;
+
+		// Try and get the cached version of the css file. If it exists, we'll use that url,
+		// if not we'll use the url directly to the css file asset itself.
+		$cached_css = &$linked_css->getStaticCacheId();
+		if ($cached_css) $assetid = $cached_css;
+
 		$tag_type = $this->attr('tag_type');
 		$media = $this->attr('media');
 
@@ -155,11 +172,11 @@ class Design_Area_Linked_Css extends Design_Area
 				echo '<link rel="stylesheet" type="text/css" href="', '<', '?php echo $linked_'.$this->attr('id_name').'_url; ?', '>', '"';
 				echo ' media="', $media, '" />
 				';
-				break;
+			break;
 			case 'import_tag' :
 				echo '@import url(', '<', '?php echo $linked_'.$this->attr('id_name').'_url; ?', '>);
 				';
-				break;
+			break;
 		} //end switch
 
 		echo '<', '?php
