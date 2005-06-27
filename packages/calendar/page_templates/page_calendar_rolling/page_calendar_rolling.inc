@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_rolling.inc,v 1.2 2005/06/26 23:26:39 tbarrett Exp $
+* $Id: page_calendar_rolling.inc,v 1.3 2005/06/27 05:45:17 tbarrett Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -175,14 +175,14 @@ class Page_Calendar_Rolling extends Page
 		foreach ($page_links as $link) {
 			switch ($link['minor_type_code']) {
 				case 'folder':
-					$tf_folder_id = $link['minorid'];
+					$this->_tmp['tf_folder_id'] = $link['minorid'];
 				break;
 				case 'bodycopy':
 					$pb_bodycopy_id = $link['minorid'];
 				break;
 			}
 		}
-		if (is_null($tf_folder_id)) {
+		if (is_null($this->_tmp['tf_folder_id'])) {
 			trigger_localised_error('CAL0059', E_USER_WARNING, $this->id);
 			return;
 		}
@@ -191,7 +191,23 @@ class Page_Calendar_Rolling extends Page
 			return;
 		}
 
-		$type_format_links = $am->getLinks($tf_folder_id, SQ_LINK_TYPE_2, 'bodycopy', true, 'major', null, true);
+		$pb =& $am->getAsset($pb_bodycopy_id, 'bodycopy');
+		$pb->setKeywordReplacements($this->_getPageContentsReplacements());
+		$pb->printBody();
+
+	}//end printBody()
+
+
+	/**
+	* Get the keyword replacements to use in the page contents bodycopy
+	*
+	* @access protected
+	* @return array		keyword => replacement
+	*/
+	function _getPageContentsReplacements()
+	{
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$type_format_links = $am->getLinks($this->_tmp['tf_folder_id'], SQ_LINK_TYPE_2, 'bodycopy', true, 'major', null, true);
 		$type_formats = Array();
 		$needs_asset = Array();
 		$somebody_doesnt_need_asset = false;
@@ -241,7 +257,7 @@ class Page_Calendar_Rolling extends Page
 		$heading_tag = $this->attr('day_heading_tag');
 		$heading_format = $this->attr('day_heading_format');
 
-		$all_events = $this->getEvents();
+		$all_events = $this->_getEvents();
 		$all_ids = Array();
 		foreach ($all_events as $day => $event_list) {
 			$all_ids = array_merge($all_ids, array_keys($event_list));
@@ -292,20 +308,18 @@ class Page_Calendar_Rolling extends Page
 
 		}//end for all events
 
-		$pb =& $am->getAsset($pb_bodycopy_id, 'bodycopy');
-		$pb->setKeywordReplacements(Array('event_list' => $event_list));
-		$pb->printBody();
+		return Array('event_list' => $event_list);
 
-	}//end printBody()
+	}//end _getPageContentsReplacements()
 
 
 	/**
 	* Get the events that should be displayed in this calendar page
 	*
-	* @access public
+	* @access protected
 	* @return array (date => array (assetid => array ( details )))
 	*/
-	function getEvents($start_date=null, $end_date=null)
+	function _getEvents($start_date=null, $end_date=null)
 	{
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		if (is_null($start_date)) {
@@ -355,7 +369,7 @@ class Page_Calendar_Rolling extends Page
 		}
 		return $res;
 
-	}//end getEvents()
+	}//end _getEvents()
 
 
 }//end class
