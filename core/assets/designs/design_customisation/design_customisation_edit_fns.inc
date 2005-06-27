@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_customisation_edit_fns.inc,v 1.34 2005/06/27 01:37:32 skim Exp $
+* $Id: design_customisation_edit_fns.inc,v 1.35 2005/06/27 01:53:27 skim Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -161,13 +161,11 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 		$data = Array();
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
 		$map  = Array();
 		foreach ($_POST[$prefix.'_customise'] as $id_name) {
 			$link = $asset->getDesignAreaLink($id_name);
 			if (is_null($link)) continue;
 			$da = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code'], false);
-
 			if (is_null($da)) continue;
 
 			$create_link = Array (
@@ -178,15 +176,12 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 							'is_dependant'	=> 1,
 							'is_exclusive'	=> 0,
 						   );
-
 			$GLOBALS['SQ_SYSTEM']->am->acquireLock($da->id, 'all');
 
 			// First let's duplicate the DA, ignoring the directory with the files
 			$clone = &$GLOBALS['SQ_SYSTEM']->am->cloneAsset($da, $create_link, $map, Array('attributes', 'permissions'), true);
-
 			$GLOBALS['SQ_SYSTEM']->am->releaseLock($da->id, 'all');
 			$GLOBALS['SQ_SYSTEM']->am->releaseLock($clone->id, 'all');
-
 			if (is_null($clone)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
@@ -237,7 +232,6 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 				$asset->updateLookups();
 			}
 		}
-
 		return parent::_processUploadedFile($asset, $info);
 
 	}//end _processUploadedFile()
@@ -264,10 +258,14 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 
 			// okay, this design area is in the list of design areas to update, but
 			// skip it if it is already link'dup correctly
-			if ($data[$id_name][0] == $da_link['minorid']) { continue; }
+			if ($data[$id_name][0] == $da_link['minorid']) {
+				continue;
+			}
 
 			// remove the old link (the one from the original design)
-			if (!$asset->deleteLink($da_link['linkid'])) { return false; }
+			if (!$asset->deleteLink($da_link['linkid'])) {
+				return false;
+			}
 
 			// create the new link if required (wont be required if we created during a customisation)
 			$existing_link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($asset->id, $data[$id_name][0]);
@@ -275,11 +273,15 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 				// now create the new link
 				$da = &$GLOBALS['SQ_SYSTEM']->am->getAsset($data[$id_name][0], $data[$id_name][1]);
 				if (is_null($da)) return false;
-				if (!$asset->createLink($da, SQ_LINK_TYPE_3, $id_name, null, '1')) { return false; }
+				if (!$asset->createLink($da, SQ_LINK_TYPE_3, $id_name, null, '1')) {
+					return false;
+				}
 			}
 
 			// remove any cached versions
-			if (isset($asset->_tmp['design_areas'])) { unset($asset->_tmp['design_areas'][$id_name]); }
+			if (isset($asset->_tmp['design_areas'])) {
+				unset($asset->_tmp['design_areas'][$id_name]);
+			}
 
 		}// end foreach
 
@@ -287,7 +289,9 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 		foreach ($customisation_links as $customisation_link) {
 			$customisation = &$GLOBALS['SQ_SYSTEM']->am->getAsset($customisation_link['minorid'], $customisation_link['minor_type_code']);
 			if (is_null($customisation)) continue;
-			if (!$this->_updateDesignAreaLink($customisation, $data)) { return false; }
+			if (!$this->_updateDesignAreaLink($customisation, $data)) {
+				return false;
+			}
 		}
 
 		return true;
@@ -355,7 +359,9 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 				<td class="sq-backend-data" style="white-space: nowrap;">
 					<?php
 					echo $da->id, ' - ';
-					if ($link_name) { echo '<a href="', $da->getBackendHref(), '">'; }
+					if ($link_name) {
+						echo '<a href="', $da->getBackendHref(), '">';
+					}
 					echo $da->name;
 					if ($link_name) echo '</a>';
 					?>
@@ -394,7 +400,9 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 	function linkCompare($a, $b)
 	{
 		// if they don't match, return the value
-		if ($c = strcmp($a['minor_type_code'], $b['minor_type_code'])) { return $c; }
+		if ($c = strcmp($a['minor_type_code'], $b['minor_type_code'])) {
+			return $c;
+		}
 		// otherwise the types are equal, so compare by id_name
 		return strcmp(strtolower($a['value']), strtolower($b['value']));
 
