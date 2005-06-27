@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select_edit_fns.inc,v 1.17.2.3 2005/06/22 23:55:53 dmckee Exp $
+* $Id: metadata_field_select_edit_fns.inc,v 1.17.2.4 2005/06/27 04:18:43 dmckee Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.17.2.3 $
+* @version $Revision: 1.17.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -114,7 +114,7 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 			if ($write_access && $asset->attr('editable')) {
 				$selection = $asset->getSelectionAttribute();
 				$selection->value = $value;
-				$selection->_edit_params['extras'] = 'onChange="selectionChanged(\''.$prefix.'\')"';
+				$selection->_edit_params['extras'] = 'onclick="document.getElementById(\''.$prefix.'_default\').checked = false;"';
 				$selection->paint($prefix, !$write_access);
 			} else {
 				if ((is_array($value) && empty($value)) || (is_string($value) && $value == '')) {
