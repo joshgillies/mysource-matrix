@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question.inc,v 1.57.2.1 2005/06/15 05:22:51 lwright Exp $
+* $Id: form_question.inc,v 1.57.2.2 2005/06/27 23:58:46 tbarrett Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
 * @authro  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.57.2.1 $
+* @version $Revision: 1.57.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -195,7 +195,7 @@ class Form_Question extends Asset
 		}
 
 
-		$questions = &$form->getQuestions();
+		$questions = $form->getQuestions();
 		$questions[$this->_questionid]['attributes'] = $saved_vars_ser;
 
 		$form->setAttrValue('questions', $questions);
