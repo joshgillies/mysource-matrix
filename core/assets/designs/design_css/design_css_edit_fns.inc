@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css_edit_fns.inc,v 1.8 2005/05/11 06:04:50 lwright Exp $
+* $Id: design_css_edit_fns.inc,v 1.9 2005/06/27 01:36:01 mnyeholt Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design_edit_fns.inc';
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -85,7 +85,7 @@ class Design_Css_Edit_Fns extends Design_Edit_Fns
 		// Let's place an print operation at the top of the file
 		// to allow us to print the default header stuff like
 		// copyright and content-type information
-		$file_contents= "<".$this->tag_name."_PRINT id_name='__global__' var='css_header' />\n"
+		$file_contents= '<'.$this->tag_name."_PRINT id_name='__global__' var='css_header' />\n"
 						.$file_contents;
 
 		return parent::_parseString($asset, $file_contents);
@@ -107,7 +107,10 @@ class Design_Css_Edit_Fns extends Design_Edit_Fns
 		// delete this link so we link up this new file
 		$existing_ids = Array();
 		$existing = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_3, 'file', false);
-		foreach ($existing as $link) $existing_ids[$link['minorid']] = $link['linkid'];
+		foreach ($existing as $link) {
+			$existing_ids[$link['minorid']] = $link['linkid'];
+		}
+
 		$existing_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($existing_ids));
 		foreach ($existing_info as $existing_info) {
 			// if the name is the same, delete the link
@@ -151,13 +154,15 @@ class Design_Css_Edit_Fns extends Design_Edit_Fns
 			for (reset($da_var_refs); null !== ($id_name = key($da_var_refs)); next($da_var_refs)) {
 				$var_da = &$asset->getDesignArea($id_name);
 				if (is_null($var_da)) continue;
-				if (!isset($var_ref_values[$id_name])) $var_ref_values[$id_name] = Array();
+				if (!isset($var_ref_values[$id_name])) {
+					$var_ref_values[$id_name] = Array();
+				}
 				foreach ($da_var_refs[$id_name] as $var) {
 					// does this var want the whole design area ?
 					if ($var === '') {
 						$da_refs[] = $id_name;
 					// else just a normal var (make sure we don't have it already)
-					} elseif (!isset($var_ref_values[$id_name][$var])) {
+					} else if (!isset($var_ref_values[$id_name][$var])) {
 						$var_ref_values[$id_name][$var] = $var_da->attr($var);
 
 					}// end if
@@ -402,6 +407,6 @@ class Design_Css_Edit_Fns extends Design_Edit_Fns
 
 	}//end paintCurrentCustomisations()
 
-}//end class
 
+}//end class
 ?>

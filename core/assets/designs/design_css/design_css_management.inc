@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css_management.inc,v 1.3 2004/12/06 14:38:08 brobertson Exp $
+* $Id: design_css_management.inc,v 1.4 2005/06/27 01:36:01 mnyeholt Exp $
 *
 */
 
@@ -31,12 +31,13 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Design_Css_Management extends Asset_Management
 {
+
 
 	/**
 	* Constructor
@@ -47,12 +48,18 @@ class Design_Css_Management extends Asset_Management
 		$this->Asset_Management($pm);
 
 		$this->vars['id_name'] = Array(
-									'added'   => '0.0.1',
-									'type'    => 'text',
-									'default' => ''
-									);
+									'added'		=> '0.0.1',
+									'type'		=> 'text',
+									'default'	=> '',
+								 );
+		$this->vars['cache_css'] = Array(
+									'added'		=> '0.0.1',
+									'type'		=> 'boolean',
+									'default'	=> false,
+								   );
 
 	}//end constructor
+
 
 }//end class
 ?>
