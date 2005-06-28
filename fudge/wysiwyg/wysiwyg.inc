@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.46 2005/06/21 02:57:35 dmckee Exp $
+* $Id: wysiwyg.inc,v 1.47 2005/06/28 02:08:10 dmckee Exp $
 *
 */
 
@@ -33,7 +33,7 @@
 *     to do this.
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.46 $
+* @version $Revision: 1.47 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -647,10 +647,14 @@ class wysiwyg
 			<script type="text/javascript">
 				// txt is the name of the button, as in config.toolbar
 				HTMLArea.prototype._buttonClicked = function(txt) {
+					//stores original scrollbar position to circumvent
+					//some IE craziness.
+					var original_scroll = document.body.scrollTop;
 					var editor = this; // needed in nested functions
 
 					this.focusEditor();
-
+					//set scrollbar back
+					document.body.scrollTop = original_scroll;
 					var btn = this.config.btnList[txt];
 					if (!btn) {
 						alert("FIXME: Unconfigured button!");
@@ -703,6 +707,8 @@ class wysiwyg
 						}
 					}
 					this.updateToolbar();
+					//set scrollbar back
+					document.body.scrollTop = original_scroll;
 					return false;
 				};
 
