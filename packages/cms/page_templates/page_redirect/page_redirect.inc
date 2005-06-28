@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_redirect.inc,v 1.16 2005/05/11 06:07:33 lwright Exp $
+* $Id: page_redirect.inc,v 1.17 2005/06/28 00:00:47 ykasim Exp $
 *
 */
 
@@ -32,12 +32,13 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
 class Page_Redirect extends Page
 {
+
 
 	/**
 	* Constructor
@@ -122,7 +123,7 @@ class Page_Redirect extends Page
 			}
 
 		// else if there is a link, and we are about to set an asset, but it is the same as we already have
-		} elseif (!is_null($asset) && $old_link['minorid'] == $asset->id) {
+		} else if (!is_null($asset) && $old_link['minorid'] == $asset->id) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			return true;
 
@@ -194,17 +195,19 @@ class Page_Redirect extends Page
 		}
 
 		if ($this->attr('new_window')) {
-
 			$options = $this->attr('new_window_options');
-			$params  =	 'location='  .((strpos($options, 'hide_location'  )) ? '0' : '1').','
-						.'menubar='   .((strpos($options, 'hide_menubar'   )) ? '0' : '1').','
-						.'scrollbars='.((strpos($options, 'hide_scrollbars')) ? '0' : '1').','
-						.'status='    .((strpos($options, 'hide_status'    )) ? '0' : '1').','
-						.'toolbar='   .((strpos($options, 'hide_toolbar'   )) ? '0' : '1').','
-						.'resizable=' .((strpos($options, 'not_resizable'  )) ? '0' : '1');
-
-			if ($w = $this->attr('new_window_width'))  $params .= ',width='.$w;
-			if ($h = $this->attr('new_window_height')) $params .= ',height='.$h;
+			$params  =	 'location='.((strpos($options, 'hide_location'  ) !== false) ? '0' : '1').','
+						.'menubar='.((strpos($options, 'hide_menubar'   ) !== false) ? '0' : '1').','
+						.'scrollbars='.((strpos($options, 'hide_scrollbars') !== false) ? '0' : '1').','
+						.'status='.((strpos($options, 'hide_status'    ) !== false) ? '0' : '1').','
+						.'toolbar='.((strpos($options, 'hide_toolbar'   ) !== false) ? '0' : '1').','
+						.'resizable='.((strpos($options, 'not_resizable'  ) !== false) ? '0' : '1');
+			if ($w = $this->attr('new_window_width')){
+				$params .= ',width='.$w;
+			}
+			if ($h = $this->attr('new_window_height')){
+				$params .= ',height='.$h;
+			}
 
 			// if the headers have been sent then other stuff
 			$wrap_script = !headers_sent();
@@ -217,9 +220,7 @@ class Page_Redirect extends Page
 					history.go(-1);
 				</script>
 			<?php
-			if ($wrap_script) {
-				?></body></html><?php
-			}
+			if ($wrap_script) ?></body></html><?php
 
 		// not in a new window, just relocate them
 		} else {
@@ -252,6 +253,7 @@ class Page_Redirect extends Page
 		$this->printFrontend();
 
 	}//end printBody()
+
 
 }//end class
 
