@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: Asset.java,v 1.3 2005/05/12 06:55:05 ndvries Exp $
+* $Id: Asset.java,v 1.4 2005/06/28 05:29:28 ndvries Exp $
 *
 */
 
@@ -345,19 +345,24 @@ public class Asset implements MatrixConstants, Serializable {
 
 	protected String processAssetXML(Element assetElement, boolean create) {
 
-		String linkid = "", name = "";
+		String linkid = "", name = "", typeCode = "";
 		boolean accessible = false;
 		int linkType = 0, status = 0, numKids = 0;
 		boolean hasLinkType = false, hasStatus = false, hasName = false,
-		hasAccessible = false, hasUrl = false, hasWebPath = false, hasNumKids = false;
-
-		String typeCode = assetElement.getAttribute("type_code");
+		hasAccessible = false, hasUrl = false, hasWebPath = false,
+		hasNumKids = false, hasTypeCode = false;
+		AssetType type = this.type;
 
 		if (assetElement.hasAttribute("linkid"))
 			linkid = MatrixToolkit.rawUrlDecode(assetElement.getAttribute("linkid"));
 
 		// the following attributes can be modified after creation
 
+		if (assetElement.hasAttribute("type_code")) {
+			typeCode = assetElement.getAttribute("type_code");
+			type = AssetManager.getAssetType(typeCode);
+			hasTypeCode = true;
+		}
 		if (assetElement.hasAttribute("name")) {
 			name = MatrixToolkit.rawUrlDecode(assetElement.getAttribute("name"));
 			hasName = true;
@@ -412,6 +417,7 @@ public class Asset implements MatrixConstants, Serializable {
 			refresh |= hasLinkType   && linkTypeChanged;
 			refresh |= hasAccessible && setAccessible(accessible);
 			refresh |= hasNumKids    && setNumKids(numKids);
+			refresh |= hasTypeCode   && setTypeCode(type);
 
 			if (refresh)
 				nodesChanged();
@@ -568,6 +574,13 @@ public class Asset implements MatrixConstants, Serializable {
 		if (status == newStatus)
 			return false;
 		status = newStatus;
+		return true;
+	}
+
+	private boolean setTypeCode(AssetType newTypeCode) {
+		if (type.equals(newTypeCode))
+			return false;
+		type = newTypeCode;
 		return true;
 	}
 
