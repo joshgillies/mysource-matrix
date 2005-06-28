@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.42.2.2 2005/05/31 06:33:13 arailean Exp $
+* $Id: page_asset_listing.inc,v 1.42.2.3 2005/06/28 06:51:11 ykasim Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.42.2.2 $
+* @version $Revision: 1.42.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -103,10 +103,10 @@ class Page_Asset_Listing extends Page
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('folder');
 
 		$sub_assets= Array(
-			'type_formats'  => 'folder',
-			'asset_formats' => 'folder',
-			'page_contents' => 'bodycopy',
-		);
+						'type_formats'  => 'folder',
+						'asset_formats' => 'folder',
+						'page_contents' => 'bodycopy',
+					 );
 
 		$type_formats = null;
 		foreach ($sub_assets as $name => $type) {
@@ -278,6 +278,8 @@ class Page_Asset_Listing extends Page
 		// grouping by letter makes this template an A-Z listing of assets
 		$group_by = $this->attr('group_by');
 
+		$cm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+
 		// we need a unique cache key to represent the current result page
 		$cache_key = $this->_getCacheKey();
 
@@ -438,7 +440,6 @@ class Page_Asset_Listing extends Page
 				$this->printAssetList($todo);
 				$global_contents = ob_get_contents();
 			ob_end_clean();
-
 			// if we have any blank keywords, replace them with nothing
 			$global_contents = preg_replace('|%[^%\W]+%|', '', $global_contents);
 
@@ -469,6 +470,36 @@ class Page_Asset_Listing extends Page
 
 
 	/**
+	* Return the root node of the asset
+	*
+	* @return Array
+	*/
+	function getRootNode()
+	{
+		// get the root asset whose sub-assets/children we are displaying
+		// This may come from the parameter map, but the dynamic value must be a child of the static value
+		// if there is no root asset, we will use ourselves and print our children
+		$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', false, 'root');
+		$root_asset_id = empty($root_link) ? $this->id : $root_link['minorid'];
+		$parameter_map = &$this->getAttribute('parameter_map');
+		if ((null != ($dynamic_root = $parameter_map->getParameterValue('root_node'))) && (in_array($root_asset_id, $GLOBALS['SQ_SYSTEM']->am->getParents($dynamic_root)))) {
+			$root_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($dynamic_root);
+		} else {
+			if ($dynamic_root != null) {
+				trigger_error('Supplied root node is in an unauthorised part of the system.  Defaulting to static root node', E_USER_WARNING);
+			}
+			if ($root_asset_id == $this->id) {
+				$root_asset =& $this;
+			} else {
+				$root_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($root_link['minorid'], $root_link['minor_type_code']);
+				if (is_null($root_asset)) return Array();
+			}
+		}
+		return $root_asset;
+	}//ent getRootNode()
+
+
+	/**
 	* Work out the unique cache key to represent the current page
 	*
 	* @return string
@@ -476,8 +507,9 @@ class Page_Asset_Listing extends Page
 	*/
 	function _getCacheKey()
 	{
+		$root_asset = $this->getRootNode();
+		$cache_key = $root_asset->id;
 		$group_by = $this->attr('group_by');
-
 		// we work out what screen we are on here so we can correctly cache the screen with a unique ID
 		// note that we never cache the results of a random asset listing for obvious reasons
 		$cache_key = '';
@@ -491,6 +523,7 @@ class Page_Asset_Listing extends Page
 				$cache_key = (isset($_REQUEST['result_page'])) ? $_REQUEST['result_page'] : 'A';
 			break;
 		}
+		
 		return $cache_key;
 
 	}//end _getCacheKey()
@@ -537,25 +570,8 @@ class Page_Asset_Listing extends Page
 		$wanted_types = $this->attr('types');
 		if (empty($wanted_types)) return Array();
 
-		// get the root asset whose sub-assets/children we are displaying
-		// This may come from the parameter map, but the dynamic value must be a child of the static value
-		// if there is no root asset, we will use ourselves and print our children
-		$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', false, 'root');
-		$root_asset_id = empty($root_link) ? $this->id : $root_link['minorid'];
-		$parameter_map = &$this->getAttribute('parameter_map');
-		if ((null != ($dynamic_root = $parameter_map->getParameterValue('root_node'))) && (in_array($root_asset_id, $GLOBALS['SQ_SYSTEM']->am->getParents($dynamic_root)))) {
-			$root_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($dynamic_root);
-		} else {
-			if ($dynamic_root != null) {
-				trigger_error('Supplied root node is in an unauthorised part of the system.  Defaulting to static root node', E_USER_WARNING);
-			}
-			if ($root_asset_id == $this->id) {
-				$root_asset =& $this;
-			} else {
-				$root_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($root_link['minorid'], $root_link['minor_type_code']);
-				if (is_null($root_asset)) return Array();
-			}
-		}
+		
+		$root_asset = $this->getRootNode();
 
 		// this is what we are going to sort the reults by (passed directly to the getLinks
 		// and getChildren functions)
@@ -791,9 +807,11 @@ class Page_Asset_Listing extends Page
 		$mm              = NULL;
 		$keywords        = Array();
 
-		$asset_info_fields = Array('assetid','type_code','version','name','short_name',
-								   'status','languages','charset','force_secure','created',
-								   'created_userid','updated','updated_userid','published','published_userid');
+		$asset_info_fields = Array(
+								'assetid','type_code','version','name','short_name',
+								'status','languages','charset','force_secure','created',
+								'created_userid','updated','updated_userid','published','published_userid'
+							 );
 
 
 		foreach ($todo as $assetid => $type_code) {
@@ -825,7 +843,9 @@ class Page_Asset_Listing extends Page
 								}
 							}
 							// if we're not going to load the asset, make sure we have assetinfo instead
-							if (!$needs_asset[$type_code] && empty($assets_info)) $assets_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($todo));
+							if (!$needs_asset[$type_code] && empty($assets_info)) {
+								$assets_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($todo));
+							}
 							$GLOBALS['SQ_SYSTEM']->am->forgetAsset($bodycopy);
 						}
 					}
@@ -852,7 +872,9 @@ class Page_Asset_Listing extends Page
 							}
 						}
 						// if we're not going to load the asset, make sure we have assetinfo instead
-						if (!$needs_asset['default'] && empty($assets_info)) $assets_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($todo));
+						if (!$needs_asset['default'] && empty($assets_info)){
+							$assets_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($todo));
+						}
 					}
 				}
 				$contents = $default_format;
@@ -884,7 +906,9 @@ class Page_Asset_Listing extends Page
 			}//end if needs asset
 
 			if (preg_match_all('|%asset_metadata_([^%]+)%|is', $contents, $matches)) {
-				if (is_null($mm)) $mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
+				if (is_null($mm)){
+					$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
+				}
 				// get all the metadata keywords for this asset
 				$metadata_keywords = $mm->getMetadataFieldValues($assetid, $matches[1]);
 
@@ -895,7 +919,7 @@ class Page_Asset_Listing extends Page
 
 			$keywords['page_href']['value'] = $this->getHref();
 
-			foreach ($keywords as $keyword => $info) {
+			foreach ($keywords as $keyword => $info){
 				$contents = preg_replace('|%((<([^>]+?)>)+)?'.$keyword.'((<([^>]+?)>)+)?%|is', '\\1%'.$keyword.'%\\4', $contents);
 				$contents = str_replace("%{$keyword}%", $info['value'], $contents);
 			}
@@ -920,7 +944,9 @@ class Page_Asset_Listing extends Page
 	function onRequestKeywords(&$broadcaster, $vars=Array())
 	{
 		if (!isset($vars['keywords'])) return;
-		if (!is_a($broadcaster, 'content_type_wysiwyg')) return;
+		if (!is_a($broadcaster, 'content_type_wysiwyg')){
+			return;
+		}
 
 		$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id, 'bodycopy', true);
 
@@ -992,12 +1018,11 @@ class Page_Asset_Listing extends Page
 	function getContentsKeywords()
 	{
 		$keywords = Array(
-							'asset_listing' => 'Asset Lsting',
-							'previous_page' => 'Previous Page Link',
-							'next_page'     => 'Next Page Link',
-							'page_list'     => 'Page List',
-
-						);
+						'asset_listing'	=> 'Asset Lsting',
+						'previous_page'	=> 'Previous Page Link',
+						'next_page'		=> 'Next Page Link',
+						'page_list'		=> 'Page List',
+					);
 
 		return $keywords;
 
