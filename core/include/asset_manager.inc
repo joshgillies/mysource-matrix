@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.249.2.11 2005/06/17 05:31:00 lwright Exp $
+* $Id: asset_manager.inc,v 1.249.2.12 2005/06/28 23:27:53 dheppell Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1173,20 +1173,6 @@ class Asset_Manager extends MySource_Object
 
 		}// end if !empty(link)
 
-		// we do not want to clone any assets that are type_3 or type_notice linked to the asset we are
-		// cloning. Instead, we will just link them up to the cloner's orginial link counter parts
-		$orig_links = $this->getLinks($source->id, SQ_LINK_TYPE_3 | SQ_LINK_NOTICE, '', true, 'major', null, false, null);
-		foreach ($orig_links as $orig_link) {
-			$asset = &$this->getAsset($orig_link['minorid'], $orig_link['minor_type_code']);
-			$linkid = $clone->createLink($asset, $orig_link['link_type'], $orig_link['value'], $orig_link['sort_order'], $orig_link['is_dependant'], $link['is_exclusive']);
-
-			if (!$linkid) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return $null;
-			}
-
-		}//end foreach
-
 		// if we got this far all is well,
 		// so add to the map and return the clone
 		$clone_map[$source->id] = $clone->id;
@@ -1263,6 +1249,20 @@ class Asset_Manager extends MySource_Object
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return $null;
 		}
+
+		// we do not want to clone any assets that are type_3 or type_notice linked to the asset we are
+		// cloning. Instead, we will just link them up to the cloner's orginial link counter parts
+		$orig_links = $this->getLinks($source->id, SQ_LINK_TYPE_3 | SQ_LINK_NOTICE, '', true, 'major', null, false, null);
+		foreach ($orig_links as $orig_link) {
+			$asset = &$this->getAsset($orig_link['minorid'], $orig_link['minor_type_code']);
+			$linkid = $clone->createLink($asset, $orig_link['link_type'], $orig_link['value'], $orig_link['sort_order'], $orig_link['is_dependant'], $link['is_exclusive']);
+
+			if (!$linkid) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return $null;
+			}
+
+		}//end foreach
 
 		// OK now that we are linked up let's our dependants
 		if ($clone_dependants) {
