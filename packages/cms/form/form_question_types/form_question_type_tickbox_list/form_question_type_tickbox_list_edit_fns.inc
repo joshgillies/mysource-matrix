@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_list_edit_fns.inc,v 1.12 2005/05/18 23:44:39 tbarrett Exp $
+* $Id: form_question_type_tickbox_list_edit_fns.inc,v 1.12.2.1 2005/06/28 01:13:18 tbarrett Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question_edit_fns.inc'
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.12.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -60,27 +60,21 @@ class Form_Question_Type_Tickbox_List_Edit_Fns extends Form_Question_Edit_Fns
 
 		$options = explode("\r\n", $asset->attr('options'));
 		$multiple = (get_class($asset) == 'form_question_type_tickbox_list') ? true : false;
-
-		echo "<table cellpadding=\"0\" cellspacing=\"0\">\n";
-
 		$defaults = $asset->attr('default');
 
 		foreach ($options as $ref => $option) {
 			if (!trim($option)) continue;
 
-			echo '<tr><td>';
 			$val  = explode(':', $option);
 			$type = ($multiple) ? 'check_box' : 'radio_button';
 			$name = $prefix.'default[]';
 
 			$title = (count($val) > 1) ? $val[1] : $val[0];
 			$checked = (in_array($ref, $defaults)) ? true : false;
-			$type($name, $ref, $checked);
-
-			echo '&nbsp;<span onclick="this.previousSibling.previousSibling.checked = (!this.previousSibling.previousSibling.checked || this.previousSibling.previousSibling.type==\'radio\')">'.$title.'</span>';
-			echo '</td></tr>';
+			$type($name, $ref, $checked, '', 'id="'.$prefix.'default'.$ref.'"');
+			label($title, $prefix.'default'.$ref);
+			echo '<br />';
 		}
-		echo '</table>';
 
 		return true;
 
