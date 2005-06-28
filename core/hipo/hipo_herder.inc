@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_herder.inc,v 1.68 2005/05/17 06:58:42 ndvries Exp $
+* $Id: hipo_herder.inc,v 1.68.2.1 2005/06/28 05:45:01 skim Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) Herder (Manager ;P)
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.68 $
+* @version $Revision: 1.68.2.1 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -78,7 +78,7 @@ class HIPO_Herder extends MySource_Object
 	{
 		if (!isset($this->ho) || get_class($this->ho) != 'hipo_backend_outputter') {
 			require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_backend_outputter.inc';
-			$this->ho = new Hipo_Backend_Outputter();
+			$this->ho =& new Hipo_Backend_Outputter();
 		}
 		return $this->ho;
 
@@ -199,9 +199,10 @@ class HIPO_Herder extends MySource_Object
 			return true;
 		}
 
+		$o = &$this->getBackendOutputter();
+
 		if (!$source_job->process()) {
 			$error_details = '';
-			$o = &$this->getBackendOutputter();
 			$o->setFormData('', '');
 			$o->openRaw();
 				$source_job->_paintErrorReport();
