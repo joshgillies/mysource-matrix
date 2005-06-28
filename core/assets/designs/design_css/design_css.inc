@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css.inc,v 1.9.2.1 2005/06/27 01:31:05 mnyeholt Exp $
+* $Id: design_css.inc,v 1.9.2.2 2005/06/28 23:23:40 mnyeholt Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design.inc';
 * in standard Designs
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.9.2.1 $
+* @version $Revision: 1.9.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -425,6 +425,30 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 		}
 	}//end generateDesignFile()
 
+	
+	/**
+	* Updates each of our customisations from ourselves
+	*
+	* @return void
+	* @access private
+	*/
+	function _updateCustomisations()
+	{
+		$customisation_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'design_css_customisation', true, 'major', 'customisation');
+		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		foreach ($customisation_links as $link) {
+			$customisation = &$am->getAsset($link['minorid'], $link['minor_type_code']);
+			if (is_null($customisation)) continue;
+			if ($acquired = $GLOBALS['SQ_SYSTEM']->am->acquireLock($customisation->id, 'all')) {
+				$customisation->updateFromParent($this);
+				if ($acquired != 2) {
+					$GLOBALS['SQ_SYSTEM']->am->releaseLock($customisation->id, 'all');
+				}
+			}
+		}// end foreach
+
+	}//end _updateCustomisations()
+	
 
 	/**
 	* Creates / updates the static file for this css design
@@ -498,7 +522,7 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 	function &createCache()
 	{
 		$null = null;
-		if (!touch($this->data_path.$this->_getName().'.css')) {
+		if (!touch($this->data_path.'/'.$this->_getName().'.css')) {
 			return $null;
 		}
 
