@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.100.2.3 2005/06/23 22:40:13 skim Exp $
+* $Id: form.inc,v 1.100.2.4 2005/06/28 06:29:35 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.100.2.3 $
+* @version $Revision: 1.100.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -169,6 +169,13 @@ class Form extends Asset
 
 			// We also need the REAL asset links here, so we can access the form sections
 			$links = Array();
+
+			// If the bodycopy folder is in here, we need to include that REAL link
+			if ($bc_link = Asset_Manager::getLink($assetid, SQ_LINK_TYPE_2, 'folder', true, 'bodycopies_folder')) {
+				// we need to add in the majorid by hand
+				$bc_link['majorid'] = $this->id;
+				$links[] = $bc_link;
+			}
 
 			// but we also need question shadow asset links
 			$entries = $this->getQuestions();
