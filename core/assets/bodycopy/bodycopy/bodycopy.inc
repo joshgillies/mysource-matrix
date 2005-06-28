@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy.inc,v 1.25 2005/06/03 01:30:31 tbarrett Exp $
+* $Id: bodycopy.inc,v 1.25.2.1 2005/06/28 05:48:27 dmckee Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.25.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -188,7 +188,6 @@ class Bodycopy extends Asset
 		$copy_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'value' => '', 'sort_order' => 1, 'is_dependant' => 1);
 		$bodycopy_div->setAttrValue('name', 'Content DIV');
 		$create_success = $bodycopy_div->create($copy_link, $bc_data);
-		$GLOBALS['SQ_SYSTEM']->am->releaseLock($bodycopy_div->id, 'attributes');
 		return $create_success;
 
 	}//end _createAdditional()
