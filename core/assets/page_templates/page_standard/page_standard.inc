@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_standard.inc,v 1.7 2004/11/18 05:08:03 gsherwood Exp $
+* $Id: page_standard.inc,v 1.7.2.1 2005/06/28 06:07:20 dmckee Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -72,9 +72,13 @@ class Page_Standard extends Page
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
 		$bodycopy = new Bodycopy();
 		$copy_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
-
 		$bodycopy->setAttrValue('name', 'Page Contents');
-		return $bodycopy->create($copy_link);
+		if ($bodycopy->create($copy_link)) {
+			$child_bodycopy =& $GLOBALS['SQ_SYSTEM']->am->getLink($bodycopy->id, SQ_LINK_TYPE_2, 'bodycopy_div');
+			$GLOBALS['SQ_SYSTEM']->am->releaseLock($child_bodycopy['minorid'], 'attributes');
+			return true;
+		}
+		return false;
 
 	}//end _createAdditional()
 
@@ -125,7 +129,9 @@ class Page_Standard extends Page
 		// the only reason why we would object to this link being
 		// deleted is if it is the bodycopy linked to us
 		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'major', '', '1', '1');
-		if ($bodycopy_link[0]['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) return 'You cant delete the link between the bodycopy and the standard page';
+		if ($bodycopy_link[0]['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) {
+			return 'You cant delete the link between the bodycopy and the standard page';
+		}
 
 		return parent::isDeletableLink($linkid);
 
@@ -158,14 +164,14 @@ class Page_Standard extends Page
 	function paintBackend(&$o)
 	{
 		if (isset($_GET['sq_from_frontend'])) {
-			
+
 			$bodycopy = &$this->getBodycopy();
 			if (is_null($bodycopy)) {
 				trigger_error('Could not locate the bodycopy for standard page "'.$this->name.'"', E_USER_ERROR);
 				return false;
 			}
 			$o->addFormActionGetVar('assetid', $bodycopy->id);
-			
+
 			// fudge the navigation history a little
 			if (!isset($_SESSION['sq_nav_history'])) {
 				$_SESSION['sq_nav_history'] = Array();
@@ -221,7 +227,7 @@ class Page_Standard extends Page
 	function printLimbo()
 	{
 		$lm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('layout_manager');
-		
+
 		if ($lm->hasLayout($this->type(), 'details')) {
 			parent::printLimbo();
 		} else {
@@ -264,7 +270,7 @@ class Page_Standard extends Page
 			// get the bodycopy
 			$bodycopy = &$this->getBodycopy();
 			if (is_null($bodycopy)) return $keydata;
-			
+
 			// preprocess
 			$contents = strtolower(strip_tags(html_entity_decode($bodycopy->getRawBodycopyContent())));
 			$comp_name = 'attr:'.$this->type().':contents';
@@ -303,7 +309,9 @@ class Page_Standard extends Page
 	function getEditingLocks($keywords)
 	{
 		$locks = Array();
-		if (!is_array($keywords) || empty($keywords)) return Array();
+		if (!is_array($keywords) || empty($keywords)) {
+			return Array();
+		}
 		if (!in_array('contents', $keywords)) return Array();
 		return Array('content');
 
@@ -321,9 +329,9 @@ class Page_Standard extends Page
 		$null = null;
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, '', 'major');
 		if (empty($link)) return $null;
-		
+
 		return $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
-	
+
 	}//end getBodycopy()
 
 
@@ -339,7 +347,9 @@ class Page_Standard extends Page
 	*/
 	function getCustomKeywordReplacements($keywords)
 	{
-		if (!is_array($keywords) || empty($keywords)) return Array();
+		if (!is_array($keywords) || empty($keywords)) {
+			return Array();
+		}
 		$print_commit_button = false;
 
 		$replacements = Array();
@@ -380,7 +390,9 @@ class Page_Standard extends Page
 	*/
 	function processCustomKeywords($keywords)
 	{
-		if (!is_array($keywords) || empty($keywords)) return Array();
+		if (!is_array($keywords) || empty($keywords)) {
+			return Array();
+		}
 
 		foreach ($keywords as $keyword) {
 			switch ($keyword) {
@@ -395,7 +407,7 @@ class Page_Standard extends Page
 
 		return true;
 
-	}//end processCustomKeywordReplacements()
+	}//end processCustomKeywords()
 
 
 }//end class
