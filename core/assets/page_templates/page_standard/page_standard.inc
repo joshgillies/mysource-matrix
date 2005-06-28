@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_standard.inc,v 1.10 2005/05/11 06:04:54 lwright Exp $
+* $Id: page_standard.inc,v 1.10.2.1 2005/06/28 06:02:40 dmckee Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.10.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -74,7 +74,12 @@ class Page_Standard extends Page
 		$copy_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 
 		$bodycopy->setAttrValue('name', 'Page Contents');
-		return $bodycopy->create($copy_link);
+		if ($bodycopy->create($copy_link)) {
+			$child_bodycopy =& $GLOBALS['SQ_SYSTEM']->am->getLink($bodycopy->id, SQ_LINK_TYPE_2, 'bodycopy_div');
+			$GLOBALS['SQ_SYSTEM']->am->releaseLock($child_bodycopy['minorid'], 'attributes');
+			return true;
+		}
+		return false;
 
 	}//end _createAdditional()
 
@@ -125,7 +130,9 @@ class Page_Standard extends Page
 		// the only reason why we would object to this link being
 		// deleted is if it is the bodycopy linked to us
 		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'major', '', '1', '1');
-		if ($bodycopy_link[0]['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) return translate('core_error_bodycopy_link_cannot_delete');
+		if ($bodycopy_link[0]['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) {
+			return translate('core_error_bodycopy_link_cannot_delete');
+		}
 
 		return parent::isDeletableLink($linkid);
 
@@ -303,7 +310,9 @@ class Page_Standard extends Page
 	function getEditingLocks($keywords)
 	{
 		$locks = Array();
-		if (!is_array($keywords) || empty($keywords)) return Array();
+		if (!is_array($keywords) || empty($keywords)) {
+			return Array();
+		}
 		if (!in_array('contents', $keywords)) return Array();
 		return Array('content');
 
@@ -339,7 +348,9 @@ class Page_Standard extends Page
 	*/
 	function getCustomKeywordReplacements($keywords)
 	{
-		if (!is_array($keywords) || empty($keywords)) return Array();
+		if (!is_array($keywords) || empty($keywords)) {
+			return Array();
+		}
 		$print_commit_button = false;
 
 		$replacements = Array();
@@ -380,7 +391,9 @@ class Page_Standard extends Page
 	*/
 	function processCustomKeywords($keywords)
 	{
-		if (!is_array($keywords) || empty($keywords)) return Array();
+		if (!is_array($keywords) || empty($keywords)) {
+			return Array();
+		}
 
 		foreach ($keywords as $keyword) {
 			switch ($keyword) {
