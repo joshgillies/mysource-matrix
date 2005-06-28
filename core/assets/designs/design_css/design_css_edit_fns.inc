@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css_edit_fns.inc,v 1.8.2.1 2005/06/27 01:31:05 mnyeholt Exp $
+* $Id: design_css_edit_fns.inc,v 1.8.2.2 2005/06/28 04:14:52 mnyeholt Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design_edit_fns.inc';
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.8.2.1 $
+* @version $Revision: 1.8.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -112,10 +112,10 @@ class Design_Css_Edit_Fns extends Design_Edit_Fns
 		}
 
 		$existing_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($existing_ids));
-		foreach ($existing_info as $existing_info) {
+		foreach ($existing_info as $assetid => $existing_info) {
 			// if the name is the same, delete the link
 			if ($existing_info['name'] == $info['name']) {
-				$linkid = $existing_ids[$existing_info['assetid']];
+				$linkid = $existing_ids[$assetid];
 				$asset->deleteExistingLink($linkid);
 				$asset->updateLookups();
 			}
