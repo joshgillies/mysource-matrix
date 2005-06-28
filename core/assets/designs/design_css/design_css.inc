@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css.inc,v 1.10 2005/06/27 01:36:01 mnyeholt Exp $
+* $Id: design_css.inc,v 1.11 2005/06/28 23:31:17 mnyeholt Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design.inc';
 * in standard Designs
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -427,6 +427,30 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 
 
 	/**
+	* Updates each of our customisations from ourselves
+	*
+	* @return void
+	* @access private
+	*/
+	function _updateCustomisations()
+	{
+		$customisation_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'design_css_customisation', true, 'major', 'customisation');
+		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		foreach ($customisation_links as $link) {
+			$customisation = &$am->getAsset($link['minorid'], $link['minor_type_code']);
+			if (is_null($customisation)) continue;
+			if ($acquired = $GLOBALS['SQ_SYSTEM']->am->acquireLock($customisation->id, 'all')) {
+				$customisation->updateFromParent($this);
+				if ($acquired != 2) {
+					$GLOBALS['SQ_SYSTEM']->am->releaseLock($customisation->id, 'all');
+				}
+			}
+		}// end foreach
+
+	}//end _updateCustomisations()
+
+
+	/**
 	* Creates / updates the static file for this css design
 	* @return boolean
 	* @access public
@@ -498,11 +522,11 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 	function &createCache()
 	{
 		$null = null;
-		if (!touch($this->data_path.$this->_getName().'.css')) {
+		if (!touch($this->data_path.'/'.$this->_getName().'.css')) {
 			return $null;
 		}
 
-		$tmp_file = $this->data_path.$this->_getName().'.css';
+		$tmp_file = $this->data_path.'/'.$this->_getName().'.css';
 		$filename = $this->_getName().'.css';
 		$import_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_3, 'value' => 'css_cache', 'sort_order' => 1, 'is_dependant' => 1);
 		$temp_info = Array('name' => $filename, 'tmp_name' => $tmp_file, 'non_uploaded_file' => true);
