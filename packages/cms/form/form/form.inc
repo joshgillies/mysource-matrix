@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.70.2.18 2005/06/21 05:03:34 arailean Exp $
+* $Id: form.inc,v 1.70.2.19 2005/06/28 06:30:05 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.70.2.18 $
+* @version $Revision: 1.70.2.19 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -168,6 +168,13 @@ class Form extends Bridge
 
 			// We also need the REAL asset links here, so we can access the form sections
 			$links = Array();
+
+			// If the bodycopy folder is in here, we need to include that REAL link
+			if ($bc_link = Asset_Manager::getLink($assetid, SQ_LINK_TYPE_2, 'folder', true, 'bodycopies_folder')) {
+				// we need to add in the majorid by hand
+				$bc_link['majorid'] = $this->id;
+				$links[] = $bc_link;
+			}
 
 			// but we also need question shadow asset links
 			$entries = $this->getQuestions();
@@ -1460,11 +1467,11 @@ class Form extends Bridge
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('form_submission');
 
+		$GLOBALS['SQ_INSTALL'] = true;
 		// create the form submission asset
 		$submission = new Form_Submission();
 		$copy_link  = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_3, 'is_dependant' => 1, 'is_exclusive' => 1);
 
-		$GLOBALS['SQ_INSTALL'] = true;
 		if (!$submission->create($copy_link)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
