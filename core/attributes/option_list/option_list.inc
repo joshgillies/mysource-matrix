@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: option_list.inc,v 1.19 2005/06/03 06:09:43 tbarrett Exp $
+* $Id: option_list.inc,v 1.20 2005/06/28 01:07:17 tbarrett Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *    <option_list />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -68,36 +68,40 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 	function paint($prefix, $read_only=false)
 	{
 		$prefix = str_replace(':','_',$prefix); // handle shadow assets
-		$value = explode("\r\n", $this->value)
-		?>
-		<div id="option-list-<?php echo $prefix; ?>">
-			<?php
-			foreach ($value as $v) {
-				?>
-				<input type="text" tabindex="1"  name="<?php echo $prefix; ?>_options[]" value="<?php echo $v; ?>" /><button type="button" tabindex="2" class="delete-button">&nbsp;</button><br />
-				<?php
-			}
-			for ($i =0; $i < 2; $i++) {
-				?>
-				<input type="text" tabindex="1"  name="<?php echo $prefix; ?>_options[]" /><button type="button" tabindex="2" class="delete-button">&nbsp;</button><br />
-				<?php
-			}
+		$value = explode("\r\n", $this->value);
+		if (!$read_only) {
 			?>
-		</div>
-		<script type="text/javascript" src="<?php echo sq_web_path('lib'); ?>/js/edit.js"></script>
-		<script type="text/javascript">
-			// attach the event handlers
-			var optionList = document.getElementById('option-list-<?php echo $prefix; ?>');
-			var	inputs = optionList.getElementsByTagName('INPUT');
-			for (var j=0; j < inputs.length; j++) {
-				inputs[j].onfocus = expandListFn;
-			}
-			var buttons = optionList.getElementsByTagName('BUTTON');
-			for (var j=0; j < buttons.length; j++) {
-				buttons[j].onclick = deleteRowFn;
-			}
-		</script>
-		<?php
+			<div id="option-list-<?php echo $prefix; ?>">
+				<?php
+				foreach ($value as $v) {
+					?>
+					<input type="text"  name="<?php echo $prefix; ?>_options[]" value="<?php echo $v; ?>" /><button type="button" tabindex="99999" class="delete-button">&nbsp;</button><br />
+					<?php
+				}
+				for ($i =0; $i < 2; $i++) {
+					?>
+					<input type="text" name="<?php echo $prefix; ?>_options[]" /><button type="button" tabindex="99999" class="delete-button">&nbsp;</button><br />
+					<?php
+				}
+				?>
+			</div>
+			<script type="text/javascript" src="<?php echo sq_web_path('lib'); ?>/js/edit.js"></script>
+			<script type="text/javascript">
+				// attach the event handlers
+				var optionList = document.getElementById('option-list-<?php echo $prefix; ?>');
+				var	inputs = optionList.getElementsByTagName('INPUT');
+				for (var j=0; j < inputs.length; j++) {
+					inputs[j].onfocus = expandListFn;
+				}
+				var buttons = optionList.getElementsByTagName('BUTTON');
+				for (var j=0; j < buttons.length; j++) {
+					buttons[j].onclick = deleteRowFn;
+				}
+			</script>
+			<?php
+		} else {
+			echo '<ul><li>'.implode('</li><li>', $value).'</li></ul>';
+		}
 
 	}//end paint()
 
