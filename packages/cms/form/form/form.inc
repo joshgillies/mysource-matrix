@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.105 2005/06/28 06:28:28 lwright Exp $
+* $Id: form.inc,v 1.106 2005/06/28 06:30:43 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.105 $
+* @version $Revision: 1.106 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -180,7 +180,7 @@ class Form extends Asset
 			// but we also need question shadow asset links
 			$entries = $this->getQuestions();
 
-			$i = 1;
+			$i = 0;
 			foreach ($links as $link) {
 				$i = max($i, $link['sort_order']);
 			}
