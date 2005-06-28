@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css.inc,v 1.9.2.2 2005/06/28 23:23:40 mnyeholt Exp $
+* $Id: design_css.inc,v 1.9.2.3 2005/06/28 23:32:02 mnyeholt Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design.inc';
 * in standard Designs
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.9.2.2 $
+* @version $Revision: 1.9.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -425,7 +425,7 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 		}
 	}//end generateDesignFile()
 
-	
+
 	/**
 	* Updates each of our customisations from ourselves
 	*
@@ -448,7 +448,7 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 		}// end foreach
 
 	}//end _updateCustomisations()
-	
+
 
 	/**
 	* Creates / updates the static file for this css design
@@ -526,7 +526,7 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 			return $null;
 		}
 
-		$tmp_file = $this->data_path.$this->_getName().'.css';
+		$tmp_file = $this->data_path.'/'.$this->_getName().'.css';
 		$filename = $this->_getName().'.css';
 		$import_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_3, 'value' => 'css_cache', 'sort_order' => 1, 'is_dependant' => 1);
 		$temp_info = Array('name' => $filename, 'tmp_name' => $tmp_file, 'non_uploaded_file' => true);
