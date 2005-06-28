@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_redirect.inc,v 1.11 2004/06/16 06:11:30 mmcintyre Exp $
+* $Id: page_redirect.inc,v 1.11.6.1 2005/06/28 00:16:15 ykasim Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -184,12 +184,12 @@ class Page_Redirect extends Page
 		if ($this->attr('new_window')) {
 
 			$options = $this->attr('new_window_options');
-			$params  =	 'location='  .((strpos($options, 'hide_location'  )) ? '0' : '1').','
-						.'menubar='   .((strpos($options, 'hide_menubar'   )) ? '0' : '1').','
-						.'scrollbars='.((strpos($options, 'hide_scrollbars')) ? '0' : '1').','
-						.'status='    .((strpos($options, 'hide_status'    )) ? '0' : '1').','
-						.'toolbar='   .((strpos($options, 'hide_toolbar'   )) ? '0' : '1').','
-						.'resizable=' .((strpos($options, 'not_resizable'  )) ? '0' : '1');
+			$params  =	 'location='.((strpos($options, 'hide_location'  ) !== false) ? '0' : '1').','
+						.'menubar='.((strpos($options, 'hide_menubar'   ) !== false) ? '0' : '1').','
+						.'scrollbars='.((strpos($options, 'hide_scrollbars') !== false) ? '0' : '1').','
+						.'status='.((strpos($options, 'hide_status'    ) !== false) ? '0' : '1').','
+						.'toolbar='.((strpos($options, 'hide_toolbar'   ) !== false) ? '0' : '1').','
+						.'resizable='.((strpos($options, 'not_resizable'  ) !== false) ? '0' : '1');
 
 			if ($w = $this->attr('new_window_width'))  $params .= ',width='.$w;
 			if ($h = $this->attr('new_window_height')) $params .= ',height='.$h;
