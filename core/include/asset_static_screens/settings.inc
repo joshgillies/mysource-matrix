@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: settings.inc,v 1.29.2.1 2005/06/17 04:08:20 lwright Exp $
+* $Id: settings.inc,v 1.29.2.2 2005/06/29 23:56:15 skim Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Settings Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.29.2.1 $
+* @version $Revision: 1.29.2.2 $
 * @package MySource_Matrix
 */
 
@@ -184,7 +184,7 @@ function paintSettings(&$owner, &$o, &$ei)
 							$info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($userid), 'user', false);
 							if (empty($info)) $info[$userid] = Array('name' => '&lt;unknown&gt;');
 
-							echo ucfirst($date_type).' '.strtolower(translate('by')).' '.$info[$userid]['name'].' '.strtolower(translate('on')).' '.date('d M Y h:i:s', strtotime($date_field->value));
+							echo ucfirst($date_type).' '.strtolower(translate('by')).' '.$info[$userid]['name'].' '.strtolower(translate('on')).' '.date('d M Y H:i:s', strtotime($date_field->value));
 						}
 					}
 
