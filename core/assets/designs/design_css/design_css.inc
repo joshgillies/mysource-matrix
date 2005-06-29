@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css.inc,v 1.9.2.3 2005/06/28 23:32:02 mnyeholt Exp $
+* $Id: design_css.inc,v 1.9.2.4 2005/06/29 00:23:22 mnyeholt Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design.inc';
 * in standard Designs
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.9.2.3 $
+* @version $Revision: 1.9.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -408,7 +408,6 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 		$edit_fns = $this->getEditFns();
 		$edit_fns->createDesignFile($this);
 
-		$do_customisations = true;
 		if ($do_customisations) {
 			$customisation_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'design_css_customisation', true, 'major', 'customisation');
 			$am = &$GLOBALS['SQ_SYSTEM']->am;
@@ -470,6 +469,10 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 			$file_contents = ob_get_contents();
 		ob_end_clean();
 		error_reporting($old_level);
+		if ($file_contents == '') {
+			error_log(print_r(debug_backtrace(), true));
+			return false;
+		}
 
 		$cache_link = &$am->getLink($this->id, SQ_LINK_TYPE_3, 'file', 'false', 'css_cache');
 		if (empty($cache_link)) {
