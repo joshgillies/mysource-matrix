@@ -21,7 +21,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.1 2005/06/26 23:40:28 pgannavarapu Exp $
+* $Id: asset.xml,v 1.2 2005/06/29 00:13:20 tbarrett Exp $
 *
 */
 -->
@@ -30,8 +30,8 @@
 	<package>calendar</package>
 	<type_code>page_calendar_restricted</type_code>
 	<version>0.1</version>
-	<name>Page Calendar Restricted</name>
-	<description>Rolling Calendar Page, displays events held on the specified dates</description>
+	<name>Restricted-Period Calendar Page</name>
+	<description>Displays calendar events within a specified date range</description>
 	<instantiable>yes</instantiable>
 	<allowed_access>backend_user</allowed_access>
 	<parent_type>page_calendar_rolling</parent_type>

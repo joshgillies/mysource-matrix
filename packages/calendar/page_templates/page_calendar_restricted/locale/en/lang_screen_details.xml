@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.2 2005/06/27 00:39:31 tbarrett Exp $
+* $Id: lang_screen_details.xml,v 1.3 2005/06/29 00:13:20 tbarrett Exp $
 *
 */
 -->
@@ -34,16 +34,16 @@
 			<note />
 		</field>
 		<field attribute="start_date">
-			<display_name>Find all events Starting on Date</display_name>
-			<note>The display will start from this date</note>
+			<display_name>Earliest date to show</display_name>
+			<note/>
 		</field>
 		<field attribute="end_date">
-			<display_name>Find all events ending on the Date</display_name>
-			<note>The display will end on this date</note>
+			<display_name>Latest date to show</display_name>
+			<note/>
 		</field>
 		<field attribute="days_per_page">
-			<display_name>Days to show in each page</display_name>
-			<note>The display will include this number of days in each page</note>
+			<display_name>Days to show per page</display_name>
+			<note/>
 		</field>
 		<field>
 			<function_call>
