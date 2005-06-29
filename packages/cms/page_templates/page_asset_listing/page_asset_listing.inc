@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.42.2.4 2005/06/29 01:15:56 ykasim Exp $
+* $Id: page_asset_listing.inc,v 1.42.2.5 2005/06/29 01:30:27 ykasim Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.42.2.4 $
+* @version $Revision: 1.42.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -281,7 +281,6 @@ class Page_Asset_Listing extends Page
 		$cm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 
 		// we need a unique cache key to represent the current result page
-		//$cache_key = $this->_getCacheKey();
 		$cache_key = $this->_getCacheKey();
 
 		$cached_contents = '';
@@ -473,7 +472,8 @@ class Page_Asset_Listing extends Page
 	/**
 	* Return the root node id of the asset
 	*
-	* @return root_node_id : int
+	* @access private
+	* @return int
 	*/
 	function getRootNodeId()
 	{
@@ -494,7 +494,6 @@ class Page_Asset_Listing extends Page
 
 			$this->_tmp['root_node_id'] = $root_asset_id;
 		}
-		error_log('root_node_id : '.$this->_tmp['root_node_id']);
 		return $this->_tmp['root_node_id'];
 
 	}//end getRootNodeId()
@@ -503,8 +502,8 @@ class Page_Asset_Listing extends Page
 	/**
 	* Work out the unique cache key to represent the current page
 	*
-	* @return string
 	* @access private
+	* @return string
 	*/
 	function _getCacheKey()
 	{
