@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: settings.inc,v 1.15.2.4 2005/06/17 04:15:56 lwright Exp $
+* $Id: settings.inc,v 1.15.2.5 2005/06/29 23:59:15 skim Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -189,7 +189,7 @@ function paintSettings(&$owner, &$o, &$ei)
 							$info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($userid), 'user', false);
 							if (empty($info)) $info[$userid] = Array('name' => '&lt;unknown&gt;');
 
-							echo ucfirst($date_type).' by '.$info[$userid]['name'].' on '.date('d M Y h:i:s', strtotime($date_field->value));
+							echo ucfirst($date_type).' by '.$info[$userid]['name'].' on '.date('d M Y H:i:s', strtotime($date_field->value));
 						}
 					}
 
