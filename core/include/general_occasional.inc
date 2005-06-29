@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general_occasional.inc,v 1.56 2005/06/24 06:11:40 lwright Exp $
+* $Id: general_occasional.inc,v 1.57 2005/06/29 07:21:24 ndvries Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.56 $
+* @version $Revision: 1.57 $
 * @package MySource_Matrix
 */
 
@@ -181,7 +181,7 @@ function get_status_description($status)
 	$status_code = 'asset_status_'.strtolower($status_code);
 
 	require_once SQ_INCLUDE_PATH.'/asset_status/'.$status_code.'.inc';
-	$status_object = new $status_code($this);
+	$status_object =& new $status_code($this);
 	return $status_object->getDescription();
 
 }//end get_status_description()

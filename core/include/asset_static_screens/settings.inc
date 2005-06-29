@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: settings.inc,v 1.30 2005/06/17 01:24:11 lwright Exp $
+* $Id: settings.inc,v 1.31 2005/06/29 07:21:24 ndvries Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Settings Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix
 */
 
@@ -47,9 +47,8 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 function paintSettings(&$owner, &$o, &$ei)
 {
 	$root = &$ei->findScreen('static_screen_settings');
-	if (is_null($root)) {
-		return false;
-	}
+	if (is_null($root)) return false;
+
 	$prefix = $owner->getPrefix();
 
 	$created = false;
@@ -63,11 +62,15 @@ function paintSettings(&$owner, &$o, &$ei)
 		$section = &$root->children[$i];
 
 		// if we are in limbo and this section is not to be printed in limbo - dont print it
-		if (SQ_IN_LIMBO && (!isset($section->attributes['limbo_access']) || (int)$section->attributes['limbo_access'] == 0)) continue;
+		if (SQ_IN_LIMBO && (!isset($section->attributes['limbo_access']) || (int)$section->attributes['limbo_access'] == 0)) {
+			continue;
+		}
 
 		$o->openSection(array_get_index($section->attributes, 'display_name', $section->attributes['name']));
 
-		if (!($num_fields = count($section->children))) continue;
+		if (!($num_fields = count($section->children))) {
+			continue;
+		}
 		for ($j = 0; $j < $num_fields; $j++) {
 			$field = &$section->children[$j];
 
@@ -76,8 +79,11 @@ function paintSettings(&$owner, &$o, &$ei)
 
 			switch (strtolower($field->attributes['code'])) {
 				case 'version_current_version' :
-					if ($field->children[0]->name != 'display_name') $display_name = translate('current_version');
-					else $display_name = $field->children[0]->content;
+					if ($field->children[0]->name != 'display_name') {
+						$display_name = translate('current_version');
+					} else {
+						$display_name = $field->children[0]->content;
+					}
 					$o->openField($display_name);
 					echo $owner->version;
 				break;
@@ -87,8 +93,11 @@ function paintSettings(&$owner, &$o, &$ei)
 					if ($owner->adminAccess('all')) {
 						$created = true;
 
-						if ($field->children[0]->name != 'display_name') $display_name = translate('update_major_version');
-						else $display_name = $field->children[0]->content;
+						if ($field->children[0]->name != 'display_name') {
+							$display_name = translate('update_major_version');
+						} else {
+							$display_name = $field->children[0]->content;
+						}
 						$o->openField($display_name);
 						check_box($prefix.'_version_update_version');
 					} else {
@@ -127,11 +136,14 @@ function paintSettings(&$owner, &$o, &$ei)
 						$userid = $owner->published_userid;
 					}
 
-					if ($field->children[0]->name != 'display_name') $display_name = translate(ucfirst($date_type).'_date');
-					else $display_name = $field->children[0]->content;
+					if ($field->children[0]->name != 'display_name') {
+						$display_name = translate(ucfirst($date_type).'_date');
+					} else {
+						$display_name = $field->children[0]->content;
+					}
 					$o->openField($display_name);
 
-					$date_field = new Datetime_Field($prefix.'_date_'.$date_type, $value, $parameters);
+					$date_field =& new Datetime_Field($prefix.'_date_'.$date_type, $value, $parameters);
 
 					if ($owner->adminAccess('all')) {
 						$date_field->printField();
@@ -182,7 +194,9 @@ function paintSettings(&$owner, &$o, &$ei)
 							echo translate('never_published');
 						} else {
 							$info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($userid), 'user', false);
-							if (empty($info)) $info[$userid] = Array('name' => '&lt;unknown&gt;');
+							if (empty($info)) {
+								$info[$userid] = Array('name' => '&lt;unknown&gt;');
+							}
 
 							echo ucfirst($date_type).' '.strtolower(translate('by')).' '.$info[$userid]['name'].' '.strtolower(translate('on')).' '.date('d M Y h:i:s', strtotime($date_field->value));
 						}
@@ -191,8 +205,11 @@ function paintSettings(&$owner, &$o, &$ei)
 				break;
 
 				case 'force_secure' :
-					if ($field->children[0]->name != 'display_name') $display_name = translate('force_secure');
-					else $display_name = $field->children[0]->content;
+					if ($field->children[0]->name != 'display_name') {
+						$display_name = translate('force_secure');
+					} else {
+						$display_name = $field->children[0]->content;
+					}
 					$o->openField($display_name);
 					$current_langs = $owner->getLanguages();
 					// have to have admin access to set the force secure
@@ -208,8 +225,11 @@ function paintSettings(&$owner, &$o, &$ei)
 
 
 				case 'intl_languages' :
-					if ($field->children[0]->name != 'display_name') $display_name = translate('languages');
-					else $display_name = $field->children[0]->content;
+					if ($field->children[0]->name != 'display_name') {
+						$display_name = translate('languages');
+					} else {
+						$display_name = $field->children[0]->content;
+					}
 					$o->openSection($display_name);
 
 					require SQ_FUDGE_PATH.'/standards_lists/languages.inc';
@@ -235,7 +255,8 @@ function paintSettings(&$owner, &$o, &$ei)
 								<td class="sq-backend-table-header">&nbsp;</td>
 								<td class="sq-backend-table-header"><b><?php echo translate('delete_question'); ?></b></td>
 							</tr>
-							<?php } ?>
+							<?php }
+							?>
 						<?php
 						foreach ($current_langs as $lang_code) {
 							?>
@@ -245,7 +266,8 @@ function paintSettings(&$owner, &$o, &$ei)
 									$created = true;
 								?>
 								<td class="sq-backend-table-cell" align="center"><?php check_box($prefix.'_rem_intl_language['.$lang_code.']'); ?></td>
-								<?php } ?>
+								<?php }
+								?>
 							</tr>
 							<?php
 						}
@@ -257,8 +279,11 @@ function paintSettings(&$owner, &$o, &$ei)
 				break;
 
 				case 'intl_character_set' :
-					if ($field->children[0]->name != 'display_name') $display_name = translate('character_set');
-					else $display_name = $field->children[0]->content;
+					if ($field->children[0]->name != 'display_name') {
+						$display_name = translate('character_set');
+					} else {
+						$display_name = $field->children[0]->content;
+					}
 					$o->openSection($display_name);
 					$o->openField('Current');
 					require SQ_FUDGE_PATH.'/standards_lists/character_sets.inc';
@@ -282,8 +307,11 @@ function paintSettings(&$owner, &$o, &$ei)
 				break;
 
 				case 'morph_new_type' :
-					if ($field->children[0]->name != 'display_name') $display_name = translate('new_type');
-					else $display_name = $field->children[0]->content;
+					if ($field->children[0]->name != 'display_name') {
+						$display_name = translate('new_type');
+					} else {
+						$display_name = $field->children[0]->content;
+					}
 					$o->openField($display_name);
 
 					if ($owner->adminAccess('all')) {
@@ -297,12 +325,16 @@ function paintSettings(&$owner, &$o, &$ei)
 							$user = &$am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserid());
 
 							$types = array_merge($am->getTypeAncestors($owner->type()), $am->getTypeDescendants($owner->type()));
-							for ($i = 0; $i < count($types); $i++) $types[$i] = $db->quote($types[$i]);
+							for ($i = 0; $i < count($types); $i++) {
+								$types[$i] = $db->quote($types[$i]);
+							}
 							$type_code_cond = 'IN ('.implode(', ', $types).')';
 
 							$user_types = $am->getTypeAncestors($user->type());
 							$user_types[] = $user->type();
-							for ($i = 0; $i < count($user_types); $i++) $user_types[$i] = $db->quote($user_types[$i]);
+							for ($i = 0; $i < count($user_types); $i++) {
+								$user_types[$i] = $db->quote($user_types[$i]);
+							}
 							$user_type_cond = 'IN ('.implode(', ', $user_types).')';
 
 							$sql = 'SELECT type_code
@@ -366,7 +398,9 @@ function paintSettings(&$owner, &$o, &$ei)
 					// array otherwise it doesn't appear below...
 					foreach ($design_lookups as $url => $designs) {
 						foreach ($designs as $design_name => $designid) {
-							if (!isset($our_designs[$design_name])) $our_designs[$design_name] = 0;
+							if (!isset($our_designs[$design_name])) {
+								$our_designs[$design_name] = 0;
+							}
 						}
 					}
 
@@ -381,7 +415,9 @@ function paintSettings(&$owner, &$o, &$ei)
 						$design_type     = $matches[1];
 						$design_code     = $matches[2];
 						$new_user_design = ($design_type == 'user' && $design_code == '' && !$designid);
-						if ($new_user_design && !$owner->writeAccess('links')) continue;
+						if ($new_user_design && !$owner->writeAccess('links')) {
+							continue;
+						}
 
 						if (!$new_user_design) {
 							$display_name = translate('config_display_name', ucwords($design_type), ucwords(str_replace('_', ' ', $design_code)));
@@ -550,11 +586,13 @@ function processSettings(&$owner, &$o, &$ei)
 							'print_format'	=> 'l, F jS, Y H:i:s',
 						  );
 
-			$date_field = new Datetime_Field($prefix.'_date_'.$date_type, $value, $parameters);
+			$date_field =& new Datetime_Field($prefix.'_date_'.$date_type, $value, $parameters);
 			$date_field->processField();
 
 			// if the date is only partially complete, then don't set the date
-			if (!$date_field->isEmpty() && !preg_match("/^[0-9]{4}-[0-9]{2}-[0-9]{2} ([0-9]{2}\:?){3}$/", $date_field->value)) continue;
+			if (!$date_field->isEmpty() && !preg_match("/^[0-9]{4}-[0-9]{2}-[0-9]{2} ([0-9]{2}\:?){3}$/", $date_field->value)) {
+				continue;
+			}
 
 			if ($date_type == 'created') {
 				// make sure that the date that is specified is not null for the created date
@@ -593,17 +631,23 @@ function processSettings(&$owner, &$o, &$ei)
 	$current_langs = $owner->getLanguages();
 	$set_languages = Array();
 
-	if (!isset($_POST[$prefix.'_rem_intl_language'])) $_POST[$prefix.'_rem_intl_language'] = Array();
+	if (!isset($_POST[$prefix.'_rem_intl_language'])) {
+		$_POST[$prefix.'_rem_intl_language'] = Array();
+	}
 
 	// add a new language
 	if (isset($_POST[$prefix.'_add_intl_language']) && !empty($_POST[$prefix.'_add_intl_language'])) {
 		$new_language = $_POST[$prefix.'_add_intl_language'];
-		if (!in_array($new_language, $current_langs)) $set_languages[] = $new_language;
+		if (!in_array($new_language, $current_langs)) {
+			$set_languages[] = $new_language;
+		}
 	}
 
 	// check for delete languages
 	foreach ($current_langs as $lang_code) {
-		if (!isset($_POST[$prefix.'_rem_intl_language'][$lang_code])) $set_languages[] = $lang_code;
+		if (!isset($_POST[$prefix.'_rem_intl_language'][$lang_code])) {
+			$set_languages[] = $lang_code;
+		}
 	}
 
 	$owner->setLanguages($set_languages);
@@ -688,7 +732,9 @@ function processSettings(&$owner, &$o, &$ei)
 		}// end foreach
 
 		if ($designs_ok) {
-			if ($designs_changed) $assets_affected_lookups[] = $owner->id;
+			if ($designs_changed) {
+				$assets_affected_lookups[] = $owner->id;
+			}
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		}
 

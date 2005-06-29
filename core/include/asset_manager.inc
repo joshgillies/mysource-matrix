@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.331 2005/06/28 04:52:09 dheppell Exp $
+* $Id: asset_manager.inc,v 1.332 2005/06/29 07:21:24 ndvries Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.331 $
+* @version $Revision: 1.332 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -85,7 +85,7 @@ class Asset_Manager extends MySource_Object
 		$this->_loadAssetTypes();
 
 		require_once SQ_INCLUDE_PATH.'/asset_cache.inc';
-		$this->_asset_cache = new Asset_Cache();
+		$this->_asset_cache =& new Asset_Cache();
 		$this->_asset_cache->setSizeRules((php_sapi_name() == 'cli') ? SQ_CONF_ASSET_CACHE_SIZE_CLI : SQ_CONF_ASSET_CACHE_SIZE_WEB);
 
 	}//end constructor
@@ -961,7 +961,7 @@ class Asset_Manager extends MySource_Object
 	function _reloadSystemAssetList()
 	{
 		require_once SQ_INCLUDE_PATH.'/system_asset_config.inc';
-		$sys_asset_cfg = new System_Asset_Config();
+		$sys_asset_cfg =& new System_Asset_Config();
 		// include the system asset config file
 		if (!file_exists($sys_asset_cfg->config_file)) {
 			// we called this too early
@@ -1562,12 +1562,12 @@ class Asset_Manager extends MySource_Object
 		foreach ($orig_links as $orig_link) {
 			$asset = &$this->getAsset($orig_link['minorid'], $orig_link['minor_type_code']);
 			$linkid = $clone->createLink($asset, $orig_link['link_type'], $orig_link['value'], $orig_link['sort_order'], $orig_link['is_dependant'], $orig_link['is_exclusive']);
-			
+
 			if (!$linkid) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return $null;
 			}
-			
+
 		}//end foreach
 
 

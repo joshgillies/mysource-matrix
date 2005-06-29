@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager_edit_fns.inc,v 1.89 2005/06/24 01:53:26 ndvries Exp $
+* $Id: asset_manager_edit_fns.inc,v 1.90 2005/06/29 07:21:24 ndvries Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.89 $
+* @version $Revision: 1.90 $
 * @package MySource_Matrix
 */
 class Asset_Manager_Edit_Fns extends MySource_Object
@@ -109,7 +109,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 				$o->addFormActionGetVar('link_type',      $_REQUEST['link_type']);
 
 				$this->am->includeAsset($_REQUEST['type_code']);
-				$asset = new $_REQUEST['type_code']();
+				$asset =& new $_REQUEST['type_code']();
 
 				// if the form has been submitted then, process it
 				if (!empty($_REQUEST['process_form']) && !empty($_REQUEST['am_form_submitted'])) {

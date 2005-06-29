@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: linking.inc,v 1.15 2005/06/24 05:37:18 ndvries Exp $
+* $Id: linking.inc,v 1.16 2005/06/29 07:21:24 ndvries Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Linking Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix
 */
 
@@ -240,7 +240,7 @@ function paintLinking(&$owner, &$o, &$ei, $allow_edit=true)
 
 			if ($write_access) {
 				$created = true;
-				$fl = new Cron_Job_Future_Lineage();
+				$fl =& new Cron_Job_Future_Lineage();
 				$fl->setAssetInLink($owner, 'minor');
 				$edit_fns = $fl->getEditFns();
 				$edit_fns->paintInLineBackend($fl, $o, $prefix.'_new_fl');
@@ -321,7 +321,7 @@ function processLinking(&$owner, &$o, &$ei)
 			}// end if
 		}// end if
 
-		$fl = new Cron_Job_Future_Lineage();
+		$fl =& new Cron_Job_Future_Lineage();
 		$edit_fns = $fl->getEditFns();
 		if ($fl->setAssetInLink($owner, 'minor') && $edit_fns->processInLineBackend($fl, $o, $prefix.'_new_fl')) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');

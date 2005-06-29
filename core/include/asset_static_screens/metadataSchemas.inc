@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadataSchemas.inc,v 1.13 2005/05/11 06:05:11 lwright Exp $
+* $Id: metadataSchemas.inc,v 1.14 2005/06/29 07:21:24 ndvries Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * MetaData Schemas Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix
 */
 
@@ -52,7 +52,9 @@ function paintInlineMetadataSchemas(&$owner, &$o, &$ei)
 
 	$direct = Array();
 	foreach ($schemas as $schemaid => $granted) {
-		if (!isset($direct[$granted])) $direct[$granted] = Array();
+		if (!isset($direct[$granted])) {
+			$direct[$granted] = Array();
+		}
 		$direct[$granted][] = $schemaid;
 	}
 	ksort($direct);
@@ -77,7 +79,9 @@ function paintInlineMetadataSchemas(&$owner, &$o, &$ei)
 				foreach ($schemaids as $schemaid) {
 					if ($schemaid) {
 						$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
-						if (!$schema->id || !is_a($schema, 'metadata_schema')) continue;
+						if (!$schema->id || !is_a($schema, 'metadata_schema')) {
+							continue;
+						}
 					}
 				?>
 					<tr>
@@ -126,7 +130,9 @@ function paintMetadataSchemas(&$owner, &$o, &$ei)
 
 	$direct = Array();
 	foreach ($schemas as $schemaid => $granted) {
-		if (!isset($direct[$granted])) $direct[$granted] = Array();
+		if (!isset($direct[$granted])) {
+			$direct[$granted] = Array();
+		}
 		$direct[$granted][] = $schemaid;
 	}
 	ksort($direct);
@@ -150,7 +156,9 @@ function paintMetadataSchemas(&$owner, &$o, &$ei)
 			foreach ($schemaids as $schemaid) {
 				if ($schemaid) {
 					$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
-					if (!$schema->id || !is_a($schema, 'metadata_schema')) continue;
+					if (!$schema->id || !is_a($schema, 'metadata_schema')) {
+						continue;
+					}
 				}
 			?>
 				<tr>
@@ -248,7 +256,7 @@ function processMetadataSchemas(&$owner, &$o, &$ei)
 	// apply a schema
 	if (!empty($post_data['new']['schemaid']['assetid'])) {
 		if (!isset($post_data['new']['granted']) || $post_data['new']['granted'] == '') {
-			trigger_localised_error("SYS0268", E_USER_NOTICE, $post_data['new']['schemaid']['assetid']);
+			trigger_localised_error('SYS0268', E_USER_NOTICE, $post_data['new']['schemaid']['assetid']);
 		} else {
 			if ($cascade_changes) {
 				// cascading access of some kind, so queue it up for the HIPO
@@ -259,7 +267,9 @@ function processMetadataSchemas(&$owner, &$o, &$ei)
 								 );
 			} else {
 				// lets do this ourselves
-				if (!$mm->setSchema($owner->id, (int)$post_data['new']['schemaid']['assetid'], (int)$post_data['new']['granted'])) return false;
+				if (!$mm->setSchema($owner->id, (int)$post_data['new']['schemaid']['assetid'], (int)$post_data['new']['granted'])) {
+					return false;
+				}
 			}
 		}
 	}
@@ -277,7 +287,9 @@ function processMetadataSchemas(&$owner, &$o, &$ei)
 									'previous_access'	=> $current_access,
 								 );
 			} else {
-				if (!$mm->deleteSchema($owner->id, $schemaid)) return false;
+				if (!$mm->deleteSchema($owner->id, $schemaid)) {
+					return false;
+				}
 			}
 		}
 	}

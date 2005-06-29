@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.130 2005/06/24 01:53:26 ndvries Exp $
+* $Id: backend.inc,v 1.131 2005/06/29 07:21:24 ndvries Exp $
 *
 */
 
@@ -32,7 +32,7 @@
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.130 $
+* @version $Revision: 1.131 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -148,7 +148,7 @@ class Backend extends MySource_Object
 
 		} else if ($_REQUEST['SQ_BACKEND_PAGE'] == 'asset_map_request') {
 			require_once SQ_LIB_PATH.'/asset_map/asset_map.inc';
-			$asset_map = new Asset_Map();
+			$asset_map =& new Asset_Map();
 			$asset_map->process($this);
 
 		} else {
@@ -504,7 +504,7 @@ class Backend extends MySource_Object
 						messageIndex++;
 					}
 
-					var popupContents = new Array();
+					var popupContents =& new Array();
 					<?php
 					$i = 0;
 					foreach ($dhtml_messages as $code => $message) {
@@ -839,7 +839,7 @@ class Backend extends MySource_Object
 		<div id="asset_map" style="position: absolute; top: 44px; left: 5px; visibility: visible;">
 			<?php
 			require_once SQ_LIB_PATH.'/asset_map/asset_map.inc';
-			$asset_map = new Asset_Map();
+			$asset_map =& new Asset_Map();
 			$asset_map->embedAssetMap('complex', '275');
 			?>
 		</div>
@@ -989,19 +989,19 @@ class Backend extends MySource_Object
 		switch ($_REQUEST['backend_section']) {
 			case 'config' :
 				require_once SQ_INCLUDE_PATH.'/system_config_edit_interface.inc';
-				$cfg_ei = new System_Config_Edit_Interface();
+				$cfg_ei =& new System_Config_Edit_Interface();
 				$cfg_ei->paint($this);
 			break;
 
 			case 'tools' :
 				require_once SQ_INCLUDE_PATH.'/tools.inc';
-				$tools = new Tools();
+				$tools =& new Tools();
 				$tools->paintBackend($this);
 			break;
 
 			case 'maps' :
 				require_once SQ_SYSTEM_ROOT.'/core/maps/maps.inc';
-				$maps = new Maps();
+				$maps =& new Maps();
 				$maps->paintBackend($this);
 			break;
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.263 2005/06/24 01:53:26 ndvries Exp $
+* $Id: asset_edit_interface.inc,v 1.264 2005/06/29 07:21:24 ndvries Exp $
 *
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.263 $
+* @version $Revision: 1.264 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -90,7 +90,7 @@ class Asset_Edit_Interface extends MySource_Object
 		$asset_dir = SQ_SYSTEM_ROOT.'/'.$type_info['dir'];
 		$class_name = $this->_type_code.'_edit_fns';
 		require_once $asset_dir.'/'.$class_name.'.inc';
-		$this->_edit_fns = new $class_name();
+		$this->_edit_fns =& new $class_name();
 
 		// check that the edit functions have a details tab or else
 		// we cant even create assets of this type let alone edit them
@@ -110,7 +110,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 		if (!($file = $this->findFile('screens'))) return;
 
-		$input = new XML_Tree($file);
+		$input =& new XML_Tree($file);
 		$root  = &$input->getTreeFromFile();
 		if (PEAR::isError($root)) {
 			trigger_localised_error('SYS0230', E_USER_WARNING, $file, $root->getMessage(), $root->getUserInfo());
@@ -909,7 +909,9 @@ class Asset_Edit_Interface extends MySource_Object
 			}
 
 			$section_access = $this->_getAccess($owner, $section, $prefix);
-			if (!($section_access & SQ_EI_READ)) continue;
+			if (!($section_access & SQ_EI_READ)) {
+				continue;
+			}
 
 			// if a translated display name has been specified, use it
 			if (isset($section->attributes['display_name'])) {
@@ -985,7 +987,9 @@ class Asset_Edit_Interface extends MySource_Object
 							}
 
 							$field_access = $this->_getAccess($owner, $field, $prefix, $section_access);
-							if (!($field_access & SQ_EI_READ)) continue;
+							if (!($field_access & SQ_EI_READ)) {
+								continue;
+							}
 
 							if (!isset($field->attributes['format'])) {
 								$field->attributes['format'] = '';
@@ -1215,7 +1219,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 			if (empty($file)) {
 				$file  = $this->findFile('screen_'.$screen);
-				$input = new XML_Tree($file);
+				$input =& new XML_Tree($file);
 				$root  = &$input->getTreeFromFile();
 				if (PEAR::isError($root)) {
 					trigger_error($root->getMessage()."\n".$root->getUserInfo(), E_USER_WARNING); //asst-val-db fix
@@ -1388,7 +1392,9 @@ class Asset_Edit_Interface extends MySource_Object
 			}
 
 			$section_access = $this->_getAccess($owner, $section, $prefix);
-			if (!($section_access & SQ_EI_READ)) continue;
+			if (!($section_access & SQ_EI_READ)) {
+				continue;
+			}
 
 			// if we are getting this section, start buffering output
 			if ($get_section) ob_start();
@@ -1455,7 +1461,9 @@ class Asset_Edit_Interface extends MySource_Object
 					}*/
 
 					$field_access = $this->_getAccess($owner, $field, $prefix, $section_access);
-					if (!($field_access & SQ_EI_READ)) continue;
+					if (!($field_access & SQ_EI_READ)) {
+						continue;
+					}
 
 					if (!isset($field->attributes['format'])) {
 						$field->attributes['format'] = '';
@@ -1684,7 +1692,7 @@ class Asset_Edit_Interface extends MySource_Object
 					if (empty($file)) {
 						$root = null;
 					} else {
-						$input = new XML_Tree($file);
+						$input =& new XML_Tree($file);
 						$root  = &$input->getTreeFromFile();
 						if (PEAR::isError($root)) {
 							trigger_error($root->getMessage()."\n".$root->getUserInfo(), E_USER_WARNING); //ast-val-db fix
@@ -1732,7 +1740,9 @@ class Asset_Edit_Interface extends MySource_Object
 					}
 
 					$section_access = $this->_getAccess($owner, $section, $prefix);
-					if (!($section_access & SQ_EI_READ)) continue;
+					if (!($section_access & SQ_EI_READ)) {
+						continue;
+					}
 
 					// if this is section only has function call, then process accordingly
 					if ($section->children[0]->name == 'function_call') {
@@ -1768,7 +1778,9 @@ class Asset_Edit_Interface extends MySource_Object
 							$last_child = count($field->children)-1;
 
 							$field_access = $this->_getAccess($owner, $field, $prefix, $section_access);
-							if (!($field_access & SQ_EI_WRITE)) continue;
+							if (!($field_access & SQ_EI_WRITE)) {
+								continue;
+							}
 
 							if (!empty($field->attributes['attribute'])) {
 								// if this ain't a field, or if we are printing the create interface and this field is not included in that, ignore it
@@ -2102,7 +2114,7 @@ class Asset_Edit_Interface extends MySource_Object
 		$root = null;
 
 		if (($file = $this->findFile($screen_name))) {
-			$input = new XML_Tree($file);
+			$input =& new XML_Tree($file);
 			$root  = &$input->getTreeFromFile();
 			if (PEAR::isError($root)) {
 				trigger_error($root->getMessage()."\n".$root->getUserInfo(), E_USER_WARNING);
@@ -2146,7 +2158,7 @@ class Asset_Edit_Interface extends MySource_Object
 			return Array($create_sections, '');
 		}
 
-		$input = new XML_Tree($create_file);
+		$input =& new XML_Tree($create_file);
 		$root  = &$input->getTreeFromFile();
 		if (PEAR::isError($root)) {
 			trigger_error($root->getMessage()."\n".$root->getUserInfo(), E_USER_WARNING);

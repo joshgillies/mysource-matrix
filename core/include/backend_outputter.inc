@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.111 2005/06/24 01:53:26 ndvries Exp $
+* $Id: backend_outputter.inc,v 1.112 2005/06/29 07:21:24 ndvries Exp $
 *
 */
 
@@ -42,7 +42,7 @@ define('SQ_BO_MSG_ERROR',   4);
 *    there will only ever be one instance of this object
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.111 $
+* @version $Revision: 1.112 $
 * @package MySource_Matrix
 */
 class Backend_Outputter
@@ -1009,7 +1009,7 @@ class Backend_Outputter
 					if (count($this->_messages)) {
 						require_once 'XML/Tree.php';
 						require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-						$msgs = new XML_Tree();
+						$msgs =& new XML_Tree();
 						$msgs_root = &$msgs->addRoot('messages');
 						foreach ($this->_messages as $data) {
 							$msg_body = '<p>'.htmlentities(nl2br($data['msg'])).'</p>';
@@ -1251,7 +1251,13 @@ class Backend_Outputter
 						switch ($field['format']) {
 							case 'new_line' :
 								?>
-									<tr <?php if ($field['hidden']) echo 'style="display: none"'; ?> <?php if ($field['id_name']) echo 'id="'.$field['id_name'].'"'; ?>>
+									<tr <?php
+										if ($field['hidden']) echo 'style="display: none"';
+									?> <?php
+										if ($field['id_name']) {
+											echo 'id="'.$field['id_name'].'"';
+										}
+									?>>
 										<td nowrap valign="top" class="sq-backend-field" colspan="3">
 											<a name="field_<?php echo $field['field_count']; ?>"></a>
 											<?php echo $field['name'];?>
@@ -1277,7 +1283,13 @@ class Backend_Outputter
 
 							case 'commit' :
 								?>
-								<tr <?php if ($field['hidden']) echo 'style="display: none"'; ?> <?php if ($field['id_name']) echo 'id="'.$field['id_name'].'"'; ?>>
+								<tr <?php
+									if ($field['hidden']) echo 'style="display: none"';
+								?> <?php
+									if ($field['id_name']) {
+										echo 'id="'.$field['id_name'].'"';
+									}
+								?>>
 									<td width="100%" valign="top" class="sq-backend-data" style="text-align: right;" colspan="3">
 									<?php
 										echo $field['contents'];
@@ -1294,7 +1306,13 @@ class Backend_Outputter
 
 							default :
 							?>
-								<tr <?php if ($field['hidden']) echo 'style="display: none"'; ?> <?php if ($field['id_name']) echo 'id="'.$field['id_name'].'"'; ?>>
+								<tr <?php
+									if ($field['hidden']) echo 'style="display: none"';
+								?> <?php
+									if ($field['id_name']) {
+										echo 'id="'.$field['id_name'].'"';
+									}
+								?>>
 									<td nowrap valign="top" class="sq-backend-field">
 										<a name="field_<?php echo $field['field_count']; ?>"></a>
 										<?php echo $field['name'];?>

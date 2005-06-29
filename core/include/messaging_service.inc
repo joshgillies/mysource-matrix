@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: messaging_service.inc,v 1.41 2005/06/24 05:12:01 ndvries Exp $
+* $Id: messaging_service.inc,v 1.42 2005/06/29 07:21:24 ndvries Exp $
 *
 */
 
@@ -44,7 +44,7 @@ define('SQ_MSG_PRIORITY_VERY_HIGH' , 5);
 *    Facilitate the sending and management of internal messages
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.41 $
+* @version $Revision: 1.42 $
 * @package MySource_Matrix
 */
 class Messaging_Service extends MySource_Object
@@ -299,7 +299,7 @@ class Messaging_Service extends MySource_Object
 	{
 		require_once SQ_INCLUDE_PATH.'/internal_message.inc';
 
-		$new_message = new Internal_Message();
+		$new_message =& new Internal_Message();
 		$new_message->sent         = ts_iso8601(time());
 		$new_message->from         = $GLOBALS['SQ_SYSTEM']->currentUserId();
 		$new_message->to           = $to;
@@ -547,7 +547,7 @@ class Messaging_Service extends MySource_Object
 	function sendQueuedEmails()
 	{
 		$crlf = "\n";
-		$mime = new Mail_mime($crlf);
+		$mime =& new Mail_mime($crlf);
 
 		foreach ($this->_emails as $from => $from_emails) {
 			// work out the email address the the email will be sent from

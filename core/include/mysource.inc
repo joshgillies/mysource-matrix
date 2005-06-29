@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.125 2005/06/23 22:53:44 tbarrett Exp $
+* $Id: mysource.inc,v 1.126 2005/06/29 07:21:24 ndvries Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.125 $
+* @version $Revision: 1.126 $
 * @package MySource_Matrix
 */
 class MySource
@@ -201,10 +201,10 @@ class MySource
 		$this->changeDatabaseConnection('db');
 
 		// initialise the asset manager as we are going to need it pretty much everywhere
-		$this->am = new Asset_Manager();
+		$this->am =& new Asset_Manager();
 
 		// Same with the locale manager; translations will be all around us
-		$this->lm = new Locale_Manager();
+		$this->lm =& new Locale_Manager();
 
 		$this->lm->setCurrentLocale(SQ_CONF_DEFAULT_BACKEND_LOCALE);
 
@@ -305,7 +305,7 @@ class MySource
 
 			if ($this->user && !is_a($this->user, 'public_user')) {
 				require_once SQ_INCLUDE_PATH.'/backend.inc';
-				$backend = new Backend();
+				$backend =& new Backend();
 				$this->backend =& $backend;
 				$backend->paint();
 			} else {
@@ -766,7 +766,7 @@ class MySource
 
 			case 'asset_map_request' :
 				require_once SQ_LIB_PATH.'/asset_map/asset_map.inc';
-				$asset_map = new Asset_Map();
+				$asset_map =& new Asset_Map();
 				$asset_map->process($this->backend);
 				exit();
 			break;
@@ -1285,7 +1285,7 @@ class MySource
 	{
 		if (!isset($this->ms) || get_class($this->ms) != 'messaging_service') {
 			require_once SQ_INCLUDE_PATH.'/messaging_service.inc';
-			$this->ms = new Messaging_Service();
+			$this->ms =& new Messaging_Service();
 		}
 		return $this->ms;
 
@@ -1305,7 +1305,7 @@ class MySource
 		if (!isset($this->fv) || get_class($this->fv) != 'file_versioning') {
 			require_once SQ_LIB_PATH.'/file_versioning/file_versioning.inc';
 			$this->changeDatabaseConnection('db'); // just to make sure
-			$this->fv = new File_Versioning(SQ_DATA_PATH.'/file_repository', $this->db);
+			$this->fv =& new File_Versioning(SQ_DATA_PATH.'/file_repository', $this->db);
 			$this->restoreDatabaseConnection();
 		}
 		return $this->fv;
@@ -1325,7 +1325,7 @@ class MySource
 	{
 		if (!isset($this->hh) || get_class($this->hh) != 'hipo_herder') {
 			require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_herder.inc';
-			$this->hh = new Hipo_Herder();
+			$this->hh =& new Hipo_Herder();
 		}
 		return $this->hh;
 
@@ -1344,7 +1344,7 @@ class MySource
 	{
 		if (!isset($this->mm) || get_class($this->mm) != 'metadata_manager') {
 			require_once SQ_INCLUDE_PATH.'/metadata_manager.inc';
-			$this->mm = new Metadata_Manager();
+			$this->mm =& new Metadata_Manager();
 		}
 		return $this->mm;
 
@@ -1363,7 +1363,7 @@ class MySource
 	{
 		if (!isset($this->wm) || get_class($this->wm) != 'workflow_manager') {
 			require_once SQ_INCLUDE_PATH.'/workflow_manager.inc';
-			$this->wm = new Workflow_Manager();
+			$this->wm =& new Workflow_Manager();
 		}
 		return $this->wm;
 
@@ -1382,7 +1382,7 @@ class MySource
 	{
 		if (!isset($this->em) || get_class($this->em) != 'event_manager') {
 			require_once SQ_INCLUDE_PATH.'/event_manager.inc';
-			$this->em = new Event_Manager();
+			$this->em =& new Event_Manager();
 		}
 		return $this->em;
 
@@ -1611,7 +1611,7 @@ class MySource
 	{
 		if (!isset($this->tm) || get_class($this->tm) != 'transaction_manager') {
 			require_once SQ_INCLUDE_PATH.'/transaction_manager.inc';
-			$this->tm = new Transaction_Manager();
+			$this->tm =& new Transaction_Manager();
 		}
 		// Use this when there is a transaction problem to create a log and then run this from the cmd line
 		// and look for the fn with the odd number of calls

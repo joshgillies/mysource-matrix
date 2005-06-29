@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: internal_message.inc,v 1.61 2005/06/16 02:54:47 tbarrett Exp $
+* $Id: internal_message.inc,v 1.62 2005/06/29 07:21:24 ndvries Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    An internal message to be sent around the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.61 $
+* @version $Revision: 1.62 $
 * @package MySource_Matrix
 */
 class Internal_Message extends MySource_Object
@@ -359,7 +359,7 @@ class Internal_Message extends MySource_Object
 
 			// new line is \n
 			$crlf = "\n";
-			$mime = new Mail_mime($crlf);
+			$mime =& new Mail_mime($crlf);
 			$mail =& Mail::factory('mail', "-f$from_email");
 
 			// send each user a message - via email and into their internal message inbox

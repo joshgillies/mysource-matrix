@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: details.inc,v 1.18 2005/06/24 05:37:18 ndvries Exp $
+* $Id: details.inc,v 1.19 2005/06/29 07:21:24 ndvries Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Details Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix
 */
 
@@ -198,7 +198,7 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=null)
 							if ($cron_epoc > 0 && $cron_refresh > 0) {
 								require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 								$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_status');
-								$fs = new Cron_Job_Future_Status();
+								$fs =& new Cron_Job_Future_Status();
 								$edit_fns = $fs->getEditFns();
 
 								if (!is_null($keywords) && isset($keywords['fields']['status_future_status'])) {
@@ -418,7 +418,7 @@ function processDetails(&$owner, &$o, &$ei)
 
 		if ($owner->writeAccess('')) {
 
-			$fs = new Cron_Job_Future_Status();
+			$fs =& new Cron_Job_Future_Status();
 			$edit_fns = $fs->getEditFns();
 			if ($edit_fns->processInLineBackend($fs, $o, $prefix.'_new_fs')) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');

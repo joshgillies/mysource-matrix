@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata.inc,v 1.16 2005/06/24 05:37:18 ndvries Exp $
+* $Id: metadata.inc,v 1.17 2005/06/29 07:21:24 ndvries Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * MetaData Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix
 */
 
@@ -67,7 +67,9 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=null)
 		}
 
 		$section_access = $ei->_getAccess($owner, $section, $prefix);
-		if (!($section_access & SQ_EI_READ)) continue;
+		if (!($section_access & SQ_EI_READ)) {
+			continue;
+		}
 
 		if (!is_null($keywords) && isset($keywords['sections'][strtolower($section->attributes['name'])])) {
 			ob_start();
@@ -83,7 +85,9 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=null)
 			$field = &$section->children[$j];
 
 			$field_access = $ei->_getAccess($owner, $field, $prefix);
-			if (!($field_access & SQ_EI_READ)) continue;
+			if (!($field_access & SQ_EI_READ)) {
+				continue;
+			}
 
 			switch (strtolower($field->attributes['code'])) {
 

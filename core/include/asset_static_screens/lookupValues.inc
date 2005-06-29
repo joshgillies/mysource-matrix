@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: lookupValues.inc,v 1.7 2005/04/15 00:37:28 lwright Exp $
+* $Id: lookupValues.inc,v 1.8 2005/06/29 07:21:24 ndvries Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Settings Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix
 */
 
@@ -73,9 +73,13 @@ function paintLookupValues(&$owner, &$o, &$ei)
 
 	foreach ($lookup_values as $url => $data) {
 		foreach ($data as $value_name => $value_data) {
-			if (!preg_match('/^([^:]+)(::|$)/', $value_name, $matches=Array())) continue;
+			if (!preg_match('/^([^:]+)(::|$)/', $value_name, $matches=Array())) {
+				continue;
+			}
 			if (!isset($values[$matches[1]])) continue; // unknown prefix..
-			if (!isset($values[$matches[1]][$url])) $values[$matches[1]][$url] = Array();
+			if (!isset($values[$matches[1]][$url])) {
+				$values[$matches[1]][$url] = Array();
+			}
 			$values[$matches[1]][$url][$value_name] = $value_data;
 		}
 	}
@@ -135,9 +139,13 @@ function processLookupValues(&$owner, &$o, &$ei)
 			foreach ($values_data as $value_name => $data) {
 				// no value ? delete...
 				if ($data['value'] == '') {
-					if (isset($lookup_values[$url][$value_name])) unset($lookup_values[$url][$value_name]);
+					if (isset($lookup_values[$url][$value_name])) {
+						unset($lookup_values[$url][$value_name]);
+					}
 				} else {
-					if (!isset($lookup_values[$url])) $lookup_values[$url] = Array();
+					if (!isset($lookup_values[$url])) {
+						$lookup_values[$url] = Array();
+					}
 					$lookup_values[$url][$value_name] = Array('value' => $data['value']);
 				}
 			}

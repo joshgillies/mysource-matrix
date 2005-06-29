@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: history.inc,v 1.10 2005/05/11 06:05:11 lwright Exp $
+* $Id: history.inc,v 1.11 2005/06/29 07:21:24 ndvries Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * History Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix
 */
 
@@ -112,8 +112,11 @@ function paintHistory(&$owner, &$o, &$ei)
 						$ago = easy_time_total(time() - strtotime($from), true);
 						list($fd, $ft) = explode(' ', $from);
 						list($td, $tt) = explode(' ', $to);
-						if ($fd == $td) $to = $tt;
-						else $to = date('d/m/Y H:i:s', strtotime($to));
+						if ($fd == $td) {
+							$to = $tt;
+						} else {
+							$to = date('d/m/Y H:i:s', strtotime($to));
+						}
 					}
 
 					?>

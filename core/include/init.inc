@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: init.inc,v 1.85 2005/06/24 05:12:01 ndvries Exp $
+* $Id: init.inc,v 1.86 2005/06/29 07:21:24 ndvries Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * The file that needs to be included to do anything
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.85 $
+* @version $Revision: 1.86 $
 * @package MySource_Matrix
 */
 
@@ -213,7 +213,7 @@ if (get_magic_quotes_gpc()) {
 
 // create and init the system object
 require_once SQ_INCLUDE_PATH.'/mysource.inc';
-$GLOBALS['SQ_SYSTEM'] = new MySource();
+$GLOBALS['SQ_SYSTEM'] =& new MySource();
 $GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_SECURE);
 $GLOBALS['SQ_SYSTEM']->init();
 

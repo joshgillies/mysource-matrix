@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_attribute.inc,v 1.37 2005/06/09 00:55:37 tbarrett Exp $
+* $Id: asset_attribute.inc,v 1.38 2005/06/29 07:21:24 ndvries Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix
 */
 class Asset_Attribute extends MySource_Object
@@ -148,7 +148,7 @@ class Asset_Attribute extends MySource_Object
 	* @static
 	* @access public
 	*/
-	function loadAttribute($attributeid=0, $value=null, $default_params=Array())
+	function &loadAttribute($attributeid=0, $value=null, $default_params=Array())
 	{
 		if ($attributeid == 0) {
 			return new Asset_Attribute(0, $value, $default_params);;

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: permissions.inc,v 1.22 2005/05/20 06:33:22 tbarrett Exp $
+* $Id: permissions.inc,v 1.23 2005/06/29 07:21:24 ndvries Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Permissions Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix
 */
 
@@ -311,7 +311,7 @@ function processPermissions(&$owner, &$o, &$ei)
 		// grant access to a user
 		if (!empty($post_data['new']['userid']['assetid'])) {
 			if (!isset($post_data['new']['granted']) || $post_data['new']['granted'] == '') {
-				trigger_localised_error("SYS0269", E_USER_NOTICE, $post_data['new']['userid']['assetid']);
+				trigger_localised_error('SYS0269', E_USER_NOTICE, $post_data['new']['userid']['assetid']);
 			} else {
 					$permission_vars[$perm][] = Array(
 													'granted'			=> (int)$post_data['new']['granted'],
@@ -351,8 +351,8 @@ function processPermissions(&$owner, &$o, &$ei)
 	if (!empty($permission_vars)) {
 		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$vars = Array(
-					'assets'				=> Array($owner->id => Array('type_code' => $owner->type())), 
-					'permission_changes'	=> $permission_vars
+					'assets'				=> Array($owner->id => Array('type_code' => $owner->type())),
+					'permission_changes'	=> $permission_vars,
 				);
 		if (!$cascade_changes) $vars['dependants_only'] = 1;
 		$hh->queueHipo('hipo_job_edit_permissions', $vars);

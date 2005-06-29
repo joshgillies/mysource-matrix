@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_management.inc,v 1.70 2005/05/27 07:32:38 rhoward Exp $
+* $Id: asset_management.inc,v 1.71 2005/06/29 07:21:24 ndvries Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_LIB_PATH.'/xml_array/xml_array.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.70 $
+* @version $Revision: 1.71 $
 * @package MySource_Matrix
 */
 class Asset_Management extends MySource_Object
@@ -886,7 +886,7 @@ class Asset_Management extends MySource_Object
 		// check that the default value is valid
 		require_once SQ_ATTRIBUTES_PATH.'/'.$attr_type.'/'.$attr_type.'.inc';
 		$class = 'Asset_Attribute_'.$attr_type;
-		$attr = new $class();
+		$attr =& new $class();
 		foreach ($parameters as $k => $v) {
 			$attr->_params[$k] = $v;
 		}
@@ -1026,7 +1026,7 @@ class Asset_Management extends MySource_Object
 
 		if (!isset($GLOBALS['SQ_ASSET_MANAGEMENT_ASSET_INFO'][$file])) {
 
-			$xml_array = new XML_Array(Asset_Management::getAssetArrayPaths());
+			$xml_array =& new XML_Array(Asset_Management::getAssetArrayPaths());
 
 			$info = $xml_array->getArrayFromFile($file);
 			if (PEAR::isError($info)) {

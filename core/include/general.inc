@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.92 2005/06/24 01:53:26 ndvries Exp $
+* $Id: general.inc,v 1.93 2005/06/29 07:21:24 ndvries Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.92 $
+* @version $Revision: 1.93 $
 * @package MySource_Matrix
 */
 
@@ -108,7 +108,7 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 				$msg = "$err_msg\nFile: $err_file\nLine:$err_line";
 
 				require_once 'XML/Tree.php';
-				$output = new XML_Tree();
+				$output =& new XML_Tree();
 				$root = &$output->addRoot('error', $msg);
 				header('Content-Type: text/xml');
 				$output->dump();
@@ -611,7 +611,9 @@ function bit_elements($num)
 	$elems = Array();
 	while ($num > 0) {
 		// if the first bit is set then this number is one of the elements
-		if ($num & 1) $elems[] = $count;
+		if ($num & 1) {
+			$elems[] = $count;
+		}
 		$count *= 2;
 		// we just keep shifting right until there aren't anymore numbers
 		$num = $num >> 1;

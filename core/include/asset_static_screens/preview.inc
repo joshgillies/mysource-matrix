@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: preview.inc,v 1.9 2005/06/08 00:34:53 dmckee Exp $
+* $Id: preview.inc,v 1.10 2005/06/29 07:21:24 ndvries Exp $
 */
 
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -27,7 +27,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Preview Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix
 */
 
@@ -96,14 +96,20 @@ function paintPreview(&$owner, &$o, &$ei)
 		foreach ($url_data as $url_info) {
 			$protocol = ($url_info['https']) ? 'https://' : 'http://';
 			$preview_urls[$protocol.$url_info['url']] = $protocol.$url_info['url'];
-			if (empty($primary_url)) $primary_url = $protocol.$url_info['url'];
+			if (empty($primary_url)) {
+				$primary_url = $protocol.$url_info['url'];
+			}
 
 			$url_pieces = parse_url($protocol.$url_info['url']);
-			if ($url_pieces['host'] != $current_url['host']) $contains_diff_domain = true;
+			if ($url_pieces['host'] != $current_url['host']) {
+				$contains_diff_domain = true;
+			}
 
 			if (!empty($url_info['name'])) {
 				$design_name = $url_info['name'];
-				if (!preg_match('/^design::(system|user)::(.*)$/', $design_name, $matches)) continue;
+				if (!preg_match('/^design::(system|user)::(.*)$/', $design_name, $matches)) {
+					continue;
+				}
 				if ($matches[1] == 'user') {
 					$preview_designs[$matches[2]] = ucwords(str_replace('_', ' ', $matches[2]));
 				} else if ($design_name == 'design::system::frontend') {
@@ -111,7 +117,9 @@ function paintPreview(&$owner, &$o, &$ei)
 				}
 			}
 		}
-		if (!$has_default_design) $preview_designs[''] = 'None';
+		if (!$has_default_design) {
+			$preview_designs[''] = 'None';
+		}
 
 		$o->openRaw();
 			?>
@@ -174,7 +182,7 @@ function paintPreview(&$owner, &$o, &$ei)
 			$o->openRaw();
 				?>
 				<p style="text-align: right;">
-					<?php normal_button('preview_button', translate('preview'), "set_preview_url()"); ?>
+					<?php normal_button('preview_button', translate('preview'), 'set_preview_url()'); ?>
 				</p>
 				<?php
 			$o->closeRaw();

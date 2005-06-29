@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager.inc,v 1.69 2005/05/27 07:32:38 rhoward Exp $
+* $Id: package_manager.inc,v 1.70 2005/06/29 07:21:24 ndvries Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
 *    packages and their assets, uses info gleened from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.69 $
+* @version $Revision: 1.70 $
 * @package MySource_Matrix
 */
 class Package_Manager extends MySource_Object
@@ -105,7 +105,7 @@ class Package_Manager extends MySource_Object
 		$this->_base_path = substr($this->_full_path, strlen(SQ_SYSTEM_ROOT) + 1);
 
 		if (file_exists($this->_full_path.'/package.xml')) {
-			$xml = new XML_Array();
+			$xml =& new XML_Array();
 			$info = $xml->getArrayFromFile($this->_full_path.'/package.xml');
 			if (PEAR::isError($info)) {
 				trigger_error('SYS0066', E_USER_ERROR, $info->error_message_prefix, $info->message); //ast-val-db fix
@@ -275,7 +275,7 @@ class Package_Manager extends MySource_Object
 				// make sure the class exists
 				if (class_exists($class)) {
 					// now just create an instance of it, and run update()
-					$management = new $class($this);
+					$management =& new $class($this);
 					if (!$management->update()) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						return false;
@@ -473,7 +473,7 @@ class Package_Manager extends MySource_Object
 	*/
 	function _createAssetMapScreensXML($deferred=Array())
 	{
-		$output = new XML_Tree();
+		$output =& new XML_Tree();
 		$root = &$output->addRoot('tmp', '');
 		$str  = '';
 
@@ -500,7 +500,7 @@ class Package_Manager extends MySource_Object
 				$type_node->addChild('screen', $ef->static_screens['details']['name'], Array('code_name' => 'details'));
 			}
 
-			$ei = new Asset_Edit_Interface($type_code);
+			$ei =& new Asset_Edit_Interface($type_code);
 			$screens = $ei->getScreens();
 			for (reset($screens); null !== ($code_name = key($screens)); next($screens)) {
 				if ($screens[$code_name]['invisible']) continue;
@@ -538,7 +538,7 @@ class Package_Manager extends MySource_Object
 	*/
 	function checkRequirementsFromFile($file, $need_feedback=false)
 	{
-		$xml_array = new XML_Array(Asset_Management::getAssetArrayPaths());
+		$xml_array =& new XML_Array(Asset_Management::getAssetArrayPaths());
 		$info = $xml_array->getArrayFromFile($file);
 		if (PEAR::isError($info)) {
 			trigger_error('SYS0067', E_USER_WARNING, $info->error_message_prefix, $info->message); //ast-val-db fix
@@ -690,7 +690,7 @@ class Package_Manager extends MySource_Object
 
 			// make sure the class exists
 			if (class_exists($class)) {
-				$prefs = new $class();
+				$prefs =& new $class();
 				if (!isset($preferences[$type_code])) {
 					$preferences[$type_code] = $prefs->pref_vars;
 				} else {
@@ -755,7 +755,7 @@ class Package_Manager extends MySource_Object
 		// regen the system assets file if needed
 		if ($updated) {
 			require_once SQ_INCLUDE_PATH.'/system_asset_config.inc';
-			$sys_asset_cfg = new System_Asset_Config();
+			$sys_asset_cfg =& new System_Asset_Config();
 			$sys_asset_cfg->save(Array(), false);
 		}
 

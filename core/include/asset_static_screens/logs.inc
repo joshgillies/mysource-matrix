@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: logs.inc,v 1.13 2005/05/11 06:05:11 lwright Exp $
+* $Id: logs.inc,v 1.14 2005/06/29 07:21:24 ndvries Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Logs Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix
 */
 
@@ -62,7 +62,9 @@ function paintLogs(&$owner, &$o, &$ei)
 	$o->openSection(translate('logged_messages'));
 		$o->openRaw();
 			$type_options = Array();
-			foreach ($log_types as $type) $type_options[$type] = ucwords(str_replace(Array('.', '_'), ' ', $type));
+			foreach ($log_types as $type) {
+				$type_options[$type] = ucwords(str_replace(Array('.', '_'), ' ', $type));
+			}
 
 			echo '<b>'.translate('log_type').'</b>&nbsp;';
 			combo_box('sq_backend_log_type', $type_options, false, $active_log_type);
@@ -126,7 +128,9 @@ function paintLogs(&$owner, &$o, &$ei)
 					$num_per_page = 10;
 					$num_logs = count($logs);
 					$start_printing_at = 0;
-					if (isset($_REQUEST[$prefix.'_start_at'])) $start_printing_at = (int) $_REQUEST[$prefix.'_start_at'];
+					if (isset($_REQUEST[$prefix.'_start_at'])) {
+						$start_printing_at = (int) $_REQUEST[$prefix.'_start_at'];
+					}
 					for ($i = 0; $i < $num_logs; $i++) {
 						if ($i < $start_printing_at) {
 							$i++;
