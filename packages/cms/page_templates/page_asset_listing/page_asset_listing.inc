@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.42.2.5 2005/06/29 01:30:27 ykasim Exp $
+* $Id: page_asset_listing.inc,v 1.42.2.6 2005/06/29 01:51:11 ykasim Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.42.2.5 $
+* @version $Revision: 1.42.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -510,6 +510,7 @@ class Page_Asset_Listing extends Page
 		$group_by = $this->attr('group_by');
 		// we work out what screen we are on here so we can correctly cache the screen with a unique ID
 		// note that we never cache the results of a random asset listing for obvious reasons
+		$cache_key = '';
 		switch ($group_by) {
 			case 'number' :
 				$cache_key = (isset($_REQUEST['result_page'])) ? (int)$_REQUEST['result_page'] : 1;
