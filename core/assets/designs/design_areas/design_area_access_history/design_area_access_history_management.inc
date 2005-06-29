@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_access_history_management.inc,v 1.1 2005/05/09 05:12:04 arailean Exp $
+* $Id: design_area_access_history_management.inc,v 1.2 2005/06/29 23:37:18 pgannavarapu Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -74,6 +74,12 @@ class Design_Area_Access_History_Management extends Asset_Management
 												'type'			=> 'text',
 												'default'		=> 'G:i:s',
 												'description'	=> 'format string as specified by date() PHP function',
+											   ),
+						'exclude_assets'	=> Array(
+												'added'			=> '0.1',
+												'type'			=> 'serialise',
+												'default'		=> Array(),
+												'description'	=> 'These assets are excluded from the asset history',
 											   ),
 					  );
 

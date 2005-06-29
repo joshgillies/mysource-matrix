@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_access_history_edit_fns.inc,v 1.3 2005/06/29 07:02:17 pgannavarapu Exp $
+* $Id: design_area_access_history_edit_fns.inc,v 1.4 2005/06/29 23:37:18 pgannavarapu Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *	Print the last N assets viewed
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -172,6 +172,7 @@ class Design_Area_Access_History_Edit_Fns extends Design_Area_Edit_Fns
 	function _createDesignFileOutput($contents, &$asset, &$design)
 	{
 		$area_id = $asset->attr('id_name');
+		$exclude_assets = $asset->attr('exclude_assets');
 		$asset_types = $asset->attr('asset_types');
 		$max_count = $asset->attr('asset_count');
 		$time_format = $asset->attr('time_format');
@@ -183,6 +184,7 @@ class Design_Area_Access_History_Edit_Fns extends Design_Area_Edit_Fns
 
 		echo '
 			<?php
+				$exclude_assets = '.var_export($exclude_assets,true).';
 				$allowed_asset_types = '.var_export($asset_types,true).';
 				$max_asset_count = '.$max_count.';
 				//// Access History Design Area
@@ -198,7 +200,8 @@ class Design_Area_Access_History_Edit_Fns extends Design_Area_Edit_Fns
 				// check if this asset type is being tracked
 				$require_query_vars = array_get_index($allowed_asset_types, $ASSET->type());
 
-				if (!is_null($require_query_vars)) {
+				$excluded = in_array($ASSET->id, $exclude_assets);
+				if (!is_null($require_query_vars) && (!$excluded)) {
 					// check how existence of query vars influences history recording
 					$url = null;
 					$query_var = array_get_index($_SERVER, "QUERY_STRING");
@@ -415,6 +418,58 @@ class Design_Area_Access_History_Edit_Fns extends Design_Area_Edit_Fns
 		return true;
 
 	}//end processAssetTypes()
+
+
+	/**
+	* Paints the Exclued Assets. These assets are not included in the Asset History.
+	*
+	* @param object Design_Area_Access_History	&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter			&$o		the outputter class
+	* @param string								$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintExcludeAssets(&$asset, &$o, $prefix)
+	{
+		if ($asset->writeAccess('attributes')){
+			multiple_asset_finder($prefix.'exclude_assets', $asset->attr('exclude_assets'), Array());
+			return true;
+		} else {
+			$asset_ids = $asset->attr('exclude_assets');
+			$asset_names = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($asset_ids, Array(), true, 'name');
+			foreach ($asset_names as $id => $name) {
+				echo $name.' (id #'.$id.') <br />';
+			}
+			return false;
+		}
+
+	}//end paintExcludeAssets()
+
+
+	/**
+	* Process the Exclude Assets.
+	*
+	* @param object Design_Area_Access_History	&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter			&$o		the outputter class
+	* @param string								$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processExcludeAssets(&$asset, &$o, $prefix)
+	{
+		if (isset($_POST[$prefix.'exclude_assets'])) {
+			$asset_ids = Array();
+			foreach ( $_POST[$prefix.'exclude_assets']	as $asset_info ) {
+				$asset_ids[] = $asset_info['assetid'];
+			}
+			return ($asset->setAttrValue('exclude_assets',$asset_ids));
+		} else {
+			return false;
+		}
+
+	}//end processExcludeAssets()
 
 
 }//end class
