@@ -421,7 +421,6 @@ TTable = function(name, rows, cols)
 
 	}
 
-
 	this.Export = function()
 	{
 		var out = '<table id="' + this.id + '" cellpadding="' + this.cellpadding + '" cellspacing="' + this.cellspacing + '"';
@@ -1016,13 +1015,9 @@ TTable = function(name, rows, cols)
 		} else {
 			if (color != null) {
 				obj.borderColor = "#" + color;
-				//obj.borderStyle = "solid";
-				//obj.borderWidth = "1px";
 				document.getElementById("border").style.background = obj.borderColor;
 			} else {
 				obj.borderColor = null;
-				//obj.borderStyle = null;
-				//obj.borderWidth = null;
 				document.getElementById("border").style.background = "url(" + this.empty + ")";
 			}
 		}
@@ -1124,7 +1119,6 @@ TTable = function(name, rows, cols)
 
 		this.style = "";
 		if (table.style.background != "")		this.style += "background: " + table.style.background + ";";
-		//if (table.style.border != "")			this.style += "border: " + table.style.border + ";";
 		var borderParts = table.style.border.split(' ');
 		var i = 0;
 		while (i < borderParts.length) {
@@ -1327,22 +1321,18 @@ TTable = function(name, rows, cols)
 			for (i = 0; i < this.cols; i++) {
 				this.matrix[this.r].cells[i].borderWidth = new_size + 'px';
 				this.matrix[this.r].cells[i].borderStyle = style;
-				//this.matrix[this.r].cells[i].borderColor = color;
 			}
 		} else if (this.lastSelect == 'col') {
 			for (i = 0; i < this.rows; i++) {
 				this.matrix[i].cells[this.c].borderWidth = new_size + 'px';
 				this.matrix[i].cells[this.c].borderStyle = style;
-				//this.matrix[i].cells[this.c].borderColor = color;
 			}
 		} else if (this.lastSelect == 'cell') {
 				this.matrix[this.r].cells[this.c].borderWidth = new_size + 'px';
 				this.matrix[this.r].cells[this.c].borderStyle = style;
-				//this.matrix[this.r].cells[this.c].borderColor = color;
 		} else if (this.selector == 'table') {
 				this.border = new_size;
 				this.borderStyle = style;
-				//this.matrix[this.r].cells[this.c].borderColor = color;
 		}
 		this.refresh();
 	}
