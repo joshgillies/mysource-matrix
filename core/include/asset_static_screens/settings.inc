@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: settings.inc,v 1.31 2005/06/29 07:21:24 ndvries Exp $
+* $Id: settings.inc,v 1.32 2005/06/29 23:46:24 skim Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Settings Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix
 */
 
@@ -110,7 +110,6 @@ function paintSettings(&$owner, &$o, &$ei)
 
 					$date_type = (strtolower($field->attributes['code']) == 'date_created_date') ? 'created' : 'published';
 					require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
-
 					$parameters = Array(
 									'min'			=> '0000-00-00 00:00:00',
 									'max'			=> '9999-12-31 12:59:59',
@@ -198,7 +197,8 @@ function paintSettings(&$owner, &$o, &$ei)
 								$info[$userid] = Array('name' => '&lt;unknown&gt;');
 							}
 
-							echo ucfirst($date_type).' '.strtolower(translate('by')).' '.$info[$userid]['name'].' '.strtolower(translate('on')).' '.date('d M Y h:i:s', strtotime($date_field->value));
+							echo ucfirst($date_type).' '.strtolower(translate('by')).' '.$info[$userid]['name'].' '.strtolower(translate('on')).' '.date('d M Y H:i:s', strtotime($date_field->value));
+
 						}
 					}
 
@@ -442,7 +442,6 @@ function paintSettings(&$owner, &$o, &$ei)
 						}
 
 						if (!$new_user_design) {
-
 							$effective_designs = Array();
 							foreach ($design_lookups as $url => $designs) {
 								if (empty($designs[$design_name])) continue;
