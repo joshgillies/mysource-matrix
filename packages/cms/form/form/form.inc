@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.70.2.19 2005/06/28 06:30:05 lwright Exp $
+* $Id: form.inc,v 1.70.2.20 2005/06/29 03:49:12 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.70.2.19 $
+* @version $Revision: 1.70.2.20 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1226,7 +1226,7 @@ class Form extends Bridge
 				foreach ($questions as $q_id => $question) {
 					$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
 					$q_name = $q_asset->attr('name');
-					$replacements['response_'.$q_asset->id] = $q_asset->getSummary($q_asset->getValue());
+					$replacements['response_'.str_replace(':', '_', $q_asset->id)] = $q_asset->getSummary($q_asset->getValue());
 				}
 
 				foreach ($sections as $section) {
@@ -1235,11 +1235,9 @@ class Form extends Bridge
 					foreach ($questions as $q_id => $question) {
 						$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($section->id.':q'.$q_id);
 						$q_name = $section->attr('name').': '.$q_asset->attr('name');
-						$replacements['response_'.$q_asset->id] = $q_asset->getSummary($q_asset->getValue());
+						$replacements['response_'.str_replace(':', '_', $q_asset->id)] = $q_asset->getSummary($q_asset->getValue());
 					}
 				}
-
-
 
 				$tyb->setKeywordReplacements($replacements + Array('form_summary' => &$summary_info));
 			}
