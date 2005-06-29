@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.42.2.3 2005/06/28 06:51:11 ykasim Exp $
+* $Id: page_asset_listing.inc,v 1.42.2.4 2005/06/29 01:15:56 ykasim Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.42.2.3 $
+* @version $Revision: 1.42.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -281,6 +281,7 @@ class Page_Asset_Listing extends Page
 		$cm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 
 		// we need a unique cache key to represent the current result page
+		//$cache_key = $this->_getCacheKey();
 		$cache_key = $this->_getCacheKey();
 
 		$cached_contents = '';
@@ -470,33 +471,33 @@ class Page_Asset_Listing extends Page
 
 
 	/**
-	* Return the root node of the asset
+	* Return the root node id of the asset
 	*
-	* @return Array
+	* @return root_node_id : int
 	*/
-	function getRootNode()
+	function getRootNodeId()
 	{
 		// get the root asset whose sub-assets/children we are displaying
 		// This may come from the parameter map, but the dynamic value must be a child of the static value
 		// if there is no root asset, we will use ourselves and print our children
-		$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', false, 'root');
-		$root_asset_id = empty($root_link) ? $this->id : $root_link['minorid'];
-		$parameter_map = &$this->getAttribute('parameter_map');
-		if ((null != ($dynamic_root = $parameter_map->getParameterValue('root_node'))) && (in_array($root_asset_id, $GLOBALS['SQ_SYSTEM']->am->getParents($dynamic_root)))) {
-			$root_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($dynamic_root);
-		} else {
-			if ($dynamic_root != null) {
-				trigger_error('Supplied root node is in an unauthorised part of the system.  Defaulting to static root node', E_USER_WARNING);
-			}
-			if ($root_asset_id == $this->id) {
-				$root_asset =& $this;
+		if (empty($this->_tmp['root_node_id'])) {
+			$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', false, 'root');
+			$root_asset_id = empty($root_link) ? $this->id : $root_link['minorid'];
+			$parameter_map = &$this->getAttribute('parameter_map');
+			if ((null != ($dynamic_root = $parameter_map->getParameterValue('root_node'))) && (in_array($root_asset_id, $GLOBALS['SQ_SYSTEM']->am->getParents($dynamic_root)))) {
+				$root_asset_id = $dynamic_root;
 			} else {
-				$root_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($root_link['minorid'], $root_link['minor_type_code']);
-				if (is_null($root_asset)) return Array();
+				if ($dynamic_root != null) {
+					trigger_error('Supplied root node is in an unauthorised part of the system.  Defaulting to static root node', E_USER_WARNING);
+				}
 			}
+
+			$this->_tmp['root_node_id'] = $root_asset_id;
 		}
-		return $root_asset;
-	}//ent getRootNode()
+		error_log('root_node_id : '.$this->_tmp['root_node_id']);
+		return $this->_tmp['root_node_id'];
+
+	}//end getRootNodeId()
 
 
 	/**
@@ -507,12 +508,9 @@ class Page_Asset_Listing extends Page
 	*/
 	function _getCacheKey()
 	{
-		$root_asset = $this->getRootNode();
-		$cache_key = $root_asset->id;
 		$group_by = $this->attr('group_by');
 		// we work out what screen we are on here so we can correctly cache the screen with a unique ID
 		// note that we never cache the results of a random asset listing for obvious reasons
-		$cache_key = '';
 		switch ($group_by) {
 			case 'number' :
 				$cache_key = (isset($_REQUEST['result_page'])) ? (int)$_REQUEST['result_page'] : 1;
@@ -523,7 +521,7 @@ class Page_Asset_Listing extends Page
 				$cache_key = (isset($_REQUEST['result_page'])) ? $_REQUEST['result_page'] : 'A';
 			break;
 		}
-		
+		$cache_key .= $this->getRootNodeId();
 		return $cache_key;
 
 	}//end _getCacheKey()
@@ -570,8 +568,8 @@ class Page_Asset_Listing extends Page
 		$wanted_types = $this->attr('types');
 		if (empty($wanted_types)) return Array();
 
-		
-		$root_asset = $this->getRootNode();
+		$root_asset_id = $this->getRootNodeId();
+		$root_asset = & $GLOBALS['SQ_SYSTEM']->am->getAsset($root_asset_id);
 
 		// this is what we are going to sort the reults by (passed directly to the getLinks
 		// and getChildren functions)
@@ -606,7 +604,9 @@ class Page_Asset_Listing extends Page
 						trigger_error($children->getMessage().'<br/>'.$children->getUserInfo(), E_USER_ERROR);
 						return Array();
 					}
-					foreach ($links as $link_info) $children[$link_info['minorid']] = Array('type_code' => $link_info['minor_type_code'], 'first_letter' => $link_info['first_letter']);
+					foreach ($links as $link_info) {
+						$children[$link_info['minorid']] = Array('type_code' => $link_info['minor_type_code'], 'first_letter' => $link_info['first_letter']);
+					}
 				break;
 
 				case 'random' :
@@ -620,7 +620,9 @@ class Page_Asset_Listing extends Page
 			switch ($group_by) {
 				case 'number' :
 					$children = $GLOBALS['SQ_SYSTEM']->am->getChildren($root_asset->id, array_keys($wanted_types), false, $sort_by, SQ_PERMISSION_READ);
-					if ($this->attr('reverse_sort')) $children = array_reverse($children, true);
+					if ($this->attr('reverse_sort')) {
+						$children = array_reverse($children, true);
+					}
 				break;
 
 				case 'letter' :
@@ -810,7 +812,7 @@ class Page_Asset_Listing extends Page
 		$asset_info_fields = Array(
 								'assetid','type_code','version','name','short_name',
 								'status','languages','charset','force_secure','created',
-								'created_userid','updated','updated_userid','published','published_userid'
+								'created_userid','updated','updated_userid','published','published_userid',
 							 );
 
 
@@ -927,6 +929,7 @@ class Page_Asset_Listing extends Page
 			echo $contents;
 
 		}//end foreach todo
+
 
 	}//end printAssetList()
 
