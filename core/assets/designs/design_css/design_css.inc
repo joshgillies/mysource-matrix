@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css.inc,v 1.11 2005/06/28 23:31:17 mnyeholt Exp $
+* $Id: design_css.inc,v 1.12 2005/06/29 00:24:36 mnyeholt Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design.inc';
 * in standard Designs
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -408,7 +408,6 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 		$edit_fns = $this->getEditFns();
 		$edit_fns->createDesignFile($this);
 
-		$do_customisations = true;
 		if ($do_customisations) {
 			$customisation_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'design_css_customisation', true, 'major', 'customisation');
 			$am = &$GLOBALS['SQ_SYSTEM']->am;
