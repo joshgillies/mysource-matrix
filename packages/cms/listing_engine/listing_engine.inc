@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.46 2005/06/23 23:15:49 dheppell Exp $
+* $Id: listing_engine.inc,v 1.47 2005/06/29 03:39:11 arailean Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
 *
-* @version $Revision: 1.46 $
+* @version $Revision: 1.47 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1727,7 +1727,9 @@ class Listing_Engine extends Page
 	* Register a form field name
 	*
 	* This is useful if we want to determine whether a field has been used in the form
-	* This functionality is required for
+	* This functionality is required for being able to determine if a field was used
+	* during output creation in the printContents. This is useful if to avoid field name
+	* conflicts or to perform additional logic like using it in javascript, etc
 	*
 	* @param string	$field_name	Name of the form field
 	*
