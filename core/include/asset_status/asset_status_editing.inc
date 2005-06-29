@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_editing.inc,v 1.29 2005/06/24 01:11:42 dheppell Exp $
+* $Id: asset_status_editing.inc,v 1.30 2005/06/29 23:44:12 ndvries Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *                                the workflow the workflow and all required metadata is complete
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix
 */
 class Asset_Status_Editing extends Asset_Status
@@ -114,8 +114,11 @@ class Asset_Status_Editing extends Asset_Status
 				if ($mm->allowsMetadata($this->owner->id)) {
 					$m_complete = $mm->requiredFieldsComplete($this->owner->id);
 
-					if ($wf_complete && $m_complete) $statii[SQ_STATUS_EDITING_APPROVED] = 'Approve';
-					else $statii[SQ_STATUS_EDITING_APPROVAL] = 'Apply for Approval';
+					if ($wf_complete && $m_complete) {
+						$statii[SQ_STATUS_EDITING_APPROVED] = 'Approve';
+					} else {
+						$statii[SQ_STATUS_EDITING_APPROVAL] = 'Apply for Approval';
+					}
 				} else {
 					// this asset needs to allow both statuses because it cant check metadata requirements
 					// due to it not allowing metadata
@@ -142,13 +145,17 @@ class Asset_Status_Editing extends Asset_Status
 	*/
 	function processStatusChange($new_status, $update_parent=true)
 	{
-		if (!parent::processStatusChange($new_status, $update_parent)) return false;
+		if (!parent::processStatusChange($new_status, $update_parent)) {
+			return false;
+		}
 
 		switch ($new_status) {
 
 			case SQ_STATUS_LIVE :
 				// cancelling a safe edit
-				if (!$this->owner->revertToSystemVersion()) return false;
+				if (!$this->owner->revertToSystemVersion()) {
+					return false;
+				}
 
 				// send an internal message
 				$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
@@ -182,7 +189,7 @@ class Asset_Status_Editing extends Asset_Status
 				$current_userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
 
 				if (!$wfm->startWorkflow($this->owner->id)) {
-					trigger_localised_error("SYS0262", E_USER_WARNING, $this->owner->name);
+					trigger_localised_error('SYS0262', E_USER_WARNING, $this->owner->name);
 					return false;
 				}
 

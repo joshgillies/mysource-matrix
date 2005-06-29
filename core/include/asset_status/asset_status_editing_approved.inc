@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_editing_approved.inc,v 1.15 2005/06/24 01:11:42 dheppell Exp $
+* $Id: asset_status_editing_approved.inc,v 1.16 2005/06/29 23:44:12 ndvries Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status_approved.inc';
 *    EDITING_APPROVED -> EDITING if the user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix
 */
 class Asset_Status_Editing_Approved extends Asset_Status_Approved
@@ -83,8 +83,11 @@ class Asset_Status_Editing_Approved extends Asset_Status_Approved
 
 		// change some of the status codes to relect that we are safe editing
 		foreach ($statii as $code => $name) {
-			if ($code == SQ_STATUS_UNDER_CONSTRUCTION) $return_statii[SQ_STATUS_EDITING] = $name;
-			else $return_statii[$code] = $name;
+			if ($code == SQ_STATUS_UNDER_CONSTRUCTION) {
+				$return_statii[SQ_STATUS_EDITING] = $name;
+			} else {
+				$return_statii[$code] = $name;
+			}
 		}
 
 		return $return_statii;
@@ -104,7 +107,9 @@ class Asset_Status_Editing_Approved extends Asset_Status_Approved
 	*/
 	function processStatusChange($new_status, $update_parent=true)
 	{
-		if (!parent::processStatusChange($new_status, $update_parent)) return false;
+		if (!parent::processStatusChange($new_status, $update_parent)) {
+			return false;
+		}
 
 		if ($new_status == SQ_STATUS_LIVE) {
 			// safe edit is finished, so we dont need the system version any more
@@ -112,10 +117,14 @@ class Asset_Status_Editing_Approved extends Asset_Status_Approved
 
 			// notify people that the asset has gone live
 			$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
-			if (!$wfm->notifyOnLive($this->owner->id, $this->status_tag)) return false;
+			if (!$wfm->notifyOnLive($this->owner->id, $this->status_tag)) {
+				return false;
+			}
 
 			// update the last published date
-			if (!$this->owner->setDate('published', time())) return false;
+			if (!$this->owner->setDate('published', time())) {
+				return false;
+			}
 		}
 		return true;
 

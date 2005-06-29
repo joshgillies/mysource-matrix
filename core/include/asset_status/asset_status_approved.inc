@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_approved.inc,v 1.18 2005/06/24 01:11:42 dheppell Exp $
+* $Id: asset_status_approved.inc,v 1.19 2005/06/29 23:44:12 ndvries Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *    APPROVED -> UNDER_CONSTRUCTION if the user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix
 */
 class Asset_Status_Approved extends Asset_Status
@@ -113,15 +113,21 @@ class Asset_Status_Approved extends Asset_Status
 	*/
 	function processStatusChange($new_status, $update_parent=true)
 	{
-		if (!parent::processStatusChange($new_status, $update_parent)) return false;
+		if (!parent::processStatusChange($new_status, $update_parent)) {
+			return false;
+		}
 
 		if ($new_status == SQ_STATUS_LIVE) {
 			// notify people that the asset has gone live
 			$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
-			if (!$wfm->notifyOnLive($this->owner->id, $this->status_tag)) return false;
+			if (!$wfm->notifyOnLive($this->owner->id, $this->status_tag)) {
+				return false;
+			}
 
 			// update the last published date
-			if (!$this->owner->setDate('published', time())) return false;
+			if (!$this->owner->setDate('published', time())) {
+				return false;
+			}
 		}
 
 		return true;

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_pending_approval.inc,v 1.32 2005/06/24 01:11:42 dheppell Exp $
+* $Id: asset_status_pending_approval.inc,v 1.33 2005/06/29 23:44:12 ndvries Exp $
 *
 */
 
@@ -40,7 +40,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *                                           there is workflow running and the user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix
 */
 class Asset_Status_Pending_Approval extends Asset_Status
@@ -109,8 +109,11 @@ class Asset_Status_Pending_Approval extends Asset_Status
 				if ($mm->allowsMetadata($this->owner->id)) {
 					$m_complete = $mm->requiredFieldsComplete($this->owner->id);
 
-					if ($wf_complete && $m_complete) $statii[SQ_STATUS_APPROVED] = 'Approve';
-					else if (in_array($userid, $publishers)) $statii[SQ_STATUS_PENDING_APPROVAL] = 'Approve Changes';
+					if ($wf_complete && $m_complete) {
+						$statii[SQ_STATUS_APPROVED] = 'Approve';
+					} else if (in_array($userid, $publishers)) {
+						$statii[SQ_STATUS_PENDING_APPROVAL] = 'Approve Changes';
+					}
 				} else {
 					// this asset needs to allow both statuses because it cant check metadata requirements
 					// due to it not allowing metadata
@@ -145,7 +148,9 @@ class Asset_Status_Pending_Approval extends Asset_Status
 	*/
 	function processStatusChange($new_status, $update_parent=true)
 	{
-		if (!parent::processStatusChange($new_status, $update_parent)) return false;
+		if (!parent::processStatusChange($new_status, $update_parent)) {
+			return false;
+		}
 
 		$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 		$current_userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
@@ -153,7 +158,7 @@ class Asset_Status_Pending_Approval extends Asset_Status
 		if ($new_status & SQ_SC_STATUS_CAN_APPROVE) {
 			// someone has rejected the changes, so we need to cancel the workflow
 			if (!$wfm->cancelWorkflow($this->owner->id)) {
-				trigger_localised_error("SYS0260", E_USER_WARNING);
+				trigger_localised_error('SYS0260', E_USER_WARNING);
 				return false;
 			} else {
 				require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
@@ -192,13 +197,13 @@ class Asset_Status_Pending_Approval extends Asset_Status
 
 				if ($wfm->isWorkflowComplete($this->owner->id) && $m_complete && ($new_status & SQ_SC_STATUS_ALL_APPROVED)) {
 					if (!$wfm->completeWorkflow($this->owner->id)) {
-						trigger_localised_error("SYS0261", E_USER_WARNING);
+						trigger_localised_error('SYS0261', E_USER_WARNING);
 						return false;
 					}
 				} else {
 					// we are doing a workflow and someone has just approved the asset, so record this
 					if (!$wfm->recordPublish($this->owner->id, $current_userid)) {
-						trigger_localised_error("SYS0077", E_USER_WARNING, $current_userid,$this->owner->name);
+						trigger_localised_error('SYS0077', E_USER_WARNING, $current_userid,$this->owner->name);
 						return false;
 					}
 
@@ -206,7 +211,7 @@ class Asset_Status_Pending_Approval extends Asset_Status
 					// as long as all our metadata is also complete
 					if ($wfm->isWorkflowComplete($this->owner->id) && $m_complete && ($new_status & SQ_SC_STATUS_ALL_APPROVED)) {
 						if (!$wfm->completeWorkflow($this->owner->id)) {
-							trigger_localised_error("SYS0261", E_USER_WARNING);
+							trigger_localised_error('SYS0261', E_USER_WARNING);
 							return false;
 						}
 					}

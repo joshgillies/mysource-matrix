@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_editing_approval.inc,v 1.13 2005/02/25 04:35:09 gsherwood Exp $
+* $Id: asset_status_editing_approval.inc,v 1.14 2005/06/29 23:44:12 ndvries Exp $
 *
 */
 
@@ -40,7 +40,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status_pending_approval.inc';
 *                                         there is workflow running and the user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix
 */
 class Asset_Status_Editing_Approval extends Asset_Status_Pending_Approval
@@ -91,15 +91,15 @@ class Asset_Status_Editing_Approval extends Asset_Status_Pending_Approval
 			switch ($code) {
 				case SQ_STATUS_APPROVED :
 					$return_statii[SQ_STATUS_EDITING_APPROVED] = $name;
-					break;
+				break;
 
 				case SQ_STATUS_PENDING_APPROVAL :
 					$return_statii[SQ_STATUS_EDITING_APPROVAL] = $name;
-					break;
+				break;
 
 				case SQ_STATUS_UNDER_CONSTRUCTION :
 					$return_statii[SQ_STATUS_EDITING] = $name;
-					break;
+				break;
 
 				default :
 					$return_statii[$code] = $name;

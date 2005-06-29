@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_under_construction.inc,v 1.33 2005/06/24 01:11:42 dheppell Exp $
+* $Id: asset_status_under_construction.inc,v 1.34 2005/06/29 23:44:12 ndvries Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *                                           the workflow and all required metadata is complete
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix
 */
 class Asset_Status_Under_Construction extends Asset_Status
@@ -116,8 +116,11 @@ class Asset_Status_Under_Construction extends Asset_Status
 				if ($mm->allowsMetadata($this->owner->id)) {
 					$m_complete = $mm->requiredFieldsComplete($this->owner->id);
 
-					if ($wf_complete && $m_complete) $statii[SQ_STATUS_LIVE] = 'Approve and Make Live';
-					else $statii[SQ_STATUS_PENDING_APPROVAL] = 'Apply for Approval';
+					if ($wf_complete && $m_complete) {
+						$statii[SQ_STATUS_LIVE] = 'Approve and Make Live';
+					} else {
+						$statii[SQ_STATUS_PENDING_APPROVAL] = 'Apply for Approval';
+					}
 				} else {
 					// this asset needs to allow both statuses because it cant check metadata requirements
 					// due to it not allowing metadata
@@ -145,7 +148,9 @@ class Asset_Status_Under_Construction extends Asset_Status
 	*/
 	function processStatusChange($new_status, $update_parent=true)
 	{
-		if (!parent::processStatusChange($new_status, $update_parent)) return false;
+		if (!parent::processStatusChange($new_status, $update_parent)) {
+			return false;
+		}
 
 		// so we know we can set the status but we need to
 		// do some workflow stuff if we are changing to PENDING APPROVAL
@@ -157,7 +162,7 @@ class Asset_Status_Under_Construction extends Asset_Status
 				$current_userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
 
 				if (!$wfm->startWorkflow($this->owner->id)) {
-					trigger_localised_error("SYS0262", E_USER_WARNING, $this->owner->name);
+					trigger_localised_error('SYS0262', E_USER_WARNING, $this->owner->name);
 					return false;
 				}
 
@@ -188,16 +193,20 @@ class Asset_Status_Under_Construction extends Asset_Status
 					$log->parameters['version'] = substr($this->owner->version, 0, strrpos($this->owner->version, '.'));
 					$ms->enqueueMessage($log);
 				}
-				break;
+			break;
 
 			case SQ_STATUS_LIVE:
 				// notify people that the asset has gone live
 				$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
-				if (!$wfm->notifyOnLive($this->owner->id, $this->status_tag)) return false;
+				if (!$wfm->notifyOnLive($this->owner->id, $this->status_tag)) {
+					return false;
+				}
 
 				// update the last published date
-				if (!$this->owner->setDate('published', time())) return false;
-				break;
+				if (!$this->owner->setDate('published', time())) {
+					return false;
+				}
+			break;
 		}
 
 		return true;

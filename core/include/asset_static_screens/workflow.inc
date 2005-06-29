@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow.inc,v 1.26 2005/06/17 01:36:03 dmckee Exp $
+* $Id: workflow.inc,v 1.27 2005/06/29 23:44:12 ndvries Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once DIRNAME(__FILE__).'/details.inc';
 * Workflow Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix
 */
 
@@ -185,7 +185,9 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 				case 'workflow_status_change' :
 
 					//shouldn't be able to changes status, so don't show anything
-					if ((!$can_publish) && (!$admin_access)) continue;
+					if ((!$can_publish) && (!$admin_access)) {
+						continue;
+					}
 					if (!empty($running_schemas)) {
 
 						$o->openField(translate('change_status'));
@@ -214,7 +216,9 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 				case 'workflow_log_message' :
 
 					//shouldn't be able to changes status, so don't show anything
-					if ((!$can_publish) && (!$admin_access)) continue;
+					if ((!$can_publish) && (!$admin_access)) {
+						continue;
+					}
 					if (!empty($running_schemas)) {
 
 						$o->openField(translate('log_message'));
@@ -238,7 +242,9 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 				case 'workflow_status_commit' :
 
 					//shouldn't be able to changes status, so don't show anything
-					if ((!$can_publish) && (!$admin_access)) continue;
+					if ((!$can_publish) && (!$admin_access)) {
+						continue;
+					}
 					if (!empty($running_schemas)) {
 
 						$o->openField('');
@@ -693,10 +699,10 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 						if ($admin_access && empty($running_schemas)) {
 							$kiddies = $GLOBALS['SQ_SYSTEM']->am->getChildren($owner->id);
 							if (count($kiddies)) {
-								echo translate('action_affects_assets_below_this', count($kiddies), $owner->name). '<br /><br />';
+								echo translate('action_affects_assets_below_this', count($kiddies), $owner->name).'<br /><br />';
 
 								check_box($prefix.'_workflow[cascade_changes]', '1', true);
-								echo ' '. translate('cascade_schema_changes');
+								echo ' '.translate('cascade_schema_changes');
 								echo '<br/>';
 								check_box($prefix.'_workflow[manual_cascade]');
 								echo ' '.translate('manually_cascade_schema');

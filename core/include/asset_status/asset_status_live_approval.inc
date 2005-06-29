@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_live_approval.inc,v 1.36 2005/06/24 01:11:42 dheppell Exp $
+* $Id: asset_status_live_approval.inc,v 1.37 2005/06/29 23:44:12 ndvries Exp $
 *
 */
 
@@ -40,7 +40,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *                                   there is workflow running and the user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix
 */
 class Asset_Status_Live_Approval extends Asset_Status
@@ -113,8 +113,11 @@ class Asset_Status_Live_Approval extends Asset_Status
 				if ($mm->allowsMetadata($this->owner->id)) {
 					$m_complete = $mm->requiredFieldsComplete($this->owner->id);
 
-					if ($wf_complete && $m_complete) $statii[SQ_STATUS_LIVE] = 'Approve and Make Live';
-					else if (in_array($userid, $publishers)) $statii[SQ_STATUS_LIVE_APPROVAL] = 'Apply for Approval';
+					if ($wf_complete && $m_complete) {
+						$statii[SQ_STATUS_LIVE] = 'Approve and Make Live';
+					} else if (in_array($userid, $publishers)) {
+						$statii[SQ_STATUS_LIVE_APPROVAL] = 'Apply for Approval';
+					}
 				} else {
 					// this asset needs to allow both statuses because it cant check metadata requirements
 					// due to it not allowing metadata
@@ -148,7 +151,9 @@ class Asset_Status_Live_Approval extends Asset_Status
 	*/
 	function processStatusChange($new_status, $update_parent=true)
 	{
-		if (!parent::processStatusChange($new_status, $update_parent)) return false;
+		if (!parent::processStatusChange($new_status, $update_parent)) {
+			return false;
+		}
 
 		$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 		$current_userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
@@ -179,14 +184,14 @@ class Asset_Status_Live_Approval extends Asset_Status
 				}
 
 				if (!$wfm->cancelWorkflow($this->owner->id, $msg)) {
-					trigger_localised_error("SYS0260", E_USER_WARNING);
+					trigger_localised_error('SYS0260', E_USER_WARNING);
 					return false;
 				}
 			}
 
 			// we are safe editing
 			if (!$this->owner->saveSystemVersion()) {
-				trigger_localised_error("SYS0208", E_USER_WARNING);
+				trigger_localised_error('SYS0208', E_USER_WARNING);
 				return false;
 			}
 
@@ -198,13 +203,13 @@ class Asset_Status_Live_Approval extends Asset_Status
 
 			if (!$wfm->silentWorkflowParty($this->owner->id)) {
 				$log = $ms->newMessage();
-				$msg_reps     = Array(
-					'user_name'		=> $user->name,
-					'type_code'		=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name'),
-					'asset_name'	=> $this->owner->name,
-					'status'		=> get_status_description($new_status),
-					'workflow_url'	=> current_url().$this->owner->getBackendHref('workflow'),
-				);
+				$msg_reps = Array(
+								'user_name'		=> $user->name,
+								'type_code'		=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name'),
+								'asset_name'	=> $this->owner->name,
+								'status'		=> get_status_description($new_status),
+								'workflow_url'	=> current_url().$this->owner->getBackendHref('workflow'),
+							);
 				$log->replacements = $msg_reps;
 				$asset_edt_fns = $this->owner->getEditFns();
 				if (isset($asset_edt_fns->static_screens['preview'])) {
@@ -233,13 +238,13 @@ class Asset_Status_Live_Approval extends Asset_Status
 
 				if ($wfm->isWorkflowComplete($this->owner->id) && $m_complete && ($new_status & SQ_STATUS_LIVE)) {
 					if (!$wfm->completeWorkflow($this->owner->id)) {
-						trigger_localised_error("SYS0261", E_USER_WARNING);
+						trigger_localised_error('SYS0261', E_USER_WARNING);
 						return false;
 					}
 				} else {
 					// we are doing a workflow and someone has just approved the asset, so record this
 					if (!$wfm->recordPublish($this->owner->id, $current_userid)) {
-						trigger_localised_error("SYS0077", E_USER_WARNING, $current_userid, $this->owner->name);
+						trigger_localised_error('SYS0077', E_USER_WARNING, $current_userid, $this->owner->name);
 						return false;
 					}
 
@@ -247,7 +252,7 @@ class Asset_Status_Live_Approval extends Asset_Status
 					// as long as all our metadata is also complete
 					if ($wfm->isWorkflowComplete($this->owner->id) && $m_complete && ($new_status & SQ_STATUS_LIVE)) {
 						if (!$wfm->completeWorkflow($this->owner->id)) {
-							trigger_localised_error("SYS0261", E_USER_WARNING);
+							trigger_localised_error('SYS0261', E_USER_WARNING);
 							return false;
 						}
 					}
@@ -256,10 +261,14 @@ class Asset_Status_Live_Approval extends Asset_Status
 				if ($new_status == SQ_STATUS_LIVE) {
 					// notify people that the asset has gone live
 					$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
-					if (!$wfm->notifyOnLive($this->owner->id, $this->status_tag)) return false;
+					if (!$wfm->notifyOnLive($this->owner->id, $this->status_tag)) {
+						return false;
+					}
 
 					// update the last published date
-					if (!$this->owner->setDate('published', time())) return false;
+					if (!$this->owner->setDate('published', time())) {
+						return false;
+					}
 				}
 
 				if ($new_status == SQ_STATUS_APPROVED) {
