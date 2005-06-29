@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_access_history_edit_fns.inc,v 1.2 2005/05/18 05:18:05 arailean Exp $
+* $Id: design_area_access_history_edit_fns.inc,v 1.3 2005/06/29 07:02:17 pgannavarapu Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *	Print the last N assets viewed
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -99,7 +99,6 @@ class Design_Area_Access_History_Edit_Fns extends Design_Area_Edit_Fns
 				if (!$asset->setAttrValue('asset_contents', $element['contents'])) {
 					return false;
 				}
-
 				// Now what we do is morph it so that this element doesn't contain all the un-necessary contents stuff
 				$contents[$index] = Array(
 										'_type'				=> 'TAG',
@@ -112,6 +111,8 @@ class Design_Area_Access_History_Edit_Fns extends Design_Area_Edit_Fns
 		}//end foreach
 
 		$GLOBALS['SQ_PROCESSED_DESIGN_AREAS'][$asset->attr('id_name')] = true;
+
+
 		return $asset->setAttrValue('contents', $contents);
 
 	}//end _processContents()
@@ -140,21 +141,17 @@ class Design_Area_Access_History_Edit_Fns extends Design_Area_Edit_Fns
 						foreach($history as $position => $asset_info) {
 					?>
 				';
-
 				if ($asset_contents = $asset->attr('asset_contents')) {
 					if (!$this->_outputContents($asset_contents, $asset, $design)) {
 						return false;
 					}
 				}
-
 				echo '
 					<?
 						}//end foreach
 					?>
 				';
-
 				return true;
-
 			default :
 				return parent::_outputElement($element, $asset, $design);
 		}//end switch
@@ -237,7 +234,7 @@ class Design_Area_Access_History_Edit_Fns extends Design_Area_Edit_Fns
 						$new_entry["asset_link"] 		= $url;
 						$new_entry["asset_name"] 		= $ASSET->name;
 						$new_entry["asset_short_name"]	= $ASSET->short_name;
-						$new_entry["access_time"]		= date("'.$time_format.'");
+						$new_entry["`"]		= date("'.$time_format.'");
 
 						array_unshift($history, $new_entry);
 

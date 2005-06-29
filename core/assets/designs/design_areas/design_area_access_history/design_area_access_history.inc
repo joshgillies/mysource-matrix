@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_access_history.inc,v 1.1 2005/05/09 05:12:04 arailean Exp $
+* $Id: design_area_access_history.inc,v 1.2 2005/06/29 07:02:17 pgannavarapu Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -60,6 +60,24 @@ class Design_Area_Access_History extends Design_Area
 			case 'access_time' :
 				echo '<?php echo array_get_index($asset_info,"'.$var.'"); ?>';
 			break;
+			case 'query_var' :
+				echo '<?php 
+						$url = array_get_index($asset_info,\'asset_link\');
+						$position = strpos($url,"?");
+						if ($position !== false) {
+							$query_string = substr($url, $position+1);
+							$matches = Array();
+							preg_match_all(\'(([^=^&]+)=([^&]+))is\', $query_string, $matches);
+							foreach ($matches[1] as $key => $value) {
+								if ($value == \''.$args['name'].'\') {
+									echo urldecode($matches[2][$key]);
+									break;
+								}
+							}
+						}
+				?>';
+			break;
+
 
 			case 'history_count' :
 				echo '<?php echo $history_count; ?>';
