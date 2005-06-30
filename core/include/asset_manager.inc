@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.332 2005/06/29 07:21:24 ndvries Exp $
+* $Id: asset_manager.inc,v 1.333 2005/06/30 01:26:40 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.332 $
+* @version $Revision: 1.333 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -4236,7 +4236,6 @@ class Asset_Manager extends MySource_Object
 	* Send the specified asset directly to the trash, where possible
 	*
 	* This deletes its links to all its current parents, and creates a link for it in the trash folder
-	* Warning: Will delete the last link to the asset if it is already in the trash
 	*
 	* @param int	$assetid	the asset to trash
 	*
@@ -4247,6 +4246,10 @@ class Asset_Manager extends MySource_Object
 	{
 		// trash requests are charged at $4.95 a minute
 		// please ask your parents for permission before trashing
+		if ($this->assetInTrash($assetid, true)) {
+			// already in trash exclusively
+			return true;
+		}
 		$parent_links = $this->getLinks($assetid, SQ_SC_LINK_ALL, '', true, 'minor');
 		$locked = Array();
 		foreach ($parent_links as $link_details) {
