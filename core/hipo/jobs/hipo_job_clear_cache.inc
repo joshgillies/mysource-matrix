@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_clear_cache.inc,v 1.3 2004/11/08 03:42:02 mmcintyre Exp $
+* $Id: hipo_job_clear_cache.inc,v 1.3.2.1 2005/06/30 02:14:44 dheppell Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -155,7 +155,7 @@ class HIPO_Job_Clear_Cache extends HIPO_Job
 	*/
 	function freestyle()
 	{
-		while (!empty($this->_running_vars['todo_assetids']) || !$this->_running_vars['done_root']) {
+		while (!empty($this->_running_vars['todo_assetids'])) {
 			if (!$this->processClearCache($this->_steps[0], get_class($this))) return false;
 		}
 		return true;
