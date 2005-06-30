@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit_table.php,v 1.7.2.7 2005/06/30 00:27:34 dmckee Exp $
+* $Id: edit_table.php,v 1.7.2.8 2005/06/30 00:32:55 dmckee Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Table Edit Popup for the WYSIWYG
 *
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.7.2.7 $
+* @version $Revision: 1.7.2.8 $
 * @package MySource_Matrix
 */
 
@@ -438,7 +438,7 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 		<img id="addrowspan" alt="Add RowSpan" title="Add RowSpan" src="images/tvd.gif" onclick="if (table.lastSelect == 'cell') table.addRowSpan();" />
 		<img id="delrowspan" alt="Delete RowSpan" title="Delete RowSpan" src="images/tvu.gif" onclick="if (table.lastSelect == 'cell') table.delRowSpan();" />
 		<img alt="divider" src="images/div.gif" />
-		<img id="THead" alt="Head Cell" title="Head Cell" src="images/th.gif" onclick="table.th();" disabled="disabled;"/><br />
+		<img id="THead" alt="Head Cell" title="Head Cell" src="images/th.gif" onclick="if (table.lastSelect == 'cell') table.th();"/><br />
 		<label><?php echo 'Horizontal'; ?></label>
 		<img id="cell_aleft" title="Align Left" alt="Align Left" src="images/al.gif" onclick="if (table.lastSelect == 'cell') table.setAlign('left');" />
 		<img id="cell_acenter" title="Align Center" alt="Align Center" src="images/ac.gif" onclick="if (table.lastSelect == 'cell') table.setAlign('center');" />
