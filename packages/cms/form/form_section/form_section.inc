@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section.inc,v 1.40 2005/06/01 00:21:52 ndvries Exp $
+* $Id: form_section.inc,v 1.41 2005/06/30 06:15:45 ykasim Exp $
 *
 */
 
@@ -24,11 +24,11 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
-register_implementation('form', 'bridge');
+register_implementation('form_section', 'bridge');
 class Form_Section extends Asset
 {
 
@@ -246,8 +246,11 @@ class Form_Section extends Asset
 		if (!is_numeric($assetid)) return Array();
 
 		if (!is_array($type_code)) {
-			if (empty($type_code)) $type_code = Array();
-			else $type_code = Array($type_code);
+			if (empty($type_code)) {
+				$type_code = Array();
+			} else {
+				$type_code = Array($type_code);
+			}
 		}
 
 		$children = Array();
@@ -300,10 +303,12 @@ class Form_Section extends Asset
 		if (!is_numeric($assetid)) return Array($this->id);
 
 		$parents = Array();
-		if (!is_array($type_code
-			)) $type_code = Array($type_code);
-		if (!in_array('form_section', $type_code) && !in_array('form', $type_code)) return Array();
-
+		if (!is_array($type_code)) {
+			$type_code = Array($type_code);
+		}
+		if (!in_array('form_section', $type_code) && !in_array('form', $type_code)){
+			return Array();
+		}
 		if (!isset($this->_tmp['getParents'][$assetid])) {
 			// this is so we get the sections as we go
 			$children = Asset::getParents($assetid, $type_code, $strict_type_code);
@@ -434,7 +439,7 @@ class Form_Section extends Asset
 		} else {
 			$new_index = max(array_keys($sort_order))+1;
 		}
-		$sort_order[$new_index] = $this->id . ':q' . $new_key;
+		$sort_order[$new_index] = $this->id.':q'.$new_key;
 		$this->setAttrValue('sort_order', $sort_order);
 
 		if (!$this->saveAttributes()) {
@@ -506,9 +511,7 @@ class Form_Section extends Asset
 	function _updated($update_parents=true)
 	{
 		if (!parent::_updated($update_parents)) return false;
-		if (SQ_IN_BACKEND) {
-			return $this->fileRegeneration();
-		}
+		if (SQ_IN_BACKEND) return $this->fileRegeneration();
 		return true;
 
 	}//end _updated()
@@ -656,7 +659,7 @@ class Form_Section extends Asset
 			$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
 			$q_code = $q_asset->generateJSCode();
 
-			$code .= $q_code . (empty($q_code) ? "" : "\n");
+			$code .= $q_code.(empty($q_code) ? '' : "\n");
 		}
 
 		return $code;
