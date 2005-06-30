@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: remove_assets_of_type.php,v 1.2 2005/06/15 01:14:59 tbarrett Exp $
+* $Id: remove_assets_of_type.php,v 1.3 2005/06/30 23:22:47 tbarrett Exp $
 *
 */
 
@@ -29,7 +29,7 @@
 * assets of exactly the type you specify
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -79,7 +79,7 @@ if (!empty($assets_of_type)) {
 	assert_valid_db_result($res);
 	$res =& $db->query('DELETE FROM sq_ast WHERE type_code = '.$db->quote($DELETING_ASSET_TYPE));
 	assert_valid_db_result($res);
-	$res =& $db->query('UPDATE '.$prefix.'ast_lnk_tree SET linkid=0 where linkid in '.$links_set);
+	$res =& $db->query('UPDATE sq_ast_lnk_tree SET linkid=0 where linkid in '.$links_set);
 	assert_valid_db_result($res);
 
 }
