@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.131 2005/06/29 07:21:24 ndvries Exp $
+* $Id: backend.inc,v 1.132 2005/06/30 04:33:37 dmckee Exp $
 *
 */
 
@@ -32,7 +32,7 @@
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.131 $
+* @version $Revision: 1.132 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -504,7 +504,7 @@ class Backend extends MySource_Object
 						messageIndex++;
 					}
 
-					var popupContents =& new Array();
+					var popupContents = new Array();
 					<?php
 					$i = 0;
 					foreach ($dhtml_messages as $code => $message) {
