@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_management.inc,v 1.26 2005/06/21 00:26:15 lwright Exp $
+* $Id: listing_engine_management.inc,v 1.27 2005/06/30 23:20:51 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -489,6 +489,7 @@ class Listing_Engine_Management extends Asset_Management
 				}
 
 				// Group Format
+				$GLOBALS['SQ_SYSTEM']->am->includeAsset('folder');
 				$group_formats = new Folder();
 				$copy_link = Array(
 									'asset'			=> &$asset,
