@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit_table.php,v 1.7.2.6 2005/06/30 00:14:59 dmckee Exp $
+* $Id: edit_table.php,v 1.7.2.7 2005/06/30 00:27:34 dmckee Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Table Edit Popup for the WYSIWYG
 *
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.7.2.6 $
+* @version $Revision: 1.7.2.7 $
 * @package MySource_Matrix
 */
 
@@ -212,7 +212,7 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 	</div>
 	<div id="panels">
 	<fieldset id="global_panel">
-		<legend><?php echo translate('selectors'); ?></legend>
+		<legend>Selectors</legend>
 		<div>
 			<img id ="button_table" style="border: 2px solid #FF8040;" alt="" src="images/mtable.gif" onclick="switchPanels('table');" />
 			<img id ="button_cell" style="border: 0px solid #FF8040;" alt="" src="images/mc.gif" onclick="switchPanels('cell');" />
@@ -222,7 +222,7 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 	</fieldset>
 
 	<fieldset id="color_panel">
-		<legend><?php echo translate('colour'); ?></legend>
+		<legend>Colour</legend>
 		<div style="width:40px;height:40px;position:relative;" id="bgborder" onclick="table.toggleBgBorder();">
 			<div id="border" style="width:30px;height:30px;position:absolute;left:10px;top:10px;border:inset 1px;background:url(images/empty.gif)">
 				<div style="width:19px;height:19px;position:absolute;left:5px;top:5px;border:outset 1px;background:#FFF;font-size:5px"></div>
@@ -254,13 +254,13 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 
 	<!-- Properties for the table selector -->
 	<fieldset id="table_panel">
-		<legend><?php echo translate('table'); ?></legend>
-		<label for="tid"><?php echo translate('id'); ?></label>
+		<legend>Table</legend>
+		<label for="tid">ID:</label>
 		<input id="tid" name="tid" onkeyup="table.setID(this.value)" /><br />
-		<label for="caption"><?php echo translate('caption'); ?></label>
+		<label for="caption"><?php echo 'Caption'; ?></label>
 		<input id="caption" name="caption" onkeyup="table.setCaption(this.value)"/><br />
 		<hr />
-		<label for="width"><?php echo translate('width'); ?></label>
+		<label for="width">Width</label>
 		<input id="width" name="width" onkeyup="table.setWidth(parseInt(document.getElementById('width').value) + document.getElementById('widthtype').value)" style="width:100px" value="100" />
 		<select id="widthtype" name="widthtype" style="width:50px" onchange="table.setWidth(parseInt(document.getElementById('width').value) + document.getElementById('widthtype').value)">
 			<option value="px">px</option>
@@ -284,32 +284,32 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 			<option value="hidden">hidden</option>
 		</select>
 		<br />
-		<label for="cellspacing"><?php echo translate('cell_spacing'); ?></label>
+		<label for="cellspacing">Cell Spacing</label>
 		<input id="cellspacing" name="cellspacing" onkeyup="table.setCellSpacing(parseInt(this.value))" value="2"/><br />
-		<label for="cellpadding"><?php echo translate('cell_padding'); ?></label>
+		<label for="cellpadding">Cell_padding</label>
 		<input id="cellpadding" name="cellpadding" onkeyup="table.setCellPadding(parseInt(this.value))" value="2"/><br />
 		<hr />
-		<label for="summary"><?php echo translate('summary'); ?></label>
+		<label for="summary">Summary</label>
 		<textarea id="summary" cols="10" rows="3" onkeyup="table.setSummary(this.value)"></textarea>
-		<label for="frame"><?php echo translate('frame'); ?></label>
+		<label for="frame">Frame</label>
 		<select id="frame" name="frame" onchange="table.setFrame(this.value)">
-			<option value=""><?php echo strtolower(translate('empty')); ?></option>
-			<option value="void"><?php echo translate('no_sides'); ?></option>
-			<option value="above"><?php echo translate('the_top_side_only'); ?></option>
-			<option value="below"><?php echo translate('the_bottom_side_only'); ?></option>
-			<option value="hsides"><?php echo translate('the_top_and_bottom_sides_only'); ?></option>
-			<option value="vsides"><?php echo translate('the_right_and_left_sides_only'); ?></option>
-			<option value="lhs"><?php echo translate('the_left-hand_side_only'); ?></option>
-			<option value="rhs"><?php echo translate('the_right-hand_side_only'); ?></option>
-			<option value="box"><?php echo translate('all_four_sides'); ?></option>
+			<option value="">empty</option>
+			<option value="void">no sides</option>
+			<option value="above">top side only</option>
+			<option value="below">bottom side only</option>
+			<option value="hsides">top and bottom sides only</option>
+			<option value="vsides">right and left sides only</option>
+			<option value="lhs">left-hand side only</option>
+			<option value="rhs">right-hand side only</option>
+			<option value="box">all four sides</option>
 		</select><br />
-		<label for="rules"><?php echo translate('rules'); ?></label>
+		<label for="rules">Rules</label>
 		<select id="rules" name="rules" onchange="table.setRules(this.value)">
-			<option value=""><?php echo strtolower(translate('empty')); ?></option>
-			<option value="none"><?php echo translate('no_rules'); ?></option>
-			<option value="rows"><?php echo translate('rules_will_appear_between_rows_only'); ?></option>
-			<option value="cols"><?php echo translate('rules_will_appear_between_columns_only'); ?></option>
-			<option value="all"><?php echo translate('rules_will_appear_between_all_rows_and_columns'); ?></option>
+			<option value="">empty</option>
+			<option value="none">no rules</option>
+			<option value="rows">rules will appear between rows only</option>
+			<option value="cols">rules will appear between columns only</option>
+			<option value="all">rules will appear between all rows and columns</option>
 		</select><br />
 	</fieldset>
 
@@ -357,7 +357,7 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 	<!-- Properties for the column selector -->
 	<fieldset id="col_panel" style="display:none;">
 		<legend><?php echo 'Column Properties' ?></legend>
-		<label for="col_width"><?php echo translate('width'); ?></label>
+		<label for="col_width">Width</label>
 		<input id="col_width" name="col_width" onkeyup="table.setColumnWidth(parseInt(document.getElementById('col_width').value) + document.getElementById('col_widthtype').value)" style="width:100px" value="100" disabled="disabled" />
 		<select id="col_widthtype" name="col_widthtype" style="width:50px" onchange="table.setColumnWidth(parseInt(document.getElementById('col_width').value) + document.getElementById('col_widthtype').value)" disabled="disabled">
 		<option value="px">px</option>
@@ -398,7 +398,7 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 	<!-- Properties for the cell selector -->
 	<fieldset id="cell_panel" style="display:none">
 		<legend><?php echo 'Cell Properties' ?></legend>
-		<label for="cell_width"><?php echo translate('width'); ?></label>
+		<label for="cell_width">Width</label>
 		<input id="cell_width" name="cell_width" onkeyup="table.setCellWidth(parseInt(document.getElementById('cell_width').value) + document.getElementById('cell_widthtype').value)" style="width:100px" value="100" disabled="disabled" />
 		<select id="cell_widthtype" name="cell_widthtype" style="width:50px" onchange="table.setCellWidth(parseInt(document.getElementById('cell_width').value) + document.getElementById('cell_widthtype').value)" disabled="disabled">
 		<option value="px">px</option>
@@ -407,7 +407,7 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 			<option value="em">em</option>
 			<option value="ex">ex</option>
 		</select>
-		<label for="cell_height"><?php echo translate('height'); ?></label>
+		<label for="cell_height">Height</label>
 		<input id="cell_height" name="cell_height" onkeyup="table.setCellHeight(parseInt(document.getElementById('cell_height').value) + document.getElementById('cell_heighttype').value)" style="width:100px" value="100" disabled="disabled" />
 		<select id="cell_heighttype" name="cell_heighttype" style="width:50px" onchange="table.setCellHeight(parseInt(document.getElementById('cell_height').value) + document.getElementById('cell_heighttype').value)" disabled="disabled">
 		<option value="px">px</option>
@@ -448,18 +448,18 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 		<img id="cell_amiddle" title="Align Middle" alt="Align Middle" src="images/am.gif" onclick="if (table.lastSelect == 'cell') table.setVAlign('middle');" />
 		<img id="cell_abottom" title="Align Bottom" alt="Align Bottom" src="images/ab.gif" onclick="if (table.lastSelect == 'cell') table.setVAlign('bottom');" /><br />
 		<hr />
-		<label for="abbr"><?php echo translate('abbr'); ?></label>
+		<label for="abbr">Abbr</label>
 		<input id="abbr" name="abbr" onkeyup="table.setAbbr(this.value)" disabled="disabled" /><br />
-		<label for="axis"><?php echo translate('axis'); ?></label>
+		<label for="axis">Axis</label>
 		<input id="axis" name="axis"  onkeyup="table.setAxis(this.value)" disabled="disabled" /><br />
-		<label for="scope"><?php echo translate('scope'); ?></label>
+		<label for="scope">Scope</label>
 		<select id="scope" name="scope" onchange="table.setScope(this.value)" disabled="disabled">
-			<option value=""><?php echo strtolower(translate('empty')); ?></option>
-			<option value="row"><?php echo strtolower(translate('row')); ?></option>
-			<option value="col"><?php echo strtolower(translate('col')); ?></option>
+			<option value="">empty</option>
+			<option value="row">row</option>
+			<option value="col">col</option>
 		</select><br />
-		<label for="headings"><?php echo translate('headings'); ?></label>
-		<button id="headings" name="headings" onclick="table.toggleHeaders();" disabled="disabled" ><?php echo translate('click_to_select'); ?></button>
+		<label for="headings">Headings</label>
+		<button id="headings" name="headings" onclick="table.toggleHeaders();" disabled="disabled" >Click to select</button>
 	</fieldset>
 
 	</div>
@@ -467,10 +467,10 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 		<table border="0" cellpadding="0" cellspacing="0" style="width:100%;height:100%">
 			<tr>
 				<td>
-					<button accesskey="s" type="button" style="width:60px;height:30px" onclick="onOK()"><?php echo translate('ok'); ?></button>
+					<button accesskey="s" type="button" style="width:60px;height:30px" onclick="onOK()">OK</button>
 				</td>
 				<td align="right">
-					<button type="button" style="width:60px;height:30px" onclick="onCancel()"><?php echo translate('cancel'); ?></button>
+					<button type="button" style="width:60px;height:30px" onclick="onCancel()">Cancel</button>
 				</td>
 			</tr>
 		</table>
