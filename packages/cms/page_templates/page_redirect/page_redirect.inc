@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_redirect.inc,v 1.11.6.1 2005/06/28 00:16:15 ykasim Exp $
+* $Id: page_redirect.inc,v 1.11.6.2 2005/06/30 07:02:17 ykasim Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -187,7 +187,7 @@ class Page_Redirect extends Page
 			$params  =	 'location='.((strpos($options, 'hide_location'  ) !== false) ? '0' : '1').','
 						.'menubar='.((strpos($options, 'hide_menubar'   ) !== false) ? '0' : '1').','
 						.'scrollbars='.((strpos($options, 'hide_scrollbars') !== false) ? '0' : '1').','
-						.'status='.((strpos($options, 'hide_status'    ) !== false) ? '0' : '1').','
+						.'statusbar='.((strpos($options, 'hide_status'    ) !== false) ? '0' : '1').','
 						.'toolbar='.((strpos($options, 'hide_toolbar'   ) !== false) ? '0' : '1').','
 						.'resizable='.((strpos($options, 'not_resizable'  ) !== false) ? '0' : '1');
 
