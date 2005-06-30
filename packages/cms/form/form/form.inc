@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.106 2005/06/28 06:30:43 lwright Exp $
+* $Id: form.inc,v 1.107 2005/06/30 00:43:09 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.106 $
+* @version $Revision: 1.107 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -177,6 +177,8 @@ class Form extends Asset
 				$links[] = $bc_link;
 			}
 
+			// TODO: [Bug #742] Add same here for sections
+
 			// but we also need question shadow asset links
 			$entries = $this->getQuestions();
 
@@ -227,9 +229,21 @@ class Form extends Asset
 			array_push($links, array_shift($old_links));
 		}
 
+		// get the bodycopy link
+		$bc_link = Asset_Manager::getLink($this->id, SQ_LINK_TYPE_2, 'folder', true, 'bodycopies_folder');
+
 		foreach (array_keys($links) as $i) {
 
 			$link =& $links[$i];
+
+			// if this is the link to the bodycopy folder, we don't need this
+			// because the Asset Manager already knows about it
+			if (!empty($bc_link) && ($link['linkid'] == $bc_link['linkid'])) {
+				unset($links[$i]);
+				continue;
+			}
+
+			// TODO: [Bug #744] Do similar for sections
 
 			// mould it all to the asset map's liking
 			$link['url'] = '';
