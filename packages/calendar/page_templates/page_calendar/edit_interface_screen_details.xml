@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.20.2.3 2005/05/02 00:31:23 gsherwood Exp $
+* $Id: edit_interface_screen_details.xml,v 1.20.2.4 2005/06/30 01:42:24 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -67,7 +67,7 @@
 			<text />
 		</field>
 		<field attribute="next_link_text">
-			<display_name>Up Link Text</display_name>
+			<display_name>Next Link Text</display_name>
 			<note>Text for the link that takes the user to the next period in the current view (eg from January to February).  The keyword %v% is available in this text, and will be replaced with the name of the current view.</note>
 			<text />
 		</field>
