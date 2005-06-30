@@ -1,11 +1,33 @@
+/**
+* +--------------------------------------------------------------------+
+* | Squiz.net Open Source Licence                                      |
+* +--------------------------------------------------------------------+
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +--------------------------------------------------------------------+
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +--------------------------------------------------------------------+
+*
+* $Id: table-editor.js,v 1.5.2.2 2005/06/30 00:08:21 dmckee Exp $
+* $Name: not supported by cvs2svn $
+*/
 
+var colorsStr = "aqua|black|blue|fuchsia|gray|green|lime|maroon|navy|olive|purple|red|silver|teal|white|yellow";
 
 THeader = function(r, c)
 {
 	this.r = r;
 	this.c = c;
 }
-
 
 TCell = function(parent)
 {
@@ -23,6 +45,8 @@ TCell = function(parent)
 	this.borderColor= null;
 	this.borderStyle= null;
 	this.borderWidth= null;
+	this.cellWidth	= null;
+	this.cellHeight	= null;
 	this.content	= "&nbsp;";
 	this.parent		= parent;
 	this.selected	= false;
@@ -44,6 +68,7 @@ TCell = function(parent)
 		if (this.rowspan > 1) out += ' rowspan="' + this.rowspan + '"';
 		if (this.abbr != null) out += ' abbr="' + this.abbr + '"';
 		if (this.scope != null) out += ' scope="' + this.scope + '"';
+		if (this.axis != null) out += ' axis="' + this.axis + '"';
 		if ((this.align != "left" && !this.th) || (this.align != "center" && this.th)) out += ' align="' + this.align + '"';
 		if (this.valign != "middle") out += ' valign="' + this.valign + '"';
 		if (this.headers.length > 0) {
@@ -53,9 +78,27 @@ TCell = function(parent)
 			out +='"';
 		}
 		var style = ' style="';
-		if (this.borderColor != null) style += 'border-color:' + this.borderColor + ';';
-		if (this.borderStyle != null) style += 'border-style:' + this.borderStyle + ';';
-		if (this.borderWidth != null) style += 'border-width:' + this.borderWidth + ';';
+		//below else statements are trying to add visible borders for those with none
+		if (this.borderWidth != null) {
+			style += 'border-width:' + this.borderWidth + ';';
+			if (this.borderColor != null) {
+				style += 'border-color:' + this.borderColor + ';';
+			} else {
+				style += 'border-color:' + 'black' + ';';
+			}
+			if (this.borderStyle != null) {
+				style += 'border-style:' + this.borderStyle + ';';
+			} else {
+				style += 'border-style:' + 'solid' + ';';
+			}
+		} else {
+			style += 'border-width:' + '1px' + ';';
+			style += 'border-color:' + '#99CCFF' + ';';
+			style += 'border-style:' + 'dashed' + ';';
+		}
+
+		if (this.cellWidth != null) style += 'width:' + this.cellWidth + ';';
+		if (this.cellHeight != null) style += 'height:' + this.cellHeight + ';';
 		if (this.bg != null) style += 'background-color:' + this.bg + ';';
 		if (this.style != null) style += this.style;
 		if (this.selected) style += 'background-image:url(' + this.parent.parent.semigray + ');';
@@ -99,6 +142,8 @@ TCell = function(parent)
 		if (this.borderStyle != null) style += 'border-style:' + this.borderStyle + ';';
 		if (this.borderWidth != null) style += 'border-width:' + this.borderWidth + ';';
 		if (this.bg != null) style += 'background-color:' + this.bg + ';';
+		if (this.cellWidth != null) style += 'width:' + this.cellWidth + ';';
+		if (this.cellHeight != null) style += 'height:' + this.cellHeight + ';';
 		if (this.style != null) style += this.style;
 
 		if (style != ' style="') out += style + '"';
@@ -113,16 +158,17 @@ TCell = function(parent)
 
 	this.setPanels = function()
 	{
-		document.getElementById("aleft").style.background = "";
-		document.getElementById("acenter").style.background = "";
-		document.getElementById("aright").style.background = "";
+		document.getElementById("cell_aleft").style.background = "";
+		document.getElementById("cell_acenter").style.background = "";
+		document.getElementById("cell_aright").style.background = "";
 
-		document.getElementById("atop").style.background = "";
-		document.getElementById("amiddle").style.background = "";
-		document.getElementById("abottom").style.background = "";
+		document.getElementById("cell_atop").style.background = "";
+		document.getElementById("cell_amiddle").style.background = "";
+		document.getElementById("cell_abottom").style.background = "";
 
-		document.getElementById("a" + this.align).style.background = "#F00";
-		document.getElementById("a" + this.valign).style.background = "#F00";
+		document.getElementById("cell_a" + this.align).style.background = "#F00";
+		document.getElementById("cell_a" + this.valign).style.background = "#F00";
+
 		if (this.th) document.getElementById("THead").style.background = "#F00";
 		else document.getElementById("THead").style.background = "#FFF";
 
@@ -130,8 +176,51 @@ TCell = function(parent)
 		document.getElementById("axis").value = (this.axis == null)?"":this.axis;
 		document.getElementById("scope").value = (this.scope == null)?"":this.scope;
 
-		document.getElementById("bg").style.background = (this.bg == null)?"url(" + this.parent.parent.empty + ")":this.bg;
-		document.getElementById("border").style.background = (this.borderColor == null)?"url(" + this.parent.parent.empty + ")":this.borderColor;
+		//document.getElementById("bg").style.background = (this.bg == null)?"url(" + this.parent.parent.empty + ")":this.bg;
+		if (this.bg == null) {
+			if (this.parent.bg == null) {
+				document.getElementById("bg").style.background = "url(" + this.parent.parent.empty + ")";
+			} else {
+				document.getElementById("bg").style.background = this.parent.bg;
+			}
+		} else {
+			document.getElementById("bg").style.background = this.bg;
+		}
+		document.getElementById("border").style.background = (this.borderColor == null)?"url(" + this.parent.parent.empty + ")":this.borderColor.split(' ')[0];
+		if (this.borderWidth != null) {
+			document.getElementById("cell_border").value = this.borderWidth.split('px')[0];
+		} else {
+			document.getElementById("cell_border").value = "";
+		}
+		if (this.borderStyle != null) {
+			document.getElementById("cell_bordertype").value = this.borderStyle.split(' ')[0];
+		} else {
+			document.getElementById("cell_bordertype").value = 'solid';
+		}
+		if (this.cellWidth != null) {
+			if (this.cellWidth.indexOf('%') == -1) {
+				document.getElementById("cell_width").value = this.cellWidth.substring(0, this.cellWidth.length - 2);
+				document.getElementById("cell_widthtype").value = this.cellWidth.substring(this.cellWidth.length - 2);
+			} else {
+				document.getElementById("cell_width").value = this.cellWidth.substring(0, this.cellWidth.length - 1);
+				document.getElementById("cell_widthtype").value = this.cellWidth.substring(this.cellWidth.length - 1);
+			}
+		} else {
+			document.getElementById("cell_width").value = "";
+			document.getElementById("cell_widthtype").value = "%";
+		}
+		if (this.cellHeight != null) {
+			if (this.cellHeight.indexOf('%') == -1) {
+				document.getElementById("cell_height").value = this.cellHeight.substring(0, this.cellHeight.length - 2);
+				document.getElementById("cell_heighttype").value = this.cellHeight.substring(this.cellHeight.length - 2);
+			} else {
+				document.getElementById("cell_height").value = this.cellHeight.substring(0, this.cellHeight.length - 1);
+				document.getElementById("cell_heighttype").value = this.cellHeight.substring(this.cellHeight.length - 1);
+			}
+		} else {
+			document.getElementById("cell_height").value = "";
+			document.getElementById("cell_heighttype").value = "%";
+		}
 	}
 }
 
@@ -148,6 +237,7 @@ TRow = function(parent, row)
 	this.borderStyle= null;
 	this.borderWidth= null;
 	this.bg			= null;
+	this.height		= null;
 
 	this.selected	= false;
 
@@ -161,6 +251,7 @@ TRow = function(parent, row)
 		if (this.borderColor != null) style += 'border-color:' + this.borderColor + ';';
 		if (this.borderStyle != null) style += 'border-style:' + this.borderStyle + ';';
 		if (this.borderWidth != null) style += 'border-width:' + this.borderWidth + ';';
+		if (this.height != null) style += 'height:' + this.height + ';';
 		if (this.bg != null) style += 'background-color:' + this.bg + ';';
 		if (this.style != null) style += this.style;
 		if (this.selected) style += 'background-image:url(' + this.parent.semigray + ');';
@@ -185,37 +276,108 @@ TRow = function(parent, row)
 		if (this.borderColor != null) style += 'border-color:' + this.borderColor + ';';
 		if (this.borderStyle != null) style += 'border-style:' + this.borderStyle + ';';
 		if (this.borderWidth != null) style += 'border-width:' + this.borderWidth + ';';
+		if (this.height != null) style += 'height:' + this.height + ';';
 		if (this.bg != null) style += 'background-color:' + this.bg + ';';
 		if (this.style != null) style += this.style;
 		if (style != 'style="') out += " " + style + '"';
 
 		out += '>';
+		//Test if A THEAD tag should be output
+		var thead = true;
 		for (c = 0;c<this.cells.length;c++) {
 			out += this.cells[c].Export(c);
+			if (!this.cells[c].th) thead = false;
 		}
 		out += '</tr>';
+		//All the cells in the row are TH's, so we can wrap this in a THEAD tag
+		if (thead) {
+			out = '<THEAD>' + out;
+			out += '</THEAD>';
+		}
 		return out;
 	}
 
 
 	this.setPanels = function()
 	{
-		document.getElementById("aleft").style.background = "";
-		document.getElementById("acenter").style.background = "";
-		document.getElementById("aright").style.background = "";
+		document.getElementById("row_aleft").style.background = "";
+		document.getElementById("row_acenter").style.background = "";
+		document.getElementById("row_aright").style.background = "";
 
-		document.getElementById("atop").style.background = "";
-		document.getElementById("amiddle").style.background = "";
-		document.getElementById("abottom").style.background = "";
+		document.getElementById("row_atop").style.background = "";
+		document.getElementById("row_amiddle").style.background = "";
+		document.getElementById("row_abottom").style.background = "";
 
-		document.getElementById("a" + this.align).style.background = "#F00";
-		document.getElementById("a" + this.valign).style.background = "#F00";
+		document.getElementById("row_a" + this.align).style.background = "#F00";
+		document.getElementById("row_a" + this.valign).style.background = "#F00";
 
 		document.getElementById("bg").style.background = (this.bg == null)?"url(" + this.parent.empty + ")":this.bg;
 		document.getElementById("border").style.background = (this.borderColor == null)?"url(" + this.parent.empty + ")":this.borderColor;
-	}
-}
+		document.getElementById("row_border").value = (this.borderWidth == null)? "" : this.borderWidth;
+		document.getElementById("row_bordertype").value = (this.borderStyle == null)? "" : this.borderStyle;
 
+		if (this.height != null) {
+			if (this.height.indexOf('%') == -1) {
+				document.getElementById("row_width").value = this.height.substring(0, this.height.length - 2);
+				document.getElementById("row_widthtype").value = this.height.substring(this.height.length - 2);
+			} else {
+				document.getElementById("row_width").value = this.height.substring(0, this.height.length - 1);
+				document.getElementById("row_widthtype").value = this.height.substring(this.height.length - 1);
+			}
+		} else {
+			document.getElementById("row_width").value = "";
+			document.getElementById("row_widthtype").value = "%";
+		}
+		var b_width_changed = false;
+		var b_style_changed = false;
+		if(this.cols == 0) return false;
+		var orig_b_width = null;
+		var orig_b_style = null;
+
+		for (c = 0;c<this.cols;c++) {
+			if (orig_b_width != null && this.cells[c].borderWidth != orig_b_width) {
+				b_width_changed = true;
+			} else {
+				if (orig_b_width == null && this.cells[c].borderWidth != null) {
+					orig_b_width = this.cells[c].borderWidth.split(' ')[0];
+				}
+			}
+
+			if (orig_b_style != null && this.cells[c].borderStyle != orig_b_style) {
+				b_style_changed = true;
+			} else {
+				if (orig_b_style == null) {
+					orig_b_style = this.cells[c].borderStyle;
+				}
+			}
+		}
+
+		if (!b_width_changed && orig_b_width != null) {
+			document.getElementById('row_border').value = orig_b_width.substring(0, orig_b_width.length - 2);
+		} else {
+			document.getElementById('row_border').value = "";
+		}
+		if (!b_style_changed && orig_b_style != null) {
+			document.getElementById('row_bordertype').value = orig_b_style;
+		} else {
+			document.getElementById('row_bordertype').value = "";
+		}
+	}
+
+	this.getCellCount = function()
+	{
+		var cellLength = this.cells.length;
+		var i = 0;
+		while (i >= 0) {
+			if(this.cells[i] == "") {
+				cellLength--;
+			}
+			i--;
+		}
+		return cellLength;
+	}
+
+}
 
 TTable = function(name, rows, cols)
 {
@@ -225,6 +387,8 @@ TTable = function(name, rows, cols)
 	this.cellspacing= 2;
 	this.cellpadding= 2;
 	this.border		= 1;
+	this.borderStyle= "dashed";
+	this.borderColor= "black";
 	this.rows		= rows;
 	this.cols		= cols;
 	this.varname	= name;
@@ -234,8 +398,10 @@ TTable = function(name, rows, cols)
 	this.rules		= "";
 	this.style		= "";
 	this.extra		= "";
+	this.bg 		= "";
 
-	this.selector	= "cell";
+	this.lastSelect = 'table';
+	this.selector	= "table";
 	this.color		= "bg";
 
 	this.r			= null;
@@ -246,7 +412,6 @@ TTable = function(name, rows, cols)
 	this.semigray	= document.getElementById("semigray").src;
 	this.semired	= document.getElementById("semired").src;
 	this.empty		= document.getElementById("empty").src;
-
 	this.selected	= false;
 
 	if (typeof rows != "undefined") {
@@ -262,8 +427,9 @@ TTable = function(name, rows, cols)
 
 	this.toString = function()
 	{
-		var out = '<table id="js_' + this.varname + '" border="' + this.border + '" cellpadding="' + this.cellpadding + '" cellspacing="' + this.cellspacing + '"';
-		out += ' style="width:' + this.width + ';' + '"';
+		var out = '<table id="js_' + this.varname + '" cellpadding="' + this.cellpadding + '" cellspacing="' + this.cellspacing + '"';
+		out += ' style="width:' + this.width + ';' + 'border: ' + this.border + 'px ' + this.borderStyle + ' ' + this.borderColor + ';';
+		out += 'background-color: ' + this.bg + ';"';
 		if (this.summary != null) out += ' summary="' + this.summary + '"';
 		if (this.frame != "") out += ' frame="' + this.frame + '"';
 		if (this.rules != "") out += ' rules="' + this.rules + '"';
@@ -277,18 +443,24 @@ TTable = function(name, rows, cols)
 
 	}
 
-
 	this.Export = function()
 	{
-		var out = '<table id="' + this.id + '" border="' + this.border + '" cellpadding="' + this.cellpadding + '" cellspacing="' + this.cellspacing + '"';
-		out += ' style="width:' + this.width + ';' + this.style + '"';
+		var out = '<table id="' + this.id + '" cellpadding="' + this.cellpadding + '" cellspacing="' + this.cellspacing + '"';
+		out += ' style="width:' + this.width + ';' + this.style + '; border: ' + this.border + 'px ' + this.borderStyle + ' ' + this.borderColor + ';';
+		out += 'background: ' + this.bg + ';"';
 		if (this.summary != null && this.summary != "") out += ' summary="' + this.summary + '"';
 		if (this.frame != "") out += ' frame="' + this.frame + '"';
 		if (this.rules != "") out += ' rules="' + this.rules + '"';
 		out += this.extra + '>';
 		if (this.caption != null) out += '<caption>' + this.caption + '</caption>';
 		for (r = 0;r<this.rows;r++) {
-			out += this.matrix[r].Export();
+			var row_code = this.matrix[r].Export();
+			//Below condition determines if we have two theads in a row, meaning they should be grouped together
+			if ((row_code.substring(0, 7) == '<THEAD>') && (out.substring(out.length - 8) == '</THEAD>')) {
+				out = out.substring(0, out.length - 8); //strip out end of last thead
+				row_code = row_code.substring(7);		//strip out start of new one.
+			}
+			out += row_code;
 		}
 		out += '</table>';
 		return out;
@@ -418,15 +590,37 @@ TTable = function(name, rows, cols)
 	}
 
 
+	this.setColumnAlign = function(align)
+	{
+		for (r = 0; r < this.rows; r++) {
+			this.matrix[r].cells[this.c].align = align;
+		}
+		this.refresh();
+
+	}
+
+
 	this.setAlign = function(align)
 	{
-		if (this.r == null) return false;
-		if (this.c == null) {
+		if (this.lastSelect == 'row') {
 			this.matrix[this.r].align = align;
 			this.matrix[this.r].setPanels();
-		} else {
+		} else if(this.lastSelect == 'cell') {
 			this.matrix[this.r].cells[this.c].align = align;
 			this.matrix[this.r].cells[this.c].setPanels();
+		} else {
+			this.setColumnAlign(align);
+			this.setColumnPanels();
+		}
+		this.refresh();
+
+	}
+
+
+	this.setColumnValign = function(align)
+	{
+		for (r = 0; r < this.rows; r++) {
+			this.matrix[r].cells[this.c].valign = align;
 		}
 		this.refresh();
 
@@ -435,13 +629,15 @@ TTable = function(name, rows, cols)
 
 	this.setVAlign = function(valign)
 	{
-		if (this.r == null) return false;
-		if (this.c == null) {
+		if (this.lastSelect == 'row') {
 			this.matrix[this.r].valign = valign;
 			this.matrix[this.r].setPanels();
-		} else {
+		} else if(this.lastSelect == 'cell') {
 			this.matrix[this.r].cells[this.c].valign = valign;
 			this.matrix[this.r].cells[this.c].setPanels();
+		} else {
+			this.setColumnValign(valign);
+			this.setColumnPanels();
 		}
 		this.refresh();
 
@@ -474,14 +670,142 @@ TTable = function(name, rows, cols)
 
 	}
 
+	//Function to reenable disabled options
+	this.enable = function(start, disable)
+	{
+		var status = "";
+		if (disable) status = "disabled";
+		if (start == 'row_' || start == 'col_' || start == 'cell_') {
+			document.getElementById(start + 'border').disabled = status;
+			//document.getElementById(start + 'bordercolor').disabled = status;
+			document.getElementById(start + 'bordertype').disabled = status;
+			document.getElementById(start + 'width').disabled = status;
+			document.getElementById(start + 'widthtype').disabled = status;
+			if (start == 'cell_') {
+				document.getElementById(start + 'height').disabled = status;
+				document.getElementById(start + 'heighttype').disabled = status;
+				document.getElementById('axis').disabled = status;
+				document.getElementById('abbr').disabled = status;
+				document.getElementById('scope').disabled = status;
+				document.getElementById('headings').disabled = status;
+			}
+			if (start == 'col_' || start == 'row_') {
+				document.getElementById(start + 'add').disabled = status;
+				document.getElementById(start + 'delete').disabled = status;
+			}
+		}
+
+	}
+
+	//Sets the column options according to the settings of the cells contained in the row.
+	//If there is a descrepancy like 2 different widths or 2 different border styles,
+	//the option will be displayed as empty
+	this.setColumnPanels = function()
+	{
+		document.getElementById("col_aleft").style.background = "";
+		document.getElementById("col_acenter").style.background = "";
+		document.getElementById("col_aright").style.background = "";
+
+		document.getElementById("col_atop").style.background = "";
+		document.getElementById("col_amiddle").style.background = "";
+		document.getElementById("col_abottom").style.background = "";
+
+
+		var w_changed = false;
+		var b_width_changed = false;
+		var b_style_changed = false;
+		var align_changed = false;
+		var valign_changed = false;
+		var bg_changed = false;
+		if(this.rows == 0) return false;
+		var orig_width = this.matrix[0].cells[this.c].cellWidth;
+		var orig_b_width = this.matrix[0].cells[this.c].borderWidth;
+		var orig_b_style = this.matrix[0].cells[this.c].borderStyle;
+		var orig_valign = this.matrix[0].cells[this.c].valign;
+		var orig_align = this.matrix[0].cells[this.c].align;
+		var orig_bg = this.matrix[0].cells[this.c].bg;
+		for (r = 1;r<this.rows;r++) {
+			if (orig_width != null && this.matrix[r].cells[this.c].cellWidth != orig_width && this.matrix[r].cells[this.c].visible) {
+				w_changed = true;
+			} else {
+				if (orig_width == 'null' && this.matrix[r].cells[this.c].visible) {
+					orig_width = this.matrix[r].cells[this.c].cellWidth;
+				}
+			}
+
+			if (b_width_changed != null && this.matrix[r].cells[this.c].borderWidth != orig_b_width && this.matrix[r].cells[this.c].visible) {
+				b_width_changed = true;
+			} else {
+				if (orig_b_width == 'null' && this.matrix[r].cells[this.c].visible) {
+					orig_b_width = this.matrix[r].cells[this.c].borderWidth;
+				}
+			}
+
+			if (orig_b_style != null && this.matrix[r].cells[this.c].borderStyle != orig_b_style && this.matrix[r].cells[this.c].visible) {
+				b_style_changed = true;
+			} else {
+				if (orig_b_style == 'null' && this.matrix[r].cells[this.c].visible) {
+					orig_b_style = this.matrix[r].cells[this.c].borderStyle;
+				}
+			}
+			if (this.matrix[r].cells[this.c].align != orig_align && this.matrix[r].cells[this.c].visible) {
+				align_changed = true;
+			}
+			if (this.matrix[r].cells[this.c].valign != orig_valign && this.matrix[r].cells[this.c].visible) {
+				valign_changed = true;
+			}
+			if (this.matrix[r].cells[this.c].bg != orig_bg) {
+				bg_changed = true;
+			}
+		}
+		if (!w_changed && orig_width != null) {
+			if (orig_width.indexOf('%') != -1) {
+				document.getElementById('col_width').value = orig_width.substring(0, orig_width.length - 1);
+				document.getElementById('col_widthtype').value = orig_width.substring(orig_width.length - 1);
+			} else {
+				document.getElementById('col_width').value = orig_width.substring(0, orig_width.length - 2);
+				document.getElementById('col_widthtype').value = orig_width.substring(orig_width.length - 2);
+			}
+
+		} else {
+			document.getElementById('col_width').value = "";
+		}
+		if (this.borderWidth != null) {
+			document.getElementById("cell_border").value = this.borderWidth.split('px')[0];
+		} else {
+			document.getElementById("cell_border").value = "";
+		}
+		if (!b_width_changed && orig_b_width != null) {
+			document.getElementById('col_border').value = orig_b_width.split('px')[0];
+		} else {
+			document.getElementById('col_border').value = "";
+		}
+		if (!b_style_changed && orig_b_style) {
+			document.getElementById('col_bordertype').value = orig_b_style;
+		} else {
+			document.getElementById('col_bordertype').value = "";
+		}
+		if (!align_changed) {
+			document.getElementById('col_a' + orig_align).style.background = "#F00";
+		}
+		if (!valign_changed) {
+			document.getElementById('col_a' + orig_valign).style.background = "#F00";
+		}
+		if (!bg_changed && orig_bg != null) {
+			document.getElementById('bg').style.background = orig_bg;
+		} else {
+			document.getElementById("bg").style.background = "url(" + this.empty + ")";
+		}
+
+	}
 
 	this.select = function(td)
 	{
 		this.selected = true;
+		this.lastSelect = this.selector;
 		var id = td.id;
 		rr = id.substring(2, id.indexOf("_"))*1;
 		cc = id.substring(id.indexOf("_") + 1)*1;
-
 		if (this.selector != "head") {
 			for (r = 0;r<this.rows;r++) {
 				this.matrix[r].selected = false;
@@ -496,12 +820,35 @@ TTable = function(name, rows, cols)
 			this.matrix[rr].setPanels();
 			this.c = null;
 			this.r = rr;
+			this.enable('row_', false);
 		}
 		if (this.selector == "cell") {
 			this.matrix[rr].cells[cc].selected = true;
 			this.matrix[rr].cells[cc].setPanels();
 			this.c = cc;
 			this.r = rr;
+			this.enable('cell_', false)
+		}
+		if (this.selector == "col") {
+			for (r = 0;r<this.rows;r++) {
+					this.matrix[r].cells[cc].selected = true;
+					if (this.matrix[r].cells[cc].rowspan > 1) {
+						r += this.matrix[r].cells[cc].rowspan - 1;
+					}
+			}
+			this.c = cc;
+			this.r = 0;
+			this.setColumnPanels();
+			this.enable('col_', false);
+		}
+		//disable other functionality
+		var all = Array("col", "row", "cell");
+		var i = 0;
+		while (i < all.length) {
+			if (all[i] != this.selector) {
+				this.enable(all[i] + '_', true);
+			}
+			i++;
 		}
 		if (this.selector == "head") {
 			var header = new THeader(rr, cc);
@@ -574,6 +921,7 @@ TTable = function(name, rows, cols)
 			this.matrix[i + 1].row = i + 1;
 		}
 		this.matrix[this.r + 1] = temp;
+		this.refreshVisibility();
 		this.refresh();
 
 	}
@@ -607,6 +955,7 @@ TTable = function(name, rows, cols)
 			}
 			row.cells[this.c + 1] = Cell;
 		}
+		this.refreshVisibility();
 		this.refresh();
 
 	}
@@ -617,7 +966,7 @@ TTable = function(name, rows, cols)
 		if (this.c == null || this.cols == 1) return false;
 		for(i = 0; i<this.rows; i++) {
 			var row = this.matrix[i];
-			for (j = this.c;j<this.cols - 1;j++) {
+			for (j = this.c;j< row.cells.length - 1;j++) {
 				row.cells[j] = row.cells[j + 1];
 			}
 			row.cells.pop();
@@ -625,6 +974,7 @@ TTable = function(name, rows, cols)
 		this.cols--;
 		this.c = null;
 		this.r = null;
+		this.refreshVisibility();
 		this.refresh();
 	}
 
@@ -654,11 +1004,28 @@ TTable = function(name, rows, cols)
 		}
 	}
 
+	this.setColumnColor = function(color)
+	{
+		this.lastSelect = '';
+		for (i = 0; i < this.rows; i++) {
+			this.r = i;
+			this.setColor(color);
+		}
+		this.lastSelect = 'col';
+		this.r = 0;
+	}
 
 	this.setColor = function(color)
 	{
-		if (this.r == null) return false;
+		if (this.lastSelect == 'col' && this.selector != 'table') {
+			this.setColumnColor(color);
+			this.refresh();
+			return false;
+		}
 		var obj = (this.c == null)?this.matrix[this.r]:this.matrix[this.r].cells[this.c];
+		if (this.selector == 'table') {
+			obj = this;
+		}
 		if (this.color == "bg") {
 			if (color != null) {
 				obj.bg = "#" + color;
@@ -670,13 +1037,9 @@ TTable = function(name, rows, cols)
 		} else {
 			if (color != null) {
 				obj.borderColor = "#" + color;
-				obj.borderStyle = "solid";
-				obj.borderWidth = "1px";
 				document.getElementById("border").style.background = obj.borderColor;
 			} else {
 				obj.borderColor = null;
-				obj.borderStyle = null;
-				obj.borderWidth = null;
 				document.getElementById("border").style.background = "url(" + this.empty + ")";
 			}
 		}
@@ -778,7 +1141,18 @@ TTable = function(name, rows, cols)
 
 		this.style = "";
 		if (table.style.background != "")		this.style += "background: " + table.style.background + ";";
-		if (table.style.border != "")			this.style += "border: " + table.style.border + ";";
+		var borderParts = table.style.border.split(' ');
+		var i = 0;
+		while (i < borderParts.length) {
+			if (borderParts[i].indexOf('px') != -1) {
+				this.border = borderParts[i].substring(0, borderParts[i].indexOf('px'));
+			} else if ((borderParts[i].indexOf('#') != -1) || (colorsStr.indexOf(borderParts[i]) != -1)) {
+				this.borderColor = borderParts[i];
+			} else {
+				this.borderStyle = borderParts[i];
+			}
+			i++;
+		}
 		this.style += getStyle(table);
 
 		this.rows = table.rows.length;
@@ -788,6 +1162,7 @@ TTable = function(name, rows, cols)
 			if (this.cols < table.rows[i].cells.length) this.cols = table.rows[i].cells.length;
 
 		this.matrix = Array();
+		var placeHolders = Array(); //used to hold cells to be inserted due to colspan
 		for (r = 0;r<this.rows;r++) {
 			var temp = new TRow(this, r);
 			var row = table.rows[r];
@@ -796,7 +1171,18 @@ TTable = function(name, rows, cols)
 			temp.extra = getExtra(row);
 			temp.style = getStyle(row);
 			temp.bg = (row.style.backgroundColor == "")?null:row.style.backgroundColor;
-			for (c = 0;c<this.cols;c++) {
+			temp.height = (row.style.height == "")?null:row.style.height;
+			for (c = 0, cfake = 0; cfake<this.cols; c++, cfake++) {
+				for (i = 0; i < placeHolders.length; i++) {
+					if (placeHolders[i].r == r) {
+						if (placeHolders[i].c == cfake) {
+							var CellDummy = new TCell(temp);
+							CellDummy.visible = false;
+							temp.cells.push(CellDummy);
+							continue;
+						}
+					}
+				}
 				var Cell = new TCell(temp);
 				if (c<row.cells.length) {
 					var cell = row.cells[c];
@@ -813,6 +1199,10 @@ TTable = function(name, rows, cols)
 					Cell.style		= getStyle(cell);
 					Cell.bg			= (cell.style.backgroundColor == "")?null:cell.style.backgroundColor;
 					Cell.borderColor= (cell.style.borderColor == "")?null:cell.style.borderColor;
+					Cell.borderStyle= (cell.style.borderStyle == "")?null:cell.style.borderStyle;
+					Cell.borderWidth= (cell.style.borderWidth == "")?null:cell.style.borderWidth;
+					Cell.cellWidth	= (cell.style.width == "")		?null:cell.style.width;
+					Cell.cellHeight	= (cell.style.height == "")		?null:cell.style.height;
 					if (Cell.borderColor != null && Cell.borderColor.indexOf(")") > 0) Cell.borderColor = Cell.borderColor.substring(0,Cell.borderColor.indexOf(")") + 1)
 					var headers	= cell.headers;
 					if (headers != "") {
@@ -829,6 +1219,22 @@ TTable = function(name, rows, cols)
 					Cell.visible	= false;
 				}
 				temp.cells.push(Cell);
+				// to deal with inconsistencies brought up between imported tables and
+				// ones modified. The following loops add dummy cells for rowspan and colspan
+				if (Cell.colspan > 1) {
+					for (i = 2; i <= Cell.colspan; i++) {
+						var CellDummy = new TCell(temp);
+						CellDummy.visible = false;
+						temp.cells.push(CellDummy);
+						cfake++;
+					}
+				}
+				if (Cell.rowspan > 1) {
+					for (i = 1; i < Cell.rowspan; i++) {
+						var dummy = new THeader(r + i, cfake);
+						placeHolders.push(dummy);
+					}
+				}
 			}
 			this.matrix.push(temp);
 		}
@@ -897,6 +1303,61 @@ TTable = function(name, rows, cols)
 		this.refresh();
 	}
 
+	//Set Column widths
+	this.setColumnWidth = function(new_width)
+	{
+		for (i = 0; i < this.rows; i++) {
+			this.matrix[i].cells[this.c].cellWidth = new_width;
+		}
+		this.refresh();
+	}
+
+	//Set row Heights
+	this.setRowHeight = function(new_height)
+	{
+		this.matrix[this.r].height = new_height;
+		this.refresh();
+	}
+
+	//Set width of individual cell
+	this.setCellWidth = function(new_width)
+	{
+		this.matrix[this.r].cells[this.c].cellWidth = new_width;
+		this.refresh();
+	}
+
+	//Set width of individual cell
+	this.setCellHeight = function(new_height)
+	{
+		this.matrix[this.r].cells[this.c].cellHeight = new_height;
+		this.refresh();
+	}
+
+	this.setElementBorder = function(new_size, style)
+	{
+		//If border size text box is empty or text, set the size to zero
+		if (isNaN(new_size)) {
+			new_size = 0;
+		}
+		if (this.lastSelect == 'row') {
+			for (i = 0; i < this.cols; i++) {
+				this.matrix[this.r].cells[i].borderWidth = new_size + 'px';
+				this.matrix[this.r].cells[i].borderStyle = style;
+			}
+		} else if (this.lastSelect == 'col') {
+			for (i = 0; i < this.rows; i++) {
+				this.matrix[i].cells[this.c].borderWidth = new_size + 'px';
+				this.matrix[i].cells[this.c].borderStyle = style;
+			}
+		} else if (this.lastSelect == 'cell') {
+				this.matrix[this.r].cells[this.c].borderWidth = new_size + 'px';
+				this.matrix[this.r].cells[this.c].borderStyle = style;
+		} else if (this.selector == 'table') {
+				this.border = new_size;
+				this.borderStyle = style;
+		}
+		this.refresh();
+	}
 
 	this.setFrame = function(val)
 	{
@@ -910,6 +1371,7 @@ TTable = function(name, rows, cols)
 		this.rules = val;
 		this.refresh();
 	}
+
 }
 
 
@@ -931,5 +1393,6 @@ TMouse = function(parent)
 		document.getElementById("mcell").style.display = "none";
 		document.getElementById("mrow").style.display = "none";
 		document.getElementById("mhead").style.display = "none";
+		document.getElementById("mcol").style.display = "none";
 	}
 }
