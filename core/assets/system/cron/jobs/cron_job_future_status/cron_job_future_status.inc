@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_status.inc,v 1.26 2005/05/11 06:04:57 lwright Exp $
+* $Id: cron_job_future_status.inc,v 1.27 2005/06/30 23:14:03 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -305,35 +305,18 @@ class Cron_Job_Future_Status extends Cron_Job
 	*/
 	function &getActiveJobs(&$asset)
 	{
-		$cron_mgr = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
-		if (is_null($cron_mgr)) {
-			$blank = Array();
-			return $blank;
+		$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE, __CLASS__, true, 'minor', 'updating');
+		$assetids = Array();
+		foreach ($links as $link) {
+			$assetids[] = $link['majorid'];
 		}
-
-		// get all active future status jobs
-		$all_jobs = &$cron_mgr->getJobs(__CLASS__, false);
-
-		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($cron_mgr);
-
-		$dates = Array();
-		for ($i = 0, $total = count($all_jobs); $i < $total; $i++) {
-
-			$link = $GLOBALS['SQ_SYSTEM']->am->getLink($all_jobs[$i]->id, SQ_LINK_NOTICE, 'asset', false, 'updating');
-			if (!empty($link) && $link['minorid'] == $asset->id) {
-				$dates[$i] = $all_jobs[$i]->attr('when');
-			}
-
-		}//end for
-
+		$dates = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('when', 'cron_job_future_status', $assetids);
 		asort($dates, SORT_STRING);
-		$assets_jobs = Array();
-
-		foreach ($dates as $i => $date) {
-			$assets_jobs[] = &$all_jobs[$i];
+		$res = Array();
+		foreach ($dates as $assetid => $date) {
+			$res[] =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, __CLASS__);
 		}
-
-		return $assets_jobs;
+		return $res;
 
 	}//end getActiveJobs()
 
