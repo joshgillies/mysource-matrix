@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_rolling.inc,v 1.3 2005/06/27 05:45:17 tbarrett Exp $
+* $Id: page_calendar_rolling.inc,v 1.4 2005/06/30 23:21:37 tbarrett Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -272,8 +272,10 @@ class Page_Calendar_Rolling extends Page
 			$event_list .= "\n\n<".$heading_tag.'>'.date($heading_format, strtotime($date)).'</'.$heading_tag.">\n";
 			foreach ($events as $id => $event) {
 
+				$format_type = (in_array($event['type_code'], $recurring_event_descendants)) ? 'calendar_event_recurring' : 'calendar_event_single';
+
 				// get asset keywords
-				if ($needs_asset[$event['type_code']]) {
+				if ($needs_asset[$format_type]) {
 					$asset =& $am->getAsset($id);
 					foreach ($asset->getAssetKeywords() as $kw => $kw_data) {
 						$replacements[$kw] = $kw_data['value'];
@@ -301,7 +303,6 @@ class Page_Calendar_Rolling extends Page
 					}
 				}
 
-				$format_type = (in_array($event['type_code'], $recurring_event_descendants)) ? 'calendar_event_recurring' : 'calendar_event_single';
 				$event_list .= replace_keywords($type_formats[$format_type], $replacements);
 
 			}//end for events in day
