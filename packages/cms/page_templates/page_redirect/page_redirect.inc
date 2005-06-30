@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_redirect.inc,v 1.16.2.1 2005/06/28 01:17:52 ykasim Exp $
+* $Id: page_redirect.inc,v 1.16.2.2 2005/06/30 07:03:15 ykasim Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.16.2.1 $
+* @version $Revision: 1.16.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -199,7 +199,7 @@ class Page_Redirect extends Page
 			$params  =	 'location='.((strpos($options, 'hide_location'  ) !== false) ? '0' : '1').','
 						.'menubar='.((strpos($options, 'hide_menubar'   ) !== false) ? '0' : '1').','
 						.'scrollbars='.((strpos($options, 'hide_scrollbars') !== false) ? '0' : '1').','
-						.'status='.((strpos($options, 'hide_status'    ) !== false) ? '0' : '1').','
+						.'statusbar='.((strpos($options, 'hide_status'    ) !== false) ? '0' : '1').','
 						.'toolbar='.((strpos($options, 'hide_toolbar'   ) !== false) ? '0' : '1').','
 						.'resizable=' .((strpos($options, 'not_resizable'  ) !== false) ? '0' : '1');
 
