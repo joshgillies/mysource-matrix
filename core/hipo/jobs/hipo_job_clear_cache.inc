@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_clear_cache.inc,v 1.11 2005/05/17 06:58:42 ndvries Exp $
+* $Id: hipo_job_clear_cache.inc,v 1.12 2005/06/30 02:13:25 dheppell Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -175,7 +175,7 @@ class HIPO_Job_Clear_Cache extends HIPO_Job
 	*/
 	function freestyle()
 	{
-		while (!empty($this->_running_vars['todo_assetids']) || !$this->_running_vars['done_root']) {
+		while (!empty($this->_running_vars['todo_assetids'])) {
 			if (!$this->processClearCache($this->_steps[0], get_class($this))) {
 				return false;
 			}
