@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.260.2.1 2005/06/21 01:38:19 dmckee Exp $
+* $Id: asset_edit_interface.inc,v 1.260.2.2 2005/06/30 01:40:50 tbarrett Exp $
 *
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.260.2.1 $
+* @version $Revision: 1.260.2.2 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -1984,7 +1984,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 		// get all the user groups that we exist in
 		$groups = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', false));
-		if (empty($groups)) return Array();
+		if (empty($groups)) return Array(Array(1)); // all screens allowed
 
 		for (reset($groups); NULL !== ($k = key($groups)); next($groups)) {
 			$groups[$k] = $db->quote($groups[$k]);
