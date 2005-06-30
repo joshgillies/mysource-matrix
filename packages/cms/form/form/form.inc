@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.70.2.20 2005/06/29 03:49:12 lwright Exp $
+* $Id: form.inc,v 1.70.2.21 2005/06/30 00:44:43 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.70.2.20 $
+* @version $Revision: 1.70.2.21 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -162,7 +162,9 @@ class Form extends Bridge
 		if (!is_numeric($assetid)) return Array();
 
 		// only TYPE_2 links are ever returned
-		if (!($link_types & SQ_LINK_TYPE_2)) return Array();
+		if (!($link_types & SQ_LINK_TYPE_2)) {
+			return Array();
+		}
 
 		if (!isset($this->_tmp['getLinks'][$assetid][$side_of_link])) {
 
@@ -176,11 +178,15 @@ class Form extends Bridge
 				$links[] = $bc_link;
 			}
 
+			// TODO: [Bug #742] Add same here for sections
+
 			// but we also need question shadow asset links
 			$entries = $this->getQuestions();
 
 			$i = 0;
-			foreach ($links as $link) $i = max($i, $link['sort_order']);
+			foreach ($links as $link) {
+				$i = max($i, $link['sort_order']);
+			}
 
 			foreach ($entries as $questionid => $data) {
 
@@ -197,9 +203,7 @@ class Form extends Bridge
 						   );
 			}
 
-			if (is_null($sort_by)) {
-				$sort_by = 'sort_order';
-			}
+			if (is_null($sort_by)) $sort_by = 'sort_order';
 
 			uasort($links, create_function('$a,$b','return $a["'.$sort_by.'"] < $b["'.$sort_by.'"];'));
 
@@ -226,9 +230,21 @@ class Form extends Bridge
 			array_push($links, array_shift($old_links));
 		}
 
+		// get the bodycopy link
+		$bc_link = Asset_Manager::getLink($this->id, SQ_LINK_TYPE_2, 'folder', true, 'bodycopies_folder');
+
 		foreach (array_keys($links) as $i) {
 
 			$link =& $links[$i];
+
+			// if this is the link to the bodycopy folder, we don't need this
+			// because the Asset Manager already knows about it
+			if (!empty($bc_link) && ($link['linkid'] == $bc_link['linkid'])) {
+				unset($links[$i]);
+				continue;
+			}
+
+			// TODO: [Bug #744] Do similar for sections
 
 			// mould it all to the asset map's liking
 			$link['url'] = '';
