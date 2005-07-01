@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.18.2.1 2005/06/08 01:49:21 rhoward Exp $
+* $Id: lang_strings.xml,v 1.18.2.2 2005/07/01 02:05:13 dmckee Exp $
 *
 */
 
@@ -640,6 +640,12 @@
 	<string source="colspan">Colspan</string>
 	<string source="insert_div">Insert DIV</string>
 	<string source="create_new">Create New</string>
+	<string source="html_border">HTML Border</string>
+	<string source="row_properties">Row Properties</string>
+	<string source="column_properties">Column Properties</string>
+	<string source="cell_properties">Cell Properties</string>
+	<string source="table_modify">Modify</string>
+
 
 	<string source="core_no_existing_parsefile">Not available - no existing parse file available</string>
 	<string source="core_manually_reparse">Yes, manually reparse the existing file</string>
