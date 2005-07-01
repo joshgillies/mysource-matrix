@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: table-editor.js,v 1.2.2.3 2005/06/30 00:14:59 dmckee Exp $
+* $Id: table-editor.js,v 1.2.2.4 2005/07/01 01:10:20 dmckee Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -92,9 +92,11 @@ TCell = function(parent)
 				style += 'border-style:' + 'solid' + ';';
 			}
 		} else {
-			style += 'border-width:' + '1px' + ';';
-			style += 'border-color:' + '#99CCFF' + ';';
-			style += 'border-style:' + 'dashed' + ';';
+			if (parent.parent.htmlborder == null) {
+				style += 'border-width:' + '1px' + ';';
+				style += 'border-color:' + '#99CCFF' + ';';
+				style += 'border-style:' + 'dashed' + ';';
+			}
 		}
 
 		if (this.cellWidth != null) style += 'width:' + this.cellWidth + ';';
@@ -386,14 +388,15 @@ TTable = function(name, rows, cols)
 	this.caption	= null;
 	this.cellspacing= 2;
 	this.cellpadding= 2;
-	this.border		= 1;
-	this.borderStyle= "dashed";
-	this.borderColor= "black";
+	this.htmlborder	= null;
+	this.border		= null;
+	this.borderStyle= null;
+	this.borderColor= null;
 	this.rows		= rows;
 	this.cols		= cols;
 	this.varname	= name;
 	this.id			= "";
-	this.width		= "100%";
+	this.width		= "0%";
 	this.frame		= "";
 	this.rules		= "";
 	this.style		= "";
@@ -427,8 +430,12 @@ TTable = function(name, rows, cols)
 
 	this.toString = function()
 	{
-		var out = '<table id="js_' + this.varname + '" cellpadding="' + this.cellpadding + '" cellspacing="' + this.cellspacing + '"';
-		out += ' style="width:' + this.width + ';' + 'border: ' + this.border + 'px ' + this.borderStyle + ' ' + this.borderColor + ';';
+		var out = '<table id="js_' + this.id + '" cellpadding="' + this.cellpadding + '" cellspacing="' + this.cellspacing + '"';
+		if (this.htmlborder != null) out += ' border=' + this.htmlborder;
+		out += ' style="width:' + this.width + ';';
+		if (this.borderColor != null) out += 'border-color:' + this.borderColor + ';';
+		if (this.borderStyle != null) out += 'border-style:' + this.borderStyle + ';';
+		if (this.border != null) out += 'border-width:' + this.border + ';';
 		out += 'background-color: ' + this.bg + ';"';
 		if (this.summary != null) out += ' summary="' + this.summary + '"';
 		if (this.frame != "") out += ' frame="' + this.frame + '"';
@@ -445,8 +452,12 @@ TTable = function(name, rows, cols)
 
 	this.Export = function()
 	{
-		var out = '<table id="' + this.id + '" cellpadding="' + this.cellpadding + '" cellspacing="' + this.cellspacing + '"';
-		out += ' style="width:' + this.width + ';' + this.style + '; border: ' + this.border + 'px ' + this.borderStyle + ' ' + this.borderColor + ';';
+		var out = '<table id="js_' + this.id + '" cellpadding="' + this.cellpadding + '" cellspacing="' + this.cellspacing + '"';
+		if (this.htmlborder != null) out += ' border=' + this.htmlborder;
+		out += ' style="width:' + this.width + ';' + this.style + ';';
+		if (this.borderColor != null) out += 'border-color:' + this.borderColor + ';';
+		if (this.borderStyle != null) out += 'border-style:' + this.borderStyle + ';';
+		if (this.border != null) out += 'border-width:' + this.border + ';';
 		out += 'background: ' + this.bg + ';"';
 		if (this.summary != null && this.summary != "") out += ' summary="' + this.summary + '"';
 		if (this.frame != "") out += ' frame="' + this.frame + '"';
@@ -1130,7 +1141,7 @@ TTable = function(name, rows, cols)
 
 		this.id			= table.id;
 		this.summary	= table.summary;
-		this.border		= (table.border == "")?0:table.border;
+		this.htmlborder	= (table.border == "")?0:table.border;
 		this.frame		= table.frame;
 		this.rules		= table.rules;
 		this.cellspacing= (table.cellSpacing == "")?2:table.cellSpacing;
@@ -1245,7 +1256,7 @@ TTable = function(name, rows, cols)
 			this.caption = null;
 		}
 		document.getElementById("tid").value = this.id;
-		document.getElementById("caption").value = this.caption;
+		document.getElementById("caption").value = this.caption == null? "" : this.caption;
 		document.getElementById("cellspacing").value = this.cellspacing;
 		document.getElementById("cellpadding").value = this.cellpadding;
 		document.getElementById("summary").value = this.summary;
@@ -1258,6 +1269,9 @@ TTable = function(name, rows, cols)
 		}
 		document.getElementById("frame").value = this.frame;
 		document.getElementById("rules").value = this.rules;
+		document.getElementById("html_table_border").value = (this.htmlborder == null)? "" : this.htmlborder;
+		document.getElementById("table_border").value = (this.border == null)? "" : this.border;
+		document.getElementById("table_bordertype").value = (this.borderStyle == null)? "" : this.borderStyle;
 
 		this.refresh();
 	}
@@ -1331,6 +1345,13 @@ TTable = function(name, rows, cols)
 	{
 		this.matrix[this.r].cells[this.c].cellHeight = new_height;
 		this.refresh();
+	}
+
+	this.setTableHtmlBorder = function(new_size) {
+		if (isNaN(new_size)) {
+			new_size = 0;
+		}
+		this.htmlborder = new_size
 	}
 
 	this.setElementBorder = function(new_size, style)
