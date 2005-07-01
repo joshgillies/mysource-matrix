@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section.inc,v 1.40.2.1 2005/06/30 06:23:44 ykasim Exp $
+* $Id: form_section.inc,v 1.40.2.2 2005/07/01 03:43:38 ykasim Exp $
 *
 */
 
@@ -24,11 +24,11 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.40.2.1 $
+* @version $Revision: 1.40.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
-register_implementation('form_asset', 'bridge');
+register_implementation('form_section', 'bridge');
 class Form_Section extends Asset
 {
 
