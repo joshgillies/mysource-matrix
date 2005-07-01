@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit_table.php,v 1.20 2005/07/01 01:08:50 dmckee Exp $
+* $Id: edit_table.php,v 1.21 2005/07/01 02:14:06 dmckee Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Table Edit Popup for the WYSIWYG
 *
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix
 */
 
@@ -269,9 +269,9 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 			<option value="em">em</option>
 			<option value="ex">ex</option>
 		</select><br />
-		<label for="html_table_border"><?php echo 'HTML Border'; ?></label>
+		<label for="html_table_border"><?php echo translate('html_border'); ?></label>
 		<input id="html_table_border" name="html_table_border" style="width: 50px" onkeyup="table.setTableHtmlBorder(parseInt(document.getElementById('html_table_border').value))" value="0" /><br />
-		<label for="table_border"><?php echo 'Border'; ?></label>
+		<label for="table_border"><?php translate('border'); ?></label>
 		<input id="table_border" name="table_border" style="width: 50px" onkeyup="table.setElementBorder((parseInt(document.getElementById('table_border').value)), document.getElementById('table_bordertype').value);" value="0" />
 		<select id="table_bordertype" name="table_bordertype" style="width:80px" onchange="table.setElementBorder((parseInt(document.getElementById('table_border').value)), document.getElementById('table_bordertype').value);" >
 			<option value="solid" selected="selected">solid</option>
@@ -317,7 +317,7 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 
 	<!-- Properties for the row selector -->
 	<fieldset id="row_panel" style="display:none">
-		<legend><?php echo 'Row Properties' ?></legend>
+		<legend><?php echo translate('row_properties') ?></legend>
 		<label for="row_width"><?php echo 'Height' ?></label>
 		<input id="row_width" name="row_width" onkeyup="table.setRowHeight(parseInt(document.getElementById('row_width').value) + document.getElementById('row_widthtype').value)" style="width:100px" value="100" disabled="disabled"/>
 		<select id="row_widthtype" name="row_widthtype" style="width:50px" onchange="table.setRowHeight(parseInt(document.getElementById('row_width').value) + document.getElementById('row_widthtype').value)" disabled="disabled">
@@ -327,7 +327,7 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 			<option value="em">em</option>
 			<option value="ex">ex</option>
 		</select><br />
-		<label for="row_border"><?php echo 'Border'; ?></label>
+		<label for="row_border"><?php echo translate('border'); ?></label>
 		<input id="row_border" name="row_border" style="width:50px" onkeyup="table.setElementBorder((parseInt(document.getElementById('row_border').value)), document.getElementById('row_bordertype').value);" value="0" disabled="disabled" />
 		<select id="row_bordertype" name="row_bordertype" style="width:80px" onchange="table.setElementBorder((parseInt(document.getElementById('row_border').value)), document.getElementById('row_bordertype').value);" disabled="disabled">
 			<option value="solid" selected="selected">solid</option>
@@ -358,7 +358,7 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 
 	<!-- Properties for the column selector -->
 	<fieldset id="col_panel" style="display:none;">
-		<legend><?php echo 'Column Properties' ?></legend>
+		<legend><?php translate('column_properties'); ?></legend>
 		<label for="col_width"><?php echo translate('width'); ?></label>
 		<input id="col_width" name="col_width" onkeyup="table.setColumnWidth(parseInt(document.getElementById('col_width').value) + document.getElementById('col_widthtype').value)" style="width:100px" value="100" disabled="disabled" />
 		<select id="col_widthtype" name="col_widthtype" style="width:50px" onchange="table.setColumnWidth(parseInt(document.getElementById('col_width').value) + document.getElementById('col_widthtype').value)" disabled="disabled">
@@ -384,22 +384,22 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 		</select>
 		<br />
 		<hr />
-		<label><?php echo 'Modify'; ?></label>
+		<label><?php echo translate('table_modify'); ?></label>
 		<img id="col_add" alt="Add Column" title="Add Column" src="images/addcol.gif" onclick="if (table.lastSelect == 'col') table.addcol(); return false;"  />
 		<img id="col_delete" alt="Delete Column" title="Delete Column" src="images/delcol.gif" onclick="if (table.lastSelect == 'col') table.delcol();"  /><br />
-		<label><?php echo 'Horizontal'; ?></label>
-		<img id="col_aleft" title="Align Left" alt="Align Left" src="images/al.gif" onclick="if (table.lastSelect == 'col') table.setAlign('left');return false;" />
-		<img id="col_acenter" title="Align Center" alt="Align Center" src="images/ac.gif" onclick="if (table.lastSelect == 'col') table.setAlign('center');return false;" />
-		<img id="col_aright" title="Align Right" alt="Align Right" src="images/ar.gif" onclick="if (table.lastSelect == 'col') table.setAlign('right');return false;" /><br />
+		<label><?php echo translate('horizontal'); ?></label>
+		<img id="col_aleft" title="Align Left" alt="Align Left" src="images/al.gif" onclick="if (table.lastSelect == 'col') table.setAlign('left');" />
+		<img id="col_acenter" title="Align Center" alt="Align Center" src="images/ac.gif" onclick="if (table.lastSelect == 'col') table.setAlign('center');" />
+		<img id="col_aright" title="Align Right" alt="Align Right" src="images/ar.gif" onclick="if (table.lastSelect == 'col') table.setAlign('right');" /><br />
 		<label><?php echo 'Vertical'; ?></label>
-		<img id="col_atop" title="Align Top" alt="Align Top" src="images/at.gif" onclick="if (table.lastSelect == 'col') table.setVAlign('top')" />
-		<img id="col_amiddle" title="Align Middle" alt="Align Middle" src="images/am.gif" onclick="if (table.lastSelect == 'col') table.setVAlign('middle');return false;" />
-		<img id="col_abottom" title="Align Bottom" alt="Align Bottom" src="images/ab.gif" onclick="if (table.lastSelect == 'col') table.setVAlign('bottom');return false;" /><br />
+		<img id="col_atop" title="Align Top" alt="Align Top" src="images/at.gif" onclick="if (table.lastSelect == 'col') table.setVAlign('top');" />
+		<img id="col_amiddle" title="Align Middle" alt="Align Middle" src="images/am.gif" onclick="if (table.lastSelect == 'col') table.setVAlign('middle');" />
+		<img id="col_abottom" title="Align Bottom" alt="Align Bottom" src="images/ab.gif" onclick="if (table.lastSelect == 'col') table.setVAlign('bottom');" /><br />
 	</fieldset>
 
 	<!-- Properties for the cell selector -->
 	<fieldset id="cell_panel" style="display:none">
-		<legend><?php echo 'Cell Properties' ?></legend>
+		<legend><?php echo translate('cell_properties'); ?></legend>
 		<label for="cell_width"><?php echo translate('width'); ?></label>
 		<input id="cell_width" name="cell_width" onkeyup="table.setCellWidth(parseInt(document.getElementById('cell_width').value) + document.getElementById('cell_widthtype').value)" style="width:100px" value="100" disabled="disabled" />
 		<select id="cell_widthtype" name="cell_widthtype" style="width:50px" onchange="table.setCellWidth(parseInt(document.getElementById('cell_width').value) + document.getElementById('cell_widthtype').value)" disabled="disabled">
@@ -418,7 +418,7 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 			<option value="em">em</option>
 			<option value="ex">ex</option>
 		</select>
-		<label for="cell_border"><?php echo 'Border'; ?></label>
+		<label for="cell_border"><?php echo translate('border'); ?></label>
 		<input id="cell_border" name="cell_border" style="width:50px" onkeyup="table.setElementBorder((parseInt(document.getElementById('cell_border').value)), document.getElementById('cell_bordertype').value);" value="0" disabled="disabled" />
 		<select id="cell_bordertype" name="cell_bordertype" style="width:80px" onchange="table.setElementBorder((parseInt(document.getElementById('cell_border').value)), document.getElementById('cell_bordertype').value);" disabled="disabled">
 			<option value="solid" selected="selected">solid</option>
@@ -434,7 +434,7 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 		</select>
 		<br />
 		<hr />
-		<label><?php echo 'Modify'; ?></label>
+		<label><?php echo translate('table_modify'); ?></label>
 		<img id="addcolspan" title="Add ColSpan" alt="Add ColSpan" src="images/thr.gif" onclick="if (table.lastSelect == 'cell') table.addColSpan();"  />
 		<img id="delcolspan" alt="Delete ColSpan" title="Delete ColSpan" src="images/thl.gif" onclick="if (table.lastSelect == 'cell') table.delColSpan();" />
 		<img id="addrowspan" alt="Add RowSpan" title="Add RowSpan" src="images/tvd.gif" onclick="if (table.lastSelect == 'cell') table.addRowSpan();" />
