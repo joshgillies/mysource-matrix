@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_create_link.inc,v 1.10 2005/05/11 06:05:02 lwright Exp $
+* $Id: trigger_action_create_link.inc,v 1.11 2005/07/01 01:50:01 tbarrett Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -79,9 +79,10 @@ class Trigger_Action_Create_Link extends Trigger_Action
 		$is_dependant = array_get_index($settings, 'is_dependant', 0);
 		$is_exclusive = array_get_index($settings, 'is_exclusive', 0);
 		$value = array_get_index($settings, 'value', '');
+		$remove_other_links = array_get_index($settings, 'link_exclusively', 0);
 
 		if (empty($state['asset'])) {
-			// grab the asset if assetid is given, but not the asset
+			// if we've been given the assetid but not the asset, get the asset
 			if (empty($state['assetid'])) {
 				return false;
 			} else {
@@ -90,6 +91,11 @@ class Trigger_Action_Create_Link extends Trigger_Action
 		}
 
 		$am = $GLOBALS['SQ_SYSTEM']->am;
+
+		if ($remove_other_links) {
+			// get a list of the existing links
+			$old_links = $am->getLinks($state['assetid'], SQ_SC_LINK_ALL, '', true, 'minor');
+		}
 
 		// determine major/minor from settings
 		if ($settings['is_major']) {
@@ -101,17 +107,22 @@ class Trigger_Action_Create_Link extends Trigger_Action
 		}
 
 
-		// the link is already there, so count as success
 		$side_of_link = ($settings['is_major']) ? 'major' : 'minor';
 		$link_info = $am->getLinkByAsset($state['assetid'], $settings['assetid'], $settings['link_type'], null, $side_of_link, true);
 		if (empty($link_info)) {
 			// create a link
 			$linkid = $am->createAssetLink($major, $minor, $settings['link_type'], $value, null, $is_dependant, $is_exclusive);
 			if (!$linkid) return false;
-
 			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
 		} else {
+			// the link is already there, so count as success
 			$link = array_shift($link_info);
+		}
+
+		if ($remove_other_links) {
+			foreach ($old_links as $old_link) {
+				$am->deleteAssetLink($old_link['linkid']);
+			}
 		}
 
 		// update lookups for both assets
@@ -151,6 +162,7 @@ class Trigger_Action_Create_Link extends Trigger_Action
 		$value              = array_get_index($settings, 'value', '');
 		$is_dependant       = array_get_index($settings, 'is_dependant', 0);
 		$is_exclusive       = array_get_index($settings, 'is_exclusive', 0);
+		$link_exclusively   = array_get_index($settings, 'link_exclusively', 0);
 
 		// check if the selected asset is valid
 		if ($selected_assetid && !$GLOBALS['SQ_SYSTEM']->am->assetExists($selected_assetid)) {
@@ -219,13 +231,24 @@ class Trigger_Action_Create_Link extends Trigger_Action
 			$advanced_part_3 = ob_get_contents();
 		ob_end_clean();
 
+		ob_start();
+			if ($write_access) {
+				check_box($prefix.'[link_exclusively]', '1', $link_exclusively, '', 'id="'.$prefix.'_link_exclusively"');
+				label(translate('trigger_create_link_remove_others'), $prefix.'_link_exclusively');
+			} else {
+				echo '<img src="'.sq_web_path('lib').'/web/images/'.($link_exclusively ? 'tick' : 'cross').'.gif" />';
+				echo translate('trigger_create_link_remove_others');
+			}
+			$advanced_part_4 = ob_get_contents();
+		ob_end_clean();
 
 		$contents = translate('trigger_create_link_basic', $basic_part_1, $basic_part_2, $basic_part_3).
 					'<br /><br />'.
 					'<b>'.translate('triggers_advanced_user_options').'</b><br />'.
-					translate('trigger_create_link_advanced', $advanced_part_1, $advanced_part_2, $advanced_part_3);
+					translate('trigger_create_link_advanced', $advanced_part_1, $advanced_part_2, $advanced_part_3).
+					'<br />'.$advanced_part_4;
 
-		return $contents; //ob_get_clean();
+		return $contents;
 
 	}//end getInterface()
 
@@ -268,6 +291,7 @@ class Trigger_Action_Create_Link extends Trigger_Action
 		$settings['value']        = array_get_index($request_data, 'value', '');
 		$settings['is_dependant'] = array_get_index($request_data, 'is_dependant', 0);
 		$settings['is_exclusive'] = array_get_index($request_data, 'is_exclusive', 0);
+		$settings['link_exclusively'] = array_get_index($request_data, 'link_exclusively', 0);
 
 		return false;
 
