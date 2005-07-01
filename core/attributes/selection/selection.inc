@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: selection.inc,v 1.43 2005/06/21 04:25:11 dmckee Exp $
+* $Id: selection.inc,v 1.44 2005/07/01 04:07:31 tbarrett Exp $
 *
 */
 
@@ -47,7 +47,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *   <selection style="boxes" columns="1" extras="" />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.44 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -289,7 +289,7 @@ class Asset_Attribute_Selection extends Asset_Attribute
 				if (!isset($options[$value])) {
 					// may be an "other" choice
 					if ($this->_params['allow_other']) {
-						echo 'Other: '.$value; // TRANSLATE THIS
+						echo translate('other').': '.$value;
 					}
 					// may have a value left over from when we
 					// were a mutiple selection field
@@ -322,7 +322,7 @@ class Asset_Attribute_Selection extends Asset_Attribute
 
 		if ($this->_edit_params['style'] == 'list') {
 			if (empty($this->_params['multiple']) && $this->_params['allow_other']) {
-				$options['__other__'] = 'Other'; // TRANSLATE THIS
+				$options['__other__'] = translate('other');
 				$onchange_code = 'document.getElementById(\''.$prefix.'_other\').style.visibility = (this.options[this.selectedIndex].value == \'__other__\') ? \'visible\' : \'hidden\'';
 				$onchange_pos = strpos(strtolower($this->_edit_params['extras']), 'onchange=');
 				if (false === $onchange_pos) {
@@ -340,7 +340,7 @@ class Asset_Attribute_Selection extends Asset_Attribute
 			}
 		} else {
 			if (empty($this->_params['multiple']) && $this->_params['allow_other']) {
-				$options['__other__'] = 'Other'; // TRANSLATE THIS
+				$options['__other__'] = translate('other');
 				$onclick_pos = strpos(strtolower($this->_edit_params['extras']), 'onchange=');
 				if (false === $onclick_pos) {
 					$this->_edit_params['extras'] .= ' onclick="%on_click%"';
