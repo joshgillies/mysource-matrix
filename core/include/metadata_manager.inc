@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.84 2005/06/24 01:53:26 ndvries Exp $
+* $Id: metadata_manager.inc,v 1.85 2005/07/01 05:47:17 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.84 $
+* @version $Revision: 1.85 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -679,6 +679,8 @@ class Metadata_Manager extends MySource_Object
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
+		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		$asset->_updated();
 		$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
 		$em->broadcastEvent($asset, 'indexMetadata', Array('assetid' => $assetid));
 
