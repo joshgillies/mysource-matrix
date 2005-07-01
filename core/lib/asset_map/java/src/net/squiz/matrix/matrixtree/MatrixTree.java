@@ -17,7 +17,7 @@
  * | licence.                                                           |
  * +--------------------------------------------------------------------+
  *
- * $Id: MatrixTree.java,v 1.7 2005/05/20 00:08:35 ndvries Exp $
+ * $Id: MatrixTree.java,v 1.7.2.1 2005/07/01 01:16:01 ndvries Exp $
  * $Name: not supported by cvs2svn $
  */
 
@@ -286,6 +286,9 @@ public class MatrixTree extends CueTree
 	public void startAssetFinderMode() {
 		isInAssetFinderMode = true;
 		setBackground(ASSET_FINDER_BG_COLOR);
+
+		removeMouseListener(selTool);
+		removeMouseMotionListener(selTool);
 	}
 
 	/**
@@ -295,6 +298,9 @@ public class MatrixTree extends CueTree
 	public void stopAssetFinderMode() {
 		isInAssetFinderMode = false;
 		setBackground(Color.WHITE);
+
+		addMouseListener(selTool);
+		addMouseMotionListener(selTool);
 	}
 
 	/**
@@ -1134,6 +1140,8 @@ public class MatrixTree extends CueTree
 		 */
 		public void dragGestureRecognized(DragGestureEvent dge) {
 
+			if (isInAssetFinderMode()) return;
+
 			Point initPoint = dge.getDragOrigin();
 			if (getPathForLocation(initPoint.x, initPoint.y) == null)
 				return;
@@ -1347,6 +1355,20 @@ public class MatrixTree extends CueTree
 			}
 			return (TreePath[]) realSourcePaths.toArray(new TreePath[realSourcePaths.size()]);
 		}
+
+		/**
+		 * Returns true if the specified point will trigger a move operation
+		 * when the mouse if pressed on that point
+		 * @param p the point to check
+		 */
+		protected boolean pointTriggersMove(Point p) {
+			if (isInAssetFinderMode()) {
+				return false;
+			} else {
+				return nodeIconContainsPoint(p);
+			}
+		}
+
 	}//end MatrixCueGestureHandler
 
 	/**
