@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.23 2005/07/01 02:04:14 dmckee Exp $
+* $Id: lang_strings.xml,v 1.24 2005/07/01 03:51:07 tbarrett Exp $
 *
 */
 
@@ -800,12 +800,12 @@
 	<string source="trigger_events_list">This is a list of all the events installed in this system. Select the ones you want this trigger to respond to. If you do not specify any events, the trigger will be fired when ANY event is fired, which can negatively affect the speed of the system.</string>
 	<string source="no_event_selected">No Events Were Selected</string>
 	<string source="trigger_conditions_explanation">Here you specify the conditions that must be satisfied before the actions are allowed to perform. Note that order is important. New conditions are added to the bottom of the list with default settings. If you add a condition, but do not change it's settings it will automatically fail. Some condition types can only be used once in a trigger.</string>
-	<string source="trigger_actions_explanation">Actions are performed in the order they are specified. If one action fails, the trigger will fail. Unless 'Ignore Permissions' is selected, the action is run as a user that caused the trigger to be executed (currently logged in user). This means that some actions might fail if they user doesn't have appropriate access privileges. To make sure that the actions are performed regardles of user's access rights, select 'Ignore Permissions'. Actions can be marked as 'Not Required' which means that if that action fails for some reason, the trigger will not fail overall. If an action fails and it is required, then the system will try to undo all the previous actions in this trigger.</string>
+	<string source="trigger_actions_explanation">Actions are performed in the order they are specified. If one action fails, the trigger will fail. Unless 'Ignore Permissions' is selected, the action is run as a user that caused the trigger to be executed (currently logged in user). This means that some actions might fail if they user doesn't have appropriate access privileges. To make sure that the actions are performed regardles of user's access rights, select 'Ignore Permissions'. Actions can be marked as 'Non-Critical' which means that if that action fails for some reason, the trigger will not fail overall. If an action fails and it is required, then the system will try to undo all the previous actions in this trigger.</string>
 	<string source="select_to_add">Select to Add</string>
 	<string source="some_conditions_can_only_be_added_once">Some conditions can only be added once.</string>
 	<string source="no_conditions_specified">No Conditions Specified</string>
 	<string source="ignore_permissions">Ignore Permissions</string>
-	<string source="not_required">Not Required</string>
+	<string source="not_required">Non-Critical</string>
 	<string source="no_action_specified">No Actions Specified</string>
 	<string source="trigger_finish_editing">Finish Editing (save and display the trigger list)</string>
 	<string source="trigger_add_new">To add a new trigger, enter the name in this box and submit the form</string>
