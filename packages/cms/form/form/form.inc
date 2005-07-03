@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.100.2.5 2005/06/30 00:43:25 lwright Exp $
+* $Id: form.inc,v 1.100.2.6 2005/07/03 22:41:13 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.100.2.5 $
+* @version $Revision: 1.100.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -851,7 +851,7 @@ class Form extends Asset
 		$clientside = ($this->attr('use_client_side'))?'onsubmit="return beforeSubmit_'.$prefix.'(this);"':'';
 
 		ob_start();
-		echo '<form name="'.$prefix.'" enctype="multipart/form-data" action="'.$_SERVER['PHP_SELF'].'" method="POST" '.$clientside.'>';
+		echo '<form name="'.$prefix.'" enctype="multipart/form-data" action="'.$_SERVER['PHP_SELF'].'" method="post" '.$clientside.'>';
 		if ($this->attr('use_client_side')) {
 			?><script language="JavaScript">
 			function beforeSubmit_<?php echo $this->getPrefix() ?>(form) {
