@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: table-editor.js,v 1.5.2.3 2005/07/01 01:09:56 dmckee Exp $
+* $Id: table-editor.js,v 1.5.2.4 2005/07/03 23:30:49 dmckee Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -885,10 +885,22 @@ TTable = function(name, rows, cols)
 
 	this.th = function()
 	{
-		if (this.c == null) return false;
-		this.matrix[this.r].cells[this.c].th = !this.matrix[this.r].cells[this.c].th;
-		this.matrix[this.r].cells[this.c].setPanels();
+		if (this.lastSelect == 'cell') {
+			this.matrix[this.r].cells[this.c].th = !this.matrix[this.r].cells[this.c].th;
+			this.matrix[this.r].cells[this.c].setPanels();
+		}
+		if (this.lastSelect == 'col') {
+			for (i = 0; i < this.rows; i++) {
+				this.matrix[i].cells[this.c].th = !this.matrix[i].cells[this.c].th;
+			}
+		}
+		if (this.lastSelect == 'row') {
+			for (i = 0; i < this.matrix[this.r].cells.length; i++) {
+				this.matrix[this.r].cells[i].th = !this.matrix[this.r].cells[i].th;
+			}
+		}
 		this.refresh();
+		return false;
 
 	}
 
