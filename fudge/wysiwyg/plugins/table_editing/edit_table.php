@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit_table.php,v 1.7.2.9 2005/07/01 01:10:20 dmckee Exp $
+* $Id: edit_table.php,v 1.7.2.10 2005/07/03 23:31:00 dmckee Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Table Edit Popup for the WYSIWYG
 *
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.7.2.9 $
+* @version $Revision: 1.7.2.10 $
 * @package MySource_Matrix
 */
 
@@ -345,7 +345,9 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 		<hr />
 		<label><?php echo 'Modify'; ?></label>
 		<img id="row_add" alt="Add Row" title="Add Row" src="images/addrow.gif" onclick="if (table.lastSelect == 'row') table.addrow();"  />
-		<img id="row_delete" alt="Delete Row" title="Delete Row" src="images/delrow.gif" onclick="if (table.lastSelect == 'row') table.delrow();"  /><br />
+		<img id="row_delete" alt="Delete Row" title="Delete Row" src="images/delrow.gif" onclick="if (table.lastSelect == 'row') table.delrow();"  />
+		<img alt="divider" src="images/div.gif" />
+		<img id="row_THead" alt="Head Cells" title="Head Cell" src="images/th.gif" onclick="if (table.lastSelect == 'row') table.th();"/><br />
 		<label><?php echo 'Horizontal'; ?></label>
 		<img id="row_aleft" title="Align Left" alt="Align Left" src="images/al.gif" onclick="if (table.lastSelect == 'row') table.setAlign('left');" />
 		<img id="row_acenter" title="Align Center" alt="Align Center" src="images/ac.gif" onclick="if (table.lastSelect == 'row') table.setAlign('center');" />
@@ -386,7 +388,9 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 		<hr />
 		<label><?php echo 'Modify'; ?></label>
 		<img id="col_add" alt="Add Column" title="Add Column" src="images/addcol.gif" onclick="if (table.lastSelect == 'col') table.addcol(); return false;"  />
-		<img id="col_delete" alt="Delete Column" title="Delete Column" src="images/delcol.gif" onclick="if (table.lastSelect == 'col') table.delcol();"  /><br />
+		<img id="col_delete" alt="Delete Column" title="Delete Column" src="images/delcol.gif" onclick="if (table.lastSelect == 'col') table.delcol();"  />
+		<img alt="divider" src="images/div.gif" />
+		<img id="col_THead" alt="Head Cells" title="Head Cell" src="images/th.gif" onclick="if (table.lastSelect == 'col') table.th();"/><br />
 		<label><?php echo 'Horizontal'; ?></label>
 		<img id="col_aleft" title="Align Left" alt="Align Left" src="images/al.gif" onclick="if (table.lastSelect == 'col') table.setAlign('left');return false;" />
 		<img id="col_acenter" title="Align Center" alt="Align Center" src="images/ac.gif" onclick="if (table.lastSelect == 'col') table.setAlign('center');return false;" />
