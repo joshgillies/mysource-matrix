@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_custom_image.inc,v 1.10 2004/12/06 14:38:08 brobertson Exp $
+* $Id: design_area_custom_image.inc,v 1.10.2.1 2005/07/03 23:46:26 dheppell Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.10.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -68,8 +68,8 @@ class Design_Area_Custom_Image extends Design_Area
 		// else print out a full tag
 		} else {
 			$image_size = @getimagesize($image_path);
-			if ($alt = $this->attr('alt')) $alt = ' alt="'.htmlspecialchars($alt).'"';
-			echo '<img src="', $image, '" ', $this->attr('extra'), $alt, (($image_size) ? $image_size[3] : ''), '>';
+			if ($alt = $this->attr('alt')) $alt .= htmlspecialchars($alt);
+			echo '<img src="', $image, '" ', $this->attr('extra'), ' alt="', $alt, '"', (($image_size) ? $image_size[3] : ''), '/>';
 		}
 
 		return true;
