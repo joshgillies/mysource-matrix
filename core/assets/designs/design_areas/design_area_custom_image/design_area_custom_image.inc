@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_custom_image.inc,v 1.9 2004/04/19 11:55:44 brobertson Exp $
+* $Id: design_area_custom_image.inc,v 1.9.6.1 2005/07/03 23:46:44 dheppell Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -68,8 +68,8 @@ class Design_Area_Custom_Image extends Design_Area
 		// else print out a full tag
 		} else {
 			$image_size = @getimagesize($image_path);
-			if ($alt = $this->attr('alt')) $alt = ' alt="'.htmlspecialchars($alt).'"';
-			echo '<img src="', $image, '" ', $this->attr('extra'), $alt, (($image_size) ? $image_size[3] : ''), '>';
+			if ($alt = $this->attr('alt')) $alt .= htmlspecialchars($alt);
+			echo '<img src="', $image, '" ', $this->attr('extra'), ' alt="', $alt, '"', (($image_size) ? $image_size[3] : ''), '/>';
 		}
 
 		return true;
