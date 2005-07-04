@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: embed_movie.php,v 1.18.2.2 2005/07/04 01:41:12 dmckee Exp $
+* $Id: embed_movie.php,v 1.18.2.3 2005/07/04 01:51:24 dmckee Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Embed Movie Popup for the WYSIWYG
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.18.2.2 $
+* @version $Revision: 1.18.2.3 $
 * @package MySource_Matrix
 */
 
@@ -231,7 +231,6 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 										<table width="100%" cellspacing="0" cellpadding="0">
 											<tr>
 												<td valign="top" width="100%">
-													<fieldset>
 													<legend><b><?php echo translate('general'); ?></b></legend>
 													<table style="width:100%">
 														<tr>
