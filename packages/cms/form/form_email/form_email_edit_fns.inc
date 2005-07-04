@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.38.2.11 2005/07/04 03:30:11 lwright Exp $
+* $Id: form_email_edit_fns.inc,v 1.38.2.12 2005/07/04 03:31:30 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.38.2.11 $
+* @version $Revision: 1.38.2.12 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -512,11 +512,11 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$assetid_info = Array();
 
 		for ($i = 0; $i < count($assetids); $i += 500) {
-			$assetid_info += $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_slice(array_keys($assetids), $i, 500), 'form_submission', false, 'created');
+			$assetid_info += $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_slice(array_keys($assetids), $i, 500), 'form_submission', false);
 		}
 
 		foreach ($assetids as $assetid => $type_code) {
-			$create_time = strtotime($assetid_info[$assetid]);
+			$create_time = strtotime($assetid_info[$assetid]['created']);
 
 			if (($create_time >= $from_ts) && ($create_time <= $to_ts)) {
 				$sub_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
