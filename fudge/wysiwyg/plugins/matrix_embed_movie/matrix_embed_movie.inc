@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_embed_movie.inc,v 1.18 2004/12/06 14:39:54 brobertson Exp $
+* $Id: matrix_embed_movie.inc,v 1.19 2005/07/04 00:48:24 dmckee Exp $
 *
 */
 
@@ -34,7 +34,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     in the editable document using a file asset from MySoure Matrix
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -42,6 +42,7 @@ class matrix_embed_movie extends wysiwyg_plugin
 {
 
 	var $_img_url = '';
+
 
 	/**
 	* Constructor
@@ -76,7 +77,7 @@ class matrix_embed_movie extends wysiwyg_plugin
 				var range = this._createRange(sel);
 
 				var style          = "";
-				var width          = "";
+				var width          = " ";
 				var height         = "";
 				var fileid         = "0";
 				var auto_start     = "0";
@@ -144,12 +145,15 @@ class matrix_embed_movie extends wysiwyg_plugin
 						// user must have pressed Cancel
 						return false;
 					}
-
 					var html = '<img sq_embeded="1" src="<?php echo $this->_img_url; ?>"';
 					html += ' style="width: ' + param["f_width"] + 'px; height: ' + param["f_height"] + 'px; border: 2px dashed black;"';
 					html += ' width="'         + param["f_width"] + '"';
 					html += ' height="'        + param["f_height"] + '"';
-					html += ' fileid="'        + param["f_fileid"] + '"';
+					if (param["use_external"] == true) {
+						html += ' fileurl="'	+ param["external_url"] + '"';
+					} else {
+						html += ' fileid="'		+ param["f_fileid"] + '"';
+					}
 					html += ' auto_start="'    + param["f_auto_start"] + '"';
 					html += ' show_controls="' + param["f_show_controls"] + '"';
 					html += ' embed_loop="'    + param["f_embed_loop"] + '"';
@@ -220,15 +224,21 @@ class matrix_embed_movie extends wysiwyg_plugin
 				$var_value = trim($pieces[2][$k]);
 				$movie_vars[$var_name] = $var_value;
 			}
+			$movie_url = '';
+			if (isset($movie_vars['fileurl'])) {
+				$filename = $movie_vars['fileurl'];
+				$movie_url = $movie_vars['fileurl'];
+				$movie_url = $filename;
+			} else {
+				if (!isset($movie_vars['fileid'])) continue;
+				$fileid = $movie_vars['fileid'];
+				$file = &$GLOBALS['SQ_SYSTEM']->am->getAsset($fileid, 'file');
+				if (is_null($file)) continue;
 
-			if (!isset($movie_vars['fileid'])) continue;
-			$fileid = $movie_vars['fileid'];
-			$file = &$GLOBALS['SQ_SYSTEM']->am->getAsset($fileid, 'file');
-			if (is_null($file)) continue;
-
-			$filename = $file->name;
-
-			// first trying getting width and height from the style
+				$filename = $file->name;
+				$movie_url = './?a='.$fileid;
+			}
+			// first try getting width and height from the style
 			$width  = '';
 			$height = '';
 			if (isset($movie_vars['style'])) {
@@ -243,16 +253,24 @@ class matrix_embed_movie extends wysiwyg_plugin
 					$style_vars[$var_name] = $var_value;
 				}
 
-				if (isset($style_vars['width'])) $width = 'width="'.str_replace('px','',$style_vars['width']).'"';
-				if (isset($style_vars['height'])) $height = 'height="'.str_replace('px','',$style_vars['height']).'"';
+				if (isset($style_vars['width'])) {
+					$width = 'width="'.str_replace('px','',$style_vars['width']).'"';
+				}
+				if (isset($style_vars['height'])) {
+					$height = 'height="'.str_replace('px','',$style_vars['height']).'"';
+				}
 			}
 
 			// if we didnt get width and height from the style, try the tag
 			if (empty($width)) {
-				if (isset($movie_vars['width'])) $width = 'width="'.str_replace('px','',$movie_vars['width']).'"';
+				if (isset($movie_vars['width'])) {
+					$width = 'width="'.str_replace('px','',$movie_vars['width']).'"';
+				}
 			}
 			if (empty($height)) {
-				if (isset($movie_vars['height'])) $height = 'height="'.str_replace('px','',$movie_vars['height']).'"';
+				if (isset($movie_vars['height'])) {
+					$height = 'height="'.str_replace('px','',$movie_vars['height']).'"';
+				}
 			}
 
 			ob_start();
@@ -260,24 +278,27 @@ class matrix_embed_movie extends wysiwyg_plugin
 			?>
 			<sq_wysiwyg_embed_movie <?php echo $match; ?>>
 			<?php
-
 			switch (strtolower(get_file_type($filename))) {
 
 				// Quicktime Movie
 				case 'mov' :
-					if (!isset($movie_vars['embed_loop']))    $movie_vars['embed_loop']    = '0';
-					if (!isset($movie_vars['show_controls'])) $movie_vars['show_controls'] = '0';
+					if (!isset($movie_vars['embed_loop'])) {
+						$movie_vars['embed_loop']    = '0';
+					}
+					if (!isset($movie_vars['show_controls'])) {
+						$movie_vars['show_controls'] = '0';
+					}
 
-					?><embed src="./?a=<?php echo $fileid; ?>" controller="<?php echo ($movie_vars['show_controls']) ? 'true' : 'false'?>" cache="true" loop="<?php echo ($movie_vars['embed_loop']) ? 'true' : 'false'; ?>" <?php echo $width; ?> <?php echo $height; ?>><?php
+					?><embed src="<?php echo $movie_url; ?>" controller="<?php echo ($movie_vars['show_controls']) ? 'true' : 'false'?>" cache="true" loop="<?php echo ($movie_vars['embed_loop']) ? 'true' : 'false'; ?>" <?php echo $width; ?> <?php echo $height; ?>><?php
 				break;
 
 				// Shockwave Flash
 				case 'swf' :
 					?><object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=4,0,2,0" <?php echo $width; ?> <?php echo $height; ?>>
-						<param name="movie"   value="./?a=<?php echo $fileid; ?>">
+						<param name="movie"   value="<?php echo $movie_url; ?>">
 						<param name="quality" value="high">
 						<param name="scale"   value="exactfit">
-						<embed src="./?a=<?php echo $fileid; ?>" quality="high" pluginspage="http://www.macromedia.com/shockwave/download/index.cgi?P1_Prod_Version=ShockwaveFlash" type="application/x-shockwave-flash" <?php echo $width; ?> <?php echo $height; ?> scale="exactfit"></embed>
+						<embed src="<?php echo $movie_url; ?>" quality="high" pluginspage="http://www.macromedia.com/shockwave/download/index.cgi?P1_Prod_Version=ShockwaveFlash" type="application/x-shockwave-flash" <?php echo $width; ?> <?php echo $height; ?> scale="exactfit"></embed>
 					</object><?php
 				break;
 
@@ -285,22 +306,28 @@ class matrix_embed_movie extends wysiwyg_plugin
 				case 'wmv' :
 				case 'asf' :
 				case 'asx' :
+				case 'mpeg' :
 				case 'mpg' :
-					if (!isset($movie_vars['embed_loop']))    $movie_vars['embed_loop']    = '0';
-					if (!isset($movie_vars['show_controls'])) $movie_vars['show_controls'] = '0';
-					if (!isset($movie_vars['auto_start']))    $movie_vars['auto_start']    = '0';
-
+					if (!isset($movie_vars['embed_loop'])) {
+						$movie_vars['embed_loop']    = '0';
+					}
+					if (!isset($movie_vars['show_controls'])) {
+						$movie_vars['show_controls'] = '0';
+					}
+					if (!isset($movie_vars['auto_start'])) {
+						$movie_vars['auto_start']    = '0';
+					}
 					?><object id="WinMedia" classid="CLSID:22d6f312-b0f6-11d0-94ab-0080c74c7e95"
 					  codebase= "http://activex.microsoft.com/activex/controls/mplayer/en/nsmp2inf.cab#Version=5,1,52,701"
 					  <?php echo $width; ?> <?php echo $height; ?>
 					  standby="Loading Microsoft Windows Media Player components..." type="application/x-oleobject">
-						<param name="FileName"     value="./?a=<?php echo $fileid; ?>">
+						<param name="FileName"     value="<?php echo $movie_url; ?>">
 						<param name="AutoStart"    value="<?php echo ($movie_vars['auto_start'])    ? 'true' : 'false'; ?>">
 						<param name="ShowControls" value="<?php echo ($movie_vars['show_controls']) ? 'true' : 'false'; ?>">
 						<param name="loop"         value="<?php echo ($movie_vars['embed_loop'])    ? 'true' : 'false';?>">
 						<embed type="application/x-mplayer2"
 							pluginspage="http://www.microsoft.com/Windows/MediaPlayer/"
-							src="./?a=<?php echo $fileid; ?>"
+							src="<?php echo $movie_url; ?>"
 							name="MediaPlayer"
 							AutoStart="<?php echo ($movie_vars['auto_start'])       ? 'true' : 'false'; ?>"
 							ShowControls="<?php echo ($movie_vars['show_controls']) ? 'true' : 'false'; ?>"
@@ -346,6 +373,7 @@ class matrix_embed_movie extends wysiwyg_plugin
 
 	}//end set_contents()
 
-}
+
+}//end class
 
 ?>
