@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_constant_button.inc,v 1.19 2005/01/20 13:07:31 brobertson Exp $
+* $Id: design_area_constant_button.inc,v 1.20 2005/07/04 06:21:48 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -62,7 +62,10 @@ class Design_Area_Constant_Button extends Design_Area
 			?', '>';
 		}// end if
 
-		return parent::printArea($design);
+		if ($this->attr('print')) {
+			return parent::printArea($design);
+		}
+		return true;
 
 	}//end printArea()
 
@@ -108,6 +111,9 @@ class Design_Area_Constant_Button extends Design_Area
 		}// end switch
 
 	}//end printVar()
+
+
+
 
 
 }//end class

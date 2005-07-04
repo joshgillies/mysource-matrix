@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_management.inc,v 1.14 2005/05/13 00:00:01 ndvries Exp $
+* $Id: design_management.inc,v 1.15 2005/07/04 06:21:48 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -52,7 +52,6 @@ class Design_Management extends Asset_Management
 									'type'		=> 'text',
 									'default'	=> '',
 								 );
-
 	}//end constructor
 
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_constant_button_edit_fns.inc,v 1.15 2005/01/20 13:07:32 brobertson Exp $
+* $Id: design_area_constant_button_edit_fns.inc,v 1.16 2005/07/04 06:21:48 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -85,6 +85,26 @@ class Design_Area_Constant_Button_Edit_Fns extends Design_Area_Edit_Fns
 		return $asset->setAttrValue('assetid', (int) $_POST[$prefix.'_assetid']['assetid']);
 
 	}//end processAssetid()
+
+
+	/**
+	* Output the PHP/HTML code that will hopefully form part of the creating the design file*
+	*
+	* For constant buttons, the check for the "print" attr is overriden here, and checked later
+	*
+	* @param Array			$contents	the parse contents to use in the output
+	* @param object Asset	$asset		the asset to which we belong
+	* @param object Design	$design		the design object that is painting us
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _createDesignFileOutput($contents, &$asset, &$design)
+	{
+		return $this->_outputContents($contents, $asset, $design);
+
+	}//end _createDesignFileOutput()
+
 
 
 }//end class

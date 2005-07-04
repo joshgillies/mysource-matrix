@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.92 2005/07/04 04:56:26 amiller Exp $
+* $Id: design_edit_fns.inc,v 1.93 2005/07/04 06:21:48 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.92 $
+* @version $Revision: 1.93 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -472,16 +472,16 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 				continue;
 			}
 
-			// if there isn't any print var, default to 'yes'
-			if (!isset($element['attributes']['print'])) {
-				$element['attributes']['print'] = 'yes';
-			}
-
 			$edit_fns = $design_areas[$element['attributes']['id_name']]->getEditFns();
 			if (!$edit_fns->_processContents($design_areas[$element['attributes']['id_name']], $element['contents'])) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
+
+			if (in_array(array_get_index($element['attributes'], 'print'), Array('no', 'false', '0'))) {
+				$design_areas[$element['attributes']['id_name']]->setAttrValue('print', false);
+			}
+			
 			if (!$design_areas[$element['attributes']['id_name']]->saveAttributes()) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
@@ -489,22 +489,14 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 			// if they want this design area to be printed then what we need to do is alter the contents
 			// array to become a _PRINT operation
-			switch ($element['attributes']['print']) {
-				case 'yes'  :
-				case 'true' :
-				case '1'    :
-					// Now what we do is morph it so that this element is now a print tag
-					$contents[$index] = Array(
-											'_type'				=> 'TAG',
-											'attributes'		=> Array ('id_name' => $element['attributes']['id_name']),
-											'operation'			=> 'print',
-											'self_terminating'	=> 1,
-										);
-					break;
-				// otherwise we just remove it as there is nothing for us to do with it anymore
-				default :
-					$remove_indexes[] = $index;
-			}//end switch
+
+			// Now what we do is morph it so that this element is now a print tag
+			$contents[$index] = Array(
+									'_type'				=> 'TAG',
+									'attributes'		=> Array ('id_name' => $element['attributes']['id_name']),
+									'operation'			=> 'print',
+									'self_terminating'	=> 1,
+								);
 
 		}//end foreach
 
@@ -538,7 +530,6 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	function createDesignFile(&$asset)
 	{
 		$design_area_links = $asset->getDesignAreaLink();
-
 		// Firstly we need to set all the var_reference variables so that when the design areas are
 		// printed they can work correctly
 		//
@@ -642,7 +633,6 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		if (!$str) return false;
 		$str = $pre_str."\n".$str;
 		$str = preg_replace('|\?>([\s]+)?<\?php|', '', $str);
-
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 		create_directory($asset->data_path);
 		$file = $asset->data_path.'/design_file.php';
