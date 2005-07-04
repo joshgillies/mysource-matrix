@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: embed_movie.php,v 1.14.6.1 2005/07/04 00:47:25 dmckee Exp $
+* $Id: embed_movie.php,v 1.14.6.2 2005/07/04 01:41:40 dmckee Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -63,14 +63,13 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 					var el = document.getElementById(id);
 					param[id] = el.value;
 				}
-				// Because the id of the f_image field has array references in it,
-				// we can't get use getElementById, so do this...
-				if (document.getElementById('check_use_url').checked == true) {
+				if (document.getElementById('url_link').value.substring(0, 5) != './?a=') {
 					param['use_external'] = true;
-					param["external_url"] = document.getElementById('external_url').value;
+					param["external_url"] = document.getElementById('url_protocol').value + document.getElementById('url_link').value;
+				param["url"] = document.getElementById('url_protocol').value + document.getElementById('url_link').value;
 				} else {
 					param['use_external'] = false;
-					param["f_fileid"] = document.main_form.elements["f_fileid[assetid]"].value;
+					param["f_fileid"] = document.getElementById('url_link').value.substring(5);
 				}
 				for (var i in chk_fields) {
 					var id = chk_fields[i];
@@ -174,6 +173,12 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 							include_once(SQ_LIB_PATH.'/asset_map/asset_map.inc');
 							$asset_map = new Asset_Map();
 							$asset_map->embed_asset_map('simple', 200, 350);
+							$url_protocol_options = Array(
+														''			=> '',
+														'http://'	=> 'http://',
+														'https://'	=> 'https://',
+														'ftp://'	=> 'ftp://',
+													);
 						?>
 					</td>
 					<td valign="top">
@@ -183,30 +188,38 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 									<fieldset>
 										<legend><b>General</b></legend>
 										<script type="text/javascript">
-												function enable_asset_movie() {
-													document.getElementById('external_url').disabled = "disabled";
-													document.getElementById('check_use_url').checked = false;
-												}
+												function setUrl(protocol, link) {
+													var f = document.main_form;
 
-												function enable_external_movie() {
-													//document.getElementById('f_fileid').disabled = "disabled";
-													document.getElementById('check_use_asset').checked = false;
-													document.getElementById('external_url').disabled = "";
-													document.getElementById('external_url').focus();
-												}
+													if (protocol != null) highlight_combo_value(f.url_protocol, protocol);
+													if (link     != null) {
+														f.url_link.value = link;
+													} else {
+														var assetid = f.elements["assetid[assetid]"].value;
+
+														if (assetid != '') {
+															// shadow asset
+															if (assetid.search(/:/) != -1) {
+																f.url_link.value = './?a=' + assetid + '$';
+															} else {
+																f.url_link.value = './?a=' + assetid;
+															}
+															highlight_combo_value(f.url_protocol, '');
+														}
+													}
+													setTimeout('self.focus()',100);
+												};
 										</script>
 										<table style="width:100%">
 											<tr>
-												<td class="label"><?php radio_button('check_use_asset', '1', true, 'enable_asset_movie();'); ?><?php echo 'Asset:'; ?>:</td>
-												<td>
-													<?php asset_finder('f_fileid', $_GET['f_fileid'], Array('file' => 'I'), ''); ?>
-												</td>
+												<td class="label">Protocol:</td>
+												<td><?php  combo_box('url_protocol',$url_protocol_options , '', 'style="font-family: courier new; font-size: 11px;"'); ?></td>
+												<td class="label">Link:</td>
+												<td><?php text_box('url_link', '', 40, 0)?></td>
 											</tr>
 											<tr>
-												<td class="label"><?php radio_button('check_use_url', '1', false, 'enable_external_movie();'); ?><?php echo 'URL:'; ?>:</td>
-												<td>
-													<?php text_box('external_url', 'http://', '60', '150', false, 'disabled="disabled"'); ?>
-												</td>
+												<td class="label">Select Asset:</td>
+												<td colspan="3"><?php asset_finder('assetid', '', Array('file' => 'I'), '', false, 'setUrl'); ?></td>
 											</tr>
 										</table>
 									</fieldset>
