@@ -1,5 +1,96 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.4.4
+
+Featured Changes
+----------------------
+
+PAGINATED FORM SUBMISSIONS
+
+	Previously, all form submission were listed on the same page in the custom form. This caused errors when a large number of form submissions (> 10,000) were being displayed. The custom form now has a paginated interface for viewing form submissions, allowing the interface to cope with an unlimited number of submission for a single form.
+
+WYSIWYG TABLE EDITOR IMPROVED
+
+	The WYSIWYG table editor now has a number of new (widely requested) ways to edit HTML tables. While some are new pieces of functionality, the changes have been back-ported to the current stable branch to fix a number of bugs in the table editor that are stopping users from editing content.
+
+	The new table editing functionality allows for:
+	- the selection of row, cell, and column properties for modification (previously only row and cell were available)
+	- there are options for the entire table such as border (both html and css), colour, caption and other functionality that was present in previous versions
+	- each of the selectors now has their own panel that has the facility to edit the colour, size and border of the selected container, as well as the ability to add and delete elements
+	- the table editor is now easier to use as it implements guideline borders for tables which would otherwise seem invisible
+
+
+Complete Changelog
+----------------------
+
+Core
+
++ WYSIWYG editor now allows for column properties to be set
++ WYSIWYG editor allows for for table properties to be set
++ WYSIWYG table editor now shows guideline borders for tables without borders
+* Fixed bug #83 : Cannot have System Root URL with capital letters
+* Fixed bug #84 : MySource_SET tags keep their last known value when removed from the parse file
+* Fixed bug #349: WYSIWYG Div jumps up after toolbar button push
+* Fixed bug #361: Can't set an entire row as header cells
+* Fixed bug #362: Adding TH cells doesn't add THEAD tags
+* Fixed bug #438: Cloning Permission problems with Notice Links
+* Fixed bug #494: design_customisation asset not found until customised
+* Fixed bug #581: User logged out of asset at the end of workflow
+* Fixed bug #582: File lookups becoming corrupted with similar root urls
+* Fixed bug #589: Put column and cell properties settings back in WYSIWYG
+* Fixed bug #605: Missing metadata default value
+* Fixed bug #617: Design loses Text File in Safe Edit
+* Fixed bug #675: Asset Finder's buttons do not appear in WYSIWYG popups
+* Fixed bug #680: WYSIWYG embed movie plugin only allows internal URLs
+* Fixed bug #685: Creation of .FFV files buggy on Windows-based installs; affected by stat() cache
+* Fixed bug #689: WYSIWYG not converting " into entity character &quot;
+* Fixed bug #692: Javascript error when saving table properties in Internet Explorer
+* Fixed bug #699: Remap errors after changing File asset status
+* Fixed bug #702: Changing File Asset status after Morphing fails
+* Fixed bug #708: Parts of the Designs section of the Settings screen aren't buffered and therefore print before all headers are printed
+* Fixed bug #717: Using layouts to edit metadata on front end
+* Fixed bug #719: Metadata showing "Array" as the value for all items in a multiple select
+* Fixed bug #727: 'Customise Associated Files' sometimes fails
+* Fixed bug #731: IE Table Editor Error
+* Fixed bug #738: Logic errors in clear cache hipo
+* Fixed bug #741: Design Code length not enforced
+* Fixed bug #746: Display of time in settings incorrect
+* Fixed bug #751: menus not printing settings.class values
+
+CMS
+
++ Form submission screen is now paginated (custom form)
+* Fixed bug #308: Asset Builder requires links lock on Parent Asset (asset builder)
+* Fixed bug #447: Deleting form questions break Selective Email rules (custom form)
+* Fixed bug #667: Custom Form bodycopies not cloned with form (custom form)
+* Fixed bug #674: Complex Validation Rules on Custom Form (custom form)
+* Fixed bug #682: Remote content greedy matches end tag (remote content)
+* Fixed bug #686: Question with note inside section throws error when generating simple content file (custom form)
+* Fixed bug #688: Tickbox tables cause an error on submit (custom form)
+* Fixed bug #694: File Upload does not work when not privileged user, gives attribute permissions error (custom form)
+* Fixed bug #698: Form submission fails if form is locked (custom form)
+* Fixed bug #712: Nested asset list with dynamic parameter fatal error (asset listing)
+* Fixed bug #713: File Upload form question creates the file asset but does not add the uploaded file (custom form)
+* Fixed bug #733: Asset listings with dynamic parameters are cached (asset listing)
+* Fixed bug #736: Redirect page "Hide Location Bar" (redirect page)
+* Fixed bug #742: Cant add bodycopy after link tree recreated; bodycopy folder in the trash exclusively (custom form)
+* Fixed bug #743: Response keywords not displaying anything in Thank You bodycopy (custom form)
+* Fixed bug #744: Unable to use Bodycopies with custom forms
+* Fixed bug #749: Password question type cannot be edited if inside a section (custom form)
+* Fixed bug #752: Problems with custom form submission viewing and exporting (custom form)
+
+Search
+
+* Fixed bug #707: Asset lineage for linked assets is a compound of paths to all instances (search page)
+* Fixed bug #724: "Do not include" metadata used in search (search manager)
+* Fixed bug #734: Noise word in search field is not ignored (search manager)
+
+LDAP
+
+* Fixed bug #203: LDAP tree does not expand child branches reliably (ldap bridge)
+
+
+
 VERSION 3.4.3
 
 Complete Changelog
@@ -7,46 +98,46 @@ Complete Changelog
 
 Core
 
-* Fixed bug #520: Tooltips stops editing contents in bodycopy table columns
-* Fixed bug #521: Tooltips stop editing in bodycopy if you hover too early
-* Fixed bug #598: Step Logic "at least" 0 condition(s) must be met in this step
-* Fixed bug #603: Table content disappears in table editor window when editing large tables
-* Fixed bug #619: Workflow reminder messages have broken links
-* Fixed bug #620: Thesaurus browser popup appears almost off the screen
+* Fixed bug #220: Acquiring lock on settings screen for a Backend user crashes browser
+* Fixed bug #273: Linked CSS Design Area - Changing css asset
+* Fixed bug #393: _path_ptrs declared twice in xml_array
 * Fixed bug #395: Problem declaring multiple vars in a single MySource AREA
 * Fixed bug #480: Client Side validation errors if Selection Limit rule is applied to Tickbox List
+* Fixed bug #498: DIV properties content type should default to current type
+* Fixed bug #501: Login_Form design area input boxes not using classes
+* Fixed bug #520: Tooltips stops editing contents in bodycopy table columns
+* Fixed bug #521: Tooltips stop editing in bodycopy if you hover too early
 * Fixed bug #526: Customisation cannot be created in some case
+* Fixed bug #534: Problems with declared_vars design area
 * Fixed bug #537: Default Value Not Displaying in Chosen Date Format
 * Fixed bug #540: Customised design areas not always updated
+* Fixed bug #598: Step Logic "at least" 0 condition(s) must be met in this step
 * Fixed bug #599: Metadata Date Incorrect When Keyword Chosen
+* Fixed bug #601: "URL not found" error should send a 404 HTTP response
+* Fixed bug #603: Table content disappears in table editor window when editing large tables
+* Fixed bug #612: Asset in trash check has broken SQL
+* Fixed bug #616: Relevance weights reset during step_03
+* Fixed bug #618: Heading styles shortcut keys not working in WYSIWYG
+* Fixed bug #619: Workflow reminder messages have broken links
+* Fixed bug #620: Thesaurus browser popup appears almost off the screen
+* Fixed bug #635: Hipo Jobs with large number of assets fail when processed in one group
+* Fixed bug #636: Workflow schemas can be removed during workflow
 * Fixed bug #641: Unquoted statement in hipo_herder.inc
+* Fixed bug #643: Option list attribute ignores typed values if you dont click "add"
 * Fixed bug #645: Selecting to NOT cascade permissions causes lock cascades
 * Fixed bug #650: multiple declared vars type="boolean" error
 * Fixed bug #653: Simple edit has JavaScript error
-* Fixed bug #220: Acquiring lock on settings screen for a Backend user crashes browser
-* Fixed bug #273: Linked CSS Design Area - Changing css asset
-* Fixed bug #498: DIV properties content type should default to current type
-* Fixed bug #501: Login_Form design area input boxes not using classes
-* Fixed bug #534: Problems with declared_vars design area
-* Fixed bug #616: Relevance weights reset during step_03
-* Fixed bug #618: Heading styles shortcut keys not working in WYSIWYG
-* Fixed bug #635: Hipo Jobs with large number of assets fail when processed in one group
-* Fixed bug #636: Workflow schemas can be removed during workflow
-* Fixed bug #643: Option list attribute ignores typed values if you dont click "add"
 * Fixed bug #658: Standard Page Content Div won't release lock with parent
 * Fixed bug #663: Image File Asset - Front End Editing Layout Anomaly
-* Fixed bug #393: _path_ptrs declared twice in xml_array
-* Fixed bug #601: "URL not found" error should send a 404 HTTP response
-* Fixed bug #612: Asset in trash check has broken SQL
 
 CMS
 
-* Fixed bug #621: Comparison form rule breaks when apostrophe in response
-* Fixed bug #622: Adding questions on a fresh install gives attribute not found errors
+* Fixed bug #206: Custom Form - questions being shown on the asset map in reverse sort order
 * Fixed bug #484: Custom form select list won't allow "0"
 * Fixed bug #580: Form container for "test fr" (Id: #1683) could not print frontend
 * Fixed bug #587: Custom form, switching html/plain text email breaks wysiwyg
-* Fixed bug #206: Custom Form - questions being shown on the asset map in reverse sort order
+* Fixed bug #621: Comparison form rule breaks when apostrophe in response
+* Fixed bug #622: Adding questions on a fresh install gives attribute not found errors
 * Fixed bug #661: What's new asset returns error with less than three assets
 * Fixed bug #672: "Divide by Zero" error if search page has "Assets per Page" set to zero
 
