@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.63 2005/05/16 06:36:41 lwright Exp $
+* $Id: page_asset_builder.inc,v 1.64 2005/07/04 23:33:20 pgannavarapu Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.63 $
+* @version $Revision: 1.64 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -373,14 +373,14 @@ class Page_Asset_Builder extends Page
 
 					// set the install run level because we are creating an asset without being
 					// logged in - so any write access checks will fail
-					$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+					if ($this->attr('allow_public_user')) {
+						$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+					}
 
 					if (!$new_asset->processBackend($o, $link)) {
-
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 
 					} else {
-
 						// if we have multiple locations to create this asset under, create
 						// the new links to all the other parents
 						if (is_array($create_locations)) {
@@ -400,7 +400,6 @@ class Page_Asset_Builder extends Page
 									continue;
 								}
 							}
-
 							// we need to update lookups to make sure the URLs for the
 							// new create locations are set correctly
 							$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
@@ -419,7 +418,9 @@ class Page_Asset_Builder extends Page
 
 					}//end if processBackend
 
-					$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+					if ($this->attr('allow_public_user')) {
+						$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+					}
 
 				break;
 
@@ -921,7 +922,7 @@ class Page_Asset_Builder extends Page
 							$i = 0;
 							foreach ($data['locations'] as $id => $name) {
 								check_box($code_name."[$i]", $id, $checked);
-								echo '&nbsp;' . $name . '<br />';
+								echo '&nbsp;'.$name.'<br />';
 								$checked = false;
 								$i++;
 							}
@@ -929,7 +930,7 @@ class Page_Asset_Builder extends Page
 							$checked = !$data['allow_empty'];
 							foreach ($data['locations'] as $id => $name) {
 								radio_button($code_name, $id, $checked);
-								echo '&nbsp;' . $name . '<br />';
+								echo '&nbsp;'.$name.'<br />';
 								$checked = false;
 							}
 						}
@@ -1032,7 +1033,7 @@ class Page_Asset_Builder extends Page
 							$i = 0;
 							foreach ($options as $id => $name) {
 								check_box($code_name."[$i]", $id, $checked);
-								echo '&nbsp;' . $name . '<br />';
+								echo '&nbsp;'.$name.'<br />';
 								$checked = false;
 								$i++;
 							}
@@ -1040,7 +1041,7 @@ class Page_Asset_Builder extends Page
 							$checked = !$data['allow_empty'];
 							foreach ($options as $id => $name) {
 								radio_button($code_name, $id, $checked);
-								echo '&nbsp;' . $name . '<br />';
+								echo '&nbsp;'.$name.'<br />';
 								$checked = false;
 							}
 						}
@@ -1125,7 +1126,9 @@ class Page_Asset_Builder extends Page
 				$this->_drawTree($branch_data, $all_child_links, $output_tree, $branch, $level++);
 			} else {
 				$prefix = '';
-				for ($i = 1; $i < $level; $i++) $prefix .= ' - ';
+				for ($i = 1; $i < $level; $i++) {
+					$prefix .= ' - ';
+				}
 				$branch_info = $all_child_links[$branch];
 				$output_tree[$branch_info['linkid'].'_'.$branch_info['assetid']] = $prefix.$branch_info['short_name'];
 			}
@@ -1208,12 +1211,12 @@ class Page_Asset_Builder extends Page
 		if (!isset($vars['keywords'])) return;
 
 		$keywords = Array(
-						'login_invite'            => translate('cms_asset_builder_keyword_login_invite'),
-						'login_form'              => translate('cms_asset_builder_keyword_login_form'),
-						'create_error'            => translate('cms_asset_builder_keyword_login_error'),
-						'create_invite'           => translate('cms_asset_builder_keyword_create_invite'),
-						'create_form'             => translate('cms_asset_builder_keyword_create_form'),
-						'create_error'            => translate('cms_asset_builder_keyword_create_error'),
+						'login_invite'	=> translate('cms_asset_builder_keyword_login_invite'),
+						'login_form'	=> translate('cms_asset_builder_keyword_login_form'),
+						'create_error'	=> translate('cms_asset_builder_keyword_login_error'),
+						'create_invite'	=> translate('cms_asset_builder_keyword_create_invite'),
+						'create_form'	=> translate('cms_asset_builder_keyword_create_form'),
+						'create_error'	=> translate('cms_asset_builder_keyword_create_error'),
 					);
 
 		$keywords['created_assetid']			= translate('cms_asset_builder_created_assetid');
@@ -1269,19 +1272,20 @@ class Page_Asset_Builder extends Page
 
 	/**
 	* Return an array of bodycopies that need to be created
-
+	*
 	* @return Array
 	* @access private
 	*/
 	function _getBodycopies()
 	{
 		return Array(
-					'created'		=> translate('created'),
-					'logged_in'		=> translate('logged_in'),
-					'not_logged_in'	=> translate('not_logged_in'),
+				'created'		=> translate('created'),
+				'logged_in'		=> translate('logged_in'),
+				'not_logged_in'	=> translate('not_logged_in'),
 			   );
 
 	}//end _getBodycopies()
+
 
 }//end class
 ?>
