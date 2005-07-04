@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_embed_movie.inc,v 1.17.2.1 2005/07/04 00:47:25 dmckee Exp $
+* $Id: matrix_embed_movie.inc,v 1.17.2.2 2005/07/04 23:52:28 dmckee Exp $
 *
 */
 
@@ -34,7 +34,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     in the editable document using a file asset from MySoure Matrix
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.17.2.1 $
+* @version $Revision: 1.17.2.2 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -77,13 +77,15 @@ class matrix_embed_movie extends wysiwyg_plugin
 				var range = this._createRange(sel);
 
 				var style          = "";
-				var width          = " ";
+				var width          = "";
 				var height         = "";
 				var fileid         = "0";
 				var auto_start     = "0";
 				var show_controls  = "0";
 				var embed_loop     = "0";
 				var is_file        = false;
+				var fileurl        = '';
+				var fileprotocol   = '';
 
 				// loop through and try and find a selected embed tag
 				if (HTMLArea.is_gecko) {
@@ -111,6 +113,23 @@ class matrix_embed_movie extends wysiwyg_plugin
 				// if there is an existing image, get its properties
 				if (is_file && embed_tag) {
 					fileid        = embed_tag.getAttribute('fileid');
+					if (fileid != null) {
+						fileurl = './?a=' + fileid;
+					} else {
+						fileparts = embed_tag.getAttribute('fileurl');
+						if (fileparts != null) {
+							if (fileparts.substring(0, 7) == 'http://') {
+								fileprotocol = 'http://';
+								fileurl = fileparts.substring(7);
+							} else if (fileparts.substring(0, 8) == 'https://') {
+								fileprotocol = 'https://';
+								fileurl = fileparts.substring(8);
+							} else if (fileparts.substring(0, 6) == 'ftp://') {
+								fileprotocol = 'ftp://';
+								fileurl = fileparts.substring(6);
+							}
+						}
+					}
 					auto_start    = embed_tag.getAttribute('auto_start');
 					show_controls = embed_tag.getAttribute('show_controls');
 					embed_loop    = embed_tag.getAttribute('embed_loop');
@@ -138,7 +157,7 @@ class matrix_embed_movie extends wysiwyg_plugin
 				if (this._inPopup == true) { in_popup = '1'; }
 
 				editor_<?php echo $this->wysiwyg->name?>._object = this;
-				strPage = "<?php echo $this->get_popup_href('embed_movie.php')?>?f_fileid=" + escape(fileid) + "&f_width=" + escape(width) + "&f_height=" + escape(height) + "&f_auto_start=" + escape(auto_start) + "&f_show_controls=" + escape(show_controls) + "&f_embed_loop=" + escape(embed_loop) + "&editor_name=" + escape("<?php echo $this->wysiwyg->name; ?>") + "&in_popup=" + escape(in_popup);
+				strPage = "<?php echo $this->get_popup_href('embed_movie.php')?>?f_fileurl=" + escape(fileurl) + "&f_fileprotocol=" + escape(fileprotocol) + "&f_width=" + escape(width) + "&f_height=" + escape(height) + "&f_auto_start=" + escape(auto_start) + "&f_show_controls=" + escape(show_controls) + "&f_embed_loop=" + escape(embed_loop) + "&editor_name=" + escape("<?php echo $this->wysiwyg->name; ?>") + "&in_popup=" + escape(in_popup);
 
 				this._popupDialog("matrixEmbedMovie", strPage, 600, 480, true, function(param) {
 					if (!param) {
@@ -209,6 +228,7 @@ class matrix_embed_movie extends wysiwyg_plugin
 
 		foreach ($matches[1] as $match) {
 			$old_html = $match;
+
 			$match = strtolower($match);
 			$match = substr($match, 4);
 			$match = substr($match, 0, -1);
