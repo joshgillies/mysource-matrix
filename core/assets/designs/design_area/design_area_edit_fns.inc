@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_edit_fns.inc,v 1.43.2.2 2005/06/20 06:58:12 dmckee Exp $
+* $Id: design_area_edit_fns.inc,v 1.43.2.3 2005/07/04 04:41:32 pgannavarapu Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -554,7 +554,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 		$not_setable_attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes('design_area', Array('name'));
 
 		// add any attributes that shouldn't be set to default here
-		$additional_attrs = Array('asset_contents', 'divider_contents', 'type_codes');
+		$additional_attrs = Array('asset_contents', 'divider_contents', 'type_codes', 'settings');
 		$current_asset_attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($asset->type(), Array('name'));
 
 		// Now compute the remaining attributes, by subtracting all that shouldn't be deleted
