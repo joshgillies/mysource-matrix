@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: embed_movie.php,v 1.14 2004/08/25 01:11:10 mmcintyre Exp $
+* $Id: embed_movie.php,v 1.14.6.1 2005/07/04 00:47:25 dmckee Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -63,10 +63,15 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 					var el = document.getElementById(id);
 					param[id] = el.value;
 				}
-				// Because the id of the f_image field has array references in it, 
+				// Because the id of the f_image field has array references in it,
 				// we can't get use getElementById, so do this...
-				param["f_fileid"] = document.main_form.elements["f_fileid[assetid]"].value;
-
+				if (document.getElementById('check_use_url').checked == true) {
+					param['use_external'] = true;
+					param["external_url"] = document.getElementById('external_url').value;
+				} else {
+					param['use_external'] = false;
+					param["f_fileid"] = document.main_form.elements["f_fileid[assetid]"].value;
+				}
 				for (var i in chk_fields) {
 					var id = chk_fields[i];
 					var el = document.getElementById(id);
@@ -77,13 +82,13 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 					}
 				}
 				__dlg_close("matrixEmbedMovie", param);
-	
+
 				return false;
 			};
 
 			function onCancel() {
 				__dlg_close("matrixEmbedMovie", null);
-	
+
 				return false;
 			};
 		</script>
@@ -115,7 +120,7 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 			}
 
 			/* fieldset styles */
-			fieldset { 
+			fieldset {
 				padding: 0px 10px 5px 5px;
 				border-color: #725B7D;
 			}
@@ -158,9 +163,9 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 	</head>
 
 	<body onload="Javascript: Init();" onUnload="Javascript: asset_finder_onunload();">
-		
+
 		<div class="title">Embed Movie</div>
-		
+
 		<form action="" method="get" name="main_form">
 			<table width="100%">
 				<tr>
@@ -177,11 +182,30 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 								<td valign="top" width="100%">
 									<fieldset>
 										<legend><b>General</b></legend>
+										<script type="text/javascript">
+												function enable_asset_movie() {
+													document.getElementById('external_url').disabled = "disabled";
+													document.getElementById('check_use_url').checked = false;
+												}
+
+												function enable_external_movie() {
+													//document.getElementById('f_fileid').disabled = "disabled";
+													document.getElementById('check_use_asset').checked = false;
+													document.getElementById('external_url').disabled = "";
+													document.getElementById('external_url').focus();
+												}
+										</script>
 										<table style="width:100%">
 											<tr>
-												<td class="label">Movie URL:</td>
+												<td class="label"><?php radio_button('check_use_asset', '1', true, 'enable_asset_movie();'); ?><?php echo 'Asset:'; ?>:</td>
 												<td>
 													<?php asset_finder('f_fileid', $_GET['f_fileid'], Array('file' => 'I'), ''); ?>
+												</td>
+											</tr>
+											<tr>
+												<td class="label"><?php radio_button('check_use_url', '1', false, 'enable_external_movie();'); ?><?php echo 'URL:'; ?>:</td>
+												<td>
+													<?php text_box('external_url', 'http://', '60', '150', false, 'disabled="disabled"'); ?>
 												</td>
 											</tr>
 										</table>
