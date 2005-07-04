@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.422 2005/06/29 07:21:23 ndvries Exp $
+* $Id: asset.inc,v 1.423 2005/07/04 23:31:02 pgannavarapu Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.422 $
+* @version $Revision: 1.423 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -344,7 +344,7 @@ class Asset extends MySource_Object
 
 			if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LOCKING)) {
 				if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'permissions')) {
-					return $this->_abortCreate();
+					return $this->_abortCreate($trigger_level_changed);
 				}
 			}
 
@@ -352,7 +352,7 @@ class Asset extends MySource_Object
 			// to be setting public write access
 			if (!$GLOBALS['SQ_SYSTEM']->userPublic()) {
 				if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($this->id, $GLOBALS['SQ_SYSTEM']->currentUserId(), SQ_PERMISSION_WRITE, true)) {
-					return $this->_abortCreate();
+					return $this->_abortCreate($trigger_level_changed);
 				}
 			}
 
@@ -371,11 +371,11 @@ class Asset extends MySource_Object
 		// set the attribute values that have been stored temporarily
 		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LOCKING)) {
 			if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'attributes')) {
-				return $this->_abortCreate();
+				return $this->_abortCreate($trigger_level_changed);
 			}
 		}
 		if (!$this->saveAttributes(true)) {
-			return $this->_abortCreate();
+			return $this->_abortCreate($trigger_level_changed);
 		}
 
 		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LOCKING)) {
@@ -401,7 +401,7 @@ class Asset extends MySource_Object
 				$lock_info = @$GLOBALS['SQ_SYSTEM']->am->getLockInfo($link['asset']->id, 'links');
 				$parent_was_locked = !empty($lock_info);
 				if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($link['asset']->id, 'links')) {
-					return $this->_abortCreate();
+					return $this->_abortCreate($trigger_level_changed);
 				}
 
 				// if we are creating a dependant link, we need to make sure this new
@@ -412,7 +412,7 @@ class Asset extends MySource_Object
 					$source_assetid = $lock['source_assetid'];
 				}
 				if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'links', $source_assetid)) {
-					return $this->_abortCreate();
+					return $this->_abortCreate($trigger_level_changed);
 				}
 			}
 			$linkid = $link['asset']->createLink($this, $link['link_type'], $link['value'], $link['sort_order'], $link['is_dependant'], $link['is_exclusive']);
@@ -427,21 +427,21 @@ class Asset extends MySource_Object
 				$this->_tmp[__CLASS__.'_in_create_cascading'] = true;
 
 				if (!$link['asset']->cloneComponents($this, Array('permissions', 'metadata_schemas', 'workflow'))) {
-					return $this->_abortCreate();
+					return $this->_abortCreate($trigger_level_changed);
 				}
 				unset($this->_tmp[__CLASS__.'_in_create_cascading']);
 			}
 
 			if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LOCKING)) {
 				if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'permissions')) {
-					return $this->_abortCreate();
+					return $this->_abortCreate($trigger_level_changed);
 				}
 
 				// release locks depending on if the parent was locked before we were created
 				if (!$parent_was_locked) {
 					// parent was not locked, so unlock both the parent and us
 					if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($link['asset']->id, 'links')) {
-						return $this->_abortCreate();
+						return $this->_abortCreate($trigger_level_changed);
 					}
 				} else if ($new_link['is_dependant']) {
 					// the parent was locked before we created this asset and the new asset
@@ -450,19 +450,21 @@ class Asset extends MySource_Object
 					foreach (array_values($parent_lock_info) as $lock_details) {
 						if (empty($lock_details)) continue;
 						if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, $lock_details['lock_type'], $lock_details['source_assetid'])) {
-							return $this->_abortCreate();
+							return $this->_abortCreate($trigger_level_changed);
 						}
 					}
 				}
 
 				if (!$new_link['is_dependant']) {
 					if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'links')) {
-						return $this->_abortCreate();
+						return $this->_abortCreate($trigger_level_changed);
 					}
 				}
 			}
 
-			if (!$linkid) return $this->_abortCreate();
+			if (!$linkid) {
+				return $this->_abortCreate($trigger_level_changed);
+			}
 
 		}//end if creating link
 
@@ -576,8 +578,11 @@ class Asset extends MySource_Object
 	* @access private
 	* @return boolean
 	*/
-	function _abortCreate()
+	function _abortCreate($trigger_level_changed=false)
 	{
+		if ($trigger_level_changed) {
+			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+		}
 		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 		$ms->abortLog();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
