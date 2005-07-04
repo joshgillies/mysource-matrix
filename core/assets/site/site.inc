@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.71 2005/06/16 05:47:29 lwright Exp $
+* $Id: site.inc,v 1.72 2005/07/04 04:56:16 dmckee Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.71 $
+* @version $Revision: 1.72 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -195,7 +195,7 @@ class Site extends Folder
 			$curr_urlid = $save_urlid;
 
 			// strip any extra slashes
-			$save_urls[$save_urlid]['url'] = strtolower(strip_url($save_urls[$save_urlid]['url'], true));
+			$save_urls[$save_urlid]['url'] = strip_url($save_urls[$save_urlid]['url'], true);
 
 			//// Firstly let's make sure all the paths after the domain are valid ////
 			$paths = explode('/', $save_urls[$save_urlid]['url']);
