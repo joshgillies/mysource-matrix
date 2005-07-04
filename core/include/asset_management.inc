@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_management.inc,v 1.71 2005/06/29 07:21:24 ndvries Exp $
+* $Id: asset_management.inc,v 1.72 2005/07/04 03:57:47 arailean Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_LIB_PATH.'/xml_array/xml_array.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.71 $
+* @version $Revision: 1.72 $
 * @package MySource_Matrix
 */
 class Asset_Management extends MySource_Object
@@ -427,6 +427,7 @@ class Asset_Management extends MySource_Object
 					  AND i.type_code = a.type_code
 					  AND a.name = '.$this->_db->quote($name);
 			$children = $this->_db->getAll($sql);
+
 			if (!assert_valid_db_result($children, '', false, false)) {
 				return false;
 			}
@@ -646,16 +647,60 @@ class Asset_Management extends MySource_Object
 			if (!$this->$fn($current_version)) return false;
 
 		} else {
-			// Find the parents with an attribute of this name
+			// load this attribute info
 			$sql = 'SELECT attrid, type_code, owning_type_code, name, type, uniq, parameters_val, parameters_type_code, default_type_code, default_val
 					FROM sq_ast_attr
-					WHERE type_code = '.$this->_db->quote($type_code).'
-					  AND name = '.$this->_db->quote($name);
+					WHERE type_code = '.$this->_db->quoteSmart($type_code).'
+					  AND name = '.$this->_db->quoteSmart($name);
 
 			$curr_attr = $this->_db->getRow($sql);
 			if (!assert_valid_db_result($curr_attr, '', false, false)) {
 				return false;
 			}
+
+			// determine the parent of the asset being upgraded.
+			if (!isset($this->_tmp['parent_asset_type'])) {
+				$parents = $this->_pm->getTypeAncestors($type_code);
+				$this->_tmp['parent_asset_type'] = array_shift($parents);
+			}
+			$parent = $this->_tmp['parent_asset_type'];
+
+			// see if there is a parent type with the same name
+			$sql = 'SELECT attrid, owning_type_code
+					FROM sq_ast_attr
+					WHERE type_code = '.$this->_db->quoteSmart($parent).'
+					  AND name = '.$this->_db->quoteSmart($name);
+
+			$parent_check_data = $this->_db->getRow($sql);
+			if (!assert_valid_db_result($parent_check_data, '', false, false)) {
+				return false;
+			}
+
+			// fix owning type code if:
+			// - there is a parent with this attribute and our owning_type_code is not the same as theirs
+			// - there is NO parent with this attribute and our owning_type_code is not the same as OUR type_code
+			$owning_type_code = null;
+			if (!empty($parent_check_data) && ($parent_check_data['owning_type_code'] != $curr_attr['owning_type_code'])) {
+				$owning_type_code = $parent_check_data['owning_type_code'];
+			} else if (empty($parent_check_data) && ($curr_attr['owning_type_code'] != $type_code)) {
+				$owning_type_code = $type_code;
+			}
+
+			if (!empty($owning_type_code)) {
+				echo '* Fixing invalid owner definition of attribute "'.$name.'"'."\n";
+
+				$sql = 'UPDATE sq_ast_attr
+						SET owning_type_code = '.$this->_db->quoteSmart($owning_type_code).'
+						WHERE type_code = '.$this->_db->quoteSmart($type_code).' AND name = '.$this->_db->quoteSmart($name);
+
+				$result = $this->_db->query($sql);
+				if (!assert_valid_db_result($result, '', false, false)) {
+					return false;
+				}
+
+				$curr_attr['owning_type_code'] = $owning_type_code;
+			}
+			// end fixing owning type code
 
 			// if this asset type owns this var, we can change it how ever we want
 			if ($curr_attr['owning_type_code'] == $type_code) {
@@ -667,10 +712,7 @@ class Asset_Management extends MySource_Object
 			} else {
 
 				// we have removed our customisation of parameters
-				// so get our parents parameters and set to that
-				$parents = $this->_pm->getTypeAncestors($type_code);
-				$parent = array_shift($parents);
-
+				// so get our parent's parameters and set to that
 				$sql = 'SELECT owning_type_code, parameters_type_code, parameters_val, default_type_code, default_val
 						FROM sq_ast_attr
 						WHERE type_code = '.$this->_db->quoteSmart($parent).'
@@ -681,23 +723,6 @@ class Asset_Management extends MySource_Object
 					return false;
 				}
 
-				// fix owning type code if:
-				// - there is a parent with this attribute and our owning_type_code is not the same as theirs
-				// - there is NO parent with this attribute and our owning_type_code is not the same as OUR type_code
-				$owning_type_code = array_get_index($parent_attr, 'owning_type_code', $type_code);
-				if ($owning_type_code != $curr_attr['owning_type_code']) {
-					echo '* Fixing invalid owner definition of attribute "'.$name.'"'."\n";
-
-					$sql = 'UPDATE sq_ast_attr
-							SET owning_type_code = '.$this->_db->quoteSmart($owning_type_code).'
-							WHERE type_code = '.$this->_db->quoteSmart($type_code).' AND name = '.$this->_db->quoteSmart($name);
-
-					$result = $this->_db->query($sql);
-					if (!assert_valid_db_result($result, '', false, false)) {
-						return false;
-					}
-
-				}
 
 				//// PARAMETERS ////
 
