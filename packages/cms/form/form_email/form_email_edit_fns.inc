@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.38.2.10 2005/06/14 06:16:41 lwright Exp $
+* $Id: form_email_edit_fns.inc,v 1.38.2.11 2005/07/04 03:30:11 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.38.2.10 $
+* @version $Revision: 1.38.2.11 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -510,12 +510,13 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 		$assetids = $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, 'form_submission');
 		$assetid_info = Array();
+
 		for ($i = 0; $i < count($assetids); $i += 500) {
-			$assetid_info = array_merge($assetid_info, $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys(array_slice($assetids, $i, 500))));
+			$assetid_info += $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_slice(array_keys($assetids), $i, 500), 'form_submission', false, 'created');
 		}
 
 		foreach ($assetids as $assetid => $type_code) {
-			$create_time = strtotime($assetid_info[$assetid]['created']);
+			$create_time = strtotime($assetid_info[$assetid]);
 
 			if (($create_time >= $from_ts) && ($create_time <= $to_ts)) {
 				$sub_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
@@ -589,8 +590,9 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 		$assetids = $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, 'form_submission');
 		$assetid_info = Array();
+
 		for ($i = 0; $i < count($assetids); $i += 500) {
-			$assetid_info = array_merge($assetid_info, $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys(array_slice($assetids, $i, 500))));
+			$assetid_info += $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_slice(array_keys($assetids), $i, 500), 'form_submission', false);
 		}
 
 		foreach ($assetids as $assetid => $type_code) {
