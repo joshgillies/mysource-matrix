@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.91 2005/07/04 02:59:09 pgannavarapu Exp $
+* $Id: design_edit_fns.inc,v 1.92 2005/07/04 04:56:26 amiller Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.91 $
+* @version $Revision: 1.92 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -731,7 +731,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 				if (($contents = $tar_ball->listContent()) != 0) {
 
 					// Basically we want to make sure that all the files in the
-					// tar ball end up in a single directory, so we have to fuck about with the extracting a bit
+					// tar ball end up in a single directory, so we have to mess about with the extracting a bit
 					$extract_list = Array();
 					foreach ($contents as $entry) {
 						if ($entry['typeflag'] != '0' && $entry['typeflag'] != '') {
@@ -804,6 +804,8 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	*/
 	function _processUploadedFile(&$asset, $info=Array())
 	{
+		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+
 		$existing_ids = Array();
 		$existing = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'file', false);
 		foreach ($existing as $link) {
@@ -821,9 +823,25 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		}
 
 		if (!$existing_fileid) {
+			// Check the filetype of the file being uploaded and create the
+			// appropriate asset type
+			switch (get_file_type($info['name'])) {
+				case 'css' :
+						$new_asset_type = 'text_file';
+				break;
+				case 'gif' :
+				case 'jpg' :
+				case 'jpeg' :
+				case 'png' :
+						$new_asset_type = 'image';
+				break;
+				default :
+						$new_asset_type = 'file';
+				break;
+			}//end switch
 
-			$GLOBALS['SQ_SYSTEM']->am->includeAsset('file');
-			$new_file =& new File();
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset($new_asset_type);
+			$new_file =& new $new_asset_type();
 			$new_file->_tmp['uploading_file'] = true;
 			$new_file->setAttrValue('name', $info['name']);
 			$design_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_2, 'value' => '', 'sort_order' => 1, 'is_dependant' => 1);
