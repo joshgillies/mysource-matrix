@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: embed_movie.php,v 1.18 2005/05/20 04:33:46 lwright Exp $
+* $Id: embed_movie.php,v 1.18.2.1 2005/07/04 00:48:00 dmckee Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Embed Movie Popup for the WYSIWYG
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.18.2.1 $
 * @package MySource_Matrix
 */
 
@@ -47,13 +47,13 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 
 		$locales = $GLOBALS['SQ_SYSTEM']->lm->getCumulativeLocaleParts($GLOBALS['SQ_SYSTEM']->lm->getCurrentLocale());
 
-		foreach($locales as $locale) {
+		foreach ($locales as $locale) {
 			if (file_exists(SQ_DATA_PATH.'/public/system/core/js_strings.'.$locale.'.js')) {
 				$include_list[] = sq_web_path('data').'/system/core/js_strings.'.$locale.'.js';
 			}
 		}
 
-		foreach($include_list as $link) {
+		foreach ($include_list as $link) {
 			?><script type="text/javascript" src="<?php echo $link; ?>"></script>
 		<?php
 		}
@@ -83,8 +83,13 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 				}
 				// Because the id of the f_image field has array references in it,
 				// we can't get use getElementById, so do this...
-				param["f_fileid"] = document.main_form.elements["f_fileid[assetid]"].value;
-
+				if (document.getElementById('check_use_url').checked == true) {
+					param['use_external'] = true;
+					param["external_url"] = document.getElementById('external_url').value;
+				} else {
+					param['use_external'] = false;
+					param["f_fileid"] = document.main_form.elements["f_fileid[assetid]"].value;
+				}
 				for (var i in chk_fields) {
 					var id = chk_fields[i];
 					var el = document.getElementById(id);
@@ -197,9 +202,28 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 										<legend><b><?php echo translate('general'); ?></b></legend>
 										<table style="width:100%">
 											<tr>
-												<td class="label"><?php echo translate('movie_url'); ?>:</td>
+												<script type="text/javascript">
+												function enable_asset_movie() {
+													document.getElementById('external_url').disabled = "disabled";
+													document.getElementById('check_use_url').checked = false;
+												}
+
+												function enable_external_movie() {
+													//document.getElementById('f_fileid').disabled = "disabled";
+													document.getElementById('check_use_asset').checked = false;
+													document.getElementById('external_url').disabled = "";
+													document.getElementById('external_url').focus();
+												}
+												</script>
+												<td class="label"><?php radio_button('check_use_asset', '1', true, 'enable_asset_movie();'); ?><?php echo 'Asset:'; ?>:</td>
 												<td>
 													<?php asset_finder('f_fileid', $_GET['f_fileid'], Array('file' => 'I'), ''); ?>
+												</td>
+											</tr>
+											<tr>
+												<td class="label"><?php radio_button('check_use_url', '1', false, 'enable_external_movie();'); ?><?php echo 'URL:'; ?>:</td>
+												<td>
+													<?php text_box('external_url', 'http://', '60', '150', false, 'disabled="disabled"'); ?>
 												</td>
 											</tr>
 										</table>
