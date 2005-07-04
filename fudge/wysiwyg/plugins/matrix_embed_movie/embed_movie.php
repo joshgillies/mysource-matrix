@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: embed_movie.php,v 1.21 2005/07/04 01:51:34 dmckee Exp $
+* $Id: embed_movie.php,v 1.22 2005/07/04 23:14:03 dmckee Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Embed Movie Popup for the WYSIWYG
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix
 */
 
@@ -244,10 +244,10 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 															<td colspan="3"><?php asset_finder('assetid', '', Array('file' => 'I'), '', false, 'setUrl'); ?></td>
 														</tr>
 													</table>
-													</fieldset>
 												</td>
 											</tr>
 										</table>
+									</fieldset>
 									</td>
 								</tr>
 								<tr>
