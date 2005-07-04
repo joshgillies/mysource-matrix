@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: embed_movie.php,v 1.18.2.4 2005/07/04 23:13:40 dmckee Exp $
+* $Id: embed_movie.php,v 1.18.2.5 2005/07/04 23:43:18 dmckee Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Embed Movie Popup for the WYSIWYG
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.18.2.4 $
+* @version $Revision: 1.18.2.5 $
 * @package MySource_Matrix
 */
 
@@ -235,9 +235,9 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 													<table style="width:100%">
 														<tr>
 															<td class="label"><?php echo translate('protocol'); ?>:</td>
-															<td><?php  combo_box('url_protocol',$url_protocol_options , '', 'style="font-family: courier new; font-size: 11px;"'); ?></td>
+															<td><?php  combo_box('url_protocol',$url_protocol_options , false,$_REQUEST['f_fileprotocol'],0, 'style="font-family: courier new; font-size: 11px;"'); ?></td>
 															<td class="label"><?php echo translate('link'); ?>:</td>
-															<td><?php text_box('url_link', '', 40, 0)?></td>
+															<td><?php text_box('url_link', $_REQUEST['f_fileurl'], 40, 0)?></td>
 														</tr>
 														<tr>
 															<td class="label"><?php echo translate('select_asset'); ?>:</td>
