@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.90 2005/05/17 23:24:04 lwright Exp $
+* $Id: design_edit_fns.inc,v 1.91 2005/07/04 02:59:09 pgannavarapu Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.90 $
+* @version $Revision: 1.91 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -85,6 +85,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	*/
 	function processParseFile(&$asset, &$o, $prefix)
 	{
+
 		// make sure a file was uploaded before processing it
 		$upload_info = get_file_upload_info($prefix.'_parse_file');
 		if (empty($upload_info)) return false;

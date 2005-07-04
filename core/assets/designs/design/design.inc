@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.90 2005/05/18 04:05:45 dmckee Exp $
+* $Id: design.inc,v 1.91 2005/07/04 02:59:09 pgannavarapu Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.90 $
+* @version $Revision: 1.91 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -525,6 +525,7 @@ class Design extends Design_Area
 	*/
 	function printVar($var, $args)
 	{
+
 		switch ($var) {
 			case 'html_header' :
 echo '<!--   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
@@ -676,7 +677,7 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 					case 'first_name' :
 					case 'last_name'  :
 						$attr = 'attr('.var_export((string) $args['attr'], true).')';
-						break;
+					break;
 
 					case 'name' :
 					default :
@@ -770,9 +771,14 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 			$file_path = $info['source_file'];
 		} else {
 			$file_path = $this->data_path.'/design_file.php';
+			if (!file_exists($file_path)) {
+				$arr = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, null, 'design', true, null,'minor', false);
+				$file_path = dirname(dirname($this->data_path)).'/design/'.$arr['majorid'].'/design_file.php';
+			 }
 		}
 
 		// Now we just include the design file to get it to print
+		//else
 		require_once $file_path;
 
 	}//end paint()
