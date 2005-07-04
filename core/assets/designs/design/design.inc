@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.90 2005/05/18 04:05:45 dmckee Exp $
+* $Id: design.inc,v 1.90.2.1 2005/07/04 03:50:24 pgannavarapu Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.90 $
+* @version $Revision: 1.90.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -770,6 +770,10 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 			$file_path = $info['source_file'];
 		} else {
 			$file_path = $this->data_path.'/design_file.php';
+			if (!file_exists($file_path)) {
+				$arr = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'design', true, null, 'minor');
+				$file_path = dirname(dirname($this->data_path)).'/design/'.$arr['majorid'].'/design_file.php';
+			}
 		}
 
 		// Now we just include the design file to get it to print
