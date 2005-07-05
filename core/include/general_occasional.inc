@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general_occasional.inc,v 1.57 2005/06/29 07:21:24 ndvries Exp $
+* $Id: general_occasional.inc,v 1.58 2005/07/05 02:45:47 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.57 $
+* @version $Revision: 1.58 $
 * @package MySource_Matrix
 */
 
@@ -287,7 +287,7 @@ function asset_link_treeid_convert($value, $encode)
 			trigger_localised_error('SYS0213', E_USER_WARNING, (int) $value, SQ_CONF_ASSET_TREE_SIZE, (pow(SQ_CONF_ASSET_TREE_BASE, SQ_CONF_ASSET_TREE_SIZE) - 1));
 			return null;
 		} else {
-			return str_pad($str, SQ_CONF_ASSET_TREE_SIZE, '0', STR_PAD_LEFT);
+			return str_pad($str, SQ_CONF_ASSET_TREE_SIZE, $digits[0], STR_PAD_LEFT);
 		}
 	} else {
 		// decode value
