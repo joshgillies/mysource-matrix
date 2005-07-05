@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.63 2005/06/24 05:12:01 ndvries Exp $
+* $Id: system_config.inc,v 1.64 2005/07/05 04:19:07 dmckee Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.63 $
+* @version $Revision: 1.64 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -414,6 +414,14 @@ class System_Config extends Config
 
 				$o->note(translate('allow_user_ip_to_fluctuate'));
 
+			$o->openField(translate('allow_single_sign_in'));
+				if ($write_access && $is_root) {
+					combo_box($class.'[SQ_CONF_ALLOW_HTTP_LOGIN]', Array('1' => translate('yes'), '0' => translate('no')), false, SQ_CONF_ALLOW_HTTP_LOGIN);
+				} else {
+					echo (SQ_CONF_ALLOW_HTTP_LOGIN) ? translate('yes'): translate('no');
+				}
+
+				$o->note(translate('allow_single_sign_in_note'));
 		$o->closeSection();
 
 
