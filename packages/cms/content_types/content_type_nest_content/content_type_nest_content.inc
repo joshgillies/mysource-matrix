@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content.inc,v 1.21 2005/05/11 06:07:29 lwright Exp $
+* $Id: content_type_nest_content.inc,v 1.22 2005/07/05 05:02:54 arailean Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -54,8 +54,14 @@ class Content_Type_Nest_Content extends Content_Type
 	*/
 	function _getAllowedLinks()
 	{
-		return Array(SQ_LINK_NOTICE => Array('asset' => Array('card' => 1, 'exclusive' => false)),
-					);
+		return Array(
+				SQ_LINK_NOTICE	=> Array(
+									'asset'	=> Array(
+												'card'		=> 1,
+												'exclusive'	=> false,
+											   ),
+								   ),
+			   );
 
 	}//end _getAllowedLinks()
 
@@ -68,8 +74,8 @@ class Content_Type_Nest_Content extends Content_Type
 	*/
 	function isEmpty()
 	{
-		$id = $this->attr('nested_assetid');
-		return empty($id);
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', true, 'nested_asset');
+		return empty($link);
 
 	}//end isEmpty()
 
