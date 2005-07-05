@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type.inc,v 1.56.2.4 2005/05/23 06:42:55 dmckee Exp $
+* $Id: design_area_menu_type.inc,v 1.56.2.5 2005/07/05 05:01:12 dmckee Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -228,10 +228,8 @@ class Design_Area_Menu_Type extends Design_Area
 	*/
 	function getSubMenuLink()
 	{
-		error_log('get sub menu link called');
 		if (!isset($this->_tmp['sub_menu_link'])) {
 			$this->_tmp['sub_menu_link'] = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, 'design_area_menu_type', false, 'sub_menu');
-			error_log('_tmp[submenulink] is not set'.__LINE__.' : '.__FILE__);
 		}
 		return $this->_tmp['sub_menu_link'];
 
@@ -248,11 +246,9 @@ class Design_Area_Menu_Type extends Design_Area
 	{
 		$link = $this->getSubMenuLink();
 		if (empty($link)) {
-			error_log('Empty Link: '.__LINE__.' : '.__FILE__);
 			$null = null;
 			return $null;
 		} else {
-			error_log('Links found: '.__LINE__.' : '.__FILE__);
 			return $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code'], true);
 		}
 
@@ -426,14 +422,14 @@ class Design_Area_Menu_Type extends Design_Area
 
 				$sql    = \'SELECT DISTINCT a.assetid, l.majorid, a.type_code, a.status, a.name, a.short_name, pt.path, l.sort_order
 						   FROM \'.SQ_TABLE_RUNNING_PREFIX.\'ast a
-						     INNER JOIN \'.SQ_TABLE_RUNNING_PREFIX.\'ast_lnk l ON a.assetid = l.minorid
-						     INNER JOIN \'.SQ_TABLE_RUNNING_PREFIX.\'ast_path pt ON a.assetid = pt.assetid \';
+							 INNER JOIN \'.SQ_TABLE_RUNNING_PREFIX.\'ast_lnk l ON a.assetid = l.minorid
+							 INNER JOIN \'.SQ_TABLE_RUNNING_PREFIX.\'ast_path pt ON a.assetid = pt.assetid \';
 				if (!empty($USERIDS_COND)) {
 				$sql   .= \'
-						     INNER JOIN \'.SQ_TABLE_RUNNING_PREFIX.\'ast_perm p ON a.assetid = p.assetid \';
+							 INNER JOIN \'.SQ_TABLE_RUNNING_PREFIX.\'ast_perm p ON a.assetid = p.assetid \';
 				}
 				$where  = \'l.majorid IN (\'.substr($majorids_str, 0, -1).\')
-						     AND (l.link_type & \'.$db->quote(SQ_SC_LINK_FRONTEND_NAV).\') > 0 \';
+							 AND (l.link_type & \'.$db->quote(SQ_SC_LINK_FRONTEND_NAV).\') > 0 \';
 				$where  = $GLOBALS[\'SQ_SYSTEM\']->constructRollbackWhereClause($where, \'a\');
 				$where  = $GLOBALS[\'SQ_SYSTEM\']->constructRollbackWhereClause($where, \'l\');
 				if (!empty($USERIDS_COND)) {
@@ -616,25 +612,25 @@ class Design_Area_Menu_Type extends Design_Area
 					if ($id_name) {
 						echo '<', '?php echo $'.$id_name.'_row[\'assetid\']; ?', '>';
 					}
-					break;
+				break;
 
 				case 'asset_link' :
 					if ($id_name) {
 						echo '<', '?php echo $'.$id_name.'_urls[$'.$id_name.'_row[\'assetid\']].((SQ_LIMBO_EDITING) ? \'/\'.SQ_CONF_LIMBO_SUFFIX : \'\'); ?', '>';
 					}
-					break;
+				break;
 
 				case 'asset_short_name' :
 					if ($id_name) {
 						echo '<', '?php echo ', $this->_escapeVar($value_prefix.'htmlspecialchars($'.$id_name.'_row[\'short_name\'])'.$value_suffix, $args), '; ?', '>';
 					}
-					break;
+				break;
 
 				case 'asset_name' :
 					if ($id_name) {
 						echo '<', '?php echo ', $this->_escapeVar($value_prefix.'htmlspecialchars($'.$id_name.'_row[\'name\'])'.$value_suffix, $args), '; ?', '>';
 					}
-					break;
+				break;
 
 				case 'asset_name_linked' :
 				case 'asset_short_name_linked' :
@@ -654,7 +650,7 @@ class Design_Area_Menu_Type extends Design_Area
 						}// end if
 
 					}// end if
-					break;
+				break;
 
 				case 'asset_thumbnail' :
 					if ($id_name) {
@@ -666,7 +662,7 @@ class Design_Area_Menu_Type extends Design_Area
 						echo '}'."\n";
 						echo '?', '>';
 					}
-					break;
+				break;
 
 				case 'asset_thumbnail_url' :
 					if ($id_name) {
@@ -678,7 +674,7 @@ class Design_Area_Menu_Type extends Design_Area
 						echo '}'."\n";
 						echo '?', '>';
 					}
-					break;
+				break;
 
 				default :
 					parent::printVar($var, $args);
