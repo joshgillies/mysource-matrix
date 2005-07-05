@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.334 2005/06/30 23:10:49 tbarrett Exp $
+* $Id: asset_manager.inc,v 1.335 2005/07/05 05:42:30 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.334 $
+* @version $Revision: 1.335 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -1245,16 +1245,13 @@ class Asset_Manager extends MySource_Object
 				WHERE a.type_code = at.type_code
 					AND at.name = '.$db->quote($attr_name).'
 					AND a.assetid IN ('.implode(', ', $assetids).')';
-		if ($asset_type != 'asset') {
-			$sql .= ' AND at.type_code='.$db->quote($asset_type);
-		}
 		$res = $db->getAssoc($sql);
 		assert_valid_db_result($res);
 
 		// Now get customised values where applicable
 		$sub_sql = 'SELECT attrid FROM sq_ast_attr WHERE name = '.$db->quote($attr_name);
 		if ($asset_type != 'asset') {
-			$sub_sql .= ' AND type_code = '.$db->quote($asset_type);
+			$sub_sql .= ' AND (type_code = '.$db->quote($asset_type).' OR owning_type_code = '.$db->quote($asset_type).')';
 		}
 		$sql = 'SELECT assetid, custom_val
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_val
