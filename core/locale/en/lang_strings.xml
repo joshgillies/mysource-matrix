@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.18.2.2 2005/07/01 02:05:13 dmckee Exp $
+* $Id: lang_strings.xml,v 1.18.2.3 2005/07/05 04:18:43 dmckee Exp $
 *
 */
 
@@ -38,6 +38,8 @@
 	<string source="add_new_trigger">Add New Trigger</string>
 	<string source="allow_ip_change">Allow IP Change</string>
 	<string source="allow_user_ip_to_fluctuate">Allow the IP of a user to fluctuate?</string>
+	<string source="allow_single_sign_in">Allow HTTP Login</string>
+	<string source="allow_single_sign_in_note">Allow users to log into Matrix using HTTP Authentication?</string>
 	<string source="applies_to">Applies To</string>
 	<string source="asset_date_search_fields">Asset Date Search Fields</string>
 	<string source="asset_metadata">Asset Metadata</string>
