@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: authentication_ldap.inc,v 1.6 2005/05/16 07:01:44 tbarrett Exp $
+* $Id: authentication_ldap.inc,v 1.7 2005/07/05 05:00:54 tbarrett Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -46,26 +46,6 @@ class Authentication_LDAP extends Authentication
 		$this->Authentication($assetid);
 
 	}//end constructor
-
-
-	/**
-	* Returns an array of all the permitted links type, the type asset and the cardinality
-	*
-	* @access private
-	* @see Asset::_getAllowLinks()
-	*/
-	function _getAllowedLinks()
-	{
-		return Array(
-					SQ_LINK_TYPE_1	=> Array(
-											'ldap_bridge'	=> Array(
-																	'card'		=> 'M',
-																	'exclusive'	=> false,
-															   )
-									   )
-			   );
-
-	}//end _getAllowedLinks()
 
 
 	/**
@@ -102,13 +82,15 @@ class Authentication_LDAP extends Authentication
 			if (!$result) continue;
 
 			$entry = $ldap->getEntries($result);
-			if (!$entry || ($entry['count'] == 0)) continue;
+			if (!$entry || ($entry['count'] == 0)) {
+				continue;
+			}
 			if (isset($entry[0])) {
 				$entry = $entry[0];
 
 				// create our user
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset('ldap_user');
-				$user = new LDAP_User($bridge->id, $entry);
+				$user =& new LDAP_User($bridge->id, $entry);
 
 				// verify password
 				$success = @$ldap->connectAsUser($user->attr('dn'), $password);
@@ -133,6 +115,42 @@ class Authentication_LDAP extends Authentication
 
 
 	/**
+	* If this authentication has a user matching the username in $_SERVER['REMOTE_USER'], return that user
+	*
+	* @access public
+	* @return Object | null
+	*/
+	function &authenticateHttpUser()
+	{
+		$user = null;
+		$bridges = $GLOBALS['SQ_SYSTEM']->am->getChildren($this->id, 'ldap_bridge', true);
+		foreach ($bridges as $bridgeid => $type_code) {
+			$bridge = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bridgeid);
+			if (is_null($bridge)) continue;
+
+			// Search for users matching the HTTP username
+			$ldap = $bridge->connectToLdap();
+			$attrs = $bridge->attr('attributes');
+			$result = $ldap->search($bridge->attr('root_dn'),'('.$attrs['uid'].'='.$_SERVER['REMOTE_USER'].')');
+			if (!$result) continue;
+
+			$entry = $ldap->getEntries($result);
+			if (!$entry || ($entry['count'] == 0)) {
+				continue;
+			}
+			if (isset($entry[0])) {
+				$entry = $entry[0];
+				$GLOBALS['SQ_SYSTEM']->am->includeAsset('ldap_user');
+				$user =& new LDAP_User($bridge->id, $entry);
+				break;
+			}
+		}
+		return $user;
+
+	}//end authenticateHttpUser()
+
+
+	/**
 	* Registers that an invalid login attempt has been made
 	*
 	* @param object User	&$user	the user account upon which an invalid login attempt was made
@@ -143,9 +161,14 @@ class Authentication_LDAP extends Authentication
 	function _registerInvalidLogin(&$user)
 	{
 		$username = $user->attr('dn');
-		if (!isset($_SESSION['user_login_attempts'])) $_SESSION['user_login_attempts'] = Array();
-		if (empty($_SESSION['user_login_attempts'][$username])) $_SESSION['user_login_attempts'][$username] = 1;
-		else $_SESSION['user_login_attempts'][$username]++;
+		if (!isset($_SESSION['user_login_attempts'])) {
+			$_SESSION['user_login_attempts'] = Array();
+		}
+		if (empty($_SESSION['user_login_attempts'][$username])) {
+			$_SESSION['user_login_attempts'][$username] = 1;
+		} else {
+			$_SESSION['user_login_attempts'][$username]++;
+		}
 
 		if ($_SESSION['user_login_attempts'][$username] >= SQ_CONF_MAX_LOGIN_ATTEMPTS) {
 			if (!is_null($user) && $user->canLogin()) {
@@ -167,46 +190,24 @@ class Authentication_LDAP extends Authentication
 
 
 	/**
-	* If this authentication has a user matching the username in $_SERVER['REMOTE_USER'], return that user
+	* Returns an array of all the permitted links type, the type asset and the cardinality
 	*
-	* @access public
-	* @return Object | null
+	* @access private
+	* @see Asset::_getAllowLinks()
 	*/
-	function &authenticateHttpUser()
+	function _getAllowedLinks()
 	{
-		$user = null;
-		$bridges = $GLOBALS['SQ_SYSTEM']->am->getChildren($this->id, 'ldap_bridge', true);
-		error_log(print_r($bridges, true));
-		foreach ($bridges as $bridgeid => $type_code) {
-			$bridge = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bridgeid);
-			if (is_null($bridge)) continue;
-			error_log("Looking for ".$_SERVER['REMOTE_USER']." in  bridge ".$bridge->name);
+		return Array(
+				SQ_LINK_TYPE_1	=> Array(
+									'ldap_bridge'	=> Array(
+														'card'		=> 'M',
+														'exclusive'	=> false,
+													   ),
+								   ),
+			   );
 
-			// Search for users matching the HTTP username
-			$ldap = $bridge->connectToLdap();
-			$attrs = $bridge->attr('attributes');
-			$result = $ldap->search($bridge->attr('root_dn'),'('.$attrs['uid'].'='.$_SERVER['REMOTE_USER'].')');
-			if (!$result) {
-				error_log("No results");
-				continue;
-			}
+	}//end _getAllowedLinks()
 
-			$entry = $ldap->getEntries($result);
-			if (!$entry || ($entry['count'] == 0)) {
-				error_log("No entries");
-				continue;
-			}
-			if (isset($entry[0])) {
-				$entry = $entry[0];
-				$GLOBALS['SQ_SYSTEM']->am->includeAsset('ldap_user');
-				$user = new LDAP_User($bridge->id, $entry);
-				break;
-			}
-		}
-		return $user;
-
-	}//end authenticateHttpUser()
-	
 
 }//end class
 ?>
