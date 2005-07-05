@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: preview.inc,v 1.10 2005/06/29 07:21:24 ndvries Exp $
+* $Id: preview.inc,v 1.11 2005/07/05 02:22:09 dmckee Exp $
 */
 
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -27,7 +27,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Preview Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix
 */
 
@@ -139,7 +139,6 @@ function paintPreview(&$owner, &$o, &$ei)
 							previewURL += '&';
 						}
 						previewURL += 'SQ_DESIGN_NAME=' + document.getElementById('preview_design').value;
-						alert(previewURL);
 					}
 					document.getElementById('sq_preview_frame').src = previewURL;
 					document.getElementById('sq_preview_new_window').href = previewURL;
