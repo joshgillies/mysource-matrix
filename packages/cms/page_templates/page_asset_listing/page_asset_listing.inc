@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.42.2.6 2005/06/29 01:51:11 ykasim Exp $
+* $Id: page_asset_listing.inc,v 1.42.2.7 2005/07/05 04:01:50 pgannavarapu Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.42.2.6 $
+* @version $Revision: 1.42.2.7 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -519,6 +519,10 @@ class Page_Asset_Listing extends Page
 
 			case 'letter' :
 				$cache_key = (isset($_REQUEST['result_page'])) ? $_REQUEST['result_page'] : 'A';
+			break;
+
+			case 'random' :
+				return $cache_key;
 			break;
 		}
 		$cache_key .= $this->getRootNodeId();
