@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.126 2005/06/29 07:21:24 ndvries Exp $
+* $Id: mysource.inc,v 1.127 2005/07/06 06:11:49 pgannavarapu Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.126 $
+* @version $Revision: 1.127 $
 * @package MySource_Matrix
 */
 class MySource
@@ -524,6 +524,11 @@ class MySource
 				$this->_loginHttpAuthenticatedUser();
 			}
 		}
+
+		if (is_null($this->user)) {
+			$this->_authenticateHttpUser();
+		}
+
 		if (is_null($this->user)) {
 			// must be the public user
 			$this->_loginPublicUser();
@@ -826,6 +831,39 @@ class MySource
 		}
 
 	}//end _loginHttpAuthenticatedUser()
+
+
+	/**
+	* Check the user authentication. If the user is authenticated then it assigns the user and returns true else returns false
+	*
+	* @access public
+	* @return void
+	*/
+	function _authenticateHttpUser()
+	{
+		if (array_get_index($_REQUEST, 'SQ_ACTION')) return;
+
+		if (!(array_get_index($_SERVER, 'PHP_AUTH_USER') && array_get_index($_SERVER, 'PHP_AUTH_PW'))) {
+			return;
+		}
+		// get a list of all the installed authentication systems
+		$auth_folder = &$this->am->getSystemAsset('authentication_folder');
+		if (is_null($auth_folder)) {
+			trigger_localised_error('SYS0249', E_USER_ERROR);
+			return;
+		}
+		$auth_systems = $auth_folder->getAuthSystems();
+		// try each auth system in order to see if we can load a user asset
+		$user = null;
+		foreach ($auth_systems as $systemid) {
+			$system = &$this->am->getAsset($systemid);
+			if (is_null($system)) continue;
+			$user = &$system->authenticateUser($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']);
+			if (!is_null($user)) return $this->loginUser($user);
+		}
+		return;
+
+	}//end _authenticateHttpUser()
 
 
 	/**
@@ -1449,6 +1487,7 @@ class MySource
 	*/
 	function setRunLevel($run_level)
 	{
+		error_log('run level set to:  '.$run_level.'  '.get_calling_func());
 		$this->_run_level_stack[] = $run_level;
 
 	}//end setRunLevel()
