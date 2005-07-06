@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.423 2005/07/04 23:31:02 pgannavarapu Exp $
+* $Id: asset.inc,v 1.424 2005/07/06 06:00:41 arailean Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.423 $
+* @version $Revision: 1.424 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -2894,6 +2894,38 @@ class Asset extends MySource_Object
 		return $keywords;
 
 	}//end getAssetKeywords()
+
+
+	/**
+	* Get bodycopy keyword replacement
+	*
+	* Provides a mechanism for providing keyword replacement functions by
+	* looking up the function named 'getKeywordNameKeywordReplacement'
+	* so an asset wishing to add support for 'best_ever' custom keyword
+	* should implement a function getBestEverKeywordReplacement()
+	* which returns a replacement string
+	*
+	* @param string	$keyword	Keyword to find a replacement for
+	*
+	* @return string
+	* @access public
+	*/
+	function getKeywordReplacement($keyword)
+	{
+		if (empty($keyword)) return '';
+
+		$replacement = "%$keyword%";
+		$tmp_keyword = strtr($keyword, '_', ' ');
+		$tmp_keyword = ucwords($tmp_keyword);
+		$tmp_keyword = preg_replace('/\s+/', '', $tmp_keyword);
+		$func_name = 'get'.$tmp_keyword.'KeywordReplacement';
+		if (method_exists($this, $func_name)) {
+			$replacement = $this->$func_name();
+		}
+
+		return $replacement;
+
+	}//end getKeywordReplacement()
 
 
 	/**
