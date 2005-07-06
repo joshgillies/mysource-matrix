@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: url.inc,v 1.2 2005/07/06 05:26:45 ndvries Exp $
+* $Id: url.inc,v 1.3 2005/07/06 05:40:43 ndvries Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *    <text width="40" protocols="http,https,ftp,mailto" />
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -194,7 +194,7 @@ class Asset_Attribute_Url extends Asset_Attribute
 	{
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 
-		$value = get_url_tester_info($prefix);
+		$value = get_url_tester_url($prefix);
 		if (!empty($value)) {
 			if ($this->value != $value && $this->setValue($value)) {
 				$this->processed = true;

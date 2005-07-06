@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.91 2005/07/06 05:26:47 ndvries Exp $
+* $Id: html_form.inc,v 1.92 2005/07/06 05:40:44 ndvries Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.91 $
+* @version $Revision: 1.92 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -1097,7 +1097,7 @@ function url_tester($name, $value='', $protocols=Array('http'), $width=50)
 * @return string	Empty string if the POST var isn't set, or the full URL on success (eg. protocol://url)
 * @access public
 */
-function get_url_tester_info($name)
+function get_url_tester_url($name)
 {
 	$url = '';
 	if ( (!empty($_REQUEST[$name.'_protocol'])) && (!empty($_REQUEST[$name.'_url'])) ) {
@@ -1105,7 +1105,7 @@ function get_url_tester_info($name)
 	}
 	return trim($url);
 
-}//end get_url_tester_info()
+}//end get_url_tester_url()
 
 
 ?>
