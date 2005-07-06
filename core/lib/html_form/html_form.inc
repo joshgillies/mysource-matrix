@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.92 2005/07/06 05:40:44 ndvries Exp $
+* $Id: html_form.inc,v 1.93 2005/07/06 06:03:46 ndvries Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.92 $
+* @version $Revision: 1.93 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -1065,17 +1065,29 @@ function url_tester($name, $value='', $protocols=Array('http'), $width=50)
 		}
 	</script><?php
 
+	$default_prot = '';
 	$dd_values = array_flip($protocols);
 	foreach ($dd_values as $key => $prot) {
+		$replacement = '';
 		if ($key == 'mailto') {
-			$dd_values[$key.':'] = $key.':';
+			$replacement = $key.':';
+			$dd_values[$replacement] = $replacement;
 		} else {
-			$dd_values[$key.'://'] = $key.'://';
+			$replacement = $key.'://';
+			$dd_values[$replacement] = $replacement;
 		}
 		unset($dd_values[$key]);
+
+		// because we are storing the protocol + URL as the value, we
+		// need to seperate the two
+		$protocol = substr($value, 0, strlen($replacement));
+		if ($protocol == $replacement) {
+			$default_prot = $protocol;
+			$value = substr($value, strlen($replacement));
+		}
 	}
 
-	combo_box($name.'_protocol', $dd_values, false, '', 0, 'onChange="protocolChanged()";');
+	combo_box($name.'_protocol', $dd_values, false, $default_prot, 0, 'onChange="protocolChanged()";');
 	echo '&nbsp;';
 
 	text_box($name.'_url', $value, $width);
