@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.47 2005/06/29 03:39:11 arailean Exp $
+* $Id: listing_engine.inc,v 1.48 2005/07/06 06:18:19 arailean Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
 *
-* @version $Revision: 1.47 $
+* @version $Revision: 1.48 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -373,31 +373,6 @@ class Listing_Engine extends Page
 		return $cache_key;
 
 	}//end _getCacheKey()
-
-
-	/**
-	* Returns keyword replacements to be replaced in the body
-	* of the format bodycopy
-	*
-	* @return Array()
-	* @access public
-	*/
-	function getKeywordReplacement($keyword)
-	{
-		if (empty($keyword)) return '';
-
-		$replacement = "%$keyword%";
-		$tmp_keyword = strtr($keyword, '_', ' ');
-		$tmp_keyword = ucwords($tmp_keyword);
-		$tmp_keyword = preg_replace('/\s+/', '', $tmp_keyword);
-		$func_name = 'get'.$tmp_keyword.'KeywordReplacement';
-		if (method_exists($this, $func_name)) {
-			$replacement = $this->$func_name();
-		}
-
-		return $replacement;
-
-	}//end getKeywordReplacement()
 
 
 	/**
