@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: url.inc,v 1.1 2005/06/21 00:33:54 ndvries Exp $
+* $Id: url.inc,v 1.2 2005/07/06 05:26:45 ndvries Exp $
 *
 */
 
@@ -33,12 +33,13 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *    <text width="40" protocols="http,https,ftp,mailto" />
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
 class Asset_Attribute_Url extends Asset_Attribute
 {
+
 
 	/**
 	* Constructor
@@ -53,7 +54,7 @@ class Asset_Attribute_Url extends Asset_Attribute
 
 		// set default edit parameters
 		$this->_edit_params['width']  = 0;
-		$this->_edit_params['protocols'] = Array('http', 'https');
+		$this->_edit_params['protocols'] = Array('http');
 
 	}//end constructor
 
@@ -75,8 +76,11 @@ class Asset_Attribute_Url extends Asset_Attribute
 				<td class="sq-backend-section-heading" style="width: 100px;"><?php echo translate('width'); ?></td>
 				<td class="sq-backend-table-cell">
 					<?php
-					if ($write_access) text_box($prefix.'_'.$this->name.'_width', $this->_edit_params['width']);
-					else echo $this->_edit_params['width'];
+					if ($write_access) {
+						text_box($prefix.'_'.$this->name.'_width', $this->_edit_params['width']);
+					} else {
+						echo $this->_edit_params['width'];
+					}
 					?>
 				</td>
 			</tr>
@@ -84,8 +88,11 @@ class Asset_Attribute_Url extends Asset_Attribute
 				<td class="sq-backend-section-heading" style="width: 100px;"><?php echo translate('protocols'); ?></td>
 				<td class="sq-backend-table-cell">
 					<?php
-					if ($write_access) text_box($prefix.'_'.$this->name.'_height', implode(',', $this->_edit_params['protocols']));
-					else echo $this->_edit_params['protocols'];
+					if ($write_access) {
+						text_box($prefix.'_'.$this->name.'_height', implode(',', $this->_edit_params['protocols']));
+					} else {
+						echo $this->_edit_params['protocols'];
+					}
 					?>
 				</td>
 			</tr>
@@ -137,7 +144,9 @@ class Asset_Attribute_Url extends Asset_Attribute
 	{
 		if (!parent::setEditParams($node)) return false;
 
-		if (isset($node->attributes['width']))  $this->_edit_params['width']  = (int) $node->attributes['width'];
+		if (isset($node->attributes['width'])) {
+			$this->_edit_params['width']  = (int) $node->attributes['width'];
+		}
 		if (isset($node->attributes['protocols'])) {
 			$protocols = str_replace(' ', '', $node->attributes['protocols']);
 			$this->_edit_params['protocols'] = explode(',', $protocols);
@@ -166,84 +175,7 @@ class Asset_Attribute_Url extends Asset_Attribute
 
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 
-		?><script type="text/javascript" src="<?php echo sq_web_path('lib'); ?>/js/JsHttpConnector.js"></script><?php
-		?><script type="text/javascript">
-
-			function getFullUrl() {
-				var protocol = document.getElementById("<?php echo $prefix.'_ccheck_protocol_dropdown'; ?>").value;
-				var url = document.getElementById("<?php echo $prefix.'_ccheck_input_box'; ?>").value;
-				var fullUrl = protocol + url;
-
-				return fullUrl;
-			}
-
-			function changeStatusText(responseState)
-			{
-				switch (responseState) {
-					case "0":
-						responseText = js_translate('non_existant_page');
-					break;
-					case "1":
-						responseText = js_translate('valid_page');
-					break;
-					default:
-						responseText = js_translate('unknown_state');
-				}
-
-				document.getElementById('<?php echo $prefix.'_ccheck_status_text'; ?>').innerHTML = responseText;
-
-			}//end changeStatusText()
-
-			function checkUrlExists()
-			{
-				document.getElementById('<?php echo $prefix.'_ccheck_status_text'; ?>').innerHTML = js_translate('testing');
-				var testUrl = "<?php echo sq_web_path('lib').'/web/connectivity.php'; ?>" + "?connect_url=" + getFullUrl();
-				JsHttpConnector.submitRequest(testUrl, changeStatusText);
-
-			}//end checkUrlExists()
-
-
-			function protocolChanged()
-			{
-				var protocol = document.getElementById('<?php echo $prefix.'_ccheck_protocol_dropdown'; ?>').value;
-				if (protocol == "http://") {
-					document.getElementById("<?php echo $prefix.'_ccheck_button_auto'; ?>").disabled = false;
-				} else {
-					document.getElementById("<?php echo $prefix.'_ccheck_button_auto'; ?>").disabled = true;
-				}
-				document.getElementById('<?php echo $prefix.'_ccheck_status_text'; ?>').innerHTML = "";
-
-			}//end protocolChanged()
-
-
-			function testUrl()
-			{
-				window.open(getFullUrl());
-
-			}
-		</script><?php
-
-		$dd_values = array_flip($this->_edit_params['protocols']);
-		foreach ($dd_values as $key => $value) {
-			if ($key == 'mailto') {
-				$dd_values[$key.':'] = $key.':';
-			} else {
-				$dd_values[$key.'://'] = $key.'://';
-			}
-			unset($dd_values[$key]);
-		}
-
-		combo_box($prefix.'_ccheck_protocol_dropdown', $dd_values, false, '', 0, 'onChange="protocolChanged()";');
-		echo '&nbsp;';
-
-		text_box($prefix.'_ccheck_input_box', $this->value, $this->_edit_params['width']);
-		echo '&nbsp;';
-
-		normal_button($prefix.'_ccheck_button_auto', 'Auto-Test', 'javascript: checkUrlExists();');
-		normal_button($prefix.'_ccheck_button_manual', 'Open URL', 'javascript: testUrl();');
-
-
-		?><div id="<?php echo $prefix; ?>_ccheck_status_text"></div><?php
+		url_tester($prefix, $this->value, $this->_edit_params['protocols'], $this->_edit_params['width']);
 
 		return true;
 
@@ -260,12 +192,17 @@ class Asset_Attribute_Url extends Asset_Attribute
 	*/
 	function process($prefix)
 	{
-		if (!isset($_REQUEST[$prefix.'_ccheck_input_box'])) return false;
-		$value = (string) $_REQUEST[$prefix.'_ccheck_protocol_dropdown'].$_REQUEST[$prefix.'_ccheck_input_box'];
-		if ($this->value != $value && $this->setValue($value)) {
-			$this->processed = true;
+		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
+
+		$value = get_url_tester_info($prefix);
+		if (!empty($value)) {
+			if ($this->value != $value && $this->setValue($value)) {
+				$this->processed = true;
+			} else {
+				$this->processed = false;
+			}
 		} else {
-			$this->processed = false;
+			return false;
 		}
 
 	}//end process()

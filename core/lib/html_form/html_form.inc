@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.90 2005/06/08 02:02:57 rhoward Exp $
+* $Id: html_form.inc,v 1.91 2005/07/06 05:26:47 ndvries Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.90 $
+* @version $Revision: 1.91 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -460,7 +460,7 @@ function colour_box($name, $default='000000', $allow_blanks=false, $button_text=
 
 	if ($show_text_box) {
 		$extras  = ' id="colour_box_'.$name.'" style="font-family: courier;"'
-				 . ' onchange="this.value = check_colour(this.value, '.(($allow_blanks) ? 'true' : 'false').');"';
+				  .' onchange="this.value = check_colour(this.value, '.(($allow_blanks) ? 'true' : 'false').');"';
 		if ($show_current_colour) {
 			 $extras .= ' show_colour_change(\''.addslashes($name).'\');';
 		}
@@ -519,22 +519,22 @@ function get_file_upload_info($name)
 
 		case UPLOAD_ERR_NO_FILE :
 			return Array();
-			break;
+		break;
 
 		case UPLOAD_ERR_INI_SIZE  :
 			trigger_localised_error('SYS0022', E_USER_WARNING, $nice_name, easy_filesize(ini_get('upload_max_size')));
 			return false;
-			break;
+		break;
 
 		case UPLOAD_ERR_FORM_SIZE :
 			trigger_localised_error('SYS0021', E_USER_WARNING, $nice_name, easy_filesize($_POST['MAX_FILE_SIZE']));
 			return false;
-			break;
+		break;
 
 		case UPLOAD_ERR_PARTIAL :
 			trigger_localised_error('SYS0023', E_USER_WARNING, $nice_name);
 			return false;
-			break;
+		break;
 
 	}//end switch
 
@@ -934,12 +934,11 @@ function var_to_hidden_field($var, $name='')
 function asset_type_chooser($name, $multiple=false, $defaults=Array(), $instantiable=null, $system_accessible=false, $show_inherit_checkbox=false, $specified_types=Array())
 {
 	//if we specified types for the listing, build a list with these
-	if(!empty($specified_types)) {
-
-		foreach($specified_types as $specified_type) {
+	if (!empty($specified_types)) {
+		foreach ($specified_types as $specified_type) {
 			$new_types = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($specified_type, true);
 
-			foreach($new_types as $new_type) {
+			foreach ($new_types as $new_type) {
 				$types[$new_type] = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($new_type, 'name');
 			}
 		}
@@ -995,6 +994,118 @@ function asset_type_chooser($name, $multiple=false, $defaults=Array(), $instanti
 	}
 
 }//end asset_type_chooser()
+
+
+/**
+* Print an interface widget to enter a URL
+*
+* @param string	$name		Name for the field
+* @param string	$url_value	Default value for the URL
+* @param Array	$protocols	Supported protocols. Ie, Array('http', 'mailto', 'ftp')
+*
+* @access public
+* @return void
+*/
+function url_tester($name, $value='', $protocols=Array('http'), $width=50)
+{
+	?><script type="text/javascript" src="<?php echo sq_web_path('lib'); ?>/js/JsHttpConnector.js"></script><?php
+	?><script type="text/javascript">
+
+		function getFullUrl() {
+			var protocol = document.getElementById("<?php echo $name.'_protocol'; ?>").value;
+			var url = document.getElementById("<?php echo $name.'_url'; ?>").value;
+			var fullUrl = protocol + url;
+
+			return fullUrl;
+		}
+
+		function changeStatusText(responseState)
+		{
+			switch (responseState) {
+				case "0":
+					responseText = js_translate('non_existant_page');
+				break;
+				case "1":
+					responseText = js_translate('valid_page');
+				break;
+				default:
+					responseText = js_translate('unknown_state');
+			}
+
+			document.getElementById('<?php echo $name.'_status_text'; ?>').innerHTML = responseText;
+
+		}//end changeStatusText()
+
+		function checkUrlExists()
+		{
+			document.getElementById('<?php echo $name.'_status_text'; ?>').innerHTML = js_translate('testing');
+			var testUrl = "<?php echo sq_web_path('lib').'/web/connectivity.php'; ?>" + "?connect_url=" + getFullUrl();
+			JsHttpConnector.submitRequest(testUrl, changeStatusText);
+
+		}//end checkUrlExists()
+
+
+		function protocolChanged()
+		{
+			var protocol = document.getElementById('<?php echo $name.'_protocol'; ?>').value;
+			if (protocol == "http://") {
+				document.getElementById("<?php echo $name.'_button_auto'; ?>").disabled = "";
+			} else {
+				document.getElementById("<?php echo $name.'_button_auto'; ?>").disabled = "disabled";
+			}
+			document.getElementById('<?php echo $name.'_status_text'; ?>').innerHTML = "";
+
+		}//end protocolChanged()
+
+
+		function testUrl()
+		{
+			window.open(getFullUrl());
+
+		}
+	</script><?php
+
+	$dd_values = array_flip($protocols);
+	foreach ($dd_values as $key => $prot) {
+		if ($key == 'mailto') {
+			$dd_values[$key.':'] = $key.':';
+		} else {
+			$dd_values[$key.'://'] = $key.'://';
+		}
+		unset($dd_values[$key]);
+	}
+
+	combo_box($name.'_protocol', $dd_values, false, '', 0, 'onChange="protocolChanged()";');
+	echo '&nbsp;';
+
+	text_box($name.'_url', $value, $width);
+	echo '&nbsp;';
+
+	normal_button($name.'_button_auto', 'Auto-Test', 'javascript: checkUrlExists();');
+	normal_button($name.'button_manual', 'Open URL', 'javascript: testUrl();');
+
+	?><div id="<?php echo $name; ?>_status_text"></div><?php
+
+}//end url_tester()
+
+
+/**
+* Returns the full URL of the url_tester form entity
+*
+* @param string		$name		the form name of the url_tester
+*
+* @return string	Empty string if the POST var isn't set, or the full URL on success (eg. protocol://url)
+* @access public
+*/
+function get_url_tester_info($name)
+{
+	$url = '';
+	if ( (!empty($_REQUEST[$name.'_protocol'])) && (!empty($_REQUEST[$name.'_url'])) ) {
+		$url = $_REQUEST[$name.'_protocol'].$_REQUEST[$name.'_url'];
+	}
+	return trim($url);
+
+}//end get_url_tester_info()
 
 
 ?>
