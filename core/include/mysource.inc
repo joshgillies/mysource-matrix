@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.127 2005/07/06 06:11:49 pgannavarapu Exp $
+* $Id: mysource.inc,v 1.128 2005/07/06 23:39:34 ndvries Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.127 $
+* @version $Revision: 1.128 $
 * @package MySource_Matrix
 */
 class MySource
@@ -1487,7 +1487,6 @@ class MySource
 	*/
 	function setRunLevel($run_level)
 	{
-		error_log('run level set to:  '.$run_level.'  '.get_calling_func());
 		$this->_run_level_stack[] = $run_level;
 
 	}//end setRunLevel()
