@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg_plugin.inc,v 1.16 2005/05/16 06:36:35 lwright Exp $
+* $Id: wysiwyg_plugin.inc,v 1.17 2005/07/07 02:26:53 dmckee Exp $
 *
 */
 require_once dirname(__FILE__).'/../../core/include/init.inc';
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../core/include/init.inc';
 *     of wysiwyg.inc
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -332,6 +332,20 @@ class wysiwyg_plugin
 		return;
 
 	}//end print_plugin_get_html()
+
+
+	/**
+	* Prints any JS the plugin wants executed before getHTML runs
+	* This code is a function - do not use script tags
+	*
+	* @return void
+	* @access public
+	*/
+	function print_plugin_pre_get_html()
+	{
+		return;
+
+	}//end print_plugin_pre_get_html()
 
 
 	/**

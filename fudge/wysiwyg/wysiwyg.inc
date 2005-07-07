@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.47 2005/06/28 02:08:10 dmckee Exp $
+* $Id: wysiwyg.inc,v 1.48 2005/07/07 02:26:53 dmckee Exp $
 *
 */
 
@@ -33,7 +33,7 @@
 *     to do this.
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.47 $
+* @version $Revision: 1.48 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -965,6 +965,7 @@ HTMLArea.prototype.insertDeepLeft = function(target, toInsert) {
 				// retrieve the HTML
 				HTMLArea.prototype.getHTML = function() {
 					var retVal = '';
+<?php $this->print_plugin_pre_get_html()?>
 					switch (this._editMode) {
 						case "textmode":
 							if (HTMLArea.is_gecko) {
@@ -1366,6 +1367,18 @@ HTMLArea.prototype.insertDeepLeft = function(target, toInsert) {
 
 	}//end print_plugin_exec_commands()
 
+
+/**
+	* Prints any JS the plugin wants executed on before getHTML gets the contents
+	*
+	* @return void
+	* @access public
+	*/
+	function print_plugin_pre_get_html()
+	{
+		foreach ($this->_loaded_plugins as $name => $plugin) $plugin->print_plugin_pre_get_html();
+
+	}//end print_plugin_pre_get_html()
 
 	/**
 	* Prints any JS the plugin wants executed on returned HTML from getHTML
