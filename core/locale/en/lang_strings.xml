@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.27 2005/07/07 02:39:03 amiller Exp $
+* $Id: lang_strings.xml,v 1.28 2005/07/07 03:53:57 dmckee Exp $
 *
 */
 
@@ -248,6 +248,7 @@
 	<string source="metadata_in_approval_requires_fields_completion">"%1$s" is currently in an approval process but some required metadata fields are not yet compelete. These fields must be completed before "%1$s" can become 'Approved' to go live.</string>
 	<string source="metadata_fields_only_completed_by_administrator">These metadata fields can be completed by any editor or administrator of "%1$s" by going to the %2$s</string>
 	<string source="metadata_screen">Metadata screen</string>
+	<string source="cms_ct_raw_html_pref_editor_size">Raw HTML Editor Size</string>
 
 
 
