@@ -19,14 +19,14 @@
 #* | licence.                                                           |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: clean.sh,v 1.1 2005/07/07 04:45:36 gsherwood Exp $
+#* $Id: clean.sh,v 1.2 2005/07/07 06:58:22 mmcintyre Exp $
 #*/
 
 # Creates a clean system by removing data and cache directories 
 # and clearing out the database and re-inserting the create script
 
 
-SYSTEM_ROOT=`dirname "$0"`;
+SYSTEM_ROOT=`dirname "$0"`"/../..";
 
 
 rm -rf "${SYSTEM_ROOT}/cache" \
@@ -42,7 +42,6 @@ rm -rf "${SYSTEM_ROOT}/cache" \
 		"${SYSTEM_ROOT}/data/private/conf/system_assets.inc"
 
 cvs up -dP cache data/public data/private
-
 
 # OK, what we are doing here is using PHP to do the parsing of the DSN for us (much less error prone :)
 # see the output of DB::parseDSN
