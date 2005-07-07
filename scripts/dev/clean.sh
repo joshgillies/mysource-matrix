@@ -19,7 +19,7 @@
 #* | licence.                                                           |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: clean.sh,v 1.22 2005/06/22 06:47:54 dheppell Exp $
+#* $Id: clean.sh,v 1.1 2005/07/07 04:45:36 gsherwood Exp $
 #*/
 
 # Creates a clean system by removing data and cache directories 
