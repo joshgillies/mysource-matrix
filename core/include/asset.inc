@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.425 2005/07/07 00:29:12 pgannavarapu Exp $
+* $Id: asset.inc,v 1.426 2005/07/07 00:37:08 pgannavarapu Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.425 $
+* @version $Revision: 1.426 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -1153,7 +1153,6 @@ class Asset extends MySource_Object
 
 			$result = $db->query($sql);
 			assert_valid_db_result($result);
-			error_log('conf value in asset is:   ' . SQ_CONF_ALLOW_HTTP_LOGIN);
 
 			$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
 			$data = Array(
