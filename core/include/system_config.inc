@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.66 2005/07/07 02:38:32 amiller Exp $
+* $Id: system_config.inc,v 1.67 2005/07/07 07:03:51 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.66 $
+* @version $Revision: 1.67 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -443,48 +443,44 @@ class System_Config extends Config
 			} else {
 				echo SQ_CONF_MAX_LOGIN_ATTEMPTS;
 			}
-
 			$o->note(translate('0_is_unlimited_attempts'));
 
 			$o->openField(translate('allow_ip_change'));
-				if ($write_access && $is_root) {
-					combo_box($class.'[SQ_CONF_ALLOW_IP_CHANGE]', Array('1' => translate('yes'), '0' => translate('no')), false, SQ_CONF_ALLOW_IP_CHANGE);
-				} else {
-					echo (SQ_CONF_ALLOW_IP_CHANGE) ? translate('yes'): translate('no');
-				}
+			if ($write_access && $is_root) {
+				combo_box($class.'[SQ_CONF_ALLOW_IP_CHANGE]', Array('1' => translate('yes'), '0' => translate('no')), false, SQ_CONF_ALLOW_IP_CHANGE);
+			} else {
+				echo (SQ_CONF_ALLOW_IP_CHANGE) ? translate('yes'): translate('no');
+			}
+			$o->note(translate('allow_user_ip_to_fluctuate'));
 
-				$o->note(translate('allow_user_ip_to_fluctuate'));
-
-			$o->openField(translate('accept_http_credentials'));
+			$o->openField(translate('process_php_credentials'));
 			if ($write_access && $is_root) {
 				combo_box($class.'[SQ_CONF_ACCEPT_HTTP_CREDS]', Array('1' => translate('yes'), '0' => translate('no')), false, SQ_CONF_ACCEPT_HTTP_CREDS);
 			} else {
 				echo (SQ_CONF_ACCEPT_HTTP_CREDS) ? translate('yes'): translate('no');
 			}
-
-			//$o->note('Accept HTTP Login From the User');
+			$o->note(translate('process_php_credentials_note'));
 
 			$o->openField(translate('allow_single_sign_in'));
-				if ($write_access && $is_root) {
-					combo_box($class.'[SQ_CONF_ALLOW_HTTP_LOGIN]', Array('1' => translate('yes'), '0' => translate('no')), false, SQ_CONF_ALLOW_HTTP_LOGIN);
-				} else {
-					echo (SQ_CONF_ALLOW_HTTP_LOGIN) ? translate('yes'): translate('no');
-				}
+			if ($write_access && $is_root) {
+				combo_box($class.'[SQ_CONF_ALLOW_HTTP_LOGIN]', Array('1' => translate('yes'), '0' => translate('no')), false, SQ_CONF_ALLOW_HTTP_LOGIN);
+			} else {
+				echo (SQ_CONF_ALLOW_HTTP_LOGIN) ? translate('yes'): translate('no');
+			}
+			$o->note(translate('allow_single_sign_in_note'));
 
-				$o->note(translate('allow_single_sign_in_note'));
 		$o->closeSection();
 
 
 		$o->openSection(translate('intervals'));
 
 			$o->openField(translate('refresh_interval'));
-				if ($write_access) {
-					text_box($class.'[SQ_CONF_REFRESH_INTERVAL]', SQ_CONF_REFRESH_INTERVAL, 5, 5);
-				} else {
-					echo SQ_CONF_REFRESH_INTERVAL;
-				}
-
-				$o->note(translate('header_frame_mail_lock'));
+			if ($write_access) {
+				text_box($class.'[SQ_CONF_REFRESH_INTERVAL]', SQ_CONF_REFRESH_INTERVAL, 5, 5);
+			} else {
+				echo SQ_CONF_REFRESH_INTERVAL;
+			}
+			$o->note(translate('header_frame_mail_lock'));
 
 			$o->openField(translate('lock_length'));
 			if ($write_access) {
@@ -492,7 +488,6 @@ class System_Config extends Config
 			} else {
 				echo SQ_CONF_LOCK_LENGTH;
 			}
-
 			$o->closeField(translate('lock_length_time'));
 
 		$o->closeSection();
