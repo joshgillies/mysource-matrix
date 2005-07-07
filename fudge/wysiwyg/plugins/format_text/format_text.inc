@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: format_text.inc,v 1.10 2004/12/06 14:39:54 brobertson Exp $
+* $Id: format_text.inc,v 1.11 2005/07/07 06:34:32 dmckee Exp $
 *
 */
 
@@ -34,7 +34,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     and strikethrough. Also has remove all formatting function
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -55,7 +55,6 @@ class Format_Text extends WYSIWYG_Plugin
 		$this->_add_button('italic','Italic','Italic','false','15');
 		$this->_add_button('underline','Underline','Underline','false','16');
 		$this->_add_button('strikethrough','StrikeThrough','StrikeThrough','false','17');
-		$this->_add_button('replacetext','ReplaceText','Replace Text','true','11');
 	}
 
 
