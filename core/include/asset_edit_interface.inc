@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.266 2005/06/30 01:27:06 tbarrett Exp $
+* $Id: asset_edit_interface.inc,v 1.267 2005/07/07 00:29:12 pgannavarapu Exp $
 *
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.266 $
+* @version $Revision: 1.267 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -2006,6 +2006,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 		$allowed_screens = $db->getAssoc($sql.$where, false, Array(), DB_FETCHMODE_ASSOC, true);
 		assert_valid_db_result($allowed_screens);
+		error_log(implode(',',$allowed_screens));
 		return $allowed_screens;
 
 	}//end getAllowedScreens()

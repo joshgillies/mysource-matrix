@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: details.inc,v 1.19 2005/06/29 07:21:24 ndvries Exp $
+* $Id: details.inc,v 1.20 2005/07/07 00:29:12 pgannavarapu Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Details Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix
 */
 
@@ -142,7 +142,6 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=null)
 				case 'status_future_status' :
 
 					$cron_mgr = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
-
 					$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_status');
 					$fs_jobs = &Cron_Job_Future_Status::getActiveJobs($owner);
 					if (!empty($fs_jobs)) {
@@ -442,7 +441,6 @@ function processDetails(&$owner, &$o, &$ei)
 		}// end if
 
 	}//end if is null cron mgr
-
 
 	///// THUMBNAIL CHANGES ////
 

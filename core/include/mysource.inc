@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.128 2005/07/06 23:39:34 ndvries Exp $
+* $Id: mysource.inc,v 1.129 2005/07/07 00:29:12 pgannavarapu Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.128 $
+* @version $Revision: 1.129 $
 * @package MySource_Matrix
 */
 class MySource
@@ -526,7 +526,9 @@ class MySource
 		}
 
 		if (is_null($this->user)) {
-			$this->_authenticateHttpUser();
+			if (defined('SQ_CONF_ACCEPT_HTTP_CREDS') && SQ_CONF_ACCEPT_HTTP_CREDS) {
+				$this->_authenticateHttpUser();
+			}
 		}
 
 		if (is_null($this->user)) {
