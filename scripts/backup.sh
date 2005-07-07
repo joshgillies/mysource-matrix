@@ -18,7 +18,7 @@
 #* | licence.                                                           |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: backup.sh,v 1.1 2005/07/07 04:43:00 gsherwood Exp $
+#* $Id: backup.sh,v 1.2 2005/07/07 07:02:23 gsherwood Exp $
 #* $Name: not supported by cvs2svn $
 #*/
 #
@@ -30,7 +30,7 @@
 
 # Creates a backup
 
-SYSTEM_ROOT=`dirname $0`;
+SYSTEM_ROOT=`dirname $0`"/..";
 
 if [ ! -f ${SYSTEM_ROOT}/data/private/conf/main.inc ]; then
 	echo "This isn't being run from the system root folder. Aborting."
