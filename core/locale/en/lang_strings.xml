@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.25 2005/07/05 04:19:20 dmckee Exp $
+* $Id: lang_strings.xml,v 1.26 2005/07/07 00:28:04 pgannavarapu Exp $
 *
 */
 
@@ -31,6 +31,7 @@
 	<string source="active_external_tools">Active External Tools</string>
 	<string source="0_for_unlimited_idle_time">In seconds - minimum 60 or zero (0) for unlimited idle time</string>
 	<string source="0_is_unlimited_attempts">Zero (0) is unlimited attempts</string>
+	<string source="accept_http_credentials">Accept Credentials From HTTP</string>
 	<string source="actions">Actions</string>
 	<string source="active_locks">Active Locks</string>
 	<string source="add_language">Add Language ?</string>
@@ -38,8 +39,8 @@
 	<string source="add_new_trigger">Add New Trigger</string>
 	<string source="allow_ip_change">Allow IP Change</string>
 	<string source="allow_user_ip_to_fluctuate">Allow the IP of a user to fluctuate?</string>
-	<string source="allow_single_sign_in">Allow HTTP Login</string>
-	<string source="allow_single_sign_in_note">Allow users to log into Matrix using HTTP Authentication?</string>
+	<string source="allow_single_sign_in">Accept HTTP Authentication</string>
+	<string source="allow_single_sign_in_note">Login users who have been HTTP-authenticated by some external mechanism</string>
 	<string source="applies_to">Applies To</string>
 	<string source="asset_date_search_fields">Asset Date Search Fields</string>
 	<string source="asset_metadata">Asset Metadata</string>
@@ -1526,6 +1527,8 @@
 	<string source="asset_map_button_remove_selection" java="1">Remove Selection</string>
 	<string source="asset_map_button_export" java="1">Export</string>
 	<string source="asset_map_button_close" java="1">Close</string>
+	<string source="better_hit_report_live" java="1">Live Only</string>
+	<string source="better_hit_report_any" java="1">Any</string>
 
 	<string source="non_existant_page" js="1">The URL you have entered points to a non-existant page</string>
 	<string source="valid_page" js="1">Valid URL</string>
