@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.26 2005/07/07 00:28:04 pgannavarapu Exp $
+* $Id: lang_strings.xml,v 1.27 2005/07/07 02:39:03 amiller Exp $
 *
 */
 
@@ -202,7 +202,12 @@
 	<string source="system_id">System ID</string>
 	<string source="system_name">System Name</string>
 	<string source="system_owner">System Owner</string>
+	<string source="system_urls">System URL Settings</string>
 	<string source="system_root_urls">System Root URLs</string>
+	<string source="system_static_url">System Static URL</string>
+	<string source="system_static_url_http">Static URL uses HTTP</string>
+	<string source="system_static_url_https">Static URL uses HTTPS</string>
+	<string source="system_static_url_note">Static URLs can be used to offload delivery of static files and images to an alternative web server. This is an advanced configuration option and requires specific web server configuration to operate correctly.</string>
 	<string source="system_root">System Root</string>
 	<string source="system_settings">System Settings</string>
 	<string source="system_simple_edit_suffix">System Simple Edit Suffix</string>
@@ -228,6 +233,8 @@
 	<string source="key">Key</string>
 	<string source="variety_type">Variety Type</string>
 	<string source="version_history">Version History</string>
+	<string source="version_compare">Compare</string>
+	<string source="comparison">Comparison</string>
 	<string source="warning">WARNING</string>
 	<string source="wysiwyg_editor_tools">WYSIWYG Editor Tools</string>
 	<string source="wysiwyg_plugins">WYSIWYG Plugins</string>
@@ -544,7 +551,7 @@
 	<string source="hipo_value_divided_by_schema">Value will be divided by number of affected schemas</string>
 	<string source="hipo_value_divided_by_permission">Value will be divided by number of affected permissions</string>
 	<string source="hipo_cannot_modify_schema">Could not %1$s schema "%2$s" on "%3$S" because this asset already has this schema %4$s. The current schema setting for "%3$s" has been retained</string>
-	<string source="hipo_cannot_modify_permission">'Could not %1$s $2$s access for "%3$s" on "%4$s" because this asset already has %5$s %2$s access to ""%3$s". The current permission for "%4$s" has been retained.'</string>
+	<string source="hipo_cannot_modify_permission">'Could not %1$s $2$s access for "%3$s" on "%4$s" because this asset already has %5$s %2$s access to "%3$s". The current permission for "%4$s" has been retained.'</string>
 	<string source="hipo_editing_metadata_schema">Editing Metadata Schemas for "%s"</string>
 	<string source="hipo_skipping_metadata_schema">Skipping "%s" as it does not require metadata</string>
 	<string source="hipo_skipping_permission">Could not edit permissions for asset #%s, asset does not exist</string>
@@ -1103,7 +1110,7 @@
 	<string source="no_access_permissions_set">No %s access permissions have been set</string>
 	<string source="cascade_permissions">Yes, cascade permission changes</string>
 	<string source="cascade_permissions_note">If you choose to cascade the changes to permissions you make on "%1$s", the changes will also be made on all assets that fall under "%1$s" in the various hierarchies in which it exists. This will affect %2$s other assets.</string>
-	<string source="manually_cascade_permissions_note">Manually cascading permissions will try to set the current permissions of "%1$s" on all assets that fall under ""%1$s" in the various hierarchies in which it exists. This will affect %2$s other assets.&lt;br/&gt;&lt;i&gt;Any additional permissions set on affected assets will &lt;b&gt;not&lt;/b&gt; be removed during a manual cascade. Any permissions set on affected assets that conflict with ones set on "%1$s" will also &lt;b&gt;not&lt;/b&gt; be changed.&lt;/i&gt;&lt;br/&gt;&lt;b&gt;NB. If you select to manually cascade, any permission changes you make will also cascade even if you do not select them to. Use the option on its own for more predicatable results.&lt;/b&gt;</string>
+	<string source="manually_cascade_permissions_note">Manually cascading permissions will try to set the current permissions of "%1$s" on all assets that fall under "%1$s" in the various hierarchies in which it exists. This will affect %2$s other assets.&lt;br/&gt;&lt;i&gt;Any additional permissions set on affected assets will &lt;b&gt;not&lt;/b&gt; be removed during a manual cascade. Any permissions set on affected assets that conflict with ones set on "%1$s" will also &lt;b&gt;not&lt;/b&gt; be changed.&lt;/i&gt;&lt;br/&gt;&lt;b&gt;NB. If you select to manually cascade, any permission changes you make will also cascade even if you do not select them to. Use the option on its own for more predicatable results.&lt;/b&gt;</string>
 	<string source="manually_cascade_permissions_option">Manually cascade permissions</string>
 	<string source="password_rules_configuration">Password Rules Configuration</string>
 	<string source="session_rules_configuration">Session Rules Configuration</string>
