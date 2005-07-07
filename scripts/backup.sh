@@ -18,7 +18,7 @@
 #* | licence.                                                           |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: backup.sh,v 1.16 2005/06/21 05:27:20 cboudjnah Exp $
+#* $Id: backup.sh,v 1.1 2005/07/07 04:43:00 gsherwood Exp $
 #* $Name: not supported by cvs2svn $
 #*/
 #
