@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.105 2005/06/22 06:44:34 ndvries Exp $
+* $Id: file.inc,v 1.106 2005/07/07 02:38:10 amiller Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.105 $
+* @version $Revision: 1.106 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -585,38 +585,47 @@ class File extends Asset
 		$save_urls = Array();
 		$root_urls = explode("\n", trim(SQ_CONF_SYSTEM_ROOT_URLS));
 
-		$site_parents = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'site', false);
-		foreach ($site_parents as $assetid => $type_code) {
-			$site = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
-			if (is_null($site)) continue;
-			$urls = $site->getSiteURLS();
+		if (!SQ_CONF_STATIC_ROOT_URL == '') {
+			// use the static root URL data
+			$web_path = str_replace(sq_web_path('data').'/', '', $web_path);
+			$save_urls[SQ_CONF_STATIC_ROOT_URL] = Array('http' => SQ_CONF_STATIC_ROOT_HTTP, 'https' => SQ_CONF_STATIC_ROOT_HTTPS);
 
-			foreach ($urls as $urlid => $data) {
+		} else {
 
-				$matching_roots = Array();
+			$site_parents = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'site', false);
+			foreach ($site_parents as $assetid => $type_code) {
+				$site = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
+				if (is_null($site)) continue;
+				$urls = $site->getSiteURLS();
 
-				foreach ($root_urls as $tmp_url) {
-					if (substr($data['url'], 0, strlen($tmp_url)) == $tmp_url) {
-						$matching_roots[] = $tmp_url;
-					}
-				}
+				foreach ($urls as $urlid => $data) {
 
-				if (empty($matching_roots)) continue;
+					$matching_roots = Array();
 
-				foreach ($matching_roots as $root_url) {
-					if (isset($save_urls[$root_url])) {
-						if (empty($save_urls[$root_url]['http'])) {
-							$save_urls[$root_url]['http']  = $data['http'];
+					foreach ($root_urls as $tmp_url) {
+						if (substr($data['url'], 0, strlen($tmp_url)) == $tmp_url) {
+							$matching_roots[] = $tmp_url;
 						}
-						if (empty($save_urls[$root_url]['https'])) {
-							$save_urls[$root_url]['https'] = $data['https'];
-						}
-					} else {
-						$save_urls[$root_url] = Array('http' => $data['http'], 'https' => $data['https']);
 					}
-				}
 
-			}//end foreach
+					if (empty($matching_roots)) continue;
+
+					foreach ($matching_roots as $root_url) {
+						if (isset($save_urls[$root_url])) {
+							if (empty($save_urls[$root_url]['http'])) {
+								$save_urls[$root_url]['http']  = $data['http'];
+							}
+							if (empty($save_urls[$root_url]['https'])) {
+								$save_urls[$root_url]['https'] = $data['https'];
+							}
+						} else {
+							$save_urls[$root_url] = Array('http' => $data['http'], 'https' => $data['https']);
+						}
+					}
+
+				}//end foreach
+
+			}//end if
 
 		}//end foreach
 

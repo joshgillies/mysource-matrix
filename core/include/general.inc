@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.93 2005/06/29 07:21:24 ndvries Exp $
+* $Id: general.inc,v 1.94 2005/07/07 02:38:22 amiller Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.93 $
+* @version $Revision: 1.94 $
 * @package MySource_Matrix
 */
 
@@ -415,7 +415,20 @@ function sq_web_path($path='base')
 		break;
 
 		case 'data'  :
-			$paths[$path] = sq_web_path('root_url').'/__data';
+			if (SQ_CONF_STATIC_ROOT_URL == '') {
+				$paths[$path] = sq_web_path('root_url').'/__data';
+			} else {
+				// use the most appropriate protocol
+				switch (current_protocol()) {
+					case 'http' :
+						$protocol = (SQ_CONF_STATIC_ROOT_HTTP) ? 'http' : 'https';
+					break;
+					case 'https' :
+						$protocol = (SQ_CONF_STATIC_ROOT_HTTPS) ? 'https' : 'http';
+					break;
+				}
+				$paths[$path] = $protocol.'://'.SQ_CONF_STATIC_ROOT_URL;
+			}
 		break;
 
 		case 'fudge'  :
@@ -611,9 +624,7 @@ function bit_elements($num)
 	$elems = Array();
 	while ($num > 0) {
 		// if the first bit is set then this number is one of the elements
-		if ($num & 1) {
-			$elems[] = $count;
-		}
+		if ($num & 1) $elems[] = $count;
 		$count *= 2;
 		// we just keep shifting right until there aren't anymore numbers
 		$num = $num >> 1;

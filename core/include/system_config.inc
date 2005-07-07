@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.65 2005/07/07 00:29:12 pgannavarapu Exp $
+* $Id: system_config.inc,v 1.66 2005/07/07 02:38:32 amiller Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.65 $
+* @version $Revision: 1.66 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -58,6 +58,9 @@ class System_Config extends Config
 						'SQ_CONF_SYSTEM_NAME'				=> Array('editable' => 1, 'default' => 'The System'),
 						'SQ_CONF_SYSTEM_OWNER'				=> Array('editable' => 1, 'default' => ''),
 						'SQ_CONF_SYSTEM_ROOT_URLS'			=> Array('editable' => 1, 'default' => ''),
+						'SQ_CONF_STATIC_ROOT_URL'			=> Array('editable' => 1, 'default' => ''),
+						'SQ_CONF_STATIC_ROOT_HTTP'			=> Array('editable' => 1, 'default' => true),
+						'SQ_CONF_STATIC_ROOT_HTTPS'			=> Array('editable' => 1, 'default' => false),
 						'SQ_CONF_DEFAULT_EMAIL'				=> Array('editable' => 1, 'default' => ''),
 						'SQ_CONF_TECH_EMAIL'				=> Array('editable' => 1, 'default' => ''),
 						'SQ_CONF_MAX_LOGIN_ATTEMPTS'		=> Array('editable' => 1, 'default' => 3),
@@ -251,6 +254,9 @@ class System_Config extends Config
 				return parent::_paintConfigVar($var_name, trim($value), $var_export);
 			break;
 
+			case 'SQ_CONF_STATIC_ROOT_URL' :
+				return parent::_paintConfigVar($var_name, trim($value), $var_export);
+			break;
 
 			case 'SQ_CONF_SESSION_GC_MAXLIFETIME' :
 				if (!parent::_paintConfigVar($var_name, $value, $var_export)) {
@@ -343,13 +349,6 @@ class System_Config extends Config
 			}
 			$o->closeField();
 
-			$o->openField(translate('system_root_urls'));
-			if ($write_access) {
-				text_area($class.'[SQ_CONF_SYSTEM_ROOT_URLS]', SQ_CONF_SYSTEM_ROOT_URLS, 80, 4);
-			} else {
-				echo nl2br(SQ_CONF_SYSTEM_ROOT_URLS);
-			}
-
 			$o->openField(translate('system_backend_suffix'));
 			if ($write_access) {
 				text_box($class.'[SQ_CONF_BACKEND_SUFFIX]', SQ_CONF_BACKEND_SUFFIX, 15);
@@ -363,6 +362,47 @@ class System_Config extends Config
 			} else {
 				echo nl2br(SQ_CONF_LIMBO_SUFFIX);
 			}
+
+		$o->closeSection();
+
+		$o->openSection(translate('system_urls'));
+
+			$o->openField(translate('system_root_urls'));
+			if ($write_access) {
+				text_area($class.'[SQ_CONF_SYSTEM_ROOT_URLS]', SQ_CONF_SYSTEM_ROOT_URLS, 80, 4);
+			} else {
+				echo nl2br(SQ_CONF_SYSTEM_ROOT_URLS);
+			}
+
+			$o->openField(translate('system_static_url'));
+				if ($write_access && $is_root) {
+					text_box($class.'[SQ_CONF_STATIC_ROOT_URL]', SQ_CONF_STATIC_ROOT_URL, 80);
+				} else {
+					if (SQ_CONF_STATIC_ROOT_URL == '') {
+						echo 'Not configured';
+					} else {
+						echo SQ_CONF_STATIC_ROOT_URL;
+					}
+				}
+				$o->closeField();
+
+			$o->openField(translate('system_static_url_http'));
+				if ($write_access && $is_root) {
+					combo_box($class.'[SQ_CONF_STATIC_ROOT_HTTP]', Array('1' => translate('yes'), '0' => translate('no')), false, SQ_CONF_STATIC_ROOT_HTTP);
+				} else {
+					echo (SQ_CONF_STATIC_ROOT_HTTP) ? translate('yes'): translate('no');
+				}
+			$o->closeField();
+
+			$o->openField(translate('system_static_url_https'));
+				if ($write_access && $is_root) {
+					combo_box($class.'[SQ_CONF_STATIC_ROOT_HTTPS]', Array('1' => translate('yes'), '0' => translate('no')), false, SQ_CONF_STATIC_ROOT_HTTPS);
+				} else {
+					echo (SQ_CONF_STATIC_ROOT_HTTPS) ? translate('yes'): translate('no');
+				}
+			$o->closeField();
+
+			$o->sectionNote(translate('system_static_url_note'));
 
 		$o->closeSection();
 
@@ -414,7 +454,7 @@ class System_Config extends Config
 				}
 
 				$o->note(translate('allow_user_ip_to_fluctuate'));
-				
+
 			$o->openField(translate('accept_http_credentials'));
 			if ($write_access && $is_root) {
 				combo_box($class.'[SQ_CONF_ACCEPT_HTTP_CREDS]', Array('1' => translate('yes'), '0' => translate('no')), false, SQ_CONF_ACCEPT_HTTP_CREDS);
