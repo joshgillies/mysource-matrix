@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: core.js,v 1.20 2005/05/16 06:36:35 lwright Exp $
+* $Id: core.js,v 1.21 2005/07/07 01:29:03 dmckee Exp $
 *
 */
 
@@ -136,7 +136,9 @@ HTMLArea.prototype.generate = function () {
 		var html = "<html>\n";
 		html += "<head>\n";
 		if (editor.config.styleSheet) { html += "<link rel=\"stylesheet\" href=\"" + editor.config.styleSheet + "\" type=\"text/css\">"; }
-		html += "<style> body { " + editor.config.bodyStyle + " } </style>\n";
+		html += "<style> body { " + editor.config.bodyStyle + " }\n";
+		html += ".wysiwyg-noborders { border: 1px dashed #3366CC; }\n";
+		html += "</style>\n";
 		html += "</head>\n";
 		html += "<body>\n";
 		html += unescape(editor._textArea.value);
