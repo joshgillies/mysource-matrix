@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_purge_trash.inc,v 1.30 2005/07/08 05:00:23 pgannavarapu Exp $
+* $Id: hipo_job_purge_trash.inc,v 1.31 2005/07/08 05:25:06 pgannavarapu Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -177,7 +177,7 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 	function freestyle()
 	{
 		while (!empty($this->_running_vars['todo_links'])) {
-			if (!$this->purgeAssetFromTrash($this->_steps[0], $this->getCodeName())) {
+			if (!$this->removeExternallyLinkedAssetFromTrash($this->_steps[0], $this->getCodeName())) {
 				return false;
 			}
 		}
