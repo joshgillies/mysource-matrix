@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.18.2.3 2005/07/05 04:18:43 dmckee Exp $
+* $Id: lang_strings.xml,v 1.18.2.4 2005/07/08 05:22:43 pgannavarapu Exp $
 *
 */
 
@@ -1435,7 +1435,8 @@
 	<string source="hipo_name_uninstall_patch">Uninstall Patch</string>
 	<string source="hipo_name_update_lookups">Update Lookups</string>
 	<string source="hipo_processing_assets">Processing Assets</string>
-	<string source="hipo_purging_trash">Purging Trash</string>
+	<string source="hipo_purging_trash">Purging Trash with No External Links</string>
+	<string source="hipo_remove_externally_linked_assets">Removes Assets With External Links From Trash</string>
 	<string source="hipo_refreshing_asset_map">Refreshing Asset Map</string>
 	<string source="hipo_releasing_locks">Releasing Locks</string>
 	<string source="hipo_releasing_metadata_locks">Releasing Metadata Locks</string>
