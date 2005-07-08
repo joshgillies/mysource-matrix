@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.67 2005/07/07 07:03:51 tbarrett Exp $
+* $Id: system_config.inc,v 1.68 2005/07/08 00:30:26 amiller Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.67 $
+* @version $Revision: 1.68 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -153,6 +153,9 @@ class System_Config extends Config
 				// now do some validation
 				if (isset($vars['SQ_CONF_SYSTEM_ROOT_URLS'])) {
 					$vars['SQ_CONF_SYSTEM_ROOT_URLS'] = str_replace("\r", '', $vars['SQ_CONF_SYSTEM_ROOT_URLS']);
+				}
+				if (isset($vars['SQ_CONF_STATIC_ROOT_URL']) && substr($vars['SQ_CONF_STATIC_ROOT_URL'], -1) == '/') {
+					$vars['SQ_CONF_STATIC_ROOT_URL'] = substr($vars['SQ_CONF_STATIC_ROOT_URL'], 0, strlen($vars['SQ_CONF_STATIC_ROOT_URL']) -1);
 				}
 				foreach (Array('SQ_CONF_REFRESH_INTERVAL', 'SQ_CONF_LOCK_LENGTH') as $var_name) {
 					if (isset($vars[$var_name])) {
