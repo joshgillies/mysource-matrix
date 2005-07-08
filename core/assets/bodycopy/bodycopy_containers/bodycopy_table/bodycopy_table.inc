@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_table.inc,v 1.12 2005/03/21 06:16:13 gsherwood Exp $
+* $Id: bodycopy_table.inc,v 1.12.2.1 2005/07/08 00:43:27 dheppell Exp $
 *
 */
 
@@ -32,12 +32,13 @@ require_once(dirname(__FILE__).'/bodycopy_table_cell.inc');
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.12.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Bodycopy_Table extends Bodycopy_Container
 {
+
 
 	/**
 	* Constructor
@@ -79,7 +80,7 @@ class Bodycopy_Table extends Bodycopy_Container
 			$rows[$i]['attributes'] = Array();
 			$rows[$i]['cells']		= Array();
 			for ($x = 0; $x < $num_cols; $x++) {
-				$rows[$i]['cells'][$x]	= new Bodycopy_Table_Cell();
+				$rows[$i]['cells'][$x] =& new Bodycopy_Table_Cell();
 				// short and long names are the same to begin with
 				if (!$rows[$i]['cells'][$x]->setContentType($this, 'content_type_wysiwyg', $i, $x)) {
 					return false;
@@ -115,6 +116,20 @@ class Bodycopy_Table extends Bodycopy_Container
 		}
 
 		$old_assetid = array_search($this->id, $map);
+
+		//get our clone and make it update its tables array
+		if (isset($map[$this->id])) {
+			$child_links = $GLOBALS['SQ_SYSTEM']->am->getAllChildLinks($this->id, SQ_LINK_TYPE_2);
+			$new_clone =& $GLOBALS['SQ_SYSTEM']->am->getAsset($map[$this->id]);
+
+			if (!$new_clone->remapTableLinks($map, $child_links)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return false;
+			}
+
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($new_clone);
+		}
+
 		if ($old_assetid === FALSE) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			return true;
@@ -159,6 +174,53 @@ class Bodycopy_Table extends Bodycopy_Container
 		}
 
 	}//end remapAssetids()
+
+
+	/**
+	* remaps the tables array so the links are correct
+	*
+	* @param Array	&$map	      a map of the form Array([old asset id] => [new asset id])
+	* @param Array  $child_links  All the link info from the asset we were cloned from we need
+	*
+	* @access public
+	* @return boolean
+	*/
+	function remapTableLinks(&$map, &$child_links)
+	{
+		$table_map = $this->attr('rows');
+		$child_map = Array();
+
+		foreach ($child_links as $linkval) {
+			$child_map[$linkval['linkid']] = $linkval['assetid'];
+		}
+
+		// iterate our table map, find old links and update
+		foreach ($table_map as $rowid => $row) {
+			foreach ($row['cells'] as $cellid => $cell) {
+				if (in_array($cell->attributes['linkid'], array_keys($child_map))) {
+					// get correct link and update table
+					$new_link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($this->id, $map[$child_map[$cell->attributes['linkid']]]);
+					$table_map[$rowid]['cells'][$cellid]->attributes['linkid'] = $new_link['linkid'];
+				}
+			}
+		}
+
+		$this->setAttrValue('rows', $table_map);
+		// for some reason at this point $table_map == $this->attr('rows')
+		// and setAttrValue thinks nothing changed
+		// so lets just manually prepare for save attributes
+		if (!isset($this->_tmp['vars_set'])) {
+			$this->_tmp['vars_set'] = Array();
+		}
+
+		$this->_tmp['vars_set']['rows']['old_value'] = '__(old value)__';
+		$this->vars['rows']['value'] = $table_map;
+
+		$this->saveAttributes();
+
+		return true;
+	}//end remapTableLinks()
+
 
 }//end class
 
