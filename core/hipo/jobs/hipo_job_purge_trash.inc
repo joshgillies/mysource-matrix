@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_purge_trash.inc,v 1.28.2.1 2005/07/08 05:22:12 pgannavarapu Exp $
+* $Id: hipo_job_purge_trash.inc,v 1.28.2.2 2005/07/08 12:55:23 gnoel Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.28.2.1 $
+* @version $Revision: 1.28.2.2 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -252,13 +252,14 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 				// get asset and check its external links
 				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $link_info['type_code'], true);
 				$db = &$GLOBALS['SQ_SYSTEM']->db;
-				$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, 15, null, false, 'minor');
+				$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_SIGNIFICANT, null, false, 'minor');
 				$delete_link = false;
 
 				foreach ($links as $link) {
 					// checking if the asset has any external links other than trash
-					if (($link['majorid']!=$this->_running_vars['trash_id']) && (!is_null($GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($asset->id, $this->_running_vars['trash_id'], 15, null, 'minor')))){
+					if (($link['majorid']!=$this->_running_vars['trash_id']) && (!is_null($GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($asset->id, $this->_running_vars['trash_id'], SQ_SC_LINK_SIGNIFICANT, null, 'minor')))){
 						$delete_link = true;
+						break;
 					}
 				}// end of foreach
 
