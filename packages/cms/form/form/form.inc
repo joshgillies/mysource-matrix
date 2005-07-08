@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.70.2.22 2005/07/03 22:40:30 lwright Exp $
+* $Id: form.inc,v 1.70.2.23 2005/07/08 02:21:16 dheppell Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.70.2.22 $
+* @version $Revision: 1.70.2.23 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -112,7 +112,9 @@ class Form extends Bridge
 		if (empty($shadowid)) return $asset;
 
 		// if the shadow id is numeric then we want a REAL asset (ie. a section)
-		if (is_numeric($shadowid)) return $GLOBALS['SQ_SYSTEM']->am->getAsset($shadowid);
+		if (is_numeric($shadowid)) {
+			return $GLOBALS['SQ_SYSTEM']->am->getAsset($shadowid);
+		}
 
 		if ($shadowid{0} == 'q') {	// Questions will be preceded with a 'q'
 
@@ -128,7 +130,7 @@ class Form extends Bridge
 			$type_code = $data['question_type_code'];
 
 			// this eval returns the necessary object for the question type
-			$asset = new $type_code($this->id, $data);
+			$asset =& new $type_code($this->id, $data);
 		}
 
 		return $asset;
@@ -178,7 +180,15 @@ class Form extends Bridge
 				$links[] = $bc_link;
 			}
 
-			// TODO: [Bug #742] Add same here for sections
+			// Same here for sections
+			$sections = $GLOBALS['SQ_SYSTEM']->am->getChildren($assetid, 'form_section');
+			foreach (array_keys($sections) as $key) {
+				$GLOBALS['SQ_SYSTEM']->am->acquireLock($key, 'all');
+				//manually add majorid
+				$sc_link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($assetid, $key);
+				$sc_link['majorid'] = $this->id;
+				$links[] = $sc_link;
+			}
 
 			// but we also need question shadow asset links
 			$entries = $this->getQuestions();
@@ -244,7 +254,15 @@ class Form extends Bridge
 				continue;
 			}
 
-			// TODO: [Bug #744] Do similar for sections
+			// remove any section links already retrieved
+			if (!empty($sections)) {
+				foreach (array_keys($sections) as $key) {
+					if ($link['minorid'] == $key) {
+						unset($links[$i]);
+						unset($sections[$key]);
+					}
+				}
+			}
 
 			// mould it all to the asset map's liking
 			$link['url'] = '';
@@ -296,8 +314,11 @@ class Form extends Bridge
 		if (!is_numeric($assetid)) return Array();
 
 		if (!is_array($type_code)) {
-			if (empty($type_code)) $type_code = Array();
-			else $type_code = Array($type_code);
+			if (empty($type_code)) {
+				$type_code = Array();
+			} else {
+				$type_code = Array($type_code);
+			}
 		}
 
 		$children = Array();
@@ -372,11 +393,17 @@ class Form extends Bridge
 	function getParents($assetid, $type_code='', $strict_type_code=true)
 	{
 		// there are no links away from the shadow asset (ie:questions)
-		if (!is_numeric($assetid)) return Array($this->id => $this->type());
+		if (!is_numeric($assetid)) {
+			return Array($this->id => $this->type());
+		}
 
 		$parents = Array();
-		if (!is_array($type_code)) $type_code = Array($type_code);
-		if (!in_array('form_section', $type_code) && !in_array('form', $type_code)) return Array();
+		if (!is_array($type_code)) {
+			$type_code = Array($type_code);
+		}
+		if (!in_array('form_section', $type_code) && !in_array('form', $type_code)) {
+			return Array();
+		}
 
 		if (!isset($this->_tmp['getParents'][$assetid])) {
 			// this is so we get the sections as we go
@@ -421,9 +448,7 @@ class Form extends Bridge
 	function _updated($update_parents=true)
 	{
 		if (!parent::_updated($update_parents)) return false;
-		if (SQ_IN_BACKEND) {
-			return $this->fileRegeneration();
-		}
+		if (SQ_IN_BACKEND) return $this->fileRegeneration();
 		return true;
 
 	}//end _updated()
@@ -441,9 +466,7 @@ class Form extends Bridge
 	*/
 	function canCreateLink(&$minor, $link_type, $exclusive)
 	{
-		if (is_a($minor, 'form_submission')) {
-			return true;
-		}
+		if (is_a($minor, 'form_submission')) return true;
 
 		return parent::canCreateLink($minor, $link_type, $exclusive);
 
@@ -588,7 +611,7 @@ class Form extends Bridge
 		} else {
 			$new_index = max(array_keys($sort_order))+1;
 		}
-		$sort_order[$new_index] = $this->id . ':q' . $new_key;
+		$sort_order[$new_index] = $this->id.':q'.$new_key;
 		$this->setAttrValue('sort_order', $sort_order);
 
 		if (!$this->saveAttributes()) {
@@ -597,7 +620,7 @@ class Form extends Bridge
 		}
 
 		// acquire the lock on the new question
-		$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id . ':q' . $new_key, 'all', $this->id, true);
+		$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id.':q'.$new_key, 'all', $this->id, true);
 		$GLOBALS['SQ_SYSTEM']->am->updateLock($this->id, 'all');
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -1021,7 +1044,7 @@ class Form extends Bridge
 
 			// create a folder for the bodycopies
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset('folder');
-			$folder = new Folder();
+			$folder =& new Folder();
 			$folder->setAttrValue('name', 'Bodycopies');
 
 			$folder_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'value' => 'bodycopies_folder', 'is_dependant' => 1, 'is_exclusive' => 1);
@@ -1046,7 +1069,7 @@ class Form extends Bridge
 
 		// create the thing
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
-		$bodycopy = new Bodycopy();
+		$bodycopy =& new Bodycopy();
 		$bodycopy->setAttrValue('name', $name);
 
 		// create an appropriate value for this link
@@ -1263,9 +1286,7 @@ class Form extends Bridge
 		} else {			// no bodycopy
 
 			// print the results if we need to
-			if ($this->attr('show_results')) {
-				echo $summary_info;
-			}
+			if ($this->attr('show_results')) echo $summary_info;
 
 		}
 
@@ -1460,7 +1481,7 @@ class Form extends Bridge
 		foreach (array_keys($questions) as $key) {
 			$question = &$GLOBALS['SQ_SYSTEM']->am->getAsset($key);
 			$q_code = $question->generateJSCode();
-			$code .= $q_code . (empty($q_code) ? "" : "\n");
+			$code .= $q_code.(empty($q_code) ? '' : "\n");
 		}
 
 		return $code;
@@ -1483,7 +1504,7 @@ class Form extends Bridge
 
 		$GLOBALS['SQ_INSTALL'] = true;
 		// create the form submission asset
-		$submission = new Form_Submission();
+		$submission =& new Form_Submission();
 		$copy_link  = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_3, 'is_dependant' => 1, 'is_exclusive' => 1);
 
 		if (!$submission->create($copy_link)) {
