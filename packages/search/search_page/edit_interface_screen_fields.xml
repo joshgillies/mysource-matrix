@@ -11,20 +11,11 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_fields.xml,v 1.19 2005/05/24 05:30:51 arailean Exp $
+* $Id: edit_interface_screen_fields.xml,v 1.20 2005/07/08 05:04:47 tbarrett Exp $
 *
 */
 -->
 <contents>
-	<section name="Searchable asset types">
-		<field>
-			<function_call>
-				<paint_function   name="paintAssetTypes"   />
-				<process_function name="processAssetTypes" />
-			</function_call>
-		</field>
-	</section>
-
 	<section name="Logical Grouping">
 		<field attribute="logic">
 			<selection />

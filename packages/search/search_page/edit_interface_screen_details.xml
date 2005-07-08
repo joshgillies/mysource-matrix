@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.25 2005/05/24 00:17:36 arailean Exp $
+* $Id: edit_interface_screen_details.xml,v 1.26 2005/07/08 05:04:47 tbarrett Exp $
 *
 */
 -->
@@ -31,6 +31,12 @@
 				<process_function name="processRootNode" />
 			</function_call>
 		</field>
+		<field>
+			<function_call>
+				<paint_function   name="paintAssetTypes"   />
+				<process_function name="processAssetTypes" />
+			</function_call>
+		</field>
 		<field write_access="write:attributes">
 			<function_call>
 				<paint_function   name="paintStatus" />
@@ -40,7 +46,6 @@
 	</section>
 	<section name="Display Options">
 		<field attribute="num_per_page">
-			<display_name>Assets Per Page</display_name>
 			<int width="5" />
 		</field>
 		<field write_access="write:links">
