@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.100.2.6 2005/07/03 22:41:13 lwright Exp $
+* $Id: form.inc,v 1.100.2.7 2005/07/08 01:59:52 dheppell Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.100.2.6 $
+* @version $Revision: 1.100.2.7 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -127,7 +127,7 @@ class Form extends Asset
 			$type_code = $data['question_type_code'];
 
 			// this eval returns the necessary object for the question type
-			$asset = new $type_code($this->id, $data);
+			$asset =& new $type_code($this->id, $data);
 		}
 
 		return $asset;
@@ -177,7 +177,15 @@ class Form extends Asset
 				$links[] = $bc_link;
 			}
 
-			// TODO: [Bug #742] Add same here for sections
+			// Same here for sections
+			$sections = $GLOBALS['SQ_SYSTEM']->am->getChildren($assetid, 'form_section');
+			foreach (array_keys($sections) as $key) {
+				$GLOBALS['SQ_SYSTEM']->am->acquireLock($key, 'all');
+				//manually add majorid
+				$sc_link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($assetid, $key);
+				$sc_link['majorid'] = $this->id;
+				$links[] = $sc_link;
+			}
 
 			// but we also need question shadow asset links
 			$entries = $this->getQuestions();
@@ -232,6 +240,9 @@ class Form extends Asset
 		// get the bodycopy link
 		$bc_link = Asset_Manager::getLink($this->id, SQ_LINK_TYPE_2, 'folder', true, 'bodycopies_folder');
 
+		//get the section links
+		$sections = $GLOBALS['SQ_SYSTEM']->am->getChildren($this->id, 'form_section');
+
 		foreach (array_keys($links) as $i) {
 
 			$link =& $links[$i];
@@ -243,7 +254,15 @@ class Form extends Asset
 				continue;
 			}
 
-			// TODO: [Bug #744] Do similar for sections
+			// remove any section links already retrieved
+			if (!empty($sections)) {
+				foreach (array_keys($sections) as $key) {
+					if ($link['minorid'] == $key) {
+						unset($links[$i]);
+						unset($sections[$key]);
+					}
+				}
+			}
 
 			// mould it all to the asset map's liking
 			$link['url'] = '';
@@ -1028,7 +1047,7 @@ class Form extends Asset
 
 			// create a folder for the bodycopies
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset('folder');
-			$folder = new Folder();
+			$folder =& new Folder();
 			$folder->setAttrValue('name', 'Bodycopies');
 
 			$folder_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'value' => 'bodycopies_folder', 'is_dependant' => 1, 'is_exclusive' => 1);
@@ -1053,7 +1072,7 @@ class Form extends Asset
 
 		// create the thing
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
-		$bodycopy = new Bodycopy();
+		$bodycopy =& new Bodycopy();
 		$bodycopy->setAttrValue('name', $name);
 
 		// create an appropriate value for this link
@@ -1456,7 +1475,7 @@ class Form extends Asset
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('form_submission');
 
 		// create the form submission asset
-		$submission = new Form_Submission();
+		$submission =& new Form_Submission();
 		$copy_link  = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_3, 'is_dependant' => 1, 'is_exclusive' => 1);
 
 		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
