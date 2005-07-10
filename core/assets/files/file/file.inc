@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.106 2005/07/07 02:38:10 amiller Exp $
+* $Id: file.inc,v 1.107 2005/07/10 23:11:39 ndvries Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.106 $
+* @version $Revision: 1.107 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -272,6 +272,9 @@ class File extends Asset
 	*/
 	function revertToSystemVersion()
 	{
+		// get the safe edit file name before it's lost
+		$se_name = $this->attr('name');
+
 		// pretend we are uploading a file because we may be changing the name of the file
 		// and we want to fool setAttributeValue
 		$this->_tmp['uploading_file'] = true;
@@ -294,8 +297,15 @@ class File extends Asset
 			return false;
 		}
 
-		// check out the old version of the file into the private data directory
 		$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
+
+		// we want to remove the safe edit file name from the repository because
+		// there's a chance someone will try and use that name later
+		if ($this->attr('name') != $se_name) {
+			$se_rep_path = $this->data_path_suffix.'/'.$se_name;
+		}
+
+		// check out the old version of the file into the private data directory
 		$rep_path = $this->data_path_suffix.'/'.$this->name;
 		if (!$fv->checkOut($rep_path, $this->data_path, $file_version)) {
 			trigger_localised_error('CORE0044', E_USER_WARNING, $this->name);
@@ -311,6 +321,10 @@ class File extends Asset
 			trigger_localised_error('CORE0044', E_USER_WARNING, $this->name);
 			return false;
 		}
+
+		// this will ensure that the lookups are updated and that the
+		// public file is properly checked out
+		$this->_checkFileState();
 
 		return true;
 
@@ -478,6 +492,7 @@ class File extends Asset
 			$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
 			// if there is no current file or if the current file is out of date, check out a fresh copy
 			if ($fv->upToDate($unrestricted) & (FUDGE_FV_NOT_CHECKED_OUT | FUDGE_FV_OLD_VERSION)) {
+				clear_directory($this->data_path_public);
 				if ($fv->checkOut($this->data_path_suffix.'/'.$existing['filename'], $this->data_path_public)) {
 					$changed = true;
 				} else {
