@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_versioning.inc,v 1.10 2005/06/22 04:28:42 ndvries Exp $
+* $Id: file_versioning.inc,v 1.11 2005/07/10 23:14:36 ndvries Exp $
 *
 */
 
@@ -39,7 +39,7 @@ define('FUDGE_FV_OLD_VERSION',      64);
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package Fudge
 * @subpackage File_Versioning
 */
@@ -994,7 +994,7 @@ class File_Versioning
 		}
 
 		// remove the existing checked out file
-		if (!unlink($real_file)) {
+		if ($this->clearOut($real_file) == FUDGE_FV_ERROR) {
 			$this->_releaseFile($info['fileid']);
 			if ($use_trans) {
 				$result = $this->_db->query('ROLLBACK');
