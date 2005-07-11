@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css.inc,v 1.9.2.5 2005/06/29 00:25:48 mnyeholt Exp $
+* $Id: design_css.inc,v 1.9.2.6 2005/07/11 01:15:38 dheppell Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design.inc';
 * in standard Designs
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.9.2.5 $
+* @version $Revision: 1.9.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -521,17 +521,24 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 	function &createCache()
 	{
 		$null = null;
-		if (!touch($this->data_path.'/'.$this->_getName().'.css')) {
+
+		//check if we need to add the .css extension to the file
+		$filename = $this->_getName();
+		if (substr($filename, -4) != '.css') {
+			$filename .= '.css';
+		}
+
+		if (!touch($this->data_path.'/'.$filename)) {
 			return $null;
 		}
 
-		$tmp_file = $this->data_path.'/'.$this->_getName().'.css';
-		$filename = $this->_getName().'.css';
+		$tmp_file = $this->data_path.'/'.$filename;
+
 		$import_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_3, 'value' => 'css_cache', 'sort_order' => 1, 'is_dependant' => 1);
 		$temp_info = Array('name' => $filename, 'tmp_name' => $tmp_file, 'non_uploaded_file' => true);
 
 		require_once SQ_CORE_PACKAGE_PATH.'/files/file/file.inc';
-		$new_file = new File();
+		$new_file =& new File();
 		$new_file->_tmp['uploading_file'] = true;
 		$new_file->setAttrValue('name', $filename);
 
