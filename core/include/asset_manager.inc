@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.335 2005/07/05 05:42:30 tbarrett Exp $
+* $Id: asset_manager.inc,v 1.336 2005/07/11 04:08:50 gsherwood Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.335 $
+* @version $Revision: 1.336 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -798,7 +798,6 @@ class Asset_Manager extends MySource_Object
 				$asset = &$this->getAsset($real_assetid, '', $mute_errors);
 				if (!method_exists($asset, 'getAsset')) {
 					trigger_localised_error('SYS0203', E_USER_WARNING, $asset->name);
-					//return $null;
 				} else {
 					$asset = &$asset->getAsset($id_parts[1]);
 				}
@@ -823,7 +822,11 @@ class Asset_Manager extends MySource_Object
 						}
 					} else {
 						$this->includeAsset($type_code);
-						$asset = @new $type_code($assetid);
+						if ($mute_errors) {
+							$asset = @new $type_code($assetid);
+						} else {
+							$asset =& new $type_code($assetid);
+						}
 						if (empty($asset->id)) $asset = null;
 					}
 				}
