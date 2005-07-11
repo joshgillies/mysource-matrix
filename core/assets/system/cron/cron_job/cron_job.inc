@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job.inc,v 1.34 2005/07/11 03:43:35 dmckee Exp $
+* $Id: cron_job.inc,v 1.35 2005/07/11 03:45:09 dmckee Exp $
 *
 */
 
@@ -40,7 +40,7 @@ define('SQ_CRON_JOB_RETRY',			16);// cron job requests to be retried (only valid
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -394,31 +394,31 @@ class Cron_Job extends Asset
 		switch ($when_arr['type']) {
 			case 'OO' :
 				$ret_val .= translate('cron_run_other', $when_arr['hour'].':'.$when_arr['minute'], $when_arr['day'].' '.date('M', mktime(0, 0, 0, (int) $when_arr['month'], 1, 2000)).', '.$when_arr['year']);
-				break;
+			break;
 
 			case 'YR' :
 				$ret_val .= translate('cron_run_other', $when_arr['hour'].':'.$when_arr['minute'], $when_arr['day'].' '.date('M', mktime(0, 0, 0, (int) $when_arr['month'], 1, 2000)));
-				break;
+			break;
 
 			case 'MT' :
 				$ret_val .= translate('cron_run_month' ,$when_arr['hour'].':'.$when_arr['minute'], date('jS', mktime(0, 0, 0, 1, (int) $when_arr['day'], 2000)));
-				break;
+			break;
 
 			case 'WK' :
 				$ret_val .= translate('cron_run_other', $when_arr['hour'].':'.$when_arr['minute'], Cron_Job::whenWeekDayName($when_arr['day']).'\'s');
-				break;
+			break;
 
 			case 'DL' :
 				$ret_val .= $when_arr['hour'].':'.$when_arr['minute'];
-				break;
+			break;
 
 			case 'HR' :
 				$ret_val .= translate('cron_run_hourly', $when_arr['minute']);
-				break;
+			break;
 
 			case 'ET' :
 				$ret_val = translate('cron_run_always');
-				break;
+			break;
 
 		}//end switch
 
@@ -785,7 +785,7 @@ class Cron_Job extends Asset
 						$add['minutes'] += $when['minute'] - $start['minutes'];
 					}
 
-				break;
+			break;
 
 			// Daily
 			case 'DL' :
@@ -798,7 +798,7 @@ class Cron_Job extends Asset
 
 					$add['minutes'] += $when['minute'] - $start['minutes'];
 
-				break;
+			break;
 
 			// Weekly
 			case 'WK' :
@@ -812,7 +812,7 @@ class Cron_Job extends Asset
 					$add['hours']   += $when['hour']   - $start['hours'];
 					$add['minutes'] += $when['minute'] - $start['minutes'];
 
-				break;
+			break;
 
 			// Monthly
 			case 'MT' :
@@ -827,7 +827,7 @@ class Cron_Job extends Asset
 					$add['hours']   += $when['hour']   - $start['hours'];
 					$add['minutes'] += $when['minute'] - $start['minutes'];
 
-				break;
+			break;
 
 			// Yearly
 			case 'YR' :
@@ -860,7 +860,7 @@ class Cron_Job extends Asset
 					$add['minutes'] += $when['minute'] - $start['minutes'];
 
 
-				break;
+			break;
 
 		}//end switch
 
