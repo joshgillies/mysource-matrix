@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_edit_fns.inc,v 1.19 2005/07/11 02:24:57 dmckee Exp $
+* $Id: content_type_wysiwyg_edit_fns.inc,v 1.20 2005/07/11 02:25:32 dmckee Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -147,10 +147,6 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 			if ($iap || in_array('html_tidy', $ap)) $wysiwyg->add_plugin('html_tidy');
 
 			if ($iap || in_array('matrix_expand_keywords', $ap)) $wysiwyg->add_plugin('matrix_expand_keywords');
-
-			$wysiwyg->open_group();
-				if ($iap || in_array('special_chars', $ap))  $wysiwyg->add_plugin('special_chars');
-			$wysiwyg->close_group();
 
 			// contents must be set AFTER all plugins are loaded
 			$wysiwyg->set_contents($html);
