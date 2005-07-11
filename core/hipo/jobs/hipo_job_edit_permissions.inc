@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_permissions.inc,v 1.52 2005/06/02 04:41:25 ndvries Exp $
+* $Id: hipo_job_edit_permissions.inc,v 1.53 2005/07/11 04:40:20 pgannavarapu Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.52 $
+* @version $Revision: 1.53 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -214,9 +214,19 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 	function freestyle()
 	{
 		while (!empty($this->_running_vars['todo_assetids'])) {
-			if (!$this->processPermissions($this->_steps[0], get_class($this))) {
+			$id = key($this->_running_vars['todo_assetids']);
+			$result = $GLOBALS['SQ_SYSTEM']->am->acquireLock($id,'permissions');
+			if ($result) {
+				if (!$this->processPermissions($this->_steps[1], get_class($this))) {
+					return false;
+				}
+				if ($result == 1) {
+					$result = $GLOBALS['SQ_SYSTEM']->am->releaseLock($id, 'permissions');
+				}
+			} else {
 				return false;
 			}
+			//$count++;
 		}
 		return true;
 
@@ -261,7 +271,6 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 
 		$this->_running_vars['todo_assetids'] = $child_assets;
 		$this->_running_vars['done_assetids'] = Array();
-
 		return parent::prepare();
 
 	}//end prepare()
@@ -304,7 +313,6 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 						} else {
 							$user_name = 'General Public';
 						}
-
 						if ($set_data['previous_access'] === null) {
 							// to edit this permission, there must not currently be a permission set
 							// at all - either grant OR deny - for this user
