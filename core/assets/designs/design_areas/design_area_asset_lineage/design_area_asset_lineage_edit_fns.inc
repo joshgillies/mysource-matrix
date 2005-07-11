@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_asset_lineage_edit_fns.inc,v 1.12 2004/12/06 14:38:08 brobertson Exp $
+* $Id: design_area_asset_lineage_edit_fns.inc,v 1.12.2.1 2005/07/11 04:32:10 dheppell Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.12.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -70,7 +70,9 @@ class Design_Area_Asset_Lineage_Edit_Fns extends Design_Area_Edit_Fns
 	*/
 	function _processContents(&$asset, &$contents)
 	{
-		if (!$this->_setVariables($asset, $contents)) return false;
+		if (!$this->_setVariables($asset, $contents)) {
+			return false;
+		}
 
 		$asset_index	= -1;
 		$divider_index	= -1;
@@ -94,24 +96,25 @@ class Design_Area_Asset_Lineage_Edit_Fns extends Design_Area_Edit_Fns
 		// OK, so we have some asset contents, so extract it
 		if ($asset_index >= 0) {
 
-			// if there is no contents, then see if there is a default
-			if (empty($contents[$asset_index]['contents'])) {
-				$contents[$asset_index]['contents'] = $this->_getDefaultContents($asset, 'asset');
-			}
-
 			if (!$asset->setAttrValue('asset_contents', $contents[$asset_index]['contents'])) {
 				return false;
 			}
 
 			// Now what we do is morph it so that this element doesn't contain all the un-necessary contents stuff
 			$contents[$asset_index] = Array(
-											'_type' => 'TAG',
-											'attributes'  => Array (),
-											'operation' => 'asset',
-											'self_terminating' => 1
-										);
+										'_type'				=> 'TAG',
+										'attributes'		=> Array (),
+										'operation'			=> 'asset',
+										'self_terminating'	=> 1,
+									  );
 
-		}//end if
+		} else {
+			//we dont have a tag, so lets use the default value instead
+			if (empty($contents[$asset_index]['contents'])) {
+				$contents[$asset_index]['contents'] = $this->_getDefaultContents($asset, 'asset');
+			}
+
+		}
 
 		// OK, so we have some divider contents, so extract it
 		if ($divider_index >= 0) {
@@ -178,7 +181,10 @@ class Design_Area_Asset_Lineage_Edit_Fns extends Design_Area_Edit_Fns
 
 				if ($divider_contents = $asset->attr('divider_contents')) {
 					ob_start();
-					if (!$this->_outputContents($divider_contents, $asset, $design)) return false;
+					if (!$this->_outputContents($divider_contents, $asset, $design)) {
+						return false;
+					}
+
 					$divider = ob_get_contents();
 					ob_end_clean();
 				} else {
@@ -203,7 +209,10 @@ class Design_Area_Asset_Lineage_Edit_Fns extends Design_Area_Edit_Fns
 
 				if ($asset_contents = $asset->attr('asset_contents')) {
 					echo '?','>';
-					if (!$this->_outputContents($asset_contents, $asset, $design)) return false;
+					if (!$this->_outputContents($asset_contents, $asset, $design)) {
+						return false;
+					}
+
 					echo '<','?php ';
 				}
 
