@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_permissions.inc,v 1.32.2.2 2005/05/20 06:43:32 tbarrett Exp $
+* $Id: hipo_job_edit_permissions.inc,v 1.32.2.3 2005/07/11 04:47:52 pgannavarapu Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -197,7 +197,19 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 	function freestyle()
 	{
 		while (!empty($this->_running_vars['todo_assetids'])) {
-			if (!$this->processPermissions($this->_steps[0], get_class($this))) return false;
+			$id = key($this->_running_vars['todo_assetids']);
+			$result = $GLOBALS['SQ_SYSTEM']->am->acquireLock($id,'permissions');
+			if ($result) {
+				if (!$this->processPermissions($this->_steps[1], get_class($this))) {
+					return false;
+				}
+				if ($result == 1) {
+					$result = $GLOBALS['SQ_SYSTEM']->am->releaseLock($id, 'permissions');
+				}
+			} else {
+				return false;
+			}
+			//$count++;
 		}
 		return true;
 
