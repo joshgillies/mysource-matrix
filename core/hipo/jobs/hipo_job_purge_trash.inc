@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_purge_trash.inc,v 1.32 2005/07/08 13:57:12 gnoel Exp $
+* $Id: hipo_job_purge_trash.inc,v 1.33 2005/07/11 03:45:42 gsherwood Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -48,7 +48,9 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 	*/
 	function HIPO_Job_Purge_Trash($code_name='')
 	{
-		$this->uses_trans = false;			// we'll do our own transactions thanks
+		// we'll do our own transactions thanks
+		$this->uses_trans = false;
+
 		$this->HIPO_Job($code_name);
 
 	}//end constructor
@@ -150,9 +152,10 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 
 
 	/**
-	* Returns the current Threshold.
+	* Returns the current threshold
 	*
-	* Returns a value that represents the total percentage that this hipo would run in freestyle mode in its current state.
+	* Returns a value that represents the total percentage that this hipo
+	* would run in freestyle mode in its current state
 	*
 	* @return float
 	* @access public
@@ -182,6 +185,12 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 			}
 		}
 
+		while (!empty($this->_running_vars['to_delete_links'])) {
+			if (!$this->purgeAssetFromTrash($this->_steps[1], $this->getCodeName())) {
+				return false;
+			}
+		}
+
 		return true;
 
 	}//end freestyle()
@@ -198,7 +207,6 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 		$trash = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
 
 		$children = $GLOBALS['SQ_SYSTEM']->am->getAllChildLinks($trash->id);
-		//$children = array_reverse($children);
 
 		// work out the treeid of the trash asset for use later
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
@@ -214,11 +222,12 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 		$treeid = $db->getOne($sql);
 		if (!assert_valid_db_result($treeid)) return false;
 
-		$this->_running_vars['todo_links']     = $children;
-		$this->_running_vars['done_links']     = Array();
-		$this->_running_vars['trash_treeid']   = $treeid;    // the treeid of the trash folder
-		$this->_running_vars['trash_id']       = $trash->id; // the asset id of the trash folder
+		$this->_running_vars['todo_links']      = $children;
+		$this->_running_vars['done_links']      = Array();
+		$this->_running_vars['trash_treeid']    = $treeid;    // the treeid of the trash folder
+		$this->_running_vars['trash_id']        = $trash->id; // the asset id of the trash folder
 		$this->_running_vars['to_delete_links'] = Array();
+
 		return parent::prepare();
 
 	}//end prepare()
@@ -230,8 +239,8 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 	* If asset has external links then it deletes the link between the asset and trash and if
 	* no then it pushes the link information into running_vars['to_delete_links']
 	*
-	* @param array()	&$step_data	a reference to the array of information about the current step
-	* @param string		$prefix		prefix for form vars
+	* @param array	&$step_data	a reference to the array of information about the current step
+	* @param string	$prefix		prefix for form vars
 	*
 	* @return boolean
 	* @access public
@@ -272,7 +281,7 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 								unset($this->_running_vars['todo_links'][$link_key]);
 							}
 						}
-					}// end foreach checking children
+					}
 
 					// deleting the link between the asset and trash as it has an external link
 					$result = $GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($link_info['linkid']);
@@ -283,8 +292,10 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 				}// end of cheecking $delete_link
 
 			}// end of else where linkid is not null
+
 			// we have finished checking the current link.. so pushing this link_info into the done_links array
 			$this->_running_vars['done_links'][] = $link_info;
+
 		}// end of if where _running_vars['todo_links'] is checked empty or not
 
 		if (empty($this->_running_vars['todo_links'])) {
@@ -296,8 +307,10 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 			$step_data['percent_done'] =(count($this->_running_vars['done_links']) / $total) * 100;
 			$step_data['complete']     = false;
 		}
+
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
+
 	}//end removeExternallyLinkedAssetFromTrash()
 
 
@@ -312,6 +325,7 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 	*/
 	function purgeAssetFromTrash(&$step_data, $prefix)
 	{
+		$GLOBALS['SQ_PURGING_TRASH'] = true;
 
 		// let everyone know we are purging the trash
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -357,9 +371,10 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 			$step_data['complete']     = true;
 		} else {
 			$total = count($this->_running_vars['to_delete_links']) + count($this->_running_vars['done_links']);
-			$step_data['percent_done'] =(count($this->_running_vars['done_links']) / $total) * 100;
+			$step_data['percent_done'] = (count($this->_running_vars['done_links']) / $total) * 100;
 			$step_data['complete']     = false;
 		}
+
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
 
