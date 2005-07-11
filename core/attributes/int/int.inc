@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: int.inc,v 1.28 2005/05/16 06:36:31 lwright Exp $
+* $Id: int.inc,v 1.29 2005/07/11 23:17:11 tbarrett Exp $
 *
 */
 
@@ -37,7 +37,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *    <int width="10" />
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -55,7 +55,12 @@ class Asset_Attribute_Int extends Asset_Attribute
 	function Asset_Attribute_Int($attributeid=0, $value=null)
 	{
 		$this->Asset_Attribute($attributeid, (int) $value);
-		if (!isset($this->_params['allow_negative'])) $this->_params['allow_negative'] = true;
+		if (!isset($this->_params['allow_negative'])) {
+			$this->_params['allow_negative'] = true;
+		}
+		if (!isset($this->_params['allow_empty'])) {
+			$this->_params['allow_empty'] = false;
+		}
 
 	}//end constructor
 
@@ -165,6 +170,11 @@ class Asset_Attribute_Int extends Asset_Attribute
 		$value = trim($value);
 
 		$allow_negative = array_get_index($this->_params, 'allow_negative', true);
+		$allow_empty = array_get_index($this->_params, 'allow_empty', true);
+
+		if ($allow_empty && ($value === '')) {
+			return true;
+		}
 
 		if (!$allow_negative && $value < 0) {
 			$value = $this->_default_value;
