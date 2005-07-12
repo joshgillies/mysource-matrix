@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.162 2005/06/09 22:47:42 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.163 2005/07/12 07:00:37 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.162 $
+* @version $Revision: 1.163 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -833,19 +833,17 @@ class Page_Calendar extends Page_Asset_Listing
 		} else {
 			$column_names = Array();
 			$column_links = Array();
-			if (array_values($this->attr('columnise_day_view_by_root_node')) != Array('*')) {
+			$column_ids = $this->attr('columnise_day_view_by_root_node');
+			if (array_values($column_ids) != Array('*')) {
 				$root_nodes = array_keys($this->attr('root_nodes'));
-				$columns_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($this->attr('columnise_day_view_by_root_node'));
-				foreach (array_keys($columns_info) as $k) {
-					if (!in_array($k, $root_nodes)) {
-						unset($columns_info[$k]);
+				$column_names_raw = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($column_ids, Array(), true, 'name');
+				foreach ($column_ids as $column_id) {
+					if (in_array($column_id, $root_nodes)) {
+						$column_names[$column_id] = $column_names_raw[$column_id];
 					}
 				}
 
-				foreach ($columns_info as $id => $info) {
-					$column_names[$id] = $info['name'];
-				}
-				if (in_array('*', $this->attr('columnise_day_view_by_root_node'))) {
+				if (in_array('*', $column_ids)) {
 					$column_names['*'] = ($this->attr('other_column_name') == '') ? translate('other') : $this->attr('other_column_name');
 				}
 				$events = $this->getDayEventsByRootNodeAndTime($date);
