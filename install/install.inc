@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.inc,v 1.52 2005/06/24 06:11:42 lwright Exp $
+* $Id: install.inc,v 1.53 2005/07/12 03:26:14 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * Purpose
 * Functions used to install and upgrade the system
 *
-* @version $Revision: 1.52 $
+* @version $Revision: 1.53 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -44,34 +44,34 @@ function regenerate_configs()
 {
 	// Re-generate the System Config to make sure that we get any new defines that may have been issued
 	require_once SQ_INCLUDE_PATH.'/system_config.inc';
-	$cfg = new System_Config();
+	$cfg =& new System_Config();
 	if (!$cfg->save(Array(), false)) return false;
 
 	// Re-generate the External Tools Config to make sure that we get any new defines that may have been issued
 	require_once SQ_INCLUDE_PATH.'/external_tools_config.inc';
-	$cfg = new External_Tools_Config();
+	$cfg =& new External_Tools_Config();
 	if (!$cfg->save(Array(), false)) return false;
 
 	// Re-generate the Server Config to make sure that we get any new defines that may have been issued
 	require_once SQ_SYSTEM_ROOT.'/core/server/squiz_server_config.inc';
-	$squiz_server_cfg = new Squiz_Server_Config();
+	$squiz_server_cfg =& new Squiz_Server_Config();
 	if (!$squiz_server_cfg->save(Array(), false)) {
 		return false;
 	}
 
 	// Re-generate the HIPO Config to make sure that we get any new defines that may have been issued
 	require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_config.inc';
-	$hipo_cfg = new HIPO_Config();
+	$hipo_cfg =& new HIPO_Config();
 	if (!$hipo_cfg->save(Array(), false)) return false;
 
 	// Re-generate the Messaging Service Config to make sure that we get any new defines that may have been issued
 	require_once SQ_SYSTEM_ROOT.'/core/include/messaging_service_config.inc';
-	$ms_cfg = new Messaging_Service_Config();
+	$ms_cfg =& new Messaging_Service_Config();
 	if (!$ms_cfg->save(Array(), false)) return false;
 
 	// Re-generate the Password Rules Config to make sure that we get any new defines that may have been issued
 	require_once SQ_SYSTEM_ROOT.'/core/include/password_rules_config.inc';
-	$ms_cfg = new Password_Rules_Config();
+	$ms_cfg =& new Password_Rules_Config();
 	if (!$ms_cfg->save(Array(), false)) return false;
 
 	return true;
@@ -109,7 +109,7 @@ function uninstall_asset_types()
 			// core package is something else
 			if ($package == '__core__') {
 				require_once SQ_CORE_PACKAGE_PATH.'/package_manager_core.inc';
-				$pm = new Package_Manager_Core();
+				$pm =& new Package_Manager_Core();
 				$package_asset_types = array_merge($package_asset_types, array_keys($pm->assets));
 			} else {
 				// only process a package if the PM file exists for it, because we need it
@@ -117,7 +117,7 @@ function uninstall_asset_types()
 				if (file_exists($package_path)) {
 					require_once $package_path;
 					$class = 'package_manager_'.$package;
-					$pm = new $class();
+					$pm =& new $class();
 					$package_asset_types = array_merge($package_asset_types, array_keys($pm->assets));
 				}
 			}
@@ -286,7 +286,7 @@ function install_core($package_list=Array())
 		}
 	}
 	require_once SQ_CORE_PACKAGE_PATH.'/package_manager_core.inc';
-	$pm = new Package_Manager_Core();
+	$pm =& new Package_Manager_Core();
 	$result = $pm->updatePackageDetails($assets);
 
 	$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
@@ -411,7 +411,7 @@ function install_package($package, $package_assets=Array())
 	require_once SQ_PACKAGES_PATH.'/'.$package.'/package_manager_'.$package.'.inc';
 	require_once SQ_LIB_PATH.'/db_install/db_install.inc';
 	$class = 'package_manager_'.$package;
-	$pm = new $class();
+	$pm =& new $class();
 	$result = $pm->updatePackageDetails($package_assets);
 
 	$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
@@ -504,7 +504,7 @@ function install_authentication_types()
 			continue;
 		}
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
-		$auth = new $type_code();
+		$auth =& new $type_code();
 
 		if (!$auth->create($folder_link)) {
 			trigger_error('AUTHENTICATION TYPE "'.strtoupper($type_code).'" NOT CREATED', E_USER_WARNING);
@@ -551,7 +551,7 @@ function generate_global_preferences()
 			$class = 'package_manager_'.$package['code_name'];
 		}
 
-		$pm = new $class();
+		$pm =& new $class();
 		$pm->installUserPreferences($preferences);
 		unset($pm);
 	}
@@ -748,7 +748,7 @@ function build_localised_screen($asset_type, $screen, $locale)
 	$ei_file = find_edit_interface_file($asset_type, $screen);
 
 	// get the XML for the edit interface file
-	$ei_input = new XML_Tree($ei_file);
+	$ei_input =& new XML_Tree($ei_file);
 	$to_cache  = &$ei_input->getTreeFromFile();
 	if (PEAR::isError($to_cache)) {
 		trigger_error('Unable to Read File : '.$ei_file."\n".$to_cache->getMessage()."\n".$to_cache->getUserInfo(), E_USER_WARNING);
@@ -764,7 +764,7 @@ function build_localised_screen($asset_type, $screen, $locale)
 	foreach ($lang_files as $lang_file) {
 
 		// get the XML for the edit interface file
-		$lang_input = new XML_Tree($lang_file);
+		$lang_input =& new XML_Tree($lang_file);
 		$lang_root  = &$lang_input->getTreeFromFile();
 		if (PEAR::isError($lang_root)) {
 			trigger_error('Unable to Read File : '.$lang_file."\n".$lang_root->getMessage()."\n".$lang_root->getUserInfo(), E_USER_WARNING);
@@ -943,7 +943,7 @@ function build_localised_static_screen($asset_type, $screen, $locale)
 
 	$ei_file = find_edit_interface_file($asset_type, $screen);
 	// get the XML for the edit interface file
-	$ei_input = new XML_Tree($ei_file);
+	$ei_input =& new XML_Tree($ei_file);
 	$to_cache  = &$ei_input->getTreeFromFile();
 	if (PEAR::isError($to_cache)) {
 		trigger_error('Unable to Read File : '.$ei_file."\n".$to_cache->getMessage()."\n".$to_cache->getUserInfo(), E_USER_WARNING);
@@ -963,7 +963,7 @@ function build_localised_static_screen($asset_type, $screen, $locale)
 	foreach ($lang_files as $lang_file) {
 
 		// get the XML for the edit interface file
-		$lang_input = new XML_Tree($lang_file);
+		$lang_input =& new XML_Tree($lang_file);
 		$lang_root  = &$lang_input->getTreeFromFile();
 		if (PEAR::isError($lang_root)) {
 			trigger_error('Unable to Read File : '.$lang_file."\n".$lang_root->getMessage()."\n".$lang_root->getUserInfo(), E_USER_WARNING);
@@ -1396,7 +1396,7 @@ function &extract_child_nodes_from_xml($file, $root_element, $child_element, $ke
 {
 	$extracted_strings = Array();
 
-	$input = new XML_Tree($file);
+	$input =& new XML_Tree($file);
 	$root  = &$input->getTreeFromFile();
 	if (PEAR::isError($root)) {
 		trigger_error('Unable to Read File : '.$file."\n".$root->getMessage()."\n".$root->getUserInfo(), E_USER_WARNING);
@@ -1577,63 +1577,4 @@ function extract_internal_messages($file)
 }//end extract_internal_messages()
 
 
-/**
-* Run during Step 2 to determine the sort order of the treeid characters and
-* cache them
-*
-* This is meant to fix problems that used to occur when the characters were in
-* ASCII order - the number of possible collating orders makes this unreliable
-* when the collating order is anything other than 'C' or 'POSIX' (in PostgreSQL).
-*.
-* As the collating order of a system cannot be changed once the DB is initialised
-* (in PostgreSQL anyway), this should not change unless a system gets transplanted
-* to another (DB) server, in which case Step 2 should be run again.
-*
-* @return void
-* @access public
-*/
-function cache_treeid_collating_order()
-{
-	// the characters we are going to use - they do not necessarily have to
-	// be in ASCII order or keyed at this point
-	$digits = Array(
-				'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-				'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J',
-				'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
-				'U', 'V', 'W', 'X', 'Y', 'Z', '=', 'a', 'b', 'c',
-				'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
-				'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w',
-				'x', 'y', 'z', '~',
-			  );
-
-	// start a transaction because we will inevitably throw all this away
-	$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
-	// add the characters into a single-column temporary table
-	$db =& $GLOBALS['SQ_SYSTEM']->db;
-	$sql = 'CREATE TABLE sq_tmp_collating_order (ch char(1));';
-	$db->query($sql);
-
-	foreach($digits as $digit) {
-		$sql = 'INSERT INTO sq_tmp_collating_order (ch) VALUES ('.$db->quoteSmart($digit).');';
-		$db->query($sql);
-	}
-
-	// now read back the table in sorted order
-	$sql = 'SELECT ch FROM sq_tmp_collating_order ORDER BY ch ASC;';
-	$sorted_digits = $db->getCol($sql);
-
-	$sql = 'DROP TABLE sq_tmp_collating_order;';
-
-	// we're done, rollback just to be sure
-	$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-
-	// now cache it away
-	$str = '<'."?php\n".'$digits = '.var_export($sorted_digits,true).'; ?'.">\n";
-
-	string_to_file($str, SQ_DATA_PATH.'/private/db/treeid_order.inc');
-
-	bam('LINK TREE CHARACTER ORDER CACHED');
-
-}//end cache_treeid_collating_order()
 ?>

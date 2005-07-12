@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_02.php,v 1.56 2005/06/24 06:11:42 lwright Exp $
+* $Id: step_02.php,v 1.57 2005/07/12 03:26:14 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.56 $
+* @version $Revision: 1.57 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -39,11 +39,17 @@ error_reporting(E_ALL);
 $SYSTEM_ROOT = '';
 
 if ((php_sapi_name() == 'cli')) {
-	if (isset($_SERVER['argv'][1])) $SYSTEM_ROOT = $_SERVER['argv'][1];
+	if (isset($_SERVER['argv'][1])) {
+		$SYSTEM_ROOT = $_SERVER['argv'][1];
+	}
+
 	$err_msg = "You need to supply the path to the System Root as the first argument\n";
 
 } else {
-	if (isset($_GET['SYSTEM_ROOT'])) $SYSTEM_ROOT = $_GET['SYSTEM_ROOT'];
+	if (isset($_GET['SYSTEM_ROOT'])) {
+		$SYSTEM_ROOT = $_GET['SYSTEM_ROOT'];
+	}
+
 	$err_msg = '
 	<div style="background-color: red; color: white; font-weight: bold;">
 		You need to supply the path to the System Root as a query string variable called SYSTEM_ROOT
@@ -70,7 +76,7 @@ $db = &$GLOBALS['SQ_SYSTEM']->db;
 
 // Re-generate the Config to make sure that we get any new defines that may have been issued
 
-$cfg = new System_Config();
+$cfg =& new System_Config();
 $cfg->save(Array(), false);
 
 $cached_table_columns = Array();
@@ -109,6 +115,4 @@ if (!File_Versioning::initRepository($db)) {
 $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 $GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
-// load up and cache the collating order
-cache_treeid_collating_order();
 ?>
