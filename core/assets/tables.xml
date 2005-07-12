@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.22 2005/06/02 06:06:11 lwright Exp $
+* $Id: tables.xml,v 1.23 2005/07/12 03:30:54 lwright Exp $
 *
 */
 -->
@@ -277,7 +277,9 @@
 			<columns>
 				<column name="treeid" allow_null="0">
 					<type>VARCHAR(2000)</type>
-					<type_variations />
+					<type_variations>
+						<pgsql>BYTEA</pgsql>
+					</type_variations>
 					<default>''</default>
 					<description />
 				</column>
