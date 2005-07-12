@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.163 2005/07/12 07:00:37 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.164 2005/07/12 07:05:49 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.163 $
+* @version $Revision: 1.164 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -930,6 +930,7 @@ class Page_Calendar extends Page_Asset_Listing
 		}
 		$o->addHiddenField('SQ_CALENDAR_VIEW', 'edit');
 		$o->addHiddenField('SQ_CALENDAR_EVENT_ID', $event_id);
+		$o->addHiddenField('SQ_CALENDAR_DATE', array_get_index($_REQUEST, 'SQ_CALENDAR_DATE'));
 		$o->addHiddenField('asset_action', 'limbo');
 		$o->addJsInclude(sq_web_path('lib').'/html_form/html_form.js');
 		$o->openRaw();
