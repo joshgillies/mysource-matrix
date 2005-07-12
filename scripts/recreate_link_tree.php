@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: recreate_link_tree.php,v 1.12 2005/07/05 06:11:21 lwright Exp $
+* $Id: recreate_link_tree.php,v 1.13 2005/07/12 03:36:11 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix
 */
 
@@ -39,6 +39,15 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 
 $db = &$GLOBALS['SQ_SYSTEM']->db;
 
+
+/**
+* Re-creates the link tree table starting from th
+*
+* @param string	$majorid	the ID of the asset you wish to re-create the tree from
+*
+* @return void
+* @access public
+*/
 function recurse_tree_create($majorid)
 {
 	$db =& $GLOBALS['SQ_SYSTEM']->db;
@@ -61,7 +70,7 @@ function recurse_tree_create($majorid)
 
 	// reorder them so that it's indexed by their prospective treeid
 	$child_index = 0;
-	foreach($top_links as $link) {
+	foreach ($top_links as $link) {
 		$treeid = asset_link_treeid_convert($child_index,true);
 		if ($link['linkid'] != 0) {
 			$links[$treeid] = $link;
@@ -70,12 +79,12 @@ function recurse_tree_create($majorid)
 	}
 
 	// now search for child links and give them treeids
-	for(reset($links); null !== ($k = key($links)); next($links)) {
+	for (reset($links); null !== ($k = key($links)); next($links)) {
 		$link =& $links[$k];
 
 		$child_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($link['minorid'], SQ_SC_LINK_SIGNIFICANT);
 		$child_index = 0;
-		foreach($child_links as $child_link) {
+		foreach ($child_links as $child_link) {
 			$treeid = $k.asset_link_treeid_convert($child_index,true);
 			if ($child_link['linkid'] != 0) {
 				$links[$treeid] = $child_link;
@@ -109,7 +118,7 @@ function recurse_tree_create($majorid)
 		//echo 'Added treeid - for linkid 1'."\n";
 	}
 
-	foreach($links as $treeid => $this_link) {
+	foreach ($links as $treeid => $this_link) {
 		// remove any 'zero linkid' entries
 		$sql = 'DELETE FROM
 					sq_ast_lnk_tree
@@ -142,6 +151,7 @@ function recurse_tree_create($majorid)
 	bam((count($links)+($majorid == 1 ? 1 : 0)).' TREE ENTRIES CREATED');
 
 }//end recurse_tree_create()
+
 
 bam('TRUNCATING TREE...');
 
