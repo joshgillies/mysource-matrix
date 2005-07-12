@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.336 2005/07/11 04:08:50 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.337 2005/07/12 03:20:16 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.336 $
+* @version $Revision: 1.337 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3181,9 +3181,10 @@ class Asset_Manager extends MySource_Object
 			assert_valid_db_result($free_childid);
 
 			if ((string) $free_childid == '') {
-				// no free children, generate one from the max value
-
-				$sql   = 'SELECT MAX(ct.treeid) FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree ct ';
+				// no free children, generate one from the max value (note that
+				// we have to do this by a LIMIT query as the binary string fields
+				// do not allow the MAX() aggregate to be run over it)
+				$sql   = 'SELECT ct.treeid FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree ct ';
 
 				// if we are not the root folder, the we need to get the correct treeid length
 				if ($existing_treeid != '-') {
@@ -3194,8 +3195,9 @@ class Asset_Manager extends MySource_Object
 					$where = 'LENGTH(ct.treeid) = '.(SQ_CONF_ASSET_TREE_SIZE);
 				}
 				$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ct');
+				$order = ' ORDER BY treeid DESC';
 
-				$free_childid = $db->getOne($sql.$where);
+				$free_childid = $db->getOne($db->modifyLimitQuery($sql.$where.$order, 0, 1));
 				assert_valid_db_result($free_childid);
 
 				if ((string) $free_childid == '') {
