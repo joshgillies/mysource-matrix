@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: word_doc.inc,v 1.14 2005/05/04 04:00:40 arailean Exp $
+* $Id: word_doc.inc,v 1.15 2005/07/13 03:33:55 mmcintyre Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -86,28 +86,15 @@ class Word_Doc extends File
 
 
 	/**
-	* Retrieves a list of key data from this asset (used by the indexing service).
-	* Subclasses override this to give the content they want to make searchable.
+	* Returns the raw content of this word document
 	*
-	* @return array				an array of all the keydata for this asset. Keydata is of the form
-	* <pre>
-	* Array (
-	*	Array (
-	*		'value'     => ...,
-	*		'type'      => ..., (text, date, number, etc.)
-	*		'component' => ..., (whatever you want, just as long as this asset
-	*							 knows how to deal with it if it needs to)
-	*		), ...
-	* )
-	* </pre>
+	* @return string
 	* @access public
 	*/
-	function getKeyData()
+	function getContent()
 	{
-		$keydata = parent::getKeyData();
-
 		$file_info = $this->getExistingFile();
-		if (empty($file_info)) return $keydata;
+		if (empty($file_info)) return '';
 		$file = $file_info['path'];
 		$file = ereg_replace('\"', '\\\"', $file);
 
@@ -115,24 +102,17 @@ class Word_Doc extends File
 		if (SQ_TOOL_ANTIWORD_ENABLED) {
 			// Run a program that converts Word doc to text, set environment variable of bin_path
 			$cmd = 'ANTIWORDHOME='.SQ_TOOL_ANTIWORD_MAPPING_PATH.' '.SQ_TOOL_ANTIWORD_PATH.' '.$file;
-			$output = shell_exec($cmd);
+			$content = shell_exec($cmd);
 		}
 
-		if (!$output) return $keydata;
+		if (!$content) return '';
 
 		// strip out the whitespace
-		$output = strtolower(trim(preg_replace('/[\s]+/', ' ', $output)));
+		$content = strtolower(trim(preg_replace('/[\s]+/', ' ', $content)));
 
-		// index attributes
-		$weightings = $this->getWeightings();
+		return $content;
 
-		foreach (get_word_counts($output) as $word => $count) {
-			$this->buildKeyData($keydata, $word, 'text', 'attr:'.$this->type().':contents', $count * $weightings['contents']['weight']);
-		}
-
-		return $keydata;
-
-	}//end getKeyData()
+	}//end getContent()
 
 
 }//end class
