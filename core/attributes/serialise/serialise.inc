@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: serialise.inc,v 1.9 2004/12/06 14:38:11 brobertson Exp $
+* $Id: serialise.inc,v 1.10 2005/07/13 01:51:19 mmcintyre Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -68,13 +68,29 @@ class Asset_Attribute_Serialise extends Asset_Attribute
 		if (is_scalar($value)) {
 			// see if it is already serilised
 			$unser = @unserialize(trim((string) $value));
-			if (is_scalar($unser)) return false;
-			else $value = $unser;
+			if (is_scalar($unser)) {
+				return false;
+			} else {
+				$value = $unser;
+			}
 		}
 		$value = serialize($value);
 		return true;
 
 	}//end validateValue()
+
+
+	/**
+	* Returns the content of the attribute
+	*
+	* @return string
+	* @access public
+	*/
+	function getContent()
+	{
+		return '';
+
+	}//end getContent()
 
 
 }//end class
