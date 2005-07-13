@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: table-editor.js,v 1.2.2.5 2005/07/03 23:31:00 dmckee Exp $
+* $Id: table-editor.js,v 1.2.2.6 2005/07/13 23:06:09 dmckee Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -452,7 +452,7 @@ TTable = function(name, rows, cols)
 
 	this.Export = function()
 	{
-		var out = '<table id="js_' + this.id + '" cellpadding="' + this.cellpadding + '" cellspacing="' + this.cellspacing + '"';
+		var out = '<table id="' + this.id + '" cellpadding="' + this.cellpadding + '" cellspacing="' + this.cellspacing + '"';
 		if (this.htmlborder != null) out += ' border=' + this.htmlborder;
 		out += ' style="width:' + this.width + ';' + this.style + ';';
 		if (this.borderColor != null) out += 'border-color:' + this.borderColor + ';';
