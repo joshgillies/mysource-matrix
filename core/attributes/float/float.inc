@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: float.inc,v 1.21 2005/06/09 00:56:07 tbarrett Exp $
+* $Id: float.inc,v 1.22 2005/07/13 01:43:41 mmcintyre Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *    <float width="40" />
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -143,23 +143,6 @@ class Asset_Attribute_Float extends Asset_Attribute
 		return true;
 
 	}//end validateValue()
-
-
-	/**
-	* Retrieve a list of indexable values from this attribute
-	*
-	* The return value not only contains the indexable values, but also the number of
-	* times they occur in this attributes value
-	*
-	* @return array(string => int)
-	* @access public
-	*/
-	function getKeyData()
-	{
-		if (empty($this->value)) return Array();
-		return Array($this->value => 1);
-
-	}//end getKeyData()
 
 
 }//end class

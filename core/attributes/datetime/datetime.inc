@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime.inc,v 1.27 2005/05/16 06:36:31 lwright Exp $
+* $Id: datetime.inc,v 1.28 2005/07/13 01:41:40 mmcintyre Exp $
 *
 */
 
@@ -46,7 +46,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *    </datetime>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -90,10 +90,18 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 	{
 		if (!parent::setEditParams($node)) return false;
 
-		if (!empty($node->attributes['min'])) $this->_edit_params['min'] = $node->attributes['min'];
-		if (!empty($node->attributes['max'])) $this->_edit_params['max'] = $node->attributes['max'];
-		if (!empty($node->attributes['allow_circa'])) $this->_edit_params['allow_circa'] = $node->attributes['allow_circa'];
-		if (!empty($node->attributes['print_format'])) $this->_edit_params['print_format'] = $node->attributes['print_format'];
+		if (!empty($node->attributes['min'])) {
+			$this->_edit_params['min'] = $node->attributes['min'];
+		}
+		if (!empty($node->attributes['max'])) {
+			$this->_edit_params['max'] = $node->attributes['max'];
+		}
+		if (!empty($node->attributes['allow_circa'])) {
+			$this->_edit_params['allow_circa'] = $node->attributes['allow_circa'];
+		}
+		if (!empty($node->attributes['print_format'])) {
+			$this->_edit_params['print_format'] = $node->attributes['print_format'];
+		}
 
 		// what to print and how to show it (textbox or select box)
 		// need to do some more intense looking around for these options :)
@@ -192,7 +200,7 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 		if (!empty($this->_params['print_format'])) {
 			$this->_edit_params['print_format'] = $this->_params['print_format'];
 		}
-		$field = new Datetime_Field($prefix, $date_field_value, $this->_edit_params);
+		$field =& new Datetime_Field($prefix, $date_field_value, $this->_edit_params);
 
 		if ($using_single_date) {
 			if ($read_only) {
@@ -227,7 +235,7 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 							// print the JS calendar popup date selecta
 							require_once SQ_LIB_PATH.'/js_calendar/js_calendar.inc';
 
-							$calendar = new JS_Calendar();
+							$calendar =& new JS_Calendar();
 							$calendar->changeSetting('onDayClick', 'datetime_set_date');
 							$calendar->paint($prefix, $prefix.'_cal_picker', true);
 						}
@@ -253,7 +261,7 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 				// print the JS calendar popup date selecta
 				require_once SQ_LIB_PATH.'/js_calendar/js_calendar.inc';
 
-				$calendar = new JS_Calendar();
+				$calendar =& new JS_Calendar();
 				$calendar->changeSetting('onDayClick', 'datetime_set_date');
 				$calendar->paint($prefix, '', true);
 			}
@@ -280,9 +288,11 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 
 		if ($setting_single_date) {
 			$field_value = $this->value;
-			if (!$using_single_date) $field_value = '---------- --:--:--';
+			if (!$using_single_date) {
+				$field_value = '---------- --:--:--';
+			}
 
-			$field = new Datetime_Field($prefix, $field_value, $this->_edit_params);
+			$field =& new Datetime_Field($prefix, $field_value, $this->_edit_params);
 			if ($field->processField()) {
 				if ($this->value != $field_value && $this->setValue($field_value)) {
 					$this->processed = true;
@@ -300,9 +310,12 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 			$period_options = $this->_getPeriodOptions();
 			$age_options = $this->_getAgeOptions();
 
-			if (!isset($period_options[$period_type])) $period_type = 'd';
-			if (!isset($age_options[$period_age])) $period_age = '-';
-
+			if (!isset($period_options[$period_type])) {
+				$period_type = 'd';
+			}
+			if (!isset($age_options[$period_age])) {
+				$period_age = '-';
+			}
 			$value = $period_age.$period_num.$period_type;
 			if ($this->value != $value && $this->setValue($value)) {
 				$this->processed = true;
@@ -338,16 +351,22 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 			$date_field_value = date('Y-m-d h:i:s', strtotime($period_age.$period_num.' '.$period_options[$period_type]));
 		}
 
-		$field = new Datetime_Field('blah', $date_field_value, $this->_edit_params);
+		$field =& new Datetime_Field('blah', $date_field_value, $this->_edit_params);
 		$units = $field->strToUnitsArray($date_field_value);
-		foreach (Array('y', 'm', 'd') as $u) if ($units[$u] == -1) return -1;
+		foreach (Array('y', 'm', 'd') as $u) {
+			if ($units[$u] == -1) return -1;
+		}
 
 		// now we know that we can formulate a date
 		$strtotime = $units['m'].'/'.$units['d'].'/'.$units['y'];
 
 		$dotime = true;
-		foreach (Array('h', 'i', 's') as $u) if ($units[$u] == -1) $dotime = false;
-		if ($dotime) $strtotime .= ' '.$units['h'].':'.$units['i'].':'.$units['s'];
+		foreach (Array('h', 'i', 's') as $u) {
+			if ($units[$u] == -1) $dotime = false;
+		}
+		if ($dotime) {
+			$strtotime .= ' '.$units['h'].':'.$units['i'].':'.$units['s'];
+		}
 
 		return strtotime($strtotime);
 
@@ -400,7 +419,7 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 
 		if (is_iso8601($value)) {
 			$ref = '';
-			$field = new Datetime_Field('blah', $ref, $this->_edit_params);
+			$field =& new Datetime_Field('blah', $ref, $this->_edit_params);
 			$value = $field->validateValue($value);
 		} else {
 			if (!preg_match('|[\-\+][0-9]+['.implode('', array_keys($this->_getPeriodOptions())).']|', $value)) {
@@ -413,22 +432,6 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 
 
 	/**
-	* Retrieve a list of indexable values from this attribute
-	*
-	* The return value not only contains the indexable values, but also the number of
-	* times they occur in this attributes value
-	*
-	* @return array(string => int)
-	* @access public
-	*/
-	function getKeyData()
-	{
-		return Array($this->value => 1);
-
-	}//end getKeyData()
-
-
-	/**
 	* Return valid period type options for the datetime field
 	*
 	* @return Array
@@ -437,12 +440,12 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 	function _getPeriodOptions()
 	{
 		return Array(
-					'i'	=> translate('minutes'),
-					'h'	=> translate('hours'),
-					'd'	=> translate('days'),
-					'w'	=> translate('weeks'),
-					'm'	=> translate('months'),
-					'y'	=> translate('years'),
+				'i'	=> translate('minutes'),
+				'h'	=> translate('hours'),
+				'd'	=> translate('days'),
+				'w'	=> translate('weeks'),
+				'm'	=> translate('months'),
+				'y'	=> translate('years'),
 			   );
 
 	}//end _getPeriodOptions()
@@ -457,8 +460,8 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 	function _getAgeOptions()
 	{
 		return Array(
-					'-' => 'in the past',
-					'+' => 'in the future',
+				'-'	=> 'in the past',
+				'+'	=> 'in the future',
 			   );
 
 	}//end _getAgeOptions()

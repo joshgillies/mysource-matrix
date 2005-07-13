@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_width.inc,v 1.8 2005/05/16 06:36:31 lwright Exp $
+* $Id: html_width.inc,v 1.9 2005/07/13 01:44:13 mmcintyre Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *    <html_width />
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -144,22 +144,6 @@ class Asset_Attribute_HTML_Width extends Asset_Attribute
 		}
 
 	}//end validateValue()
-
-
-	/**
-	* Retrieve a list of indexable values from this attribute
-	*
-	* The return value not only contains the indexable values, but also the number of
-	* times they occur in this attributes value
-	*
-	* @return array(string => int)
-	* @access public
-	*/
-	function getKeyData()
-	{
-		return Array($this->value => 1);
-
-	}//end getKeyData()
 
 
 }//end class

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: duration.inc,v 1.4 2005/05/26 02:57:41 dmckee Exp $
+* $Id: duration.inc,v 1.5 2005/07/13 01:42:45 mmcintyre Exp $
 *
 */
 
@@ -37,7 +37,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
 * @author	Tom Barrett			<tbarrett@squiz.net>
 *
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -242,23 +242,6 @@ class Asset_Attribute_Duration extends Asset_Attribute
 		return true;
 
 	}//end validateValue()
-
-
-	/**
-	* Retrieve a list of indexable values from this attribute
-	*
-	* The return value not only contains the indexable values, but also the number of
-	* times they occur in this attributes value
-	*
-	* @return array(string => int)
-	* @access public
-	*/
-	function getKeyData()
-	{
-		if (empty($this->value)) return Array();
-		return Array($this->value => 1);
-
-	}//end getKeyData()
 
 
 }//end class

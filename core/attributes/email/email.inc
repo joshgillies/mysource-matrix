@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: email.inc,v 1.20 2005/01/20 13:10:34 brobertson Exp $
+* $Id: email.inc,v 1.21 2005/07/13 01:43:14 mmcintyre Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 *    <email width="40" />
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -117,22 +117,6 @@ class Asset_Attribute_Email extends Asset_Attribute_Text
 		return true;
 
 	}//end validateValue()
-
-
-	/**
-	* Retrieve a list of indexable values from this attribute
-	*
-	* The return value not only contains the indexable values, but also the number of
-	* times they occur in this attributes value
-	*
-	* @return array(string => int)
-	* @access public
-	*/
-	function getKeyData()
-	{
-		return Array($this->value => 1);
-
-	}//end getKeyData()
 
 
 }//end class

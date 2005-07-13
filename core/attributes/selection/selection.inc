@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: selection.inc,v 1.44 2005/07/01 04:07:31 tbarrett Exp $
+* $Id: selection.inc,v 1.45 2005/07/13 01:47:50 mmcintyre Exp $
 *
 */
 
@@ -47,7 +47,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *   <selection style="boxes" columns="1" extras="" />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.45 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -68,10 +68,10 @@ class Asset_Attribute_Selection extends Asset_Attribute
 
 		// set default parameters
 		if (!isset($this->_params['options'])) {
-			$this->_params['options']     = Array();
+			$this->_params['options'] = Array();
 		}
 		if (!isset($this->_params['multiple'])) {
-			$this->_params['multiple']    = false;
+			$this->_params['multiple'] = false;
 		}
 		if (!isset($this->_params['allow_empty'])) {
 			$this->_params['allow_empty'] = true;
@@ -379,7 +379,7 @@ class Asset_Attribute_Selection extends Asset_Attribute
 							$extras = $this->_edit_params['extras'].' id="'.$id.'"';
 							?>
 							<td>&nbsp;
-								<?php 
+								<?php
 								check_box($prefix.'['.$i.']', $key, (is_array($value) && in_array($key, $value)), '', $extras);
 								label($val, $id);
 								?>
@@ -462,22 +462,6 @@ class Asset_Attribute_Selection extends Asset_Attribute
 		return true;
 
 	}//end validateValue()
-
-
-	/**
-	* Retrieve a list of indexable values from this attribute
-	*
-	* The return value not only contains the indexable values, but also the number of
-	* times they occur in this attributes value
-	*
-	* @return Array(string => int)
-	* @access public
-	*/
-	function getKeyData()
-	{
-		return get_word_counts(strtolower($this->value));
-
-	}//end getKeyData()
 
 
 	/**
