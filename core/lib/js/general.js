@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.js,v 1.13 2005/05/16 06:36:32 lwright Exp $
+* $Id: general.js,v 1.13.2.1 2005/07/13 00:18:23 lwright Exp $
 *
 */
 
@@ -316,16 +316,31 @@ function sprintf() {
 function vsprintf() {
 	var txt = arguments[0];
 	var c = 0;
-	var pattern = /%\d*\$*s/;
 
-	while(c < arguments[1].length) {
+	// handle positioned "%1$s"
+	var pattern = /%\d+\$s/;
+
+	while(txt.match(pattern)) {
 		//below line extracts the current ordered match so we know what argument
 		//we are using, the $ needs to be escaped again in order to work.
 		replace = new RegExp(((txt.match(pattern)).toString()).replace(/\$/, '\\\$'), "g");
 
-		txt = txt.replace(replace, arguments[1][(replace.toString()).match(/\d/) - 1]);
+		arg_index =	(replace.toString()).match(/\d/) - 1;
+		txt = txt.replace(replace, arguments[1][arg_index]);
 		c++;
 	}
+
+	// now handle non-positioned "%s" - need to keep a running counter on this
+	// because first "%s" should be replaced by first argument, second "%s" by
+	// second argument, etc.
+	var pattern = /%s/;
+	var current_s = 0;
+
+	while(txt.match(pattern)) {
+		txt = txt.replace(pattern, arguments[1][current_s]);
+		current_s++;
+	}
+
 	return (txt);
 
 }//end vsprintf()
