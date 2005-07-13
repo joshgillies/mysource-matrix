@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: assetid.inc,v 1.8 2005/05/11 06:05:06 lwright Exp $
+* $Id: assetid.inc,v 1.9 2005/07/13 01:29:45 mmcintyre Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *    <assetid type_codes="user_group:I,backend_user:A,page:D" />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -90,6 +90,7 @@ class Asset_Attribute_Assetid extends Asset_Attribute
 	* @param string		$prefix		prefix for the form element
 	* @param boolean	$read_only	are we just printing the value
 	*
+	* @return void
 	* @access public
 	*/
 	function paint($prefix, $read_only=false)
@@ -99,8 +100,11 @@ class Asset_Attribute_Assetid extends Asset_Attribute
 				echo translate('no_asset_selected');
 			} else {
 				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->value);
-				if (is_null($asset)) echo translate('invalid_assetid');
-				else echo $asset->name.' (#'.$asset->id.')';
+				if (is_null($asset)) {
+					echo translate('invalid_assetid');
+				} else {
+					echo $asset->name.' (#'.$asset->id.')';
+				}
 			}
 			return;
 		}
@@ -120,7 +124,9 @@ class Asset_Attribute_Assetid extends Asset_Attribute
 	*/
 	function process($prefix)
 	{
-		if (!isset($_REQUEST[$prefix]['assetid'])) return false;
+		if (!isset($_REQUEST[$prefix]['assetid'])) {
+			return false;
+		}
 		$value = (int) $_REQUEST[$prefix]['assetid'];
 		if ($this->value != $value && $this->setValue($value)) {
 			$this->processed = true;
@@ -143,30 +149,15 @@ class Asset_Attribute_Assetid extends Asset_Attribute
 	{
 		if ($value) {
 			$error_msg = translate('fail_setting_assetid', $this->name, $this->id);
-			if (!assert_valid_assetid($value, $error_msg, true, false)) return false;
+			if (!assert_valid_assetid($value, $error_msg, true, false)) {
+				return false;
+			}
 			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($value);
 			if (is_null($asset)) return false;
 		}
 		return true;
 
 	}//end validateValue()
-
-
-	/**
-	* Retrieve a list of indexable values from this attribute
-	*
-	* The return value not only contains the indexable values, but also the number of
-	* times they occur in this attributes value
-	*
-	* @return array(string => int)
-	* @access public
-	*/
-	function getKeyData()
-	{
-		if (empty($this->value)) return Array();
-		return Array((string) $this->value => 1);
-
-	}//end getKeyData()
 
 
 }//end class
