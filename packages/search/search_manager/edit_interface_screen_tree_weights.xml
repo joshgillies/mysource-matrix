@@ -1,0 +1,25 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Commercial Module Licence                                |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file is not open source or freely usable and may be    |
+* | used subject to, and only in accordance with, the Squiz Commercial |
+* | Module Licence.                                                    |
+* | Please refer to http://www.squiz.net/licence for more information. |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: edit_interface_screen_tree_weights.xml,v 1.1 2005/07/13 05:09:27 mmcintyre Exp $
+*
+*/
+-->
+<contents>
+	<section name="Default Weights" write_access="write:attributes">
+		<function_call>
+			<paint_function name="paintAssetTreeWeights" />
+			<process_function name="processAssetTreeWeights" />
+		</function_call>
+	</section>
+</contents>
