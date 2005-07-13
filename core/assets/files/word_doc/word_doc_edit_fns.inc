@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: word_doc_edit_fns.inc,v 1.5 2005/06/02 04:42:08 ndvries Exp $
+* $Id: word_doc_edit_fns.inc,v 1.6 2005/07/13 03:34:25 mmcintyre Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -111,9 +111,6 @@ class Word_Doc_Edit_Fns extends File_Edit_Fns
 		if (!parent::processFileUpload($asset, $o, $prefix, $info)) {
 			return false;
 		}
-
-		// so the keywords can be built if the search manager is there
-		$asset->informChanges();
 		return true;
 
 	}//end processFileUpload()
