@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: pdf_file_management.inc,v 1.4 2005/05/04 00:38:04 arailean Exp $
+* $Id: pdf_file_management.inc,v 1.5 2005/07/13 05:35:10 mmcintyre Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -54,13 +54,6 @@ class PDF_File_Management extends Asset_Management
 										'description'	=> 'Password-protected PDFs cannot be indexed without the password',
 									   ),
 					  );
-
-		$this->components = Array(
-								'contents'	=> Array(
-												'description'		=> 'Contents (text format)',
-												'default_weighting'	=> '1',
-											   ),
-							);
 
 	}//end constructor
 
