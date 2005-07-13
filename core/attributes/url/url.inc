@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: url.inc,v 1.3 2005/07/06 05:40:43 ndvries Exp $
+* $Id: url.inc,v 1.4 2005/07/13 02:58:49 mmcintyre Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *    <text width="40" protocols="http,https,ftp,mailto" />
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -224,23 +224,6 @@ class Asset_Attribute_Url extends Asset_Attribute
 		return true;
 
 	}//end validateValue()
-
-
-	/**
-	* Retrieve a list of indexable values from this attribute
-	*
-	* The return value not only contains the indexable values, but also the number of
-	* times they occur in this attributes value
-	*
-	* @return array(string => int)
-	* @access public
-	*/
-	function getKeyData()
-	{
-		require_once SQ_FUDGE_PATH.'/general/text.inc';
-		return get_word_counts(strtolower($this->value));
-
-	}//end getKeyData()
 
 
 }//end class
