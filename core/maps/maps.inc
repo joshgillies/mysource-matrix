@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: maps.inc,v 1.18 2005/05/16 06:36:32 lwright Exp $
+* $Id: maps.inc,v 1.19 2005/07/13 13:02:30 mmcintyre Exp $
 *
 */
 
@@ -36,7 +36,7 @@ define('SQ_MAPS_INSTALLED'  , 'I');
 *    Looks aftet the automated patching of the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix
 * @subpackage MAPS
 */
@@ -450,10 +450,13 @@ class Maps extends MySource_Object
 	*/
 	function paintActiveLocks(&$o)
 	{
+		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$date = ts_iso8601(time());
+
 		$sql = 'SELECT userid, lockid, source_lockid, expires
 				FROM sq_lock
-				WHERE expires >= NOW()
+				WHERE expires >= '.db_extras_todate($db, $date).'
 				ORDER BY expires DESC';
 
 		$db_locks = $db->getAll($sql);
