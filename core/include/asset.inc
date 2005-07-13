@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.428 2005/07/11 04:08:16 gsherwood Exp $
+* $Id: asset.inc,v 1.429 2005/07/13 03:53:37 mmcintyre Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.428 $
+* @version $Revision: 1.429 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -149,12 +149,6 @@ class Asset extends MySource_Object
 	* @var Array(keyword => name)
 	*/
 	var $_available_keywords = Array();
-
-	/**
-	* The weightings for this asset's components
-	* @var Array($component => Array('default' => [true|false], 'weighting => $weighting))
-	*/
-	var $_weightings = null;
 
 	/**
 	* The suffix for the data path to be used for public, private, and file versioning
@@ -508,8 +502,6 @@ class Asset extends MySource_Object
 		if (!empty($link)) {
 			return (int) $linkid;
 		} else {
-			// index the asset with what we have so far
-			$this->informChanges();
 			return true;
 		}
 
@@ -1165,6 +1157,13 @@ class Asset extends MySource_Object
 						'old_updated_userid'	=> $this->updated_userid,
 						'new_updated_userid'	=> $updated_userid,
 					);
+
+			// set these components before broadcasting the event
+			$this->name           = $name;
+			$this->short_name     = $short_name;
+			$this->updated        = $updated;
+			$this->updated_userid = $updated_userid;
+
 			$em->broadcastEvent($this, 'AssetUpdate', $data);
 
 			// increment the micro version number
@@ -1177,11 +1176,6 @@ class Asset extends MySource_Object
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		}//end if $this->id
-
-		$this->name           = $name;
-		$this->short_name     = $short_name;
-		$this->updated        = $updated;
-		$this->updated_userid = $updated_userid;
 
 		return true;
 
@@ -2605,7 +2599,6 @@ class Asset extends MySource_Object
 		// if we get this far, then it's all OK
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$ms->closeLog();
-		$this->informChanges();
 
 		// notify anyone interested that attributes changed
 		$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
@@ -4131,192 +4124,6 @@ class Asset extends MySource_Object
 		return true;
 
 	}//end setLookupValues()
-
-
-//--        INDEXING        --//
-
-
-	/**
-	* Retrieves a list of key data from this asset (used by the indexing service).
-	* Subclasses override this to give the content they want to make searchable.
-	*
-	* @return array				an array of all the keydata for this asset. Keydata is of the form
-	* <pre>
-	* Array (
-	*	Array (
-	*		'value'     => ...,
-	*		'type'      => ..., (text, date, number, etc.)
-	*		'component' => ..., (whatever you want, just as long as this asset
-	*							 knows how to deal with it if it needs to)
-	*		), ...
-	* )
-	* </pre>
-	* @access public
-	*/
-	function getKeyData()
-	{
-		$sm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
-		if (!$sm) return Array();
-
-		require_once SQ_FUDGE_PATH.'/general/text.inc';
-
-		// index metadata
-		$keydata = $sm->getMetadataKeyData($this->id);
-
-		// index attributes
-		$weightings = $this->getWeightings();
-		if (!isset($weightings['__name__']['weight'])) {
-			$weightings['__name__']['weight'] = 1;
-		}
-		if (!isset($weightings['__created__']['weight'])) {
-			$weightings['__created__']['weight'] = 1;
-		}
-		if (!isset($weightings['__updated__']['weight'])) {
-			$weightings['__updated__']['weight'] = 1;
-		}
-		if (!isset($weightings['__published__']['weight'])) {
-			$weightings['__published__']['weight'] = 1;
-		}
-
-		// index our name
-		$value = strtolower($this->name);
-		foreach (get_word_counts($value) as $word => $count) {
-			$this->buildKeyData($keydata, $word, 'text', '__name__', $count * $weightings['__name__']['weight']);
-		}
-
-		// index our dates
-		$this->buildKeyData($keydata, ts_iso8601($this->created), 'datetime', '__created__', $weightings['__created__']['weight']);
-		$this->buildKeyData($keydata, ts_iso8601($this->updated), 'datetime', '__updated__', $weightings['__updated__']['weight']);
-		if (!is_null($this->published)) {
-			$this->buildKeyData($keydata, ts_iso8601($this->published), 'datetime', '__published__', $weightings['__published__']['weight']);
-		}
-
-		foreach ($this->vars as $var_name => $var_data) {
-			if (!isset($weightings[$var_name])) continue;
-
-			// skip non scalar values because we cant index them properly
-			if (!is_scalar($var_data['value'])) continue;
-
-			$attribute = &$this->getAttribute($var_name);
-			$values = $attribute->getKeyData();
-			if (empty($values)) continue;
-
-			$comp_name = 'attr:'.$this->type().':'.$var_name;
-			foreach ($values as $value => $count) {
-				$this->buildKeyData($keydata, $value, $var_data['type'], $comp_name, $count * $weightings[$var_name]['weight']);
-			}
-		}
-
-		return $keydata;
-
-	}//end getKeyData()
-
-
-	/**
-	* Informs the indexing service that this asset's contents have changed
-	*
-	* @param boolean	$inform_parents	also inform all dependant parent assets that we have changed
-	*									this is used by the search manager to decide if it should reindex
-	*									this asset's dependant parents
-	*
-	* @return void
-	* @access public
-	*/
-	function informChanges($inform_parents=true)
-	{
-		if (!$this->id) return true;
-
-		$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
-		$em->broadcastEvent($this, 'requestReindex', Array('inform_parents' => (bool)$inform_parents));
-
-	}//end informChanges()
-
-
-	/**
-	* Save component weightings to the database
-	*
-	* @param array	$newWeightings	the component wieghtings to save
-	*
-	* @return void
-	* @access public
-	*/
-	function saveComponentWeightings($new_weightings)
-	{
-		$sm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
-		if (!$sm) return false;
-		$dirty = false;
-		$weightings =& $this->getWeightings();
-
-		foreach ($new_weightings as $component => $weighting_data) {
-			if ($weighting_data['default']) {
-				$weighting = null;
-				if (!$weightings[$component]['default']) $dirty = true;
-			} else {
-				$weighting = $weighting_data['weight'];
-				$weightings[$component]['default'] = $weighting_data['default'];
-				if (!$dirty) {
-					$weightings[$component]['weight'] = $weighting;
-				}
-			}
-			$sm->setComponentWeighting($this->id, $component, $weighting);
-		}
-
-		if ($dirty) {
-			// need to reload weightings for defaults - next call to getWeightings will do this
-			unset($this->_weightings);
-			$this->_weightings = null;
-		}
-
-	}//end saveComponentWeightings()
-
-
-	/**
-	* Adds a piece of keydata to the array to be passed to the indexing service.
-	*
-	* @param array		&$keydata			a reference to the keydata array being built
-	* @param string		$value				the key data value
-	* @param string		$type				the key data type, defaults to 'text' (e.g. text, date, number, etc.)
-	* @param string		$component			the component to which this data pertains to
-	* @param int		$score				weighting of this word for the search
-	* @param int		$force_processing	if the initial checking routines should be skipped
-	*
-	* @return void
-	* @access protected
-	*/
-	function buildKeyData(&$keydata, $value, $type='text', $component='', $score=1, $force_processing=0)
-	{
-		// checking if we should skip initial test of given values, because
-		// they are almost always null if we are indexing metadata fields
-		if ($force_processing != 1 && (!is_array($keydata) || $score <= 0)) {
-			return false;
-		}
-
-		array_push($keydata, Array(
-								'value'		=> $value,
-								'type'		=> $type,
-								'component'	=> $component,
-								'score'		=> $score,
-							 )
-		);
-
-		return true;
-
-	}//end buildKeyData()
-
-
-	/**
-	* Retrieves weightings for this asset and its components - loads on demand.
-	*
-	* @return Array
-	* @access public
-	*/
-	function &getWeightings()
-	{
-		$sm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
-		if (!$sm) return false;
-		return $sm->getAssetWeightings($this->id);
-
-	}//end getWeightings()
 
 
 }//end class
