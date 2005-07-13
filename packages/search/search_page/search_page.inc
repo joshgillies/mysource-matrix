@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.101 2005/06/27 23:26:16 pgannavarapu Exp $
+* $Id: search_page.inc,v 1.102 2005/07/13 05:01:00 mmcintyre Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.101 $
+* @version $Revision: 1.102 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1140,26 +1140,23 @@ class Search_Page extends Listing_Engine
 		$this->_tmp['start_element'] = $current_result_page * $results_per_page;
 		$queries = '';
 		foreach ($_GET as $query_name => $query_value) {
-
 			// skip some get vars that will be added later by the keyword replacements
 			if (!in_array($query_name, Array('mode', 'current_result_page', 'results_per_page'))) {
 				$queries .= '&'.$query_name.'='.$query_value;
 			}
-
 		}
 
 		// if we are to use the listing engine stuff then we need to change
 		// to a getAssetList() style format
 		$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($results), 'asset', false, 'type_code');
 		$sort_info  = $this->getSortInfo();
-		$asset_info = $this->sortAssetList($asset_info, $sort_info);
+		$asset_info = $this->sortAssetList($results, $sort_info);
 
-		
 		$this->filterAssetList($asset_info);
-		
+
 		if (!is_array($asset_info)) $asset_info = Array();
 		$this->_tmp['asset_info'] = $asset_info;
-		
+
 		$this->groupAssetsRecursively($this->attr('asset_grouping'), $asset_info, $asset_info);
 		$total_pages = ceil(count($asset_info) / $results_per_page);
 
@@ -1562,28 +1559,8 @@ class Search_Page extends Listing_Engine
 				}
 			}
 
-
-			if (!is_array($value)) {
-				$words = split(' +', strtolower($value));
-				foreach (array_keys($words) as $i) {
-					// convert wildcard symbols to corresponding SQL wildcards
-					$words[$i] = strtr($words[$i], '*?', '%_');
-
-					// if this is an email, skip the following check...
-					$at_pos  = strpos($words[$i], '@');
-					$dot_pos = strpos($words[$i], '.');
-					if ($at_pos === false && $dot_pos === false) {
-						// preserve the wildcard symbols - i.e. don't quote them
-						if (ereg('^[A-z%_0-9]+$', $words[$i])) {
-							$words[$i] = addslashes($words[$i]);
-						} else {
-							unset($words[$i]);
-						}
-					}
-				}
-			} else {
-				$words = $value;
-			}
+			//TODO mmcintyre : change here
+			$words = $value;
 
 			$field_type = $fields[$field_name]['type'];
 			$search_info[$field_type][$field_name]['words'] = $words;
@@ -1919,29 +1896,40 @@ class Search_Page extends Listing_Engine
 	* @return void
 	* @access protected
 	*/
-	function _printAsset($assetid, $score, $list_position)
+	function _printAsset($assetid, $score, $list_position, $keywords=Array())
 	{
 		// the $this->_tmp[] variables are set in getResultsBodyReplacements()
 		$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 		$element_contents = $cm->loadFromCache($this, $assetid);
+
 		if (empty($element_contents)) {
 
+			// we need to do this because if we don't supply these keywords,
+			// the bodycopy will replace them with php which checks to see if they exist
+			// in a keyword array. If they done it will override these with nothing.
+			// So we replace them back to their original keywords so that we can dynamically
+			// generate them after we have cached them.
+
+			$keywords = Array(
+							'score'			=> '%score%',
+							'result_number'	=> '%result_number%'
+					   );
+
 			ob_start();
-			parent::_printAsset($assetid, $this->_tmp['asset_info'][$assetid], $list_position);
+			parent::_printAsset($assetid, $this->_tmp['asset_info'][$assetid], $list_position, $keywords);
 			$element_contents = ob_get_contents();
 			ob_end_clean();
 			$cm->saveToCache($this, $assetid, $element_contents);
 		}
-		
-		$score = (isset($score['type_code'])) ? $score['type_code']: $score;
+
+		$score = (isset($score['type_code'])) ? $score['type_code'] : $score;
 
 		$element_replacements = Array(
 									'score'			=> $score['type_code'],
 									'result_number'	=> $this->_tmp['start_element'] + $list_position,
 								);
-		
+
 		$element_contents = replace_keywords($element_contents, $element_replacements);
-		
 
 		echo $element_contents;
 
