@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit_table.php,v 1.12.2.9 2005/07/03 23:30:49 dmckee Exp $
+* $Id: edit_table.php,v 1.12.2.10 2005/07/13 23:15:07 dmckee Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Table Edit Popup for the WYSIWYG
 *
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.12.2.9 $
+* @version $Revision: 1.12.2.10 $
 * @package MySource_Matrix
 */
 
@@ -271,7 +271,7 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 		</select><br />
 		<label for="html_table_border"><?php echo translate('html_border'); ?></label>
 		<input id="html_table_border" name="html_table_border" style="width: 50px" onkeyup="table.setTableHtmlBorder(parseInt(document.getElementById('html_table_border').value))" value="0" /><br />
-		<label for="table_border"><?php translate('border'); ?></label>
+		<label for="table_border"><?php echo translate('border'); ?></label>
 		<input id="table_border" name="table_border" style="width: 50px" onkeyup="table.setElementBorder((parseInt(document.getElementById('table_border').value)), document.getElementById('table_bordertype').value);" value="0" />
 		<select id="table_bordertype" name="table_bordertype" style="width:80px" onchange="table.setElementBorder((parseInt(document.getElementById('table_border').value)), document.getElementById('table_bordertype').value);" >
 			<option value="solid" selected="selected">solid</option>
