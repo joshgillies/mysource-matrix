@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.23 2005/07/12 03:30:54 lwright Exp $
+* $Id: tables.xml,v 1.24 2005/07/13 03:08:13 mmcintyre Exp $
 *
 */
 -->
@@ -117,7 +117,9 @@
 				</column>
 				<column name="created" allow_null="0">
 					<type>TIMESTAMP</type>
-					<type_variations />
+					<type_variations>
+						<oci8>DATE</oci8>
+					</type_variations>
 					<default />
 					<description />
 				</column>
@@ -129,7 +131,9 @@
 				</column>
 				<column name="updated" allow_null="0">
 					<type>TIMESTAMP</type>
-					<type_variations />
+					<type_variations>
+						<oci8>DATE</oci8>
+					</type_variations>
 					<default />
 					<description />
 				</column>
@@ -141,7 +145,9 @@
 				</column>
 				<column name="published" allow_null="1">
 					<type>TIMESTAMP</type>
-					<type_variations />
+					<type_variations>
+						<oci8>DATE</oci8>
+					</type_variations>
 					<default />
 					<description />
 				</column>
@@ -153,7 +159,9 @@
 				</column>
 				<column name="status_changed" allow_null="1">
 					<type>TIMESTAMP</type>
-					<type_variations />
+					<type_variations>
+						<oci8>DATE</oci8>
+					</type_variations>
 					<default />
 					<description />
 				</column>
@@ -239,7 +247,9 @@
 				</column>
 				<column name="updated" allow_null="0">
 					<type>TIMESTAMP</type>
-					<type_variations />
+					<type_variations>
+						<oci8>DATE</oci8>
+					</type_variations>
 					<default />
 					<description />
 				</column>
@@ -453,6 +463,12 @@
 					<default>''</default>
 					<description />
 				</column>
+				<column name="is_admin" allow_null="0">
+					<type>CHAR(1)</type>
+					<type_variations />
+					<default>1</default>
+					<description />
+				</column>
 			</columns>
 			<keys>
 				<primary_key>
@@ -512,7 +528,7 @@
 				  NOTE: This index fails for PostgreSQL 7.3 but works for 7.4
 						No functionality difference, just performance.
 				-->
-				<index name="concat">
+				<index db="pgsql" name="concat">
 					<column name="(assetid || '~' || attrid)" />
 				</index>
 			</indexes>
@@ -767,7 +783,9 @@
 				</column>
 				<column name="expires" allow_null="1">
 					<type>TIMESTAMP</type>
-					<type_variations />
+					<type_variations>
+						<oci8>DATE</oci8>
+					</type_variations>
 					<default />
 					<description>The time when this remap expires. Should be cleaned up after this time.</description>
 				</column>
@@ -873,7 +891,7 @@
 					<default>0</default>
 					<description />
 				</column>
-				<column name="metadata" allow_null="0">
+				<column name="metadata" allow_null="1">
 					<type>TEXT</type>
 					<type_variations>
 						<oci8>CLOB</oci8>
@@ -910,7 +928,7 @@
 					<default />
 					<description />
 				</column>
-				<column name="value" allow_null="0">
+				<column name="value" allow_null="1">
 					<type>TEXT</type>
 					<type_variations>
 						<oci8>CLOB</oci8>
@@ -935,7 +953,7 @@
 					<default />
 					<description />
 				</column>
-				<column name="default_val" allow_null="0">
+				<column name="default_val" allow_null="1">
 					<type>TEXT</type>
 					<type_variations>
 						<oci8>CLOB</oci8>
@@ -1030,7 +1048,9 @@
 				</column>
 				<column name="sent" allow_null="0">
 					<type>TIMESTAMP</type>
-					<type_variations />
+					<type_variations>
+						<oci8>DATE</oci8>
+					</type_variations>
 					<default />
 					<description />
 				</column>
@@ -1128,7 +1148,9 @@
 				</column>
 				<column name="last_updated" allow_null="0">
 					<type>TIMESTAMP</type>
-					<type_variations />
+					<type_variations>
+						<oci8>DATE</oci8>
+					</type_variations>
 					<default />
 					<description />
 				</column>
@@ -1162,7 +1184,9 @@
 				</column>
 				<column name="expires" allow_null="1">
 					<type>TIMESTAMP</type>
-					<type_variations />
+					<type_variations>
+						<oci8>DATE</oci8>
+					</type_variations>
 					<default />
 					<description>NULL indicates no expiry time</description>
 				</column>
@@ -1188,7 +1212,9 @@
 				</column>
 				<column name="installed" allow_null="0">
 					<type>TIMESTAMP</type>
-					<type_variations />
+					<type_variations>
+						<oci8>DATE</oci8>
+					</type_variations>
 					<default />
 					<description />
 				</column>
@@ -1430,13 +1456,17 @@
 				</column>
 				<column name="from_date" allow_null="0">
 					<type>TIMESTAMP</type>
-					<type_variations />
+					<type_variations>
+						<oci8>DATE</oci8>
+					</type_variations>
 					<default />
 					<description />
 				</column>
 				<column name="to_date" allow_null="1">
 					<type>TIMESTAMP</type>
-					<type_variations />
+					<type_variations>
+						<oci8>DATE</oci8>
+					</type_variations>
 					<default>NULL</default>
 					<description />
 				</column>
