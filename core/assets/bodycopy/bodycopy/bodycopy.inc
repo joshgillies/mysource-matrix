@@ -2,7 +2,6 @@
 /**
 * +--------------------------------------------------------------------+
 * | Squiz.net Open Source Licence                                      |
-
 * +--------------------------------------------------------------------+
 * | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
 * +--------------------------------------------------------------------+
@@ -19,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy.inc,v 1.26 2005/06/28 05:46:47 dmckee Exp $
+* $Id: bodycopy.inc,v 1.27 2005/07/13 03:28:02 mmcintyre Exp $
 *
 */
 
@@ -32,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -96,7 +95,7 @@ class Bodycopy extends Asset
 		$replace_assetids = $matches[1];
 
 		// replace all ./?a=xx links with php echo's
-		$e = "|\./\?a=([0-9]+)([^0-9])|";
+		$e = '|\./\?a=([0-9]+)([^0-9])|';
 		$with = '<'.'?php echo $sq_asset_url_list[\\1]; ?'.'>\\2';
 		$output = preg_replace($e, $with, $output);
 
@@ -407,6 +406,19 @@ class Bodycopy extends Asset
 		return $keywords;
 
 	}//end getKeywords()
+
+
+	/**
+	* Returns the raw content of this bodycopy
+	*
+	* @return string
+	* @access public
+	*/
+	function getContent()
+	{
+		return $this->getRawBodycopyContent();
+
+	}//end getContent()
 
 
 	/**
