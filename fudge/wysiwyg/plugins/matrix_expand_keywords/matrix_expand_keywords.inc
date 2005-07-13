@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_expand_keywords.inc,v 1.8.2.1 2004/12/22 23:52:49 tbarrett Exp $
+* $Id: matrix_expand_keywords.inc,v 1.8.2.2 2005/07/13 05:32:00 dmckee Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,11 +32,13 @@
 *     to replace it with its full version as you type
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.8.2.1 $
+* @version $Revision: 1.8.2.2 $
 * @package Fudge
 * @subpackage wysiwyg
 */
-class matrix_expand_keywords  extends wysiwyg_plugin {
+class matrix_expand_keywords  extends wysiwyg_plugin
+{
+
 
 	/**
 	* Prints an JS the plugin wants executed when a key is pressed in a WYSIWYG area
@@ -60,6 +62,7 @@ class matrix_expand_keywords  extends wysiwyg_plugin {
 
 	}//end print_plugin_event_handler()
 
+
 	/**
 	* Paints any JS generic functions needed by this plugin
 	* These functions can be used by all WYSIWYGs on the page
@@ -70,6 +73,12 @@ class matrix_expand_keywords  extends wysiwyg_plugin {
 	*/
 	function paint_generic()
 	{
+		if (!$GLOBALS['SQ_SYSTEM']->am->installed('thesaurus')) {
+			?>
+			<script type="text/javascript"> function expandKeywords() {} </script>
+			<?php
+			return;
+		}
 		$thesaurusid = $GLOBALS['SQ_SYSTEM']->getUserPrefs('content_type_wysiwyg','SQ_THESAURUS');
 		if (!$thesaurusid) {
 			?>
@@ -77,7 +86,6 @@ class matrix_expand_keywords  extends wysiwyg_plugin {
 			<?php
 			return;
 		}
-
 		$thesaurus = &$GLOBALS['SQ_SYSTEM']->am->getAsset($thesaurusid, '', true);
 		if (!$thesaurus->id) {
 			?>
@@ -85,7 +93,6 @@ class matrix_expand_keywords  extends wysiwyg_plugin {
 			<?php
 			return;
 		}
-
 		$abbrevs = $thesaurus->getAbbreviations();
 		if (!is_array($abbrevs) || empty($abbrevs)) {
 			?>
@@ -93,7 +100,6 @@ class matrix_expand_keywords  extends wysiwyg_plugin {
 			<?php
 			return;
 		}
-
 		?>
 		<script type="text/javascript">
 		var abbrevs = Array();
@@ -101,7 +107,7 @@ class matrix_expand_keywords  extends wysiwyg_plugin {
 		<?php
 		foreach ($abbrevs as $abbrev => $word) {
 			echo "        abbrevs['$abbrev'] = '$word';\n";
-		}		
+		}
 		?>
 
 		var stripTagsRE = /(<\S[^>]*>)|(\W)/g; // yes, for some reason this cannot have quotes around it
@@ -146,7 +152,7 @@ class matrix_expand_keywords  extends wysiwyg_plugin {
 			}
 		}
 
-		function getLastWord(editor) 
+		function getLastWord(editor)
 		{
 			var html = editor.getHTML().replace(stripTagsRE, " ");
 			// strip trailing spaces
@@ -156,9 +162,9 @@ class matrix_expand_keywords  extends wysiwyg_plugin {
 			return html.substring(html.lastIndexOf(" ")+1);
 		}
 
-		
+
 		</script>
-		<?php 
+		<?php
 
 	}//end paint_generic()
 
