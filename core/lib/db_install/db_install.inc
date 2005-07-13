@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_install.inc,v 1.20 2005/04/15 01:52:43 lwright Exp $
+* $Id: db_install.inc,v 1.21 2005/07/13 03:23:13 mmcintyre Exp $
 *
 */
 
@@ -29,7 +29,7 @@
 * @author  Blair Robertson <blair@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -60,7 +60,7 @@ function db_install($xml_file, $verbose=true)
 	assert_valid_db_result($tables_in_db);
 
 	// create database tables
-	$input = new XML_Tree($xml_file);
+	$input =& new XML_Tree($xml_file);
 	$root  = &$input->getTreeFromFile();
 	if (PEAR::isError($root)) {
 		trigger_error($root->getMessage().'<br/>'.$root->getUserInfo(), E_USER_WARNING);
@@ -125,7 +125,7 @@ function db_install($xml_file, $verbose=true)
 						// set the type of the column if it hasnt already been
 						// set in a variation (this is the default column type)
 						if (is_null($type)) $type = $column_var->content;
-						break;
+					break;
 					case 'type_variations' :
 						// check for varitions of the column type for his database
 						for ($l = 0; $l < count($column_var->children); $l++) {
@@ -135,13 +135,15 @@ function db_install($xml_file, $verbose=true)
 								break;
 							}
 						}
-						break;
+					break;
 					case 'default' :
-						if (trim($column_var->content) != '') $default = $column_var->content;
-						break;
+						if (trim($column_var->content) != '') {
+							$default = $column_var->content;
+						}
+					break;
 					default :
 						continue;
-						break;
+					break;
 				}
 			}// end for
 
@@ -218,9 +220,7 @@ function db_install($xml_file, $verbose=true)
 				// oracle repication requires row dependencies so
 				// that the replicating server knows what order to create
 				// the new entries
-				if ($db->phptype == 'oci8') {
-					echo ' ROWDEPENDENCIES';
-				}
+				if ($db->phptype == 'oci8') echo ' ROWDEPENDENCIES';
 				$table_sql = ob_get_contents();
 			ob_end_clean();
 
@@ -244,16 +244,13 @@ function db_install($xml_file, $verbose=true)
 						echo implode(',', $other_rollback_keys);
 					}
 					echo ')';
-					if ($db->phptype == 'oci8') {
-						echo ' ROWDEPENDENCIES';
-					}
+					if ($db->phptype == 'oci8') echo ' ROWDEPENDENCIES';
 
 					$table_sql = ob_get_contents();
 				ob_end_clean();
 
 				$result = $db->query($table_sql);
 				assert_valid_db_result($result);
-
 			}
 
 			//--        TABLE INDEXES        --//
@@ -270,8 +267,24 @@ function db_install($xml_file, $verbose=true)
 
 				// work out the name of the index
 				$index_name = array_get_index($table_index->attributes, 'name', $index_col_name);
+				$index_type = array_get_index($table_index->attributes, 'type', '');
+				$index_db_type = array_get_index($table_index->attributes, 'db', '');
 
-				$index_sql = 'CREATE INDEX sq_'.$table_name.'_'.$index_name.' ON sq_'.$table_name.' ('.$index_col_name.')';
+				if (!empty($index_db_type) && $index_db_type != $db->phptype) {
+					continue;
+				}
+				$index_sql = 'CREATE INDEX sq_'.$table_name.'_'.$index_name.' ON sq_'.$table_name;
+
+				if (!empty($index_type)) {
+					if ($db->phptype == 'oci8') {
+						$index_sql .= '('.$index_col_name.') indextype is '.$index_type;
+					} else if ($db->phptype == 'pgsql') {
+						$index_sql .= ' USING '.$index_type.'('.$index_col_name.')';
+					}
+				} else {
+					$index_sql .= ' ('.$index_col_name.')';
+				}
+
 				$result = $db->query($index_sql);
 				assert_valid_db_result($result);
 
@@ -295,7 +308,7 @@ function db_install($xml_file, $verbose=true)
 	}
 
 	if ($verbose) {
-		$table_names = empty($new_table_names)?"No new tables added":"New Tables:\n".implode($new_table_names,"\n");
+		$table_names = empty($new_table_names) ? 'No new tables added' : "New Tables:\n".implode($new_table_names,"\n");
 		pre_echo("TABLE CREATION COMPLETE\n".$table_names);
 	}
 
@@ -334,9 +347,12 @@ function db_install($xml_file, $verbose=true)
 		$sequence = &$root->children[1]->children[$i];
 		$sequence_name = $sequence->attributes['name'];
 
-		if (!in_array($sequence_name, $cached_sequences)) $cached_sequences[] = $sequence_name;
-		if (in_array('sq_'.$sequence_name.'_seq', $sequences_in_db)) continue;
-
+		if (!in_array($sequence_name, $cached_sequences)) {
+			$cached_sequences[] = $sequence_name;
+		}
+		if (in_array('sq_'.$sequence_name.'_seq', $sequences_in_db)) {
+			continue;
+		}
 		$result = $db->createSequence('sq_'.$sequence_name);
 		assert_valid_db_result($result);
 	}
@@ -393,7 +409,9 @@ function grant_secondary_user_perms($verbose=true)
 			assert_valid_db_result($result);
 		}
 
-		if ($verbose) pre_echo('PGSQL SECONDARY USER PERMISSIONS FIXED');
+		if ($verbose) {
+			pre_echo('PGSQL SECONDARY USER PERMISSIONS FIXED');
+		}
 	}
 
 }//end grant_secondary_user_perms()
@@ -417,7 +435,9 @@ function install_stored_procedures($verbose=true)
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
 
-		if ($verbose) pre_echo(strtoupper($db->phptype).' STORED PROCEDURES CREATED');
+		if ($verbose) {
+			pre_echo(strtoupper($db->phptype).' STORED PROCEDURES CREATED');
+		}
 	}
 
 }//end install_stored_procedures()
@@ -481,8 +501,9 @@ function install_rollback_triggers($table_columns, $verbose=true, $override=fals
 
 	foreach ($table_columns as $table_name => $table_info) {
 		// we only care about rollback tables
-		if (!isset($table_info['rollback']) || !$table_info['rollback']) continue;
-
+		if (!isset($table_info['rollback']) || !$table_info['rollback']) {
+			continue;
+		}
 		$rollback_table = SQ_TABLE_ROLLBACK_PREFIX.$table_name;
 		$trigger_name   = strtolower('sq_'.$table_name.'_rb_trg');
 		$table          = 'sq_'.$table_name;
@@ -655,9 +676,7 @@ function install_rollback_triggers($table_columns, $verbose=true, $override=fals
 			// if there is no update string, it means that every
 			// column is either a primary or unique key. Therefore
 			// you cannot update anything on this table - only insert and delete
-			if ($db->phptype == 'pgsql') {
-				$sql .= 'RETURN NEW;';
-			}
+			if ($db->phptype == 'pgsql') $sql .= 'RETURN NEW;';
 		}
 
 		// if we are deleting then we just close off
