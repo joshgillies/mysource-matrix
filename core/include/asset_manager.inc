@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.337 2005/07/12 03:20:16 lwright Exp $
+* $Id: asset_manager.inc,v 1.338 2005/07/13 04:00:13 mmcintyre Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.337 $
+* @version $Revision: 1.338 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -361,73 +361,6 @@ class Asset_Manager extends MySource_Object
 
 
 	/**
-	* Retrieves the default component weightings for an asset type
-	*
-	* @param string	$type_code	the type code of the wanted default weightings
-	*
-	* @return Array()
-	* @access public
-	*/
-	function getTypeDefaultWeightings($type_code)
-	{
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
-		$default_weightings = Array();
-
-		if (is_array($type_code)) {
-			$type_codes = $type_code;
-			// load the weightings
-			$sql = 'SELECT type_code, dw.component, dw.weighting, dw.description
-					FROM
-						sq_ast_typ at JOIN sq_sch_idx_wgt_dflt dw
-							ON at.type_code = dw.type_code
-					WHERE
-						at.type_code IN (';
-			$first = true;
-			foreach ($type_codes as $type_code) {
-				if (!$first) $sql .= ', ';
-
-				$first = false;
-
-				$sql .= $db->quote($type_code);
-			}
-			$sql .= ')';
-
-			$results = $db->getAll($sql);
-			assert_valid_db_result($results);
-
-			$default_weightings = Array();
-			foreach ($results as $result) {
-				$default_weightings[$result['type_code']] = Array();
-				$default_weightings[$result['type_code']][$result['component']] =
-					Array('default' => 1, 'weight' => $result['weight'], 'description' => $result['description']);
-			}
-		} else {
-			if ($type_code != '') {
-				// load the weightings for this type code only
-				$sql = 'SELECT dw.component, dw.weight, dw.description
-						FROM
-							sq_ast_typ at JOIN sq_sch_idx_wgt_dflt dw
-								ON at.type_code = dw.type_code
-						WHERE
-							at.type_code = '.$db->quote($type_code);
-
-				$results = $db->getAll($sql);
-				assert_valid_db_result($results);
-
-				foreach ($results as $result) {
-					$default_weightings[$result['component']] =
-						Array('default' => 1, 'weight' => $result['weight'], 'description' => $result['description']);
-				}
-
-			}
-		}
-
-		return $default_weightings;
-
-	}//end getTypeDefaultWeightings()
-
-
-	/**
 	* Returns an array representing the class hierarchy for the asset types, either for whole system
 	* or for under the the passed asset type
 	*
@@ -636,6 +569,7 @@ class Asset_Manager extends MySource_Object
 								ORDER BY inhd_type_code, type_code_lvl ASC'
 								);
 		assert_valid_db_result($result);
+
 		return $result;
 
 	}//end getTypeDescendants()
@@ -2017,7 +1951,9 @@ class Asset_Manager extends MySource_Object
 		}
 
 		if (!is_null($value)) {
-			$where .= '  AND l.value = '.$db->quote($value);
+			$where .= ' AND (l.value = '.$db->quote($value);
+			if ($value == '') $where .= ' OR l.value IS NULL';
+			$where .= ')';
 		}
 
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
@@ -5272,7 +5208,9 @@ class Asset_Manager extends MySource_Object
 				   AND l.'.$side_of_link.'id = '.$db->quote($assetid).'
 				   AND '.db_extras_bitand($db, 'l.link_type', $db->quote($link_types)).' > 0 ';
 		if (!is_null($value)) {
-			$where .= ' AND (l.value IS NULL OR l.value = '.$db->quote($value).')';
+			$where .= ' AND (l.value = '.$db->quote($value);
+			if ($value == '') $where .= ' OR l.value IS NULL';
+			$where .= ')';
 		}
 		if (!is_null($dependant)) {
 			$where .= ' AND l.is_dependant = '.$db->quote(($dependant) ? '1' : '0');
