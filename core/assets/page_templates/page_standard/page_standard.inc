@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_standard.inc,v 1.11 2005/06/28 06:04:40 dmckee Exp $
+* $Id: page_standard.inc,v 1.12 2005/07/13 03:37:00 mmcintyre Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -70,7 +70,7 @@ class Page_Standard extends Page
 
 		// add a bodycopy to this page when creating
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
-		$bodycopy = new Bodycopy();
+		$bodycopy =& new Bodycopy();
 		$copy_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 
 		$bodycopy->setAttrValue('name', 'Page Contents');
@@ -203,6 +203,7 @@ class Page_Standard extends Page
 		$cm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 		$cached_contents = $cm->loadFromCache($this, 'default');
 
+
 		// if the cache is empty, go ahead and regenerate a new version
 		if (empty($cached_contents)) {
 			ob_start();
@@ -244,44 +245,20 @@ class Page_Standard extends Page
 
 
 	/**
-	* Retrieves a list of key data from this asset (used by the indexing service)
+	* Returns the raw content of this asset
 	*
-	* Subclasses override this to give the content they want to make searchable.
-	*
-	* @param mixed	$component	If it is not false, then it is assumed to be the name of a component
-	*							of this asset (defined and controlled by subclasses).
-	* @return array An array of all the keydata for this asset. Keydata is of the form
-	* <PRE>
-	* Array (
-	* 	Array (
-	* 		'value' => ...,
-	* 		'type' => ..., (text, date, number, etc.)
-	* 		'component' => ..., (whatever you want, just as long as this asset knows how to deal with it if it needs to)
-	* 	), ...
-	* )
-	* </PRE>
+	* @return string
 	* @access public
 	*/
-	function getKeyData($component=null)
+	function getContent()
 	{
-		$keydata = parent::getKeyData($component);
-		$weightings = $this->getWeightings();
+		$bodycopy = &$this->getBodycopy();
+		if (is_null($bodycopy)) return '';
+		$contents = $bodycopy->getRawBodycopyContent();
 
-		if (is_null($component) || $component == 'contents') {
-			// get the bodycopy
-			$bodycopy = &$this->getBodycopy();
-			if (is_null($bodycopy)) return $keydata;
+		return $contents;
 
-			// preprocess
-			$contents = strtolower(strip_tags(html_entity_decode($bodycopy->getRawBodycopyContent())));
-			$comp_name = 'attr:'.$this->type().':contents';
-			foreach (get_word_counts($contents) as $word => $count) {
-				$this->buildKeyData($keydata, $word, 'text', $comp_name, $count * $weightings['contents']['weight']);
-			}
-		}
-		return $keydata;
-
-	}//end getKeyData()
+	}//end getContent()
 
 
 	/**
@@ -330,7 +307,6 @@ class Page_Standard extends Page
 		$null = null;
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, '', 'major');
 		if (empty($link)) return $null;
-
 		return $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 
 	}//end getBodycopy()
