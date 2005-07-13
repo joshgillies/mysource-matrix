@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_search_replace.inc,v 1.11 2005/05/18 02:21:33 dmckee Exp $
+* $Id: tool_search_replace.inc,v 1.12 2005/07/13 05:06:25 mmcintyre Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 *
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -171,7 +171,7 @@ class Tool_Search_Replace extends Tool
 
 		//work out our root node position
 		if (isset($_REQUEST[$type_code.'_root_folder'])) {
-			$root_assetid = 1;
+			$root_assetid = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('root_folder');
 		} else {
 			$root_assetid = $_REQUEST[$type_code.'_root_assetid']['assetid'];
 		}
@@ -213,6 +213,7 @@ class Tool_Search_Replace extends Tool
 		}
 
 		$vars = Array(
+					'root_assetid'		=> $root_assetid,
 					'search_data'		=> $formatted_results,
 					'search_string'		=> $_REQUEST[$type_code.'_search_string'],
 					'replace_string'	=> $_REQUEST[$type_code.'_replace_string'],
@@ -222,7 +223,7 @@ class Tool_Search_Replace extends Tool
 
 		//redirect data to the HIPO
 		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
-		$hh->queueHipo('hipo_job_tool_search_replace', $vars, '', SQ_PACKAGES_PATH.'/search/tools/tool_search_replace');
+		$hh->queueHipo('hipo_job_tool_search_replace', $vars, '', SQ_PACKAGES_PATH.'/search/hipo_jobs');
 		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$url = $hh->runQueuedJobs();
 		if (!empty($url)) $o->setRedirect($url);
@@ -266,12 +267,12 @@ class Tool_Search_Replace extends Tool
 								$formatted_results[$assetid]['contents'][$contents_id] = $contents_value;
 							}
 						}
-						break;
+					break;
 
 					//attributes containing search string
 					//attributes come in 2 formats, __attribute__ and attr:assetname:attribute$
 					case preg_match('/__(.+)__/', $content_type, $matches) > 0:
-					case preg_match('/attr:.+:(.+)$/', $content_type, $matches) > 0:
+					case preg_match('/attr:(.+)$/', $content_type, $matches) > 0:
 						if (isset($asset->vars[$matches[1]])) {
 							$attribute = $asset->attr($matches[1]);
 
