@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_reindex.inc,v 1.15 2005/06/20 04:38:26 dheppell Exp $
+* $Id: hipo_job_reindex.inc,v 1.16 2005/07/13 05:02:53 mmcintyre Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    schemaid	-	the ID of the schema that has been updated
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -174,7 +174,8 @@ class HIPO_Job_ReIndex extends HIPO_Job
 
 			$step_data['message'] = translate('sch_reindexing_asset', $asset->name);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-			$asset->informChanges(false);
+			$sm->reindexAsset($asset, Array('all'));
+			$sm->reindexMetadata($asset->id);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 			// add this assetid to the done array
