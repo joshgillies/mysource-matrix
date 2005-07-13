@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.1 2005/05/11 06:07:48 lwright Exp $
+* $Id: lang_strings.xml,v 1.2 2005/07/13 04:58:18 mmcintyre Exp $
 *
 *
 * Search Package Localised Strings File
@@ -21,4 +21,25 @@
 <strings>
 <string source="sch_manager_do_not_include">Do not include in searches</string>
 <string source="sch_manager_include">Include in searches</string>
+<string source="sch_customise">Customise</string>
+<string source="sch_asset_weightings">Asset Component Weightings</string>
+<string source="sch_attribute_weightings">Asset Attribute Weightings</string>
+<string source="sch_metadata_weightings">Metadata Weightings</string>
+<string source="sch_weighting_component">Weighting Component</string>
+<string source="sch_weighting">Weighting</string>
+<string source="sch_indexed">Indexed</string>
+<string source="sch_weighting_attribute">Weighting Attribute</string>
+<string source="sch_metadata_asset">Metadata Asset</string>
+<string source="sch_metadata_asset_weightings">Metadata Asset Weightings</string>
+<string source="sch_metadata_asset_name">Metadata Asset Name</string>
+<string source="sch_remove">Remove</string>
+<string source="sch_all_asset_types">All Asset Types</string>
+<string source="sch_choose_assetid">Customise Asset</string>
+<string source="sch_choose_type_code">Customise Asset Types</string>
+<string source="sch_asset_management">Asset Weight Management</string>
+<string source="sch_asset_type_management">Asset Type Weight Management</string>
+<string source="sch_asset_tree_management">Asset Tree Weight Management</string>
+<string source="sch_indexing_enabled">Enable Indexing ?</string>
+<string source="sch_index_all_assets">Index all asset types ?</string>
+<string source="sch_no_metadata_customised">Currently no metadata assets customised</string>
 </strings>
