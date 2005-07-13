@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_reindex.inc,v 1.3 2005/05/11 06:07:48 lwright Exp $
+* $Id: tool_reindex.inc,v 1.4 2005/07/13 05:07:30 mmcintyre Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 *
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -111,7 +111,7 @@ class Tool_Reindex extends Tool
 		}
 
 		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
-		$hh->queueHipo('hipo_job_tool_reindex', $vars, '', SQ_PACKAGES_PATH.'/search/tools/tool_reindex');
+		$hh->queueHipo('hipo_job_reindex', $vars, '', SQ_PACKAGES_PATH.'/search/hipo_jobs');
 		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$url = $hh->runQueuedJobs();
 		if (!empty($url)) $o->setRedirect($url);
