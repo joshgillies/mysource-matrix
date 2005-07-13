@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: assertions.inc,v 1.15 2005/06/02 07:10:48 ndvries Exp $
+* $Id: assertions.inc,v 1.16 2005/07/13 03:38:52 mmcintyre Exp $
 *
 */
 
@@ -27,7 +27,7 @@
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix
 */
 
@@ -434,6 +434,31 @@ function assert_valid_db_result($result, $msg='', $silent=false, $fatal=true)
 	return true;
 
 }//end assert_valid_db_result()
+
+
+/**
+* Assert that the value passed in is a valid Cache result
+*
+* @param string		$result	the Cache result to be checked
+* @param string		$msg	an error message to print on failure
+* @param boolean	$silent	is this exception silent (ie not shown to the user)
+* @param boolean	$fatal	is this exception fatal (ie should the script exit)
+*
+* @access public
+* @return boolean
+*/
+function assert_valid_cache_result($result, $msg='', $silent=false, $fatal=true)
+{
+	if (Cache::isError($result)) {
+		if (empty($msg)) {
+			$msg = $result->getMessage().'<br/>'.$result->getUserInfo();
+		}
+		trigger_exception($msg, $silent, $fatal);
+		return false;
+	}
+	return true;
+
+}//end assert_valid_cache_result()
 
 
 /**
