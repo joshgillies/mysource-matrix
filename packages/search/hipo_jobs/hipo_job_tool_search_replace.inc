@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_tool_search_replace.inc,v 1.14 2005/06/20 04:38:26 dheppell Exp $
+* $Id: hipo_job_tool_search_replace.inc,v 1.1 2005/07/13 05:11:42 mmcintyre Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    replace on asset attributes and metadata
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.1 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -277,16 +277,16 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 	*/
 	function getReindexAssetDetails(&$job_type, &$running_vars, &$options, &$hipo_vars)
 	{
-		$job_type = 'hipo_job_tool_reindex';
+		$job_type = 'hipo_job_reindex';
 
 		$options['auto_complete'] = true;
 
 		$running_vars = Array(
-							'reindex_assets'	=> array_keys($this->_running_vars['search_data']),
+							'root_assetid'	=> $this->_running_vars['root_assetid'],
 						);
 
 		$hipo_vars = Array(
-						'job_dir'	=> SQ_PACKAGES_PATH.'/search/tools/tool_reindex',
+						'job_dir'	=> SQ_PACKAGES_PATH.'/search/hipo_jobs',
 					 );
 
 	}//end getReindexAssetDetails()
