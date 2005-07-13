@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_attribute.inc,v 1.38 2005/06/29 07:21:24 ndvries Exp $
+* $Id: asset_attribute.inc,v 1.39 2005/07/13 03:55:11 mmcintyre Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix
 */
 class Asset_Attribute extends MySource_Object
@@ -325,19 +325,16 @@ class Asset_Attribute extends MySource_Object
 
 
 	/**
-	* Retrieve a list of indexable values from this attribute
+	* Returns the raw content of this attribute type
 	*
-	* The return value not only contains the indexable values, but also the number of
-	* times they occur in this attributes value
-	*
-	* @return array(string => int)
+	* @return String
 	* @access public
 	*/
-	function getKeyData()
+	function getContent()
 	{
-		return Array();
+		return $this->value;
 
-	}//end getKeyData()
+	}//end getContent()
 
 
 }//end class
