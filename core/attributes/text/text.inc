@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.32 2005/05/11 06:05:07 lwright Exp $
+* $Id: text.inc,v 1.33 2005/07/13 01:58:08 mmcintyre Exp $
 *
 */
 
@@ -36,19 +36,19 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *    <text width="40" height="4" />
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
 class Asset_Attribute_Text extends Asset_Attribute
 {
 
+
 	/**
 	* Constructor
 	*
 	* @param int	$attributeid	the attribute id to be loaded
 	* @param mixed	$value			the current value for the element
-	*
 	*/
 	function Asset_Attribute_Text($attributeid=0, $value=null)
 	{
@@ -78,8 +78,11 @@ class Asset_Attribute_Text extends Asset_Attribute
 				<td class="sq-backend-section-heading" style="width: 100px;"><?php echo translate('width'); ?></td>
 				<td class="sq-backend-table-cell">
 					<?php
-					if ($write_access) text_box($prefix.'_'.$this->name.'_width', $this->_edit_params['width']);
-					else echo $this->_edit_params['width'];
+					if ($write_access) {
+						text_box($prefix.'_'.$this->name.'_width', $this->_edit_params['width']);
+					} else {
+						echo $this->_edit_params['width'];
+					}
 					?>
 				</td>
 			</tr>
@@ -87,8 +90,11 @@ class Asset_Attribute_Text extends Asset_Attribute
 				<td class="sq-backend-section-heading" style="width: 100px;"><?php echo translate('height'); ?></td>
 				<td class="sq-backend-table-cell">
 					<?php
-					if ($write_access) text_box($prefix.'_'.$this->name.'_height', $this->_edit_params['height']);
-					else echo $this->_edit_params['height'];
+					if ($write_access) {
+						text_box($prefix.'_'.$this->name.'_height', $this->_edit_params['height']);
+					} else {
+						echo $this->_edit_params['height'];
+					}
 					?>
 				</td>
 			</tr>
@@ -139,8 +145,12 @@ class Asset_Attribute_Text extends Asset_Attribute
 	{
 		if (!parent::setEditParams($node)) return false;
 
-		if (isset($node->attributes['width']))  $this->_edit_params['width']  = (int) $node->attributes['width'];
-		if (isset($node->attributes['height'])) $this->_edit_params['height'] = (int) $node->attributes['height'];
+		if (isset($node->attributes['width'])) {
+			$this->_edit_params['width']  = (int) $node->attributes['width'];
+		}
+		if (isset($node->attributes['height'])) {
+			$this->_edit_params['height'] = (int) $node->attributes['height'];
+		}
 
 		return true;
 
@@ -211,23 +221,6 @@ class Asset_Attribute_Text extends Asset_Attribute
 		return true;
 
 	}//end validateValue()
-
-
-	/**
-	* Retrieve a list of indexable values from this attribute
-	*
-	* The return value not only contains the indexable values, but also the number of
-	* times they occur in this attributes value
-	*
-	* @return array(string => int)
-	* @access public
-	*/
-	function getKeyData()
-	{
-		require_once SQ_FUDGE_PATH.'/general/text.inc';
-		return get_word_counts(strtolower($this->value));
-
-	}//end getKeyData()
 
 
 }//end class
