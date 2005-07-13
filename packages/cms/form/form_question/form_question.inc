@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question.inc,v 1.59 2005/06/27 23:57:13 tbarrett Exp $
+* $Id: form_question.inc,v 1.60 2005/07/13 04:11:23 mmcintyre Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
 * @authro  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.59 $
+* @version $Revision: 1.60 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -215,7 +215,6 @@ class Form_Question extends Asset
 
 		// If we get this far, then it's all OK
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		$this->informChanges();
 
 		$GLOBALS['SQ_SYSTEM']->am->updateLock($this->_formid, 'attributes');
 
@@ -444,10 +443,10 @@ class Form_Question extends Asset
 		$code = '';						// blank sheet of code to start with
 
 		foreach ($rules as $k => $rule) {
-			$type_code = 'form_question_rule_type_' . $rule['rule_code'];
+			$type_code = 'form_question_rule_type_'.$rule['rule_code'];
 
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
-			$rule_asset = new $type_code();
+			$rule_asset =& new $type_code();
 			$code .= $rule_asset->generateJSCode($this, $rule);
 			$code .= "\n";
 
@@ -615,10 +614,10 @@ class Form_Question extends Asset
 		$ok = true;						// We start as being all OK
 
 		foreach ($rules as $k=>$rule) {
-			$type_code = 'form_question_rule_type_' . $rule['rule_code'];
+			$type_code = 'form_question_rule_type_'.$rule['rule_code'];
 
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
-			$rule_asset = new $type_code();
+			$rule_asset =& new $type_code();
 			$rule_ok = $rule_asset->evaluate($answer, $rule, $this);
 
 			if (!$rule_ok) {
