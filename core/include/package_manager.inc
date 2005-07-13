@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager.inc,v 1.70 2005/06/29 07:21:24 ndvries Exp $
+* $Id: package_manager.inc,v 1.71 2005/07/13 04:03:41 mmcintyre Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
 *    packages and their assets, uses info gleened from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.70 $
+* @version $Revision: 1.71 $
 * @package MySource_Matrix
 */
 class Package_Manager extends MySource_Object
@@ -321,7 +321,8 @@ class Package_Manager extends MySource_Object
 		}
 
 		$this->_postInstall();
-		return true;
+
+		return count($deferred) ? $deferred : true;
 
 	}//end updatePackageDetails()
 
