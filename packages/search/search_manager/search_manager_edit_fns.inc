@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_edit_fns.inc,v 1.12 2005/06/20 04:38:26 dheppell Exp $
+* $Id: search_manager_edit_fns.inc,v 1.13 2005/07/13 04:43:12 mmcintyre Exp $
 *
 */
 
@@ -24,8 +24,8 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 * @see Asset_Edit_Fns
 *
-* @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.12 $ - 1.0
+* @author Marc McIntyre <mmcintyre@squiz.net>
+* @version $Revision: 1.13 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -46,7 +46,7 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 
 
 	/**
-	* Paint the interface for painting default weights for each registered asset type
+	* Paints the interface for customising the assets to be indexed
 	*
 	* @param object Search_Mananger		&$asset		the search manager asset
 	* @param object Backend_Outputter	&$o			the backend outputter
@@ -55,19 +55,16 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintWeights(&$asset, &$o, $prefix)
+	function paintAssetWeights(&$asset, &$o, $prefix)
 	{
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
-		$typeHierarchy = $am->getAssetTypeHierarchy();
+		$customised = array_keys($asset->getAssetWeightings());
+		return $this->_paintWeightInterface($asset, $o, $prefix, 'asset', $customised);
 
-		$this->paintAssetTypeSection($asset, $o, $prefix, $typeHierarchy);
-		return true;
-
-	}//end paintWeights()
+	}//end paintAssetWeights()
 
 
 	/**
-	* Paint the interface for painting default weights for a particular asset type
+	* Processes the interface for customising the assets to be indexed
 	*
 	* @param object Search_Mananger		&$asset		the search manager asset
 	* @param object Backend_Outputter	&$o			the backend outputter
@@ -76,89 +73,1071 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintAssetTypeSection(&$asset, &$o, $prefix, $typeHierarchy)
+	function processAssetWeights(&$asset, &$o, $prefix)
 	{
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
-		$wa = $asset->writeAccess('attributes');
+		return $this->_processWeights($asset, $o, $prefix, 'asset');
 
-		foreach ($typeHierarchy as $typeCode => $assetType) {
-			$weightings = $am->getTypeDefaultWeightings($typeCode);
+	}//end processAssetWeights()
 
-			// filter out the dead ones
-			foreach ($weightings as $component => $data) {
-				if ($data['weight'] < 0) {
-					unset($weightings[$component]);
+
+	/**
+	* Paints the interface for customising the asset trees to be indexed
+	*
+	* @param object Search_Mananger		&$asset		the search manager asset
+	* @param object Backend_Outputter	&$o			the backend outputter
+	* @param string						$prefix		the prefix for fields
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintAssetTreeWeights(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+		$assetid = $this->_getCurrentCustomisation($prefix, 'asset_tree');
+
+		$global_customised = $asset->getAssetTreeWeightings();
+		// remove the root folder from the weightings as these are the global weightings
+		$root_folder_assetid = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('root_folder');
+		if (isset($global_customised[$root_folder_assetid])) {
+			unset($global_customised[$root_folder_assetid]);
+		}
+
+		$this->_paintCurrentCustomisations($asset, $o, $prefix, array_keys($global_customised), 'asset');
+		$this->_paintWeightingSourceInterface($asset, $o, $prefix, 'asset');
+
+		if (!empty($assetid)) {
+			return $this->_paintTreeWeightInterface($asset, $o, $prefix, $assetid);
+		}
+
+		return $write_access;
+
+	}//end paintAssetTreeWeights()
+
+
+	/**
+	* Processes the interface for customising the asset trees to be indexed
+	*
+	* @param object Search_Mananger		&$asset		the search manager asset
+	* @param object Backend_Outputter	&$o			the backend outputter
+	* @param string						$prefix		the prefix for fields
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processAssetTreeWeights(&$asset, &$o, $prefix)
+	{
+		return $this->_processWeights($asset, $o, $prefix, 'asset_tree');
+
+	}//end processAssetTreeWeights()
+
+
+	/**
+	* Paints the interface for customising the assets to be indexed
+	*
+	* @param object Search_Mananger		&$asset		the search manager asset
+	* @param object Backend_Outputter	&$o			the backend outputter
+	* @param string						$prefix		the prefix for fields
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintMetadataWeights(&$asset, &$o, $prefix)
+	{
+		$weights = $asset->getMetadataWeightings();
+		return $this->_paintMetadataWeightInterface($asset, $o, $prefix, $weights);
+
+	}//end paintMetadataWeights()
+
+
+	/**
+	* Processes the interface for customising the assets to be indexed
+	*
+	* @param object Search_Mananger		&$asset		the search manager asset
+	* @param object Backend_Outputter	&$o			the backend outputter
+	* @param string						$prefix		the prefix for fields
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processMetadataWeights(&$asset, &$o, $prefix)
+	{
+		$weights = $asset->getMetadataWeightings();
+		$this->_processMetadataWeights($prefix, $weights);
+		$asset->saveMetadataWeightings($weights);
+
+		return false;
+
+	}//end processMetadataWeights()
+
+
+	/**
+	* Paints the interface for customising the global weightings
+	*
+	* @param object Search_Mananger		&$asset		the search manager asset
+	* @param object Backend_Outputter	&$o			the backend outputter
+	* @param string						$prefix		the prefix for fields
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintGlobalWeights(&$asset, &$o, $prefix)
+	{
+		// for global weightings we store them as tree weightings under the root folder assetid
+		$root_folder_assetid = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('root_folder');
+		$global_customised = $asset->getAssetTreeWeightings($root_folder_assetid);
+		$customised = (isset($global_customised['type_weights'])) ? array_keys($global_customised['type_weights']) : Array();
+		$this->_paintCurrentCustomisations($asset, $o, $prefix, $customised, 'asset_type');
+		return $this->_paintTreeWeightInterface($asset, $o, $prefix, $root_folder_assetid, false);
+
+	}//end paintGlobalWeights()
+
+
+	/**
+	* Processes the interface for customising the global weightings
+	*
+	* @param object Search_Mananger		&$asset		the search manager asset
+	* @param object Backend_Outputter	&$o			the backend outputter
+	* @param string						$prefix		the prefix for fields
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processGlobalWeights(&$asset, &$o, $prefix)
+	{
+		return $this->_processWeights($asset, $o, $prefix, 'asset_tree');
+
+	}//end processGlobalWeights()
+
+
+	/**
+	* Paints the interface for customising tree weightings for the specified asset
+	*
+	* @param object Search_Mananger		&$asset		the search manager asset
+	* @param object Backend_Outputter	&$o			the backend outputter
+	* @param string						$prefix		the prefix for fields
+	* @param string						$assetid	the assetid of the tree root
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _paintTreeWeightInterface(&$asset, &$o, $prefix, $assetid, $paint_customised=true)
+	{
+		$write_access = $asset->writeAccess('attributes');
+		$tree_type = array_get_index($_POST, $prefix.'_selected_tree_type', '');
+
+		if ($this->_customisationsRemoved($prefix, 'asset_tree')) {
+			return $write_access;
+		}
+		$o->addHiddenField($prefix.'_current_assetid', $assetid);
+		// check to see if this tree has been customised before - if so
+		// we can bring up the details for this tree
+		$weights   = $asset->getAssetTreeWeightings($assetid);
+		$tree_type = array_get_index($_POST, $prefix.'_selected_tree_type', '');
+
+		//section opened by xml
+			$o->openField(translate('sch_customise').'?');
+				$types = Array(
+							'asset_type'	=> translate('asset_types'),
+							'metadata'		=> translate('metadata'),
+						 );
+				combo_box($prefix.'_selected_tree_type', $types, false, $tree_type);
+				echo '&nbsp;';
+				submit_button($prefix.'_selected_tree_type_go', translate('go'), 'main_form.submit()');
+			$o->closeField();
+
+		// check to see if they have chosen to customise a different tree asset than the current
+		// one, if so we want to clear the current interface from here down
+		$key = array_get_index($_POST, $prefix.'_current_assetid', '');
+		if (!empty($key) && $this->_getCurrentCustomisation($prefix, 'asset') != $key) {
+			return $write_access;
+		}
+
+		if (!empty($tree_type)) {
+			if ($tree_type == 'asset_type') {
+				$type_code = $this->_getCurrentCustomisation($prefix, 'asset_type');
+				if ($paint_customised) {
+					$customised = isset($weights['type_weights']) ? array_keys($weights['type_weights']) : Array();
+				} else {
+					$customised = Array();
+				}
+				$weights = isset($weights['type_weights'][$type_code]) ? $weights['type_weights'][$type_code] : Array();
+				return $this->_paintWeightInterface($asset, $o, $prefix, $tree_type, $customised, $weights);
+			} else {
+				$metadata_weights = array_get_index($weights, 'metadata_weights', Array());
+				return $this->_paintMetadataWeightInterface($asset, $o, $prefix, $metadata_weights);
+			}
+		}
+		return $write_access;
+
+	}//end _paintTreeWeightInterface()
+
+
+	/**
+	* Prints the interface used to specify the weights for asset components
+	*
+	* @param &object search_manager		$asset			the search_manager asset
+	* @param &object backend_outputer	$o				the backend_outputer
+	* @param string 					$prefix			the prefix for fields
+	* @param Array						$asset_weights	the asset weight values
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _paintAssetWeightInterface(&$asset, &$o, $prefix, $weights)
+	{
+		$write_access = $asset->writeAccess('attributes');
+		$o->openSection(translate('sch_asset_weightings'));
+			$o->openField('');
+				?>
+				<table class="sq-backend-table" style="width:50%">
+					<tr>
+						<td width="250" class="sq-backend-table-header"><?php echo translate('sch_weighting_component'); ?></td>
+						<td class="sq-backend-table-header"><?php echo translate('sch_weighting'); ?></td>
+						<td class="sq-backend-table-header"><?php echo translate('sch_indexed'); ?>?</td>
+					</tr>
+					<?php
+
+					$components = $asset->getIndexableAssetComponents();
+
+					foreach ($components as $comp => $name) {
+						$weight  = (isset($weights[$comp]['weight'])) ? $weights[$comp]['weight'] : 1;
+						$indexed = (isset($weights[$comp]['indexed'])) ? $weights[$comp]['indexed'] : 1;
+						?>
+						<tr>
+							<td class="sq-backend-table-cell">
+								<?php echo $name; ?>
+							</td>
+							<td class="sq-backend-table-cell">
+								<?php
+									if ($write_access) {
+										text_box($prefix.'_asset_weights['.$comp.'][weight]', $weight, 5);
+									} else {
+										echo $weight;
+									}
+								?>
+							</td>
+							<td class="sq-backend-table-cell">
+								<?php
+									if ($write_access) {
+										check_box($prefix.'_asset_weights['.$comp.'][indexed]', 1, $indexed);
+									} else {
+										echo ($indexed) ? translate('yes') : translate('no');
+									}
+								?>
+							</td>
+						</tr>
+						<?php
+					}
+					?>
+				</table>
+				<?php
+			$o->closeField();
+		$o->closeSection();
+
+		return $write_access;
+
+	}//end _paintAssetWeightInterface()
+
+
+	/**
+	* Prints the interface used to specify the weights for attributes
+	*
+	* @param &object search_manager		$asset			the search_manager asset
+	* @param &object backend_outputer	$o				the backend_outputer
+	* @param string 					$prefix			the prefix for fields
+	* @param Array						$weights		the attribute weight values
+	* @param string						$type_code		the type code that the attributes belong to
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _paintAttributeWeightInterface(&$asset, &$o, $prefix, $weights, $type_code)
+	{
+		$write_access = $asset->writeAccess('attributes');
+		$attrs        = $asset->getIndexableAttributes($type_code);
+
+		if (!empty($attrs)) {
+			$o->openSection(translate('sch_attribute_weightings'));
+				$o->openField('');
+					?>
+						<table class="sq-backend-table" style="width:50%">
+							<tr>
+								<td width="250" class="sq-backend-table-header"><?php echo translate('sch_weighting_attribute'); ?></td>
+								<td class="sq-backend-table-header"><?php echo translate('sch_weighting'); ?></td>
+								<td class="sq-backend-table-header"><?php echo translate('sch_indexed'); ?>?</td>
+							</tr>
+							<?php
+
+							foreach ($attrs as $name => $info) {
+
+								// don't accept weightings for names and shortnames as we have these
+								// as asset components
+								if ($name == 'name' || $name == 'short_name') {
+									continue;
+								}
+
+								$type    = $info['type'];
+								$weight  = (isset($weights[$name]['weight'])) ? $weights[$name]['weight'] : 1;
+								$indexed = (isset($weights[$name]['indexed'])) ? $weights[$name]['indexed'] : 1;
+								?>
+								<tr>
+									<td class="sq-backend-table-cell">
+										<?php echo ucwords(str_replace('_', ' ', $name)); ?>
+									</td>
+									<td class="sq-backend-table-cell">
+										<?php
+											if ($write_access) {
+												text_box($prefix.'_attr_weights['.$name.'][weight]', $weight, 5);
+											} else {
+												echo $weight;
+											}
+										?>
+									</td>
+									<td class="sq-backend-table-cell">
+										<?php
+											if ($write_access) {
+												check_box($prefix.'_attr_weights['.$name.'][indexed]', 1, $indexed);
+											} else {
+												echo ($indexed) ? translate('yes') : translate('no');
+											}
+										?>
+									</td>
+								</tr>
+								<?php
+							}//end foreach attr
+							?>
+						</table>
+					<?php
+				$o->closeField();
+			$o->closeSection();
+		}//end !empty(attrs)
+
+		return $write_access;
+
+	}//end _paintAttributeWeightInterface()
+
+
+	/**
+	* Prints the interface used to customise metadata weightings
+	*
+	* @param &object search_manager		$asset			the search_manager asset
+	* @param &object backend_outputer	$o				the backend_outputer
+	* @param string 					$prefix			the prefix for fields
+	* @param Array						$weights		the attribute weight values
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _paintMetadataWeightInterface(&$asset, &$o, $prefix, $weights)
+	{
+		$write_access = $asset->writeAccess('attributes');
+		$valid_types = Array(
+						'metadata_schema'	=> 'I',
+						'metadata_section'	=> 'I',
+						'metadata_field'	=> 'D',
+					   );
+		if ($write_access) {
+			$o->openSection(translate('sch_metadata_weightings'));
+				$o->openField('');
+					?>
+					<table class="sq-backend-table" style="width:60%">
+						<tr>
+							<td class="sq-backend-table-header"><?php echo translate('sch_metadata_asset'); ?></td>
+							<td class="sq-backend-table-cell">
+								<?php asset_finder($prefix.'_metadata_asset', 0, $valid_types); ?>
+							</td>
+						</tr>
+						<tr>
+							<td class="sq-backend-table-header"><?php echo translate('sch_weighting'); ?></td>
+							<td class="sq-backend-table-cell">
+								<?php text_box($prefix.'_metadata_weight', 1, 5); ?>
+							</td>
+						</tr>
+					</table>
+					<?php
+				$o->closeField();
+			$o->closeSection();
+		}
+
+		$o->openSection(translate('sch_metadata_asset_weightings'));
+			$o->openField('');
+				if (!empty($weights)) {
+					?>
+						<table class="sq-backend-table" style="width:60%">
+							<tr>
+								<td class="sq-backend-table-header"><?php echo translate('assetid'); ?></td>
+								<td class="sq-backend-table-header"><?php echo translate('sch_metadata_asset_name'); ?></td>
+								<td class="sq-backend-table-header"><?php echo translate('asset_type'); ?></td>
+								<td class="sq-backend-table-header"><?php echo translate('sch_weighting'); ?></td>
+								<td class="sq-backend-table-header"><?php echo translate('sch_indexed'); ?>?</td>
+								<?php
+									if ($write_access) {
+										echo '<td class="sq-backend-table-header">'.translate('sch_remove').'?</td>';
+									}
+								?>
+							</tr>
+							<?php
+
+							foreach ($weights as $assetid => $info) {
+
+								$type_name  = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($info['type_code'], 'name');
+								$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid), Array(), true, 'name');
+								$indexed    = (isset($weights[$assetid]['indexed'])) ? $weights[$assetid]['indexed'] : 1;
+								$asset_name = $asset_info[$assetid];
+
+								?>
+								<tr>
+									<td class="sq-backend-table-cell">
+										<?php echo $assetid; ?>
+									</td>
+									<td class="sq-backend-table-cell">
+										<?php echo $asset_name; ?>
+									</td>
+									<td class="sq-backend-table-cell" border="0">
+										<?php echo $type_name; ?>
+									</td>
+									<td class="sq-backend-table-cell">
+										<?php
+											if ($write_access) {
+												text_box($prefix.'_metadata_assets['.$assetid.'][weight]', $info['weight'], 5);
+											} else {
+												echo $info['weight'];
+											}
+										?>
+									</td>
+									<td class="sq-backend-table-cell">
+										<?php
+											if ($write_access) {
+												echo check_box($prefix.'_metadata_assets['.$assetid.'][indexed]', 1, $indexed);
+											} else {
+												echo ($indexed) ? translate('yes') : translate('no');
+											}
+										?>
+									</td>
+										<?php
+											if ($write_access) {
+												echo '<td class="sq-backend-table-cell">';
+												echo check_box($prefix.'_metadata_assets['.$assetid.'][remove]', 1, false);
+												echo '</td>';
+											}
+										?>
+								</tr>
+								<?php
+							}//end foreach weights
+							?>
+						</table>
+					<?php
+				} else {
+					echo translate('sch_no_metadata_customised');
+				}
+			$o->closeField();
+		$o->closeSection();
+
+		return $write_access;
+
+	}//end _paintMetadataWeightInterface()
+
+
+	/**
+	* Paints the interface for choosing an asset type.
+	*
+	* Only non-system assets and instantiable assets and their ancestors are printed
+	*
+	* @param string	$field_name				the name to use for the combo box
+	* @param string	$selected_type_code		the type_code that should be currently selected
+	*
+	* @return void
+	* @access private
+	*/
+	function _paintAssetTypeChooser($field_name, $selected_type_code)
+	{
+		$asset_types = $GLOBALS['SQ_SYSTEM']->am->getAssetTypes(true, true);
+
+		foreach ($asset_types as $type_code => $info) {
+			$all_types[$type_code] = $info['name'];
+			$type_anc = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($type_code);
+
+			foreach ($type_anc as $anc_type_code) {
+				if ($anc_type_code == 'asset') continue;
+				// save on db calls if we have this ancestor already
+				if (!in_array($anc_type_code, array_keys($all_types))) {
+					$all_types[$anc_type_code] = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($anc_type_code, 'name');
 				}
 			}
+		}
+		$all_types = array_unique($all_types);
+		arsort($all_types);
+		$all_types['asset'] = '-- '.translate('sch_all_asset_types').' --';
+		$all_types[''] = '';
+		$all_types = array_reverse($all_types);
 
-			if (!empty($weightings)) {
-				$o->openSection($assetType['name']);
-				foreach ($weightings as $component => $data) {
-					$o->openField($data['description']);
+		combo_box($field_name, $all_types, false, $selected_type_code);
+		echo '&nbsp;';
+		submit_button($field_name.'_go', translate('go'), 'main_form.submit()');
 
-					if (!$wa) {
-						echo $data['weight'];
-					} else {
-						if ($data['weight'] == 0) {
-							$disabled = '1';
+	}//end _paintAssetTypeChooser()
+
+
+	/**
+	* Paints the interface for choosing a source to customise
+	*
+	* @param &object search_manager		$asset			the search_manager asset
+	* @param &object backend_outputer	$o				the backend_outputer
+	* @param string 					$prefix			the prefix for fields
+	* @param string						$screen			the screen being processed
+	* @param string						$field_suffix	the suffix to append to the field name
+	*
+	* @return void
+	* @access private
+	*/
+	function _paintWeightingSourceInterface(&$asset, &$o, $prefix, $screen, $field_suffix='')
+	{
+		$write_access = $asset->writeAccess('attributes');
+		if ($screen == 'asset_type') {
+			$o->openField(translate('sch_choose_type_code'));
+				$current_customisation = $this->_getCurrentCustomisation($prefix, 'asset_type');
+				if ($write_access) {
+					$this->_paintAssetTypeChooser($prefix.'_selected_type_code'.$field_suffix, $current_customisation);
+				} else {
+					if (!empty($current_customisation)) {
+						if ($current_customisation == 'asset') {
+							echo translate('sch_all_asset_types');
 						} else {
-							$disabled = '0';
-						}
-
-						// don't get confused here, a value of 1 means it's DISABLED
-						// rather than enabled, and therefore not included in searches
-						combo_box($prefix. "disable[$typeCode][$component]", Array(
-																				'1'	=> translate('sch_manager_do_not_include'),
-																				'0'	=> translate('sch_manager_include'),
-																			 ), false, $disabled);
-
-						if (!$disabled) {
-							echo '&nbsp;'.ucfirst(translate('weight')).': ';
-							text_box ($prefix. "weights[$typeCode][$component]", $data['weight'], 3);
-						} else {
-							$o->addHiddenField($prefix. "weights[$typeCode][$component]", 1);
+							echo $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($current_customisation, 'name');
 						}
 					}
-					$o->closeField();
 				}
-				$o->closeSection();
-			}
-
-			if (!empty($assetType['subs'])) {
-				$this->paintAssetTypeSection($asset, $o, $prefix, $assetType['subs']);
+			$o->closeField();
+		} else if ($screen == 'asset') {
+			if ($write_access) {
+				$o->openField(translate('sch_choose_assetid'));
+					$current_customisation = $this->_getCurrentCustomisation($prefix, 'asset');
+					asset_finder($prefix.'_selected_assetid'.$field_suffix, $current_customisation, Array());
+				$o->closeField();
 			}
 		}
 
-	}//end paintAssetTypeSection()
+	}//end _paintWeightingSourceInterface()
 
 
 	/**
-	* Processes the request for setting of default weights.
+	* Paints an interface with the current cusomisations for the specified weights and screen
 	*
-	* @param object Search_Manager		&$asset		the search manager asset
-	* @param object	Backend_Outputter	&$o			the backend outputter object
-	* @param string						$prefix		the prefix for field
+	* @param &object search_manager		$asset			the search_manager asset
+	* @param &object backend_outputer	$o				the backend_outputer
+	* @param string 					$prefix			the prefix for fields
+	* @param Array						$weights		the weights
+	* @param string						$screen			the current screen
 	*
-	* @return boolean
-	* @access public
+	* @return void
+	* @access private
 	*/
-	function processWeights(&$asset, &$o, $prefix)
+	function _paintCurrentCustomisations(&$asset, &$o, $prefix, $weights, $screen)
 	{
-		$weights = $_POST[$prefix. 'weights'];
-		$disabled = $_POST[$prefix. 'disable'];
+		$post_field  = $this->_getPostField($screen);
+		$current_key = $this->_getCurrentCustomisation($prefix, $screen);
 
-		foreach ($weights as $typeCode => $weightData) {
-			foreach ($weightData as $component => $weighting) {
-				if ($disabled[$typeCode][$component] || $weighting < 0) {
-					$weighting = 0;
-				}
+		if (empty($weights)) return;
+		$write_access = $asset->writeAccess('attributes');
+		$o->openField('');
+			$o->openSection('Current customisations');
+				$o->openField('');
+					?>
+						<table class="sq-backend-table" style="width:60%">
+							<tr>
+								<?php
+								// only print this header if we are printing non asset_type screens
+								if ($screen != 'asset_type') {
+									?><td class="sq-backend-table-header"><?php echo translate('assetid'); ?></td><?php
+								}
+								$type_col_name = ($screen == 'asset') ? 'asset_name' : 'asset_type';
+								?>
+								<td class="sq-backend-table-header"><?php echo translate($type_col_name); ?></td>
+								<?php
+									if ($write_access) {
+										echo '<td class="sq-backend-table-header">'.translate('sch_remove').'?</td>';
+									}
+								?>
+							</tr>
+							<?php
+								foreach ($weights as $key) {
+									// highlight the current table row begin customised
+									$css_class = 'sq-backend-table-cell';
+									if ($key == $current_key) $css_class .= '-alt';
 
-				$asset->setComponentDefaultWeighting($typeCode, $component, $weighting);
+									// when we click on a customisation, set a hidden field to the
+									// key that we are customising and submit the screen to save any options
+									// that have been changed
+									$field = $prefix.'_customise_'.$post_field;
+									$o->addHiddenField($field, '');
+									$src  = 'Javascript: document.getElementById(\''.$field.'\').value = \''.$key.'\';';
+									$src .= 'main_form.submit()';
+									?>
+									<tr>
+										<?php
+											if ($screen != 'asset_type') $key_name = $key; // assetid
+											$type_name = $this->_getDisplayName($key, $screen);
+
+											// we only paint the section for the assetid if we are
+											// printing non-asset_type screens
+											if ($screen != 'asset_type') {
+												?>
+												<td class="<?php echo $css_class; ?>">
+													<?php echo $key_name; ?>
+												</td>
+												<?php
+											}
+											?>
+											<td class="<?php echo $css_class; ?>">
+												<a href="<?php echo $src?>"><?php echo $type_name; ?></a>
+											</td>
+											<?php
+												if ($write_access) {
+													?>
+														<td class="<?php echo $css_class; ?>">
+															<?php echo check_box($field.'_remove['.$key.']', 1, false); ?>
+														</td>
+													<?php
+												}
+											?>
+									</tr>
+									<?php
+								}
+							?>
+						</table>
+					<?php
+				$o->closeField();
+			$o->closeSection();
+		$o->closeField();
+
+	}//end _paintCurrentCustomisations()
+
+
+	/**
+	* Returns the displayable name for the specified key and screen
+	*
+	* @param string		$key		the key - which is either an assetid or type code
+	* @param string		$screen		the current screen being painted
+	*
+	* @return string
+	* @access private
+	*/
+	function _getDisplayName($key, $screen)
+	{
+		if (empty($key)) return '';
+
+		if ($screen != 'asset_type') {
+			$info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($key), Array(), true);
+			$type_name = $info[$key]['name'];
+		} else {
+			// if the key is 'asset' then we are processing all asset types
+			if ($key != 'asset') {
+				$type_name = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($key, 'name');
+			} else {
+				$type_name = translate('sch_all_asset_types');
 			}
 		}
-		return true;
+		return $type_name;
 
-	}//end processWeights()
+	}//end _getDisplayName()
+
+
+	/**
+	* Returns the key of the current source being customised
+	*
+	* @param string		$prefix		the field prefix
+	* @param string 	$screen		the screen currently being processed
+	*
+	* @return string
+	* @access private
+	*/
+	function _getCurrentCustomisation($prefix, $screen)
+	{
+		$post_field = $this->_getPostField($screen);
+		$key = array_get_index($_POST, $prefix.'_selected_'.$post_field, '');
+
+		// if the screen requires an asset finder, extract the
+		// assetid into $key from the info posted from the asset finder
+		if ($post_field == 'assetid') {
+			$key = isset($key['assetid']) ? $key['assetid'] : '';
+		}
+		// if there was nothing selected to customise, check for a current customisation in process
+		if (empty($key)) {
+			$key = array_get_index($_POST, $prefix.'_current_'.$post_field, '');
+		}
+
+		// check to see if a current customisation was selected
+		if (isset($_POST[$prefix.'_customise_'.$post_field]) && !empty($_POST[$prefix.'_customise_'.$post_field])) {
+			$key = $_POST[$prefix.'_customise_'.$post_field];
+		}
+		return $key;
+
+	}//end _getCurrentCustomisation()
+
+
+	/**
+	* Returns the field identifier for the specified screen
+	*
+	* @param string 	$screen	the screen of the wanted identifier
+	*
+	* @return string
+	* @access private
+	*/
+	function _getPostField($screen)
+	{
+		$post_fields = Array(
+						'asset_tree'	=> 'assetid',
+						'asset'			=> 'assetid',
+						'asset_type'	=> 'type_code',
+						'metadata'		=> 'assetid',
+					   );
+		return $post_fields[$screen];
+
+	}//end _getPostField()
+
+
+	/**
+	* Paints the weighting interface for all screens
+	*
+	* @param &object search_manager		$asset			the search_manager asset
+	* @param &object backend_outputer	$o				the backend_outputer
+	* @param string 					$prefix			the prefix for fields
+	* @param string						$screen			the screen that we are painting
+	* @param Array						$weights		the weighting information to display, if null
+	*													the weights will be obtained based on the screen type
+	* @return boolean
+	* @access private
+	*/
+	function _paintWeightInterface(&$asset, &$o, $prefix, $screen, $customised=Array(), $weights=null)
+	{
+		$write_access = $asset->writeAccess('attributes');
+		$post_field   = $this->_getPostField($screen);
+		$key          = $this->_getCurrentCustomisation($prefix, $screen);
+
+		// section opened by xml
+			$this->_paintCurrentCustomisations($asset, $o, $prefix, $customised, $screen);
+			$this->_paintWeightingSourceInterface($asset, $o, $prefix, $screen);
+		$o->closeSection();
+
+		// if any customisations have been removed, dont show the weighting interface
+		// as the previous interface shown may have been for a removed customisation
+		if ($this->_customisationsRemoved($prefix, $screen)) {
+			return $write_access;
+		}
+
+		$o->openSection(translate('sch_'.$screen.'_management'));
+			$o->openField('');
+				if (!empty($key)) {
+					// obtain the current weightings for this screen
+					$fn = 'get'.str_replace('_', '', $screen).'weightings';
+					if (is_null($weights)) $weights = $asset->$fn($key);
+
+					if ($post_field == 'type_code') {
+						$type_code = $key;
+					} else {
+						$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($key), Array(), true);
+						$type_code  = $asset_info[$key]['type_code'];
+					}
+
+					$o->openField(translate('sch_indexing_enabled'));
+						if (isset($weights[$key]['indexed'])){
+							$indexed = $weights[$key]['indexed'];
+						} else {
+							$indexed = 1;
+						}
+						$options = Array(
+									1	=> translate('yes'),
+									0	=> translate('no'),
+								   );
+						if ($write_access) {
+							combo_box($prefix.'_indexed', $options, false, $indexed);
+						} else {
+							echo $options[$indexed];
+						}
+					$o->closeField();
+
+					$asset_weights    = array_get_index($weights, 'asset_weights', Array());
+					$attr_weights     = array_get_index($weights, 'attr_weights', Array());
+					$metadata_weights = array_get_index($weights, 'metadata_weights', Array());
+
+					$this->_paintAssetWeightInterface($asset, $o, $prefix, $asset_weights);
+					$this->_paintAttributeWeightInterface($asset, $o, $prefix, $attr_weights, $type_code);
+					$this->_paintMetadataWeightInterface($asset, $o, $prefix, $metadata_weights);
+
+					if (!$this->_customisationsRemoved($prefix, $screen)) {
+						$o->addHiddenField($prefix.'_current_'.$post_field, $key);
+					}
+				}//end !empty(assetid)
+			$o->closeField();
+		// section closed by xml
+
+		return $write_access;
+
+	}//end _paintWeightInterface()
+
+
+	/**
+	* Processes the weightings for all weightings screen
+	*
+	* @param &object search_manager		$asset			the search_manager asset
+	* @param &object backend_outputer	$o				the backend_outputer
+	* @param string 					$prefix			the prefix for fields
+	* @param string						$screen			the screen to process
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _processWeights(&$asset, &$o, $prefix, $screen)
+	{
+		if (!$asset->writeAccess('attributes')) return false;
+		$post_field = $this->_getPostField($screen);
+
+		// if they have clicked on a current customisation, dont process
+		if (isset($_POST[$prefix.'_customise_'.$post_field]) && !empty($_POST[$prefix.'_customise_'.$post_field])) {
+			return false;
+		}
+
+		$function_suffix = str_replace('_', '', $screen).'Weightings';
+		$get_function    = 'get'.$function_suffix;
+		$save_function   = 'save'.$function_suffix;
+
+		$key     = array_get_index($_POST, $prefix.'_current_'.$post_field, '');
+		$weights = $asset->$get_function();
+
+		if (!empty($key)) {
+			// the asset tree screen is a bit special - we need to dig down the
+			// array depending on what we are customising
+			if ($screen == 'asset_tree') {
+
+				if (!isset($weights[$key])) $weights[$key] = Array();
+				$tree_assetid = $key;
+				$tree_weights = $weights;
+				$weights      = $weights[$key];
+
+				$tree_type = array_get_index($_POST, $prefix.'_selected_tree_type', '');
+
+				if (empty($tree_type)) return;
+
+				if ($tree_type == 'asset_type') {
+					$type_code = array_get_index($_POST, $prefix.'_current_type_code', '');
+					if (!empty($type_code)) {
+						// the key will be the type code within the asset tree array
+						// that we are currently customising
+						$key = $type_code;
+						if (!isset($weights['type_weights'])) {
+							$weights['type_weights'] = Array();
+						}
+						$weights = $weights['type_weights'];
+					} else {
+						// remove any asset type customisatons or tree customisations that have
+						// be flagged for removal
+						$this->_removeUnwantedCustomisations($prefix, 'asset_type', $weights['type_weights']);
+						$tree_weights[$key] = $weights;
+						$this->_removeUnwantedCustomisations($prefix, $screen, $tree_weights);
+						$asset->$save_function($tree_weights);
+						return false;
+					}
+				} else {
+					// we are setting metadata weights for assets underneath 'key', which
+					// is stored in the global section for the asset tree that we are customising
+					if (!isset($weights['metadata_weights'])) {
+						$weights['metadata_weights'] = Array();
+					}
+					$this->_processMetadataWeights($prefix, $weights['metadata_weights']);
+					$tree_weights[$tree_assetid] = $weights;
+					$asset->$save_function($tree_weights);
+
+					// no more work to do so just return
+					return false;
+				}
+			}//end if asset_tree
+
+			if (!isset($weights[$key])) $weights[$key] = Array();
+
+			foreach (Array('asset_weights', 'attr_weights', 'metadata_weights') as $index) {
+				if (!isset($weights[$key][$index])) {
+					$weights[$key][$index] = Array();
+				}
+			}
+
+			// set the 1 if there is no 'indexed' value set
+			$indexed = array_get_index($_POST, $prefix.'_indexed', 1);
+			$weights[$key]['indexed'] = $indexed;
+
+			$this->_processAssetWeights($prefix, $weights[$key]['asset_weights']);
+			$this->_processAttributeWeights($prefix, $weights[$key]['attr_weights']);
+			$this->_processMetadataWeights($prefix, $weights[$key]['metadata_weights']);
+
+			if ($screen == 'asset_tree') {
+				// remove any asset type customisations that have been flagged for removal
+				$this->_removeUnwantedCustomisations($prefix, 'asset_type', $weights);
+				// we only get into here if tree_type == asset_type
+				$tree_weights[$tree_assetid]['type_weights'] = $weights;
+				$weights = $tree_weights;
+			}
+		}
+
+		if (!empty($weights)) {
+			// remove any unwanted customisations
+			$this->_removeUnwantedCustomisations($prefix, $screen, $weights);
+			$asset->$save_function($weights);
+		}
+
+		// we never save attributes
+		return false;
+
+	}//end _processWeights()
+
+
+	/**
+	* Processes the weightings for asset component weights
+	*
+	* @param string		$prefix			the prefix for fields
+	* @param &Array		$weights		the weights to process
+	*
+	* @return void
+	* @access private
+	*/
+	function _processAssetWeights($prefix, &$weights)
+	{
+		$asset_weights = array_get_index($_POST, $prefix.'_asset_weights', Array());
+
+		foreach ($asset_weights as $comp => $info) {
+			// verify that all weights are positive
+			if ($info['weight'] <= 0) {
+				if (!isset($weights[$comp]['weight'])) {
+					$asset_weights[$comp]['weight'] = 1;
+				} else {
+					$asset_weights[$comp]['weight'] = $weights[$comp]['weight'];
+				}
+			}
+			if (!isset($info['indexed'])) {
+				$asset_weights[$comp]['indexed'] = 0;
+			}
+		}
+		$weights = $asset_weights;
+
+	}//end _processAssetWeights()
+
+
+	/**
+	* Processes the weightings for attribute weights
+	*
+	* @param string		$prefix			the prefix for fields
+	* @param &Array		$weights		the weights to process
+	*
+	* @return void
+	* @access private
+	*/
+	function _processAttributeWeights($prefix, &$weights)
+	{
+		$attr_weights = array_get_index($_POST, $prefix.'_attr_weights', Array());
+		foreach ($attr_weights as $name => $info) {
+			// verify that all weights are positive
+			if ($info['weight'] <= 0) {
+				if (!isset($weights[$name]['weight'])) {
+					$attr_weights[$name]['weight'] = 1;
+				} else {
+					$attr_weights[$name]['weight'] = $weights[$name]['weight'];
+				}
+			}
+			if (!isset($info['indexed'])) {
+				$attr_weights[$name]['indexed'] = 0;
+			}
+		}
+		$weights = $attr_weights;
+
+	}//end _processAttributeWeights()
+
+
+	/**
+	* Processes the weightings for metadata weights
+	*
+	* @param string		$prefix			the prefix for fields
+	* @param &Array		$weights		the weights to process
+	*
+	* @return void
+	* @access private
+	*/
+	function _processMetadataWeights($prefix, &$weights)
+	{
+		// information about already added metadata assets
+		$metadata_assets = array_get_index($_POST, $prefix.'_metadata_assets', Array());
+
+		// process any assets that have been previously added
+		foreach ($metadata_assets as $assetid => $info) {
+			if (isset($info['remove']) && $info['remove']) {
+				unset($weights[$assetid]);
+			} else {
+				$weight = ((int) $info['weight'] > 0) ? $info['weight'] : null;
+				if (!is_null($weight)) {
+					$weights[$assetid]['weight'] = $weight;
+				}
+				$weights[$assetid]['indexed'] = array_get_index($info, 'indexed', false);
+			}
+		}
+
+		// the information posted by the asset finder
+		$metadata_asset = array_get_index($_POST, $prefix.'_metadata_asset', null);
+
+		if (!is_null($metadata_asset) && $metadata_asset['assetid'] != 0) {
+			$weight = array_get_index($_POST, $prefix.'_metadata_weight', 1);
+			if ($weight < 0) $weight = 1;
+
+			$assetid   = $metadata_asset['assetid'];
+			$type_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid), Array(), true, 'type_code');
+			$type_code = $type_info[$assetid];
+
+			// save any values from a metadata asset that was selected using the asset finder
+			$weights[$assetid] = Array(
+									'weight'	=> $weight,
+									'type_code'	=> $type_code,
+									'indexed'	=> 1,
+								 );
+		}
+
+	}//end _processMetadataWeights()
+
+
+	/**
+	* Removes any customisations that have been flagged for removal
+	*
+	* @param string	$prefix		the field prefix
+	* @param string	$screen		the screen being processed
+	* @param &Array	$weights	the weights being processed
+	*
+	* @return void
+	* @access private
+	*/
+	function _removeUnwantedCustomisations($prefix, $screen, &$weights)
+	{
+		$post_field = $this->_getPostField($screen);
+		// remove any customisations that have been checked for removal
+		$remove_array = array_get_index($_POST, $prefix.'_customise_'.$post_field.'_remove', Array());
+		foreach ($remove_array as $key => $info) {
+			unset($weights[$key]);
+		}
+
+	}//end _removeUnwantedCustomisations()
+
+
+	/**
+	* Returns true if customisations were removed in the last save action
+	*
+	* @param string	$prefix		the field prefix
+	* @param string $screen		the screen being processed
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _customisationsRemoved($prefix, $screen)
+	{
+		$post_field = $this->_getPostField($screen);
+		$removed = array_get_index($_POST, $prefix.'_customise_'.$post_field.'_remove', Array());
+
+		return (!empty($removed));
+
+	}//end _customisationsRemoved()
 
 
 	/**
@@ -315,7 +1294,6 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function processWhiteWords(&$asset, &$o, $prefix)
 	{
-
 		$words = array_get_index($_POST, $prefix.'_white_words', false);
 
 		$matches	= Array();

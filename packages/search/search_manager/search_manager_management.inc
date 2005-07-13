@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_management.inc,v 1.13 2005/06/20 04:38:26 dheppell Exp $
+* $Id: search_manager_management.inc,v 1.14 2005/07/13 04:47:56 mmcintyre Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.13 $ - 0.1
+* @version $Revision: 1.14 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -94,7 +94,7 @@ class Search_Manager_Management extends Asset_Management
 													   ),
 				),
 				Array(
-					'event_name'					=> 'requestReindex',
+					'event_name'					=> 'AssetUpdate',
 					'broadcast_type_code'			=> 'global',
 					'broadcast_strict_type_code'	=> true,
 					'options'						=> Array(
