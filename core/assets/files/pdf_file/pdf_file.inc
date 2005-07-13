@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: pdf_file.inc,v 1.16 2005/05/04 00:39:16 arailean Exp $
+* $Id: pdf_file.inc,v 1.17 2005/07/13 03:30:49 mmcintyre Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -86,35 +86,22 @@ class PDF_File extends File
 
 
 	/**
-	* Retrieves a list of key data from this asset (used by the indexing service).
-	* Subclasses override this to give the content they want to make searchable.
+	* Returns the raw content of this pdf file
 	*
-	* @return array				an array of all the keydata for this asset. Keydata is of the form
-	* <pre>
-	* Array (
-	*	Array (
-	*		'value'     => ...,
-	*		'type'      => ..., (text, date, number, etc.)
-	*		'component' => ..., (whatever you want, just as long as this asset
-	*							 knows how to deal with it if it needs to)
-	*		), ...
-	* )
-	* </pre>
+	* @return string
 	* @access public
 	*/
-	function getKeyData()
+	function getContent()
 	{
-		$keydata = parent::getKeyData();
-
 		$file_info = $this->getExistingFile();
-		if (empty($file_info)) return $keydata;
+		if (empty($file_info)) return '';
 		$file = $file_info['path'];
 
 		$indexer_path = dirname(__FILE__).'/files';
 
 		$file = ereg_replace('\"','\\\"',$file);
 
-		$output = '';
+		$content = '';
 
 		if (SQ_TOOL_PDFTOHTML_ENABLED) {
 			$pwd = $this->attr('password');
@@ -122,13 +109,12 @@ class PDF_File extends File
 
 			// Run a program that converts a PDF to HTML, set environment variable of bin_path
 			$cmd = SQ_TOOL_PDFTOHTML_PATH." -nomerge -noframes -stdout $pwd $file";
-			$output = shell_exec($cmd);
+			$content = shell_exec($cmd);
 		}
 
-		if (!$output) return $keydata;
-
+		if (!$content) return '';
 		// strip out the tags
-		$output = trim(strip_tags($output));
+		$content = trim(strip_tags($content));
 
 		// in some cases file path ends up as the first string in the file
 		// this is the way pdftohtml treats files without the title, it puts filename into html title
@@ -141,27 +127,19 @@ class PDF_File extends File
 
 		// if we suspect that the first string is the file path, remove it
 		// NOTE: this will only work on *nix type filesystems. This is
-		if ($output{0} == '/') {
-			$output = substr($output, strlen($file));
+		if ($content{0} == '/') {
+			$content = substr($content, strlen($file));
 		}
 
 		// strip out the unnecessary whitespace and html entities like &amp;
 		$search = Array('/[\s]+/', '/\&[^;\s]+;/');
 		$replace = Array(' ', '');
 
-		$output = strtolower(trim(preg_replace($search, $replace, $output)));
+		$content = strtolower(trim(preg_replace($search, $replace, $content)));
 
-		// index attributes
-		$weightings = $this->getWeightings();
+		return $content;
 
-		foreach (get_word_counts($output) as $word => $count) {
-			$this->buildKeyData($keydata, $word, 'text', 'attr:'.$this->type().':contents', $count * $weightings['contents']['weight']);
-		}
-
-		return $keydata;
-
-
-	}//end getKeyData()
+	}//end getContent()
 
 
 }//end class
