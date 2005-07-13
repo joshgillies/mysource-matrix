@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_management.inc,v 1.72 2005/07/04 03:57:47 arailean Exp $
+* $Id: asset_management.inc,v 1.73 2005/07/13 03:57:33 mmcintyre Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_LIB_PATH.'/xml_array/xml_array.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.72 $
+* @version $Revision: 1.73 $
 * @package MySource_Matrix
 */
 class Asset_Management extends MySource_Object
@@ -268,10 +268,6 @@ class Asset_Management extends MySource_Object
 			if (!$this->_addAttribute($name)) return false;
 		}
 
-		// now add the component weightings
-		if (!$this->_setComponentWeightings()) return false;
-
-
 		return true;
 
 	}//end _install()
@@ -328,9 +324,6 @@ class Asset_Management extends MySource_Object
 				if (!$this->_addAttribute($name)) return false;
 			}
 		}//end for
-
-		// now add the component weightings
-		if (!$this->_setComponentWeightings()) return false;
 
 		return true;
 
@@ -463,6 +456,7 @@ class Asset_Management extends MySource_Object
 			$attr_info['default_type_code']      = $type_code;
 			$attr_info['default_val']            = $this->vars[$name]['default'];
 			$attr_info['uniq']                   = empty($this->vars[$name]['uniq']) ? 0 : 1;
+			$attr_info['is_admin']               = isset($this->vars[$name]['is_admin']) ? (int) $this->vars[$name]['is_admin'] : 1;
 			$attr_info['parameters_type_code']   = $type_code;
 
 			if (isset($this->vars[$name]['parameters'])) {
@@ -487,7 +481,7 @@ class Asset_Management extends MySource_Object
 
 			// Find the parents with an attribute of this name
 			$sql = 'SELECT	atr.type_code, atr.owning_type_code, atr.type, atr.uniq, atr.parameters_val,
-							atr.parameters_type_code, atr.default_type_code, atr.default_val, atr.description
+							atr.parameters_type_code, atr.default_type_code, atr.default_val, atr.description, atr.is_admin
 					FROM sq_ast_typ_inhd i, sq_ast_attr atr, sq_ast_typ at
 					WHERE i.type_code = '.$this->_db->quote($type_code).'
 					  AND i.inhd_type_code <> '.$this->_db->quote($type_code).'
@@ -505,6 +499,7 @@ class Asset_Management extends MySource_Object
 			$attr_info['owning_type_code']  = $attr_owner['owning_type_code'];
 			$attr_info['type']              = $attr_owner['type'];
 			$attr_info['uniq']              = $attr_owner['uniq'];
+			$attr_info['is_admin']          = (int) $attr_owner['is_admin'];
 			$attr_info['description']       = $attr_owner['description'];
 
 			// if we have set our own default value, then we are overriding the default
@@ -559,7 +554,7 @@ class Asset_Management extends MySource_Object
 
 		// OK, all seems fine, let's add the bloody thing
 		$sql = 'INSERT INTO sq_ast_attr
-				(attrid, type_code, owning_type_code, name, type, uniq, parameters_type_code, default_type_code, default_val, parameters_val, description)
+				(attrid, type_code, owning_type_code, name, type, uniq, parameters_type_code, default_type_code, default_val, parameters_val, is_admin, description)
 				VALUES
 				('.$this->_db->quote($attributeid).',
 				'.$this->_db->quote($type_code).',
@@ -571,6 +566,7 @@ class Asset_Management extends MySource_Object
 				'.$this->_db->quote($attr_info['default_type_code']).',
 				'.$this->_db->quote($attr_info['default_val']).',
 				'.$this->_db->quote(serialize($attr_info['parameters'])).',
+				'.$this->_db->quote($attr_info['is_admin']).',
 				'.$this->_db->quote($attr_info['description']).')';
 
 		$result = $this->_db->query($sql);
@@ -813,6 +809,7 @@ class Asset_Management extends MySource_Object
 		$sql = 'UPDATE sq_ast_attr
 				SET type        = '.$this->_db->quote($this->vars[$name]['type']).',
 					uniq        = '.$this->_db->quote(empty($this->vars[$name]['uniq']) ? 0 : 1).',
+					is_admin    = '.$this->_db->quote(isset($this->vars[$name]['is_admin']) ? (int) $this->vars[$name]['is_admin'] : 1).',
 					description = '.$this->_db->quote($description).'
 				WHERE owning_type_code = '.$this->_db->quote($type_code).'
 				  AND name = '.$this->_db->quote($name);
@@ -918,117 +915,6 @@ class Asset_Management extends MySource_Object
 		return $attr->validateValue($default);
 
 	}//end _validateAttributeDefault()
-
-
-	/**
-	*  Sets the default weightings for this asset type's components
-	*
-	* @access private
-	* @return true
-	*/
-	function _setComponentWeightings()
-	{
-		$type_code = $this->getAssetType();
-
-		// clear the weightings for any assets that aren't installed
-		$sql = 'DELETE FROM sq_sch_idx_wgt_dflt
-				WHERE type_code != '.$this->_db->quoteSmart('asset').'
-				AND type_code NOT IN (
-					SELECT type_code
-					FROM sq_ast_typ
-				)';
-
-		$result = $this->_db->query($sql);
-		if (!assert_valid_db_result($result, '', false, false)) {
-			return false;
-		}
-
-
-		$components = $this->_getAllComponents();
-		if (empty($components)) {
-			// nothing to do
-			return true;
-		}
-
-		$db_components = Array();
-		foreach ($components as $component => $weighting) {
-			$db_components[] = 'component = '.$this->_db->quoteSmart($component);
-		}
-
-		// check if this asset already has a weighting, and if so, what components
-		$sql = 'SELECT component
-				FROM sq_sch_idx_wgt_dflt
-				WHERE type_code = '.$this->_db->quoteSmart($type_code).'
-				AND ('.implode(' OR ', $db_components).')';
-		$result = $this->_db->getAll($sql);
-		if (!assert_valid_db_result($result, '', false, false)) {
-			return false;
-		}
-
-		// determine the components we need to set the default values for
-		$needed_components = $components;
-		foreach ($result as $row) {
-			if (isset($row['component']) && isset($needed_components[$row['component']])) {
-				unset($needed_components[$row['component']]);
-			}
-		}
-
-		// loop through the needed components and set the default values
-		foreach ($needed_components as $component => $weighting) {
-			if (empty($component)) continue;
-
-			$sql = 'INSERT INTO sq_sch_idx_wgt_dflt
-					(type_code, component, description, weight)
-					VALUES ('.$this->_db->quote($type_code).', '.$this->_db->quote($component).',
-					'.$this->_db->quote($weighting['description']).','.$this->_db->quote($weighting['default_weighting']).')';
-
-			$result = $this->_db->query($sql);
-			if (!assert_valid_db_result($result, '', false, false)) {
-				return false;
-			}
-		}
-
-		return true;
-
-	}//end _setComponentWeightings()
-
-
-	/**
-	* Returns all the components names that are available for this asset type
-	* - any inherited vars and those defined in this management class
-	*
-	* @return array
-	* @access public
-	*/
-	function _getAllComponents()
-	{
-		$parent_type = $this->_pm->getTypeInfo($this->getAssetType(), 'parent_type');
-		$sql = 'SELECT iwd.component, iwd.description, iwd.weight as default_weighting
-				FROM sq_sch_idx_wgt_dflt iwd
-				WHERE iwd.type_code = '.$this->_db->quote($parent_type);
-
-		$components = $this->_db->getAssoc($sql, false, Array(), DB_FETCHMODE_ASSOC); // need all this because of DB API
-		assert_valid_db_result($components);
-
-		foreach ($this->components as $component => $data) {
-			if (!isset($components[$component])) {
-				$components[$component] = Array(
-											'description'		=> isset($data['description']) ? $data['description'] : $component,
-											'default_weighting'	=> isset($data['default_weighting']) ? $data['default_weighting'] : '1',
-										  );
-			} else {
-				if (isset($data['description'])) {
-					$components[$component]['description'] = $data['description'];
-				}
-				if (isset($data['default_weighting'])) {
-					$components[$component]['default_weighting'] = $data['default_weighting'];
-				}
-			}
-		}
-
-		return $components;
-
-	}//end _getAllComponents()
 
 
 	/**
