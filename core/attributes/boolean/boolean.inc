@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: boolean.inc,v 1.33 2005/06/06 00:34:27 dheppell Exp $
+* $Id: boolean.inc,v 1.34 2005/07/13 01:34:24 mmcintyre Exp $
 *
 */
 
@@ -39,7 +39,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *    <boolean true_text="true" false_text="false" empty_text="maybe" />
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -59,7 +59,9 @@ class Asset_Attribute_Boolean extends Asset_Attribute
 		$this->Asset_Attribute($attributeid, $value);
 
 		// set default parameters
-		if (!isset($this->_params['allow_empty'])) $this->_params['allow_empty'] = true;
+		if (!isset($this->_params['allow_empty'])) {
+			$this->_params['allow_empty'] = true;
+		}
 
 		// set default edit parameters
 		$this->_edit_params['true_text']  = translate('true');
@@ -80,9 +82,15 @@ class Asset_Attribute_Boolean extends Asset_Attribute
 	function setEditParams(&$node)
 	{
 		if (!parent::setEditParams($node)) return false;
-		if (isset($node->attributes['true_text']))  $this->_edit_params['true_text']  = translate($node->attributes['true_text']);
-		if (isset($node->attributes['false_text'])) $this->_edit_params['false_text'] = translate($node->attributes['false_text']);
-		if (isset($node->attributes['empty_text'])) $this->_edit_params['empty_text'] = translate($node->attributes['empty_text']);
+		if (isset($node->attributes['true_text'])) {
+			$this->_edit_params['true_text']  = translate($node->attributes['true_text']);
+		}
+		if (isset($node->attributes['false_text'])) {
+			$this->_edit_params['false_text'] = translate($node->attributes['false_text']);
+		}
+		if (isset($node->attributes['empty_text'])) {
+			$this->_edit_params['empty_text'] = translate($node->attributes['empty_text']);
+		}
 		return true;
 
 	}//end setEditParams()
@@ -105,8 +113,11 @@ class Asset_Attribute_Boolean extends Asset_Attribute
 				<td class="sq-backend-section-heading" style="width: 100px;"><?php echo translate('true_text'); ?></td>
 				<td class="sq-backend-table-cell">
 					<?php
-					if ($write_access) text_box($prefix.'_true', $this->_edit_params['true_text']);
-					else echo $this->_edit_params['true_text'];
+					if ($write_access) {
+						text_box($prefix.'_true', $this->_edit_params['true_text']);
+					} else {
+						echo $this->_edit_params['true_text'];
+					}
 					?>
 				</td>
 			</tr>
@@ -114,8 +125,11 @@ class Asset_Attribute_Boolean extends Asset_Attribute
 				<td class="sq-backend-section-heading" style="width: 100px;"><?php echo translate('false_text'); ?></td>
 				<td class="sq-backend-table-cell">
 					<?php
-					if ($write_access) text_box($prefix.'_false', $this->_edit_params['false_text']);
-					else echo $this->_edit_params['false_text'];
+					if ($write_access) {
+						text_box($prefix.'_false', $this->_edit_params['false_text']);
+					} else {
+						echo $this->_edit_params['false_text'];
+					}
 					?>
 				</td>
 			</tr>
@@ -126,8 +140,11 @@ class Asset_Attribute_Boolean extends Asset_Attribute
 					<td class="sq-backend-section-heading" style="width: 100px;"><?php echo translate('empty_text'); ?></td>
 					<td class="sq-backend-table-cell">
 						<?php
-						if ($write_access) text_box($prefix.'_empty', $this->_edit_params['empty_text']);
-						else echo $this->_edit_params['empty_text'];
+						if ($write_access) {
+							text_box($prefix.'_empty', $this->_edit_params['empty_text']);
+						} else {
+							echo $this->_edit_params['empty_text'];
+						}
 						?>
 					</td>
 				</tr>
@@ -187,7 +204,9 @@ class Asset_Attribute_Boolean extends Asset_Attribute
 		$options = Array();
 
 		if ($this->_params['allow_empty']) {
-			if (empty($this->_edit_params['empty_text'])) $this->_edit_params['empty_text'] = '-- Leave Empty --';
+			if (empty($this->_edit_params['empty_text'])) {
+				$this->_edit_params['empty_text'] = '-- Leave Empty --';
+			}
 			$options[''] = $this->_edit_params['empty_text'];
 		}
 
@@ -234,7 +253,9 @@ class Asset_Attribute_Boolean extends Asset_Attribute
 	*/
 	function validateValue(&$value)
 	{
-		if (array_get_index($this->_params, 'allow_empty', false) && is_string($value) && $value == '') return true;
+		if (array_get_index($this->_params, 'allow_empty', false) && is_string($value) && $value == '') {
+			return true;
+		}
 
 		$new_value = (int) $value;
 		if ((string) $new_value != (string) $value) {
@@ -245,14 +266,14 @@ class Asset_Attribute_Boolean extends Asset_Attribute
 				case 'yes'  :
 				case 'y'    :
 					$new_value = 1;
-					break;
+				break;
 
 				case 'false' :
 				case 'f'     :
 				case 'no'    :
 				case 'n'     :
 					$new_value = 0;
-					break;
+				break;
 			}
 		}
 		$value = (empty($new_value)) ? 0 : 1;
@@ -262,27 +283,22 @@ class Asset_Attribute_Boolean extends Asset_Attribute
 
 
 	/**
-	* Retrieve a list of indexable values from this attribute
+	* Returns the raw content for this attribute type
 	*
-	* The return value not only contains the indexable values, but also the number of
-	* times they occur in this attributes value
-	*
-	* @return array(string => int)
+	* @return string
 	* @access public
 	*/
-	function getKeyData()
+	function getContent()
 	{
-		require_once SQ_FUDGE_PATH.'/general/text.inc';
-
 		if ($this->value == 0) {
-			return get_word_counts('false');
+			return 'false';
 		} else if ($this->value == 1) {
-			return get_word_counts('true');
+			return 'true';
 		} else {
-			return get_word_counts('empty');
+			return 'empty';
 		}
 
-	}//end getKeyData()
+	}//end getContent()
 
 
 }//end class
