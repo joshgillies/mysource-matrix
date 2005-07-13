@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_management.inc,v 1.14 2005/06/02 04:42:00 ndvries Exp $
+* $Id: image_management.inc,v 1.15 2005/07/13 03:29:14 mmcintyre Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -53,40 +53,47 @@ class Image_Management extends Asset_Management
 											'type'			=> 'text',
 											'default'		=> '',
 											'description'	=> 'The text to be used in the Alt attribute of the IMG tag',
+											'is_admin'		=> false,
 										   ),
 						'caption'		=> Array(
 											'added'			=> '0.2',
 											'type'			=> 'text',
 											'default'		=> '',
 											'description'	=> 'Some text to be associated with the image and can be accessed and printed out separately if required',
+											'is_admin'		=> false,
 										   ),
 						'width'			=> Array(
 											'added'			=> '0.2',
 											'type'			=> 'int',
 											'default'		=> 0,
 											'description'	=> 'Width of the image (generated from the image file)',
+											'is_admin'		=> false,
 										   ),
 						'height'		=> Array(
 											'added'			=> '0.2',
 											'type'			=> 'int',
 											'default'		=> 0,
 											'description'	=> 'Height of the image (generated from the image file)',
+											'is_admin'		=> false,
 										   ),
 						'size'			=> Array(
 											'added'			=> '0.2',
 											'type'			=> 'int',
 											'default'		=> 0,
 											'description'	=> 'Size (in bytes) of the image (generated from the image file)',
+											'is_admin'		=> false,
 										   ),
 						'varieties'		=> Array(
 											'added'		=> '0.3',
 											'type'		=> 'serialise',
 											'default'	=> Array(),
+											'is_admin'	=> true,
 										   ),
 						'variety_count'	=> Array(
 											'added'		=> '0.3',
 											'type'		=> 'int',
 											'default'	=> 1,
+											'is_admin'	=> true,
 										   ),
 					  );
 
