@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime_field.inc,v 1.30 2005/05/06 06:29:14 tbarrett Exp $
+* $Id: datetime_field.inc,v 1.31 2005/07/14 00:32:12 tbarrett Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *     it uses: show, style, min, max, null, allow_circa, print_format
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package Fudge
 * @subpackage DateTime_Field
 */
@@ -223,7 +223,7 @@ class DateTime_Field
 	* @param string		$u			the unit to print
 	* @param string		$prefix		prefix for elements
 	* @param string		&$value		current value of the unit
-	* @param boolean	$allow_null	allow null value (ie --)
+	* @param boolean	$allow_null	allow null value (ie blank string)
 	*
 	* @access public
 	* @return void
@@ -245,7 +245,7 @@ class DateTime_Field
 		}
 
 		if ($allow_null && (!strlen($value) || $value == '--')) {
-			$value = '--';
+			$value = '';
 		} else if ($u != 'a') {
 			$value = (int) $value;
 		}
@@ -256,7 +256,7 @@ class DateTime_Field
 
 		if (($u == 'a') || ($input_style[$u] == 's')) { // select box
 			if ($allow_null) {
-				$options = Array('--' => '--');
+				$options = Array('--' => '');
 			} else {
 				$options = Array();
 			}
@@ -385,7 +385,7 @@ class DateTime_Field
 		} else { // plain text
 			$size = (($u=='y')?4:2);
 			if ($allow_null) {
-				$onchange = "value=parseInt(value);if (isNaN(value)){value='--';}else{value=Math.min($max,Math.max($min,isNaN(value)?0:value));}";
+				$onchange = "value=parseInt(value);if (isNaN(value)){value='';}else{value=Math.min($max,Math.max($min,isNaN(value)?0:value));}";
 			} else {
 				$onchange = "value=parseInt(value);value=Math.min($max,Math.max($min,isNaN(value)?0:value));";
 			}
