@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.91 2005/07/04 02:59:09 pgannavarapu Exp $
+* $Id: design.inc,v 1.92 2005/07/14 02:51:16 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.91 $
+* @version $Revision: 1.92 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -670,13 +670,16 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 			break;
 
 			case 'current_user' :
-
 				if (empty($args['attr'])) $args['attr'] = 'name';
 				switch ($args['attr']) {
 					case 'username'   :
 					case 'first_name' :
 					case 'last_name'  :
 						$attr = 'attr('.var_export((string) $args['attr'], true).')';
+					break;
+
+					case 'id' :
+						$attr = 'id';
 					break;
 
 					case 'name' :
