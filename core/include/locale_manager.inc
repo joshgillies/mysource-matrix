@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: locale_manager.inc,v 1.10 2005/06/03 12:33:00 brobertson Exp $
+* $Id: locale_manager.inc,v 1.10.2.1 2005/07/14 07:13:35 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    number/date formats
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.10.2.1 $
 * @package MySource_Matrix
 */
 class Locale_Manager extends MySource_Object
@@ -100,11 +100,8 @@ class Locale_Manager extends MySource_Object
 	*/
 	function getCurrentLocale()
 	{
-		// no locale is current
-		if (count($this->locale_stack) <= 0) {
-			return false;
-		}
-
+		// no locale is current?
+		if (count($this->locale_stack) <= 0) return false;
 		return $this->locale_stack[0];
 
 	}//end getCurrentLocale()
@@ -121,7 +118,9 @@ class Locale_Manager extends MySource_Object
 	*/
 	function getLocaleName($locale_code=null)
 	{
-		if (is_null($locale_code)) $locale_code = $this->getCurrentLocale();
+		if (is_null($locale_code)) {
+			$locale_code = $this->getCurrentLocale();
+		}
 		require SQ_FUDGE_PATH.'/standards_lists/locales.inc';
 		return array_get_index($standards_lists_locales, $locale_code, 'Unknown');
 
@@ -138,13 +137,8 @@ class Locale_Manager extends MySource_Object
 	*/
 	function setCurrentLocale($locale)
 	{
-		//if (!isset($this->_lang_array[$locale])) {
-			//$this->_loadLocale($locale);
-		//}
-
 		array_unshift($this->locale_stack, $locale);
 		$this->includeCoreStrings($locale);
-		//bam($this->_strings);
 		return true;
 
 	}//end setCurrentLocale()
@@ -160,9 +154,7 @@ class Locale_Manager extends MySource_Object
 	function restoreCurrentLocale()
 	{
 		// stack would underflow if we tried to shift this out
-		if (count($this->locale_stack) <= 0) {
-			return false;
-		}
+		if (count($this->locale_stack) <= 0) return false;
 
 		array_shift($this->locale_stack);
 		return true;
@@ -233,7 +225,8 @@ class Locale_Manager extends MySource_Object
 	* @return Array
 	* @return public
 	*/
-	function getCumulativeLocaleParts($locale, $lang_sep='_', $var_sep='@') {
+	function getCumulativeLocaleParts($locale, $lang_sep='_', $var_sep='@')
+	{
 		$locale_parts = $this->getLocaleParts($locale);
 
 		$cum_locale_parts = Array();
@@ -311,11 +304,12 @@ class Locale_Manager extends MySource_Object
 			}
 
 			if ($type_code != 'asset') {
-				$asset_dir = SQ_SYSTEM_ROOT.'/'.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code, 'dir');
-				if (strpos($asset_dir, SQ_CORE_PACKAGE_PATH) !== false) {
+				$asset_dir = str_replace('\\', '/', SQ_SYSTEM_ROOT.'/'.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code, 'dir'));
+
+				if (strpos($asset_dir, str_replace('\\', '/', SQ_CORE_PACKAGE_PATH)) !== false) {
 					$this->includePackageStrings('__core__', $locale);
 				} else {
-					$asset_dir = str_replace(SQ_PACKAGES_PATH.'/', '', $asset_dir);
+					$asset_dir = str_replace(str_replace('\\', '/', SQ_PACKAGES_PATH).'/', '', $asset_dir);
 					$package = substr($asset_dir, 0, strpos($asset_dir, '/'));
 					$this->includePackageStrings($package, $locale);
 				}
