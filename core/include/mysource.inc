@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.60.2.7 2005/05/02 05:44:15 arailean Exp $
+* $Id: mysource.inc,v 1.60.2.8 2005/07/14 01:23:32 dmckee Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -659,11 +659,21 @@ class MySource
 					$pref_2 = null;
 				}
 			}
+
+			//Check if the preferance exists in $pref_1. Enforces the use of the
+			//asset type if it is not null
+			$pref_exists = false;
+			if (is_null($asset_type)) {
+				$pref_exists = isset($pref_1[$pref]);
+			} else {
+				$pref_exists = isset($pref_1[$asset_type][$pref]);
+			}
+
 			// If we haven't included the global preferences yet, but the pref_1 array
 			// HASN'T got the preference set (ie the group defined preference doesn't
 			// know anything about what preference we want), include and merge
 			// the global preferences here as a last ditch attempt to get the pref
-			if (!$included_global && !isset($pref_1[$pref])) {
+			if (!$included_global && !$pref_exists) {
 				include SQ_DATA_PATH.'/private/conf/preferences.inc';
 				$included_global = true;
 				// merge the preference files
@@ -681,7 +691,6 @@ class MySource
 
 		$prefs = $pref_1;
 		if (is_null($asset_type)) return $prefs;
-
 		if (!isset($prefs[$asset_type])) {
 			trigger_error('There are no user preferences for asset type "'.$asset_type.'"', E_USER_WARNING);
 			return Array();
