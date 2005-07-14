@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.31 2005/07/13 04:07:32 mmcintyre Exp $
+* $Id: lang_strings.xml,v 1.32 2005/07/14 04:29:57 lwright Exp $
 *
 */
 
@@ -96,6 +96,7 @@
 	<string source="design">Design</string>
 	<string source="details_of_original_patch">Details of Original Patch</string>
 	<string source="domain">Domain</string>
+	<string source="down">Down</string>
 	<string source="download">Download</string>
 	<string source="edit_metadata_threshold">Edit Metadata Threshold</string>
 	<string source="edit_status_threshold">Edit Status Threshold</string>
@@ -225,6 +226,7 @@
 	<string source="trigger_execution_threshold">Trigger Execution Threshold</string>
 	<string source="trigger_info">Trigger Info</string>
 	<string source="trigger_list">Trigger List</string>
+	<string source="up">Up</string>
 	<string source="url">URL</string>
 	<string source="uninstall_options">Uninstall Options</string>
 	<string source="upload_patch_file">Upload Patch File</string>
