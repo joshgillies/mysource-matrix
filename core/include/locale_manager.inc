@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: locale_manager.inc,v 1.11 2005/06/08 01:57:28 tbarrett Exp $
+* $Id: locale_manager.inc,v 1.12 2005/07/14 07:09:20 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    number/date formats
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix
 */
 class Locale_Manager extends MySource_Object
@@ -305,12 +305,14 @@ class Locale_Manager extends MySource_Object
 				$locale = $this->getCurrentLocale();
 			}
 
+			// include packages, changing \ for / so it works on Windows systems
 			if ($type_code != 'asset') {
-				$asset_dir = SQ_SYSTEM_ROOT.'/'.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code, 'dir');
-				if (strpos($asset_dir, SQ_CORE_PACKAGE_PATH) !== false) {
+				$asset_dir = str_replace('\\', '/', SQ_SYSTEM_ROOT.'/'.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code, 'dir'));
+
+				if (strpos($asset_dir, str_replace('\\', '/', SQ_CORE_PACKAGE_PATH)) !== false) {
 					$this->includePackageStrings('__core__', $locale);
 				} else {
-					$asset_dir = str_replace(SQ_PACKAGES_PATH.'/', '', $asset_dir);
+					$asset_dir = str_replace(str_replace('\\', '/', SQ_PACKAGES_PATH).'/', '', $asset_dir);
 					$package = substr($asset_dir, 0, strpos($asset_dir, '/'));
 					$this->includePackageStrings($package, $locale);
 				}
