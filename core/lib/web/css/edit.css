@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.css,v 1.50 2005/06/03 06:09:59 tbarrett Exp $
+* $Id: edit.css,v 1.51 2005/07/14 23:11:09 lwright Exp $
 *
 */
 
@@ -109,7 +109,7 @@ td.sq-backend-nav-history {
 	font-family:		Arial, Verdana, Helvetica, sans-serif;
 	font-size:			11px;
 	font-weight:		normal;
-	margin-top:			3px; 
+	margin-top:			3px;
 	margin-bottom:		8px;
 }
 
@@ -250,7 +250,7 @@ td.sq-backend-nav-history {
 	text-align:			left;
 }
 
-.sq-backend-table-cell, .sq-backend-table th {
+.sq-backend-table-cell, .sq-backend-table tr td {
 	background-color:	#F5F5F5;
 }
 
