@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: import.inc,v 1.2 2005/06/23 22:58:34 gsherwood Exp $
+* $Id: import.inc,v 1.3 2005/07/14 01:22:48 gsherwood Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * Importing functions, reads an XML file and imports an asset strucutre
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -94,27 +94,22 @@ function populate_import_action_array(&$store, &$vals)
 		switch ($data['type']) {
 			case 'complete' : // FOUND A LEAF NODE
 
-				// If this node has never been set, just set
-				// it, but if there is already a value there, create
-				// an array to store the values. If the array has
-				// already been created, append a new value to it.
 				if (isset($store[$tag])) {
-					if (sizeof($store[$tag]) == 1) {
-						$temp = $store[$tag];
-						$store[$tag] = Array();
-						$store[$tag][]['_value'] = $temp;
-					}
 					$max = count($store[$tag]);
 					if (isset($data['attributes']) && count($data['attributes'])) {
-						foreach ($data['attributes'] as $n => $v) $store[$tag][$max][$n] = $v;
+						foreach ($data['attributes'] as $n => $v) {
+							$store[$tag][$max][$n] = $v;
+						}
 					}
 					$store[$tag][$max]['_value'] = $value;
 				} else {
 					if (isset($data['attributes']) && count($data['attributes'])) {
-						foreach ($data['attributes'] as $n => $v) $store[$tag][$n] = $v;
-						$store[$tag]['_value'] = $value;
+						foreach ($data['attributes'] as $n => $v) {
+							$store[$tag][0][$n] = $v;
+						}
+						$store[$tag][0]['_value'] = $value;
 					} else {
-						$store[$tag] = $value;
+						$store[$tag][0] = $value;
 					}
 				}
 
@@ -125,28 +120,17 @@ function populate_import_action_array(&$store, &$vals)
 				// call next here or it will never be called
 				next($vals);
 
-				// If this tag has never been set, just set
-				// it, but if there is already a value there, create
-				// an array to store the values. If the array has
-				// already been created, append a new value to it.
-				if (isset($store[$tag]) && sizeof($store[$tag])) {
-					if (!isset($store[$tag][0]) || !is_array($store[$tag][0])) {
-						$temp = $store[$tag];
-						$store[$tag] = Array();
-						$store[$tag][] = $temp;
-					}
-					$max = count($store[$tag]);
-					if (isset($data['attributes']) && count($data['attributes'])) {
-						foreach ($data['attributes'] as $n => $v) $store[$tag][$max][$n] = $v;
-					}
-					populate_import_action_array($store[$tag][$max], $vals);
-				} else {
+				if (!isset($store[$tag]) || !sizeof($store[$tag])) {
 					$store[$tag] = Array();
-					if (isset($data['attributes']) && count($data['attributes'])) {
-						foreach ($data['attributes'] as $n => $v) $store[$tag][$n] = $v;
-					}
-					populate_import_action_array($store[$tag], $vals);
 				}
+
+				$max = count($store[$tag]);
+				if (isset($data['attributes']) && count($data['attributes'])) {
+					foreach ($data['attributes'] as $n => $v) {
+						$store[$tag][$max][$n] = $v;
+					}
+				}
+				populate_import_action_array($store[$tag][$max], $vals);
 
 			break;
 
@@ -154,7 +138,7 @@ function populate_import_action_array(&$store, &$vals)
 
 				// we return from the function here so
 				// we will end up one level up (ie. just after
-				// the build_struct fn call in the open case).
+				// the populate_import_action_array fn call in the open case).
 				return;
 
 			break;
@@ -199,12 +183,12 @@ function execute_import_action($action, &$outputs)
 		}
 	}
 
-	$action_class = 'trigger_action_'.$action['action_type'];
+	$action_class = 'trigger_action_'.$action['action_type'][0];
 	$GLOBALS['SQ_SYSTEM']->am->includeAsset($action_class);
 	eval('$output = '.$action_class.'::execute($settings, $state);');
 	if ($output === false) return false;
 
-	$outputs[$action['action_id']] = $output;
+	$outputs[$action['action_id'][0]] = $output;
 	return true;
 
 }//end execute_import_action
@@ -229,7 +213,7 @@ function get_import_action_input_value($action, $attribute, $outputs=Array())
 	if (!isset($action[$attribute])) {
 		trigger_error('Failed getting '.$attribute.' for '.$action['action_type'].' action "'.$action['action_id'].'" - attribute is not defined for action', E_USER_ERROR);
 	} else {
-		$value = $action[$attribute];
+		$value = $action[$attribute][0];
 	}
 
 	$matches = Array();
