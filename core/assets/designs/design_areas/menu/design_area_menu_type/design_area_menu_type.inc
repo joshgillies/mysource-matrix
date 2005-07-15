@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type.inc,v 1.56.2.5 2005/07/05 05:01:12 dmckee Exp $
+* $Id: design_area_menu_type.inc,v 1.56.2.6 2005/07/15 00:49:03 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -416,7 +416,7 @@ class Design_Area_Menu_Type extends Design_Area
 					if (!empty($USERIDS_COND)) {
 						$USERIDS_COND .= \'
 										  GROUP BY a.assetid, l.majorid, a.type_code, a.status, a.name, a.short_name, pt.path, l.sort_order
-										  HAVING MAX(p.granted) = 1\';
+										  HAVING MIN(p.granted) <> 0\';
 					}
 				}
 
