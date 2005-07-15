@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.88.2.2 2005/06/08 02:03:09 rhoward Exp $
+* $Id: html_form.inc,v 1.88.2.3 2005/07/15 05:48:45 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.88.2.2 $
+* @version $Revision: 1.88.2.3 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -270,7 +270,7 @@ function text_area($name, $contents, $cols=0, $rows=0, $max=0, $extras='')
 	echo	'<textarea name="', htmlspecialchars($name), '" ',
 			(($cols)  ? 'cols="'.$cols.'" ' : ''),
 			(($rows)  ? 'rows="'.$rows.'" ' : ''),
-			(($max)   ? 'onkeypress="if (this.value.length > '.$max.') { this.value = this.value.substr(0,'.$max.'); alert(js_translate(\'max_characters_warning\', "'.$max.'")); this.focus()}" ' : ''),
+			(($max)   ? 'onkeypress="if (this.value.length > '.$max.') { this.value = this.value.substr(0,'.$max.'); alert(js_translate(\'max_characters_warning\', \''.$max.'\')); this.focus()}" ' : ''),
 			$extras,
 			'>',
 			htmlspecialchars($contents),
