@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.102 2005/07/13 05:01:00 mmcintyre Exp $
+* $Id: search_page.inc,v 1.103 2005/07/15 05:02:10 mmcintyre Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.102 $
+* @version $Revision: 1.103 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1118,6 +1118,30 @@ class Search_Page extends Listing_Engine
 		return $html;
 
 	}//end getFormFormatContents()
+
+
+	/**
+	* Remove and/or update the todo list based on the types of the assets in it
+	*
+	* If an entry in the list is a child of a wanted asset type, its type code is changed
+	* to the wanted parent type.  If an entry is not a wanted type or a child thereof,
+	* it is removed.  Otherwise it's left alone.
+	*
+	* @param array	&$todo	an array of assets to list in the same format as the return
+	*						value of getAssetList()
+	*
+	* @return void
+	* @access protected
+	* @see getAssetList()
+	*/
+	function filterAssetTypes(&$todo)
+	{
+		// the search manager uses the type_code column in the search indexing table
+		// to filter on asset types for performance reasons, so we don't need to
+		// do any filtering
+		return $todo;
+
+	}// end filterAssetTypes()
 
 
 	/**
