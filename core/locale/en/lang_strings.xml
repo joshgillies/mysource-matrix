@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.32 2005/07/14 04:29:57 lwright Exp $
+* $Id: lang_strings.xml,v 1.33 2005/07/15 04:28:45 tbarrett Exp $
 *
 */
 
@@ -1547,6 +1547,9 @@
 	<string source="valid_page" js="1">Valid URL</string>
 	<string source="unknown_state" js="1">Unknown State</string>
 	<string source="testing" js="1">Testing...</string>
+
+	<string source="default_content_type">Default Content Type</string>
+	<string source="default_content_type_note">When new bodycopy containers are created they will use this content type</string>
 
 
 </strings>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_table.inc,v 1.13 2005/07/08 00:30:03 dheppell Exp $
+* $Id: bodycopy_table.inc,v 1.14 2005/07/15 04:28:59 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once(dirname(__FILE__).'/bodycopy_table_cell.inc');
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -82,7 +82,8 @@ class Bodycopy_Table extends Bodycopy_Container
 			for ($x = 0; $x < $num_cols; $x++) {
 				$rows[$i]['cells'][$x] =& new Bodycopy_Table_Cell();
 				// short and long names are the same to begin with
-				if (!$rows[$i]['cells'][$x]->setContentType($this, 'content_type_wysiwyg', $i, $x)) {
+				$content_type = $GLOBALS['SQ_SYSTEM']->getUserPrefs('bodycopy_container', 'SQ_DEFAULT_CONTENT_TYPE');
+				if (!$rows[$i]['cells'][$x]->setContentType($this, $content_type, $i, $x)) {
 					return false;
 				}
 			}

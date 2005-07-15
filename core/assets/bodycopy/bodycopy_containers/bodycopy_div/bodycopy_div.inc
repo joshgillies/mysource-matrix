@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_div.inc,v 1.11 2005/03/21 06:16:13 gsherwood Exp $
+* $Id: bodycopy_div.inc,v 1.12 2005/07/15 04:28:59 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy_container/bodycopy_contain
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -79,9 +79,10 @@ class Bodycopy_Div extends Bodycopy_Container
 			$this->setAttrValue('name', $this->attr('name').' '.$this->id);
 		}
 
-		// create a wysiwyg content type
-		$GLOBALS['SQ_SYSTEM']->am->includeAsset('content_type_wysiwyg');
-		$wysiwyg =& new Content_Type_Wysiwyg();
+		// create a content type
+		$content_type = $GLOBALS['SQ_SYSTEM']->getUserPrefs('bodycopy_container', 'SQ_DEFAULT_CONTENT_TYPE');
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset($content_type);
+		$wysiwyg =& new $content_type();
 		$div_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'value' => 'div_contents', 'sort_order' => 1, 'is_dependant' => 1, 'is_exclusive' => 1);
 		$wysiwyg->setAttrValue('name', 'DIV Content');
 		if (isset($bc_data['content']) && (trim($bc_data['content'] != ''))) {
