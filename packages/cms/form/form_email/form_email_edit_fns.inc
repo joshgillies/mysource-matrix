@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.38.2.13 2005/07/17 23:34:39 lwright Exp $
+* $Id: form_email_edit_fns.inc,v 1.38.2.14 2005/07/17 23:42:05 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.38.2.13 $
+* @version $Revision: 1.38.2.14 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -128,7 +128,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$sql = 'SELECT
 					*
 				FROM
-					('.SQ_TABLE_RUNNING_PREFIX.'ast a JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_typ_inhd i ON a.type_code = i.inhd_type_code)
+					('.SQ_TABLE_RUNNING_PREFIX.'ast a JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_typ_inhd i ON a.type_code = i.type_code)
 					JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
 					ON l.minorid = a.assetid';
 		$count_sql = str_replace('*', 'count(*)', $sql);
@@ -522,7 +522,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$sql = 'SELECT
 					*
 				FROM
-					('.SQ_TABLE_RUNNING_PREFIX.'ast a JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_typ_inhd i ON a.type_code = i.inhd_type_code)
+					('.SQ_TABLE_RUNNING_PREFIX.'ast a JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_typ_inhd i ON a.type_code = i.type_code)
 					JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
 					ON l.minorid = a.assetid';
 
@@ -611,7 +611,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$sql = 'SELECT
 					*
 				FROM
-					('.SQ_TABLE_RUNNING_PREFIX.'ast a JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_typ_inhd i ON a.type_code = i.inhd_type_code)
+					('.SQ_TABLE_RUNNING_PREFIX.'ast a JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_typ_inhd i ON a.type_code = i.type_code)
 					JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
 					ON l.minorid = a.assetid';
 
