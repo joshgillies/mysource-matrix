@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.53.2.2 2005/07/04 02:26:33 lwright Exp $
+* $Id: form_email_edit_fns.inc,v 1.53.2.3 2005/07/17 23:45:25 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.53.2.2 $
+* @version $Revision: 1.53.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -126,18 +126,24 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$from_ts = mktime(0,0,0,$from_value[1],$from_value[2],$from_value[0]);
 		$to_ts   = mktime(23,59,59,$to_value[1],$to_value[2],$to_value[0]);
 
-		// find all the form submission assets
-		$assetids = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, 'form_submission', false));
+		$sql = 'SELECT
+					*
+				FROM
+					('.SQ_TABLE_RUNNING_PREFIX.'ast a JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_typ_inhd i ON a.type_code = i.type_code)
+					JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
+					ON l.minorid = a.assetid';
+		$count_sql = str_replace('*', 'count(*)', $sql);
 
-		$where = 'a.assetid IN ('.implode(', ', $assetids).')
-					AND a.created BETWEEN '.$GLOBALS['SQ_SYSTEM']->db->quoteSmart($from_value).' AND '.$GLOBALS['SQ_SYSTEM']->db->quoteSmart($to_value);
+		$where = 'l.majorid IN ('.$GLOBALS['SQ_SYSTEM']->db->quote($asset->id).') AND i.inhd_type_code = '.$GLOBALS['SQ_SYSTEM']->db->quote('form_submission').
+			' AND a.created BETWEEN '.$GLOBALS['SQ_SYSTEM']->db->quoteSmart($from_value).' AND '.$GLOBALS['SQ_SYSTEM']->db->quoteSmart($to_value);
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
-		$sql = 'SELECT * FROM '.SQ_TABLE_RUNNING_PREFIX.'ast a '.$where.' ORDER BY a.created DESC';
-		$assetid_info = $GLOBALS['SQ_SYSTEM']->db->getAssoc($sql);
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'i');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 
 		// grab the number of assets
-		$asset_count = count($assetid_info);
+		$asset_count = $GLOBALS['SQ_SYSTEM']->db->getOne($count_sql.$where);
 		$num_pages = ceil($asset_count / $num_per_page);
+
 
 		if (($submission_offset % $num_per_page) != 0) {
 			$submission_offset = $submission_offset - ($submission_offset % $num_per_page);
@@ -151,6 +157,8 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 			$submission_offset = ($num_pages - 1) * $num_per_page;
 		}
 
+		$sql = $sql.$where.' ORDER BY a.created DESC';
+		$sql = $GLOBALS['SQ_SYSTEM']->db->modifyLimitQuery($sql, $submission_offset, $num_per_page);
 
 		if ($asset_count == 0) {
 			?><p><i><?php echo translate('cms_form_no_submissions_during_period') ?></i></p><?php
@@ -257,81 +265,83 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 				<th>&nbsp;</th>
 			</tr>
 			<?php
-			foreach ($assetid_info as $assetid => $asset_info) {
-				if (($asset_info['created'] >= $from_value) && ($asset_info['created'] <= $to_value)) {
-					// time is good, load me up
-					$sub_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-					$sub_user = $asset_info['created_userid'];
-					$sub_time = date('d M Y H:i:s', strtotime($asset_info['created']));
-					$sub_expanded = array_search($assetid, $expand_list) !== false;
-					$num_subs++;
-					if ($num_subs <= $submission_offset) continue;
-					if ($num_subs > $submission_offset + $num_per_page) break;
+			// For memory reasons, we are going to fetch this one row at a time
+			// because we could be displaying a lot on this page
+			$result = $GLOBALS['SQ_SYSTEM']->db->query($sql);
+			while ($asset_info = $result->fetchRow()) {
+				$assetid = $asset_info['assetid'];
+
+				$sub_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$sub_user = $asset_info['created_userid'];
+				$sub_time = date('d M Y H:i:s', strtotime($asset_info['created']));
+				$sub_expanded = array_search($assetid, $expand_list) !== false;
+				$num_subs++;
+				if ($num_subs <= $submission_offset) continue;
+				if ($num_subs > $submission_offset + $num_per_page) break;
+				?>
+				<tr<?php
+					echo ($sub_expanded) ? ' class="alt"' : '';
+				?>>
+					<td>
+						<?php echo $assetid ?>
+					</td>
+					<td>
+						<?php echo $sub_time ?>
+					</td>
+					<td>
+						<?php
+						$valid_user = false;
+						if (!empty($sub_user)) {
+							$sub_user_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($sub_user);
+							if (!empty($sub_user_asset)) {
+								echo $sub_user_asset->name . ' (Id: #'.$sub_user.')';
+								$valid_user = true;
+							}
+						}
+						if (!$valid_user) {
+							?><i><?php echo translate('cms_form_no_logged_in_user'); ?></i><?php
+						}
+						?>
+					</td>
+					<td>
+						<input type="checkbox" name="<?php echo $prefix ?>_viewsub[<?php echo $assetid ?>]" value="1" <?php if ($sub_expanded) echo ' checked="checked"' ?>>
+					</td>
+					<td>[ <a href="<?php echo $sub_asset->getBackendHref(); ?>"><?php echo translate('edit') ?></a> ]</td>
+				</tr>
+				<?php
+				// display only if expanded
+				if ($sub_expanded) {
 					?>
-					<tr<?php
-						echo ($sub_expanded) ? ' class="alt"' : '';
-					?>>
-						<td>
-							<?php echo $assetid ?>
+					<tr>
+						<td colspan="5" class="sq-form-sub">
+							<table class="sq-backend-table">
+								<tr>
+									<?php
+									$i = 0;
+									$elements =& $sub_asset->getSummary();
+									if (count($elements) % 2 != 0) {
+										$elements[] = Array('name' => '', 'answer' => '');
+									}
+									foreach ($elements as $element) {
+										$i++;
+										?>
+										<th><?php echo $element['name'] ?>:</th>
+										<td><?php echo $element['answer'] ?></td>
+										<?php
+										if (($i < count($elements)) && ($i % 2 == 0)) {
+											?>
+								</tr>
+								<tr>
+											<?php
+										}
+									}//end foreach elemnent
+									?>
+								</tr>
+							</table>
 						</td>
-						<td>
-							<?php echo $sub_time ?>
-						</td>
-						<td>
-							<?php
-							$valid_user = false;
-							if (!empty($sub_user)) {
-								$sub_user_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($sub_user);
-								if (!empty($sub_user_asset)) {
-									echo $sub_user_asset->name . ' (Id: #'.$sub_user.')';
-									$valid_user = true;
-								}
-							}
-							if (!$valid_user) {
-								?><i><?php echo translate('cms_form_no_logged_in_user'); ?></i><?php
-							}
-							?>
-						</td>
-						<td>
-							<input type="checkbox" name="<?php echo $prefix ?>_viewsub[<?php echo $assetid ?>]" value="1" <?php if ($sub_expanded) echo ' checked="checked"' ?>>
-						</td>
-						<td>[ <a href="<?php echo $sub_asset->getBackendHref(); ?>"><?php echo translate('edit') ?></a> ]</td>
 					</tr>
 					<?php
-					// display only if expanded
-					if ($sub_expanded) {
-						?>
-						<tr>
-							<td colspan="5" class="sq-form-sub">
-								<table class="sq-backend-table">
-									<tr>
-										<?php
-										$i = 0;
-										$elements =& $sub_asset->getSummary();
-										if (count($elements) % 2 != 0) {
-											$elements[] = Array('name' => '', 'answer' => '');
-										}
-										foreach ($elements as $element) {
-											$i++;
-											?>
-											<th><?php echo $element['name'] ?>:</th>
-											<td><?php echo $element['answer'] ?></td>
-											<?php
-											if (($i < count($elements)) && ($i % 2 == 0)) {
-												?>
-									</tr>
-									<tr>
-												<?php
-											}
-										}//end foreach elemnent
-										?>
-									</tr>
-								</table>
-							</td>
-						</tr>
-						<?php
-					}//end if expanded
-				}//end if time matches
+				}//end if expanded
 			}//end foreach submission
 			?>
 			</table>
@@ -509,33 +519,42 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$logs = Array();
 		$headers = Array('__time__' => translate('submission_time'), '__user__' => translate('cms_form_user_submitting'));
 
-		$assetids = $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, 'form_submission');
-		$assetid_info = Array();
+		$sql = 'SELECT
+					*
+				FROM
+					('.SQ_TABLE_RUNNING_PREFIX.'ast a JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_typ_inhd i ON a.type_code = i.type_code)
+					JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
+					ON l.minorid = a.assetid';
 
-		for ($i = 0; $i < count($assetids); $i += 500) {
-			$assetid_info += $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_slice(array_keys($assetids), $i, 500), 'form_submission', false, 'created');
-		}
+		$where = 'l.majorid IN ('.$GLOBALS['SQ_SYSTEM']->db->quote($asset->id).') AND i.inhd_type_code = '.$GLOBALS['SQ_SYSTEM']->db->quote('form_submission').
+			' AND a.created BETWEEN '.$GLOBALS['SQ_SYSTEM']->db->quoteSmart(ts_iso8601($from_ts)).' AND '.$GLOBALS['SQ_SYSTEM']->db->quoteSmart(ts_iso8601($to_ts));
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'i');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 
-		foreach ($assetids as $assetid => $type_code) {
-			$create_time = strtotime($assetid_info[$assetid]);
+		// Going to fetch this one row at a time for memory reasons, because this
+		// could potentially be a very big download
+		$result = $GLOBALS['SQ_SYSTEM']->db->query($sql.$where);
+		while ($asset_info = $result->fetchRow()) {
+			$assetid = $asset_info['assetid'];
+			$type_code = $asset_info['type_code'];
+			$create_time = strtotime($asset_info['created']);
 
-			if (($create_time >= $from_ts) && ($create_time <= $to_ts)) {
-				$sub_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
-				if (!$sub_asset->attr('complete')) continue;
-				$summary = $sub_asset->getSummary();
+			$sub_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
+			if (!$sub_asset->attr('complete')) continue;
+			$summary = $sub_asset->getSummary();
 
-				$logs[$assetid] = Array(
-									'__time__'	=> date('Y-m-d H:i:s', $create_time),
-									'__user__'	=> $assetid_info[$assetid]['created_userid'],
-								  );
-				if (empty($summary)) $summary = Array();
-				foreach ($summary as $id => $element) {
-					if (!isset($headers[$id])) {
-						$headers[$id] = $element['name'];
-					}
-
-					$logs[$assetid][$id] = $element['answer'];
+			$logs[$assetid] = Array(
+								'__time__'	=> date('Y-m-d H:i:s', $create_time),
+								'__user__'	=> $asset_info['created_userid'],
+							  );
+			if (empty($summary)) $summary = Array();
+			foreach ($summary as $id => $element) {
+				if (!isset($headers[$id])) {
+					$headers[$id] = $element['name'];
 				}
+
+				$logs[$assetid][$id] = $element['answer'];
 			}
 		}
 
@@ -589,22 +608,31 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 		echo '<submissions>';
 
-		$assetids = $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, 'form_submission');
-		$assetid_info = Array();
+		$sql = 'SELECT
+					*
+				FROM
+					('.SQ_TABLE_RUNNING_PREFIX.'ast a JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_typ_inhd i ON a.type_code = i.type_code)
+					JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
+					ON l.minorid = a.assetid';
 
-		for ($i = 0; $i < count($assetids); $i += 500) {
-			$assetid_info += $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_slice(array_keys($assetids), $i, 500), 'form_submission', false, 'created');
-		}
+		$where = 'l.majorid IN ('.$GLOBALS['SQ_SYSTEM']->db->quote($asset->id).') AND i.inhd_type_code = '.$GLOBALS['SQ_SYSTEM']->db->quote('form_submission').
+			' AND a.created BETWEEN '.$GLOBALS['SQ_SYSTEM']->db->quoteSmart(ts_iso8601($from_ts)).' AND '.$GLOBALS['SQ_SYSTEM']->db->quoteSmart(ts_iso8601($to_ts));
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'i');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 
-		foreach ($assetids as $assetid => $type_code) {
-			$create_time = strtotime($assetid_info[$assetid]);
+		// Going to fetch this one row at a time for memory reasons, because this
+		// could potentially be a very big download
+		$result = $GLOBALS['SQ_SYSTEM']->db->query($sql.$where);
+		while ($asset_info = $result->fetchRow()) {
+			$assetid = $asset_info['assetid'];
+			$type_code = $asset_info['type_code'];
+			$create_time = strtotime($asset_info['created']);
 
-			if (($create_time >= $from_ts) && ($create_time <= $to_ts)) {
-				$sub_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
-				if (!$sub_asset->attr('complete')) continue;
-				if (trim($sub_asset->attr('xml')) == '') continue;
-				echo $sub_asset->attr('xml');
-			}
+			$sub_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
+			if (!$sub_asset->attr('complete')) continue;
+			if (trim($sub_asset->attr('xml')) == '') continue;
+			echo $sub_asset->attr('xml');
 		}
 
 		echo '</submissions>';
