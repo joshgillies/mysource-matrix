@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.33 2005/07/15 04:28:45 tbarrett Exp $
+* $Id: lang_strings.xml,v 1.34 2005/07/18 01:47:47 tbarrett Exp $
 *
 */
 
@@ -862,6 +862,9 @@
 	<string source="trigger_set_attribute_value_basic">Set the value of the %1$s attribute %2$s to the value %3$s</string>
 	<string source="asset_type_no_attributes_found">no attributes found for asset type</string>
 	<string source="asset_type_not_selected">asset type not selected</string>
+	<string source="attribute_not_selected">attribute not selected</string>
+	<string source="trigger_attribute_value">If the value of the %1$s attribute %2$s is equal to %3$s</string>
+	<string source="or_inherited_types">or inherited types</string>
 	<string source="trigger_set_attribute_value_serialise_note">You have selected a serialised attribute.  The value you set it to must be a valid PHP expression, for example "Array(1, 2, 4)"</string>
 
 	<string source="trigger_set_design_basic">Set the asset's design to: %s</string>
@@ -873,7 +876,7 @@
 
 	<string source="trigger_link_exists_basic"> has a %1$s asset &lt;ul style="list-style-type: none; padding: 0;"&gt;&lt;li&gt;%2$sof type %3$s&lt;/li&gt;&lt;li&gt; %4$s with ID %5$s&lt;/li&gt;&lt;/ul&gt;&lt;br /&gt;&lt;br /&gt;%6$s</string>
 	<string source="match_newly_created_link_only">Match the newly-created link only (Applicable only to the event 'Link Created')</string>
-	<string source="trigger_link_exists_advanced">Link Type:%1$s Is Dependand ? %2$s Is Exclusive ? %3$s Value: %4$s</string>
+	<string source="trigger_link_exists_advanced">Link Type:%1$s Is Dependant ? %2$s Is Exclusive ? %3$s Value: %4$s</string>
 
 	<string source="trigger_has_status_basic">Asset has the current status of: %s</string>
 	<string source="trigger_selected_status_invalid">Selected status is invalid</string>
