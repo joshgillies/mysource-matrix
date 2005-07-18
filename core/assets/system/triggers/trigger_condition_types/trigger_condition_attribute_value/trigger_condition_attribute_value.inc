@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_attribute_value.inc,v 1.1 2005/07/18 00:54:41 tbarrett Exp $
+* $Id: trigger_condition_attribute_value.inc,v 1.2 2005/07/18 01:58:53 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(dirname(__FILE__)).'/trigger_condition_asset_type/trigger_c
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -186,6 +186,7 @@ class Trigger_Condition_Attribute_Value extends Trigger_Condition_Asset_Type
 			return translate('trigger_type_code_not_supplied');
 		}
 
+		$type_changed = ($settings['asset_type'] != $asset_type);
 		$settings['asset_type'] = $asset_type;
 		$settings['inherit'] = !empty($request_data['inherit']);
 		$settings['attribute'] = array_get_index($request_data, 'attribute', false);
@@ -194,13 +195,15 @@ class Trigger_Condition_Attribute_Value extends Trigger_Condition_Asset_Type
 		$settings['text_value'] = $value;
 
 		// handle serialised attributes
-		$GLOBALS['SQ_SYSTEM']->am->includeAsset($settings['asset_type']);
-		$fake_asset =& new $settings['asset_type'];
-		$attr = &$fake_asset->getAttribute($settings['attribute']);
-		if (!is_null($attr)) {
-			if (is_a($attr, 'asset_attribute_serialise')) {
-				$value = str_replace(';', '', $value); // avoid code injection
-				eval('$value = '.$value.';');
+		if (!$type_changed && !empty($settings['asset_type']) && !empty($settings['attribute'])) {
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset($settings['asset_type']);
+			$fake_asset =& new $settings['asset_type'];
+			$attr = &$fake_asset->getAttribute($settings['attribute']);
+			if (!is_null($attr)) {
+				if (is_a($attr, 'asset_attribute_serialise')) {
+					$value = str_replace(';', '', $value); // avoid code injection
+					eval('$value = '.$value.';');
+				}
 			}
 		}
 		$settings['value'] = $value;
