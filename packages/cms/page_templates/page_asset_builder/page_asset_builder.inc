@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.64 2005/07/04 23:33:20 pgannavarapu Exp $
+* $Id: page_asset_builder.inc,v 1.65 2005/07/18 07:04:33 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.64 $
+* @version $Revision: 1.65 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -775,7 +775,7 @@ class Page_Asset_Builder extends Page
 				</tr>
 				<tr>
 					<td valign="top">&nbsp;</td>
-					<td valign="top"><?php echo submit_button('ASSET_BUILDER_ACTION', 'Login', 'this.form.action = "'.$_SERVER['PHP_SELF'].'?SQ_ACTION=login"; set_hidden_field("ASSET_BUILDER_ACTION", "login", this.form);'); ?></td>
+					<td valign="top"><?php echo submit_button('', 'Login', 'this.form.action = \''.$_SERVER['PHP_SELF'].'?SQ_ACTION=login\'; document.getElementById(\'ASSET_BUILDER_ACTION\').value = \'login\';'); ?></td>
 				</tr>
 			</table>
 
