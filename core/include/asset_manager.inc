@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.338 2005/07/13 04:00:13 mmcintyre Exp $
+* $Id: asset_manager.inc,v 1.339 2005/07/18 00:59:48 ndvries Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.338 $
+* @version $Revision: 1.339 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -697,6 +697,38 @@ class Asset_Manager extends MySource_Object
 		return $result;
 
 	}//end getAssetTypeAttributes()
+
+
+	/**
+	* Retrieves an array of assetids which have the passed attribute and value
+	*
+	* @param string		$type_code	the type of the asset
+	* @param string		$attr_name	the name of the attribute ('name', 'title' etc.)
+	* @param string		$value		the attribute value for the asset(s) you are looking for
+	*
+	* @return array
+	* @access public
+	*/
+	function getAssetsByAttrValue($type_code, $attr_name, $value)
+	{
+		if (!is_string($type_code)) return Array();
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		$sql = 'SELECT assetid FROM sq_ast_attr_val
+				WHERE attrid IN (
+					SELECT attrid FROM sq_ast_attr
+					WHERE type_code = '.$db->quote($type_code).'
+					AND name = '.$db->quote($attr_name).'
+				)
+				AND custom_val = '.$db->quote($value);
+
+		$result = $db->getCol($sql);
+		assert_valid_db_result($result);
+
+		return $result;
+
+	}//end getAssetsByAttrValue()
 
 
 //--        ASSETS        --//
