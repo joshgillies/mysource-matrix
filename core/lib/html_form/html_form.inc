@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.94 2005/07/15 05:48:13 lwright Exp $
+* $Id: html_form.inc,v 1.95 2005/07/18 22:54:09 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.94 $
+* @version $Revision: 1.95 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -195,17 +195,38 @@ function text_box($name, $value, $size='', $max='', $hide_value=false, $extras='
 * @return void
 * @access public
 */
-function int_text_box($name, $value, $allow_negative=true, $size='', $max='', $hide_value=false, $extras='')
+function int_text_box($name, $value, $allow_negative=true, $size='', $range_min=null, $range_max=null, $max_chars='', $hide_value=false, $extras='')
 {
 	?><script type="text/javascript" src="<?php echo sq_web_path('lib')?>/html_form/html_form.js"></script><?php
 
 	$allow_negative = $allow_negative ? 'true' : 'false';
-	$javascript ='
-		onkeyup="validate_numeric_text_field(this, '.$allow_negative.');"
-		onchange="validate_numeric_text_field(this, '.$allow_negative.');"
+
+	// ranges
+	if (!is_null($range_min) && !is_null($range_max)) {
+		if ($value >= $range_min) {
+			if ($value > $range_max) {
+				$value = $range_max;
+			}
+		} else {
+			$value = $range_min;
+		}
+
+		$ranges = Array(
+					$range_min,
+					$range_max,
+				  );
+	} else {
+		$ranges = Array();
+	}
+
+	$ranges_js  = implode(', ', $ranges);
+	$javascript = '
+		onkeyup="validate_numeric_text_field(this, '.$allow_negative.(!empty($ranges_js) ? ', '.$ranges_js : '').');"
+		onchange="validate_numeric_text_field(this, '.$allow_negative.(!empty($ranges_js) ? ', '.$ranges_js : '').');"
+		onblur="validate_numeric_range(this'.(!empty($ranges_js) ? ', '.$ranges_js : '').', true);"
 	';
 
-	text_box($name, $value, $size, $max, $hide_value, $javascript.$extras);
+	text_box($name, $value, $size, $max_chars, $hide_value, $javascript.$extras);
 
 }//end int_text_box()
 
@@ -954,14 +975,16 @@ function asset_type_chooser($name, $multiple=false, $defaults=Array(), $instanti
 	$types = Array('' => '') + $types;
 	if ($multiple) {
 		if ($show_inherit_checkbox) {
-			foreach ($defaults['type_code'] as $i => $type_code) {
-				if (empty($type_code)) continue;
-				combo_box($name.'[type_code][]', $types, false, $type_code);
-				hidden_field($name.'[inherit][]', $defaults['inherit'][$i]);
-				check_box('', 1, $defaults['inherit'][$i], 'toggleLastHiddenField(this)');
-				label(strtolower(translate('inherit')), '');
-				normal_button('', translate('clear'), 'resetLastSelect(this)');
-				echo '<br />';
+			if (!empty($defaults)) {
+				foreach ($defaults['type_code'] as $i => $type_code) {
+					if (empty($type_code)) continue;
+					combo_box($name.'[type_code][]', $types, false, $type_code);
+					hidden_field($name.'[inherit][]', $defaults['inherit'][$i]);
+					check_box('', 1, $defaults['inherit'][$i], 'toggleLastHiddenField(this)');
+					label(strtolower(translate('inherit')), '');
+					normal_button('', translate('clear'), 'resetLastSelect(this)');
+					echo '<br />';
+				}
 			}
 			combo_box($name.'[type_code][]', $types, false, '');
 			hidden_field($name.'[inherit][]', 0);
