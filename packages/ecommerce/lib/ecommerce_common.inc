@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_common.inc,v 1.1 2005/07/18 01:18:17 rhoward Exp $
+* $Id: ecommerce_common.inc,v 1.2 2005/07/18 04:07:13 rhoward Exp $
 *
 */
 
@@ -25,7 +25,7 @@
 * @author Robert Howard <rhoward@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
 * @author Andrei Railean <arailena@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -62,7 +62,7 @@ function initialiseCart()
 
 	return $ret_val;
 
-}//end initialise()
+}//end initialiseCart()
 
 
 /**
@@ -76,15 +76,18 @@ function clearCart()
 	unset($_SESSION[SQ_CART]);
 	return true;
 
-}
+}//end clearCart()
+
 
 /**
 * Returns the details of one item in the following format:
 *
 * Array(
-*	'quantity'	=> quantity,				// the number of items in the cart
-*	'price'		=> value,					// the cost of the item at the time of purchase
+*	'quantity'	=> quantity,		// the number of items in the cart
+*	'price'		=> value,			// the cost of the item at the time of purchase
 * )
+*
+* @param string	$assetid			// the asset to retrieve from the cart
 *
 * @return Array(string=>mixed)
 * @access public
@@ -97,7 +100,8 @@ function &getItem($assetid)
 		return false;
 	}
 
-}
+}//end getItem()
+
 
 /**
 * Returns the contents of the cart in the following format:
@@ -109,18 +113,16 @@ function &getItem($assetid)
 *					   ),
 *	);
 *
-*
 * @return Array(mixed)
 * @access public
 */
 function &getCart()
 {
-	if (!isset($_SESSION[SQ_CART])) {
-		initialiseCart();
-	}
+	if (!isset($_SESSION[SQ_CART])) initialiseCart();
 
 	return $_SESSION[SQ_CART];
-}
+
+}//end getCart()
 
 
 /**
@@ -133,7 +135,7 @@ function getTotal()
 {
 	$cart =& getCart();
 	$total = 0.0;
-	foreach($cart as $assetid => $details) {
+	foreach ($cart as $assetid => $details) {
 		// -1 == value not known
 		if ($details['price'] != -1) {
 			$total += $details['quantity'] * $details['price'];
@@ -142,7 +144,7 @@ function getTotal()
 
 	return $total;
 
-}//end total()
+}//end getTotal()
 
 
 /**
@@ -155,13 +157,13 @@ function getCount()
 {
 	$cart =& getCart();
 	$count = 0;
-	foreach($cart as $product_assetid => $details) {
+	foreach ($cart as $product_assetid => $details) {
 		$count += $details['quantity'];
 	}
 
 	return $count;
 
-}//end count()
+}//end getCount()
 
 
 // TODO: Remove: @param double		$price				The price to record against that product
@@ -196,12 +198,12 @@ function addItem($assetid, $quantity=1)
 
 	$cart =& getCart();
 	if (!isset($cart[$assetid])) {
-		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if ($asset) {
 			$cart[$assetid] = Array(
-									'price'		=> $asset->attr('price'),
-									'quantity'	=> 0,
-								  );
+								'price'		=> $asset->attr('price'),
+								'quantity'	=> 0,
+							  );
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 		} else {
 			return false;
@@ -212,7 +214,7 @@ function addItem($assetid, $quantity=1)
 
 	return true;
 
-}//end add()
+}//end addItem()
 
 
 /**
@@ -255,7 +257,7 @@ function updateItem($assetid, $quantity)
 
 	return true;
 
-}//end update()
+}//end updateItem()
 
 
 /**
@@ -310,7 +312,7 @@ function removeItem($assetid, $quantity=null)
 		$cart[$assetid]['quantity'] -= $quantity;
 	}
 
-}//end remove()
+}//end removeItem()
 
 
 /**
@@ -329,7 +331,7 @@ function hashCart()
 
 	return $hash;
 
-}
+}//end hashCart()
 
 
 ?>
