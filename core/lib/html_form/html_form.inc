@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.88.2.3 2005/07/15 05:48:45 lwright Exp $
+* $Id: html_form.inc,v 1.88.2.4 2005/07/18 22:52:09 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.88.2.3 $
+* @version $Revision: 1.88.2.4 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -955,14 +955,16 @@ function asset_type_chooser($name, $multiple=false, $defaults=Array(), $instanti
 	$types = Array('' => '') + $types;
 	if ($multiple) {
 		if ($show_inherit_checkbox) {
-			foreach ($defaults['type_code'] as $i => $type_code) {
-				if (empty($type_code)) continue;
-				combo_box($name.'[type_code][]', $types, false, $type_code);
-				hidden_field($name.'[inherit][]', $defaults['inherit'][$i]);
-				check_box('', 1, $defaults['inherit'][$i], 'toggleLastHiddenField(this)');
-				label(strtolower(translate('inherit')), '');
-				normal_button('', translate('clear'), 'resetLastSelect(this)');
-				echo '<br />';
+			if (!empty($defaults)) {
+				foreach ($defaults['type_code'] as $i => $type_code) {
+					if (empty($type_code)) continue;
+					combo_box($name.'[type_code][]', $types, false, $type_code);
+					hidden_field($name.'[inherit][]', $defaults['inherit'][$i]);
+					check_box('', 1, $defaults['inherit'][$i], 'toggleLastHiddenField(this)');
+					label(strtolower(translate('inherit')), '');
+					normal_button('', translate('clear'), 'resetLastSelect(this)');
+					echo '<br />';
+				}
 			}
 			combo_box($name.'[type_code][]', $types, false, '');
 			hidden_field($name.'[inherit][]', 0);
