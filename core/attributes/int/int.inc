@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: int.inc,v 1.30 2005/07/13 01:44:40 mmcintyre Exp $
+* $Id: int.inc,v 1.31 2005/07/19 03:04:08 tbarrett Exp $
 *
 */
 
@@ -37,7 +37,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *    <int width="10" />
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -54,7 +54,7 @@ class Asset_Attribute_Int extends Asset_Attribute
 	*/
 	function Asset_Attribute_Int($attributeid=0, $value=null)
 	{
-		$this->Asset_Attribute($attributeid, (int) $value);
+		$this->Asset_Attribute($attributeid, $value);
 		if (!isset($this->_params['allow_negative'])) {
 			$this->_params['allow_negative'] = true;
 		}
@@ -94,8 +94,9 @@ class Asset_Attribute_Int extends Asset_Attribute
 	*/
 	function paint($prefix, $read_only=false)
 	{
+		if ($this->value !== '') $this->value = (int)$this->value;
 		if ($read_only) {
-			echo (int) $this->value;
+			echo $this->value;
 			return;
 		}
 
@@ -132,7 +133,7 @@ class Asset_Attribute_Int extends Asset_Attribute
 		';
 
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
-		text_box($prefix, (int) $this->value, $this->_edit_params['width'], 0, false, $javascript);
+		text_box($prefix, $this->value, $this->_edit_params['width'], 0, false, $javascript);
 
 	}//end paint()
 
@@ -147,7 +148,8 @@ class Asset_Attribute_Int extends Asset_Attribute
 	function process($prefix)
 	{
 		if (!isset($_REQUEST[$prefix])) return false;
-		$value = (int) $_REQUEST[$prefix];
+		$value = $_REQUEST[$prefix];
+		if ($value !== '') $value = (int)$value;
 		if ($this->value != $value && $this->setValue($value)) {
 			$this->processed = true;
 		} else {
