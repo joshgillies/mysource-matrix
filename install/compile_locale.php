@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: compile_locale.php,v 1.5 2005/05/18 23:38:29 lwright Exp $
+* $Id: compile_locale.php,v 1.6 2005/07/19 00:28:26 arailean Exp $
 *
 */
 
@@ -29,7 +29,7 @@
 * Compiles languages on the system
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -185,7 +185,9 @@ foreach ($asset_types as $asset_type) {
 			}
 
 			while (false !== ($entry = readdir($d))) {
-				if (($entry == '..') || ($entry == '.') || ($entry == 'CVS')) continue;
+				if (($entry{0} == '.') || ($entry == 'CVS')) {
+					continue;
+				}
 
 				if (is_dir($dir_read.'/'.$entry)) {
 					$dirs_to_read[] = $dir_read.'/'.$entry;
