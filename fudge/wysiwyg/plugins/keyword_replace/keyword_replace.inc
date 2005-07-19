@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: keyword_replace.inc,v 1.9 2004/12/06 14:39:54 brobertson Exp $
+* $Id: keyword_replace.inc,v 1.10 2005/07/19 07:20:08 skim Exp $
 *
 */
 
@@ -34,7 +34,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     A WYSIWYG plugin to add keywords to the editor using a nice interface
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -86,7 +86,12 @@ class Keyword_Replace extends WYSIWYG_Plugin
 			$string = '';
 			foreach ($this->keywords as $keyword => $name) {
 				$keyword = str_replace(Array('"', "\r", "\n"), Array('\"', '\r', '\n'), $keyword);
-				$name    = str_replace(Array('"', "\r", "\n"), Array('\"', '\r', '\n'), $name);
+				if (empty($name)) {
+					$name = ucwords(str_replace('_', ' ', $keyword));
+				} else {
+					$name = str_replace(Array('"', "\r", "\n"), Array('\"', '\r', '\n'), $name);
+
+				}
 				$string .= "\n".'Array("'.$this->keyword_tag.$keyword.$this->keyword_tag.'", "'.$name.'"),';
 			}
 			echo trim($string, ', ');

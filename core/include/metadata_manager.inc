@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.86 2005/07/05 21:28:29 gnoel Exp $
+* $Id: metadata_manager.inc,v 1.87 2005/07/19 07:20:00 skim Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.86 $
+* @version $Revision: 1.87 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -677,7 +677,7 @@ class Metadata_Manager extends MySource_Object
 
 			$db->freePrepared($insert_prepared);
 			$db->freePrepared($update_prepared);
-			
+
 		}// end if
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -743,7 +743,7 @@ class Metadata_Manager extends MySource_Object
 
 			$edit_fns = $schema->getEditFns();
 			$edit_fns->generateMetadata($schema, $metadata, $tag_values, $keywords);
-			
+
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($schema);
 		}
 
@@ -902,7 +902,6 @@ class Metadata_Manager extends MySource_Object
 							echo '$metadata_replacements['.var_export($keyword, 1).'] = (is_null($thumbnail)) ? \'\' : $thumbnail->attr(\'caption\');'."\n";
 						break;
 					}
-
 				break;
 
 				case 'asset_created' :
@@ -1089,9 +1088,6 @@ class Metadata_Manager extends MySource_Object
 									$date = 'strtotime(\''.$offset.'\', $metadata_asset->'.$key.')';
 								}
 								echo '$metadata_replacements[\''.$original.'\'] = date(\''.$format.'\', '.$date.');'."\n";
-							break;
-							default:
-								echo '$metadata_replacements[\''.$original.'\'] = \'\';'."\n";
 							break;
 						}
 

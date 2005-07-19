@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.107 2005/07/10 23:11:39 ndvries Exp $
+* $Id: file.inc,v 1.108 2005/07/19 07:19:37 skim Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.107 $
+* @version $Revision: 1.108 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -350,7 +350,7 @@ class File extends Asset
 			// we are morphing into another file type, so check that the actual
 			// file currently uploaded is not going to conflict with the new type
 			$am->includeAsset($new_type_code);
-			$tmp = new $new_type_code();
+			$tmp =& new $new_type_code();
 			$existing = $this->getExistingFile();
 			if (!empty($existing)) {
 				if (!$tmp->validFile($existing)) {
@@ -677,43 +677,6 @@ class File extends Asset
 		return true;
 
 	}//end updateLookups()
-
-
-	/**
-	* Return the keywords with their replacements
-	*
-	* The return value is in the form:
-	* <pre>
-	* Array(
-	*     'name' => Array (
-	*          'value' => 'page',
-	*          'description' => 'the asset name',
-	*     ),
-	* )
-	* </pre>
-	*
-	* @param boolean $descriptions if TRUE descriptions will be included in the array
-	*
-	* @access public
-	* @return Array(mixed)
-	*/
-	function getAssetKeywords($descriptions=false)
-	{
-		$keywords = parent::getAssetKeywords($descriptions);
-
-		$existing = $this->getExistingFile();
-		if (!isset($existing['size'])) $existing['size'] = '0';
-		$keywords['asset_file_size_in_bytes'] = Array('value' => $existing['size']);
-		$keywords['asset_file_size_readable'] = Array('value' => easy_filesize($existing['size']));
-
-		if ($descriptions) {
-			$keywords['asset_file_size_in_bytes']['description'] = translate('core_file_keyword_size_in_bytes');
-			$keywords['asset_file_size_readable']['description'] = translate('core_file_keyword_size_readable');
-		}
-
-		return $keywords;
-
-	}//end getAssetKeywords()
 
 
 	/**
@@ -1073,6 +1036,61 @@ class File extends Asset
 		return (($short_name) ? $this->attr('title') : $this->attr('name'));
 
 	}//end _getName()
+
+
+	/**
+	* Return the keywords for this asset type.
+	*
+	* This function is called in asset-listing situations like the asset listing, search page etc
+	*
+	* The return value is in the form:
+	* <pre>
+	* Array(
+	*   'name' => 'description' => 'the asset name',
+	* );
+	* </pre>
+	*
+	* @access public
+	* @return array
+	*/
+	function getAvailableKeywords()
+	{
+		$keywords = parent::getAvailableKeywords();
+
+		$keywords['asset_file_size_in_bytes'] = translate('core_file_keyword_size_in_bytes');
+		$keywords['asset_file_size_readable'] = translate('core_file_keyword_size_readable');
+//minibam($keywords);
+		return $keywords;
+
+	}//end getAvailableKeywords()
+
+
+	/**
+	* Get keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getAssetFileSizeInBytesKeywordReplacement()
+	{
+		$existing = $this->getExistingFile();
+		return $existing['size'];
+
+	}//end getAssetFileSizeInBytesKeywordReplacement()
+
+
+	/**
+	* Get keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getAssetFileSizeReadableKeywordReplacement()
+	{
+		$existing = $this->getExistingFile();
+		return easy_filesize($existing['size']);
+
+	}//end getAssetFileSizeReadableKeywordReplacement()
 
 
 }//end class

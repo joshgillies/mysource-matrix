@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.60 2005/07/13 12:40:17 mmcintyre Exp $
+* $Id: search_manager.inc,v 1.61 2005/07/19 07:20:58 skim Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.60 $
+* @version $Revision: 1.61 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -331,10 +331,10 @@ class Search_Manager extends Asset
 		}
 
 		foreach ($asset->vars as $var_name => $var_data) {
-			
+
 			// if there is no weightings for this attribute, then its not indexable
 			if (!isset($weightings[$var_name])) continue;
-			
+
 			// don't index attribute that are names or short names as we index these
 			// as part of the asset components
 			if ($var_name == 'name' || $var_name == 'short_name') {

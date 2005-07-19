@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.65 2005/07/18 07:04:33 tbarrett Exp $
+* $Id: page_asset_builder.inc,v 1.66 2005/07/19 07:20:30 skim Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.65 $
+* @version $Revision: 1.66 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -96,7 +96,7 @@ class Page_Asset_Builder extends Page
 		$copy_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1, 'value' => '');
 
 		foreach ($this->_getBodycopies() as $value => $name) {
-			$bodycopy = new Bodycopy();
+			$bodycopy =& new Bodycopy();
 			$bodycopy->setAttrValue('name', $name);
 			$copy_link['value'] = $value;
 			if (!$bodycopy->create($copy_link)) return false;
@@ -215,7 +215,8 @@ class Page_Asset_Builder extends Page
 			if (is_null($current_user) || is_a($current_user, 'public_user')) {
 				// this person is not logged in, so we should let them log in
 				$this->_current_state = 'not_logged_in';
-				$this->_loadLoginReplacements();
+				$this->_replacements['login_invite'] = $this->getKeywordReplacement('login_invite');
+				$this->_replacements['login_form'] = $this->getKeywordReplacement('login_form');
 			} else {
 				$this->_current_state = 'logged_in';
 			}
@@ -286,7 +287,7 @@ class Page_Asset_Builder extends Page
 					// to make life easier for ourselves
 					$create_type = $_POST['ASSET_BUILDER_CREATE_TYPE'];
 					$GLOBALS['SQ_SYSTEM']->am->includeAsset($create_type);
-					$new_asset = new $create_type();
+					$new_asset =& new $create_type();
 					$prefix = $new_asset->getPrefix();
 
 
@@ -350,12 +351,12 @@ class Page_Asset_Builder extends Page
 
 					// we'll just use a limbo outputter to do the outputting for us
 					require_once SQ_INCLUDE_PATH.'/limbo_outputter.inc';
-					$o = new Limbo_Outputter();
+					$o =& new Limbo_Outputter();
 					$create_parentid = array_shift(array_keys($create_locations));
 					$link_type = array_shift(array_values($create_locations));
 					$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($create_parentid);
 					if (is_null($parent)) {
-						$this->_replacements['create_error'] = $this->attr('create_error');
+						$this->_replacements['create_error'] = $this->getKeywordReplacement('create_error');
 						break;
 					}
 
@@ -542,7 +543,7 @@ class Page_Asset_Builder extends Page
 		if (empty($attributes)) {
 			$create_type = $_POST['ASSET_BUILDER_CREATE_TYPE'];
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($create_type);
-			$temp_asset = new $create_type();
+			$temp_asset =& new $create_type();
 			$prefix = $temp_asset->getPrefix();
 			unset($temp_asset);
 		}
@@ -750,43 +751,6 @@ class Page_Asset_Builder extends Page
 
 
 	/**
-	* Loads keyword replacements for the logging in interface, into the Asset Builder
-	*
-	* @return void
-	* @access private
-	*/
-	function _loadLoginReplacements()
-	{
-		$this->_replacements['login_invite'] = $this->attr('login_invite');
-
-		ob_start();
-			?>
-			<input type="hidden" name="SQ_LOGIN_KEY"      value="<?php echo $GLOBALS['SQ_SYSTEM']->generateLoginKey(); ?>">
-			<input type="hidden" name="SQ_LOGIN_REFERER"  value="">
-
-			<table border="0">
-				<tr>
-					<td valign="top"><?php echo translate('username'); ?></td>
-					<td valign="top"><?php echo text_box('SQ_LOGIN_USERNAME', (isset($_POST['SQ_LOGIN_USERNAME'])) ? $_POST['SQ_LOGIN_USERNAME'] : 'Enter your username here', 25, 0, (isset($_POST['SQ_LOGIN_USERNAME'])) ? false : true, 'title="Username"'); ?></td>
-				</tr>
-				<tr>
-					<td valign="top"><?php echo translate('password'); ?></td>
-					<td valign="top"><?php echo password_box('SQ_LOGIN_PASSWORD', '', 25, 0, 'title="Password"'); ?></td>
-				</tr>
-				<tr>
-					<td valign="top">&nbsp;</td>
-					<td valign="top"><?php echo submit_button('', 'Login', 'this.form.action = \''.$_SERVER['PHP_SELF'].'?SQ_ACTION=login\'; document.getElementById(\'ASSET_BUILDER_ACTION\').value = \'login\';'); ?></td>
-				</tr>
-			</table>
-
-			<?php
-			$this->_replacements['login_form'] = ob_get_contents();
-		ob_end_clean();
-
-	}//end _loadLoginReplacements()
-
-
-	/**
 	* Loads keyword replacements for the newly created asset, into the Asset Builder
 	*
 	* @return void
@@ -794,12 +758,12 @@ class Page_Asset_Builder extends Page
 	*/
 	function _loadAssetReplacements()
 	{
-		$this->_replacements['created_assetid']				= $this->_tmp['created_asset']->id;
-		$this->_replacements['created_asset_name']			= $this->_tmp['created_asset']->name;
-		$this->_replacements['created_asset_short_name']	= $this->_tmp['created_asset']->short_name;
-		$this->_replacements['created_asset_url']			= $this->_tmp['created_asset']->getURL();
-		$this->_replacements['created_asset_edit']			= $this->_tmp['created_asset']->getURL().'/_edit';
-		$this->_replacements['created_asset_backend']		= sq_web_path('root_url').'/'.$this->_tmp['created_asset']->getBackendHref('contents');
+		$this->_replacements['created_assetid'] = $this->getKeywordReplacement('created_assetid');
+		$this->_replacements['created_asset_name'] = $this->getKeywordReplacement('created_asset_name');
+		$this->_replacements['created_asset_short_name'] = $this->getKeywordReplacement('created_asset_short_name');
+		$this->_replacements['created_asset_url'] = $this->getKeywordReplacement('created_asset_url');
+		$this->_replacements['created_asset_edit'] = $this->getKeywordReplacement('created_asset_edit');
+		$this->_replacements['created_asset_backend'] = $this->getKeywordReplacement('created_asset_backend');
 
 	}//end _loadAssetReplacements()
 
@@ -815,88 +779,12 @@ class Page_Asset_Builder extends Page
 		  ///////////////////////////
 		 // CREATE INVITE KEYWORD //
 		///////////////////////////
-		$this->_replacements['create_invite'] = $this->attr('create_invite');
+		$this->_replacements['create_invite'] = $this->getKeywordReplacement('create_invite');
 
 		  /////////////////////////
 		 // CREATE FORM KEYWORD //
-		 ////////////////////////
-		$create_types = $this->attr('create_type');
-		if (!is_array($create_types)) {
-			$create_types = Array($create_types => '');
-		}
-
-		require_once SQ_INCLUDE_PATH.'/limbo_outputter.inc';
-		$o = new Limbo_Outputter();
-		$o->addHiddenField('asset_action', 'create');
-		$o->addHiddenField('ASSET_BUILDER_CREATE_TYPE', key($create_types)); // first asset type is selected initially
-
-		// get each asset type's form fields for the create form
-		ob_start();
-			$display = 'block'; // first create type is shown initially
-			foreach ($create_types as $create_type => $value) {
-				$prefix = $this->type().'_'.$this->id.'_type_'.$create_type;
-				echo '<div class="sq-asset-builder-tab-content" id="'.$prefix.'" style="display: '.$display.'">';
-				$GLOBALS['SQ_SYSTEM']->am->includeAsset($create_type);
-				$asset = new $create_type();
-				$asset->paintBackend($o);
-				$o->paintSections();
-				$o->_contents = Array();
-				echo '</div>';
-				$display = 'none'; // all subsequent create types hidden initially
-			}
-			$this->_replacements['create_form'] =  ob_get_contents();
-		ob_end_clean();
-
-		// get the header for the create form
-		ob_start();
-			// Header material from the limbo outputter
-			$o->addOnLoad('document.getElementById("asset_builder_'.$this->id.'").onsubmit = form_on_submit');
-			$o->_paintInlineHeader();
-
-			// Tabs if necessary
-			if (count($create_types) > 1) {
-				reset($create_types);
-				?>
-				<script type="text/javascript"><!--
-				//<![CDATA[
-					var current_option = '<?php echo $this->type().'_'.$this->id.'_type_'.key($create_types) ?>';
-
-					function showAssetBuilderTab(type_code)
-					{
-						document.getElementById(current_option).style.display = 'none';
-						document.getElementById(current_option+"_tab").className = 'sq-asset-builder-tab';
-						current_option = '<?php echo $this->type().'_'.$this->id.'_type_' ?>' + type_code;
-						document.getElementById(current_option).style.display = 'block';
-						document.getElementById(current_option+"_tab").className = 'sq-asset-builder-tab-active';
-						document.getElementById('ASSET_BUILDER_CREATE_TYPE').value = type_code;
-
-					}//end showAssetBuilderTab()
-				//]]> -->
-				</script>
-
-				<div id="sq-asset-builder-header">
-					<ul>
-					<?php
-					$active = '-active'; // first asset type is shown initially
-					foreach ($create_types as $create_type => $value) {
-						$prefix = $this->type().'_'.$this->id.'_type_'.$create_type;
-						$type_name = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($create_type, 'name');
-						?>
-							<li class="sq-asset-builder-tab<?php echo $active; ?>" id="<?php echo $prefix; ?>_tab">
-								<a href="#" onclick="showAssetBuilderTab('<?php echo $create_type ?>'); return false;">
-									<?php echo $type_name; ?>
-								</a>
-							</li>
-						<?php
-						$active = ''; // subsequent asset types are hidden initially
-					}
-					?>
-					</ul>
-				</div>
-				<?php
-			}
-			$this->_replacements['create_form'] = ob_get_contents().$this->_replacements['create_form'];
-		ob_end_clean();
+		////////////////////////
+		$this->_replacements['create_form'] = $this->getKeywordReplacement('create_form');
 
 		  //////////////////////////////////////////
 		 // SELECTABLE CREATE LOCATIONS KEYWORDS //
@@ -1197,80 +1085,6 @@ class Page_Asset_Builder extends Page
 
 
 	/**
-	* Add valid keywords for this asset to an array of keywords when asked
-	*
-	* @param &object Asset	$asset	the asset that triggered the event
-	* @param Array			$vars	the vars that get submitted by the broadcaster
-	*								we add keywords to the $vars['keywords'] array
-	*
-	* @return boolean
-	* @access private
-	*/
-	function onRequestKeywords(&$broadcaster, $vars=Array())
-	{
-		if (!isset($vars['keywords'])) return;
-
-		$keywords = Array(
-						'login_invite'	=> translate('cms_asset_builder_keyword_login_invite'),
-						'login_form'	=> translate('cms_asset_builder_keyword_login_form'),
-						'create_error'	=> translate('cms_asset_builder_keyword_login_error'),
-						'create_invite'	=> translate('cms_asset_builder_keyword_create_invite'),
-						'create_form'	=> translate('cms_asset_builder_keyword_create_form'),
-						'create_error'	=> translate('cms_asset_builder_keyword_create_error'),
-					);
-
-		$keywords['created_assetid']			= translate('cms_asset_builder_created_assetid');
-		$keywords['created_asset_name']			= translate('cms_asset_builder_created_asset_name');
-		$keywords['created_asset_short_name']	= translate('cms_asset_builder_created_asset_short_name');
-		$keywords['created_asset_url']			= translate('cms_asset_builder_created_asset_url');
-		$keywords['created_asset_edit']			= translate('cms_asset_builder_created_asset_edit');
-		$keywords['created_asset_backend']		= translate('cms_asset_builder_created_asset_backend');
-
-
-		$vars['keywords'] = array_merge($vars['keywords'], $keywords);
-		$vars['keywords'] = array_merge($vars['keywords'], $this->getSelectableLocationKeywords());
-		$vars['keywords'] = array_merge($vars['keywords'], $this->getDynamicLocationKeywords());
-
-	}//end onRequestKeywords()
-
-
-	/**
-	* Get the keyword replacements used to select selectable create locations
-	*
-	* @access protected
-	* @return array(keyword => replacement)
-	*/
-	function getSelectableLocationKeywords()
-	{
-		$keywords = Array();
-		foreach ($this->attr('create_location_optional') as $name => $data) {
-			$keyword_name = str_replace(' ', '_', strtolower($name)).'_field';
-			$keywords[$keyword_name] = translate('cms_asset_builder_field_keyword', $name);
-		}
-		return $keywords;
-
-	}//end getSelectableLocationKeywords()
-
-
-	/**
-	* Get the keyword replacements used to select dynamic create locations
-	*
-	* @access protected
-	* @return array(keyword => replacement)
-	*/
-	function getDynamicLocationKeywords()
-	{
-		$keywords = Array();
-		foreach ($this->attr('create_location_dynamic') as $name => $data) {
-			$keyword_name = str_replace(' ', '_', strtolower($name)).'_field';
-			$keywords[$keyword_name] = translate('cms_asset_builder_field_keyword', $name);
-		}
-		return $keywords;
-
-	}//end getDynamicLocationKeywords()
-
-
-	/**
 	* Return an array of bodycopies that need to be created
 	*
 	* @return Array
@@ -1285,6 +1099,386 @@ class Page_Asset_Builder extends Page
 			   );
 
 	}//end _getBodycopies()
+
+
+//--        KEYWORD DESCRIPTION        --//
+
+
+	/**
+	* Add valid keywords for this asset to an array of keywords when asked
+	*
+	* @param &object Asset	$asset	the asset that triggered the event
+	* @param Array			$vars	the vars that get submitted by the broadcaster
+	*								we add keywords to the $vars['keywords'] array
+	*
+	* @return boolean
+	* @access public
+	*/
+	function onRequestKeywords(&$broadcaster, $vars=Array())
+	{
+		if (!isset($vars['keywords'])) return;
+
+		// which type-code?
+		$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id, 'bodycopy', true);
+		$type_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy');
+		foreach ($type_links as $link_info) {
+			if (isset($parents[$link_info['minorid']])) {
+				$bodycopy_type = $link_info['value'];
+			}
+		}
+
+		switch ($bodycopy_type) {
+			case 'not_logged_in' :
+				$vars['keywords'] = array_merge($vars['keywords'], $this->_getNotLoggedInKeywords());
+			break;
+			case 'logged_in' :
+				$vars['keywords'] = array_merge($vars['keywords'], $this->_getLoggedInKeywords());
+			break;
+			case 'created' :
+				$vars['keywords'] = array_merge($vars['keywords'], $this->_getCreatedKeywords());
+			break;
+		}
+
+		$vars['keywords'] = array_merge($vars['keywords'], $this->_getSelectableLocationKeywords());
+		$vars['keywords'] = array_merge($vars['keywords'], $this->_getDynamicLocationKeywords());
+
+	}//end onRequestKeywords()
+
+
+	/**
+	* Get the keyword used in not_logged_in bodycopy
+	*
+	* @access protected
+	* @return array(keyword => replacement)
+	*/
+	function _getNotLoggedInKeywords()
+	{
+		$keywords = Array();
+
+		$keywords['login_invite'] 	= translate('cms_asset_builder_keyword_login_invite');
+		$keywords['login_form'] 	= translate('cms_asset_builder_keyword_login_form');
+
+		return $keywords;
+
+	}//end _getNotLoggedInKeywords()
+
+
+	/**
+	* Get the keyword used in logged_in bodycopy
+	*
+	* @access protected
+	* @return array(keyword => replacement)
+	*/
+	function _getLoggedInKeywords()
+	{
+		$keywords = Array();
+
+		return $keywords;
+
+	}//end _getLoggedInKeywords()
+
+
+	/**
+	* Get the keyword used in created bodycopy
+	*
+	* @access protected
+	* @return array(keyword => replacement)
+	*/
+	function _getCreatedKeywords()
+	{
+		$keywords = Array();
+
+		$keywords['create_invite'] 	= translate('cms_asset_builder_keyword_create_invite');
+		$keywords['create_form'] 	= translate('cms_asset_builder_keyword_create_form');
+		$keywords['create_error'] 	= translate('cms_asset_builder_keyword_create_error');
+
+		return $keywords;
+
+	}//end _getCreatedKeywords()
+
+
+	/**
+	* Get the keyword used to select selectable create locations
+	*
+	* @access protected
+	* @return array(keyword => replacement)
+	*/
+	function _getSelectableLocationKeywords()
+	{
+		$keywords = Array();
+		foreach ($this->attr('create_location_optional') as $name => $data) {
+			$keyword_name = str_replace(' ', '_', strtolower($name)).'_field';
+			$keywords[$keyword_name] = translate('cms_asset_builder_field_keyword', $name);
+		}
+		return $keywords;
+
+	}//end _getSelectableLocationKeywords()
+
+
+	/**
+	* Get the keyword used to select dynamic create locations
+	*
+	* @access protected
+	* @return array(keyword => replacement)
+	*/
+	function _getDynamicLocationKeywords()
+	{
+		$keywords = Array();
+		foreach ($this->attr('create_location_dynamic') as $name => $data) {
+			$keyword_name = str_replace(' ', '_', strtolower($name)).'_field';
+			$keywords[$keyword_name] = translate('cms_asset_builder_field_keyword', $name);
+		}
+		return $keywords;
+
+	}//end _getDynamicLocationKeywords()
+
+
+//--        KEYWORD REPLACEMENT        --//
+
+
+	/**
+	* Get login_invite keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getLoginInviteKeywordReplacement()
+	{
+		return $this->attr('login_invite');
+
+	}//end getLoginInviteKeywordReplacement()
+
+
+	/**
+	* Get login_form keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getLoginFormKeywordReplacement()
+	{
+		ob_start();
+			?>
+			<input type="hidden" name="SQ_LOGIN_KEY"      value="<?php echo $GLOBALS['SQ_SYSTEM']->generateLoginKey(); ?>">
+			<input type="hidden" name="SQ_LOGIN_REFERER"  value="">
+
+			<table border="0">
+				<tr>
+					<td valign="top"><?php echo translate('username'); ?></td>
+					<td valign="top"><?php echo text_box('SQ_LOGIN_USERNAME', (isset($_POST['SQ_LOGIN_USERNAME'])) ? $_POST['SQ_LOGIN_USERNAME'] : 'Enter your username here', 25, 0, (isset($_POST['SQ_LOGIN_USERNAME'])) ? false : true, 'title="Username"'); ?></td>
+				</tr>
+				<tr>
+					<td valign="top"><?php echo translate('password'); ?></td>
+					<td valign="top"><?php echo password_box('SQ_LOGIN_PASSWORD', '', 25, 0, 'title="Password"'); ?></td>
+				</tr>
+				<tr>
+					<td valign="top">&nbsp;</td>
+					<td valign="top"><?php echo submit_button('', 'Login', 'this.form.action = \''.$_SERVER['PHP_SELF'].'?SQ_ACTION=login\'; document.getElementById(\'ASSET_BUILDER_ACTION\').value = \'login\';'); ?></td>
+				</tr>
+			</table>
+
+			<?php
+			$login_form = ob_get_contents();
+		ob_end_clean();
+		return $login_form;
+
+	}//end getLoginFormKeywordReplacement()
+
+
+	/**
+	* Get created_assetid keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getCreatedAssetidKeywordReplacement()
+	{
+		return $this->_tmp['created_asset']->id;
+
+	}//end getCreatedAssetidKeywordReplacement()
+
+
+	/**
+	* Get created_asset_name keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getCreatedAssetNameKeywordReplacement()
+	{
+		return $this->_tmp['created_asset']->name;
+
+	}//end getCreatedAssetNameKeywordReplacement()
+
+
+	/**
+	* Get created_asset_short_name keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getCreatedAssetShortNameKeywordReplacement()
+	{
+		return $this->_tmp['created_asset']->short_name;
+
+	}//end getCreatedAssetShortNameKeywordReplacement()
+
+
+	/**
+	* Get created_asset_url keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getCreatedAssetUrlKeywordReplacement()
+	{
+		return $this->_tmp['created_asset']->getURL();
+
+	}//end getCreatedAssetUrlKeywordReplacement()
+
+
+	/**
+	* Get created_asset_edit keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getCreatedAssetEditKeywordReplacement()
+	{
+		return $this->_tmp['created_asset']->getURL().'/_edit';
+
+	}//end getCreatedAssetEditKeywordReplacement()
+
+
+	/**
+	* Get created_asset_backend keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getCreatedAssetBackendKeywordReplacement()
+	{
+		return sq_web_path('root_url').'/'.$this->_tmp['created_asset']->getBackendHref('contents');
+
+	}//end getCreatedAssetBackendKeywordReplacement()
+
+
+	/**
+	* Get create_error keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getCreateErrorKeywordReplacement()
+	{
+		return $this->attr('create_error');
+
+	}//end getCreateErrorKeywordReplacement()
+
+
+	/**
+	* Get create_invite keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getCreateInviteKeywordReplacement()
+	{
+		return $this->attr('create_invite');
+
+	}//end getCreateInviteKeywordReplacement()
+
+
+	/**
+	* Get create_form keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getCreateFormKeywordReplacement()
+	{
+		$create_form = '';
+		$create_types = $this->attr('create_type');
+		if (!is_array($create_types)) {
+			$create_types = Array($create_types => '');
+		}
+
+		require_once SQ_INCLUDE_PATH.'/limbo_outputter.inc';
+		$o =& new Limbo_Outputter();
+		$o->addHiddenField('asset_action', 'create');
+		$o->addHiddenField('ASSET_BUILDER_CREATE_TYPE', key($create_types)); // first asset type is selected initially
+
+		// get each asset type's form fields for the create form
+		ob_start();
+			$display = 'block'; // first create type is shown initially
+			foreach ($create_types as $create_type => $value) {
+				$prefix = $this->type().'_'.$this->id.'_type_'.$create_type;
+				echo '<div class="sq-asset-builder-tab-content" id="'.$prefix.'" style="display: '.$display.'">';
+				$GLOBALS['SQ_SYSTEM']->am->includeAsset($create_type);
+				$asset =& new $create_type();
+				$asset->paintBackend($o);
+				$o->paintSections();
+				$o->_contents = Array();
+				echo '</div>';
+				$display = 'none'; // all subsequent create types hidden initially
+			}
+			$create_form = ob_get_contents();
+		ob_end_clean();
+
+		// get the header for the create form
+		ob_start();
+			// Header material from the limbo outputter
+			$o->addOnLoad('document.getElementById("asset_builder_'.$this->id.'").onsubmit = form_on_submit');
+			$o->_paintInlineHeader();
+
+			// Tabs if necessary
+			if (count($create_types) > 1) {
+				reset($create_types);
+				?>
+				<script type="text/javascript"><!--
+				//<![CDATA[
+					var current_option = '<?php echo $this->type().'_'.$this->id.'_type_'.key($create_types) ?>';
+
+					function showAssetBuilderTab(type_code)
+					{
+						document.getElementById(current_option).style.display = 'none';
+						document.getElementById(current_option+"_tab").className = 'sq-asset-builder-tab';
+						current_option = '<?php echo $this->type().'_'.$this->id.'_type_' ?>' + type_code;
+						document.getElementById(current_option).style.display = 'block';
+						document.getElementById(current_option+"_tab").className = 'sq-asset-builder-tab-active';
+						document.getElementById('ASSET_BUILDER_CREATE_TYPE').value = type_code;
+
+					}//end showAssetBuilderTab()
+				//]]> -->
+				</script>
+
+				<div id="sq-asset-builder-header">
+					<ul>
+					<?php
+					$active = '-active'; // first asset type is shown initially
+					foreach ($create_types as $create_type => $value) {
+						$prefix = $this->type().'_'.$this->id.'_type_'.$create_type;
+						$type_name = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($create_type, 'name');
+						?>
+							<li class="sq-asset-builder-tab<?php echo $active; ?>" id="<?php echo $prefix; ?>_tab">
+								<a href="#" onclick="showAssetBuilderTab('<?php echo $create_type ?>'); return false;">
+									<?php echo $type_name; ?>
+								</a>
+							</li>
+						<?php
+						$active = ''; // subsequent asset types are hidden initially
+					}
+					?>
+					</ul>
+				</div>
+				<?php
+			}
+			$create_form = ob_get_contents().$create_form;
+		ob_end_clean();
+
+		return $create_form;
+
+	}//end getCreateFormKeywordReplacement()
 
 
 }//end class

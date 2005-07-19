@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart.inc,v 1.10 2005/05/25 05:11:29 lwright Exp $
+* $Id: ecommerce_cart.inc,v 1.11 2005/07/19 07:20:53 skim Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -66,7 +66,7 @@ class Ecommerce_Cart extends Listing_Engine
 		// add a bodycopy to this page when creating
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
 
-		$asset = new Bodycopy();
+		$asset =& new Bodycopy();
 		$copy_link = Array('asset' => &$this, 'value' => 'page_contents' ,'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 		$asset->setAttrValue('name', 'Page Contents');
 
@@ -104,7 +104,7 @@ class Ecommerce_Cart extends Listing_Engine
 
 		$group_by = $this->attr('group_by');
 
-		foreach($cart_contents as $product_assetid => $product_info) {
+		foreach ($cart_contents as $product_assetid => $product_info) {
 			$product_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($product_assetid);
 			if ($group_by == 'letter') {
 				$asset_list[$product_assetid] = Array(
@@ -119,6 +119,7 @@ class Ecommerce_Cart extends Listing_Engine
 		return $asset_list;
 
 	}//end getAssetList()
+
 
 	/**
 	* Returns an array of all the permitted link type, the type asset and
@@ -308,8 +309,12 @@ class Ecommerce_Cart extends Listing_Engine
 		$cart =& $this->get();
 
 		// if we are not updating anything, silently return succes
-		if (array_get_index($cart, $product_assetid, 0) == $quantity) return true;
-		if (array_get_index($cart[$product_assetid], 'quantity', 0) == $quantity) return true;
+		if (array_get_index($cart, $product_assetid, 0) == $quantity) {
+			return true;
+		}
+		if (array_get_index($cart[$product_assetid], 'quantity', 0) == $quantity) {
+			return true;
+		}
 
 		// product doesn't exist in cart, then silently return, otherwise error
 		if (!isset($cart[$product_assetid])) {
@@ -359,7 +364,7 @@ class Ecommerce_Cart extends Listing_Engine
 	{
 		$cart =& $this->get();
 		$total = 0.0;
-		foreach($cart as $product_assetid => $details) {
+		foreach ($cart as $product_assetid => $details) {
 			if ($details['price'] != -1) {		// -1 = value not known
 				$total += $details['quantity'] * $details['price'];
 			}
@@ -380,7 +385,7 @@ class Ecommerce_Cart extends Listing_Engine
 	{
 		$cart =& $this->get();
 		$count = 0;
-		foreach($cart as $product_assetid => $details) {
+		foreach ($cart as $product_assetid => $details) {
 			$count += $details['quantity'];
 		}
 
@@ -432,28 +437,24 @@ class Ecommerce_Cart extends Listing_Engine
 		//update the cart contents for any updated quantities
 		if (!is_null(array_get_index($_REQUEST,'update_quantity',null))) {
 			//see if we are updating an individual item or everything
-			if(isset($_REQUEST['update_button'])) {
+			if (isset($_REQUEST['update_button'])) {
 				reset($_REQUEST['update_button']);
 				$update_productid = key($_REQUEST['update_button']);
 
 				if ($update_productid == 'all') {
 					// updating (potentially) all the items
-					foreach($_REQUEST['update_quantity'] as $product_assetid => $new_quantity) {
+					foreach ($_REQUEST['update_quantity'] as $product_assetid => $new_quantity) {
 						if (is_numeric($new_quantity)) {
 							// it's quite possible now with position formats that
 							// an asset in the cart might not have any quantity,
 							// so we now check whether we have to update or add
 							if (isset($_SESSION['sq_cart_contents'][$product_assetid])) {
 								$this->update($product_assetid, (int)$new_quantity);
-								if ($new_quantity == 0) {
-									$num_kids--;
-								}
+								if ($new_quantity == 0) $num_kids--;
 							} else {
-								$product_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($product_assetid);
+								$product_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($product_assetid);
 								$this->add($product_assetid, $product_asset->attr('price'), (int)$new_quantity);
-								if ($new_quantity > 0) {
-									$num_kids++;
-								}
+								if ($new_quantity > 0) $num_kids++;
 							}
 						}
 					}
@@ -465,15 +466,11 @@ class Ecommerce_Cart extends Listing_Engine
 						// adding or updating?
 						if (isset($_SESSION['sq_cart_contents'][$update_productid])) {
 								$this->update($update_productid, (int)$new_quantity);
-								if ($new_quantity == 0) {
-									$num_kids--;
-								}
+								if ($new_quantity == 0) $num_kids--;
 							} else {
-								$product_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($update_productid);
+								$product_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($update_productid);
 								$this->add($update_productid, $product_asset->attr('price'), (int)$new_quantity);
-								if ($new_quantity > 0) {
-									$num_kids++;
-								}
+								if ($new_quantity > 0) $num_kids++;
 							}
 					}
 				}
@@ -561,60 +558,7 @@ class Ecommerce_Cart extends Listing_Engine
 	}//end printContents()
 
 
-	/**
-	* Build a custom submit button for the ecom form since nested
-	* forms are illegal html
-	*
-	* @return string
-	* @access public
-	*/
-	function getSubmitButtonReplacement()
-	{
-		$prefix = $this->getPrefix();
-		$field_name = 'update_button[all]';
-		$this->registerFormField($field_name);
-
-		$button_text = $this->attr('submit_button_text');
-
-		ob_start();
-			submit_button($field_name, $button_text);
-		return ob_get_clean();
-
-	}//end getSubmitButtonReplacement()
-
-
-	/**
-	* Add valid keywords for this asset to an array of keywords when asked
-	*
-	* @param &object Asset	$asset	the asset that triggered the event
-	* @param Array			$vars	the vars that get submitted by the broadcaster
-	*								we add keywords to the $vars['keywords'] array
-	*
-	* @return boolean
-	* @access private
-	*/
-	function onRequestKeywords(&$broadcaster, $vars=Array())
-	{
-		if (!isset($vars['keywords'])) return;
-		if (!is_a($broadcaster, 'content_type')) return;
-
-		$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id, 'bodycopy', true);
-
-		// the broadcaster could be our page contents bodycopy, in which case
-		// we want to supply our own keyword replacements
-		$page_contents_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'page_contents');
-		if (!empty($page_contents_link)) {
-			if (isset($parents[$page_contents_link['minorid']])) {
-				$vars['keywords'] += $this->getContentsKeywords();
-				return;
-			}
-		}
-
-		// if it's not the page contents bodycopy, it's something that we've
-		// inherited from the listing engine, so pass it on
-		parent::onRequestKeywords($broadcaster, $vars);
-
-	}//end onRequestKeywords()
+//--        KEYWORD DESCRIPTION        --//
 
 
 	/**
@@ -630,30 +574,43 @@ class Ecommerce_Cart extends Listing_Engine
 	* @access public
 	* @return array(string => string)
 	*/
-	function getContentsKeywords()
+	function _getContentsKeywords()
 	{
-		$keywords = parent::getContentsKeywords();
-		$GLOBALS['SQ_SYSTEM']->lm->includeAssetStrings('page_asset_listing');
+		$keywords = parent::_getContentsKeywords();
 
-		$keywords += Array(
-						'cart_updated'			=> translate('ecom_cart_keyword_cart_updated'),
-						'product_count'			=> translate('ecom_cart_keyword_product_count'),
-						'total_value'			=> translate('ecom_cart_keyword_total_value'),
-						'checkout_cart_button'	=> translate('ecom_cart_keyword_checkout_cart_button'),
-						'asset_listing'			=> translate('cms_listing_asset_listing'),
-						'previous_page'			=> translate('cms_listing_previous_page_link'),
-						'next_page'				=> translate('cms_listing_next_page_link'),
-						'page_list'				=> translate('cms_listing_page_list'),
-						'page_number'			=> translate('cms_listing_page_number'),
-						'asset_count'			=> translate('cms_listing_asset_count'),
-						'page_asset_count'		=> translate('cms_listing_page_asset_count'),
-						'first_asset_position'	=> translate('cms_listing_first_asset_position'),
-						'last_asset_position'	=> translate('cms_listing_last_asset_position'),
-					 );
+		$keywords['cart_updated']			= translate('ecom_cart_keyword_cart_updated');
+		$keywords['product_count']			= translate('ecom_cart_keyword_product_count');
+		$keywords['total_value']			= translate('ecom_cart_keyword_total_value');
+		$keywords['checkout_cart_button']	= translate('ecom_cart_keyword_checkout_cart_button');
 
 		return $keywords;
 
-	}//end getContentsKeywords()
+	}//end _getContentsKeywords()
+
+
+//--        KEYWORD REPLACEMENT        --//
+
+
+	/**
+	* Build a custom submit button for the ecom form since nested
+	* forms are illegal html
+	*
+	* @return string
+	* @access public
+	*/
+	function getSubmitButtonKeywordReplacement()
+	{
+		$prefix = $this->getPrefix();
+		$field_name = 'update_button[all]';
+		$this->registerFormField($field_name);
+
+		$button_text = $this->attr('submit_button_text');
+
+		ob_start();
+			submit_button($field_name, $button_text);
+		return ob_get_clean();
+
+	}//end getSubmitButtonKeywordReplacement()
 
 
 }//end class

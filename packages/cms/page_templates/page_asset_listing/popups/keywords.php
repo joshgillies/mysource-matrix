@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: keywords.php,v 1.2 2004/12/06 14:41:39 brobertson Exp $
+* $Id: keywords.php,v 1.3 2005/07/19 07:20:43 skim Exp $
 *
 */
 -->
@@ -27,8 +27,8 @@
 	if (!isset($_GET['type_code'])) return false;
 
 	$GLOBALS['SQ_SYSTEM']->am->includeAsset($_GET['type_code']);
-	$asset = new $_GET['type_code']();
-	$keywords = $asset->getAssetKeywords(true);
+	$asset =& new $_GET['type_code']();
+	$keywords = $asset->getAvailableKeywords();
 ?>
 
 <html>
@@ -63,8 +63,9 @@
 		<fieldset>
 			<legend><b>Asset Information</b></legend>
 			<table border="0" width="100%">
-			<?php foreach ($keywords as $keyword => $info) { ?>
-				<tr><td valign="top" width="200"><b>%<?php echo $keyword?>%</b></td><td valign="top"><?php echo isset($info['description']) ? $info['description'] : '' ?></td></tr>
+			<?php
+			foreach ($keywords as $keyword => $description) { ?>
+				<tr><td valign="top" width="200"><b>%<?php echo $keyword?>%</b></td><td valign="top"><?php echo isset($description) ? $description : '' ?></td></tr>
 			<?php } ?>
 			</table>
 		</fieldset>

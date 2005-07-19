@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_whats_new.inc,v 1.21 2005/06/22 02:10:41 arailean Exp $
+* $Id: page_whats_new.inc,v 1.22 2005/07/19 07:20:48 skim Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../page_templates/page_asset_listing/page_as
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -114,10 +114,10 @@ class Page_Whats_New extends Page_Asset_Listing
 			$id = $_REQUEST['asset_'.$this->id.'_date_range'];
 			$this->setAttrValue('num_per_page', 0); // If we're displaying a range, clear the pagination
 
-			$from = new Asset_Attribute_DateTime();
+			$from =& new Asset_Attribute_DateTime();
 			$from->value = $ranges[$id]['oldest_date'];
 
-			$to = new Asset_Attribute_DateTime();
+			$to =& new Asset_Attribute_DateTime();
 			$to->value = $ranges[$id]['newest_date'];
 		} else {
 			$from = &$this->getAttribute('date_range_from');
@@ -234,6 +234,9 @@ class Page_Whats_New extends Page_Asset_Listing
 	}//end _getCacheKey()
 
 
+//--        KEYWORD DESCRIPTION        --//
+
+
 	/**
 	* Return the available keywords in the Page Contents Bodycopy for this asset
 	*
@@ -247,15 +250,18 @@ class Page_Whats_New extends Page_Asset_Listing
 	* @access public
 	* @return array(string => string)
 	*/
-	function getContentsKeywords()
+	function _getContentsKeywords()
 	{
-		$keywords = parent::getContentsKeywords();
+		$keywords = parent::_getContentsKeywords();
 		$keywords['date_range_list'] = translate('cms_whats_new_date_range_list');
 		$keywords['date_range_list_linked'] = translate('cms_whats_new_date_range_list_linked');
 
 		return $keywords;
 
-	}//end getContentsKeywords()
+	}//end _getContentsKeywords()
+
+
+//--        KEYWORD REPLACEMENT        --//
 
 
 	/**

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.48 2005/07/06 06:18:19 arailean Exp $
+* $Id: listing_engine.inc,v 1.49 2005/07/19 07:20:17 skim Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
 *
-* @version $Revision: 1.48 $
+* @version $Revision: 1.49 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -57,23 +57,11 @@ class Listing_Engine extends Page
 	*/
 	var $requires_form = false;
 
-	/**
-	* Provides a list of keywords and their names
-	*
-	* @var array
-	*/
-	var $contents_keywords = Array();
-
 
 	function Listing_Engine($assetid=0)
 	{
 		$this->_ser_attrs = true;
 		$this->Page($assetid);
-
-		$this->contents_keywords['sort_by']		= translate('cms_listing_keyword_sort_by');
-		$this->contents_keywords['sort_order']		= translate('cms_listing_keyword_sort_order');
-		$this->contents_keywords['submit_button']	= translate('cms_listing_keyword_submit_button');
-		$this->contents_keywords['root_nodes']		= translate('cms_listing_keyword_root_nodes');
 
 	}//end constructor
 
@@ -104,7 +92,7 @@ class Listing_Engine extends Page
 
 		$type_formats = null;
 		foreach ($sub_assets as $name => $type) {
-			$asset = new $type();
+			$asset =& new $type();
 			$copy_link = Array('asset' => &$this, 'value' => $name ,'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 
 			$asset->setAttrValue('name', ucwords(str_replace('_',' ', $name)));
@@ -115,7 +103,7 @@ class Listing_Engine extends Page
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 			unset($asset);
 		}
-		$asset = new Bodycopy();
+		$asset =& new Bodycopy();
 		$copy_link = Array('asset' => &$type_formats, 'value' => 'default_format' ,'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 		$asset->setAttrValue('name', translate('default_format'));
 
@@ -783,7 +771,7 @@ class Listing_Engine extends Page
 		// grouping by number shows a certain number of results per page (eg. 10 assets per page)
 		// grouping by letter makes this template an A-Z listing of assets
 		// grouping by 'random' means that we grab X random assets
-		//grouping by custom groups means we will follow the user defined group structure
+		// grouping by custom groups means we will follow the user defined group structure
 		if (is_null($group_by)) {
 			$group_by = $this->attr('group_by');
 		}
@@ -1307,9 +1295,9 @@ class Listing_Engine extends Page
 		if ($this_needs_asset) {
 			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 			if (is_null($asset)) return;
-			$asset_keywords = $asset->getAssetKeywords();
-			foreach ($asset_keywords as $keyword_name => $keyword) {
-				$keywords[$keyword_name] = $keyword['value'];
+			$asset_keywords = $asset->getAvailableKeywords();
+			foreach ($asset_keywords as $keyword_name => $description) {
+				$keywords[$keyword_name] = $asset->getKeywordReplacement($description);
 			}
 			if (preg_match('|%asset_contents%|is', $bodycopy->getRawBodycopyContent())) {
 				ob_start();
@@ -1395,105 +1383,6 @@ class Listing_Engine extends Page
 
 
 	/**
-	* Add valid keywords for this asset to an array of keywords when asked
-	*
-	* @param &object Asset	$asset	the asset that triggered the event
-	* @param Array			$vars	the vars that get submitted by the broadcaster
-	*								we add keywords to the $vars['keywords'] array
-	*
-	* @return boolean
-	* @access private
-	*/
-	function onRequestKeywords(&$broadcaster, $vars=Array())
-	{
-		$vars['keywords'] = isset($vars['keywords'])?$vars['keywords']:Array();
-
-		$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id, 'bodycopy', true);
-		$parent_folders = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id, 'folder', true);
-
-		// if we're being handled here (instead of one of our extensions),
-		// it must be from one of our format bodycopies, or something else altogether,
-		// so we'll try to find out which of the format types it is.
-		$group_folder = &$this->getFolder('group_formats');
-
-		if (in_array($group_folder->id, array_keys($parent_folders))) {
-			$keywords = Array(
-							'group_listing'	=> 'Group Asset Listing',
-							'group_name'	=> 'Group Name',
-						);
-		} else {
-			$folder = &$this->getFolder();
-			if (is_null($folder)) {
-				$keywords = $this->getContentsKeywords();
-			} else {
-
-				$type_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($folder->id, SQ_LINK_TYPE_2, 'bodycopy');
-
-				$type_codes = Array();
-				foreach ($type_links as $link_info) {
-					if (isset($parents[$link_info['minorid']])) {
-						$type_codes[] = $link_info['value'];
-					}
-				}
-
-				$keywords = Array();
-				if (empty($type_codes)) {
-					$keywords = $this->getContentsKeywords();
-
-				} else {
-					foreach ($type_codes as $type_code) {
-						if ($type_code == 'default_format') {
-							// special case for the default format where we dont
-							// have to do as much processing
-							$type_keywords = Asset::getAssetKeywords(false);
-						} else {
-							$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
-							$dummy_asset = new $type_code();
-							$type_keywords = $dummy_asset->getAssetKeywords(false);
-							unset($dummy_asset);
-						}
-
-						foreach ($type_keywords as $keyword => $info) {
-							$name = ucwords(str_replace('_', ' ', $keyword));
-							$keywords[$keyword] = $name;
-						}
-					}
-
-					$keywords['asset_contents'] = translate('cms_listing_asset_contents');
-					$keywords['asset_name_linked'] = translate('cms_listing_asset_name_linked');
-					$keywords['asset_short_name_linked'] = translate('cms_listing_asset_short_name_linked');
-					$keywords['asset_position'] = translate('cms_listing_asset_position');
-					$keywords['root_nodes'] = translate('cms_listing_keyword_root_nodes');
-				}
-			}
-		}
-
-		$vars['keywords'] = array_merge($vars['keywords'], $keywords);
-
-	}//end onRequestKeywords()
-
-
-	/**
-	* Return the available keywords in the Page Contents Bodycopy for this asset
-	*
-	* The return value is in the form:
-	* <pre>
-	* Array(
-	*     'keyword' => 'name',
-	* )
-	* </pre>
-	*
-	* @access public
-	* @return array(string => string)
-	*/
-	function getContentsKeywords()
-	{
-		return $this->contents_keywords;
-
-	}//end getContentsKeywords()
-
-
-	/**
 	* Gets the list of available asset info fields that can be used
 	*
 	* @return Array(string)
@@ -1569,102 +1458,6 @@ class Listing_Engine extends Page
 		return $this->_tmp['root_asset_ids'];
 
 	}//end getRootNodes()
-
-
-	// Keyword Replacement Handlers
-
-
-	/**
-	* Get the replacement for "sort_by" keyword
-	*
-	* Produces a dropdown list of all the sorting options registered for this asset
-	*
-	* @return string
-	* @access public
-	*/
-	function getSortByKeywordReplacement()
-	{
-		$prefix = $this->getPrefix();
-		$field_name = $prefix.'_sort_by';
-		$this->registerFormField($field_name);
-
-		$default_sort_by = $this->attr('default_sort_by');
-		$sort_by = array_get_index($_REQUEST, $field_name, $default_sort_by);
-
-		$sort_by_list = $this->attr('sort_by');
-		if (!isset($sort_by_list[$sort_by])) {
-			$sort_by = $default_sort_by;
-		}
-
-		$options = Array();
-		foreach ($sort_by_list as $key => $value) {
-			$options[$key] = $value['name'];
-		}
-
-		ob_start();
-			combo_box($field_name, $options, false, $sort_by);
-		return ob_get_clean();
-
-	}//end getSortByKeywordReplacement()
-
-
-	/**
-	* Get the replacement for "sort_order" keyword
-	*
-	* @return string
-	* @access public
-	*/
-	function getSortOrderKeywordReplacement()
-	{
-		$prefix = $this->getPrefix();
-		$field_name = $prefix.'_sort_direction';
-		$this->registerFormField($field_name);
-
-		$options = Array(
-					'0'	=> $this->attr('sort_direction_asc_text'),
-					'1'	=> $this->attr('sort_direction_desc_text'),
-				   );
-
-		ob_start();
-			combo_box($field_name, $options, false, (int)$this->isDescending());
-		return ob_get_clean();
-
-	}//end getSortOrderKeywordReplacement()
-
-
-	/**
-	* Get the replacement for "submit_button" keyword
-	*
-	* @return string
-	* @access public
-	*/
-	function getSubmitButtonKeywordReplacement()
-	{
-		$prefix = $this->getPrefix();
-		$field_name = $prefix.'_submit_button';
-		$this->registerFormField($field_name);
-
-		$button_text = $this->attr('submit_button_text');
-
-		ob_start();
-			submit_button($field_name, $button_text);
-		return ob_get_clean();
-
-	}//end getSubmitButtonKeywordReplacement()
-
-
-	/**
-	* Get the replacement for "root_nodes" keyword
-	*
-	* @return string
-	* @access public
-	*/
-	function getRootNodesKeywordReplacement()
-	{
-		$root_nodes = $this->getRootNodes();
-		return implode(',', $root_nodes);
-
-	}//end getRootNodesKeywordReplacement()
 
 
 	/**
@@ -2046,6 +1839,275 @@ class Listing_Engine extends Page
 		return $this->_tmp['position_formats'];
 
 	}//end _getPositionFormats()
+
+
+//--        KEYWORD DESCRIPTION        --//
+
+
+	/**
+	* Add valid keywords for this asset to an array of keywords when asked
+	*
+	* @param &object Asset	$asset	the asset that triggered the event
+	* @param Array			$vars	the vars that get submitted by the broadcaster
+	*								we add keywords to the $vars['keywords'] array
+	*
+	* @return boolean
+	* @access private
+	*/
+	function onRequestKeywords(&$broadcaster, $vars=Array())
+	{
+		$vars['keywords'] = isset($vars['keywords'])?$vars['keywords']:Array();
+
+		$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id, 'bodycopy', true);
+		$parent_folders = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id, 'folder', true);
+
+		// if we're being handled here (instead of one of our extensions),
+		// it must be from one of our format bodycopies, or something else altogether,
+		// so we'll try to find out which of the format types it is.
+		$group_folder = &$this->getFolder('group_formats');
+		if (in_array($group_folder->id, array_keys($parent_folders))) {
+			$keywords = $this->_getGroupFolderKeywords();
+		} else {
+			$folder = &$this->getFolder();
+			if (is_null($folder)) {
+				// it doesn't have Type Format folder
+				$keywords = $this->getAvailableKeywords();
+			} else {
+
+				// link to Default Format
+				$type_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($folder->id, SQ_LINK_TYPE_2, 'bodycopy');
+				$type_codes = Array();
+				foreach ($type_links as $link_info) {
+					if (isset($parents[$link_info['minorid']])) {
+						$type_codes[] = $link_info['value'];
+					}
+				}
+				$keywords = Array();
+
+				if (empty($type_codes)) {
+					// Page Contents
+					$keywords = $this->_getContentsKeywords();
+
+				} else {
+					// this bodycopy belongs to only one type code
+					if (count($type_codes) == 1) {
+						$type_name = $type_codes[0];
+						if ($type_name == 'default_format') {
+							$type_keywords = Asset::getAvailableKeywords();
+						} else {
+							$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_name);
+							$dummy_asset =& new $type_name();
+							$type_keywords = $dummy_asset->getAvailableKeywords();
+							unset($dummy_asset);
+						}
+					// this bodycopy is being shared by more than one type codes
+					} else if (count($type_codes) > 1) {
+						$type_keywords = Asset::getAvailableKeywords();
+					}
+
+					foreach ($type_keywords as $keyword => $description) {
+						$keywords[$keyword] = $description;
+					}
+
+					$keywords += $this->_getTypeFormatsKeywords();
+				}
+			}
+		}
+
+		$vars['keywords'] = array_merge($vars['keywords'], $keywords);
+
+	}//end onRequestKeywords()
+
+
+	/**
+	* Return the available keywords from the parents
+	*
+	* The return value is in the form:
+	* <pre>
+	* Array(
+	*     'keyword' => 'name',
+	* )
+	* </pre>
+	*
+	* @access public
+	* @return array(string => string)
+	*/
+	function getAvailableKeywords()
+	{
+		$keywords = parent::getAvailableKeywords();
+		return $keywords;
+
+	}//end getAvailableKeywords()
+
+
+	/**
+	* Return the available keywords in the Page Contents Bodycopy for this asset
+	*
+	* The return value is in the form:
+	* <pre>
+	* Array(
+	*     'keyword' => 'name',
+	* )
+	* </pre>
+	*
+	* @access public
+	* @return array(string => string)
+	*/
+	function _getContentsKeywords()
+	{
+		$GLOBALS['SQ_SYSTEM']->lm->includeAssetStrings('page_asset_listing');
+
+		$keywords['sort_by']				= translate('cms_listing_keyword_sort_by');
+		$keywords['sort_order']				= translate('cms_listing_keyword_sort_order');
+		$keywords['submit_button']			= translate('cms_listing_keyword_submit_button');
+		$keywords['root_nodes']				= translate('cms_listing_keyword_root_nodes');
+
+		$keywords['asset_listing']			= translate('cms_listing_asset_listing');
+		$keywords['previous_page']			= translate('cms_listing_previous_page_link');
+		$keywords['next_page']				= translate('cms_listing_next_page_link');
+		$keywords['page_list']				= translate('cms_listing_page_list');
+		$keywords['page_number']			= translate('cms_listing_page_number');
+		$keywords['asset_count']			= translate('cms_listing_asset_count');
+		$keywords['page_asset_count']		= translate('cms_listing_page_asset_count');
+		$keywords['total_pages']			= translate('cms_listing_total_pages');
+		$keywords['first_asset_position']	= translate('cms_listing_first_asset_position');
+		$keywords['last_asset_position']	= translate('cms_listing_last_asset_position');
+
+		return $keywords;
+
+	}//end _getContentsKeywords()
+
+
+	/**
+	* Get the keywords which are specific in Type Formats
+	*
+	* @access protected
+	* @return array(keyword => replacement)
+	*/
+	function _getTypeFormatsKeywords()
+	{
+		$keywords['asset_contents'] = translate('cms_listing_asset_contents');
+		$keywords['asset_name_linked'] = translate('cms_listing_asset_name_linked');
+		$keywords['asset_short_name_linked'] = translate('cms_listing_asset_short_name_linked');
+		$keywords['asset_position'] = translate('cms_listing_asset_position');
+		$keywords['root_nodes'] = translate('cms_listing_keyword_root_nodes');
+
+		return $keywords;
+
+	}//end _getTypeFormatsKeywords()
+
+
+	/**
+	* Get the keywords which are specific in Group Folder
+	*
+	* @access protected
+	* @return array(keyword => replacement)
+	*/
+	function _getGroupFolderKeywords()
+	{
+		$keywords = Array();
+		$keywords['group_listing']	= translate('group_listing');
+		$keywords['group_name']		= translate('group_name');
+
+		return $keywords;
+
+	}//end _getGroupFolderKeywords()
+
+
+//--        KEYWORD REPLACEMENT        --//
+
+
+	/**
+	* Get the replacement for "sort_by" keyword
+	*
+	* Produces a dropdown list of all the sorting options registered for this asset
+	*
+	* @return string
+	* @access public
+	*/
+	function getSortByKeywordReplacement()
+	{
+		$prefix = $this->getPrefix();
+		$field_name = $prefix.'_sort_by';
+		$this->registerFormField($field_name);
+
+		$default_sort_by = $this->attr('default_sort_by');
+		$sort_by = array_get_index($_REQUEST, $field_name, $default_sort_by);
+
+		$sort_by_list = $this->attr('sort_by');
+		if (!isset($sort_by_list[$sort_by])) {
+			$sort_by = $default_sort_by;
+		}
+
+		$options = Array();
+		foreach ($sort_by_list as $key => $value) {
+			$options[$key] = $value['name'];
+		}
+
+		ob_start();
+			combo_box($field_name, $options, false, $sort_by);
+		return ob_get_clean();
+
+	}//end getSortByKeywordReplacement()
+
+
+	/**
+	* Get the replacement for "sort_order" keyword
+	*
+	* @return string
+	* @access public
+	*/
+	function getSortOrderKeywordReplacement()
+	{
+		$prefix = $this->getPrefix();
+		$field_name = $prefix.'_sort_direction';
+		$this->registerFormField($field_name);
+
+		$options = Array(
+					'0'	=> $this->attr('sort_direction_asc_text'),
+					'1'	=> $this->attr('sort_direction_desc_text'),
+				   );
+
+		ob_start();
+			combo_box($field_name, $options, false, (int)$this->isDescending());
+		return ob_get_clean();
+
+	}//end getSortOrderKeywordReplacement()
+
+
+	/**
+	* Get the replacement for "submit_button" keyword
+	*
+	* @return string
+	* @access public
+	*/
+	function getSubmitButtonKeywordReplacement()
+	{
+		$prefix = $this->getPrefix();
+		$field_name = $prefix.'_submit_button';
+		$this->registerFormField($field_name);
+
+		$button_text = $this->attr('submit_button_text');
+
+		ob_start();
+			submit_button($field_name, $button_text);
+		return ob_get_clean();
+
+	}//end getSubmitButtonKeywordReplacement()
+
+
+	/**
+	* Get the replacement for "root_nodes" keyword
+	*
+	* @return string
+	* @access public
+	*/
+	function getRootNodesKeywordReplacement()
+	{
+		$root_nodes = $this->getRootNodes();
+		return implode(',', $root_nodes);
+
+	}//end getRootNodesKeywordReplacement()
 
 
 }//end class

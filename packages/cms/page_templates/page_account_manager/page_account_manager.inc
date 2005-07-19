@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.28 2005/05/16 06:36:41 lwright Exp $
+* $Id: page_account_manager.inc,v 1.29 2005/07/19 07:20:23 skim Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -68,7 +68,9 @@ class Page_Account_Manager extends Page_Asset_Builder
 			$required_fields = $this->attr('required_fields');
 			list($create_type) = array_keys($this->attr('create_type'));
 			$save = false;
-			if (!isset($required_fields[$create_type])) $required_fields[$create_type] = Array();
+			if (!isset($required_fields[$create_type])) {
+				$required_fields[$create_type] = Array();
+			}
 			if (!isset($required_fields[$create_type]['username'])) {
 				$required_fields[$create_type]['username'] = translate('cms_account_manager_username_required');
 				$save = true;
@@ -99,7 +101,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 				$group_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'sort_order' => 0, 'is_dependant' => 1, 'is_exclusive' => 1, 'value' => 'pending_accounts');
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset('user_group');
 
-				$group = new User_Group();
+				$group =& new User_Group();
 				$group->setAttrValue('name', 'Pending Accounts');
 				if (!$group->create($group_link)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -135,7 +137,6 @@ class Page_Account_Manager extends Page_Asset_Builder
 			<?php
 			echo translate('cms_account_manager_login_redirect_link', $redirect_url);
 		}
-
 	}//end printBody()
 
 
@@ -158,9 +159,9 @@ class Page_Account_Manager extends Page_Asset_Builder
 			// try and acquire a lock on the current user so they can edit their details
 			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
 			$vars = Array(
-						'assetids' => Array($current_user->id,),
-						'lock_type' => 'attributes',
-						'forceably_acquire' => false,
+						'assetids'			=> Array($current_user->id,),
+						'lock_type'			=> 'attributes',
+						'forceably_acquire'	=> false,
 					);
 			$lock_errors = $hh->freestyleHipo('hipo_job_acquire_locks', $vars);
 
@@ -171,7 +172,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 			ob_start();
 
 				if (!empty($lock_errors)) {
-					$this->_replacements['edit_details_lock_error'] = $this->attr('edit_details_lock_error');
+					$this->_replacements['edit_details_lock_error'] = $this->getKeywordReplacement('edit_details_lock_error');
 					$current_user->printBody();
 				} else {
 
@@ -179,14 +180,20 @@ class Page_Account_Manager extends Page_Asset_Builder
 					// ensure that the user has access to edit their details
 					// ie. they have permission to access the default screen for a user
 					require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
-					$aei = new Asset_Edit_Interface($current_user->type());
+					$aei =& new Asset_Edit_Interface($current_user->type());
 
 					$allowed_screens = $aei->getAllowedScreens($current_user);
 					$default_screen = $aei->_default_screen;
-					if (empty($default_screen)) $default_screen = 'details';
+					if (empty($default_screen)) {
+						$default_screen = 'details';
+					}
 
 					$check_screen_restrictions = (!($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin()));
-					if ($check_screen_restrictions) if (isset($allowed_screens['0']['0'])) $check_screen_restrictions = false;
+					if ($check_screen_restrictions) {
+						if (isset($allowed_screens['0']['0'])) {
+							$check_screen_restrictions = false;
+						}
+					}
 
 					if ($check_screen_restrictions && !isset($allowed_screens[$default_screen])) {
 						$this->_replacements['edit_details_invite'] = '<p>'.translate('cms_account_manager_cannot_edit_details').'</p>';
@@ -204,15 +211,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 			  ////////////////////
 			 //  LOG OUT FORM  //
 			////////////////////
-
-			ob_start();
-				?>
-				<form name="account_manager_logout" method="POST" action="<?php echo current_url(true, true); ?>?SQ_ACTION=logout">
-					<?php echo submit_button('logout', translate('logout')); ?>
-				</form>
-				<?php
-				$this->_replacements['logout_form'] = ob_get_contents();
-			ob_end_clean();
+			$this->_replacements['logout_form'] = $this->getKeywordReplacement('logout_form');
 		}
 		$this->_printContents();
 
@@ -253,7 +252,9 @@ class Page_Account_Manager extends Page_Asset_Builder
 						//      and checked for validity
 						$user_attributes = Array();
 						$attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($create_type);
-						foreach ($attrs as $attr => $type) $user_attributes[$attr] = $user->attr($attr);
+						foreach ($attrs as $attr => $type) {
+							$user_attributes[$attr] = $user->attr($attr);
+						}
 						$create_locations = parent::getFixedCreateLocations() + parent::getRuleMatchCreateLocations($create_type, $user_attributes);
 						$selectable_create_locations = parent::getAllSelectableCreateLocations();
 						if (strpos($locs, '-') !== false) {
@@ -324,7 +325,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 			$this->_tmp['am_created_asset_key'] = '';
 
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($create_type);
-			$new_asset = new $create_type();
+			$new_asset =& new $create_type();
 
 			$real_username = &$new_asset->getAttribute('username', true);
 			if (is_null($real_username)) continue;
@@ -333,7 +334,9 @@ class Page_Account_Manager extends Page_Asset_Builder
 
 			$username->process($new_asset->getPrefix().'_'.$username->id);
 			if ($username->processed) {
-				if (!empty($username->value)) $this->_tmp['am_created_asset_key'] = md5(microtime().$username->value);
+				if (!empty($username->value)) {
+					$this->_tmp['am_created_asset_key'] = md5(microtime().$username->value);
+				}
 			}
 
 			unset($real_attribute);
@@ -368,13 +371,15 @@ class Page_Account_Manager extends Page_Asset_Builder
 							// nobody's tried to sneak in any other locations...
 							$selected_create_locations = $this->getSelectedCreateLocations();
 							if (!empty($selected_create_locations)) {
-								foreach ($selected_create_locations as $location => $link_type) $validation_url .= $location.':'.$link_type.'-';
+								foreach ($selected_create_locations as $location => $link_type) {
+									$validation_url .= $location.':'.$link_type.'-';
+								}
 								$validation_url = trim($validation_url, '-');
 							}
 							$replacements['validation_url'] = $validation_url;
 
 							// add an email to the TO list for the user who just signed up
-							$email_attr = $this->getAttribute('validation_email_format');
+							$email_attr = &$this->getAttribute('validation_email_format');
 							$new_value = unserialize($email_attr->value);
 							$new_value['to'][] = $replacements['email'];
 							$email_attr->value = serialize($new_value);
@@ -413,8 +418,12 @@ class Page_Account_Manager extends Page_Asset_Builder
 	{
 		if ($this->attr('use_email_validation')) {
 			$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'user_group', true, 'pending_accounts');
-			if (empty($link)) return Array();
-			else return Array($link['minorid'] => SQ_LINK_TYPE_1);
+			if (empty($link)) {
+				return Array();
+			}
+			else {
+				return Array($link['minorid'] => SQ_LINK_TYPE_1);
+			}
 		} else {
 			return parent::getCreateLocations($create_type);
 		}
@@ -433,7 +442,9 @@ class Page_Account_Manager extends Page_Asset_Builder
 	function _modifyCreateLink(&$link)
 	{
 		parent::_modifyCreateLink($link);
-		if ($this->attr('use_email_validation')) $link['value'] = $this->_tmp['am_created_asset_key'];
+		if ($this->attr('use_email_validation')) {
+			$link['value'] = $this->_tmp['am_created_asset_key'];
+		}
 
 	}//end _modifyCreateLink()
 
@@ -450,8 +461,12 @@ class Page_Account_Manager extends Page_Asset_Builder
 	*/
 	function _setCreateStatus(&$new_asset)
 	{
-		if ($this->attr('use_email_validation')) return true;
-		else return parent::_setCreateStatus($new_asset);
+		if ($this->attr('use_email_validation')) {
+			return true;
+		}
+		else {
+			return parent::_setCreateStatus($new_asset);
+		}
 
 	}//end _setCreateStatus()
 
@@ -472,7 +487,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 
 			if (!is_null($current_user) && !is_a($current_user, 'public_user')) {
 				if ($current_user->processBackend($o, $link)) {
-					$this->_replacements['edit_details_success'] = $this->attr('edit_details_success');
+					$this->_replacements['edit_details_success'] = $this->getKeywordReplacement('edit_details_success');
 				}
 			}
 
@@ -492,10 +507,35 @@ class Page_Account_Manager extends Page_Asset_Builder
 	*/
 	function backendAccess()
 	{
-		if (SQ_IN_LIMBO) return is_a($GLOBALS['SQ_SYSTEM']->user, 'user');
-		else return parent::backendAccess();
+		if (SQ_IN_LIMBO) {
+			return is_a($GLOBALS['SQ_SYSTEM']->user, 'user');
+		}
+		else {
+			return parent::backendAccess();
+		}
 
 	}//end backendAccess()
+
+
+	/**
+	* Return an array of bodycopies that need to be created
+	*
+	* @return Array
+	* @access private
+	*/
+	function _getBodycopies()
+	{
+		return Array(
+				'create_login'		=> translate('cms_account_manager_created_live'),
+				'create_no_login'	=> translate('cms_account_manager_created_not_live'),
+				'logged_in'			=> translate('logged_in'),
+				'not_logged_in'		=> translate('not_logged_in'),
+			   );
+
+	}//end _getBodycopies()
+
+
+//--        KEYWORD DESCRIPTION        --//
 
 
 	/**
@@ -511,42 +551,128 @@ class Page_Account_Manager extends Page_Asset_Builder
 	function onRequestKeywords(&$broadcaster, $vars=Array())
 	{
 		if (!isset($vars['keywords'])) return;
-		$keywords = Array(
-						'login_invite'            => translate('cms_asset_builder_keyword_login_invite'),
-						'login_form'              => translate('cms_asset_builder_keyword_login_form'),
-						'create_error'            => translate('cms_asset_builder_keyword_login_error'),
-						'create_invite'           => translate('cms_account_manager_keyword_create_invite'),
-						'create_form'             => translate('cms_account_manager_keyword_create_form'),
-						'create_error'            => translate('cms_account_manager_keyword_create_error'),
-						'edit_details_invite'     => translate('cms_account_manager_keyword_edit_details_invite'),
-						'edit_details_form'       => translate('cms_account_manager_keyword_edit_details_form'),
-						'edit_details_success'    => translate('cms_account_manager_keyword_edit_details_success'),
-						'edit_details_lock_error' => translate('cms_account_manager_keyword_edit_details_lock_error'),
-						'logout_form'             => translate('cms_asset_builder_keyword_logout_form'),
-					);
 
-		$vars['keywords'] = array_merge($vars['keywords'], $keywords);
-		$vars['keywords'] = array_merge($vars['keywords'], $this->getSelectableLocationKeywords());
+		// get type-code
+		$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id, 'bodycopy', true);
+		$type_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy');
+		foreach ($type_links as $link_info) {
+			if (isset($parents[$link_info['minorid']])) {
+				$bodycopy_type = $link_info['value'];
+			}
+		}
+
+		switch ($bodycopy_type) {
+			case 'not_logged_in' :
+				$vars['keywords'] = array_merge($vars['keywords'], $this->_getNotLoggedInKeywords());
+			break;
+			case 'logged_in' :
+				$vars['keywords'] = array_merge($vars['keywords'], $this->_getLoggedInKeywords());
+			break;
+			case 'create_login' :
+			case 'create_no_login' :
+				$vars['keywords'] = array_merge($vars['keywords'], $this->_getCreateLoginKeywords());
+			break;
+
+		}
+
+		$vars['keywords'] = array_merge($vars['keywords'], $this->_getSelectableLocationKeywords());
 
 	}//end onRequestKeywords()
 
 
 	/**
-	* Return an array of bodycopies that need to be created
-
-	* @return Array
-	* @access private
+	* Get the keyword replacements used in not_logged_in bodycopy
+	*
+	* @access protected
+	* @return array(keyword => replacement)
 	*/
-	function _getBodycopies()
+	function _getLoggedInKeywords()
 	{
-		return Array(
-					'create_login'		=> translate('cms_account_manager_created_live'),
-					'create_no_login'	=> translate('cms_account_manager_created_not_live'),
-					'logged_in'			=> translate('logged_in'),
-					'not_logged_in'		=> translate('not_logged_in'),
-			   );
+		$keywords = parent::_getLoggedInKeywords();
 
-	}//end _getBodycopies()
+		// add new keywords
+		$keywords['edit_details_invite']		= translate('cms_account_manager_keyword_edit_details_invite');
+		$keywords['edit_details_form']			= translate('cms_account_manager_keyword_edit_details_form');
+		$keywords['edit_details_success']		= translate('cms_account_manager_keyword_edit_details_success');
+		$keywords['edit_details_lock_error']	= translate('cms_account_manager_keyword_edit_details_lock_error');
+
+		$keywords['logout_form']				= translate('cms_asset_builder_keyword_logout_form');
+
+
+		return $keywords;
+
+	}//end _getLoggedInKeywords()
+
+
+	/**
+	* Get the keyword replacements used in not_logged_in bodycopy
+	*
+	* @access protected
+	* @return array(keyword => replacement)
+	*/
+	function _getCreateLoginKeywords()
+	{
+		$keywords = parent::_getCreatedKeywords();
+
+		// override parent's keywords
+		$keywords['create_invite'] 	= translate('cms_account_manager_keyword_create_invite');
+		$keywords['create_form'] 	= translate('cms_account_manager_keyword_create_form');
+		$keywords['create_error'] 	= translate('cms_account_manager_keyword_create_error');
+
+		return $keywords;
+
+	}//end _getCreateLoginKeywords()
+
+
+//--        KEYWORD REPLACEMENT        --//
+
+
+	/**
+	* Get edit_details_lock_error keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getEditDetailsLockErrorKeywordReplacement()
+	{
+		return $this->attr('edit_details_lock_error');
+
+	}//end getEditDetailsLockErrorKeywordReplacement()
+
+
+	/**
+	* Get edit_details_success keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getEditDetailsSuccessKeywordReplacement()
+	{
+		return $this->attr('edit_details_success');
+
+	}//end getEditDetailsSuccessKeywordReplacement()
+
+
+	/**
+	* Get logout_form keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getLogoutFormKeywordReplacement()
+	{
+		ob_start();
+			?>
+			<form name="account_manager_logout" method="POST" action="<?php echo current_url(true, true); ?>?SQ_ACTION=logout">
+				<?php echo submit_button('logout', translate('logout')); ?>
+			</form>
+			<?php
+			$replacement = ob_get_contents();
+
+		ob_end_clean();
+		return $replacement;
+
+	}//end getLogoutFormKeywordReplacement()
 
 
 }//end class

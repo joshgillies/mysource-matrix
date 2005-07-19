@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date.inc,v 1.8 2005/06/02 06:06:25 lwright Exp $
+* $Id: metadata_field_date.inc,v 1.9 2005/07/19 07:19:53 skim Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field.inc';
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -160,7 +160,7 @@ class Metadata_Field_Date extends Metadata_Field
 					 );
 
 		$value = '';
-		$field = new DateTime_Field($prefix.'_datetime', $value, $parameters);
+		$field =& new DateTime_Field($prefix.'_datetime', $value, $parameters);
 		$value = $field->unitsArrayToStr($value_arr);
 		$field->setValue($value);
 

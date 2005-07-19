@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy.inc,v 1.27 2005/07/13 03:28:02 mmcintyre Exp $
+* $Id: bodycopy.inc,v 1.28 2005/07/19 07:19:26 skim Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -402,7 +402,6 @@ class Bodycopy extends Asset
 		require_once SQ_FUDGE_PATH.'/general/text.inc';
 		$content = $this->getRawBodycopyContent();
 		$keywords = retrieve_keywords_replacements($content);
-
 		return $keywords;
 
 	}//end getKeywords()

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.76 2005/06/15 01:27:06 dheppell Exp $
+* $Id: page_asset_listing.inc,v 1.77 2005/07/19 07:20:36 skim Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.76 $
+* @version $Revision: 1.77 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -72,7 +72,7 @@ class Page_Asset_Listing extends Listing_Engine
 		// add a bodycopy to this page when creating
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
 
-		$asset = new Bodycopy();
+		$asset =& new Bodycopy();
 		$copy_link = Array('asset' => &$this, 'value' => 'page_contents' ,'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 		$asset->setAttrValue('name', 'Page Contents');
 
@@ -146,7 +146,6 @@ class Page_Asset_Listing extends Listing_Engine
 			require_once SQ_FUDGE_PATH.'/general/text.inc';
 			$keywords = $format_bodycopy->getKeywords();
 			$replacements = Array();
-
 			if (!in_array('asset_listing', $keywords)) {
 				// there is no asset listing keyword in the contents, so we dont
 				// need to do all the extra processing for the listing
@@ -155,7 +154,6 @@ class Page_Asset_Listing extends Listing_Engine
 			}
 
 			$children = $this->getAssetList();
-
 			$this->filterAssetList($children);
 			$num_kids = count($children);
 
@@ -164,11 +162,9 @@ class Page_Asset_Listing extends Listing_Engine
 				$this->groupAssetsRecursively($this->attr('asset_grouping'), $children, $children);
 				$this->sortGroups($this->attr('asset_grouping'), $children, $children);
 			}
-
 			foreach ($keywords as $word) {
 				$replacements[$word] = $this->getKeywordReplacement($word);
 			}
-
 			// if there are no children available, just print the page bodycopy
 			if (empty($children)) {
 				$replacements['asset_count'] = $num_kids;
@@ -177,7 +173,6 @@ class Page_Asset_Listing extends Listing_Engine
 				$format_bodycopy->printBody();
 				return;
 			}
-
 			$num_per_page = $this->attr('num_per_page');
 			$result_page = (isset($_REQUEST['result_page'])) ? (int)$_REQUEST['result_page'] : 1;
 			if ($result_page <= 0) $result_page = 1;
@@ -207,12 +202,11 @@ class Page_Asset_Listing extends Listing_Engine
 			}
 
 			// if the result page is too high, set to last page
-			if($num_per_page == 0) {
+			if ($num_per_page == 0) {
 				$result_page = 1;
 			} else {
 				$result_page = min($result_page, ceil($replacements['asset_count'] / $num_per_page));
 			}
-
 			$replacements['page_asset_count'] = $num_assets_showing;
 			$replacements['page_number'] = $result_page;
 			$replacements['first_asset_position'] = $num_per_page * ($result_page - 1) + 1;
@@ -385,75 +379,6 @@ class Page_Asset_Listing extends Listing_Engine
 
 
 	/**
-	* Add valid keywords for this asset to an array of keywords when asked
-	*
-	* @param &object Asset	$asset	the asset that triggered the event
-	* @param Array			$vars	the vars that get submitted by the broadcaster
-	*								we add keywords to the $vars['keywords'] array
-	*
-	* @return boolean
-	* @access private
-	*/
-	function onRequestKeywords(&$broadcaster, $vars=Array())
-	{
-		if (!isset($vars['keywords'])) return;
-		if (!is_a($broadcaster, 'content_type')) return;
-
-		$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id, 'bodycopy', true);
-
-		// the broadcaster could be our page contents bodycopy, in which case
-		// we want to supply our own keyword replacements
-		$page_contents_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'page_contents');
-		if (!empty($page_contents_link)) {
-			if (isset($parents[$page_contents_link['minorid']])) {
-				$vars['keywords'] += $this->getContentsKeywords();
-				return;
-			}
-		}
-
-		// if it's not the page contents bodycopy, it's something that we've
-		// inherited from the listing engine, so pass it on
-		parent::onRequestKeywords($broadcaster, $vars);
-
-	}//end onRequestKeywords()
-
-
-	/**
-	* Return the available keywords in the Page Contents Bodycopy for this asset
-	*
-	* The return value is in the form:
-	* <pre>
-	* Array(
-	*     'keyword' => 'name',
-	* )
-	* </pre>
-	*
-	* @access public
-	* @return array(string => string)
-	*/
-	function getContentsKeywords()
-	{
-		$keywords = parent::getContentsKeywords();
-
-		$keywords += Array(
-						'asset_listing'			=> translate('cms_listing_asset_listing'),
-						'previous_page'			=> translate('cms_listing_previous_page_link'),
-						'next_page'				=> translate('cms_listing_next_page_link'),
-						'page_list'				=> translate('cms_listing_page_list'),
-						'page_number'			=> translate('cms_listing_page_number'),
-						'asset_count'			=> translate('cms_listing_asset_count'),
-						'page_asset_count'		=> translate('cms_listing_page_asset_count'),
-						'total_pages'			=> translate('cms_listing_total_pages'),
-						'first_asset_position'	=> translate('cms_listing_first_asset_position'),
-						'last_asset_position'	=> translate('cms_listing_last_asset_position'),
-					 );
-
-		return $keywords;
-
-	}//end getContentsKeywords()
-
-
-	/**
 	* Gets the list of current root nodes
 	*
 	* @return Array(string)
@@ -496,6 +421,28 @@ class Page_Asset_Listing extends Listing_Engine
 	}//end _getCacheKey()
 
 
-}//end class
+	/**
+	* Return the available keywords in the Page Contents Bodycopy for this asset
+	*
+	* The return value is in the form:
+	* <pre>
+	* Array(
+	*     'keyword' => 'name',
+	* )
+	* </pre>
+	*
+	* @access public
+	* @return array(string => string)
+	*/
+	function _getContentsKeywords()
+	{
+		$keywords = parent::_getContentsKeywords();
+		$keywords['unique_asset_count']	= translate('cms_listing_unique_asset_count');
 
+		return $keywords;
+
+	}//end _getContentsKeywords()
+
+
+}//end class
 ?>

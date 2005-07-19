@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.103 2005/07/15 05:02:10 mmcintyre Exp $
+* $Id: search_page.inc,v 1.104 2005/07/19 07:21:02 skim Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.103 $
+* @version $Revision: 1.104 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -123,7 +123,7 @@ class Search_Page extends Listing_Engine
 							'value'			=> $value,
 						 );
 
-			$bodycopy = new Bodycopy();
+			$bodycopy =& new Bodycopy();
 			$bodycopy->setAttrValue('name', $name);
 			if (!$bodycopy->create($copy_link)) return false;
 		}
@@ -405,7 +405,7 @@ class Search_Page extends Listing_Engine
 					  );
 
 		$value = '---------- --:--:--';
-		$field = new DateTime_Field($field_name, $value, $parameters, true);
+		$field =& new DateTime_Field($field_name, $value, $parameters, true);
 		return $field;
 
 	}//end _getDateField()
@@ -509,7 +509,7 @@ class Search_Page extends Listing_Engine
 						&nbsp;
 						<?php
 						// print the JS calendar popup date selecta
-						$calendar = new JS_Calendar();
+						$calendar =& new JS_Calendar();
 						$calendar->changeSetting('onDayClick', 'datetime_set_date');
 						$calendar->paint($field_name.'_from', '', true);
 						?>
@@ -541,7 +541,7 @@ class Search_Page extends Listing_Engine
 						&nbsp;
 						<?php
 						// print the JS calendar popup date selecta
-						$calendar = new JS_Calendar();
+						$calendar =& new JS_Calendar();
 						$calendar->changeSetting('onDayClick', 'datetime_set_date');
 						$calendar->paint($field_name.'_to', '', true);
 						?>
@@ -1141,7 +1141,7 @@ class Search_Page extends Listing_Engine
 		// do any filtering
 		return $todo;
 
-	}// end filterAssetTypes()
+	}//end filterAssetTypes()
 
 
 	/**
@@ -1466,10 +1466,10 @@ class Search_Page extends Listing_Engine
 			}
 		}
 
-		$asset_keywords = $asset->getAssetKeywords();
-		foreach ($asset_keywords as $key => $data) {
+		$asset_keywords = $asset->getAvailableKeywords();
+		foreach ($asset_keywords as $key => $description) {
 			if (in_array($key, $keywords)) {
-				$replaces[$key] = $data['value'];
+				$replaces[$key] = $asset->getKeywordReplacement($key);
 			}
 		}
 
@@ -1936,8 +1936,8 @@ class Search_Page extends Listing_Engine
 
 			$keywords = Array(
 							'score'			=> '%score%',
-							'result_number'	=> '%result_number%'
-					   );
+							'result_number'	=> '%result_number%',
+						);
 
 			ob_start();
 			parent::_printAsset($assetid, $this->_tmp['asset_info'][$assetid], $list_position, $keywords);
@@ -1945,6 +1945,8 @@ class Search_Page extends Listing_Engine
 			ob_end_clean();
 			$cm->saveToCache($this, $assetid, $element_contents);
 		}
+
+		$score = (isset($score['type_code'])) ? $score['type_code']: $score;
 
 		$score = (isset($score['type_code'])) ? $score['type_code'] : $score;
 
@@ -1958,97 +1960,6 @@ class Search_Page extends Listing_Engine
 		echo $element_contents;
 
 	}//end _printAsset()
-
-
-	/**
-	* Add valid keywords for this asset to an array of keywords when asked
-	*
-	* @param &object Asset	$asset	the asset that triggered the event
-	* @param Array			$vars	the vars that get submitted by the broadcaster
-	*								we add keywords to the $vars['keywords'] array
-	*
-	* @return boolean
-	* @access private
-	*/
-	function onRequestKeywords(&$broadcaster, $vars=Array())
-	{
-		$keywords = parent::onRequestKeywords($broadcaster, $vars);
-
-		if (!isset($vars['keywords'])) {
-			$vars['keywords'] = Array();
-		}
-
-		// lets work out which bodycopy the WYSIWYG cell that wants our keywords
-		// is in so we can return the correct keywords for the screen
-		$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id, 'bodycopy', true);
-		$bodycopy_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy');
-
-		$bodycopies = Array();
-		$type_formats = Array();
-
-		foreach ($bodycopy_links as $link_info) {
-			if (isset($parents[$link_info['minorid']])) {
-				$bodycopies[] = $link_info['value'];
-			}
-		}
-
-
-		// type folder links
-		$folder = &$this->getFolder();
-
-		if (!is_null($folder)) {
-			$type_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($folder->id, SQ_LINK_TYPE_2, 'bodycopy');
-
-			foreach ($type_links as $link_info) {
-				if (isset($parents[$link_info['minorid']])) {
-					$type_formats[] = $link_info['value'];
-				}
-			}
-		}
-
-		if (empty($bodycopies) && empty($type_formats)) {
-			return;
-		}
-
-		// work out if forms are customised
-		$search_bodycopy_link = &$this->getFormatBodycopyLink('search_form');
-		$sis_bodycopy_link    = &$this->getFormatBodycopyLink('sis_form'); //search in search
-		$search_customised    = !empty($search_bodycopy_link) && $search_bodycopy_link['link_type'] != SQ_LINK_TYPE_3;
-		$sis_customised       = !empty($sis_bodycopy_link) && $sis_bodycopy_link['link_type'] != SQ_LINK_TYPE_3;
-
-		foreach ($bodycopies as $bodycopy) {
-			if ($bodycopy == 'initial') {
-				// work out the query replacements
-				$fields = $this->attr('fields');
-				foreach ($fields as $field => $field_data) {
-					$keywords[$field.'_query'] = translate('sch_page_keyword_search_field', $field);
-				}
-			}
-
-			foreach ($this->keywords[$bodycopy] as $keyword) {
-				$keywords[$keyword] = ucwords(str_replace('_', ' ', $keyword));
-			}
-
-			// customised forms
-			if ($search_customised) {
-				$keywords['search_form'] = translate('sch_page_keyword_search_form');
-			}
-
-			if ($sis_customised) {
-				$keywords['search_form'] = translate('sch_page_keyword_search_form');
-				$keywords['search_in_search_form'] = translate('sch_page_keyword_sis_form');
-				$keywords['search_in_search_button'] = translate('sch_page_keyword_sis_button');
-			}
-		}
-
-		foreach ($type_formats as $type_format) {
-			$keywords['result_number'] = translate('sch_page_keyword_result_number');
-			$keywords['score'] = translate('sch_page_keyword_search_score');
-		}
-
-		$vars['keywords'] = array_merge($vars['keywords'], $keywords);
-
-	}//end onRequestKeywords()
 
 
 	/**
@@ -2081,6 +1992,131 @@ class Search_Page extends Listing_Engine
 		return $field_value;
 
 	}//end getQueryFieldValue()
+
+
+//--        KEYWORD DESCRIPTION        --//
+
+
+	/**
+	* Add valid keywords for this asset to an array of keywords when asked
+	*
+	* @param &object Asset	$asset	the asset that triggered the event
+	* @param Array			$vars	the vars that get submitted by the broadcaster
+	*								we add keywords to the $vars['keywords'] array
+	*
+	* @return boolean
+	* @access private
+	*/
+	function onRequestKeywords(&$broadcaster, $vars=Array())
+	{
+		$vars['keywords'] = isset($vars['keywords'])?$vars['keywords']:Array();
+
+		$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id, 'bodycopy', true);
+		$bodycopy_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy');
+
+		$bodycopies = Array();
+		$type_formats = Array();
+
+		foreach ($bodycopy_links as $link_info) {
+			if (isset($parents[$link_info['minorid']])) {
+				$bodycopies[] = $link_info['value'];
+			}
+		}
+
+		// type folder links
+		$folder = &$this->getFolder();
+		if (!is_null($folder)) {
+			$type_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($folder->id, SQ_LINK_TYPE_2, 'bodycopy');
+			foreach ($type_links as $link_info) {
+				if (isset($parents[$link_info['minorid']])) {
+					$type_formats[] = $link_info['value'];
+				}
+			}
+		}
+
+		if (empty($bodycopies) && empty($type_formats)) {
+			return;
+		}
+
+		if (empty($bodycopies) && !empty($type_formats)) {
+			parent::onRequestKeywords($broadcaster, $vars);
+			return;
+		} else {
+			// work out if forms are customised
+			$search_bodycopy_link = &$this->getFormatBodycopyLink('search_form');
+			$sis_bodycopy_link    = &$this->getFormatBodycopyLink('sis_form'); //search in search
+			$search_customised    = !empty($search_bodycopy_link) && $search_bodycopy_link['link_type'] != SQ_LINK_TYPE_3;
+			$sis_customised       = !empty($sis_bodycopy_link) && $sis_bodycopy_link['link_type'] != SQ_LINK_TYPE_3;
+
+			foreach ($bodycopies as $bodycopy) {
+				if ($bodycopy == 'initial') {
+					// work out the query replacements
+					$fields = $this->attr('fields');
+					foreach ($fields as $field => $field_data) {
+						$keywords[$field.'_query'] = translate('sch_page_keyword_search_field', $field);
+					}
+				}
+
+				foreach ($this->keywords[$bodycopy] as $keyword) {
+					$keywords[$keyword] = ucwords(str_replace('_', ' ', $keyword));
+				}
+
+				// customised forms
+				if ($search_customised) {
+					$keywords += $this->_getCustomisedFormKeywords();
+				}
+
+				// search in search
+				if ($sis_customised) {
+					$keywords += $this->_getSearchInSearchFormKeywords();
+				}
+			}
+
+			if (count($type_formats) > 0) {
+				$keywords['result_number'] = translate('sch_page_keyword_result_number');
+				$keywords['score'] = translate('sch_page_keyword_search_score');
+			}
+		}
+
+		$vars['keywords'] = array_merge($vars['keywords'], $keywords);
+
+	}//end onRequestKeywords()
+
+
+	/**
+	* Get the keyword for Customised Form
+	*
+	* @access protected
+	* @return array(keyword => replacement)
+	*/
+	function _getCustomisedFormKeywords()
+	{
+		$keywords = Array();
+
+		$keywords['search_form'] = translate('sch_page_keyword_search_form');
+
+		return $keywords;
+
+	}//end _getCustomisedFormKeywords()
+
+
+	/**
+	* Get the keyword for Search In Search
+	*
+	* @access protected
+	* @return array(keyword => replacement)
+	*/
+	function _getSearchInSearchKeywords()
+	{
+		$keywords = Array();
+
+		$keywords['search_form'] = translate('sch_page_keyword_search_form');
+		$keywords['search_in_search_form'] = translate('sch_page_keyword_sis_form');
+		$keywords['search_in_search_button'] = translate('sch_page_keyword_sis_button');
+
+		return $keywords;
+
+	}//end _getSearchInSearchKeywords()
 
 
 }//end class

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.40 2005/06/17 05:13:18 ykasim Exp $
+* $Id: image.inc,v 1.41 2005/07/19 07:19:45 skim Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -178,54 +178,6 @@ class Image extends File
 		echo $tag;
 
 	}//end printImageTag()
-
-
-	/**
-	* Return the keywords with their replacements
-	*
-	* The return value is in the form:
-	* <pre>
-	* Array(
-	*     'name' => Array (
-	*          'value' => 'page',
-	*          'description' => 'the asset name',
-	*     ),
-	* )
-	* </pre>
-	*
-	* @param boolean $descriptions if TRUE descriptions will be included in the array
-	*
-	* @access public
-	* @return Array(mixed)
-	*/
-	function getAssetKeywords($descriptions=false)
-	{
-		$keywords = parent::getAssetKeywords($descriptions);
-
-		$existing = $this->getExistingFile();
-		$keywords['image_width']	= Array('value' => $this->attr('width'));
-		$keywords['image_height']	= Array('value' => $this->attr('height'));
-		$keywords['image_tag']		= Array('value' => $this->printImageTag('', '', true));
-
-		$varieties = $this->attr('varieties');
-		if (!empty($varieties)) {
-			foreach ($varieties['lookups'] as $varietyid) {
-				$variety = &$this->getAsset($varietyid);
-				if (is_null($variety)) continue;
-				$keywords['image_v_'.$variety->name] = Array('value' => $variety->printImageTag($this->attr('alt'), $this->attr('title'), true));
-			}
-		}
-
-		if ($descriptions) {
-			$keywords['image_width']['description']		= 'Width of the image in pixels';
-			$keywords['image_height']['description']	= 'Height of the image in pixels';
-			$keywords['image_tag']['description']		= 'HTML IMG tag to display this image';
-			$keywords['image_v_'] = Array('description'	=> 'Image variation');
-		}
-
-		return $keywords;
-
-	}//end getAssetKeywords()
 
 
 	/**
@@ -544,7 +496,7 @@ class Image extends File
 			}
 
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset('image_variety');
-			$asset = new Image_Variety($this->id.':'.$shadowid, $varieties['data'][$shadowid]);
+			$asset =& new Image_Variety($this->id.':'.$shadowid, $varieties['data'][$shadowid]);
 
 		}//end if
 
@@ -801,6 +753,81 @@ class Image extends File
 	{
 		$this->printImageTag();
 	}//end printBody()
+
+
+	/**
+	* Return the keywords for this asset type.
+	*
+	* This function is called in asset-listing situations like the asset listing, search page etc
+	*
+	* The return value is in the form:
+	* <pre>
+	* Array(
+	*   'name' => 'description' => 'the asset name',
+	* );
+	* </pre>
+	*
+	* @access public
+	* @return array
+	*/
+	function getAvailableKeywords()
+	{
+		$keywords = parent::getAvailableKeywords();
+
+		$varieties = $this->attr('varieties');
+		if (!empty($varieties)) {
+			foreach ($varieties['lookups'] as $varietyid) {
+				$variety = &$this->getAsset($varietyid);
+				if (is_null($variety)) continue;
+				$keywords['image_v_'.$variety->name] = 'Image variety '.$variety->name;
+			}
+		}
+		$keywords['image_width']	= 'Width of the image in pixels';
+		$keywords['image_height']	= 'Height of the image in pixels';
+		$keywords['image_tag']		= 'HTML IMG tag to display this image';
+
+		return $keywords;
+
+	}//end getAvailableKeywords()
+
+
+	/**
+	* Get Image Width keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getImageWidthKeywordReplacement()
+	{
+		return $this->attr('width');
+
+	}//end getImageWidthKeywordReplacement()
+
+
+	/**
+	* Get Image Height keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getImageHeightKeywordReplacement()
+	{
+		return $this->attr('height');
+
+	}//end getImageHeightKeywordReplacement()
+
+
+	/**
+	* Get Image Tag keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getImageTagKeywordReplacement()
+	{
+		return $this->printImageTag('', '', true);
+
+	}//end getImageTagKeywordReplacement()
 
 
 }//end class
