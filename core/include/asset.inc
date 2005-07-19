@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.429 2005/07/13 03:53:37 mmcintyre Exp $
+* $Id: asset.inc,v 1.430 2005/07/19 07:09:20 skim Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.429 $
+* @version $Revision: 1.430 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -2784,6 +2784,7 @@ class Asset extends MySource_Object
 	*
 	* @param boolean $descriptions if TRUE descriptions will be included in the array
 	*
+	* @deprecated
 	* @access public
 	* @return array
 	*/
@@ -2848,7 +2849,7 @@ class Asset extends MySource_Object
 		$keywords['asset_assetid']['value'] = $this->id;
 
 		if ($descriptions) {
-			$keywords['asset_assetid']['description']               = 'The ID of the asset';
+			$keywords['asset_assetid']['description']				= 'The ID of the asset';
 			$keywords['asset_name']['description']                  = 'Full name of the asset';
 			$keywords['asset_short_name']['description']            = 'Short name of the asset';
 			$keywords['asset_version']['description']               = 'Version of the asset being displayed';
@@ -2890,6 +2891,119 @@ class Asset extends MySource_Object
 
 
 	/**
+	* Return the keywords for this asset type.
+	*
+	* This function is called in asset-listing situations like the asset listing, search page etc
+	*
+	* The return value is in the form:
+	* <pre>
+	* Array(
+	*   'name' => 'description' => 'the asset name',
+	* );
+	* </pre>
+	*
+	* @access public
+	* @return array
+	*/
+	function getAvailableKeywords()
+	{
+		$keywords = Array();
+		$default_keywords = Array(
+								'asset_assetid',
+								'asset_name',
+								'asset_short_name',
+								'asset_version',
+								'asset_created',
+								'asset_updated',
+								'asset_created_short',
+								'asset_updated_short',
+								'asset_created_readable',
+								'asset_updated_readable',
+								'asset_created_iso8601',
+								'asset_updated_iso8601',
+								'asset_created_rfc2822',
+								'asset_updated_rfc2822',
+								'asset_created_ical',
+								'asset_updated_ical',
+								'asset_created_by_name',
+								'asset_updated_by_name',
+								'asset_published',
+								'asset_published_short',
+								'asset_published_readable',
+								'asset_published_iso8601',
+								'asset_published_rfc2822',
+								'asset_published_ical',
+								'asset_published_by_name',
+								'asset_status_changed',
+								'asset_status_changed_short',
+								'asset_status_changed_readable',
+								'asset_status_changed_iso8601',
+								'asset_status_changed_rfc2822',
+								'asset_status_changed_ical',
+								'asset_status_changed_by_name',
+								'asset_url',
+								'asset_href',
+								'asset_thumbnail',
+								'asset_thumbnail_url',
+								'asset_thumbnail_caption',
+							);
+
+		// add default keywords first
+		foreach ($default_keywords as $keyword) {
+			$keywords[$keyword] = translate($keyword);
+		}
+
+		// add attribute
+		foreach ($this->vars as $name => $info) {
+			$attr = &$this->getAttribute($name);
+			// TODO : attribute will be distinguished with normal and admin
+			//if (!$attr->admin) {
+			$keywords['asset_attribute_'.$name] = empty($attr->description)?'Asset Attribute: '.$name:$attr->description;
+			//}
+		}
+
+		return $keywords;
+
+	}//end getAvailableKeywords()
+
+
+	/**
+	* Compares the result from getAssetKeywords() and getAvailableKeywords()
+	*
+	* @access private
+	* @return void
+	*/
+	function _keywordsCompare()
+	{
+		$ori_set = $this->getAssetKeywords(true);
+		$new_set = $this->getAvailableKeywords();
+
+		foreach ($new_set as $key => $value) {
+			if (array_key_exists($key, $ori_set)) {
+				if ($value != $ori_set[$key]['description']) {
+					error_log('[DEBUG _keywordsCompare] The value in new_set for the key, '.$key.' is not same as one in ori_set');
+				}
+			}
+			else {
+				error_log('[DEBUG _keywordsCompare] The key in new_set, '.$key.' does not exist in ori_set.');
+			}
+		}
+
+		foreach ($ori_set as $key => $value) {
+			if (array_key_exists($key, $new_set)) {
+				if ($value['description'] != $new_set[$key]) {
+					error_log('[DEBUG _keywordsCompare] The value in ori_set for the key, '.$key.' is not same as one in new_set');
+				}
+			}
+			else {
+				error_log('[DEBUG _keywordsCompare] The key in ori_set, '.$key.' does not exist in new_set.');
+			}
+		}
+
+	}//end _keywordsCompare()
+
+
+	/**
 	* Get bodycopy keyword replacement
 	*
 	* Provides a mechanism for providing keyword replacement functions by
@@ -2908,12 +3022,33 @@ class Asset extends MySource_Object
 		if (empty($keyword)) return '';
 
 		$replacement = "%$keyword%";
+
 		$tmp_keyword = strtr($keyword, '_', ' ');
 		$tmp_keyword = ucwords($tmp_keyword);
 		$tmp_keyword = preg_replace('/\s+/', '', $tmp_keyword);
 		$func_name = 'get'.$tmp_keyword.'KeywordReplacement';
 		if (method_exists($this, $func_name)) {
 			$replacement = $this->$func_name();
+		}
+		else if (strcmp('asset_assetid', $keyword) == 0) {
+			$replacement = $this->id;
+		} else if (strpos($keyword, 'asset_attribute_')) {
+			$tmp_array = explode('_', $keyword);
+			$attr_name = $tmp_array[count($tmp_array) - 1];
+			if (array_key_exists($attr_name, $this->vars)) {
+				$attr = &$this->getAttribute($attr_name);
+				// TODO : attributes will have different categories. eg. normal or admin
+				//if (!$attr->admin) {
+				$replacement = $this->attr($attr_name);
+				//}
+			}
+		} else {
+			$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
+			$dummy_array = Array($keyword);
+			$mm_keyword = $mm->generateKeywordReplacements($this, $dummy_array, false);
+			if (!empty($mm_keyword[$keyword])) {
+				$replacement = $mm_keyword[$keyword];
+			}
 		}
 
 		return $replacement;
