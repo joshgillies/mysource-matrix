@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.339 2005/07/18 00:59:48 ndvries Exp $
+* $Id: asset_manager.inc,v 1.340 2005/07/19 01:06:18 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.339 $
+* @version $Revision: 1.340 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -759,7 +759,6 @@ class Asset_Manager extends MySource_Object
 			// handler of the shadow asset if we are
 			$id_parts = explode(':', $assetid);
 			if (isset($id_parts[1])) {
-
 				$real_assetid = $id_parts[0];
 				$asset = &$this->getAsset($real_assetid, '', $mute_errors);
 				if (!method_exists($asset, 'getAsset')) {
@@ -3293,6 +3292,10 @@ class Asset_Manager extends MySource_Object
 
 			// if this minor has already been linked so do a select into
 			if ($minor_tree['treeid'] != '') {
+				$case = "CASE pt.treeid
+							WHEN '-' THEN ''
+							ELSE pt.treeid
+						END";
 
 				$sql = 'INSERT INTO
 							sq_ast_lnk_tree
@@ -3302,7 +3305,7 @@ class Asset_Manager extends MySource_Object
 								num_kids
 							)
 							SELECT
-								pt.treeid || '.$db->quoteSmart($free_childid).' || SUBSTR(ct.treeid, '.$db->quoteSmart(strlen($minor_tree['treeid']) + 1).'),
+								('.$case.') || '.$db->quoteSmart($free_childid).' || SUBSTR(ct.treeid, '.$db->quoteSmart(strlen($minor_tree['treeid']) + 1).'),
 								ct.linkid,
 								ct.num_kids
 							FROM
