@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.249.2.12 2005/06/28 23:27:53 dheppell Exp $
+* $Id: asset_manager.inc,v 1.249.2.13 2005/07/19 01:05:21 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -2828,6 +2828,11 @@ class Asset_Manager extends MySource_Object
 
 			// if this minor has already been linked so do a select into
 			if ($minor_tree['treeid'] != '') {
+				$case = "CASE pt.treeid
+							WHEN '-' THEN ''
+							ELSE pt.treeid
+						END";
+
 				$where = 'pl.minorid = '.$db->quote($major->id).'
 						  AND ct.treeid LIKE '.$db->quote($minor_tree['treeid'].'%').'
 						  AND ct.treeid > '.$db->quote($minor_tree['treeid']);
@@ -2836,7 +2841,7 @@ class Asset_Manager extends MySource_Object
 				$select_from =  SQ_TABLE_PREFIX.'ast_lnk_tree pt
 								INNER JOIN '.SQ_TABLE_PREFIX.'ast_lnk pl ON pt.linkid = pl.linkid,
 								'.SQ_TABLE_PREFIX.'ast_lnk_tree ct';
-				$values = Array('treeid'   => 'pt.treeid || '.$db->quote($free_childid).' || SUBSTRING(ct.treeid FROM '.$db->quote(strlen($minor_tree['treeid']) + 1).')',
+				$values = Array('treeid'   => '('.$case.') || '.$db->quote($free_childid).' || SUBSTRING(ct.treeid FROM '.$db->quote(strlen($minor_tree['treeid']) + 1).')',
 								'linkid'   => 'ct.linkid',
 								'num_kids' => 'ct.num_kids'
 								);
