@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.322.2.3 2005/06/28 04:53:06 dheppell Exp $
+* $Id: asset_manager.inc,v 1.322.2.4 2005/07/19 01:04:52 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.322.2.3 $
+* @version $Revision: 1.322.2.4 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3158,9 +3158,10 @@ class Asset_Manager extends MySource_Object
 			assert_valid_db_result($free_childid);
 
 			if ((string) $free_childid == '') {
-				// no free children, generate one from the max value
-
-				$sql   = 'SELECT MAX(ct.treeid) FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree ct ';
+				// no free children, generate one from the max value (note that
+				// we have to do this by a LIMIT query as the binary string fields
+				// do not allow the MAX() aggregate to be run over it)
+				$sql   = 'SELECT ct.treeid FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree ct ';
 
 				// if we are not the root folder, the we need to get the correct treeid length
 				if ($existing_treeid != '-') {
@@ -3171,8 +3172,9 @@ class Asset_Manager extends MySource_Object
 					$where = 'LENGTH(ct.treeid) = '.(SQ_CONF_ASSET_TREE_SIZE);
 				}
 				$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ct');
+				$order = ' ORDER BY treeid DESC';
 
-				$free_childid = $db->getOne($sql.$where);
+				$free_childid = $db->getOne($db->modifyLimitQuery($sql.$where.$order, 0, 1));
 				assert_valid_db_result($free_childid);
 
 				if ((string) $free_childid == '') {
@@ -3300,6 +3302,10 @@ class Asset_Manager extends MySource_Object
 
 			// if this minor has already been linked so do a select into
 			if ($minor_tree['treeid'] != '') {
+				$case = "CASE pt.treeid
+							WHEN '-' THEN ''
+							ELSE pt.treeid
+						END";
 
 				$sql = 'INSERT INTO
 							sq_ast_lnk_tree
@@ -3309,7 +3315,7 @@ class Asset_Manager extends MySource_Object
 								num_kids
 							)
 							SELECT
-								pt.treeid || '.$db->quoteSmart($free_childid).' || SUBSTR(ct.treeid, '.$db->quoteSmart(strlen($minor_tree['treeid']) + 1).'),
+								('.$case.') || '.$db->quoteSmart($free_childid).' || SUBSTR(ct.treeid, '.$db->quoteSmart(strlen($minor_tree['treeid']) + 1).'),
 								ct.linkid,
 								ct.num_kids
 							FROM
