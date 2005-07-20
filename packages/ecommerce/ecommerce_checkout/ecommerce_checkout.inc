@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.3 2005/07/20 06:44:12 arailean Exp $
+* $Id: ecommerce_checkout.inc,v 1.4 2005/07/20 07:29:37 arailean Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -76,7 +76,6 @@ class Ecommerce_Checkout extends Page
 	function _getAllowedLinks()
 	{
 		$allowed_links = parent::_getAllowedLinks();
-		// TODO: Change the type of allowed link to ecommerce_delivery_method
 		$allowed_links[SQ_LINK_NOTICE]['ecommerce_delivery_method'] = Array('card' => 'M', 'exclusive' => false);
 
 		return $allowed_links;
@@ -150,6 +149,8 @@ class Ecommerce_Checkout extends Page
 			case 'go_to_confirmation':
 				$delivery_method_id = array_get_index($_REQUEST, 'sq_delivery_method_id');
 				if (!is_null($delivery_method_id)) {
+					$this->_tmp['delivery_method_id'] = $delivery_method_id;
+
 					$delivery_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($delivery_method_id);
 					$delivery_status = $delivery_asset->processInputInterface();
 					$delivery_state = $delivery_asset->getState();
@@ -158,10 +159,13 @@ class Ecommerce_Checkout extends Page
 					// TODO: Save Delivery State into the session
 					$this->_tmp['delivery_state'] = $delivery_state;
 
-					if (!$delivery_status && false) {
+					if (!$delivery_status) {
 						$this->print_context = 'content';
 					} else {
 						$this->print_context = 'confirmation';
+						// create a temporary order
+						// move cart contents into the order
+						// put delivery info into the order
 					}
 				}
 			break;
@@ -525,12 +529,14 @@ class Ecommerce_Checkout extends Page
 			$selection_contents[$assetid] = $asset_info['name'];
 		}
 
+		$active_delivery_method = array_get_index($this->_tmp, 'delivery_method_id');
+
 		$this->_registerFormRequirement();
 		ob_start();
 			?>
 			<script type="text/javascript">
 				//<![CDATA[
-				var current_method_id = null;
+				var current_method_id = <?php echo is_null($active_delivery_method)?'null':$active_delivery_method; ?> ;
 
 				function handleDeliverySelectChange(field) {
 					selected_id = field.options[field.selectedIndex].value;
@@ -543,12 +549,11 @@ class Ecommerce_Checkout extends Page
 					document.getElementById('sq_delivery_method_' + current_method_id).style.display = 'block';
 
 				}
-
 				//]]>
 			</script>
 
 			<?php
-			combo_box('sq_delivery_method_id', $selection_contents, false, false, 0, 'onchange="handleDeliverySelectChange(this)"');
+			combo_box('sq_delivery_method_id', $selection_contents, false, $active_delivery_method, 0, 'onchange="handleDeliverySelectChange(this)"');
 
 		return ob_get_clean();
 
@@ -566,11 +571,22 @@ class Ecommerce_Checkout extends Page
 	function getDeliveryFormKeywordReplacement()
 	{
 
+		$active_delivery_method = array_get_index($this->_tmp, 'delivery_method_id');
+
 		$this->_registerFormRequirement();
 		ob_start();
 		foreach ($this->_getDeliveryAssetIds() as $one_assetid) {
 			$delivery_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($one_assetid);
-			echo "\n".'<div id="sq_delivery_method_'.$one_assetid.'" style="display:none" >'."\n".$delivery_asset->getInputInterface()."\n</div>\n";
+
+			if (!is_null($active_delivery_method) && ($active_delivery_method == $one_assetid)) {
+				$display = 'block';
+				$delivery_asset->setState(array_get_index($this->_tmp, 'delivery_state'));
+			} else {
+				$display = 'none';
+			}
+
+			echo "\n".'<div id="sq_delivery_method_'.$one_assetid.'" style="display:'.$display.'" >'."\n".$delivery_asset->getInputInterface()."\n</div>\n";
+
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($delivery_asset);
 		}
 
