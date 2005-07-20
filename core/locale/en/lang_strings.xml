@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.34 2005/07/18 01:47:47 tbarrett Exp $
+* $Id: lang_strings.xml,v 1.35 2005/07/20 05:22:20 lwright Exp $
 *
 */
 
@@ -1327,6 +1327,7 @@
 	<string source="field_id">Field ID</string>
 	<string source="monitor">Monitor</string>
 
+	<string source="choose_type">Choose Type</string>
 
 
 
