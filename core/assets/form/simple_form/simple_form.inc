@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: simple_form.inc,v 1.2 2005/07/20 00:40:30 lwright Exp $
+* $Id: simple_form.inc,v 1.3 2005/07/20 06:31:41 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -652,7 +652,7 @@ class Simple_Form extends Asset
 
 
 	/**
-	* Return a list of answers recorded from processed questions
+	* Return a list of full answer information recorded from processed questions
 	*
 	* Returned array is in format:
 	* <pre>
@@ -675,6 +675,40 @@ class Simple_Form extends Asset
 		return $this->_answers;
 
 	}//end getAnswers()
+
+
+	/**
+	* Return a list of raw answer values recorded from processed questions
+	*
+	* @return array(string => mixed)	assetid => raw value
+	* @access public
+	*/
+	function getAnswerValues()
+	{
+		$answer_values = Array();
+		foreach($this->_answers as $assetid => $data) {
+			$answer_values[$assetid] = $data['value'];
+		}
+		return $answer_values;
+
+	}//end getAnswerValues()
+
+
+	/**
+	* Return a list of answer summaries recorded from processed questions
+	*
+	* @return array(string => string)	assetid => summary
+	* @access public
+	*/
+	function getAnswerSummaries()
+	{
+		$answer_values = Array();
+		foreach($this->_answers as $assetid => $data) {
+			$answer_values[$assetid] = $data['summary'];
+		}
+		return $answer_values;
+
+	}//end getAnswerSummaries()
 
 
 //--        CLIENT-SIDE VALIDATION        --//
@@ -1080,7 +1114,7 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>() {
 	* @return void
 	* @access public
 	*/
-	function printBody($print_form_tags=true)
+	function printBody($print_form_tags=true, $submit_buttons=true)
 	{
 		// return custom bodycopy but ONLY if enabled
 		$format_bodycopy =& $this->getFormatBodycopy(true);
@@ -1099,7 +1133,7 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>() {
 		if ($format_bodycopy) {
 			$this->printCustomFormat($format_bodycopy);
 		} else {
-			$this->printDefaultFormat();
+			$this->printDefaultFormat($submit_buttons);
 		}
 
 		if ($print_form_tags) {
@@ -1115,7 +1149,7 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>() {
 	* @return void
 	* @access private
 	*/
-	function printDefaultFormat()
+	function printDefaultFormat($submit_buttons=true)
 	{
 		?>
 		<table>
@@ -1134,11 +1168,14 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>() {
 		<?php
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($q);
 			unset($q);
-		} ?>
-		<tr><td style="text-align:center" colspan="2"><?php
-			submit_button('submit_button', $this->attr('submit_button'));
-			reset_button('reset_button', $this->attr('reset_button'));
-		?></td></tr>
+		}
+
+		if ($submit_buttons) { ?>
+			<tr><td style="text-align:center" colspan="2"><?php
+				submit_button('submit_button', $this->attr('submit_button'));
+				reset_button('reset_button', $this->attr('reset_button'));
+			?></td></tr>
+		<?php } ?>
 		</table>
 		<?php
 
@@ -1163,6 +1200,18 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>() {
 //--        FORM STANDARD RECEIPT FUNCTIONS        --//
 
 
+	/**
+	* Print a standard receipt format
+	*
+	* @param boolean	$html				true - (default) to use HTML format
+	*										false - use text format
+	* @param boolean	$include_form_info	set to true to include form information
+	*										(if false, the "Form Response" header
+	*										will not be printed)
+	*
+	* @return void
+	* @access public
+	*/
 	function printReceipt($html=true, $include_form_info=true)
 	{
 		$answers = Array();
@@ -1250,9 +1299,9 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>() {
 					</tr>
 				<?php
 				}
+				?><tr><td colspan="2"><strong>Form Responses</strong></td></tr><?php
 			}?>
 
-			<tr><td colspan="2"><strong>Form Responses</strong></td></tr>
 			<?php foreach ($answers as $answer) {
 				?>
 				<tr>
@@ -1271,9 +1320,9 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>() {
 					echo '* '.str_pad($form_info_item['name'], $max_name_length + 1).': '.$form_info_item['value']."\n";
 				}
 				echo "\n";
+				echo '=== Form Responses ==='."\n";
 			}
 
-			echo '=== Form Responses ==='."\n";
 			foreach ($answers as $answer) {
 				echo '* '.str_pad($answer['name'], $max_name_length + 1).': '.$answer['value']."\n";
 			}
