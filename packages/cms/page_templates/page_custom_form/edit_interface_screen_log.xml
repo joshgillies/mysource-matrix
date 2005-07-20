@@ -11,14 +11,26 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screens.xml,v 1.7 2005/07/20 07:13:12 dheppell Exp $
+* $Id: edit_interface_screen_log.xml,v 1.1 2005/07/20 07:13:12 dheppell Exp $
 *
 */
 -->
 
-<screens>
-	<screen code_name="paths" display_name="Web Paths" icon="web" lock_type="lookups"/>
-	<screen code_name="weights" display_name="Relevance Weights" icon="web" lock_type="weights"/>
-	<screen code_name="contents" display_name="Edit Contents" icon="create" />
-	<screen code_name="log" display_name="Submission Logs" icon="web" />
-</screens>
+<contents>
+	<section name="export" write_access="write:attributes" limbo_access="1">
+		<field keyword="download_export">
+			<function_call>
+				<paint_function   name="paintExport"   />
+				<process_function name="processExport" />
+			</function_call>
+		</field>
+	</section>
+	<section name="submissions" limbo_access="1">
+		<field keyword="submissions_history">
+			<function_call>
+				<paint_function   name="paintSubmissions"   />
+				<process_function name="processSubmissions" />
+			</function_call>
+		</field>
+	</section>
+</contents>
