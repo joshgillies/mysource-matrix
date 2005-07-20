@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.24 2005/07/13 03:08:13 mmcintyre Exp $
+* $Id: tables.xml,v 1.25 2005/07/20 13:58:56 gnoel Exp $
 *
 */
 -->
@@ -1080,7 +1080,11 @@
 					<column name="msgid" />
 				</primary_key>
 			</keys>
-			<indexes />
+			<indexes>
+				<index>
+					<column name="userto" />
+				</index>
+			</indexes>
 		</table>
 		<table name="hipo_job" require_rollback="0">
 			<columns>
