@@ -1,0 +1,34 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Open Source Licence                                      |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_strings.xml,v 1.1 2005/07/20 00:02:43 lwright Exp $
+*
+* Localised Strings File for Force Numeric Form Question Rule Asset
+*/
+-->
+
+<strings>
+<string source="cms_form_rule_numeric_true">Must be numeric</string>
+<string source="cms_form_rule_numeric_false">Must NOT be numeric</string>
+<string source="cms_form_rule_numeric_desc_true">The response to question "%s" must be a valid numeric value</string>
+<string source="cms_form_rule_numeric_desc_false">The response to question "%s" must NOT be a valid numeric value</string>
+<string source="cms_form_rule_numeric_edit_true">Response must be a valid numeric value</string>
+<string source="cms_form_rule_numeric_edit_false">Response must NOT be a valid numeric value</string>
+</strings>

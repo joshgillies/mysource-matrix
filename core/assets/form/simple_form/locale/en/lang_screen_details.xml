@@ -1,0 +1,73 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Open Source Licence                                      |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_screen_details.xml,v 1.1 2005/07/20 00:02:46 lwright Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="Details">
+	    <field attribute="name">
+			<display_name>Name</display_name>
+			<note>Defines the name of the form</note>
+		</field>
+	</section>
+	<section name="Questions (not attached to a section)">
+		<field>
+			<display_name>Current Questions</display_name>
+			<note>If you re-order questions on this screen, you must commit before the changes will take effect. Questions appearing in <![CDATA[<b>blue</b>]]> are currently in a different position to where they started.</note>
+			<function_call>
+				<paint_function   name="paintQuestions"   />
+				<process_function name="processQuestions" />
+			</function_call>
+		</field>
+		<field>
+			<display_name>Add Questions</display_name>
+			<note>Add questions to the form by entering the name of the question in the text box and its type in the drop-down provided. This field will expand automatically to allow you to add more questions if desired. Any rows where both name and type are not filled in will be ignored.</note>
+			<function_call>
+				<paint_function   name="paintAddQuestions"   />
+				<process_function name="processAddQuestions" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Formatting">
+		<field write_access="write:attributes">
+			<display_name>Customise Format?</display_name>
+			<note>If enabled, a format bodycopy will be created allowing you to customise the default format of this form. If disabled, a default format will be used.</note>
+			<function_call>
+				<paint_function   name="paintUseBodycopy"   />
+				<process_function name="processUseBodycopy" />
+			</function_call>
+		</field>
+		<field attribute="client_side">
+			<display_name>Use Client-Side Validation?</display_name>
+			<note>Client-side validation refers to the use of JavaScript to prevent the form from submitting to the server if there are validation errors. Any errors will appear in a pop-up window when form submission is attempted. Note that server-side validation (checking of submitted data against validation rules) will always occur regardless of this setting.</note>
+		</field>
+		<field attribute="submit_button">
+			<display_name>Submit Button Text</display_name>
+			<note>Defines the name of the button to submit the form</note>
+		</field>
+		<field attribute="reset_button">
+			<display_name>Reset Button Text</display_name>
+			<note>Defines the name of the button to reset (clear) the form</note>
+		</field>
+	</section>
+</contents>

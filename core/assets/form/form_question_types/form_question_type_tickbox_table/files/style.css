@@ -1,0 +1,98 @@
+.basicCell {
+	font: 10px 'Lucida Grande', Tahoma, Helvetica;
+	width:100px;
+	border:none;
+	padding: 1px;
+	height: 14px;
+	margin: 0px;
+}
+.titleCell {
+	font: bold 10px 'Lucida Grande', Tahoma, Helvetica;
+	width:85px;
+	border:none;
+	padding: 1px;
+	height: 14px;
+	margin: 0px;
+}
+.disabledCell {
+	font: 10px 'Lucida Grande', Tahoma, Helvetica;
+	width:100px;
+	color:#AAAAAA;
+	background:#CCCCCC;
+	border:none;
+	padding: 1px;
+	height: 100%;
+}
+.btn {
+	width: 15px;
+	height: 15px;
+	font: 10px 'Lucida Grande', Tahoma, Helvetica;
+	border-right: solid 1px black;
+	border-bottom:solid 1px black;
+	border-top:none;
+	border-left:none;
+}
+.tbl {
+	border-top:solid 1px black;
+	border-left:solid 1px black;
+}
+.tbl td {
+	vertical-align: top;
+	margin: 0px;
+	padding: 0px;
+	border-right: solid 1px black;
+	border-bottom:solid 1px black;
+	border-top:none;
+	border-left:none;
+}
+.insidetabletop {
+	border-bottom: solid 1px #000000;
+	height: 16px;
+}
+.insidetabletop td {
+	border:none;
+}
+.insidetable td {
+	border:none;
+}
+
+.multichecker {
+	width: 300pt;
+	border: solid 1px #000000
+}
+.multichecker td {
+	font: 10px 'Lucida Grande', Tahoma, Helvetica;
+	border-left: solid 1px #CCCCCC
+}
+.multichecker th {
+	font: bold 10px 'Lucida Grande', Tahoma, Helvetica;
+	background: #333333;
+	color: #FFFFFF;
+	padding: 2pt;
+}
+.multichecker .odd td {
+	background: #EEEEEE
+}
+.multichecker .even td {
+	background: #DDDDDD
+}
+.multichecker td span {
+	cursor: default;
+}
+.multichecker td.question {
+	font-weight: bold;
+	text-align: center;
+	border-left: none;
+}
+.multichecker th.question {
+	background: #222222;
+}
+.multichecker .odd th {
+	background: #CCCCCC;
+	color: #000000;
+}
+.multichecker .even th {
+	background: #BBBBBB;
+	color: #000000;
+}
+

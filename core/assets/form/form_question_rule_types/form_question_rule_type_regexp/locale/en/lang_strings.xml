@@ -1,0 +1,36 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Open Source Licence                                      |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_strings.xml,v 1.1 2005/07/20 00:02:44 lwright Exp $
+*
+* Localised Strings File for Regular Expression Form Question Rule Asset
+*/
+-->
+
+<strings>
+<string source="cms_form_rule_regexp_edit_true">Response must match the regular expression %s</string>
+<string source="cms_form_rule_regexp_edit_false">Response must NOT match the regular expression %s</string>
+<string source="cms_form_rule_regexp_desc_true">The response to question "%1$s" must match the regular expression %2$s</string>
+<string source="cms_form_rule_regexp_desc_false">The response to question "%1$s" must NOT match the regular expression %2$s</string>
+<string source="cms_form_rule_regexp_error">The response to question "%s" is not in the correct format</string>
+<string source="cms_form_rule_regexp_true">Must Match the Regular Expression</string>
+<string source="cms_form_rule_regexp_false">Must NOT Match the Regular Expression</string>
+<string source="cms_form_rule_regexp_note">Enter a <![CDATA[<a href="http://www.php.net/pcre">Perl-compatible regular expression</a>]]> into the text box, without any delimiters.</string>
+</strings>

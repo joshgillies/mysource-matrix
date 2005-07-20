@@ -1,0 +1,40 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Open Source Licence                                      |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_strings.xml,v 1.1 2005/07/20 00:02:42 lwright Exp $
+*
+* Localised Strings File for Form Question Asset
+*/
+-->
+
+<strings>
+<string source="cms_form_no_rules_set">No rules set for this question</string>
+<string source="cms_form_custom_error_text">Custom Error Text</string>
+<string source="cms_form_no_custom_error_text_set">No custom error text set - a default message will be displayed</string>
+<string source="cms_form_num_of_chars">Number of Characters</string>
+<string source="cms_form_rule_details">Rule Details</string>
+<string source="cms_form_case_sensitive_question">Case Sensitive ?</string>
+<string source="cms_form_rule_boolean_note">This rule requires only the condition to be satisfied to be set.</string>
+<string source="cms_form_case_sensitive">(case sensitive)</string>
+<string source="cms_form_not_case_sensitive">(not case sensitive)</string>
+<string source="cms_form_rule_or_value_of_question">OR Value of Question</string>
+<string source="cms_form_rule_static_value">Static Value</string>
+<string source="cms_form_rule_static_or_question_note">Enter either a static value to compare responses against, or select another question from this form to compare with that question's response. The selection of a question takes precedence over a static value.</string>
+</strings>

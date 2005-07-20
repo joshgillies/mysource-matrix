@@ -1,0 +1,115 @@
+<?php
+/**
+* +--------------------------------------------------------------------+
+* | Squiz.net Open Source Licence                                      |
+* +--------------------------------------------------------------------+
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +--------------------------------------------------------------------+
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +--------------------------------------------------------------------+
+*
+* $Id: simple_form_management.inc,v 1.1 2005/07/20 00:02:46 lwright Exp $
+*
+*/
+
+
+require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
+
+
+/**
+* Simple_Form_Edit_Fns
+*
+* Purpose
+*
+*
+* @author  Luke Wright <lwright@squiz.net>
+* @version $Revision: 1.1 $
+* @package MySource_Matrix_Packages
+* @subpackage __core__
+*/
+class Simple_Form_Management extends Asset_Management
+{
+
+
+	/**
+	* Constructor
+	*
+	* @param object Package_Manager	&$pm	the relevant package manager
+	*
+	* @return void
+	* @access public
+	*/
+	function Simple_Form_Management(&$pm)
+	{
+		$this->Asset_Management($pm);
+
+		$this->vars = Array(
+						'name'			=> Array(
+											'added'		=> '0.1',
+											'type'		=> 'text',
+											'default'	=> '',
+										   ),
+						'questions'		=> Array(
+											'added'		=> '0.1',
+											'type'		=> 'serialise',
+											'default'	=> Array(),
+										   ),
+						'next_question'	=> Array(
+											'added'		=> '0.1',
+											'type'		=> 'int',
+											'default'	=> 1,
+										   ),
+						'submit_button'	=> Array(
+											'added'		=> '0.1',
+											'type'		=> 'text',
+											'default'	=> 'Submit',
+										   ),
+						'reset_button'	=> Array(
+											'added'		=> '0.1',
+											'type'		=> 'text',
+											'default'	=> 'Clear Form',
+										   ),
+						'client_side'	=> Array(
+											'added'			=> '0.1',
+											'type'			=> 'boolean',
+											'default'		=> false,
+											'parameters'	=> Array(
+																'allow_empty' => false,
+															   ),
+										   ),
+
+					  );
+
+	}//end constructor
+
+
+	/**
+	* Gets a list of all files that we want web accessible
+	*
+	* Override this with an empty array otherwise it'll try and grab the manip
+	* JS file from us too, rather than just simple_form_section
+	*
+	* @access private
+	* @return array(string)
+	*/
+	function _getFileList()
+	{
+		return Array();
+
+	}//end _getFileList()
+
+
+}//end class
+
+
+?>
