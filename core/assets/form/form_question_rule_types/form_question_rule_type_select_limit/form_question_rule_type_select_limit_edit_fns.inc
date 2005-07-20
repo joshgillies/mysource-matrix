@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_select_limit_edit_fns.inc,v 1.1 2005/07/20 00:02:44 lwright Exp $
+* $Id: form_question_rule_type_select_limit_edit_fns.inc,v 1.2 2005/07/20 00:40:29 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule_edi
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -56,7 +56,7 @@ class Form_Question_Rule_Type_Select_Limit_Edit_Fns extends Form_Question_Rule_E
 		$operator_list = $asset->getOperators();
 
 		if (!$write_access) {
-			$o->openField(translate('cms_form_rule_details'));
+			$o->openField(translate('core_form_rule_details'));
 			echo 'Response '.strtolower($operator_list[array_get_index($rule_data, 'operator', '==')]);
 
 			echo ' "'.array_get_index($rule_data, 'value', '').'"';
@@ -69,13 +69,13 @@ class Form_Question_Rule_Type_Select_Limit_Edit_Fns extends Form_Question_Rule_E
 			combo_box($prefix.'[operator]', $operator_list, false, array_get_index($rule_data, 'operator', '=='));
 			$o->closeField();
 
-			$o->openField(translate('cms_form_rule_select_limit_num_options'));
+			$o->openField(translate('core_form_rule_select_limit_num_options'));
 			// give a text box to write the comparison value in
 			text_box($prefix.'[value]', array_get_index($rule_data, 'value', ''), 3);
 			echo ' option(s)';
 			$o->closeField();
 
-			$o->sectionNote(translate('cms_form_rule_select_limit_note'));
+			$o->sectionNote(translate('core_form_rule_select_limit_note'));
 		}
 
 		return $write_access;

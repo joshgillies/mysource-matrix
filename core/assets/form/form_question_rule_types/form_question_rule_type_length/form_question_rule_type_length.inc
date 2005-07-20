@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_length.inc,v 1.1 2005/07/20 00:02:43 lwright Exp $
+* $Id: form_question_rule_type_length.inc,v 1.2 2005/07/20 00:40:29 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -50,12 +50,12 @@ class Form_Question_Rule_Type_Length extends Form_Question_Rule
 	function getOperators()
 	{
 		$operators = Array(
-						'=='	=> translate('cms_form_rule_length_=='),
-						'!='	=> translate('cms_form_rule_length_!='),
-						'>'		=> translate('cms_form_rule_length_>'),
-						'<'		=> translate('cms_form_rule_length_<'),
-						'>='	=> translate('cms_form_rule_length_>='),
-						'<='	=> translate('cms_form_rule_length_<='),
+						'=='	=> translate('core_form_rule_length_=='),
+						'!='	=> translate('core_form_rule_length_!='),
+						'>'		=> translate('core_form_rule_length_>'),
+						'<'		=> translate('core_form_rule_length_<'),
+						'>='	=> translate('core_form_rule_length_>='),
+						'<='	=> translate('core_form_rule_length_<='),
 					 );
 
 		return $operators;
@@ -141,7 +141,7 @@ class Form_Question_Rule_Type_Length extends Form_Question_Rule
 		$operator = array_get_index($rule_data, 'operator', '==');
 
 		$value = array_get_index($rule_data, 'value', '');
-		$error_str = translate('cms_form_rule_length_desc_'.$operator, $q_asset->attr('name'), $value);
+		$error_str = translate('core_form_rule_length_desc_'.$operator, $q_asset->attr('name'), $value);
 
 		return $error_str;
 

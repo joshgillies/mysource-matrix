@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_datetime_edit_fns.inc,v 1.1 2005/07/20 00:02:44 lwright Exp $
+* $Id: form_question_type_datetime_edit_fns.inc,v 1.2 2005/07/20 00:40:29 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question_edit_fns.inc'
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -201,7 +201,7 @@ class Form_Question_Type_Datetime_Edit_Fns extends Form_Question_Edit_Fns
 			</tr>
 			<tr>
 				<td colspan="2" class="sq-backend-table-cell"><?php
-					echo translate('cms_form_datetime_text_box_question');
+					echo translate('core_form_datetime_text_box_question');
 				?></td>
 				<td align="center" class="sq-backend-table-cell"><?php
 					if ($edit) {

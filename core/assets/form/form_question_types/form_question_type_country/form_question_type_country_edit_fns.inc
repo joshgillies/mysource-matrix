@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_country_edit_fns.inc,v 1.1 2005/07/20 00:02:44 lwright Exp $
+* $Id: form_question_type_country_edit_fns.inc,v 1.2 2005/07/20 00:40:29 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../form_question_type_select/form_question_type
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -78,7 +78,7 @@ class Form_Question_Type_Country_Edit_Fns extends Form_Question_Type_Select_Edit
 				}
 				echo implode('<br />', $sel_option_names);
 			} else {
-				echo translate('cms_form_type_country_all');
+				echo translate('core_form_type_country_all');
 			}
 		} else {
 			combo_box($prefix.'_available', $options, true, $selected_options);

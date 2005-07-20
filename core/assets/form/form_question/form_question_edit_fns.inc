@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_edit_fns.inc,v 1.1 2005/07/20 00:02:37 lwright Exp $
+* $Id: form_question_edit_fns.inc,v 1.2 2005/07/20 00:40:28 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -73,7 +73,7 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 	{
 		if ($asset->getRuleCount() == 0) {
 			$o->openRaw();
-			echo translate('cms_form_no_rules_set');
+			echo translate('core_form_no_rules_set');
 			$o->closeRaw();
 			return false;
 		}
@@ -102,7 +102,7 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 			$edit_fns->paintRule($rule_asset, $o, $prefix.'_rule_'.$k, $rule, $write_access, $this);
 
 			if ($write_access) {
-				$o->openField(translate('cms_form_custom_error_text'));
+				$o->openField(translate('core_form_custom_error_text'));
 				text_box($prefix.'_rule_'.$k.'[custom_text]', array_get_index($rule, 'custom_text', ''), 30);
 				$o->closeField();
 
@@ -110,10 +110,10 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 				check_box($prefix.'_rule_'.$k.'[delete]');
 				$o->closeField();
 			} else {
-				$o->openField(translate('cms_form_custom_error_text'));
+				$o->openField(translate('core_form_custom_error_text'));
 				$custom_text = array_get_index($rule, 'custom_text', '');
 				if (empty($custom_text)) {
-					?><i><?php echo translate('cms_form_no_custom_error_text_set') ?></i><?php
+					?><i><?php echo translate('core_form_no_custom_error_text_set') ?></i><?php
 				} else {
 					echo $rule['custom_text'];
 				}

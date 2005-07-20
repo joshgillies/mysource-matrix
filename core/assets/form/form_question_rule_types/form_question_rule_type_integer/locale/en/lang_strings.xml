@@ -18,17 +18,17 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.1 2005/07/20 00:02:43 lwright Exp $
+* $Id: lang_strings.xml,v 1.2 2005/07/20 00:40:29 lwright Exp $
 *
 * Localised Strings File for Force Integer Form Question Rule Asset
 */
 -->
 
 <strings>
-<string source="cms_form_rule_integer_true">Must be an integer</string>
-<string source="cms_form_rule_integer_false">Must NOT be an integer</string>
-<string source="cms_form_rule_integer_desc_true">The response to question "%s" must be a valid integer value</string>
-<string source="cms_form_rule_integer_desc_false">The response to question "%s" must NOT be a valid integer value</string>
-<string source="cms_form_rule_integer_edit_true">Response must be a valid integer value</string>
-<string source="cms_form_rule_integer_edit_false">Response must NOT be a valid integer value</string>
+<string source="core_form_rule_integer_true">Must be an integer</string>
+<string source="core_form_rule_integer_false">Must NOT be an integer</string>
+<string source="core_form_rule_integer_desc_true">The response to question "%s" must be a valid integer value</string>
+<string source="core_form_rule_integer_desc_false">The response to question "%s" must NOT be a valid integer value</string>
+<string source="core_form_rule_integer_edit_true">Response must be a valid integer value</string>
+<string source="core_form_rule_integer_edit_false">Response must NOT be a valid integer value</string>
 </strings>

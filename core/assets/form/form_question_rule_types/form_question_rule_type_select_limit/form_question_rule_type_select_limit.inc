@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_select_limit.inc,v 1.1 2005/07/20 00:02:44 lwright Exp $
+* $Id: form_question_rule_type_select_limit.inc,v 1.2 2005/07/20 00:40:29 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -212,7 +212,7 @@ class Form_Question_Rule_Type_Select_Limit extends Form_Question_Rule
 		$value = array_get_index($rule_data, 'value', '');
 
 		$selected_options = count($q_asset->getValue());
-		$error_str = translate('cms_form_rule_select_limit_error_'.$operator, $selected_options, $value, $q_asset->attr('name'));
+		$error_str = translate('core_form_rule_select_limit_error_'.$operator, $selected_options, $value, $q_asset->attr('name'));
 
 		return $error_str;
 
@@ -233,7 +233,7 @@ class Form_Question_Rule_Type_Select_Limit extends Form_Question_Rule
 		$operator = array_get_index($rule_data, 'operator', '==');
 		$value = array_get_index($rule_data, 'value', '');
 
-		$error_str = translate('cms_form_rule_select_limit_desc_'.$operator, $value, $q_asset->attr('name'));
+		$error_str = translate('core_form_rule_select_limit_desc_'.$operator, $value, $q_asset->attr('name'));
 
 		return $error_str;
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_file_type_edit_fns.inc,v 1.1 2005/07/20 00:02:43 lwright Exp $
+* $Id: form_question_rule_type_file_type_edit_fns.inc,v 1.2 2005/07/20 00:40:29 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/option_list/option_list.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -57,8 +57,8 @@ class Form_Question_Rule_Type_File_Type_Edit_Fns extends Form_Question_Rule_Edit
 		$operator_list = $asset->getOperators();
 
 		if (!$write_access) {
-			$o->openField(translate('cms_form_rule_details'));
-			echo translate('cms_form_rule_file_type_edit_'.(array_get_index($rule_data, 'operator', 1) ? 'true' : 'false'), $rule_data['value']);
+			$o->openField(translate('core_form_rule_details'));
+			echo translate('core_form_rule_file_type_edit_'.(array_get_index($rule_data, 'operator', 1) ? 'true' : 'false'), $rule_data['value']);
 			$o->closeField();
 
 		} else {
@@ -68,14 +68,14 @@ class Form_Question_Rule_Type_File_Type_Edit_Fns extends Form_Question_Rule_Edit
 			combo_box($prefix.'[operator]', $operator_list, false, array_get_index($rule_data, 'operator', 1));
 			$o->closeField();
 
-			$o->openField(translate('cms_form_rule_file_type_ext_list'));
+			$o->openField(translate('core_form_rule_file_type_ext_list'));
 			// give a text box to write the comparison value in
 			$option_list =& new Asset_Attribute_Option_List(0, array_get_index($rule_data, 'value', ''));
 			$option_list->paint($prefix.'_value');
 
 			$o->closeField();
 
-			$o->sectionNote(translate('cms_form_rule_file_type_note'));
+			$o->sectionNote(translate('core_form_rule_file_type_note'));
 		}
 
 		return $write_access;

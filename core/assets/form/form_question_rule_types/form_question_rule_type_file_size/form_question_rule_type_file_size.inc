@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_file_size.inc,v 1.1 2005/07/20 00:02:43 lwright Exp $
+* $Id: form_question_rule_type_file_size.inc,v 1.2 2005/07/20 00:40:29 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 * @static
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -64,8 +64,8 @@ class Form_Question_Rule_Type_File_Size extends Form_Question_Rule
 	function getOperators()
 	{
 		$operators = Array(
-						'<='	=> translate('cms_form_rule_file_size_<='),
-						'>='	=> translate('cms_form_rule_file_size_>='),
+						'<='	=> translate('core_form_rule_file_size_<='),
+						'>='	=> translate('core_form_rule_file_size_>='),
 					 );
 		return $operators;
 
@@ -133,7 +133,7 @@ class Form_Question_Rule_Type_File_Size extends Form_Question_Rule
 		$operator = array_get_index($rule_data, 'operator', '<=');
 		$comparison = array_get_index($rule_data, 'value', '').' '.array_get_index($rule_data, 'multiplier', '');
 
-		$error_str = translate('cms_form_rule_file_size_desc_'.$operator, $q_asset->attr('name'), $comparison);
+		$error_str = translate('core_form_rule_file_size_desc_'.$operator, $q_asset->attr('name'), $comparison);
 
 		return $error_str;
 

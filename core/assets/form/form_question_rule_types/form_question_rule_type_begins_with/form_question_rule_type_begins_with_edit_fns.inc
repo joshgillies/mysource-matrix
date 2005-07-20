@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_begins_with_edit_fns.inc,v 1.1 2005/07/20 00:02:42 lwright Exp $
+* $Id: form_question_rule_type_begins_with_edit_fns.inc,v 1.2 2005/07/20 00:40:28 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule_edi
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -56,7 +56,7 @@ class Form_Question_Rule_Type_Begins_With_Edit_Fns extends Form_Question_Rule_Ed
 		$operator_list = $asset->getOperators();
 
 		if (!$write_access) {
-			$o->openField(translate('cms_form_rule_details'));
+			$o->openField(translate('core_form_rule_details'));
 
 			if (($cq_id = array_get_index($rule_data, 'comparison_question_id', 0)) != 0) {
 				$q_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($cq_id);
@@ -65,7 +65,7 @@ class Form_Question_Rule_Type_Begins_With_Edit_Fns extends Form_Question_Rule_Ed
 				$value = array_get_index($rule_data, 'value', '');
 			}
 
-			echo translate('cms_form_rule_begins_with_edit_'.(array_get_index($rule_data, 'operator', 1) ? 'true' : 'false').($cq_id ? '_q' : ''), $value);
+			echo translate('core_form_rule_begins_with_edit_'.(array_get_index($rule_data, 'operator', 1) ? 'true' : 'false').($cq_id ? '_q' : ''), $value);
 			$o->closeField();
 
 		} else {
@@ -75,22 +75,22 @@ class Form_Question_Rule_Type_Begins_With_Edit_Fns extends Form_Question_Rule_Ed
 			combo_box($prefix.'[operator]', $operator_list, false, array_get_index($rule_data, 'operator', 1));
 			$o->closeField();
 
-			$o->openField(translate('cms_form_rule_static_value'));
+			$o->openField(translate('core_form_rule_static_value'));
 			// give a text box to write the comparison value in
 			text_box($prefix.'[value]', array_get_index($rule_data, 'value', ''), 30);
 			$o->closeField();
 
-			$o->openField(translate('cms_form_rule_or_value_of_question'));
+			$o->openField(translate('core_form_rule_or_value_of_question'));
 			// give a text box to write the comparison value in
 			asset_finder($prefix.'[asset]', array_get_index($rule_data, 'comparison_question_id', '0'), Array('form_question' => 'D'));
 			$o->closeField();
 
-			$o->openField(translate('cms_form_case_sensitive_question'));
+			$o->openField(translate('core_form_case_sensitive_question'));
 			// give a text box to write the comparison value in
 			check_box($prefix.'[case]', 1, array_get_index($rule_data, 'case_sensitive', 1));
 			$o->closeField();
 
-			$o->sectionNote(translate('cms_form_rule_static_or_question_note'));
+			$o->sectionNote(translate('core_form_rule_static_or_question_note'));
 		}
 
 		return $write_access;

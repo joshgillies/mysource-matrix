@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_file_upload.inc,v 1.1 2005/07/20 00:02:44 lwright Exp $
+* $Id: form_question_type_file_upload.inc,v 1.2 2005/07/20 00:40:29 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -111,13 +111,13 @@ class Form_Question_Type_File_Upload extends Form_Question
 		$create_loc = $this->attr('create_location');
 		if (empty($create_loc)) {
 			// no create location set
-			$this->failed_rules[] = translate('cms_form_file_upload_no_create_locs', $this->attr('name'));' "'.$this->attr('name').'"';
+			$this->failed_rules[] = translate('core_form_file_upload_no_create_locs', $this->attr('name'));' "'.$this->attr('name').'"';
 			return false;
 		}
 
 		if ($this->_tmp['file_info'] === false) {
 			// there was an upload error
-			$this->failed_rules[] = translate('cms_form_file_upload_error', $this->attr('name'));
+			$this->failed_rules[] = translate('core_form_file_upload_error', $this->attr('name'));
 			return false;
 		}
 
@@ -125,7 +125,7 @@ class Form_Question_Type_File_Upload extends Form_Question
 
 		if (is_array($this->_tmp['file_info']) && empty($this->_tmp['file_info']) && $this->attr('is_required')) {
 			// no file uploaded to required field
-			$this->failed_rules[] = translate('cms_form_file_upload_none_rule', $this->attr('name'));
+			$this->failed_rules[] = translate('core_form_file_upload_none_rule', $this->attr('name'));
 			$ok = false;
 		}
 
@@ -137,7 +137,7 @@ class Form_Question_Type_File_Upload extends Form_Question
 			if ($existing_file) {
 				// file already exists so throw the error
 				$ok = false;
-				$this->failed_rules[] = translate('cms_form_file_upload_already_exists', $this->attr('name'));
+				$this->failed_rules[] = translate('core_form_file_upload_already_exists', $this->attr('name'));
 			}
 		}
 
@@ -157,7 +157,7 @@ class Form_Question_Type_File_Upload extends Form_Question
 	function populate()
 	{
 		$this->_tmp['file_info'] = get_file_upload_info($this->id);
-		$this->setValue(array_get_index($this->_tmp['file_info'], 'name', translate('cms_form_file_upload_none')));
+		$this->setValue(array_get_index($this->_tmp['file_info'], 'name', translate('core_form_file_upload_none')));
 		if (isset($this->_tmp['file_info']['name'])) {
 			$this->_tmp['summary'] = $this->_tmp['file_info']['name'].', type '.$this->_tmp['file_info']['type'].', '.easy_filesize($this->_tmp['file_info']['size']);
 		}
@@ -191,7 +191,7 @@ class Form_Question_Type_File_Upload extends Form_Question
 				$info = $existing_file_asset->getExistingFile();
 				$this->_tmp['summary'] = $this->getValue().', '.easy_filesize($info['size']);
 			} else {
-				$this->_tmp['summary'] = translate('cms_form_file_upload_none');
+				$this->_tmp['summary'] = translate('core_form_file_upload_none');
 			}
 		}
 		return $this->_tmp['summary'];

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_email_edit_fns.inc,v 1.1 2005/07/20 00:02:43 lwright Exp $
+* $Id: form_question_rule_type_email_edit_fns.inc,v 1.2 2005/07/20 00:40:29 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule_edi
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -55,8 +55,8 @@ class Form_Question_Rule_Type_Email_Edit_Fns extends Form_Question_Rule_Edit_Fns
 		$operator_list = $asset->getOperators();
 
 		if (!$write_access) {
-			$o->openField(translate('cms_form_rule_details'));
-			echo translate('cms_form_rule_email_'.array_get_index($rule_data, 'operator', 1) ? 'true' : 'false');
+			$o->openField(translate('core_form_rule_details'));
+			echo translate('core_form_rule_email_'.array_get_index($rule_data, 'operator', 1) ? 'true' : 'false');
 			$o->closeField();
 
 		} else {
@@ -66,7 +66,7 @@ class Form_Question_Rule_Type_Email_Edit_Fns extends Form_Question_Rule_Edit_Fns
 			combo_box($prefix.'[operator]', $operator_list, false, array_get_index($rule_data, 'operator', '1'));
 			$o->closeField();
 
-			$o->sectionNote(translate('cms_form_rule_boolean_note'));
+			$o->sectionNote(translate('core_form_rule_boolean_note'));
 		}
 
 		return $write_access;

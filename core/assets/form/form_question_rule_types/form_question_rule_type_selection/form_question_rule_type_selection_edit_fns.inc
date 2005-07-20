@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_selection_edit_fns.inc,v 1.1 2005/07/20 00:02:44 lwright Exp $
+* $Id: form_question_rule_type_selection_edit_fns.inc,v 1.2 2005/07/20 00:40:29 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule_edi
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -57,8 +57,8 @@ class Form_Question_Rule_Type_Selection_Edit_Fns extends Form_Question_Rule_Edit
 		$options = $q_asset->getOptions();
 
 		if (!$write_access) {
-			$o->openField(translate('cms_form_rule_details'));
-			echo translate('cms_form_rule_selection_edit_'.(array_get_index($rule_data, 'operator', 1) ? 'true' : 'false'),  $q_asset->getSummary($rule_data['value']));
+			$o->openField(translate('core_form_rule_details'));
+			echo translate('core_form_rule_selection_edit_'.(array_get_index($rule_data, 'operator', 1) ? 'true' : 'false'),  $q_asset->getSummary($rule_data['value']));
 
 			$o->closeField();
 

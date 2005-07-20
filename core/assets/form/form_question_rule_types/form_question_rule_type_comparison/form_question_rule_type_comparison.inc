@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_comparison.inc,v 1.1 2005/07/20 00:02:42 lwright Exp $
+* $Id: form_question_rule_type_comparison.inc,v 1.2 2005/07/20 00:40:29 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -50,12 +50,12 @@ class Form_Question_Rule_Type_Comparison extends Form_Question_Rule
 	function getOperators()
 	{
 		$operators = Array(
-						'=='	=> translate('cms_form_rule_comparison_=='),
-						'!='	=> translate('cms_form_rule_comparison_!='),
-						'>'		=> translate('cms_form_rule_comparison_>'),
-						'<'		=> translate('cms_form_rule_comparison_<'),
-						'>='	=> translate('cms_form_rule_comparison_>='),
-						'<='	=> translate('cms_form_rule_comparison_<='),
+						'=='	=> translate('core_form_rule_comparison_=='),
+						'!='	=> translate('core_form_rule_comparison_!='),
+						'>'		=> translate('core_form_rule_comparison_>'),
+						'<'		=> translate('core_form_rule_comparison_<'),
+						'>='	=> translate('core_form_rule_comparison_>='),
+						'<='	=> translate('core_form_rule_comparison_<='),
 					 );
 
 		return $operators;
@@ -187,10 +187,10 @@ class Form_Question_Rule_Type_Comparison extends Form_Question_Rule
 		$value = array_get_index($rule_data, 'value', '');
 
 		if (($value == '') && ($operator == '!=')) {
-			$error_str = translate('cms_form_rule_comparison_required', $q_asset->attr('name'));
+			$error_str = translate('core_form_rule_comparison_required', $q_asset->attr('name'));
 		} else {
 			$operator_list = $this->getOperators();
-			$string_code = 'cms_form_rule_comparison_desc_'.$operator;
+			$string_code = 'core_form_rule_comparison_desc_'.$operator;
 
 			if ($cq_id != 0) {
 				$string_code .= '_q';

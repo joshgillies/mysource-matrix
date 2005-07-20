@@ -18,12 +18,12 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.1 2005/07/20 00:02:44 lwright Exp $
+* $Id: lang_strings.xml,v 1.2 2005/07/20 00:40:29 lwright Exp $
 *
 * Localised Strings File for Date/Time Form Question Asset
 */
 -->
 
 <strings>
-<string source="cms_form_datetime_text_box_question">Display as Text Box ?</string>
+<string source="core_form_datetime_text_box_question">Display as Text Box ?</string>
 </strings>

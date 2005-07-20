@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_length_edit_fns.inc,v 1.1 2005/07/20 00:02:43 lwright Exp $
+* $Id: form_question_rule_type_length_edit_fns.inc,v 1.2 2005/07/20 00:40:29 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule_edi
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -56,8 +56,8 @@ class Form_Question_Rule_Type_Length_Edit_Fns extends Form_Question_Rule_Edit_Fn
 		$operator_list = $asset->getOperators();
 
 		if (!$write_access) {
-			$o->openField(translate('cms_form_rule_details'));
-			echo translate('cms_form_rule_length_edit_'.array_get_index($rule_data, 'operator', '=='), $rule_data['value']);
+			$o->openField(translate('core_form_rule_details'));
+			echo translate('core_form_rule_length_edit_'.array_get_index($rule_data, 'operator', '=='), $rule_data['value']);
 			$o->closeField();
 
 		} else {
@@ -67,13 +67,13 @@ class Form_Question_Rule_Type_Length_Edit_Fns extends Form_Question_Rule_Edit_Fn
 			combo_box($prefix.'[operator]', $operator_list, false, array_get_index($rule_data, 'operator', '=='));
 			$o->closeField();
 
-			$o->openField(translate('cms_form_num_of_chars'));
+			$o->openField(translate('core_form_num_of_chars'));
 			// give a text box to write the comparison value in
 			text_box($prefix.'[value]', array_get_index($rule_data, 'value', ''), 3);
 			echo ' '.translate('character(s)');
 			$o->closeField();
 
-			$o->sectionNote(translate('cms_form_rule_length_section_note'));
+			$o->sectionNote(translate('core_form_rule_length_section_note'));
 		}
 
 		return $write_access;

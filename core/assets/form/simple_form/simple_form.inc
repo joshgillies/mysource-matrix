@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: simple_form.inc,v 1.1 2005/07/20 00:02:46 lwright Exp $
+* $Id: simple_form.inc,v 1.2 2005/07/20 00:40:30 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -763,7 +763,7 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>() {
 	<?php echo $code; ?>
 
 	if (submission_errors.length > 0) {
-		var errors_list = "<?php echo translate('cms_form_submission_errors'); ?>\n";
+		var errors_list = "<?php echo translate('core_form_submission_errors'); ?>\n";
 		for(x in submission_errors) {
 			errors_list += submission_errors[x] + "\n";
 		}

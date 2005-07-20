@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_password.inc,v 1.1 2005/07/20 00:02:45 lwright Exp $
+* $Id: form_question_type_password.inc,v 1.2 2005/07/20 00:40:30 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -111,13 +111,13 @@ class Form_Question_Type_Password extends Form_Question
 	{
 		$val = $this->getValue();
 		if ($this->attr('verify') && ($val != $this->_tmp['verify_value'])) {
-			$this->failed_rules[] = translate('cms_form_password_entered_differently', $this->attr('name'));
+			$this->failed_rules[] = translate('core_form_password_entered_differently', $this->attr('name'));
 		}
 		if (strlen($val) < $this->attr('min')) {
-			$this->failed_rules[] = translate('cms_form_password_length_>=', $this->attr('name'), $this->attr('min'));
+			$this->failed_rules[] = translate('core_form_password_length_>=', $this->attr('name'), $this->attr('min'));
 		}
 		if (strlen($val) > $this->attr('max')) {
-			$this->failed_rules[] = translate('cms_form_password_length_<=', $this->attr('name'), $this->attr('max'));
+			$this->failed_rules[] = translate('core_form_password_length_<=', $this->attr('name'), $this->attr('max'));
 		}
 
 		if (!empty($this->failed_rules)) return false;

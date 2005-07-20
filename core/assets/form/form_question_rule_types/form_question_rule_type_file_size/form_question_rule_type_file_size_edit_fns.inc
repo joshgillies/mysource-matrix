@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_file_size_edit_fns.inc,v 1.1 2005/07/20 00:02:43 lwright Exp $
+* $Id: form_question_rule_type_file_size_edit_fns.inc,v 1.2 2005/07/20 00:40:29 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule_edi
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -62,8 +62,8 @@ class Form_Question_Rule_Type_File_Size_Edit_Fns extends Form_Question_Rule_Edit
 						  );
 
 		if (!$write_access) {
-			$o->openField(translate('cms_form_rule_details'));
-			echo translate('cms_form_rule_file_size_edit_'.array_get_index($rule_data, 'operator', '<='), array_get_index($rule_data, 'value', '0').' '.$multiplier_map[array_get_index($rule_data, 'multiplier', '')]);
+			$o->openField(translate('core_form_rule_details'));
+			echo translate('core_form_rule_file_size_edit_'.array_get_index($rule_data, 'operator', '<='), array_get_index($rule_data, 'value', '0').' '.$multiplier_map[array_get_index($rule_data, 'multiplier', '')]);
 			$o->closeField();
 
 		} else {
@@ -78,7 +78,7 @@ class Form_Question_Rule_Type_File_Size_Edit_Fns extends Form_Question_Rule_Edit
 			combo_box($prefix.'[multiplier]', $multiplier_map, false, array_get_index($rule_data, 'multiplier', ''));
 			$o->closeField();
 
-			$o->sectionNote(translate('cms_form_rule_file_size_config_note', strtoupper(easy_filesize($this->_maxUploadSize()))));
+			$o->sectionNote(translate('core_form_rule_file_size_config_note', strtoupper(easy_filesize($this->_maxUploadSize()))));
 		}
 
 		return $write_access;

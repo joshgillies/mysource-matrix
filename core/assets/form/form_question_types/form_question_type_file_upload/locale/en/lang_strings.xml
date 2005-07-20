@@ -18,16 +18,16 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.1 2005/07/20 00:02:44 lwright Exp $
+* $Id: lang_strings.xml,v 1.2 2005/07/20 00:40:30 lwright Exp $
 *
 * Localised Strings File for File Upload Form Question Asset
 */
 -->
 
 <strings>
-<string source="cms_form_file_upload_none">No file uploaded</string>
-<string source="cms_form_file_upload_already_exists">There was an error uploading the file for File Upload question "%s" - file already exists in path</string>
-<string source="cms_form_file_upload_no_create_locs">No create location has been set for File Upload question "%s"</string>
-<string source="cms_form_file_upload_none_rule">No file uploaded for required File Upload question "%s"</string>
-<string source="cms_form_file_upload_error">There was an error uploading the file for File Upload question "%s"</string>
+<string source="core_form_file_upload_none">No file uploaded</string>
+<string source="core_form_file_upload_already_exists">There was an error uploading the file for File Upload question "%s" - file already exists in path</string>
+<string source="core_form_file_upload_no_create_locs">No create location has been set for File Upload question "%s"</string>
+<string source="core_form_file_upload_none_rule">No file uploaded for required File Upload question "%s"</string>
+<string source="core_form_file_upload_error">There was an error uploading the file for File Upload question "%s"</string>
 </strings>

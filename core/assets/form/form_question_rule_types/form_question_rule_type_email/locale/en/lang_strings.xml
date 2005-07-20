@@ -18,15 +18,15 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.1 2005/07/20 00:02:43 lwright Exp $
+* $Id: lang_strings.xml,v 1.2 2005/07/20 00:40:29 lwright Exp $
 *
 * Localised Strings File for Valid Email Form Question Rule Asset
 */
 -->
 
 <strings>
-<string source="cms_form_rule_email_true">Must Be a Valid E-mail Address</string>
-<string source="cms_form_rule_email_false">Must Not Be a Valid E-mail Address</string>
-<string source="cms_form_rule_email_desc_true">The response to "%s" must be a valid email address</string>
-<string source="cms_form_rule_email_desc_false">The response to "%s" must NOT be a valid email address</string>
+<string source="core_form_rule_email_true">Must Be a Valid E-mail Address</string>
+<string source="core_form_rule_email_false">Must Not Be a Valid E-mail Address</string>
+<string source="core_form_rule_email_desc_true">The response to "%s" must be a valid email address</string>
+<string source="core_form_rule_email_desc_false">The response to "%s" must NOT be a valid email address</string>
 </strings>

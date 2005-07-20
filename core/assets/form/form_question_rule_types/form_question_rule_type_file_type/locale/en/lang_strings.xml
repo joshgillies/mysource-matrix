@@ -18,21 +18,21 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.1 2005/07/20 00:02:43 lwright Exp $
+* $Id: lang_strings.xml,v 1.2 2005/07/20 00:40:29 lwright Exp $
 *
 * Localised Strings File for Uploaded File Type Form Question Rule Asset
 */
 -->
 
 <strings>
-<string source="cms_form_rule_file_type_true">Must match one of these extensions</string>
-<string source="cms_form_rule_file_type_false">Must not match one of these extensions</string>
-<string source="cms_form_rule_file_type_desc_true">File uploaded at question "%1$s" must match one of the following extensions: %2$s</string>
-<string source="cms_form_rule_file_type_desc_false">File uploaded at question "%1$s" must NOT match one of the following extensions: %2$s</string>
-<string source="cms_form_rule_file_type_edit_true">Uploaded file must match one of the following extensions: %s</string>
-<string source="cms_form_rule_file_type_edit_false">Uploaded file must NOT match one of the following extensions: %s</string>
-<string source="cms_form_rule_file_type_ext_list">Extension List</string>
-<string source="cms_form_rule_file_type_note">Enter a list of extensions to include or exclude - the list will expand as necessary.  To remove an extension, click the delete button next to it. Do not include the full stop as part of the extension.</string>
-<string source="cms_form_rule_file_type_error_true">Name of uploaded file "%1$s" at question "%2$s" is invalid - extension must match one of the following: %3$s</string>
-<string source="cms_form_rule_file_type_error_false">Name of uploaded file "%1$s" at question "%2$s" is invalid - extension must NOT match one of the following: %3$s</string>
+<string source="core_form_rule_file_type_true">Must match one of these extensions</string>
+<string source="core_form_rule_file_type_false">Must not match one of these extensions</string>
+<string source="core_form_rule_file_type_desc_true">File uploaded at question "%1$s" must match one of the following extensions: %2$s</string>
+<string source="core_form_rule_file_type_desc_false">File uploaded at question "%1$s" must NOT match one of the following extensions: %2$s</string>
+<string source="core_form_rule_file_type_edit_true">Uploaded file must match one of the following extensions: %s</string>
+<string source="core_form_rule_file_type_edit_false">Uploaded file must NOT match one of the following extensions: %s</string>
+<string source="core_form_rule_file_type_ext_list">Extension List</string>
+<string source="core_form_rule_file_type_note">Enter a list of extensions to include or exclude - the list will expand as necessary.  To remove an extension, click the delete button next to it. Do not include the full stop as part of the extension.</string>
+<string source="core_form_rule_file_type_error_true">Name of uploaded file "%1$s" at question "%2$s" is invalid - extension must match one of the following: %3$s</string>
+<string source="core_form_rule_file_type_error_false">Name of uploaded file "%1$s" at question "%2$s" is invalid - extension must NOT match one of the following: %3$s</string>
 </strings>

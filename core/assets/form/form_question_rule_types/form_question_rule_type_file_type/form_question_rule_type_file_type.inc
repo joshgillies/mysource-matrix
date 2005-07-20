@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_file_type.inc,v 1.1 2005/07/20 00:02:43 lwright Exp $
+* $Id: form_question_rule_type_file_type.inc,v 1.2 2005/07/20 00:40:29 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -63,8 +63,8 @@ class Form_Question_Rule_Type_File_Type extends Form_Question_Rule
 	function getOperators()
 	{
 		return Array(
-				1	=> translate('cms_form_rule_file_type_true'),
-				0	=> translate('cms_form_rule_file_type_false'),
+				1	=> translate('core_form_rule_file_type_true'),
+				0	=> translate('core_form_rule_file_type_false'),
 			   );
 
 	}//end getOperators()
@@ -180,7 +180,7 @@ class Form_Question_Rule_Type_File_Type extends Form_Question_Rule
 		$comparison = str_replace("\r", '', $comparison);
 		$comparison = str_replace("\n", ', ', $comparison);
 
-		return translate('cms_form_rule_file_type_error_'.($operator ? 'true' : 'false'), $q_asset->getValue(), $q_asset->attr('name'), $comparison);
+		return translate('core_form_rule_file_type_error_'.($operator ? 'true' : 'false'), $q_asset->getValue(), $q_asset->attr('name'), $comparison);
 
 		return $error_text;
 
@@ -203,7 +203,7 @@ class Form_Question_Rule_Type_File_Type extends Form_Question_Rule
 
 		$operator_list = $this->getOperators();
 
-		return translate('cms_form_rule_file_type_desc_'.($operator ? 'true' : 'false'), $q_asset->attr('name'), $rule_data['value']);
+		return translate('core_form_rule_file_type_desc_'.($operator ? 'true' : 'false'), $q_asset->attr('name'), $rule_data['value']);
 
 	}//end ruleDescription()
 

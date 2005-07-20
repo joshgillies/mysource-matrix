@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_table.inc,v 1.1 2005/07/20 00:02:45 lwright Exp $
+* $Id: form_question_type_tickbox_table.inc,v 1.2 2005/07/20 00:40:30 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -160,9 +160,9 @@ class Form_Question_Type_Tickbox_Table extends Form_Question
 								'	<tr>'.
 								'		<td class="sq-backend-table-header">';
 				if (empty($question_contents) || empty($question_contents[0])) {
-					$to_output .= '<div align="center">'.translate('cms_form_tickbox_table_not_properly_defined');
+					$to_output .= '<div align="center">'.translate('core_form_tickbox_table_not_properly_defined');
 					if ($type == 'passive') {
-						$to_output .= ' '.translate('cms_form_tickbox_table_incorrectly_displayed');
+						$to_output .= ' '.translate('core_form_tickbox_table_incorrectly_displayed');
 					}
 					$to_output .= '</div>';
 				} else {

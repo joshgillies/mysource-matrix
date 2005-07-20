@@ -18,13 +18,13 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.1 2005/07/20 00:02:45 lwright Exp $
+* $Id: lang_strings.xml,v 1.2 2005/07/20 00:40:30 lwright Exp $
 *
 * Localised Strings File for Tickbox Table Form Question Asset
 */
 -->
 
 <strings>
-<string source="cms_form_tickbox_table_not_properly_defined">This question has not been properly defined.</string>
-<string source="cms_form_tickbox_table_incorrectly_displayed">It will be incorrectly displayed on the front end.</string>
+<string source="core_form_tickbox_table_not_properly_defined">This question has not been properly defined.</string>
+<string source="core_form_tickbox_table_incorrectly_displayed">It will be incorrectly displayed on the front end.</string>
 </strings>

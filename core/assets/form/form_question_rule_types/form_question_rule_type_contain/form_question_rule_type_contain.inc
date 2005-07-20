@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_contain.inc,v 1.1 2005/07/20 00:02:43 lwright Exp $
+* $Id: form_question_rule_type_contain.inc,v 1.2 2005/07/20 00:40:29 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -50,8 +50,8 @@ class Form_Question_Rule_Type_Contain extends Form_Question_Rule
 	function getOperators()
 	{
 		return Array(
-				1	=> translate('cms_form_rule_contain_true'),
-				0	=> translate('cms_form_rule_contain_false'),
+				1	=> translate('core_form_rule_contain_true'),
+				0	=> translate('core_form_rule_contain_false'),
 			   );
 
 	}//end getOperators()
@@ -184,7 +184,7 @@ class Form_Question_Rule_Type_Contain extends Form_Question_Rule
 		$value = array_get_index($rule_data, 'value', '');
 		$case_sensitive = array_get_index($rule_data, 'case_sensitive', 1);
 
-		$string_code = 'cms_form_rule_contain_desc_'.($operator ? 'true' : 'false');
+		$string_code = 'core_form_rule_contain_desc_'.($operator ? 'true' : 'false');
 		$cq_id = array_get_index($rule_data, 'comparison_question_id', 0);
 
 		if ($cq_id != 0) {
@@ -195,7 +195,7 @@ class Form_Question_Rule_Type_Contain extends Form_Question_Rule
 			$value = array_get_index($rule_data, 'value', '');
 		}
 
-		$error_str = translate($string_code, $q_asset->name, $value).' ('.translate('cms_form_'.($case_sensitive ? '' : 'not_').'case_sensitive').')';
+		$error_str = translate($string_code, $q_asset->name, $value).' ('.translate('core_form_'.($case_sensitive ? '' : 'not_').'case_sensitive').')';
 
 		return $error_str;
 
