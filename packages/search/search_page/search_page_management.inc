@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_management.inc,v 1.40 2005/05/24 05:30:51 arailean Exp $
+* $Id: search_page_management.inc,v 1.41 2005/07/20 07:03:16 tbarrett Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -38,13 +38,6 @@ class Search_Page_Management extends Asset_Management
 	function Search_Page_Management(&$pm)
 	{
 		$this->Asset_Management($pm);
-
-		$this->vars['search_status'] = Array(
-										'added'			=> '0.3',
-										'type'			=> 'serialise',
-										'default'		=> Array(),
-										'description'	=> 'Statuses that are being searched.',
-									   );
 
 		$this->vars['sis_button_text'] = Array(
 											'added'			=> '0.5',
@@ -348,6 +341,23 @@ class Search_Page_Management extends Asset_Management
 			}
 			bam('SEARCH PAGE UPGRADE COMPLETE - FROM VERSION 0.9');
 		}//end version 0.9 upgrade
+
+		if (version_compare($current_version, '0.13', '<')) {
+			bam('STARTING SEARCH PAGE UPGRADE - TO VERSION 0.13');
+			$children = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), false);
+			foreach ($children as $assetid) {
+				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$should_release_lock = (1 == $GLOBALS['SQ_SYSTEM']->am->acquireLock($assetid, 'attributes'));
+				$asset->setAttrValue('statuses', $asset->attr('search_status'));
+				$asset->saveAttributes();
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+				if ($should_release_lock) {
+					$GLOBALS['SQ_SYSTEM']->am->releaseLock($assetid, 'attributes');
+				}
+			}
+			bam('SEARCH PAGE UPGRADE COMPLETE - TO VERSION 0.13');
+		}//end version 0.13 upgrade
+
 		return true;
 
 	}//end _upgrade()

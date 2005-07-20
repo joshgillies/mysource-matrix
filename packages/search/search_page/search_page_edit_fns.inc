@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_edit_fns.inc,v 1.50 2005/06/20 04:38:26 dheppell Exp $
+* $Id: search_page_edit_fns.inc,v 1.51 2005/07/20 07:03:16 tbarrett Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine_edit_fns.inc';
 *     Edit functions for search page
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.50 $
+* @version $Revision: 1.51 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -143,90 +143,6 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 		}
 
 	}//end processRootAsset()
-
-
-	/**
-	* Paint the interface for selecting searched statuses
-	*
-	* @param object Asset				&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
-	* @param string						$category	the category we are painting for
-	*												(if blank we paint for the whole search page)
-	* @param boolean					$read_only	force read only view
-	*
-	* @return boolean
-	* @access public
-	*/
-	function paintStatus(&$asset, &$o, $prefix, $category='', $read_only=false)
-	{
-		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-		if ($read_only) {
-			$write_access = false;
-		} else {
-			$write_access = $asset->writeAccess('links');
-		}
-
-		if (empty($category)) {
-			$current = $asset->attr('search_status');
-		} else {
-			$categories = $asset->attr('categories');
-			$current = $categories[$category]['search_status'];
-		}
-
-		if ($write_access) {
-			require_once SQ_LIB_PATH.'/html_form/html_form.inc';
-			$statuses = get_constant_values('SQ_STATUS');
-
-			$options = Array();
-			foreach ($statuses as $constant => $value) {
-				$options[$value] = get_status_description($value);
-			}
-
-			combo_box($prefix.'_statuses', $options, true, $current);
-		} else {
-			if (empty($current)) {
-				echo translate('sch_page_no_status_selected');
-			} else {
-				echo '<ul>';
-				foreach ($current as $status) {
-					echo '<li>'.get_status_description($status).'</li>';
-				}
-				echo '</ul>';
-			}
-		}
-
-		return $write_access;
-
-	}//end paintStatus()
-
-
-	/**
-	* Processes the interface for selecting searched statuses
-	*
-	* @param object Asset				&$asset	the asset to which we belong
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form element
-	*
-	* @return boolean
-	* @access public
-	*/
-	function processStatus(&$asset, &$o, $prefix)
-	{
-		// need to have write access to make any changes
-		if (!$asset->writeAccess('attributes')) return false;
-
-		$statuses = Array();
-		if (isset($_POST[$prefix.'_statuses'])) {
-			foreach ($_POST[$prefix.'_statuses'] as $status) {
-				$statuses[] = $status;
-			}
-			$statuses = array_unique($statuses);
-		}
-
-		return $asset->setAttrValue('search_status', $statuses);
-
-	}//end processStatus()
 
 
 	/**
@@ -815,9 +731,9 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 				$o->closeField();
 
 				$o->openField(translate('sch_page_search_statuses'));
-					$using_default = !isset($categories[$selected]['search_status']);
+					$using_default = !isset($categories[$selected]['statuses']);
 					if ($write_access) {
-						check_box($prefix.'_default_search_status', '1', $using_default);
+						check_box($prefix.'_default_statuses', '1', $using_default);
 						echo ' '.translate('use_default').'<br />';
 					}
 					if ($using_default) {
@@ -898,7 +814,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 						$categories[$category]['name'] = $new_name;
 					}//end if category name set
 
-					$defaults = Array('root_assetid', 'search_status');
+					$defaults = Array('root_assetid', 'statuses');
 					foreach ($defaults as $default) {
 						$using_default = false;
 						if (!isset($_POST[$prefix.'_default_'.$default])) {
@@ -928,7 +844,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 									$this->processRootAsset($asset, $o, $prefix, $category);
 								break;
 
-								case 'search_status' :
+								case 'statuses' :
 									$new_value = Array();
 									if (isset($_POST[$prefix.'_statuses'])) {
 										foreach ($_POST[$prefix.'_statuses'] as $status) {

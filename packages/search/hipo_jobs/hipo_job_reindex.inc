@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_reindex.inc,v 1.16 2005/07/13 05:02:53 mmcintyre Exp $
+* $Id: hipo_job_reindex.inc,v 1.17 2005/07/20 07:03:12 tbarrett Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    schemaid	-	the ID of the schema that has been updated
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -172,11 +172,13 @@ class HIPO_Job_ReIndex extends HIPO_Job
 			unset($this->_running_vars['todo_assetids'][$assetid]);
 			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
 
-			$step_data['message'] = translate('sch_reindexing_asset', $asset->name);
-			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-			$sm->reindexAsset($asset, Array('all'));
-			$sm->reindexMetadata($asset->id);
-			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			if ($asset) {
+				$step_data['message'] = translate('sch_reindexing_asset', $asset->name);
+				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+				$sm->reindexAsset($asset, Array('all'));
+				$sm->reindexMetadata($asset->id);
+				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			}
 
 			// add this assetid to the done array
 			$this->_running_vars['done_assetids'][] = $assetid;
