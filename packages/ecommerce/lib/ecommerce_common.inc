@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_common.inc,v 1.2 2005/07/18 04:07:13 rhoward Exp $
+* $Id: ecommerce_common.inc,v 1.3 2005/07/20 05:45:12 rhoward Exp $
 *
 */
 
@@ -25,7 +25,7 @@
 * @author Robert Howard <rhoward@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
 * @author Andrei Railean <arailena@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -166,7 +166,6 @@ function getCount()
 }//end getCount()
 
 
-// TODO: Remove: @param double		$price				The price to record against that product
 /**
 * Adds an item(s) to the cart
 * If an item already exists in the cart, add the quantity to the existing quantity
@@ -175,7 +174,7 @@ function getCount()
 * @param string		$assetid	The assetid of the product to add
 * @param int		$quantity	The quantity to add
 *
-* @return boolean	indicating success
+* @return boolean	indicating whether the cart was updated
 * @access public
 */
 function addItem($assetid, $quantity=1)
@@ -227,7 +226,7 @@ function addItem($assetid, $quantity=1)
 * @param string		$assetid	The assetid of the product to remove
 * @param int		$quantity			The new quantity of this product
 *
-* @return boolean	indicating success
+* @return boolean	indicating whether the cart was updated
 * @access public
 */
 function updateItem($assetid, $quantity)
@@ -236,13 +235,12 @@ function updateItem($assetid, $quantity)
 
 	// product doesn't exist in cart, then silently redirect to addItem()
 	if (!isset($cart[$assetid])) {
-		bam('   ...Redirecting to addItem ('.$assetid.', '.$quantity.')');
-		return addItem($assetid, $quantity);// TODO: Remove trigger_localised_error('ECOM0009', E_USER_WARNING);
+		return addItem($assetid, $quantity);
 	}
 
-	// if we are not updating anything, silently return success
+	// if we are not updating anything, silently return
 	if (array_get_index($cart[$assetid], 'quantity', 0) == $quantity) {
-		return true;
+		return false;
 	}
 
 	// Qty < 0, throw an error
@@ -267,11 +265,11 @@ function updateItem($assetid, $quantity)
 * and therefore, only valid products are found in the cart (because of the
 * add() checking).
 *
-* @param string	$assetid	The assetid of the product to remove
-* @param int		$quantity		The quantity of this product to remove -
+* @param string	$assetid		The assetid of the product to remove
+* @param int	$quantity		The quantity of this product to remove -
 *								leave blank to remove all of that product
 *
-* @return boolean	indicating success
+* @return boolean	indicating whether the cart was updated
 * @access public
 */
 function removeItem($assetid, $quantity=null)
@@ -281,12 +279,10 @@ function removeItem($assetid, $quantity=null)
 	// asset doesn't exist in cart - if the quantity is zero (or ALL)
 	// then silently return, otherwise error
 	if (!isset($cart[$assetid])) {
-		if (is_null($quantity) || ($quantity == 0)) {
-			return true;
-		} else if ($quantity > 0) {
+		if ($quantity > 0) {
 			trigger_localised_error('ECOM0006', E_USER_WARNING);
-			return false;
 		}
+		return false;
 	}
 
 	// after this point we can assume that asset exists in the cart
@@ -296,10 +292,10 @@ function removeItem($assetid, $quantity=null)
 	}
 
 	// qty == 0, silently return - Qty < 0, throw an error
-	if ($quantity == 0) {
-		return true;
-	} else if ($quantity < 0) {
-		trigger_localised_error('ECOM0007', E_USER_WARNING);
+	if ($quantity <= 0) {
+		if ($quantity < 0) {
+			trigger_localised_error('ECOM0007', E_USER_WARNING);
+		}
 		return false;
 	}
 
@@ -311,6 +307,8 @@ function removeItem($assetid, $quantity=null)
 	} else {
 		$cart[$assetid]['quantity'] -= $quantity;
 	}
+
+	return true;
 
 }//end removeItem()
 
