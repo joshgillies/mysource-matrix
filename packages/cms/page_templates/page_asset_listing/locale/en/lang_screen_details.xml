@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.4 2005/06/15 01:27:06 dheppell Exp $
+* $Id: lang_screen_details.xml,v 1.5 2005/07/20 07:01:02 tbarrett Exp $
 *
 */
 -->
@@ -74,6 +74,14 @@
 				<paint_function   name="paintAssetTypes"   />
 				<process_function name="processAssetTypes" />
 			</function_call>
+		</field>
+		<field>
+			<function_call>
+				<paint_function   name="paintStatus" />
+				<process_function name="processStatus" />
+			</function_call>
+			<display_name>Asset Statuses to List</display_name>
+			<note>Assets will only be shown if their status is listed here</note>
 		</field>
 		<field attribute="num_per_page">
 			<display_name>Assets Per Page</display_name>

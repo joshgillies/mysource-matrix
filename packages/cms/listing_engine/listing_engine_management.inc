@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_management.inc,v 1.27 2005/06/30 23:20:51 tbarrett Exp $
+* $Id: listing_engine_management.inc,v 1.28 2005/07/20 07:00:53 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -52,6 +52,14 @@ class Listing_Engine_Management extends Asset_Management
 								'type'		=> 'serialise',
 								'default'	=> Array(),
 							   );
+
+		$this->vars['statuses'] = Array(
+										'added'			=> '0.8',
+										'type'			=> 'serialise',
+										'default'		=> Array(),
+										'description'	=> 'Statuses that are being searched.',
+									   );
+
 
 		$this->vars['submit_button_text'] = Array(
 												'added'		=> '0.1',

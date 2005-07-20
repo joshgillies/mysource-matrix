@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.77 2005/07/19 07:20:36 skim Exp $
+* $Id: page_asset_listing.inc,v 1.78 2005/07/20 07:01:00 tbarrett Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.77 $
+* @version $Revision: 1.78 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -368,10 +368,19 @@ class Page_Asset_Listing extends Listing_Engine
 
 		}
 
+		// Restrict by status if necessary
+		$wanted_statuses = $this->attr('statuses');
+		if (!empty($wanted_statuses) && (count($wanted_statuses) < 8)) {
+			$db =& $GLOBALS['SQ_SYSTEM']->db;
+			$ids_sql = implode(', ', array_keys($assets_to_list));
+			$statuses_sql = implode(', ', $wanted_statuses);
+			$assets_to_list = $db->getAssoc('SELECT assetid, type_code FROM sq_ast WHERE assetid IN ('.$ids_sql.') AND status IN ('.$statuses_sql.')');
+			
+		}
+
 		if ($group_by == 'number') {
 			$assets_to_list = $this->sortAssetList($assets_to_list, $sort_info);
 		}
-
 
 		return $assets_to_list;
 
