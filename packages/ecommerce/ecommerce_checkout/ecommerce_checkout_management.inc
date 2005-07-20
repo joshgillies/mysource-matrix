@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout_management.inc,v 1.1 2005/07/20 05:07:30 arailean Exp $
+* $Id: ecommerce_checkout_management.inc,v 1.2 2005/07/20 06:40:43 arailean Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -44,21 +44,21 @@ class Ecommerce_Checkout_Management extends Asset_Management
 															'type'			=> 'text',
 															'default'		=> 'Go To Confirmation',
 															'description'	=> 'Go To Confirmation Button Text',
-														  );
+														);
 
 		$this->vars['confirm_order_button_text'] = Array(
-														'added'			=> '0.1',
-														'type'			=> 'text',
-														'default'		=> 'Confirm Order',
-														'description'	=> 'Confirm Order Button Text',
-													 );
+													'added'			=> '0.1',
+													'type'			=> 'text',
+													'default'		=> 'Confirm Order',
+													'description'	=> 'Confirm Order Button Text',
+												   );
 
 		$this->vars['return_to_checkout_button_text'] = Array(
 															'added'			=> '0.1',
 															'type'			=> 'text',
 															'default'		=> 'Return To Checkout',
 															'description'	=> 'Return To Checkout Button Text',
-														  );
+														);
 
 
 	}//end constructor
