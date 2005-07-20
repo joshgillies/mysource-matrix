@@ -1,0 +1,36 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Commercial Module Licence                                |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file is not open source or freely usable and may be    |
+* | used subject to, and only in accordance with, the Squiz Commercial |
+* | Module Licence.                                                    |
+* | Please refer to http://www.squiz.net/licence for more information. |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_screen_formatting_options.xml,v 1.1 2005/07/20 05:07:31 arailean Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="Checkout Screen">
+		<field attribute="go_to_confirmation_button_text">
+			<display_name>Go to Confirmation Button Text:</display_name>
+			<note />
+		</field>
+	</section>
+	<section name="Confirmation Screen">
+		<field attribute="confirm_order_button_text">
+			<display_name>Checkout Button Text:</display_name>
+			<note />
+		</field>
+		<field attribute="return_to_checkout_button_text">
+			<display_name>Go Back Button Text:</display_name>
+			<note />
+		</field>
+	</section>
+</contents>

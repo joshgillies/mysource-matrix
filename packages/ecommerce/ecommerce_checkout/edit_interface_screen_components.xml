@@ -1,0 +1,28 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Commercial Module Licence                                |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file is not open source or freely usable and may be    |
+* | used subject to, and only in accordance with, the Squiz Commercial |
+* | Module Licence.                                                    |
+* | Please refer to http://www.squiz.net/licence for more information. |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: edit_interface_screen_components.xml,v 1.1 2005/07/20 05:07:30 arailean Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="Delivery Methods" write_access="write:links">
+		<field>
+			<function_call>
+				<paint_function   name="paintDeliveryMethod"  />
+				<process_function name="processDeliveryMethod" />
+			</function_call>
+		</field>
+	</section>
+</contents>
