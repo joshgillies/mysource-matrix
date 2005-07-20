@@ -1,0 +1,223 @@
+<?php
+/**
+* +--------------------------------------------------------------------+
+* | Squiz.net Commercial Module Licence                                |
+* +--------------------------------------------------------------------+
+* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
+* +--------------------------------------------------------------------+
+* | This source file is not open source or freely usable and may be    |
+* | used subject to, and only in accordance with, the Squiz Commercial |
+* | Module Licence.                                                    |
+* | Please refer to http://www.squiz.net/licence for more information. |
+* +--------------------------------------------------------------------+
+*
+* $Id: ecommerce_delivery_method.inc,v 1.1 2005/07/20 01:17:56 arailean Exp $
+*
+*/
+
+
+require_once SQ_INCLUDE_PATH.'/asset.inc';
+
+/**
+* Ecommerce_Delivery_Method
+*
+* Purpose
+*	Base class for all ecommerce delivery methods
+*	Delivery methods have the ability to paint/process their interface,
+*	process the delivery business logic and report on the status of processing
+*	The processing of interface is decoupled from execution of a delivery
+*	by allowing the get/set operations on the state information
+*
+* @author  Andrei Railean <arailean@squiz.net>
+* @version $Revision: 1.1 $
+* @package MySource_Matrix_Packages
+* @subpackage ecommerce
+*/
+class Ecommerce_Delivery_Method extends Asset
+{
+
+	/**
+	* Container for state information
+	*/
+	var $state;
+
+
+	/**
+	* Constructor
+	*
+	* @param int	$assetid	the asset id to be loaded
+	*
+	*/
+	function Ecommerce_Delivery_Method($assetid=0)
+	{
+		$this->state = Array();
+		$this->Asset($assetid);
+
+	}//end constructor
+
+
+	/**
+	* Paint Input Interface
+	*
+	* Produce an interface for obtaining the values required by this delivery method
+	*
+	* @return string	html representation of the interface
+	* @access public
+	*/
+	function getInputInterface() {
+		return '';
+
+	}//end paintInputInterface()
+
+
+	/**
+	* Process Input
+	*
+	* The interface painted by paintInputInterface is processed here to populate the state
+	* of this delivery method. After successfully processing the input the delivery method
+	* is ready to process itself.
+	*
+	* @return boolean	whether the input is valid or not
+	* @access public
+	*/
+	function processInputInterface() {
+		$status = $this->validateState();
+		return $status;
+
+	}//end processInput()
+
+
+	/**
+	* Get State
+	*
+	* Get the complete session state of this asset. This state can later be used to pass to setState
+	* in order to complete the processing. getState can be called any time, but is most effective
+	* when called when the state is set - after either setState or processInput was called. If state
+	* is not set will return an empty array, which is a valid state.
+	*
+	* @see Ecommerce_Delivery_Method::setState()
+	* @return
+	* @access public
+	*/
+	function getState() {
+		return $this->state;
+
+	}//end getState()
+
+
+	/**
+	* Set State
+	*
+	* Allows this asset's state to be re-created from the state container
+	* Accepts information produced by getState
+	*
+	* @see Ecommerce_Delivery_Method::getState()
+	*
+	* @param $state		Array	State information
+	* @return
+	* @access public
+	*/
+	function setState($state=Array()) {
+		if (is_array($state)) {
+			$this->state = $state;
+		}
+
+	}//end getState()
+
+
+	/**
+	* Validate State
+	*
+	* Determines whether the state is valid after using setState or processInput
+	* Positive response means that all the input is valid and the delivery
+	* is ready to be processed.
+	*
+	* @return boolean	whether delivery is ready to be processed
+	* @access public
+	*/
+	function validateState() {
+		return false;
+
+	}//end validateState()
+
+
+	/**
+	* Process Delivery
+	*
+	* This function contains the business logic for processing the delivery
+	* Positive output - delivery was processed successfully
+	* Negative output - delivery Processing failed and can be retried later. Negative outcome
+	* should be the result of not being able to perform the delivery, not because the input is
+	* incorrect. Correctness of input should be ensured by validateState()
+	*
+	* @return boolean	whether delivery was processed
+	* @access public
+	*/
+	function processDelivery() {
+		return false;
+
+	}//end processDelivery()
+
+
+	/**
+	* Get Textual Representation of delivery information (read-only)
+	*
+	* This information is used in receipts and order summaries
+	*
+	* @return string	formatted summary
+	* @access public
+	*/
+	function getSummary()
+	{
+		return '';
+
+	}//end getSummary()
+
+
+	/**
+	* Returns name of the asset
+	*
+	* @param boolean	$short_name	whether or not we are after the short name or the full name
+	*
+	* @see Asset::_getName()
+	* @access private
+	*/
+	function _getName($short_name=false)
+	{
+		return (($short_name) ? $this->attr('short_name') : $this->attr('name'));
+
+	}//end _getName()
+
+
+	/**
+	* Perform any pre-validation required during the creation of this asset
+	*
+	* Pages ensure a name and short_name has been set before they are created
+	*
+	* @param array	&$link	information used to create the initial link
+	*
+	* @access private
+	* @return boolean
+	*/
+	function _preCreateCheck(&$link)
+	{
+		if (!parent::_preCreateCheck($link)) return false;
+
+		$name = trim($this->attr('name'));
+		if ($name == '') {
+			trigger_localised_error('CORE0083', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
+			return false;
+		}
+
+		// if the short name hasn't been set then short and long names are the same to begin with
+		if (trim($this->attr('short_name')) == '') {
+			$this->setAttrValue('short_name', $name);
+		}
+
+		return true;
+
+	}//end _preCreateCheck()
+
+
+}//end class
+?>
