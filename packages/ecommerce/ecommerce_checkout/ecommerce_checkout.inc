@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.2 2005/07/20 06:41:37 arailean Exp $
+* $Id: ecommerce_checkout.inc,v 1.3 2005/07/20 06:44:12 arailean Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -189,7 +189,8 @@ class Ecommerce_Checkout extends Page
 	* @return void
 	* @access public
 	*/
-	function _printContext() {
+	function _printContext()
+	{
 		$context = $this->print_context;
 
 		// if no context is set, display the first one in the list
@@ -447,7 +448,7 @@ class Ecommerce_Checkout extends Page
 	{
 		// TODO: translate
 		$keywords['delivery_selector']			= 'Delivery Method Selector';
-		$keywords['delivery_form'] 			= 'Delivery Method Form Contents';
+		$keywords['delivery_form'] 				= 'Delivery Method Form Contents';
 		$keywords['go_to_confirmation_button']	= 'Go To Confirmation Button';
 
 		return $keywords;
@@ -562,7 +563,8 @@ class Ecommerce_Checkout extends Page
 	* @return
 	* @access public
 	*/
-	function getDeliveryFormKeywordReplacement() {
+	function getDeliveryFormKeywordReplacement()
+	{
 
 		$this->_registerFormRequirement();
 		ob_start();
