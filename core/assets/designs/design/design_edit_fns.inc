@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.90 2005/05/17 23:24:04 lwright Exp $
+* $Id: design_edit_fns.inc,v 1.90.2.1 2005/07/20 20:07:59 gnoel Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.90 $
+* @version $Revision: 1.90.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -498,6 +498,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 											'attributes'		=> Array ('id_name' => $element['attributes']['id_name']),
 											'operation'			=> 'print',
 											'self_terminating'	=> 1,
+											'cache' => (isset($element['attributes']['cache']) && in_array($element['attributes']['cache'], Array('yes', '1', 'true'))) ? 1 : 0,
 										);
 					break;
 				// otherwise we just remove it as there is nothing for us to do with it anymore
