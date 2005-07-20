@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.10 2005/05/31 00:45:35 tbarrett Exp $
+* $Id: cache_manager.inc,v 1.10.2.1 2005/07/20 19:58:55 gnoel Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once 'Cache.php';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.10.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -145,23 +145,8 @@ class Cache_Manager extends Asset
 	*/
 	function loadFromCache(&$asset, $key='')
 	{
-		if (SQ_ROLLBACK_VIEW) return '';
-		if (isset($_REQUEST['no_cache']) && $_REQUEST['no_cache']) return '';
-
 		assert_is_a($asset, 'asset', translate('cannot_load_cache_of_non_asset'));
-		if (!$this->cacheEnabled($asset->type())) return '';
-
-		$suffix = $this->_getCacheKey($asset, $key);
-		if (empty($suffix)) return '';
-		$assetid_code = md5($asset->id);
-		$cacheid_code = $this->cache->generateID($asset->id.$key.$suffix);
-		$url_code = $this->cache->generateID(current_url());
-		$final_key = $assetid_code.':'.$cacheid_code.':'.$url_code;
-
-		$group = $this->getAssetHash($assetid_code).$this->getAssetHash($cacheid_code);
-		$contents = $this->cache->get($final_key, $group);
-
-		return ($contents) ? $contents : '';
+		return $this->loadFromCacheNoRef($asset->id, $asset->type(), $key);
 
 	}//end loadFromCache()
 
@@ -179,22 +164,75 @@ class Cache_Manager extends Asset
 	*/
 	function saveToCache(&$asset, $key, $contents)
 	{
-		if (SQ_ROLLBACK_VIEW) return false;
-		if (isset($_REQUEST['no_cache']) && $_REQUEST['no_cache']) return false;
-
 		assert_is_a($asset, 'asset', translate('cannot_save_cache_of_non_asset'));
-		if (!$this->cacheEnabled($asset->type())) return false;
+		return $this->saveToCacheNoRef($asset->id, $asset->type(), $key, $contents);
 
-		$suffix = $this->_getCacheKey($asset, $key);
-		if (empty($suffix)) return false;
-		$assetid_code = md5($asset->id);
-		$cacheid_code = $this->cache->generateID($asset->id.$key.$suffix);
+	}//end saveToCache()
+
+
+	/**
+	* Loads the contents from a cache file for the specified asset
+	* and unique key
+	*
+	* @param string 	$assetid 	id of the the asset that owns the cache file
+	* @param string 	$asset_type 	type_code of that asset
+	* @param string 	$key		the unique identifer for the cache file
+	*
+	* @return string or false if no cache version exist
+	* @access public
+	*/
+	function loadFromCacheNoRef($assetid, $asset_type, $key='')
+	{
+		if (SQ_ROLLBACK_VIEW) return '';
+		if (isset($_REQUEST['no_cache']) && $_REQUEST['no_cache']) return '';
+
+		if (!$this->cacheEnabled($asset_type)) return '';
+
+		$suffix = $this->_getCacheKey($assetid, $key);
+		if (empty($suffix)) return '';
+		$assetid_code = md5($assetid);
+		$cacheid_code = $this->cache->generateID($assetid.$key.$suffix);
 		$url_code = $this->cache->generateID(current_url());
 		$final_key = $assetid_code.':'.$cacheid_code.':'.$url_code;
 
 		$group = $this->getAssetHash($assetid_code).$this->getAssetHash($cacheid_code);
-		$expiry = time() + $this->getExpiry($asset->type());
+		$contents = $this->cache->get($final_key, $group);
 
+		return ($contents) ? $contents : '';
+
+	}//end loadFromCache()
+
+
+	/**
+	* Saves the specified contents to the cache, which will be identified
+	* by the specfied asset and key
+	*
+	* @param string			$assetid 	id of the the asset that owns the cache
+	* file
+	* @param string			$asset_type 	type_code of that asset
+	* @param string			$key		the unique key for this cache entry
+	* @param string			$contents 	the contents to save to cache
+	*
+	* @return boolean
+	* @access public
+	*/
+	function saveToCacheNoRef($assetid, $asset_type, $key, $contents)
+	{
+		if (SQ_ROLLBACK_VIEW) return false;
+		if (isset($_REQUEST['no_cache']) && $_REQUEST['no_cache']) return false;
+
+		if (!$this->cacheEnabled($asset_type)) return false;
+
+		$suffix = $this->_getCacheKey($assetid, $key);
+		if (empty($suffix)) return false;
+		$assetid_code = md5($assetid);
+		$cacheid_code = $this->cache->generateID($assetid.$key.$suffix);
+		$url_code = $this->cache->generateID(current_url());
+		$final_key = $assetid_code.':'.$cacheid_code.':'.$url_code;
+
+		$group = $this->getAssetHash($assetid_code).$this->getAssetHash($cacheid_code);
+		$expiry = time() + $this->getExpiry($asset_type);
+		
 		return $this->cache->save($final_key, $contents, $expiry, $group);
 
 	}//end saveToCache()
@@ -206,13 +244,13 @@ class Cache_Manager extends Asset
 	* Takes logged in status, permissions and user groups in account
 	* Also takes the type of asset being cached into account (standard or listing based)
 	*
-	* @param object	Asset 	&$asset		the asset that identifies this cache entry
+	* @param string $assetid	the id of asset that identifies this cache entry
 	* @param string	$key	the cache key passed by the asset being cached
 	*
 	* @return string
 	* @access private
 	*/
-	function _getCacheKey(&$asset, $key)
+	function _getCacheKey($assetid, $key)
 	{
 		$cache_key = '';
 		$current_user = &$GLOBALS['SQ_SYSTEM']->user;
@@ -233,7 +271,7 @@ class Cache_Manager extends Asset
 					// note that we dont use the cache in rollback view mode so we dont have
 					// to run this query through the rollback functions
 					$sql = 'SELECT MAX(permission) FROM sq_ast_perm
-							WHERE assetid = '.$db->quote($asset->id).'
+							WHERE assetid = '.$db->quote($assetid).'
 							  AND userid IN ('.implode(',', $userids).')
 							  AND granted = 1';
 
