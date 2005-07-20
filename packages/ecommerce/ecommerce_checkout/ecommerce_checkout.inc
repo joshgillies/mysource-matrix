@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.1 2005/07/20 05:07:30 arailean Exp $
+* $Id: ecommerce_checkout.inc,v 1.2 2005/07/20 06:41:37 arailean Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -151,16 +151,27 @@ class Ecommerce_Checkout extends Page
 				$delivery_method_id = array_get_index($_REQUEST, 'sq_delivery_method_id');
 				if (!is_null($delivery_method_id)) {
 					$delivery_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($delivery_method_id);
-					$delivery_asset->processInputInterface();
-					$temp_state = $delivery_asset->getState();
-					bam($temp_state);
+					$delivery_status = $delivery_asset->processInputInterface();
+					$delivery_state = $delivery_asset->getState();
+					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($delivery_asset);
+
+					// TODO: Save Delivery State into the session
+					$this->_tmp['delivery_state'] = $delivery_state;
+
+					if (!$delivery_status && false) {
+						$this->print_context = 'content';
+					} else {
+						$this->print_context = 'confirmation';
+					}
 				}
 			break;
 
 			case 'return_to_checkout':
+				$this->print_context = 'content';
 			break;
 
 			case 'confirm_order':
+				$this->print_context = 'receipt';
 			break;
 
 		}
@@ -175,7 +186,7 @@ class Ecommerce_Checkout extends Page
 	*
 	*
 	*
-	* @return
+	* @return void
 	* @access public
 	*/
 	function _printContext() {
@@ -487,10 +498,10 @@ class Ecommerce_Checkout extends Page
 	* @access public
 	*/
 	function getAvailableKeywords() {
-		// TODO: Enable getAvailableKeywords()
-		$keywords = Array();
-//		$keywords = parent::getAvailableKeywords();
+		$keywords = parent::getAvailableKeywords();
+
 		return $keywords;
+
 	}
 
 
@@ -623,6 +634,18 @@ class Ecommerce_Checkout extends Page
 	function getCheckoutSummaryKeywordReplacement()
 	{
 		echo "Checkout Summary Replacement";
+
+	}//end getCheckoutSummaryKeywordReplacement()
+
+
+	/**
+	* TODO: function getCheckoutSummaryKeywordReplacement
+	*
+	*
+	*/
+	function getReceiptSummaryKeywordReplacement()
+	{
+		echo "Receipt Summary Replacement";
 
 	}//end getCheckoutSummaryKeywordReplacement()
 
