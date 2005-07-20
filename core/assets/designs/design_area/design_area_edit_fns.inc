@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_edit_fns.inc,v 1.49 2005/07/04 04:41:02 tbarrett Exp $
+* $Id: design_area_edit_fns.inc,v 1.50 2005/07/20 23:51:48 dheppell Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.49 $
+* @version $Revision: 1.50 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -712,7 +712,9 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 				if (empty($element['attributes']['var'])) {
 					// we don't want recursion, so only print if the id_obj is not the asset
 					if ($id_obj !== $asset) {
-						if (!$id_obj->printArea($design)) return false;
+						if (!$id_obj->printCachedArea($design, $element['cache'])) {
+							return false;
+						}
 					}
 				} else {
 					$args = $element['attributes'];

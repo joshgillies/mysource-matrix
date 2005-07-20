@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.93 2005/07/04 06:21:48 tbarrett Exp $
+* $Id: design_edit_fns.inc,v 1.94 2005/07/20 23:51:48 dheppell Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.93 $
+* @version $Revision: 1.94 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -496,6 +496,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 									'attributes'		=> Array ('id_name' => $element['attributes']['id_name']),
 									'operation'			=> 'print',
 									'self_terminating'	=> 1,
+									'cache'				=> (isset($element['attributes']['cache']) && in_array($element['attributes']['cache'], Array('yes', '1', 'true'))) ? 1 : 0,
 								);
 
 		}//end foreach
