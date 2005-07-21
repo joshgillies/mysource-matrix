@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container.inc,v 1.27 2005/06/24 01:11:42 dheppell Exp $
+* $Id: bodycopy_container.inc,v 1.28 2005/07/21 00:45:12 gsherwood Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -63,7 +63,7 @@ class Bodycopy_Container extends Asset
 	* @return mixed int or false
 	* @access public
 	*/
-	function create(&$link, $bc_data)
+	function create(&$link, $bc_data=Array())
 	{
 		// store this data for later use during the create process in _createAdditional()
 		$this->_tmp['bodycopy_create_data'] = $bc_data;
