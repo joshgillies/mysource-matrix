@@ -11,9 +11,13 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_common.inc,v 1.3 2005/07/20 05:45:12 rhoward Exp $
+* $Id: ecommerce_common.inc,v 1.4 2005/07/21 06:10:29 rhoward Exp $
 *
 */
+
+
+define('SQ_CART', 'sq_cart_contents');
+
 
 /*
 * Ecommerce Package Library Functions
@@ -25,22 +29,10 @@
 * @author Robert Howard <rhoward@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
 * @author Andrei Railean <arailena@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
-
-/**
-*	Structure of SESSION vars
-	$_SESSION[SQ_CART] = Array(
-							'id'	=> Array(
-										'quantity'	=> int,
-										'price'		=> int,
-									   ),
-						   );
-*/
-
-define('SQ_CART', 'sq_cart_contents');
 
 
 /**
@@ -51,7 +43,7 @@ define('SQ_CART', 'sq_cart_contents');
 *				(-1 is reserved for an error condition)
 * @access public
 */
-function initialiseCart()
+function initialise_cart()
 {
 	$ret_val = 0;
 
@@ -62,7 +54,7 @@ function initialiseCart()
 
 	return $ret_val;
 
-}//end initialiseCart()
+}//end initialise_cart()
 
 
 /**
@@ -71,12 +63,12 @@ function initialiseCart()
 * @return boolean	always true (false is reserved for an error condition)
 * @access public
 */
-function clearCart()
+function clear_cart()
 {
 	unset($_SESSION[SQ_CART]);
 	return true;
 
-}//end clearCart()
+}//end clear_cart()
 
 
 /**
@@ -92,7 +84,7 @@ function clearCart()
 * @return Array(string=>mixed)
 * @access public
 */
-function &getItem($assetid)
+function &get_item($assetid)
 {
 	if (!empty($_SESSION[SQ_CART][$assetid])) {
 		return $_SESSION[SQ_CART][$assetid];
@@ -100,7 +92,7 @@ function &getItem($assetid)
 		return false;
 	}
 
-}//end getItem()
+}//end get_item()
 
 
 /**
@@ -116,13 +108,32 @@ function &getItem($assetid)
 * @return Array(mixed)
 * @access public
 */
-function &getCart()
+function &get_cart()
 {
 	if (!isset($_SESSION[SQ_CART])) initialiseCart();
 
 	return $_SESSION[SQ_CART];
 
-}//end getCart()
+}//end get_cart()
+
+
+/**
+* Takes a cart array and sets it as the current cart
+*
+* @param Array(mixed)	$cart	Cart array
+*
+* @return boolean	always true, false reserved for error conditions
+* @access public
+*/
+function restore_cart($cart)
+{
+	assert_type($cart, 'array');
+
+	$_SESSION[SQ_CART] = $cart;
+
+	return true;
+
+}//end restore_cart()
 
 
 /**
@@ -131,9 +142,9 @@ function &getCart()
 * @return double
 * @access public
 */
-function getTotal()
+function get_total()
 {
-	$cart =& getCart();
+	$cart =& get_cart();
 	$total = 0.0;
 	foreach ($cart as $assetid => $details) {
 		// -1 == value not known
@@ -144,7 +155,7 @@ function getTotal()
 
 	return $total;
 
-}//end getTotal()
+}//end get_total()
 
 
 /**
@@ -153,9 +164,9 @@ function getTotal()
 * @return double
 * @access public
 */
-function getCount()
+function get_count()
 {
-	$cart =& getCart();
+	$cart =& get_cart();
 	$count = 0;
 	foreach ($cart as $product_assetid => $details) {
 		$count += $details['quantity'];
@@ -163,7 +174,7 @@ function getCount()
 
 	return $count;
 
-}//end getCount()
+}//end get_count()
 
 
 /**
@@ -177,7 +188,7 @@ function getCount()
 * @return boolean	indicating whether the cart was updated
 * @access public
 */
-function addItem($assetid, $quantity=1)
+function add_item($assetid, $quantity=1)
 {
 	// quantity is equal to or less than zero, throw a hissy fit
 	if ($quantity <= 0) {
@@ -195,7 +206,7 @@ function addItem($assetid, $quantity=1)
 		return false;
 	}
 
-	$cart =& getCart();
+	$cart =& get_cart();
 	if (!isset($cart[$assetid])) {
 		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if ($asset) {
@@ -213,7 +224,7 @@ function addItem($assetid, $quantity=1)
 
 	return true;
 
-}//end addItem()
+}//end add_item()
 
 
 /**
@@ -229,13 +240,13 @@ function addItem($assetid, $quantity=1)
 * @return boolean	indicating whether the cart was updated
 * @access public
 */
-function updateItem($assetid, $quantity)
+function update_item($assetid, $quantity)
 {
-	$cart =& getCart();
+	$cart =& get_cart();
 
 	// product doesn't exist in cart, then silently redirect to addItem()
 	if (!isset($cart[$assetid])) {
-		return addItem($assetid, $quantity);
+		return add_item($assetid, $quantity);
 	}
 
 	// if we are not updating anything, silently return
@@ -244,18 +255,21 @@ function updateItem($assetid, $quantity)
 	}
 
 	// Qty < 0, throw an error
-	if ($quantity <= 0) {
+	if ($quantity < 0) {
 		trigger_localised_error('ECOM0010', E_USER_WARNING);
 		return false;
 	} else if ($quantity == 0) {
-		removeItem($assetid);
+		remove_item($assetid);
+	} else if (isset($cart[$assetid]['quantity']) && $cart[$assetid]['quantity'] == $quantity) {
+		// not updating, so fail
+		return false;
 	} else {
 		$cart[$assetid]['quantity'] = $quantity;
 	}
 
 	return true;
 
-}//end updateItem()
+}//end update_item()
 
 
 /**
@@ -272,9 +286,9 @@ function updateItem($assetid, $quantity)
 * @return boolean	indicating whether the cart was updated
 * @access public
 */
-function removeItem($assetid, $quantity=null)
+function remove_item($assetid, $quantity=null)
 {
-	$cart =& getCart();
+	$cart =& get_cart();
 
 	// asset doesn't exist in cart - if the quantity is zero (or ALL)
 	// then silently return, otherwise error
@@ -310,7 +324,7 @@ function removeItem($assetid, $quantity=null)
 
 	return true;
 
-}//end removeItem()
+}//end remove_item()
 
 
 /**
@@ -319,17 +333,17 @@ function removeItem($assetid, $quantity=null)
 *
 *
 */
-function hashCart()
+function hash_cart()
 {
 	// don't grab by reference, because we're sorting and mucking around with the array
-	$cart = getCart();
+	$cart = get_cart();
 
 	ksort($cart);
 	$hash = md5(serialize($cart));
 
 	return $hash;
 
-}//end hashCart()
+}//end hash_cart()
 
 
 ?>
