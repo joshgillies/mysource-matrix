@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.322.2.8 2005/07/21 12:26:51 brobertson Exp $
+* $Id: asset_manager.inc,v 1.322.2.9 2005/07/21 12:41:00 brobertson Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.322.2.8 $
+* @version $Revision: 1.322.2.9 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2983,7 +2983,7 @@ class Asset_Manager extends MySource_Object
 			$lock_info = @$this->getLockInfo($major->id, 'links');
 			$parent_was_locked = !empty($lock_info);
 			if (!$this->acquireLock($major->id, 'links')) {
-				trigger_localised_error('CORE0012', $major->name, E_USER_WARNING);
+				trigger_localised_error('CORE0012', E_USER_WARNING, $major->name);
 				return 0;
 			}
 		}
