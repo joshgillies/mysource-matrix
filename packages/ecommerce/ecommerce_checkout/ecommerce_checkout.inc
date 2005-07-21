@@ -11,12 +11,13 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.4 2005/07/20 07:29:37 arailean Exp $
+* $Id: ecommerce_checkout.inc,v 1.5 2005/07/21 04:55:50 arailean Exp $
 *
 */
 
 
 require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
+require_once SQ_PACKAGES_PATH.'/ecommerce/lib/ecommerce_common.inc';
 
 /**
 * Ecommerce_Checkout
@@ -25,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -41,6 +42,27 @@ class Ecommerce_Checkout extends Page
 	*/
 	var $print_context;
 
+
+
+	/**
+	* TODO: function comment: Ecommerce_Checkout
+	*
+	*
+	*
+	* @param
+	*
+	* @return void
+	* @access public
+	*/
+	function Ecommerce_Checkout($assetid=0)
+	{
+		// initialise the temporary order container so as to avoid extra checking
+		if (!isset($_SESSION['SQ_TEMP_ORDER'])) {
+			$_SESSION['SQ_TEMP_ORDER'] = Array();
+		}
+		$this->Page($assetid);
+
+	}//end constructor
 
 	/**
 	* Returns a list of available contexts
@@ -144,30 +166,55 @@ class Ecommerce_Checkout extends Page
 		}
 
 		$action = key($request_action);
+		$tmp_order = array_get_index($_SESSION, 'SQ_TEMP_ORDER', Array());
+
+		$success = true;
 
 		switch ($action) {
 			case 'go_to_confirmation':
+
 				$delivery_method_id = array_get_index($_REQUEST, 'sq_delivery_method_id');
 				if (!is_null($delivery_method_id)) {
 					$this->_tmp['delivery_method_id'] = $delivery_method_id;
 
 					$delivery_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($delivery_method_id);
-					$delivery_status = $delivery_asset->processInputInterface();
-					$delivery_state = $delivery_asset->getState();
-					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($delivery_asset);
-
-					// TODO: Save Delivery State into the session
-					$this->_tmp['delivery_state'] = $delivery_state;
-
-					if (!$delivery_status) {
-						$this->print_context = 'content';
+					if (!empty($delivery_asset)) {
+						$delivery_status = $delivery_asset->processInputInterface();
+						$delivery_state = $delivery_asset->getState();
+						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($delivery_asset);
 					} else {
-						$this->print_context = 'confirmation';
-						// create a temporary order
-						// move cart contents into the order
-						// put delivery info into the order
+						$this->print_context = 'content';
+						return;
+					}
+
+					// create a temporary order
+					$tmp_order['delivery_assetid']	= $delivery_method_id;
+					$tmp_order['delivery_state']	= $delivery_state;
+
+					if (!$delivery_status && false){
+						// TODO: localise error
+						trigger_error('Delivery Information processing failure');
+						$success = false;
 					}
 				}
+
+				if (empty($_SESSION['SQ_CART']) && false) {
+					// TODO: localise error
+					trigger_error('Your Cart is Empty, cannot checkout');
+					$success = false;
+				}
+
+				if ($success) {
+					// move cart contents into the order
+					$tmp_order['cart_contents'] = $_SESSION['SQ_CART'];
+					$_SESSION['SQ_CART'] = Array();
+
+					$this->print_context = 'confirmation';
+				} else {
+					$this->print_context = 'content';
+				}
+
+				$_SESSION['SQ_TEMP_ORDER'] = $tmp_order;
 			break;
 
 			case 'return_to_checkout':
@@ -529,7 +576,8 @@ class Ecommerce_Checkout extends Page
 			$selection_contents[$assetid] = $asset_info['name'];
 		}
 
-		$active_delivery_method = array_get_index($this->_tmp, 'delivery_method_id');
+		reset($selection_contents);
+		$active_delivery_method = array_get_index($_SESSION['SQ_TEMP_ORDER'], 'delivery_assetid', key($selection_contents));
 
 		$this->_registerFormRequirement();
 		ob_start();
@@ -571,7 +619,7 @@ class Ecommerce_Checkout extends Page
 	function getDeliveryFormKeywordReplacement()
 	{
 
-		$active_delivery_method = array_get_index($this->_tmp, 'delivery_method_id');
+		$active_delivery_method = array_get_index($_SESSION['SQ_TEMP_ORDER'], 'delivery_assetid');
 
 		$this->_registerFormRequirement();
 		ob_start();
@@ -653,6 +701,13 @@ class Ecommerce_Checkout extends Page
 	{
 		echo "Checkout Summary Replacement";
 
+		$active_delivery_method = array_get_index($_SESSION['SQ_TEMP_ORDER'], 'delivery_assetid');
+		$delivery_asset_state = array_get_index($_SESSION['SQ_TEMP_ORDER'], 'delivery_state');
+		$delivery_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($one_assetid);
+
+		echo "Delivery Method Summary\n";
+		echo $delivery_asset->getReceipt();
+
 	}//end getCheckoutSummaryKeywordReplacement()
 
 
@@ -663,7 +718,14 @@ class Ecommerce_Checkout extends Page
 	*/
 	function getReceiptSummaryKeywordReplacement()
 	{
-		echo "Receipt Summary Replacement";
+		echo "Receipt Summary Replacement\n";
+
+		$active_delivery_method = array_get_index($_SESSION['SQ_TEMP_ORDER'], 'delivery_assetid');
+		$delivery_asset_state = array_get_index($_SESSION['SQ_TEMP_ORDER'], 'delivery_state');
+		$delivery_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($one_assetid);
+
+		echo "Delivery Method Receipt\n";
+		echo $delivery_asset->getReceipt();
 
 	}//end getCheckoutSummaryKeywordReplacement()
 
