@@ -16,7 +16,7 @@
 -- | licence.                                                           |
 -- +--------------------------------------------------------------------+
 --
--- $Id: pgsql_functions.sql,v 1.1 2005/04/06 23:15:18 mmcintyre Exp $
+-- $Id: pgsql_functions.sql,v 1.1.2.1 2005/07/21 01:19:29 mmcintyre Exp $
 -- @author Marc McIntyre <mmcintyre@squiz.net>
 
 -- creates a function that grants access to the secondary user.
@@ -72,4 +72,32 @@ BEGIN
 END;
 ' language plpgsql;
 
+-- splits the specified url into its root url components out to the specified url
+CREATE OR REPLACE FUNCTION get_lineage_from_url(VARCHAR) RETURNS SETOF VARCHAR AS '
+DECLARE
+	treeids RECORD;
+	offset int;
+	url ALIAS FOR $1;
+	next_url VARCHAR;
+	concat_url VARCHAR;
+BEGIN
+	offset := 1;
+	concat_url := '''';
+	LOOP
+		next_url := split_part(url, ''/'', offset);
+		IF next_url = '''' THEN
+			EXIT;
+		END IF;
+		concat_url := concat_url;
+		IF concat_url != '''' THEN
+			concat_url := concat_url || ''/'';
+		END IF;
+		concat_url := concat_url || next_url;
+
+		RETURN next concat_url;
+		offset := offset + 1;
+	END LOOP;
+	RETURN;
+END;
+' LANGUAGE plpgsql;
 
