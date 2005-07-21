@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.22.2.1 2005/07/20 13:55:16 gnoel Exp $
+* $Id: tables.xml,v 1.22.2.2 2005/07/21 12:37:34 brobertson Exp $
 *
 */
 -->
@@ -825,7 +825,7 @@
 				<column name="userid" allow_null="0">
 					<type>VARCHAR(255)</type>
 					<type_variations />
-					<default>0</default>
+					<default>'0'</default>
 					<description />
 				</column>
 				<column name="type_code" allow_null="1">
@@ -1495,7 +1495,7 @@
 				<column name="fileid" allow_null="0">
 					<type>VARCHAR(15)</type>
 					<type_variations />>
-					<default>''</default>
+					<default/>
 					<description />
 				</column>
 			</columns>
