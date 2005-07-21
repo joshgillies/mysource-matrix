@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager.inc,v 1.23 2005/05/11 06:05:05 lwright Exp $
+* $Id: trigger_manager.inc,v 1.23.2.1 2005/07/21 20:14:33 brobertson Exp $
 *
 */
 
@@ -51,7 +51,7 @@ require_once 'hash.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.23.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -212,7 +212,7 @@ class Trigger_Manager extends Asset
 
 		// include the event asset
 		if (!$this->_loadComponent($event_name)) {
-			trigger_localised_error('CORE0219', $event_name);
+			trigger_localised_error('CORE0219', E_USER_WARNING, $event_name);
 			return false;
 		}
 
