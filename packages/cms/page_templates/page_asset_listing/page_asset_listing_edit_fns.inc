@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing_edit_fns.inc,v 1.24 2005/05/11 06:07:32 lwright Exp $
+* $Id: page_asset_listing_edit_fns.inc,v 1.25 2005/07/21 07:41:46 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -117,7 +117,9 @@ class Page_Asset_Listing_Edit_Fns extends Listing_Engine_Edit_Fns
 	*/
 	function processRootNode(&$asset, &$o, $prefix)
 	{
-		if (!isset($_POST[$prefix.'_root_nodes'])) return false;
+		if (!isset($_POST[$prefix.'_root_nodes'])) {
+			return false;
+		}
 		$new_root_nodes = $_POST[$prefix.'_root_nodes'];
 		foreach ($new_root_nodes as $new_root_node) {
 			$new_root_node_ids[] = $new_root_node['assetid'];
@@ -142,7 +144,9 @@ class Page_Asset_Listing_Edit_Fns extends Listing_Engine_Edit_Fns
 		foreach ($new_root_nodes as $index => $node) {
 			// first test to see if the node already exists -- if so, ignore it
 			foreach ($root_links as $root_link) {
-				if ($root_link['minorid'] == $node['assetid']) continue 2;
+				if ($root_link['minorid'] == $node['assetid']) {
+					continue 2;
+				}
 			}
 			// otherwise, create the appropriate notice link
 			if ($node['assetid'] != 0) {

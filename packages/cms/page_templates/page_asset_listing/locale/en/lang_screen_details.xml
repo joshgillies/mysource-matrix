@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.5 2005/07/20 07:01:02 tbarrett Exp $
+* $Id: lang_screen_details.xml,v 1.6 2005/07/21 07:41:48 lwright Exp $
 *
 */
 -->
@@ -105,9 +105,13 @@
 			<note />
 		</field>
 	</section>
-	<section name="Submit Button">
+	<section name="Button Text">
 		<field attribute="submit_button_text">
 				<display_name>Submit Button Text</display_name>
+				<note />
+		</field>
+		<field attribute="reset_button_text">
+				<display_name>Reset Button Text</display_name>
 				<note />
 		</field>
 	</section>

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_whats_new_edit_fns.inc,v 1.7 2005/05/11 06:07:33 lwright Exp $
+* $Id: page_whats_new_edit_fns.inc,v 1.8 2005/07/21 07:41:54 lwright Exp $
 *
 */
 
@@ -26,12 +26,13 @@ require_once dirname(__FILE__).'/../../page_templates/page_asset_listing/page_as
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
 class Page_Whats_New_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 {
+
 
 	/**
 	* Constructor
@@ -61,7 +62,9 @@ class Page_Whats_New_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 		if (empty($ranges)) {
 			echo translate('cms_whats_new_no_ranges');
 		} else {
-			foreach ($ranges as $id => $info) $options[$id] = $info['name'];
+			foreach ($ranges as $id => $info) {
+				$options[$id] = $info['name'];
+			}
 			$options = array_reverse($options);
 			$options[] = '-- '.translate('please_select').' --';
 			$options = array_reverse($options);
@@ -170,15 +173,19 @@ class Page_Whats_New_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 		foreach (Array('oldest_date', 'newest_date') as $type) {
 
 			$o->openField(ucwords(str_replace('_', ' ', $type)));
-				$datetime = new Asset_Attribute_DateTime();
+				$datetime =& new Asset_Attribute_DateTime();
 
 				// set some params for the datetime field so that it paints properly
 				$datetime->_edit_params['allow_period'] = true;
 				$datetime->_edit_params['use_picker'] = true;
 				$datetime->_edit_params['show'] = Array('y','m','d','h','i','s');
 
-				foreach ($datetime->_edit_params['show'] as $u) $datetime->_edit_params['style'][$u] = 's';
-				if (trim($range_name) != '') $datetime->value = $ranges[$rangeid][$type];
+				foreach ($datetime->_edit_params['show'] as $u) {
+					$datetime->_edit_params['style'][$u] = 's';
+				}
+				if (trim($range_name) != '') {
+					$datetime->value = $ranges[$rangeid][$type];
+				}
 
 				$datetime->paint($prefix.'_'.$type, !$write_access);
 
@@ -209,7 +216,9 @@ class Page_Whats_New_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	*/
 	function processRangeOptions(&$asset, &$o, $prefix)
 	{
-		if (!isset($_POST[$prefix.'_curr_range_id']) || !isset($_POST[$prefix.'_range_name']) ) return false;
+		if (!isset($_POST[$prefix.'_curr_range_id']) || !isset($_POST[$prefix.'_range_name']) ) {
+			return false;
+		}
 		require_once SQ_ATTRIBUTES_PATH.'/datetime/datetime.inc';
 
 		$ranges     = $asset->attr('date_ranges');
@@ -238,10 +247,12 @@ class Page_Whats_New_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 			}
 
 			foreach (Array('oldest_date', 'newest_date') as $type) {
-				$datetime = new Asset_Attribute_DateTime();
+				$datetime =& new Asset_Attribute_DateTime();
 				$datetime->process($prefix.'_'.$type);
 
-				if (isset($current_range[$type]) && $current_range[$type] == $datetime->value) continue;
+				if (isset($current_range[$type]) && $current_range[$type] == $datetime->value) {
+					continue;
+				}
 				$current_range[$type] = $datetime->value;
 				$save = true;
 			}

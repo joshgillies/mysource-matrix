@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: keywords.php,v 1.3 2005/07/19 07:20:43 skim Exp $
+* $Id: keywords.php,v 1.4 2005/07/21 07:41:50 lwright Exp $
 *
 */
 -->
@@ -64,9 +64,12 @@
 			<legend><b>Asset Information</b></legend>
 			<table border="0" width="100%">
 			<?php
-			foreach ($keywords as $keyword => $description) { ?>
+			foreach ($keywords as $keyword => $description) {
+				?>
 				<tr><td valign="top" width="200"><b>%<?php echo $keyword?>%</b></td><td valign="top"><?php echo isset($description) ? $description : '' ?></td></tr>
-			<?php } ?>
+				<?php 
+			}
+			?>
 			</table>
 		</fieldset>
 		</p>
