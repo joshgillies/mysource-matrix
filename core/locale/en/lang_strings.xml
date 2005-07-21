@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.18.2.4 2005/07/08 05:22:43 pgannavarapu Exp $
+* $Id: lang_strings.xml,v 1.18.2.5 2005/07/21 00:26:56 tbarrett Exp $
 *
 */
 
@@ -1530,4 +1530,7 @@
 	<string source="asset_map_button_export" java="1">Export</string>
 	<string source="asset_map_button_close" java="1">Close</string>
 
+	<string source="hipo_purging_trash_determining">Determining which assets to delete</string>
+	<string source="hipo_purging_trash_deleting">Deleting Assets</string>
+	<string source="hipo_purging_trash_cleaning">Cleaning up the trash</string>
 </strings>

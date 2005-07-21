@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_purge_trash.inc,v 1.28.2.3 2005/07/18 07:10:35 ndvries Exp $
+* $Id: hipo_job_purge_trash.inc,v 1.28.2.4 2005/07/21 00:26:56 tbarrett Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.28.2.3 $
+* @version $Revision: 1.28.2.4 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -48,7 +48,9 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 	*/
 	function HIPO_Job_Purge_Trash($code_name='')
 	{
-		$this->uses_trans = false;			// we'll do our own transactions thanks
+		// we'll do our own transactions thanks
+		$this->uses_trans = false;
+
 		$this->HIPO_Job($code_name);
 
 	}//end constructor
@@ -121,9 +123,33 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 	{
 		return Array(
 				Array(
-					'name'			=> translate('hipo_purging_trash'),
+					'name'			=> translate('hipo_purging_trash_determining'),
 					'function_call'	=> Array(
-										'process_function'	=> 'processTrash',
+										'process_function'	=> 'buildListToDelete',
+									   ),
+					'running_mode'	=> 'server',
+					'auto_step'		=> true,
+					'allow_cancel'	=> true,
+					'percent_done'	=> 0,
+					'complete'		=> false,
+					'message'		=> '',
+				),
+				Array(
+					'name'			=> translate('hipo_purging_trash_deleting'),
+					'function_call'	=> Array(
+										'process_function'	=> 'purgeAsset',
+									   ),
+					'running_mode'	=> 'server',
+					'auto_step'		=> true,
+					'allow_cancel'	=> true,
+					'percent_done'	=> 0,
+					'complete'		=> false,
+					'message'		=> '',
+				),
+				Array(
+					'name'			=> translate('hipo_purging_trash_cleaning'),
+					'function_call'	=> Array(
+										'process_function'	=> 'deleteRemainingTrashLinks',
 									   ),
 					'running_mode'	=> 'server',
 					'auto_step'		=> true,
@@ -138,9 +164,10 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 
 
 	/**
-	* Returns the current Threshold.
+	* Returns the current threshold
 	*
-	* Returns a value that represents the total percentage that this hipo would run in freestyle mode in its current state.
+	* Returns a value that represents the total percentage that this hipo
+	* would run in freestyle mode in its current state
 	*
 	* @return float
 	* @access public
@@ -148,35 +175,16 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 	function getThresholdPercentageRequired()
 	{
 		if (SQ_HIPO_PURGE_TRASH_THRESHOLD == 0) return 0;
-		if (!isset($this->_running_vars['todo_assetids'])) {
+		if (!isset($this->_running_vars['to_check'])) {
 			return 0;
 		}
-		return ((count($this->_running_vars['todo_assetids']) / SQ_HIPO_PURGE_TRASH_THRESHOLD) * 100);
+		return ((count($this->_running_vars['to_check']) / SQ_HIPO_PURGE_TRASH_THRESHOLD) * 100);
 
 	}//end getThresholdPercentageRequired()
 
 
 	/**
-	* Performs the duties of this hipo, without showing any output on the frontend.
-	*
-	* @return boolean
-	* @access public
-	*/
-	function freestyle()
-	{
-		while (!empty($this->_running_vars['todo_links'])) {
-			if (!$this->processTrash($this->_steps[0], $this->getCodeName())) {
-				return false;
-			}
-		}
-
-		return true;
-
-	}//end freestyle()
-
-
-	/**
-	* Prepares the running vars and gets the children of the asset in question.
+	* Prepares the running vars and gets the children of the trash folder
 	*
 	* @return boolean
 	* @access public
@@ -185,28 +193,21 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 	{
 		$trash = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
 
-		$children = $GLOBALS['SQ_SYSTEM']->am->getAllChildLinks($trash->id);
-		$children = array_reverse($children);
+		$this->_running_vars['to_check'] = $GLOBALS['SQ_SYSTEM']->am->getChildren($trash->id);
+		$this->_running_vars['total_assets'] = count($this->_running_vars['to_check']);
+		$this->_running_vars['to_delete'] = Array();
+		$this->_running_vars['trash_id'] = $trash->id;
+		$this->_running_vars['trash_treeid'] = reset($GLOBALS['SQ_SYSTEM']->am->getAssetTreeids($trash->id));
 
-		// work out the treeid of the trash asset for use later
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-		$sql = 'SELECT t.treeid
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l ON t.linkid = l.linkid ';
-		$where = 'l.minorid = '.$db->quote($trash->id);
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
-		$sql .= $where;
-		$sql = $db->modifyLimitQuery($sql, 0, 1);
-
-		$treeid = $db->getOne($sql);
-		if (!assert_valid_db_result($treeid)) return false;
-
-		$this->_running_vars['todo_links']     = $children;
-		$this->_running_vars['done_links']     = Array();
-		$this->_running_vars['deleted_assets'] = Array();
-		$this->_running_vars['trash_treeid']   = $treeid;    // the treeid of the trash folder
-		$this->_running_vars['trash_id']       = $trash->id; // the asset id of the trash folder
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$sql = 'SELECT a.assetid, length(t.treeid)
+				FROM sq_ast_lnk_tree t
+					NATURAL JOIN sq_ast_lnk l
+					JOIN sq_ast a ON l.minorid = a.assetid
+				WHERE t.treeid like '.$db->quote($this->_running_vars['trash_treeid'].'%').'
+				ORDER by length(t.treeid)';
+		$this->_running_vars['delete_order'] = $db->getCol($sql);
+		assert_valid_db_result($this->_running_vars['delete_order']);
 
 		return parent::prepare();
 
@@ -214,7 +215,81 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 
 
 	/**
-	* Purge a single asset from the trash
+	* Performs the duties of this hipo, without showing any output
+	*
+	* @return boolean
+	* @access public
+	*/
+	function freestyle()
+	{
+		while (!empty($this->_running_vars['to_check'])) {
+			if (!$this->buildListToDelete($this->_steps[0], $this->getCodeName())) {
+				return false;
+			}
+		}
+
+		while (!empty($this->_running_vars['to_delete'])) {
+			if (!$this->purgeAsset($this->_steps[1], $this->getCodeName())) {
+				return false;
+			}
+		}
+
+		if (!$this->deleteRemainingTrashLinks($this->_steps[2], $this->getCodeName())) {
+			return false;
+		}
+
+		return true;
+
+	}//end freestyle()
+
+
+	/**
+	* Puts assets in the trash into a list of assets to delete iff they are linked only in the trash
+	*
+	* @param array	&$step_data	a reference to the array of information about the current step
+	* @param string	$prefix		prefix for form vars
+	*
+	* @return boolean
+	* @access public
+	*/
+	function buildListToDelete(&$step_data, $prefix)
+	{
+		$GLOBALS['SQ_PURGING_TRASH'] = true;
+
+		if (!empty($this->_running_vars['to_check'])) {
+			reset($this->_running_vars['to_check']);
+			list($assetid, $type_code) = each($this->_running_vars['to_check']);
+			unset($this->_running_vars['to_check'][$assetid]);
+
+			$db =& $GLOBALS['SQ_SYSTEM']->db;
+			$sql = 'SELECT COUNT(l.linkid)
+					FROM sq_ast_lnk_tree t NATURAL JOIN sq_ast_lnk l
+					WHERE l.minorid = '.$db->quote($assetid).'
+					AND NOT treeid LIKE '.$db->quote($this->_running_vars['trash_treeid'].'%');
+			$num_external_links = $db->getOne($sql);
+			assert_valid_db_result($num_external_links);
+			if ($num_external_links == 0) {
+				$this->_running_vars['to_delete'][$assetid] = $type_code;
+			}
+		}
+
+		if (empty($this->_running_vars['to_check'])) {
+			$GLOBALS['SQ_PURGING_TRASH'] = false;
+			$step_data['percent_done'] = 100;
+			$step_data['complete']     = true;
+			$this->_running_vars['total_to_delete'] = count($this->_running_vars['to_delete']);
+		} else {
+			$step_data['percent_done'] = (int)((($this->_running_vars['total_assets'] - count($this->_running_vars['to_check'])) / $this->_running_vars['total_assets']) * 100);
+			$step_data['complete']     = false;
+		}
+
+		return true;
+
+	}//end buildListToDelete()
+
+
+	/**
+	* Purge a single asset in the to-delete list from the trash
 	*
 	* @param array()	&$step_data	a reference to the array of information about the current step
 	* @param string		$prefix		prefix for form vars
@@ -222,195 +297,92 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 	* @return boolean
 	* @access public
 	*/
-	function processTrash(&$step_data, $prefix)
+	function purgeAsset(&$step_data, $prefix)
 	{
-		// let everyone know we are purging the trash
 		$GLOBALS['SQ_PURGING_TRASH'] = true;
+		if (!empty($this->_running_vars['to_delete'])) {
 
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+			$assetid = null;
+			while (!isset($this->_running_vars['to_delete'][$assetid])) {
+				$assetid = array_pop($this->_running_vars['delete_order']);
+				if (is_null($assetid)) break;
+			}
+			if (!is_null($assetid)) {
+				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $this->_running_vars['to_delete'][$assetid]);
+				unset($this->_running_vars['to_delete'][$assetid]);
 
-		if (!empty($this->_running_vars['todo_links'])) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-			$link_info = array_shift($this->_running_vars['todo_links']);
-
-			if (!$link_info['linkid']) {
-				$step_data['message'] = translate('hipo_skipping', $asset->name, translate('hipo_skipping_already_deleted'));
-			} else {
-				$assetid = $link_info['assetid'];
-
-				if (in_array($assetid, $this->_running_vars['deleted_assets'])) {
-					// asset was already deleted
-					$step_data['message'] = translate('hipo_skipping_link', $link_info['linkid'], translate('hipo_skipping_already_deleted'));
-				} else {
-
-					$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $link_info['type_code'], true);
-
-					$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-					$sql = 'SELECT t2.treeid, l1.linkid, l2.minorid, l2.link_type, l2.is_dependant
-							FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l1 INNER JOIN
-								 '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t1 ON l1.linkid = t1.linkid,
-								 '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l2 INNER JOIN
-								 '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t2 ON l2.linkid = t2.linkid,
-								 '.SQ_TABLE_RUNNING_PREFIX.'ast a
-							WHERE l1.minorid = '.$db->quote($asset->id).'
-							  AND SUBSTR(t1.treeid, 1, LENGTH(t2.treeid)) = t2.treeid
-							  AND a.assetid=l2.minorid
-							  AND t2.treeid <> \'-\'
-							ORDER BY t2.treeid DESC';
-
-					$other_links = $db->getAll($sql);
-					if (!assert_valid_db_result($other_links)) {
-						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-						return false;
-					}
-
-					$outside_links = Array();
-					$found_ourself = false;
-					$inside_links = Array();
-					$last_linkid = 0;
-
-					foreach ($other_links as $outside_link_info) {
-						$found_ourself_this_run = false;
-						if ($outside_link_info['minorid'] == $asset->id) {
-							$found_ourself_this_run = true;
-						}
-
-						// check if we are looking at links that are in the trash
-						if (substr($outside_link_info['treeid'], 0, strlen($this->_running_vars['trash_treeid'])) == $this->_running_vars['trash_treeid']) {
-							if ($outside_link_info['minorid'] == $asset->id) {
-								$inside_links[] = $outside_link_info['linkid'];
-							}
-							continue;
-						}
-
-						if ($found_ourself_this_run) {
-							$found_ourself = true;
-							// if we still have a linkid in our buffer, add it into the list
-							// of outside links so we dont lose it
-							if ($last_linkid) $outside_links[] = $last_linkid;
-
-							// at this point, we know this link is not in the trash because we would have
-							// continued in the above IF statement, so add it to the buffer
-							$last_linkid = $outside_link_info['linkid'];
-						}
-
-						if (!$found_ourself) continue;
-
-						// we dont care about dependant links because we want to
-						// go right to the top of the dependant tree
-						if ($outside_link_info['is_dependant']) continue;
-						if ($outside_link_info['link_type'] & SQ_SC_LINK_SIGNIFICANT) {
-							if ($last_linkid) $outside_links[] = $last_linkid;
-						}
-						$last_linkid = 0;
-						$found_ourself = false;
-					}//end foreach
-					$inside_links = count(array_unique($inside_links));
-
-					// if there are no links inside the trash, chances are we already deleted them, so skip this asset
-					if (!$inside_links) {
-						$step_data['message'] = 'Skipping asset #'.$asset->id.' as it no longer has any links inside the trash';
-					} else {
-
-						// if the link we are deleting is also one of the outside
-						// links, then we leave this link alone
-						if (in_array($link_info['linkid'], $outside_links)) {
-							$step_data['message'] = translate('hipo_skipping_link', $link_info['linkid'], translate('hipo_skipping_exists_outside_trash'));
-						} else {
-
-							// we need to check how many internal links
-							// there are before deciding if we should delete the asset or not
-							$num_other_links = $GLOBALS['SQ_SYSTEM']->am->countLinks($asset->id, 'minor', SQ_SC_LINK_BACKEND_NAV, '', true, $link_info['linkid']);
-
-							if (count($outside_links) >= 1 || $num_other_links || $inside_links > 1) {
-
-								// this asset has more than one link, so just delete the link
-								$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($link_info['linkid'], $asset->id, 'minor');
-
-								if (empty($link['majorid'])) {
-									// if the link does not exists it was probably deleted
-									// earlier, so we just skip this entry
-									$step_data['message'] = translate('hipo_skipping_link', $link_info['linkid'], translate('hipo_skipping_already_deleted'));
-								} else {
-									$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['major_type_code']);
-									if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'links') || !$GLOBALS['SQ_SYSTEM']->am->acquireLock($parent->id, 'links')) {
-										trigger_localised_error('HIPO0007', E_USER_WARNING, $asset->name, $parent->name);
-										$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-										return false;
-									}
-
-									if (!$parent->deleteLink($link_info['linkid'])) {
-										trigger_localised_error('HIPO0006', E_USER_WARNING, $link_info['linkid'], $parent->name, $asset->name);
-
-										$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'links');
-										$GLOBALS['SQ_SYSTEM']->am->releaseLock($parent->id, 'links');
-
-										$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-										return false;
-									}
-									$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'links');
-									$GLOBALS['SQ_SYSTEM']->am->releaseLock($parent->id, 'links');
-
-									$step_data['message'] = translate('hipo_deleting_link', $link_info['linkid']);
-								}
-
-							} else {
-
-								// we have an asset ready to delete, but we need to check with
-								// the asset manager that we are allowed to delete it
-								if (!$GLOBALS['SQ_SYSTEM']->am->canPurgeAsset($asset)) {
-									trigger_localised_error('HIPO0004', E_USER_WARNING, $asset->name, $asset->id);
-									$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-									return false;
-								}
-
-								if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->_running_vars['trash_id'], 'all') || !$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'all', $this->_running_vars['trash_id'])) {
-									trigger_localised_error('HIPO0005', E_USER_WARNING, $asset->name, $asset->id);
-									$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-									return false;
-								}
-
-								// this is the last link for this asset, so lets delete it for good
-								if (!$asset->delete(false)) {
-									trigger_localised_error('HIPO0004', E_USER_WARNING, $asset->name, $asset->id);
-									$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'all');
-									$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-									return false;
-								}
-
-								$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->_running_vars['trash_id'], 'all');
-
-								$step_data['message'] = translate('hipo_deleting', $asset->name, $assetid);
-								$this->_running_vars['deleted_assets'][] = $assetid;
-								$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
-							}
-						}
-
-					}//end if no inside links
+				// we have an asset ready to delete, but we need to check with
+				// the asset manager that we are allowed to delete it
+				if (!$GLOBALS['SQ_SYSTEM']->am->canPurgeAsset($asset)) {
+					trigger_localised_error('HIPO0004', E_USER_WARNING, $asset->name, $asset->id);
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return false;
 				}
+
+				if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->_running_vars['trash_id'], 'all') || !$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'all', $this->_running_vars['trash_id'])) {
+					trigger_localised_error('HIPO0005', E_USER_WARNING, $asset->name, $asset->id);
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return false;
+				}
+
+				if (!$asset->delete(false)) {
+					trigger_localised_error('HIPO0004', E_USER_WARNING, $asset->name, $asset->id);
+					$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'all');
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return false;
+				}
+
+				$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->_running_vars['trash_id'], 'all');
+
+				$step_data['message'] = translate('hipo_deleting', $asset->name, $assetid);
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+
+				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			}
 		}
 
-		$this->_running_vars['done_links'][] = $link_info;
-
-		$GLOBALS['SQ_PURGING_TRASH'] = false;
-
-		if (empty($this->_running_vars['todo_links'])) {
+		if (empty($this->_running_vars['to_delete'])) {
 			$step_data['percent_done'] = 100;
 			$step_data['complete']     = true;
 		} else {
-			$total = count($this->_running_vars['todo_links']) + count($this->_running_vars['done_links']);
-			$step_data['percent_done'] =(count($this->_running_vars['done_links']) / $total) * 100;
+			$step_data['percent_done'] = (int)((($this->_running_vars['total_to_delete'] - count($this->_running_vars['to_delete'])) / $this->_running_vars['total_to_delete']) * 100);
 			$step_data['complete']     = false;
 		}
 
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_PURGING_TRASH'] = false;
 		return true;
 
-	}//end processTrash()
+	}//end purgeAsset()
+
+
+	/**
+	* Delete all remaining links to the trash
+	*
+	* Links that remain at this point are to assets that are linked elsewhere.
+	*
+	* @param array()	&$step_data	a reference to the array of information about the current step
+	* @param string		$prefix		prefix for form vars
+	*
+	* @return boolean
+	* @access public
+	*/
+	function deleteRemainingTrashLinks(&$step_data, $prefix)
+	{
+		$GLOBALS['SQ_PURGING_TRASH'] = true;
+		$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->_running_vars['trash_id'], SQ_SC_LINK_ALL);
+
+		foreach ($links as $link) {
+			$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($link['linkid']);  // we know it has other links so no new trash link will be created
+		}
+		$step_data['percent_done'] = 100;
+		$step_data['complete']     = true;
+		$GLOBALS['SQ_PURGING_TRASH'] = false;
+		return true;
+
+	}//end deleteRemainingTrashLinks()
 
 
 }//end class
-
 ?>
