@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.6 2005/07/21 05:08:11 arailean Exp $
+* $Id: ecommerce_checkout.inc,v 1.7 2005/07/21 06:12:55 arailean Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/lib/ecommerce_common.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -45,11 +45,9 @@ class Ecommerce_Checkout extends Page
 
 
 	/**
-	* TODO: function comment: Ecommerce_Checkout
+	* Constructor
 	*
-	*
-	*
-	* @param
+	* @param int	assetid	Id of this asset
 	*
 	* @return void
 	* @access public
@@ -63,6 +61,7 @@ class Ecommerce_Checkout extends Page
 		$this->Page($assetid);
 
 	}//end constructor
+
 
 	/**
 	* Returns a list of available contexts
@@ -79,7 +78,6 @@ class Ecommerce_Checkout extends Page
 			   );
 
 	}//end _getAvailableContexts()
-
 
 
 	/**
@@ -134,14 +132,6 @@ class Ecommerce_Checkout extends Page
 
 		// determine context
 
-		// if Initial Page or Error
-		// get the initial bodycopy of the page
-		// populate the values (if error)
-
-		// get the list of delivery methods
-		// display the delivery method
-
-		// get delivery method links
 		bam($_REQUEST);
 		$this->_printContext();
 
@@ -165,9 +155,9 @@ class Ecommerce_Checkout extends Page
 			return;
 		}
 
-		$action = key($request_action);
-		$tmp_order = array_get_index($_SESSION, 'SQ_TEMP_ORDER', Array());
+		$processing_data = array_get_index($_SESSION['SQ_TEMP_ORDER'], 'processing_data', Array());
 
+		$action = key($request_action);
 		$success = true;
 
 		switch ($action) {
@@ -188,33 +178,34 @@ class Ecommerce_Checkout extends Page
 					}
 
 					// create a temporary order
-					$tmp_order['delivery_assetid']	= $delivery_method_id;
-					$tmp_order['delivery_state']	= $delivery_state;
+					$processing_data['delivery']['assetid']	= $delivery_method_id;
+					$processing_data['delivery']['state']	= $delivery_state;
 
 					if (!$delivery_status && false){
 						// TODO: localise error
-						trigger_error('Delivery Information processing failure');
+						trigger_error('Failed processing delivery information');
 						$success = false;
 					}
 				}
 
 				if (empty($_SESSION['SQ_CART']) && false) {
 					// TODO: localise error
-					trigger_error('Your Cart is Empty, cannot checkout');
+					trigger_error('The ecommerce cart is empty, cannot checkout');
 					$success = false;
 				}
 
 				if ($success) {
 					// move cart contents into the order
-					$tmp_order['cart_contents'] = $_SESSION['SQ_CART'];
-					$_SESSION['SQ_CART'] = Array();
+					$_SESSION['SQ_TEMP_ORDER']['cart_contents'] = get_cart();
+					clear_cart();
 
 					$this->print_context = 'confirmation';
 				} else {
 					$this->print_context = 'content';
 				}
 
-				$_SESSION['SQ_TEMP_ORDER'] = $tmp_order;
+				$_SESSION['SQ_TEMP_ORDER']['processing_data'] = $processing_data;
+
 			break;
 
 			case 'return_to_checkout':
@@ -222,6 +213,12 @@ class Ecommerce_Checkout extends Page
 			break;
 
 			case 'confirm_order':
+				// create order asset
+				# $this->_createOrder();
+
+				// unset temporary order
+				unset($_SESSION['SQ_TEMP_ORDER']);
+
 				$this->print_context = 'receipt';
 			break;
 
@@ -273,7 +270,7 @@ class Ecommerce_Checkout extends Page
 		$form_req = $this->_isFormRequired();
 
 		if ($form_req) {
-			echo '<form action="'.$_SERVER['PHP_SELF'].'" method="get">';
+			echo '<form action="'.$_SERVER['PHP_SELF'].'" method="post">';
 		}
 
 		$content_bodycopy->setKeywordReplacements($replacements);
