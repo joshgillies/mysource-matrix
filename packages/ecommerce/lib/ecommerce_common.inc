@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_common.inc,v 1.4 2005/07/21 06:10:29 rhoward Exp $
+* $Id: ecommerce_common.inc,v 1.5 2005/07/21 06:15:48 arailean Exp $
 *
 */
 
@@ -29,7 +29,7 @@ define('SQ_CART', 'sq_cart_contents');
 * @author Robert Howard <rhoward@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
 * @author Andrei Railean <arailena@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -110,7 +110,7 @@ function &get_item($assetid)
 */
 function &get_cart()
 {
-	if (!isset($_SESSION[SQ_CART])) initialiseCart();
+	if (!isset($_SESSION[SQ_CART])) initialise_cart();
 
 	return $_SESSION[SQ_CART];
 
