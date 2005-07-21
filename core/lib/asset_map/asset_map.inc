@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.184.2.1 2005/06/08 00:07:10 rhoward Exp $
+* $Id: asset_map.inc,v 1.184.2.2 2005/07/21 00:04:44 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.184.2.1 $
+* @version $Revision: 1.184.2.2 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -569,13 +569,11 @@ class Asset_Map
 			$sql .= ', 1 AS accessible';
 		}
 
-		$u_where = 'a.assetid = u.assetid';
-		$u_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($u_where, 'u', 'ON');
-		$sql .= ' FROM (('.SQ_TABLE_RUNNING_PREFIX.'ast a LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_url u '.$u_where.')';
-
-		$ap_where = 'a.assetid = ap.assetid';
-		$ap_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($ap_where, 'ap', 'ON');
-		$sql .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_path ap '.$ap_where.')';
+		$sql .= ' FROM
+					(
+						'.SQ_TABLE_RUNNING_PREFIX.'ast a INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l ON a.assetid = l.minorid
+						  INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree lt ON l.linkid = lt.linkid
+					)';
 
 		if (!empty($userid_cond)) {
 			$p_where = '(
@@ -587,10 +585,15 @@ class Asset_Map
 			$sql .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_perm p '.$p_where;
 		}
 
-		$sql .= ','.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l  ';
-		$where = ' a.assetid = l.minorid AND ';
+		$u_where = 'a.assetid = u.assetid';
+		$u_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($u_where, 'u', 'ON');
+		$sql .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_url u '.$u_where;
 
-		$where .= 'l.majorid = '.$db->quote($assetid);
+		$ap_where = 'a.assetid = ap.assetid';
+		$ap_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($ap_where, 'ap', 'ON');
+		$sql .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_path ap '.$ap_where;
+
+		$where = 'l.majorid = '.$db->quote($assetid);
 		if ($dependants_only) $where .= ' AND l.is_dependant='.$db->quote('1');
 		$where .= ' AND
 					l.link_type <= '.$db->quote(SQ_LINK_TYPE_2);
@@ -612,7 +615,6 @@ class Asset_Map
 			$result[$db_assetid] = $db_data[0];
 			$result[$db_assetid]['assetid'] = $db_assetid;
 		}
-
 
 		$sql = 'SELECT majorid, COUNT(*)
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk';
