@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.28 2005/06/21 03:18:52 cboudjnah Exp $
+* $Id: general.inc,v 1.29 2005/07/21 23:05:36 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package Fudge
 * @subpackage General
 */
@@ -143,6 +143,36 @@ function array_remove_element($v, &$a)
 	}
 
 }//end array_remove_element()
+
+
+/**
+* Merges two multi-dimensional arrays
+* Note that the second given array will override elements of the first
+*
+* @param Array		$array1		the original array
+* @param Array		$array2		the array that will override the first
+*
+* @return Array
+* @access public
+*/
+function array_merge_multi($array1, $array2)
+{
+	if (is_array($array2) && !empty($array2)) {
+		foreach ($array2 as $key => $value) {
+			if (is_array($value)) {
+				$array1[$key] = array_merge_multi($array1[$key], $value);
+			} else {
+				if (!is_array($array1)) {
+					$array1 = Array();
+				}
+				$array1[$key] = $value;
+			}
+		}
+	}
+
+	return $array1;
+
+}
 
 
 /**
@@ -285,7 +315,7 @@ function security_key_image($word, $w, $h, $bg='FFFFFF', $text='000000', $border
 		// zoomed text for easier reading
 		$test_im  = @imagecreate($w, $h) or die ("Cannot Initialize new GD image stream");
 		$final_im = @imagecreate(($w * $zoom), ($h * $zoom)) or die ("Cannot Initialize new GD image stream");
-		
+
 		// create some colours we will use in the image
 		// NOTE: The first colour allocated is used for the background
 		$r = hexdec(substr($bg, 0, 2));
