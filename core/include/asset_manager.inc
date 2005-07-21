@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.322.2.7 2005/07/21 08:34:17 mmcintyre Exp $
+* $Id: asset_manager.inc,v 1.322.2.8 2005/07/21 12:26:51 brobertson Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.322.2.7 $
+* @version $Revision: 1.322.2.8 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2476,6 +2476,9 @@ class Asset_Manager extends MySource_Object
 		// we are not getting children for a shadow asset, so if we are getting children of
 		// an asset that handles shadow assets, palm the request off to it
 		$asset = &$this->getAsset($assetid);
+		if (is_null($asset)) {
+			return Array();
+		}
 		if (implements_interface($asset, 'bridge')) {
 			$children = $asset->getChildren($assetid, $type_code, $strict_type_code, $sort_by);
 			$this->forgetAsset($asset);
