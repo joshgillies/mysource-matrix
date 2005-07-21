@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.7 2005/07/21 06:12:55 arailean Exp $
+* $Id: ecommerce_checkout.inc,v 1.8 2005/07/21 07:14:57 arailean Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/lib/ecommerce_common.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -41,7 +41,6 @@ class Ecommerce_Checkout extends Page
 	*
 	*/
 	var $print_context;
-
 
 
 	/**
@@ -131,8 +130,6 @@ class Ecommerce_Checkout extends Page
 		$this->_processInterface();
 
 		// determine context
-
-		bam($_REQUEST);
 		$this->_printContext();
 
 	}//end printBody()
@@ -181,14 +178,15 @@ class Ecommerce_Checkout extends Page
 					$processing_data['delivery']['assetid']	= $delivery_method_id;
 					$processing_data['delivery']['state']	= $delivery_state;
 
-					if (!$delivery_status && false){
+					if (!$delivery_status){
 						// TODO: localise error
 						trigger_error('Failed processing delivery information');
 						$success = false;
 					}
 				}
 
-				if (empty($_SESSION['SQ_CART']) && false) {
+				// if cart is empty, there's no point in checking out
+				if (!get_count()) {
 					// TODO: localise error
 					trigger_error('The ecommerce cart is empty, cannot checkout');
 					$success = false;
@@ -213,6 +211,9 @@ class Ecommerce_Checkout extends Page
 			break;
 
 			case 'confirm_order':
+				// components should be processed here
+				// delivery
+
 				// create order asset
 				# $this->_createOrder();
 
@@ -431,6 +432,52 @@ class Ecommerce_Checkout extends Page
 	}//end _registerFormField()
 
 
+	/**
+	* Get The currently active delivery method
+	*
+	* Looks at the current state of the asset to determine the active delivery method asset
+	*
+	* @return Ecommerce_Delivery_Method
+	* @access public
+	*/
+	function &_getActiveDeliveryMethod()
+	{
+		$delivery_method = null;
+
+		$delivery_method_id = $this->_getActiveDeliveryMethodId();
+		if (!is_null($delivery_method_id)) {
+			$delivery_method =& $GLOBALS['SQ_SYSTEM']->am->getAsset($delivery_method_id);
+			$delivery_asset_state = array_get_index($_SESSION['SQ_TEMP_ORDER']['processing_data']['delivery'], 'state');
+			if (!is_null($delivery_asset_state)) {
+				$delivery_method->setState($delivery_asset_state);
+			}
+		}
+
+		return $delivery_method;
+
+	}//end _getActiveDeliveryMethod()
+
+
+	/**
+	* TODO: _getActiveDeliveryMethodId
+	*
+	* Looks at the current state of the asset to determine the active delivery method asset id
+	*
+	* @return Ecommerce_Delivery_Method
+	* @access public
+	*/
+	function _getActiveDeliveryMethodId()
+	{
+		$delivery_method_id = null;
+
+		if (isset($_SESSION['SQ_TEMP_ORDER']['processing_data']['delivery'])) {
+			$delivery_method_id = array_get_index($_SESSION['SQ_TEMP_ORDER']['processing_data']['delivery'], 'assetid');
+		}
+
+		return $delivery_method_id;
+
+	}//end _getActiveDeliveryMethodId()
+
 
 	//// -- Keywords
 
@@ -573,15 +620,14 @@ class Ecommerce_Checkout extends Page
 			$selection_contents[$assetid] = $asset_info['name'];
 		}
 
-		reset($selection_contents);
-		$active_delivery_method = array_get_index($_SESSION['SQ_TEMP_ORDER'], 'delivery_assetid', key($selection_contents));
+		$active_delivery_method_id = $this->_getActiveDeliveryMethodId();
 
 		$this->_registerFormRequirement();
 		ob_start();
 			?>
 			<script type="text/javascript">
 				//<![CDATA[
-				var current_method_id = <?php echo is_null($active_delivery_method)?'null':$active_delivery_method; ?> ;
+				var current_method_id = <?php echo is_null($active_delivery_method_id)?'null':$active_delivery_method_id; ?> ;
 
 				function handleDeliverySelectChange(field) {
 					selected_id = field.options[field.selectedIndex].value;
@@ -598,7 +644,7 @@ class Ecommerce_Checkout extends Page
 			</script>
 
 			<?php
-			combo_box('sq_delivery_method_id', $selection_contents, false, $active_delivery_method, 0, 'onchange="handleDeliverySelectChange(this)"');
+			combo_box('sq_delivery_method_id', $selection_contents, false, $active_delivery_method_id, 0, 'onchange="handleDeliverySelectChange(this)"');
 
 		return ob_get_clean();
 
@@ -616,16 +662,15 @@ class Ecommerce_Checkout extends Page
 	function getDeliveryFormKeywordReplacement()
 	{
 
-		$active_delivery_method = array_get_index($_SESSION['SQ_TEMP_ORDER'], 'delivery_assetid');
+		$active_delivery_method =& $this->_getActiveDeliveryMethod();
 
 		$this->_registerFormRequirement();
 		ob_start();
 		foreach ($this->_getDeliveryAssetIds() as $one_assetid) {
 			$delivery_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($one_assetid);
 
-			if (!is_null($active_delivery_method) && ($active_delivery_method == $one_assetid)) {
+			if (!is_null($active_delivery_method) && ($active_delivery_method->id == $one_assetid)) {
 				$display = 'block';
-				$delivery_asset->setState(array_get_index($this->_tmp, 'delivery_state'));
 			} else {
 				$display = 'none';
 			}
@@ -696,13 +741,11 @@ class Ecommerce_Checkout extends Page
 	*/
 	function getCheckoutSummaryKeywordReplacement()
 	{
-		echo "Checkout Summary Replacement";
+		echo "Checkout Summary Replacement<br />\n";
 
-		$active_delivery_method = array_get_index($_SESSION['SQ_TEMP_ORDER'], 'delivery_assetid');
-		$delivery_asset_state = array_get_index($_SESSION['SQ_TEMP_ORDER'], 'delivery_state');
-		$delivery_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($active_delivery_method);
+		$delivery_asset =& $this->_getActiveDeliveryMethod();
 
-		echo "Delivery Method Summary\n";
+		echo "Delivery Method Summary<br />\n";
 		echo $delivery_asset->getReceipt();
 
 	}//end getCheckoutSummaryKeywordReplacement()
@@ -715,13 +758,11 @@ class Ecommerce_Checkout extends Page
 	*/
 	function getReceiptSummaryKeywordReplacement()
 	{
-		echo "Receipt Summary Replacement\n";
+		echo "Receipt Summary Replacement<br />\n";
 
-		$active_delivery_method = array_get_index($_SESSION['SQ_TEMP_ORDER'], 'delivery_assetid');
-		$delivery_asset_state = array_get_index($_SESSION['SQ_TEMP_ORDER'], 'delivery_state');
-		$delivery_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($active_delivery_method);
+		$delivery_asset =& $this->_getActiveDeliveryMethod();
 
-		echo "Delivery Method Receipt\n";
+		echo "Delivery Method Receipt<br />\n";
 		echo $delivery_asset->getReceipt();
 
 	}//end getCheckoutSummaryKeywordReplacement()
