@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.431 2005/07/21 04:34:14 skim Exp $
+* $Id: asset.inc,v 1.432 2005/07/21 04:54:16 skim Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.431 $
+* @version $Revision: 1.432 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -2956,7 +2956,7 @@ class Asset extends MySource_Object
 		// add attribute
 		foreach ($this->vars as $name => $info) {
 			$attr = &$this->getAttribute($name);
-			if (!$attr->admin) {
+			if (!$attr->is_admin) {
 				$keywords['asset_attribute_'.$name] = empty($attr->description)?'Asset Attribute: '.$name:$attr->description;
 			}
 		}

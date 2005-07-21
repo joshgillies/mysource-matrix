@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_attribute.inc,v 1.39 2005/07/13 03:55:11 mmcintyre Exp $
+* $Id: asset_attribute.inc,v 1.40 2005/07/21 04:57:02 skim Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package MySource_Matrix
 */
 class Asset_Attribute extends MySource_Object
@@ -90,6 +90,12 @@ class Asset_Attribute extends MySource_Object
 	*/
 	var $processed = false;
 
+	/**
+	* Whether or not this attribute is used for administrative purposes only
+	* @var boolean
+	*/
+	var $is_admin = false;
+
 
 	/**
 	* Constructor
@@ -106,7 +112,7 @@ class Asset_Attribute extends MySource_Object
 		if ($attributeid) {
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-			$sql = 'SELECT attrid, name, type, uniq, description, parameters_val, default_val
+			$sql = 'SELECT attrid, name, type, uniq, description, is_admin, parameters_val, default_val
 					FROM sq_ast_attr
 					WHERE attrid = '.$db->quote($attributeid);
 
@@ -115,7 +121,7 @@ class Asset_Attribute extends MySource_Object
 
 			if (is_null($result)) return;
 
-			list($this->id, $this->name, $type, $this->uniq, $this->description, $parameters, $this->_default_value) = $result;
+			list($this->id, $this->name, $type, $this->uniq, $this->description, $this->is_admin, $parameters, $this->_default_value) = $result;
 
 			// make sure the asset we are loading is of the same type as our class
 			if ($type != $this->type()) {
