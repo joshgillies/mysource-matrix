@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.js,v 1.37 2005/05/16 06:36:32 lwright Exp $
+* $Id: html_form.js,v 1.38 2005/07/21 01:41:18 tbarrett Exp $
 *
 */
 
@@ -112,11 +112,17 @@ function validate_numeric_text_field(name, allow_negative)
 			}
 		}
 		name.value = outstr;
-
-		var range = name.createTextRange();
-		range.moveStart("character", -input.value.length);
-		range.moveEnd("character", -input.value.length);
-		range.select();
+		
+		if (name.createTextRange) {
+			// ie support
+			var range = name.createTextRange();
+			range.moveStart("character", name.value.length);
+			range.moveEnd("character", 0);
+			range.select();
+		} else if (name.selectionStart || name.selectionStart == 0) {
+			// mozilla support
+			name.selectionEnd = name.selectionStart = name.value.length;
+		}
 	}
 
 }
