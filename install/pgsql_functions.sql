@@ -16,7 +16,7 @@
 -- | licence.                                                           |
 -- +--------------------------------------------------------------------+
 --
--- $Id: pgsql_functions.sql,v 1.2 2005/07/21 00:44:30 mmcintyre Exp $
+-- $Id: pgsql_functions.sql,v 1.3 2005/07/21 01:41:39 mmcintyre Exp $
 -- @author Marc McIntyre <mmcintyre@squiz.net>
 
 -- creates a function that grants access to the secondary user.
@@ -73,7 +73,7 @@ END;
 ' language plpgsql;
 
 -- splits the specified url into its root url components out to the specified url
-CREATE OR REPLACE FUNCTION get_lineage_from_url(VARCHAR) RETURNS SETOF VARCHAR AS '
+CREATE OR REPLACE FUNCTION sq_get_lineage_from_url(VARCHAR) RETURNS SETOF VARCHAR AS '
 DECLARE
 	treeids RECORD;
 	offset int;

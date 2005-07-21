@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.342 2005/07/21 00:43:09 mmcintyre Exp $
+* $Id: asset_manager.inc,v 1.343 2005/07/21 01:41:29 mmcintyre Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.342 $
+* @version $Revision: 1.343 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -4722,7 +4722,7 @@ class Asset_Manager extends MySource_Object
 		// we do this because its faster than performing a 'url LIKE l.url%'
 		$where = 'l.root_urlid = '.$db->quote((int) $root_url['urlid']).'
 				  AND l.url IN (
-								SELECT * FROM get_lineage_from_url('.$db->quoteSmart($url.'/').')
+								SELECT * FROM sq_get_lineage_from_url('.$db->quoteSmart($url.'/').')
 							)';
 
 		if (!is_null($protocol)) {
