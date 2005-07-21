@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.8 2005/07/21 07:32:44 lwright Exp $
+* $Id: lang_screen_details.xml,v 1.9 2005/07/21 23:41:18 lwright Exp $
 *
 */
 -->
@@ -58,11 +58,6 @@
 			&lt;br/&gt;A Random listing displays one or more assets in random order.
 			&lt;br/&gt;Custom Grouping allows a list based on user specifed grouping conditions.
 			</note>
-		</field>
-		<field attribute="selection_type">
-			<display_name>Selection Type</display_name>
-			<note>Each displayed assets can either be non-selectable, or be displayed with a checkbox, textbox or radio button
-			allowing the asset to be selected.</note>
 		</field>
 		<field>
 			<display_name>Asset Types to List</display_name>

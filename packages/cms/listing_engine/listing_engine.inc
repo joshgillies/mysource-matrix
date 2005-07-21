@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.51 2005/07/21 07:32:36 lwright Exp $
+* $Id: listing_engine.inc,v 1.52 2005/07/21 23:41:18 lwright Exp $
 *
 */
 
@@ -43,7 +43,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.51 $
+* @version $Revision: 1.52 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -304,10 +304,10 @@ class Listing_Engine extends Page
 		}
 
 
-		if (!empty($used_fields) || ($this->attr('selection_type') != 'none') || $this->requires_form) {
+		$selections = $this->attr('asset_selections');
+		if (!empty($used_fields) || count($selections) > 0 || $this->requires_form) {
 
 			// include the 'select all' js if required
-			$selections = $this->attr('asset_selections');
 			foreach ($selections as $selection_name => $selection_settings) {
 				if (array_get_index($selection_settings, 'type', null) == 'radio' && !empty($selection_settings['options']['allow_multiple'])) {
 					?>

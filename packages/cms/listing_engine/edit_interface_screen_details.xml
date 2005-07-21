@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.9 2005/07/21 07:32:36 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.10 2005/07/21 23:41:18 lwright Exp $
 *
 */
 -->
@@ -46,9 +46,6 @@
 			<selection style="list" />
 		</field>
 		<field attribute="group_by">
-			<selection style="list" />
-		</field>
-		<field attribute="selection_type">
 			<selection style="list" />
 		</field>
 		<field>
