@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: char_map.php,v 1.1 2005/07/11 05:27:30 dmckee Exp $
+* $Id: char_map.php,v 1.2 2005/07/21 00:56:43 dmckee Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Character Map popup for the WYSIWYG
 *
 * @author	Darren McKee	<dmckee@squiz.net>
-* @version	$Revision: 1.1 $
+* @version	$Revision: 1.2 $
 * @package	WYSIWYG
 */
 
@@ -232,7 +232,7 @@
 		<style type="text/css">
 
 			body {
-				background-color: #CCCCFF;
+				background-color: #FCFCFC;
 			}
 
 			td.character {
@@ -241,7 +241,7 @@
 				text-align: center;
 				background-color: #DEDEDE;
 				font-weight: bold;
-				border: 1px solid #DEDEDE;
+				border: 1px solid #725B7D;
 			}
 
 			td.highlighted {
@@ -250,7 +250,7 @@
 				text-align: center;
 				font-weight: bold;
 				border: 1px dashed grey;
-				background-color: #FFFFFF;
+				background-color: #725B7D;
 			}
 
 			div.floating {
