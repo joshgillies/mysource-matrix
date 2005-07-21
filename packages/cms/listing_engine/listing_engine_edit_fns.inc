@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.21 2005/07/20 07:00:53 tbarrett Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.22 2005/07/21 07:32:36 lwright Exp $
 *
 */
 
@@ -36,11 +36,13 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *     should create its children
 *
 *
-* @author  Luke Wright   <lwright@squiz.net>
-* @author  David Heppell <dheppell@squiz.net>
-* @author  Marc McIntyre <mmcintyre@squiz.net>
-* @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.21 $
+* @author Luke Wright   <lwright@squiz.net>
+* @author David Heppell <dheppell@squiz.net>
+* @author Marc McIntyre <mmcintyre@squiz.net>
+* @author Greg Sherwood <greg@squiz.net>
+* @author Andrei Railean <arailean@squiz.net>
+* @author Robert Howard <rhoward@squiz.net>
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -747,7 +749,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 				$copy_link = Array('asset' => &$folder, 'value' => $new_type, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 
-				$bodycopy = new Bodycopy();
+				$bodycopy =& new Bodycopy();
 				$bodycopy->setAttrValue('name', $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($new_type, 'name').' Format');
 
 				if (!$bodycopy->create($copy_link)) {
@@ -888,7 +890,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 				$copy_link = Array('asset' => &$folder, 'value' => 'position_'.$new_position, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 
-				$bodycopy = new Bodycopy();
+				$bodycopy =& new Bodycopy();
 				$bodycopy->setAttrValue('name', translate('cms_listing_position_number_format', $new_position));
 
 				if (!$bodycopy->create($copy_link)) {
@@ -1891,7 +1893,8 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 						?><li><?php echo $type_names[$type_code];
 						if ($group_by_option['restrict_types']['inherit'][$key]) {
 							echo ' (inherits child types)';
-						}?></li><?php
+						}
+						?></li><?php
 					}
 					?></ul><?php
 				}
@@ -2052,7 +2055,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 					$copy_link = Array('asset' => &$folder, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1, 'sort_order' => $new_position);
 
-					$bodycopy = new Bodycopy();
+					$bodycopy =& new Bodycopy();
 					$bodycopy->setAttrValue('name', 'Group Level '.($new_position+1).' Format');
 					$group_listing_data = Array('content' => '%group_listing%');
 
@@ -2090,6 +2093,432 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		return false;
 
 	}//end processNewGroupBy()
+
+
+	/**
+	* Paint the current Asset Selections
+	*
+	* @param object Listing_Engine		&$asset				asset being painted
+	* @param object Backend_Outputter	&$o					backend outputter
+	* @param string						$prefix				prefix for the html doc element name
+	* @param Array						$group_by_option	the 'group by' array element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintSelections(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+
+		$selections = $asset->attr('asset_selections');
+		$input_types = Array(
+						'radio'		=> translate('cms_listing_radio_buttons'),
+						'selection'	=> translate('cms_listing_drop_down_list'),
+						'textbox'	=> translate('cms_listing_text_field'),
+					   );
+		$defaults = $asset->getAssetSelectionDefaults();
+
+		// print existing selections
+		foreach ($selections as $name => $settings) {
+			?>
+			<table class="sq-backend-table">
+				<tr>
+					<td class="sq-backend-table-header"><?php echo $name; ?></td>
+					<td class="sq-backend-table-header" style="text-align: right;">
+					<?php
+						hidden_field($prefix.'_sel['.$name.'][permanent]', array_get_index($settings, 'permanent', $defaults['permanent']));
+						if ($write_access && !array_get_index($settings, 'permanent', $defaults['permanent'])) {
+							check_box($prefix.'_sel_delete['.$name.']', '1');
+							label(translate('delete_question'), $prefix.'_sel_delete['.$name.']');
+						}
+					?>
+					</td>
+				</tr>
+				<tr>
+					<td class="sq-backend-table-cell"><?php echo translate('cms_listing_input_style') ?></td>
+					<td class="sq-backend-table-cell">
+					<?php
+						if ($write_access) {
+							combo_box($prefix.'_sel['.$name.'][type]', $input_types, false, array_get_index($settings, 'type', $defaults['type']));
+						} else {
+							echo $input_types[array_get_index($settings, 'type', $defaults['type'])];
+						}
+					?>
+					</td>
+				</tr>
+				<tr>
+					<td class="sq-backend-table-cell"><?php echo translate('options') ?></td>
+					<td class="sq-backend-table-cell">
+
+						<?php
+							$options =& array_get_index($settings, 'options', Array());
+						?>
+
+						<table style="width: 100%; border: 0;">
+							<tr>
+								<td>
+								<?php
+									if ($write_access) {
+										check_box($prefix.'_sel['.$name.'][options][allow_multiple]', '1', array_get_index($options, 'allow_multiple', $defaults['options']['allow_multiple']));
+										label(translate('cms_listing_allow_multiple'), $prefix.'_sel['.$name.'][options][allow_multiple]');
+									} else {
+										?><img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo (array_get_index($options, 'allow_multiple', $defaults['options']['allow_multiple']) ? 'tick' : 'cross'); ?>.gif" width="15" height="15" /><?php
+										echo ' '.translate('cms_listing_allow_multiple');
+									}
+								?>
+								</td>
+								<td style="text-align: right;"><?php echo translate('cms_listing_radio_dd_only') ?></td>
+							</tr>
+							<tr>
+								<td>
+								<?php
+									if ($write_access) {
+										check_box($prefix.'_sel['.$name.'][options][allow_negative]', '1', array_get_index($options, 'allow_negative', $defaults['options']['allow_negative']));
+										label(translate('cms_listing_allow_negative_values'), $prefix.'_sel['.$name.'][options][allow_negative]');
+									} else {
+										?><img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo (array_get_index($options, 'allow_negative', $defaults['options']['allow_negative']) ? 'tick' : 'cross'); ?>.gif" width="15" height="15" /><?php
+										echo ' '.translate('cms_listing_allow_negative_values');
+									}
+								?>
+								</td>
+								<td style="text-align: right;"><?php echo translate('cms_listing_text_dd_only') ?></td>
+							</tr>
+							<tr>
+								<td>
+									<?php
+										$restrict_range = array_get_index($options, 'restrict_range', Array());
+										if ($write_access) {
+											check_box($prefix.'_sel['.$name.'][options][restrict_range][enable]', '1', array_get_index($restrict_range, 'enable', $defaults['options']['restrict_range']['enable']));
+											label(translate('cms_listing_restrict_values_to_range').':', $prefix.'_sel['.$name.'][options][restrict_range][enable]');
+										} else {
+											?><img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo (array_get_index($restrict_range, 'enable', $defaults['options']['restrict_range']['enable']) ? 'tick' : 'cross'); ?>.gif" width="15" height="15" /><?php
+											echo translate('cms_listing_restrict_values_to_range') ?>:<?php
+										}
+
+										// From box
+										ob_start();
+											if ($write_access) {
+												int_text_box($prefix.'_sel['.$name.'][options][restrict_range][min]', array_get_index($restrict_range, 'min', $defaults['options']['restrict_range']['min']), true, 3);
+											} else {
+												echo '<strong>'.array_get_index($restrict_range, 'min', $defaults['options']['restrict_range']['min']).'</strong>';
+											}
+											$from_box = ob_get_contents();
+										ob_end_clean();
+
+										// To box
+										ob_start();
+											if ($write_access) {
+												int_text_box($prefix.'_sel['.$name.'][options][restrict_range][max]', array_get_index($restrict_range, 'max', $defaults['options']['restrict_range']['max']), true, 3);
+											} else {
+												echo '<strong>'.array_get_index($restrict_range, 'max', $defaults['options']['restrict_range']['max']).'</strong>';
+											}
+											$to_box = ob_get_contents();
+										ob_end_clean();
+
+										echo ' '.translate('cms_listing_from_to_range', $from_box, $to_box);
+									?>
+								</td>
+								<td style="text-align: right; vertical-align: top;">
+									<?php echo translate('cms_listing_text_dd_only_dd_req') ?><br/>
+									<?php echo translate('cms_listing_override_by_previous_options') ?>
+
+								</td>
+							</tr>
+						</table>
+
+					</td>
+				</tr>
+			</table><br />
+			<?php
+		}//end foreach($selections)
+
+		// new
+		if ($write_access) {
+			$o->closeField();
+			$o->openField(translate('cms_listing_add_new_selection_question'));
+
+			text_box($prefix.'_sel_new', '');
+		}
+
+		return $write_access;
+
+	}//end paintSelections()
+
+
+	/**
+	* Process Asset Selection modifications and deletions
+	*
+	* @param object Listing_Engine		&$asset				asset being painted
+	* @param object Backend_Outputter	&$o					backend outputter
+	* @param string						$prefix				prefix for the html doc element name
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processSelections(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+
+		if ($write_access) {
+			$selections = $asset->attr('asset_selections');
+			$defaults = $asset->getAssetSelectionDefaults();
+
+			// modify values
+			if (!empty($_POST[$prefix.'_sel'])) {
+				foreach ($_POST[$prefix.'_sel'] as $name => $settings) {
+
+					// only modify, not add
+					if (isset($selections[$name])) {
+
+						$selections[$name] = array_merge_multi($defaults, $settings);
+
+						$type           = array_get_index($selections[$name], 'type', $defaults['type']);
+						$options        = array_get_index($selections[$name], 'options', $defaults['options']);
+						$restrict_range = array_get_index($options, 'restrict_range', $defaults['options']['restrict_range']);
+
+						// check for invalid combinations of settings, and change them if required
+						// ... allow_multiple - radio & selection only
+						if (array_get_index($options, 'allow_multiple', $defaults['options']['allow_multiple']) && ($type != 'radio' && $type != 'selection')) {
+							$selections[$name]['options']['allow_multiple'] = 0;
+						}
+
+						// ... allow_negative - textbox & selection only
+						if (array_get_index($options, 'allow_negative', $defaults['options']['allow_negative']) && $type != 'textbox') {
+							$selections[$name]['options']['allow_negative'] = 0;
+						}
+
+						// ... restrict_range - textbox & selection only
+						if (array_get_index($restrict_range, 'enable', $defaults['options']['restrict_range']['enable']) && ($type != 'textbox' && $type != 'selection')) {
+							$selections[$name]['options']['restrict_range']['enable'] = 0;
+						}
+
+						// turn the range if selection was selected
+						if ($type == 'selection') {
+							$selections[$name]['options']['restrict_range']['enable'] = 1;
+						}
+
+						// fix negative min or max when 'allow_negative' is unchecked
+						if (array_get_index($restrict_range, 'min', $defaults['options']['restrict_range']['min']) < 0 && !array_get_index($options, 'allow_negative', $defaults['options']['allow_negative'])) {
+							$selections[$name]['options']['restrict_range']['min'] = 0;
+						}
+						if (array_get_index($restrict_range, 'max', $defaults['options']['restrict_range']['max']) < 0 && !array_get_index($options, 'allow_negative', $defaults['options']['allow_negative'])) {
+							$selections[$name]['options']['restrict_range']['max'] = 0;
+						}
+
+						// min > max
+						if (array_get_index($restrict_range, 'min', $defaults['options']['restrict_range']['min']) > array_get_index($restrict_range, 'max', $defaults['options']['restrict_range']['max'])) {
+							$selections[$name]['options']['restrict_range']['min'] = array_get_index($restrict_range, 'max', $defaults['options']['restrict_range']['max']);
+						}
+
+					}
+
+				}
+			}
+
+			// process deletions
+			if (!empty($_POST[$prefix.'_sel_delete'])) {
+				foreach ($_POST[$prefix.'_sel_delete'] as $name => $value) {
+					if (isset($selections[$name])) {
+						unset($selections[$name]);
+					}
+				}
+			}
+
+			if (!empty($_POST[$prefix.'_sel_new'])) {
+				// set the defaults
+				$name = trim($_POST[$prefix.'_sel_new']);
+				$name = str_replace(' ','_',$name);
+				$name = str_replace('%','_',$name);
+
+				$selections[$name] = $defaults;
+			}
+
+			$asset->setAttrValue('asset_selections', $selections);
+		}
+
+
+		return $write_access;
+
+	}//end processSelections()
+
+
+	/**
+	* Paint the current Asset Targets
+	*
+	* @param object Listing_Engine		&$asset				asset being painted
+	* @param object Backend_Outputter	&$o					backend outputter
+	* @param string						$prefix				prefix for the html doc element name
+	* @param Array						$group_by_option	the 'group by' array element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintTargets(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+
+		$targets  = $asset->attr('asset_targets');
+		$defaults = $asset->getAssetTargetDefaults();
+
+		// print existing selections
+		foreach ($targets as $name => $settings) {
+			?>
+			<table class="sq-backend-table">
+				<tr>
+					<td class="sq-backend-table-header"><?php echo $name; ?></td>
+					<td class="sq-backend-table-header" style="text-align: right;">
+					<?php
+						hidden_field($prefix.'_target['.$name.'][permanent]', array_get_index($settings, 'permanent', $defaults['permanent']));
+						if ($write_access && !array_get_index($settings, 'permanent', $defaults['permanent'])) {
+							check_box($prefix.'_target_delete['.$name.']', '1');
+							label(translate('delete_question'), $prefix.'_target_delete['.$name.']');
+						}
+					?>
+					</td>
+				</tr>
+				<tr>
+					<td class="sq-backend-table-cell"><?php echo translate('cms_listing_button_label') ?>:</td>
+					<td class="sq-backend-table-cell">
+					<?php
+						if ($write_access) {
+							text_box($prefix.'_target['.$name.'][label]', array_get_index($settings, 'label', $defaults['label']));
+						} else {
+							echo array_get_index($settings, 'label', $defaults['label']);
+						}
+					?>
+					</td>
+				</tr>
+				<tr>
+					<td class="sq-backend-table-cell"><?php echo translate('cms_listing_target') ?>:</td>
+					<td class="sq-backend-table-cell">
+
+					<?php
+						$assetid = array_get_index(array_get_index($settings, 'target_asset', $defaults['target_asset']), 'assetid', $defaults['target_asset']['assetid']);
+
+						if ($write_access) {
+							?>
+							<table style="width: 100%; border: 0;">
+								<tr>
+									<td style="width: 100px"><?php echo translate('url') ?>:</td>
+									<td><?php text_box($prefix.'_target['.$name.'][target_url]', array_get_index($settings, 'target_url', $defaults['target_url'])); ?></td>
+								</tr>
+								<tr>
+									<td style="width: 100px"><?php echo translate('cms_listing_or_asset') ?>:</td>
+									<td><?php asset_finder($prefix.'_target['.$name.'][target_asset]', $assetid); ?></td>
+								</tr>
+							</table>
+							<?php
+
+						} else {
+
+							if (!empty($settings['target_url'])) {
+
+								?>
+								<table style="width: 100%; border: 0;">
+									<tr>
+										<td style="width: 100px"><?php echo translate('url') ?>:</td>
+										<td><?php echo array_get_index($settings, 'target_url', $defaults['target_url']); ?></td>
+									</tr>
+								</table>
+								<?php
+
+							} else if (!empty($settings['target_asset'])) {
+
+								?>
+								<table style="width: 100%; border: 0;">
+									<tr>
+										<td style="width: 100px"><?php echo translate('asset') ?>:</td>
+										<td>
+										<?php
+											$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid), Array(), false, 'name');
+											echo $asset_info[$assetid].' (#'.$assetid.')';
+										?>
+										</td>
+									</tr>
+								</table>
+								<?php
+
+							}
+
+						}
+					?>
+
+					</td>
+				</tr>
+			</table><br />
+			<?php
+		}//end foreach($targets)
+
+		// new
+		if ($write_access) {
+			$o->closeField();
+			$o->openField(translate('cms_listing_add_new_target_question'));
+
+			text_box($prefix.'_target_new', '');
+		}
+
+		return $write_access;
+
+	}//end paintTargets()
+
+
+	/**
+	* Process Asset Target modifications and deletions
+	*
+	* @param object Listing_Engine		&$asset				asset being painted
+	* @param object Backend_Outputter	&$o					backend outputter
+	* @param string						$prefix				prefix for the html doc element name
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processTargets(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+
+		if ($write_access) {
+
+			$targets = $asset->attr('asset_targets');
+			$defaults = $asset->getAssetTargetDefaults();
+
+			// modify values
+			if (!empty($_POST[$prefix.'_target'])) {
+				foreach ($_POST[$prefix.'_target'] as $name => $settings) {
+					// only modify, not add
+					if (isset($targets[$name])) {
+						$targets[$name] = array_merge_multi($defaults, $settings);
+
+						// if url is set, clear the asset selection
+						if (!empty($targets[$name]['target_url'])) {
+							$targets[$name]['target_asset']['assetid'] = 0;
+						}
+					}
+				}
+			}
+
+			// process deletions
+			if (!empty($_POST[$prefix.'_target_delete'])) {
+				foreach ($_POST[$prefix.'_target_delete'] as $name => $value) {
+					if (isset($targets[$name])) unset($targets[$name]);
+				}
+			}
+
+			// new
+			if (!empty($_POST[$prefix.'_target_new'])) {
+				// set the defaults
+				$name = trim($_POST[$prefix.'_target_new']);
+				$name = str_replace(' ','_',$name);
+				$name = str_replace('%','_',$name);
+
+				$targets[$name] = $defaults;
+			}
+
+			$asset->setAttrValue('asset_targets', $targets);
+		}
+
+		return $write_access;
+
+	}//end processTargets()
 
 
 	/**
@@ -2177,4 +2606,6 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 
 }//end class
+
+
 ?>

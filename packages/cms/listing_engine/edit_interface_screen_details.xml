@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.8 2005/05/24 00:16:19 arailean Exp $
+* $Id: edit_interface_screen_details.xml,v 1.9 2005/07/21 07:32:36 lwright Exp $
 *
 */
 -->
@@ -48,6 +48,9 @@
 		<field attribute="group_by">
 			<selection style="list" />
 		</field>
+		<field attribute="selection_type">
+			<selection style="list" />
+		</field>
 		<field>
 			<function_call>
 				<paint_function   name="paintAssetTypes"   />
@@ -55,7 +58,6 @@
 			</function_call>
 		</field>
 		<field attribute="num_per_page">
-			<display_name>Assets Per Page</display_name>
 			<int width="5" />
 		</field>
 	</section>
@@ -72,8 +74,11 @@
 			<parameter_map />
 		</field>
 	</section>
-	<section name="Submit Button" write_access="write:attributes">
+	<section name="Button Text" write_access="write:attributes">
 		<field attribute="submit_button_text">
+			<text width="25" height="1" />
+		</field>
+		<field attribute="reset_button_text">
 			<text width="25" height="1" />
 		</field>
 	</section>

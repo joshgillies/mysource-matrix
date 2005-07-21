@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_management.inc,v 1.28 2005/07/20 07:00:53 tbarrett Exp $
+* $Id: listing_engine_management.inc,v 1.29 2005/07/21 07:32:36 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -53,19 +53,17 @@ class Listing_Engine_Management extends Asset_Management
 								'default'	=> Array(),
 							   );
 
-		$this->vars['statuses'] = Array(
-										'added'			=> '0.8',
-										'type'			=> 'serialise',
-										'default'		=> Array(),
-										'description'	=> 'Statuses that are being searched.',
-									   );
-
-
 		$this->vars['submit_button_text'] = Array(
 												'added'		=> '0.1',
 												'type'		=> 'text',
 												'default'	=> 'Submit',
 											);
+
+		$this->vars['reset_button_text'] = Array(
+											'added'		=> '0.1',
+											'type'		=> 'text',
+											'default'	=> 'Reset',
+										   );
 
 		$this->vars['sort_by'] = Array(
 									'added'		=> '0.1',
@@ -126,7 +124,9 @@ class Listing_Engine_Management extends Asset_Management
 										'added'			=> '0.1',
 										'type'			=> 'boolean',
 										'default'		=> false,
-										'parameters'	=> Array('allow_empty'	=> false,),
+										'parameters'	=> Array(
+															'allow_empty'	=> false,
+														   ),
 									  );
 
 		$this->vars['sort_direction_asc_text'] = Array(
@@ -231,6 +231,21 @@ class Listing_Engine_Management extends Asset_Management
 											'type'		=> 'serialise',
 											'default'	=> Array(),
 										);
+
+		$this->vars['asset_selections'] = Array(
+											'added'			=> '0.9',
+											'type'			=> 'serialise',
+											'default'		=> Array(),
+											'description'	=> 'Sets of named checkboxes, drop-down lists, etc',
+										  );
+
+		$this->vars['asset_targets'] = Array(
+										'added'			=> '0.9',
+										'type'			=> 'serialise',
+										'default'		=> Array(),
+										'description'	=> 'Adds buttons to the bodycopy that point to other assets or URLs',
+									   );
+
 	}//end constructor
 
 
@@ -259,6 +274,21 @@ class Listing_Engine_Management extends Asset_Management
 			   );
 
 	}//end getEventList()
+
+
+	/**
+	* Gets a list of all files that we want web accessable
+	*
+	* @access private
+	* @return array(string)
+	*/
+	function _getFileList()
+	{
+		return Array(
+				'js/select_all.js',
+			   );
+
+	}//end _getFileList()
 
 
 	/**
@@ -498,14 +528,14 @@ class Listing_Engine_Management extends Asset_Management
 
 				// Group Format
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset('folder');
-				$group_formats = new Folder();
+				$group_formats =& new Folder();
 				$copy_link = Array(
-									'asset'			=> &$asset,
-									'value'			=> 'group_formats',
-									'link_type'		=> SQ_LINK_TYPE_2,
-									'is_dependant'	=> 1,
-									'is_exclusive'	=> 1,
-									'sort_order'	=> 2,
+								'asset'			=> &$asset,
+								'value'			=> 'group_formats',
+								'link_type'		=> SQ_LINK_TYPE_2,
+								'is_dependant'	=> 1,
+								'is_exclusive'	=> 1,
+								'sort_order'	=> 2,
 							 );
 
 				$group_formats->setAttrValue('name', 'Group Formats');

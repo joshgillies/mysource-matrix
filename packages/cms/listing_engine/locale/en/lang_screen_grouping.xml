@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_grouping.xml,v 1.1 2005/06/15 01:26:39 dheppell Exp $
+* $Id: lang_screen_grouping.xml,v 1.2 2005/07/21 07:32:44 lwright Exp $
 *
 */
 -->
@@ -26,18 +26,6 @@
 <contents>
 	<section name="Asset Grouping" write_access="write:attributes">
 	</section>
-<!-- 	<section name="Group Display Level">
-		<display_name>Group Display Level</display_name>
-		<field>
-			<display_name>Display Level</display_name>
-			<function_call>
-				<paint_function   name="paintDisplayLevel" />
-				<process_function name="processDisplayLevel" />
-			</function_call>
-			<note>When displaying groups the group display format will display the contents of this level</note>
-		</field>
-	</section>
--->
 	<section name="Add New Group">
 		<field>
 			<display_name>New Group ?</display_name>

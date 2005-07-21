@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.7 2005/06/15 01:26:39 dheppell Exp $
+* $Id: lang_screen_details.xml,v 1.8 2005/07/21 07:32:44 lwright Exp $
 *
 */
 -->
@@ -59,6 +59,11 @@
 			&lt;br/&gt;Custom Grouping allows a list based on user specifed grouping conditions.
 			</note>
 		</field>
+		<field attribute="selection_type">
+			<display_name>Selection Type</display_name>
+			<note>Each displayed assets can either be non-selectable, or be displayed with a checkbox, textbox or radio button
+			allowing the asset to be selected.</note>
+		</field>
 		<field>
 			<display_name>Asset Types to List</display_name>
 			<note></note>
@@ -89,10 +94,14 @@
 			<note />
 		</field>
 	</section>
-	<section name="Submit Button">
+	<section name="Button Text">
 		<field attribute="submit_button_text">
-				<display_name>Submit Button Text</display_name>
-				<note />
+			<display_name>Submit Button Text</display_name>
+			<note />
+		</field>
+		<field attribute="reset_button_text">
+			<display_name>Reset Button Text</display_name>
+			<note />
 		</field>
 	</section>
 </contents>

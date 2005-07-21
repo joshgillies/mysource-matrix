@@ -1,6 +1,3 @@
-<?xml version='1.0' encoding='UTF-8' ?>
-<?xml-stylesheet href="../../asset.xsl" type="text/xsl"?>
-
 <!--
 /**
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
@@ -21,20 +18,30 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.9 2005/07/21 07:32:36 lwright Exp $
+* $Id: lang_screen_selections.xml,v 1.1 2005/07/21 07:33:42 lwright Exp $
 *
 */
 -->
 
-<asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../asset.xsd">
-	<package>cms</package>
-	<type_code>listing_engine</type_code>
-	<version>0.9</version>
-	<name>Listing Engine Asset</name>
-	<description>Provides listing services to a range of assets previously serviced by the Asset Listing type</description>
-	<instantiable>no</instantiable>
-	<allowed_access>system</allowed_access>
-	<parent_type>page</parent_type>
-	<requirements />
-	<flash_menu_path />
-</asset_info>
+<contents>
+	<section name="Asset Selections">
+		<field>
+			<display_name>Asset Selections</display_name>
+			<function_call>
+				<paint_function   name="paintSelections" />
+				<process_function name="processSelections" />
+			</function_call>
+			<note>Selection groups define selection columns available for use by the asset, eg. checkbox or radiobutton columns.</note>
+		</field>
+	</section>
+	<section name="Asset Targets">
+		<field>
+			<display_name>Asset Targets</display_name>
+			<function_call>
+				<paint_function   name="paintTargets" />
+				<process_function name="processTargets" />
+			</function_call>
+			<note>Asset Targets are used to send a list of selected assets to another asset, or URL.</note>
+		</field>
+	</section>
+</contents>

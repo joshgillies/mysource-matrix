@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.5 2005/07/21 04:11:30 skim Exp $
+* $Id: lang_strings.xml,v 1.6 2005/07/21 07:32:44 lwright Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -44,6 +44,9 @@
 <string source="cms_listing_asset_name_linked">Asset Name Linked</string>
 <string source="cms_listing_asset_short_name_linked">Short Asset Name Linked</string>
 <string source="cms_listing_asset_position">Asset Position</string>
+<string source="cms_listing_asset_selection">Asset Selection</string>
+<string source="cms_listing_asset_selection_check_all">Asset Selection Check All (%s)</string>
+<string source="cms_listing_asset_selection_check_all_in_group">Asset Selection Check All In Group (%s)</string>
 <string source="cms_listing_default_sort_by_option">Default Sort By Option</string>
 <string source="cms_listing_no_sort_by_options">There are no sort by options</string>
 <string source="cms_listing_list_sort_order">List Sort Order</string>
@@ -55,6 +58,7 @@
 <string source="cms_listing_new_sort_by_field">New Sort By Field</string>
 <string source="cms_listing_keyword_root_nodes">Root Nodes (separated by commas)</string>
 <string source="cms_listing_keyword_submit_button">Submit Button</string>
+<string source="cms_listing_keyword_reset_button">Reset Button</string>
 <string source="cms_listing_keyword_sort_by">Sort By</string>
 <string source="cms_listing_keyword_sort_order">Sort Order</string>
 <string source="cms_listing_parent_asset">Parent Asset</string>
@@ -70,6 +74,27 @@
 <string source="cms_listing_group_metadata_field_note">If the metadata schema that contains this field is not applied to an asset, it will be omitted from the asset listing</string>
 <string source="cms_listing_no_sorting_applied">No sorting applied</string>
 <string source="cms_listing_cannot_use_asset_postitions_with_groups">Custom Grouping is currently selected. Asset positions are not used for Custom Grouping</string>
+<string source="cms_listing_add_new_target_question">Add New Target?</string>
+<string source="cms_listing_from_to_range">(From %1$s to %2$s)</string>
+<string source="cms_listing_add_new_selection_question">Add New Selection?</string>
+<string source="cms_listing_button_label">Button Label</string>
+<string source="cms_listing_radio_buttons">Radio Buttons</string>
+<string source="cms_listing_drop_down_list">Drop-Down List</string>
+<string source="cms_listing_text_field">Text Field</string>
+<string source="cms_listing_radio_dd_only">(Radio Buttons and Drop-down Lists only)</string>
+<string source="cms_listing_text_dd_only">(Text Fields and Drop-down Lists only)</string>
+<string source="cms_listing_text_dd_only_dd_req">(Text Fields and Drop-down Lists only - required for Drop-down Lists)</string>
+<string source="cms_listing_override_by_previous_options">(Note, this option will be overridden by the previous options)</string>
+<string source="cms_listing_allow_negative_values">Allow negative values</string>
+<string source="cms_listing_input_style">Input Style</string>
+<string source="cms_listing_target">Target</string>
+<string source="cms_listing_or_asset">or Asset</string>
+<string source="cms_listing_restrict_values_to_range">Restrict values to a range</string>
+<string source="cms_listing_allow_multiple">Allow multiple selections</string>
+<string source="cms_listing_asset_target_button">Asset Target Button (%s)</string>
+<string source="cms_listing_group_name">Group Name</string>
+<string source="cms_listing_group_asset_listing">Group Asset Listing</string>
+<string source="cms_listing_keyword_asset_selection">Asset Selection (%s)</string>
 <string source="cms_listing_group_listing">Asset Group Listing</string>
 <string source="cms_listing_group_name">Asset Group Name</string>
 </strings>

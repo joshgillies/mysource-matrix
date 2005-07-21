@@ -18,13 +18,13 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.50 2005/07/21 04:11:30 skim Exp $
+* $Id: listing_engine.inc,v 1.51 2005/07/21 07:32:36 lwright Exp $
 *
 */
 
 
 require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
-
+require_once SQ_FUDGE_PATH.'/general/text.inc';
 
 /**
 * Listing_Engine
@@ -36,13 +36,14 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *     should create its children
 *
 *
-* @author  Luke Wright   <lwright@squiz.net>
-* @author  David Heppell <dheppell@squiz.net>
-* @author  Marc McIntyre <mmcintyre@squiz.net>
-* @author  Greg Sherwood <greg@squiz.net>
-* @author  Andrei Railean <arailean@squiz.net>
+* @author Luke Wright   <lwright@squiz.net>
+* @author David Heppell <dheppell@squiz.net>
+* @author Marc McIntyre <mmcintyre@squiz.net>
+* @author Greg Sherwood <greg@squiz.net>
+* @author Andrei Railean <arailean@squiz.net>
+* @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.50 $
+* @version $Revision: 1.51 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -302,11 +303,24 @@ class Listing_Engine extends Page
 			$keys_to_remove[$key] = null;
 		}
 
-		if (!empty($used_fields) || $this->requires_form) {
+
+		if (!empty($used_fields) || ($this->attr('selection_type') != 'none') || $this->requires_form) {
+
+			// include the 'select all' js if required
+			$selections = $this->attr('asset_selections');
+			foreach ($selections as $selection_name => $selection_settings) {
+				if (array_get_index($selection_settings, 'type', null) == 'radio' && !empty($selection_settings['options']['allow_multiple'])) {
+					?>
+					<script type="text/javascript" src="<?php echo sq_web_path('data') ?>/asset_types/listing_engine/js/select_all.js"></script>
+					<?php
+					break;
+				}
+			}
+
 			?>
-				<form name="listing_form" method="get" action="<?php echo replace_query_string_vars($keys_to_remove); ?>">
-				<?php echo $contents; ?>
-				</form>
+			<form name="listing_form" method="get" action="<?php echo replace_query_string_vars($keys_to_remove); ?>">
+			<?php echo $contents; ?>
+			</form>
 			<?php
 		} else {
 			echo $contents;
@@ -399,7 +413,6 @@ class Listing_Engine extends Page
 	*/
 	function sortAssetList($asset_list, $sort_info)
 	{
-
 		if (count($asset_list) == 1 || empty($sort_info)){
 			return $asset_list;
 		}
@@ -480,12 +493,15 @@ class Listing_Engine extends Page
 		} else {
 			$sort_field = $sort_params['field'];
 
-			$sort_assets = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($assetids, null, true, $sort_field);
-			for (reset($sort_assets); null !== ($assetid = key($sort_assets)); next($sort_assets)) {
-				$sort_assets[$assetid] = strtolower($sort_assets[$assetid]);
+			if (in_array($sort_field, $this->getSortableAssetInfo())) {
+				$sort_assets = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($assetids, null, true, $sort_field);
+				for (reset($sort_assets); null !== ($assetid = key($sort_assets)); next($sort_assets)) {
+					$sort_assets[$assetid] = strtolower($sort_assets[$assetid]);
+				}
+
+				if ($sort_field != 'assetid') $sort_numeric = false;
 			}
 
-			if ($sort_field != 'assetid') $sort_numeric = false;
 		}
 
 		$reverse_sort = $this->isDescending();
@@ -1046,8 +1062,20 @@ class Listing_Engine extends Page
 			$this->_tmp['position_formats'][$position] = $link_data['minorid'];
 		}
 
+		// in case it wasn't done beforehand in printContents() or something
+		$relations = $this->_analyseCheckAllRelations($todo);
+		?>
+		<script type="text/javascript"><!--
+			<?php echo $this->_buildRelationsJS(); ?>
+		//--></script>
+		<?php
 
-		$this->_printGroups($todo, $this->attr('asset_grouping'));
+		if ($this->attr('group_by') == 'grouped') {
+			$this->sortGroups($this->attr('asset_grouping'), $todo, $todo);
+			$this->_printGroups($todo, $this->attr('asset_grouping'));
+		} else {
+			$this->_printAssetList($todo);
+		}
 
 	}//end printAssetList()
 
@@ -1067,34 +1095,14 @@ class Listing_Engine extends Page
 	*/
 	function _printGroups(&$todo, $group_info)
 	{
-//minibam($todo);
-//minibam($group_info);
-
-//error_log($todo);
-
 		$pointer = reset($todo);
-
 		if (!empty($group_info)) {
-
-			//get the group bodycopy relative to this level
+			// get the group bodycopy relative to this level
 			$remaining_groups = array_shift($group_info);
 			$format_bodycopy =& $GLOBALS['SQ_SYSTEM']->am->getAsset($remaining_groups['format_assetid']);
 
 			foreach ($todo as $group_level => $value) {
-
-					// if $value is not an array or an object, don't go in...
-
-				//lets buffer whatever contents we need
-					ob_start();
-						//if (is_array($value) || is_object($value)) {
-							$this->_printGroups($todo[$group_level], $group_info);
-						//} else {
-						//	$this->_printGroups($todo, $group_info);
-						//}
-						$group_contents = ob_get_contents();
-					ob_end_clean();
-
-
+					// lets buffer whatever contents we need
 
 					switch ($remaining_groups['group_type']) {
 
@@ -1118,9 +1126,42 @@ class Listing_Engine extends Page
 						break;
 					}
 
+					if (isset($this->_tmp['group_info'])) {
+						array_push($this->_tmp['group_info'], $group_level);
+					} else {
+						$this->_tmp['group_info'] = Array($group_level);
+					}
+
+					ob_start();
+						$this->_printGroups($todo[$group_level], $group_info);
+						$group_contents = ob_get_contents();
+					ob_end_clean();
+
 					// populate replacements
 					$replacements['group_listing'] = $group_contents;
 					$replacements['group_name']    = $group_name;
+
+					// only print the 'check all' checkbox if we're only dealing with checkboxes
+
+					$selections = $this->attr('asset_selections');
+					$selection_defaults   = $this->getAssetSelectionDefaults();
+
+					foreach ($selections as $selection_name => $settings) {
+						// predefine some commonly used settings, for brevity's sake
+						$selection_options          = array_get_index($settings,           'options',        $selection_defaults['options']);
+						$selection_allow_multiple   = array_get_index($selection_options,  'allow_multiple', $selection_defaults['options']['allow_multiple']);
+
+						if ((array_get_index($settings, 'type', $selection_defaults['type']) == 'radio') && $selection_allow_multiple) {
+							ob_start();
+							$onclick = Array();
+							$group_cb_id 	= 'g_'.implode('_', $this->_tmp['group_info']);
+							$control_name	= $selection_name.'['.$group_cb_id.']';
+							check_box($control_name, '1', false, 'sq_listing_check_state(this, \''.$selection_name.'\')');
+							$replacements[$selection_name.'_check_all_in_group'] = ob_get_clean();
+						}
+					}
+
+					array_pop($this->_tmp['group_info']);
 
 					$format_bodycopy->setKeywordReplacements($replacements);
 					$format_bodycopy->printBody();
@@ -1130,7 +1171,9 @@ class Listing_Engine extends Page
 			// otherwise we're up to the asset list, we can do the normal
 			// listing stuff here
 			$this->_printAssetList($todo);
+
 		}
+
 	}//end _printGroups()
 
 
@@ -1195,9 +1238,11 @@ class Listing_Engine extends Page
 
 			echo '</table>';
 		} else {
+
+			//$this->_tmp['group_todo'] = ;
 			foreach ($todo as $assetid => $type_code) {
 				if ($using_groups) {
-					$this->_printAsset($assetid, $type_code['type_code'], array_get_index($type_code, 'position_number', 0));
+					$this->_printAsset($assetid, $type_code['type_code'], $list_position);
 				} else {
 					$this->_printAsset($assetid, $type_code, $list_position);
 				}
@@ -1243,7 +1288,7 @@ class Listing_Engine extends Page
 
 		// if we can't find a position format
 		// search for type format, if we don't already know that default format should be used
-		if (is_null($bodycopy) && !in_array($this->_tmp['is_default'], $type_code)) {
+		if (is_null($bodycopy) && !in_array($type_code, $this->_tmp['is_default'])) {
 			$type_key = array_search($type_code, $customised);
 			if ($type_key !== false) {
 				$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->_tmp['type_folder_id'], SQ_LINK_TYPE_2, 'bodycopy', true, $type_code);
@@ -1267,6 +1312,7 @@ class Listing_Engine extends Page
 			}//end if using default format
 		}
 
+
 		// by the time we reach this point we already have a bodycopy for this asset
 		$this_needs_asset = false;
 		$bc_keywords = $bodycopy->getKeywords();
@@ -1280,7 +1326,6 @@ class Listing_Engine extends Page
 		if ($this_needs_asset) {
 			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 			if (is_null($asset)) return;
-
 			foreach ($bc_keywords as $keyword) {
 				$keywords[$keyword] = $asset->getKeywordReplacement($keyword);
 			}
@@ -1353,13 +1398,87 @@ class Listing_Engine extends Page
 			}
 		}
 
-		$keywords['page_href']      = $this->getHref();
-		$keywords['asset_position'] = (array_get_index($_REQUEST, 'result_page', 1) - 1) * $this->attr('num_per_page') + $list_position;
+		$keywords['page_href']       = $this->getHref();
+		$keywords['asset_position']  = (array_get_index($_REQUEST, 'result_page', 1) - 1) * $this->attr('num_per_page') + $list_position;
+
+		// asset selections
+		$selections         = $this->attr('asset_selections');
+		$selection_defaults = $this->getAssetSelectionDefaults();
+
+		if (is_array($selections) && !empty($selections)) {
+
+			foreach ($selections as $selection_name => $settings) {
+				ob_start();
+
+				// predefine some commonly used settings, for brevity's sake
+				$selection_options          = array_get_index($settings,           'options',        $selection_defaults['options']);
+				$selection_restrict         = array_get_index($selection_options,  'restrict_range', $selection_defaults['options']['restrict_range']);
+				$selection_restrict_enable  = array_get_index($selection_restrict, 'enable',         $selection_defaults['options']['restrict_range']['enable']);
+				$selection_restrict_min     = array_get_index($selection_restrict, 'min',            $selection_defaults['options']['restrict_range']['min']);
+				$selection_restrict_max     = array_get_index($selection_restrict, 'max',            $selection_defaults['options']['restrict_range']['max']);
+				$selection_allow_negative   = array_get_index($selection_options,  'allow_negative', $selection_defaults['options']['allow_negative']);
+				$selection_allow_multiple   = array_get_index($selection_options,  'allow_multiple', $selection_defaults['options']['allow_multiple']);
+
+				// grab the values for the field to display
+				$selection_value = $this->getAssetSelectionValue($selection_name, $assetid);
+
+				if ($selection_restrict_enable) {
+					$selection_value = ($selection_restrict_min > $selection_value ? $selection_restrict_min : $selection_value);
+				}
+
+				switch (array_get_index($settings, 'type', $selection_defaults['type'])) {
+					case 'textbox':
+						if ($selection_restrict_enable) {
+							int_text_box($selection_name.'['.$assetid.']', $selection_value, $selection_allow_negative, 3, $selection_restrict_min, $selection_restrict_max);
+						} else {
+							int_text_box($selection_name.'['.$assetid.']', $selection_value, $selection_allow_negative, 3);
+						}
+					break;
+
+					case 'selection':
+						// list contents
+						$selection_list = Array();
+						if (!empty($settings['options']['restrict_range']['enable'])) {
+							for ($ii = $selection_restrict_min; $ii <= $selection_restrict_max; $ii++) {
+								$selection_list[] = $ii;
+							}
+						} else {
+							$selection_list = Array('0');
+						}
+
+						// check that the value is on the list
+						if (!isset($selection_list[$selection_value])) {
+							$selection_value = reset($selection_list);
+						}
+
+						// list display
+						combo_box($selection_name.'['.$assetid.']', $selection_list, $selection_allow_multiple, $selection_value);
+					break;
+
+					case 'radio':
+					default:
+						if ($selection_allow_multiple) {
+							check_box($selection_name.'['.$assetid.']', '1', ($selection_value > 0 ? true : false), "sq_listing_check_state(this, '".$selection_name."')");
+
+							// the flag is used to determine whether a checkbox is
+							// present and not ticked, or not present at all
+							hidden_field($selection_name.'_flag', '1');
+						} else {
+							radio_button($selection_name, $assetid, ($selection_value == $assetid ? true : false));
+						}
+					break;
+				}
+
+				$keywords[$selection_name.'_asset_selection'] = ob_get_clean();
+			}
+		}
 
 		// kept for backwards compatibility
-		$keywords['result_no']      = &$keywords['asset_position'];
+		$keywords['result_no']  = &$keywords['asset_position'];
 
 		$keywords['root_nodes'] = implode(',', $this->getRootNodes());
+
+		$keywords += $this->getExtendedAssetKeywordReplacements();
 
 		$bodycopy->setKeywordReplacements($keywords);
 		$bodycopy->printBody();
@@ -1443,6 +1562,24 @@ class Listing_Engine extends Page
 		return $this->_tmp['root_asset_ids'];
 
 	}//end getRootNodes()
+
+
+	/**
+	* Returns a list of extra keywords that should be replaced for a particular
+	* listing asset
+	*
+	* This allows search page, for instance, to define its result number and
+	* score fields so they don't blank out when keywords are replaced in listing
+	* engine.
+	*
+	* @return Array(string => string)	keyword name => replacement
+	* @access public
+	*/
+	function getExtendedAssetKeywordReplacements()
+	{
+		return Array();
+
+	}//end getExtendedAssetKeywordReplacements()
 
 
 	/**
@@ -1659,8 +1796,8 @@ class Listing_Engine extends Page
 		} else {
 			//were at the end, we can do sort stuff here
 			$position_formats = $this->_getPositionFormats();
-			$results = $this->sortAssetList($results, $this->getSortInfo());
 			for (reset($results); null !== ($index = key($results)); next($results)) {
+				$results[$index] = $this->sortAssetList($results[$index], $this->getSortInfo());
 				$list_position = 1;
 				for (reset($results[$index]); null !== ($k = key($results[$index])); next($results[$index])) {
 					if (isset($position_formats[$list_position])) {
@@ -1754,7 +1891,7 @@ class Listing_Engine extends Page
 	*/
 	function reindexGroupFormats()
 	{
-		// if we have no group formats, it's not worth our timee
+		// if we have no group formats, it's not worth our time
 		$group_folder =& $this->getFolder('group_formats');
 		$groups = $this->attr('asset_grouping');
 		if (empty($groups)) return true;
@@ -1782,6 +1919,83 @@ class Listing_Engine extends Page
 		return true;
 
 	}//end reindexGroupFormats()
+
+
+	/**
+	* Preprocess the Asset Selection values before displaying the page or redirecting
+	* Overwritten by the children
+	*
+	* @return boolean    to indicate success
+	* @access public
+	*/
+	function processAssetSelections()
+	{
+		return true;
+
+	}//end processAssetSelections()
+
+
+	/**
+	* Provide the default values for each of the selection fields
+	* Overwritten by the children
+	*
+	* @param string		$selection_name
+	* @param string		$assetid
+	*
+	* @return mixed
+	* @access public
+	*/
+	function getAssetSelectionValue($selection_name, $assetid)
+	{
+		return 0;
+
+	}//end getAssetSelectionValue()
+
+
+	/**
+	* List the default settings format for Asset Selections
+	*
+	* @return Array
+	* @access public
+	*/
+	function getAssetSelectionDefaults()
+	{
+		return Array(
+				'type'		=> 'radio',
+				'options'	=> Array(
+								'allow_multiple'	=> 0,
+								'allow_negative'	=> 0,
+								'restrict_range'	=> Array(
+														'enable'	=> 0,
+														'min'		=> 0,
+														'max'		=> 10,
+													   ),
+							   ),
+				'permanent'	=> 0,
+			   );
+
+	}//end getAssetSelectionDefaults()
+
+
+	/**
+	* List the default settings format for Asset Targets
+	*
+	* @return Array
+	* @access private
+	*/
+	function getAssetTargetDefaults()
+	{
+		return Array(
+				'label'			=> '',
+				'target_asset'	=> Array(
+									'assetid'	=> 0,
+									'url'		=> '',
+								   ),
+				'target_url'	=> '',
+				'permanent'		=> 0,
+			   );
+
+	}//end getAssetTargetDefaults()
 
 
 	function _arrayCountRecursive(&$array, $limit=null)
@@ -1944,6 +2158,7 @@ class Listing_Engine extends Page
 
 		$keywords['sort_by']				= translate('cms_listing_keyword_sort_by');
 		$keywords['sort_order']				= translate('cms_listing_keyword_sort_order');
+		$keywords['reset_button']			= translate('cms_listing_keyword_reset_button');
 		$keywords['submit_button']			= translate('cms_listing_keyword_submit_button');
 		$keywords['root_nodes']				= translate('cms_listing_keyword_root_nodes');
 
@@ -1957,6 +2172,22 @@ class Listing_Engine extends Page
 		$keywords['total_pages']			= translate('cms_listing_total_pages');
 		$keywords['first_asset_position']	= translate('cms_listing_first_asset_position');
 		$keywords['last_asset_position']	= translate('cms_listing_last_asset_position');
+
+		$selections = $this->attr('asset_selections');
+		if (is_array($selections) && !empty($selections)) {
+			foreach ($selections as $name => $settings) {
+				if (array_get_index($settings, 'type', '') == 'radio' && !empty($settings['options']['allow_multiple'])) {
+					$keywords[$name.'_check_all'] = translate('cms_listing_asset_selection_check_all', $name);
+				}
+			}
+		}
+
+		$targets = $this->attr('asset_targets');
+		if (is_array($targets) && !empty($targets)) {
+			foreach ($targets as $name => $settings) {
+				$keywords[$name.'_asset_target'] = translate('cms_listing_asset_target_button', $name);
+			}
+		}
 
 		return $keywords;
 
@@ -1977,6 +2208,14 @@ class Listing_Engine extends Page
 		$keywords['asset_position'] = translate('cms_listing_asset_position');
 		$keywords['root_nodes'] = translate('cms_listing_keyword_root_nodes');
 
+		// asset selections
+		$selections = $this->attr('asset_selections');
+		if (is_array($selections) && !empty($selections)) {
+			foreach ($selections as $name => $settings) {
+				$keywords[$name.'_asset_selection'] = translate('cms_listing_keyword_asset_selection', $name);
+			}
+		}
+
 		return $keywords;
 
 	}//end _getTypeFormatsKeywords()
@@ -1990,9 +2229,18 @@ class Listing_Engine extends Page
 	*/
 	function _getGroupFolderKeywords()
 	{
-		$keywords = Array();
-		$keywords['group_listing']	= translate('cms_listing_group_listing');
-		$keywords['group_name']		= translate('cms_listing_group_name');
+		$keywords                  = Array();
+		$keywords['group_listing'] = translate('cms_listing_group_listing');
+		$keywords['group_name']    = translate('cms_listing_group_name');
+
+		$selections = $this->attr('asset_selections');
+		if (is_array($selections) && !empty($selections)) {
+			foreach ($selections as $name => $settings) {
+				if (array_get_index($settings, 'type', '') == 'radio' && !empty($settings['options']['allow_multiple'])) {
+					$keywords[$name.'_check_all'] = translate('cms_listing_asset_selection_check_all_in_group', $name);
+				}
+			}
+		}
 
 		return $keywords;
 
@@ -2000,6 +2248,95 @@ class Listing_Engine extends Page
 
 
 //--        KEYWORD REPLACEMENT        --//
+
+
+	/**
+	* Get bodycopy keyword replacement
+	*
+	* Provides a mechanism for providing keyword replacement functions by
+	* looking up the function named 'getKeywordNameKeywordReplacement'
+	* so an asset wishing to add support for 'best_ever' custom keyword
+	* should implement a function getBestEverKeywordReplacement()
+	* which returns a replacement string
+	*
+	* Overridden in listing_engine to handle dynamic keywords in the page
+	* contents, such as Asset Targets
+	*
+	* @param string	$keyword	Keyword to find a replacement for
+	*
+	* @return string
+	* @access public
+	*/
+	function getKeywordReplacement($keyword)
+	{
+		if (empty($keyword)) return '';
+
+		// check the keyword against the dynamic keywords
+
+		// asset targets
+		if (preg_match('/^(.*)(_asset_target)$/', $keyword, $matches)) {
+			if (isset($matches[1]) && isset($matches[2])) {
+				$args         = $matches[1];
+				$keyword_stem = $matches[2];
+			}
+		}
+
+
+		// setup the replacement function call
+		if (!empty($keyword_stem) && !empty($args)) {
+			$func_name = 'get'.ucwords_no_space($keyword_stem).'KeywordReplacement';
+			if (method_exists($this, $func_name)) {
+				return $this->$func_name($args);
+			}
+		}
+
+		// otherwise, fall back to the parent
+		return parent::getKeywordReplacement($keyword);
+
+	}//end getKeywordReplacement()
+
+
+	/**
+	* Return a subset of the replacements for the keywords available to the Page Contents Bodycopy for this asset
+	*
+	* The return value is in the form:
+	* <pre>
+	* Array(
+	*     'keyword' => 'name',
+	* )
+	* </pre>
+	*
+	* @access public
+	* @return array(string => string)
+	*/
+	function getContentsKeywordReplacements()
+	{
+		$replacements = Array();
+
+		$selections = $this->attr('asset_selections');
+		$selection_defaults   = $this->getAssetSelectionDefaults();
+
+		foreach ($selections as $selection_name => $settings) {
+			// predefine some commonly used settings, for brevity's sake
+			$selection_options          = array_get_index($settings,           'options',        $selection_defaults['options']);
+			$selection_allow_multiple   = array_get_index($selection_options,  'allow_multiple', $selection_defaults['options']['allow_multiple']);
+
+			// only print the 'check all' checkbox if we're only dealing with checkboxes
+			if ((array_get_index($settings, 'type', $selection_defaults['type']) == 'radio') && $selection_allow_multiple) {
+				ob_start();
+				$onclick = Array();
+				$group_cb_id 	= 'all';
+				$control_name	= $selection_name.'['.$group_cb_id.']';
+				check_box($control_name, '1', false, "sq_listing_check_state(this, '".$selection_name."')");
+				$replacements[$selection_name.'_check_all'] = ob_get_clean();
+			} else {
+				$replacements[$selection_name.'_check_all'] = '';
+			}
+		}
+
+		return $replacements;
+
+	}//end getContentsKeywordReplacements()
 
 
 	/**
@@ -2082,6 +2419,27 @@ class Listing_Engine extends Page
 
 
 	/**
+	* Get the replacement for "reset_button" keyword
+	*
+	* @return string
+	* @access public
+	*/
+	function getResetButtonKeywordReplacement()
+	{
+		$prefix = $this->getPrefix();
+		$field_name = $prefix.'_reset_button';
+		$this->registerFormField($field_name);
+
+		$button_text = $this->attr('reset_button_text');
+
+		ob_start();
+			reset_button($field_name, $button_text);
+		return ob_get_clean();
+
+	}//end getResetButtonKeywordReplacement()
+
+
+	/**
 	* Get the replacement for "root_nodes" keyword
 	*
 	* @return string
@@ -2093,6 +2451,142 @@ class Listing_Engine extends Page
 		return implode(',', $root_nodes);
 
 	}//end getRootNodesKeywordReplacement()
+
+
+	/**
+	* Get the replacements for the dynamic "_asset_target" keyword
+	*
+	* @return string
+	* @access public
+	*/
+	function getAssetTargetKeywordReplacement($name)
+	{
+		$targets    = $this->attr('asset_targets');
+		$prefix     = $this->getPrefix();
+		$field_name = $prefix.'_'.$name.'_asset_target';
+		$this->registerFormField($field_name);
+
+		if (isset($targets[$name])) {
+			$defaults         = $this->getAssetTargetDefaults();
+			$button_text      = array_get_index($targets[$name], 'label',        $defaults['label']);
+			$target = null;
+
+			// determine whether we're using the url or the asset (url takes precedence)
+			$target_url       = array_get_index($targets[$name], 'target_url',   $defaults['target_url']);
+			if ($target_url) {
+				$target = $target_url;
+			} else {
+				$target_asset     = array_get_index($targets[$name], 'target_asset', $defaults['target_asset']);
+				$target_assetid   = array_get_index($target_asset,   'assetid',      $defaults['target_asset']['assetid']);
+				if ($GLOBALS['SQ_SYSTEM']->am->assetExists($target_assetid)) {
+					$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($target_assetid);
+					$target = $asset->getURL();
+					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($target_assetid);
+				}
+			}
+
+			if (!is_null($target)) {
+				ob_start();
+					submit_button($field_name, $button_text, "this.form.action = '".$target."';");
+				return ob_get_clean();
+			}
+		}
+
+		return '';
+
+	}//end getAssetTargetKeywordReplacement()
+
+
+//--        ASSET SELECTION HELPERS        --//
+
+
+	/**
+	* Analyse "check-all" relations recursively
+	*
+	* @return void
+	* @access private
+	*/
+	function _recurseCheckAllRelations(&$todo, &$relations, $prefix, $limit=null)
+	{
+		for (reset($todo); null !== ($k = key($todo)); next($todo)) {
+			$el =& $todo[$k];
+			if (is_array($el) && (is_null($limit) || ($limit > 0))) {
+
+				$new_rel = Array('parent' => $prefix.$k, 'children' => Array());
+				foreach (array_keys($el) as $el_key) {
+					if ($limit > 1) {
+						$new_rel['children'][] = $prefix.$k.'_'.$el_key;
+					} else {
+						$new_rel['children'][] = $el_key;
+					}
+				}
+				$relations[] = $new_rel;
+
+				$this->_recurseCheckAllRelations($el, $relations, $prefix.$k.'_', (is_null($limit) ? null : $limit - 1));
+			}
+		}
+
+	}//end _recurseCheckAllRelations()
+
+
+	/**
+	* Kick off analysing "check-all" relations
+	*
+	* The results of this function are cached in the _tmp member variable as
+	* $this->_tmp['check_all_relations'].
+	*
+	* @return void
+	* @access private
+	*/
+	function _analyseCheckAllRelations($todo)
+	{
+		if (!isset($this->_tmp['check_all_relations'])) {
+			// if custom grouping is enabled and set up, we need to modify the
+			// first level of groups to use the 'g' prefix
+			if (($this->attr('group_by') == 'grouped') && (count($this->attr('asset_grouping') > 0))) {
+				$new_rel = Array('parent' => 'all', 'children' => Array());
+				foreach (array_keys($todo) as $group_id) {
+					$new_rel['children'][] = 'g_'.$group_id;
+				}
+			} else {
+				$new_rel = Array('parent' => 'all', 'children' => array_keys($todo));
+			}
+			$relations = Array($new_rel);
+
+			$this->_recurseCheckAllRelations($todo, $relations, 'g_', count($this->attr('asset_grouping')));
+			$this->_tmp['check_all_relations'] =& $relations;
+		}
+
+		return $this->_tmp['check_all_relations'];
+
+	}//end _analyseCheckAllRelations()
+
+
+	/**
+	* Build 'on click' code to ensure 'select all' functionality works
+	*
+	* @return void
+	* @access private
+	*/
+	function _buildRelationsJS()
+	{
+		// order is important, and we actually need the 'ALL' one LAST so we need
+		// to reverse this
+		$rels = array_reverse($this->_tmp['check_all_relations']);
+
+		$code = 'select_list = [';
+
+		$select_lines = Array();
+		foreach ($rels as $rel) {
+			$select_lines[] = "[['".$rel['parent']."'], ['".implode("', '", $rel['children'])."']]";
+		}
+		$code .= implode(', ', $select_lines);
+
+		$code .= ']';
+
+		return $code;
+
+	}//end _buildRelationsJS()
 
 
 }//end class
