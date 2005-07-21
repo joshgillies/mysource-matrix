@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.53.2.3 2005/07/17 23:45:25 lwright Exp $
+* $Id: form_email_edit_fns.inc,v 1.53.2.4 2005/07/21 03:22:35 dmckee Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.53.2.3 $
+* @version $Revision: 1.53.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -271,6 +271,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 			while ($asset_info = $result->fetchRow()) {
 				$assetid = $asset_info['assetid'];
 
+				// time is good, load me up
 				$sub_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				$sub_user = $asset_info['created_userid'];
 				$sub_time = date('d M Y H:i:s', strtotime($asset_info['created']));
@@ -408,7 +409,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$to->printField();
 
 		$o->closeField();
-
+		echo '<br />';
 		$o->openField(translate('format'));
 
 		$options = Array(
@@ -422,8 +423,8 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		echo hidden_field($prefix.'_export_switch', '0');
 
 		$delimiter_text = isset($_POST[$prefix.'_delimiter']) ? $_POST[$prefix.'_delimiter'] : ',';
-        echo ' &nbsp; Delimiter &nbsp;';
-        echo text_box($prefix.'_delimiter',$delimiter_text,1,1,true);
+		echo ' &nbsp; Delimiter &nbsp;';
+		echo text_box($prefix.'_delimiter',$delimiter_text,1,1,true);
 
 		$o->closeField();
 
@@ -435,7 +436,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		// - unset SQ_FORM_SUBMITTED so the form can still be submitted via Commit
 		// - set export switch to 0 = "OFF" so Commit doesn't try to save a file either
 		// - return true for the event as per JS standard
-
+		echo '<br />';
 		$o->openField(translate('download'));
 
 		echo normal_button($prefix.'_export', translate('download_file'), 'this.form.'.$prefix.'_export_switch.value = 1; this.form.submit(); SQ_FORM_SUBMITTED = false; this.form.'.$prefix.'_export_switch.value = 0; return true;');

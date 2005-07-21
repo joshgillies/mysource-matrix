@@ -11,27 +11,22 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_log.xml,v 1.8.2.1 2005/07/21 03:22:35 dmckee Exp $
+* $Id: edit_interface_screen_log.xml,v 1.1.2.2 2005/07/21 03:22:36 dmckee Exp $
 *
 */
 -->
 
 <contents>
-	<section name="Enable / Disable Logging">
-		<field attribute="log_submissions">
-			<boolean true_text="yes" false_text="no" />
-		</field>
-	</section>
-	<section name="Export" write_access="write:attributes">
-		<field>
+	<section name="export" write_access="write:attributes" limbo_access="1">
+		<field keyword="download_export">
 			<function_call>
 				<paint_function   name="paintExport"   />
 				<process_function name="processExport" />
 			</function_call>
 		</field>
 	</section>
-	<section name="Submissions">
-		<field>
+	<section name="submissions" limbo_access="1">
+		<field keyword="submissions_history">
 			<function_call>
 				<paint_function   name="paintSubmissions"   />
 				<process_function name="processSubmissions" />

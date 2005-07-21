@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_custom_form.inc,v 1.18 2005/05/11 06:07:33 lwright Exp $
+* $Id: page_custom_form.inc,v 1.18.2.1 2005/07/21 03:22:36 dmckee Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.18.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -133,6 +133,35 @@ class Page_Custom_Form extends Page
 		return true;
 
 	}//end printBody()
+
+
+	/**
+	* Called by the design to print the body of this asset when in limbo
+	*
+	* Custom Form should allow the logs to be viewed
+	*
+	* @return void
+	* @access public
+	*/
+	function printLimbo()
+	{
+		$lm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('layout_manager');
+
+		if ($lm->hasLayout($this->type(), 'log')) {
+			parent::printLimbo();
+		} else {
+			require_once SQ_INCLUDE_PATH.'/backend_outputter.inc';
+			$o =& $GLOBALS['SQ_SYSTEM']->backend->out;
+			//$o->openRaw();
+			$edit_fns = $this->getEditFns();
+			$prefix = $this->getPrefix();
+			$edit_fns->paintExport($this, $o, $prefix);
+			$edit_fns->paintSubmissions($this, $o, $prefix);
+			//$o->closeRaw();
+		}
+
+	}//end printLimbo()
+
 
 }//end class
 ?>
