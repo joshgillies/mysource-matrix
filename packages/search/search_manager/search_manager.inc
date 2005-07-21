@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.62 2005/07/21 01:02:31 dheppell Exp $
+* $Id: search_manager.inc,v 1.63 2005/07/21 06:08:56 lwright Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.62 $
+* @version $Revision: 1.63 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1296,7 +1296,12 @@ class Search_Manager extends Asset
 		if (!empty($search_info['sort_by'])) {
 			if ($search_info['sort_by']['type'] == 'field') {
 				$key = $search_info['sort_by']['params']['field'];
-				$group_by .= ', a.'.$key;
+				// Searching by SCORE is now done in Search Page through a Score
+				// "field", but we must remove the extra GROUP BY to make it work
+				if ($key != 'score') {
+					$group_by .= ', a.'.$key;
+				}
+
 			} else if ($search_info['sort_by']['type'] == 'asset_attrib') {
 				$key = $search_info['sort_by']['params']['type_code'].$search_info['sort_by']['params']['attribute'];
 			}
@@ -1470,7 +1475,6 @@ class Search_Manager extends Asset
 					assert_valid_db_result($result);
 					if (empty($result)) {
 						$sql = $start_sql.' AND (ai.value LIKE '.$db->quote('%'.$word.'%').') '.$group_by;
-
 						if ($include_context) {
 							$result = $db->getAll($sql);
 						} else {
@@ -2012,7 +2016,7 @@ class Search_Manager extends Asset
 
 			$type_code_cond = implode(' OR ', $type_code_cond);
 
-			$sql['where'] .= 'AND ai.type_code IN (
+			$sql['where'] .= ' AND ai.type_code IN (
 									SELECT type_code
 									FROM sq_ast_typ_inhd
 									WHERE '.$type_code_cond.'
