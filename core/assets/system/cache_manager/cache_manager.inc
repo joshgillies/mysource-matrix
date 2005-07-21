@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.11 2005/07/20 23:47:25 dmckee Exp $
+* $Id: cache_manager.inc,v 1.12 2005/07/21 00:10:42 dmckee Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once 'Cache.php';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -75,7 +75,9 @@ class Cache_Manager extends Asset
 	function create(&$link)
 	{
 		require_once SQ_CORE_PACKAGE_PATH.'/system/system_asset_fns.inc';
-		if (!system_asset_fns_create_pre_check($this)) return false;
+		if (!system_asset_fns_create_pre_check($this)) {
+			return false;
+		}
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		if ($linkid = parent::create($link)) {
@@ -84,8 +86,11 @@ class Cache_Manager extends Asset
 			}
 		}
 
-		if ($linkid) $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		else $GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+		if ($linkid) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		} else {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+		}
 
 		return $linkid;
 
@@ -137,43 +142,6 @@ class Cache_Manager extends Asset
 	* Loads the contents from a cache file for the specified asset
 	* and unique key
 	*
-	* @param object Asset	&$asset		the asset that owns the cache file
-	* @param string 		$key		the unique identifer for the cache file
-	*
-	* @return string or false if no cache version exist
-	* @access public
-	*/
-	function loadFromCache(&$asset, $key='')
-	{
-		assert_is_a($asset, 'asset', translate('cannot_load_cache_of_non_asset'));
-		return $this->loadFromCacheNoRef($asset->id, $asset->type(), $key);
-
-	}//end loadFromCache()
-
-
-	/**
-	* Saves the specified contents to the cache, which will be identified
-	* by the specfied asset and key
-	*
-	* @param object	Asset 	&$asset		the asset that identifies this cache entry
-	* @param string			$key		the unique key for this cache entry
-	* @param string			$contents 	the contents to save to cache
-	*
-	* @return boolean
-	* @access public
-	*/
-	function saveToCache(&$asset, $key, $contents)
-	{
-		assert_is_a($asset, 'asset', translate('cannot_save_cache_of_non_asset'));
-		return $this->saveToCacheNoRef($asset->id, $asset->type(), $key, $contents);
-
-	}//end saveToCache()
-
-
-	/**
-	* Loads the contents from a cache file for the specified asset
-	* and unique key
-	*
 	* @param string 	$assetid 	id of the the asset that owns the cache file
 	* @param string 	$asset_type 	type_code of that asset
 	* @param string 	$key		the unique identifer for the cache file
@@ -181,10 +149,12 @@ class Cache_Manager extends Asset
 	* @return string or false if no cache version exist
 	* @access public
 	*/
-	function loadFromCacheNoRef($assetid, $asset_type, $key='')
+	function loadFromCache($assetid, $asset_type, $key='')
 	{
 		if (SQ_ROLLBACK_VIEW) return '';
-		if (isset($_REQUEST['no_cache']) && $_REQUEST['no_cache']) return '';
+		if (isset($_REQUEST['no_cache']) && $_REQUEST['no_cache']) {
+			return '';
+		}
 
 		if (!$this->cacheEnabled($asset_type)) return '';
 
@@ -216,10 +186,12 @@ class Cache_Manager extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function saveToCacheNoRef($assetid, $asset_type, $key, $contents)
+	function saveToCache($assetid, $asset_type, $key, $contents)
 	{
 		if (SQ_ROLLBACK_VIEW) return false;
-		if (isset($_REQUEST['no_cache']) && $_REQUEST['no_cache']) return false;
+		if (isset($_REQUEST['no_cache']) && $_REQUEST['no_cache']) {
+			return false;
+		}
 
 		if (!$this->cacheEnabled($asset_type)) return false;
 
@@ -256,7 +228,9 @@ class Cache_Manager extends Asset
 		$current_user = &$GLOBALS['SQ_SYSTEM']->user;
 		if (is_null($current_user) || is_a($current_user, 'public_user')) {
 			// if your not logged in and public level caching is on - you get the public copy
-			if ($this->attr('public_caching')) $cache_key = 'public';
+			if ($this->attr('public_caching')) {
+				$cache_key = 'public';
+			}
 		} else {
 			if (empty($key)) {
 				// if permission level caching is on - check read/write/admin access for this asset
@@ -266,7 +240,9 @@ class Cache_Manager extends Asset
 
 					$groups = array_keys($current_user->getGroups());
 					$userids = Array($db->quote($current_user->id));
-					foreach ($groups as $groupid) $userids[] = $db->quote($groupid);
+					foreach ($groups as $groupid) {
+						$userids[] = $db->quote($groupid);
+					}
 
 					// note that we dont use the cache in rollback view mode so we dont have
 					// to run this query through the rollback functions
@@ -329,7 +305,9 @@ class Cache_Manager extends Asset
 			$assetid = (string) $hash;
 		} while ($hash > $this->attr('num_cache_dirs'));
 
-		while (strlen($hash) != strlen($this->attr('num_cache_dirs'))) $hash = '0'.$hash;
+		while (strlen($hash) != strlen($this->attr('num_cache_dirs'))) {
+			$hash = '0'.$hash;
+		}
 		return $hash;
 
 	}//end getAssetHash()
@@ -348,7 +326,9 @@ class Cache_Manager extends Asset
 	function cacheEnabled($type_code='')
 	{
 		$type_codes = $this->attr('type_codes');
-		if (isset($type_codes[$type_code]['enabled'])) return $type_codes[$type_code]['enabled'];
+		if (isset($type_codes[$type_code]['enabled'])) {
+			return $type_codes[$type_code]['enabled'];
+		}
 		return $this->attr('enabled');
 
 	}//end cacheEnabled()
@@ -368,7 +348,9 @@ class Cache_Manager extends Asset
 	function getExpiry($type_code='')
 	{
 		$type_codes = $this->attr('type_codes');
-		if (isset($type_codes[$type_code]['expiry'])) return $type_codes[$type_code]['expiry'];
+		if (isset($type_codes[$type_code]['expiry'])) {
+			return $type_codes[$type_code]['expiry'];
+		}
 		return $this->attr('expiry');
 
 	}//end getExpiry()
