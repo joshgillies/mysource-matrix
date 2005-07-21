@@ -11,12 +11,17 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart.inc,v 1.11 2005/07/19 07:20:53 skim Exp $
+* $Id: ecommerce_cart.inc,v 1.12 2005/07/21 07:55:05 lwright Exp $
 *
 */
 
 
 require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
+require_once SQ_PACKAGES_PATH.'/ecommerce/lib/ecommerce_common.inc';
+
+define('SQ_CART_PRESET_QUANTITY', 'Quantity');
+define('SQ_CART_PRESET_REMOVE', 'Remove');
+
 
 /**
 * Ecommerce_Cart
@@ -26,7 +31,8 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.11 $
+* @author  Robert Howard <rhoward@squiz.net>
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -95,12 +101,8 @@ class Ecommerce_Cart extends Listing_Engine
 	*/
 	function getAssetList()
 	{
-		if (!isset($_SESSION['sq_cart_contents'])) {
-			return Array();
-		}
-
-		$cart_contents = $_SESSION['sq_cart_contents'];
-		$asset_list = '';
+		$cart_contents = get_cart();
+		$asset_list = Array();
 
 		$group_by = $this->attr('group_by');
 
@@ -115,6 +117,8 @@ class Ecommerce_Cart extends Listing_Engine
 				$asset_list[$product_assetid] = $product_asset->type();
 			}
 		}
+
+		if (empty($asset_list)) $asset_list = '';
 
 		return $asset_list;
 
@@ -131,8 +135,8 @@ class Ecommerce_Cart extends Listing_Engine
 	function _getAllowedLinks()
 	{
 		$page_links = parent::_getAllowedLinks();
-		$page_links[SQ_LINK_TYPE_1]['folder'] = Array('card' => 'M');
-		$page_links[SQ_LINK_TYPE_1]['product'] = Array('card' => 'M');
+		$page_links[SQ_LINK_TYPE_1]['folder']   = Array('card' => 'M');
+		$page_links[SQ_LINK_TYPE_1]['product']  = Array('card' => 'M');
 		$page_links[SQ_LINK_TYPE_2]['bodycopy'] = Array('card' => '1');
 		return $page_links;
 
@@ -153,245 +157,6 @@ class Ecommerce_Cart extends Listing_Engine
 		return (($short_name) ? $this->attr('short_name') : $this->attr('name'));
 
 	}//end _getName()
-
-
-	/**
-	* Prepare cart for first use, if the relevant session vars aren't there
-	*
-	* @return int	1 if session var needed to be created (ie. cart
-	*				needed to be init'ed), 0 if cart already existed
-	*				(-1 is reserved for an error condition)
-	* @access public
-	*/
-	function initialise()
-	{
-		$ret_val = 0;
-
-		if (!isset($_SESSION['sq_cart_contents'])) {
-			$_SESSION['sq_cart_contents'] = Array();
-			$ret_val = 1;
-		}
-
-		return $ret_val;
-
-	}//end initialise()
-
-
-	/**
-	* Unsets the contents of this particular cart
-	*
-	* If this is the last cart being stored in the session cookie, unset the
-	* whole cart contents session variable as well
-	*
-	* @return boolean	always true (false is reserved for an error condition)
-	* @access public
-	*/
-	function clear()
-	{
-		unset($_SESSION['sq_cart_contents']);
-		return true;
-
-	}//end clear()
-
-
-	/**
-	* Adds an item(s) to the cart
-	*
-	* @param string	$product_assetid	The assetid of the product to add
-	* @param double	$price			The price to record against that product
-	* @param int		$quantity		The quantity to add
-	*
-	* @return boolean	indicating success
-	* @access public
-	*/
-	function add($product_assetid, $price, $quantity=1)
-	{
-		// quantity is ZERO, assume that this is valid and silently return
-		// quantity is LESS THAN ZERO, throw an error
-		if ($quantity == 0) {
-			return true;
-		} else if ($quantity < 0) {
-			trigger_localised_error('ECOM0004', E_USER_WARNING);
-			return false;
-		}
-
-		// check that the passed product assetid is indeed valid and
-		// a valid product (or subclass of product)
-		assert_valid_assetid($product_assetid);
-		$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($product_assetid), 'product', false);
-
-		if (empty($asset_info)) {
-			trigger_localised_error('ECOM0005', E_USER_WARNING, $product_assetid);
-			return false;
-		}
-
-		$cart =& $this->get();
-		if (!isset($cart[$product_assetid])) {
-			$cart[$product_assetid] = Array('price' => $price, 'quantity' => 0);
-		}
-
-		$cart[$product_assetid]['quantity'] += $quantity;
-
-	}//end add()
-
-
-	/**
-	* Removes an item(s) from the cart
-	*
-	* Assumption: product lines were correctly made using the add() method
-	* and therefore, only valid products are found in the cart (because of the
-	* add() checking).
-	*
-	* @param string	$product_assetid	The assetid of the product to remove
-	* @param int		$quantity		The quantity of this product to remove -
-	*								leave blank to remove all of that product
-	*
-	* @return boolean	indicating success
-	* @access public
-	*/
-	function remove($product_assetid, $quantity=null)
-	{
-		$cart =& $this->get();
-
-		// product doesn't exist in cart - if the quantity is zero (or ALL)
-		// then silently return, otherwise error
-		if (!isset($cart[$product_assetid])) {
-			if (is_null($quantity) || ($quantity == 0)) {
-				return true;
-			} else if ($quantity > 0) {
-				trigger_localised_error('ECOM0006', E_USER_WARNING);
-				return false;
-			}
-		}
-
-		// after this point we can assume that product exists in the cart
-		// Quantity is null, remove everything
-		if (is_null($quantity)) {
-			$quantity = $cart[$product_assetid]['quantity'];
-		}
-
-		// Qty == 0, silently return - Qty < 0, throw an error
-		if ($quantity == 0) {
-			return true;
-		} else if ($quantity < 0) {
-			trigger_localised_error('ECOM0007', E_USER_WARNING);
-			return false;
-		}
-
-		if ($quantity > $cart[$product_assetid]['quantity']) {
-			trigger_localised_error('ECOM0008', E_USER_WARNING);
-			return false;
-		} else if ($quantity == $cart[$product_assetid]['quantity']) {
-			unset($cart[$product_assetid]);
-		} else {
-			$cart[$product_assetid]['quantity'] -= $quantity;
-		}
-
-	}//end remove()
-
-
-	/**
-	* Updtes the quantity of an item(s) in the cart
-	*
-	* Assumption: product lines were correctly made using the add() method
-	* and therefore, only valid products are found in the cart (because of the
-	* add() checking).
-	*
-	* @param string	$product_assetid	The assetid of the product to remove
-	* @param int		$quantity		The quantity of this product to remove -
-	*								leave blank to remove all of that product
-	*
-	* @return boolean	indicating success
-	* @access public
-	*/
-	function update($product_assetid, $quantity)
-	{
-		$cart =& $this->get();
-
-		// if we are not updating anything, silently return succes
-		if (array_get_index($cart, $product_assetid, 0) == $quantity) {
-			return true;
-		}
-		if (array_get_index($cart[$product_assetid], 'quantity', 0) == $quantity) {
-			return true;
-		}
-
-		// product doesn't exist in cart, then silently return, otherwise error
-		if (!isset($cart[$product_assetid])) {
-			trigger_localised_error('ECOM0009', E_USER_WARNING);
-			return false;
-		}
-
-		// Qty < 0, throw an error
-		if ($quantity < 0) {
-			trigger_localised_error('ECOM0010', E_USER_WARNING);
-			return false;
-		} else if ($quantity == 0) {
-			unset($cart[$product_assetid]);
-		} else {
-			$cart[$product_assetid]['quantity'] = $quantity;
-		}
-
-		return true;
-
-	}//end update()
-
-
-	/**
-	* Returns a reference to the session variable that holds this cart
-	*
-	* This function calls initialise() so the cart contents array will always
-	* be there when this is called.
-	*
-	* @return Array
-	* @access public
-	*/
-	function &get()
-	{
-		$this->initialise();
-		return $_SESSION['sq_cart_contents'];
-
-	}//end get()
-
-
-	/**
-	* Return the sum-total of all the items currently in this cart
-	*
-	* @return double
-	* @access public
-	*/
-	function total()
-	{
-		$cart =& $this->get();
-		$total = 0.0;
-		foreach ($cart as $product_assetid => $details) {
-			if ($details['price'] != -1) {		// -1 = value not known
-				$total += $details['quantity'] * $details['price'];
-			}
-		}
-
-		return $total;
-
-	}//end total()
-
-
-	/**
-	* Return the count of all the items currently in this cart
-	*
-	* @return double
-	* @access public
-	*/
-	function count()
-	{
-		$cart =& $this->get();
-		$count = 0;
-		foreach ($cart as $product_assetid => $details) {
-			$count += $details['quantity'];
-		}
-
-		return $count;
-
-	}//end count()
 
 
 	/**
@@ -420,66 +185,26 @@ class Ecommerce_Cart extends Listing_Engine
 			return;
 		}
 
+		$this->processAssetSelections();
+
 		//the children here will refer to the contents of this cart
 		$children = $this->getAssetList();
 		//we dont want to count position formats without a value
 		//just increment the count if were adding it tot he cart
-		$num_kids = count($children);
+		$num_kids = get_count($children);
 		$this->filterAssetList($children);
-
-		//register a form to allow updating cart contents
-		$this->registerFormField('cart_'.$this->id);
 
 		foreach ($keywords as $word) {
 			$replacements[$word] = $this->getKeywordReplacement($word);
 		}
 
-		//update the cart contents for any updated quantities
-		if (!is_null(array_get_index($_REQUEST,'update_quantity',null))) {
-			//see if we are updating an individual item or everything
-			if (isset($_REQUEST['update_button'])) {
-				reset($_REQUEST['update_button']);
-				$update_productid = key($_REQUEST['update_button']);
+		// get any extra keyword replacements from this asset
+		$replacements = $this->getContentsKeywordReplacements() + $replacements;
 
-				if ($update_productid == 'all') {
-					// updating (potentially) all the items
-					foreach ($_REQUEST['update_quantity'] as $product_assetid => $new_quantity) {
-						if (is_numeric($new_quantity)) {
-							// it's quite possible now with position formats that
-							// an asset in the cart might not have any quantity,
-							// so we now check whether we have to update or add
-							if (isset($_SESSION['sq_cart_contents'][$product_assetid])) {
-								$this->update($product_assetid, (int)$new_quantity);
-								if ($new_quantity == 0) $num_kids--;
-							} else {
-								$product_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($product_assetid);
-								$this->add($product_assetid, $product_asset->attr('price'), (int)$new_quantity);
-								if ($new_quantity > 0) $num_kids++;
-							}
-						}
-					}
-
-				} else {
-					// updating only one of the items
-					$new_quantity = array_get_index($_REQUEST['update_quantity'], $update_productid, null);
-					if (is_numeric($new_quantity)) {
-						// adding or updating?
-						if (isset($_SESSION['sq_cart_contents'][$update_productid])) {
-								$this->update($update_productid, (int)$new_quantity);
-								if ($new_quantity == 0) $num_kids--;
-							} else {
-								$product_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($update_productid);
-								$this->add($update_productid, $product_asset->attr('price'), (int)$new_quantity);
-								if ($new_quantity > 0) $num_kids++;
-							}
-					}
-				}
-			}
-
+		if (!empty($this->_tmp['cart_updated'])) {
 			ob_start();
-				?><strong><?php echo translate('ecom_cart_quantities_changed'); ?></strong><?php
-				$replacements['cart_updated'] = ob_get_contents();
-			ob_end_clean();
+				?><strong><?php echo $this->attr('cart_updated_text'); ?></strong><?php
+			$replacements['cart_updated'] = ob_get_clean();
 		} else {
 			$replacements['cart_updated'] = '';
 		}
@@ -489,7 +214,6 @@ class Ecommerce_Cart extends Listing_Engine
 		if ($result_page <= 0) $result_page = 1;
 
 		// get our page chunk here
-
 		if (empty($children)) {
 			$replacements['checkout_cart_button'] = '';
 			$replacements['asset_listing'] = $this->attr('no_items_text');
@@ -499,7 +223,7 @@ class Ecommerce_Cart extends Listing_Engine
 
 			// page list is one page
 			$replacements['page_list'] = '1';
-			$global_contents = '';
+			$global_contents = $replacements['asset_listing'];
 			$num_assets_showing = 0;
 			$num_kids = 0;
 		} else {
@@ -515,18 +239,20 @@ class Ecommerce_Cart extends Listing_Engine
 		// if we have any blank keywords, replace them with nothing
 		$global_contents = preg_replace('|%[^%\W]+%|', '', $global_contents);
 
-		//Cart must pass on to some sort of ecommerce form
-		$form_id = $this->attr('ecom_form_id');
-		if (!empty($form_id)) {
-			$ecom_form_url = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($form_id);
+		// cart must pass on to an ecommerce checkout
+		$checkout_id = $this->attr('ecom_form_id');
+		if (!empty($checkout_id)) {
+			$checkout_cart_href = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($checkout_id);
 			ob_start();
-				?><input type="button" onclick="location.href = '<?php echo addslashes($GLOBALS['SQ_SYSTEM']->am->getAssetURL($form_id)); ?>'" value="<?php echo $this->attr('checkout_text'); ?>"><?php
+				?><input type="button" onclick="location.href = '<?php echo addslashes($checkout_cart_href); ?>'" value="<?php echo $this->attr('checkout_text'); ?>"><?php
 				$checkout_cart_button = ob_get_contents();
 			ob_end_clean();
 		} else {
 			$checkout_cart_button = '';
+			$checkout_cart_href   = '';
 		}
 
+		// pagination
 		$field_name = 'result_page';
 		$this->registerFormField($field_name);
 
@@ -534,16 +260,18 @@ class Ecommerce_Cart extends Listing_Engine
 		hidden_field($field_name, $value);
 
 		//line below see above
-		$replacements['checkout_cart_button'] = $checkout_cart_button;
-		$replacements['asset_listing'] = $global_contents;
-		$replacements['asset_count'] = $num_kids;
-		$replacements['product_count'] = $this->count();
-		$replacements['total_value'] = $this->total();
-		$replacements['page_asset_count'] = $num_assets_showing;
-		$replacements['page_number'] = $result_page;
-		$replacements['first_asset_position'] = $num_per_page * ($result_page - 1) + 1;
-		$replacements['last_asset_position'] = min($num_kids, $num_per_page * $result_page);
-		$replacements['root_nodes'] = implode(',', $this->getRootNodes());
+		$replacements['checkout_cart_button']  = $checkout_cart_button;
+		$replacements['checkout_cart_href']    = $checkout_cart_href;
+		$replacements['cart_update_button']    = $this->getSubmitButtonKeywordReplacement();
+		$replacements['asset_listing']         = $global_contents;
+		$replacements['asset_count']           = $num_kids;
+		$replacements['product_count']         = get_count();
+		$replacements['total_value']           = get_total();
+		$replacements['page_asset_count']      = $num_assets_showing;
+		$replacements['page_number']           = $result_page;
+		$replacements['first_asset_position']  = $num_per_page * ($result_page - 1) + 1;
+		$replacements['last_asset_position']   = min($num_kids, $num_per_page * $result_page);
+		$replacements['root_nodes']            = implode(',', $this->getRootNodes());
 
 		// print the contents of page - replacing the global keywords
 		$format_bodycopy->setKeywordReplacements($replacements);
@@ -558,7 +286,203 @@ class Ecommerce_Cart extends Listing_Engine
 	}//end printContents()
 
 
-//--        KEYWORD DESCRIPTION        --//
+	/**
+	* Provide the default values for each of the selection fields
+	* Ecom grabs its values from the cart
+	*
+	*/
+	function getAssetSelectionValue($selection_name, $assetid)
+	{
+		$cart       =& get_cart();
+		$selections = $this->attr('asset_selections');
+
+		// if the hardcoded asset selection 'Quantity'
+		if ($selection_name == 'Quantity' && isset($cart[$assetid]['quantity'])) {
+			return $cart[$assetid]['quantity'];
+		}
+
+		// fallback
+		return 0;
+
+	}//end getAssetSelectionValue()
+
+
+	/**
+	* Preprocess the Asset Selection values before displaying the page or redirecting
+	* Overwritten by the cart to handle the processing of cart updates using
+	* preset asset selections and dynamic parameters
+	*
+	* @return boolean    to indicate success
+	* @access public
+	*/
+	function processAssetSelections()
+	{
+		initialise_cart();
+		$cart =& get_cart();
+
+		$parameter_map = &$this->getAttribute('parameter_map');
+		$this->_tmp['cart_updated'] = false;
+
+		// add
+		$add_items = $parameter_map->getParameterValue('add_item');
+		if (!empty($add_items)) {
+			foreach ($add_items as $assetid => $quantity)
+			{
+				if (empty($assetid) || !strlen($quantity)) {
+					continue;
+				}
+
+				// make sure we don't exceed the limits when adding to existing items
+				$current_quantity = 0;
+				if (isset($cart[$assetid]['quantity'])) {
+					$current_quantity = $cart[$assetid]['quantity'];
+				}
+
+				// only add if it's not going to break our Quantity selection
+				if ($this->_validateItemUpdate(SQ_CART_PRESET_QUANTITY, $current_quantity + $quantity) == ($quantity + $current_quantity)) {
+					if (add_item($assetid, $quantity)) {
+						$this->_tmp['cart_updated'] = true;
+					}
+				}
+			}
+		}
+
+		// internal, preset asset selections
+		// quantity (update)
+		if (isset($_REQUEST[SQ_CART_PRESET_QUANTITY])) {
+			$quantity = $_REQUEST[SQ_CART_PRESET_QUANTITY];
+			if (is_array($quantity)) {
+				// checkbox, textbox, or drop-down
+				$asset_list = $this->getAssetList();
+				foreach ($asset_list as $assetid => $type_code) {
+					$amount = 0;
+					if (isset($quantity[$assetid])) {
+						$amount = $quantity[$assetid];
+					}
+					if (update_item($assetid, $this->_validateItemUpdate(SQ_CART_PRESET_QUANTITY, $amount))) {
+						$this->_tmp['cart_updated'] = true;
+					}
+				}
+			} else {
+				// radio
+				if (update_item($quantity, $this->_validateItemUpdate(SQ_CART_PRESET_QUANTITY, 1))) {
+					$this->_tmp['cart_updated'] = true;
+				}
+			}
+		} else if (isset($_REQUEST[SQ_CART_PRESET_QUANTITY.'_flag'])) {
+			// field is present, but no boxes have been ticked
+			$asset_list = $this->getAssetList();
+			foreach ($asset_list as $assetid => $type_code) {
+				if (remove_item($assetid)) {
+					$this->_tmp['cart_updated'] = true;
+				}
+			}
+		}
+
+		// delete
+		if (isset($_REQUEST[SQ_CART_PRESET_REMOVE])) {
+			$remove = $_REQUEST[SQ_CART_PRESET_REMOVE];
+			if (is_array($remove)) {
+				// checkbox, textbox, or drop-down
+				foreach ($remove as $assetid => $amount) {
+					if (remove_item($assetid)) {
+						$this->_tmp['cart_updated'] = true;
+					}
+				}
+			} else {
+				// radio
+				if (remove_item($remove)) {
+					$this->_tmp['cart_updated'] = true;
+				}
+			}
+		}
+
+		return true;
+
+	}//end processAssetSelections()
+
+
+	function _validateItemUpdate($selection_name, $quantity)
+	{
+		$selections     = $this->attr('asset_selections');
+		$final_quantity = $quantity;
+
+		if (empty($selections[$selection_name]['options'])) {
+			return $final_quantity;
+		}
+		$options = $selections[$selection_name]['options'];
+
+		// if restrict_range is turned on
+		$restrict_range = false;
+		if (isset($options['restrict_range']) && !empty($options['restrict_range']['enable'])) {
+			$restrict_range = true;
+
+			$defaults = $this->getAssetSelectionDefaults();
+			$min      = array_get_index($options['restrict_range'], 'min', $defaults['options']['restrict_range']['min']);
+			$max      = array_get_index($options['restrict_range'], 'max', $defaults['options']['restrict_range']['max']);
+		}
+
+		// allow_negative?
+		if (isset($options['allow_negative']) && !$options['allow_negative']) {
+			$restrict_range = true;
+			$min            = 0;
+
+			// will always succeed
+			$max            = null;
+		}
+
+		// if this is a radio button or checkbox
+		if ($selections[$selection_name]['type'] == 'radio') {
+			$restrict_range = true;
+			$min = 0;
+			$max = 1;
+		}
+
+		if ($restrict_range) {
+			if ($quantity < $min) {
+				$final_quantity = $min;
+			} else if (!is_null($max) && $quantity > $max) {
+				$final_quantity = $max;
+			}
+		}
+
+		return $final_quantity;
+
+	}//end _validateItemUpdate()
+
+
+	/**
+	* Add valid keywords for this asset to an array of keywords when asked
+	*
+	* @param &object Asset	$asset	the asset that triggered the event
+	* @param Array			$vars	the vars that get submitted by the broadcaster
+	*								we add keywords to the $vars['keywords'] array
+	*
+	* @return boolean
+	* @access private
+	*/
+	function onRequestKeywords(&$broadcaster, $vars=Array())
+	{
+		if (!isset($vars['keywords'])) return;
+		if (!is_a($broadcaster, 'content_type')) return;
+
+		$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id, 'bodycopy', true);
+
+		// the broadcaster could be our page contents bodycopy, in which case
+		// we want to supply our own keyword replacements
+		$page_contents_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'page_contents');
+		if (!empty($page_contents_link)) {
+			if (isset($parents[$page_contents_link['minorid']])) {
+				$vars['keywords'] += $this->getContentsKeywords();
+				return;
+			}
+		}
+
+		// if it's not the page contents bodycopy, it's something that we've
+		// inherited from the listing engine, so pass it on
+		parent::onRequestKeywords($broadcaster, $vars);
+
+	}//end onRequestKeywords()
 
 
 	/**
@@ -574,43 +498,32 @@ class Ecommerce_Cart extends Listing_Engine
 	* @access public
 	* @return array(string => string)
 	*/
-	function _getContentsKeywords()
+	function getContentsKeywords()
 	{
 		$keywords = parent::_getContentsKeywords();
+		$GLOBALS['SQ_SYSTEM']->lm->includeAssetStrings('page_asset_listing');
 
-		$keywords['cart_updated']			= translate('ecom_cart_keyword_cart_updated');
-		$keywords['product_count']			= translate('ecom_cart_keyword_product_count');
-		$keywords['total_value']			= translate('ecom_cart_keyword_total_value');
-		$keywords['checkout_cart_button']	= translate('ecom_cart_keyword_checkout_cart_button');
+		$keywords += Array(
+						'cart_updated'			=> translate('ecom_cart_keyword_cart_updated'),
+						'product_count'			=> translate('ecom_cart_keyword_product_count'),
+						'total_value'			=> translate('ecom_cart_keyword_total_value'),
+						'cart_update_button'	=> translate('ecom_cart_keyword_cart_update_button'),
+						'checkout_cart_button'	=> translate('ecom_cart_keyword_checkout_cart_button'),
+						'checkout_cart_href'	=> translate('ecom_cart_keyword_checkout_cart_href'),
+						'asset_listing'			=> translate('cms_listing_asset_listing'),
+						'previous_page'			=> translate('cms_listing_previous_page_link'),
+						'next_page'				=> translate('cms_listing_next_page_link'),
+						'page_list'				=> translate('cms_listing_page_list'),
+						'page_number'			=> translate('cms_listing_page_number'),
+						'asset_count'			=> translate('cms_listing_asset_count'),
+						'page_asset_count'		=> translate('cms_listing_page_asset_count'),
+						'first_asset_position'	=> translate('cms_listing_first_asset_position'),
+						'last_asset_position'	=> translate('cms_listing_last_asset_position'),
+					 );
 
 		return $keywords;
 
-	}//end _getContentsKeywords()
-
-
-//--        KEYWORD REPLACEMENT        --//
-
-
-	/**
-	* Build a custom submit button for the ecom form since nested
-	* forms are illegal html
-	*
-	* @return string
-	* @access public
-	*/
-	function getSubmitButtonKeywordReplacement()
-	{
-		$prefix = $this->getPrefix();
-		$field_name = 'update_button[all]';
-		$this->registerFormField($field_name);
-
-		$button_text = $this->attr('submit_button_text');
-
-		ob_start();
-			submit_button($field_name, $button_text);
-		return ob_get_clean();
-
-	}//end getSubmitButtonKeywordReplacement()
+	}//end getContentsKeywords()
 
 
 }//end class

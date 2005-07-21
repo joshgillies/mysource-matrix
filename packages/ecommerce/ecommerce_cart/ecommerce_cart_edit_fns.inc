@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart_edit_fns.inc,v 1.6 2005/06/15 05:55:06 lwright Exp $
+* $Id: ecommerce_cart_edit_fns.inc,v 1.7 2005/07/21 07:55:05 lwright Exp $
 *
 */
 
@@ -21,11 +21,11 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine_edit_fns.inc';
 /**
 * Ecommerce_Cart_Edit_Fns
 *
-* Purpose
+* Edit Functions for the shopping cart
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -39,11 +39,12 @@ class Ecommerce_Cart_Edit_Fns extends Listing_Engine_Edit_Fns
 	* @return void
 	* @access public
 	*/
-	function Listing_Engine_Edit_Fns()
+	function Ecommerce_Cart_Edit_Fns()
 	{
 		$this->Listing_Engine_Edit_Fns();
 
-	}//end Ecommerce_Cart_Edit_Fns()
+	}//end constructor
+
 
 	/**
 	* Paint the interface for choosing which asset types to list

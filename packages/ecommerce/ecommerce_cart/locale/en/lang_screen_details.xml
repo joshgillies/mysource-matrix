@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.3 2005/05/25 04:33:19 lwright Exp $
+* $Id: lang_screen_details.xml,v 1.4 2005/07/21 07:55:06 lwright Exp $
 *
 */
 -->
@@ -37,8 +37,8 @@
 	<section name="Cart Settings">
 		<display_name>Cart Settings</display_name>
 		<field attribute="ecom_form_id">
-			<display_name>Ecommerce Form</display_name>
-			<note>The Ecommerce form we want to link this cart to</note>
+			<display_name>Ecommerce Checkout Asset</display_name>
+			<note>The Ecommerce Checkout asset we want to link this cart to</note>
 		</field>
 		<field>
 			<display_name>Cart Items to List</display_name>
@@ -72,10 +72,20 @@
 			</function_call>
 		</field>
 	</section>
+	<section name="Dynamic Parameters">
+		<field attribute="parameter_map">
+			<display_name />
+			<note />
+		</field>
+	</section>
 	<section name="Submit Button">
-	<display_name>Form Button Text</display_name>
+		<display_name>Form Button Text</display_name>
 		<field attribute="submit_button_text">
-			<display_name>Submit Button Text</display_name>
+			<display_name>Update Cart Button Text</display_name>
+			<note />
+		</field>
+		<field attribute="reset_button_text">
+			<display_name>Reset Button Text</display_name>
 			<note />
 		</field>
 		<field attribute="checkout_text">
@@ -84,6 +94,10 @@
 		</field>
 	</section>
 	<section name="Messages" write_access="write:attributes">
+		<field attribute="cart_updated_text">
+			<display_name>Cart Updated Message</display_name>
+			<note>Specify the text that displays when an item is add, updated or removed from the cart</note>
+		</field>
 		<field attribute="no_items_text">
 			<display_name>No Items Message</display_name>
 			<note>Specify the text that displays when no items are in your cart</note>

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.7 2005/05/25 04:33:18 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.8 2005/07/21 07:55:05 lwright Exp $
 *
 */
 -->
@@ -26,7 +26,7 @@
 	</section>
 	<section name="Cart Settings" write_access="write:attributes">
 		<field attribute="ecom_form_id">
-			<assetid type_codes="page_custom_form_ecommerce:D" />
+			<assetid type_codes="ecommerce_checkout:D" />
 		</field>
 		<field>
 			<function_call>
@@ -51,8 +51,16 @@
 			</function_call>
 		</field>
 	</section>
+	<section name="Dynamic Parameters" write_access="write:attributes">
+		<field attribute="parameter_map" format="new_line">
+			<parameter_map />
+		</field>
+	</section>
 	<section name="Submit Button" write_access="write:attributes">
 		<field attribute="submit_button_text">
+			<text width="25" height="1" />
+		</field>
+		<field attribute="reset_button_text">
 			<text width="25" height="1" />
 		</field>
 		<field attribute="checkout_text">
@@ -60,6 +68,9 @@
 		</field>
 	</section>
 	<section name="Messages" write_access="write:attributes">
+		<field attribute="cart_updated_text">
+			<text width="25" height="1" />
+		</field>
 		<field attribute="no_items_text">
 			<text width="25" height="1" />
 		</field>
