@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.343 2005/07/21 01:41:29 mmcintyre Exp $
+* $Id: asset_manager.inc,v 1.344 2005/07/21 12:34:34 brobertson Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.343 $
+* @version $Revision: 1.344 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2475,6 +2475,9 @@ class Asset_Manager extends MySource_Object
 		// we are not getting children for a shadow asset, so if we are getting children of
 		// an asset that handles shadow assets, palm the request off to it
 		$asset = &$this->getAsset($assetid);
+		if (is_null($asset)) {
+			return Array();
+		}
 		if (implements_interface($asset, 'bridge')) {
 			$children = $asset->getChildren($assetid, $type_code, $strict_type_code, $sort_by);
 			$this->forgetAsset($asset);
@@ -2979,7 +2982,7 @@ class Asset_Manager extends MySource_Object
 			$lock_info = @$this->getLockInfo($major->id, 'links');
 			$parent_was_locked = !empty($lock_info);
 			if (!$this->acquireLock($major->id, 'links')) {
-				trigger_localised_error('CORE0012', $major->name, E_USER_WARNING);
+				trigger_localised_error('CORE0012', E_USER_WARNING, $major->name);
 				return 0;
 			}
 		}
