@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.6 2005/07/21 07:32:44 lwright Exp $
+* $Id: lang_strings.xml,v 1.7 2005/07/21 23:09:17 skim Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -92,7 +92,6 @@
 <string source="cms_listing_restrict_values_to_range">Restrict values to a range</string>
 <string source="cms_listing_allow_multiple">Allow multiple selections</string>
 <string source="cms_listing_asset_target_button">Asset Target Button (%s)</string>
-<string source="cms_listing_group_name">Group Name</string>
 <string source="cms_listing_group_asset_listing">Group Asset Listing</string>
 <string source="cms_listing_keyword_asset_selection">Asset Selection (%s)</string>
 <string source="cms_listing_group_listing">Asset Group Listing</string>
