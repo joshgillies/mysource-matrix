@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.56.2.1 2005/06/24 06:04:40 ykasim Exp $
+* $Id: search_manager.inc,v 1.56.2.2 2005/07/21 01:05:50 dheppell Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.56.2.1 $
+* @version $Revision: 1.56.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -671,7 +671,7 @@ class Search_Manager extends Asset
 						}
 						if (empty($where)) continue;
 
-						$result = $cm->loadFromCache($this, $search_cache_key.'asset_attrib'.$from.'_'.$to);
+						$result = $cm->loadFromCache($this->id, $this->type(), $search_cache_key.'asset_attrib'.$from.'_'.$to);
 						if (empty($result)) {
 							$sql = $start_sql.'
 									AND ai.type = '.$db->quote('datetime').'
@@ -681,7 +681,7 @@ class Search_Manager extends Asset
 							$result = $db->getAssoc($sql);
 							assert_valid_db_result($result);
 
-							$cm->saveToCache($this, $search_cache_key.'asset_attrib'.$from.'_'.$to, serialize($result));
+							$cm->saveToCache($this->id, $this->type(), $search_cache_key.'asset_attrib'.$from.'_'.$to, serialize($result));
 						} else {
 							$result = unserialize($result);
 						}
@@ -699,7 +699,7 @@ class Search_Manager extends Asset
 							$this->_tmp['terms_used'][$word] = $word;
 							if (!$this->isWordIndexable($word)) continue;
 
-							$result = $cm->loadFromCache($this, $search_cache_key.'asset_attrib'.$word);
+							$result = $cm->loadFromCache($this->id, $this->type(), $search_cache_key.'asset_attrib'.$word);
 							if (empty($result)) {
 								$sql = $start_sql.'
 									AND ai.component = '.$db->quote('attr:'. $attr_info['params']['asset_type'].':'.$attribute->name).'
@@ -708,7 +708,7 @@ class Search_Manager extends Asset
 								$result = $db->getAssoc($sql);
 								assert_valid_db_result($result);
 
-								$cm->saveToCache($this, $search_cache_key.'asset_attrib'.$word, serialize($result));
+								$cm->saveToCache($this->id, $this->type(), $search_cache_key.'asset_attrib'.$word, serialize($result));
 							} else {
 								$result = unserialize($result);
 							}
@@ -751,7 +751,7 @@ class Search_Manager extends Asset
 				}
 				if (empty($where)) continue;
 
-				$result = $cm->loadFromCache($this, $search_cache_key.'asset_date'.$from.'_'.$to);
+				$result = $cm->loadFromCache($this->id, $this->type(), $search_cache_key.'asset_date'.$from.'_'.$to);
 				if (empty($result)) {
 					$sql = $start_sql.'
 							AND ai.type = '.$db->quote('datetime').'
@@ -761,7 +761,7 @@ class Search_Manager extends Asset
 					$result = $db->getAssoc($sql);
 					assert_valid_db_result($result);
 
-					$cm->saveToCache($this, $search_cache_key.'asset_date'.$from.'_'.$to, serialize($result));
+					$cm->saveToCache($this->id, $this->type(), $search_cache_key.'asset_date'.$from.'_'.$to, serialize($result));
 				} else {
 					$result = unserialize($result);
 				}
@@ -789,7 +789,7 @@ class Search_Manager extends Asset
 
 					if (!$this->isWordIndexable($word)) continue;
 
-					$result = $cm->loadFromCache($this, $search_cache_key.'include_all'.$word);
+					$result = $cm->loadFromCache($this->id, $this->type(), $search_cache_key.'include_all'.$word);
 					assert_valid_db_result($result);
 					if (empty($result)) {
 						$sql = $start_sql.' AND (ai.value LIKE '.$db->quote('%'.$word.'%').') '.$group_by;
@@ -801,7 +801,7 @@ class Search_Manager extends Asset
 						}
 						assert_valid_db_result($result);
 
-						$cm->saveToCache($this, $search_cache_key.'include_all'.$word, serialize($result));
+						$cm->saveToCache($this->id, $this->type(), $search_cache_key.'include_all'.$word, serialize($result));
 					} else {
 						$result = unserialize($result);
 					}
@@ -842,7 +842,7 @@ class Search_Manager extends Asset
 						}
 						if (empty($where)) continue;
 
-						$result = $cm->loadFromCache($this, $search_cache_key.'metadata'.$from.'_'.$to);
+						$result = $cm->loadFromCache($this->id, $this->type(), $search_cache_key.'metadata'.$from.'_'.$to);
 						if (empty($result)) {
 							$sql = $start_sql.'
 									AND ai.type = '.$db->quote('datetime').'
@@ -852,7 +852,7 @@ class Search_Manager extends Asset
 							$result = $db->getAssoc($sql);
 							assert_valid_db_result($result);
 
-							$cm->saveToCache($this, $search_cache_key.'metadata'.$from.'_'.$to, serialize($result));
+							$cm->saveToCache($this->id, $this->type(), $search_cache_key.'metadata'.$from.'_'.$to, serialize($result));
 						} else {
 							$result = unserialize($result);
 						}
@@ -882,7 +882,7 @@ class Search_Manager extends Asset
 						foreach ($attr_info['words'] as $word) {
 							$this->_tmp['terms_used'][$word] = $word;
 
-							$result = $cm->loadFromCache($this, $search_cache_key.'metadata'.$word);
+							$result = $cm->loadFromCache($this->id, $this->type(), $search_cache_key.'metadata'.$word);
 							if (empty($result)) {
 								$sql = $start_sql.'
 										AND ai.type = '.$db->quote($key_type).'
@@ -892,7 +892,7 @@ class Search_Manager extends Asset
 								$result = $db->getAssoc($sql);
 								assert_valid_db_result($result);
 
-								$cm->saveToCache($this, $search_cache_key.'metadata'.$word, serialize($result));
+								$cm->saveToCache($this->id, $this->type(), $search_cache_key.'metadata'.$word, serialize($result));
 							} else {
 								$result = unserialize($result);
 							}

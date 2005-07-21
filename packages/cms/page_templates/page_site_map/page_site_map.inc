@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_site_map.inc,v 1.20 2005/05/11 06:07:33 lwright Exp $
+* $Id: page_site_map.inc,v 1.20.2.1 2005/07/21 01:05:43 dheppell Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.20.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -111,7 +111,7 @@ class Page_Site_Map extends Page
 	{
 
 		$cm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
-		$cached_contents = $cm->loadFromCache($this, 'site_map');
+		$cached_contents = $cm->loadFromCache($this->id, $this->type(), 'site_map');
 
 		// if the cache is empty, go ahead and regenerate a new version
 		if (empty($cached_contents)) {
@@ -181,7 +181,7 @@ class Page_Site_Map extends Page
 				</table>
 				<?php
 				$cached_contents = ob_get_contents();
-				$cm->saveToCache($this, 'site_map', $cached_contents);
+				$cm->saveToCache($this->id, $this->type(), 'site_map', $cached_contents);
 			ob_end_clean();
 
 		}//end if cached

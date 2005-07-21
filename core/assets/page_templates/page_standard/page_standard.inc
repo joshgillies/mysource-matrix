@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_standard.inc,v 1.10.2.1 2005/06/28 06:02:40 dmckee Exp $
+* $Id: page_standard.inc,v 1.10.2.2 2005/07/21 01:05:41 dheppell Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.10.2.1 $
+* @version $Revision: 1.10.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -201,14 +201,14 @@ class Page_Standard extends Page
 	function printBody()
 	{
 		$cm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
-		$cached_contents = $cm->loadFromCache($this, 'default');
+		$cached_contents = $cm->loadFromCache($this->id, $this->type(), 'default');
 
 		// if the cache is empty, go ahead and regenerate a new version
 		if (empty($cached_contents)) {
 			ob_start();
 				$bodycopy = &$this->getBodycopy();
 				if (!is_null($bodycopy)) $bodycopy->printBody();
-				$cm->saveToCache($this, 'default', ob_get_contents());
+				$cm->saveToCache($this->id, $this->type(), 'default', ob_get_contents());
 			ob_end_flush();
 		} else {
 			echo $cached_contents;

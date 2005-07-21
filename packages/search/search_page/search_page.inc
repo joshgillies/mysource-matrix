@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.98.2.2 2005/06/28 01:20:08 pgannavarapu Exp $
+* $Id: search_page.inc,v 1.98.2.3 2005/07/21 01:05:50 dheppell Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.98.2.2 $
+* @version $Revision: 1.98.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1921,13 +1921,13 @@ class Search_Page extends Listing_Engine
 	{
 		// the $this->_tmp[] variables are set in getResultsBodyReplacements()
 		$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
-		$element_contents = $cm->loadFromCache($this, $assetid);
+		$element_contents = $cm->loadFromCache($this->id, $this->type(), $assetid);
 		if (empty($element_contents)) {
 			ob_start();
 			parent::_printAsset($assetid, $this->_tmp['asset_info'][$assetid], $list_position);
 			$element_contents = ob_get_contents();
 			ob_end_clean();
-			$cm->saveToCache($this, $assetid, $element_contents);
+			$cm->saveToCache($this->id, $this->type(), $assetid, $element_contents);
 		}
 
 		$element_replacements = Array(

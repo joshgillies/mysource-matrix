@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.75.2.1 2005/06/16 00:00:00 dheppell Exp $
+* $Id: page_asset_listing.inc,v 1.75.2.2 2005/07/21 01:05:43 dheppell Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.75.2.1 $
+* @version $Revision: 1.75.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -131,7 +131,7 @@ class Page_Asset_Listing extends Listing_Engine
 		$cached_contents = '';
 		if (!empty($cache_key)) {
 			$cm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
-			$cached_contents = $cm->loadFromCache($this, $cache_key);
+			$cached_contents = $cm->loadFromCache($this->id, $this->type(), $cache_key);
 		}
 
 		// if the cache is empty, go ahead and regenerate a new version
@@ -227,7 +227,7 @@ class Page_Asset_Listing extends Listing_Engine
 			ob_start();
 				$format_bodycopy->printBody();
 				if (!empty($cache_key)) {
-					$cm->saveToCache($this, $cache_key, ob_get_contents());
+					$cm->saveToCache($this->id, $this->type(), $cache_key, ob_get_contents());
 				}
 			ob_end_flush();
 
