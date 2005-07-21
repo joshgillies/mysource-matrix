@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.341 2005/07/20 00:30:45 ndvries Exp $
+* $Id: asset_manager.inc,v 1.342 2005/07/21 00:43:09 mmcintyre Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.341 $
+* @version $Revision: 1.342 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -4717,9 +4717,13 @@ class Asset_Manager extends MySource_Object
 			return Array();
 		}
 
-		//// See Mantis #0000128 for a reason on why the trailing slash is added to the URL and before the '%' ////
+		// the get_lineage_from_url procedure takes a url and splits it into the
+		// possible urls that we are looking for.
+		// we do this because its faster than performing a 'url LIKE l.url%'
 		$where = 'l.root_urlid = '.$db->quote((int) $root_url['urlid']).'
-					AND '.$db->quote($url.'/').' LIKE (l.url || '.$db->quote('/%').')';
+				  AND l.url IN (
+								SELECT * FROM get_lineage_from_url('.$db->quoteSmart($url.'/').')
+							)';
 
 		if (!is_null($protocol)) {
 			$where .= ' AND l.'.$protocol.' = '.$db->quote('1');
@@ -4749,7 +4753,6 @@ class Asset_Manager extends MySource_Object
 
 		$result = $db->getAll($sql);
 		assert_valid_db_result($result);
-
 
 		$url_asset = &$this->getAssetFromURL($protocol, $url);
 		$id_parts = explode(':', $url_asset->id);
