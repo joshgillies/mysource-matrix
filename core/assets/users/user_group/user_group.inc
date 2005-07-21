@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_group.inc,v 1.16 2005/05/31 00:45:44 tbarrett Exp $
+* $Id: user_group.inc,v 1.17 2005/07/21 01:02:17 dheppell Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -173,7 +173,7 @@ class User_Group extends Folder
 	function printBody()
 	{
 		$cm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
-		$cached_contents = $cm->loadFromCache($this, 'default');
+		$cached_contents = $cm->loadFromCache($this->id, $this->type(), 'default');
 
 		// if the cache is empty, go ahead and regenerate a new version
 		if (empty($cached_contents)) {
@@ -184,7 +184,7 @@ class User_Group extends Folder
 					$this->printUserList($groupid);
 				}
 
-				$cm->saveToCache($this, 'default', ob_get_contents());
+				$cm->saveToCache($this->id, $this->type(), 'default', ob_get_contents());
 			ob_end_flush();
 		} else {
 			echo $cached_contents;

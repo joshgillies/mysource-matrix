@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_body.inc,v 1.19 2005/07/20 23:51:49 dheppell Exp $
+* $Id: design_area_body.inc,v 1.20 2005/07/21 01:02:17 dheppell Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -60,7 +60,7 @@ class Design_Area_Body extends Design_Area
 			$body = \'\';
 			if ($ASSET->_is_cacheable) {
 				$cm = &$GLOBALS[\'SQ_SYSTEM\']->am->getSystemAsset(\'cache_manager\');
-				$body = $cm->loadFromCache($ASSET);
+				$body = $cm->loadFromCache($ASSET->id, $ASSET->type());
 			}
 			if (empty($body)) {
 

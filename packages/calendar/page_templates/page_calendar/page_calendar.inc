@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.164 2005/07/12 07:05:49 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.165 2005/07/21 01:02:19 dheppell Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.164 $
+* @version $Revision: 1.165 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -209,7 +209,7 @@ class Page_Calendar extends Page_Asset_Listing
 			$cached_contents = '';
 			if (!empty($cache_key)) {
 				$cm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
-				$cached_contents = $cm->loadFromCache($this, $cache_key);
+				$cached_contents = $cm->loadFromCache($this->id, $this->type(), $cache_key);
 			}
 			if (!empty($cached_contents)) {
 				echo $cached_contents;
@@ -237,7 +237,7 @@ class Page_Calendar extends Page_Asset_Listing
 					$format_bodycopy->setKeywordReplacements($replacements);
 					$format_bodycopy->printBody();
 					if (!empty($cache_key)) {
-						$cm->saveToCache($this, $cache_key, ob_get_contents());
+						$cm->saveToCache($this->id, $this->type(), $cache_key, ob_get_contents());
 					}
 				ob_end_flush();
 

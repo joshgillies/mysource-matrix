@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.268 2005/07/07 00:37:08 pgannavarapu Exp $
+* $Id: asset_edit_interface.inc,v 1.269 2005/07/21 01:02:17 dheppell Exp $
 *
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.268 $
+* @version $Revision: 1.269 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -1623,6 +1623,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 			$screens = Array($current_screen);
 
+
 		} else {
 
 			$screens = Array($current_screen);
@@ -1634,6 +1635,7 @@ class Asset_Edit_Interface extends MySource_Object
 			// screens also need to be processed
 			if (!is_null($layout)) {
 				$keywords = $layout->getLayoutKeywords();
+
 				if (isset($keywords['screens']) && !empty($keywords['screens'])) {
 					$screens = array_unique(array_merge(array_keys($keywords['screens']), $screens));
 				}
