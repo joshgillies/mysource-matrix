@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_delivery_method.inc,v 1.1 2005/07/20 01:17:56 arailean Exp $
+* $Id: ecommerce_delivery_method.inc,v 1.2 2005/07/21 04:56:36 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *	by allowing the get/set operations on the state information
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -184,39 +184,24 @@ class Ecommerce_Delivery_Method extends Asset
 	*/
 	function _getName($short_name=false)
 	{
-		return (($short_name) ? $this->attr('short_name') : $this->attr('name'));
+		return $this->attr('name');
 
 	}//end _getName()
 
 
 	/**
-	* Perform any pre-validation required during the creation of this asset
+	* Returns a receipt that can be used by the checkout to be printed on the frontend
 	*
-	* Pages ensure a name and short_name has been set before they are created
+	* @param string	$html	set to true for HTML format, set to false for text format
 	*
-	* @param array	&$link	information used to create the initial link
-	*
-	* @access private
-	* @return boolean
+	* @return string
+	* @access public
 	*/
-	function _preCreateCheck(&$link)
+	function getReceipt($html=false)
 	{
-		if (!parent::_preCreateCheck($link)) return false;
+		return '';
 
-		$name = trim($this->attr('name'));
-		if ($name == '') {
-			trigger_localised_error('CORE0083', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
-			return false;
-		}
-
-		// if the short name hasn't been set then short and long names are the same to begin with
-		if (trim($this->attr('short_name')) == '') {
-			$this->setAttrValue('short_name', $name);
-		}
-
-		return true;
-
-	}//end _preCreateCheck()
+	}//end getReceipt()
 
 
 }//end class
