@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.4 2005/06/27 14:02:08 jhurst Exp $
+* $Id: lang_strings.xml,v 1.5 2005/07/21 04:11:30 skim Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -70,5 +70,6 @@
 <string source="cms_listing_group_metadata_field_note">If the metadata schema that contains this field is not applied to an asset, it will be omitted from the asset listing</string>
 <string source="cms_listing_no_sorting_applied">No sorting applied</string>
 <string source="cms_listing_cannot_use_asset_postitions_with_groups">Custom Grouping is currently selected. Asset positions are not used for Custom Grouping</string>
-
+<string source="cms_listing_group_listing">Asset Group Listing</string>
+<string source="cms_listing_group_name">Asset Group Name</string>
 </strings>

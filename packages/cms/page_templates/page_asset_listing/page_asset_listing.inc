@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.79 2005/07/21 01:02:21 dheppell Exp $
+* $Id: page_asset_listing.inc,v 1.80 2005/07/21 04:11:30 skim Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.79 $
+* @version $Revision: 1.80 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -156,7 +156,6 @@ class Page_Asset_Listing extends Listing_Engine
 			$children = $this->getAssetList();
 			$this->filterAssetList($children);
 			$num_kids = count($children);
-
 			//the list is sorted and positions set, now we can split to groups
 			if ($this->attr('group_by') == 'grouped') {
 				$this->groupAssetsRecursively($this->attr('asset_grouping'), $children, $children);

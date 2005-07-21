@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.49 2005/07/19 07:20:17 skim Exp $
+* $Id: listing_engine.inc,v 1.50 2005/07/21 04:11:30 skim Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
 *
-* @version $Revision: 1.49 $
+* @version $Revision: 1.50 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1067,18 +1067,34 @@ class Listing_Engine extends Page
 	*/
 	function _printGroups(&$todo, $group_info)
 	{
+//minibam($todo);
+//minibam($group_info);
+
+//error_log($todo);
+
 		$pointer = reset($todo);
+
 		if (!empty($group_info)) {
+
 			//get the group bodycopy relative to this level
 			$remaining_groups = array_shift($group_info);
 			$format_bodycopy =& $GLOBALS['SQ_SYSTEM']->am->getAsset($remaining_groups['format_assetid']);
 
 			foreach ($todo as $group_level => $value) {
-					//lets buffer whatever contents we need
+
+					// if $value is not an array or an object, don't go in...
+
+				//lets buffer whatever contents we need
 					ob_start();
-						$this->_printGroups($todo[$group_level], $group_info);
+						//if (is_array($value) || is_object($value)) {
+							$this->_printGroups($todo[$group_level], $group_info);
+						//} else {
+						//	$this->_printGroups($todo, $group_info);
+						//}
 						$group_contents = ob_get_contents();
 					ob_end_clean();
+
+
 
 					switch ($remaining_groups['group_type']) {
 
@@ -1211,6 +1227,7 @@ class Listing_Engine extends Page
 		$customised = $this->getFormats('type_formats');
 
 		$asset_info_fields = $this->getSortableAssetInfo();
+		$bodycopy = null;
 
 		// if the type code is empty, we probably stuffed around with the todo list
 		// but we can get the type code from the asset info array
@@ -1222,82 +1239,50 @@ class Listing_Engine extends Page
 		// check to see if there is a specific position format for us
 		if (isset($this->_tmp['position_formats'][$list_position])) {
 			$bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_tmp['position_formats'][$list_position], 'bodycopy');
-			if (!is_null($bodycopy)) {
-				$contents = $bodycopy->getRawBodycopyContent();
-				// see whether the keywords in it require asset loading or not
-				$bc_keywords = retrieve_keywords_replacements($contents);
-				$this_needs_asset = false;
-				foreach ($bc_keywords as $keyword) {
-					if (!(strpos($keyword, 'asset_') === 0) || ((strpos($keyword, 'asset_metadata_') !== 0) && (!in_array(substr($keyword, 6), $asset_info_fields)))) {
-						$this_needs_asset = true;
-						break;
-					}
-				}
-				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($bodycopy);
-			}
 		}//end if has position format
 
-		// if we can't find a position format, then we can search for type
-		// and default formats
-		if (empty($bodycopy)) {
-
-			// our format will be based on type code
-			if (in_array($type_code, $customised)) {
+		// if we can't find a position format
+		// search for type format, if we don't already know that default format should be used
+		if (is_null($bodycopy) && !in_array($this->_tmp['is_default'], $type_code)) {
+			$type_key = array_search($type_code, $customised);
+			if ($type_key !== false) {
 				$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->_tmp['type_folder_id'], SQ_LINK_TYPE_2, 'bodycopy', true, $type_code);
-
-				if (!$link) {
-					// use the default format
-					$this->_tmp['is_default'][] = $type_code;
-				} else {
+				if ($link) {
 					$bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], 'bodycopy');
-					if (!is_null($bodycopy)) {
-						// get the format for this type
-						$this->_tmp['formats'][$type_code] = $bodycopy->getRawBodycopyContent();
-						// see whether the keywords in it require asset loading or not
-						$bc_keywords = retrieve_keywords_replacements($this->_tmp['formats'][$type_code]);
-						$this->_tmp['needs_asset'][$type_code] = false;
-						foreach ($bc_keywords as $keyword) {
-							if (!(strpos($keyword, 'asset_') === 0) || ((strpos($keyword, 'asset_metadata_') !== 0) && (!in_array(substr($keyword, 6), $asset_info_fields)))) {
-								$this->_tmp['needs_asset'][$type_code] = true;
-								break;
-							}
-						}
-					}
+				} else {
+					$this->_tmp['is_default'][] = $type_code;
 				}
-			} else {
-				$this->_tmp['is_default'][] = $type_code;
 			}
+		}
 
-			if (in_array($type_code, $this->_tmp['is_default'])) {
-				$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->_tmp['type_folder_id'], SQ_LINK_TYPE_2, 'bodycopy', true, 'default_format');
+		// if no bodycopy found, try the default format
+		if (is_null($bodycopy)) {
+			$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->_tmp['type_folder_id'], SQ_LINK_TYPE_2, 'bodycopy', true, 'default_format');
+			if ($link) {
 				$bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], 'bodycopy');
-				if (!is_null($bodycopy)) {
-					// get the bodycopy content
-					$this->_tmp['default_format'] = $bodycopy->getRawBodycopyContent();
-					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($bodycopy);
-					// see whether the keywords in it require asset loading or not
-					$bc_keywords = retrieve_keywords_replacements($this->_tmp['default_format']);
-					$this->_tmp['needs_asset']['default'] = false;
-					foreach ($bc_keywords as $keyword) {
-						if (!(strpos($keyword, 'asset_') === 0) || ((strpos($keyword, 'asset_metadata_') !== 0) && (!in_array(substr($keyword, 6), $asset_info_fields)))) {
-							$this->_tmp['needs_asset']['default'] = true;
-							break;
-						}
-					}
-				}
-				$this_needs_asset = $this->_tmp['needs_asset']['default'];
 			} else {
-				$this_needs_asset = $this->_tmp['needs_asset'][$type_code];
+				// TODO: localise
+				trigger_error('Cannot Find the Default Bodycopy');
+				return;
 			}//end if using default format
+		}
 
-		}//end if position bodycopy not found
+		// by the time we reach this point we already have a bodycopy for this asset
+		$this_needs_asset = false;
+		$bc_keywords = $bodycopy->getKeywords();
+		foreach ($bc_keywords as $keyword) {
+			if (!(strpos($keyword, 'asset_') === 0) || ((strpos($keyword, 'asset_metadata_') !== 0) && (!in_array(substr($keyword, 6), $asset_info_fields)))) {
+				$this_needs_asset = true;
+				break;
+			}
+		}
 
 		if ($this_needs_asset) {
 			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 			if (is_null($asset)) return;
-			$asset_keywords = $asset->getAvailableKeywords();
-			foreach ($asset_keywords as $keyword_name => $description) {
-				$keywords[$keyword_name] = $asset->getKeywordReplacement($description);
+
+			foreach ($bc_keywords as $keyword) {
+				$keywords[$keyword] = $asset->getKeywordReplacement($keyword);
 			}
 			if (preg_match('|%asset_contents%|is', $bodycopy->getRawBodycopyContent())) {
 				ob_start();
@@ -2006,8 +1991,8 @@ class Listing_Engine extends Page
 	function _getGroupFolderKeywords()
 	{
 		$keywords = Array();
-		$keywords['group_listing']	= translate('group_listing');
-		$keywords['group_name']		= translate('group_name');
+		$keywords['group_listing']	= translate('cms_listing_group_listing');
+		$keywords['group_name']		= translate('cms_listing_group_name');
 
 		return $keywords;
 
