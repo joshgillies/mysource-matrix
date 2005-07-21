@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.5 2005/07/21 04:55:50 arailean Exp $
+* $Id: ecommerce_checkout.inc,v 1.6 2005/07/21 05:08:11 arailean Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/lib/ecommerce_common.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -703,7 +703,7 @@ class Ecommerce_Checkout extends Page
 
 		$active_delivery_method = array_get_index($_SESSION['SQ_TEMP_ORDER'], 'delivery_assetid');
 		$delivery_asset_state = array_get_index($_SESSION['SQ_TEMP_ORDER'], 'delivery_state');
-		$delivery_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($one_assetid);
+		$delivery_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($active_delivery_method);
 
 		echo "Delivery Method Summary\n";
 		echo $delivery_asset->getReceipt();
@@ -722,7 +722,7 @@ class Ecommerce_Checkout extends Page
 
 		$active_delivery_method = array_get_index($_SESSION['SQ_TEMP_ORDER'], 'delivery_assetid');
 		$delivery_asset_state = array_get_index($_SESSION['SQ_TEMP_ORDER'], 'delivery_state');
-		$delivery_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($one_assetid);
+		$delivery_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($active_delivery_method);
 
 		echo "Delivery Method Receipt\n";
 		echo $delivery_asset->getReceipt();
