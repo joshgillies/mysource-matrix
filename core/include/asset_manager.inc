@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.322.2.6 2005/07/21 01:43:10 mmcintyre Exp $
+* $Id: asset_manager.inc,v 1.322.2.7 2005/07/21 08:34:17 mmcintyre Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.322.2.6 $
+* @version $Revision: 1.322.2.7 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -780,7 +780,6 @@ class Asset_Manager extends MySource_Object
 	function &getAsset($assetid, $type_code='', $mute_errors=false)
 	{
 		assert_valid_assetid($assetid);
-
 		$asset = &$this->_asset_cache->get($assetid);
 
 		if (empty($asset)) {
@@ -5478,23 +5477,21 @@ class Asset_Manager extends MySource_Object
 	*/
 	function generateGetParentsQuery($assetid, $type_code='', $strict_type_code=true, $sort_by=null, $access=null)
 	{
+		assert_valid_assetid($assetid);
+
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$assetid = (string) $assetid;
 
-		$select = 'SELECT DISTINCT pl.minorid, a.type_code, pt.treeid';
-		$from   = 'FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk cl
-					 INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree ct ON cl.linkid = ct.linkid,
-				  '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk pl
-					 INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree pt ON pl.linkid = pt.linkid,
-				  '.SQ_TABLE_RUNNING_PREFIX.'ast a';
-		$where  ='cl.minorid = '.$db->quote($assetid).'
-				  AND ct.treeid LIKE pt.treeid || '.$db->quote('%').'
-				  AND pt.treeid < ct.treeid
-				  AND pl.minorid = a.assetid';
+		$select = 'SELECT DISTINCT(l.minorid), a.type_code, t.treeid';
+		$from   = 'FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
+					 INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t ON l.linkid = t.linkid
+					 INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON l.majorid = a.assetid';
+		$where  ='t.treeid IN (
+								SELECT * FROM '.SQ_TABLE_RUNNING_PREFIX.'get_parent_treeids('.$db->quoteSmart($assetid).', '.$db->quoteSmart(SQ_CONF_ASSET_TREE_SIZE).')
+							)';
 
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'cl');
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ct');
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'pl');
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'pt');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 
 		if (!empty($type_code)) {
@@ -5525,7 +5522,7 @@ class Asset_Manager extends MySource_Object
 			$order_by = 'ORDER BY a.'.$sort_by;
 			$select .= ', a.'.$sort_by.' AS sort_value';
 		} else {
-			$order_by = 'ORDER BY pt.treeid';
+			$order_by = 'ORDER BY t.treeid';
 		}
 
 		$group_by = '';
