@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.432 2005/07/21 04:54:16 skim Exp $
+* $Id: asset.inc,v 1.433 2005/07/21 20:18:11 brobertson Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.432 $
+* @version $Revision: 1.433 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -1790,6 +1790,7 @@ class Asset extends MySource_Object
 			$schemas = $mm->getSchemas($this->id);
 			$metadata = Array();
 			foreach ($schemas as $schemaid => $granted) {
+				if (!$GLOBALS['SQ_SYSTEM']->am->assetExists($schemaid)) continue;
 				if (!$mm->setSchema($clone->id, $schemaid, $granted)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return false;
