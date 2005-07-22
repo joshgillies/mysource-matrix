@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_common.inc,v 1.7 2005/07/22 00:58:32 lwright Exp $
+* $Id: ecommerce_common.inc,v 1.8 2005/07/22 01:27:52 arailean Exp $
 *
 */
 
@@ -29,7 +29,7 @@ define('SQ_CART', 'sq_cart_contents');
 * @author Robert Howard <rhoward@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
 * @author Andrei Railean <arailena@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -352,14 +352,13 @@ function hash_cart()
 * Prints out the contents of the Ecommerce Cart
 *
 */
-function print_receipt()
+function print_receipt($cart=null)
 {
-	$cart =& get_cart();
+	if (is_null($cart)) $cart =& get_cart();
+
 	print_r($cart);
 
-	return;
-
-}
+}//end print_receipt()
 
 
 ?>
