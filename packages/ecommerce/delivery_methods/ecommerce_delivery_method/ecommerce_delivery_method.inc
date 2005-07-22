@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_delivery_method.inc,v 1.2 2005/07/21 04:56:36 lwright Exp $
+* $Id: ecommerce_delivery_method.inc,v 1.3 2005/07/22 01:59:45 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *	by allowing the get/set operations on the state information
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -114,7 +114,7 @@ class Ecommerce_Delivery_Method extends Asset
 	* @see Ecommerce_Delivery_Method::getState()
 	*
 	* @param $state		Array	State information
-	* @return
+	* @return void
 	* @access public
 	*/
 	function setState($state=Array()) {
