@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.js,v 1.38 2005/07/21 01:41:18 tbarrett Exp $
+* $Id: html_form.js,v 1.39 2005/07/22 05:04:46 lwright Exp $
 *
 */
 
@@ -94,13 +94,17 @@ set_button_value = set_hidden_field;
 /**
 * Ensures a field contains only numbers
 *
-* @param string $name				the name of the text field
-* @param string $allow_negative		allows negative values
+* @param string  $name				the name of the text field
+* @param boolean $allow_negative	allows negative values
+* @param integer $range_min			optional, the minimum
 *
+* @return boolean	indicates success
 * @access public
 */
 function validate_numeric_text_field(name, allow_negative)
 {
+	if (arguments.length < 2) return false;
+
 	// if the string is not a number, or if negatives aren't allowed and the first character is a '-'.
 	if (name.value * 1 != name.value || (name.value.length > 0 && allow_negative == false && name.value.charAt(0) == "-" ) ) {
 		var outstr = "";
@@ -123,6 +127,35 @@ function validate_numeric_text_field(name, allow_negative)
 			// mozilla support
 			name.selectionEnd = name.selectionStart = name.value.length;
 		}
+	}
+
+	if (arguments.length > 3) {
+		validate_numeric_range(name, arguments[2], arguments[3], false);
+	}
+
+}
+
+
+/**
+* Modifies a textbox value so that it fits between the given minimum and maximum
+*
+* @param string		$name		the name of the text field
+* @param integer	$min		minimum value to restrict the text field to
+* @param integer	$max		maximum value to restrict the text field to
+*
+* @return boolean	indicates success
+* @access public
+*/
+function validate_numeric_range(name, min, max)
+{
+	if (arguments.length < 3) return false;
+
+	if (arguments.length >= 4 && arguments[3] == true && name.value < min) {
+		name.value = min;
+	}
+
+	if (name.value > max) {
+		name.value = max;
 	}
 
 }
