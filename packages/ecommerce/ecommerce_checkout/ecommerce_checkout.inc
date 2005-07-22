@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.10 2005/07/22 01:28:50 arailean Exp $
+* $Id: ecommerce_checkout.inc,v 1.11 2005/07/22 07:15:09 arailean Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/lib/ecommerce_common.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -59,7 +59,9 @@ class Ecommerce_Checkout extends Page
 		}
 
 		// default print context is the first one in the list of available contexts
-		$this->print_context = array_shift($this->_getAvailableContexts());
+		$contexts = $this->_getAvailableContexts();
+		reset($contexts);
+		$this->print_context = key($contexts);
 
 		$this->Page($assetid);
 
@@ -75,9 +77,10 @@ class Ecommerce_Checkout extends Page
 	function _getAvailableContexts()
 	{
 		return Array(
-				'content',
-				'confirmation',
-				'receipt',
+				'checkout'		=> 'Checkout',
+				'confirmation'	=> 'Confirmation',
+				'failure'		=> 'Failure',
+				'receipt'		=> 'Receipt',
 			   );
 
 	}//end _getAvailableContexts()
@@ -169,7 +172,7 @@ class Ecommerce_Checkout extends Page
 						$delivery_state = $delivery_asset->getState();
 						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($delivery_asset);
 					} else {
-						$this->print_context = 'content';
+						$this->print_context = 'checkout';
 						return;
 					}
 
@@ -200,7 +203,7 @@ class Ecommerce_Checkout extends Page
 
 					$this->print_context = 'confirmation';
 				} else {
-					$this->print_context = 'content';
+					$this->print_context = 'checkout';
 				}
 
 				$_SESSION['SQ_TEMP_ORDER']['processing_data'] = $processing_data;
@@ -208,20 +211,25 @@ class Ecommerce_Checkout extends Page
 			break;
 
 			case 'return_to_checkout':
-				$this->print_context = 'content';
+				$this->print_context = 'checkout';
 			break;
 
 			case 'confirm_order':
 				// components should be processed here
 				// delivery processing
 				$dm =& $this->_getActiveDeliveryMethod();
-				$status = $dm->processDelivery();
+				if (!empty($dm) && !$dm->processDelivery()){
+					// TODO: Localise
+					trigger_error('Delivery Processing Failed');
+					$this->print_context = 'failure';
+
+				}
 
 				// create order asset
 				# $this->_createOrder();
 
 				// unset temporary order
-				$this->_tmp['cart_items'] =& $_SESSION['SQ_TEMP_ORDER']['cart_contents'];
+				$this->_tmp['cart_items'] = $_SESSION['SQ_TEMP_ORDER']['cart_contents'];
 				unset($_SESSION['SQ_TEMP_ORDER']['cart_contents']);
 
 				$this->print_context = 'receipt';
@@ -331,18 +339,18 @@ class Ecommerce_Checkout extends Page
 		if ($success) {
 			// now create context bodycopies
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
-			foreach ($this->_getAvailableContexts() as $context_name) {
+			foreach ($this->_getAvailableContexts() as $context_link_value => $context_bodycopy_name) {
 				$asset =& new Bodycopy();
 
 				$copy_link = Array(
 								'asset'			=> &$bodycopy_folder,
-								'value'			=> $context_name,
+								'value'			=> $context_link_value,
 								'link_type'		=> SQ_LINK_TYPE_2,
 								'is_dependant'	=> 1,
 								'is_exclusive'	=> 1,
 							 );
 
-				$asset->setAttrValue('name', ucwords(str_replace('_',' ', $context_name)));
+				$asset->setAttrValue('name', $context_bodycopy_name);
 
 				$success = $asset->create($copy_link);
 				unset($asset);
@@ -527,8 +535,9 @@ class Ecommerce_Checkout extends Page
 			}
 		}
 
-		// no special bodycopy found
-		if (empty($bodycopy_context) || !in_array($bodycopy_context, $this->_getAvailableContexts())) {
+		// check if the found bodycopy context is recognised
+		$contexts = $this->_getAvailableContexts();
+		if (empty($bodycopy_context) || !isset($contexts[$bodycopy_context])) {
 			return;
 		}
 
@@ -548,7 +557,7 @@ class Ecommerce_Checkout extends Page
 	* @access private
 	* @return array
 	*/
-	function _getContentContextKeywords()
+	function _getCheckoutContextKeywords()
 	{
 		$keywords['delivery_selector']			= translate('ecom_checkout_keyword_delivery_selector');
 		$keywords['delivery_interface'] 		= translate('ecom_checkout_keyword_delivery_interface');
@@ -556,7 +565,7 @@ class Ecommerce_Checkout extends Page
 
 		return $keywords;
 
-	}//end _getContentContextKeywords()
+	}//end _getCheckoutContextKeywords()
 
 
 	/**
@@ -591,6 +600,21 @@ class Ecommerce_Checkout extends Page
 	}//end _getReceiptContextKeywords()
 
 
+	/**
+	* Get keywords for 'Receipt' context
+	*
+	* @access private
+	* @return array
+	*/
+	function _getFailureContextKeywords()
+	{
+		$keywords['processing_error_message']	= translate('ecom_checkout_keyword_processing_error_message');
+
+		return $keywords;
+
+	}//end _getFailureContextKeywords()
+
+
 	//// -- Replacements
 
 
@@ -604,7 +628,7 @@ class Ecommerce_Checkout extends Page
 	{
 		$multiple_asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($this->_getDeliveryAssetIds());
 
-		$selection_contents = Array();
+		$selection_contents = Array('' => '-- '.translate('ecom_checkout_select_delivery_method').' --');
 		foreach ($multiple_asset_info as $assetid => $asset_info) {
 			$selection_contents[$assetid] = $asset_info['name'];
 		}
@@ -656,7 +680,7 @@ class Ecommerce_Checkout extends Page
 		foreach ($this->_getDeliveryAssetIds() as $one_assetid) {
 			$delivery_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($one_assetid);
 
-			if (is_null($active_delivery_method) || ($active_delivery_method->id != $one_assetid)) {
+			if (!is_null($active_delivery_method) || ($active_delivery_method->id != $one_assetid)) {
 				$display = 'none';
 			} else {
 				$display = 'block';
@@ -759,6 +783,20 @@ class Ecommerce_Checkout extends Page
 		return $this->getCheckoutSummaryKeywordReplacement();
 
 	}//end getReceiptSummaryKeywordReplacement()
+
+
+	/**
+	* Get Keyword Replacement for 'receipt_summary_button' keyword
+	*
+	* @return string	replacement
+	* @access public
+	*/
+	function getProcessingErrorMssageKeywordReplacement()
+	{
+		// TODO: Complete Function: getProcessingErrorMssageKeywordReplacement
+		return 'Error Message';
+
+	}//end getProcessingErrorMssageKeywordReplacement()
 
 
 }//end class
