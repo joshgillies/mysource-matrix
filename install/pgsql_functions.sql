@@ -16,7 +16,7 @@
 -- | licence.                                                           |
 -- +--------------------------------------------------------------------+
 --
--- $Id: pgsql_functions.sql,v 1.1.2.3 2005/07/21 08:35:12 mmcintyre Exp $
+-- $Id: pgsql_functions.sql,v 1.1.2.4 2005/07/22 07:14:30 lwright Exp $
 -- @author Marc McIntyre <mmcintyre@squiz.net>
 
 -- creates a function that grants access to the secondary user.
@@ -113,11 +113,11 @@ END;
 
 -- returns the parent treeids for the specified assetid using the date
 --acquired from the sq_get_rollback_timestamp function
-CREATE OR REPLACE FUNCTION sq_rb_get_parent_treeids(VARCHAR, INT) RETURNS SETOF VARCHAR AS '
+CREATE OR REPLACE FUNCTION sq_rb_get_parent_treeids(VARCHAR, INT) RETURNS SETOF BYTEA AS '
 DECLARE
 	rb_date TIMESTAMP;
-	var_set VARCHAR[];
-	next_treeid VARCHAR;
+	var_set BYTEA[];
+	next_treeid BYTEA;
 	ub INT;
 	lb INT;
 BEGIN
@@ -135,10 +135,10 @@ END;
 ' language plpgsql;
 
 -- returns the parent treeids for the specified assetid
-CREATE OR REPLACE FUNCTION sq_get_parent_treeids(VARCHAR, INT) RETURNS SETOF VARCHAR AS '
+CREATE OR REPLACE FUNCTION sq_get_parent_treeids(VARCHAR, INT) RETURNS SETOF BYTEA AS '
 DECLARE
-	var_set VARCHAR[];
-	next_treeid VARCHAR;
+	var_set BYTEA[];
+	next_treeid BYTEA;
 	ub INT;
 	lb INT;
 BEGIN
@@ -162,9 +162,9 @@ DECLARE
 	treeids RECORD;
 	offset int;
 	minorid ALIAS FOR $1;
-	next_treeid VARCHAR;
-	parent_treeids VARCHAR;
-	concat_treeids VARCHAR;
+	next_treeid BYTEA;
+	parent_treeids BYTEA;
+	concat_treeids BYTEA;
 	SQ_TREE_BASE_SIZE ALIAS FOR $2;
 	rb_date ALIAS FOR $3;
 	table_prefix VARCHAR;
