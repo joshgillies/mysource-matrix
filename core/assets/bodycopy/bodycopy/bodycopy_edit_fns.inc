@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_edit_fns.inc,v 1.32 2005/05/16 06:36:31 lwright Exp $
+* $Id: bodycopy_edit_fns.inc,v 1.33 2005/07/22 06:12:11 dmckee Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -73,6 +73,8 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 	{
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 		$write_access = $asset->writeAccess('content');
+		//variable to determine whether or not to allow commit
+		$print_commit_button = $write_access;
 
 		if (isset($GLOBALS['sq_preview_url']) && !empty($GLOBALS['sq_preview_url'])) {
 			$url = $GLOBALS['sq_preview_url'];
@@ -259,7 +261,11 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 
 			?>
 			<tr>
-				<td><?php $container_edit->paintContainer($container, $o, $prefix); ?></td>
+			<td><?php
+			if ($container_edit->paintContainer($container, $o, $prefix) == true) {
+				$print_commit_button = true;
+			}
+			?></td>
 			</tr>
 			<tr>
 				<td>&nbsp;</td>
@@ -312,7 +318,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		<!-- End Tooltip -->
 		<?php
 
-		return $write_access;
+		return $print_commit_button;
 
 	}//end paintBodycopy()
 
