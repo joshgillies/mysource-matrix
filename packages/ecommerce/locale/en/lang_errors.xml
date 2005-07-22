@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.3 2005/07/21 07:56:44 lwright Exp $
+* $Id: lang_errors.xml,v 1.4 2005/07/22 00:29:48 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 	<error code="ECOM0003">Unable to locate the form asset for Ecommerce Custom Form "%1$s" (Id: #%2$s)</error>
 		<!-- ecommerce/page_templates/page_custom_form_ecommerce/page_custom_form_ecommerce.inc:96: -->
 
-	<error code="ECOM0004">Cannot add an item with no quantity to the cart</error>
+	<error code="ECOM0004">Cannot add an item with negative quantity to the cart</error>
 		<!-- ecommerce/ecommerce_cart/ecommerce_cart.inc:148: -->
 
 	<error code="ECOM0005">Assetid sent to cart add() function (#%s) is not a Product asset</error>

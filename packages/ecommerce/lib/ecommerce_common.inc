@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_common.inc,v 1.5 2005/07/21 06:15:48 arailean Exp $
+* $Id: ecommerce_common.inc,v 1.6 2005/07/22 00:29:48 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@ define('SQ_CART', 'sq_cart_contents');
 * @author Robert Howard <rhoward@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
 * @author Andrei Railean <arailena@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -190,9 +190,11 @@ function get_count()
 */
 function add_item($assetid, $quantity=1)
 {
-	// quantity is equal to or less than zero, throw a hissy fit
 	if ($quantity <= 0) {
-		trigger_localised_error('ECOM0004', E_USER_WARNING);
+		// quantity is less than zero, throw a hissy fit
+		if ($quantity < 0) {
+			trigger_localised_error('ECOM0004', E_USER_WARNING);
+		}
 		return false;
 	}
 
