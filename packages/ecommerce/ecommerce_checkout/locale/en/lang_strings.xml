@@ -1,0 +1,31 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Commercial Module Licence                                |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file is not open source or freely usable and may be    |
+* | used subject to, and only in accordance with, the Squiz Commercial |
+* | Module Licence.                                                    |
+* | Please refer to http://www.squiz.net/licence for more information. |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_strings.xml,v 1.1 2005/07/22 00:41:39 arailean Exp $
+*
+*
+* Ecommerce Package Localised Strings File
+*/
+-->
+
+<strings>
+	<!-- Keywords -->
+	<string source="ecom_checkout_keyword_delivery_selector">Delivery Method Selector</string>
+	<string source="ecom_checkout_keyword_delivery_interface">Delivery Method Interface</string>
+	<string source="ecom_checkout_keyword_go_to_confirmation_button">Go To Confirmation Button</string>
+	<string source="ecom_checkout_keyword_checkout_summary">Checkout Summary</string>
+	<string source="ecom_checkout_keyword_confirm_order_button">Confirm Order Button</string>
+	<string source="ecom_checkout_keyword_return_to_checkout_button">Return to Checkout Button</string>
+	<string source="ecom_checkout_keyword_receipt_summary">Receipt Summary</string>
+</strings>
+
