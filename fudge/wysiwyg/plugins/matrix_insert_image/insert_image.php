@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_image.php,v 1.31 2005/07/22 02:05:52 dmckee Exp $
+* $Id: insert_image.php,v 1.32 2005/07/22 07:15:53 dmckee Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Insert Image Popup for the WYSIWYG
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix
 */
 
@@ -294,7 +294,7 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 							<tr>
 								<td valign="center" align="center" rowspan=2 width="50%">
 									<fieldset class="prev">
-									<legend><b><?php echo 'Preview'; ?></b></legend>
+									<legend><b><?php translate('Preview'); ?></b></legend>
 										<table class="preview" >
 											<tr>
 												<td id="image_container" align="center" valign="center" height="160px" width="340px">
