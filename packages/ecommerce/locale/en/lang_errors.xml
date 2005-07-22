@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.4 2005/07/22 00:29:48 lwright Exp $
+* $Id: lang_errors.xml,v 1.5 2005/07/22 07:28:55 skim Exp $
 *
 */
 
@@ -23,35 +23,24 @@
 
 <errors>
 	<error code="ECOM0001">Price Value cannot be negative</error>
-		<!-- ecommerce/price/product_price.inc:176: -->
-
 	<error code="ECOM0002">Unable to locate the Ecommerce Rules for ecommerce custom form page "%1$s" (Id: #%2$s)</error>
-		<!-- ecommerce/page_templates/page_custom_form_ecommerce/page_custom_form_ecommerce_edit_fns.inc:59: -->
-
 	<error code="ECOM0003">Unable to locate the form asset for Ecommerce Custom Form "%1$s" (Id: #%2$s)</error>
-		<!-- ecommerce/page_templates/page_custom_form_ecommerce/page_custom_form_ecommerce.inc:96: -->
-
 	<error code="ECOM0004">Cannot add an item with negative quantity to the cart</error>
-		<!-- ecommerce/ecommerce_cart/ecommerce_cart.inc:148: -->
-
 	<error code="ECOM0005">Assetid sent to cart add() function (#%s) is not a Product asset</error>
-		<!-- ecommerce/ecommerce_cart/ecommerce_cart.inc:158: -->
-
 	<error code="ECOM0006">Attempt to remove() items from cart when there is none of that product</error>
-		<!-- ecommerce/ecommerce_cart/ecommerce_cart.inc:196: -->
-
 	<error code="ECOM0007">Quantity to remove() from cart cannot be less than zero</error>
-		<!-- ecommerce/ecommerce_cart/ecommerce_cart.inc:211: -->
-
 	<error code="ECOM0008">Quantity to remove() from cart cannot be more than how many of that product are actually in the cart</error>
-		<!-- ecommerce/ecommerce_cart/ecommerce_cart.inc:216: -->
-
 	<error code="ECOM0010">Cannot update an item with a negative quantity</error>
-		<!-- ecommerce/ecommerce_cart/ecommerce_cart.inc:257: -->
-
 	<error code="ECOM0011">There was no active cart found</error>
-		<!-- ecommerce/product/product.inc:181: -->
-
 	<error code="ECOM0012">Invalid quantity entered</error>
-		<!-- ecommerce/product/product.inc:186: -->
+	<error code="ECOM0013">Could not get an Ecommerce Order Summary during the creation</error>
+	<error code="ECOM0014">Ecommerce Order can not be created without products</error>
+	<error code="ECOM0015">Ecommerce Order creation failed due to the failure in links</error>
+	<error code="ECOM0016">The ecommerce cart is empty, cannot checkout</error>
+	<error code="ECOM0017">Ecommerce Checkout Bodycopy Folder is missing</error>
+	<error code="ECOM0018">Unable to create Ecommerce Order</error>
+	<error code="ECOM0019">Ecommerce Order can not create Notice link to Product</error>
+	<error code="ECOM0020">Ecommerce Order can not be created without processing data</error>
+	<error code="ECOM0021">Ecommerce Order creation failed during saving attributes</error>
+	<error code="ECOM0022">Unable to acquire lock on Ecommerce Order. Save failed</error>
 </errors>
