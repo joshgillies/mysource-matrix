@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.8 2005/07/21 07:14:57 arailean Exp $
+* $Id: ecommerce_checkout.inc,v 1.9 2005/07/22 00:41:02 arailean Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/lib/ecommerce_common.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -57,6 +57,10 @@ class Ecommerce_Checkout extends Page
 		if (!isset($_SESSION['SQ_TEMP_ORDER'])) {
 			$_SESSION['SQ_TEMP_ORDER'] = Array();
 		}
+
+		// default print context is the first one in the list of available contexts
+		$this->print_context = array_shift($this->_getAvailableContexts());
+
 		$this->Page($assetid);
 
 	}//end constructor
@@ -124,8 +128,6 @@ class Ecommerce_Checkout extends Page
 	*/
 	function printBody()
 	{
-		# this is a main print controller of the checkout form that determines which
-		# screen we are on and what action to take next
 		// process contents
 		$this->_processInterface();
 
@@ -136,21 +138,18 @@ class Ecommerce_Checkout extends Page
 
 
 	/**
-	* TODO: function comment: _processInterface
+	* Process the interface
 	*
-	*
-	*
-	* @param
+	* This is the main controller function. It determines the asset is in based on the request
+	* and state variables
 	*
 	* @return void
-	* @access public
+	* @access private
 	*/
 	function _processInterface()
 	{
 		$request_action = array_get_index($_REQUEST, $this->getPrefix().'_action');
-		if (empty($request_action)){
-			return;
-		}
+		if (empty($request_action)) return;
 
 		$processing_data = array_get_index($_SESSION['SQ_TEMP_ORDER'], 'processing_data', Array());
 
@@ -212,13 +211,15 @@ class Ecommerce_Checkout extends Page
 
 			case 'confirm_order':
 				// components should be processed here
-				// delivery
+				// delivery processing
+				$dm =& $this->_getActiveDeliveryMethod();
+				$status = $dm->processDelivery();
 
 				// create order asset
 				# $this->_createOrder();
 
 				// unset temporary order
-				unset($_SESSION['SQ_TEMP_ORDER']);
+				unset($_SESSION['SQ_TEMP_ORDER']['cart_contents']);
 
 				$this->print_context = 'receipt';
 			break;
@@ -231,29 +232,24 @@ class Ecommerce_Checkout extends Page
 
 
 	/**
-	* TODO: function comment: _printContext
+	* Print the context bodycopy
 	*
-	*
+	* Provided that the context has already been determined, this function simply find an appropriate
+	* bodycopy and prints it, providing it with keywords
 	*
 	* @return void
 	* @access public
 	*/
 	function _printContext()
 	{
-		$context = $this->print_context;
-
-		// if no context is set, display the first one in the list
-		if (empty($context)) {
-			$context = array_shift($this->_getAvailableContexts());
-		}
-
 		$bodycopy_folder_link  = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', true, 'bodycopies');
 		if (empty($bodycopy_folder_link)) {
 			// TODO: Localise trigger_localised_error();
 			trigger_error('Bodycopy Folder is missing');
 			return;
 		}
-		$content_bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($bodycopy_folder_link['minorid'], SQ_LINK_TYPE_2, 'bodycopy', true, $context);
+
+		$content_bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($bodycopy_folder_link['minorid'], SQ_LINK_TYPE_2, 'bodycopy', true, $this->print_context);
 		$content_bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($content_bodycopy_link['minorid'], $content_bodycopy_link['minor_type_code']);
 		if (is_null($content_bodycopy)) {
 			// TODO: Localise trigger_localised_error();
@@ -264,7 +260,7 @@ class Ecommerce_Checkout extends Page
 		require_once SQ_FUDGE_PATH.'/general/text.inc';
 		$keywords = $content_bodycopy->getKeywords();
 		$replacements = Array();
-		foreach($keywords as $keyword) {
+		foreach ($keywords as $keyword) {
 			$replacements[$keyword] = $this->getKeywordReplacement($keyword);
 		}
 
@@ -277,11 +273,9 @@ class Ecommerce_Checkout extends Page
 		$content_bodycopy->setKeywordReplacements($replacements);
 		$content_bodycopy->printBody();
 
-		if ($form_req) {
-			echo '</form>';
-		}
+		if ($form_req) echo '</form>';
 
-	}//end printContext()
+	}//end _printContext()
 
 
 	/**
@@ -309,19 +303,18 @@ class Ecommerce_Checkout extends Page
 
 		$bodycopy_folder = null;
 		foreach ($sub_assets as $link_value => $type) {
-			$asset = new $type();
+			$asset =& new $type();
 			$copy_link = Array(
 							'asset'			=> &$this,
 							'value'			=> $link_value,
 							'link_type'		=> SQ_LINK_TYPE_2,
 							'is_dependant'	=> 1,
 							'is_exclusive'	=> 1,
-						  );
+						 );
 
 			$asset->setAttrValue('name', ucwords(str_replace('_',' ', $link_value)));
-			if (!$asset->create($copy_link)) {
-				$success = false;
-			}
+			if (!$asset->create($copy_link)) $success = false;
+
 			if ($link_value == 'bodycopies') {
 				$bodycopy_folder = $asset;
 			}
@@ -336,7 +329,7 @@ class Ecommerce_Checkout extends Page
 			// now create context bodycopies
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
 			foreach ($this->_getAvailableContexts() as $context_name) {
-				$asset = new Bodycopy();
+				$asset =& new Bodycopy();
 
 				$copy_link = Array(
 								'asset'			=> &$bodycopy_folder,
@@ -344,7 +337,7 @@ class Ecommerce_Checkout extends Page
 								'link_type'		=> SQ_LINK_TYPE_2,
 								'is_dependant'	=> 1,
 								'is_exclusive'	=> 1,
-							  );
+							 );
 
 				$asset->setAttrValue('name', ucwords(str_replace('_',' ', $context_name)));
 
@@ -360,9 +353,10 @@ class Ecommerce_Checkout extends Page
 
 
 	/**
-	* TODO: function _getDeliveryAssetIds
+	* Get the asset IDs for all the linked delivery methods
 	*
-	*
+	* @return array	asset IDs
+	* @access private
 	*/
 	function _getDeliveryAssetIds()
 	{
@@ -400,7 +394,6 @@ class Ecommerce_Checkout extends Page
 	}//end _registerFormField()
 
 
-
 	/**
 	* Register Form Requirement
 	*
@@ -413,7 +406,7 @@ class Ecommerce_Checkout extends Page
 	{
 		$this->_tmp['form_required'] = true;
 
-	}//end _registerFormField()
+	}//end _registerFormRequirement()
 
 
 	/**
@@ -429,11 +422,11 @@ class Ecommerce_Checkout extends Page
 	{
 		return array_get_index($this->_tmp, 'form_required', false);
 
-	}//end _registerFormField()
+	}//end _isFormRequired()
 
 
 	/**
-	* Get The currently active delivery method
+	* Get The currently active delivery method asset by reference
 	*
 	* Looks at the current state of the asset to determine the active delivery method asset
 	*
@@ -459,7 +452,7 @@ class Ecommerce_Checkout extends Page
 
 
 	/**
-	* TODO: _getActiveDeliveryMethodId
+	* Get Active Delivery Method Asset ID
 	*
 	* Looks at the current state of the asset to determine the active delivery method asset id
 	*
@@ -541,14 +534,13 @@ class Ecommerce_Checkout extends Page
 	*/
 	function _getContentContextKeywords()
 	{
-		// TODO: translate
-		$keywords['delivery_selector']			= 'Delivery Method Selector';
-		$keywords['delivery_form'] 				= 'Delivery Method Form Contents';
-		$keywords['go_to_confirmation_button']	= 'Go To Confirmation Button';
+		$keywords['delivery_selector']			= translate('ecom_checkout_keyword_delivery_selector');
+		$keywords['delivery_interface'] 		= translate('ecom_checkout_keyword_delivery_interface');
+		$keywords['go_to_confirmation_button']	= translate('ecom_checkout_keyword_go_to_confirmation_button');
 
 		return $keywords;
 
-	}//end _getContentKeywords()
+	}//end _getContentContextKeywords()
 
 
 	/**
@@ -559,14 +551,13 @@ class Ecommerce_Checkout extends Page
 	*/
 	function _getConfirmationContextKeywords()
 	{
-		// TODO: translate
-		$keywords['checkout_summary']			= 'Checkout Summary';
-		$keywords['confirm_order_button']		= 'Confirm Order Button';
-		$keywords['return_to_checkout_button']	= 'Return to Checkout Button';
+		$keywords['checkout_summary']			= translate('ecom_checkout_keyword_checkout_summary');
+		$keywords['confirm_order_button']		= translate('ecom_checkout_keyword_confirm_order_button');
+		$keywords['return_to_checkout_button']	= translate('ecom_checkout_keyword_return_to_checkout_button');
 
 		return $keywords;
 
-	}//end _getConfirmationKeywords()
+	}//end _getConfirmationContextKeywords()
 
 
 	/**
@@ -577,46 +568,28 @@ class Ecommerce_Checkout extends Page
 	*/
 	function _getReceiptContextKeywords()
 	{
-		// TODO: translate
-		$keywords['receipt_summary']	= 'Receipt Summary';
+		$keywords['receipt_summary']	= translate('ecom_checkout_keyword_receipt_summary');
 
 		return $keywords;
 
-	}//end _getReceiptKeywords()
-
-
-	/**
-	* TODO: function comment
-	*
-	*
-	*
-	* @return
-	* @access public
-	*/
-	function getAvailableKeywords() {
-		$keywords = parent::getAvailableKeywords();
-
-		return $keywords;
-
-	}
+	}//end _getReceiptContextKeywords()
 
 
 	//// -- Replacements
 
 
 	/**
-	* TODO: function comment
+	* Get Keyword Replacement for 'delivery_selector' keyword
 	*
-	*
-	*
-	* @return
+	* @return string	replacement
 	* @access public
 	*/
-	function getDeliverySelectorKeywordReplacement() {
+	function getDeliverySelectorKeywordReplacement()
+	{
 		$multiple_asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($this->_getDeliveryAssetIds());
 
 		$selection_contents = Array();
-		foreach($multiple_asset_info as $assetid => $asset_info) {
+		foreach ($multiple_asset_info as $assetid => $asset_info) {
 			$selection_contents[$assetid] = $asset_info['name'];
 		}
 
@@ -648,18 +621,16 @@ class Ecommerce_Checkout extends Page
 
 		return ob_get_clean();
 
-	}
+	}//end getDeliverySelectorKeywordReplacement()
 
 
 	/**
-	* TODO: function comment
+	* Get Keyword Replacement for 'delivery_interface' keyword
 	*
-	*
-	*
-	* @return
+	* @return string	replacement
 	* @access public
 	*/
-	function getDeliveryFormKeywordReplacement()
+	function getDeliveryInterfaceKeywordReplacement()
 	{
 
 		$active_delivery_method =& $this->_getActiveDeliveryMethod();
@@ -669,10 +640,10 @@ class Ecommerce_Checkout extends Page
 		foreach ($this->_getDeliveryAssetIds() as $one_assetid) {
 			$delivery_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($one_assetid);
 
-			if (!is_null($active_delivery_method) && ($active_delivery_method->id == $one_assetid)) {
-				$display = 'block';
-			} else {
+			if (is_null($active_delivery_method) || ($active_delivery_method->id != $one_assetid)) {
 				$display = 'none';
+			} else {
+				$display = 'block';
 			}
 
 			echo "\n".'<div id="sq_delivery_method_'.$one_assetid.'" style="display:'.$display.'" >'."\n".$delivery_asset->getInputInterface()."\n</div>\n";
@@ -682,13 +653,14 @@ class Ecommerce_Checkout extends Page
 
 		return ob_get_clean();
 
-	}
+	}//end getDeliveryInterfaceKeywordReplacement()
 
 
 	/**
-	* TODO: function getConfirmOrderButtonKeywordReplacement
+	* Get Keyword Replacement for 'confirm_order_button' keyword
 	*
-	*
+	* @return string	replacement
+	* @access public
 	*/
 	function getConfirmOrderButtonKeywordReplacement()
 	{
@@ -703,9 +675,10 @@ class Ecommerce_Checkout extends Page
 
 
 	/**
-	* TODO: function getConfirmOrderButtonKeywordReplacement
+	* Get Keyword Replacement for 'return_to_checkout_button' keyword
 	*
-	*
+	* @return string	replacement
+	* @access public
 	*/
 	function getReturnToCheckoutButtonKeywordReplacement()
 	{
@@ -715,13 +688,14 @@ class Ecommerce_Checkout extends Page
 			submit_button($field_value, $this->attr('return_to_checkout_button_text'));
 		return ob_get_clean();
 
-	}//end getConfirmOrderButtonKeywordReplacement()
+	}//end getReturnToCheckoutButtonKeywordReplacement()
 
 
 	/**
-	* TODO: function getGoToConfirmationButtonKeywordReplacement
+	* Get Keyword Replacement for 'go_to_confirmation_button' keyword
 	*
-	*
+	* @return string	replacement
+	* @access public
 	*/
 	function getGoToConfirmationButtonKeywordReplacement()
 	{
@@ -735,13 +709,15 @@ class Ecommerce_Checkout extends Page
 
 
 	/**
-	* TODO: function getCheckoutSummaryKeywordReplacement
+	* Get Keyword Replacement for 'get_checkout_summary_button' keyword
 	*
-	*
+	* @return string	replacement
+	* @access public
 	*/
 	function getCheckoutSummaryKeywordReplacement()
 	{
-		echo "Checkout Summary Replacement<br />\n";
+		// TODO: Complete Function: getCheckoutSummaryKeywordReplacement
+		echo "TODO: Checkout Summary Replacement<br />\n";
 
 		$delivery_asset =& $this->_getActiveDeliveryMethod();
 
@@ -752,20 +728,22 @@ class Ecommerce_Checkout extends Page
 
 
 	/**
-	* TODO: function getCheckoutSummaryKeywordReplacement
+	* Get Keyword Replacement for 'receipt_summary_button' keyword
 	*
-	*
+	* @return string	replacement
+	* @access public
 	*/
 	function getReceiptSummaryKeywordReplacement()
 	{
-		echo "Receipt Summary Replacement<br />\n";
+		// TODO: Complete Function: getReceiptSummaryKeywordReplacement
+		echo "TODO: Receipt Summary Replacement<br />\n";
 
 		$delivery_asset =& $this->_getActiveDeliveryMethod();
 
 		echo "Delivery Method Receipt<br />\n";
 		echo $delivery_asset->getReceipt();
 
-	}//end getCheckoutSummaryKeywordReplacement()
+	}//end getReceiptSummaryKeywordReplacement()
 
 
 }//end class
