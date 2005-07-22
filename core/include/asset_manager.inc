@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.322.2.9 2005/07/21 12:41:00 brobertson Exp $
+* $Id: asset_manager.inc,v 1.322.2.10 2005/07/22 15:44:47 brobertson Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.322.2.9 $
+* @version $Revision: 1.322.2.10 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -5485,7 +5485,7 @@ class Asset_Manager extends MySource_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$assetid = (string) $assetid;
 
-		$select = 'SELECT DISTINCT(l.minorid), a.type_code, t.treeid';
+		$select = 'SELECT DISTINCT(l.majorid), a.type_code, t.treeid';
 		$from   = 'FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
 					 INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t ON l.linkid = t.linkid
 					 INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON l.majorid = a.assetid';
