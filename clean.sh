@@ -18,7 +18,7 @@
 #* | licence.                                                           |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: clean.sh,v 1.20 2005/04/28 11:00:05 brobertson Exp $
+#* $Id: clean.sh,v 1.20.2.1 2005/07/22 07:35:42 lwright Exp $
 #*/
 
 # Creates a clean system by removing data and cache directories 
@@ -38,7 +38,8 @@ rm -rf "${SYSTEM_ROOT}/cache" \
 		"${SYSTEM_ROOT}/data/private/events" \
 		"${SYSTEM_ROOT}/data/private/asset_map" \
 		"${SYSTEM_ROOT}/data/private/maps" \
-		"${SYSTEM_ROOT}/data/private/conf/system_assets.inc"
+		"${SYSTEM_ROOT}/data/private/conf/system_assets.inc" \
+		"${SYSTEM_ROOT}/data/private/conf/preferences.inc"
 
 cvs up -dP cache data/public data/private
 
