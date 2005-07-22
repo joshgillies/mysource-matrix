@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.52 2005/07/21 23:41:18 lwright Exp $
+* $Id: listing_engine.inc,v 1.53 2005/07/22 00:18:26 lwright Exp $
 *
 */
 
@@ -43,7 +43,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.52 $
+* @version $Revision: 1.53 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1155,7 +1155,7 @@ class Listing_Engine extends Page
 							ob_start();
 							$onclick = Array();
 							$group_cb_id 	= 'g_'.implode('_', $this->_tmp['group_info']);
-							$control_name	= $selection_name.'['.$group_cb_id.']';
+							$control_name	= $selection_name.'_'.$group_cb_id;
 							check_box($control_name, '1', false, 'sq_listing_check_state(this, \''.$selection_name.'\')');
 							$replacements[$selection_name.'_check_all_in_group'] = ob_get_clean();
 						}
@@ -2326,7 +2326,7 @@ class Listing_Engine extends Page
 				ob_start();
 				$onclick = Array();
 				$group_cb_id 	= 'all';
-				$control_name	= $selection_name.'['.$group_cb_id.']';
+				$control_name	= $selection_name.'_'.$group_cb_id;
 				check_box($control_name, '1', false, "sq_listing_check_state(this, '".$selection_name."')");
 				$replacements[$selection_name.'_check_all'] = ob_get_clean();
 			} else {
@@ -2517,7 +2517,7 @@ class Listing_Engine extends Page
 					if ($limit > 1) {
 						$new_rel['children'][] = $prefix.$k.'_'.$el_key;
 					} else {
-						$new_rel['children'][] = $el_key;
+						$new_rel['children'][] = '['.$el_key.']';
 					}
 				}
 				$relations[] = $new_rel;
@@ -2544,16 +2544,20 @@ class Listing_Engine extends Page
 			// if custom grouping is enabled and set up, we need to modify the
 			// first level of groups to use the 'g' prefix
 			if (($this->attr('group_by') == 'grouped') && (count($this->attr('asset_grouping') > 0))) {
-				$new_rel = Array('parent' => 'all', 'children' => Array());
+				$new_rel = Array('parent' => '_all', 'children' => Array());
 				foreach (array_keys($todo) as $group_id) {
-					$new_rel['children'][] = 'g_'.$group_id;
+					$new_rel['children'][] = '_g_'.$group_id;
 				}
 			} else {
-				$new_rel = Array('parent' => 'all', 'children' => array_keys($todo));
+				$new_rel = Array('parent' => '_all', 'children' => Array());
+				foreach(array_keys($todo) as $child) {
+					$new_rel['children'][] = '['.$child.']';
+
+				}
 			}
 			$relations = Array($new_rel);
 
-			$this->_recurseCheckAllRelations($todo, $relations, 'g_', count($this->attr('asset_grouping')));
+			$this->_recurseCheckAllRelations($todo, $relations, '_g_', count($this->attr('asset_grouping')));
 			$this->_tmp['check_all_relations'] =& $relations;
 		}
 

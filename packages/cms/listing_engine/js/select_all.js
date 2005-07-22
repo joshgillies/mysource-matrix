@@ -18,12 +18,12 @@ function sq_listing_check_state(el, prefix) {
 			rhs = select_list[i][1];
 
 			for(j in lhs) {
-				full_name = prefix + '[' + lhs[j] + ']';
+				full_name = prefix + lhs[j];
 				if (full_name == this_el) {
 					// a match - add it to what we have to modify,
 					// and recurse down
 					for(k in rhs) {
-						full_name = prefix + '[' + rhs[k] + ']';
+						full_name = prefix + rhs[k];
 						tested[full_name] = el.checked;
 						to_check.push(full_name);
 					}
@@ -58,7 +58,7 @@ function sq_listing_check_state(el, prefix) {
 		rhs = select_list[i][1];
 		select_all = true;
 		for(j in rhs) {
-			full_name = prefix + '[' + rhs[j] + ']';
+			full_name = prefix + rhs[j];
 
 			// have we tested this already?
 			if (typeof tested[full_name] == 'undefined') {
@@ -82,7 +82,7 @@ function sq_listing_check_state(el, prefix) {
 
 		// set the aggregate to what it should be
 		for(j in lhs) {
-			full_name = prefix + '[' + lhs[j] + ']';
+			full_name = prefix + lhs[j];
 			tested[full_name] = select_all;
 		}
 	}
