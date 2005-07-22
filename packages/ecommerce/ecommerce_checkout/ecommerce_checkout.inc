@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.9 2005/07/22 00:41:02 arailean Exp $
+* $Id: ecommerce_checkout.inc,v 1.10 2005/07/22 01:28:50 arailean Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/lib/ecommerce_common.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -194,6 +194,8 @@ class Ecommerce_Checkout extends Page
 				if ($success) {
 					// move cart contents into the order
 					$_SESSION['SQ_TEMP_ORDER']['cart_contents'] = get_cart();
+					$this->_tmp['cart_items'] =& $_SESSION['SQ_TEMP_ORDER']['cart_contents'];
+
 					clear_cart();
 
 					$this->print_context = 'confirmation';
@@ -219,6 +221,7 @@ class Ecommerce_Checkout extends Page
 				# $this->_createOrder();
 
 				// unset temporary order
+				$this->_tmp['cart_items'] =& $_SESSION['SQ_TEMP_ORDER']['cart_contents'];
 				unset($_SESSION['SQ_TEMP_ORDER']['cart_contents']);
 
 				$this->print_context = 'receipt';
@@ -472,6 +475,19 @@ class Ecommerce_Checkout extends Page
 	}//end _getActiveDeliveryMethodId()
 
 
+	/**
+	* Return a receipt for the product section
+	*
+	* @return string
+	* @access public
+	*/
+	function _getProductReceipt()
+	{
+		return;
+
+	}//end _getProductReceipt()
+
+
 	//// -- Keywords
 
 
@@ -716,14 +732,18 @@ class Ecommerce_Checkout extends Page
 	*/
 	function getCheckoutSummaryKeywordReplacement()
 	{
+		ob_start();
 		// TODO: Complete Function: getCheckoutSummaryKeywordReplacement
 		echo "TODO: Checkout Summary Replacement<br />\n";
-
-		$delivery_asset =& $this->_getActiveDeliveryMethod();
+		print_receipt($this->_tmp['cart_items']);
 
 		echo "Delivery Method Summary<br />\n";
-		echo $delivery_asset->getReceipt();
+		$delivery_asset =& $this->_getActiveDeliveryMethod();
+		if (!is_null($delivery_asset)) {
+			echo $delivery_asset->getReceipt();
+		}
 
+		return ob_get_clean();
 	}//end getCheckoutSummaryKeywordReplacement()
 
 
@@ -736,12 +756,7 @@ class Ecommerce_Checkout extends Page
 	function getReceiptSummaryKeywordReplacement()
 	{
 		// TODO: Complete Function: getReceiptSummaryKeywordReplacement
-		echo "TODO: Receipt Summary Replacement<br />\n";
-
-		$delivery_asset =& $this->_getActiveDeliveryMethod();
-
-		echo "Delivery Method Receipt<br />\n";
-		echo $delivery_asset->getReceipt();
+		return $this->getCheckoutSummaryKeywordReplacement();
 
 	}//end getReceiptSummaryKeywordReplacement()
 
