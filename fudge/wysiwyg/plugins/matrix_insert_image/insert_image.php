@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_image.php,v 1.30 2005/07/22 01:28:08 dmckee Exp $
+* $Id: insert_image.php,v 1.31 2005/07/22 02:05:52 dmckee Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Insert Image Popup for the WYSIWYG
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix
 */
 
@@ -46,13 +46,13 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 
 		$locales = $GLOBALS['SQ_SYSTEM']->lm->getCumulativeLocaleParts($GLOBALS['SQ_SYSTEM']->lm->getCurrentLocale());
 
-		foreach($locales as $locale) {
+		foreach ($locales as $locale) {
 			if (file_exists(SQ_DATA_PATH.'/public/system/core/js_strings.'.$locale.'.js')) {
 				$include_list[] = sq_web_path('data').'/system/core/js_strings.'.$locale.'.js';
 			}
 		}
 
-		foreach($include_list as $link) {
+		foreach ($include_list as $link) {
 			?><script type="text/javascript" src="<?php echo $link; ?>"></script>
 		<?php
 		}
@@ -313,18 +313,21 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 											<td>
 												<select size="1" name="align" id="f_align" title="<?php echo translate('positioning_of_this_image'); ?>">
 													<?php
-													if (!isset($_REQUEST['f_align'])) $_REQUEST['f_align'] = 'baseline';
-													$options_array = Array(	'' => 'Not set',
-																			'left' => translate('left'),
-																			'right' => translate('right'),
-																			'texttop' => translate('texttop'),
-																			'absmiddle' => translate('absmiddle'),
-																			'baseline' => translate('baseline'),
-																			'absbottom' => translate('absbottom'),
-																			'bottom' => translate('bottom'),
-																			'middle' => translate('middle'),
-																			'top' => translate('top'),
-																		  );
+													if (!isset($_REQUEST['f_align'])) {
+														$_REQUEST['f_align'] = 'baseline';
+													}
+													$options_array = Array(
+																		''			=> 'Not set',
+																		'left'		=> translate('left'),
+																		'right'		=> translate('right'),
+																		'texttop'	=> translate('texttop'),
+																		'absmiddle'	=> translate('absmiddle'),
+																		'baseline'	=> translate('baseline'),
+																		'absbottom'	=> translate('absbottom'),
+																		'bottom'	=> translate('bottom'),
+																		'middle'	=> translate('middle'),
+																		'top'		=> translate('top'),
+																	 );
 													foreach ($options_array as $value => $text) {
 														?><option value="<?php echo $value?>" <?php echo ($_REQUEST['f_align'] == $value) ? 'selected="1"' : ''?>><?php echo $text?></option><?php
 													}
