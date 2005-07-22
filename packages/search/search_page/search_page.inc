@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.98.2.3 2005/07/21 01:05:50 dheppell Exp $
+* $Id: search_page.inc,v 1.98.2.4 2005/07/22 04:11:44 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.98.2.3 $
+* @version $Revision: 1.98.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1809,6 +1809,7 @@ class Search_Page extends Listing_Engine
 		$search_info['sort_descending'] = $this->isDescending();
 
 		$search_info['search_types'] = $this->attr('types');
+		$categories = $this->attr('categories');
 		if (!empty($category) && isset($categories[$category]['search_statuses'])) {
 			$search_info['search_statuses'] = $categories[$category]['search_statuses'];
 		} else {
