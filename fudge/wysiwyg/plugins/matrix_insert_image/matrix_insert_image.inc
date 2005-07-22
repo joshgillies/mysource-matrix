@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_insert_image.inc,v 1.23.2.1 2005/07/22 01:54:19 dmckee Exp $
+* $Id: matrix_insert_image.inc,v 1.23.2.2 2005/07/22 02:08:47 dmckee Exp $
 *
 */
 
@@ -34,12 +34,13 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     in the editable document using an image asset from MySoure Matrix
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.23.2.1 $
+* @version $Revision: 1.23.2.2 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
 class matrix_insert_image extends wysiwyg_plugin
 {
+
 
 	/**
 	* Constructor
@@ -200,6 +201,8 @@ class matrix_insert_image extends wysiwyg_plugin
 		<?php
 
 	}//end print_plugin_button_click()
-}
+
+
+}//end class
 
 ?>
