@@ -11,15 +11,15 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.1 2005/07/22 07:28:55 skim Exp $
+* $Id: lang_screen_details.xml,v 1.2 2005/07/24 23:49:53 skim Exp $
 *
 */
 -->
 
 <contents>
-	<section name="Details">
+	<section name="Summary">
 		<field attribute="summary">
-			<display_name>Summary</display_name>
+			<display_name>Order Receipt</display_name>
 			<note />
 		</field>
 	</section>

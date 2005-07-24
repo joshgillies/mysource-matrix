@@ -11,13 +11,13 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.1 2005/07/22 07:28:55 skim Exp $
+* $Id: edit_interface_screen_details.xml,v 1.2 2005/07/24 23:49:53 skim Exp $
 *
 */
 -->
 
 <contents>
-	<section name="Details" write_access="write:attributes">
+	<section name="Summary" write_access="write:none">
 		<field attribute="summary">
 			<text width="30" height="1" />
 		</field>

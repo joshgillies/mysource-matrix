@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.13 2005/07/24 23:32:43 arailean Exp $
+* $Id: ecommerce_checkout.inc,v 1.14 2005/07/24 23:49:53 skim Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -435,10 +435,10 @@ class Ecommerce_Checkout extends Page
 
 		// add products from the session(cart) to ecommerce order
 		if ($success && !empty($processing_data)) {
-			$ecommerce_order->setAttrValue('processing_data', $processing_data);
-		} else {
-			trigger_localised_error('ECOM0020', E_USER_WARNING);
-			$success = false;
+			$success = $ecommerce_order->setAttrValue('processing_data', $processing_data);
+#		} else {
+#			trigger_localised_error('ECOM0020', E_USER_WARNING);
+#			$success = false;
 		}
 
 		// notice link from Checkout_Form to Ecommerce_Order
@@ -881,6 +881,7 @@ class Ecommerce_Checkout extends Page
 		}
 
 		return ob_get_clean();
+
 	}//end getCheckoutSummaryKeywordReplacement()
 
 

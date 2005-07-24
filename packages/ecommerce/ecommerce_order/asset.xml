@@ -14,7 +14,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.1 2005/07/22 07:28:55 skim Exp $
+* $Id: asset.xml,v 1.2 2005/07/24 23:49:53 skim Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -25,7 +25,7 @@
 	<version>0.1</version>
 	<name>Ecommerce Order</name>
 	<description>Ecommerce Order object for E-Commerce system</description>
-	<instantiable>yes</instantiable>
+	<instantiable>no</instantiable>
 	<allowed_access>backend_user</allowed_access>
 	<parent_type>asset</parent_type>
 	<requirements>
