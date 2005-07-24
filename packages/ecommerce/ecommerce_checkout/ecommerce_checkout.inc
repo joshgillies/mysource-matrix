@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.14 2005/07/24 23:49:53 skim Exp $
+* $Id: ecommerce_checkout.inc,v 1.15 2005/07/24 23:54:34 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -122,7 +122,7 @@ class Ecommerce_Checkout extends Page
 	*/
 	function _getName($short_name=false)
 	{
-		return $this->attr('name');
+		return $short_name ? $this->attr('short_name') : $this->attr('name');
 
 	}//end _getName()
 
