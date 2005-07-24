@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.12 2005/07/22 07:28:55 skim Exp $
+* $Id: ecommerce_checkout.inc,v 1.13 2005/07/24 23:32:43 arailean Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -166,7 +166,7 @@ class Ecommerce_Checkout extends Page
 			case 'go_to_confirmation':
 
 				$delivery_method_id = array_get_index($_REQUEST, 'sq_delivery_method_id');
-				if (!is_null($delivery_method_id)) {
+				if (!empty($delivery_method_id)) {
 					$this->_tmp['delivery_method_id'] = $delivery_method_id;
 
 					$delivery_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($delivery_method_id);
