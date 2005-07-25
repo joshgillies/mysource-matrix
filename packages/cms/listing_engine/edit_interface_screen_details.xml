@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.10 2005/07/21 23:41:18 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.11 2005/07/25 23:39:05 dmckee Exp $
 *
 */
 -->
@@ -69,6 +69,26 @@
 	<section name="Dynamic Parameters" write_access="write:attributes">
 		<field attribute="parameter_map" format="new_line">
 			<parameter_map />
+		</field>
+	</section>
+	<section name="Structured Root Selector Options" write_access="write:attributes">
+		<field>
+			<function_call>
+				<paint_function   name="paintStructuredName"   />
+				<process_function name="processStructuredName" />
+			</function_call>
+		</field>
+		<field>
+			<function_call>
+				<paint_function   name="paintStructuredRoot"   />
+				<process_function name="processStructuredRoot" />
+			</function_call>
+		</field>
+		<field>
+			<function_call>
+				<paint_function   name="paintStructuredTypes"   />
+				<process_function name="processStructuredTypes" />
+			</function_call>
 		</field>
 	</section>
 	<section name="Button Text" write_access="write:attributes">

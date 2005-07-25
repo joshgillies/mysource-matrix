@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.55 2005/07/25 23:22:40 dmckee Exp $
+* $Id: listing_engine.inc,v 1.56 2005/07/25 23:39:05 dmckee Exp $
 *
 */
 
@@ -43,7 +43,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.55 $
+* @version $Revision: 1.56 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2652,7 +2652,7 @@ class Listing_Engine extends Page
 			$this->_IDListToTree($treeid, $search_tree);
 		}
 		$options = Array($root_id => $all_text);
-		$this->_drawTree($search_tree, $child_links, $options);
+		$this->_drawTree($search_tree, $all_child_links, $options);
 		return $options;
 	}//end _structuredDropDown()
 
