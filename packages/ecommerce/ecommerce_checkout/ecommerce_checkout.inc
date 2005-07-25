@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.17 2005/07/25 04:17:26 arailean Exp $
+* $Id: ecommerce_checkout.inc,v 1.18 2005/07/25 04:21:25 skim Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -478,7 +478,7 @@ class Ecommerce_Checkout extends Page
 
 		if (!$success) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			trigger_localised_error('ECOM0015', E_USER_WARNING);
+			trigger_localised_error('ECOM0023', E_USER_WARNING);
 			return false;
 		}
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -577,7 +577,7 @@ class Ecommerce_Checkout extends Page
 		if (!is_null($delivery_method_id)) {
 			$delivery_method =& $GLOBALS['SQ_SYSTEM']->am->getAsset($delivery_method_id);
 			$delivery_asset_state = array_get_index($_SESSION['SQ_TEMP_ORDER']['processing_data']['delivery'], 'state');
-			if (!is_null($delivery_asset_state)) {
+			if (!empty($delivery_method) && !is_null($delivery_asset_state)) {
 				$delivery_method->setState($delivery_asset_state);
 			}
 		}
