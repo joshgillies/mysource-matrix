@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_order.inc,v 1.2 2005/07/25 01:32:36 skim Exp $
+* $Id: ecommerce_order.inc,v 1.3 2005/07/25 07:11:48 skim Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -82,6 +82,12 @@ class Ecommerce_Order extends Asset
 		return $allowed_links;
 
 	}//end _getAllowedLinks()
+
+
+	// TODO : getStatusDescription()
+	/*function getStatusDescription($status)
+	{
+	}*/
 
 
 	/**
@@ -190,6 +196,9 @@ class Ecommerce_Order extends Asset
 		$keywords = Array(
 						'checkout_assetid'	=> translate('ecom_order_keyword_checkout_assetid'),
 						'order_summary'		=> translate('ecom_order_keyword_order_summary'),
+						'status'			=> translate('ecom_order_keyword_status'),
+						'status_message'	=> translate('ecom_order_keyword_status_message'),
+						'edit_url'			=> translate('ecom_order_keyword_edit_url'),
 					);
 
 		return $keywords;
@@ -200,15 +209,18 @@ class Ecommerce_Order extends Asset
 	/**
 	* Get checkout_assetid keyword replacement
 	*
+	* This function assumes there is only one checkout form associated with this ecommerce order.
+	*
 	* @return int
 	* @access public
 	*/
 	function getCheckoutAssetidKeywordReplacement()
 	{
-		$link_to_checkout = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE, 'ecommerce_checkout');
-		if (array_key_exists('majorid', $link_to_checkout)) {
-			return $link_to_checkout['majorid'];
+		$link_to_checkout = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE, 'ecommerce_checkout', true, 'minor');
+		if (!empty($link_to_checkout) && array_key_exists('majorid', $link_to_checkout[0])) {
+			return $link_to_checkout[0]['majorid'];
 		}
+
 
 		return 0;
 
@@ -226,6 +238,58 @@ class Ecommerce_Order extends Asset
 		return $this->attr('summary');
 
 	}//end getOrderSummaryKeywordReplacement()
+
+
+	/**
+	* Get status keyword replacement
+	*
+	* @return int
+	* @access public
+	*/
+	function getStatusKeywordReplacement()
+	{
+		return $this->attr('status');
+
+	}//end getStatusKeywordReplacement()
+
+
+	/**
+	* Get status_message keyword replacement
+	*
+	* @return int
+	* @access public
+	*/
+	function getStatusMessageKeywordReplacement()
+	{
+		return $this->attr('status_message');
+
+	}//end getStatusMessageKeywordReplacement()
+
+
+	/**
+	* Get edit_url keyword replacement
+	*
+	* @return int
+	* @access public
+	*/
+	function getEditUrlKeywordReplacement()
+	{
+		// get ecommer checkout asset id
+		$id = $this->getCheckoutAssetidKeywordReplacement();
+
+		// get url of checkout form and append extra variable
+		$url = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($id);
+
+		$connector = '';
+		if (empty($url)) {
+			return '';
+		} else {
+			strstr($url, '?') ? $connector = '&' : $connector = '?';
+		}
+		$url .= $connector.'edit_order_id='.$this->id;
+		return $url;
+
+	}//end getEditUrlKeywordReplacement()
 
 
 }//end class

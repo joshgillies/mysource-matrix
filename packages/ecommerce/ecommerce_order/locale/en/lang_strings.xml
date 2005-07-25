@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.1 2005/07/25 01:33:44 skim Exp $
+* $Id: lang_strings.xml,v 1.2 2005/07/25 07:11:49 skim Exp $
 *
 *
 * Ecommerce Package Localised Strings File
@@ -22,5 +22,8 @@
 	<!-- Keywords -->
 	<string source="ecom_order_keyword_checkout_assetid">Assetid of checkout form which created this order</string>
 	<string source="ecom_order_keyword_order_summary">Summary of this order</string>
+	<string source="ecom_order_keyword_status">Status of ecommerce order</string>
+	<string source="ecom_order_keyword_status_message">Message which is related to the status</string>
+	<string source="ecom_order_keyword_edit_url">URL to the page where to edit this ecommerce order</string>
 </strings>
 
