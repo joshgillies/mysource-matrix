@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart.inc,v 1.13 2005/07/25 01:48:23 rhoward Exp $
+* $Id: ecommerce_cart.inc,v 1.14 2005/07/25 03:34:10 rhoward Exp $
 *
 */
 
@@ -32,7 +32,7 @@ define('SQ_CART_PRESET_REMOVE', 'Remove');
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -223,9 +223,7 @@ class Ecommerce_Cart extends Listing_Engine
 		$replacements = $this->getContentsKeywordReplacements() + $replacements;
 
 		if (!empty($this->_tmp['cart_updated'])) {
-			ob_start();
-				?><strong><?php echo $this->attr('cart_updated_text'); ?></strong><?php
-			$replacements['cart_updated'] = ob_get_clean();
+			$replacements['cart_updated'] = $this->attr('cart_updated_text');
 		} else {
 			$replacements['cart_updated'] = '';
 		}
@@ -301,9 +299,6 @@ class Ecommerce_Cart extends Listing_Engine
 			$format_bodycopy->printBody();
 		ob_end_flush();
 
-		// clean up after ourselves
-		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($bodycopy);
-
 	}//end printContents()
 
 
@@ -355,10 +350,9 @@ class Ecommerce_Cart extends Listing_Engine
 					continue;
 				}
 
-				// make sure we don't exceed the limits when adding to existing items
 				$current_quantity = 0;
-				if (isset($cart[$assetid]['quantity'])) {
-					$current_quantity = $cart_cont[$assetid]['quantity'];
+				if (isset($cart_contents[$assetid]['quantity'])) {
+					$current_quantity = $cart_contents[$assetid]['quantity'];
 				}
 
 				// only add if it's not going to break our Quantity selection
@@ -434,16 +428,7 @@ class Ecommerce_Cart extends Listing_Engine
 			return $final_quantity;
 		}
 		$options = $selections[$selection_name]['options'];
-
-		// if restrict_range is turned on
 		$restrict_range = false;
-		if (isset($options['restrict_range']) && !empty($options['restrict_range']['enable'])) {
-			$restrict_range = true;
-
-			$defaults = $this->getAssetSelectionDefaults();
-			$min      = array_get_index($options['restrict_range'], 'min', $defaults['options']['restrict_range']['min']);
-			$max      = array_get_index($options['restrict_range'], 'max', $defaults['options']['restrict_range']['max']);
-		}
 
 		// allow_negative?
 		if (isset($options['allow_negative']) && !$options['allow_negative']) {
@@ -452,6 +437,15 @@ class Ecommerce_Cart extends Listing_Engine
 
 			// will always succeed
 			$max            = null;
+		}
+
+		// if restrict_range is turned on
+		if (isset($options['restrict_range']) && !empty($options['restrict_range']['enable'])) {
+			$restrict_range = true;
+
+			$defaults = $this->getAssetSelectionDefaults();
+			$min      = array_get_index($options['restrict_range'], 'min', $defaults['options']['restrict_range']['min']);
+			$max      = array_get_index($options['restrict_range'], 'max', $defaults['options']['restrict_range']['max']);
 		}
 
 		// if this is a radio button or checkbox
