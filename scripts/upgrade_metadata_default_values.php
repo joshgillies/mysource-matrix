@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: upgrade_metadata_default_values.php,v 1.1 2005/06/03 00:39:45 lwright Exp $
+* $Id: upgrade_metadata_default_values.php,v 1.2 2005/07/25 00:31:48 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
 * metadata value table
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 * @since   MySource 3.5.0
 */
@@ -106,6 +106,7 @@ foreach ($metadata_fields as $assetid => $type_code) {
 }//end foreach
 
 exit();
+
 
   ////////////////////////
  //  HELPER FUNCTIONS  //
