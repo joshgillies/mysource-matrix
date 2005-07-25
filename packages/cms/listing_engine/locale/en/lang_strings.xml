@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.7 2005/07/21 23:09:17 skim Exp $
+* $Id: lang_strings.xml,v 1.8 2005/07/25 23:02:07 dmckee Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -96,4 +96,10 @@
 <string source="cms_listing_keyword_asset_selection">Asset Selection (%s)</string>
 <string source="cms_listing_group_listing">Asset Group Listing</string>
 <string source="cms_listing_group_name">Asset Group Name</string>
+<string source="cms_structured_name_note">*This must be set as a dynamic parameter in the above section to function correctly</string>
+<string source="cms_name_of_dropdown">Name of Dropdown Box:</string>
+<string source="cms_text_all_options">Text To Display for All Options:</string>
+<string source="cms_selector_root_node">Root Node of Selector:</string>
+<string source="cms_asset_types_to_list">Asset Types to List:</string>
+<string source="cms_no_root_selected">No Root Node Selected</string>
 </strings>

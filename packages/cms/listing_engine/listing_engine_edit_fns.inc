@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.22 2005/07/21 07:32:36 lwright Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.23 2005/07/25 23:01:59 dmckee Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2604,6 +2604,211 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 	}//end processStatus()
 
+
+	/**
+	* Paint the interface for changing the dropdown lists options
+	*
+	* @param object Listing_Engine		&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintStructuredName(&$asset, &$o, $prefix)
+	{
+		$options = $asset->attr('structured_dropdown_options');
+		// need to have write access to make any changes
+		$o->openField(translate('cms_name_of_dropdown'));
+		if (!$asset->writeAccess('attributes')) {
+			echo $options['name'];
+		} else {
+			text_box($prefix.'_structured_name', $options['name']);
+			$o->note(translate('cms_structured_name_note'));
+		}
+		$o->closeField();
+
+		$o->openField(translate('cms_text_all_options'));
+		if (!$asset->writeAccess('attributes')) {
+			echo $options['all_text'];
+			return false;
+		}
+		text_box($prefix.'_structured_all_text', $options['all_text']);
+		$o->closeField();
+		return $asset->writeAccess('attributes');
+
+	}//end processStructuredOptions()
+
+
+	/**
+	* Process the interface for editing the dropdown lists options
+	*
+	* @param object Listing_Engine		&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processStructuredName(&$asset, &$o, $prefix)
+	{
+		// need to have write access to make any changes
+		if (!$asset->writeAccess('attributes')) return false;
+
+		$options = $asset->attr('structured_dropdown_options');
+
+		if (isset($_REQUEST[$prefix.'_structured_name']) && !empty($_REQUEST[$prefix.'_structured_name'])) {
+			$options['name'] = $_REQUEST[$prefix.'_structured_name'];
+		}
+		if (isset($_REQUEST[$prefix.'_structured_all_text']) && !empty($_REQUEST[$prefix.'_structured_all_text'])) {
+			$options['all_text'] = $_REQUEST[$prefix.'_structured_all_text'];
+		}
+		$asset->setAttrValue('structured_dropdown_options', $options);
+		return true;
+
+	}//end processStructuredOptions()
+
+
+	/**
+	* Paint the interface for changing the dropdown lists options
+	*
+	* @param object Listing_Engine		&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintStructuredRoot(&$asset, &$o, $prefix)
+	{
+		$options = $asset->attr('structured_dropdown_options');
+		$o->openField(translate('cms_selector_root_node'));
+			if ($asset->writeAccess('attributes')) {
+				asset_finder($prefix.'_structured_root', $options['root_node']);
+			} else {
+				$root_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($options['root_node']));
+				if (!empty($root_info)) {
+					echo $root_info[$options['root_node']]['name'].' (#'.$options['root_node'].')';
+				} else {
+					echo translate('cms_no_root_selected');
+				}
+			}
+		$o->closeField();
+	}
+
+
+	/**
+	* Process the interface for editing the dropdown lists options
+	*
+	* @param object Listing_Engine		&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processStructuredRoot(&$asset, &$o, $prefix)
+	{
+		// need to have write access to make any changes
+		if (!$asset->writeAccess('attributes')) return false;
+
+		$options = $asset->attr('structured_dropdown_options');
+		$options['root_node'] = $_REQUEST[$prefix.'_structured_root']['assetid'];
+		$asset->setAttrValue('structured_dropdown_options', $options);
+	}
+
+	/**
+	* Paint the interface for changing the dropdown lists options
+	*
+	* @param object Listing_Engine		&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintStructuredTypes(&$asset, &$o, $prefix)
+	{
+		$options = $asset->attr('structured_dropdown_options');
+
+		$o->openField(translate('cms_asset_types_to_list'));
+
+		$types = $options['asset_types'];
+		if ($asset->writeAccess('content')) {
+			// print the form fields
+			$display_values = Array('type_code' => Array(), 'inherit' => Array());
+			foreach ($types as $type => $inherit) {
+				$display_values['type_code'][] = $type;
+				$display_values['inherit'][] = $inherit;
+			}
+			asset_type_chooser($prefix.'_structured_types', true, $display_values, null, true, true);
+			return true;
+		} else {
+			// print the read-only version
+			if (empty($types)) {
+				echo '<p class="sq-backend-warning">'.translate('cms_listing_no_asset_types_chosen').'</p>';
+			} else {
+				$type_names = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo(array_keys($types), 'name');
+				?>
+					<table class="sq-backend-table">
+						<tr>
+							<th><?php echo translate('type') ?></th>
+							<th><?php echo translate('inherit_question') ?></th>
+						</tr>
+				<?php
+				$inherit_image_path = sq_web_path('lib').'/web/images/';
+				foreach ($types as $type => $inherit) {
+					$inherit_image = $inherit_image_path.($inherit ? 'tick' : 'cross').'.gif';
+					$inherit_alt = $inherit ? translate('yes') : translate('no');
+					?>
+						<tr>
+							<td><?php echo $type_names[$type]; ?></td>
+							<td><img src="<?php echo $inherit_image; ?>" alt="<?php echo $inherit_alt; ?>" /></td>
+						</tr>
+					<?php
+				}
+				?>
+					</table>
+				<?php
+			}
+			return false;
+		}
+		$o->closeField();
+		return true;
+	}
+
+
+	/**
+	* Process the interface for editing the dropdown lists options
+	*
+	* @param object Listing_Engine		&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processStructuredTypes(&$asset, &$o, $prefix)
+	{
+		// need to have write access to make any changes
+		if (!$asset->writeAccess('attributes')) return false;
+
+		if (isset($_POST[$prefix.'_structured_types'])) {
+			$options = $asset->attr('structured_dropdown_options');
+			$existing_types = $options['asset_types'];
+			$submitted_types = Array();
+			foreach ($_POST[$prefix.'_structured_types']['type_code'] as $i => $type_code) {
+				if (!empty($type_code)) {
+					$submitted_types[$type_code] = $_POST[$prefix.'_structured_types']['inherit'][$i];
+				}
+			}
+			$options['asset_types'] = $submitted_types;
+			$asset->setAttrValue('structured_dropdown_options', $options);
+			return true;
+		} else {
+			return false;
+		}
+	}
 
 }//end class
 

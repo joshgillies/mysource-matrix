@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_management.inc,v 1.30 2005/07/22 01:04:29 lwright Exp $
+* $Id: listing_engine_management.inc,v 1.31 2005/07/25 23:01:59 dmckee Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -252,6 +252,19 @@ class Listing_Engine_Management extends Asset_Management
 										'default'		=> Array(),
 										'description'	=> 'Adds buttons to the bodycopy that point to other assets or URLs',
 									   );
+
+		$this->vars['structured_dropdown_options'] = Array(
+										'added'			=> '0.9',
+										'type'			=> 'serialise',
+										'default'		=> Array(
+															'name'			=> 'root_node_selection',
+															'all_text'		=> 'All',
+															'root_node'		=> '0',
+															'asset_types'	=> Array(),
+														   ),
+										'description'	=> 'Options for the Structured Drop Down',
+									   );
+
 
 	}//end constructor
 
