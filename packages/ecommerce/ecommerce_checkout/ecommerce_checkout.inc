@@ -11,13 +11,13 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.16 2005/07/25 01:27:39 arailean Exp $
+* $Id: ecommerce_checkout.inc,v 1.17 2005/07/25 04:17:26 arailean Exp $
 *
 */
 
 
 require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
-require_once SQ_PACKAGES_PATH.'/ecommerce/lib/ecommerce_common.inc';
+require_once SQ_PACKAGES_PATH.'/ecommerce/lib/ecommerce_cart_processor.inc';
 require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 
 
@@ -28,7 +28,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -134,7 +134,7 @@ class Ecommerce_Checkout extends Page
 	*/
 	function printBody()
 	{
-		// process contents
+		// process interface. this determines the print context
 		$this->_processInterface();
 
 		// determine context
@@ -146,7 +146,7 @@ class Ecommerce_Checkout extends Page
 	/**
 	* Process the interface
 	*
-	* This is the main controller function. It determines the asset is in based on the request
+	* This is the main controller function. It determines the context asset is in based on the request
 	* and state variables
 	*
 	* @return void
@@ -162,6 +162,7 @@ class Ecommerce_Checkout extends Page
 		$action = key($request_action);
 		$success = true;
 
+		$cart = new Ecommerce_Cart_Processor();
 		switch ($action) {
 			case 'go_to_confirmation':
 
@@ -190,17 +191,15 @@ class Ecommerce_Checkout extends Page
 				}
 
 				// if cart is empty, there's no point in checking out
-				if (!get_count()) {
+				if (!$cart->getCount()) {
 					trigger_localised_error('ECOM0016', E_USER_WARNING);
 					$success = false;
 				}
 
 				if ($success) {
 					// move cart contents into the order
-					$_SESSION['SQ_TEMP_ORDER']['cart_contents'] = get_cart();
-					$this->_tmp['cart_items'] =& $_SESSION['SQ_TEMP_ORDER']['cart_contents'];
-
-					clear_cart();
+					$_SESSION['SQ_TEMP_ORDER']['cart_contents'] = $cart->getCart();
+					$cart->clearCart();
 
 					$this->print_context = 'confirmation';
 				} else {
@@ -212,6 +211,7 @@ class Ecommerce_Checkout extends Page
 			break;
 
 			case 'return_to_checkout':
+				$cart->setCartContents($_SESSION['SQ_TEMP_ORDER']['cart_contents']);
 				$this->print_context = 'checkout';
 			break;
 
@@ -219,11 +219,22 @@ class Ecommerce_Checkout extends Page
 				// components should be processed here
 				// delivery processing
 				$dm =& $this->_getActiveDeliveryMethod();
-				if (!empty($dm) && !$dm->processDelivery()){
+				if (!empty($dm)){
+					// TODO: Localise
+					trigger_error('Delivery Method Not Found');
+					$this->print_context = 'failure';
+					break;
+				}
+
+				$delivery_processing_status = $dm->processDelivery();
+				$processing_data['delivery']['state'] = $dm->getState();
+
+				if (!$delivery_processing_status){
 					// TODO: Localise
 					trigger_error('Delivery Processing Failed');
 					$this->print_context = 'failure';
 				}
+
 				// create order asset
 				$cart_items = $_SESSION['SQ_TEMP_ORDER']['cart_contents'];
 				$order_summary = $this->_getOrderSummary();
@@ -238,6 +249,7 @@ class Ecommerce_Checkout extends Page
 			break;
 
 		}
+		unset($cart);
 
 		return;
 
@@ -722,6 +734,7 @@ class Ecommerce_Checkout extends Page
 	function _getFailureContextKeywords()
 	{
 		$keywords['processing_error_message']	= translate('ecom_checkout_keyword_processing_error_message');
+		$keywords['return_to_checkout_button']	= translate('ecom_checkout_keyword_return_to_checkout_button');
 
 		return $keywords;
 
@@ -905,12 +918,12 @@ class Ecommerce_Checkout extends Page
 	* @return string	replacement
 	* @access public
 	*/
-	function getProcessingErrorMssageKeywordReplacement()
+	function getProcessingErrorMessageKeywordReplacement()
 	{
 		// TODO: Complete Function: getProcessingErrorMssageKeywordReplacement
 		return 'Error Message';
 
-	}//end getProcessingErrorMssageKeywordReplacement()
+	}//end getProcessingErrorMessageKeywordReplacement()
 
 
 }//end class
