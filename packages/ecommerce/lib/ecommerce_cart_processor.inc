@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart_processor.inc,v 1.1 2005/07/25 01:48:20 rhoward Exp $
+* $Id: ecommerce_cart_processor.inc,v 1.2 2005/07/25 03:58:48 arailean Exp $
 *
 */
 
@@ -25,7 +25,7 @@
 * @author Robert Howard <rhoward@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -43,7 +43,7 @@ class Ecommerce_Cart_Processor
 	function Ecommerce_Cart_Processor()
 	{
 		// set, but rely on external objects to initialise
-		$this->setCart($_SESSION['sq_cart_contents']);
+		$this->setCartContainer($_SESSION['sq_cart_contents']);
 
 	}//end Ecommerce_Cart_Processor()
 
@@ -51,12 +51,21 @@ class Ecommerce_Cart_Processor
 	/**
 	* Sets the container to use for the cart
 	*/
-	function setCart(&$cart)
+	function setCartContainer(&$cart)
 	{
 		$this->cart =& $cart;
 
-	}
+	}//end setCartContainer()
 
+
+	/**
+	* Sets the cart to use for the cart
+	*/
+	function setCartContents($cart)
+	{
+		$this->cart = $cart;
+
+	}//end setCartContents()
 
 
 	/**
