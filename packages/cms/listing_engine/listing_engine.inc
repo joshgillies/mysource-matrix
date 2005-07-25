@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.54 2005/07/25 23:01:58 dmckee Exp $
+* $Id: listing_engine.inc,v 1.55 2005/07/25 23:22:40 dmckee Exp $
 *
 */
 
@@ -43,7 +43,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.54 $
+* @version $Revision: 1.55 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2516,13 +2516,15 @@ class Listing_Engine extends Page
 		}
 		ob_start();
 			$tree_data = $this->_structuredDropDown($options['root_node'], $pass_codes, $options['all_text']);
-			if (!isset($_REQUEST[$options['name']])) $_REQUEST[$options['name']] = '';
+			if (!isset($_REQUEST[$options['name']])) {
+				$_REQUEST[$options['name']] = '';
+			}
 			combo_box($options['name'], $tree_data, false, $_REQUEST[$options['name']]);
 			$replacement = ob_get_contents();
 		ob_end_clean();
 		return $replacement;
 
-	}//end getRootNodesKeywordReplacement()
+	}//end getstructuredSearchLocationKeywordReplacement()
 
 
 //--        ASSET SELECTION HELPERS        --//
@@ -2578,7 +2580,7 @@ class Listing_Engine extends Page
 				}
 			} else {
 				$new_rel = Array('parent' => '_all', 'children' => Array());
-				foreach(array_keys($todo) as $child) {
+				foreach (array_keys($todo) as $child) {
 					$new_rel['children'][] = '['.$child.']';
 
 				}
@@ -2633,7 +2635,8 @@ class Listing_Engine extends Page
 	* @access protected
 	* @return array()
 	*/
-	function _structuredDropDown($root_id, $type_codes, $all_text = 'All', $max_levels = 0) {
+	function _structuredDropDown($root_id, $type_codes, $all_text='All', $max_levels=0)
+	{
 		$all_child_links = $GLOBALS['SQ_SYSTEM']->am->getAllChildLinks($root_id);
 		$child_links = $all_child_links;
 		$search_tree = Array();
@@ -2651,7 +2654,7 @@ class Listing_Engine extends Page
 		$options = Array($root_id => $all_text);
 		$this->_drawTree($search_tree, $child_links, $options);
 		return $options;
-	}
+	}//end _structuredDropDown()
 
 
 	/**

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.23 2005/07/25 23:01:59 dmckee Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.24 2005/07/25 23:22:41 dmckee Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2637,7 +2637,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		$o->closeField();
 		return $asset->writeAccess('attributes');
 
-	}//end processStructuredOptions()
+	}//end paintStructuredName()
 
 
 	/**
@@ -2666,7 +2666,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		$asset->setAttrValue('structured_dropdown_options', $options);
 		return true;
 
-	}//end processStructuredOptions()
+	}//end processStructuredName()
 
 
 	/**
@@ -2694,7 +2694,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				}
 			}
 		$o->closeField();
-	}
+	}//end paintStructuredRoot()
 
 
 	/**
@@ -2715,7 +2715,8 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		$options = $asset->attr('structured_dropdown_options');
 		$options['root_node'] = $_REQUEST[$prefix.'_structured_root']['assetid'];
 		$asset->setAttrValue('structured_dropdown_options', $options);
-	}
+	}//end processStructuredRoot()
+
 
 	/**
 	* Paint the interface for changing the dropdown lists options
@@ -2775,7 +2776,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		}
 		$o->closeField();
 		return true;
-	}
+	}//end paintStructuredTypes()
 
 
 	/**
@@ -2808,7 +2809,8 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		} else {
 			return false;
 		}
-	}
+	}//end processStructuredTypes()
+
 
 }//end class
 
