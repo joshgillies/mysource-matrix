@@ -11,13 +11,13 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart.inc,v 1.12 2005/07/21 07:55:05 lwright Exp $
+* $Id: ecommerce_cart.inc,v 1.13 2005/07/25 01:48:23 rhoward Exp $
 *
 */
 
 
 require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
-require_once SQ_PACKAGES_PATH.'/ecommerce/lib/ecommerce_common.inc';
+require_once SQ_PACKAGES_PATH.'/ecommerce/lib/ecommerce_cart_processor.inc';
 
 define('SQ_CART_PRESET_QUANTITY', 'Quantity');
 define('SQ_CART_PRESET_REMOVE', 'Remove');
@@ -32,7 +32,7 @@ define('SQ_CART_PRESET_REMOVE', 'Remove');
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -82,6 +82,25 @@ class Ecommerce_Cart extends Listing_Engine
 
 
 	/**
+	* Gets the current cart. If it doesn't yet exist, create a new one
+	*
+	* @access private
+	* @return &Ecommerce_Cart_Processor
+	*/
+	function &_getCart()
+	{
+		if (!empty($this->_tmp['cart_processor'])) {
+			$cart =& $this->_tmp['cart_processor'];
+			$cart->initialiseCart();
+		} else {
+			$cart =& new Ecommerce_Cart_Processor();
+		}
+
+		return $cart;
+
+	}//end _getCart()
+
+	/**
 	* Get the list of asset that should be printed
 	*
 	* This is defined as an abstract method of sorts; it's up to the kids to
@@ -101,7 +120,9 @@ class Ecommerce_Cart extends Listing_Engine
 	*/
 	function getAssetList()
 	{
-		$cart_contents = get_cart();
+		$cart =& new Ecommerce_Cart_Processor();
+		$cart_contents = $cart->getCart();
+
 		$asset_list = Array();
 
 		$group_by = $this->attr('group_by');
@@ -111,7 +132,7 @@ class Ecommerce_Cart extends Listing_Engine
 			if ($group_by == 'letter') {
 				$asset_list[$product_assetid] = Array(
 													'type_code'		=> $product_asset->type(),
-													'first_letter'	=> substr($product_asset->attr('name'),0,1),
+													'first_letter'	=> substr($product_asset->attr('name'), 0, 1),
 												);
 			} else {
 				$asset_list[$product_assetid] = $product_asset->type();
@@ -167,6 +188,8 @@ class Ecommerce_Cart extends Listing_Engine
 	 */
 	function printContents()
 	{
+		$cart =& $this->_getCart();
+
 		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'page_contents');
 		if (empty($bodycopy_link)) return false;
 
@@ -189,9 +212,7 @@ class Ecommerce_Cart extends Listing_Engine
 
 		//the children here will refer to the contents of this cart
 		$children = $this->getAssetList();
-		//we dont want to count position formats without a value
-		//just increment the count if were adding it tot he cart
-		$num_kids = get_count($children);
+		$num_kids = count($children);
 		$this->filterAssetList($children);
 
 		foreach ($keywords as $word) {
@@ -265,8 +286,8 @@ class Ecommerce_Cart extends Listing_Engine
 		$replacements['cart_update_button']    = $this->getSubmitButtonKeywordReplacement();
 		$replacements['asset_listing']         = $global_contents;
 		$replacements['asset_count']           = $num_kids;
-		$replacements['product_count']         = get_count();
-		$replacements['total_value']           = get_total();
+		$replacements['product_count']         = $cart->getCount();
+		$replacements['total_value']           = $cart->getTotal();
 		$replacements['page_asset_count']      = $num_assets_showing;
 		$replacements['page_number']           = $result_page;
 		$replacements['first_asset_position']  = $num_per_page * ($result_page - 1) + 1;
@@ -293,12 +314,14 @@ class Ecommerce_Cart extends Listing_Engine
 	*/
 	function getAssetSelectionValue($selection_name, $assetid)
 	{
-		$cart       =& get_cart();
+		$cart =& $this->_getCart();
+		$cart_contents = $cart->getCart();
+
 		$selections = $this->attr('asset_selections');
 
 		// if the hardcoded asset selection 'Quantity'
-		if ($selection_name == 'Quantity' && isset($cart[$assetid]['quantity'])) {
-			return $cart[$assetid]['quantity'];
+		if ($selection_name == 'Quantity' && isset($cart_contents[$assetid]['quantity'])) {
+			return $cart_contents[$assetid]['quantity'];
 		}
 
 		// fallback
@@ -317,8 +340,8 @@ class Ecommerce_Cart extends Listing_Engine
 	*/
 	function processAssetSelections()
 	{
-		initialise_cart();
-		$cart =& get_cart();
+		$cart =& $this->_getCart();
+		$cart_contents = $cart->getCart();
 
 		$parameter_map = &$this->getAttribute('parameter_map');
 		$this->_tmp['cart_updated'] = false;
@@ -335,12 +358,12 @@ class Ecommerce_Cart extends Listing_Engine
 				// make sure we don't exceed the limits when adding to existing items
 				$current_quantity = 0;
 				if (isset($cart[$assetid]['quantity'])) {
-					$current_quantity = $cart[$assetid]['quantity'];
+					$current_quantity = $cart_cont[$assetid]['quantity'];
 				}
 
 				// only add if it's not going to break our Quantity selection
 				if ($this->_validateItemUpdate(SQ_CART_PRESET_QUANTITY, $current_quantity + $quantity) == ($quantity + $current_quantity)) {
-					if (add_item($assetid, $quantity)) {
+					if ($cart->addItem($assetid, $quantity)) {
 						$this->_tmp['cart_updated'] = true;
 					}
 				}
@@ -359,13 +382,13 @@ class Ecommerce_Cart extends Listing_Engine
 					if (isset($quantity[$assetid])) {
 						$amount = $quantity[$assetid];
 					}
-					if (update_item($assetid, $this->_validateItemUpdate(SQ_CART_PRESET_QUANTITY, $amount))) {
+					if ($cart->updateItem($assetid, $this->_validateItemUpdate(SQ_CART_PRESET_QUANTITY, $amount))) {
 						$this->_tmp['cart_updated'] = true;
 					}
 				}
 			} else {
 				// radio
-				if (update_item($quantity, $this->_validateItemUpdate(SQ_CART_PRESET_QUANTITY, 1))) {
+				if ($cart->updateItem($quantity, $this->_validateItemUpdate(SQ_CART_PRESET_QUANTITY, 1))) {
 					$this->_tmp['cart_updated'] = true;
 				}
 			}
@@ -373,7 +396,7 @@ class Ecommerce_Cart extends Listing_Engine
 			// field is present, but no boxes have been ticked
 			$asset_list = $this->getAssetList();
 			foreach ($asset_list as $assetid => $type_code) {
-				if (remove_item($assetid)) {
+				if ($cart->removeItem($assetid)) {
 					$this->_tmp['cart_updated'] = true;
 				}
 			}
@@ -385,13 +408,13 @@ class Ecommerce_Cart extends Listing_Engine
 			if (is_array($remove)) {
 				// checkbox, textbox, or drop-down
 				foreach ($remove as $assetid => $amount) {
-					if (remove_item($assetid)) {
+					if ($cart->removeItem($assetid)) {
 						$this->_tmp['cart_updated'] = true;
 					}
 				}
 			} else {
 				// radio
-				if (remove_item($remove)) {
+				if ($cart->removeItem($remove)) {
 					$this->_tmp['cart_updated'] = true;
 				}
 			}

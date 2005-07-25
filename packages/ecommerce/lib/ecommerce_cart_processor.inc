@@ -1,0 +1,452 @@
+<?php
+/**
+* +--------------------------------------------------------------------+
+* | Squiz.net Commercial Module Licence                                |
+* +--------------------------------------------------------------------+
+* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
+* +--------------------------------------------------------------------+
+* | This source file is not open source or freely usable and may be    |
+* | used subject to, and only in accordance with, the Squiz Commercial |
+* | Module Licence.                                                    |
+* | Please refer to http://www.squiz.net/licence for more information. |
+* +--------------------------------------------------------------------+
+*
+* $Id: ecommerce_cart_processor.inc,v 1.1 2005/07/25 01:48:20 rhoward Exp $
+*
+*/
+
+
+/*
+* Ecommerce Package Cart Processor Object
+*
+* This object handles the interactions with the ecommerce cart, either stored in
+* $_SESSION (the default), or passed in by the caller
+*
+* @author Robert Howard <rhoward@squiz.net>
+* @author Luke Wright <lwright@squiz.net>
+* @author Andrei Railean <arailean@squiz.net>
+* @version $Revision: 1.1 $
+* @package MySource_Matrix_Packages
+* @subpackage ecommerce
+*/
+
+
+class Ecommerce_Cart_Processor
+{
+
+	var $cart = null;
+
+
+	/**
+	* Constructor
+	*/
+	function Ecommerce_Cart_Processor()
+	{
+		// set, but rely on external objects to initialise
+		$this->setCart($_SESSION['sq_cart_contents']);
+
+	}//end Ecommerce_Cart_Processor()
+
+
+	/**
+	* Sets the container to use for the cart
+	*/
+	function setCart(&$cart)
+	{
+		$this->cart =& $cart;
+
+	}
+
+
+
+	/**
+	* Prepare cart for first use, if the relevant session vars aren't there
+	*
+	* @return int	1 if session var needed to be created (ie. cart
+	*				needed to be init'ed), 0 if cart already existed
+	*				(-1 is reserved for an error condition)
+	* @access public
+	*/
+	function initialiseCart()
+	{
+		$ret_val = 0;
+
+		if (!is_null($this->cart)) {
+			$this->cart = Array();
+			$ret_val = 1;
+		}
+
+		return $ret_val;
+
+	}//end initialiseCart()
+
+
+	/**
+	* Unsets the contents of this particular cart
+	*
+	* @return boolean	always true (false is reserved for an error condition)
+	* @access public
+	*/
+	function clearCart()
+	{
+		$this->cart = Array();
+		return true;
+
+	}//end clearCart()
+
+
+	/**
+	* Returns the details of one item in the following format:
+	*
+	* Array(
+	*	'quantity'	=> quantity,		// the number of items in the cart
+	*	'price'		=> value,			// the cost of the item at the time of purchase
+	* )
+	*
+	* @param string	$assetid			// the asset to retrieve from the cart
+	*
+	* @return Array(string=>mixed)
+	* @access public
+	*/
+	function &getItem($assetid)
+	{
+		if (!empty($this->cart[$assetid])) {
+			return $this->cart[$assetid];
+		} else {
+			return false;
+		}
+
+	}//end getItem()
+
+
+	/**
+	* Returns the contents of the cart in the following format:
+	*
+	*	Array(
+	*		'assetid'	=> Array(
+	*						'quantity'	=> quantity,				// the number of items in the cart
+	*						'price'		=> value,					// the cost of the item at the time of purchase
+	*						'name'		=> name						// the name of the asset
+	*					   ),
+	*	);
+	*
+	* @return Array(mixed)
+	* @access public
+	*/
+	function &getCart()
+	{
+		if (is_null($this->cart)) $this->initialiseCart();
+
+		return $this->cart;
+
+	}//end getCart()
+
+
+	/**
+	* Takes a cart array and sets it as the current cart
+	*
+	* @param Array(mixed)	$cart	Cart array
+	*
+	* @return boolean	always true, false reserved for error conditions
+	* @access public
+	*/
+/*	function restoreCart(&$cart)
+	{
+		if (!is_array($cart)) {
+			return false;
+		}
+
+		$this->container = $cart;
+
+		return true;
+
+	}//end restore_cart()
+*/
+
+	/**
+	* Return the sum-total of all the items currently in this cart
+	*
+	* @return double
+	* @access public
+	*/
+	function getTotal()
+	{
+		$total = 0.0;
+		foreach ($this->cart as $assetid => $details) {
+			// -1 == value not known
+			if ($details['price'] != -1) {
+				$total += $details['quantity'] * $details['price'];
+			}
+		}
+
+		return $total;
+
+	}//end getTotal()
+
+
+	/**
+	* Return the count of all the items currently in this cart
+	*
+	* @return double
+	* @access public
+	*/
+	function getCount()
+	{
+		$count = 0;
+		foreach ($this->cart as $product_assetid => $details) {
+			$count += $details['quantity'];
+		}
+
+		return $count;
+
+	}//end getCount()
+
+
+	/**
+	* Adds an item(s) to the cart
+	* If an item already exists in the cart, add the quantity to the existing quantity
+	* Use addItem() for blindly adding items, rather than using updateItem()
+	*
+	* @param string		$assetid	The assetid of the product to add
+	* @param int		$quantity	The quantity to add
+	*
+	* @return boolean	indicating whether the cart was updated
+	* @access public
+	*/
+	function addItem($assetid, $quantity=1)
+	{
+		if ($quantity <= 0) {
+			// quantity is less than zero, throw a hissy fit
+			if ($quantity < 0) {
+				trigger_localised_error('ECOM0004', E_USER_WARNING);
+			}
+			return false;
+		}
+
+		// check that the passed product assetid is indeed valid and
+		// a valid product (or subclass of product)
+		assert_valid_assetid($assetid);
+		$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid), 'product', false);
+
+		if (!$asset_info) {
+			trigger_localised_error('ECOM0005', E_USER_WARNING, $assetid);
+			return false;
+		}
+
+		if (!isset($this->cart[$assetid])) {
+			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			if ($asset) {
+				$this->cart[$assetid] = Array(
+									'price'		=> $asset->attr('price'),
+									'quantity'	=> 0,
+									'name'		=> $asset->name,
+								  );
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+			} else {
+				return false;
+			}
+		}
+
+		$this->cart[$assetid]['quantity'] += $quantity;
+
+		return true;
+
+	}//end addItem()
+
+
+	/**
+	* Updates the quantity of an item(s) in the cart
+	*
+	* Assumption: product lines were correctly made using the addItem() method
+	* and therefore, only valid products are found in the cart (because of the
+	* addItem() checking).
+	*
+	* @param string		$assetid	The assetid of the product to remove
+	* @param int		$quantity			The new quantity of this product
+	*
+	* @return boolean	indicating whether the cart was updated
+	* @access public
+	*/
+	function updateItem($assetid, $quantity)
+	{
+		// product doesn't exist in cart, then silently redirect to addItem()
+		if (!isset($this->cart[$assetid])) {
+			return $this->addItem($assetid, $quantity);
+		}
+
+		// if we are not updating anything, silently return
+		if (array_get_index($this->cart[$assetid], 'quantity', 0) == $quantity) {
+			return false;
+		}
+
+		// Qty < 0, throw an error
+		if ($quantity < 0) {
+			trigger_localised_error('ECOM0010', E_USER_WARNING);
+			return false;
+		} else if ($quantity == 0) {
+			$this->removeItem($assetid);
+		} else if (isset($this->cart[$assetid]['quantity']) && $this->cart[$assetid]['quantity'] == $quantity) {
+			// not updating, so fail
+			return false;
+		} else {
+			$this->cart[$assetid]['quantity'] = $quantity;
+		}
+
+		return true;
+
+	}//end updateItem()
+
+
+	/**
+	* Removes an item(s) from the cart
+	*
+	* Assumption: product lines were correctly made using the add() method
+	* and therefore, only valid products are found in the cart (because of the
+	* add() checking).
+	*
+	* @param string	$assetid		The assetid of the product to remove
+	* @param int	$quantity		The quantity of this product to remove -
+	*								leave blank to remove all of that product
+	*
+	* @return boolean	indicating whether the cart was updated
+	* @access public
+	*/
+	function removeItem($assetid, $quantity=null)
+	{
+		// asset doesn't exist in cart - if the quantity is zero (or ALL)
+		// then silently return, otherwise error
+		if (!isset($this->cart[$assetid])) {
+			if ($quantity > 0) {
+				trigger_localised_error('ECOM0006', E_USER_WARNING);
+			}
+			return false;
+		}
+
+		// after this point we can assume that asset exists in the cart
+		// quantity is null, remove everything
+		if (is_null($quantity)) {
+			$quantity = $this->cart[$assetid]['quantity'];
+		}
+
+		// qty == 0, silently return - Qty < 0, throw an error
+		if ($quantity <= 0) {
+			if ($quantity < 0) {
+				trigger_localised_error('ECOM0007', E_USER_WARNING);
+			}
+			return false;
+		}
+
+		if ($quantity > $this->cart[$assetid]['quantity']) {
+			trigger_localised_error('ECOM0008', E_USER_WARNING);
+			return false;
+		} else if ($quantity == $this->cart[$assetid]['quantity']) {
+			unset($this->cart[$assetid]);
+		} else {
+			$this->cart[$assetid]['quantity'] -= $quantity;
+		}
+
+		return true;
+
+	}//end removeItem()
+
+
+	/**
+	* Takes the contents of the cart and hashes it
+	* Used by the ecom checkout form
+	*
+	*
+	*/
+	function hashCart()
+	{
+		// don't grab by reference, because we're sorting and mucking around with the array
+		$tmp_cart = $this->cart;
+		ksort($tmp_cart);
+		$hash = md5(serialize($tmp_cart));
+
+		return $hash;
+
+	}//end hashCart()
+
+
+	/**
+	* Prints out the contents of the Ecommerce Cart
+	*
+	* @access public
+	* @return void
+	*/
+	function printReceipt()
+	{
+		if (empty($this->cart)) {
+			return;
+		}
+
+		$name_length = 0;
+		$has_price   = false;
+
+		// formatting preparation
+		foreach ($this->cart as $assetid => $details) {
+			// determine longest item name
+			if (strlen(array_get_index($details, 'name', '')) > $name_length) {
+				$name_length = strlen(array_get_index($details, 'name', ''));
+			}
+
+			// determine whether all items have price
+			if (!$has_price && array_get_index($details, 'price', -1) == -1) {
+				$has_price = true;
+			}
+		}
+
+		// standard format for the receipt header and rows
+		$row_format = '%-'.$name_length.'s %10s'.($has_price ? ' %10s' : '')."\n";
+
+		if ($has_price) {
+			$header = sprintf($row_format, 'Item', 'Quantity', 'Price');
+		} else {
+			$header = sprintf($row_format, 'Item', 'Quantity');
+		}
+
+		$break = '';
+		for ($ii = 1; $ii < strlen($header); $ii++) {
+			$break .= '-';
+		}
+		$break .= "\n";
+
+		echo $header;
+		echo $break;
+
+		// print each row
+		foreach ($this->cart as $assetid => $details) {
+			$cost = array_get_index($details, 'price', 0);
+			if ($cost < 0) {
+				$cost = '';
+			} else {
+				$cost = sprintf('$%.2f', $cost * array_get_index($details, 'quantity', 0));
+			}
+
+			if ($has_price) {
+				printf($row_format, array_get_index($details, 'name', ''), array_get_index($details, 'quantity', 0), $cost);
+			} else {
+				printf($row_format, array_get_index($details, 'name', ''), array_get_index($details, 'quantity', 0));
+			}
+		}
+
+		echo $break;
+
+		// change the row format for the totals line
+		$row_format = '%'.$name_length.'s %10s'.($has_price ? ' %10s' : '')."\n";
+
+		if ($has_price) {
+			echo sprintf($row_format, 'Total', $this->getCount(), sprintf('$%.2f', $this->getTotal()));
+		} else {
+			echo sprintf($row_format, 'Total', $this->getCount());
+		}
+
+		return;
+
+	}//end printReceipt()
+
+
+}//end Ecom_Cart
+
+
+?>
