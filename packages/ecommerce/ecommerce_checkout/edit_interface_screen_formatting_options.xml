@@ -11,11 +11,18 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_formatting_options.xml,v 1.1 2005/07/20 05:07:30 arailean Exp $
+* $Id: edit_interface_screen_formatting_options.xml,v 1.2 2005/07/25 04:24:40 skim Exp $
 *
 */
 -->
 <contents write_access="write:attributes">
+	<section name="Context Screens">
+		<field>
+			<function_call>
+				<paint_function name="paintContextScreens" />
+			</function_call>
+		</field>
+	</section>
 	<section name="Checkout Screen">
 		<field attribute="go_to_confirmation_button_text">
 			<text width="40" height="1" />
