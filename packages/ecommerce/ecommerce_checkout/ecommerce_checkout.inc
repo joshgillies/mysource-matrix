@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.15 2005/07/24 23:54:34 lwright Exp $
+* $Id: ecommerce_checkout.inc,v 1.16 2005/07/25 01:27:39 arailean Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -741,7 +741,7 @@ class Ecommerce_Checkout extends Page
 	{
 		$multiple_asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($this->_getDeliveryAssetIds());
 
-		$selection_contents = Array('' => '-- '.translate('ecom_checkout_select_delivery_method').' --');
+		$selection_contents = Array(); //Array('' => '-- '.translate('ecom_checkout_select_delivery_method').' --');
 		foreach ($multiple_asset_info as $assetid => $asset_info) {
 			$selection_contents[$assetid] = $asset_info['name'];
 		}
@@ -793,10 +793,10 @@ class Ecommerce_Checkout extends Page
 		foreach ($this->_getDeliveryAssetIds() as $one_assetid) {
 			$delivery_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($one_assetid);
 
-			if (!is_null($active_delivery_method) || ($active_delivery_method->id != $one_assetid)) {
-				$display = 'none';
-			} else {
+			if (!is_null($active_delivery_method) && ($active_delivery_method->id == $one_assetid)) {
 				$display = 'block';
+			} else {
+				$display = 'none';
 			}
 
 			echo "\n".'<div id="sq_delivery_method_'.$one_assetid.'" style="display:'.$display.'" >'."\n".$delivery_asset->getInputInterface()."\n</div>\n";
