@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.338.2.11 2005/06/17 05:31:00 lwright Exp $
+* $Id: asset.inc,v 1.338.2.12 2005/07/25 23:32:10 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.338.2.11 $
+* @version $Revision: 1.338.2.12 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -651,6 +651,12 @@ class Asset extends MySource_Object
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
+		}
+
+		// also remove notice links in which we are the major player
+		$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE, '', true, 'major');
+		foreach ($links as $link) {
+			$this->deleteLink($link['linkid']);
 		}
 
 		if ($release_lock) {
