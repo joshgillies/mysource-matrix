@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.26 2005/07/08 05:04:47 tbarrett Exp $
+* $Id: edit_interface_screen_details.xml,v 1.27 2005/07/25 23:03:58 dmckee Exp $
 *
 */
 -->
@@ -83,6 +83,26 @@
 	<section name="Dynamic Parameters" write_access="write:attributes">
 		<field attribute="parameter_map" format="new_line">
 			<parameter_map />
+		</field>
+	</section>
+	<section name="Structured Root Selector Options" write_access="write:attributes">
+		<field>
+			<function_call>
+				<paint_function   name="paintStructuredName"   />
+				<process_function name="processStructuredName" />
+			</function_call>
+		</field>
+		<field>
+			<function_call>
+				<paint_function   name="paintStructuredRoot"   />
+				<process_function name="processStructuredRoot" />
+			</function_call>
+		</field>
+		<field>
+			<function_call>
+				<paint_function   name="paintStructuredTypes"   />
+				<process_function name="processStructuredTypes" />
+			</function_call>
 		</field>
 	</section>
 </contents>
