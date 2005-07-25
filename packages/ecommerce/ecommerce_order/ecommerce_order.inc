@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_order.inc,v 1.1 2005/07/22 07:28:55 skim Exp $
+* $Id: ecommerce_order.inc,v 1.2 2005/07/25 01:32:36 skim Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -145,7 +145,7 @@ class Ecommerce_Order extends Asset
 
 		// add items
 		$success = true;
-		foreach($products as $id => $value) {
+		foreach ($products as $id => $value) {
 			// put notice link
 			$product =& $GLOBALS['SQ_SYSTEM']->am->getAsset($id);
 
@@ -166,18 +166,68 @@ class Ecommerce_Order extends Asset
 	}//end _linkProducts()
 
 
+//--        KEYWORDS        --//
+
+
 	/**
-	* Format the summary of this order into table for nice output
+	* Return the keywords for this asset type.
+	*
+	* This function is called in order to get the list of available keywords
+	* for this asset.
+	*
+	* The return value is in the form:
+	* <pre>
+	* Array(
+	*   'name' => 'description' => 'the asset name',
+	* );
+	* </pre>
+	*
+	* @access public
+	* @return array
+	*/
+	function getAvailableKeywords()
+	{
+		$keywords = Array(
+						'checkout_assetid'	=> translate('ecom_order_keyword_checkout_assetid'),
+						'order_summary'		=> translate('ecom_order_keyword_order_summary'),
+					);
+
+		return $keywords;
+
+	}//end getAvailableKeywords()
+
+
+	/**
+	* Get checkout_assetid keyword replacement
+	*
+	* @return int
+	* @access public
+	*/
+	function getCheckoutAssetidKeywordReplacement()
+	{
+		$link_to_checkout = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE, 'ecommerce_checkout');
+		if (array_key_exists('majorid', $link_to_checkout)) {
+			return $link_to_checkout['majorid'];
+		}
+
+		return 0;
+
+	}//end getCheckoutAssetidKeywordReplacement()
+
+
+	/**
+	* Get order_summary keyword replacement
 	*
 	* @return string
 	* @access public
 	*/
-	function getSummary()
+	function getOrderSummaryKeywordReplacement()
 	{
-		return true;
+		return $this->attr('summary');
 
-	}//end getSummary()
+	}//end getOrderSummaryKeywordReplacement()
 
 
 }//end class
+
 ?>
