@@ -1,0 +1,26 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Commercial Module Licence                                |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c) Squiz Pty Ltd (ACN 084 670 600).                     |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file is not open source or freely usable and may be    |
+* | used subject to, and only in accordance with, the Squiz Commercial |
+* | Module Licence.                                                    |
+* | Please refer to http://www.squiz.net/licence for more information. |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_strings.xml,v 1.1 2005/07/25 01:33:44 skim Exp $
+*
+*
+* Ecommerce Package Localised Strings File
+*/
+-->
+
+<strings>
+	<!-- Keywords -->
+	<string source="ecom_order_keyword_checkout_assetid">Assetid of checkout form which created this order</string>
+	<string source="ecom_order_keyword_order_summary">Summary of this order</string>
+</strings>
+
