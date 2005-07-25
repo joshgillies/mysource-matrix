@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout_edit_fns.inc,v 1.1 2005/07/20 05:07:30 arailean Exp $
+* $Id: ecommerce_checkout_edit_fns.inc,v 1.2 2005/07/25 03:48:48 skim Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -146,6 +146,69 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 		}
 
 	}//end processDeliveryMethod()
+
+
+	/**
+	* Paint links to the context screens
+	*
+	* @param object Asset				&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintContextScreens(&$asset, &$o, $prefix)
+	{
+		?>
+		<table class="sq-backend-table">
+			<tr>
+				<th><?php echo translate('edit_format') ?></th>
+				<th><?php echo translate('note') ?></th>
+			</tr>
+		<?php
+		// get the link to folders
+		$link_to_folder = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_2, 'folder');
+		$links_to_bodycopies = $GLOBALS['SQ_SYSTEM']->am->getLinks($link_to_folder['minorid'], SQ_LINK_TYPE_2, 'bodycopy');
+
+		$contexts = $asset->_getAvailableContexts();
+
+		if (!empty($links_to_bodycopies)) {
+			foreach ($links_to_bodycopies as $link) {
+				$info = Array($link['minorid'] => 'contents');
+				$href = $GLOBALS['SQ_SYSTEM']->am->getAssetBackendHref($info);
+			?>
+			<tr>
+				<td class="sq-backend-table-cell">
+					<a href="<?php echo $href[$link['minorid']]; ?>"><?php echo $contexts[$link['value']] ?></a>
+				</td>
+				<td class="sq-backend-table-cell">
+					<?php
+					switch ($link['value']) {
+						case 'checkout':
+							echo translate('ecom_checkout_checkout_context_desc');
+						break;
+						case 'confirmation':
+							echo translate('ecom_checkout_confirmation_context_desc');
+						break;
+						case 'failure':
+							echo translate('ecom_checkout_failure_context_desc');
+						break;
+						case 'receipt':
+							echo translate('ecom_checkout_receipt_context_desc');
+						break;
+					}
+					?>
+				</td>
+			</tr>
+			<?php
+			}//end foreach
+
+			echo '</table>';
+		}
+		return true;
+
+	}//end paintContextScreens()
 
 
 }//end class

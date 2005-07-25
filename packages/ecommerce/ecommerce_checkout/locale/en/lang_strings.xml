@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.3 2005/07/24 23:30:36 arailean Exp $
+* $Id: lang_strings.xml,v 1.4 2005/07/25 03:48:48 skim Exp $
 *
 *
 * Ecommerce Package Localised Strings File
@@ -31,5 +31,9 @@
 
 	<!-- Various Strings -->
 	<string source="ecom_checkout_select_delivery_method">Select Delivery Method</string>
+	<string source="ecom_checkout_checkout_context_desc">The main checkout page where users enter the data required for processing</string>
+	<string source="ecom_checkout_confirmation_context_desc">Confirmation screen</string>
+	<string source="ecom_checkout_failure_context_desc">Displayed if processing cannot completed even though all the data is valid</string>
+	<string source="ecom_checkout_receipt_context_desc">Successfully completed order displays a receipt on this screen</string>
 </strings>
 
