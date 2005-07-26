@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.344 2005/07/21 12:34:34 brobertson Exp $
+* $Id: asset_manager.inc,v 1.345 2005/07/26 00:37:41 mmcintyre Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.344 $
+* @version $Revision: 1.345 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -4723,9 +4723,15 @@ class Asset_Manager extends MySource_Object
 		// the get_lineage_from_url procedure takes a url and splits it into the
 		// possible urls that we are looking for.
 		// we do this because its faster than performing a 'url LIKE l.url%'
+		$function_call = 'sq_get_lineage_from_url('.$db->quoteSmart($url.'/').')';
+
+		// if we are oracle type-cast the function result to a table
+		if ($db->phptype == 'oci8') {
+			$function_call = 'table('.$function_call.')';
+		}
 		$where = 'l.root_urlid = '.$db->quote((int) $root_url['urlid']).'
 				  AND l.url IN (
-								SELECT * FROM sq_get_lineage_from_url('.$db->quoteSmart($url.'/').')
+								SELECT * FROM '.$function_call.'
 							)';
 
 		if (!is_null($protocol)) {
@@ -5486,22 +5492,24 @@ class Asset_Manager extends MySource_Object
 	function generateGetParentsQuery($assetid, $type_code='', $strict_type_code=true, $sort_by=null, $access=null)
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$assetid = (string) $assetid;
 
-		$select = 'SELECT DISTINCT pl.minorid, a.type_code, pt.treeid';
-		$from   = 'FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk cl
-					 INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree ct ON cl.linkid = ct.linkid,
-				  '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk pl
-					 INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree pt ON pl.linkid = pt.linkid,
-				  '.SQ_TABLE_RUNNING_PREFIX.'ast a';
-		$where  ='cl.minorid = '.$db->quote($assetid).'
-				  AND ct.treeid LIKE pt.treeid || '.$db->quote('%').'
-				  AND pt.treeid < ct.treeid
-				  AND pl.minorid = a.assetid';
+		$function_call = SQ_TABLE_RUNNING_PREFIX.'get_parent_treeids('.$db->quoteSmart($assetid).', '.$db->quoteSmart(SQ_CONF_ASSET_TREE_SIZE).')';
+		// if we are oracle type-cast the function result to a table
+		if ($db->phptype == 'oci8') {
+			$function_call = 'table('.$function_call.')';
+		}
 
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'cl');
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ct');
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'pl');
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'pt');
+		$select = 'SELECT DISTINCT(l.majorid), a.type_code, t.treeid';
+		$from   = 'FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
+					 INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t ON l.linkid = t.linkid
+					 INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON l.majorid = a.assetid';
+		$where  ='t.treeid IN (
+								SELECT * FROM '.$function_call.'
+							)';
+
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 
 		if (!empty($type_code)) {
@@ -5532,7 +5540,7 @@ class Asset_Manager extends MySource_Object
 			$order_by = 'ORDER BY a.'.$sort_by;
 			$select .= ', a.'.$sort_by.' AS sort_value';
 		} else {
-			$order_by = 'ORDER BY pt.treeid';
+			$order_by = 'ORDER BY t.treeid';
 		}
 
 		$group_by = '';
