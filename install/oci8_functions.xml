@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: oci8_functions.xml,v 1.1 2005/07/26 00:43:26 mmcintyre Exp $
+* $Id: oci8_functions.xml,v 1.2 2005/07/26 01:47:29 mmcintyre Exp $
 *
 */
 -->
@@ -131,18 +131,6 @@
 			END sq_get_lineage_from_url;
 		]]>
 	</sql_element>
-	<sql_element display_name="sq_rb_get_parent_treeids Function">
-		<![CDATA[
-			-- returns the parent treeids for the specified assetid using the date
-			-- acquired from the sq_get_rollback_timestamp function
-			CREATE OR REPLACE FUNCTION sq_rb_get_parent_treeids(minorid IN VARCHAR2, SQ_TREE_BASE_SIZE IN INTEGER) RETURN VARCHAR_500_TABLE IS
-				rb_date DATE;
-			BEGIN
-				rb_date := common_pkg.get_timestamp();
-				RETURN sq_get_parent_treeids(minorid, SQ_TREE_BASE_SIZE, rb_date);
-			END sq_rb_get_parent_treeids;
-		]]>
-	</sql_element>
 	<sql_element display_name="sq_get_parent_treeids Function">
 		<![CDATA[
 			-- returns the parent treeids for the specified assetid
@@ -205,6 +193,18 @@
 
 				RETURN parent_treeids;
 			END sq_get_parent_treeids;
+		]]>
+	</sql_element>
+	<sql_element display_name="sq_rb_get_parent_treeids Function">
+		<![CDATA[
+			-- returns the parent treeids for the specified assetid using the date
+			-- acquired from the sq_get_rollback_timestamp function
+			CREATE OR REPLACE FUNCTION sq_rb_get_parent_treeids(minorid IN VARCHAR2, SQ_TREE_BASE_SIZE IN INTEGER) RETURN VARCHAR_500_TABLE IS
+				rb_date DATE;
+			BEGIN
+				rb_date := common_pkg.get_timestamp();
+				RETURN sq_get_parent_treeids(minorid, SQ_TREE_BASE_SIZE, rb_date);
+			END sq_rb_get_parent_treeids;
 		]]>
 	</sql_element>
 </sql>
