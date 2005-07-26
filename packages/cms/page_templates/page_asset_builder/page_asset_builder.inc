@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.67 2005/07/26 01:54:18 skim Exp $
+* $Id: page_asset_builder.inc,v 1.68 2005/07/26 23:58:00 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.67 $
+* @version $Revision: 1.68 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1157,6 +1157,9 @@ class Page_Asset_Builder extends Page
 
 		$keywords['login_invite'] 	= translate('cms_asset_builder_keyword_login_invite');
 		$keywords['login_form'] 	= translate('cms_asset_builder_keyword_login_form');
+		$keywords['create_invite']		 		= translate('cms_asset_builder_keyword_create_invite');
+		$keywords['create_form'] 				= translate('cms_asset_builder_keyword_create_form');
+		$keywords['create_error'] 				= translate('cms_asset_builder_keyword_create_error');
 
 		return $keywords;
 
@@ -1172,6 +1175,9 @@ class Page_Asset_Builder extends Page
 	function _getLoggedInKeywords()
 	{
 		$keywords = Array();
+		$keywords['create_invite']		 		= translate('cms_asset_builder_keyword_create_invite');
+		$keywords['create_form'] 				= translate('cms_asset_builder_keyword_create_form');
+		$keywords['create_error'] 				= translate('cms_asset_builder_keyword_create_error');
 
 		return $keywords;
 
@@ -1194,10 +1200,6 @@ class Page_Asset_Builder extends Page
 		$keywords['created_asset_url']			= translate('cms_asset_builder_created_asset_url');
 		$keywords['created_asset_edit']			= translate('cms_asset_builder_created_asset_edit');
 		$keywords['created_asset_backend']		= translate('cms_asset_builder_created_asset_backend');
-
-		$keywords['create_invite']		 		= translate('cms_asset_builder_keyword_create_invite');
-		$keywords['create_form'] 				= translate('cms_asset_builder_keyword_create_form');
-		$keywords['create_error'] 				= translate('cms_asset_builder_keyword_create_error');
 
 		return $keywords;
 
