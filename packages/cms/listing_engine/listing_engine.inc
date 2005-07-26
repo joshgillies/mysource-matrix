@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.38.2.5 2005/07/18 23:09:20 lwright Exp $
+* $Id: listing_engine.inc,v 1.38.2.6 2005/07/26 16:27:48 brobertson Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
 *
-* @version $Revision: 1.38.2.5 $
+* @version $Revision: 1.38.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -110,7 +110,7 @@ class Listing_Engine extends Page
 			$asset->setAttrValue('name', ucwords(str_replace('_',' ', $name)));
 			if (!$asset->create($copy_link)) return false;
 
-			if ($name == 'type_formats') $type_formats = $asset;
+			if ($name == 'type_formats') $type_formats = &$asset;
 
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 			unset($asset);
