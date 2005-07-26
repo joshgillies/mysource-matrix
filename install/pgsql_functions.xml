@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: pgsql_functions.xml,v 1.1 2005/07/26 00:42:33 mmcintyre Exp $
+* $Id: pgsql_functions.xml,v 1.2 2005/07/26 01:45:35 mmcintyre Exp $
 *
 */
 -->
@@ -170,7 +170,7 @@
 			-- returns the parent treeids for the specified assetid
 			-- if timestamp is null then the function will assume that we are not in rollback mode
 			-- if the timestamp is valid the function will return the treeids from the rollback tables
-			CREATE OR REPLACE FUNCTION sq_get_parent_treeids(ANYELEMENT, INT, TIMESTAMP) RETURNS ANYARRAY AS '
+			CREATE OR REPLACE FUNCTION sq_get_parent_treeids(VARCHAR, INT, TIMESTAMP) RETURNS BYTEA[] AS '
 			DECLARE
 				treeids RECORD;
 				offset int;
