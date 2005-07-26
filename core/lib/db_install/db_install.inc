@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_install.inc,v 1.21 2005/07/13 03:23:13 mmcintyre Exp $
+* $Id: db_install.inc,v 1.22 2005/07/26 00:40:16 mmcintyre Exp $
 *
 */
 
@@ -29,7 +29,7 @@
 * @author  Blair Robertson <blair@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -428,19 +428,62 @@ function grant_secondary_user_perms($verbose=true)
 function install_stored_procedures($verbose=true)
 {
 	$db = &$GLOBALS['SQ_SYSTEM']->db;
-	$fns_file = SQ_SYSTEM_ROOT.'/install/'.$db->phptype.'_functions.sql';
+	$fns_file = SQ_SYSTEM_ROOT.'/install/'.$db->phptype.'_functions.xml';
 
 	if (file_exists($fns_file)) {
-		$sql = file_get_contents($fns_file);
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
+
+		$input =& new XML_Tree($fns_file);
+		$root  = &$input->getTreeFromFile();
+
+		if (PEAR::isError($root)) {
+			trigger_error($root->getMessage().'<br/>'.$root->getUserInfo(), E_USER_WARNING);
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		if ($root->name != 'sql') {
+			trigger_localised_error('SYS0012', E_USER_WARNING);
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		$element_names = Array();
+		foreach ($root->children as $sql_element) {
+			$element_names[] = array_get_index($sql_element->attributes, 'display_name', '<Unknown Element>');
+			$sql = trim(xml_entity_decode($sql_element->content));
+			if (!empty($sql)) {
+				$result = $db->query($sql);
+				assert_valid_db_result($result);
+			}
+		}
 
 		if ($verbose) {
-			pre_echo(strtoupper($db->phptype).' STORED PROCEDURES CREATED');
+			pre_echo(strtoupper($db->phptype).' STORED PROCEDURES CREATED'."\n".implode("\n", $element_names));
 		}
 	}
 
 }//end install_stored_procedures()
+
+
+/**
+* Replaces elements that are considered XML elements, but not html elements.
+*
+* @param string	$string	the string that needs cleaning
+*
+* @access private
+* @return string
+*/
+function xml_entity_decode($string)
+{
+	$string = html_entity_decode($string);
+	$string = str_replace('&#124;', '|', $string);
+	$string = str_replace('&apos;', "'", $string);
+	$string = str_replace('&#42;', '*', $string);
+	$string = str_replace('&#92;', '\\', $string);
+
+	return $string;
+
+}//end _cleanString()
 
 
 /**
