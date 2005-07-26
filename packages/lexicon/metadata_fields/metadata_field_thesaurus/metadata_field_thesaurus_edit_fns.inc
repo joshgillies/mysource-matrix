@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_thesaurus_edit_fns.inc,v 1.6 2005/05/17 01:28:39 arailean Exp $
+* $Id: metadata_field_thesaurus_edit_fns.inc,v 1.7 2005/07/26 05:45:30 tbarrett Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/metadata/metadata_field/metadata_field
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Dmitry Baranovskiy <dbaranovskiy@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage lexicon
 */
@@ -46,7 +46,7 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintInlineValueInterface(&$asset, &$o, $value_str, $write_access)
+	function paintValueInterface(&$asset, &$o, $value_str, $write_access)
 	{
 		$prefix = $asset->getPrefix();
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -62,13 +62,7 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 
 		$datapath = sq_web_path('data').'/asset_types/metadata_field_thesaurus/files';
 
-		$field_name = $asset->name;
-		if ($asset->attr('required')) {
-			$field_name .= ' <span style="color: #FF0000">*</span>';
-		}
-
 		$communicator_url = $asset->getCommunicatorUrl();
-		$o->openField($field_name);
 
 		// thesaurus has to be active for successful operation
 		if (!$asset->isThesaurusActive()) {
@@ -131,11 +125,10 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 			}
 			echo '<div style="color: #FF0000">'.array_get_index($asset->_tmp, 'error', '').'</div>';
 		}
-		$o->closeField();
 
 		return true;
 
-	}//end paintInlineValueInterface()
+	}//end paintValueInterface()
 
 
 	/**
