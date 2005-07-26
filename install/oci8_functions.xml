@@ -1,0 +1,210 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Open Source Licence                                      |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: oci8_functions.xml,v 1.1 2005/07/26 00:43:26 mmcintyre Exp $
+*
+*/
+-->
+<sql>
+	<sql_element display_name="Varchar 500 Table Type">
+		<![CDATA[
+			CREATE OR REPLACE TYPE VARCHAR_500_TABLE is TABLE OF VARCHAR2(500);
+		]]>
+	</sql_element>
+	<sql_element display_name="common_pkg Package">
+		<![CDATA[
+			CREATE OR REPLACE PACKAGE common_pkg AS
+				PROCEDURE set_timestamp;
+				FUNCTION get_timestamp RETURN TIMESTAMP;
+			END common_pkg;
+		]]>
+	</sql_element>
+	<sql_element display_name="common_pkg Package Body">
+		<![CDATA[
+			CREATE OR REPLACE PACKAGE BODY common_pkg AS
+
+				-- a transaction is currently expected not to take longer than 2 minutes
+				c_range_limit CONSTANT INTEGER := 240;
+				v_timestamp TIMESTAMP;
+				FUNCTION get_seconds_between_timestamps (v1 IN TIMESTAMP, v2 IN TIMESTAMP)
+					RETURN INTEGER IS
+					i INTEGER;
+				BEGIN
+					IF v1 IS NULL OR v2 IS NULL THEN
+						RETURN c_range_limit + 1;
+					ELSE
+						SELECT extract(day from (v2-v1)) * 24 * 60 * 60 +
+							extract(hour from (v2-v1)) * 60 * 60 +
+							extract(minute from (v2-v1)) * 60 +
+							extract(second from (v2-v1))
+						INTO i
+							FROM dual;
+							RETURN abs(i);
+					END IF;
+				END;
+
+				PROCEDURE set_timestamp IS
+				BEGIN
+					SELECT systimestamp
+					INTO v_timestamp
+					FROM dual;
+				END;
+
+				FUNCTION get_timestamp RETURN TIMESTAMP IS
+					i INTEGER := get_seconds_between_timestamps(v_timestamp, systimestamp);
+					BEGIN
+						IF i > c_range_limit THEN
+							raise_application_error(-20001, 'transaction not expected to take more than '
+							|| c_range_limit || ' seconds, but currently at '
+							|| i || ' seconds');
+					ELSE
+						RETURN v_timestamp;
+					END IF;
+				END;
+			END common_pkg;
+		]]>
+	</sql_element>
+	<sql_element display_name="sq_get_lineage_from_url Function">
+		<![CDATA[
+			-- returns all the urls up to the specified url so that we can use an IN
+			-- clause rather than a LIKE clause for a better query plan
+			CREATE OR REPLACE FUNCTION sq_get_lineage_from_url(url IN VARCHAR2) RETURN VARCHAR_500_TABLE IS
+				-- urls can only be 500 chars long
+				next_url VARCHAR2(500);
+				concat_url VARCHAR2(500);
+				i INTEGER;
+				next_slash INTEGER;
+				pos INTEGER;
+				urls VARCHAR_500_TABLE := VARCHAR_500_TABLE();
+			BEGIN
+				i := 1;
+				next_slash := 1;
+				pos := 1;
+				concat_url := NULL;
+
+				LOOP
+					pos := instr(url, '/', 1, next_slash);
+
+					IF pos = 0 THEN
+						-- if pos is 0 then get the component to the end of the url
+						next_url := substr(url, i, length(url));
+					ELSE
+						next_url := substr(url, i, (pos - i));
+					END IF;
+
+					IF concat_url IS NOT NULL THEN
+						concat_url := concat_url || '/';
+					END IF;
+					concat_url := concat_url || next_url;
+					urls.extend;
+					urls(urls.count) := concat_url;
+
+					IF pos = 0 THEN
+						-- we have the last url so we are done
+						return urls;
+					END IF;
+
+					i := pos + 1;
+					next_slash := next_slash + 1;
+
+				END LOOP;
+				RETURN urls;
+
+			END sq_get_lineage_from_url;
+		]]>
+	</sql_element>
+	<sql_element display_name="sq_rb_get_parent_treeids Function">
+		<![CDATA[
+			-- returns the parent treeids for the specified assetid using the date
+			-- acquired from the sq_get_rollback_timestamp function
+			CREATE OR REPLACE FUNCTION sq_rb_get_parent_treeids(minorid IN VARCHAR2, SQ_TREE_BASE_SIZE IN INTEGER) RETURN VARCHAR_500_TABLE IS
+				rb_date DATE;
+			BEGIN
+				rb_date := common_pkg.get_timestamp();
+				RETURN sq_get_parent_treeids(minorid, SQ_TREE_BASE_SIZE, rb_date);
+			END sq_rb_get_parent_treeids;
+		]]>
+	</sql_element>
+	<sql_element display_name="sq_get_parent_treeids Function">
+		<![CDATA[
+			-- returns the parent treeids for the specified assetid
+			-- if timestamp is null then the function will assume that we are not in rollback mode
+			-- if the timestamp is valid the function will return the treeids from the rollback tables
+			CREATE OR REPLACE FUNCTION sq_get_parent_treeids(minorid IN VARCHAR2, SQ_TREE_BASE_SIZE IN INTEGER , rb_date IN DATE := NULL) RETURN VARCHAR_500_TABLE IS
+				offset int;
+				next_treeid VARCHAR2(2000);
+				db_treeid VARCHAR2(2000);
+				parent_treeids VARCHAR_500_TABLE := VARCHAR_500_TABLE();
+				concat_treeids VARCHAR2(2000);
+				table_prefix VARCHAR2(6);
+				sql_str VARCHAR2(2000);
+				cursor_ptr INTEGER;
+				ignore INTEGER;
+			BEGIN
+				IF rb_date IS NULL THEN
+					table_prefix := 'sq_';
+				ELSE
+					table_prefix := 'sq_rb_';
+				END IF;
+
+				sql_str := 'SELECT treeid FROM ' || table_prefix || 'ast_lnk l INNER JOIN ' || table_prefix || 'ast_lnk_tree t ON l.linkid = t.linkid
+						WHERE l.minorid = ' || minorid;
+
+				IF rb_date IS NOT NULL THEN
+					sql_str := sql_str || ' AND l.sq_eff_from <= TO_DATE("' || rb_date || '", "YYYY-MM-DD HH24:MI:SS")'
+						|| ' AND (l.sq_eff_to IS NULL OR l.sq_eff_to > TO_DATE("' || rb_date || '", "YYYY-MM-DD HH24:MI:SS")' || ')';
+
+					sql_str := sql_str || ' AND t.sq_eff_from <= TO_DATE("' || rb_date || '", "YYYY-MM-DD HH24:MI:SS")'
+						|| ' AND (t.sq_eff_to IS NULL OR t.sq_eff_to > TO_DATE("' || rb_date || '", "YYYY-MM-DD HH24:MI:SS")' || ')';
+
+					sql_str := replace(sql_str, '"', '''' );
+				END IF;
+
+				cursor_ptr := DBMS_SQL.open_cursor;
+				DBMS_SQL.PARSE(cursor_ptr, sql_str, DBMS_SQL.V7);
+				DBMS_SQL.DEFINE_COLUMN(cursor_ptr, 1, db_treeid, 500);
+				ignore := DBMS_SQL.EXECUTE(cursor_ptr);
+
+				LOOP
+					IF DBMS_SQL.FETCH_ROWS(cursor_ptr) > 0 THEN
+						DBMS_SQL.COLUMN_VALUE(cursor_ptr, 1, db_treeid);
+						offset := 1;
+						concat_treeids := '';
+						LOOP
+							next_treeid := SUBSTR(db_treeid, offset, SQ_TREE_BASE_SIZE);
+							IF next_treeid IS NULL THEN
+								RETURN parent_treeids;
+							END IF;
+							concat_treeids := concat_treeids || next_treeid;
+							parent_treeids.extend;
+							parent_treeids(parent_treeids.count) := concat_treeids;
+							offset := offset + SQ_TREE_BASE_SIZE;
+						END LOOP;
+					ELSE
+						EXIT;
+					END IF;
+				END LOOP;
+
+				RETURN parent_treeids;
+			END sq_get_parent_treeids;
+		]]>
+	</sql_element>
+</sql>
