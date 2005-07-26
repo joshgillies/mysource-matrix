@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.108 2005/07/26 05:18:06 lwright Exp $
+* $Id: search_page.inc,v 1.109 2005/07/26 06:03:29 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.108 $
+* @version $Revision: 1.109 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1220,7 +1220,9 @@ class Search_Page extends Listing_Engine
 
 		$this->_tmp['asset_info'] = $asset_info;
 
-		$this->groupAssetsRecursively($this->attr('asset_grouping'), $asset_info, $asset_info);
+		if ($this->attr('asset_grouping') == 'grouped') {
+			$this->groupAssetsRecursively($this->attr('asset_grouping'), $asset_info, $asset_info);
+		}
 		$total_pages = ceil(count($asset_info) / $results_per_page);
 
 		// do analysis of check-all relations
