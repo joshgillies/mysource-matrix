@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.90.2.1 2005/07/04 03:50:24 pgannavarapu Exp $
+* $Id: design.inc,v 1.90.2.2 2005/07/26 15:52:32 brobertson Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.90.2.1 $
+* @version $Revision: 1.90.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -575,7 +575,7 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 
 			case 'content_type' :
 				if (!empty($args['content_type'])) {
-					echo '<', '?php header("Content-type: '.$args['content_type'].'"); ?', '>';
+					echo '<', '?php header('.var_export('Content-type: '.$args['content_type'], 1).'); ?', '>';
 				}
 			break;
 
