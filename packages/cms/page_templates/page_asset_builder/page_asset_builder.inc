@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.66 2005/07/19 07:20:30 skim Exp $
+* $Id: page_asset_builder.inc,v 1.67 2005/07/26 01:54:18 skim Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.66 $
+* @version $Revision: 1.67 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -758,12 +758,12 @@ class Page_Asset_Builder extends Page
 	*/
 	function _loadAssetReplacements()
 	{
-		$this->_replacements['created_assetid'] = $this->getKeywordReplacement('created_assetid');
-		$this->_replacements['created_asset_name'] = $this->getKeywordReplacement('created_asset_name');
-		$this->_replacements['created_asset_short_name'] = $this->getKeywordReplacement('created_asset_short_name');
-		$this->_replacements['created_asset_url'] = $this->getKeywordReplacement('created_asset_url');
-		$this->_replacements['created_asset_edit'] = $this->getKeywordReplacement('created_asset_edit');
-		$this->_replacements['created_asset_backend'] = $this->getKeywordReplacement('created_asset_backend');
+		$this->_replacements['created_assetid'] 			= $this->getKeywordReplacement('created_assetid');
+		$this->_replacements['created_asset_name'] 			= $this->getKeywordReplacement('created_asset_name');
+		$this->_replacements['created_asset_short_name']	= $this->getKeywordReplacement('created_asset_short_name');
+		$this->_replacements['created_asset_url']			= $this->getKeywordReplacement('created_asset_url');
+		$this->_replacements['created_asset_edit']			= $this->getKeywordReplacement('created_asset_edit');
+		$this->_replacements['created_asset_backend']		= $this->getKeywordReplacement('created_asset_backend');
 
 	}//end _loadAssetReplacements()
 
@@ -1188,9 +1188,16 @@ class Page_Asset_Builder extends Page
 	{
 		$keywords = Array();
 
-		$keywords['create_invite'] 	= translate('cms_asset_builder_keyword_create_invite');
-		$keywords['create_form'] 	= translate('cms_asset_builder_keyword_create_form');
-		$keywords['create_error'] 	= translate('cms_asset_builder_keyword_create_error');
+		$keywords['created_assetid']			= translate('cms_asset_builder_created_assetid');
+		$keywords['created_asset_name']			= translate('cms_asset_builder_created_asset_name');
+		$keywords['created_asset_short_name']	= translate('cms_asset_builder_created_asset_short_name');
+		$keywords['created_asset_url']			= translate('cms_asset_builder_created_asset_url');
+		$keywords['created_asset_edit']			= translate('cms_asset_builder_created_asset_edit');
+		$keywords['created_asset_backend']		= translate('cms_asset_builder_created_asset_backend');
+
+		$keywords['create_invite']		 		= translate('cms_asset_builder_keyword_create_invite');
+		$keywords['create_form'] 				= translate('cms_asset_builder_keyword_create_form');
+		$keywords['create_error'] 				= translate('cms_asset_builder_keyword_create_error');
 
 		return $keywords;
 
