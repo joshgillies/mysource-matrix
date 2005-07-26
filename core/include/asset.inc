@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.433 2005/07/21 20:18:11 brobertson Exp $
+* $Id: asset.inc,v 1.434 2005/07/26 22:48:51 arailean Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.433 $
+* @version $Revision: 1.434 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3037,10 +3037,9 @@ class Asset extends MySource_Object
 			$attr_name = $tmp_array[count($tmp_array) - 1];
 			if (array_key_exists($attr_name, $this->vars)) {
 				$attr = &$this->getAttribute($attr_name);
-				// TODO : attributes will have different categories. eg. normal or admin
-				//if (!$attr->admin) {
-				$replacement = $this->attr($attr_name);
-				//}
+				if (!$attr->is_admin) {
+					$replacement = $this->attr($attr_name);
+				}
 			}
 		} else {
 			$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
