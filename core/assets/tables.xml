@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.25 2005/07/20 13:58:56 gnoel Exp $
+* $Id: tables.xml,v 1.26 2005/07/26 23:51:44 mmcintyre Exp $
 *
 */
 -->
@@ -877,7 +877,7 @@
 			</keys>
 			<indexes />
 		</table>
-		<table name="ast_metadata" require_rollback="1">
+		<table name="ast_mdata" require_rollback="1">
 			<columns>
 				<column name="assetid" allow_null="0">
 					<type>VARCHAR(15)</type>
@@ -889,14 +889,6 @@
 					<type>VARCHAR(15)</type>
 					<type_variations />
 					<default>0</default>
-					<description />
-				</column>
-				<column name="metadata" allow_null="1">
-					<type>TEXT</type>
-					<type_variations>
-						<oci8>CLOB</oci8>
-					</type_variations>
-					<default>''</default>
 					<description />
 				</column>
 				<column name="granted" allow_null="0">
@@ -914,7 +906,7 @@
 			</keys>
 			<indexes />
 		</table>
-		<table name="ast_metadata_value" require_rollback="1">
+		<table name="ast_mdata_val" require_rollback="1">
 			<columns>
 				<column name="assetid" allow_null="0">
 					<type>VARCHAR(15)</type>
@@ -945,7 +937,7 @@
 			</keys>
 			<indexes />
 		</table>
-		<table name="ast_metadata_dflt_val" require_rollback="1">
+		<table name="ast_mdata_dflt_val" require_rollback="1">
 			<columns>
 				<column name="assetid" allow_null="0">
 					<type>VARCHAR(15)</type>
