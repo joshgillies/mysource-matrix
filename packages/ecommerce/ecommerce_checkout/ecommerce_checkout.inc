@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.19 2005/07/26 01:05:04 skim Exp $
+* $Id: ecommerce_checkout.inc,v 1.20 2005/07/26 01:15:23 arailean Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -221,10 +221,21 @@ class Ecommerce_Checkout extends Page
 					break;
 				}
 
-				// create order asset
-				$order_summary = $this->_getOrderSummary();
-				$order =& $this->_createOrder($_SESSION['SQ_TEMP_ORDER']['cart_contents'], $order_summary);
+				$order_summary = $dm->getSummary();
 
+				// check whether we're editing an order or creating a new one
+				if (!empty($_SESSION['SQ_TEMP_ORDER']['order_id'])) {
+					$order_asset =& $GLOBALS['SQ_SYSTEM']->getAsset($_SESSION['SQ_TEMP_ORDER']['order_id']);
+					// get order
+				}
+
+				if (empty($order_asset)) {
+					$order_asset =& $this->_createOrder($_SESSION['SQ_TEMP_ORDER']['cart_contents'], $order_summary);
+				} else {
+					$order_asset->setAttrValue('summary', $order_summary);
+				}
+
+#				$delivery_processing_status = $dm->processDelivery(&$order_asset);
 				$delivery_processing_status = $dm->processDelivery();
 				$_SESSION['SQ_TEMP_ORDER']['delivery_state'] = $dm->getState();
 
@@ -441,9 +452,6 @@ class Ecommerce_Checkout extends Page
 		// add products from the session(cart) to ecommerce order
 		if ($success && !empty($processing_data)) {
 			$success = $ecommerce_order->setAttrValue('processing_data', $processing_data);
-#		} else {
-#			trigger_localised_error('ECOM0020', E_USER_WARNING);
-#			$success = false;
 		}
 */
 		// notice link from Checkout_Form to Ecommerce_Order
