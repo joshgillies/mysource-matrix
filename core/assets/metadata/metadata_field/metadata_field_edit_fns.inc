@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_edit_fns.inc,v 1.36 2005/05/17 07:05:04 ndvries Exp $
+* $Id: metadata_field_edit_fns.inc,v 1.36.2.1 2005/07/26 05:32:23 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.36.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -241,7 +241,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 
 
 	/**
-	* Paint the interface for filling in metadata values
+	* Paint the field with the interface for filling in metadata values
 	*
 	* @param object Metadata_Field		&$asset			the asset whose interface we are painting
 	* @param object	Backend_Outputter	&$o				the outputter class
@@ -255,9 +255,37 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintInlineValueInterface(&$asset, &$o, $value_str, $write_access)
 	{
-		return false;
+
+		$field_name = $asset->name;
+		if ($asset->attr('required')) {
+			$field_name .= ' <span style="color: #FF0000">*</span>';
+		}
+		$o->openField($field_name);
+		$res = $this->paintValueInterface($asset, $o, $value_str, $write_access);
+		$o->closeField();
+		return $res;
 
 	}//end paintInlineValueInterface()
+
+
+	/**
+	* Paint the interface for filling in metadata values
+	*
+	* @param object Metadata_Field		&$asset			the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o				the outputter class
+	* @param string						$value_str		the current value for this field in the asset (NOT $asset)
+	*													NULL means that there is no current value set
+	* @param boolean					$write_access	does the current user have write access to the asset
+	*													that we are setting metadata for (NOT THE SAME AS $asset)
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintValueInterface(&$asset, &$o, $value_str, $write_access)
+	{
+		return false;
+
+	}//end paintValueInterface()
 
 
 	/**

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_text_edit_fns.inc,v 1.10.2.3 2005/06/27 02:54:32 dmckee Exp $
+* $Id: metadata_field_text_edit_fns.inc,v 1.10.2.4 2005/07/26 05:32:23 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.10.2.3 $
+* @version $Revision: 1.10.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -64,7 +64,7 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintInlineValueInterface(&$asset, &$o, $value_str, $write_access)
+	function paintValueInterface(&$asset, &$o, $value_str, $write_access)
 	{
 		$prefix = $asset->getPrefix();
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';

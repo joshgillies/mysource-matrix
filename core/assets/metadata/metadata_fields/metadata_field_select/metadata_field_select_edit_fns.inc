@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select_edit_fns.inc,v 1.17.2.4 2005/06/27 04:18:43 dmckee Exp $
+* $Id: metadata_field_select_edit_fns.inc,v 1.17.2.5 2005/07/26 05:32:23 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.17.2.4 $
+* @version $Revision: 1.17.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -64,7 +64,7 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintInlineValueInterface(&$asset, &$o, $value_str, $write_access)
+	function paintValueInterface(&$asset, &$o, $value_str, $write_access)
 	{
 		$prefix = $asset->getPrefix();
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -79,13 +79,6 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 		$value = '';
 		$value_components = $asset->attr('value_components');
 		Metadata_Field::decodeValueString($value_str, $value, $value_components);
-
-		$field_name = $asset->name;
-		if ($asset->attr('required')) {
-			$field_name .= ' <span style="color: #FF0000">*</span>';
-		}
-
-		$o->openField($field_name);
 
 			$select_options = $asset->attr('select_options');
 
@@ -141,8 +134,6 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 					echo ' <em style="color: #666">('.strtolower(translate('default')).')</em>';
 				}
 			}
-
-		$o->closeField();
 
 		return true;
 

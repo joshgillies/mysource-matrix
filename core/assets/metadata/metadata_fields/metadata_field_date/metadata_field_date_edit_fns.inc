@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date_edit_fns.inc,v 1.23.2.2 2005/06/23 01:01:27 dmckee Exp $
+* $Id: metadata_field_date_edit_fns.inc,v 1.23.2.3 2005/07/26 05:32:23 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.23.2.2 $
+* @version $Revision: 1.23.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -327,7 +327,7 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintInlineValueInterface(&$asset, &$o, $value_str, $write_access)
+	function paintValueInterface(&$asset, &$o, $value_str, $write_access)
 	{
 		$prefix = $asset->getPrefix();
 
@@ -342,11 +342,6 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 		$value_components = $asset->attr('value_components');
 		Metadata_Field::decodeValueString($value_str, $value, $value_components);
 
-		$field_name = $asset->name;
-		if ($asset->attr('required')) {
-			$field_name .= ' <span style="color: #FF0000">*</span>';
-		}
-
 		$select_options = Array(
 							''					=> '-- '.strtolower(translate('keywords')).' --',
 							'%asset_created%'	=> translate('creation_date'),
@@ -354,7 +349,6 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 							'%asset_published%'	=> translate('last_published_date'),
 						  );
 
-		$o->openField($field_name);
 
 			?>
 				<script type="text/javascript">
@@ -403,8 +397,6 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 					echo ' <em style="color: #666">('.strtolower(translate('default')).')</em>';
 				}
 			}
-
-		$o->closeField();
 
 		return true;
 
