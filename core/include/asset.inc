@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.434 2005/07/26 22:48:51 arailean Exp $
+* $Id: asset.inc,v 1.435 2005/07/26 23:06:34 arailean Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.434 $
+* @version $Revision: 1.435 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3032,7 +3032,7 @@ class Asset extends MySource_Object
 		}
 		else if (strcmp('asset_assetid', $keyword) == 0) {
 			$replacement = $this->id;
-		} else if (strpos($keyword, 'asset_attribute_')) {
+		} else if (substr($keyword, 0, strlen('asset_attribute_')) == 'asset_attribute_') {
 			$tmp_array = explode('_', $keyword);
 			$attr_name = $tmp_array[count($tmp_array) - 1];
 			if (array_key_exists($attr_name, $this->vars)) {
