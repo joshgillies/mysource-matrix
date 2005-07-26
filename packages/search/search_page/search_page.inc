@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.107 2005/07/26 00:23:16 dmckee Exp $
+* $Id: search_page.inc,v 1.108 2005/07/26 05:18:06 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.107 $
+* @version $Revision: 1.108 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -276,6 +276,7 @@ class Search_Page extends Listing_Engine
 					// we intentioally fall-through to default
 				default:
 					$_SESSION['SQ_LAST_SEARCH'][$this->id] = Array();
+				break;
 			}
 		}
 
@@ -322,6 +323,7 @@ class Search_Page extends Listing_Engine
 	function printResultsBody()
 	{
 		$results = $this->processSearch();
+		$this->_tmp['search_results'] =& $results;
 		if (empty($results)) {
 			echo $this->getBodycopyContents('no_results', $this->getResultsBodyReplacements($results));
 		} else {
@@ -329,6 +331,40 @@ class Search_Page extends Listing_Engine
 		}
 
 	}//end printResultsBody()
+
+
+	/**
+	* Sort the list of assets
+	*
+	* @param array			$asset_list 	an array of assets to be sorted
+	* @param string			$sort_info		sorting information as provided by getSortInfo()
+	*
+	* @see    Listing_Engine::sortAssetList()
+	* @see    Listing_Engine::getSortInfo()
+	* @return array
+	*/
+	function sortAssetList($asset_list, $sort_info)
+	{
+		if (($sort_info['type'] == 'field') && ($sort_info['params']['field'] == 'score')) {
+			// due to how asset listing is returned from search manager, it
+			// will already be in descending score order
+			$sort_assets = Array();
+			$sort_order = array_keys($this->_tmp['search_results']);
+			if (!$this->isDescending()) {
+				$sort_order = array_reverse($sort_order);
+			}
+			foreach ($sort_order as $assetid) {
+				if (isset($asset_list[$assetid])) {
+					$sort_assets[$assetid] = $asset_list[$assetid];
+				}
+			}
+			return $sort_assets;
+			//return $asset_list;
+		} else {
+			return parent::sortAssetList($asset_list, $sort_info);
+		}
+
+	}//end sortAssetList()
 
 
 	/**
@@ -1181,15 +1217,21 @@ class Search_Page extends Listing_Engine
 		$this->filterAssetList($asset_info);
 
 		if (!is_array($asset_info)) $asset_info = Array();
+
 		$this->_tmp['asset_info'] = $asset_info;
 
 		$this->groupAssetsRecursively($this->attr('asset_grouping'), $asset_info, $asset_info);
 		$total_pages = ceil(count($asset_info) / $results_per_page);
 
+		// do analysis of check-all relations
+		$this->_analyseCheckAllRelations($asset_info);
+
+		// get any extra keyword replacements from asset_listing
+		$parent_replaces = $this->getContentsKeywordReplacements();
 
 		foreach ($keywords as $keyword) {
-			$replacement = "%$keyword%";
 
+			$replacement = "%$keyword%";
 			switch ($keyword) {
 				case 'result_list':
 					$result_list = Array();
@@ -1420,7 +1462,14 @@ class Search_Page extends Listing_Engine
 						}//end if category links
 
 					} else {
-						$replacement = $this->getGeneralReplacement($keyword);
+
+						// use the parent's replacement if it exists, otherwise revert to the default
+						if (isset($parent_replaces[$keyword])) {
+							$replacement = $parent_replaces[$keyword];
+						} else {
+							$replacement = $this->getGeneralReplacement($keyword);
+						}
+
 					}
 				break;
 			}//end switch
@@ -1530,6 +1579,29 @@ class Search_Page extends Listing_Engine
 		return $replaces;
 
 	}//end getResultElementBodyReplacements()
+
+
+	/**
+	* Returns a list of extra keywords that should be replaced for a particular
+	* listing asset
+	*
+	* This allows search page, for instance, to define its result number and
+	* score fields so they don't blank out when keywords are replaced in listing
+	* engine.
+	*
+	* @return Array(string => string)	keyword name => replacement
+	* @access public
+	*/
+	function getExtendedAssetKeywordReplacements()
+	{
+		// We are only replacing them with their own replacement so they can be
+		// cached out like this, then score and result number can be added later
+		return Array(
+				'result_number'	=> '%result_number%',
+				'score'			=> '%score%',
+			   );
+
+	}//end getExtendedAssetKeywordReplacements()
 
 
 	/**
@@ -1927,14 +1999,13 @@ class Search_Page extends Listing_Engine
 	* @return void
 	* @access protected
 	*/
-	function _printAsset($assetid, $score, $list_position, $keywords=Array())
+	function _printAsset($assetid, $type_code, $list_position, $keywords=Array())
 	{
 		// the $this->_tmp[] variables are set in getResultsBodyReplacements()
 		$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 		$element_contents = $cm->loadFromCache($this->id, $this->type(), $assetid);
 
 		if (empty($element_contents)) {
-
 			// we need to do this because if we don't supply these keywords,
 			// the bodycopy will replace them with php which checks to see if they exist
 			// in a keyword array. If they done it will override these with nothing.
@@ -1947,18 +2018,19 @@ class Search_Page extends Listing_Engine
 						);
 
 			ob_start();
-			parent::_printAsset($assetid, $this->_tmp['asset_info'][$assetid], $list_position, $keywords);
+			parent::_printAsset($assetid, $type_code, $list_position, $keywords);
+
 			$element_contents = ob_get_contents();
 			ob_end_clean();
 			$cm->saveToCache($this->id, $this->type(), $assetid, $element_contents);
 		}
 
-		$score = (isset($score['type_code'])) ? $score['type_code']: $score;
-
+		// summon the scores at this point
+		$score =& $this->_tmp['search_results'];
 		$score = (isset($score['type_code'])) ? $score['type_code'] : $score;
 
 		$element_replacements = Array(
-									'score'			=> $score['type_code'],
+									'score'			=> $score[$assetid],
 									'result_number'	=> $this->_tmp['start_element'] + $list_position,
 								);
 
@@ -2016,7 +2088,7 @@ class Search_Page extends Listing_Engine
 	*/
 	function onRequestKeywords(&$broadcaster, $vars=Array())
 	{
-		$vars['keywords'] = isset($vars['keywords'])?$vars['keywords']:Array();
+		$vars['keywords'] = isset($vars['keywords']) ? $vars['keywords'] : Array();
 
 		$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id, 'bodycopy', true);
 		$bodycopy_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy');
@@ -2045,6 +2117,23 @@ class Search_Page extends Listing_Engine
 			return;
 		}
 
+/*<<<<<<< search_page.inc
+		// work out if forms are customised
+		$search_bodycopy_link = &$this->getFormatBodycopyLink('search_form');
+		$sis_bodycopy_link    = &$this->getFormatBodycopyLink('sis_form'); //search in search
+		$search_customised    = !empty($search_bodycopy_link) && $search_bodycopy_link['link_type'] != SQ_LINK_TYPE_3;
+		$sis_customised       = !empty($sis_bodycopy_link) && $sis_bodycopy_link['link_type'] != SQ_LINK_TYPE_3;
+
+		foreach ($bodycopies as $bodycopy) {
+			// only retrieve listing-specific keywords if this is the 'results' bodycopy
+			$keywords = parent::onRequestKeywords($broadcaster, $vars, ($bodycopy == 'results'));
+
+			if ($bodycopy == 'initial') {
+				// work out the query replacements
+				$fields = $this->attr('fields');
+				foreach ($fields as $field => $field_data) {
+					$keywords[$field.'_query'] = translate('sch_page_keyword_search_field', $field);
+=======*/
 		if (empty($bodycopies) && !empty($type_formats)) {
 			parent::onRequestKeywords($broadcaster, $vars);
 			return;
@@ -2066,6 +2155,7 @@ class Search_Page extends Listing_Engine
 
 				foreach ($this->keywords[$bodycopy] as $keyword) {
 					$keywords[$keyword] = ucwords(str_replace('_', ' ', $keyword));
+//>>>>>>> 1.105
 				}
 
 				// customised forms

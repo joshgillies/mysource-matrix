@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_management.inc,v 1.41 2005/07/20 07:03:16 tbarrett Exp $
+* $Id: search_page_management.inc,v 1.42 2005/07/26 05:18:06 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.41 $
+* @version $Revision: 1.42 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -235,7 +235,7 @@ class Search_Page_Management extends Asset_Management
 						continue;
 					}
 
-					$sub_asset = new $type();
+					$sub_asset =& new $type();
 					$copy_link = Array('asset' => &$asset, 'value' => $name ,'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 
 					$sub_asset->setAttrValue('name', ucwords(str_replace('_',' ', $name)));
@@ -330,7 +330,7 @@ class Search_Page_Management extends Asset_Management
 								'value'			=> 'no_results',
 							 );
 
-				$bodycopy = new Bodycopy();
+				$bodycopy =& new Bodycopy();
 				$bodycopy->setAttrValue('name', 'No Results Page Layout');
 				if (!$bodycopy->create($copy_link)) {
 					trigger_localised_error('SCH0023', E_USER_WARNING);

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_edit_fns.inc,v 1.51 2005/07/20 07:03:16 tbarrett Exp $
+* $Id: search_page_edit_fns.inc,v 1.52 2005/07/26 05:18:06 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine_edit_fns.inc';
 *     Edit functions for search page
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.51 $
+* @version $Revision: 1.52 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -75,7 +75,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 				$root_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($root_link['minorid']);
 			}
 			if (!is_null($root_asset)) {
-				echo $root_asset->name . ' (Id: #' . $root_asset->id . ')';
+				echo $root_asset->name.' (Id: #'.$root_asset->id.')';
 			} else {
 				echo translate('sch_no_root_node_selected');
 			}
@@ -969,7 +969,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 
 					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 					$GLOBALS['SQ_SYSTEM']->am->includeAsset('folder');
-					$format_folder = new Folder();
+					$format_folder =& new Folder();
 					$copy_link = Array('asset' => &$asset, 'value' => 'format_folder', 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 
 					$format_folder->setAttrValue('name', 'Search Forms');
@@ -989,7 +989,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 					// if there is no bodycopy here, then we want to create it
 					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 					$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
-					$bodycopy = new Bodycopy();
+					$bodycopy =& new Bodycopy();
 					$copy_link = Array('asset' => &$format_folder, 'value' => $value, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 
 					$bodycopy->setAttrValue('name', $form_name);
@@ -1065,7 +1065,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 				$root_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($root_link['minorid']);
 			}
 			if (!is_null($root_asset)) {
-				echo $root_asset->name . ' (Id: #' . $root_asset->id . ')';
+				echo $root_asset->name.' (Id: #'.$root_asset->id.')';
 			} else {
 				echo translate('sch_page_no_thesaurus_asset_selected');
 			}
@@ -1142,7 +1142,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 	function _getSortByOptions(&$asset)
 	{
 		$options = parent::_getSortByOptions($asset);
-		$options[''] = translate('sch_page_relevance');
+		$options['score'] = translate('sch_page_relevance');
 		return $options;
 
 	}//end _getSortByOptions()

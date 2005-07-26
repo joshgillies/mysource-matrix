@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.27 2005/07/25 23:03:58 dmckee Exp $
+* $Id: edit_interface_screen_details.xml,v 1.28 2005/07/26 05:18:06 lwright Exp $
 *
 */
 -->
@@ -45,7 +45,7 @@
 		</field>
 	</section>
 	<section name="Display Options">
-		<field attribute="num_per_page">
+		<field attribute="num_per_page" write_access="write:attributes">
 			<int width="5" />
 		</field>
 		<field write_access="write:links">
@@ -60,8 +60,14 @@
 		<field attribute="submit_button_text" read_access="" write_access="write:attributes" >
 			<text />
 		</field>
+		<field attribute="reset_button_text" read_access="" write_access="write:attributes" >
+			<text />
+		</field>
 		<field attribute="sis_button_text" read_access="" write_access="write:attributes" >
 			<text />
+		</field>
+		<field attribute="group_by" write_access="write:attributes">
+			<selection style="list" />
 		</field>
 	</section>
 	<section name="List Position Settings" write_access="write:attributes">

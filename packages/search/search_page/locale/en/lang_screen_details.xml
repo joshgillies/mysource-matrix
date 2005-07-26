@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.5 2005/07/08 05:04:47 tbarrett Exp $
+* $Id: lang_screen_details.xml,v 1.6 2005/07/26 05:18:07 lwright Exp $
 *
 */
 -->
@@ -73,9 +73,21 @@
 			<display_name>Search button text</display_name>
 			<note>This text will appear on the submit button of this search page</note>
 		</field>
+		<field attribute="reset_button_text">
+			<display_name>Reset button text</display_name>
+			<note>This text will appear on the reset button of this search page</note>
+		</field>
 		<field attribute="sis_button_text">
 			<display_name>Search in search button text</display_name>
 			<note>This text will appear on the submit button of the search within search form</note>
+		</field>
+		<field attribute="group_by">
+			<display_name>List Format</display_name>
+			<note>A standard list displays all assets on a single page or can be broken up into multiple pages.
+			&lt;br/&gt;An A-Z listing displays assets grouped by the first letter of their name or short name, as defined by the 'Sort By' field.
+			&lt;br/&gt;A Random listing displays one or more assets in random order.
+			&lt;br/&gt;Custom Grouping allows a list based on user specifed grouping conditions.
+			</note>
 		</field>
 	</section>
 	<section name="List Position Settings">

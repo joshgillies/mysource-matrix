@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screens.xml,v 1.13 2005/06/23 03:28:20 dheppell Exp $
+* $Id: edit_interface_screens.xml,v 1.14 2005/07/26 05:18:06 lwright Exp $
 *
 */
 -->
@@ -22,5 +22,6 @@
 	<screen code_name="columns" display_name="Column Layout"   icon="web" lock_type="attributes" force_unlock="0" />
 	<screen code_name="sorting" display_name="Asset Sorting"   icon="web" lock_type="attributes" force_unlock="0" />
 	<screen code_name="grouping" display_name="Asset Grouping"    icon="web" lock_type="attributes" force_unlock="0" />
+	<screen code_name="selections" display_name="Asset Selections"    icon="web" lock_type="attributes" force_unlock="0" />
 	<screen code_name="paths" display_name="Web Paths" icon="web" lock_type="lookups" />
 </screens>
