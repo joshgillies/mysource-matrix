@@ -18,73 +18,124 @@
 // |          Michele Manzato <michele.manzato@verona.miz.it>             |
 // +----------------------------------------------------------------------+
 //
-// $Id: Node.php,v 1.4 2005/04/18 05:59:21 lwright Exp $
+// $Id: Node.php,v 1.5 2005/07/26 00:53:50 mmcintyre Exp $
 //
 
 /**
-* PEAR::XML_Tree_Node
-*
-* @author  Bernd Römer <berndr@bonn.edu>
-* @package XML_Tree
-* @version 1.0  16-Aug-2001
-*/
+ * PEAR::XML_Tree_Node
+ *
+ * @author  Bernd Römer <berndr@bonn.edu>
+ * @package XML_Tree
+ * @version 1.0  16-Aug-2001
+ */
+
 class XML_Tree_Node {
     /**
-    * Attributes of this node
-    *
-    * @var  array
-    */
+     * Attributes of this node
+     *
+     * @var  array
+     */
+
     var $attributes;
 
     /**
-    * Children of this node
-    *
-    * @var  array
-    */
+     * Children of this node
+     *
+     * @var  array
+     */
+
     var $children;
 
     /**
-    * Content (text) of this node
-    *
-    * @var  string
-    */
+     * Content (text) of this node
+     *
+     * @var  string
+     */
+
     var $content;
 
     /**
-    * Name of the node
-    *
-    * @var  string
-    */
+     * Name of the node
+     *
+     * @var  string
+     */
+
     var $name;
 
     /**
-    * Constructor
-    *
-    * @param  string    name            Node name
-    * @param  string    content         Node content (text)
-    * @param  array     attributes      Attribute-hash for the node
-    */
-    function XML_Tree_Node($name, $content = '', $attributes = array())
+     * Namespaces for the node
+     *
+     * @var array
+     */
+
+
+    var $namespaces = array();
+
+    /**
+     * Stores PEAR_Error upon error
+     *
+     * @var object PEAR_Error
+     */
+
+    var $error = null;
+
+    /**
+     * Whether to encapsulate the CDATA in a <![CDATA[]]> section
+     *
+     * @var boolean
+     */
+
+    var $use_cdata_section = null;
+
+
+    /**
+     * Constructor
+     *
+     * @param  string    name            Node name
+     * @param  string    content         Node content (text)
+     * @param  array     attributes      Attribute-hash for the node
+     */
+
+    function XML_Tree_Node($name, $content = '', $attributes = array(), $lineno = null, $use_cdata_section = null)
     {
+        $check_name = XML_Tree::isValidName($name, 'element');
+        if (PEAR::isError($check_name)) {
+            $this->error =& $check_name;
+            return;
+        }
+
+        if (!is_array($attributes)) {
+            $attributes = array();
+        }
+
+        foreach ($attributes as $attribute_name => $value) {
+            $error = XML_Tree::isValidName($attribute_name, 'Attribute');
+            if (PEAR::isError($error)) {
+                $this->error =& $error;
+                return;
+            }
+        }
         $this->name = $name;
-        $this->setContent($content);
+        $this->setContent($content, $use_cdata_section);
         $this->attributes = $attributes;
         $this->children   = array();
+        $this->lineno     = $lineno;
     }
 
     /**
-    * Append a child node to this node, after all other nodes
-    *
-    * @param mixed      child           Child to insert (XML_Tree or XML_Tree_Node),
-    *                                   or name of child node
-    * @param string     content         Content (text) for the new node (only if
-    *                                   $child is the node name)
-    * @param array      attributes      Attribute-hash for new node
-    *
-    * @return object  reference to new child node
-    * @access public
-    */
-    function &addChild($child, $content = '', $attributes = array())
+     * Append a child node to this node, after all other nodes
+     *
+     * @param mixed      child           Child to insert (XML_Tree or XML_Tree_Node),
+     *                                   or name of child node
+     * @param string     content         Content (text) for the new node (only if
+     *                                   $child is the node name)
+     * @param array      attributes      Attribute-hash for new node
+     *
+     * @return object  reference to new child node
+     * @access public
+     */
+
+    function &addChild($child, $content = '', $attributes = array(), $lineno = null, $use_cdata_section = null)
     {
         $index = sizeof($this->children);
 
@@ -97,64 +148,64 @@ class XML_Tree_Node {
                 $this->children[$index] = $child->root->getElement();
             }
         } else {
-            $this->children[$index] = new XML_Tree_Node($child, $content, $attributes);
+            $node = new XML_Tree_Node($child, $content, $attributes, $lineno, $use_cdata_section);
+            if (PEAR::isError($node->error)) {
+                return $node->error;
+            }
+
+            $this->children[$index] = $node;
         }
 
         return $this->children[$index];
     }
 
     /**
-    * @deprecated
-    */
-    function &add_child($child, $content = '', $attributes = array()) {
-        return $this->addChild($child, $content, $attributes);
-    }
+     * Get a copy of this node by clone this node and all of its children,
+     * recursively.
+     *
+     * @return object    Reference to the cloned copy.
+     * @access public
+     */
 
-    /**
-    * Get a copy of this node by clone this node and all of its children,
-    * recursively.
-    *
-    * @return object    Reference to the cloned copy.
-    * @access public
-    */
-    function &clone()
+    function &cloneNode()
     {
         $clone = new XML_Tree_Node($this->name,$this->content,$this->attributes);
 
         $max_child=count($this->children);
         for($i=0;$i<$max_child;$i++) {
-            $clone->children[]=$this->children[$i]->clone();
+            $clone->children[]=$this->children[$i]->cloneNode();
         }
 
         /* for future use....
-            // clone all other vars
-            $temp=get_object_vars($this);
-            foreach($temp as $varname => $value)
-                if (!in_array($varname,array('name','content','attributes','children')))
-                    $clone->$varname=$value;
-        */
+        // clone all other vars
+        $temp=get_object_vars($this);
+        foreach($temp as $varname => $value)
+        if (!in_array($varname,array('name','content','attributes','children')))
+        $clone->$varname=$value;
+         */
 
         return $clone;
     }
 
     /**
-    * Inserts child ($child) to a specified child-position ($pos)
-    *
-    * @param mixed      path            Path to parent node to add child (see getNodeAt()
-    *                                   for format). If null child is inserted in the
-    *                                   current node.
-    * @param integer    pos             Position where to insert the new child.
-    *                                   0 < means |$pos| elements before the end,
-    *                                   e.g. -1 appends as last child.
-    * @param mixed      child           Child to insert (XML_Tree or XML_Tree_Node),
-    *                                   or name of child node
-    * @param string     content         Content (text) for the new node (only if
-    *                                   $child is the node name)
-    * @param array      attributes      Attribute-hash for new node
-    *
-    * @return Reference to the newly inserted node, or PEAR_Error upon insertion error.
-    * @access public
-    */
+     * Inserts child ($child) to a specified child-position ($pos)
+     *
+     * @param mixed      path            Path to parent node to add child (see getNodeAt()
+     *                                   for format). If null child is inserted in the
+     *                                   current node.
+     * @param integer    pos             Position where to insert the new child.
+     *                                   0 < means |$pos| elements before the end,
+     *                                   e.g. -1 appends as last child.
+     * @param mixed      child           Child to insert (XML_Tree or XML_Tree_Node),
+     *                                   or name of child node
+     * @param string     content         Content (text) for the new node (only if
+     *                                   $child is the node name)
+     * @param array      attributes      Attribute-hash for new node
+     *
+     * @return Reference to the newly inserted node, or PEAR_Error upon insertion error.
+     * @access public
+     */
+
     function &insertChild($path,$pos,&$child, $content = '', $attributes = array())
     {
         $parent =& $this->getNodeAt($path);
@@ -171,50 +222,44 @@ class XML_Tree_Node {
         }
 
         if (is_object($child)) { // child is an object
-            // insert a single node
-            if (strtolower(get_class($child)) == 'xml_tree_node') {
-                array_splice($this->children, $pos, 0, 'dummy');
-                if ($pos < 0) {
-                    $pos = count($this->children) + $pos - 1;
-                }
-                $this->children[$pos] = &$child;
-            // insert a tree i.e insert root-element of tree
-            } elseif (strtolower(get_class($child)) == 'xml_tree' && isset($child->root)) {
-                array_splice($this->children, $pos, 0, 'dummy');
-                if ($pos < 0) {
-                    $pos = count($this->children) + $pos - 1;
-                }
-                $this->children[$pos] = $child->root;
-            } else {
-                return new PEAR_Error("Bad node (must be a XML_Tree or an XML_Tree_Node)");
-            }
-        } else { // child offered is a string
+        // insert a single node
+        if (strtolower(get_class($child)) == 'xml_tree_node') {
             array_splice($this->children, $pos, 0, 'dummy');
             if ($pos < 0) {
                 $pos = count($this->children) + $pos - 1;
             }
-            $this->children[$pos] = new XML_Tree_Node($child, $content, $attributes);
+            $this->children[$pos] = &$child;
+            // insert a tree i.e insert root-element of tree
+        } elseif (strtolower(get_class($child)) == 'xml_tree' && isset($child->root)) {
+            array_splice($this->children, $pos, 0, 'dummy');
+            if ($pos < 0) {
+                $pos = count($this->children) + $pos - 1;
+            }
+            $this->children[$pos] = $child->root;
+        } else {
+            return new PEAR_Error("Bad node (must be a XML_Tree or an XML_Tree_Node)");
+        }
+        } else { // child offered is a string
+        array_splice($this->children, $pos, 0, 'dummy');
+        if ($pos < 0) {
+            $pos = count($this->children) + $pos - 1;
+        }
+        $this->children[$pos] = new XML_Tree_Node($child, $content, $attributes);
         }
         return $this;
     }
 
     /**
-    * @deprecated
-    */
-    function &insert_child($path,$pos,&$child, $content = '', $attributes = array()) {
-        return $this->insertChild($path,$pos,$child, $content, $attributes);
-    }
+     * Removes child at a given position
+     *
+     * @param    integer     pos     position of child to remove in children-list.
+     *                               0 < means |$pos| elements before the end,
+     *                               e.g. -1 removes the last child.
+     *
+     * @return mixed     The removed node, or PEAR_Error upon removal error.
+     * @access public
+     */
 
-    /**
-    * Removes child at a given position
-    *
-    * @param    integer     pos     position of child to remove in children-list.
-    *                               0 < means |$pos| elements before the end,
-    *                               e.g. -1 removes the last child.
-    *
-    * @return mixed     The removed node, or PEAR_Error upon removal error.
-    * @access public
-    */
     function &removeChild($pos)
     {
         if (($pos < -count($this->children)) || ($pos >= count($this->children))) {
@@ -226,160 +271,176 @@ class XML_Tree_Node {
     }
 
     /**
-    * @deprecated
-    */
-    function &remove_child($pos) {
-        return $this->removeChild($pos);
+     * Register a namespace.
+     *
+     * @param  string  $name namespace
+     * @param  string  $path path
+     *
+     * @access public
+     */
+
+    function registerName($name, $path) {
+        $this->namespace[$name] = $path;
     }
 
     /**
-    * Returns text representation of this node.
-    *
-    * @return  string   text (xml) representation of this node. Each tag is
-    *                   indented according to its level.
-    * @access public
-    */
-    function &get()
+     * Returns text representation of this node.
+     *
+     * @return  string   text (xml) representation of this node. Each tag is
+     *                   indented according to its level.
+     * @access public
+     */
+
+    function &get($use_cdata_section = false)
     {
         static $deep = -1;
         static $do_ident = true;
         $deep++;
+        $empty = false;
+        $ident = str_repeat('  ', $deep);
         if ($this->name !== null) {
-            $ident = str_repeat('  ', $deep);
             if ($do_ident) {
                 $out = $ident . '<' . $this->name;
             } else {
                 $out = '<' . $this->name;
             }
-
-            $attr_in  = array('"', '\'');
-            $attr_out = array('&quot;', '&apos;');
-
-			foreach ($this->attributes as $name => $value) {
-                $out .= ' ' . $name . '="' . str_replace($attr_in, $attr_out, $value) . '"';
+            foreach ($this->attributes as $name => $value) {
+                $out .= ' ' . $name . '="' . $value . '"';
             }
 
-            $out .= '>' . $this->encodeXmlEntities($this->content);
+            if (isset($this->namespace) && (is_array($this->namespace))) {
+                foreach ($this->namespace as $qualifier => $uri) {
+                    if ($qualifier == '') {
+                        $out .= " xmlns='$uri'";
+                    } else {
+                        $out .= " xmlns:$qualifier='$uri'";
+                    }
+                }
+            }
+
+            if ($this->content == '' && sizeof($this->children) === 0 && $deep != 0) {
+                $out .= ' />';
+                $empty = true;
+            } else {
+                $out .= '>';
+                if ($this->use_cdata_section == true || ($use_cdata_section == true && $this->use_cdata_section !== false)) {
+                    if (trim($this->content) != '') {
+                        $out .= '<![CDATA[' .$this->content. ']]>';
+                    }
+                    } else {
+                    if (trim($this->content) != '') {
+                        $out .= $this->content;
+                    }
+                }
+            }
 
             if (sizeof($this->children) > 0) {
                 $out .= "\n";
                 foreach ($this->children as $child) {
-                    $out .= $child->get();
+                    $out .= $child->get($use_cdata_section);
                 }
             } else {
                 $ident = '';
             }
-            if ($do_ident) {
+
+            if ($do_ident && $empty != true) {
                 $out .= $ident . '</' . $this->name . ">\n";
-            } else {
+            } elseif ($empty != true) {
                 $out .= '</' . $this->name . '>';
             }
             $do_ident = true;
         } else {
-            $out = $this->encodeXmlEntities($this->content);
-            $do_ident = false;
+            if ($this->use_cdata_section == true || ($use_cdata_section == true && $this->use_cdata_section !== false)) {
+                if (trim($this->content) != '') {
+                    $out = $ident . '<![CDATA[' .$this->content. ']]>' . "\n";
+                }
+            } else {
+                if (trim($this->content) != '') {
+                    $out = $ident . $this->content . "\n";
+                }
+            }
         }
         $deep--;
         return $out;
     }
 
     /**
-    * Get an attribute by its name.
-    *
-    * @param  string  $name     Name of attribute to retrieve
-    *
-    * @return string  attribute, or null if attribute is unset.
-    * @access public
-    */
+     * Get an attribute by its name.
+     *
+     * @param  string  $name     Name of attribute to retrieve
+     *
+     * @return string  attribute, or null if attribute is unset.
+     * @access public
+     */
+
     function getAttribute($name)
     {
-        if (isset($this->attributes[strtolower($name)])) {
-            return $this->attributes[strtolower($name)];
+        if (isset($this->attributes[$name])) {
+            return $this->attributes[$name];
         }
         return null;
     }
 
     /**
-    * @deprecated
-    */
-    function get_attribute($name) {
-        return $this->getAttribute($name);
-    }
+     * Sets an attribute for this node.
+     *
+     * @param  string    name        Name of attribute to set
+     * @param  string    value       Value of attribute
+     *
+     * @access public
+     */
 
-    /**
-    * Sets an attribute for this node.
-    *
-    * @param  string    name        Name of attribute to set
-    * @param  string    value       Value of attribute
-    *
-    * @access public
-    */
     function setAttribute($name, $value = '')
     {
-        $this->attributes[strtolower($name)] = $value;
+        $this->attributes[$name] = $value;
     }
 
     /**
-    * @deprecated
-    */
-    function set_attribute($name, $value = '')
-    {
-        return $this->setAttribute($name, $value);
-    }
+     * Unsets an attribute of this node.
+     *
+     * @param  string  $name     Name of attribute to unset
+     *
+     * @access public
+     */
 
-    /**
-    * Unsets an attribute of this node.
-    *
-    * @param  string  $name     Name of attribute to unset
-    *
-    * @access public
-    */
     function unsetAttribute($name)
     {
-        if (isset($this->attributes[strtolower($name)])) {
-            unset($this->attributes[strtolower($name)]);
+        if (isset($this->attributes[$name])) {
+            unset($this->attributes[$name]);
         }
     }
 
     /**
-    * @deprecated
-    */
-    function unset_attribute($name)
+     * Sets the content for this node.
+     *
+     * @param  string    content     Node content to assign
+     *
+     * @access public
+     */
+
+    function setContent($content, $use_cdata_section = null)
     {
-        return $this->unsetAttribute($name);
+        $this->use_cdata_section = $use_cdata_section;
+
+        if ($use_cdata_section == true) {
+            $this->content = $content;
+        } else {
+            $this->content = $this->encodeXmlEntities($content);
+        }
     }
 
     /**
-    * Sets the content for this node.
-    *
-    * @param  string    content     Node content to assign
-    *
-    * @access public
-    */
-    function setContent(&$content)
-    {
-        $this->content = $content;
-    }
+     * Gets an element by its 'path'.
+     *
+     * @param  array     path    path to element: sequence of indexes to the
+     *                           children. E.g. array(1, 2, 3) means "third
+     *                           child of second child of first child" of the node.
+     *
+     * @return object    reference to element found, or PEAR_Error if node can't
+     *                   be found.
+     * @access public
+     */
 
-    /**
-    * @deprecated
-    */
-    function set_content(&$content)
-    {
-        return $this->setContent($content);
-    }
-
-    /**
-    * Gets an element by its 'path'.
-    *
-    * @param  array     path    path to element: sequence of indexes to the
-    *                           children. E.g. array(1, 2, 3) means "third
-    *                           child of second child of first child" of the node.
-    *
-    * @return object    reference to element found, or PEAR_Error if node can't
-    *                   be found.
-    * @access public
-    */
     function &getElement($path)
     {
         if (!is_array($path)) {
@@ -402,19 +463,20 @@ class XML_Tree_Node {
     }
 
     /**
-    * Get a reference to a node by its 'path'.
-    *
-    * @param  mixed     path    Path to node. Can be either a string (slash-separated
-    *   children names) or an array (sequence of children names) both
-    *                           starting from this node. The first name in sequence
-    *   is a child name, not the name of this node.
-    *
-    * @return object    Reference to the XML_Tree_Node found, or PEAR_Error if
-    *                   the path does not match any node. Note that if more than
-    *                   one element matches then only the first matching node is
-    *                   returned.
-    * @access public
-    */
+     * Get a reference to a node by its 'path'.
+     *
+     * @param  mixed     path    Path to node. Can be either a string (slash-separated
+     *   children names) or an array (sequence of children names) both
+     *                           starting from this node. The first name in sequence
+     *   is a child name, not the name of this node.
+     *
+     * @return object    Reference to the XML_Tree_Node found, or PEAR_Error if
+     *                   the path does not match any node. Note that if more than
+     *                   one element matches then only the first matching node is
+     *                   returned.
+     * @access public
+     */
+
     function &getNodeAt($path)
     {
         if (is_string($path))
@@ -447,32 +509,27 @@ class XML_Tree_Node {
     }
 
     /**
-    * @deprecated
-    */
-    function &get_element($path)
-    {
-        return $this->getElement($path);
-    }
+     * Escape XML entities.
+     *
+     * @param   string  xml      Text string to escape.
+     *
+     * @return  string  xml
+     * @access  public
+     */
 
-    /**
-    * Escape XML entities.
-    *
-    * @param   string  xml      Text string to escape.
-    *
-    * @return  string  xml
-    * @access  public
-    */
     function encodeXmlEntities($xml)
     {
         $xml = str_replace(array('ü', 'Ü', 'ö',
                                  'Ö', 'ä', 'Ä',
-                                 'ß', '<', '>',
-                                 '"', '\''
+                                 'ß',
+                                //'<', '>',
+               //                  '"', '\''
                                 ),
                            array('&#252;', '&#220;', '&#246;',
                                  '&#214;', '&#228;', '&#196;',
-                                  '&#223;', '&lt;', '&gt;',
-                                  '&quot;', '&apos;'
+                                  '&#223;',
+                             //'&lt;', '&gt;',
+                            //      '&quot;', '&apos;'
                                 ),
                            $xml
                           );
@@ -494,13 +551,14 @@ class XML_Tree_Node {
     }
 
     /**
-    * Decode XML entities in a text string.
-    *
-    * @param   string  xml  Text to decode
-    *
-    * @return  string  Decoded text
-    * @access  public
-    */
+     * Decode XML entities in a text string.
+     *
+     * @param   string  xml  Text to decode
+     *
+     * @return  string  Decoded text
+     * @access  public
+     */
+
     function decodeXmlEntities($xml)
     {
         static $trans_tbl = null;
@@ -519,10 +577,11 @@ class XML_Tree_Node {
 
 
     /**
-    * Print text representation of XML_Tree_Node.
-    *
-    * @access  public
-    */
+     * Print text representation of XML_Tree_Node.
+     *
+     * @access  public
+     */
+
     function dump() {
         echo $this->get();
     }
