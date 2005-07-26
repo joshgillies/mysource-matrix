@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_order.inc,v 1.3 2005/07/25 07:11:48 skim Exp $
+* $Id: ecommerce_order.inc,v 1.4 2005/07/26 00:59:43 skim Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,17 +30,6 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 class Ecommerce_Order extends Asset
 {
 
-	/**
-	* Container for products information
-	*/
-	var $products;
-
-
-	/**
-	* Container for order information e.g. payment, delivery and so on
-	*/
-	var $processing_data;
-
 
 	/**
 	* Constructor
@@ -52,9 +41,6 @@ class Ecommerce_Order extends Asset
 	*/
 	function Ecommerce_Order($assetid=0)
 	{
-		$this->products = Array();
-		$this->processing_data = Array();
-
 		$this->_ser_attrs = true;
 		$this->Asset($assetid);
 
@@ -184,7 +170,7 @@ class Ecommerce_Order extends Asset
 	* The return value is in the form:
 	* <pre>
 	* Array(
-	*   'name' => 'description' => 'the asset name',
+	*   'keyword' => 'description'
 	* );
 	* </pre>
 	*
@@ -193,17 +179,37 @@ class Ecommerce_Order extends Asset
 	*/
 	function getAvailableKeywords()
 	{
-		$keywords = Array(
-						'checkout_assetid'	=> translate('ecom_order_keyword_checkout_assetid'),
-						'order_summary'		=> translate('ecom_order_keyword_order_summary'),
-						'status'			=> translate('ecom_order_keyword_status'),
-						'status_message'	=> translate('ecom_order_keyword_status_message'),
-						'edit_url'			=> translate('ecom_order_keyword_edit_url'),
-					);
+		$keywords = parent::getAvailableKeywords();
+
+		$keywords['checkout_assetid']	= translate('ecom_order_keyword_checkout_assetid');
+		$keywords['order_summary']		= translate('ecom_order_keyword_order_summary');
+		$keywords['status']				= translate('ecom_order_keyword_status');
+		$keywords['status_message']		= translate('ecom_order_keyword_status_message');
+		$keywords['edit_url']			= translate('ecom_order_keyword_edit_url');
 
 		return $keywords;
 
 	}//end getAvailableKeywords()
+
+
+	/**
+	* Get checkout asset id
+	*
+	* Get the asset id of checkout that created this order
+	*
+	* @return int
+	* @access private
+	*/
+	function _getCheckoutAssetId()
+	{
+		if (!isset($this->_tmp['checkout_asset'])) {
+			$link_to_checkout = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, 'ecommerce_checkout', true, 'checkout', 'minor');
+			$this->_tmp['checkout_asset'] = array_get_index($link_to_checkout, 'majorid', 0);
+		}
+
+		return $this->_tmp['checkout_asset'];
+
+	}//end _getCheckoutAssetId()
 
 
 	/**
@@ -216,13 +222,7 @@ class Ecommerce_Order extends Asset
 	*/
 	function getCheckoutAssetidKeywordReplacement()
 	{
-		$link_to_checkout = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE, 'ecommerce_checkout', true, 'minor');
-		if (!empty($link_to_checkout) && array_key_exists('majorid', $link_to_checkout[0])) {
-			return $link_to_checkout[0]['majorid'];
-		}
-
-
-		return 0;
+		return $this->_getCheckoutAssetId();
 
 	}//end getCheckoutAssetidKeywordReplacement()
 
@@ -274,8 +274,8 @@ class Ecommerce_Order extends Asset
 	*/
 	function getEditUrlKeywordReplacement()
 	{
-		// get ecommer checkout asset id
-		$id = $this->getCheckoutAssetidKeywordReplacement();
+		// get ecommerce checkout asset id
+		$id = $this->_getCheckoutAssetId();
 
 		// get url of checkout form and append extra variable
 		$url = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($id);
