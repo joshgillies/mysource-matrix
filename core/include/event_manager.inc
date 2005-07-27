@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: event_manager.inc,v 1.21 2005/06/24 05:12:01 ndvries Exp $
+* $Id: event_manager.inc,v 1.22 2005/07/27 09:25:31 brobertson Exp $
 *
 */
 
@@ -61,7 +61,7 @@
 * </PRE>
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix
 */
 class Event_Manager extends MySource_Object
@@ -192,7 +192,7 @@ class Event_Manager extends MySource_Object
 				return false;
 			}
 
-			require_once SQ_DATA_PATH.'/private/events/event_listeners.inc';
+			require SQ_DATA_PATH.'/private/events/event_listeners.inc';
 			if (!isset($cached_event_listeners_array)) {
 				return false;
 			}
@@ -275,9 +275,9 @@ class Event_Manager extends MySource_Object
 
 		if (empty($listeners)) return false;
 
+		$function = 'on'.$event_name;
 		for (reset($listeners); null !== ($key = key($listeners)); next($listeners)) {
 			$listener =& $listeners[$key];
-			$function = 'on'.$event_name;
 			if (!method_exists($listener, $function)) {
 				trigger_localised_error('SYS0127', E_USER_WARNING, $function, $listener->type(), $asset->id);
 				return false;
