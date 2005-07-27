@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: table-editor.js,v 1.5.2.5 2005/07/13 23:15:08 dmckee Exp $
+* $Id: table-editor.js,v 1.5.2.6 2005/07/27 09:59:17 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 

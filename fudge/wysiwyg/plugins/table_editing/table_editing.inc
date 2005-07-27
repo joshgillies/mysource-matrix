@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: table_editing.inc,v 1.21.2.2 2005/06/30 00:08:21 dmckee Exp $
+* $Id: table_editing.inc,v 1.21.2.3 2005/07/27 09:59:17 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 

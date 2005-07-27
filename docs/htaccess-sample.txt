@@ -2,7 +2,7 @@
 # | MySource Matrix - Sample .htaccess file                            |
 # +--------------------------------------------------------------------+
 #
-# $Id: htaccess-sample.txt,v 1.2 2004/12/03 00:32:20 amiller Exp $
+# $Id: htaccess-sample.txt,v 1.2.4.1 2005/07/27 09:53:12 brobertson Exp $
 # $Name: not supported by cvs2svn $
 #
 
