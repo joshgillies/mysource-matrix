@@ -16,7 +16,7 @@
 -- | licence.                                                           |
 -- +--------------------------------------------------------------------+
 --
--- $Id: pgsql_functions.sql,v 1.1.2.4 2005/07/22 07:14:30 lwright Exp $
+-- $Id: pgsql_functions.sql,v 1.1.2.5 2005/07/27 11:42:28 brobertson Exp $
 -- @author Marc McIntyre <mmcintyre@squiz.net>
 
 -- creates a function that grants access to the secondary user.
@@ -157,7 +157,7 @@ END;
 -- returns the parent treeids for the specified assetid
 -- if timestamp is null then the function will assume that we are not in rollback mode
 -- if the timestamp is valid the function will return the treeids from the rollback tables
-CREATE OR REPLACE FUNCTION sq_get_parent_treeids(ANYELEMENT, INT, TIMESTAMP) RETURNS ANYARRAY AS '
+CREATE OR REPLACE FUNCTION sq_get_parent_treeids(VARCHAR, INT, TIMESTAMP) RETURNS BYTEA[] AS '
 DECLARE
 	treeids RECORD;
 	offset int;
