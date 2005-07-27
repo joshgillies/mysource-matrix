@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.109 2005/07/26 06:03:29 lwright Exp $
+* $Id: search_page.inc,v 1.110 2005/07/27 03:03:50 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.109 $
+* @version $Revision: 1.110 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -65,6 +65,8 @@ class Search_Page extends Listing_Engine
 											'submit_button',
 											'results_per_page',
 											'structured_search_location',
+											'category_list',
+											'category_list_linked',
 										   ),
 						'results'		=> Array(
 											'result_list',
@@ -76,6 +78,7 @@ class Search_Page extends Listing_Engine
 											'next_result_page_link',
 											'initial_layout',
 											'category_list_linked',
+											'category_list',
 											'structured_search_location',
 										   ),
 						'no_results'	=> Array(
