@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.76.2.4 2005/07/04 03:52:03 pgannavarapu Exp $
+* $Id: design.inc,v 1.76.2.5 2005/07/27 13:05:08 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -570,6 +570,12 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 			break;
 
 			case 'html_footer' :
+			break;
+
+			case 'content_type' :
+				if (!empty($args['content_type'])) {
+					echo '<', '?php header('.var_export('Content-type: '.$args['content_type'], 1).'); ?', '>';
+				}
 			break;
 
 			case 'site_link' :
