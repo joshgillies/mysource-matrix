@@ -11,8 +11,8 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_ecommerce_cart.inc,v 1.4 2005/06/20 05:33:48 lwright Exp $
-* $Name: not supported by cvs2svn $
+* $Id: design_area_ecommerce_cart.inc,v 1.5 2005/07/27 11:09:44 brobertson Exp $
+*
 */
 
 

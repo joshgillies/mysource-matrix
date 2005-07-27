@@ -11,8 +11,8 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: order_edit_fns.inc,v 1.2 2005/04/29 05:39:36 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: order_edit_fns.inc,v 1.3 2005/07/27 11:09:45 brobertson Exp $
+*
 */
 
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/cms/form/form_submission/form_submission_edit_fn
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */

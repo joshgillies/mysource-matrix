@@ -11,8 +11,8 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_order_management.inc,v 1.4 2005/07/27 04:49:33 lwright Exp $
-* $Name: not supported by cvs2svn $
+* $Id: ecommerce_order_management.inc,v 1.5 2005/07/27 11:09:44 brobertson Exp $
+*
 */
 
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */

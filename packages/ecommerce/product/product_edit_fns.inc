@@ -11,8 +11,8 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
  *
- * $Id: product_edit_fns.inc,v 1.5 2005/04/29 05:39:37 gsherwood Exp $
- * $Name: not supported by cvs2svn $
+ * $Id: product_edit_fns.inc,v 1.6 2005/07/27 11:09:45 brobertson Exp $
+ *
  */
 
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */

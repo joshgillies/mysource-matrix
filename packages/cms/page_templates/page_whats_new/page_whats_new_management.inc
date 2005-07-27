@@ -11,8 +11,8 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_whats_new_management.inc,v 1.13 2005/07/21 07:41:54 lwright Exp $
-* $Name: not supported by cvs2svn $
+* $Id: page_whats_new_management.inc,v 1.14 2005/07/27 11:09:20 brobertson Exp $
+*
 */
 
 require_once SQ_INCLUDE_PATH.'/asset_management.inc';
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */

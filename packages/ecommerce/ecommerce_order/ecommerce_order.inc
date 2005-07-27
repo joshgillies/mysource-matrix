@@ -11,8 +11,8 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_order.inc,v 1.5 2005/07/27 04:18:01 skim Exp $
-* $Name: not supported by cvs2svn $
+* $Id: ecommerce_order.inc,v 1.6 2005/07/27 11:09:44 brobertson Exp $
+*
 */
 
 require_once SQ_INCLUDE_PATH.'/asset.inc';

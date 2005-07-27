@@ -11,8 +11,8 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_order_edit_fns.inc,v 1.1 2005/07/22 07:28:55 skim Exp $
-* $Name: not supported by cvs2svn $
+* $Id: ecommerce_order_edit_fns.inc,v 1.2 2005/07/27 11:09:44 brobertson Exp $
+*
 */
 
 require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
