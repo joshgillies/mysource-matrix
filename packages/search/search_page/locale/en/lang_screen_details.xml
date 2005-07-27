@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.6 2005/07/26 05:18:07 lwright Exp $
+* $Id: lang_screen_details.xml,v 1.7 2005/07/27 02:14:12 dmckee Exp $
 *
 */
 -->
@@ -107,6 +107,32 @@
 			<function_call>
 				<paint_function   name="paintThesaurusAsset" />
 				<process_function name="processThesaurusAsset" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Structured Root Selector Options" write_access="write:attributes">
+		<field>
+			<display_name>Name of Dropdown Box:</display_name>
+			<note>*This must be set as a dynamic parameter in the above section to function correctly</note>
+			<function_call>
+				<paint_function   name="paintStructuredName"   />
+				<process_function name="processStructuredName" />
+			</function_call>
+		</field>
+		<field>
+			<display_name>Root Node of Selector:</display_name>
+			<note></note>
+			<function_call>
+				<paint_function   name="paintStructuredRoot"   />
+				<process_function name="processStructuredRoot" />
+			</function_call>
+		</field>
+		<field>
+			<display_name>Asset Types to List</display_name>
+			<note></note>
+			<function_call>
+				<paint_function   name="paintStructuredTypes"   />
+				<process_function name="processStructuredTypes" />
 			</function_call>
 		</field>
 	</section>
