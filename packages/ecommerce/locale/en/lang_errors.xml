@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.6 2005/07/25 00:36:07 skim Exp $
+* $Id: lang_errors.xml,v 1.7 2005/07/27 04:20:23 skim Exp $
 *
 */
 
@@ -33,9 +33,9 @@
 	<error code="ECOM0010">Cannot update an item with a negative quantity</error>
 	<error code="ECOM0011">There was no active cart found</error>
 	<error code="ECOM0012">Invalid quantity entered</error>
-	<error code="ECOM0013">Could not get an Ecommerce Order Summary during the creation</error>
+	<error code="ECOM0013">Delivery method not found during the confirmation</error>
 	<error code="ECOM0014">Ecommerce Order can not be created without products</error>
-	<error code="ECOM0015">Delivery input data processing failed</error>
+	<error code="ECOM0015">Delivery processing failed</error>
 	<error code="ECOM0016">The ecommerce cart is empty, cannot checkout</error>
 	<error code="ECOM0017">Ecommerce Checkout Bodycopy Folder is missing</error>
 	<error code="ECOM0018">Unable to create Ecommerce Order</error>
@@ -44,4 +44,5 @@
 	<error code="ECOM0021">Ecommerce Order creation failed during saving attributes</error>
 	<error code="ECOM0022">Unable to acquire lock on Ecommerce Order. Save failed</error>
 	<error code="ECOM0023">Unable to create Ecommerce Order</error>
+
 </errors>
