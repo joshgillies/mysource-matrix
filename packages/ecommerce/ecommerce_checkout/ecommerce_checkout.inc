@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.21 2005/07/27 04:15:30 skim Exp $
+* $Id: ecommerce_checkout.inc,v 1.22 2005/07/27 06:45:18 arailean Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 * @author  Andrei Railean	<arailean@squiz.net>
 * @author  Scott Kim		<skim@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -194,6 +194,10 @@ class Ecommerce_Checkout extends Page
 						return;
 					}
 
+					if (isset($_SESSION['SQ_TEMP_ORDER']['delivery_state']) && ($_SESSION['SQ_TEMP_ORDER']['delivery_id'] == $delivery_method_id)) {
+						$delivery_asset->setState($_SESSION['SQ_TEMP_ORDER']['delivery_state']);
+					}
+
 					if (!$delivery_asset->processInputInterface()){
 						$this->_tmp['delivery_method_errors'] = $delivery_asset->getErrors();
 						$success = false;
@@ -249,7 +253,7 @@ class Ecommerce_Checkout extends Page
 					if (is_null($order_asset)){
 						trigger_localised_error('ECOM0018', E_USER_WARNING);
 						$this->print_context = 'failure';
-						return;
+						break;
 					}
 				}
 
@@ -278,11 +282,12 @@ class Ecommerce_Checkout extends Page
 				}
 				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
+				if ($this->print_context !== 'failure') {
+					$this->print_context = 'receipt';
+				}
+
 				// temporary order is pending deletion
 				$this->_tmp['delete_tmp_order_after_printing'] = true;
-
-				$this->print_context = 'receipt';
-
 			break;
 
 		}
