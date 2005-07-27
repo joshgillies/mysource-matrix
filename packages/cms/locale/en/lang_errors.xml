@@ -12,7 +12,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.3 2005/05/02 02:30:03 arailean Exp $
+* $Id: lang_errors.xml,v 1.4 2005/07/27 09:46:35 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -165,5 +165,8 @@
 
 	<error code="CMS0051">Failed saving sorting option "%s". You did not define the asset types to list.</error>
 		<!-- packages/cms/listing_engine/listing_engine_edit_fns.inc:1113: -->
+
+	<error code="CMS0052">Failed adding Groups Format folder to %s (#%s).</error>
+		<!-- packages/cms/listing_engine/listing_engine_management.inc:_upgrade(): -->
 
 </errors>
