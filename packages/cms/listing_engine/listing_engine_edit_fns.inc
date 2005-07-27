@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.25 2005/07/27 02:15:30 dmckee Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.26 2005/07/27 02:29:03 dmckee Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2743,7 +2743,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		} else {
 			// print the read-only version
 			if (empty($types)) {
-				echo '<p class="sq-backend-warning">'.translate('cms_listing_no_asset_types_chosen').'</p>';
+				echo '<p class="sq-backend-warning">'.translate('cms_listing_no_asset_types_selected').'</p>';
 			} else {
 				$type_names = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo(array_keys($types), 'name');
 				?>
