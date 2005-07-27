@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.20 2005/07/26 01:15:23 arailean Exp $
+* $Id: ecommerce_checkout.inc,v 1.21 2005/07/27 04:15:30 skim Exp $
 *
 */
 
@@ -27,8 +27,9 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 * Purpose
 *
 *
-* @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.20 $
+* @author  Andrei Railean	<arailean@squiz.net>
+* @author  Scott Kim		<skim@squiz.net>
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -140,6 +141,10 @@ class Ecommerce_Checkout extends Page
 		// determine context
 		$this->_printContext();
 
+		if (array_get_index($this->_tmp, 'delete_tmp_order_after_printing', false)) {
+			$_SESSION['SQ_TEMP_ORDER'] = Array();
+		}
+
 	}//end printBody()
 
 
@@ -154,37 +159,49 @@ class Ecommerce_Checkout extends Page
 	*/
 	function _processInterface()
 	{
+		$cart =& new Ecommerce_Cart_Processor();
+
+		//check the passed Order ID
+		$order_id = array_get_index($_REQUEST, 'edit_order_id', 0);
+		if (!empty($order_id)) {
+			$order =& $GLOBALS['SQ_SYSTEM']->am->getAsset($order_id);
+
+			$_SESSION['SQ_TEMP_ORDER']['order_id']			= $order->id;
+			$_SESSION['SQ_TEMP_ORDER']['delivery_id']		= $order->attr('delivery_id');
+			$_SESSION['SQ_TEMP_ORDER']['delivery_state']	= $order->attr('delivery_state');
+			$_SESSION['SQ_TEMP_ORDER']['cart_contents']		= $order->attr('products');
+
+			$cart->setCartContents($_SESSION['SQ_TEMP_ORDER']['cart_contents']);
+
+			$this->print_context = 'checkout';
+			return;
+		}
+
 		$request_action = array_get_index($_REQUEST, $this->getPrefix().'_action');
 		if (empty($request_action)) return;
 
 		$action = key($request_action);
 		$success = true;
 
-		$cart =& new Ecommerce_Cart_Processor();
 		switch ($action) {
 			case 'go_to_confirmation':
 				$delivery_method_id = array_get_index($_REQUEST, 'sq_delivery_method_id');
 				if (!empty($delivery_method_id)) {
-					$this->_tmp['delivery_method_id'] = $delivery_method_id;
 
 					$delivery_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($delivery_method_id);
-					if (!empty($delivery_asset)) {
-						$delivery_status = $delivery_asset->processInputInterface();
-						$delivery_state = $delivery_asset->getState();
-						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($delivery_asset);
-					} else {
+					if (empty($delivery_asset)) {
 						$this->print_context = 'checkout';
 						return;
 					}
 
-					// create a temporary order
-					$_SESSION['SQ_TEMP_ORDER']['delivery_id']		= $delivery_method_id;
-					$_SESSION['SQ_TEMP_ORDER']['delivery_state']	= $delivery_state;
-
-					if (!$delivery_status){
-						trigger_localised_error('ECOM0015', E_USER_WARNING);
+					if (!$delivery_asset->processInputInterface()){
+						$this->_tmp['delivery_method_errors'] = $delivery_asset->getErrors();
 						$success = false;
 					}
+
+					// create a temporary order
+					$_SESSION['SQ_TEMP_ORDER']['delivery_id']		= $delivery_method_id;
+					$_SESSION['SQ_TEMP_ORDER']['delivery_state']	= $delivery_asset->getState();
 				}
 
 				// if cart is empty, there's no point in checking out
@@ -203,6 +220,8 @@ class Ecommerce_Checkout extends Page
 					$this->print_context = 'checkout';
 				}
 
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($delivery_asset);
+
 			break;
 
 			case 'return_to_checkout':
@@ -215,39 +234,52 @@ class Ecommerce_Checkout extends Page
 				// delivery processing
 				$dm =& $this->_getActiveDeliveryMethod();
 				if (empty($dm)){
-					// TODO: Localise
-					trigger_error('Delivery Method Not Found');
+					trigger_localised_error('ECOM0013', E_USER_WARNING);
 					$this->print_context = 'failure';
 					break;
 				}
 
-				$order_summary = $dm->getSummary();
-
 				// check whether we're editing an order or creating a new one
 				if (!empty($_SESSION['SQ_TEMP_ORDER']['order_id'])) {
-					$order_asset =& $GLOBALS['SQ_SYSTEM']->getAsset($_SESSION['SQ_TEMP_ORDER']['order_id']);
-					// get order
+					$order_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($_SESSION['SQ_TEMP_ORDER']['order_id']);
 				}
 
 				if (empty($order_asset)) {
-					$order_asset =& $this->_createOrder($_SESSION['SQ_TEMP_ORDER']['cart_contents'], $order_summary);
-				} else {
-					$order_asset->setAttrValue('summary', $order_summary);
+					$order_asset =& $this->_createOrder($_SESSION['SQ_TEMP_ORDER']['cart_contents']);
+					if (is_null($order_asset)){
+						trigger_localised_error('ECOM0018', E_USER_WARNING);
+						$this->print_context = 'failure';
+						return;
+					}
 				}
 
 #				$delivery_processing_status = $dm->processDelivery(&$order_asset);
 				$delivery_processing_status = $dm->processDelivery();
+
 				$_SESSION['SQ_TEMP_ORDER']['delivery_state'] = $dm->getState();
 
+				// TODO:Delivery Method, $dm->getSummary()
+				$order_summary = 'Hello, This is a test summary';//$dm->getSummary();
+
+				$order_asset->setAttrValue('summary', $order_summary);
+				$order_asset->setAttrValue('delivery_id',    $_SESSION['SQ_TEMP_ORDER']['delivery_id']);
+				$order_asset->setAttrValue('delivery_state', $_SESSION['SQ_TEMP_ORDER']['delivery_state']);
+
 				if (!$delivery_processing_status){
-					// TODO: Localise
-					trigger_error('Delivery Processing Failed');
+					$order_asset->setAttrValue('status', 'failed');
+					trigger_localised_error('ECOM0015', E_USER_WARNING);
 					$this->print_context = 'failure';
 				}
 
-				// unset temporary order
-				$this->_tmp['cart_items'] = $_SESSION['SQ_TEMP_ORDER']['cart_contents'];
-				unset($_SESSION['SQ_TEMP_ORDER']['cart_contents']);
+				// Save attributes, LOCKING
+				$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+				if (!$order_asset->saveAttributes()) {
+					$this->print_context = 'failure';
+				}
+				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+
+				// temporary order is pending deletion
+				$this->_tmp['delete_tmp_order_after_printing'] = true;
 
 				$this->print_context = 'receipt';
 
@@ -287,7 +319,7 @@ class Ecommerce_Checkout extends Page
 		}
 
 		$content_bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($bodycopy_folder_link['minorid'], SQ_LINK_TYPE_2, 'bodycopy', true, $this->print_context);
-		$content_bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($content_bodycopy_link['minorid'], $content_bodycopy_link['minor_type_code']);
+		$content_bodycopy =& $GLOBALS['SQ_SYSTEM']->am->getAsset($content_bodycopy_link['minorid'], $content_bodycopy_link['minor_type_code']);
 		if (is_null($content_bodycopy)) {
 			trigger_localised_error('ECOM0018', E_USER_WARNING);
 			return;
@@ -397,32 +429,29 @@ class Ecommerce_Checkout extends Page
 	* @access private
 	* @return Ecommerce_Order
 	*/
-	function &_createOrder($cart_items, $order_summary)
+	function &_createOrder($cart_items)
 	{
 		// error flag
 		$success = true;
 
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
 
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
-		// set runlevel
-		$run_level_changed = false;
-		if (!$GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_RUN_LEVEL_FORCED)) {
-			$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
-			$run_level_changed = true;
-		}
-
 		// create ecommerce order under orders folder
 		$order_folder_link  = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', true, 'orders');
 		if (empty($order_folder_link)) {
 			trigger_localised_error('ECOM0017', E_USER_WARNING);
-		} else {
-			$order_folder_id = $order_folder_link['minorid'];
+			return null;
 		}
-		$orders_folder =& $am->getAsset($order_folder_id);
+		$order_folder_id = $order_folder_link['minorid'];
 
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		// set runlevel
+		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+
+		$orders_folder =& $am->getAsset($order_folder_id);
 		$ecommerce_order =& new Ecommerce_Order();
+
 		$order_link = Array(
 						'asset'		=> &$orders_folder,
 						'link_type'	=> SQ_LINK_TYPE_2,
@@ -433,14 +462,6 @@ class Ecommerce_Checkout extends Page
 			$success = false;
 		}
 
-		// set summary
-		if ($success && !empty($order_summary)) {
-			$ecommerce_order->setAttrValue('summary', $order_summary);
-		} else {
-			trigger_localised_error('ECOM0013', E_USER_WARNING);
-			$success = false;
-		}
-
 		// add products from the session(cart) to ecommerce order
 		if ($success && !empty($cart_items)) {
 			$ecommerce_order->setAttrValue('products', $cart_items);
@@ -448,16 +469,13 @@ class Ecommerce_Checkout extends Page
 			trigger_localised_error('ECOM0014', E_USER_WARNING);
 			$success = false;
 		}
-/*
-		// add products from the session(cart) to ecommerce order
-		if ($success && !empty($processing_data)) {
-			$success = $ecommerce_order->setAttrValue('processing_data', $processing_data);
-		}
-*/
+
 		// notice link from Checkout_Form to Ecommerce_Order
+//		$am->acquireLock($this->id, 'links');
 		if ($success && ($am->createAssetLink($this, $ecommerce_order, SQ_LINK_NOTICE, 'checkout') == 0)) {
 			$success = false;
 		}
+//		$am->releaseLock($this->id, 'links');
 
 		// save attributes
 		if (!$am->acquireLock($ecommerce_order->id, 'attributes')) {
@@ -472,10 +490,8 @@ class Ecommerce_Checkout extends Page
 		}
 		$am->releaseLock($ecommerce_order->id, 'attributes');
 
-		// if changed
-		if ($run_level_changed) {
-			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
-		}
+		// restore runlevel
+		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
 		if (!$success) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -681,7 +697,10 @@ class Ecommerce_Checkout extends Page
 	{
 		$keywords['delivery_selector']			= translate('ecom_checkout_keyword_delivery_selector');
 		$keywords['delivery_interface'] 		= translate('ecom_checkout_keyword_delivery_interface');
+		$keywords['error_messages']				= translate('ecom_checkout_keyword_error_messages');
 		$keywords['go_to_confirmation_button']	= translate('ecom_checkout_keyword_go_to_confirmation_button');
+
+		$keywords['cart_summary']				= translate('ecom_checkout_keyword_cart_summary');
 
 		return $keywords;
 
@@ -699,6 +718,7 @@ class Ecommerce_Checkout extends Page
 		$keywords['checkout_summary']			= translate('ecom_checkout_keyword_checkout_summary');
 		$keywords['confirm_order_button']		= translate('ecom_checkout_keyword_confirm_order_button');
 		$keywords['return_to_checkout_button']	= translate('ecom_checkout_keyword_return_to_checkout_button');
+		$keywords['cart_summary']				= translate('ecom_checkout_keyword_cart_summary');
 
 		return $keywords;
 
@@ -747,7 +767,9 @@ class Ecommerce_Checkout extends Page
 	*/
 	function getDeliverySelectorKeywordReplacement()
 	{
-		$multiple_asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($this->_getDeliveryAssetIds());
+		$delivery_ids = $this->_getDeliveryAssetIds();
+		$multiple_asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($delivery_ids);
+
 
 		$selection_contents = Array(); //Array('' => '-- '.translate('ecom_checkout_select_delivery_method').' --');
 		foreach ($multiple_asset_info as $assetid => $asset_info) {
@@ -756,12 +778,16 @@ class Ecommerce_Checkout extends Page
 
 		$active_delivery_method_id = $this->_getActiveDeliveryMethodId();
 
+		if (is_null($active_delivery_method_id )) {
+			$active_delivery_method_id = array_shift($delivery_ids);
+		}
+
 		$this->_registerFormRequirement();
 		ob_start();
 			?>
 			<script type="text/javascript">
 				//<![CDATA[
-				var current_method_id = <?php echo is_null($active_delivery_method_id)?'null':$active_delivery_method_id; ?> ;
+				var current_method_id = <?php echo $active_delivery_method_id; ?> ;
 
 				function handleDeliverySelectChange(field) {
 					selected_id = field.options[field.selectedIndex].value;
@@ -769,7 +795,6 @@ class Ecommerce_Checkout extends Page
 					if ( current_method_id != null ) {
 						document.getElementById('sq_delivery_method_' + current_method_id).style.display = 'none';
 					}
-
 					current_method_id = selected_id;
 					document.getElementById('sq_delivery_method_' + current_method_id).style.display = 'block';
 
@@ -794,14 +819,21 @@ class Ecommerce_Checkout extends Page
 	function getDeliveryInterfaceKeywordReplacement()
 	{
 
+		$delivery_ids = $this->_getDeliveryAssetIds();
 		$active_delivery_method =& $this->_getActiveDeliveryMethod();
+
+		if (is_null($active_delivery_method )) {
+			$active_delivery_method_id = array_shift($delivery_ids);
+		} else {
+			$active_delivery_method_id = $active_delivery_method->id;
+		}
 
 		$this->_registerFormRequirement();
 		ob_start();
 		foreach ($this->_getDeliveryAssetIds() as $one_assetid) {
 			$delivery_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($one_assetid);
 
-			if (!is_null($active_delivery_method) && ($active_delivery_method->id == $one_assetid)) {
+			if ($active_delivery_method_id == $one_assetid) {
 				$display = 'block';
 			} else {
 				$display = 'none';
@@ -919,6 +951,44 @@ class Ecommerce_Checkout extends Page
 		return 'Error Message';
 
 	}//end getProcessingErrorMessageKeywordReplacement()
+
+
+	/**
+	* Get Keyword Replacement for 'cart_summary' keyword
+	*
+	* @return string	replacement
+	* @access public
+	*/
+	function getCartSummaryKeywordReplacement()
+	{
+		$cart =& new Ecommerce_Cart_Processor();
+		ob_start();
+			echo '<pre>';
+			echo $cart->printReceipt();
+			echo '</pre>';
+		return ob_get_clean();
+
+	}//end getCartSummaryKeywordReplacement()
+
+
+	/**
+	* Get Keyword Replacement for 'error_messages' keyword
+	*
+	* @return string	replacement
+	* @access public
+	*/
+	function getErrorMessagesKeywordReplacement()
+	{
+		ob_start();
+			echo '<ul>';
+			// error from delivery method
+			foreach ($this->_tmp['delivery_method_errors'] as $message) {
+				echo '<li>'.htmlspecialchars($message).'</li>';
+			}
+			echo '</ul>';
+		return ob_get_clean();
+
+	}//end getErrorMessagesKeywordReplacement()
 
 
 }//end class
