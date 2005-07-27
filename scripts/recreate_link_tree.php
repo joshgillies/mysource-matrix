@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: recreate_link_tree.php,v 1.13 2005/07/12 03:36:11 lwright Exp $
+* $Id: recreate_link_tree.php,v 1.14 2005/07/27 10:11:27 brobertson Exp $
 *
 */
 
@@ -30,12 +30,17 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix
 */
 
 require_once dirname(dirname(__FILE__)).'/core/include/init.inc';
 require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+
+$root_user = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
+	trigger_error("Failed logging in as root user\n", E_USER_ERROR);
+}
 
 $db = &$GLOBALS['SQ_SYSTEM']->db;
 
@@ -79,6 +84,7 @@ function recurse_tree_create($majorid)
 	}
 
 	// now search for child links and give them treeids
+	$echo_i = 0;
 	for (reset($links); null !== ($k = key($links)); next($links)) {
 		$link =& $links[$k];
 
@@ -92,7 +98,10 @@ function recurse_tree_create($majorid)
 			}
 		}
 		$link['num_kids'] = count($child_links);
+		$echo_i++;
+		if ($echo_i % 50 == 0) echo '.';
 	}
+	echo "\n";
 
 	bam('RE-CREATING TREE ENTRIES...');
 
