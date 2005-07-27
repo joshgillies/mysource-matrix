@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart_management.inc,v 1.7 2005/07/21 07:55:05 lwright Exp $
+* $Id: ecommerce_cart_management.inc,v 1.8 2005/07/27 00:03:01 rhoward Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -43,19 +43,22 @@ class Ecommerce_Cart_Management extends Asset_Management
 		$this->vars = Array(
 						'name'				=> Array(
 												'added'			=> '0.0.1',
-												'type'			=> 'text',  'default'   => '',
+												'type'			=> 'text',
+												'default'		=> '',
 												'description'	=> 'The full name of the cart',
 												'update_fn'		=> '',
 											   ),
 						'short_name'		=> Array(
 												'added'			=> '0.0.1',
-												'type'			=> 'text',  'default'   => '',
+												'type'			=> 'text',
+												'default'		=> '',
 												'description'	=> 'The short name of the cart',
 												'update_fn'		=> '',
 											   ),
 						'ecom_form_id'		=> Array(
 												'added'			=> '0.0.1',
 												'type'			=> 'assetid',
+												'default'		=> 0,
 												'description'	=> 'The assetid of the ecommerce form that we are connected with',
 											   ),
 						'show_price'		=> Array(
