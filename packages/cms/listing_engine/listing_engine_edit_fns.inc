@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.24 2005/07/25 23:22:41 dmckee Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.25 2005/07/27 02:15:30 dmckee Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2619,7 +2619,6 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	{
 		$options = $asset->attr('structured_dropdown_options');
 		// need to have write access to make any changes
-		$o->openField(translate('cms_name_of_dropdown'));
 		if (!$asset->writeAccess('attributes')) {
 			echo $options['name'];
 		} else {
@@ -2634,7 +2633,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 			return false;
 		}
 		text_box($prefix.'_structured_all_text', $options['all_text']);
-		$o->closeField();
+
 		return $asset->writeAccess('attributes');
 
 	}//end paintStructuredName()
@@ -2682,18 +2681,17 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	function paintStructuredRoot(&$asset, &$o, $prefix)
 	{
 		$options = $asset->attr('structured_dropdown_options');
-		$o->openField(translate('cms_selector_root_node'));
-			if ($asset->writeAccess('attributes')) {
-				asset_finder($prefix.'_structured_root', $options['root_node']);
+
+		if ($asset->writeAccess('attributes')) {
+			asset_finder($prefix.'_structured_root', $options['root_node']);
+		} else {
+			$root_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($options['root_node']));
+			if (!empty($root_info)) {
+				echo $root_info[$options['root_node']]['name'].' (#'.$options['root_node'].')';
 			} else {
-				$root_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($options['root_node']));
-				if (!empty($root_info)) {
-					echo $root_info[$options['root_node']]['name'].' (#'.$options['root_node'].')';
-				} else {
-					echo translate('cms_no_root_selected');
-				}
+				echo translate('cms_no_root_selected');
 			}
-		$o->closeField();
+		}
 	}//end paintStructuredRoot()
 
 
@@ -2731,8 +2729,6 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	function paintStructuredTypes(&$asset, &$o, $prefix)
 	{
 		$options = $asset->attr('structured_dropdown_options');
-
-		$o->openField(translate('cms_asset_types_to_list'));
 
 		$types = $options['asset_types'];
 		if ($asset->writeAccess('content')) {
@@ -2774,7 +2770,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 			}
 			return false;
 		}
-		$o->closeField();
+
 		return true;
 	}//end paintStructuredTypes()
 
