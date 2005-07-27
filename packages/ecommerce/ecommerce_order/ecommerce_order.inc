@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_order.inc,v 1.4 2005/07/26 00:59:43 skim Exp $
+* $Id: ecommerce_order.inc,v 1.5 2005/07/27 04:18:01 skim Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -287,7 +287,8 @@ class Ecommerce_Order extends Asset
 			strstr($url, '?') ? $connector = '&' : $connector = '?';
 		}
 		$url .= $connector.'edit_order_id='.$this->id;
-		return $url;
+
+		return '<a href="'.$url.'">'.$url.'</a>';
 
 	}//end getEditUrlKeywordReplacement()
 
