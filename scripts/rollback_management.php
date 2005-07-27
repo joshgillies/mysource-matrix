@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: rollback_management.php,v 1.7 2005/02/23 05:49:03 gsherwood Exp $
+* $Id: rollback_management.php,v 1.7.2.1 2005/07/27 04:48:43 gsherwood Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.7.2.1 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -224,26 +224,12 @@ function open_rollback_entries($table_name, $date)
 */
 function align_rollback_entries($table_name, $date)
 {
-	global $SQ_TABLE_COLUMNS, $db, $QUIET;
+	global $db, $QUIET;
 
-	// if we have any unique keys, these will override the primary keys
-	if (isset($SQ_TABLE_COLUMNS[$table_name]['unique_key'])) {
-		$primary_keys = $SQ_TABLE_COLUMNS[$table_name]['unique_key'];
-	} else {
-		$primary_keys = $SQ_TABLE_COLUMNS[$table_name]['primary_key'];
-	}
-
-	$update_concat = '('.implode(' || ', $primary_keys).' || '.SQ_TABLE_PREFIX.'eff_from)';
-	$select_concat = '('.implode(' || ', $primary_keys).' || MIN('.SQ_TABLE_PREFIX.'eff_from))';
-
-	$update = 'UPDATE '.SQ_TABLE_ROLLBACK_PREFIX.$table_name.' SET '.SQ_TABLE_PREFIX.'eff_from = '.$db->quote($date).'
-		   WHERE '.$update_concat.' IN ';
-
-	$select = 'SELECT '.$select_concat.' FROM '.SQ_TABLE_ROLLBACK_PREFIX.$table_name.'
-		   WHERE '.SQ_TABLE_PREFIX.'eff_from < '.$db->quote($date).' GROUP BY '.implode(',', $primary_keys);
-
-	$affected_rows = 0;
-	$result = $db->query($update.'('.$select.')');
+	$sql = 'UPDATE '.SQ_TABLE_ROLLBACK_PREFIX.$table_name.'
+			SET '.SQ_TABLE_PREFIX.'eff_from = '.$db->quote($date).'
+			WHERE '.SQ_TABLE_PREFIX.'eff_from < '.$db->quote($date);
+	$result = $db->query($sql);
 	assert_valid_db_result($result);
 	$affected_rows = $db->affectedRows();
 	assert_valid_db_result($affected_rows);
