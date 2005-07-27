@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.33 2005/07/13 01:58:08 mmcintyre Exp $
+* $Id: text.inc,v 1.34 2005/07/27 05:42:58 dmckee Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *    <text width="40" height="4" />
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -169,7 +169,7 @@ class Asset_Attribute_Text extends Asset_Attribute
 	function paint($prefix, $read_only=false)
 	{
 		if ($read_only) {
-			echo htmlspecialchars(nl2br($this->value));
+			echo nl2br(htmlspecialchars($this->value));
 			return;
 		}
 
