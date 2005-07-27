@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.6 2005/07/21 07:41:48 lwright Exp $
+* $Id: lang_screen_details.xml,v 1.7 2005/07/27 03:42:16 dmckee Exp $
 *
 */
 -->
@@ -113,6 +113,32 @@
 		<field attribute="reset_button_text">
 				<display_name>Reset Button Text</display_name>
 				<note />
+		</field>
+	</section>
+	<section name="Structured Root Selector Options" write_access="write:attributes">
+		<field>
+			<display_name>Name of Dropdown Box:</display_name>
+			<note>*This must be set as a dynamic parameter in the above section to function correctly</note>
+			<function_call>
+				<paint_function   name="paintStructuredName"   />
+				<process_function name="processStructuredName" />
+			</function_call>
+		</field>
+		<field>
+			<display_name>Root Node of Selector:</display_name>
+			<note></note>
+			<function_call>
+				<paint_function   name="paintStructuredRoot"   />
+				<process_function name="processStructuredRoot" />
+			</function_call>
+		</field>
+		<field>
+			<display_name>Asset Types to List</display_name>
+			<note></note>
+			<function_call>
+				<paint_function   name="paintStructuredTypes"   />
+				<process_function name="processStructuredTypes" />
+			</function_call>
 		</field>
 	</section>
 </contents>
