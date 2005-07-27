@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: recreate_link_tree.php,v 1.11.2.1 2005/07/05 06:11:49 lwright Exp $
+* $Id: recreate_link_tree.php,v 1.11.2.2 2005/07/27 10:09:32 brobertson Exp $
 *
 */
 
@@ -30,15 +30,28 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.11.2.1 $
+* @version $Revision: 1.11.2.2 $
 * @package MySource_Matrix
 */
 
 require_once dirname(dirname(__FILE__)).'/core/include/init.inc';
 require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 
+$root_user = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
+	trigger_error("Failed logging in as root user\n", E_USER_ERROR);
+}
+
 $db = &$GLOBALS['SQ_SYSTEM']->db;
 
+/**
+* Re-creates the link tree table starting from th
+*
+* @param string		$majorid		the ID of the asset you wish to re-create the tree from
+*
+* @return void
+* @access public
+*/
 function recurse_tree_create($majorid)
 {
 	$db =& $GLOBALS['SQ_SYSTEM']->db;
@@ -61,7 +74,7 @@ function recurse_tree_create($majorid)
 
 	// reorder them so that it's indexed by their prospective treeid
 	$child_index = 0;
-	foreach($top_links as $link) {
+	foreach ($top_links as $link) {
 		$treeid = asset_link_treeid_convert($child_index,true);
 		if ($link['linkid'] != 0) {
 			$links[$treeid] = $link;
@@ -70,12 +83,13 @@ function recurse_tree_create($majorid)
 	}
 
 	// now search for child links and give them treeids
-	for(reset($links); null !== ($k = key($links)); next($links)) {
+	$echo_i = 0;
+	for (reset($links); null !== ($k = key($links)); next($links)) {
 		$link =& $links[$k];
 
 		$child_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($link['minorid'], SQ_SC_LINK_SIGNIFICANT);
 		$child_index = 0;
-		foreach($child_links as $child_link) {
+		foreach ($child_links as $child_link) {
 			$treeid = $k.asset_link_treeid_convert($child_index,true);
 			if ($child_link['linkid'] != 0) {
 				$links[$treeid] = $child_link;
@@ -83,7 +97,10 @@ function recurse_tree_create($majorid)
 			}
 		}
 		$link['num_kids'] = count($child_links);
+		$echo_i++;
+		if ($echo_i % 50 == 0) echo '.';
 	}
+	echo "\n";
 
 	bam('RE-CREATING TREE ENTRIES...');
 
@@ -109,7 +126,7 @@ function recurse_tree_create($majorid)
 		//echo 'Added treeid - for linkid 1'."\n";
 	}
 
-	foreach($links as $treeid => $this_link) {
+	foreach ($links as $treeid => $this_link) {
 		// remove any 'zero linkid' entries
 		$sql = 'DELETE FROM
 					sq_ast_lnk_tree
