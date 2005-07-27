@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: table_editing.inc,v 1.21.2.3 2005/07/27 09:59:17 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: table_editing.inc,v 1.21.2.4 2005/07/27 13:09:22 brobertson Exp $
+*
 */
 
 

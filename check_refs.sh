@@ -18,8 +18,8 @@
 #* | licence.                                                           |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: check_refs.sh,v 1.9 2003/11/26 00:50:54 gsherwood Exp $
-#* $Name: not supported by cvs2svn $
+#* $Id: check_refs.sh,v 1.9.10.1 2005/07/27 13:09:10 brobertson Exp $
+#*
 #*/
 
 # A simple grep to check to see that all 'get...' calls to 

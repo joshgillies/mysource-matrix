@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: move_assets.php,v 1.2.2.2 2005/06/09 09:49:41 mkeehan Exp $
-* $Name: not supported by cvs2svn $
+* $Id: move_assets.php,v 1.2.2.3 2005/07/27 13:09:10 brobertson Exp $
+*
 */
 
 /**
