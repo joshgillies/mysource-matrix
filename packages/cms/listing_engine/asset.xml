@@ -21,7 +21,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.6 2005/05/31 05:25:20 arailean Exp $
+* $Id: asset.xml,v 1.6.2.1 2005/07/27 09:02:11 brobertson Exp $
 *
 */
 -->
@@ -29,7 +29,7 @@
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../asset.xsd">
 	<package>cms</package>
 	<type_code>listing_engine</type_code>
-	<version>0.6</version>
+	<version>0.6.1</version>
 	<name>Listing Engine Asset</name>
 	<description>Provides listing services to a range of assets previously serviced by the Asset Listing type</description>
 	<instantiable>no</instantiable>

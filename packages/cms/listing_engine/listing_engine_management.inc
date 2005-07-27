@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_management.inc,v 1.23.2.1 2005/06/15 23:59:59 dheppell Exp $
+* $Id: listing_engine_management.inc,v 1.23.2.2 2005/07/27 09:02:11 brobertson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.23.2.1 $
+* @version $Revision: 1.23.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -458,13 +458,64 @@ class Listing_Engine_Management extends Asset_Management
 				ksort($asset_positions, SORT_NUMERIC);
 
 				echo 'Upgrading asset: '.$asset->name.' ('.$assetid.')'."\n";
-														 
+
 				if (!$asset->setAttrValue('asset_positions', $asset_positions)) {
 					trigger_localised_error('CMS0039', E_USER_WARNING, '0.6');
 					return false;
 				}
 			}
 		}//end if version < 0.6
+
+		if (version_compare($current_version, '0.6.1', '<')) {
+			// Adding the group formats folder to all the existing listings didn't happen in the 0.6 update
+			bam('UPGRADING LISTING ENGINE - FROM VERSION '.$current_version.' TO VERSION 0.6.1');
+
+			$upgraded_count = 0;
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset('folder');
+
+			$children = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), false, true);
+			foreach ($children as $assetid => $type_code) {
+				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
+
+				$group_formats = &$asset->getFolder('group_formats');
+
+				// folder alread exists...nothing for us to do.
+				if (is_null($group_formats)) {
+
+					echo 'Upgrading asset: '.$asset->name.' ('.$assetid.')'."\n";
+
+					// Group Format
+					$group_formats = new Folder();
+					$create_link = Array(
+									'asset'			=> &$asset,
+									'value'			=> 'group_formats', 
+									'link_type'		=> SQ_LINK_TYPE_2, 
+									'is_dependant'	=> 1, 
+									'is_exclusive'	=> 1,
+									'sort_order'	=> 2,
+								   );
+
+					$group_formats->setAttrValue('name', 'Group Formats');
+					if (!$group_formats->create($create_link)) {
+						trigger_localised_error('CMS0052', E_USER_WARNING, $asset->name, $asset->id);
+					}
+
+					$upgraded_count++;
+
+				}// end if
+
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($group_formats);
+				unset($group_formats);
+
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+				unset($asset);
+
+
+			}//end foreach
+
+			bam('Upgraded '.$upgraded_count.' Listing Engine-based assets to version 0.6.1');
+
+		}//end if version < 0.6.1
 
 		return parent::_upgrade($current_version);
 
