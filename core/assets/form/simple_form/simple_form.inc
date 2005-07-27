@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: simple_form.inc,v 1.3 2005/07/20 06:31:41 lwright Exp $
+* $Id: simple_form.inc,v 1.4 2005/07/27 05:52:34 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -597,7 +597,9 @@ class Simple_Form extends Asset
 			$q =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
 			// set the value and check whether it's valid
-			$q->setValue($_POST[$assetid]);
+			if (isset($_POST[$assetid])) {
+				$q->setValue($_POST[$assetid]);
+			}
 			$valid = $q->hasValidValue();
 
 			if (!$valid) {
