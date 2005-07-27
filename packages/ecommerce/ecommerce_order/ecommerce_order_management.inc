@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_order_management.inc,v 1.3 2005/07/27 04:18:39 skim Exp $
+* $Id: ecommerce_order_management.inc,v 1.4 2005/07/27 04:49:33 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -59,17 +59,17 @@ class Ecommerce_Order_Management extends Asset_Management
 						'products'			=> Array(
 												'added'		=> '0.1',
 												'type'		=> 'serialise',
-												'defalut'	=> Array(),
+												'default'	=> Array(),
 											   ),
 						'delivery_id'		=> Array(
 												'added'		=> '0.1',
 												'type'		=> 'assetid',
-												'defalut'	=> '0',
+												'default'	=> '0',
 											   ),
 						'delivery_state'	=> Array(
 												'added'		=> '0.1',
 												'type'		=> 'serialise',
-												'defalut'	=> Array(),
+												'default'	=> Array(),
 											   ),
 					  );
 
