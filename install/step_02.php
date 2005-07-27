@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_02.php,v 1.55.2.1 2005/06/24 06:54:00 lwright Exp $
+* $Id: step_02.php,v 1.55.2.2 2005/07/27 10:15:58 brobertson Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.55.2.1 $
+* @version $Revision: 1.55.2.2 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -109,6 +109,4 @@ if (!File_Versioning::initRepository($db)) {
 $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 $GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
-// load up and cache the collating order
-cache_treeid_collating_order();
 ?>
