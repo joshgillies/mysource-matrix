@@ -17,8 +17,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: MatrixMenus.java,v 1.6 2005/06/24 06:24:38 ndvries Exp $
-* $Name: not supported by cvs2svn $
+* $Id: MatrixMenus.java,v 1.7 2005/07/27 10:45:22 brobertson Exp $
+*
 */
 
 package net.squiz.matrix.ui;

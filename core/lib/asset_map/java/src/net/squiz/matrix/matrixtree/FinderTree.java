@@ -17,8 +17,8 @@
  * | licence.                                                           |
  * +--------------------------------------------------------------------+
  *
- * $Id: FinderTree.java,v 1.1 2005/05/13 07:06:51 ndvries Exp $
- * $Name: not supported by cvs2svn $
+ * $Id: FinderTree.java,v 1.2 2005/07/27 10:45:22 brobertson Exp $
+ *
  */
 
  /*

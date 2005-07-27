@@ -17,8 +17,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: MatrixTreeCellRenderer.java,v 1.2 2005/05/13 02:26:11 ndvries Exp $
-* $Name: not supported by cvs2svn $
+* $Id: MatrixTreeCellRenderer.java,v 1.3 2005/07/27 10:45:22 brobertson Exp $
+*
 */
 
 package net.squiz.matrix.matrixtree;

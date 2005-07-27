@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg.inc,v 1.7 2005/02/25 03:42:50 tbarrett Exp $
-* $Name: not supported by cvs2svn $
+* $Id: content_type_wysiwyg.inc,v 1.8 2005/07/27 10:45:16 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type.inc';
 *	Stores html content to be edited using the WYSIWYG editor
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */

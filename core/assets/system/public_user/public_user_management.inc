@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: public_user_management.inc,v 1.1 2005/01/25 00:26:17 lwright Exp $
-* $Name: not supported by cvs2svn $
+* $Id: public_user_management.inc,v 1.2 2005/07/27 10:45:17 brobertson Exp $
+*
 */
 
 require_once SQ_INCLUDE_PATH.'/asset_management.inc';

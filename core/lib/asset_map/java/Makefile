@@ -17,8 +17,8 @@
 #* | licence.                                                           |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: Makefile,v 1.3 2004/11/02 03:19:40 mmcintyre Exp $
-#* $Name: not supported by cvs2svn $
+#* $Id: Makefile,v 1.4 2005/07/27 10:45:22 brobertson Exp $
+#*
 #*/
 
 # Makefile for Matrix java asset map

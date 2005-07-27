@@ -17,8 +17,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: Matrix.java,v 1.2 2005/05/20 00:08:35 ndvries Exp $
-* $Name: not supported by cvs2svn $
+* $Id: Matrix.java,v 1.3 2005/07/27 10:45:22 brobertson Exp $
+*
 */
 
 package net.squiz.matrix.core;

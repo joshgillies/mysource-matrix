@@ -17,8 +17,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: InspectorNavigator.java,v 1.2 2005/03/06 22:40:31 mmcintyre Exp $
-* $Name: not supported by cvs2svn $
+* $Id: InspectorNavigator.java,v 1.3 2005/07/27 10:45:22 brobertson Exp $
+*
 */
 
 /**

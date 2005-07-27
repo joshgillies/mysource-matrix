@@ -17,8 +17,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: CueTree.java,v 1.3 2005/05/13 02:14:58 ndvries Exp $
-* $Name: not supported by cvs2svn $
+* $Id: CueTree.java,v 1.4 2005/07/27 10:45:22 brobertson Exp $
+*
 */
 
 package net.squiz.cuetree;

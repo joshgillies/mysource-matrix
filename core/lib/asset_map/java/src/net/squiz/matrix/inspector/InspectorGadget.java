@@ -17,8 +17,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: InspectorGadget.java,v 1.3 2005/03/06 22:41:26 mmcintyre Exp $
-* $Name: not supported by cvs2svn $
+* $Id: InspectorGadget.java,v 1.4 2005/07/27 10:45:22 brobertson Exp $
+*
 */
 
 /**

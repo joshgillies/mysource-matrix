@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.187 2005/07/21 00:04:58 mmcintyre Exp $
-* $Name: not supported by cvs2svn $
+* $Id: asset_map.inc,v 1.188 2005/07/27 10:45:21 brobertson Exp $
+*
 */
 
 
@@ -33,7 +33,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.187 $
+* @version $Revision: 1.188 $
 * @package MySource_Matrix
 * @subpackage lib
 */

@@ -17,8 +17,8 @@
  * | licence.                                                           |
  * +--------------------------------------------------------------------+
  *
- * $Id: SelectionTool.java,v 1.1 2005/02/18 05:26:24 mmcintyre Exp $
- * $Name: not supported by cvs2svn $
+ * $Id: SelectionTool.java,v 1.2 2005/07/27 10:45:22 brobertson Exp $
+ *
  */
 
 package net.squiz.matrix.ui;

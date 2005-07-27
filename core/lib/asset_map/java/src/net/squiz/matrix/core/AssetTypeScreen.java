@@ -17,8 +17,8 @@
  * | licence.                                                           |
  * +--------------------------------------------------------------------+
  *
- * $Id: AssetTypeScreen.java,v 1.1 2005/02/18 05:20:07 mmcintyre Exp $
- * $Name: not supported by cvs2svn $
+ * $Id: AssetTypeScreen.java,v 1.2 2005/07/27 10:45:22 brobertson Exp $
+ *
  */
 
 package net.squiz.matrix.core;

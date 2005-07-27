@@ -17,8 +17,8 @@
  * | licence.                                                           |
  * +--------------------------------------------------------------------+
  *
- * $Id: MatrixTreeComm.java,v 1.4 2005/05/20 00:08:35 ndvries Exp $
- * $Name: not supported by cvs2svn $
+ * $Id: MatrixTreeComm.java,v 1.5 2005/07/27 10:45:22 brobertson Exp $
+ *
  */
 
  /*

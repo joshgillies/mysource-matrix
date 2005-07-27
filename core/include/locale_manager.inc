@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: locale_manager.inc,v 1.12 2005/07/14 07:09:20 lwright Exp $
-* $Name: not supported by cvs2svn $
+* $Id: locale_manager.inc,v 1.13 2005/07/27 10:45:21 brobertson Exp $
+*
 */
 
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    number/date formats
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix
 */
 class Locale_Manager extends MySource_Object

@@ -17,8 +17,8 @@
  * | licence.                                                           |
  * +--------------------------------------------------------------------+
  *
- * $Id: MatrixStatusBar.java,v 1.3 2005/05/13 06:16:06 ndvries Exp $
- * $Name: not supported by cvs2svn $
+ * $Id: MatrixStatusBar.java,v 1.4 2005/07/27 10:45:22 brobertson Exp $
+ *
  */
 
 package net.squiz.matrix.ui;

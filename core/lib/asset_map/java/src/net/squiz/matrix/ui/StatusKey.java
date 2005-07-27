@@ -17,8 +17,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: StatusKey.java,v 1.1 2005/06/23 04:46:31 ndvries Exp $
-* $Name: not supported by cvs2svn $
+* $Id: StatusKey.java,v 1.2 2005/07/27 10:45:22 brobertson Exp $
+*
 */
 
 
