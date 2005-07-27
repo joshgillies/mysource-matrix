@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.4 2005/07/25 03:48:48 skim Exp $
+* $Id: lang_strings.xml,v 1.5 2005/07/27 04:16:07 skim Exp $
 *
 *
 * Ecommerce Package Localised Strings File
@@ -28,6 +28,8 @@
 	<string source="ecom_checkout_keyword_return_to_checkout_button">Return to Checkout Button</string>
 	<string source="ecom_checkout_keyword_receipt_summary">Receipt Summary</string>
 	<string source="ecom_checkout_keyword_processing_error_message">Processing Error Message</string>
+	<string source="ecom_checkout_keyword_cart_summary">Cart Summary</string>
+	<string source="ecom_checkout_keyword_error_messages">Error Messages</string>
 
 	<!-- Various Strings -->
 	<string source="ecom_checkout_select_delivery_method">Select Delivery Method</string>
