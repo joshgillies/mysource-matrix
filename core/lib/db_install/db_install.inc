@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_install.inc,v 1.22 2005/07/26 00:40:16 mmcintyre Exp $
+* $Id: db_install.inc,v 1.23 2005/07/28 04:53:27 mmcintyre Exp $
 *
 */
 
@@ -29,7 +29,7 @@
 * @author  Blair Robertson <blair@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -483,7 +483,7 @@ function xml_entity_decode($string)
 
 	return $string;
 
-}//end _cleanString()
+}//end xml_entity_decode()
 
 
 /**
