@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.66.2.7 2005/07/28 05:24:56 dmckee Exp $
+* $Id: search_page.inc,v 1.66.2.8 2005/07/28 06:29:57 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.66.2.7 $ - 1.0
+* @version $Revision: 1.66.2.8 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1561,6 +1561,7 @@ class Search_Page extends Page
 
 		$fields = $this->attr('fields');
 		$mode = array_get_index($_REQUEST, 'mode', 'results');
+		if ($mode == '') $mode = 'results';
 		$suffix = ($mode == 'results') ? '_query' : '_query_sis';
 
 		$queries = Array();
