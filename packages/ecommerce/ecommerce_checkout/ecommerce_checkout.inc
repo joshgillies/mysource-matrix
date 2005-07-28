@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.22 2005/07/27 06:45:18 arailean Exp $
+* $Id: ecommerce_checkout.inc,v 1.23 2005/07/28 03:21:37 skim Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 * @author  Andrei Railean	<arailean@squiz.net>
 * @author  Scott Kim		<skim@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -60,11 +60,6 @@ class Ecommerce_Checkout extends Page
 		if (!isset($_SESSION['SQ_TEMP_ORDER'])) {
 			$_SESSION['SQ_TEMP_ORDER'] = Array();
 		}
-
-		// default print context is the first one in the list of available contexts
-		$contexts = $this->_getAvailableContexts();
-		reset($contexts);
-		$this->print_context = key($contexts);
 
 		$this->Page($assetid);
 
@@ -138,7 +133,10 @@ class Ecommerce_Checkout extends Page
 		// process interface. this determines the print context
 		$this->_processInterface();
 
-		// determine context
+		// error occured in processing interface, just return
+		if (empty($this->print_context)) return;
+
+		// print context
 		$this->_printContext();
 
 		if (array_get_index($this->_tmp, 'delete_tmp_order_after_printing', false)) {
@@ -154,6 +152,9 @@ class Ecommerce_Checkout extends Page
 	* This is the main controller function. It determines the context asset is in based on the request
 	* and state variables
 	*
+	* NOTE: Returning FALSE from this function means that interface cannot be processed,
+	* this is different than going to the Failure context
+	*
 	* @return void
 	* @access private
 	*/
@@ -161,21 +162,39 @@ class Ecommerce_Checkout extends Page
 	{
 		$cart =& new Ecommerce_Cart_Processor();
 
-		//check the passed Order ID
+		// edit Ecommerce Order. Check permission and lock order
+		// if the user doesn't have permission or lock, return without setting
+		// print_context
 		$order_id = array_get_index($_REQUEST, 'edit_order_id', 0);
 		if (!empty($order_id)) {
 			$order =& $GLOBALS['SQ_SYSTEM']->am->getAsset($order_id);
 
-			$_SESSION['SQ_TEMP_ORDER']['order_id']			= $order->id;
-			$_SESSION['SQ_TEMP_ORDER']['delivery_id']		= $order->attr('delivery_id');
-			$_SESSION['SQ_TEMP_ORDER']['delivery_state']	= $order->attr('delivery_state');
-			$_SESSION['SQ_TEMP_ORDER']['cart_contents']		= $order->attr('products');
+			// Write Access?
+			if ($order->writeAccess()) { // Lock
 
-			$cart->setCartContents($_SESSION['SQ_TEMP_ORDER']['cart_contents']);
+				if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($order->id, 'attribute')) {
+					$_SESSION['SQ_TEMP_ORDER']['order_id']			= $order->id;
+					$_SESSION['SQ_TEMP_ORDER']['delivery_id']		= $order->attr('delivery_id');
+					$_SESSION['SQ_TEMP_ORDER']['delivery_state']	= $order->attr('delivery_state');
+					$_SESSION['SQ_TEMP_ORDER']['cart_contents']		= $order->attr('products');
 
-			$this->print_context = 'checkout';
+					$cart->setCartContents($_SESSION['SQ_TEMP_ORDER']['cart_contents']);
+
+					$this->print_context = 'checkout';
+
+				} else {
+					echo 'This order is currently being edited';
+				}
+
+			} else {
+				echo 'You can not edit order';
+			}
+
 			return;
 		}
+
+		// default print context is the first one in the list of available contexts
+		$this->print_context = 'checkout';
 
 		$request_action = array_get_index($_REQUEST, $this->getPrefix().'_action');
 		if (empty($request_action)) return;
@@ -262,8 +281,7 @@ class Ecommerce_Checkout extends Page
 
 				$_SESSION['SQ_TEMP_ORDER']['delivery_state'] = $dm->getState();
 
-				// TODO:Delivery Method, $dm->getSummary()
-				$order_summary = 'Hello, This is a test summary';//$dm->getSummary();
+				$order_summary = $dm->getReceipt();
 
 				$order_asset->setAttrValue('summary', $order_summary);
 				$order_asset->setAttrValue('delivery_id',    $_SESSION['SQ_TEMP_ORDER']['delivery_id']);
@@ -271,6 +289,8 @@ class Ecommerce_Checkout extends Page
 
 				if (!$delivery_processing_status){
 					$order_asset->setAttrValue('status', 'failed');
+						$this->_tmp['delivery_method_errors'] = $delivery_asset->getErrors();
+						$success = false;
 					trigger_localised_error('ECOM0015', E_USER_WARNING);
 					$this->print_context = 'failure';
 				}
@@ -296,14 +316,6 @@ class Ecommerce_Checkout extends Page
 		return;
 
 	}//end _processInterface()
-
-
-	// TODO : Fill me in
-	function _getOrderSummary()
-	{
-		return $this->getCheckoutSummaryKeywordReplacement();
-
-	}//end _getOrderSummary()
 
 
 	/**
@@ -476,11 +488,9 @@ class Ecommerce_Checkout extends Page
 		}
 
 		// notice link from Checkout_Form to Ecommerce_Order
-//		$am->acquireLock($this->id, 'links');
 		if ($success && ($am->createAssetLink($this, $ecommerce_order, SQ_LINK_NOTICE, 'checkout') == 0)) {
 			$success = false;
 		}
-//		$am->releaseLock($this->id, 'links');
 
 		// save attributes
 		if (!$am->acquireLock($ecommerce_order->id, 'attributes')) {
@@ -909,22 +919,18 @@ class Ecommerce_Checkout extends Page
 	/**
 	* Get Keyword Replacement for 'get_checkout_summary_button' keyword
 	*
+	* Checkout Summary consists of
+	*
 	* @return string	replacement
 	* @access public
 	*/
 	function getCheckoutSummaryKeywordReplacement()
 	{
 		ob_start();
-		// TODO: Complete Function: getCheckoutSummaryKeywordReplacement
-		echo "TODO: Checkout Summary Replacement<br />\n";
-		//print_receipt($this->_tmp['cart_items']);
-
-		echo "Delivery Method Summary<br />\n";
-		$delivery_asset =& $this->_getActiveDeliveryMethod();
-		if (!is_null($delivery_asset)) {
-			echo $delivery_asset->getReceipt();
-		}
-
+			$delivery_asset =& $this->_getActiveDeliveryMethod();
+			if (!is_null($delivery_asset)) {
+				echo $delivery_asset->getConfirmationSummary();
+			}
 		return ob_get_clean();
 
 	}//end getCheckoutSummaryKeywordReplacement()
@@ -938,8 +944,12 @@ class Ecommerce_Checkout extends Page
 	*/
 	function getReceiptSummaryKeywordReplacement()
 	{
-		// TODO: Complete Function: getReceiptSummaryKeywordReplacement
-		return $this->getCheckoutSummaryKeywordReplacement();
+		ob_start();
+			$delivery_asset =& $this->_getActiveDeliveryMethod();
+			if (!is_null($delivery_asset)) {
+				echo $delivery_asset->getReceiptSummary();
+			}
+		return ob_get_clean();
 
 	}//end getReceiptSummaryKeywordReplacement()
 
@@ -968,9 +978,12 @@ class Ecommerce_Checkout extends Page
 	{
 		$cart =& new Ecommerce_Cart_Processor();
 		ob_start();
-			echo '<pre>';
-			echo $cart->printReceipt();
-			echo '</pre>';
+			$summary = $cart->printReceipt();
+			if (!empty($summary)) {
+				echo '<pre>';
+				echo $summary;
+				echo '</pre>';
+			}
 		return ob_get_clean();
 
 	}//end getCartSummaryKeywordReplacement()
@@ -985,12 +998,13 @@ class Ecommerce_Checkout extends Page
 	function getErrorMessagesKeywordReplacement()
 	{
 		ob_start();
-			echo '<ul>';
-			// error from delivery method
-			foreach ($this->_tmp['delivery_method_errors'] as $message) {
-				echo '<li>'.htmlspecialchars($message).'</li>';
+			if (!empty($this->_tmp['delivery_method_errors'])) {
+				echo '<ul>';
+				foreach ($this->_tmp['delivery_method_errors'] as $message) {
+					echo '<li>'.htmlspecialchars($message).'</li>';
+				}
+				echo '</ul>';
 			}
-			echo '</ul>';
 		return ob_get_clean();
 
 	}//end getErrorMessagesKeywordReplacement()
