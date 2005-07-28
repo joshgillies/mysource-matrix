@@ -21,7 +21,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.1 2005/07/20 00:02:45 lwright Exp $
+* $Id: asset.xml,v 1.2 2005/07/28 04:08:28 lwright Exp $
 *
 */
 -->
@@ -33,7 +33,7 @@
 	<name>Simple Form</name>
 	<description>Simple Form</description>
 	<instantiable>yes</instantiable>
-	<allowed_access>backend_user</allowed_access>
+	<allowed_access>system</allowed_access>
 	<parent_type>asset</parent_type>
 	<requirements />
 	<flash_menu_path />
