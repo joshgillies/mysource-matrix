@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_delivery_method.inc,v 1.3 2005/07/22 01:59:45 lwright Exp $
+* $Id: ecommerce_delivery_method.inc,v 1.4 2005/07/28 03:21:01 skim Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *	by allowing the get/set operations on the state information
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -190,7 +190,7 @@ class Ecommerce_Delivery_Method extends Asset
 
 
 	/**
-	* Returns a receipt that can be used by the checkout to be printed on the frontend
+	* Returns a receipt that can be used by the checkout to genearate order summary
 	*
 	* @param string	$html	set to true for HTML format, set to false for text format
 	*
@@ -202,6 +202,36 @@ class Ecommerce_Delivery_Method extends Asset
 		return '';
 
 	}//end getReceipt()
+
+
+	/**
+	* Returns a receipt summary that can be used by the checkout to be printed on the frontend
+	*
+	* @param string	$html	set to true for HTML format, set to false for text format
+	*
+	* @return string
+	* @access public
+	*/
+	function getReceiptSummary()
+	{
+		return '';
+
+	}//end getReceiptSummary()
+
+
+	/**
+	* Returns a confirmation summary that can be used by the checkout to be printed on the frontend
+	*
+	* @param string	$html	set to true for HTML format, set to false for text format
+	*
+	* @return string
+	* @access public
+	*/
+	function getConfirmationSummary()
+	{
+		return '';
+
+	}//end getConfirmationSummary()
 
 
 }//end class
