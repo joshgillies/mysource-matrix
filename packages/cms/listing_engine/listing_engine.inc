@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.38.2.6 2005/07/26 16:27:48 brobertson Exp $
+* $Id: listing_engine.inc,v 1.38.2.7 2005/07/28 05:37:18 dmckee Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
 *
-* @version $Revision: 1.38.2.6 $
+* @version $Revision: 1.38.2.7 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -316,7 +316,7 @@ class Listing_Engine extends Page
 
 		if (!empty($used_fields) || $this->requires_form) {
 			?>
-				<form name="listing_form" method="get" action="<?php echo replace_query_string_vars($keys_to_remove); ?>">
+				<form name="listing_form" method="get" action="<?php echo htmlspecialchars(replace_query_string_vars($keys_to_remove)); ?>">
 				<?php echo $contents; ?>
 				</form>
 			<?php
@@ -356,6 +356,7 @@ class Listing_Engine extends Page
 		// note that we never cache the results of a random asset listing for obvious reasons
 		$cache_key = '';
 		switch ($group_by) {
+			case 'grouped' :
 			case 'number' :
 				$cache_key = (isset($_REQUEST['result_page'])) ? (int)$_REQUEST['result_page'] : 1;
 				if ($cache_key <= 0) $cache_key = 1;
@@ -517,12 +518,14 @@ class Listing_Engine extends Page
 		} else {
 			$sort_field = $sort_params['field'];
 
-			$sort_assets = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($assetids, null, true, $sort_field);
-			for (reset($sort_assets); null !== ($assetid = key($sort_assets)); next($sort_assets)) {
-				$sort_assets[$assetid] = strtolower($sort_assets[$assetid]);
-			}
+			if (in_array($sort_field, $this->getSortableAssetInfo())) {
+				$sort_assets = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($assetids, null, true, $sort_field);
+				for (reset($sort_assets); null !== ($assetid = key($sort_assets)); next($sort_assets)) {
+					$sort_assets[$assetid] = strtolower($sort_assets[$assetid]);
+				}
 
-			if ($sort_field != 'assetid') $sort_numeric = false;
+				if ($sort_field != 'assetid') $sort_numeric = false;
+			}
 		}
 
 		$reverse_sort = $this->isDescending();
@@ -1908,9 +1911,11 @@ class Listing_Engine extends Page
 		} else {
 			//were at the end, we can do sort stuff here
 			$position_formats = $this->_getPositionFormats();
-			$results = $this->sortAssetList($results, $this->getSortInfo());
+
 			for (reset($results); null !== ($index = key($results)); next($results)) {
+				$results[$index] = $this->sortAssetList($results[$index], $this->getSortInfo());
 				$list_position = 1;
+
 				for (reset($results[$index]); null !== ($k = key($results[$index])); next($results[$index])) {
 					if (isset($position_formats[$list_position])) {
 						$results[$index][$k]['position_number'] = $list_position;
@@ -1990,7 +1995,6 @@ class Listing_Engine extends Page
 				$this->sortGroups($group_levels, $group, $results[$index]);
 			}
 		}
-
 	}//end sortGroups()
 
 
