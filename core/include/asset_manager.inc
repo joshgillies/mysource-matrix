@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.346 2005/07/28 02:08:47 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.347 2005/07/28 22:47:36 pgannavarapu Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.346 $
+* @version $Revision: 1.347 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -1847,9 +1847,9 @@ class Asset_Manager extends MySource_Object
 	function getLockInfo($assetid, $lock_type, $force_array=false, $full_chain=false, $check_expires=true)
 	{
 		$lock_types = $this->getLockTypes($assetid, $lock_type);
-
 		$locks = Array();
 		foreach ($lock_types as $lock_type) {
+
 			$lock = $GLOBALS['SQ_SYSTEM']->getLockInfo('asset.'.$assetid.'.'.$lock_type, $full_chain, $check_expires);
 			if (!empty($lock)) {
 				$lock['lock_type']      = $lock_type;
@@ -1864,8 +1864,6 @@ class Asset_Manager extends MySource_Object
 			$locks[$lock_type] = $lock;
 			unset($lock);
 		}//end foreach
-
-
 		if (!$force_array && count($locks) == 1) {
 			return reset($locks);
 		} else {
@@ -4422,7 +4420,6 @@ class Asset_Manager extends MySource_Object
 		} else {
 			$user_name = 'General Public';
 		}
-
 		// check if the reverse access of this permission is set
 		$current = $this->getPermission($assetid, $permission, !$granted, false);
 		if (in_array($userid, array_values($current))) {
@@ -4431,7 +4428,6 @@ class Asset_Manager extends MySource_Object
 
 			$new_access     = ($granted) ? 'grant'   : 'revoke';
 			$current_access = ($granted) ? 'revoked' : 'granted';
-
 			trigger_localised_error('SYS0123', E_USER_WARNING, $new_access, $perm_name, $user_name, $asset->name, $current_access);
 			return false;
 		}

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.436 2005/07/28 02:07:27 gsherwood Exp $
+* $Id: asset.inc,v 1.437 2005/07/28 22:47:36 pgannavarapu Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.436 $
+* @version $Revision: 1.437 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -1685,8 +1685,8 @@ class Asset extends MySource_Object
 	* @return void
 	* @access private
 	*/
-	function onRequestKeywords(&$broadcaster, $vars=Array())
-	{
+	function onRequestKeywords(&$broadcaster, $vars=Array()) {
+
 		if (!isset($vars['keywords'])) return;
 		$vars['keywords'] = array_merge($vars['keywords'], $this->_available_keywords);
 
@@ -2794,6 +2794,7 @@ class Asset extends MySource_Object
 	*/
 	function getAssetKeywords($descriptions=false)
 	{
+
 		$keywords = Array();
 		$default_keywords = Array(
 								'asset_name',
@@ -2911,6 +2912,7 @@ class Asset extends MySource_Object
 	*/
 	function getAvailableKeywords()
 	{
+
 		$keywords = Array();
 		$default_keywords = Array(
 								'asset_assetid',
@@ -3037,7 +3039,8 @@ class Asset extends MySource_Object
 			$replacement = $this->id;
 		} else if (substr($keyword, 0, strlen('asset_attribute_')) == 'asset_attribute_') {
 			$tmp_array = explode('_', $keyword);
-			$attr_name = $tmp_array[count($tmp_array) - 1];
+			$tmp_array = array_slice($tmp_array, 2);
+			$attr_name = implode('_', $tmp_array);
 			if (array_key_exists($attr_name, $this->vars)) {
 				$attr = &$this->getAttribute($attr_name);
 				if (!$attr->is_admin) {
@@ -3052,7 +3055,6 @@ class Asset extends MySource_Object
 				$replacement = $mm_keyword[$keyword];
 			}
 		}
-
 		return $replacement;
 
 	}//end getKeywordReplacement()
@@ -3068,6 +3070,7 @@ class Asset extends MySource_Object
 	*/
 	function getCustomKeywordReplacements($keywords=Array())
 	{
+
 		return Array();
 
 	}//end getCustomKeywordReplacements()
@@ -3086,6 +3089,7 @@ class Asset extends MySource_Object
 	*/
 	function processCustomKeywords($keywords=Array())
 	{
+
 		return true;
 
 	}//end processCustomKeywords()
@@ -3209,7 +3213,6 @@ class Asset extends MySource_Object
 		if (!$GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS)) {
 			return true;
 		}
-
 		$access = $this->checkAccess(SQ_PERMISSION_ADMIN, $lock_type, $assetids);
 		if ($access && $this->status == SQ_STATUS_LIVE) {
 			return $this->liveEditAccess($lock_type);
@@ -3466,6 +3469,7 @@ class Asset extends MySource_Object
 	*/
 	function printFrontend()
 	{
+
 		if (!$this->readAccess()) {
 			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $this->name));
 			return;

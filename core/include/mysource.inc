@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.130 2005/07/27 09:31:05 brobertson Exp $
+* $Id: mysource.inc,v 1.131 2005/07/28 22:47:36 pgannavarapu Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.130 $
+* @version $Revision: 1.131 $
 * @package MySource_Matrix
 */
 class MySource
@@ -1928,11 +1928,9 @@ class MySource
 	function getLockInfo($lockid, $full_chain=false, $check_expires=true)
 	{
 		$this->changeDatabaseConnection('db2');
-
 		$sql = 'SELECT lockid, source_lockid, userid, expires
 				FROM sq_lock
 				WHERE lockid = '.$this->db->quote($lockid);
-
 		$result = $this->db->getRow($sql);
 		assert_valid_db_result($result);
 
