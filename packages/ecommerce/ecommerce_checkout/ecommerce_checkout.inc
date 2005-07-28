@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.23 2005/07/28 03:21:37 skim Exp $
+* $Id: ecommerce_checkout.inc,v 1.24 2005/07/28 23:35:19 skim Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 * @author  Andrei Railean	<arailean@squiz.net>
 * @author  Scott Kim		<skim@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -134,12 +134,18 @@ class Ecommerce_Checkout extends Page
 		$this->_processInterface();
 
 		// error occured in processing interface, just return
-		if (empty($this->print_context)) return;
+//		if (empty($this->print_context)) return;
 
 		// print context
 		$this->_printContext();
 
-		if (array_get_index($this->_tmp, 'delete_tmp_order_after_printing', false)) {
+		if (array_get_index($this->_tmp, 'delete_all_orders_after_printing', false)) {
+			// clear global cart
+			$cart =& new Ecommerce_Cart_Processor();
+			$cart->clearCart();
+			unset($cart);
+
+			// clear local cart
 			$_SESSION['SQ_TEMP_ORDER'] = Array();
 		}
 
@@ -152,16 +158,11 @@ class Ecommerce_Checkout extends Page
 	* This is the main controller function. It determines the context asset is in based on the request
 	* and state variables
 	*
-	* NOTE: Returning FALSE from this function means that interface cannot be processed,
-	* this is different than going to the Failure context
-	*
 	* @return void
 	* @access private
 	*/
 	function _processInterface()
 	{
-		$cart =& new Ecommerce_Cart_Processor();
-
 		// edit Ecommerce Order. Check permission and lock order
 		// if the user doesn't have permission or lock, return without setting
 		// print_context
@@ -178,8 +179,6 @@ class Ecommerce_Checkout extends Page
 					$_SESSION['SQ_TEMP_ORDER']['delivery_state']	= $order->attr('delivery_state');
 					$_SESSION['SQ_TEMP_ORDER']['cart_contents']		= $order->attr('products');
 
-					$cart->setCartContents($_SESSION['SQ_TEMP_ORDER']['cart_contents']);
-
 					$this->print_context = 'checkout';
 
 				} else {
@@ -193,11 +192,45 @@ class Ecommerce_Checkout extends Page
 			return;
 		}
 
-		// default print context is the first one in the list of available contexts
+		// default print context is'checkout'
 		$this->print_context = 'checkout';
 
 		$request_action = array_get_index($_REQUEST, $this->getPrefix().'_action');
-		if (empty($request_action)) return;
+
+		// if context is checkout, compare the global and local carts,
+		// if they are different, update the local cart
+		if (empty($request_action)) {
+
+			if (strcmp($this->print_context, 'checkout') == 0) {
+				$global_cart =& new Ecommerce_Cart_Processor();
+
+				$local_cart_empty = empty($_SESSION['SQ_TEMP_ORDER']['cart_contents']);
+
+				$need_update = false;
+				if ($local_cart_empty) {
+					// if global is not empty, update
+					if ($global_cart->getCount() != 0) {
+						$need_update = true;
+					}
+				} else {
+					// if global and local carts are different, update
+					$local_cart =& new Ecommerce_Cart_Processor();
+					$local_cart->setCartContainer($_SESSION['SQ_TEMP_ORDER']['cart_contents']);
+
+					if (strcmp($global_cart->hashCart(), $local_cart->hashCart()) != 0) {
+						$need_update = true;
+					}
+				}
+
+				// update the local cart
+				if ($need_update) {
+					$_SESSION['SQ_TEMP_ORDER']['cart_contents'] = $global_cart->getCart();
+				}
+
+			}
+			return;
+
+		}
 
 		$action = key($request_action);
 		$success = true;
@@ -225,30 +258,25 @@ class Ecommerce_Checkout extends Page
 					// create a temporary order
 					$_SESSION['SQ_TEMP_ORDER']['delivery_id']		= $delivery_method_id;
 					$_SESSION['SQ_TEMP_ORDER']['delivery_state']	= $delivery_asset->getState();
+					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($delivery_asset);
+
 				}
 
 				// if cart is empty, there's no point in checking out
-				if (!$cart->getCount()) {
-					trigger_localised_error('ECOM0016', E_USER_WARNING);
+				if ($success && empty($_SESSION['SQ_TEMP_ORDER']['cart_contents'])) {
+					$this->_tmp['delivery_method_errors'][] = 'The ecommerce cart is empty, cannot checkout';
 					$success = false;
 				}
 
 				if ($success) {
-					// move cart contents into the order
-					$_SESSION['SQ_TEMP_ORDER']['cart_contents'] = $cart->getCart();
-					$cart->clearCart();
-
 					$this->print_context = 'confirmation';
 				} else {
 					$this->print_context = 'checkout';
 				}
 
-				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($delivery_asset);
-
 			break;
 
 			case 'return_to_checkout':
-				$cart->setCartContents($_SESSION['SQ_TEMP_ORDER']['cart_contents']);
 				$this->print_context = 'checkout';
 			break;
 
@@ -257,41 +285,40 @@ class Ecommerce_Checkout extends Page
 				// delivery processing
 				$dm =& $this->_getActiveDeliveryMethod();
 				if (empty($dm)){
-					trigger_localised_error('ECOM0013', E_USER_WARNING);
+					$this->_tmp['delivery_method_errors'][] = 'Delivery method not found during the confirmation';
 					$this->print_context = 'failure';
 					break;
 				}
 
 				// check whether we're editing an order or creating a new one
-				if (!empty($_SESSION['SQ_TEMP_ORDER']['order_id'])) {
+				if (isset($_SESSION['SQ_TEMP_ORDER']['order_id'])) {
 					$order_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($_SESSION['SQ_TEMP_ORDER']['order_id']);
 				}
 
 				if (empty($order_asset)) {
 					$order_asset =& $this->_createOrder($_SESSION['SQ_TEMP_ORDER']['cart_contents']);
 					if (is_null($order_asset)){
-						trigger_localised_error('ECOM0018', E_USER_WARNING);
+						$this->_tmp['delivery_method_errors'][] = 'Unable to create Ecommerce Order';
 						$this->print_context = 'failure';
 						break;
 					}
 				}
 
-#				$delivery_processing_status = $dm->processDelivery(&$order_asset);
-				$delivery_processing_status = $dm->processDelivery();
+				$delivery_processing_status = $dm->processDelivery($order_asset);
 
 				$_SESSION['SQ_TEMP_ORDER']['delivery_state'] = $dm->getState();
 
 				$order_summary = $dm->getReceipt();
 
-				$order_asset->setAttrValue('summary', $order_summary);
-				$order_asset->setAttrValue('delivery_id',    $_SESSION['SQ_TEMP_ORDER']['delivery_id']);
-				$order_asset->setAttrValue('delivery_state', $_SESSION['SQ_TEMP_ORDER']['delivery_state']);
+				$order_asset->setAttrValue('summary',			$order_summary);
+				$order_asset->setAttrValue('delivery_id',		$_SESSION['SQ_TEMP_ORDER']['delivery_id']);
+				$order_asset->setAttrValue('delivery_state',	$_SESSION['SQ_TEMP_ORDER']['delivery_state']);
 
 				if (!$delivery_processing_status){
 					$order_asset->setAttrValue('status', 'failed');
-						$this->_tmp['delivery_method_errors'] = $delivery_asset->getErrors();
-						$success = false;
-					trigger_localised_error('ECOM0015', E_USER_WARNING);
+					$this->_tmp['delivery_method_errors'] = $delivery_asset->getErrors();
+					$success = false;
+					$this->_tmp['delivery_method_errors'][] = 'Delivery processing failed';
 					$this->print_context = 'failure';
 				}
 
@@ -304,14 +331,14 @@ class Ecommerce_Checkout extends Page
 
 				if ($this->print_context !== 'failure') {
 					$this->print_context = 'receipt';
+					//$cart->clearCart();
 				}
 
 				// temporary order is pending deletion
-				$this->_tmp['delete_tmp_order_after_printing'] = true;
+				$this->_tmp['delete_all_orders_after_printing'] = true;
 			break;
 
 		}
-		unset($cart);
 
 		return;
 
@@ -713,9 +740,9 @@ class Ecommerce_Checkout extends Page
 		$keywords['delivery_selector']			= translate('ecom_checkout_keyword_delivery_selector');
 		$keywords['delivery_interface'] 		= translate('ecom_checkout_keyword_delivery_interface');
 		$keywords['error_messages']				= translate('ecom_checkout_keyword_error_messages');
-		$keywords['go_to_confirmation_button']	= translate('ecom_checkout_keyword_go_to_confirmation_button');
-
 		$keywords['cart_summary']				= translate('ecom_checkout_keyword_cart_summary');
+		$keywords['checkout_summary']			= translate('ecom_checkout_keyword_checkout_summary');
+		$keywords['go_to_confirmation_button']	= translate('ecom_checkout_keyword_go_to_confirmation_button');
 
 		return $keywords;
 
@@ -730,10 +757,10 @@ class Ecommerce_Checkout extends Page
 	*/
 	function _getConfirmationContextKeywords()
 	{
+		$keywords['cart_summary']				= translate('ecom_checkout_keyword_cart_summary');
 		$keywords['checkout_summary']			= translate('ecom_checkout_keyword_checkout_summary');
 		$keywords['confirm_order_button']		= translate('ecom_checkout_keyword_confirm_order_button');
 		$keywords['return_to_checkout_button']	= translate('ecom_checkout_keyword_return_to_checkout_button');
-		$keywords['cart_summary']				= translate('ecom_checkout_keyword_cart_summary');
 
 		return $keywords;
 
@@ -917,7 +944,7 @@ class Ecommerce_Checkout extends Page
 
 
 	/**
-	* Get Keyword Replacement for 'get_checkout_summary_button' keyword
+	* Get Keyword Replacement for 'get_checkout_summary' keyword
 	*
 	* Checkout Summary consists of
 	*
@@ -927,6 +954,7 @@ class Ecommerce_Checkout extends Page
 	function getCheckoutSummaryKeywordReplacement()
 	{
 		ob_start();
+			echo $this->getCartSummaryKeywordReplacement();
 			$delivery_asset =& $this->_getActiveDeliveryMethod();
 			if (!is_null($delivery_asset)) {
 				echo $delivery_asset->getConfirmationSummary();
@@ -937,7 +965,7 @@ class Ecommerce_Checkout extends Page
 
 
 	/**
-	* Get Keyword Replacement for 'receipt_summary_button' keyword
+	* Get Keyword Replacement for 'receipt_summary' keyword
 	*
 	* @return string	replacement
 	* @access public
@@ -955,20 +983,6 @@ class Ecommerce_Checkout extends Page
 
 
 	/**
-	* Get Keyword Replacement for 'receipt_summary_button' keyword
-	*
-	* @return string	replacement
-	* @access public
-	*/
-	function getProcessingErrorMessageKeywordReplacement()
-	{
-		// TODO: Complete Function: getProcessingErrorMssageKeywordReplacement
-		return 'Error Message';
-
-	}//end getProcessingErrorMessageKeywordReplacement()
-
-
-	/**
 	* Get Keyword Replacement for 'cart_summary' keyword
 	*
 	* @return string	replacement
@@ -977,14 +991,15 @@ class Ecommerce_Checkout extends Page
 	function getCartSummaryKeywordReplacement()
 	{
 		$cart =& new Ecommerce_Cart_Processor();
+		$cart->setCartContainer($_SESSION['SQ_TEMP_ORDER']['cart_contents']);
 		ob_start();
-			$summary = $cart->printReceipt();
-			if (!empty($summary)) {
-				echo '<pre>';
-				echo $summary;
-				echo '</pre>';
-			}
-		return ob_get_clean();
+			echo '<pre>';
+			echo $cart->printReceipt();
+			echo '</pre>';
+		$replace = ob_get_clean();
+
+		unset($cart);
+		return  $replace;
 
 	}//end getCartSummaryKeywordReplacement()
 
@@ -1008,6 +1023,20 @@ class Ecommerce_Checkout extends Page
 		return ob_get_clean();
 
 	}//end getErrorMessagesKeywordReplacement()
+
+
+	/**
+	* Get Keyword Replacement for 'processing_error_message' keyword
+	*
+	* @return string	replacement
+	* @access public
+	*/
+	function getProcessingErrorMessageKeywordReplacement()
+	{
+		// TODO: Complete Function: getProcessingErrorMssageKeywordReplacement
+		return 'Error Message';
+
+	}//end getProcessingErrorMessageKeywordReplacement()
 
 
 }//end class
