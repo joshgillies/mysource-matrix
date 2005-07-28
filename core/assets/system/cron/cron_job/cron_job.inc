@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job.inc,v 1.35 2005/07/11 03:45:09 dmckee Exp $
+* $Id: cron_job.inc,v 1.36 2005/07/28 06:16:40 dmckee Exp $
 *
 */
 
@@ -40,7 +40,7 @@ define('SQ_CRON_JOB_RETRY',			16);// cron job requests to be retried (only valid
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -391,6 +391,8 @@ class Cron_Job extends Asset
 	{
 		$when_arr = Cron_Job::getWhenArr($this->attr('when'));
 		$ret_val = ($inc_type) ? Cron_Job::whenTypeName($when_arr['type']).' '.strtolower(translate('at')).' ' : '';
+		if ($when_arr['minute'] < 10) $when_arr['minute'] = '0'.$when_arr['minute'];
+		$when_arr['hour'] = str_replace(':', '', $when_arr['hour']);
 		switch ($when_arr['type']) {
 			case 'OO' :
 				$ret_val .= translate('cron_run_other', $when_arr['hour'].':'.$when_arr['minute'], $when_arr['day'].' '.date('M', mktime(0, 0, 0, (int) $when_arr['month'], 1, 2000)).', '.$when_arr['year']);
