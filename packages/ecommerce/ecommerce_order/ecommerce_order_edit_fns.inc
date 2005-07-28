@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_order_edit_fns.inc,v 1.2 2005/07/27 11:09:44 brobertson Exp $
+* $Id: ecommerce_order_edit_fns.inc,v 1.3 2005/07/28 03:22:04 skim Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -41,13 +41,6 @@ class Ecommerce_Order_Edit_Fns extends Asset_Edit_Fns
 	function Ecommerce_Order_Edit_Fns()
 	{
 		$this->Asset_Edit_Fns();
-
-		// disable all static screens
-		$details = $this->static_screens['details'];
-		$this->static_screens = Array();
-
-		// enable just the details
-		$this->static_screens['details'] = $details;
 
 	}//end constructor
 
