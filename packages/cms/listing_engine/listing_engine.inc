@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.56 2005/07/25 23:39:05 dmckee Exp $
+* $Id: listing_engine.inc,v 1.57 2005/07/28 04:20:57 tbarrett Exp $
 *
 */
 
@@ -43,7 +43,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.56 $
+* @version $Revision: 1.57 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1331,7 +1331,7 @@ class Listing_Engine extends Page
 			}
 			if (preg_match('|%asset_contents%|is', $bodycopy->getRawBodycopyContent())) {
 				ob_start();
-					$asset->printBody();
+					if ($asset->id != $this->id) $asset->printBody();
 					$keywords['asset_contents'] = ob_get_contents();
 				ob_end_clean();
 			}
