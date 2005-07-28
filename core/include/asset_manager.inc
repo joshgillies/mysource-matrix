@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.345 2005/07/26 00:37:41 mmcintyre Exp $
+* $Id: asset_manager.inc,v 1.346 2005/07/28 02:08:47 gsherwood Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.345 $
+* @version $Revision: 1.346 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2171,13 +2171,13 @@ class Asset_Manager extends MySource_Object
 		assert_valid_assetid($assetid);
 		assert_false($side_of_link != 'major' && $side_of_link != 'minor', 'Unknown Side of Link "'.$side_of_link.'"');
 
-
 		// check if we are getting links for a shadow asset, and palm the request off to the
 		// handler of the shadow asset if we are
 		$id_parts = explode(':', $assetid);
 		if (isset($id_parts[1])) {
 			$real_assetid = $id_parts[0];
 			$asset = &$this->getAsset($real_assetid);
+			if (is_null($asset)) return Array();
 			$links = $asset->getLinks($id_parts[1], $link_types, $type_code, $strict_type_code, $side_of_link, $sort_by);
 			$this->forgetAsset($asset);
 			return $links;
@@ -2188,6 +2188,7 @@ class Asset_Manager extends MySource_Object
 		// an asset that handles shadow assets, palm the request off to it
 		if ($side_of_link == 'major') {
 			$asset = &$this->getAsset($assetid);
+			if (is_null($asset)) return Array();
 			if (implements_interface($asset, 'bridge')) {
 				$links = $asset->getLinks($assetid, $link_types, $type_code, $strict_type_code, $side_of_link, $sort_by);
 				$this->forgetAsset($asset);
