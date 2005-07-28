@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.435 2005/07/26 23:06:34 arailean Exp $
+* $Id: asset.inc,v 1.436 2005/07/28 02:07:27 gsherwood Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.435 $
+* @version $Revision: 1.436 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -608,7 +608,10 @@ class Asset extends MySource_Object
 
 		$result = $db->getRow($sql.$where, null, DB_FETCHMODE_ORDERED);
 		assert_valid_db_result($result);
-		if (is_null($result)) return;
+		if (is_null($result)) {
+			trigger_localised_error('SYS0087', E_USER_WARNING, $assetid);
+			return;
+		}
 
 		list(
 		$this->id,
