@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.27 2005/07/29 03:16:05 skim Exp $
+* $Id: ecommerce_checkout.inc,v 1.28 2005/07/29 06:21:30 skim Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 * @author  Andrei Railean	<arailean@squiz.net>
 * @author  Scott Kim		<skim@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -333,11 +333,8 @@ class Ecommerce_Checkout extends Page
 
 				if ($this->print_context !== 'failure') {
 					$this->print_context = 'receipt';
-					//$cart->clearCart();
+					$this->_tmp['delete_all_orders_after_printing'] = true;
 				}
-
-				// temporary order is pending deletion
-				$this->_tmp['delete_all_orders_after_printing'] = true;
 			break;
 
 		}
