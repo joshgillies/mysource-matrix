@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_02.php,v 1.55.2.2 2005/07/27 10:15:58 brobertson Exp $
+* $Id: step_02.php,v 1.55.2.3 2005/07/29 03:47:01 mmcintyre Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.55.2.2 $
+* @version $Revision: 1.55.2.3 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -80,6 +80,10 @@ $cached_table_columns = Array();
 install_stored_procedures();
 
 $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+if (file_exists(SQ_DATA_PATH.'/private/db/table_columns.inc')) {
+	unlink(SQ_DATA_PATH.'/private/db/table_columns.inc');
+}
 
 if (!db_install(SQ_CORE_PACKAGE_PATH.'/tables.xml')) {
 	$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
