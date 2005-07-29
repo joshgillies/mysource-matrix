@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.48 2005/07/07 02:26:53 dmckee Exp $
+* $Id: wysiwyg.inc,v 1.49 2005/07/29 06:29:14 tbarrett Exp $
 *
 */
 
@@ -33,7 +33,7 @@
 *     to do this.
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.48 $
+* @version $Revision: 1.49 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -1104,7 +1104,7 @@ HTMLArea.prototype.insertDeepLeft = function(target, toInsert) {
 	*/
 	function process()
 	{
-		$html = rawurldecode((isset($_POST[$this->name])) ? $_POST[$this->name] : '');
+		$html = rawurldecode((isset($_REQUEST[$this->name])) ? $_REQUEST[$this->name] : '');
 
 		// replace out special form tags back with real form tags
 		$html = preg_replace('|<HTMLAREA_FORM ([^>]*?)>(.*?)</HTMLAREA_FORM>|is', '<FORM \\1>\\2</FORM>', $html);
