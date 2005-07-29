@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_edit_fns.inc,v 1.54 2005/07/29 05:47:58 tbarrett Exp $
+* $Id: search_page_edit_fns.inc,v 1.55 2005/07/29 05:58:14 dmckee Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine_edit_fns.inc';
 *     Edit functions for search page
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.54 $
+* @version $Revision: 1.55 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -287,8 +287,11 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 
 							if ($write_access) {
 								$type_attrs = Array('' => '-- '.translate('select_attribute').' --');
+								$sm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
 								foreach ($asset_type_attrs as $attr_id => $attr_name) {
-									$type_attrs[$attr_id] = $attr_name;
+									if($sm->isAttributeIndexable($attr_id)) {
+										$type_attrs[$attr_id] = $attr_name;
+									}
 								}
 								combo_box($prefix.'_fields['.$i.'][params][attrid]', $type_attrs, false, $selected_attr);
 							} else if ($selected_attr != '') {
