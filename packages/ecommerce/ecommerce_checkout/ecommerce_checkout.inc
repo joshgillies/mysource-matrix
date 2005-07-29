@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.25 2005/07/29 00:10:02 skim Exp $
+* $Id: ecommerce_checkout.inc,v 1.26 2005/07/29 01:15:59 skim Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 * @author  Andrei Railean	<arailean@squiz.net>
 * @author  Scott Kim		<skim@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -240,25 +240,25 @@ class Ecommerce_Checkout extends Page
 				$delivery_method_id = array_get_index($_REQUEST, 'sq_delivery_method_id');
 				if (!empty($delivery_method_id)) {
 
-					$delivery_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($delivery_method_id);
-					if (empty($delivery_asset)) {
+					$delivery_method =& $GLOBALS['SQ_SYSTEM']->am->getAsset($delivery_method_id);
+					if (empty($delivery_method)) {
 						$this->print_context = 'checkout';
 						return;
 					}
 
 					if (isset($_SESSION['SQ_TEMP_ORDER']['delivery_state']) && ($_SESSION['SQ_TEMP_ORDER']['delivery_id'] == $delivery_method_id)) {
-						$delivery_asset->setState($_SESSION['SQ_TEMP_ORDER']['delivery_state']);
+						$delivery_method->setState($_SESSION['SQ_TEMP_ORDER']['delivery_state']);
 					}
 
-					if (!$delivery_asset->processInputInterface()){
-						$this->_tmp['delivery_method_errors'] = $delivery_asset->getErrors();
+					if (!$delivery_method->processInputInterface()){
+						$this->_tmp['delivery_method_errors'] = $delivery_method->getErrors();
 						$success = false;
 					}
 
 					// create a temporary order
 					$_SESSION['SQ_TEMP_ORDER']['delivery_id']		= $delivery_method_id;
-					$_SESSION['SQ_TEMP_ORDER']['delivery_state']	= $delivery_asset->getState();
-					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($delivery_asset);
+					$_SESSION['SQ_TEMP_ORDER']['delivery_state']	= $delivery_method->getState();
+					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($delivery_method);
 
 				}
 
@@ -283,8 +283,8 @@ class Ecommerce_Checkout extends Page
 			case 'confirm_order':
 				// components should be processed here
 				// delivery processing
-				$dm =& $this->_getActiveDeliveryMethod();
-				if (empty($dm)){
+				$delivery_method =& $this->_getActiveDeliveryMethod();
+				if (empty($delivery_method)){
 					$this->_tmp['delivery_method_errors'][] = 'Delivery method not found during the confirmation';
 					$this->print_context = 'failure';
 					break;
@@ -304,11 +304,13 @@ class Ecommerce_Checkout extends Page
 					}
 				}
 
-				$delivery_processing_status = $dm->processDelivery($order_asset);
+				$delivery_processing_status = $delivery_method->processDelivery($order_asset);
 
-				$_SESSION['SQ_TEMP_ORDER']['delivery_state'] = $dm->getState();
+				$_SESSION['SQ_TEMP_ORDER']['delivery_state'] = $delivery_method->getState();
 
-				$order_summary = $dm->getReceipt();
+				// set the order summary
+				$order_summary = $this->_getCartSummary(false);
+				$order_summary .= $delivery_method->getReceipt();
 
 				$order_asset->setAttrValue('summary',			$order_summary);
 				$order_asset->setAttrValue('delivery_id',		$_SESSION['SQ_TEMP_ORDER']['delivery_id']);
@@ -316,7 +318,7 @@ class Ecommerce_Checkout extends Page
 
 				if (!$delivery_processing_status){
 					$order_asset->setAttrValue('status', 'failed');
-					$this->_tmp['delivery_method_errors'] = $delivery_asset->getErrors();
+					$this->_tmp['delivery_method_errors'] = $delivery_method->getErrors();
 					$success = false;
 					$this->_tmp['delivery_method_errors'][] = 'Delivery processing failed';
 					$this->print_context = 'failure';
@@ -635,8 +637,8 @@ class Ecommerce_Checkout extends Page
 		$delivery_method_id = $this->_getActiveDeliveryMethodId();
 		if (!is_null($delivery_method_id)) {
 			$delivery_method =& $GLOBALS['SQ_SYSTEM']->am->getAsset($delivery_method_id);
-			$delivery_asset_state = array_get_index($_SESSION['SQ_TEMP_ORDER'], 'delivery_state', Array());
-			$delivery_method->setState($delivery_asset_state);
+			$delivery_method_state = array_get_index($_SESSION['SQ_TEMP_ORDER'], 'delivery_state', Array());
+			$delivery_method->setState($delivery_method_state);
 		}
 
 		return $delivery_method;
@@ -672,6 +674,30 @@ class Ecommerce_Checkout extends Page
 		return;
 
 	}//end _getProductReceipt()
+
+
+	/**
+	* Return a cart summary for the ecommer cart
+	*
+	* @param $html	if it's true, the summary string is wrapped by <pre> tags
+	*
+	* @return string
+	* @access private
+	*/
+	function _getCartSummary($html=true)
+	{
+		$cart =& new Ecommerce_Cart_Processor();
+		$cart->setCartContainer($_SESSION['SQ_TEMP_ORDER']['cart_contents']);
+		ob_start();
+			if ($html) echo '<pre>';
+			echo $cart->printReceipt();
+			if ($html) echo '</pre>';
+		$cart_summary = ob_get_clean();
+
+		unset($cart);
+		return  $cart_summary;
+
+	}//end _getCartSummary()
 
 
 	//// -- Keywords
@@ -873,7 +899,7 @@ class Ecommerce_Checkout extends Page
 		$this->_registerFormRequirement();
 		ob_start();
 		foreach ($this->_getDeliveryAssetIds() as $one_assetid) {
-			$delivery_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($one_assetid);
+			$delivery_method =& $GLOBALS['SQ_SYSTEM']->am->getAsset($one_assetid);
 
 			if ($active_delivery_method_id == $one_assetid) {
 				$display = 'block';
@@ -881,9 +907,9 @@ class Ecommerce_Checkout extends Page
 				$display = 'none';
 			}
 
-			echo "\n".'<div id="sq_delivery_method_'.$one_assetid.'" style="display:'.$display.'" >'."\n".$delivery_asset->getInputInterface()."\n</div>\n";
+			echo "\n".'<div id="sq_delivery_method_'.$one_assetid.'" style="display:'.$display.'" >'."\n".$delivery_method->getInputInterface()."\n</div>\n";
 
-			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($delivery_asset);
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($delivery_method);
 		}
 
 		return ob_get_clean();
@@ -955,9 +981,9 @@ class Ecommerce_Checkout extends Page
 	{
 		ob_start();
 			echo $this->getCartSummaryKeywordReplacement();
-			$delivery_asset =& $this->_getActiveDeliveryMethod();
-			if (!is_null($delivery_asset)) {
-				echo $delivery_asset->getConfirmationSummary();
+			$delivery_method =& $this->_getActiveDeliveryMethod();
+			if (!is_null($delivery_method)) {
+				echo $delivery_method->getConfirmationSummary();
 			}
 		return ob_get_clean();
 
@@ -973,9 +999,9 @@ class Ecommerce_Checkout extends Page
 	function getReceiptSummaryKeywordReplacement()
 	{
 		ob_start();
-			$delivery_asset =& $this->_getActiveDeliveryMethod();
-			if (!is_null($delivery_asset)) {
-				echo $delivery_asset->getReceiptSummary();
+			$delivery_method =& $this->_getActiveDeliveryMethod();
+			if (!is_null($delivery_method)) {
+				echo $delivery_method->getReceiptSummary();
 			}
 		return ob_get_clean();
 
@@ -990,16 +1016,7 @@ class Ecommerce_Checkout extends Page
 	*/
 	function getCartSummaryKeywordReplacement()
 	{
-		$cart =& new Ecommerce_Cart_Processor();
-		$cart->setCartContainer($_SESSION['SQ_TEMP_ORDER']['cart_contents']);
-		ob_start();
-			echo '<pre>';
-			echo $cart->printReceipt();
-			echo '</pre>';
-		$replace = ob_get_clean();
-
-		unset($cart);
-		return  $replace;
+		return $this->_getCartSummary(true);
 
 	}//end getCartSummaryKeywordReplacement()
 
@@ -1034,9 +1051,9 @@ class Ecommerce_Checkout extends Page
 	function getProcessingErrorMessageKeywordReplacement()
 	{
 		ob_start();
-			$delivery_asset =& $this->_getActiveDeliveryMethod();
-			if (!is_null($delivery_asset)) {
-				echo $delivery_asset->getErrors();
+			$delivery_method =& $this->_getActiveDeliveryMethod();
+			if (!is_null($delivery_method)) {
+				echo $delivery_method->getErrors();
 			}
 		return ob_get_clean();
 
