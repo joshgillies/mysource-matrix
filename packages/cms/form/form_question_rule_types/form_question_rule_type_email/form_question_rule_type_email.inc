@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_email.inc,v 1.13.2.3 2005/06/24 04:13:21 skim Exp $
+* $Id: form_question_rule_type_email.inc,v 1.13.2.4 2005/07/29 01:14:26 dmckee Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.13.2.3 $
+* @version $Revision: 1.13.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -153,7 +153,11 @@ class Form_Question_Rule_Type_Email extends Form_Question_Rule
 	*/
 	function ruleDescription(&$q_asset, $rule_data)
 	{
-		$error_str = 'The response to "'.$q_asset->attr('name').'" must '.($rule_data['operator'] == 0 ? 'not ' : '').' be a valid email address';
+		$error_tail = 'not';
+		if (!isset($rule_data['operator']) || $rule_data['operator']) {
+			$error_tail = '';
+		}
+		$error_str = 'The response to "'.$q_asset->attr('name').'" must '.$error_tail.' be a valid email address';
 
 		return $error_str;
 
