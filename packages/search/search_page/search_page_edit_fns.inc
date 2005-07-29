@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_edit_fns.inc,v 1.53 2005/07/29 05:28:39 tbarrett Exp $
+* $Id: search_page_edit_fns.inc,v 1.54 2005/07/29 05:47:58 tbarrett Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine_edit_fns.inc';
 *     Edit functions for search page
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.53 $
+* @version $Revision: 1.54 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -687,9 +687,9 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 					<th class="delete">
 						<?php
 						if ($wa) {
-							$msg = 'Are you sure you want to delete this category set?'; // TODO: translate
+							$msg = translate('search_page_confirm_cat_delete');
 							check_box($prefix.'_category_sets_to_delete[]', $name, false, "return confirm('$msg')", 'id="'.$prefix.'_category_sets_to_delete_'.$name.'"');
-							label('Delete', $prefix.'_category_sets_to_delete_'.$name); // TODO: translate
+							label(translate('delete'), $prefix.'_category_sets_to_delete_'.$name);
 						}
 						?>
 					</th>
@@ -698,11 +698,11 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 					<td colspan="2">
 						<?php
 						if ($wa) {
-							label('Unselected Text: ', $prefix.'_category_'.$name.'_unselected_text'); // TODO: translate
+							label(translate('search_cat_unselected_text').': ', $prefix.'_category_'.$name.'_unselected_text');
 							echo '&nbsp;';
 							text_box($prefix.'_category_'.$name.'_unselected_text', $set_data['unselected_text']);
 						} else {
-							echo 'Unselected Text: '; // TODO: translate
+							echo translate('search_cat_unselected_text');
 							echo $set_data['unselected_text'];
 						}
 						?>
@@ -711,7 +711,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 				<tr>
 					<td colspan="2">
 						<?php
-						echo 'Options:'; // TODO: translate
+						echo translate('options').':';
 						$this->_paintCategoryOptions($asset, $prefix.'_category_'.$name.'_options', $name, $set_data['options'], $wa);
 						?>
 					</td>
@@ -740,13 +740,13 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 		?>
 		<table class="sq-backend-table">
 			<tr>
-				<th><?php echo 'Name'; // TODO: translate ?></th>
-				<th style="width: 35ex"><?php echo 'Statuses'; // TODO: translate ?></th>
-				<th style="width: 60ex"><?php echo 'Root Asset'; // TODO: translate ?></th>
+				<th><?php translate('name'); ?></th>
+				<th style="width: 35ex"><?php echo translate('statuses'); ?></th>
+				<th style="width: 60ex"><?php echo translate('root_node'); ?></th>
 			<?php
 			if ($wa) {
 				?>
-				<th style="width: 7ex"><?php echo 'Delete'; // TODO: translate ?></th>
+				<th style="width: 7ex"><?php echo translate('delete'); ?></th>
 				<?php
 			}
 			?>
@@ -773,7 +773,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 						label('Use Default', $prefix.'_'.$code_name.'_statuses_default');
 					} else {
 						echo '<img src="'.sq_web_path('lib').'/web/images/'.($customised ? 'cross' : 'tick').'.gif" />';
-						echo 'Use Default'; // TODO: translate
+						echo translate('use_default');
 					}
 					$this->_paintStatusChooser($prefix.'_'.$code_name.'_statuses', $current_stats,  $wa, $customised);
 					?>
@@ -792,7 +792,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 						label('Use Default', $prefix.'_'.$code_name.'_root_default');
 					} else {
 						echo '<img src="'.sq_web_path('lib').'/web/images/'.($customised ? 'cross' : 'tick').'.gif" />';
-						echo 'Use Default'; // TODO: translate
+						echo translate('use_default');
 					}
 					$this->_paintAssetChooser($prefix.'_'.$code_name.'_root', $current_root,  $wa, $customised);
 					?>
@@ -1059,7 +1059,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 	function paintAddCategory(&$asset, &$o, $prefix)
 	{
 		if ($asset->writeAccess('attributes')) {
-			label('Name: ', $prefix.'_new_category'); // TODO: translate
+			label(translate('name').': ', $prefix.'_new_category');
 			text_box($prefix.'_new_category', '');
 			return true;
 		}

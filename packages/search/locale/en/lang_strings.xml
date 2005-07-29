@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.2 2005/05/16 06:36:49 lwright Exp $
+* $Id: lang_strings.xml,v 1.3 2005/07/29 05:47:58 tbarrett Exp $
 *
 *
 * Search Package Localised Strings File
@@ -44,4 +44,8 @@
 	<string source="sch_hipo_replacing_asset_contents">Replacing Asset Contents</string>
 	<string source="sch_hipo_replacing_asset_metadata">Replacing Asset Metadata</string>
 	<string source="sch_hipo_replacing_schema_values">Replacing Schema Values</string>
+
+	<string source="search_page_confirm_cat_delete">Are you sure you want to delete this category set?</string>
+	<string source="search_cat_unselected_text">Unselected Text</string>
+
 </strings>
