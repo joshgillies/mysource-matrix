@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.322.2.10 2005/07/22 15:44:47 brobertson Exp $
+* $Id: asset_manager.inc,v 1.322.2.11 2005/07/29 03:44:11 mmcintyre Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.322.2.10 $
+* @version $Revision: 1.322.2.11 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -299,10 +299,14 @@ class Asset_Manager extends MySource_Object
 			}
 
 			// if they have not specified any fields, then we want to select *
-			if ($field == '') $field = '*';
+			if ($field == '') {
+				$field = 'type_code, version, name, description, instantiable, allowed_access, parent_type, lvl, dir, customisation';
+			} else {
+				$field = 'type_code, '.$field;
+			}
 
 			$sql = 'SELECT
-						type_code, '.$field.'
+						'.$field.'
 					FROM
 						sq_ast_typ
 					WHERE
@@ -1993,7 +1997,9 @@ class Asset_Manager extends MySource_Object
 		}
 
 		if (!is_null($value)) {
-			$where .= '  AND l.value = '.$db->quote($value);
+			$where .= ' AND (l.value = '.$db->quote($value);
+			if ($value == '') $where .= ' OR l.value IS NULL';
+			$where .= ')';
 		}
 
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
@@ -4720,9 +4726,15 @@ class Asset_Manager extends MySource_Object
 		// the get_lineage_from_url procedure takes a url and splits it into the
 		// possible urls that we are looking for.
 		// we do this because its faster than performing a 'url LIKE l.url%'
+		$function_call = 'sq_get_lineage_from_url('.$db->quoteSmart($url.'/').')';
+
+		// if we are oracle type-cast the function result to a table
+		if ($db->phptype == 'oci8') {
+			$function_call = 'table('.$function_call.')';
+		}
 		$where = 'l.root_urlid = '.$db->quote((int) $root_url['urlid']).'
 				  AND l.url IN (
-								SELECT * FROM sq_get_lineage_from_url('.$db->quoteSmart($url.'/').')
+								SELECT * FROM '.$function_call.'
 							)';
 
 		if (!is_null($protocol)) {
@@ -5254,7 +5266,9 @@ class Asset_Manager extends MySource_Object
 				   AND l.'.$side_of_link.'id = '.$db->quote($assetid).'
 				   AND '.db_extras_bitand($db, 'l.link_type', $db->quote($link_types)).' > 0 ';
 		if (!is_null($value)) {
-		   $where .= ' AND l.value     = '.$db->quote($value);
+			$where .= ' AND (l.value = '.$db->quote($value);
+			if ($value == '') $where .= ' OR l.value IS NULL';
+			$where .= ')';
 		}
 		if (!is_null($dependant)) {
 			$where .= ' AND l.is_dependant = '.$db->quote(($dependant) ? '1' : '0');
@@ -5485,12 +5499,18 @@ class Asset_Manager extends MySource_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$assetid = (string) $assetid;
 
+		$function_call = SQ_TABLE_RUNNING_PREFIX.'get_parent_treeids('.$db->quoteSmart($assetid).', '.$db->quoteSmart(SQ_CONF_ASSET_TREE_SIZE).')';
+		// if we are oracle type-cast the function result to a table
+		if ($db->phptype == 'oci8') {
+			$function_call = 'table('.$function_call.')';
+		}
+
 		$select = 'SELECT DISTINCT(l.majorid), a.type_code, t.treeid';
 		$from   = 'FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
 					 INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t ON l.linkid = t.linkid
 					 INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON l.majorid = a.assetid';
 		$where  ='t.treeid IN (
-								SELECT * FROM '.SQ_TABLE_RUNNING_PREFIX.'get_parent_treeids('.$db->quoteSmart($assetid).', '.$db->quoteSmart(SQ_CONF_ASSET_TREE_SIZE).')
+								SELECT * FROM '.$function_call.'
 							)';
 
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
