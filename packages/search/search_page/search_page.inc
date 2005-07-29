@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.98.2.5 2005/07/28 06:48:05 dmckee Exp $
+* $Id: search_page.inc,v 1.98.2.6 2005/07/29 02:01:15 dheppell Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.98.2.5 $
+* @version $Revision: 1.98.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1145,7 +1145,6 @@ class Search_Page extends Listing_Engine
 			if (!in_array($query_name, Array('mode', 'current_result_page', 'results_per_page'))) {
 				$queries .= '&'.$query_name.'='.$query_value;
 			}
-
 		}
 
 		// if we are to use the listing engine stuff then we need to change
@@ -1161,6 +1160,8 @@ class Search_Page extends Listing_Engine
 		$this->_tmp['asset_info'] = $asset_info;
 
 
+		$total_pages = ceil(count($asset_info) / $results_per_page);
+
 		foreach ($keywords as $keyword) {
 			$replacement = "%$keyword%";
 
@@ -1170,6 +1171,11 @@ class Search_Page extends Listing_Engine
 					$sub_resultids = array_slice(array_keys($asset_info), $current_result_page * $results_per_page, $results_per_page);
 					foreach ($sub_resultids as $resultid) {
 						$result_list[$resultid] = $asset_info[$resultid];
+					}
+
+					//we have our section, now we can group them
+					if ($this->attr('group_by') == 'grouped') {
+						$this->groupAssetsRecursively($this->attr('asset_grouping'), $result_list, $result_list);
 					}
 
 					// print the asset list from the listing engine
@@ -1769,7 +1775,6 @@ class Search_Page extends Listing_Engine
 		if (empty($queries) && !empty($this->_tmp['potential_searched_queries'])) {
 			$queries = $this->_tmp['potential_searched_queries'];
 		}
-
 		return $queries;
 
 	}//end _getSearchedQueries()
@@ -1931,8 +1936,12 @@ class Search_Page extends Listing_Engine
 			$cm->saveToCache($this->id, $this->type(), $assetid, $element_contents);
 		}
 
+		// summon the scores at this point
+		$score =& $this->_tmp['search_results'];
+		//$score = (isset($score['type_code'])) ? $score['type_code'] : $score;
+
 		$element_replacements = Array(
-									'score'			=> $score,
+									'score'			=> $score[$assetid],
 									'result_number'	=> $this->_tmp['start_element'] + $list_position,
 								);
 

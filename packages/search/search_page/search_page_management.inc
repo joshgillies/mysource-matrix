@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_management.inc,v 1.40 2005/05/24 05:30:51 arailean Exp $
+* $Id: search_page_management.inc,v 1.40.2.1 2005/07/29 02:01:15 dheppell Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.40.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -38,6 +38,10 @@ class Search_Page_Management extends Asset_Management
 	function Search_Page_Management(&$pm)
 	{
 		$this->Asset_Management($pm);
+		
+		//So we can get grouping working for search, without having the dropdown for
+		//the other unused options
+		$this->vars['group_by']['default'] = 'grouped';
 
 		$this->vars['search_status'] = Array(
 										'added'			=> '0.3',
@@ -348,6 +352,22 @@ class Search_Page_Management extends Asset_Management
 			}
 			bam('SEARCH PAGE UPGRADE COMPLETE - FROM VERSION 0.9');
 		}//end version 0.9 upgrade
+		
+		if (version_compare($current_version, '0.12', '<=')) {
+			// version 0.12->0.13
+			//changing the default value of attr 'group_by')
+			$children = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), false);
+			foreach ($children as $assetid) {
+				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$asset->setAttrValue('group_by', 'grouped');
+				$asset->saveAttributes();
+				
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+			}
+			
+			bam('SEARCH PAGE UPGRADE COMPLETE - FROM VERSION 0.12');
+		}//end version 0.12 upgrade
+		
 		return true;
 
 	}//end _upgrade()
