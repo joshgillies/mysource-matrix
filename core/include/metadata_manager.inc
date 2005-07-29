@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.83.2.1 2005/07/05 21:28:52 gnoel Exp $
+* $Id: metadata_manager.inc,v 1.83.2.2 2005/07/29 03:45:04 mmcintyre Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.83.2.1 $
+* @version $Revision: 1.83.2.2 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -120,7 +120,7 @@ class Metadata_Manager extends MySource_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = '  SELECT DISTINCT schemaid, granted
-				  FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_metadata ';
+				  FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_mdata ';
 		$where = 'assetid = '.$db->quote($assetid);
 		if (!is_null($granted)) {
 			$where .= ' AND granted = '.$db->quote((($granted) ? '1' : '0'));
@@ -200,7 +200,7 @@ class Metadata_Manager extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$sql = 'INSERT INTO
-					sq_ast_metadata
+					sq_ast_mdata
 					(
 						assetid,
 						schemaid,
@@ -255,7 +255,7 @@ class Metadata_Manager extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$sql = 'DELETE FROM
-					sq_ast_metadata
+					sq_ast_mdata
 				WHERE
 						schemaid	= '.$db->quoteSmart($schemaid).'
 					AND	assetid		= '.$db->quoteSmart($asset->id);
@@ -289,7 +289,7 @@ class Metadata_Manager extends MySource_Object
 		$sql = 'SELECT DISTINCT
 					assetid, granted
 				FROM
-					'.SQ_TABLE_RUNNING_PREFIX.'ast_metadata ';
+					'.SQ_TABLE_RUNNING_PREFIX.'ast_mdata ';
 
 		$where = 'schemaid = '.$db->quote($schemaid);
 		if (!is_null($granted)) {
@@ -383,7 +383,7 @@ class Metadata_Manager extends MySource_Object
 		$sql = 'SELECT
 					mv.fieldid, a.name, mv.value
 				FROM
-					'.SQ_TABLE_RUNNING_PREFIX.'ast_metadata_value mv
+					'.SQ_TABLE_RUNNING_PREFIX.'ast_mdata_val mv
 				INNER JOIN
 					'.SQ_TABLE_RUNNING_PREFIX.'ast a ON mv.fieldid = a.assetid';
 
@@ -597,7 +597,7 @@ class Metadata_Manager extends MySource_Object
 		}
 
 		$sql = 'DELETE FROM
-					sq_ast_metadata_value
+					sq_ast_mdata_val
 				WHERE
 					'.$where;
 
@@ -609,7 +609,7 @@ class Metadata_Manager extends MySource_Object
 			$sql = 'SELECT
 						fieldid
 					FROM
-						'.SQ_TABLE_RUNNING_PREFIX.'ast_metadata_value';
+						'.SQ_TABLE_RUNNING_PREFIX.'ast_mdata_val';
 
 			$where = '	assetid = '.$db->quote($asset->id).'
 					 AND fieldid IN ('.implode(',', $quoted_fieldids).')';
@@ -619,7 +619,7 @@ class Metadata_Manager extends MySource_Object
 			assert_valid_db_result($updates);
 
 			$sql = 'INSERT INTO
-						sq_ast_metadata_value
+						sq_ast_mdata_val
 						(
 							assetid,
 							fieldid,
@@ -636,7 +636,7 @@ class Metadata_Manager extends MySource_Object
 			assert_valid_db_result($insert_prepared);
 
 			$sql = 'UPDATE
-						sq_ast_metadata_value
+						sq_ast_mdata_val
 					SET
 						value	= ?
 					WHERE
@@ -677,7 +677,7 @@ class Metadata_Manager extends MySource_Object
 
 			$db->freePrepared($insert_prepared);
 			$db->freePrepared($update_prepared);
-			
+
 		}// end if
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -1141,7 +1141,7 @@ class Metadata_Manager extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$sql = 'DELETE FROM
-					sq_ast_metadata
+					sq_ast_mdata
 				WHERE
 					assetid	= '.$db->quoteSmart($assetid);
 
@@ -1149,7 +1149,7 @@ class Metadata_Manager extends MySource_Object
 		assert_valid_db_result($result);
 
 		$sql = 'DELETE FROM
-					sq_ast_metadata_value
+					sq_ast_mdata_val
 				WHERE
 					assetid	= '.$db->quoteSmart($assetid);
 
@@ -1202,7 +1202,7 @@ class Metadata_Manager extends MySource_Object
 		$sql = 'SELECT
 					value
 				FROM
-					'.SQ_TABLE_RUNNING_PREFIX.'ast_metadata_value mdv';
+					'.SQ_TABLE_RUNNING_PREFIX.'ast_mdata_val mdv';
 		$where = 'mdv.assetid	= '.$db->quoteSmart($assetid).'
 					AND	mdv.fieldid	= '.$db->quoteSmart($field_assetid);
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'mdv');
@@ -1277,7 +1277,7 @@ class Metadata_Manager extends MySource_Object
 			$sql = 'SELECT
 						default_val
 					FROM
-						'.SQ_TABLE_RUNNING_PREFIX.'ast_metadata_dflt_val mdv';
+						'.SQ_TABLE_RUNNING_PREFIX.'ast_mdata_dflt_val mdv';
 			$where = 'mdv.assetid = '.$db->quoteSmart($field_assetid);
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'mdv');
 
@@ -1314,7 +1314,7 @@ class Metadata_Manager extends MySource_Object
 		$sql = 'SELECT
 					default_val
 				FROM
-					'.SQ_TABLE_RUNNING_PREFIX.'ast_metadata_dflt_val mdv';
+					'.SQ_TABLE_RUNNING_PREFIX.'ast_mdata_dflt_val mdv';
 		$where = 'mdv.assetid = '.$db->quoteSmart($field_assetid);
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'mdv');
 
@@ -1324,7 +1324,7 @@ class Metadata_Manager extends MySource_Object
 		// does the default value exist yet, then?
 		if (is_null($row)) {
 			$sql = 'INSERT INTO
-						sq_ast_metadata_dflt_val
+						sq_ast_mdata_dflt_val
 						(
 							assetid,
 							default_val
@@ -1336,7 +1336,7 @@ class Metadata_Manager extends MySource_Object
 						)';
 		} else {
 			$sql = 'UPDATE
-						sq_ast_metadata_dflt_val
+						sq_ast_mdata_dflt_val
 					SET
 						default_val = '.$db->quoteSmart($value).'
 					WHERE
