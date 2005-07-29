@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: pgsql_functions.xml,v 1.2 2005/07/26 01:45:35 mmcintyre Exp $
+* $Id: pgsql_functions.xml,v 1.3 2005/07/29 04:36:52 mmcintyre Exp $
 *
 */
 -->
@@ -46,11 +46,11 @@
 			LANGUAGE plpgsql;
 		]]>
 	</sql_element>
-	<sql_element display_name="sq_set_rollback_timestamp Function">
+	<sql_element display_name="sq_set_rollback_timestamp(TIMESTAMP) Function">
 		<![CDATA[
 			-- Creates a function to set the rollback timestamp so that when
 			-- rollback entries are updated, they are aligned
-			CREATE OR REPLACE FUNCTION sq_set_rollback_timestamp() RETURNS void AS '
+			CREATE OR REPLACE FUNCTION sq_set_rollback_timestamp(TIMESTAMP) RETURNS void AS '
 			DECLARE
 				tn varchar;
 				ts TIMESTAMP;
@@ -68,6 +68,19 @@
 					INSERT INTO sq_rollback_timestamp VALUES(now()::timestamp);
 				END IF;
 
+				RETURN;
+			END;
+			' language plpgsql;
+		]]>
+	</sql_element>
+	<sql_element display_name="sq_set_rollback_timestamp Function">
+		<![CDATA[
+			-- Creates a function to set the rollback timestamp so that when
+			-- rollback entries are updated, they are aligned
+			CREATE OR REPLACE FUNCTION sq_set_rollback_timestamp() RETURNS void AS '
+			DECLARE
+			BEGIN
+				PERFORM sq_set_rollback_timestamp(now()::TIMESTAMP);
 				RETURN;
 			END;
 			' language plpgsql;
