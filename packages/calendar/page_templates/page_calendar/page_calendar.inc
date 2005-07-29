@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.165 2005/07/21 01:02:19 dheppell Exp $
+* $Id: page_calendar.inc,v 1.166 2005/07/29 05:36:56 dheppell Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.165 $
+* @version $Revision: 1.166 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -394,7 +394,7 @@ class Page_Calendar extends Page_Asset_Listing
 						'calendar_contents'	=> translate('cal_page_calendar_contents'),
 						'calendar_title'	=> translate('cal_page_calendar_title'),
 						'up_link'			=> translate('cal_page_up_link'),
-						'prev_link'			=> translate('cal_page_previous_link'),
+						'prev_link'			=> translate('cal_page_prev_link'),
 						'next_link'			=> translate('cal_page_next_link'),
 						'current_user'		=> translate('cal_page_current_user'),
 					);
@@ -2327,6 +2327,9 @@ class Page_Calendar extends Page_Asset_Listing
 	function onRequestKeywords(&$broadcaster, $vars=Array())
 	{
 		if (!isset($vars['keywords'])) return;
+		if (empty($vars['keywords'])) {
+			parent::onRequestKeywords($broadcaster, $vars);
+		}
 		$keywords = Array(
 						'calendar_contents'	=> translate('cal_calendar_contents'),
 						'calendar_title'	=> translate('cal_calendar_title'),
