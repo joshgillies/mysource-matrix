@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general_occasional.inc,v 1.59 2005/07/12 03:20:16 lwright Exp $
+* $Id: general_occasional.inc,v 1.60 2005/07/29 04:50:55 tbarrett Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.59 $
+* @version $Revision: 1.60 $
 * @package MySource_Matrix
 */
 
@@ -359,6 +359,49 @@ function make_valid_web_paths($paths)
 	return $valid_paths;
 
 }//end make_valid_web_paths()
+
+
+/**
+* Given an array of parameters, constructs a well-formatted SQL query from them
+*
+* Note that this does not support any use of the JOIN keyword - it only supports joins
+* that use of the WHERE clause.
+*
+* @param array	$query_components	Array of query components
+*									(
+*										'select'		=> Array of fields for the select clause
+*										'from'			=> Array of table names optionally with aliases
+*										'where'			=> Array of elements for the where clause
+*										'where_joiner'	=> operator to connect the where elements (OR or AND)
+*										'group_by'		=> Array of fields for the GROUP BY clause
+*										'order_by'		=> Array of fields for the ORDER BY clause
+*									)
+*
+* @access public
+* @return string	SQL query
+*/
+function implode_sql($query_components)
+{
+	$where_joiner = trim(strtoupper(array_get_index($query_components, 'where_joiner', '')));
+	if ($where_joiner != 'OR') {
+		$where_joiner = 'AND';
+	}
+
+	$select = 'SELECT '.implode(', ', $query_components['select']);
+	$from = 'FROM '.implode(', ', $query_components['from']);
+	$where = 'WHERE ('.implode(")\n\t".$where_joiner.' (', $query_components['where']).')';
+	
+	$sql = "$select\n$from\n$where";
+
+	if (!empty($query_components['group_by'])) {
+		$sql .= "\nGROUP BY ".implode(', ', $query_components['group_by']);
+	}
+	if (!empty($query_components['order_by'])) {
+		$sql .= "\nORDER BY ".implode(', ', $query_components['order_by']);
+	}
+	return $sql;
+
+}//end implode_sql()
 
 
 ?>
