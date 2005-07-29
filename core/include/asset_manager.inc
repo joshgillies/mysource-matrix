@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.347 2005/07/28 22:47:36 pgannavarapu Exp $
+* $Id: asset_manager.inc,v 1.348 2005/07/29 04:33:16 mmcintyre Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.347 $
+* @version $Revision: 1.348 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -5488,6 +5488,8 @@ class Asset_Manager extends MySource_Object
 	*/
 	function generateGetParentsQuery($assetid, $type_code='', $strict_type_code=true, $sort_by=null, $access=null)
 	{
+		assert_valid_assetid($assetid);
+
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$assetid = (string) $assetid;
 
