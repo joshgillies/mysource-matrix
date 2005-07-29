@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.28 2005/07/29 06:31:11 tbarrett Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.29 2005/07/29 07:09:56 dmckee Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2798,6 +2798,57 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 			return false;
 		}
 	}//end processStructuredTypes()
+
+
+	/**
+	* Paint the interface for changing the dropdown lists options
+	*
+	* @param object Listing_Engine		&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintStructuredMaxDepth(&$asset, &$o, $prefix)
+	{
+		$options = $asset->attr('structured_dropdown_options');
+		//$types = $options['asset_types'];
+		if ($asset->writeAccess('content')) {
+			int_text_box($prefix.'_structured_max_depth', $options['max_depth'], false, 4, 0);
+			return true;
+		} else {
+			echo $options['max_depth'];
+			return false;
+		}
+
+	}//end paintStructuredMaxDepth()
+
+	/**
+	* Process the interface for editing the dropdown lists options
+	*
+	* @param object Listing_Engine		&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processStructuredMaxDepth(&$asset, &$o, $prefix)
+	{
+		// need to have write access to make any changes
+		if (!$asset->writeAccess('attributes')) return false;
+
+		if (isset($_POST[$prefix.'_structured_max_depth'])) {
+			$options = $asset->attr('structured_dropdown_options');
+
+			$options['max_depth'] = $_POST[$prefix.'_structured_max_depth'];
+			$asset->setAttrValue('structured_dropdown_options', $options);
+			return true;
+		} else {
+			return false;
+		}
+	}//end processStructuredMaxDepth()
 
 
 }//end class

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.114 2005/07/29 05:28:39 tbarrett Exp $
+* $Id: search_page.inc,v 1.115 2005/07/29 07:09:16 dmckee Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.114 $
+* @version $Revision: 1.115 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -687,7 +687,6 @@ class Search_Page extends Listing_Engine
 
 				case 'asset_attrib' :
 					$attribute = &$GLOBALS['SQ_SYSTEM']->am->getAttribute($fields[$field_name]['params']['attrid']);
-
 					if ($attribute->type() == 'datetime') {
 
 						$current_value = array_get_index($_SESSION['SQ_LAST_SEARCH'][$this->id], $field_name, Array());
@@ -1263,7 +1262,7 @@ class Search_Page extends Listing_Engine
 					foreach ($sub_resultids as $resultid) {
 						$result_list[$resultid] = $asset_info[$resultid];
 					}
-						
+
 					if ($this->attr('group_by') == 'grouped') {
 						$this->groupAssetsRecursively($this->attr('asset_grouping'), $result_list, $result_list);
 					}

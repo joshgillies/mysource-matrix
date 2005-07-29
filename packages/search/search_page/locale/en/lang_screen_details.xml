@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.8 2005/07/29 01:53:10 dheppell Exp $
+* $Id: lang_screen_details.xml,v 1.9 2005/07/29 07:09:17 dmckee Exp $
 *
 */
 -->
@@ -125,6 +125,14 @@
 			<function_call>
 				<paint_function   name="paintStructuredTypes"   />
 				<process_function name="processStructuredTypes" />
+			</function_call>
+		</field>
+		<field>
+			<display_name>Maximum Depth of Listing</display_name>
+			<note>Number of levels to display in tree. 0 denotes no limit.</note>
+			<function_call>
+				<paint_function   name="paintStructuredMaxDepth"   />
+				<process_function name="processStructuredMaxDepth" />
 			</function_call>
 		</field>
 	</section>

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.30 2005/07/29 01:53:10 dheppell Exp $
+* $Id: edit_interface_screen_details.xml,v 1.31 2005/07/29 07:09:16 dmckee Exp $
 *
 */
 -->
@@ -105,6 +105,12 @@
 			<function_call>
 				<paint_function   name="paintStructuredTypes"   />
 				<process_function name="processStructuredTypes" />
+			</function_call>
+		</field>
+		<field>
+			<function_call>
+				<paint_function   name="paintStructuredMaxDepth"   />
+				<process_function name="processStructuredMaxDepth" />
 			</function_call>
 		</field>
 	</section>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.22 2005/07/25 23:37:59 dmckee Exp $
+* $Id: edit_interface_screen_details.xml,v 1.23 2005/07/29 07:10:18 dmckee Exp $
 *
 */
 -->
@@ -101,6 +101,20 @@
 			<function_call>
 				<paint_function   name="paintStructuredTypes"   />
 				<process_function name="processStructuredTypes" />
+			</function_call>
+		</field>
+		<field>
+			<display_name>Maximum Depth of Listing</display_name>
+			<note></note>
+			<function_call>
+				<paint_function   name="paintStructuredMaxDepth"   />
+				<process_function name="processStructuredmaxDepth" />
+			</function_call>
+		</field>
+		<field>
+			<function_call>
+				<paint_function   name="paintStructuredMaxDepth"   />
+				<process_function name="processStructuredMaxDepth" />
 			</function_call>
 		</field>
 	</section>

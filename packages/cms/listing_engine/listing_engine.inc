@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.59 2005/07/29 06:25:56 lwright Exp $
+* $Id: listing_engine.inc,v 1.60 2005/07/29 07:09:56 dmckee Exp $
 *
 */
 
@@ -43,7 +43,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.59 $
+* @version $Revision: 1.60 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2527,7 +2527,7 @@ class Listing_Engine extends Page
 			}
 		}
 		ob_start();
-			$tree_data = $this->_structuredDropDown($options['root_node'], $pass_codes, $options['all_text']);
+			$tree_data = $this->_structuredDropDown($options['root_node'], $pass_codes, $options['all_text'], $options['max_depth']);
 			if (!isset($_REQUEST[$options['name']])) {
 				$_REQUEST[$options['name']] = '';
 			}
@@ -2642,7 +2642,7 @@ class Listing_Engine extends Page
 	* @param Array(string)		`	$type_codes		An array of type codes to restrict
 	*												options to.
 	* @param string		`			$all_text		The string to display for selecting all options
-	* @param int		`			$max_levels		the maximum number of levels to print
+	* @param int		`			$max_levels		the maximum number of levels to print, 0 for all
 	*
 	* @access protected
 	* @return array()
@@ -2664,7 +2664,7 @@ class Listing_Engine extends Page
 			$this->_IDListToTree($treeid, $search_tree);
 		}
 		$options = Array($root_id => $all_text);
-		$this->_drawTree($search_tree, $all_child_links, $options);
+		$this->_drawTree($search_tree, $all_child_links, $options, '', 0, $max_levels);
 		return $options;
 	}//end _structuredDropDown()
 
@@ -2694,7 +2694,7 @@ class Listing_Engine extends Page
 		$branch_str_len = 4;
 
 		if (strlen($treeid) < $branch_str_len) {
-			// n00b out
+			// Exit
 			return false;
 		}
 
@@ -2727,19 +2727,20 @@ class Listing_Engine extends Page
 	* @access private
 	* @return void
 	*/
-	function _drawTree($tree, &$all_child_links, &$output_tree, $branch='', $level=0)
+	function _drawTree($tree, &$all_child_links, &$output_tree, $branch='', $level=0, $max_level=0)
 	{
 		if (empty($tree)) return false;
 		foreach ($tree as $branch => $branch_data) {
 			$prefix = '';
 
 			$lvl = $all_child_links[$branch]['lvl'];
+			if (($max_level != 0) && ($lvl > $max_level)) return;
 			for ($i = 0; $i < $lvl; $i++) {
 				$prefix .= ' - ';
 			}
 			$output_tree[$all_child_links[$branch]['assetid']] = $prefix.$all_child_links[$branch]['short_name'];
 			if (is_array($branch_data) && !empty($branch_data)) {
-				$this->_drawTree($branch_data, $all_child_links, $output_tree, $branch, $level++);
+				$this->_drawTree($branch_data, $all_child_links, $output_tree, $branch, $level++, $max_level);
 			}
 		}
 	}//end _drawTree()

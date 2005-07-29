@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.7 2005/07/27 03:42:16 dmckee Exp $
+* $Id: lang_screen_details.xml,v 1.8 2005/07/29 07:10:18 dmckee Exp $
 *
 */
 -->
@@ -138,6 +138,14 @@
 			<function_call>
 				<paint_function   name="paintStructuredTypes"   />
 				<process_function name="processStructuredTypes" />
+			</function_call>
+		</field>
+		<field>
+			<display_name>Maximum Depth of Listing</display_name>
+			<note>Number of levels to display in tree. 0 denotes no limit.</note>
+			<function_call>
+				<paint_function   name="paintStructuredMaxDepth"   />
+				<process_function name="processStructuredMaxDepth" />
 			</function_call>
 		</field>
 	</section>
