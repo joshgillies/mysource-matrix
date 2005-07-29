@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_management.inc,v 1.42 2005/07/26 05:18:06 lwright Exp $
+* $Id: search_page_management.inc,v 1.43 2005/07/29 01:53:10 dheppell Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -38,6 +38,8 @@ class Search_Page_Management extends Asset_Management
 	function Search_Page_Management(&$pm)
 	{
 		$this->Asset_Management($pm);
+		
+		$this->vars['group_by']['default'] = 'grouped';
 
 		$this->vars['sis_button_text'] = Array(
 											'added'			=> '0.5',
@@ -343,7 +345,7 @@ class Search_Page_Management extends Asset_Management
 		}//end version 0.9 upgrade
 
 		if (version_compare($current_version, '0.13', '<')) {
-			bam('STARTING SEARCH PAGE UPGRADE - TO VERSION 0.13');
+			bam('STARTING SEARCH PAGE UPGRADE - FROM VERSION 0.12');
 			$children = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), false);
 			foreach ($children as $assetid) {
 				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
@@ -355,8 +357,24 @@ class Search_Page_Management extends Asset_Management
 					$GLOBALS['SQ_SYSTEM']->am->releaseLock($assetid, 'attributes');
 				}
 			}
-			bam('SEARCH PAGE UPGRADE COMPLETE - TO VERSION 0.13');
+			bam('SEARCH PAGE UPGRADE COMPLETE - FROM VERSION 0.12');
 		}//end version 0.13 upgrade
+		
+		if (version_compare($current_version, '0.14', '<')) {
+			bam('STARTING SEARCH PAGE UPGRADE - FROM VERSION 0.13');
+			// version 0.13->0.14
+			//changing the default value of attr 'group_by')
+			$children = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), false);
+			foreach ($children as $assetid) {
+				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$asset->setAttrValue('group_by', 'grouped');
+				$asset->saveAttributes();
+				
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+			}
+			
+			bam('SEARCH PAGE UPGRADE COMPLETE - FROM VERSION 0.13');
+		}//end version 0.12 upgrade
 
 		return true;
 

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.29 2005/07/27 01:36:53 tbarrett Exp $
+* $Id: edit_interface_screen_details.xml,v 1.30 2005/07/29 01:53:10 dheppell Exp $
 *
 */
 -->
@@ -31,7 +31,7 @@
 				<process_function name="processRootNode" />
 			</function_call>
 		</field>
-		<field write_access="write:attributes">
+		<field write_access="write:content">
 			<function_call>
 				<paint_function   name="paintAssetTypes"   />
 				<process_function name="processAssetTypes" />
@@ -65,9 +65,6 @@
 		</field>
 		<field attribute="sis_button_text" read_access="" write_access="write:attributes" >
 			<text />
-		</field>
-		<field attribute="group_by" write_access="write:attributes">
-			<selection style="list" />
 		</field>
 	</section>
 	<section name="List Position Settings" write_access="write:attributes">

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.26 2005/07/27 02:29:03 dmckee Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.27 2005/07/29 01:53:12 dheppell Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -178,7 +178,8 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		$asset_positions = $asset->attr('asset_positions');
 
 		//if were using custom grouping, this option is useless
-		if ($asset->attr('group_by') == 'grouped') {
+		$groups = $asset->attr('asset_grouping');
+		if ($asset->attr('group_by') == 'grouped' && !empty($groups)) {
 			$o->note(translate('cms_listing_cannot_use_asset_postitions_with_groups'));
 		} else {
 			if (!empty($asset_positions)) {

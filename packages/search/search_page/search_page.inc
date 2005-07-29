@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.112 2005/07/28 06:43:24 dmckee Exp $
+* $Id: search_page.inc,v 1.113 2005/07/29 01:53:10 dheppell Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.112 $
+* @version $Revision: 1.113 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1222,10 +1222,6 @@ class Search_Page extends Listing_Engine
 		if (!is_array($asset_info)) $asset_info = Array();
 
 		$this->_tmp['asset_info'] = $asset_info;
-
-		if ($this->attr('group_by') == 'grouped') {
-			$this->groupAssetsRecursively($this->attr('asset_grouping'), $asset_info, $asset_info);
-		}
 		$total_pages = ceil(count($asset_info) / $results_per_page);
 
 		// do analysis of check-all relations
@@ -1244,10 +1240,15 @@ class Search_Page extends Listing_Engine
 					foreach ($sub_resultids as $resultid) {
 						$result_list[$resultid] = $asset_info[$resultid];
 					}
+						
+					if ($this->attr('group_by') == 'grouped') {
+						$this->groupAssetsRecursively($this->attr('asset_grouping'), $result_list, $result_list);
+					}
+
 
 					// print the asset list from the listing engine
 					ob_start();
-					$this->printAssetList($asset_info);
+					$this->printAssetList($result_list);
 					$replacement = ob_get_contents();
 					ob_end_clean();
 				break;
