@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.113 2005/07/29 01:53:10 dheppell Exp $
+* $Id: search_page.inc,v 1.114 2005/07/29 05:28:39 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.113 $
+* @version $Revision: 1.114 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -66,7 +66,6 @@ class Search_Page extends Listing_Engine
 											'results_per_page',
 											'structured_search_location',
 											'category_list',
-											'category_list_linked',
 										   ),
 						'results'		=> Array(
 											'result_list',
@@ -297,22 +296,22 @@ class Search_Page extends Listing_Engine
 		}
 
 		?>
-			<input type="hidden" name="current_result_page" value="<?php echo $current_result_page; ?>" />
-			<input type="hidden" name="results_per_page" value="<?php echo $results_per_page; ?>" />
-			<input type="hidden" name="submitted_search_category" value="<?php echo $submitted_category; ?>" />
-			<input type="hidden" name="mode" value="" />
-			<?php
-			switch ($mode) {
-				case 'results':
-				case 'sis'    :
-					$this->printResultsBody();
-				break;
+		<input type="hidden" name="current_result_page" value="<?php echo $current_result_page; ?>" />
+		<input type="hidden" name="results_per_page" value="<?php echo $results_per_page; ?>" />
+		<input type="hidden" name="submitted_search_category" value="<?php echo $submitted_category; ?>" />
+		<input type="hidden" name="mode" value="" />
+		<?php
+		switch ($mode) {
+			case 'results':
+			case 'sis'    :
+				$this->printResultsBody();
+			break;
 
-				case 'initial':
-				default:
-					echo $this->getBodycopyContents('initial', $this->getInitialBodyReplacements());
-				break;
-			}
+			case 'initial':
+			default:
+				echo $this->getBodycopyContents('initial', $this->getInitialBodyReplacements());
+			break;
+		}
 
 	}//end printContents()
 
@@ -362,7 +361,6 @@ class Search_Page extends Listing_Engine
 				}
 			}
 			return $sort_assets;
-			//return $asset_list;
 		} else {
 			return parent::sortAssetList($asset_list, $sort_info);
 		}
@@ -625,6 +623,28 @@ class Search_Page extends Listing_Engine
 
 
 	/**
+	*
+	*
+	* @access public
+	* @return void
+	*/
+	function getCategoryChooserReplacement($cat_set_name, $cat_set_details)
+	{
+		$prefix = $this->getPrefix();
+		$options = Array('' => $cat_set_details['unselected_text']);
+		foreach ($cat_set_details['options'] as $code_name => $cat_option) {
+			$options[$code_name] = $cat_option['full_name'];
+		}
+		ob_start();
+			combo_box($prefix.'_category_'.$cat_set_name, $options, false, '');
+			$res = ob_get_contents();
+		ob_end_clean();
+		return $res;
+
+	}//end getCategoryChooserReplacement()
+
+
+	/**
 	* Returns the replacement for the specified field
 	*
 	* @param string $field name the name of the field to get the replacement for
@@ -686,7 +706,7 @@ class Search_Page extends Listing_Engine
 						// give the attribute our custom search styles if we have them
 						$search_styles = $this->attr('search_styles');
 						if (isset($search_styles[$attribute->id])) {
-							$attribute->_edit_params = $search_styles[$attribute->id];
+							$attribute->_edit_params = array_merge($attribute->_edit_params, $search_styles[$attribute->id]);
 						}
 
 						$attribute->paint('queries_'.$query_var, false);
@@ -1062,10 +1082,13 @@ class Search_Page extends Listing_Engine
 		$replaces = Array();
 
 		$fields = $this->attr('fields');
+		$categories = $this->attr('categories');
 
 		foreach ($keywords as $keyword) {
 			if (ereg('(.+)_query', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
 				$replaces[$keyword] = $this->getFieldReplacement($matches[1]);
+			} else if (ereg('(.+)_category_chooser', $keyword, $matches) && array_key_exists($matches[1], $categories)) {
+				$replaces[$keyword] = $this->getCategoryChooserReplacement($matches[1], $categories[$matches[1]]);
 			} else {
 				$replaces[$keyword] = $this->getGeneralReplacement($keyword);
 			}
@@ -1627,27 +1650,24 @@ class Search_Page extends Listing_Engine
 
 		$fields = $this->attr('fields');
 
-		// search category
-		$category = array_get_index($_REQUEST, 'search_category', array_get_index($_REQUEST, 'submitted_search_category', ''));
-		$categories = $this->attr('categories');
-
-		if (!empty($category) && !isset($categories[$category])) {
-			$category = '';
-		}
-
 		// save the search terms into the session so that we can use them for
 		// search within search results
 		$queries = $this->_getSearchedQueries();
 		$_SESSION['SQ_LAST_SEARCH'][$this->id] = $queries;
 
 		// get the basic search settings based on the current category (if any)
-		$search_info = $this->populateBaseSearchInfo($category);
+		$search_info = $this->populateBaseSearchInfo();
 
-		$query_fileds_exist = false;
+		$query_fields_exist = false;
 
 		foreach ($queries as $field_name => $value) {
 
 			if (empty($value)) continue;
+			$empty_dates = Array(
+							'from'	=> '---------- --:--:--',
+							'to'	=> '---------- --:--:--',
+						   );
+			if ($value == $empty_dates) continue;
 
 			if ($fields[$field_name]['type'] == 'asset_attrib') {
 				$attribute = &$GLOBALS['SQ_SYSTEM']->am->getAttribute($fields[$field_name]['params']['attrid']);
@@ -1663,7 +1683,6 @@ class Search_Page extends Listing_Engine
 				}
 			}
 
-			//TODO mmcintyre : change here
 			$words = $value;
 
 			$field_type = $fields[$field_name]['type'];
@@ -1676,8 +1695,7 @@ class Search_Page extends Listing_Engine
 				$search_logic = 'AND';
 			}
 			$search_info[$field_type][$field_name]['search_logic'] = $search_logic;
-
-			$query_fileds_exist = true;
+			$query_fields_exist = true;
 
 		}//end foreach fields
 
@@ -1722,19 +1740,19 @@ class Search_Page extends Listing_Engine
 							$this->_tmp['search_synonyms'][$field_name][$word] = $suggestions;
 						}
 					}
-
 				}//end thesaurus exists
 
 			}
 		}
 
-		if ($query_fileds_exist) {
+		if ($query_fields_exist) {
 			return $sm->processSearch($search_info);
 		} else if ($this->attr('allow_empty_search')) {
 			return $sm->processBasicSearch($search_info);
 		} else {
 			return Array();
 		}
+
 	}//end processSearch()
 
 
@@ -1780,7 +1798,7 @@ class Search_Page extends Listing_Engine
 							$queries[$field_name] = $this->_processDateRange($query_var);
 						} else {
 							$attribute->process($query_var);
-							$queries[$field_name] = $attribute->value;
+							$queries[$field_name] = trim($attribute->value);
 							if ($attribute->type() == 'selection' && !empty($attribute->_params['multiple'])) {
 								$queries[$field_name] = array_keys($attribute->getValueArray());
 							}
@@ -1789,6 +1807,8 @@ class Search_Page extends Listing_Engine
 				break;
 
 				case 'metadata' :
+					bam('Processing metadata search field');
+					bam($field);
 					if (empty($field['params']['assetid'])) {
 						trigger_localised_error('SCH0027', $field_name);
 						$queries[$field_name] = '';
@@ -1861,48 +1881,65 @@ class Search_Page extends Listing_Engine
 	/**
 	* Get the basic search settings based on the current category
 	*
-	* @param string	$category	the current search category
-	*
 	* @return boolean
 	* @access private
 	*/
-	function populateBaseSearchInfo($category='')
+	function populateBaseSearchInfo()
 	{
-		$search_info = Array();
+		$prefix = $this->getPrefix();
 
+		// first, see if a category has been supplied
+		$categories = $this->attr('categories');
+		$active_cats = Array();
+		foreach ($categories as $set_name => $cat_data) {
+			if (!empty($_GET[$prefix.'_category_'.$set_name])) {
+				if (isset($cat_data['options'][$_GET[$prefix.'_category_'.$set_name]])) {
+					$code_name = $_GET[$prefix.'_category_'.$set_name];
+					$active_cats[$set_name.'_'.$code_name] = $cat_data['options'][$code_name];
+				}
+			}
+		}
+
+		$search_roots = Array();
+		$statuses_customised = false;
+		$root_logic = 'AND'; // if there are no roots from categories this will get changed below
+		if (!empty($active_cats)) {
+			include_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+			$search_statuses = array_keys(get_status_names());
+			foreach ($active_cats as $set_option_name => $cat) {
+				if (isset($cat['statuses'])) {
+					$statuses_customised = true;
+					$search_statuses = array_intersect($search_statuses, $cat['statuses']);
+				}
+				if (isset($cat['root_assetid'])) {
+					$link_value = 'root_'.$set_option_name;
+					$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', false, $link_value);
+					$root_id = array_get_index($root_link, 'minorid');
+					if ($root_id) $search_roots[] = $root_id;
+				}
+			}
+		}
+
+		if (!$statuses_customised) {
+			// use default status choices
+			$search_statuses = $this->attr('statuses');
+		}
+
+		if (empty($search_roots)) {
+			// use default search roots because no categories chosen or not customised
+			$search_roots =  $this->getRootNodes();
+			$root_logic = 'OR';
+			// if no default root nodes were specified, we search everything
+			if (empty($search_roots)) $search_roots = 0;
+		}
+
+		$search_info = Array();
+		$search_info['search_statuses'] = $search_statuses;
+		$search_info['root_assetid'] = $search_roots;
+		$search_info['root_logic'] = $root_logic;
 		$search_info['logic'] = $this->attr('logic');
 		$search_info['assetid'] = $this->id;
-
-		$root_id = null;
-		// first, see if a category has been supplied
-		if (!empty($category)) {
-			$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', false, 'root_'.$category);
-			$root_id = array_get_index($root_link, 'minorid');
-		}
-
-		if (is_null($root_id)) {
-			$root_id = $this->getRootNodes();
-			// if no root nodes were specified, we search everything
-			if (empty($root_id)) $root_id = 0;
-		}
-
-		$search_info['root_assetid'] = $root_id;
-
-		$search_info['sort_by'] = $this->getSortInfo();
-		$search_info['sort_descending'] = $this->isDescending();
 		$search_info['search_types'] = $this->attr('types');
-
-		if (!empty($category)) {
-			$categories = $this->attr('categories');
-			if (isset($categories[$category]['statuses'])) {
-				$search_info['search_statuses'] = $categories[$category]['statuses'];
-			} else {
-				$search_info['search_statuses'] = $this->attr('statuses');
-			}
-		} else {
-			$search_info['search_statuses'] = $this->attr('statuses');
-		}
-
 		return $search_info;
 
 	}//end populateBaseSearchInfo()
@@ -2123,23 +2160,6 @@ class Search_Page extends Listing_Engine
 			return;
 		}
 
-/*<<<<<<< search_page.inc
-		// work out if forms are customised
-		$search_bodycopy_link = &$this->getFormatBodycopyLink('search_form');
-		$sis_bodycopy_link    = &$this->getFormatBodycopyLink('sis_form'); //search in search
-		$search_customised    = !empty($search_bodycopy_link) && $search_bodycopy_link['link_type'] != SQ_LINK_TYPE_3;
-		$sis_customised       = !empty($sis_bodycopy_link) && $sis_bodycopy_link['link_type'] != SQ_LINK_TYPE_3;
-
-		foreach ($bodycopies as $bodycopy) {
-			// only retrieve listing-specific keywords if this is the 'results' bodycopy
-			$keywords = parent::onRequestKeywords($broadcaster, $vars, ($bodycopy == 'results'));
-
-			if ($bodycopy == 'initial') {
-				// work out the query replacements
-				$fields = $this->attr('fields');
-				foreach ($fields as $field => $field_data) {
-					$keywords[$field.'_query'] = translate('sch_page_keyword_search_field', $field);
-=======*/
 		if (empty($bodycopies) && !empty($type_formats)) {
 			parent::onRequestKeywords($broadcaster, $vars);
 			return;
@@ -2152,16 +2172,21 @@ class Search_Page extends Listing_Engine
 
 			foreach ($bodycopies as $bodycopy) {
 				if ($bodycopy == 'initial') {
-					// work out the query replacements
+					// work out the query field keywords
 					$fields = $this->attr('fields');
 					foreach ($fields as $field => $field_data) {
 						$keywords[$field.'_query'] = translate('sch_page_keyword_search_field', $field);
 					}
+
+					// work out search category keywords
+					foreach ($this->attr('categories') as $cat_name => $cat_details) {
+						$keywords[$cat_name.'_category_chooser'] = 'Dropdown box to choose a category from set '.$cat_name;
+					}
+
 				}
 
 				foreach ($this->keywords[$bodycopy] as $keyword) {
 					$keywords[$keyword] = ucwords(str_replace('_', ' ', $keyword));
-//>>>>>>> 1.105
 				}
 
 				// customised forms

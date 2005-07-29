@@ -11,35 +11,28 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_categories.xml,v 1.2 2005/04/29 05:38:41 gsherwood Exp $
+* $Id: lang_screen_categories.xml,v 1.3 2005/07/29 05:28:42 tbarrett Exp $
 *
 */
 -->
 <contents>
-	<section name="General Category Settings">
-		<field attribute="no_category_text">
-			<display_name>Not Selected Text</display_name>
-			<note />
-		</field>
-	</section>
-	<section name="Select Existing Category">
+	<section name="Categories">
 		<field>
-			<display_name>Configure Search Category</display_name>
-			<note />
 			<function_call>
-				<paint_function name="paintChooseCategory" />
-				<process_function name="processChooseCategory" />
+				<paint_function name="paintCategories" />
+				<process_function name="processCategories" />
 			</function_call>
+			<display_name>Category Sets</display_name>
+			<note />
 		</field>
-	</section>
-	<section name="Search Category Management">
 		<field>
-			<display_name>Category Name</display_name>
-			<note />
 			<function_call>
-				<paint_function name="paintCustomiseCategory" />
-				<process_function name="processCustomiseCategory" />
+				<paint_function name="paintAddCategory" />
+				<process_function name="processAddCategory" />
 			</function_call>
+			<display_name>Add New Category Set</display_name>
+			<note />
 		</field>
+		<note>When a frontend user selects options from several category sets, the search results will be restricted to assets that satisfy every selected category's conditions</note>
 	</section>
 </contents>

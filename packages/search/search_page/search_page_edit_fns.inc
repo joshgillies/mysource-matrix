@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_edit_fns.inc,v 1.52 2005/07/26 05:18:06 lwright Exp $
+* $Id: search_page_edit_fns.inc,v 1.53 2005/07/29 05:28:39 tbarrett Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine_edit_fns.inc';
 *     Edit functions for search page
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.52 $
+* @version $Revision: 1.53 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -100,7 +100,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 	* @return void
 	* @access public
 	*/
-	function processRootAsset(&$asset, &$o, $prefix, $category='')
+	function processRootAsset(&$asset, &$o, $prefix)
 	{
 		if (!isset($_POST[$prefix.'_rootid']['assetid'])) {
 			return false;
@@ -109,7 +109,6 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 
 		// getting existing root link
 		$link_value = 'root';
-		if (!empty($category)) $link_value .= '_'.$category;
 		$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', false, $link_value);
 
 		// dont process anything if the root node has not changed
@@ -609,54 +608,11 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 	}//end processStyles()
 
 
-	/**
-	* Paints the interface for selecting a search category to customise
-	*
-	* @param object Search_Page			&$asset	the search page asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
-	*
-	* @return void
-	* @access public
-	*
-	*/
-	function paintChooseCategory(&$asset, &$o, $prefix)
-	{
-		$write_access = $asset->writeAccess('menu');
-		$categories = $asset->attr('categories');
-
-		if (isset($_REQUEST[$prefix.'_select_category'])) {
-			$selected = $_REQUEST[$prefix.'_select_category'];
-		} else {
-			$selected = (isset($_REQUEST[$prefix.'_category'])) ? $_REQUEST[$prefix.'_category'] : '';
-		}
-
-		$options = Array();
-		if ($write_access) {
-			$options[''] = '-- '.translate('sch_page_add_new_category').'--';
-		} else {
-			$options[''] = '-- '.translate('sch_page_select_category').' --';
-		}
-
-		foreach ($categories as $name => $data) {
-			if (empty($name)) continue;
-			$options[$name] = $data['name'];
-		}
-		combo_box($prefix.'_select_category', $options, false, $selected);
-		$o->addFormActionGetVar($prefix.'_category', $selected, true);
-		submit_button($prefix.'_go', translate('go'));
-
-		if (isset($_REQUEST[$prefix.'_select_category']) && !empty($_REQUEST[$prefix.'_select_category'])) {
-			echo '<br/><br/><b>'.translate('sch_page_currently_customising', $options[$_REQUEST[$prefix.'_select_category']]).'</b>';
-		}
-
-		return false;
-
-	}//end paintChooseCategory()
+//--        CATEGORIES        --//
 
 
 	/**
-	* Processes the interface for selecting a search category to customise
+	* Paints the interface for managing the search categories
 	*
 	* @param object Search_Page			&$asset	the search page asset
 	* @param object Backend_Outputter	&$o		the backend outputter
@@ -664,227 +620,486 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 	*
 	* @return boolean
 	* @access public
-	*
 	*/
-	function processChooseCategory(&$asset, &$o, $prefix)
+	function paintCategories(&$asset, &$o, $prefix)
 	{
-		return false;
-
-	}//end processChooseCategory()
-
-
-	/**
-	* Paints the interface for editing a search category
-	*
-	* @param object Search_Page			&$asset	the search page asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
-	*
-	* @return void
-	* @access public
-	*
-	*/
-	function paintCustomiseCategory(&$asset, &$o, $prefix)
-	{
-		$write_access = $asset->writeAccess('menu');
-
-		if (isset($_REQUEST[$prefix.'_select_category'])) {
-			$selected = $_REQUEST[$prefix.'_select_category'];
-		} else {
-			$selected = (isset($_REQUEST[$prefix.'_category'])) ? $_REQUEST[$prefix.'_category'] : '';
-		}
-
-		if (!empty($selected)) {
-
-			$categories = $asset->attr('categories');
-
-			// field opened by asset_edit_interface
-				if ($write_access) {
-					text_box($prefix.'_category_name', $categories[$selected]['name'], 50);
-				} else {
-					echo $categories[$selected]['name'];
+		?>
+		<style type="text/css">
+			table.category-set {
+				margin-bottom: 10px;
+			}
+			table.category-set th.title {
+				font-size: 90%;
+			}
+			table.category-set th.delete {
+				vertical-align: middle;
+				width: 15ex;
+			}
+			table.category-set th.delete input {
+				margin: 0px 4px;
+			}
+			table.category-set table.sq-backend-table {
+				margin-left: 15px;
+				margin-top: 2px;
+			}
+			table.category-set table.sq-backend-table th {
+				font-weight: normal;
+			}
+			table.category-set table.sq-backend-table td {
+				white-space: nowrap;
+			}
+		</style>
+		<script type="text/javascript"><!--
+		//<![CDATA[
+			function handleDefaultStatusClick(elt)
+			{
+				var td = elt.parentNode;
+				while (td.tagName != 'TD') {
+					td = td.parentNode;
 				}
-			$o->closeField();
-
-			if ($write_access) {
-				$o->openField(translate('delete_question'));
-					check_box($prefix.'_delete_category');
-					echo translate('sch_page_delete_this_category');
-				$o->closeField();
+				var selects = td.getElementsByTagName('SELECT');
+				with (selects[0].style) {
+					display = (display == 'none') ? '' : 'none';
+				}
 			}
 
-			$o->openSection(translate('sch_page_category_specific_search_settings'));
-				$o->openField('Root Asset');
-					$using_default = !isset($categories[$selected]['root_assetid']);
-					if ($using_default) {
-						echo translate('sch_page_currently_using_default_root').' <b>';
-					}
-
-					$category = ($using_default) ? '' : $selected;
-					$this->paintRootAsset($asset, $o, $prefix, $category, $using_default);
-					if ($using_default) echo '</b>';
-
-					if ($write_access) {
-						check_box($prefix.'_default_root_assetid', '1', $using_default);
-						echo ' '.translate('use_default');
-					}
-				$o->closeField();
-
-				$o->openField(translate('sch_page_search_statuses'));
-					$using_default = !isset($categories[$selected]['statuses']);
-					if ($write_access) {
-						check_box($prefix.'_default_statuses', '1', $using_default);
-						echo ' '.translate('use_default').'<br />';
-					}
-					if ($using_default) {
-						echo translate('sch_page_currently_using_default_status');
-					}
-					$category = ($using_default) ? '' : $selected;
-					$this->paintStatus($asset, $o, $prefix, $category, $using_default);
-				$o->closeField();
-			$o->closeSection();
-
-		} else {
-			if ($write_access) {
-				text_box($prefix.'_category_name', '', 50);
-			} else {
-				echo translate('sch_page_select_category_to_customise');
+			function handleDefaultRootClick(elt)
+			{
+				var td = elt.parentNode;
+				while (td.tagName != 'TD') {
+					td = td.parentNode;
+				}
+				var divs = td.getElementsByTagName('DIV');
+				with (divs[0].style) {
+					display = (display == 'none') ? '' : 'none';
+				}
 			}
-
-		}//end if !empty()
-
-		return $write_access;
-
-	}//end paintCustomiseCategory()
-
-
-	/**
-	* Processes the interface for editing a search category
-	*
-	* @param object Search_Page			&$asset	the search page asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
-	*
-	* @return boolean
-	* @access public
-	*
-	*/
-	function processCustomiseCategory(&$asset, &$o, $prefix)
-	{
-		if (!$asset->writeAccess('menu')) return false;
-
-		$categories = $asset->attr('categories');
-
-		if (isset($_REQUEST[$prefix.'_category'])) {
-			$category = $_REQUEST[$prefix.'_category'];
-
-			if (!empty($category)) {
-
-				// delete the category ?
-				if (isset($_POST[$prefix.'_delete_category']) && $_POST[$prefix.'_delete_category']) {
-					if (isset($categories[$category])) {
-						// delete the root node link
-						$_POST[$prefix.'_rootid']['assetid'] = '';
-						$this->processRootAsset($asset, $o, $prefix, $category);
-						unset($categories[$category]);
-						$_REQUEST[$prefix.'_select_category'] = '';
-					}
-
-				} else {
-
-					// change the name of the category ?
-					if (isset($_POST[$prefix.'_category_name'])) {
-						$new_name = $_POST[$prefix.'_category_name'];
-						if ($new_name != $categories[$category]['name']) {
-							$old_key = str_replace(' ', '_', strtolower($categories[$category]['name']));
-							$new_key = str_replace(' ', '_', strtolower($new_name));
-							if ($old_key != $new_key) {
-								$categories[$new_key] = $categories[$old_key];
-								unset($categories[$old_key]);
-
-								// change the root asset link
-								$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', false, 'root_'.$category);
-								if (!empty($root_link)) {
-									$GLOBALS['SQ_SYSTEM']->am->updateLink($root_link['linkid'], null, 'root_'.$new_key, $root_link['sort_order']);
-								}
-								$category = $new_key;
-								$_REQUEST[$prefix.'_select_category'] = $new_key;
-							}
-						}//end if name changed
-						$categories[$category]['name'] = $new_name;
-					}//end if category name set
-
-					$defaults = Array('root_assetid', 'statuses');
-					foreach ($defaults as $default) {
-						$using_default = false;
-						if (!isset($_POST[$prefix.'_default_'.$default])) {
-							if (!isset($categories[$category][$default])) {
-								if ($default == 'root_assetid') {
-									$categories[$category][$default] = '';
-								} else {
-									$categories[$category][$default] = $asset->attr($default);
-								}
-								$using_default = true;
-							}
+		//]]> -->
+		</script>
+		<?php
+		$sets = $asset->attr('categories');
+		$wa = $asset->writeAccess('attributes');
+		foreach ($sets as $name => $set_data) {
+			?>
+			<table class="sq-backend-table category-set">
+				<tr>
+					<th class="title"><?php echo $name; ?></th>
+					<th class="delete">
+						<?php
+						if ($wa) {
+							$msg = 'Are you sure you want to delete this category set?'; // TODO: translate
+							check_box($prefix.'_category_sets_to_delete[]', $name, false, "return confirm('$msg')", 'id="'.$prefix.'_category_sets_to_delete_'.$name.'"');
+							label('Delete', $prefix.'_category_sets_to_delete_'.$name); // TODO: translate
+						}
+						?>
+					</th>
+				</tr>
+				<tr>
+					<td colspan="2">
+						<?php
+						if ($wa) {
+							label('Unselected Text: ', $prefix.'_category_'.$name.'_unselected_text'); // TODO: translate
+							echo '&nbsp;';
+							text_box($prefix.'_category_'.$name.'_unselected_text', $set_data['unselected_text']);
 						} else {
-							$using_default = true;
-							if (isset($categories[$category][$default])) {
-								unset($categories[$category][$default]);
-							}
-							if ($default == 'root_assetid') {
-								$_POST[$prefix.'_rootid']['assetid'] = '';
-								$this->processRootAsset($asset, $o, $prefix, $category);
-							}
+							echo 'Unselected Text: '; // TODO: translate
+							echo $set_data['unselected_text'];
 						}
+						?>
+					</td>
+				</tr>
+				<tr>
+					<td colspan="2">
+						<?php
+						echo 'Options:'; // TODO: translate
+						$this->_paintCategoryOptions($asset, $prefix.'_category_'.$name.'_options', $name, $set_data['options'], $wa);
+						?>
+					</td>
+				</tr>
+			</table>
+			<?php
+		}
 
-						if (!$using_default) {
-							$new_value = '';
-							switch ($default) {
-								case 'root_assetid' :
-									$this->processRootAsset($asset, $o, $prefix, $category);
-								break;
+	}//end paintCategories()
 
-								case 'statuses' :
-									$new_value = Array();
-									if (isset($_POST[$prefix.'_statuses'])) {
-										foreach ($_POST[$prefix.'_statuses'] as $status) {
-											$new_value[] = $status;
-										}
-										$new_value = array_unique($new_value);
-									}
-								break;
-							}//end switch
 
-							$categories[$category][$default] = $new_value;
-						}
+	/**
+	* Paint the interface for managing a category set's category options
+	*
+	* @param object		$asset		The asset whose categories are being managed
+	* @param string		$prefix		The prefix for form fields
+	* @param string		$set_name	The category set whose options are being managed
+	* @param array		$options	The current category options
+	* @param boolean	$wa			Whether we have write access to the field
+	*
+	* @access private
+	* @return void
+	*/
+	function _paintCategoryOptions(&$asset, $prefix, $set_name, $options, $wa)
+	{
+		?>
+		<table class="sq-backend-table">
+			<tr>
+				<th><?php echo 'Name'; // TODO: translate ?></th>
+				<th style="width: 35ex"><?php echo 'Statuses'; // TODO: translate ?></th>
+				<th style="width: 60ex"><?php echo 'Root Asset'; // TODO: translate ?></th>
+			<?php
+			if ($wa) {
+				?>
+				<th style="width: 7ex"><?php echo 'Delete'; // TODO: translate ?></th>
+				<?php
+			}
+			?>
+			</tr>
+		<?php
+		foreach ($options as $code_name => $option) {
+			?>
+			<tr>
+				<td>
+					<?php
+					if ($wa) {
+						text_box($prefix.'_'.$code_name.'_full_name', $option['full_name']);
+					} else {
+						echo $option['full_name'];
 					}
-
-					if (isset($categories[$category]) && empty($categories[$category])) {
-						unset($categories[$category]);
+					?>
+				</td>
+				<td>
+					<?php
+					$customised = isset($option['statuses']);
+					$current_stats = array_get_index($option, 'statuses', Array());
+					if ($wa) {
+						check_box($prefix.'_'.$code_name.'_statuses_default', '1', !$customised, 'handleDefaultStatusClick(this)');
+						label('Use Default', $prefix.'_'.$code_name.'_statuses_default');
+					} else {
+						echo '<img src="'.sq_web_path('lib').'/web/images/'.($customised ? 'cross' : 'tick').'.gif" />';
+						echo 'Use Default'; // TODO: translate
 					}
-					if (isset($categories[$category]['name']) && empty($categories[$category]['name'])) {
-						unset($categories[$category]);
+					$this->_paintStatusChooser($prefix.'_'.$code_name.'_statuses', $current_stats,  $wa, $customised);
+					?>
+				</td>
+				<td>
+					<?php
+					$customised = isset($option['root_assetid']);
+					$current_root = 0;
+					if ($customised) {
+						$link_value = 'root_'.$set_name.'_'.$code_name;
+						$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', false, $link_value);
+						$current_root = $root_link['minorid'];
 					}
+					if ($wa) {
+						check_box($prefix.'_'.$code_name.'_root_default', '1', !$customised, 'handleDefaultRootClick(this)');
+						label('Use Default', $prefix.'_'.$code_name.'_root_default');
+					} else {
+						echo '<img src="'.sq_web_path('lib').'/web/images/'.($customised ? 'cross' : 'tick').'.gif" />';
+						echo 'Use Default'; // TODO: translate
+					}
+					$this->_paintAssetChooser($prefix.'_'.$code_name.'_root', $current_root,  $wa, $customised);
+					?>
+				</td>
+			<?php
+			if ($wa) {
+				?>
+				<td>
+					<?php
+					check_box($prefix.'_to_delete[]', $code_name, false);
+					?>
+				</td>
+				<?php
+			}
+			?>
+			</tr>
+			<?php
+		}
+		if ($wa) {
+			?>
+			<tr>
+				<td>
+					<?php text_box($prefix.'__new__full_name', ''); ?>
+				</td>
+				<td>
+					<?php
+					check_box($prefix.'__new__statuses_default', '1', true, 'handleDefaultStatusClick(this)');
+					label('Use Default', $prefix.'__new__statuses_default');
+					$this->_paintStatusChooser($prefix.'__new__statuses', Array(), true, false);
+					?>
+				</td>
+				<td>
+					<?php
+					check_box($prefix.'__new__root_default', '1', true, 'handleDefaultRootClick(this)');
+					label('Use Default', $prefix.'__new__root_default');
+					$this->_paintAssetChooser($prefix.'__new__root', '', true, false);
+					?>
+				</td>
+				<td>&nbsp</td>
+			</tr>
+			<?php
+		}
+		?>
+		</table>
+		<?php
 
-				}//end if delete category
+	}//end _paintCategoryOptions()
 
+
+	/**
+	* Paint the interface for choosing statuses for a category option
+	*
+	* @param string		$name			Name for the form field
+	* @param array		$current_values	The current search statuses for the option
+	* @param boolean	$editable		Whether the field is editable
+	* @param boolean	$visible		Whether the field should be css-visible initially
+	*
+	* @access private
+	* @return void
+	*/
+	function _paintStatusChooser($name, $current_values, $editable=true, $visible=true)
+	{
+		if (!$editable && !$visible) {
+			return;
+		}
+		$style = $visible ? '' : 'display: none';
+		echo '<br />';
+
+		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+		if ($editable) {
+			require_once SQ_LIB_PATH.'/html_form/html_form.inc';
+			$statuses = get_constant_values('SQ_STATUS');
+			$options = Array();
+			foreach ($statuses as $constant => $value) {
+				$options[$value] = get_status_description($value);
+			}
+			combo_box($name, $options, true, $current_values, '', 'style="'.$style.'"');
+		} else {
+			if (empty($current_values)) {
+				echo translate('sch_page_no_status_selected');
 			} else {
-				if (isset($_POST[$prefix.'_category_name'])) {
-					$new_name = trim($_POST[$prefix.'_category_name']);
-					if (!empty($new_name)) {
-						$new_key = str_replace(' ', '_', strtolower($new_name));
-						$categories[$new_key] = Array('name' => $new_name);
-						$_REQUEST[$prefix.'_select_category'] = $new_key;
+				echo '<ul>';
+				foreach ($current_values as $status) {
+					echo '<li>'.get_status_description($status).'</li>';
+				}
+				echo '</ul>';
+			}
+		}
+
+	}//end _paintStatusChooser()
+
+
+	/**
+	* Paint the interface for choosing a root asset for a category option
+	*
+	* @param string	$name			Name for the form field
+	* @param int	$current_value	The current root asset id for the option
+	* @param boolean	$editable		Whether the field is editable
+	* @param boolean	$visible		Whether the field should be css-visible initially
+	*
+	* @access private
+	* @return void
+	*/
+	function _paintAssetChooser($name, $current_value, $editable=true, $visible=true)
+	{
+		if (!$editable && !$visible) {
+			return;
+		}
+		echo '<div style="'.($visible ? '' : 'display: none').'">';
+		if ($editable) {
+			asset_finder($name, $current_value);
+		} else {
+			$asset_name = reset($GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($current_value), '', true, 'name'));
+			echo $asset_name.' (ID #'.$current_value.')';
+		}
+		echo '</div>';
+
+	}//end _paintAssetChooser()
+
+
+	/**
+	* Processes the interface for managing the search categories
+	*
+	* @param object Search_Page			&$asset	the search page asset
+	* @param object Backend_Outputter	&$o		the backend outputter
+	* @param string						$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processCategories(&$asset, &$o, $prefix)
+	{
+		$cats = $asset->attr('categories');
+
+		// Any categories to delete?
+		if (!empty($_POST[$prefix.'_category_sets_to_delete'])) {
+			foreach ($_POST[$prefix.'_category_sets_to_delete'] as $delete_name) {
+				unset($cats[$delete_name]);
+			}
+		}
+
+		// Categories to edit?
+		foreach ($cats as $name => $cat_data) {
+			$cat_data['unselected_text'] = $_POST[$prefix.'_category_'.$name.'_unselected_text'];
+			$cat_data['options'] = $this->_processCategoryOptions($asset, $prefix.'_category_'.$name.'_options', $name, $cat_data['options']);
+			$cats[$name] = $cat_data;
+		}
+
+		return $asset->setAttrValue('categories', $cats);
+
+	}//end processCategories()
+
+
+	/**
+	* Process the interface where category options for a category set are managed
+	*
+	* Updates and creates notice links for category options' root nodes
+	*
+	* @param object	$asset			The asset whose categories are being managed
+	* @param string	$prefix			The prefix for form fields
+	* @param string	$set_name		The name of the category set whose options are being managed
+	* @param array	$old_options	The existing options for this category set
+	*
+	* @access public
+	* @return array	New options for the specified category
+	*/
+	function _processCategoryOptions(&$asset, $prefix, $set_name, $old_options)
+	{
+		$new_options = Array();
+		if (isset($_POST[$prefix.'_to_delete'])) {
+			foreach ($_POST[$prefix.'_to_delete'] as $delete_name) {
+				unset($old_options[$delete_name]);
+			}
+		}
+		foreach ($old_options as $code_name => $old_option) {
+			$new_option = Array();
+			$new_option['full_name'] = $_POST[$prefix.'_'.$code_name.'_full_name'];
+			if (empty($new_option['full_name'])) {
+				// can't change the name to blank, thankyou
+				$new_option['full_name'] = $old_option['full_name'];
+			}
+
+			if (empty($_POST[$prefix.'_'.$code_name.'_statuses_default']) && !empty($_POST[$prefix.'_'.$code_name.'_statuses'])) {
+				$new_option['statuses'] = $_POST[$prefix.'_'.$code_name.'_statuses'];
+			}
+
+			$new_code_name = preg_replace('/[^a-zA-Z0-9 ]/', '', $new_option['full_name']);
+			$new_code_name = preg_replace('/( )+/', '_', $new_code_name);
+			$new_code_name = strtolower($new_code_name);
+
+			if (empty($_POST[$prefix.'_'.$code_name.'_root_default'])) {
+				$new_option['root_assetid'] = '';
+				$new_root = $_POST[$prefix.'_'.$code_name.'_root']['assetid'];
+				// get the existing root link
+				$old_link_value = 'root_'.$set_name.'_'.$code_name;
+				$new_link_value = 'root_'.$set_name.'_'.$new_code_name;
+				$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', false, $old_link_value);
+				if (empty($root_link) || ($old_link_value != $new_link_value) || $root_link['minorid'] != $new_root) {
+					// the root or required link value has changed, so update the link
+					$ok = true;
+					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+					// delete old root link if any found...
+					if (!empty($root_link) && !$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($root_link['linkid'])) {
+						$ok = false;
+					} else if ($new_root) {
+						$root = &$GLOBALS['SQ_SYSTEM']->am->getAsset($new_root);
+						if (!is_null($root)) {
+							if (!$asset->createLink($root, SQ_LINK_NOTICE, $new_link_value)) {
+								$ok = false;
+								trigger_localised_error('SCH0012', E_USER_WARNING, $root->name, $root->id);
+							}
+						}
+					}
+					if ($ok) {
+						$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+					} else {
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					}
 				}
-			}//end if category is not empty
+			}
+			$new_options[$new_code_name] = $new_option;
 
-			if (isset($categories[''])) unset($categories['']);
-			return $asset->setAttrValue('categories', $categories);
+		}
+
+		if (!empty($_POST[$prefix.'__new__full_name'])) {
+			$new_option['full_name'] = $_POST[$prefix.'__new__full_name'];
+			if (empty($_POST[$prefix.'__new__statuses_default'])) {
+				$new_option['statuses'] = array_get_index($_POST, $prefix.'__new__statuses', Array());
+			}
+			$new_code_name = preg_replace('/[^a-zA-Z0-9 ]/', '', $new_option['full_name']);
+			$new_code_name = preg_replace('/( )+/', '_', $new_code_name);
+			$new_code_name = strtolower($new_code_name);
+			$link_value = 'root_'.$set_name.'_'.$new_code_name;
+			if (empty($_POST[$prefix.'__new__root_default']) && !empty($_POST[$prefix.'__new__root']['assetid'])) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+				$new_root = $_POST[$prefix.'__new__root']['assetid'];
+				if (!is_null($root =& $GLOBALS['SQ_SYSTEM']->am->getAsset($new_root))) {
+					if (!$asset->createLink($root, SQ_LINK_NOTICE, $link_value)) {
+						trigger_localised_error('SCH0012', E_USER_WARNING, $root->name, $root->id);
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					} else {
+						$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+						$new_option['root_assetid'] = '';
+					}
+				}
+			}
+			$new_options[$new_code_name] = $new_option;
+		}
+		return $new_options;
+
+	}//end _processCategoryOptions()
+
+
+	/**
+	* Paints the interface for adding a category set
+	*
+	* @param object Search_Page			&$asset	the search page asset
+	* @param object Backend_Outputter	&$o		the backend outputter
+	* @param string						$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintAddCategory(&$asset, &$o, $prefix)
+	{
+		if ($asset->writeAccess('attributes')) {
+			label('Name: ', $prefix.'_new_category'); // TODO: translate
+			text_box($prefix.'_new_category', '');
+			return true;
+		}
+
+	}//end paintAddCategory()
+
+
+	/**
+	* Processes the interface for adding a search category set
+	*
+	* @param object Search_Page			&$asset	the search page asset
+	* @param object Backend_Outputter	&$o		the backend outputter
+	* @param string						$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processAddCategory(&$asset, &$o, $prefix)
+	{
+		if ($asset->writeAccess('attributes')) {
+			if (!empty($_POST[$prefix.'_new_category'])) {
+				$cats = $asset->attr('categories');
+				$safe_name = preg_replace('/[^a-zA-Z0-9 ]/', '', $_POST[$prefix.'_new_category']);
+				$safe_name = preg_replace('/( )+/', '_', $safe_name);
+				$safe_name = strtolower($safe_name);
+				if (isset($cats[$safe_name])) {
+					trigger_error('New Category Set could not be added: A category set called "'.$safe_name.'" already exists.  Try another name');
+					return false;
+				}
+				$cats[$safe_name] = Array('unselected_text' => '', 'options' => Array());
+				$asset->setAttrValue('categories', $cats);
+				return true;
+			}
 		}
 		return false;
 
-	}//end processCustomiseCategory()
+	}//end processAddCategory()
+
+
+//--        FORMS        --//
 
 
 	/**
