@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_edit_fns.inc,v 1.49 2005/05/11 06:07:48 lwright Exp $
+* $Id: search_page_edit_fns.inc,v 1.49.2.1 2005/07/29 05:36:42 dmckee Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine_edit_fns.inc';
 *     Edit functions for search page
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.49 $
+* @version $Revision: 1.49.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -371,9 +371,31 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 							$asset_type_attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($search_type, Array('attrid', 'name'));
 
 							if ($write_access) {
+
+								$exclude = Array(
+										'__created__',
+										'__published__',
+										'__updated__',
+									   );
+
+								$db = $GLOBALS['SQ_SYSTEM']->db;
+								//Retrieve components of this asset type from db
+								$sql = 'SELECT component,description';
+								$sql .= ' FROM sq_sch_idx_wgt_dflt WHERE type_code IN ('.$db->quote($search_type).')';
+								$sql .= 'AND component NOT IN(';
+								//remove date and default search values from the results
+								foreach ($exclude as $default) {
+									$sql .= $db->quote($default).',';
+								}
+								$sql = rtrim($sql, ',');
+								$sql .= ');';
+								$results = $db->getAssoc($sql);
+
 								$type_attrs = Array('' => '-- '.translate('select_attribute').' --');
 								foreach ($asset_type_attrs as $attr_id => $attr_name) {
-									$type_attrs[$attr_id] = $attr_name;
+									if (isset($results[$attr_name]) || $attr_name == 'name') {
+										$type_attrs[$attr_id] = $attr_name;
+									}
 								}
 								combo_box($prefix.'_fields['.$i.'][params][attrid]', $type_attrs, false, $selected_attr);
 							} else if ($selected_attr != '') {
