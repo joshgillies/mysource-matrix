@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.26 2005/07/29 01:15:59 skim Exp $
+* $Id: ecommerce_checkout.inc,v 1.27 2005/07/29 03:16:05 skim Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 * @author  Andrei Railean	<arailean@squiz.net>
 * @author  Scott Kim		<skim@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -309,7 +309,7 @@ class Ecommerce_Checkout extends Page
 				$_SESSION['SQ_TEMP_ORDER']['delivery_state'] = $delivery_method->getState();
 
 				// set the order summary
-				$order_summary = $this->_getCartSummary(false);
+				$order_summary = $this->_getCartSummary();
 				$order_summary .= $delivery_method->getReceipt();
 
 				$order_asset->setAttrValue('summary',			$order_summary);
@@ -485,7 +485,6 @@ class Ecommerce_Checkout extends Page
 		// create ecommerce order under orders folder
 		$order_folder_link  = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', true, 'orders');
 		if (empty($order_folder_link)) {
-			trigger_localised_error('ECOM0017', E_USER_WARNING);
 			return null;
 		}
 		$order_folder_id = $order_folder_link['minorid'];
@@ -504,7 +503,6 @@ class Ecommerce_Checkout extends Page
 					  );
 
 		if (!$ecommerce_order->create($order_link)) {
-			trigger_localised_error('ECOM0018', E_USER_WARNING);
 			$success = false;
 		}
 
@@ -512,7 +510,6 @@ class Ecommerce_Checkout extends Page
 		if ($success && !empty($cart_items)) {
 			$ecommerce_order->setAttrValue('products', $cart_items);
 		} else {
-			trigger_localised_error('ECOM0014', E_USER_WARNING);
 			$success = false;
 		}
 
@@ -523,12 +520,10 @@ class Ecommerce_Checkout extends Page
 
 		// save attributes
 		if (!$am->acquireLock($ecommerce_order->id, 'attributes')) {
-			trigger_localised_error('ECOM0022', E_USER_WARNING);
 			$success = false;
 		}
 		if ($success) {
 			if (!$ecommerce_order->saveAttributes()) {
-				trigger_localised_error('ECOM0021', E_USER_WARNING);
 				$success = false;
 			}
 		}
@@ -539,7 +534,6 @@ class Ecommerce_Checkout extends Page
 
 		if (!$success) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			trigger_localised_error('ECOM0023', E_USER_WARNING);
 			return null;
 		}
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
