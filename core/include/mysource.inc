@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.119.2.5 2005/07/27 09:48:43 brobertson Exp $
+* $Id: mysource.inc,v 1.119.2.6 2005/07/29 03:42:24 mmcintyre Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.119.2.5 $
+* @version $Revision: 1.119.2.6 $
 * @package MySource_Matrix
 */
 class MySource
@@ -260,8 +260,12 @@ class MySource
 				// the rollback timestamp can acquire it
 				$then = $_SESSION['sq_rollback_view']['rollback_time'];
 				$db   = &$GLOBALS['SQ_SYSTEM']->db;
-				$sql  = 'SELECT sq_set_rollback_timestamp('.$db->quoteSmart($then).')';
 
+				if ($db->phptype == 'pgsql') {
+					$sql  = 'SELECT sq_set_rollback_timestamp('.$db->quoteSmart($then).')';
+				} else if ($db->phptype == 'oci8') {
+					$sql = 'DECLARE BEGIN sq_common_pkg.sq_set_rollback_timestamp('.$db->quoteSmart($then).'); END;';
+				}
 				$result = $db->query($sql);
 				assert_valid_db_result($result);
 			} else {
