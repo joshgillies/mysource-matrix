@@ -11,12 +11,13 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_list.inc,v 1.9 2005/06/20 04:38:26 dheppell Exp $
+* $Id: search_list.inc,v 1.10 2005/07/29 05:30:40 tbarrett Exp $
 *
 */
 
 
 require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_listing/page_asset_listing.inc';
+require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 
 /**
 * Search_List
@@ -25,7 +26,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_listing/page_asset
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -61,7 +62,7 @@ class Search_List extends Page_Asset_Listing
 		if (!page::_createAdditional($link)) return false;
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
-		$asset = new Bodycopy();
+		$asset =& new Bodycopy();
 		$copy_link = Array('asset' => &$this, 'value' => 'page_contents', 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 		$asset->setAttrValue('name', 'Page Contents');
 
@@ -103,18 +104,22 @@ class Search_List extends Page_Asset_Listing
 
 		$sm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
 		$search_info = $search_page->populateBaseSearchInfo();
-		$base_sql = $sm->constructBaseSearchQuery($search_info);
-		$base_sql['select'] = ' SELECT ai.value, ai.assetid, SUBSTR(ai.value, 1, 1) AS first_letter';
+		$query_comps = $sm->constructBaseSearchQuery($search_info);
+		$query_comps['from'][] = 'sq_sch_idx ai';
+		$query_comps['where'][] = 'ai.assetid = a.assetid';
+		$query_comps['select'][] = 'ai.value';
+		$query_comps['select'][] = 'ai.assetid';
+		$query_comps['select'][] = 'SUBSTR(ai.value, 1, 1) AS first_letter';
 
 		switch ($field_type) {
 			case 'attribute' :
 				list($name, $type_code) = split(':', $field_params);
-				$base_sql['where'] .= ' AND ai.component = '.$db->quote('attr:'.$type_code.':'.$name);
+				$query_comps['where'][] = 'ai.component = '.$db->quote('attr:'.$name);
 				$this->_tmp['search_field_name'] = $name;
 			break;
 			case 'metadata' :
 				list($name, $attrid) = split(':', $field_params);
-				$base_sql['where'] .= ' AND ai.component = '.$db->quote('metadata:'.$attrid);
+				$query_comps['where'][] = 'ai.component = '.$db->quote('metadata:'.$attrid);
 				$this->_tmp['search_field_name'] = $name;
 			break;
 			default :
@@ -122,8 +127,9 @@ class Search_List extends Page_Asset_Listing
 			break;
 		}
 
-		$sql = implode(' ', $base_sql);
-		$sql .= ' GROUP BY ai.value, ai.assetid';
+		$query_comps['group_by'][] = 'ai.value';
+		$query_comps['group_by'][] = 'ai.assetid';
+		$sql = implode_sql($query_comps);
 
 		$results = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_DEFAULT, true);
 		assert_valid_db_result($results);
@@ -131,7 +137,6 @@ class Search_List extends Page_Asset_Listing
 		$children = Array();
 		foreach ($results as $word => $word_data) {
 			$children[$word]['num_values'] = count($word_data);
-
 			$base_data = array_pop($word_data);
 			$children[$word]['first_letter'] = $base_data['first_letter'];
 			$children[$word]['type_code'] = null;
