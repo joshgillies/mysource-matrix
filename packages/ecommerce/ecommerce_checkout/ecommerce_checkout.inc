@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.24 2005/07/28 23:35:19 skim Exp $
+* $Id: ecommerce_checkout.inc,v 1.25 2005/07/29 00:10:02 skim Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 * @author  Andrei Railean	<arailean@squiz.net>
 * @author  Scott Kim		<skim@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -1033,8 +1033,12 @@ class Ecommerce_Checkout extends Page
 	*/
 	function getProcessingErrorMessageKeywordReplacement()
 	{
-		// TODO: Complete Function: getProcessingErrorMssageKeywordReplacement
-		return 'Error Message';
+		ob_start();
+			$delivery_asset =& $this->_getActiveDeliveryMethod();
+			if (!is_null($delivery_asset)) {
+				echo $delivery_asset->getErrors();
+			}
+		return ob_get_clean();
 
 	}//end getProcessingErrorMessageKeywordReplacement()
 
