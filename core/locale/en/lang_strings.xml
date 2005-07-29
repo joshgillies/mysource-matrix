@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.37 2005/07/25 23:06:33 tbarrett Exp $
+* $Id: lang_strings.xml,v 1.38 2005/07/29 05:41:43 tbarrett Exp $
 *
 */
 
@@ -922,6 +922,7 @@
 	<string source="no">No</string>
 	<string source="when">When</string>
 	<string source="status">Status</string>
+	<string source="statuses">Statuses</string>
 	<string source="on">On</string>
 	<string source="off">Off</string>
 	<string source="true">True</string>
