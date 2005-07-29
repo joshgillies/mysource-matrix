@@ -18,21 +18,352 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_install.inc,v 1.20 2005/04/15 01:52:43 lwright Exp $
+* $Id: db_install.inc,v 1.20.2.1 2005/07/29 03:41:09 mmcintyre Exp $
 *
 */
-
 
 /**
 * Database Install Fn, reads XML file and creates DB tables and sequences and other db objects
 *
+* @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.20.2.1 $
 * @package MySource_Matrix
 * @subpackage lib
 */
+
+
+/**
+* Parses the tables xml and returns an array of information specific to
+* the current database type
+*
+* @param string $xml_file the tables xml file to parse
+*
+* @return Array()
+* @access public
+*/
+function parse_tables_xml($xml_file)
+{
+	$db = &$GLOBALS['SQ_SYSTEM']->db;
+	$input =& new XML_Tree($xml_file);
+	$root = &$input->getTreeFromFile();
+
+	if (PEAR::isError($root)) {
+		trigger_error($root->getMessage().'<br/>'.$root->getUserInfo(), E_USER_WARNING);
+		return false;
+	}
+	if ($root->name != 'schema' || $root->children[0]->name != 'tables' || $root->children[1]->name != 'sequences') {
+		trigger_localised_error('SYS0012', E_USER_WARNING);
+		return false;
+	}
+
+	$info = Array();
+	$info['tables'] = Array();
+	$info['sequences'] = Array();
+
+	//--        TABLES        --//
+
+	for ($i = 0; $i < count($root->children[0]->children); $i++) {
+		$table      = &$root->children[0]->children[$i];
+		$table_name = $table->attributes['name'];
+
+		$info['tables'][$table_name] = Array();
+		$info['tables'][$table_name]['rollback'] = (($table->attributes['require_rollback'] == 1) ? true : false);
+		$table_cols = &$table->children[0]->children;
+
+		//--        TABLE COLUMNS        --//
+
+		$info['tables'][$table_name]['columns'] = Array();
+
+		for ($j = 0; $j < count($table_cols); $j++) {
+			$table_column = &$table_cols[$j];
+			$column_name  = $table_column->attributes['name'];
+
+			$info['tables'][$table_name]['columns'][$column_name] = Array();
+			$info['tables'][$table_name]['columns'][$column_name]['allow_null'] = (($table_column->attributes['allow_null'] == 1) ? true : false);
+
+			//--        TABLE COLUMN VARS        --//
+
+			$type    = null;
+			$default = null;
+
+			for ($k = 0; $k < count($table_column->children); $k++) {
+				$column_var = &$table_column->children[$k];
+
+				switch (strtolower($column_var->name)) {
+					case 'type' :
+						// set the type of the column if it hasnt already been
+						// set in a variation (this is the default column type)
+						if (is_null($type)) $type = $column_var->content;
+					break;
+					case 'type_variations' :
+						// check for varitions of the column type for his database
+						for ($l = 0; $l < count($column_var->children); $l++) {
+							$variation = &$column_var->children[$l];
+							if ($variation->name == $db->phptype) {
+								$type = $variation->content;
+								break;
+							}
+						}
+					break;
+					case 'default' :
+						if (trim($column_var->content) != '') {
+							$default = $column_var->content;
+						}
+					break;
+					default :
+						continue;
+					break;
+				}
+			}
+			$info['tables'][$table_name]['columns'][$column_name]['type'] = $type;
+			$info['tables'][$table_name]['columns'][$column_name]['default'] = $default;
+
+			//--        KEYS        --//
+
+			$info['tables'][$table_name]['primary_key'] = Array();
+			$info['tables'][$table_name]['unique_key'] = Array();
+
+			$table_keys = &$table->children[1]->children;
+			for ($jj = 0; $jj < count($table_keys); $jj++) {
+				$table_key = &$table_keys[$jj];
+
+				// work out the columns in this key
+				$key_columns = Array();
+				for ($k = 0; $k < count($table_key->children); $k++) {
+					$col_name = $table_key->children[$k]->attributes['name'];
+					$key_columns[] = $col_name;
+
+					// cache the primary key columns for this table
+					if ($table_key->name == 'primary_key') {
+						$info['tables'][$table_name]['primary_key'][] = $col_name;
+					}
+					if ($table_key->name == 'unique_key') {
+						$info['tables'][$table_name]['unique_key'][] = $col_name;
+					}
+				}
+			}
+
+			//--        INDEXES        --//
+
+			// check for any indexes that need creating
+			$table_indexes = &$table->children[2]->children;
+			for ($kk = 0; $kk < count($table_indexes); $kk++) {
+				$table_index = &$table_indexes[$kk];
+
+				// work out the columns in this index
+				for ($k = 0; $k < count($table_index->children); $k++) {
+					$index_col_name = $table_index->children[$k]->attributes['name'];
+				}
+
+				// work out the name of the index
+				$index_name    = array_get_index($table_index->attributes, 'name', $index_col_name);
+				$index_type    = array_get_index($table_index->attributes, 'type', null);
+				$index_db_type = array_get_index($table_index->attributes, 'db', null);
+
+				$index_info = Array(
+								'name'		=> $index_name,
+								'type'		=> $index_type,
+								'db_type'	=> $index_db_type,
+							 );
+				$info['tables'][$table_name]['indexes'][$index_col_name] = $index_info;
+			}//end for
+		}
+	}
+
+	for ($i = 0; $i < count($root->children[1]->children); $i++) {
+		$sequence = &$root->children[1]->children[$i];
+		$sequence_name = $sequence->attributes['name'];
+		$info['sequences'][] = $sequence_name;
+	}
+
+	return $info;
+
+}//end parse_tables_xml()
+
+
+/**
+* Creates an index on the specified table and column
+*
+* @param string $tablename		the table to create this index on
+* @param string $column			the column to create this index on
+* @param string $index_name		the name of the index
+* @param string $index_type		the type of index to use
+*
+* @return void
+* @access public
+*/
+function create_index($tablename, $column, $index_name=null, $index_type=null)
+{
+	$db = &$GLOBALS['SQ_SYSTEM']->db;
+	if (is_null($index_name)) $index_name = $column;
+
+	$sql = 'CREATE INDEX sq_'.$tablename.'_'.$index_name.' ON sq_'.$tablename;
+	if (!empty($index_type)) {
+		if ($db->phptype == 'oci8') {
+			$sql .= '('.$column.') indextype is '.$index_type;
+		} else if ($db->phptype == 'pgsql') {
+			$sql .= ' USING '.$index_type.'('.$column.')';
+		}
+	} else {
+		$sql .= ' ('.$column.')';
+	}
+
+	$result = $db->query($sql);
+	assert_valid_db_result($result);
+
+}//end create_index()
+
+
+/**
+* Creates a table with the specified tablename and table_info
+*
+* All tables will be created with the sq_ prefix
+*
+* @param string $tablename		the name of the new table
+* @param Array	$table_info		the information about the table to create
+*/
+function create_table($tablename, $table_info)
+{
+	$db  = &$GLOBALS['SQ_SYSTEM']->db;
+	$sql = 'CREATE TABLE sq_'.$tablename.'(';
+
+	$i = 0;
+	// build the columns string
+	foreach ($table_info['columns'] as $col_name => $col_info) {
+		if ($i++ != 0) $sql .= ',';
+		$sql .= $col_name.' '.$col_info['type'];
+		if (!is_null($col_info['default'])) {
+			$sql .= ' DEFAULT '.$col_info['default'];
+		}
+		if (!$col_info['allow_null']) $sql .= ' NOT NULL';
+	}
+
+	// build the keys string
+	if (!empty($table_info['primary_key'])) {
+		$sql .= ', PRIMARY KEY ('.implode(',', $table_info['primary_key']).')';
+	}
+	if (!empty($table_info['unique_key'])) {
+		$sql .= ', UNIQUE ('.implode(',', $table_info['unique_key']).')';
+	}
+	$sql .= ')';
+
+	// oracle repication requires row dependencies so
+	// that the replicating server knows what order to create
+	// the new entries
+	if ($db->phptype == 'oci8') {
+		$sql .= ' ROWDEPENDENCIES';
+	}
+
+	$result = $db->query($sql);
+	assert_valid_db_result($result);
+
+}//end create_table()
+
+
+/**
+* Returns the names of the indexes that have been applied to the specified table
+*
+* @param string		$tablename			the tablename that contains the wanted indexes
+*										without the sq_ prefix
+* @param boolean	$include_rolback	if TRUE the indexes on the rollback will also be returned
+*
+* @return Array()
+* @access public
+*/
+function get_database_indexes($tablename, $include_rollback=true)
+{
+	$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+	if ($db->phptype == 'pgsql') {
+		$sql = 'SELECT
+					indexname
+				FROM
+					pg_indexes
+				WHERE
+					tablename = '.$db->quoteSmart('sq_'.$tablename);
+		if ($include_rollback) {
+			$sql .= ' OR tablename = '.$db->quoteSmart('sq_rb_'.$tablename);
+		}
+	} else if ($db->phptype == 'oci8') {
+		$sql = 'SELECT
+					index_name
+				FROM
+					user_indexes
+				WHERE
+					table_name = '.$db->quoteSmart(strtoupper('sq_'.$tablename));
+		if ($include_rollback) {
+			$sql .= ' OR table_name = '.$db->quoteSmart(strtoupper('sq_rb_'.$tablename));
+		}
+	}
+
+	$indexes_in_db = $db->getCol($sql);
+	assert_valid_db_result($indexes_in_db);
+
+	for (reset($indexes_in_db); null !== ($key = key($indexes_in_db)); next($indexes_in_db)) {
+		$indexes_in_db[$key] = strtolower($indexes_in_db[$key]);
+	}
+
+	return $indexes_in_db;
+
+}//end get_database_indexes()
+
+
+/**
+* Returns the user sequence names from the database
+*
+* @return Array()
+* @access public
+*/
+function get_database_sequences()
+{
+	$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+	if ($db->phptype == 'pgsql') {
+		$sql = 'SELECT c.relname
+				FROM pg_class c, pg_user u
+				WHERE c.relowner = u.usesysid
+				  AND c.relkind = \'S\'
+				  AND NOT EXISTS (SELECT 1 FROM pg_views WHERE viewname = c.relname)
+				  AND c.relname !~ '.$db->quoteSmart('^(pg_|sql_)');
+
+		$sequences_in_db = $db->getCol($sql);
+		assert_valid_db_result($sequences_in_db);
+
+	} else if ($db->phptype == 'oci8') {
+		$sql = 'SELECT sequence_name FROM user_sequences';
+	}
+
+	$sequences_in_db = $db->getCol($sql);
+	assert_valid_db_result($sequences_in_db);
+	for (reset($sequences_in_db); null !== ($key = key($sequences_in_db)); next($sequences_in_db)) {
+		$sequences_in_db[$key] = strtolower($sequences_in_db[$key]);
+	}
+
+	return $sequences_in_db;
+
+}//end get_database_sequences()
+
+
+/**
+* Returns a list of tables that the current database has
+*
+* @return Array()
+* @access public
+*/
+function get_database_tables()
+{
+	$db = &$GLOBALS['SQ_SYSTEM']->db;
+	$tables_in_db = $db->getCol($db->getSpecialQuery('tables'));
+	assert_valid_db_result($tables_in_db);
+
+	for (reset($tables_in_db); null !== ($key = key($tables_in_db)); next($tables_in_db)) {
+		$tables_in_db[$key] = strtolower($tables_in_db[$key]);
+	}
+	return $tables_in_db;
+
+}//end get_database_tables()
 
 
 /**
@@ -47,321 +378,143 @@
 */
 function db_install($xml_file, $verbose=true)
 {
-	require_once 'XML/Tree.php';
-	require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+	$db           = &$GLOBALS['SQ_SYSTEM']->db;
+	$info         = parse_tables_xml($xml_file);
+	$tables_in_db = get_database_tables();
 
-	$data_path = SQ_DATA_PATH.'/private/db';
-	$new_table_names = Array();
+	// we need to get the cached tables file so that when this function gets called
+	// for each of the packages, we keep appending the tables installed for the current package.
+	// It won't exist for the first call to this function as step_02 unlinks it
+	$current_cached_tables = Array();
+	if (file_exists(SQ_DATA_PATH.'/private/db/table_columns.inc')) {
+		require SQ_DATA_PATH.'/private/db/table_columns.inc';
+		$current_cached_tables = $tables;
+	}
+
+	$created_tables  = Array();
+	$created_indexes = Array();
 
 	$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-	$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-	$tables_in_db = $db->getCol($db->getSpecialQuery('tables'));
-	assert_valid_db_result($tables_in_db);
+	foreach ($info['tables'] as $tablename => $table_info) {
 
-	// create database tables
-	$input = new XML_Tree($xml_file);
-	$root  = &$input->getTreeFromFile();
-	if (PEAR::isError($root)) {
-		trigger_error($root->getMessage().'<br/>'.$root->getUserInfo(), E_USER_WARNING);
-		$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-		return false;
-	}
+		//--        TABLES        --//
 
-	if ($root->name != 'schema' || $root->children[0]->name != 'tables' || $root->children[1]->name != 'sequences') {
-		trigger_localised_error('SYS0012', E_USER_WARNING);
-		$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-		return false;
-	}
-
-	if (is_file($data_path.'/table_columns.inc')) {
-		require $data_path.'/table_columns.inc';
-		$cached_table_columns = $tables;
-		unset($tables);
-	} else {
-		$cached_table_columns = Array();
-	}
-
-	for ($i = 0; $i < count($root->children[0]->children); $i++) {
-		$table = &$root->children[0]->children[$i];
-		$table_name = $table->attributes['name'];
-		$require_rollback = (($table->attributes['require_rollback'] == 1) ? true : false);
-
-		$table_exists  = (!empty($cached_table_columns[$table_name])) || in_array('sq_'.$table_name, $tables_in_db);
-		$table_changed = false;
-
-		if (!$table_exists) {
-			$cached_table_columns[$table_name] = Array('rollback' => false, 'columns' => Array(), 'primary_key' => Array(), 'unique_key' => Array());
+		// create this table if it doesn't exist in the database
+		if (!in_array('sq_'.$tablename, $tables_in_db)) {
+			create_table($tablename, $table_info);
+			$created_tables[] = 'sq_'.$tablename;
 		}
-		$cached_table_columns[$table_name]['rollback'] = $require_rollback;
 
-		// buffer the columns so we can use them in the rollback table
-		// as well, if needed
-		ob_start();
+		if ($table_info['rollback']) {
 
-		// loop through the table columns
-		$table_cols = &$table->children[0]->children;
-		for ($j = 0; $j < count($table_cols); $j++) {
+			// use the date type for oracle so we can manipulate its format
+			// with the NLS_DATE_FORMAT session variable
+			$date_type = ($db->phptype == 'oci8') ? 'DATE' : 'TIMESTAMP';
 
-			$table_column = &$table_cols[$j];
-			$column_name  = $table_column->attributes['name'];
-			$allow_null   = (($table_column->attributes['allow_null'] == 1) ? true : false);
-			$type         = null;
-			$default      = null;
+			// create this rollback table if it does not exist in the database
+			if (!in_array('sq_rb_'.$tablename, $tables_in_db)) {
+				$rb_table_info = $table_info;
+				$rb_col['sq_eff_from'] = Array(
+											'type'			=> $date_type,
+											'default'		=> null,
+											'allow_null'	=> false,
+										);
+				$rb_col['sq_eff_to'] = Array(
+											'type'			=> $date_type,
+											'default'		=> null,
+											'allow_null'	=> true,
+									  );
 
-			$column_exists = ($table_exists && in_array($column_name, $cached_table_columns[$table_name]['columns']));
-			if (!$column_exists) {
-				$cached_table_columns[$table_name]['columns'][] = $column_name;
+				// append these elements to the front of the column array so they appear
+				// as the top of the table
+				$rb_table_info['columns'] = array_merge($rb_col, $rb_table_info['columns']);
 
-				// TODO: Have this check the type, default and null status of the column before setting to true
-				$table_changed = true;
+				if (!empty($rb_table_info['primary_key'])) {
+					array_unshift($rb_table_info['primary_key'], 'sq_eff_from');
+				}
+				if (!empty($rb_table_info['unique_key'])) {
+					array_unshift($rb_table_info['unique_key'], 'sq_eff_from');
+				}
+
+				create_table('rb_'.$tablename, $rb_table_info);
+				$created_tables[] = 'sq_rb_'.$tablename;
 			}
+		}//end if rollback
 
-			for ($k = 0; $k < count($table_column->children); $k++) {
-				$column_var = &$table_column->children[$k];
+		//--        INDEXES        --//
 
-				switch (strtolower($column_var->name)) {
-					case 'type' :
-						// set the type of the column if it hasnt already been
-						// set in a variation (this is the default column type)
-						if (is_null($type)) $type = $column_var->content;
-						break;
-					case 'type_variations' :
-						// check for varitions of the column type for his database
-						for ($l = 0; $l < count($column_var->children); $l++) {
-							$variation = &$column_var->children[$l];
-							if ($variation->name == $db->phptype) {
-								$type = $variation->content;
-								break;
-							}
+		// create the database indexes for this table if they don't allready exist
+		$indexes_in_db = get_database_indexes($tablename, true);
+
+		if (!empty($table_info['indexes'])) {
+			foreach ($table_info['indexes'] as $index_col => $index_info) {
+				if (is_null($index_info['db_type']) || $index_info['db_type'] == $db->phptype) {
+					if (!in_array('sq_'.$tablename.'_'.$index_info['name'], $indexes_in_db)) {
+						create_index($tablename, $index_col, $index_info['name'], $index_info['type']);
+						$created_indexes[] = 'sq_'.$tablename.'_'.$index_info['name'];
+					}
+					if ($table_info['rollback']) {
+						if (!in_array('sq_rb_'.$tablename.'_'.$index_info['name'], $indexes_in_db)) {
+							create_index('rb_'.$tablename, $index_col, $index_info['name'], $index_info['type']);
+							$created_indexes[] = 'sq_rb_'.$tablename.'_'.$index_info['name'];
 						}
-						break;
-					case 'default' :
-						if (trim($column_var->content) != '') $default = $column_var->content;
-						break;
-					default :
-						continue;
-						break;
-				}
-			}// end for
-
-			echo "$column_name $type".((!is_null($default)) ? " DEFAULT $default" : '').((!$allow_null) ? ' NOT NULL' : '').',';
-
-		}// end for
-
-		$table_columns_string = ob_get_contents();
-		ob_end_clean();
-		$table_columns_string = substr($table_columns_string,0,strlen($table_columns_string)-1);
-
-		// work out the keys
-		$primary_key = '';
-		$rollback_primary_key = '';
-		$other_keys = Array();
-		$other_rollback_keys = Array();
-
-		$table_keys = &$table->children[1]->children;
-		for ($j = 0; $j < count($table_keys); $j++) {
-			$table_key = &$table_keys[$j];
-
-			// work out the columns in this key
-			$key_columns = Array();
-			for ($k = 0; $k < count($table_key->children); $k++) {
-				$col_name = $table_key->children[$k]->attributes['name'];
-				$key_columns[] = $col_name;
-
-				// cache the primary key columns for this table
-				if ($table_key->name == 'primary_key' && !in_array($col_name, $cached_table_columns[$table_name]['primary_key'])) {
-					$cached_table_columns[$table_name]['primary_key'][] = $col_name;
-				}
-				if ($table_key->name == 'unique_key' && !in_array($col_name, $cached_table_columns[$table_name]['unique_key'])) {
-					$cached_table_columns[$table_name]['unique_key'][] = $col_name;
-				}
-			}
-
-			switch (strtolower($table_key->name)) {
-				case 'primary_key' :
-					// a primary key for the table
-					$primary_key = ',PRIMARY KEY('.implode(',',$key_columns).')';
-					$rollback_primary_key = ',PRIMARY KEY(sq_eff_from, '.implode(', ',$key_columns).')';
-				break;
-				case 'unique_key' :
-					$other_keys[] = 'UNIQUE('.implode(', ',$key_columns).')';
-					$other_rollback_keys[] = 'UNIQUE(sq_eff_from, '.implode(', ',$key_columns).')';
-				break;
-				default :
-					continue;
-				break;
-			}
-
-		}//end for
-
-		if ($table_exists) {
-			if ($table_changed) {
-				echo 'The Table "'.$table_name.'" already exists but has changed (from the version in our cache at least).';
-				echo 'It is up to you to manualy update this table '.(($require_rollback) ? ' and it\'s rollback table' : '');
-			}
-		} else {
-
-			//--        NORMAL TABLE DEFINITION        --//
-
-			ob_start();
-				echo 'CREATE TABLE sq_'.$table_name.' (';
-				echo $table_columns_string;
-
-				echo $primary_key;
-				if (!empty($other_keys)) {
-					echo ',';
-					echo implode(',', $other_keys);
-				}
-				echo ')';
-
-				// oracle repication requires row dependencies so
-				// that the replicating server knows what order to create
-				// the new entries
-				if ($db->phptype == 'oci8') {
-					echo ' ROWDEPENDENCIES';
-				}
-				$table_sql = ob_get_contents();
-			ob_end_clean();
-
-			$new_table_names[] = $table_name;
-
-			$result = $db->query($table_sql);
-			assert_valid_db_result($result);
-
-			//--        ROLLBACK TABLE DEFINITION        --//
-
-			if ($require_rollback) {
-				ob_start();
-					echo 'CREATE TABLE '.SQ_TABLE_ROLLBACK_PREFIX.$table_name.' (';
-					echo 'sq_eff_from TIMESTAMP NOT NULL,';
-					echo 'sq_eff_to   TIMESTAMP,';
-					echo $table_columns_string;
-
-					echo $rollback_primary_key;
-					if (!empty($other_rollback_keys)) {
-						echo ',';
-						echo implode(',', $other_rollback_keys);
 					}
-					echo ')';
-					if ($db->phptype == 'oci8') {
-						echo ' ROWDEPENDENCIES';
-					}
-
-					$table_sql = ob_get_contents();
-				ob_end_clean();
-
-				$result = $db->query($table_sql);
-				assert_valid_db_result($result);
-
-			}
-
-			//--        TABLE INDEXES        --//
-
-			// check for any indexes that need creating
-			$table_indexes = &$table->children[2]->children;
-			for ($j = 0; $j < count($table_indexes); $j++) {
-				$table_index = &$table_indexes[$j];
-
-				// work out the columns in this index
-				for ($k = 0; $k < count($table_index->children); $k++) {
-					$index_col_name = $table_index->children[$k]->attributes['name'];
 				}
+			}// end foreach
+		}//end if
 
-				// work out the name of the index
-				$index_name = array_get_index($table_index->attributes, 'name', $index_col_name);
-
-				$index_sql = 'CREATE INDEX sq_'.$table_name.'_'.$index_name.' ON sq_'.$table_name.' ('.$index_col_name.')';
-				$result = $db->query($index_sql);
-				assert_valid_db_result($result);
-
-				if ($require_rollback) {
-					$index_sql = str_replace('sq_', SQ_TABLE_ROLLBACK_PREFIX, $index_sql);
-					$result = $db->query($index_sql);
-					assert_valid_db_result($result);
-				}
-			}//end for
-
-		}//end if table exists
-
-	}//end for tables
-
-	// write a new cache file with all the table names and their columns
-	$cached_table_columns_string = '<'.'?php $tables = '.var_export($cached_table_columns, true).'; ?'.'>';
-	if (!string_to_file($cached_table_columns_string, $data_path.'/table_columns.inc')) {
-		trigger_localised_error('SYS0011', E_USER_WARNING);
-		$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-		return false;
-	}
+	}//end foreach tables
 
 	if ($verbose) {
-		$table_names = empty($new_table_names)?"No new tables added":"New Tables:\n".implode($new_table_names,"\n");
+		$table_names = empty($created_tables) ? 'No new tables added': 'New Tables:'."\n".implode($created_tables, "\n");
 		pre_echo("TABLE CREATION COMPLETE\n".$table_names);
+
+		$index_names = empty($created_indexes) ? 'No Indexes added': 'New Indexes:'."\n".implode($created_indexes, "\n");
+		pre_echo("INDEX CREATION COMPLETE\n".$index_names);
 	}
 
 	//--        SEQUENCES        --//
 
-	if ($db->phptype == 'pgsql') {
-		$sql = 'SELECT c.relname
-				FROM pg_class c, pg_user u
-				WHERE c.relowner = u.usesysid
-				  AND c.relkind = \'S\'
-				  AND NOT EXISTS (SELECT 1 FROM pg_views WHERE viewname = c.relname)
-				  AND c.relname !~ '.$db->quote('^(pg_|sql_)');
-
-		$sequences_in_db = $db->getCol($sql);
-		assert_valid_db_result($sequences_in_db);
-	} else if ($db->phptype == 'oci8') {
-		$sql = 'SELECT sequence_name FROM user_sequences';
-
-		$sequences_in_db = $db->getCol($sql);
-		assert_valid_db_result($sequences_in_db);
-
-		for (reset($sequences_in_db); null !== ($key = key($sequences_in_db)); next($sequences_in_db)) {
-			$sequences_in_db[$key] = strtolower($sequences_in_db[$key]);
-		}
-	}
-
-	if (is_file($data_path.'/sequences.inc')) {
-		require $data_path.'/sequences.inc';
-		$cached_sequences = $sequences;
-		unset($sequences);
-	} else {
-		$cached_sequences = Array();
-	}
-
-	for ($i = 0; $i < count($root->children[1]->children); $i++) {
-		$sequence = &$root->children[1]->children[$i];
-		$sequence_name = $sequence->attributes['name'];
-
-		if (!in_array($sequence_name, $cached_sequences)) $cached_sequences[] = $sequence_name;
+	$sequences_in_db = get_database_sequences();
+	foreach ($info['sequences'] as $sequence_name) {
 		if (in_array('sq_'.$sequence_name.'_seq', $sequences_in_db)) continue;
-
 		$result = $db->createSequence('sq_'.$sequence_name);
 		assert_valid_db_result($result);
 	}
 
-	$cached_sequences_string = '<'.'?php $sequences = '.var_export($cached_sequences, true).'; ?'.'>';
-	if (!string_to_file($cached_sequences_string, $data_path.'/sequences.inc')) {
+	if ($verbose) pre_echo('SEQUENCE CREATION COMPLETE');
+
+	//--        CACHED FILES        --//
+
+	$cached_sequences_string = '<'.'?php $sequences = '.var_export($info['sequences'], true).'; ?'.'>';
+	if (!string_to_file($cached_sequences_string, SQ_DATA_PATH.'/private/db/sequences.inc')) {
 		trigger_localised_error('SYS0010', E_USER_WARNING);
 		$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 		return false;
 	}
 
-	if ($verbose) pre_echo('SEQUENCE CREATION COMPLETE');
+	// we don't need the detailed column information, so just
+	// create an array of the actual column names and cache that
+	$cached_table_info = $info['tables'];
+	foreach ($cached_table_info as $table => $info) {
+		$cached_table_info[$table]['columns'] = array_keys($info['columns']);
+	}
+	$cached_table_info = array_merge($current_cached_tables, $cached_table_info);
 
-	// if rollback is enabled, install the rollback triggers
-	// otherwise remove them
+	$cached_tables_string = '<'.'?php $tables = '.var_export($cached_table_info, true).'; ?'.'>';
+	if (!string_to_file($cached_tables_string, SQ_DATA_PATH.'/private/db/table_columns.inc')) {
+		trigger_localised_error('SYS0011', E_USER_WARNING);
+		$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+		return false;
+	}
+
+	// if rollback is enabled, install the rollback triggers, otherwise remove them
 	if (SQ_CONF_ROLLBACK_ENABLED) {
-		install_rollback_triggers($cached_table_columns, $verbose);
+		install_rollback_triggers($cached_table_info, $verbose);
 	} else {
 		uninstall_rollback_triggers();
 	}
-
-	unset($cached_sequences);
-	unset($cached_sequences_string);
-	unset($cached_table_columns);
-	unset($cached_table_columns_string);
 
 	$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
@@ -410,17 +563,62 @@ function grant_secondary_user_perms($verbose=true)
 function install_stored_procedures($verbose=true)
 {
 	$db = &$GLOBALS['SQ_SYSTEM']->db;
-	$fns_file = SQ_SYSTEM_ROOT.'/install/'.$db->phptype.'_functions.sql';
+	$fns_file = SQ_SYSTEM_ROOT.'/install/'.$db->phptype.'_functions.xml';
 
 	if (file_exists($fns_file)) {
-		$sql = file_get_contents($fns_file);
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
 
-		if ($verbose) pre_echo(strtoupper($db->phptype).' STORED PROCEDURES CREATED');
+		$input =& new XML_Tree($fns_file);
+		$root  = &$input->getTreeFromFile();
+
+		if (PEAR::isError($root)) {
+			trigger_error($root->getMessage().'<br/>'.$root->getUserInfo(), E_USER_WARNING);
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		if ($root->name != 'sql') {
+			trigger_localised_error('SYS0012', E_USER_WARNING);
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		$element_names = Array();
+		foreach ($root->children as $sql_element) {
+			$element_names[] = array_get_index($sql_element->attributes, 'display_name', '<Unknown Element>');
+			$sql = trim(xml_entity_decode($sql_element->content));
+			if (!empty($sql)) {
+				$result = $db->query($sql);
+				assert_valid_db_result($result);
+			}
+		}
+
+		if ($verbose) {
+			pre_echo(strtoupper($db->phptype).' STORED PROCEDURES CREATED'."\n".implode("\n", $element_names));
+		}
 	}
 
 }//end install_stored_procedures()
+
+
+/**
+* Replaces elements that are considered XML elements, but not html elements.
+*
+* @param string	$string	the string that needs cleaning
+*
+* @access private
+* @return string
+*/
+function xml_entity_decode($string)
+{
+	$string = html_entity_decode($string);
+	$string = str_replace('&#124;', '|', $string);
+	$string = str_replace('&apos;', "'", $string);
+	$string = str_replace('&#42;', '*', $string);
+	$string = str_replace('&#92;', '\\', $string);
+
+	return $string;
+
+}//end xml_entity_decode()
 
 
 /**
@@ -507,13 +705,13 @@ function install_rollback_triggers($table_columns, $verbose=true, $override=fals
 
 			// set the timestamp for this session
 			// note that the timestamp is set only once per session
-			$sql .= 'common_pkg.set_timestamp;';
+			$sql .= 'sq_common_pkg.sq_set_rollback_timestamp;';
 
 			$if_inserting = 'IF INSERTING THEN ';
 			$if_updating  = 'IF UPDATING THEN ';
 			$if_deleting  = 'IF DELETING THEN ';
 			// oracle packages are cool, check them out ;)
-			$get_timestamp_fn = 'common_pkg.get_timestamp';
+			$get_timestamp_fn = 'sq_common_pkg.sq_get_rollback_timestamp';
 
 		} else if ($db->phptype == 'pgsql') {
 			// if we are postgres then we want to define the trigger to call a
