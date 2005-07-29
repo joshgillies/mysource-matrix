@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_order_edit_fns.inc,v 1.3 2005/07/28 03:22:04 skim Exp $
+* $Id: ecommerce_order_edit_fns.inc,v 1.4 2005/07/29 03:18:29 skim Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -43,6 +43,25 @@ class Ecommerce_Order_Edit_Fns extends Asset_Edit_Fns
 		$this->Asset_Edit_Fns();
 
 	}//end constructor
+
+
+	/**
+	* Paints the summary of ecommerce order
+	*
+	* @param object	Asset				&$rootid	asset being painted
+	* @param object Backend_Outputter	&$o			backend outputter
+	* @param string						$prefix		prefix for the html doc element name
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintOrderSummary(&$asset, &$o, $prefix)
+	{
+		echo '<pre>'.$asset->attr('summary').'</pre>';
+
+		return false;
+
+	}//end paintOrderSummary()
 
 
 }//end class
