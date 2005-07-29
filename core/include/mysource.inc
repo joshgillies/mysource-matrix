@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.131 2005/07/28 22:47:36 pgannavarapu Exp $
+* $Id: mysource.inc,v 1.132 2005/07/29 04:34:19 mmcintyre Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.131 $
+* @version $Revision: 1.132 $
 * @package MySource_Matrix
 */
 class MySource
@@ -254,8 +254,22 @@ class MySource
 				// we are viewing the system at some time in the past
 				define('SQ_ROLLBACK_VIEW',        '1');
 				define('SQ_TABLE_RUNNING_PREFIX', SQ_TABLE_ROLLBACK_PREFIX);
+
+				// we need to let the database know what the current timestamp that we
+				// are using for rollback so that and stored procedures that require
+				// the rollback timestamp can acquire it
+				$then = $_SESSION['sq_rollback_view']['rollback_time'];
+				$db   = &$GLOBALS['SQ_SYSTEM']->db;
+
+				if ($db->phptype == 'pgsql') {
+					$sql  = 'SELECT sq_set_rollback_timestamp('.$db->quoteSmart($then).')';
+				} else if ($db->phptype == 'oci8') {
+					$sql = 'DECLARE BEGIN sq_common_pkg.sq_set_rollback_timestamp('.$db->quoteSmart($then).'); END;';
+				}
+				$result = $db->query($sql);
+				assert_valid_db_result($result);
 			} else {
-				define('SQ_ROLLBACK_VIEW',        '0');
+				define('SQ_ROLLBACK_VIEW', '0');
 				define('SQ_TABLE_RUNNING_PREFIX', SQ_TABLE_PREFIX);
 			}
 
