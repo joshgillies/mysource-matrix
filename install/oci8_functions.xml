@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: oci8_functions.xml,v 1.2 2005/07/26 01:47:29 mmcintyre Exp $
+* $Id: oci8_functions.xml,v 1.3 2005/07/29 04:35:52 mmcintyre Exp $
 *
 */
 -->
@@ -31,55 +31,32 @@
 	</sql_element>
 	<sql_element display_name="common_pkg Package">
 		<![CDATA[
-			CREATE OR REPLACE PACKAGE common_pkg AS
-				PROCEDURE set_timestamp;
-				FUNCTION get_timestamp RETURN TIMESTAMP;
-			END common_pkg;
+			CREATE OR REPLACE PACKAGE sq_common_pkg AS
+				PROCEDURE sq_set_rollback_timestamp(in_date IN DATE := NULL);
+				FUNCTION sq_get_rollback_timestamp RETURN DATE;
+			END sq_common_pkg;
 		]]>
 	</sql_element>
 	<sql_element display_name="common_pkg Package Body">
 		<![CDATA[
-			CREATE OR REPLACE PACKAGE BODY common_pkg AS
+			CREATE OR REPLACE PACKAGE BODY sq_common_pkg AS
 
-				-- a transaction is currently expected not to take longer than 2 minutes
-				c_range_limit CONSTANT INTEGER := 240;
-				v_timestamp TIMESTAMP;
-				FUNCTION get_seconds_between_timestamps (v1 IN TIMESTAMP, v2 IN TIMESTAMP)
-					RETURN INTEGER IS
-					i INTEGER;
+				v_date DATE;
+
+				PROCEDURE sq_set_rollback_timestamp(in_date IN DATE := NULL) IS
 				BEGIN
-					IF v1 IS NULL OR v2 IS NULL THEN
-						RETURN c_range_limit + 1;
+					IF in_date IS NULL THEN
+						SELECT sysdate INTO v_date FROM dual;
 					ELSE
-						SELECT extract(day from (v2-v1)) * 24 * 60 * 60 +
-							extract(hour from (v2-v1)) * 60 * 60 +
-							extract(minute from (v2-v1)) * 60 +
-							extract(second from (v2-v1))
-						INTO i
-							FROM dual;
-							RETURN abs(i);
+						v_date := in_date;
 					END IF;
 				END;
 
-				PROCEDURE set_timestamp IS
+				FUNCTION sq_get_rollback_timestamp RETURN DATE IS
 				BEGIN
-					SELECT systimestamp
-					INTO v_timestamp
-					FROM dual;
+						RETURN v_date;
 				END;
-
-				FUNCTION get_timestamp RETURN TIMESTAMP IS
-					i INTEGER := get_seconds_between_timestamps(v_timestamp, systimestamp);
-					BEGIN
-						IF i > c_range_limit THEN
-							raise_application_error(-20001, 'transaction not expected to take more than '
-							|| c_range_limit || ' seconds, but currently at '
-							|| i || ' seconds');
-					ELSE
-						RETURN v_timestamp;
-					END IF;
-				END;
-			END common_pkg;
+			END sq_common_pkg;
 		]]>
 	</sql_element>
 	<sql_element display_name="sq_get_lineage_from_url Function">
@@ -202,7 +179,7 @@
 			CREATE OR REPLACE FUNCTION sq_rb_get_parent_treeids(minorid IN VARCHAR2, SQ_TREE_BASE_SIZE IN INTEGER) RETURN VARCHAR_500_TABLE IS
 				rb_date DATE;
 			BEGIN
-				rb_date := common_pkg.get_timestamp();
+				rb_date := sq_common_pkg.sq_get_rollback_timestamp();
 				RETURN sq_get_parent_treeids(minorid, SQ_TREE_BASE_SIZE, rb_date);
 			END sq_rb_get_parent_treeids;
 		]]>
