@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.27 2005/07/29 01:53:12 dheppell Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.28 2005/07/29 06:31:11 tbarrett Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2535,21 +2535,12 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintStatus(&$asset, &$o, $prefix, $category='', $read_only=false)
+	function paintStatus(&$asset, &$o, $prefix)
 	{
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-		if ($read_only) {
-			$write_access = false;
-		} else {
-			$write_access = $asset->writeAccess('links');
-		}
+		$write_access = $asset->writeAccess('links');
 
-		if (empty($category)) {
-			$current = $asset->attr('statuses');
-		} else {
-			$categories = $asset->attr('categories');
-			$current = $categories[$category]['statuses'];
-		}
+		$current = $asset->attr('statuses');
 
 		if ($write_access) {
 			require_once SQ_LIB_PATH.'/html_form/html_form.inc';
