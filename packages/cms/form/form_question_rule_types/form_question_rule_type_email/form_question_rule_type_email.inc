@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_email.inc,v 1.17.2.1 2005/06/24 04:07:24 skim Exp $
+* $Id: form_question_rule_type_email.inc,v 1.17.2.2 2005/07/29 01:12:55 dmckee Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.17.2.1 $
+* @version $Revision: 1.17.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -153,7 +153,11 @@ class Form_Question_Rule_Type_Email extends Form_Question_Rule
 	*/
 	function ruleDescription(&$q_asset, $rule_data)
 	{
-		$error_str = translate('cms_form_rule_email_desc_'.($rule_data['operator'] ? 'true' : 'false'), $q_asset->attr('name'));
+		$error_tail = 'false';
+		if (!isset($rule_data['operator']) || $rule_data['operator']) {
+			$error_tail = 'true';
+		}
+		$error_str = translate('cms_form_rule_email_desc_'.$error_tail, $q_asset->attr('name'));
 
 		return $error_str;
 
