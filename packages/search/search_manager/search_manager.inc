@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.64 2005/07/29 05:05:45 tbarrett Exp $
+* $Id: search_manager.inc,v 1.65 2005/07/29 05:53:42 dmckee Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.64 $
+* @version $Revision: 1.65 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -525,7 +525,7 @@ class Search_Manager extends Asset
 	*/
 	function isAttributeIndexable($attrid)
 	{
-		$info = $GLOBALS['SQ_SYSTEM']->am->getAttributeInfo($attrid);
+		$info = $GLOBALS['SQ_SYSTEM']->am->getAttributeInfo(Array($attrid));
 		return !$info[$attrid]['is_admin'];
 
 	}//end isAttributeIndexable()
