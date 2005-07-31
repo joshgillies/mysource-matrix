@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.31.2.6 2005/06/24 06:26:41 arailean Exp $
+* $Id: search_manager.inc,v 1.31.2.7 2005/07/31 23:47:53 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.31.2.6 $
+* @version $Revision: 1.31.2.7 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -670,9 +670,11 @@ class Search_Manager extends Asset
 
 						$where = '';
 						if ($from != '---------- --:--:--') {
+							$from = str_replace('--:--:--', '00:00:00', $from);
 							$where .= ' AND ai.value >= '.$db->quote($from);
 						}
 						if ($to != '---------- --:--:--') {
+							$to = str_replace('--:--:--', '23:59:59', $to);
 							$where .= ' AND ai.value <= '.$db->quote($to);
 						}
 						if (empty($where)) continue;
@@ -753,8 +755,14 @@ class Search_Manager extends Asset
 				$to   = array_get_index($attr_info['words'], 'to', '---------- --:--:--');
 
 				$where = '';
-				if ($from != '---------- --:--:--') $where .= ' AND ai.value >= '.$db->quote($from);
-				if ($to != '---------- --:--:--') $where .= ' AND ai.value <= '.$db->quote($to);
+				if ($from != '---------- --:--:--') {
+					$from = str_replace('--:--:--', '00:00:00', $from);
+					$where .= ' AND ai.value >= '.$db->quote($from);
+				}
+				if ($to != '---------- --:--:--') {
+					$to = str_replace('--:--:--', '23:59:59', $to);
+					$where .= ' AND ai.value <= '.$db->quote($to);
+				}
 				if (empty($where)) continue;
 
 				$result = $cm->loadFromCache($this, $search_cache_key.'asset_date'.$from.'_'.$to);
@@ -838,8 +846,14 @@ class Search_Manager extends Asset
 						$to   = array_get_index($attr_info['words'], 'to', '---------- --:--:--');
 
 						$where = '';
-						if ($from != '---------- --:--:--') $where .= ' AND ai.value >= '.$db->quote($from);
-						if ($to != '---------- --:--:--') $where .= ' AND ai.value <= '.$db->quote($to);
+						if ($from != '---------- --:--:--') {
+							$from = str_replace('--:--:--', '00:00:00', $from);
+							$where .= ' AND ai.value >= '.$db->quote($from);
+						}
+						if ($to != '---------- --:--:--') {
+							$where .= ' AND ai.value <= '.$db->quote($to);
+							$to = str_replace('--:--:--', '23:59:59', $to);
+						}
 						if (empty($where)) continue;
 
 						$result = $cm->loadFromCache($this, $search_cache_key.'metadata'.$from.'_'.$to);
