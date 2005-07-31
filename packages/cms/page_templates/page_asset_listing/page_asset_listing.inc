@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.81 2005/07/21 07:41:46 lwright Exp $
+* $Id: page_asset_listing.inc,v 1.82 2005/07/31 23:28:20 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.81 $
+* @version $Revision: 1.82 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -180,9 +180,6 @@ class Page_Asset_Listing extends Listing_Engine
 
 			// get our page chunk here
 			$todo =& $this->getChunk($children, $replacements, $result_page, $num_per_page);
-
-			// do analysis of check-all relations
-			$this->_analyseCheckAllRelations($todo);
 
 			// get any extra keyword replacements from this asset or asset_listing
 			$replacements = $this->getContentsKeywordReplacements() + $replacements;
