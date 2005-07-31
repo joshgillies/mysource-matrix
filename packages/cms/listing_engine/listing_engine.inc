@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.61 2005/07/31 23:27:22 lwright Exp $
+* $Id: listing_engine.inc,v 1.62 2005/07/31 23:55:28 dheppell Exp $
 *
 */
 
@@ -43,7 +43,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.61 $
+* @version $Revision: 1.62 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1170,8 +1170,12 @@ class Listing_Engine extends Page
 			}//end foreach $todo
 
 		} else {
-			// otherwise we're up to the asset list, we can do the normal
-			// listing stuff here
+			// otherwise we're up to the asset list, we can do the normal listing stuff here
+			// make sure we add not replace the assets info array, just in case somethings needed
+			$group_assets = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($todo));
+			for (reset($group_assets); null !== ($index = key($group_assets)); next($group_assets)) {
+				$this->_tmp['assets_info'][$index] = $group_assets[$index];
+			}
 			$this->_printAssetList($todo);
 
 		}
@@ -1737,16 +1741,16 @@ class Listing_Engine extends Page
 		$group_levels = array_reverse($group_levels);
 
 		$asset_groups = Array();
-		foreach($assetids as $assetid => $group_data) {
+		foreach ($assetids as $assetid => $group_data) {
 			$asset_groups[] = Array('assetid' => $assetid);
 		}
 
 		// keep track of the last time we encountered a parent asset group
 		$last_parent_asset = false;
-		foreach($group_levels as $group_key => $group_level) {
+		foreach ($group_levels as $group_key => $group_level) {
 			$new_asset_groups = Array();
 
-			foreach($asset_groups as $key => $group_data) {
+			foreach ($asset_groups as $key => $group_data) {
 				$assetid = $group_data['assetid'];
 
 				if ($last_parent_asset === false) {
@@ -1792,7 +1796,7 @@ class Listing_Engine extends Page
 					$group_data['group'][$group_key] = $value;
 					$new_asset_groups[] = $group_data;
 				} else {
-					foreach($value as $sub_value) {
+					foreach ($value as $sub_value) {
 						$group_data['group'][$group_key] = $sub_value;
 						$new_asset_groups[] = $group_data;
 					}
@@ -1812,7 +1816,7 @@ class Listing_Engine extends Page
 		// we need to flip the keys back to what they were to construct the array
 		foreach ($asset_groups as $group_data) {
 			$base =& $results;
-			foreach(array_reverse($group_keys) as $group_key) {
+			foreach (array_reverse($group_keys) as $group_key) {
 				$key = $group_data['group'][$group_key];
 				if (is_null($key)) $key = '';
 				$base =& $base[$key];
@@ -2734,7 +2738,10 @@ class Listing_Engine extends Page
 			$prefix = '';
 
 			$lvl = $all_child_links[$branch]['lvl'];
-			if (($max_level != 0) && ($lvl > $max_level)) return;
+			if (($max_level != 0) && ($lvl > $max_level)) {
+				return;
+			}
+
 			for ($i = 0; $i < $lvl; $i++) {
 				$prefix .= ' - ';
 			}
