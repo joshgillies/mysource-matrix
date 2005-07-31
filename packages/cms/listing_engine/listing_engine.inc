@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.38.2.7 2005/07/28 05:37:18 dmckee Exp $
+* $Id: listing_engine.inc,v 1.38.2.8 2005/07/31 23:53:14 dheppell Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
 *
-* @version $Revision: 1.38.2.7 $
+* @version $Revision: 1.38.2.8 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -104,7 +104,7 @@ class Listing_Engine extends Page
 
 		$type_formats = null;
 		foreach ($sub_assets as $name => $type) {
-			$asset = new $type();
+			$asset =& new $type();
 			$copy_link = Array('asset' => &$this, 'value' => $name ,'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 
 			$asset->setAttrValue('name', ucwords(str_replace('_',' ', $name)));
@@ -115,7 +115,7 @@ class Listing_Engine extends Page
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 			unset($asset);
 		}
-		$asset = new Bodycopy();
+		$asset =& new Bodycopy();
 		$copy_link = Array('asset' => &$type_formats, 'value' => 'default_format' ,'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 		$asset->setAttrValue('name', translate('default_format'));
 
@@ -1155,8 +1155,12 @@ class Listing_Engine extends Page
 			}//end foreach $todo
 
 		} else {
-			// otherwise we're up to the asset list, we can do the normal
-			// listing stuff here
+			// otherwise we're up to the asset list, we can do the normal listing stuff here
+			// make sure we add not replace the assets info array, just in case somethings needed
+			$group_assets = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($todo));
+			for (reset($group_assets); null !== ($index = key($group_assets)); next($group_assets)) {
+				$this->_tmp['assets_info'][$index] = $group_assets[$index];
+			}
 			$this->_printAssetList($todo);
 		}
 	}//end _printGroups()
@@ -1178,6 +1182,7 @@ class Listing_Engine extends Page
 	*/
 	function _printAssetList($todo)
 	{
+
 		$allowed_types = $this->getAllowedAssetTypeMap();
 		$column_layout = $this->attr('column_layout');
 		$using_groups = $this->attr('group_by') == 'grouped';
@@ -1480,7 +1485,7 @@ class Listing_Engine extends Page
 							$type_keywords = Asset::getAssetKeywords(false);
 						} else {
 							$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
-							$dummy_asset = new $type_code();
+							$dummy_asset =& new $type_code();
 							$type_keywords = $dummy_asset->getAssetKeywords(false);
 							unset($dummy_asset);
 						}
