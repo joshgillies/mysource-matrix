@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.60 2005/07/29 07:09:56 dmckee Exp $
+* $Id: listing_engine.inc,v 1.61 2005/07/31 23:27:22 lwright Exp $
 *
 */
 
@@ -43,7 +43,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.60 $
+* @version $Revision: 1.61 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2585,7 +2585,7 @@ class Listing_Engine extends Page
 		if (!isset($this->_tmp['check_all_relations'])) {
 			// if custom grouping is enabled and set up, we need to modify the
 			// first level of groups to use the 'g' prefix
-			if (($this->attr('group_by') == 'grouped') && (count($this->attr('asset_grouping') > 0))) {
+			if (($this->attr('group_by') == 'grouped') && (count($this->attr('asset_grouping')) > 0)) {
 				$new_rel = Array('parent' => '_all', 'children' => Array());
 				foreach (array_keys($todo) as $group_id) {
 					$new_rel['children'][] = '_g_'.$group_id;
