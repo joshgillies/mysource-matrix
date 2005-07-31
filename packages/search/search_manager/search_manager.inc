@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.56.2.2 2005/07/21 01:05:50 dheppell Exp $
+* $Id: search_manager.inc,v 1.56.2.3 2005/07/31 23:32:37 tbarrett Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.56.2.2 $
+* @version $Revision: 1.56.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -664,9 +664,11 @@ class Search_Manager extends Asset
 
 						$where = '';
 						if ($from != '---------- --:--:--') {
+							$from = str_replace('--:--:--', '00:00:00', $from);
 							$where .= ' AND ai.value >= '.$db->quote($from);
 						}
 						if ($to != '---------- --:--:--') {
+							$to = str_replace('--:--:--', '23:59:59', $to);
 							$where .= ' AND ai.value <= '.$db->quote($to);
 						}
 						if (empty($where)) continue;
@@ -744,9 +746,11 @@ class Search_Manager extends Asset
 
 				$where = '';
 				if ($from != '---------- --:--:--') {
+					$from = str_replace('--:--:--', '00:00:00', $from);
 					$where .= ' AND ai.value >= '.$db->quote($from);
 				}
 				if ($to != '---------- --:--:--') {
+					$to = str_replace('--:--:--', '23:59:59', $to);
 					$where .= ' AND ai.value <= '.$db->quote($to);
 				}
 				if (empty($where)) continue;
@@ -835,9 +839,11 @@ class Search_Manager extends Asset
 
 						$where = '';
 						if ($from != '---------- --:--:--') {
+							$from = str_replace('--:--:--', '00:00:00', $from);
 							$where .= ' AND ai.value >= '.$db->quote($from);
 						}
 						if ($to != '---------- --:--:--') {
+							$to = str_replace('--:--:--', '23:59:59', $to);
 							$where .= ' AND ai.value <= '.$db->quote($to);
 						}
 						if (empty($where)) continue;

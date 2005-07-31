@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.98.2.6 2005/07/29 02:01:15 dheppell Exp $
+* $Id: search_page.inc,v 1.98.2.7 2005/07/31 23:32:37 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.98.2.6 $
+* @version $Revision: 1.98.2.7 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1551,6 +1551,12 @@ class Search_Page extends Listing_Engine
 		foreach ($queries as $field_name => $value) {
 
 			if (empty($value)) continue;
+			$empty_dates = Array(
+							'from'	=> '---------- --:--:--',
+							'to'	=> '---------- --:--:--',
+						   );
+			if ($value == $empty_dates) continue;
+
 
 			if ($fields[$field_name]['type'] == 'asset_attrib') {
 				$attribute = &$GLOBALS['SQ_SYSTEM']->am->getAttribute($fields[$field_name]['params']['attrid']);
@@ -1744,6 +1750,12 @@ class Search_Page extends Listing_Engine
 
 				if (is_scalar($value)) $value = trim($value);
 				if (empty($value)) continue;
+				$empty_dates = Array(
+								'from'	=> '---------- --:--:--',
+								'to'	=> '---------- --:--:--',
+							   );
+				if ($value == $empty_dates) continue;
+
 
 				if (!isset($last_search[$field_name]) || $last_search[$field_name] == '') {
 					$last_search[$field_name] = $value;
