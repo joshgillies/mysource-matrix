@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.94 2005/07/07 02:38:22 amiller Exp $
+* $Id: general.inc,v 1.95 2005/07/31 22:36:49 gsherwood Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.94 $
+* @version $Revision: 1.95 $
 * @package MySource_Matrix
 */
 
@@ -580,27 +580,32 @@ function replace_query_string_vars($replacements, $base_url=null, $query_string=
 		$query_string = $_SERVER['QUERY_STRING'];
 	}
 
-	$url = $base_url.'?'.$query_string;
+	$replaced_vars = array_keys($replacements);
+	$new_query_string = '';
 
-	foreach ($replacements as $var => $value) {
-		$find = '|([&?])'.$var.'=([^&]+)?|';
-		$url = preg_replace($find, '\\1', $url);
-		if (is_null($value)) continue;
-		$last_chr = $url{strlen($url) - 1};
-		if ($last_chr != '&' && $last_chr != '?') {
-			$url .= '&';
+	// first replace any existing query string vars and remove any that are NULL
+	$matches = Array();
+	preg_match_all('|&([^=]+)=([^&]+)?|', '&'.$query_string, $matches);
+	foreach ($matches[1] as $num => $var) {
+		if (!in_array($var, $replaced_vars)) {
+			// there is no replacement required
+			$new_query_string .= '&'.$var.'='.$matches[2][$num];
+		} else {
+			$new_value = $replacements[$var];
+			if (!is_null($new_value)) {
+				$new_query_string .= '&'.$var.'='.$new_value;
+			}
 		}
-		$url .= $var.'='.$value;
 	}
 
-	// if the last replacement was null, there might be a & or ? on the end
-	// of the query string
-	$last_chr = $url{strlen($url) - 1};
-	if ($last_chr == '&' || $last_chr == '?') {
-		$url = substr($url, 0, -1);
+	// now add in any new query string vars
+	foreach ($replacements as $var => $value) {
+		if (in_array($var, $matches[1])) continue;
+		$new_query_string .= '&'.$var.'='.$value;
 	}
+	$new_query_string = trim($new_query_string, '&');
 
-	return $url;
+	return $base_url.'?'.$new_query_string;
 
 }//end replace_query_string_vars()
 
@@ -618,7 +623,6 @@ function replace_query_string_vars($replacements, $base_url=null, $query_string=
 */
 function bit_elements($num)
 {
-
 	$num = (int) $num; // make sure it's an int
 	$count = 1;
 	$elems = Array();
