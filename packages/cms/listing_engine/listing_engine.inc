@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.62 2005/07/31 23:55:28 dheppell Exp $
+* $Id: listing_engine.inc,v 1.63 2005/08/01 02:31:41 pgannavarapu Exp $
 *
 */
 
@@ -43,7 +43,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.62 $
+* @version $Revision: 1.63 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1102,9 +1102,10 @@ class Listing_Engine extends Page
 			// get the group bodycopy relative to this level
 			$remaining_groups = array_shift($group_info);
 			$format_bodycopy =& $GLOBALS['SQ_SYSTEM']->am->getAsset($remaining_groups['format_assetid']);
-
+			$format_keywords = $format_bodycopy ->getKeywords();
 			foreach ($todo as $group_level => $value) {
 					// lets buffer whatever contents we need
+					$replacements = Array();
 
 					switch ($remaining_groups['group_type']) {
 
@@ -1112,6 +1113,14 @@ class Listing_Engine extends Page
 							// we need to get info from the parent asset
 							$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($group_level));
 							$group_name = $asset_info[$group_level]['name'];
+							$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($group_level);
+							foreach ($format_keywords as $format_keyword) {
+								$pos = strpos($format_keyword, 'group');
+								if ($pos === false) {
+									$keyword = substr_replace($format_keyword, 'asset', 0, 6);
+									$replacements[$format_keyword] = $asset->getKeywordReplacement($keyword);
+								}
+							}
 						break;
 
 						case 'metadata':
@@ -1164,7 +1173,6 @@ class Listing_Engine extends Page
 					}
 
 					array_pop($this->_tmp['group_info']);
-
 					$format_bodycopy->setKeywordReplacements($replacements);
 					$format_bodycopy->printBody();
 			}//end foreach $todo
@@ -1842,6 +1850,7 @@ class Listing_Engine extends Page
 	*/
 	function sortGroups($group_levels, $assetids, &$results)
 	{
+
 		//we need assets, so if none given, let's bail
 		if (empty($assetids)) return;
 
@@ -1860,12 +1869,12 @@ class Listing_Engine extends Page
 				} else {
 					arsort($group_order);
 				}
-
 				$group_results = Array();
 				foreach (array_keys($group_order) as $assetid) {
 					$group_results[$assetid] =& $results[$assetid];
 				}
 				$results = $group_results;
+
 
 			break;
 
@@ -2130,7 +2139,6 @@ class Listing_Engine extends Page
 		}
 
 		$vars['keywords'] = array_merge($vars['keywords'], $keywords);
-
 	}//end onRequestKeywords()
 
 
@@ -2245,10 +2253,15 @@ class Listing_Engine extends Page
 	*/
 	function _getGroupFolderKeywords()
 	{
-		$keywords                  = Array();
+		$fake_asset =& new Asset();
+		$keywords = $fake_asset->getAvailableKeywords();
+		foreach ($keywords as $key =>$keyword) {
+			$key1 = substr_replace($key, 'parent', 0, 5);
+			$keywords[$key1] = $keywords[$key];
+			unset($keywords[$key]);
+		}
 		$keywords['group_listing'] = translate('cms_listing_group_listing');
 		$keywords['group_name']    = translate('cms_listing_group_name');
-
 		$selections = $this->attr('asset_selections');
 		if (is_array($selections) && !empty($selections)) {
 			foreach ($selections as $name => $settings) {
@@ -2257,7 +2270,6 @@ class Listing_Engine extends Page
 				}
 			}
 		}
-
 		return $keywords;
 
 	}//end _getGroupFolderKeywords()
