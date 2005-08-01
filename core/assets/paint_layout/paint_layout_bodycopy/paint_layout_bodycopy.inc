@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_bodycopy.inc,v 1.5 2005/08/01 04:30:59 ndvries Exp $
+* $Id: paint_layout_bodycopy.inc,v 1.6 2005/08/01 13:36:14 gnoel Exp $
 *
 */
 
@@ -49,7 +49,7 @@ require_once 'include/conditions_list.inc';
 * If an attribute is not recognised, the condition will be evaluated as false.
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -122,6 +122,7 @@ class Paint_Layout_Bodycopy extends Bodycopy
 
 		$required_substitution_keywords = Array();
 
+		// find all the required keywords and replace the condition-block keywords by PHP code
 		foreach ($required_keywords as $keyword) {
 		 	if (!isset($keyword_replacements[$keyword])) {
 			 	$value = null;
@@ -151,23 +152,22 @@ class Paint_Layout_Bodycopy extends Bodycopy
 			 	if (isset($value)) {
 			 		$keyword_replacements[$keyword] = $value;
 			 	} else {
-			 		$keyword_replacements[$keyword] = $asset->getKeywordReplacement($keyword);
+			 		$required_substitution_keywords[$keyword] = 1;
 			 	}
 			}
 		}
+		
+		// get the value of all the required keywords
+		$keyword_replacements = array_merge($keyword_replacements, $this->_getAssetKeywordReplacements($asset, array_keys($required_substitution_keywords)));
 
-		$this->setKeywordReplacements($keyword_replacements);
+		$content = replace_keywords($content, $keyword_replacements);
 
-		ob_start();
-			$this->printBody();
-			$bodycopy_contents = ob_get_contents();
-		ob_end_clean();
-
-		$content = $php_end.$bodycopy_contents.$php_begin;
+		$content = $php_end.$content.$php_begin;
 
 		unset($this->keyword_replacements);
 		$this->keyword_replacements = &$keyword_replacements;
 
+		// evaluate the content (necessary for the conditions written in PHP)
 		ob_start();
 			eval($content);
 			$ret = ob_get_contents();
@@ -270,10 +270,11 @@ class Paint_Layout_Bodycopy extends Bodycopy
 		}
 
 		// 2. asset keywords (includes attributes)
-		// TODO: getAssetKeywords should accept the list of required keywords as a new argument
-		$asset_keywords = $asset->getAssetKeywords(false);
-		foreach ($asset_keywords as $keyword_name => $keyword) {
-			$ret[$keyword_name] = $keyword['value'];
+		$asset_keywords = $asset->getAvailableKeywords();
+		foreach ($required_keywords as $required_keyword) {
+			if (isset($asset_keywords[$required_keyword])) {
+				$ret[$required_keyword] = $asset->getKeywordReplacement($required_keyword);
+			}
 		}
 
 		// asset lineage
@@ -361,18 +362,12 @@ class Paint_Layout_Bodycopy extends Bodycopy
 			// 1. asset content
 			$keywords['asset_contents'] = translate('asset_contents');
 
+			// 2. asset keywords (includes attributes)
 			if (!empty($asset_type_code)) {
-				// 2. asset keywords (includes attributes)
-				// TODO: getAssetKeywords should accept the list of required keywords as a new argument
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset($asset_type_code);
 				$asset =& new $asset_type_code();
 			} else {
 				$asset =& new Asset();
-			}
-
-			$asset_keywords = $asset->getAssetKeywords(true);
-			foreach ($asset_keywords as $keyword_name => $keyword) {
-				$keywords[$keyword_name] = (empty($keyword['description']) || !$show_description) ? ucwords(str_replace('_', ' ', $keyword_name)) : $keyword['description'];
 			}
 
 			$asset_keywords = $asset->getAvailableKeywords();
