@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_fns.inc,v 1.49 2005/07/13 04:05:57 mmcintyre Exp $
+* $Id: asset_edit_fns.inc,v 1.50 2005/08/01 08:49:23 brobertson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.49 $
+* @version $Revision: 1.50 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Fns extends MySource_Object
@@ -223,6 +223,92 @@ class Asset_Edit_Fns extends MySource_Object
 		return $GLOBALS['SQ_SYSTEM']->wm->isWorkflowComplete($asset->id);
 
 	}//end isWorkflowComplete()
+
+
+	/**
+	* Paint a generic interface for editing assets that are notice linked to this asset
+	*
+	* @param object Asset	$asset		the asset whose interface we are painting
+	* @param Array			$link		the current link
+	* @param Array			$type_codes type_codes to pass to asset_finder()
+	* @param string			$field_name field_name to pass to asset_finder()
+	*
+	* @return boolean true if editable interface printed
+	* @access private
+	*/
+	function _paintNoticeLinkedAsset(&$asset, $link_value, $type_codes, $field_name='')
+	{
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', false, $link_value);
+		$selected = (empty($link)) ? 0 : $link['minorid'];
+
+		if (empty($field_name))	$field_name = $asset->getPrefix().'_'.str_replace(' ', '_', strtolower($link_value));
+		
+		if (!$asset->writeAccess('links')) {
+			echo '<i>';
+			if (!$selected) {
+				echo 'None';
+			} else {
+				$linked_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($selected, '', true);
+				echo $linked_asset->name, ' (#', $linked_asset->id, ')';
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($linked_asset);
+			}
+			echo '</i>';
+			return false;
+		}
+
+		// If we are in limbo assume that the asset map is in the current window (if it is anywhere)
+		if (SQ_IN_LIMBO) {
+			asset_finder($field_name, $selected, $type_codes, '', false);
+		} else {
+			asset_finder($field_name, $selected, $type_codes);
+		}
+
+		return true;
+
+	}//end _paintNoticeLinkedAsset()
+
+
+	/**
+	* Process a generic interface for editing assets that are notice linked to this asset
+	*
+	* @param object Asset	$asset		the asset whose interface we are painting
+	* @param string			$link_value	the value to put on the link
+	* @param string			$field_name	the name used for the asset finder
+	*
+	* @return boolean	whether a change was made or not
+	* @access private
+	*/
+	function _processNoticeLinkedAsset(&$asset, $link_value, $field_name='')
+	{
+		if (empty($field_name))	$field_name = $asset->getPrefix().'_'.str_replace(' ', '_', strtolower($link_value));
+		if (!isset($_POST[$field_name])) return false;
+		
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', false, $link_value); 
+
+		// if there has been no change, then there is nothing to do
+		if (empty($link) || $link['minorid'] != $_POST[$field_name]['assetid']) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+			$success = true;
+
+			// if there is a current link, we need to delete it
+			if (!empty($link)) {
+				$success = $asset->deleteLink($link['linkid']);
+			}
+			
+			if ($success && !empty($_POST[$field_name]['assetid'])) {
+				$selected_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($_POST[$field_name]['assetid']);
+				if (!is_null($selected_asset)) {
+					$success = $asset->createLink($selected_asset, SQ_LINK_NOTICE, $link_value);
+				}
+			}
+	
+			$GLOBALS['SQ_SYSTEM']->doTransaction($success ? 'COMMIT' : 'ROLLBACK');
+			return $success;
+		}
+
+		return false;
+
+	}//end _processNoticeLinkedAsset()
 
 
 }//end class
