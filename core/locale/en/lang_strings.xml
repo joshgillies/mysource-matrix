@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.18.2.5 2005/07/21 00:26:56 tbarrett Exp $
+* $Id: lang_strings.xml,v 1.18.2.6 2005/08/01 15:42:52 gnoel Exp $
 *
 */
 
@@ -286,7 +286,7 @@
 	<string source="release_lock">Press the &lt;span class="sq-backend-button-fake"&gt;%1$s&lt;/span&gt; button to release the locks you hold on "%2$s".</string>
 	<string source="lock_type">Lock Type</string>
 	<string source="other_assets_in_chain">Other Assets in Chain</string>
-	<string source="forceably_acquire_lock_can_cause_losses">You are about to forceably acquire the following locks on "%1$s"&lt;br&gt;&lt;b&gt;Any changes being made to "%2$s" or any other asset in the locking chain (&lt;i&gt;see full list below&lt;/i&gt;) will be lost.&lt;/b&gt;</string>
+	<string source="forceably_acquire_lock_can_cause_losses">You are about to forceably acquire the following locks on "%1$s"&lt;br&gt;&lt;b&gt;Any changes being made to "%1$s" or any other asset in the locking chain (&lt;i&gt;see full list below&lt;/i&gt;) will be lost.&lt;/b&gt;</string>
 	<string source="currently_not_held">Currently not held</string>
 	<string source="no_access_to_edit">You do not have access to edit "%s"</string>
 	<string source="due_to_expire">The lock is due to expire in %s</string>
