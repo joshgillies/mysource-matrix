@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: int.inc,v 1.31 2005/07/19 03:04:08 tbarrett Exp $
+* $Id: int.inc,v 1.32 2005/08/01 05:08:51 lwright Exp $
 *
 */
 
@@ -37,7 +37,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *    <int width="10" />
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -101,39 +101,10 @@ class Asset_Attribute_Int extends Asset_Attribute
 		}
 
 		$allow_negative = array_get_index($this->_params, 'allow_negative', true);
-		//TODO: TRANSLATE: other js changes here
-		$javascript ='
-			onFocus="javascript: this.__sq_init_value = this.value;"
-			onKeyPress="javascript:
-			my_value = parseInt(this.value, 10);
-			if (typeof sq_backup  == \'undefined\') {
-				sq_backup = '.$this->value.';
-			}
-
-			if (isNaN(my_value)) {
-				this.value = this.__sq_init_value;
-				alert(js_translate(\'cannot_accept_non_digit_characters\'));
-				this.value = sq_backup;
-			';
-
-		if (!$allow_negative) {
-			$javascript .= '
-			} else if (my_value < 0) {
-				alert(js_translate(\'cannot_be_negative\'));
-				this.value = sq_backup;
-			';
-
-		}
-
-		$javascript .= '
-			} else {
-				this.value	= my_value;
-				sq_backup	= my_value;
-			}"
-		';
 
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
-		text_box($prefix, $this->value, $this->_edit_params['width'], 0, false, $javascript);
+		int_text_box($prefix, $this->value, $allow_negative, $this->_edit_params['width'], null, null, 0, false, '');
+		//text_box($prefix, $this->value, $this->_edit_params['width'], 0, false, $javascript);
 
 	}//end paint()
 
