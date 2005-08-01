@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_page_management.inc,v 1.2 2005/04/07 17:57:06 gnoel Exp $
+* $Id: paint_layout_page_management.inc,v 1.3 2005/08/01 04:31:05 ndvries Exp $
 *
 */
 
@@ -30,12 +30,13 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Paint_Layout_Page_Management extends Asset_Management
 {
+
 
 	/**
 	* Constructor
@@ -45,11 +46,11 @@ class Paint_Layout_Page_Management extends Asset_Management
 	{
 		$this->Asset_Management($pm);
 
-		$this->vars['types']				= Array(
-													'added'   => '0.1',
-													'type'    => 'serialise',
-													'default' => Array(),
-													);
+		$this->vars['types'] = Array(
+								'added'		=> '0.1',
+								'type'		=> 'serialise',
+								'default'	=> Array(),
+							   );
 
 	}//end constructor
 
@@ -64,23 +65,23 @@ class Paint_Layout_Page_Management extends Asset_Management
 	{
 		return Array(
 				Array(
-					'event_name'				 => 'requestKeywords',
-					'broadcast_type_code'		 => 'content_type',
-					'broadcast_strict_type_code' => false,
-					'options'	=> Array(
-						'side_of_link'		=> 'major',
-						'indirect'			=> true,
-						'exclusive'			=> null,
-						'dependant'			=> 1,
-						'is_exclusive'		=> null,
-						'is_dependant'		=> 1,
-						'value'				=> '',
-						'link_type'			=> SQ_LINK_TYPE_2 | SQ_LINK_TYPE_1,
-					),
+					'event_name'					=> 'requestKeywords',
+					'broadcast_type_code'			=> 'content_type',
+					'broadcast_strict_type_code'	=> false,
+					'options'						=> Array(
+														'side_of_link'	=> 'major',
+														'indirect'		=> true,
+														'exclusive'		=> null,
+														'dependant'		=> 1,
+														'is_exclusive'	=> null,
+														'is_dependant'	=> 1,
+														'value'			=> '',
+														'link_type'		=> SQ_LINK_TYPE_2 | SQ_LINK_TYPE_1,
+													   ),
 				),
-		);
-	}//end getEventList()
+			   );
 
+	}//end getEventList()
 
 
 }//end class

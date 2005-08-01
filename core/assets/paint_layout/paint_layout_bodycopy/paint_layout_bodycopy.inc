@@ -18,11 +18,11 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_bodycopy.inc,v 1.4 2005/05/11 06:04:54 lwright Exp $
+* $Id: paint_layout_bodycopy.inc,v 1.5 2005/08/01 04:30:59 ndvries Exp $
 *
 */
 
-require_once SQ_CORE_PACKAGE_PATH . '/bodycopy/bodycopy/bodycopy.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy.inc';
 require_once 'include/conditions_list.inc';
 
 /**
@@ -49,7 +49,7 @@ require_once 'include/conditions_list.inc';
 * If an attribute is not recognised, the condition will be evaluated as false.
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -74,7 +74,7 @@ class Paint_Layout_Bodycopy extends Bodycopy
 		$this->_ser_attrs = true;
 		$this->Asset($assetid);
 
-	}
+	}//end constructor
 
 
 	/**
@@ -113,14 +113,11 @@ class Paint_Layout_Bodycopy extends Bodycopy
 		$this->asset_to_paint = &$asset;
 
 		$content = $this->getRawBodycopyContent();
+		$required_keywords = $this->getKeywords();
 
-		$required_keywords = retrieve_keywords_replacements($content);
-
-		// 1. replace conditional keywords
-		$php_begin = ' <' . '?' . 'php ';
-		$php_end = ' ?' . '> ';
+		$php_begin = ' <'.'?'.'php ';
+		$php_end = ' ?'.'> ';
 		$keyword_replacements = Array();
-		// all the keywords required by the
 		$additional_keywords = Array();
 
 		$required_substitution_keywords = Array();
@@ -129,24 +126,24 @@ class Paint_Layout_Bodycopy extends Bodycopy
 		 	if (!isset($keyword_replacements[$keyword])) {
 			 	$value = null;
 
-				if (preg_match('/^(' . SQ_KEYWORD_CONDITION_BEGIN . '|' . SQ_KEYWORD_CONDITION_END . '|' . SQ_KEYWORD_CONDITION_ELSE . ')_(.*)$/', $keyword, $condition_parts)) {
+				if (preg_match('/^('.SQ_KEYWORD_CONDITION_BEGIN.'|'.SQ_KEYWORD_CONDITION_END.'|'.SQ_KEYWORD_CONDITION_ELSE.')_(.*)$/', $keyword, $condition_parts)) {
 					if (count($condition_parts) == 3) {
 						$test_keyword = $condition_parts[2];
 				 		switch ($condition_parts[1]) {
 				 			case SQ_KEYWORD_CONDITION_BEGIN :
 				 				$this->_addRequiredKeywordsFromEvaluatedKeyword($test_keyword, $required_substitution_keywords);
-						 		$value = 'if ($this->_evaluateKeyword(\'' . $test_keyword . '\')) {';
-						 		break;
+						 		$value = 'if ($this->_evaluateKeyword(\''.$test_keyword.'\')) {';
+							break;
 				 			case SQ_KEYWORD_CONDITION_ELSE :
 						 		$value = '} else {';
-						 		break;
+							break;
 				 			case SQ_KEYWORD_CONDITION_END :
-						 		$value = '} //' . $test_keyword;
-						 		break;
+						 		$value = '} //'.$test_keyword;
+							break;
 				 		}
 
 				 		if (!empty($value)) {
-				 			$value = $php_begin . $value . $php_end;
+				 			$value = $php_begin.$value.$php_end;
 				 		}
 					}
 			 	}
@@ -154,24 +151,19 @@ class Paint_Layout_Bodycopy extends Bodycopy
 			 	if (isset($value)) {
 			 		$keyword_replacements[$keyword] = $value;
 			 	} else {
-			 		$required_substitution_keywords[$keyword] = 1;
+			 		$keyword_replacements[$keyword] = $asset->getKeywordReplacement($keyword);
 			 	}
 			}
 		}
 
-		//$content = replace_keywords($content, $keyword_replacements);
+		$this->setKeywordReplacements($keyword_replacements);
 
-		// 2. replace substitution keywords
-		// add keywords required by conditions
-		//$required_keywords = array_merge(retrieve_keywords_replacements($content), $additional_keywords);
-		//$keyword_replacements = &$this->_getAssetKeywordReplacements($asset, $required_keywords);
+		ob_start();
+			$this->printBody();
+			$bodycopy_contents = ob_get_contents();
+		ob_end_clean();
 
-		$keyword_replacements = array_merge($keyword_replacements, $this->_getAssetKeywordReplacements($asset, array_keys($required_substitution_keywords)));
-
-		$content = replace_keywords($content, $keyword_replacements);
-
-		// 3. evaluate the whole content
-		$content = $php_end . $content . $php_begin;
+		$content = $php_end.$bodycopy_contents.$php_begin;
 
 		unset($this->keyword_replacements);
 		$this->keyword_replacements = &$keyword_replacements;
@@ -181,12 +173,9 @@ class Paint_Layout_Bodycopy extends Bodycopy
 			$ret = ob_get_contents();
 		ob_end_clean();
 
-		//error_log($content);
-		//error_log($ret);
-
 		return $ret;
 
-	}
+	}//end paintAsset()
 
 
 	/**
@@ -203,7 +192,7 @@ class Paint_Layout_Bodycopy extends Bodycopy
 	function _addRequiredKeywordsFromEvaluatedKeyword($evaluated_keyword, &$required_keywords)
 	{
 		// if the evaluated keyword is a logical condition, then gets the logical keywords it is relying on
-		$condition_list = new Conditions_List($this, 'conditional_keywords');
+		$condition_list =& new Conditions_List($this, 'conditional_keywords');
 		foreach ($condition_list->getRequiredKeywords($evaluated_keyword) as $required_keyword) {
 			$required_keywords[$required_keyword] = 1;
 		}
@@ -211,7 +200,7 @@ class Paint_Layout_Bodycopy extends Bodycopy
 		// add at least the keyword that will be evaluated
 		$required_keywords[$evaluated_keyword] = 1;
 
-	}
+	}//end _addRequiredKeywordsFromEvaluatedKeyword()
 
 
 	/**
@@ -225,13 +214,15 @@ class Paint_Layout_Bodycopy extends Bodycopy
 	*/
 	function _evaluateKeyword($keyword_name)
 	{
-		if (!isset($this->keyword_replacements[$keyword_name])) return false;
+		if (!isset($this->keyword_replacements[$keyword_name])) {
+			return false;
+		}
 
 		$value = trim($this->keyword_replacements[$keyword_name]);
 
 		return ($value != '');
 
-	}
+	}//end _evaluateKeyword()
 
 
 	/**
@@ -251,7 +242,7 @@ class Paint_Layout_Bodycopy extends Bodycopy
 
 		return $ret;
 
-	}
+	}//end _getKeywordValue()
 
 
 	/**
@@ -281,7 +272,7 @@ class Paint_Layout_Bodycopy extends Bodycopy
 		// 2. asset keywords (includes attributes)
 		// TODO: getAssetKeywords should accept the list of required keywords as a new argument
 		$asset_keywords = $asset->getAssetKeywords(false);
-		foreach($asset_keywords as $keyword_name => $keyword) {
+		foreach ($asset_keywords as $keyword_name => $keyword) {
 			$ret[$keyword_name] = $keyword['value'];
 		}
 
@@ -300,7 +291,7 @@ class Paint_Layout_Bodycopy extends Bodycopy
 					$ret['asset_lineage_linked'] .= $lineage_separator;
 				}
 				$ret['asset_lineage'] .= $asset_lineage_item['short_name'];
-				$ret['asset_lineage_linked'] .= '<a href="' . $asset_lineage_item['protocol'] . '://' . $asset_lineage_item['url'] . '">' . $asset_lineage_item['short_name'] . '</a>';
+				$ret['asset_lineage_linked'].='<a href="'.$asset_lineage_item['protocol'].'://'.$asset_lineage_item['url'].'">'.$asset_lineage_item['short_name'].'</a>';
 			}
 		}
 
@@ -309,19 +300,19 @@ class Paint_Layout_Bodycopy extends Bodycopy
 		$metadata_keywords = $mm->getMetadataFieldValues($asset->id);
 
 		foreach ($metadata_keywords as $field => $value) {
-			$ret['asset_metadata_' . $field] = $value;
+			$ret['asset_metadata_'.$field] = $value;
 		}
 
 		// 4. Conditions
 		// TODO:
 		// This will make this harder once the $required_keywords will be really applied by getAssetKeywords()
 		// function, because the logical conditions may need other keywords which are not in $required_keywords
-		$condition_list = new Conditions_List($this, 'conditional_keywords');
+		$condition_list =& new Conditions_List($this, 'conditional_keywords');
 		$ret = array_merge($ret, $condition_list->evaluate($required_keywords, $ret, Array(false, true)));
 
 		return $ret;
 
-	}
+	}//end _getAssetKeywordReplacements()
 
 
 	/**
@@ -336,7 +327,7 @@ class Paint_Layout_Bodycopy extends Bodycopy
 	{
 		$asset->setAttrValue('associated_asset_type', $asset_type);
 
-	}
+	}//end setAssociatedAssetType()
 
 
 	/**
@@ -349,7 +340,7 @@ class Paint_Layout_Bodycopy extends Bodycopy
 	{
 		return $this->attr('associated_asset_type');
 
-	}
+	}//end getAssociatedAssetType()
 
 
 	/**
@@ -365,7 +356,7 @@ class Paint_Layout_Bodycopy extends Bodycopy
 	function getKeywordsDescription(&$keywords, $asset_type_code='')
 	{
 		if (is_array($keywords)) {
-			$show_descrition = false;
+			$show_description = false;
 
 			// 1. asset content
 			$keywords['asset_contents'] = translate('asset_contents');
@@ -374,14 +365,19 @@ class Paint_Layout_Bodycopy extends Bodycopy
 				// 2. asset keywords (includes attributes)
 				// TODO: getAssetKeywords should accept the list of required keywords as a new argument
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset($asset_type_code);
-				$asset = new $asset_type_code();
+				$asset =& new $asset_type_code();
 			} else {
-				$asset = new Asset();
+				$asset =& new Asset();
 			}
 
 			$asset_keywords = $asset->getAssetKeywords(true);
-			foreach($asset_keywords as $keyword_name => $keyword) {
-				$keywords[$keyword_name] = (empty($keyword['description']) || !$show_descrition) ? ucwords(str_replace('_', ' ', $keyword_name)) : $keyword['description'];
+			foreach ($asset_keywords as $keyword_name => $keyword) {
+				$keywords[$keyword_name] = (empty($keyword['description']) || !$show_description) ? ucwords(str_replace('_', ' ', $keyword_name)) : $keyword['description'];
+			}
+
+			$asset_keywords = $asset->getAvailableKeywords();
+			foreach ($asset_keywords as $keyword_name => $description) {
+				$keywords[$keyword_name] = (empty($description) || !$show_description) ? ucwords(str_replace('_', ' ', $keyword_name)) : $description;
 			}
 
 			unset($asset);
@@ -394,9 +390,9 @@ class Paint_Layout_Bodycopy extends Bodycopy
 			$keywords['asset_metadata_'] = translate('asset_metadata_x');
 
 			// 4. conditions
-			$condition_list = new Conditions_List($this, 'conditional_keywords');
+			$condition_list =& new Conditions_List($this, 'conditional_keywords');
 			$condition_names = $condition_list->getConditionsNames();
-			foreach($condition_names as $condition_name) {
+			foreach ($condition_names as $condition_name) {
 				$keywords[$condition_name] = ucwords(str_replace('_', ' ', $condition_name));
 			}
 
@@ -404,9 +400,9 @@ class Paint_Layout_Bodycopy extends Bodycopy
 
 		}
 
-	}
+	}//end getKeywordsDescription()
 
 
-}
+}//end class
 
 ?>

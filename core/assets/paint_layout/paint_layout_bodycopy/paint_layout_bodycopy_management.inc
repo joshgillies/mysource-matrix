@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_bodycopy_management.inc,v 1.2 2005/04/21 15:42:20 gnoel Exp $
+* $Id: paint_layout_bodycopy_management.inc,v 1.3 2005/08/01 04:30:59 ndvries Exp $
 *
 */
 
@@ -32,12 +32,13 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Paint_Layout_Bodycopy_Management extends Asset_Management
 {
+
 
 	/**
 	* Constructor
@@ -48,30 +49,31 @@ class Paint_Layout_Bodycopy_Management extends Asset_Management
 		$this->Asset_Management($pm);
 
 		$this->vars = Array(
-						'conditional_keywords' => Array(
-							'added'		=> '0.1',
-							'type'		=> 'serialise',
-							'default'	=> Array(),
-						),
-						'validated' => Array(
-							'added'		=> '0.1',
-							'type'		=> 'boolean',
-							'default'	=> false,
-						),
-						'associated_asset_type' => Array(
-							'added'		=> '0.1',
-							'type'		=> 'text',  
-							'default'	=> '',
-						),
-						'lineage_separator' => Array (
-							'added'			=> '0.1',
-							'type'			=> 'text',
-							'default'		=> ' > ',
-							'description'	=> 'Seperator to use when painting the lineage of an asset.',
-						),
-					);
+						'conditional_keywords'	=> Array(
+													'added'		=> '0.1',
+													'type'		=> 'serialise',
+													'default'	=> Array(),
+												   ),
+						'validated'				=> Array(
+													'added'		=> '0.1',
+													'type'		=> 'boolean',
+													'default'	=> false,
+												   ),
+						'associated_asset_type'	=> Array(
+													'added'		=> '0.1',
+													'type'		=> 'text',
+													'default'	=> '',
+												   ),
+						'lineage_separator'		=> Array (
+													'added'			=> '0.1',
+													'type'			=> 'text',
+													'default'		=> ' > ',
+													'description'	=> 'Seperator to use when painting the lineage of an asset.',
+												   ),
+					  );
 
 	}//end constructor
+
 
 }//end class
 ?>

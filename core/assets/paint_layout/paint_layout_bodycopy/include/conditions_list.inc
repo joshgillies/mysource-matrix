@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: conditions_list.inc,v 1.4 2005/05/11 06:04:54 lwright Exp $
+* $Id: conditions_list.inc,v 1.5 2005/08/01 04:31:01 ndvries Exp $
 *
 */
 
@@ -39,7 +39,7 @@ define('SQ_KEYWORD_CONDITION_ELSE', 'else');
 * parameters in a single attribute (of type Array).
 *
 * @author  Geoffroy Noel <gnoel@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 */
 class Conditions_List
@@ -79,7 +79,7 @@ class Conditions_List
 	{
 		$this->setHost($host_asset, $conditions_attribute_name);
 
-	}
+	}//end constructor
 
 
 	/**
@@ -95,7 +95,7 @@ class Conditions_List
 
 		return $this->isValid();
 
-	}
+	}//end setHost()
 
 
 	/**
@@ -137,7 +137,7 @@ class Conditions_List
 
 		return $ret;
 
-	}
+	}//end evaluate()
 
 
 	/**
@@ -165,7 +165,7 @@ class Conditions_List
 
 		}
 
-	}
+	}//end _updateKeywordsInRestriction()
 
 
 	/**
@@ -180,7 +180,7 @@ class Conditions_List
 
 		return (array_keys($conditions_info));
 
-	}
+	}//end getConditionsNames()
 
 
 	/**
@@ -206,7 +206,7 @@ class Conditions_List
 
 		return $ret;
 
-	}
+	}//end getRequiredKeywords()
 
 
 	/**
@@ -221,7 +221,7 @@ class Conditions_List
 	{
 		return $this->_getConditionParameter($condition_name, 'restriction', Array());
 
-	}
+	}//end _getConditionRestriction()
 
 
 	/**
@@ -239,14 +239,14 @@ class Conditions_List
 		//$GLOBALS['SQ_SYSTEM']->am->includeAsset($condition_type);
 
 		// AM includeAsset() can't include edit_fns file. Must find a better solution for this
-		$included_file = SQ_SYSTEM_ROOT . '/' . $GLOBALS['SQ_SYSTEM']->am->_asset_types[$condition_type]['dir'] . '/';
+		$included_file = SQ_SYSTEM_ROOT.'/'.$GLOBALS['SQ_SYSTEM']->am->_asset_types[$condition_type]['dir'].'/';
 		if ($edit_fns) $condition_type .= '_edit_fns';
-		$included_file .= $condition_type . '.inc';
+		$included_file .= $condition_type.'.inc';
 		require_once $included_file;
 
 		return new $condition_type();
 
-	}
+	}//end _getConditionAsset()
 
 
 	/**
@@ -272,11 +272,13 @@ class Conditions_List
 			$ret = $conditions_parameters[$condition_name];
 		}
 
-		if (!empty($ret) && !empty($key)) $ret = isset($ret[$key]) ? $ret[$key] : $default;
+		if (!empty($ret) && !empty($key)) {
+			$ret = isset($ret[$key]) ? $ret[$key] : $default;
+		}
 
 		return $ret;
 
-	}
+	}//end _getConditionParameter()
 
 
 	/**
@@ -294,7 +296,7 @@ class Conditions_List
 
 		return ($ret);
 
-	}
+	}//end _getAllConditions()
 
 
 	/**
@@ -307,7 +309,7 @@ class Conditions_List
 		//return $GLOBALS['SQ_SYSTEM']->am->getAsset($this->host_assetid);
 		return $this->host_asset;
 
-	}
+	}//end _getHostAsset()
 
 
 	/**
@@ -321,7 +323,7 @@ class Conditions_List
 		$userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
 		return $GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
 
-	}
+	}//end _getCurrentUser()
 
 
 	/**
@@ -334,7 +336,7 @@ class Conditions_List
 	{
 		return (!empty($this->host_asset) && !empty($this->conditions_attribute_name));
 
-	}
+	}//end isValid()
 
 
 	// --- Screen Edit Functions ---
@@ -353,7 +355,7 @@ class Conditions_List
 			$conditions_parameters = $this->_getAllConditions();
 
 			foreach ($conditions_parameters as $condition_name => $parameters) {
-				$condition_prefix = $prefix . $condition_name;
+				$condition_prefix = $prefix.$condition_name;
 
 				$o->openSection(ucwords(str_replace('_', ' ', $parameters['type_code'])));
 
@@ -364,11 +366,11 @@ class Conditions_List
 					$o->closeField();
 				} else {
 					$o->openField(translate('keyword_name'));
-					text_box($condition_prefix . '_keyword_name', $condition_name, 30);
+					text_box($condition_prefix.'_keyword_name', $condition_name, 30);
 					$o->closeField();
 
 					$o->openField(translate('delete'));
-					check_box($condition_prefix . '_delete', $value='1', $checked=false);
+					check_box($condition_prefix.'_delete', $value='1', $checked=false);
 					$o->closeField();
 				}
 
@@ -401,8 +403,8 @@ class Conditions_List
 
 				$o->openSection(translate('new_conditions'));
 
-				$o->openField(translate('condition_type'). ':');
-				combo_box($prefix . '_new_condition_type', $options, false, '');
+				$o->openField(translate('condition_type').':');
+				combo_box($prefix.'_new_condition_type', $options, false, '');
 				$o->closeField();
 
 				$o->closeSection();
@@ -412,7 +414,7 @@ class Conditions_List
 
 		return true;
 
-	}
+	}//end paintConditionsList()
 
 
 	/**
@@ -431,13 +433,13 @@ class Conditions_List
 
 			// 1. update the existing condition
 			foreach ($conditions_parameters as $condition_name => $parameters) {
-				$condition_prefix = $prefix . $condition_name;
+				$condition_prefix = $prefix.$condition_name;
 
-				if (empty($_REQUEST[$condition_prefix . '_delete']) || $_REQUEST[$condition_prefix . '_delete'] != 1) {
+				if (empty($_REQUEST[$condition_prefix.'_delete']) || $_REQUEST[$condition_prefix.'_delete'] != 1) {
 					// not deleted
-					$new_name = trim($_REQUEST[$condition_prefix . '_keyword_name']);
-					if (preg_match('/^(' . SQ_KEYWORD_CONDITION_BEGIN . '|' . SQ_KEYWORD_CONDITION_END . '|' . SQ_KEYWORD_CONDITION_ELSE . ')_(.*)$/', $new_name)) {
-						trigger_error('Incorrect keyword name: keyword names cannot begin with "begin_", "end_" or "else_" (' . $new_name . ').', E_USER_WARNING);
+					$new_name = trim($_REQUEST[$condition_prefix.'_keyword_name']);
+					if (preg_match('/^('.SQ_KEYWORD_CONDITION_BEGIN.'|'.SQ_KEYWORD_CONDITION_END.'|'.SQ_KEYWORD_CONDITION_ELSE.')_(.*)$/', $new_name)) {
+						trigger_error('Incorrect keyword name: keyword names cannot begin with "begin_", "end_" or "else_" ('.$new_name.').', E_USER_WARNING);
 						$new_name = $condition_name;
 					}
 					$new_name = $this->_generateUniqueName($new_name, $conditions_parameters_new);
@@ -452,8 +454,8 @@ class Conditions_List
 			}
 
 			// 2. add a new condition
-			if (!empty($_REQUEST[$prefix . '_new_condition_type'])) {
-				$new_condition_type = $_REQUEST[$prefix . '_new_condition_type'];
+			if (!empty($_REQUEST[$prefix.'_new_condition_type'])) {
+				$new_condition_type = $_REQUEST[$prefix.'_new_condition_type'];
 
 				// find a new name
 				$conditions_parameters_new[$this->_generateUniqueName('', $conditions_parameters_new)] = Array('type_code' => $new_condition_type, 'restriction' => Array('match' => 1, 'condition_data' => Array()));
@@ -468,7 +470,7 @@ class Conditions_List
 
 		return $ret;
 
-	}
+	}//end processConditionsList()
 
 
 	/**
@@ -485,23 +487,25 @@ class Conditions_List
 	{
 		$desired_name = trim($desired_name);
 		$desired_name = preg_replace('/ /' , '_',$desired_name);
-		if (empty($desired_name)) $desired_name = 'condition_1';
+		if (empty($desired_name)) {
+			$desired_name = 'condition_1';
+		}
 
 		$ret = $desired_name;
 
 		if (!empty($reserved_names[$ret])) {
 			$desired_name = preg_replace('/_\d*^/' , '', $desired_name);
 			for ($i = 2; $i < 1000; $i++) {
-				$ret = $desired_name . '_' . $i;
-				if (empty($reserved_names[$ret])) {
-					break;
-				}
+				$ret = $desired_name.'_'.$i;
+				if (empty($reserved_names[$ret])) break;
 			}
 		}
 
 		return $ret;
-	}
+
+	}//end _generateUniqueName()
 
 
-}
+}//end class
+
 ?>

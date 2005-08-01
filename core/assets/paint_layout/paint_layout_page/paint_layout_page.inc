@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_page.inc,v 1.4 2005/04/14 16:28:39 brobertson Exp $
+* $Id: paint_layout_page.inc,v 1.5 2005/08/01 04:31:04 ndvries Exp $
 *
 */
 
@@ -41,7 +41,7 @@ define('SQ_PAINT_LAYOUT_DEFAULT_FORMAT_NAME', 'default_format');
 * Those bodycopies also support conditions.
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -57,8 +57,6 @@ class Paint_Layout_Page extends Page_Standard
 	*/
 	function Paint_Layout_Page($assetid=0)
 	{
-		// We have at least one attribute of type "serialise"
-		// We set this flag to unserialise the attributes when the asset is loaded
 		$this->_ser_attrs = true;
 		$this->Page_Standard($assetid);
 
@@ -86,12 +84,12 @@ class Paint_Layout_Page extends Page_Standard
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('folder');
 
 		$sub_assets= Array(
-			'type_formats'     => 'folder',
-		);
+						'type_formats'	=> 'folder',
+					 );
 
 		$type_formats = null;
 		foreach ($sub_assets as $name => $type) {
-			$asset = new $type();
+			$asset =& new $type();
 			$copy_link = Array('asset' => &$this, 'value' => $name ,'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 
 			$asset->setAttrValue('name', ucwords(str_replace('_',' ', $name)));
@@ -105,8 +103,16 @@ class Paint_Layout_Page extends Page_Standard
 
 		// 2. create default format bodycopy
 		$type_format_asset_type_code = SQ_PAINT_LAYOUT_FORMAT_ASSET_TYPE;
-		$asset = new $type_format_asset_type_code();
-		$copy_link = Array('asset' => &$type_formats, 'value' => SQ_PAINT_LAYOUT_DEFAULT_FORMAT_NAME ,'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
+		$asset =& new $type_format_asset_type_code();
+
+		$copy_link = Array(
+						'asset'			=> &$type_formats,
+						'value'			=> SQ_PAINT_LAYOUT_DEFAULT_FORMAT_NAME,
+						'link_type'		=> SQ_LINK_TYPE_2,
+						'is_dependant'	=> 1,
+						'is_exclusive'	=> 1,
+					 );
+
 		$asset->setAttrValue('name', 'Default Format');
 
 		return $asset->create($copy_link);
@@ -138,7 +144,7 @@ class Paint_Layout_Page extends Page_Standard
 			$value = Array();
 			$levels = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo(array_keys($orig_value), 'lvl');
 			arsort($levels);
-			foreach($levels as $type_code => $lvl) {
+			foreach ($levels as $type_code => $lvl) {
 				$value[$type_code] = $orig_value[$type_code];
 			}
 
@@ -193,10 +199,23 @@ class Paint_Layout_Page extends Page_Standard
 		foreach ($type_links as $link_info) {
 			if (isset($parents[$link_info['minorid']])) {
 				$type_code = $link_info['value'];
-				if ($type_code == SQ_PAINT_LAYOUT_DEFAULT_FORMAT_NAME) $type_code = '';
+				if ($type_code == SQ_PAINT_LAYOUT_DEFAULT_FORMAT_NAME) {
+					$type_code = '';
+				}
 
-				$type_format = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link_info['minorid']);
-				if (!empty($type_format)) $type_format->getKeywordsDescription($vars['keywords'], $type_code);
+				if (!empty($type_code)) {
+					$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
+				} else {
+					$type_code = 'Asset';
+				}
+				$asset =& new $type_code();
+
+				$available_keywords = $asset->getAvailableKeywords();
+				foreach ($available_keywords as $keyword => $description) {
+					$vars['keywords'][$keyword] = ucwords(str_replace('_', ' ', $keyword));
+				}
+				unset($asset);
+
 				$is_main_content_type = false;
 				break;
 			}
@@ -219,7 +238,9 @@ class Paint_Layout_Page extends Page_Standard
 	{
 		$ret = 0;
 
-		if (!empty($_REQUEST[SQ_PAINT_LAYOUT_REQUEST_VAR_ASSET])) $ret = $_REQUEST[SQ_PAINT_LAYOUT_REQUEST_VAR_ASSET];
+		if (!empty($_REQUEST[SQ_PAINT_LAYOUT_REQUEST_VAR_ASSET])) {
+			$ret = $_REQUEST[SQ_PAINT_LAYOUT_REQUEST_VAR_ASSET];
+		}
 
 		return $ret;
 
@@ -257,13 +278,14 @@ class Paint_Layout_Page extends Page_Standard
 	{
 		if (!empty($asset)) {
 			$bodycopy = &$this->getBodycopy();
-			$bodycopy->setKeywordReplacements($this->_getKeywordReplacements($bodycopy->getKeywords(), $asset));
+			$keywords = $bodycopy->getKeywords();
+			$replacements = $this->_getKeywordReplacements($keywords, $asset);
+			$bodycopy->setKeywordReplacements($replacements);
 
 			$bodycopy->printBody();
 		}
 
 	}//end paint()
-
 
 
 	/**
@@ -294,7 +316,7 @@ class Paint_Layout_Page extends Page_Standard
 
 		return $ret;
 
-	}
+	}//end _getKeywordReplacements()
 
 
 	/**
@@ -419,7 +441,7 @@ class Paint_Layout_Page extends Page_Standard
 			$copy_link = Array('asset' => &$folder, 'value' => $new_type, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 
 			$type_format_asset_type_code = SQ_PAINT_LAYOUT_FORMAT_ASSET_TYPE;
-			$bodycopy = new $type_format_asset_type_code();
+			$bodycopy =& new $type_format_asset_type_code();
 			$bodycopy->setAttrValue('name', $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($new_type, 'name').' Format');
 			$bodycopy->setAttrValue('associated_asset_type', $type);
 
@@ -439,4 +461,5 @@ class Paint_Layout_Page extends Page_Standard
 	}//end createTypeFormatBodycopy()
 
 
-}
+}//end class
+

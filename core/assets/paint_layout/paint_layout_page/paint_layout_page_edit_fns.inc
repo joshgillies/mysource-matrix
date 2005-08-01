@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_page_edit_fns.inc,v 1.4 2005/05/11 06:04:54 lwright Exp $
+* $Id: paint_layout_page_edit_fns.inc,v 1.5 2005/08/01 04:31:04 ndvries Exp $
 *
 */
 
@@ -33,12 +33,13 @@ require_once SQ_CORE_PACKAGE_PATH.'/paint_layout/paint_layout_page/paint_layout_
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Paint_Layout_Page_Edit_Fns extends Page_Standard_Edit_Fns
 {
+
 
 	/**
 	* Constructor
@@ -49,6 +50,7 @@ class Paint_Layout_Page_Edit_Fns extends Page_Standard_Edit_Fns
 		$this->Page_Standard_Edit_Fns();
 
 	}//end constructor
+
 
 	/**
 	* Paint the current asset types that have been added
@@ -160,7 +162,10 @@ class Paint_Layout_Page_Edit_Fns extends Page_Standard_Edit_Fns
 		}
 
 		// update type format array
-		if (!isset($_POST[$prefix.'_inherit_types'])) $_POST[$prefix.'_inherit_types'] = Array();
+		if (!isset($_POST[$prefix.'_inherit_types'])) {
+			$_POST[$prefix.'_inherit_types'] = Array();
+		}
+
 		for (reset($types); null !== ($k = key($types)); next($types)) {
 			$types[$k] = (in_array($k, $_POST[$prefix.'_inherit_types'])) ? true : false;
 		}

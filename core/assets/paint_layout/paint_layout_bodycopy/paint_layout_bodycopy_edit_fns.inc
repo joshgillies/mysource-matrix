@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_bodycopy_edit_fns.inc,v 1.4 2005/05/11 06:04:54 lwright Exp $
+* $Id: paint_layout_bodycopy_edit_fns.inc,v 1.5 2005/08/01 04:30:59 ndvries Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy_edit_fns.inc';
 *
 *
 * @author Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -65,10 +65,10 @@ class Paint_Layout_Bodycopy_Edit_Fns extends Bodycopy_Edit_Fns
 		$allowed_keywords = array_keys($allowed_keywords);
 
 		$write_access = $asset->writeAccess('attributes');
-		$condition_list = new Conditions_List($asset, 'conditional_keywords');
+		$condition_list =& new Conditions_List($asset, 'conditional_keywords');
 		return $condition_list->paintConditionsList($asset, $o, $prefix, $write_access, $allowed_keywords);
 
-	}
+	}//end paintConditionalKeywords()
 
 
 	/**
@@ -79,15 +79,15 @@ class Paint_Layout_Bodycopy_Edit_Fns extends Bodycopy_Edit_Fns
 	*/
 	function processConditionalKeywords(&$asset, &$o, $prefix)
 	{
-		$allowed_keywords = Array();		
+		$allowed_keywords = Array();
 		$asset->getKeywordsDescription($allowed_keywords, $asset->getAssociatedAssetType());
 		$allowed_keywords = array_keys($allowed_keywords);
 
 		$write_access = $asset->writeAccess('attributes');
-		$condition_list = new Conditions_List($asset, 'conditional_keywords');
+		$condition_list =& new Conditions_List($asset, 'conditional_keywords');
 		return $condition_list->processConditionsList($asset, $o, $prefix, $write_access, $allowed_keywords);
 
-	}
+	}//end processConditionalKeywords()
 
 
 	/**
@@ -102,7 +102,9 @@ class Paint_Layout_Bodycopy_Edit_Fns extends Bodycopy_Edit_Fns
 	*/
 	function processBodycopy(&$asset, &$o, $prefix)
 	{
-		if (!parent::processBodycopy($asset, $o, $prefix)) return false;
+		if (!parent::processBodycopy($asset, $o, $prefix)) {
+			return false;
+		}
 
 		$content = $asset->getRawBodycopyContent();
 		$keywords = retrieve_keywords_replacements($content);
@@ -119,7 +121,7 @@ class Paint_Layout_Bodycopy_Edit_Fns extends Bodycopy_Edit_Fns
 				switch ($condition_parts[1]) {
 					case SQ_KEYWORD_CONDITION_BEGIN :
 						array_push($stack, $test_keyword);
-						break;
+					break;
 					case SQ_KEYWORD_CONDITION_ELSE :
 						$current_scope = end($stack);
 						if (end($stack) != $test_keyword) {
@@ -127,7 +129,7 @@ class Paint_Layout_Bodycopy_Edit_Fns extends Bodycopy_Edit_Fns
 							$validated = false;
 							break 2; //exit out of loop
 						}
-						break;
+					break;
 					case SQ_KEYWORD_CONDITION_END :
 						$current_scope = array_pop($stack);
 						if ($current_scope != $test_keyword) {
@@ -135,12 +137,14 @@ class Paint_Layout_Bodycopy_Edit_Fns extends Bodycopy_Edit_Fns
 							$validated = false;
 							break 2; //exit out of loop
 						}
-						break;
+					break;
 				}//end switch
 		 	}// end if
 		}// end foreach
 
-		if (!$asset->setAttrValue('validated', $validated)) return false;
+		if (!$asset->setAttrValue('validated', $validated)) {
+			return false;
+		}
 
 		// even if the validation failed we will still save the contents for the user
 		return true;

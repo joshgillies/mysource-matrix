@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_lookup_value.inc,v 1.3 2005/05/11 06:04:54 lwright Exp $
+* $Id: paint_layout_lookup_value.inc,v 1.4 2005/08/01 04:31:03 ndvries Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/lookup_value/lookup_value.inc';
 *
 *
 * @author	Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -119,7 +119,9 @@ class Paint_Layout_Lookup_Value extends Lookup_Value
 			unset($lineage);
 			$o->closeField();
 
-			if (empty($lookup_values[$url])) $lookup_values[$url] = Array();
+			if (empty($lookup_values[$url])) {
+				$lookup_values[$url] = Array();
+			}
 
 			// need to make sure the default is printed.
 			if (empty($lookup_values[$url][$name_prefix.'::system::frontend'])) {
@@ -171,7 +173,9 @@ class Paint_Layout_Lookup_Value extends Lookup_Value
 							$layout = &$GLOBALS['SQ_SYSTEM']->am->getAsset($data['value'], '', true);
 							if (!is_null($layout)) {
 								echo $layout->name.' (Id : #'.$layout->id.')';
-								if ($data['inhd']) echo '<br><b>('.translate('inherited').')</b>';
+								if ($data['inhd']) {
+									echo '<br><b>('.translate('inherited').')</b>';
+								}
 							}
 						}
 						echo '</i>';
@@ -223,7 +227,9 @@ class Paint_Layout_Lookup_Value extends Lookup_Value
 	*/
 	function processInterface(&$owner, &$o, $lookups, &$lookup_values, $prefix)
 	{
-		if (!isset($_POST[$prefix]) || !is_array($_POST[$prefix])) return false;
+		if (!isset($_POST[$prefix]) || !is_array($_POST[$prefix])) {
+			return false;
+		}
 
 		$lookup_values = Array();
 		$name_prefix = Paint_Layout_Lookup_Value::namePrefix();
