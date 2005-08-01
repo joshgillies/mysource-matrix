@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.29 2005/07/29 07:09:56 dmckee Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.30 2005/08/01 03:02:23 dmckee Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2849,6 +2849,160 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 			return false;
 		}
 	}//end processStructuredMaxDepth()
+
+
+	/**
+	* Paint the interface for changing the dropdown list's height
+	*
+	* @param object Listing_Engine		&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintStructuredHeight(&$asset, &$o, $prefix)
+	{
+		$options = $asset->attr('structured_dropdown_options');
+		//$types = $options['asset_types'];
+		if ($asset->writeAccess('content')) {
+			int_text_box($prefix.'_structured_height', $options['height'], false, 4, 0);
+			return true;
+		} else {
+			echo $options['height'];
+			return false;
+		}
+
+	}//end paintStructuredHeight()
+
+	/**
+	* Process the interface for editing the dropdown list's height
+	*
+	* @param object Listing_Engine		&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processStructuredHeight(&$asset, &$o, $prefix)
+	{
+		// need to have write access to make any changes
+		if (!$asset->writeAccess('attributes')) return false;
+
+		if (isset($_POST[$prefix.'_structured_height'])) {
+			$options = $asset->attr('structured_dropdown_options');
+
+			$options['height'] = $_POST[$prefix.'_structured_height'];
+			$asset->setAttrValue('structured_dropdown_options', $options);
+			return true;
+		} else {
+			return false;
+		}
+	}//end processStructuredHeight()
+
+
+	/**
+	* Paint the interface for changing the dropdown list's width
+	*
+	* @param object Listing_Engine		&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintStructuredWidth(&$asset, &$o, $prefix)
+	{
+		$options = $asset->attr('structured_dropdown_options');
+		//$types = $options['asset_types'];
+		if ($asset->writeAccess('content')) {
+			int_text_box($prefix.'_structured_width', $options['width'], false, 4, 0);
+			return true;
+		} else {
+			echo $options['width'];
+			return false;
+		}
+
+	}//end paintStructuredWidth()
+
+	/**
+	* Process the interface for editing the dropdown list's width
+	*
+	* @param object Listing_Engine		&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processStructuredWidth(&$asset, &$o, $prefix)
+	{
+		// need to have write access to make any changes
+		if (!$asset->writeAccess('attributes')) return false;
+
+		if (isset($_POST[$prefix.'_structured_width'])) {
+			$options = $asset->attr('structured_dropdown_options');
+
+			$options['width'] = $_POST[$prefix.'_structured_width'];
+			$asset->setAttrValue('structured_dropdown_options', $options);
+			return true;
+		} else {
+			return false;
+		}
+	}//end processStructuredWidth()
+
+
+	/**
+	* Paint the interface for changing the dropdown list's seperator
+	*
+	* @param object Listing_Engine		&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintStructuredSeperator(&$asset, &$o, $prefix)
+	{
+		$options = $asset->attr('structured_dropdown_options');
+		//$types = $options['asset_types'];
+		if ($asset->writeAccess('content')) {
+			text_box($prefix.'_structured_seperator', $options['seperator'], false);
+			return true;
+		} else {
+			echo $options['seperator'];
+			return false;
+		}
+
+	}//end paintStructuredSeperator()
+
+	/**
+	* Process the interface for editing the dropdown list's seperator
+	*
+	* @param object Listing_Engine		&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processStructuredSeperator(&$asset, &$o, $prefix)
+	{
+		// need to have write access to make any changes
+		if (!$asset->writeAccess('attributes')) return false;
+
+		if (isset($_POST[$prefix.'_structured_seperator'])) {
+			$options = $asset->attr('structured_dropdown_options');
+
+			$options['seperator'] = $_POST[$prefix.'_structured_seperator'];
+			$asset->setAttrValue('structured_dropdown_options', $options);
+			return true;
+		} else {
+			return false;
+		}
+	}//end processStructuredSeperator()
+
 
 
 }//end class

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.63 2005/08/01 02:31:41 pgannavarapu Exp $
+* $Id: listing_engine.inc,v 1.64 2005/08/01 03:02:23 dmckee Exp $
 *
 */
 
@@ -43,7 +43,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.63 $
+* @version $Revision: 1.64 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2543,11 +2543,11 @@ class Listing_Engine extends Page
 			}
 		}
 		ob_start();
-			$tree_data = $this->_structuredDropDown($options['root_node'], $pass_codes, $options['all_text'], $options['max_depth']);
+			$tree_data = $this->_structuredDropDown($options['root_node'], $pass_codes, $options['all_text'], $options['max_depth'], $options['seperator']);
 			if (!isset($_REQUEST[$options['name']])) {
 				$_REQUEST[$options['name']] = '';
 			}
-			combo_box($options['name'], $tree_data, false, $_REQUEST[$options['name']]);
+			combo_box($options['name'], $tree_data, false, $_REQUEST[$options['name']], $options['height'], ($options['width'] == '0' ? '' : 'style="width:'.$options['width'].'px;"'));
 			$replacement = ob_get_contents();
 		ob_end_clean();
 		return $replacement;
@@ -2663,7 +2663,7 @@ class Listing_Engine extends Page
 	* @access protected
 	* @return array()
 	*/
-	function _structuredDropDown($root_id, $type_codes, $all_text='All', $max_levels=0)
+	function _structuredDropDown($root_id, $type_codes, $all_text='All', $max_levels=0, $seperator='-')
 	{
 		$all_child_links = $GLOBALS['SQ_SYSTEM']->am->getAllChildLinks($root_id);
 		$child_links = $all_child_links;
@@ -2680,7 +2680,7 @@ class Listing_Engine extends Page
 			$this->_IDListToTree($treeid, $search_tree);
 		}
 		$options = Array($root_id => $all_text);
-		$this->_drawTree($search_tree, $all_child_links, $options, '', 0, $max_levels);
+		$this->_drawTree($search_tree, $all_child_links, $options, '', 0, $max_levels, $seperator);
 		return $options;
 	}//end _structuredDropDown()
 
@@ -2738,13 +2738,15 @@ class Listing_Engine extends Page
 	* @param Array(string=>mixed)	$output_tree		the array to store the output array
 	* @param string					$branch				optional, used internally
 	* @param Array(string)			&$level				optional, used internally
+	* @param string					$seperator			Sperator to use between levels
 	*
 	* @see Page_Asset_Builder::_IDListToTree()
 	* @access private
 	* @return void
 	*/
-	function _drawTree($tree, &$all_child_links, &$output_tree, $branch='', $level=0, $max_level=0)
+	function _drawTree($tree, &$all_child_links, &$output_tree, $branch='', $level=0, $max_level=0, $seperator='-')
 	{
+		error_log($seperator);
 		if (empty($tree)) return false;
 		foreach ($tree as $branch => $branch_data) {
 			$prefix = '';
@@ -2755,11 +2757,11 @@ class Listing_Engine extends Page
 			}
 
 			for ($i = 0; $i < $lvl; $i++) {
-				$prefix .= ' - ';
+				$prefix .= ' '.$seperator.' ';
 			}
 			$output_tree[$all_child_links[$branch]['assetid']] = $prefix.$all_child_links[$branch]['short_name'];
 			if (is_array($branch_data) && !empty($branch_data)) {
-				$this->_drawTree($branch_data, $all_child_links, $output_tree, $branch, $level++, $max_level);
+				$this->_drawTree($branch_data, $all_child_links, $output_tree, $branch, $level++, $max_level, $seperator);
 			}
 		}
 	}//end _drawTree()
