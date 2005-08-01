@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.231.2.7 2005/06/21 01:35:01 dmckee Exp $
+* $Id: asset_edit_interface.inc,v 1.231.2.8 2005/08/01 01:03:38 dmckee Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.231.2.7 $
+* @version $Revision: 1.231.2.8 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -1032,9 +1032,11 @@ class Asset_Edit_Interface extends MySource_Object
 						$print_commit_button = true;
 					}
 				}
-				// Return to start of loop, so we don't process the next bit (See bug #717)
-				continue;
 			}//end if
+
+			// Metadata doesn't have an xml file defined, so to avoid any file not found errors below,
+			// Lets skip this bit, and move onto the next screen.
+			if ($screen == 'metadata') continue;
 
 			// its not a static screen, so get the xml file and parse it for
 			// the keywords that we want, if the xml file exists
