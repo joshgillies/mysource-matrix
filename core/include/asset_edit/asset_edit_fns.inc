@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_fns.inc,v 1.47.2.1 2005/08/01 08:46:31 brobertson Exp $
+* $Id: asset_edit_fns.inc,v 1.47.2.2 2005/08/01 08:50:22 brobertson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.47.2.1 $
+* @version $Revision: 1.47.2.2 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Fns extends MySource_Object
@@ -379,9 +379,7 @@ class Asset_Edit_Fns extends MySource_Object
 		// if there has been no change, then there is nothing to do
 		if (empty($link) || $link['minorid'] != $_POST[$field_name]['assetid']) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-	
 			$success = true;
-
 
 			// if there is a current link, we need to delete it
 			if (!empty($link)) {
@@ -396,9 +394,10 @@ class Asset_Edit_Fns extends MySource_Object
 			}
 	
 			$GLOBALS['SQ_SYSTEM']->doTransaction($success ? 'COMMIT' : 'ROLLBACK');
+			return $success;
 		}
 
-		return true;
+		return false;
 
 	}//end _processNoticeLinkedAsset()
 
