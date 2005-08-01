@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.18.2.2 2005/07/29 02:01:14 dheppell Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.18.2.3 2005/08/01 02:16:06 dmckee Exp $
 *
 */
 
@@ -40,7 +40,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 * @author  David Heppell <dheppell@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.18.2.2 $
+* @version $Revision: 1.18.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -961,7 +961,6 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 					}
 					?>
 				<?php
-
 					if (!empty($fields)) {
 						?>
 						<table class="sq-backend-table">
@@ -981,7 +980,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 										<?php
 											hidden_field($prefix.'_fields['.$id.'][params][field]', $info['params']['field']);
 											hidden_field($prefix.'_fields['.$id.'][type]', 'field');
-											echo $sort_by_options[$info['params']['field']];
+											echo ucwords(str_replace('_', ' ', $info['params']['field']));
 										?>
 									</td>
 									<td class="sq-backend-table-cell">
