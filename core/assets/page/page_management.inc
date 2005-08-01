@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_management.inc,v 1.6 2005/07/13 05:30:27 mmcintyre Exp $
+* $Id: page_management.inc,v 1.7 2005/08/01 04:36:05 ndvries Exp $
 *
 */
 
@@ -31,12 +31,13 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Page_Management extends Asset_Management
 {
+
 
 	/**
 	* Constructor
@@ -46,19 +47,24 @@ class Page_Management extends Asset_Management
 	{
 		$this->Asset_Management($pm);
 
-		$this->vars = Array('name' => Array(
-												'added'       => '0.0.1',
-												'type'        => 'text',  'default'   => '',
-												'description' => 'The full name of the page',
-												'update_fn'   => '',
-												),
-							'short_name' => Array(
-												'added'       => '0.0.1',
-												'type'        => 'text',  'default'   => '',
-												'description' => 'The short name of the page (often used in menus)',
-												'update_fn'   => '',
-												)
-							);
+		$this->vars = Array(
+						'name'			=> Array(
+											'added'			=> '0.0.1',
+											'type'			=> 'text',
+											'default'		=> '',
+											'description'	=> 'The full name of the page',
+											'update_fn'		=> '',
+											'is_admin'		=> false,
+										   ),
+						'short_name'	=> Array(
+											'added'			=> '0.0.1',
+											'type'			=> 'text',
+											'default'		=> '',
+											'description'	=> 'The short name of the page (often used in menus)',
+											'update_fn'		=> '',
+											'is_admin'		=> false,
+										   ),
+					  );
 
 	}//end constructor
 
