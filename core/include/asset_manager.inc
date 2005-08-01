@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.322.2.12 2005/08/01 04:51:16 tbarrett Exp $
+* $Id: asset_manager.inc,v 1.322.2.13 2005/08/01 15:25:02 brobertson Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.322.2.12 $
+* @version $Revision: 1.322.2.13 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -561,8 +561,7 @@ class Asset_Manager extends MySource_Object
 		assert_isset_array_index($this->_asset_types, $type_code, $error_msg);
 		require_once SQ_SYSTEM_ROOT.'/'.$this->_asset_types[$type_code]['dir'].'/'.$type_code.'.inc';
 
-		// include the language strings through here, in case it's to be called
-		// statically and thus is not 'created'
+		// include the language strings
 		$GLOBALS['SQ_SYSTEM']->lm->includeAssetStrings($type_code);
 		foreach ($GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($type_code) as $type_parent) {
 			$GLOBALS['SQ_SYSTEM']->lm->includeAssetStrings($type_parent);
@@ -5097,8 +5096,8 @@ class Asset_Manager extends MySource_Object
 		}
 
 	}//end clearLookupsCache()
-	
-	
+
+
 	/**
 	* Returns the href(s) of an asset based on its assetid and the wanted screen
 	*
