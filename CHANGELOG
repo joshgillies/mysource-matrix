@@ -20,6 +20,7 @@ Core
 CMS
 
 * Fixed bug #332: form cloning issues - form sections not cloned along with form
+* Fixed bug #490: asset builder - keyword missing if metadata applied
 * Fixed bug #538: cloning a Page Asset Listing - Bodycopy Problem
 * Fixed bug #757: asset Listing in Random mode is being cached
 * Fixed bug #781: submitting no value to reqd email address causes PHP Notice
