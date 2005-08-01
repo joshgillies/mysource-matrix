@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config_edit_interface.inc,v 1.20 2005/05/31 00:45:46 tbarrett Exp $
+* $Id: system_config_edit_interface.inc,v 1.20.2.1 2005/08/01 15:26:11 brobertson Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *    Looks after the editing of the system config
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.20.2.1 $
 * @package MySource_Matrix
 */
 class System_Config_Edit_Interface extends MySource_Object
@@ -248,6 +248,10 @@ class System_Config_Edit_Interface extends MySource_Object
 
 		foreach ($preferences as $type_code => $pref_vars) {
 			$o->openSection($GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code, 'name').' '.translate('preferences'));
+
+				// We need to include the asset the prefs are for to make sure all locales are imported for it
+				$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
+
 				$path = SQ_SYSTEM_ROOT.'/'.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code, 'dir').'/'.$type_code.'_prefs.inc';
 				require_once $path;
 				$pref_name = $type_code.'_Prefs';
@@ -283,6 +287,9 @@ class System_Config_Edit_Interface extends MySource_Object
 			$new_preferences = $preferences;
 
 			foreach ($preferences as $type_code => $pref_vars) {
+				// We need to include the asset the prefs are for to make sure all locales are imported for it
+				$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
+
 				$path = SQ_SYSTEM_ROOT.'/'.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code, 'dir').'/'.$type_code.'_prefs.inc';
 				require_once $path;
 				$pref_name = $type_code.'_Prefs';
