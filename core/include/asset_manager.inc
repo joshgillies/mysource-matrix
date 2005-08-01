@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.249.2.13 2005/07/19 01:05:21 lwright Exp $
+* $Id: asset_manager.inc,v 1.249.2.14 2005/08/01 04:49:09 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -4349,6 +4349,26 @@ class Asset_Manager extends MySource_Object
 		}
 
 	}//end getAssetHref()
+
+
+	/**
+	* Clear the asset manager's internal cache of URLs and HREFs for the specified asset
+	*
+	* @param int	$assetid	The assetid whose cached lookup values we want cleared
+	*
+	* @access public
+	* @return void
+	*/
+	function clearLookupsCache($assetid)
+	{
+		if (isset($this->_tmp['urls'])) {
+			unset($this->_tmp['urls'][$assetid]);
+		}
+		if (isset($this->_tmp['hrefs'])) {
+			unset($this->_tmp['hrefs'][$assetid]);
+		}
+
+	}//end clearLookupsCache()
 
 
 	/**

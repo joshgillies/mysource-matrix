@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.338.2.12 2005/07/25 23:32:10 tbarrett Exp $
+* $Id: asset.inc,v 1.338.2.13 2005/08/01 04:49:09 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.338.2.12 $
+* @version $Revision: 1.338.2.13 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3306,8 +3306,6 @@ class Asset extends MySource_Object
 
 		unset($this->_tmp['paths']);
 		unset($this->_tmp['lookups']);
-		unset($this->_tmp['url']);
-		unset($this->_tmp['href']);
 
 		if ($this->updateLookups()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -3408,8 +3406,7 @@ class Asset extends MySource_Object
 
 		unset($this->_tmp['lookups']);
 		unset($this->_tmp['design_lookups']);
-		unset($this->_tmp['url']);
-		unset($this->_tmp['href']);
+		$GLOBALS['SQ_SYSTEM']->am->clearLookupsCache($this->id);
 
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
