@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.9 2005/07/29 07:09:17 dmckee Exp $
+* $Id: lang_screen_details.xml,v 1.10 2005/08/01 03:03:27 dmckee Exp $
 *
 */
 -->
@@ -133,6 +133,30 @@
 			<function_call>
 				<paint_function   name="paintStructuredMaxDepth"   />
 				<process_function name="processStructuredMaxDepth" />
+			</function_call>
+		</field>
+		<field>
+			<display_name>Width of Listing</display_name>
+			<note>*Value is in pixels. Width of 0 will use the minimum size to fit all entries.</note>
+			<function_call>
+				<paint_function   name="paintStructuredWidth"   />
+				<process_function name="processStructuredWidth" />
+			</function_call>
+		</field>
+		<field>
+			<display_name>Height of Listing</display_name>
+			<note>*Value is in entries. height of 0 will display a standard, expandable dropdown box.</note>
+			<function_call>
+				<paint_function   name="paintStructuredHeight"   />
+				<process_function name="processStructuredHeight" />
+			</function_call>
+		</field>
+		<field>
+			<display_name>Seperator for levels</display_name>
+			<note></note>
+			<function_call>
+				<paint_function   name="paintStructuredSeperator"   />
+				<process_function name="processStructuredSeperator" />
 			</function_call>
 		</field>
 	</section>

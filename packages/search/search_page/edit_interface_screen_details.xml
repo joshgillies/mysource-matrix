@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.31 2005/07/29 07:09:16 dmckee Exp $
+* $Id: edit_interface_screen_details.xml,v 1.32 2005/08/01 03:03:27 dmckee Exp $
 *
 */
 -->
@@ -111,6 +111,24 @@
 			<function_call>
 				<paint_function   name="paintStructuredMaxDepth"   />
 				<process_function name="processStructuredMaxDepth" />
+			</function_call>
+		</field>
+		<field>
+			<function_call>
+				<paint_function   name="paintStructuredSeperator"   />
+				<process_function name="processStructuredSeperator" />
+			</function_call>
+		</field>
+		<field>
+			<function_call>
+				<paint_function   name="paintStructuredWidth"   />
+				<process_function name="processStructuredWidth" />
+			</function_call>
+		</field>
+		<field>
+			<function_call>
+				<paint_function   name="paintStructuredHeight"   />
+				<process_function name="processStructuredHeight" />
 			</function_call>
 		</field>
 	</section>
