@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_schema.inc,v 1.13 2004/03/26 15:31:34 brobertson Exp $
+* $Id: metadata_schema.inc,v 1.13.6.1 2005/08/01 06:09:43 dmckee Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -37,6 +37,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 */
 class Metadata_Schema extends Folder
 {
+
 
 	/**
 	* Constructor
@@ -74,11 +75,12 @@ class Metadata_Schema extends Folder
 	*/
 	function _getAllowedLinks()
 	{
-		return Array(SQ_LINK_TYPE_1 => Array(),
-					 SQ_LINK_TYPE_2 => Array('metadata_section' => Array('card' => 'M', 'exclusive' => false)),
-					 SQ_LINK_TYPE_3 => Array(),
-					 SQ_LINK_NOTICE => Array()
-					);
+		return Array(
+				SQ_LINK_TYPE_1	=> Array(),
+				SQ_LINK_TYPE_2	=> Array('metadata_section' => Array('card' => 'M', 'exclusive' => false)),
+				SQ_LINK_TYPE_3	=> Array(),
+				SQ_LINK_NOTICE	=> Array(),
+			   );
 
 	}//end _getAllowedLinks()
 
@@ -114,6 +116,34 @@ class Metadata_Schema extends Folder
 		return false;
 
 	}//end prepareLink()
+
+
+	/**
+	* Delete this asset from the trash
+	*
+	* Removes any reference to this schema from the 'sq_ast_metadata' table
+	*
+	* @param boolean	$release_lock	should we realease the lock after deleting
+	*
+	* @return boolean
+	* @access public
+	*/
+	function delete($release_lock=true)
+	{
+		if (parent::delete($release_lock)) {
+			$db = $GLOBALS['SQ_SYSTEM']->db;
+
+			$where_cond = 'schemaid = '.$db->quote($this->id);
+			if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('ast_metadata', $where_cond)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return false;
+			}
+
+			return true;
+		}
+		return false;
+
+	}//end delete()
 
 
 }//end class
