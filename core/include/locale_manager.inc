@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: locale_manager.inc,v 1.10.2.1 2005/07/14 07:13:35 lwright Exp $
+* $Id: locale_manager.inc,v 1.10.2.2 2005/08/01 08:41:44 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    number/date formats
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.10.2.1 $
+* @version $Revision: 1.10.2.2 $
 * @package MySource_Matrix
 */
 class Locale_Manager extends MySource_Object
@@ -629,6 +629,35 @@ class Locale_Manager extends MySource_Object
 		return $body;
 
 	}//end getInternalMessageBody()
+
+
+	/**
+	* returns an array of js includes needed for the current locale
+	*
+	* @access public
+	* @return void
+	*/
+	function getJavascriptIncludes()
+	{
+		$res = Array(sq_web_path('lib').'/js/translation.js'); // we always need this one
+		list($lang, $country, $variant) = $this->getLocaleParts($GLOBALS['SQ_SYSTEM']->lm->getCurrentLocale());
+		if (file_exists(SQ_DATA_PATH.'/public/system/core/js_strings.'.$lang.'.js')) {
+			$res[] = sq_web_path('data').'/system/core/js_strings.'.$lang.'.js';
+		}
+		if (!empty($country)) {
+			if (file_exists(SQ_DATA_PATH.'/public/system/core/js_strings.'.$lang.'_'.$country.'.js')) {
+				$res[] = sq_web_path('data').'/system/core/js_strings.'.$lang.'_'.$country.'.js';
+			}
+
+			if (!empty($variant)) {
+				if (file_exists(SQ_DATA_PATH.'/public/system/core/js_strings.'.$lang.'_'.$country.'@'.$variant.'.js')) {
+					$res[] = sq_web_path('data').'/system/core/js_strings.'.$lang.'_'.$country.'@'.$variant.'.js';
+				}
+			}
+		}
+		return $res;
+
+	}//end getJavascriptIncludes()
 
 
 }//end class

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.108.2.1 2005/06/16 05:44:29 lwright Exp $
+* $Id: backend_outputter.inc,v 1.108.2.2 2005/08/01 08:41:44 brobertson Exp $
 *
 */
 
@@ -42,7 +42,7 @@ define('SQ_BO_MSG_ERROR',   4);
 *    there will only ever be one instance of this object
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.108.2.1 $
+* @version $Revision: 1.108.2.2 $
 * @package MySource_Matrix
 */
 class Backend_Outputter
@@ -963,25 +963,9 @@ class Backend_Outputter
 			$this->addCssInclude($this->filesPath('css/edit.css'));
 			foreach ($this->_css_includes as $file) $this->_paintCssInclude($file);
 
-			$this->addJsInclude(sq_web_path('lib').'/js/translation.js');
-
-			// add translation stuff
-			list($lang, $country, $variant) = $GLOBALS['SQ_SYSTEM']->lm->getLocaleParts($GLOBALS['SQ_SYSTEM']->lm->getCurrentLocale());
-
-			if (file_exists(SQ_DATA_PATH.'/public/system/core/js_strings.'.$lang.'.js')) {
-				$this->addJsInclude(sq_web_path('data').'/system/core/js_strings.'.$lang.'.js');
-			}
-
-			if (!empty($country)) {
-				if (file_exists(SQ_DATA_PATH.'/public/system/core/js_strings.'.$lang.'_'.$country.'.js')) {
-					$this->addJsInclude(sq_web_path('data').'/system/core/js_strings.'.$lang.'_'.$country.'.js');
-				}
-
-				if (!empty($variant)) {
-					if (file_exists(SQ_DATA_PATH.'/public/system/core/js_strings.'.$lang.'_'.$country.'@'.$variant.'.js')) {
-						$this->addJsInclude(sq_web_path('data').'/system/core/js_strings.'.$lang.'_'.$country.'@'.$variant.'.js');
-					}
-				}
+			// first add the js translation files
+			foreach ($GLOBALS['SQ_SYSTEM']->lm->getJavascriptIncludes() as $js_include) {
+				$this->addJsInclude($js_include);
 			}
 
 			// end add translation stuff, now add life the universe and everything [JS at least]
