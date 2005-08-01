@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: details.inc,v 1.20 2005/07/07 00:29:12 pgannavarapu Exp $
+* $Id: details.inc,v 1.21 2005/08/01 11:33:29 brobertson Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Details Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix
 */
 
@@ -242,9 +242,8 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=null)
 								ob_start();
 							}
 
-							$link = $GLOBALS['SQ_SYSTEM']->am->getLink($owner->id, SQ_LINK_NOTICE, 'thumbnail', true, 'thumbnail');
-							if (empty($link)) $link['minorid'] = 0;
-							asset_finder($prefix.'_thumbnail', $link['minorid'], Array('thumbnail' => 'I'));
+							$edit_fns = $owner->getEditFns();
+							$edit_fns->paintNoticeLinkedAsset($owner, 'thumbnail', Array('thumbnail' => 'I'));
 
 							if (!is_null($keywords) && isset($keywords['fields']['thumbnail_change'])) {
 								$ei->_tmp['layout_keyword_replacements'][$keywords['fields']['thumbnail_change']] = ob_get_contents();
@@ -444,39 +443,11 @@ function processDetails(&$owner, &$o, &$ei)
 
 	///// THUMBNAIL CHANGES ////
 
-	if (isset($_POST[$prefix.'_thumbnail']['assetid'])) {
-		$thumbnail = $_POST[$prefix.'_thumbnail']['assetid'];
-
-		$thumb_link = $GLOBALS['SQ_SYSTEM']->am->getLink($owner->id, SQ_LINK_NOTICE, 'thumbnail', true, 'thumbnail');
-
-		// dont process anything if the thumbnail has not changed
-		if (!empty($thumb_link) && $thumb_link['minorid'] == $thumbnail) {
-			return false;
-		}
-
-		$ok = true;
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
-		// deleting old thumbnail if any found...
-		if (!empty($thumb_link) && !$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($thumb_link['linkid'])) {
-			$ok = false;
-		} else if ($thumbnail) {
-			$thumb = &$GLOBALS['SQ_SYSTEM']->am->getAsset($thumbnail);
-			if (!is_null($thumb)) {
-				if (!$owner->createLink($thumb, SQ_LINK_NOTICE, 'thumbnail')) {
-					$ok = false;
-					trigger_localised_error('SYS0145', E_USER_WARNING, $thumb->name, $thumb->id);
-				}
-			}
-		}
-
-		if ($ok) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-			$is_updated = true;
-		} else {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-		}
+	$edit_fns = $owner->getEditFns();
+	if ($edit_fns->processNoticeLinkedAsset($owner, 'thumbnail')) {
+		$is_updated = true;
 	}
+
 	return ($is_updated);
 
 }//end processDetails()
