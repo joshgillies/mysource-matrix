@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.270 2005/08/01 00:53:08 dmckee Exp $
+* $Id: asset_edit_interface.inc,v 1.271 2005/08/01 08:36:12 brobertson Exp $
 *
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.270 $
+* @version $Revision: 1.271 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -1404,17 +1404,18 @@ class Asset_Edit_Interface extends MySource_Object
 				$o->openSection($section->attributes['name']);
 			}
 
-			if ($section->children[0]->name == 'function_call' && ($get_section || $get_screen)) {
+			if ($section->children[0]->name == 'function_call') {
+				if ($get_section || $get_screen) {
+					$paint_node = &$section->children[0]->children[0];
 
-				$paint_node = &$section->children[0]->children[0];
-
-				if (empty($paint_node->attributes['name']) || !method_exists($this->_edit_fns, $paint_node->attributes['name'])) {
-					$o->openField('');
-					echo translate('section_not_found', $section->attributes['name']);
-					$o->closeField();
-				} else {
-					if ($this->_edit_fns->{$paint_node->attributes['name']}($owner, $o, $prefix)) {
-						$print_commit_button = true;
+					if (empty($paint_node->attributes['name']) || !method_exists($this->_edit_fns, $paint_node->attributes['name'])) {
+						$o->openField('');
+						echo translate('section_not_found', $section->attributes['name']);
+						$o->closeField();
+					} else {
+						if ($this->_edit_fns->{$paint_node->attributes['name']}($owner, $o, $prefix)) {
+							$print_commit_button = true;
+						}
 					}
 				}
 
