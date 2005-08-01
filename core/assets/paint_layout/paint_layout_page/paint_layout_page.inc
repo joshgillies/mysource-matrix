@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_page.inc,v 1.5 2005/08/01 04:31:04 ndvries Exp $
+* $Id: paint_layout_page.inc,v 1.6 2005/08/01 10:59:35 gnoel Exp $
 *
 */
 
@@ -41,7 +41,7 @@ define('SQ_PAINT_LAYOUT_DEFAULT_FORMAT_NAME', 'default_format');
 * Those bodycopies also support conditions.
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -203,18 +203,8 @@ class Paint_Layout_Page extends Page_Standard
 					$type_code = '';
 				}
 
-				if (!empty($type_code)) {
-					$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
-				} else {
-					$type_code = 'Asset';
-				}
-				$asset =& new $type_code();
-
-				$available_keywords = $asset->getAvailableKeywords();
-				foreach ($available_keywords as $keyword => $description) {
-					$vars['keywords'][$keyword] = ucwords(str_replace('_', ' ', $keyword));
-				}
-				unset($asset);
+				$type_format = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link_info['minorid']);
+				if (!empty($type_format)) $type_format->getKeywordsDescription($vars['keywords'], $type_code);
 
 				$is_main_content_type = false;
 				break;
