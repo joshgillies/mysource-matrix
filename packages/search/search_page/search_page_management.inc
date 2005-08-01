@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_management.inc,v 1.43 2005/07/29 01:53:10 dheppell Exp $
+* $Id: search_page_management.inc,v 1.44 2005/08/01 07:17:33 tbarrett Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.44 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -375,6 +375,54 @@ class Search_Page_Management extends Asset_Management
 			
 			bam('SEARCH PAGE UPGRADE COMPLETE - FROM VERSION 0.13');
 		}//end version 0.12 upgrade
+
+		if (version_compare($current_version, '0.15', '<')) {
+			bam("STARTING SEARCH PAGE UPGRADE - FROM VERSION 0.14");
+			// version 0.14 -> 0.15
+			// changed the format of the attr categories
+			$children = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), false);
+			foreach ($children as $assetid) {
+				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$old_cats = $asset->attr('categories');
+				foreach ($old_cats as $i => $v) {
+					$old_cats[$i]['full_name'] = $v['name'];
+				}
+				$new_cats['search'] = Array('options' => $old_cats);
+				$sql = 'SELECT custom_val 
+						FROM sq_ast_attr_val 
+						WHERE assetid = '.$db->quote($asset->id).'
+							AND attrid = (SELECT attrid 
+										  FROM sq_ast_attr 
+										  WHERE name='.$db->quote('no_category_text').'
+											AND type_code = '.$db->quote('search_page').'
+										 )
+						';
+				$unselected_text = $db->getOne($sql);
+				$new_cats['search']['unselected_text'] = empty($unselected_text) ? '' : $unselected_text;
+				$asset->setAttrValue('categories', $new_cats);
+				$asset->saveAttributes();
+
+				// change the values on the root node links
+				$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($assetid, SQ_LINK_NOTICE, '', true);
+				foreach ($links as $link) {
+					if (!empty($link['value']) && (0 === strpos($link['value'], 'root_'))) {
+						$GLOBALS['SQ_SYSTEM']->am->updateLink($link['linkid'], null, 'root_search_'.substr($link['value'], 5));
+					}
+				}
+
+				// now replace the category_list keyword with search_category_chooser in all html content underneath
+				$content_types = $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, 'content_type', false);
+				foreach ($content_types as $id => $type) {
+					$ct =& $GLOBALS['SQ_SYSTEM']->am->getAsset($id, $type);
+					$html = $ct->attr('html');
+					$html = str_replace('%category_list%', '%search_category_chooser%', $html);
+					$ct->setAttrValue('html', $html);
+					$ct->saveAttributes();
+				}
+			}
+		}
+				
+
 
 		return true;
 

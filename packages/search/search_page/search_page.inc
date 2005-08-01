@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.116 2005/07/31 23:22:09 lwright Exp $
+* $Id: search_page.inc,v 1.117 2005/08/01 07:17:33 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.116 $
+* @version $Revision: 1.117 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -65,7 +65,6 @@ class Search_Page extends Listing_Engine
 											'submit_button',
 											'results_per_page',
 											'structured_search_location',
-											'category_list',
 										   ),
 						'results'		=> Array(
 											'result_list',
@@ -77,7 +76,6 @@ class Search_Page extends Listing_Engine
 											'next_result_page_link',
 											'initial_layout',
 											'category_list_linked',
-											'category_list',
 											'structured_search_location',
 										   ),
 						'no_results'	=> Array(
@@ -636,7 +634,7 @@ class Search_Page extends Listing_Engine
 			$options[$code_name] = $cat_option['full_name'];
 		}
 		ob_start();
-			combo_box($prefix.'_category_'.$cat_set_name, $options, false, '');
+			combo_box('category_'.$cat_set_name, $options, false, '');
 			$res = ob_get_contents();
 		ob_end_clean();
 		return $res;
@@ -1034,23 +1032,6 @@ class Search_Page extends Listing_Engine
 				}
 			break;
 
-			case 'category_list' :
-				$category = array_get_index($_REQUEST, 'search_category', array_get_index($_REQUEST, 'submitted_search_category', ''));
-				$categories = $this->attr('categories');
-				if (!empty($categories)) {
-					$options[''] = $this->attr('no_category_text');
-					foreach ($categories as $key => $data) {
-						$options[$key] = $data['name'];
-					}
-					ob_start();
-						combo_box('search_category', $options, false, $category);
-						$replacement = ob_get_contents();
-					ob_end_clean();
-				} else {
-					$replacement = '';
-				}
-			break;
-
 			case 'results_per_page' :
 				$results_per_page = array_get_index($_REQUEST, 'results_per_page', $this->attr('num_per_page'));
 				$replacement = '<input type="text" onchange="
@@ -1135,16 +1116,14 @@ class Search_Page extends Listing_Engine
 			} else {
 
 				if ($form_name == 'sis_form') {
-					switch ($keyword) {
-						case 'category_list':
-							$category = array_get_index($_REQUEST, 'search_category', '');
-							$categories = $this->attr('categories');
-							$replacements[$keyword] = ($category) ? $categories[$category]['name'] : $this->attr('no_category_text');
+					if (substr($keyword, -17) == '_category_chooser') {
+						$cat_name = substr($keyword, 0, -17);
+						$selected_option = array_get_index($_REQUEST, 'search_category', '');
+						$categories = $this->attr('categories');
+						$replacements[$keyword] = ($selected_option) ? $categories[$cat_name][$selected_option]['full_name'] : $categories[$cat_name]['unselected_text'];
 						break;
-
-						default :
-							$replacements[$keyword] = $this->getGeneralReplacement($keyword);
-						break;
+					} else {
+						$replacements[$keyword] = $this->getGeneralReplacement($keyword);
 					}
 				} else {
 					$replacements[$keyword] = $this->getGeneralReplacement($keyword);
@@ -1370,34 +1349,37 @@ class Search_Page extends Listing_Engine
 							// printing the list of seach categories
 							$categories = $this->attr('categories');
 							if (!empty($categories)) {
-								$current_category = array_get_index($_REQUEST, 'search_category', '');
-								if (!empty($current_category) && !isset($categories[$current_category])) {
-									$current_category = '';
-								}
-
-								$base_url = $_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING'];
-								$base_url = preg_replace('|([&?])mode=([^&]+)|', '\\1mode='.$mode, $base_url);
-								$base_url = preg_replace('|&search_category=([^&]+)?|', '', $base_url);
-								$base_url = preg_replace('|&current_result_page=([^&]+)?|', '&current_result_page=0', $base_url);
-								$base_url .= '&search_category=';
-
+								$query_string_vars = Array(
+														'mode'					=> $mode,
+														'current_result_page'	=> 0,
+													 );
 								ob_start();
 									?>
 									<div id="search_category_list">
-										<ul>
-											<li<?php echo (empty($current_category)) ? ' id="current"' : ''; ?>>
-												<a href="<?php echo $base_url; ?>"><?php echo $this->attr('no_category_text'); ?></a>
-											</li>
 										<?php
-										foreach ($categories as $key => $data) {
+										foreach ($categories as $cat_name => $cat_data) {
 											?>
-											<li<?php echo ($current_category == $key) ? ' id="current"' : ''; ?>>
-												<a href="<?php echo $base_url.$key; ?>"><?php echo $data['name']; ?></a>
-											</li>
+											<ul>
+												<?php
+												$current_option = array_get_index($_GET, 'category_'.$cat_name, '');
+												$cat_data['options'] = Array('' => Array('full_name' => $cat_data['unselected_text'])) + $cat_data['options'];
+												foreach ($cat_data['options'] as $key => $data) {
+													$query_string_vars['category_'.$cat_name] = $key;
+													$url = replace_query_string_vars($query_string_vars);
+													?>
+													<li<?php echo ($current_option == $key) ? ' id="current"' : ''; ?>>
+														<a href="<?php echo $url; ?>">
+															<?php echo $data['full_name']; ?>
+														</a>
+													</li>
+													<?php
+												}
+												unset($query_string_vars['category_'.$cat_name]);
+												?>
+											</ul>
 											<?php
 										}
 										?>
-										</ul>
 									</div>
 									<?php
 									$replacement = ob_get_contents();
@@ -1804,8 +1786,6 @@ class Search_Page extends Listing_Engine
 				break;
 
 				case 'metadata' :
-					bam('Processing metadata search field');
-					bam($field);
 					if (empty($field['params']['assetid'])) {
 						trigger_localised_error('SCH0027', $field_name);
 						$queries[$field_name] = '';
@@ -1838,6 +1818,11 @@ class Search_Page extends Listing_Engine
 
 				if (is_scalar($value)) $value = trim($value);
 				if (empty($value)) continue;
+				$empty_dates = Array(
+								'from'	=> '---------- --:--:--',
+								'to'	=> '---------- --:--:--',
+							   );
+				if ($value == $empty_dates) continue;
 
 				if (!isset($last_search[$field_name]) || $last_search[$field_name] == '') {
 					$last_search[$field_name] = $value;
@@ -1889,9 +1874,9 @@ class Search_Page extends Listing_Engine
 		$categories = $this->attr('categories');
 		$active_cats = Array();
 		foreach ($categories as $set_name => $cat_data) {
-			if (!empty($_GET[$prefix.'_category_'.$set_name])) {
-				if (isset($cat_data['options'][$_GET[$prefix.'_category_'.$set_name]])) {
-					$code_name = $_GET[$prefix.'_category_'.$set_name];
+			if (!empty($_GET['category_'.$set_name])) {
+				if (isset($cat_data['options'][$_GET['category_'.$set_name]])) {
+					$code_name = $_GET['category_'.$set_name];
 					$active_cats[$set_name.'_'.$code_name] = $cat_data['options'][$code_name];
 				}
 			}
@@ -2177,7 +2162,7 @@ class Search_Page extends Listing_Engine
 
 					// work out search category keywords
 					foreach ($this->attr('categories') as $cat_name => $cat_details) {
-						$keywords[$cat_name.'_category_chooser'] = 'Dropdown box to choose a category from set '.$cat_name;
+						$keywords[$cat_name.'_category_chooser'] = 'Dropdown box for category set '.$cat_name;
 					}
 
 				}
