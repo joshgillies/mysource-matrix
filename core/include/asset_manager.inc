@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.348 2005/07/29 04:33:16 mmcintyre Exp $
+* $Id: asset_manager.inc,v 1.349 2005/08/01 04:53:32 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.348 $
+* @version $Revision: 1.349 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -5073,6 +5073,26 @@ class Asset_Manager extends MySource_Object
 	}//end getAssetHref()
 
 
+	/**
+	* Clear the asset manager's internal cache of URLs and HREFs for the specified asset
+	*
+	* @param int	$assetid	The assetid whose cached lookup values we want cleared
+	*
+	* @access public
+	* @return void
+	*/
+	function clearLookupsCache($assetid)
+	{
+		if (isset($this->_tmp['urls'])) {
+			unset($this->_tmp['urls'][$assetid]);
+		}
+		if (isset($this->_tmp['hrefs'])) {
+			unset($this->_tmp['hrefs'][$assetid]);
+		}
+
+	}//end clearLookupsCache()
+	
+	
 	/**
 	* Returns the href(s) of an asset based on its assetid and the wanted screen
 	*
