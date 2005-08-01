@@ -1,5 +1,41 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.4.5
+
+Complete Changelog
+----------------------
+
+Core
+
+* Fixed bug #369: logging in with low access sometimes logs you straight back out
+* Fixed bug #717: using layouts to edit metadata on front end
+* Fixed bug #764: freestyling permissions HIPO doesn't cascade
+* Fixed bug #782: users are not receiving WYSIWYG preferences from group membership
+* Fixed bug #787: deleting a metadata schema doesn't remove it from assets
+* Fixed bug #789: assets to which read permission is denied still appear in menus
+* Fixed bug #800: when adding new link between asset and root folder childrens' treeids become corrupted
+* Fixed bug #802: inconsistencies in Table Creation interface
+* Fixed bug #807: after an asset is deleted (purged) links to assets under it remain
+
+CMS
+
+* Fixed bug #332: form cloning issues - form sections not cloned along with form
+* Fixed bug #538: cloning a Page Asset Listing - Bodycopy Problem
+* Fixed bug #757: asset Listing in Random mode is being cached
+* Fixed bug #781: submitting no value to reqd email address causes PHP Notice
+
+Search
+
+* Fixed bug #816: ampersand in search HTML should be an entity
+* Fixed bug #820: boundary condition errors when searching on date ranges
+
+Lexicon
+
+* Fixed bug #783: expand Keywords plugin available without Lexicon package installed
+
+
+
+
 VERSION 3.4.4
 
 Featured Changes
@@ -91,6 +127,7 @@ LDAP
 
 
 
+
 VERSION 3.4.3
 
 Complete Changelog
@@ -157,6 +194,7 @@ Search
 Ecommerce
 
 * Fixed bug #664: Ecommerce forms cant be created
+
 
 
 
