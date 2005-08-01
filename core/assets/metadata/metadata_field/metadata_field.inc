@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field.inc,v 1.17.2.1 2005/06/22 04:22:51 dmckee Exp $
+* $Id: metadata_field.inc,v 1.17.2.2 2005/08/01 06:10:47 dmckee Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.17.2.1 $
+* @version $Revision: 1.17.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -317,6 +317,42 @@ class Metadata_Field extends Asset
 		return true;
 
 	}//end saveAttributes()
+
+
+	/**
+	* Delete this asset from the trash
+	*
+	* Removes any reference to this field from both the 'sq_ast_mdata_dflt_val'
+	* and 'sq_ast_mdata_val' tables to avoid phantom entries for assets
+	*
+	* @param boolean	$release_lock	should we realease the lock after deleting
+	*
+	* @return boolean
+	* @access public
+	*/
+	function delete($release_lock=true)
+	{
+		if (parent::delete($release_lock)) {
+			$db = $GLOBALS['SQ_SYSTEM']->db;
+
+			// First remove any values assets have for this field
+			$sql = 'DELETE FROM sq_ast_mdata_val WHERE ';
+			$sql .= 'fieldid = '.$db->quote($this->id);
+			$sql .= ';';
+
+			// Now we have to delete the default value information
+			$sql .= 'DELETE FROM sq_ast_mdata_dflt_val WHERE ';
+			$sql .= 'assetid = '.$db->quote($this->id);
+			$sql .= ';';
+
+			$result = $db->query($sql);
+			assert_valid_db_result($result);
+
+			return true;
+		}
+		return false;
+
+	}//end delete()
 
 
 }//end class
