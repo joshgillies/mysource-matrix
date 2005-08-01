@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site_edit_fns.inc,v 1.48 2005/05/16 06:36:31 lwright Exp $
+* $Id: site_edit_fns.inc,v 1.48.2.1 2005/08/01 11:20:34 brobertson Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.48 $
+* @version $Revision: 1.48.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -242,86 +242,6 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 
 
 	/**
-	* Paint the interface for setting the $page_type page for this site
-	*
-	* @param string			$page_type	the type of page this is, ie the string in the value field of the link
-	* @param object Asset	$owner		the asset whose interface we are painting
-	* @param string			$prefix		prefix for the form element
-	*
-	* @return boolean
-	* @access public
-	*/
-	function paintPageSelection($page_type, &$asset, $prefix)
-	{
-		$link = $asset->getSpecialPageLink($page_type);
-		$selected = (empty($link)) ? 0 : $link['minorid'];
-
-		if (!$asset->writeAccess('links')) {
-			echo '<i>';
-			if (!$selected) {
-				echo translate('none');
-			} else {
-				$page = &$GLOBALS['SQ_SYSTEM']->am->getAsset($selected, '', true);
-				echo $page->name;
-				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($page);
-			}
-			echo '</i>';
-			return false;
-		}
-
-		asset_finder($prefix.'_'.$page_type, $selected);
-
-		return true;
-
-	}//end paintPageSelection()
-
-
-	/**
-	* Processes the setting of the index page for this site
-	*
-	* @param string			$page_type	the type of page this is, ie the string in the value field of the link
-	* @param object Asset	$owner	the asset whose interface we are painting
-	* @param string			$prefix	prefix for the form element
-	*
-	* @return boolean
-	* @access public
-	*/
-	function processPageSelection($page_type, &$asset, $prefix)
-	{
-		if (!isset($_POST[$prefix.'_'.$page_type])) return false;
-
-		$link = $asset->getSpecialPageLink($page_type);
-		// if there has been no change, then there is nothing to do
-		if (!empty($link) && $link['minorid'] == $_POST[$prefix.'_'.$page_type]['assetid']) {
-			return true;
-		}
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
-		// if there is a current link, we need to delete it
-		if (!empty($link)) {
-			if (!$asset->deleteLink($link['linkid'])) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
-			}//end if
-		}//end if
-
-		if (!empty($_POST[$prefix.'_'.$page_type]['assetid'])) {
-			$page = &$GLOBALS['SQ_SYSTEM']->am->getAsset($_POST[$prefix.'_'.$page_type]['assetid']);
-
-			if (!$asset->createLink($page, SQ_LINK_NOTICE, $page_type)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
-			}//end if
-		}//end if
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		return true;
-
-	}//end processPageSelection()
-
-
-	/**
 	* Paint the interface for setting the index page for this site
 	*
 	* @param object Asset				$owner	the asset whose interface we are painting
@@ -333,7 +253,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 	*/
 	function paintIndexPage(&$asset, &$o, $prefix)
 	{
-		$this->paintPageSelection('index', $asset, $prefix);
+		return $this->paintNoticeLinkedAsset($asset, 'index');
 
 	}//end paintIndexPage()
 
@@ -350,7 +270,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 	*/
 	function processIndexPage(&$asset, &$o, $prefix)
 	{
-		$this->processPageSelection('index', $asset, $prefix);
+		return $this->processNoticeLinkedAsset($asset, 'index');
 
 	}//end processIndexPage()
 
@@ -367,7 +287,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 	*/
 	function paintForbiddenPage(&$asset, &$o, $prefix)
 	{
-		$this->paintPageSelection('forbidden', $asset, $prefix);
+		return $this->paintNoticeLinkedAsset($asset, 'forbidden');
 
 	}//end paintForbiddenPage()
 
@@ -384,7 +304,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 	*/
 	function processForbiddenPage(&$asset, &$o, $prefix)
 	{
-		$this->processPageSelection('forbidden', $asset, $prefix);
+		return $this->processNoticeLinkedAsset($asset, 'forbidden');
 
 	}//end processForbiddenPage()
 
@@ -401,7 +321,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 	*/
 	function paintNotFoundPage(&$asset, &$o, $prefix)
 	{
-		$this->paintPageSelection('not_found', $asset, $prefix);
+		return $this->paintNoticeLinkedAsset($asset, 'not_found');
 
 	}//end paintNotFoundPage()
 
@@ -418,7 +338,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 	*/
 	function processNotFoundPage(&$asset, &$o, $prefix)
 	{
-		$this->processPageSelection('not_found', $asset, $prefix);
+		return $this->processNoticeLinkedAsset($asset, 'not_found');
 
 	}//end processNotFoundPage()
 
