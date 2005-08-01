@@ -53,6 +53,7 @@ Core
 CMS
 
 * Fixed bug #332: Form cloning issues - form sections not cloned along with form
+* Fixed bug #490: Asset builder - keyword missing if metadata applied
 * Fixed bug #538: Cloning a Page Asset Listing - Bodycopy Problem
 * Fixed bug #798: Asset Listing Page - Sorting screen - Asset type chooser
 * Fixed bug #799: Asset Listing Page - Grouping by Parent Asset
