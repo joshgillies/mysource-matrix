@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_fns.inc,v 1.50 2005/08/01 08:49:23 brobertson Exp $
+* $Id: asset_edit_fns.inc,v 1.51 2005/08/01 10:43:04 brobertson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.50 $
+* @version $Revision: 1.51 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Fns extends MySource_Object
@@ -234,9 +234,9 @@ class Asset_Edit_Fns extends MySource_Object
 	* @param string			$field_name field_name to pass to asset_finder()
 	*
 	* @return boolean true if editable interface printed
-	* @access private
+	* @access public
 	*/
-	function _paintNoticeLinkedAsset(&$asset, $link_value, $type_codes, $field_name='')
+	function paintNoticeLinkedAsset(&$asset, $link_value, $type_codes=Array(), $field_name='')
 	{
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', false, $link_value);
 		$selected = (empty($link)) ? 0 : $link['minorid'];
@@ -256,16 +256,15 @@ class Asset_Edit_Fns extends MySource_Object
 			return false;
 		}
 
-		// If we are in limbo assume that the asset map is in the current window (if it is anywhere)
 		if (SQ_IN_LIMBO) {
 			asset_finder($field_name, $selected, $type_codes, '', false);
 		} else {
 			asset_finder($field_name, $selected, $type_codes);
-		}
+		} 
 
 		return true;
 
-	}//end _paintNoticeLinkedAsset()
+	}//end paintNoticeLinkedAsset()
 
 
 	/**
@@ -276,9 +275,9 @@ class Asset_Edit_Fns extends MySource_Object
 	* @param string			$field_name	the name used for the asset finder
 	*
 	* @return boolean	whether a change was made or not
-	* @access private
+	* @access public
 	*/
-	function _processNoticeLinkedAsset(&$asset, $link_value, $field_name='')
+	function processNoticeLinkedAsset(&$asset, $link_value, $field_name='')
 	{
 		if (empty($field_name))	$field_name = $asset->getPrefix().'_'.str_replace(' ', '_', strtolower($link_value));
 		if (!isset($_POST[$field_name])) return false;
@@ -286,29 +285,29 @@ class Asset_Edit_Fns extends MySource_Object
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', false, $link_value); 
 
 		// if there has been no change, then there is nothing to do
-		if (empty($link) || $link['minorid'] != $_POST[$field_name]['assetid']) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-			$success = true;
-
-			// if there is a current link, we need to delete it
-			if (!empty($link)) {
-				$success = $asset->deleteLink($link['linkid']);
-			}
-			
-			if ($success && !empty($_POST[$field_name]['assetid'])) {
-				$selected_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($_POST[$field_name]['assetid']);
-				if (!is_null($selected_asset)) {
-					$success = $asset->createLink($selected_asset, SQ_LINK_NOTICE, $link_value);
-				}
-			}
-	
-			$GLOBALS['SQ_SYSTEM']->doTransaction($success ? 'COMMIT' : 'ROLLBACK');
-			return $success;
+		if (!empty($link) && $link['minorid'] == $_POST[$field_name]['assetid']) {
+			return false;
 		}
 
-		return false;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		$success = true;
 
-	}//end _processNoticeLinkedAsset()
+		// if there is a current link, we need to delete it
+		if (!empty($link)) {
+			$success = (bool) $asset->deleteLink($link['linkid']);
+		}
+			
+		if ($success && !empty($_POST[$field_name]['assetid'])) {
+			$selected_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($_POST[$field_name]['assetid']);
+			if (!is_null($selected_asset)) {
+				$success = (bool) $asset->createLink($selected_asset, SQ_LINK_NOTICE, $link_value);
+			}
+		}
+	
+		$GLOBALS['SQ_SYSTEM']->doTransaction($success ? 'COMMIT' : 'ROLLBACK');
+		return $success;
+
+	}//end processNoticeLinkedAsset()
 
 
 }//end class
