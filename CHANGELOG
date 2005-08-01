@@ -1,5 +1,82 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.6.0 RC2
+
+Featured Changes
+----------------------
+
+TWO STEP TRASH
+
+	The purge trash HIPO job has been changed to improve its performance. Previously, if an asset (or tree of assets) was both within the trash and outside of it, the purge trash HIPO would still process all those assets one by one. Now, the purge trash HIPO first removes all assets that exist outside of the trash before processing the asset it needs to delete.
+
+EXPORT CUSTOM FORM LOGS
+
+	Previously, the submission logs of custom forms could only be exported to a file by going to a screen of the form asset. This meant that custom form submissions could not be exported in the simple editing interface because the custom form page asset did not have the ability to export its own submission logs.
+
+	Custom form page now has a new logs screen that functions in the same way as the existing screen on the form. It also makes the fields within the screen accessible in the simple editing interface, allowing editors to access submission logs without opening the administration interface.
+
+DESIGN AREA CACHING
+
+	Design areas, such as menus and nested content, are often static, yet they account for quite a lot of queries during page loading. All design areas (with the exception of the BODY, SHOW_IF and LOGIN_FORM design areas) can now be cached by adding the attribute cache="1" to the design area tag in the parse file.
+
+	All design areas that are static (ie. not random) should be cached for performance. This includes all menus, most nested content areas, all asset lineages and constant buttons. Like all other MySource Matrix caching, permissions do not stop the cache from working, so users will still see the correct contents based on their group permissions.
+
+INSERT IMAGE PREVIEW IN WYSIWYG
+
+	When inserting images in the WYSIWYG, both internal and external images now appear in a preview pane in the popup window. This allows you to confirm that the image you have selected is correct before inserting it.
+
+
+Complete Changelog
+----------------------
+
+Core
+
+* Fixed bug #369: Logging in with low access sometimes logs you straight back out
+* Fixed bug #679: db_install allows triggers greater than 30 chars
+* Fixed bug #758: Padding for link tree IDs uses '0' instead of first assigned character in link tree character array
+* Fixed bug #764: Freestyling permissions HIPO doesn't cascade
+* Fixed bug #768: Inconsistency in Date drop downs
+* Fixed bug #770: CSS Design appends 2 .css extensions
+* Fixed bug #778: Warning for removing URLs no longer has the URL in it
+* Fixed bug #787: Deleting a metadata schema doesn't remove it from assets
+* Fixed bug #788: Package strings not being included on Windows systems
+* Fixed bug #789: Assets to which read permission is denied still appear in menus
+* Fixed bug #791: Multiple-line text questions with a maximum length have syntax errors
+* Fixed bug #794: Purging trash can delete links outside the trash
+* Fixed bug #800: When adding new link between asset and root folder, childrens' treeids become corrupted
+* Fixed bug #802: Inconsistencies in Table Creation interface
+* Fixed bug #803: Int text boxes throw javascript errors
+* Fixed bug #807: After an asset is deleted (purged), links to assets under it remain
+* Fixed bug #814: Image caption display in Details html issue
+* Fixed bug #818: Printing Error in Future Status
+
+CMS
+
+* Fixed bug #332: Form cloning issues - form sections not cloned along with form
+* Fixed bug #538: Cloning a Page Asset Listing - Bodycopy Problem
+* Fixed bug #798: Asset Listing Page - Sorting screen - Asset type chooser
+* Fixed bug #799: Asset Listing Page - Grouping by Parent Asset
+* Fixed bug #781: Submitting no value to reqd email address causes PHP Notice
+* Fixed bug #813: Asset Listing - Grouping - Sort ignored
+* Fixed bug #824: Listing Engine asset groups not working when multiple Parent Asset groups used
+
+Search
+
+* Fixed bug #816: Ampersand in search HTML should be an entity
+* Fixed bug #820: Boundary condition errors when searching on date ranges
+* Fixed bug #822: Search page doesn't recognise a search as empty if there are date fields
+
+Calendar
+
+* Fixed bug #815: Keywords Issue with Calendar Asset
+
+Lexicon
+
+* Fixed bug #783: Expand Keywords plugin available without Lexicon package installed
+
+
+
+
 VERSION 3.6.0 RC1
 
 Featured Changes
