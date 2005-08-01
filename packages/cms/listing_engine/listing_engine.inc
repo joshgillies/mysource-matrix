@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.38.2.8 2005/07/31 23:53:14 dheppell Exp $
+* $Id: listing_engine.inc,v 1.38.2.9 2005/08/01 01:18:16 lwright Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
 *
-* @version $Revision: 1.38.2.8 $
+* @version $Revision: 1.38.2.9 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1825,6 +1825,8 @@ class Listing_Engine extends Page
 	/**
 	* Recursive function to build multi level grouping
 	*
+	* (actually this is now non-recursive, function name will have to be fixed!)
+	*
 	* Will construct an array in the following form:
 	* if it is a  group its index will be group name (assetid or string)
 	* and its contents an array
@@ -1844,90 +1846,96 @@ class Listing_Engine extends Page
 	*/
 	function groupAssetsRecursively($group_levels, $assetids, &$results)
 	{
-		//we need assetsand groups, so if none given, let's bail
+		//we need assets and groups, so if none given, let's bail
 		if (empty($assetids) || empty($group_levels)) {
-			 return;
+			return;
 		}
 
-		//by the end the array should be populated as needed,
-		//so if weve been called recursivly we can empty the old
-		//contents here since we want to group them further
-		$results = Array();
+		// we need to reverse this because we want to do the inner level first
+		$group_levels = array_reverse($group_levels);
 
-		//point us at the first element
-		$group_type =& reset($group_levels);
+		$asset_groups = Array();
+		foreach($assetids as $assetid => $group_data) {
+			$asset_groups[] = Array('assetid' => $assetid);
+		}
 
-		//loop through the assets we have, and dump them in the groups
-		//they belong to
-		foreach ($assetids as $assetid => $typecode){
-			switch ($group_type['group_type']) {
-				case 'parent_asset':
-					$is_sort_assetid = '';
-					$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($assetid, SQ_SC_LINK_BACKEND_NAV, '', true, 'minor');
+		// keep track of the last time we encountered a parent asset group
+		$last_parent_asset = false;
+		foreach($group_levels as $group_key => $group_level) {
+			$new_asset_groups = Array();
 
-					//remember we can have more than one direct parent
-					foreach ($links as $link) {
-						if (!isset($results[$link['majorid']])) {
-							$results[$is_sort_assetid.$link['majorid']] = Array();
-						}
+			foreach($asset_groups as $key => $group_data) {
+				$assetid = $group_data['assetid'];
 
-						$results[$is_sort_assetid.$link['majorid']][$assetid] = Array('type_code' => $typecode);
-					}
-
-				break;
-
-				case 'metadata':
-					$metadata_field = $group_type['metadata_field'];
-
-					// get the metadata manager if we haven't already
-					if (!isset($mm)) {
-						$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
-					}
-
-					$value = $mm->getMetadataValueByAssetid($assetid, $metadata_field, true);
-
-					//we cant have a null index, but we can have an empty string
-					if (is_null($value)) {
-						if (!isset($results[''])) $results[''] = Array();
-						$results[''][$assetid] = $typecode;
-					} else {
-						if (!isset($results[$value])) {
-							$results[$value] = Array();
-						}
-						$results[$value][$assetid] = $typecode;
-					}
-				break;
-
-				case 'attribute':
-					// implementation reserved
-				break;
-			}
-		}//end foreach $assetids
-
-		//we're done with this group level, so lets discard it
-		array_shift($group_levels);
-
-		//if their are group levels remaining, we want to call
-		//this function again for each of the groups we have made
-		if (count($group_levels) > 0 ) {
-			foreach ($results as $index => $group) {
-				$this->groupAssetsRecursively($group_levels, $group, $results[$index]);
-			}
-		} else {
-			//were at the end, we can do sort stuff here
-			$position_formats = $this->_getPositionFormats();
-
-			for (reset($results); null !== ($index = key($results)); next($results)) {
-				$results[$index] = $this->sortAssetList($results[$index], $this->getSortInfo());
-				$list_position = 1;
-
-				for (reset($results[$index]); null !== ($k = key($results[$index])); next($results[$index])) {
-					if (isset($position_formats[$list_position])) {
-						$results[$index][$k]['position_number'] = $list_position;
-					}
-					$list_position++;
+				if ($last_parent_asset === false) {
+					$current_parent = $assetid;
+				} else {
+					$current_parent = $group_data['group'][$last_parent_asset];
 				}
+
+				switch ($group_level['group_type']) {
+					case 'parent_asset':
+						$is_sort_assetid = '';
+						$link_assetids = Array();
+
+						$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($current_parent, SQ_SC_LINK_BACKEND_NAV, '', true, 'minor');
+						$link_assetids = Array();
+
+						//remember we can have more than one direct parent
+						foreach ($links as $link) {
+							$link_assetids[] = $link['majorid'];
+						}
+
+						$value = $link_assetids;
+
+					break;
+
+					case 'metadata':
+						$metadata_field = $group_level['metadata_field'];
+
+						// get the metadata manager if we haven't already
+						if (!isset($mm)) {
+							$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+						}
+
+						$value = $mm->getMetadataValueByAssetid($assetid, $metadata_field, true);
+					break;
+
+					case 'attribute':
+						// implementation reserved
+					break;
+				}
+
+				if (!is_array($value)) {
+					$group_data['group'][$group_key] = $value;
+					$new_asset_groups[] = $group_data;
+				} else {
+					foreach($value as $sub_value) {
+						$group_data['group'][$group_key] = $sub_value;
+						$new_asset_groups[] = $group_data;
+					}
+				}
+			}//end foreach on asset groups
+			$asset_groups = $new_asset_groups;
+
+			if ($group_level['group_type'] == 'parent_asset') {
+				$last_parent_asset = $group_key;
 			}
+
+		}//end foreach on group level
+
+		$results = Array();
+		$group_keys = array_keys($group_levels);
+
+		// we need to flip the keys back to what they were to construct the array
+		foreach ($asset_groups as $group_data) {
+			$base =& $results;
+			foreach(array_reverse($group_keys) as $group_key) {
+				$key = $group_data['group'][$group_key];
+				if (is_null($key)) $key = '';
+				$base =& $base[$key];
+			}
+			$base[$group_data['assetid']] = $assetids[$group_data['assetid']];
 		}
 
 	}//end groupAssetsRecursively()
