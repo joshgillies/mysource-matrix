@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: simple_form.inc,v 1.4 2005/07/27 05:52:34 lwright Exp $
+* $Id: simple_form.inc,v 1.5 2005/08/01 06:52:31 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -322,7 +322,7 @@ class Simple_Form extends Asset
 		$parents = Array();
 
 		foreach($queried_parents as $queried_parent) {
-			$parents[$queried_parent['minorid']] = $queried_parent['type_code'];
+			$parents[$queried_parent['majorid']] = $queried_parent['type_code'];
 		}
 
 		$parents[$this->id] = $this->type();
