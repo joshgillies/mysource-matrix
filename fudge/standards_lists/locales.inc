@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: locales.inc,v 1.1 2005/03/30 00:40:43 lwright Exp $
-* $Name: not supported by cvs2svn $
+* $Id: locales.inc,v 1.2 2005/08/01 08:57:14 brobertson Exp $
+*
 */
 
 
@@ -34,7 +34,7 @@
 *     of the default locale - Euro support being the main usage of this.
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package Fudge
 * @subpackage Standards_Lists
 */

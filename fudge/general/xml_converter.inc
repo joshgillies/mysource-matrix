@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: xml_converter.inc,v 1.2 2005/03/31 18:21:15 gnoel Exp $
-* $Name: not supported by cvs2svn $
+* $Id: xml_converter.inc,v 1.3 2005/08/01 08:57:14 brobertson Exp $
+*
 */
 
 require_once 'XML/Parser.php';
@@ -55,7 +55,7 @@ require_once 'XML/Parser.php';
 *
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package Fudge
 * @subpackage General
 */

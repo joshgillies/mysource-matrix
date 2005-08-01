@@ -17,8 +17,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: table-editor.js,v 1.12 2005/07/13 22:54:54 dmckee Exp $
-* $Name: not supported by cvs2svn $
+* $Id: table-editor.js,v 1.13 2005/08/01 08:57:14 brobertson Exp $
+*
 */
 
 var colorsStr = "aqua|black|blue|fuchsia|gray|green|lime|maroon|navy|olive|purple|red|silver|teal|white|yellow";

@@ -18,8 +18,8 @@
 #* | licence.                                                           |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: backup.sh,v 1.2 2005/07/07 07:02:23 gsherwood Exp $
-#* $Name: not supported by cvs2svn $
+#* $Id: backup.sh,v 1.3 2005/08/01 08:54:19 brobertson Exp $
+#*
 #*/
 #
 #	When using with argument --remotedb=user@host it connect by ssh and
