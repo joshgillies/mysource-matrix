@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_change_dn.php,v 1.6 2005/04/29 05:38:58 gsherwood Exp $
+* $Id: ldap_change_dn.php,v 1.7 2005/08/02 01:37:03 gsherwood Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 * Alter the database to reflect that the DN of a user has changed
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 * @subpackage ldap
 */
@@ -103,7 +103,7 @@ $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 	printActionStatus('OK');
 
 	printActionName('Changing asset permissions (rollback)');
-		$sql = 'UPDATE '.SQ_TABLE_ROLLBACK_PREFIX.'ast_perm
+		$sql = 'UPDATE sq_rb_ast_perm
 				SET userid = '.$db->quote($new_dn).'
 				WHERE userid = '.$db->quote($old_dn);
 		$result = $db->query($sql);
@@ -133,7 +133,7 @@ $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 	printActionStatus('OK');
 
 	printActionName('Changing screen access (rollback)');
-		$sql = 'UPDATE '.SQ_TABLE_ROLLBACK_PREFIX.'ast_edit_access
+		$sql = 'UPDATE sq_rb_ast_edit_access
 				SET userid = '.$db->quote($new_dn).'
 				WHERE userid = '.$db->quote($old_dn);
 		$result = $db->query($sql);
