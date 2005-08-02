@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: rollback_management.php,v 1.8 2005/07/27 04:49:41 gsherwood Exp $
+* $Id: rollback_management.php,v 1.9 2005/08/02 03:33:40 mmcintyre Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -172,14 +172,14 @@ function close_rollback_entries($table_name, $date)
 {
 	global $db, $QUIET;
 
-	$sql = 'UPDATE '.SQ_TABLE_ROLLBACK_PREFIX.$table_name.' SET '.SQ_TABLE_PREFIX.'eff_to = '.$db->quote($date).
-		' WHERE '.SQ_TABLE_PREFIX.'eff_to IS NULL';
+	$sql = 'UPDATE sq_rb_'.$table_name.' SET sq_eff_to = '.$db->quote($date).
+		' WHERE sq_eff_to IS NULL';
 	$result = $db->query($sql);
 	assert_valid_db_result($result);
 	$affected_rows = $db->affectedRows();
 	assert_valid_db_result($affected_rows);
 
-	if (!$QUIET) echo $affected_rows.' ENTRIES CLOSED IN '.SQ_TABLE_ROLLBACK_PREFIX.$table_name."\n";
+	if (!$QUIET) echo $affected_rows.' ENTRIES CLOSED IN sq_rb_'.$table_name."\n";
 
 }//end close_rollback_entries()
 
@@ -198,16 +198,16 @@ function open_rollback_entries($table_name, $date)
 	global $SQ_TABLE_COLUMNS, $db, $QUIET;
 
 	$columns = $SQ_TABLE_COLUMNS[$table_name]['columns'];
-	$sql = 'INSERT INTO '.SQ_TABLE_ROLLBACK_PREFIX.$table_name.' ('.implode(', ', $columns).
-		', '.SQ_TABLE_PREFIX.'eff_from, '.SQ_TABLE_PREFIX.'eff_to)
-		SELECT '.implode(',', $columns).','.$db->quote($date).', NULL FROM '.SQ_TABLE_PREFIX.$table_name;
+	$sql = 'INSERT INTO sq_rb_'.$table_name.' ('.implode(', ', $columns).
+		', sq_eff_from, sq_eff_to)
+		SELECT '.implode(',', $columns).','.$db->quote($date).', NULL FROM sq_'.$table_name;
 
 	$result = $db->query($sql);
 	assert_valid_db_result($result);
 	$affected_rows = $db->affectedRows();
 	assert_valid_db_result($affected_rows);
 
-	if (!$QUIET) echo $affected_rows.' ENTRIES OPENED IN '.SQ_TABLE_ROLLBACK_PREFIX.$table_name."\n";
+	if (!$QUIET) echo $affected_rows.' ENTRIES OPENED IN sq_rb_'.$table_name."\n";
 
 }//end open_rollback_entries()
 
@@ -226,15 +226,15 @@ function align_rollback_entries($table_name, $date)
 {
 	global $db, $QUIET;
 
-	$sql = 'UPDATE '.SQ_TABLE_ROLLBACK_PREFIX.$table_name.'
-			SET '.SQ_TABLE_PREFIX.'eff_from = '.$db->quote($date).'
-			WHERE '.SQ_TABLE_PREFIX.'eff_from < '.$db->quote($date);
+	$sql = 'UPDATE sq_rb_'.$table_name.'
+			SET sq_eff_from = '.$db->quote($date).'
+			WHERE sq_eff_from < '.$db->quote($date);
 	$result = $db->query($sql);
 	assert_valid_db_result($result);
 	$affected_rows = $db->affectedRows();
 	assert_valid_db_result($affected_rows);
 
-	if (!$QUIET) echo $affected_rows.' ENTRIES ALIGNED IN '.SQ_TABLE_ROLLBACK_PREFIX.$table_name."\n";
+	if (!$QUIET) echo $affected_rows.' ENTRIES ALIGNED IN sq_rb_'.$table_name."\n";
 
 }//end align_rollback_entries()
 
@@ -252,14 +252,14 @@ function delete_rollback_entries($table_name, $date)
 {
 	global $db, $QUIET;
 
-	$sql = 'DELETE FROM '.SQ_TABLE_ROLLBACK_PREFIX.$table_name.' WHERE '
-		.SQ_TABLE_PREFIX.'eff_to <= '.$db->quote($date);
+	$sql = 'DELETE FROM sq_rb_'.$table_name.' WHERE
+		sq_eff_to <= '.$db->quote($date);
 	$result = $db->query($sql);
 	assert_valid_db_result($result);
 	$affected_rows = $db->affectedRows();
 	assert_valid_db_result($affected_rows);
 
-	if (!$QUIET) echo $affected_rows.' ENTRIES DELETED IN '.SQ_TABLE_ROLLBACK_PREFIX.$table_name."\n";
+	if (!$QUIET) echo $affected_rows.' ENTRIES DELETED IN sq_rb_'.$table_name."\n";
 
 }//end delete_rollback_entries()
 
