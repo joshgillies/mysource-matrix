@@ -19,14 +19,14 @@
 #* | licence.                                                           |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: clean.sh,v 1.2 2005/07/07 06:58:22 mmcintyre Exp $
+#* $Id: clean.sh,v 1.3 2005/08/02 01:53:04 gsherwood Exp $
 #*/
 
 # Creates a clean system by removing data and cache directories 
 # and clearing out the database and re-inserting the create script
 
 
-SYSTEM_ROOT=`dirname "$0"`"/../..";
+SYSTEM_ROOT=`pwd`;
 
 
 rm -rf "${SYSTEM_ROOT}/cache" \
