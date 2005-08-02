@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.351 2005/08/01 15:30:12 brobertson Exp $
+* $Id: asset_manager.inc,v 1.352 2005/08/02 04:12:02 skim Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.351 $
+* @version $Revision: 1.352 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -815,31 +815,64 @@ class Asset_Manager extends MySource_Object
 
 
 	/**
-	* Determine if the passed assetid refers to a valid asset in the system
+	* Determine if the passed assetid or assetids refer(s) to a valid asset in the system
 	*
 	* Note that this will always return FALSE if you pass it a shadow asset
 	*
-	* @param int	$assetid	the ID of the asset we are going to the check for existence
+	* @param mixed int or array	$assetids	the ID of the asset we are going to the check for existence
+	*										or an array of assetids we want to check
 	*
-	* @return boolean
+	* @return mixed boolean or array of existing assetids
 	* @access public
 	*/
-	function assetExists($assetid)
+	function assetExists($assetids)
 	{
-		assert_valid_assetid($assetid);
+		// number of assetids
+		$count = count($assetids);
+
+		$is_array = is_array($assetids);
+		$is_empty = empty($assetids);
+
+		// assert assetid format
+		if ($is_array && !$is_empty) {
+			foreach ($assetids as $key => $value) {
+				assert_valid_assetid($value);
+			}
+		} else if (!$is_empty) {
+			assert_valid_assetid($assetids);
+		}
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-
 		$sql = 'SELECT assetid
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast ';
 
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('assetid = '.$db->quote($assetid));
+		// single asset id
+		if (!$is_array) {
+			if ($is_empty) return false;
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('assetid = '.$db->quoteSmart($assetids));
+			$db_assetids = $db->getOne($sql.$where);
+			assert_valid_db_result($db_assetids);
+			return ($db_assetids == $assetids);
+		}
 
-		// query the database, expect only one row
-		$db_assetid = $db->getOne($sql.$where);
-		assert_valid_db_result($db_assetid);
+		// array of asset ids
+		$existing_asset_ids = Array();
+		if (!$is_empty) {
+			$in = 'assetid IN (';
 
-		return ($db_assetid == $assetid);
+			for ($i=0; $i<count($assetids); $i++) {
+				$in .= $db->quoteSmart($assetids[$i]).(($i == count($assetids) - 1)?')':',');
+			}
+
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($in);
+			$db_assetids = $db->getAll($sql.$where);
+			assert_valid_db_result($db_assetids);
+
+			foreach ($db_assetids as $db_id) {
+				$existing_asset_ids[] = $db_id['assetid'];
+			}
+		}
+		return $existing_asset_ids;
 
 	}//end assetExists()
 
@@ -2473,9 +2506,7 @@ class Asset_Manager extends MySource_Object
 		// we are not getting children for a shadow asset, so if we are getting children of
 		// an asset that handles shadow assets, palm the request off to it
 		$asset = &$this->getAsset($assetid);
-		if (is_null($asset)) {
-			return Array();
-		}
+		if (is_null($asset)) return Array();
 		if (implements_interface($asset, 'bridge')) {
 			$children = $asset->getChildren($assetid, $type_code, $strict_type_code, $sort_by);
 			$this->forgetAsset($asset);
