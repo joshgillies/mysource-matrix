@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_calendar.inc,v 1.3 2005/04/29 05:39:18 gsherwood Exp $
+* $Id: package_manager_calendar.inc,v 1.4 2005/08/02 01:17:43 gsherwood Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/package_manager.inc';
 *    uses info gleaned from the package.xml and asset.xml files
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.3 $ - 1.0
+* @version $Revision: 1.4 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -38,7 +38,7 @@ class Package_Manager_Calendar extends Package_Manager
 	*/
 	function Package_Manager_Calendar()
 	{
-		$this->_full_path = dirname(__FILE__);
+		$this->_full_path = SQ_PACKAGES_PATH.'/calendar';
 		$this->Package_Manager();
 
 	}//end constructor

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_core.inc,v 1.30 2005/07/13 03:03:54 mmcintyre Exp $
+* $Id: package_manager_core.inc,v 1.31 2005/08/02 01:17:42 gsherwood Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/package_manager.inc';
 *    uses info gleened from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix
 */
 class Package_Manager_Core extends Package_Manager
@@ -45,7 +45,7 @@ class Package_Manager_Core extends Package_Manager
 	*/
 	function Package_Manager_Core()
 	{
-		$this->_full_path = dirname(__FILE__);
+		$this->_full_path = SQ_CORE_PACKAGE_PATH;
 		$this->Package_Manager();
 
 	}//end constructor

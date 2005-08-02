@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_search.inc,v 1.12 2005/04/29 05:38:40 gsherwood Exp $
+* $Id: package_manager_search.inc,v 1.13 2005/08/02 01:17:51 gsherwood Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/package_manager.inc';
 *    uses info gleened from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -39,7 +39,7 @@ class Package_Manager_Search extends Package_Manager
 	*/
 	function Package_Manager_Search()
 	{
-		$this->_full_path = dirname(__FILE__);
+		$this->_full_path = SQ_PACKAGES_PATH.'/search';
 		$this->Package_Manager();
 
 	}//end constructor

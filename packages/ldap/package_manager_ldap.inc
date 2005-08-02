@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_ldap.inc,v 1.4 2005/04/29 05:38:57 gsherwood Exp $
+* $Id: package_manager_ldap.inc,v 1.5 2005/08/02 01:17:48 gsherwood Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/package_manager.inc';
 *    uses info gleened from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -38,7 +38,7 @@ class Package_Manager_LDAP extends Package_Manager
 	*/
 	function Package_Manager_LDAP()
 	{
-		$this->_full_path = dirname(__FILE__);
+		$this->_full_path = SQ_PACKAGES_PATH.'/ldap';
 		$this->Package_Manager();
 
 	}//end constructor

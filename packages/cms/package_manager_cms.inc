@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_cms.inc,v 1.3 2005/01/20 13:18:39 brobertson Exp $
+* $Id: package_manager_cms.inc,v 1.4 2005/08/02 01:17:45 gsherwood Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/package_manager.inc';
 *    uses info gleened from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -45,7 +45,7 @@ class Package_Manager_CMS extends Package_Manager
 	*/
 	function Package_Manager_CMS()
 	{
-		$this->_full_path = dirname(__FILE__);
+		$this->_full_path = SQ_PACKAGES_PATH.'/cms';
 		$this->Package_Manager();
 
 	}//end constructor
