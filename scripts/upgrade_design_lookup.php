@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: upgrade_design_lookup.php,v 1.4 2005/02/23 05:49:03 gsherwood Exp $
+* $Id: upgrade_design_lookup.php,v 1.5 2005/08/02 03:29:47 gsherwood Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Upgrade the *_ast_lookup_design table to *_ast_lookup_value
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -60,25 +60,25 @@ $am = &$GLOBALS['SQ_SYSTEM']->am;
 // first check that the table we are going to rename to is not already there.
 $tables = $db->getListOf('tables');
 assert_valid_db_result($tables);
-if (!in_array(SQ_TABLE_PREFIX.'ast_lookup_value', $tables)) {
+if (!in_array('sq_ast_lookup_value', $tables)) {
 	trigger_error('You need to run install/step_02.php to install the new table required', E_USER_ERROR);
 }
 
 // if the old table doesn't exist, there isn't anything we can do.
-if (!in_array(SQ_TABLE_PREFIX.'ast_lookup_design', $tables)) {
+if (!in_array('sq_ast_lookup_design', $tables)) {
 	trigger_error('Cannot run upgrade script without old table. Have you run this script before ?', E_USER_ERROR);
 }
 
 unset($tables);
 
-$count = $db->getOne('SELECT COUNT(*) FROM '.SQ_TABLE_PREFIX.'ast_lookup_value');
+$count = $db->getOne('SELECT COUNT(*) FROM sq_ast_lookup_value');
 assert_valid_db_result($count);
 
 $count = (int) $count;
 
 // if the new table has data, abort.
 if ($count) {
-	trigger_error('Refusing to run run upgrade script there is already data in the table '.SQ_TABLE_PREFIX.'ast_lookup_value', E_USER_ERROR);
+	trigger_error('Refusing to run run upgrade script there is already data in the table sq_ast_lookup_value', E_USER_ERROR);
 }
 
 //--        FIX LOOKUP DESIGN TABLE        --//
@@ -96,7 +96,7 @@ if ($count) {
 // So first things first it to try and fix this up for the live table
 
 $sql = 'SELECT url, name
-		FROM '.SQ_TABLE_PREFIX.'ast_lookup_design
+		FROM sq_ast_lookup_design
 		GROUP BY url, name
 		HAVING COUNT(*) > 1
 		';
@@ -111,7 +111,7 @@ foreach ($design_lookups as $row) {
 	// get the designid that we would use on the frontend for this url
 	$used_design = $GLOBALS['SQ_SYSTEM']->am->getDesignFromURL($row['url'], $row['name']);
 
-	$sql = 'DELETE FROM '.SQ_TABLE_PREFIX.'ast_lookup_design
+	$sql = 'DELETE FROM sq_ast_lookup_design
 			WHERE url  = '.$db->quote($row['url']).'
 			  AND name = '.$db->quote($row['name']);
 	// and if a design exists delete everything other than the design
@@ -129,9 +129,9 @@ unset($design_lookups);
 
 
 // Now try and fix the rollback table
-$sql = 'SELECT '.SQ_TABLE_PREFIX.'eff_from, url, name, COUNT(*) as count
-		FROM '.SQ_TABLE_ROLLBACK_PREFIX.'ast_lookup_design
-		GROUP BY '.SQ_TABLE_PREFIX.'eff_from, url, name
+$sql = 'SELECT sq_eff_from, url, name, COUNT(*) as count
+		FROM sq_rb_ast_lookup_design
+		GROUP BY sq_eff_from, url, name
 		HAVING COUNT(*) > 1
 		';
 
@@ -144,15 +144,15 @@ foreach ($design_lookups as $row) {
 
 	// see if all these rollback entries have a null as the end date
 	$sql = 'SELECT COUNT(*)
-			FROM '.SQ_TABLE_ROLLBACK_PREFIX.'ast_lookup_design
-			WHERE '.SQ_TABLE_PREFIX.'eff_from  = '.$db->quote($row[SQ_TABLE_PREFIX.'eff_from']).'
-			  AND '.SQ_TABLE_PREFIX.'eff_to IS NULL
+			FROM sq_rb_ast_lookup_design
+			WHERE sq_eff_from  = '.$db->quote($row['sq_eff_from']).'
+			  AND sq_eff_to IS NULL
 			  AND url  = '.$db->quote($row['url']).'
 			  AND name = '.$db->quote($row['name']);
 	$num_no_end = $db->getOne($sql);
 
-	$delete_sql = 'DELETE FROM '.SQ_TABLE_PREFIX.'ast_lookup_design
-					WHERE '.SQ_TABLE_PREFIX.'eff_from  = '.$db->quote($row[SQ_TABLE_PREFIX.'eff_from']).'
+	$delete_sql = 'DELETE FROM sq_ast_lookup_design
+					WHERE sq_eff_from  = '.$db->quote($row['sq_eff_from']).'
 					  AND url  = '.$db->quote($row['url']).'
 					  AND name = '.$db->quote($row['name']);
 
@@ -168,16 +168,16 @@ foreach ($design_lookups as $row) {
 		// get the designid that we would use on the frontend for this url
 		// NOTE: having to use direct sql because we can't change in and out of rollback view in a single script execution
 		$sql = 'SELECT ld.designid, a.type_code
-				FROM '.SQ_TABLE_ROLLBACK_PREFIX.'ast_lookup l
-						INNER JOIN '.SQ_TABLE_ROLLBACK_PREFIX.'ast_lookup_design ld ON l.url = ld.url
-						INNER JOIN '.SQ_TABLE_ROLLBACK_PREFIX.'ast a ON ld.designid = a.assetid
+				FROM sq_rb_ast_lookup l
+						INNER JOIN sq_rb_ast_lookup_design ld ON l.url = ld.url
+						INNER JOIN sq_rb_ast a ON ld.designid = a.assetid
 				WHERE ld.url = '.$db->quote($row['url']).'
 				  AND ld.name = '.$db->quote($row['name']);
 		foreach (Array('ld.', 'l.', 'a.') as $table_alias) {
 			$sql .= '
-				  AND '.$table_alias.SQ_TABLE_PREFIX.'eff_from <= '.$db->quote($row[SQ_TABLE_PREFIX.'eff_from']).'
-				  AND ('.$table_alias.SQ_TABLE_PREFIX.'eff_to IS NULL
-						   OR '.$table_alias.SQ_TABLE_PREFIX.'eff_to > '.$db->quote($row[SQ_TABLE_PREFIX.'eff_from']).')';
+				  AND '.$table_alias.'sq_eff_from <= '.$db->quote($row['sq_eff_from']).'
+				  AND ('.$table_alias.'sq_eff_to IS NULL
+						   OR '.$table_alias.'sq_eff_to > '.$db->quote($row['sq_eff_from']).')';
 		}
 
 		$used_design = $db->getRow($sql);
@@ -186,8 +186,8 @@ foreach ($design_lookups as $row) {
 	}
 
 
-	$sql = 'DELETE FROM '.SQ_TABLE_ROLLBACK_PREFIX.'ast_lookup_design
-			WHERE '.SQ_TABLE_PREFIX.'eff_from  = '.$db->quote($row[SQ_TABLE_PREFIX.'eff_from']).'
+	$sql = 'DELETE FROM sq_rb_ast_lookup_design
+			WHERE sq_eff_from  = '.$db->quote($row['sq_eff_from']).'
 			  AND url  = '.$db->quote($row['url']).'
 			  AND name = '.$db->quote($row['name']);
 	if (!empty($used_design)) {
@@ -207,9 +207,9 @@ unset($design_lookups);
 
 
 require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-foreach (Array(SQ_TABLE_PREFIX, SQ_TABLE_ROLLBACK_PREFIX) as $prefix) {
+foreach (Array('sq_', 'sq_rb_') as $prefix) {
 
-	$extra = ($prefix == SQ_TABLE_ROLLBACK_PREFIX) ? ', sq_eff_from, sq_eff_to' : '';
+	$extra = ($prefix == 'sq_rb_') ? ', sq_eff_from, sq_eff_to' : '';
 
 	printName('Copying from '.$prefix.'ast_lookup_design to '.$prefix.'ast_lookup_value');
 
@@ -226,18 +226,18 @@ foreach (Array(SQ_TABLE_PREFIX, SQ_TABLE_ROLLBACK_PREFIX) as $prefix) {
 
 
 printName('Dropping ast_lookup_design');
-$result = $db->query('DROP TABLE '.SQ_TABLE_PREFIX.'ast_lookup_design');
+$result = $db->query('DROP TABLE sq_ast_lookup_design');
 assert_valid_db_result($result);
-$result = $db->query('DROP TABLE '.SQ_TABLE_ROLLBACK_PREFIX.'ast_lookup_design');
+$result = $db->query('DROP TABLE sq_rb_ast_lookup_design');
 assert_valid_db_result($result);
 printUpdateStatus('OK');
 
 
 //--        UPDATE VALUES FOR DESIGN LINKS        --//
 
-foreach (Array(SQ_TABLE_PREFIX, SQ_TABLE_ROLLBACK_PREFIX) as $prefix) {
+foreach (Array('sq_', 'sq_rb_') as $prefix) {
 
-	$extra = ($prefix == SQ_TABLE_ROLLBACK_PREFIX) ? ', sq_eff_from, sq_eff_to' : '';
+	$extra = ($prefix == 'sq_rb_') ? ', sq_eff_from, sq_eff_to' : '';
 
 	printName('Updating '.$prefix.'ast_lnk');
 

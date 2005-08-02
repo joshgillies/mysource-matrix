@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: upgrade_file_versioning.php,v 1.9 2004/12/21 14:08:27 brobertson Exp $
+* $Id: upgrade_file_versioning.php,v 1.10 2005/08/02 03:29:47 gsherwood Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Upgrade menu design areas
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -62,13 +62,13 @@ $db = &$GLOBALS['SQ_SYSTEM']->db;
 foreach (Array('file_versioning_file', 'file_versioning_file_history', 'file_versioning_file_lock') as $table_name) {
 	printName('Rename "'.$table_name.'"');
 
-	// find out of the table exists by trying to run a query on it and see whether it
+	// find out if the table exists by trying to run a query on it and see whether it
 	// returns a 'no such table' error. This should not be too much penalty because
 	// most optimisers recognise the impossible WHERE clause and short-circuit it
-	$result = $db->query('SELECT * FROM '.SQ_TABLE_PREFIX.$table_name.' WHERE 1=0');
+	$result = $db->query('SELECT * FROM sq_'.$table_name.' WHERE 1=0');
 	if (DB::isError($result) && ($result->getCode() == DB_ERROR_NOSUCHTABLE)) {
 		// "No Such Table" error = the renamed table doesn't exist
-		$result = $db->query('ALTER TABLE fudge_'.$table_name.' RENAME TO '.SQ_TABLE_PREFIX.$table_name);
+		$result = $db->query('ALTER TABLE fudge_'.$table_name.' RENAME TO sq_'.$table_name);
 
 		if (DB::isError($result) && ($result->getCode() == DB_ERROR_NOSUCHTABLE)) {
 			// old table does not exist!!
@@ -94,10 +94,10 @@ foreach (Array('file_versioning_file', 'file_versioning_file_history', 'file_ver
 }
 
 printName('Change sequence name');
-$result = $db->query('create sequence '.SQ_TABLE_PREFIX.'sequence_file_versioning_file_seq');
+$result = $db->query('CREATE SEQUENCE sq_sequence_file_versioning_file_seq');
 assert_valid_db_result($result);
 
-$result = $db->query('select setval('.$db->quote(SQ_TABLE_PREFIX.'sequence_file_versioning_file_seq').', nextval('.$db->quote('fudge_file_versioning_file_seq').'), false)');
+$result = $db->query('SELECT setval('.$db->quote('sq_sequence_file_versioning_file_seq').', nextval('.$db->quote('fudge_file_versioning_file_seq').'), false)');
 assert_valid_db_result($result);
 
 $result = $db->query('drop sequence fudge_file_versioning_file_seq');
@@ -106,7 +106,7 @@ printUpdateStatus('OK');
 
 // "No Such Table" error = the renamed table doesn't exist
 printName('Drop repository field');
-$result = $db->query('ALTER TABLE '.SQ_TABLE_PREFIX.'file_versioning_file DROP COLUMN repository');
+$result = $db->query('ALTER TABLE sq_file_versioning_file DROP COLUMN repository');
 
 if (DB::isError($result) && ($result->getCode() == DB_ERROR_NOSUCHFIELD)) {
 	// reports 'field not exist' - fine
