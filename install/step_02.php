@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_02.php,v 1.58 2005/07/29 04:37:19 mmcintyre Exp $
+* $Id: step_02.php,v 1.59 2005/08/02 03:36:56 gsherwood Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.58 $
+* @version $Revision: 1.59 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -61,7 +61,7 @@ if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
 	trigger_error($err_msg, E_USER_ERROR);
 }
 
-
+define ('SQ_SYSTEM_ROOT', $SYSTEM_ROOT);
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
 require_once $SYSTEM_ROOT.'/install/install.inc';
 require_once SQ_LIB_PATH.'/db_install/db_install.inc';

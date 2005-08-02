@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_03.php,v 1.62 2005/05/27 07:32:42 rhoward Exp $
+* $Id: step_03.php,v 1.63 2005/08/02 03:36:56 gsherwood Exp $
 *
 */
 
@@ -43,7 +43,7 @@
 * would update all the asset types for core and cms only
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.62 $
+* @version $Revision: 1.63 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -94,7 +94,7 @@ if ($cli) {
 	}
 }
 
-
+define ('SQ_SYSTEM_ROOT', $SYSTEM_ROOT);
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
 
 // get the list of functions used during install
