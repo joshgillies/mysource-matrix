@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: init.inc,v 1.86 2005/06/29 07:21:24 ndvries Exp $
+* $Id: init.inc,v 1.87 2005/08/02 03:35:10 gsherwood Exp $
 *
 */
 
@@ -28,14 +28,12 @@
 * The file that needs to be included to do anything
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.86 $
+* @version $Revision: 1.87 $
 * @package MySource_Matrix
 */
 
-/*
-* set the level of PHP reported errors and some other
-* PHP thingies we want done OUR way
-*/
+// set the level of PHP reported errors and some other
+// PHP thingies we want done OUR way
 error_reporting(E_ALL);
 set_magic_quotes_runtime(0);
 
@@ -48,18 +46,11 @@ define('SQ_INIT_OB_LEVEL', ob_get_level());
 define('SQ_PHP_CLI', (php_sapi_name() == 'cli'));
 
 
-/*
-* we mustn't forget to update this (until someone comes up with an automated method)
-*/
-define('SQ_TABLE_PREFIX',          'sq_');
-define('SQ_TABLE_ROLLBACK_PREFIX', 'sq_rb_');
-
-
-/*
-* Let's get our bearings as to where everything is from here.
-* These paths may be relative or absolute
-*/
-define('SQ_SYSTEM_ROOT',       dirname(dirname(dirname(realpath(__FILE__)))));
+// Let's get our bearings as to where everything is from here.
+// These paths may be relative or absolute
+if (!defined('SQ_SYSTEM_ROOT')) {
+	define('SQ_SYSTEM_ROOT', dirname(dirname(dirname(realpath(__FILE__)))));
+}
 define('SQ_INCLUDE_PATH',      SQ_SYSTEM_ROOT.'/core/include');
 define('SQ_CORE_PACKAGE_PATH', SQ_SYSTEM_ROOT.'/core/assets');
 define('SQ_ATTRIBUTES_PATH',   SQ_SYSTEM_ROOT.'/core/attributes');
