@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.260.2.4 2005/08/01 08:28:47 brobertson Exp $
+* $Id: asset_edit_interface.inc,v 1.260.2.5 2005/08/02 23:13:07 dmckee Exp $
 *
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.260.2.4 $
+* @version $Revision: 1.260.2.5 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -311,7 +311,7 @@ class Asset_Edit_Interface extends MySource_Object
 							if (!$have_all_locks) {
 								if ($need_force_locks) {
 									if ($can_force_locks) {
-										echo '<div class="sq-backend-locked-by-someone-else">'.translate('forceably_acquire_lock', $user->name).'</div>';
+										echo '<div class="sq-backend-locked-by-someone-else">'.translate('forcibly_acquire_lock', $user->name).'</div>';
 									}
 								} else if ($full_write_access && $acquire_lock_access) {
 									echo translate('acquire_lock', translate('acquire_lock_button'), $owner->name);
