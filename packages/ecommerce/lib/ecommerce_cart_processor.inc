@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart_processor.inc,v 1.2 2005/07/25 03:58:48 arailean Exp $
+* $Id: ecommerce_cart_processor.inc,v 1.3 2005/08/02 08:01:28 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@
 * @author Robert Howard <rhoward@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -45,7 +45,7 @@ class Ecommerce_Cart_Processor
 		// set, but rely on external objects to initialise
 		$this->setCartContainer($_SESSION['sq_cart_contents']);
 
-	}//end Ecommerce_Cart_Processor()
+	}//end constructor
 
 
 	/**
@@ -146,31 +146,13 @@ class Ecommerce_Cart_Processor
 	{
 		if (is_null($this->cart)) $this->initialiseCart();
 
+		// TODO: getCart calls validateCart()
+		$this->validateCart();
+
 		return $this->cart;
 
 	}//end getCart()
 
-
-	/**
-	* Takes a cart array and sets it as the current cart
-	*
-	* @param Array(mixed)	$cart	Cart array
-	*
-	* @return boolean	always true, false reserved for error conditions
-	* @access public
-	*/
-/*	function restoreCart(&$cart)
-	{
-		if (!is_array($cart)) {
-			return false;
-		}
-
-		$this->container = $cart;
-
-		return true;
-
-	}//end restore_cart()
-*/
 
 	/**
 	* Return the sum-total of all the items currently in this cart
@@ -202,7 +184,7 @@ class Ecommerce_Cart_Processor
 	function getCount()
 	{
 		$count = 0;
-		foreach ($this->cart as $product_assetid => $details) {
+		foreach ($this->cart as $assetid => $details) {
 			$count += $details['quantity'];
 		}
 
@@ -216,7 +198,7 @@ class Ecommerce_Cart_Processor
 	* If an item already exists in the cart, add the quantity to the existing quantity
 	* Use addItem() for blindly adding items, rather than using updateItem()
 	*
-	* @param string		$assetid	The assetid of the product to add
+	* @param string		$assetid	The assetid of the item to add
 	* @param int		$quantity	The quantity to add
 	*
 	* @return boolean	indicating whether the cart was updated
@@ -232,12 +214,18 @@ class Ecommerce_Cart_Processor
 			return false;
 		}
 
-		// check that the passed product assetid is indeed valid and
-		// a valid product (or subclass of product)
+		// check that the passed item assetid is indeed valid and
+		// able to be bought
 		assert_valid_assetid($assetid);
-		$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid), 'product', false);
+		$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid), '', false, 'type_code');
 
 		if (!$asset_info) {
+			trigger_localised_error('SYS0087', E_USER_WARNING, $assetid);
+			return false;
+		}
+
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset($asset_info[$assetid]);
+		if (!implements_interface($asset_info[$assetid], 'buyable')) {
 			trigger_localised_error('ECOM0005', E_USER_WARNING, $assetid);
 			return false;
 		}
@@ -245,11 +233,26 @@ class Ecommerce_Cart_Processor
 		if (!isset($this->cart[$assetid])) {
 			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 			if ($asset) {
+
+				// ugly, but we need to work around the backwards way Files store names
+				if (is_a($asset, 'File') || is_subclass_of($asset, 'File')) {
+					$name = $asset->attr('title');
+				} else {
+					$name = $asset->name;
+				}
+
+				// only include a price if the object is a product
+				if (is_a($asset, 'Product') || is_subclass_of($asset, 'Product')) {
+					$price = $asset->attr('price');
+				} else {
+					$price = -1;
+				}
+
 				$this->cart[$assetid] = Array(
-									'price'		=> $asset->attr('price'),
-									'quantity'	=> 0,
-									'name'		=> $asset->name,
-								  );
+											'price'		=> $price,
+											'quantity'	=> 0,
+											'name'		=> $name,
+										);
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 			} else {
 				return false;
@@ -266,19 +269,19 @@ class Ecommerce_Cart_Processor
 	/**
 	* Updates the quantity of an item(s) in the cart
 	*
-	* Assumption: product lines were correctly made using the addItem() method
-	* and therefore, only valid products are found in the cart (because of the
+	* Assumption: items were correctly added using the addItem() method
+	* and therefore, only valid items are found in the cart (because of the
 	* addItem() checking).
 	*
-	* @param string		$assetid	The assetid of the product to remove
-	* @param int		$quantity			The new quantity of this product
+	* @param string		$assetid		The assetid of the item to remove
+	* @param int		$quantity		The new quantity of this item
 	*
 	* @return boolean	indicating whether the cart was updated
 	* @access public
 	*/
 	function updateItem($assetid, $quantity)
 	{
-		// product doesn't exist in cart, then silently redirect to addItem()
+		// item doesn't exist in cart, then silently redirect to addItem()
 		if (!isset($this->cart[$assetid])) {
 			return $this->addItem($assetid, $quantity);
 		}
@@ -309,20 +312,20 @@ class Ecommerce_Cart_Processor
 	/**
 	* Removes an item(s) from the cart
 	*
-	* Assumption: product lines were correctly made using the add() method
-	* and therefore, only valid products are found in the cart (because of the
-	* add() checking).
+	* Assumption: items were correctly added using the addItem() method
+	* and therefore, only valid items are found in the cart (because of the
+	* addItem() checking).
 	*
-	* @param string	$assetid		The assetid of the product to remove
-	* @param int	$quantity		The quantity of this product to remove -
-	*								leave blank to remove all of that product
+	* @param string	$assetid		The assetid of the item to remove
+	* @param int	$quantity		The quantity of this item to remove -
+	*								leave blank to remove all of that item
 	*
 	* @return boolean	indicating whether the cart was updated
 	* @access public
 	*/
 	function removeItem($assetid, $quantity=null)
 	{
-		// asset doesn't exist in cart - if the quantity is zero (or ALL)
+		// item doesn't exist in cart - if the quantity is zero (or ALL)
 		// then silently return, otherwise error
 		if (!isset($this->cart[$assetid])) {
 			if ($quantity > 0) {
@@ -385,9 +388,7 @@ class Ecommerce_Cart_Processor
 	*/
 	function printReceipt()
 	{
-		if (empty($this->cart)) {
-			return;
-		}
+		if (empty($this->cart)) return;
 
 		$name_length = 0;
 		$has_price   = false;
@@ -400,7 +401,7 @@ class Ecommerce_Cart_Processor
 			}
 
 			// determine whether all items have price
-			if (!$has_price && array_get_index($details, 'price', -1) == -1) {
+			if (!$has_price && array_get_index($details, 'price', -1) != -1) {
 				$has_price = true;
 			}
 		}
@@ -455,7 +456,38 @@ class Ecommerce_Cart_Processor
 	}//end printReceipt()
 
 
-}//end Ecom_Cart
+	/**
+	* Check the current cart and if the cart item does not exist,
+	* remove them from the cart
+	*
+	* @access public
+	* @return void
+	*/
+	function validateCart()
+	{
+		if (empty($this->cart)) return;
+
+		$asset_ids = array_keys($this->cart);
+		$result = $GLOBALS['SQ_SYSTEM']->am->assetExists($asset_ids);
+
+		// the array of existing assetids
+		if (is_array($result)) {
+
+			foreach ($asset_ids as $id) {
+				if (!is_int(array_search($id, $result))) {
+					$this->removeItem($id);
+				}
+			}
+
+		// false, one item doesn't exist.
+		} else if (is_bool($result) && !$result) {
+			$this->removeItem($id);
+		}
+
+	}//end validateCart()
+
+
+}//end class
 
 
 ?>
