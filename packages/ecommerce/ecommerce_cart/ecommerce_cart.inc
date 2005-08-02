@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart.inc,v 1.14 2005/07/25 03:34:10 rhoward Exp $
+* $Id: ecommerce_cart.inc,v 1.15 2005/08/02 07:52:45 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ define('SQ_CART_PRESET_REMOVE', 'Remove');
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -129,13 +129,15 @@ class Ecommerce_Cart extends Listing_Engine
 
 		foreach ($cart_contents as $product_assetid => $product_info) {
 			$product_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($product_assetid);
-			if ($group_by == 'letter') {
-				$asset_list[$product_assetid] = Array(
-													'type_code'		=> $product_asset->type(),
-													'first_letter'	=> substr($product_asset->attr('name'), 0, 1),
-												);
-			} else {
-				$asset_list[$product_assetid] = $product_asset->type();
+			if (!empty($product_asset)) {
+				if ($group_by == 'letter') {
+					$asset_list[$product_assetid] = Array(
+														'type_code'		=> $product_asset->type(),
+														'first_letter'	=> substr($product_asset->attr('name'), 0, 1),
+													);
+				} else {
+					$asset_list[$product_assetid] = $product_asset->type();
+				}
 			}
 		}
 
@@ -234,7 +236,6 @@ class Ecommerce_Cart extends Listing_Engine
 
 		// get our page chunk here
 		if (empty($children)) {
-			$replacements['checkout_cart_button'] = '';
 			$replacements['asset_listing'] = $this->attr('no_items_text');
 			$replacements['next_page'] = '';
 			$replacements['previous_page'] = '';
@@ -259,16 +260,19 @@ class Ecommerce_Cart extends Listing_Engine
 		$global_contents = preg_replace('|%[^%\W]+%|', '', $global_contents);
 
 		// cart must pass on to an ecommerce checkout
-		$checkout_id = $this->attr('ecom_form_id');
-		if (!empty($checkout_id)) {
-			$checkout_cart_href = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($checkout_id);
-			ob_start();
-				?><input type="button" onclick="location.href = '<?php echo addslashes($checkout_cart_href); ?>'" value="<?php echo $this->attr('checkout_text'); ?>"><?php
-				$checkout_cart_button = ob_get_contents();
-			ob_end_clean();
-		} else {
-			$checkout_cart_button = '';
-			$checkout_cart_href   = '';
+		$checkout_id = $this->attr('ecommerce_checkout_id');
+		$checkout_cart_button = '';
+		$checkout_cart_href   = '';
+		if (!empty($checkout_id) && !empty($children)) {
+			if (!$GLOBALS['SQ_SYSTEM']->am->assetExists($checkout_id)) {
+				trigger_localised_error('ECOM003', E_USER_WARNING, $checkout_id);
+			} else {
+				$checkout_cart_href = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($checkout_id);
+				ob_start();
+					?><input type="button" onclick="location.href = '<?php echo addslashes($checkout_cart_href); ?>'" value="<?php echo $this->attr('checkout_text'); ?>"><?php
+					$checkout_cart_button = ob_get_contents();
+				ob_end_clean();
+			}
 		}
 
 		// pagination

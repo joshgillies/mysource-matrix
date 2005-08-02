@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart_management.inc,v 1.8 2005/07/27 00:03:01 rhoward Exp $
+* $Id: ecommerce_cart_management.inc,v 1.9 2005/08/02 07:52:45 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -41,98 +41,98 @@ class Ecommerce_Cart_Management extends Asset_Management
 		$this->Asset_Management($pm);
 
 		$this->vars = Array(
-						'name'				=> Array(
-												'added'			=> '0.0.1',
-												'type'			=> 'text',
-												'default'		=> '',
-												'description'	=> 'The full name of the cart',
-												'update_fn'		=> '',
-											   ),
-						'short_name'		=> Array(
-												'added'			=> '0.0.1',
-												'type'			=> 'text',
-												'default'		=> '',
-												'description'	=> 'The short name of the cart',
-												'update_fn'		=> '',
-											   ),
-						'ecom_form_id'		=> Array(
-												'added'			=> '0.0.1',
-												'type'			=> 'assetid',
-												'default'		=> 0,
-												'description'	=> 'The assetid of the ecommerce form that we are connected with',
-											   ),
-						'show_price'		=> Array(
-												'added'			=> '0.0.1',
-												'type'			=> 'boolean',
-												'default'		=> true,
-												'description'	=> 'Whether to show the price columns',
-												'parameters'	=> Array(
-																	'allow_empty'	=> false,
-																   ),
-												'update_fn'		=> '',
-											   ),
-						'checkout_text'		=> Array(
-												'added'			=> '0.0.1',
-												'type'			=> 'text',
-												'default'		=> 'Proceed to Checkout',
-												'description'	=> 'The text on the "checkout" button',
-											   ),
-						'cart_updated_text'	=> Array(
-												'added'			=> '0.0.1',
-												'type'			=> 'text',
-												'default'		=> 'Your Cart has been Updated',
-												'description'	=> 'The text displayed when the cart is updated',
-											   ),
-						'no_items_text'		=> Array(
-												'added'			=> '0.2',
-												'type'			=> 'text',
-												'default'		=> 'There are currently no items in your cart',
-												'description'	=> 'The text that displays instead of the asset listing, when you have no items in your cart',
-											   ),
-						'parameter_map'		=> Array(
-												'added'			=> '0.4',
-												'type'			=> 'parameter_map',
-												'default'		=> Array(),
-												'description'	=> 'Dynamically maps an request var to an attribute',
-												'parameters'	=> Array(
-																	'parameters'	=> Array(
-																						'add_item'	=> 'Add an item to the cart',
+						'name'					=> Array(
+													'added'			=> '0.0.1',
+													'type'			=> 'text',
+													'default'		=> '',
+													'description'	=> 'The full name of the cart',
+													'update_fn'		=> '',
+												   ),
+						'short_name'			=> Array(
+													'added'			=> '0.0.1',
+													'type'			=> 'text',
+													'default'		=> '',
+													'description'	=> 'The short name of the cart',
+													'update_fn'		=> '',
+												   ),
+						'ecommerce_checkout_id'	=> Array(
+													'added'			=> '0.0.1',
+													'type'			=> 'assetid',
+													'default'		=> 0,
+													'description'	=> 'The assetid of the ecommerce checkout asset that we are connected with',
+												   ),
+						'show_price'			=> Array(
+													'added'			=> '0.0.1',
+													'type'			=> 'boolean',
+													'default'		=> true,
+													'description'	=> 'Whether to show the price columns',
+													'parameters'	=> Array(
+																		'allow_empty'	=> false,
+																	   ),
+													'update_fn'		=> '',
+												   ),
+						'checkout_text'			=> Array(
+													'added'			=> '0.0.1',
+													'type'			=> 'text',
+													'default'		=> 'Proceed to Checkout',
+													'description'	=> 'The text on the "checkout" button',
+												   ),
+						'cart_updated_text'		=> Array(
+													'added'			=> '0.0.1',
+													'type'			=> 'text',
+													'default'		=> 'Your Cart has been Updated',
+													'description'	=> 'The text displayed when the cart is updated',
+												   ),
+						'no_items_text'			=> Array(
+													'added'			=> '0.2',
+													'type'			=> 'text',
+													'default'		=> 'There are currently no items in your cart',
+													'description'	=> 'The text that displays instead of the asset listing, when you have no items in your cart',
+												   ),
+						'parameter_map'			=> Array(
+													'added'			=> '0.4',
+													'type'			=> 'parameter_map',
+													'default'		=> Array(),
+													'description'	=> 'Dynamically maps an request var to an attribute',
+													'parameters'	=> Array(
+																		'parameters'	=> Array(
+																							'add_item'	=> 'Add an item to the cart',
+																						   ),
+																	   ),
+												   ),
+						'asset_selections'		=> Array(
+													'added'			=> '0.3',
+													'type'			=> 'serialise',
+													'default'		=> Array(
+																		'Quantity'	=> Array(
+																						'type'		=> 'textbox',
+																						'options'	=> Array(
+																										'allow_multiple'	=> 0,
+																										'allow_negative'	=> 0,
+																										'restrict_range'	=> Array(
+																																'enable'	=> 0,
+																																'min'		=> 0,
+																																'max'		=> 10,
+																															   ),
+																									   ),
+																						'permanent'	=> 1,
 																					   ),
-																   ),
-											   ),
-						'asset_selections'	=> Array(
-												'added'			=> '0.3',
-												'type'			=> 'serialise',
-												'default'		=> Array(
-																	'Quantity'	=> Array(
-																					'type'		=> 'textbox',
-																					'options'	=> Array(
-																									'allow_multiple'	=> 0,
-																									'allow_negative'	=> 0,
-																									'restrict_range'	=> Array(
-																															'enable'	=> 0,
-																															'min'		=> 0,
-																															'max'		=> 10,
-																														   ),
-																								   ),
-																					'permanent'	=> 1,
-																				   ),
-																	'Remove'	=> Array(
-																					'type'		=> 'radio',
-																					'options'	=> Array(
-																									'allow_multiple'	=> 1,
-																									'allow_negative'	=> 0,
-																									'restrict_range'	=> Array(
-																															'enable'	=> 0,
-																															'min'		=> 0,
-																															'max'		=> 10,
-																														   ),
-																								   ),
-																					'permanent'	=> 1,
-																				   ),
-																   ),
-												'description'	=> 'Sets of named checkboxes, drop-down lists, etc',
-											   ),
+																		'Remove'	=> Array(
+																						'type'		=> 'radio',
+																						'options'	=> Array(
+																										'allow_multiple'	=> 1,
+																										'allow_negative'	=> 0,
+																										'restrict_range'	=> Array(
+																																'enable'	=> 0,
+																																'min'		=> 0,
+																																'max'		=> 10,
+																															   ),
+																									   ),
+																						'permanent'	=> 1,
+																					   ),
+																	   ),
+													'description'	=> 'Sets of named checkboxes, drop-down lists, etc',
+												   ),
 					  );
 
 	}//end constructor

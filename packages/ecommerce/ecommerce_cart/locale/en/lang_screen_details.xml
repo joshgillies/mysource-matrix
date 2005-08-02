@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.4 2005/07/21 07:55:06 lwright Exp $
+* $Id: lang_screen_details.xml,v 1.5 2005/08/02 07:52:46 lwright Exp $
 *
 */
 -->
@@ -36,7 +36,7 @@
 	</section>
 	<section name="Cart Settings">
 		<display_name>Cart Settings</display_name>
-		<field attribute="ecom_form_id">
+		<field attribute="ecommerce_checkout_id">
 			<display_name>Ecommerce Checkout Asset</display_name>
 			<note>The Ecommerce Checkout asset we want to link this cart to</note>
 		</field>
