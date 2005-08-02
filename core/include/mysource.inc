@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.132 2005/07/29 04:34:19 mmcintyre Exp $
+* $Id: mysource.inc,v 1.133 2005/08/02 01:53:41 gsherwood Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.132 $
+* @version $Revision: 1.133 $
 * @package MySource_Matrix
 */
 class MySource
@@ -253,7 +253,7 @@ class MySource
 			if (!empty($_SESSION['sq_rollback_view'])) {
 				// we are viewing the system at some time in the past
 				define('SQ_ROLLBACK_VIEW',        '1');
-				define('SQ_TABLE_RUNNING_PREFIX', SQ_TABLE_ROLLBACK_PREFIX);
+				define('SQ_TABLE_RUNNING_PREFIX', 'sq_rb_');
 
 				// we need to let the database know what the current timestamp that we
 				// are using for rollback so that and stored procedures that require
@@ -270,7 +270,7 @@ class MySource
 				assert_valid_db_result($result);
 			} else {
 				define('SQ_ROLLBACK_VIEW', '0');
-				define('SQ_TABLE_RUNNING_PREFIX', SQ_TABLE_PREFIX);
+				define('SQ_TABLE_RUNNING_PREFIX', 'sq_');
 			}
 
 			$this->_setupUser();
@@ -288,7 +288,7 @@ class MySource
 
 			// we are either in CLI mode or the run level doesn't enable permissions
 			define('SQ_ROLLBACK_VIEW',        '0');
-			define('SQ_TABLE_RUNNING_PREFIX', SQ_TABLE_PREFIX);
+			define('SQ_TABLE_RUNNING_PREFIX', 'sq_');
 
 		}//end if
 
@@ -749,7 +749,7 @@ class MySource
 					// note that we dont prep this query for rollback select
 					// because we are selecting directly from the rollback table
 					$sql = 'SELECT sQ_eff_from AS efrom
-							FROM '.SQ_TABLE_ROLLBACK_PREFIX.'ast
+							FROM sq_rb_ast
 							WHERE assetid = '.$this->db->quote($assetid).'
 							  AND version = '.$this->db->quote($version);
 

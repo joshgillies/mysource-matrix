@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_install.inc,v 1.24 2005/07/29 04:34:57 mmcintyre Exp $
+* $Id: db_install.inc,v 1.25 2005/08/02 01:51:34 gsherwood Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -686,7 +686,7 @@ function install_rollback_triggers($table_columns, $verbose=true, $override=fals
 		if (!isset($table_info['rollback']) || !$table_info['rollback']) {
 			continue;
 		}
-		$rollback_table = SQ_TABLE_ROLLBACK_PREFIX.$table_name;
+		$rollback_table = 'sq_rb_'.$table_name;
 		$trigger_name   = strtolower('sq_'.$table_name.'_rb_trg');
 		$table          = 'sq_'.$table_name;
 
