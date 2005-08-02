@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_uninstall_patch.inc,v 1.14 2005/05/16 06:36:32 lwright Exp $
+* $Id: hipo_job_uninstall_patch.inc,v 1.15 2005/08/02 01:44:45 gsherwood Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix
 * @subpackage MAPS
 */
@@ -700,7 +700,7 @@ class HIPO_Job_Uninstall_Patch extends HIPO_Job
 		foreach ($patch_info['reverse_queries'] as $query) {
 			// replace table prefix replacements in query
 			$query = str_replace('TABLE_PREFIX_', 'sq_', $query);
-			$query = str_replace('ROLLBACK_PREFIX_', SQ_TABLE_ROLLBACK_PREFIX, $query);
+			$query = str_replace('ROLLBACK_PREFIX_', 'sq_rb_', $query);
 
 			$result = $db->query($query);
 			if (!assert_valid_db_result($result, '', false, false)) {
