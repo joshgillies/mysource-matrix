@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_edit_fns.inc,v 1.23.2.1 2005/07/11 03:54:33 dmckee Exp $
+* $Id: cron_job_edit_fns.inc,v 1.23.2.2 2005/08/03 00:42:21 dmckee Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.23.2.1 $
+* @version $Revision: 1.23.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -106,7 +106,7 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 		}
 
 		for ($i = 1; $i <= 31; $i++) {
-			$days[$i] = $i;
+			$days[str_pad($i, 2, '0', STR_PAD_LEFT)] = $i;
 		}
 
 		if ($write_access) {
