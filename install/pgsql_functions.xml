@@ -19,12 +19,12 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: pgsql_functions.xml,v 1.3 2005/07/29 04:36:52 mmcintyre Exp $
+* $Id: pgsql_functions.xml,v 1.4 2005/08/03 04:33:34 mmcintyre Exp $
 *
 */
 -->
 <sql>
-	<sql_element display_name="sq_grant_acces Function">
+	<sql_element display_name="sq_grant_access Function">
 		<![CDATA[
 			-- creates a function that grants access to the secondary user.
 			-- This function should be called after all the tables in the system
@@ -239,6 +239,17 @@
 				RETURN parent_treeids;
 			END;
 			' LANGUAGE plpgsql;
+		]]>
+	</sql_element>
+	<sql_element display_name="atoi Function">
+		<![CDATA[
+			CREATE OR REPLACE FUNCTION atoi(character varying) returns int4 as '
+			DECLARE
+						input alias for $1;
+			BEGIN
+					return (input::text::int4);
+			END;
+			' language plpgsql;
 		]]>
 	</sql_element>
 </sql>
