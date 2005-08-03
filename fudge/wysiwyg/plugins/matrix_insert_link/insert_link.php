@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_link.php,v 1.26 2004/12/03 15:43:04 brobertson Exp $
+* $Id: insert_link.php,v 1.26.2.1 2005/08/03 23:11:28 dmckee Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,10 +36,11 @@ require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
 
 $url_protocol_options = Array(
 							''  => '',
-							'http://'  => 'http://',
-							'https://' => 'https://',
-							'mailto:'  => 'mailto:',
-							'ftp://'   => 'ftp://'
+							'http://'  	=> 'http://',
+							'https://' 	=> 'https://',
+							'mailto:'  	=> 'mailto:',
+							'ftp://'   	=> 'ftp://',
+							'rtsp://'	=> 'rtsp://',
 							);
 
 $new_window_bool_options = Array(
@@ -137,7 +138,7 @@ if (!isset($_GET['new_window'])) {
 
 			function setUrl(protocol, link) {
 				var f = document.main_form;
-				
+
 				if (protocol != null) highlight_combo_value(f.url_protocol, protocol);
 				if (link     != null) {
 					f.url_link.value = link;
@@ -199,7 +200,7 @@ if (!isset($_GET['new_window'])) {
 			}
 
 			/* fieldset styles */
-			fieldset { 
+			fieldset {
 				padding: 0px 10px 5px 5px;
 				border-color: #725B7D;
 			}
@@ -327,7 +328,7 @@ if (!isset($_GET['new_window'])) {
 																			$count = 0;
 																			foreach ($new_window_bool_options as $var => $name) {
 																				$count++;
-																			?> 
+																			?>
 																					<td width="33%">
 																						<input type="checkbox" value="1" name="<?php echo $var?>" <?php echo ($_GET['new_window_options'][$var]) ? 'checked' : '';?>>
 																						<?php echo $name?>

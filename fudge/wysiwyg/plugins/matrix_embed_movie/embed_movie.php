@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: embed_movie.php,v 1.14.6.3 2005/07/04 23:52:28 dmckee Exp $
+* $Id: embed_movie.php,v 1.14.6.4 2005/08/03 23:11:28 dmckee Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -178,6 +178,7 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 														'http://'	=> 'http://',
 														'https://'	=> 'https://',
 														'ftp://'	=> 'ftp://',
+														'rtsp://'	=> 'rtsp://',
 													);
 						?>
 					</td>
