@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: embed_movie.php,v 1.23 2005/07/04 23:44:32 dmckee Exp $
+* $Id: embed_movie.php,v 1.24 2005/08/03 23:06:29 dmckee Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Embed Movie Popup for the WYSIWYG
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix
 */
 
@@ -197,6 +197,7 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 														'http://'	=> 'http://',
 														'https://'	=> 'https://',
 														'ftp://'	=> 'ftp://',
+														'rtsp://'	=> 'rtsp://',
 													);
 						?>
 					</td>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_link.php,v 1.34 2005/05/20 04:33:46 lwright Exp $
+* $Id: insert_link.php,v 1.35 2005/08/03 23:06:38 dmckee Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Insert Link Popup for the WYSIWYG
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix
 */
 
@@ -40,6 +40,7 @@ $url_protocol_options = Array(
 							'https://'	=> 'https://',
 							'mailto:'	=> 'mailto:',
 							'ftp://'	=> 'ftp://',
+							'rtsp://'	=> 'rtsp://',
 						);
 
 $new_window_bool_options = Array(
