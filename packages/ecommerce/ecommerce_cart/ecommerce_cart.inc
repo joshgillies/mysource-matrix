@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart.inc,v 1.15 2005/08/02 07:52:45 lwright Exp $
+* $Id: ecommerce_cart.inc,v 1.16 2005/08/03 05:04:59 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ define('SQ_CART_PRESET_REMOVE', 'Remove');
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -182,6 +182,14 @@ class Ecommerce_Cart extends Listing_Engine
 	}//end _getName()
 
 
+	function printFrontend()
+	{
+		$this->processAssetSelections();
+		return parent::printFrontend();
+
+	}//end printFrontend()
+
+
 	/**
 	 * Constructs the carts contents
 	 *
@@ -210,12 +218,16 @@ class Ecommerce_Cart extends Listing_Engine
 			return;
 		}
 
-		$this->processAssetSelections();
-
 		//the children here will refer to the contents of this cart
 		$children = $this->getAssetList();
 		$num_kids = count($children);
 		$this->filterAssetList($children);
+
+		// the list is sorted and positions set, now we can split to groups
+		if ($this->attr('group_by') == 'grouped') {
+			$this->groupAssetsRecursively($this->attr('asset_grouping'), $children, $children);
+			$this->sortGroups($this->attr('asset_grouping'), $children, $children);
+		}
 
 		foreach ($keywords as $word) {
 			$replacements[$word] = $this->getKeywordReplacement($word);

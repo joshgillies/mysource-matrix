@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.5 2005/08/02 07:52:46 lwright Exp $
+* $Id: lang_screen_details.xml,v 1.6 2005/08/03 05:04:59 lwright Exp $
 *
 */
 -->
@@ -54,7 +54,9 @@
 			<display_name>List Format</display_name>
 			<note>A standard list displays all assets on a single page or can be broken up into multiple pages.
 			&lt;br/&gt;An A-Z listing displays assets grouped by the first letter of their name or short name, as defined by the 'Sort By' field.
-			&lt;br/&gt;A Random listing displays one or more assets in random order.</note>
+			&lt;br/&gt;A Random listing displays one or more assets in random order.
+			&lt;br/&gt;Custom Grouping allows a list based on user specifed grouping conditions.
+			</note>
 		</field>
 		<field attribute="num_per_page">
 			<display_name>Assets Per Page</display_name>
