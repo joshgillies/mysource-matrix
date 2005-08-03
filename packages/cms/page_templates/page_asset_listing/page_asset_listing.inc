@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.83 2005/08/03 01:15:38 dheppell Exp $
+* $Id: page_asset_listing.inc,v 1.84 2005/08/03 02:08:45 tbarrett Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.83 $
+* @version $Revision: 1.84 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -374,21 +374,17 @@ class Page_Asset_Listing extends Listing_Engine
 
 		// Restrict by status if necessary
 		$wanted_statuses = $this->attr('statuses');
-		if (!empty($wanted_statuses) && (count($wanted_statuses) < 9)) {
+		if (!empty($wanted_statuses) && (array_sum($wanted_statuses) != SQ_SC_STATUS_ALL)) {
 			$db =& $GLOBALS['SQ_SYSTEM']->db;
 			$ids_sql = implode(', ', array_keys($assets_to_list));
 			$statuses_sql = implode(', ', $wanted_statuses);
-
-			// drop assets of a status we dont want from the list
-			$filter_keys = array_keys($db->getAssoc('SELECT assetid, type_code FROM sq_ast WHERE assetid IN ('.$ids_sql.') AND status IN ('.$statuses_sql.')'));
-			$list_keys = array_keys($assets_to_list);
-			
-			foreach ($list_keys as $key) {
-				if(!in_array($key, $filter_keys)) {
-					unset($assets_to_list[$key]);
+			$wanted_assets = $db->getAssoc('SELECT assetid, type_code FROM sq_ast WHERE assetid IN ('.$ids_sql.') AND status IN ('.$statuses_sql.')');
+			assert_valid_db_result($wanted_assets);
+			foreach ($assets_to_list as $i => $v) {
+				if (!isset($wanted_assets[$i])) {
+					unset($assets_to_list[$i]);
 				}
 			}
-										
 		}
 
 		if ($group_by == 'number') {
