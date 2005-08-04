@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_schema.inc,v 1.16 2005/08/01 05:44:50 dmckee Exp $
+* $Id: metadata_schema.inc,v 1.17 2005/08/04 00:45:29 ndvries Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -136,7 +136,6 @@ class Metadata_Schema extends Folder
 			// First remove any values assets have for this field
 			$sql = 'DELETE FROM sq_ast_mdata WHERE ';
 			$sql .= 'schemaid = '.$db->quote($this->id);
-			$sql .= ';';
 
 			$result = $db->query($sql);
 			assert_valid_db_result($result);
