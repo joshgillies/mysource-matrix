@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.30 2005/08/01 03:02:23 dmckee Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.31 2005/08/04 00:29:40 lwright Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2554,7 +2554,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 			combo_box($prefix.'_statuses', $options, true, $current);
 		} else {
 			if (empty($current)) {
-				echo translate('sch_page_no_status_selected');
+				echo translate('cms_listing_no_status_selected');
 			} else {
 				echo '<ul>';
 				foreach ($current as $status) {
