@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_ecommerce_cart.inc,v 1.6 2005/08/04 01:33:47 lwright Exp $
+* $Id: design_area_ecommerce_cart.inc,v 1.7 2005/08/04 01:34:12 lwright Exp $
 *
 */
 
@@ -55,8 +55,8 @@ class Design_Area_Ecommerce_Cart extends Design_Area
 				break;
 
 			case 'checkout_href' :
-				$cart_assetid = (int) $this->attr('ecom_form');
-				$url = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($cart_assetid);
+				$checkout_assetid = (int) $this->attr('ecom_form');
+				$url = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($checkout_assetid);
 				echo $url;
 				break;
 
