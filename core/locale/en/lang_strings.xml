@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.18.2.6 2005/08/01 15:42:52 gnoel Exp $
+* $Id: lang_strings.xml,v 1.18.2.7 2005/08/04 04:54:28 mmcintyre Exp $
 *
 */
 
@@ -1207,7 +1207,7 @@
 	<string source="select_date">Select Date</string>
 	<string source="sort_by">Sort By</string>
 	<string source="starts_with">Starts With</string>
-	<string source="not_logged_in">	Not Logged In</string>
+	<string source="not_logged_in">Not Logged In</string>
 
 	<string source="insert_container">Insert Container</string>
 	<string source="select_container_type">Select the type of container you want to create before clicking here</string>
