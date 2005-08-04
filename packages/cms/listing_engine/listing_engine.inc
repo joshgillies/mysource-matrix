@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.66 2005/08/04 04:24:08 dmckee Exp $
+* $Id: listing_engine.inc,v 1.67 2005/08/04 04:45:42 dmckee Exp $
 *
 */
 
@@ -43,7 +43,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.66 $
+* @version $Revision: 1.67 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2540,13 +2540,9 @@ class Listing_Engine extends Page
 			}
 		}
 		$selected = (isset($_REQUEST[$options['name']])) ? Array($_REQUEST[$options['name']]) : Array();
-		structured_drop_down($options['name'], $options['root_node'], $pass_codes, $selected, $options['width'], $options['height'], $options['max_depth'], false, $options['seperator'], true, $options['all_text'], ($options['input_style'] == 'dropdown') ? true : false);
+
 		ob_start();
-			$tree_data = $this->_structuredDropDown($options['root_node'], $pass_codes, $options['all_text'], $options['max_depth'], $options['seperator']);
-			if (!isset($_REQUEST[$options['name']])) {
-				$_REQUEST[$options['name']] = '';
-			}
-			combo_box($options['name'], $tree_data, false, $_REQUEST[$options['name']], $options['height'], ($options['width'] == '0' ? '' : 'style="width:'.$options['width'].'px;"'));
+			structured_drop_down($options['name'], $options['root_node'], $pass_codes, $selected, $options['width'], $options['height'], $options['max_depth'], false, $options['seperator'], true, $options['all_text'], ($options['input_style'] == 'dropdown') ? true : false);
 			$replacement = ob_get_contents();
 		ob_end_clean();
 		return $replacement;
