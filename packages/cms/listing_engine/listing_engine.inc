@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.67 2005/08/04 04:45:42 dmckee Exp $
+* $Id: listing_engine.inc,v 1.68 2005/08/04 05:21:23 dmckee Exp $
 *
 */
 
@@ -43,7 +43,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.67 $
+* @version $Revision: 1.68 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2542,7 +2542,7 @@ class Listing_Engine extends Page
 		$selected = (isset($_REQUEST[$options['name']])) ? Array($_REQUEST[$options['name']]) : Array();
 
 		ob_start();
-			structured_drop_down($options['name'], $options['root_node'], $pass_codes, $selected, $options['width'], $options['height'], $options['max_depth'], false, $options['seperator'], true, $options['all_text'], ($options['input_style'] == 'dropdown') ? true : false);
+			structured_drop_down($options['name'], $options['root_node'], $pass_codes, $selected, $options['width'], $options['height'], $options['max_depth'], false, $options['seperator'], true, $options['all_text'], $this->attr('check_boxes'));
 			$replacement = ob_get_contents();
 		ob_end_clean();
 		return $replacement;

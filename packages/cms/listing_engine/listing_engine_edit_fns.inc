@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.32 2005/08/04 03:59:31 dmckee Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.33 2005/08/04 05:21:23 dmckee Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2730,7 +2730,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 							asset_finder($prefix.'_structured_root', $options['root_node']);
 						} else {
 							if ($options['root_node'] != 0) {
-								$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($options['root_node']);
+								$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($options['root_node']));
 								echo $asset_info['name'].' (ID #'.$options['root_node'].')';
 							} else {
 								echo translate('core_no_selectes_root_node');
@@ -2772,11 +2772,11 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				<td class="sq-backend-table-cell">
 				<?php if ($write_access) {	?>
 					<select name="<?php echo $prefix.'structured_input_style'; ?>">
-						<option value="dropdown" <?php echo $options['input_style']=='dropdown' ? 'selected="selected"' : ''; ?> ><?php translate('dropdown_list'); ?></option>
-						<option value="radio" <?php echo $options['input_style']=='radio' ? 'selected="selected"' : ''; ?> ><?php translate('radio_buttons'); ?></option>
+						<option value="false" <?php echo $this->attr('check_boxes')==false ? 'selected="selected"' : ''; ?> ><?php translate('dropdown_list'); ?></option>
+						<option value="true" <?php echo $this->attr('check_boxes')==true ? 'selected="selected"' : ''; ?> ><?php translate('radio_buttons'); ?></option>
 					</select>
 				<?php } else {
-						echo $options['input_style'] == 'dropdown' ? translate('dropdown_list') : translate('radio_buttons');;
+						echo $this->attr('check_boxes') == false ? translate('dropdown_list') : translate('radio_buttons');;
 					  }
 				?>
 				</td>
@@ -2877,7 +2877,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 			$options['seperator'] = $_REQUEST[$prefix.'_structured_seperator'];
 		}
 		if (isset($_REQUEST[$prefix.'_input_style'])) {
-			$options['input_style'] = $_REQUEST[$prefix.'_structured_input_style'];
+			$this->setAttrValue('check_boxes', $_REQUEST[$prefix.'_structured_input_style']);
 		}
 
 		$asset->setAttrValue('structured_dropdown_options', $options);
