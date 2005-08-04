@@ -182,15 +182,22 @@ public class ImageJ extends javax.swing.JApplet implements ActionListener,
 		
 		String openURL = null;
 		if ((openURL = getParameter("OPEN_URL")) != null) {
-			setImagePlus(new ImagePlus(openURL));
-			if (openURL.toLowerCase().endsWith(".gif")) {
-				fileTypeField.setSelectedItem(".gif");
-			} else {
-				fileTypeField.setSelectedItem(".jpg");
-			}
 			try {
-				assetNameField.setText(openURL.substring(openURL.lastIndexOf('/')+1, openURL.lastIndexOf(".")));
-			} catch (Exception e) {}
+				setImagePlus(new ImagePlus(openURL));
+				String filename = openURL.substring(openURL.lastIndexOf("/")+1);
+				int queryBegin = filename.indexOf("?");
+				if (queryBegin != -1) {
+					filename = filename.substring(0, queryBegin);
+				}
+				if (filename.toLowerCase().endsWith(".gif")) {
+					fileTypeField.setSelectedItem(".gif");
+				} else {
+					fileTypeField.setSelectedItem(".jpg");
+				}
+				assetNameField.setText(filename.substring(0, filename.lastIndexOf(".")));
+			} catch (Exception e) {
+
+			}
 		}
 	}
     	
