@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_management.inc,v 1.35 2005/08/01 03:02:23 dmckee Exp $
+* $Id: listing_engine_management.inc,v 1.36 2005/08/04 03:59:31 dmckee Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -254,7 +254,7 @@ class Listing_Engine_Management extends Asset_Management
 									   );
 
 		$this->vars['structured_dropdown_options'] = Array(
-														'added'			=> '0.9',
+														'added'			=> '1.2',
 														'type'			=> 'serialise',
 														'default'		=> Array(
 																			'name'			=> 'root_node_selection',
@@ -262,9 +262,10 @@ class Listing_Engine_Management extends Asset_Management
 																			'root_node'		=> '0',
 																			'asset_types'	=> Array(),
 																			'max_depth'		=> '0',
-																			'height'			=> '0',
+																			'height'		=> '0',
 																			'width'			=> '0',
 																			'seperator'		=> '-',
+																			'input_style'	=> 'dropdown',
 																		   ),
 														'description'	=> 'Options for the Structured Drop Down',
 													 );

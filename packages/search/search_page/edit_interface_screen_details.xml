@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.32 2005/08/01 03:03:27 dmckee Exp $
+* $Id: edit_interface_screen_details.xml,v 1.33 2005/08/04 04:03:19 dmckee Exp $
 *
 */
 -->
@@ -91,44 +91,8 @@
 	<section name="Structured Root Selector Options" write_access="write:attributes">
 		<field>
 			<function_call>
-				<paint_function   name="paintStructuredName"   />
-				<process_function name="processStructuredName" />
-			</function_call>
-		</field>
-		<field>
-			<function_call>
-				<paint_function   name="paintStructuredRoot"   />
-				<process_function name="processStructuredRoot" />
-			</function_call>
-		</field>
-		<field>
-			<function_call>
-				<paint_function   name="paintStructuredTypes"   />
-				<process_function name="processStructuredTypes" />
-			</function_call>
-		</field>
-		<field>
-			<function_call>
-				<paint_function   name="paintStructuredMaxDepth"   />
-				<process_function name="processStructuredMaxDepth" />
-			</function_call>
-		</field>
-		<field>
-			<function_call>
-				<paint_function   name="paintStructuredSeperator"   />
-				<process_function name="processStructuredSeperator" />
-			</function_call>
-		</field>
-		<field>
-			<function_call>
-				<paint_function   name="paintStructuredWidth"   />
-				<process_function name="processStructuredWidth" />
-			</function_call>
-		</field>
-		<field>
-			<function_call>
-				<paint_function   name="paintStructuredHeight"   />
-				<process_function name="processStructuredHeight" />
+				<paint_function   name="paintStructuredDropdownOptions"   />
+				<process_function name="processStructuredDropdownOptions" />
 			</function_call>
 		</field>
 	</section>
