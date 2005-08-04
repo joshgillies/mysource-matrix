@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.352 2005/08/02 04:12:02 skim Exp $
+* $Id: asset_manager.inc,v 1.353 2005/08/04 23:01:57 ndvries Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.352 $
+* @version $Revision: 1.353 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -696,46 +696,6 @@ class Asset_Manager extends MySource_Object
 		return $result;
 
 	}//end getAssetTypeAttributes()
-
-
-	/**
-	* Retrieves an array of assetids which have the passed attribute and value
-	*
-	* @param string		$type_codes	the type codes ie. Array('page_standard', 'file)
-	* @param string		$attr_name	the name of the attribute ('name', 'title' etc.)
-	* @param string		$value		the attribute value for the asset(s) you are looking for
-	*
-	* @return array
-	* @access public
-	*/
-	function getAssetsByAttrValue($type_code, $attr_name, $value)
-	{
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-		$type_code_cond = '';
-		if (is_array($type_code)) {
-			for ($i = 0; $i < count($type_code); $i++) {
-				$type_code[$i] = $db->quote($type_code[$i]);
-			}
-			$type_code_cond = 'IN ('.implode(', ', $type_code).')';
-		} else {
-			$type_code_cond = '= '.$db->quote($type_code);
-		}
-
-		$sql = 'SELECT assetid FROM sq_ast_attr_val
-				WHERE attrid IN (
-					SELECT attrid FROM sq_ast_attr
-					WHERE type_code '.$type_code_cond.'
-					AND name = '.$db->quote($attr_name).'
-				)
-				AND custom_val = '.$db->quote($value);
-
-		$result = $db->getCol($sql);
-		assert_valid_db_result($result);
-
-		return $result;
-
-	}//end getAssetsByAttrValue()
 
 
 //--        ASSETS        --//
