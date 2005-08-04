@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: spell_checker_popup.php,v 1.7 2005/05/16 06:36:36 lwright Exp $
+* $Id: spell_checker_popup.php,v 1.8 2005/08/04 00:27:40 dmckee Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Spell Checker Popup for the WYSIWYG
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix
 */
 
@@ -43,17 +43,17 @@ $plugin = new wysiwyg_plugin($wysiwyg);
   For full source code and docs, visit http://www.interactivetools.com/
 
   Version 3.0 developed by Mihai Bazon for InteractiveTools.
-    http://students.infoiasi.ro/~mishoo
+	http://students.infoiasi.ro/~mishoo
 
   Modifications for PHP Plugin Based System
-    developed by Greg Sherwood for Squiz.Net.
-    http://www.squiz.net/
-    greg@squiz.net
+	developed by Greg Sherwood for Squiz.Net.
+	http://www.squiz.net/
+	greg@squiz.net
 
   Spell Checker Modifications for PHP Plugin Based System
-    developed by Marc McIntyre for Squiz.Net.
-    http://www.squiz.net/
-    mmcintyre@squiz.net
+	developed by Marc McIntyre for Squiz.Net.
+	http://www.squiz.net/
+	mmcintyre@squiz.net
 -->
 
 <html style="width: 600px; height: 400px">
@@ -86,7 +86,7 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 
 
 			foreach($include_list as $link) {
-				?><script type="text/javascript" src="<?php echo $link; ?>"</script><?php
+				?><script type="text/javascript" src="<?php echo $link; ?>"></script><?php
 			}
 		?>
 
