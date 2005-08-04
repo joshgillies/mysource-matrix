@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.95 2005/07/18 22:54:09 lwright Exp $
+* $Id: html_form.inc,v 1.96 2005/08/04 05:22:38 tbarrett Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.95 $
+* @version $Revision: 1.96 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -167,12 +167,26 @@ function text_box($name, $value, $size='', $max='', $hide_value=false, $extras='
 	if (!stristr($extras, 'id=')) {
 		$extras .= ' id="'.htmlspecialchars($name).'"';
 	}
+	if ($hide_value) {
+		if (!stristr($extras, 'onfocus')) {
+			$extras .= ' onfocus="if (this.value == \''.htmlspecialchars($value).'\') { this.value = \'\'; }"';
+		} else {
+			$insert_pos = strpos($extras, 'onfocus="') + 8;
+			$extras = substr($extras, 0, $insert_pos).'if (this.value == \''.htmlspecialchars($value).'\') { this.value = \'\'; }'.substr($extras, $insert_pos);
+		}
+		if (!stristr($extras, 'onblur')) {
+			$extras .= ' onblur="if (this.value == \'\') { this.value=\''.htmlspecialchars($value).'\'; }"';
+		} else {
+			$quote_pos = strpos($extras, '"', strpos($extras, 'onblur="') + 8);
+			$extras = substr($extras, 0, $quote_pos).';  if (this.value == \'\') { this.value=\''.htmlspecialchars($value).'\'; }'.substr($extras, $quote_pos);
+		}
+	}
+
 	echo	'<input type="text" ',
 			'name="', htmlspecialchars($name), '" ',
 			'value="', htmlspecialchars($value), '" ',
 			(($size)   ? 'size="'.$size.'" '     : ''),
 			(($max)    ? 'maxlength="'.$max.'" ' : ''),
-			(($hide_value) ? 'onfocus="if (this.value == \''.htmlspecialchars($value).'\') { this.value = \'\'; }" onblur="if (this.value == \'\') { this.value=\''.htmlspecialchars($value).'\'; }" ' : ''),
 			$extras,
 			' />';
 
@@ -222,9 +236,11 @@ function int_text_box($name, $value, $allow_negative=true, $size='', $range_min=
 	$ranges_js  = implode(', ', $ranges);
 	$javascript = '
 		onkeyup="validate_numeric_text_field(this, '.$allow_negative.(!empty($ranges_js) ? ', '.$ranges_js : '').');"
-		onchange="validate_numeric_text_field(this, '.$allow_negative.(!empty($ranges_js) ? ', '.$ranges_js : '').');"
-		onblur="validate_numeric_range(this'.(!empty($ranges_js) ? ', '.$ranges_js : '').', true);"
+		onblur="validate_numeric_range(this'.(!empty($ranges_js) ? ', '.$ranges_js : '').');"
 	';
+	if (!$hide_value) {
+		$javascript .= '	onchange="validate_numeric_text_field(this, '.$allow_negative.(!empty($ranges_js) ? ', '.$ranges_js : '').');"';
+	}
 
 	text_box($name, $value, $size, $max_chars, $hide_value, $javascript.$extras);
 
