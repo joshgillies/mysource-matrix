@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_purge_trash.inc,v 1.28.2.5 2005/07/25 23:20:09 tbarrett Exp $
+* $Id: hipo_job_purge_trash.inc,v 1.28.2.6 2005/08/04 00:10:44 ndvries Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.28.2.5 $
+* @version $Revision: 1.28.2.6 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -263,7 +263,7 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 
 			$db =& $GLOBALS['SQ_SYSTEM']->db;
 			$sql = 'SELECT COUNT(l.linkid)
-					FROM sq_ast_lnk_tree t NATURAL JOIN sq_ast_lnk l
+					FROM sq_ast_lnk_tree tINNER JOIN sq_ast_lnk lON t.linkid = l.linkid
 					WHERE l.minorid = '.$db->quote($assetid).'
 					AND NOT treeid LIKE '.$db->quote($this->_running_vars['trash_treeid'].'%');
 			$num_external_links = $db->getOne($sql);
