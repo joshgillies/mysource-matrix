@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.38 2005/07/29 05:41:43 tbarrett Exp $
+* $Id: lang_strings.xml,v 1.39 2005/08/04 04:53:20 mmcintyre Exp $
 *
 */
 
@@ -1224,7 +1224,7 @@
 	<string source="select_date">Select Date</string>
 	<string source="sort_by">Sort By</string>
 	<string source="starts_with">Starts With</string>
-	<string source="not_logged_in">	Not Logged In</string>
+	<string source="not_logged_in">Not Logged In</string>
 
 	<string source="insert_container">Insert Container</string>
 	<string source="select_container_type">Select the type of container you want to create before clicking here</string>
@@ -1455,7 +1455,7 @@
 	<string source="hipo_purging_trash_determining">Determining which assets to delete</string>
 	<string source="hipo_purging_trash_deleting">Deleting Assets</string>
 	<string source="hipo_purging_trash_cleaning">Cleaning up the trash</string>
-	
+
 	<string source="hipo_refreshing_asset_map">Refreshing Asset Map</string>
 	<string source="hipo_releasing_locks">Releasing Locks</string>
 	<string source="hipo_releasing_metadata_locks">Releasing Metadata Locks</string>
