@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.64 2005/08/01 03:02:23 dmckee Exp $
+* $Id: listing_engine.inc,v 1.65 2005/08/04 00:00:47 lwright Exp $
 *
 */
 
@@ -43,7 +43,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.64 $
+* @version $Revision: 1.65 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1272,6 +1272,8 @@ class Listing_Engine extends Page
 	*
 	* @param string	$assetid		the ID of the asset we are printing
 	* @param string	$type_code		the type code of the asset we are printing
+	*								(CURRENTLY IGNORED - TO BE REMOVED as this does not
+	*								always contain type code anymore - eg. search page)
 	* @param int	$list_position	the position of this asset in the list
 	*
 	* @return void
@@ -1288,12 +1290,9 @@ class Listing_Engine extends Page
 		$asset_info_fields = $this->getSortableAssetInfo();
 		$bodycopy = null;
 
-		// if the type code is empty, we probably stuffed around with the todo list
-		// but we can get the type code from the asset info array
-		if ($type_code == '') {
-			$info = array_get_index($this->_tmp['assets_info'], $assetid, Array('type_code' => ''));
-			$type_code = $info['type_code'];
-		}
+		// we can get the type code from the asset info array
+		$info = array_get_index($this->_tmp['assets_info'], $assetid, Array('type_code' => ''));
+		$type_code = $info['type_code'];
 
 		// check to see if there is a specific position format for us
 		if (isset($this->_tmp['position_formats'][$list_position])) {
@@ -2097,7 +2096,6 @@ class Listing_Engine extends Page
 				// it doesn't have Type Format folder
 				$keywords = $this->getAvailableKeywords();
 			} else {
-
 				// link to Default Format
 				$type_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($folder->id, SQ_LINK_TYPE_2, 'bodycopy');
 				$type_codes = Array();
@@ -2107,7 +2105,6 @@ class Listing_Engine extends Page
 					}
 				}
 				$keywords = Array();
-
 				if (empty($type_codes)) {
 					// Page Contents
 					$keywords = $this->_getContentsKeywords();
