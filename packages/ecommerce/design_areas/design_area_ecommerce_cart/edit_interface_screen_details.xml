@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.5 2005/07/27 11:09:44 brobertson Exp $
+* $Id: edit_interface_screen_details.xml,v 1.6 2005/08/04 01:33:47 lwright Exp $
 *
 */
 -->
@@ -29,10 +29,7 @@
 			<assetid type_codes="ecommerce_cart:D" />
 		</field>
 		<field attribute="ecom_form">
-			<assetid type_codes="page_custom_form_ecommerce:D" />
-		</field>
-		<field attribute="show_price">
-			<boolean true_text="yes" false_text="no" />
+			<assetid type_codes="ecommerce_checkout:D" />
 		</field>
 	</section>
 </contents>

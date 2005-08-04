@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_ecommerce_cart.inc,v 1.5 2005/07/27 11:09:44 brobertson Exp $
+* $Id: design_area_ecommerce_cart.inc,v 1.6 2005/08/04 01:33:47 lwright Exp $
 *
 */
 
@@ -46,6 +46,7 @@ class Design_Area_Ecommerce_Cart extends Design_Area
 	*/
 	function printVar($var, $args, $value_prefix='', $value_suffix='')
 	{
+		$lib_path = SQ_PACKAGES_PATH.'/ecommerce/lib/ecommerce_cart_processor.inc';
 		switch ($var) {
 			case 'cart_href' :
 				$cart_assetid = (int) $this->attr('cart');
@@ -53,38 +54,38 @@ class Design_Area_Ecommerce_Cart extends Design_Area
 				echo $url;
 				break;
 
-			case 'form_href' :
-				$cart_assetid = (int) $this->attr('cart');
+			case 'checkout_href' :
+				$cart_assetid = (int) $this->attr('ecom_form');
 				$url = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($cart_assetid);
 				echo $url;
 				break;
 
 			case 'items' :
-				$cart_assetid = $this->attr('cart');
 				echo '<','?php';
 				?>
-				$cart =& $GLOBALS['SQ_SYSTEM']->am->getAsset(<?php echo $cart_assetid ?>);
-				echo ' '.($cart->count() == 1) ? translate('item') : translate('items');
+				require_once '<?php echo $lib_path ?>';
+				$cart =& new Ecommerce_Cart_Processor();
+				echo ' '.($cart->getCount() == 1) ? translate('item') : translate('items');
 				<?php
 				echo '?','>';
 				break;
 
 			case 'count' :
-				$cart_assetid = $this->attr('cart');
 				echo '<','?php';
 				?>
-				$cart =& $GLOBALS['SQ_SYSTEM']->am->getAsset(<?php echo $cart_assetid ?>);
-				echo $cart->count();
+				require_once '<?php echo $lib_path ?>';
+				$cart =& new Ecommerce_Cart_Processor();
+				echo $cart->getCount();
 				<?php
 				echo '?','>';
 				break;
 
 			case 'total' :
-				$cart_assetid = $this->attr('cart');
 				echo '<','?php';
 				?>
-				$cart =& $GLOBALS['SQ_SYSTEM']->am->getAsset(<?php echo $cart_assetid ?>);
-				echo number_format($cart->total(),2);
+				require_once '<?php echo $lib_path ?>';
+				$cart =& new Ecommerce_Cart_Processor();
+				echo number_format($cart->getTotal(),2);
 				<?php
 				echo '?','>';
 				break;
