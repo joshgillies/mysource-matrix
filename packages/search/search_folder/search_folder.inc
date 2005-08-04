@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_folder.inc,v 1.18 2005/06/20 04:06:32 dheppell Exp $
+* $Id: search_folder.inc,v 1.19 2005/08/04 06:51:09 mmcintyre Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -151,10 +151,7 @@ class Search_Folder extends Asset
 			if (!isset($settings['phrase']) || trim($settings['phrase']) == '') {
 				$search_results = $sm->processBasicSearch($search_info);
 			} else {
-				$words = explode(' ',strtolower($settings['phrase']));
-				foreach ($words as $word) {
-					$search_info['include_all'][$word]['words'] = Array($word);
-				}
+				$search_info['include_all'][$settings['phrase']]['words'] = $settings['phrase'];
 				$search_results = $sm->processSearch($search_info);
 			}
 
@@ -223,11 +220,7 @@ class Search_Folder extends Asset
 			if (!isset($settings['phrase']) || trim($settings['phrase']) == '') {
 				$search_results = $sm->processBasicSearch($search_info);
 			} else {
-				$words = explode(' ',strtolower($settings['phrase']));
-				foreach ($words as $word) {
-					$search_info['include_all'][$word]['words'] = Array($word);
-				}
-
+				$search_info['include_all'][$settings['phrase']]['words'] = $settings['phrase'];
 				$search_results = $sm->processSearch($search_info);
 			}
 
