@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field.inc,v 1.17.2.2 2005/08/01 06:10:47 dmckee Exp $
+* $Id: metadata_field.inc,v 1.17.2.3 2005/08/04 00:31:19 ndvries Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.17.2.2 $
+* @version $Revision: 1.17.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -338,12 +338,13 @@ class Metadata_Field extends Asset
 			// First remove any values assets have for this field
 			$sql = 'DELETE FROM sq_ast_mdata_val WHERE ';
 			$sql .= 'fieldid = '.$db->quote($this->id);
-			$sql .= ';';
+
+                        $result = $db->query($sql);
+                        assert_valid_db_result($result);
 
 			// Now we have to delete the default value information
-			$sql .= 'DELETE FROM sq_ast_mdata_dflt_val WHERE ';
+			$sql = 'DELETE FROM sq_ast_mdata_dflt_val WHERE ';
 			$sql .= 'assetid = '.$db->quote($this->id);
-			$sql .= ';';
 
 			$result = $db->query($sql);
 			assert_valid_db_result($result);
