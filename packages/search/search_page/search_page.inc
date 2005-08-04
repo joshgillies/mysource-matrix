@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.118 2005/08/03 23:07:58 mmcintyre Exp $
+* $Id: search_page.inc,v 1.119 2005/08/04 01:35:54 mmcintyre Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.118 $
+* @version $Revision: 1.119 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1224,7 +1224,12 @@ class Search_Page extends Listing_Engine
 		if (!is_array($asset_info)) $asset_info = Array();
 
 		$this->_tmp['asset_info'] = $asset_info;
-		$total_pages = ceil(count($asset_info) / $results_per_page);
+
+		if ($results_per_page != 0) {
+			$total_pages = ceil(count($asset_info) / $results_per_page);
+		} else {
+			$total_pages = 1;
+		}
 
 		// get any extra keyword replacements from asset_listing
 		$parent_replaces = $this->getContentsKeywordReplacements();
