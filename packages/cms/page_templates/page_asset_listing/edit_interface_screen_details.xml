@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.23 2005/07/29 07:10:18 dmckee Exp $
+* $Id: edit_interface_screen_details.xml,v 1.24 2005/08/04 23:02:08 dmckee Exp $
 *
 */
 -->
@@ -87,34 +87,8 @@
 	<section name="Structured Root Selector Options" write_access="write:attributes">
 		<field>
 			<function_call>
-				<paint_function   name="paintStructuredName"   />
-				<process_function name="processStructuredName" />
-			</function_call>
-		</field>
-		<field>
-			<function_call>
-				<paint_function   name="paintStructuredRoot"   />
-				<process_function name="processStructuredRoot" />
-			</function_call>
-		</field>
-		<field>
-			<function_call>
-				<paint_function   name="paintStructuredTypes"   />
-				<process_function name="processStructuredTypes" />
-			</function_call>
-		</field>
-		<field>
-			<display_name>Maximum Depth of Listing</display_name>
-			<note></note>
-			<function_call>
-				<paint_function   name="paintStructuredMaxDepth"   />
-				<process_function name="processStructuredmaxDepth" />
-			</function_call>
-		</field>
-		<field>
-			<function_call>
-				<paint_function   name="paintStructuredMaxDepth"   />
-				<process_function name="processStructuredMaxDepth" />
+				<paint_function   name="paintStructuredDropdownOptions"   />
+				<process_function name="processStructuredDropdownOptions" />
 			</function_call>
 		</field>
 	</section>

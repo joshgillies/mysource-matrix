@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.8 2005/07/29 07:10:18 dmckee Exp $
+* $Id: lang_screen_details.xml,v 1.9 2005/08/04 23:02:08 dmckee Exp $
 *
 */
 -->
@@ -117,35 +117,11 @@
 	</section>
 	<section name="Structured Root Selector Options" write_access="write:attributes">
 		<field>
-			<display_name>Name of Dropdown Box:</display_name>
-			<note>*This must be set as a dynamic parameter in the above section to function correctly</note>
-			<function_call>
-				<paint_function   name="paintStructuredName"   />
-				<process_function name="processStructuredName" />
-			</function_call>
-		</field>
-		<field>
-			<display_name>Root Node of Selector:</display_name>
+			<display_name></display_name>
 			<note></note>
 			<function_call>
-				<paint_function   name="paintStructuredRoot"   />
-				<process_function name="processStructuredRoot" />
-			</function_call>
-		</field>
-		<field>
-			<display_name>Asset Types to List</display_name>
-			<note></note>
-			<function_call>
-				<paint_function   name="paintStructuredTypes"   />
-				<process_function name="processStructuredTypes" />
-			</function_call>
-		</field>
-		<field>
-			<display_name>Maximum Depth of Listing</display_name>
-			<note>Number of levels to display in tree. 0 denotes no limit.</note>
-			<function_call>
-				<paint_function   name="paintStructuredMaxDepth"   />
-				<process_function name="processStructuredMaxDepth" />
+				<paint_function   name="paintStructuredDropdownOptions"   />
+				<process_function name="processStructuredDropdownOptions" />
 			</function_call>
 		</field>
 	</section>
