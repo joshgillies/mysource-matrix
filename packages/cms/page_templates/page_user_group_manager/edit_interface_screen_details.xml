@@ -1,0 +1,70 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Open Source Licence                                      |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: edit_interface_screen_details.xml,v 1.1 2005/08/04 06:55:25 dmckee Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="Details" write_access="write:attributes" limbo_access="1">
+		<field attribute="name">
+			<text width="35" height="1" />
+		</field>
+		<field attribute="short_name">
+			<text width="25" height="1" />
+		</field>
+	</section>
+	<section name="Configuration" write_access="write:attributes" limbo_access="1">
+		<field attribute="submit-button">
+			<text width="20" />
+		</field>
+		<field>
+			<function_call>
+				<paint_function   name="paintRootNode"  />
+				<process_function name="processRootNode"  />
+			</function_call>
+		</field>
+		<field attribute="link_type">
+			<selection style="list" height="1" />
+		</field>
+		<field attribute="structured_width">
+			<int width="5" />
+		</field>
+		<field attribute="structured_height">
+			<int width="5" />
+		</field>
+		<field attribute="max_depth">
+			<int width="5" />
+		</field>
+		<field attribute="seperator">
+			<text width="10" />
+		</field>
+		<field attribute="include_root_node">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field attribute="allow_multiple">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field attribute="structured_style">
+			<boolean true_text="radio_buttons" false_text="dropdown_list" />
+		</field>
+	</section>
+</contents>
