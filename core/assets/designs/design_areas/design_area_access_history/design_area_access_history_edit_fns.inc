@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_access_history_edit_fns.inc,v 1.4 2005/06/29 23:37:18 pgannavarapu Exp $
+* $Id: design_area_access_history_edit_fns.inc,v 1.5 2005/08/04 23:43:06 pgannavarapu Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *	Print the last N assets viewed
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -237,12 +237,12 @@ class Design_Area_Access_History_Edit_Fns extends Design_Area_Edit_Fns
 						$new_entry["asset_link"] 		= $url;
 						$new_entry["asset_name"] 		= $ASSET->name;
 						$new_entry["asset_short_name"]	= $ASSET->short_name;
-						$new_entry["`"]		= date("'.$time_format.'");
+						$new_entry["access_time"]		= date("'.$time_format.'");
 
 						array_unshift($history, $new_entry);
 
 						// update history hash
-						foreach($history as $index => $contents){
+						foreach ($history as $index => $contents) {
 							$new_history_hash[$contents["asset_link"]] = $index;
 						}
 
