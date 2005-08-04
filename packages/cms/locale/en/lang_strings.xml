@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.4 2005/05/12 05:12:03 rhoward Exp $
+* $Id: lang_strings.xml,v 1.5 2005/08/04 23:00:18 dmckee Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -74,5 +74,9 @@
 <string source="select">Select</string>
 <string source="unknown">Unknown</string>
 <string source="cms_location_options">Location Options</string>
+<string source="must_be_selected_dynamic_parameter">This must be selected as a dynamic parameter above</string>
+<string source="seperator">Seperator</string>
+<string source="fit_to_contents">Fit to contents</string>
+<string source="not_specified">Not Specified</string>
 
 </strings>
