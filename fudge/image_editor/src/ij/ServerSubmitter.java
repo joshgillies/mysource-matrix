@@ -49,7 +49,7 @@ public class ServerSubmitter implements ActionListener
 		} else {
 			showError("Undefined file type " + fileType);
 		}
-		String fileName = ij.getAssetName()+fileType;
+		String fileName = ij.getFilename();
 		if (fileName.length() < 5) {
 			showError("You must give a filename before committing");
 			return;
