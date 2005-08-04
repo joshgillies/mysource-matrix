@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.65 2005/08/04 00:00:47 lwright Exp $
+* $Id: listing_engine.inc,v 1.66 2005/08/04 04:24:08 dmckee Exp $
 *
 */
 
@@ -43,7 +43,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.65 $
+* @version $Revision: 1.66 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2539,6 +2539,8 @@ class Listing_Engine extends Page
 				$pass_codes += $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($code);
 			}
 		}
+		$selected = (isset($_REQUEST[$options['name']])) ? Array($_REQUEST[$options['name']]) : Array();
+		structured_drop_down($options['name'], $options['root_node'], $pass_codes, $selected, $options['width'], $options['height'], $options['max_depth'], false, $options['seperator'], true, $options['all_text'], ($options['input_style'] == 'dropdown') ? true : false);
 		ob_start();
 			$tree_data = $this->_structuredDropDown($options['root_node'], $pass_codes, $options['all_text'], $options['max_depth'], $options['seperator']);
 			if (!isset($_REQUEST[$options['name']])) {
@@ -2646,122 +2648,6 @@ class Listing_Engine extends Page
 		return $code;
 
 	}//end _buildRelationsJS()
-
-
-	/**
-	* Draws a structured dropdown list based on the current search pages options
-	*
-	* @param int		`			$root_id		the ID of the asset to start from
-	* @param Array(string)		`	$type_codes		An array of type codes to restrict
-	*												options to.
-	* @param string		`			$all_text		The string to display for selecting all options
-	* @param int		`			$max_levels		the maximum number of levels to print, 0 for all
-	*
-	* @access protected
-	* @return array()
-	*/
-	function _structuredDropDown($root_id, $type_codes, $all_text='All', $max_levels=0, $seperator='-')
-	{
-		$all_child_links = $GLOBALS['SQ_SYSTEM']->am->getAllChildLinks($root_id);
-		$child_links = $all_child_links;
-		$search_tree = Array();
-		//weed out any unwanted entries
-		foreach ($all_child_links as $treeid => $data) {
-			if (!in_array($data['type_code'], $type_codes) && !empty($type_codes)) {
-				unset($child_links[$treeid]);
-			}
-		}
-		//Insert each node into the tree
-		$search_tree = Array();
-		foreach ($child_links as $treeid => $child) {
-			$this->_IDListToTree($treeid, $search_tree);
-		}
-		$options = Array($root_id => $all_text);
-		$this->_drawTree($search_tree, $all_child_links, $options, '', 0, $max_levels, $seperator);
-		return $options;
-	}//end _structuredDropDown()
-
-
-	/**
-	* Takes a tree ID and inserts it into a tree
-	*
-	* $tree is in the following format:
-	* <pre>
-	* Array(
-	*	'0001'	=> 0,
-	*	'0002'	=> Array(
-	*				'00020001'	=> 0,
-	*			   ),
-	* )
-	* </pre>
-	*
-	* @param string		`			$treeid			the ID of the tree to format
-	* @param Array(string=>mixed)	&$tree			the tree to insert the formatted ID into
-	* @param string					$chunk_prefix	optional, used internally
-	*
-	* @access private
-	* @return void
-	*/
-	function _IDListToTree($treeid, &$tree, $chunk_prefix='')
-	{
-		$branch_str_len = 4;
-
-		if (strlen($treeid) < $branch_str_len) {
-			// Exit
-			return false;
-		}
-
-		$first_chunk = substr($treeid, 0, $branch_str_len);
-
-		if (strlen($treeid) > $branch_str_len) {
-			$remaining_chunk = substr($treeid, $branch_str_len, strlen($treeid));
-			if (!isset($tree[$chunk_prefix.$first_chunk]) || !is_array($tree[$chunk_prefix.$first_chunk])) {
-				$tree[$chunk_prefix.$first_chunk] = Array();
-			}
-			$this->_IDListToTree($remaining_chunk, $tree[$chunk_prefix.$first_chunk], $chunk_prefix.$first_chunk);
-		} else {
-			$tree[$chunk_prefix.$first_chunk] = 0;
-		}
-
-	}//end _IDListToTree()
-
-
-	/**
-	* Takes a tree array and an output array, and fills the output array with an ascii tree,
-	* with each line of the tree as an element in the array
-	*
-	* @param Array(string=>mixed)	$tree				the tree to format
-	* @param Array(string=>mixed)	$all_child_links	assetInfo() for use when printing
-	* @param Array(string=>mixed)	$output_tree		the array to store the output array
-	* @param string					$branch				optional, used internally
-	* @param Array(string)			&$level				optional, used internally
-	* @param string					$seperator			Sperator to use between levels
-	*
-	* @see Page_Asset_Builder::_IDListToTree()
-	* @access private
-	* @return void
-	*/
-	function _drawTree($tree, &$all_child_links, &$output_tree, $branch='', $level=0, $max_level=0, $seperator='-')
-	{
-		error_log($seperator);
-		if (empty($tree)) return false;
-		foreach ($tree as $branch => $branch_data) {
-			$prefix = '';
-
-			$lvl = $all_child_links[$branch]['lvl'];
-			if (($max_level != 0) && ($lvl > $max_level)) {
-				return;
-			}
-
-			for ($i = 0; $i < $lvl; $i++) {
-				$prefix .= ' '.$seperator.' ';
-			}
-			$output_tree[$all_child_links[$branch]['assetid']] = $prefix.$all_child_links[$branch]['short_name'];
-			if (is_array($branch_data) && !empty($branch_data)) {
-				$this->_drawTree($branch_data, $all_child_links, $output_tree, $branch, $level++, $max_level, $seperator);
-			}
-		}
-	}//end _drawTree()
 
 
 }//end class
