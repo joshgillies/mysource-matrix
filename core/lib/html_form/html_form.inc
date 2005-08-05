@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.96 2005/08/04 05:22:38 tbarrett Exp $
+* $Id: html_form.inc,v 1.97 2005/08/05 04:45:57 dmckee Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.96 $
+* @version $Revision: 1.97 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -1157,6 +1157,138 @@ function get_url_tester_url($name)
 	return trim($url);
 
 }//end get_url_tester_url()
+
+
+	/**
+	* Draws a structured dropdown list for selecting assets
+	*
+	* @param int		`			$root_id		the ID of the asset to start from
+	* @param Array(string)		`	$type_codes		An array of type codes to restrict
+	*												options to.
+	* @param bool		`			$include_root	Whether or not to list the root node
+	* @param int		`			$max_depth		Maximum depth to display nodes to
+	* @param string		`			$seperator		Character(s) to display between child branches
+	*
+	* @access protected
+	* @return array()
+	*/
+	function structured_drop_down($name, $root_id, $type_codes, $selected=Array(), $width=0, $height=0, $max_depth=0, $allow_multiple=false, $seperator='-', $include_root=false, $root_text='', $check_boxes=false)
+	{
+		$all_child_links = $GLOBALS['SQ_SYSTEM']->am->getAllChildLinks($root_id);
+		$child_links = $all_child_links;
+		$search_tree = Array();
+		//weed out any unwanted entries
+		foreach ($all_child_links as $treeid => $data) {
+			if (!in_array($data['type_code'], $type_codes) && !empty($type_codes)) {
+				unset($child_links[$treeid]);
+			}
+		}
+		//Insert each node into the tree
+		$search_tree = Array();
+		foreach ($child_links as $treeid => $child) {
+			id_list_to_tree($treeid, $search_tree);
+		}
+		$level = 1;
+		if ($include_root) {
+			if (!empty($root_text)) {
+				$options = Array($root_id => $root_text);
+			} else {
+				//Something in here
+			}
+			$level = 0;
+		}
+		draw_tree($search_tree, $all_child_links, $options, '', $level, $seperator, $max_depth);
+		if ($check_boxes) {
+			foreach ($options as $id => $output) {
+				if ($allow_multiple) {
+					check_box($name.'['.$id.']', $id, in_array($id, $selected));
+				} else {
+					radio_button($name, $id, in_array($id, $selected));
+				}
+				label($output, $name.'['.$id.']');
+				echo '<br />';
+			}
+		} else {
+			combo_box($name, $options, $allow_multiple, $selected, $height, ($width != '0') ? 'style="width:'.$width.'px;"' : '');
+		}
+	}//end structured_drop_down()
+
+
+	/**
+	* Takes a tree ID and inserts it into a tree
+	*
+	* $tree is in the following format:
+	* <pre>
+	* Array(
+	*	'0001'	=> 0,
+	*	'0002'	=> Array(
+	*				'00020001'	=> 0,
+	*			   ),
+	* )
+	* </pre>
+	*
+	* @param string		`			$treeid			the ID of the tree to format
+	* @param Array(string=>mixed)	&$tree			the tree to insert the formatted ID into
+	* @param string					$chunk_prefix	optional, used internally
+	*
+	* @access private
+	* @return void
+	*/
+	function id_list_to_tree($treeid, &$tree, $chunk_prefix='')
+	{
+		$branch_str_len = 4;
+
+		if (strlen($treeid) < $branch_str_len) {
+			return false;
+		}
+
+		$first_chunk = substr($treeid, 0, $branch_str_len);
+
+		if (strlen($treeid) > $branch_str_len) {
+			$remaining_chunk = substr($treeid, $branch_str_len, strlen($treeid));
+			if (!isset($tree[$chunk_prefix.$first_chunk]) || !is_array($tree[$chunk_prefix.$first_chunk])) {
+				$tree[$chunk_prefix.$first_chunk] = Array();
+			}
+			id_list_to_tree($remaining_chunk, $tree[$chunk_prefix.$first_chunk], $chunk_prefix.$first_chunk);
+		} else {
+			$tree[$chunk_prefix.$first_chunk] = 0;
+		}
+
+	}//end id_list_to_tree()
+
+
+	/**
+	* Takes a tree array and an output array, and fills the output array with an ascii tree,
+	* with each line of the tree as an element in the array
+	*
+	* @param Array(string=>mixed)	$tree				the tree to format
+	* @param Array(string=>mixed)	$all_child_links	assetInfo() for use when printing
+	* @param Array(string=>mixed)	$output_tree		the array to store the output array
+	* @param string					$branch				optional, used internally
+	* @param Array(string)			&$level				Level in the tree to print as the base
+	* @param string					$seperator			String to display between
+	* @param int					$max_depth			Maximum depth to print
+	*
+	* @access private
+	* @return void
+	*/
+	function draw_tree($tree, &$all_child_links, &$output_tree, $branch='', $level=0, $seperator='-', $max_depth=0)
+	{
+		if (empty($tree)) return false;
+		foreach ($tree as $branch => $branch_data) {
+			$prefix = '';
+
+			$lvl = $all_child_links[$branch]['lvl'] - $level;
+			if ($max_depth != 0 && $lvl > $max_depth) return;
+			for ($i = 0; $i < $lvl; $i++) {
+				$prefix .= ' '.$seperator.' ';
+			}
+			$output_tree[$all_child_links[$branch]['assetid']] = $prefix.$all_child_links[$branch]['short_name'];
+			if (is_array($branch_data) && !empty($branch_data)) {
+				draw_tree($branch_data, $all_child_links, $output_tree, $branch, $level, $seperator, $max_depth);
+			}
+		}
+	}//end draw_tree()
 
 
 ?>
