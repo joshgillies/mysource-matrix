@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.69 2005/08/04 05:24:40 tbarrett Exp $
+* $Id: listing_engine.inc,v 1.70 2005/08/05 01:59:48 gsherwood Exp $
 *
 */
 
@@ -43,7 +43,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.69 $
+* @version $Revision: 1.70 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1721,25 +1721,22 @@ class Listing_Engine extends Page
 	* (actually this is now non-recursive, function name will have to be fixed!)
 	*
 	* Will construct an array in the following form:
-	* if it is a  group its index will be group name (assetid or string)
-	* and its contents an array
-	* if its an asset in a group its index will be an assetid and its contents
-	* will be a typecode
+	* if it is a  group its index will be group name (assetid or string) and its
+	* contents an array if its an asset in a group its index will be an assetid
+	* and its contents will be a typecode
 	* The last paramater &$results will hold the contents at the end of the
 	* recursive calling instead of working off a return basis
 	*
-	* @param array	$group_levels    remaining group levels to iterate
-	* @param array	$assetids        asset ids that we are working with in this
-	*                                 iteration
-	* @param array	&$results        Reference to the array/section of array we are
-	*               	                 working on
+	* @param array	$group_levels	remaining group levels to iterate
+	* @param array	$assetids		asset ids that we are working with in this iteration
+	* @param array	&$results		reference to the array/section of array we are working on
 	*
 	* @access public
 	* @return void	but returns a modified array in &$results
 	*/
 	function groupAssetsRecursively($group_levels, $assetids, &$results)
 	{
-		//we need assets and groups, so if none given, let's bail
+		// we need assets and groups, so if none given, let's bail
 		if (empty($assetids) || empty($group_levels)) {
 			return;
 		}
@@ -1774,24 +1771,31 @@ class Listing_Engine extends Page
 						$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($current_parent, SQ_SC_LINK_BACKEND_NAV, '', true, 'minor');
 						$link_assetids = Array();
 
-						//remember we can have more than one direct parent
+						// remember we can have more than one direct parent
 						foreach ($links as $link) {
 							$link_assetids[] = $link['majorid'];
 						}
 
 						$value = $link_assetids;
-
 					break;
 
 					case 'metadata':
-						$metadata_field = $group_level['metadata_field'];
+						$metadata_field_id = $group_level['metadata_field'];
+						$metadata_field = $GLOBALS['SQ_SYSTEM']->am->getAsset($metadata_field_id);
+						$value = '';
+						if (!is_null($metadata_field)) {
+							// get the metadata manager if we haven't already
+							if (!isset($mm)) {
+								$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+							}
 
-						// get the metadata manager if we haven't already
-						if (!isset($mm)) {
-							$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+							$parent_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($current_parent);
+							if (!is_null($parent_asset)) {
+								$value = $mm->getMetadataValueByAssetid($current_parent, $metadata_field_id, true);
+								$value = $metadata_field->getMetadataValue($parent_asset, $value);
+								$GLOBALS['SQ_SYSTEM']->am->forgetAsset($current_parent->id);
+							}
 						}
-
-						$value = $mm->getMetadataValueByAssetid($assetid, $metadata_field, true);
 					break;
 
 					case 'attribute':
