@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.98.2.7 2005/07/31 23:32:37 tbarrett Exp $
+* $Id: search_page.inc,v 1.98.2.8 2005/08/05 01:59:12 gsherwood Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.98.2.7 $
+* @version $Revision: 1.98.2.8 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1159,34 +1159,39 @@ class Search_Page extends Listing_Engine
 		if (!is_array($asset_info)) $asset_info = Array();
 		$this->_tmp['asset_info'] = $asset_info;
 
-
-		$total_pages = ceil(count($asset_info) / $results_per_page);
+		if ($results_per_page != 0) {
+			$total_pages = ceil(count($asset_info) / $results_per_page);
+		} else {
+			$total_pages = 1;
+		}
 
 		foreach ($keywords as $keyword) {
 			$replacement = "%$keyword%";
-
 			switch ($keyword) {
 				case 'result_list':
 					$result_list = Array();
-					$sub_resultids = array_slice(array_keys($asset_info), $current_result_page * $results_per_page, $results_per_page);
-					foreach ($sub_resultids as $resultid) {
-						$result_list[$resultid] = $asset_info[$resultid];
+					if ($results_per_page > 0) {
+						$sub_resultids = array_slice(array_keys($asset_info), $current_result_page * $results_per_page, $results_per_page);
+						foreach ($sub_resultids as $resultid) {
+							$result_list[$resultid] = $asset_info[$resultid];
+						}
+					} else {
+						$result_list = $asset_info;
 					}
 
-					//we have our section, now we can group them
 					if ($this->attr('group_by') == 'grouped') {
 						$this->groupAssetsRecursively($this->attr('asset_grouping'), $result_list, $result_list);
 					}
 
 					// print the asset list from the listing engine
 					ob_start();
-					$this->printAssetList($result_list);
-					$replacement = ob_get_contents();
+						$this->printAssetList($result_list);
+						$replacement = ob_get_contents();
 					ob_end_clean();
 				break;
 
 				case 'result_count':
-					$replacement = count($asset_info);
+					$replacement = $this->_arrayCountRecursive($asset_info);
 				break;
 
 				case 'current_result_page':
