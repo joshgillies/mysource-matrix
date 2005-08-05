@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.70 2005/08/05 01:59:48 gsherwood Exp $
+* $Id: listing_engine.inc,v 1.71 2005/08/05 04:32:01 dmckee Exp $
 *
 */
 
@@ -43,7 +43,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.70 $
+* @version $Revision: 1.71 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1356,6 +1356,7 @@ class Listing_Engine extends Page
 
 			$lineage = '';
 			$linked_lineage = '';
+			$lineage_from_root = '';
 			$first = true;
 			$found_root = false;
 			$parent_asset_ids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($asset->id));
@@ -1372,14 +1373,19 @@ class Listing_Engine extends Page
 				if (!$first) {
 					$lineage .= $this->attr('lineage_seperator');
 					$linked_lineage .= $this->attr('lineage_seperator');
+					$lineage_from_root .= $this->attr('lineage_seperator');
 				}
-				$first = false;
 				$ancestor_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parent_asset_id);
 				$linked_lineage .= '<a href="'.$ancestor_asset->getUrl().'">'.$ancestor_asset->name.'</a>';
 				$lineage .= $ancestor_asset->short_name;
+				if (!$first) {
+					$lineage_from_root .= $ancestor_asset->short_name;
+				}
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($ancestor_asset);
+				$first = false;
 			}
 			$keywords['asset_lineage'] = $lineage;
+			$keywords['asset_lineage_from_root'] = ltrim($lineage_from_root, $this->attr('lineage_seperator'));
 			$keywords['asset_lineage_linked'] = $linked_lineage;
 			// end results body stuff
 
@@ -1781,7 +1787,7 @@ class Listing_Engine extends Page
 
 					case 'metadata':
 						$metadata_field_id = $group_level['metadata_field'];
-						$metadata_field = $GLOBALS['SQ_SYSTEM']->am->getAsset($metadata_field_id);
+						$metadata_field =& $GLOBALS['SQ_SYSTEM']->am->getAsset($metadata_field_id);
 						$value = '';
 						if (!is_null($metadata_field)) {
 							// get the metadata manager if we haven't already
@@ -1789,7 +1795,7 @@ class Listing_Engine extends Page
 								$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 							}
 
-							$parent_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($current_parent);
+							$parent_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($current_parent);
 							if (!is_null($parent_asset)) {
 								$value = $mm->getMetadataValueByAssetid($current_parent, $metadata_field_id, true);
 								$value = $metadata_field->getMetadataValue($parent_asset, $value);
@@ -2133,7 +2139,9 @@ class Listing_Engine extends Page
 					foreach ($type_keywords as $keyword => $description) {
 						$keywords[$keyword] = $description;
 					}
-
+					$keywords['asset_lineage_from_root'] = translate('asset_root_lineage');
+					$keywords['asset_lineage'] = translate('asset_lineage');
+					$keywords['asset_lineage_linked'] = translate('asset_lineage_linked');
 					$keywords += $this->_getTypeFormatsKeywords();
 				}
 			}
