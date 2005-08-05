@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.1 2005/08/04 06:55:25 dmckee Exp $
+* $Id: edit_interface_screen_details.xml,v 1.2 2005/08/05 05:27:56 dheppell Exp $
 *
 */
 -->
@@ -40,6 +40,12 @@
 			<function_call>
 				<paint_function   name="paintRootNode"  />
 				<process_function name="processRootNode"  />
+			</function_call>
+		</field>
+		<field>
+			<function_call>
+				<paint_function   name="paintStatus"  />
+				<process_function name="processStatus"  />
 			</function_call>
 		</field>
 		<field attribute="link_type">

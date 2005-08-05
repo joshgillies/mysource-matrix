@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_user_group_manager_edit_fns.inc,v 1.1 2005/08/04 06:55:25 dmckee Exp $
+* $Id: page_user_group_manager_edit_fns.inc,v 1.2 2005/08/05 05:27:56 dheppell Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 * @author  David Heppell <dheppell@squiz.net>
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -95,6 +95,81 @@ class Page_User_Group_Manager_Edit_Fns extends Page_Edit_Fns
 		$root_node = $_REQUEST[$prefix.'_lm_root_node']['assetid'];
 		$asset->setAttrValue('root_node', $root_node);
 	}//end processRootNode()
+
+
+	/**
+	* Paint the interface for selecting searched statuses
+	*
+	* @param object Asset				&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	* @param string						$category	the category we are painting for
+	*												(if blank we paint for the whole search page)
+	* @param boolean					$read_only	force read only view
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintStatus(&$asset, &$o, $prefix)
+	{
+		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+		$write_access = $asset->writeAccess('links');
+
+		$current = $asset->attr('statuses');
+
+		if ($write_access) {
+			require_once SQ_LIB_PATH.'/html_form/html_form.inc';
+			$statuses = get_constant_values('SQ_STATUS');
+
+			$options = Array();
+			foreach ($statuses as $constant => $value) {
+				$options[$value] = get_status_description($value);
+			}
+
+			combo_box($prefix.'_statuses', $options, true, $current);
+		} else {
+			if (empty($current)) {
+				echo translate('cms_listing_no_status_selected');
+			} else {
+				echo '<ul>';
+				foreach ($current as $status) {
+					echo '<li>'.get_status_description($status).'</li>';
+				}
+				echo '</ul>';
+			}
+		}
+
+		return $write_access;
+
+	}//end paintStatus()
+
+
+	/**
+	* Processes the interface for selecting searched statuses
+	*
+	* @param object Asset				&$asset	the asset to which we belong
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processStatus(&$asset, &$o, $prefix)
+	{
+		// need to have write access to make any changes
+		if (!$asset->writeAccess('attributes')) return false;
+
+		$statuses = Array();
+		if (isset($_POST[$prefix.'_statuses'])) {
+			foreach ($_POST[$prefix.'_statuses'] as $status) {
+				$statuses[] = $status;
+			}
+			$statuses = array_unique($statuses);
+		}
+
+		return $asset->setAttrValue('statuses', $statuses);
+
+	}//end processStatus()
 
 
 }//end class

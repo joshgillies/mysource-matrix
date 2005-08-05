@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_user_group_manager_management.inc,v 1.1 2005/08/04 06:55:25 dmckee Exp $
+* $Id: page_user_group_manager_management.inc,v 1.2 2005/08/05 05:27:56 dheppell Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  David Heppell <dheppell@squiz.net>
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -128,6 +128,13 @@ class Page_User_Group_Manager_Management extends Asset_Management
 										'default'		=> 'Submit',
 										'description'	=> 'Value of submit button text',
 									   );
+
+		$this->vars['statuses'] = Array(
+									'added'			=> '0.8',
+									'type'			=> 'serialise',
+									'default'		=> Array(),
+									'description'	=> 'Statuses that are being searched.',
+								  );
 
 	}//end constructor
 

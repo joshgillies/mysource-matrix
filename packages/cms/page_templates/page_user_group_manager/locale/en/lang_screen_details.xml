@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.1 2005/08/04 06:55:30 dmckee Exp $
+* $Id: lang_screen_details.xml,v 1.2 2005/08/05 05:27:56 dheppell Exp $
 *
 */
 -->
@@ -47,6 +47,15 @@
 				<process_function name="processRootNode"  />
 			</function_call>
 		</field>
+		<field>
+			<display_name>Asset Statuses:</display_name>
+			<note></note>
+			<function_call>
+				<paint_function   name="paintStatus"  />
+				<process_function name="processStatus"  />
+			</function_call>
+		</field>
+
 		<field attribute="link_type">
 			<display_name>Type of Links to create:</display_name>
 			<note>Select which type of links to create and modify on the frontend.</note>
