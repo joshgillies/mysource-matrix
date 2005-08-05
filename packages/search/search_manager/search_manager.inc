@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.65 2005/07/29 05:53:42 dmckee Exp $
+* $Id: search_manager.inc,v 1.66 2005/08/05 03:49:30 mmcintyre Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.65 $
+* @version $Revision: 1.66 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -980,11 +980,15 @@ class Search_Manager extends Asset
 
 					foreach (array_keys($parents) as $parentid) {
 						if (in_array($parentid, array_keys($asset_tree_weightings))) {
+
 							// check to see if there are any customisations under this
 							// tree for the specified asset type. Note that tree proximity supersedes
 							// the type hierachy, so search the type hierachy if applicable
 							if (!$strict_type_code) {
 								$type_hier = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($type_code, true);
+								// add the current type code so that we can also find
+								// weightings for this type, not just its parent types
+								$type_hier[] = $type_code;
 							} else {
 								$type_hier = Array($type_code);
 							}
