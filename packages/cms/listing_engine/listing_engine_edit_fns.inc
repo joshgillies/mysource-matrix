@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.34 2005/08/04 05:37:12 dmckee Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.35 2005/08/05 04:34:49 dmckee Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2706,10 +2706,10 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		?>
 		<table class="sq-backend-table">
 			<tr>
-				<td class="sq-backend-table-cell">
-					<b><?php echo translate('name') ?>:</b>
+				<td class="sq-backend-table-header">
+					<?php echo translate('name') ?>:
 				</td>
-				<td colspan="2" class="sq-backend-table-header">
+				<td colspan="2" class="">
 					<?php
 						if ($write_access) {
 							text_box($prefix.'_structured_name', $options['name']);
@@ -2721,10 +2721,10 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				</td>
 			</tr>
 			<tr>
-				<td class="sq-backend-table-cell">
+				<td class="sq-backend-table-header">
 					<b><?php echo translate('root_node') ?>:</b>
 				</td>
-				<td class="sq-backend-table-cell">
+				<td >
 					<?php
 						if ($write_access) {
 							asset_finder($prefix.'_structured_root', $options['root_node']);
@@ -2744,11 +2744,11 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				</td>
 			</tr>
 			<tr>
-				<td class="sq-backend-table-cell">
+				<td class="sq-backend-table-header">
 					<b><?php echo translate('depth') ?></b>
 				</td>
 
-				<td class="sq-backend-table-cell">
+				<td class="sq-backend-table-header">
 				<?php
 					if ($write_access) {
 						int_text_box($prefix.'_structured_max_depth', $options['max_depth'], false, 4, 0);
@@ -2759,21 +2759,21 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				</td>
 			</tr>
 			<tr>
-				<td class="sq-backend-table-cell">
+				<td class="sq-backend-table-header">
 					<b><?php echo translate('asset_types') ?>:</b>
 				</td>
-				<td colspan="2" class="sq-backend-table-header">
+				<td colspan="2" class="">
 					<?php
 						$this->_paintStructuredTypes($asset, $o, $prefix, $options);
 					?>
 				</td>
 			</tr>
 			<tr>
-				<td class="sq-backend-table-cell">
+				<td class="sq-backend-table-header">
 					<b><?php echo translate('style') ?></b>
 				</td>
 
-				<td class="sq-backend-table-cell">
+				<td >
 				<?php if ($write_access) {	?>
 					<select name="<?php echo $prefix.'_structured_input_style'; ?>">
 						<option value="false" <?php echo $asset->attr('check_boxes')== false ? 'selected="selected"' : ''; ?> ><?php echo translate('dropdown_list'); ?></option>
@@ -2788,10 +2788,10 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 			</tr>
 			<tr>
-				<td class="sq-backend-table-cell">
+				<td class="sq-backend-table-header">
 					<b><?php echo translate('width') ?></b>
 				</td>
-				<td class="sq-backend-table-cell">
+				<td >
 				<?php
 					if ($write_access) {
 						int_text_box($prefix.'_structured_width', $options['width'], false, 4, 0);
@@ -2802,10 +2802,10 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				</td>
 			</tr>
 			<tr>
-				<td class="sq-backend-table-cell">
+				<td class="sq-backend-table-header">
 					<b><?php echo translate('height') ?></b>
 				</td>
-				<td class="sq-backend-table-cell">
+				<td >
 				<?php
 					if ($write_access) {
 						int_text_box($prefix.'_structured_height', $options['height'], false, 4, 0);
@@ -2816,11 +2816,11 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				</td>
 			</tr>
 			<tr>
-				<td class="sq-backend-table-cell">
+				<td class="sq-backend-table-header">
 					<b><?php echo translate('seperator') ?></b>
 				</td>
 
-				<td class="sq-backend-table-cell">
+				<td >
 				<?php
 					if ($write_access) {
 						int_text_box($prefix.'_structured_seperator', $options['seperator'], false, 10, 0);
