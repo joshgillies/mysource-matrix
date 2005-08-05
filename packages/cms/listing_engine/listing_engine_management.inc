@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_management.inc,v 1.37 2005/08/04 05:21:23 dmckee Exp $
+* $Id: listing_engine_management.inc,v 1.38 2005/08/05 05:21:13 dmckee Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -209,6 +209,15 @@ class Listing_Engine_Management extends Asset_Management
 											'default'		=> ' > ',
 											'description'	=> 'Seperator to use when printing the lineage to a search result asset.',
 										   );
+
+		$this->vars['root_in_lineage'] = Array(
+										'added'			=> '1.0',
+										'type'			=> 'boolean',
+										'default'		=> false,
+										'parameters'	=> Array(
+															'allow_empty'	=> false,
+														   ),
+									  );
 
 		$this->vars['prev_page_text'] = Array(
 											'added'		=> '0.1',

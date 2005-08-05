@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.35 2005/08/05 04:34:49 dmckee Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.36 2005/08/05 05:21:13 dmckee Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2823,7 +2823,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				<td >
 				<?php
 					if ($write_access) {
-						int_text_box($prefix.'_structured_seperator', $options['seperator'], false, 10, 0);
+						text_box($prefix.'_structured_seperator', $options['seperator'], false, 10, 0);
 					} else {
 						echo $options['seperator'];
 					}

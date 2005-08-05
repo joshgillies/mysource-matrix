@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.71 2005/08/05 04:32:01 dmckee Exp $
+* $Id: listing_engine.inc,v 1.72 2005/08/05 05:21:13 dmckee Exp $
 *
 */
 
@@ -43,7 +43,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.71 $
+* @version $Revision: 1.72 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1356,7 +1356,6 @@ class Listing_Engine extends Page
 
 			$lineage = '';
 			$linked_lineage = '';
-			$lineage_from_root = '';
 			$first = true;
 			$found_root = false;
 			$parent_asset_ids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($asset->id));
@@ -1364,28 +1363,27 @@ class Listing_Engine extends Page
 			// searching for the root asset
 			$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', false, 'root');
 			$root_assetid = empty($root_link) ? 0 : $root_link['minorid'];
-
+			$show_root = $this->attr('root_in_lineage');
 			foreach ($parent_asset_ids as $parent_asset_id) {
 				if ($parent_asset_id == $root_assetid) {
 					$found_root = true;
 				}
 				if (!$found_root) continue;
-				if (!$first) {
+				if ($first && !$show_root) {
+					$first = false;
+					continue;
+				}
+				if (!$first && $lineage != '') {
 					$lineage .= $this->attr('lineage_seperator');
 					$linked_lineage .= $this->attr('lineage_seperator');
-					$lineage_from_root .= $this->attr('lineage_seperator');
 				}
 				$ancestor_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parent_asset_id);
 				$linked_lineage .= '<a href="'.$ancestor_asset->getUrl().'">'.$ancestor_asset->name.'</a>';
 				$lineage .= $ancestor_asset->short_name;
-				if (!$first) {
-					$lineage_from_root .= $ancestor_asset->short_name;
-				}
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($ancestor_asset);
 				$first = false;
 			}
 			$keywords['asset_lineage'] = $lineage;
-			$keywords['asset_lineage_from_root'] = ltrim($lineage_from_root, $this->attr('lineage_seperator'));
 			$keywords['asset_lineage_linked'] = $linked_lineage;
 			// end results body stuff
 
@@ -2139,7 +2137,6 @@ class Listing_Engine extends Page
 					foreach ($type_keywords as $keyword => $description) {
 						$keywords[$keyword] = $description;
 					}
-					$keywords['asset_lineage_from_root'] = translate('asset_root_lineage');
 					$keywords['asset_lineage'] = translate('asset_lineage');
 					$keywords['asset_lineage_linked'] = translate('asset_lineage_linked');
 					$keywords += $this->_getTypeFormatsKeywords();
