@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.97 2005/08/05 04:45:57 dmckee Exp $
+* $Id: html_form.inc,v 1.98 2005/08/05 05:21:09 dheppell Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.97 $
+* @version $Revision: 1.98 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -218,9 +218,7 @@ function int_text_box($name, $value, $allow_negative=true, $size='', $range_min=
 	// ranges
 	if (!is_null($range_min) && !is_null($range_max)) {
 		if ($value >= $range_min) {
-			if ($value > $range_max) {
-				$value = $range_max;
-			}
+			if ($value > $range_max) $value = $range_max;
 		} else {
 			$value = $range_min;
 		}
@@ -1162,27 +1160,44 @@ function get_url_tester_url($name)
 	/**
 	* Draws a structured dropdown list for selecting assets
 	*
-	* @param int		`			$root_id		the ID of the asset to start from
-	* @param Array(string)		`	$type_codes		An array of type codes to restrict
+	* @param int					$root_id		the ID of the asset to start from
+	* @param Array(string)			$type_codes		An array of type codes to restrict
 	*												options to.
-	* @param bool		`			$include_root	Whether or not to list the root node
-	* @param int		`			$max_depth		Maximum depth to display nodes to
-	* @param string		`			$seperator		Character(s) to display between child branches
+	* @param bool					$include_root	Whether or not to list the root node
+	* @param int					$max_depth		Maximum depth to display nodes to
+	* @param string					$seperator		Character(s) to display between child branches
+	* @param Array					$statuses		statuses to filter from list
 	*
 	* @access protected
 	* @return array()
 	*/
-	function structured_drop_down($name, $root_id, $type_codes, $selected=Array(), $width=0, $height=0, $max_depth=0, $allow_multiple=false, $seperator='-', $include_root=false, $root_text='', $check_boxes=false)
+	function structured_drop_down($name, $root_id, $type_codes, $selected=Array(), $width=0, $height=0, $max_depth=0, $allow_multiple=false, $seperator='-', $include_root=false, $root_text='', $check_boxes=false, $statuses=Array())
 	{
 		$all_child_links = $GLOBALS['SQ_SYSTEM']->am->getAllChildLinks($root_id);
 		$child_links = $all_child_links;
 		$search_tree = Array();
+
 		//weed out any unwanted entries
 		foreach ($all_child_links as $treeid => $data) {
+			// build an array of assetids as we go
+			$asset_info_ids[] = $data['assetid'];
+
 			if (!in_array($data['type_code'], $type_codes) && !empty($type_codes)) {
 				unset($child_links[$treeid]);
 			}
 		}
+
+		$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($asset_info_ids);
+
+		// check if we have statuses we want to filter out
+		if (!empty($statuses) && count($statuses) < 9) {
+			foreach ($child_links as $treeid => $data) {
+				if (!in_array($asset_info[$data['assetid']]['status'], $statuses)) {
+					unset($child_links[$treeid]);
+				}
+			}
+		}
+
 		//Insert each node into the tree
 		$search_tree = Array();
 		foreach ($child_links as $treeid => $child) {
@@ -1238,9 +1253,7 @@ function get_url_tester_url($name)
 	{
 		$branch_str_len = 4;
 
-		if (strlen($treeid) < $branch_str_len) {
-			return false;
-		}
+		if (strlen($treeid) < $branch_str_len) return false;
 
 		$first_chunk = substr($treeid, 0, $branch_str_len);
 
@@ -1279,7 +1292,9 @@ function get_url_tester_url($name)
 			$prefix = '';
 
 			$lvl = $all_child_links[$branch]['lvl'] - $level;
-			if ($max_depth != 0 && $lvl > $max_depth) return;
+			if ($max_depth != 0 && $lvl > $max_depth) {
+				return;
+			}
 			for ($i = 0; $i < $lvl; $i++) {
 				$prefix .= ' '.$seperator.' ';
 			}
