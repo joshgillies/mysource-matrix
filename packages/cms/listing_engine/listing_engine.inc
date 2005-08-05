@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.38.2.9 2005/08/01 01:18:16 lwright Exp $
+* $Id: listing_engine.inc,v 1.38.2.10 2005/08/05 01:57:45 gsherwood Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
 *
-* @version $Revision: 1.38.2.9 $
+* @version $Revision: 1.38.2.10 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1881,7 +1881,7 @@ class Listing_Engine extends Page
 						$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($current_parent, SQ_SC_LINK_BACKEND_NAV, '', true, 'minor');
 						$link_assetids = Array();
 
-						//remember we can have more than one direct parent
+						// remember we can have more than one direct parent
 						foreach ($links as $link) {
 							$link_assetids[] = $link['majorid'];
 						}
@@ -1891,14 +1891,22 @@ class Listing_Engine extends Page
 					break;
 
 					case 'metadata':
-						$metadata_field = $group_level['metadata_field'];
+						$metadata_field_id = $group_level['metadata_field'];
+						$metadata_field = $GLOBALS['SQ_SYSTEM']->am->getAsset($metadata_field_id);
+						$value = '';
+						if (!is_null($metadata_field)) {
+							// get the metadata manager if we haven't already
+							if (!isset($mm)) {
+								$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+							}
 
-						// get the metadata manager if we haven't already
-						if (!isset($mm)) {
-							$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+							$parent_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($current_parent);
+							if (!is_null($parent_asset)) {
+								$value = $mm->getMetadataValueByAssetid($current_parent, $metadata_field_id, true);
+								$value = $metadata_field->getMetadataValue($parent_asset, $value);
+								$GLOBALS['SQ_SYSTEM']->am->forgetAsset($current_parent->id);
+							}
 						}
-
-						$value = $mm->getMetadataValueByAssetid($assetid, $metadata_field, true);
 					break;
 
 					case 'attribute':
