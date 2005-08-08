@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: oci8_functions.xml,v 1.2.2.2 2005/07/29 03:36:34 mmcintyre Exp $
+* $Id: oci8_functions.xml,v 1.2.2.3 2005/08/08 05:11:39 mmcintyre Exp $
 *
 */
 -->
@@ -156,6 +156,7 @@
 						LOOP
 							next_treeid := SUBSTR(db_treeid, offset, SQ_TREE_BASE_SIZE);
 							IF next_treeid IS NULL THEN
+								DBMS_SQL.CLOSE_CURSOR(cursor_ptr);
 								RETURN parent_treeids;
 							END IF;
 							concat_treeids := concat_treeids || next_treeid;
@@ -168,6 +169,7 @@
 					END IF;
 				END LOOP;
 
+				DBMS_SQL.CLOSE_CURSOR(cursor_ptr);
 				RETURN parent_treeids;
 			END sq_get_parent_treeids;
 		]]>
