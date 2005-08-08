@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.8 2005/07/28 23:36:09 skim Exp $
+* $Id: lang_errors.xml,v 1.9 2005/08/08 06:39:14 lwright Exp $
 *
 */
 
@@ -24,12 +24,12 @@
 <errors>
 	<error code="ECOM0001">Price Value cannot be negative</error>
 	<error code="ECOM0002">Unable to locate the Ecommerce Rules for ecommerce custom form page "%1$s" (Id: #%2$s)</error>
-	<error code="ECOM0003">Unable to locate the form asset for Ecommerce Custom Form "%1$s" (Id: #%2$s)</error>
+	<error code="ECOM0003">Unable to locate the Ecommerce Checkout asset (#%s)</error>
 	<error code="ECOM0004">Cannot add an item with negative quantity to the cart</error>
-	<error code="ECOM0005">Assetid sent to cart add() function (#%s) is not a Product asset</error>
-	<error code="ECOM0006">Attempt to remove() items from cart when there is none of that product</error>
-	<error code="ECOM0007">Quantity to remove() from cart cannot be less than zero</error>
-	<error code="ECOM0008">Quantity to remove() from cart cannot be more than how many of that product are actually in the cart</error>
+	<error code="ECOM0005">Item added to cart (#%s) is not able to be purchased</error>
+	<error code="ECOM0006">Cannot remove items not in the cart</error>
+	<error code="ECOM0007">Quantity to remove from cart cannot be less than zero</error>
+	<error code="ECOM0008">Quantity to remove from cart cannot be more than how many of that product are actually in the cart</error>
 	<error code="ECOM0010">Cannot update an item with a negative quantity</error>
 	<error code="ECOM0011">There was no active cart found</error>
 	<error code="ECOM0012">Invalid quantity entered</error>
