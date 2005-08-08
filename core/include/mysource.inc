@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.135 2005/08/08 00:28:32 dmckee Exp $
+* $Id: mysource.inc,v 1.136 2005/08/08 00:59:08 mmcintyre Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.135 $
+* @version $Revision: 1.136 $
 * @package MySource_Matrix
 */
 class MySource
@@ -219,6 +219,11 @@ class MySource
 				$path = substr($domain, $pos);
 				$domain = substr($domain, 0, $pos);
 			}
+
+			// if there is a port at the end of the domain, we need to remove
+			// it as domains cannot contain ports. You will not be able to log
+			// in if the domain contains a port
+			$domain = preg_replace('|:\d+$|', '', $domain);
 
 			session_set_cookie_params(0, $path, $domain);
 			session_name('SQ_SYSTEM_SESSION');
