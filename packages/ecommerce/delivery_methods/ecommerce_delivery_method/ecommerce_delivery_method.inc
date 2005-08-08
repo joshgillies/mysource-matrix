@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_delivery_method.inc,v 1.5 2005/08/02 07:03:40 lwright Exp $
+* $Id: ecommerce_delivery_method.inc,v 1.6 2005/08/08 06:40:30 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *	by allowing the get/set operations on the state information
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -64,7 +64,8 @@ class Ecommerce_Delivery_Method extends Asset
 	* @return string	html representation of the interface
 	* @access public
 	*/
-	function getInputInterface() {
+	function getInputInterface()
+	{
 		return '';
 
 	}//end paintInputInterface()
@@ -80,7 +81,8 @@ class Ecommerce_Delivery_Method extends Asset
 	* @return boolean	whether the input is valid or not
 	* @access public
 	*/
-	function processInputInterface() {
+	function processInputInterface()
+	{
 		$status = $this->validateState();
 		return $status;
 
@@ -99,7 +101,8 @@ class Ecommerce_Delivery_Method extends Asset
 	* @return void
 	* @access public
 	*/
-	function getState() {
+	function getState()
+	{
 		return $this->state;
 
 	}//end getState()
@@ -118,7 +121,8 @@ class Ecommerce_Delivery_Method extends Asset
 	* @return void
 	* @access public
 	*/
-	function setState($state=Array()) {
+	function setState($state=Array())
+	{
 		if (is_array($state)) {
 			$this->state = $state;
 		}
@@ -136,7 +140,8 @@ class Ecommerce_Delivery_Method extends Asset
 	* @return boolean	whether delivery is ready to be processed
 	* @access public
 	*/
-	function validateState() {
+	function validateState()
+	{
 		return false;
 
 	}//end validateState()
@@ -154,7 +159,8 @@ class Ecommerce_Delivery_Method extends Asset
 	* @return boolean	whether delivery was processed
 	* @access public
 	*/
-	function processDelivery() {
+	function processDelivery()
+	{
 		return false;
 
 	}//end processDelivery()
