@@ -11,12 +11,21 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.3 2005/07/29 03:18:29 skim Exp $
+* $Id: lang_screen_details.xml,v 1.4 2005/08/08 06:40:00 lwright Exp $
 *
 */
 -->
 
 <contents>
+	<section name="Processing Status">
+		<field>
+			<display_name>Current</display_name>
+			<note />
+			<function_call>
+				<paint_function name="paintOrderStatus" />
+			</function_call>
+		</field>`
+	</section>
 	<section name="Summary">
 		<field>
 			<display_name>Order Receipt</display_name>

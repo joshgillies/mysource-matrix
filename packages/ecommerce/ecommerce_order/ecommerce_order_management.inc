@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_order_management.inc,v 1.5 2005/07/27 11:09:44 brobertson Exp $
+* $Id: ecommerce_order_management.inc,v 1.6 2005/08/08 06:40:00 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -48,8 +48,8 @@ class Ecommerce_Order_Management extends Asset_Management
 											   ),
 						'status'			=> Array(
 												'added'		=> '0.1',
-												'type'		=> 'text',
-												'default'	=> '',
+												'type'		=> 'int',
+												'default'	=> 0,
 											   ),
 						'status_message'	=> Array(
 												'added'		=> '0.1',

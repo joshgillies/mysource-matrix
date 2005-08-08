@@ -11,11 +11,17 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_order.inc,v 1.6 2005/07/27 11:09:44 brobertson Exp $
+* $Id: ecommerce_order.inc,v 1.7 2005/08/08 06:39:59 lwright Exp $
 *
 */
 
+
 require_once SQ_INCLUDE_PATH.'/asset.inc';
+
+define('SQ_ECOM_ORDER_STATUS_PROCESSING', 0);
+define('SQ_ECOM_ORDER_STATUS_SUCCESS', 1);
+define('SQ_ECOM_ORDER_STATUS_FAILED', 2);
+
 
 /**
 * Ecommerce Order
@@ -158,6 +164,102 @@ class Ecommerce_Order extends Asset
 	}//end _linkProducts()
 
 
+	/**
+	* Set the status of order
+	*
+	* @param $status	status constant defined in order
+	*
+	* @return boolean
+	* @access public
+	*/
+	function setOrderStatus($status)
+	{
+		// set status
+		if (is_numeric($status)) {
+
+			switch ($status) {
+				case SQ_ECOM_ORDER_STATUS_PROCESSING :
+					$new_status = SQ_ECOM_ORDER_STATUS_PROCESSING;
+					$status_message = translate('ecom_order_status_prcessing');
+				break;
+				case SQ_ECOM_ORDER_STATUS_SUCCESS :
+					$new_status = SQ_ECOM_ORDER_STATUS_SUCCESS;
+					$status_message = translate('ecom_order_status_success');
+				break;
+				case SQ_ECOM_ORDER_STATUS_FAILED :
+					$new_status = SQ_ECOM_ORDER_STATUS_FAILED;
+					$status_message = translate('ecom_order_status_failed');
+				break;
+				default:
+					return false;
+				break;
+			}
+
+			$success = true;
+
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+			// set runlevel
+			$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+
+			// set status
+			if (!empty($new_status)) {
+				$this->setAttrValue('status', $new_status);
+			} else {
+				$success = false;
+			}
+
+			// set status message
+			if ($success && !empty($status_message)) {
+				$this->setAttrValue('status_message', $status_message);
+			} else {
+				$success = false;
+			}
+
+			// save attributes
+			if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'attributes')) {
+				$success = false;
+			} elseif (!$this->saveAttributes()) {
+					$success = false;
+			}
+			$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'attributes');
+
+			// restore runlevel
+			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+
+			if (!$success) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return false;
+			}
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
+			return $success;
+
+		} else {
+			return false;
+		}
+
+	}//end setOrderStatus()
+
+
+	/**
+	* Return the status of order
+	*
+	* @return array
+	* @access public
+	*/
+	function getOrderStatus()
+	{
+		$result = Array(
+					'status'			=> $this->attr('status'),
+					'status_message'	=> $this->attr('status_message'),
+				  );
+
+		return $result;
+
+	}//end getOrderStatus()
+
+
 //--        KEYWORDS        --//
 
 
@@ -292,6 +394,23 @@ class Ecommerce_Order extends Asset
 
 	}//end getEditUrlKeywordReplacement()
 
+
+	/**
+	* Get the delivery method related to this order, if set
+	*
+	* @return object Ecommerce_Delivery_Method or null
+	* @access public
+	*/
+	function &getDeliveryMethod()
+	{
+		$method = null;
+		if ($this->attr('delivery_id') != 0) {
+			$method =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->attr('delivery_id'));
+		}
+
+		return $method;
+
+	}//end getDeliveryMethod()
 
 }//end class
 
