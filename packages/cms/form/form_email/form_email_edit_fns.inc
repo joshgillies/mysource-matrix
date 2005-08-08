@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.38.2.14 2005/07/17 23:42:05 lwright Exp $
+* $Id: form_email_edit_fns.inc,v 1.38.2.15 2005/08/08 06:35:57 dmckee Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.38.2.14 $
+* @version $Revision: 1.38.2.15 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -419,8 +419,8 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		echo hidden_field($prefix.'_export_switch', '0');
 
 		$delimiter_text = isset($_POST[$prefix.'_delimiter']) ? $_POST[$prefix.'_delimiter'] : ',';
-        echo ' &nbsp; Delimiter &nbsp;';
-        echo text_box($prefix.'_delimiter',$delimiter_text,1,1,true);
+		echo ' &nbsp; Delimiter &nbsp;';
+		echo text_box($prefix.'_delimiter',$delimiter_text,1,1,true);
 
 		$o->closeField();
 
@@ -934,6 +934,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 						<?php
 						$valid = false;
 					} else {
+						$rules = $info['rules'];
 						$rule_logic = ($info['require'] == 'all') ? 'AND' : 'OR';
 						$descriptions = Array();
 						$deleted_q = false;
