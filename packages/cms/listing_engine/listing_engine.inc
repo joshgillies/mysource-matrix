@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.73 2005/08/08 01:56:14 dheppell Exp $
+* $Id: listing_engine.inc,v 1.74 2005/08/08 04:59:45 gsherwood Exp $
 *
 */
 
@@ -43,7 +43,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.73 $
+* @version $Revision: 1.74 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -302,7 +302,6 @@ class Listing_Engine extends Page
 		foreach ($used_fields as $key) {
 			$keys_to_remove[$key] = null;
 		}
-
 
 		$selections = $this->attr('asset_selections');
 		if (!empty($used_fields) || count($selections) > 0 || $this->requires_form) {
@@ -1155,18 +1154,18 @@ class Listing_Engine extends Page
 					// only print the 'check all' checkbox if we're only dealing with checkboxes
 
 					$selections = $this->attr('asset_selections');
-					$selection_defaults   = $this->getAssetSelectionDefaults();
+					$selection_defaults = $this->getAssetSelectionDefaults();
 
 					foreach ($selections as $selection_name => $settings) {
 						// predefine some commonly used settings, for brevity's sake
-						$selection_options          = array_get_index($settings,           'options',        $selection_defaults['options']);
-						$selection_allow_multiple   = array_get_index($selection_options,  'allow_multiple', $selection_defaults['options']['allow_multiple']);
+						$selection_options = array_get_index($settings, 'options', $selection_defaults['options']);
+						$selection_allow_multiple = array_get_index($selection_options, 'allow_multiple', $selection_defaults['options']['allow_multiple']);
 
 						if ((array_get_index($settings, 'type', $selection_defaults['type']) == 'radio') && $selection_allow_multiple) {
 							ob_start();
 							$onclick = Array();
-							$group_cb_id 	= 'g_'.implode('_', $this->_tmp['group_info']);
-							$control_name	= $selection_name.'_'.$group_cb_id;
+							$group_cb_id  = 'g_'.implode('_', $this->_tmp['group_info']);
+							$control_name = $selection_name.'_'.$group_cb_id;
 							check_box($control_name, '1', false, 'sq_listing_check_state(this, \''.$selection_name.'\')');
 							$replacements[$selection_name.'_check_all_in_group'] = ob_get_clean();
 						}
@@ -1429,13 +1428,13 @@ class Listing_Engine extends Page
 				ob_start();
 
 				// predefine some commonly used settings, for brevity's sake
-				$selection_options          = array_get_index($settings,           'options',        $selection_defaults['options']);
-				$selection_restrict         = array_get_index($selection_options,  'restrict_range', $selection_defaults['options']['restrict_range']);
-				$selection_restrict_enable  = array_get_index($selection_restrict, 'enable',         $selection_defaults['options']['restrict_range']['enable']);
-				$selection_restrict_min     = array_get_index($selection_restrict, 'min',            $selection_defaults['options']['restrict_range']['min']);
-				$selection_restrict_max     = array_get_index($selection_restrict, 'max',            $selection_defaults['options']['restrict_range']['max']);
-				$selection_allow_negative   = array_get_index($selection_options,  'allow_negative', $selection_defaults['options']['allow_negative']);
-				$selection_allow_multiple   = array_get_index($selection_options,  'allow_multiple', $selection_defaults['options']['allow_multiple']);
+				$selection_options = array_get_index($settings, 'options', $selection_defaults['options']);
+				$selection_restrict = array_get_index($selection_options, 'restrict_range', $selection_defaults['options']['restrict_range']);
+				$selection_restrict_enable = array_get_index($selection_restrict, 'enable', $selection_defaults['options']['restrict_range']['enable']);
+				$selection_restrict_min = array_get_index($selection_restrict, 'min', $selection_defaults['options']['restrict_range']['min']);
+				$selection_restrict_max = array_get_index($selection_restrict, 'max', $selection_defaults['options']['restrict_range']['max']);
+				$selection_allow_negative = array_get_index($selection_options, 'allow_negative', $selection_defaults['options']['allow_negative']);
+				$selection_allow_multiple = array_get_index($selection_options, 'allow_multiple', $selection_defaults['options']['allow_multiple']);
 
 				// grab the values for the field to display
 				$selection_value = $this->getAssetSelectionValue($selection_name, $assetid);
@@ -1459,7 +1458,7 @@ class Listing_Engine extends Page
 						$selection_list = Array();
 						if (!empty($settings['options']['restrict_range']['enable'])) {
 							for ($ii = $selection_restrict_min; $ii <= $selection_restrict_max; $ii++) {
-								$selection_list[] = $ii;
+								$selection_list[$ii] = $ii;
 							}
 						} else {
 							$selection_list = Array('0');
@@ -2355,19 +2354,19 @@ class Listing_Engine extends Page
 		$replacements = Array();
 
 		$selections = $this->attr('asset_selections');
-		$selection_defaults   = $this->getAssetSelectionDefaults();
+		$selection_defaults = $this->getAssetSelectionDefaults();
 
 		foreach ($selections as $selection_name => $settings) {
 			// predefine some commonly used settings, for brevity's sake
-			$selection_options          = array_get_index($settings,           'options',        $selection_defaults['options']);
-			$selection_allow_multiple   = array_get_index($selection_options,  'allow_multiple', $selection_defaults['options']['allow_multiple']);
+			$selection_options = array_get_index($settings, 'options', $selection_defaults['options']);
+			$selection_allow_multiple = array_get_index($selection_options, 'allow_multiple', $selection_defaults['options']['allow_multiple']);
 
 			// only print the 'check all' checkbox if we're only dealing with checkboxes
 			if ((array_get_index($settings, 'type', $selection_defaults['type']) == 'radio') && $selection_allow_multiple) {
 				ob_start();
 				$onclick = Array();
-				$group_cb_id 	= 'all';
-				$control_name	= $selection_name.'_'.$group_cb_id;
+				$group_cb_id  = 'all';
+				$control_name = $selection_name.'_'.$group_cb_id;
 				check_box($control_name, '1', false, "sq_listing_check_state(this, '".$selection_name."')");
 				$replacements[$selection_name.'_check_all'] = ob_get_clean();
 			} else {
