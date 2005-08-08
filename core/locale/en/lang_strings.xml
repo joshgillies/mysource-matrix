@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.18.2.7 2005/08/04 04:54:28 mmcintyre Exp $
+* $Id: lang_strings.xml,v 1.18.2.8 2005/08/08 07:17:37 dmckee Exp $
 *
 */
 
@@ -700,6 +700,7 @@
 	<string source="condition_page_is">Page is %s"</string>
 	<string source="condition_user_agent">User agent %1$s pattern "%2$s"</string>
 	<string source="condition_user_ip">User IP %1$s pattern "%2$s"</string>
+	<string source="condition_server_variable">Server Variable "%1$s" %2$s pattern "%3$s"</string>
 	<string source="condition_in_user_group">In User Group(s)</string>
 	<string source="condition_not_in_user_group">Not In User Group(s)</string>
 	<string source="condition_logged_in">Logged In</string>
@@ -711,6 +712,8 @@
 	<string source="condition_has_write_access">Has Write Access</string>
 	<string source="condition_not_write_access">Does Not Have Write Access</string>
 	<string source="logs">Logs</string>
+	<string source="server_variable">Server Variable</string>
+	<string source="condition_server_variable_is_regular_expression_enabled">This condition matches using a regular expression. You can enter a simple string (eg. "MSIE") to match that in any part of the server variable chosen. Or, you can use a more advanced pattern.</string>
 
 
 
