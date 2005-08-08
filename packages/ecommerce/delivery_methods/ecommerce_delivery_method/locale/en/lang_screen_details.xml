@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.1 2005/07/20 01:18:03 arailean Exp $
+* $Id: lang_screen_details.xml,v 1.2 2005/08/08 06:51:09 lwright Exp $
 *
 */
 -->
@@ -21,6 +21,30 @@
 		<field attribute="name">
 			<display_name>Asset Name</display_name>
 			<note />
+		</field>
+	</section>
+	<section name="Estimated Package Size Calculation">
+		<field attribute="coversheet_estimated_file_size">
+			<display_name>Cover Page Estimated Size (KB)</display_name>
+			<note>This value will be added to the estimated package size to account for the cover page of the package.</note>
+		</field>
+		<field attribute="licence_summary_estimated">
+			<display_name>Licence Summary Estimated Size (KB)</display_name>
+			<note>This value will be added to the estimated package size for each unique licence to cover the summary page.</note>
+		</field>
+		<field attribute="download_warning_threshold">
+			<display_name>Download Warning Threshold (KB)</display_name>
+			<note>Packages that are larger than this threshold will receive a warning message before being allowed to confirm their package.</note>
+		</field>
+		<note>An estimated size will be calculated for each package sent through BLIS. The sizes of the
+		licence files that are stored on BLIS (external PDFs are not counted) are combined along
+		with an estimate for the cover page, plus an estimate for the licence summary (one for
+		each licence).</note>
+	</section>
+	<section name="Placeholders">
+		<field attribute="external_contact_file">
+			<display_name>External Contact PDF</display_name>
+			<note>Documents that don't have an attached file or url will instead be replaced by this placeholder PDF</note>
 		</field>
 	</section>
 </contents>
