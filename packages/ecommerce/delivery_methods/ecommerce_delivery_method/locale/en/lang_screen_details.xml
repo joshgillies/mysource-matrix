@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.2 2005/08/08 06:51:09 lwright Exp $
+* $Id: lang_screen_details.xml,v 1.3 2005/08/08 06:56:32 lwright Exp $
 *
 */
 -->
@@ -23,23 +23,32 @@
 			<note />
 		</field>
 	</section>
-	<section name="Estimated Package Size Calculation">
-		<field attribute="coversheet_estimated_file_size">
-			<display_name>Cover Page Estimated Size (KB)</display_name>
-			<note>This value will be added to the estimated package size to account for the cover page of the package.</note>
+	<section name="Required Questions">
+		<field attribute="field_name">
+			<display_name>Name</display_name>
+			<note />
 		</field>
-		<field attribute="licence_summary_estimated">
-			<display_name>Licence Summary Estimated Size (KB)</display_name>
-			<note>This value will be added to the estimated package size for each unique licence to cover the summary page.</note>
+		<field attribute="field_contact_phone">
+			<display_name>Contact Phone Number</display_name>
+			<note />
 		</field>
-		<field attribute="download_warning_threshold">
-			<display_name>Download Warning Threshold (KB)</display_name>
-			<note>Packages that are larger than this threshold will receive a warning message before being allowed to confirm their package.</note>
+		<field attribute="field_email">
+			<display_name>Email Address</display_name>
+			<note />
 		</field>
-		<note>An estimated size will be calculated for each package sent through BLIS. The sizes of the
-		licence files that are stored on BLIS (external PDFs are not counted) are combined along
-		with an estimate for the cover page, plus an estimate for the licence summary (one for
-		each licence).</note>
+		<field attribute="field_heard_of">
+			<display_name>Heard Of</display_name>
+			<note />
+		</field>
+		<field attribute="field_enquiry_received_by">
+			<display_name>Enquiry Received By</display_name>
+			<note />
+		</field>
+		<note>These questions are considered mandatory in the context of this delivery method (except
+		for "Enquiry Received By" which is only accessible for logged-in users).
+		Processing of the delivery section of checkout form will fail if these fields are not entered
+		on the frontend, or if no question is selected on this screen - whether or not the form
+		linked underneath has rules that enforce these mandatory fields.</note>
 	</section>
 	<section name="Placeholders">
 		<field attribute="external_contact_file">
