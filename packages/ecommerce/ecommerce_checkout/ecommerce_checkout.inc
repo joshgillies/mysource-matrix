@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.28 2005/07/29 06:21:30 skim Exp $
+* $Id: ecommerce_checkout.inc,v 1.29 2005/08/08 06:41:34 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 * @author  Andrei Railean	<arailean@squiz.net>
 * @author  Scott Kim		<skim@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -134,7 +134,7 @@ class Ecommerce_Checkout extends Page
 		$this->_processInterface();
 
 		// error occured in processing interface, just return
-//		if (empty($this->print_context)) return;
+		if (empty($this->print_context)) return;
 
 		// print context
 		$this->_printContext();
@@ -171,7 +171,7 @@ class Ecommerce_Checkout extends Page
 			$order =& $GLOBALS['SQ_SYSTEM']->am->getAsset($order_id);
 
 			// Write Access?
-			if ($order->writeAccess()) { // Lock
+			if ($order->writeAccess()) {
 
 				if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($order->id, 'attribute')) {
 					$_SESSION['SQ_TEMP_ORDER']['order_id']			= $order->id;
@@ -234,7 +234,6 @@ class Ecommerce_Checkout extends Page
 
 		$action = key($request_action);
 		$success = true;
-
 		switch ($action) {
 			case 'go_to_confirmation':
 				$delivery_method_id = array_get_index($_REQUEST, 'sq_delivery_method_id');
@@ -247,6 +246,8 @@ class Ecommerce_Checkout extends Page
 					}
 
 					if (isset($_SESSION['SQ_TEMP_ORDER']['delivery_state']) && ($_SESSION['SQ_TEMP_ORDER']['delivery_id'] == $delivery_method_id)) {
+						// delivery method state has cart contents
+						$_SESSION['SQ_TEMP_ORDER']['delivery_state']['cart_contents'] = $_SESSION['SQ_TEMP_ORDER']['cart_contents'];
 						$delivery_method->setState($_SESSION['SQ_TEMP_ORDER']['delivery_state']);
 					}
 
@@ -267,13 +268,11 @@ class Ecommerce_Checkout extends Page
 					$this->_tmp['delivery_method_errors'][] = 'The ecommerce cart is empty, cannot checkout';
 					$success = false;
 				}
-
 				if ($success) {
 					$this->print_context = 'confirmation';
 				} else {
 					$this->print_context = 'checkout';
 				}
-
 			break;
 
 			case 'return_to_checkout':
@@ -316,11 +315,15 @@ class Ecommerce_Checkout extends Page
 				$order_asset->setAttrValue('delivery_id',		$_SESSION['SQ_TEMP_ORDER']['delivery_id']);
 				$order_asset->setAttrValue('delivery_state',	$_SESSION['SQ_TEMP_ORDER']['delivery_state']);
 
-				if (!$delivery_processing_status){
-					$order_asset->setAttrValue('status', 'failed');
+				// delivery failed
+				if (!$delivery_processing_status) {
+					$order_asset->setAttrValue('status', 'SQ_ECOM_ORDER_STATUS_FAILED');
+					$order_asset->setAttrValue('status_message', translate('ecom_order_status_failed'));
+
 					$this->_tmp['delivery_method_errors'] = $delivery_method->getErrors();
-					$success = false;
 					$this->_tmp['delivery_method_errors'][] = 'Delivery processing failed';
+					$this->_tmp['delivery_failure_summary'] = $delivery_method->getFailureSummary();
+
 					$this->print_context = 'failure';
 				}
 
@@ -481,9 +484,7 @@ class Ecommerce_Checkout extends Page
 
 		// create ecommerce order under orders folder
 		$order_folder_link  = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', true, 'orders');
-		if (empty($order_folder_link)) {
-			return null;
-		}
+		if (empty($order_folder_link)) return null;
 		$order_folder_id = $order_folder_link['minorid'];
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -513,6 +514,12 @@ class Ecommerce_Checkout extends Page
 		// notice link from Checkout_Form to Ecommerce_Order
 		if ($success && ($am->createAssetLink($this, $ecommerce_order, SQ_LINK_NOTICE, 'checkout') == 0)) {
 			$success = false;
+		}
+
+		// set order status
+		if ($success) {
+			$ecommerce_order->setAttrValue('status', 'SQ_ECOM_ORDER_STATUS_PROCESSING');
+			$ecommerce_order->setAttrValue('status_message', translate('ecom_order_status_prcessing'));
 		}
 
 		// save attributes
@@ -758,7 +765,6 @@ class Ecommerce_Checkout extends Page
 		$keywords['delivery_interface'] 		= translate('ecom_checkout_keyword_delivery_interface');
 		$keywords['error_messages']				= translate('ecom_checkout_keyword_error_messages');
 		$keywords['cart_summary']				= translate('ecom_checkout_keyword_cart_summary');
-		$keywords['checkout_summary']			= translate('ecom_checkout_keyword_checkout_summary');
 		$keywords['go_to_confirmation_button']	= translate('ecom_checkout_keyword_go_to_confirmation_button');
 
 		return $keywords;
@@ -775,7 +781,7 @@ class Ecommerce_Checkout extends Page
 	function _getConfirmationContextKeywords()
 	{
 		$keywords['cart_summary']				= translate('ecom_checkout_keyword_cart_summary');
-		$keywords['checkout_summary']			= translate('ecom_checkout_keyword_checkout_summary');
+		$keywords['confirmation_summary']		= translate('ecom_checkout_keyword_confirmation_summary');
 		$keywords['confirm_order_button']		= translate('ecom_checkout_keyword_confirm_order_button');
 		$keywords['return_to_checkout_button']	= translate('ecom_checkout_keyword_return_to_checkout_button');
 
@@ -807,7 +813,7 @@ class Ecommerce_Checkout extends Page
 	*/
 	function _getFailureContextKeywords()
 	{
-		$keywords['processing_error_message']	= translate('ecom_checkout_keyword_processing_error_message');
+		$keywords['failure_summary']			= translate('ecom_checkout_keyword_failure_summary');
 		$keywords['return_to_checkout_button']	= translate('ecom_checkout_keyword_return_to_checkout_button');
 
 		return $keywords;
@@ -968,7 +974,7 @@ class Ecommerce_Checkout extends Page
 	* @return string	replacement
 	* @access public
 	*/
-	function getCheckoutSummaryKeywordReplacement()
+	function getConfirmationSummaryKeywordReplacement()
 	{
 		ob_start();
 			echo $this->getCartSummaryKeywordReplacement();
@@ -1034,21 +1040,21 @@ class Ecommerce_Checkout extends Page
 
 
 	/**
-	* Get Keyword Replacement for 'processing_error_message' keyword
+	* Get Keyword Replacement for 'failure_message' keyword
 	*
 	* @return string	replacement
 	* @access public
 	*/
-	function getProcessingErrorMessageKeywordReplacement()
+	function getFailureSummaryKeywordReplacement()
 	{
 		ob_start();
 			$delivery_method =& $this->_getActiveDeliveryMethod();
 			if (!is_null($delivery_method)) {
-				echo $delivery_method->getErrors();
+				echo $delivery_method->getFailureSummary();
 			}
 		return ob_get_clean();
 
-	}//end getProcessingErrorMessageKeywordReplacement()
+	}//end getFailureSummaryKeywordReplacement()
 
 
 }//end class

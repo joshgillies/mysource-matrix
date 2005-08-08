@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.6 2005/07/29 03:19:21 skim Exp $
+* $Id: lang_strings.xml,v 1.7 2005/08/08 06:41:34 lwright Exp $
 *
 *
 * Ecommerce Package Localised Strings File
@@ -22,16 +22,19 @@
 	<!-- Keywords -->
 	<string source="ecom_checkout_keyword_delivery_selector">Delivery Method Selector</string>
 	<string source="ecom_checkout_keyword_delivery_interface">Delivery Method Interface</string>
+	<string source="ecom_checkout_keyword_error_messages">Error Messages</string>
+
+	<string source="ecom_checkout_keyword_cart_summary">Cart Summary</string>
+	<string source="ecom_checkout_keyword_confirmation_summary">Confirmation Summary</string>
+
 	<string source="ecom_checkout_keyword_go_to_confirmation_button">Go To Confirmation Button</string>
-	<string source="ecom_checkout_keyword_checkout_summary">Checkout Summary</string>
+
 	<string source="ecom_checkout_keyword_confirm_order_button">Confirm Order Button</string>
 	<string source="ecom_checkout_keyword_return_to_checkout_button">Return to Checkout Button</string>
+
 	<string source="ecom_checkout_keyword_receipt_summary">Receipt Summary</string>
 	<string source="ecom_checkout_keyword_processing_error_message">Processing Error Message</string>
-	<string source="ecom_checkout_keyword_cart_summary">Cart Summary</string>
-	<string source="ecom_checkout_keyword_error_messages">Error Messages</string>
-	<string source="ecom_checkout_keyword_order_summary">Summary</string>
-	<string source="ecom_checkout_keyword_order_receipt">Order Receipt</string>
+	<string source="ecom_checkout_keyword_failure_summary">Failure Summary</string>
 
 	<!-- Various Strings -->
 	<string source="ecom_checkout_select_delivery_method">Select Delivery Method</string>
