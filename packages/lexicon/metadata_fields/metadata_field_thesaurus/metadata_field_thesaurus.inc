@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_thesaurus.inc,v 1.6 2005/04/29 05:39:49 gsherwood Exp $
+* $Id: metadata_field_thesaurus.inc,v 1.7 2005/08/08 06:38:32 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/metadata/metadata_field/metadata_field
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage lexicon
 */
@@ -47,7 +47,7 @@ class Metadata_Field_Thesaurus extends Metadata_Field
 	/**
 	* Backend Painter
 	*
-	* @param $o object    bakcend outputter
+	* @param object Backend_Outputter	$o	the appropriate backend outputter
 	*
 	* @access public
 	* @return void
@@ -176,7 +176,7 @@ class Metadata_Field_Thesaurus extends Metadata_Field
 	* Returns a reference to the parent thesaurus asset
 	*
 	* @access public
-	* @return object    thesaurus
+	* @return object Thesaurus
 	*/
 	function &getThesaurusRef()
 	{
