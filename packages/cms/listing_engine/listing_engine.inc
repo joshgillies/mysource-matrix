@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.72 2005/08/05 05:21:13 dmckee Exp $
+* $Id: listing_engine.inc,v 1.73 2005/08/08 01:56:14 dheppell Exp $
 *
 */
 
@@ -43,7 +43,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.72 $
+* @version $Revision: 1.73 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1347,6 +1347,7 @@ class Listing_Engine extends Page
 					if ($asset->id != $this->id) $asset->printBody();
 					$keywords['asset_contents'] = ob_get_contents();
 				ob_end_clean();
+
 			}
 
 			// stuff carried over results body replacements
@@ -1445,10 +1446,11 @@ class Listing_Engine extends Page
 
 				switch (array_get_index($settings, 'type', $selection_defaults['type'])) {
 					case 'textbox':
+						$selection_id = preg_replace('/\s/', '_', $selection_name.'['.$assetid.']');
 						if ($selection_restrict_enable) {
-							int_text_box($selection_name.'['.$assetid.']', $selection_value, $selection_allow_negative, 3, $selection_restrict_min, $selection_restrict_max);
+							int_text_box($selection_id, $selection_value, $selection_allow_negative, 3, $selection_restrict_min, $selection_restrict_max);
 						} else {
-							int_text_box($selection_name.'['.$assetid.']', $selection_value, $selection_allow_negative, 3);
+							int_text_box($selection_id, $selection_value, $selection_allow_negative, 3);
 						}
 					break;
 
@@ -1469,24 +1471,29 @@ class Listing_Engine extends Page
 						}
 
 						// list display
-						combo_box($selection_name.'['.$assetid.']', $selection_list, $selection_allow_multiple, $selection_value);
+						$selection_id = preg_replace('/\s/', '_', $selection_name.'['.$assetid.']');
+						combo_box($selection_id, $selection_list, $selection_allow_multiple, $selection_value);
 					break;
 
 					case 'radio':
 					default:
 						if ($selection_allow_multiple) {
-							check_box($selection_name.'['.$assetid.']', '1', ($selection_value > 0 ? true : false), "sq_listing_check_state(this, '".$selection_name."')");
+							$selection_id = preg_replace('/\s/', '_', $selection_name.'['.$assetid.']');
+							check_box($selection_id, '1', ($selection_value > 0 ? true : false), "sq_listing_check_state(this, '".$selection_name."')");
 
 							// the flag is used to determine whether a checkbox is
 							// present and not ticked, or not present at all
 							hidden_field($selection_name.'_flag', '1');
 						} else {
-							radio_button($selection_name, $assetid, ($selection_value == $assetid ? true : false));
+							$selection_id = preg_replace('/\s/', '_', $selection_name);
+							radio_button($selection_id, $assetid, ($selection_value == $assetid ? true : false));
 						}
 					break;
 				}
 
+				// set selection and its ids keywords
 				$keywords[$selection_name.'_asset_selection'] = ob_get_clean();
+				$keywords[$selection_name.'_selection_id'] = $selection_id;
 			}
 		}
 
