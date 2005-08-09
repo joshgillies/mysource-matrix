@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.38.2.11 2005/08/09 02:07:13 dmckee Exp $
+* $Id: listing_engine.inc,v 1.38.2.12 2005/08/09 02:43:40 dmckee Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
 *
-* @version $Revision: 1.38.2.11 $
+* @version $Revision: 1.38.2.12 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1184,7 +1184,12 @@ class Listing_Engine extends Page
 
 		$allowed_types = $this->getAllowedAssetTypeMap();
 		$column_layout = $this->attr('column_layout');
-		$using_groups = $this->attr('group_by') == 'grouped';
+		$groups = $this->attr('asset_grouping');
+		if (empty($groups)) {
+			$using_groups = false;
+		} else {
+			$using_groups = true;
+		}
 		$using_columns = (count($column_layout) > 1 || $column_layout['0'] > 1);
 
 		$list_position = 1;
