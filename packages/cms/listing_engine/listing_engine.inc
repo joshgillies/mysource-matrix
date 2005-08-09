@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.74 2005/08/08 04:59:45 gsherwood Exp $
+* $Id: listing_engine.inc,v 1.75 2005/08/09 00:33:51 dmckee Exp $
 *
 */
 
@@ -43,7 +43,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.74 $
+* @version $Revision: 1.75 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2543,7 +2543,7 @@ class Listing_Engine extends Page
 	* @return string
 	* @access public
 	*/
-	function getstructuredSearchLocationKeywordReplacement()
+	function getstructuredRootNodeKeywordReplacement()
 	{
 		$options = $this->attr('structured_dropdown_options');
 
