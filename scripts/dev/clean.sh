@@ -19,7 +19,7 @@
 #* | licence.                                                           |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: clean.sh,v 1.3 2005/08/02 01:53:04 gsherwood Exp $
+#* $Id: clean.sh,v 1.4 2005/08/09 00:37:51 lwright Exp $
 #*/
 
 # Creates a clean system by removing data and cache directories 
@@ -83,6 +83,7 @@ esac
 # now just run step 2 again
 php -d output_buffering=0 "${SYSTEM_ROOT}/install/step_02.php" "${SYSTEM_ROOT}"
 if [ "$?" == "0" ]; then
+	php -d output_buffering=0 "${SYSTEM_ROOT}/install/compile_locale.php" "${SYSTEM_ROOT}" "--locale=en"
 	php -d output_buffering=0 "${SYSTEM_ROOT}/install/step_03.php" "${SYSTEM_ROOT}"
 fi
 
