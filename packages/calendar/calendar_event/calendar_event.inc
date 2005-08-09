@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.52 2005/06/23 06:56:40 pgannavarapu Exp $
+* $Id: calendar_event.inc,v 1.53 2005/08/09 04:55:03 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once dirname(__FILE__).'/../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.52 $
+* @version $Revision: 1.53 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -754,6 +754,16 @@ class Calendar_Event extends Asset
 		return true;
 
 	}//end cacheCalendarData()
+
+
+	function getKeywordReplacement($keyword) {
+		static $asset_keywords = null;
+		if (is_null($asset_keywords)) {
+			$asset_keywords = $this->getAssetKeywords();
+		}
+		$kw_data = array_get_index($asset_keywords, $keyword, Array('value' => ''));
+		return $kw_data['value'];
+	}
 
 
 }//end class
