@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.440 2005/08/03 01:30:15 tbarrett Exp $
+* $Id: asset.inc,v 1.441 2005/08/09 04:28:14 dheppell Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.440 $
+* @version $Revision: 1.441 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -1681,7 +1681,8 @@ class Asset extends MySource_Object
 	* @return void
 	* @access private
 	*/
-	function onRequestKeywords(&$broadcaster, $vars=Array()) {
+	function onRequestKeywords(&$broadcaster, $vars=Array())
+	{
 
 		if (!isset($vars['keywords'])) return;
 		$vars['keywords'] = array_merge($vars['keywords'], $this->_available_keywords);
@@ -1789,7 +1790,9 @@ class Asset extends MySource_Object
 			$schemas = $mm->getSchemas($this->id);
 			$metadata = Array();
 			foreach ($schemas as $schemaid => $granted) {
-				if (!$GLOBALS['SQ_SYSTEM']->am->assetExists($schemaid)) continue;
+				if (!$GLOBALS['SQ_SYSTEM']->am->assetExists($schemaid)) {
+					continue;
+				}
 				if (!$mm->setSchema($clone->id, $schemaid, $granted)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return false;
@@ -3377,6 +3380,7 @@ class Asset extends MySource_Object
 	function _checkPermissionAccess($perm, $assetids=Array())
 	{
 		if (empty($assetids)) {
+
 			if (!$GLOBALS['SQ_SYSTEM']->userPublic()) {
 				// if we are the root user, we can do anything
 				if ($GLOBALS['SQ_SYSTEM']->userRoot()) return true;
@@ -3386,12 +3390,13 @@ class Asset extends MySource_Object
 				if ($GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
 					return true;
 				}
-
-				// get the current user and groups we are not restricted from
-				$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserId());
-				$assetids = $user->getUserGroups();
-				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($user);
 			}
+
+			// get the current user and groups we are not restricted from
+			$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserId());
+			$assetids = $user->getUserGroups();
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($user);
+
 			$assetids[] = $GLOBALS['SQ_SYSTEM']->currentUserId();
 		}
 
