@@ -18,10 +18,10 @@
 #* | licence.                                                           |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: clean.sh,v 1.20.2.1 2005/07/22 07:35:42 lwright Exp $
+#* $Id: clean.sh,v 1.20.2.2 2005/08/09 01:24:03 lwright Exp $
 #*/
 
-# Creates a clean system by removing data and cache directories 
+# Creates a clean system by removing data and cache directories
 # and clearing out the database and re-inserting the create script
 
 
@@ -58,7 +58,7 @@ eval `echo "${php_code}" | php`
 
 set | grep "^DB_"
 
-case "${DB_PHPTYPE}" in 
+case "${DB_PHPTYPE}" in
 	"pgsql")
 		args="";
 		if [ "${DB_USERNAME}" != "" ]; then
@@ -84,8 +84,11 @@ esac
 # now just run step 2 again
 php -d output_buffering=0 "${SYSTEM_ROOT}/install/step_02.php" "${SYSTEM_ROOT}"
 if [ "$?" == "0" ]; then
+	php -d output_buffering=0 "${SYSTEM_ROOT}/install/compile_locale.php" "${SYSTEM_ROOT}" "locale=en"
 	php -d output_buffering=0 "${SYSTEM_ROOT}/install/step_03.php" "${SYSTEM_ROOT}"
 fi
+
+php -d output_buffering=0 "${SYSTEM_ROOT}/install/compile_locale.php" "${SYSTEM_ROOT}" "locale=en"
 
 chmod 775 cache
 find data -type d -exec chmod 2775 {} \; 2> /dev/null
