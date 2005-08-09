@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.30 2005/08/09 04:10:22 lwright Exp $
+* $Id: ecommerce_checkout.inc,v 1.31 2005/08/09 05:50:20 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 * @author  Andrei Railean	<arailean@squiz.net>
 * @author  Scott Kim		<skim@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -245,11 +245,10 @@ class Ecommerce_Checkout extends Page
 						return;
 					}
 
-					if (isset($_SESSION['SQ_TEMP_ORDER']['delivery_state']) && ($_SESSION['SQ_TEMP_ORDER']['delivery_id'] == $delivery_method_id)) {
-						// delivery method state has cart contents
-						$_SESSION['SQ_TEMP_ORDER']['delivery_state']['cart_contents'] = $_SESSION['SQ_TEMP_ORDER']['cart_contents'];
-						$delivery_method->setState($_SESSION['SQ_TEMP_ORDER']['delivery_state']);
-					}
+					// TODO: huh...? why was this conditional once?
+					// delivery method state has cart contents
+					$_SESSION['SQ_TEMP_ORDER']['delivery_state']['cart_contents'] = $_SESSION['SQ_TEMP_ORDER']['cart_contents'];
+					$delivery_method->setState($_SESSION['SQ_TEMP_ORDER']['delivery_state']);
 
 					if (!$delivery_method->processInputInterface()){
 						$this->_tmp['delivery_method_errors'] = $delivery_method->getErrors();
