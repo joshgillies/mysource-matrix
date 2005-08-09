@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.38.2.12 2005/08/09 02:43:40 dmckee Exp $
+* $Id: listing_engine.inc,v 1.38.2.13 2005/08/09 04:18:30 dmckee Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
 *
-* @version $Revision: 1.38.2.12 $
+* @version $Revision: 1.38.2.13 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1352,11 +1352,13 @@ class Listing_Engine extends Page
 			foreach ($asset_keywords as $keyword_name => $keyword) {
 				$keywords[$keyword_name] = $keyword['value'];
 			}
-			if (preg_match('|%asset_contents%|is', $bodycopy->getRawBodycopyContent())) {
-				ob_start();
-					$asset->printBody();
-					$keywords['asset_contents'] = ob_get_contents();
-				ob_end_clean();
+			if ($assetid != $this->id) {
+				if (preg_match('|%asset_contents%|is', $bodycopy->getRawBodycopyContent())) {
+					ob_start();
+						$asset->printBody();
+						$keywords['asset_contents'] = ob_get_contents();
+					ob_end_clean();
+				}
 			}
 
 			// stuff carried over results body replacements
