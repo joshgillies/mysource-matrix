@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: selection.inc,v 1.45 2005/07/13 01:47:50 mmcintyre Exp $
+* $Id: selection.inc,v 1.46 2005/08/09 00:03:02 dheppell Exp $
 *
 */
 
@@ -47,7 +47,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *   <selection style="boxes" columns="1" extras="" />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.46 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -82,6 +82,7 @@ class Asset_Attribute_Selection extends Asset_Attribute
 
 		// set default edit parameters
 		$this->_edit_params['style']      = 'list';
+		$this->_edit_params['type']       = 'table';
 		$this->_edit_params['height']     = '';
 		$this->_edit_params['columns']    = '1';
 		$this->_edit_params['empty_text'] = '';
@@ -126,6 +127,8 @@ class Asset_Attribute_Selection extends Asset_Attribute
 		$searchStyles = Array();
 		$searchStyles['list'] = 'List';
 		$searchStyles['checkbox'] = 'Checkbox';
+		$searchTypes['table'] = 'Table';
+		$searchTypes['list'] = 'Unordered List';
 
 		if (!empty($this->name)) {
 			echo '<b>Selection Attribute " '.ucwords(str_replace('_', ' ', $this->name)).' " ('.$this->name.')</b><br />';
@@ -142,6 +145,18 @@ class Asset_Attribute_Selection extends Asset_Attribute
 						echo $this->_edit_params['style'];
 					}
 					?>
+				</td>
+			</tr>
+			<tr>
+				<td class="sq-backend-section-heading" style="width: 100px;">Type<?php //echo translate('columns'); ?></td>
+				<td class="sq-backend-table-cell">
+				<?php
+				if ($write_access) {
+					combo_box($prefix.'_type', $searchTypes, false, $this->_edit_params['type']);
+				} else {
+					echo $this->_edit_params['type'];
+				}
+			?>
 				</td>
 			</tr>
 			<tr>
@@ -206,6 +221,10 @@ class Asset_Attribute_Selection extends Asset_Attribute
 			$this->_edit_params['style'] = $_POST[$prefix.'_style'];
 		}
 
+		if (!empty($_POST[$prefix.'_type'])) {
+			$this->_edit_params['type'] = $_POST[$prefix.'_type'];
+		}
+
 		if (!empty($_POST[$prefix.'_height'])) {
 			$this->_edit_params['height'] = $_POST[$prefix.'_height'];
 		}
@@ -220,6 +239,7 @@ class Asset_Attribute_Selection extends Asset_Attribute
 
 		$values = Array();
 		$values['style']      = $this->_edit_params['style'];
+		$values['type']       = $this->_edit_params['type'];
 		$values['height']     = $this->_edit_params['height'];
 		$values['columns']    = $this->_edit_params['columns'];
 		$values['empty_text'] = $this->_edit_params['empty_text'];
@@ -350,41 +370,44 @@ class Asset_Attribute_Selection extends Asset_Attribute
 													.substr($this->edit_params['extras'], $onclick_pos+11);
 				}
 			}
-			?>
-			<table cellpadding="0" cellspacing="0" border="0">
+
+			if ($this->_edit_params['type'] == 'table') {
+				//begin painting table
+				?>
+				<table cellpadding="0" cellspacing="0" border="0">
 				<tr>
-					<?php
-					$i = 0;
-					while (list($key, $val) = each($options)) {
-						if (empty($this->_params['multiple'])) {
+				<?php
+				$i = 0;
+				while (list($key, $val) = each($options)) {
+					if (empty($this->_params['multiple'])) {
+						?>
+						<td>&nbsp;
+						<?php
+						$selected = (($key == '__other__') && $this->_params['allow_other']) && $this->hasUnlistedValue() || ($key == $value);
+						$onclick = 'document.getElementById(\''.$prefix.'_other\').style.visibility = \''.(($key == '__other__') ? 'visible' : 'hidden').'\'';
+						$extras = str_replace('%on_click%', $onclick, $this->_edit_params['extras']);
+						$id = $prefix.'_'.$key;
+						$extras .= ' id="'.$id.'"';
+						radio_button($prefix, $key, $selected, '', $extras);
+						label($val, $id);
+						if (($key == '__other__') && $this->_params['allow_other']) {
+							echo '&nbsp;';
+							text_box($prefix.'_other', $this->hasUnlistedValue() ? $this->value : '', '', '', false, $selected ? '' : 'style="visibility: hidden"');
+						}
+					?>
+						</td>
+						<?php
+					} else {
+						$id = $prefix.'_'.$i;
+						$extras = $this->_edit_params['extras'].' id="'.$id.'"';
 							?>
-							<td>&nbsp;
-								<?php
-									$selected = (($key == '__other__') && $this->_params['allow_other']) && $this->hasUnlistedValue() || ($key == $value);
-									$onclick = 'document.getElementById(\''.$prefix.'_other\').style.visibility = \''.(($key == '__other__') ? 'visible' : 'hidden').'\'';
-									$extras = str_replace('%on_click%', $onclick, $this->_edit_params['extras']);
-									$id = $prefix.'_'.$key;
-									$extras .= ' id="'.$id.'"';
-									radio_button($prefix, $key, $selected, '', $extras);
-									label($val, $id);
-									if (($key == '__other__') && $this->_params['allow_other']) {
-										echo '&nbsp;';
-										text_box($prefix.'_other', $this->hasUnlistedValue() ? $this->value : '', '', '', false, $selected ? '' : 'style="visibility: hidden"');
-									}
-								?>
-							</td>
+								<td>&nbsp;
 							<?php
-						} else {
-							$id = $prefix.'_'.$i;
-							$extras = $this->_edit_params['extras'].' id="'.$id.'"';
-							?>
-							<td>&nbsp;
-								<?php
 								check_box($prefix.'['.$i.']', $key, (is_array($value) && in_array($key, $value)), '', $extras);
-								label($val, $id);
-								?>
-							</td>
-							<?php
+							label($val, $id);
+							?>
+								</td>
+								<?php
 
 						}
 						if ((($i++) % $this->_edit_params['columns']) == ($this->_edit_params['columns'] - 1)) {
@@ -392,9 +415,46 @@ class Asset_Attribute_Selection extends Asset_Attribute
 						}
 					}
 					?>
-				</tr>
-			</table>
-			<?php
+					</tr>
+					</table>
+					<?php
+					// end painting table
+			} else {
+				?>
+				<ul>
+				<?php
+				$i = 0;
+				while (list($key, $val) = each($options)) {
+					?><li><?php
+					if (empty($this->_params['multiple'])) {
+						$selected = (($key == '__other__') && $this->_params['allow_other']) && $this->hasUnlistedValue() || ($key == $value);
+						$onclick = 'document.getElementById(\''.$prefix.'_other\').style.visibility = \''.(($key == '__other__') ? 'visible' : 'hidden').'\'';
+						$extras = str_replace('%on_click%', $onclick, $this->_edit_params['extras']);
+						$id = $prefix.'_'.$key;
+						$extras .= ' id="'.$id.'"';
+						radio_button($prefix, $key, $selected, '', $extras);
+						label($val, $id);
+						if (($key == '__other__') && $this->_params['allow_other']) {
+							echo '&nbsp;';
+							text_box($prefix.'_other', $this->hasUnlistedValue() ? $this->value : '', '', '', false, $selected ? '' : 'style="visibility: hidden"');
+						}
+					} else {
+						$id = $prefix.'_'.$i;
+						$extras = $this->_edit_params['extras'].' id="'.$id.'"';
+						check_box($prefix.'['.$i.']', $key, (is_array($value) && in_array($key, $value)), '', $extras);
+						label($val, $id);
+						?>
+						</li>
+						<?php
+					}
+
+					$i++;
+				}
+				?>
+					</ul>
+					<?php
+			}
+
 		}//end if style is list
 
 	}//end paint()
