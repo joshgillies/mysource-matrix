@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select_management.inc,v 1.8 2005/08/09 00:05:40 dheppell Exp $
+* $Id: metadata_field_select_management.inc,v 1.9 2005/08/09 01:11:05 dheppell Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -82,7 +82,7 @@ class Metadata_Field_Select_Management extends Asset_Management
 						'allow_empty'		=> Array(
 												'added'			=> '0.3',
 												'type'			=> 'boolean',
-												'default'		=> false,
+												'default'		=> true,
 												'parameters'	=> Array('allow_empty' => false,),
 											   ),
 					  );
