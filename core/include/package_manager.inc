@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager.inc,v 1.71 2005/07/13 04:03:41 mmcintyre Exp $
+* $Id: package_manager.inc,v 1.72 2005/08/09 00:46:22 lwright Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
 *    packages and their assets, uses info gleened from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.71 $
+* @version $Revision: 1.72 $
 * @package MySource_Matrix
 */
 class Package_Manager extends MySource_Object
@@ -145,16 +145,15 @@ class Package_Manager extends MySource_Object
 	* Will return 'true' if all assets are okay, otherwise will return an array
 	* of assetids that failed requirements.
 	*
-	* @param array	$update_assets	an array of asset types to check details for
-	*								if empty, will check all assets
+	* @param array	$update_assets		an array of asset types to check details for
+	*									if empty, will check all assets
+	* @param array	$deferred_assets	an array of previously deferred assets
 	* @return mixed
 	* @access public
 	*/
-	function checkPackageDetails($update_assets=Array())
+	function checkPackageDetails($update_assets=Array(), $deferred_assets=Array())
 	{
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
-
-		$deferred_assets = Array();
 
 		for (reset($this->assets); null !== ($type_code = key($this->assets)); next($this->assets)) {
 			// Don't bother checking an asset that's not defined in the array.
@@ -167,13 +166,15 @@ class Package_Manager extends MySource_Object
 
 			// make sure all requirements are met
 			$file = SQ_SYSTEM_ROOT.'/'.$this->assets[$type_code]['dir'].'/asset.xml';
-			list($result, $req) = $this->checkRequirementsFromFile($file, true);
+			list($result, $req) = $this->checkRequirementsFromFile($file, $deferred_assets, true);
 
 			if (!$result) {
-				bam('Asset "'.$type_code.'" fails the "'.$req['type'].'" requirement for "'.$req['code'].' v'.$req['version'].'"'."\n".'As specified by '.$file.' and will be deferred');
 				// It failed the requirement, so we want to let the caller know what asset
 				// failed so that it can be revisited at a later date if needbe
-				$deferred_assets[] = $type_code;
+				if (!in_array($type_code, $deferred_assets)) {
+					bam('Asset "'.$type_code.'" fails the "'.$req['type'].'" requirement for "'.$req['code'].' v'.$req['version'].'"'."\n".'As specified by '.$file.' and will be deferred');
+					$deferred_assets[] = $type_code;
+				}
 				continue;
 			}
 
@@ -181,14 +182,15 @@ class Package_Manager extends MySource_Object
 			// or that the type is in this package that we are checking
 			$parent_type = $this->assets[$type_code]['parent_type'];
 			if ($parent_type != 'asset' && !$am->installed($parent_type) && !isset($this->assets[$parent_type])) {
-				bam('Asset "'.$type_code.'" attempts to inherit from the unknown type "'.$parent_type.'"'."\n".'As specified by '.$file);
 				// It failed the requirement, so we want to let the caller know what asset
 				// failed so that it can be revisited at a later date if needbe
-				$deferred_assets[] = $type_code;
+				if (!in_array($type_code, $deferred_assets)) {
+					bam('Asset "'.$type_code.'" attempts to inherit from the unknown type "'.$parent_type.'"'."\n".'As specified by '.$file);
+					$deferred_assets[] = $type_code;
+				}
 				continue;
 			}
 		}//end for
-
 
 		return count($deferred_assets) ? $deferred_assets : true;
 
@@ -212,9 +214,15 @@ class Package_Manager extends MySource_Object
 		// If there were some type codes that failed the requirements, save
 		// them in the deferred array so that they don't get installed later
 		// on in the process.
-		$deferred = $this->checkPackageDetails($update_assets);
-		if (is_bool($deferred) && !$deferred) {
-			return $deferred;
+		$last_deferred = false;
+		$deferred = true;
+
+		while ($last_deferred !== $deferred) {
+			$last_deferred = $deferred;
+			$deferred = $this->checkPackageDetails($update_assets, is_array($deferred) ? $deferred : Array());
+			if (is_bool($deferred) && !$deferred) {
+				return $deferred;
+			}
 		}
 
 		// Make sure deferred is an array.
@@ -437,7 +445,7 @@ class Package_Manager extends MySource_Object
 
 				// if this type is not inheriting from a type that is yet to be dealt with, then
 				// the type is in heriting from something that doesn't exist
-				} else if (!in_array($parent, $asset_types)) {
+				} else if (!in_array($parent, $asset_types) && !in_array($parent, $deferred)) {
 					trigger_localised_error('SYS0080', E_USER_WARNING, $type_code, $parent);
 					$remove = true;
 				}
@@ -537,7 +545,7 @@ class Package_Manager extends MySource_Object
 	* @return mixed
 	* @access public
 	*/
-	function checkRequirementsFromFile($file, $need_feedback=false)
+	function checkRequirementsFromFile($file, $deferred_assets=Array(), $need_feedback=false)
 	{
 		$xml_array =& new XML_Array(Asset_Management::getAssetArrayPaths());
 		$info = $xml_array->getArrayFromFile($file);
@@ -566,12 +574,22 @@ class Package_Manager extends MySource_Object
 				break;
 
 				case 'asset':
-					if ($GLOBALS['SQ_SYSTEM']->am->installed($req['code']['value'])) {
-						$ok = version_compare($GLOBALS['SQ_SYSTEM']->am->getTypeInfo($req['code']['value'], 'version'), $req['version']['value'], '>=');
+					if ($deferred_assets === true) {
+						bam(debug_backtrace());
+						bam('STOP!!!');
+						die;
 					}
-					// if the test failed, but this asset is in this package, check it's version from that
-					if (!$ok && isset($this->assets[$req['code']['value']])) {
-						$ok = version_compare($this->assets[$req['code']['value']]['version'], $req['version']['value'], '>=');
+					if (in_array($req['code']['value'], $deferred_assets)) {
+						// we have to defer an asset that depends on another deferred asset
+						$ok = false;
+					} else {
+						if ($GLOBALS['SQ_SYSTEM']->am->installed($req['code']['value'])) {
+							$ok = version_compare($GLOBALS['SQ_SYSTEM']->am->getTypeInfo($req['code']['value'], 'version'), $req['version']['value'], '>=');
+						}
+						// if the test failed, but this asset is in this package, check it's version from that
+						if (!$ok && isset($this->assets[$req['code']['value']])) {
+							$ok = version_compare($this->assets[$req['code']['value']]['version'], $req['version']['value'], '>=');
+						}
 					}
 				break;
 
