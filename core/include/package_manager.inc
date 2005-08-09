@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager.inc,v 1.72 2005/08/09 00:46:22 lwright Exp $
+* $Id: package_manager.inc,v 1.73 2005/08/09 00:59:19 lwright Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
 *    packages and their assets, uses info gleened from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.72 $
+* @version $Revision: 1.73 $
 * @package MySource_Matrix
 */
 class Package_Manager extends MySource_Object
@@ -213,10 +213,13 @@ class Package_Manager extends MySource_Object
 
 		// If there were some type codes that failed the requirements, save
 		// them in the deferred array so that they don't get installed later
-		// on in the process.
+		// on in the process
 		$last_deferred = false;
 		$deferred = true;
 
+		// We need to run this function over until no more deferred assets are
+		// detected - because of the order of checking the package details, we
+		// may not pick everything up first go
 		while ($last_deferred !== $deferred) {
 			$last_deferred = $deferred;
 			$deferred = $this->checkPackageDetails($update_assets, is_array($deferred) ? $deferred : Array());
@@ -537,7 +540,14 @@ class Package_Manager extends MySource_Object
 	* checks the requirements of the passed asset.xml file
 	* see checkRequirements() for more info
 	*
+	* We need to pass the list of deferred assets to this function, because while it can handle
+	* direct requirements it can't normally handle assets that have to be deferred because their
+	* parents have had to be deferred (eg. if type B has to be deferred because type A needs to
+	* be installed, then it couldn't pick up that type C (which depends on B) needs to be
+	* deferred too
+	*
 	* @param string		$file				the code name for the asset that you want to check
+	* @param array		$deferred_assets	a list of previously deferred assets
 	* @param boolean	$need_feedback
 	* @param array		$ignore_assets		if the requirement is an asset, but is in this list,
 	*										the requirement is considered to have passed
