@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_text_edit_fns.inc,v 1.10.2.4 2005/07/26 05:32:23 tbarrett Exp $
+* $Id: metadata_field_text_edit_fns.inc,v 1.10.2.5 2005/08/09 00:53:33 dmckee Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.10.2.4 $
+* @version $Revision: 1.10.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -84,8 +84,6 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 		if ($asset->attr('required')) {
 			$field_name .= ' <span style="color: #FF0000">*</span>';
 		}
-
-		$o->openField($field_name);
 
 			if ($asset->attr('editable')) {
 				if ($write_access) {
@@ -170,11 +168,10 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 				}//endif
 
 			}//endif
-		$o->closeField();
 
 		return true;
 
-	}//end paintInlineValueInterface()
+	}//end paintValueInterface()
 
 
 	/**
