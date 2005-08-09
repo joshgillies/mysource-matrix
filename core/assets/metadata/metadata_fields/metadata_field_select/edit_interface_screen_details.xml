@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.9 2005/06/15 21:23:39 gnoel Exp $
+* $Id: edit_interface_screen_details.xml,v 1.10 2005/08/09 00:05:40 dheppell Exp $
 *
 */
 -->
@@ -43,6 +43,9 @@
 	</section>
 	<section name="Settings" write_access="write:attributes">
 		<field attribute="multiple">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field attribute="allow_empty">
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field>

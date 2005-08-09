@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select_management.inc,v 1.7 2005/06/21 06:50:52 dmckee Exp $
+* $Id: metadata_field_select_management.inc,v 1.8 2005/08/09 00:05:40 dheppell Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -78,6 +78,12 @@ class Metadata_Field_Select_Management extends Asset_Management
 																	'allow_empty'	=> false,
 																   ),
 												'description'	=> 'This will determine which part of the options will be printed on the frontend (Key by default).',
+											   ),
+						'allow_empty'		=> Array(
+												'added'			=> '0.3',
+												'type'			=> 'boolean',
+												'default'		=> false,
+												'parameters'	=> Array('allow_empty' => false,),
 											   ),
 					  );
 

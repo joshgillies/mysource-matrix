@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select.inc,v 1.9 2005/06/22 01:36:52 dmckee Exp $
+* $Id: metadata_field_select.inc,v 1.10 2005/08/09 00:05:40 dheppell Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field.inc';
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -63,13 +63,14 @@ class Metadata_Field_Select extends Metadata_Field
 	{
 		require_once SQ_ATTRIBUTES_PATH.'/selection/selection.inc';
 
-		$selection = new Asset_Attribute_Selection();
+		$selection =& new Asset_Attribute_Selection();
 		$edit_params = $this->attr('edit_params');
 		if (!empty($edit_params)) {
 			$selection->_edit_params = $edit_params;
 		}
 		$selection->_params['options'] = $this->attr('select_options');
 		$selection->_params['multiple'] = $this->attr('multiple');
+		$selection->_params['allow_empty'] = $this->attr('allow_empty');
 
 		$default = $this->attr('default');
 		if ($this->attr('multiple')) {
