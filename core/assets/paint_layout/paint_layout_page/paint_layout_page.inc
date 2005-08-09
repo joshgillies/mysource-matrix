@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_page.inc,v 1.6 2005/08/01 10:59:35 gnoel Exp $
+* $Id: paint_layout_page.inc,v 1.7 2005/08/09 05:23:53 dheppell Exp $
 *
 */
 
@@ -41,7 +41,7 @@ define('SQ_PAINT_LAYOUT_DEFAULT_FORMAT_NAME', 'default_format');
 * Those bodycopies also support conditions.
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -295,13 +295,7 @@ class Paint_Layout_Page extends Page_Standard
 			$asset_type_code = $asset->type();
 			$bodycopy = &$this->_getBodycopyFromAssetTypeCode($asset_type_code);
 
-			if (!empty($bodycopy)) {
-				$ret['paint_layout'] = $bodycopy->paintAsset($asset);
-			} else {
-				ob_start();
-				$asset->printBody();
-				$ret['paint_layout'] = ob_get_clean();
-			}
+			$ret['paint_layout'] = $bodycopy->paintAsset($asset);
 		}
 
 		return $ret;
@@ -332,20 +326,18 @@ class Paint_Layout_Page extends Page_Standard
 				break;
 			}
 		}
+		
+		$folder = &$this->getFolder();
 
 		if (!empty($format_type)) {
-			// this asset type is supported by the paint layout page
-			$folder = &$this->getFolder();
-
 			$format_link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, SQ_PAINT_LAYOUT_FORMAT_ASSET_TYPE, true, $format_type);
-			if (empty($format_link)) {
-				// not a customized type, so let's take the default format
-				$format_link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, SQ_PAINT_LAYOUT_FORMAT_ASSET_TYPE, true, SQ_PAINT_LAYOUT_DEFAULT_FORMAT_NAME);
-			}
+		} else {
+			// not a customized type, so let's take the default format
+			$format_link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, SQ_PAINT_LAYOUT_FORMAT_ASSET_TYPE, true, SQ_PAINT_LAYOUT_DEFAULT_FORMAT_NAME);
+		}
 
-			if (!empty($format_link)) {
-				$ret = &$GLOBALS['SQ_SYSTEM']->am->getAsset($format_link['minorid'], $format_link['minor_type_code']);
-			}
+		if (!empty($format_link)) {
+			$ret = &$GLOBALS['SQ_SYSTEM']->am->getAsset($format_link['minorid'], $format_link['minor_type_code']);
 		}
 
 		return $ret;
