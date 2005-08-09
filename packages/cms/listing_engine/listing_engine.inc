@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.38.2.10 2005/08/05 01:57:45 gsherwood Exp $
+* $Id: listing_engine.inc,v 1.38.2.11 2005/08/09 02:07:13 dmckee Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
 *
-* @version $Revision: 1.38.2.10 $
+* @version $Revision: 1.38.2.11 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1092,7 +1092,6 @@ class Listing_Engine extends Page
 		} else {
 			$this->_printAssetList($todo);
 		}
-
 	}//end printAssetList()
 
 
@@ -1424,6 +1423,9 @@ class Listing_Engine extends Page
 		$keywords['result_no']      = &$keywords['asset_position'];
 
 		$keywords['root_nodes'] = implode(',', $this->getRootNodes());
+
+		$keywords['result_number'] = '%result_number%';
+		$keywords['score'] = '%score%';
 
 		$bodycopy->setKeywordReplacements($keywords);
 		$bodycopy->printBody();
