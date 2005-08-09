@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.1 2005/04/11 16:58:01 gnoel Exp $
+* $Id: lang_screen_details.xml,v 1.1.2.1 2005/08/09 05:45:19 dheppell Exp $
 *
 */
 -->
@@ -34,9 +34,10 @@
 			<note />
 		</field>
 	</section>
-	<section name="List Settings">
+	<section name="Layout Settings">
+		<display_name>Custom Layout Settings</display_name>
 		<field>
-			<display_name>Current Asset Types</display_name>
+			<display_name>Custom Asset Types</display_name>
 			<note></note>
 			<function_call>
 				<paint_function   name="paintCurrentAssetTypes"   />
@@ -44,7 +45,7 @@
 			</function_call>
 		</field>
 		<field>
-			<display_name>Add Asset Type</display_name>
+			<display_name>Add Custom Asset Type</display_name>
 			<note />
 			<function_call>
 				<paint_function   name="paintAddAssetType"   />
