@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.398.2.7 2005/08/01 15:23:44 brobertson Exp $
+* $Id: asset.inc,v 1.398.2.8 2005/08/09 04:28:44 dheppell Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.398.2.7 $
+* @version $Revision: 1.398.2.8 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -1506,7 +1506,7 @@ class Asset extends MySource_Object
 		}
 
 		$am->includeAsset($new_type_code);
-		$tmp = new $new_type_code();
+		$tmp =& new $new_type_code();
 
 		//// FIRST we need to check that all our links are allowed for the new type ////
 
@@ -1786,7 +1786,9 @@ class Asset extends MySource_Object
 			$schemas = $mm->getSchemas($this->id);
 			$metadata = Array();
 			foreach ($schemas as $schemaid => $granted) {
-				if (!$GLOBALS['SQ_SYSTEM']->am->assetExists($schemaid)) continue;
+				if (!$GLOBALS['SQ_SYSTEM']->am->assetExists($schemaid)) {
+					continue;
+				}
 				if (!$mm->setSchema($clone->id, $schemaid, $granted)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return false;
@@ -1863,7 +1865,7 @@ class Asset extends MySource_Object
 			$status_code = get_bit_names('SQ_STATUS_', $this->status);
 			$status_code = 'asset_status_'.strtolower($status_code);
 			require_once SQ_INCLUDE_PATH.'/asset_status/'.$status_code.'.inc';
-			$this->_tmp['status_object'] = new $status_code($this);
+			$this->_tmp['status_object'] =& new $status_code($this);
 		}
 		return $this->_tmp['status_object'];
 
@@ -2747,7 +2749,7 @@ class Asset extends MySource_Object
 
 				require_once SQ_ATTRIBUTES_PATH.'/'.$this->vars[$name]['type'].'/'.$this->vars[$name]['type'].'.inc';
 				$attr_class = 'Asset_Attribute_'.$this->vars[$name]['type'];
-				$this->_tmp['attributes'][$name] = new $attr_class($this->vars[$name]['attrid'], $this->vars[$name]['value']);
+				$this->_tmp['attributes'][$name] =& new $attr_class($this->vars[$name]['attrid'], $this->vars[$name]['value']);
 				// make sure of the asset is correct
 				if (empty($this->_tmp['attributes'][$name]->id)) {
 					$this->_tmp['attributes'][$name] = null;
@@ -3215,12 +3217,13 @@ class Asset extends MySource_Object
 				if ($GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
 					return true;
 				}
-
-				// get the current user and groups we are not restricted from
-				$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserId());
-				$assetids = $user->getUserGroups();
-				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($user);
 			}
+
+			// get the current user and groups we are not restricted from
+			$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserId());
+			$assetids = $user->getUserGroups();
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($user);
+
 			$assetids[] = $GLOBALS['SQ_SYSTEM']->currentUserId();
 		}
 
@@ -3466,7 +3469,7 @@ class Asset extends MySource_Object
 	{
 		if (empty($this->_tmp['ei']) || get_class($this->_tmp['ei']) != 'asset_edit_interface') {
 			require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
-			$this->_tmp['ei'] = new Asset_Edit_Interface($this->type());
+			$this->_tmp['ei'] =& new Asset_Edit_Interface($this->type());
 		}
 		return $this->_tmp['ei'];
 
@@ -3479,7 +3482,7 @@ class Asset extends MySource_Object
 	* @return object Asset_Edit_Fns
 	* @access public
 	*/
-	function getEditFns()
+	function &getEditFns()
 	{
 		$class_name = $this->type().'_edit_fns';
 		require_once SQ_SYSTEM_ROOT.'/'.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'dir').'/'.$class_name.'.inc';
