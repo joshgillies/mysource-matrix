@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.98.2.8 2005/08/05 01:59:12 gsherwood Exp $
+* $Id: search_page.inc,v 1.98.2.9 2005/08/09 02:07:57 dmckee Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.98.2.8 $
+* @version $Revision: 1.98.2.9 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -320,6 +320,7 @@ class Search_Page extends Listing_Engine
 	function printResultsBody()
 	{
 		$results = $this->processSearch();
+		$this->_tmp['search_results'] =& $results;
 		if (empty($results)) {
 			echo $this->getBodycopyContents('no_results', $this->getResultsBodyReplacements($results));
 		} else {
@@ -1661,7 +1662,6 @@ class Search_Page extends Listing_Engine
 
 			}
 		}
-
 		if ($query_fileds_exist) {
 			return $sm->processSearch($search_info);
 		} else if ($this->attr('allow_empty_search')) {
@@ -1955,15 +1955,13 @@ class Search_Page extends Listing_Engine
 
 		// summon the scores at this point
 		$score =& $this->_tmp['search_results'];
-		//$score = (isset($score['type_code'])) ? $score['type_code'] : $score;
+		$score = (isset($score['type_code'])) ? $score['type_code'] : $score;
 
 		$element_replacements = Array(
 									'score'			=> $score[$assetid],
 									'result_number'	=> $this->_tmp['start_element'] + $list_position,
 								);
-
 		$element_contents = replace_keywords($element_contents, $element_replacements);
-
 		echo $element_contents;
 
 	}//end _printAsset()
