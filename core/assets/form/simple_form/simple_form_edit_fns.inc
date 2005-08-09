@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: simple_form_edit_fns.inc,v 1.1 2005/07/20 00:02:46 lwright Exp $
+* $Id: simple_form_edit_fns.inc,v 1.2 2005/08/09 23:24:06 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -76,7 +76,7 @@ class Simple_Form_Edit_Fns extends Asset_Edit_Fns
 
 		// TRANSLATE
 		?>
-		<script type="text/javascript" src="<?php echo sq_web_path('data') ?>/asset_types/simple_form_section/js/sort_order_manip.js"></script>
+		<script type="text/javascript" src="<?php echo sq_web_path('data') ?>/asset_types/simple_form/js/sort_order_manip.js"></script>
 		<div style="display:none"><?php sq_print_icon(sq_web_path('lib').'/web/images/icons/internal_message/priority_2.png', 16, 16, '', '', 'id="'.$prefix.'_moved_up" align="absmiddle"') ?>
 		<?php sq_print_icon(sq_web_path('lib').'/web/images/icons/internal_message/priority_4.png', 16, 16, '', '', 'id="'.$prefix.'_moved_down" align="absmiddle"') ?></div>
 		<table class="sq-backend-table">
