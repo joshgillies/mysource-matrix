@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: simple_form_management.inc,v 1.1 2005/07/20 00:02:46 lwright Exp $
+* $Id: simple_form_management.inc,v 1.2 2005/08/09 23:26:46 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -94,19 +94,45 @@ class Simple_Form_Management extends Asset_Management
 
 
 	/**
-	* Gets a list of all files that we want web accessible
-	*
-	* Override this with an empty array otherwise it'll try and grab the manip
-	* JS file from us too, rather than just simple_form_section
+	* Gets a list of all files that we want web accessable
 	*
 	* @access private
 	* @return array(string)
 	*/
 	function _getFileList()
 	{
-		return Array();
+		return Array(
+				'js/sort_order_manip.js',
+			   );
 
 	}//end _getFileList()
+
+
+	/**
+	* returns an array with information about the events that the form is listening for
+	*
+	* @access public
+	* @return boolean
+	*/
+	function getEventList()
+	{
+		return Array(
+				Array(
+					'event_name'					=> 'requestKeywords',
+					'broadcast_type_code'			=> 'content_type',
+					'broadcast_strict_type_code'	=> false,
+					'options'						=> Array(
+														'side_of_link'	=> 'major',
+														'indirect'		=> true,
+														'is_exclusive'	=> null,
+														'is_dependant'	=> 1,
+														'value'			=> '',
+														'link_type'		=> SQ_LINK_TYPE_2 | SQ_LINK_TYPE_1,
+													   ),
+				),
+			   );
+
+	}//end getEventList()
 
 
 }//end class
