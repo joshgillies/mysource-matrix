@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.29 2005/08/08 06:41:34 lwright Exp $
+* $Id: ecommerce_checkout.inc,v 1.30 2005/08/09 04:10:22 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 * @author  Andrei Railean	<arailean@squiz.net>
 * @author  Scott Kim		<skim@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -518,7 +518,7 @@ class Ecommerce_Checkout extends Page
 
 		// set order status
 		if ($success) {
-			$ecommerce_order->setAttrValue('status', 'SQ_ECOM_ORDER_STATUS_PROCESSING');
+			$ecommerce_order->setAttrValue('status', SQ_ECOM_ORDER_STATUS_PROCESSING);
 			$ecommerce_order->setAttrValue('status_message', translate('ecom_order_status_prcessing'));
 		}
 
