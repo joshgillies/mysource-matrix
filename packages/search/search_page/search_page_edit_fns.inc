@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_edit_fns.inc,v 1.57 2005/08/10 04:12:36 tbarrett Exp $
+* $Id: search_page_edit_fns.inc,v 1.58 2005/08/10 05:29:12 ndvries Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine_edit_fns.inc';
 *     Edit functions for search page
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.57 $
+* @version $Revision: 1.58 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1366,6 +1366,65 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 
 
 //--        PROXY SEARCHING        --//
+
+
+	/**
+	* This needs to be overriden because when a type is removed from the search
+	* page the type format bodycopy is removed. We need to be able to have type
+	* formats for the children of all our proxy asset types.
+	*
+	* @param object Listing_Engine		&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processAssetTypes(&$asset, &$o, $prefix)
+	{
+		$proxy_settings = $asset->attr('proxy_types');
+
+		if (isset($_POST[$prefix.'_types'])) {
+			$existing_types = $asset->attr('types');
+
+			$proxy_child_types = Array();
+			foreach ($proxy_settings as $proxy_type => $child_types) {
+				if (!empty($child_types)) {
+					$proxy_child_types = array_merge($proxy_child_types, array_keys($child_types));
+					$existing_types = array_merge($existing_types, $child_types);
+				}
+			}
+
+			$submitted_types = Array();
+			foreach ($_POST[$prefix.'_types']['type_code'] as $i => $type_code) {
+				if (!empty($type_code)) {
+					$submitted_types[$type_code] = $_POST[$prefix.'_types']['inherit'][$i];
+				}
+			}
+
+			$folder = &$asset->getFolder('type_formats');
+			$formats = $asset->getFormats('type_formats');
+
+			// See if any types have been removed
+			foreach ($existing_types as $type => $inherit) {
+				if (!isset($submitted_types[$type])) {
+					if (in_array($type, $formats) && !in_array($type, $proxy_child_types)) {
+						// send the type format bodycopy to the trash
+						$link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', true, $type);
+						if (!empty($link)) {
+							$folder->deleteLink($link['linkid']);
+						}
+					}
+				}
+			}
+
+			$asset->setAttrValue('types', $submitted_types);
+			return true;
+		} else {
+			return false;
+		}
+
+	}//end processAssetTypes()
 
 
 	/**
