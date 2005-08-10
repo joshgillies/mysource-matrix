@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.67 2005/08/10 04:12:33 tbarrett Exp $
+* $Id: search_manager.inc,v 1.68 2005/08/10 08:16:05 ndvries Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.67 $
+* @version $Revision: 1.68 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1763,7 +1763,6 @@ class Search_Manager extends Asset
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc'; // will definitely need this later.
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$query_comps = $this->constructBaseSearchQuery($search_info);
-		if (empty($base_query)) return Array();
 		$query_comps['select'][] = 'distinct a.assetid';
 		$query_comps['select'][] = '1 as weight';
 		$search_sql = implode_sql($query_comps);
