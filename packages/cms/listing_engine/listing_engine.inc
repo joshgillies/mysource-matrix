@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.76 2005/08/10 04:48:48 dheppell Exp $
+* $Id: listing_engine.inc,v 1.77 2005/08/10 07:56:37 gsherwood Exp $
 *
 */
 
@@ -43,7 +43,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.76 $
+* @version $Revision: 1.77 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1165,7 +1165,7 @@ class Listing_Engine extends Page
 							ob_start();
 							$onclick = Array();
 							$group_cb_id  = 'g_'.implode('_', $this->_tmp['group_info']);
-							$control_name = preg_replace('/\s/', '_', $selection_name.'_'.$group_cb_id);
+							$control_name = str_replace(' ', '_', $selection_name.'_'.$group_cb_id);
 							check_box($control_name, '1', false, 'sq_listing_check_state(this, \''.$selection_name.'\')');
 							$replacements[$selection_name.'_check_all_in_group'] = ob_get_clean();
 						}
@@ -1445,7 +1445,7 @@ class Listing_Engine extends Page
 
 				switch (array_get_index($settings, 'type', $selection_defaults['type'])) {
 					case 'textbox':
-						$selection_id = preg_replace('/\s/', '_', $selection_name.'['.$assetid.']');
+						$selection_id = str_replace(' ', '_', $selection_name.'['.$assetid.']');
 						if ($selection_restrict_enable) {
 							int_text_box($selection_id, $selection_value, $selection_allow_negative, 3, $selection_restrict_min, $selection_restrict_max);
 						} else {
@@ -1470,21 +1470,21 @@ class Listing_Engine extends Page
 						}
 
 						// list display
-						$selection_id = preg_replace('/\s/', '_', $selection_name.'['.$assetid.']');
+						$selection_id = str_replace(' ', '_', $selection_name.'['.$assetid.']');
 						combo_box($selection_id, $selection_list, $selection_allow_multiple, $selection_value);
 					break;
 
 					case 'radio':
 					default:
 						if ($selection_allow_multiple) {
-							$selection_id = preg_replace('/\s/', '_', $selection_name.'['.$assetid.']');
+							$selection_id = str_replace(' ', '_', $selection_name.'['.$assetid.']');
 							check_box($selection_id, '1', ($selection_value > 0 ? true : false), "sq_listing_check_state(this, '".$selection_name."')");
 
 							// the flag is used to determine whether a checkbox is
 							// present and not ticked, or not present at all
 							hidden_field($selection_name.'_flag', '1');
 						} else {
-							$selection_id = preg_replace('/\s/', '_', $selection_name);
+							$selection_id = str_replace(' ', '_', $selection_name);
 							radio_button($selection_id, $assetid, ($selection_value == $assetid ? true : false));
 						}
 					break;
@@ -2366,7 +2366,7 @@ class Listing_Engine extends Page
 				ob_start();
 				$onclick = Array();
 				$group_cb_id  = 'all';
-				$control_name = preg_replace('/\s/', '_', $selection_name.'_'.$group_cb_id);
+				$control_name = str_replace(' ', '_', $selection_name.'_'.$group_cb_id);
 				check_box($control_name, '1', false, "sq_listing_check_state(this, '".$selection_name."')");
 				$replacements[$selection_name.'_check_all'] = ob_get_clean();
 			} else {
@@ -2650,7 +2650,11 @@ class Listing_Engine extends Page
 
 		$select_lines = Array();
 		foreach ($rels as $rel) {
-			$select_lines[] = "[['".$rel['parent']."'], ['".implode("', '", $rel['children'])."']]";
+			$parent_code = str_replace(' ', '_', $rel['parent']);
+			for (reset($rel['children']); null !== ($k = key($rel['children'])); next($rel['children'])) {
+				$rel['children'][$k] = str_replace(' ', '_', $rel['children'][$k]);
+			}
+			$select_lines[] = "[['".$parent_code."'], ['".implode("', '", $rel['children'])."']]";
 		}
 		$code .= implode(', ', $select_lines);
 
