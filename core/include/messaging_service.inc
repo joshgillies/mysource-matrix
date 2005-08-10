@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: messaging_service.inc,v 1.39 2005/04/27 01:22:20 lwright Exp $
+* $Id: messaging_service.inc,v 1.39.2.1 2005/08/10 14:12:52 brobertson Exp $
 *
 */
 
@@ -44,7 +44,7 @@ define('SQ_MSG_PRIORITY_VERY_HIGH' , 5);
 *    Facilitate the sending and management of internal messages
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.39.2.1 $
 * @package MySource_Matrix
 */
 class Messaging_Service extends MySource_Object
@@ -89,6 +89,93 @@ class Messaging_Service extends MySource_Object
 		$this->MySource_Object();
 
 	}//end constructor
+
+
+	/**
+	* Returns the log types that are to be used for the passed message type
+	* Log Types: 'log_to_file', 'log_to_db', 'send_mail'
+	*
+	* @param string $msg_type	the message type (eg 'asset.workflow.announce.approve')
+	*
+	* @return array('string'=>bool)	array of log type => boolen for whether to use or not
+	* @public
+	*/
+	function getLogTypes($msg_type)
+	{
+
+		if (!isset($this->_tmp['message_type_logs'][$msg_type])) {
+
+			$this->_tmp['message_type_logs'][$msg_type] = Array();
+
+			$log_types = Array(
+							'log_to_file' => false, 
+							'log_to_db' => false,
+							'send_mail' => false,
+						 );
+
+			$msg_type_list = explode('.', $msg_type);
+
+			foreach(Array('log_to_file', 'log_to_db', 'send_mail') as $log_type) {
+
+				$def_name_w = 'SQ_MS_'.strtoupper($log_type).'_WHITE_LIST';
+				$def_name_b = 'SQ_MS_'.strtoupper($log_type).'_BLACK_LIST';
+				$types_w = explode("\n", constant($def_name_w));
+				$types_b = explode("\n", constant($def_name_b));
+
+				if (in_array($msg_type, $types_w)) {
+					// this exact type is white listed
+					$allow_log = true;
+				} else if (in_array($msg_type, $types_b)) {
+					// this exact type is black listed
+					$allow_log = false;
+				} else {
+
+					// We need to cycle through all the parts for completeness
+					// example of why:
+					//		msg_type = asset.attributes.fulllog.scalar
+					//		WHITE_LIST: asset.attributes.*
+					//		BLACK_LIST: asset.attributes.fulllog.*
+					// If we didn't go through whole list then we would be allowing this log
+					// when we have specifically denied it.
+
+					$allow_log = false;
+
+					if (in_array('*', $types_w)) {
+						// all messages of this type are white listed
+						$allow_log = true;
+					}
+
+					// check the virtual types to see if they clash
+					$check_code = '';
+					foreach ($msg_type_list as $code_part) {
+						if (!empty($check_code)) {
+							$check_code = trim($check_code, '* ');
+						}
+						$check_code .= $code_part.'.*';
+						if (in_array($check_code, $types_w)) {
+							// this virtual type is white listed
+							$allow_log = true;
+
+						}  else if (in_array($check_code, $types_b)) {
+							// this virtual type is explicitly black listed
+							$allow_log = false;
+
+						}
+
+					}
+
+				}
+
+				// cache this for this script execution
+				$this->_tmp['message_type_logs'][$msg_type][$log_type] = $allow_log;
+
+			}// end foreach
+
+		}//end if
+
+		return $this->_tmp['message_type_logs'][$msg_type];
+
+	}//end getLogTypes()
 
 
 //--        QUEUES        --//
@@ -288,9 +375,8 @@ class Messaging_Service extends MySource_Object
 	* so as to not clutter this functions
 	*
 	* @param array(int)	$to			an array of user or group IDs to send this message to
-	* @param string		$subject	the subject of the message (keep it short)
-	* @param string		$body		the main body of the message
 	* @param string		$type		the log type of this message (if any)
+	* @param Array		$reps		array of keywords replacements
 	*
 	* @return object Internal_Message
 	* @access public

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: internal_message.inc,v 1.60 2005/05/17 10:22:49 gnoel Exp $
+* $Id: internal_message.inc,v 1.60.2.1 2005/08/10 14:12:52 brobertson Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    An internal message to be sent around the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.60 $
+* @version $Revision: 1.60.2.1 $
 * @package MySource_Matrix
 */
 class Internal_Message extends MySource_Object
@@ -169,52 +169,8 @@ class Internal_Message extends MySource_Object
 		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 		$lm = &$GLOBALS['SQ_SYSTEM']->lm;
 
-		foreach (Array('log_to_file', 'log_to_db', 'send_mail') as $main_type_code) {
-			if (!isset($ms->_tmp['message_type_logs'][$main_type_code][$this->type])) {
-				$def_name_w = 'SQ_MS_'.strtoupper($main_type_code).'_WHITE_LIST';
-				$def_name_b = 'SQ_MS_'.strtoupper($main_type_code).'_BLACK_LIST';
-				$types_w = explode("\n", constant($def_name_w));
-				$types_b = explode("\n", constant($def_name_b));
-
-				$type_code_list = explode('.', $this->type);
-
-				if (in_array($this->type, $types_w)) {
-					// this exact type is white listed
-					$allow_log = true;
-				} else if (in_array($this->type, $types_b)) {
-					// this exact type is black listed
-					$allow_log = false;
-				} else {
-					$allow_log = false;
-					if (in_array('*', $types_w) && !in_array('*', $types_b)) {
-						// all messages of this type are white listed and not black listed
-						$allow_log = true;
-					}
-
-					if (!$allow_log) {
-						// keep checking the virtual types to see if we should log this
-						$check_code = '';
-						foreach ($type_code_list as $type_code) {
-							if (!empty($check_code)) {
-								$check_code = trim($check_code, '.* ');
-								$check_code .= '.';
-							}
-							$check_code .= $type_code.'.*';
-							if (in_array($check_code, $types_w) && !in_array($check_code, $types_b)) {
-								// this virtual type is white listed and not black listed
-								$allow_log = true;
-								break;
-							}
-						}
-					}
-				}
-
-				// cache this for this script execution
-				$ms->_tmp['message_type_logs'][$main_type_code][$this->type] = $allow_log;
-			}
-
-			$$main_type_code = $ms->_tmp['message_type_logs'][$main_type_code][$this->type];
-
+		foreach ($ms->getLogTypes($this->type) as $main_type_code => $allow_log) {
+			$$main_type_code = $allow_log;
 		}//end foreach
 
 
