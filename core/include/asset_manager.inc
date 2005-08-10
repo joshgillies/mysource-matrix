@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.354 2005/08/10 00:51:06 mmcintyre Exp $
+* $Id: asset_manager.inc,v 1.355 2005/08/10 03:35:23 ndvries Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.354 $
+* @version $Revision: 1.355 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2158,47 +2158,62 @@ class Asset_Manager extends MySource_Object
 	*/
 	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=true, $side_of_link='major', $value=null, $dependant=null, $exclusive=null, $sort_by=null, $access=null)
 	{
-		assert_valid_assetid($assetid);
+		//$dependant_links = $this->getLinks($asset->id, SQ_SC_LINK_SIGNIFICANT, $type_code, $strict_type_code, 'minor', null, 1);
 		assert_false($side_of_link != 'major' && $side_of_link != 'minor', 'Unknown Side of Link "'.$side_of_link.'"');
 
-		// check if we are getting links for a shadow asset, and palm the request off to the
-		// handler of the shadow asset if we are
-		$id_parts = explode(':', $assetid);
-		if (isset($id_parts[1])) {
-			$real_assetid = $id_parts[0];
-			$asset = &$this->getAsset($real_assetid);
-			if (is_null($asset)) return Array();
-			$links = $asset->getLinks($id_parts[1], $link_types, $type_code, $strict_type_code, $side_of_link, $sort_by);
-			$this->forgetAsset($asset);
-			return $links;
+		if (!is_array($assetid)) {
+			$assetids = Array($assetid);
+		} else {
+			$assetids = $assetid;
 		}
 
+		$links = Array();
+		$query_assetids = Array();
+		foreach ($assetids as $assetid) {
+			assert_valid_assetid($assetid);
 
-		// we are not getting links for a shadow asset, so if we are getting child links of
-		// an asset that handles shadow assets, palm the request off to it
-		if ($side_of_link == 'major') {
-			$asset = &$this->getAsset($assetid);
-			if (is_null($asset)) return Array();
-			if (implements_interface($asset, 'bridge')) {
-				$links = $asset->getLinks($assetid, $link_types, $type_code, $strict_type_code, $side_of_link, $sort_by);
+			// check if we are getting links for a shadow asset, and palm the request off to the
+			// handler of the shadow asset if we are
+			$id_parts = explode(':', $assetid);
+			if (isset($id_parts[1])) {
+				$real_assetid = $id_parts[0];
+				$asset = &$this->getAsset($real_assetid);
+				if (is_null($asset)) continue;
+				$links[$assetid] = $asset->getLinks($id_parts[1], $link_types, $type_code, $strict_type_code, $side_of_link, $sort_by);
 				$this->forgetAsset($asset);
-				return $links;
+				continue;
 			}
-			$this->forgetAsset($asset);
-			unset($asset);
+
+			// we are not getting links for a shadow asset, so if we are getting child links of
+			// an asset that handles shadow assets, palm the request off to it
+			if ($side_of_link == 'major') {
+				$asset = &$this->getAsset($assetid);
+				if (is_null($asset)) return Array();
+				if (implements_interface($asset, 'bridge')) {
+					$links[$assetid] = $asset->getLinks($assetid, $link_types, $type_code, $strict_type_code, $side_of_link, $sort_by);
+					$this->forgetAsset($asset);
+					continue;
+				}
+				$this->forgetAsset($asset);
+			}
+
+			// we now have an assetid that still requires a query, so we'll add it to its own list
+			$query_assetids[] = $assetid;
 		}
 
+		if (!empty($query_assetids)) {
+			// we couldnt palm the request off, so we better do it ourselves
+			$query = $this->generateGetLinksQuery($query_assetids, $link_types, $type_code, $strict_type_code, $side_of_link, $value, $dependant, $exclusive, $sort_by, $access);
+			if (!empty($query)) {
+				$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		// we couldnt palm the request off, so we better do it ourselves
-		$query = $this->generateGetLinksQuery($assetid, $link_types, $type_code, $strict_type_code, $side_of_link, $value, $dependant, $exclusive, $sort_by, $access);
+				$result = $db->getAssoc(implode(' ', $query), false, Array(), DB_FETCHMODE_ASSOC, true);
+				assert_valid_db_result($result);
+				$links += $result;
+			}
+		}
 
-		if (empty($query)) return Array();
-
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$result = $db->getAll(implode(' ', $query));
-		assert_valid_db_result($result);
-
-		return $result;
+		return (count($links) == 1) ? array_shift($links) : $links;
 
 	}//end getLinks()
 
@@ -5254,20 +5269,30 @@ class Asset_Manager extends MySource_Object
 	{
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
-		assert_valid_assetid($assetid);
 		assert_false($side_of_link != 'major' && $side_of_link != 'minor', 'Unknown Side of Link "'.$side_of_link.'"');
-
 		$other_side = ($side_of_link == 'major') ? 'minor' : 'major';
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$select = 'SELECT  l.linkid, l.'.$other_side.'id, l.value, l.link_type,
+		$assetid_cond = '';
+		if (is_array($assetid)) {
+			for (reset($assetid); null !== ($i = key($assetid)); next($assetid)) {
+				assert_valid_assetid($assetid[$i]);
+				$assetid[$i] = $db->quote($assetid[$i]);
+			}
+			$assetid_cond = 'IN ('.implode(', ', $assetid).')';
+		} else {
+			assert_valid_assetid($assetid);
+			$assetid_cond = '= '.$db->quote($assetid);
+		}
+
+		$select = 'SELECT  l.'.$side_of_link.'id, l.'.$other_side.'id, l.linkid, l.value, l.link_type,
 						a.type_code as '.$other_side.'_type_code, l.sort_order, l.is_dependant, l.is_exclusive';
 		$from   = 'FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l,
 						'.SQ_TABLE_RUNNING_PREFIX.'ast a';
 
 		$where  = 'l.'.$other_side.'id = a.assetid
-				   AND l.'.$side_of_link.'id = '.$db->quote($assetid).'
+				   AND l.'.$side_of_link.'id '.$assetid_cond.'
 				   AND '.db_extras_bitand($db, 'l.link_type', $db->quote($link_types)).' > 0 ';
 		if (!is_null($value)) {
 			$where .= ' AND (l.value = '.$db->quote($value);
