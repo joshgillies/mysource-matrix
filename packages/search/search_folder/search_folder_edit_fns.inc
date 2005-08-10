@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_folder_edit_fns.inc,v 1.15 2005/06/20 04:06:32 dheppell Exp $
+* $Id: search_folder_edit_fns.inc,v 1.16 2005/08/10 04:12:29 tbarrett Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -92,7 +92,7 @@ class Search_Folder_Edit_Fns extends Asset_Edit_Fns
 			}
 
 			if (!is_null($root_asset)) {
-				echo $root_asset->name . ' (Id: #' . $root_asset->id . ')';
+				echo $root_asset->name.' (Id: #'.$root_asset->id.')';
 			} else {
 				echo translate('sch_folder_no_search_root');
 			}

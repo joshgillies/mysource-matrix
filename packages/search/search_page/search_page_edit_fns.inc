@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_edit_fns.inc,v 1.56 2005/08/10 01:49:35 ndvries Exp $
+* $Id: search_page_edit_fns.inc,v 1.57 2005/08/10 04:12:36 tbarrett Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine_edit_fns.inc';
 *     Edit functions for search page
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.56 $
+* @version $Revision: 1.57 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -159,326 +159,192 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 	{
 		$write_access = $asset->writeAccess('attributes');
 		$fields = $asset->attr('fields');
-
 		$query_types = Array(
+						'none'			=> ucfirst(translate('sch_page_add_data_source')),
 						'include_all'	=> ucfirst(translate('include_all')),
-						'exclude'		=> ucfirst(translate('exclude')),
-						'asset_attrib'	=> ucfirst(translate('asset_attribute')),
-						'asset_date'	=> ucfirst(translate('asset_date')),
-						'metadata'		=> ucfirst(translate('metadata')),
+						'standard'		=> ucfirst(translate('sch_page_datatype_standard')),
+						'asset_attrib'	=> ucfirst(translate('sch_page_datatype_attribute')),
+						'metadata'		=> ucfirst(translate('sch_page_datatype_metadata')),
 					   );
 
 		$i = 0;
-
-		$o->openSection(translate('sch_page_standard_search_fields'));
-		$o->openField('');
 		?>
-		<table class="sq-backend-table">
+		<table class ="sq-backend-table" border="1" style="margin-bottom: 7px">
 			<tr>
-				<td class="sq-backend-table-header" style="width: 200px;"><?php echo translate('name') ?></td>
-				<td class="sq-backend-table-header"><?php echo translate('type') ?></td>
+				<th rowspan="2"><?php echo translate('name'); ?></th>
+				<th colspan="3"><?php echo translate('sch_page_data_sources');?></th>
 				<?php
 				if ($write_access) {
-					?><td class="sq-backend-table-header" style="width: 200px;"><?php echo translate('delete_question') ?></td><?php
+				?>
+					<th rowspan="2"><?php echo translate('delete'); ?></th>
+				<?php
+				}
+				?>
+			</tr>
+			<tr>
+				<th><?php echo translate('type');?></th>
+				<th <?php if (!$write_access) echo 'colspan=2';?>><?php echo translate('details');?> </th>
+				<?php
+				if ($write_access) {
+				?>
+					<th><?php echo translate('delete'); ?></th>
+				<?php
 				}
 				?>
 			</tr>
 			<?php
 			foreach ($fields as $field_name => $field_data) {
-				if ($field_data['type'] != 'include_all' && $field_data['type'] != 'exclude') {
+				$field_datasources = $field_data['data_sources'];
+				if ((!empty($field_datasources)) && ($field_datasources[0]['type'] == 'exclude')) {
 					continue;
 				}
-				?>
-				<tr>
-					<td class="sq-backend-data" style="padding: 4px;">
+				if ($write_access) $field_datasources[] = 'new';
+				$i = 0;
+				foreach ($field_datasources as $index => $field_datasource) {
+					?>
+					<tr>
 						<?php
-							if ($write_access) {
-								text_box($prefix.'_fields['.$i.'][name]', $field_name);
-							} else {
-								echo $field_name;
-							}
-						?>
-					</td>
-					<td class="sq-backend-data"><?php echo $query_types[$field_data['type']] ?></td>
-					<?php
-					if ($write_access) {
-						?>
-						<td class="sq-backend-data">
+						if ($index == 0) {
+							?>
+							<td rowspan="<?php echo count($field_datasources);?>"> <?php echo $field_data['name'] ?></td>
 							<?php
-								hidden_field($prefix.'_fields['.$i.'][type]', $field_data['type']);
-								check_box($prefix.'_deleted_fields['.$i.']')
+						}
+						?>
+						<td class="sq-backend-data" style="padding: 4px;">
+							<?php
+							if ($field_datasource == 'new') {
+								if ($write_access) {
+									combo_box($prefix.'_fields['.$field_name.'][new_data_source_type]', $query_types, false,'none');
+								}
+							} else {
+								if (isset($field_datasource['type'])) {
+									$type = $field_datasource['type'];
+								}
+								echo $query_types[$type];
+							}
 							?>
 						</td>
-						<?php
-					}
-					?>
-				</tr>
-				<?php
-				$i++;
-			}//end foreach field
-			?>
-		</table>
-		<?php
-
-		$o->closeField();
-		$o->closeSection();
-		$o->openSection(translate('sch_page_attribute_search_fields'));
-		$o->openField('');
-
-		?>
-		<table class="sq-backend-table">
-			<tr>
-				<td class="sq-backend-table-header" style="width: 200px;"><?php echo ucfirst(translate('name')); ?></td>
-				<td class="sq-backend-table-header"><?php echo ucwords(translate('asset_type')); ?></td>
-				<td class="sq-backend-table-header"><?php echo ucfirst(translate('attribute')); ?></td>
-				<?php
-				if ($write_access) {
-					?><td class="sq-backend-table-header" style="width: 200px;"><?php echo translate('delete_question'); ?></td><?php
-				}
-				?>
-			</tr>
-			<?php
-			foreach ($fields as $field_name => $field_data) {
-				if ($field_data['type'] != 'asset_attrib') continue;
-				?>
-				<tr>
-					<td class="sq-backend-data" style="padding: 4px;">
-						<?php
-							if ($write_access) {
-								text_box($prefix.'_fields['.$i.'][name]', $field_name);
-							} else {
-								echo $field_name;
-							}
-						?>
-					</td>
-					<td class="sq-backend-data">
-						<?php
-						if (!isset($field_data['params'])) {
-							$field_data['params'] = Array();
-						}
-						$search_types = $asset->attr('types');
-						$search_type = array_get_index($field_data['params'], 'asset_type', '0');
-
-						if (!empty($search_types)) {
-							if ($write_access) {
-								$options = Array('' => '- type -');
-								foreach (array_keys($search_types) as $type) {
-									$options[$type] = $type;
+						<td>
+							<?php
+							if ($field_datasource != 'new') {
+								if ($type == 'asset_attrib') {
+									if (!isset($field_datasource['params'])) {
+										$field_datasources[$index]['params'] = Array();
+									}
+									$search_types = $asset->attr('types');
+									$search_type = array_get_index($field_datasources[$index]['params'], 'asset_type', '0');
+									if ($write_access) {
+										$options = Array('' => '-- '.translate('select_asset_type').' --');
+										foreach (array_keys($search_types) as $this_type) {
+											$options[$this_type] = $this_type;
+										}
+										combo_box($prefix.'_fields['.$field_name.'][data_sources]['.$i.'][params][asset_type]', $options, false, $search_type);
+									} else {
+										echo translate('asset_type').':  '.$search_type;
+									}
+									// printing out attribute selection combo box
+									if (!isset($field_datasource['params']['attrid']) || empty($search_type)) {
+										$selected_attr = '';
+									} else {
+										$selected_attr = $field_datasource['params']['attrid'];
+									}
+									if (!empty($search_type)) {
+										$asset_type_attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($search_type, Array('attrid', 'name'));
+										if ($write_access) {
+											$type_attrs = Array('' => '-- '.translate('select_attribute').' --');
+											foreach ($asset_type_attrs as $attr_id => $attr_name) {
+												$type_attrs[$attr_id] = $attr_name;
+											}
+											combo_box($prefix.'_fields['.$field_name.'][data_sources]['.$i.'][params][attrid]', $type_attrs, false, $selected_attr);
+										} else if ($selected_attr != '') {
+											echo '<br />'.translate('attribute').':  '.$asset_type_attrs[$selected_attr];
+										}
+									}
+									?>
+									<?php
 								}
-								combo_box($prefix.'_fields['.$i.'][params][asset_type]', $options, false, $search_type);
-							} else {
-								echo $search_type;
-							}
-						}
-						?>
-					</td>
-					<td>
-						<?php
-						// printing out attribute selection combo box
-						if (!isset($field_data['params']['attrid']) || empty($search_type)) {
-							$selected_attr = '';
-						} else {
-							$selected_attr = $field_data['params']['attrid'];
-						}
-
-						if (!empty($search_type)) {
-
-							$asset_type_attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($search_type, Array('attrid', 'name'));
-
-							if ($write_access) {
-								$type_attrs = Array('' => '-- '.translate('select_attribute').' --');
-								$sm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
-								foreach ($asset_type_attrs as $attr_id => $attr_name) {
-									if ($sm->isAttributeIndexable($attr_id)) {
-										$type_attrs[$attr_id] = $attr_name;
+								if ($type == 'metadata') {
+									if (!isset($field_datasource['params'])) {
+										$field_datasource['params'] = Array();
+									}
+									$metadata_field = array_get_index($field_datasource['params'], 'assetid', '0');
+									if ($write_access) {
+										asset_finder($prefix.'_fields['.$field_name.'][data_sources]['.$i.'][params][metadata_field]', $metadata_field, Array('metadata_field' => 'D'));
+									} else {
+										if ($metadata_field > 0) {
+											$field_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($metadata_field);
+											if (!is_null($metadata_field)) {
+												echo translate('sch_page_metadata_field').': '.$field_asset->name.' (ID #'.$field_asset->id.')';
+											} else {
+												echo translate('sch_page_no_metadata_field_specified');
+											}
+										} else {
+											echo translate('sch_page_no_metadata_field_specified');
+										}
 									}
 								}
-								combo_box($prefix.'_fields['.$i.'][params][attrid]', $type_attrs, false, $selected_attr);
-							} else if ($selected_attr != '') {
-								echo $asset_type_attrs[$selected_attr];
-							}
-						}
-						?>
-					</td>
-					<?php
-					if ($write_access) {
-						?>
-						<td class="sq-backend-data">
-							<?php
-								hidden_field($prefix.'_fields['.$i.'][type]', $field_data['type']);
-								check_box($prefix.'_deleted_fields['.$i.']')
-							?>
-						</td>
-						<?php
-					}
-					?>
-				</tr>
-				<?php
-				$i++;
-			}//end foreach fields
-			?>
-		</table>
-		<?php
 
-
-		$o->closeField();
-		$o->closeSection();
-		$o->openSection(translate('sch_page_asset_date_search_fields'));
-		$o->openField('');
-
-		?>
-		<table class="sq-backend-table">
-			<tr>
-				<td class="sq-backend-table-header" style="width: 200px;"><?php echo ucfirst(translate('name')); ?></td>
-				<td class="sq-backend-table-header"><?php echo ucwords(translate('date_type')) ?></td>
-				<?php
-				if ($write_access) {
-					?><td class="sq-backend-table-header" style="width: 200px;"><?php echo translate('delete_question') ?></td><?php
-				}
-				?>
-			</tr>
-			<?php
-			foreach ($fields as $field_name => $field_data) {
-				if ($field_data['type'] != 'asset_date') continue;
-				?>
-				<tr>
-					<td class="sq-backend-data" style="padding: 4px;">
-						<?php
-							if ($write_access) {
-								text_box($prefix.'_fields['.$i.'][name]', $field_name);
-							} else {
-								echo $field_name;
-							}
-						?>
-					</td>
-					<td class="sq-backend-data">
-						<?php
-						if (!isset($field_data['params'])) {
-							$field_data['params'] = Array();
-						}
-						$date_types = Array(
-										''			=> '-- '.translate('select_date').' --',
-										'created'	=> translate('created'),
-										'updated'	=> translate('updated'),
-										'published'	=> translate('published'),
-									  );
-
-						$date_type = array_get_index($field_data['params'], 'date_type', '');
-
-						if ($write_access) {
-							combo_box($prefix.'_fields['.$i.'][params][date_type]', $date_types, false, $date_type);
-						} else {
-							echo $date_types[$date_type];
-						}
-						?>
-					</td>
-					<?php
-					if ($write_access) {
-						?>
-						<td class="sq-backend-data">
-							<?php
-								hidden_field($prefix.'_fields['.$i.'][type]', $field_data['type']);
-								check_box($prefix.'_deleted_fields['.$i.']')
-							?>
-						</td>
-						<?php
-					}
-					?>
-				</tr>
-				<?php
-				$i++;
-			}//end foreach fields
-			?>
-		</table>
-		<?php
-
-		$o->closeField();
-		$o->closeSection();
-		$o->openSection(translate('sch_page_metadata_search_fields'));
-		$o->openField('');
-
-		?>
-		<table class="sq-backend-table">
-			<tr>
-				<td class="sq-backend-table-header" style="width: 200px;"><?php echo translate('name') ?></td>
-				<td class="sq-backend-table-header"><?php echo translate('metadata_field') ?></td>
-				<?php
-				if ($write_access) {
-					?><td class="sq-backend-table-header" style="width: 200px;"><?php echo translate('delete_question') ?></td><?php
-				}
-				?>
-			</tr>
-			<?php
-			foreach ($fields as $field_name => $field_data) {
-				if ($field_data['type'] != 'metadata') continue;
-				?>
-				<tr>
-					<td class="sq-backend-data" style="padding: 4px;">
-						<?php
-							if ($write_access) {
-								text_box($prefix.'_fields['.$i.'][name]', $field_name);
-							} else {
-								echo $field_name;
-							}
-						?>
-					</td>
-					<td class="sq-backend-data">
-						<?php
-						if (!isset($field_data['params'])) {
-							$field_data['params'] = Array();
-						}
-						$metadata_field = array_get_index($field_data['params'], 'assetid', '0');
-
-						if ($write_access) {
-							asset_finder($prefix.'_fields['.$i.'][params][metadata_field]', $metadata_field, Array('metadata_field' => 'D'));
-						} else {
-							if ($metadata_field > 0) {
-								$field_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($metadata_field);
-								if (!is_null($metadata_field)) {
-									echo $field_asset->name.' #'.$field_asset->id;
-								} else {
-									echo translate('sch_page_no_metadata_field_specified');
+								if ($type == 'standard') {
+									if (!isset($field_datasource['params'])) {
+										$field_datasources[$index]['params'] = Array();
+									}
+									if (isset($field_datasource['params']['field'])) {
+										$selected_attr_name = $field_datasource['params']['field'];
+									} else {
+										$selected_attr_name = '';
+									}
+									if ($write_access) {
+										$type_attrs = Array('' => '-- '.translate('select_attribute').' --');
+										$sm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
+										$attributes = $sm->standard_date_fields + $sm->standard_text_fields;
+										combo_box($prefix.'_fields['.$field_name.'][data_sources]['.$i.'][params][field]', $attributes, false, $selected_attr_name);
+									} else if ($selected_attr_name != '') {
+										echo translate('sch_page_field').':  '.$selected_attr_name;
+									}
 								}
-							} else {
-								echo translate('sch_page_no_metadata_field_specified');
+								if ($type == 'include_all') {
+									echo '&nbsp;';
+									hidden_field($prefix.'_fields['.$field_name.'][data_sources]['.$i.'][params]', '');
+								}
 							}
-						}
-						?>
-					</td>
-					<?php
-					if ($write_access) {
-						?>
-						<td class="sq-backend-data">
-							<?php
-								hidden_field($prefix.'_fields['.$i.'][type]', $field_data['type']);
-								check_box($prefix.'_deleted_fields['.$i.']')
 							?>
 						</td>
 						<?php
+						if ($write_access) {
+							?>
+							<td class="sq-backend-data">
+								<?php
+								if ($field_datasource != 'new') {
+									check_box($prefix.'_fields['.$field_name.'][data_sources]]'.$i.'][delete]');
+								}
+								?>
+							</td>
+							<?php
+						}
+						if (($index == 0) && $write_access) {
+							?>
+							<td rowspan=<?php echo count($field_datasources);?>>
+								<?php
+									check_box($prefix.'_fields['.$field_name.'][delete]');
+								?>
+							</td>
+							<?php
+						}
+						?>
+						<?php
+						$i++;
 					}
-					?>
-				</tr>
-				<?php
-				$i++;
-			}//end foreach fields
-			?>
+				}
+				?>
+			</tr>
+
 		</table>
-		<br />
 		<?php
-
-		$o->closeField();
-		$o->closeSection();
 		if ($asset->writeAccess('attributes')) {
-			$o->closeField();
-			$i++;
-			$o->openField(translate('add_field'));
-				echo 'Name: ';
-				text_box($prefix.'_fields['.$i.'][name]', '', 15);
-				echo ' Type: ';
-				combo_box($prefix.'_fields['.$i.'][type]', $query_types, false, 'include_all');
-			// field closed by asset_edit_interface
+			label(translate('sch_page_new_search_field'), $prefix.'_new_field_name');
+			echo '&nbsp;';
+			text_box($prefix.'_new_field_name', '', 15);
 		}
-
 		return true;
 
 	}//end paintFields()
@@ -497,36 +363,139 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 	*/
 	function processFields(&$asset, &$o, $prefix)
 	{
-		if (!$asset->writeAccess('attributes')) return false;
-
-		$fields_post = array_get_index($_POST, $prefix.'_fields', Array());
-		$deleted_fields = array_get_index($_POST, $prefix.'_deleted_fields', Array());
-
-		$fields = Array();
-		if (!empty($fields_post)) {
-			foreach ($fields_post as $i => $field_data) {
-
-				$field_data['name'] = str_replace(' ','_',$field_data['name']);
-
-				if (isset($deleted_fields[$i])) continue;          // remove deleted fields
-				if ($field_data['name'] == '') continue;           // remove fields with no name
-				if (isset($fields[$field_data['name']])) continue; // ensure no duplicate names
-
-				// metadata needs to rework the params array
-				if ($field_data['type'] == 'metadata') {
-					$fieldid = 0;
-					if (isset($field_data['params'])) {
-						$fieldid = array_get_index($field_data['params']['metadata_field'], 'assetid', '');
+		$old_fields = $asset->attr('fields');
+		$new_fields = Array();
+		foreach ($_POST[$prefix.'_fields'] as $field_name => $field) {
+			if (!isset($field['delete'])) {
+				$new_fields[$field_name]['name'] = $old_fields[$field_name]['name'];
+				$field_datasources = array_get_index($field, 'data_sources', Array());
+				$new_fields[$field_name]['data_sources'] = Array();
+				foreach ($field_datasources as $i => $field_datasource) {
+					if (!isset($field_datasource['delete'])) {
+						$new_datasource = Array();
+						$new_datasource['type'] = $old_fields[$field_name]['data_sources'][$i]['type'];
+						if ($new_datasource['type'] != 'metadata') {
+							$new_datasource['params'] = $field_datasource['params'];
+						} else {
+							$new_datasource['params']['assetid'] = $field_datasource['params']['metadata_field']['assetid'];
+						}
+						$new_fields[$field_name]['data_sources'][] = $new_datasource;
 					}
-					$field_data['params'] = Array('assetid' => $fieldid);
 				}
-				$fields[$field_data['name']] = $field_data;
+				if (!empty($field['new_data_source_type']) && $field['new_data_source_type'] != 'none') {
+					$new_datasource = Array();
+					$new_datasource['type'] = $field['new_data_source_type'];
+					$new_datasource['params'] = Array();
+					$new_fields[$field_name]['data_sources'][] = $new_datasource;
+				}
 			}
 		}
 
-		return $asset->setAttrValue('fields', $fields);
+		if (!empty($_POST[$prefix.'_new_field_name'])) {
+			$safe_name = strtolower(str_replace(' ', '_', $_POST[$prefix.'_new_field_name']));
+			$new_fields[$safe_name]['name'] = $_POST[$prefix.'_new_field_name'];
+			$new_fields[$safe_name]['data_sources'] = Array();
+		}
+
+		foreach ($old_fields as $field_name => $field) {
+			if ((!empty($field['data_sources'])) && ($field['data_sources'][0]['type'] == 'exclude')) {
+				$new_fields[$field_name] = $field;
+			}
+		}
+		return $asset->setAttrValue('fields', $new_fields);
 
 	}//end processFields()
+
+
+	/**
+	* Paints the interface for adding and configuring Exlude fields.
+	*
+	* @param object Search_Page			&$asset	the search page asset
+	* @param object Backend_Outputter	&$o		the backend outputter
+	* @param string						$prefix	prefix for form elements
+	*
+	* @return void
+	* @access public
+	*
+	*/
+	function paintExcludeFields(&$asset, &$o, $prefix)
+	{
+		$fields = $asset->attr('fields');
+		$write_access = $asset->writeAccess('attributes');
+		?>
+		<table class="sq-backend-table" style="margin-bottom: 7px">
+			<tr>
+				<th <?php if (!$write_access) echo 'colspan=2';?>><?php echo translate('name');?></th>
+				<?php
+				if ($write_access) {
+					?>
+					<th><?php echo translate('delete');?></th>
+					<?php
+				}
+				?>
+			</tr>
+				<?php
+				foreach ($fields as $field_name => $field_data) {
+					$field_datasources = $field_data['data_sources'];
+					if ((!empty($field_datasources)) && ($field_datasources[0]['type'] == 'exclude')) {
+						?>
+						<tr>
+							<td><?php echo $field_data['name'];?></td>
+							<?php
+							if ($write_access) {
+								?>
+								<td class="sq-backend-data">
+									<?php
+									check_box($prefix.'_delete_exclude_fields['.$field_name.']');
+									?>
+								</td>
+								<?php
+							}
+							?>
+						</tr>
+						
+						<?php
+					}
+				}
+				?>
+		</table>
+		<?php
+		if ($write_access) {
+			label(translate('sch_page_new_exclude_field'), $prefix.'_new_exclude_field');
+			echo '&nbsp;';
+			text_box($prefix.'_new_exclude_field', '', 15);
+		}
+
+	}//end paintExcludeFields()
+
+
+	/**
+	* Processes the interface for adding and configuring Exclude fields.
+	*
+	* @param object Search_Page			&$asset	the search page asset
+	* @param object Backend_Outputter	&$o		the backend outputter
+	* @param string						$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access public
+	*
+	*/
+	function processExcludeFields(&$asset, &$o, $prefix)
+	{
+		$fields = $asset->attr('fields');
+		if (isset($_POST[$prefix.'_delete_exclude_fields'])) {
+			foreach ($_POST[$prefix.'_delete_exclude_fields'] as $field_name => $field) {
+				unset($fields[$field_name]);
+			}
+		}
+		if (!empty($_POST[$prefix.'_new_exclude_field'])) {
+			$safe_name = strtolower(str_replace(' ', '_', $_POST[$prefix.'_new_exclude_field']));
+			$fields[$safe_name]['name'] = $_POST[$prefix.'_new_exclude_field'];
+			$fields[$safe_name]['data_sources'][0]['type'] = 'exclude';
+		}
+		return $asset->setAttrValue('fields', $fields);
+
+	}//end processExcludeFields()
 
 
 	/**
@@ -542,33 +511,40 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 	*/
 	function paintStyles(&$asset, &$o, $prefix)
 	{
+
 		$write_access = $asset->writeAccess('attributes');
 		$search_styles = $asset->attr('search_styles');
 		$fields = $asset->attr('fields');
-
 		foreach ($fields as $field) {
-
-			if ($field['type'] == 'asset_attrib') {
-
-				if (!isset($field['params']['attrid'])) continue;
-				$attribute = &$GLOBALS['SQ_SYSTEM']->am->getAttribute($field['params']['attrid']);
-				if (is_null($attribute)) continue;
-
-				// if this is a boolean or selection field, we want to make sure blank options are allowed
-				if ($attribute->type() == 'boolean' || $attribute->type() == 'selection') {
-					$attribute->_params['allow_empty'] = true;
+			$field_datasources = $field['data_sources'];
+			$type = null;
+			foreach ($field_datasources as $field_datasource) {
+				if (isset($field_datasource['type'])) {
+					$type = $field_datasource['type'];
 				}
+				if ($type == 'asset_attrib') {
 
-				if (!empty($search_styles) && isset($search_styles[$attribute->id])) {
-					$attribute->_edit_params = $search_styles[$attribute->id];
-				}
+					if (!isset($field_datasource['params']['attrid'])) {
+						continue;
+					}
+					$attribute = &$GLOBALS['SQ_SYSTEM']->am->getAttribute($field_datasource['params']['attrid']);
+					if (is_null($attribute)) continue;
 
-				echo '<p>';
-				$attribute->paintEditParams($prefix.'_'.$attribute->id, $write_access);
-				echo '</p>';
+					// if this is a boolean or selection field, we want to make sure blank options are allowed
+					if ($attribute->type() == 'boolean' || $attribute->type() == 'selection') {
+						$attribute->_params['allow_empty'] = true;
+					}
 
-			}//end if asset attribute
+					if (!empty($search_styles) && isset($search_styles[$attribute->id])) {
+						$attribute->_edit_params = $search_styles[$attribute->id];
+					}
 
+					echo '<p>';
+					$attribute->paintEditParams($prefix.'_'.$attribute->id, $write_access);
+					echo '</p>';
+
+				}//end if asset attribute
+			}
 		}//end foreach fields
 
 		return $write_access;
@@ -596,13 +572,20 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 
 		$fields = $asset->attr('fields');
 
-		foreach ($fields as $fieldname => $field) {
-			if ($field['type'] == 'asset_attrib') {
-				if (empty($field['params']['attrid'])) continue;
-				$attribute = &$GLOBALS['SQ_SYSTEM']->am->getAttribute($field['params']['attrid']);
-				$search_styles[$attribute->id] = $attribute->processEditParams($prefix.'_'.$attribute->id);
+		/*foreach ($fields as $fieldname => $field) {
+			$field_datasources = $field['data_sources'];
+			$type = null;
+			foreach ($field_datasources as $field_datasource) {
+				if(isset($field_datasource['type']))
+					$type = $field_datasource['type'];
+				if ($type == 'asset_attrib') {
+
+					if (empty($field_datasource['params']['attrid'])) continue;
+					$attribute = &$GLOBALS['SQ_SYSTEM']->am->getAttribute($field_datasource['params']['attrid']);
+					$search_styles[$attribute->id] = $attribute->processEditParams($prefix.'_'.$attribute->id);
+				}
 			}
-		}
+		}*/
 
 		$asset->setAttrValue('search_styles', $search_styles);
 

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_management.inc,v 1.45 2005/08/10 01:49:35 ndvries Exp $
+* $Id: search_page_management.inc,v 1.46 2005/08/10 04:12:36 tbarrett Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.46 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -430,7 +430,38 @@ class Search_Page_Management extends Asset_Management
 			}
 		}
 
-
+		if (version_compare($current_version, '0.16', '<')) {
+			bam('STARTING SEARCH PAGE UPGRADE - FROM VERSION 0.15');
+			// fields format changed in v0.16
+			$children = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), false);
+			foreach ($children as $assetid) {
+				bam("Upgrading Search Page #$assetid");
+				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$new_fields = Array();
+				foreach ($asset->attr('fields') as $field_name => $field_data) {
+					$new_fields[$field_name] = Array();
+					$new_fields[$field_name]['name'] = $field_data['name'];
+					$new_fields[$field_name]['data_sources'] = Array();
+					if ($field_data['type'] == 'asset_date') {
+						$new_fields[$field_name]['data_sources'][] = Array(
+																		'type'		=> 'standard',
+																		'params'	=> Array(
+																						'field'	=> $field_data['params']['date_type'],
+																					   ),
+																	 );
+					} else {
+						$new_fields[$field_name]['data_sources'][] = Array(
+																		'type'		=> $field_data['type'],
+																		'params'	=> array_get_index($field_data, 'params', Array()),
+																	 );
+					}
+				}
+				$asset->setAttrValue('fields', $new_fields);
+				$asset->saveAttributes();
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+			}
+			bam('FINISHED SEARCH PAGE UPGRADE FROM VERSION 0.15');
+		}
 
 		return true;
 

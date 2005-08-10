@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.66 2005/08/05 03:49:30 mmcintyre Exp $
+* $Id: search_manager.inc,v 1.67 2005/08/10 04:12:33 tbarrett Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -23,12 +23,14 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.66 $
+* @version $Revision: 1.67 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
 class Search_Manager extends Asset
 {
+	var $standard_date_fields = null;
+	var $standard_text_fields = null;
 
 
 	/**
@@ -41,6 +43,17 @@ class Search_Manager extends Asset
 	{
 		$this->_ser_attrs = true;
 		$this->Asset($assetid);
+		$this->standard_date_fields = Array(
+										'created'			=> translate('asset_created_date'),
+										'updated'			=> translate('asset_updated_date'),
+										'published'			=> translate('asset_published_date'),
+										'status_changed'	=> translate('asset_status_changed_date'),
+									  );
+		$this->standard_text_fields = Array(
+										'name'			=> translate('asset_name'),
+										'short_name'	=> translate('asset_name_short'),
+										'contents'		=> translate('asset_contents'),
+									  );
 
 	}//end constructor
 
@@ -323,7 +336,7 @@ class Search_Manager extends Asset
 										'value'		=> $word,
 										'type_code'	=> $type_code,
 										'type'		=> 'text',
-										'component'	=> 'attr:contents',
+										'component'	=> '__contents__',
 										'score'		=> $count * $weightings['contents'],
 									   );
 				}
@@ -338,7 +351,7 @@ class Search_Manager extends Asset
 			// don't index attribute that are names or short names as we index these
 			// as part of the asset components
 			if ($var_name == 'name' || $var_name == 'short_name') {
-				continue;
+				//continue;
 			}
 
 			// don't index passwords
@@ -383,7 +396,6 @@ class Search_Manager extends Asset
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$param_data = Array();
-
 		$keys = array_keys($index_content);
 		foreach ($keys as $key) {
 			$data = &$index_content[$key];
@@ -647,7 +659,6 @@ class Search_Manager extends Asset
 			$fieldids = $mm->getMetadataFields($mm->getSchemas($asset->id, true));
 		}
 		$metadata = $mm->getMetadata($asset->id);
-
 		foreach ($fieldids as $fieldid => $field_type) {
 
 			// dont index this fieldid if getMetadataWeighting return false
@@ -662,6 +673,10 @@ class Search_Manager extends Asset
 			} else {
 				$value = $field->attr('default');
 			}
+			$value_components = Array();
+			Metadata_Field::decodeValueString($value, $value, $value_components);
+			error_log($value);
+
 
 			$force_processing = 1; // will tell the function to process values in any case
 
@@ -1253,34 +1268,37 @@ class Search_Manager extends Asset
 	*
 	* @param array	$search_info	an array of search settings in the form
 	* <PRE>
-	* Array('root_assetid'    => asset ID|Array(asset IDs) - asset IDs to search under,
-	*       'logic'           => 'OR'|'AND',
-	*       'search_statuses' => Array( ..statues to search.. ),
-	*       'search_types'    => Array( ..asset types to search.. ),
-	*       'sort_by'         => 'name'|'short_name'|'created'|'updated'|'published'|'type_code',
-	*       'include_all'     => Array(ATTR_NAME => Array('words'  => Array( ..search terms.. )),
-	*       'exclude'         => Array(ATTR_NAME => Array('words'  => Array( ..search terms.. )),
-	*       'asset_attrib'    => Array(ATTR_NAME => Array(
-	*                                                  'words'  => Array( ..search terms.. ),
-	*                                                  'params' => Array('searchtype' => '',
-	*                                                                    'type_attr' => 'NAME_TYPE_ID'
-	*                                                                   )
-	*                                                    ),
-	*       'metadata'        => Array(ATTR_NAME => Array(
-	*                                                  'words'  => Array( ..search terms.. ),
-	*                                                  'params' => Array('assetid' => FIELD_ID)
-	*                                                    )
-	*       'assetid'           => asset ID of asset requesting the search,
-	* );
-	*</PRE>
+	* 'requester'	=> ID of asset that requested the search
+	* 'asset_types'	=> Array of type code => whether to inherit
+	* 'statuses'	=> Array of asset statuses, or empty array for default of live+
+	* 'roots'		=> Array of assetids to use as roots for the search
+	* 'root_logic'	=> 'AND'|'OR', depending on whether we want a result to be under all roots or any root
+	* 'fields'		=> Array(
+	*					field_name	=> Array(
+	*									'words'				=> 'cat sat mat',
+	*									'word_logic'		=> 'AND'|'OR' (all words or any word, default 'AND')
+	*									'data_source_logic'	=> 'AND'|'OR' (all DSes or any DS, default 'OR')
+	*									'data_sources'		=> Array(
+	*															i	=> Array(
+	*																	'type'		=> 'asset_attrib' for eg
+	*																	'params'	=> Array(...)
+	*																   ),
+	*														   ),
+	*								   ),
+	*				   ),
+	* 'field_logic'	=> 'AND'|'OR', depending on whether we want results that match all fields or any field
+	* 'exclude'		=> Array of words to exclude from results
+	* </PRE>
+	* @param bool	$include_context	Whether to include the context in which the match was found
 	*
-	* @return array
+	* @return array	(i => Array('assetid'=>x, 'search_score'=>y, 'source'=>z)) if include_context = true
+	*				(assetid => total score) otherwise
 	* @access public
 	*/
 	function processSearch($search_info, $include_context=false)
 	{
+		error_log(print_r($search_info, true));
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$total_asset_scores = null;
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc'; // will definitely need this later.
 
 		  /////////////////////////////
@@ -1288,17 +1306,19 @@ class Search_Manager extends Asset
 		/////////////////////////////
 		// we need the cache manager to cache the results of queries
 		$cm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
-
-		$search_cache_key = $search_info['root_assetid'];
-		if (is_array($search_cache_key)) {
-			$search_cache_key = implode(',', $search_cache_key);
+		$search_cache_key = implode(',', $search_info['roots']);
+		if (isset($search_info['statuses'])) {
+			$search_cache_key .= implode(':', $search_info['statuses']);
 		}
-		if (isset($search_info['search_statuses'])) {
-			$search_cache_key .= implode(':', $search_info['search_statuses']);
+		if (isset($search_info['asset_types'])) {
+			$search_cache_key .= implode(':', $search_info['asset_types']);
 		}
-		if (isset($search_info['search_types'])) {
-			$search_cache_key .= implode(':', $search_info['search_types']);
+		$search_cache_key .= 'RL='.array_get_index($search_info, 'root_logic', 'OR');
+		if ($include_context) {
+			$search_cache_key .= 'includeContext';
 		}
+		$this->_tmp['cache_key'] = $search_cache_key;
+		$this->_tmp['cm'] =& $cm;
 
 		  ///////////////////////////////////
 		 //  CONSTRUCT BASE SEARCH QUERY  //
@@ -1314,354 +1334,417 @@ class Search_Manager extends Asset
 			$base_query['group_by'][] = 'ai.component';
 		}
 
-
-		  ///////////////////////////////
-		 //  SEARCH ASSET ATTRIBUTES  //
-		///////////////////////////////
-
-		if (isset($search_info['asset_attrib'])) {
-
-			foreach ($search_info['asset_attrib'] as $attr_name => $attr_info) {
-
-				// get a list of words from the search terms
-				$attr_info['words'] = $this->generateWordList($attr_info['words']);
-
-				if ($attr_info['params']['asset_type'] == '') continue;
-				$attribute = &$GLOBALS['SQ_SYSTEM']->am->getAttribute($attr_info['params']['attrid']);
-				if (is_null($attribute)) continue;
-
-				$field_asset_scores = null;
-
-				switch ($attribute->type()) {
-					case 'datetime' :
-						$from = array_get_index($attr_info['words'], 'from', '---------- --:--:--');
-						$to   = array_get_index($attr_info['words'], 'to', '---------- --:--:--');
-
-						$wheres = Array();
-						if ($from != '---------- --:--:--') {
-							$from = str_replace('--:--:--', '00:00:00', $from);
-							$wheres[] = 'ai.value >= '.$db->quote($from);
-						}
-						if ($to != '---------- --:--:--') {
-							$to = str_replace('--:--:--', '23:59:59', $to);
-							$wheres[] = 'ai.value <= '.$db->quote($to);
-						}
-						if (empty($wheres)) continue;
-
-						$result = $cm->loadFromCache($this->id, $this->type(), $search_cache_key.'asset_attrib'.$from.'_'.$to);
-						if (empty($result)) {
-							$new_base = $base_query;
-							$new_base['where'][] = 'ai.type = '.$db->quote('datetime');
-							$new_base['where'][] = 'ai.component = '.$db->quote('attr:'.$attribute->name);
-							$new_base['where'] = array_merge($new_base['where'], $wheres);
-							$sql = implode_sql($new_base);
-							$result = $db->getAssoc($sql);
-							assert_valid_db_result($result);
-
-							$cm->saveToCache($this->id, $this->type(), $search_cache_key.'asset_attrib'.$from.'_'.$to, serialize($result));
-						} else {
-							$result = unserialize($result);
-						}
-
-						$field_asset_scores = $result;
-					break;
-
-					default :
-						$field_search_logic = array_get_index($attr_info, 'search_logic', 'AND');
-						if ($field_search_logic != 'AND' && $field_search_logic != 'OR') {
-							$field_search_logic = 'AND';
-						}
-
-						foreach ($attr_info['words'] as $word) {
-							$this->_tmp['terms_used'][$word] = $word;
-							if (!$this->isWordIndexable($word)) continue;
-
-							$result = $cm->loadFromCache($this->id, $this->type(), $search_cache_key.'asset_attrib'.$word);
-							if (empty($result)) {
-								$new_comps = $base_query;
-								$new_comps['where'][] = 'ai.component = '.$db->quote('attr:'.$attribute->name);
-								$new_comps['where'][] = 'ai.value LIKE '.$db->quote('%'.$word.'%');
-								$sql = implode_sql($new_comps);
-
-								$result = $db->getAssoc($sql);
-								assert_valid_db_result($result);
-
-								$cm->saveToCache($this->id, $this->type(), $search_cache_key.'asset_attrib'.$word, serialize($result));
-							} else {
-								$result = unserialize($result);
-							}
-
-							$field_asset_scores = $this->combineAssetScores($field_asset_scores, $result, $field_search_logic, $word);
-						}
-					break;
-				}//end switch attribute type
-
-				$total_asset_scores = $this->combineAssetScores($total_asset_scores, $field_asset_scores, $search_info['logic']);
-
-			}//end foreach attribute
-		}
-
 		  //////////////////////////
-		 //  SEARCH ASSET DATES  //
+		 //  PROCESS EACH FIELD  //
 		//////////////////////////
-		if (isset($search_info['asset_date'])) {
-
-			$valid_dates = Array('created', 'updated', 'published');
-
-			foreach ($search_info['asset_date'] as $attr_name => $attr_info) {
-
-				// get a list of words from the search terms
-				$attr_info['words'] = $this->generateWordList($attr_info['words']);
-
-				if (!isset($attr_info['params']['date_type'])) {
-					continue;
-				}
-				if (!in_array($attr_info['params']['date_type'], $valid_dates)) {
-					continue;
-				}
-
-				$from = array_get_index($attr_info['words'], 'from', '---------- --:--:--');
-				$to   = array_get_index($attr_info['words'], 'to', '---------- --:--:--');
-
-				$our_wheres = Array();
-				if ($from != '---------- --:--:--') {
-					$from = str_replace('--:--:--', '00:00:00', $from);
-					$our_wheres[] = 'ai.value >= '.$db->quote($from);
-				}
-				if ($to != '---------- --:--:--') {
-					$to = str_replace('--:--:--', '23:59:59', $to);
-					$our_wheres[] = 'ai.value <= '.$db->quote($to);
-				}
-				if (empty($our_wheres)) continue;
-
-				$result = $cm->loadFromCache($this->id, $this->type(), $search_cache_key.'asset_date'.$from.'_'.$to);
-				if (empty($result)) {
-					$new_comps = $base_query;
-					$new_comps['where'][] = 'ai.type = '.$db->quote('datetime');
-					$new_comps['where'][] = 'ai.component = '.$db->quote('__'.$attr_info['params']['date_type'].'__');
-					$new_comps['where'] = array_merge($new_comps['where'], $our_wheres);
-					$sql = implode_sql($new_comps);
-					$result = $db->getAssoc($sql);
-					assert_valid_db_result($result);
-
-					$cm->saveToCache($this->id, $this->type(), $search_cache_key.'asset_date'.$from.'_'.$to, serialize($result));
+		$field_logic = array_get_index($search_info, 'field_logic', 'OR');
+		$final_results = null;
+		$term_totals = Array();
+		foreach ($search_info['fields'] as $field_name => $field_details) {
+			$field_results = null;
+			$word_logic = array_get_index($field_details, 'word_logic', 'AND');
+			$data_source_logic = array_get_index($field_details, 'data_source_logic', 'OR');
+			$this->_prepareSearchField($field_details);
+			if (empty($field_details['words'])) continue;
+			$search_type = (isset($field_details['words']['from']) && isset($field_details['words']['to'])) ? 'date' : 'word';
+			foreach ($field_details['data_sources'] as $data_source) {
+				if ($search_type == 'date') {
+					$data_source_results = $this->_processDateSearch($field_details['words'], $data_source, $base_query);
 				} else {
-					$result = unserialize($result);
+					$data_source_results = null;
+					foreach ($field_details['words'] as $search_term) {
+						$term_results = $this->_processWordSearch($search_term, $data_source, $base_query);
+						$term_totals[$search_term] = array_get_index($term_totals, $search_term, 0) + count($term_results);
+						$data_source_results = $this->_combineResults($data_source_results, $term_results, $word_logic);
+					}
 				}
-
-				$total_asset_scores = $this->combineAssetScores($total_asset_scores, $result, $search_info['logic']);
-
-			}//end foreach date
+				$field_results = $this->_combineResults($field_results, $data_source_results, $data_source_logic);
+			}
+			$final_results = $this->_combineResults($final_results, $field_results, $field_logic);
 		}
 
-		  /////////////////////////////////
-		 //  SEARCH INCLUDE ALL FIELDS  //
-		/////////////////////////////////
-		if (isset($search_info['include_all'])) {
+		  //////////////////////////////
+		 //  PROCESS EXCLUDED TERMS  //
+		//////////////////////////////
+		if (!empty($search_info['exclude'])) {
+			$words = Array();
+			foreach ($search_info['exclude'] as $exclude_value) {
+				$words = array_merge($words, $this->generateWordList($exclude_value));
+			}
+			$words = array_unique($words);
+			$new_base = $base_query;
+			$new_base['where'][] = 'ai.value LIKE \'%'.implode("%' OR ai.value LIKE '%", $words).'%\'';
+			$new_base['select'] = Array('a.assetid');
+			$new_base['group_by'] = Array('a.assetid');
+			$sql = implode_sql($new_base);
+			$result = $db->getCol($sql);
+			assert_valid_db_result($result);
 
-			foreach ($search_info['include_all'] as $attr_name => $attr_info) {
-
-				// get a list of words from the search terms
-				$attr_info['words'] = $this->generateWordList($attr_info['words']);
-
-				$field_search_logic = array_get_index($attr_info, 'search_logic', 'AND');
-
-				if ($field_search_logic != 'AND' && $field_search_logic != 'OR') {
-					$field_search_logic = 'AND';
+			foreach ($result as $exclude_assetid) {
+				if (isset($final_results[$exclude_assetid])) {
+					unset($final_results[$exclude_assetid]);
 				}
-
-				$field_asset_scores = null;
-
-				foreach ($attr_info['words'] as $word) {
-					$this->_tmp['terms_used'][$word] = $word;
-
-					if (!$this->isWordIndexable($word)) continue;
-
-					$result = $cm->loadFromCache($this->id, $this->type(), $search_cache_key.'include_all'.$word);
-					assert_valid_db_result($result);
-					if (empty($result)) {
-						$new_comps = $base_query;
-						$new_comps['where'][] = 'ai.value LIKE '.$db->quote('%'.$word.'%');
-						$sql = implode_sql($new_comps);
-						if ($include_context) {
-							$result = $db->getAll($sql);
-						} else {
-							$result = $db->getAssoc($sql);
-						}
-						assert_valid_db_result($result);
-						$cm->saveToCache($this->id, $this->type(), $search_cache_key.'include_all'.$word, serialize($result));
-					} else {
-						$result = unserialize($result);
-					}
-
-					$field_asset_scores = $this->combineAssetScores($field_asset_scores, $result, $field_search_logic, $word);
-				}
-
-				$total_asset_scores = $this->combineAssetScores($total_asset_scores, $field_asset_scores, $search_info['logic']);
-
-			}//end foreach include-all field
+			}
 		}
 
 		  ///////////////////////
-		 //  SEARCH METADATA  //
+		 //  LOG THIS SEARCH  //
 		///////////////////////
-		if (isset($search_info['metadata'])) {
-
-			foreach ($search_info['metadata'] as $attr_name => $attr_info) {
-
-				// get a list of words from the search terms
-				$attr_info['words'] = $this->generateWordList($attr_info['words']);
-
-				if ($attr_info['params']['assetid'] <= 0) continue;
-				$metadata_field = &$GLOBALS['SQ_SYSTEM']->am->getAsset($attr_info['params']['assetid']);
-				if (is_null($metadata_field)) continue;
-
-				$field_asset_scores = null;
-
-				$field_type = get_class($metadata_field);
-				switch ($field_type) {
-					case 'metadata_field_date' :
-						$from = array_get_index($attr_info['words'], 'from', '---------- --:--:--');
-						$to   = array_get_index($attr_info['words'], 'to', '---------- --:--:--');
-
-						$my_wheres = Array();
-						if ($from != '---------- --:--:--') {
-							$from = str_replace('--:--:--', '00:00:00', $from);
-							$my_wheres[] = 'ai.value >= '.$db->quote($from);
-						}
-						if ($to != '---------- --:--:--') {
-							$to = str_replace('--:--:--', '23:59:59', $to);
-							$my_wheres[] = 'ai.value <= '.$db->quote($to);
-						}
-						if (empty($my_wheres)) continue;
-
-						$result = $cm->loadFromCache($this->id, $this->type(), $search_cache_key.'metadata'.$from.'_'.$to);
-						if (empty($result)) {
-							$new_comps = $base_query;
-							$new_comps['where'][] = 'ai.type = '.$db->quote('datetime');
-							$new_comps['where'][] = 'ai.component = '.$db->quote('metadata:'.(int)$attr_info['params']['assetid']);
-							$new_comps['where'] = array_merge($new_comps['where'], $my_wheres);
-							$sql = implode_sql($new_comps);
-							$result = $db->getAssoc($sql);
-							assert_valid_db_result($result);
-
-							$cm->saveToCache($this->id, $this->type(), $search_cache_key.'metadata'.$from.'_'.$to, serialize($result));
-						} else {
-							$result = unserialize($result);
-						}
-
-						$field_asset_scores = $this->combineAssetScores($field_asset_scores, $result, 'AND');
-					break;
-
-					default :
-						switch ($field_type) {
-							case 'metadata_field_select':
-								$key_type = 'selection';
-							break;
-
-							case 'metadata_field_thesaurus':
-								$key_type = 'thesaurus';
-							break;
-
-							default:
-								$key_type = 'text';
-						}
-
-						$field_search_logic = array_get_index($attr_info, 'search_logic', 'AND');
-						if ($field_search_logic != 'AND' && $field_search_logic != 'OR') {
-							$field_search_logic = 'AND';
-						}
-
-						foreach ($attr_info['words'] as $word) {
-							$this->_tmp['terms_used'][$word] = $word;
-
-							$result = $cm->loadFromCache($this->id, $this->type(), $search_cache_key.'metadata'.$word);
-							if (empty($result)) {
-								$new_comps = $base_query;
-								$new_comps['where'][] = 'ai.type = '.$db->quote($key_type);
-								$new_comps['where'][] = 'ai.component = '.$db->quote('metadata:'.(int)$attr_info['params']['assetid']);
-								$new_comps['where'][] = 'ai.value LIKE '.$db->quote('%'.$word.'%');
-								$sql = implode_sql($new_comps);
-								$result = $db->getAssoc($sql);
-								assert_valid_db_result($result);
-								$cm->saveToCache($this->id, $this->type(), $search_cache_key.'metadata'.$word, serialize($result));
-							} else {
-								$result = unserialize($result);
-							}
-
-							$field_asset_scores = $this->combineAssetScores($field_asset_scores, $result, $field_search_logic, $word);
-						}//end foreach word
-					break;
-				}
-
-				$total_asset_scores = $this->combineAssetScores($total_asset_scores, $field_asset_scores, $search_info['logic']);
-
-			}//end foreach metadata field
+		if (!empty($search_info['requester'])) {
+			$log_contents['terms']   = $term_totals;
+			$log_contents['results'] = count($final_results);
+			$log_contents['assetid'] = $search_info['requester'];
+			log_write($log_contents, 'search');
 		}
 
-		  /////////////////////////////
-		 //  SEARCH EXCLUDE FIELDS  //
-		/////////////////////////////
-		if (isset($search_info['exclude'])) {
-
-			foreach ($search_info['exclude'] as $attr_name => $attr_info) {
-
-				// get a list of words from the search terms
-				$attr_info['words'] = $this->generateWordList($attr_info['words']);
-
-				$new_base = $base_query;
-				$new_base['where'][] = 'ai.value LIKE \'%'.implode("%' OR ai.value LIKE '%", $attr_info['words']).'%\'';
-				$sql = implode_sql($new_base);
-
-				$result = $db->getAssoc($sql);
-				assert_valid_db_result($result);
-
-				foreach (array_keys($result) as $exclude_assetid) {
-					if (isset($total_asset_scores[$exclude_assetid])) {
-						unset($total_asset_scores[$exclude_assetid]);
-					}
-					if (isset($this->_tmp['term_totals'])) {
-						unset($this->_tmp['term_totals'][$exclude_assetid]);
-					}
-				}
-			}
-		}
-
-		if (is_null($total_asset_scores)) {
-			$total_asset_scores = Array();
-		} else if ($include_context) {
-			return $total_asset_scores;
-		} else {
-			if (empty($search_info['sort_by'])) {
-				// sorting by relevance, so ensure the sort_by score is the same as the actual search score
-				for (reset($total_asset_scores); null !== ($assetid = key($total_asset_scores)); next($total_asset_scores)) {
-					$total_asset_scores[$assetid]['sort_by'] = $total_asset_scores[$assetid]['search_score'];
-				}
-			}
-			$sorted_scores = Array();
-			foreach ($total_asset_scores as $assetid => $search_data) {
-				$sorted_scores[strtolower($search_data['sort_by'])][$assetid] = $search_data['search_score'];
-			}
-
-			// Sorting and sort order is handled by the search page and its listing engine influences
-			// All we need to do is make sure we provide results in order of relevance
-			krsort($sorted_scores);
-			$total_asset_scores = Array();
-			foreach ($sorted_scores as $sort_by => $results) {
-				foreach ($results as $assetid => $search_score) {
-					$total_asset_scores[$assetid] = $search_score;
-				}
-			}
-		}
-
-		$log_contents['terms']   = $this->_getTermTotals();
-		$log_contents['results'] = count($total_asset_scores);
-		$log_contents['assetid'] = $search_info['assetid'];
-
-		log_write($log_contents, 'search');
-		return $total_asset_scores;
+		return $final_results;
 
 	}//end processSearch()
+
+
+	/**
+	* Prepares the supplied search field for searching
+	*
+	* If all datasources are of type datetime, makes sure the 'words' array is appropriately set up as a
+	* date range.  Otherwise gets the words from the search string, makes them into an array and removes
+	* unindexable words
+	*
+	* Data sources that are not properly initialised are removed
+	*
+	* @param array	$field_details	One entry from the 'fields' array in processSearch()'s search_info parameter
+	*
+	* @access private
+	* @return void
+	*/
+	function _prepareSearchField(&$field_details)
+	{
+		if (empty($field_details['data_sources'])) {
+			$field_details['data_sources'] = Array();
+			return;
+		}
+
+		// figure out if we should treat this field as a date/time range
+		$is_datetime = true;
+		foreach ($field_details['data_sources'] as $i => $data_source) {
+			switch ($data_source['type']) {
+
+				case 'asset_attrib':
+					$asset_type = array_get_index($data_source['params'], 'asset_type');
+					$attrid = array_get_index($data_source['params'], 'attrid');
+					if (empty($asset_type) || empty($attrid)) {
+						unset($field_details['data_sources'][$i]);
+						continue;
+					}
+					$attribute = &$GLOBALS['SQ_SYSTEM']->am->getAttribute($attrid);
+					if (is_null($attribute)) {
+						unset($field_details['data_sources'][$i]);
+						continue;
+					}
+					if (!is_a($attribute, 'asset_attribute_datetime')) {
+						$is_datetime = false;
+						break(2);
+					}
+				break;
+
+				case 'metadata':
+					if (empty($data_source['params']['assetid'])) {
+						unset($field_details['data_sources'][$i]);
+						continue;
+					}
+					$metadata_field = &$GLOBALS['SQ_SYSTEM']->am->getAsset($data_source['params']['assetid']);
+					if (is_null($metadata_field)) {
+						unset($field_details['data_sources'][$i]);
+						continue;
+					}
+					if (!is_a($metadata_field, 'metadata_field_date')) {
+						$is_datetime = false;
+						break(2);
+					}
+				break;
+
+				case 'standard':
+					$asset_field = array_get_index($data_source['params'], 'field');
+					if (empty($asset_field)) {
+						unset($field_details['data_sources'][$i]);
+						continue;
+					}
+					if (isset($this->standard_text_fields[$asset_field])) {
+						$is_datetime = false;
+						break(2);
+					} else if (!isset($this->standard_date_fields[$asset_field])) {
+						trigger_error('Invalid standard field "'.$asset_field.'"', E_USER_WARNING);
+						break(2);
+					}
+				break;
+
+				case 'include_all':
+					$is_datetime = false;
+					break(2);
+				break;
+
+				default:
+					trigger_error('Unknown data source type '.$data_source['type'], E_USER_WARNING);
+				break;
+
+			}//end switch
+		}//end foreach data source
+
+		if ($is_datetime) {
+			$from = array_get_index($field_details['words'], 'from', '---------- --:--:--');
+			$to = array_get_index($field_details['words'], 'to', '---------- --:--:--');
+			if ($from != '---------- --:--:--') {
+				$from = str_replace('--:--:--', '00:00:00', $from);
+			}
+			if ($to != '---------- --:--:--') {
+				$to = str_replace('--:--:--', '23:59:59', $to);
+			}
+			$field_details['words'] = Array('from' => $from, 'to' => $to);
+		} else {
+			// remove unindexable words
+			$words = Array();
+			foreach ($this->generateWordList($field_details['words']) as $word) {
+				if ($this->isWordIndexable($word)) $words[] = $word;
+			}
+			$field_details['words'] = $words;
+		}
+
+	}//end _prepareSearchField()
+
+
+	/**
+	* Processes a search for a particular word in a particular data source
+	*
+	* @param string	$search_term	Word to search for
+	* @param array	$data_source	Details of the data source to search in
+	* @param array	$base_query		The base of the sql query to use
+	*
+	* @access public
+	* @return array (assetid => count), or (i => array('assetid'=>x, 'search_score'=>y, 'source'=>z)
+	*/
+	function _processWordSearch($search_term, $data_source, $base_query)
+	{
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+
+		$cache_key = $this->_tmp['cache_key'].$data_source['type'];
+		switch ($data_source['type']) {
+			case 'asset_attrib':
+				$cache_key .= $data_source['params']['attrid'];
+			break;
+
+			case 'metadata':
+				$cache_key .= $data_source['params']['assetid'];
+			break;
+
+			case 'standard':
+				$cache_key .= $data_source['params']['field'];
+			break;
+		}
+		$cache_key .= $search_term;
+
+		$result = $this->_tmp['cm']->loadFromCache($this->id, $this->type(), $cache_key);
+		if (empty($result)) {
+			switch ($data_source['type']) {
+
+				case 'include_all':
+					$base_query['where'][] = 'ai.value LIKE '.$db->quote('%'.$search_term.'%');
+				break;
+
+				case 'asset_attrib':
+					$attribute = &$GLOBALS['SQ_SYSTEM']->am->getAttribute($data_source['params']['attrid']);
+					$base_query['where'][] = 'ai.component = '.$db->quote('attr:'.$attribute->name);
+					$base_query['where'][] = 'ai.value LIKE '.$db->quote('%'.$search_term.'%');
+				break;
+
+				case 'metadata':
+					$metadata_field = &$GLOBALS['SQ_SYSTEM']->am->getAsset($data_source['params']['assetid']);
+					$key_types = Array(
+									'metadata_field_select'		=> 'selection',
+									'metadata_field_thesaurus'	=> 'thesaurus',
+								 );
+					$key_type = array_get_index($key_types, get_class($metadata_field), 'text');
+					$base_query['where'][] = 'ai.type = '.$db->quote($key_type);
+					$base_query['where'][] = 'ai.component = '.$db->quote('metadata:'.(int)$data_source['params']['assetid']);
+					$base_query['where'][] = 'ai.value LIKE '.$db->quote('%'.$search_term.'%');
+				break;
+
+				case 'standard':
+					$field = $data_source['params']['field'];
+					if (isset($this->standard_text_fields[$field])) {
+						$base_query['where'][] = 'ai.component = '.$db->quote('__'.$field.'__');
+						$base_query['where'][] = 'ai.value LIKE '.$db->quote('%'.$search_term.'%');
+					} else {
+						trigger_error('Invalid standard search field '.$field, E_USER_WARNING);
+					}
+				break;
+
+			}
+
+			$sql = implode_sql($base_query);
+			if (count($base_query['select']) > 2) {
+				$result = $db->getAll($sql);
+			} else {
+				$result = $db->getAssoc($sql);
+			}
+			assert_valid_db_result($result);
+			$r = $this->_tmp['cm']->saveToCache($this->id, $this->type(), $cache_key, serialize($result));
+			assert_valid_cache_result($r);
+		} else {
+			$result = unserialize($result);
+		}
+		return $result;
+
+	}//end _processWordSearch()
+
+
+	/**
+	* Search for a date range in a particular data source
+	*
+	* @param string	$date_range		Range of dates to search for
+	* @param array	$data_source	Details of the data source to search in
+	* @param array	$base_query		The base of the sql query to use
+	*
+	* @access public
+	* @return void
+	*/
+	function _processDateSearch($date_range, $data_source, $base_query)
+	{
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+
+		$cache_key = $this->_tmp['cache_key'].$data_source['type'];
+		switch ($data_source['type']) {
+			case 'asset_attrib':
+				$cache_key .= $data_source['params']['attrid'];
+			break;
+
+			case 'metadata':
+				$cache_key .= $data_source['params']['assetid'];
+			break;
+
+			case 'standard':
+				$cache_key .= $data_source['params']['field'];
+			break;
+		}
+		$cache_key .= 'from'.$date_range['from'].'to'.$date_range['to'];
+
+		$result = $this->_tmp['cm']->loadFromCache($this->id, $this->type(), $cache_key);
+		if (empty($result)) {
+			switch ($data_source['type']) {
+
+				case 'asset_attrib':
+					// TODO: restrict by asset type here?
+					$attribute = &$GLOBALS['SQ_SYSTEM']->am->getAttribute($data_source['params']['attrid']);
+					$base_query['where'][] = 'ai.component = '.$db->quote('attr:'.$attribute->name);
+				break;
+
+				case 'metadata':
+					$metadata_field = &$GLOBALS['SQ_SYSTEM']->am->getAsset($attr_info['params']['assetid']);
+					$key_types = Array(
+									'metadata_field_select'		=> 'selection',
+									'metadata_field_thesaurus'	=> 'thesaurus',
+								 );
+					$key_type = array_get_index($key_types, get_class($metadata_field), 'text');
+					$base_query['where'][] = 'ai.type = '.$db->quote($key_type);
+					$base_query['where'][] = 'ai.component = '.$db->quote('metadata:'.(int)$attr_info['params']['assetid']);
+				break;
+
+				case 'standard':
+					$field = $data_source['params']['field'];
+					if (isset($this->standard_date_fields[$field])) {
+						$base_query['where'][] = 'ai.component = '.$db->quote('__'.$field.'__');
+					} else {
+						trigger_error('Invalid standard date search field '.$field, E_USER_WARNING);
+					}
+				break;
+
+			}
+			$base_query['where'][] = 'ai.value BETWEEN '.$db->quote($date_range['from']).' AND '.$db->quote($date_range['to']);
+			$sql = implode_sql($base_query);
+			if (count($base_query['select']) > 2) {
+				$result = $db->getAll($sql);
+			} else {
+				$result = $db->getAssoc($sql);
+			}
+			assert_valid_db_result($result);
+			$r = $this->_tmp['cm']->saveToCache($this->id, $this->type(), $cache_key, serialize($result));
+			assert_valid_cache_result($r);
+		} else {
+			$result = unserialize($result);
+		}
+		return $result;
+
+	}//end _processDateSearch()
+
+
+	/**
+	* Combine new results with results so far
+	*
+	* If $results_so_far is null, $new_results are always returned.  Otherwise if logic is 'AND'
+	* the return value contains only the results that are in both the first two params, with
+	* search scores added.  If logic is 'OR' then the return value contains all results that are
+	* in either of the first two params, with search scores added for common results.
+	*
+	* This function can handle results with or without context (ie getAll or getAssoc return format)
+	*
+	* @param array	$results_so_far	Results so far.  Null if no results so far
+	* @param array	$new_results	New results
+	* @param string	$logic	'AND'|'OR'
+	*
+	* @access public
+	* @return Array
+	*/
+	function _combineResults($results_so_far, $new_results, $logic)
+	{
+		if (is_null($results_so_far)) {
+			return $new_results;
+		} else {
+			if ($logic == 'OR') {
+				$res_results = $results_so_far;
+			} else {
+				$res_results = Array();
+			}
+			if (isset($results_so_far[0])) {
+				// getAll format, rather than getAssoc format
+				foreach ($new_results as $new_result) {
+					$added = false;
+					$found = false;
+					foreach ($results_so_far as $i => $old_result) {
+						if ($old_result['assetid'] == $new_result['assetid']) {
+							$found = true;
+							if ($old_result['source'] == $new_result['source']) {
+								if ($logic == 'AND') {
+									$old_result['search_score'] += $new_result['search_score'];
+									$res_results[] = $old_result;
+								} else {
+									$res_results[$i]['search_score'] += $new_result['search_score'];
+								}
+								$added = true;
+								break;
+							} else if ($logic == 'AND') {
+								// the assetid is common even though the source isn't, so the
+								// existing entry deserves to stay
+								$res_results[] = $old_result;
+							}
+						}
+					}
+					if (!$added && ($found || ($logic == 'OR'))) {
+						// we haven't added it yet and either the logic is "OR" or the assetid is common
+						// so we add the new result now
+						$res_results[] = $new_result;
+					}
+				}
+			} else {
+				foreach ($new_results as $assetid => $score) {
+					if ($logic == 'OR') {
+						$res_results[$assetid] = $score + array_get_index($results_so_far, $assetid);
+					} else if (isset($results_so_far[$assetid])) {
+						$res_results[$assetid] = $score + $results_so_far[$assetid];
+					}
+				}
+			}
+			return $res_results;
+		}
+
+	}//end _combineResults()
 
 
 	/**
@@ -1680,6 +1763,7 @@ class Search_Manager extends Asset
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc'; // will definitely need this later.
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$query_comps = $this->constructBaseSearchQuery($search_info);
+		if (empty($base_query)) return Array();
 		$query_comps['select'][] = 'distinct a.assetid';
 		$query_comps['select'][] = '1 as weight';
 		$search_sql = implode_sql($query_comps);
@@ -1701,34 +1785,6 @@ class Search_Manager extends Asset
 		return $search_results;
 
 	}//end processBasicSearch()
-
-
-	/**
-	* Counts the number of result asset ids each term relates to
-	*
-	* @access private
-	* @return void
-	*/
-	function _getTermTotals()
-	{
-		$terms_used  = array_get_index($this->_tmp, 'terms_used', Array());
-		$term_totals = array_get_index($this->_tmp, 'term_totals', Array());
-		if (empty($terms_used)) return Array();
-
-		$final_term_totals = Array();
-		foreach ($terms_used as $term) {
-			$final_term_totals[$term] = 0;
-		}
-
-		foreach ($term_totals as $asset_id => $terms) {
-			foreach ($terms as $term) {
-				$final_term_totals[$term]++;
-			}
-		}
-
-		return $final_term_totals;
-
-	}//end _getTermTotals()
 
 
 	/**
@@ -1856,41 +1912,38 @@ class Search_Manager extends Asset
 				 );
 
 		// TREE LOCATIONS
-		if (!is_array($search_info['root_assetid'])){
-			$search_info['root_assetid'] = Array($search_info['root_assetid']);
-		}
-		$roots = array_values($search_info['root_assetid']);
-		$root_logic = array_get_index($search_info, 'root_logic', 'OR');
+		if (!empty($search_info['roots'])) {
+			$root_logic = array_get_index($search_info, 'root_logic', 'OR');
+			// get the treeids of our search roots
+			$treeid_sql = 'SELECT l.minorid, t.treeid
+						   FROM sq_ast_lnk_tree t
+							   JOIN sq_ast_lnk l on t.linkid = l.linkid
+						   WHERE l.minorid IN ('.implode(',', $search_info['roots']).')';
+			// getAssoc only gives us the first treeid for each minorid, which is actually just what we want!
+			$root_tree_ids = $db->getAssoc($treeid_sql);
+			assert_valid_db_result($root_tree_ids);
 
-		// get the treeids of our search roots
-		$treeid_sql = 'SELECT l.minorid, t.treeid
-					   FROM sq_ast_lnk_tree t
-						   JOIN sq_ast_lnk l on t.linkid = l.linkid
-					   WHERE l.minorid IN ('.implode(',', $search_info['root_assetid']).')';
-		// getAssoc will only give us the first treeid for each minorid, but this is actually just what we want!
-		$root_tree_ids = $db->getAssoc($treeid_sql);
-		assert_valid_db_result($root_tree_ids);
+			if ($root_logic == 'AND') {
+				foreach (array_values($search_info['roots']) as $i => $rootid) {
+					$query['from'][] = 'sq_ast_lnk al'.$i;
+					$query['from'][] = 'sq_ast_lnk_tree t'.$i;
+					$query['where'][] = 'al'.$i.'.linkid =  t'.$i.'.linkid'; // join the link tree and link tables
+					$query['where'][] = 'al'.$i.'.minorid = a.assetid'; // join them to the asset table
+					$treeid = $root_tree_ids[$rootid];
+					$query['where'][] = 't'.$i.'.treeid LIKE '.$db->quote($treeid.'%');
+				}
+			} else {
+				$query['from'][] = 'sq_ast_lnk al';
+				$query['from'][] = 'sq_ast_lnk_tree t';
+				$query['where'][] = 'al.linkid = t.linkid';
+				$query['where'][] = 'al.minorid = a.assetid';
 
-		if ($root_logic == 'AND') {
-			foreach ($roots as $i => $rootid) {
-				$query['from'][] = 'sq_ast_lnk al'.$i;
-				$query['from'][] = 'sq_ast_lnk_tree t'.$i;
-				$query['where'][] = 'al'.$i.'.linkid =  t'.$i.'.linkid'; // join the link tree and link tables
-				$query['where'][] = 'al'.$i.'.minorid = a.assetid'; // join them to the asset table
-				$treeid = $root_tree_ids[$rootid];
-				$query['where'][] = 't'.$i.'.treeid LIKE '.$db->quote($treeid.'%');
+				$treeid_wheres = Array();
+				foreach ($root_tree_ids as $treeid) {
+					$treeid_wheres[] = '(t.treeid LIKE '.$db->quote($treeid.'%').')';
+				}
+				$query['where'][] = implode(' OR ', $treeid_wheres);
 			}
-		} else {
-			$query['from'][] = 'sq_ast_lnk al';
-			$query['from'][] = 'sq_ast_lnk_tree t';
-			$query['where'][] = 'al.linkid = t.linkid';
-			$query['where'][] = 'al.minorid = a.assetid';
-
-			$treeid_wheres = Array();
-			foreach ($root_tree_ids as $treeid) {
-				$treeid_wheres[] = '(t.treeid LIKE '.$db->quote($treeid.'%').')';
-			}
-			$query['where'][] = implode(' OR ', $treeid_wheres);
 		}
 
 		// ACCESS RESTRICTIONS
@@ -1907,8 +1960,8 @@ class Search_Manager extends Asset
 		}
 
 		// STATUS RESTRICTIONS
-		if (!empty($search_info['search_statuses'])) {
-			$statuses = $search_info['search_statuses'];
+		if (!empty($search_info['statuses'])) {
+			$statuses = $search_info['statuses'];
 			if (array_sum($statuses) != SQ_SC_STATUS_ALL) {
 				foreach ($statuses as $i => $status) {
 					$statuses[$i] = $db->quote($status);
@@ -1921,11 +1974,11 @@ class Search_Manager extends Asset
 		}
 
 		// ASSET TYPE RESTRICTIONS
-		if (!empty($search_info['search_types'])) {
+		if (!empty($search_info['asset_types'])) {
 			$inherited_types = Array();
 			$normal_types = Array();
-			for (reset($search_info['search_types']); NULL !== ($i = key($search_info['search_types'])); next($search_info['search_types'])) {
-				if ($search_info['search_types'][$i]) {
+			for (reset($search_info['asset_types']); NULL !== ($i = key($search_info['asset_types'])); next($search_info['asset_types'])) {
+				if ($search_info['asset_types'][$i]) {
 					$inherited_types[] = $db->quote($i);
 				} else {
 					$normal_types[] = $db->quote($i);

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_search_replace.inc,v 1.12 2005/07/13 05:06:25 mmcintyre Exp $
+* $Id: tool_search_replace.inc,v 1.13 2005/08/10 04:12:41 tbarrett Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 *
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -180,18 +180,19 @@ class Tool_Search_Replace extends Tool
 		$words = explode(' ', $words);
 
 		$search_details = Array(
-							'logic'				=> 'AND',
-							'root_assetid'		=> $root_assetid,
-							'sort_by'			=> '',
-							'reverse_sort'		=> '0',
-							'search_types'		=> $search_types,
-							'search_statuses'	=> $_REQUEST[$type_code.'_statuses'],
-							'include_all'		=> Array(
-													'search_word'	=> Array(
-																		'words'			=> $words,
-																		'search_logic'	=> 'AND',
-																	   ),
-												   ),
+							'roots'			=> Array($root_assetid),
+							'asset_types'	=> $search_types,
+							'statuses'		=> $_REQUEST[$type_code.'_statuses'],
+							'fields'		=> Array(
+												'search_word'	=> Array(
+																	'words'			=> $words,
+																	'word_logic'	=> 'AND',
+																	'data_sources'	=> Array(
+																						Array('type' => 'include_all'),
+																					   ),
+																   ),
+											   ),
+							'field_logic'	=> 'AND',
 						  );
 
 		$search_results = $sm->processSearch($search_details, true);
@@ -270,7 +271,7 @@ class Tool_Search_Replace extends Tool
 					break;
 
 					//attributes containing search string
-					//attributes come in 2 formats, __attribute__ and attr:assetname:attribute$
+					//attributes come in 2 formats, __attribute__ and attr:attrname$
 					case preg_match('/__(.+)__/', $content_type, $matches) > 0:
 					case preg_match('/attr:(.+)$/', $content_type, $matches) > 0:
 						if (isset($asset->vars[$matches[1]])) {
@@ -325,7 +326,7 @@ class Tool_Search_Replace extends Tool
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 
 		}//end foreach $results
-
+bam($formatted_results);
 		return $formatted_results;
 
 	}//end getFormattedResults()

@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_list_edit_fns.inc,v 1.7 2005/06/20 04:38:26 dheppell Exp $
+* $Id: search_list_edit_fns.inc,v 1.8 2005/08/10 04:12:31 tbarrett Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_listing/page_asset
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -66,7 +66,7 @@ class Search_List_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 			}
 
 			if (!is_null($search_page)) {
-				echo $search_page->name . ' (Id: #' . $search_page->id . ')';
+				echo $search_page->name.' (Id: #'.$search_page->id.')';
 			} else {
 				echo translate('sch_no_search_page_specified');
 			}

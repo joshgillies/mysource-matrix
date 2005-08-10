@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_searchbox.inc,v 1.20 2005/05/04 01:00:01 rhoward Exp $
+* $Id: design_area_searchbox.inc,v 1.21 2005/08/10 04:12:39 tbarrett Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -146,7 +146,7 @@ class Design_Area_Searchbox extends Design_Area
 						echo '<'.'?php $submit_image_asset = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset('.$submit_image_asset->id.', "'.$submit_image_asset->type().'"); ?'.'>';
 						echo '<input alt="search" type="image"';
 						if (isset($args['class'])) {
-							echo ' class="'. $args['class'] .'"';
+							echo ' class="'.$args['class'].'"';
 						}
 						echo ' src="<'.'?php echo $submit_image_asset->getURL(); ?'.'>" />';
 					} else {

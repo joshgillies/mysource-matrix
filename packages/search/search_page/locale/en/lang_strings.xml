@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.2 2005/08/04 00:29:52 lwright Exp $
+* $Id: lang_strings.xml,v 1.3 2005/08/10 04:12:38 tbarrett Exp $
 *
 *
 * Search Package Localised Strings File
@@ -19,11 +19,7 @@
 -->
 
 <strings>
-<string source="sch_page_standard_search_fields">Standard Search Fields</string>
-<string source="sch_page_metadata_search_fields">Metadata Search Fields</string>
 <string source="sch_page_no_metadata_field_specified">No metadata field specified</string>
-<string source="sch_page_attribute_search_fields">Attribute Search Fields</string>
-<string source="sch_page_asset_date_search_fields">Asset Date Search Fields</string>
 <string source="sch_page_select_category">Select a Category</string>
 <string source="sch_page_add_new_category">Add New Category</string>
 <string source="sch_page_currently_customising">Currently customising %s</string>
@@ -51,4 +47,13 @@
 <string source="sch_page_keyword_sis_button">Search in Search Button</string>
 <string source="sch_page_keyword_result_number">Result Number</string>
 <string source="sch_page_keyword_search_score">Search Score</string>
+<string source="sch_page_new_exclude_field">New Exclude Field Name</string>
+<string source="sch_page_new_search_field">New Search Field Name</string>
+<string source="sch_page_field">Field</string>
+<string source="sch_page_data_sources">Data Sources</string>
+<string source="sch_page_metadata_field">Metadata Field</string>
+<string source="sch_page_add_data_source">-- Add Data Source --</string>
+<string source="sch_page_datatype_standard">Standard Asset Field</string>
+<string source="sch_page_datatype_metadata">Asset Metadata Field</string>
+<string source="sch_page_datatype_attribute">Asset Attribute</string>
 </strings>

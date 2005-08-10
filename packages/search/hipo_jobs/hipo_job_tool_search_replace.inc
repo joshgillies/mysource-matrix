@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_tool_search_replace.inc,v 1.1 2005/07/13 05:11:42 mmcintyre Exp $
+* $Id: hipo_job_tool_search_replace.inc,v 1.2 2005/08/10 04:12:27 tbarrett Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    replace on asset attributes and metadata
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1001,7 +1001,7 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 			if ($case_match) {
 				$rep_str = $this->_matchCapitals(substr($haystack, $offset, $search_len), $new_needle);
 			}
-			$result_str .= substr($haystack, $last_offset, $offset - $last_offset) . $rep_str;
+			$result_str .= substr($haystack, $last_offset, $offset - $last_offset).$rep_str;
 			$last_offset = $offset + $search_len;
 		}
 		$result_str .=  substr($haystack, $last_offset);
@@ -1095,11 +1095,15 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 		$oldspace = $ret - $limit;
 		while ($ret > $offset - $limit && $ret > 0) {
 			switch ($haystack[$ret]) {
-				case '\n':case '<':
-				return $ret ;
-				case ' ':case '.': case ';': case ')':
+				case '\n':
+				case '<':
+						return $ret ;
+				case ' ':
+				case '.':
+				case ';':
+				case ')':
 					$oldspace = $ret;
-					break;
+				break;
 
 			}
 			$ret--;
@@ -1133,12 +1137,19 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 		$oldspace = $offset + $limit;
 		while (($ret < $offset + $limit) && ($ret < strlen($haystack))) {
 			switch ($haystack[$ret]) {
-				case '\n':case '<br>':
+				case '\n':
+				case '<br>':
 					return $ret + 1;
-					break;
-				case ' ':case '.': case ';': case ')':case '-':case ',':case '!':
+				break;
+				case ' ':
+				case '.':
+				case ';':
+				case ')':
+				case '-':
+				case ',':
+				case '!':
 					$oldspace = $ret + 1;
-					break;
+				break;
 			}
 			$ret++;
 		}

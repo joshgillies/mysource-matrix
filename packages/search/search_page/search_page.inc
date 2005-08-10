@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.122 2005/08/10 01:49:35 ndvries Exp $
+* $Id: search_page.inc,v 1.123 2005/08/10 04:12:35 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.122 $
+* @version $Revision: 1.123 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -719,73 +719,83 @@ class Search_Page extends Listing_Engine
 
 		ob_start();
 
-			switch ($fields[$field_name]['type']) {
+			if (count($fields[$field_name]['data_sources']) == 1) {
+				// only one data source; we'll base our format on that
+				$data_source = $fields[$field_name]['data_sources'][0];
+				switch ($data_source['type']) {
 
-				case 'metadata' :
-					$assetid = $fields[$field_name]['params']['assetid'];
-					$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-					if (!is_null($asset)) {
-						$params = $asset->vars;
-						switch (get_class($asset)) {
-							case 'metadata_field_date' :
-								$current_value = array_get_index($_SESSION['SQ_LAST_SEARCH'][$this->id], $field_name, Array());
-								$this->_printDateRange('queries_'.$query_var, $current_value);
-							break;
-							case 'metadata_field_text' :
-								text_box('queries_'.$query_var, $query, $this->defaults['query_width']);
-							break;
-							case 'metadata_field_select' :
-								$selection = $asset->getSelectionAttribute();
-								$selection->setValue($query);
-								$selection->paint('queries_'.$query_var);
-							break;
-						}//end switch
+					case 'metadata' :
+						$assetid = $data_source['params']['assetid'];
+						$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+						if (!is_null($asset)) {
+							$params = $asset->vars;
+							switch (get_class($asset)) {
+								case 'metadata_field_date' :
+									$current_value = array_get_index($_SESSION['SQ_LAST_SEARCH'][$this->id], $field_name, Array());
+									$this->_printDateRange('queries_'.$query_var, $current_value);
+								break;
+								case 'metadata_field_text' :
+									text_box('queries_'.$query_var, $query, $this->defaults['query_width']);
+								break;
+								case 'metadata_field_select' :
+									$selection = $asset->getSelectionAttribute();
+									$selection->setValue($query);
+									$selection->paint('queries_'.$query_var);
+								break;
+							}//end switch
 
-					}//end if metadata asset exists
-				break;
+						}//end if metadata asset exists
+					break;
 
-				case 'asset_attrib' :
-					$attribute = &$GLOBALS['SQ_SYSTEM']->am->getAttribute($fields[$field_name]['params']['attrid']);
+					case 'asset_attrib' :
+						$attribute = &$GLOBALS['SQ_SYSTEM']->am->getAttribute($data_source['params']['attrid']);
 
-					if ($attribute->type() == 'datetime') {
+						if ($attribute->type() == 'datetime') {
 
-						$current_value = array_get_index($_SESSION['SQ_LAST_SEARCH'][$this->id], $field_name, Array());
-						$this->_printDateRange('queries_'.$query_var, $current_value);
+							$current_value = array_get_index($_SESSION['SQ_LAST_SEARCH'][$this->id], $field_name, Array());
+							$this->_printDateRange('queries_'.$query_var, $current_value);
 
-					} else {
+						} else {
 
-						// if this is a boolean or selection field, we want to make sure blank options are allowed
-						if ($attribute->type() == 'boolean' || $attribute->type() == 'selection') {
-							$attribute->_params['allow_empty'] = true;
+							// if this is a boolean or selection field, we want to make sure blank options are allowed
+							if ($attribute->type() == 'boolean' || $attribute->type() == 'selection') {
+								$attribute->_params['allow_empty'] = true;
+							}
+
+							// set the current value of the search field
+							$attribute->setValue($query);
+
+							// give the attribute our custom search styles if we have them
+							$search_styles = $this->attr('search_styles');
+							if (isset($search_styles[$attribute->id])) {
+								$attribute->_edit_params = array_merge($attribute->_edit_params, $search_styles[$attribute->id]);
+							}
+
+							$attribute->paint('queries_'.$query_var, false);
 						}
+					break;
 
-						// set the current value of the search field
-						$attribute->setValue($query);
-
-						// give the attribute our custom search styles if we have them
-						$search_styles = $this->attr('search_styles');
-						if (isset($search_styles[$attribute->id])) {
-							$attribute->_edit_params = array_merge($attribute->_edit_params, $search_styles[$attribute->id]);
+					case 'standard' :
+						$sm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
+						if (in_array($data_source['params']['field'], $sm->standard_date_fields)) {
+							$current_value = array_get_index($_SESSION['SQ_LAST_SEARCH'][$this->id], $field_name, Array());
+							$this->_printDateRange('queries_'.$query_var, $current_value);
+						} else if (in_array($data_source['params']['field'], $sm->standard_text_fields)) {
+							text_box('queries_'.$query_var, $query, $this->defaults['query_width']);
 						}
+					break;
 
-						$attribute->paint('queries_'.$query_var, false);
-					}
-				break;
+					default :
+						text_box('queries_'.$query_var, $query, $this->defaults['query_width']);
+					break;
 
-				case 'asset_date' :
-					$current_value = array_get_index($_SESSION['SQ_LAST_SEARCH'][$this->id], $field_name, Array());
-					$this->_printDateRange('queries_'.$query_var, $current_value);
-				break;
-
-				default :
-					// not a metadata field, just a normal text field
-					text_box('queries_'.$query_var, $query, $this->defaults['query_width']);
-				break;
-
-			}//end switch field type
+				}//end switch field type
+			} else {
+				// when there are multiple (or 0) data sources supplied the format is always text (for now)
+				text_box('queries_'.$query_var, $query, $this->defaults['query_width']);
+			}
 
 			$replacement = ob_get_contents();
-
 
 		ob_end_clean();
 
@@ -811,124 +821,131 @@ class Search_Page extends Listing_Engine
 
 		ob_start();
 
-			switch ($fields[$field_name]['type']) {
+			if (count($fields[$field_name]['data_sources']) == 1) {
+				$data_source = $fields[$field_name]['data_sources'][0];
 
-				case 'metadata' :
-					$assetid = $fields[$field_name]['params']['assetid'];
-					$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-					if (!is_null($asset)) {
-						$params = $asset->vars;
-						switch (get_class($asset)) {
-							case 'metadata_field_date' :
-								$current_value = array_get_index($_SESSION['SQ_LAST_SEARCH'][$this->id], $field_name, Array());
-								$this->_printDateRange('queries_'.$query_var, $current_value, true);
-							break;
-							case 'metadata_field_text' :
-								text_box('queries_'.$query_var, '', $this->defaults['query_width']);
-							break;
-							case 'metadata_field_select' :
-								$selection = $asset->getSelectionAttribute();
-								$value = Array();
+				switch ($data_source['type']) {
 
-								$read_only = false;
+					case 'metadata' :
+						$assetid = $data_source['params']['assetid'];
+						$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+						if (!is_null($asset)) {
+							$params = $asset->vars;
+							switch (get_class($asset)) {
+								case 'metadata_field_date' :
+									$current_value = array_get_index($_SESSION['SQ_LAST_SEARCH'][$this->id], $field_name, Array());
+									$this->_printDateRange('queries_'.$query_var, $current_value, true);
+								break;
+								case 'metadata_field_text' :
+									text_box('queries_'.$query_var, '', $this->defaults['query_width']);
+								break;
+								case 'metadata_field_select' :
+									$selection = $asset->getSelectionAttribute();
+									$value = Array();
 
-								if (empty($selection->_params['multiple'])) {
-									if (isset($selection->_params['options'][$query])) {
-										$read_only = true;
-									}
-									// set the value outside the if condition so that if
-									// empty text has been selected, it will get saved as the option,
-									// but the selection attribute will NOT be read only ie. they
-									// will be able to select another option in the sis form
-									$selection->value = $query;
-								} else {
-									if (!empty($query)) {
-										echo '<div class="search_current_options">';
-										foreach ($query as $option) {
-											if (!isset($selection->_params['options'][$option])) {
-												continue;
-											}
-											echo $selection->_params['options'][$option].'<br />';
-											unset($selection->_params['options'][$option]);
+									$read_only = false;
+
+									if (empty($selection->_params['multiple'])) {
+										if (isset($selection->_params['options'][$query])) {
+											$read_only = true;
 										}
-										echo '</div>';
+										// set the value outside the if condition so that if
+										// empty text has been selected, it will get saved as the option,
+										// but the selection attribute will NOT be read only ie. they
+										// will be able to select another option in the sis form
+										$selection->value = $query;
+									} else {
+										if (!empty($query)) {
+											echo '<div class="search_current_options">';
+											foreach ($query as $option) {
+												if (!isset($selection->_params['options'][$option])) {
+													continue;
+												}
+												echo $selection->_params['options'][$option].'<br />';
+												unset($selection->_params['options'][$option]);
+											}
+											echo '</div>';
+										}
 									}
-								}
 
-								$selection->paint('queries_'.$query_var, $read_only);
-							break;
-						}//end switch
+									$selection->paint('queries_'.$query_var, $read_only);
+								break;
+							}//end switch
 
-					}//end if metadata asset exists
-				break;
+						}//end if metadata asset exists
+					break;
 
-				case 'asset_attrib' :
-					$read_only = false;
-					$attribute = &$GLOBALS['SQ_SYSTEM']->am->getAttribute($fields[$field_name]['params']['attrid']);
+					case 'asset_attrib' :
+						$read_only = false;
+						$attribute = &$GLOBALS['SQ_SYSTEM']->am->getAttribute($data_source['params']['attrid']);
 
-					if ($attribute->type() == 'datetime') {
+						if ($attribute->type() == 'datetime') {
 
+							$current_value = array_get_index($_SESSION['SQ_LAST_SEARCH'][$this->id], $field_name, Array());
+							$this->_printDateRange('queries_'.$query_var, $current_value, true);
+
+						} else {
+
+							// if this is a boolean or selection field, we want to make sure blank options are allowed
+							if ($attribute->type() == 'boolean' || $attribute->type() == 'selection') {
+								$attribute->_params['allow_empty'] = true;
+							}
+
+							// give the attribute our custom search styles if we have them
+							$search_styles = $this->attr('search_styles');
+							if (isset($search_styles[$attribute->id])) {
+								$attribute->_edit_params = $search_styles[$attribute->id];
+							}
+
+							switch ($attribute->type()) {
+								case 'selection' :
+									if (empty($attribute->_params['multiple'])) {
+										if (isset($attribute->_params['options'][$query])) {
+											$read_only = true;
+										}
+									} else {
+										if (!empty($query)) {
+											echo '<div class="search_current_options">';
+											foreach ($query as $option) {
+												if (!isset($attribute->_params['options'][$option])) {
+													continue;
+												}
+												echo $attribute->_params['options'][$option].'<br />';
+												unset($attribute->_params['options'][$option]);
+											}
+											echo '</div>';
+										}
+									}
+								break;
+
+								case 'boolean' :
+									if ($query != '') $read_only = true;
+								break;
+
+								case 'text' :
+									$attribute->value = '';
+								break;
+							}//end switch
+
+							$attribute->paint('queries_'.$query_var, $read_only);
+						}
+					break;
+
+					case 'asset_date' :
 						$current_value = array_get_index($_SESSION['SQ_LAST_SEARCH'][$this->id], $field_name, Array());
 						$this->_printDateRange('queries_'.$query_var, $current_value, true);
+					break;
 
-					} else {
+					default :
+						// not a metadata field, just a normal text field
+						text_box('queries_'.$query_var, '', $this->defaults['query_width']);
+					break;
 
-						// if this is a boolean or selection field, we want to make sure blank options are allowed
-						if ($attribute->type() == 'boolean' || $attribute->type() == 'selection') {
-							$attribute->_params['allow_empty'] = true;
-						}
-
-						// give the attribute our custom search styles if we have them
-						$search_styles = $this->attr('search_styles');
-						if (isset($search_styles[$attribute->id])) {
-							$attribute->_edit_params = $search_styles[$attribute->id];
-						}
-
-						switch ($attribute->type()) {
-							case 'selection' :
-								if (empty($attribute->_params['multiple'])) {
-									if (isset($attribute->_params['options'][$query])) {
-										$read_only = true;
-									}
-								} else {
-									if (!empty($query)) {
-										echo '<div class="search_current_options">';
-										foreach ($query as $option) {
-											if (!isset($attribute->_params['options'][$option])) {
-												continue;
-											}
-											echo $attribute->_params['options'][$option].'<br />';
-											unset($attribute->_params['options'][$option]);
-										}
-										echo '</div>';
-									}
-								}
-							break;
-
-							case 'boolean' :
-								if ($query != '') $read_only = true;
-							break;
-
-							case 'text' :
-								$attribute->value = '';
-							break;
-						}//end switch
-
-						$attribute->paint('queries_'.$query_var, $read_only);
-					}
-				break;
-
-				case 'asset_date' :
-					$current_value = array_get_index($_SESSION['SQ_LAST_SEARCH'][$this->id], $field_name, Array());
-					$this->_printDateRange('queries_'.$query_var, $current_value, true);
-				break;
-
-				default :
-					// not a metadata field, just a normal text field
-					text_box('queries_'.$query_var, '', $this->defaults['query_width']);
-				break;
-
-			}//end switch field type
+				}//end switch field type
+			} else {
+				// when there are multiple (or 0) data sources supplied the format is always text (for now)
+				text_box('queries_'.$query_var, $query, $this->defaults['query_width']);
+			}
 
 			$replacement = ob_get_contents();
 
@@ -956,69 +973,74 @@ class Search_Page extends Listing_Engine
 
 		ob_start();
 
-			switch ($fields[$field_name]['type']) {
+			if (count($fields[$field_name]['data_sources']) == 1) {
+				switch ($fields[$field_name]['type']) {
 
-				case 'metadata' :
-					$assetid = $fields[$field_name]['params']['assetid'];
-					$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-					if (!is_null($asset)) {
-						$params = $asset->vars;
-						switch (get_class($asset)) {
-							case 'metadata_field_date' :
-								$current_value = array_get_index($_SESSION['SQ_LAST_SEARCH'][$this->id], $field_name, Array());
-								$this->_printDateRangeDescription($current_value);
-							break;
-							case 'metadata_field_text' :
-								echo $query;
-							break;
-							case 'metadata_field_select' :
-								$selection = $asset->getSelectionAttribute();
-								$selection->setValue($query);
-								$selection->paint('queries_'.$query_var, true);
-							break;
-						}//end switch
+					case 'metadata' :
+						$assetid = $fields[$field_name]['params']['assetid'];
+						$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+						if (!is_null($asset)) {
+							$params = $asset->vars;
+							switch (get_class($asset)) {
+								case 'metadata_field_date' :
+									$current_value = array_get_index($_SESSION['SQ_LAST_SEARCH'][$this->id], $field_name, Array());
+									$this->_printDateRangeDescription($current_value);
+								break;
+								case 'metadata_field_text' :
+									echo $query;
+								break;
+								case 'metadata_field_select' :
+									$selection = $asset->getSelectionAttribute();
+									$selection->setValue($query);
+									$selection->paint('queries_'.$query_var, true);
+								break;
+							}//end switch
 
-					}//end if metadata asset exists
-				break;
+						}//end if metadata asset exists
+					break;
 
-				case 'asset_attrib' :
-					$read_only = false;
-					$attribute = &$GLOBALS['SQ_SYSTEM']->am->getAttribute($fields[$field_name]['params']['attrid']);
+					case 'asset_attrib' :
+						$read_only = false;
+						$attribute = &$GLOBALS['SQ_SYSTEM']->am->getAttribute($fields[$field_name]['params']['attrid']);
 
-					if ($attribute->type() == 'datetime') {
+						if ($attribute->type() == 'datetime') {
 
+							$current_value = array_get_index($_SESSION['SQ_LAST_SEARCH'][$this->id], $field_name, Array());
+							$this->_printDateRangeDescription($current_value);
+
+						} else {
+
+							// if this is a boolean or selection field, we want to make sure blank options are allowed
+							if ($attribute->type() == 'boolean' || $attribute->type() == 'selection') {
+								$attribute->_params['allow_empty'] = true;
+							}
+
+							// give the attribute our custom search styles if we have them
+							$search_styles = $this->attr('search_styles');
+							if (isset($search_styles[$attribute->id])) {
+								$attribute->_edit_params = $search_styles[$attribute->id];
+							}
+
+							$attribute->value = $query;
+
+							$attribute->paint('queries_'.$query_var, true);
+						}
+					break;
+
+					case 'asset_date' :
 						$current_value = array_get_index($_SESSION['SQ_LAST_SEARCH'][$this->id], $field_name, Array());
 						$this->_printDateRangeDescription($current_value);
+					break;
 
-					} else {
+					default :
+						echo $query;
+					break;
 
-						// if this is a boolean or selection field, we want to make sure blank options are allowed
-						if ($attribute->type() == 'boolean' || $attribute->type() == 'selection') {
-							$attribute->_params['allow_empty'] = true;
-						}
-
-						// give the attribute our custom search styles if we have them
-						$search_styles = $this->attr('search_styles');
-						if (isset($search_styles[$attribute->id])) {
-							$attribute->_edit_params = $search_styles[$attribute->id];
-						}
-
-						$attribute->value = $query;
-
-						$attribute->paint('queries_'.$query_var, true);
-					}
-				break;
-
-				case 'asset_date' :
-					$current_value = array_get_index($_SESSION['SQ_LAST_SEARCH'][$this->id], $field_name, Array());
-					$this->_printDateRangeDescription($current_value);
-				break;
-
-				default :
-					echo $query;
-				break;
-
-			}//end switch field type
+				}//end switch field type
+			} else {
+				// many (or zero) data sources for this field, so we'll assume it was just text
+				echo $query;
+			}
 
 			$replacement = ob_get_contents();
 
@@ -1720,80 +1742,74 @@ class Search_Page extends Listing_Engine
 						   );
 			if ($value == $empty_dates) continue;
 
-			if ($fields[$field_name]['type'] == 'asset_attrib') {
-				$attribute = &$GLOBALS['SQ_SYSTEM']->am->getAttribute($fields[$field_name]['params']['attrid']);
-				if (!is_null($attribute) && $attribute->type() == 'boolean') {
-					// we need to convert the value into a word representation,
-					// since indexing service will not operate just 0 or 1
-					// do not localise this!!
-					if ($value == '0') {
-						$value = 'false';
-					} else if ($value == '1') {
-						$value = 'true';
+			if ((count($fields[$field_name]['data_sources']) == 1) && $fields[$field_name]['data_sources'][0]['type'] == 'exclude') {
+				$search_info['exclude'][] = $value;
+			} else {
+				if ((count($fields[$field_name]['data_sources']) == 1) && $fields[$field_name]['data_sources'][0]['type'] == 'asset_attrib') {
+					$attribute = &$GLOBALS['SQ_SYSTEM']->am->getAttribute($fields[$field_name]['data_sources'][0]['params']['attrid']);
+					if (!is_null($attribute) && $attribute->type() == 'boolean') {
+						// we need to convert the value into a word representation,
+						// since indexing service will not operate just 0 or 1
+						// do not localise this!!
+						if ($value == '0') {
+							$value = 'false';
+						} else if ($value == '1') {
+							$value = 'true';
+						}
 					}
 				}
-			}
-
-			$words = $value;
-
-			$field_type = $fields[$field_name]['type'];
-			$search_info[$field_type][$field_name]['words'] = $words;
-			$search_info[$field_type][$field_name]['params'] = array_get_index($fields[$field_name], 'params', Array());
-
-			// add in the search logic for the field
-			$search_logic = strtoupper(array_get_index($_REQUEST, $field_name.'_query_logic', 'AND'));
-			if ($search_logic != 'AND' && $search_logic != 'OR') {
+				$search_info['fields'][$field_name] = $fields[$field_name];
+				$search_info['fields'][$field_name]['words'] = $value;
+				$query_fields_exist = true;
 				$search_logic = 'AND';
+				if (strtoupper(array_get_index($_REQUEST, $field_name.'_query_logic', '')) == 'OR') {
+					$search_logic = 'OR';
+				}
+				$search_info['fields'][$field_name]['word_logic'] = $search_logic;
 			}
-			$search_info[$field_type][$field_name]['search_logic'] = $search_logic;
-			$query_fields_exist = true;
 
 		}//end foreach fields
 
 		// spell-check suggestions
-		foreach (Array('include_all', 'exclude', 'metadata', 'asset_attrib') as $type) {
-			if (!isset($search_info[$type])) continue;
-			foreach ($search_info[$type] as $field_name => $field_content) {
+		foreach ($search_info['fields'] as $field_name => $field_content) {
+			$words = $field_content['words'];
+			if (!is_array($words)) $words = explode(' ', $words);
+			if ($sm->spellCheckAvailable()) {
+				// suggestion 'string' - this will be imploded later with spaces
+				$suggestion_string = Array();
+				$needs_suggestions = false;
 
-				if ($sm->spellCheckAvailable()) {
-					// suggestion 'string' - this will be imploded later with spaces
-					$suggestion_string = Array();
-					$needs_suggestions = false;
-
-					// loop over each word
-					foreach ($field_content['words'] as $word) {
-						$suggestions = $sm->spellCheckWord($word);
-						if (!empty($suggestions)) {
-							$needs_suggestions = true;
-							$suggestion_string[] = $suggestions[0];
-						} else {
-							$suggestion_string[] = $word;
-						}
+				// loop over each word
+				foreach ($words as $word) {
+					$suggestions = $sm->spellCheckWord($word);
+					if (!empty($suggestions)) {
+						$needs_suggestions = true;
+						$suggestion_string[] = $suggestions[0];
+					} else {
+						$suggestion_string[] = $word;
 					}
+				}
 
-					if ($needs_suggestions) {
-						$this->_tmp['search_suggestions'][$field_name] = implode(' ', $suggestion_string);
+				if ($needs_suggestions) {
+					$this->_tmp['search_suggestions'][$field_name] = implode(' ', $suggestion_string);
+				}
+			}//end if spell check available
+
+			// thesaurus synonym searching
+			$t_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, 'asset', false, 'thesaurus');
+
+			if (!empty($t_link)) {
+				$t_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($t_link['minorid']);
+				$this->_tmp['search_synonyms'][$field_name] = Array();
+
+				// loop over each word, find synonyms
+				foreach ($words as $word) {
+					if (!isset($this->_tmp['search_synonyms'][$field_name][$word])) {
+						$suggestions = $sm->findSynonymsForWord($word, $t_asset);
+						$this->_tmp['search_synonyms'][$field_name][$word] = $suggestions;
 					}
-
-				}//end if spell check available
-
-				// thesaurus synonym searching
-				$t_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, 'asset', false, 'thesaurus');
-
-				if (!empty($t_link)) {
-					$t_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($t_link['minorid']);
-					$this->_tmp['search_synonyms'][$field_name] = Array();
-
-					// loop over each word, find synonyms
-					foreach ($field_content['words'] as $word) {
-						if (!isset($this->_tmp['search_synonyms'][$field_name][$word])) {
-							$suggestions = $sm->findSynonymsForWord($word, $t_asset);
-							$this->_tmp['search_synonyms'][$field_name][$word] = $suggestions;
-						}
-					}
-				}//end thesaurus exists
-
-			}
+				}
+			}//end thesaurus exists
 		}
 
 		if ($query_fields_exist) {
@@ -1827,57 +1843,67 @@ class Search_Page extends Listing_Engine
 		$suffix = ($mode == 'results') ? '_query' : '_query_sis';
 		if ($mode == '') $mode = 'results';
 		$queries = Array();
-		foreach ($fields as $field_name => $field) {
+		$sm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
+		foreach ($fields as $field_name => $field_details) {
 
 			$queries[$field_name] = '';
 			$query_var = 'queries_'.$field_name.$suffix;
 
-			switch ($field['type']) {
-				case 'include_all' :
-				case 'exclude' :
-					$queries[$field_name] = array_get_index($_REQUEST, $query_var, '');
-				break;
+			if (count($field_details['data_sources']) == 1) {
+				$data_source = $field_details['data_sources'][0];
+				switch ($data_source['type']) {
+					case 'include_all' :
+					case 'exclude' :
+						$queries[$field_name] = array_get_index($_REQUEST, $query_var, '');
+					break;
 
-				case 'asset_date' :
-					$queries[$field_name] = $this->_processDateRange($query_var);
-				break;
-
-				case 'asset_attrib' :
-					$attribute = &$GLOBALS['SQ_SYSTEM']->am->getAttribute($field['params']['attrid']);
-					if (!is_null($attribute)) {
-						if ($attribute->type() == 'datetime') {
+					case 'standard' :
+						if (in_array($data_source['params']['field'], $sm->_standard_date_fields)) {
 							$queries[$field_name] = $this->_processDateRange($query_var);
-						} else {
-							$attribute->process($query_var);
-							$queries[$field_name] = trim($attribute->value);
-							if ($attribute->type() == 'selection' && !empty($attribute->_params['multiple'])) {
-								$queries[$field_name] = array_keys($attribute->getValueArray());
+						} else if (in_array($data_source['params']['field'], $sm->_standard_text_fields)) {
+							$queries[$field_name] = array_get_index($_REQUEST, $query_var, '');
+						}
+					break;
+
+					case 'asset_attrib' :
+						$attribute = &$GLOBALS['SQ_SYSTEM']->am->getAttribute($data_source['params']['attrid']);
+						if (!is_null($attribute)) {
+							if ($attribute->type() == 'datetime') {
+								$queries[$field_name] = $this->_processDateRange($query_var);
+							} else {
+								$attribute->process($query_var);
+								$queries[$field_name] = trim($attribute->value);
+								if ($attribute->type() == 'selection' && !empty($attribute->_params['multiple'])) {
+									$queries[$field_name] = array_keys($attribute->getValueArray());
+								}
 							}
 						}
-					}
-				break;
+					break;
 
-				case 'metadata' :
-					if (empty($field['params']['assetid'])) {
-						trigger_localised_error('SCH0027', $field_name);
-						$queries[$field_name] = '';
-						break;
-					}
-					$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($field['params']['assetid']);
-					if (!is_null($asset)) {
-						$params = $asset->vars;
-						switch (get_class($asset)) {
-							case 'metadata_field_date' :
-								$queries[$field_name] = $this->_processDateRange($query_var);
-							break;
-
-							default :
-								$queries[$field_name] = array_get_index($_REQUEST, $query_var, '');
+					case 'metadata' :
+						if (empty($data_source['params']['assetid'])) {
+							trigger_localised_error('SCH0027', E_USER_NOTICE, $field_name);
+							$queries[$field_name] = '';
 							break;
 						}
-					}
-				break;
-			}//end switch query type
+						$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($data_source['params']['assetid']);
+						if (!is_null($asset)) {
+							$params = $asset->vars;
+							switch (get_class($asset)) {
+								case 'metadata_field_date' :
+									$queries[$field_name] = $this->_processDateRange($query_var);
+								break;
+
+								default :
+									$queries[$field_name] = array_get_index($_REQUEST, $query_var, '');
+								break;
+							}
+						}
+					break;
+				}//end switch query type
+			} else {
+				$queries[$field_name] = array_get_index($_REQUEST, $query_var, '');
+			}
 
 		}//end foreach fields
 
@@ -1922,7 +1948,7 @@ class Search_Page extends Listing_Engine
 		}
 
 		// if it seems that nothing is submitted, check if there was a previous query
-		// and use it's details
+		// and use its details
 		if (empty($queries) && !empty($this->_tmp['potential_searched_queries'])) {
 			$queries = $this->_tmp['potential_searched_queries'];
 		}
@@ -1988,12 +2014,12 @@ class Search_Page extends Listing_Engine
 		}
 
 		$search_info = Array();
-		$search_info['search_statuses'] = $search_statuses;
-		$search_info['root_assetid'] = $search_roots;
+		$search_info['statuses'] = $search_statuses;
+		$search_info['roots'] = $search_roots;
 		$search_info['root_logic'] = $root_logic;
-		$search_info['logic'] = $this->attr('logic');
-		$search_info['assetid'] = $this->id;
-		$search_info['search_types'] = $this->attr('types');
+		$search_info['field_logic'] = $this->attr('logic');
+		$search_info['requester'] = $this->id;
+		$search_info['asset_types'] = $this->attr('types');
 		return $search_info;
 
 	}//end populateBaseSearchInfo()

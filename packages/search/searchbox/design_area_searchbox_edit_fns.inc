@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_searchbox_edit_fns.inc,v 1.18 2005/06/20 04:38:26 dheppell Exp $
+* $Id: design_area_searchbox_edit_fns.inc,v 1.19 2005/08/10 04:12:39 tbarrett Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 * @see Design_Area_Edit_Fns
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -63,7 +63,7 @@ class Design_Area_Searchbox_Edit_Fns extends Design_Area_Edit_Fns
 			$search_pageid = $asset->attr('search_page_assetid');
 			if ($search_pageid > 0) {
 				$search_page_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($search_pageid);
-				echo $search_page_asset->name .' #' .$search_pageid;
+				echo $search_page_asset->name.' #'.$search_pageid;
 			} else {
 				echo translate('sch_no_search_page_specified');
 			}
@@ -116,7 +116,7 @@ class Design_Area_Searchbox_Edit_Fns extends Design_Area_Edit_Fns
 			$submit_imageid = $asset->attr('submit_image_assetid');
 			if ($submit_imageid > 0) {
 				$submit_image =& $GLOBALS['SQ_SYSTEM']->am->getAsset($submit_imageid);
-				echo $submit_image->name .' #'. $submit_imageid;
+				echo $submit_image->name.' #'.$submit_imageid;
 			} else {
 				echo translate('sch_box_no_submit_image_specified');
 			}
@@ -175,11 +175,21 @@ class Design_Area_Searchbox_Edit_Fns extends Design_Area_Edit_Fns
 				$field_description = $fields[$field_name];
 				$field_description = $field_name.' ';
 				switch ($field['type']) {
-					case 'include_all':		$field_description .= '(include all)';		break;
-					case 'asset_attrib':	$field_description .= '(asset attribute)';	break;
-					case 'exclude':			$field_description .= '(exclude)';			break;
-					case 'exclude':			$field_description .= '(exclude all)';		break;
-					default:				$field_description .= '(unknown)';			break;
+					case 'include_all':
+						$field_description .= '(include all)';
+					break;
+					case 'asset_attrib':
+						$field_description .= '(asset attribute)';
+					break;
+					case 'exclude':
+						$field_description .= '(exclude)';
+					break;
+					case 'exclude':
+						$field_description .= '(exclude all)';
+					break;
+					default:
+						$field_description .= '(unknown)';
+					break;
 				}
 				$options[$field_name] = $field_description;
 			}

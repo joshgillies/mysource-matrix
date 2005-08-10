@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_folder.inc,v 1.19 2005/08/04 06:51:09 mmcintyre Exp $
+* $Id: search_folder.inc,v 1.20 2005/08/10 04:12:29 tbarrett Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -118,11 +118,11 @@ class Search_Folder extends Asset
 			$sm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
 			$search_info = Array();
 			$search_info['limit'] = 100;
-			$search_info['assetid'] = $this->id;
-			$search_info['logic'] = (isset($settings['logic'])) ? strtoupper($settings['logic']) : 'AND';
+			$search_info['requester'] = $this->id;
+			$search_info['field_logic'] = (isset($settings['logic'])) ? strtoupper($settings['logic']) : 'AND';
 
 			if (empty($type_code)) {
-				$search_info['search_types'] = (isset($settings['types'])) ? $settings['types'] : Array();
+				$search_info['asset_types'] = (isset($settings['types'])) ? $settings['types'] : Array();
 			} else {
 				if (!is_array($type_code)) {
 					$type_code = Array($type_code);
@@ -133,25 +133,29 @@ class Search_Folder extends Asset
 				foreach ($type_code as $this_type_code => $value) {
 					$type_code[$this_type_code] = true;
 				}
-				$search_info['search_types'] = $type_code;
+				$search_info['asset_types'] = $type_code;
 			}
 			// if we have not selected to search any types, we are going to return no results
-			if (empty($search_info['search_types'])) {
+			if (empty($search_info['asset_types'])) {
 				return Array();
 			}
 
-			$search_info['search_statuses'] = (isset($settings['statuses'])) ? $settings['statuses'] : Array();
+			$search_info['statuses'] = (isset($settings['statuses'])) ? $settings['statuses'] : Array();
 			// if we have not selected to search any statuses, we are going to return no results
-			if (empty($search_info['search_statuses'])) {
-				return Array();
-			}
+			if (empty($search_info['statuses'])) return Array();
 
-			$search_info['root_assetid'] = (isset($settings['root']) && $settings['root']) ? $settings['root'] : 1;
+			$search_info['roots'] = Array();
+			if (!empty($settings['root'])) {
+				$search_info['roots'][] = $settings['root'];
+			} else {
+				$search_info['roots'][] = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('root_folder');
+			}
 
 			if (!isset($settings['phrase']) || trim($settings['phrase']) == '') {
 				$search_results = $sm->processBasicSearch($search_info);
 			} else {
-				$search_info['include_all'][$settings['phrase']]['words'] = $settings['phrase'];
+				$search_info['fields'][$settings['phrase']]['words'] = $settings['phrase'];
+				$search_info['fields'][$settings['phrase']]['data_sources'] = Array(Array('type' => 'include_all'));
 				$search_results = $sm->processSearch($search_info);
 			}
 
@@ -202,25 +206,29 @@ class Search_Folder extends Asset
 			$sm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
 			$search_info = Array();
 			$search_info['limit'] = 100;
-			$search_info['logic'] = (isset($settings['logic'])) ? strtoupper($settings['logic']) : 'AND';
-			$search_info['search_types'] = (isset($settings['types'])) ? $settings['types'] : Array();
-			$search_info['search_statuses'] = (isset($settings['statuses'])) ? $settings['statuses'] : Array();
-			$search_info['root_assetid'] = (isset($settings['root']) && $settings['root']) ? $settings['root'] : 1;
-			$search_info['assetid'] = $this->id;
+			$search_info['field_logic'] = (isset($settings['logic'])) ? strtoupper($settings['logic']) : 'AND';
+			$search_info['asset_types'] = (isset($settings['types'])) ? $settings['types'] : Array();
+			$search_info['statuses'] = (isset($settings['statuses'])) ? $settings['statuses'] : Array();
+			$search_info['roots'] = Array();
+			if (!empty($settings['root'])) {
+				$search_info['roots'][] = $settings['root'];
+			} else {
+				$search_info['roots'][] = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('root_folder');
+			}
+			$search_info['requester'] = $this->id;
 
 			// if we have not selected to search any types or statuses, we are going to return no results
-			if (empty($search_info['search_types'])) {
+			if (empty($search_info['asset_types'])) {
 				return Array();
 			}
 
-			if (empty($search_info['search_statuses'])) {
-				return Array();
-			}
+			if (empty($search_info['statuses'])) return Array();
 
 			if (!isset($settings['phrase']) || trim($settings['phrase']) == '') {
 				$search_results = $sm->processBasicSearch($search_info);
 			} else {
-				$search_info['include_all'][$settings['phrase']]['words'] = $settings['phrase'];
+				$search_info['fields'][$settings['phrase']]['words'] = $settings['phrase'];
+				$search_info['fields'][$settings['phrase']]['data_sources'] = Array(Array('type' => 'include_all'));
 				$search_results = $sm->processSearch($search_info);
 			}
 
