@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: messaging_service.inc,v 1.39.2.1 2005/08/10 14:12:52 brobertson Exp $
+* $Id: messaging_service.inc,v 1.39.2.2 2005/08/10 14:15:09 brobertson Exp $
 *
 */
 
@@ -44,7 +44,7 @@ define('SQ_MSG_PRIORITY_VERY_HIGH' , 5);
 *    Facilitate the sending and management of internal messages
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.39.2.1 $
+* @version $Revision: 1.39.2.2 $
 * @package MySource_Matrix
 */
 class Messaging_Service extends MySource_Object
@@ -106,12 +106,6 @@ class Messaging_Service extends MySource_Object
 		if (!isset($this->_tmp['message_type_logs'][$msg_type])) {
 
 			$this->_tmp['message_type_logs'][$msg_type] = Array();
-
-			$log_types = Array(
-							'log_to_file' => false, 
-							'log_to_db' => false,
-							'send_mail' => false,
-						 );
 
 			$msg_type_list = explode('.', $msg_type);
 
