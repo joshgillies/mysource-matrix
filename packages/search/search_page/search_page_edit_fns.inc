@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_edit_fns.inc,v 1.58 2005/08/10 05:29:12 ndvries Exp $
+* $Id: search_page_edit_fns.inc,v 1.59 2005/08/10 06:06:10 ndvries Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine_edit_fns.inc';
 *     Edit functions for search page
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.58 $
+* @version $Revision: 1.59 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -453,7 +453,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 							}
 							?>
 						</tr>
-						
+
 						<?php
 					}
 				}
@@ -1425,6 +1425,35 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 		}
 
 	}//end processAssetTypes()
+
+
+	/**
+	* Gets a list of the available asset types that can be use for type formats.
+	* The reason it's used is so that assets (such as Search_Page) don't need to
+	* override the whole paint/process functions if they've got special asset
+	* type logic (Eg. proxy asset types)
+	*
+	* @param object Asset				&$asset		the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o			the outputter class
+	* @param string						$prefix		prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function _getAvailableTypes(&$asset)
+	{
+		$types = $asset->attr('types');
+		$proxy_settings = $asset->attr('proxy_types');
+
+		foreach ($proxy_settings as $proxy_type => $proxy_children) {
+			if (!empty($proxy_children)) {
+				$types = array_merge($proxy_children, $types);
+			}
+		}
+
+		return $types;
+
+	}//end _getAvailableTypes()
 
 
 	/**

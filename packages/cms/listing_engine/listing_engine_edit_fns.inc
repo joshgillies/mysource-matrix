@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.36 2005/08/05 05:21:13 dmckee Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.37 2005/08/10 06:06:11 ndvries Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -614,6 +614,26 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 
 	/**
+	* Gets a list of the available asset types that can be use for type formats.
+	* The reason it's used is so that assets (such as Search_Page) don't need to
+	* override the whole paint/process functions if they've got special asset
+	* type logic (Eg. proxy asset types)
+	*
+	* @param object Asset				&$asset		the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o			the outputter class
+	* @param string						$prefix		prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function _getAvailableTypes(&$asset)
+	{
+		return $asset->attr('types');
+
+	}//end _getAvailableTypes()
+
+
+	/**
 	* Paint the interface for editing custom type formats
 	*
 	* @param object Listing_Engine		&$asset	the asset whose interface we are painting
@@ -626,7 +646,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	function paintTypeFormats(&$asset, &$o, $prefix)
 	{
 		$write_access = $asset->writeAccess('links');
-		$types = $asset->attr('types');
+		$types = $this->_getAvailableTypes($asset);
 		$formats = $asset->getFormats('type_formats');
 
 		if (count($formats) > 1) {
@@ -713,7 +733,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	function processTypeFormats(&$asset, &$o, $prefix)
 	{
 		$folder = &$asset->getFolder('type_formats');
-		$types = $asset->attr('types');
+		$types = $this->_getAvailableTypes($asset);
 
 		$deleted_formats = array_get_index($_POST, $prefix.'_delete_type', Array());
 		$new_type = array_get_index($_POST, $prefix.'_new_type', '');
