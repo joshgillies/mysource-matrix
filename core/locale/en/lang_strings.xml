@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.40 2005/08/08 05:48:46 dmckee Exp $
+* $Id: lang_strings.xml,v 1.41 2005/08/10 00:52:17 tbarrett Exp $
 *
 */
 
@@ -1219,6 +1219,7 @@
 	<string source="asset">Asset</string>
 	<string source="asset_field">Asset Field</string>
 	<string source="asset_name">Asset Name</string>
+	<string source="asset_name_short">Asset Short Name</string>
 	<string source="attribute">Attribute</string>
 	<string source="attribute_name">Attribute Name</string>
 	<string source="circa">Circa</string>
