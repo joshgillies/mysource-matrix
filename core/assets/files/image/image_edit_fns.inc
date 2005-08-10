@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_edit_fns.inc,v 1.39 2005/07/19 07:19:45 skim Exp $
+* $Id: image_edit_fns.inc,v 1.40 2005/08/10 09:46:29 gnoel Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -98,37 +98,25 @@ class Image_Edit_Fns extends File_Edit_Fns
 		// assetid will not be set if we are creating
 		if (!$asset->id) return true;
 
-		$save_attrs = false;
 		$info = $asset->getExistingFile();
 		if (!empty($info)) {
-			if ((int) $info['width'] != (int) $asset->attr('width')) {
-				$save_attrs = true;
-				if (!$asset->setAttrValue('width', $info['width'])) {
-					return false;
-				}
+			if (!$asset->setAttrValue('width', $info['width'])) {
+				return false;
 			}
-			if ((int) $info['height'] != (int) $asset->attr('height')) {
-				$save_attrs = true;
-				if (!$asset->setAttrValue('height', $info['height'])) {
-					return false;
-				}
+			if (!$asset->setAttrValue('height', $info['height'])) {
+				return false;
 			}
-			if ((int) $info['size'] != (int) $asset->attr('size')) {
-				$save_attrs = true;
-				if (!$asset->setAttrValue('size', $info['size'])) {
-					return false;
-				}
+			if (!$asset->setAttrValue('size', $info['size'])) {
+				return false;
 			}
 		}//end if
 
-		if ($save_attrs) {
-			if (!$asset->saveAttributes()) {
-				trigger_localised_error('CORE0052', E_USER_WARNING);
-				return false;
-			}
-		}
-
 		$this->_recreateVarietyImages($asset);
+
+		if (!$asset->saveAttributes()) {
+			trigger_localised_error('CORE0052', E_USER_WARNING);
+			return false;
+		}
 
 		return true;
 
@@ -556,6 +544,7 @@ class Image_Edit_Fns extends File_Edit_Fns
 
 	/**
 	* Regenerates the variety images after an upload or fix
+	* It is the responsability of the caller to save the images attributes afterward
 	*
 	* @param object Image				&$asset	the file asset
 	* @param object Backend_Outputter	&$o		the backend outputter
@@ -571,7 +560,7 @@ class Image_Edit_Fns extends File_Edit_Fns
 			foreach ($varieties['data'] as $varid => $data)  {
 				$variety = &$asset->getAsset($varid);
 				if (is_null($variety)) continue;
-				$variety->updateImage();
+				$asset->saveVariety($variety, true, false);
 			}// end foreach
 		}// end if
 
