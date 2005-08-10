@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: messaging_service.inc,v 1.39.2.3 2005/08/10 14:22:43 brobertson Exp $
+* $Id: messaging_service.inc,v 1.39.2.4 2005/08/10 16:00:25 brobertson Exp $
 *
 */
 
@@ -44,7 +44,7 @@ define('SQ_MSG_PRIORITY_VERY_HIGH' , 5);
 *    Facilitate the sending and management of internal messages
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.39.2.3 $
+* @version $Revision: 1.39.2.4 $
 * @package MySource_Matrix
 */
 class Messaging_Service extends MySource_Object
@@ -698,6 +698,10 @@ class Messaging_Service extends MySource_Object
 				}
 			}
 		}
+
+		// Remove sent emails
+		unset($this->_emails);
+		$this->_emails = Array();
 
 	}//end sendQueuedEmails()
 
