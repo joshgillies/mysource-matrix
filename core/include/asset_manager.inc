@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.322.2.13 2005/08/01 15:25:02 brobertson Exp $
+* $Id: asset_manager.inc,v 1.322.2.14 2005/08/10 00:53:11 mmcintyre Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.322.2.13 $
+* @version $Revision: 1.322.2.14 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -5522,6 +5522,12 @@ class Asset_Manager extends MySource_Object
 		// if we are oracle type-cast the function result to a table
 		if ($db->phptype == 'oci8') {
 			$function_call = 'table('.$function_call.')';
+			// MM: use the rule based optimizer for this plan as the statistics generated
+			// in 9i seem to really hinder the performance of this query.
+			// 10g will safely ignore the rule based optimiser hint
+			$select = 'SELECT /*+ RULE */ DISTINCT(l.majorid), a.type_code, t.treeid';
+		} else {
+			$select = 'SELECT DISTINCT(l.majorid), a.type_code, t.treeid';
 		}
 
 		$select = 'SELECT DISTINCT(l.majorid), a.type_code, t.treeid';
