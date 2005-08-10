@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: messaging_service.inc,v 1.39.2.2 2005/08/10 14:15:09 brobertson Exp $
+* $Id: messaging_service.inc,v 1.39.2.3 2005/08/10 14:22:43 brobertson Exp $
 *
 */
 
@@ -44,7 +44,7 @@ define('SQ_MSG_PRIORITY_VERY_HIGH' , 5);
 *    Facilitate the sending and management of internal messages
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.39.2.2 $
+* @version $Revision: 1.39.2.3 $
 * @package MySource_Matrix
 */
 class Messaging_Service extends MySource_Object
@@ -109,7 +109,7 @@ class Messaging_Service extends MySource_Object
 
 			$msg_type_list = explode('.', $msg_type);
 
-			foreach(Array('log_to_file', 'log_to_db', 'send_mail') as $log_type) {
+			foreach (Array('log_to_file', 'log_to_db', 'send_mail') as $log_type) {
 
 				$def_name_w = 'SQ_MS_'.strtoupper($log_type).'_WHITE_LIST';
 				$def_name_b = 'SQ_MS_'.strtoupper($log_type).'_BLACK_LIST';
@@ -150,7 +150,7 @@ class Messaging_Service extends MySource_Object
 							// this virtual type is white listed
 							$allow_log = true;
 
-						}  else if (in_array($check_code, $types_b)) {
+						} else if (in_array($check_code, $types_b)) {
 							// this virtual type is explicitly black listed
 							$allow_log = false;
 
@@ -379,7 +379,7 @@ class Messaging_Service extends MySource_Object
 	{
 		require_once SQ_INCLUDE_PATH.'/internal_message.inc';
 
-		$new_message = new Internal_Message();
+		$new_message =& new Internal_Message();
 		$new_message->sent         = ts_iso8601(time());
 		$new_message->from         = $GLOBALS['SQ_SYSTEM']->currentUserId();
 		$new_message->to           = $to;
@@ -443,8 +443,9 @@ class Messaging_Service extends MySource_Object
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		if (!is_null($get_user_name) && $get_user_name != 'name')
+		if (!is_null($get_user_name) && $get_user_name != 'name') {
 			$get_user_name = 'short_name';
+		}
 
 		$sql = 'SELECT m.msgid, m.userto, m.userfrom, m.subject, m.body, m.sent, m.priority, m.status, m.type, m.parameters';
 		if (is_string($get_user_name)) {
@@ -467,13 +468,19 @@ class Messaging_Service extends MySource_Object
 			$where = 'WHERE '.$where;
 		}
 
-		if (!is_null($type)) $where .= ' AND m.type = '.$db->quote($type);
+		if (!is_null($type)) {
+			$where .= ' AND m.type = '.$db->quote($type);
+		}
 		if (!empty($statii)) {
-			for ($i = 0; $i < count($statii); $i++) $statii[$i] = $db->quote($statii[$i]);
+			for ($i = 0; $i < count($statii); $i++) {
+				$statii[$i] = $db->quote($statii[$i]);
+			}
 			$where .= ' AND m.status IN ('.implode(', ', $statii).')';
 		}
 		if (!empty($messageids)) {
-			for ($i = 0; $i < count($messageids); $i++) $messageids[$i] = $db->quote($messageids[$i]);
+			for ($i = 0; $i < count($messageids); $i++) {
+				$messageids[$i] = $db->quote($messageids[$i]);
+			}
 			$where .= ' AND m.msgid IN ('.implode(', ', $messageids).')';
 		}
 		if (!empty($parameters)) {
@@ -481,8 +488,12 @@ class Messaging_Service extends MySource_Object
 				$where .= ' AND m.parameters LIKE '.$db->quote('%'.$param_key.':'.$param_value.';%');
 			}
 		}
-		if (!is_null($from)) $where .= ' AND m.sent >= '.$db->quote(ts_iso8601($from));
-		if (!is_null($to))   $where .= ' AND m.sent <= '.$db->quote(ts_iso8601($to));
+		if (!is_null($from)) {
+			$where .= ' AND m.sent >= '.$db->quote(ts_iso8601($from));
+		}
+		if (!is_null($to)) {
+			$where .= ' AND m.sent <= '.$db->quote(ts_iso8601($to));
+		}
 
 		$sql .= ' '.$where.' ORDER BY m.sent DESC';
 
@@ -617,7 +628,7 @@ class Messaging_Service extends MySource_Object
 	function sendQueuedEmails()
 	{
 		$crlf = "\n";
-		$mime = new Mail_mime($crlf);
+		$mime =& new Mail_mime($crlf);
 
 		foreach ($this->_emails as $from => $from_emails) {
 			// work out the email address the the email will be sent from
@@ -711,8 +722,9 @@ class Messaging_Service extends MySource_Object
 			$header = $user.','.$term.$term;
 		}
 		// replace separator line for multiple-bodied message with a h-rule
-		if ($type == 'html') $body = str_replace("\n\n".str_repeat('-', 50)."\n\n",'<hr />',$body);
-		if ($type == 'html') $body = nl2br($body);	// give it newlines
+		if ($type == 'html') {
+			$body = nl2br(str_replace("\n\n".str_repeat('-', 50)."\n\n",'<hr />',$body));
+		}
 
 		$line = ($type == 'text') ? str_repeat('-', 20).$term : '<hr />';
 
