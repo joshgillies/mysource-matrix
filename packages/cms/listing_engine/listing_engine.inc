@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.75 2005/08/09 00:33:51 dmckee Exp $
+* $Id: listing_engine.inc,v 1.76 2005/08/10 04:48:48 dheppell Exp $
 *
 */
 
@@ -43,7 +43,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.75 $
+* @version $Revision: 1.76 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1165,7 +1165,7 @@ class Listing_Engine extends Page
 							ob_start();
 							$onclick = Array();
 							$group_cb_id  = 'g_'.implode('_', $this->_tmp['group_info']);
-							$control_name = $selection_name.'_'.$group_cb_id;
+							$control_name = preg_replace('/\s/', '_', $selection_name.'_'.$group_cb_id);
 							check_box($control_name, '1', false, 'sq_listing_check_state(this, \''.$selection_name.'\')');
 							$replacements[$selection_name.'_check_all_in_group'] = ob_get_clean();
 						}
@@ -2366,7 +2366,7 @@ class Listing_Engine extends Page
 				ob_start();
 				$onclick = Array();
 				$group_cb_id  = 'all';
-				$control_name = $selection_name.'_'.$group_cb_id;
+				$control_name = preg_replace('/\s/', '_', $selection_name.'_'.$group_cb_id);
 				check_box($control_name, '1', false, "sq_listing_check_state(this, '".$selection_name."')");
 				$replacements[$selection_name.'_check_all'] = ob_get_clean();
 			} else {
@@ -2562,7 +2562,7 @@ class Listing_Engine extends Page
 		ob_end_clean();
 		return $replacement;
 
-	}//end getstructuredSearchLocationKeywordReplacement()
+	}//end getstructuredRootNodeKeywordReplacement()
 
 
 //--        ASSET SELECTION HELPERS        --//
