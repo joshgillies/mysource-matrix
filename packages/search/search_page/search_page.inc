@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.123 2005/08/10 04:12:35 tbarrett Exp $
+* $Id: search_page.inc,v 1.124 2005/08/10 07:57:55 gsherwood Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.123 $
+* @version $Revision: 1.124 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -348,6 +348,8 @@ class Search_Page extends Listing_Engine
 	*/
 	function &convertProxyAssetTypes(&$results)
 	{
+		if (empty($results)) return;
+
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
 		$proxy_settings = $this->attr('proxy_types');
 		if (empty($proxy_settings)) return $results;
