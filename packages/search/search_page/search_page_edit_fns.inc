@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_edit_fns.inc,v 1.55 2005/07/29 05:58:14 dmckee Exp $
+* $Id: search_page_edit_fns.inc,v 1.56 2005/08/10 01:49:35 ndvries Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine_edit_fns.inc';
 *     Edit functions for search page
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.55 $
+* @version $Revision: 1.56 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -289,7 +289,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 								$type_attrs = Array('' => '-- '.translate('select_attribute').' --');
 								$sm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
 								foreach ($asset_type_attrs as $attr_id => $attr_name) {
-									if($sm->isAttributeIndexable($attr_id)) {
+									if ($sm->isAttributeIndexable($attr_id)) {
 										$type_attrs[$attr_id] = $attr_name;
 									}
 								}
@@ -1380,6 +1380,142 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 		return $GLOBALS['SQ_SYSTEM']->am->installed('thesaurus');
 
 	}//end thesaurusInstalled()
+
+
+//--        PROXY SEARCHING        --//
+
+
+	/**
+	* Paints the list of current proxy search asset types (when one of these
+	* asset returns a search result, the children are listed rather than the
+	* proxy itself)
+	*
+	* @param object	Asset				&$rootid	asset being painted
+	* @param object Backend_Outputter	&$o			backend outputter
+	* @param string						$prefix		prefix for the html doc element name
+	*
+	* @return void
+	* @access public
+	*/
+	function paintProxyTypes(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+		$current_types = $asset->attr('proxy_types');
+
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
+
+		$o->openField('Proxy Asset Types:');
+			if (empty($current_types)) {
+				echo 'There are no current types defined.';
+			} else {
+				?>
+					<table class="sq-backend-table">
+						<tr>
+							<td class="sq-backend-table-header" style="width: 200px;">Proxy Type Code</td>
+							<td class="sq-backend-table-header">Child Type Codes</td>
+							<?php
+								if ($write_access) {
+									?><td class="sq-backend-table-header" style="width: 20px;"><?php echo translate('delete') ?></td><?php
+								}
+							?>
+
+						</tr>
+						<?php
+							foreach ($current_types as $current_type => $type_settings) {
+								?>
+								<tr>
+									<td class="sq_backend-data"><?php echo $am->getTypeInfo($current_type, 'name'); ?></td>
+									<td class="sq_backend-data"><?php
+										if ($write_access) {
+											$i = 0;
+											$options = Array();
+											foreach ($type_settings as $type_code => $inherit) {
+												$options['type_code'][$i] = $type_code;
+												$options['inherit'][$i] = $inherit;
+												$i++;
+											}
+											asset_type_chooser($prefix.'_'.$current_type.'_children', true, $options, true, false, true);
+										} else {
+											echo implode(', ', $am->getTypeInfo(array_keys($type_settings), 'name'));
+										}
+									?></td>
+									<?php
+										if ($write_access) {
+											?><td class="sq_backend-data"><?php check_box($prefix.'_'.$current_type.'_delete'); ?></td><?php
+										}
+									?>
+								<tr>
+								<?php
+							}
+						?>
+					</table>
+				<?php
+			}
+		$o->closeField();
+
+		$o->openField('New Proxy Asset Type:');
+			if ($write_access) {
+				$types = array_keys($asset->attr('types'));
+				$types = array_diff($types, array_keys($current_types));
+
+				if (empty($types)) {
+					echo 'All available type codes have been selected as proxies';
+				} else {
+					echo '&nbsp;';
+					$options = Array('' => '');
+					$options += $am->getTypeInfo($types, 'name');
+					combo_box($prefix.'_new_type', $options, false, count($types));
+				}
+			}
+		$o->closeField();
+
+		return $write_access;
+
+	}//end paintProxyTypes()
+
+
+	/**
+	*
+	* @param object	Asset				&$rootid	asset being painted
+	* @param object Backend_Outputter	&$o			backend outputter
+	* @param string						$prefix		prefix for the html doc element name
+	*
+	* @return void
+	* @access public
+	*/
+	function processProxyTypes(&$asset, &$o, $prefix)
+	{
+		$current_types = $asset->attr('proxy_types');
+
+		foreach ($current_types as $current_type => $type_settings) {
+			// First check to see if any have been deleted
+			if (isset($_REQUEST[$prefix.'_'.$current_type.'_delete'])) {
+				unset($current_types[$current_type]);
+				continue;
+			}
+
+			// Set the new types or set to an empty array if they've all been cleared
+			if (!empty($_REQUEST[$prefix.'_'.$current_type.'_children'])) {
+				$children = $_REQUEST[$prefix.'_'.$current_type.'_children'];
+
+				$current_types[$current_type] = Array();
+				foreach ($children['type_code'] as $index => $type_code) {
+					if (empty($type_code)) continue;
+					$current_types[$current_type][$type_code] = (empty($children['inherit'][$index])) ? false : true;
+				}
+
+			} else {
+				$current_types[$current_type]['children'] = Array();
+			}
+		}
+
+		if (!empty($_REQUEST[$prefix.'_new_type'])) {
+			$current_types[$_REQUEST[$prefix.'_new_type']] = Array();
+		}
+
+		return $asset->setAttrValue('proxy_types', $current_types);
+
+	}//end processProxyTypes()
 
 
 }//end class

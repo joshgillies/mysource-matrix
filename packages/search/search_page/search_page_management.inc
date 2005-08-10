@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_management.inc,v 1.44 2005/08/01 07:17:33 tbarrett Exp $
+* $Id: search_page_management.inc,v 1.45 2005/08/10 01:49:35 ndvries Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.45 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -38,8 +38,14 @@ class Search_Page_Management extends Asset_Management
 	function Search_Page_Management(&$pm)
 	{
 		$this->Asset_Management($pm);
-		
+
 		$this->vars['group_by']['default'] = 'grouped';
+
+		$this->vars['proxy_types'] = Array(
+										'added'		=> '0.15',
+										'type'		=> 'serialise',
+										'default'	=> Array(),
+									 );
 
 		$this->vars['sis_button_text'] = Array(
 											'added'			=> '0.5',
@@ -359,7 +365,7 @@ class Search_Page_Management extends Asset_Management
 			}
 			bam('SEARCH PAGE UPGRADE COMPLETE - FROM VERSION 0.12');
 		}//end version 0.13 upgrade
-		
+
 		if (version_compare($current_version, '0.14', '<')) {
 			bam('STARTING SEARCH PAGE UPGRADE - FROM VERSION 0.13');
 			// version 0.13->0.14
@@ -369,15 +375,15 @@ class Search_Page_Management extends Asset_Management
 				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				$asset->setAttrValue('group_by', 'grouped');
 				$asset->saveAttributes();
-				
+
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 			}
-			
+
 			bam('SEARCH PAGE UPGRADE COMPLETE - FROM VERSION 0.13');
 		}//end version 0.12 upgrade
 
 		if (version_compare($current_version, '0.15', '<')) {
-			bam("STARTING SEARCH PAGE UPGRADE - FROM VERSION 0.14");
+			bam('STARTING SEARCH PAGE UPGRADE - FROM VERSION 0.14');
 			// version 0.14 -> 0.15
 			// changed the format of the attr categories
 			$children = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), false);
@@ -388,16 +394,18 @@ class Search_Page_Management extends Asset_Management
 					$old_cats[$i]['full_name'] = $v['name'];
 				}
 				$new_cats['search'] = Array('options' => $old_cats);
-				$sql = 'SELECT custom_val 
-						FROM sq_ast_attr_val 
+				$sql = 'SELECT custom_val
+						FROM sq_ast_attr_val
 						WHERE assetid = '.$db->quote($asset->id).'
-							AND attrid = (SELECT attrid 
-										  FROM sq_ast_attr 
+							AND attrid = (SELECT attrid
+										  FROM sq_ast_attr
 										  WHERE name='.$db->quote('no_category_text').'
 											AND type_code = '.$db->quote('search_page').'
 										 )
 						';
 				$unselected_text = $db->getOne($sql);
+				assert_valid_db_result($unselected_text);
+
 				$new_cats['search']['unselected_text'] = empty($unselected_text) ? '' : $unselected_text;
 				$asset->setAttrValue('categories', $new_cats);
 				$asset->saveAttributes();
@@ -421,7 +429,7 @@ class Search_Page_Management extends Asset_Management
 				}
 			}
 		}
-				
+
 
 
 		return true;

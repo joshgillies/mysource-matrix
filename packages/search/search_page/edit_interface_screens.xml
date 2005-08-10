@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screens.xml,v 1.14 2005/07/26 05:18:06 lwright Exp $
+* $Id: edit_interface_screens.xml,v 1.15 2005/08/10 01:49:35 ndvries Exp $
 *
 */
 -->
@@ -23,5 +23,6 @@
 	<screen code_name="sorting" display_name="Asset Sorting"   icon="web" lock_type="attributes" force_unlock="0" />
 	<screen code_name="grouping" display_name="Asset Grouping"    icon="web" lock_type="attributes" force_unlock="0" />
 	<screen code_name="selections" display_name="Asset Selections"    icon="web" lock_type="attributes" force_unlock="0" />
+	<screen code_name="proxy" display_name="Proxy Asset Types" icon="web" lock_type="attributes" force_unlock="0" />
 	<screen code_name="paths" display_name="Web Paths" icon="web" lock_type="lookups" />
 </screens>

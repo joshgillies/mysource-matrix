@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.121 2005/08/09 00:35:19 dmckee Exp $
+* $Id: search_page.inc,v 1.122 2005/08/10 01:49:35 ndvries Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.121 $
+* @version $Revision: 1.122 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -77,6 +77,7 @@ class Search_Page extends Listing_Engine
 											'initial_layout',
 											'category_list_linked',
 											'structured_root_node',
+											'initial_result_count',
 										   ),
 						'no_results'	=> Array(
 											'initial_layout',
@@ -323,6 +324,9 @@ class Search_Page extends Listing_Engine
 	function printResultsBody()
 	{
 		$results = $this->processSearch();
+		$this->_tmp['initial_results'] = $results;
+		$results =& $this->convertProxyAssetTypes($results);
+
 		$this->_tmp['search_results'] =& $results;
 		if (empty($results)) {
 			echo $this->getBodycopyContents('no_results', $this->getResultsBodyReplacements($results));
@@ -331,6 +335,63 @@ class Search_Page extends Listing_Engine
 		}
 
 	}//end printResultsBody()
+
+
+	/**
+	* Takes an array of search results and modifies it according to the rules
+	* set on the Proxy Asset Types screen. Any asset set as a proxy is replaced
+	* with its children of specified type_code. The children inherit the score
+	* from the proxy
+	*
+	* @access private
+	* @return array
+	*/
+	function &convertProxyAssetTypes(&$results)
+	{
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$proxy_settings = $this->attr('proxy_types');
+		if (empty($proxy_settings)) return $results;
+
+		$collated_types = Array();
+		$result_types = $am->getAssetInfo(array_keys($results), 'asset', false, 'type_code');
+		foreach ($result_types as $result_assetid => $result_type) {
+			$collated_types[$result_type][] = $result_assetid;
+		}
+
+		$new_results = Array();
+		foreach ($collated_types as $result_type => $result_assetids) {
+			if (isset($proxy_settings[$result_type])) {
+				if (empty($proxy_settings[$result_type])) {
+					return $results;
+				}
+
+				$converted_types = Array();
+				foreach ($proxy_settings[$result_type] as $type_code => $inherit) {
+					if ($inherit) {
+						$converted_types = array_merge($am->getTypeDescendants($type_code, true), $converted_types);
+					} else {
+						$converted_types[] = $type_code;
+					}
+				}
+
+				$children = $GLOBALS['SQ_SYSTEM']->am->getLinks($result_assetids, SQ_SC_LINK_SIGNIFICANT, $converted_types);
+
+				if (count($result_assetids) == 1) {
+					$children = Array($result_assetids[0] => $children);
+				}
+
+				foreach ($children as $orig_assetid => $links) {
+					foreach ($links as $link) {
+						// keep the original score
+						$new_results[$link['minorid']] = $results[$orig_assetid];
+					}
+				}
+			}
+		}
+
+		return $new_results;
+
+	}//end convertProxyAssetTypes()
 
 
 	/**
@@ -1215,7 +1276,6 @@ class Search_Page extends Listing_Engine
 
 		// if we are to use the listing engine stuff then we need to change
 		// to a getAssetList() style format
-		$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($results), 'asset', false, 'type_code');
 		$sort_info  = $this->getSortInfo();
 		$asset_info = $this->sortAssetList($results, $sort_info);
 
@@ -1257,6 +1317,11 @@ class Search_Page extends Listing_Engine
 						$this->printAssetList($result_list);
 						$replacement = ob_get_contents();
 					ob_end_clean();
+				break;
+
+				case 'initial_result_count' :
+					$initial_results = $this->_tmp['initial_results'];
+					$replacement = count($initial_results);
 				break;
 
 				case 'result_count':
