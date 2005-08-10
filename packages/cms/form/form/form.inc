@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.100.2.7 2005/07/08 01:59:52 dheppell Exp $
+* $Id: form.inc,v 1.100.2.8 2005/08/10 23:58:20 dmckee Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.100.2.7 $
+* @version $Revision: 1.100.2.8 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -869,8 +869,16 @@ class Form extends Asset
 
 		$clientside = ($this->attr('use_client_side'))?'onsubmit="return beforeSubmit_'.$prefix.'(this);"':'';
 
+		$form_action = $_SERVER['PHP_SELF'];
+
+		// Add the query string as well if it exists, so asset references with ?a=###
+		// submit back to themselves.
+		if (!empty($_SERVER['QUERY_STRING'])) {
+			$form_action .= '?'.$_SERVER['QUERY_STRING'];
+		}
+
 		ob_start();
-		echo '<form name="'.$prefix.'" enctype="multipart/form-data" action="'.$_SERVER['PHP_SELF'].'" method="post" '.$clientside.'>';
+		echo '<form name="'.$prefix.'" enctype="multipart/form-data" action="'.$form_action.'" method="post" '.$clientside.'>';
 		if ($this->attr('use_client_side')) {
 			?><script language="JavaScript">
 			function beforeSubmit_<?php echo $this->getPrefix() ?>(form) {
