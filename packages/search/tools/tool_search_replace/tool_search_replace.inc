@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_search_replace.inc,v 1.13 2005/08/10 04:12:41 tbarrett Exp $
+* $Id: tool_search_replace.inc,v 1.14 2005/08/11 01:58:04 dheppell Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 *
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -326,7 +326,7 @@ class Tool_Search_Replace extends Tool
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 
 		}//end foreach $results
-bam($formatted_results);
+
 		return $formatted_results;
 
 	}//end getFormattedResults()
