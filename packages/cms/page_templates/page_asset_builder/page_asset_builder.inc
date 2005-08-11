@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.68 2005/07/26 23:58:00 tbarrett Exp $
+* $Id: page_asset_builder.inc,v 1.69 2005/08/11 06:59:04 dmckee Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.68 $
+* @version $Revision: 1.69 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -852,176 +852,24 @@ class Page_Asset_Builder extends Page
 										$types[$type_code] = '';
 									}
 								}
+							} else {
+								$types[$new_types['type_code'][$ii]] = '';
+
 							}
 						}
 					}
 				}
 			}
 			$types = array_keys($types);
-
-			// get all children of the root node and filter based on the rules
-			// specified in the backend
-			$all_child_links = $GLOBALS['SQ_SYSTEM']->am->getAllChildLinks($data['root']);
-			$child_links = $all_child_links;
-			foreach ($child_links as $treeid => $child) {
-				if ((strlen($treeid)/4) > $data['depth'] && $data['depth'] != 0) {
-					unset($child_links[$treeid]);
-				} else if (!isset($data['filter_link_type'][$child['link_type']])) {
-					unset($child_links[$treeid]);
-				} else if (!empty($types)) {
-					if (!in_array($child['type_code'], $types)) {
-						unset($child_links[$treeid]);
-					}
-				}
-			}
-
-			// if the filters gave removed all child links, or the root never had
-			// any children anyway provide a message to the user
-			if (empty($child_links)) {
-				ob_start();
-					echo translate('cms_asset_builder_rules_no_locations');
-					$this->_replacements[$code_name.'_field'] = ob_get_contents();
-				ob_end_clean();
-				return;
-			}
-
-			if ($data['display_structured']) {
-				$tree = Array();
-				foreach ($child_links as $treeid => $child) {
-					$this->_IDListToTree($treeid, $tree);
-				}
-				$options = Array();
-				$this->_drawTree($tree, $all_child_links, $options);
-			} else {
-				$unique_assetids = Array();
-				foreach ($child_links as $treeid => $child) {
-					if (!in_array($child['assetid'], $unique_assetids)) {
-						$options[$child['linkid'].'_'.$child['assetid']] = $child['short_name'];
-						$unique_assetids[] = $child['assetid'];
-					}
-				}
-			}
-
 			ob_start();
-				echo '<pre style="font-family: verdana, arial, sans-serif, monospace;">';
-				switch ($data['input_style']) {
-
-					case 'dropdown':
-						if ($data['allow_empty'] && !$data['allow_multiple']) {
-							$options = Array(''=>'') + $options;
-						}
-						$default = $data['allow_empty'] ? Array() : key($options);
-						$height = $data['allow_multiple'] ? 5 : 1;
-						combo_box($code_name, $options, $data['allow_multiple'], $default,  $height);
-					break;
-					case 'radio':
-						if ($data['allow_multiple']) {
-							// print checkboxes
-							$checked = !$data['allow_empty'];
-							$i = 0;
-							foreach ($options as $id => $name) {
-								check_box($code_name."[$i]", $id, $checked);
-								echo '&nbsp;'.$name.'<br />';
-								$checked = false;
-								$i++;
-							}
-						} else {
-							$checked = !$data['allow_empty'];
-							foreach ($options as $id => $name) {
-								radio_button($code_name, $id, $checked);
-								echo '&nbsp;'.$name.'<br />';
-								$checked = false;
-							}
-						}
-					break;
-
-					default:
-						echo '('.translate('cms_asset_builder_undefined_input_style', $data['input_style']).')';
-					break;
-				}
-				echo '</pre>';
+			echo '<pre style="font-family: verdana, arial, sans-serif, monospace;">';
+			structured_drop_down($code_name, $data['root'], $types, Array(), 0, $data['allow_multiple'] ? 5 : 1, $data['depth'], $data['allow_multiple'], '-', false, '', $data['input_style'] == 'radio', Array(), $data['display_structured'], array_keys($data['filter_link_type']), $data['allow_empty']);
+			echo '</pre>';
 				$this->_replacements[$code_name.'_field'] = ob_get_contents();
 			ob_end_clean();
 		}
 
 	}//end _loadCreateReplacements()
-
-
-	/**
-	* Takes a tree ID and inserts it into a tree
-	*
-	* $tree is in the following format:
-	* <pre>
-	* Array(
-	*	'0001'	=> 0,
-	*	'0002'	=> Array(
-	*				'00020001'	=> 0,
-	*			   ),
-	* )
-	* </pre>
-	*
-	* @param string		`			$treeid			the ID of the tree to format
-	* @param Array(string=>mixed)	&$tree			the tree to insert the formatted ID into
-	* @param string					$chunk_prefix	optional, used internally
-	*
-	* @access private
-	* @return void
-	*/
-	function _IDListToTree($treeid, &$tree, $chunk_prefix='')
-	{
-		$branch_str_len = 4;
-
-		if (strlen($treeid) < $branch_str_len) {
-			// n00b out
-			return false;
-		}
-
-		$first_chunk = substr($treeid, 0, $branch_str_len);
-
-		if (strlen($treeid) > $branch_str_len) {
-			$remaining_chunk = substr($treeid, $branch_str_len, strlen($treeid));
-			if (!isset($tree[$chunk_prefix.$first_chunk]) || !is_array($tree[$chunk_prefix.$first_chunk])) {
-				$tree[$chunk_prefix.$first_chunk] = Array();
-			}
-			$this->_IDListToTree($remaining_chunk, $tree[$chunk_prefix.$first_chunk], $chunk_prefix.$first_chunk);
-		} else {
-			$tree[$chunk_prefix.$first_chunk] = 0;
-		}
-
-	}//end _IDListToTree()
-
-
-	/**
-	* Takes a tree array and an output array, and fills the output array with an ascii tree,
-	* with each line of the tree as an element in the array
-	*
-	* @param Array(string=>mixed)	$tree				the tree to format
-	* @param Array(string=>mixed)	$all_child_links	assetInfo() for use when printing
-	* @param Array(string=>mixed)	$output_tree		the array to store the output array
-	* @param string					$branch				optional, used internally
-	* @param Array(string)			&$level				optional, used internally
-	*
-	* @see Page_Asset_Builder::_IDListToTree()
-	* @access private
-	* @return void
-	*/
-	function _drawTree($tree, &$all_child_links, &$output_tree, $branch='', $level=0)
-	{
-		if (empty($tree)) return false;
-
-		foreach ($tree as $branch => $branch_data) {
-			if (is_array($branch_data) && !empty($branch_data)) {
-				$this->_drawTree($branch_data, $all_child_links, $output_tree, $branch, $level++);
-			} else {
-				$prefix = '';
-				for ($i = 1; $i < $level; $i++) {
-					$prefix .= ' - ';
-				}
-				$branch_info = $all_child_links[$branch];
-				$output_tree[$branch_info['linkid'].'_'.$branch_info['assetid']] = $prefix.$branch_info['short_name'];
-			}
-		}
-	}//end _drawTree()
 
 
 	/**
