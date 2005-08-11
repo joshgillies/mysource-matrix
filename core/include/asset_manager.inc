@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.356 2005/08/11 04:54:32 mmcintyre Exp $
+* $Id: asset_manager.inc,v 1.357 2005/08/11 05:53:03 dheppell Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.356 $
+* @version $Revision: 1.357 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -1258,15 +1258,26 @@ class Asset_Manager extends MySource_Object
 			return false;
 		}
 
-		$children = $this->getDependantChildren($assetid);
+		$children = array_keys($this->getDependantChildren($assetid));
 		$contents = Array();
 
-		foreach ($children as $childid => $type_code) {
-			$child = &$this->getAsset($childid);
+		foreach ($children as $child_id) {
+			$child = &$this->getAsset($child_id);
+			$dependants_children = array_keys($this->getDependantChildren($child_id));
+
+			// find out if our dependant children are in the children list, otherwise
+			// we'll get the same content twice
+			// we have to do in array for each key, an array needle gets us nowhere
+			for ($i = 0; $i < count($dependants_children); $i++) {
+				if (in_array($dependants_children[$i], $children)) {
+					continue 2;
+				}
+			}
+
 			$child_content = $child->getContent();
 
 			if (!empty($child_content)) {
-				$contents[$childid] = $child->getContent();
+				$contents[$child_id] = $child->getContent();
 			}
 
 			$this->forgetAsset($child);
