@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.70 2005/08/11 07:19:33 dmckee Exp $
+* $Id: page_asset_builder.inc,v 1.71 2005/08/11 10:07:42 gnoel Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.70 $
+* @version $Revision: 1.71 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -702,7 +702,6 @@ class Page_Asset_Builder extends Page
 					$all_selected_locations[(int)$_POST[$code_name]] = (int)$details['link_type'];
 				}
 			} else if (!$details['allow_empty']) {
-				echo 'Inhere';
 				trigger_localised_error('CMS0036', E_USER_WARNING, $set_name);
 				return Array();
 			}
