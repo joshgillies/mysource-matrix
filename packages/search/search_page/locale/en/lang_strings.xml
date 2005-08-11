@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.3 2005/08/10 04:12:38 tbarrett Exp $
+* $Id: lang_strings.xml,v 1.4 2005/08/11 07:29:23 tbarrett Exp $
 *
 *
 * Search Package Localised Strings File
@@ -41,7 +41,8 @@
 <string source="sch_page_date_range_onwards">%s onwards</string>
 <string source="sch_page_format_logic_and">all of the words</string>
 <string source="sch_page_format_logic_or">any of the words</string>
-<string source="sch_page_keyword_search_field">Search Field (%s)</string>
+<string source="sch_page_keyword_search_field">Input field for %s</string>
+<string source="sch_page_keyword_search_field_logic">Word Logic Chooser for %s</string>
 <string source="sch_page_keyword_search_form">Search Form</string>
 <string source="sch_page_keyword_sis_form">Search in Search Form</string>
 <string source="sch_page_keyword_sis_button">Search in Search Button</string>
@@ -52,8 +53,12 @@
 <string source="sch_page_field">Field</string>
 <string source="sch_page_data_sources">Data Sources</string>
 <string source="sch_page_metadata_field">Metadata Field</string>
-<string source="sch_page_add_data_source">-- Add Data Source --</string>
+<string source="sch_page_add_data_source">Add Data Source</string>
 <string source="sch_page_datatype_standard">Standard Asset Field</string>
 <string source="sch_page_datatype_metadata">Asset Metadata Field</string>
 <string source="sch_page_datatype_attribute">Asset Attribute</string>
+<string source="sch_page_word_logic">Word Logic</string>
+<string source="sch_page_all_words">All Words</string>
+<string source="sch_page_any_word">Any Word</string>
+<string source="sch_page_word_logic_exp">Find assets with ALL or ANY of the entered words?</string>
 </strings>

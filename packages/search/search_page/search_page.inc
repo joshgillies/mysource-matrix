@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.124 2005/08/10 07:57:55 gsherwood Exp $
+* $Id: search_page.inc,v 1.125 2005/08/11 07:29:23 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.124 $
+* @version $Revision: 1.125 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -976,7 +976,7 @@ class Search_Page extends Listing_Engine
 		ob_start();
 
 			if (count($fields[$field_name]['data_sources']) == 1) {
-				switch ($fields[$field_name]['type']) {
+				switch ($fields[$field_name]['data_sources'][0]['type']) {
 
 					case 'metadata' :
 						$assetid = $fields[$field_name]['params']['assetid'];
@@ -1151,7 +1151,14 @@ class Search_Page extends Listing_Engine
 		$categories = $this->attr('categories');
 
 		foreach ($keywords as $keyword) {
-			if (ereg('(.+)_query', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
+			if (ereg('(.+)_query_logic$', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
+				$current_logic = array_get_index($_REQUEST, $keyword, array_get_index($fields[$matches[1]], 'word_logic'));
+				$options = Array('AND' => translate('sch_page_format_logic_and'), 'OR' => translate('sch_page_format_logic_or'));
+				ob_start();
+					combo_box($keyword, $options, false, $current_logic);
+					$replaces[$keyword] = ob_get_contents();
+				ob_end_clean();
+			} else if (ereg('(.+)_query', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
 				$replaces[$keyword] = $this->getFieldReplacement($matches[1]);
 			} else if (ereg('(.+)_category_chooser', $keyword, $matches) && array_key_exists($matches[1], $categories)) {
 				$replaces[$keyword] = $this->getCategoryChooserReplacement($matches[1], $categories[$matches[1]]);
@@ -1183,14 +1190,7 @@ class Search_Page extends Listing_Engine
 
 		$replacements = Array();
 		foreach ($keywords as $keyword) {
-			if (ereg('(.+)_query_logic$', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
-				$current_logic = array_get_index($_REQUEST, $keyword, 'AND');
-				$options = Array('AND' => translate('sch_page_format_logic_and'), 'OR' => translate('sch_page_format_logic_or'));
-				ob_start();
-					combo_box($keyword, $options, false, $current_logic);
-					$replacements[$keyword] = ob_get_contents();
-				ob_end_clean();
-			} else if (ereg('(.+)_query_terms$', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
+			if (ereg('(.+)_query_terms$', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
 				$replacements[$keyword] = $this->getSearchedFieldReplacement($matches[1]);
 			} else if (ereg('(.+)_query$', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
 				if ($form_name == 'sis_form') {
@@ -1763,11 +1763,11 @@ class Search_Page extends Listing_Engine
 				$search_info['fields'][$field_name] = $fields[$field_name];
 				$search_info['fields'][$field_name]['words'] = $value;
 				$query_fields_exist = true;
-				$search_logic = 'AND';
-				if (strtoupper(array_get_index($_REQUEST, $field_name.'_query_logic', '')) == 'OR') {
-					$search_logic = 'OR';
+
+				$submitted_word_logic = strtoupper(array_get_index($_REQUEST, $field_name.'_query_logic', ''));
+				if (in_array($submitted_word_logic, Array('AND', 'OR'))) {
+					$search_info['fields'][$field_name]['word_logic'] = $submitted_word_logic;
 				}
-				$search_info['fields'][$field_name]['word_logic'] = $search_logic;
 			}
 
 		}//end foreach fields
@@ -2258,6 +2258,7 @@ class Search_Page extends Listing_Engine
 					$fields = $this->attr('fields');
 					foreach ($fields as $field => $field_data) {
 						$keywords[$field.'_query'] = translate('sch_page_keyword_search_field', $field);
+						$keywords[$field.'_query_logic'] = translate('sch_page_keyword_search_field_logic', $field);
 					}
 
 					// work out search category keywords
