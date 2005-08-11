@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.69 2005/08/11 00:09:54 ndvries Exp $
+* $Id: search_manager.inc,v 1.70 2005/08/11 04:58:06 mmcintyre Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.69 $
+* @version $Revision: 1.70 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -224,6 +224,7 @@ class Search_Manager extends Asset
 	{
 		// don't run if indexing turned OFF
 		if (!$this->attr('indexing')) return;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'DELETE FROM
@@ -236,6 +237,8 @@ class Search_Manager extends Asset
 
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 	}//end flushIndexableContent()
 

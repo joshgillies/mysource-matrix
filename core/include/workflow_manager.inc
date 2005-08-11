@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.74 2005/06/15 04:33:48 dmckee Exp $
+* $Id: workflow_manager.inc,v 1.75 2005/08/11 04:55:42 mmcintyre Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.74 $
+* @version $Revision: 1.75 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -1236,6 +1236,7 @@ class Workflow_Manager extends MySource_Object
 	function _clearWorkflow($assetid)
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$sql = 'UPDATE
 					sq_ast_wflow
@@ -1254,6 +1255,9 @@ class Workflow_Manager extends MySource_Object
 
 		unset($this->_tmp['schemas'][$assetid]);
 		unset($this->_tmp['schema_workflows'][$assetid]);
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
 		return true;
 
 	}//end _clearWorkflow()
@@ -1270,6 +1274,7 @@ class Workflow_Manager extends MySource_Object
 	function purgeWorkflow($assetid)
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$sql = 'DELETE FROM
 					sq_ast_wflow
@@ -1278,6 +1283,8 @@ class Workflow_Manager extends MySource_Object
 
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		return true;
 

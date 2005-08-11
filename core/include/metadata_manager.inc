@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.89 2005/07/26 23:51:55 mmcintyre Exp $
+* $Id: metadata_manager.inc,v 1.90 2005/08/11 04:54:58 mmcintyre Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.89 $
+* @version $Revision: 1.90 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -1320,6 +1320,8 @@ class Metadata_Manager extends MySource_Object
 		$row = $db->getRow($sql.$where);
 		assert_valid_db_result($row);
 
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
 		// does the default value exist yet, then?
 		if (is_null($row)) {
 			$sql = 'INSERT INTO
@@ -1344,6 +1346,8 @@ class Metadata_Manager extends MySource_Object
 
 		$value = $db->query($sql);
 		assert_valid_db_result($value);
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		return true;
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager.inc,v 1.24 2005/07/21 20:14:12 brobertson Exp $
+* $Id: trigger_manager.inc,v 1.25 2005/08/11 04:53:02 mmcintyre Exp $
 *
 */
 
@@ -51,7 +51,7 @@ require_once 'hash.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -851,6 +851,7 @@ class Trigger_Manager extends Asset
 		if (empty($hash_combinations)) return false;
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		foreach ($hash_combinations as $combination) {
 
@@ -871,10 +872,13 @@ class Trigger_Manager extends Asset
 
 			// check result
 			if (!assert_valid_db_result($result, null, false, false)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
 
 		}//end foreach
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		return true;
 
@@ -933,6 +937,7 @@ class Trigger_Manager extends Asset
 	function _deleteTrigger($trigger_id)
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$sql = 'DELETE FROM
 					sq_trig
@@ -943,6 +948,8 @@ class Trigger_Manager extends Asset
 		assert_valid_db_result($result);
 
 		$success = $this->_deleteTriggerHash($trigger_id);
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		return $success;
 
@@ -960,6 +967,8 @@ class Trigger_Manager extends Asset
 	function _deleteTriggerHash($trigger_id)
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
 		$sql = 'DELETE FROM
 					sq_trig_hash
 				WHERE
@@ -967,6 +976,8 @@ class Trigger_Manager extends Asset
 
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		return true;
 

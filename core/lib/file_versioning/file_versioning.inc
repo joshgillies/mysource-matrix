@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_versioning.inc,v 1.11 2005/07/10 23:14:36 ndvries Exp $
+* $Id: file_versioning.inc,v 1.12 2005/08/11 04:56:41 mmcintyre Exp $
 *
 */
 
@@ -39,7 +39,7 @@ define('FUDGE_FV_OLD_VERSION',      64);
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package Fudge
 * @subpackage File_Versioning
 */
@@ -94,12 +94,6 @@ class File_Versioning
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 		require_once SQ_LIB_PATH.'/db_install/db_install.inc';
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
-//		if (!db_install(dirname(__FILE__).'/tables.xml')) {
-//			trigger_localised_error('FVER0021', E_USER_WARNING);
-//			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-//			return false;
-//		}
 
 		$dir = SQ_DATA_PATH.'/file_repository';
 		$this->_dir = $dir;
@@ -274,15 +268,19 @@ class File_Versioning
 					WHERE fileid = '.$this->_db->quote($fileid);
 		$insert = 'INSERT INTO sq_file_vers_lock (fileid) VALUES ('.$this->_db->quote($fileid).')';
 		// we will attempt a maxmimum of 4 times
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		for ($i = 0; $i < $this->num_lock_attempts; $i++) {
 
 			$result = $this->_db->getOne($select);
 			assert_valid_db_result($result);
 
 			if (empty($result)) {
+
 				$result = $this->_db->query($insert);
 				// insert didn't fail ? means no duplicate key
 				if (!DB::isError($result)) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 					// All went well ? return true
 					return true;
 				}
@@ -292,6 +290,8 @@ class File_Versioning
 			if ($i < $this->num_lock_attempts - 1) sleep(1);
 
 		}//end for
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 
 		return false;
 
@@ -308,10 +308,14 @@ class File_Versioning
 	*/
 	function _releaseFile($fileid)
 	{
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
 		$sql = 'DELETE FROM sq_file_vers_lock
 				WHERE fileid = '.$this->_db->quote($fileid);
 		$result = $this->_db->query($sql);
 		assert_valid_db_result($result);
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		return true;
 
@@ -394,10 +398,7 @@ class File_Versioning
 
 		}//end if
 
-		if ($use_trans) {
-			$result = $this->_db->query('BEGIN');
-			assert_valid_db_result($result);
-		}
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// if there is no current file we need to insert the new DB record
 		if (empty($current_info)) {
@@ -421,10 +422,7 @@ class File_Versioning
 		// get the lock now that we have inserted the details
 		if (!$this->_lockFile($fileid)) {
 			trigger_localised_error('FVER0018', E_USER_NOTICE);
-			if ($use_trans) {
-				$result = $this->_db->query('ROLLBACK');
-				assert_valid_db_result($result);
-			}
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}//end if
 
@@ -432,19 +430,13 @@ class File_Versioning
 		$version = $this->_updateFile($fileid, $rep_path, $real_file, $extra_info);
 		if (empty($version)) {
 			$this->_releaseFile($fileid);
-			if ($use_trans) {
-				$result = $this->_db->query('ROLLBACK');
-				assert_valid_db_result($result);
-			}
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
 
 		$this->_releaseFile($fileid);
 
-		if ($use_trans) {
-			$result = $this->_db->query('COMMIT');
-			assert_valid_db_result($result);
-		}
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		return true;
 
@@ -465,6 +457,8 @@ class File_Versioning
 	*/
 	function _updateFile($fileid, $rep_path, $real_file, $extra_info='')
 	{
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
 		$sql = 'SELECT COALESCE(MAX(version), 0) + 1
 				FROM sq_file_vers_history
 				WHERE fileid = '.$this->_db->quote($fileid);
@@ -522,6 +516,8 @@ class File_Versioning
 			if (!copy($real_file, $rep_file)) return 0;
 
 		}//endif
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		return $version;
 
@@ -838,10 +834,7 @@ class File_Versioning
 
 		if (!$this->_lockFile($info['fileid'])) {
 			trigger_localised_error('FVER0018', E_USER_NOTICE);
-			if ($use_trans) {
-				$result = $this->_db->query('ROLLBACK');
-				assert_valid_db_result($result);
-			}
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return FUDGE_FV_ERROR;
 		}
 
@@ -850,10 +843,7 @@ class File_Versioning
 		if (empty($curr_ver_info)) {
 			trigger_localised_error('FVER0011', E_USER_NOTICE, $info['path'], $info['filename']);
 			$this->_releaseFile($info['fileid']);
-			if ($use_trans) {
-				$result = $this->_db->query('ROLLBACK');
-				assert_valid_db_result($result);
-			}
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return FUDGE_FV_ERROR;
 		}
 
@@ -862,10 +852,7 @@ class File_Versioning
 		if (empty($file_ver_info)) {
 			trigger_localised_error('FVER0010', E_USER_NOTICE, $info['version'], $info['path'], $info['filename']);
 			$this->_releaseFile($info['fileid']);
-			if ($use_trans) {
-				$result = $this->_db->query('ROLLBACK');
-				assert_valid_db_result($result);
-			}
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return FUDGE_FV_ERROR;
 		}
 
@@ -874,19 +861,13 @@ class File_Versioning
 		if ($curr_ver_info['version'] != $file_ver_info['version']) {
 			trigger_localised_error('FVER0019', E_USER_NOTICE, $info['path'], $info['filename'], $file_ver_info['version']);
 			$this->_releaseFile($info['fileid']);
-			if ($use_trans) {
-				$result = $this->_db->query('ROLLBACK');
-				assert_valid_db_result($result);
-			}
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return FUDGE_FV_ERROR;
 		}
 
 		if (!$this->_fileModified($curr_ver_info, $real_file)) {
 			$this->_releaseFile($info['fileid']);
-			if ($use_trans) {
-				$result = $this->_db->query('ROLLBACK');
-				assert_valid_db_result($result);
-			}
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return FUDGE_FV_NOT_MODIFIED;
 		}
 
@@ -894,29 +875,20 @@ class File_Versioning
 		$version = $this->_updateFile($info['fileid'], $info['path'], $real_file, $extra_info, $use_trans);
 		if (empty($version)) {
 			$this->_releaseFile($info['fileid']);
-			if ($use_trans) {
-				$result = $this->_db->query('ROLLBACK');
-				assert_valid_db_result($result);
-			}
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return FUDGE_FV_ERROR;
 		}
 
 		// create the FFV file entry
 		if (!$this->_createFFVFile($real_file, $info['fileid'], $version)) {
 			$this->_releaseFile($info['fileid']);
-			if ($use_trans) {
-				$result = $this->_db->query('ROLLBACK');
-				assert_valid_db_result($result);
-			}
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return FUDGE_FV_ERROR;
 		}//end if
 
 		$this->_releaseFile($info['fileid']);
 
-		if ($use_trans) {
-			$result = $this->_db->query('COMMIT');
-			assert_valid_db_result($result);
-		}
+		$GLOBALS['SQ_SYSTEM']->doTransaction('CIMMIT');
 
 		return FUDGE_FV_OK;
 
@@ -950,10 +922,7 @@ class File_Versioning
 
 		if (!$this->_lockFile($info['fileid'])) {
 			trigger_localised_error('FVER0018', E_USER_NOTICE);
-			if ($use_trans) {
-				$result = $this->_db->query('ROLLBACK');
-				assert_valid_db_result($result);
-			}
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return FUDGE_FV_ERROR;
 		}
 
@@ -962,10 +931,7 @@ class File_Versioning
 		if (empty($curr_ver_info)) {
 			trigger_localised_error('FVER0012', E_USER_NOTICE, $info['path'], $info['filename']);
 			$this->_releaseFile($info['fileid']);
-			if ($use_trans) {
-				$result = $this->_db->query('ROLLBACK');
-				assert_valid_db_result($result);
-			}
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return FUDGE_FV_ERROR;
 		}
 
@@ -974,10 +940,7 @@ class File_Versioning
 		if (empty($file_ver_info)) {
 			trigger_localised_error('FVER0010', E_USER_NOTICE, $info['version'], $info['path'], $info['filename']);
 			$this->_releaseFile($info['fileid']);
-			if ($use_trans) {
-				$result = $this->_db->query('ROLLBACK');
-				assert_valid_db_result($result);
-			}
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return FUDGE_FV_ERROR;
 		}
 
@@ -986,20 +949,14 @@ class File_Versioning
 		if ($curr_ver_info['version'] != $file_ver_info['version']) {
 			trigger_localised_error('FVER0023', E_USER_NOTICE, $info['path'], $info['filename'], $curr_ver_info['version']);
 			$this->_releaseFile($info['fileid']);
-			if ($use_trans) {
-				$result = $this->_db->query('ROLLBACK');
-				assert_valid_db_result($result);
-			}
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return FUDGE_FV_ERROR;
 		}
 
 		// remove the existing checked out file
 		if ($this->clearOut($real_file) == FUDGE_FV_ERROR) {
 			$this->_releaseFile($info['fileid']);
-			if ($use_trans) {
-				$result = $this->_db->query('ROLLBACK');
-				assert_valid_db_result($result);
-			}
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return FUDGE_FV_ERROR;
 		}
 
@@ -1009,29 +966,20 @@ class File_Versioning
 		$version = $this->_updateFile($info['fileid'], $info['path'], $real_file, $extra_info, $use_trans);
 		if (empty($version)) {
 			$this->_releaseFile($info['fileid']);
-			if ($use_trans) {
-				$result = $this->_db->query('ROLLBACK');
-				assert_valid_db_result($result);
-			}
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return FUDGE_FV_ERROR;
 		}
 
 		// create the FFV file entry
 		if (!$this->_createFFVFile($real_file, $info['fileid'], $version)) {
 			$this->_releaseFile($info['fileid']);
-			if ($use_trans) {
-				$result = $this->_db->query('ROLLBACK');
-				assert_valid_db_result($result);
-			}
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return FUDGE_FV_ERROR;
 		}//end if
 
 		$this->_releaseFile($info['fileid']);
 
-		if ($use_trans) {
-			$result = $this->_db->query('COMMIT');
-			assert_valid_db_result($result);
-		}
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		return FUDGE_FV_OK;
 
@@ -1079,6 +1027,8 @@ class File_Versioning
 	*/
 	function changeFvTypeCode($real_file, $new_type_code)
 	{
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 		$info = $this->_getFileInfoFromRealFile($real_file);
@@ -1102,6 +1052,8 @@ class File_Versioning
 		$new_dir = $this->_dir.'/assets/'.$new_type_code;
 
 		if (!is_dir($new_dir)) create_directory($new_dir);
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		return rename($this->_dir.'/'.$old_path, $this->_dir.'/'.$new_path);
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_management.inc,v 1.39 2005/08/08 04:53:51 gsherwood Exp $
+* $Id: listing_engine_management.inc,v 1.40 2005/08/11 04:57:52 mmcintyre Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -622,6 +622,7 @@ class Listing_Engine_Management extends Asset_Management
 	{
 		if (empty($attrs)) return true;
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$attrs_quoted = Array();
 		foreach ($attrs as $attr => $detail) {
@@ -633,6 +634,8 @@ class Listing_Engine_Management extends Asset_Management
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
 
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
 		return true;
 
 	}//end _removeAttributes()
@@ -641,6 +644,8 @@ class Listing_Engine_Management extends Asset_Management
 	function _restoreAttributes($attrs)
 	{
 		if (empty($attrs)) return true;
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
@@ -679,6 +684,8 @@ class Listing_Engine_Management extends Asset_Management
 			assert_valid_db_result($result);
 		}
 
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
 
 	}//end _restoreAttributes()

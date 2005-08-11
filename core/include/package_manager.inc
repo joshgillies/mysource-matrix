@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager.inc,v 1.73 2005/08/09 00:59:19 lwright Exp $
+* $Id: package_manager.inc,v 1.74 2005/08/11 04:55:32 mmcintyre Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
 *    packages and their assets, uses info gleened from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.73 $
+* @version $Revision: 1.74 $
 * @package MySource_Matrix
 */
 class Package_Manager extends MySource_Object
@@ -228,6 +228,8 @@ class Package_Manager extends MySource_Object
 			}
 		}
 
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
 		// Make sure deferred is an array.
 		$deferred = is_array($deferred) ? $deferred : Array();
 
@@ -239,8 +241,6 @@ class Package_Manager extends MySource_Object
 			$package_name = $this->getPackageName();
 
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
-			// open the transaction
-			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 			$exists = $db->getOne('SELECT code_name FROM sq_pkg WHERE code_name = '.$db->quote($package_name));
 			assert_valid_db_result($exists);
@@ -319,9 +319,6 @@ class Package_Manager extends MySource_Object
 			// sends a list of all the assets in the installed package
 			$em->broadcastEvent($this, 'packageInstall', $install_order);
 
-			// Commit the transaction if we got this far
-			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-
 		}//end if asset types to install
 
 		// create the xml summarys of screens info for the asset map
@@ -332,6 +329,8 @@ class Package_Manager extends MySource_Object
 		}
 
 		$this->_postInstall();
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		return count($deferred) ? $deferred : true;
 

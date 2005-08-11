@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.136 2005/08/08 00:59:08 mmcintyre Exp $
+* $Id: mysource.inc,v 1.137 2005/08/11 04:50:47 mmcintyre Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.136 $
+* @version $Revision: 1.137 $
 * @package MySource_Matrix
 */
 class MySource
@@ -1628,6 +1628,8 @@ class MySource
 			if ($this->_db_conns[$conn]->phptype == 'oci8') {
 				$this->_db_conns[$conn]->setOption('portability', DB_PORTABILITY_ALL);
 			}
+
+			$this->_db_conns[$conn]->autoCommit(false);
 		}
 
 		array_push($this->_db_stack, $conn);
@@ -1852,6 +1854,8 @@ class MySource
 		}
 
 		$this->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
 		$sql = 'INSERT INTO sq_lock
 				(lockid, source_lockid, userid, expires)
 				VALUES
@@ -1860,7 +1864,7 @@ class MySource
 		if (!assert_valid_db_result($result, '', true, false)) {
 			return 'Database Error';
 		}
-
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$this->restoreDatabaseConnection();
 		return true;
 
@@ -1881,6 +1885,8 @@ class MySource
 		if (empty($current_lock)) return true;
 
 		$this->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
 		$sql = 'DELETE FROM sq_lock
 				WHERE source_lockid = '.$this->db->quote($current_lock['source_lockid']);
 
@@ -1888,6 +1894,7 @@ class MySource
 		if (!assert_valid_db_result($result, '', true, false)) {
 			return 'Database Error';
 		}
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		$this->restoreDatabaseConnection();
 		return true;
@@ -1921,6 +1928,8 @@ class MySource
 		}
 
 		$this->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
 		$sql = 'UPDATE sq_lock
 				   SET expires = '.$this->db->quote($expires).'
 				WHERE source_lockid = '.$this->db->quote($current_lock['source_lockid']);
@@ -1930,6 +1939,7 @@ class MySource
 			return 'Database Error';
 		}
 
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$this->restoreDatabaseConnection();
 		return true;
 

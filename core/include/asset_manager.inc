@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.355 2005/08/10 03:35:23 ndvries Exp $
+* $Id: asset_manager.inc,v 1.356 2005/08/11 04:54:32 mmcintyre Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.355 $
+* @version $Revision: 1.356 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -209,6 +209,8 @@ class Asset_Manager extends MySource_Object
 
 		$type_code_level = (int) $this->getTypeInfo($type_code, 'lvl');
 
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
 		foreach ($inserts as $inherited_type_code) {
 			$inherited_type_code_level = ($inherited_type_code == 'asset') ? 0 : (int) $this->getTypeInfo($inherited_type_code, 'lvl');
 			$sql = 'INSERT INTO sq_ast_typ_inhd
@@ -238,6 +240,8 @@ class Asset_Manager extends MySource_Object
 			$result = $db->query($sql);
 			assert_valid_db_result($result);
 		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 	}//end refreshAssetType()
 

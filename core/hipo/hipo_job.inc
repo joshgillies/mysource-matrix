@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job.inc,v 1.73 2005/06/24 01:11:42 dheppell Exp $
+* $Id: hipo_job.inc,v 1.74 2005/08/11 04:53:54 mmcintyre Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_DATA_PATH.'/private/conf/hipo.inc';
 * Highly Intensive Processing Object (HIPO)
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.73 $
+* @version $Revision: 1.74 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -758,6 +758,8 @@ class HIPO_Job extends MySource_Object
 		$now = time();
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		// now we just do what we are told
 		if ($delete) {
@@ -797,6 +799,7 @@ class HIPO_Job extends MySource_Object
 			assert_valid_db_result($result);
 		}
 
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		$this->last_updated = $now;
 
@@ -1562,7 +1565,7 @@ class HIPO_Job extends MySource_Object
 			if (ini_get('log_errors')) {
 				log_error($text_msg, $err_no, $err_file, $err_line);
 			}
-			
+
 			$msg = $text_msg;
 			if (SQ_CONF_DEBUG & 1) {
 				$text_msg .= ' ('.$err_file.':'.$err_line.')';

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_group_edit_fns.inc,v 1.22 2005/05/11 06:05:06 lwright Exp $
+* $Id: user_group_edit_fns.inc,v 1.23 2005/08/11 04:53:32 mmcintyre Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -120,6 +120,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 	function processUnrestricted(&$asset, &$o, $prefix)
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$unrestricted = !$this->isRestricted($asset, $prefix);
 		if (isset($_POST[$prefix.'_unrestricted']) && $_POST[$prefix.'_unrestricted'] && !$unrestricted) {
@@ -156,6 +157,8 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 			$result = $db->query($sql);
 			assert_valid_db_result($result);
 		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		return true;
 
@@ -298,11 +301,15 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 	{
 		$current = $this->getCurrentRestrictions($asset);
 
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
 		  //////////////////////////////////////
 		 //  ADD ACCESS FOR NEW ASSET TYPES  //
 		//////////////////////////////////////
 		if (isset($_POST[$prefix.'_restrict_types'])) {
 			$new_types = $_POST[$prefix.'_restrict_types'];
+
+
 
 			foreach ($new_types as $type) {
 				if (isset($current[$type])) continue;
@@ -325,7 +332,9 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 
 				$result = $db->query($sql);
 				assert_valid_db_result($result);
+
 			}
+
 		}//end if
 
 
@@ -409,6 +418,8 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 
 			}//end foreach
 		}//end if
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		return true;
 

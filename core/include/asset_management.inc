@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_management.inc,v 1.73 2005/07/13 03:57:33 mmcintyre Exp $
+* $Id: asset_management.inc,v 1.74 2005/08/11 04:54:16 mmcintyre Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_LIB_PATH.'/xml_array/xml_array.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.73 $
+* @version $Revision: 1.74 $
 * @package MySource_Matrix
 */
 class Asset_Management extends MySource_Object
@@ -243,6 +243,8 @@ class Asset_Management extends MySource_Object
 	{
 		$type_code = $this->getAssetType();
 
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
 		// get how deep we are in the heirarchy
 		$level = count($this->_pm->getTypeAncestors($type_code));
 		$info = $this->_pm->getTypeInfo($type_code);
@@ -268,6 +270,8 @@ class Asset_Management extends MySource_Object
 			if (!$this->_addAttribute($name)) return false;
 		}
 
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
 		return true;
 
 	}//end _install()
@@ -283,6 +287,8 @@ class Asset_Management extends MySource_Object
 	*/
 	function _upgrade($current_version)
 	{
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
 		// get how deep we are in the heirarchy
 		$level = count($this->_pm->getTypeAncestors($this->getAssetType()));
 		$info = $this->_pm->getTypeInfo($this->getAssetType());
@@ -324,6 +330,8 @@ class Asset_Management extends MySource_Object
 				if (!$this->_addAttribute($name)) return false;
 			}
 		}//end for
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		return true;
 
@@ -394,6 +402,8 @@ class Asset_Management extends MySource_Object
 		$type_code = $this->getAssetType();
 
 		$attr_info = Array();
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// See if any other our parents have an attribute with this name
 		$sql = 'SELECT COUNT(*) as count, MIN(at.lvl) as min, MAX(at.lvl) as max
@@ -571,8 +581,11 @@ class Asset_Management extends MySource_Object
 
 		$result = $this->_db->query($sql);
 		if (!assert_valid_db_result($result, '', false, false)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		return true;
 
@@ -593,6 +606,8 @@ class Asset_Management extends MySource_Object
 	function _deleteAttribute($name)
 	{
 		$type_code = $this->getAssetType();
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// find the attributeid
 		$sql = 'SELECT attrid FROM sq_ast_attr WHERE owning_type_code = '.$this->_db->quote($type_code).' AND name='.$this->_db->quote($name);
@@ -619,6 +634,8 @@ class Asset_Management extends MySource_Object
 			unset($this->vars[$name]);
 		}
 
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
 		return true;
 
 	}//end _deleteAttribute()
@@ -636,6 +653,8 @@ class Asset_Management extends MySource_Object
 	function _updateAttribute($name, $current_version)
 	{
 		$type_code = $this->getAssetType();
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// if they have defined an update fn for this, then we don't need to do anything
 		if (!empty($this->vars[$name]['update_fn'])) {
@@ -779,6 +798,8 @@ class Asset_Management extends MySource_Object
 
 		}//end if
 
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
 		return true;
 
 	}//end _updateAttribute()
@@ -795,6 +816,8 @@ class Asset_Management extends MySource_Object
 	*/
 	function _updateOwnedAttribute($name, $curr_attr)
 	{
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
 		$type_code = $this->getAssetType();
 
 		// make sure this is a valid attribute type
@@ -848,6 +871,8 @@ class Asset_Management extends MySource_Object
 			}
 		}
 
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
 		return true;
 
 	}//end _updateOwnedAttribute()
@@ -865,6 +890,8 @@ class Asset_Management extends MySource_Object
 	*/
 	function _updateCustomAttribute($attributeid, $name, $field, $old_type_code, $new_type_code, $new_value)
 	{
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
 		// OK, the reason that we are setting the default type code for the attributes
 		// is so that if this is the first time that we are setting the default value
 		// then all the asset types below us that were inheriting the default value from the
@@ -885,6 +912,8 @@ class Asset_Management extends MySource_Object
 
 		$result = $this->_db->query($sql);
 		assert_valid_db_result($result);
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		return true;
 
