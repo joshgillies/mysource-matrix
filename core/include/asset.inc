@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.398.2.8 2005/08/09 04:28:44 dheppell Exp $
+* $Id: asset.inc,v 1.398.2.9 2005/08/11 05:57:24 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.398.2.8 $
+* @version $Revision: 1.398.2.9 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -2100,6 +2100,9 @@ class Asset extends MySource_Object
 
 		eval('$this->'.$date_type.' = $time;');
 		eval('$this->'.$date_type.'_userid = $userid;');
+
+		$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
+		$em->broadcastEvent($this, 'AssetUpdate', $msg_reps);
 
 		return true;
 
