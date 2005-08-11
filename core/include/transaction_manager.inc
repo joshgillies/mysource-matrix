@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: transaction_manager.inc,v 1.18 2005/06/24 05:12:01 ndvries Exp $
+* $Id: transaction_manager.inc,v 1.19 2005/08/11 04:48:19 mmcintyre Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *    Also to handle nested transaction calls
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix
 */
 class Transaction_Manager extends MySource_Object
@@ -120,11 +120,6 @@ class Transaction_Manager extends MySource_Object
 	*/
 	function commit($db_name)
 	{
-		// oracle does not issue COMMIT queries
-		if ($GLOBALS['SQ_SYSTEM']->db->phptype == 'oci8') {
-			return true;
-		}
-
 		if (empty($this->_levels[$db_name])) {
 			trigger_localised_error('SYS0219', E_USER_WARNING);
 			return false;
@@ -138,7 +133,7 @@ class Transaction_Manager extends MySource_Object
 		$this->_levels[$db_name]--;
 		if ($this->_levels[$db_name] == 0) {
 			// this is the last commit
-			$result = $GLOBALS['SQ_SYSTEM']->db->query('COMMIT');
+			$result = $GLOBALS['SQ_SYSTEM']->db->commit();
 			assert_valid_db_result($result);
 		}
 		return true;
@@ -167,8 +162,9 @@ class Transaction_Manager extends MySource_Object
 		$this->_rollback[$db_name] = true;
 		$this->_levels[$db_name]--;
 		if ($this->_levels[$db_name] == 0) {
+
 			// this is the last rollback
-			$result = $GLOBALS['SQ_SYSTEM']->db->query('ROLLBACK');
+			$result = $GLOBALS['SQ_SYSTEM']->db->rollback();
 			assert_valid_db_result($result);
 
 			// clear the rollback flag as there is no more transaction block
