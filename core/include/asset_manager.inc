@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.357 2005/08/11 05:53:03 dheppell Exp $
+* $Id: asset_manager.inc,v 1.358 2005/08/11 15:26:04 brobertson Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.357 $
+* @version $Revision: 1.358 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3698,16 +3698,16 @@ class Asset_Manager extends MySource_Object
 		// open the transaction
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		// let's try and delete the old link
-		$deleted = $old_parent->deleteLink($linkid, true);
-		if (!$deleted) {
+		// now create the new link
+		$new_linkid = $new_parent->createLink($minor, $link_type, '', $to_parent_pos);
+		if (!$new_linkid) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return 0;
 		}
 
-		// now create the new link
-		$new_linkid = $new_parent->createLink($minor, $link_type, '', $to_parent_pos);
-		if (!$new_linkid) {
+		// let's try and delete the old link
+		$deleted = $old_parent->deleteLink($linkid, true);
+		if (!$deleted) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return 0;
 		}
