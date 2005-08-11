@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: internal_message.inc,v 1.63 2005/08/10 14:18:42 brobertson Exp $
+* $Id: internal_message.inc,v 1.64 2005/08/11 01:49:07 skim Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    An internal message to be sent around the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.63 $
+* @version $Revision: 1.64 $
 * @package MySource_Matrix
 */
 class Internal_Message extends MySource_Object
@@ -240,9 +240,7 @@ class Internal_Message extends MySource_Object
 
 		}//end if logging message to file
 
-
 		if ($log_to_db || $send_mail) {
-
 			// work out the email address the the email will be sent from
 			$from_email = SQ_CONF_DEFAULT_EMAIL;
 			$from_string = '';
@@ -300,11 +298,10 @@ class Internal_Message extends MySource_Object
 
 		}//end if logging message to db
 
-
 		  ///////////////////////////
 		 // SEND MESSAGE TO USERS //
 		///////////////////////////
-		if ($send_mail || (0 == strpos($this->type, 'inbox'))) {
+		if ($send_mail || (0 === strpos($this->type, 'inbox'))) {
 
 			require_once 'Mail.php';
 			require_once 'Mail/mime.php';
