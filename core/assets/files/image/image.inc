@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.41 2005/07/19 07:19:45 skim Exp $
+* $Id: image.inc,v 1.42 2005/08/11 04:37:27 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.41 $
+* @version $Revision: 1.42 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -828,6 +828,38 @@ class Image extends File
 		return $this->printImageTag('', '', true);
 
 	}//end getImageTagKeywordReplacement()
+
+
+
+	/**
+	* Get bodycopy keyword replacement
+	*
+	* Provides a mechanism for providing keyword replacement functions by
+	* looking up the function named 'getKeywordNameKeywordReplacement'
+	* so an asset wishing to add support for 'best_ever' custom keyword
+	* should implement a function getBestEverKeywordReplacement()
+	* which returns a replacement string
+	*
+	* @param string	$keyword	Keyword to find a replacement for
+	*
+	* @return string
+	* @access public
+	*/
+	function getKeywordReplacement($keyword)
+	{
+		if (0 === strpos($keyword, 'image_v_')) {
+			$varieties = $this->attr('varieties');
+			$variety_name = substr($keyword, 8);
+			$variety_id = array_get_index($varieties['lookups'], $variety_name);
+			if (!empty($variety_id)) {
+				$variety =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':'.$variety_id);
+				return $variety->printImageTag($this->attr('alt'), $this->attr('title'), true);
+			}
+		}
+		return parent::getKeywordReplacement($keyword);
+
+	}//end getKeywordReplacement()
+	
 
 
 }//end class
