@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.71 2005/08/11 05:49:25 tbarrett Exp $
+* $Id: search_manager.inc,v 1.72 2005/08/11 05:54:48 tbarrett Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.71 $
+* @version $Revision: 1.72 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1331,7 +1331,6 @@ class Search_Manager extends Asset
 		 //  CONSTRUCT BASE SEARCH QUERY  //
 		///////////////////////////////////
 		$base_query = $this->constructBaseSearchQuery($search_info);
-		bam($base_query);
 		$base_query['select'][] = 'a.assetid';
 		$base_query['select'][] = 'SUM(ai.score) as search_score';
 		$base_query['from'][] = 'sq_sch_idx ai';
@@ -1921,7 +1920,6 @@ class Search_Manager extends Asset
 
 		// TREE LOCATIONS
 		if (!empty($search_info['roots'])) {
-			bam($search_info['roots']);
 			$root_logic = array_get_index($search_info, 'root_logic', 'OR');
 			// get the treeids of our search roots
 			$treeid_sql = 'SELECT l.minorid, t.treeid
