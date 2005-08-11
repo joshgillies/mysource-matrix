@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.77 2005/08/10 07:56:37 gsherwood Exp $
+* $Id: listing_engine.inc,v 1.78 2005/08/11 00:13:31 skim Exp $
 *
 */
 
@@ -43,7 +43,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.77 $
+* @version $Revision: 1.78 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -832,7 +832,6 @@ class Listing_Engine extends Page
 					}
 				}
 				$replacements['page_list'] = $page_list;
-
 				unset($chunks);
 			break;
 
@@ -1301,7 +1300,23 @@ class Listing_Engine extends Page
 		// if we can't find a position format
 		// search for type format, if we don't already know that default format should be used
 		if (is_null($bodycopy) && !in_array($type_code, $this->_tmp['is_default'])) {
-			$type_key = array_search($type_code, $customised);
+			// is there previous information about type format?
+			if (isset($this->_tmp['type_formats']) && array_key_exists($type_code, $this->_tmp['type_formats'])) {
+				$type_key = array_search($this->_tmp['type_formats'][$type_code], $customised);
+				$type_code = $this->_tmp['type_formats'][$type_code];
+			} else {
+				$parents = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($type_code);
+				if (($type_key = array_search($type_code, $customised)) === false) {
+					foreach ($parents as $parent) {
+						// any of parent in the custom format?
+						if (array_search($parent, $customised) !== false) {
+							$this->_tmp['type_formats'][$type_code] = $parent;
+							$type_key = array_search($this->_tmp['type_formats'][$type_code], $customised);
+							$type_code = $parent;
+						}
+					}
+				}
+			}
 			if ($type_key !== false) {
 				$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->_tmp['type_folder_id'], SQ_LINK_TYPE_2, 'bodycopy', true, $type_code);
 				if ($link) {
@@ -1310,6 +1325,7 @@ class Listing_Engine extends Page
 					$this->_tmp['is_default'][] = $type_code;
 				}
 			}
+
 		}
 
 		// if no bodycopy found, try the default format
