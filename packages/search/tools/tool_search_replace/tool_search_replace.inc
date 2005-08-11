@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_search_replace.inc,v 1.14 2005/08/11 01:58:04 dheppell Exp $
+* $Id: tool_search_replace.inc,v 1.15 2005/08/11 05:57:13 dheppell Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 *
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -171,16 +171,16 @@ class Tool_Search_Replace extends Tool
 
 		//work out our root node position
 		if (isset($_REQUEST[$type_code.'_root_folder'])) {
-			$root_assetid = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('root_folder');
+			$root_assetid = Array();
 		} else {
-			$root_assetid = $_REQUEST[$type_code.'_root_assetid']['assetid'];
+			$root_assetid = Array($_REQUEST[$type_code.'_root_assetid']['assetid']);
 		}
 
 		$words = strtolower($_REQUEST[$type_code.'_search_string']);
 		$words = explode(' ', $words);
 
 		$search_details = Array(
-							'roots'			=> Array($root_assetid),
+							'roots'			=> $root_assetid,
 							'asset_types'	=> $search_types,
 							'statuses'		=> $_REQUEST[$type_code.'_statuses'],
 							'fields'		=> Array(
