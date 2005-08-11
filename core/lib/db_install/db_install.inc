@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_install.inc,v 1.25 2005/08/02 01:51:34 gsherwood Exp $
+* $Id: db_install.inc,v 1.26 2005/08/11 04:56:10 mmcintyre Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -251,9 +251,8 @@ function create_table($tablename, $table_info)
 	}
 	$sql .= ')';
 
-	// oracle repication requires row dependencies so
-	// that the replicating server knows what order to create
-	// the new entries
+	// oracle replication requires row dependencies so that the replicating
+	// server knows what order to create the new entries
 	if ($db->phptype == 'oci8') {
 		$sql .= ' ROWDEPENDENCIES';
 	}
