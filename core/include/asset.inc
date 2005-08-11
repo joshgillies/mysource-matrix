@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.338.2.13 2005/08/01 04:49:09 tbarrett Exp $
+* $Id: asset.inc,v 1.338.2.14 2005/08/11 06:00:14 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.338.2.13 $
+* @version $Revision: 1.338.2.14 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -1880,6 +1880,9 @@ class Asset extends MySource_Object
 
 		eval('$this->'.$date_type.' = $time;');
 		eval('$this->'.$date_type.'_userid = $userid;');
+
+		$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
+		$em->broadcastEvent($this, 'AssetUpdate', $msg_reps);
 
 		return true;
 
