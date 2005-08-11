@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.69 2005/08/11 06:59:04 dmckee Exp $
+* $Id: page_asset_builder.inc,v 1.70 2005/08/11 07:19:33 dmckee Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.69 $
+* @version $Revision: 1.70 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -686,7 +686,7 @@ class Page_Asset_Builder extends Page
 		foreach ($this->attr('create_location_dynamic') as $set_name => $details) {
 			$selected_locations = Array();
 			$code_name = str_replace(' ', '_', strtolower($set_name));
-			if (isset($_POST[$code_name])) {
+			if (isset($_POST[$code_name]) && !empty($_POST[$code_name])) {
 				if ($details['allow_multiple'] && is_array($_POST[$code_name])) {
 					foreach ($_POST[$code_name] as $location_id) {
 						// add it to the list
@@ -702,8 +702,9 @@ class Page_Asset_Builder extends Page
 					$all_selected_locations[(int)$_POST[$code_name]] = (int)$details['link_type'];
 				}
 			} else if (!$details['allow_empty']) {
+				echo 'Inhere';
 				trigger_localised_error('CMS0036', E_USER_WARNING, $set_name);
-				return false;
+				return Array();
 			}
 		}
 
