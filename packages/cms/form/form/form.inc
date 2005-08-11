@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.70.2.23 2005/07/08 02:21:16 dheppell Exp $
+* $Id: form.inc,v 1.70.2.24 2005/08/11 02:43:59 dmckee Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.70.2.23 $
+* @version $Revision: 1.70.2.24 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1469,6 +1469,21 @@ class Form extends Bridge
 	{
 		if (!$this->attr('use_client_side')) return '';
 
+		$keywords = Array();
+		$use_bc = ($this->attr('use_bodycopy_main') == 1) ? true : false;
+
+		if ($use_bc) {
+			//Bodycopy is being used, so lets get its keywords
+			$bc = $this->getBodycopy('Page Contents');
+			$keywords = $bc->getKeywords();
+
+			// Form contents is printed, which is just like not using a bodycopy(in this context)
+			// So we will print all questions' js code.
+			if (in_array('form_contents', $keywords)) {
+				$use_bc = false;
+			}
+		}
+
 		ob_start();
 		?>
 			submission_errors = new Array();
@@ -1480,7 +1495,16 @@ class Form extends Bridge
 
 		foreach (array_keys($questions) as $key) {
 			$question = &$GLOBALS['SQ_SYSTEM']->am->getAsset($key);
-			$q_code = $question->generateJSCode();
+			$q_code = '';
+			if ($use_bc) {
+				$keyword_search = 'question_field_'.str_replace(':', '_', $question->id);
+				if (in_array($keyword_search, $keywords)) {
+					// keyword is present in the bodycopy, we can safely print the js code.
+					$q_code = $question->generateJSCode();
+				}
+			} else {
+				$q_code = $question->generateJSCode();
+			}
 			$code .= $q_code.(empty($q_code) ? '' : "\n");
 		}
 
