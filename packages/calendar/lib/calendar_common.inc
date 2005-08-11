@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.31 2005/05/24 06:25:32 tbarrett Exp $
+* $Id: calendar_common.inc,v 1.31.2.1 2005/08/11 00:55:59 tbarrett Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.31.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -492,6 +492,7 @@ function &get_treeids(&$root_nodes)
 		$quoted_root_nodes[$k] = $db->quote($quoted_root_nodes[$k]);
 	}
 	$sql .= implode(', ', $quoted_root_nodes).')';
+	$sql .= ' ORDER BY t.treeid ASC';
 
 	$trees = $db->getAssoc($sql);
 	assert_valid_db_result($trees);
