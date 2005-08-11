@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.34 2005/06/27 05:44:29 tbarrett Exp $
+* $Id: calendar_common.inc,v 1.35 2005/08/11 00:55:47 tbarrett Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -428,19 +428,19 @@ function build_recurring_event_query_base(&$trees, $view, $iso, $length=null, $g
 				// get month events that cover the whole of our month
 				$sql_freqs[] = '(
 								/* begin month options */
-									(frequency LIKE '.$db->quote('M%').') 
+									(frequency LIKE '.$db->quote('M%').')
 									AND (
 											(
-												(end_date_ms IS NOT NULL) 
-												AND (end_date_ms - start_date_ms >= 3) 
-												AND (('.$now['ms'].' - start_date_ms) % period) 
+												(end_date_ms IS NOT NULL)
+												AND (end_date_ms - start_date_ms >= 3)
+												AND (('.$now['ms'].' - start_date_ms) % period)
 														BETWEEN 1 AND (end_date_ms - start_date_ms - 1)
 											) OR (
 												(
-													(('.$now['ms'].' - start_date_ms) % period = 0) 
+													(('.$now['ms'].' - start_date_ms) % period = 0)
 														OR (('.$now['ms'].' - end_date_ms) % period = 0)
 												) AND (
-														'.implode("\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t OR ", $monthly_conditions).' 
+														'.implode("\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t OR ", $monthly_conditions).'
 												)
 											)
 									)
@@ -535,6 +535,7 @@ function &get_treeids(&$root_nodes)
 		$quoted_root_nodes[$k] = $db->quote($quoted_root_nodes[$k]);
 	}
 	$sql .= implode(', ', $quoted_root_nodes).')';
+	$sql .= ' ORDER BY t.treeid ASC';
 
 	$trees = $db->getAssoc($sql);
 	assert_valid_db_result($trees);
