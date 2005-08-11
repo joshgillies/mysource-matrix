@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.70 2005/08/11 04:58:06 mmcintyre Exp $
+* $Id: search_manager.inc,v 1.71 2005/08/11 05:49:25 tbarrett Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.70 $
+* @version $Revision: 1.71 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -678,7 +678,6 @@ class Search_Manager extends Asset
 			}
 			$value_components = Array();
 			Metadata_Field::decodeValueString($value, $value, $value_components);
-			error_log($value);
 
 
 			$force_processing = 1; // will tell the function to process values in any case
@@ -1300,7 +1299,6 @@ class Search_Manager extends Asset
 	*/
 	function processSearch($search_info, $include_context=false)
 	{
-		error_log(print_r($search_info, true));
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc'; // will definitely need this later.
 
@@ -1309,12 +1307,18 @@ class Search_Manager extends Asset
 		/////////////////////////////
 		// we need the cache manager to cache the results of queries
 		$cm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
-		$search_cache_key = implode(',', $search_info['roots']);
+		if (empty($search_info['roots'])) {
+			$search_cache_key = 'systemWide';
+		} else {
+			$search_cache_key = implode(',', $search_info['roots']);
+		}
 		if (isset($search_info['statuses'])) {
 			$search_cache_key .= implode(':', $search_info['statuses']);
 		}
 		if (isset($search_info['asset_types'])) {
-			$search_cache_key .= implode(':', $search_info['asset_types']);
+			foreach ($search_info['asset_types'] as $type => $inherit) {
+				$search_cache_key .= $type.($inherit ? 'i' : 'n').':';
+			}
 		}
 		$search_cache_key .= 'RL='.array_get_index($search_info, 'root_logic', 'OR');
 		if ($include_context) {
@@ -1327,6 +1331,7 @@ class Search_Manager extends Asset
 		 //  CONSTRUCT BASE SEARCH QUERY  //
 		///////////////////////////////////
 		$base_query = $this->constructBaseSearchQuery($search_info);
+		bam($base_query);
 		$base_query['select'][] = 'a.assetid';
 		$base_query['select'][] = 'SUM(ai.score) as search_score';
 		$base_query['from'][] = 'sq_sch_idx ai';
@@ -1916,6 +1921,7 @@ class Search_Manager extends Asset
 
 		// TREE LOCATIONS
 		if (!empty($search_info['roots'])) {
+			bam($search_info['roots']);
 			$root_logic = array_get_index($search_info, 'root_logic', 'OR');
 			// get the treeids of our search roots
 			$treeid_sql = 'SELECT l.minorid, t.treeid
