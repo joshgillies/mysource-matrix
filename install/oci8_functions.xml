@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: oci8_functions.xml,v 1.2.2.3 2005/08/08 05:11:39 mmcintyre Exp $
+* $Id: oci8_functions.xml,v 1.2.2.4 2005/08/12 05:30:33 mmcintyre Exp $
 *
 */
 -->
@@ -27,6 +27,11 @@
 	<sql_element display_name="Varchar 500 Table Type">
 		<![CDATA[
 			CREATE OR REPLACE TYPE VARCHAR_500_TABLE is TABLE OF VARCHAR2(500);
+		]]>
+	</sql_element>
+	<sql_element display_name="Varchar 2000 Table Type">
+		<![CDATA[
+			CREATE OR REPLACE TYPE VARCHAR_2000_TABLE is TABLE OF VARCHAR2(2000);
 		]]>
 	</sql_element>
 	<sql_element display_name="common_pkg Package">
@@ -113,11 +118,11 @@
 			-- returns the parent treeids for the specified assetid
 			-- if timestamp is null then the function will assume that we are not in rollback mode
 			-- if the timestamp is valid the function will return the treeids from the rollback tables
-			CREATE OR REPLACE FUNCTION sq_get_parent_treeids(minorid IN VARCHAR2, SQ_TREE_BASE_SIZE IN INTEGER , rb_date IN DATE := NULL) RETURN VARCHAR_500_TABLE IS
+			CREATE OR REPLACE FUNCTION sq_get_parent_treeids(minorid IN VARCHAR2, SQ_TREE_BASE_SIZE IN INTEGER , rb_date IN DATE := NULL) RETURN VARCHAR_2000_TABLE IS
 				offset int;
 				next_treeid VARCHAR2(2000);
 				db_treeid VARCHAR2(2000);
-				parent_treeids VARCHAR_500_TABLE := VARCHAR_500_TABLE();
+				parent_treeids VARCHAR_2000_TABLE := VARCHAR_2000_TABLE();
 				concat_treeids VARCHAR2(2000);
 				table_prefix VARCHAR2(6);
 				sql_str VARCHAR2(2000);
@@ -178,7 +183,7 @@
 		<![CDATA[
 			-- returns the parent treeids for the specified assetid using the date
 			-- acquired from the sq_get_rollback_timestamp function
-			CREATE OR REPLACE FUNCTION sq_rb_get_parent_treeids(minorid IN VARCHAR2, SQ_TREE_BASE_SIZE IN INTEGER) RETURN VARCHAR_500_TABLE IS
+			CREATE OR REPLACE FUNCTION sq_rb_get_parent_treeids(minorid IN VARCHAR2, SQ_TREE_BASE_SIZE IN INTEGER) RETURN VARCHAR_2000_TABLE IS
 				rb_date DATE;
 			BEGIN
 				rb_date := sq_common_pkg.sq_get_rollback_timestamp();
