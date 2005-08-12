@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.322.2.16 2005/08/12 05:23:25 mmcintyre Exp $
+* $Id: asset_manager.inc,v 1.322.2.17 2005/08/12 06:48:24 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.322.2.16 $
+* @version $Revision: 1.322.2.17 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -209,8 +209,6 @@ class Asset_Manager extends MySource_Object
 
 		$type_code_level = (int) $this->getTypeInfo($type_code, 'lvl');
 
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
 		foreach ($inserts as $inherited_type_code) {
 			$inherited_type_code_level = ($inherited_type_code == 'asset') ? 0 : (int) $this->getTypeInfo($inherited_type_code, 'lvl');
 			$sql = 'INSERT INTO sq_ast_typ_inhd
@@ -240,8 +238,6 @@ class Asset_Manager extends MySource_Object
 			$result = $db->query($sql);
 			assert_valid_db_result($result);
 		}
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 	}//end refreshAssetType()
 
@@ -2929,7 +2925,7 @@ class Asset_Manager extends MySource_Object
 	* @return int the linkid of the created link
 	* @access public
 	*/
-	function createAssetLink(&$major, &$minor, $link_type, $value='', $sort_order=null, $dependant='0', $exclusive='0')
+	function createAssetLink(&$major, &$minor, $link_type, $value='', $sort_order=null, $dependant='0', $exclusive='0', $moving=false)
 	{
 		if (!$major->id) return 0;
 		assert_is_a($minor, 'asset');
@@ -2980,9 +2976,11 @@ class Asset_Manager extends MySource_Object
 
 		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LINK_INTEGRITY)) {
 			// check if we are allowed to link to these type of assets
-			if (($err_msg = $major->canCreateLink($minor, $link_type, $exclusive)) !== true) {
-				trigger_localised_error('SYS0301', E_USER_WARNING, $err_msg);
-				return 0;
+			if (!$moving) {
+				if (($err_msg = $major->canCreateLink($minor, $link_type, $exclusive)) !== true) {
+					trigger_localised_error('SYS0301', E_USER_WARNING, $err_msg);
+					return 0;
+				}
 			}
 		}
 
@@ -3341,69 +3339,6 @@ class Asset_Manager extends MySource_Object
 				$result = $db->query($sql);
 				assert_valid_db_result($result);
 
-			} else {
-				$new_treeid = ($existing_treeid == '-' ? '' : $existing_treeid).$free_childid;
-
-				// no link to our children; we need to (re-)create the tree, obviously... darn it
-				// so grab the links we need (significant ones only)
-				$top_links = $this->getLinks($minor->id, SQ_SC_LINK_SIGNIFICANT);
-				$links = Array();
-
-				// reorder them so that it's indexed by their prospective treeid
-				$child_index = 0;
-				foreach ($top_links as $link) {
-					$treeid = $new_treeid.asset_link_treeid_convert($child_index,true);
-					if ($link['linkid'] != 0) {
-						$links[$treeid] = $link;
-						$child_index++;
-					}
-				}
-
-				// now search for child links and give them treeids
-				for (reset($links); null !== ($k = key($links)); next($links)) {
-					$link =& $links[$k];
-
-					$child_links = $this->getLinks($link['minorid'], SQ_SC_LINK_SIGNIFICANT);
-					$child_index = 0;
-					foreach ($child_links as $child_link) {
-						$treeid = $k.asset_link_treeid_convert($child_index,true);
-						if ($child_link['linkid'] != 0) {
-							$links[$treeid] = $child_link;
-							$child_index++;
-						}
-					}
-					$link['num_kids'] = count($child_links);
-				}
-
-				foreach ($links as $treeid => $this_link) {
-					// remove any 'zero linkid' entries
-					$sql = 'DELETE FROM
-								sq_ast_lnk_tree
-							WHERE
-								treeid = '.$db->quoteSmart($treeid);
-
-					$result = $db->query($sql);
-					assert_valid_db_result($result);
-
-					// now insert the tree entry
-					$sql = 'INSERT INTO
-							sq_ast_lnk_tree
-							(
-								treeid,
-								linkid,
-								num_kids
-							)
-							VALUES
-							(
-								'.$db->quoteSmart($treeid).',
-								'.$db->quoteSmart($this_link['linkid']).',
-								'.$db->quoteSmart($this_link['num_kids']).'
-							)';
-
-					$result = $db->query($sql);
-					assert_valid_db_result($result);
-				}
-
 			}//end if
 
 		}//end if significant link
@@ -3630,7 +3565,25 @@ class Asset_Manager extends MySource_Object
 	*/
 	function moveLink($linkid, $to_parentid, $link_type, $to_parent_pos)
 	{
-		// first, we should try and find the link
+		// parent position type must be numeric
+		if (!is_numeric($to_parent_pos)) {
+			trigger_localised_error('SYS0227', E_USER_WARNING);
+			return 0;
+		}
+
+		// parent ID must be a valid assetid
+		if (!assert_valid_assetid($to_parentid, '', false, false)) {
+			trigger_localised_error('SYS0225', E_USER_WARNING);
+			return 0;
+		}
+
+		// link type must be numeric (ie. an int, or a numeric string)
+		if (!is_numeric($link_type)) {
+			trigger_localised_error('SYS0221', E_USER_WARNING);
+			return 0;
+		}
+
+		// get the link, and the old parent
 		$link = $this->getLinkById($linkid);
 		if (empty($link)) {
 			trigger_localised_error('SYS1038', E_USER_WARNING, $linkid);
@@ -3643,39 +3596,26 @@ class Asset_Manager extends MySource_Object
 			return 0;
 		}
 
-		// now check that the new parent exists
-		if (!is_int($to_parentid) && !is_string($to_parentid)) {
-			trigger_localised_error('SYS0225', E_USER_WARNING);
+		// if you dont have write access to the old parent asset you cant delete any links
+		if (!$old_parent->writeAccess('')) {
+			trigger_localised_error('SYS0229', E_USER_WARNING, $old_parent->name);
+			$this->forgetAsset($old_parent);
 			return 0;
 		}
 
-		// link type must be numeric (ie. an int, or a numeric string)
-		if (!is_numeric($link_type)) {
-			trigger_localised_error('SYS0221', E_USER_WARNING);
-			return 0;
-		}
-
-		// parent position type must be numeric
-		if (!is_numeric($to_parent_pos)) {
-			trigger_localised_error('SYS0227', E_USER_WARNING);
-			return 0;
-		}
-
+		// now the new parent
 		$new_parent = &$this->getAsset($to_parentid, '', true);
 		if (is_null($new_parent)) {
 			trigger_localised_error('SYS0224', E_USER_WARNING, $to_parentid);
-			return 0;
-		}
-
-		// if you dont have write access to this asset you cant delete any links
-		if (!$old_parent->writeAccess('')) {
-			trigger_localised_error('SYS0229', E_USER_WARNING, $old_parent->name);
+			$this->forgetAsset($old_parent);
 			return 0;
 		}
 
 		// if you dont have write access to the new parent asset you cant create any links
 		if (!$new_parent->writeAccess('')) {
 			trigger_localised_error('SYS0228', E_USER_WARNING, $new_parent->name);
+			$this->forgetAsset($old_parent);
+			$this->forgetAsset($new_parent);
 			return 0;
 		}
 
@@ -3683,16 +3623,30 @@ class Asset_Manager extends MySource_Object
 		$minor = &$this->getAsset($link['minorid'], $link['minor_type_code']);
 		if (!$minor->id) {
 			trigger_localised_error('SYS0222', E_USER_WARNING, $link['minorid']);
+			$this->forgetAsset($old_parent);
+			$this->forgetAsset($new_parent);
+			return 0;
+		}
+
+		// are we allowed to move this link?
+		if (true !== ($error_msg = $new_parent->canMoveLink($minor, $old_parent, $link_type))) {
+			trigger_error($error_msg, E_USER_WARNING);
+			$this->forgetAsset($old_parent);
+			$this->forgetAsset($new_parent);
+			$this->forgetAsset($minor);
 			return 0;
 		}
 
 		// open the transaction
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		// now create the new link
-		$new_linkid = $new_parent->createLink($minor, $link_type, '', $to_parent_pos);
+		// now create the new link, it's non-exclusive + non-dependent, skip canCreateLink() checks
+		$new_linkid = $new_parent->createLink($minor, $link_type, '', $to_parent_pos, '0', '0', true);
 		if (!$new_linkid) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$this->forgetAsset($old_parent);
+			$this->forgetAsset($new_parent);
+			$this->forgetAsset($minor);
 			return 0;
 		}
 
@@ -3700,10 +3654,17 @@ class Asset_Manager extends MySource_Object
 		$deleted = $old_parent->deleteLink($linkid, true);
 		if (!$deleted) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$this->forgetAsset($old_parent);
+			$this->forgetAsset($new_parent);
+			$this->forgetAsset($minor);
 			return 0;
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
+		$this->forgetAsset($old_parent);
+		$this->forgetAsset($new_parent);
+		$this->forgetAsset($minor);
 
 		return $new_linkid;
 
