@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: selection.inc,v 1.46 2005/08/09 00:03:02 dheppell Exp $
+* $Id: selection.inc,v 1.47 2005/08/12 06:36:51 pgannavarapu Exp $
 *
 */
 
@@ -47,7 +47,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *   <selection style="boxes" columns="1" extras="" />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.46 $
+* @version $Revision: 1.47 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -290,7 +290,6 @@ class Asset_Attribute_Selection extends Asset_Attribute
 	*/
 	function paint($prefix, $read_only=false)
 	{
-
 		$options = $this->_params['options'];
 		if ($this->_params['allow_empty'] && !$this->_params['multiple']) {
 			if (empty($this->_edit_params['empty_text'])) {
