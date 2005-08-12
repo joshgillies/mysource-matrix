@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.108 2005/07/19 07:19:37 skim Exp $
+* $Id: file.inc,v 1.109 2005/08/12 06:58:59 tbarrett Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.108 $
+* @version $Revision: 1.109 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -140,17 +140,10 @@ class File extends Asset
 		$o = &$GLOBALS['SQ_SYSTEM']->backend->out;
 		$info = $this->_tmp['file_create_data'];
 
-		$ret_val = $edit->processFileChooser($this, $o, $prefix, true) || $edit->processFileUpload($this, $o, $prefix, $info);
+ 		$ret_val = $edit->processFileChooser($this, $o, $prefix, true) || $edit->processFileUpload($this, $o, $prefix, $info);
 
 		$this->saveAttributes();
 		$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'attributes');
-
-		// set an initial web path
-		$initial_path = strtolower($this->attr('name'));
-		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-		$valid_paths = make_valid_web_paths(Array($initial_path));
-		$good_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($link['asset'], $valid_paths, $this->id, true);
-		$ret_val = ($this->saveWebPaths($good_paths) && $ret_val);
 
 		return $ret_val;
 
