@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.41 2005/08/10 00:52:17 tbarrett Exp $
+* $Id: lang_strings.xml,v 1.42 2005/08/12 16:54:38 brobertson Exp $
 *
 */
 
@@ -283,10 +283,12 @@
 	<string source="cron_job_expired_workflow">Expired Workflow Cron Job</string>
 	<string source="cron_new_future_linking">New Future Linking</string>
 	<string source="cron_job_asset-less_future_linking">Asset-less Future Linking Cron Job</string>
-	<string source="cron_job_asset_less_futire_status">Asset-less Future Status Cron Job</string>
+	<string source="cron_job_asset_less_future_status">Asset-less Future Status Cron Job</string>
 	<string source="cron_job_generate_log_reports">Generate Log Reports Cron Job</string>
 	<string source="cron_fl_for">FL for %s</string>
 	<string source="cron_future_linking_for">Future Linking for %s</string>
+	<string source="cron_fs_for">FS for %s</string>
+	<string source="cron_future_status_for">Future Status for %s</string>
 	<string source="create_new_link_for">Creating a new link for %1$s under %2$s</string>
 	<string source="deleting_link_id">Deleting Link Id #%s</string>
 	<string source="asset_from_under_asset">%1$s from under %2$s</string>
