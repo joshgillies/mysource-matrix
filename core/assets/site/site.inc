@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.73 2005/08/12 06:44:08 dmckee Exp $
+* $Id: site.inc,v 1.74 2005/08/12 07:22:50 dmckee Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.73 $
+* @version $Revision: 1.74 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -206,7 +206,7 @@ class Site extends Folder
 				$clean_paths = make_valid_web_paths(Array($path));
 				$clean_path = (empty($clean_paths)) ? '' : $clean_paths[0];
 				if ($path != $clean_path) {
-					if ($clean_path != '') {
+					if($clean_path != '') {
 						trigger_localised_error('CORE0080', $save_urls[$save_urlid]['url'], $path, $clean_path, E_USER_WARNING);
 					} else {
 						trigger_localised_error('CORE0124', $save_urls[$save_urlid]['url'], $path, E_USER_WARNING);
@@ -378,12 +378,11 @@ class Site extends Folder
 							SELECT
 								url
 							FROM
-								sq_ast_lookup
+								sq_ast_lookup l
 							WHERE
 								assetid = '.$db->quoteSmart($this->id).'
 						)
-					AND	(name LIKE '.$db->quoteSmart('design::%').'
-						OR name LIKE '.$db->quoteSmart('paint_layout::%').')';
+					AND	name LIKE '.$db->quoteSmart('design::%');
 
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
@@ -701,3 +700,4 @@ class Site extends Folder
 }//end class
 
 ?>
+
