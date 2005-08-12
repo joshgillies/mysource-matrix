@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.70.2.2 2005/07/04 04:56:01 dmckee Exp $
+* $Id: site.inc,v 1.70.2.3 2005/08/12 06:44:39 dmckee Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.70.2.2 $
+* @version $Revision: 1.70.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -378,11 +378,12 @@ class Site extends Folder
 							SELECT
 								url
 							FROM
-								sq_ast_lookup l
+								sq_ast_lookup
 							WHERE
 								assetid = '.$db->quoteSmart($this->id).'
 						)
-					AND	name LIKE '.$db->quoteSmart('design::%');
+					AND	(name LIKE '.$db->quoteSmart('design::%').'
+						OR name LIKE '.$db->quoteSmart('paint_layout::%').')';
 
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
