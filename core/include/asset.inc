@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.442 2005/08/11 05:34:58 tbarrett Exp $
+* $Id: asset.inc,v 1.443 2005/08/12 16:51:52 brobertson Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.442 $
+* @version $Revision: 1.443 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -2456,7 +2456,7 @@ class Asset extends MySource_Object
 		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 		$ms->openLog();
 
-		$changedArray = Array();
+		$changed_array = Array();
 		foreach ($this->_tmp['vars_set'] as $var_name => $var_data) {
 			$attr_id = $this->vars[$var_name]['attrid'];
 
@@ -2514,8 +2514,8 @@ class Asset extends MySource_Object
 
 			// add attribute to the event broadcaster array (for notification of what has changed)
 			// this allows event listener to act only on what has changed
-			$changedArray[$attribute->name]['old'] = $var_data['old_value'];
-			$changedArray[$attribute->name]['new'] = $attr_value;
+			$changed_array[$attribute->name]['old'] = $var_data['old_value'];
+			$changed_array[$attribute->name]['new'] = $attr_value;
 		}
 
 		// open the transaction
@@ -2609,7 +2609,7 @@ class Asset extends MySource_Object
 
 		// notify anyone interested that attributes changed
 		$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
-		$em->broadcastEvent($this, 'attributeChange', $changedArray);
+		$em->broadcastEvent($this, 'attributeChange', $changed_array);
 
 		return true;
 
