@@ -18,156 +18,181 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: recreate_link_tree.php,v 1.14 2005/07/27 10:11:27 brobertson Exp $
+* $Id: recreate_link_tree.php,v 1.15 2005/08/12 15:01:31 brobertson Exp $
 *
 */
 
 /**
 * Use this script to (re)create the link tree.
+*
+* Usage: php scripts/recreate_link_tree.php [SYSTEM ROOT] > tmp.sql
+*
+* Sends the SQL Commands that need to be run to STDOUT
+* and send status information to STDERR
+*
 * The main use of this script is recreate the treeids when the
 * SQ_CONF_ASSET_TREE_BASE or SQ_CONF_ASSET_TREE_SIZE config options change
 *
-*
-*
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix
 */
+error_reporting(E_ALL);
+if (php_sapi_name() != 'cli') {
+	trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
+}
 
-require_once dirname(dirname(__FILE__)).'/core/include/init.inc';
+$SYSTEM_ROOT = (isset($_SERVER['argv'][1])) ? $_SERVER['argv'][1] : '';
+if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
+	trigger_error("You need to supply the path to the System Root as the first argument\n", E_USER_ERROR);
+}
+
+require_once $SYSTEM_ROOT.'/core/include/init.inc';
 require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
+
+error_reporting(E_ALL);
+ini_set('memory_limit', '-1');
 
 $root_user = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
 	trigger_error("Failed logging in as root user\n", E_USER_ERROR);
 }
 
+//--        MAIN()        --//
+
 $db = &$GLOBALS['SQ_SYSTEM']->db;
+
+$pgdb = ($db->phptype == 'pgsql');
+
+$script_start = time();
+
+echo_headline('TRUNCATING TREE');
+
+$sql = 'TRUNCATE sq_ast_lnk_tree;';
+echo $sql,"\n";
+
+$sql = 'SELECT l.majorid, l.linkid, l.minorid
+		FROM
+			sq_ast_lnk l
+		WHERE
+			'.db_extras_bitand($db, 'l.link_type', $db->quote(SQ_SC_LINK_SIGNIFICANT)).' > 0
+		ORDER BY l.sort_order';
+
+$result = $db->query($sql);
+assert_valid_db_result($result);
+
+echo_headline('ANALYSING '.$result->numRows().' SIGNIFICANT LINKS');
+
+$echo_i = 0;
+$index = Array();
+while (null !== ($data = $result->fetchRow())) {
+	$majorid = $data['majorid'];
+	unset($data['majorid']);
+	if (!isset($index[$majorid])) $index[$majorid] = Array();
+	$index[$majorid][] = $data;
+
+	$echo_i++;
+	if ($echo_i % 200 == 0) fwrite(STDERR, '.');
+}
+fwrite(STDERR, "\n");
+
+$result->free();
+
+echo_headline('CREATING INSERTS');
+
+// if the DB is postgres use the COPY syntax for quicker insert
+if ($pgdb) {
+	$sql = "COPY sq_ast_lnk_tree (treeid, linkid, num_kids) FROM stdin;\n"
+			.$db->quoteSmart('-')."\t".$db->quoteSmart(1)."\t".$db->quoteSmart(count($index[1]));
+
+} else {
+	$sql = 'INSERT INTO sq_ast_lnk_tree (treeid, linkid, num_kids) VALUES ('.$db->quoteSmart('-').', '.$db->quoteSmart(1).', '.$db->quoteSmart(count($index[1])).');';
+
+}
+
+echo $sql,"\n";
+
+$echo_i = 0;
+recurse_tree_create(1, '');
+fwrite(STDERR, "\n");
+
+if ($pgdb) {
+	echo "\\.\n";
+}
+
+echo_headline($echo_i.' TREE ENTRIES CREATED');
+
+$script_end = time();
+$script_duration = $script_end - $script_start;
+echo '-- Script Start : ', $script_start, '    Script End : ', $script_end, "\n";
+echo '-- Script Duration: '.floor($script_duration / 60).'mins '.($script_duration % 60)."seconds\n";
+fwrite(STDERR, '-- Script Duration: '.floor($script_duration / 60).'mins '.($script_duration % 60)."seconds\n");
+
+
+//--        FUNCTIONS        --//
+
+
+/**
+* Print a headline to STDERR
+*
+* @param string		$s	the headline
+*
+* @return void
+* @access public
+*/
+function echo_headline($s)
+{
+	static $start = 0;
+
+	if ($start) {
+		$end = time();
+		$duration = $end - $start;
+		fwrite(STDERR, '-- Duration: '.floor($duration / 60).'mins '.($duration % 60)."seconds\n");
+	}
+
+	fwrite(STDERR, "--------------------------------------\n$s\n--------------------------------------\n");
+
+	$start = time();
+
+}//end echo_headline()
 
 
 /**
 * Re-creates the link tree table starting from th
 *
-* @param string	$majorid	the ID of the asset you wish to re-create the tree from
+* @param string		$majorid	the ID of the asset whose children to recreate
+* @param string		$path		the path so far
 *
 * @return void
 * @access public
 */
-function recurse_tree_create($majorid)
+function recurse_tree_create($majorid, $path)
 {
-	$db =& $GLOBALS['SQ_SYSTEM']->db;
+	global $db, $index, $echo_i, $pgdb;
 
-	$sql = 'SELECT
-				COUNT(*)
-			FROM
-				sq_ast_lnk
-			WHERE
-				link_type & '.SQ_SC_LINK_SIGNIFICANT.' > 0';
-	$link_count = $db->getOne($sql);
-	assert_valid_db_result($link_count);
+	foreach ($index[$majorid] as $i => $data) {
+		$treeid   = $path.asset_link_treeid_convert($i, true);
+		$num_kids = (empty($index[$data['minorid']])) ? 0 : count($index[$data['minorid']]);
 
-	bam('ANALYSING '.$link_count.' SIGNIFICANT LINKS - THIS MAY TAKE A WHILE...');
-
-	// no link to our children; we need to (re-)create the tree, obviously... darn it
-	// so grab the links we need (significant ones only)
-	$top_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($majorid, SQ_SC_LINK_SIGNIFICANT);
-	$links = Array();
-
-	// reorder them so that it's indexed by their prospective treeid
-	$child_index = 0;
-	foreach ($top_links as $link) {
-		$treeid = asset_link_treeid_convert($child_index,true);
-		if ($link['linkid'] != 0) {
-			$links[$treeid] = $link;
-			$child_index++;
+		if ($pgdb) {
+			$sql = $db->quoteSmart($treeid)."\t".$db->quoteSmart((int) $data['linkid'])."\t".$db->quoteSmart($num_kids);
+		} else {
+			$sql = 'INSERT INTO sq_ast_lnk_tree (treeid, linkid, num_kids) VALUES ('.$db->quoteSmart($treeid).','.$db->quoteSmart((int) $data['linkid']).','.$db->quoteSmart($num_kids).');';
 		}
-	}
 
-	// now search for child links and give them treeids
-	$echo_i = 0;
-	for (reset($links); null !== ($k = key($links)); next($links)) {
-		$link =& $links[$k];
+		echo $sql,"\n";
 
-		$child_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($link['minorid'], SQ_SC_LINK_SIGNIFICANT);
-		$child_index = 0;
-		foreach ($child_links as $child_link) {
-			$treeid = $k.asset_link_treeid_convert($child_index,true);
-			if ($child_link['linkid'] != 0) {
-				$links[$treeid] = $child_link;
-				$child_index++;
-			}
-		}
-		$link['num_kids'] = count($child_links);
 		$echo_i++;
-		if ($echo_i % 50 == 0) echo '.';
-	}
-	echo "\n";
+		if ($echo_i % 200 == 0) fwrite(STDERR, '.');
 
-	bam('RE-CREATING TREE ENTRIES...');
+		if ($num_kids) {
+			recurse_tree_create($data['minorid'], $treeid);
+		}
 
-	// adding root folder?
-	if ($majorid == 1) {
-		$sql = 'INSERT INTO
-					sq_ast_lnk_tree
-					(
-						treeid,
-						linkid,
-						num_kids
-					)
-					VALUES
-					(
-						'.$db->quoteSmart('-').',
-						'.$db->quoteSmart(1).',
-						'.$db->quoteSmart(count($top_links)).'
-					)';
-
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
-		echo sprintf('[ Link Id %10d ] %s', 1, '-')."\n";
-		//echo 'Added treeid - for linkid 1'."\n";
-	}
-
-	foreach ($links as $treeid => $this_link) {
-		// remove any 'zero linkid' entries
-		$sql = 'DELETE FROM
-					sq_ast_lnk_tree
-				WHERE
-					treeid = '.$db->quoteSmart($treeid);
-
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
-
-		// now insert the tree entry
-		$sql = 'INSERT INTO
-				sq_ast_lnk_tree
-				(
-					treeid,
-					linkid,
-					num_kids
-				)
-				VALUES
-				(
-					'.$db->quoteSmart($treeid).',
-					'.$db->quoteSmart($this_link['linkid']).',
-					'.$db->quoteSmart($this_link['num_kids']).'
-				)';
-
-		$result = $db->query($sql);
-		echo sprintf('[ Link Id %10d ] %s', $this_link['linkid'], $treeid)."\n";
-		assert_valid_db_result($result);
-	}
-
-	bam((count($links)+($majorid == 1 ? 1 : 0)).' TREE ENTRIES CREATED');
+	}//end foreach
 
 }//end recurse_tree_create()
 
-
-bam('TRUNCATING TREE...');
-
-$sql = 'TRUNCATE sq_ast_lnk_tree';
-$result = $db->query($sql);
-assert_valid_db_result($result);
-
-recurse_tree_create(1);
 
 ?>
