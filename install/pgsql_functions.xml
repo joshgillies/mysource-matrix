@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: pgsql_functions.xml,v 1.2.2.2 2005/07/29 03:36:45 mmcintyre Exp $
+* $Id: pgsql_functions.xml,v 1.2.2.3 2005/08/12 00:57:22 mmcintyre Exp $
 *
 */
 -->
@@ -148,9 +148,13 @@
 				ub := array_upper(var_set, 1);
 				lb := array_lower(var_set, 1);
 
-				FOR i IN lb..ub LOOP
-					RETURN NEXT var_set[i];
-				END LOOP;
+				IF lb IS NULL or ub IS NULL THEN
+					return;
+				ELSE
+					FOR i IN lb..ub LOOP
+						RETURN NEXT var_set[i];
+					END LOOP;
+				END IF;
 				RETURN;
 			END;
 			' language plpgsql;
@@ -170,9 +174,13 @@
 				ub := array_upper(var_set, 1);
 				lb := array_lower(var_set, 1);
 
-				FOR i IN lb..ub LOOP
-					RETURN NEXT var_set[i];
-				END LOOP;
+				IF lb IS NULL or ub IS NULL THEN
+					return;
+				ELSE
+					FOR i IN lb..ub LOOP
+						RETURN NEXT var_set[i];
+						END LOOP;
+				END IF;
 				RETURN;
 			END;
 			' language plpgsql;
