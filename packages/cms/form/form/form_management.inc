@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_management.inc,v 1.35 2005/05/20 05:27:25 tbarrett Exp $
+* $Id: form_management.inc,v 1.36 2005/08/12 00:01:03 dmckee Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -214,8 +214,7 @@ class Form_Management extends Asset_Management
 		}
 
 		return $res;
-	}
-
+	}//end _upgrade()
 
 
 }//end class
