@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: recreate_link_tree.php,v 1.11.2.3 2005/08/12 14:51:03 brobertson Exp $
+* $Id: recreate_link_tree.php,v 1.11.2.4 2005/08/12 14:56:10 brobertson Exp $
 *
 */
 
@@ -34,11 +34,13 @@
 * SQ_CONF_ASSET_TREE_BASE or SQ_CONF_ASSET_TREE_SIZE config options change
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.11.2.3 $
+* @version $Revision: 1.11.2.4 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
-if ((php_sapi_name() != 'cli')) trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
+if (php_sapi_name() != 'cli') {
+	trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
+}
 
 $SYSTEM_ROOT = (isset($_SERVER['argv'][1])) ? $_SERVER['argv'][1] : '';
 if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
@@ -84,7 +86,7 @@ echo_headline('ANALYSING '.$result->numRows().' SIGNIFICANT LINKS');
 
 $echo_i = 0;
 $index = Array();
-while(null !== ($data = $result->fetchRow())) {
+while (null !== ($data = $result->fetchRow())) {
 	$majorid = $data['majorid'];
 	unset($data['majorid']);
 	if (!isset($index[$majorid])) $index[$majorid] = Array();
@@ -123,9 +125,9 @@ echo_headline($echo_i.' TREE ENTRIES CREATED');
 
 $script_end = time();
 $script_duration = $script_end - $script_start;
-echo "-- Script Start : ", $script_start, "    Script End : ", $script_end, "\n";
-echo "-- Script Duration: ".floor($script_duration / 60)."mins ".($script_duration % 60)."seconds\n";
-fwrite(STDERR, "-- Script Duration: ".floor($script_duration / 60)."mins ".($script_duration % 60)."seconds\n");
+echo '-- Script Start : ', $script_start, '    Script End : ', $script_end, "\n";
+echo '-- Script Duration: '.floor($script_duration / 60).'mins '.($script_duration % 60)."seconds\n";
+fwrite(STDERR, '-- Script Duration: '.floor($script_duration / 60).'mins '.($script_duration % 60)."seconds\n");
 
 
 //--        FUNCTIONS        --//
@@ -146,13 +148,14 @@ function echo_headline($s)
 	if ($start) {
 		$end = time();
 		$duration = $end - $start;
-		fwrite(STDERR, "-- Duration: ".floor($duration / 60)."mins ".($duration % 60)."seconds\n");
+		fwrite(STDERR, '-- Duration: '.floor($duration / 60).'mins '.($duration % 60)."seconds\n");
 	}
 
 	fwrite(STDERR, "--------------------------------------\n$s\n--------------------------------------\n");
 
 	$start = time();
-}
+
+}//end echo_headline()
 
 
 /**
@@ -168,8 +171,7 @@ function recurse_tree_create($majorid, $path)
 {
 	global $db, $index, $echo_i, $pgdb;
 
-
-	foreach($index[$majorid] as $i => $data) {
+	foreach ($index[$majorid] as $i => $data) {
 		$treeid   = $path.asset_link_treeid_convert($i, true);
 		$num_kids = (empty($index[$data['minorid']])) ? 0 : count($index[$data['minorid']]);
 
@@ -184,7 +186,9 @@ function recurse_tree_create($majorid, $path)
 		$echo_i++;
 		if ($echo_i % 200 == 0) fwrite(STDERR, '.');
 
-		if ($num_kids) recurse_tree_create($data['minorid'], $treeid);
+		if ($num_kids) {
+			recurse_tree_create($data['minorid'], $treeid);
+		}
 
 	}//end foreach
 
