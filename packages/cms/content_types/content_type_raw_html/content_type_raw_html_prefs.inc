@@ -11,12 +11,13 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_raw_html_prefs.inc,v 1.6 2005/05/11 06:07:30 lwright Exp $
+* $Id: content_type_raw_html_prefs.inc,v 1.7 2005/08/12 06:30:32 pgannavarapu Exp $
 *
 */
 
 
 require_once SQ_LIB_PATH.'/config/prefs.inc';
+require_once SQ_ATTRIBUTES_PATH.'/css_dimension/css_dimension.inc';
 
 /**
 * Content_Type_Raw_HTML_Prefs
@@ -26,7 +27,7 @@ require_once SQ_LIB_PATH.'/config/prefs.inc';
 *    Looks after the creation the Raw HTML preferences
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 */
 class Content_Type_Raw_HTML_Prefs extends Prefs
@@ -38,6 +39,8 @@ class Content_Type_Raw_HTML_Prefs extends Prefs
 										'default'		=> Array('width' => '100', 'height' => '20'),
 										'protected'		=> false),
 	);
+	var $css_dimension_width;
+	var $css_dimension_height;
 
 
 	/**
@@ -47,6 +50,8 @@ class Content_Type_Raw_HTML_Prefs extends Prefs
 	function Content_Type_Raw_HTML_Prefs($pref_file='')
 	{
 		$this->Prefs($pref_file);
+		$this->css_dimension_width =& new Asset_Attribute_CSS_Dimension();
+		$this->css_dimension_height =& new Asset_Attribute_CSS_Dimension();
 
 	}//end constructor
 
@@ -65,7 +70,6 @@ class Content_Type_Raw_HTML_Prefs extends Prefs
 	{
 		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
 		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
-
 		if (is_null($pref) || $pref == 'SQ_RAW_HTML_SIZE') {
 			if (is_null($pref)) $o->openField(translate('cms_ct_raw_html_pref_editor_size'));
 				$html_size = $this->pref_vars['SQ_RAW_HTML_SIZE']['default'];
@@ -76,7 +80,7 @@ class Content_Type_Raw_HTML_Prefs extends Prefs
 						<td class="sq-backend-table-cell" style="width: 100%;">
 						<?php
 						if ($have_lock && $is_admin) {
-							text_box('prefs[SQ_RAW_HTML_SIZE][width]', $html_size['width']);
+							$this->css_dimension_width->paint('width', $have_lock, $html_size['width']);
 						} else {
 							echo $html_size['width'];
 						}
@@ -88,7 +92,7 @@ class Content_Type_Raw_HTML_Prefs extends Prefs
 						<td class="sq-backend-table-cell" style="width: 100%;">
 						<?php
 						if ($have_lock && $is_admin) {
-							text_box('prefs[SQ_RAW_HTML_SIZE][height]', $html_size['height']);
+							$this->css_dimension_height->paint('height', $have_lock, $html_size['height']);
 						} else {
 							echo $html_size['height'];
 						}
@@ -117,18 +121,14 @@ class Content_Type_Raw_HTML_Prefs extends Prefs
 	*/
 	function processBackend($o, $have_lock, $pref=null)
 	{
-		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
-		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
-		if (!$is_admin) return false;
-
-		// WYSIWYG STYLE
-		if (is_null($pref) || $pref == 'SQ_RAW_HTML_SIZE') {
-			if (isset($_POST['prefs']['SQ_RAW_HTML_SIZE'])) {
-				$this->pref_vars['SQ_RAW_HTML_SIZE']['default'] = $_POST['prefs']['SQ_RAW_HTML_SIZE'];
-			}
+		if(isset($_POST['width']) && isset($_POST['height'])) {
+			$this->css_dimension_width->process('width');
+			$this->css_dimension_height->process('height');
+			$this->pref_vars['SQ_RAW_HTML_SIZE']['default']['width'] = $this->css_dimension_width->getContent();
+			$this->pref_vars['SQ_RAW_HTML_SIZE']['default']['height'] = $this->css_dimension_height->getContent();
+			return true;
 		}
-
-		return true;
+		return false;
 
 	}//end processBackend()
 
