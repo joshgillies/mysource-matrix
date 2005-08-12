@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: internal_message.inc,v 1.60.2.1 2005/08/10 14:12:52 brobertson Exp $
+* $Id: internal_message.inc,v 1.60.2.2 2005/08/12 05:23:26 mmcintyre Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    An internal message to be sent around the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.60.2.1 $
+* @version $Revision: 1.60.2.2 $
 * @package MySource_Matrix
 */
 class Internal_Message extends MySource_Object
@@ -195,6 +195,7 @@ class Internal_Message extends MySource_Object
 
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// generic prepared statement for inserting
 		$sql = 'INSERT INTO
@@ -227,6 +228,8 @@ class Internal_Message extends MySource_Object
 
 		$prepared = $db->prepare($sql);
 		assert_valid_db_result($prepared);
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		  //////////////////////////////
 		 // LOG MESSAGES TO LOG FILE //
@@ -432,7 +435,7 @@ class Internal_Message extends MySource_Object
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		}//end if sending message via email
-		
+
 		$db->freePrepared($prepared);
 
 		return true;
@@ -661,10 +664,15 @@ class Internal_Message extends MySource_Object
 	*/
 	function delete()
 	{
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'DELETE FROM sq_internal_msg WHERE msgid='.$db->quote($this->id);
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
 		return true;
 
 	}//end delete()
@@ -682,10 +690,15 @@ class Internal_Message extends MySource_Object
 	{
 		if (!$this->id) return false;
 
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'UPDATE sq_internal_msg SET status = '.$db->quote($status).' WHERE msgid = '.$db->quote($this->id);
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
 		return true;
 
 	}//end updateStatus()

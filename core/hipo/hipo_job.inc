@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job.inc,v 1.72 2005/05/17 06:58:42 ndvries Exp $
+* $Id: hipo_job.inc,v 1.72.2.1 2005/08/12 05:23:24 mmcintyre Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_DATA_PATH.'/private/conf/hipo.inc';
 * Highly Intensive Processing Object (HIPO)
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.72 $
+* @version $Revision: 1.72.2.1 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -758,6 +758,8 @@ class HIPO_Job extends MySource_Object
 		$now = time();
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		// now we just do what we are told
 		if ($delete) {
@@ -797,6 +799,7 @@ class HIPO_Job extends MySource_Object
 			assert_valid_db_result($result);
 		}
 
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		$this->last_updated = $now;
 

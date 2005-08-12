@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.56.2.3 2005/07/31 23:32:37 tbarrett Exp $
+* $Id: search_manager.inc,v 1.56.2.4 2005/08/12 05:23:29 mmcintyre Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.56.2.3 $
+* @version $Revision: 1.56.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -194,6 +194,7 @@ class Search_Manager extends Asset
 	{
 		// don't run if indexing turned OFF
 		if (!$this->attr('indexing')) return;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'DELETE FROM sq_sch_idx
@@ -204,6 +205,8 @@ class Search_Manager extends Asset
 
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 	}//end flushKeyData()
 
@@ -322,6 +325,7 @@ class Search_Manager extends Asset
 	function setComponentDefaultWeighting($type_code, $component, $weighting)
 	{
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		if (strlen($component) == 0)
 			continue;
@@ -332,6 +336,8 @@ class Search_Manager extends Asset
 
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 	}//end setComponentDefaultWeighting()
 
@@ -349,6 +355,7 @@ class Search_Manager extends Asset
 	function setComponentWeighting($assetid, $component, $weighting=null)
 	{
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$sql = 'DELETE FROM sq_sch_idx_wgt
 				WHERE assetid = '.$db->quote($assetid).' AND component = '.$db->quote($component);
@@ -365,6 +372,7 @@ class Search_Manager extends Asset
 			$result = $db->query($sql);
 			assert_valid_db_result($result);
 		}
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 	}//end setComponentWeighting()
 

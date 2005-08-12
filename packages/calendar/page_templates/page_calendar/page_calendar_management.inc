@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_management.inc,v 1.45 2005/04/29 05:39:19 gsherwood Exp $
+* $Id: page_calendar_management.inc,v 1.45.2.1 2005/08/12 05:23:27 mmcintyre Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.45.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -374,7 +374,17 @@ class Page_Calendar_Management extends Asset_Management
 				foreach ($customised_assetids as $assetid => $attrid) {
 					$value_keys[] = $attrid.'_'.$assetid;
 				}
-				$this->_db->query('DELETE FROM sq_ast_attr_val WHERE CONCAT(attrid, '.$this->_db->quote('_').', assetid) in ('.implode(', ', $value_keys).')');
+
+				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+				$sql = 'DELETE FROM
+							sq_ast_attr_val
+						WHERE
+							CONCAT(attrid, '.$this->_db->quote('_').', assetid) in ('.implode(', ', $value_keys).')';
+
+				$result = $this->_db->query($sql);
+				assert_valid_db_result($result);
+
+				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 				return true;
 			} else {
 				return parent::_updateOwnedAttribute($name, $curr_attr);

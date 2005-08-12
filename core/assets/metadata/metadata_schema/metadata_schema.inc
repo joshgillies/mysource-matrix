@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_schema.inc,v 1.15.2.2 2005/08/04 00:47:56 ndvries Exp $
+* $Id: metadata_schema.inc,v 1.15.2.3 2005/08/12 05:23:24 mmcintyre Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.15.2.2 $
+* @version $Revision: 1.15.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -132,6 +132,7 @@ class Metadata_Schema extends Folder
 	{
 		if (parent::delete($release_lock)) {
 			$db = $GLOBALS['SQ_SYSTEM']->db;
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 			// First remove any values assets have for this field
 			$sql = 'DELETE FROM sq_ast_mdata WHERE ';
@@ -139,6 +140,8 @@ class Metadata_Schema extends Folder
 
 			$result = $db->query($sql);
 			assert_valid_db_result($result);
+
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 			return true;
 		}

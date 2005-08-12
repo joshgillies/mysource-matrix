@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_group.inc,v 1.16.2.1 2005/07/21 01:05:41 dheppell Exp $
+* $Id: user_group.inc,v 1.16.2.2 2005/08/12 05:23:24 mmcintyre Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.16.2.1 $
+* @version $Revision: 1.16.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -65,6 +65,8 @@ class User_Group extends Folder
 	{
 		// assign unrestricted access initially
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
 		$sql = 'INSERT INTO sq_ast_edit_access
 			(
 				userid,
@@ -81,6 +83,9 @@ class User_Group extends Folder
 			)';
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
 		return true;
 
 	}//end _createAdditional()

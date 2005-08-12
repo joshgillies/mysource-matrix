@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_management.inc,v 1.23.2.2 2005/07/27 09:02:11 brobertson Exp $
+* $Id: listing_engine_management.inc,v 1.23.2.3 2005/08/12 05:23:28 mmcintyre Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.23.2.2 $
+* @version $Revision: 1.23.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -488,9 +488,9 @@ class Listing_Engine_Management extends Asset_Management
 					$group_formats = new Folder();
 					$create_link = Array(
 									'asset'			=> &$asset,
-									'value'			=> 'group_formats', 
-									'link_type'		=> SQ_LINK_TYPE_2, 
-									'is_dependant'	=> 1, 
+									'value'			=> 'group_formats',
+									'link_type'		=> SQ_LINK_TYPE_2,
+									'is_dependant'	=> 1,
 									'is_exclusive'	=> 1,
 									'sort_order'	=> 2,
 								   );
@@ -549,11 +549,13 @@ class Listing_Engine_Management extends Asset_Management
 		foreach ($attrs as $attr => $detail) {
 			$attrs_quoted[] = $db->quote($attr);
 		}
-
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$sql = 'DELETE FROM sq_ast_attr WHERE attrid IN ('.implode(', ', $attrs_quoted).')';
 
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		return true;
 
@@ -585,6 +587,8 @@ class Listing_Engine_Management extends Asset_Management
 			$keys   = implode(',', $keys_quoted);
 			$fields = implode(',', $fields_quoted);
 
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
 			$sql = 'INSERT INTO sq_ast_attr ('.$keys.') VALUES ('.$fields.')';
 
 			$result = $db->query($sql);
@@ -599,6 +603,8 @@ class Listing_Engine_Management extends Asset_Management
 				AND owning_type_code IN (SELECT type_code FROM sq_ast_typ_inhd WHERE inhd_type_code = '.$db->quote($attr['owning_type_code']).')';
 			$result = $db->query($sql);
 			assert_valid_db_result($result);
+
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		}
 
 		return true;

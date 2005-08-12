@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: transaction_manager.inc,v 1.17 2005/04/15 00:37:28 lwright Exp $
+* $Id: transaction_manager.inc,v 1.17.2.1 2005/08/12 05:23:26 mmcintyre Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *    Also to handle nested transaction calls
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.17.2.1 $
 * @package MySource_Matrix
 */
 class Transaction_Manager extends MySource_Object
@@ -120,25 +120,21 @@ class Transaction_Manager extends MySource_Object
 	*/
 	function commit($db_name)
 	{
-		// oracle does not issue COMMIT queries
-		if ($GLOBALS['SQ_SYSTEM']->db->phptype == 'oci8') {
-			return true;
-		}
 
 		if (empty($this->_levels[$db_name])) {
-			trigger_localised_error("SYS0219", E_USER_WARNING);
+			trigger_localised_error('SYS0219', E_USER_WARNING);
 			return false;
 		}
 
 		if (!empty($this->_rollback[$db_name])) {
-			trigger_localised_error("SYS0220", E_USER_WARNING);
+			trigger_localised_error('SYS0220', E_USER_WARNING);
 			$this->rollback($db_name);
 			return false;
 		}
 		$this->_levels[$db_name]--;
 		if ($this->_levels[$db_name] == 0) {
 			// this is the last commit
-			$result = $GLOBALS['SQ_SYSTEM']->db->query('COMMIT');
+			$result = $GLOBALS['SQ_SYSTEM']->db->commit();
 			assert_valid_db_result($result);
 		}
 		return true;
@@ -159,7 +155,7 @@ class Transaction_Manager extends MySource_Object
 	function rollback($db_name)
 	{
 		if (empty($this->_levels[$db_name])) {
-			trigger_localised_error("SYS0231", E_USER_WARNING);
+			trigger_localised_error('SYS0231', E_USER_WARNING);
 			return false;
 		}
 
@@ -168,7 +164,7 @@ class Transaction_Manager extends MySource_Object
 		$this->_levels[$db_name]--;
 		if ($this->_levels[$db_name] == 0) {
 			// this is the last rollback
-			$result = $GLOBALS['SQ_SYSTEM']->db->query('ROLLBACK');
+			$result = $GLOBALS['SQ_SYSTEM']->db->rollback();
 			assert_valid_db_result($result);
 
 			// clear the rollback flag as there is no more transaction block

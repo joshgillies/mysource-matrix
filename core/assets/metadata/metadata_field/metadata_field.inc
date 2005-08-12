@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field.inc,v 1.17.2.3 2005/08/04 00:31:19 ndvries Exp $
+* $Id: metadata_field.inc,v 1.17.2.4 2005/08/12 05:23:24 mmcintyre Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.17.2.3 $
+* @version $Revision: 1.17.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -334,13 +334,14 @@ class Metadata_Field extends Asset
 	{
 		if (parent::delete($release_lock)) {
 			$db = $GLOBALS['SQ_SYSTEM']->db;
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 			// First remove any values assets have for this field
 			$sql = 'DELETE FROM sq_ast_mdata_val WHERE ';
 			$sql .= 'fieldid = '.$db->quote($this->id);
 
-                        $result = $db->query($sql);
-                        assert_valid_db_result($result);
+			$result = $db->query($sql);
+			assert_valid_db_result($result);
 
 			// Now we have to delete the default value information
 			$sql = 'DELETE FROM sq_ast_mdata_dflt_val WHERE ';
@@ -349,6 +350,7 @@ class Metadata_Field extends Asset
 			$result = $db->query($sql);
 			assert_valid_db_result($result);
 
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			return true;
 		}
 		return false;

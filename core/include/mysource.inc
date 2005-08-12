@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.119.2.9 2005/08/08 01:03:36 mmcintyre Exp $
+* $Id: mysource.inc,v 1.119.2.10 2005/08/12 05:23:26 mmcintyre Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.119.2.9 $
+* @version $Revision: 1.119.2.10 $
 * @package MySource_Matrix
 */
 class MySource
@@ -1578,6 +1578,8 @@ class MySource
 			if ($this->_db_conns[$conn]->phptype == 'oci8') {
 				$this->_db_conns[$conn]->setOption('portability', DB_PORTABILITY_ALL);
 			}
+
+			$this->_db_conns[$conn]->autoCommit(false);
 		}
 
 		array_push($this->_db_stack, $conn);
@@ -1802,15 +1804,19 @@ class MySource
 		}
 
 		$this->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
 		$sql = 'INSERT INTO sq_lock
 				(lockid, source_lockid, userid, expires)
 				VALUES
 				('.$this->db->quote($lockid).','.$this->db->quote($source_lockid).','.$this->db->quote($this->currentUserid()).','.$expires.')';
 		$result = $this->db->query($sql);
 		if (!assert_valid_db_result($result, '', true, false)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return 'Database Error';
 		}
 
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$this->restoreDatabaseConnection();
 		return true;
 
@@ -1831,13 +1837,17 @@ class MySource
 		if (empty($current_lock)) return true;
 
 		$this->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
 		$sql = 'DELETE FROM sq_lock
 				WHERE source_lockid = '.$this->db->quote($current_lock['source_lockid']);
 
 		$result = $this->db->query($sql);
 		if (!assert_valid_db_result($result, '', true, false)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return 'Database Error';
 		}
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		$this->restoreDatabaseConnection();
 		return true;
@@ -1871,15 +1881,19 @@ class MySource
 		}
 
 		$this->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
 		$sql = 'UPDATE sq_lock
 				   SET expires = '.$this->db->quote($expires).'
 				WHERE source_lockid = '.$this->db->quote($current_lock['source_lockid']);
 
 		$result = $this->db->query($sql);
 		if (!assert_valid_db_result($result, '', true, false)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return 'Database Error';
 		}
 
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$this->restoreDatabaseConnection();
 		return true;
 

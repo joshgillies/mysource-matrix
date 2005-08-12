@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager.inc,v 1.21.2.1 2005/06/17 04:07:53 ndvries Exp $
+* $Id: remap_manager.inc,v 1.21.2.2 2005/08/12 05:23:24 mmcintyre Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.21.2.1 $
+* @version $Revision: 1.21.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -200,6 +200,7 @@ class Remap_Manager extends Asset
 			trigger_localised_error('CORE0024', E_USER_WARNING, $old_url);
 			return -1;
 		}
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// check if the new URL is already remapping to something else, and delete it
 		$sql = 'DELETE FROM
@@ -226,6 +227,8 @@ class Remap_Manager extends Asset
 
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		return 1;
 

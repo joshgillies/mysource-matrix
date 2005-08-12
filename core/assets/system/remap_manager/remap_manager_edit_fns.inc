@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager_edit_fns.inc,v 1.15 2005/05/11 06:05:01 lwright Exp $
+* $Id: remap_manager_edit_fns.inc,v 1.15.2.1 2005/08/12 05:23:24 mmcintyre Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.15.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -99,9 +99,9 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 					if ($write_access) {
 						?>
 						<td class="sq-backend-table-header">
-							<?php 
-							check_box($prefix.'_select_all', '1', false, "check_all(document.main_form, '{$prefix}_delete_remap', this.checked);"); 
-							label(translate('delete_question'), $prefix.'_select_all');	
+							<?php
+							check_box($prefix.'_select_all', '1', false, "check_all(document.main_form, '{$prefix}_delete_remap', this.checked);");
+							label(translate('delete_question'), $prefix.'_select_all');
 							?>
 						</td>
 						<?php
@@ -177,6 +177,7 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 			foreach ($_POST[$prefix.'_delete_remap'] as $url => $on) {
 				$deletes[] = $db->quoteSmart($url);
 			}
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 			$sql = 'DELETE FROM
 						sq_ast_lookup_remap
@@ -188,6 +189,8 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 
 			$result = $db->query($sql);
 			assert_valid_db_result($result);
+
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		}
 		return true;
 
@@ -224,7 +227,7 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 
 		$o->openField(translate('csv_upload'));
 			file_upload($prefix.'_add_remap_csv');
-			
+
 			//csv upload instructions
 			$o->note(translate('csv_upload_instructions'));
 			$o->note(translate('csv_upload_instructions_example_1').'<br />'.translate('csv_upload_instructions_example_2'));
@@ -312,7 +315,7 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 			if (!empty($link_to_404)) {
 				$asset_404 = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link_to_404['minorid']);
 			}
-			
+
 			if (!is_null($asset_404)) {
 				echo translate('asset_format', $asset_404->name, $asset_404->id);
 			} else {

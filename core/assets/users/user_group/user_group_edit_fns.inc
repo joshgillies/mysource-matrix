@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_group_edit_fns.inc,v 1.22 2005/05/11 06:05:06 lwright Exp $
+* $Id: user_group_edit_fns.inc,v 1.22.2.1 2005/08/12 05:23:24 mmcintyre Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.22.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -124,6 +124,8 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 		$unrestricted = !$this->isRestricted($asset, $prefix);
 		if (isset($_POST[$prefix.'_unrestricted']) && $_POST[$prefix.'_unrestricted'] && !$unrestricted) {
 
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
 			$sql = 'INSERT INTO
 						sq_ast_edit_access
 						(
@@ -143,7 +145,11 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 			$result = $db->query($sql);
 			assert_valid_db_result($result);
 
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
 		} else if (!isset($_POST[$prefix.'_unrestricted']) && $unrestricted) {
+
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 			$sql = 'DELETE FROM
 						sq_ast_edit_access
@@ -155,6 +161,8 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 
 			$result = $db->query($sql);
 			assert_valid_db_result($result);
+
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		}
 
 		return true;

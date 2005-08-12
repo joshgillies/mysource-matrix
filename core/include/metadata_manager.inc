@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.83.2.2 2005/07/29 03:45:04 mmcintyre Exp $
+* $Id: metadata_manager.inc,v 1.83.2.3 2005/08/12 05:23:26 mmcintyre Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.83.2.2 $
+* @version $Revision: 1.83.2.3 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -1343,8 +1343,12 @@ class Metadata_Manager extends MySource_Object
 						assetid = '.$db->quoteSmart($field_assetid);
 		}
 
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
 		$value = $db->query($sql);
 		assert_valid_db_result($value);
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		return true;
 
