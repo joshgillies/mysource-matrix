@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.97.2.7 2005/06/22 06:44:48 ndvries Exp $
+* $Id: file.inc,v 1.97.2.8 2005/08/12 06:58:44 tbarrett Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.97.2.7 $
+* @version $Revision: 1.97.2.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -144,13 +144,6 @@ class File extends Asset
 
 		$this->saveAttributes();
 		$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'attributes');
-
-		// set an initial web path
-		$initial_path = strtolower($this->attr('name'));
-		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-		$valid_paths = make_valid_web_paths(Array($initial_path));
-		$good_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($link['asset'], $valid_paths, $this->id, true);
-		$ret_val = ($this->saveWebPaths($good_paths) && $ret_val);
 
 		return $ret_val;
 
