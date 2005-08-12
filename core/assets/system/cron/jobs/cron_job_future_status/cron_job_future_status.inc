@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_status.inc,v 1.27 2005/06/30 23:14:03 tbarrett Exp $
+* $Id: cron_job_future_status.inc,v 1.28 2005/08/12 16:55:57 brobertson Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -66,9 +66,9 @@ class Cron_Job_Future_Status extends Cron_Job
 	{
 		$asset = &$this->getAssetToUpdate();
 		if (is_null($asset)) {
-			return translate('cron_job_asset_less_futire_status');
+			return translate('cron_job_asset_less_future_status');
 		} else if ($short_name) {
-			return translate('cron_fl_for', translate('asset_format', $asset->short_name, $asset->id));
+			return translate('cron_fs_for', translate('asset_format', $asset->short_name, $asset->id));
 		} else {
 			return translate('cron_future_status_for', translate('asset_format', $asset->name, $asset->id));
 		}
@@ -279,7 +279,7 @@ class Cron_Job_Future_Status extends Cron_Job
 				return SQ_CRON_JOB_COMPLETED | SQ_CRON_JOB_REMOVE;
 			} else {
 				// process failed
-				trigger_localised_error('CRON0003', $asset->name, $asset->id, E_USER_WARNING);
+				trigger_localised_error('CRON0003', E_USER_WARNING, $asset->name, $asset->id);
 			}
 
 		} else {
