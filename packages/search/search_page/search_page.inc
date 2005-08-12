@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.125 2005/08/11 07:29:23 tbarrett Exp $
+* $Id: search_page.inc,v 1.126 2005/08/12 00:42:34 gsherwood Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.125 $
+* @version $Revision: 1.126 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -979,7 +979,7 @@ class Search_Page extends Listing_Engine
 				switch ($fields[$field_name]['data_sources'][0]['type']) {
 
 					case 'metadata' :
-						$assetid = $fields[$field_name]['params']['assetid'];
+						$assetid = $fields[$field_name]['data_sources'][0]['params']['assetid'];
 						$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 						if (!is_null($asset)) {
 							$params = $asset->vars;
@@ -1003,7 +1003,7 @@ class Search_Page extends Listing_Engine
 
 					case 'asset_attrib' :
 						$read_only = false;
-						$attribute = &$GLOBALS['SQ_SYSTEM']->am->getAttribute($fields[$field_name]['params']['attrid']);
+						$attribute = &$GLOBALS['SQ_SYSTEM']->am->getAttribute($fields[$field_name]['data_sources'][0]['params']['attrid']);
 
 						if ($attribute->type() == 'datetime') {
 
