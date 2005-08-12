@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.93 2005/05/31 03:49:37 tbarrett Exp $
+* $Id: user.inc,v 1.94 2005/08/12 05:05:56 dheppell Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once SQ_INCLUDE_PATH.'/password_rules_config.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.93 $
+* @version $Revision: 1.94 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -130,12 +130,12 @@ class User extends Asset
 
 		// create an inbox
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('inbox');
-		$inbox = new Inbox();
+		$inbox =& new Inbox();
 		if (!$inbox->create($user_link)) return false;
 
 		// create a workspace
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('workspace');
-		$workspace = new Workspace();
+		$workspace =& new Workspace();
 		$workspace->setAttrValue('name', 'Workspace');
 		if (!$workspace->create($user_link)) return false;
 
@@ -176,11 +176,9 @@ class User extends Asset
 		// if this is the password, encrypt it
 		if ($name == 'password') {
 			if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PASSWORD_VALIDATION)) {
-				$config = new Password_Rules_Config();
+				$config =& new Password_Rules_Config();
 				require_once $config->config_file;
-				if (!$this->validatePassword($value)) {
-					return false;
-				}
+				if (!$this->validatePassword($value)) return false;
 			}
 			$value = crypt($value); // let salt be generated
 		} else if ($name == 'username') {
@@ -282,31 +280,31 @@ class User extends Asset
 							if (ctype_upper($char)) {
 								eval('$'.$rule.'_counter += $occurances;');
 							}
-							break;
+						break;
 
 						case 'SQ_PASSWD_RULE_NUM_LOWER':
 							if (ctype_lower($char)) {
 								eval('$'.$rule.'_counter += $occurances;');
 							}
-							break;
+						break;
 
 						case 'SQ_PASSWD_RULE_NUM_INT':
 							if (ctype_digit($char)) {
 								eval('$'.$rule.'_counter += $occurances;');
 							}
-							break;
+						break;
 
 						case 'SQ_PASSWD_RULE_NUM_PUNC':
 							if (ctype_punct($char)) {
 								eval('$'.$rule.'_counter += $occurances;');
-							}
-							break;
+						}
+						break;
 
 						case 'SQ_PASSWD_RULE_NUM_SPC':
 							if (ctype_space($char)) {
 								eval('$'.$rule.'_counter += $occurances;');
 							}
-							break;
+						break;
 					}
 				}
 			}
@@ -414,10 +412,14 @@ class User extends Asset
 
 		// we dont want our inbox or workspace deleted
 		$inbox_link = $this->getInboxLink();
-		if ($inbox_link['linkid'] == $linkid) return translate('cannot_delete_inbox-user_link');
+		if ($inbox_link['linkid'] == $linkid) {
+			return translate('cannot_delete_inbox-user_link');
+		}
 
 		$workspace_link = $this->getWorkspaceLink();
-		if ($workspace_link['linkid'] == $linkid) return translate('cannot_delete_workspace-user_link');
+		if ($workspace_link['linkid'] == $linkid) {
+			return translate('cannot_delete_workspace-user_link');
+		}
 
 		return parent::isDeletableLink($linkid);
 
@@ -530,7 +532,7 @@ class User extends Asset
 			// grab the condition name, make an object
 			$condition_type_code = $restriction['name'];
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($condition_type_code);
-			$condition = new $condition_type_code();
+			$condition =& new $condition_type_code();
 
 			$match = $condition->evaluate($this, $restriction['condition_data']);
 

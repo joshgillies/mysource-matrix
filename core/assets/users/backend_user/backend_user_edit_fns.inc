@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_user_edit_fns.inc,v 1.8 2004/12/06 14:38:10 brobertson Exp $
+* $Id: backend_user_edit_fns.inc,v 1.9 2005/08/12 05:05:51 dheppell Exp $
 *
 */
 
@@ -32,12 +32,13 @@ require_once SQ_CORE_PACKAGE_PATH.'/users/user/user_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Backend_User_Edit_Fns extends User_Edit_Fns
 {
+
 
 	/**
 	* Constructor
@@ -48,6 +49,7 @@ class Backend_User_Edit_Fns extends User_Edit_Fns
 		$this->User_Edit_Fns();
 
 	}//end constructor
+
 
 }//end class
 ?>

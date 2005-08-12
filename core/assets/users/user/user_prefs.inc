@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_prefs.inc,v 1.1 2005/05/31 00:45:39 tbarrett Exp $
+* $Id: user_prefs.inc,v 1.2 2005/08/12 05:05:56 dheppell Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_ATTRIBUTES_PATH.'/duration/duration.inc';
 *    Looks after the session expiry prefences for user groups
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 class User_Prefs extends Prefs
@@ -107,7 +107,7 @@ class User_Prefs extends Prefs
 					</li>
 					<li id="timeout">
 						<?php
-						$dur = new Asset_Attribute_Duration(0, $session_settings['timeout']);
+						$dur =& new Asset_Attribute_Duration(0, $session_settings['timeout']);
 						if ($have_lock && $is_admin) {
 							check_box('prefs[SQ_USER_SESSION_PREFS][timeout_enabled]', '1', ($session_settings['timeout'] != 0), 'toggleInputs(this.parentNode)', 'id="prefs_SQ_USER_SESSION_PREFS_timeout_enabled"');
 							label(translate('session_timeout'), 'prefs_SQ_USER_SESSION_PREFS_timeout_enabled');
@@ -121,7 +121,7 @@ class User_Prefs extends Prefs
 					</li>
 					<li id="max_length">
 						<?php 
-						$dur = new Asset_Attribute_Duration(0, $session_settings['max_length']);
+						$dur =& new Asset_Attribute_Duration(0, $session_settings['max_length']);
 						if ($have_lock && $is_admin) {
 							check_box('prefs[SQ_USER_SESSION_PREFS][max_length_enabled]', '1', ($session_settings['max_length'] != 0), 'toggleInputs(this.parentNode)', 'id="prefs_SQ_USER_SESSION_PREFS_max_length_enabled"');
 							label(translate('session_max_length'), 'prefs_SQ_USER_SESSION_PREFS_max_length_enabled');
@@ -186,12 +186,12 @@ class User_Prefs extends Prefs
 		if (is_null($pref) || $pref == 'SQ_USER_SESSION_PREFS') {
 			$new_prefs['persist'] = !isset($_POST['prefs']['SQ_USER_SESSION_PREFS']['persist']);
 			if (isset($_POST['prefs']['SQ_USER_SESSION_PREFS']['timeout_enabled'])) {
-				$timeout_dur = new Asset_Attribute_Duration();
+				$timeout_dur =& new Asset_Attribute_Duration();
 				$timeout_dur->process('prefs_dur_timeout_');
 				$new_prefs['timeout'] = $timeout_dur->value;
 			}
 			if (isset($_POST['prefs']['SQ_USER_SESSION_PREFS']['max_length_enabled'])) {
-				$max_length_dur = new Asset_Attribute_Duration();
+				$max_length_dur =& new Asset_Attribute_Duration();
 				$max_length_dur->process('prefs_dur_max_length_');
 				$new_prefs['max_length'] = $max_length_dur->value;
 			}
@@ -201,7 +201,7 @@ class User_Prefs extends Prefs
 		if ($gc_min > SQ_CONF_SESSION_GC_MAXLIFETIME) {
 			// update the main conf
 			include_once(SQ_INCLUDE_PATH.'/system_config.inc');
-			$system_conf = new System_Config();
+			$system_conf =& new System_Config();
 			if (!$system_conf->canAcquireLock()) {
 				trigger_localised_error('CORE0233', E_USER_NOTICE);
 				return false;
@@ -230,7 +230,7 @@ class User_Prefs extends Prefs
 	*/
 	function mergePrefs($prefs1, $prefs2)
 	{
-		// Follow the princple that the most-open option (the one with the check disabled, 
+		// Follow the princple that the most-open option (the one with the check disabled,
 		// or with the longest timeout) wins.
 		$session_settings_1 = $prefs1['SQ_USER_SESSION_PREFS']['default'];
 		$session_settings_2 = $prefs2['SQ_USER_SESSION_PREFS']['default'];
@@ -246,6 +246,7 @@ class User_Prefs extends Prefs
 		return $res;
 
 	}//end mergePrefs()
+
 
 }//end class
 

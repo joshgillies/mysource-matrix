@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_group_edit_fns.inc,v 1.23 2005/08/11 04:53:32 mmcintyre Exp $
+* $Id: user_group_edit_fns.inc,v 1.24 2005/08/12 05:05:56 dheppell Exp $
 *
 */
 
@@ -31,12 +31,13 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class User_Group_Edit_Fns extends Folder_Edit_Fns
 {
+
 
 	/**
 	* Constructor
@@ -209,24 +210,29 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 					<table class="sq-backend-table">
 						<tr>
 							<td class="sq-backend-table-header" style="width: 75%;"><?php echo translate('screen_name'); ?></td>
-							<?php if ($admin_access) { ?>
-							<td class="sq-backend-table-header" style="width: 25%;"><?php echo translate('remove_question'); ?></td>
-							<?php } ?>
-						</tr>
+							<?php if ($admin_access) {
+							?><td class="sq-backend-table-header" style="width: 25%;"><?php echo translate('remove_question'); ?></td><?php 
+							}
+						?></tr>
 					<?php
 					$granted_screens = Array();
 					foreach ($type_data as $screen_data) {
 						$granted_screens[] = $screen_data['screen'];
-						if ($screen_data['screen'] == '0') $screen_name = '<b>'.translate('all_screens').'</b>';
-						else $screen_name = ucwords(str_replace('_', '', $screen_data['screen']));
+						if ($screen_data['screen'] == '0') {
+							$screen_name = '<b>'.translate('all_screens').'</b>';
+						} else {
+							$screen_name = ucwords(str_replace('_', '', $screen_data['screen']));
+						}
 						?>
 						<tr>
 							<td class="sq-backend-table-cell"><?php echo $screen_name; ?></td>
-							<?php if ($admin_access) { ?>
-							<td class="sq-backend-table-cell">
+							<?php if ($admin_access) {
+								?><td class="sq-backend-table-cell">
 								<?php check_box($prefix.'_remove_type_screen['.$type_code.']['.$screen_data['screen'].']'); ?>
 							</td>
-							<?php } ?>
+							<?php 
+							}
+							?>
 						</tr>
 						<?php
 					}
@@ -236,7 +242,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 					<?php
 					if ($admin_access) {
 						if (!in_array('0', $granted_screens)) {
-							$ei = new Asset_Edit_Interface($type_code);
+							$ei =& new Asset_Edit_Interface($type_code);
 
 							$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
 							$asset =& new $type_code();
@@ -257,7 +263,9 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 							combo_box($prefix.'_add_type_screen['.$type_code.']', $screens, false, Array());
 						} else {
 							echo '<br />'.translate('granted_unrestricted_acces_explanation');
-							if (count($current[$type_code]) == 1) echo '<br />'.translate('remove_all_screens_explanation');
+							if (count($current[$type_code]) == 1) {
+								echo '<br />'.translate('remove_all_screens_explanation');
+							}
 						}
 					}
 
@@ -455,7 +463,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 				$path = SQ_SYSTEM_ROOT.'/'.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code, 'dir').'/'.$type_code.'_prefs.inc';
 				require_once $path;
 				$pref_name = $type_code.'_Prefs';
-				$prefs = new $pref_name($pref_file_path);
+				$prefs =& new $pref_name($pref_file_path);
 				foreach ($pref_vars as $var_name => $var_data) {
 					$o->openField($var_data['name']);
 						if (isset($custom_preferences[$type_code][$var_name])) {
@@ -521,7 +529,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 				$path = SQ_SYSTEM_ROOT.'/'.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code, 'dir').'/'.$type_code.'_prefs.inc';
 				require_once $path;
 				$pref_name = $type_code.'_Prefs';
-				$prefs = new $pref_name();
+				$prefs =& new $pref_name();
 				foreach ($pref_vars as $var_name => $var_data) {
 					if (!isset($_POST[$prefix.'_revert'][$type_code][$var_name])) {
 						if ($prefs->processBackend($o, true, $var_name)) {
@@ -534,8 +542,12 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 		$str = '<'.'?php $preferences = '.var_export($new_preferences, true).'; ?'.'>';
-		if (!is_dir($asset->data_path) && !create_directory($asset->data_path)) return false;
-		if (!string_to_file($str, $asset->data_path.'/.preferences.inc')) return false;
+		if (!is_dir($asset->data_path) && !create_directory($asset->data_path)) {
+			return false;
+		}
+		if (!string_to_file($str, $asset->data_path.'/.preferences.inc')) {
+			return false;
+		}
 
 		return true;
 

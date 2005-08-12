@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: inbox_edit_fns.inc,v 1.52 2005/05/12 06:24:21 tbarrett Exp $
+* $Id: inbox_edit_fns.inc,v 1.53 2005/08/12 05:05:56 dheppell Exp $
 *
 */
 
@@ -34,22 +34,26 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dmitry Baranovskiy <dbaranovskiy@squiz.net>
-* @version $Revision: 1.52 $
+* @version $Revision: 1.53 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
-class Inbox_Edit_Fns extends Asset_Edit_Fns {
+class Inbox_Edit_Fns extends Asset_Edit_Fns
+{
+
 
 	/**
 	* Constructor
 	*
 	*/
-	function Inbox_Edit_Fns() {
+	function Inbox_Edit_Fns()
+	{
 		$this->Asset_Edit_Fns();
 
 		$this->static_screens = Array ('details' => Array ('name' => translate('inbox'), 'use_tab' => true, 'force_unlock' => false, 'lock_type' => 'mail',),);
 
-	} //end constructor
+	}//end constructor
+
 
 	/**
 	* Prints the new message interface
@@ -61,7 +65,8 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns {
 	* @return boolean
 	* @access public
 	*/
-	function paintNewMessage(& $asset, & $o, $prefix) {
+	function paintNewMessage(& $asset, & $o, $prefix)
+	{
 		$user = & $asset->_getUser();
 
 		$ms = & $GLOBALS['SQ_SYSTEM']->getMessagingService();
@@ -115,7 +120,8 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns {
 
 		return $write_access;
 
-	} //end paintNewMessage()
+	}//end paintNewMessage()
+
 
 	/**
 	* Processes the new message interface
@@ -127,7 +133,8 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns {
 	* @return boolean
 	* @access public
 	*/
-	function processNewMessage(& $asset, & $o, $prefix) {
+	function processNewMessage(& $asset, & $o, $prefix)
+	{
 		$ms = & $GLOBALS['SQ_SYSTEM']->getMessagingService();
 		// send the message
 		$noaction = true;
@@ -138,7 +145,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns {
 			foreach ($_POST[$prefix.'_To'] as $key => $sender) {
 				$recepients[] = $sender['assetid'];
 			}
-			
+
 			$msg_reps = Array(
 							'subject'	=> $_POST[$prefix.'_Subject'],
 							'body'		=> $_POST[$prefix.'_Content'],
@@ -149,9 +156,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns {
 			$message->send();
 
 			foreach ($recepients as $key => $sender) {
-				if (empty ($sender)) {
-					continue;
-				}
+				if (empty ($sender)) continue;
 				$noaction = true;
 				$message = $ms->newMessage(Array ($userid), 'inbox.sent', $msg_reps);
 				$message->from = $sender;
@@ -161,11 +166,10 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns {
 			}
 
 		}
-		if ($noaction) {
-			echo '<!-- ###No Action### -->';
-		}
+		if ($noaction) echo '<!-- ###No Action### -->';
 
-	} //end processNewMessage()
+	}//end processNewMessage()
+
 
 	/**
 	* Prints the sent box interface
@@ -177,7 +181,8 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns {
 	* @return boolean
 	* @access public
 	*/
-	function paintSent(& $asset, & $o, $prefix) {
+	function paintSent(& $asset, & $o, $prefix)
+	{
 		$user = & $asset->_getUser();
 
 		$priority = Array ('', 'Highest', 'High', 'Normal', 'Low', 'Lowest');
@@ -224,15 +229,13 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns {
 		for ($i = 0; $i < $num_messages; $i ++) {
 
 			$data = $messages[$i];
-			if ($data['type'] != 'inbox.sent') {
-				continue;
-			}
+			if ($data['type'] != 'inbox.sent') continue;
 
 			// work out the sender icon
 			$sender_img = $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($data['type_code']);
 			// work out the message body
 			$body = preg_replace("/[\n\t\r]/im", '<br />', $data['body']);
-			$body = str_replace("\"", '&quot;', $body);
+			$body = str_replace('"', '&quot;', $body);
 ?>
 				<script type="text/javascript">
 				//<![CDATA[
@@ -278,7 +281,8 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns {
 
 		return $write_access;
 
-	} //end paintSent()
+	}//end paintSent()
+
 
 	/**
 	* Prints the inbox interface
@@ -290,7 +294,8 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns {
 	* @return boolean
 	* @access public
 	*/
-	function paintInbox(& $asset, & $o, $prefix) {
+	function paintInbox(& $asset, & $o, $prefix)
+	{
 		$user = & $asset->_getUser();
 
 		$priority = Array ('', 'Highest', 'High', 'Normal', 'Low', 'Lowest');
@@ -370,9 +375,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns {
 			for ($i = 0; $i < $num_messages; $i ++) {
 
 				$data = $messages[$i];
-				if ($data['type'] == 'inbox.sent') {
-					continue;
-				}
+				if ($data['type'] == 'inbox.sent') continue;
 
 				// work out the sender icon
 				$sender_img = $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($data['type_code']);
@@ -439,7 +442,8 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns {
 
 		return $write_access;
 
-	} //end paintInbox()
+	}//end paintInbox()
+
 
 	/**
 	* Processes the read statuses of the messages
@@ -450,7 +454,8 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns {
 	* @return void
 	* @access private
 	*/
-	function _processReadStatus(& $asset, $prefix) {
+	function _processReadStatus(& $asset, $prefix)
+	{
 		$msgs = (isset ($_REQUEST[$prefix.'_messages'])) ? array_keys($_REQUEST[$prefix.'_messages']) : Array ();
 		$read = (isset ($_REQUEST[$prefix.'_mark_as_read'])) ? array_keys($_REQUEST[$prefix.'_mark_as_read']) : Array ();
 
@@ -461,25 +466,27 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns {
 
 		if (!empty ($messages)) {
 			foreach ($messages as $data) {
-				if (!in_array($data['msgid'], $msgs))
-					continue;
+				if (!in_array($data['msgid'], $msgs)) continue;
+
 				$message = $ms->getMessageById($data['msgid']);
 
 				// change message status (read/unread)
 				if (in_array($data['msgid'], $read) && $data['status'] == SQ_MSG_UNREAD) {
 					if (!$message->updateStatus(SQ_MSG_READ)) {
-						trigger_localised_error("CORE0076", E_USER_WARNING, $data['msgid']);
+						trigger_localised_error('CORE0076', E_USER_WARNING, $data['msgid']);
 					}
-				} else
+				} else {
 					if (!in_array($data['msgid'], $read) && $data['status'] == SQ_MSG_READ) {
 						if (!$message->updateStatus(SQ_MSG_UNREAD)) {
-							trigger_localised_error("CORE0076", E_USER_WARNING, $data['msgid']);
+							trigger_localised_error('CORE0076', E_USER_WARNING, $data['msgid']);
 						}
 					}
+				}
 			}
 		}
 
-	} //end _processReadStatus()
+	}//end _processReadStatus()
+
 
 	/**
 	* Processes the inbox interface
@@ -491,7 +498,8 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns {
 	* @return boolean
 	* @access public
 	*/
-	function processInbox(& $asset, & $o, $prefix) {
+	function processInbox(& $asset, & $o, $prefix)
+	{
 		$msgs = (isset ($_POST[$prefix.'_messages'])) ? array_keys($_POST[$prefix.'_messages']) : Array ();
 		$delete = (isset ($_POST[$prefix.'_delete'])) ? array_keys($_POST[$prefix.'_delete']) : Array ();
 
@@ -502,8 +510,8 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns {
 
 		if (!empty ($messages)) {
 			foreach ($messages as $data) {
-				if (!in_array($data['msgid'], $msgs))
-					continue;
+				if (!in_array($data['msgid'], $msgs)) continue;
+
 				$message = $ms->getMessageById($data['msgid']);
 
 				// delete messages
@@ -519,7 +527,8 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns {
 
 		return true;
 
-	} //end processInbox()
+	}//end processInbox()
+
 
 	/**
 	* Prints the trash interface
@@ -531,7 +540,8 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns {
 	* @return boolean
 	* @access public
 	*/
-	function paintTrash(& $asset, & $o, $prefix) {
+	function paintTrash(& $asset, & $o, $prefix)
+	{
 		$user = & $asset->_getUser();
 
 		$priority = Array ('', 'Highest', 'High', 'Normal', 'Low', 'Lowest');
@@ -569,11 +579,11 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns {
 			if ($write_access) {
 ?>
 					<td class="sq-backend-table-header">
-						<?php check_box($prefix.'_select_all_recover', '1', false, "check_all(document.main_form, '{$prefix}_recover', this.checked);"); ?>
+						<?php check_box($prefix.'_select_all_recover', '1', false, 'check_all(document.main_form, "{'.$prefix.'}_recover", this.checked);'); ?>
 						<?php echo strtoupper(translate('recover')); ?>
 					</td>
 					<td class="sq-backend-table-header">
-						<?php check_box($prefix.'_select_all_purge', '1', false, "check_all(document.main_form, '{$prefix}_purge', this.checked);"); ?>
+						<?php check_box($prefix.'_select_all_purge', '1', false, 'check_all(document.main_form, "{'.$prefix.'}_purge", this.checked);'); ?>
 						<?php echo strtoupper(translate('purge')); ?>
 					</td>
 					<?php
@@ -593,7 +603,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns {
 				$sender_img = $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($data['type_code']);
 
 				$body = preg_replace("/[\n\t\r]/im", '<br />', $data['body']);
-				$body = str_replace("\"", '&quot;', $body);
+				$body = str_replace('"', '&quot;', $body);
 ?>
 				<script type="text/javascript">
 				//<![CDATA[
@@ -622,10 +632,12 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns {
 						<td class="sq-backend-table-cell" nowrap>
 							<?php
 
-					if ($asset->writeAccess('mail'))
+					if ($asset->writeAccess('mail')) {
 						check_box($prefix.'_recover['.$data['msgid'].']');
-					else
+					} else {
 						echo '&nbsp;';
+					}
+
 ?>
 						</td>
 						<td class="sq-backend-table-cell" nowrap>
@@ -649,7 +661,8 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns {
 
 		return true;
 
-	} //end paintTrash()
+	}//end paintTrash()
+
 
 	/**
 	* Processes the trash interface
@@ -661,7 +674,8 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns {
 	* @return boolean
 	* @access public
 	*/
-	function processTrash(& $asset, & $o, $prefix) {
+	function processTrash(& $asset, & $o, $prefix)
+	{
 		$msgs = (isset ($_POST[$prefix.'_messages'])) ? array_keys($_POST[$prefix.'_messages']) : Array ();
 		$recover = (isset ($_POST[$prefix.'_recover'])) ? array_keys($_POST[$prefix.'_recover']) : Array ();
 		$purge = (isset ($_POST[$prefix.'_purge'])) ? array_keys($_POST[$prefix.'_purge']) : Array ();
@@ -692,8 +706,9 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns {
 		}
 		return true;
 
-	} //end processTrash()
+	}//end processTrash()
 
-} //end class
+
+}//end class
 
 ?>

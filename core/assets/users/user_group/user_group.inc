@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_group.inc,v 1.18 2005/08/11 04:53:18 mmcintyre Exp $
+* $Id: user_group.inc,v 1.19 2005/08/12 05:05:56 dheppell Exp $
 *
 */
 
@@ -31,12 +31,13 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class User_Group extends Folder
 {
+
 
 	/**
 	* Constructor

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workspace_edit_fns.inc,v 1.9 2005/01/20 13:07:39 brobertson Exp $
+* $Id: workspace_edit_fns.inc,v 1.10 2005/08/12 05:05:56 dheppell Exp $
 *
 */
 
@@ -32,12 +32,13 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Workspace_Edit_Fns extends Folder_Edit_Fns
 {
+
 
 	/**
 	* Constructor
@@ -47,6 +48,7 @@ class Workspace_Edit_Fns extends Folder_Edit_Fns
 	{
 		$this->Folder_Edit_Fns();
 	}//end constructor
+
 
 }//end class
 ?>
