@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.70.2.4 2005/08/12 07:22:05 dmckee Exp $
+* $Id: site.inc,v 1.70.2.5 2005/08/14 22:58:13 mmcintyre Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.70.2.4 $
+* @version $Revision: 1.70.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -700,4 +700,3 @@ class Site extends Folder
 }//end class
 
 ?>
-
