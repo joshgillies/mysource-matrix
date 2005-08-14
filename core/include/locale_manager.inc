@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: locale_manager.inc,v 1.14 2005/08/01 08:42:04 brobertson Exp $
+* $Id: locale_manager.inc,v 1.15 2005/08/14 23:27:31 ndvries Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    number/date formats
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix
 */
 class Locale_Manager extends MySource_Object
@@ -266,11 +266,11 @@ class Locale_Manager extends MySource_Object
 		}
 
 		if (!isset($this->_strings[$locale])) {
-			return "Source string for $string_code not found"; //'localised string not found';
+			return "Source string for $string_code not found";
 		}
 
 		if (!isset($this->_strings[$locale][$string_code])) {
-			return "Source string for $string_code not found"; //'localised string not found';
+			return "Source string for $string_code not found for locale $locale";
 		}
 
 		return vsprintf($this->_strings[$locale][$string_code],$func_args);
