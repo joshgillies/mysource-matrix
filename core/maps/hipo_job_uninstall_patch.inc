@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_uninstall_patch.inc,v 1.15 2005/08/02 01:44:45 gsherwood Exp $
+* $Id: hipo_job_uninstall_patch.inc,v 1.16 2005/08/14 23:44:52 mmcintyre Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix
 * @subpackage MAPS
 */
@@ -763,6 +763,8 @@ class HIPO_Job_Uninstall_Patch extends HIPO_Job
 	*/
 	function processCleanUp(&$step_data, $prefix)
 	{
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
 		$patch_info = $this->_getPatchDetails($this->_running_vars['patchid']);
 		$backup_path = SQ_DATA_PATH.'/private/maps/installed_patches/'.$patch_info['id'];
 
@@ -771,7 +773,9 @@ class HIPO_Job_Uninstall_Patch extends HIPO_Job
 
 		$sql = 'DELETE FROM sq_patches WHERE patchid = '.$db->quote($patch_info['id']);
 		$result = $db->query($sql);
-		assert_valid_db_result($result, '', false, false);
+		if (!assert_valid_db_result($result, '', false, false)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+		}
 		// dont actually die because we cant exactly abort at this point
 		// we'll sort it out later another way
 
@@ -785,6 +789,8 @@ class HIPO_Job_Uninstall_Patch extends HIPO_Job
 
 		$step_data['percent_done'] = 100;
 		$step_data['complete']     = true;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
 		return true;
 
 	}//end processCleanUp()
