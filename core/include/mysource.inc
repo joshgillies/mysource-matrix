@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.137 2005/08/11 04:50:47 mmcintyre Exp $
+* $Id: mysource.inc,v 1.138 2005/08/14 23:43:00 mmcintyre Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.137 $
+* @version $Revision: 1.138 $
 * @package MySource_Matrix
 */
 class MySource
@@ -1862,6 +1862,7 @@ class MySource
 				('.$this->db->quote($lockid).','.$this->db->quote($source_lockid).','.$this->db->quote($this->currentUserid()).','.$expires.')';
 		$result = $this->db->query($sql);
 		if (!assert_valid_db_result($result, '', true, false)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return 'Database Error';
 		}
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -1892,6 +1893,7 @@ class MySource
 
 		$result = $this->db->query($sql);
 		if (!assert_valid_db_result($result, '', true, false)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return 'Database Error';
 		}
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -1936,6 +1938,7 @@ class MySource
 
 		$result = $this->db->query($sql);
 		if (!assert_valid_db_result($result, '', true, false)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return 'Database Error';
 		}
 
