@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_purge_trash.inc,v 1.36 2005/08/04 00:08:20 ndvries Exp $
+* $Id: hipo_job_purge_trash.inc,v 1.37 2005/08/14 23:40:49 mmcintyre Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -202,7 +202,7 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'SELECT a.assetid, length(t.treeid)
 				FROM sq_ast_lnk_tree t
-					NATURAL JOIN sq_ast_lnk l
+					INNER JOIN sq_ast_lnk l ON t.linkid = l.linkid
 					JOIN sq_ast a ON l.minorid = a.assetid
 				WHERE t.treeid like '.$db->quote($this->_running_vars['trash_treeid'].'%').'
 				ORDER by length(t.treeid)';
