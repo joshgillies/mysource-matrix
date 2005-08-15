@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.71 2005/08/11 10:07:42 gnoel Exp $
+* $Id: page_asset_builder.inc,v 1.72 2005/08/15 02:07:17 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.71 $
+* @version $Revision: 1.72 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1285,7 +1285,6 @@ class Page_Asset_Builder extends Page
 		// get the header for the create form
 		ob_start();
 			// Header material from the limbo outputter
-			$o->addOnLoad('document.getElementById("asset_builder_'.$this->id.'").onsubmit = form_on_submit');
 			$o->_paintInlineHeader();
 
 			// Tabs if necessary
