@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.99 2005/08/11 06:46:37 dmckee Exp $
+* $Id: html_form.inc,v 1.100 2005/08/15 06:17:10 dmckee Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.99 $
+* @version $Revision: 1.100 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -1183,6 +1183,8 @@ function structured_drop_down($name, $root_id, $type_codes, $selected=Array(), $
 	$all_child_links = $GLOBALS['SQ_SYSTEM']->am->getAllChildLinks($root_id);
 	$child_links = $all_child_links;
 	$search_tree = Array();
+
+	$asset_info_ids = Array();
 
 	$invalid = Array();
 
