@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: messaging_service.inc,v 1.44 2005/08/10 16:01:58 brobertson Exp $
+* $Id: messaging_service.inc,v 1.45 2005/08/15 11:50:24 brobertson Exp $
 *
 */
 
@@ -44,7 +44,7 @@ define('SQ_MSG_PRIORITY_VERY_HIGH' , 5);
 *    Facilitate the sending and management of internal messages
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.45 $
 * @package MySource_Matrix
 */
 class Messaging_Service extends MySource_Object
@@ -422,8 +422,8 @@ class Messaging_Service extends MySource_Object
 	/**
 	* Gets all messages for the passed userid
 	*
-	* @param int			$userid			id of the user you are fetching messages for
-	* @param string			$type			the type of the message eg. asset.attributes
+	* @param string			$userid			id of the user you are fetching messages for (0 = system, null = any user except system)
+	* @param string			$type			the type of the message eg. asset.workflow or asset.attributes.*
 	* @param array(string)	$statii			can limit returned messages to those with a status
 	*										in this array
 	* @param array(int)		$messageids		can limit returned messages to those with a messageid
@@ -460,7 +460,11 @@ class Messaging_Service extends MySource_Object
 		}
 
 		$sql  .= ' FROM sq_internal_msg m';
-		$where = 'm.userto = '.$db->quote($userid);
+		if (is_null($userid)) {
+			$where = 'm.userto != '.$db->quote('0');
+		} else {
+			$where = 'm.userto = '.$db->quote($userid);
+		}
 
 		if (is_string($get_user_name)) {
 			$sql .= ' LEFT OUTER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON m.userfrom = a.assetid';
@@ -470,7 +474,11 @@ class Messaging_Service extends MySource_Object
 		}
 
 		if (!is_null($type)) {
-			$where .= ' AND m.type = '.$db->quote($type);
+			if (substr($type, -2) == '.*') {
+				$where .= ' AND m.type LIKE '.$db->quote(substr($type, 0, -1).'%');
+			} else {
+				$where .= ' AND m.type = '.$db->quote($type);
+			}
 		}
 		if (!empty($statii)) {
 			for ($i = 0; $i < count($statii); $i++) {
@@ -672,6 +680,7 @@ class Messaging_Service extends MySource_Object
 					$to_email = trim($user->attr('email'));
 				}
 
+				if (!empty($to_email)) continue;
 				foreach ($to_emails as $subject => $bodies) {
 
 					$body = implode("\n\n".str_repeat('-', 50)."\n\n", $bodies);
@@ -692,9 +701,7 @@ class Messaging_Service extends MySource_Object
 					$body = $mime->get();
 					$hdrs = $mime->headers($hdrs);
 
-					if (!empty($to_email)) {
-						$mail->send($to_email, $hdrs, $body);
-					}
+					$mail->send($to_email, $hdrs, $body);
 				}
 			}
 		}
