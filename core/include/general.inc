@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.91 2005/05/31 00:45:46 tbarrett Exp $
+* $Id: general.inc,v 1.91.2.1 2005/08/15 13:48:21 brobertson Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.91 $
+* @version $Revision: 1.91.2.1 $
 * @package MySource_Matrix
 */
 
@@ -258,7 +258,16 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 					"------------------------------------------------------------------\n".
 					"*Root Urls*\n".
 					SQ_CONF_SYSTEM_ROOT_URLS."\n".
-					"------------------------------------------------------------------\n".
+					"------------------------------------------------------------------\n";
+			if (SQ_PHP_CLI) {
+				$str  .= "*Command and Arguments*\n".
+						implode(" ", $_SERVER['argv'])."\n";
+			} else {
+				$str  .= "*Current URL*\n".
+						current_protocol().'://'.array_get_index($_SERVER, 'HTTP_HOST', false).'/'.array_get_index($_SERVER, 'REQUEST_URI', false)."\n";
+			}
+
+			$str .= "------------------------------------------------------------------\n".
 					"*Back Trace*\n".
 					$bt_str."\n";
 
