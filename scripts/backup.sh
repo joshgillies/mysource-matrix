@@ -18,14 +18,12 @@
 #* | licence.                                                           |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: backup.sh,v 1.3 2005/08/01 08:54:19 brobertson Exp $
+#* $Id: backup.sh,v 1.4 2005/08/15 01:28:31 cboudjnah Exp $
 #*
 #*/
 #
 #	When using with argument --remotedb=user@host it connect by ssh and
 #	dump the database there.
-#
-#	TODO: Make --remotedb= works with pgsql
 #
 
 # Creates a backup
