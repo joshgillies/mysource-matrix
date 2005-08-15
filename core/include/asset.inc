@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.443 2005/08/12 16:51:52 brobertson Exp $
+* $Id: asset.inc,v 1.444 2005/08/15 00:13:34 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.443 $
+* @version $Revision: 1.444 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -2243,7 +2243,7 @@ class Asset extends MySource_Object
 	* Creates a link between this asset and the passed asset, of a certain type
 	* and returns the linkid of the created link
 	*
-	* @param object Asset	$minor		the minor asset that we are linking to
+	* @param object Asset	&$minor		the minor asset that we are linking to
 	* @param string			$link_type	the type of link this is
 	* @param string			$value		the value that is to be associated with this link
 	* @param string			$sort_order	the position in the links list that this link should take,
@@ -2257,10 +2257,10 @@ class Asset extends MySource_Object
 	* @access public
 	* @see Asset_Manager::createAssetLink()
 	*/
-	function createLink(&$minor, $link_type, $value='', $sort_order=null, $dependant='0', $exclusive='0')
+	function createLink(&$minor, $link_type, $value='', $sort_order=null, $dependant='0', $exclusive='0', $moving=false)
 	{
 		if (!$this->id) return 0;
-		return $GLOBALS['SQ_SYSTEM']->am->createAssetLink($this, $minor, $link_type, $value, $sort_order, $dependant, $exclusive);
+		return $GLOBALS['SQ_SYSTEM']->am->createAssetLink($this, $minor, $link_type, $value, $sort_order, $dependant, $exclusive, $moving); 	                 return $GLOBALS['SQ_SYSTEM']->am->createAssetLink($this, $minor, $link_type, $value, $sort_order, $dependant, $exclusive, $moving);
 
 	}//end createLink()
 
@@ -2295,7 +2295,7 @@ class Asset extends MySource_Object
 	/**
 	* Returns TRUE if the passed minor asset can be linked to this asset, or a string with the error msg
 	*
-	* @param object Asset	$minor		the minor asset that we are linking to
+	* @param object Asset   &$minor     the minor asset that we are linking to
 	* @param string			$link_type	the type of link this is
 	* @param int			$exclusive	the exclusive status of the link (gets passed to canLinkToType)
 	*
@@ -2308,6 +2308,31 @@ class Asset extends MySource_Object
 		return $GLOBALS['SQ_SYSTEM']->am->canCreateLink($this, $minor, $link_type, $exclusive);
 
 	}//end canCreateLink()
+
+
+	/**
+	* Returns TRUE if the passed minor asset can be move-linked to this asset, or a string with the error msg
+	*
+	* By default, use the same tests as being newly linked with a non-exclusive link
+	* (as all moved links are non-exclusive by moveLink() specification) - that is,
+	* call canCreateLink().
+	* However this may not be appropriate for moves in some circumstances (cf. Sites
+	* within a Site Network) so this can be used to provide a different check for them.
+	* Remember that this is called for the asset we are moving TO - as it would
+	* have with canCreateLink().
+	*
+	* @param object Asset	&$minor		the minor asset that we are linking to
+	* @param object Asset	&$old_major	the major asset that we are being moved from
+	* @param string			$link_type	the type of link this is
+	*
+	* @return mixed TRUE or error message string
+	* @access public
+	*/
+	function canMoveLink(&$minor, &$old_major, $link_type)
+	{
+		return $this->canCreateLink($minor, $link_type, 0);
+
+	}//end canMoveLink()
 
 
 	/**
