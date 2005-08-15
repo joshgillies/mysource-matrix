@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.28 2005/07/29 04:32:37 mmcintyre Exp $
+* $Id: tables.xml,v 1.29 2005/08/15 04:43:34 mmcintyre Exp $
 *
 */
 -->
@@ -1472,13 +1472,13 @@
 					<default />
 					<description />
 				</column>
-				<column name="md5" allow_null="0">
+				<column name="md5" allow_null="1">
 					<type>CHAR(32)</type>
 					<type_variations />
 					<default />
 					<description />
 				</column>
-				<column name="sha1" allow_null="0">
+				<column name="sha1" allow_null="1">
 					<type>CHAR(40)</type>
 					<type_variations />
 					<default />
