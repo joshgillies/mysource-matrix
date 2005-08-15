@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime.inc,v 1.28 2005/07/13 01:41:40 mmcintyre Exp $
+* $Id: datetime.inc,v 1.29 2005/08/15 00:00:50 tbarrett Exp $
 *
 */
 
@@ -46,7 +46,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *    </datetime>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -151,7 +151,7 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 	*/
 	function paint($prefix, $read_only=false)
 	{
-		$using_single_date = is_iso8601($this->value);
+		$using_single_date = is_iso8601($this->value) || empty($this->value);
 
 		$period_num = '1';
 		$period_type = 'd';
@@ -163,7 +163,7 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 		if ($using_single_date) {
 			$date_field_value = $this->value;
 
-			if ($date_field_value != '---------- --:--:--') {
+			if (($date_field_value != '---------- --:--:--') && (!empty($date_field_value))) {
 
 				// get the current value as a timestamp
 				// NOTE: we replace -- with ZERO because strtotime needs a full iso8601 date
@@ -186,6 +186,8 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 						$period_type = 's';
 					}
 				}
+			} else if (empty($date_field_value)) {
+				$date_field_value = date('Y-m-d');
 			}
 
 		} else {
