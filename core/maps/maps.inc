@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: maps.inc,v 1.18.2.1 2005/08/15 03:54:32 mmcintyre Exp $
+* $Id: maps.inc,v 1.18.2.2 2005/08/15 04:03:46 mmcintyre Exp $
 *
 */
 
@@ -36,7 +36,7 @@ define('SQ_MAPS_INSTALLED'  , 'I');
 *    Looks aftet the automated patching of the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.18.2.1 $
+* @version $Revision: 1.18.2.2 $
 * @package MySource_Matrix
 * @subpackage MAPS
 */
@@ -450,10 +450,13 @@ class Maps extends MySource_Object
 	*/
 	function paintActiveLocks(&$o)
 	{
+		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$date = ts_iso8601(time());
+
 		$sql = 'SELECT userid, lockid, source_lockid, expires
 				FROM sq_lock
-				WHERE expires >= NOW()
+				WHERE expires >= '.db_extras_todate($db, $date).'
 				ORDER BY expires DESC';
 
 		$db_locks = $db->getAll($sql);
@@ -667,8 +670,6 @@ class Maps extends MySource_Object
 		// dont actually die because we cant exactly abort at this point
 		// we'll sort it out later another way
 
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-
 		// remove the backup directory for this patch because we dont need that any more
 		require_once(SQ_FUDGE_PATH.'/general/file_system.inc');
 		if (!delete_directory($backup_path)) {
@@ -676,6 +677,8 @@ class Maps extends MySource_Object
 			// dont actually die because we cant exactly abort at this point
 			// we'll sort it out later another way
 		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		return $this->_deletePatch($patchid);
 	}
