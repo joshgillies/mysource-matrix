@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.72 2005/08/15 02:07:17 tbarrett Exp $
+* $Id: page_asset_builder.inc,v 1.73 2005/08/15 06:27:41 ndvries Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.72 $
+* @version $Revision: 1.73 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -690,16 +690,11 @@ class Page_Asset_Builder extends Page
 				if ($details['allow_multiple'] && is_array($_POST[$code_name])) {
 					foreach ($_POST[$code_name] as $location_id) {
 						// add it to the list
-						preg_match('/\d+_(\d+)/', $location_id, $match);
-						$selected_locations[] = $match[1];
-					}
-					// add them to the collection
-					foreach ($selected_locations as $location_id) {
-						$all_selected_locations[(int)$location_id] = (int)$details['link_type'];
+						$all_selected_locations[$location_id] = $details['link_type'];
 					}
 				} else {
 					// add the single item to the list
-					$all_selected_locations[(int)$_POST[$code_name]] = (int)$details['link_type'];
+					$all_selected_locations[$_POST[$code_name]] = $details['link_type'];
 				}
 			} else if (!$details['allow_empty']) {
 				trigger_localised_error('CMS0036', E_USER_WARNING, $set_name);
@@ -862,9 +857,7 @@ class Page_Asset_Builder extends Page
 			}
 			$types = array_keys($types);
 			ob_start();
-			echo '<pre style="font-family: verdana, arial, sans-serif, monospace;">';
-			structured_drop_down($code_name, $data['root'], $types, Array(), 0, $data['allow_multiple'] ? 5 : 1, $data['depth'], $data['allow_multiple'], '-', false, '', $data['input_style'] == 'radio', Array(), $data['display_structured'], array_keys($data['filter_link_type']), $data['allow_empty']);
-			echo '</pre>';
+				structured_drop_down($code_name, $data['root'], $types, Array(), 0, $data['allow_multiple'] ? 5 : 1, $data['depth'], $data['allow_multiple'], '-', false, '', $data['input_style'] == 'radio', Array(), $data['display_structured'], array_keys($data['filter_link_type']), $data['allow_empty']);
 				$this->_replacements[$code_name.'_field'] = ob_get_contents();
 			ob_end_clean();
 		}
