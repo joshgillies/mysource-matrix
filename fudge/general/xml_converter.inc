@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: xml_converter.inc,v 1.2.2.2 2005/07/27 13:09:22 brobertson Exp $
+* $Id: xml_converter.inc,v 1.2.2.3 2005/08/15 03:50:34 mmcintyre Exp $
 *
 */
 
@@ -55,7 +55,7 @@ require_once 'XML/Parser.php';
 *
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.2.2.2 $
+* @version $Revision: 1.2.2.3 $
 * @package Fudge
 * @subpackage General
 */
