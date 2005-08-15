@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site_network.inc,v 1.4 2005/05/11 06:04:55 lwright Exp $
+* $Id: site_network.inc,v 1.5 2005/08/15 00:17:02 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -113,6 +113,38 @@ class Site_Network extends Folder
 		return true;
 
 	}//end canCreateLink()
+
+
+	/**
+	 * Returns TRUE if the passed minor asset can be move-linked to this asset, or a string with the error msg
+	 *
+	 * Differs from canCreateLink() in that if we are being moved from a site network,
+	 * we have to allow one network link, being the asset we are being moved from
+	 *
+	 * @param object Asset   &$minor         the minor asset that we are linking to
+	 * @param object Asset   &$old_major     the major asset that we are being moved from
+	 * @param string                 $link_type      the type of link this is
+	 *
+	 * @return mixed TRUE or error message string
+	 * @access public
+	 */
+	 function canMoveLink(&$minor, &$old_major, $link_type)
+	 {
+		if (is_a($minor, 'site') && is_a($old_major, 'site_network')) {
+			// if we are moving from a site network, we can tolerate one existing
+			// network link - the one being moved from
+			$network_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($minor->id, SQ_SC_LINK_ALL, 'site_network', false, 'minor');
+			if (count($network_link) > 1) {
+				return translate('core_one_network_for_site');
+			}
+		} else {
+			// if we aren't moving from a site network, the usual check applies
+			return parent::canMoveLink($minor, $old_major, $link_type);
+		}
+
+		return true;
+
+	 }//end canMoveLink()
 
 
 	/**
