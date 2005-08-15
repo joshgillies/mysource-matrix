@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.126 2005/08/12 00:42:34 gsherwood Exp $
+* $Id: search_page.inc,v 1.127 2005/08/15 06:16:30 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.126 $
+* @version $Revision: 1.127 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -779,10 +779,10 @@ class Search_Page extends Listing_Engine
 
 					case 'standard' :
 						$sm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
-						if (in_array($data_source['params']['field'], $sm->standard_date_fields)) {
+						if (isset($sm->standard_date_fields[$data_source['params']['field']])) {
 							$current_value = array_get_index($_SESSION['SQ_LAST_SEARCH'][$this->id], $field_name, Array());
 							$this->_printDateRange('queries_'.$query_var, $current_value);
-						} else if (in_array($data_source['params']['field'], $sm->standard_text_fields)) {
+						} else if (isset($sm->standard_text_fields[$data_source['params']['field']])) {
 							text_box('queries_'.$query_var, $query, $this->defaults['query_width']);
 						}
 					break;
