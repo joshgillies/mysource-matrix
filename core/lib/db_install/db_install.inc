@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_install.inc,v 1.20.2.1 2005/07/29 03:41:09 mmcintyre Exp $
+* $Id: db_install.inc,v 1.20.2.2 2005/08/15 03:55:03 mmcintyre Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.20.2.1 $
+* @version $Revision: 1.20.2.2 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -546,7 +546,9 @@ function grant_secondary_user_perms($verbose=true)
 			assert_valid_db_result($result);
 		}
 
-		if ($verbose) pre_echo('PGSQL SECONDARY USER PERMISSIONS FIXED');
+		if ($verbose) {
+			pre_echo('PGSQL SECONDARY USER PERMISSIONS FIXED');
+		}
 	}
 
 }//end grant_secondary_user_perms()
@@ -679,8 +681,9 @@ function install_rollback_triggers($table_columns, $verbose=true, $override=fals
 
 	foreach ($table_columns as $table_name => $table_info) {
 		// we only care about rollback tables
-		if (!isset($table_info['rollback']) || !$table_info['rollback']) continue;
-
+		if (!isset($table_info['rollback']) || !$table_info['rollback']) {
+			continue;
+		}
 		$rollback_table = SQ_TABLE_ROLLBACK_PREFIX.$table_name;
 		$trigger_name   = strtolower('sq_'.$table_name.'_rb_trg');
 		$table          = 'sq_'.$table_name;
@@ -853,9 +856,7 @@ function install_rollback_triggers($table_columns, $verbose=true, $override=fals
 			// if there is no update string, it means that every
 			// column is either a primary or unique key. Therefore
 			// you cannot update anything on this table - only insert and delete
-			if ($db->phptype == 'pgsql') {
-				$sql .= 'RETURN NEW;';
-			}
+			if ($db->phptype == 'pgsql') $sql .= 'RETURN NEW;';
 		}
 
 		// if we are deleting then we just close off
