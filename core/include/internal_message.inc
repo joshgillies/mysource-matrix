@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: internal_message.inc,v 1.65 2005/08/11 04:54:47 mmcintyre Exp $
+* $Id: internal_message.inc,v 1.66 2005/08/15 11:54:06 brobertson Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    An internal message to be sent around the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.65 $
+* @version $Revision: 1.66 $
 * @package MySource_Matrix
 */
 class Internal_Message extends MySource_Object
@@ -347,9 +347,6 @@ class Internal_Message extends MySource_Object
 					$log_body = $lm->getInternalMessageBody($this->type, $this->replacements, $user_locale);
 					$log_body = preg_replace('|<SQ_MSG_LINK ([^>]*?)>(.*?)</SQ_MSG_LINK>|', '<a \\1>\\2</a>', $log_body);
 
-					$text_body = $this->formatEmail($log_body, $owner, 'text');
-					$html_body = $this->formatEmail($log_body, $owner, 'html');
-
 					$ms->queueEmail($this->from, 0, $subject, $log_body);
 					if (!$ms->sending_queue) $ms->sendQueuedEmails();
 
@@ -397,8 +394,6 @@ class Internal_Message extends MySource_Object
 
 						// get the body with a header and a footer attached
 						$log_body = preg_replace('|<SQ_MSG_LINK ([^>]*?)>(.*?)</SQ_MSG_LINK>|', '<a \\1>\\2</a>', $body);
-						$text_body = $this->formatEmail($log_body, $user, 'text');
-						$html_body = $this->formatEmail($log_body, $user, 'html');
 
 						$ms->queueEmail($this->from, $userid, $subject, $log_body);
 						if (!$ms->sending_queue) $ms->sendQueuedEmails();
@@ -417,43 +412,6 @@ class Internal_Message extends MySource_Object
 		return true;
 
 	}//end send()
-
-
-	/**
-	* formats the body of an email with a header and a footer
-	*
-	* @param mixed	$user	either the user object or a string containing the user's name that the email is intended for
-	* @param string	$body	the email body
-	*
-	* @access public
-	* @return string the body
-	*/
-	function formatEmail($body, &$user, $type='text')
-	{
-		$term = ($type=='text') ? "\n" : '<br />';
-
-		$header = '';
-		if (!is_null($user) && is_object($user) && is_a($user, 'user')) {
-			$header = $user->name.','.$term.$term;
-		} else if (is_string($user) && $user != '') {
-			$header = $user.','.$term.$term;
-		}
-		// replace separator line for multiple-bodied message with a h-rule
-		if ($type == 'html') {
-			$body = str_replace("\n\n".str_repeat('-', 50)."\n\n",'<hr />',$body);
-			$body = nl2br($body);	// give it newlines
-		}
-
-		$line = ($type == 'text') ? str_repeat('-', 20).$term : '<hr />';
-
-		$footer = $term.$term.$line
-				.'This is an automated message from '.SQ_CONF_SYSTEM_NAME.' running '.SQ_SYSTEM_LONG_NAME.$term
-				.'System Root URLs : '.$term.str_replace("\n", $term, SQ_CONF_SYSTEM_ROOT_URLS).$term
-				.$term
-				.'Contact '.SQ_CONF_SYSTEM_OWNER.' ('.SQ_CONF_TECH_EMAIL.') for support.';
-		return $header.$body.$footer;
-
-	}//end formatEmail()
 
 
 	/**
