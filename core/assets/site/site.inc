@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.75 2005/08/14 22:56:15 mmcintyre Exp $
+* $Id: site.inc,v 1.76 2005/08/15 02:02:35 dmckee Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.75 $
+* @version $Revision: 1.76 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -125,6 +125,7 @@ class Site extends Folder
 	*/
 	function delete($release_lock=true)
 	{
+		$this->_tmp['deleting_site'] = true;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		if (!$this->saveWebURLs(Array())) {
@@ -138,6 +139,7 @@ class Site extends Folder
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$this->_tmp['deleting_site'] = false;
 
 		return true;
 
@@ -206,7 +208,7 @@ class Site extends Folder
 				$clean_paths = make_valid_web_paths(Array($path));
 				$clean_path = (empty($clean_paths)) ? '' : $clean_paths[0];
 				if ($path != $clean_path) {
-					if($clean_path != '') {
+					if ($clean_path != '') {
 						trigger_localised_error('CORE0080', $save_urls[$save_urlid]['url'], $path, $clean_path, E_USER_WARNING);
 					} else {
 						trigger_localised_error('CORE0124', $save_urls[$save_urlid]['url'], $path, E_USER_WARNING);
@@ -367,6 +369,9 @@ class Site extends Folder
 		unset($this->_tmp['url']);
 		unset($this->_tmp['href']);
 
+		if (!isset($this->_tmp['deleting_site'])) {
+			$this->_tmp['deleting_site'] = false;
+		}
 
 		// Remove all the old URLs
 
@@ -381,8 +386,12 @@ class Site extends Folder
 								sq_ast_lookup l
 							WHERE
 								assetid = '.$db->quoteSmart($this->id).'
-						)
-					AND	name LIKE '.$db->quoteSmart('design::%');
+						) ';
+					if ($this->_tmp['deleting_site'] == true) {
+						$sql .= 'AND (name LIKE '.$db->quoteSmart('design::%').' OR name LIKE '.$db->quoteSmart('paint_layout::%').')';
+					} else {
+						$sql .= 'AND	name LIKE '.$db->quoteSmart('design::%');
+					}
 
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
@@ -533,10 +542,12 @@ class Site extends Folder
 		if ($asset->charset) {
 			header("Content-type: text/html; charset=$this->charset");
 		} else {
-			header("Content-type: text/html; charset=".SQ_CONF_DEFAULT_CHARACTER_SET);
+			header('Content-type: text/html; charset='.SQ_CONF_DEFAULT_CHARACTER_SET);
 		}
 
-		if ($asset->languages) header("Content-language: $this->languages");
+		if ($asset->languages) {
+			header("Content-language: $this->languages");
+		}
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$url = strip_url($this->getURL(), true);
@@ -579,8 +590,11 @@ class Site extends Folder
 		// we have found the design to use
 		if ($result) {
 			$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($result['designid'], $result['type_code']);
-			if (SQ_IN_LIMBO) $design->paint($this);
-			else $design->paint($asset);
+			if (SQ_IN_LIMBO) {
+				$design->paint($this);
+			} else {
+				$design->paint($asset);
+			}
 		} else {
 			// we can't find a design, oh well let's just print out our body
 			$asset->printBody();
