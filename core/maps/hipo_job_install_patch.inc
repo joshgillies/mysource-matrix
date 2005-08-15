@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_install_patch.inc,v 1.14 2005/05/16 06:36:32 lwright Exp $
+* $Id: hipo_job_install_patch.inc,v 1.14.2.1 2005/08/15 03:54:32 mmcintyre Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.14.2.1 $
 * @package MySource_Matrix
 * @subpackage MAPS
 */
@@ -905,6 +905,8 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 	*/
 	function processCleanUp(&$step_data, $prefix)
 	{
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
 		$patch_info = $this->_getPatchDetails($this->_running_vars['patchid']);
 
 		// write an entry to the DB for this patch to say it has been installed
@@ -920,6 +922,8 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 
 		$step_data['percent_done'] = 100;
 		$step_data['complete']     = true;
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
 
 	}//end processCleanUp()

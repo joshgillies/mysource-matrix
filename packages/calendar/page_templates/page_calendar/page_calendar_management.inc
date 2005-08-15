@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_management.inc,v 1.45.2.1 2005/08/12 05:23:27 mmcintyre Exp $
+* $Id: page_calendar_management.inc,v 1.45.2.2 2005/08/15 03:54:33 mmcintyre Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.45.2.1 $
+* @version $Revision: 1.45.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -398,11 +398,20 @@ class Page_Calendar_Management extends Asset_Management
 			static $already_run = Array();
 			if (isset($already_run[$name])) return true;
 			$already_run[$name] = 1;
+
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
 			// in v0.3 these attributes changed from exes to pixels, so we need to adjust their values
 			// we make the assumption that there are 8 pixels in an ex.
 			$sql = 'UPDATE sq_ast_attr_val SET custom_val = CAST((CAST (custom_val AS INTEGER) * 8) AS INTEGER) WHERE attrid='.$this->_db->quote($curr_attr['attrid']);
 			$res = $this->_db->query($sql);
-			if (!assert_valid_db_result($res)) return false;
+			if (!assert_valid_db_result($res)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return false;
+			}
+
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
 			return true;
 		} else {
 			return parent::_updateOwnedAttribute($name, $curr_attr);

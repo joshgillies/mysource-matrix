@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: maps.inc,v 1.18 2005/05/16 06:36:32 lwright Exp $
+* $Id: maps.inc,v 1.18.2.1 2005/08/15 03:54:32 mmcintyre Exp $
 *
 */
 
@@ -36,7 +36,7 @@ define('SQ_MAPS_INSTALLED'  , 'I');
 *    Looks aftet the automated patching of the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.18.2.1 $
 * @package MySource_Matrix
 * @subpackage MAPS
 */
@@ -652,18 +652,22 @@ class Maps extends MySource_Object
 			return false;
 		}
 
-
 		if (!strlen($db_patches)) {
 			trigger_localised_error('MAPS0004', E_USER_WARNING, $patchid);
 			// Just because it wasn't found, doesn't mean you shouldn't continue to delete the rest of it
 		}
 
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$sql = 'DELETE FROM sq_patches WHERE patchid = '.$db->quote($patchid);
 		$result = $db->query($sql);
-		assert_valid_db_result($result, '', false, false);
+		if (!assert_valid_db_result($result, '', false, false)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+		}
 		// dont actually die because we cant exactly abort at this point
 		// we'll sort it out later another way
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		// remove the backup directory for this patch because we dont need that any more
 		require_once(SQ_FUDGE_PATH.'/general/file_system.inc');
