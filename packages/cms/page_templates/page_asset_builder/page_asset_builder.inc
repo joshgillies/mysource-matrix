@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.73 2005/08/15 06:27:41 ndvries Exp $
+* $Id: page_asset_builder.inc,v 1.74 2005/08/15 23:18:33 pgannavarapu Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.73 $
+* @version $Revision: 1.74 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -379,6 +379,7 @@ class Page_Asset_Builder extends Page
 					}
 
 					if (!$new_asset->processBackend($o, $link)) {
+						$this->_tmp['new_asset_created_'.$create_type] =& $new_asset; 
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 
 					} else {
@@ -1265,7 +1266,12 @@ class Page_Asset_Builder extends Page
 				$prefix = $this->type().'_'.$this->id.'_type_'.$create_type;
 				echo '<div class="sq-asset-builder-tab-content" id="'.$prefix.'" style="display: '.$display.'">';
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset($create_type);
-				$asset =& new $create_type();
+				$asset =  null;
+				if (isset($this->_tmp['new_asset_created_'.$create_type])) {
+					$asset =&$this->_tmp['new_asset_created_'.$create_type];
+				} else {
+					$asset =& new $create_type();
+				}
 				$asset->paintBackend($o);
 				$o->paintSections();
 				$o->_contents = Array();
