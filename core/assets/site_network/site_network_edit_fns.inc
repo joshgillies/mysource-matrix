@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site_network_edit_fns.inc,v 1.3 2005/05/11 06:04:55 lwright Exp $
+* $Id: site_network_edit_fns.inc,v 1.3.2.1 2005/08/15 00:17:40 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.3.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -98,7 +98,7 @@ class Site_Network_Edit_Fns extends Folder_Edit_Fns
 	*/
 	function processPrimaryURL(&$asset, &$o, $prefix)
 	{
-		if (!isset($_POST[$prefix.'_primary_site']['assetid'])) return false;
+		if (empty($_POST[$prefix.'_primary_site']['assetid'])) return false;
 		$new_site = $_POST[$prefix.'_primary_site']['assetid'];
 
 		$site_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, 'site', false, 'primary_site');
