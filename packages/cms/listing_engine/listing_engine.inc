@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.38.2.13 2005/08/09 04:18:30 dmckee Exp $
+* $Id: listing_engine.inc,v 1.38.2.14 2005/08/16 05:12:11 pgannavarapu Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
 *
-* @version $Revision: 1.38.2.13 $
+* @version $Revision: 1.38.2.14 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -517,6 +517,8 @@ class Listing_Engine extends Page
 
 		} else {
 			$sort_field = $sort_params['field'];
+
+			if ($sort_field == 'no_sorting') return $asset_list;
 
 			if (in_array($sort_field, $this->getSortableAssetInfo())) {
 				$sort_assets = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($assetids, null, true, $sort_field);
@@ -1864,16 +1866,16 @@ class Listing_Engine extends Page
 		$group_levels = array_reverse($group_levels);
 
 		$asset_groups = Array();
-		foreach($assetids as $assetid => $group_data) {
+		foreach ($assetids as $assetid => $group_data) {
 			$asset_groups[] = Array('assetid' => $assetid);
 		}
 
 		// keep track of the last time we encountered a parent asset group
 		$last_parent_asset = false;
-		foreach($group_levels as $group_key => $group_level) {
+		foreach ($group_levels as $group_key => $group_level) {
 			$new_asset_groups = Array();
 
-			foreach($asset_groups as $key => $group_data) {
+			foreach ($asset_groups as $key => $group_data) {
 				$assetid = $group_data['assetid'];
 
 				if ($last_parent_asset === false) {
@@ -1901,7 +1903,7 @@ class Listing_Engine extends Page
 
 					case 'metadata':
 						$metadata_field_id = $group_level['metadata_field'];
-						$metadata_field = $GLOBALS['SQ_SYSTEM']->am->getAsset($metadata_field_id);
+						$metadata_field =& $GLOBALS['SQ_SYSTEM']->am->getAsset($metadata_field_id);
 						$value = '';
 						if (!is_null($metadata_field)) {
 							// get the metadata manager if we haven't already
@@ -1909,7 +1911,7 @@ class Listing_Engine extends Page
 								$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 							}
 
-							$parent_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($current_parent);
+							$parent_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($current_parent);
 							if (!is_null($parent_asset)) {
 								$value = $mm->getMetadataValueByAssetid($current_parent, $metadata_field_id, true);
 								$value = $metadata_field->getMetadataValue($parent_asset, $value);
@@ -1927,7 +1929,7 @@ class Listing_Engine extends Page
 					$group_data['group'][$group_key] = $value;
 					$new_asset_groups[] = $group_data;
 				} else {
-					foreach($value as $sub_value) {
+					foreach ($value as $sub_value) {
 						$group_data['group'][$group_key] = $sub_value;
 						$new_asset_groups[] = $group_data;
 					}
@@ -1947,7 +1949,7 @@ class Listing_Engine extends Page
 		// we need to flip the keys back to what they were to construct the array
 		foreach ($asset_groups as $group_data) {
 			$base =& $results;
-			foreach(array_reverse($group_keys) as $group_key) {
+			foreach (array_reverse($group_keys) as $group_key) {
 				$key = $group_data['group'][$group_key];
 				if (is_null($key)) $key = '';
 				$base =& $base[$key];

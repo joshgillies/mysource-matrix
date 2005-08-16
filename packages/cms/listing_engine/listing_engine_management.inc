@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_management.inc,v 1.23.2.3 2005/08/12 05:23:28 mmcintyre Exp $
+* $Id: listing_engine_management.inc,v 1.23.2.4 2005/08/16 05:12:11 pgannavarapu Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.23.2.3 $
+* @version $Revision: 1.23.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -65,40 +65,47 @@ class Listing_Engine_Management extends Asset_Management
 									'default'	=> Array(
 													0	=> Array (
 															'params'	=> Array (
+																			'field'	=> 'no_sorting',
+																		   ),
+															'type'		=> 'field',
+															'name'		=> 'No Sorting',
+														   ),
+													1	=> Array (
+															'params'	=> Array (
 																			'field'	=> 'name',
 																		   ),
 															'type'		=> 'field',
 															'name'		=> 'Name',
 														   ),
-													1	=> Array (
+													2	=> Array (
 															'params'	=> Array (
 																			'field'	=> 'short_name',
 																		   ),
 															'type'		=> 'field',
 															'name'		=> 'Short Name',
 														   ),
-													2	=> Array (
+													3	=> Array (
 															'params'	=> Array (
 																			'field'	=> 'created',
 																		   ),
 															'type'		=> 'field',
 															'name'		=> 'Created Date',
 														   ),
-													3	=> Array (
+													4	=> Array (
 															'params'	=> Array (
 																			'field'	=> 'updated',
 																		   ),
 															'type'		=> 'field',
 															'name'		=> 'Last Updated Date',
 														   ),
-													4	=> Array (
+													5	=> Array (
 															'params'	=> Array (
 																			'field'	=> 'published',
 																		   ),
 															'type'		=> 'field',
 															'name'		=> 'Last Published Date',
 														   ),
-													5	=> Array (
+													6	=> Array (
 															'params'	=> Array (
 																			'field'	=> 'type_code',
 																		   ),
@@ -485,7 +492,7 @@ class Listing_Engine_Management extends Asset_Management
 					echo 'Upgrading asset: '.$asset->name.' ('.$assetid.')'."\n";
 
 					// Group Format
-					$group_formats = new Folder();
+					$group_formats =& new Folder();
 					$create_link = Array(
 									'asset'			=> &$asset,
 									'value'			=> 'group_formats',

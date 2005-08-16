@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.18.2.3 2005/08/01 02:16:06 dmckee Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.18.2.4 2005/08/16 05:12:11 pgannavarapu Exp $
 *
 */
 
@@ -40,7 +40,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 * @author  David Heppell <dheppell@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.18.2.3 $
+* @version $Revision: 1.18.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -748,7 +748,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 				$copy_link = Array('asset' => &$folder, 'value' => $new_type, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 
-				$bodycopy = new Bodycopy();
+				$bodycopy =& new Bodycopy();
 				$bodycopy->setAttrValue('name', $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($new_type, 'name').' Format');
 
 				if (!$bodycopy->create($copy_link)) {
@@ -889,7 +889,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 				$copy_link = Array('asset' => &$folder, 'value' => 'position_'.$new_position, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 
-				$bodycopy = new Bodycopy();
+				$bodycopy =& new Bodycopy();
 				$bodycopy->setAttrValue('name', translate('cms_listing_position_number_format', $new_position));
 
 				if (!$bodycopy->create($copy_link)) {
@@ -932,7 +932,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				return false;
 			} else {
 				$sort_by_options = $this->_getSortByOptions($asset);
-				$sort_by_options[''] = '-- '.translate('select').' --';
+				$sort_by_options['no_sorting'] = '-- '.translate('select').' --';
 			}
 
 			if ($write_access) {
@@ -978,6 +978,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 								<tr>
 									<td class="sq-backend-table-cell">
 										<?php
+											if ($info['params']['field'] == 'no_sorting') continue;
 											hidden_field($prefix.'_fields['.$id.'][params][field]', $info['params']['field']);
 											hidden_field($prefix.'_fields['.$id.'][type]', 'field');
 											echo ucwords(str_replace('_', ' ', $info['params']['field']));
@@ -1116,6 +1117,8 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 		$sort_by = array_get_index($_POST, $prefix.'_sort_by', '');
 		$name    = array_get_index($_POST, $prefix.'_name', '');
+
+		if ($sort_by == 'no_sorting') return false;
 
 		$options = $this->_getSortByOptions($asset);
 		$save    = false;
@@ -1360,7 +1363,9 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 							?>
 							<tr>
 								<td class="sq-backend-table-cell">
-									<?php hidden_field($prefix.'_sort_order_list['.$id.']', $id); ?>
+									<?php
+									if ($info['params']['field'] == 'no_sorting') continue;
+									hidden_field($prefix.'_sort_order_list['.$id.']', $id); ?>
 									<span id ="<?php echo $prefix ?>_sort_order_<?php echo $id; ?>"><?php echo $info['name']; ?></span>
 								</td>
 								<?php
@@ -1502,13 +1507,13 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	{
 		if ($asset->attr('group_by') == 'letter') {
 			return Array(
-					''				=> '-- '.translate('no_sorting').' --',
+					'no_sorting'	=> '-- No Sorting --',
 					'name'			=> translate('name'),
 					'short_name'	=> translate('short_name'),
 				   );
 		} else {
 			return Array(
-					''				=> '-- '.translate('no_sorting').' --',
+					'no_sorting'	=> '-- No Sorting --',
 					'assetid'		=> translate('asset_id'),
 					'version'		=> translate('version'),
 					'name'			=> translate('name'),
@@ -1891,7 +1896,8 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 						?><li><?php echo $type_names[$type_code];
 						if ($group_by_option['restrict_types']['inherit'][$key]) {
 							echo ' (inherits child types)';
-						}?></li><?php
+						}
+						?></li><?php
 					}
 					?></ul><?php
 				}
@@ -2052,7 +2058,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 					$copy_link = Array('asset' => &$folder, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1, 'sort_order' => $new_position);
 
-					$bodycopy = new Bodycopy();
+					$bodycopy =& new Bodycopy();
 					$bodycopy->setAttrValue('name', 'Group Level '.($new_position+1).' Format');
 					$group_listing_data = Array('content' => '%group_listing%');
 
