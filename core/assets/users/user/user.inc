@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.73.2.1 2005/02/11 03:24:29 amiller Exp $
+* $Id: user.inc,v 1.73.2.2 2005/08/16 05:00:28 dmckee Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -49,7 +49,7 @@ class User extends Asset
 	function User($assetid=0)
 	{
 		$this->Asset($assetid);
-	
+
 	}//end constructor
 
 
@@ -75,8 +75,8 @@ class User extends Asset
 		return parent::create($link);
 
 	}//end create()
-	
-	
+
+
 	/**
 	* Perform any additional processing required during the creation of this asset
 	*
@@ -127,19 +127,19 @@ class User extends Asset
 				trigger_error('Could not create user - "permissions" lock not acquired on '.ucwords($link['minor_type_code']).' asset of "'.$this->name.'"', E_USER_WARNING);
 				return false;
 			}
-	
+
 			if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($link['minorid'], $this->id, SQ_PERMISSION_READ, 1)) {
 				trigger_error('Could not create user - permission could not be set on '.ucwords($link['minor_type_code']).' asset of "'.$this->name.'"', E_USER_WARNING);
 				return false;
 			}
-	
+
 			// try to unlock the asset
 			if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($link['minorid'], 'permissions')) {
 				trigger_error('Could not create user - "permissions" lock not released on '.ucwords($link['minor_type_code']).' asset of "'.$this->name.'"', E_USER_WARNING);
 				return false;
 			}
 		}
-		
+
 		// set an initial web path
 		$initial_path = strtolower($this->attr('username'));
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
@@ -149,7 +149,7 @@ class User extends Asset
 			trigger_error('Could not set an initial web path for "'.$this->name.'"', E_USER_WARNING);
 			return false;
 		}
-		
+
 		return true;
 
 	}//end _createAdditional()
@@ -216,9 +216,7 @@ class User extends Asset
 	{
 		$password = $this->attr('password');
 
-		if (!trim($password)) {
-			return false;
-		}
+		if (!trim($password)) return false;
 
 		return (crypt($entered_password,$password) == $password);
 
@@ -263,26 +261,33 @@ class User extends Asset
 			} else if ($GLOBALS['SQ_SYSTEM']->userSystemAdmin($this)) {
 				// this is a sysadmin so they need to
 				// be root or the sysadmin themselves
-				if (!$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) return false;
-				if ($this->id == $GLOBALS['SQ_SYSTEM']->currentUserId()) return true;
+				if (!$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
+					return false;
+				}
+				if ($this->id == $GLOBALS['SQ_SYSTEM']->currentUserId()) {
+					return true;
+				}
 				return false;
 			} else {
 				// any other user's details
-				if ($GLOBALS['SQ_SYSTEM']->userSystemAdmin()) return true;
-				if ($this->id == $GLOBALS['SQ_SYSTEM']->currentUserId()) return true;
+				if ($GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
+					return true;
+				}
+				if ($this->id == $GLOBALS['SQ_SYSTEM']->currentUserId()) {
+					return true;
+				}
 			}
-
-			return false;
 		} else {
 			// a user always has full access to themselves
 			if (in_array($this->id, $assetids)) return true;
-
-			return parent::_checkPermissionAccess($perm, $assetids);
 		}
 
+		// fall back to checking standard user permissions
+		return parent::_checkPermissionAccess($perm, $assetids);
+
 	}//end _checkPermissionAccess()
-	
-	
+
+
 	/**
 	* Returns TRUE if we can delete the passed link, or a string with the error msg
 	*
@@ -297,10 +302,14 @@ class User extends Asset
 
 		// we dont want our inbox or workspace deleted
 		$inbox_link = $this->getInboxLink();
-		if ($inbox_link['linkid'] == $linkid) return 'You cant delete the link between a user and their inbox';
-		
+		if ($inbox_link['linkid'] == $linkid) {
+			return 'You cant delete the link between a user and their inbox';
+		}
+
 		$workspace_link = $this->getWorkspaceLink();
-		if ($workspace_link['linkid'] == $linkid) return 'You cant delete the link between a user and their workspace';
+		if ($workspace_link['linkid'] == $linkid) {
+			return 'You cant delete the link between a user and their workspace';
+		}
 
 		return parent::isDeletableLink($linkid);
 
@@ -317,10 +326,14 @@ class User extends Asset
 	function canLogin()
 	{
 		// check that this user is live
-		if ($this->status & SQ_SC_STATUS_NOT_LIVE) return false;
+		if ($this->status & SQ_SC_STATUS_NOT_LIVE) {
+			return false;
+		}
 
 		// check that this user is not only in the trash
-		if ($GLOBALS['SQ_SYSTEM']->am->assetInTrash($this->id, true)) return false;
+		if ($GLOBALS['SQ_SYSTEM']->am->assetInTrash($this->id, true)) {
+			return false;
+		}
 
 		return true;
 
@@ -354,7 +367,7 @@ class User extends Asset
 	function getInboxLink()
 	{
 		return $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'inbox');
-		
+
 	}//end getInboxLink()
 
 
@@ -367,10 +380,10 @@ class User extends Asset
 	function getWorkspaceLink()
 	{
 		return $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'workspace');
-		
+
 	}//end getWorkspaceLink()
-	
-	
+
+
 	/**
 	* Returns this user's Workspace
 	*
@@ -381,19 +394,19 @@ class User extends Asset
 	{
 		$null = null;
 		$link = $this->getWorkspaceLink();
-		
+
 		if (empty($link)) {
 			trigger_error('User '.$this->name.' does not have a workspace', E_USER_WARNING);
 			return $null;
 		}
-		
+
 		$workspace = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid']);
 		if (is_null($workspace)) {
 			trigger_error('User '.$this->name.' does not have a workspace', E_USER_WARNING);
 			return $null;
 		}
 		return $workspace;
-		
+
 	}//end getWorkspace()
 
 
