@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.100 2005/08/15 06:17:10 dmckee Exp $
+* $Id: html_form.inc,v 1.101 2005/08/16 00:33:14 ndvries Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.100 $
+* @version $Revision: 1.101 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -1198,14 +1198,17 @@ function structured_drop_down($name, $root_id, $type_codes, $selected=Array(), $
 			$invalid[] = $treeid;
 			continue;
 		}
+
 		if ($structured) {
 			foreach ($invalid as $banned) {
+				if (strlen($banned) > strlen($treeid)) continue;
 				if (substr($treeid, 0, strlen($banned)) == $banned) {
 					unset($child_links[$treeid]);
 					continue 1;
 				}
 			}
 		}
+
 		if (!empty($link_types) && !in_array($data['link_type'], $link_types)) {
 			unset($child_links[$treeid]);
 			$invalid[] = $treeid;
@@ -1259,6 +1262,7 @@ function structured_drop_down($name, $root_id, $type_codes, $selected=Array(), $
 	} else {
 		combo_box($name, $options, $allow_multiple, $selected, $height, ($width != '0') ? 'style="width:'.$width.'px;"' : '');
 	}
+
 }//end structured_drop_down()
 
 
