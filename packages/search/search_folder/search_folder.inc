@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_folder.inc,v 1.17.2.1 2005/08/16 06:29:25 ndvries Exp $
+* $Id: search_folder.inc,v 1.17.2.2 2005/08/16 06:49:39 ndvries Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.17.2.1 $
+* @version $Revision: 1.17.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -237,6 +237,7 @@ class Search_Folder extends Asset
 
 			$sort_order = 0;
 			foreach ($asset_info as $assetid => $info) {
+				$num_kids = $GLOBALS['SQ_SYSTEM']->am->countLinks($assetid, 'major', SQ_SC_LINK_SIGNIFICANT);
 				$links[] = Array(
 							'assetid'		=> $assetid,
 							'short_name'	=> $info['short_name'],
@@ -246,7 +247,7 @@ class Search_Folder extends Asset
 							'status'		=> $info['status'],
 							'linkid'		=> $this->id.':'.$assetid,
 							'link_type'		=> SQ_LINK_TYPE_1,
-							'num_kids'		=> 0,
+							'num_kids'		=> $num_kids,
 							'sort_order'	=> $sort_order,
 							'url'			=> '',
 							'path'			=> '',
