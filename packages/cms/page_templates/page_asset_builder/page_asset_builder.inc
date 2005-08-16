@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.63.2.1 2005/08/11 13:23:19 gnoel Exp $
+* $Id: page_asset_builder.inc,v 1.63.2.2 2005/08/16 00:29:51 ndvries Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.63.2.1 $
+* @version $Revision: 1.63.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -96,7 +96,7 @@ class Page_Asset_Builder extends Page
 		$copy_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1, 'value' => '');
 
 		foreach ($this->_getBodycopies() as $value => $name) {
-			$bodycopy = new Bodycopy();
+			$bodycopy =& new Bodycopy();
 			$bodycopy->setAttrValue('name', $name);
 			$copy_link['value'] = $value;
 			if (!$bodycopy->create($copy_link)) return false;
@@ -286,7 +286,7 @@ class Page_Asset_Builder extends Page
 					// to make life easier for ourselves
 					$create_type = $_POST['ASSET_BUILDER_CREATE_TYPE'];
 					$GLOBALS['SQ_SYSTEM']->am->includeAsset($create_type);
-					$new_asset = new $create_type();
+					$new_asset =& new $create_type();
 					$prefix = $new_asset->getPrefix();
 
 
@@ -350,7 +350,7 @@ class Page_Asset_Builder extends Page
 
 					// we'll just use a limbo outputter to do the outputting for us
 					require_once SQ_INCLUDE_PATH.'/limbo_outputter.inc';
-					$o = new Limbo_Outputter();
+					$o =& new Limbo_Outputter();
 					$create_parentid = array_shift(array_keys($create_locations));
 					$link_type = array_shift(array_values($create_locations));
 					$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($create_parentid);
@@ -541,7 +541,7 @@ class Page_Asset_Builder extends Page
 		if (empty($attributes)) {
 			$create_type = $_POST['ASSET_BUILDER_CREATE_TYPE'];
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($create_type);
-			$temp_asset = new $create_type();
+			$temp_asset =& new $create_type();
 			$prefix = $temp_asset->getPrefix();
 			unset($temp_asset);
 		}
@@ -683,19 +683,19 @@ class Page_Asset_Builder extends Page
 		$all_selected_locations = Array();
 		foreach ($this->attr('create_location_dynamic') as $set_name => $details) {
 			$code_name = str_replace(' ', '_', strtolower($set_name));
-			if (isset($_POST[$code_name])) {
-				$post_locations = $_POST[$code_name];
-				if (!is_array($_POST[$code_name])) $post_locations = Array($post_locations);   
+			if (isset($_POST[$code_name]) && !empty($_POST[$code_name])) {
+				$locations = $_POST[$code_name];
+				if (!is_array($locations)) {
+					$locations = Array($_POST[$code_name]);
+				}
 
-				foreach ($post_locations as $location_id) {
-					// add the selected locations to the collection
-					preg_match('/\d+_(\d+)/', $location_id, $match);
-					if (!empty($match[1]))	$all_selected_locations[(int)$match[1]] = (int)$details['link_type'];					
+				foreach ($locations as $location_id) {
+					$all_selected_locations[$location_id] = $details['link_type'];
 					if (!$details['allow_multiple']) break;
 				}
 			} else if (!$details['allow_empty']) {
 				trigger_localised_error('CMS0036', E_USER_WARNING, $set_name);
-				return false;
+				return Array();
 			}
 		}
 
@@ -819,7 +819,7 @@ class Page_Asset_Builder extends Page
 		}
 
 		require_once SQ_INCLUDE_PATH.'/limbo_outputter.inc';
-		$o = new Limbo_Outputter();
+		$o =& new Limbo_Outputter();
 		$o->addHiddenField('asset_action', 'create');
 		$o->addHiddenField('ASSET_BUILDER_CREATE_TYPE', key($create_types)); // first asset type is selected initially
 
@@ -830,7 +830,7 @@ class Page_Asset_Builder extends Page
 				$prefix = $this->type().'_'.$this->id.'_type_'.$create_type;
 				echo '<div class="sq-asset-builder-tab-content" id="'.$prefix.'" style="display: '.$display.'">';
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset($create_type);
-				$asset = new $create_type();
+				$asset =& new $create_type();
 				$asset->paintBackend($o);
 				$o->paintSections();
 				$o->_contents = Array();
@@ -915,7 +915,7 @@ class Page_Asset_Builder extends Page
 							$i = 0;
 							foreach ($data['locations'] as $id => $name) {
 								check_box($code_name."[$i]", $id, $checked);
-								echo '&nbsp;' . $name . '<br />';
+								echo '&nbsp;'.$name.'<br />';
 								$checked = false;
 								$i++;
 							}
@@ -923,7 +923,7 @@ class Page_Asset_Builder extends Page
 							$checked = !$data['allow_empty'];
 							foreach ($data['locations'] as $id => $name) {
 								radio_button($code_name, $id, $checked);
-								echo '&nbsp;' . $name . '<br />';
+								echo '&nbsp;'.$name.'<br />';
 								$checked = false;
 							}
 						}
@@ -957,174 +957,22 @@ class Page_Asset_Builder extends Page
 										$types[$type_code] = '';
 									}
 								}
+							} else {
+								$types[$new_types['type_code'][$ii]] = '';
+
 							}
 						}
 					}
 				}
 			}
 			$types = array_keys($types);
-
-			// get all children of the root node and filter based on the rules
-			// specified in the backend
-			$all_child_links = $GLOBALS['SQ_SYSTEM']->am->getAllChildLinks($data['root']);
-			$child_links = $all_child_links;
-			foreach ($child_links as $treeid => $child) {
-				if ((strlen($treeid)/4) > $data['depth'] && $data['depth'] != 0) {
-					unset($child_links[$treeid]);
-				} else if (!isset($data['filter_link_type'][$child['link_type']])) {
-					unset($child_links[$treeid]);
-				} else if (!empty($types)) {
-					if (!in_array($child['type_code'], $types)) {
-						unset($child_links[$treeid]);
-					}
-				}
-			}
-
-			// if the filters gave removed all child links, or the root never had
-			// any children anyway provide a message to the user
-			if (empty($child_links)) {
-				ob_start();
-					echo translate('cms_asset_builder_rules_no_locations');
-					$this->_replacements[$code_name.'_field'] = ob_get_contents();
-				ob_end_clean();
-				return;
-			}
-
-			if ($data['display_structured']) {
-				$tree = Array();
-				foreach ($child_links as $treeid => $child) {
-					$this->_IDListToTree($treeid, $tree);
-				}
-				$options = Array();
-				$this->_drawTree($tree, $all_child_links, $options);
-			} else {
-				$unique_assetids = Array();
-				foreach ($child_links as $treeid => $child) {
-					if (!in_array($child['assetid'], $unique_assetids)) {
-						$options[$child['linkid'].'_'.$child['assetid']] = $child['short_name'];
-						$unique_assetids[] = $child['assetid'];
-					}
-				}
-			}
-
 			ob_start();
-				echo '<pre style="font-family: verdana, arial, sans-serif, monospace;">';
-				switch ($data['input_style']) {
-
-					case 'dropdown':
-						if ($data['allow_empty'] && !$data['allow_multiple']) {
-							$options = Array(''=>'') + $options;
-						}
-						$default = $data['allow_empty'] ? Array() : key($options);
-						$height = $data['allow_multiple'] ? 5 : 1;
-						combo_box($code_name, $options, $data['allow_multiple'], $default,  $height);
-					break;
-					case 'radio':
-						if ($data['allow_multiple']) {
-							// print checkboxes
-							$checked = !$data['allow_empty'];
-							$i = 0;
-							foreach ($options as $id => $name) {
-								check_box($code_name."[$i]", $id, $checked);
-								echo '&nbsp;' . $name . '<br />';
-								$checked = false;
-								$i++;
-							}
-						} else {
-							$checked = !$data['allow_empty'];
-							foreach ($options as $id => $name) {
-								radio_button($code_name, $id, $checked);
-								echo '&nbsp;' . $name . '<br />';
-								$checked = false;
-							}
-						}
-					break;
-
-					default:
-						echo '('.translate('cms_asset_builder_undefined_input_style', $data['input_style']).')';
-					break;
-				}
-				echo '</pre>';
+				structured_drop_down($code_name, $data['root'], $types, Array(), 0, $data['allow_multiple'] ? 5 : 1, $data['depth'], $data['allow_multiple'], '-', false, '', $data['input_style'] == 'radio', Array(), $data['display_structured'], array_keys($data['filter_link_type']), $data['allow_empty']);
 				$this->_replacements[$code_name.'_field'] = ob_get_contents();
 			ob_end_clean();
 		}
 
 	}//end _loadCreateReplacements()
-
-
-	/**
-	* Takes a tree ID and inserts it into a tree
-	*
-	* $tree is in the following format:
-	* <pre>
-	* Array(
-	*	'0001'	=> 0,
-	*	'0002'	=> Array(
-	*				'00020001'	=> 0,
-	*			   ),
-	* )
-	* </pre>
-	*
-	* @param string		`			$treeid			the ID of the tree to format
-	* @param Array(string=>mixed)	&$tree			the tree to insert the formatted ID into
-	* @param string					$chunk_prefix	optional, used internally
-	*
-	* @access private
-	* @return void
-	*/
-	function _IDListToTree($treeid, &$tree, $chunk_prefix='')
-	{
-		$branch_str_len = 4;
-
-		if (strlen($treeid) < $branch_str_len) {
-			// n00b out
-			return false;
-		}
-
-		$first_chunk = substr($treeid, 0, $branch_str_len);
-
-		if (strlen($treeid) > $branch_str_len) {
-			$remaining_chunk = substr($treeid, $branch_str_len, strlen($treeid));
-			if (!isset($tree[$chunk_prefix.$first_chunk]) || !is_array($tree[$chunk_prefix.$first_chunk])) {
-				$tree[$chunk_prefix.$first_chunk] = Array();
-			}
-			$this->_IDListToTree($remaining_chunk, $tree[$chunk_prefix.$first_chunk], $chunk_prefix.$first_chunk);
-		} else {
-			$tree[$chunk_prefix.$first_chunk] = 0;
-		}
-
-	}//end _IDListToTree()
-
-
-	/**
-	* Takes a tree array and an output array, and fills the output array with an ascii tree,
-	* with each line of the tree as an element in the array
-	*
-	* @param Array(string=>mixed)	$tree				the tree to format
-	* @param Array(string=>mixed)	$all_child_links	assetInfo() for use when printing
-	* @param Array(string=>mixed)	$output_tree		the array to store the output array
-	* @param string					$branch				optional, used internally
-	* @param Array(string)			&$level				optional, used internally
-	*
-	* @see Page_Asset_Builder::_IDListToTree()
-	* @access private
-	* @return void
-	*/
-	function _drawTree($tree, &$all_child_links, &$output_tree, $branch='', $level=0)
-	{
-		if (empty($tree)) return false;
-
-		foreach ($tree as $branch => $branch_data) {
-			if (is_array($branch_data) && !empty($branch_data)) {
-				$this->_drawTree($branch_data, $all_child_links, $output_tree, $branch, $level++);
-			} else {
-				$prefix = '';
-				for ($i = 1; $i < $level; $i++) $prefix .= ' - ';
-				$branch_info = $all_child_links[$branch];
-				$output_tree[$branch_info['linkid'].'_'.$branch_info['assetid']] = $prefix.$branch_info['short_name'];
-			}
-		}
-	}//end _drawTree()
 
 
 	/**
@@ -1202,12 +1050,12 @@ class Page_Asset_Builder extends Page
 		if (!isset($vars['keywords'])) return;
 
 		$keywords = Array(
-						'login_invite'            => translate('cms_asset_builder_keyword_login_invite'),
-						'login_form'              => translate('cms_asset_builder_keyword_login_form'),
-						'create_error'            => translate('cms_asset_builder_keyword_login_error'),
-						'create_invite'           => translate('cms_asset_builder_keyword_create_invite'),
-						'create_form'             => translate('cms_asset_builder_keyword_create_form'),
-						'create_error'            => translate('cms_asset_builder_keyword_create_error'),
+						'login_invite'	=> translate('cms_asset_builder_keyword_login_invite'),
+						'login_form'	=> translate('cms_asset_builder_keyword_login_form'),
+						'create_error'	=> translate('cms_asset_builder_keyword_login_error'),
+						'create_invite'	=> translate('cms_asset_builder_keyword_create_invite'),
+						'create_form'	=> translate('cms_asset_builder_keyword_create_form'),
+						'create_error'	=> translate('cms_asset_builder_keyword_create_error'),
 					);
 
 		$keywords['created_assetid']			= translate('cms_asset_builder_created_assetid');
@@ -1263,19 +1111,20 @@ class Page_Asset_Builder extends Page
 
 	/**
 	* Return an array of bodycopies that need to be created
-
+	*
 	* @return Array
 	* @access private
 	*/
 	function _getBodycopies()
 	{
 		return Array(
-					'created'		=> translate('created'),
-					'logged_in'		=> translate('logged_in'),
-					'not_logged_in'	=> translate('not_logged_in'),
+				'created'		=> translate('created'),
+				'logged_in'		=> translate('logged_in'),
+				'not_logged_in'	=> translate('not_logged_in'),
 			   );
 
 	}//end _getBodycopies()
+
 
 }//end class
 ?>
