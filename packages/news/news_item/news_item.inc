@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: news_item.inc,v 1.12 2005/05/02 04:42:15 gsherwood Exp $
+* $Id: news_item.inc,v 1.13 2005/08/16 23:51:12 dheppell Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * Purpose
 *
 * @author  Avi Miller <amiller@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -117,7 +117,7 @@ class News_Item extends Page
 			}
 
 		// else if there is a link, and we are about to set an asset, but it is the same as we already have
-		} elseif (!is_null($asset) && $old_link['minorid'] == $asset->id) {
+		} else if (!is_null($asset) && $old_link['minorid'] == $asset->id) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			return true;
 
@@ -178,7 +178,9 @@ class News_Item extends Page
 			}
 		}
 
-		if (!$url == '') $url .= trim($this->attr('url_suffix'));
+		if (!$url == '') {
+			$url .= trim($this->attr('url_suffix'));
+		}
 
 		if ($this->attr('show_headline')) {
 		if (!$url == '') echo '<a href='.$url.'>';
@@ -187,7 +189,7 @@ class News_Item extends Page
 		<?php
 			if (!$url == '') echo '</a>';
 		}
-		
+
 		if ($this->attr('show_summary')) {
 		?>
 		<div id="sq_news_summary">
@@ -203,17 +205,19 @@ class News_Item extends Page
 		</div>
 		<?php
 		}
-		
+
 		if ($this->attr('show_contact_name') || $this->attr('show_contact_phone')) {
 		?>
 		<div id="sq_news_contact">
 		<?php 
-			if ($this->attr('show_contact_name')) { ?>
+			if ($this->attr('show_contact_name')) {
+			?>
 			<p><?php echo 'Contact: '.$this->attr('contact_name'); ?></p>
 		<?php
 			}
-		
-			if ($this->attr('show_contact_phone')) { ?>
+
+			if ($this->attr('show_contact_phone')) {
+			?>
 			<p><?php echo 'Phone: '.$this->attr('contact_phone'); ?></p>
 		<?php
 			}
@@ -263,7 +267,9 @@ class News_Item extends Page
 				}
 			} else {
 				$url = $link_asset->getURL();
-				if (empty($url)) $url = current_url().'?a='.$link_asset->id;
+				if (empty($url)) {
+					$url = current_url().'?a='.$link_asset->id;
+				}
 			}
 			if (empty($url)) {
 				// no URL or Asset, so link to the asset itself
@@ -285,8 +291,11 @@ class News_Item extends Page
 	*/
 	function backendAccess()
 	{
-		if (SQ_IN_LIMBO) return is_a($GLOBALS['SQ_SYSTEM']->user, 'user');
-		else return parent::backendAccess();
+		if (SQ_IN_LIMBO) {
+			return is_a($GLOBALS['SQ_SYSTEM']->user, 'user');
+		} else {
+			return parent::backendAccess();
+		}
 
 	}//end backendAccess()
 

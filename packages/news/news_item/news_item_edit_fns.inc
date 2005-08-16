@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: news_item_edit_fns.inc,v 1.5 2005/05/02 04:42:15 gsherwood Exp $
+* $Id: news_item_edit_fns.inc,v 1.6 2005/08/16 23:51:12 dheppell Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 * Purpose
 *
 * @author  Avi Miller <amiller@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -82,7 +82,9 @@ class News_Item_Edit_Fns extends Page_Edit_Fns
 	*/
 	function processLinkAssetid(&$asset, &$o, $prefix)
 	{
-		if (!isset($_POST[$prefix.'_link_assetid']['assetid'])) return true;
+		if (!isset($_POST[$prefix.'_link_assetid']['assetid'])) {
+			return true;
+		}
 
 		$link_assetid = $_POST[$prefix.'_link_assetid']['assetid'];
 
@@ -95,6 +97,7 @@ class News_Item_Edit_Fns extends Page_Edit_Fns
 		return $asset->setLinkAsset($link_asset);
 
 	}//end processLinkAssetid()
+
 
 }//end class
 

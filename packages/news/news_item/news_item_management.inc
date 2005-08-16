@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: news_item_management.inc,v 1.7 2005/05/02 04:42:15 gsherwood Exp $
+* $Id: news_item_management.inc,v 1.8 2005/08/16 23:51:12 dheppell Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Avi Miller <amiller@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -40,99 +40,99 @@ class News_Item_Management extends Asset_Management
 	{
 		$this->Asset_Management($pm);
 
-		$this->vars['name']			= Array(
-											   'added'   => '0.1',
-											   'type'    => 'text',
-											   'default' => '',
-											   );
-		$this->vars['link_url']		= Array(
-											   'added'   => '0.1',
-											   'type'    => 'text',
-											   'default' => '',
-											   );
-		$this->vars['url_suffix']  = Array(
-											   'added'       => '0.1',
-											   'type'        => 'text',
-											   'default'     => '',
-											   'description' => 'Extra text to send as part of the URL query string',
-										);
-		$this->vars['summary'] 		= Array(
-										'added'     => '0.1',
-										'type'      => 'wysiwyg',
-										'default'   => '',
-										'description' => 'Short summary of the item',
-										);
-		$this->vars['body']			= Array(
-										'added'     => '0.1',
-										'type'      => 'wysiwyg',
-										'default'   => '',
-										);
+		$this->vars['name'] = Array(
+								'added'		=> '0.1',
+								'type'		=> 'text',
+								'default'	=> '',
+							  );
+		$this->vars['link_url'] = Array(
+									'added'		=> '0.1',
+									'type'		=> 'text',
+									'default'	=> '',
+								  );
+		$this->vars['url_suffix'] = Array(
+										'added'			=> '0.1',
+										'type'			=> 'text',
+										'default'		=> '',
+										'description'	=> 'Extra text to send as part of the URL query string',
+									);
+		$this->vars['summary'] = Array(
+									'added'			=> '0.1',
+									'type'			=> 'wysiwyg',
+									'default'		=> '',
+									'description'	=> 'Short summary of the item',
+								 );
+		$this->vars['body'] = Array(
+								'added'		=> '0.1',
+								'type'		=> 'wysiwyg',
+								'default'	=> '',
+							  );
 
-		$this->vars['contact_name']         = Array(
-										'added'     => '0.2',
-										'type'      => 'text',
-										'default'   => '',
-										);
+		$this->vars['contact_name'] = Array(
+										'added'		=> '0.2',
+										'type'		=> 'text',
+										'default'	=> '',
+									  );
 
-		$this->vars['contact_phone']         = Array(
-										'added'     => '0.2',
-										'type'      => 'text',
-										'default'   => '',
-										);
-										
-		$this->vars['show_headline']	= Array(
-										'added'     => '0.3',
-										'type'      => 'boolean',
-										'default'   => true,
-										'parameters' => Array(
-													 'allow_empty' => false
-													 ),
-										);
-										
-		$this->vars['show_summary']	= Array(
-										'added'     => '0.3',
-										'type'      => 'boolean',
-										'default'   => true,
-										'parameters' => Array(
-													 'allow_empty' => false
-													 ),
-										);
+		$this->vars['contact_phone'] = Array(
+										'added'		=> '0.2',
+										'type'		=> 'text',
+										'default'	=> '',
+									   );
 
-		$this->vars['show_body']	= Array(
-										'added'     => '0.3',
-										'type'      => 'boolean',
-										'default'   => true,
-										'parameters' => Array(
-													 'allow_empty' => false
-													 ),
-										);
+		$this->vars['show_headline'] = Array(
+										'added'			=> '0.3',
+										'type'			=> 'boolean',
+										'default'		=> true,
+										'parameters'	=> Array(
+															'allow_empty'	=> false,
+														   ),
+									   );
 
-		$this->vars['show_contact_name']	= Array(
-										'added'     => '0.3',
-										'type'      => 'boolean',
-										'default'   => true,
-										'parameters' => Array(
-													 'allow_empty' => false
-													 ),
-										);
+		$this->vars['show_summary'] = Array(
+										'added'			=> '0.3',
+										'type'			=> 'boolean',
+										'default'		=> true,
+										'parameters'	=> Array(
+															'allow_empty'	=> false,
+														   ),
+									  );
 
-		$this->vars['show_contact_phone']	= Array(
-										'added'     => '0.3',
-										'type'      => 'boolean',
-										'default'   => true,
-										'parameters' => Array(
-													 'allow_empty' => false
-													 ),
-										);
+		$this->vars['show_body'] = Array(
+									'added'			=> '0.3',
+									'type'			=> 'boolean',
+									'default'		=> true,
+									'parameters'	=> Array(
+														'allow_empty'	=> false,
+													   ),
+								   );
+
+		$this->vars['show_contact_name'] = Array(
+											'added'			=> '0.3',
+											'type'			=> 'boolean',
+											'default'		=> true,
+											'parameters'	=> Array(
+																'allow_empty'	=> false,
+															   ),
+										   );
+
+		$this->vars['show_contact_phone'] = Array(
+												'added'			=> '0.3',
+												'type'			=> 'boolean',
+												'default'		=> true,
+												'parameters'	=> Array(
+																	'allow_empty'	=> false,
+																   ),
+											);
 
 		$this->components['summary'] = Array (
-											'description'       => 'Summary',
-											'default_weighting' => '1',
-											);
-		$this->components['body']    = Array (
-											'description'       => 'Body',
-											'default_weighting' => '1',
-											);
+										'description'		=> 'Summary',
+										'default_weighting'	=> '1',
+									   );
+		$this->components['body'] = Array (
+										'description'		=> 'Body',
+										'default_weighting'	=> '1',
+									);
 
 
 	}//end constructor
