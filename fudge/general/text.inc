@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.16 2005/07/18 03:48:35 arailean Exp $
+* $Id: text.inc,v 1.17 2005/08/16 05:28:56 skim Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package Fudge
 * @subpackage Text
 */
@@ -40,10 +40,13 @@
 * Takes a string an associative array of keyword => replacements
 * Replaces any occurance of "%keyword%" with the replacements text
 *
-* @param mixed [string|array]	$text			the text or array to replace in
-* @param array					&$replacements	an array of replacements (keyword => replacement)
+* It return whatever the type of argument $text
+* The argument $text can text either string text or array to replace in
 *
-* @return mixed [string|array] - whatever the type of argument $text
+* @param mixed		$text			the text or array to replace in
+* @param array()	&$replacements	an array of replacements (keyword => replacement)
+*
+* @return mixed string|array()
 * @access public
 */
 function replace_keywords($text, &$replacements)
@@ -70,10 +73,10 @@ function replace_keywords($text, &$replacements)
 /**
 * Takes a string and returns all occurances of "%keyword%"
 *
-* @param string	$text			the text or array to search
-* @param string	$additional		additional valid keyword charaters for this match
+* @param string	$text		the text or array to search
+* @param string	$additional	additional valid keyword charaters for this match
 *
-* @return array
+* @return array()
 * @access public
 */
 function retrieve_keywords_replacements($text, $additional='')
@@ -92,13 +95,14 @@ function retrieve_keywords_replacements($text, $additional='')
 * Takes a text string, splits it into words (according to $split_regexp), and extracts words
 * from each split element (according to $word_match_regexp).
 * Words must be larger than or equal to $min_length to be output.
+* It return the array, Keys: words; values: the word counts
 *
-* @param string $text
-* @param string $split_regexp		Regular expression delineating words
-* @param string $word_match_regexp	Regular expression for matching valid words
+* @param string	$text				text
+* @param string	$split_regexp		Regular expression delineating words
+* @param string	$word_match_regexp	Regular expression for matching valid words
 * @param int	$min_length			The minimum length for words matched
 *
-* @return array Keys: words; values: the word counts
+* @return array()
 * @access public
 */
 function get_word_counts($text, $split_regexp='[^A-z0-9]+', $word_match_regexp='[A-z0-9]+',$min_length=1)
@@ -118,7 +122,10 @@ function get_word_counts($text, $split_regexp='[^A-z0-9]+', $word_match_regexp='
 /**
 * Escape double quotes by reference
 *
-* @param string $subject
+* @param string	&$subject	subject
+*
+* @return void
+* @access public
 */
 function escape_double_quotes(&$subject)
 {
@@ -132,8 +139,8 @@ function escape_double_quotes(&$subject)
 *
 * Given a string 'my best_string' will return 'MyBestString'
 *
-* @param $string			string	string to modify
-* @param $word_separator	string	character representing a word split (in addition to space)
+* @param string	$string			string to modify
+* @param string	$word_separator	character representing a word split (in addition to space)
 *
 * @return string
 * @access public

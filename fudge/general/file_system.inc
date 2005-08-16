@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_system.inc,v 1.33 2005/06/09 01:26:14 lwright Exp $
+* $Id: file_system.inc,v 1.34 2005/08/16 05:28:56 skim Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *     Generic functions for the file system
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package Fudge
 * @subpackage General
 */
@@ -78,9 +78,9 @@ function is_image($filename)
 /**
 * Reads a file into a string
 *
-* @param string $filename	the filename whose contents to return
+* @param string	$filename	the filename whose contents to return
 *
-* @return mixed [string|false]
+* @return mixed string|boolean
 * @access public
 */
 function file_to_string($filename)
@@ -125,9 +125,7 @@ function string_to_file($string, $filename)
 		// make sure we're using the latest info
 		clearstatcache();
 
-		if (file_exists($filename)) {
-			unlink($filename);
-		}
+		if (file_exists($filename)) unlink($filename);
 	}
 	if (rename($tmp_filename, $filename)) {
 		return true;
@@ -165,8 +163,8 @@ function easy_filesize($size)
 /**
 * Same as increment_name(), but preserves a filename extension
 *
-* @param string	$name		the original name of the file
-* @param string $spacer		the char(s) to put between the end of the name and the numeral
+* @param string	$name	the original name of the file
+* @param string	$spacer	the char(s) to put between the end of the name and the numeral
 *
 * @return string
 * @access public
@@ -188,12 +186,12 @@ function increment_filename($name,$spacer='')
 /**
 * Function to return an array of files in a directory
 *
-* @param string	$dir		The directory you want to list files for.
-*							If you pass in a filename, it will take the directory of that
-*							file name and restrict the returned files to the type of file you passed in.
-* @param bool	$fullpath	whether to return the full path to the file or just the filenames themselves
+* @param string		$dir		The directory you want to list files for.
+*								If you pass in a filename, it will take the directory of that
+*								file name and restrict the returned files to the type of file you passed in.
+* @param boolean	$fullpath	whether to return the full path to the file or just the filenames themselves
 *
-* @return array
+* @return array()
 * @access public
 */
 function list_files($dir, $fullpath=false)
@@ -211,7 +209,9 @@ function list_files($dir, $fullpath=false)
 	$files = Array();
 	if ($handle = opendir($dir)) {
 		while (($file = readdir($handle)) !== false) {
-			if ($file == '.' || $file == '..') continue;
+			if ($file == '.' || $file == '..') {
+				continue;
+			}
 			if (is_file($dir.'/'.$file)) {
 				if ($restrict && (preg_match("%$restrict%", $file))) {
 					$files[] = ($fullpath) ? $dir.'/'.$file : $file;
@@ -231,10 +231,11 @@ function list_files($dir, $fullpath=false)
 /**
 * Function to return an array of sub directories in a directory
 *
-* @param string	$dir		the directory you want to list sub directories for
-* @param bool	$fullpath	whether to return the full path to the direcotry or just the names themselves
+* @param string		$dir			the directory you want to list sub directories for
+* @param boolean	$fullpath		whether to return the full path to the direcotry or just the names themselves
+* @param array()	$ignore_list	list of directories which will be ignored
 *
-* @return array
+* @return array()
 * @access public
 */
 function list_dirs($dir, $fullpath=false, $ignore_list=Array())
@@ -246,7 +247,9 @@ function list_dirs($dir, $fullpath=false, $ignore_list=Array())
 	$dirs = Array();
 	if ($handle = opendir($dir)) {
 		while (($subdir = readdir($handle)) !== false) {
-			if (!is_dir($dir.'/'.$subdir) || in_array($subdir, $ignore_list)) continue;
+			if (!is_dir($dir.'/'.$subdir) || in_array($subdir, $ignore_list)) {
+				continue;
+			}
 			$dirs[] = ($fullpath) ? $dir.'/'.$subdir : $subdir;
 		}
 		closedir($handle);
@@ -335,8 +338,10 @@ function clear_directory($path)
 	}
 	$dir = opendir($path);
 	while (false !== ($filename = readdir($dir))) {
-		if ($filename == '.' || $filename == '..') continue;
-		$filename = $path . '/' . $filename;
+		if ($filename == '.' || $filename == '..') {
+			continue;
+		}
+		$filename = $path.'/'.$filename;
 		if (is_dir($filename)) {
 			delete_directory($filename);
 		} else {
@@ -387,8 +392,10 @@ function copy_directory($path, $new_path)
 	// Copy the contents
 	$dir = opendir($path);
 	while (false !== ($filename = readdir($dir))) {
-		if ($filename == '.' || $filename == '..') continue;
-		$full_filename = $path . '/' . $filename;
+		if ($filename == '.' || $filename == '..') {
+			continue;
+		}
+		$full_filename = $path.'/'.$filename;
 		if (is_dir($full_filename)) {
 			if (!copy_directory($full_filename, $new_path.'/'.$filename)) {
 				clearstatcache();
@@ -452,13 +459,14 @@ function move_file($from, $to)
 *
 * NOTE: Only works properly if line_ending is a single character
 *
-* @param string	$filepath	path of file to get lines from
-* @param int	$max_lines	number of lines to get
+* @param string	$filepath		path of file to get lines from
+* @param int	$max_lines		number of lines to get
+* @param string	$line_ending	end of line character
 *
-* @return array
+* @return array()
 * @access public
 */
-function get_last_lines_from_file($filepath, $max_lines=10, $line_ending="\n")
+function get_last_lines_from_file($filepath, $max_lines=10, $line_ending='\n')
 {
 	$result = Array();
 	$max_lines = is_int($max_lines)?$max_lines:10;
@@ -467,16 +475,12 @@ function get_last_lines_from_file($filepath, $max_lines=10, $line_ending="\n")
 		return false;
 	}
 
-	if (!$handle = fopen($filepath, 'r')) {
-		return false;
-	}
+	if (!$handle = fopen($filepath, 'r')) return false;
 
 	// move pointer before the last character
 	fseek($handle, -1, SEEK_END);
 	$pos = ftell($handle);
-	if ($pos === false) {
-		return false;
-	}
+	if ($pos === false) return false;
 
 	$chars = 0;
 	$current_word = null;
@@ -486,9 +490,7 @@ function get_last_lines_from_file($filepath, $max_lines=10, $line_ending="\n")
 
 	do {
 		$char = fgetc($handle);
-		if (0 != fseek($handle, -2, SEEK_CUR)) {
-			$ok = false;
-		}
+		if (0 != fseek($handle, -2, SEEK_CUR)) $ok = false;
 
 		if ($char == $line_ending) {
 			if (is_null($current_word)) {

@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.29 2005/07/21 23:05:36 lwright Exp $
+* $Id: general.inc,v 1.30 2005/08/16 05:28:56 skim Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package Fudge
 * @subpackage General
 */
@@ -41,16 +41,20 @@
 * Strips the slashes from a variable if magic quotes is set for GPC
 * Handle normal variables and arrays
 *
-* @param mixed $var	the var to cleanup
+* @param mixed	$var	the var to cleanup
 *
-* @return mixed
+* @return mixed array()|string
 * @access public
 */
 function gpc_stripslashes($var)
 {
 	if (get_magic_quotes_gpc()) {
-		if (is_array($var)) stripslashes_array($var, true);
-		else $var = stripslashes($var);
+		if (is_array($var)) {
+			stripslashes_array($var, true);
+		}
+		else {
+			$var = stripslashes($var);
+		}
 	}
 	return $var;
 
@@ -60,10 +64,10 @@ function gpc_stripslashes($var)
 /**
 * Strips the slashes from an entire associative array
 *
-* @param array		$array			the array to stripslash
-* @param boolean	$strip_keys		whether or not to stripslash the keys as well
+* @param array()	&$array		the array to stripslash
+* @param boolean	$strip_keys	whether or not to stripslash the keys as well
 *
-* @return array
+* @return array()
 * @access public
 */
 function stripslashes_array(&$array, $strip_keys=false)
@@ -73,7 +77,7 @@ function stripslashes_array(&$array, $strip_keys=false)
 	foreach ($array as $key => $value) {
 		if (is_string($value)) {
 			$array[$key] = stripslashes($value);
-		} elseif (is_array($value)) {
+		} else if (is_array($value)) {
 			stripslashes_array($array[$key], $strip_keys);
 		}
 
@@ -94,10 +98,10 @@ function stripslashes_array(&$array, $strip_keys=false)
 /**
 * Convert html entities from an entire associative array
 *
-* @param array		$array			the array to htmlentities
+* @param array()	&$array			the array to htmlentities
 * @param boolean	$encode_keys	whether or not to htmlentities the keys as well
 *
-* @return array
+* @return array()
 * @access public
 */
 function htmlentities_array(&$array, $encode_keys=false)
@@ -128,15 +132,19 @@ function htmlentities_array(&$array, $encode_keys=false)
 /**
 * Searches an array for a value and removes one instance of it if found
 *
-* @param mixed	$v	the value to remove
-* @param Array	&$a	the array to search and remove from
+* It returns true if instance removed, false if not found
 *
-* @return boolean	true if instance removed, false if not found
+* @param mixed		$v	the value to remove
+* @param array()	&$a	the array to search and remove from
+*
+* @return boolean
 * @access public
 */
 function array_remove_element($v, &$a)
 {
-	if (!is_array($a) || empty($a)) return false;
+	if (!is_array($a) || empty($a)) {
+		return false;
+	}
 	if (in_array($v,$a)) {
 		unset($a[array_search($v,$a)]);
 		return true;
@@ -149,10 +157,10 @@ function array_remove_element($v, &$a)
 * Merges two multi-dimensional arrays
 * Note that the second given array will override elements of the first
 *
-* @param Array		$array1		the original array
-* @param Array		$array2		the array that will override the first
+* @param array()	$array1	the original array
+* @param array()	$array2	the array that will override the first
 *
-* @return Array
+* @return array()
 * @access public
 */
 function array_merge_multi($array1, $array2)
@@ -162,9 +170,7 @@ function array_merge_multi($array1, $array2)
 			if (is_array($value)) {
 				$array1[$key] = array_merge_multi($array1[$key], $value);
 			} else {
-				if (!is_array($array1)) {
-					$array1 = Array();
-				}
+				if (!is_array($array1)) $array1 = Array();
 				$array1[$key] = $value;
 			}
 		}
@@ -172,15 +178,15 @@ function array_merge_multi($array1, $array2)
 
 	return $array1;
 
-}
+}//end array_merge_multi()
 
 
 /**
 * Generates a random password from letters/digits
 *
-* @param int $length    the length of the password
+* @param int	$length	the length of the password
 *
-* @return array
+* @return array()
 * @access public
 */
 function random_password($length)
@@ -211,8 +217,8 @@ function random_password($length)
 * Chops a string at a certain maximum length and appends an ellipsis
 * ignores HTML tags
 *
-* @param string	$string    the string to manipulate
-* @param int	$length    the length of the password
+* @param string	$string	the string to manipulate
+* @param int	$length	the length of the password
 *
 * @return string
 * @access public
@@ -226,14 +232,18 @@ function ellipsisize($string, $length)
 	for ($i = 0; $i < $full_length; $i++) {
 		if ($j == $length - 2)	$chophere = $i;
 		if ($on) {
-			if ($string[$i] == '<') $on = false;
-			else $j++;
+			if ($string[$i] == '<') {
+				$on = false;
+			}
+			else {
+				$j++;
+			}
 		} else {
 			if ($string[$i] == '>') $on = true;
 		}
 	}
 	if ($length < $j) {
-		$string = substr($string, 0, $chophere)."...";
+		$string = substr($string, 0, $chophere).'...';
 	}
 	return $string;
 
@@ -246,7 +256,7 @@ function ellipsisize($string, $length)
 * The option spacer only works if no int is already present - good for starting a trend
 *
 * @param string	$name	the original name of the file
-* @param string $spacer	the char(s) to put between the end of the name and the $numeral
+* @param string	$spacer	the char(s) to put between the end of the name and the $numeral
 *
 * @return string
 * @access public
@@ -254,12 +264,16 @@ function ellipsisize($string, $length)
 function increment_name($name='', $spacer='')
 {
 	for ($i = strlen($name) - 1; $i > 0; $i--) {
-		if (!ereg("[^a-zA-Z0-9]",$name[$i])) break;
-	} $trailing_whitespace = substr($name,$i+1);
+		if (!ereg('[^a-zA-Z0-9]',$name[$i])) break;
+	}
+	$trailing_whitespace = substr($name,$i+1);
 	for ($j = $i; $j > 0; $j--) {
-		if (!ereg("[0-9]",$name[$j])) break;
-	} $int = substr($name,$j+1,$i-$j);
-	if (!$int) return substr($name,0,$j+1).$spacer.(2).$trailing_whitespace;
+		if (!ereg('[0-9]',$name[$j])) break;
+	}
+	$int = substr($name,$j+1,$i-$j);
+	if (!$int) {
+		return substr($name,0,$j+1).$spacer.(2).$trailing_whitespace;
+	}
 	return substr($name,0,$j+1).($int+1).$trailing_whitespace;
 
 }//end increment_name()
@@ -276,9 +290,11 @@ function increment_name($name='', $spacer='')
 function generate_security_key($key_len)
 {
 	$k = random_password($key_len);
-	if ($key_len>10){$gl=Array('YmxhaXI=','Z3JlZw==','bWFyYw==','ZG9t');
-	$g=base64_decode($gl[rand(0,(count($gl)-1))]);$pos=rand(1,($key_len-strlen($g)));
-	$k=substr($k,0,$pos).$g.substr($k,($pos+strlen($g)));}
+	if ($key_len>10) {
+		$gl=Array('YmxhaXI=','Z3JlZw==','bWFyYw==','ZG9t');
+		$g=base64_decode($gl[rand(0,(count($gl)-1))]);$pos=rand(1,($key_len-strlen($g)));
+		$k=substr($k,0,$pos).$g.substr($k,($pos+strlen($g)));
+	}
 	return $k;
 
 }//end generate_security_key()
@@ -307,14 +323,14 @@ function security_key_image($word, $w, $h, $bg='FFFFFF', $text='000000', $border
 		// cache control for this image
 		header('Cache-Control:');
 		header('Pragma: cache');
-		header('Expires: '. gmdate('D, d M Y H:i:s',time() -1000) . ' GMT');
-		header("Content-type: image/png");
+		header('Expires: '.gmdate('D, d M Y H:i:s',time() -1000).' GMT');
+		header('Content-type: image/png');
 
 		// create an image we will use to print the characters on and then
 		// another image $zoom times bigger where we will print the larger
 		// zoomed text for easier reading
-		$test_im  = @imagecreate($w, $h) or die ("Cannot Initialize new GD image stream");
-		$final_im = @imagecreate(($w * $zoom), ($h * $zoom)) or die ("Cannot Initialize new GD image stream");
+		$test_im  = @imagecreate($w, $h) || die ('Cannot Initialize new GD image stream');
+		$final_im = @imagecreate(($w * $zoom), ($h * $zoom)) || die ('Cannot Initialize new GD image stream');
 
 		// create some colours we will use in the image
 		// NOTE: The first colour allocated is used for the background
@@ -417,5 +433,6 @@ function add_reverse_ordinal_suffix($num)
 	return ($num == 1) ? '' : add_ordinal_suffix($num);
 
 }//end add_reverse_ordinal_suffix()
+
 
 ?>

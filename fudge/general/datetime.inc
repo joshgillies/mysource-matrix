@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime.inc,v 1.37 2005/05/26 03:47:22 gsherwood Exp $
+* $Id: datetime.inc,v 1.38 2005/08/16 05:28:56 skim Exp $
 *
 */
 
@@ -30,10 +30,11 @@
 *     General function for manipulating dates and times
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package Fudge
 * @subpackage General
 */
+
 
 /**
 * Takes a timestamp and returns a date/time string with detail varying by how recent the date is
@@ -74,7 +75,7 @@ function easy_datetime($then='')
 	}
 	// if we get to here it must be more than a week in either direction
 	return date('g:ia \o\n jS F Y', $then);
-	
+
 }//end easy_datetime()
 
 
@@ -84,9 +85,9 @@ function easy_datetime($then='')
 * @param string		$secs			the number of seconds that have passed
 * @param boolean	$full_format	print full hours, minutes, seconds text
 * @param boolean	$return_array	return the values as an array of data instead of a string
-* @param array		$units			an array of time units to display or return (d, h, m, s)
+* @param array()	$units			an array of time units to display or return (d, h, m, s)
 *
-* @return string | array
+* @return mixed string|array()
 * @access public
 */
 function easy_time_total($secs=0, $full_format=false, $return_array=false, $units=Array('d', 'h', 'm', 's'))
@@ -149,33 +150,49 @@ function easy_time_total($secs=0, $full_format=false, $return_array=false, $unit
 
 		if ($num_hours) {
 			// if there are no days don't need a joiner
-			if (!$num_days) $joiner = '';
+			if (!$num_days) {
+				$joiner = '';
+			}
 			// else if there aren't any minutes or seconds so join with " and "
-			elseif (!$num_minutes && !$num_seconds) $joiner = ' and ';
+			else if (!$num_minutes && !$num_seconds) {
+				$joiner = ' and ';
+			}
 			// else there must be more following join with a comma
-			else $joiner = ', ';
+			else {
+				$joiner = ', ';
+			}
 
 			$str .= $joiner.$num_hours.' hour'.(($num_hours > 1) ? 's' : '');
 		}
 
 		if ($num_minutes) {
 			// if there are no days or hours don't need a joiner
-			if (!$num_days && !$num_hours) $joiner = '';
+			if (!$num_days && !$num_hours) {
+				$joiner = '';
+			}
 			// else if there aren't any seconds so join with " and "
-			elseif (!$num_seconds) $joiner = ' and ';
+			else if (!$num_seconds) {
+				$joiner = ' and ';
+			}
 			// else there must be more following so join with a comma
-			else $joiner = ', ';
+			else {
+				$joiner = ', ';
+			}
 
 			$str .= $joiner.$num_minutes.' minute'.(($num_minutes > 1) ? 's' : '');
 		}
 
 		if ($num_seconds) {
 			// if there are no days, hours or minutes don't need a joiner
-			if (!$num_days && !$num_hours && !$num_minutes) $joiner = '';
+			if (!$num_days && !$num_hours && !$num_minutes) {
+				$joiner = '';
+			}
 			// else must be something preceding us so join with " and "
-			else $joiner = ' and ';
+			else {
+				$joiner = ' and ';
+			}
 
-			$str .= $joiner.$num_seconds." second".(($num_seconds > 1) ? 's' : '');
+			$str .= $joiner.$num_seconds.' second'.(($num_seconds > 1) ? 's' : '');
 		}
 
 	} else if (!$return_array) {
@@ -190,11 +207,17 @@ function easy_time_total($secs=0, $full_format=false, $return_array=false, $unit
 
 		if ($num_hours) {
 			// if there are no days don't need a joiner
-			if (!$num_days) $joiner = '';
+			if (!$num_days) {
+				$joiner = '';
+			}
 			// else we must be following the days so if there minutes or seconds we have a space
-			elseif ($num_minutes || $num_seconds) $joiner = ' ';
+			else if ($num_minutes || $num_seconds) {
+				$joiner = ' ';
+			}
 			// else we must be following the days so but as there is no minutes or seconds we have " and "
-			else $joiner = ' and ';
+			else {
+				$joiner = ' and ';
+			}
 
 			if (!$num_minutes && !$num_seconds) {
 				$time_type = 'hour'.(($num_hours > 1) ? 's' : '');
@@ -208,13 +231,21 @@ function easy_time_total($secs=0, $full_format=false, $return_array=false, $unit
 		if ($num_minutes || ($num_hours && $num_seconds)) {
 
 			// if there are no days or hours don't need a joiner
-			if (!$num_days && !$num_hours) $joiner = '';
+			if (!$num_days && !$num_hours) {
+				$joiner = '';
+			}
 			// else if we are following hours, then have a colon
-			elseif ($num_hours) $joiner = ':';
+			else if ($num_hours) {
+				$joiner = ':';
+			}
 			// else we must be following the days so if there seconds we have a space
-			elseif ($num_seconds) $joiner = ' ';
+			else if ($num_seconds) {
+				$joiner = ' ';
+			}
 			// else we must be following the days so but as there is no seconds we have " and "
-			else $joiner = ' and ';
+			else {
+				$joiner = ' and ';
+			}
 
 			if (!$num_hours && !$num_seconds) {
 				$time_type = 'minute'.(($num_minutes > 1) ? 's' : '');
@@ -232,11 +263,17 @@ function easy_time_total($secs=0, $full_format=false, $return_array=false, $unit
 
 		if ($num_seconds) {
 			// if there are no days or hours don't need a joiner
-			if (!$num_days && !$num_hours && !$num_minutes) $joiner = '';
+			if (!$num_days && !$num_hours && !$num_minutes) {
+				$joiner = '';
+			}
 			// else if there hours the have a colon
-			elseif ($num_hours || $num_minutes) $joiner = ':';
+			else if ($num_hours || $num_minutes) {
+				$joiner = ':';
+			}
 			// else we must be following days, so just have a space
-			else $joiner = ' and ';
+			else {
+				$joiner = ' and ';
+			}
 
 			if (!$num_hours && !$num_minutes) {
 				$time_type = 'second'.(($num_seconds > 1) ? 's' : '');
@@ -298,9 +335,7 @@ function is_leap_year($year=null)
 	if ($year % 4 != 0) return false;
 
 	// only 1 out of every four hundred year milestones is a leap year
-	if ($year % 100 == 0) {
-		return (($year / 100) % 4 == 0);
-	}
+	if ($year % 100 == 0) return (($year / 100) % 4 == 0);
 
 	return true;
 
@@ -356,6 +391,7 @@ function days_in_month($month, $year)
 * @param int	&$year			year component of the date to increment (YYYY)
 * @param int	$days_to_add	number of days to add to the date
 *
+* @return void
 * @access public
 */
 function increment_date(&$day, &$month, &$year, $days_to_add=1)
@@ -382,8 +418,9 @@ function increment_date(&$day, &$month, &$year, $days_to_add=1)
 * @param int	&$day			day component of the date to decrement (1-31)
 * @param int	&$month			month component of the date to decrement (1-12)
 * @param int	&$year			year component of the date to decrement (YYYY)
-* @param int	$days_to_add	number of days to subtract from the date
+* @param int	$days_to_sub	number of days to subtract from the date
 *
+* @return mixed void|null
 * @access public
 */
 function decrement_date(&$day, &$month, &$year, $days_to_sub=1)
@@ -411,6 +448,7 @@ function decrement_date(&$day, &$month, &$year, $days_to_sub=1)
 * @param int	&$year			year component of the date to increment (YYYY)
 * @param int	$months_to_add	number of months to add to the date
 *
+* @return mixed void|null
 * @access public
 */
 function increment_month(&$month, &$year, $months_to_add=1)
@@ -438,6 +476,7 @@ function increment_month(&$month, &$year, $months_to_add=1)
 * @param int	&$year			year component of the date to increment (YYYY)
 * @param int	$months_to_sub	number of months to subtract from the date
 *
+* @return mixed void|null
 * @access public
 */
 function decrement_month(&$month, &$year, $months_to_sub=1)
@@ -497,14 +536,14 @@ function add_months_to_iso($iso, $months_to_add=1)
 *
 * The dates passed must be of the standard ISO format (ie. YYYY-MM-DD, YYYY-MM-DD HH:MM:SS
 * etc), and only the date components (ie. YYYY-MM-DD) will be used in the calculation.
-*
 * Order of arguments is important; if $higher < $lower than the result of this function
 * will be negative.
+* It returns the number of days between the two dates
 *
 * @param string	$higher	the higher/later ISO date
-* @param string $lower	the lower/earlier ISO date
+* @param string	$lower	the lower/earlier ISO date
 *
-* @return int the number of days between the two dates
+* @return int
 * @access public
 */
 function days_between_isos($higher, $lower)
@@ -521,16 +560,18 @@ function days_between_isos($higher, $lower)
 /**
 * converts a integer into its roman numeral counterpart
 *
-* @param integer $num the number to convert
+* @param int	$num	the number to convert
 *
-* @access public
 * @return string
+* @access public
 */
 function int_to_roman($num=0)
 {
-	$conv = Array(10 => Array('X', 'C', 'M'),
-				  5  => Array('V', 'L', 'D'),
-				  1  => Array('I', 'X', 'C'));
+	$conv = Array(
+				10	=> Array('X', 'C', 'M'),
+				5	=> Array('V', 'L', 'D'),
+				1	=> Array('I', 'X', 'C'),
+			);
 	$roman = '';
 
 	$num = (int) $num;
@@ -545,7 +586,7 @@ function int_to_roman($num=0)
 		$num -= $digit * $power;
 
 		if (($digit == 9) || ($digit == 4)) {
-			$roman .= $conv[1][$i] . $conv[$digit+1][$i];
+			$roman .= $conv[1][$i].$conv[$digit+1][$i];
 		} else {
 			if ($digit >= 5) {
 				$roman .= $conv[5][$i];
@@ -567,20 +608,24 @@ function int_to_roman($num=0)
 * Takes a month in a certain year and returns an array of dates in that month that are a certain days of the week
 * NOTE: dates returned are zero-padded
 *
-* @param integer $weekday number for the weekday (Sunday = 0, Monday = 1 ... Saturday = 6)
-* @param integer $month   the month to use
-* @param integer $year    the year that the month is in
+* @param int	$weekday	number for the weekday (Sunday = 0, Monday = 1 ... Saturday = 6)
+* @param int	$month		the month to use
+* @param int	$year		the year that the month is in
 *
+* @return array()
 * @access public
-* @return Array()
 */
 function weekday_dates_in_month($weekday, $month, $year)
 {
 	$day = mktime(0, 0, 0, (int) $month, 1, (int) $year);
 	$first_weekday = (int) date('w', $day);
 
-	if ((int) $weekday < $first_weekday) $day_add = 7 - $first_weekday + (int) $weekday;
-	else $day_add = (int) $weekday - $first_weekday;
+	if ((int) $weekday < $first_weekday) {
+		$day_add = 7 - $first_weekday + (int) $weekday;
+	}
+	else {
+		$day_add = (int) $weekday - $first_weekday;
+	}
 	$day = strtotime('+'.$day_add.' days', $day);
 
 	$days = Array();
@@ -597,17 +642,21 @@ function weekday_dates_in_month($weekday, $month, $year)
 /**
 * Returns the date component of an ISO8601 format date
 *
+* It returns the date part (still in ISO format, YYYY-MM-DD)\
+* OR false if date passed is not valid ISO date
+* OR has a null date part
+*
 * @param string	$iso8601	The date string to strip the date part from
 *
-* @return mixed (string|boolean)	the date part (still in ISO format, YYYY-MM-DD)
-*									OR false if date passed is not valid ISO date
-*									   or has a null date part
+* @return mixed string|boolean
 * @access public
 */
 function iso8601_date_component($iso8601)
 {
 	if (!is_iso8601($iso8601)) return false;
-	if (substr($iso8601,0,10) == '----------') return false;
+	if (substr($iso8601,0,10) == '----------') {
+		return false;
+	}
 	return substr($iso8601,0,10);
 
 }//end iso8601_date_component()
@@ -616,10 +665,12 @@ function iso8601_date_component($iso8601)
 /**
 * Returns the time component of an ISO8601 format date
 *
+* It returns the time from the ISO data(HH:MM:SS)
+* OR false if invalid date or does not have time part
+*
 * @param string	$iso8601	The date to strip the time from
 *
-* @return mixed (string|boolean)	the time from the ISO date (HH:MM:SS)
-*									OR false if invalid date or does not have time part
+* @return mixed string|boolean
 * @access public
 */
 function iso8601_time_component($iso8601)
@@ -645,5 +696,6 @@ function is_iso8601($iso8601)
 	return (boolean)preg_match("/^\-?[0-9\-]{4}-[0-9\-]{2}-[0-9\-]{2}([ T]([0-9\-]{2}\:?){3})?$/",$iso8601);
 
 }//end is_iso8601()
+
 
 ?>
