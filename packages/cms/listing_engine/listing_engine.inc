@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.78 2005/08/11 00:13:31 skim Exp $
+* $Id: listing_engine.inc,v 1.79 2005/08/16 04:20:42 pgannavarapu Exp $
 *
 */
 
@@ -43,7 +43,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.78 $
+* @version $Revision: 1.79 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -491,6 +491,8 @@ class Listing_Engine extends Page
 
 		} else {
 			$sort_field = $sort_params['field'];
+			//no sorting is required. So return the assetlist
+			if ($sort_field == 'no_sorting') return $asset_list;
 
 			if (in_array($sort_field, $this->getSortableAssetInfo())) {
 				$sort_assets = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($assetids, null, true, $sort_field);
@@ -1045,6 +1047,7 @@ class Listing_Engine extends Page
 	*/
 	function printAssetList($todo)
 	{
+
 		$this->_tmp['formats']        = Array();
 		$this->_tmp['default_format'] = '';
 		$this->_tmp['is_default']     = Array();
@@ -1069,7 +1072,6 @@ class Listing_Engine extends Page
 			<?php echo $this->_buildRelationsJS(); ?>
 		//--></script>
 		<?php
-
 		if ($this->attr('group_by') == 'grouped') {
 			$this->_printGroups($todo, $this->attr('asset_grouping'));
 		} else {
@@ -1730,12 +1732,10 @@ class Listing_Engine extends Page
 
 		$default_sort_by = $this->attr('default_sort_by');
 		$sort_by = array_get_index($_REQUEST, $field_name, $default_sort_by);
-
 		$sort_by_list = $this->attr('sort_by');
 		if (!isset($sort_by_list[$sort_by])) {
 			$sort_by = $default_sort_by;
 		}
-
 		return array_get_index($sort_by_list, $sort_by, Array());
 
 	}//end getSortInfo()
@@ -2347,7 +2347,8 @@ class Listing_Engine extends Page
 		}
 
 		// otherwise, fall back to the parent
-		return parent::getKeywordReplacement($keyword);
+		$replacement = parent::getKeywordReplacement($keyword);
+		return $replacement;
 
 	}//end getKeywordReplacement()
 
@@ -2367,6 +2368,7 @@ class Listing_Engine extends Page
 	*/
 	function getContentsKeywordReplacements()
 	{
+
 		$replacements = Array();
 
 		$selections = $this->attr('asset_selections');

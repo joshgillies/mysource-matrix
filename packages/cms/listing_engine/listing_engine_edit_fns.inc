@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.37 2005/08/10 06:06:11 ndvries Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.38 2005/08/16 04:20:43 pgannavarapu Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -946,7 +946,6 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		$write_access    = $asset->writeAccess('attributes');
 		$sort_by_list    = $asset->attr('sort_by');
 		$sort_by_options = $this->_getSortByOptions($asset);
-
 		$o->openField(translate('cms_listing_new_sort_by_field'));
 
 			if ($asset->attr('group_by') == 'random') {
@@ -954,9 +953,9 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				return false;
 			} else {
 				$sort_by_options = $this->_getSortByOptions($asset);
-				$sort_by_options[''] = '-- '.translate('select').' --';
+				//unset($sort_by_options['no_sorting']);
+				$sort_by_options['no_sorting'] = '-- '.translate('select').' --';
 			}
-
 			if ($write_access) {
 				echo ' '.translate('name').' ';
 				text_box($prefix.'_name', '');
@@ -1001,6 +1000,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 								<tr>
 									<td class="sq-backend-table-cell">
 										<?php
+											if ($info['params']['field'] == 'no_sorting') continue;
 											hidden_field($prefix.'_fields['.$id.'][params][field]', $info['params']['field']);
 											hidden_field($prefix.'_fields['.$id.'][type]', 'field');
 											echo $sort_by_options[$info['params']['field']];
@@ -1139,7 +1139,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 		$sort_by = array_get_index($_POST, $prefix.'_sort_by', '');
 		$name    = array_get_index($_POST, $prefix.'_name', '');
-
+		if ($sort_by == 'no_sorting') return false;
 		$options = $this->_getSortByOptions($asset);
 		$save    = false;
 		$invalid_name = false;
@@ -1238,15 +1238,18 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		$write_access = $asset->writeAccess('attributes');
 		$sort_by_list = $asset->attr('sort_by');
 
+
 		$o->openField(translate('cms_listing_default_sort_by_option'));
 
 			if (empty($sort_by_list)) {
-				echo translate('cms_listing_no_sort_by_options');
+				$asset->setAttrValue('default_sort_by', 0);
+				echo 'No Sorting';
 				return false;
 			}
 
 			$names = Array();
 			$default =  $asset->attr('default_sort_by');
+
 			foreach ($sort_by_list as $id => $info) {
 				$names[$id] = $info['name'];
 			}
@@ -1383,7 +1386,9 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 							?>
 							<tr>
 								<td class="sq-backend-table-cell">
-									<?php hidden_field($prefix.'_sort_order_list['.$id.']', $id); ?>
+									<?php 
+									if ($info['params']['field'] == 'no_sorting') continue;
+									hidden_field($prefix.'_sort_order_list['.$id.']', $id); ?>
 									<span id ="<?php echo $prefix ?>_sort_order_<?php echo $id; ?>"><?php echo $info['name']; ?></span>
 								</td>
 								<?php
@@ -1525,13 +1530,13 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	{
 		if ($asset->attr('group_by') == 'letter') {
 			return Array(
-					''				=> '-- '.translate('no_sorting').' --',
+					'no_sorting'	=> '-- No Sorting --',
 					'name'			=> translate('name'),
 					'short_name'	=> translate('short_name'),
 				   );
 		} else {
 			return Array(
-					''				=> '-- '.translate('no_sorting').' --',
+					'no_sorting'	=> '-- No Sorting --',
 					'assetid'		=> translate('asset_id'),
 					'version'		=> translate('version'),
 					'name'			=> translate('name'),
@@ -2794,7 +2799,8 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				</td>
 
 				<td >
-				<?php if ($write_access) {	?>
+				<?php if ($write_access) {
+					?>
 					<select name="<?php echo $prefix.'_structured_input_style'; ?>">
 						<option value="false" <?php echo $asset->attr('check_boxes')== false ? 'selected="selected"' : ''; ?> ><?php echo translate('dropdown_list'); ?></option>
 						<option value="true" <?php echo $asset->attr('check_boxes')== true ? 'selected="selected"' : ''; ?> ><?php echo translate('radio_buttons'); ?></option>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.85 2005/08/04 01:21:11 mmcintyre Exp $
+* $Id: page_asset_listing.inc,v 1.86 2005/08/16 04:22:04 pgannavarapu Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.85 $
+* @version $Revision: 1.86 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -180,12 +180,9 @@ class Page_Asset_Listing extends Listing_Engine
 
 			// get our page chunk here
 			$todo =& $this->getChunk($children, $replacements, $result_page, $num_per_page);
-
 			// get any extra keyword replacements from this asset or asset_listing
 			$replacements = $this->getContentsKeywordReplacements() + $replacements;
-
 			$num_assets_showing = count($todo);
-
 			ob_start();
 				$this->printAssetList($todo);
 				$global_contents = ob_get_contents();
@@ -290,13 +287,11 @@ class Page_Asset_Listing extends Listing_Engine
 		}
 
 		$assets_to_list = Array();
-
 		if ($this->attr('subs_only')) {
 
 			$side_of_link = ($this->attr('direction') == 'down') ? 'major' : 'minor';
 			$link_type = ($side_of_link == 'major') ? 'minor' : 'major';
 			$links = Array();
-
 			switch ($group_by) {
 
 				case 'letter' :
@@ -406,7 +401,7 @@ class Page_Asset_Listing extends Listing_Engine
 		}
 
 		if ($group_by == 'number') {
-			$assets_to_list = $this->sortAssetList($assets_to_list, $sort_info);
+				$assets_to_list = $this->sortAssetList($assets_to_list, $sort_info);
 		}
 
 		return $assets_to_list;
