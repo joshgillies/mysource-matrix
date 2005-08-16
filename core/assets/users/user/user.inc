@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.93 2005/05/31 03:49:37 tbarrett Exp $
+* $Id: user.inc,v 1.93.2.1 2005/08/16 05:18:49 dmckee Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once SQ_INCLUDE_PATH.'/password_rules_config.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.93 $
+* @version $Revision: 1.93.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -178,9 +178,7 @@ class User extends Asset
 			if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PASSWORD_VALIDATION)) {
 				$config = new Password_Rules_Config();
 				require_once $config->config_file;
-				if (!$this->validatePassword($value)) {
-					return false;
-				}
+				if (!$this->validatePassword($value)) return false;
 			}
 			$value = crypt($value); // let salt be generated
 		} else if ($name == 'username') {
@@ -282,31 +280,31 @@ class User extends Asset
 							if (ctype_upper($char)) {
 								eval('$'.$rule.'_counter += $occurances;');
 							}
-							break;
+						break;
 
 						case 'SQ_PASSWD_RULE_NUM_LOWER':
 							if (ctype_lower($char)) {
 								eval('$'.$rule.'_counter += $occurances;');
 							}
-							break;
+						break;
 
 						case 'SQ_PASSWD_RULE_NUM_INT':
 							if (ctype_digit($char)) {
 								eval('$'.$rule.'_counter += $occurances;');
 							}
-							break;
+						break;
 
 						case 'SQ_PASSWD_RULE_NUM_PUNC':
 							if (ctype_punct($char)) {
 								eval('$'.$rule.'_counter += $occurances;');
 							}
-							break;
+						break;
 
 						case 'SQ_PASSWD_RULE_NUM_SPC':
 							if (ctype_space($char)) {
 								eval('$'.$rule.'_counter += $occurances;');
 							}
-							break;
+						break;
 					}
 				}
 			}
@@ -389,13 +387,12 @@ class User extends Asset
 				}
 			}
 
-			return false;
 		} else {
 			// a user always has full access to themselves
 			if (in_array($this->id, $assetids)) return true;
-
-			return parent::_checkPermissionAccess($perm, $assetids);
 		}
+
+		return parent::_checkPermissionAccess($perm, $assetids);
 
 	}//end _checkPermissionAccess()
 
@@ -414,10 +411,14 @@ class User extends Asset
 
 		// we dont want our inbox or workspace deleted
 		$inbox_link = $this->getInboxLink();
-		if ($inbox_link['linkid'] == $linkid) return translate('cannot_delete_inbox-user_link');
+		if ($inbox_link['linkid'] == $linkid) {
+			return translate('cannot_delete_inbox-user_link');
+		}
 
 		$workspace_link = $this->getWorkspaceLink();
-		if ($workspace_link['linkid'] == $linkid) return translate('cannot_delete_workspace-user_link');
+		if ($workspace_link['linkid'] == $linkid) {
+			return translate('cannot_delete_workspace-user_link');
+		}
 
 		return parent::isDeletableLink($linkid);
 

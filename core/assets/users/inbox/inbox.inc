@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: inbox.inc,v 1.25 2005/05/11 06:05:05 lwright Exp $
+* $Id: inbox.inc,v 1.25.2.1 2005/08/16 05:18:46 dmckee Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.25.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -120,22 +120,29 @@ class Inbox extends Asset
 			} else if ($GLOBALS['SQ_SYSTEM']->userSystemAdmin($user)) {
 				// this is the inbox of a sysadmin so they need to
 				// be root or the sysadmin themselves
-				if (!$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) return false;
-				if ($user->id == $GLOBALS['SQ_SYSTEM']->currentUserId()) return true;
+				if (!$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
+					return false;
+				}
+				if ($user->id == $GLOBALS['SQ_SYSTEM']->currentUserId()) {
+					return true;
+				}
 				return false;
 			} else {
 				// any other user's inbox
-				if ($GLOBALS['SQ_SYSTEM']->userSystemAdmin()) return true;
-				if ($user->id == $GLOBALS['SQ_SYSTEM']->currentUserId()) return true;
+				if ($GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
+					return true;
+				}
+				if ($user->id == $GLOBALS['SQ_SYSTEM']->currentUserId()) {
+					return true;
+				}
 			}
-
-			return false;
 		} else {
 			// a user always has full access to their own inbox
 			if (in_array($user->id, $assetids)) return true;
 
-			return parent::_checkPermissionAccess($perm, $assetids);
 		}
+
+		return parent::_checkPermissionAccess($perm, $assetids);
 
 	}//end _checkPermissionAccess()
 
