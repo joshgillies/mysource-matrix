@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.38 2005/08/16 04:20:43 pgannavarapu Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.39 2005/08/16 23:25:59 dmckee Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1386,7 +1386,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 							?>
 							<tr>
 								<td class="sq-backend-table-cell">
-									<?php 
+									<?php
 									if ($info['params']['field'] == 'no_sorting') continue;
 									hidden_field($prefix.'_sort_order_list['.$id.']', $id); ?>
 									<span id ="<?php echo $prefix ?>_sort_order_<?php echo $id; ?>"><?php echo $info['name']; ?></span>
@@ -2756,8 +2756,8 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 						} else {
 							if ($options['root_node'] != 0) {
 								$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($options['root_node']));
-								if (isset($asset_info['name'])) {
-									echo $asset_info['name'].' (ID #'.$options['root_node'].')';
+								if (isset($asset_info[$options['root_node']]['name'])) {
+									echo $asset_info[$options['root_node']]['name'].' (ID: #'.$options['root_node'].')';
 								} else {
 									echo translate('core_no_selectes_root_node');
 								}
