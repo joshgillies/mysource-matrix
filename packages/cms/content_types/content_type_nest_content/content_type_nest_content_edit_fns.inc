@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content_edit_fns.inc,v 1.30 2005/06/21 02:08:04 dheppell Exp $
+* $Id: content_type_nest_content_edit_fns.inc,v 1.31 2005/08/16 07:01:57 dmckee Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -228,11 +228,11 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 				// get the html contents of the nested asset so
 				// we change the type of the cell later - other content
 				// types can use the html
-				
+
 				//if we dont have the frontend asset set just buffer nothing
 				if (!isset($GLOBALS['SQ_SYSTEM']->frontend_asset)) {
 					$html = '';
-				} else {					
+				} else {
 					ob_start();
 						$this->paint($asset, $prefix);
 						$html = ob_get_contents();

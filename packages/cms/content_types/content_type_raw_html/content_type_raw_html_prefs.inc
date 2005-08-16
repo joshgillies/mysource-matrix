@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_raw_html_prefs.inc,v 1.7 2005/08/12 06:30:32 pgannavarapu Exp $
+* $Id: content_type_raw_html_prefs.inc,v 1.8 2005/08/16 07:01:57 dmckee Exp $
 *
 */
 
@@ -27,18 +27,20 @@ require_once SQ_ATTRIBUTES_PATH.'/css_dimension/css_dimension.inc';
 *    Looks after the creation the Raw HTML preferences
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix
 */
 class Content_Type_Raw_HTML_Prefs extends Prefs
 {
 
 	var $pref_vars = Array (
-		'SQ_RAW_HTML_SIZE'   => Array(	'name'			=> 'Raw HTML Size',
-										'description'	=> 'This preference allows you to change the size of the Raw HTML editor',
-										'default'		=> Array('width' => '100', 'height' => '20'),
-										'protected'		=> false),
-	);
+						'SQ_RAW_HTML_SIZE'	=> Array(
+												'name'			=> 'Raw HTML Size',
+												'description'	=> 'This preference allows you to change the size of the Raw HTML editor',
+												'default'		=> Array('width' => '100', 'height' => '20'),
+												'protected'		=> false,
+											   ),
+					 );
 	var $css_dimension_width;
 	var $css_dimension_height;
 
@@ -71,7 +73,9 @@ class Content_Type_Raw_HTML_Prefs extends Prefs
 		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
 		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
 		if (is_null($pref) || $pref == 'SQ_RAW_HTML_SIZE') {
-			if (is_null($pref)) $o->openField(translate('cms_ct_raw_html_pref_editor_size'));
+			if (is_null($pref)) {
+				$o->openField(translate('cms_ct_raw_html_pref_editor_size'));
+			}
 				$html_size = $this->pref_vars['SQ_RAW_HTML_SIZE']['default'];
 				?>
 				<table class="sq-backend-table" style="width: 350px;">
@@ -121,7 +125,7 @@ class Content_Type_Raw_HTML_Prefs extends Prefs
 	*/
 	function processBackend($o, $have_lock, $pref=null)
 	{
-		if(isset($_POST['width']) && isset($_POST['height'])) {
+		if (isset($_POST['width']) && isset($_POST['height'])) {
 			$this->css_dimension_width->process('width');
 			$this->css_dimension_height->process('height');
 			$this->pref_vars['SQ_RAW_HTML_SIZE']['default']['width'] = $this->css_dimension_width->getContent();
