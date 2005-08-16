@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_links.inc,v 1.2 2005/04/29 05:40:32 gsherwood Exp $
+* $Id: report_links.inc,v 1.3 2005/08/16 06:56:17 dmckee Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -81,15 +81,11 @@ class Report_Links extends Report
 
 			$report_path = $this->data_path.'/report.xml';
 
-			if (!is_file($report_path)) {
-				return Array();
-			}
+			if (!is_file($report_path)) return Array();
 
 			$input = new XML_Tree($report_path);
 			$root  = &$input->getTreeFromFile();
-			if (PEAR::isError($root)) {
-				return Array();
-			}
+			if (PEAR::isError($root)) return Array();
 
 			if (!isset($root->children[0]->attributes['type_code'])) {
 				// old xml format, needs regenerating before it can act as a bridge
@@ -140,15 +136,11 @@ class Report_Links extends Report
 
 			$report_path = $this->data_path.'/report.xml';
 
-			if (!is_file($report_path)) {
-				return Array();
-			}
+			if (!is_file($report_path)) return Array();
 
 			$input = new XML_Tree($report_path);
 			$root  = &$input->getTreeFromFile();
-			if (PEAR::isError($root)) {
-				return Array();
-			}
+			if (PEAR::isError($root)) return Array();
 
 			if (!isset($root->children[0]->attributes['type_code'])) {
 				// old xml format, needs regenerating before it can act as a bridge
