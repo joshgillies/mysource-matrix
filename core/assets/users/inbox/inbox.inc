@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: inbox.inc,v 1.26 2005/08/12 05:05:56 dheppell Exp $
+* $Id: inbox.inc,v 1.27 2005/08/16 05:11:31 dmckee Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -137,13 +137,13 @@ class Inbox extends Asset
 				}
 			}
 
-			return false;
 		} else {
 			// a user always has full access to their own inbox
 			if (in_array($user->id, $assetids)) return true;
 
-			return parent::_checkPermissionAccess($perm, $assetids);
 		}
+
+		return parent::_checkPermissionAccess($perm, $assetids);
 
 	}//end _checkPermissionAccess()
 

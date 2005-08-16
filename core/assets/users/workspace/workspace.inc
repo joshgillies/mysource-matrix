@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workspace.inc,v 1.27 2005/08/12 05:05:56 dheppell Exp $
+* $Id: workspace.inc,v 1.28 2005/08/16 05:11:36 dmckee Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -133,8 +133,9 @@ class Workspace extends Folder
 			// a user always has full access to their own workspace
 			if (in_array($user->id, $assetids)) return true;
 
-			return parent::_checkPermissionAccess($perm, $assetids);
 		}
+
+		return parent::_checkPermissionAccess($perm, $assetids);
 
 	}//end _checkPermissionAccess()
 

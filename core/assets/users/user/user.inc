@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.94 2005/08/12 05:05:56 dheppell Exp $
+* $Id: user.inc,v 1.95 2005/08/16 05:11:34 dmckee Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once SQ_INCLUDE_PATH.'/password_rules_config.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.94 $
+* @version $Revision: 1.95 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -387,13 +387,13 @@ class User extends Asset
 				}
 			}
 
-			return false;
 		} else {
 			// a user always has full access to themselves
 			if (in_array($this->id, $assetids)) return true;
 
-			return parent::_checkPermissionAccess($perm, $assetids);
 		}
+
+		return parent::_checkPermissionAccess($perm, $assetids);
 
 	}//end _checkPermissionAccess()
 
