@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workspace.inc,v 1.24.2.1 2005/08/16 05:07:59 dmckee Exp $
+* $Id: workspace.inc,v 1.24.2.2 2005/08/16 06:15:01 dmckee Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -150,42 +150,11 @@ class Workspace extends Folder
 	{
 		$user = &$this->_getUser();
 
-		if (!is_null($user)) {
-			if (empty($assetids)) {
-				// root can do anything
-				if ($GLOBALS['SQ_SYSTEM']->userRoot()) return true;
-
-				if ($GLOBALS['SQ_SYSTEM']->userRoot($user)) {
-					// we have to be root to view root's workspace
-					return false;
-				} else if ($GLOBALS['SQ_SYSTEM']->userSystemAdmin($user)) {
-					// this is the workspace of a sysadmin so they need to
-					// be root or the sysadmin themselves
-					if (!$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
-						return false;
-					}
-
-					if ($user->id == $GLOBALS['SQ_SYSTEM']->currentUserId()) {
-						return true;
-					}
-					return false;
-				} else {
-					// any other user's workspace
-					if ($GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
-						return true;
-					}
-					if ($user->id == $GLOBALS['SQ_SYSTEM']->currentUserId()) {
-						return true;
-					}
-				}
-			} else {
-				// a user always has full access to their own workspace
-				if (in_array($user->id, $assetids)) return true;
-			}
+		if (is_null($user)) {
+			return parent::_checkPermissionAccess($perm, $assetids);
 		}
 
-		// fall back to checking normal permissions
-		return parent::_checkPermissionAccess($perm, $assetids);
+		return $user->_checkPermissionAccess($perm, $assetids);
 
 	}//end _checkPermissionAccess()
 

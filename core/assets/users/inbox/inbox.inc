@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: inbox.inc,v 1.21.2.1 2005/08/16 05:07:51 dmckee Exp $
+* $Id: inbox.inc,v 1.21.2.2 2005/08/16 06:15:01 dmckee Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -110,39 +110,11 @@ class Inbox extends Asset
 	function _checkPermissionAccess($perm, $assetids=Array())
 	{
 		$user = &$this->_getUser();
-
-		if (empty($assetids)) {
-			// root can do anything
-			if ($GLOBALS['SQ_SYSTEM']->userRoot()) return true;
-
-			if ($GLOBALS['SQ_SYSTEM']->userRoot($user)) {
-				// we have to be root to view root's inbox
-				return false;
-			} else if ($GLOBALS['SQ_SYSTEM']->userSystemAdmin($user)) {
-				// this is the inbox of a sysadmin so they need to
-				// be root or the sysadmin themselves
-				if (!$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
-					return false;
-				}
-				if ($user->id == $GLOBALS['SQ_SYSTEM']->currentUserId()) {
-					return true;
-				}
-				return false;
-			} else {
-				// any other user's inbox
-				if ($GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
-					return true;
-				}
-				if ($user->id == $GLOBALS['SQ_SYSTEM']->currentUserId()) {
-					return true;
-				}
-			}
-		} else {
-			// a user always has full access to their own inbox
-			if (in_array($user->id, $assetids)) return true;
+		if (is_null($user)) {
+			return parent::_checkPermissionAccess($perm, $assetids);
 		}
 
-		return parent::_checkPermissionAccess($perm, $assetids);
+		return $user->_checkPermissionAccess($perm, $assetids);
 
 	}//end _checkPermissionAccess()
 
