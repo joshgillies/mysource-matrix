@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: logs.inc,v 1.13 2005/05/11 06:05:11 lwright Exp $
+* $Id: logs.inc,v 1.13.2.1 2005/08/16 08:51:22 brobertson Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Logs Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.13.2.1 $
 * @package MySource_Matrix
 */
 
@@ -127,11 +127,7 @@ function paintLogs(&$owner, &$o, &$ei)
 					$num_logs = count($logs);
 					$start_printing_at = 0;
 					if (isset($_REQUEST[$prefix.'_start_at'])) $start_printing_at = (int) $_REQUEST[$prefix.'_start_at'];
-					for ($i = 0; $i < $num_logs; $i++) {
-						if ($i < $start_printing_at) {
-							$i++;
-							continue;
-						}
+					for ($i = $start_printing_at; $i < $num_logs; $i++) {
 						$log_data = $logs[$i];
 
 						?>
@@ -163,7 +159,7 @@ function paintLogs(&$owner, &$o, &$ei)
 							echo '</span>';
 						}
 						?>
-						&nbsp;<b><?php echo translate('page_number', round(($start_printing_at + $num_per_page) / $num_per_page), round(($num_logs / $num_per_page) + 0.5)); ?></b>&nbsp;
+						&nbsp;<b><?php echo translate('page_number', (floor($start_printing_at / $num_per_page) + 1), ceil($num_logs / $num_per_page)); ?></b>&nbsp;
 
 						<?php
 						if (($start_printing_at + $num_per_page) < $num_logs) {
