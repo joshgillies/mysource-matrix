@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_folder.inc,v 1.17 2005/05/11 06:07:48 lwright Exp $
+* $Id: search_folder.inc,v 1.17.2.1 2005/08/16 06:29:25 ndvries Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.17.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -124,7 +124,9 @@ class Search_Folder extends Asset
 			if (empty($type_code)) {
 				$search_info['search_types'] = (isset($settings['types'])) ? $settings['types'] : Array();
 			} else {
-				if (!is_array($type_code)) $type_code = Array($type_code);
+				if (!is_array($type_code)) {
+					$type_code = Array($type_code);
+				}
 
 				// handle new search manager 'inherited types' rules
 				$type_code = array_flip($type_code);
@@ -134,11 +136,15 @@ class Search_Folder extends Asset
 				$search_info['search_types'] = $type_code;
 			}
 			// if we have not selected to search any types, we are going to return no results
-			if (empty($search_info['search_types'])) return Array();
+			if (empty($search_info['search_types'])) {
+				return Array();
+			}
 
 			$search_info['search_statuses'] = (isset($settings['statuses'])) ? $settings['statuses'] : Array();
 			// if we have not selected to search any statuses, we are going to return no results
-			if (empty($search_info['search_statuses'])) return Array();
+			if (empty($search_info['search_statuses'])) {
+				return Array();
+			}
 
 			$search_info['root_assetid'] = (isset($settings['root']) && $settings['root']) ? $settings['root'] : 1;
 
@@ -146,7 +152,9 @@ class Search_Folder extends Asset
 				$search_results = $sm->processBasicSearch($search_info);
 			} else {
 				$words = explode(' ',strtolower($settings['phrase']));
-				foreach ($words as $word) $search_info['include_all'][$word]['words'] = Array($word);
+				foreach ($words as $word) {
+					$search_info['include_all'][$word]['words'] = Array($word);
+				}
 				$search_results = $sm->processSearch($search_info);
 			}
 
@@ -158,15 +166,15 @@ class Search_Folder extends Asset
 			$sort_order = 0;
 			foreach ($asset_info as $assetid => $info) {
 				$links[] = Array(
-								 'linkid'          => 0,
-								 'minorid'         => $assetid,
-								 'value'           => '',
-								 'link_type'       => SQ_LINK_TYPE_1,
-								 'minor_type_code' => $info['type_code'],
-								 'sort_order'      => $sort_order,
-								 'is_dependant'    => '0',
-								 'is_exclusive'    => '0',
-							     );
+							'linkid'			=> 0,
+							'minorid'			=> $assetid,
+							'value'				=> '',
+							'link_type'			=> SQ_LINK_TYPE_1,
+							'minor_type_code'	=> $info['type_code'],
+							'sort_order'		=> $sort_order,
+							'is_dependant'		=> '0',
+							'is_exclusive'		=> '0',
+						   );
 
 				$sort_order++;
 			}
@@ -204,14 +212,21 @@ class Search_Folder extends Asset
 			$search_info['assetid'] = $this->id;
 
 			// if we have not selected to search any types or statuses, we are going to return no results
-			if (empty($search_info['search_types'])) return Array();
-			if (empty($search_info['search_statuses'])) return Array();
+			if (empty($search_info['search_types'])) {
+				return Array();
+			}
+
+			if (empty($search_info['search_statuses'])) {
+				return Array();
+			}
 
 			if (!isset($settings['phrase']) || trim($settings['phrase']) == '') {
 				$search_results = $sm->processBasicSearch($search_info);
 			} else {
 				$words = explode(' ',strtolower($settings['phrase']));
-				foreach ($words as $word) $search_info['include_all'][$word]['words'] = Array($word);
+				foreach ($words as $word) {
+					$search_info['include_all'][$word]['words'] = Array($word);
+				}
 				$search_results = $sm->processSearch($search_info);
 			}
 
@@ -223,19 +238,19 @@ class Search_Folder extends Asset
 			$sort_order = 0;
 			foreach ($asset_info as $assetid => $info) {
 				$links[] = Array(
-								 'assetid'    => $assetid,
-								 'short_name' => $info['short_name'],
-								 'name'       => $info['name'],
-								 'accessible' => 1,
-								 'type_code'  => $info['type_code'],
-								 'status'     => $info['status'],
-								 'linkid'     => '0',
-								 'link_type'  => SQ_LINK_TYPE_1,
-								 'num_kids'   => 0,
-								 'sort_order' => $sort_order,
-								 'url'        => '',
-								 'path'       => '',
-							     );
+							'assetid'		=> $assetid,
+							'short_name'	=> $info['short_name'],
+							'name'			=> $info['name'],
+							'accessible'	=> 1,
+							'type_code'		=> $info['type_code'],
+							'status'		=> $info['status'],
+							'linkid'		=> $this->id.':'.$assetid,
+							'link_type'		=> SQ_LINK_TYPE_1,
+							'num_kids'		=> 0,
+							'sort_order'	=> $sort_order,
+							'url'			=> '',
+							'path'			=> '',
+						   );
 
 				$sort_order++;
 			}
