@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workspace.inc,v 1.28 2005/08/16 05:11:36 dmckee Exp $
+* $Id: workspace.inc,v 1.29 2005/08/16 06:14:29 dmckee Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -98,44 +98,10 @@ class Workspace extends Folder
 		$user = &$this->_getUser();
 
 		if (is_null($user)) {
-			return ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
+			return parent::_checkPermissionAccess($perm, $assetids);
 		}
 
-		if (empty($assetids)) {
-			// root can do anything
-			if ($GLOBALS['SQ_SYSTEM']->userRoot()) return true;
-
-			if ($GLOBALS['SQ_SYSTEM']->userRoot($user)) {
-				// we have to be root to view root's workspace
-				return false;
-			} else if ($GLOBALS['SQ_SYSTEM']->userSystemAdmin($user)) {
-				// this is the workspace of a sysadmin so they need to
-				// be root or the sysadmin themselves
-				if (!$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
-					return false;
-				}
-
-				if ($user->id == $GLOBALS['SQ_SYSTEM']->currentUserId()) {
-					return true;
-				}
-
-				return false;
-			} else {
-				// any other user's workspace
-				if ($GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
-					return true;
-				}
-				if ($user->id == $GLOBALS['SQ_SYSTEM']->currentUserId()) {
-					return true;
-				}
-			}
-		} else {
-			// a user always has full access to their own workspace
-			if (in_array($user->id, $assetids)) return true;
-
-		}
-
-		return parent::_checkPermissionAccess($perm, $assetids);
+		return $user->_checkPermissionAccess($perm, $assetids);
 
 	}//end _checkPermissionAccess()
 
