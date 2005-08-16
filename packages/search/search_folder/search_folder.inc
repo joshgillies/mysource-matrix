@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_folder.inc,v 1.20 2005/08/10 04:12:29 tbarrett Exp $
+* $Id: search_folder.inc,v 1.21 2005/08/16 06:22:38 ndvries Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -212,9 +212,8 @@ class Search_Folder extends Asset
 			$search_info['roots'] = Array();
 			if (!empty($settings['root'])) {
 				$search_info['roots'][] = $settings['root'];
-			} else {
-				$search_info['roots'][] = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('root_folder');
 			}
+
 			$search_info['requester'] = $this->id;
 
 			// if we have not selected to search any types or statuses, we are going to return no results
@@ -246,7 +245,7 @@ class Search_Folder extends Asset
 							'accessible'	=> 1,
 							'type_code'		=> $info['type_code'],
 							'status'		=> $info['status'],
-							'linkid'		=> '0',
+							'linkid'		=> $this->id.':'.$assetid,
 							'link_type'		=> SQ_LINK_TYPE_1,
 							'num_kids'		=> 0,
 							'sort_order'	=> $sort_order,
