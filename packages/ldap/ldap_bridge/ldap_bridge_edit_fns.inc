@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge_edit_fns.inc,v 1.17 2005/05/11 06:07:42 lwright Exp $
+* $Id: ldap_bridge_edit_fns.inc,v 1.18 2005/08/16 23:58:08 dheppell Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -40,42 +40,43 @@ class LDAP_Bridge_Edit_Fns extends Asset_Edit_Fns
 	{
 		$this->Asset_Edit_Fns();
 
-		$this->static_screens = Array(	'details'		=> Array(
-															'name'			=> 'Details',
-															'force_unlock'	=> true,
-															'lock_type'		=> 'attributes',
-																),
-										'permissions'	=> Array(
-															'name'			=> 'Permissions',
-															'force_unlock'	=> true,
-															'lock_type'		=> 'permissions',
-																),
-										'dependants'	=> Array(
-															'name'			=> 'Directory Tree',
-															'force_unlock'	=> true,
-															'lock_type'		=> 'none',
-																),
-										'linking'		=> Array(
-															'name'			=> 'Linking',
-															'force_unlock'	=> true,
-															'lock_type'		=> 'links',
-																),
-										'settings'		=> Array(
+		$this->static_screens = Array(
+									'details'		=> Array(
+														'name'			=> 'Details',
+														'force_unlock'	=> true,
+														'lock_type'		=> 'attributes',
+													   ),
+									'permissions'	=> Array(
+														'name'			=> 'Permissions',
+														'force_unlock'	=> true,
+														'lock_type'		=> 'permissions',
+													   ),
+									'dependants'	=> Array(
+														'name'			=> 'Directory Tree',
+														'force_unlock'	=> true,
+														'lock_type'		=> 'none',
+													   ),
+									'linking'		=> Array(
+														'name'			=> 'Linking',
+														'force_unlock'	=> true,
+														'lock_type'		=> 'links',
+													   ),
+									'settings'		=> Array(
 														'name'			=> 'Settings',
 														'force_unlock'	=> true,
 														'lock_type'		=> 'all',
-																),
-										'history'		=> Array(
-															'name'			=> 'History',
-															'force_unlock'	=> true,
-															'lock_type'		=> 'none',
-																),
-										'logs'			=> Array(
-															'name'			=> 'Logs',
-															'force_unlock'	=> true,
-															'lock_type'		=> 'none',
-																),
-									);
+													   ),
+									'history'		=> Array(
+														'name'			=> 'History',
+														'force_unlock'	=> true,
+														'lock_type'		=> 'none',
+													   ),
+									'logs'			=> Array(
+														'name'			=> 'Logs',
+														'force_unlock'	=> true,
+														'lock_type'		=> 'none',
+													   ),
+								);
 
 	}//end constructor
 
@@ -138,16 +139,20 @@ class LDAP_Bridge_Edit_Fns extends Asset_Edit_Fns
 		$write_access = $asset->writeAccess('attributes');
 
 		$current = $asset->attr('attributes');
-		$required = Array('uid'   => translate('ldap_user_id'),
-						  'cn'    => translate('ldap_common_name'),
-						  'fn'    => translate('ldap_first_name'),
-						  'sn'    => translate('ldap_last_name'),
-						  'email' => translate('ldap_email_address'),
-						  'mo'    => translate('ldap_group_membership'),
-						  'ou'    => translate('ldap_group_name'),
-						);
+		$required = Array(
+						'uid'	=> translate('ldap_user_id'),
+						'cn'	=> translate('ldap_common_name'),
+						'fn'	=> translate('ldap_first_name'),
+						'sn'	=> translate('ldap_last_name'),
+						'email'	=> translate('ldap_email_address'),
+						'mo'	=> translate('ldap_group_membership'),
+						'ou'	=> translate('ldap_group_name'),
+					);
 
-		if ($write_access) require_once SQ_LIB_PATH.'/html_form/html_form.inc';
+		if ($write_access) {
+			require_once SQ_LIB_PATH.'/html_form/html_form.inc';
+		}
+
 		foreach ($required as $code => $name) {
 			$o->openField($name);
 				$default = (isset($current[$code])) ? $current[$code] : '';
@@ -288,7 +293,10 @@ class LDAP_Bridge_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function processUserSetup(&$asset, &$o, $prefix)
 	{
-		if (!isset($_POST[$prefix.'_user_attribute_fields'])) return false;
+		if (!isset($_POST[$prefix.'_user_attribute_fields'])) {
+			return false;
+		}
+
 		$user_attributes = Array('show' => Array(), 'hide' => Array());
 		foreach ($_POST[$prefix.'_user_attribute_fields'] as $field_name => $field_data) {
 			$show_hide = (isset($field_data['show']) && $field_data['show']) ? 'show' : 'hide';

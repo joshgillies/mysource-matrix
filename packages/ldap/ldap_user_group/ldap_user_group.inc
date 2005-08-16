@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_user_group.inc,v 1.9 2005/05/27 05:25:03 tbarrett Exp $
+* $Id: ldap_user_group.inc,v 1.10 2005/08/16 23:58:08 dheppell Exp $
 *
 */
 
@@ -25,13 +25,13 @@ require_once SQ_CORE_PACKAGE_PATH.'/users/user_group/user_group.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
 class Ldap_User_Group extends User_Group
 {
-	
+
 	/**
 	* The ID of the LDAP bridge we are from
 	*
@@ -49,7 +49,10 @@ class Ldap_User_Group extends User_Group
 	*/
 	function Ldap_User_Group($ldapid=0, $data=Array())
 	{
-		if (!$ldapid || empty($data)) return;
+		if (!$ldapid || empty($data)) {
+			return;
+		}
+
 		$ldap = &$GLOBALS['SQ_SYSTEM']->am->getAsset($ldapid, 'ldap_bridge');
 		if (is_null($ldap)) return;
 		$this->_ldapid = $ldapid;
@@ -63,7 +66,9 @@ class Ldap_User_Group extends User_Group
 		foreach ($data['objectclass'] as $class) {
 			$class = strtolower($class);
 			foreach ($ldap->_group_types as $key => $value) {
-				if ($class == $key) $this->name = $data[$attrs[$value]][0];
+				if ($class == $key) {
+					$this->name = $data[$attrs[$value]][0];
+				}
 			}
 		}
 
@@ -114,9 +119,12 @@ class Ldap_User_Group extends User_Group
 		$group = &$GLOBALS['SQ_SYSTEM']->am->getAsset($groupid);
 
 		$show = $ldap_bridge->attr('user_attributes');
-		if (!isset($show['show'])) $show = Array();
-		else $show = $show['show'];
-		
+		if (!isset($show['show'])) {
+			$show = Array();
+		} else {
+			$show = $show['show'];
+		}
+
 		$special_attrs = $ldap_bridge->attr('attributes');
 
 		?>
@@ -145,10 +153,10 @@ class Ldap_User_Group extends User_Group
 				<?php
 				foreach ($users as $link_data) {
 					$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid'], $link_data['minor_type_code']);
-					
+
 					$info = $user->vars;
 					if (empty($info)) continue;
-		
+
 					echo '<tr>';
 					foreach ($show as $field_name => $display_name) {
 						if (isset($info[$field_name])) {
@@ -174,7 +182,7 @@ class Ldap_User_Group extends User_Group
 						?><td class="<?php echo $class; ?>"><?php echo $field_value; ?></td><?php
 					}
 					echo '</tr>';
-					
+
 				}//end foreach
 
 			}//end if there are users

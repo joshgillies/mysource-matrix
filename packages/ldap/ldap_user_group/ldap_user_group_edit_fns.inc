@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_user_group_edit_fns.inc,v 1.4 2005/04/29 05:38:58 gsherwood Exp $
+* $Id: ldap_user_group_edit_fns.inc,v 1.5 2005/08/16 23:58:08 dheppell Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/users/user_group/user_group_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -41,17 +41,18 @@ class Ldap_User_Group_Edit_Fns extends User_Group_Edit_Fns
 	{
 		$this->User_Group_Edit_Fns();
 
-		$this->static_screens = Array(	'details'		=> Array(
-															'name'			=> 'Details',
-															'force_unlock'	=> true,
-															'lock_type'		=> 'none',
-															),
-										'dependants'	=> Array(
-															'name'			=> 'Dependants',
-															'force_unlock'	=> true,
-															'lock_type'		=> 'none',
-															),
-									);
+		$this->static_screens = Array(
+									'details'		=> Array(
+														'name'			=> 'Details',
+														'force_unlock'	=> true,
+														'lock_type'		=> 'none',
+													   ),
+									'dependants'	=> Array(
+														'name'			=> 'Dependants',
+														'force_unlock'	=> true,
+														'lock_type'		=> 'none',
+													   ),
+								);
 
 	}//end constructor
 

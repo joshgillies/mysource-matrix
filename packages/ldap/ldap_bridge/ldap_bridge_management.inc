@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge_management.inc,v 1.7 2005/04/29 05:38:57 gsherwood Exp $
+* $Id: ldap_bridge_management.inc,v 1.8 2005/08/16 23:58:08 dheppell Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -40,61 +40,62 @@ class LDAP_Bridge_Management extends Asset_Management
 	{
 		$this->Asset_Management($pm);
 
-		$this->vars = Array('name' => Array(
-											'added'     => '0.1',
-											'type'      => 'text',
-											'default'   => ''
-											),
-							'host' => Array(
-											'added'     => '0.1',
-											'type'      => 'text',
-											'default'   => ''
-											),
-							'port' => Array(
-											'added'     => '0.1',
-											'type'      => 'text',
-											'default'   => '389'
-											),
-							'root_dn' => Array(
-											'added'     => '0.1',
-											'type'      => 'text',
-											'default'   => ''
-											),
-							'bind_dn' => Array(
-											'added'     => '0.1',
-											'type'      => 'text',
-											'default'   => ''
-											),
-							'password' => Array(
-											'added'     => '0.1',
-											'type'      => 'password',
-											'default'   => ''
-											),
-							'system_type' => Array(
-											'added'      => '0.1',
-											'type'       => 'selection',
-											'default'    => 'openldap',
-											'parameters' => Array(
-																'options' => Array(
-																		'openldap'        => 'OpenLDAP',
-																		'openldap3'       => 'OpenLDAP (protocol v3)',
-																		'activedirectory' => 'Active Directory',
-																),
-																'multiple' => false,
-																'allow_empty' => false,
-															),
-											),
-							'attributes' => Array(
-											'added'     => '0.1',
-											'type'      => 'serialise',
-											'default'   => Array()
-											),
-							'user_attributes' => Array(
-											'added'     => '0.1',
-											'type'      => 'serialise',
-											'default'   => Array()
-											),
-							);
+		$this->vars = Array(
+						'name'				=> Array(
+												'added'		=> '0.1',
+												'type'		=> 'text',
+												'default'	=> '',
+											   ),
+						'host'				=> Array(
+												'added'		=> '0.1',
+												'type'		=> 'text',
+												'default'	=> '',
+											   ),
+						'port'				=> Array(
+												'added'		=> '0.1',
+												'type'		=> 'text',
+												'default'	=> '389',
+											   ),
+						'root_dn'			=> Array(
+												'added'		=> '0.1',
+												'type'		=> 'text',
+												'default'	=> '',
+											   ),
+						'bind_dn'			=> Array(
+												'added'		=> '0.1',
+												'type'		=> 'text',
+												'default'	=> '',
+											   ),
+						'password'			=> Array(
+												'added'		=> '0.1',
+												'type'		=> 'password',
+												'default'	=> '',
+											   ),
+						'system_type'		=> Array(
+												'added'			=> '0.1',
+												'type'			=> 'selection',
+												'default'		=> 'openldap',
+												'parameters'	=> Array(
+																	'options'		=> Array(
+																						'openldap'			=> 'OpenLDAP',
+																						'openldap3'			=> 'OpenLDAP (protocol v3)',
+																						'activedirectory'	=> 'Active Directory',
+																					   ),
+																	'multiple'		=> false,
+																	'allow_empty'	=> false,
+																   ),
+											   ),
+						'attributes'		=> Array(
+												'added'		=> '0.1',
+												'type'		=> 'serialise',
+												'default'	=> Array(),
+											   ),
+						'user_attributes'	=> Array(
+												'added'		=> '0.1',
+												'type'		=> 'serialise',
+												'default'	=> Array(),
+											   ),
+					  );
 	}//end constructor
 
 

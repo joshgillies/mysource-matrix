@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_change_dn.php,v 1.7 2005/08/02 01:37:03 gsherwood Exp $
+* $Id: ldap_change_dn.php,v 1.8 2005/08/16 23:58:09 dheppell Exp $
 *
 */
 
@@ -19,12 +19,14 @@
 * Alter the database to reflect that the DN of a user has changed
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix
 * @subpackage ldap
 */
 error_reporting(E_ALL);
-if ((php_sapi_name() != 'cli')) trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
+if ((php_sapi_name() != 'cli')) {
+	trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
+}
 
 $SYSTEM_ROOT = (isset($_SERVER['argv'][1])) ? $_SERVER['argv'][1] : '';
 if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
@@ -95,73 +97,90 @@ $db =& $GLOBALS['SQ_SYSTEM']->db;
 $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 	printActionName('Changing asset permissions');
-		$sql = 'UPDATE sq_ast_perm
-				SET userid = '.$db->quote($new_dn).'
-				WHERE userid = '.$db->quote($old_dn);
+		$sql = 'BEGIN
+					UPDATE sq_ast_perm
+					SET userid = '.$db->quote($new_dn).'
+					WHERE userid = '.$db->quote($old_dn).'
+				COMMIT';
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
 	printActionStatus('OK');
 
 	printActionName('Changing asset permissions (rollback)');
-		$sql = 'UPDATE sq_rb_ast_perm
-				SET userid = '.$db->quote($new_dn).'
-				WHERE userid = '.$db->quote($old_dn);
+		$sql = 'BEGIN
+					UPDATE sq_rb_ast_perm
+					SET userid = '.$db->quote($new_dn).'
+					WHERE userid = '.$db->quote($old_dn).'
+				COMMIT';
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
 	printActionStatus('OK');
 
 	printActionName('Changing internal messages');
-		$sql = 'UPDATE sq_internal_msg
-				SET userto = '.$db->quote($new_dn).'
-				WHERE userto = '.$db->quote($old_dn);
+		$sql = 'BEGIN
+					UPDATE sq_internal_msg
+					SET userto = '.$db->quote($new_dn).'
+					WHERE userto = '.$db->quote($old_dn).'
+				COMMIT';
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
 
-		$sql = 'UPDATE sq_internal_msg
-				SET userfrom = '.$db->quote($new_dn).'
-				WHERE userfrom = '.$db->quote($old_dn);
+		$sql = 'BEGIN
+					UPDATE sq_internal_msg
+					SET userfrom = '.$db->quote($new_dn).'
+					WHERE userfrom = '.$db->quote($old_dn).'
+				COMMIT';
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
 	printActionStatus('OK');
 
 	printActionName('Changing screen access');
-		$sql = 'UPDATE sq_ast_edit_access
-				SET userid = '.$db->quote($new_dn).'
-				WHERE userid = '.$db->quote($old_dn);
+		$sql = 'BEGIN
+					UPDATE sq_ast_edit_access
+					SET userid = '.$db->quote($new_dn).'
+					WHERE userid = '.$db->quote($old_dn).'
+				COMMIT';
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
 	printActionStatus('OK');
 
 	printActionName('Changing screen access (rollback)');
-		$sql = 'UPDATE sq_rb_ast_edit_access
-				SET userid = '.$db->quote($new_dn).'
-				WHERE userid = '.$db->quote($old_dn);
+		$sql = 'BEGIN
+					UPDATE sq_rb_ast_edit_access
+					SET userid = '.$db->quote($new_dn).'
+					WHERE userid = '.$db->quote($old_dn).'
+				COMMIT';
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
 	printActionStatus('OK');
 
 	printActionName('Changing locks');
-		$sql = 'UPDATE sq_lock
-				SET userid = '.$db->quote($new_dn).'
-				WHERE userid = '.$db->quote($old_dn);
+		$sql = 'BEGIN
+					UPDATE sq_lock
+					SET userid = '.$db->quote($new_dn).'
+					WHERE userid = '.$db->quote($old_dn).'
+				COMMIT';
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
 
-		$sql = 'UPDATE sq_lock
-				SET lockid = '.$db->quote('asset.'.$new_dn).'
-				WHERE lockid = '.$db->quote('asset.'.$old_dn);
+		$sql = 'BEGIN
+					UPDATE sq_lock
+					SET lockid = '.$db->quote('asset.'.$new_dn).'
+					WHERE lockid = '.$db->quote('asset.'.$old_dn).'
+				COMMIT';
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
 
-		$sql = 'UPDATE sq_lock
-				SET source_lockid = '.$db->quote('asset.'.$new_dn).'
-				WHERE source_lockid = '.$db->quote('asset.'.$old_dn);
+		$sql = 'BEGIN
+					UPDATE sq_lock
+					SET source_lockid = '.$db->quote('asset.'.$new_dn).'
+					WHERE source_lockid = '.$db->quote('asset.'.$old_dn).'
+				COMMIT';
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
 	printActionStatus('OK');
 
 $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-
 
 
 /**

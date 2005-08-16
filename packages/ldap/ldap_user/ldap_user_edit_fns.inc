@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_user_edit_fns.inc,v 1.7 2005/04/29 05:38:57 gsherwood Exp $
+* $Id: ldap_user_edit_fns.inc,v 1.8 2005/08/16 23:58:08 dheppell Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/users/backend_user/backend_user_edit_fns.inc
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -41,17 +41,18 @@ class Ldap_User_Edit_Fns extends Backend_User_Edit_Fns
 	{
 		$this->Backend_User_Edit_Fns();
 
-		$this->static_screens = Array(	'details'		=> Array(
-															'name'			=> 'Details',
-															'force_unlock'	=> true,
-															'lock_type'		=> 'none',
-															),
-										'dependants'	=> Array(
-															'name'			=> 'Dependants',
-															'force_unlock'	=> true,
-															'lock_type'		=> 'none',
-															),
-									);
+		$this->static_screens = Array(
+									'details'		=> Array(
+														'name'			=> 'Details',
+														'force_unlock'	=> true,
+														'lock_type'		=> 'none',
+													   ),
+									'dependants'	=> Array(
+														'name'			=> 'Dependants',
+														'force_unlock'	=> true,
+														'lock_type'		=> 'none',
+													   ),
+								);
 
 	}//end constructor
 
@@ -76,8 +77,11 @@ class Ldap_User_Edit_Fns extends Backend_User_Edit_Fns
 		if (is_null($ldap_bridge)) return Array();
 
 		$show = $ldap_bridge->attr('user_attributes');
-		if (!isset($show['show'])) $show = Array();
-		else $show = $show['show'];
+		if (!isset($show['show'])) {
+			$show = Array();
+		} else {
+			$show = $show['show'];
+		}
 
 		foreach ($info as $field_name => $field_data) {
 			if (!isset($show[$field_name])) continue;
