@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workspace.inc,v 1.24 2004/11/18 05:06:22 gsherwood Exp $
+* $Id: workspace.inc,v 1.24.2.1 2005/08/16 05:07:59 dmckee Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -37,6 +37,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 */
 class Workspace extends Folder
 {
+
 
 	/**
 	* Constructor
@@ -78,7 +79,7 @@ class Workspace extends Folder
 	function create(&$link)
 	{
 		$username = $link['asset']->attr('username');
-		
+
 		// check that we are not going to have web path conflicts
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 		$valid_names = make_valid_web_paths(Array($username));
@@ -100,9 +101,9 @@ class Workspace extends Folder
 		$this->setAttrValue('name', '~'.$username);
 
 		return parent::create($link);
-		
+
 	}//end create()
-	
+
 
 	/**
 	* Gets the user that this workspace is attached to
@@ -148,38 +149,45 @@ class Workspace extends Folder
 	function _checkPermissionAccess($perm, $assetids=Array())
 	{
 		$user = &$this->_getUser();
-		
-		if (is_null($user)) {
-			return ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
-		}
 
-		if (empty($assetids)) {
-			// root can do anything
-			if ($GLOBALS['SQ_SYSTEM']->userRoot()) return true;
+		if (!is_null($user)) {
+			if (empty($assetids)) {
+				// root can do anything
+				if ($GLOBALS['SQ_SYSTEM']->userRoot()) return true;
 
-			if ($GLOBALS['SQ_SYSTEM']->userRoot($user)) {
-				// we have to be root to view root's workspace
-				return false;
-			} else if ($GLOBALS['SQ_SYSTEM']->userSystemAdmin($user)) {
-				// this is the workspace of a sysadmin so they need to
-				// be root or the sysadmin themselves
-				if (!$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) return false;
+				if ($GLOBALS['SQ_SYSTEM']->userRoot($user)) {
+					// we have to be root to view root's workspace
+					return false;
+				} else if ($GLOBALS['SQ_SYSTEM']->userSystemAdmin($user)) {
+					// this is the workspace of a sysadmin so they need to
+					// be root or the sysadmin themselves
+					if (!$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
+						return false;
+					}
 
-				if ($user->id == $GLOBALS['SQ_SYSTEM']->currentUserId()) return true;
-				return false;
+					if ($user->id == $GLOBALS['SQ_SYSTEM']->currentUserId()) {
+						return true;
+					}
+					return false;
+				} else {
+					// any other user's workspace
+					if ($GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
+						return true;
+					}
+					if ($user->id == $GLOBALS['SQ_SYSTEM']->currentUserId()) {
+						return true;
+					}
+				}
 			} else {
-				// any other user's workspace
-				if ($GLOBALS['SQ_SYSTEM']->userSystemAdmin()) return true;
-				if ($user->id == $GLOBALS['SQ_SYSTEM']->currentUserId()) return true;
+				// a user always has full access to their own workspace
+				if (in_array($user->id, $assetids)) return true;
 			}
-		} else {
-			// a user always has full access to their own workspace
-			if (in_array($user->id, $assetids)) return true;
-
-			return parent::_checkPermissionAccess($perm, $assetids);
 		}
 
-	}//end checkAccess()
+		// fall back to checking normal permissions
+		return parent::_checkPermissionAccess($perm, $assetids);
+
+	}//end _checkPermissionAccess()
 
 
 	/**
@@ -191,7 +199,7 @@ class Workspace extends Folder
 	{
 		bam('WORKSPACE printBody(): NOT DONE YET');
 
-	}// end printBody()
+	}//end printBody()
 
 
 	/**
@@ -222,10 +230,12 @@ class Workspace extends Folder
 	{
 		if (empty($vars)) return false;
 		if (!isset($vars['username'])) return false;
-		if (!$this->setAttrValue('name', '~'.$vars['username'])) return false;
-		
+		if (!$this->setAttrValue('name', '~'.$vars['username'])) {
+			return false;
+		}
+
 		return $this->saveAttributes(false);
-	
+
 	}//end onUsernameUpdated()
 
 
@@ -250,12 +260,16 @@ class Workspace extends Folder
 		$new_path = $this->attr('name');
 
 		// try and set the new filename - return false if it fails
-		if (!parent::saveAttributes($dont_run_updated)) return false;
+		if (!parent::saveAttributes($dont_run_updated)) {
+			return false;
+		}
 
 		// the name has changed so we need to save the web paths
 		if (!$this->saveWebPaths(Array($new_path))) {
 			trigger_error('Failed updating web path. Path already exists?', E_USER_WARNING);
-			if ($is_old_path) parent::setAttrValue('name', $old_path);
+			if ($is_old_path) {
+				parent::setAttrValue('name', $old_path);
+			}
 			return false;
 		}
 
@@ -263,7 +277,7 @@ class Workspace extends Folder
 
 	}//end saveAttributes()
 
-	
+
 }//end class
 
 ?>
