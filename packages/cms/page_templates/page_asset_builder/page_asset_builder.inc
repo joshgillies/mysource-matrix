@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.74 2005/08/15 23:18:33 pgannavarapu Exp $
+* $Id: page_asset_builder.inc,v 1.75 2005/08/16 00:38:10 ndvries Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.74 $
+* @version $Revision: 1.75 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -685,17 +685,16 @@ class Page_Asset_Builder extends Page
 	{
 		$all_selected_locations = Array();
 		foreach ($this->attr('create_location_dynamic') as $set_name => $details) {
-			$selected_locations = Array();
 			$code_name = str_replace(' ', '_', strtolower($set_name));
 			if (isset($_POST[$code_name]) && !empty($_POST[$code_name])) {
-				if ($details['allow_multiple'] && is_array($_POST[$code_name])) {
-					foreach ($_POST[$code_name] as $location_id) {
-						// add it to the list
-						$all_selected_locations[$location_id] = $details['link_type'];
-					}
-				} else {
-					// add the single item to the list
-					$all_selected_locations[$_POST[$code_name]] = $details['link_type'];
+				$locations = $_POST[$code_name];
+				if (!is_array($locations)) {
+					$locations = Array($_POST[$code_name]);
+				}
+
+				foreach ($locations as $location_id) {
+					$all_selected_locations[$location_id] = $details['link_type'];
+					if (!$details['allow_multiple']) break;
 				}
 			} else if (!$details['allow_empty']) {
 				trigger_localised_error('CMS0036', E_USER_WARNING, $set_name);
