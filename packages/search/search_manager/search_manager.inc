@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.56.2.5 2005/08/17 01:20:35 mmcintyre Exp $
+* $Id: search_manager.inc,v 1.56.2.6 2005/08/17 02:00:47 mmcintyre Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.56.2.5 $
+* @version $Revision: 1.56.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -816,6 +816,7 @@ class Search_Manager extends Asset
 						} else {
 							$result = $db->getAssoc($sql);
 						}
+
 						assert_valid_db_result($result);
 
 						$cm->saveToCache($this->id, $this->type(), $search_cache_key.'include_all'.$word, serialize($result));
@@ -1021,19 +1022,24 @@ class Search_Manager extends Asset
 			$search_sql .= 'a.assetid = ap.assetid AND ';
 		}
 
-		if (!is_array($search_info['root_assetid'])){
-			$search_info['root_assetid'] = Array($search_info['root_assetid']);
+		// we only want to check for a root node if we have specified one
+		if ($search_info['root_assetid'] !== 0) {
+
+			if (!is_array($search_info['root_assetid'])){
+				$search_info['root_assetid'] = Array($search_info['root_assetid']);
+			}
+
+			$roots = Array();
+			foreach ($search_info['root_assetid'] as $root_id) {
+				$roots[] = $db->quote($root_id);
+			}
+
+			$roots = implode(',', $roots);
+
+			$search_sql .= ' al1.majorid IN ('.$roots.') AND ';
 		}
 
-		$roots = Array();
-		foreach ($search_info['root_assetid'] as $root_id) {
-			$roots[] = $db->quote($root_id);
-		}
-
-		$roots = implode(',', $roots);
-
-		$search_sql .= ' al1.majorid IN ('.$roots.')
-						 AND al1.linkid  = alt1.linkid
+		$search_sql .=	'al1.linkid  = alt1.linkid
 						 AND alt2.treeid LIKE (alt1.treeid || '.$db->quote('%').')
 						 AND alt2.linkid = al2.linkid
 						 AND a.assetid  = al2.minorid';
@@ -1296,19 +1302,22 @@ class Search_Manager extends Asset
 			$sql['where'] .= 'a.assetid = ap.assetid AND ';
 		}
 
-		if (!is_array($search_info['root_assetid'])){
-			$search_info['root_assetid'] = Array($search_info['root_assetid']);
+		// we only want to search under a root node if we have specified one
+		if ($search_info['root_assetid'] !== 0) {
+			if (!is_array($search_info['root_assetid'])){
+				$search_info['root_assetid'] = Array($search_info['root_assetid']);
+			}
+
+			$roots = Array();
+			foreach ($search_info['root_assetid'] as $root_id) {
+				$roots[] = $db->quote($root_id);
+			}
+
+			$roots = implode(',', $roots);
+
+			$sql['where'] .= ' al1.majorid IN ('.$roots.') AND ';
 		}
-
-		$roots = Array();
-		foreach ($search_info['root_assetid'] as $root_id) {
-			$roots[] = $db->quote($root_id);
-		}
-
-		$roots = implode(',', $roots);
-
 		$sql['where'] .= '  a.assetid = ai.assetid
-							AND al1.majorid IN ('.$roots.')
 							AND al1.linkid  = alt1.linkid
 							AND alt2.treeid LIKE (alt1.treeid || '.$db->quote('%').')
 							AND alt2.linkid = al2.linkid
