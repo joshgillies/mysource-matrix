@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.38.2.14 2005/08/16 05:12:11 pgannavarapu Exp $
+* $Id: listing_engine.inc,v 1.38.2.15 2005/08/17 02:53:14 pgannavarapu Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
 *
-* @version $Revision: 1.38.2.14 $
+* @version $Revision: 1.38.2.15 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1372,12 +1372,18 @@ class Listing_Engine extends Page
 			$linked_lineage = '';
 			$first = true;
 			$found_root = false;
-			$parent_asset_ids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($asset->id));
+
+			$url = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($asset->id);
+			$url = substr($url,strpos($url, '//')+2);
+			$lineage_info = $GLOBALS['SQ_SYSTEM']->am->getLineageFromURL(null, $url);
+			$parent_asset_ids = Array();
+			foreach ($lineage_info  as $lineage) {
+				$parent_asset_ids[] = $lineage['assetid'];
+			}
 
 			// searching for the root asset
 			$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', false, 'root');
 			$root_assetid = empty($root_link) ? 0 : $root_link['minorid'];
-
 			foreach ($parent_asset_ids as $parent_asset_id) {
 				if ($parent_asset_id == $root_assetid) {
 					$found_root = true;
