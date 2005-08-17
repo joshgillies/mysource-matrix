@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.56.2.6 2005/08/17 02:00:47 mmcintyre Exp $
+* $Id: search_manager.inc,v 1.56.2.7 2005/08/17 02:46:03 pgannavarapu Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.56.2.6 $
+* @version $Revision: 1.56.2.7 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -637,7 +637,9 @@ class Search_Manager extends Asset
 				if ($search_info['sort_by']['params']['field'] != '__relevance__') {
 					// we cannot use the sort_by identifier here as it is invalid to use
 					// identifiers in Oracle.
-					$group_by .= ', a.'.$search_info['sort_by']['params']['field'];
+					if ($search_info['sort_by']['params']['field'] != 'no_sorting') {
+						$group_by .= ', a.'.$search_info['sort_by']['params']['field'];
+					}
 				}
 			} else if ($search_info['sort_by']['type'] == 'asset_attrib') {
 				$key = $search_info['sort_by']['params']['type_code'].$search_info['sort_by']['params']['attribute'];
@@ -810,7 +812,6 @@ class Search_Manager extends Asset
 					assert_valid_db_result($result);
 					if (empty($result)) {
 						$sql = $start_sql.' AND (ai.value LIKE '.$db->quote('%'.$word.'%').') '.$group_by;
-
 						if ($include_context) {
 							$result = $db->getAll($sql);
 						} else {
