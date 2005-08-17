@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.18.2.4 2005/08/16 05:12:11 pgannavarapu Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.18.2.5 2005/08/17 01:19:54 mmcintyre Exp $
 *
 */
 
@@ -40,7 +40,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 * @author  David Heppell <dheppell@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.18.2.4 $
+* @version $Revision: 1.18.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1117,8 +1117,6 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 		$sort_by = array_get_index($_POST, $prefix.'_sort_by', '');
 		$name    = array_get_index($_POST, $prefix.'_name', '');
-
-		if ($sort_by == 'no_sorting') return false;
 
 		$options = $this->_getSortByOptions($asset);
 		$save    = false;
