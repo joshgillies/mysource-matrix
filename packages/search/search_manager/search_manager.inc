@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.56.2.4 2005/08/12 05:23:29 mmcintyre Exp $
+* $Id: search_manager.inc,v 1.56.2.5 2005/08/17 01:20:35 mmcintyre Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.56.2.4 $
+* @version $Revision: 1.56.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -388,7 +388,7 @@ class Search_Manager extends Asset
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		// load the weightings
-		$sql = 'SELECT wd.component, wd.description, (w.weight IS NULL) as def, COALESCE(w.weight, wd.weight) as weight
+		$sql = 'SELECT wd.component, wd.description, w.weight as def, COALESCE(w.weight, wd.weight) as weight
 				FROM
 					sq_sch_idx_wgt_dflt wd
 						LEFT OUTER JOIN sq_ast a
@@ -397,7 +397,7 @@ class Search_Manager extends Asset
 							ON w.component = wd.component AND
 							a.assetid = w.assetid
 				WHERE
-					a.assetid = ' . $db->quote($assetid) ;
+					a.assetid = '.$db->quote($assetid);
 
 		$results = $db->getAll($sql);
 		assert_valid_db_result($results);
@@ -406,7 +406,7 @@ class Search_Manager extends Asset
 		foreach ($results as $result) {
 			$weightings[$result['component']] =
 				Array(
-					'default'		=> ($result['def'] == 't') ? 1 : 0,
+					'default'		=> ($result['def']) ? 1 : 0,
 					'weight'		=> $result['weight'],
 					'description'	=> $result['description'],
 				);
@@ -633,7 +633,12 @@ class Search_Manager extends Asset
 		if (!empty($search_info['sort_by'])) {
 			if ($search_info['sort_by']['type'] == 'field') {
 				$key = $search_info['sort_by']['params']['field'];
-				$group_by .= ', sort_by';
+				// check to see if the sort option is for a relevance sort
+				if ($search_info['sort_by']['params']['field'] != '__relevance__') {
+					// we cannot use the sort_by identifier here as it is invalid to use
+					// identifiers in Oracle.
+					$group_by .= ', a.'.$search_info['sort_by']['params']['field'];
+				}
 			} else if ($search_info['sort_by']['type'] == 'asset_attrib') {
 				$key = $search_info['sort_by']['params']['type_code'].$search_info['sort_by']['params']['attribute'];
 			}
