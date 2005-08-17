@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.445 2005/08/15 23:45:26 lwright Exp $
+* $Id: asset.inc,v 1.446 2005/08/17 04:08:36 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.445 $
+* @version $Revision: 1.446 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -4182,11 +4182,19 @@ class Asset extends MySource_Object
 
 			if (!empty($old_urls)) {
 				$rm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('remap_manager');
-				$new_url = array_shift($done_urls);
+				// get the first new URL
+				reset($done_urls);
+				$new_url = current($done_urls);
+				$old_url = $url_data['url'];
 				// don't add a remap if we don't have a URL to map to
 				if ($new_url != '') {
 					foreach ($old_urls as $url_data) {
 						$old_url = $url_data['url'];
+						// this URL is already in the list of new URLs, therefore we don't need a remap
+						// because we're only making a remap to ourselves
+						if (in_array($old_url, $done_urls)) {
+							continue;
+						}
 						if (!isset($done_urls[$old_url])) {
 							// don't remap __data URLs, because they aren't served by Matrix
 							foreach (explode("\n", SQ_CONF_SYSTEM_ROOT_URLS) as $root_url) {
