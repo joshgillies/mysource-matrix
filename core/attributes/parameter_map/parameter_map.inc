@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: parameter_map.inc,v 1.7 2005/05/17 05:50:57 arailean Exp $
+* $Id: parameter_map.inc,v 1.8 2005/08/17 06:12:30 tbarrett Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once dirname(dirname(__FILE__)).'/serialise/serialise.inc';
 *   When requesting the runtime value for a parameter you give its code.
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -53,7 +53,9 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 	*/
 	function Asset_Attribute_Parameter_Map($attributeid=0, $value=null)
 	{
-		if (!isset($this->_params['parameters'])) $this->_params['parameters'] = Array();
+		if (!isset($this->_params['parameters'])) {
+			$this->_params['parameters'] = Array();
+		}
 		if ($value == null) $value = Array();
 		$this->Asset_Attribute_Serialise($attributeid, $value);
 
@@ -73,66 +75,67 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 		$value = unserialize($this->value);
 		if (!$read_only) {
 			?>
-			<script language="JavaScript">
+			<script type="text/javascript"><!--
 			//<![CDATA[
-			function updateFieldChooser(dataSource)
-			{
-			  if (dataSource.options[dataSource.selectedIndex].value != 'ASSET') {
-				var selectElts = document.getElementsByName(dataSource.name.substr(0, dataSource.name.lastIndexOf('['))+'[attribute]');
-				selectElts[0].style.display = 'none';
-				var inputElts = document.getElementsByName(dataSource.name.substr(0, dataSource.name.lastIndexOf('['))+'[index]');
-				inputElts[0].style.display = 'inline';
-			  } else {
-				var selectElts = document.getElementsByName(dataSource.name.substr(0, dataSource.name.lastIndexOf('['))+'[attribute]');
-				selectElts[0].style.display = 'inline';
-				var inputElts = document.getElementsByName(dataSource.name.substr(0, dataSource.name.lastIndexOf('['))+'[index]');
-				inputElts[0].style.display = 'none';
-			  }
-			}
-			//]]>
+				function updateFieldChooser(dataSource)
+				{
+				  if (dataSource.options[dataSource.selectedIndex].value != 'ASSET') {
+					var selectElts = document.getElementsByName(dataSource.name.substr(0, dataSource.name.lastIndexOf('['))+'[attribute]');
+					selectElts[0].style.display = 'none';
+					var inputElts = document.getElementsByName(dataSource.name.substr(0, dataSource.name.lastIndexOf('['))+'[index]');
+					inputElts[0].style.display = 'inline';
+				  } else {
+					var selectElts = document.getElementsByName(dataSource.name.substr(0, dataSource.name.lastIndexOf('['))+'[attribute]');
+					selectElts[0].style.display = 'inline';
+					var inputElts = document.getElementsByName(dataSource.name.substr(0, dataSource.name.lastIndexOf('['))+'[index]');
+					inputElts[0].style.display = 'none';
+				  }
+				}
+			//]]> -->
 			</script>
 			<?php
 		}
 		?>
 		<table border="0" cellpadding="0" cellspacing="0" class="sq-backend-table">
 			<tr>
-				<td class="sq-backend-table-header"><?php echo translate('parameter'); ?></td>
-				<td class="sq-backend-table-header"><?php echo translate('source'); ?></td>
-			</tr>
-		<?php
-
-		foreach ($value as $parameter => $sources) {
-			?>
-			<tr>
-				<td class="sq-backend-table-cell"><?php echo $this->_params['parameters'][$parameter]; ?></td>
-				<td class="sq-backend-table-cell">
-					<?php
-						foreach ($sources as $index => $details) {
-							if (!$read_only) {
-								$this->_printSourceChooser($prefix.'['.$parameter.']['.$index.']', $details['source'], ($details['source'] != 'ASSET') ? $details['index'] : $details['attribute']);
-							} else {
-								$source_types = $this->_getSourceTypes();
-								echo $source_types[$details['source']];
-								if ($details['source'] == 'ASSET') echo ' '.$details['attribute'];
-								else echo '['.$details['index'].']';
-								echo '<br />';
-							}
-						}
-					?>
-				</td>
+				<th><?php echo translate('parameter'); ?></th>
+				<th><?php echo translate('source'); ?></th>
 			</tr>
 			<?php
-		}
-		if (!$read_only) {
-		?>
-
-			<tr>
-				<td class="sq-backend-table-cell"><?php $this->_printParameterChooser($prefix.'[new][0]'); ?></td>
-				<td class="sq-backend-table-cell"><?php $this->_printSourceChooser($prefix.'[new][0]'); ?></td>
-			</tr>
-		<?php
-		}
-		?>
+			foreach ($value as $parameter => $sources) {
+				?>
+				<tr>
+					<td><?php echo $this->_params['parameters'][$parameter]; ?></td>
+					<td>
+						<?php
+							foreach ($sources as $index => $details) {
+								if (!$read_only) {
+									$this->_printSourceChooser($prefix.'['.$parameter.']['.$index.']', $details['source'], ($details['source'] != 'ASSET') ? $details['index'] : $details['attribute']);
+								} else {
+									$source_types = $this->_getSourceTypes();
+									echo $source_types[$details['source']];
+									if ($details['source'] == 'ASSET') {
+										echo ' '.$details['attribute'];
+									} else {
+										echo '['.$details['index'].']';
+									}
+									echo '<br />';
+								}
+							}
+						?>
+					</td>
+				</tr>
+				<?php
+			}
+			if (!$read_only) {
+				?>
+				<tr>
+					<td><?php $this->_printParameterChooser($prefix.'[new][0]'); ?></td>
+					<td><?php $this->_printSourceChooser($prefix.'[new][0]'); ?></td>
+				</tr>
+				<?php
+			}
+			?>
 		</table>
 		<?php
 
@@ -195,8 +198,11 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 				if ($index == 'new') continue;
 				$value[$index] = $details;
 				foreach ($details as $j => $fields) {
-					if ($fields['source'] == 'ASSET') unset($value[$index][$j]['index']);
-					else unset($value[$index][$j]['attribute']);
+					if ($fields['source'] == 'ASSET') {
+						unset($value[$index][$j]['index']);
+					} else {
+						unset($value[$index][$j]['attribute']);
+					}
 					if (isset($fields['delete'])) {
 						unset($value[$index][$j]);
 						if (empty($value[$index])) unset($value[$index]);
@@ -207,8 +213,11 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 				if (empty($new_mapping['parameter'])) continue;
 				$param = $new_mapping['parameter'];
 				unset($new_mapping['parameter']);
-				if ($new_mapping['source'] == 'ASSET') unset($new_mapping['index']);
-				else unset($new_mapping['attribute']);
+				if ($new_mapping['source'] == 'ASSET') {
+					unset($new_mapping['index']);
+				} else {
+					unset($new_mapping['attribute']);
+				}
 				if (!isset($value[$param])) {
 					$value[$param] = Array($new_mapping);
 				} else {
@@ -252,11 +261,11 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 					switch ($rule['attribute']) {
 						case 'assetid':
 							return $GLOBALS['SQ_SYSTEM']->frontend_asset->id;
-							break;
+						break;
 						case 'name':
 						case 'short_name':
 							return $GLOBALS['SQ_SYSTEM']->frontend_asset->attr($rule['attribute']);
-							break;
+						break;
 					}
 				break;
 			}
@@ -275,9 +284,9 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 	function _getSourceTypes()
 	{
 		return Array(
-					'GET'	=> 'GET',
-					'POST'	=> 'POST',
-					'ASSET'	=> translate('current_asset')
+				'GET'	=> 'GET',
+				'POST'	=> 'POST',
+				'ASSET'	=> translate('current_asset')
 			   );
 
 	}//end _getSourceTypes()
@@ -292,9 +301,7 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 	function _getAssetAttributeOptions()
 	{
 		return Array(
-					'name'			=> translate('name'),
-					'short_name'	=> translate('short_name'),
-					'assetid'		=> translate('asset_id'),
+				'assetid'	=> translate('asset_id'),
 			   );
 
 	}//end _getAssetAttributeOptions()
