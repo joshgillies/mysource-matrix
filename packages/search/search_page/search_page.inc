@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.98.2.9 2005/08/09 02:07:57 dmckee Exp $
+* $Id: search_page.inc,v 1.98.2.10 2005/08/17 01:21:58 mmcintyre Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.98.2.9 $
+* @version $Revision: 1.98.2.10 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1152,10 +1152,15 @@ class Search_Page extends Listing_Engine
 		// to a getAssetList() style format
 		$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($results), 'asset', false, 'type_code');
 		$sort_info  = $this->getSortInfo();
-		$asset_info = $this->sortAssetList($asset_info, $sort_info);
+		$asset_info = $this->sortAssetList($results, $sort_info);
 
 		$this->filterAssetList($asset_info);
-		$total_pages = ceil(count($asset_info) / $results_per_page);
+
+		if ($results_per_page != 0) {
+			$total_pages = ceil(count($asset_info) / $results_per_page);
+		} else {
+			$total_pages = 1;
+		}
 
 		if (!is_array($asset_info)) $asset_info = Array();
 		$this->_tmp['asset_info'] = $asset_info;
@@ -1670,6 +1675,45 @@ class Search_Page extends Listing_Engine
 			return Array();
 		}
 	}//end processSearch()
+
+
+	/**
+	* Sort the list of assets
+	*
+	* @param array			$asset_list 	an array of assets to be sorted in the for assetid => score
+	*										Note that this differs from the inheited parent function
+	* @param string			$sort_info		sorting information as provided by getSortInfo()
+	*
+	* @see    Listing_Engine::getSortInfo()
+	* @return array (assetid => type_code)
+	*/
+	function sortAssetList($asset_list, $sort_info)
+	{
+		$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($asset_list), 'asset', false, 'type_code');
+
+		// check to see if we are sorting by relevance. If so, sort the search_score
+		// else parse sorting to the parent function
+		if ($sort_info['type'] == 'field' && $sort_info['params']['field'] == '__relevance__') {
+			$assets_to_list = Array();
+
+			$reverse_sort = $this->isDescending();
+			if ($reverse_sort) {
+				arsort($asset_list);
+			} else {
+				asort($asset_list);
+			}
+
+			foreach ($asset_list as $assetid => $scrore) {
+				$assets_to_list[$assetid] = $asset_info[$assetid];
+			}
+
+			return $assets_to_list;
+
+		} else {
+			return parent::sortAssetList($asset_info, $sort_info);
+		}
+
+	}//end sortAssetList()
 
 
 	/**
