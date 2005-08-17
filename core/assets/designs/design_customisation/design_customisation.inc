@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_customisation.inc,v 1.36 2005/05/30 03:19:39 dmckee Exp $
+* $Id: design_customisation.inc,v 1.36.2.1 2005/08/17 05:33:11 dmckee Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.36.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -369,6 +369,12 @@ class Design_Customisation extends Design
 			// we need to check for declared_vars as well
 			if (isset($da->vars['declared_vars'])) {
 				$da->mergeParentDeclaredVars($parent_da->attr('declared_vars'));
+			}
+			// This is added to ensure access history design areas get updated when the main
+			// parse file is edited. The is_a call is to ensure other design areas that use asset_contents
+			// (and are currently working) are not affected by this change.
+			if (is_a($da, 'design_area_access_history') && isset($da->vars['asset_contents'])) {
+				$da->setAttrValue('asset_contents', $parent_da->attr('asset_contents'));
 			}
 			$da->saveAttributes();
 
