@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: event_manager.inc,v 1.22 2005/07/27 09:25:31 brobertson Exp $
+* $Id: event_manager.inc,v 1.23 2005/08/17 06:19:10 tbarrett Exp $
 *
 */
 
@@ -61,7 +61,7 @@
 * </PRE>
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix
 */
 class Event_Manager extends MySource_Object
@@ -188,15 +188,7 @@ class Event_Manager extends MySource_Object
 
 		// create a temp entry for the event listeners (runtime wide as event_manager is cached)
 		if (!isset($this->_tmp['event_listeners'])) {
-			if (!file_exists(SQ_DATA_PATH.'/private/events/event_listeners.inc')) {
-				return false;
-			}
-
-			require SQ_DATA_PATH.'/private/events/event_listeners.inc';
-			if (!isset($cached_event_listeners_array)) {
-				return false;
-			}
-			$this->_tmp['event_listeners'] = $cached_event_listeners_array;
+			$this->_loadCachedEventListeners();
 		}
 
 		// if we don't have an entry for this event, then g.t.f.o
@@ -463,7 +455,7 @@ class Event_Manager extends MySource_Object
 			return false;
 		}
 		if (!isset($this->_tmp['event_listeners'])) {
-			$this->_tmp['event_listeners'] = Array();
+			$this->_loadCachedEventListeners();
 		}
 
 		foreach ($listeners as $index => $info) {
@@ -506,6 +498,27 @@ class Event_Manager extends MySource_Object
 	}//end installStaticEvents()
 
 
-}//end class
+	/**
+	* Load event listeners from the cache file to our _tmp array
+	*
+	* @access private
+	* @return void
+	*/
+	function _loadCachedEventListeners()
+	{
+		if (!file_exists(SQ_DATA_PATH.'/private/events/event_listeners.inc')) {
+			$this->_tmp['event_listeners'] = Array();
+			return;
+		}
+		require SQ_DATA_PATH.'/private/events/event_listeners.inc';
+		if (!isset($cached_event_listeners_array)) {
+			trigger_error('Failed loading event listeners from SQ_DATA_PATH/private/events/event_listeners.inc; Event listeners file may be corrupt', E_USER_ERROR);
+			return;
+		}
+		$this->_tmp['event_listeners'] = $cached_event_listeners_array;
 
+	}//end _loadCachedEventListeners()
+
+
+}//end class
 ?>
