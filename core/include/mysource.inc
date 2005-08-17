@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.138 2005/08/14 23:43:00 mmcintyre Exp $
+* $Id: mysource.inc,v 1.139 2005/08/17 23:49:12 dheppell Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.138 $
+* @version $Revision: 1.139 $
 * @package MySource_Matrix
 */
 class MySource
@@ -1293,8 +1293,8 @@ class MySource
 						} else {
 							// a particular preference within this type has been defined twice, so we need the prefs
 							// class to decide which value applies
-							require_once SQ_SYSTEM_ROOT.'/'.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code, 'dir').'/'.$type_code.'_prefs.inc'; // can this be more efficient?
-							eval('$final_prefs[$type] = '.$type_code.'_Prefs::mergePrefs($type_prefs, $final_prefs[$type]);');
+							require_once SQ_SYSTEM_ROOT.'/'.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type, 'dir').'/'.$type.'_prefs.inc'; // can this be more efficient?
+							eval('$final_prefs[$type] = '.$type.'_Prefs::mergePrefs($type_prefs, $final_prefs[$type]);');
 						}
 					}
 					if ($value_only) {
