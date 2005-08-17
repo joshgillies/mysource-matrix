@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_versioning.inc,v 1.8.2.4 2005/08/15 22:26:22 lwright Exp $
+* $Id: file_versioning.inc,v 1.8.2.5 2005/08/17 01:05:34 dheppell Exp $
 *
 */
 
@@ -39,7 +39,7 @@ define('FUDGE_FV_OLD_VERSION',      64);
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.8.2.4 $
+* @version $Revision: 1.8.2.5 $
 * @package Fudge
 * @subpackage File_Versioning
 */
@@ -978,7 +978,9 @@ class File_Versioning
 
 		$this->_releaseFile($info['fileid']);
 
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		if ($use_trans) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		}
 
 		return FUDGE_FV_OK;
 
