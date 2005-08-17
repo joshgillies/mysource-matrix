@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.398.2.12 2005/08/15 23:47:20 lwright Exp $
+* $Id: asset.inc,v 1.398.2.13 2005/08/17 04:46:34 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.398.2.12 $
+* @version $Revision: 1.398.2.13 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -4008,11 +4008,24 @@ class Asset extends MySource_Object
 
 			if (!empty($old_urls)) {
 				$rm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('remap_manager');
-				$new_url = array_shift($done_urls);
-				if ($new_url != '') {	// don't add a remap if we don't have a URL to map to
+				// get the first new URL
+				reset($done_urls);
+				$new_url = current($done_urls);
+				$old_url = $url_data['url'];
+				// don't add a remap if we don't have a URL to map to
+				if ($new_url != '') {
 					foreach ($old_urls as $url_data) {
 						$old_url = $url_data['url'];
-						if (!isset($done_urls[$old_url])) {
+						// this URL is already in the list of new URLs, therefore we don't need a remap
+						// because we're only making a remap to ourselves
+						if (!in_array($old_url, $done_urls)) {
+							// don't remap __data URLs, because they aren't served by Matrix
+							foreach (explode("\n", SQ_CONF_SYSTEM_ROOT_URLS) as $root_url) {
+								$data_url = $root_url.'/__data';
+								if (substr($old_url, 0, strlen($data_url)) == $data_url) {
+									continue 2;
+								}
+							}
 							if ($url_data['http']) {
 								$rm->addRemapURL('http://'.$old_url,  'http://'.$new_url);
 							}
@@ -4022,7 +4035,7 @@ class Asset extends MySource_Object
 						}
 					}
 				}
-			}
+			}//end if !empty($old_urls)
 
 		}//end if count paths
 
