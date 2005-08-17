@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.447 2005/08/17 04:45:00 lwright Exp $
+* $Id: asset.inc,v 1.448 2005/08/17 06:18:33 ndvries Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.447 $
+* @version $Revision: 1.448 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -2639,6 +2639,7 @@ class Asset extends MySource_Object
 		// notify anyone interested that attributes changed
 		$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
 		$em->broadcastEvent($this, 'attributeChange', $changed_array);
+		$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_attributes_saved', $this);
 
 		return true;
 
@@ -4209,7 +4210,7 @@ class Asset extends MySource_Object
 						}
 					}
 				}
-			}
+			}//end if !empty($old_urls)
 
 		}//end if count paths
 
