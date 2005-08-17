@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_locations.xml,v 1.4 2005/05/11 06:07:32 lwright Exp $
+* $Id: lang_screen_locations.xml,v 1.5 2005/08/17 01:47:33 tbarrett Exp $
 *
 */
 -->
@@ -26,7 +26,7 @@
 				<process_function name="processFixedCreateLocations" />
 			</function_call>
 		</field>
-		<note>All assets created will be linked under the following locations.</note>
+		<note>All new assets created will be linked under these assets</note>
 	</section>
 	<section name="Selectable Create Locations">
 		<field>
@@ -37,7 +37,7 @@
 				<process_function name="processSelectableLocationSets" />
 			</function_call>
 		</field>
-		<note>When creating a new asset, the user will asked to choose a location from each of the sets below.</note>
+		<note>When creating a new asset, the frontend user will asked to choose a location from the listed options in each of these sets</note>
 	</section>
 	<section name="Dynamic Create Locations">
 		<field>
@@ -48,7 +48,7 @@
 				<process_function name="processDynamicCreateLocations" />
 			</function_call>
 		</field>
-		<note>When creating a new asset, the frontend user will be asked to chose a location (or multiple locations), which is generated dynamically according to the assets currently available under the root folder.</note>
+		<note>When creating a new asset, the frontend user will be asked to chose a location (or locations) from the assets that match the conditions for each of these sets.  (The lists of options are calculated dynamically at run-time so new options will appear automatically).</note>
 	</section>
 	<section name="Create Location Rules">
 		<field>
@@ -59,7 +59,7 @@
 				<process_function name="processConditionalCreateLocations" />
 			</function_call>
 		</field>
-		<note>New assets will be linked under additional locations according to the rules below</note>
+		<note>New assets will be linked under additional locations according to these rules.</note>
 	</section>
 	<section name="Additional Create Locations">
 		<field attribute="parameter_map">
@@ -82,6 +82,6 @@
 				<process_function	name="processAdditionalLocationTypes" />
 			</function_call>
 		</field>
-		<note>If you specify some data sources to get additional location data from, and the assetids supplied by those data sources at runtime satisfy the conditions above, the created asset will be linked under those locations as well.  Lists of locations can be supplied in the format assetid;assetid;assetid or assetid-linktype;assetid-linktype;</note>
+		<note>This is an advanced option.  If you specify some data sources to get additional location data from, and the assetids supplied by those data sources at runtime satisfy the conditions above, the created asset will be linked under those locations as well.  Lists of locations can be supplied in the format assetid;assetid;assetid or assetid-linktype;assetid-linktype;</note>
 	</section>
 </contents>
