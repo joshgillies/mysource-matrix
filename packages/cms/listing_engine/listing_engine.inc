@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.38.2.15 2005/08/17 02:53:14 pgannavarapu Exp $
+* $Id: listing_engine.inc,v 1.38.2.16 2005/08/17 04:59:34 pgannavarapu Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
 *
-* @version $Revision: 1.38.2.15 $
+* @version $Revision: 1.38.2.16 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1373,13 +1373,8 @@ class Listing_Engine extends Page
 			$first = true;
 			$found_root = false;
 
-			$url = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($asset->id);
-			$url = substr($url,strpos($url, '//')+2);
-			$lineage_info = $GLOBALS['SQ_SYSTEM']->am->getLineageFromURL(null, $url);
-			$parent_asset_ids = Array();
-			foreach ($lineage_info  as $lineage) {
-				$parent_asset_ids[] = $lineage['assetid'];
-			}
+			$parent_asset_ids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($asset->id));
+
 
 			// searching for the root asset
 			$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', false, 'root');
