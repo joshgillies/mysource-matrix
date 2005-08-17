@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.31.2.7 2005/07/31 23:47:53 tbarrett Exp $
+* $Id: search_manager.inc,v 1.31.2.8 2005/08/17 06:06:21 pgannavarapu Exp $
 * $Name: not supported by cvs2svn $
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.31.2.7 $
+* @version $Revision: 1.31.2.8 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1262,7 +1262,12 @@ class Search_Manager extends Asset
 	function isNoiseWord($word)
 	{
 		$words = $this->attr('noise_word_list');
-		return isset($words[$word]);
+		foreach ($words as $key => $value) {
+			if (strcasecmp($key, $word) == 0) {
+				return true;
+			}
+		}
+		return false;
 
 	}//end isNoiseWord()
 
@@ -1276,7 +1281,12 @@ class Search_Manager extends Asset
 	function isWhiteWord($word)
 	{
 		$words = $this->attr('white_word_list');
-		return isset($words[$word]);
+		foreach ($words as $key => $value) {
+			if (strcasecmp($key, $word) == 0) {
+				return true;
+			}
+		}
+		return false;
 
 	}//end isWhiteWord()
 
