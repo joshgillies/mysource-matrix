@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.42 2005/08/12 16:54:38 brobertson Exp $
+* $Id: lang_strings.xml,v 1.43 2005/08/17 01:48:52 tbarrett Exp $
 *
 */
 
@@ -476,7 +476,7 @@
 
 
 
-	<string source="select_asset_type">select asset type</string>
+	<string source="select_asset_type">Select Asset Type</string>
 	<string source="currently_customising">Currently customising %s</string>
 	<string source="using_default_value_of">Using default value of %s</string>
 	<string source="valid_cache_length">The length of time a cache entry is valid in seconds</string>
