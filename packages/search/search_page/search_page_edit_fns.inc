@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_edit_fns.inc,v 1.49.2.2 2005/08/01 04:53:24 dmckee Exp $
+* $Id: search_page_edit_fns.inc,v 1.49.2.3 2005/08/17 01:22:59 mmcintyre Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine_edit_fns.inc';
 *     Edit functions for search page
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.49.2.2 $
+* @version $Revision: 1.49.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1252,7 +1252,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 	function _getSortByOptions(&$asset)
 	{
 		$options = parent::_getSortByOptions($asset);
-		$options[''] = translate('sch_page_relevance');
+		$options['__relevance__'] = translate('sch_page_relevance');
 		return $options;
 
 	}//end _getSortByOptions()
