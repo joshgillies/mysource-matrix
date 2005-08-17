@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.446 2005/08/17 04:08:36 lwright Exp $
+* $Id: asset.inc,v 1.447 2005/08/17 04:45:00 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.446 $
+* @version $Revision: 1.447 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -4192,10 +4192,7 @@ class Asset extends MySource_Object
 						$old_url = $url_data['url'];
 						// this URL is already in the list of new URLs, therefore we don't need a remap
 						// because we're only making a remap to ourselves
-						if (in_array($old_url, $done_urls)) {
-							continue;
-						}
-						if (!isset($done_urls[$old_url])) {
+						if (!in_array($old_url, $done_urls)) {
 							// don't remap __data URLs, because they aren't served by Matrix
 							foreach (explode("\n", SQ_CONF_SYSTEM_ROOT_URLS) as $root_url) {
 								$data_url = $root_url.'/__data';
