@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.39 2005/08/16 23:25:59 dmckee Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.40 2005/08/18 04:32:53 tbarrett Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1756,6 +1756,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 				}
 
+			$o->sectionNote(translate('cms_listing_engine_grouping_section_note'));
 			$o->closeSection();
 		}
 
