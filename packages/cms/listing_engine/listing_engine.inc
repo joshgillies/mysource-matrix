@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.83 2005/08/18 04:49:45 dmckee Exp $
+* $Id: listing_engine.inc,v 1.84 2005/08/18 06:03:48 lwright Exp $
 *
 */
 
@@ -43,7 +43,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.83 $
+* @version $Revision: 1.84 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1379,7 +1379,7 @@ class Listing_Engine extends Page
 
 			//Prepare the url for getLineageFromUrl
 			$nurl = $asset->getUrl();
-			$unrl = strip_url($nurl);
+			$nurl = strip_url($nurl);
 			$nurl = stristr($nurl,'/');
 			$nurl = substr($nurl,2);
 			$parent_assets = $GLOBALS['SQ_SYSTEM']->am->getLineageFromUrl(null, $nurl);
@@ -1824,6 +1824,7 @@ class Listing_Engine extends Page
 						$metadata_field_id = $group_level['metadata_field'];
 						$metadata_field =& $GLOBALS['SQ_SYSTEM']->am->getAsset($metadata_field_id);
 						$value = '';
+
 						if (!is_null($metadata_field)) {
 							// get the metadata manager if we haven't already
 							if (!isset($mm)) {
@@ -1918,7 +1919,6 @@ class Listing_Engine extends Page
 	*/
 	function sortGroups($group_levels, $assetids, &$results)
 	{
-
 		//we need assets, so if none given, let's bail
 		if (empty($assetids)) return;
 
