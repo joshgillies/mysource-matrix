@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_file_type_edit_fns.inc,v 1.5 2005/05/11 06:07:31 lwright Exp $
+* $Id: form_question_rule_type_file_type_edit_fns.inc,v 1.5.2.1 2005/08/18 00:00:45 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/option_list/option_list.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.5.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -89,7 +89,7 @@ class Form_Question_Rule_Type_File_Type_Edit_Fns extends Form_Question_Rule_Edit
 		}
 
 		$operator = array_get_index($_POST[$prefix], 'operator', null);
-		$comparison = trim(array_get_index($_POST, str_replace(':', '_', $prefix).'_value_options', null));
+		$comparison = trim(implode("\r\n", array_get_index($_POST, str_replace(':', '_', $prefix).'_value_options', Array())));
 
 		$rule_data['operator'] = $operator;
 		$rule_data['value'] = $comparison;
