@@ -11,7 +11,7 @@
 * | Please refer to http://www.squiz.net/licence for more information. |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.33 2005/08/10 01:39:34 lwright Exp $
+* $Id: ecommerce_checkout.inc,v 1.34 2005/08/18 06:39:05 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 * @author  Andrei Railean	<arailean@squiz.net>
 * @author  Scott Kim		<skim@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -170,8 +170,8 @@ class Ecommerce_Checkout extends Page
 		if (!empty($order_id)) {
 			$order =& $GLOBALS['SQ_SYSTEM']->am->getAsset($order_id);
 
-			// Write Access?
-			if ($order->writeAccess()) {
+			// order exists, and has write access
+			if (!empty($order) && $order->writeAccess()) {
 
 				if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($order->id, 'attribute')) {
 					$_SESSION['SQ_TEMP_ORDER']['order_id']			= $order->id;
@@ -186,7 +186,7 @@ class Ecommerce_Checkout extends Page
 				}
 
 			} else {
-				echo 'You can not edit order';
+				echo 'You cannot edit this order';
 			}
 
 			return;
@@ -245,7 +245,6 @@ class Ecommerce_Checkout extends Page
 						return;
 					}
 
-					// TODO: huh...? why was this conditional once?
 					// delivery method state has cart contents
 					$_SESSION['SQ_TEMP_ORDER']['delivery_state']['cart_contents'] = $_SESSION['SQ_TEMP_ORDER']['cart_contents'];
 					$delivery_method->setState($_SESSION['SQ_TEMP_ORDER']['delivery_state']);
@@ -307,10 +306,12 @@ class Ecommerce_Checkout extends Page
 				$_SESSION['SQ_TEMP_ORDER']['delivery_state'] = $delivery_method->getState();
 
 				// set the order summary
-				$order_summary = $this->_getCartSummary();
-				$order_summary .= $delivery_method->getReceipt();
+				$order_summary     = $this->_getCartSummary();
+				$order_summary    .= $delivery_method->getReceipt();
+				$internal_summary  = $delivery_method->getInternalReceipt();
 
 				$order_asset->setAttrValue('summary',			$order_summary);
+				$order_asset->setAttrValue('internal_summary',	$internal_summary);
 				$order_asset->setAttrValue('delivery_id',		$_SESSION['SQ_TEMP_ORDER']['delivery_id']);
 				$order_asset->setAttrValue('delivery_state',	$_SESSION['SQ_TEMP_ORDER']['delivery_state']);
 
